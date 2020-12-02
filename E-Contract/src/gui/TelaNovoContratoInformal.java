@@ -140,6 +140,7 @@ public class TelaNovoContratoInformal extends JDialog{
     private JRadioButton rdbtnSobreRodas, rdbtnAgendado, rdbtnAtoCarregamento, rdbtnAVista, rdbtnInfoFavorSim, rdbtnInfoFavorNao;
     
     private ComboBoxRenderPersonalizado cBSafraPersonalizado;
+    private String unidadeGlobal = "quilogramas";
     
 private static ArrayList<CadastroCliente> armazens = new ArrayList<>();
 private JTextField textField;
@@ -695,8 +696,12 @@ private ConfiguracoesGlobais configs_globais;
 			    		
 			    		lblQuant.setText("Quilos");
 			    		lblPreco.setText("por Quilo");
-			    		entClausula1.setText("A quantidade de quilogramas que exceder será negociado com o preço do dia.");
+			    		setClausula1("quilogramas");
+			    		setClausulaComissao();
 			    		
+			    		
+			    		unidadeGlobal = "quilogramas";
+			    		setClausulaComissao();
 	    			
 
 			    		
@@ -713,8 +718,11 @@ private ConfiguracoesGlobais configs_globais;
 						
 						lblQuant.setText("Sacos");
 						lblPreco.setText("por Saco");
-			    		entClausula1.setText("A quantidade de sacos que exceder será negociado com o preço do dia.");
+	                    setClausula1("sacos");
 			    		
+			    		unidadeGlobal = "sacos";
+			    		setClausulaComissao();
+
 
 			     	}
 			     });
@@ -729,8 +737,11 @@ private ConfiguracoesGlobais configs_globais;
 						
 						lblQuant.setText("Toneladas");
 						lblPreco.setText("por Tonelada");
-			    		entClausula1.setText("A quantidade de toneladas que exceder será negociado com o preço do dia.");
+	                   setClausula1("toneladas");
 			    		
+			    		unidadeGlobal = "toneladas";
+
+			    		setClausulaComissao();
 
 			      	}
 			      });
@@ -1625,7 +1636,7 @@ private ConfiguracoesGlobais configs_globais;
 		    		 		{
 		    		 			chBoxClausulaComissao.setSelected(true);
 		    		 			try {
-			    		 		entClausula3.setText("Comissão de R$ " +  entComissao.getText().toString().replace(".", ",") + " ao corretor.");
+		    		 				setClausulaComissao();
 			    		 		chBoxClausula3.setSelected(true);
 
 		    		 			}
@@ -2047,15 +2058,18 @@ private ConfiguracoesGlobais configs_globais;
 				                              String produto, medida, quantidade, preco, local_retirada, data_contrato, data_entrega ,codigo;
                                               esperar.setMsg("Reunindo Informações");
 
-				                              
-				                              
+ 				                             codigo = getCodigoContrato();
+                                              
+				                             if(codigo == null) {
+				                            	 esperar.fechar();
+				                             }
+				                             {
 				                             data_entrega = entDataEntrega.getText();
 				                             novo_contrato.setData_entrega(data_entrega);
 				                             data_contrato = entDataContrato.getText();
 				                             novo_contrato.setData_contrato(data_contrato);
 				                           
 				                             
-				                             codigo = lblCodigoContrato.getText();
 				                             novo_contrato.setCodigo(codigo);
 				                              if(rQuanKG.isSelected())
 				                              	medida = "KG";
@@ -2131,6 +2145,7 @@ private ConfiguracoesGlobais configs_globais;
 	                                        	isto.dispose();
 	                                        }
 				        					}///fin do metodo run
+				        					}//fim do senao para codigo
 				        					
 				        				}.start();
 					        	        
@@ -2522,7 +2537,43 @@ private ConfiguracoesGlobais configs_globais;
 		
 	}
 	
+	public String getCodigoContrato() {
+		String cod_safra = lblCodigoContrato.getText();
+		String cod_comprador = lblCodigoContratoComprador.getText();
+		String cod_vendedor = lblCodigoContratoVendedor.getText();
+		String cod_sequencial = lblCodigoContratoAleatorio.getText();
+		String retorno = null;
+		
+		if(cod_safra.equals("") || cod_safra.equals(" ") || cod_safra == null || cod_safra.length() <= 3){
+			JOptionPane.showMessageDialog(null, "Safra não selecionada!");
+			
+		}else {
+			if(cod_comprador.equals("") || cod_comprador.equals(" ") || cod_comprador == null ){
+				JOptionPane.showMessageDialog(null, "Comprador não selecionada!");
+				
+			}else {
+				if(cod_vendedor.equals("") || cod_vendedor.equals(" ") || cod_vendedor == null ){
+					JOptionPane.showMessageDialog(null, "Vendedor não selecionada!");
+					
+				}else {
+					retorno = cod_safra + "." + cod_comprador + "." + cod_vendedor + "." + cod_sequencial;
+				}
+			}
+		}
+		
+		return retorno;
+		
+	}
 	
 	
 	
+	public void setClausula1(String unidade) {
+		entClausula1.setText("A quantidade de " + unidade + " que exceder será negociado com o preço do dia.");
+		
+	}
+	public void setClausulaComissao() {
+		if(chBoxClausulaComissao.isSelected())
+ 		entClausula3.setText("Comissão de R$ " +  entComissao.getText().toString().replace(".", ",") + " por " +  unidadeGlobal + " pagas ao corretor");
+
+	}
 }

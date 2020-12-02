@@ -35,10 +35,13 @@ public class Log {
 				 String mensagemCompleta =  "Level:" + nivel;
 				 mensagemCompleta += ("Msg:" + msg) ;
 				 mensagemCompleta +=  ("Hora:" + dados_temporais.getHoraLog()) ;
+				try { 
 				 mensagemCompleta +=  ("user:" + login.getLogin() + "/" );
 				 mensagemCompleta +=  ("user:" + login.getNome());
-
-			
+				}catch(Exception v)
+				{
+					 mensagemCompleta +=  ("user: não logado" );
+				}
 				 
 				 escreverArquivoLog(arquivo_para_escrever, mensagemCompleta);
 				 registrarLogGlobal(nivel, msg);
@@ -59,9 +62,13 @@ public class Log {
 		 if(criarDiretorioLogs()) {
 			 File arquivo_para_escrever = criarArquivoLogsGlobais();
 			 if( arquivo_para_escrever != null) {
-				 
+				 try {
 				 escreverArquivoLog(arquivo_para_escrever, "Level:" + nivel + "Msg:" + msg + "Data:" + dados_temporais.getDataLog() + "Hora:" 
 						 + dados_temporais.getHoraLog() + "user:" + login.getLogin() + "/" + login.getNome());
+				 }catch(Exception e) {
+					 escreverArquivoLog(arquivo_para_escrever, "Level:" + nivel + "Msg:" + msg + "Data:" + dados_temporais.getDataLog() + "Hora:" 
+							 + dados_temporais.getHoraLog() + "user: não logado");
+				 }
 				 
 				 return true;
 			 }else {

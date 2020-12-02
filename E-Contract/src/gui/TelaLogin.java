@@ -49,7 +49,7 @@ public class TelaLogin extends JDialog implements GetDadosGlobais{
 	private JLabel lblBemvindoDeVolta;
 	private JPasswordField entSenha;
 	private JPanelTransparent panel;
-	JLabel lblMostrar, lblEsconder;
+	private JLabel lblMostrar, lblEsconder, lblResult;
 	private char previo;
 	private Log GerenciadorLog = new Log();
 	private CadastroLogin login;
@@ -106,6 +106,7 @@ public class TelaLogin extends JDialog implements GetDadosGlobais{
 		setContentPane(contentPane);
 		
 		panel = new JPanelTransparent();
+	
 		panel.setBackground(new Color(123, 104, 238));
 		panel.setBounds(529, 158, 451, 353);
 		//URL url2 = getClass().getResource("fundo.jpg");
@@ -124,8 +125,54 @@ public class TelaLogin extends JDialog implements GetDadosGlobais{
 		
 		panel.add(entUser);
 		entUser.setColumns(10);
+		entUser.addKeyListener(new KeyAdapter() {
+			@Override
+			public void keyPressed(KeyEvent arg0) {
+				if(arg0.getKeyCode() == KeyEvent.VK_ENTER)
+				{
+					String user = entUser.getText().toString();
+					String senha = new String(entSenha.getPassword());
+					int result = logar();
+				      if(result == 0) {
+					      GerenciadorLog.registrarLogDiario("aviso", "erro de login: usuario: " + user + " senha: " + senha + "classe:TelaLogin" ); 
+
+				    	  lblResult.setText("Usuário ou senha Incorretos");
+				      }
+				      else
+				      {
+				    	  isto.dispose();
+						 TelaPrincipal tela = new TelaPrincipal(); 
+				      }
+				}
+				
+			}
+		});
+		
+
 		
 		entSenha = new JPasswordFieldPersonalizado(10);
+		entSenha.addKeyListener(new KeyAdapter() {
+			@Override
+			public void keyPressed(KeyEvent arg0) {
+				if(arg0.getKeyCode() == KeyEvent.VK_ENTER)
+				{
+					String user = entUser.getText().toString();
+					String senha = new String(entSenha.getPassword());
+					int result = logar();
+				      if(result == 0) {
+					      GerenciadorLog.registrarLogDiario("aviso", "erro de login: usuario: " + user + " senha: " + senha + "classe:TelaLogin" ); 
+
+				    	  lblResult.setText("Usuário ou senha Incorretos");
+				      }
+				      else
+				      {
+				    	  isto.dispose();
+						 TelaPrincipal tela = new TelaPrincipal(); 
+				      }
+				}
+				
+			}
+		});
 		
 
 		entSenha.setBounds(48, 216, 277, 38);
@@ -163,7 +210,7 @@ public class TelaLogin extends JDialog implements GetDadosGlobais{
 		btnLogin.setText("Entrar");
 		panel.add(btnLogin);
 		
-		JLabel lblResult = new JLabel("");
+		 lblResult = new JLabel("");
 		lblResult.setForeground(new Color(255, 0, 0));
 		lblResult.setBounds(48, 265, 277, 14);
 		panel.add(lblResult);
@@ -218,6 +265,7 @@ public class TelaLogin extends JDialog implements GetDadosGlobais{
 		contentPane.add(lblEficincia);
 		
 		JTextArea txtrNsDaTitaniwm = new JTextArea();
+		txtrNsDaTitaniwm.setEditable(false);
 		txtrNsDaTitaniwm.setFont(new Font("Arial", Font.BOLD, 18));
 		txtrNsDaTitaniwm.setText("Nós da TiTaniwm damos total atenção a você e os dados da sua empresa!\r\n\r\nPor isso, tenha mais tempo pra você e sua      empresa e deixe seus contratos conosco.\r\n                                                                                                 \r\n                                                                                 \r\n\r\n");
 		txtrNsDaTitaniwm.setForeground(Color.WHITE);
@@ -233,6 +281,7 @@ public class TelaLogin extends JDialog implements GetDadosGlobais{
 		lblEquipeTitaniwm.setFont(new Font("Arial", Font.BOLD, 18));
 		lblEquipeTitaniwm.setBounds(326, 426, 161, 29);
 		contentPane.add(lblEquipeTitaniwm);
+		
 	
 		btnLogin.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
@@ -279,9 +328,14 @@ public class TelaLogin extends JDialog implements GetDadosGlobais{
 			}
 		});
 		
+		
+	
+		
+		
 		this.setLocationRelativeTo(null);
 		this.setUndecorated(true);
 
+		
 		this.setVisible(true);
 	}
 	
