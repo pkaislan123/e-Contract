@@ -1,0 +1,78 @@
+package outros;
+
+import cadastros.CadastroLogin;
+import gui.TelaPrincipal;
+import manipular.ConfiguracoesGlobais;
+import tratamento_proprio.Log;
+
+
+public class DadosGlobais {
+
+	private static DadosGlobais INSTANCE;
+	private CadastroLogin Login;
+	private TelaPrincipal telaPrincipal;
+	private Log gerenciador_logs;
+	private  ConfiguracoesGlobais configs_globais;
+	
+	
+	
+	
+	public ConfiguracoesGlobais getConfigs_globais() {
+		return configs_globais;
+	}
+
+	public void setConfigs_globais(ConfiguracoesGlobais configs_globais) {
+		this.configs_globais = configs_globais;
+	}
+
+	public void setLogin(CadastroLogin login)
+	{
+		this.Login = login;
+	}
+	
+	public void setGerenciadorLog (Log log) {
+		this.gerenciador_logs = log;
+	}
+	
+	protected DadosGlobais()
+	{
+		
+	}
+	
+	public void setTelaPrincipal(TelaPrincipal isto)
+	{
+		
+		this.telaPrincipal = isto;
+	}
+	
+	
+	public TelaPrincipal getTelaPrincipal()
+	{
+		return telaPrincipal;
+	}
+	
+	public CadastroLogin getLogin()
+	{
+		return this.Login;
+	}
+	
+	public Log getGerenciadorLog() {
+		return this.gerenciador_logs;
+	}
+	
+	
+	public static DadosGlobais getInstance()
+	{
+		if(INSTANCE == null)
+		{
+			INSTANCE = new DadosGlobais();
+		
+		}
+		return INSTANCE;
+	}
+	
+	
+	
+	
+	
+}

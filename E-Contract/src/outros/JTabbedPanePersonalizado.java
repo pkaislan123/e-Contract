@@ -1,0 +1,31 @@
+package outros;
+
+import java.awt.Graphics;
+
+import javax.swing.ImageIcon;
+import javax.swing.JTabbedPane;
+
+public class JTabbedPanePersonalizado extends JTabbedPane{
+
+	 private ImageIcon img;
+	    
+	    public JTabbedPanePersonalizado(){
+	       img = new ImageIcon();
+	    }
+	    
+	    @Override
+	    public void paintComponent(Graphics g){
+	        super.paintComponent(g);
+	        
+	        g.drawImage(img.getImage(), 0, 0, this.getWidth(), this.getHeight(), this);
+	        
+	    }
+	    
+	    public void setImg(ImageIcon img2){
+	        this.img = img2;
+	    }
+	    
+	    public ImageIcon getImg(){
+	        return this.img;
+	    }
+}
