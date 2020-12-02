@@ -16,6 +16,7 @@ import javax.swing.table.DefaultTableModel;
 import cadastros.CadastroCliente;
 import cadastros.CadastroContrato;
 import cadastros.CadastroContrato.CadastroPagamento;
+import cadastros.CadastroLogin;
 import cadastros.CadastroModelo;
 import cadastros.CadastroSafra;
 import conexaoBanco.GerenciarBancoClientes;
@@ -26,9 +27,12 @@ import classesExtras.CBLocalRetiradaPersonalizado;
 import classesExtras.CBLocalRetiradaRenderPersonalizado;
 import classesExtras.ComboBoxPersonalizado;
 import classesExtras.ComboBoxRenderPersonalizado;
+import manipular.ConfiguracoesGlobais;
 import manipular.ConverterPdf;
 import manipular.EditarExcel;
 import manipular.Excel;
+import outros.DadosGlobais;
+import tratamento_proprio.Log;
 import views_personalizadas.TelaEmEspera;
 
 import javax.swing.BorderFactory;
@@ -176,7 +180,9 @@ private JTextField entClausula6;
 private JTextField entClausula5;
 private JTextField entClausula4;
 private JPanel panel;
-
+private Log GerenciadorLog;
+private CadastroLogin login;
+private ConfiguracoesGlobais configs_globais;
 
 	public static void pesquisarArmazens()
 	{ 
@@ -205,7 +211,7 @@ private JPanel panel;
 		
 		setResizable(false);
 	
-		
+		getDadosGlobais();
 		setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 		setTitle("E-Contract - Novo Contrato");
 		setBounds(100, 100, 993, 669);
@@ -1020,6 +1026,8 @@ private JPanel panel;
 			                       painelDadosCodigoData.add(lblCodigoContratoAleatorio);
 			                       lblCodigoContratoAleatorio.setFont(new Font("Arial", Font.PLAIN, 18));
 			                       lblCodigoContratoAleatorio.setBorder(new EmptyBorder(0, 0, 0, 0));
+			                       lblCodigoContratoAleatorio.setText(Integer.toString(configs_globais.getCodigoSequencial()));
+			              
 			                       
 			                       painelDefinirPartes = new JPanel();
 			                       painelDefinirPartes.setBackground(SystemColor.text);
@@ -2500,6 +2508,17 @@ private JPanel panel;
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+		
+	}
+	
+	public void getDadosGlobais() {
+		//gerenciador de log
+				DadosGlobais dados = DadosGlobais.getInstance();
+				 GerenciadorLog = dados.getGerenciadorLog();
+				 configs_globais = dados.getConfigs_globais();
+				 
+				 //usuario logado
+				  login = dados.getLogin();
 		
 	}
 	
