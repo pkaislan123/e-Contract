@@ -185,6 +185,8 @@ private Log GerenciadorLog;
 private CadastroLogin login;
 private ConfiguracoesGlobais configs_globais;
 
+private ArrayList<CadastroContrato.CadastroPagamento> pagamentosLocais = new ArrayList<>();
+
 	public static void pesquisarArmazens()
 	{ 
      GerenciarBancoClientes listaArmazens = new GerenciarBancoClientes();
@@ -1902,6 +1904,8 @@ private ConfiguracoesGlobais configs_globais;
  									conta_atual.setConta(conta);
  									conta_atual.setCodigo(codigo);
  									conta_atual.setNome(nome);
+ 									
+ 									
  	                          	}
  	                          	else
  	                          	{

@@ -254,6 +254,15 @@ local retirada: 24 2
 		ContaBancaria conta;
 		BigDecimal valor;
 		String data_pagamento;
+		String descricao_pagamento;
+		
+		
+		public String getDescricao_pagamento() {
+			return descricao_pagamento;
+		}
+		public void setDescricao_pagamento(String descricao_pagamento) {
+			this.descricao_pagamento = descricao_pagamento;
+		}
 		public ContaBancaria getConta() {
 			return conta;
 		}

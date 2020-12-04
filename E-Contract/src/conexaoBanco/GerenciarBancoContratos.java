@@ -27,6 +27,8 @@ public class GerenciarBancoContratos {
 	private Registro registro_geral_relacao_contrato_corretor = new Registro();
 	private Registro registro_geral_relacao_contrato_comprador = new Registro();
 	private Registro registro_geral_relacao_contrato_vendedor = new Registro();
+	private Registro registro_geral_relacao_contrato_modelo_pagamento = new Registro();
+
 
 	
 	public GerenciarBancoContratos() {
@@ -116,13 +118,24 @@ public class GerenciarBancoContratos {
 
 					   if(inserir_cliente_vendedor(contrato, retorno_contrato_inserido))
 					   {
+						   if(inserirModelosPagamentos(retorno_contrato_inserido, contrato.getPagamentos())) {
+							   
+							   reverter = false;
+
+						   }else {
+							   //houve alguma excessao ao criar as tabelas relacao_contrato_pagamentos, devera ser feito o processo de
+								  //exclusao dessas tabelas
+								  /*fazer processo de exclusao das tabelas*/
+							   reverter = true;
+
+						   }
 						   
-						   reverter = false;
 					   }else {
 						   //houve alguma excessao ao criar as tabelas relacação, devera ser feito o processo de
 							  //exclusao dessas tabelas
 							  /*fazer processo de exclusao das tabelas*/
 						   reverter = true;
+
 					   }
 					  
 					  
@@ -156,7 +169,8 @@ public class GerenciarBancoContratos {
 			  boolean v_remover_tabelas_relacao_contrato_corretor = remover_tabelas_contrato_corretor();
 			  boolean v_remover_tabelas_relacao_contrato_comprador = remover_tabelas_contrato_comprador();
 			  boolean v_remover_tabelas_relacao_contrato_vendedor = remover_tabelas_contrato_vendedor();
-
+              boolean  v_remover_tabelas_relacao_contrato_modelo_pagamento = remover_tabelas_contrato_modelo_pagamento();
+              boolean  v_remover_tabelas_modelo_pagamento = remover_tabelas_modelo_pagamento();
 			  
 			  if(v_remover_tabelas_relacao_contrato_corretor && v_remover_tabelas_relacao_contrato_comprador && v_remover_tabelas_relacao_contrato_vendedor) {
 				  
@@ -176,7 +190,7 @@ public class GerenciarBancoContratos {
 		  
 	  }
 	  
-	  public int inserir_contrato_retorno(CadastroContrato contrato) {
+	  private int inserir_contrato_retorno(CadastroContrato contrato) {
 		   int result = -1;
 		   int id_cliente = -1;
 		  if( contrato != null) {
@@ -212,7 +226,7 @@ public class GerenciarBancoContratos {
 	  }
 	 
 	  
-	  public boolean inserir_cliente_corretor(CadastroContrato contrato, int id_contrato) {
+	  private boolean inserir_cliente_corretor(CadastroContrato contrato, int id_contrato) {
 
 		  boolean reverter = false;
 		   
@@ -244,7 +258,7 @@ public class GerenciarBancoContratos {
 		  
 	  }
 	  
-	  public boolean inserir_cliente_comprador(CadastroContrato contrato, int id_contrato) {
+	  private boolean inserir_cliente_comprador(CadastroContrato contrato, int id_contrato) {
 
 		  boolean reverter = false;
 		   
@@ -276,7 +290,7 @@ public class GerenciarBancoContratos {
 		  
 	  }
 	  
-	  public boolean inserir_cliente_vendedor (CadastroContrato contrato, int id_contrato) {
+	  private boolean inserir_cliente_vendedor (CadastroContrato contrato, int id_contrato) {
 
 		  boolean reverter = false;
 		   
@@ -309,7 +323,7 @@ public class GerenciarBancoContratos {
 	  }
 	  
 	
-	  public boolean inserir_corretor(CadastroCliente corretor, int id_contrato){
+	  private boolean inserir_corretor(CadastroCliente corretor, int id_contrato){
 		  Connection conn = null;
           try {
               conn = ConexaoBanco.getConexao();
@@ -337,7 +351,7 @@ public class GerenciarBancoContratos {
  	         
 	  }
 	  
-	  public boolean inserir_comprador(CadastroCliente comprador, int id_contrato){
+	  private boolean inserir_comprador(CadastroCliente comprador, int id_contrato){
 		  Connection conn = null;
           try {
               conn = ConexaoBanco.getConexao();
@@ -366,7 +380,7 @@ public class GerenciarBancoContratos {
 	  }
 	  
 	  
-	  public boolean inserir_vendedor(CadastroCliente vendedor, int id_contrato){
+	  private boolean inserir_vendedor(CadastroCliente vendedor, int id_contrato){
 		  Connection conn = null;
           try {
               conn = ConexaoBanco.getConexao();
@@ -443,7 +457,7 @@ public class GerenciarBancoContratos {
 		}
 	
 	  
-	  public String sql_contrato(CadastroContrato contrato) {
+	  private String sql_contrato(CadastroContrato contrato) {
           String query = "insert into contrato (codigo, id_safra, id_produto, medida, quantidade, valor_produto, valor_a_pagar, data_contrato, data_entrega, status_contrato) values ('"
         		 + contrato.getCodigo() 
                  + "','"
@@ -469,7 +483,11 @@ public class GerenciarBancoContratos {
 
 	  }
 	  
-	  public boolean remover_contrato_corretor( int id_contrato, int id_cliente) {
+	  
+	  
+	  
+	  
+	  private boolean remover_contrato_corretor( int id_contrato, int id_cliente) {
 		  String sql_delete_relacao = "DELETE FROM contrato_corretor WHERE id_contrato = ? and id_cliente = ?";
 		  Connection conn = null;
 	        ResultSet rs = null;	      
@@ -496,7 +514,7 @@ public class GerenciarBancoContratos {
 		  
 	  }
 	  
-	  public boolean remover_contrato_comprador( int id_contrato, int id_cliente) {
+	  private boolean remover_contrato_comprador( int id_contrato, int id_cliente) {
 		  String sql_delete_relacao = "DELETE FROM contrato_comprador WHERE id_contrato = ? and id_cliente = ?";
 		  Connection conn = null;
 	        ResultSet rs = null;	      
@@ -523,7 +541,7 @@ public class GerenciarBancoContratos {
 		  
 	  }
 	  
-	  public boolean remover_contrato_vendedor( int id_contrato, int id_cliente) {
+	  private boolean remover_contrato_vendedor( int id_contrato, int id_cliente) {
 		  String sql_delete_relacao = "DELETE FROM contrato_vendedor WHERE id_contrato = ? and id_cliente = ?";
 		  Connection conn = null;
 	        ResultSet rs = null;	      
@@ -551,7 +569,7 @@ public class GerenciarBancoContratos {
 	  }
 	  
 	  
-	  public boolean remover_contrato(int id_contrato) {
+	  private boolean remover_contrato(int id_contrato) {
 		  String sql_delete_relacao = "DELETE FROM contrato WHERE id = ?";
 		  Connection conn = null;
 	        ResultSet rs = null;	      
@@ -575,7 +593,7 @@ public class GerenciarBancoContratos {
 	        }
 	  }
 	  
-	  public boolean remover_tabelas_contrato_corretor() {
+	  private boolean remover_tabelas_contrato_corretor() {
 		  boolean retorno = false;
 		  
 		  for(int codigo_relacao_contrato_corretor : registro_geral_relacao_contrato_corretor.getIds()) {
@@ -590,7 +608,7 @@ public class GerenciarBancoContratos {
 		  return retorno;
 	  }
 	  
-	  public boolean remover_tabelas_contrato_comprador() {
+	  private boolean remover_tabelas_contrato_comprador() {
 		  boolean retorno = false;
 		  
 		  for(int codigo_relacao_contrato_corretor : registro_geral_relacao_contrato_comprador.getIds()) {
@@ -605,7 +623,7 @@ public class GerenciarBancoContratos {
 		  return retorno;
 	  }
 	  
-	  public boolean remover_tabelas_contrato_vendedor() {
+	  private boolean remover_tabelas_contrato_vendedor() {
 		  boolean retorno = false;
 		  
 		  for(int codigo_relacao_contrato_corretor : registro_geral_relacao_contrato_vendedor.getIds()) {
@@ -620,6 +638,266 @@ public class GerenciarBancoContratos {
 		  return retorno;
 	  }
 	  
+	  
+	  
+	  public String sql_modelo_pagamento(CadastroContrato.CadastroPagamento pagamento) {
+          String query = "insert into modelo_pagamento (id_conta_bancaria, data_pagamento, valor, descricao_pagamento) values ('"
+        		 + pagamento.getConta().getId_conta() 
+                 + "','"
+                + pagamento.getData_pagamento()
+                + "','"
+                + pagamento.getValor()
+                + "','"
+                + pagamento.getDescricao_pagamento()
+                + "')";	
+          return query;
+
+	  }
+	  
+	  public String sql_contrato_modelo_pagamento( int id_contrato,int id_pagamento) {
+          String query = "insert into contrato_modelo_pagamento (id_contrato, id_pagamento) values ('"
+        		 + id_contrato
+                 + "','"
+                + id_pagamento
+                + "')";	
+          return query;
+
+	  }
+	  
+	  
+	  public boolean inserirModelosPagamentos(int id_contrato, ArrayList<CadastroContrato.CadastroPagamento> pagamentos) {
+		  boolean retorno = false;
+		  
+		  for(CadastroContrato.CadastroPagamento pagamento : pagamentos) {
+			  int retorno_positivo = inserir_modelo_pagamento(pagamento);
+			  if(retorno_positivo != -1) {
+				   boolean retorno_positivo_relacao = inserir_contrato_modelo_pagamento(id_contrato, retorno_positivo);
+				   if(retorno_positivo_relacao) {
+					   retorno = true;
+				   }else {
+					   retorno = false;
+					   break;
+				   }
+				  
+			  }else {
+				  retorno = false;
+				  //houve algum erro ao adicionar um pagamento, retorno falso para reverter todo o processo
+				  break;
+			  }
+		  }
+		  return retorno;
+		  
+	  }
+	  
+	  
+	  private int inserir_modelo_pagamento(CadastroContrato.CadastroPagamento pagamento) {
+		  int result = -1;
+		   int id_cliente = -1;
+		  if( pagamento != null) {
+	            Connection conn = null;
+	            try {
+	            	
+	                conn = ConexaoBanco.getConexao();
+	    	       
+	                String query = sql_modelo_pagamento(pagamento);
+                  Statement stmt = (Statement) conn.createStatement();
+                  int numero = stmt.executeUpdate(query, Statement.RETURN_GENERATED_KEYS);
+
+                  ResultSet rs = stmt.getGeneratedKeys();
+                  if (rs.next()){
+ 	                                result=rs.getInt(1);
+ 	                                System.out.println("Id pagamento inserido: "+ result);
+                                }
+                   rs.close();
+                   stmt.close();
+                   
+                   return result;
+	 
+	            } catch (Exception e) {
+	               JOptionPane.showMessageDialog(null, "Erro ao inserir o pagamento no banco de"
+	                      + "dados " + e.getMessage());
+	            	GerenciadorLog.registrarLogDiario("falha", "falha ao adicionar novo pagamento: " + e.getMessage() + " causa: " + e.getCause());
+	                return -1;
+	            }
+	        } else {
+	            System.out.println("O pagamento enviado por parametro esta vazio");
+	            return -1;
+	        }
+	  }
+	  
+	  private boolean inserir_contrato_modelo_pagamento( int id_contrato, int id_pagamento){
+		  Connection conn = null;
+          try {
+              conn = ConexaoBanco.getConexao();
+              String sql = "insert into contrato_modelo_pagamento\r\n" + 
+              		"(id_contrato, id_pagamento) values ('"
+  	    			+id_contrato
+  	    			+ "','"
+  	    			+ id_pagamento
+  	    			+ "')";
+  	       
+  	        PreparedStatement grava = (PreparedStatement) conn.prepareStatement(sql); 
+  	        grava.execute();    
+              ConexaoBanco.fechaConexao(conn, grava);
+              JOptionPane.showMessageDialog(null, "Relação contrato_modelo_pagamento  cadastrado com sucesso");
+                registro_geral_relacao_contrato_modelo_pagamento.setIdContrato(id_contrato);
+                registro_geral_relacao_contrato_modelo_pagamento.adicionar_id(id_pagamento);
+               return true;
+
+          } catch (Exception e) {
+        	  JOptionPane.showMessageDialog(null, "Erro ao inserir a relação contrato_modelo_pagamento no banco de"
+                       +  e.getMessage());
+               return false;
+          }
+ 			  
+ 	         
+	  }
+	  
+	  
+	  private boolean remover_tabelas_contrato_modelo_pagamento() {
+		  boolean retorno = false;
+		  
+		  for(int codigo_relacao_contrato_modelo_pagamento : registro_geral_relacao_contrato_modelo_pagamento.getIds()) {
+				 if (remover_contrato_modelo_pagamento( registro_geral_relacao_contrato_modelo_pagamento.getIdContrato(), codigo_relacao_contrato_modelo_pagamento)) {
+					 retorno = true;
+				 }else {
+					 retorno = false;
+					 break;
+				 }
+			  }
+		  
+		  return retorno;
+	  }
+	  
+	  private boolean remover_modelo_pagamento(int id_pagamento) {
+		  String sql_dele_cliente = "DELETE FROM modelo_pagamento WHERE id = ?";
+		  Connection conn = null;
+	        ResultSet rs = null;	      
+	        try {
+	            conn = ConexaoBanco.getConexao();
+	            PreparedStatement pstm;
+	            pstm = conn.prepareStatement(sql_dele_cliente);
+	 
+	            pstm.setInt(1, id_pagamento);
+	 
+	            pstm.execute();
+	            ConexaoBanco.fechaConexao(conn, pstm);
+	            JOptionPane.showMessageDialog(null, "modelo_pagamento Excluido, banco normalizado ");
+	           return true;
+	            
+	 
+	        } catch (Exception f) {
+	            JOptionPane.showMessageDialog(null, "Erro ao excluir o modelo_pagamento do banco de"
+	                    + "dados " + f.getMessage());
+	           return false;
+	        }
+	  }
+	  
+	  private boolean remover_tabelas_modelo_pagamento() {
+  boolean retorno = false;
+		  
+		  for(int codigo_relacao_contrato_modelo_pagamento : registro_geral_relacao_contrato_modelo_pagamento.getIds()) {
+				 if (remover_modelo_pagamento( codigo_relacao_contrato_modelo_pagamento)) {
+					 retorno = true;
+				 }else {
+					 retorno = false;
+					 break;
+				 }
+			  }
+		  
+		  return retorno;
+	  }
+	  
+	  private boolean remover_contrato_modelo_pagamento( int id_contrato, int id_pagamento) {
+		  String sql_delete_relacao = "DELETE FROM contrato_modelo_pagamento WHERE id_contrato = ? and id_pagamento = ?";
+		  Connection conn = null;
+	        ResultSet rs = null;	      
+	        try {
+	            conn = ConexaoBanco.getConexao();
+	            PreparedStatement pstm;
+	            pstm = conn.prepareStatement(sql_delete_relacao);
+	 
+	            pstm.setInt(1, id_contrato);
+	            pstm.setInt(2,  id_pagamento);
+	 
+	            pstm.execute();
+	            ConexaoBanco.fechaConexao(conn, pstm);
+	            JOptionPane.showMessageDialog(null, "Relação contrato_modelo_pagamento excluido, banco normalizado ");
+	           return true;
+	            
+	 
+	        } catch (Exception f) {
+	            JOptionPane.showMessageDialog(null, "Erro ao exlcuir relação contrato_modelo_pagamento do banco de dados\nBanco de dados corrompido!\nConsulte o administrador do sistema"
+	                    + "dados " + f.getMessage());
+	           return false;
+	        }
+		  
+		  
+	  }
+	  
+	  
+	  public ArrayList<CadastroContrato> getContratos() {
+		  String selectContratos = "call consulta_contratos()";
+	        Connection conn = null;
+	        PreparedStatement pstm = null;
+	        ResultSet rs = null;
+	        ArrayList<CadastroContrato> lsitaContratos = new ArrayList<CadastroContrato>();
+	        try {
+	            conn = ConexaoBanco.getConexao();
+	            pstm = conn.prepareStatement(selectContratos);
+	           // pstm.setString(1, chave);
+	            		
+	            rs = pstm.executeQuery();
+	            while (rs.next()) {
+	            	CadastroContrato contrato = new CadastroContrato();
+	                 CadastroProduto produto = new CadastroProduto();
+	                 CadastroSafra safra = new CadastroSafra();
+	            	 CadastroCliente compradores [] = null ;
+	            	 CadastroCliente vendedores [] = null;
+	            	 CadastroCliente corretores [] = null;
+
+	                 
+	            	 contrato.setCodigo(rs.getString("codigo"));
+	            	 contrato.setQuantidade(Double.parseDouble(rs.getString("quantidade")));
+	            	 contrato.setMedida(rs.getString("medida"));
+	            	 contrato.setProduto(rs.getString("nome_produto"));
+	            	 safra.setDescricao_safra(rs.getString("descricao_safra"));
+	            	 safra.setAno_plantio(Integer.parseInt(rs.getString("ano_plantio")));
+	            	 safra.setAno_colheita(Integer.parseInt(rs.getString("ano_colheita")));
+	            	 contrato.setValor_produto(Double.parseDouble(rs.getString("valor_produto")));
+	            	 contrato.setValor_a_pagar(new BigDecimal(rs.getString("valor_a_pagar")));
+	            	 
+	            	 String get_compradores = (rs.getString("compradores"));
+	            	 String nomes_compradores [] = get_compradores.split(",");
+	            	 int i = 0;
+	            	 for (String nome_comprador : nomes_compradores) {
+	            		 if(nome_comprador != null) {
+	            			 CadastroCliente comprador = new CadastroCliente();
+	            			 comprador.setNome(nome_comprador);
+	            			 compradores[i] = comprador;
+	            		 }
+	            		 i++;
+	            	 }
+	            	 
+
+	            	 
+	            	 
+
+	            	 safra.setProduto(produto);
+	            	 contrato.setModelo_safra(safra);
+	            	lsitaContratos.add(contrato);
+	                
+	            }
+	            ConexaoBanco.fechaConexao(conn, pstm, rs);
+	        } catch (Exception e) {
+	            JOptionPane.showMessageDialog(null, "Erro ao listar contratos" + e.getMessage());
+	        }
+	        return lsitaContratos;
+	
+}
+	  
+	  
+	 
 	  
 	  
 }
