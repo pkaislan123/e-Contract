@@ -8,21 +8,96 @@ public class CadastroContrato {
 	
 	
 	
+	public CadastroCliente[] getCompradores() {
+		return compradores;
+	}
+
+	
+
+	public void setCompradores(CadastroCliente[] compradores) {
+		this.compradores = compradores;
+	}
+
+
+	public CadastroCliente[] getVendedores() {
+		return vendedores;
+	}
+
+
+	public void setVendedores(CadastroCliente[] vendedores) {
+		this.vendedores = vendedores;
+	}
+
+
+	public CadastroCliente[] getCorretores() {
+		return corretores;
+	}
+
+
+	public void setCorretores(CadastroCliente[] corretores) {
+		this.corretores = corretores;
+	}
 	private CadastroCliente [] compradores ;
 	private  CadastroCliente [] vendedores ;
 	private CadastroCliente [] corretores;
 	private BigDecimal valor_a_pagar;
 	private double quantidade, valor_produto;
-	private String produto, data_contrato, codigo, data_entrega, ctc, ctv, safra, medida, status_contrato;
-	private int assinatura_comprador, assinatura_vendedor;
+	private String produto, data_contrato, codigo, data_entrega, ctc, ctv, safra, medida, caminho_arquivo;
+	public String getCaminho_arquivo() {
+		return caminho_arquivo;
+	}
+
+
+	public void setCaminho_arquivo(String caminho_arquivo) {
+		this.caminho_arquivo = caminho_arquivo;
+	}
+	private int assinatura_comprador, assinatura_vendedor, id, status_contrato;
 	
+	public int getId() {
+		return id;
+	}
+
+
+	public void setId(int id) {
+		this.id = id;
+	}
+	private String nomes_compradores, nomes_vendedores, nomes_corretores;
+	
+	public String getNomes_compradores() {
+		return nomes_compradores;
+	}
+
+
+	public void setNomes_compradores(String nomes_compradores) {
+		this.nomes_compradores = nomes_compradores;
+	}
+
+
+	public String getNomes_vendedores() {
+		return nomes_vendedores;
+	}
+
+
+	public void setNomes_vendedores(String nomes_vendedores) {
+		this.nomes_vendedores = nomes_vendedores;
+	}
+
+
+	public String getNomes_corretores() {
+		return nomes_corretores;
+	}
+
+
+	public void setNomes_corretores(String nomes_corretores) {
+		this.nomes_corretores = nomes_corretores;
+	}
 	private CadastroProduto modelo_produto;
-	public String getStatus_contrato() {
+	public int getStatus_contrato() {
 		return status_contrato;
 	}
 
 
-	public void setStatus_contrato(String status_contrato) {
+	public void setStatus_contrato(int status_contrato) {
 		this.status_contrato = status_contrato;
 	}
 

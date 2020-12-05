@@ -583,6 +583,92 @@ public int inserir_cliente(CadastroCliente cliente)
 	
 }
 	  
+	  public CadastroCliente getCliente(int id_cliente) {
+		  String  selectClientes = "select * from cliente where id_cliente = ?";
+
+			 
+	        Connection conn = null;
+	        PreparedStatement pstm = null;
+	        ResultSet rs = null;
+	        try {
+	            conn = ConexaoBanco.getConexao();
+	            pstm = conn.prepareStatement(selectClientes);
+	           
+	            	pstm.setInt(1, id_cliente);
+	           
+	            		
+	                rs = pstm.executeQuery();
+	               rs.next();
+	                CadastroCliente cliente = new CadastroCliente();
+	 
+
+	                cliente.setTipo_pessoa(rs.getInt("tipo_cliente"));
+	                if(cliente.getTipo_pessoa() == 1)
+	                {
+	                	//cnpj
+	                	cliente.setCnpj(rs.getString("cnpj"));
+	                	
+	                }
+	                else
+	                {
+	                	//cpf
+	                	cliente.setCpf(rs.getString("cpf"));
+	                	
+	                }
+	                
+	                cliente.setId(rs.getInt("id_cliente"));
+	                cliente.setIe(rs.getString("ie"));
+	                cliente.setStatus_ie(rs.getString("status_ie"));
+	                cliente.setStatus(rs.getString("status_empresa"));
+                    cliente.setOcupacao(rs.getString("ocupacao"));
+	                cliente.setAtividade(rs.getString("atividade"));
+	                cliente.setNascimento(rs.getString("nascimento"));
+
+	                cliente.setApelido(rs.getString("apelido"));
+	                cliente.setNome(rs.getString("nome"));
+	                cliente.setSobrenome(rs.getString("sobrenome"));
+	                cliente.setRazao_social(rs.getString("razao_social"));
+	                cliente.setNome_fantaia(rs.getString("nome_fantasia"));
+	                cliente.setDescricao(rs.getString("descricao"));
+
+	                cliente.setAt_primaria(rs.getString("at_primaria"));
+	                cliente.setAt_secundaria(rs.getString("at_secundaria"));
+
+	                cliente.setAtividade(rs.getString("atividade"));
+	                cliente.setPorte(rs.getString("porte"));
+
+	                
+	                cliente.setNome_empresarial(rs.getString("nome_empresarial"));
+
+	                
+	                
+	                cliente.setRua(rs.getString("rua"));
+	                cliente.setNumero(rs.getString("numero"));
+	                cliente.setBairro(rs.getString("bairro"));
+	                cliente.setCep(rs.getString("cep"));
+	                cliente.setCidade(rs.getString("cidade"));
+	                cliente.setUf(rs.getString("uf"));
+	                
+	                cliente.setTipo_identificacao(rs.getString("tipo_identificacao"));
+	                cliente.setIdentificacao_sefaz(rs.getString("identificacao"));
+	                cliente.setCpf_responsavel(rs.getString("cpf_responsavel"));
+	                cliente.setSenha(rs.getString("senha"));
+
+	                cliente.setArmazem(rs.getInt("armazem"));
+
+
+		            ConexaoBanco.fechaConexao(conn, pstm, rs);
+
+	                return cliente;
+	                
+	            
+	        } catch (Exception e) {
+	            JOptionPane.showMessageDialog(null, "Erro ao listar cliente id: " + id_cliente + " erro: " + e.getMessage());
+	            return null;
+	        }
+	     
+	
+}
 	  
 	  public class RegistroAdicionarContaBancaria
 	  {

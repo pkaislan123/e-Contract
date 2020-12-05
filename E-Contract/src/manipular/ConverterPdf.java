@@ -3,7 +3,9 @@ package manipular;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.InputStream;
+import java.io.OutputStream;
 
 import com.spire.xls.*;
 
@@ -54,6 +56,30 @@ public class ConverterPdf {
 
 
 	}
+
+	public ByteArrayOutputStream excel2pdf(InputStream stream)
+
+	{
+		
+		
+		  Workbook workbook = new Workbook();
+		  workbook.loadFromStream(stream);
+	        //workbook.loadFromFile(caminho_completo + ".xlsx" );
+
+		  ByteArrayOutputStream saida = new ByteArrayOutputStream();
+	        //Fit to page
+	        workbook.getConverterSetting().setSheetFitToPage(true);
+
+	        //Save as PDF document
+	        workbook.saveToStream(saida, FileFormat.PDF);
+	        //workbook.saveToStream(stream);
+	        //workbook.saveToStream(saida);
+	      //  TelaVizualizarPdf vizualizar_pdf = new TelaVizualizarPdf(caminho_completo + ".pdf");
+	        return saida;
+
+
+	}
+
 	
 	public String excel_pdf_file(ByteArrayOutputStream saida_apos_edicao)
 
@@ -75,6 +101,37 @@ public class ConverterPdf {
 	        //workbook.saveToStream(saida);
 	      //  TelaVizualizarPdf vizualizar_pdf = new TelaVizualizarPdf(caminho_completo + ".pdf");
 	        return "C:\\temp\\temp.pdf";
+
+
+	}
+	
+	public boolean excel_pdf_file(String caminho)
+
+	{
+		
+		
+	  try {
+
+			  Workbook workbook = new Workbook();
+			  //workbook.loadFromStream(inputStream);
+		       workbook.loadFromFile(caminho + ".xlsx");
+
+			  ByteArrayOutputStream saida = new ByteArrayOutputStream();
+		        //Fit to page
+		        workbook.getConverterSetting().setSheetFitToPage(true);
+
+		        //Save as PDF document
+		        workbook.saveToFile(caminho + ".pdf",FileFormat.PDF);
+		        //workbook.saveToStream(stream);
+		        //workbook.saveToStream(saida);
+		      //  TelaVizualizarPdf vizualizar_pdf = new TelaVizualizarPdf(caminho_completo + ".pdf");
+		 
+
+	        return true;
+	  }catch(Exception t) {
+		  System.out.println("erro ao salvar pdf " + t.getMessage() );
+		  return false;
+	  }
 
 
 	}

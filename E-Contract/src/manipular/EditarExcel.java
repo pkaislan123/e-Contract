@@ -9,6 +9,8 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -52,9 +54,13 @@ import com.itextpdf.text.DocumentException;
 
 import cadastros.CadastroCliente;
 import cadastros.CadastroContrato;
+import cadastros.CadastroLogin;
 import cadastros.CadastroContrato.CadastroPagamento;
 import cadastros.CadastroModelo;
 import gui.TelaVizualizarPdf;
+import outros.DadosGlobais;
+import outros.GetData;
+import tratamento_proprio.Log;
 import views_personalizadas.TelaEmEspera;
 
 import com.spire.*;
@@ -80,10 +86,17 @@ public class EditarExcel {
 
 	CadastroCliente comprador, vendedor;
 	Workbook workbook_aberto;
+	
+	
+	private Log GerenciadorLog;
+	private CadastroLogin login;
+	private ConfiguracoesGlobais configs_globais;
+    
 
 	
 	public EditarExcel(CadastroModelo modelo, TelaEmEspera background)
 	{
+		getDadosGlobais();
 		this.modelo = modelo;
 		this.telaInformacoes = background;
 		
@@ -1148,7 +1161,7 @@ public ByteArrayOutputStream alterar(CadastroContrato novo_contrato)
 	
 	
 	
-	public boolean salvar() throws FileNotFoundException
+	public boolean salvar( ) 
 	{
 		
 		String nome_comprador_arquivo ;
@@ -1173,28 +1186,61 @@ public ByteArrayOutputStream alterar(CadastroContrato novo_contrato)
 		}else
 			nome_vendedor2_arquivo = null;
 		
-		 String pasta_padrao = "C:\\Users\\aisla\\Documents\\" ;
-			String nome_arquivo = "CTC " + novo_contrato.getCtc() + " " + nome_comprador_arquivo + " CTV " + novo_contrato.getCtv() + " " + nome_vendedor1_arquivo ; 
+		//E:\E-Contract\arquivos\clientes\Daniel Alves de Almeida\contratos\compra\2020\milho
+		GetData data = new GetData();
+		 String pasta_padrao = configs_globais.getRaiz() + "\\E-contract\\arquivos\\clientes\\" + nome_comprador_arquivo + "\\contratos" + "\\compra\\"  + data.getAnoAtual() + "\\" + novo_contrato.getModelo_safra().getProduto().getNome_produto() + "\\";
+		System.out.println("caminho para salvar o arquivo: " + pasta_padrao);	
+		String pasta_padrao_salvar = configs_globais.getRaiz() + "\\\\E-contract\\\\arquivos\\\\clientes\\\\" + nome_comprador_arquivo + "\\\\contratos" + "\\\\compra\\\\"  + data.getAnoAtual() + "\\\\" + novo_contrato.getModelo_safra().getProduto().getNome_produto() + "\\\\";
+
+				
+	String nome_arquivo = novo_contrato.getCodigo() + " "  + nome_comprador_arquivo + " x " + nome_vendedor1_arquivo ; 
 	       
 			if(nome_vendedor2_arquivo != null)
 				nome_arquivo +=  (" " + nome_vendedor2_arquivo);
 			String extensao_arquivo = ".xlsx";
 			String caminho_completo = pasta_padrao + nome_arquivo ;
 			
+			String caminho_completo_salvar = pasta_padrao_salvar + nome_arquivo;
+			
 			FileOutputStream outputStream;
 			try {
 				outputStream = new FileOutputStream (caminho_completo + ".xlsx");
+				
+				//novo_contrato.setCaminho_arquivo(url.toString());
+				
 				workbook_aberto.write(outputStream);
-				workbook_aberto.close();
-				outputStream.close();
+				   workbook_aberto.close();
+	  				outputStream.close();
+
+				
+				
+
+
+ 				  
+
+ 				
+ 				//workbook.close();
+				//Converter e salvar em pdf
+                 //criar pdf
+                 ConverterPdf converter_pdf = new ConverterPdf();
+               //  String url = converter_pdf.excel_pdf_file(contrato_alterado);
+               //TelaVizualizarPdf  vizualizar =  new TelaVizualizarPdf(url);
+                 if (converter_pdf.excel_pdf_file(caminho_completo)) {
+                	 System.out.println("Arquivo pdf convertido e salvo!");
+                	 System.out.println("caminho para salvar: " + caminho_completo_salvar);
+                	 novo_contrato.setCaminho_arquivo(caminho_completo_salvar + ".pdf") ;
+                 }
+                 
+           
+              
+				
 				return true;
 			} catch (IOException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 				
 				return false;
-			}
-			
+			} 
 		
 	}
 	
@@ -1263,7 +1309,17 @@ public ByteArrayOutputStream alterar(CadastroContrato novo_contrato)
 		    return estilo;
 	}
 	
-	
+
+	public void getDadosGlobais() {
+		//gerenciador de log
+				DadosGlobais dados = DadosGlobais.getInstance();
+				 GerenciadorLog = dados.getGerenciadorLog();
+				 configs_globais = dados.getConfigs_globais();
+				 
+				 //usuario logado
+				  login = dados.getLogin();
+		
+	}
 	
 	
 }

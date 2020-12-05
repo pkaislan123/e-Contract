@@ -2426,8 +2426,16 @@ public class TelaCadastroCliente extends JDialog {
 	
 	public void gerarPastas() {
 		ManipularTxt manipularArquivos = new ManipularTxt();
-		String nome_pasta = "Aislan Silva Costa";
-		int ano_atual  = new GetData().getAnoAtual();
+		String nome_pasta;
+		
+		if(cliente_cadastrar.getTipo_pessoa() == 0) {
+			nome_pasta = cliente_cadastrar.getNome_empresarial().toUpperCase();
+		}else {
+			nome_pasta = cliente_cadastrar.getNome_fantaia().toUpperCase();
+		}
+		
+	
+				int ano_atual  = new GetData().getAnoAtual();
 		
 		String ano_passado_pasta = Integer.toString(ano_atual - 1);
 		String ano_atual_pasta = Integer.toString(ano_atual);
@@ -2441,12 +2449,12 @@ public class TelaCadastroCliente extends JDialog {
 		String unidade_base_dados = configs_globais.getRaiz();
 		String sub_pasta= "E-Contract\\arquivos\\clientes";
 		
-		String compra = "compra";
-		String venda = "venda";
+		String compra = "COMPRA";
+		String venda = "VENDA";
 		
-		String soja = "soja";
-		String sorgo = "sorgo";
-		String milho = "milho";
+		String soja = "SOJA";
+		String sorgo = "SORGO";
+		String milho = "MILHO";
 		
 		String compra_venda[] = {"COMPRA", "VENDA"};
 		String produtos[] = {"SOJA", "MILHO", "SORGO"};

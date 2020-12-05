@@ -90,5 +90,49 @@ where sf.id_produto = pd.id_produto;
 	        }
 	        return listaSafras;
 	    }
+	  
+	  
+	  public CadastroSafra getSafra(int id) {
+			 String selectSafra = "select * from safra where id_safra = ?";
+
+		   Connection conn = null;
+	        PreparedStatement pstm = null;
+	        ResultSet rs = null;	        
+	        CadastroSafra safra = new CadastroSafra();
+
+	        try {
+	            conn = ConexaoBanco.getConexao();
+	            pstm = conn.prepareStatement(selectSafra);
+	            pstm.setInt(1, id);
+	            rs = pstm.executeQuery();
+	            rs.next();
+
+	            	safra.setId_safra(rs.getInt("id_safra"));;
+	            	safra.setDescricao_safra(rs.getString("descricao_safra"));
+	            	safra.setAno_plantio(rs.getInt("ano_plantio"));
+	            	safra.setAno_colheita(rs.getInt("ano_colheita"));
+	            	safra.setCodigo(rs.getInt("codigo_safra"));
+	            	
+	            	int id_produto = rs.getInt("id_produto");
+	            	
+	            	GerenciarBancoProdutos gerenciar = new GerenciarBancoProdutos();
+	            	CadastroProduto produto = gerenciar.getProduto(id_produto);
+	            	
+	            	if(produto != null) {
+	            		safra.setProduto(produto);
+	            	    ConexaoBanco.fechaConexao(conn, pstm, rs);
+		    	        return safra;
+	            	}
+	            	else {
+	            		return null;
+	            	}
+		          
+	            
+	        } catch (Exception e) {
+	            JOptionPane.showMessageDialog(null, "Erro ao buscar por safra id: " + id + " erro: " + e.getMessage());
+	            return null;
+	        }
+		  
+	  }
 
 }

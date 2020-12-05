@@ -75,5 +75,34 @@ public class GerenciarBancoProdutos {
 	        return listaProdutos;
 	    }
 	
-	  
+	  public CadastroProduto getProduto(int id) {
+
+		   String selectProduto = "select * from produto where id_produto = ?";
+	        Connection conn = null;
+	        PreparedStatement pstm = null;
+	        ResultSet rs = null;
+            CadastroProduto produto = new CadastroProduto();
+
+	        try {
+	            conn = ConexaoBanco.getConexao();
+	            pstm = conn.prepareStatement(selectProduto);
+	            pstm.setInt(1,  id);
+	            rs = pstm.executeQuery();
+	             rs.next();
+	 
+	                produto.setId_produto(rs.getInt("id_produto"));
+	                produto.setNome_produto(rs.getString("nome_produto"));
+	                produto.setDescricao_produto(rs.getString("descricao_produto"));
+	                produto.setCodigo(rs.getInt("codigo_produto"));
+	                
+	          
+	            
+	            ConexaoBanco.fechaConexao(conn, pstm, rs);
+		        return produto;
+
+	        } catch (Exception e) {
+	            JOptionPane.showMessageDialog(null, "Erro ao listar produto com id: " + id + " erro: " + e.getMessage());
+	            return null;
+	        }
+	  }
 }

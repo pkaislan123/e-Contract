@@ -87,6 +87,7 @@ public class TelaNovoContratoInformal extends JDialog{
 	private JPanel painelDadosProdutos = new JPanel();
 
 	private JPanel painelEmpresa = new JPanel();
+	private JPanel painelFinalizar = new JPanel();
 	private JComboBox cBComprador;
 	private CadastroContrato novo_contrato = new CadastroContrato();
 	private JComboBox cBVendedor1;
@@ -2036,139 +2037,6 @@ private ArrayList<CadastroContrato.CadastroPagamento> pagamentosLocais = new Arr
 				        lblValorAcumulado.setBounds(745, 256, 165, 42);
 				        painelEmpresa.add(lblValorAcumulado);
 				        
-				        JButton btnTeste = new JButton("Salvar");
-				        btnTeste.addActionListener(new ActionListener() {
-				        	public void actionPerformed(ActionEvent e) {
-                                    
-
-				        				TelaEmEspera esperar = new TelaEmEspera();
-				        				
-				        				
-				        				new Thread() {
-				        					
-				        					@Override
-				        					public void run() {
-				        						esperar.setVisible(true);
-				        					}
-				        					
-				        				}.start();
- 
-				        				new Thread() {
-									        	
-				        					@Override
-				        					public void run() {
-				        	        		  editar = new EditarExcel(modelo, esperar);
-								        		
-				                              String produto, medida, quantidade, preco, local_retirada, data_contrato, data_entrega ,codigo;
-                                              esperar.setMsg("Reunindo Informações");
-
- 				                             codigo = getCodigoContrato();
-                                              
-				                             if(codigo == null) {
-				                            	 esperar.fechar();
-				                             }
-				                             {
-				                             data_entrega = entDataEntrega.getText();
-				                             novo_contrato.setData_entrega(data_entrega);
-				                             data_contrato = entDataContrato.getText();
-				                             novo_contrato.setData_contrato(data_contrato);
-				                           
-				                             
-				                             novo_contrato.setCodigo(codigo);
-				                              if(rQuanKG.isSelected())
-				                              	medida = "KG";
-				                              else if(rQuanS.isSelected())
-				                                  medida = "Sacos";
-				                              else
-				                              	medida = "TON";
-				                              novo_contrato.setMedida(medida);
-				                              
-				                              CadastroSafra safra= (CadastroSafra) modelSafra.getSelectedItem();
-				                              novo_contrato.setModelo_safra(safra);
-				                              novo_contrato.setModelo_produto(safra.getProduto());
-				                              
-				                               novo_contrato.setSafra(safra.getAno_plantio() + "/" + safra.getAno_colheita());
-				                              
-				                               produto = safra.getProduto().getNome_produto();
-				                               novo_contrato.setProduto(produto); 
-				                               
-				                               CadastroCliente localRetirada = (CadastroCliente) modelLocalRetirada.getSelectedItem();
-				                               novo_contrato.setLocal_retirada(localRetirada.getNome_fantaia());
-				                              
-				                              
-				                              
-				                              novo_contrato.setQuantidade(Double.parseDouble(entQuantidade.getText()));
-				                              novo_contrato.setValor_produto(Double.parseDouble(entPreco.getText()));
-				                              novo_contrato.setValor_a_pagar(valor_total);
-				                              
-				                              //pagamentos
-				                              novo_contrato.setPagamentos(pagamentos);
-				                              
-				                              //adicionais
-				                              int contador_clausulas = 2;
-				                             novo_contrato.adicionar_clausula(0, entClausula1.getText().toString());
-				                             novo_contrato.adicionar_clausula(1, entClausula2.getText().toString());
-				                             if(chBoxClausulaComissao.isSelected()) {
-				                             novo_contrato.adicionar_clausula(2, entClausula3.getText().toString());
-				                             contador_clausulas++;
-				                             }
-				                             if(chBoxClausula4.isSelected()) {
-				                                 novo_contrato.adicionar_clausula(contador_clausulas, entClausula4.getText().toString());
-				                                 contador_clausulas++;
-
-				                              }
-				                             if(chBoxClausula5.isSelected()) {
-				                                 novo_contrato.adicionar_clausula(contador_clausulas, entClausula5.getText().toString());
-				                                 contador_clausulas++;
-
-				                              }
-				                             if(chBoxClausula6.isSelected()) {
-				                                 novo_contrato.adicionar_clausula(contador_clausulas, entClausula6.getText().toString());
-				                                 contador_clausulas++;
-
-				                              }
-                                               esperar.setMsg("Elaborando Contrato");
-                                         
-
-				                              
-				                             // editar.abrir();
-                                             try {  
-				                              ByteArrayOutputStream contrato_alterado = editar.alterar(novo_contrato);
-				                              
-				                              //criar pdf
-				                              ConverterPdf converter_pdf = new ConverterPdf();
-				                            //  String url = converter_pdf.excel_pdf_file(contrato_alterado);
-				                            //TelaVizualizarPdf  vizualizar =  new TelaVizualizarPdf(url);
-				                              ByteArrayOutputStream pdf_alterado = converter_pdf.excel_pdf_stream(contrato_alterado);
-				                              TelaVizualizarPdf  vizualizar =  new TelaVizualizarPdf(new ByteArrayInputStream (pdf_alterado.toByteArray()), isto, esperar);
-				                              
-				                        
-	                                        }catch(Exception e) {
-	                                        	esperar.fechar();
-	                                        	JOptionPane.showMessageDialog(null, "Erro fatal, consulte do administrado do sistema");
-	                                        	isto.dispose();
-	                                        }
-				        					}///fin do metodo run
-				        					}//fim do senao para codigo
-				        					
-				        				}.start();
-					        	        
-                          
-                          /* Jasper relatorio = new Jasper();
-                           ArrayList<CadastroContrato> contratos = new ArrayList<>();
-                           contratos.add(novo_contrato);
-               			   try {
-							relatorio.imprimir(contratos);
-						} catch (Exception e1) {
-							// TODO Auto-generated catch block
-							e1.printStackTrace();
-						}*/
-                            
-				        	}
-				        });
-				        btnTeste.setBounds(847, 561, 89, 23);
-				        painelEmpresa.add(btnTeste);
-				        
 				        JLabel lblComisso = new JLabel("Comissão:");
 				        lblComisso.setFont(new Font("Arial Black", Font.PLAIN, 14));
 				        lblComisso.setBounds(329, 32, 89, 42);
@@ -2302,7 +2170,152 @@ private ArrayList<CadastroContrato.CadastroPagamento> pagamentosLocais = new Arr
 				        painelEmpresa.add(rdbtnInfoFavorNao);
 				        
 				        chBoxClausulaComissao.setEnabled(false);
+				        
+				        //adiciona o paiel de salvar o contrato
+				        painelPrincipal.addTab("Finalizar", painelFinalizar);
+				        painelFinalizar.setLayout(null);
+				        
+				        JButton btnTeste = new JButton("Salvar");
+				        btnTeste.addActionListener(new ActionListener() {
+				        	public void actionPerformed(ActionEvent e) {
+                                    
+
+				        				TelaEmEspera esperar = new TelaEmEspera();
+				        				
+				        				
+				        				new Thread() {
+				        					
+				        					@Override
+				        					public void run() {
+				        						esperar.setVisible(true);
+				        					}
+				        					
+				        				}.start();
+ 
+				        				new Thread() {
+									        	
+				        					@Override
+				        					public void run() {
+				        	        		  editar = new EditarExcel(modelo, esperar);
+								        		
+				                              String produto, medida, quantidade, preco, local_retirada, data_contrato, data_entrega ,codigo;
+                                              esperar.setMsg("Reunindo Informações");
+
+ 				                             codigo = getCodigoContrato();
+                                              
+				                             if(codigo == null) {
+				                            	 esperar.fechar();
+				                             }
+				                             {
+				                             data_entrega = entDataEntrega.getText();
+				                             novo_contrato.setData_entrega(data_entrega);
+				                             data_contrato = entDataContrato.getText();
+				                             novo_contrato.setData_contrato(data_contrato);
+				                             novo_contrato.setStatus_contrato(1);
+				                             
+				                             novo_contrato.setCodigo(codigo);
+				                              if(rQuanKG.isSelected())
+				                              	medida = "KG";
+				                              else if(rQuanS.isSelected())
+				                                  medida = "Sacos";
+				                              else
+				                              	medida = "TON";
+				                              novo_contrato.setMedida(medida);
+				                              
+				                              CadastroSafra safra= (CadastroSafra) modelSafra.getSelectedItem();
+				                              novo_contrato.setModelo_safra(safra);
+				                              novo_contrato.setModelo_produto(safra.getProduto());
+				                              
+				                               novo_contrato.setSafra(safra.getAno_plantio() + "/" + safra.getAno_colheita());
+				                              
+				                               produto = safra.getProduto().getNome_produto();
+				                               novo_contrato.setProduto(produto); 
+				                               
+				                               CadastroCliente localRetirada = (CadastroCliente) modelLocalRetirada.getSelectedItem();
+				                               novo_contrato.setLocal_retirada(localRetirada.getNome_fantaia());
+				                              
+				                              
+				                              
+				                              novo_contrato.setQuantidade(Double.parseDouble(entQuantidade.getText()));
+				                              novo_contrato.setValor_produto(Double.parseDouble(entPreco.getText()));
+				                              novo_contrato.setValor_a_pagar(valor_total);
+				                              
+				                              //pagamentos
+				                              novo_contrato.setPagamentos(pagamentos);
+				                              
+				                              //adicionais
+				                              int contador_clausulas = 2;
+				                             novo_contrato.adicionar_clausula(0, entClausula1.getText().toString());
+				                             novo_contrato.adicionar_clausula(1, entClausula2.getText().toString());
+				                             if(chBoxClausulaComissao.isSelected()) {
+				                             novo_contrato.adicionar_clausula(2, entClausula3.getText().toString());
+				                             contador_clausulas++;
+				                             }
+				                             if(chBoxClausula4.isSelected()) {
+				                                 novo_contrato.adicionar_clausula(contador_clausulas, entClausula4.getText().toString());
+				                                 contador_clausulas++;
+
+				                              }
+				                             if(chBoxClausula5.isSelected()) {
+				                                 novo_contrato.adicionar_clausula(contador_clausulas, entClausula5.getText().toString());
+				                                 contador_clausulas++;
+
+				                              }
+				                             if(chBoxClausula6.isSelected()) {
+				                                 novo_contrato.adicionar_clausula(contador_clausulas, entClausula6.getText().toString());
+				                                 contador_clausulas++;
+
+				                              }
+                                               esperar.setMsg("Elaborando Contrato");
+                                         
+
+				                              
+				                             // editar.abrir();
+                                             try {  
+				                              ByteArrayOutputStream contrato_alterado = editar.alterar(novo_contrato);
+				                              
+				                              //criar pdf
+				                              ConverterPdf converter_pdf = new ConverterPdf();
+				                            //  String url = converter_pdf.excel_pdf_file(contrato_alterado);
+				                            //TelaVizualizarPdf  vizualizar =  new TelaVizualizarPdf(url);
+				                              ByteArrayOutputStream pdf_alterado = converter_pdf.excel_pdf_stream(contrato_alterado);
+				                              TelaVizualizarPdf  vizualizar =  new TelaVizualizarPdf(new ByteArrayInputStream (pdf_alterado.toByteArray()), isto, esperar);
+				                              
+				                        
+	                                        }catch(Exception e) {
+	                                        	esperar.fechar();
+	                                        	JOptionPane.showMessageDialog(null, "Erro fatal, consulte do administrado do sistema");
+	                                        	isto.dispose();
+	                                        }
+				        					}///fin do metodo run
+				        					}//fim do senao para codigo
+				        					
+				        				}.start();
+					        	        
+                          
+                          /* Jasper relatorio = new Jasper();
+                           ArrayList<CadastroContrato> contratos = new ArrayList<>();
+                           contratos.add(novo_contrato);
+               			   try {
+							relatorio.imprimir(contratos);
+						} catch (Exception e1) {
+							// TODO Auto-generated catch block
+							e1.printStackTrace();
+						}*/
+                            
+				        	}
+				        });
+				        btnTeste.setBounds(847, 561, 89, 23);
+				        painelFinalizar.add(btnTeste);
+				        
+				        JLabel lblStatusInicial = new JLabel("Status Inicial: Assinar");
+				        lblStatusInicial.setFont(new Font("Arial Black", Font.PLAIN, 14));
+				        lblStatusInicial.setBounds(40, 35, 228, 42);
+				        painelFinalizar.add(lblStatusInicial);
 				          chBoxClausulaComissao.setVisible(false);
+
+
+				          
 				        
 		this.setLocationRelativeTo(null);
 		this.setBounds (GraphicsEnvironment.getLocalGraphicsEnvironment (). getMaximumWindowBounds ());
@@ -2507,25 +2520,23 @@ private ArrayList<CadastroContrato.CadastroPagamento> pagamentosLocais = new Arr
 	
 	public void salvarArquivo()
 	{
-		try {
-			if(editar.salvar())
-			{
-				GerenciarBancoContratos gerenciarContratos = new GerenciarBancoContratos();
-				int result = gerenciarContratos.inserirContrato(novo_contrato);
-				if(result == 1) {
-					JOptionPane.showMessageDialog(null, "Contrato criado e salvo na base de dados");
-					isto.dispose();
-				}else if (result == 0){
-					JOptionPane.showMessageDialog(null, "Contrato não pode ser criado, mas não houve falhas no banco de dados!\nConsulte o administrador");
-                     isto.dispose();
-				}else if(result == -1) {
-					JOptionPane.showMessageDialog(null, "Contrato não pode ser criado\nHouve falhas no banco de dados!\nConsulte o administrador");
-                    isto.dispose();
-				}
+		if(editar.salvar())
+		{
+			GerenciarBancoContratos gerenciarContratos = new GerenciarBancoContratos();
+			int result = gerenciarContratos.inserirContrato(novo_contrato);
+			if(result == 1) {
+				JOptionPane.showMessageDialog(null, "Contrato criado e salvo na base de dados");
+				//salvar arquivo fisico
+				
+				
+				isto.dispose();
+			}else if (result == 0){
+				JOptionPane.showMessageDialog(null, "Contrato não pode ser criado, mas não houve falhas no banco de dados!\nConsulte o administrador");
+		         isto.dispose();
+			}else if(result == -1) {
+				JOptionPane.showMessageDialog(null, "Contrato não pode ser criado\nHouve falhas no banco de dados!\nConsulte o administrador");
+		        isto.dispose();
 			}
-		} catch (FileNotFoundException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
 		}
 		
 	}

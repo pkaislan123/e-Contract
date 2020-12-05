@@ -458,7 +458,7 @@ public class GerenciarBancoContratos {
 	
 	  
 	  private String sql_contrato(CadastroContrato contrato) {
-          String query = "insert into contrato (codigo, id_safra, id_produto, medida, quantidade, valor_produto, valor_a_pagar, data_contrato, data_entrega, status_contrato) values ('"
+          String query = "insert into contrato (codigo, id_safra, id_produto, medida, quantidade, valor_produto, valor_a_pagar, data_contrato, data_entrega, status_contrato, caminho_arquivo) values ('"
         		 + contrato.getCodigo() 
                  + "','"
                 + contrato.getModelo_safra().getId_safra()
@@ -478,6 +478,8 @@ public class GerenciarBancoContratos {
                 + contrato.getData_entrega()
                 + "','"
                 + contrato.getStatus_contrato()
+                + "','"
+                + contrato.getCaminho_arquivo()
                 + "')";	
           return query;
 
@@ -836,6 +838,79 @@ public class GerenciarBancoContratos {
 	  }
 	  
 	  
+	  public CadastroContrato getContrato(int id) {
+		  
+		  String selectContrato = "select * from contrato where id = ?";
+		  Connection conn = null;
+	        PreparedStatement pstm = null;
+	        ResultSet rs = null;
+        	CadastroContrato contrato = new CadastroContrato();
+
+	        try {
+	            conn = ConexaoBanco.getConexao();
+	            pstm = conn.prepareStatement(selectContrato);
+	            pstm.setInt(1, id);
+	            		
+	            rs = pstm.executeQuery();
+	            rs.next();
+	            
+
+	                 contrato.setId(rs.getInt("id"));
+	            	 contrato.setCodigo(rs.getString("codigo"));
+	            	 int id_safra = rs.getInt("id_safra");
+	            	 
+	            	 GerenciarBancoSafras gerenciar = new GerenciarBancoSafras();
+	            	 CadastroSafra safra = gerenciar.getSafra(id_safra);
+	            	 
+	            	 if(safra != null) {
+	            		 
+	            		 contrato.setQuantidade(Double.parseDouble(rs.getString("quantidade")));
+		            	 contrato.setMedida(rs.getString("medida"));
+		            	
+		            	 contrato.setValor_produto(Double.parseDouble(rs.getString("valor_produto")));
+		            	 contrato.setValor_a_pagar(new BigDecimal(rs.getString("valor_a_pagar")));
+		            
+		            	 contrato.setModelo_safra(safra);
+		            	 
+		            	 GerenciarBancoContratos gerenciar_corretores = new GerenciarBancoContratos();
+		            	 CadastroCliente corretores[] = gerenciar_corretores.getCorretores(id);
+                         contrato.setCorretores(corretores);
+		            	 
+                         GerenciarBancoContratos gerenciar_vendedores = new GerenciarBancoContratos();
+		            	 CadastroCliente vendedores[] = gerenciar_vendedores.getVendedores(id);
+                         contrato.setVendedores(vendedores);
+                         
+                         GerenciarBancoContratos gerenciar_compradores = new GerenciarBancoContratos();
+		            	 CadastroCliente compradores[] = gerenciar_compradores.getCompradores(id);
+                         contrato.setCompradores(compradores);
+                         
+                         contrato.setStatus_contrato(rs.getInt("status_contrato"));
+                         contrato.setCaminho_arquivo(rs.getString("caminho_arquivo"));
+		            	 
+
+			 	         ConexaoBanco.fechaConexao(conn, pstm, rs);
+
+
+	            		 
+	            		 
+	            		 return contrato;
+	            	 }else {
+	            		 
+	            		 return null;
+	            	 }
+	            	 
+
+	                
+	            
+	        } catch (Exception e) {
+	            JOptionPane.showMessageDialog(null, "Erro ao listar contrato id: " + id + " erro: " + e.getMessage());
+	            return null;
+	        }		  
+		  
+		  
+	  }
+	  
+	  
 	  public ArrayList<CadastroContrato> getContratos() {
 		  String selectContratos = "call consulta_contratos()";
 	        Connection conn = null;
@@ -856,7 +931,7 @@ public class GerenciarBancoContratos {
 	            	 CadastroCliente vendedores [] = null;
 	            	 CadastroCliente corretores [] = null;
 
-	                 
+	                 contrato.setId(rs.getInt("id"));
 	            	 contrato.setCodigo(rs.getString("codigo"));
 	            	 contrato.setQuantidade(Double.parseDouble(rs.getString("quantidade")));
 	            	 contrato.setMedida(rs.getString("medida"));
@@ -866,21 +941,17 @@ public class GerenciarBancoContratos {
 	            	 safra.setAno_colheita(Integer.parseInt(rs.getString("ano_colheita")));
 	            	 contrato.setValor_produto(Double.parseDouble(rs.getString("valor_produto")));
 	            	 contrato.setValor_a_pagar(new BigDecimal(rs.getString("valor_a_pagar")));
+	            	 contrato.setStatus_contrato(rs.getInt("status_contrato"));
 	            	 
-	            	 String get_compradores = (rs.getString("compradores"));
-	            	 String nomes_compradores [] = get_compradores.split(",");
-	            	 int i = 0;
-	            	 for (String nome_comprador : nomes_compradores) {
-	            		 if(nome_comprador != null) {
-	            			 CadastroCliente comprador = new CadastroCliente();
-	            			 comprador.setNome(nome_comprador);
-	            			 compradores[i] = comprador;
-	            		 }
-	            		 i++;
-	            	 }
 	            	 
+	            	 
+	                 contrato.setNomes_compradores(rs.getString("compradores"));
+	                 contrato.setNomes_vendedores(rs.getString("vendedores"));
+	                 contrato.setNomes_corretores(rs.getString("corretores"));
+	                 
+	                 
+	                 
 
-	            	 
 	            	 
 
 	            	 safra.setProduto(produto);
@@ -897,6 +968,148 @@ public class GerenciarBancoContratos {
 }
 	  
 	  
+ public CadastroCliente [] getCorretores(int id_contrato) {
+		  
+		  String selectCorretores = "select c.id_cliente from contrato_corretor cc LEFT JOIN cliente c on c.id_cliente = cc.id_cliente  where cc.id_contrato = ?";
+		  Connection conn = null;
+	        PreparedStatement pstm = null;
+	        ResultSet rs = null;
+	        CadastroCliente lista_corretores [] = new CadastroCliente [5];
+
+	        try {
+	            conn = ConexaoBanco.getConexao();
+	            pstm = conn.prepareStatement(selectCorretores);
+	            pstm.setInt(1, id_contrato);
+	            		
+	            rs = pstm.executeQuery();
+	            int i = 0;
+            	GerenciarBancoClientes gerenciar_clientes = new GerenciarBancoClientes();
+
+	            while (rs.next()) {
+	            	int id_cliente = rs.getInt("id_cliente");
+	            	System.out.println("id do cliente retornado: " + id_cliente);
+	            	CadastroCliente corretor;
+	            	try
+	            	{
+	            		 corretor = gerenciar_clientes.getCliente(id_cliente);
+	            		 System.out.println("Nome do cliente com id " + id_cliente + ": " + corretor.getNome_empresarial() + " outro nome: " + corretor.getNome_fantaia());
+	            		 if(corretor != null) {
+	 	            		lista_corretores[i] = corretor;
+	 	            		System.out.println("Corretor encontrado: " + corretor.getNome_empresarial() + "outro nome:" + corretor.getNome_fantaia());
+	 	            	   i++;
+	 	            	}else {
+	 	            		System.out.println("O corretor é nulo!");
+	 	            	}
+	            	     
+	            	}catch(Exception y) {
+	            		System.out.println("Erro ao procurar por cliente corretor, erro: " + y.getMessage());
+	            	}
+	             }
+	            ConexaoBanco.fechaConexao(conn, pstm, rs);
+                return lista_corretores;
+	        } catch (Exception e) {
+	            JOptionPane.showMessageDialog(null, "Erro ao listar os corretores do contrato: " + id_contrato + " erro: " + e.getMessage() + "causa: " + e.getCause());
+	            return null;
+	        }		  
+		  
+		  
+	  }
+	  
+	  
+ public CadastroCliente [] getCompradores(int id_contrato) {
+	  
+	  String selectCompradores = "select c.id_cliente from contrato_comprador cc LEFT JOIN cliente c on c.id_cliente = cc.id_cliente  where cc.id_contrato = ?";
+	  Connection conn = null;
+       PreparedStatement pstm = null;
+       ResultSet rs = null;
+       CadastroCliente lista_compradores [] = new CadastroCliente [3];
+
+       try {
+           conn = ConexaoBanco.getConexao();
+           pstm = conn.prepareStatement(selectCompradores);
+           pstm.setInt(1, id_contrato);
+           		
+           rs = pstm.executeQuery();
+           int i = 0;
+       	GerenciarBancoClientes gerenciar_clientes = new GerenciarBancoClientes();
+
+           while (rs.next()) {
+           	int id_cliente = rs.getInt("id_cliente");
+           	System.out.println("id do cliente retornado: " + id_cliente);
+           	CadastroCliente comprador;
+           	try
+           	{
+           		comprador = gerenciar_clientes.getCliente(id_cliente);
+           		 System.out.println("Nome do cliente com id " + id_cliente + ": " + comprador.getNome_empresarial() + " outro nome: " + comprador.getNome_fantaia());
+           		 if(comprador != null) {
+           			lista_compradores[i] = comprador;
+	            		System.out.println("Comprador encontrado: " + comprador.getNome_empresarial() + "outro nome:" + comprador.getNome_fantaia());
+	            	   i++;
+	            	}else {
+	            		System.out.println("O comprador é nulo!");
+	            	}
+           	     
+           	}catch(Exception y) {
+           		System.out.println("Erro ao procurar por cliente comprador, erro: " + y.getMessage());
+           	}
+            }
+           ConexaoBanco.fechaConexao(conn, pstm, rs);
+           return lista_compradores;
+       } catch (Exception e) {
+           JOptionPane.showMessageDialog(null, "Erro ao listar os compradores do contrato: " + id_contrato + " erro: " + e.getMessage() + "causa: " + e.getCause());
+           return null;
+       }		  
+	  
+	  
+ }
+ 
+ 
+ public CadastroCliente [] getVendedores(int id_contrato) {
+	  
+	  String selectVendedores = "select c.id_cliente from contrato_vendedor cc LEFT JOIN cliente c on c.id_cliente = cc.id_cliente  where cc.id_contrato = ?";
+	  Connection conn = null;
+      PreparedStatement pstm = null;
+      ResultSet rs = null;
+      CadastroCliente lista_vendedores [] = new CadastroCliente [3];
+
+      try {
+          conn = ConexaoBanco.getConexao();
+          pstm = conn.prepareStatement(selectVendedores);
+          pstm.setInt(1, id_contrato);
+          		
+          rs = pstm.executeQuery();
+          int i = 0;
+      	GerenciarBancoClientes gerenciar_clientes = new GerenciarBancoClientes();
+
+          while (rs.next()) {
+          	int id_cliente = rs.getInt("id_cliente");
+          	System.out.println("id do cliente retornado: " + id_cliente);
+          	CadastroCliente vendedor;
+          	try
+          	{
+          		vendedor = gerenciar_clientes.getCliente(id_cliente);
+          		 System.out.println("Nome do cliente com id " + id_cliente + ": " + vendedor.getNome_empresarial() + " outro nome: " + vendedor.getNome_fantaia());
+          		 if(vendedor != null) {
+          			lista_vendedores[i] = vendedor;
+	            		System.out.println("Vendedor encontrado: " + vendedor.getNome_empresarial() + "outro nome:" + vendedor.getNome_fantaia());
+	            	   i++;
+	            	}else {
+	            		System.out.println("O vendedor é nulo!");
+	            	}
+          	     
+          	}catch(Exception y) {
+          		System.out.println("Erro ao procurar por cliente vendedores, erro: " + y.getMessage());
+          	}
+           }
+          ConexaoBanco.fechaConexao(conn, pstm, rs);
+          return lista_vendedores;
+      } catch (Exception e) {
+          JOptionPane.showMessageDialog(null, "Erro ao listar os vendedores do contrato: " + id_contrato + " erro: " + e.getMessage() + "causa: " + e.getCause());
+          return null;
+      }		  
+	  
+	  
+}
 	 
 	  
 	  

@@ -22,13 +22,13 @@ public class ConexaoBanco {
 	try {
 		
 		//base nuvem
-		//Connection connection =  (Connection) DriverManager.getConnection("jdbc:mysql://0.tcp.ngrok.io:12003/bd_titaniwm?useTimezone=true&serverTimezone=UTC", "root", "1234");		
+		//Connection connection =  (Connection) DriverManager.getConnection("jdbc:mysql://4.tcp.ngrok.io:16461/bd_ldarmazens?useTimezone=true&serverTimezone=UTC", "root", "1234");		
 		
 		//base raspberry
-		Connection connection =  (Connection) DriverManager.getConnection("jdbc:mysql://DESKTOP-K8RASOB/bd_ldarmazens?useTimezone=true&serverTimezone=UTC", "root", "1234");		
+		//Connection connection =  (Connection) DriverManager.getConnection("jdbc:mysql://DESKTOP-K8RASOB/bd_ldarmazens?useTimezone=true&serverTimezone=UTC", "root", "1234");		
         
 		//base local
-		//Connection connection =  (Connection) DriverManager.getConnection("jdbc:mysql://localhost:3306/bd_ldarmazens?useTimezone=true&serverTimezone=UTC", usuario, senha);		
+		Connection connection =  (Connection) DriverManager.getConnection("jdbc:mysql://localhost:3306/bd_ldarmazens?useTimezone=true&serverTimezone=UTC", "root", "1234");		
 
 	 return connection;
 	 
