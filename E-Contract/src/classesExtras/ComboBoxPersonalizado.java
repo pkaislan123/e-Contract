@@ -5,7 +5,6 @@ import java.util.ArrayList;
 import javax.swing.AbstractListModel;
 import javax.swing.ComboBoxModel;
 
-import com.itextpdf.text.List;
 
 import cadastros.CadastroSafra;
 

@@ -42,10 +42,22 @@ public class CadastroContrato {
 	private CadastroCliente [] corretores;
 	private BigDecimal valor_a_pagar;
 	private double quantidade, valor_produto;
-	private String produto, data_contrato, codigo, data_entrega, ctc, ctv, safra, medida, caminho_arquivo;
+	private String produto, data_contrato, codigo, data_entrega, ctc, ctv, safra, medida, caminho_arquivo, nome_arquivo;
 	public String getCaminho_arquivo() {
 		return caminho_arquivo;
 	}
+
+
+	public String getNome_arquivo() {
+		return nome_arquivo;
+	}
+
+
+
+	public void setNome_arquivo(String nome_arquivo) {
+		this.nome_arquivo = nome_arquivo;
+	}
+
 
 
 	public void setCaminho_arquivo(String caminho_arquivo) {
@@ -326,8 +338,22 @@ local retirada: 24 2
 	public static class CadastroPagamento
 	{
 		
+		int id;
+		public int getId() {
+			return id;
+		}
+		public void setId(int id) {
+			this.id = id;
+		}
 		ContaBancaria conta;
 		BigDecimal valor;
+		String valor_string;
+		public String getValor_string() {
+			return valor_string;
+		}
+		public void setValor_string(String valor_string) {
+			this.valor_string = valor_string;
+		}
 		String data_pagamento;
 		String descricao_pagamento;
 		

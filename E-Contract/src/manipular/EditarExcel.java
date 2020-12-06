@@ -1229,6 +1229,20 @@ public ByteArrayOutputStream alterar(CadastroContrato novo_contrato)
                 	 System.out.println("Arquivo pdf convertido e salvo!");
                 	 System.out.println("caminho para salvar: " + caminho_completo_salvar);
                 	 novo_contrato.setCaminho_arquivo(caminho_completo_salvar + ".pdf") ;
+                	 
+                	 //salvar no drobox
+                	 Nuvem nuvem = new Nuvem();
+                	 nuvem.abrir();
+                     nuvem.testar();
+                    
+                    boolean retorno =   nuvem.carregar(caminho_completo_salvar + ".pdf", nome_arquivo + ".pdf");
+                     if(retorno) {
+                    	 System.out.println("Arquivo salvo na nuvem");
+                    	 novo_contrato.setNome_arquivo(nome_arquivo + ".pdf" );
+                     }
+            	    // System.out.println("link: " + nuvem.getUrlArquivo("/contratos));
+            	     
+                	 
                  }
                  
            

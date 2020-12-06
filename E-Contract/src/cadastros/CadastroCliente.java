@@ -605,6 +605,9 @@ public class CadastroCliente {
 	public void setContatos(ArrayList<Contato> contatos) {
 		this.contatos = contatos;
 	}
+	
+	
+	
 
 
 

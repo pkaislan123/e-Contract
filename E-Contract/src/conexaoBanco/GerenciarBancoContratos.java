@@ -10,12 +10,15 @@ import java.util.ArrayList;
 
 import javax.swing.JOptionPane;
 
+import com.mysql.cj.exceptions.RSAException;
+
 import cadastros.CadastroCliente;
 import cadastros.CadastroContrato;
 import cadastros.CadastroLogin;
 import cadastros.CadastroModelo;
 import cadastros.CadastroProduto;
 import cadastros.CadastroSafra;
+import cadastros.ContaBancaria;
 import outros.DadosGlobais;
 import tratamento_proprio.Log;
 
@@ -458,7 +461,7 @@ public class GerenciarBancoContratos {
 	
 	  
 	  private String sql_contrato(CadastroContrato contrato) {
-          String query = "insert into contrato (codigo, id_safra, id_produto, medida, quantidade, valor_produto, valor_a_pagar, data_contrato, data_entrega, status_contrato, caminho_arquivo) values ('"
+          String query = "insert into contrato (codigo, id_safra, id_produto, medida, quantidade, valor_produto, valor_a_pagar, data_contrato, data_entrega, status_contrato, caminho_arquivo, nome_arquivo) values ('"
         		 + contrato.getCodigo() 
                  + "','"
                 + contrato.getModelo_safra().getId_safra()
@@ -480,6 +483,8 @@ public class GerenciarBancoContratos {
                 + contrato.getStatus_contrato()
                 + "','"
                 + contrato.getCaminho_arquivo()
+                + "','"
+                + contrato.getNome_arquivo()
                 + "')";	
           return query;
 
@@ -883,9 +888,19 @@ public class GerenciarBancoContratos {
                          GerenciarBancoContratos gerenciar_compradores = new GerenciarBancoContratos();
 		            	 CadastroCliente compradores[] = gerenciar_compradores.getCompradores(id);
                          contrato.setCompradores(compradores);
+                   
+                         GerenciarBancoContratos gerenciar_pagamentos = new GerenciarBancoContratos();
+		            	 ArrayList<CadastroContrato.CadastroPagamento> pagamentos_contrato = gerenciar_pagamentos.getPagamentos(id);
+                         contrato.setPagamentos(pagamentos_contrato);
+                         
+                         
                          
                          contrato.setStatus_contrato(rs.getInt("status_contrato"));
+    	            	 contrato.setData_contrato(rs.getString("data_contrato"));
+
                          contrato.setCaminho_arquivo(rs.getString("caminho_arquivo"));
+                         contrato.setNome_arquivo(rs.getString("nome_arquivo"));
+                        
 		            	 
 
 			 	         ConexaoBanco.fechaConexao(conn, pstm, rs);
@@ -942,6 +957,7 @@ public class GerenciarBancoContratos {
 	            	 contrato.setValor_produto(Double.parseDouble(rs.getString("valor_produto")));
 	            	 contrato.setValor_a_pagar(new BigDecimal(rs.getString("valor_a_pagar")));
 	            	 contrato.setStatus_contrato(rs.getInt("status_contrato"));
+	            	 contrato.setData_contrato(rs.getString("data_contrato"));
 	            	 
 	            	 
 	            	 
@@ -1111,6 +1127,60 @@ public class GerenciarBancoContratos {
 	  
 }
 	 
-	  
+ 
+ 
+ 
+   public ArrayList<CadastroContrato.CadastroPagamento> getPagamentos(int id_contrato){
+	   String selectPagamentos = "select * from contrato_modelo_pagamento  LEFT JOIN modelo_pagamento  on modelo_pagamento.id = contrato_modelo_pagamento.id_pagamento  where contrato_modelo_pagamento.id_contrato = ?";
+		  Connection conn = null;
+	      PreparedStatement pstm = null;
+	      ResultSet rs = null;
+	      ArrayList<CadastroContrato.CadastroPagamento> lista_pagamentos = new ArrayList<>();
+	      
+	      try {
+	          conn = ConexaoBanco.getConexao();
+	          pstm = conn.prepareStatement(selectPagamentos);
+	          pstm.setInt(1, id_contrato);
+	          		
+	          rs = pstm.executeQuery();
+	          int i = 0;
+
+	          while (rs.next()) {
+	        	  CadastroContrato.CadastroPagamento pagamento = new CadastroContrato.CadastroPagamento();
+	        	  
+	        	  pagamento.setId(rs.getInt("id"));
+	        	  pagamento.setValor_string(rs.getString("valor"));
+	        	  pagamento.setData_pagamento(rs.getString("data_pagamento"));
+	        	  ContaBancaria conta = null;
+	        			  
+	        	  int id_cb = rs.getInt("id_conta_bancaria");
+	        	  if(id_cb == 0) {
+	        		 
+	        	  }else {
+	        		  GerenciarBancoClientes gerenciar = new GerenciarBancoClientes();
+		        	   conta = gerenciar.getConta(id_cb);
+	        	  }
+	        	  
+	        	 
+	        	  
+	        	  
+	        	  if(conta != null)
+	        	   pagamento.setConta(conta);
+	        	  
+	        	  lista_pagamentos.add(pagamento);
+	           }
+	          ConexaoBanco.fechaConexao(conn, pstm, rs);
+	          return lista_pagamentos;
+	      } catch (Exception e) {
+	          JOptionPane.showMessageDialog(null, "Erro ao listar os pagamentos do contrato: " + id_contrato + " erro: " + e.getMessage() + "causa: " + e.getCause());
+	          return null;
+	      }		  
+	   
+   }
+	   
+	   
+	   
+	   
+   
 	  
 }

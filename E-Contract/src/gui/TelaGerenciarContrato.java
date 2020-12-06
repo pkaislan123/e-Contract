@@ -26,8 +26,11 @@ import org.icepdf.ri.util.PropertiesManager;
 
 import cadastros.CadastroContrato;
 import manipular.ConverterPdf;
+import views_personalizadas.TelaEscolha;
 
 import javax.swing.JLabel;
+import java.awt.event.ActionListener;
+import java.awt.event.ActionEvent;
 
 public class TelaGerenciarContrato extends JDialog {
 
@@ -40,6 +43,7 @@ public class TelaGerenciarContrato extends JDialog {
 	InputStream stream = null;
 	private final JButton btnNewButton = new JButton("Editar");
 	private JPanel painel_vizualizar;
+	private final JButton btnEnviarMsg = new JButton("Enviar");
 
 	 
 	public TelaGerenciarContrato(CadastroContrato contrato) {
@@ -160,6 +164,15 @@ public class TelaGerenciarContrato extends JDialog {
 				painel_vizualizar.setBounds(10, 25, 508, 461);							
 				
 				painelDadosIniciais.add(painel_vizualizar);
+				btnEnviarMsg.addActionListener(new ActionListener() {
+					public void actionPerformed(ActionEvent e) {
+						TelaEscolha escolher = new TelaEscolha(contrato);
+					}
+				});
+				
+				btnEnviarMsg.setBounds(330, 497, 89, 23);
+				
+				painelDadosIniciais.add(btnEnviarMsg);
 				
 		
 		

@@ -351,6 +351,41 @@ public class TelaCadastroCliente extends JDialog {
 		 painelContato.add(lblCelular);
 		 
 		 entCelularContato = new JTextFieldPersonalizado();
+		 entCelularContato.addKeyListener(new KeyAdapter() {
+		 	@Override
+		 	public void keyTyped(KeyEvent evt) {
+		 		String caracteres="0987654321\b";// lista de caracters que não devem ser aceitos
+				String texto = entCelularContato.getText();
+				if(!caracteres.contains(evt.getKeyChar()+"")){
+				evt.consume();//aciona esse propriedade para eliminar a ação do evento
+				}else {
+				if(texto.length()==1 && evt.getKeyChar() != '\b'){
+					entCelularContato.setText("(" + entCelularContato.getText());
+				}
+				if(texto.length()==3  && evt.getKeyChar() != '\b'){
+					entCelularContato.setText(entCelularContato.getText().concat(") "));
+				}
+				
+				if(texto.length()==6 && evt.getKeyChar() != '\b'){
+					entCelularContato.setText(entCelularContato.getText().concat(" "));
+				}
+				
+				if(texto.length()==11 && evt.getKeyChar() != '\b'){
+					entCelularContato.setText(entCelularContato.getText().concat("-"));
+				}
+				
+				if(entCelularContato.getText().length()>=16){
+					//if para saber se precisa verificar também o tamanho da string do campo
+					// maior ou igual ao tamanho máximo, cancela e nao deixa inserir mais
+					evt.consume();
+					entCelularContato.setText(entCelularContato.getText().substring(0,16));
+				}
+			
+			}
+		 	}
+		 });
+		 
+		
 		 entCelularContato.setForeground(Color.BLACK);
 		 entCelularContato.setColumns(10);
 		 entCelularContato.setBounds(116, 309, 220, 33);
@@ -467,10 +502,17 @@ public class TelaCadastroCliente extends JDialog {
 					observacao = entObservacaoContato.getText().toString();
 					descricao = entDescricaoContato.getText().toString();
 					
+				      celular = celular.replace("(", "").replace(")", "").replace(" ", "").replace("-", "");
+					if( celular.length() != 11) {
+						JOptionPane.showMessageDialog(null, "Contato com número de celular incorreto");
+					}else {
+						
+						modelo.addRow(new Object[]{id, nome, cargo, 
+							       celular, fixo, email, descricao, observacao});
+					}
 					
 				
-					modelo.addRow(new Object[]{id, nome, cargo, 
-						       celular, fixo, email, descricao, observacao});
+				
 					
 					
 				}

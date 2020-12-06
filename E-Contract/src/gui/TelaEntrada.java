@@ -176,7 +176,7 @@ public class TelaEntrada extends JDialog implements GetDadosGlobais{
 			e.printStackTrace();
 		}
 		
-		lblStatus.setText("Lendo arquivo de configurações...");
+		lblStatus.setText("Lendo arquivo de configuraÃ§Ãµes...");
 
 		ArquivoConfiguracoes ler = new ArquivoConfiguracoes();
         barra.setValue(10);		

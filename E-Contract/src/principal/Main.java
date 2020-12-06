@@ -23,6 +23,9 @@ import manipular.ArquivoConfiguracoes;
 import manipular.ConfiguracoesGlobais;
 import manipular.Email;
 import manipular.ManipularTxt;
+import manipular.Nuvem;
+import manipular.Whatsapp;
+import manipular.ZapMessenger;
 import outros.DadosGlobais;
 import outros.GetData;
 import tratamento_proprio.Log;
@@ -36,7 +39,7 @@ public class Main {
 	private static ConfiguracoesGlobais configs_globais;
 	
 	
-	public static void main(String[] args) {
+ public static void main(String[] args) {
 	   
 		
 		try {
@@ -102,8 +105,28 @@ public class Main {
         		        "atenciosamente;\n Aislan Silva Costa\n LD Armazens Gerais", anexos);
 */
 
-	}
-              
+}
+	
+	/*public static void main(String[] args) {
+		//Whatsapp zap = new Whatsapp();
+		//zap.enviarArquivo("teste", "38998280886", "http:teste");
+	/*	Nuvem nuvem = new Nuvem();
+         nuvem.abrir();
+         nuvem.testar();
+         nuvem.listar();
+         //nuvem.carregar("C:\\Users\\aisla\\Documents\\CTC 123 CJ SELECTA S.A. CTV 123 CJ SELECTA S.A..xlsx", "CTC 123 CJ SELECTA S.A. CTV 123 CJ SELECTA S.A..xlsx");
+	     System.out.println("link: " + nuvem.getUrlArquivo("/contratos/4466.1.2.4595 FORTUNATO AGRICOLA x TITANIWM REDES.pdf"));
+	 */
+		/*
+		ZapMessenger zap = new ZapMessenger();
+		String url = "https://content.dropboxapi.com/apitl/1/AmpEk8e6eYeasxfWXIVmNEcAsiDtXd_ylfSaJ_v7TrIT_pp-_FdpzZx1hbhkAly2kUt91Qtph4H8RjO4YV4V1ShacEtOW2dDS8zPh7w_724tGiYGw35-TSZRxv0KomfXwXFGPRZhGftsJZKO1J8gGhh-tzX7kQHxh-rkb9CDwvPSo0ByPw5lwDvBSX1mP-tfO7IJZN58IZ2F18h6YuzBQNapoLlk3JrQkRnrgflkM_d6I8kaIuG6XhIdo6ZqR45EU6dmWZTxSpEMKtIbP9t6ItfkBsv21N5KcJ8FBepYIUaBZ85AIm6pwM8oBdVlOT3AoVfYNr3cfeZSf6qoJRiA_hewYaMUmObtxEBaS3aqDB_jaefQul_OpCFtUZrLr3s661w-8A_N3sj1tgQ4HMNvgPpc";
+		zap.enviarArquivo("+553899978414", "Teste de envio de anexo", url);
+		 
+
+         
+	    // System.out.println("link: " + nuvem.getUrlShare("/contratos/4466.1.2.4595 FORTUNATO AGRICOLA x TITANIWM REDES.pdf"));
+
+	}*/
 	
 	public void getDadosGlobais() {
 		//gerenciador de log

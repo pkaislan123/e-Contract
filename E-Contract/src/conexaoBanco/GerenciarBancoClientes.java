@@ -1120,6 +1120,44 @@ public int inserir_cliente(CadastroCliente cliente)
 	 
 		
 	  
+	  public ContaBancaria getConta(int id_conta)
+	  {
+		  String selectContaBancaria = "select * from conta_bancaria where id_conta = ?";
+
+		  Connection conn = null;
+	        PreparedStatement pstm = null;
+	        ResultSet rs = null;
+	    
+
+          try {
+	            conn = ConexaoBanco.getConexao();
+	            pstm = conn.prepareStatement(selectContaBancaria);
+	            pstm.setInt(1,  id_conta);
+	            rs = pstm.executeQuery();
+       
+	             rs.next();
+                 ContaBancaria conta = new ContaBancaria();
+                     
+                 conta.setId_conta(rs.getInt("id_conta"));
+                 conta.setNome(rs.getString("nome"));
+                 conta.setCpf_titular(rs.getString("cpf"));
+                 conta.setBanco(rs.getString("banco"));
+                 conta.setCodigo(rs.getString("codigo"));
+                 conta.setAgencia(rs.getString("agencia"));
+                 conta.setConta(rs.getString("conta"));
+                 
+                return conta;
+                
+          
+          }   catch (Exception e) {
+	            JOptionPane.showMessageDialog(null, "Erro ao listar conta bancaria id: " + id_conta + "erro: " + e.getMessage());
+	            return null;
+	        }
+
+		}
+	  
+	  
+	
 	  
 }
 	

@@ -15,6 +15,8 @@ import java.util.ArrayList;
 import java.awt.event.ActionEvent;
 import javax.swing.JScrollPane;
 import java.awt.Component;
+import java.awt.Dimension;
+
 import javax.swing.JTable;
 import javax.swing.table.DefaultTableModel;
 
@@ -47,7 +49,7 @@ public class TelaContratos extends JDialog {
 
 		setBackground(new Color(255, 255, 255));
 		setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-		setBounds(100, 100, 735, 508);
+		setBounds(100, 100, 933, 632);
 		painelPrincipal.setBackground(new Color(255, 255, 255));
 		painelPrincipal.setBorder(new EmptyBorder(5, 5, 5, 5));
 		setContentPane(painelPrincipal);
@@ -61,46 +63,75 @@ public class TelaContratos extends JDialog {
 		});
 		//btnContrato.setIcon(new ImageIcon(TelaContratos.class.getResource("/imagens/add_contrato.png")));
 		btnContrato.setToolTipText("Adicionar Novo Contrato");
-		btnContrato.setBounds(547, 67, 172, 33);
+		btnContrato.setBounds(730, 82, 172, 33);
 		painelPrincipal.add(btnContrato);
 		
 		JPanel panel = new JPanel();
 		panel.setLayout(null);
-		panel.setBounds(30, 126, 653, 266);
+		panel.setBounds(30, 126, 872, 266);
 		painelPrincipal.add(panel);
 		
         JTable tabela = new JTable(modelo);
 		
 		tabela.setBackground(new Color(255, 255, 255));
+		//tabela.setPreferredSize(new Dimension(0, 200)); 
+		tabela.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
 		modelo.addColumn("ID");
 		modelo.addColumn("Código");
+		 modelo.addColumn("Status");
+
         modelo.addColumn("Quantidade");
         modelo.addColumn("Medida");
         modelo.addColumn("Produto");
         modelo.addColumn("Safra");
         modelo.addColumn("Valor Produto");
         modelo.addColumn("Valor Total");
-        modelo.addColumn("Vendedores");
         modelo.addColumn("Compradores");
+
+        modelo.addColumn("Vendedores");
         modelo.addColumn("Corretores");
         modelo.addColumn("Data do Contrato");
-        modelo.addColumn("Status");
-
+       
 
         pesquisar(modelo);
 
         
-       for(int i = 0; i <=12; i++) {
-        tabela.getColumnModel().getColumn(i)
+      
+        tabela.getColumnModel().getColumn(0)
+        .setPreferredWidth(40);
+        tabela.getColumnModel().getColumn(1)
+        .setPreferredWidth(90);
+        tabela.getColumnModel().getColumn(2)
+        .setPreferredWidth(170);
+        tabela.getColumnModel().getColumn(3)
+        .setPreferredWidth(80);
+        tabela.getColumnModel().getColumn(4)
+        .setPreferredWidth(80);
+        tabela.getColumnModel().getColumn(5)
+        .setPreferredWidth(70);
+        tabela.getColumnModel().getColumn(6)
+        .setPreferredWidth(70);
+        tabela.getColumnModel().getColumn(7)
+        .setPreferredWidth(90);
+        tabela.getColumnModel().getColumn(8)
+        .setPreferredWidth(80);
+        tabela.getColumnModel().getColumn(9)
         .setPreferredWidth(150);
-       }
+        tabela.getColumnModel().getColumn(10)
+        .setPreferredWidth(150);
+        tabela.getColumnModel().getColumn(11)
+        .setPreferredWidth(100);
+        tabela.getColumnModel().getColumn(12)
+        .setPreferredWidth(80);
+        
+       
 		
 		JScrollPane scrollPane = new JScrollPane(tabela);
-		scrollPane.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
-		scrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_ALWAYS);
+		scrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+		scrollPane.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED);
 		scrollPane.setBackground(Color.WHITE);
 		scrollPane.setAutoscrolls(true);
-		scrollPane.setBounds(10, 11, 633, 244);
+		scrollPane.setBounds(10, 11, 852, 244);
 		
 		panel.add(scrollPane);
 		
@@ -143,7 +174,7 @@ public class TelaContratos extends JDialog {
 				TelaGerenciarContrato gerenciar_contrato = new TelaGerenciarContrato(contrato_selecionado);
 			}
 		});
-		btnSelecionar.setBounds(562, 428, 121, 23);
+		btnSelecionar.setBounds(781, 439, 121, 23);
 		getContentPane().add(btnSelecionar);
 		
 		
@@ -162,8 +193,31 @@ public class TelaContratos extends JDialog {
 
       
     
-   /*
-    * 	modelo.addColumn("Código");
+   
+    for (CadastroContrato contrato : gerenciar.getContratos()) {
+    	String cpf, cnpj, nome;
+   
+
+		int status = contrato.getStatus_contrato();
+		String text_status = "";
+		if(status== 1) {
+			text_status=  "Recolher Assinaturas".toUpperCase();
+
+		}
+		else if(status == 2) {
+			text_status = "Assinado".toUpperCase();
+
+		}
+		else if(status == 3) {
+			text_status = "Cumprindo".toUpperCase();
+
+		}
+		
+		/*
+		    * 	modelo.addColumn("ID");
+		modelo.addColumn("Código");
+		 modelo.addColumn("Status");
+
         modelo.addColumn("Quantidade");
         modelo.addColumn("Medida");
         modelo.addColumn("Produto");
@@ -174,14 +228,19 @@ public class TelaContratos extends JDialog {
         modelo.addColumn("Compradores");
         modelo.addColumn("Corretores");
         modelo.addColumn("Data do Contrato");
-        modelo.addColumn("Status");
 
-    */
-    for (CadastroContrato contrato : gerenciar.getContratos()) {
-    	String cpf, cnpj, nome;
-   
-   
-            modelo.addRow(new Object[]{contrato.getId(), contrato.getCodigo()});
+		    */
+    	
+            modelo.addRow(new Object[]{contrato.getId(), contrato.getCodigo(), text_status, contrato.getQuantidade(), 
+            		contrato.getMedida().toUpperCase(),
+            contrato.getProduto().toUpperCase(),
+            contrato.getModelo_safra().getAno_colheita() + "/" +  contrato.getModelo_safra().getAno_plantio(),
+             "R$ " + contrato.getValor_produto(), 
+            "R$ " + contrato.getValor_a_pagar(), 
+            contrato.getNomes_compradores(), contrato.getNomes_vendedores(), contrato.getNomes_corretores(),
+            contrato.getData_contrato()
+            
+            });
             lista_contratos.add(contrato);
     	}
     

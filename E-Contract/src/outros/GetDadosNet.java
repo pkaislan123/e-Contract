@@ -32,7 +32,7 @@ public class GetDadosNet {
                   System.out.println("width : " + image.attr("width"));
                   System.out.println("alt : " + image.attr("alt"));
                   
-                  if(image.attr("alt").equals("Bandeira Tarifária do Mês"))
+                  if(image.attr("alt").equals("Bandeira Tarifaria do Mes"))
                   {
                 	  System.out.println("achado");
                 	  URL img = new URL("https://www.aneel.gov.br"+image.attr("src"));
@@ -58,7 +58,7 @@ public class GetDadosNet {
 	
 		try {
 		Document doc = Jsoup.connect("https://www.aneel.gov.br/bandeiras-tarifarias").get();
-		URL img = new URL("https://www.aneel.gov.br"+doc.getElementsByAttributeValue("alt", "Bandeira Tarifária do Mês").attr("src"));
+		URL img = new URL("https://www.aneel.gov.br"+doc.getElementsByAttributeValue("alt", "Bandeira Tarifaria do Mï¿½s").attr("src"));
 		imgIcon = new ImageIcon(img);
         while(imgIcon.getImageLoadStatus() == MediaTracker.LOADING); 
       
