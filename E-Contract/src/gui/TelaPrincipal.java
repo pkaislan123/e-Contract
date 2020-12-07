@@ -1,5 +1,7 @@
 package gui;
 
+import java.applet.Applet;
+import java.applet.AudioClip;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
@@ -9,7 +11,9 @@ import java.awt.GraphicsEnvironment;
 import java.awt.Toolkit;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowStateListener;
+import java.io.IOException;
 import java.net.URL;
+import java.net.URLConnection;
 
 import javax.swing.ImageIcon;
 import javax.swing.JFrame;
@@ -17,11 +21,21 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
 
+import org.jfree.chart.ChartFactory;
+import org.jfree.chart.ChartPanel;
+import org.jfree.chart.JFreeChart;
+import org.jfree.chart.plot.PlotOrientation;
+import org.jfree.data.category.DefaultCategoryDataset;
+import org.jfree.data.general.DefaultPieDataset;
+
 import cadastros.CadastroLogin;
+import conexaoBanco.GerenciarBancoContratos;
 import manipular.GetDadosGlobais;
 import outros.DadosGlobais;
 import outros.JPanelBackground;
+import outros.ReproduzirAudio;
 import tratamento_proprio.Log;
+import views_personalizadas.TelaNotificacao;
 
 import javax.swing.JMenuBar;
 import javax.swing.JMenu;
@@ -246,6 +260,32 @@ public class TelaPrincipal extends JFrame implements GetDadosGlobais{
 			lblDireitos.setBounds(1169, 37, 171, 19);
 			contentPane.add(lblDireitos);
 			
+			JPanel panel = new JPanel();
+			panel.setBounds(36, 95, 509, 271);
+			contentPane.add(panel);
+			
+			
+			
+			//Cria um dataSet para inserir os dados que serão passados para a criação do gráfico tipo Pie
+			DefaultCategoryDataset barra = new DefaultCategoryDataset();
+			 
+			//Adiciona os dados ao dataSet deve somar um total de 100%
+			barra.setValue( 500, "Contratos de Soja", "");
+			barra.setValue(500, "Contratos de Sorgo", "");
+			barra.setValue(500,"Contratos de Milho", "");
+			 
+			//Cria um objeto JFreeChart passando os seguintes parametros
+			JFreeChart grafico = ChartFactory.createBarChart("A", "B",
+			"C", //Titulo do grafico
+			barra, //DataSet
+			PlotOrientation.VERTICAL,
+			true, //Para mostrar ou não a legenda
+			true, //Para mostrar ou não os tooltips
+			false);
+			 
+			panel.add( new ChartPanel( grafico ) );
+			
+			
 			if(login.getDireitos() == 1) {
 				if(login.getGenero().equals("Masculino"))
 				 lblDireitos.setText("Administrador do Sistema");
@@ -263,6 +303,9 @@ public class TelaPrincipal extends JFrame implements GetDadosGlobais{
 						else
 							 lblDireitos.setText("Auxiliar Administrativo");				}
 			
+			
+			getDadosContratos();
+			buscarConexao();
 		this.setLocationRelativeTo(null);
 
 		this.setVisible(true);
@@ -281,4 +324,94 @@ public class TelaPrincipal extends JFrame implements GetDadosGlobais{
 				  login = dados.getLogin();
 		
 	}
+	
+	
+	
+	
+	
+	
+	public void getDadosContratos() {
+		GerenciarBancoContratos gerenciar = new GerenciarBancoContratos();
+		int numerosContratosSemAssinar = gerenciar.getNumeroContratosParaAssinar();
+		
+		if(numerosContratosSemAssinar != -1) {
+			new Thread() {
+				@Override 
+				public void run() {
+					
+					
+								novaNotificacao("Há " + numerosContratosSemAssinar + " contratos com carencia de assinatura na base de dados" 
+										,"/audio/beep_notificacao.wav", 1);
+							
+				}
+			}.start();
+		
+	}else {
+		System.out.println("Não foi possivel buscar o numero de contratos sem assinar no banco de dados!");
+	}
+	
+}
+	
+	public void buscarConexao() {
+		new Thread() {
+			private URL url = null;
+			@Override
+			public void run() {
+			while(true) {	
+				try {
+				     Thread.sleep(10000);
+						url = new URL("http://www.google.com.br");
+					
+					System.out.println("Tentando conexao!");
+
+
+					URLConnection connection = url.openConnection();
+					connection.connect();
+					
+				} catch (Exception e) {
+					e.printStackTrace();
+					System.out.println("erro ao se conectar a internet!");
+					novaNotificacao("Sem conexão com a internet, algumas funções seram limitadas até a reconexão!", "/audio/beep_erro_net.wav", 2);
+				}
+			}
+			}
+		}.start();
+		
+		
+	}
+	
+	
+	public void novaNotificacao(String texto, String song, int repeticao) {
+		try {
+	    	Thread.sleep(1000);
+	    	 URL url = TelaPrincipal.class.getResource(song);
+	    	   TelaNotificacao tela = new TelaNotificacao();
+			  
+				
+	    		new Thread() {
+					@Override 
+					public void run() {
+	            ReproduzirAudio player = new ReproduzirAudio();
+	            for(int i = 0; i < repeticao; i++) {
+	            player.play(url);
+	            }
+					}
+				}.start();
+			
+		    	Thread.sleep(2000);
+
+		      	tela.setVisible(true);
+	             tela.setMensagem(texto );
+
+	       
+		
+
+	        Thread.sleep(5000);
+             tela.fechar();
+	    	} catch (InterruptedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+	}
+	
 }

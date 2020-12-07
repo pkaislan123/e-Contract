@@ -1,6 +1,10 @@
 package principal;
 
+import java.applet.Applet;
+import java.applet.AudioClip;
 import java.io.File;
+import java.io.IOException;
+import java.net.URL;
 import java.util.ArrayList;
 
 import javax.swing.UIManager;
@@ -28,8 +32,12 @@ import manipular.Whatsapp;
 import manipular.ZapMessenger;
 import outros.DadosGlobais;
 import outros.GetData;
+import outros.ReproduzirAudio;
 import tratamento_proprio.Log;
 import views_personalizadas.TelaEmEspera;
+import java.net.URL;
+import javax.swing.*;
+import javax.sound.sampled.*;
 
 public class Main {
 
@@ -41,7 +49,9 @@ public class Main {
 	
  public static void main(String[] args) {
 	   
-		
+
+		        
+	     
 		try {
 			for ( LookAndFeelInfo info : UIManager.getInstalledLookAndFeels() ) {
 			if ( "Nimbus".equals( info.getName() ) ) {
@@ -74,8 +84,7 @@ public class Main {
 		
 		entrada.realizarTeste();
 		
-	
-		
+
 	
 		
 		

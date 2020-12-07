@@ -95,7 +95,7 @@ public class TelaEmEspera extends JDialog {
 
 				textArea.repaint();
 				textArea.updateUI();
-						    } 
+			  } 
 		}); 
 		
 		

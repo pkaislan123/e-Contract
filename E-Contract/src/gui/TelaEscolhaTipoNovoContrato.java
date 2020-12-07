@@ -10,6 +10,7 @@ import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
 
+import cadastros.CadastroContrato;
 import cadastros.CadastroModelo;
 import conexaoBanco.GerenciarBancoContratos;
 import conexaoBanco.GerenciarBancoSafras;
@@ -36,7 +37,7 @@ public class TelaEscolhaTipoNovoContrato extends JDialog {
 		    
 	}
 
-	public TelaEscolhaTipoNovoContrato() {
+	public TelaEscolhaTipoNovoContrato(int tipoContrato, CadastroContrato contrato_pai, int flag_edicao) {
 		setModal(true);
 
 		TelaEscolhaTipoNovoContrato isto = this;
@@ -80,7 +81,7 @@ public class TelaEscolhaTipoNovoContrato extends JDialog {
                    }
                    if(opcao.equals("Padrão - Informal"))
                    {
-                	  TelaNovoContratoInformal contrato = new TelaNovoContratoInformal(modelos.get(0));
+                	  TelaNovoContratoInformal contrato = new TelaNovoContratoInformal(modelos.get(0), tipoContrato, contrato_pai, flag_edicao);
                 	   // TelaNovoContrato contrato = new TelaNovoContrato("C:\\Users\\Aislan\\Documents\\modelo_informal_padrao.xlsx");
                 	   isto.dispose();
                    }

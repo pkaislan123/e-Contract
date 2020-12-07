@@ -58,7 +58,7 @@ public class TelaContratos extends JDialog {
 		JButton btnContrato = new JButton("Novo Contrato");
 		btnContrato.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				TelaEscolhaTipoNovoContrato telaNovoCadastro = new TelaEscolhaTipoNovoContrato();
+				TelaEscolhaTipoNovoContrato telaNovoCadastro = new TelaEscolhaTipoNovoContrato(0, null, 0);
 			}
 		});
 		//btnContrato.setIcon(new ImageIcon(TelaContratos.class.getResource("/imagens/add_contrato.png")));
@@ -230,19 +230,25 @@ public class TelaContratos extends JDialog {
         modelo.addColumn("Data do Contrato");
 
 		    */
+		
+		if(contrato.getSub_contrato() == 0) {
+			
+			 modelo.addRow(new Object[]{contrato.getId(), contrato.getCodigo(), text_status, contrato.getQuantidade(), 
+	            		contrato.getMedida().toUpperCase(),
+	            contrato.getProduto().toUpperCase(),
+	            contrato.getModelo_safra().getAno_colheita() + "/" +  contrato.getModelo_safra().getAno_plantio(),
+	             "R$ " + contrato.getValor_produto(), 
+	            "R$ " + contrato.getValor_a_pagar(), 
+	            contrato.getNomes_compradores(), contrato.getNomes_vendedores(), contrato.getNomes_corretores(),
+	            contrato.getData_contrato()
+	            
+	            });
+	            lista_contratos.add(contrato);
+	    	}
+			
+		}
     	
-            modelo.addRow(new Object[]{contrato.getId(), contrato.getCodigo(), text_status, contrato.getQuantidade(), 
-            		contrato.getMedida().toUpperCase(),
-            contrato.getProduto().toUpperCase(),
-            contrato.getModelo_safra().getAno_colheita() + "/" +  contrato.getModelo_safra().getAno_plantio(),
-             "R$ " + contrato.getValor_produto(), 
-            "R$ " + contrato.getValor_a_pagar(), 
-            contrato.getNomes_compradores(), contrato.getNomes_vendedores(), contrato.getNomes_corretores(),
-            contrato.getData_contrato()
-            
-            });
-            lista_contratos.add(contrato);
-    	}
+           
     
     
         

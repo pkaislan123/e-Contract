@@ -27,6 +27,7 @@ import classesExtras.CBLocalRetiradaPersonalizado;
 import classesExtras.CBLocalRetiradaRenderPersonalizado;
 import classesExtras.ComboBoxPersonalizado;
 import classesExtras.ComboBoxRenderPersonalizado;
+import manipular.ArquivoConfiguracoes;
 import manipular.ConfiguracoesGlobais;
 import manipular.ConverterPdf;
 import manipular.EditarExcel;
@@ -185,6 +186,7 @@ private JPanel panel;
 private Log GerenciadorLog;
 private CadastroLogin login;
 private ConfiguracoesGlobais configs_globais;
+private CadastroContrato contrato_pai_local;
 
 private ArrayList<CadastroContrato.CadastroPagamento> pagamentosLocais = new ArrayList<>();
 
@@ -206,12 +208,15 @@ private ArrayList<CadastroContrato.CadastroPagamento> pagamentosLocais = new Arr
 	private JLabel lblCodigoContratoComprador;
 	private JLabel lblCodigoContratoVendedor;
 	private JLabel lblCodigoContratoAleatorio;
+	private JLabel lblCodigoSubContrato;
 
     
-	public TelaNovoContratoInformal(CadastroModelo modelo) {
+	public TelaNovoContratoInformal(CadastroModelo modelo, int tipoContrato, CadastroContrato contrato_pai, int flag_edicao) {
 		setModal(true);
 		
 
+		
+		contrato_pai_local = contrato_pai;
 		
 		setResizable(false);
 	
@@ -236,7 +241,9 @@ private ArrayList<CadastroContrato.CadastroPagamento> pagamentosLocais = new Arr
 				    	public void mouseEntered(MouseEvent arg0) {
 				    		try {
 				    		CadastroSafra safra = (CadastroSafra) modelSafra.getSelectedItem();
-		    				entClausula2.setText(safra.getProduto().getNome_produto() +" acima de 14% de umidade será cobrado uma taxa de despesas para a secagem");
+				    		
+		    				//entClausula2.setText(safra.getProduto().getNome_produto() +" acima de 14% de umidade será cobrado uma taxa de despesas para a secagem");
+				    		setClausula2(safra.getProduto().getNome_produto());
 				    		}
 				    		catch(Exception e)
 				    		{
@@ -700,11 +707,11 @@ private ArrayList<CadastroContrato.CadastroPagamento> pagamentosLocais = new Arr
 			    		lblQuant.setText("Quilos");
 			    		lblPreco.setText("por Quilo");
 			    		setClausula1("quilogramas");
-			    		setClausulaComissao();
+			    		setClausulaComissao(entComissao.getText().toString().replace(".", ","));
 			    		
 			    		
 			    		unidadeGlobal = "quilogramas";
-			    		setClausulaComissao();
+			    		setClausulaComissao(entComissao.getText().toString().replace(".", ","));
 	    			
 
 			    		
@@ -724,7 +731,7 @@ private ArrayList<CadastroContrato.CadastroPagamento> pagamentosLocais = new Arr
 	                    setClausula1("sacos");
 			    		
 			    		unidadeGlobal = "sacos";
-			    		setClausulaComissao();
+			    		setClausulaComissao(entComissao.getText().toString().replace(".", ","));
 
 
 			     	}
@@ -744,7 +751,7 @@ private ArrayList<CadastroContrato.CadastroPagamento> pagamentosLocais = new Arr
 			    		
 			    		unidadeGlobal = "toneladas";
 
-			    		setClausulaComissao();
+			    		setClausulaComissao(entComissao.getText().toString().replace(".", ","));
 
 			      	}
 			      });
@@ -1026,21 +1033,31 @@ private ArrayList<CadastroContrato.CadastroPagamento> pagamentosLocais = new Arr
 			                       lblCodigoContratoComprador = new JLabel("");
 			                       lblCodigoContratoComprador.setFont(new Font("Arial", Font.BOLD, 18));
 			                       lblCodigoContratoComprador.setBorder(new EmptyBorder(0, 0, 0, 0));
-			                       lblCodigoContratoComprador.setBounds(179, 15, 52, 42);
+			                       lblCodigoContratoComprador.setBounds(179, 15, 39, 42);
 			                       painelDadosCodigoData.add(lblCodigoContratoComprador);
 			                       
 			                       lblCodigoContratoVendedor = new JLabel("");
 			                       lblCodigoContratoVendedor.setFont(new Font("Arial", Font.BOLD, 18));
 			                       lblCodigoContratoVendedor.setBorder(new EmptyBorder(0, 0, 0, 0));
-			                       lblCodigoContratoVendedor.setBounds(238, 15, 52, 42);
+			                       lblCodigoContratoVendedor.setBounds(228, 15, 52, 42);
 			                       painelDadosCodigoData.add(lblCodigoContratoVendedor);
 			                       
 			                       lblCodigoContratoAleatorio = new JLabel("");
-			                       lblCodigoContratoAleatorio.setBounds(300, 15, 52, 42);
+			                       lblCodigoContratoAleatorio.setBounds(290, 15, 52, 42);
 			                       painelDadosCodigoData.add(lblCodigoContratoAleatorio);
 			                       lblCodigoContratoAleatorio.setFont(new Font("Arial", Font.PLAIN, 18));
 			                       lblCodigoContratoAleatorio.setBorder(new EmptyBorder(0, 0, 0, 0));
+			                       
+			                       if(flag_edicao == 0)
 			                       lblCodigoContratoAleatorio.setText(Integer.toString(configs_globais.getCodigoSequencial()));
+			                       else
+				                       lblCodigoContratoAleatorio.setText( new String(quebrarCodigo()));
+
+			                       lblCodigoSubContrato = new JLabel("");
+			                       lblCodigoSubContrato.setFont(new Font("Arial", Font.PLAIN, 18));
+			                       lblCodigoSubContrato.setBorder(new EmptyBorder(0, 0, 0, 0));
+			                       lblCodigoSubContrato.setBounds(352, 15, 26, 42);
+			                       painelDadosCodigoData.add(lblCodigoSubContrato);
 			              
 			                       
 			                       painelDefinirPartes = new JPanel();
@@ -1445,16 +1462,7 @@ private ArrayList<CadastroContrato.CadastroPagamento> pagamentosLocais = new Arr
 			         rBComissaoSim = new JRadioButton("Sim");
 			         rBComissaoSim.addActionListener(new ActionListener() {
 			         	public void actionPerformed(ActionEvent arg0) {
-			         		
-			         		rBComissaoNao.setSelected(false);
-			         		rBComissaoSim.setSelected(true);
-			         		
-			         		
-			         		entComissao.setEnabled(true);
-
-			         		entComissao.setEditable(true);
-			         		chBoxClausulaComissao.setVisible(true);
-			         		chBoxClausulaComissao.setEnabled(true);
+			         		setComissao();
 			         		
 			         		
 			         	}
@@ -1468,20 +1476,7 @@ private ArrayList<CadastroContrato.CadastroPagamento> pagamentosLocais = new Arr
 			          	public void actionPerformed(ActionEvent e) {
 			          		
 			          		
-			          		rBComissaoSim.setSelected(false);
-			          		rBComissaoNao.setSelected(true);
-			          		
-			          		entComissao.setEnabled(false);
-			          		entComissao.setEditable(false);
-			          		entComissao.setText("");
-			          		
-			          		lblValorTotalComissao.setText("");
-			          		lblValorTotalComisao1.setText("");
-			          		
-			          		valor_total_comissao = new BigDecimal("0");	
-			          		chBoxClausulaComissao.setVisible(false);
-			          		chBoxClausulaComissao.setEnabled(false);
-			          		
+			          	      retirarComissao();
 			          	}
 			          });
 			          rBComissaoNao.setSelected(true);
@@ -1629,6 +1624,7 @@ private ArrayList<CadastroContrato.CadastroPagamento> pagamentosLocais = new Arr
 		    		 			try {
 				    		 		entClausula3.setText("");
 				    		 		chBoxClausula3.setSelected(false);
+				    		 		novo_contrato.setClausula_comissao(0);
 			    		 			}
 			    		 			catch(Exception re)
 			    		 			{
@@ -1639,8 +1635,9 @@ private ArrayList<CadastroContrato.CadastroPagamento> pagamentosLocais = new Arr
 		    		 		{
 		    		 			chBoxClausulaComissao.setSelected(true);
 		    		 			try {
-		    		 				setClausulaComissao();
+		    		 				setClausulaComissao(entComissao.getText().toString().replace(".", ","));
 			    		 		chBoxClausula3.setSelected(true);
+			    		 		novo_contrato.setClausula_comissao(1);
 
 		    		 			}
 		    		 			catch(Exception re)
@@ -2196,7 +2193,7 @@ private ArrayList<CadastroContrato.CadastroPagamento> pagamentosLocais = new Arr
 									        	
 				        					@Override
 				        					public void run() {
-				        	        		  editar = new EditarExcel(modelo, esperar);
+				        	        		  editar = new EditarExcel(modelo, esperar, tipoContrato, contrato_pai);
 								        		
 				                              String produto, medida, quantidade, preco, local_retirada, data_contrato, data_entrega ,codigo;
                                               esperar.setMsg("Reunindo Informações");
@@ -2209,8 +2206,22 @@ private ArrayList<CadastroContrato.CadastroPagamento> pagamentosLocais = new Arr
 				                             {
 				                             data_entrega = entDataEntrega.getText();
 				                             novo_contrato.setData_entrega(data_entrega);
+				                             
+				                             //definicoes de subContrato
+				                             
+				                             if(tipoContrato == 0) {
+				                            	 //contrato pai
+					                             novo_contrato.setSub_contrato(0);
+
+				                             }else if(tipoContrato == 1) {
+				                            	 //sub contrato
+					                             novo_contrato.setSub_contrato(1);
+
+				                             }
 				                             data_contrato = entDataContrato.getText();
 				                             novo_contrato.setData_contrato(data_contrato);
+				                             
+				                             
 				                             novo_contrato.setStatus_contrato(1);
 				                             
 				                             novo_contrato.setCodigo(codigo);
@@ -2239,6 +2250,7 @@ private ArrayList<CadastroContrato.CadastroPagamento> pagamentosLocais = new Arr
 				                              novo_contrato.setQuantidade(Double.parseDouble(entQuantidade.getText()));
 				                              novo_contrato.setValor_produto(Double.parseDouble(entPreco.getText()));
 				                              novo_contrato.setValor_a_pagar(valor_total);
+				                              novo_contrato.setValor_comissao(valor_total_comissao);
 				                              
 				                              //pagamentos
 				                              novo_contrato.setPagamentos(pagamentos);
@@ -2316,6 +2328,16 @@ private ArrayList<CadastroContrato.CadastroPagamento> pagamentosLocais = new Arr
 
 
 				          
+				         if(tipoContrato == 1) {
+				        	 rotinasSubContrato();
+				         }else {
+				        	 if(flag_edicao == 1) {
+				        		 //chamar as rotinasdesubcontrato
+					        	 rotinasSubContrato();
+
+				        	 }
+				         }
+				          
 				        
 		this.setLocationRelativeTo(null);
 		this.setBounds (GraphicsEnvironment.getLocalGraphicsEnvironment (). getMaximumWindowBounds ());
@@ -2325,8 +2347,8 @@ private ArrayList<CadastroContrato.CadastroPagamento> pagamentosLocais = new Arr
 
 		this.setVisible(true);
 		
-		
-	}
+	 }
+	
 	
 	public void setComprador1(CadastroCliente comprador)
 	{
@@ -2520,14 +2542,26 @@ private ArrayList<CadastroContrato.CadastroPagamento> pagamentosLocais = new Arr
 	
 	public void salvarArquivo()
 	{
-		if(editar.salvar())
+		if(editar.salvar() == 1 || editar.salvar() == 2)
 		{
+			int result = -1;
 			GerenciarBancoContratos gerenciarContratos = new GerenciarBancoContratos();
-			int result = gerenciarContratos.inserirContrato(novo_contrato);
+			if(novo_contrato.getSub_contrato() == 0) {
+				//e um contrato pai
+				result = gerenciarContratos.inserirContrato(novo_contrato, null);
+
+			}else {
+				//e um sub contrato
+				result = gerenciarContratos.inserirContrato(novo_contrato, contrato_pai_local);
+
+			}
 			if(result == 1) {
 				JOptionPane.showMessageDialog(null, "Contrato criado e salvo na base de dados");
 				//salvar arquivo fisico
-				
+				//aumentar mais 1 na sequencia
+			 	ArquivoConfiguracoes arquivo = new ArquivoConfiguracoes();
+				arquivo.setCodidoSequencial(configs_globais.getCodigoSequencial() + 1);
+				arquivo.salvarNovasConfiguragoes();
 				
 				isto.dispose();
 			}else if (result == 0){
@@ -2537,6 +2571,10 @@ private ArrayList<CadastroContrato.CadastroPagamento> pagamentosLocais = new Arr
 				JOptionPane.showMessageDialog(null, "Contrato não pode ser criado\nHouve falhas no banco de dados!\nConsulte o administrador");
 		        isto.dispose();
 			}
+		}else {
+			JOptionPane.showMessageDialog(null, "Houve um erro é o contrato não pode ser salvo fisicamente\nOperação cancelada!");
+			isto.dispose();
+
 		}
 		
 	}
@@ -2580,15 +2618,205 @@ private ArrayList<CadastroContrato.CadastroPagamento> pagamentosLocais = new Arr
 		
 	}
 	
+	public void retirarComissao() {
+		rBComissaoSim.setSelected(false);
+  		rBComissaoNao.setSelected(true);
+  		
+  		entComissao.setEnabled(false);
+  		entComissao.setEditable(false);
+  		entComissao.setText("");
+  		
+  		lblValorTotalComissao.setText("");
+  		lblValorTotalComisao1.setText("");
+  		
+  		valor_total_comissao = new BigDecimal("0");	
+  		chBoxClausulaComissao.setVisible(false);
+  		chBoxClausulaComissao.setEnabled(false);
+  		novo_contrato.setComissao(0);
+  		
+	}
+
+	public void setComissao() {
+		rBComissaoNao.setSelected(false);
+ 		rBComissaoSim.setSelected(true);
+ 		
+ 		
+ 		entComissao.setEnabled(true);
+
+ 		entComissao.setEditable(true);
+ 		chBoxClausulaComissao.setVisible(true);
+ 		chBoxClausulaComissao.setEnabled(true);
+ 		novo_contrato.setComissao(1);
+ 		
+	}
 	
 	
 	public void setClausula1(String unidade) {
 		entClausula1.setText("A quantidade de " + unidade + " que exceder será negociado com o preço do dia.");
 		
 	}
-	public void setClausulaComissao() {
+	public void setClausulaComissao(String valor) {
 		if(chBoxClausulaComissao.isSelected())
- 		entClausula3.setText("Comissão de R$ " +  entComissao.getText().toString().replace(".", ",") + " por " +  unidadeGlobal + " pagas ao corretor");
+ 		entClausula3.setText("Comissão de R$ " +  valor + " por " +  unidadeGlobal + " pagas ao corretor");
 
 	}
+	
+	public void setClausula2(String nome_produto) {
+		entClausula2.setText(nome_produto +" acima de 14% de umidade será cobrado uma taxa de despesas para a secagem");
+
+	}
+	
+	public String quebrarCodigo() {
+		String texto = 	contrato_pai_local.getCodigo().replaceAll("[^0-9]+", ";");
+
+		System.out.println("codigo para edicao: " + texto);
+       String [] textoSeparado = texto.split(";");
+      
+       String safra = textoSeparado[0];
+       
+       String comprador = textoSeparado[1];
+       String vendedor = textoSeparado[2];
+       String sequenciaAleatoria = textoSeparado[3];
+       return sequenciaAleatoria ;
+
+	}
+	
+	public void rotinasSubContrato() {
+		
+		CadastroCliente corretor[] = contrato_pai_local.getCorretores();
+		CadastroCliente compradores[] = contrato_pai_local.getCompradores();
+		CadastroCliente vendedores[] = contrato_pai_local.getVendedores();
+
+		
+		//lblCodigoSubContrato
+		
+		
+		// corretor, compradores e vendedores
+		
+		if(corretor[0] != null) {
+			this.setCorretor(corretor[0]);
+		}
+		
+		if(compradores[0] != null) {
+			this.setComprador1(compradores[0]);
+		}
+		
+		if(vendedores[0] != null) {
+			this.setVendedor1(vendedores[0]);
+		}
+		
+		if(vendedores[1] != null) {
+			this.setVendedor2(vendedores[1]);
+		}
+		
+		
+		//data de entrega
+		System.out.println("data de entrega contrato pai:" + contrato_pai_local.getData_entrega());
+		entDataEntrega.setText(contrato_pai_local.getData_entrega());
+		
+		//unidade de medida
+		if(contrato_pai_local.getMedida().toUpperCase().equals("SACOS")) {
+			rQuanKG.setSelected(false);
+			rQuanS.setSelected(true);
+			rQuanT.setSelected(false);
+    		unidadeGlobal = "sacos";
+    		setClausulaComissao(entComissao.getText().toString().replace(".", ","));
+		}
+		else if(contrato_pai_local.getMedida().toUpperCase().equals("QUILOGRAMAS")) {
+			rQuanKG.setSelected(true);
+			rQuanS.setSelected(false);
+			rQuanT.setSelected(false);
+    		unidadeGlobal = "quilogramas";
+    		setClausulaComissao(entComissao.getText().toString().replace(".", ","));
+		}
+		else if(contrato_pai_local.getMedida().toUpperCase().equals("TONELADAS")) {
+			rQuanKG.setSelected(false);
+			rQuanS.setSelected(false);
+			rQuanT.setSelected(true);
+    		unidadeGlobal = "toneladas";
+    		setClausulaComissao(entComissao.getText().toString().replace(".", ","));
+		}
+		
+		//safra
+		CadastroSafra safra_contrato_pai_local = contrato_pai_local.getModelo_safra();
+		modelSafra.setSelectedItem(safra_contrato_pai_local);
+        lblCodigoContrato.setText(Integer.toString(safra_contrato_pai_local.getCodigo()));
+		setClausula2(safra_contrato_pai_local.getProduto().getNome_produto());
+
+         //quantidades e preços
+		entQuantidade.setText(Double.toString(contrato_pai_local.getQuantidade()));
+		entPreco.setText(Double.toString(contrato_pai_local.getValor_produto()));
+		lblValorTotal.setText((contrato_pai_local.getValor_a_pagar()).toPlainString());
+		lblValorTotal_2.setText((contrato_pai_local.getValor_a_pagar()).toPlainString());
+		  valor_total = contrato_pai_local.getValor_a_pagar() ;
+		   valor_atual = new BigDecimal("0");
+		  valor_acumulado =  new BigDecimal("0");
+		  
+		  BigDecimal valor_tot_comissao = contrato_pai_local.getValor_comissao();
+   	      BigDecimal quantidade = new BigDecimal(contrato_pai_local.getQuantidade());
+		  //comissao
+		  if(contrato_pai_local.getComissao() == 1) {
+			  setComissao();
+		       if(contrato_pai_local.getClausula_comissao() == 1) {
+		    	   
+		    	   chBoxClausulaComissao.setSelected(true);
+		    	   
+		    	  
+		    	   System.out.println("Quatidade: " + quantidade + "valor total da comissao: " + valor_tot_comissao);
+		    	   String valor_por_unidade = (valor_tot_comissao.divide(quantidade)).toPlainString();
+		    	   entComissao.setText(valor_por_unidade);	   
+		    	   setClausulaComissao(valor_por_unidade);
+		    	   
+		       }
+		       
+		  }
+   	            lblValorTotalComissao.setText(valor_tot_comissao.toPlainString());
+   	         lblValorTotalComisao1.setText(valor_tot_comissao.toPlainString());
+   	         valor_total_comissao = valor_tot_comissao;
+		  
+		  
+   	      setPagamentos();
+		  
+	}
+	
+	 public void setPagamentos( ) {
+	       	String cpf, banco, codigo, agencia, conta, id, nome, valor_pagamento, data_pagamento;
+
+	       	
+	       	for(CadastroContrato.CadastroPagamento pag : contrato_pai_local.getPagamentos()) {
+	       		
+	   			ContaBancaria conta_bc = pag.getConta();
+
+	       		
+	       		if(conta_bc != null) {
+	       		   id = Integer.toString(conta_bc.getId_conta());
+	   	 		cpf = conta_bc.getCpf_titular();
+	   	 		banco = conta_bc.getBanco();
+	   	 		nome = conta_bc.getNome();
+	   	 		codigo = conta_bc.getCodigo();
+	   	 		agencia = conta_bc.getAgencia();
+	   	 		conta = conta_bc.getConta();
+	       		}
+	       		else {
+	    	    id = "00";
+		 		cpf = "Há Informar";
+		 		banco = "Há Informar";
+		 		nome = "Há Informar";
+		 		codigo = "Há Informar";
+		 		agencia = "Há Informar";
+		 		conta = "Há Informar";
+	       		}
+	       		
+	       	
+	               
+	       		modelo_cb.addRow(new Object[]{id, cpf, nome, banco, 
+					       codigo, agencia, conta, pag.getValor_string(), pag.getData_pagamento()});
+	       	}
+				
+	   	 
+	    }
+	
+	
+	
+	
 }

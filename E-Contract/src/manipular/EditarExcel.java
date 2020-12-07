@@ -94,7 +94,7 @@ public class EditarExcel {
     
 
 	
-	public EditarExcel(CadastroModelo modelo, TelaEmEspera background)
+	public EditarExcel(CadastroModelo modelo, TelaEmEspera background, int tipoContrato, CadastroContrato contrato)
 	{
 		getDadosGlobais();
 		this.modelo = modelo;
@@ -1161,8 +1161,13 @@ public ByteArrayOutputStream alterar(CadastroContrato novo_contrato)
 	
 	
 	
-	public boolean salvar( ) 
+	public int salvar( ) 
 	{
+		int retorno_final = -1;
+		boolean arquivos_comprador_criado = false;
+		boolean arquivos_vendedor1_criado = false;
+		boolean arquivos_vendedor2_criado = false;
+
 		
 		String nome_comprador_arquivo ;
 		String nome_vendedor1_arquivo ;
@@ -1187,78 +1192,172 @@ public ByteArrayOutputStream alterar(CadastroContrato novo_contrato)
 			nome_vendedor2_arquivo = null;
 		
 		//E:\E-Contract\arquivos\clientes\Daniel Alves de Almeida\contratos\compra\2020\milho
-		GetData data = new GetData();
-		 String pasta_padrao = configs_globais.getRaiz() + "\\E-contract\\arquivos\\clientes\\" + nome_comprador_arquivo + "\\contratos" + "\\compra\\"  + data.getAnoAtual() + "\\" + novo_contrato.getModelo_safra().getProduto().getNome_produto() + "\\";
-		System.out.println("caminho para salvar o arquivo: " + pasta_padrao);	
-		String pasta_padrao_salvar = configs_globais.getRaiz() + "\\\\E-contract\\\\arquivos\\\\clientes\\\\" + nome_comprador_arquivo + "\\\\contratos" + "\\\\compra\\\\"  + data.getAnoAtual() + "\\\\" + novo_contrato.getModelo_safra().getProduto().getNome_produto() + "\\\\";
-
-				
-	String nome_arquivo = novo_contrato.getCodigo() + " "  + nome_comprador_arquivo + " x " + nome_vendedor1_arquivo ; 
-	       
-			if(nome_vendedor2_arquivo != null)
-				nome_arquivo +=  (" " + nome_vendedor2_arquivo);
-			String extensao_arquivo = ".xlsx";
-			String caminho_completo = pasta_padrao + nome_arquivo ;
-			
-			String caminho_completo_salvar = pasta_padrao_salvar + nome_arquivo;
-			
-			FileOutputStream outputStream;
-			try {
-				outputStream = new FileOutputStream (caminho_completo + ".xlsx");
-				
-				//novo_contrato.setCaminho_arquivo(url.toString());
-				
-				workbook_aberto.write(outputStream);
-				   workbook_aberto.close();
-	  				outputStream.close();
-
-				
-				
-
-
- 				  
-
- 				
- 				//workbook.close();
-				//Converter e salvar em pdf
-                 //criar pdf
-                 ConverterPdf converter_pdf = new ConverterPdf();
-               //  String url = converter_pdf.excel_pdf_file(contrato_alterado);
-               //TelaVizualizarPdf  vizualizar =  new TelaVizualizarPdf(url);
-                 if (converter_pdf.excel_pdf_file(caminho_completo)) {
-                	 System.out.println("Arquivo pdf convertido e salvo!");
-                	 System.out.println("caminho para salvar: " + caminho_completo_salvar);
-                	 novo_contrato.setCaminho_arquivo(caminho_completo_salvar + ".pdf") ;
-                	 
-                	 //salvar no drobox
-                	 Nuvem nuvem = new Nuvem();
-                	 nuvem.abrir();
-                     nuvem.testar();
-                    
-                    boolean retorno =   nuvem.carregar(caminho_completo_salvar + ".pdf", nome_arquivo + ".pdf");
-                     if(retorno) {
-                    	 System.out.println("Arquivo salvo na nuvem");
-                    	 novo_contrato.setNome_arquivo(nome_arquivo + ".pdf" );
-                     }
-            	    // System.out.println("link: " + nuvem.getUrlArquivo("/contratos));
-            	     
-                	 
-                 }
-                 
-           
-              
-				
-				return true;
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-				
-				return false;
-			} 
 		
+		GetData data = new GetData();
+		String caminho_completo , caminho_completo_salvar, caminho_completo_salvar2;
+		
+	   if(novo_contrato.getSub_contrato() == 0) {
+		   //é um comprato pai, salvar na pasta do comprador
+
+			 String pasta_padrao = configs_globais.getRaiz() + "\\E-contract\\arquivos\\clientes\\" + nome_comprador_arquivo + "\\contratos" + "\\compra\\"  + data.getAnoAtual() + "\\" + novo_contrato.getModelo_safra().getProduto().getNome_produto() + "\\";
+			System.out.println("caminho para salvar o arquivo: " + pasta_padrao);	
+			String pasta_padrao_salvar = configs_globais.getRaiz() + "\\\\E-contract\\\\arquivos\\\\clientes\\\\" + nome_comprador_arquivo + "\\\\contratos" + "\\\\compra\\\\"  + data.getAnoAtual() + "\\\\" + novo_contrato.getModelo_safra().getProduto().getNome_produto() + "\\\\";
+
+					
+		      String nome_arquivo = novo_contrato.getCodigo() + " "  + nome_comprador_arquivo + " x " + nome_vendedor1_arquivo ; 
+		       
+				if(nome_vendedor2_arquivo != null)
+					nome_arquivo +=  (" " + nome_vendedor2_arquivo);
+				String extensao_arquivo = ".xlsx";
+				 caminho_completo = pasta_padrao + nome_arquivo ;
+				
+			    caminho_completo_salvar = pasta_padrao_salvar + nome_arquivo;
+			    
+			    if(criarArquivos(nome_arquivo,caminho_completo,  caminho_completo_salvar))
+			    	arquivos_comprador_criado = true;
+			    else
+			    	arquivos_comprador_criado = false;
+
+		   
+	   }else {
+		   //e um contrato filho, salvar nas pastas dos vendedores
+		   if(vendedores[0] != null) {
+			   
+			   String pasta_padrao = configs_globais.getRaiz() + "\\E-contract\\arquivos\\clientes\\" + nome_vendedor1_arquivo + "\\contratos" + "\\venda\\"  + data.getAnoAtual() + "\\" + novo_contrato.getModelo_safra().getProduto().getNome_produto() + "\\";
+				System.out.println("caminho para salvar o arquivo: " + pasta_padrao);	
+				String pasta_padrao_salvar = configs_globais.getRaiz() + "\\\\E-contract\\\\arquivos\\\\clientes\\\\" + nome_vendedor1_arquivo + "\\\\contratos" + "\\\\venda\\\\"  + data.getAnoAtual() + "\\\\" + novo_contrato.getModelo_safra().getProduto().getNome_produto() + "\\\\";
+
+						
+			      String nome_arquivo = novo_contrato.getCodigo() + " "  + nome_comprador_arquivo + " x " + nome_vendedor1_arquivo ; 
+			       
+					if(nome_vendedor2_arquivo != null)
+						nome_arquivo +=  (" " + nome_vendedor2_arquivo);
+					String extensao_arquivo = ".xlsx";
+					 caminho_completo = pasta_padrao + nome_arquivo ;
+					
+				    caminho_completo_salvar = pasta_padrao_salvar + nome_arquivo;
+				    if(criarArquivos(nome_arquivo,caminho_completo,  caminho_completo_salvar))
+				    	arquivos_vendedor1_criado = true;
+				    else
+				    	arquivos_vendedor1_criado = false;
+
+			   
+		   } if(vendedores[1] != null) {
+			   
+			   String pasta_padrao = configs_globais.getRaiz() + "\\E-contract\\arquivos\\clientes\\" + nome_vendedor2_arquivo + "\\contratos" + "\\venda\\"  + data.getAnoAtual() + "\\" + novo_contrato.getModelo_safra().getProduto().getNome_produto() + "\\";
+				System.out.println("caminho para salvar o arquivo: " + pasta_padrao);	
+				String pasta_padrao_salvar = configs_globais.getRaiz() + "\\\\E-contract\\\\arquivos\\\\clientes\\\\" + nome_vendedor2_arquivo + "\\\\contratos" + "\\\\venda\\\\"  + data.getAnoAtual() + "\\\\" + novo_contrato.getModelo_safra().getProduto().getNome_produto() + "\\\\";
+
+						
+			      String nome_arquivo = novo_contrato.getCodigo() + " "  + nome_comprador_arquivo + " x " + nome_vendedor1_arquivo ; 
+			       
+					if(nome_vendedor2_arquivo != null)
+						nome_arquivo +=  (" " + nome_vendedor2_arquivo);
+					String extensao_arquivo = ".xlsx";
+					 caminho_completo = pasta_padrao + nome_arquivo ;
+					
+				    caminho_completo_salvar = pasta_padrao_salvar + nome_arquivo;
+				    if(criarArquivos(nome_arquivo,caminho_completo,  caminho_completo_salvar))
+				    	arquivos_vendedor2_criado = true;
+				    else
+				    	arquivos_vendedor2_criado = false;
+
+
+			   
+		   }
+		 
+	   }
+		
+	   if(novo_contrato.getSub_contrato() == 0) {
+		   //e comtrato pai, retorno apenas oa varaivel do comprador
+		   if(arquivos_comprador_criado) {
+			   retorno_final = 1; //avisa para quem chamou a funcao que o contrato do comprador foi salvo
+		   GerenciadorLog.registrarLogDiario("aviso", "o contrato de numero " + novo_contrato.getCodigo() + " foi criado na base de arquivos fisico");
+	        }else {
+				   retorno_final = -1; //avisa para quem chamou a funcao que o contrato do comprador não foi salvo
+				   GerenciadorLog.registrarLogDiario("falha", "o contrato de numero " + novo_contrato.getCodigo() + " não foi criado na base de arquivos fisico");
+
+	        }
+	   }else {
+		   if(vendedores[0] != null && vendedores[1] != null) {
+			   //ha dois vendedores, retorno as duas variaveis
+			   if(arquivos_vendedor1_criado && arquivos_vendedor1_criado) {
+				   retorno_final = 2; //avisa pra quem chamou a funcao que o contrato do vendedor1 e do vendedor2 foi salvo
+				   GerenciadorLog.registrarLogDiario("aviso", "o sub_contrato de numero " + novo_contrato.getCodigo() + " foi criado na base de arquivos fisico");
+
+			   }else {
+				   retorno_final = 3; //avisa pra quem chamou a funcao que o contrato do vendedor1 e do vendedor2 não foram salvo
+				   GerenciadorLog.registrarLogDiario("falha", "o sub_contrato de numero " + novo_contrato.getCodigo() + " não foi criado na base de arquivos fisico");
+
+			   }
+		   }else if (vendedores[0] != null && vendedores[1] == null){
+			   if(arquivos_vendedor1_criado) {
+				   retorno_final = 2; //avisa pra quem chamou a funcao que o contrato do vendedor1  foi salvo
+				   GerenciadorLog.registrarLogDiario("aviso", "o sub_contrato de numero " + novo_contrato.getCodigo() + "  foi criado na base de arquivos fisico");
+
+			   } else {
+				   retorno_final = 3; //avisa pra quem chamou a funcao que o contrato do vendedor1  não foram salvo
+				   GerenciadorLog.registrarLogDiario("falha", "o sub_contrato de numero " + novo_contrato.getCodigo() + " não foi criado na base de arquivos fisico");
+
+			   }
+		   }
+
+	   }
+		
+		return retorno_final; 
 	}
 	
 	
+	
+	public boolean criarArquivos(String nome_arquivo, String caminho_completo, String caminho_completo_salvar) {
+		
+		FileOutputStream outputStream;
+		try {
+			outputStream = new FileOutputStream (caminho_completo + ".xlsx");
+			
+			//novo_contrato.setCaminho_arquivo(url.toString());
+			
+			workbook_aberto.write(outputStream);
+			 //  workbook_aberto.close();
+  				outputStream.close();
+
+			
+				
+				//workbook.close();
+			//Converter e salvar em pdf
+             //criar pdf
+             ConverterPdf converter_pdf = new ConverterPdf();
+           //  String url = converter_pdf.excel_pdf_file(contrato_alterado);
+           //TelaVizualizarPdf  vizualizar =  new TelaVizualizarPdf(url);
+             if (converter_pdf.excel_pdf_file(caminho_completo)) {
+            	 System.out.println("Arquivo pdf convertido e salvo!");
+            	 System.out.println("caminho para salvar: " + caminho_completo_salvar);
+            	 novo_contrato.setCaminho_arquivo(caminho_completo_salvar + ".pdf") ;
+            	 
+            	 //salvar no drobox
+            	 Nuvem nuvem = new Nuvem();
+            	 nuvem.abrir();
+                 nuvem.testar();
+                
+                boolean retorno =   nuvem.carregar(caminho_completo_salvar + ".pdf", nome_arquivo + ".pdf");
+                 if(retorno) {
+                	 System.out.println("Arquivo salvo na nuvem");
+                	 novo_contrato.setNome_arquivo(nome_arquivo + ".pdf" );
+                 }
+        	    // System.out.println("link: " + nuvem.getUrlArquivo("/contratos));
+     			return true;
+
+             }else {
+            	 return false;
+             }
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			System.out.println("erro ao criar o arquivo fisico, erro: " + e.getMessage());
+			e.printStackTrace();
+			
+			return false;
+		} 
+	}
 	
 	public CellStyle formatar( boolean negrito,  char alinhamento, boolean borda_topo,boolean borda_baixo,boolean borda_esquerda,boolean borda_direita)
 	{

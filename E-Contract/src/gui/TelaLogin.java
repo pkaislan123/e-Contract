@@ -53,6 +53,7 @@ public class TelaLogin extends JDialog implements GetDadosGlobais{
 	private char previo;
 	private Log GerenciadorLog = new Log();
 	private CadastroLogin login;
+	private JLabel lblNewLabel_1;
 
 	
 	public TelaLogin() {
@@ -252,22 +253,23 @@ public class TelaLogin extends JDialog implements GetDadosGlobais{
 		lblNewLabel.setBounds(329, 522, 451, 14);
 		contentPane.add(lblNewLabel);
 		
+		
 		JLabel lblEcontract = new JLabel("e-Contract");
 		lblEcontract.setForeground(new Color(255, 255, 255));
 		lblEcontract.setFont(new Font("Arial", Font.BOLD, 30));
-		lblEcontract.setBounds(196, 123, 182, 39);
+		lblEcontract.setBounds(193, 184, 182, 39);
 		contentPane.add(lblEcontract);
 		
-		JLabel lblEficincia = new JLabel("Eficiência na gestão de contratos");
+		JLabel lblEficincia = new JLabel("Gestão de contratos");
 		lblEficincia.setForeground(new Color(255, 255, 255));
 		lblEficincia.setFont(new Font("Arial", Font.BOLD, 18));
-		lblEficincia.setBounds(140, 173, 357, 29);
+		lblEficincia.setBounds(237, 219, 196, 29);
 		contentPane.add(lblEficincia);
 		
 		JTextArea txtrNsDaTitaniwm = new JTextArea();
 		txtrNsDaTitaniwm.setEditable(false);
 		txtrNsDaTitaniwm.setFont(new Font("Arial", Font.BOLD, 18));
-		txtrNsDaTitaniwm.setText("Nós da TiTaniwm damos total atenção a você e os dados da sua empresa!\r\n\r\nPor isso, tenha mais tempo pra você e sua      empresa e deixe seus contratos conosco.\r\n                                                                                                 \r\n                                                                                 \r\n\r\n");
+		txtrNsDaTitaniwm.setText("Nós da Titaniwm damos total atenção a você e os dados da sua empresa!\r\n\r\nPor isso, tenha mais tempo pra você e sua      empresa e deixe seus contratos conosco.\r\n                                                                                                 \r\n                                                                                 \r\n\r\n");
 		txtrNsDaTitaniwm.setForeground(Color.WHITE);
 		txtrNsDaTitaniwm.setBackground(new Color (0,0,0,0));	
 		txtrNsDaTitaniwm.setBorder(null);
@@ -276,11 +278,17 @@ public class TelaLogin extends JDialog implements GetDadosGlobais{
 		txtrNsDaTitaniwm.setLineWrap(true);
 		contentPane.add(txtrNsDaTitaniwm);
 		
-		JLabel lblEquipeTitaniwm = new JLabel("Equipe TiTaniwm");
+		
+		JLabel lblEquipeTitaniwm = new JLabel("Equipe Titaniwm");
 		lblEquipeTitaniwm.setForeground(Color.WHITE);
 		lblEquipeTitaniwm.setFont(new Font("Arial", Font.BOLD, 18));
 		lblEquipeTitaniwm.setBounds(326, 426, 161, 29);
 		contentPane.add(lblEquipeTitaniwm);
+		
+		lblNewLabel_1 = new JLabel("");
+		lblNewLabel_1.setIcon(new ImageIcon(TelaLogin.class.getResource("/imagens/logo.png")));
+		lblNewLabel_1.setBounds(51, 77, 217, 160);
+		contentPane.add(lblNewLabel_1);
 		
 	
 		btnLogin.addActionListener(new ActionListener() {
@@ -290,7 +298,7 @@ public class TelaLogin extends JDialog implements GetDadosGlobais{
 			      int result = logar();
 			      if(result == 0) {
 			    	  lblResult.setText("Usuário ou senha Incorretos");
-			    	 GerenciadorLog.registrarLogDiario("aviso", "erro de login: usuario: " + user + " senha: " + senha + "classe:TelaLogin" ); 
+
 			      }
 			      else
 			      {

@@ -1,5 +1,7 @@
 package gui;
 
+import java.applet.Applet;
+import java.applet.AudioClip;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.EventQueue;
@@ -147,6 +149,7 @@ public class TelaEntrada extends JDialog implements GetDadosGlobais{
 		
 	
 		
+
 		
 		this.setLocationRelativeTo(null);
 		this.setUndecorated(true);

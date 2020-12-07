@@ -40,9 +40,64 @@ public class CadastroContrato {
 	private CadastroCliente [] compradores ;
 	private  CadastroCliente [] vendedores ;
 	private CadastroCliente [] corretores;
-	private BigDecimal valor_a_pagar;
+	private BigDecimal valor_a_pagar , valor_comissao;
+	
+	
+	public BigDecimal getValor_comissao() {
+		return valor_comissao;
+	}
+
+
+
+	public void setValor_comissao(BigDecimal valor_comissao) {
+		this.valor_comissao = valor_comissao;
+	}
+
+
+
+	public int getComissao() {
+		return comissao;
+	}
+
+
+
+
+
+
+
+	public int getClausula_comissao() {
+		return clausula_comissao;
+	}
+
+
+
+	public void setClausula_comissao(int clausula_comissao) {
+		this.clausula_comissao = clausula_comissao;
+	}
+
+
+
+	public void setComissao(int comissao) {
+		this.comissao = comissao;
+	}
 	private double quantidade, valor_produto;
 	private String produto, data_contrato, codigo, data_entrega, ctc, ctv, safra, medida, caminho_arquivo, nome_arquivo;
+	private int sub_contrato;
+	private int comissao, clausula_comissao;
+	
+	
+	public int getSub_contrato() {
+		return sub_contrato;
+	}
+
+
+
+	public void setSub_contrato(int sub_contrato) {
+		this.sub_contrato = sub_contrato;
+	}
+
+
+
 	public String getCaminho_arquivo() {
 		return caminho_arquivo;
 	}

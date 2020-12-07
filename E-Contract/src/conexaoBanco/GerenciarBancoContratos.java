@@ -31,6 +31,7 @@ public class GerenciarBancoContratos {
 	private Registro registro_geral_relacao_contrato_comprador = new Registro();
 	private Registro registro_geral_relacao_contrato_vendedor = new Registro();
 	private Registro registro_geral_relacao_contrato_modelo_pagamento = new Registro();
+	private Registro registro_geral_relacao_contrato_sub_contrato = new Registro();
 
 
 	
@@ -100,7 +101,7 @@ public class GerenciarBancoContratos {
 	    }
 	  
 	  
-	  public int inserirContrato(CadastroContrato contrato) {
+	  public int inserirContrato(CadastroContrato contrato, CadastroContrato contrato_pai) {
 		  boolean reverter = false;
 		  int retorno_contrato_inserido = inserir_contrato_retorno(contrato);
 		  
@@ -123,7 +124,23 @@ public class GerenciarBancoContratos {
 					   {
 						   if(inserirModelosPagamentos(retorno_contrato_inserido, contrato.getPagamentos())) {
 							   
-							   reverter = false;
+							   
+							   if(contrato.getSub_contrato() == 0) {
+								   //e um contrato pai, nao fazer mais nada
+								   reverter = false;
+
+							   }else {
+								   //e um contrato filho, criar relacao;
+								   if( inserir_contrato_sub_contrato(contrato_pai.getId(), retorno_contrato_inserido)) {
+									   //inseriu corretamente
+									   
+								   }else {
+									   //houve alguma excessao ao criar as tabelas relacao contrato_sub_contrato, devera ser feito o processo de
+										  //exclusao dessas tabelas
+										  /*fazer processo de exclusao das tabelas*/
+									   reverter = true;
+								   }
+							   }
 
 						   }else {
 							   //houve alguma excessao ao criar as tabelas relacao_contrato_pagamentos, devera ser feito o processo de
@@ -174,8 +191,17 @@ public class GerenciarBancoContratos {
 			  boolean v_remover_tabelas_relacao_contrato_vendedor = remover_tabelas_contrato_vendedor();
               boolean  v_remover_tabelas_relacao_contrato_modelo_pagamento = remover_tabelas_contrato_modelo_pagamento();
               boolean  v_remover_tabelas_modelo_pagamento = remover_tabelas_modelo_pagamento();
-			  
-			  if(v_remover_tabelas_relacao_contrato_corretor && v_remover_tabelas_relacao_contrato_comprador && v_remover_tabelas_relacao_contrato_vendedor) {
+              boolean  v_remover_tabelas_contrato_sub_contrato = remover_tabelas_contrato_sub_contrato();
+              boolean  v_remover_sub_contrato = false;
+
+              
+              if(contrato.getSub_contrato() == 1) {
+            	  //remover o sub_contrato criado
+            	  
+            	  v_remover_sub_contrato = remover_contrato(retorno_contrato_inserido);
+              }
+              
+			  if(v_remover_tabelas_relacao_contrato_corretor && v_remover_tabelas_relacao_contrato_comprador && v_remover_tabelas_relacao_contrato_vendedor && v_remover_tabelas_contrato_sub_contrato && v_remover_sub_contrato) {
 				  
 				  JOptionPane.showMessageDialog(null, "Erro ao inserir o Contrato no banco de"
 	                      + "dados\nBanco de Dados foi Normalizado!\nConsulte o administrador");
@@ -461,9 +487,11 @@ public class GerenciarBancoContratos {
 	
 	  
 	  private String sql_contrato(CadastroContrato contrato) {
-          String query = "insert into contrato (codigo, id_safra, id_produto, medida, quantidade, valor_produto, valor_a_pagar, data_contrato, data_entrega, status_contrato, caminho_arquivo, nome_arquivo) values ('"
+          String query = "insert into contrato (codigo, sub_contrato,id_safra, id_produto, medida, quantidade, valor_produto, valor_a_pagar,comissao, clausula_comissao, valor_comissao, data_contrato, data_entrega, status_contrato, caminho_arquivo, nome_arquivo) values ('"
         		 + contrato.getCodigo() 
                  + "','"
+                     + contrato.getSub_contrato()
+                + "','"
                 + contrato.getModelo_safra().getId_safra()
                 + "','"
                 + contrato.getModelo_produto().getId_produto()
@@ -475,6 +503,12 @@ public class GerenciarBancoContratos {
                 + contrato.getValor_produto()
                 + "','"
                 + contrato.getValor_a_pagar()
+                + "','"
+                 + contrato.getComissao()
+                + "','"
+                 + contrato.getClausula_comissao()
+                + "','"
+                 + contrato.getValor_comissao()
                 + "','"
                 + contrato.getData_contrato()
                 + "','"
@@ -862,6 +896,7 @@ public class GerenciarBancoContratos {
 
 	                 contrato.setId(rs.getInt("id"));
 	            	 contrato.setCodigo(rs.getString("codigo"));
+	            	 contrato.setSub_contrato(rs.getInt("sub_contrato"));
 	            	 int id_safra = rs.getInt("id_safra");
 	            	 
 	            	 GerenciarBancoSafras gerenciar = new GerenciarBancoSafras();
@@ -893,16 +928,22 @@ public class GerenciarBancoContratos {
 		            	 ArrayList<CadastroContrato.CadastroPagamento> pagamentos_contrato = gerenciar_pagamentos.getPagamentos(id);
                          contrato.setPagamentos(pagamentos_contrato);
                          
-                         
+                        
                          
                          contrato.setStatus_contrato(rs.getInt("status_contrato"));
     	            	 contrato.setData_contrato(rs.getString("data_contrato"));
+    	            	 contrato.setData_entrega(rs.getString("data_entrega"));
 
                          contrato.setCaminho_arquivo(rs.getString("caminho_arquivo"));
                          contrato.setNome_arquivo(rs.getString("nome_arquivo"));
                         
 		            	 
 
+                         //dados de comissao
+                         contrato.setComissao(rs.getInt("comissao"));
+                         contrato.setClausula_comissao(rs.getInt("clausula_comissao"));
+                         contrato.setValor_comissao(new BigDecimal(rs.getString("valor_comissao")));
+                         
 			 	         ConexaoBanco.fechaConexao(conn, pstm, rs);
 
 
@@ -948,6 +989,7 @@ public class GerenciarBancoContratos {
 
 	                 contrato.setId(rs.getInt("id"));
 	            	 contrato.setCodigo(rs.getString("codigo"));
+	            	 contrato.setSub_contrato(rs.getInt("sub_contrato"));
 	            	 contrato.setQuantidade(Double.parseDouble(rs.getString("quantidade")));
 	            	 contrato.setMedida(rs.getString("medida"));
 	            	 contrato.setProduto(rs.getString("nome_produto"));
@@ -964,6 +1006,8 @@ public class GerenciarBancoContratos {
 	                 contrato.setNomes_compradores(rs.getString("compradores"));
 	                 contrato.setNomes_vendedores(rs.getString("vendedores"));
 	                 contrato.setNomes_corretores(rs.getString("corretores"));
+	                 
+	                 
 	                 
 	                 
 	                 
@@ -1179,8 +1223,193 @@ public class GerenciarBancoContratos {
    }
 	   
 	   
-	   
-	   
    
+   public int getNumeroContratosParaAssinar() {
+	   
+	   String selectGetNumContratos = "SELECT COUNT(*) FROM contrato where sub_contrato = 0 and status_contrato = 1";
+		  Connection conn = null;
+	      PreparedStatement pstm = null;
+	      ResultSet rs = null;
+	      
+	      try {
+	          conn = ConexaoBanco.getConexao();
+	          pstm = conn.prepareStatement(selectGetNumContratos);
+	          		
+	          rs = pstm.executeQuery();
+	          rs.next();
+	          int i = rs.getInt("COUNT(*)");
+	          
+	          
+	          
+	          ConexaoBanco.fechaConexao(conn, pstm, rs);
+              return i;
+	        
+	      
+	      } catch (Exception e) {
+	          JOptionPane.showMessageDialog(null, "Erro ao listar o numero de  contratos sem assinaturas: " +  " erro: " + e.getMessage() + "causa: " + e.getCause());
+	         return -1;
+	        }		  
+	   
+	   
+   }
+   
+   
+   
+   private boolean inserir_contrato_sub_contrato( int id_contrato_pai, int id_sub_contrato){
+		  Connection conn = null;
+       try {
+           conn = ConexaoBanco.getConexao();
+           String sql = "insert into contrato_sub_contrato \r\n" + 
+           		"(id_contrato_pai, id_sub_contrato) values ('"
+	    			+id_contrato_pai
+	    			+ "','"
+	    			+ id_sub_contrato
+	    			+ "')";
+	       
+	        PreparedStatement grava = (PreparedStatement) conn.prepareStatement(sql); 
+	        grava.execute();    
+           ConexaoBanco.fechaConexao(conn, grava);
+           JOptionPane.showMessageDialog(null, "Relação contrato_sub_contrato cadastrado com sucesso");
+             registro_geral_relacao_contrato_sub_contrato.setIdContrato(id_contrato_pai);
+             registro_geral_relacao_contrato_sub_contrato.adicionar_id(id_sub_contrato);
+            return true;
+
+       } catch (Exception e) {
+     	  JOptionPane.showMessageDialog(null, "Erro ao inserir a relação contrato_sub_contrato no banco de"
+                    + " dados" + e.getMessage());
+            return false;
+       }
+			  
+	         
+	  }
+   
+   private boolean remover_contrato_sub_contrato( int id_contrato_pai, int id_sub_contrato) {
+		  String sql_delete_relacao = "DELETE FROM contrato_sub_contrato WHERE id_contrato_pai = ? and id_sub_contrato = ?";
+		  Connection conn = null;
+	        ResultSet rs = null;	      
+	        try {
+	            conn = ConexaoBanco.getConexao();
+	            PreparedStatement pstm;
+	            pstm = conn.prepareStatement(sql_delete_relacao);
+	 
+	            pstm.setInt(1, id_contrato_pai);
+	            pstm.setInt(2,  id_sub_contrato);
+	 
+	            pstm.execute();
+	            ConexaoBanco.fechaConexao(conn, pstm);
+	            JOptionPane.showMessageDialog(null, "Relação contrato_sub_contrato excluido, banco normalizado ");
+	           return true;
+	            
+	 
+	        } catch (Exception f) {
+	            JOptionPane.showMessageDialog(null, "Erro ao exlcuir relação contrato_sub_contrato do banco de dados\nBanco de dados corrompido!\nConsulte o administrador do sistema"
+	                    + "dados " + f.getMessage());
+	           return false;
+	        }
+		  
+		  
+	  }
 	  
+	   
+   private boolean remover_tabelas_contrato_sub_contrato() {
+	   boolean retorno = false;
+	 		  
+	 		  for(int codigo_sub_contrato : registro_geral_relacao_contrato_sub_contrato.getIds()) {
+	 				 if (remover_contrato_sub_contrato( registro_geral_relacao_contrato_sub_contrato.getIdContrato(), codigo_sub_contrato)) {
+	 					 retorno = true;
+	 				 }else {
+	 					 retorno = false;
+	 					 break;
+	 				 }
+	 			  }
+	 		  
+	 		  return retorno;
+	 	  }
+	  
+   public ArrayList<CadastroContrato> getSubContratos(int id_contrato_pai){
+	   String selectContrato = "select * from contrato_sub_contrato sub_contrato LEFT JOIN contrato filho  on filho.id = sub_contrato.id_sub_contrato where filho.sub_contrato = 1 and id_contrato_pai = ?";
+		  Connection conn = null;
+	        PreparedStatement pstm = null;
+	        ResultSet rs = null;
+        ArrayList<CadastroContrato> lsitaContratos = new ArrayList<CadastroContrato>();
+
+	        try {
+	            conn = ConexaoBanco.getConexao();
+	            pstm = conn.prepareStatement(selectContrato);
+	            pstm.setInt(1, id_contrato_pai);
+           	    GerenciarBancoSafras gerenciar = new GerenciarBancoSafras();
+
+	            		
+	            rs = pstm.executeQuery();
+	            while (rs.next()) {
+	             	CadastroContrato contrato = new CadastroContrato();
+
+	                 contrato.setId(rs.getInt("id"));
+	            	 contrato.setCodigo(rs.getString("codigo"));
+	            	 contrato.setSub_contrato(rs.getInt("sub_contrato"));
+	            	 int id_safra = rs.getInt("id_safra");
+	            	 
+	            	 CadastroSafra safra = gerenciar.getSafra(id_safra);
+	            	 
+	            	 int id = contrato.getId();
+	            	 
+	            	 if(safra != null) {
+	            		 
+	            		 contrato.setQuantidade(Double.parseDouble(rs.getString("quantidade")));
+		            	 contrato.setMedida(rs.getString("medida"));
+		            	
+		            	 contrato.setValor_produto(Double.parseDouble(rs.getString("valor_produto")));
+		            	 contrato.setValor_a_pagar(new BigDecimal(rs.getString("valor_a_pagar")));
+		            
+		            	 contrato.setModelo_safra(safra);
+		            	 
+		            	 GerenciarBancoContratos gerenciar_corretores = new GerenciarBancoContratos();
+		            	 CadastroCliente corretores[] = gerenciar_corretores.getCorretores(id);
+                         contrato.setCorretores(corretores);
+		            	 
+                          GerenciarBancoContratos gerenciar_vendedores = new GerenciarBancoContratos();
+		              	 CadastroCliente vendedores[] = gerenciar_vendedores.getVendedores(id);
+                         contrato.setVendedores(vendedores);
+                      
+                      GerenciarBancoContratos gerenciar_compradores = new GerenciarBancoContratos();
+		            	 CadastroCliente compradores[] = gerenciar_compradores.getCompradores(id);
+                      contrato.setCompradores(compradores);
+                
+                      GerenciarBancoContratos gerenciar_pagamentos = new GerenciarBancoContratos();
+		            	 ArrayList<CadastroContrato.CadastroPagamento> pagamentos_contrato = gerenciar_pagamentos.getPagamentos(id);
+                      contrato.setPagamentos(pagamentos_contrato);
+                      
+                     
+                      
+                      contrato.setStatus_contrato(rs.getInt("status_contrato"));
+ 	            	 contrato.setData_contrato(rs.getString("data_contrato"));
+ 	            	 contrato.setData_entrega(rs.getString("data_entrega"));
+
+                      contrato.setCaminho_arquivo(rs.getString("caminho_arquivo"));
+                      contrato.setNome_arquivo(rs.getString("nome_arquivo"));
+                      
+                      
+
+                      //dados de comissao
+                      contrato.setComissao(rs.getInt("comissao"));
+                      contrato.setClausula_comissao(rs.getInt("clausula_comissao"));
+                      contrato.setValor_comissao(new BigDecimal(rs.getString("valor_comissao")));
+                     
+  	            	     lsitaContratos.add(contrato);
+
+	            	 }
+
+                 }
+
+	 	         ConexaoBanco.fechaConexao(conn, pstm, rs);
+
+	            
+	        } catch (Exception e) {
+	            JOptionPane.showMessageDialog(null, "Erro ao listar contrato filhos do contrato id: " + id_contrato_pai + " erro: " + e.getMessage());
+	            return null;
+	        }		  
+	        return lsitaContratos;
+
+   }
+   
 }
