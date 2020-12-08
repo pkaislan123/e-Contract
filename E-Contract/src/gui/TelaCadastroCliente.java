@@ -201,7 +201,7 @@ public class TelaCadastroCliente extends JDialog {
 			setTitle("E-Contract - Novo Armazém");
 		else if(flag_tipo_tela == 6)
 			setTitle("E-Contract - Editar Armazém");
-     	else {
+     	else if(flag_tipo_tela == 0) {
 			setTitle("E-Contract - Editar Cliente");
 			cliente_atualizar = cliente;   
      	}
@@ -660,7 +660,7 @@ public class TelaCadastroCliente extends JDialog {
 		 		if(atualizar(flag_tipo_tela) == true)
 		 		{
 		 			telaPai.atualizaTabela();
-
+		 			gerarPastasAtualizar();
 		 			isto.dispose();
 		 		}
 		 	}
@@ -1944,7 +1944,16 @@ public class TelaCadastroCliente extends JDialog {
 						 });
 		 }
 		 }*/
-		
+		 if(flag_tipo_tela == 0) {
+			 //travar para nao alterar os campos nomefantasia e nomeempresarial
+			 if(cliente_atualizar.getTipo_pessoa() == 0) {
+				 //pessoa fisica
+				 entNomeEmpresarial.setEditable(false);
+			 }else {
+				 entNomeFantasia.setEditable(false);
+			 }
+			 
+		 }
 		 adicionarFocus(isto.getComponents());
 		 
 		 this.setLocationRelativeTo(null);
@@ -2167,6 +2176,7 @@ public class TelaCadastroCliente extends JDialog {
       
  	   }
  	   }
+    
 	return permitir_cadastro;
  	
 		
@@ -2477,7 +2487,69 @@ public class TelaCadastroCliente extends JDialog {
 		}
 		
 	
-				int ano_atual  = new GetData().getAnoAtual();
+		int ano_atual  = new GetData().getAnoAtual();
+		
+		String ano_passado_pasta = Integer.toString(ano_atual - 1);
+		String ano_atual_pasta = Integer.toString(ano_atual);
+		String ano_que_vem_pasta = Integer.toString(ano_atual + 1);
+
+		
+		DadosGlobais dados = DadosGlobais.getInstance();
+		 configs_globais = dados.getConfigs_globais();
+		 
+		
+		String unidade_base_dados = configs_globais.getServidorUnidade();
+		String sub_pasta= "E-Contract\\arquivos\\clientes";
+		
+		String compra = "COMPRA";
+		String venda = "VENDA";
+		
+		String soja = "SOJA";
+		String sorgo = "SORGO";
+		String milho = "MILHO";
+		
+		String compra_venda[] = {"COMPRA", "VENDA"};
+		String produtos[] = {"SOJA", "MILHO", "SORGO"};
+		String anos[] = {ano_passado_pasta, ano_atual_pasta, ano_que_vem_pasta};
+		
+		for(int cv = 0; cv <= 1 ; cv++) {
+			for(int ano = 0 ; ano <= 2; ano++) {
+			  for(int produto = 0; produto <= 2; produto++) {
+				  String caminho_completo = unidade_base_dados + "\\" + sub_pasta + 
+						  "\\" + nome_pasta.toUpperCase() + "\\" +"CONTRATOS" 
+						  + "\\" + compra_venda[cv] + "\\" 
+						  + anos[ano] + "\\"
+						  + produtos[produto]; 
+					manipularArquivos.criarDiretorio(caminho_completo);
+			  }
+				 
+			}
+		}
+		
+		
+		//criar diretorio de dados pessoas
+		
+		  String caminho_completo = unidade_base_dados + "\\" + sub_pasta + 
+				  "\\" + nome_pasta.toUpperCase() + "\\" + "DADOS PESSOAS";
+	  
+			manipularArquivos.criarDiretorio(caminho_completo);
+
+		
+		
+	}
+	
+	public void gerarPastasAtualizar() {
+		ManipularTxt manipularArquivos = new ManipularTxt();
+		String nome_pasta;
+		
+		if(cliente_atualizar.getTipo_pessoa() == 0) {
+			nome_pasta = cliente_atualizar.getNome_empresarial().toUpperCase();
+		}else {
+			nome_pasta = cliente_atualizar.getNome_fantaia().toUpperCase();
+		}
+		
+	
+		int ano_atual  = new GetData().getAnoAtual();
 		
 		String ano_passado_pasta = Integer.toString(ano_atual - 1);
 		String ano_atual_pasta = Integer.toString(ano_atual);

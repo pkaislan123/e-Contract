@@ -2576,8 +2576,8 @@ private ArrayList<CadastroContrato.CadastroPagamento> pagamentosLocais = new Arr
 			//mode de edicao
 	    	 tipo_salvamento = 1;
 		}
-		
-		if(editar.salvar(tipo_salvamento) == 0 || editar.salvar(tipo_salvamento) == 1)
+		int salvou = editar.salvar(tipo_salvamento);
+		if( salvou == 1 || salvou == 10 || salvou == 12 || salvou == 14)
 		{
 			int result = -1;
 			GerenciarBancoContratos gerenciarContratos = new GerenciarBancoContratos();

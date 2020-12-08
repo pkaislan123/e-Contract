@@ -120,7 +120,7 @@ public class TelaGerenciarContrato extends JDialog {
 		
 		System.out.println("Caminho do arquivo: " + contrato.getCaminho_arquivo());
 		try {
-			stream = new FileInputStream(contrato.getCaminho_arquivo());
+			stream = new FileInputStream(servidor_unidade + contrato.getCaminho_arquivo());
 		} catch (FileNotFoundException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
