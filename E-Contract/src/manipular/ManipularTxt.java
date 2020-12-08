@@ -214,5 +214,29 @@ public class ManipularTxt {
 
 	}
 	
+	public boolean apagarArquivo(String caminho) {
+		System.out.println("Funcao apagar arquivo foi chamada!");
+		try {
+		File arquivo_apagar = new File(caminho);
+		if(arquivo_apagar.exists()) {
+			System.out.println("o arquivo existe!");
+
+			
+			return arquivo_apagar.delete();
+		}
+			else {
+				System.out.println("o arquivo para apagar nao existe");
+				return false;
+
+		}
+		}catch(Exception e) {
+			System.out.println("houve um erro ao tentar deletar o arquivo, erro: " + e.getMessage());
+			return false;
+		}
+		}
+		
+		
+	
+	
    
 }

@@ -1,5 +1,6 @@
 package outros;
 
+import cadastros.CadastroBaseDados;
 import cadastros.CadastroLogin;
 import gui.TelaPrincipal;
 import manipular.ConfiguracoesGlobais;

@@ -7,19 +7,34 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 
+import cadastros.CadastroBaseDados;
+import cadastros.CadastroLogin;
+import manipular.ConfiguracoesGlobais;
+import outros.DadosGlobais;
+import tratamento_proprio.Log;
+
 
 
 public class ConexaoBanco {
 
+	private static Log GerenciadorLog;
+	private static CadastroLogin login;
+	private static ConfiguracoesGlobais configs_globais;
 	
 	//public static Connection connection;
-	static String url = "jdbc:mysql://localhost/filamentos?useTimezone=true&serverTimezone=UTC";
-	static String usuario = "root";
-	static String senha = "1234";
-	private String texto;
+	private static String url;
 
- public static Connection getConexao() throws SQLException, ClassNotFoundException{
+	private static CadastroBaseDados bd ;
+
+
+ public static  Connection getConexao() throws SQLException, ClassNotFoundException{
 	try {
+		getDadosGlobais();
+
+        bd = configs_globais.getBaseDados();
+		
+		 url = "jdbc:mysql://" + bd.getHost() + ":" + bd.getPorta() + "/" + bd.getNome_banco() + "?useTimezone=true&serverTimezone=UTC";
+		System.out.println("url da conexao com o bd: "  + url);
 		
 		//base nuvem
 		//Connection connection =  (Connection) DriverManager.getConnection("jdbc:mysql://4.tcp.ngrok.io:16461/bd_ldarmazens?useTimezone=true&serverTimezone=UTC", "root", "1234");		
@@ -28,11 +43,14 @@ public class ConexaoBanco {
 		//Connection connection =  (Connection) DriverManager.getConnection("jdbc:mysql://DESKTOP-K8RASOB/bd_ldarmazens?useTimezone=true&serverTimezone=UTC", "root", "1234");		
         
 		//base local
-		Connection connection =  (Connection) DriverManager.getConnection("jdbc:mysql://localhost:3306/bd_ldarmazens?useTimezone=true&serverTimezone=UTC", "root", "1234");		
+		
+		Connection connection =  (Connection) DriverManager.getConnection(url, bd.getNome_usuario(), bd.getSenha());		
 
 	 return connection;
 	 
  }catch (SQLException e) {
+     System.out.println("erro na conexao com o bd");
+
         throw new SQLException("Erro ao conectar "
                 + "com a base de dados" + 
                 e.getMessage());
@@ -95,13 +113,19 @@ public class ConexaoBanco {
 	
 		
 		
-		
-		
-		
 	}
 	
 
-	
+	public static void getDadosGlobais() {
+		//gerenciador de log
+				DadosGlobais dados = DadosGlobais.getInstance();
+				 GerenciadorLog = dados.getGerenciadorLog();
+				 configs_globais = dados.getConfigs_globais();
+				 
+				 //usuario logado
+				  login = dados.getLogin();
+		
+	}
 	
   
 	

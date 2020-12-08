@@ -51,6 +51,7 @@ import com.aspose.cells.Color;
 import com.aspose.cells.FileFormatType;
 import com.aspose.cells.Worksheet;
 import com.itextpdf.text.DocumentException;
+import javax.swing.JOptionPane;
 
 import cadastros.CadastroCliente;
 import cadastros.CadastroContrato;
@@ -1161,10 +1162,42 @@ public ByteArrayOutputStream alterar(CadastroContrato novo_contrato)
 	
 	
 	
-	public int salvar( ) 
+	public int salvar( int tipo_salvamento) 
 	{
 		int retorno_final = -1;
-		boolean arquivos_comprador_criado = false;
+		boolean proceder = false;
+		
+		if(tipo_salvamento == 1) {
+			//esta em edicao, apagar os arquivos fisicos e na nuvem
+			String caminho_arquivo =  configs_globais.getRaiz() + "\\" + novo_contrato.getCaminho_arquivo();
+			System.out.println("caminho do arquivo para apagar: " + caminho_arquivo);
+			ManipularTxt manipular_apagar = new ManipularTxt();
+			if(manipular_apagar.apagarArquivo(caminho_arquivo)) {
+				if(manipular_apagar.apagarArquivo(caminho_arquivo.replace("pdf", "xlsx"))) {
+					
+					  Nuvem nuvem = new Nuvem();
+				         nuvem.abrir();
+				         nuvem.testar();
+				         nuvem.listar();
+				         nuvem.deletarArquivo(caminho_arquivo);
+				       JOptionPane.showMessageDialog(null, "Os arquivos foram apagados da memoria e da nuvem!");
+					proceder = true;
+				}else {
+					System.out.println("erro ao excluir arquivo xlsx, operação cancelada!");
+					retorno_final = 4;
+					proceder = false;
+				}
+				
+			}else {
+				System.out.println("erro ao excluir arquivo .pdf, operação cancelada!");
+				retorno_final = 4;
+				proceder = false;
+			}
+			
+		}
+
+	  if(tipo_salvamento == 1 && proceder || tipo_salvamento == 0) {
+        boolean arquivos_comprador_criado = false;
 		boolean arquivos_vendedor1_criado = false;
 		boolean arquivos_vendedor2_criado = false;
 
@@ -1303,6 +1336,9 @@ public ByteArrayOutputStream alterar(CadastroContrato novo_contrato)
 		   }
 
 	   }
+	  }else {
+		  
+	  }
 		
 		return retorno_final; 
 	}

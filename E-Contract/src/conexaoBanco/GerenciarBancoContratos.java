@@ -524,6 +524,8 @@ public class GerenciarBancoContratos {
 
 	  }
 	  
+	
+	  
 	  
 	  
 	  
@@ -966,6 +968,53 @@ public class GerenciarBancoContratos {
 		  
 	  }
 	  
+	  public int atualizarContrato(CadastroContrato contrato) {
+		    Connection conn = null;
+            String atualizar = null;
+            PreparedStatement pstm;
+            String sql_update_contrato ="update contrato set id_safra = ?, id_produto = ?, medida = ?, quantidade = ?,\r\n"
+    		 		+ "valor_produto = ?, valor_a_pagar = ?, comissao = ?, clausula_comissao = ?, valor_comissao = ?,\r\n"
+    		 		+ "data_contrato = ?, data_entrega = ?, status_contrato, caminho_arquivo = ?,\r\n"
+    		 		+ "nome_arquivo where id = ?;";
+            
+          try {  
+        	  
+        	  conn = ConexaoBanco.getConexao();
+         	 pstm = conn.prepareStatement(sql_update_contrato);
+         	 
+		     pstm.setInt(1, contrato.getModelo_safra().getId_safra());
+		     pstm.setInt(2,  contrato.getModelo_safra().getProduto().getId_produto());
+		     pstm.setString(3, contrato.getMedida());
+		     pstm.setString(4, Double.toString(contrato.getQuantidade()));
+		     pstm.setString(5, Double.toString(contrato.getValor_produto()));
+		     pstm.setString(6, contrato.getValor_a_pagar().toPlainString());
+		     pstm.setString(7, Integer.toString(contrato.getComissao()));
+		     pstm.setString(8, Integer.toString(contrato.getClausula_comissao()));
+		     pstm.setString(9, contrato.getValor_comissao().toPlainString());
+		     pstm.setString(10, contrato.getData_contrato());
+		     pstm.setString(11, contrato.getData_entrega());
+		     pstm.setString(12, Integer.toString(contrato.getStatus_contrato()));
+		     pstm.setString(13, contrato.getCaminho_arquivo());
+		     pstm.setString(14,  contrato.getNome_arquivo());
+		     
+		     
+		  
+		    pstm.execute();
+            //JOptionPane.showMessageDialog(null, "Cliente atualizado com sucesso");
+            System.out.println("Contrato Atualizado com sucesso");
+            ConexaoBanco.fechaConexao(conn);
+          return 5;
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(null, "Erro ao atualizar contrato no banco de"
+                    + "dados " + e.getMessage());
+            return -2;
+        }
+		  
+		  
+	  }
+	  
+	  
+	  
 	  
 	  public ArrayList<CadastroContrato> getContratos() {
 		  String selectContratos = "call consulta_contratos()";
@@ -1282,6 +1331,9 @@ public class GerenciarBancoContratos {
 			  
 	         
 	  }
+   
+   
+   
    
    private boolean remover_contrato_sub_contrato( int id_contrato_pai, int id_sub_contrato) {
 		  String sql_delete_relacao = "DELETE FROM contrato_sub_contrato WHERE id_contrato_pai = ? and id_sub_contrato = ?";

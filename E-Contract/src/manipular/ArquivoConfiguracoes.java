@@ -7,6 +7,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.Properties;
 
+import cadastros.CadastroBaseDados;
 import cadastros.CadastroLogin;
 import outros.DadosGlobais;
 import outros.TratarDados;
@@ -20,6 +21,7 @@ public class ArquivoConfiguracoes {
 	private ConfiguracoesGlobais configs_globais;
 	private String conteudo_arquivo;
 	private Properties propriedades_local;
+	private CadastroBaseDados minha_base;
 	
 	public ArquivoConfiguracoes() {
 		
@@ -140,6 +142,62 @@ public class ArquivoConfiguracoes {
 	}
 	
 	
+	public CadastroBaseDados getDadosBaseDados() {
+		String host, porta, nome_banco, nome_usuario, senha;
+		
+		
+		/*prop.bd.host=Desktop-6jh0ag4
+				prop.bd.porta=3306
+				prop.bd.nomebase=bd_ldarmazens
+				prop.bd.usuariobd=root
+				prop.bd.senhabd=1234
+				*/
+
+		CadastroBaseDados base_dados = new CadastroBaseDados();
+	    host = propriedades_local.getProperty("prop.bd.host");
+		porta = propriedades_local.getProperty("prop.bd.porta");
+		nome_banco = propriedades_local.getProperty("prop.bd.nomebase");
+		nome_usuario = propriedades_local.getProperty("prop.bd.usuariobd");
+		senha = propriedades_local.getProperty("prop.bd.senhabd");
+
+		base_dados.setHost(host);
+		base_dados.setPorta(porta);
+		base_dados.setNome_banco(nome_banco);
+		base_dados.setNome_usuario(nome_usuario);
+		base_dados.setSenha(senha);
+		
+		 System.out.println("host: " + base_dados.getHost());
+		 System.out.println("porta: " + base_dados.getPorta());
+		 System.out.println("nome-Banco: " + base_dados.getNome_banco());
+		 System.out.println("nome usuario: " + base_dados.getNome_usuario());
+
+		 
+		 
+		return base_dados;
+
+		
+		
+	}
+	
+	public boolean setDadosBaseDados(CadastroBaseDados cb_bd)
+	{
+		try {
+			
+		propriedades_local.setProperty("prop.bd.host", cb_bd.getHost());
+		     propriedades_local.setProperty("prop.bd.porta", cb_bd.getPorta());
+		    	propriedades_local.setProperty("prop.bd.nomebase", cb_bd.getNome_banco());
+		     propriedades_local.setProperty("prop.bd.usuariobd", cb_bd.getNome_usuario());
+			 propriedades_local.setProperty("prop.bd.senhabd", cb_bd.getSenha());
+			
+			 
+			 
+		return true;
+		}catch(Exception e) {
+			System.out.println("erro ao setar dados no arquivo de propriedas, erro: " + e.getMessage());
+			return false;
+		}
+		
+	}
 	public String getPastaRaiz() {
 		String pasta_raiz = "";
 		Properties prop;
@@ -204,11 +262,19 @@ public class ArquivoConfiguracoes {
 			
 
 			 if(getCodigoSequencial() != -1) {
-                      configs_globais.setCodigoSequencial(getCodigoSequencial());
+                 configs_globais.setCodigoSequencial(getCodigoSequencial());
+
+				    CadastroBaseDados cad = getDadosBaseDados();
+                    if(cad != null)	{			 
+                      configs_globais.setBaseDados(cad);;
                       DadosGlobais dados = DadosGlobais.getInstance();
 
          			 dados.setConfigs_globais(configs_globais);	 
          			retorno_positivo = true;
+                    }
+                    else {
+                    	return false;
+                    }
 			 }else {
 					retorno_positivo = false;
 

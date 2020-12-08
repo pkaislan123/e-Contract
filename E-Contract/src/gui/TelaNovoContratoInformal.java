@@ -209,20 +209,36 @@ private ArrayList<CadastroContrato.CadastroPagamento> pagamentosLocais = new Arr
 	private JLabel lblCodigoContratoVendedor;
 	private JLabel lblCodigoContratoAleatorio;
 	private JLabel lblCodigoSubContrato;
+	
+	private int flag_edicao_global = -1;
 
     
+	private ArrayList<Integer> pagamento_a_excluir = new ArrayList<>();
+	
 	public TelaNovoContratoInformal(CadastroModelo modelo, int tipoContrato, CadastroContrato contrato_pai, int flag_edicao) {
 		setModal(true);
 		
-
+		flag_edicao_global = flag_edicao;
 		
 		contrato_pai_local = contrato_pai;
+		
+		if(flag_edicao == 0) {
+			//modo de criacao de novo contrato
+		}else {
+		  //modo de edicao
+			novo_contrato = contrato_pai;
+		}
 		
 		setResizable(false);
 	
 		getDadosGlobais();
 		setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+		if(flag_edicao == 0)
 		setTitle("E-Contract - Novo Contrato");
+		else {
+			setTitle("E-Contract - Edição de Contrato");
+
+		}
 		setBounds(100, 100, 993, 669);
 		painelPrincipal.setBackground(new Color(255, 255, 255));
 		painelPrincipal.setBorder(new EmptyBorder(5, 5, 5, 5));
@@ -1685,7 +1701,9 @@ private ArrayList<CadastroContrato.CadastroPagamento> pagamentosLocais = new Arr
 					 table_cb = new JTable(modelo_cb);
 					 table_cb.setBackground(new Color(255, 255, 255));
 					 
-					 modelo_cb.addColumn("Id");
+					 modelo_cb.addColumn("Id Pagamento");
+					 modelo_cb.addColumn("Id Conta Bancaria");
+
 					    modelo_cb.addColumn("CPF");
 					    modelo_cb.addColumn("Nome");
 
@@ -1892,7 +1910,7 @@ private ArrayList<CadastroContrato.CadastroPagamento> pagamentosLocais = new Arr
  							 		agencia = "Há Informar";
  							 		conta = "Há Informar";
 
- 									modelo_cb.addRow(new Object[]{id, cpf, nome, banco, 
+ 									modelo_cb.addRow(new Object[]{"00", id, cpf, nome, banco, 
  										       codigo, agencia, conta, valor_pagamento, data_pagamento});
  									
  									conta_atual.setAgencia(agencia);
@@ -1915,7 +1933,7 @@ private ArrayList<CadastroContrato.CadastroPagamento> pagamentosLocais = new Arr
 						 		agencia = conta_atual.getAgencia();
 						 		conta = conta_atual.getConta();
 
-								modelo_cb.addRow(new Object[]{id, cpf, nome, banco, 
+								modelo_cb.addRow(new Object[]{"00", id,  cpf, nome, banco, 
 									       codigo, agencia, conta, valor_pagamento, data_pagamento});
 								
  	                          	}
@@ -1970,10 +1988,10 @@ private ArrayList<CadastroContrato.CadastroPagamento> pagamentosLocais = new Arr
 				        	public void actionPerformed(ActionEvent arg0) {
 				        		int indiceDaLinha = table_cb.getSelectedRow();
 								
-								String Svalor_pagamento = table_cb.getValueAt(indiceDaLinha, 7).toString();
+								String Svalor_pagamento = table_cb.getValueAt(indiceDaLinha, 8).toString();
 								BigDecimal valor_pagamento = new BigDecimal(Svalor_pagamento);
 								
-								int id_conta = Integer.parseInt(table_cb.getValueAt(indiceDaLinha, 0).toString());
+								int id_conta = Integer.parseInt(table_cb.getValueAt(indiceDaLinha, 1).toString());
 								
 								valor_acumulado = valor_acumulado.subtract(valor_pagamento);
 								 //valor_total.subtract(valor_acumulado);
@@ -1981,8 +1999,15 @@ private ArrayList<CadastroContrato.CadastroPagamento> pagamentosLocais = new Arr
 								 
 								 
 								
-								
-								pagamentos.remove(indiceDaLinha);
+								if(table_cb.getValueAt(indiceDaLinha, 0).toString() == "00") {
+									//esta removendo um pagamento que ainda nao foi cadastrado
+									pagamentos.remove(indiceDaLinha);
+
+								}else {
+									//colocar no array a conta para excluir
+									pagamento_a_excluir.add(Integer.parseInt(table_cb.getValueAt(indiceDaLinha, 0).toString()));
+									
+								}
 
 				        		lblValorAcumulado.setText("R$ " + valor_acumulado.toPlainString());
 				        		lblValorRestante.setText("R$ " + valor_total.subtract(valor_acumulado).toPlainString());
@@ -2542,13 +2567,31 @@ private ArrayList<CadastroContrato.CadastroPagamento> pagamentosLocais = new Arr
 	
 	public void salvarArquivo()
 	{
-		if(editar.salvar() == 1 || editar.salvar() == 2)
+		
+		int tipo_salvamento = -1;
+		if(flag_edicao_global == 0) {
+		    //modo de criacao
+			tipo_salvamento = 0;
+		}else {
+			//mode de edicao
+	    	 tipo_salvamento = 1;
+		}
+		
+		if(editar.salvar(tipo_salvamento) == 0 || editar.salvar(tipo_salvamento) == 1)
 		{
 			int result = -1;
 			GerenciarBancoContratos gerenciarContratos = new GerenciarBancoContratos();
 			if(novo_contrato.getSub_contrato() == 0) {
 				//e um contrato pai
-				result = gerenciarContratos.inserirContrato(novo_contrato, null);
+				if(flag_edicao_global == 0) {
+					//inserindo novo contrato
+					result = gerenciarContratos.inserirContrato(novo_contrato, null);
+
+				}else {
+					//atualizando contrato existente
+					result = gerenciarContratos.atualizarContrato(novo_contrato);
+
+				}
 
 			}else {
 				//e um sub contrato
@@ -2569,6 +2612,13 @@ private ArrayList<CadastroContrato.CadastroPagamento> pagamentosLocais = new Arr
 		         isto.dispose();
 			}else if(result == -1) {
 				JOptionPane.showMessageDialog(null, "Contrato não pode ser criado\nHouve falhas no banco de dados!\nConsulte o administrador");
+		        isto.dispose();
+			}else if(result == -2) {
+				JOptionPane.showMessageDialog(null, "Contrato não pode ser atualizado\nHouve falhas no banco de dados!\nConsulte o administrador");
+		        isto.dispose();
+			}
+			else if(result == 5) {
+				JOptionPane.showMessageDialog(null, "Contrato atualizado e salvo na base de dados");
 		        isto.dispose();
 			}
 		}else {
@@ -2750,7 +2800,7 @@ private ArrayList<CadastroContrato.CadastroPagamento> pagamentosLocais = new Arr
 		lblValorTotal_2.setText((contrato_pai_local.getValor_a_pagar()).toPlainString());
 		  valor_total = contrato_pai_local.getValor_a_pagar() ;
 		   valor_atual = new BigDecimal("0");
-		  valor_acumulado =  new BigDecimal("0");
+		 // valor_acumulado =  new BigDecimal("0");
 		  
 		  BigDecimal valor_tot_comissao = contrato_pai_local.getValor_comissao();
    	      BigDecimal quantidade = new BigDecimal(contrato_pai_local.getQuantidade());
@@ -2773,6 +2823,7 @@ private ArrayList<CadastroContrato.CadastroPagamento> pagamentosLocais = new Arr
    	            lblValorTotalComissao.setText(valor_tot_comissao.toPlainString());
    	         lblValorTotalComisao1.setText(valor_tot_comissao.toPlainString());
    	         valor_total_comissao = valor_tot_comissao;
+   	      valor_acumulado  = contrato_pai_local.getValor_a_pagar();
 		  
 		  
    	      setPagamentos();
@@ -2809,7 +2860,7 @@ private ArrayList<CadastroContrato.CadastroPagamento> pagamentosLocais = new Arr
 	       		
 	       	
 	               
-	       		modelo_cb.addRow(new Object[]{id, cpf, nome, banco, 
+	       		modelo_cb.addRow(new Object[]{pag.getId(), id, cpf, nome, banco, 
 					       codigo, agencia, conta, pag.getValor_string(), pag.getData_pagamento()});
 	       	}
 				

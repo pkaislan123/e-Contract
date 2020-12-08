@@ -41,7 +41,7 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import javax.swing.JTextArea;
 
-public class TelaLogin extends JDialog implements GetDadosGlobais{
+public class TelaLogin extends JFrame implements GetDadosGlobais{
 
 
 	private JPanelBackground contentPane;
@@ -63,7 +63,6 @@ public class TelaLogin extends JDialog implements GetDadosGlobais{
         
 		TelaLogin isto = this;
 		setTitle("E-Contract - Login");
-		setModal(true);
 		setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 		setBounds(100, 100, 1026, 586);
 		

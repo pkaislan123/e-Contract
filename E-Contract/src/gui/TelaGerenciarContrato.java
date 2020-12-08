@@ -28,10 +28,14 @@ import org.icepdf.ri.util.PropertiesManager;
 
 import cadastros.CadastroCliente;
 import cadastros.CadastroContrato;
+import cadastros.CadastroLogin;
 import cadastros.CadastroModelo;
 import cadastros.ContaBancaria;
 import conexaoBanco.GerenciarBancoContratos;
+import manipular.ConfiguracoesGlobais;
 import manipular.ConverterPdf;
+import outros.DadosGlobais;
+import tratamento_proprio.Log;
 import views_personalizadas.TelaEscolha;
 
 import javax.swing.JLabel;
@@ -47,8 +51,15 @@ import javax.swing.JTable;
 import javax.swing.ScrollPaneConstants;
 import javax.swing.JScrollPane;
 import java.awt.Component;
+import java.awt.event.FocusAdapter;
+import java.awt.event.FocusEvent;
+import javax.swing.JEditorPane;
 
 public class TelaGerenciarContrato extends JDialog {
+	
+	private Log GerenciadorLog;
+	private CadastroLogin login;
+	private ConfiguracoesGlobais configs_globais;
 
 	private JTabbedPane painelPrincipal = new JTabbedPane();
 	private JPanel painelDadosIniciais = new JPanel();
@@ -64,7 +75,9 @@ public class TelaGerenciarContrato extends JDialog {
 	private final JLabel lblNewLabel = new JLabel("     Modelos de Pagamento");
 	private CadastroContrato contrato_local;
     private ArrayList<CadastroContrato> lista_sub_contratos = new ArrayList<>();
-    
+    private SwingController controller;
+    private SwingViewBuilder factory;
+    private TelaGerenciarContrato isto;
 	 DefaultTableModel modelo = new DefaultTableModel(){
          public boolean isCellEditable(int linha, int coluna) {  
              return false;
@@ -90,10 +103,22 @@ public class TelaGerenciarContrato extends JDialog {
      
      
 	public TelaGerenciarContrato(CadastroContrato contrato) {
+		
+		
+		getDadosGlobais();
+		getContentPane().addFocusListener(new FocusAdapter() {
+			@Override
+			public void focusGained(FocusEvent e) {
+				System.out.println("ganhou foco");
+				atualizarContratoLocal();
+
+			}
+		});
+		
 		setModal(true);
 
 		contrato_local = contrato;
-		TelaGerenciarContrato isto = this;
+		 isto = this;
 		
 		setResizable(false);
 		
@@ -112,6 +137,13 @@ public class TelaGerenciarContrato extends JDialog {
 		painelPrincipal.setBackground(new Color(255, 255, 255));
 		painelPrincipal.setBorder(new EmptyBorder(5, 5, 5, 5));
 		painelPrincipal = new JTabbedPane();
+		painelPrincipal.addFocusListener(new FocusAdapter() {
+			@Override
+			public void focusGained(FocusEvent e) {
+				System.out.println("ganhou focu");
+				atualizarContratoLocal();
+			}
+		});
 		//contentPanel.setBackground(new Color(255, 255, 255));
 		//contentPanel.setBorder(new EmptyBorder(5, 5, 5, 5));
 		//setContentPane(contentPanel);
@@ -230,6 +262,7 @@ public class TelaGerenciarContrato extends JDialog {
 			public void actionPerformed(ActionEvent arg0) {
 				//	argumentos(CadastroModelo modelo, int tipoContrato, CadastroContrato contrato_pai, int flag_edicao) {
 				//TelaEscolhaTipoNovoContrato(int tipoContrato, CadastroContrato contrato_pai, int flag_edicao) {
+				   fecharDocumento();
 
 					TelaEscolhaTipoNovoContrato tela = new TelaEscolhaTipoNovoContrato( 0,contrato, 1);
 			}
@@ -270,57 +303,7 @@ public class TelaGerenciarContrato extends JDialog {
 		getContentPane().add(painelPrincipal, BorderLayout.CENTER);
 
 		
-				// build a controller
-				SwingController controller = new SwingController();
-
-				 PropertiesManager propriedades =  new PropertiesManager (System.getProperties (),ResourceBundle.getBundle (PropertiesManager.DEFAULT_MESSAGE_BUNDLE));
-				// Build a SwingViewFactory configured with the controller
-				
-				 propriedades.setBoolean (PropertiesManager.PROPERTY_SHOW_TOOLBAR_ANNOTATION,
-				         Boolean.FALSE);
-				 propriedades.setBoolean (PropertiesManager.PROPERTY_VIEWPREF_HIDEMENUBAR,
-				         Boolean.TRUE);
-				 propriedades.setBoolean (PropertiesManager.PROPERTY_VIEWPREF_HIDETOOLBAR,
-				         Boolean.TRUE);
-				 propriedades.setBoolean (PropertiesManager.PROPERTY_SHOW_TOOLBAR_ANNOTATION,
-				         Boolean.FALSE);
-				 propriedades.setBoolean (PropertiesManager.PROPERTY_SHOW_TOOLBAR_PAGENAV,
-				         Boolean.FALSE);
-				 propriedades.setBoolean (PropertiesManager.PROPERTY_SHOW_STATUSBAR,
-				         Boolean.FALSE);
-				 propriedades.setBoolean (PropertiesManager.PROPERTY_SHOW_TOOLBAR_FIT,
-				         Boolean.FALSE);
-				 
-				 propriedades.setFloat(PropertiesManager.PROPERTY_DEFAULT_ZOOM_LEVEL, 0.85f );
-
-				 SwingViewBuilder factory = new SwingViewBuilder(controller, propriedades);
-				// Use the factory to build a JPanel that is pre-configured
-				//with a complete, active Viewer UI.
-				controller.getDocumentViewController().setAnnotationCallback(
-					     new org.icepdf.ri.common.MyAnnotationCallback(
-					            controller.getDocumentViewController()));
-
-
-				painel_vizualizar = new JPanel();
 			
-			    painel_vizualizar = factory.buildViewerPanel();
-				//JPanel viewerComponentPanel = factory.buildViewerPanel();
-
-				// add copy keyboard command
-				//ComponentKeyBinding.install(controller, viewerComponentPanel);
-
-				// add interactive mouse link annotation support via callback
-				
-				//controller.openDocument(arquivo);
-				
-
-				
-				controller.openDocument(contrato.getCaminho_arquivo());
-				//viewerComponentPanel.setPreferredSize(new Dimension(400, 370));
-				//viewerComponentPanel.setMaximumSize(new Dimension(400, 370));
-				painel_vizualizar.setBounds(10, 25, 508, 461);							
-				
-				painelDadosIniciais.add(painel_vizualizar);
 				btnEnviarMsg.addActionListener(new ActionListener() {
 					public void actionPerformed(ActionEvent e) {
 						TelaEscolha escolher = new TelaEscolha(contrato);
@@ -340,6 +323,8 @@ public class TelaGerenciarContrato extends JDialog {
 				btnNewButton_2.setBounds(231, 497, 89, 23);
 				
 				painelDadosIniciais.add(btnNewButton_2);
+				
+				
 				
 		
 		
@@ -402,7 +387,7 @@ public class TelaGerenciarContrato extends JDialog {
 		        
 		        setPagamentos(contrato);
 
-		        setSubContratos();
+		        setSubContratos(contrato_local);
 		        
 		        if(contrato_local.getSub_contrato() == 1) {
 		        	//é um sub contrato
@@ -413,6 +398,10 @@ public class TelaGerenciarContrato extends JDialog {
 
 		        }
 		        
+		        carregarDocumento( configs_globais.getRaiz() + "\\" + contrato_local.getCaminho_arquivo());
+		        
+		        
+		        
 		        
 		this.setLocationRelativeTo(null);
 
@@ -422,7 +411,7 @@ public class TelaGerenciarContrato extends JDialog {
 	}
 	
 	
-	public void setSubContratos() {
+	public void setSubContratos(CadastroContrato contrato_na_funcao) {
 		modelo_sub_contratos.setNumRows(0);
 	    GerenciarBancoContratos gerenciar = new GerenciarBancoContratos();
 	    lista_sub_contratos.clear();
@@ -430,7 +419,7 @@ public class TelaGerenciarContrato extends JDialog {
 	      
 	    
 	   
-	    for (CadastroContrato contrato : gerenciar.getSubContratos(contrato_local.getId())) {
+	    for (CadastroContrato contrato : gerenciar.getSubContratos(contrato_na_funcao.getId())) {
 	    	String cpf, cnpj, nome;
 	   
 	    	CadastroCliente compradores[] = contrato.getCompradores();
@@ -540,7 +529,8 @@ public class TelaGerenciarContrato extends JDialog {
     public void setPagamentos(CadastroContrato contrato) {
        	String cpf, banco, codigo, agencia, conta, id, nome, valor_pagamento, data_pagamento;
 
-       	
+		modelo.setNumRows(0);
+
        	for(CadastroContrato.CadastroPagamento pag : contrato.getPagamentos()) {
        		
    			ContaBancaria conta_bc = pag.getConta();
@@ -574,5 +564,105 @@ public class TelaGerenciarContrato extends JDialog {
    	 
     }
     
+    public void carregarDocumento(String url) {
+    	// build a controller
+		 controller = new SwingController();
+
+		 PropertiesManager propriedades =  new PropertiesManager (System.getProperties (),ResourceBundle.getBundle (PropertiesManager.DEFAULT_MESSAGE_BUNDLE));
+		// Build a SwingViewFactory configured with the controller
+		
+		 propriedades.setBoolean (PropertiesManager.PROPERTY_SHOW_TOOLBAR_ANNOTATION,
+		         Boolean.FALSE);
+		 propriedades.setBoolean (PropertiesManager.PROPERTY_VIEWPREF_HIDEMENUBAR,
+		         Boolean.TRUE);
+		 propriedades.setBoolean (PropertiesManager.PROPERTY_VIEWPREF_HIDETOOLBAR,
+		         Boolean.TRUE);
+		 propriedades.setBoolean (PropertiesManager.PROPERTY_SHOW_TOOLBAR_ANNOTATION,
+		         Boolean.FALSE);
+		 propriedades.setBoolean (PropertiesManager.PROPERTY_SHOW_TOOLBAR_PAGENAV,
+		         Boolean.FALSE);
+		 propriedades.setBoolean (PropertiesManager.PROPERTY_SHOW_STATUSBAR,
+		         Boolean.FALSE);
+		 propriedades.setBoolean (PropertiesManager.PROPERTY_SHOW_TOOLBAR_FIT,
+		         Boolean.FALSE);
+		 
+		 propriedades.setFloat(PropertiesManager.PROPERTY_DEFAULT_ZOOM_LEVEL, 0.85f );
+
+		  factory = new SwingViewBuilder(controller, propriedades);
+		// Use the factory to build a JPanel that is pre-configured
+		//with a complete, active Viewer UI.
+		controller.getDocumentViewController().setAnnotationCallback(
+			     new org.icepdf.ri.common.MyAnnotationCallback(
+			            controller.getDocumentViewController()));
+
+
+	
+		java.awt.EventQueue.invokeLater(new Runnable() { 
+		    public void run() { 
+		    	painel_vizualizar = new JPanel();
+		    	
+			    painel_vizualizar = factory.buildViewerPanel();
+				
+				
+
+				
+				controller.openDocument(url);
+				//viewerComponentPanel.setPreferredSize(new Dimension(400, 370));
+				//viewerComponentPanel.setMaximumSize(new Dimension(400, 370));
+				painel_vizualizar.setBounds(10, 25, 508, 461);							
+				
+				painelDadosIniciais.add(painel_vizualizar);
+				
+				
+				
+			  } 
+		}); 
+    }
     
+    public void fecharDocumento() {
+    	
+    
+		controller.dispose();
+		controller.closeDocument();
+		controller.exit();
+		controller = null;
+    	
+		
+		java.awt.EventQueue.invokeLater(new Runnable() { 
+		    public void run() { 
+               painel_vizualizar = new JPanel();
+		    	
+                painel_vizualizar.setBackground(new Color(0,0,0,0));
+				
+								//viewerComponentPanel.setPreferredSize(new Dimension(400, 370));
+				//viewerComponentPanel.setMaximumSize(new Dimension(400, 370));
+				painel_vizualizar.setBounds(10, 25, 508, 461);							
+				
+				painelDadosIniciais.add(painel_vizualizar);
+				
+			  } 
+		}); 
+		
+		
+    }
+    
+    public void atualizarContratoLocal() {
+    	GerenciarBancoContratos gerenciar = new GerenciarBancoContratos();
+    		
+    	contrato_local = gerenciar.getContrato(contrato_local.getId());
+    	setPagamentos(contrato_local);
+    	setSubContratos(contrato_local);
+    	carregarDocumento(contrato_local.getCaminho_arquivo());
+    }
+    
+    public void getDadosGlobais() {
+		//gerenciador de log
+				DadosGlobais dados = DadosGlobais.getInstance();
+				 GerenciadorLog = dados.getGerenciadorLog();
+				 configs_globais = dados.getConfigs_globais();
+				 
+				 //usuario logado
+				  login = dados.getLogin();
+		
+	}
 }

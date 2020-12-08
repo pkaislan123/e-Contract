@@ -1,15 +1,41 @@
 package manipular;
 
+import cadastros.CadastroBaseDados;
+
 public class ConfiguracoesGlobais {
 
 	
 	private String caminhoPastaRaiz = "";
 	private int codigoSequencial;
+	private CadastroBaseDados baseDados;
 	
 	public ConfiguracoesGlobais() {
 		
 	}
 	
+	
+	
+	
+
+
+
+
+	public CadastroBaseDados getBaseDados() {
+		return baseDados;
+	}
+
+
+	public void setBaseDados(CadastroBaseDados baseDados) {
+		this.baseDados = baseDados;
+	}
+
+
+
+
+
+
+
+
 	public void setCodigoSequencial(int codigo) {
 		this.codigoSequencial = codigo;
 	}

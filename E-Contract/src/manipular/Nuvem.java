@@ -14,6 +14,7 @@ import com.dropbox.core.DbxException;
 import com.dropbox.core.DbxRequestConfig;
 import com.dropbox.core.DbxWebAuthNoRedirect;
 import com.dropbox.core.v2.DbxClientV2;
+import com.dropbox.core.v2.files.DeleteResult;
 import com.dropbox.core.v2.files.FileMetadata;
 import com.dropbox.core.v2.files.GetTemporaryLinkErrorException;
 import com.dropbox.core.v2.files.GetTemporaryLinkResult;
@@ -128,6 +129,18 @@ public class Nuvem {
 		    System.out.println("erro ao pegar link compartilhado" + ex);
 		    return null;
 
+		}
+	}
+	
+	public boolean deletarArquivo(String nome_arquivo) {
+		try {
+		DeleteResult  apagar = client.files().deleteV2("/contratos/" + nome_arquivo);
+		System.out.println("resposta ao apagar o arquivo: " + apagar.toString());
+		
+		return true;
+		}catch(Exception e) {
+			System.out.println("falha ao deleter o arquivo da nuvem, erro: " + e.getMessage());
+			return false;
 		}
 	}
 	
