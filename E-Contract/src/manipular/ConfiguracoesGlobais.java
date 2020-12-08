@@ -1,11 +1,12 @@
 package manipular;
 
+import cadastros.CadastroBaseArquivos;
 import cadastros.CadastroBaseDados;
 
 public class ConfiguracoesGlobais {
 
 	
-	private String caminhoPastaRaiz = "";
+	private CadastroBaseArquivos servidor_arquivos;
 	private int codigoSequencial;
 	private CadastroBaseDados baseDados;
 	
@@ -17,7 +18,10 @@ public class ConfiguracoesGlobais {
 	
 	
 
+   public String getServidorUnidade() {
+		return   "\\\\" + getServidor_arquivos().getServidor() + "\\" + getServidor_arquivos().getUnidade() + "\\";
 
+   }
 
 
 	public CadastroBaseDados getBaseDados() {
@@ -43,15 +47,29 @@ public class ConfiguracoesGlobais {
 	public int getCodigoSequencial() {
 		return this.codigoSequencial;
 	}
-	
-	
-	public void setRaiz(String path_raiz)
-	{
-		this.caminhoPastaRaiz = path_raiz;
+
+
+
+
+
+
+
+
+	public CadastroBaseArquivos getServidor_arquivos() {
+		return servidor_arquivos;
+	}
+
+
+
+
+
+
+
+
+	public void setServidor_arquivos(CadastroBaseArquivos servidor_arquivos) {
+		this.servidor_arquivos = servidor_arquivos;
 	}
 	
 	
-	public String getRaiz() {
-		return caminhoPastaRaiz;
-	}
+	
 }

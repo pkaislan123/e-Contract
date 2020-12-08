@@ -78,6 +78,8 @@ public class TelaGerenciarContrato extends JDialog {
     private SwingController controller;
     private SwingViewBuilder factory;
     private TelaGerenciarContrato isto;
+    
+    private String servidor_unidade ;
 	 DefaultTableModel modelo = new DefaultTableModel(){
          public boolean isCellEditable(int linha, int coluna) {  
              return false;
@@ -106,14 +108,8 @@ public class TelaGerenciarContrato extends JDialog {
 		
 		
 		getDadosGlobais();
-		getContentPane().addFocusListener(new FocusAdapter() {
-			@Override
-			public void focusGained(FocusEvent e) {
-				System.out.println("ganhou foco");
-				atualizarContratoLocal();
-
-			}
-		});
+	    servidor_unidade = configs_globais.getServidorUnidade();
+		
 		
 		setModal(true);
 
@@ -398,7 +394,7 @@ public class TelaGerenciarContrato extends JDialog {
 
 		        }
 		        
-		        carregarDocumento( configs_globais.getRaiz() + "\\" + contrato_local.getCaminho_arquivo());
+		        carregarDocumento(  servidor_unidade + contrato_local.getCaminho_arquivo());
 		        
 		        
 		        
@@ -652,7 +648,7 @@ public class TelaGerenciarContrato extends JDialog {
     	contrato_local = gerenciar.getContrato(contrato_local.getId());
     	setPagamentos(contrato_local);
     	setSubContratos(contrato_local);
-    	carregarDocumento(contrato_local.getCaminho_arquivo());
+        carregarDocumento(  servidor_unidade + contrato_local.getCaminho_arquivo());
     }
     
     public void getDadosGlobais() {

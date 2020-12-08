@@ -34,7 +34,6 @@ public class ConexaoBanco {
         bd = configs_globais.getBaseDados();
 		
 		 url = "jdbc:mysql://" + bd.getHost() + ":" + bd.getPorta() + "/" + bd.getNome_banco() + "?useTimezone=true&serverTimezone=UTC";
-		System.out.println("url da conexao com o bd: "  + url);
 		
 		//base nuvem
 		//Connection connection =  (Connection) DriverManager.getConnection("jdbc:mysql://4.tcp.ngrok.io:16461/bd_ldarmazens?useTimezone=true&serverTimezone=UTC", "root", "1234");		

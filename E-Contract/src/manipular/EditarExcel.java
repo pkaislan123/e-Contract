@@ -1169,7 +1169,7 @@ public ByteArrayOutputStream alterar(CadastroContrato novo_contrato)
 		
 		if(tipo_salvamento == 1) {
 			//esta em edicao, apagar os arquivos fisicos e na nuvem
-			String caminho_arquivo =  configs_globais.getRaiz() + "\\" + novo_contrato.getCaminho_arquivo();
+			String caminho_arquivo =  servidor_unidade + novo_contrato.getCaminho_arquivo();
 			System.out.println("caminho do arquivo para apagar: " + caminho_arquivo);
 			ManipularTxt manipular_apagar = new ManipularTxt();
 			if(manipular_apagar.apagarArquivo(caminho_arquivo)) {
@@ -1232,9 +1232,9 @@ public ByteArrayOutputStream alterar(CadastroContrato novo_contrato)
 	   if(novo_contrato.getSub_contrato() == 0) {
 		   //é um comprato pai, salvar na pasta do comprador
 
-			 String pasta_padrao = configs_globais.getRaiz() + "\\E-contract\\arquivos\\clientes\\" + nome_comprador_arquivo + "\\contratos" + "\\compra\\"  + data.getAnoAtual() + "\\" + novo_contrato.getModelo_safra().getProduto().getNome_produto() + "\\";
+			 String pasta_padrao = servidor_unidade + "E-contract\\arquivos\\clientes\\" + nome_comprador_arquivo + "\\contratos" + "\\compra\\"  + data.getAnoAtual() + "\\" + novo_contrato.getModelo_safra().getProduto().getNome_produto() + "\\";
 			System.out.println("caminho para salvar o arquivo: " + pasta_padrao);	
-			String pasta_padrao_salvar = configs_globais.getRaiz() + "\\\\E-contract\\\\arquivos\\\\clientes\\\\" + nome_comprador_arquivo + "\\\\contratos" + "\\\\compra\\\\"  + data.getAnoAtual() + "\\\\" + novo_contrato.getModelo_safra().getProduto().getNome_produto() + "\\\\";
+			String pasta_padrao_salvar = "E-contract\\\\arquivos\\\\clientes\\\\" + nome_comprador_arquivo + "\\\\contratos" + "\\\\compra\\\\"  + data.getAnoAtual() + "\\\\" + novo_contrato.getModelo_safra().getProduto().getNome_produto() + "\\\\";
 
 					
 		      String nome_arquivo = novo_contrato.getCodigo() + " "  + nome_comprador_arquivo + " x " + nome_vendedor1_arquivo ; 
@@ -1256,9 +1256,9 @@ public ByteArrayOutputStream alterar(CadastroContrato novo_contrato)
 		   //e um contrato filho, salvar nas pastas dos vendedores
 		   if(vendedores[0] != null) {
 			   
-			   String pasta_padrao = configs_globais.getRaiz() + "\\E-contract\\arquivos\\clientes\\" + nome_vendedor1_arquivo + "\\contratos" + "\\venda\\"  + data.getAnoAtual() + "\\" + novo_contrato.getModelo_safra().getProduto().getNome_produto() + "\\";
+			   String pasta_padrao =  servidor_unidade + "E-contract\\arquivos\\clientes\\" + nome_vendedor1_arquivo + "\\contratos" + "\\venda\\"  + data.getAnoAtual() + "\\" + novo_contrato.getModelo_safra().getProduto().getNome_produto() + "\\";
 				System.out.println("caminho para salvar o arquivo: " + pasta_padrao);	
-				String pasta_padrao_salvar = configs_globais.getRaiz() + "\\\\E-contract\\\\arquivos\\\\clientes\\\\" + nome_vendedor1_arquivo + "\\\\contratos" + "\\\\venda\\\\"  + data.getAnoAtual() + "\\\\" + novo_contrato.getModelo_safra().getProduto().getNome_produto() + "\\\\";
+				String pasta_padrao_salvar =  "E-contract\\\\arquivos\\\\clientes\\\\" + nome_vendedor1_arquivo + "\\\\contratos" + "\\\\venda\\\\"  + data.getAnoAtual() + "\\\\" + novo_contrato.getModelo_safra().getProduto().getNome_produto() + "\\\\";
 
 						
 			      String nome_arquivo = novo_contrato.getCodigo() + " "  + nome_comprador_arquivo + " x " + nome_vendedor1_arquivo ; 
@@ -1277,9 +1277,9 @@ public ByteArrayOutputStream alterar(CadastroContrato novo_contrato)
 			   
 		   } if(vendedores[1] != null) {
 			   
-			   String pasta_padrao = configs_globais.getRaiz() + "\\E-contract\\arquivos\\clientes\\" + nome_vendedor2_arquivo + "\\contratos" + "\\venda\\"  + data.getAnoAtual() + "\\" + novo_contrato.getModelo_safra().getProduto().getNome_produto() + "\\";
+			   String pasta_padrao =  servidor_unidade + "E-contract\\arquivos\\clientes\\" + nome_vendedor2_arquivo + "\\contratos" + "\\venda\\"  + data.getAnoAtual() + "\\" + novo_contrato.getModelo_safra().getProduto().getNome_produto() + "\\";
 				System.out.println("caminho para salvar o arquivo: " + pasta_padrao);	
-				String pasta_padrao_salvar = configs_globais.getRaiz() + "\\\\E-contract\\\\arquivos\\\\clientes\\\\" + nome_vendedor2_arquivo + "\\\\contratos" + "\\\\venda\\\\"  + data.getAnoAtual() + "\\\\" + novo_contrato.getModelo_safra().getProduto().getNome_produto() + "\\\\";
+				String pasta_padrao_salvar =  "E-contract\\\\arquivos\\\\clientes\\\\" + nome_vendedor2_arquivo + "\\\\contratos" + "\\\\venda\\\\"  + data.getAnoAtual() + "\\\\" + novo_contrato.getModelo_safra().getProduto().getNome_produto() + "\\\\";
 
 						
 			      String nome_arquivo = novo_contrato.getCodigo() + " "  + nome_comprador_arquivo + " x " + nome_vendedor1_arquivo ; 

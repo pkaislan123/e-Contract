@@ -2,9 +2,12 @@ package cadastros;
 
 public class CadastroBaseDados {
 
-	String host, porta, nome_banco, nome_usuario, senha;
+	String host,  porta, nome_banco, nome_usuario, senha;
+	
 
 	
+	
+
 	public String getHost() {
 		return host;
 	}

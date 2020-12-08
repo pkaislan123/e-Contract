@@ -7,6 +7,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.Properties;
 
+import cadastros.CadastroBaseArquivos;
 import cadastros.CadastroBaseDados;
 import cadastros.CadastroLogin;
 import outros.DadosGlobais;
@@ -188,7 +189,8 @@ public class ArquivoConfiguracoes {
 		    	propriedades_local.setProperty("prop.bd.nomebase", cb_bd.getNome_banco());
 		     propriedades_local.setProperty("prop.bd.usuariobd", cb_bd.getNome_usuario());
 			 propriedades_local.setProperty("prop.bd.senhabd", cb_bd.getSenha());
-			
+			 propriedades_local.setProperty("prop.bd.senhabd", cb_bd.getSenha());
+
 			 
 			 
 		return true;
@@ -198,21 +200,36 @@ public class ArquivoConfiguracoes {
 		}
 		
 	}
-	public String getPastaRaiz() {
-		String pasta_raiz = "";
-		Properties prop;
+	public CadastroBaseArquivos getPastaRaiz() {
+		String servidor, unidade;
 		
-		pasta_raiz = propriedades_local.getProperty("prop.server.baseDados");
-		return pasta_raiz;
-
+		CadastroBaseArquivos servidor_arquivos = new CadastroBaseArquivos();
+		
+		servidor = propriedades_local.getProperty("prop.server.baseDados");
+		unidade = propriedades_local.getProperty("prop.server.unidade"); 
+		servidor_arquivos.setServidor(servidor);
+		servidor_arquivos.setUnidade(unidade);
+		
+		System.out.println("Servidor da base de arquivos: " + servidor_arquivos.getUnidade());
+		System.out.println("Unidade da base de arquivos: " + servidor_arquivos.getUnidade());
+		
+        return servidor_arquivos;
 		
 	}
 	
-	public boolean setPastaRaiz(String pastaRaiz) {
-		String pasta_raiz = "";
-		propriedades_local.setProperty("prop.server.baseDados", pastaRaiz);
+	public boolean setPastaRaiz(CadastroBaseArquivos base_arquivos) {
+		
+		try {
+			propriedades_local.setProperty("prop.server.baseDados", base_arquivos.getServidor());
+			propriedades_local.setProperty("prop.server.unidade", base_arquivos.getUnidade());
 
-		return true;
+			return true;
+			
+		}catch(Exception e) {
+			return false;
+		}
+		
+		
 	}
 	
 	public boolean setCodidoSequencial(int codigo) {
@@ -252,13 +269,12 @@ public class ArquivoConfiguracoes {
 	}
 	
 	public boolean testeConfiguragoes() {
-		String config_pasta_raiz = getPastaRaiz();
+		CadastroBaseArquivos config_pasta_raiz = getPastaRaiz();
 		
-		System.out.println("pasta raiz: " + config_pasta_raiz);
 		boolean retorno_positivo = false;
 		
-		if(config_pasta_raiz != null && !config_pasta_raiz.equals("") && !config_pasta_raiz.equals(" ") ) {
-			configs_globais.setRaiz(config_pasta_raiz);
+		if(config_pasta_raiz != null ) {
+			configs_globais.setServidor_arquivos(config_pasta_raiz);
 			
 
 			 if(getCodigoSequencial() != -1) {

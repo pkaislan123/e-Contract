@@ -2488,7 +2488,7 @@ public class TelaCadastroCliente extends JDialog {
 		 configs_globais = dados.getConfigs_globais();
 		 
 		
-		String unidade_base_dados = configs_globais.getRaiz();
+		String unidade_base_dados = configs_globais.getServidorUnidade();
 		String sub_pasta= "E-Contract\\arquivos\\clientes";
 		
 		String compra = "COMPRA";
