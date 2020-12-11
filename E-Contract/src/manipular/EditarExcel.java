@@ -104,7 +104,7 @@ public class EditarExcel {
 		
 		
 	}
-	
+	/*
 	public void abrir()
 	{
 		System.out.println("abrir chamdao");              
@@ -138,6 +138,7 @@ public class EditarExcel {
 			
 
 	}
+	*/
 
 	
 	public void atualizarCelula(CellStyle estilo, int linha, int coluna, String texto) {
@@ -576,7 +577,7 @@ ultima_linha 1 Local da Retirada
 	}
 	
 	
-    public void adicionarClausulas(String [] clausulas)
+    public void adicionarClausulas(ArrayList<String> clausulas_locais)
     {
 		telaInformacoes.setMsg("Adicionando Clausulas");
 
@@ -607,22 +608,26 @@ ultima_linha 1 Local da Retirada
 
 		atualizarCelula(formatar(true, 'T', false, false, false, false), ultima_linha,4, "Claúsulas Contratuais");
 		ultima_linha++;
-
-    	for(int i = 0; i < clausulas.length; i++)
+         int numero_clausula = 1;
+    	for(String clausula : clausulas_locais)
     	{
-    		if(clausulas[i] != null) {
+    		if(clausulas_locais != null) {
     		atualizarCelula(formatar(true, 'T', false, false, true, false), ultima_linha,1, "");
 
-    		atualizarCelula(formatar(true, 'T', false, false, false, false), ultima_linha,2,i+1 + ". " + clausulas[i]);
+    		atualizarCelula(formatar(true, 'T', false, false, false, false), ultima_linha,2, clausula);
     		atualizarCelula(formatar(true, 'T', false, false, false, true), ultima_linha,9, "");
           	 ultima_linha++;
-
+          	numero_clausula++;
     		}
 
 
 
     	}
-    	    		
+    	
+		ultima_linha++;
+
+		atualizarCelula(formatar(true, 'T', false, false, true, false), ultima_linha-1,1, "");
+		atualizarCelula(formatar(true, 'T', false, false, false, true), ultima_linha-1,9, "");
 			
 			for (int i = 1; i< 10; i++)
 			{
@@ -630,6 +635,7 @@ ultima_linha 1 Local da Retirada
 
 			}
 		
+
 			
 			contador++;
     	
@@ -952,8 +958,8 @@ public ByteArrayOutputStream alterar(CadastroContrato novo_contrato)
 
 	     }
 	    
-	     String clausulas [] = novo_contrato.listaClausulasAdicionais();
-	     adicionarClausulas(clausulas);
+	     ArrayList<String> clausulas_locais = novo_contrato.getClausulas();
+	     adicionarClausulas(clausulas_locais);
 		 adicionarLinhaBranca();
 	     
 	     //adicionar assinaturas
@@ -1233,24 +1239,40 @@ public ByteArrayOutputStream alterar(CadastroContrato novo_contrato)
 	   if(novo_contrato.getSub_contrato() == 0) {
 		   //é um comprato pai, salvar na pasta do comprador
 
-			 String caminho_salvar_contrato = servidor_unidade + "E-contract\\arquivos\\clientes\\" + nome_comprador_arquivo + "\\contratos" + "\\compra\\"  + data.getAnoAtual() + "\\" + novo_contrato.getModelo_safra().getProduto().getNome_produto() + "\\";
-			System.out.println("caminho para salvar o contrato comprador: " + caminho_salvar_contrato);	
-			String caminho_salvar_contrato_nuvem = "E-contract\\\\arquivos\\\\clientes\\\\" + nome_comprador_arquivo + "\\\\contratos" + "\\\\compra\\\\"  + data.getAnoAtual() + "\\\\" + novo_contrato.getModelo_safra().getProduto().getNome_produto() + "\\\\";
+			 String caminho_salvar_contrato__no_hd = servidor_unidade + "E-contract\\arquivos\\clientes\\" + nome_comprador_arquivo + "\\contratos" + "\\compra\\"  + data.getAnoAtual() + "\\" + novo_contrato.getModelo_safra().getProduto().getNome_produto() + "\\";
+			System.out.println("caminho para salvar o contrato do comprador no hd: " + caminho_salvar_contrato__no_hd);	
+			String caminho_salvar_contrato_no_banco_dados = "E-contract\\\\arquivos\\\\clientes\\\\" + nome_comprador_arquivo + "\\\\contratos" + "\\\\compra\\\\"  + data.getAnoAtual() + "\\\\" + novo_contrato.getModelo_safra().getProduto().getNome_produto() + "\\\\";
 
-					
+		      String nome_pasta_arquivo = novo_contrato.getCodigo();
+
 		      String nome_arquivo = novo_contrato.getCodigo() + " "  + nome_comprador_arquivo + " x " + nome_vendedor1_arquivo ; 
 		       
-				if(nome_vendedor2_arquivo != null)
+				if(nome_vendedor2_arquivo != null) {
 					nome_arquivo +=  (" " + nome_vendedor2_arquivo);
-				String extensao_arquivo = ".xlsx";
-				String caminho_completo_salvar_contrato = caminho_salvar_contrato + nome_arquivo ;
+
+				}
 				
-			    String caminho_completo_salvar_contrato_nuvem = caminho_salvar_contrato_nuvem + nome_arquivo;
+				String extensao_arquivo = ".xlsx";
+				String caminho_completo_salvar_contrato_no_hd = caminho_salvar_contrato__no_hd + nome_pasta_arquivo + "\\" + nome_arquivo ;
+				
+			    String caminho_completo_salvar_contrato_no_bando_dados = caminho_salvar_contrato_no_banco_dados + nome_pasta_arquivo +"\\\\" + nome_arquivo;
 			    
-			    if(criarArquivos(nome_arquivo,caminho_completo_salvar_contrato,  caminho_completo_salvar_contrato_nuvem))
-			    	arquivos_comprador_criado = true;
-			    else
-			    	arquivos_comprador_criado = false;
+				//criar o diretorio
+				ManipularTxt manipular = new ManipularTxt();
+				if(manipular.criarDiretorio(caminho_salvar_contrato__no_hd + nome_pasta_arquivo + "\\"))
+				{
+					System.out.println("diretorio criado para o novo contrato");
+					  if(criarArquivos(nome_arquivo,caminho_completo_salvar_contrato_no_hd,  caminho_completo_salvar_contrato_no_bando_dados))
+					    	arquivos_comprador_criado = true;
+					    else
+					    	arquivos_comprador_criado = false;
+				}else {
+					System.out.println("erro ao criar diretorio para o contrato ");
+					arquivos_comprador_criado = false;
+				}
+				
+				
+			  
 
 		   
 	   }else {
@@ -1259,24 +1281,37 @@ public ByteArrayOutputStream alterar(CadastroContrato novo_contrato)
 			   
 			   if(vendedores[0].getNome_empresarial() != null || vendedores[0].getNome_fantaia() != null){
  
-				   String caminho_salvar_sub_contrato =  servidor_unidade + "E-contract\\arquivos\\clientes\\" + nome_vendedor1_arquivo + "\\contratos" + "\\venda\\"  + data.getAnoAtual() + "\\" + novo_contrato.getModelo_safra().getProduto().getNome_produto() + "\\";
-				System.out.println("caminho para salvar o sub-contrato1: " + caminho_salvar_sub_contrato);	
-				String caminho_salvar_sub_contrato_nuvem =  "E-contract\\\\arquivos\\\\clientes\\\\" + nome_vendedor1_arquivo + "\\\\contratos" + "\\\\venda\\\\"  + data.getAnoAtual() + "\\\\" + novo_contrato.getModelo_safra().getProduto().getNome_produto() + "\\\\";
+				   String caminho_salvar_sub_contrato_no_hd =  servidor_unidade + "E-contract\\arquivos\\clientes\\" + nome_vendedor1_arquivo + "\\contratos" + "\\venda\\"  + data.getAnoAtual() + "\\" + novo_contrato.getModelo_safra().getProduto().getNome_produto() + "\\";
+				System.out.println("caminho para salvar o sub-contrato1: " + caminho_salvar_sub_contrato_no_hd);	
+				String caminho_salvar_sub_contrato_no_banco_dados =  "E-contract\\\\arquivos\\\\clientes\\\\" + nome_vendedor1_arquivo + "\\\\contratos" + "\\\\venda\\\\"  + data.getAnoAtual() + "\\\\" + novo_contrato.getModelo_safra().getProduto().getNome_produto() + "\\\\";
 
-						
+			      String nome_pasta_arquivo = novo_contrato.getCodigo();
+
 			      String nome_arquivo_sub_contrato1 = novo_contrato.getCodigo() + " "  + nome_comprador_arquivo + " x " + nome_vendedor1_arquivo ; 
 			       
 					if(nome_vendedor2_arquivo != null)
 						nome_arquivo_sub_contrato1 +=  (" " + nome_vendedor2_arquivo);
-					String extensao_arquivo = ".xlsx";
-					String caminho_completo_salvar_sub_contrato = caminho_salvar_sub_contrato + nome_arquivo_sub_contrato1 ;
 					
-					String caminho_completo_salvar_sub_contrato_nuvem = caminho_salvar_sub_contrato_nuvem + nome_arquivo_sub_contrato1;
+					String extensao_arquivo = ".xlsx";
+					String caminho_completo_salvar_sub_contrato_no_hd = caminho_salvar_sub_contrato_no_hd + nome_arquivo_sub_contrato1 ;
+					
+					String caminho_completo_salvar_sub_contrato_no_banco_dados = caminho_salvar_sub_contrato_no_banco_dados + nome_arquivo_sub_contrato1;
 				 
-					if(criarArquivos(nome_arquivo_sub_contrato1,caminho_completo_salvar_sub_contrato,  caminho_completo_salvar_sub_contrato_nuvem))
-				    	arquivos_vendedor1_criado = true;
-				    else
-				    	arquivos_vendedor1_criado = false;
+					//criar o diretorio
+					ManipularTxt manipular = new ManipularTxt();
+					if(manipular.criarDiretorio(caminho_completo_salvar_sub_contrato_no_hd + nome_pasta_arquivo + "\\"))
+					{
+						System.out.println("diretorio criado para o novo contrato");
+						if(criarArquivos(nome_arquivo_sub_contrato1,caminho_completo_salvar_sub_contrato_no_hd,  caminho_completo_salvar_sub_contrato_no_banco_dados))
+					    	arquivos_vendedor1_criado = true;
+					    else
+					    	arquivos_vendedor1_criado = false;
+					}else {
+						System.out.println("erro ao criar diretorio para o contrato ");
+						arquivos_comprador_criado = false;
+					}
+					
+				
 			   }
 
 			   
@@ -1286,25 +1321,38 @@ public ByteArrayOutputStream alterar(CadastroContrato novo_contrato)
 			   
 			   
 			   if(vendedores[1].getNome_empresarial() != null || vendedores[1].getNome_fantaia() != null){
-				 String caminho_salvar_sub_contrato2 =  servidor_unidade + "E-contract\\arquivos\\clientes\\" + nome_vendedor2_arquivo + "\\contratos" + "\\venda\\"  + data.getAnoAtual() + "\\" + novo_contrato.getModelo_safra().getProduto().getNome_produto() + "\\";
-				System.out.println("caminho para salvar o sub-contrato2: " + caminho_salvar_sub_contrato2);	
-				String caminho_salvar_sub_contrato2_nuvem =  "E-contract\\\\arquivos\\\\clientes\\\\" + nome_vendedor2_arquivo + "\\\\contratos" + "\\\\venda\\\\"  + data.getAnoAtual() + "\\\\" + novo_contrato.getModelo_safra().getProduto().getNome_produto() + "\\\\";
+				 String caminho_salvar_sub_contrato2_no_hd =  servidor_unidade + "E-contract\\arquivos\\clientes\\" + nome_vendedor2_arquivo + "\\contratos" + "\\venda\\"  + data.getAnoAtual() + "\\" + novo_contrato.getModelo_safra().getProduto().getNome_produto() + "\\";
+				System.out.println("caminho para salvar o sub-contrato2: " + caminho_salvar_sub_contrato2_no_hd);	
+				String caminho_salvar_sub_contrato2_no_banco_dados =  "E-contract\\\\arquivos\\\\clientes\\\\" + nome_vendedor2_arquivo + "\\\\contratos" + "\\\\venda\\\\"  + data.getAnoAtual() + "\\\\" + novo_contrato.getModelo_safra().getProduto().getNome_produto() + "\\\\";
 
-						
+			      String nome_pasta_arquivo = novo_contrato.getCodigo();
+
 			      String nome_arquivo = novo_contrato.getCodigo() + " "  + nome_comprador_arquivo + " x " + nome_vendedor1_arquivo ; 
 			       
 					if(nome_vendedor2_arquivo != null)
 						nome_arquivo +=  (" " + nome_vendedor2_arquivo);
 					String extensao_arquivo = ".xlsx";
-					 String caminho_completo_salvar_sub_contrato2 = caminho_salvar_sub_contrato2 + nome_arquivo ;
+					 String caminho_completo_salvar_sub_contrato2_no_hd = caminho_salvar_sub_contrato2_no_hd + nome_arquivo ;
 					
-				    String caminho_completo_salvar_sub_contrato2_nuvem  = caminho_salvar_sub_contrato2_nuvem + nome_arquivo;
-				    if(criarArquivos(nome_arquivo,caminho_completo_salvar_sub_contrato2,  caminho_completo_salvar_sub_contrato2_nuvem))
-				    	arquivos_vendedor2_criado = true;
-				    else
-				    	arquivos_vendedor2_criado = false;
-				    }
+				    String caminho_completo_salvar_sub_contrato2_no_banco_dados  = caminho_salvar_sub_contrato2_no_banco_dados + nome_arquivo;
+				  
+					//criar o diretorio
+					ManipularTxt manipular = new ManipularTxt();
+					if(manipular.criarDiretorio(caminho_completo_salvar_sub_contrato2_no_hd + nome_pasta_arquivo + "\\"))
+					{
+						System.out.println("diretorio criado para o novo contrato");
+						 if(criarArquivos(nome_arquivo,caminho_salvar_sub_contrato2_no_hd,  caminho_completo_salvar_sub_contrato2_no_banco_dados))
+						    	arquivos_vendedor2_criado = true;
+						    else
+						    	arquivos_vendedor2_criado = false;
+						    }
 
+					}else {
+						System.out.println("erro ao criar diretorio para o contrato ");
+						arquivos_comprador_criado = false;
+					}
+					
+				   
 
 			   
 		   }
@@ -1365,11 +1413,11 @@ public ByteArrayOutputStream alterar(CadastroContrato novo_contrato)
 	
 	
 	
-	public boolean criarArquivos(String nome_arquivo, String caminho_completo_salvar_contrato, String caminho_arquivo_para_nuvem) {
+	public boolean criarArquivos(String nome_arquivo, String caminh_completo_salvar_no_hd, String caminho_completo_salvar_no_banco_dados) {
 		
 		FileOutputStream outputStream;
 		try {
-			outputStream = new FileOutputStream (caminho_completo_salvar_contrato + ".xlsx");
+			outputStream = new FileOutputStream (caminh_completo_salvar_no_hd + ".xlsx");
 			
 			//novo_contrato.setCaminho_arquivo(url.toString());
 			
@@ -1385,19 +1433,19 @@ public ByteArrayOutputStream alterar(CadastroContrato novo_contrato)
              ConverterPdf converter_pdf = new ConverterPdf();
            //  String url = converter_pdf.excel_pdf_file(contrato_alterado);
            //TelaVizualizarPdf  vizualizar =  new TelaVizualizarPdf(url);
-             if (converter_pdf.excel_pdf_file(caminho_completo_salvar_contrato)) {
+             if (converter_pdf.excel_pdf_file(caminh_completo_salvar_no_hd)) {
             	 System.out.println("Arquivo pdf convertido e salvo!");
             	
             	 
-            	 System.out.println("caminho para salvar na nuvem: " + caminho_arquivo_para_nuvem);
-            	 novo_contrato.setCaminho_arquivo(caminho_arquivo_para_nuvem + ".pdf") ;
+            	 System.out.println("caminho para salvar na nuvem: " + caminh_completo_salvar_no_hd);
+            	 novo_contrato.setCaminho_arquivo(caminho_completo_salvar_no_banco_dados + ".pdf") ;
             	 
             	 //salvar no drobox
             	 Nuvem nuvem = new Nuvem();
             	 nuvem.abrir();
                  nuvem.testar();
                 
-                boolean retorno = nuvem.carregar(caminho_completo_salvar_contrato + ".pdf", nome_arquivo + ".pdf");
+                boolean retorno = nuvem.carregar(caminh_completo_salvar_no_hd + ".pdf", nome_arquivo + ".pdf");
                  if(retorno) {
                 	 System.out.println("Arquivo salvo na nuvem");
                 	 novo_contrato.setNome_arquivo(nome_arquivo + ".pdf" );

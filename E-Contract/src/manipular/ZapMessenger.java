@@ -122,6 +122,49 @@ public class ZapMessenger {
 			}
 		}
 		
+		public boolean logar() {
+			HttpClient httpclient = HttpClients.createDefault();
+	          
+			HttpPost httppost = new HttpPost("https://rest.messengerpeople.com/api/v14/login");
+			httppost.setHeader("Content-Type", "application/json");
+		
+			
+			
+			try { 
+			    ArrayList<NameValuePair> valores = new ArrayList<NameValuePair>();
+			    valores.add(new BasicNameValuePair("username", "comprasaislan@gmail.com"));
+			    valores.add(new BasicNameValuePair("password", "titaniwm2014"));
+
+			    valores.add(new BasicNameValuePair("apikey", "2bab9632786a28e1b293a997f12453e8_39549_053220610bd14bab5877227df"));
+
+
+			    
+			    httppost.setEntity( new UrlEncodedFormEntity( valores ) );
+			    HttpResponse response = httpclient.execute( httppost );
+			               
+			    HttpEntity entity = response.getEntity();
+			    String content = EntityUtils.toString(entity);
+			    System.out.println( content );
+			    TratarDados tratar = new TratarDados(content);
+			    String code = tratar.tratar("code\":", ",");
+			    System.out.println("Codigo:" + code);
+			    if(code.equals("400")) {
+					System.out.println("erro ao logar: ");
+                       return false;
+			    }else 
+			    	 return true;
+			              
+			} catch (ClientProtocolException e) {
+				System.out.println("erro ao logar: " + e.getMessage());
+			    e.printStackTrace();
+			    return false;
+			} catch (IOException e) {
+				System.out.println("erro ao logarp: " + e.getMessage());
+			    e.printStackTrace();
+			    return false;			} finally {
+			    httppost.releaseConnection();;
+			}
+		}
 	
 	
 }

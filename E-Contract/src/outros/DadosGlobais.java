@@ -2,6 +2,8 @@ package outros;
 
 import cadastros.CadastroBaseDados;
 import cadastros.CadastroLogin;
+import gui.TelaGerenciarContrato;
+import gui.TelaNovoContratoInformal;
 import gui.TelaPrincipal;
 import manipular.ConfiguracoesGlobais;
 import tratamento_proprio.Log;
@@ -14,10 +16,21 @@ public class DadosGlobais {
 	private TelaPrincipal telaPrincipal;
 	private Log gerenciador_logs;
 	private  ConfiguracoesGlobais configs_globais;
+	private TelaGerenciarContrato teraGerenciarContratoPai;
 	
 	
 	
 	
+	
+
+	public TelaGerenciarContrato getTeraGerenciarContratoPai() {
+		return teraGerenciarContratoPai;
+	}
+
+	public void setTeraGerenciarContratoPai(TelaGerenciarContrato teraGerenciarContratoPai) {
+		this.teraGerenciarContratoPai = teraGerenciarContratoPai;
+	}
+
 	public ConfiguracoesGlobais getConfigs_globais() {
 		return configs_globais;
 	}

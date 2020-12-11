@@ -487,7 +487,13 @@ public class GerenciarBancoContratos {
 	
 	  
 	  private String sql_contrato(CadastroContrato contrato) {
-          String query = "insert into contrato (codigo, sub_contrato,id_safra, id_produto, medida, quantidade, valor_produto, valor_a_pagar,comissao, clausula_comissao, valor_comissao, data_contrato, data_entrega, status_contrato, caminho_arquivo, nome_arquivo) values ('"
+		  String texto_clausulas = "";
+		  for(String clausula_local : contrato.getClausulas()) {
+			  texto_clausulas += (clausula_local + ";");
+		  }
+		  
+		  
+          String query = "insert into contrato (codigo, sub_contrato,id_safra, id_produto, medida, quantidade, valor_produto, valor_a_pagar,comissao, clausula_comissao, valor_comissao, clausulas, data_contrato, data_entrega, status_contrato, caminho_arquivo, nome_arquivo) values ('"
         		 + contrato.getCodigo() 
                  + "','"
                      + contrato.getSub_contrato()
@@ -509,6 +515,9 @@ public class GerenciarBancoContratos {
                  + contrato.getClausula_comissao()
                 + "','"
                  + contrato.getValor_comissao()
+                + "','"
+                  + "','"
+                 + texto_clausulas
                 + "','"
                 + contrato.getData_contrato()
                 + "','"
@@ -899,11 +908,15 @@ public class GerenciarBancoContratos {
 	                 contrato.setId(rs.getInt("id"));
 	            	 contrato.setCodigo(rs.getString("codigo"));
 	            	 contrato.setSub_contrato(rs.getInt("sub_contrato"));
+	            	 contrato.setTexto_clausulas(rs.getString("clausulas"));
+	            
 	            	 int id_safra = rs.getInt("id_safra");
 	            	 
 	            	 GerenciarBancoSafras gerenciar = new GerenciarBancoSafras();
 	            	 CadastroSafra safra = gerenciar.getSafra(id_safra);
 	            	 
+	            	 
+	            	
 	            	 if(safra != null) {
 	            		 
 	            		 contrato.setQuantidade(Double.parseDouble(rs.getString("quantidade")));
@@ -946,11 +959,10 @@ public class GerenciarBancoContratos {
                          contrato.setClausula_comissao(rs.getInt("clausula_comissao"));
                          contrato.setValor_comissao(new BigDecimal(rs.getString("valor_comissao")));
                          
-			 	         ConexaoBanco.fechaConexao(conn, pstm, rs);
-
-
+                       
 	            		 
-	            		 
+    	                 ConexaoBanco.fechaConexao(conn, pstm, rs);
+	            			
 	            		 return contrato;
 	            	 }else {
 	            		 
@@ -962,23 +974,30 @@ public class GerenciarBancoContratos {
 	            
 	        } catch (Exception e) {
 	            JOptionPane.showMessageDialog(null, "Erro ao listar contrato id: " + id + " erro: " + e.getMessage());
+	            System.out.println("Erro ao listar contrato id: " + id + " erro: " + e.getMessage() + "\ncausa: " + e.getCause());
 	            return null;
 	        }		  
 		  
 		  
 	  }
 	  
-	  public int atualizarContrato(CadastroContrato contrato) {
+	  public int atualizarContrato(CadastroContrato contrato, ArrayList<Integer> ids_pagamentos_a_excluir) {
 		    Connection conn = null;
             String atualizar = null;
             PreparedStatement pstm;
             String sql_update_contrato ="update contrato set id_safra = ?, id_produto = ?, medida = ?, quantidade = ?,\r\n"
-    		 		+ "valor_produto = ?, valor_a_pagar = ?, comissao = ?, clausula_comissao = ?, valor_comissao = ?,\r\n"
-    		 		+ "data_contrato = ?, data_entrega = ?, status_contrato, caminho_arquivo = ?,\r\n"
-    		 		+ "nome_arquivo where id = ?;";
+    		 		+ "valor_produto = ?, valor_a_pagar = ?, comissao = ?, clausula_comissao = ?, valor_comissao = ?, clausulas = ?,\r\n"
+    		 		+ "data_contrato = ?, data_entrega = ?, status_contrato = ?, caminho_arquivo = ?,\r\n"
+    		 		+ "nome_arquivo = ? where id = ?;";
             
           try {  
-        	  
+        	  String texto_clausulas = "";
+    		  int num_clausulas = 1;
+    		  for(String clausula_local : contrato.getClausulas()) {
+    			  texto_clausulas += (clausula_local + ";");
+    			  num_clausulas++;
+    		  }
+    		  
         	  conn = ConexaoBanco.getConexao();
          	 pstm = conn.prepareStatement(sql_update_contrato);
          	 
@@ -987,23 +1006,63 @@ public class GerenciarBancoContratos {
 		     pstm.setString(3, contrato.getMedida());
 		     pstm.setString(4, Double.toString(contrato.getQuantidade()));
 		     pstm.setString(5, Double.toString(contrato.getValor_produto()));
+		     
 		     pstm.setString(6, contrato.getValor_a_pagar().toPlainString());
 		     pstm.setString(7, Integer.toString(contrato.getComissao()));
 		     pstm.setString(8, Integer.toString(contrato.getClausula_comissao()));
 		     pstm.setString(9, contrato.getValor_comissao().toPlainString());
-		     pstm.setString(10, contrato.getData_contrato());
-		     pstm.setString(11, contrato.getData_entrega());
-		     pstm.setString(12, Integer.toString(contrato.getStatus_contrato()));
-		     pstm.setString(13, contrato.getCaminho_arquivo());
-		     pstm.setString(14,  contrato.getNome_arquivo());
+		     pstm.setString(10, texto_clausulas);
+
+		     pstm.setString(11, contrato.getData_contrato());
+		     pstm.setString(12, contrato.getData_entrega());
+		     pstm.setString(13, Integer.toString(contrato.getStatus_contrato()));
+		     pstm.setString(14, contrato.getCaminho_arquivo());
+		     pstm.setString(15,  contrato.getNome_arquivo());
+		     pstm.setInt(16, contrato.getId());
 		     
 		     
 		  
 		    pstm.execute();
             //JOptionPane.showMessageDialog(null, "Cliente atualizado com sucesso");
             System.out.println("Contrato Atualizado com sucesso");
+            
+            boolean pagamentos_apagados = false;
+            
+            //apaga os modelo  de pagamentos 
+            if(ids_pagamentos_a_excluir != null) {
+            for(Integer id_pagamento : ids_pagamentos_a_excluir) {
+              if(remover_modelo_pagamento(id_pagamento)) {
+            	  pagamentos_apagados = true;
+            	 
+              }else {
+            	  //nao foi possivel apagar esse modelo de pagamento
+            	  pagamentos_apagados = false;      
+            	  break;
+            	  }
+            	
+            }
+            
+            //apaga os relacionamentos pagamentos
+            for(Integer id_pagamento : ids_pagamentos_a_excluir) {
+                if(remover_contrato_modelo_pagamento(contrato.getId(), id_pagamento)) {
+              	  pagamentos_apagados = true;
+              	 
+                }else {
+              	  //nao foi possivel apagar esse modelo de pagamento
+              	  pagamentos_apagados = false;      
+              	  break;
+              	  }
+              	
+              }
+            }else {
+            	pagamentos_apagados = true;
+            }
+            
             ConexaoBanco.fechaConexao(conn);
-          return 5;
+            if(pagamentos_apagados)
+               return 5;
+            else
+            	return -2;
         } catch (Exception e) {
             JOptionPane.showMessageDialog(null, "Erro ao atualizar contrato no banco de"
                     + "dados " + e.getMessage());
@@ -1243,11 +1302,32 @@ public class GerenciarBancoContratos {
 	        	  
 	        	  pagamento.setId(rs.getInt("id"));
 	        	  pagamento.setValor_string(rs.getString("valor"));
+	        	  pagamento.setValor(new BigDecimal(rs.getString("valor")));
 	        	  pagamento.setData_pagamento(rs.getString("data_pagamento"));
 	        	  ContaBancaria conta = null;
 	        			  
 	        	  int id_cb = rs.getInt("id_conta_bancaria");
 	        	  if(id_cb == 0) {
+	        		  conta = new ContaBancaria();
+                 		//nao foi informado conta bancaria ppara esse pagamento
+                 		
+	        		  /*
+	        		   *    id = "00";
+		 		cpf = "Há Informar";
+		 		banco = "Há Informar";
+		 		nome = "Há Informar";
+		 		codigo = "Há Informar";
+		 		agencia = "Há Informar";
+		 		conta = "Há Informar";
+	        		   */
+	        		  conta.setId_conta(0);
+	        		  conta.setCpf_titular("Há Informar");
+	        		  conta.setBanco("Há Informar");
+	        		  conta.setCodigo("Há Informar");
+	        		  conta.setAgencia("Há Informar");
+	        		  conta.setConta("Há Informar");
+
+                 	
 	        		 
 	        	  }else {
 	        		  GerenciarBancoClientes gerenciar = new GerenciarBancoClientes();

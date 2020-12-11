@@ -476,7 +476,9 @@ public class TelaEnviarMsgWhatsapp extends JDialog {
 	public void enviar_Mensagem() {
 
         ZapMessenger zap = new ZapMessenger();
+        zap.logar();
 		Nuvem nuvem = new Nuvem();
+		
 		nuvem.abrir();
 		nuvem.testar();
 		nuvem.listar();

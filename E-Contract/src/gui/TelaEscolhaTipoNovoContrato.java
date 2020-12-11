@@ -11,6 +11,7 @@ import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
 
 import cadastros.CadastroContrato;
+import cadastros.CadastroLogin;
 import cadastros.CadastroModelo;
 import conexaoBanco.GerenciarBancoContratos;
 import conexaoBanco.GerenciarBancoSafras;
@@ -24,12 +25,21 @@ import java.util.ArrayList;
 import java.awt.event.ActionEvent;
 
 import gui.TelaNovoContratoInformal;
+import manipular.ConfiguracoesGlobais;
+import outros.DadosGlobais;
+import tratamento_proprio.Log;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 
 public class TelaEscolhaTipoNovoContrato extends JDialog {
 
 	private final JPanel painelPrincipal = new JPanel();
 	ArrayList<CadastroModelo> modelos = new ArrayList<>();
- 
+	private TelaGerenciarContrato telaGerenciarCadastroPai;
+	private Log GerenciadorLog;
+	private CadastroLogin login;
+	private ConfiguracoesGlobais configs_globais;
+	
 	public void pesquisarModelos()
 	{
 		 GerenciarBancoContratos listaModelos = new GerenciarBancoContratos();
@@ -38,14 +48,26 @@ public class TelaEscolhaTipoNovoContrato extends JDialog {
 	}
 
 	public TelaEscolhaTipoNovoContrato(int tipoContrato, CadastroContrato contrato_pai, int flag_edicao) {
+		addWindowListener(new WindowAdapter() {
+			@Override
+			public void windowClosed(WindowEvent arg0) {
+				if(flag_edicao == 1) {
+					//esta no modo edicao
+					DadosGlobais dados = DadosGlobais.getInstance();
+					 dados.getTeraGerenciarContratoPai().atualizarContratoLocal();
+					
+				}
+			}
+		});
 		setModal(true);
+		getDadosGlobais();
 
 		TelaEscolhaTipoNovoContrato isto = this;
 		
 		setResizable(false);
 		setTitle("E-Contract - Tipo Contrato");
 
-		
+	
 		setBackground(new Color(255, 255, 255));
 		setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 		setBounds(100, 100, 459, 209);
@@ -82,7 +104,8 @@ public class TelaEscolhaTipoNovoContrato extends JDialog {
                    if(opcao.equals("Padrão - Informal"))
                    {
                 	  TelaNovoContratoInformal contrato = new TelaNovoContratoInformal(modelos.get(0), tipoContrato, contrato_pai, flag_edicao);
-                	   // TelaNovoContrato contrato = new TelaNovoContrato("C:\\Users\\Aislan\\Documents\\modelo_informal_padrao.xlsx");
+                	  
+                	  // TelaNovoContrato contrato = new TelaNovoContrato("C:\\Users\\Aislan\\Documents\\modelo_informal_padrao.xlsx");
                 	   isto.dispose();
                    }
                    
@@ -107,4 +130,17 @@ public class TelaEscolhaTipoNovoContrato extends JDialog {
 		
 		
 	}
+	
+
+	public void getDadosGlobais() {
+		//gerenciador de log
+				DadosGlobais dados = DadosGlobais.getInstance();
+				 GerenciadorLog = dados.getGerenciadorLog();
+				 configs_globais = dados.getConfigs_globais();
+				 
+				 //usuario logado
+				  login = dados.getLogin();
+		
+	}
+	
 }

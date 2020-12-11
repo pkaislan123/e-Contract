@@ -11,6 +11,10 @@ import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
 import javax.swing.ImageIcon;
 import java.awt.event.ActionListener;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.awt.event.ActionEvent;
 import javax.swing.JScrollPane;
@@ -177,15 +181,13 @@ public class TelaContratos extends JDialog {
 		btnSelecionar.setBounds(781, 439, 121, 23);
 		getContentPane().add(btnSelecionar);
 		
-		
-		
+				
 		this.setLocationRelativeTo(null);
 
 		this.setVisible(true);
 	}
 	
-	
-	public static void pesquisar(DefaultTableModel modelo)
+		public static void pesquisar(DefaultTableModel modelo)
 	{ 
 		modelo.setNumRows(0);
     GerenciarBancoContratos gerenciar = new GerenciarBancoContratos();

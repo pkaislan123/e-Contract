@@ -3,13 +3,24 @@ package gui;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Container;
+import java.awt.Desktop;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
+import java.nio.channels.FileChannel;
+import java.nio.file.CopyOption;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.ResourceBundle;
 
@@ -21,6 +32,7 @@ import javax.swing.JTabbedPane;
 import javax.swing.border.EmptyBorder;
 import javax.swing.table.DefaultTableModel;
 
+import org.apache.commons.io.FileUtils;
 import org.icepdf.ri.common.ComponentKeyBinding;
 import org.icepdf.ri.common.SwingController;
 import org.icepdf.ri.common.SwingViewBuilder;
@@ -31,9 +43,11 @@ import cadastros.CadastroContrato;
 import cadastros.CadastroLogin;
 import cadastros.CadastroModelo;
 import cadastros.ContaBancaria;
+import chrriis.dj.nativeswing.swtimpl.components.JWebBrowser;
 import conexaoBanco.GerenciarBancoContratos;
 import manipular.ConfiguracoesGlobais;
 import manipular.ConverterPdf;
+import manipular.ManipularTxt;
 import outros.DadosGlobais;
 import tratamento_proprio.Log;
 import views_personalizadas.TelaEscolha;
@@ -75,10 +89,9 @@ public class TelaGerenciarContrato extends JDialog {
 	private final JLabel lblNewLabel = new JLabel("     Modelos de Pagamento");
 	private CadastroContrato contrato_local;
     private ArrayList<CadastroContrato> lista_sub_contratos = new ArrayList<>();
-    private SwingController controller;
+    private SwingController controller = null;
     private SwingViewBuilder factory;
     private TelaGerenciarContrato isto;
-    
     private String servidor_unidade ;
 	 DefaultTableModel modelo = new DefaultTableModel(){
          public boolean isCellEditable(int linha, int coluna) {  
@@ -118,13 +131,6 @@ public class TelaGerenciarContrato extends JDialog {
 		
 		setResizable(false);
 		
-		System.out.println("Caminho do arquivo: " + contrato.getCaminho_arquivo());
-		try {
-			stream = new FileInputStream(servidor_unidade + contrato.getCaminho_arquivo());
-		} catch (FileNotFoundException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
 	
 		
 		setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
@@ -137,7 +143,7 @@ public class TelaGerenciarContrato extends JDialog {
 			@Override
 			public void focusGained(FocusEvent e) {
 				System.out.println("ganhou focu");
-				atualizarContratoLocal();
+				//atualizarContratoLocal();
 			}
 		});
 		//contentPanel.setBackground(new Color(255, 255, 255));
@@ -258,9 +264,12 @@ public class TelaGerenciarContrato extends JDialog {
 			public void actionPerformed(ActionEvent arg0) {
 				//	argumentos(CadastroModelo modelo, int tipoContrato, CadastroContrato contrato_pai, int flag_edicao) {
 				//TelaEscolhaTipoNovoContrato(int tipoContrato, CadastroContrato contrato_pai, int flag_edicao) {
-				   fecharDocumento();
-
-					TelaEscolhaTipoNovoContrato tela = new TelaEscolhaTipoNovoContrato( 0,contrato, 1);
+				  
+				fecharDocumento();
+				DadosGlobais dados = DadosGlobais.getInstance();
+				 dados.setTeraGerenciarContratoPai(isto);
+           	  
+				TelaEscolhaTipoNovoContrato tela = new TelaEscolhaTipoNovoContrato( 0,contrato, 1);
 			}
 		});
 		
@@ -319,6 +328,10 @@ public class TelaGerenciarContrato extends JDialog {
 				btnNewButton_2.setBounds(231, 497, 89, 23);
 				
 				painelDadosIniciais.add(btnNewButton_2);
+				
+				JPanel panel = new JPanel();
+				panel.setBounds(554, 271, 161, 128);
+				painelDadosIniciais.add(panel);
 				
 				
 				
@@ -394,17 +407,20 @@ public class TelaGerenciarContrato extends JDialog {
 
 		        }
 		        
-		        carregarDocumento(  servidor_unidade + contrato_local.getCaminho_arquivo());
-		        
-		        
-		        
-		        
+		        String url_original = servidor_unidade + contrato_local.getCaminho_arquivo();
+		        carregarDocumento(url_original);
+		    
+		 
 		this.setLocationRelativeTo(null);
 
 		this.setVisible(true);
 		
 		
+		
+		
 	}
+	
+
 	
 	
 	public void setSubContratos(CadastroContrato contrato_na_funcao) {
@@ -562,8 +578,12 @@ public class TelaGerenciarContrato extends JDialog {
     
     public void carregarDocumento(String url) {
     	// build a controller
+    	
+    	if(controller == null) {
+
 		 controller = new SwingController();
 
+		 
 		 PropertiesManager propriedades =  new PropertiesManager (System.getProperties (),ResourceBundle.getBundle (PropertiesManager.DEFAULT_MESSAGE_BUNDLE));
 		// Build a SwingViewFactory configured with the controller
 		
@@ -584,32 +604,45 @@ public class TelaGerenciarContrato extends JDialog {
 		 
 		 propriedades.setFloat(PropertiesManager.PROPERTY_DEFAULT_ZOOM_LEVEL, 0.85f );
 
+		
 		  factory = new SwingViewBuilder(controller, propriedades);
 		// Use the factory to build a JPanel that is pre-configured
 		//with a complete, active Viewer UI.
+		 
 		controller.getDocumentViewController().setAnnotationCallback(
 			     new org.icepdf.ri.common.MyAnnotationCallback(
 			            controller.getDocumentViewController()));
 
-
+    	}
 	
 		java.awt.EventQueue.invokeLater(new Runnable() { 
 		    public void run() { 
-		    	painel_vizualizar = new JPanel();
 		    	
-			    painel_vizualizar = factory.buildViewerPanel();
-				
-				
+		    	                 if(painel_vizualizar == null) {
+ 
+		                			 painel_vizualizar = new JPanel();
+		                			 painel_vizualizar = factory.buildViewerPanel();
+		                			 controller.openDocument(url);
+							//viewerComponentPanel.setPreferredSize(new Dimension(400, 370));
+							//viewerComponentPanel.setMaximumSize(new Dimension(400, 370));
+		                			
+	                			 controller.openDocument(url);
+	                			 painel_vizualizar.setBounds(10, 25, 508, 461);							
+	 							
+	                			 painelDadosIniciais.add(painel_vizualizar);
+		    	                 }else {
+		                			 controller.openDocument(url);
+		                			 painel_vizualizar.repaint();
+		                			 painel_vizualizar.updateUI();
+		                			 painelDadosIniciais.add(painel_vizualizar);
 
-				
-				controller.openDocument(url);
-				//viewerComponentPanel.setPreferredSize(new Dimension(400, 370));
-				//viewerComponentPanel.setMaximumSize(new Dimension(400, 370));
-				painel_vizualizar.setBounds(10, 25, 508, 461);							
-				
-				painelDadosIniciais.add(painel_vizualizar);
-				
-				
+		                			
+			 							
+		    	                 }
+	                			 
+	                			 
+		                	 	
+		                	
 				
 			  } 
 		}); 
@@ -617,38 +650,30 @@ public class TelaGerenciarContrato extends JDialog {
     
     public void fecharDocumento() {
     	
-    
-		controller.dispose();
+    if(controller != null) {
 		controller.closeDocument();
-		controller.exit();
-		controller = null;
+    }
     	
 		
-		java.awt.EventQueue.invokeLater(new Runnable() { 
-		    public void run() { 
-               painel_vizualizar = new JPanel();
-		    	
-                painel_vizualizar.setBackground(new Color(0,0,0,0));
-				
-								//viewerComponentPanel.setPreferredSize(new Dimension(400, 370));
-				//viewerComponentPanel.setMaximumSize(new Dimension(400, 370));
-				painel_vizualizar.setBounds(10, 25, 508, 461);							
-				
-				painelDadosIniciais.add(painel_vizualizar);
-				
-			  } 
-		}); 
-		
+
 		
     }
     
     public void atualizarContratoLocal() {
-    	GerenciarBancoContratos gerenciar = new GerenciarBancoContratos();
+    	
+    
+    			GerenciarBancoContratos gerenciar = new GerenciarBancoContratos();
+        		
+    	    	contrato_local = gerenciar.getContrato(contrato_local.getId());
+    	    	setPagamentos(contrato_local);
+    	    	setSubContratos(contrato_local);
+    	    	
+    	    	//criar acopia temporaria
+    	    	
+    	    	String url_original = servidor_unidade + contrato_local.getCaminho_arquivo();
+    	        carregarDocumento(url_original);
     		
-    	contrato_local = gerenciar.getContrato(contrato_local.getId());
-    	setPagamentos(contrato_local);
-    	setSubContratos(contrato_local);
-        carregarDocumento(  servidor_unidade + contrato_local.getCaminho_arquivo());
+    
     }
     
     public void getDadosGlobais() {
@@ -661,4 +686,9 @@ public class TelaGerenciarContrato extends JDialog {
 				  login = dados.getLogin();
 		
 	}
+    
+    public String criarCopiaTemporaria(String url, String codigo) throws IOException {
+    	ManipularTxt manipular = new ManipularTxt();
+    	return manipular.copiar(url, codigo);
+    }
 }

@@ -5,9 +5,36 @@ import java.util.ArrayList;
 
 public class CadastroContrato {
 
+	private String texto_clausulas;
+
+
+
+	public String getTexto_clausulas() {
+		return texto_clausulas;
+	}
+
+
+
+	public void setTexto_clausulas(String texto_clausulas) {
+		this.texto_clausulas = texto_clausulas;
+	}
+	private ArrayList<String> clausulas ;
 	
 	
 	
+	
+	public ArrayList<String> getClausulas() {
+		return clausulas;
+	}
+
+
+
+	public void setClausulas(ArrayList<String> clausulas) {
+		this.clausulas = clausulas;
+	}
+
+
+
 	public CadastroCliente[] getCompradores() {
 		return compradores;
 	}
@@ -190,21 +217,14 @@ public class CadastroContrato {
 	private CadastroSafra modelo_safra;
 	
 	
-    private String clausulas_adicionais [];
-
+  
 	
 	public  CadastroContrato()
 	{
 		compradores = new CadastroCliente[1];
 		vendedores = new CadastroCliente[2];
 		corretores = new CadastroCliente[2];
-		clausulas_adicionais = new String[5];
-		
-		for(int i = 0; i < clausulas_adicionais.length; i++)
-	     {
-			clausulas_adicionais[i] = null;
-	     }
-		
+	
 		 for(int i = 0; i < corretores.length; i++)
 	     {
 	    	 corretores[i] = null;
@@ -218,21 +238,15 @@ public class CadastroContrato {
 	    	 vendedores[i] = null;
 	     }
 	     
+		 
+		 clausulas = new ArrayList<>();
 		
 	    
 		
 	}
 	
 	
-	public String [] listaClausulasAdicionais()
-	{
-		return clausulas_adicionais;
-	}
 	
-	public void adicionar_clausula(int posicao, String texto)
-	{
-		clausulas_adicionais[posicao] = texto;
-	}
 	
 	public CadastroCliente [] listaCorretores()
 	{
@@ -401,7 +415,7 @@ local retirada: 24 2
 			this.id = id;
 		}
 		ContaBancaria conta;
-		BigDecimal valor;
+		BigDecimal valor = new BigDecimal("0");
 		String valor_string;
 		public String getValor_string() {
 			return valor_string;
