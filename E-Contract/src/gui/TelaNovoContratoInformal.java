@@ -60,9 +60,11 @@ import java.io.ByteArrayOutputStream;
 import java.io.FileNotFoundException;
 import java.math.BigDecimal;
 import java.net.URL;
+import java.text.NumberFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.Locale;
 
 import javax.swing.SwingConstants;
 import javax.swing.JCheckBox;
@@ -123,7 +125,7 @@ public class TelaNovoContratoInformal extends JDialog{
 	private BigDecimal valor_atual = new BigDecimal("0");
 	private BigDecimal valor_acumulado = new BigDecimal("0");
 
-    private ArrayList<CadastroContrato.CadastroPagamento> pagamentos = new ArrayList<>();
+    private ArrayList<CadastroContrato.CadastroPagamento> pagamentos = null;
     private JTextField entComissao;
     
 	
@@ -188,7 +190,6 @@ private CadastroLogin login;
 private ConfiguracoesGlobais configs_globais;
 private CadastroContrato contrato_pai_local;
 
-private ArrayList<CadastroContrato.CadastroPagamento> pagamentosLocais = new ArrayList<CadastroContrato.CadastroPagamento>();
 
 	public static void pesquisarArmazens()
 	{ 
@@ -237,7 +238,10 @@ private ArrayList<CadastroContrato.CadastroPagamento> pagamentosLocais = new Arr
 		if(flag_edicao == 0)
 		setTitle("E-Contract - Novo Contrato");
 		else {
-			setTitle("E-Contract - Edição de Contrato");
+			if(contrato_pai.getSub_contrato() == 1)
+			setTitle("E-Contract - Edição de Sub-Contrato");
+			else
+				setTitle("E-Contract - Edição de Contrato");
 
 		}
 		setBounds(100, 100, 993, 669);
@@ -1874,7 +1878,7 @@ private ArrayList<CadastroContrato.CadastroPagamento> pagamentosLocais = new Arr
 				        		
  	                          	String cpf, banco, codigo, agencia, conta, id, nome, valor_pagamento, data_pagamento;
  	                          	
- 	                          	valor_pagamento = entValorPagamento.getText();
+ 	                          	valor_pagamento = entValorPagamento.getText().toString();
  	                          	
  	                          	//processa dados de data de pagamento
  	                          	
@@ -1910,9 +1914,15 @@ private ArrayList<CadastroContrato.CadastroPagamento> pagamentosLocais = new Arr
  							 		codigo = "Há Informar";
  							 		agencia = "Há Informar";
  							 		conta = "Há Informar";
+ 							 		
+ 							 	    
+ 						       	  	Locale ptBr = new Locale("pt", "BR");
+ 						       	   	String valorString = NumberFormat.getCurrencyInstance(ptBr).format(Float.parseFloat(valor_pagamento));
+ 						       	   	System.out.println(valorString);   
+ 						       		
 
  									modelo_cb.addRow(new Object[]{"00", id, cpf, nome, banco, 
- 										       codigo, agencia, conta, valor_pagamento, data_pagamento});
+ 										       codigo, agencia, conta, valorString, data_pagamento});
  									
  									conta_atual.setAgencia(agencia);
  									conta_atual.setId_conta(00);
@@ -1934,8 +1944,12 @@ private ArrayList<CadastroContrato.CadastroPagamento> pagamentosLocais = new Arr
 						 		agencia = conta_atual.getAgencia();
 						 		conta = conta_atual.getConta();
 
+						 		Locale ptBr = new Locale("pt", "BR");
+					       	   	String valorString = NumberFormat.getCurrencyInstance(ptBr).format(Float.parseFloat(valor_pagamento));
+					       	   	System.out.println(valorString);
+					       	   	
 								modelo_cb.addRow(new Object[]{"00", id,  cpf, nome, banco, 
-									       codigo, agencia, conta, valor_pagamento, data_pagamento});
+									       codigo, agencia, conta, valorString, data_pagamento});
 								
  	                          	}
 								
@@ -1953,13 +1967,15 @@ private ArrayList<CadastroContrato.CadastroPagamento> pagamentosLocais = new Arr
 								}
 								else {
 									mostrar_soma_atual_pagamentos.setEnabled(true);
-									mostrar_soma_atual_pagamentos.setForeground(Color.yellow);
+									mostrar_soma_atual_pagamentos.setForeground(Color.orange);
 								}
 								
-								
-								mostrar_soma_atual_pagamentos.setText("R$ " + valor_acumulado.toPlainString());
+							  	Locale ptBr = new Locale("pt", "BR");
+						       	   	String valorString = NumberFormat.getCurrencyInstance(ptBr).format(Float.parseFloat(valor_acumulado.toPlainString()));
+						       	   	System.out.println(valorString);  
+								mostrar_soma_atual_pagamentos.setText(valorString);
 
-								valor_atual = valor_total.subtract(valor_acumulado);
+								//valor_atual = valor_total.subtract(valor_acumulado);
 								
 								cBContaBancaria.removeAllItems();
 								entDataPagamento.setText("");
@@ -1976,7 +1992,14 @@ private ArrayList<CadastroContrato.CadastroPagamento> pagamentosLocais = new Arr
 								
 								 pagamento_atual.setData_pagamento(data_pagamento);
 								 pagamento_atual.setValor(new BigDecimal(valor_pagamento));
-							     pagamentos.add(pagamento_atual);
+								 if(pagamentos == null) {
+									 pagamentos = new ArrayList<>();
+								     pagamentos.add(pagamento_atual);
+
+								 }else {
+								     pagamentos.add(pagamento_atual);
+
+								 }
 								
 				        		
 				        	}
@@ -1989,8 +2012,13 @@ private ArrayList<CadastroContrato.CadastroPagamento> pagamentosLocais = new Arr
 				        	public void actionPerformed(ActionEvent arg0) {
 				        		int indiceDaLinha = table_cb.getSelectedRow();
 								
-								String Svalor_pagamento = table_cb.getValueAt(indiceDaLinha, 8).toString();
-								BigDecimal valor_pagamento = new BigDecimal(Svalor_pagamento);
+				        	    
+			   
+				           		String get_valor_linha = table_cb.getValueAt(indiceDaLinha, 8).toString();
+								String Svalor_pagamento = get_valor_linha.replaceAll("R", "").replaceAll(" ", "").replace("$", "").replace(".", "").replace(",", ".");
+								
+								System.out.println("Svalor_pagamento: " + Svalor_pagamento);
+								BigDecimal valor_pagamento = new BigDecimal(Float.parseFloat(Svalor_pagamento));
 								
 								int id_conta = Integer.parseInt(table_cb.getValueAt(indiceDaLinha, 1).toString());
 								
@@ -2002,15 +2030,36 @@ private ArrayList<CadastroContrato.CadastroPagamento> pagamentosLocais = new Arr
 								
 								if(table_cb.getValueAt(indiceDaLinha, 0).toString() == "00") {
 									//esta removendo um pagamento que ainda nao foi cadastrado
+									
+									
 									pagamentos.remove(indiceDaLinha);
+									
+									
+									
 
 								}else {
 									//colocar no array a conta para excluir
 									if(pagamento_a_excluir == null) {
 										pagamento_a_excluir = new ArrayList<>();
-									}else {
-									pagamento_a_excluir.add(Integer.parseInt(table_cb.getValueAt(indiceDaLinha, 0).toString()));
 									}
+									pagamento_a_excluir.add(Integer.parseInt(table_cb.getValueAt(indiceDaLinha, 0).toString()));
+									
+									//pega o id do pagamento
+									int id = Integer.parseInt(table_cb.getValueAt(indiceDaLinha, 0).toString() );
+									CadastroContrato.CadastroPagamento pagamento_a_remover = null;
+									for(CadastroContrato.CadastroPagamento pagamento : pagamentos)
+									{
+										if(pagamento.getId() == id) {
+											pagamento_a_remover = pagamento;
+											break;
+										}
+									}
+									pagamentos.remove(pagamento_a_remover);
+									//((DefaultTableModel) table_cb.getModel()).removeRow(indiceDaLinha);
+
+									
+									
+									
 								}
 
 				        		mostrar_soma_atual_pagamentos.setText("R$ " + valor_acumulado.toPlainString());
@@ -2027,7 +2076,7 @@ private ArrayList<CadastroContrato.CadastroPagamento> pagamentosLocais = new Arr
 								}
 								else {
 									mostrar_soma_atual_pagamentos.setEnabled(true);
-									mostrar_soma_atual_pagamentos.setForeground(Color.yellow);
+									mostrar_soma_atual_pagamentos.setForeground(Color.orange);
 								}
 								
 				        		
@@ -2361,12 +2410,23 @@ private ArrayList<CadastroContrato.CadastroPagamento> pagamentosLocais = new Arr
 
 				          
 				         if(tipoContrato == 1) {
-				        	 rotinasSubContrato();
-				         }else {
+				        	 //e um subcontrato
 				        	 if(flag_edicao == 1) {
-				        		 //chamar as rotinasdesubcontrato
-					        	 rotinasSubContrato();
+				        		 rotinasEdicao();
 					        	 setClausulas( );
+				        		 //modo de edicao de subcontrato
+				        	 }else {
+					        	 rotinasSubContrato();
+
+				        	 }
+				         }else {
+				        	 //e um contrato original
+				        	 if(flag_edicao == 1) {
+				        		 //se esta no modo edicao
+				        		 rotinasEdicao();
+					        	 setClausulas( );
+				        	 }else {
+				        		 //se esta no modo criacao
 				        	 }
 				         }
 				          
@@ -2603,7 +2663,15 @@ private ArrayList<CadastroContrato.CadastroPagamento> pagamentosLocais = new Arr
 
 			}else {
 				//e um sub contrato
-				result = gerenciarContratos.inserirContrato(novo_contrato, contrato_pai_local);
+				if(flag_edicao_global == 0) {
+					result = gerenciarContratos.inserirContrato(novo_contrato, contrato_pai_local);
+
+					//inserir novo subcontrato
+				}else {
+					result = gerenciarContratos.atualizarContrato(novo_contrato, pagamento_a_excluir);
+
+					//atualizar novo contrato
+				}
 
 			}
 			System.out.println("Result: " + result);
@@ -2747,7 +2815,7 @@ private ArrayList<CadastroContrato.CadastroPagamento> pagamentosLocais = new Arr
 
 	}
 	
-	public void rotinasSubContrato() {
+	public void rotinasEdicao() {
 		
 		CadastroCliente corretor[] = contrato_pai_local.getCorretores();
 		CadastroCliente compradores[] = contrato_pai_local.getCompradores();
@@ -2758,7 +2826,7 @@ private ArrayList<CadastroContrato.CadastroPagamento> pagamentosLocais = new Arr
 		
 		
 		// corretor, compradores e vendedores
-		
+	
 		if(corretor[0] != null) {
 			this.setCorretor(corretor[0]);
 		}
@@ -2775,6 +2843,7 @@ private ArrayList<CadastroContrato.CadastroPagamento> pagamentosLocais = new Arr
 			this.setVendedor2(vendedores[1]);
 		}
 		
+	 
 		
 		//data de entrega
 		System.out.println("data de entrega contrato pai:" + contrato_pai_local.getData_entrega());
@@ -2810,11 +2879,17 @@ private ArrayList<CadastroContrato.CadastroPagamento> pagamentosLocais = new Arr
 		setClausula2(safra_contrato_pai_local.getProduto().getNome_produto());
 
          //quantidades e preços
-		
+	
 		entQuantidade.setText(Double.toString(contrato_pai_local.getQuantidade()));
 		entPreco.setText(Double.toString(contrato_pai_local.getValor_produto()));
-		lblValorTotal.setText((contrato_pai_local.getValor_a_pagar()).toPlainString());
-		mostrar_valor_total_contrato.setText((contrato_pai_local.getValor_a_pagar()).toPlainString());
+	 
+		
+		
+		 Locale ptBr = new Locale("pt", "BR");
+  	   	String valorString = NumberFormat.getCurrencyInstance(ptBr).format(Float.parseFloat(contrato_pai_local.getValor_a_pagar().toPlainString()));
+      
+  	   	lblValorTotal.setText(valorString);
+		mostrar_valor_total_contrato.setText(valorString);
 		  valor_total = contrato_pai_local.getValor_a_pagar() ;
 		   valor_atual = new BigDecimal("0");
 		 // valor_acumulado =  new BigDecimal("0");
@@ -2837,8 +2912,10 @@ private ArrayList<CadastroContrato.CadastroPagamento> pagamentosLocais = new Arr
 		       }
 		       
 		  }
-   	            mostrar_valor_total_comissao.setText(valor_tot_comissao.toPlainString());
-   	         lblValorTotalComisao1.setText(valor_tot_comissao.toPlainString());
+     	   	String valorString2 = NumberFormat.getCurrencyInstance(ptBr).format(Float.parseFloat(valor_tot_comissao.toPlainString()));
+         
+   	            mostrar_valor_total_comissao.setText(valorString2);
+   	         lblValorTotalComisao1.setText(valorString2);
    	         valor_total_comissao = valor_tot_comissao;
    	    
 		  
@@ -2848,9 +2925,13 @@ private ArrayList<CadastroContrato.CadastroPagamento> pagamentosLocais = new Arr
 	}
 	
 	 public void setPagamentos( ) {
+     	System.out.println("Metodo setPagamentos chamado!");
+
 	       	String cpf , banco, codigo, agencia, conta, id, nome, valor_pagamento, data_pagamento;
             float valor_total_pagamentos = 0;
 
+            if(contrato_pai_local.getPagamentos() != null) {
+            	System.out.println("Existem pagamentos para edicao!");
 	       	for(CadastroContrato.CadastroPagamento pag : contrato_pai_local.getPagamentos()) {
 	       		
 	       	 if(pag != null) {	
@@ -2868,9 +2949,12 @@ private ArrayList<CadastroContrato.CadastroPagamento> pagamentosLocais = new Arr
 	   	 		
 	   	 	valor_total_pagamentos += Float.parseFloat(pag.getValor_string());
        		System.out.println("o valor total agora e: " + valor_total_pagamentos);
+       		
+       		Locale ptBr = new Locale("pt", "BR");
+	       	   	String valorString = NumberFormat.getCurrencyInstance(ptBr).format(Float.parseFloat(pag.getValor_string()));
                
        		modelo_cb.addRow(new Object[]{pag.getId(), id, cpf, nome, banco, 
-				       codigo, agencia, conta, pag.getValor_string(), pag.getData_pagamento()});
+				       codigo, agencia, conta, valorString, pag.getData_pagamento()});
 	       		}/*
 	       		else {
 	    	    id = "00";
@@ -2887,16 +2971,23 @@ private ArrayList<CadastroContrato.CadastroPagamento> pagamentosLocais = new Arr
 	       		
 	       	 }
 	       	}
-				
-	       	mostrar_soma_atual_pagamentos.setText(Float.toString(valor_total_pagamentos));
+	    	Locale ptBr = new Locale("pt", "BR");
+       	   	String valorString = NumberFormat.getCurrencyInstance(ptBr).format(valor_total_pagamentos);
+	       	mostrar_soma_atual_pagamentos.setText(valorString);
             valor_acumulado  = new BigDecimal(valor_total_pagamentos);
+            System.out.println("valor acumulado recebido: " + valor_acumulado);
             pagamentos = contrato_pai_local.getPagamentos();
             
+	      }
+				
+	    
 	    }
 	 
 	 
 	 public void setClausulas( ) {
 
+		 
+		if(contrato_pai_local.getTexto_clausulas() != null) { 
 		 int num_clausulas = 1;
 		  //clausulas
     	 ArrayList<String> clausulas = new ArrayList<>();
@@ -2980,9 +3071,48 @@ private ArrayList<CadastroContrato.CadastroPagamento> pagamentosLocais = new Arr
                 }
 
         	 }
-         }
+         }//fim do for
+		}
 	 }
-	
+	 
+	 public void rotinasSubContrato() {
+		//safra
+			CadastroSafra safra_contrato_pai_local = contrato_pai_local.getModelo_safra();
+			modelSafra.setSelectedItem(safra_contrato_pai_local);
+	        lblCodigoContrato.setText(Integer.toString(safra_contrato_pai_local.getCodigo()));
+			setClausula2(safra_contrato_pai_local.getProduto().getNome_produto());
+		 
+			
+			//data de entrega
+			System.out.println("data de entrega contrato pai:" + contrato_pai_local.getData_entrega());
+			entDataEntrega.setText(contrato_pai_local.getData_entrega());
+			
+			//unidade de medida
+			if(contrato_pai_local.getMedida().toUpperCase().equals("SACOS")) {
+				rQuanKG.setSelected(false);
+				rQuanS.setSelected(true);
+				rQuanT.setSelected(false);
+	    		unidadeGlobal = "sacos";
+	    	//	setClausulaComissao(entComissao.getText().toString().replace(".", ","));
+			}
+			else if(contrato_pai_local.getMedida().toUpperCase().equals("QUILOGRAMAS")) {
+				rQuanKG.setSelected(true);
+				rQuanS.setSelected(false);
+				rQuanT.setSelected(false);
+	    		unidadeGlobal = "quilogramas";
+	    	//	setClausulaComissao(entComissao.getText().toString().replace(".", ","));
+			}
+			else if(contrato_pai_local.getMedida().toUpperCase().equals("TONELADAS")) {
+				rQuanKG.setSelected(false);
+				rQuanS.setSelected(false);
+				rQuanT.setSelected(true);
+	    		unidadeGlobal = "toneladas";
+	    	//	setClausulaComissao(entComissao.getText().toString().replace(".", ","));
+			}
+			
+			
+	 }
+	 
 	
 	
 	

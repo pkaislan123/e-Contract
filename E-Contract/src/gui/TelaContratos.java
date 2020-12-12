@@ -28,6 +28,8 @@ import cadastros.CadastroCliente;
 import cadastros.CadastroContrato;
 import conexaoBanco.GerenciarBancoContratos;
 import javax.swing.ScrollPaneConstants;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 
 public class TelaContratos extends JDialog {
 
@@ -131,6 +133,12 @@ public class TelaContratos extends JDialog {
        
 		
 		JScrollPane scrollPane = new JScrollPane(tabela);
+		scrollPane.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseClicked(MouseEvent arg0) {
+				pesquisar(modelo);
+			}
+		});
 		scrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED);
 		scrollPane.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED);
 		scrollPane.setBackground(Color.WHITE);

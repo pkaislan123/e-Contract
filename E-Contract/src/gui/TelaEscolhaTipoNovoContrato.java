@@ -51,7 +51,7 @@ public class TelaEscolhaTipoNovoContrato extends JDialog {
 		addWindowListener(new WindowAdapter() {
 			@Override
 			public void windowClosed(WindowEvent arg0) {
-				if(flag_edicao == 1) {
+				if(flag_edicao == 1 || tipoContrato == 1) {
 					//esta no modo edicao
 					DadosGlobais dados = DadosGlobais.getInstance();
 					 dados.getTeraGerenciarContratoPai().atualizarContratoLocal();

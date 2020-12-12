@@ -12,6 +12,7 @@ import java.io.InputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.text.DateFormat;
+import java.text.NumberFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.DayOfWeek;
@@ -461,12 +462,16 @@ ultima_linha ++
 ultima_linha 1 Local da Retirada
 
 		 */
+         Locale ptBr = new Locale("pt", "BR");
+    	   	String valorString = NumberFormat.getCurrencyInstance(ptBr).format(Float.parseFloat(Double.toString(novo_contrato.getValor_produto())));
+        
  		atualizarCelula(formatar(false, 'T', false, false, true, false), ultima_linha,1, "Valor do Produto:");
- 		atualizarCelula(formatar(true, 'T', false, false, false, false), ultima_linha,3, "R$ " + Double.toString(novo_contrato.getValor_produto()).replace(".", ",") );
+ 		atualizarCelula(formatar(true, 'T', false, false, false, false), ultima_linha,3, valorString );
 
- 		
+	   	 valorString = NumberFormat.getCurrencyInstance(ptBr).format(Float.parseFloat(novo_contrato.getValor_a_pagar().toPlainString()));
+
  		atualizarCelula(formatar(false, 'T', false, false, false, false), ultima_linha,6, "Valor Total a Pagar:");
- 		atualizarCelula(formatar(true, 'T', false, false, false, false), ultima_linha,7, "R$ " + novo_contrato.getValor_a_pagar().toString().replace(".", ","));
+ 		atualizarCelula(formatar(true, 'T', false, false, false, false), ultima_linha,7,valorString);
 
 		atualizarCelula(formatar(true, 'T', false, false, false, true), ultima_linha,9, "");
 		ultima_linha++;
@@ -533,21 +538,21 @@ ultima_linha 1 Local da Retirada
          ultima_linha++;
 		
          atualizarCelula(formatar(false, 'T', false, false, true, false), ultima_linha,1, "Favorecido:");
-         atualizarCelula(formatar(true, 'T', false, false, false, false), ultima_linha,2, pagamento.getConta().getNome());
+         atualizarCelula(formatar(true, 'T', false, false, false, false), ultima_linha,2, pagamento.getConta().getNome().toUpperCase());
 
          atualizarCelula(formatar(false, 'T', false, false, false, false), ultima_linha,6, "CPF:");
-         atualizarCelula(formatar(true, 'T', false, false, false, false), ultima_linha,7, pagamento.getConta().getCpf_titular());
+         atualizarCelula(formatar(true, 'T', false, false, false, false), ultima_linha,7, pagamento.getConta().getCpf_titular().toUpperCase());
          atualizarCelula(formatar(true, 'T', false, false, false, true), ultima_linha,9, "");
          ultima_linha++;
 		
          atualizarCelula(formatar(false, 'T', false, false, true, false), ultima_linha,1, "Banco:");
-         atualizarCelula(formatar(true, 'T', false, false, false, false), ultima_linha,2, pagamento.getConta().getBanco() );
+         atualizarCelula(formatar(true, 'T', false, false, false, false), ultima_linha,2, pagamento.getConta().getBanco().toUpperCase() );
          
          atualizarCelula(formatar(false, 'T', false, false, false, false), ultima_linha,4, "Agência:");
-         atualizarCelula(formatar(true, 'T', false, false, false, false), ultima_linha,5, pagamento.getConta().getAgencia());
+         atualizarCelula(formatar(true, 'T', false, false, false, false), ultima_linha,5, pagamento.getConta().getAgencia().toUpperCase());
          
          atualizarCelula(formatar(false, 'T', false, false, false, false), ultima_linha,6, "Conta/Corre.:");
-         atualizarCelula(formatar(true, 'T', false, false, false, false), ultima_linha,7, pagamento.getConta().getAgencia());
+         atualizarCelula(formatar(true, 'T', false, false, false, false), ultima_linha,7, pagamento.getConta().getAgencia().toUpperCase());
          atualizarCelula(formatar(true, 'T', false, false, false, true), ultima_linha,9, "");
          ultima_linha++;
          
@@ -555,8 +560,12 @@ ultima_linha 1 Local da Retirada
          atualizarCelula(formatar(false, 'T', false, false, true, false), ultima_linha,1, "Data:");
          atualizarCelula(formatar(true, 'T', false, false, false, false), ultima_linha,2, pagamento.getData_pagamento());
          
+         Locale ptBr = new Locale("pt", "BR");
+ 	   	String valorString = NumberFormat.getCurrencyInstance(ptBr).format(Float.parseFloat(pagamento.getValor().toPlainString()));
+     
+ 	   	
          atualizarCelula(formatar(false, 'T', false, false, false, false), ultima_linha,4, "Valor:");
-         atualizarCelula(formatar(true, 'T', false, false, false, false), ultima_linha,5,"R$ "+ pagamento.getValor().toPlainString().replace(".", ","));
+         atualizarCelula(formatar(true, 'T', false, false, false, false), ultima_linha,5,valorString);
       
          atualizarCelula(formatar(false, 'T', false, false, false, false), ultima_linha,6, "Descrição:");
          atualizarCelula(formatar(true, 'T', false, false, false, true), ultima_linha,9, "");
@@ -949,15 +958,19 @@ public ByteArrayOutputStream alterar(CadastroContrato novo_contrato)
 	     adicionarValores();
 		 adicionarLinhaBranca();
 
-
+        try {
 	     for( CadastroPagamento pagamento : novo_contrato.getPagamentos())
 	     {
+	    	 if(pagamento != null) {
 	    	 adicionarPagamento(pagamento);
 			 adicionarLinhaBranca();
-
+	    	 }
 
 	     }
-	    
+        }catch(NullPointerException n) {
+        	System.out.println("erro ao incluir um pagamento no contrato, erro: " + n.getMessage());
+        }
+        
 	     ArrayList<String> clausulas_locais = novo_contrato.getClausulas();
 	     adicionarClausulas(clausulas_locais);
 		 adicionarLinhaBranca();
@@ -1278,38 +1291,41 @@ public ByteArrayOutputStream alterar(CadastroContrato novo_contrato)
 	   }else {
 		   //e um contrato filho, salvar nas pastas dos vendedores
 		   if(vendedores[0] != null) {
-			   
+			   System.out.println("vendedor 1 existe para este contrato");
+
 			   if(vendedores[0].getNome_empresarial() != null || vendedores[0].getNome_fantaia() != null){
  
-				   String caminho_salvar_sub_contrato_no_hd =  servidor_unidade + "E-contract\\arquivos\\clientes\\" + nome_vendedor1_arquivo + "\\contratos" + "\\venda\\"  + data.getAnoAtual() + "\\" + novo_contrato.getModelo_safra().getProduto().getNome_produto() + "\\";
-				System.out.println("caminho para salvar o sub-contrato1: " + caminho_salvar_sub_contrato_no_hd);	
-				String caminho_salvar_sub_contrato_no_banco_dados =  "E-contract\\\\arquivos\\\\clientes\\\\" + nome_vendedor1_arquivo + "\\\\contratos" + "\\\\venda\\\\"  + data.getAnoAtual() + "\\\\" + novo_contrato.getModelo_safra().getProduto().getNome_produto() + "\\\\";
+				   String caminho_salvar_contrato__no_hd = servidor_unidade + "E-contract\\arquivos\\clientes\\" + nome_vendedor1_arquivo + "\\contratos" + "\\venda\\"  + data.getAnoAtual() + "\\" + novo_contrato.getModelo_safra().getProduto().getNome_produto() + "\\";
+					System.out.println("caminho para salvar o contrato do comprador no hd: " + caminho_salvar_contrato__no_hd);	
+					String caminho_salvar_contrato_no_banco_dados = "E-contract\\\\arquivos\\\\clientes\\\\" + nome_vendedor1_arquivo + "\\\\contratos" + "\\\\venda\\\\"  + data.getAnoAtual() + "\\\\" + novo_contrato.getModelo_safra().getProduto().getNome_produto() + "\\\\";
 
-			      String nome_pasta_arquivo = novo_contrato.getCodigo();
+				      String nome_pasta_arquivo = novo_contrato.getCodigo();
 
-			      String nome_arquivo_sub_contrato1 = novo_contrato.getCodigo() + " "  + nome_comprador_arquivo + " x " + nome_vendedor1_arquivo ; 
-			       
-					if(nome_vendedor2_arquivo != null)
-						nome_arquivo_sub_contrato1 +=  (" " + nome_vendedor2_arquivo);
-					
-					String extensao_arquivo = ".xlsx";
-					String caminho_completo_salvar_sub_contrato_no_hd = caminho_salvar_sub_contrato_no_hd + nome_arquivo_sub_contrato1 ;
-					
-					String caminho_completo_salvar_sub_contrato_no_banco_dados = caminho_salvar_sub_contrato_no_banco_dados + nome_arquivo_sub_contrato1;
-				 
-					//criar o diretorio
-					ManipularTxt manipular = new ManipularTxt();
-					if(manipular.criarDiretorio(caminho_completo_salvar_sub_contrato_no_hd + nome_pasta_arquivo + "\\"))
-					{
-						System.out.println("diretorio criado para o novo contrato");
-						if(criarArquivos(nome_arquivo_sub_contrato1,caminho_completo_salvar_sub_contrato_no_hd,  caminho_completo_salvar_sub_contrato_no_banco_dados))
-					    	arquivos_vendedor1_criado = true;
-					    else
-					    	arquivos_vendedor1_criado = false;
-					}else {
-						System.out.println("erro ao criar diretorio para o contrato ");
-						arquivos_comprador_criado = false;
-					}
+				      String nome_arquivo = novo_contrato.getCodigo() + " "  + nome_comprador_arquivo + " x " + nome_vendedor1_arquivo ; 
+				       
+						if(nome_vendedor2_arquivo != null) {
+							nome_arquivo +=  (" " + nome_vendedor2_arquivo);
+
+						}
+						
+						String extensao_arquivo = ".xlsx";
+						String caminho_completo_salvar_contrato_no_hd = caminho_salvar_contrato__no_hd + nome_pasta_arquivo + "\\" + nome_arquivo ;
+						
+					    String caminho_completo_salvar_contrato_no_bando_dados = caminho_salvar_contrato_no_banco_dados + nome_pasta_arquivo +"\\\\" + nome_arquivo;
+					    
+						//criar o diretorio
+						ManipularTxt manipular = new ManipularTxt();
+						if(manipular.criarDiretorio(caminho_salvar_contrato__no_hd + nome_pasta_arquivo + "\\"))
+						{
+							System.out.println("diretorio criado para o novo sub contrato vendedor1");
+							  if(criarArquivos(nome_arquivo,caminho_completo_salvar_contrato_no_hd,  caminho_completo_salvar_contrato_no_bando_dados))
+							    	arquivos_vendedor1_criado = true;
+							    else
+							    	arquivos_vendedor1_criado = false;
+						}else {
+							System.out.println("erro ao criar diretorio para o sub contrato vendedor1");
+							arquivos_vendedor1_criado = false;
+						}
 					
 				
 			   }
@@ -1318,40 +1334,39 @@ public ByteArrayOutputStream alterar(CadastroContrato novo_contrato)
 		   }
 		   
 		   if(vendedores[1] != null) {
+			   System.out.println("vendedor 2 existe para este contrato");
 			   
-			   
-			   if(vendedores[1].getNome_empresarial() != null || vendedores[1].getNome_fantaia() != null){
-				 String caminho_salvar_sub_contrato2_no_hd =  servidor_unidade + "E-contract\\arquivos\\clientes\\" + nome_vendedor2_arquivo + "\\contratos" + "\\venda\\"  + data.getAnoAtual() + "\\" + novo_contrato.getModelo_safra().getProduto().getNome_produto() + "\\";
-				System.out.println("caminho para salvar o sub-contrato2: " + caminho_salvar_sub_contrato2_no_hd);	
-				String caminho_salvar_sub_contrato2_no_banco_dados =  "E-contract\\\\arquivos\\\\clientes\\\\" + nome_vendedor2_arquivo + "\\\\contratos" + "\\\\venda\\\\"  + data.getAnoAtual() + "\\\\" + novo_contrato.getModelo_safra().getProduto().getNome_produto() + "\\\\";
+			   String caminho_salvar_contrato__no_hd = servidor_unidade + "E-contract\\arquivos\\clientes\\" + nome_vendedor2_arquivo + "\\contratos" + "\\venda\\"  + data.getAnoAtual() + "\\" + novo_contrato.getModelo_safra().getProduto().getNome_produto() + "\\";
+				System.out.println("caminho para salvar o contrato do comprador no hd: " + caminho_salvar_contrato__no_hd);	
+				String caminho_salvar_contrato_no_banco_dados = "E-contract\\\\arquivos\\\\clientes\\\\" + nome_vendedor2_arquivo + "\\\\contratos" + "\\\\venda\\\\"  + data.getAnoAtual() + "\\\\" + novo_contrato.getModelo_safra().getProduto().getNome_produto() + "\\\\";
 
 			      String nome_pasta_arquivo = novo_contrato.getCodigo();
 
 			      String nome_arquivo = novo_contrato.getCodigo() + " "  + nome_comprador_arquivo + " x " + nome_vendedor1_arquivo ; 
 			       
-					if(nome_vendedor2_arquivo != null)
+					if(nome_vendedor2_arquivo != null) {
 						nome_arquivo +=  (" " + nome_vendedor2_arquivo);
-					String extensao_arquivo = ".xlsx";
-					 String caminho_completo_salvar_sub_contrato2_no_hd = caminho_salvar_sub_contrato2_no_hd + nome_arquivo ;
+
+					}
 					
-				    String caminho_completo_salvar_sub_contrato2_no_banco_dados  = caminho_salvar_sub_contrato2_no_banco_dados + nome_arquivo;
-				  
+					String extensao_arquivo = ".xlsx";
+					String caminho_completo_salvar_contrato_no_hd = caminho_salvar_contrato__no_hd + nome_pasta_arquivo + "\\" + nome_arquivo ;
+					
+				    String caminho_completo_salvar_contrato_no_bando_dados = caminho_salvar_contrato_no_banco_dados + nome_pasta_arquivo +"\\\\" + nome_arquivo;
+				    
 					//criar o diretorio
 					ManipularTxt manipular = new ManipularTxt();
-					if(manipular.criarDiretorio(caminho_completo_salvar_sub_contrato2_no_hd + nome_pasta_arquivo + "\\"))
+					if(manipular.criarDiretorio(caminho_salvar_contrato__no_hd + nome_pasta_arquivo + "\\"))
 					{
-						System.out.println("diretorio criado para o novo contrato");
-						 if(criarArquivos(nome_arquivo,caminho_salvar_sub_contrato2_no_hd,  caminho_completo_salvar_sub_contrato2_no_banco_dados))
+						System.out.println("diretorio criado para o novo sub contrato vendedor2");
+						  if(criarArquivos(nome_arquivo,caminho_completo_salvar_contrato_no_hd,  caminho_completo_salvar_contrato_no_bando_dados))
 						    	arquivos_vendedor2_criado = true;
 						    else
 						    	arquivos_vendedor2_criado = false;
-						    }
-
 					}else {
-						System.out.println("erro ao criar diretorio para o contrato ");
-						arquivos_comprador_criado = false;
+						System.out.println("erro ao criar diretorio para o sub contrato vendedor2");
+						arquivos_vendedor2_criado = false;
 					}
-					
 				   
 
 			   

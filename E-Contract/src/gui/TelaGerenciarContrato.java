@@ -21,7 +21,9 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
+import java.text.NumberFormat;
 import java.util.ArrayList;
+import java.util.Locale;
 import java.util.ResourceBundle;
 
 import javax.swing.JButton;
@@ -79,11 +81,10 @@ public class TelaGerenciarContrato extends JDialog {
 	private JPanel painelDadosIniciais = new JPanel();
 	private JPanel painelPagamentos = new JPanel();
 	private JPanel painelCarregamento = new JPanel();
-	private JPanel painelSubContratos = new JPanel();
 	private final JLabel lblStatusContrato = new JLabel("Status do Contrato:");
-
+    private final JLabel lblValorTotalPagamentos ;
 	InputStream stream = null;
-	private final JButton btnNewButton = new JButton("Editar");
+	private final JButton btnEditarContrato = new JButton("Editar");
 	private JPanel painel_vizualizar;
 	private final JButton btnEnviarMsg = new JButton("Enviar");
 	private final JLabel lblNewLabel = new JLabel("     Modelos de Pagamento");
@@ -107,12 +108,9 @@ public class TelaGerenciarContrato extends JDialog {
      };
      
 	 private final JLabel lblNewLabel_1 = new JLabel("*Pagamentos apenas informativos, assim como elaborados no contrato");
-	 private final JScrollPane scrollPaneSubContratos ;
-	 private final JLabel lblSubcontratos = new JLabel("     Sub-Contratos");
-	 private final JButton btnNewButton_1 = new JButton("Adicionar");
-	 private final JButton btnSelecionar = new JButton("Abrir");
+	
 	 private final JLabel lblTipoContrato = new JLabel("Tipo Contrato:");
-	 private final JButton btnNewButton_2 = new JButton("Excluir");
+	 private final JButton btnExcluirContrato = new JButton("Excluir");
      
   
      
@@ -134,18 +132,21 @@ public class TelaGerenciarContrato extends JDialog {
 	
 		
 		setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-		setTitle("E-Contract - Gerenciar Contrato");
+		
+		if(contrato.getSub_contrato() == 0) {
+			this.setTitle("E-Contract - Gerenciar Contrato");
+
+
+		}else {
+			this.setTitle("E-Contract - Gerenciar Sub-Contrato");
+
+		}
+		
 		setBounds(100, 100, 1083, 626);
 		painelPrincipal.setBackground(new Color(255, 255, 255));
 		painelPrincipal.setBorder(new EmptyBorder(5, 5, 5, 5));
 		painelPrincipal = new JTabbedPane();
-		painelPrincipal.addFocusListener(new FocusAdapter() {
-			@Override
-			public void focusGained(FocusEvent e) {
-				System.out.println("ganhou focu");
-				//atualizarContratoLocal();
-			}
-		});
+		
 		//contentPanel.setBackground(new Color(255, 255, 255));
 		//contentPanel.setBorder(new EmptyBorder(5, 5, 5, 5));
 		//setContentPane(contentPanel);
@@ -155,13 +156,18 @@ public class TelaGerenciarContrato extends JDialog {
 		painelPagamentos.setBackground(new Color(255, 255, 255));
 		painelCarregamento.setBackground(new Color(255, 255, 255));
 
-		painelSubContratos.setBackground(new Color(255, 255, 255));
 		
 		//adiciona novos paines e suas abas
 		painelPrincipal.addTab("Contrato", painelDadosIniciais);
 		painelDadosIniciais.setLayout(null);
 		
-		
+		 if(contrato.getSub_contrato() == 0){
+	    	  //não é um subcontrato
+	      
+		 JPanel painelSubContratos = new JPanel();
+
+		painelSubContratos.setBackground(new Color(255, 255, 255));
+
 		JTable tabela_sub_contratos = new JTable(modelo_sub_contratos);
 		//tabela_modelo_pagamentos.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
 
@@ -213,11 +219,15 @@ public class TelaGerenciarContrato extends JDialog {
         .setPreferredWidth(80);
         
 	     
-      
+		 JLabel lblSubcontratos = new JLabel("     Sub-Contratos");
+		 JButton btnAdicionarSubContrato = new JButton("Adicionar");
+		JButton btnSelecionarSubContrato = new JButton("Abrir");
       			
 		
 		painelPrincipal.addTab("Sub-Contratos", painelSubContratos);
 		painelSubContratos.setLayout(null);
+		 JScrollPane scrollPaneSubContratos ;
+
 		scrollPaneSubContratos = new JScrollPane(tabela_sub_contratos);
 		scrollPaneSubContratos.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED);
 		scrollPaneSubContratos.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED);
@@ -233,34 +243,45 @@ public class TelaGerenciarContrato extends JDialog {
 		lblSubcontratos.setBounds(0, 22, 230, 31);
 		
 		painelSubContratos.add(lblSubcontratos);
-		btnNewButton_1.addActionListener(new ActionListener() {
+		btnAdicionarSubContrato.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
-				TelaEscolhaTipoNovoContrato telaNovoCadastro = new TelaEscolhaTipoNovoContrato(1, contrato, 0);
+				
+				DadosGlobais dados = DadosGlobais.getInstance();
+				 dados.setTeraGerenciarContratoPai(isto);
+					TelaEscolhaTipoNovoContrato telaNovoCadastro = new TelaEscolhaTipoNovoContrato(1, contrato, 0);
+
 
 			}
 		});
-		btnNewButton_1.setBounds(916, 226, 114, 23);
+		btnAdicionarSubContrato.setBounds(916, 226, 114, 23);
 		
-		painelSubContratos.add(btnNewButton_1);
-		btnSelecionar.addActionListener(new ActionListener() {
+		painelSubContratos.add(btnAdicionarSubContrato);
+		btnSelecionarSubContrato.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
 				int indiceDaLinha = tabela_sub_contratos.getSelectedRow();
+				
+				//abre a tela de gerenciar o contrato selecionado na lista de sub contratos
 				TelaGerenciarContrato gerenciar_contrato = new TelaGerenciarContrato(lista_sub_contratos.get(indiceDaLinha));
 
 			}
 		});
-		btnSelecionar.setBounds(785, 226, 121, 23);
+		btnSelecionarSubContrato.setBounds(785, 226, 121, 23);
 		
-		painelSubContratos.add(btnSelecionar);
+		painelSubContratos.add(btnSelecionarSubContrato);
+		
+	 }
 		
 		lblStatusContrato.setBackground(new Color(0, 128, 128));
 		lblStatusContrato.setOpaque(true);
 		lblStatusContrato.setForeground(Color.WHITE);
 		lblStatusContrato.setFont(new Font("Arial", Font.BOLD, 18));
 		lblStatusContrato.setBounds(554, 76, 470, 35);
+	  
 		
+		 
+		 
 		painelDadosIniciais.add(lblStatusContrato);
-		btnNewButton.addActionListener(new ActionListener() {
+		btnEditarContrato.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
 				//	argumentos(CadastroModelo modelo, int tipoContrato, CadastroContrato contrato_pai, int flag_edicao) {
 				//TelaEscolhaTipoNovoContrato(int tipoContrato, CadastroContrato contrato_pai, int flag_edicao) {
@@ -268,14 +289,23 @@ public class TelaGerenciarContrato extends JDialog {
 				fecharDocumento();
 				DadosGlobais dados = DadosGlobais.getInstance();
 				 dados.setTeraGerenciarContratoPai(isto);
-           	  
-				TelaEscolhaTipoNovoContrato tela = new TelaEscolhaTipoNovoContrato( 0,contrato, 1);
+           	  if(contrato.getSub_contrato() == 0) {
+           		  //e um contrato pai, abre a tela em modo de edicao
+				TelaEscolhaTipoNovoContrato tela = new TelaEscolhaTipoNovoContrato( 0,contrato_local, 1);
+           	  }
+           	  else {
+           		  //e um subcontrato, o tipo do contrato e 1, e entra no modo de edicao
+  				TelaEscolhaTipoNovoContrato tela = new TelaEscolhaTipoNovoContrato( 1,contrato_local, 1);
+
+           	  }
 			}
 		});
 		
-		btnNewButton.setBounds(429, 497, 89, 23);
+		 
+		 
+		btnEditarContrato.setBounds(429, 497, 89, 23);
 		
-		painelDadosIniciais.add(btnNewButton);
+		painelDadosIniciais.add(btnEditarContrato);
 		
 		int status = contrato.getStatus_contrato();
 		if(status== 1) {
@@ -325,9 +355,9 @@ public class TelaGerenciarContrato extends JDialog {
 				lblTipoContrato.setBounds(554, 122, 470, 29);
 				
 				painelDadosIniciais.add(lblTipoContrato);
-				btnNewButton_2.setBounds(231, 497, 89, 23);
+				btnExcluirContrato.setBounds(231, 497, 89, 23);
 				
-				painelDadosIniciais.add(btnNewButton_2);
+				painelDadosIniciais.add(btnExcluirContrato);
 				
 				JPanel panel = new JPanel();
 				panel.setBounds(554, 271, 161, 128);
@@ -342,7 +372,8 @@ public class TelaGerenciarContrato extends JDialog {
 
 				tabela_modelo_pagamentos.setBackground(new Color(255, 255, 255));
 				 
-				modelo.addColumn("Id");
+				modelo.addColumn("Id Pagamento");
+				modelo.addColumn("Id Conta");
 				modelo.addColumn("CPF");
 				modelo.addColumn("Nome");
 
@@ -389,9 +420,18 @@ public class TelaGerenciarContrato extends JDialog {
 		        lblNewLabel_1.setForeground(new Color(0, 51, 0));
 		        lblNewLabel_1.setOpaque(true);
 		        lblNewLabel_1.setBackground(Color.ORANGE);
-		        lblNewLabel_1.setBounds(585, 231, 445, 14);
+		        lblNewLabel_1.setBounds(585, 255, 445, 14);
 		        
 		        painelPagamentos.add(lblNewLabel_1);
+		        
+		        JLabel lblNewLabel_2 = new JLabel("Valor Total dos pagamentos:");
+		        lblNewLabel_2.setBounds(670, 215, 166, 14);
+		        painelPagamentos.add(lblNewLabel_2);
+		        
+		         lblValorTotalPagamentos = new JLabel("");
+		         lblValorTotalPagamentos.setFont(new Font("Tahoma", Font.PLAIN, 14));
+		        lblValorTotalPagamentos.setBounds(835, 213, 101, 31);
+		        painelPagamentos.add(lblValorTotalPagamentos);
 				
 		        
 		        setPagamentos(contrato);
@@ -401,7 +441,6 @@ public class TelaGerenciarContrato extends JDialog {
 		        if(contrato_local.getSub_contrato() == 1) {
 		        	//é um sub contrato
 		        	lblTipoContrato.setText("Tipo Contrato: Sub-Contrato");
-		        	painelSubContratos.setVisible(false);
 		        }else {
 		        	lblTipoContrato.setText("Tipo Contrato: Contrato Original");
 
@@ -542,7 +581,9 @@ public class TelaGerenciarContrato extends JDialog {
        	String cpf, banco, codigo, agencia, conta, id, nome, valor_pagamento, data_pagamento;
 
 		modelo.setNumRows(0);
-
+        float valor_total_pagamentos = 0;
+    
+         if(contrato.getPagamentos() != null) {
        	for(CadastroContrato.CadastroPagamento pag : contrato.getPagamentos()) {
        		
    			ContaBancaria conta_bc = pag.getConta();
@@ -566,14 +607,25 @@ public class TelaGerenciarContrato extends JDialog {
 	 		agencia = "Há Informar";
 	 		conta = "Há Informar";
        		}
-       		
+     	 	valor_total_pagamentos += Float.parseFloat(pag.getValor_string());
+       		System.out.println("o valor total agora e: " + valor_total_pagamentos);
        	
-               
-	 		modelo.addRow(new Object[]{id, cpf, nome, banco, 
-				       codigo, agencia, conta, pag.getValor_string(), pag.getData_pagamento()});
+       	    
+       	    
+       	  	Locale ptBr = new Locale("pt", "BR");
+       	   	String valorString = NumberFormat.getCurrencyInstance(ptBr).format(Float.parseFloat(pag.getValor_string()));
+       	   	System.out.println(valorString);   
+       		
+	 		modelo.addRow(new Object[]{pag.getId(), id,  cpf, nome, banco, 
+				       codigo, agencia, conta, valorString, pag.getData_pagamento()});
        	}
+    }
 			
+       	Locale ptBr = new Locale("pt", "BR");
+       	String valorString = NumberFormat.getCurrencyInstance(ptBr).format(valor_total_pagamentos);
+       	System.out.println(valorString);
    	 
+       	lblValorTotalPagamentos.setText(valorString);
     }
     
     public void carregarDocumento(String url) {
@@ -663,7 +715,6 @@ public class TelaGerenciarContrato extends JDialog {
     	
     
     			GerenciarBancoContratos gerenciar = new GerenciarBancoContratos();
-        		
     	    	contrato_local = gerenciar.getContrato(contrato_local.getId());
     	    	setPagamentos(contrato_local);
     	    	setSubContratos(contrato_local);
@@ -691,4 +742,6 @@ public class TelaGerenciarContrato extends JDialog {
     	ManipularTxt manipular = new ManipularTxt();
     	return manipular.copiar(url, codigo);
     }
+    
+
 }

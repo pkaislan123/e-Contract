@@ -178,7 +178,7 @@ public class GerenciarBancoContratos {
 			       }
 			  
 		  }else {
-			  JOptionPane.showMessageDialog(null, "Erro ao inserir o Contrato no banco de"
+			  JOptionPane.showMessageDialog(null, "Erro ao inserir o Contrato no banco de "
                       + "dados\nNão houve corrupção na base de dados\nConsulte o administrador"
                       + "\nPossivéis erros relacionados a falta de conexão com o banco de dados " );
                 
@@ -515,7 +515,6 @@ public class GerenciarBancoContratos {
                  + contrato.getClausula_comissao()
                 + "','"
                  + contrato.getValor_comissao()
-                + "','"
                   + "','"
                  + texto_clausulas
                 + "','"
@@ -720,7 +719,9 @@ public class GerenciarBancoContratos {
 	  public boolean inserirModelosPagamentos(int id_contrato, ArrayList<CadastroContrato.CadastroPagamento> pagamentos) {
 		  boolean retorno = false;
 		  
+		 if(pagamentos != null && pagamentos.size() > 0) { 
 		  for(CadastroContrato.CadastroPagamento pagamento : pagamentos) {
+			  if(pagamento.getId() == 0){
 			  int retorno_positivo = inserir_modelo_pagamento(pagamento);
 			  if(retorno_positivo != -1) {
 				   boolean retorno_positivo_relacao = inserir_contrato_modelo_pagamento(id_contrato, retorno_positivo);
@@ -736,7 +737,12 @@ public class GerenciarBancoContratos {
 				  //houve algum erro ao adicionar um pagamento, retorno falso para reverter todo o processo
 				  break;
 			  }
+		  }else {
+			  //esse pagamento ja esta cadatrado
+			  retorno = true;
 		  }
+		  }
+	     }
 		  return retorno;
 		  
 	  }
@@ -1024,13 +1030,16 @@ public class GerenciarBancoContratos {
 		  
 		    pstm.execute();
             //JOptionPane.showMessageDialog(null, "Cliente atualizado com sucesso");
-            System.out.println("Contrato Atualizado com sucesso");
+            //System.out.println("Contrato Atualizado com sucesso");
             
             boolean pagamentos_apagados = false;
+            boolean pagamentos_inseridos = false;
             
             //apaga os modelo  de pagamentos 
             if(ids_pagamentos_a_excluir != null) {
-            for(Integer id_pagamento : ids_pagamentos_a_excluir) {
+            
+            	System.out.println("Existem modelo_pagamentos a serem excluidos!");
+            	for(Integer id_pagamento : ids_pagamentos_a_excluir) {
               if(remover_modelo_pagamento(id_pagamento)) {
             	  pagamentos_apagados = true;
             	 
@@ -1044,25 +1053,67 @@ public class GerenciarBancoContratos {
             
             //apaga os relacionamentos pagamentos
             for(Integer id_pagamento : ids_pagamentos_a_excluir) {
+
                 if(remover_contrato_modelo_pagamento(contrato.getId(), id_pagamento)) {
               	  pagamentos_apagados = true;
-              	 
+                	System.out.println("Relacionamentos contrato_modelo_pagamento excluidos!");
+
                 }else {
               	  //nao foi possivel apagar esse modelo de pagamento
-              	  pagamentos_apagados = false;      
+              	  pagamentos_apagados = false;     
+                	System.out.println("Não foi possivel excluir o relacionamento contrato_modelo_pagamento!");
+
               	  break;
               	  }
               	
               }
             }else {
+            	System.out.println("Não ha modelo_pagamentos a serem excluidos!");
+
             	pagamentos_apagados = true;
             }
             
+            
+            //inseri os novos modelos de pagamentos
+            boolean existe_novos_pagamento = false;
+            for(CadastroContrato.CadastroPagamento pag : contrato.getPagamentos()) {
+            	if(pag.getId() == 0) {
+            		existe_novos_pagamento = false;
+            	}
+            	
+            }
+            
+            
+            
+            
+            if( contrato.getPagamentos() != null && contrato.getPagamentos().size() > 0) {
+            	System.out.println("Existem novos pagamentos a serem incluidos");
+            	if(inserirModelosPagamentos(contrato.getId(),contrato.getPagamentos())){
+                	pagamentos_inseridos = true;
+                	System.out.println("Novos pagamentos inseridos");
+
+            	}else {
+                	pagamentos_inseridos = false;
+                	System.out.println("Erro ao inserir novos pagamentos inseridos");
+
+            	}
+            }else {
+            	pagamentos_inseridos = true;
+            	System.out.println("Não ha novos pagamentos a serem incluidos");
+
+            }
+            
             ConexaoBanco.fechaConexao(conn);
-            if(pagamentos_apagados)
-               return 5;
-            else
+            if(pagamentos_apagados && pagamentos_inseridos) {
+            	System.out.println("Pagamentos que tinham foram apagados, e novos adicionados!");
+
+                       return 5;
+            }
+             else {
+                       	System.out.println("Houve um erro ao inserir ou apagar modelo_pagamentos!");
+
             	return -2;
+                       }
         } catch (Exception e) {
             JOptionPane.showMessageDialog(null, "Erro ao atualizar contrato no banco de"
                     + "dados " + e.getMessage());
@@ -1287,7 +1338,7 @@ public class GerenciarBancoContratos {
 		  Connection conn = null;
 	      PreparedStatement pstm = null;
 	      ResultSet rs = null;
-	      ArrayList<CadastroContrato.CadastroPagamento> lista_pagamentos = new ArrayList<>();
+	      ArrayList<CadastroContrato.CadastroPagamento> lista_pagamentos = null;
 	      
 	      try {
 	          conn = ConexaoBanco.getConexao();
@@ -1298,6 +1349,11 @@ public class GerenciarBancoContratos {
 	          int i = 0;
 
 	          while (rs.next()) {
+	        	  
+	        	  
+	        	 if(rs != null) {
+	        		 System.out.print("rs pagamento nao e nulo!");
+	        		 
 	        	  CadastroContrato.CadastroPagamento pagamento = new CadastroContrato.CadastroPagamento();
 	        	  
 	        	  pagamento.setId(rs.getInt("id"));
@@ -1326,6 +1382,7 @@ public class GerenciarBancoContratos {
 	        		  conta.setCodigo("Há Informar");
 	        		  conta.setAgencia("Há Informar");
 	        		  conta.setConta("Há Informar");
+	        		  conta.setNome("Há Informar");
 
                  	
 	        		 
@@ -1340,8 +1397,12 @@ public class GerenciarBancoContratos {
 	        	  if(conta != null)
 	        	   pagamento.setConta(conta);
 	        	  
+	        	 if(lista_pagamentos == null)
+	        		 lista_pagamentos = new ArrayList<>();
+	        	 
 	        	  lista_pagamentos.add(pagamento);
 	           }
+	      }
 	          ConexaoBanco.fechaConexao(conn, pstm, rs);
 	          return lista_pagamentos;
 	      } catch (Exception e) {
