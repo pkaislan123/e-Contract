@@ -596,7 +596,7 @@ public class TelaBaixarNotas extends JDialog {
 
     	  private String sdia_inicio, smes_inicio, sano_inicio;
     	  private String sdia_fim, smes_fim, sano_fim;
-   		private String data_completa_inicio, data_completa_fim;
+   		  private String data_completa_inicio, data_completa_fim;
 
     	  
     	  public PesquisaParalela(int dia_inicio, int mes_inicio, int ano_inicio, int dia_fim, int mes_fim, int ano_fim) {
