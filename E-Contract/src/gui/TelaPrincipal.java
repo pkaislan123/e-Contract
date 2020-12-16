@@ -14,6 +14,7 @@ import java.awt.event.WindowStateListener;
 import java.io.IOException;
 import java.net.URL;
 import java.net.URLConnection;
+import java.util.ArrayList;
 
 import javax.swing.ImageIcon;
 import javax.swing.JFrame;
@@ -29,7 +30,9 @@ import org.jfree.data.category.DefaultCategoryDataset;
 import org.jfree.data.general.DefaultPieDataset;
 
 import cadastros.CadastroLogin;
+import cadastros.CadastroModelo;
 import conexaoBanco.GerenciarBancoContratos;
+import manipular.EditarWord;
 import manipular.GetDadosGlobais;
 import outros.DadosGlobais;
 import outros.JPanelBackground;
@@ -55,7 +58,7 @@ public class TelaPrincipal extends JFrame implements GetDadosGlobais{
 	private JLabel lblDireitos;
 	private Log GerenciadorLog;
 	private CadastroLogin login;
-    
+
 	
 	public TelaPrincipal() {
 		
@@ -285,6 +288,55 @@ public class TelaPrincipal extends JFrame implements GetDadosGlobais{
 			 
 			panel.add( new ChartPanel( grafico ) );
 			
+			JPanel painelInfoConexao = new JPanel();
+			painelInfoConexao.setBounds(944, 67, 406, 165);
+			contentPane.add(painelInfoConexao);
+			painelInfoConexao.setLayout(null);
+			
+			JLabel lblInfo = new JLabel("Informações de Conexão");
+			lblInfo.setBounds(0, 0, 230, 14);
+			painelInfoConexao.add(lblInfo);
+			
+			JLabel lblnet = new JLabel("Internet:");
+			lblnet.setBounds(87, 25, 58, 14);
+			painelInfoConexao.add(lblnet);
+			
+			JLabel lblNewLabel = new JLabel("Intranet:");
+			lblNewLabel.setBounds(89, 50, 51, 14);
+			painelInfoConexao.add(lblNewLabel);
+			
+			JLabel lblBaseDeArquivos = new JLabel("Base de Arquivos:");
+			lblBaseDeArquivos.setBounds(47, 75, 98, 14);
+			painelInfoConexao.add(lblBaseDeArquivos);
+			
+			JLabel lblBD = new JLabel("Banco de Dados:");
+			lblBD.setBounds(59, 124, 98, 14);
+			painelInfoConexao.add(lblBD);
+			
+			JLabel lblBaseDeArquivosnuvem = new JLabel("Base de Arquivos(Nuvem):");
+			lblBaseDeArquivosnuvem.setBounds(10, 100, 135, 14);
+			painelInfoConexao.add(lblBaseDeArquivosnuvem);
+			
+			JLabel urlBancoDados = new JLabel("erro");
+			urlBancoDados.setBounds(145, 124, 156, 14);
+			painelInfoConexao.add(urlBancoDados);
+			
+			JLabel urlNuvem = new JLabel("erro");
+			urlNuvem.setBounds(145, 99, 156, 14);
+			painelInfoConexao.add(urlNuvem);
+			
+			JLabel urlBaseArquivos = new JLabel("erro");
+			urlBaseArquivos.setBounds(145, 74, 156, 14);
+			painelInfoConexao.add(urlBaseArquivos);
+			
+			JLabel urlRoteador = new JLabel("erro");
+			urlRoteador.setBounds(145, 50, 156, 14);
+			painelInfoConexao.add(urlRoteador);
+			
+			JLabel urlInternet = new JLabel("http://www.google.com.br");
+			urlInternet.setBounds(145, 25, 156, 14);
+			painelInfoConexao.add(urlInternet);
+			
 			
 			if(login.getDireitos() == 1) {
 				if(login.getGenero().equals("Masculino"))
@@ -308,6 +360,9 @@ public class TelaPrincipal extends JFrame implements GetDadosGlobais{
 			buscarConexao();
 		this.setLocationRelativeTo(null);
 
+		
+		 
+		 
 		this.setVisible(true);
 		
 		this.setExtendedState(JFrame.MAXIMIZED_BOTH);
@@ -413,5 +468,4 @@ public class TelaPrincipal extends JFrame implements GetDadosGlobais{
 				e.printStackTrace();
 			}
 	}
-	
 }

@@ -1196,13 +1196,23 @@ public ByteArrayOutputStream alterar(CadastroContrato novo_contrato)
 			if(manipular_apagar.apagarArquivo(BaseDados_DiretorioArquivo)) {
 				if(manipular_apagar.apagarArquivo(BaseDados_DiretorioArquivo.replace("pdf", "xlsx"))) {
 					
-					  Nuvem nuvem = new Nuvem();
+					//apagar o diretorio
+					if(manipular_apagar.limparDiretorio(new File(servidor_unidade + novo_contrato.getCaminho_diretorio_contrato()))) {
+					  //Diretorio foi excluido
+						Nuvem nuvem = new Nuvem();
 				         nuvem.abrir();
 				         nuvem.testar();
 				         nuvem.listar();
 				         nuvem.deletarArquivo(novo_contrato.getNome_arquivo());
 				       JOptionPane.showMessageDialog(null, "Os arquivos foram apagados da memoria e da nuvem!");
-					proceder = true;
+					
+				       proceder = true;
+					}
+					else {
+						proceder = false;
+						System.out.println("Erro ao excluir o direrorio do contrato");
+
+					}
 				}else {
 					System.out.println("erro ao excluir arquivo xlsx, operação cancelada!");
 					retorno_final = 4;
@@ -1269,13 +1279,14 @@ public ByteArrayOutputStream alterar(CadastroContrato novo_contrato)
 				String caminho_completo_salvar_contrato_no_hd = caminho_salvar_contrato__no_hd + nome_pasta_arquivo + "\\" + nome_arquivo ;
 				
 			    String caminho_completo_salvar_contrato_no_bando_dados = caminho_salvar_contrato_no_banco_dados + nome_pasta_arquivo +"\\\\" + nome_arquivo;
-			    
+			    String nome_diretorio_arquivo_contrato = caminho_salvar_contrato_no_banco_dados + nome_pasta_arquivo;
+
 				//criar o diretorio
 				ManipularTxt manipular = new ManipularTxt();
 				if(manipular.criarDiretorio(caminho_salvar_contrato__no_hd + nome_pasta_arquivo + "\\"))
 				{
 					System.out.println("diretorio criado para o novo contrato");
-					  if(criarArquivos(nome_arquivo,caminho_completo_salvar_contrato_no_hd,  caminho_completo_salvar_contrato_no_bando_dados))
+					  if(criarArquivos(nome_arquivo,caminho_completo_salvar_contrato_no_hd,  caminho_completo_salvar_contrato_no_bando_dados,nome_diretorio_arquivo_contrato))
 					    	arquivos_comprador_criado = true;
 					    else
 					    	arquivos_comprador_criado = false;
@@ -1300,7 +1311,8 @@ public ByteArrayOutputStream alterar(CadastroContrato novo_contrato)
 					String caminho_salvar_contrato_no_banco_dados = "E-contract\\\\arquivos\\\\clientes\\\\" + nome_vendedor1_arquivo + "\\\\contratos" + "\\\\venda\\\\"  + data.getAnoAtual() + "\\\\" + novo_contrato.getModelo_safra().getProduto().getNome_produto() + "\\\\";
 
 				      String nome_pasta_arquivo = novo_contrato.getCodigo();
-
+                     
+				       
 				      String nome_arquivo = novo_contrato.getCodigo() + " "  + nome_comprador_arquivo + " x " + nome_vendedor1_arquivo ; 
 				       
 						if(nome_vendedor2_arquivo != null) {
@@ -1312,13 +1324,13 @@ public ByteArrayOutputStream alterar(CadastroContrato novo_contrato)
 						String caminho_completo_salvar_contrato_no_hd = caminho_salvar_contrato__no_hd + nome_pasta_arquivo + "\\" + nome_arquivo ;
 						
 					    String caminho_completo_salvar_contrato_no_bando_dados = caminho_salvar_contrato_no_banco_dados + nome_pasta_arquivo +"\\\\" + nome_arquivo;
-					    
+					    String nome_diretorio_arquivo_sub_contrato1 = caminho_salvar_contrato_no_banco_dados + nome_pasta_arquivo;
 						//criar o diretorio
 						ManipularTxt manipular = new ManipularTxt();
 						if(manipular.criarDiretorio(caminho_salvar_contrato__no_hd + nome_pasta_arquivo + "\\"))
 						{
 							System.out.println("diretorio criado para o novo sub contrato vendedor1");
-							  if(criarArquivos(nome_arquivo,caminho_completo_salvar_contrato_no_hd,  caminho_completo_salvar_contrato_no_bando_dados))
+							  if(criarArquivos(nome_arquivo,caminho_completo_salvar_contrato_no_hd,  caminho_completo_salvar_contrato_no_bando_dados, nome_diretorio_arquivo_sub_contrato1))
 							    	arquivos_vendedor1_criado = true;
 							    else
 							    	arquivos_vendedor1_criado = false;
@@ -1353,13 +1365,14 @@ public ByteArrayOutputStream alterar(CadastroContrato novo_contrato)
 					String caminho_completo_salvar_contrato_no_hd = caminho_salvar_contrato__no_hd + nome_pasta_arquivo + "\\" + nome_arquivo ;
 					
 				    String caminho_completo_salvar_contrato_no_bando_dados = caminho_salvar_contrato_no_banco_dados + nome_pasta_arquivo +"\\\\" + nome_arquivo;
-				    
+				    String nome_diretorio_arquivo_sub_contrato2 = caminho_salvar_contrato_no_banco_dados + nome_pasta_arquivo;
+
 					//criar o diretorio
 					ManipularTxt manipular = new ManipularTxt();
 					if(manipular.criarDiretorio(caminho_salvar_contrato__no_hd + nome_pasta_arquivo + "\\"))
 					{
 						System.out.println("diretorio criado para o novo sub contrato vendedor2");
-						  if(criarArquivos(nome_arquivo,caminho_completo_salvar_contrato_no_hd,  caminho_completo_salvar_contrato_no_bando_dados))
+						  if(criarArquivos(nome_arquivo,caminho_completo_salvar_contrato_no_hd,  caminho_completo_salvar_contrato_no_bando_dados, nome_diretorio_arquivo_sub_contrato2))
 						    	arquivos_vendedor2_criado = true;
 						    else
 						    	arquivos_vendedor2_criado = false;
@@ -1428,7 +1441,7 @@ public ByteArrayOutputStream alterar(CadastroContrato novo_contrato)
 	
 	
 	
-	public boolean criarArquivos(String nome_arquivo, String caminh_completo_salvar_no_hd, String caminho_completo_salvar_no_banco_dados) {
+	public boolean criarArquivos(String nome_arquivo, String caminh_completo_salvar_no_hd, String caminho_completo_salvar_no_banco_dados, String caminho_completo_diretorio_arquivo) {
 		
 		FileOutputStream outputStream;
 		try {
@@ -1454,7 +1467,7 @@ public ByteArrayOutputStream alterar(CadastroContrato novo_contrato)
             	 
             	 System.out.println("caminho para salvar na nuvem: " + caminh_completo_salvar_no_hd);
             	 novo_contrato.setCaminho_arquivo(caminho_completo_salvar_no_banco_dados + ".pdf") ;
-            	 
+            	 novo_contrato.setCaminho_diretorio_contrato(caminho_completo_diretorio_arquivo);
             	 //salvar no drobox
             	 Nuvem nuvem = new Nuvem();
             	 nuvem.abrir();

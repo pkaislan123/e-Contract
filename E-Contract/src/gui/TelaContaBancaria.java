@@ -67,7 +67,7 @@ public class TelaContaBancaria extends JDialog {
 	   
 	    }
 
-	public TelaContaBancaria(TelaNovoContratoInformal telaContrato)  {
+	public TelaContaBancaria(TelaElaborarNovoContrato telaContrato)  {
 		setModal(true);
 
 		TelaContaBancaria isto = this;

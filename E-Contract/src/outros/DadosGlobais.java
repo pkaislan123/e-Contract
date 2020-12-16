@@ -3,7 +3,7 @@ package outros;
 import cadastros.CadastroBaseDados;
 import cadastros.CadastroLogin;
 import gui.TelaGerenciarContrato;
-import gui.TelaNovoContratoInformal;
+import gui.TelaElaborarNovoContrato;
 import gui.TelaPrincipal;
 import manipular.ConfiguracoesGlobais;
 import tratamento_proprio.Log;

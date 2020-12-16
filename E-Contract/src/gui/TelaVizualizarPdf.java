@@ -43,7 +43,7 @@ public class TelaVizualizarPdf extends JDialog {
 	private TelaEmEspera telaInformacoes;
 
 	//public TelaVizualizarPdf(String arquivo) {
-	public TelaVizualizarPdf(InputStream stream, TelaNovoContratoInformal pai, TelaEmEspera telaBack) {
+	public TelaVizualizarPdf(InputStream stream, TelaElaborarNovoContrato pai, TelaEmEspera telaBack) {
 		setModal(true);
 
 		TelaVizualizarPdf isto = this;

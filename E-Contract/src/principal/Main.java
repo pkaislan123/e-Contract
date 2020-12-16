@@ -15,19 +15,22 @@ import javax.swing.UIManager.LookAndFeelInfo;
 import javax.swing.UnsupportedLookAndFeelException;
 
 import cadastros.CadastroLogin;
+import cadastros.CadastroModelo;
+import conexaoBanco.GerenciarBancoContratos;
 import gui.TelaBaixarNotas;
 import gui.TelaCadastroCliente;
 import gui.TelaCliente;
 import gui.TelaContratos;
 import gui.TelaEntrada;
 import gui.TelaLogin;
-import gui.TelaNovoContratoInformal;
+import gui.TelaElaborarNovoContrato;
 import gui.TelaPadrao;
 import gui.TelaPlanilhaNFe;
 import gui.TelaPlanilhaNFeInternas;
 import gui.TelaPrincipal;
 import manipular.ArquivoConfiguracoes;
 import manipular.ConfiguracoesGlobais;
+import manipular.EditarWord;
 import manipular.Email;
 import manipular.ManipularTxt;
 import manipular.Nuvem;
@@ -45,14 +48,12 @@ import javax.sound.sampled.*;
 public class Main {
 
 	
-	private Log GerenciadorLog;
-	private CadastroLogin login;
-	private static ConfiguracoesGlobais configs_globais;
+
 	
 	
  public static void main(String[] args) {
 	   
-
+	
 		      
 	  
 		try {
@@ -117,6 +118,9 @@ public class Main {
         		        "atenciosamente;\n Aislan Silva Costa\n LD Armazens Gerais", anexos);
 */
 
+	 
+	 
+	 
 }
 	
 /*	public static void main(String[] args) {
@@ -143,16 +147,7 @@ public class Main {
             */
 	//}
 	
-	public void getDadosGlobais() {
-		//gerenciador de log
-				DadosGlobais dados = DadosGlobais.getInstance();
-				 GerenciadorLog = dados.getGerenciadorLog();
-				 configs_globais = dados.getConfigs_globais();
-				 
-				 //usuario logado
-				  login = dados.getLogin();
-		
-	}
+	
 	
 }
 

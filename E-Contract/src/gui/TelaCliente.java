@@ -26,7 +26,7 @@ import java.util.ArrayList;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import javax.swing.ImageIcon;
-import gui.TelaNovoContratoInformal;
+import gui.TelaElaborarNovoContrato;
 import outros.JButtonBackground;
 import outros.JPanelBackground;
 
@@ -135,7 +135,7 @@ public class TelaCliente extends JDialog {
 		
 	}
 	
-	public TelaCliente(int flag_tipo_tela, int flag_tipo_cliente, TelaNovoContratoInformal telaContrato) {
+	public TelaCliente(int flag_tipo_tela, int flag_tipo_cliente, TelaElaborarNovoContrato telaContrato) {
 		
 		// flag_tipo_tela == 1 //modo cliente edição
 		// flag_tipo_tela == 0 //modo cliente seleção

@@ -31,8 +31,11 @@ import manipular.ArquivoConfiguracoes;
 import manipular.ConfiguracoesGlobais;
 import manipular.ConverterPdf;
 import manipular.EditarExcel;
+import manipular.EditarWord;
 import manipular.Excel;
+import manipular.ManipularTxt;
 import outros.DadosGlobais;
+import outros.GetData;
 import tratamento_proprio.Log;
 import views_personalizadas.TelaEmEspera;
 
@@ -57,6 +60,7 @@ import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.math.BigDecimal;
 import java.net.URL;
@@ -82,7 +86,7 @@ import javax.swing.UIManager;
 import javax.swing.border.LineBorder;
 
 
-public class TelaNovoContratoInformal extends JDialog{
+public class TelaElaborarNovoContrato extends JDialog{
 
 	private JTabbedPane painelPrincipal = new JTabbedPane();
 	private JPanel painelDadosIniciais = new JPanel();
@@ -154,7 +158,8 @@ private JTextField entDataContrato;
 private JCheckBox chbxDataAtual, chBoxClausulaComissao;
 private JLabel lbltext;
 	
-EditarExcel editar; 
+private EditarExcel editar; 
+private EditarWord  editarWord;
 private JPanel panelDadosVendedor;
 private JPanel painelDadosCodigoData;
 private JPanel painelDefinirPartes;
@@ -204,7 +209,7 @@ private CadastroContrato contrato_pai_local;
 		  GerenciarBancoSafras listaSafras = new GerenciarBancoSafras();
 		    safras = listaSafras.getSafras();
 	}
-	TelaNovoContratoInformal isto = this;
+	TelaElaborarNovoContrato isto = this;
 	private JLabel lblCodigoContrato;
 	private JLabel lblCodigoContratoComprador;
 	private JLabel lblCodigoContratoVendedor;
@@ -216,7 +221,7 @@ private CadastroContrato contrato_pai_local;
     
 	private ArrayList<Integer> pagamento_a_excluir = null;
 	
-	public TelaNovoContratoInformal(CadastroModelo modelo, int tipoContrato, CadastroContrato contrato_pai, int flag_edicao) {
+	public TelaElaborarNovoContrato(CadastroModelo modelo, int tipoContrato, CadastroContrato contrato_pai, int flag_edicao) {
 		setModal(true);
 		
 		flag_edicao_global = flag_edicao;
@@ -225,9 +230,31 @@ private CadastroContrato contrato_pai_local;
 		
 		if(flag_edicao == 0) {
 			//modo de criacao de novo contrato
+			try {
+			if(tipoContrato == 0) {
+				//é um contrato pai em modo criacao
+				setTitle("E-Contract - Novo Contrato");
+
+			}else {
+				//é um sub contrato em modo criacao
+
+				setTitle("E-Contract - Novo Sub-Contrato para o contrato " + contrato_pai.getCodigo());
+
+			}
+			}catch(NullPointerException nu) {
+				setTitle("E-Contract - Novo Contrato");
+
+			}
+			
+
 		}else {
-		  //modo de edicao
+		  //modo de edicao de contrato
 			novo_contrato = contrato_pai;
+			if(contrato_pai.getSub_contrato() == 0)
+				//é um contrato pai em modo edicao
+				setTitle("E-Contract - Edição de Contrato");
+				else
+					setTitle("E-Contract - Edição de Sub-Contrato");
 
 		}
 		
@@ -235,15 +262,10 @@ private CadastroContrato contrato_pai_local;
 	
 		getDadosGlobais();
 		setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-		if(flag_edicao == 0)
-		setTitle("E-Contract - Novo Contrato");
-		else {
-			if(contrato_pai.getSub_contrato() == 1)
-			setTitle("E-Contract - Edição de Sub-Contrato");
-			else
-				setTitle("E-Contract - Edição de Contrato");
-
-		}
+		
+	
+		
+		
 		setBounds(100, 100, 993, 669);
 		painelPrincipal.setBackground(new Color(255, 255, 255));
 		painelPrincipal.setBorder(new EmptyBorder(5, 5, 5, 5));
@@ -460,23 +482,23 @@ private CadastroContrato contrato_pai_local;
 				    		
 				    		JLabel lblDoProduto = new JLabel("Do produto");
 				    		lblDoProduto.setFont(new Font("Arial Black", Font.BOLD, 14));
-				    		lblDoProduto.setBounds(308, 30, 174, 42);
+				    		lblDoProduto.setBounds(424, 178, 174, 42);
 				    		painelDadosProdutos.add(lblDoProduto);
 				    		
 				    		
 				    		
 				    		JLabel lblSafra = new JLabel("Safra:");
 				    		lblSafra.setFont(new Font("Arial Black", Font.PLAIN, 14));
-				    		lblSafra.setBounds(402, 83, 70, 42);
+				    		lblSafra.setBounds(518, 231, 70, 42);
 				    		painelDadosProdutos.add(lblSafra);
 				    		
 				    		JLabel lblLocalRetirada = new JLabel("Local Retirada:");
 				    		lblLocalRetirada.setFont(new Font("Arial Black", Font.PLAIN, 14));
-				    		lblLocalRetirada.setBounds(334, 120, 126, 42);
+				    		lblLocalRetirada.setBounds(450, 268, 126, 42);
 				    		painelDadosProdutos.add(lblLocalRetirada);
 				    		
 				    	    cBLocalRetirada = new JComboBox();
-				    		cBLocalRetirada.setBounds(469, 121, 174, 36);
+				    		cBLocalRetirada.setBounds(585, 269, 174, 36);
 				    		cBLocalRetirada.setModel(modelLocalRetirada);
 				    		cBLocalRetirada.setRenderer(new CBLocalRetiradaRenderPersonalizado());
 				    		painelDadosProdutos.add(cBLocalRetirada);
@@ -492,7 +514,7 @@ private CadastroContrato contrato_pai_local;
 				    		
 				    		JLabel lblDataEntrega = new JLabel("Data Entrega:");
 				    		lblDataEntrega.setFont(new Font("Arial Black", Font.PLAIN, 14));
-				    		lblDataEntrega.setBounds(345, 173, 114, 42);
+				    		lblDataEntrega.setBounds(461, 321, 114, 42);
 				    		painelDadosProdutos.add(lblDataEntrega);
 				    		
 				    		entDataEntrega = new JTextField();
@@ -522,12 +544,12 @@ private CadastroContrato contrato_pai_local;
 				    			}
 				    		});
 				    		entDataEntrega.setColumns(10);
-				    		entDataEntrega.setBounds(469, 173, 174, 33);
+				    		entDataEntrega.setBounds(585, 321, 174, 33);
 				    		painelDadosProdutos.add(entDataEntrega);
 				    		
 				    		JLabel lblQuantidade = new JLabel("Quantidade:");
 				    		lblQuantidade.setFont(new Font("Arial Black", Font.PLAIN, 14));
-				    		lblQuantidade.setBounds(93, 273, 96, 42);
+				    		lblQuantidade.setBounds(209, 421, 96, 42);
 				    		painelDadosProdutos.add(lblQuantidade);
 				    		
 				    		entQuantidade = new JTextField();
@@ -620,12 +642,12 @@ private CadastroContrato contrato_pai_local;
 				    			}
 				    		});
 				    		entQuantidade.setColumns(10);
-				    		entQuantidade.setBounds(199, 280, 174, 33);
+				    		entQuantidade.setBounds(315, 428, 174, 33);
 				    		painelDadosProdutos.add(entQuantidade);
 				    		
 				    		JLabel lblPreo = new JLabel("Preço:");
 				    		lblPreo.setFont(new Font("Arial Black", Font.PLAIN, 14));
-				    		lblPreo.setBounds(131, 320, 58, 42);
+				    		lblPreo.setBounds(247, 468, 58, 42);
 				    		painelDadosProdutos.add(lblPreo);
 				    		
 				    		entPreco = new JTextField();
@@ -715,7 +737,7 @@ private CadastroContrato contrato_pai_local;
 				    			}
 				    		});
 				    		entPreco.setColumns(10);
-				    		entPreco.setBounds(199, 327, 174, 33);
+				    		entPreco.setBounds(315, 475, 174, 33);
 				    		painelDadosProdutos.add(entPreco);
 				    		
 			    rQuanKG = new JRadioButton("KG");
@@ -738,7 +760,7 @@ private CadastroContrato contrato_pai_local;
 			    		
 			    	}
 			    });
-			    rQuanKG.setBounds(199, 241, 58, 23);
+			    rQuanKG.setBounds(315, 389, 58, 23);
 			    painelDadosProdutos.add(rQuanKG);
 			    
 			     rQuanS = new JRadioButton("SC");
@@ -757,7 +779,7 @@ private CadastroContrato contrato_pai_local;
 
 			     	}
 			     });
-			     rQuanS.setBounds(267, 241, 47, 23);
+			     rQuanS.setBounds(383, 389, 47, 23);
 			     painelDadosProdutos.add(rQuanS);
 			     
 			      rQuanT = new JRadioButton("TON");
@@ -776,24 +798,24 @@ private CadastroContrato contrato_pai_local;
 
 			      	}
 			      });
-			      rQuanT.setBounds(327, 241, 58, 23);
+			      rQuanT.setBounds(443, 389, 58, 23);
 			      painelDadosProdutos.add(rQuanT);
 			      
 			       lblQuant = new JLabel("Quilos");
 			       lblQuant.setEnabled(false);
 			       lblQuant.setFont(new Font("Tahoma", Font.BOLD, 14));
-			       lblQuant.setBounds(386, 280, 70, 28);
+			       lblQuant.setBounds(502, 428, 70, 28);
 			       painelDadosProdutos.add(lblQuant);
 			       
 			        lblPreco = new JLabel("Quilo");
 			        lblPreco.setEnabled(false);
 			        lblPreco.setFont(new Font("Tahoma", Font.BOLD, 14));
-			        lblPreco.setBounds(384, 327, 133, 28);
+			        lblPreco.setBounds(500, 475, 133, 28);
 			        painelDadosProdutos.add(lblPreco);
 			        
 			        JLabel lblvalortotal = new JLabel("Valor Total:");
 			        lblvalortotal.setFont(new Font("Arial Black", Font.PLAIN, 14));
-			        lblvalortotal.setBounds(99, 373, 96, 42);
+			        lblvalortotal.setBounds(215, 521, 96, 42);
 			        painelDadosProdutos.add(lblvalortotal);
 			        
 			        lblValorTotal = new JLabel("");
@@ -801,6 +823,9 @@ private CadastroContrato contrato_pai_local;
 			        lblValorTotal.setFont(new Font("Tahoma", Font.BOLD, 14));
 			        lblValorTotal.setBounds(199, 374, 174, 28);
 			        painelDadosProdutos.add(lblValorTotal);
+			        
+	  
+		 
 			        
 			        JSeparator separator_2 = new JSeparator();
 			        separator_2.setOrientation(SwingConstants.VERTICAL);
@@ -810,7 +835,7 @@ private CadastroContrato contrato_pai_local;
 			        JPanel painelDadosComprador = new JPanel();
 			        painelDadosComprador.setBorder(new CompoundBorder());
 			        painelDadosComprador.setBackground(SystemColor.text);
-			        painelDadosComprador.setBounds(26, 441, 589, 139);
+			        painelDadosComprador.setBounds(76, 460, 589, 139);
 			        
 			        Border lineBorder = BorderFactory.createLineBorder(Color.black);
                     TitledBorder title = BorderFactory.createTitledBorder(lineBorder, "Comprador");
@@ -892,7 +917,7 @@ private CadastroContrato contrato_pai_local;
 			               
 			               panelDadosVendedor = new JPanel();
 			               panelDadosVendedor.setBackground(SystemColor.text);
-			               panelDadosVendedor.setBounds(649, 283, 589, 166);
+			               panelDadosVendedor.setBounds(699, 286, 589, 166);
 			               Border lineBorder2 = BorderFactory.createLineBorder(Color.black);
 		                    TitledBorder title2 = BorderFactory.createTitledBorder(lineBorder2, "Vendedor");
 		                    panelDadosVendedor.setBorder(title2);
@@ -972,7 +997,7 @@ private CadastroContrato contrato_pai_local;
 			                      
 			                      painelDadosCodigoData = new JPanel();
 			                      painelDadosCodigoData.setBackground(SystemColor.text);
-			                      painelDadosCodigoData.setBounds(183, 87, 388, 154);
+			                      painelDadosCodigoData.setBounds(251, 37, 388, 154);
 			                      painelDadosIniciais.add(painelDadosCodigoData);
 			                      painelDadosCodigoData.setLayout(null);
 			                      
@@ -1083,7 +1108,7 @@ private CadastroContrato contrato_pai_local;
 			                       
 			                       painelDefinirPartes = new JPanel();
 			                       painelDefinirPartes.setBackground(SystemColor.text);
-			                       painelDefinirPartes.setBounds(581, 60, 688, 193);
+			                       painelDefinirPartes.setBounds(649, 37, 688, 193);
 			                       
 			                       Border lineBorder1 = BorderFactory.createLineBorder(Color.black);
 			                       TitledBorder title1 = BorderFactory.createTitledBorder(lineBorder, "");
@@ -1306,7 +1331,7 @@ private CadastroContrato contrato_pai_local;
 			                       panelDadosVendedor2 = new JPanel();
 			                       panelDadosVendedor2.setLayout(null);
 			                       panelDadosVendedor2.setBackground(Color.WHITE);
-			                       panelDadosVendedor2.setBounds(649, 471, 589, 166);
+			                       panelDadosVendedor2.setBounds(699, 474, 589, 166);
 			                       Border lineBorder3 = BorderFactory.createLineBorder(Color.black);
 				                    TitledBorder title3 = BorderFactory.createTitledBorder(lineBorder3, "Vendedor");
 				                    panelDadosVendedor2.setBorder(title3);
@@ -1386,7 +1411,7 @@ private CadastroContrato contrato_pai_local;
 			                       painelDadosCorretor.setLayout(null);
 			                       painelDadosCorretor.setBorder(new CompoundBorder());
 			                       painelDadosCorretor.setBackground(Color.WHITE);
-			                       painelDadosCorretor.setBounds(26, 290, 589, 139);
+			                       painelDadosCorretor.setBounds(76, 318, 589, 139);
 			                       Border lineBorderCorretor = BorderFactory.createLineBorder(Color.black);
 			                       TitledBorder titleCorretor = BorderFactory.createTitledBorder(lineBorder, "Corretor");
 			                       painelDadosCorretor.setBorder(titleCorretor);
@@ -1462,7 +1487,8 @@ private CadastroContrato contrato_pai_local;
 			                       lblIe_3.setFont(new Font("Tahoma", Font.PLAIN, 14));
 			                       lblIe_3.setBounds(332, 62, 27, 14);
 			                       painelDadosCorretor.add(lblIe_3);
-			                      
+			                       
+			                    
 			                       
 			                       btnPesquisarVendedor1.addActionListener(new ActionListener() {
 			                       	public void actionPerformed(ActionEvent arg0) {
@@ -1477,7 +1503,7 @@ private CadastroContrato contrato_pai_local;
 			        
 			        JLabel lblComissao = new JLabel("Comissão:");
 			        lblComissao.setFont(new Font("Arial Black", Font.PLAIN, 14));
-			        lblComissao.setBounds(548, 241, 96, 42);
+			        lblComissao.setBounds(664, 389, 96, 42);
 			        painelDadosProdutos.add(lblComissao);
 			        
 			         rBComissaoSim = new JRadioButton("Sim");
@@ -1488,7 +1514,7 @@ private CadastroContrato contrato_pai_local;
 			         		
 			         	}
 			         });
-			         rBComissaoSim.setBounds(655, 254, 58, 23);
+			         rBComissaoSim.setBounds(771, 402, 58, 23);
 			         painelDadosProdutos.add(rBComissaoSim);
 			         
 			          rBComissaoNao = new JRadioButton("Não");
@@ -1501,7 +1527,7 @@ private CadastroContrato contrato_pai_local;
 			          	}
 			          });
 			          rBComissaoNao.setSelected(true);
-			          rBComissaoNao.setBounds(730, 254, 58, 23);
+			          rBComissaoNao.setBounds(846, 402, 58, 23);
 			          painelDadosProdutos.add(rBComissaoNao);
 			          
 			          entComissao = new JTextField();
@@ -1590,12 +1616,12 @@ private CadastroContrato contrato_pai_local;
 			          	}
 			          });
 			          entComissao.setColumns(10);
-			          entComissao.setBounds(638, 294, 174, 33);
+			          entComissao.setBounds(754, 442, 174, 33);
 			          painelDadosProdutos.add(entComissao);
 			          
 			          JLabel lblValorTotal_1 = new JLabel("Valor Total:");
 			          lblValorTotal_1.setFont(new Font("Arial Black", Font.PLAIN, 14));
-			          lblValorTotal_1.setBounds(547, 335, 96, 42);
+			          lblValorTotal_1.setBounds(663, 483, 96, 42);
 			          painelDadosProdutos.add(lblValorTotal_1);
 			          
 			          lblValorTotalComisao1 = new JLabel("");
@@ -1610,7 +1636,7 @@ private CadastroContrato contrato_pai_local;
 			          
 			          JLabel lblValorTotal_1_1 = new JLabel("VAlor Comissão:");
 			          lblValorTotal_1_1.setFont(new Font("Arial Black", Font.PLAIN, 14));
-			          lblValorTotal_1_1.setBounds(504, 285, 140, 42);
+			          lblValorTotal_1_1.setBounds(620, 433, 140, 42);
 			          painelDadosProdutos.add(lblValorTotal_1_1);
 				    painelEmpresa.setBackground(new Color(255, 255, 255));
 				    painelPrincipal.addTab("Do Pagamento", painelEmpresa);
@@ -1621,7 +1647,7 @@ private CadastroContrato contrato_pai_local;
 				    cBSafra = new JComboBox();
 				    cBSafra.setModel(modelSafra);
 				    cBSafra.setRenderer(cBSafraPersonalizado);
-		    		cBSafra.setBounds(470, 76, 174, 33);
+		    		cBSafra.setBounds(586, 224, 174, 33);
 		    		painelDadosProdutos.add(cBSafra);
 		    		
 		    		cBSafra.addActionListener(new ActionListener() {
@@ -1670,7 +1696,7 @@ private CadastroContrato contrato_pai_local;
 		    		 		
 		    		 	}
 		    		 });
-		    		chBoxClausulaComissao.setBounds(821, 301, 242, 18);
+		    		chBoxClausulaComissao.setBounds(937, 449, 242, 18);
 		    		painelDadosProdutos.add(chBoxClausulaComissao);
 		    		
 				   
@@ -2271,8 +2297,10 @@ private CadastroContrato contrato_pai_local;
 									        	
 				        					@Override
 				        					public void run() {
-				        	        		  editar = new EditarExcel(modelo, esperar, tipoContrato, contrato_pai);
-								        		
+				        						
+				        				    
+				        				    	
+				        				      	 
 				                              String produto, medida, quantidade, preco, local_retirada, data_contrato, data_entrega ,codigo;
                                               esperar.setMsg("Reunindo Informações");
 
@@ -2364,19 +2392,31 @@ private CadastroContrato contrato_pai_local;
 
 				                              
 				                             // editar.abrir();
+                                               ByteArrayOutputStream contrato_alterado = null;
                                              try {  
-				                              ByteArrayOutputStream contrato_alterado = editar.alterar(novo_contrato);
+                                            	 System.out.println("tipo do modelo selecionado: " + modelo.getNome_modelo());
+                                            	 if(modelo.getNome_modelo().equals("informal"))	{	
+       				        	        		  editar = new EditarExcel(modelo, esperar, tipoContrato, contrato_pai);
+    				                               contrato_alterado = editar.alterar(novo_contrato);
+    				                               //criar pdf
+    					                              ConverterPdf converter_pdf = new ConverterPdf();
+    					                            //  String url = converter_pdf.excel_pdf_file(contrato_alterado);
+    					                            //TelaVizualizarPdf  vizualizar =  new TelaVizualizarPdf(url);
+    					                              ByteArrayOutputStream pdf_alterado = converter_pdf.excel_pdf_stream(contrato_alterado);
+    					                              TelaVizualizarPdf  vizualizar =  new TelaVizualizarPdf(new ByteArrayInputStream (pdf_alterado.toByteArray()), isto, esperar);
+    					                              
+                                            	 }
+       				        				    else{
+       				        				    	System.out.println("Preparando para elaborar novo contrato formal");
+       				        					   editarWord = new EditarWord(modelo, esperar, tipoContrato);
+    				                             // editarWord.alterar(novo_contrato);
+       				        				    }
 				                              
-				                              //criar pdf
-				                              ConverterPdf converter_pdf = new ConverterPdf();
-				                            //  String url = converter_pdf.excel_pdf_file(contrato_alterado);
-				                            //TelaVizualizarPdf  vizualizar =  new TelaVizualizarPdf(url);
-				                              ByteArrayOutputStream pdf_alterado = converter_pdf.excel_pdf_stream(contrato_alterado);
-				                              TelaVizualizarPdf  vizualizar =  new TelaVizualizarPdf(new ByteArrayInputStream (pdf_alterado.toByteArray()), isto, esperar);
-				                              
+				                             
 				                        
 	                                        }catch(Exception e) {
 	                                        	esperar.fechar();
+	                                        	System.out.println("erro ao elaborar contrato, erro: " + e.getMessage());
 	                                        	JOptionPane.showMessageDialog(null, "Erro fatal, consulte o administrador do sistema\nErro: " + e.getMessage());
 	                                        	isto.dispose();
 	                                        }
@@ -2415,8 +2455,11 @@ private CadastroContrato contrato_pai_local;
 				        		 rotinasEdicao();
 					        	 setClausulas( );
 				        		 //modo de edicao de subcontrato
+					        	 setInfoPai();
+
 				        	 }else {
 					        	 rotinasSubContrato();
+					        	 setInfoPai();
 
 				        	 }
 				         }else {
@@ -2653,6 +2696,11 @@ private CadastroContrato contrato_pai_local;
 				//e um contrato pai
 				if(flag_edicao_global == 0) {
 					//inserindo novo contrato
+					//criar tarefa se inserção de contrato
+					ArrayList<CadastroContrato.CadastroTarefa> lista_tarefas = new ArrayList<>();
+					
+					lista_tarefas.add(criarTarefa(1));
+					novo_contrato.setLista_tarefas(lista_tarefas);
 					result = gerenciarContratos.inserirContrato(novo_contrato, null);
 
 				}else {
@@ -2664,6 +2712,11 @@ private CadastroContrato contrato_pai_local;
 			}else {
 				//e um sub contrato
 				if(flag_edicao_global == 0) {
+					//criar tarefa se inserção de contrato
+					ArrayList<CadastroContrato.CadastroTarefa> lista_tarefas = new ArrayList<>();
+					
+					lista_tarefas.add(criarTarefa(2));
+					novo_contrato.setLista_tarefas(lista_tarefas);
 					result = gerenciarContratos.inserirContrato(novo_contrato, contrato_pai_local);
 
 					//inserir novo subcontrato
@@ -2688,10 +2741,15 @@ private CadastroContrato contrato_pai_local;
 				isto.dispose();
 			}else if (result == 0){
 				JOptionPane.showMessageDialog(null, "Contrato não pode ser criado, mas não houve falhas no banco de dados!\nConsulte o administrador");
-		         isto.dispose();
+		        //apagar o diretorio criado
+				apagarDiretorio();
+				
+				isto.dispose();
 			}else if(result == -1) {
 				JOptionPane.showMessageDialog(null, "Contrato não pode ser criado\nHouve falhas no banco de dados!\nConsulte o administrador");
-		        isto.dispose();
+				apagarDiretorio();
+
+				isto.dispose();
 			}else if(result == -2) {
 				JOptionPane.showMessageDialog(null, "Contrato não pode ser atualizado\nHouve falhas no banco de dados!\nConsulte o administrador");
 		        isto.dispose();
@@ -3113,7 +3171,181 @@ private CadastroContrato contrato_pai_local;
 			
 	 }
 	 
+	 
+	 public CadastroContrato.CadastroTarefa criarTarefa(int flag) {
+		
+		 CadastroContrato.CadastroTarefa tarefa = new CadastroContrato.CadastroTarefa();
+
+
+		 if(flag == 1) {
+			 tarefa.setNome_tarefa("Contrato Criado");
+		 }else if(flag == 2) {
+			 tarefa.setNome_tarefa("Sub contrato Criado");
+		 }
+			 //cria a tarefa de insercao de contrato
+			 tarefa.setId_tarefa(0);
+			 tarefa.setDescricao_tarefa("Criação de tarefa");
+
+			 tarefa.setStatus_tarefa(1);
+			 tarefa.setMensagem("tarefa criada");
+			 
+			 GetData data = new GetData();
+			 tarefa.setHora(data.getHora());
+			 tarefa.setData(data.getData());
+			 tarefa.setHora_agendada(data.getHora());
+			 tarefa.setData_agendada(data.getData());
+			 
+			 tarefa.setCriador(login);
+             tarefa.setExecutor(login);
+             
+             tarefa.setPrioridade(1);
+			 
+		 
+		 
+		 return tarefa;
+		 
+	 }
 	
-	
-	
+	 public boolean apagarDiretorio() {
+		 
+		try {
+			ManipularTxt manipular = new ManipularTxt();
+			 manipular.limparDiretorio(new File(novo_contrato.getCaminho_diretorio_contrato()));
+			 System.out.println("A pasta do diretorio do contrato foi excuida!");
+             return true;
+			 
+		}catch(Exception f) {
+			 System.out.println("Não foi possivel excluir a pasta do diretorio do arquivo!");
+
+			return false;
+		}
+		 
+		 
+	 }
+	 
+	 
+	 
+	 public void setInfoPai() {
+		 
+		 CadastroCliente compradores[] = contrato_pai_local.getCompradores();
+	    	CadastroCliente vendedores[] = contrato_pai_local.getVendedores();
+          
+         
+         
+           JPanel painelInfoPai = new JPanel();
+		   painelInfoPai.setBackground(SystemColor.info);
+		   painelInfoPai.setBounds(43, 41, 241, 245);
+		   painelDadosIniciais.add(painelInfoPai);
+		   painelDadosProdutos.add(painelInfoPai);
+		   
+		              painelInfoPai.setLayout(null);
+		              
+		              JLabel lblNewLabel_1 = new JLabel("Informações do contrato original");
+		              lblNewLabel_1.setBounds(44, 13, 171, 14);
+		              painelInfoPai.add(lblNewLabel_1);
+		              
+		              JLabel lblNewLabel_2 = new JLabel("Comprador:");
+		              lblNewLabel_2.setBounds(10, 38, 69, 14);
+		              painelInfoPai.add(lblNewLabel_2);
+		              
+		              JLabel lblNewLabel_2_1 = new JLabel("Vendedor:");
+		              lblNewLabel_2_1.setBounds(10, 63, 69, 14);
+		              painelInfoPai.add(lblNewLabel_2_1);
+		              
+		              JLabel lblNewLabel_2_1_1 = new JLabel("Vendedor:");
+		              lblNewLabel_2_1_1.setBounds(10, 88, 69, 14);
+		              painelInfoPai.add(lblNewLabel_2_1_1);
+		              
+		              JLabel lblNewLabel_2_1_1_1 = new JLabel("Safra:");
+		              lblNewLabel_2_1_1_1.setBounds(10, 113, 69, 14);
+		              painelInfoPai.add(lblNewLabel_2_1_1_1);
+		              
+		              JLabel lblNewLabel_2_1_1_2 = new JLabel("Medida:");
+		              lblNewLabel_2_1_1_2.setBounds(10, 138, 69, 14);
+		              painelInfoPai.add(lblNewLabel_2_1_1_2);
+		              
+		              JLabel lblNewLabel_2_1_1_2_1 = new JLabel("Quantidade:");
+		              lblNewLabel_2_1_1_2_1.setBounds(10, 166, 69, 14);
+		              painelInfoPai.add(lblNewLabel_2_1_1_2_1);
+		              
+		              JLabel lblNewLabel_2_1_1_2_1_1 = new JLabel("Valor por Medida:");
+		              lblNewLabel_2_1_1_2_1_1.setBounds(10, 199, 96, 14);
+		              painelInfoPai.add(lblNewLabel_2_1_1_2_1_1);
+		              
+		              JLabel lblNewLabel_2_1_1_2_1_2 = new JLabel("Valor Total:");
+		              lblNewLabel_2_1_1_2_1_2.setBounds(10, 224, 69, 14);
+		              painelInfoPai.add(lblNewLabel_2_1_1_2_1_2);
+		              
+		              JLabel lblInfoComprador = new JLabel("");
+		              lblInfoComprador.setBounds(129, 38, 103, 14);
+		              painelInfoPai.add(lblInfoComprador);
+		              if(compradores[0].getTipo_pessoa() == 0) {
+		           	   //pessoa fisica
+		                  lblInfoComprador.setText(compradores[0].getNome_empresarial());
+
+		              }else {
+		                  lblInfoComprador.setText(compradores[0].getNome_fantaia());
+		     
+		              }
+		              
+		              JLabel lblInfoVendedor1 = new JLabel("");
+		              lblInfoVendedor1.setBounds(129, 63, 86, 14);
+		              painelInfoPai.add(lblInfoVendedor1);
+		              if(vendedores[0].getTipo_pessoa() == 0) {
+		           	   //pessoa fisica
+		                  lblInfoComprador.setText(vendedores[0].getNome_empresarial());
+
+		              }else {
+		           	   lblInfoVendedor1.setText(vendedores[0].getNome_fantaia());
+		     
+		              }
+		              
+		              
+		              JLabel lblInfoVendedor2 = new JLabel("");
+		              lblInfoVendedor2.setBounds(129, 88, 86, 14);
+		              painelInfoPai.add(lblInfoVendedor2);
+		              if(vendedores[1] != null) {
+		           	   if(vendedores[1].getTipo_pessoa() == 0) {
+		                     
+		           	   //pessoa fisica
+		                  lblInfoComprador.setText(vendedores[0].getNome_empresarial());
+		              }else {
+		           	   lblInfoVendedor1.setText(vendedores[0].getNome_fantaia());
+		     
+		              }
+
+		              }
+
+	 
+           JLabel lblInfoSafra = new JLabel("");
+           lblInfoSafra.setBounds(129, 113, 90, 14);
+           painelInfoPai.add(lblInfoSafra);
+           String info_safra = contrato_pai_local.getModelo_safra().getProduto().getNome_produto() + " " + contrato_pai_local.getModelo_safra().getAno_plantio() + "/" + contrato_pai_local.getModelo_safra().getAno_colheita();
+
+           lblInfoSafra.setText(info_safra);
+           
+           JLabel lblInfoMedida = new JLabel("");
+           lblInfoMedida.setBounds(129, 138, 96, 14);
+           painelInfoPai.add(lblInfoMedida);
+           lblInfoMedida.setText(contrato_pai_local.getMedida());
+           
+           JLabel lblInfoQuantidade = new JLabel("");
+           lblInfoQuantidade.setBounds(129, 166, 90, 14);
+           painelInfoPai.add(lblInfoQuantidade);
+           lblInfoQuantidade.setText(Double.toString(contrato_pai_local.getQuantidade()) + " " + contrato_pai_local.getMedida());
+           
+           JLabel lblInfoValorQuantidade = new JLabel("");
+           lblInfoValorQuantidade.setBounds(129, 199, 90, 14);
+           painelInfoPai.add(lblInfoValorQuantidade);
+    	  	Locale ptBr = new Locale("pt", "BR");
+	       	   	String valorString = NumberFormat.getCurrencyInstance(ptBr).format(contrato_pai_local.getValor_produto());
+	            lblInfoValorQuantidade.setText(valorString);
+
+           JLabel lblInfoValorTotal = new JLabel("");
+           lblInfoValorTotal.setBounds(136, 224, 96, 14);
+           painelInfoPai.add(lblInfoValorTotal);
+      	   	 valorString = NumberFormat.getCurrencyInstance(ptBr).format(Double.parseDouble(contrato_pai_local.getValor_a_pagar().toPlainString()));
+
+           lblInfoValorTotal.setText(valorString);
+	 }
 }

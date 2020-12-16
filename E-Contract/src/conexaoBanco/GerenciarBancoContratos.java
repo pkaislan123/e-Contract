@@ -32,7 +32,9 @@ public class GerenciarBancoContratos {
 	private Registro registro_geral_relacao_contrato_vendedor = new Registro();
 	private Registro registro_geral_relacao_contrato_modelo_pagamento = new Registro();
 	private Registro registro_geral_relacao_contrato_sub_contrato = new Registro();
+	private Registro registro_geral_relacao_contrato_tarefa = new Registro();
 
+	
 
 	
 	public GerenciarBancoContratos() {
@@ -106,6 +108,9 @@ public class GerenciarBancoContratos {
 		  int retorno_contrato_inserido = inserir_contrato_retorno(contrato);
 		  
 		  if(retorno_contrato_inserido != -1) {
+			  //inserir tarefas
+			  if(inserirTarefas(retorno_contrato_inserido, contrato.getLista_tarefas())) {
+				  //tarefas foram adicionadas pode prosseguir
 			  
 			  //inserir registro na tabela de cliente_corretor
 			  if(inserir_cliente_corretor(contrato,retorno_contrato_inserido)){
@@ -128,17 +133,42 @@ public class GerenciarBancoContratos {
 							   if(contrato.getSub_contrato() == 0) {
 								   //e um contrato pai, nao fazer mais nada
 								   reverter = false;
+								   return 1;
 
 							   }else {
 								   //e um contrato filho, criar relacao;
 								   if( inserir_contrato_sub_contrato(contrato_pai.getId(), retorno_contrato_inserido)) {
 									   //inseriu corretamente
+									   return 1;
 									   
 								   }else {
 									   //houve alguma excessao ao criar as tabelas relacao contrato_sub_contrato, devera ser feito o processo de
 										  //exclusao dessas tabelas
 										  /*fazer processo de exclusao das tabelas*/
 									   reverter = true;
+									   //apagar tudo
+									   boolean v_remover_tabelas_relacao_contrato_corretor = remover_tabelas_contrato_corretor();
+										  boolean v_remover_tabelas_relacao_contrato_comprador = remover_tabelas_contrato_comprador();
+										  boolean v_remover_tabelas_relacao_contrato_vendedor = remover_tabelas_contrato_vendedor();
+										  boolean v_remover_tabelas_relacao_contrato_modelo_pagamentos = remover_tabelas_contrato_modelo_pagamento();
+							              boolean  v_remover_tabelas_contrato_sub_contrato = remover_tabelas_contrato_sub_contrato();
+
+										  boolean v_remover_tabelas_relacao_contrato_tarefa = removerTarefas();
+
+
+										  boolean v_remover_contrato = remover_contrato(retorno_contrato_inserido);
+
+										  if(v_remover_tabelas_contrato_sub_contrato && v_remover_tabelas_relacao_contrato_modelo_pagamentos && v_remover_tabelas_relacao_contrato_vendedor && v_remover_tabelas_relacao_contrato_comprador && v_remover_contrato && v_remover_tabelas_relacao_contrato_tarefa && v_remover_tabelas_relacao_contrato_corretor) {
+											  
+											  JOptionPane.showMessageDialog(null, "Erro ao inserir todas as informacoes do sub contrato no banco de"
+								                      + "dados\nBanco de Dados foi Normalizado!\nConsulte o administrador");
+											  return 0;
+										  }else {
+											  JOptionPane.showMessageDialog(null, "Erro ao inserir todas as informacoes do sub contrato ao banco de"
+								                      + "dados\nHouve corrupção na base de dados\nConsulte o administrador");
+								                return -1;
+										  }
+
 								   }
 							   }
 
@@ -147,14 +177,57 @@ public class GerenciarBancoContratos {
 								  //exclusao dessas tabelas
 								  /*fazer processo de exclusao das tabelas*/
 							   reverter = true;
+							   //apagar o contrato, as tarefas, a relacao contrato_corretor, contrato_comprador e contrato_vendedor e os pagamentos
+							   boolean v_remover_tabelas_relacao_contrato_corretor = remover_tabelas_contrato_corretor();
+								  boolean v_remover_tabelas_relacao_contrato_comprador = remover_tabelas_contrato_comprador();
+								  boolean v_remover_tabelas_relacao_contrato_vendedor = remover_tabelas_contrato_vendedor();
+								  boolean v_remover_tabelas_relacao_contrato_modelo_pagamentos = remover_tabelas_contrato_modelo_pagamento();
+
+								  boolean v_remover_tabelas_relacao_contrato_tarefa = removerTarefas();
+
+
+								  boolean v_remover_contrato = remover_contrato(retorno_contrato_inserido);
+
+								  if(v_remover_tabelas_relacao_contrato_modelo_pagamentos && v_remover_tabelas_relacao_contrato_vendedor && v_remover_tabelas_relacao_contrato_comprador && v_remover_contrato && v_remover_tabelas_relacao_contrato_tarefa && v_remover_tabelas_relacao_contrato_corretor) {
+									  
+									  JOptionPane.showMessageDialog(null, "Erro ao inserir as tarefas, os compradores, vendedores e pagamentos ao contrato no banco de"
+						                      + "dados\nBanco de Dados foi Normalizado!\nConsulte o administrador");
+									  return 0;
+								  }else {
+									  JOptionPane.showMessageDialog(null, "Erro ao inserir as tarefas, os compradores, vendedores e pagamentos ao contrato no banco de"
+						                      + "dados\nHouve corrupção na base de dados\nConsulte o administrador");
+						                return -1;
+								  }
 
 						   }
 						   
 					   }else {
-						   //houve alguma excessao ao criar as tabelas relacação, devera ser feito o processo de
+						   //houve alguma excessao ao criar as tabelas relacação contrato_vendedor, devera ser feito o processo de
 							  //exclusao dessas tabelas
 							  /*fazer processo de exclusao das tabelas*/
+						   //apagar o contrato, as tarefas, a relacao contrato_corretor, contrato_comprador e contrato_vendedor
 						   reverter = true;
+						   boolean v_remover_tabelas_relacao_contrato_corretor = remover_tabelas_contrato_corretor();
+							  boolean v_remover_tabelas_relacao_contrato_comprador = remover_tabelas_contrato_comprador();
+							  boolean v_remover_tabelas_relacao_contrato_vendedor = remover_tabelas_contrato_vendedor();
+
+							  boolean v_remover_tabelas_relacao_contrato_tarefa = removerTarefas();
+
+
+							  boolean v_remover_contrato = remover_contrato(retorno_contrato_inserido);
+
+							  if(v_remover_tabelas_relacao_contrato_vendedor && v_remover_tabelas_relacao_contrato_comprador && v_remover_contrato && v_remover_tabelas_relacao_contrato_tarefa && v_remover_tabelas_relacao_contrato_corretor) {
+								  
+								  JOptionPane.showMessageDialog(null, "Erro ao inserir as tarefas, o corretor, os compradores e vendedores ao contrato no banco de"
+					                      + "dados\nBanco de Dados foi Normalizado!\nConsulte o administrador");
+								  return 0;
+							  }else {
+								  JOptionPane.showMessageDialog(null, "Erro ao inserir as tarefas, o corretor, os compradores e vendedores ao contrato no banco de"
+					                      + "dados\nHouve corrupção na base de dados\nConsulte o administrador");
+					                return -1;
+							  }
+
+							  
 
 					   }
 					  
@@ -162,59 +235,88 @@ public class GerenciarBancoContratos {
 					  
 					  
 				  }else {
-					  //houve alguma excessao ao criar as tabelas relacação, devera ser feito o processo de
+					  //houve alguma excessao ao criar as tabelas relacação contrato_comprador, devera ser feito o processo de
 					  //exclusao dessas tabelas
 					  /*fazer processo de exclusao das tabelas*/
 					  reverter = true;
+					  //apagar o contrato, as tarefas, e a relacao contrato_corretor e a relacao, contrato_comprador
+					  boolean v_remover_tabelas_relacao_contrato_corretor = remover_tabelas_contrato_corretor();
+					  boolean v_remover_tabelas_relacao_contrato_comprador = remover_tabelas_contrato_comprador();
+
+					  boolean v_remover_tabelas_relacao_contrato_tarefa = removerTarefas();
+
+
+					  boolean v_remover_contrato = remover_contrato(retorno_contrato_inserido);
+
+					  if(v_remover_tabelas_relacao_contrato_comprador && v_remover_contrato && v_remover_tabelas_relacao_contrato_tarefa && v_remover_tabelas_relacao_contrato_corretor) {
+						  
+						  JOptionPane.showMessageDialog(null, "Erro ao inserir as tarefas, o corretor e os compradores ao contrato no banco de"
+			                      + "dados\nBanco de Dados foi Normalizado!\nConsulte o administrador");
+						  return 0;
+					  }else {
+						  JOptionPane.showMessageDialog(null, "Erro ao inserir as tarefas, o corretor e os compradores ao contrato no banco de"
+			                      + "dados\nHouve corrupção na base de dados\nConsulte o administrador");
+			                return -1;
+					  }
+
 					  
 					  
 				  }
 				  
 			  }else {
-				  //houve alguma excessao ao criar as tabelas relacação, devera ser feito o processo de
+				  //houve alguma excessao ao criar as tabelas relacação contrato_corretor, devera ser feito o processo de
 				  //exclusao dessas tabelas
 				  /*fazer processo de exclusao das tabelas*/
 				  reverter = true;
-			       }
+				  //apagar o contrato, as tarefas, e a relacao contrato corretor
+				  boolean v_remover_tabelas_relacao_contrato_corretor = remover_tabelas_contrato_corretor();
+				  boolean v_remover_tabelas_relacao_contrato_tarefa = removerTarefas();
+
+
+				  boolean v_remover_contrato = remover_contrato(retorno_contrato_inserido);
+
+				  if( v_remover_contrato && v_remover_tabelas_relacao_contrato_tarefa && v_remover_tabelas_relacao_contrato_corretor) {
+					  
+					  JOptionPane.showMessageDialog(null, "Erro ao inserir tarefas e corretor ao contrato no banco de"
+		                      + "dados\nBanco de Dados foi Normalizado!\nConsulte o administrador");
+					  return 0;
+				  }else {
+					  JOptionPane.showMessageDialog(null, "Erro ao inserir tarefas e corretor ao contrato  no banco de"
+		                      + "dados\nHouve corrupção na base de dados\nConsulte o administrador");
+		                return -1;
+				  }
+
+				  
+				  
+				  
+			     }
+			  }else {
+				  //houve alguma excessao ao inserir as tarefas deve ser feito o processo de
+				  //exclusao dessas tabelas
+				  /*fazer processo de exclusao das tabelas*/
+				  reverter = true;
+				  boolean v_remover_contrato = remover_contrato(retorno_contrato_inserido);
+
+				  boolean v_remover_tabelas_relacao_contrato_tarefa = removerTarefas();
+				  if( v_remover_contrato && v_remover_tabelas_relacao_contrato_tarefa ) {
+					  
+					  JOptionPane.showMessageDialog(null, "Erro ao inserir as tarefas a este contrato no banco de"
+		                      + "dados\nBanco de Dados foi Normalizado!\nConsulte o administrador");
+					  return 0;
+				  }else {
+					  JOptionPane.showMessageDialog(null, "Erro ao inserir as tarefas a este contrato no banco de"
+		                      + "dados\nHouve corrupção na base de dados\nConsulte o administrador");
+		                return -1;
+				  }
+
+			  }
 			  
 		  }else {
-			  JOptionPane.showMessageDialog(null, "Erro ao inserir o Contrato no banco de "
+			  JOptionPane.showMessageDialog(null, "Erro ao inserir somente o contrato no banco de "
                       + "dados\nNão houve corrupção na base de dados\nConsulte o administrador"
                       + "\nPossivéis erros relacionados a falta de conexão com o banco de dados " );
-                
+                return 0;
 		  }
-		  
-		  if(reverter) {
-			  //remover tabelas contrato_corretor
-			  boolean v_remover_tabelas_relacao_contrato_corretor = remover_tabelas_contrato_corretor();
-			  boolean v_remover_tabelas_relacao_contrato_comprador = remover_tabelas_contrato_comprador();
-			  boolean v_remover_tabelas_relacao_contrato_vendedor = remover_tabelas_contrato_vendedor();
-              boolean  v_remover_tabelas_relacao_contrato_modelo_pagamento = remover_tabelas_contrato_modelo_pagamento();
-              boolean  v_remover_tabelas_modelo_pagamento = remover_tabelas_modelo_pagamento();
-              boolean  v_remover_tabelas_contrato_sub_contrato = remover_tabelas_contrato_sub_contrato();
-              boolean  v_remover_sub_contrato = false;
-
-              
-              if(contrato.getSub_contrato() == 1) {
-            	  //remover o sub_contrato criado
-            	  
-            	  v_remover_sub_contrato = remover_contrato(retorno_contrato_inserido);
-              }
-              
-			  if(v_remover_tabelas_relacao_contrato_corretor && v_remover_tabelas_relacao_contrato_comprador && v_remover_tabelas_relacao_contrato_vendedor && v_remover_tabelas_contrato_sub_contrato && v_remover_sub_contrato) {
-				  
-				  JOptionPane.showMessageDialog(null, "Erro ao inserir o Contrato no banco de"
-	                      + "dados\nBanco de Dados foi Normalizado!\nConsulte o administrador");
-				  return 0;
-			  }else {
-				  JOptionPane.showMessageDialog(null, "Erro ao inserir o Contrato no banco de"
-	                      + "dados\nHouve corrupção na base de dados\nConsulte o administrador");
-	                return -1;
-			  }
-		  }else {
-			  return 1;
-		  }
-		
 		 
 		  
 	  }
@@ -493,7 +595,7 @@ public class GerenciarBancoContratos {
 		  }
 		  
 		  
-          String query = "insert into contrato (codigo, sub_contrato,id_safra, id_produto, medida, quantidade, valor_produto, valor_a_pagar,comissao, clausula_comissao, valor_comissao, clausulas, data_contrato, data_entrega, status_contrato, caminho_arquivo, nome_arquivo) values ('"
+          String query = "insert into contrato (codigo, sub_contrato,id_safra, id_produto, medida, quantidade, valor_produto, valor_a_pagar,comissao, clausula_comissao, valor_comissao, clausulas, data_contrato, data_entrega, status_contrato, caminho_diretorio, caminho_arquivo, nome_arquivo) values ('"
         		 + contrato.getCodigo() 
                  + "','"
                      + contrato.getSub_contrato()
@@ -523,6 +625,9 @@ public class GerenciarBancoContratos {
                 + contrato.getData_entrega()
                 + "','"
                 + contrato.getStatus_contrato()
+                + "','"
+ 
+                + contrato.getCaminho_diretorio_contrato()
                 + "','"
                 + contrato.getCaminho_arquivo()
                 + "','"
@@ -954,13 +1059,11 @@ public class GerenciarBancoContratos {
                          contrato.setStatus_contrato(rs.getInt("status_contrato"));
     	            	 contrato.setData_contrato(rs.getString("data_contrato"));
     	            	 contrato.setData_entrega(rs.getString("data_entrega"));
-
+                         contrato.setCaminho_diretorio_contrato(rs.getString("caminho_diretorio"));
                          contrato.setCaminho_arquivo(rs.getString("caminho_arquivo"));
                          contrato.setNome_arquivo(rs.getString("nome_arquivo"));
                         
-		            	 
-
-                         //dados de comissao
+		                      //dados de comissao
                          contrato.setComissao(rs.getInt("comissao"));
                          contrato.setClausula_comissao(rs.getInt("clausula_comissao"));
                          contrato.setValor_comissao(new BigDecimal(rs.getString("valor_comissao")));
@@ -993,7 +1096,7 @@ public class GerenciarBancoContratos {
             PreparedStatement pstm;
             String sql_update_contrato ="update contrato set id_safra = ?, id_produto = ?, medida = ?, quantidade = ?,\r\n"
     		 		+ "valor_produto = ?, valor_a_pagar = ?, comissao = ?, clausula_comissao = ?, valor_comissao = ?, clausulas = ?,\r\n"
-    		 		+ "data_contrato = ?, data_entrega = ?, status_contrato = ?, caminho_arquivo = ?,\r\n"
+    		 		+ "data_contrato = ?, data_entrega = ?, status_contrato = ?, caminho_diretorio = ?, caminho_arquivo = ?,\r\n"
     		 		+ "nome_arquivo = ? where id = ?;";
             
           try {  
@@ -1022,9 +1125,11 @@ public class GerenciarBancoContratos {
 		     pstm.setString(11, contrato.getData_contrato());
 		     pstm.setString(12, contrato.getData_entrega());
 		     pstm.setString(13, Integer.toString(contrato.getStatus_contrato()));
-		     pstm.setString(14, contrato.getCaminho_arquivo());
-		     pstm.setString(15,  contrato.getNome_arquivo());
-		     pstm.setInt(16, contrato.getId());
+		     pstm.setString(14,  contrato.getCaminho_diretorio_contrato());
+		     pstm.setString(15, contrato.getCaminho_arquivo());
+		     pstm.setString(16,  contrato.getNome_arquivo());
+
+		     pstm.setInt(17, contrato.getId());
 		     
 		     
 		  
@@ -1604,5 +1709,301 @@ public class GerenciarBancoContratos {
 	        return lsitaContratos;
 
    }
+   
+   
+   
+   
+   private boolean inserirTarefas(int id_contrato, ArrayList<CadastroContrato.CadastroTarefa> lista_tarefas) {
+	   boolean retorno = false;
+	   
+	   if(lista_tarefas != null && lista_tarefas.size() > 0) {
+		System.out.println("tarefas não nulas recebidas para salvar no bando de dados");
+		   for(CadastroContrato.CadastroTarefa tarefa : lista_tarefas) {
+			   if(tarefa.getId_tarefa() == 0) {
+				   //tarefa tem id 00, entao ela ainda nao foir cadastrada, entao, cadastrar
+				   int retorno_id_cadastrado = inserir_tarefa_retorno(tarefa);
+				   if(retorno_id_cadastrado != -1) {
+					   //tarefa foi cadastrada e retornou o id cadastrado
+					   //criar relacao contrato_tarefa
+					   if(inserir_contrato_tarefa(id_contrato, retorno_id_cadastrado)) {
+						   retorno = true;
+						   
+					   }else {
+						   //para o loop, houve um erro
+						   retorno = false;
+						   break;
+					   }
+					   
+				   }else {
+					   //para o loop, houve um erro
+					   retorno = false;
+					   break;
+					   
+				   }
+				   
+				   
+			   }
+			   
+		   }
+		   
+		   
+		   
+		   
+	   }else {
+		   //nao havia tarefas para serem cadastradas
+		   System.out.println("não ha tarefas para serem cadastradas, o retorno sera false");
+	   }
+	   
+	   return retorno;
+	   
+	   
+	   
+   }
+   
+   
+   private int inserir_tarefa_retorno(CadastroContrato.CadastroTarefa tarefa) {
+	   int result = -1;
+	  if( tarefa != null) {
+            Connection conn = null;
+            try {
+            	
+                conn = ConexaoBanco.getConexao();
+    	       
+                String query = sql_tarefa(tarefa);
+               Statement stmt = (Statement) conn.createStatement();
+               int numero = stmt.executeUpdate(query, Statement.RETURN_GENERATED_KEYS);
+
+               ResultSet rs = stmt.getGeneratedKeys();
+               if (rs.next()){
+	                                result=rs.getInt(1);
+	                                System.out.println("Id tarefa inserida: "+ result);
+                             }
+                rs.close();
+                stmt.close();
+                
+                return result;
+ 
+            } catch (Exception e) {
+               JOptionPane.showMessageDialog(null, "Erro ao inserir a tarefa no banco de "
+                      + "dados " + e.getMessage());
+            	GerenciadorLog.registrarLogDiario("falha", "falha ao adicionar tarefa: " + e.getMessage() + " causa: " + e.getCause());
+                return -1;
+            }
+        } else {
+            System.out.println("A tarefa enviado por parametro esta vazio");
+            return -1;
+        }
+  }
+ 
+   
+   public String sql_tarefa(CadastroContrato.CadastroTarefa tarefa){
+	
+	   String query ="insert into tarefa (status_tarefa, nome_tarefa, descricao_tarefa , mensagem, hora, data_tarefa, id_usuario_criador, id_usuario_executor, hora_agendada, data_agendada, prioridade) values ('"
+      		  + tarefa.getStatus_tarefa()
+              + "','"
+              + tarefa.getNome_tarefa()
+              + "','"
+              + tarefa.getDescricao_tarefa()
+              + "','"
+              + tarefa.getMensagem()
+              + "','"
+              + tarefa.getHora()
+              + "','"
+              + tarefa.getData()
+              + "','"
+              + tarefa.getCriador().getId()
+             
+              + "','"
+              + tarefa.getExecutor().getId()
+              + "','"
+              + tarefa.getHora_agendada()
+              + "','"
+              + tarefa.getData_agendada()
+              + "','"
+              + tarefa.getPrioridade()
+              + "')";	
+        return query;
+        
+            
+	   
+   }
+   
+   
+   private boolean inserir_contrato_tarefa(int id_contrato, int id_tarefa){
+		  Connection conn = null;
+       try {
+           conn = ConexaoBanco.getConexao();
+           String sql = "insert into contrato_tarefas\r\n" + 
+           		"(id_contrato, id_tarefa) values ('"
+	    			+id_contrato
+	    			+ "','"
+	    			+ id_tarefa	
+	    			+ "')";
+	       
+	        PreparedStatement grava = (PreparedStatement) conn.prepareStatement(sql); 
+	        grava.execute();    
+           ConexaoBanco.fechaConexao(conn, grava);
+           JOptionPane.showMessageDialog(null, "Relação contrato_tarefas  cadastrado com sucesso");
+           registro_geral_relacao_contrato_tarefa.setIdContrato(id_contrato);
+           registro_geral_relacao_contrato_tarefa.adicionar_id(id_tarefa);
+        
+            return true;
+
+       } catch (Exception e) {
+     	  JOptionPane.showMessageDialog(null, "Erro ao inserir a relação contrato_tarefa no banco de dados ");
+            return false;
+       }
+			  
+	         
+	  }
+	  
+	  
+     public ArrayList<CadastroContrato.CadastroTarefa> getTarefas(int id_contrato){
+		 System.out.println("Lista tarefas foi chamado!");
+    	 String selectTarefas = "select * from contrato_tarefas \r\n"
+    	 		+ "LEFT JOIN tarefa  on tarefa.id_tarefa = contrato_tarefas.id_tarefa \r\n"
+    	 		+ "where contrato_tarefas.id_contrato = ?;\r\n"
+    	 		+ "";
+    	 Connection conn = null;
+	      PreparedStatement pstm = null;
+	      ResultSet rs = null;
+	      ArrayList<CadastroContrato.CadastroTarefa> lista_tarefas = null;
+	      
+	      try {
+	          conn = ConexaoBanco.getConexao();
+	          pstm = conn.prepareStatement(selectTarefas);
+	          pstm.setInt(1, id_contrato);
+	          		
+	          rs = pstm.executeQuery();
+	          int i = 0;
+
+	          while (rs.next()) {
+	        	  
+	        	  
+	        	 if(rs != null) {
+	        		 System.out.print("tarefa não e nula!");
+	        		 
+	        	  CadastroContrato.CadastroTarefa tarefa = new CadastroContrato.CadastroTarefa();
+	        	  
+	        	  tarefa.setId_tarefa(rs.getInt("id_tarefa"));
+	        	  tarefa.setStatus_tarefa(rs.getInt("status_tarefa"));
+	        	  tarefa.setNome_tarefa(rs.getString("nome_tarefa"));
+	        	  tarefa.setDescricao_tarefa(rs.getString("descricao_tarefa"));
+	        	  tarefa.setMensagem(rs.getString("mensagem"));
+	        	  tarefa.setHora(rs.getString("hora"));
+	        	  tarefa.setData(rs.getString("data_tarefa"));
+                  
+	        	  CadastroLogin criador = new CadastroLogin();
+	        	  CadastroLogin executor = new CadastroLogin();
+	        	  
+	        	  criador.setId(rs.getInt("id_usuario_criador"));
+	        	  executor.setId(rs.getInt("id_usuario_executor"));
+
+	        	  tarefa.setCriador(criador);
+	        	  tarefa.setExecutor(executor);
+	        	  
+	        	  tarefa.setHora_agendada(rs.getString("hora_agendada"));
+	        	  tarefa.setData_agendada(rs.getString("data_agendada"));
+	        	  tarefa.setPrioridade(rs.getInt("prioridade"));
+
+	        	  if(lista_tarefas == null)
+		        		 lista_tarefas = new ArrayList<>();
+		        	 
+		        	 lista_tarefas.add(tarefa);
+	        
+	        	  }
+	           }
+	      
+	          ConexaoBanco.fechaConexao(conn, pstm, rs);
+	          System.out.println("Tarefas foram listadas com sucesso!");
+	          return lista_tarefas;
+	      } catch (Exception e) {
+	          JOptionPane.showMessageDialog(null, "Erro ao listar as tarefas do contrato: " + id_contrato + " erro: " + e.getMessage() + "causa: " + e.getCause());
+	          return null;
+	      }		  
+	   
+    	 
+    	 
+    	 
+     }
+     
+     public boolean removerTarefas() {
+    	 boolean retorno = false;
+		  
+		  for(int codigo_relacao_contrato_tarefa : registro_geral_relacao_contrato_tarefa.getIds()) {
+				 if (remover_contrato_tarefa( registro_geral_relacao_contrato_tarefa.getIdContrato(), codigo_relacao_contrato_tarefa)) {
+					
+					 if(remover_tarefa(codigo_relacao_contrato_tarefa)) {
+						 retorno = true;
+
+					 }else {
+						 retorno = false;
+						 break;
+					 }
+					 
+				 }else {
+					 retorno = false;
+					 break;
+				 }
+			  }
+		  
+		  return retorno;
+    	 
+    	 
+     }
+     
+     public boolean remover_contrato_tarefa(int id_contrato, int id_tarefa) {
+    	 String sql_delete_contrato_tarefa = "DELETE FROM contrato_tarefas WHERE id_contrato = ? and id_tarefa = ?";
+   	  Connection conn = null;
+           ResultSet rs = null;	      
+           try {
+               conn = ConexaoBanco.getConexao();
+               PreparedStatement pstm;
+               pstm = conn.prepareStatement(sql_delete_contrato_tarefa);
+    
+               pstm.setInt(1, id_contrato);
+               pstm.setInt(1, id_tarefa);
+
+               pstm.execute();
+               ConexaoBanco.fechaConexao(conn, pstm);
+               JOptionPane.showMessageDialog(null, "Relacao contrato_tarefa excluida, banco normalizado ");
+              return true;
+               
+    
+           } catch (Exception f) {
+               JOptionPane.showMessageDialog(null, "Erro ao excluir a relacao contrato_tarefa do banco de"
+                       + "dados " + f.getMessage());
+              return false;
+           }
+    	 
+    	 
+     }
+   
+     public boolean remover_tarefa(int id_tarefa) {
+    	 String sql_delete_tarefa = "DELETE FROM tarefa WHERE id_tarefa = ?";
+   	  Connection conn = null;
+           ResultSet rs = null;	      
+           try {
+               conn = ConexaoBanco.getConexao();
+               PreparedStatement pstm;
+               pstm = conn.prepareStatement(sql_delete_tarefa);
+    
+               pstm.setInt(1, id_tarefa);
+    
+               pstm.execute();
+               ConexaoBanco.fechaConexao(conn, pstm);
+               JOptionPane.showMessageDialog(null, "Tarefa excluida, banco normalizado ");
+              return true;
+               
+    
+           } catch (Exception f) {
+               JOptionPane.showMessageDialog(null, "Erro ao excluir a tarefa do banco de"
+                       + "dados " + f.getMessage());
+              return false;
+           }
+    	 
+    	 
+     }
+   
    
 }

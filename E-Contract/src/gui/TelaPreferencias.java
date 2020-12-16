@@ -35,7 +35,7 @@ public class TelaPreferencias extends JDialog {
 	private JPanel painelNotificacoes = new JPanel();
 	private JPanel painelContratos = new JPanel();
 
-	private JTextField caminhoRaiz;
+	private JTextField entHostBaseArquivos;
 	private Log GerenciadorLog;
 	private CadastroLogin login;
 	private ConfiguracoesGlobais configs_globais;
@@ -44,9 +44,13 @@ public class TelaPreferencias extends JDialog {
 	private final JTextField entCodigoSequencial = new JTextField();
 	private final JButton btnAplicarConfigsBD = new JButton("Aplicar");
 	private final JButton btnAplicarConfigsContratos = new JButton("Aplicar");
-	
-	
-	
+	private JTextField entUnidade;
+	private JTextField entHostBancoDados;
+	private JTextField entPorta;
+	private JTextField entUsuario;
+	private JTextField entSenha;
+	private JTextField entNomeBancoDados;
+
 	 
 	public TelaPreferencias() {
 	
@@ -71,8 +75,8 @@ public class TelaPreferencias extends JDialog {
 		//setContentPane(contentPanel);
 		//contentPanel.setLayout(null);
 		painelPrincipal.setTabPlacement(JTabbedPane.LEFT);		
-		painelDadosIniciais.setBackground(new Color(255, 255, 255));
-		painelEmpresa.setBackground(new Color(255, 255, 255));
+		painelDadosIniciais.setBackground(new Color(51, 102, 102));
+		painelEmpresa.setBackground(new Color(255, 255, 204));
 		painelNotificacoes.setBackground(new Color(255, 255, 255));
 
 		//adiciona novos paines e suas abas
@@ -94,16 +98,15 @@ public class TelaPreferencias extends JDialog {
 		
 		painelContratos.add(entCodigoSequencial);
 		
-		JLabel lblNewLabel = new JLabel("Caminho Raíz da Base de dados:");
+		JLabel lblNewLabel = new JLabel("Host Base de Arquivos:");
 		lblNewLabel.setFont(new Font("Arial", Font.BOLD, 14));
-		lblNewLabel.setBounds(25, 45, 239, 14);
+		lblNewLabel.setBounds(10, 49, 180, 23);
 		painelEmpresa.add(lblNewLabel);
 		
-		caminhoRaiz = new JTextField();
-		caminhoRaiz.setBounds(254, 37, 585, 33);
-		painelEmpresa.add(caminhoRaiz);
-		caminhoRaiz.setColumns(10);
-		caminhoRaiz.setText(configs_globais.getRaiz());
+		entHostBaseArquivos = new JTextField();
+		entHostBaseArquivos.setBounds(189, 45, 585, 33);
+		painelEmpresa.add(entHostBaseArquivos);
+		entHostBaseArquivos.setColumns(10);
 		btnAplicarConfigsBD.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				aplicarConfigsBaseDados();
@@ -112,7 +115,76 @@ public class TelaPreferencias extends JDialog {
 		btnAplicarConfigsBD.setBounds(783, 440, 89, 23);
 		
 		painelEmpresa.add(btnAplicarConfigsBD);
-		caminhoAntigo = configs_globais.getRaiz();
+		
+		JLabel lblUnidade = new JLabel("Unidade:");
+		lblUnidade.setFont(new Font("Arial", Font.BOLD, 14));
+		lblUnidade.setBounds(115, 83, 75, 23);
+		painelEmpresa.add(lblUnidade);
+		
+		entUnidade = new JTextField();
+		entUnidade.setColumns(10);
+		entUnidade.setBounds(189, 83, 585, 33);
+		painelEmpresa.add(entUnidade);
+		
+		JLabel lblArquivos = new JLabel("Arquivos");
+		lblArquivos.setFont(new Font("Arial", Font.BOLD, 14));
+		lblArquivos.setBounds(369, 11, 75, 23);
+		painelEmpresa.add(lblArquivos);
+		
+		JLabel lblBancoDeDados = new JLabel("Banco de Dados");
+		lblBancoDeDados.setFont(new Font("Arial", Font.BOLD, 14));
+		lblBancoDeDados.setBounds(341, 145, 152, 23);
+		painelEmpresa.add(lblBancoDeDados);
+		
+		entHostBancoDados = new JTextField();
+		entHostBancoDados.setColumns(10);
+		entHostBancoDados.setBounds(189, 186, 585, 33);
+		painelEmpresa.add(entHostBancoDados);
+		
+		JLabel lblNewLabel_2 = new JLabel("Host Base de Arquivos:");
+		lblNewLabel_2.setFont(new Font("Arial", Font.BOLD, 14));
+		lblNewLabel_2.setBounds(10, 190, 180, 23);
+		painelEmpresa.add(lblNewLabel_2);
+		
+		JLabel lblNewLabel_2_1 = new JLabel("Porta:");
+		lblNewLabel_2_1.setFont(new Font("Arial", Font.BOLD, 14));
+		lblNewLabel_2_1.setBounds(127, 234, 52, 23);
+		painelEmpresa.add(lblNewLabel_2_1);
+		
+		entPorta = new JTextField();
+		entPorta.setColumns(10);
+		entPorta.setBounds(189, 230, 585, 33);
+		painelEmpresa.add(entPorta);
+		
+		JLabel lblNewLabel_2_1_1 = new JLabel("Usuário:");
+		lblNewLabel_2_1_1.setFont(new Font("Arial", Font.BOLD, 14));
+		lblNewLabel_2_1_1.setBounds(110, 280, 69, 23);
+		painelEmpresa.add(lblNewLabel_2_1_1);
+		
+		entUsuario = new JTextField();
+		entUsuario.setColumns(10);
+		entUsuario.setBounds(189, 276, 585, 33);
+		painelEmpresa.add(entUsuario);
+		
+		JLabel lblNewLabel_2_1_1_1 = new JLabel("Senha:");
+		lblNewLabel_2_1_1_1.setFont(new Font("Arial", Font.BOLD, 14));
+		lblNewLabel_2_1_1_1.setBounds(122, 324, 57, 23);
+		painelEmpresa.add(lblNewLabel_2_1_1_1);
+		
+		entSenha = new JTextField();
+		entSenha.setColumns(10);
+		entSenha.setBounds(189, 320, 585, 33);
+		painelEmpresa.add(entSenha);
+		
+		JLabel lblNewLabel_2_1_1_1_1 = new JLabel("Nome Banco:");
+		lblNewLabel_2_1_1_1_1.setFont(new Font("Arial", Font.BOLD, 14));
+		lblNewLabel_2_1_1_1_1.setBounds(77, 368, 102, 23);
+		painelEmpresa.add(lblNewLabel_2_1_1_1_1);
+		
+		entNomeBancoDados = new JTextField();
+		entNomeBancoDados.setColumns(10);
+		entNomeBancoDados.setBounds(189, 364, 585, 33);
+		painelEmpresa.add(entNomeBancoDados);
 		
 		getContentPane().add(painelPrincipal);
 
@@ -140,7 +212,7 @@ public class TelaPreferencias extends JDialog {
 				
 			}
 		});
-		entCodigoSequencial.setText(Integer.toString(configs_globais.getCodigoSequencial()));
+		
 		btnAplicarConfigsContratos.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				aplicarConfigsContratos();
@@ -149,7 +221,8 @@ public class TelaPreferencias extends JDialog {
 		btnAplicarConfigsContratos.setBounds(796, 440, 89, 23);
 		
 		painelContratos.add(btnAplicarConfigsContratos);
-		codigoSequencialAntigo = Integer.toString(configs_globais.getCodigoSequencial());
+		
+		getConfiguracoesBase();
 		
 		this.setLocationRelativeTo(null);
 
@@ -158,6 +231,22 @@ public class TelaPreferencias extends JDialog {
 		
 	}
 	
+	
+	public void getConfiguracoesBase() {
+		
+		
+		entHostBaseArquivos.setText(configs_globais.getServidor_arquivos().getServidor());
+		entUnidade.setText(configs_globais.getServidor_arquivos().getUnidade());
+		
+		entHostBancoDados.setText(configs_globais.getBaseDados().getHost());
+		entPorta.setText(configs_globais.getBaseDados().getPorta());
+		entUsuario.setText(configs_globais.getBaseDados().getNome_usuario());
+		entSenha.setText(configs_globais.getBaseDados().getSenha());
+		entNomeBancoDados.setText(configs_globais.getBaseDados().getNome_banco());
+
+		
+		
+	}
 	
 	public void aplicarConfigsContratos() {
 		String codigoSequencialAtual = entCodigoSequencial.getText().replace("^[0987654321\b ]", "");
@@ -214,7 +303,7 @@ public class TelaPreferencias extends JDialog {
 	}
 	
 	public void aplicarConfigsBaseDados() {
-		String caminho_atual = caminhoRaiz.getText();
+		String caminho_atual = entHostBaseArquivos.getText();
 		
 		if(login.getDireitos() == 1) {
 		if(caminhoAntigo.equals(caminho_atual)) {
@@ -225,7 +314,6 @@ public class TelaPreferencias extends JDialog {
 				System.out.println("Caminho atual: " + caminhoAntigo + " Caminho novo: " + caminho_atual);
 				
 				ArquivoConfiguracoes arquivo = new ArquivoConfiguracoes();
-				arquivo.setPastaRaiz(caminho_atual);
 				arquivo.salvarNovasConfiguragoes();
 				
 				
@@ -239,14 +327,11 @@ public class TelaPreferencias extends JDialog {
 		}
 		}else {
 			JOptionPane.showMessageDialog(null, "Por segurança, apenas o usuario administrador\npode fazer alterações direcionadas \na base de dados");
-			caminhoRaiz.setText(configs_globais.getRaiz().replaceAll("\"", ""));
 		}
 		
 	}
+	
 
-	
-	
-	
 	public void getDadosGlobais() {
 		//gerenciador de log
 				DadosGlobais dados = DadosGlobais.getInstance();
@@ -257,4 +342,8 @@ public class TelaPreferencias extends JDialog {
 				  login = dados.getLogin();
 		
 	}
+
+	
+	
+
 }

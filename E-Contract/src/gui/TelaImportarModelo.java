@@ -73,8 +73,12 @@ public class TelaImportarModelo extends JDialog {
 			public void actionPerformed(ActionEvent arg0) {
 				//selecionar arquivo
 				JFileChooser arquivo = new JFileChooser();
-				FileNameExtensionFilter filtroPDF = new FileNameExtensionFilter("Excel", "xlsx");  
-				arquivo.addChoosableFileFilter(filtroPDF);
+				FileNameExtensionFilter filtroexcel = new FileNameExtensionFilter("Excel", "xlsx");  
+				FileNameExtensionFilter filtroword = new FileNameExtensionFilter("Word", "docx");  
+
+				arquivo.addChoosableFileFilter(filtroexcel);
+				arquivo.addChoosableFileFilter(filtroword);
+
 				arquivo.setAcceptAllFileFilterUsed(false);
 				if(arquivo.showOpenDialog(isto) == JFileChooser.APPROVE_OPTION){
 					entArquivoSelecionado.setText(arquivo.getSelectedFile().getAbsolutePath());

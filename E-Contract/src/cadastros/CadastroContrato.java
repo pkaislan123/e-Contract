@@ -6,6 +6,56 @@ import java.util.ArrayList;
 public class CadastroContrato {
 
 	private String texto_clausulas;
+    private ArrayList<CadastroContrato.CadastroTarefa> lista_tarefas;
+    
+    
+
+	public ArrayList<CadastroContrato.CadastroTarefa> getLista_tarefas() {
+		return lista_tarefas;
+	}
+
+
+
+	public void setLista_tarefas(ArrayList<CadastroContrato.CadastroTarefa> lista_tarefas) {
+		this.lista_tarefas = lista_tarefas;
+	}
+	private String caminho_diretorio_contrato;
+
+
+
+	public String getCaminho_diretorio_contrato() {
+		return caminho_diretorio_contrato;
+	}
+
+
+
+	public void setCaminho_diretorio_contrato(String caminho_diretorio_contrato) {
+		this.caminho_diretorio_contrato = caminho_diretorio_contrato;
+	}
+
+
+
+	public int getAssinatura_comprador() {
+		return assinatura_comprador;
+	}
+
+
+
+	public void setAssinatura_comprador(int assinatura_comprador) {
+		this.assinatura_comprador = assinatura_comprador;
+	}
+
+
+
+	public int getAssinatura_vendedor() {
+		return assinatura_vendedor;
+	}
+
+
+
+	public void setAssinatura_vendedor(int assinatura_vendedor) {
+		this.assinatura_vendedor = assinatura_vendedor;
+	}
 
 
 
@@ -452,6 +502,109 @@ local retirada: 24 2
 			this.data_pagamento = data_pagamento;
 		}
 		
+		
+		
+		
+	}
+	
+	
+
+	public static class CadastroTarefa
+	{
+		
+		private int id_tarefa;
+		private int status_tarefa;
+		private String descricao_tarefa;
+		private String mensagem;
+		private String hora;
+		private String data;
+		private String nome_tarefa;
+		private CadastroLogin criador;
+		
+		private String hora_agendada;
+		private String data_agendada;
+		private int prioridade;
+		
+		
+		
+		public String getHora_agendada() {
+			return hora_agendada;
+		}
+		public void setHora_agendada(String hora_agendada) {
+			this.hora_agendada = hora_agendada;
+		}
+		public String getData_agendada() {
+			return data_agendada;
+		}
+		public void setData_agendada(String data_agendada) {
+			this.data_agendada = data_agendada;
+		}
+		public int getPrioridade() {
+			return prioridade;
+		}
+		public void setPrioridade(int prioridade) {
+			this.prioridade = prioridade;
+		}
+		public CadastroLogin getCriador() {
+			return criador;
+		}
+		public void setCriador(CadastroLogin criador) {
+			this.criador = criador;
+		}
+		public CadastroLogin getExecutor() {
+			return executor;
+		}
+		public void setExecutor(CadastroLogin executor) {
+			this.executor = executor;
+		}
+		private CadastroLogin executor;
+		
+		
+		
+		public int getId_tarefa() {
+			return id_tarefa;
+		}
+		public void setId_tarefa(int id_tarefa) {
+			this.id_tarefa = id_tarefa;
+		}
+		
+		
+		public int getStatus_tarefa() {
+			return status_tarefa;
+		}
+		public void setStatus_tarefa(int status_tarefa) {
+			this.status_tarefa = status_tarefa;
+		}
+		public String getDescricao_tarefa() {
+			return descricao_tarefa;
+		}
+		public void setDescricao_tarefa(String descricao_tarefa) {
+			this.descricao_tarefa = descricao_tarefa;
+		}
+		public String getMensagem() {
+			return mensagem;
+		}
+		public void setMensagem(String mensagem) {
+			this.mensagem = mensagem;
+		}
+		public String getHora() {
+			return hora;
+		}
+		public void setHora(String hora) {
+			this.hora = hora;
+		}
+		public String getData() {
+			return data;
+		}
+		public void setData(String data) {
+			this.data = data;
+		}
+		public String getNome_tarefa() {
+			return nome_tarefa;
+		}
+		public void setNome_tarefa(String nome_tarefa) {
+			this.nome_tarefa = nome_tarefa;
+		}
 		
 		
 		

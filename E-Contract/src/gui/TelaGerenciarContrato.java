@@ -15,6 +15,9 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.net.URI;
+import java.net.URL;
+import java.net.URLConnection;
 import java.nio.channels.FileChannel;
 import java.nio.file.CopyOption;
 import java.nio.file.Files;
@@ -45,8 +48,8 @@ import cadastros.CadastroContrato;
 import cadastros.CadastroLogin;
 import cadastros.CadastroModelo;
 import cadastros.ContaBancaria;
-import chrriis.dj.nativeswing.swtimpl.components.JWebBrowser;
 import conexaoBanco.GerenciarBancoContratos;
+import conexaoBanco.GerenciarBancoLogin;
 import manipular.ConfiguracoesGlobais;
 import manipular.ConverterPdf;
 import manipular.ManipularTxt;
@@ -55,6 +58,8 @@ import tratamento_proprio.Log;
 import views_personalizadas.TelaEscolha;
 
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+
 import java.awt.event.ActionListener;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
@@ -70,6 +75,8 @@ import java.awt.Component;
 import java.awt.event.FocusAdapter;
 import java.awt.event.FocusEvent;
 import javax.swing.JEditorPane;
+import javax.swing.JTextArea;
+import javax.swing.table.TableModel;
 
 public class TelaGerenciarContrato extends JDialog {
 	
@@ -81,6 +88,8 @@ public class TelaGerenciarContrato extends JDialog {
 	private JPanel painelDadosIniciais = new JPanel();
 	private JPanel painelPagamentos = new JPanel();
 	private JPanel painelCarregamento = new JPanel();
+	private JPanel painelListaTarefas = new JPanel();
+
 	private final JLabel lblStatusContrato = new JLabel("Status do Contrato:");
     private final JLabel lblValorTotalPagamentos ;
 	InputStream stream = null;
@@ -94,6 +103,9 @@ public class TelaGerenciarContrato extends JDialog {
     private SwingViewBuilder factory;
     private TelaGerenciarContrato isto;
     private String servidor_unidade ;
+    
+    private ArrayList<CadastroContrato.CadastroTarefa> lista_tarefas = null;
+    
 	 DefaultTableModel modelo = new DefaultTableModel(){
          public boolean isCellEditable(int linha, int coluna) {  
              return false;
@@ -107,10 +119,17 @@ public class TelaGerenciarContrato extends JDialog {
          }  
      };
      
+     DefaultTableModel modelo_tarefas = new DefaultTableModel(){
+         public boolean isCellEditable(int linha, int coluna) {  
+             return false;
+         }  
+     };
+     
 	 private final JLabel lblNewLabel_1 = new JLabel("*Pagamentos apenas informativos, assim como elaborados no contrato");
 	
 	 private final JLabel lblTipoContrato = new JLabel("Tipo Contrato:");
 	 private final JButton btnExcluirContrato = new JButton("Excluir");
+	 private JTable table_tarefas;
      
   
      
@@ -155,11 +174,11 @@ public class TelaGerenciarContrato extends JDialog {
 		painelDadosIniciais.setBackground(new Color(255, 255, 255));
 		painelPagamentos.setBackground(new Color(255, 255, 255));
 		painelCarregamento.setBackground(new Color(255, 255, 255));
-
 		
 		//adiciona novos paines e suas abas
 		painelPrincipal.addTab("Contrato", painelDadosIniciais);
 		painelDadosIniciais.setLayout(null);
+		
 		
 		 if(contrato.getSub_contrato() == 0){
 	    	  //não é um subcontrato
@@ -245,10 +264,11 @@ public class TelaGerenciarContrato extends JDialog {
 		painelSubContratos.add(lblSubcontratos);
 		btnAdicionarSubContrato.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
-				
 				DadosGlobais dados = DadosGlobais.getInstance();
 				 dados.setTeraGerenciarContratoPai(isto);
 					TelaEscolhaTipoNovoContrato telaNovoCadastro = new TelaEscolhaTipoNovoContrato(1, contrato, 0);
+					
+			
 
 
 			}
@@ -432,7 +452,61 @@ public class TelaGerenciarContrato extends JDialog {
 		         lblValorTotalPagamentos.setFont(new Font("Tahoma", Font.PLAIN, 14));
 		        lblValorTotalPagamentos.setBounds(835, 213, 101, 31);
 		        painelPagamentos.add(lblValorTotalPagamentos);
+		        painelListaTarefas.setBackground(new Color(255, 255, 255));
+		        
+		        
+		        painelPrincipal.addTab("Lista Tarefas", painelListaTarefas);
+		        painelListaTarefas.setLayout(null);
+		     
+		        table_tarefas = new JTable(modelo_tarefas);
+		        table_tarefas.setBackground(Color.WHITE);
 				
+		        
+		        modelo_tarefas.addColumn("Id Tarefas");
+		        modelo_tarefas.addColumn("Status");
+
+		        modelo_tarefas.addColumn("Nome");
+		        modelo_tarefas.addColumn("Descrição");
+		        modelo_tarefas.addColumn("Mensagem");
+
+		        modelo_tarefas.addColumn("Data");
+
+
+		        modelo_tarefas.addColumn("Hora");
+		        modelo_tarefas.addColumn("Criador");
+
+		        modelo_tarefas.addColumn("Executor");
+		        
+		        modelo_tarefas.addColumn("Hora Agendada");
+		        modelo_tarefas.addColumn("Data Agendada");
+		        modelo_tarefas.addColumn("Prioridade");
+
+				table_tarefas.getColumnModel().getColumn(0)
+			        .setPreferredWidth(40);
+				table_tarefas.getColumnModel().getColumn(1)
+			        .setPreferredWidth(90);
+				table_tarefas.getColumnModel().getColumn(2)
+			        .setPreferredWidth(170);
+				table_tarefas.getColumnModel().getColumn(3)
+			        .setPreferredWidth(80);
+				table_tarefas.getColumnModel().getColumn(4)
+			        .setPreferredWidth(80);
+				table_tarefas.getColumnModel().getColumn(5)
+			        .setPreferredWidth(70);
+				table_tarefas.getColumnModel().getColumn(6)
+			        .setPreferredWidth(70);
+				table_tarefas.getColumnModel().getColumn(7)
+			        .setPreferredWidth(90);
+				
+				   
+		        JScrollPane scrollPaneTarefas = new JScrollPane(table_tarefas);
+		        scrollPaneTarefas.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED);
+		        scrollPaneTarefas.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+		        scrollPaneTarefas.setBackground(Color.WHITE);
+		        scrollPaneTarefas.setAutoscrolls(true);
+		        scrollPaneTarefas.setBounds(28, 55, 1002, 470);
+		        painelListaTarefas.add(scrollPaneTarefas);
+		        
 		        
 		        setPagamentos(contrato);
 
@@ -448,7 +522,7 @@ public class TelaGerenciarContrato extends JDialog {
 		        
 		        String url_original = servidor_unidade + contrato_local.getCaminho_arquivo();
 		        carregarDocumento(url_original);
-		    
+		        getTarefas();
 		 
 		this.setLocationRelativeTo(null);
 
@@ -460,7 +534,75 @@ public class TelaGerenciarContrato extends JDialog {
 	}
 	
 
-	
+	public void getTarefas() {
+		modelo_tarefas.setNumRows(0);
+
+		if(lista_tarefas != null) {
+			lista_tarefas.clear();
+		}else {
+			lista_tarefas = new ArrayList<>();
+		}
+		
+		GerenciarBancoContratos gerenciar = new GerenciarBancoContratos();
+		lista_tarefas = gerenciar.getTarefas(contrato_local.getId());
+		
+		/*
+		 *   modelo_tarefas.addColumn("Id Tarefas");
+		        modelo_tarefas.addColumn("Status");
+
+		        modelo_tarefas.addColumn("Nome");
+		        modelo_tarefas.addColumn("Descrição");
+		        modelo_tarefas.addColumn("Mensagem");
+
+		        modelo_tarefas.addColumn("Data");
+
+
+		        modelo_tarefas.addColumn("Hora");
+		        modelo_tarefas.addColumn("Criador");
+
+		        modelo_tarefas.addColumn("Executor");
+		        
+		        modelo_tarefas.addColumn("Hora Agendada");
+		        modelo_tarefas.addColumn("Data Agendada");
+		        modelo_tarefas.addColumn("Prioridade");
+
+		 */
+		for(CadastroContrato.CadastroTarefa tarefa: lista_tarefas) {
+			
+			String status_tarefa = "";
+			String prioridade = "";
+			
+			if(tarefa.getStatus_tarefa() == 1) {
+				status_tarefa = "Concluida";
+			}
+			
+			if(tarefa.getPrioridade() == 1) {
+				prioridade = "Imediata";
+			}
+			
+			GerenciarBancoLogin gerenciarUsuarios = new GerenciarBancoLogin();
+			CadastroLogin criador = gerenciarUsuarios.getLogin(tarefa.getCriador().getId());
+			CadastroLogin executor = gerenciarUsuarios.getLogin(tarefa.getExecutor().getId());
+
+			
+			
+			 modelo_tarefas.addRow(new Object[]{tarefa.getId_tarefa(), status_tarefa, tarefa.getNome_tarefa(), 
+	            		tarefa.getDescricao_tarefa(),
+	                    tarefa.getMensagem(),
+	                    tarefa.getData(),
+	                    tarefa.getHora(),
+	                    criador.getNome(),
+	                    executor.getNome(),
+	                    tarefa.getHora_agendada(),
+	                    tarefa.getData_agendada(),
+	                    prioridade
+	            
+	            });
+		}
+		
+		
+		
+	}
 	
 	public void setSubContratos(CadastroContrato contrato_na_funcao) {
 		modelo_sub_contratos.setNumRows(0);
@@ -743,5 +885,6 @@ public class TelaGerenciarContrato extends JDialog {
     	return manipular.copiar(url, codigo);
     }
     
-
+    
+  
 }

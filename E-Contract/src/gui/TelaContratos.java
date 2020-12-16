@@ -7,11 +7,14 @@ import java.awt.FlowLayout;
 import javax.swing.JButton;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
 import javax.swing.ImageIcon;
 import java.awt.event.ActionListener;
 import java.io.IOException;
+import java.net.URL;
+import java.net.URLConnection;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -48,7 +51,7 @@ public class TelaContratos extends JDialog {
 
 		TelaContratos isto = this;
 		
-		setResizable(false);
+		//setResizable(false);
 		setTitle("E-Contract - Contratos");
 
 		
@@ -183,7 +186,10 @@ public class TelaContratos extends JDialog {
 					System.out.println("Nome do vendedor : " + vendedor.getNome_empresarial() + " outro nome: " + vendedor.getNome_fantaia());
 				}
 				
-				TelaGerenciarContrato gerenciar_contrato = new TelaGerenciarContrato(contrato_selecionado);
+			
+						TelaGerenciarContrato gerenciar_contrato = new TelaGerenciarContrato(contrato_selecionado);
+
+					
 			}
 		});
 		btnSelecionar.setBounds(781, 439, 121, 23);
@@ -263,4 +269,24 @@ public class TelaContratos extends JDialog {
     
         
 	}
+		
+		  public boolean testeConexao() {
+		    	try {
+				     Thread.sleep(10000);
+				     URL url = new URL("http://www.google.com.br");
+					
+					System.out.println("Tentando conexao!");
+
+
+					URLConnection connection = url.openConnection();
+					connection.connect();
+					return true;
+					
+				} catch (Exception e) {
+					e.printStackTrace();
+					System.out.println("erro ao se conectar a internet!");
+					return false;
+		 		}
+		    }
+		  
 }
