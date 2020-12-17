@@ -18,6 +18,17 @@ import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
 
+import javafx.scene.web.WebView;
+
+import javafx.application.Platform;
+import javafx.embed.swing.JFXPanel;
+import javafx.scene.Group;
+import javafx.scene.Scene;
+import javafx.scene.paint.*;
+import javafx.scene.text.*;
+import javax.swing.JFrame;
+import javax.swing.SwingUtilities;
+
 import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
@@ -74,10 +85,11 @@ import java.awt.event.FocusAdapter;
 import java.awt.event.FocusEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import javax.swing.JTextArea;
 
 
 
-public class TelaCadastroCliente extends JDialog {
+public class TelaCadastroTransportadores extends JDialog {
 	
 	private Log GerenciadorLog;
 	private CadastroLogin login;
@@ -100,15 +112,14 @@ public class TelaCadastroCliente extends JDialog {
     //painel pessoa fisica e juridico
     private JPanelTransparent panelPessoaFisica = new JPanelTransparent();
 	private JPanelTransparent panelPessoaJuridica = new JPanelTransparent();
-	private JComboBox cBTipoIdentificacao;
 	
 	//outros paineis
 	
 	private JPanel painelEmpresa = new JPanel();
 	private JPanel painelDadosBancarios = new JPanel();
-	private JPanel painelSefaz = new JPanel();
 	private JPanel painelContato = new JPanel();
 	private JPanel painelFinalizar = new JPanel();
+	private JPanel painelVeiculos = new JPanel();
 
 	
 	
@@ -147,9 +158,6 @@ public class TelaCadastroCliente extends JDialog {
     private JTextFieldPersonalizado entNomeEmpresarial;
     private JTextFieldPersonalizado entPorte;
     private JTextFieldPersonalizado entCnae;
-    private JTextFieldPersonalizado entCpfResponsavel;
-    private JTextFieldPersonalizado entIdentificacaoSiare;
-    private JTextFieldPersonalizado entSenhaSiare;
 	private String tipoIdentificacao;
 	private JTextFieldPersonalizado entApelido;
 	private JTextFieldPersonalizado entCelularContato;
@@ -179,7 +187,7 @@ public class TelaCadastroCliente extends JDialog {
 	
 	private JLabel lblCodigoGerado, lblCodigo;
 	
-	public TelaCadastroCliente(int flag_tipo_tela, CadastroCliente cliente, TelaCliente telaPai) {
+	public TelaCadastroTransportadores(int flag_tipo_tela, CadastroCliente cliente, TelaCliente telaPai) {
 		getContentPane().setFont(new Font("Arial", Font.BOLD, 18));
 		getContentPane().setForeground(Color.WHITE);
 		setFont(new Font("Arial", Font.BOLD, 18));
@@ -189,7 +197,7 @@ public class TelaCadastroCliente extends JDialog {
 		getDadosGlobais();
 		setModal(true);
 
-		TelaCadastroCliente isto = this;
+		TelaCadastroTransportadores isto = this;
 		
 		setResizable(false);
 	
@@ -245,6 +253,9 @@ public class TelaCadastroCliente extends JDialog {
 		 painelContato.setBackground(new Color(255, 255, 255));
 		 painelContato.setLayout(null);
 		 
+		 //painel de veiculos
+		 painelVeiculos.setBackground(new Color(255, 255, 255));
+		 painelVeiculos.setLayout(null);
 
 		//adiciona o painel filho1 no painel principal
 		painelPrincipal.addTab("Dados Iniciais", painelDadosIniciais);
@@ -254,95 +265,16 @@ public class TelaCadastroCliente extends JDialog {
 		 painelEmpresa.setLayout(null);
 		 		//adiciona o painel empresa no painel principal
 		 painelPrincipal.addTab("Empresa", painelEmpresa);
-		 
-		 //painel Siare
-		 painelSefaz.setBackground(new Color(255, 255, 255));
-		 painelSefaz.setLayout(null);
-		 
-		 		 //adiciona o painel siare no painel principal 
-		 		 painelPrincipal.addTab("Dados Sefaz", painelSefaz);
-		 		 
-		 
-		 JLabel lblCpfResponsavel = new JLabel("CPF Responsavel:");
-		 lblCpfResponsavel.setHorizontalAlignment(SwingConstants.TRAILING);
-		 lblCpfResponsavel.setForeground(Color.BLACK);
-		 lblCpfResponsavel.setFont(new Font("Arial Black", Font.PLAIN, 14));
-		 lblCpfResponsavel.setBackground(Color.ORANGE);
-		 lblCpfResponsavel.setBounds(196, 274, 137, 33);
-		 painelSefaz.add(lblCpfResponsavel);
-		 
-		 entCpfResponsavel = new JTextFieldPersonalizado();
-		 entCpfResponsavel.setForeground(Color.BLACK);
-		 entCpfResponsavel.setColumns(10);
-		 entCpfResponsavel.setBounds(343, 276, 220, 33);
-		 painelSefaz.add(entCpfResponsavel);
-		 
-		 JLabel lblIdentificao = new JLabel("Identificação:");
-		 lblIdentificao.setHorizontalAlignment(SwingConstants.TRAILING);
-		 lblIdentificao.setForeground(Color.BLACK);
-		 lblIdentificao.setFont(new Font("Arial Black", Font.PLAIN, 14));
-		 lblIdentificao.setBackground(Color.ORANGE);
-		 lblIdentificao.setBounds(197, 232, 137, 33);
-		 painelSefaz.add(lblIdentificao);
-		 
-		 entIdentificacaoSiare = new JTextFieldPersonalizado();
-		 entIdentificacaoSiare.setForeground(Color.BLACK);
-		 entIdentificacaoSiare.setColumns(10);
-		 entIdentificacaoSiare.setBounds(343, 232, 220, 33);
-		 painelSefaz.add(entIdentificacaoSiare);
-		 
-		 JLabel lblSenh = new JLabel("Senha:");
-		 lblSenh.setHorizontalAlignment(SwingConstants.TRAILING);
-		 lblSenh.setForeground(Color.BLACK);
-		 lblSenh.setFont(new Font("Arial Black", Font.PLAIN, 14));
-		 lblSenh.setBackground(Color.ORANGE);
-		 lblSenh.setBounds(197, 323, 137, 33);
-		 painelSefaz.add(lblSenh);
-		 
-		 entSenhaSiare = new JTextFieldPersonalizado();
-		 entSenhaSiare.setForeground(Color.BLACK);
-		 entSenhaSiare.setColumns(10);
-		 entSenhaSiare.setBounds(343, 325, 220, 33);
-		 painelSefaz.add(entSenhaSiare);
-		 
-		 JLabel lblTipoIdentificao = new JLabel("Tipo Identificação:");
-		 lblTipoIdentificao.setHorizontalAlignment(SwingConstants.TRAILING);
-		 lblTipoIdentificao.setForeground(Color.BLACK);
-		 lblTipoIdentificao.setFont(new Font("Arial Black", Font.PLAIN, 14));
-		 lblTipoIdentificao.setBackground(Color.ORANGE);
-		 lblTipoIdentificao.setBounds(185, 191, 150, 33);
-		 painelSefaz.add(lblTipoIdentificao);
-		 
-		  cBTipoIdentificacao = new JComboBox();
-		 cBTipoIdentificacao.setBounds(343, 188, 220, 33);
-		 cBTipoIdentificacao.addItem("Produtor Rural");
-		 cBTipoIdentificacao.addItem("Inscrição Estadual");
-		 cBTipoIdentificacao.addItem("Protocolo");
-		 cBTipoIdentificacao.addActionListener(new ActionListener() {
-				public void actionPerformed(ActionEvent arg0) {
-					tipoIdentificacao = cBTipoIdentificacao.getSelectedItem().toString();
-					
-					
-				}
-			});
-		 
-		 		 painelSefaz.add(cBTipoIdentificacao);
-		 		 
-		 		 JLabel lblCadastroCliente = new JLabel(" ----- Cadastro / Dados Sefaz");
-		 		 lblCadastroCliente.setHorizontalAlignment(SwingConstants.TRAILING);
-		 		 lblCadastroCliente.setForeground(Color.BLACK);
-		 		 lblCadastroCliente.setFont(new Font("Arial", Font.PLAIN, 14));
-		 		 lblCadastroCliente.setBackground(Color.ORANGE);
-		 		 lblCadastroCliente.setBounds(0, 0, 200, 33);
-		 		lblCadastroCliente.setHorizontalAlignment(JLabel.LEFT);
-
-		 		 painelSefaz.add(lblCadastroCliente);
 		//adiciona o painel de dados ao painel principal
 		 painelPrincipal.addTab("Dados Bancarios", painelDadosBancarios);
 		 
 		 //adicionar o painel de contato ao painel principal
 		 painelPrincipal.addTab("Dados Contato", painelContato);
 		 
+		 //adicionar o painel de veiculos ao painel principal
+		 painelPrincipal.addTab("Veiculos", painelVeiculos);
+
+
 		 JLabel lblCelular = new JLabel("Celular:");
 		 lblCelular.setHorizontalAlignment(SwingConstants.TRAILING);
 		 lblCelular.setForeground(Color.BLACK);
@@ -674,6 +606,30 @@ public class TelaCadastroCliente extends JDialog {
 		 });
 		 btnAtualizar.setBounds(555, 410, 89, 23);
 		 painelFinalizar.add(btnAtualizar);
+		 
+		 JLabel lblDescrio_1 = new JLabel("Descrição:");
+		 lblDescrio_1.setHorizontalAlignment(SwingConstants.TRAILING);
+		 lblDescrio_1.setForeground(Color.BLACK);
+		 lblDescrio_1.setFont(new Font("Arial Black", Font.PLAIN, 14));
+		 lblDescrio_1.setBackground(Color.ORANGE);
+		 lblDescrio_1.setBounds(77, 232, 150, 33);
+		 painelFinalizar.add(lblDescrio_1);
+		 
+		 JTextArea entDescricaoTransportador = new JTextArea();
+		 entDescricaoTransportador.setBounds(237, 238, 220, 66);
+		 painelFinalizar.add(entDescricaoTransportador);
+		 
+		 JLabel lblDescrio_1_1 = new JLabel("Observação:");
+		 lblDescrio_1_1.setHorizontalAlignment(SwingConstants.TRAILING);
+		 lblDescrio_1_1.setForeground(Color.BLACK);
+		 lblDescrio_1_1.setFont(new Font("Arial Black", Font.PLAIN, 14));
+		 lblDescrio_1_1.setBackground(Color.ORANGE);
+		 lblDescrio_1_1.setBounds(77, 323, 150, 33);
+		 painelFinalizar.add(lblDescrio_1_1);
+		 
+		 JTextArea entObservacaoTransportador = new JTextArea();
+		 entObservacaoTransportador.setBounds(237, 329, 220, 66);
+		 painelFinalizar.add(entObservacaoTransportador);
 		
 		if(flag_tipo_tela == 0 || flag_tipo_tela == 6 )
 		{
@@ -1191,7 +1147,6 @@ public class TelaCadastroCliente extends JDialog {
 									System.out.println("Codigo: "+code);
 		                            if(code.equals("0"))
 							{
-		                            	entCpfResponsavel.setText(cpf);
 										String nome_empresarial = separar.tratar("nome_empresarial:", "&");
 										System.out.println(nome_empresarial);
 				                        entNomeEmpresarial.setText(nome_empresarial);
@@ -1845,10 +1800,7 @@ public class TelaCadastroCliente extends JDialog {
 			 entEstado.setText(cliente.getUf());
 			 entCep.setText(cliente.getCep());
 			 
-			 cBTipoIdentificacao.setSelectedItem(cliente.getTipo_identificacao());
-			 entIdentificacaoSiare.setText(cliente.getIdentificacao_sefaz());
-			 entCpfResponsavel.setText(cliente.getCpf_responsavel());
-			 entSenhaSiare.setText(cliente.getSenha());
+			
 			 
 			 entApelido.setText(cliente.getApelido());
 			 
@@ -2084,7 +2036,6 @@ public class TelaCadastroCliente extends JDialog {
  		
  	if(permitir_cadastro)
  	{
- 		getDadosSefaz(cliente_atualizar);
  		getDadosContato(cliente_atualizar);
  		getDadosEmpresa(cliente_atualizar);
  		getDadosBancarios(cliente_atualizar);
@@ -2316,23 +2267,7 @@ public class TelaCadastroCliente extends JDialog {
 			return retorno;
 	}
 	
-	public void getDadosSefaz(CadastroCliente cadastro)
-	{
-		//dados sefaz
-	 	
- 		String tipo_id = cBTipoIdentificacao.getSelectedItem().toString();
- 		String id_siare = entIdentificacaoSiare.getText().toString();
- 		
- 		cadastro.setTipo_identificacao(tipo_id);
- 		cadastro.setIdentificacao_sefaz(id_siare);
- 			String cpf_siare = entCpfResponsavel.getText().toString();
- 			
- 			cadastro.setCpf_responsavel(cpf_siare);
- 				String senha = entSenhaSiare.getText().toString();
- 				
- 				cadastro.setSenha(senha);
- 				
-	}
+	
 
 	public void getDadosContato(CadastroCliente cadastro )
 	{
@@ -2449,7 +2384,6 @@ public class TelaCadastroCliente extends JDialog {
  		
  	if(permitir_cadastro)
  	{
- 		getDadosSefaz(cliente_cadastrar);
  		getDadosContato(cliente_cadastrar);
  		getDadosEmpresa(cliente_cadastrar);
  		getDadosBancarios(cliente_cadastrar);
@@ -2625,5 +2559,4 @@ public class TelaCadastroCliente extends JDialog {
 				  login = dados.getLogin();
 		
 	}
-
 }

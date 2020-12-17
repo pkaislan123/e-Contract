@@ -77,6 +77,13 @@ import java.awt.event.FocusEvent;
 import javax.swing.JEditorPane;
 import javax.swing.JTextArea;
 import javax.swing.table.TableModel;
+import javax.swing.BoxLayout;
+import java.awt.GridBagLayout;
+import net.miginfocom.swing.MigLayout;
+import java.awt.GridLayout;
+import com.jgoodies.forms.layout.FormLayout;
+import com.jgoodies.forms.layout.ColumnSpec;
+import com.jgoodies.forms.layout.RowSpec;
 
 public class TelaGerenciarContrato extends JDialog {
 	
@@ -125,11 +132,21 @@ public class TelaGerenciarContrato extends JDialog {
          }  
      };
      
+     DefaultTableModel modelo_carregamentos = new DefaultTableModel(){
+         public boolean isCellEditable(int linha, int coluna) {  
+             return false;
+         }  
+     };
+     
+     
 	 private final JLabel lblNewLabel_1 = new JLabel("*Pagamentos apenas informativos, assim como elaborados no contrato");
 	
 	 private final JLabel lblTipoContrato = new JLabel("Tipo Contrato:");
 	 private final JButton btnExcluirContrato = new JButton("Excluir");
 	 private JTable table_tarefas;
+	 private final JButton btnNewButton = new JButton("New button");
+	 private final JScrollPane scrollPane_1 = new JScrollPane();
+	 private final JLabel lblNewLabel_3 = new JLabel("New label");
      
   
      
@@ -353,7 +370,14 @@ public class TelaGerenciarContrato extends JDialog {
 		painelPagamentos.add(lblNewLabel);
 		
 		painelPrincipal.addTab("Carregamento", painelCarregamento);
-		painelCarregamento.setLayout(null);
+		painelCarregamento.setLayout(new MigLayout("", "[][][grow][][][][][][][][][][][][][][][][][][][][][][][][][][][][]", "[][][][][grow][][][][][][][][][][][]"));
+		
+		painelCarregamento.add(lblNewLabel_3, "cell 2 2");
+		
+		painelCarregamento.add(scrollPane_1, "cell 2 4 27 7,grow");
+		
+		painelCarregamento.add(btnNewButton, "cell 28 12");
+		
 		
 		getContentPane().add(painelPrincipal, BorderLayout.CENTER);
 
@@ -884,7 +908,4 @@ public class TelaGerenciarContrato extends JDialog {
     	ManipularTxt manipular = new ManipularTxt();
     	return manipular.copiar(url, codigo);
     }
-    
-    
-  
 }

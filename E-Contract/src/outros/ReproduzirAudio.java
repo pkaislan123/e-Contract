@@ -11,6 +11,7 @@ import javax.sound.sampled.DataLine;
 import javax.sound.sampled.LineUnavailableException;
 import javax.sound.sampled.SourceDataLine;
 import javax.sound.sampled.UnsupportedAudioFileException;
+import javax.sound.sampled.FloatControl;
  
 /**
  * This is an example program that demonstrates how to play back an audio file
@@ -39,6 +40,9 @@ public class ReproduzirAudio {
             SourceDataLine audioLine = (SourceDataLine) AudioSystem.getLine(info);
  
             audioLine.open(format);
+            FloatControl gainControl = 
+            	    (FloatControl) audioLine.getControl(FloatControl.Type.MASTER_GAIN);
+            	gainControl.setValue(-1.0f);
  
             audioLine.start();
              

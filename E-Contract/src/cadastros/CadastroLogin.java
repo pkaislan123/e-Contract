@@ -2,8 +2,26 @@ package cadastros;
 
 public class CadastroLogin {
 
-	private int id, direitos;
+	private int id;
 	private String nome, sobrenome, login, email, senha , senhaEmail, cargo, celular, genero, tratamento;
+	private Preferencias configs_preferencias;
+	private Privilegios configs_privilegios;
+	
+	
+	
+	
+	public Privilegios getConfigs_privilegios() {
+		return configs_privilegios;
+	}
+	public void setConfigs_privilegios(Privilegios configs_privilegios) {
+		this.configs_privilegios = configs_privilegios;
+	}
+	public Preferencias getConfigs_preferencias() {
+		return configs_preferencias;
+	}
+	public void setConfigs_preferencias(Preferencias configs_preferencias) {
+		this.configs_preferencias = configs_preferencias;
+	}
 	public String getSobrenome() {
 		return sobrenome;
 	}
@@ -40,18 +58,14 @@ public class CadastroLogin {
 	public void setCelular(String celular) {
 		this.celular = celular;
 	}
+	
 	public int getId() {
 		return id;
 	}
 	public void setId(int id) {
 		this.id = id;
 	}
-	public int getDireitos() {
-		return direitos;
-	}
-	public void setDireitos(int direitos) {
-		this.direitos = direitos;
-	}
+
 	public String getNome() {
 		return nome;
 	}
@@ -78,6 +92,77 @@ public class CadastroLogin {
 	}
 	
 	
+	
+	public static class Privilegios {
+		int id_privilegios;
+		
+		int nivel_privilegios;
+		int privilegio_alterar_apis;
+		
+		
+		
+		public int getId_privilegios() {
+			return id_privilegios;
+		}
+
+
+		public void setId_privilegios(int id_privilegios) {
+			this.id_privilegios = id_privilegios;
+		}
+
+
+		public int getNivel_privilegios() {
+			return nivel_privilegios;
+		}
+		
+		
+		public void setNivel_privilegios(int nivel_privilegios) {
+			this.nivel_privilegios = nivel_privilegios;
+		}
+		public int getPrivilegio_alterar_apis() {
+			return privilegio_alterar_apis;
+		}
+		public void setPrivilegio_alterar_apis(int privilegio_alterar_apis) {
+			this.privilegio_alterar_apis = privilegio_alterar_apis;
+		}
+		
+	}
+	
+	
+	public static class Preferencias{
+		
+		int id_preferencias;
+		int api_exato, api_whatsapp, api_sintegra;
+		public int getId_preferencias() {
+			return id_preferencias;
+		}
+		public void setId_preferencias(int id_preferencias) {
+			this.id_preferencias = id_preferencias;
+		}
+		public int getApi_exato() {
+			return api_exato;
+		}
+		public void setApi_exato(int api_exato) {
+			this.api_exato = api_exato;
+		}
+		public int getApi_whatsapp() {
+			return api_whatsapp;
+		}
+		public void setApi_whatsapp(int api_whatsapp) {
+			this.api_whatsapp = api_whatsapp;
+		}
+		public int getApi_sintegra() {
+			return api_sintegra;
+		}
+		public void setApi_sintegra(int api_sintegra) {
+			this.api_sintegra = api_sintegra;
+		}
+		
+		
+		
+		
+		
+	}
 	
 	
 }

@@ -145,6 +145,8 @@ public class TelaPlanilhaNFe extends JDialog {
 			       CadastroNFe cadastro = new CadastroNFe();
 		
 				   File file = new File(listadeArquivos.get(i).toString());
+				   cadastro.setCaminho_arquivo(file.getAbsolutePath());
+				   System.out.println("caminho do arquivo: " + cadastro.getCaminho_arquivo());
                    
 			        try (PDDocument document = PDDocument.load( file )) {
 

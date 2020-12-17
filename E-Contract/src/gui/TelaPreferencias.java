@@ -12,6 +12,8 @@ import javax.swing.JTabbedPane;
 import javax.swing.border.EmptyBorder;
 
 import cadastros.CadastroLogin;
+import cadastros.CadastroLogin.Preferencias;
+import conexaoBanco.GerenciarBancoLogin;
 import manipular.ArquivoConfiguracoes;
 import manipular.ConfiguracoesGlobais;
 import outros.DadosGlobais;
@@ -26,6 +28,7 @@ import java.awt.event.ActionListener;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.awt.event.ActionEvent;
+import javax.swing.JCheckBox;
 
 public class TelaPreferencias extends JDialog {
 
@@ -34,6 +37,7 @@ public class TelaPreferencias extends JDialog {
 	private JPanel painelEmpresa = new JPanel();
 	private JPanel painelNotificacoes = new JPanel();
 	private JPanel painelContratos = new JPanel();
+	private JPanel painelFerramentasTerceirizadas = new JPanel();
 
 	private JTextField entHostBaseArquivos;
 	private Log GerenciadorLog;
@@ -50,6 +54,7 @@ public class TelaPreferencias extends JDialog {
 	private JTextField entUsuario;
 	private JTextField entSenha;
 	private JTextField entNomeBancoDados;
+	JCheckBox chkBoxWhatsapp, chkBoxExatoAtivado, chkBoxSintegraAtivado;
 
 	 
 	public TelaPreferencias() {
@@ -79,6 +84,9 @@ public class TelaPreferencias extends JDialog {
 		painelEmpresa.setBackground(new Color(255, 255, 204));
 		painelNotificacoes.setBackground(new Color(255, 255, 255));
 
+		
+		painelFerramentasTerceirizadas.setBackground(new Color(255, 255, 255));
+		
 		//adiciona novos paines e suas abas
 		painelPrincipal.addTab("Dados Iniciais", painelDadosIniciais);
 		painelDadosIniciais.setLayout(null);
@@ -91,6 +99,54 @@ public class TelaPreferencias extends JDialog {
 		
 		painelPrincipal.addTab("Contratos", painelContratos);
 		painelContratos.setLayout(null);
+		
+		
+		painelPrincipal.addTab("Ferramentas Terceirizadas", painelFerramentasTerceirizadas);
+		painelFerramentasTerceirizadas.setLayout(null);
+		
+		JLabel lbl123 = new JLabel("Api Sintegra AWS:");
+		lbl123.setFont(new Font("Arial", Font.BOLD, 14));
+		lbl123.setBounds(48, 58, 141, 23);
+		painelFerramentasTerceirizadas.add(lbl123);
+		
+		 chkBoxSintegraAtivado = new JCheckBox("Ativado");
+		chkBoxSintegraAtivado.setBounds(195, 59, 97, 23);
+		painelFerramentasTerceirizadas.add(chkBoxSintegraAtivado);
+		
+		JLabel lblApiWhatsapp = new JLabel("Api WhatsApp:");
+		lblApiWhatsapp.setFont(new Font("Arial", Font.BOLD, 14));
+		lblApiWhatsapp.setBounds(48, 92, 141, 23);
+		painelFerramentasTerceirizadas.add(lblApiWhatsapp);
+		
+		 chkBoxWhatsapp = new JCheckBox("Ativado");
+		chkBoxWhatsapp.setBounds(195, 93, 97, 23);
+		painelFerramentasTerceirizadas.add(chkBoxWhatsapp);
+		
+		JLabel lblApiExatoDigital = new JLabel("Api Exato Digital:");
+		lblApiExatoDigital.setFont(new Font("Arial", Font.BOLD, 14));
+		lblApiExatoDigital.setBounds(48, 130, 141, 23);
+		painelFerramentasTerceirizadas.add(lblApiExatoDigital);
+		
+		 chkBoxExatoAtivado = new JCheckBox("Ativado");
+		chkBoxExatoAtivado.setBounds(195, 131, 97, 23);
+		painelFerramentasTerceirizadas.add(chkBoxExatoAtivado);
+		
+		JButton btnNewButton = new JButton("Atualizar Preferências");
+		btnNewButton.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				//atualizar configuracoes de preferencias
+				if(login.getConfigs_privilegios().getPrivilegio_alterar_apis() == 1) {
+					atualizarConfiguracoesPreferencias();
+
+				}else {
+					JOptionPane.showMessageDialog(null, "Para alterar essas configurações\né necessário elevação de direitos");
+				}
+			}
+		});
+		btnNewButton.setBounds(609, 415, 190, 23);
+		painelFerramentasTerceirizadas.add(btnNewButton);
+		
+		
 		lblNewLabel_1.setFont(new Font("Tahoma", Font.PLAIN, 14));
 		lblNewLabel_1.setBounds(36, 37, 125, 30);
 		
@@ -225,6 +281,7 @@ public class TelaPreferencias extends JDialog {
 		getConfiguracoesBase();
 		
 		this.setLocationRelativeTo(null);
+		setarConfigsUsuario();
 
 		this.setVisible(true);
 		
@@ -252,7 +309,7 @@ public class TelaPreferencias extends JDialog {
 		String codigoSequencialAtual = entCodigoSequencial.getText().replace("^[0987654321\b ]", "");
 		System.out.println("Codigo sequencial digitado: " + codigoSequencialAtual);
 
-		if(login.getDireitos() == 3) {
+		if(login.getConfigs_privilegios().getNivel_privilegios() == 3) {
 			JOptionPane.showMessageDialog(null, "Por segurança, apenas o usuario administrador ou o gerente financeiro\npode fazer alterações direcionadas \na códigos de contratos");
 			entCodigoSequencial.setText(Integer.toString(configs_globais.getCodigoSequencial()));
 		}else {
@@ -305,7 +362,7 @@ public class TelaPreferencias extends JDialog {
 	public void aplicarConfigsBaseDados() {
 		String caminho_atual = entHostBaseArquivos.getText();
 		
-		if(login.getDireitos() == 1) {
+		if(login.getConfigs_privilegios().getNivel_privilegios() == 1) {
 		if(caminhoAntigo.equals(caminho_atual)) {
 			//caminhoes iguais, nao alterar nada
 		}else {
@@ -331,6 +388,80 @@ public class TelaPreferencias extends JDialog {
 		
 	}
 	
+	public void setarConfigsUsuario() {
+        getDadosGlobais();
+
+		if(login.getConfigs_preferencias().getApi_exato() == 1) {
+			chkBoxExatoAtivado.setSelected(true);
+		}else
+		{
+			chkBoxExatoAtivado.setSelected(false);
+
+		}
+		
+		if(login.getConfigs_preferencias().getApi_whatsapp() == 1) {
+			chkBoxWhatsapp.setSelected(true);
+		}else
+		{
+			chkBoxWhatsapp.setSelected(false);
+
+		}
+		
+		if(login.getConfigs_preferencias().getApi_sintegra() == 1) {
+			chkBoxSintegraAtivado.setSelected(true);
+		}else
+		{
+			chkBoxSintegraAtivado.setSelected(false);
+
+		}
+		
+		
+  }
+	
+	public void atualizarConfiguracoesPreferencias() {
+		GerenciarBancoLogin gerenciarBancoLogin = new GerenciarBancoLogin();
+		CadastroLogin login_atualizar = login;
+		CadastroLogin.Preferencias novas_preferencias = new CadastroLogin.Preferencias();
+		
+		//fazer checagens
+		if(chkBoxWhatsapp.isSelected()) {
+			novas_preferencias.setApi_whatsapp(1);
+		}else {
+			novas_preferencias.setApi_whatsapp(0);
+
+		}
+		
+		if(chkBoxSintegraAtivado.isSelected()) {
+			novas_preferencias.setApi_sintegra(1);
+		}else {
+			novas_preferencias.setApi_sintegra(0);
+
+		}
+		
+		if(chkBoxExatoAtivado.isSelected()) {
+			novas_preferencias.setApi_exato(1);;
+		}else {
+			novas_preferencias.setApi_exato(0);;
+
+		}
+		novas_preferencias.setId_preferencias(login.getConfigs_preferencias().getId_preferencias());
+		
+		login_atualizar.setConfigs_preferencias(novas_preferencias);
+		
+		if(gerenciarBancoLogin.atualizarUsuario(login_atualizar)) {
+			JOptionPane.showMessageDialog(null, "Preferências de usuário atualizadas");
+		}else {
+			JOptionPane.showMessageDialog(null, "Erro ao  Atualizadar preferências de usuário\nConsulte o Administrador");
+
+		}
+		
+		//setar novas configs de login
+		DadosGlobais dados = DadosGlobais.getInstance();
+         dados.setLogin(gerenciarBancoLogin.buscaLogin(login_atualizar.getLogin()));
+         setarConfigsUsuario();
+         
+	 
+	}
 
 	public void getDadosGlobais() {
 		//gerenciador de log
@@ -342,8 +473,4 @@ public class TelaPreferencias extends JDialog {
 				  login = dados.getLogin();
 		
 	}
-
-	
-	
-
 }

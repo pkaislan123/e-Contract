@@ -14,6 +14,7 @@ public class CadastroNFe {
 	private String produto;
 	private String quantidade;
 	private String valor;
+	private String caminho_arquivo;
 	public String getNfe() {
 		return nfe;
 	}
@@ -70,6 +71,12 @@ public class CadastroNFe {
 	}
 	public String getProduto() {
 		return produto;
+	}
+	public String getCaminho_arquivo() {
+		return caminho_arquivo;
+	}
+	public void setCaminho_arquivo(String caminho_arquivo) {
+		this.caminho_arquivo = caminho_arquivo;
 	}
 	public void setProduto(String produto) {
 		this.produto = produto;

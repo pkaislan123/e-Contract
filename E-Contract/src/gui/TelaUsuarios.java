@@ -62,12 +62,11 @@ public class TelaUsuarios extends JDialog {
      	
      	    id = usuario.getId();
      	    login = usuario.getLogin();
-     	    direitos = usuario.getDireitos();
      	    nome = usuario.getNome();
      	    email = usuario.getEmail();
      	    senha = usuario.getSenha();
      
-             modelo.addRow(new Object[]{id, login, direitos, nome, email});
+             modelo.addRow(new Object[]{id, login, nome, email});
 
      
              usuarios_disponiveis.add(usuario);
@@ -107,7 +106,6 @@ public class TelaUsuarios extends JDialog {
 		tabela.setBackground(new Color(255, 255, 255));
 		modelo.addColumn("Id");
         modelo.addColumn("Login");
-        modelo.addColumn("Direitos");
         modelo.addColumn("Nome");
         modelo.addColumn("E-mail");
        
@@ -137,12 +135,12 @@ public class TelaUsuarios extends JDialog {
 		btnUsurio.setIcon(new ImageIcon(TelaUsuarios.class.getResource("/imagens/add_usuario.png")));
 		btnUsurio.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				if(login.getDireitos() != 1) {
+				if(login.getConfigs_privilegios().getNivel_privilegios() != 1) {
 
 					JOptionPane.showMessageDialog(null, "Requer Elevação de Direitos \n Reportado ao Administrador");
 					GerenciadorLog.registrarLogDiario("aviso", "tentativa de criação de novo usuário");
 				}else {
-					TelaCadastroUsuario cadastrarUsuario = new TelaCadastroUsuario();
+					TelaCadastroUsuario cadastrarUsuario = new TelaCadastroUsuario(0, null);
 				}
 			}
 		});
@@ -150,6 +148,22 @@ public class TelaUsuarios extends JDialog {
 		contentPanel.add(btnUsurio);
 		
 		JButton btnEditar = new JButton("Editar");
+		btnEditar.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				int indiceDaLinha = 0;
+				indiceDaLinha = tabela.getSelectedRow();
+				
+	
+				
+				if(login.getConfigs_privilegios().getNivel_privilegios() != 1) {
+
+					JOptionPane.showMessageDialog(null, "Requer Elevação de Direitos \n Reportado ao Administrador");
+					GerenciadorLog.registrarLogDiario("aviso", "tentativa de criação de novo usuário");
+				}else {
+					TelaCadastroUsuario cadastrarUsuario = new TelaCadastroUsuario(1, usuarios_disponiveis.get(indiceDaLinha));
+				}
+			}
+		});
 		btnEditar.setIcon(new ImageIcon(TelaUsuarios.class.getResource("/imagens/editar.png")));
 		btnEditar.setBounds(427, 426, 89, 23);
 		contentPanel.add(btnEditar);

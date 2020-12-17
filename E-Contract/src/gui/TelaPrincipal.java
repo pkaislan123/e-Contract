@@ -48,6 +48,7 @@ import java.awt.event.ActionEvent;
 import javax.swing.SwingConstants;
 import java.awt.Point;
 import java.awt.Insets;
+import javax.swing.JButton;
 
 public class TelaPrincipal extends JFrame implements GetDadosGlobais{
 
@@ -108,7 +109,7 @@ public class TelaPrincipal extends JFrame implements GetDadosGlobais{
 			 
 			setTitle("E-Contract");
 		
-			setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+			setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 			setBounds(100, 100, d.width, d.height - taskBarHeight);
 			contentPane = new JPanelBackground();
 			
@@ -289,7 +290,7 @@ public class TelaPrincipal extends JFrame implements GetDadosGlobais{
 			panel.add( new ChartPanel( grafico ) );
 			
 			JPanel painelInfoConexao = new JPanel();
-			painelInfoConexao.setBounds(944, 67, 406, 165);
+			painelInfoConexao.setBounds(944, 104, 406, 165);
 			contentPane.add(painelInfoConexao);
 			painelInfoConexao.setLayout(null);
 			
@@ -337,19 +338,30 @@ public class TelaPrincipal extends JFrame implements GetDadosGlobais{
 			urlInternet.setBounds(145, 25, 156, 14);
 			painelInfoConexao.add(urlInternet);
 			
+			JButton btnSair = new JButton("Sair");
+			btnSair.addActionListener(new ActionListener() {
+				public void actionPerformed(ActionEvent e) {
+					isto.dispose();
+					TelaLogin entrada = new TelaLogin();
+					entrada.setVisible(true);
+				}
+			});
+			btnSair.setBounds(1251, 70, 89, 23);
+			contentPane.add(btnSair);
 			
-			if(login.getDireitos() == 1) {
+			
+			if(login.getConfigs_privilegios().getNivel_privilegios() == 1) {
 				if(login.getGenero().equals("Masculino"))
 				 lblDireitos.setText("Administrador do Sistema");
 				else
 					 lblDireitos.setText("Administradora do Sistema");
 			}
-				else if (login.getDireitos() == 2) {
+				else if (login.getConfigs_privilegios().getNivel_privilegios() == 2) {
 					if(login.getGenero().equals("Masculino"))
 						 lblDireitos.setText("Gerente Financeiro");
 						else
 							 lblDireitos.setText("Gerente Financeira");				}
-				else if (login.getDireitos() == 3) {
+				else if (login.getConfigs_privilegios().getNivel_privilegios() == 3) {
 					if(login.getGenero().equals("Masculino"))
 						 lblDireitos.setText("Auxiliar Administrativo");
 						else
