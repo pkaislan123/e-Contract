@@ -51,9 +51,11 @@ public class GetDadosTransportador {
 		  
 			   HttpClient httpclient = HttpClients.createDefault();
 		          
-				HttpPost httppost = new HttpPost("api.exato.digital/antt/consulta-publica-transportadores HTTP/1.1");
+				HttpPost httppost = new HttpPost("https://api.xdata.com.br/json/reply/i2cANTT");
+				httppost.setHeader("Accept", "application/json");
 				httppost.setHeader("Content-Type", "application/json");
 
+				 
 				
 				
 				try { 

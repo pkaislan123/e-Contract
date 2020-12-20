@@ -55,10 +55,7 @@ public class Main {
  public static void main(String[] args) {
 	   
 	
-	 GetDadosTransportador trans = new GetDadosTransportador();
-	 trans.captura();
-	 
-	/*
+	
 	  
 		try {
 			for ( LookAndFeelInfo info : UIManager.getInstalledLookAndFeels() ) {

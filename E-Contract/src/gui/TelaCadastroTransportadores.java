@@ -86,6 +86,7 @@ import java.awt.event.FocusEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import javax.swing.JTextArea;
+import javax.swing.JCheckBox;
 
 
 
@@ -169,17 +170,38 @@ public class TelaCadastroTransportadores extends JDialog {
 
 	private JPanel painel_table_cb;
 	private JTable table_cb;
+	private JTable table_veiculos;
 
 	
 	private DefaultTableModel modelo = new DefaultTableModel();
+	private DefaultTableModel modelo_veiculos = new DefaultTableModel();
+
 	private DefaultTableModel modelo_cb = new DefaultTableModel();
 	private JTextFieldPersonalizado entDescricaoContato;
 	private JTextFieldPersonalizado entObservacaoContato;
 	private JTextFieldPersonalizado entNomeContaBancaria;
+
+	
+	private JTextFieldPersonalizado entRegistroTrator ,entPlacaTrator, entMunicipioTrator, entEstadoTrator,
+	entEstadoReboque1, entMunicipioReboque1, entPlacaReboque1, entRegistroReboque1,
+	entRegistroReboque2, entPlacaReboque2, entMunicipioReboque2 , entEstadoReboque2,
+	entRegistroTransportador;
+	private JCheckBox chkBoxReboque2, chkBoxReboque1;
+
+
+	private JPanel panelReboque1, panelReboque2; 
+	  
+	
+	 
+	 
+	private JComboBox cBEixosTrator, cBTipoTrator,   cBTipoReboque1, cBEixosReboque1, cBTipoReboque2, cBEixosReboque2;
+	 
 	private JButton btnSalvar;
 
 	ArrayList<Integer> contatos_excluir = new ArrayList<>();
 	ArrayList<Integer> contas_excluir = new ArrayList<>();
+	
+	ArrayList<Integer> veiculos_excluir = new ArrayList<>();
 	
 	
 	CadastroCliente cliente_cadastrar = new CadastroCliente();
@@ -187,7 +209,9 @@ public class TelaCadastroTransportadores extends JDialog {
 	
 	private JLabel lblCodigoGerado, lblCodigo;
 	
-	public TelaCadastroTransportadores(int flag_tipo_tela, CadastroCliente cliente, TelaCliente telaPai) {
+	public TelaCadastroTransportadores(int flag_tipo_tela, CadastroCliente cliente, TelaTransportadores telaPai) {
+		
+		
 		getContentPane().setFont(new Font("Arial", Font.BOLD, 18));
 		getContentPane().setForeground(Color.WHITE);
 		setFont(new Font("Arial", Font.BOLD, 18));
@@ -204,16 +228,12 @@ public class TelaCadastroTransportadores extends JDialog {
 		
 		
 		setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-		if(flag_tipo_tela == 1)
-		setTitle("E-Contract - Novo Cliente");
-		else if(flag_tipo_tela == 5)
-			setTitle("E-Contract - Novo Armazém");
-		else if(flag_tipo_tela == 6)
-			setTitle("E-Contract - Editar Armazém");
-     	else if(flag_tipo_tela == 0) {
-			setTitle("E-Contract - Editar Cliente");
-			cliente_atualizar = cliente;   
-     	}
+		if(flag_tipo_tela == 0)
+		setTitle("E-Contract - Novo Transportador");
+		else if(flag_tipo_tela == 1)
+			setTitle("E-Contract - Editar Transportador");
+		
+			
 			
 		setBounds(100, 100, 810, 589);
 		
@@ -273,6 +293,498 @@ public class TelaCadastroTransportadores extends JDialog {
 		 
 		 //adicionar o painel de veiculos ao painel principal
 		 painelPrincipal.addTab("Veiculos", painelVeiculos);
+		 
+		 JPanel panelComportaVeiculos = new JPanel();
+		 panelComportaVeiculos.setBounds(36, 11, 743, 132);
+		 painelVeiculos.add(panelComportaVeiculos);
+		 
+		 
+		 
+			table_veiculos = new JTable(modelo_veiculos);
+			table_veiculos.setBackground(new Color(255, 255, 255));
+			
+			modelo_veiculos.addColumn("ID");
+			modelo_veiculos.addColumn("RNTRC");
+			modelo_veiculos.addColumn("Placa");
+			modelo_veiculos.addColumn("Eixos");
+			modelo_veiculos.addColumn("Tipo");
+			modelo_veiculos.addColumn("Cidade");
+			modelo_veiculos.addColumn("Estado");
+
+	        
+	      
+
+			table_veiculos.getColumnModel().getColumn(0)
+	        .setPreferredWidth(20);
+			table_veiculos.getColumnModel().getColumn(1)
+	        .setPreferredWidth(20);
+			table_veiculos.getColumnModel().getColumn(2)
+	        .setPreferredWidth(130);
+			table_veiculos.getColumnModel().getColumn(3)
+	        .setPreferredWidth(30);
+			table_veiculos.getColumnModel().getColumn(4)
+	        .setPreferredWidth(30);
+			table_veiculos.getColumnModel().getColumn(5)
+	        .setPreferredWidth(100);
+	    
+	    	modelo_veiculos.setNumRows(0);
+		 panelComportaVeiculos.setLayout(null);
+	    	
+		 JScrollPane scrollPaneVeiculos = new JScrollPane(table_veiculos);
+		 scrollPaneVeiculos.setBounds(10, 5, 723, 116);
+		 panelComportaVeiculos.add(scrollPaneVeiculos);
+		 
+		 JPanel panel_1 = new JPanel();
+		 panel_1.setBackground(Color.WHITE);
+		 panel_1.setBounds(10, 188, 769, 320);
+		 painelVeiculos.add(panel_1);
+		 panel_1.setLayout(null);
+		 
+		 JLabel lblNome_1_2_1_1 = new JLabel("Dados do Trator");
+		 lblNome_1_2_1_1.setBounds(0, 0, 181, 33);
+		 panel_1.add(lblNome_1_2_1_1);
+		 lblNome_1_2_1_1.setHorizontalAlignment(SwingConstants.TRAILING);
+		 lblNome_1_2_1_1.setForeground(Color.BLACK);
+		 lblNome_1_2_1_1.setFont(new Font("Arial Black", Font.PLAIN, 14));
+		 lblNome_1_2_1_1.setBackground(Color.ORANGE);
+		 
+		 JLabel lblNome_1_2 = new JLabel("Rntrc:");
+		 lblNome_1_2.setBounds(10, 33, 65, 33);
+		 panel_1.add(lblNome_1_2);
+		 lblNome_1_2.setHorizontalAlignment(SwingConstants.TRAILING);
+		 lblNome_1_2.setForeground(Color.BLACK);
+		 lblNome_1_2.setFont(new Font("Arial Black", Font.PLAIN, 14));
+		 lblNome_1_2.setBackground(Color.ORANGE);
+		 
+		 JLabel lblNome_1_2_1 = new JLabel("Placa:");
+		 lblNome_1_2_1.setBounds(10, 72, 65, 33);
+		 panel_1.add(lblNome_1_2_1);
+		 lblNome_1_2_1.setHorizontalAlignment(SwingConstants.TRAILING);
+		 lblNome_1_2_1.setForeground(Color.BLACK);
+		 lblNome_1_2_1.setFont(new Font("Arial Black", Font.PLAIN, 14));
+		 lblNome_1_2_1.setBackground(Color.ORANGE);
+		 
+		 JLabel lblNome_1_2_1_2_1 = new JLabel("Eixos:");
+		 lblNome_1_2_1_2_1.setBounds(18, 116, 57, 33);
+		 panel_1.add(lblNome_1_2_1_2_1);
+		 lblNome_1_2_1_2_1.setHorizontalAlignment(SwingConstants.TRAILING);
+		 lblNome_1_2_1_2_1.setForeground(Color.BLACK);
+		 lblNome_1_2_1_2_1.setFont(new Font("Arial Black", Font.PLAIN, 14));
+		 lblNome_1_2_1_2_1.setBackground(Color.ORANGE);
+		 
+		 JLabel lblNome_1_2_1_2 = new JLabel("Tipo:");
+		 lblNome_1_2_1_2.setBounds(18, 149, 57, 33);
+		 panel_1.add(lblNome_1_2_1_2);
+		 lblNome_1_2_1_2.setHorizontalAlignment(SwingConstants.TRAILING);
+		 lblNome_1_2_1_2.setForeground(Color.BLACK);
+		 lblNome_1_2_1_2.setFont(new Font("Arial Black", Font.PLAIN, 14));
+		 lblNome_1_2_1_2.setBackground(Color.ORANGE);
+		 
+		 JLabel lblNome_1_2_1_2_1_1 = new JLabel("Cidade:");
+		 lblNome_1_2_1_2_1_1.setBounds(18, 185, 57, 33);
+		 panel_1.add(lblNome_1_2_1_2_1_1);
+		 lblNome_1_2_1_2_1_1.setHorizontalAlignment(SwingConstants.TRAILING);
+		 lblNome_1_2_1_2_1_1.setForeground(Color.BLACK);
+		 lblNome_1_2_1_2_1_1.setFont(new Font("Arial Black", Font.PLAIN, 14));
+		 lblNome_1_2_1_2_1_1.setBackground(Color.ORANGE);
+		 
+		 JLabel lblNome_1_2_1_2_1_1_1 = new JLabel("UF:");
+		 lblNome_1_2_1_2_1_1_1.setBounds(18, 229, 57, 33);
+		 panel_1.add(lblNome_1_2_1_2_1_1_1);
+		 lblNome_1_2_1_2_1_1_1.setHorizontalAlignment(SwingConstants.TRAILING);
+		 lblNome_1_2_1_2_1_1_1.setForeground(Color.BLACK);
+		 lblNome_1_2_1_2_1_1_1.setFont(new Font("Arial Black", Font.PLAIN, 14));
+		 lblNome_1_2_1_2_1_1_1.setBackground(Color.ORANGE);
+		 
+		 
+		  entRegistroTrator = new JTextFieldPersonalizado();
+		  entRegistroTrator.setForeground(Color.black);
+		 entRegistroTrator.setBounds(81, 33, 153, 33);
+		 panel_1.add(entRegistroTrator);
+		 
+		  entPlacaTrator = new JTextFieldPersonalizado();
+		  entPlacaTrator.setForeground(Color.black);
+		 entPlacaTrator.setBounds(81, 75, 153, 33);
+		 panel_1.add(entPlacaTrator);
+		 
+		
+		  cBEixosTrator = new JComboBox();
+		 cBEixosTrator.setBounds(81, 123, 153, 22);
+		 for(int i = 2; i<=9; i++) {
+		 cBEixosTrator.addItem(Integer.toString(i));
+		 
+		 }
+
+		 panel_1.add(cBEixosTrator);
+		 
+		  cBTipoTrator = new JComboBox();
+		  cBTipoTrator.setBounds(81, 156, 153, 22);
+		  cBTipoTrator.addItem("Graneleiro");
+		  cBTipoTrator.addItem("Caçamba");
+		  cBTipoTrator.addItem("Trator");
+
+
+		 panel_1.add(cBTipoTrator);
+		 
+		  entMunicipioTrator = new JTextFieldPersonalizado();
+		 entMunicipioTrator.setBounds(81, 185, 153, 33);
+		 entMunicipioTrator.setForeground(Color.black);
+		 panel_1.add(entMunicipioTrator);
+		 
+		 JButton btnAdicionarVeiculo = new JButton("Adicionar");
+		 btnAdicionarVeiculo.addActionListener(new ActionListener() {
+		 	public void actionPerformed(ActionEvent e) {
+		 		String id = "0000";
+		 		String registro_trator, placa_trator, eixos_trator, tipo_trator, cidade_trator, uf_trator;
+		 		String registro_reboque1, placa_reboque1, eixos_reboque1, tipo_reboque1, cidade_reboque1, uf_reboque1;
+		 		String registro_reboque2, placa_reboque2, eixos_reboque2, tipo_reboque2, cidade_reboque2, uf_reboque2;
+		 	     CadastroCliente.Veiculo veiculo = new CadastroCliente.Veiculo();
+
+		 		
+			
+
+		 		registro_trator = entRegistroTrator.getText();
+		 		placa_trator = entPlacaTrator.getText();
+		 		eixos_trator = cBEixosTrator.getSelectedItem().toString();
+		 		tipo_trator = cBTipoTrator.getSelectedItem().toString();
+		 		cidade_trator = entRegistroTrator.getText();
+		 		uf_trator = entEstadoTrator.getText();
+		 		
+		 		veiculo.setId_veiculo(0);
+		 		veiculo.setRegistro_trator(registro_trator);
+		 		veiculo.setPlaca_trator(placa_trator);
+		 		veiculo.setEixos_trator(eixos_trator);
+		 		veiculo.setTipo_trator(tipo_trator);
+		 		veiculo.setCidade_trator(cidade_trator);
+		 		veiculo.setUf_trator(uf_trator);
+		 		
+		 		if(chkBoxReboque1.isSelected()) {
+		 			registro_reboque1 = entRegistroReboque1.getText();
+			 		placa_reboque1 = entPlacaReboque1.getText();
+			 		eixos_reboque1 = cBEixosReboque1.getSelectedItem().toString();
+			 		tipo_reboque1 = cBTipoReboque1.getSelectedItem().toString();
+			 		cidade_reboque1 = entRegistroReboque1.getText();
+			 		uf_reboque1 = entEstadoReboque1.getText();
+			 		
+					
+			 		veiculo.setRegistro_reboque1(registro_reboque1);
+			 		veiculo.setPlaca_reboque1(placa_reboque1);
+			 		veiculo.setEixos_reboque1(eixos_reboque1);
+			 		veiculo.setTipo_reboque1(tipo_reboque1);
+			 		veiculo.setCidade_reboque1(cidade_reboque1);
+			 		veiculo.setUf_reboque1(uf_reboque1);
+			 		
+		 		}
+		 		
+		 		if(chkBoxReboque2.isSelected()) {
+		 			registro_reboque2 = entRegistroReboque2.getText();
+			 		placa_reboque2 = entPlacaReboque2.getText();
+			 		eixos_reboque2 = cBEixosReboque2.getSelectedItem().toString();
+			 		tipo_reboque2 = cBTipoReboque2.getSelectedItem().toString();
+			 		cidade_reboque2 = entRegistroReboque2.getText();
+			 		uf_reboque2 = entEstadoReboque2.getText();
+			 		
+
+			 		veiculo.setRegistro_reboque2(registro_reboque2);
+			 		veiculo.setPlaca_reboque2(placa_reboque2);
+			 		veiculo.setEixos_reboque2(eixos_reboque2);
+			 		veiculo.setTipo_reboque2(tipo_reboque2);
+			 		veiculo.setCidade_reboque2(cidade_reboque2);
+			 		veiculo.setUf_reboque2(uf_reboque2);
+		 		}
+		 		
+		 		
+		 	
+				modelo_veiculos.addRow(new Object[]{id, registro_trator, placa_trator, 
+						eixos_trator, tipo_trator, cidade_trator, uf_trator});
+		 		
+		 	     
+		 	     
+
+		 		
+		 		
+		 		
+		 	}
+		 });
+		 btnAdicionarVeiculo.setBounds(645, 286, 89, 23);
+		 panel_1.add(btnAdicionarVeiculo);
+		 
+		  entEstadoTrator = new JTextFieldPersonalizado();
+		 entEstadoTrator.setBounds(81, 229, 153, 33);
+		 entEstadoTrator.setForeground(Color.black);
+		 panel_1.add(entEstadoTrator);
+		 
+		 chkBoxReboque2  = new JCheckBox("Reboque 2");
+		 chkBoxReboque2.addActionListener(new ActionListener() {
+		 	public void actionPerformed(ActionEvent e) {
+		 		
+
+         		if(chkBoxReboque2.isSelected()) {
+         			
+         			
+         			panelReboque2.setVisible(true);
+
+         		}else {
+         			
+         			
+         			panelReboque2.setVisible(false);
+         	
+         		}
+		 		
+		 	}
+		 });
+		 chkBoxReboque2.setBounds(558, 7, 105, 23);
+		 chkBoxReboque2.setVisible(false);
+		 panel_1.add(chkBoxReboque2);
+		 
+		  panelReboque1 = new JPanel();
+		 panelReboque1.setBackground(Color.WHITE);
+		 panelReboque1.setBounds(244, 33, 241, 247);
+		 panel_1.add(panelReboque1);
+		 panelReboque1.setVisible(false);
+		 panelReboque1.setEnabled(false);
+		 panelReboque1.setLayout(null);
+		  
+		  JLabel lblNome_1_2_2 = new JLabel("Rntrc:");
+		  lblNome_1_2_2.setBounds(10, 11, 65, 33);
+		  panelReboque1.add(lblNome_1_2_2);
+		  lblNome_1_2_2.setHorizontalAlignment(SwingConstants.TRAILING);
+		  lblNome_1_2_2.setForeground(Color.BLACK);
+		  lblNome_1_2_2.setFont(new Font("Arial Black", Font.PLAIN, 14));
+		  lblNome_1_2_2.setBackground(Color.ORANGE);
+		  
+		   entRegistroReboque1 = new JTextFieldPersonalizado();
+		   entRegistroReboque1.setBounds(81, 11, 153, 33);
+		   panelReboque1.add(entRegistroReboque1);
+		   entRegistroReboque1.setForeground(Color.black);
+		   
+		   JLabel lblNome_1_2_1_3 = new JLabel("Placa:");
+		   lblNome_1_2_1_3.setBounds(10, 50, 65, 33);
+		   panelReboque1.add(lblNome_1_2_1_3);
+		   lblNome_1_2_1_3.setHorizontalAlignment(SwingConstants.TRAILING);
+		   lblNome_1_2_1_3.setForeground(Color.BLACK);
+		   lblNome_1_2_1_3.setFont(new Font("Arial Black", Font.PLAIN, 14));
+		   lblNome_1_2_1_3.setBackground(Color.ORANGE);
+		   
+		   
+	
+		    entPlacaReboque1 = new JTextFieldPersonalizado();
+		    entPlacaReboque1.setBounds(81, 53, 153, 33);
+		    panelReboque1.add(entPlacaReboque1);
+		    entPlacaReboque1.setForeground(Color.black);
+		    
+		    JLabel lblNome_1_2_1_2_1_2 = new JLabel("Eixos:");
+		    lblNome_1_2_1_2_1_2.setBounds(10, 94, 65, 33);
+		    panelReboque1.add(lblNome_1_2_1_2_1_2);
+		    lblNome_1_2_1_2_1_2.setHorizontalAlignment(SwingConstants.TRAILING);
+		    lblNome_1_2_1_2_1_2.setForeground(Color.BLACK);
+		    lblNome_1_2_1_2_1_2.setFont(new Font("Arial Black", Font.PLAIN, 14));
+		    lblNome_1_2_1_2_1_2.setBackground(Color.ORANGE);
+		    
+		     cBEixosReboque1 = new JComboBox();
+		     cBEixosReboque1.setBounds(81, 101, 153, 22);
+		     for(int i = 2; i<=9; i++) {
+		    	 cBEixosReboque1.addItem(Integer.toString(i));
+				 
+				 }
+
+		     panelReboque1.add(cBEixosReboque1);
+		     
+		     JLabel lblNome_1_2_1_2_2 = new JLabel("Tipo:");
+		     lblNome_1_2_1_2_2.setBounds(10, 127, 65, 33);
+		     panelReboque1.add(lblNome_1_2_1_2_2);
+		     lblNome_1_2_1_2_2.setHorizontalAlignment(SwingConstants.TRAILING);
+		     lblNome_1_2_1_2_2.setForeground(Color.BLACK);
+		     lblNome_1_2_1_2_2.setFont(new Font("Arial Black", Font.PLAIN, 14));
+		     lblNome_1_2_1_2_2.setBackground(Color.ORANGE);
+		     
+		      cBTipoReboque1 = new JComboBox();
+		      cBTipoReboque1.setBounds(81, 134, 153, 22);
+		      cBTipoReboque1.addItem("Graneleiro");
+		      cBTipoReboque1.addItem("Caçamba");
+		      panelReboque1.add(cBTipoReboque1);
+		      
+		      JLabel lblNome_1_2_1_2_1_1_2 = new JLabel("Cidade:");
+		      lblNome_1_2_1_2_1_1_2.setBounds(10, 163, 65, 33);
+		      panelReboque1.add(lblNome_1_2_1_2_1_1_2);
+		      lblNome_1_2_1_2_1_1_2.setHorizontalAlignment(SwingConstants.TRAILING);
+		      lblNome_1_2_1_2_1_1_2.setForeground(Color.BLACK);
+		      lblNome_1_2_1_2_1_1_2.setFont(new Font("Arial Black", Font.PLAIN, 14));
+		      lblNome_1_2_1_2_1_1_2.setBackground(Color.ORANGE);
+		      
+		       entMunicipioReboque1 = new JTextFieldPersonalizado();
+		       entMunicipioReboque1.setBounds(81, 163, 153, 33);
+		       panelReboque1.add(entMunicipioReboque1);
+		       entMunicipioReboque1.setForeground(Color.black);
+		       
+		
+		        entEstadoReboque1 = new JTextFieldPersonalizado();
+		        entEstadoReboque1.setBounds(81, 207, 153, 33);
+		        panelReboque1.add(entEstadoReboque1);
+		        entEstadoReboque1.setForeground(Color.black);
+		        
+		        JLabel lblNome_1_2_1_2_1_1_1_1 = new JLabel("UF:");
+		        lblNome_1_2_1_2_1_1_1_1.setBounds(10, 207, 65, 33);
+		        panelReboque1.add(lblNome_1_2_1_2_1_1_1_1);
+		        lblNome_1_2_1_2_1_1_1_1.setHorizontalAlignment(SwingConstants.TRAILING);
+		        lblNome_1_2_1_2_1_1_1_1.setForeground(Color.BLACK);
+		        lblNome_1_2_1_2_1_1_1_1.setFont(new Font("Arial Black", Font.PLAIN, 14));
+		        lblNome_1_2_1_2_1_1_1_1.setBackground(Color.ORANGE);
+		        
+		        
+		         chkBoxReboque1 = new JCheckBox("Reboque 1");
+		         chkBoxReboque1.setBounds(287, 7, 175, 23);
+		         panel_1.add(chkBoxReboque1);
+		         chkBoxReboque1.setSelected(false);
+		         
+		          panelReboque2 = new JPanel();
+		         panelReboque2.setBounds(495, 33, 257, 247);
+		         panel_1.add(panelReboque2);
+		         panelReboque2.setVisible(false);
+		         panelReboque2.setBackground(Color.WHITE);
+		         panelReboque2.setLayout(null);
+		         
+		         JLabel lblNome_1_2_1_2_1_1_1_1_1 = new JLabel("UF:");
+		         lblNome_1_2_1_2_1_1_1_1_1.setBounds(10, 207, 65, 33);
+		         panelReboque2.add(lblNome_1_2_1_2_1_1_1_1_1);
+		         lblNome_1_2_1_2_1_1_1_1_1.setHorizontalAlignment(SwingConstants.TRAILING);
+		         lblNome_1_2_1_2_1_1_1_1_1.setForeground(Color.BLACK);
+		         lblNome_1_2_1_2_1_1_1_1_1.setFont(new Font("Arial Black", Font.PLAIN, 14));
+		         lblNome_1_2_1_2_1_1_1_1_1.setBackground(Color.ORANGE);
+		         
+		          entMunicipioReboque2 = new JTextFieldPersonalizado();
+		          entMunicipioReboque2.setBounds(81, 163, 153, 33);
+		          panelReboque2.add(entMunicipioReboque2);
+		          entMunicipioReboque2.setForeground(Color.black);
+		          
+		           entEstadoReboque2 = new JTextFieldPersonalizado();
+		           entEstadoReboque2.setBounds(81, 207, 153, 33);
+		           panelReboque2.add(entEstadoReboque2);
+		           
+		           		  entEstadoReboque2.setForeground(Color.black);
+		           		  
+		           		  JLabel lblNome_1_2_1_2_1_1_2_1 = new JLabel("Cidade:");
+		           		  lblNome_1_2_1_2_1_1_2_1.setBounds(10, 163, 65, 33);
+		           		  panelReboque2.add(lblNome_1_2_1_2_1_1_2_1);
+		           		  lblNome_1_2_1_2_1_1_2_1.setHorizontalAlignment(SwingConstants.TRAILING);
+		           		  lblNome_1_2_1_2_1_1_2_1.setForeground(Color.BLACK);
+		           		  lblNome_1_2_1_2_1_1_2_1.setFont(new Font("Arial Black", Font.PLAIN, 14));
+		           		  lblNome_1_2_1_2_1_1_2_1.setBackground(Color.ORANGE);
+		           		  
+		           		  JLabel lblNome_1_2_1_2_2_1 = new JLabel("Tipo:");
+		           		  lblNome_1_2_1_2_2_1.setBounds(10, 127, 65, 33);
+		           		  panelReboque2.add(lblNome_1_2_1_2_2_1);
+		           		  lblNome_1_2_1_2_2_1.setHorizontalAlignment(SwingConstants.TRAILING);
+		           		  lblNome_1_2_1_2_2_1.setForeground(Color.BLACK);
+		           		  lblNome_1_2_1_2_2_1.setFont(new Font("Arial Black", Font.PLAIN, 14));
+		           		  lblNome_1_2_1_2_2_1.setBackground(Color.ORANGE);
+		           		  
+		           		  JLabel lblNome_1_2_1_2_1_2_1 = new JLabel("Eixos:");
+		           		  lblNome_1_2_1_2_1_2_1.setBounds(10, 94, 65, 33);
+		           		  panelReboque2.add(lblNome_1_2_1_2_1_2_1);
+		           		  lblNome_1_2_1_2_1_2_1.setHorizontalAlignment(SwingConstants.TRAILING);
+		           		  lblNome_1_2_1_2_1_2_1.setForeground(Color.BLACK);
+		           		  lblNome_1_2_1_2_1_2_1.setFont(new Font("Arial Black", Font.PLAIN, 14));
+		           		  lblNome_1_2_1_2_1_2_1.setBackground(Color.ORANGE);
+		           		  
+		           		  JLabel lblNome_1_2_1_3_1 = new JLabel("Placa:");
+		           		  lblNome_1_2_1_3_1.setBounds(10, 50, 65, 33);
+		           		  panelReboque2.add(lblNome_1_2_1_3_1);
+		           		  lblNome_1_2_1_3_1.setHorizontalAlignment(SwingConstants.TRAILING);
+		           		  lblNome_1_2_1_3_1.setForeground(Color.BLACK);
+		           		  lblNome_1_2_1_3_1.setFont(new Font("Arial Black", Font.PLAIN, 14));
+		           		  lblNome_1_2_1_3_1.setBackground(Color.ORANGE);
+		           		  
+		           		  JLabel lblNome_1_2_2_1 = new JLabel("Rntrc:");
+		           		  lblNome_1_2_2_1.setBounds(10, 11, 65, 33);
+		           		  panelReboque2.add(lblNome_1_2_2_1);
+		           		  lblNome_1_2_2_1.setHorizontalAlignment(SwingConstants.TRAILING);
+		           		  lblNome_1_2_2_1.setForeground(Color.BLACK);
+		           		  lblNome_1_2_2_1.setFont(new Font("Arial Black", Font.PLAIN, 14));
+		           		  lblNome_1_2_2_1.setBackground(Color.ORANGE);
+		           		  
+		           		   entRegistroReboque2 = new JTextFieldPersonalizado();
+		           		   entRegistroReboque2.setBounds(81, 11, 153, 33);
+		           		   panelReboque2.add(entRegistroReboque2);
+		           		   entRegistroReboque2.setForeground(Color.black);
+		           		   
+		           		    entPlacaReboque2 = new JTextFieldPersonalizado();
+		           		    entPlacaReboque2.setBounds(81, 53, 153, 33);
+		           		    panelReboque2.add(entPlacaReboque2);
+		           		    
+		           		    		  entPlacaReboque2.setForeground(Color.black);
+		           		    		  
+		           		    		   cBEixosReboque2 = new JComboBox();
+		           		    		   cBEixosReboque2.setBounds(81, 101, 153, 22);
+		           		    		  for(int i = 2; i<=9; i++) {
+		           		    			cBEixosReboque2.addItem(Integer.toString(i));
+		           						 
+		           						 }
+
+		           		    		   panelReboque2.add(cBEixosReboque2);
+		           		    		   
+		           		    		    cBTipoReboque2 = new JComboBox();
+		           		    		    cBTipoReboque2.setBounds(81, 134, 153, 22);
+		           		    		 cBTipoReboque2.addItem("Graneleiro");
+		           		    		cBTipoReboque2.addItem("Caçamba");
+		           		    		    panelReboque2.add(cBTipoReboque2);
+		           		    		    
+		         chkBoxReboque1.addActionListener(new ActionListener() {
+		         	public void actionPerformed(ActionEvent e) {
+		         		
+		         		if(chkBoxReboque1.isSelected()) {
+		         			
+		         			chkBoxReboque1.setSelected(true);
+		         			panelReboque1.setVisible(true);
+		         			chkBoxReboque2.setVisible(true);
+
+		         		}else {
+		         			
+		         			chkBoxReboque1.setSelected(false);
+		         			panelReboque1.setVisible(false);
+		         			chkBoxReboque2.setVisible(false);
+		         			panelReboque2.setVisible(false);
+		         		}
+		         		
+		         		
+		         	}
+		         });
+		    
+		 JButton btnExcluirVeiculo = new JButton("Excluir");
+		 btnExcluirVeiculo.addActionListener(new ActionListener() {
+		 	public void actionPerformed(ActionEvent e) {
+		 		//veiculos_excluir
+		 		int indiceDaLinha = table_veiculos.getSelectedRow();
+				if(flag_tipo_tela == 1)
+				{
+					
+						
+						String id_excluir = table_veiculos.getValueAt(indiceDaLinha, 0).toString();
+						if(id_excluir.equals("0000"))
+						{
+						}
+						else
+						{
+							//adiciona um veiculo ja existe na lista de veiculos para excluir
+							veiculos_excluir.add(Integer.parseInt(id_excluir));
+
+						}
+						
+
+						((DefaultTableModel) table_veiculos.getModel()).removeRow(indiceDaLinha); table_veiculos.repaint(); table_veiculos.validate(); 
+						
+					
+				}
+				else {
+			
+				((DefaultTableModel) table_veiculos.getModel()).removeRow(indiceDaLinha); table_veiculos.repaint(); table_veiculos.validate(); 
+				
+				}
+			}
+		 	
+		 });
+		 btnExcluirVeiculo.setBounds(690, 154, 89, 23);
+		 painelVeiculos.add(btnExcluirVeiculo);
 
 
 		 JLabel lblCelular = new JLabel("Celular:");
@@ -415,6 +927,8 @@ public class TelaCadastroTransportadores extends JDialog {
 	    
 	        panel.setLayout(null);
 	    	modelo.setNumRows(0);
+	    	
+	    	
 	        JScrollPane scrollPane = new JScrollPane(table);
 	        scrollPane.setBounds(10, 5, 704, 122);
 	        scrollPane.setAutoscrolls(true);
@@ -484,7 +998,7 @@ public class TelaCadastroTransportadores extends JDialog {
 				}
 			});
 			btnExcluirContato.setHorizontalAlignment(SwingConstants.LEADING);
-			btnExcluirContato.setBounds(699, 200, 63, 23);
+			btnExcluirContato.setBounds(699, 210, 63, 23);
 			painelContato.add(btnExcluirContato);
 			
 			JLabel lblNome_1_1 = new JLabel("Descrição:");
@@ -533,7 +1047,7 @@ public class TelaCadastroTransportadores extends JDialog {
 		 lblCodigoGerado.setForeground(Color.BLACK);
 		 lblCodigoGerado.setFont(new Font("Arial Black", Font.PLAIN, 14));
 		 lblCodigoGerado.setBackground(Color.ORANGE);
-		 lblCodigoGerado.setBounds(77, 144, 150, 33);
+		 lblCodigoGerado.setBounds(77, 97, 150, 33);
 		 painelFinalizar.add(lblCodigoGerado);
 		 
 		 JLabel lblNewLabel = new JLabel("Revise os dados nas telas anteriores, quando tiver tudo pronto, clique em 'Salvar' para realizar o cadastro no Banco de Dados");
@@ -559,7 +1073,7 @@ public class TelaCadastroTransportadores extends JDialog {
 		 lblCodigo.setForeground(Color.BLACK);
 		 lblCodigo.setFont(new Font("Arial Black", Font.PLAIN, 14));
 		 lblCodigo.setBackground(Color.ORANGE);
-		 lblCodigo.setBounds(237, 144, 150, 33);
+		 lblCodigo.setBounds(237, 97, 150, 33);
 		 painelFinalizar.add(lblCodigo);
 		 
 		  btnSalvar = new JButton("Salvar");
@@ -569,21 +1083,15 @@ public class TelaCadastroTransportadores extends JDialog {
 		 JButton btnFinalizarCadastro = new JButton("Salvar");
 		 btnFinalizarCadastro.addActionListener(new ActionListener() {
 		 	public void actionPerformed(ActionEvent e) {
-		 		if(salvar(flag_tipo_tela) == true)
-		 		{
+		 	  
+		 	 	if(salvar()) {
+		 	 		JOptionPane.showMessageDialog(null, "Transportador Cadastrado");
+		 	 		isto.dispose();
+		 	 	}else {
+		 	 		//JOptionPane.showMessageDialog(null, "Erro ao cadastrar\nConsulte o Administrador do Sistema!");
+		 	 		
 
-		 			if(telaPai != null) {
-		 				telaPai.atualizaTabela();
-		 			}
-		 			
-		 			gerarPastas();
-		 			
-		 			BaixarNotasFiscais baixar =  new BaixarNotasFiscais(cliente_cadastrar, "VENDA");
-		 			baixar.iniciarPesquisas();
-
-		 			isto.dispose();
-		 		}
-		 	 	
+		 	 	}
 		 	}
 		 });
 		 btnFinalizarCadastro.setBounds(654, 410, 89, 23);
@@ -595,7 +1103,7 @@ public class TelaCadastroTransportadores extends JDialog {
 		 		
 		 		if(atualizar(flag_tipo_tela) == true)
 		 		{
-		 			telaPai.atualizaTabela();
+		 			//telaPai.atualizaTabela();
 		 			gerarPastasAtualizar();
 		 			BaixarNotasFiscais baixar =  new BaixarNotasFiscais(cliente_atualizar, "VENDA");
 		 			baixar.iniciarPesquisas();
@@ -607,29 +1115,18 @@ public class TelaCadastroTransportadores extends JDialog {
 		 btnAtualizar.setBounds(555, 410, 89, 23);
 		 painelFinalizar.add(btnAtualizar);
 		 
-		 JLabel lblDescrio_1 = new JLabel("Descrição:");
-		 lblDescrio_1.setHorizontalAlignment(SwingConstants.TRAILING);
-		 lblDescrio_1.setForeground(Color.BLACK);
-		 lblDescrio_1.setFont(new Font("Arial Black", Font.PLAIN, 14));
-		 lblDescrio_1.setBackground(Color.ORANGE);
-		 lblDescrio_1.setBounds(77, 232, 150, 33);
-		 painelFinalizar.add(lblDescrio_1);
+		  entRegistroTransportador = new JTextFieldPersonalizado();
+		 entRegistroTransportador.setBounds(237, 141, 220, 33);
+		 entRegistroTransportador.setForeground(Color.black);
+		 painelFinalizar.add(entRegistroTransportador);
 		 
-		 JTextArea entDescricaoTransportador = new JTextArea();
-		 entDescricaoTransportador.setBounds(237, 238, 220, 66);
-		 painelFinalizar.add(entDescricaoTransportador);
-		 
-		 JLabel lblDescrio_1_1 = new JLabel("Observação:");
-		 lblDescrio_1_1.setHorizontalAlignment(SwingConstants.TRAILING);
-		 lblDescrio_1_1.setForeground(Color.BLACK);
-		 lblDescrio_1_1.setFont(new Font("Arial Black", Font.PLAIN, 14));
-		 lblDescrio_1_1.setBackground(Color.ORANGE);
-		 lblDescrio_1_1.setBounds(77, 323, 150, 33);
-		 painelFinalizar.add(lblDescrio_1_1);
-		 
-		 JTextArea entObservacaoTransportador = new JTextArea();
-		 entObservacaoTransportador.setBounds(237, 329, 220, 66);
-		 painelFinalizar.add(entObservacaoTransportador);
+		 JLabel lblRntrc = new JLabel("RNTRC:");
+		 lblRntrc.setHorizontalAlignment(SwingConstants.TRAILING);
+		 lblRntrc.setForeground(Color.BLACK);
+		 lblRntrc.setFont(new Font("Arial Black", Font.PLAIN, 14));
+		 lblRntrc.setBackground(Color.ORANGE);
+		 lblRntrc.setBounds(77, 141, 150, 33);
+		 painelFinalizar.add(lblRntrc);
 		
 		if(flag_tipo_tela == 0 || flag_tipo_tela == 6 )
 		{
@@ -1115,15 +1612,17 @@ public class TelaCadastroTransportadores extends JDialog {
 						panelPessoaFisica.add(entOcupacao);
 						
 						JButton btnPesquisarCPF = new JButton("Pesquisar");
+						btnPesquisarCPF.setEnabled(false);
+						btnPesquisarCPF.setVisible(false);
 						btnPesquisarCPF.setFont(new Font("Arial", Font.BOLD, 16));
 						btnPesquisarCPF.addActionListener(new ActionListener() {
 							public void actionPerformed(ActionEvent e) {
 								String cpf = entCpf.getText().toString();
 						 		CPFValidator cpfValidator = new CPFValidator(); 
 						 		List<ValidationMessage> erros = cpfValidator.invalidMessagesFor(cpf); 
-						 		if(erros.size() > 0)
+						 		if(erros.size() > 0) {
 						            JOptionPane.showMessageDialog(null, "CPF Inválido!");
-
+						 		}
 						 		else
 						 		{
 						           // JOptionPane.showMessageDialog(null, "CPF Válido!");
@@ -1189,12 +1688,12 @@ public class TelaCadastroTransportadores extends JDialog {
 										entNum.setText(numero);
 										String endereco = separar.tratar("logradouro:", "&");
 										entLogradouro.setText(endereco);
-						}
-		else
-		{
-            JOptionPane.showMessageDialog(null, "Erro ao consultar dados no Sintegra");
+							}
+		                            	else
+		                            		{
+		                            			JOptionPane.showMessageDialog(null, "Erro ao consultar dados no Sintegra");
 
-		}
+		                            		}
 									
 									
 									
@@ -1743,7 +2242,7 @@ public class TelaCadastroTransportadores extends JDialog {
 		
 		
 		 
-		 if(flag_tipo_tela == 0 || flag_tipo_tela == 6) //0 atualuzar //1 novo cliente
+		 if(flag_tipo_tela == 1) //0 novo cliente //1 atualizar
 		 {
 			 btnFinalizarCadastro.setVisible(false);
 
@@ -1903,7 +2402,7 @@ public class TelaCadastroTransportadores extends JDialog {
 						 });
 		 }
 		 }*/
-		 if(flag_tipo_tela == 0) {
+		 if(flag_tipo_tela == 1) {
 			 //travar para nao alterar os campos nomefantasia e nomeempresarial
 			 if(cliente_atualizar.getTipo_pessoa() == 0) {
 				 //pessoa fisica
@@ -2007,6 +2506,52 @@ public class TelaCadastroTransportadores extends JDialog {
 	 	
  	
 	}
+	
+	public void getDadosVeiculos(CadastroCliente cadastro)
+	{
+		ArrayList<CadastroCliente.Veiculo> veiculos = new ArrayList<>();
+ 	//dados conta bancaria
+ 	  int num_row_table_veiculos = table_veiculos.getRowCount();
+	 	
+	 	   System.out.println("Numero de contas veiculos: "+ num_row_table_veiculos);
+	 	   ArrayList<CadastroCliente.Veiculo> contas = new ArrayList<>();
+	 	   for(int i = 0; i<num_row_table_veiculos;i++)
+	 	   {
+	 		   String id = table_veiculos.getValueAt(i, 0).toString();
+	 		   String registro_trator = table_veiculos.getValueAt(i, 1).toString();
+	 		   String placa_trator = table_veiculos.getValueAt(i, 2).toString();
+	 		   String eixos_trator =  table_veiculos.getValueAt(i, 3).toString();
+	 		   String tipo_trator =  table_veiculos.getValueAt(i, 4).toString();
+	 		   String cidade_trator =  table_veiculos.getValueAt(i, 5).toString();
+	 		   String uf_trator =  table_veiculos.getValueAt(i, 6).toString();
+          
+	 		  if(!id.equals("0000")) { 
+	 			  
+	 		  }else {
+	 			 CadastroCliente.Veiculo ct = new CadastroCliente.Veiculo();
+	 		   
+	 		   ct.setRegistro_trator(registro_trator);
+	 		   ct.setPlaca_trator(placa_trator);
+	 		   ct.setEixos_trator(eixos_trator);
+	 		   ct.setTipo_trator(tipo_trator);
+	 		   ct.setCidade_trator(cidade_trator);
+	 		   ct.setUf_trator(uf_trator);
+	 		   
+	 		   veiculos.add(ct);
+	 		  }
+	 		   
+	 	   }
+	 	   //CadastroCliente cliente : listaClientes.getClientes()
+	 	  for( CadastroCliente.Veiculo veiculo : veiculos)
+	 	   {
+	 		
+	 		   
+	 	   }
+	 	   
+	 	 cadastro.setVeiculos(veiculos);
+ 	
+	}
+	
 	
 	public boolean atualizar(int flag_armazem)
 	{
@@ -2146,10 +2691,13 @@ public class TelaCadastroTransportadores extends JDialog {
 		boolean retorno;
 	 	
 	 		String apelido = entApelido.getText().toString();
+	 		String registro_transportador = entRegistroTransportador.getText();
+	 		
+	 	  cadastro.setRntrc(registro_transportador);
 	 		if(apelido == null || apelido.equals("") || apelido.equals(" "))
 	 		{
 	 			retorno = false;
-	               JOptionPane.showMessageDialog(null, "Informe um Alias para o novo Cliente");
+	               JOptionPane.showMessageDialog(null, "Informe um Alias para o novo Transportador");
 
 	 		}
 	 		else
@@ -2158,11 +2706,14 @@ public class TelaCadastroTransportadores extends JDialog {
 	 			int id = Integer.parseInt(id_cliente);
 	 			if(id > 0)
 	 				cadastro.setId(id);
+	 			
 	 			cadastro.setApelido(apelido);
 	 			
 	 			retorno = true;
 
 	 		}
+	 	
+	 	
 	 	return retorno;
 	}
 	
@@ -2355,17 +2906,19 @@ public class TelaCadastroTransportadores extends JDialog {
 
 	}
 	
-	public boolean salvar(int flag_armazem)
+	public boolean salvar()
 	{
  		
- 		
+	 	boolean retorno = false;
+
  		boolean permitir_cadastro = false;
  		
  		
- 		if(flag_armazem == 5 || flag_armazem == 6)
- 			cliente_cadastrar.setArmazem(1);
- 		else
+ 		
  			cliente_cadastrar.setArmazem(0);
+ 			cliente_cadastrar.setTransportador(1);
+ 			
+ 	
 
  		
  		if(cBPessoa.getSelectedItem().equals("Física"))
@@ -2387,31 +2940,35 @@ public class TelaCadastroTransportadores extends JDialog {
  		getDadosContato(cliente_cadastrar);
  		getDadosEmpresa(cliente_cadastrar);
  		getDadosBancarios(cliente_cadastrar);
+ 		getDadosVeiculos(cliente_cadastrar);
+ 		
+ 		//dados de apelido e finalizar contrato
+ 	 	
+ 	 	permitir_cadastro = getDadosFinais(cliente_cadastrar);
+ 	 	
+ 	    if(permitir_cadastro)
+ 	 	   {
+ 	 		   GerenciarBancoClientes cadastrar = new GerenciarBancoClientes();
+ 	 		   boolean cadastrou = cadastrar.inserir(cliente_cadastrar);
+ 	 		   if(cadastrou) {
+ 	               JOptionPane.showMessageDialog(null, "Cadastro Completo!");
+ 	               //isto.dispose();
+ 	               retorno =  true;
+
+ 	 		   }
+ 	 		   else
+ 	 		   {
+ 	               JOptionPane.showMessageDialog(null, "Erro ao Cadastrar");
+ 	               retorno =  false;
+
+ 	 		   }
+ 	      
+ 	 	   }
+
+ 	}else {
+ 		retorno = false;
  	}
- 	//dados de apelido e finalizar contrato
  	
- 	permitir_cadastro = getDadosFinais(cliente_cadastrar);
- 	
- 	boolean retorno = false;
-    if(permitir_cadastro)
- 	   {
- 		   GerenciarBancoClientes cadastrar = new GerenciarBancoClientes();
- 		   boolean cadastrou = cadastrar.inserir(cliente_cadastrar);
- 		   if(cadastrou) {
-               JOptionPane.showMessageDialog(null, "Cadastro Completo!");
-               //isto.dispose();
-               gerarPastas();
-               retorno =  true;
-
- 		   }
- 		   else
- 		   {
-               JOptionPane.showMessageDialog(null, "Erro ao Cadastrar");
-               retorno =  false;
-
- 		   }
-      
- 	   }
 	return retorno;
  	
  	}

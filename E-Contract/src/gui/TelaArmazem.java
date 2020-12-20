@@ -28,12 +28,15 @@ public class TelaArmazem extends JDialog {
 
 	private DefaultTableModel modelo = new DefaultTableModel();
 	private static ArrayList<CadastroCliente> armazens = new ArrayList<>();
+	private static ArrayList<CadastroCliente> armazens_disponiveis = new ArrayList<>();
+
 	
 	private CadastroCliente clienteSelecionado;
 	
 	public static void pesquisar(DefaultTableModel modelo)
 	{ 
 		modelo.setNumRows(0);
+		armazens_disponiveis.clear();
     GerenciarBancoClientes listaArmazens = new GerenciarBancoClientes();
     armazens = listaArmazens.getClientes(-1, -1, null);
     
@@ -66,6 +69,7 @@ public class TelaArmazem extends JDialog {
             modelo.addRow(new Object[]{cliente.getId(),cliente.getIe(), cliente.getApelido(), cpf, nome});
 
     	}
+    	armazens_disponiveis.add(cliente);
     }
     }
 		
@@ -141,7 +145,7 @@ public class TelaArmazem extends JDialog {
 			public void actionPerformed(ActionEvent arg0) {
 				int indiceDaLinha = tabela.getSelectedRow();
 
-				TelaCadastroCliente telaEdicao = new TelaCadastroCliente(6, armazens.get(indiceDaLinha), null);
+				TelaCadastroCliente telaEdicao = new TelaCadastroCliente(6, armazens_disponiveis.get(indiceDaLinha), null);
 
 			}
 		});

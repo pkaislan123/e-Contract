@@ -189,6 +189,14 @@ public class TelaPrincipal extends JFrame implements GetDadosGlobais{
 			});
 			Dados.add(mntmUsurios);
 			
+			JMenuItem mntmNewMenuItem = new JMenuItem("Transportadores");
+			mntmNewMenuItem.addActionListener(new ActionListener() {
+				public void actionPerformed(ActionEvent e) {
+					TelaTransportadores tela = new TelaTransportadores();
+				}
+			});
+			Dados.add(mntmNewMenuItem);
+			
 			JMenu mnContratos = new JMenu("Contratos");
 			mnContratos.setFont(new Font("Arial", Font.PLAIN, 18));
 			menuBar.add(mnContratos);

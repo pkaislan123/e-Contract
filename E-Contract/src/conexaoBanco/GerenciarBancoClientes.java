@@ -10,6 +10,7 @@ import javax.swing.JOptionPane;
 
 
 import cadastros.CadastroCliente;
+import cadastros.CadastroContrato;
 import cadastros.CadastroLogin;
 import cadastros.ContaBancaria;
 import cadastros.Contato;
@@ -20,7 +21,9 @@ public class GerenciarBancoClientes {
 	  public boolean inserir(CadastroCliente cliente) {
     	boolean deletar_contatos = false;
     	boolean deletar_contas = false;
-    	boolean reprovar_cliente = false;
+    	boolean deletar_veiculos = false;
+    	boolean reverter_operacao = false;
+    	boolean retorno = false;
 
 	        if (cliente != null) {
 	        	
@@ -34,53 +37,144 @@ public class GerenciarBancoClientes {
 	                contas_bancarias = cliente.getContas();
 	                RegistroAdicionarContaBancaria adicionar_contas = null;
 	                
+	                ArrayList<CadastroCliente.Veiculo> veiculos = new ArrayList<>();
+	                veiculos = cliente.getVeiculos();
+	                RegistroAdicionarVeiculos adicionar_veiculos = null;
+	                
 	                 try { 
 	                	  id_cliente = inserir_cliente(cliente);
-	 	                    if( id_cliente > 0) 
-	                            {
+	 	                    if( id_cliente > 0)  {
 	                                
 	                                 System.out.println("Número de contatos para cadastrar: " + contatos.size());
 	                                 System.out.println("Número de contas para cadastrar: " + contas_bancarias.size());
-                                if(contas_bancarias.size() > 0 || contatos.size() > 0) {
+	                                 System.out.println("Número de veiculos para cadastrar: " + veiculos.size());
+
+                                if(contas_bancarias.size() > 0 || contatos.size() > 0 || veiculos.size() > 0) {
+                                	boolean prosseguir = false;
+                                	
 	                                 if(contatos.size() > 0) {
 	                                	adicionar_contatos = adicionarContato(contatos, id_cliente);	 
 	                                 if(adicionar_contatos.isResposta() == true && adicionar_contatos.ids_contatos.size() > 0) {
+	                                	//contatos adicionados com sucesso
 	                                	 deletar_contatos = false;
-	                                	 reprovar_cliente = true;
-		                              
-	                                 }
-	                                  else {
+	                                	 reverter_operacao = false;
+	                                	 prosseguir = true;
+	                                	
+	                                 } else {
+	                                	 System.out.println("Erro ao cadastrar contatos, operação cancelada!");
+	                                	 //deletar contatos
 	                                	  deletar_contatos = true;
-	                                	  reprovar_cliente = false;
+		                                	 prosseguir = false;
+		                                	 reverter_operacao = true;
+
 	                                  }
+	                                 }else {
+	                                	 prosseguir = true;
+
 	                                 }
-	                                 if(contas_bancarias.size() > 0) {
+	                                 
+
+                                	 //adicionar contas bancarias
+	                                 if(prosseguir) {
+                                	 if(contas_bancarias.size() > 0) {
                                          
-  	                                    	 adicionar_contas = adicionarContaBancaria(contas_bancarias, id_cliente);
-                                              if(adicionar_contas.isResposta() == true && adicionar_contas.ids_contas.size() > 0) {
-	                                		     deletar_contas = false;
-	                                		     reprovar_cliente = true;
-			                                  }
-			                                  else {
-			                                	  deletar_contas = true;
-			                                	  reprovar_cliente = false;
-			                                  }
-  	                                     
-		                                 
-	                                 }
-	                                
-	  	                } else
-                        {
-                       	 reprovar_cliente = true; 
-                        }
+	                                    	 adicionar_contas = adicionarContaBancaria(contas_bancarias, id_cliente);
+                                          if(adicionar_contas.isResposta() == true && adicionar_contas.ids_contas.size() > 0) {
+                                        	  //contas bancarias adicionadas
+                                		     deletar_contas = false;
+                                		     reverter_operacao = false;
+                                		     prosseguir = true;
+		                                  }
+		                                  else {
+			                                	 System.out.println("Erro ao cadastrar contas bancarias, operação cancelada!");
+
+                                                  deletar_contas = true;
+                                                  reverter_operacao = true;
+                                                  prosseguir = false;
+		                                  }
+	                                     
+	                                 
+                                 }else {
+                                	 prosseguir = true;
+
+                                 }
 	                            }
-                                else
-	  	                {
-	  	                	//erro ao inserir cliente
-	  	                	remover_cliente(id_cliente);
-	  	                	reprovar_cliente = false;
+	                                
+	                                 //inserir veiculos
+	                                 if(prosseguir) {
+	                                 if(cliente.getTransportador() == 1) {
+	                                 if(veiculos.size() > 0) {
+                                         
+	                                    	 adicionar_veiculos = adicionarVeiculos(veiculos, id_cliente);
+                                          if(adicionar_veiculos.isResposta() == true && adicionar_veiculos.ids_veiculos.size() > 0) {
+                                		     deletar_veiculos = false;
+		                                	  reverter_operacao = false;
+		                                	  prosseguir = true;
+		                                  }
+		                                  else {
+	                                		     System.out.println("Erro ao incluir veiculos, excluir o cliente gerado!");
+
+		                                	  deletar_veiculos = true;
+		                                	  reverter_operacao = true;
+		                                	  prosseguir = false;
+		                                  }
+	                                     
+	                                 
+                                 }
+	                            }
+	                           }
+	                                 
+	                                 if(reverter_operacao) {
+	                                	 
+	                                	 JOptionPane.showMessageDialog(null, "Erro ao inserir o Cliente no banco de dados, revertendo operacao");
+	           	                	  if(deletar_contatos)
+	           	       	           {
+	           	       	        	  
+	           	       	        	   //deletar contatos apartir das ids geradas
+	           	       	        	  for (int id : adicionar_contatos.ids_contatos )
+	           	       	        	  {
+	           	       		        	   deleteContato(id, id_cliente);
+
+	           	       	        	  }
+	           	       	           }
+	           	       	           if(deletar_contas) {
+	           	       	        	   
+	           	       	        	   //deletar contas apartir das ids geradas
+	           	       	        	  for (int id :  adicionar_contas.ids_contas )
+	           	       	        	  {
+	           	       		        	   deleteConta(id, id_cliente);
+
+	           	       	        	  }
+	           	       	           }
+	           	       	           if(cliente.getTransportador() == 1) {
+	           	       	        	 if(deletar_veiculos) {
+	           		       	        	   
+	           		       	        	   //deletar veiculos apartir das ids geradas
+	           		       	        	  for (int id :  adicionar_veiculos.ids_veiculos )
+	           		       	        	  {
+	           		       		        	   deleteVeiculo(id, id_cliente);
+
+	           		       	        	  }
+	           		       	           }
+	           	       	           }
+	           	       	           
+	           	       	           remover_cliente(id_cliente);
+	           	       	        retorno = false;
+
+	                                	 
+	                                 }else {
+	                                	 retorno = true;
+	                                 }
+	                                 
+	                                
+                                } else { //nao havia nenhum dados a mais para cadastro
+                                  retorno = true;
+                                }
+	                      } else{
+	  	                	         //erro ao inserir cliente
+           	                	 JOptionPane.showMessageDialog(null, "Erro ao inserir o Cliente no banco de dados\nBanco Normalizado! ");
+	  	                	         retorno = false;
 	  	                }
-	                     
 	                    
 	                }catch(Exception e)
 	                 {
@@ -104,19 +198,31 @@ public class GerenciarBancoClientes {
 
 	       	        	  }
 	       	           }
-	       	        reprovar_cliente = false;
+	       	           if(cliente.getTransportador() == 1) {
+	       	        	 if(deletar_veiculos) {
+		       	        	   
+		       	        	   //deletar veiculos apartir das ids geradas
+		       	        	  for (int id :  adicionar_veiculos.ids_veiculos )
+		       	        	  {
+		       		        	   deleteVeiculo(id, id_cliente);
+
+		       	        	  }
+		       	           }
+	       	           }
+	       	           
+	       	           remover_cliente(id_cliente);
+	       	        retorno = false;
 	                 }   
 			            
-	      }
-	        else
-	        {
-	        	 JOptionPane.showMessageDialog(null, "Cliente Invalido");
-	        	 reprovar_cliente = false;
+	      } else {
+	        	 JOptionPane.showMessageDialog(null, "Cliente com dados invalidos");
+	        	 retorno = false;
  	        }
-			return reprovar_cliente;
+			return retorno;
 	      
 	  
 }
+
 
 public boolean remover_cliente(int id_cliente)
 {
@@ -409,6 +515,59 @@ public int inserir_cliente(CadastroCliente cliente)
 	        }
 	  }
 	  
+	  public boolean deleteVeiculo(int id_veiculo, int id_cliente)
+	  {
+		  Connection conn = null;
+	        PreparedStatement pstm = null;
+	        ResultSet rs = null;
+		  String sql_delete_relacao = "DELETE FROM transportador_veiculos WHERE id_cliente = ? and id_veiculo = ?";
+      	  conn = null;
+	        try {
+	            conn = ConexaoBanco.getConexao();
+	            pstm = conn.prepareStatement(sql_delete_relacao);
+	 
+	            pstm.setInt(1, id_veiculo);
+	            pstm.setInt(2, id_cliente);
+
+	 
+	            pstm.execute();
+	            ConexaoBanco.fechaConexao(conn, pstm);
+	           // JOptionPane.showMessageDialog(null, "Relação cliente_contato excluido, banco normalizado ");
+	           System.out.println("Relação transportador_veiculos excluido, banco normalizado ");
+	            //deleta o contato
+	            
+	            String sql_delete_veiculo = "DELETE FROM veiculo WHERE id_veiculo = ?";
+            	  conn = null;
+   	        try {
+   	            conn = ConexaoBanco.getConexao();
+   	            pstm = conn.prepareStatement(sql_delete_veiculo);
+   	 
+   	            pstm.setInt(1, id_veiculo);
+   	 
+   	            pstm.execute();
+   	            ConexaoBanco.fechaConexao(conn, pstm);
+   	            //JOptionPane.showMessageDialog(null, "Contato Excluido, banco normalizado ");
+ 	           System.out.println("Veiculo Excluido, banco normalizado ");
+
+   	           return true;
+   	            
+   	 
+   	        } catch (Exception g) {
+   	            JOptionPane.showMessageDialog(null, "Erro ao excluir o veiculo do banco de"
+   	                    + "dados " + g.getMessage());
+   	           return false;
+   	          
+   	        }
+	 
+	        } catch (Exception f) {
+	            JOptionPane.showMessageDialog(null, "Erro a relação transportador_veiculos do banco de"
+	                    + "dados " + f.getMessage());
+	           return false;
+	          
+	        }
+	  }
+	  
+	  
 	  public boolean deleteConta(int id_conta, int id_cliente)
 	  {
 		  
@@ -568,8 +727,18 @@ public int inserir_cliente(CadastroCliente cliente)
 	                cliente.setSenha(rs.getString("senha"));
 
 	                cliente.setArmazem(rs.getInt("armazem"));
-
-
+	                cliente.setTransportador(rs.getInt("transportador"));
+	                
+	                if(cliente.getTransportador() == 1) {
+	                	//e um transportaor
+	                	cliente.setRntrc(rs.getString("rntrc"));
+	                	cliente.setStatus_cadastro(rs.getString("status_rntrc"));
+	                	
+	                	//capturar veiculos
+	                	GerenciarBancoClientes gerenciar_veiculos = new GerenciarBancoClientes();
+	                	cliente.setVeiculos(gerenciar_veiculos.getVeiculos(cliente.getId()));
+	                }
+	            
 	               
 	                
 	                listaClientes.add(cliente);
@@ -655,7 +824,17 @@ public int inserir_cliente(CadastroCliente cliente)
 	                cliente.setSenha(rs.getString("senha"));
 
 	                cliente.setArmazem(rs.getInt("armazem"));
-
+	                cliente.setTransportador(rs.getInt("transportador"));
+	                
+	                if(cliente.getTransportador() == 1) {
+	                	//e um transportaor
+	                	cliente.setRntrc(rs.getString("rntrc"));
+	                	cliente.setStatus_cadastro(rs.getString("status_rntrc"));
+	                	
+	                	//capturar veiculos
+	                	GerenciarBancoClientes gerenciar_veiculos = new GerenciarBancoClientes();
+	                	cliente.setVeiculos(gerenciar_veiculos.getVeiculos(cliente.getId()));
+	                }
 
 		            ConexaoBanco.fechaConexao(conn, pstm, rs);
 
@@ -685,6 +864,26 @@ public int inserir_cliente(CadastroCliente cliente)
 		}
 		public void setIds_contas(ArrayList<Integer> ids_contas) {
 			this.ids_contas = ids_contas;
+		}
+
+          
+	  }
+	  
+	  public class RegistroAdicionarVeiculos
+	  {
+		  private boolean resposta;
+          public ArrayList<Integer> ids_veiculos = new ArrayList<>();
+		public boolean isResposta() {
+			return resposta;
+		}
+		public void setResposta(boolean resposta) {
+			this.resposta = resposta;
+		}
+		public ArrayList<Integer> getIds_veiuclos() {
+			return ids_veiculos;
+		}
+		public void setIds_veiculos(ArrayList<Integer> ids_veiculos) {
+			this.ids_veiculos = ids_veiculos;
 		}
 
           
@@ -791,6 +990,115 @@ public int inserir_cliente(CadastroCliente cliente)
 		                        + " " + e.getMessage());
 		                resposta = false;
 		                registro.setIds_contas(ids_contas);
+		            	  registro.setResposta(resposta);
+		            }
+           }
+        	  return registro;
+  
+	  }
+	  
+	  
+	  public RegistroAdicionarVeiculos adicionarVeiculos(ArrayList<CadastroCliente.Veiculo> veiculos, int id_cliente)
+	  {
+		  RegistroAdicionarVeiculos registro = new RegistroAdicionarVeiculos();
+		  boolean resposta = false;
+	        Connection conn = null;
+	        PreparedStatement pstm = null;
+	        ResultSet rs = null;
+          ArrayList<Integer> ids_veiculos = new ArrayList<>();
+		  System.out.println("Inicio de adição de veiculos : ID do Cliente: " + id_cliente);
+
+		  for(CadastroCliente.Veiculo veiculo : veiculos) {
+            String sql_cadastro_veiculo = "insert into veiculo (rntrc, placa, eixos, tipo, cidade, estado) values ('"
+            		
+            		+ veiculo.getRegistro_trator()
+	    			+ "','"
+	    			+ veiculo.getPlaca_trator()
+	    			+ "','"
+	    			+ veiculo.getEixos_trator()
+	    			+ "','"
+	    			+ veiculo.getTipo_trator()
+                    + "','"
+                    + veiculo.getCidade_trator()
+                    + "','"
+                    + veiculo.getUf_trator()
+	    			+ "')";	              
+            
+            
+            try {
+	                conn = ConexaoBanco.getConexao();
+
+	       // PreparedStatement grava = (PreparedStatement) conn.prepareStatement(sql_cdastro_contato); 
+	        //grava.execute(); 
+            //JOptionPane.showMessageDialog(null, "Contato cadastrado com sucesso");
+            //ConexaoBanco.fechaConexao(conn, grava);
+              Statement stmt = (Statement) conn.createStatement();
+              int numero = stmt.executeUpdate(sql_cadastro_veiculo, Statement.RETURN_GENERATED_KEYS);
+              int result = -1;
+              rs = stmt.getGeneratedKeys();
+              
+              if (rs.next()){
+            	  result=rs.getInt(1);
+        		  System.out.println("Veiculo inserido, Id do veiculo Inserido: " + result);
+              }
+              rs.close();
+
+              stmt.close();
+              
+              if(result > 0)
+              {
+            	  ids_veiculos.add(result);
+            	  resposta = true;
+            	  registro.setIds_veiculos(ids_veiculos);
+            	  registro.setResposta(resposta);
+            	  
+              }else {
+                resposta = false; 
+                registro.setIds_veiculos(ids_veiculos);
+          	  registro.setResposta(resposta);
+    		  System.out.println("Erro ao inserir o novo veiculo");
+
+            	  break;
+              }
+           
+              
+                        } catch (Exception e) {
+	                JOptionPane.showMessageDialog(null, "Erro ao inserir veiculo no banco de"
+	                        + "dados " + e.getMessage());
+	            }
+	  }//fim do for
+		    System.out.println("Número de veiculos para cadastrar: " + ids_veiculos.size());
+          // for(int id_contato : ids_contatos )
+           for(int i = 0; i < ids_veiculos.size(); i++)
+           {
+     		  System.out.println("Inicio de Adição de Relação transportador_veiculos , ID Cliente: " + id_cliente + " ID veiculo: " + ids_veiculos.get(i));
+
+         	  String sql_cadastro_cliente_conta = "insert into transportador_veiculos (id_cliente , id_veiculo ) values ('"
+	                		
+         		+ id_cliente
+	    			+ "','"
+	    			+ ids_veiculos.get(i)
+	    			+ "')";	
+         	  
+         	  try {
+         		 conn = ConexaoBanco.getConexao();
+	               
+	    	       
+	    	        PreparedStatement grava = (PreparedStatement) conn.prepareStatement(sql_cadastro_cliente_conta); 
+	    	        grava.execute();    
+	              //  JOptionPane.showMessageDialog(null, "Cliente Conta bancaria cadastrado com sucesso");
+	                ConexaoBanco.fechaConexao(conn, grava);
+	                resposta = true;
+	                registro.setIds_veiculos(ids_veiculos);
+	            	  registro.setResposta(resposta);
+	         		  System.out.println("Relação transportador_veiculo  Inserio");
+
+	               
+	                } catch (Exception e) {
+		                JOptionPane.showMessageDialog(null, "Erro ao crir a relação transportador_veiculo"
+		                        + " " + e.getMessage());
+		                resposta = false;
+		                registro.setIds_veiculos(ids_veiculos);
 		            	  registro.setResposta(resposta);
 		            }
            }
@@ -1012,7 +1320,7 @@ public int inserir_cliente(CadastroCliente cliente)
 	  
 	  public String string_pessoa_juridica(CadastroCliente cliente)
 	  {
-		  return "insert into cliente (tipo_cliente, apelido, razao_social, nome_fantasia, cnpj, descricao, at_primaria, at_secundaria, ie, status_empresa, status_ie, rua, bairro, cep, cidade, numero, uf, tipo_identificacao, identificacao, cpf_responsavel, senha, armazem) values ('"
+		  return "insert into cliente (tipo_cliente, apelido, razao_social, nome_fantasia, cnpj, descricao, at_primaria, at_secundaria, ie, status_empresa, status_ie, rua, bairro, cep, cidade, numero, uf, tipo_identificacao, identificacao, cpf_responsavel, senha, armazem, transportador) values ('"
           		
 	                		+ cliente.getTipo_pessoa()
 	    	    			+ "','"
@@ -1057,12 +1365,14 @@ public int inserir_cliente(CadastroCliente cliente)
                             + cliente.getSenha()
                             + "','"
                             + cliente.getArmazem()
+                            + "','"
+                            + cliente.getTransportador()
 	    	    			+ "')";	
 	  }
 	  
 	  public String string_pessoa_fisica(CadastroCliente cliente)
 	  {
-		  return  "insert into cliente (tipo_cliente, apelido, cpf, nome_empresarial, nome, sobrenome, nascimento, rg, ocupacao, porte, atividade, ie, status_empresa, status_ie, rua, bairro, cep, cidade, numero, uf, tipo_identificacao, identificacao, cpf_responsavel, senha, armazem) values ('"
+		  return  "insert into cliente (tipo_cliente, apelido, cpf, nome_empresarial, nome, sobrenome, nascimento, rg, ocupacao, porte, atividade, ie, status_empresa, status_ie, rua, bairro, cep, cidade, numero, uf, tipo_identificacao, identificacao, cpf_responsavel, senha, armazem, transportador) values ('"
           		
       		+ cliente.getTipo_pessoa()
   			+ "','"
@@ -1113,6 +1423,8 @@ public int inserir_cliente(CadastroCliente cliente)
               + cliente.getSenha()
               + "','"
               + cliente.getArmazem()
+              + "','"
+              + cliente.getTransportador()
   			+ "')";		 
 		  
 	  }
@@ -1156,7 +1468,63 @@ public int inserir_cliente(CadastroCliente cliente)
 
 		}
 	  
-	  
+
+
+	   public ArrayList<CadastroCliente.Veiculo> getVeiculos(int id_cliente){
+			 System.out.println("Lista Veiculos foi chamado!");
+	    	 String selectVeiculos = "select * from transportador_veiculos\r\n"
+	    	 		+ "LEFT JOIN veiculo  on veiculo.id_veiculo = transportador_veiculos.id_veiculo\r\n"
+	    	 		+ "where transportador_veiculos.id_cliente = ?";
+	    	 Connection conn = null;
+		      PreparedStatement pstm = null;
+		      ResultSet rs = null;
+		      ArrayList<CadastroCliente.Veiculo> lista_veiculos = null;
+		      
+		      try {
+		          conn = ConexaoBanco.getConexao();
+		          pstm = conn.prepareStatement(selectVeiculos);
+		          pstm.setInt(1, id_cliente);
+		          		
+		          rs = pstm.executeQuery();
+		          int i = 0;
+
+		          while (rs.next()) {
+		        	  
+		        	  
+		        	 if(rs != null) {
+		        		 System.out.print("veiculo não e nulo!");
+		        		 
+		        		 CadastroCliente.Veiculo veiculo = new CadastroCliente.Veiculo();
+		        	  
+		        		 veiculo.setId_veiculo(rs.getInt("id_veiculo"));
+		        		 veiculo.setRegistro_trator(rs.getString("rntrc"));
+		        		 veiculo.setPlaca_trator(rs.getString("placa"));
+		        		 veiculo.setEixos_trator(rs.getString("eixos"));
+		        		 veiculo.setTipo_trator(rs.getString("tipo"));
+		        		 veiculo.setCidade_trator(rs.getString("cidade"));
+		        		 veiculo.setUf_trator(rs.getString("estado"));
+		        	
+		        	  if(lista_veiculos == null)
+		        		  lista_veiculos = new ArrayList<>();
+			        	 
+		        	  lista_veiculos.add(veiculo);
+		        
+		        	  }
+		           }
+		      
+		          ConexaoBanco.fechaConexao(conn, pstm, rs);
+		          System.out.println("Veiculos foram listadas com sucesso!");
+		          return lista_veiculos;
+		      } catch (Exception e) {
+		          JOptionPane.showMessageDialog(null, "Erro ao listar as veiculos do transportador: " + id_cliente + " erro: " + e.getMessage() + "causa: " + e.getCause());
+		          return null;
+		      }		  
+		   
+	    	 
+	    	 
+	    	 
+	     }
+	     
 	
 	  
 }

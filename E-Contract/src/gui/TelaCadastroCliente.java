@@ -2066,7 +2066,8 @@ public class TelaCadastroCliente extends JDialog {
  		else
  			cliente_atualizar.setArmazem(0);
 
- 		
+			cliente_atualizar.setTransportador(0);
+
  		if(cBPessoa.getSelectedItem().equals("Física"))
  		{
  		
@@ -2431,6 +2432,8 @@ public class TelaCadastroCliente extends JDialog {
  			cliente_cadastrar.setArmazem(1);
  		else
  			cliente_cadastrar.setArmazem(0);
+
+			cliente_cadastrar.setTransportador(0);
 
  		
  		if(cBPessoa.getSelectedItem().equals("Física"))
