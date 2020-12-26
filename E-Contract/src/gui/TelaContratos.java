@@ -37,7 +37,8 @@ import java.awt.event.MouseEvent;
 public class TelaContratos extends JDialog {
 
     private static ArrayList<CadastroContrato> lista_contratos = new ArrayList<>();
-
+    private JDialog telaPai;
+    
 	private final JPanel painelPrincipal = new JPanel();
 	DefaultTableModel modelo = new DefaultTableModel(){
         public boolean isCellEditable(int linha, int coluna) {  
@@ -46,7 +47,7 @@ public class TelaContratos extends JDialog {
     };
     
 
-	public TelaContratos() {
+	public TelaContratos(int flag_retorno) {
 		setModal(true);
 
 		TelaContratos isto = this;
@@ -152,9 +153,9 @@ public class TelaContratos extends JDialog {
 		
 		
 		
-		JButton btnSelecionar = new JButton("Abrir");
-		btnSelecionar.setIcon(new ImageIcon(TelaCliente.class.getResource("/imagens/lista.png")));
-		btnSelecionar.addActionListener(new ActionListener() {
+		JButton btnAbrir = new JButton("Abrir");
+		btnAbrir.setIcon(new ImageIcon(TelaCliente.class.getResource("/imagens/lista.png")));
+		btnAbrir.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				int indiceDaLinha = tabela.getSelectedRow();
 				
@@ -192,13 +193,42 @@ public class TelaContratos extends JDialog {
 					
 			}
 		});
-		btnSelecionar.setBounds(781, 439, 121, 23);
-		getContentPane().add(btnSelecionar);
+		btnAbrir.setBounds(781, 439, 121, 23);
+		getContentPane().add(btnAbrir);
+		
+		JButton btnSelecionar = new JButton("Selecionar");
+		btnSelecionar.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+
+				int indiceDaLinha = tabela.getSelectedRow();
+				int id_contrato = Integer.parseInt(tabela.getValueAt(indiceDaLinha, 0).toString());
+				GerenciarBancoContratos gerenciar = new GerenciarBancoContratos();
+				CadastroContrato contrato_selecionado = gerenciar.getContrato(id_contrato);
+				
+				
+				if(flag_retorno == 1) {
+				
+					((TelaConfirmarCarregamento ) telaPai).setContratoCarregamento(contrato_selecionado);
+					isto.dispose();
+					
+				}
+			}
+		});
+		btnSelecionar.setBounds(682, 439, 89, 23);
+		painelPrincipal.add(btnSelecionar);
 		
 				
+		if(flag_retorno == 1) {
+			//selecionar contrato para carregamento
+			btnAbrir.setEnabled(false);
+			btnAbrir.setVisible(false);
+			
+		}else {
+			btnSelecionar.setEnabled(false);
+			btnSelecionar.setVisible(false);
+		}
 		this.setLocationRelativeTo(null);
 
-		this.setVisible(true);
 	}
 	
 		public static void pesquisar(DefaultTableModel modelo)
@@ -288,5 +318,10 @@ public class TelaContratos extends JDialog {
 					return false;
 		 		}
 		    }
+		  
+		  
+		  public void setTelaPai(JDialog _telaPai) {
+			  this.telaPai = _telaPai;
+		  }
 		  
 }

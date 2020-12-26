@@ -30,7 +30,7 @@ public class TelaProdutos extends JDialog {
 
 	private DefaultTableModel modelo = new DefaultTableModel();
 	private static ArrayList<CadastroProduto> produtos = new ArrayList<>();
-	
+	private JDialog telaPai;
 	
 	public static void pesquisarProdutos(DefaultTableModel modelo)
 	{ 
@@ -59,7 +59,7 @@ public class TelaProdutos extends JDialog {
     
 		
 	
-	public TelaProdutos() {
+	public TelaProdutos(int flag_retorno) {
 		setModal(true);
 
 		TelaProdutos isto = this;
@@ -123,11 +123,34 @@ public class TelaProdutos extends JDialog {
 		btnProduto.setBounds(554, 55, 89, 23);
 		painelPrincipal.add(btnProduto);
 		
+		JButton btnSelecionarProduto = new JButton("Selecionar");
+		btnSelecionarProduto.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+            	int indiceDaLinha = tabela.getSelectedRow();
+				if(flag_retorno == 1) {
+					((TelaConfirmarCarregamento) telaPai).setProduto(produtos.get(indiceDaLinha));
+					isto.dispose();
+					
+				}
+			}
+		});
+		btnSelecionarProduto.setBounds(574, 396, 89, 23);
+		painelPrincipal.add(btnSelecionarProduto);
+		
+		if(flag_retorno == 0) {
+			//modo de criacao
+			btnSelecionarProduto.setVisible(false);
+			btnSelecionarProduto.setEnabled(false);
+		}
 		
 		this.setLocationRelativeTo(null);
 
-		this.setVisible(true);
 		
 		
+	}
+	
+	
+	public void setTelaPai(JDialog _telaPai) {
+		this.telaPai = _telaPai;
 	}
 }

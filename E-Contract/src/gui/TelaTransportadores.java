@@ -29,7 +29,9 @@ public class TelaTransportadores extends JDialog {
 	private DefaultTableModel modelo = new DefaultTableModel();
 	private static ArrayList<CadastroCliente> transportadores = new ArrayList<>();
 	private static ArrayList<CadastroCliente> transportadores_disponiveis = new ArrayList<>();
+	private JDialog telaPai;
 
+	
 	private CadastroCliente clienteSelecionado;
 	
 	public static void pesquisar(DefaultTableModel modelo)
@@ -73,7 +75,7 @@ public class TelaTransportadores extends JDialog {
     }
 		
 	}
-	public TelaTransportadores() {
+	public TelaTransportadores(int flag_operacao) {
 		setModal(true);
 
 		TelaTransportadores isto = this;
@@ -97,7 +99,7 @@ public class TelaTransportadores extends JDialog {
 				TelaCadastroTransportadores tela = new TelaCadastroTransportadores(0,  null, null);
 			}
 		});
-		btnarmazm.setBounds(519, 68, 89, 23);
+		btnarmazm.setBounds(574, 403, 89, 23);
 		painelPrincipal.add(btnarmazm);
 		
 		
@@ -148,13 +150,42 @@ public class TelaTransportadores extends JDialog {
 
 			}
 		});
-		btnEditar.setBounds(574, 400, 89, 23);
+		btnEditar.setBounds(475, 403, 89, 23);
 		painelPrincipal.add(btnEditar);
+		
+		JButton btnSelecionarTransportador = new JButton("Selecionar");
+		btnSelecionarTransportador.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				int indiceDaLinha = tabela.getSelectedRow();
+				((TelaConfirmarCarregamento) telaPai).setTransportador(transportadores_disponiveis.get(indiceDaLinha));
+				isto.dispose();
+			}
+		});
+		btnSelecionarTransportador.setBounds(376, 403, 89, 23);
+		painelPrincipal.add(btnSelecionarTransportador);
+		
+		
+		if(flag_operacao == 0) {
+			btnSelecionarTransportador.setVisible(false);
+			btnSelecionarTransportador.setEnabled(false);
+			
+		}else {
+			btnSelecionarTransportador.setVisible(true);
+			btnSelecionarTransportador.setEnabled(true);
+		}
 		
 		this.setLocationRelativeTo(null);
 
-		this.setVisible(true);
+		//this.setVisible(true);
 		
 		
 	}
+	
+	
+	public void setTelaPai(JDialog telaPai) {
+		
+		this.telaPai = telaPai;
+		
+	}
+	
 }

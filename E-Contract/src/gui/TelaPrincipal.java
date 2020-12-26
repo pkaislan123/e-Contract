@@ -135,7 +135,8 @@ public class TelaPrincipal extends JFrame implements GetDadosGlobais{
 			mntmClientes.setFont(new Font("Segoe UI", Font.PLAIN, 16));
 			mntmClientes.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent arg0) {
-					TelaCliente clientes = new TelaCliente(1,0, null);
+					TelaCliente clientes = new TelaCliente(1,0);
+					clientes.setVisible(true);
 				}
 			});
 			Dados.add(mntmClientes);
@@ -174,7 +175,8 @@ public class TelaPrincipal extends JFrame implements GetDadosGlobais{
 			mntmProdutos.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent arg0) {
 					
-					TelaProdutos tela = new TelaProdutos();
+					TelaProdutos tela = new TelaProdutos(0);
+					tela.setVisible(true);
 				}
 			});
 			Dados.add(mntmProdutos);
@@ -192,7 +194,8 @@ public class TelaPrincipal extends JFrame implements GetDadosGlobais{
 			JMenuItem mntmNewMenuItem = new JMenuItem("Transportadores");
 			mntmNewMenuItem.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent e) {
-					TelaTransportadores tela = new TelaTransportadores();
+					TelaTransportadores tela = new TelaTransportadores(0);
+					tela.setVisible(true);
 				}
 			});
 			Dados.add(mntmNewMenuItem);
@@ -204,7 +207,8 @@ public class TelaPrincipal extends JFrame implements GetDadosGlobais{
 			JMenuItem mntmContratos = new JMenuItem("Contratos");
 			mntmContratos.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent arg0) {
-					TelaContratos telaContratos = new TelaContratos();
+					TelaContratos telaContratos = new TelaContratos(0);
+					telaContratos.setVisible(true);
 				}
 			});
 			mnContratos.add(mntmContratos);

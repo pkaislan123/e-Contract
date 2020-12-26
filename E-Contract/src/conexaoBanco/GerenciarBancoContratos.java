@@ -2005,5 +2005,181 @@ public class GerenciarBancoContratos {
     	 
      }
    
+     
+     
+     public boolean inserirCarregamento(int id_contrato, CadastroContrato.Carregamento carregamento) {
+    	 
+    	  //inserir primeiro o carregamento
+    	 int retorno_inserir_carregamento = inserir_carregamento_retorno(carregamento);
+    	 if(retorno_inserir_carregamento > 0) {
+    		 //inserir nova relacao contrato_carregamento
+    		 boolean inserir_relacao_contrato_carregamento = inserir_contrato_carregamento(id_contrato, retorno_inserir_carregamento);
+               if(inserir_relacao_contrato_carregamento) {
+          		 System.out.println("Carregamento Cadastrado");
+          		 return true;
+
+               }else {
+          		 System.out.println("Erro ao inserir um novo carregamento!");
+        		 return false;
+
+               }
+            	   
+    	 }else {
+    		 System.out.println("Erro ao inserir um novo carregamento!");
+    		 return false;
+    	 }
+    	 
+    	 
+     }
+     
+     
+     
+     
+     public int inserir_carregamento_retorno(CadastroContrato.Carregamento carregamento) {
+    	 
+    	 int result = -1;
+   	  if( carregamento != null) {
+               Connection conn = null;
+               try {
+               	
+                   conn = ConexaoBanco.getConexao();
+       	       
+                   String query = sql_carregamento(carregamento);
+                  Statement stmt = (Statement) conn.createStatement();
+                  int numero = stmt.executeUpdate(query, Statement.RETURN_GENERATED_KEYS);
+
+                  ResultSet rs = stmt.getGeneratedKeys();
+                  if (rs.next()){
+   	                                result=rs.getInt(1);
+   	                                System.out.println("Id carregamento inserido: "+ result);
+                                }
+                   rs.close();
+                   stmt.close();
+                   
+                   return result;
+    
+               } catch (Exception e) {
+                  JOptionPane.showMessageDialog(null, "Erro ao inserir o carregamento no banco de "
+                         + "dados " + e.getMessage());
+               	GerenciadorLog.registrarLogDiario("falha", "falha ao adicionar carregamento: " + e.getMessage() + " causa: " + e.getCause());
+                   return -1;
+               }
+           } else {
+               System.out.println("O carregamento enviado por parametro esta vazio");
+               return -1;
+           }
+    	 
+    	 
+     }
+     
+     
+     private boolean inserir_contrato_carregamento(int id_contrato, int id_carregamento){
+		  Connection conn = null;
+      try {
+          conn = ConexaoBanco.getConexao();
+          String sql = "insert into contrato_carregamentos\r\n" + 
+          		"(id_contrato, id_carregamento) values ('"
+	    			+id_contrato
+	    			+ "','"
+	    			+ id_carregamento	
+	    			+ "')";
+	       
+	        PreparedStatement grava = (PreparedStatement) conn.prepareStatement(sql); 
+	        grava.execute();    
+          ConexaoBanco.fechaConexao(conn, grava);
+          JOptionPane.showMessageDialog(null, "Relação contrato_carregamento  cadastrado com sucesso");
+
+       
+           return true;
+
+      } catch (Exception e) {
+    	  JOptionPane.showMessageDialog(null, "Erro ao inserir a relação contrato_carregamento no banco de dados ");
+           return false;
+      }
+			  
+	         
+	  }
+	  
+     public ArrayList<CadastroContrato.Carregamento> getCarregamentos(int id_contrato){
+    	 
+    	 System.out.println("Lista carregamento foi chamado!");
+    	 String selectCarregamentos = "select * from contrato_carregamentos\r\n"
+    	 		+ "LEFT JOIN carregamento  on carregamento.id_carregamento = contrato_carregamentos.id_carregamento \r\n"
+    	 		+ "where contrato_carregamentos.id_contrato = ?;";
+    	 Connection conn = null;
+	      PreparedStatement pstm = null;
+	      ResultSet rs = null;
+	      ArrayList<CadastroContrato.Carregamento> lista_carregamentos = new ArrayList<>();
+	      
+	      try {
+	          conn = ConexaoBanco.getConexao();
+	          pstm = conn.prepareStatement(selectCarregamentos);
+	          pstm.setInt(1, id_contrato);
+	          		
+	          rs = pstm.executeQuery();
+
+	          while (rs.next()) {
+	        	  
+	        	  
+	        	 if(rs != null) {
+	        		 System.out.print("carregamento não e nulo!");
+	        		 
+	        	  CadastroContrato.Carregamento carga = new CadastroContrato.Carregamento();
+	        	  
+	        	  carga.setId_carregamento(rs.getInt("id_carregamento"));
+	        	  carga.setData(rs.getString("data_carregamento"));
+	        	  carga.setId_contrato(rs.getInt("id_contrato_carregamento"));
+	        	  carga.setId_cliente(rs.getInt("id_cliente"));
+	        	  carga.setId_transportador(rs.getInt("id_transportador"));
+	        	  carga.setId_veiculo(rs.getInt("id_veiculo"));
+	        	  carga.setId_produto(rs.getInt("id_produto"));
+	        	  carga.setPeso_real_carga(rs.getDouble("peso_real_carga"));
+	        	  carga.setCodigo_nota_fiscal(rs.getString("codigo_nota_fiscal"));
+
+	        	 
+		        	 
+	        	  lista_carregamentos.add(carga);
+	        
+	        	  }
+	           }
+	      
+	          ConexaoBanco.fechaConexao(conn, pstm, rs);
+	          System.out.println("Carregamentos foram listadas com sucesso!");
+	          return lista_carregamentos;
+	      } catch (Exception e) {
+	          JOptionPane.showMessageDialog(null, "Erro ao listar os carregamentos do contrato: " + id_contrato + " erro: " + e.getMessage() + "causa: " + e.getCause());
+	          return null;
+	      }		  
+	   
+    	 
+     }
+	  
+     
+     public String sql_carregamento(CadastroContrato.Carregamento carregamento){
+    		
+  	   String query ="insert into carregamento (data_carregamento, id_contrato_carregamento, id_cliente , id_transportador, id_veiculo, id_produto, peso_real_carga, codigo_nota_fiscal) values ('"
+        		  + carregamento.getData()
+                + "','"
+                + carregamento.getId_contrato()
+                + "','"
+                + carregamento.getId_cliente()
+                + "','"
+                + carregamento.getId_transportador()
+                + "','"
+                + carregamento.getId_veiculo()
+                + "','"
+                + carregamento.getId_produto()
+                + "','"
+                + carregamento.getPeso_real_carga()
+               
+                + "','"
+                + carregamento.getCodigo_nota_fiscal()
+               
+                + "')";	
+          return query;
+          
+              
+  	   
+     }
    
 }

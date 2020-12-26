@@ -611,4 +611,75 @@ local retirada: 24 2
 	}
 	
 	
+	
+	public static class Carregamento{
+		
+		int id_carregamento, id_cliente, id_transportador, id_veiculo, id_contrato, id_produto;
+		String codigo_nota_fiscal, data;
+		double peso_real_carga;
+		
+		
+		
+		public int getId_produto() {
+			return id_produto;
+		}
+		public void setId_produto(int id_produto) {
+			this.id_produto = id_produto;
+		}
+		public int getId_carregamento() {
+			return id_carregamento;
+		}
+		public void setId_carregamento(int id_carregamento) {
+			this.id_carregamento = id_carregamento;
+		}
+		public int getId_cliente() {
+			return id_cliente;
+		}
+		public void setId_cliente(int id_cliente) {
+			this.id_cliente = id_cliente;
+		}
+		public int getId_transportador() {
+			return id_transportador;
+		}
+		public void setId_transportador(int id_transportador) {
+			this.id_transportador = id_transportador;
+		}
+		public int getId_veiculo() {
+			return id_veiculo;
+		}
+		public void setId_veiculo(int id_veiculo) {
+			this.id_veiculo = id_veiculo;
+		}
+		public int getId_contrato() {
+			return id_contrato;
+		}
+		public void setId_contrato(int id_contrato) {
+			this.id_contrato = id_contrato;
+		}
+		public String getCodigo_nota_fiscal() {
+			return codigo_nota_fiscal;
+		}
+		public void setCodigo_nota_fiscal(String codigo_nota_fiscal) {
+			this.codigo_nota_fiscal = codigo_nota_fiscal;
+		}
+		public String getData() {
+			return data;
+		}
+		public void setData(String data) {
+			this.data = data;
+		}
+		public double getPeso_real_carga() {
+			return peso_real_carga;
+		}
+		public void setPeso_real_carga(double peso_real_carga) {
+			this.peso_real_carga = peso_real_carga;
+		}
+		
+		
+		
+		
+		
+	}
+	
+	
 }

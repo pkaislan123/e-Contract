@@ -36,6 +36,7 @@ import javax.swing.JLabel;
 
 public class TelaCliente extends JDialog {
 
+	private JDialog telaPai;
 	private JPanel contentPane;
 	private JComboBox cBOrdernar;
 	 DefaultTableModel modelo = new DefaultTableModel(){
@@ -68,7 +69,7 @@ public class TelaCliente extends JDialog {
     for (CadastroCliente cliente : listaClientes.getClientes(-1, -1, null)) {
     	String cpf, cnpj, nome;
      	
-    if(cliente.getArmazem() == 1)	
+    if(cliente.getArmazem() == 1 || cliente.getTransportador() == 1)	
     {
     	
     }else {
@@ -135,7 +136,7 @@ public class TelaCliente extends JDialog {
 		
 	}
 	
-	public TelaCliente(int flag_tipo_tela, int flag_tipo_cliente, TelaElaborarNovoContrato telaContrato) {
+	public TelaCliente(int flag_tipo_tela, int flag_tipo_cliente) {
 		
 		// flag_tipo_tela == 1 //modo cliente edição
 		// flag_tipo_tela == 0 //modo cliente seleção
@@ -187,13 +188,16 @@ public class TelaCliente extends JDialog {
 					int indiceDaLinha = tabela.getSelectedRow();
     				clienteSelecionado = clientes_disponiveis.get(indiceDaLinha);
     				if(flag_tipo_cliente == 1)
-    	   				 telaContrato.setComprador1(clienteSelecionado);
-    	   				else if (flag_tipo_cliente == 2)
-    	   				 telaContrato.setVendedor1(clienteSelecionado);
-    	   				else if (flag_tipo_cliente == 3)
-    	   				 telaContrato.setVendedor2(clienteSelecionado);
-    	   				else
-    	      				 telaContrato.setCorretor(clienteSelecionado);
+    					((TelaElaborarNovoContrato) telaPai).setComprador1(clienteSelecionado);
+       				else if (flag_tipo_cliente == 2)
+       					((TelaElaborarNovoContrato) telaPai).setVendedor1(clienteSelecionado);
+       				else if (flag_tipo_cliente == 3)
+       					((TelaElaborarNovoContrato) telaPai).setVendedor2(clienteSelecionado);
+       				else if (flag_tipo_cliente == 4)
+       					((TelaElaborarNovoContrato) telaPai).setCorretor(clienteSelecionado);
+       				else if (flag_tipo_cliente == 5)
+       					((TelaConfirmarCarregamento) telaPai).setClienteCarregamento(clienteSelecionado);
+
     				isto.dispose();
 					}
 					else {
@@ -226,13 +230,16 @@ public class TelaCliente extends JDialog {
                 	int indiceDaLinha = tabela.getSelectedRow();
     				clienteSelecionado = clientes_disponiveis.get(indiceDaLinha);
     				if(flag_tipo_cliente == 1)
-    	   				 telaContrato.setComprador1(clienteSelecionado);
-    	   				else if (flag_tipo_cliente == 2)
-    	   				 telaContrato.setVendedor1(clienteSelecionado);
-    	   				else if (flag_tipo_cliente == 3)
-    	   				 telaContrato.setVendedor2(clienteSelecionado);
-    	   				else
-    	      				 telaContrato.setCorretor(clienteSelecionado);
+    					((TelaElaborarNovoContrato) telaPai).setComprador1(clienteSelecionado);
+       				else if (flag_tipo_cliente == 2)
+       					((TelaElaborarNovoContrato) telaPai).setVendedor1(clienteSelecionado);
+       				else if (flag_tipo_cliente == 3)
+       					((TelaElaborarNovoContrato) telaPai).setVendedor2(clienteSelecionado);
+       				else if (flag_tipo_cliente == 4)
+       					((TelaElaborarNovoContrato) telaPai).setCorretor(clienteSelecionado);
+       				else if (flag_tipo_cliente == 5)
+       					((TelaConfirmarCarregamento) telaPai).setClienteCarregamento(clienteSelecionado);
+
     				isto.dispose();
                 	}
                 	else {
@@ -292,13 +299,15 @@ public class TelaCliente extends JDialog {
 				int indiceDaLinha = tabela.getSelectedRow();
 				clienteSelecionado = clientes_disponiveis.get(indiceDaLinha);
 				if(flag_tipo_cliente == 1)
-   				 telaContrato.setComprador1(clienteSelecionado);
+					((TelaElaborarNovoContrato) telaPai).setComprador1(clienteSelecionado);
    				else if (flag_tipo_cliente == 2)
-   				 telaContrato.setVendedor1(clienteSelecionado);
+   					((TelaElaborarNovoContrato) telaPai).setVendedor1(clienteSelecionado);
    				else if (flag_tipo_cliente == 3)
-   				 telaContrato.setVendedor2(clienteSelecionado);
-   				else
-      				 telaContrato.setCorretor(clienteSelecionado);
+   					((TelaElaborarNovoContrato) telaPai).setVendedor2(clienteSelecionado);
+   				else if (flag_tipo_cliente == 4)
+   					((TelaElaborarNovoContrato) telaPai).setCorretor(clienteSelecionado);
+   				else if (flag_tipo_cliente == 5)
+   					((TelaConfirmarCarregamento) telaPai).setClienteCarregamento(clienteSelecionado);
 
 				isto.dispose();
 			}
@@ -366,7 +375,6 @@ public class TelaCliente extends JDialog {
 		
 		this.setLocationRelativeTo(null);
 
-		this.setVisible(true);
 
 
 
@@ -409,6 +417,8 @@ public class TelaCliente extends JDialog {
 
 	}
 	
+	
+	
 	public void atualizaTabela() {
 		pesquisar(modelo);
 	}
@@ -418,4 +428,9 @@ public class TelaCliente extends JDialog {
 		return clienteSelecionado;
 		
 	}
+	
+	public void setTelaPai(JDialog _telapai) {
+		this.telaPai = _telapai;
+	}
+	
 }

@@ -1141,7 +1141,9 @@ private CadastroContrato contrato_pai_local;
 			                       	@Override
 			                       	public void keyPressed(KeyEvent e) {
 			                       		if(e.getKeyCode() == KeyEvent.VK_ENTER) {
-				                       		TelaCliente clientes = new TelaCliente(0,2,  isto);
+				                       		TelaCliente clientes = new TelaCliente(0,2);
+				                       		clientes.setTelaPai(isto);
+				                       		clientes.setVisible(true);
 			                       		}
 			                       	}
 			                       });
@@ -1212,7 +1214,9 @@ private CadastroContrato contrato_pai_local;
 			                       	@Override
 			                       	public void keyPressed(KeyEvent e) {
 			                       		if(e.getKeyCode() == KeyEvent.VK_ENTER) {
-				                       		TelaCliente clientes = new TelaCliente(0,1, isto);
+				                       		TelaCliente clientes = new TelaCliente(0,1);
+				                       		clientes.setTelaPai(isto);
+				                       		clientes.setVisible(true);
 			                       		}
 
 			                       	}
@@ -1237,7 +1241,9 @@ private CadastroContrato contrato_pai_local;
 			                       	@Override
 			                       	public void keyPressed(KeyEvent e) {
 			                       		if(e.getKeyCode() == KeyEvent.VK_ENTER) {
-				                       		TelaCliente clientes = new TelaCliente(0,4,  isto);
+				                       		TelaCliente clientes = new TelaCliente(0,4);
+				                       		clientes.setTelaPai(isto);
+				                       		clientes.setVisible(true);
 			                       		}
 			                       	}
 			                       });
@@ -1277,7 +1283,9 @@ private CadastroContrato contrato_pai_local;
 			                       	@Override
 			                       	public void keyPressed(KeyEvent arg0) {
 			                       		if(arg0.getKeyCode() == KeyEvent.VK_ENTER) {
-				                       		TelaCliente clientes = new TelaCliente(0,3,  isto);
+				                       		TelaCliente clientes = new TelaCliente(0,3);
+				                       		clientes.setTelaPai(isto);
+				                       		clientes.setVisible(true);
 			                       		}
 			                       	}
 			                       });
@@ -1311,7 +1319,9 @@ private CadastroContrato contrato_pai_local;
 			                       JButton btnPesquisarVendedor2 = new JButton("Pesquisar Vendedor");
 			                       btnPesquisarVendedor2.addActionListener(new ActionListener() {
 			                       	public void actionPerformed(ActionEvent arg0) {
-			                       		TelaCliente clientes = new TelaCliente(0,3,  isto);
+			                       		TelaCliente clientes = new TelaCliente(0,3);
+			                       		clientes.setTelaPai(isto);
+			                       		clientes.setVisible(true);
 
 			                       	}
 			                       });
@@ -1321,7 +1331,9 @@ private CadastroContrato contrato_pai_local;
 			                       btnPesquisarCorretor = new JButton("Pesquisar Corretor");
 			                       btnPesquisarCorretor.addActionListener(new ActionListener() {
 			                       	public void actionPerformed(ActionEvent e) {
-			                       		TelaCliente clientes = new TelaCliente(0,4,  isto);
+			                       		TelaCliente clientes = new TelaCliente(0,4);
+			                       		clientes.setTelaPai(isto);
+			                       		clientes.setVisible(true);
 
 			                       	}
 			                       });
@@ -1492,12 +1504,16 @@ private CadastroContrato contrato_pai_local;
 			                       
 			                       btnPesquisarVendedor1.addActionListener(new ActionListener() {
 			                       	public void actionPerformed(ActionEvent arg0) {
-			                       		TelaCliente clientes = new TelaCliente(0,2,  isto);
+			                       		TelaCliente clientes = new TelaCliente(0,2);
+			                       		clientes.setTelaPai(isto);
+			                       		clientes.setVisible(true);
 			                       	}
 			                       });
 			                       btnPesquisarComprador.addActionListener(new ActionListener() {
 			                       	public void actionPerformed(ActionEvent e) {
-			                       		TelaCliente clientes = new TelaCliente(0,1, isto);
+			                       		TelaCliente clientes = new TelaCliente(0,1);
+			                       		clientes.setTelaPai(isto);
+			                       		clientes.setVisible(true);
 			                       	}
 			                       });
 			        

@@ -13,7 +13,7 @@ import javax.swing.border.EmptyBorder;
 
 public class TelaPadraoAbas extends JDialog {
 
-	private JTabbedPane painelPrincipal = new JTabbedPane();
+	private JTabbedPane painelPrincipal ;
 	private JPanel painelDadosIniciais = new JPanel();
 	private JPanel painelEmpresa = new JPanel();
 	
