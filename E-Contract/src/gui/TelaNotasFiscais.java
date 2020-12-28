@@ -123,8 +123,9 @@ public class TelaNotasFiscais extends JDialog {
 		 btnSelecionarNota = new JButton("Selecionar");
 		btnSelecionarNota.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				int indiceDaLinha = table_nfs.getSelectedRow();
-				((TelaConfirmarCarregamento) tela_pai).setNotaFiscal(notas_fiscais_disponivel.get(indiceDaLinha));
+				int rowSel = table_nfs.getSelectedRow();//pega o indice da linha na tabela
+				int indexRowModel = table_nfs.getRowSorter().convertRowIndexToModel(rowSel);//converte pro indice do model
+				((TelaConfirmarCarregamento) tela_pai).setNotaFiscal(notas_fiscais_disponivel.get(indexRowModel));
 				isto.dispose();
 
 			}

@@ -1962,7 +1962,7 @@ public class GerenciarBancoContratos {
                pstm = conn.prepareStatement(sql_delete_contrato_tarefa);
     
                pstm.setInt(1, id_contrato);
-               pstm.setInt(1, id_tarefa);
+               pstm.setInt(2, id_tarefa);
 
                pstm.execute();
                ConexaoBanco.fechaConexao(conn, pstm);
@@ -2153,7 +2153,68 @@ public class GerenciarBancoContratos {
 	   
     	 
      }
+     
+     public boolean removerCarregamento(int id_contrato, int id_carregamento) {
+    	 
+    	 return remover_carregamento(id_carregamento) && remover_contrato_carregamento(id_contrato, id_carregamento);
+    	 
+     }
 	  
+     
+     private boolean remover_carregamento( int id_carregamento) {
+    	 
+    	 String sql_delete_carregamento = "DELETE FROM carregamento WHERE id_carregamento = ?";
+      	  Connection conn = null;
+              ResultSet rs = null;	      
+              try {
+                  conn = ConexaoBanco.getConexao();
+                  PreparedStatement pstm;
+                  pstm = conn.prepareStatement(sql_delete_carregamento);
+       
+                  pstm.setInt(1, id_carregamento);
+       
+                  pstm.execute();
+                  ConexaoBanco.fechaConexao(conn, pstm);
+                  JOptionPane.showMessageDialog(null, "Carregamento excluido, banco normalizado ");
+                 return true;
+                  
+       
+              } catch (Exception f) {
+                  JOptionPane.showMessageDialog(null, "Erro ao excluir o carregamento do banco de"
+                          + "dados " + f.getMessage());
+                 return false;
+              }
+    	 
+    	 
+     }
+     
+     private boolean remover_contrato_carregamento(int id_contrato, int id_carregamento) {
+    	 
+    	 String sql_delete_contrato_carregamento = "DELETE FROM contrato_carregamentos WHERE id_contrato = ? and id_carregamento = ?";
+      	  Connection conn = null;
+              ResultSet rs = null;	      
+              try {
+                  conn = ConexaoBanco.getConexao();
+                  PreparedStatement pstm;
+                  pstm = conn.prepareStatement(sql_delete_contrato_carregamento);
+       
+                  pstm.setInt(1, id_contrato);
+                  pstm.setInt(2, id_carregamento);
+
+                  pstm.execute();
+                  ConexaoBanco.fechaConexao(conn, pstm);
+                  JOptionPane.showMessageDialog(null, "Relacao contrato_carregamento excluida, banco normalizado ");
+                 return true;
+                  
+       
+              } catch (Exception f) {
+                  JOptionPane.showMessageDialog(null, "Erro ao excluir a relacao contrato_carregamento do banco de"
+                          + "dados " + f.getMessage());
+                 return false;
+              }
+       	 
+    	 
+     }
      
      public String sql_carregamento(CadastroContrato.Carregamento carregamento){
     		

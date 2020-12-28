@@ -441,13 +441,28 @@ public class ManipularNotasFiscais {
 
 		for (int i = 0; i < listaLocal.size(); i++) {
 			if (listaLocal.get(i).endsWith(".pdf") || listaLocal.get(i).endsWith(".Pdf")) {
-				if(listaLocal.get(i).toString().contains(codigo)) {
-					System.out.println("encontrado");
-					//arquivo encontrato
-					 file = new File(listaLocal.get(i).toString());
+				TratarDados tratar = new TratarDados(listaLocal.get(i));
+					
+				try{
+					String result = tratar.tratar("NFA-", ".pdf");
+					System.out.println("Result: " + result);
+					System.out.println("Codigo: " + codigo);
 
-					break;
+					if(result != null && result.length() > 8) {
+						if(result.trim().equals(codigo.trim())) {
+							System.out.println("encontrato");
+							 file = new File(listaLocal.get(i).toString());
+
+								break;
+						}
+					
+					}
+				}catch(Exception e) {
+					
 				}
+						
+				
+				
 			}
 		}
 		

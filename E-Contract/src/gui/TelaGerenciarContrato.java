@@ -97,6 +97,8 @@ import javax.swing.JTextField;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.border.LineBorder;
+import java.awt.GridBagConstraints;
+import java.awt.Insets;
 
 public class TelaGerenciarContrato extends JDialog {
 
@@ -137,7 +139,7 @@ public class TelaGerenciarContrato extends JDialog {
 
 	private Double peso_total_cargas_nfe = 0.0;
 	private Double peso_total_cargas = 0.0;
-	private JLabel lblPesoTotalRealCargas, lblPesoTotalNotasFiscais;
+	private JLabel lblPesoTotalRealCargas, lblPesoTotalNotasFiscais,lblPesoTotal, lblPesoTotalRealRestante, lblPesoTotalNotasFiscaisRestante;
 	DefaultTableModel modelo = new DefaultTableModel() {
 		public boolean isCellEditable(int linha, int coluna) {
 			return false;
@@ -173,6 +175,10 @@ public class TelaGerenciarContrato extends JDialog {
 	private final JLabel lblNewLabel_4 = new JLabel("     Carregamento");
 	private JTable table_carregamento;
 
+	
+	private JLabel lblDataContrato, lblCorretor, lblCompradores,lblVendedores , lblValorSaco,lblQuantidade , lblValorTotal;
+
+	
 	public TelaGerenciarContrato(CadastroContrato contrato) {
 
 		getDadosGlobais();
@@ -207,7 +213,6 @@ public class TelaGerenciarContrato extends JDialog {
 
 		painelDadosIniciais.setBackground(new Color(255, 255, 255));
 		painelPagamentos.setBackground(new Color(255, 255, 255));
-		painelCarregamento.setBackground(new Color(255, 255, 255));
 
 		// adiciona novos paines e suas abas
 		painelPrincipal.addTab("Contrato", painelDadosIniciais);
@@ -358,13 +363,6 @@ public class TelaGerenciarContrato extends JDialog {
 		lblNewLabel.setBounds(0, 22, 230, 31);
 
 		painelPagamentos.add(lblNewLabel);
-
-		painelPrincipal.addTab("Carregamento", painelCarregamento);
-		painelCarregamento.setLayout(null);
-	
-
-		table_carregamento = new JTable(modelo_carregamentos);
-		table_carregamento.setBackground(Color.WHITE);
 		
 		modelo_carregamentos.addColumn("Id Carregamento");
 		modelo_carregamentos.addColumn("Data");
@@ -375,63 +373,7 @@ public class TelaGerenciarContrato extends JDialog {
 		modelo_carregamentos.addColumn("Produto");
 		modelo_carregamentos.addColumn("Peso Real Carga");
 		modelo_carregamentos.addColumn("Nota Fiscal");
-
-		scrollPaneCarregamento = new JScrollPane(table_carregamento);
-		scrollPaneCarregamento.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED);
-		scrollPaneCarregamento.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED);
-		scrollPaneCarregamento.setBackground(Color.WHITE);
-		scrollPaneCarregamento.setAutoscrolls(true);
-		scrollPaneCarregamento.setBounds(69, 112, 978, 181);
-
-		painelCarregamento.add(scrollPaneCarregamento);
-		
-		
-		lblNewLabel_4.setOpaque(true);
-		lblNewLabel_4.setForeground(Color.WHITE);
-		lblNewLabel_4.setFont(new Font("Arial", Font.PLAIN, 18));
-		lblNewLabel_4.setBackground(new Color(0, 51, 0));
-		lblNewLabel_4.setBounds(0, 22, 158, 31);
-
-		painelCarregamento.add(lblNewLabel_4);
 		GetData data = new GetData();
-
-		JLabel lblNewLabel_7 = new JLabel("Carregamentos desse contrato:");
-		lblNewLabel_7.setBounds(47, 87, 278, 14);
-		painelCarregamento.add(lblNewLabel_7);
-
-		JButton btnNewButton_1 = new JButton("Excluir");
-		btnNewButton_1.setBounds(958, 304, 89, 23);
-		painelCarregamento.add(btnNewButton_1);
-		btnAdicionarCarregamento.setBounds(964, 508, 83, 23);
-		painelCarregamento.add(btnAdicionarCarregamento);
-		
-		JLabel lblNewLabel_3 = new JLabel("Peso Total das Cargas:");
-		lblNewLabel_3.setBounds(90, 373, 126, 23);
-		painelCarregamento.add(lblNewLabel_3);
-		
-		 lblPesoTotalRealCargas = new JLabel("");
-		lblPesoTotalRealCargas.setBorder(new LineBorder(new Color(0, 0, 0)));
-		lblPesoTotalRealCargas.setBounds(227, 373, 180, 23);
-		painelCarregamento.add(lblPesoTotalRealCargas);
-		
-		JLabel lblNewLabel_3_1 = new JLabel("Peso Total das Notas Fiscais:");
-		lblNewLabel_3_1.setBounds(69, 408, 158, 23);
-		painelCarregamento.add(lblNewLabel_3_1);
-		
-		 lblPesoTotalNotasFiscais = new JLabel("");
-		lblPesoTotalNotasFiscais.setBorder(new LineBorder(new Color(0, 0, 0)));
-		lblPesoTotalNotasFiscais.setBounds(227, 407, 180, 23);
-		painelCarregamento.add(lblPesoTotalNotasFiscais);
-		btnAdicionarCarregamento.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-
-			
-				TelaConfirmarCarregamento tela_confirmar = new TelaConfirmarCarregamento(contrato_local);
-				tela_confirmar.setTelaPai(isto);
-				tela_confirmar.setVisible(true);
-
-			}
-		});
 
 		getContentPane().add(painelPrincipal, BorderLayout.CENTER);
 
@@ -552,6 +494,213 @@ public class TelaGerenciarContrato extends JDialog {
 		scrollPaneTarefas.setAutoscrolls(true);
 		scrollPaneTarefas.setBounds(28, 55, 1002, 470);
 		painelListaTarefas.add(scrollPaneTarefas);
+		painelCarregamento.setBackground(new Color(255, 255, 255));
+		
+				painelPrincipal.addTab("Carregamento", painelCarregamento);
+				painelCarregamento.setLayout(null);
+				
+
+					table_carregamento = new JTable(modelo_carregamentos);
+					table_carregamento.setBackground(Color.WHITE);
+					
+							scrollPaneCarregamento = new JScrollPane(table_carregamento);
+							scrollPaneCarregamento.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED);
+							scrollPaneCarregamento.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+							scrollPaneCarregamento.setBackground(Color.WHITE);
+							scrollPaneCarregamento.setAutoscrolls(true);
+							scrollPaneCarregamento.setBounds(69, 232, 978, 139);
+							
+									painelCarregamento.add(scrollPaneCarregamento);
+									
+									
+									lblNewLabel_4.setOpaque(true);
+									lblNewLabel_4.setForeground(Color.WHITE);
+									lblNewLabel_4.setFont(new Font("Arial", Font.PLAIN, 18));
+									lblNewLabel_4.setBackground(new Color(0, 51, 0));
+									lblNewLabel_4.setBounds(0, 22, 158, 31);
+									
+											painelCarregamento.add(lblNewLabel_4);
+											
+													JLabel lblNewLabel_7 = new JLabel("Carregamentos desse contrato:");
+													lblNewLabel_7.setBounds(71, 207, 278, 14);
+													painelCarregamento.add(lblNewLabel_7);
+													
+															JButton btnNewButton_1 = new JButton("Excluir");
+															btnNewButton_1.addActionListener(new ActionListener() {
+																public void actionPerformed(ActionEvent arg0) {
+																	if (JOptionPane.showConfirmDialog(isto, 
+																            "Excluir", "Deseja excluir o carregamento?", 
+																            JOptionPane.YES_NO_OPTION,
+																            JOptionPane.QUESTION_MESSAGE) == JOptionPane.YES_OPTION){
+																		try {
+																			int indiceDaLinha = table_carregamento.getSelectedRow();
+																			
+																			int id_carregamento_selecionado = Integer.parseInt(table_carregamento.getValueAt(indiceDaLinha, 0).toString());
+																			GerenciarBancoContratos gerenciar = new GerenciarBancoContratos();
+																			
+																			if(gerenciar.removerCarregamento(contrato_local.getId(), id_carregamento_selecionado)) {
+																				JOptionPane.showMessageDialog(null, "Carregamento Excluido!");
+																				pesquisar_carregamentos();
+
+																			}else {
+																				JOptionPane.showMessageDialog(null, "Erro ao remover o carregamento selecionado\nConsulte o administrador do sistema!");
+																			}
+																			}catch(NumberFormatException n) {
+																				JOptionPane.showMessageDialog(null, "Nenhum carregamento selecionado para excluir");
+
+																			}
+
+																        }
+																	else
+																	{
+																		
+																		
+																	}
+																
+																	
+																}
+															});
+															btnNewButton_1.setBounds(958, 382, 89, 23);
+															painelCarregamento.add(btnNewButton_1);
+															btnAdicionarCarregamento.setBounds(964, 508, 83, 23);
+															painelCarregamento.add(btnAdicionarCarregamento);
+															
+															JLabel lblNewLabel_3 = new JLabel("Cargas:");
+															lblNewLabel_3.setBounds(218, 419, 76, 23);
+															painelCarregamento.add(lblNewLabel_3);
+															
+															 lblPesoTotalRealCargas = new JLabel("");
+															 lblPesoTotalRealCargas.setFont(new Font("Tahoma", Font.BOLD, 14));
+															 lblPesoTotalRealCargas.setBorder(new LineBorder(new Color(0, 0, 0)));
+															 lblPesoTotalRealCargas.setBounds(158, 488, 314, 23);
+															 painelCarregamento.add(lblPesoTotalRealCargas);
+															 
+															 JLabel lblNewLabel_3_1 = new JLabel("Notas Fiscais:");
+															 lblNewLabel_3_1.setBounds(629, 419, 89, 23);
+															 painelCarregamento.add(lblNewLabel_3_1);
+															 
+															  lblPesoTotalNotasFiscais = new JLabel("");
+															  lblPesoTotalNotasFiscais.setFont(new Font("Tahoma", Font.BOLD, 14));
+															  lblPesoTotalNotasFiscais.setBorder(new LineBorder(new Color(0, 0, 0)));
+															  lblPesoTotalNotasFiscais.setBounds(614, 450, 283, 23);
+															  painelCarregamento.add(lblPesoTotalNotasFiscais);
+															  
+															  JPanel panel_1 = new JPanel();
+															  panel_1.setBackground(Color.WHITE);
+															  panel_1.setBounds(270, 59, 690, 112);
+															  painelCarregamento.add(panel_1);
+															  panel_1.setLayout(new MigLayout("", "[99px][93px][85px][79px][78px][67px]", "[17px][17px][14px][17px][17px]"));
+															  
+															  JLabel lblNewLabel_5 = new JLabel("Data:");
+															  lblNewLabel_5.setAlignmentX(Component.RIGHT_ALIGNMENT);
+															  lblNewLabel_5.setAlignmentY(Component.TOP_ALIGNMENT);
+															  lblNewLabel_5.setBorder(null);
+															  lblNewLabel_5.setFont(new Font("Arial", Font.PLAIN, 12));
+															  panel_1.add(lblNewLabel_5, "cell 0 0,alignx right,aligny center");
+															  
+															  
+															   lblDataContrato = new JLabel("data contrato");
+															  lblDataContrato.setFont(new Font("Arial", Font.BOLD, 14));
+															  panel_1.add(lblDataContrato, "cell 1 0,alignx center,aligny center");
+															  
+															  JLabel lblNewLabel_9 = new JLabel("Corretor:");
+															  lblNewLabel_9.setFont(new Font("Arial", Font.PLAIN, 12));
+															  panel_1.add(lblNewLabel_9, "cell 0 1,alignx right,growy");
+															  
+															   lblCorretor = new JLabel("corretor");
+															  lblCorretor.setFont(new Font("Arial", Font.BOLD, 14));
+															  panel_1.add(lblCorretor, "cell 1 1,alignx center,aligny center");
+															  
+															  JLabel lblNewLabel_6 = new JLabel("Compradores:");
+															  lblNewLabel_6.setFont(new Font("Arial", Font.PLAIN, 12));
+															  panel_1.add(lblNewLabel_6, "cell 0 2,alignx right,growy");
+															  
+															   lblCompradores = new JLabel("compradores");
+															  lblCompradores.setFont(new Font("Arial", Font.BOLD, 14));
+															  panel_1.add(lblCompradores, "cell 1 2,alignx center,aligny center");
+															  
+															  JLabel lblNewLabel_8 = new JLabel("Vendedores:");
+															  lblNewLabel_8.setFont(new Font("Arial", Font.PLAIN, 12));
+															  panel_1.add(lblNewLabel_8, "cell 0 3,alignx right,aligny center");
+															  
+
+															   lblVendedores = new JLabel("vendedores");
+															  lblVendedores.setFont(new Font("Arial", Font.BOLD, 14));
+															  panel_1.add(lblVendedores, "cell 1 3,alignx center,aligny center");
+															  
+															  JLabel lblnewvalorsaco = new JLabel("Valor Unidade:");
+															  lblnewvalorsaco.setFont(new Font("Arial", Font.PLAIN, 12));
+															  panel_1.add(lblnewvalorsaco, "cell 0 4,alignx right,aligny center");
+															  
+															   lblValorSaco = new JLabel("valor saco");
+															  lblValorSaco.setFont(new Font("Arial", Font.BOLD, 14));
+															  panel_1.add(lblValorSaco, "cell 1 4,alignx center,aligny center");
+															  
+															  JLabel lblNewLabel_10 = new JLabel("Quantidade:");
+															  lblNewLabel_10.setFont(new Font("Arial", Font.PLAIN, 12));
+															  panel_1.add(lblNewLabel_10, "cell 2 4,alignx right,aligny center");
+															  
+															   lblQuantidade = new JLabel("quantidade");
+															  lblQuantidade.setFont(new Font("Arial", Font.BOLD, 14));
+															  panel_1.add(lblQuantidade, "cell 3 4,alignx center,aligny center");
+															  
+															  JLabel lblNewLabel_11 = new JLabel("Valor Total:");
+															  lblNewLabel_11.setFont(new Font("Arial", Font.PLAIN, 12));
+															  panel_1.add(lblNewLabel_11, "cell 4 4,alignx right,aligny center");
+															  
+															   lblValorTotal = new JLabel("valortotal");
+															  lblValorTotal.setFont(new Font("Arial", Font.BOLD, 14));
+															  panel_1.add(lblValorTotal, "cell 5 4,alignx center,aligny center");
+															  
+															  JLabel lblNewLabel_12 = new JLabel("Total:");
+															  lblNewLabel_12.setBounds(100, 459, 46, 14);
+															  painelCarregamento.add(lblNewLabel_12);
+															  
+															   
+															  
+															   lblPesoTotal = new JLabel("0.0 Kg");
+															  lblPesoTotal.setFont(new Font("Tahoma", Font.BOLD, 14));
+															  lblPesoTotal.setBorder(new LineBorder(new Color(0, 0, 0)));
+															  lblPesoTotal.setBounds(158, 453, 314, 23);
+															  painelCarregamento.add(lblPesoTotal);
+															  
+															  JLabel lblNewLabel_13 = new JLabel("Total Carregado:");
+															  lblNewLabel_13.setBounds(57, 494, 101, 14);
+															  painelCarregamento.add(lblNewLabel_13);
+															  
+															  JLabel lblNewLabel_13_1 = new JLabel("Restante:");
+															  lblNewLabel_13_1.setBounds(93, 530, 65, 14);
+															  painelCarregamento.add(lblNewLabel_13_1);
+															  
+															   lblPesoTotalRealRestante = new JLabel("0.0 Kg");
+															  lblPesoTotalRealRestante.setFont(new Font("Tahoma", Font.BOLD, 14));
+															  lblPesoTotalRealRestante.setBorder(new LineBorder(new Color(0, 0, 0)));
+															  lblPesoTotalRealRestante.setBounds(158, 524, 314, 23);
+															  painelCarregamento.add(lblPesoTotalRealRestante);
+															  
+															  JLabel lblNewLabel_13_2 = new JLabel("Total Carregado:");
+															  lblNewLabel_13_2.setBounds(510, 456, 101, 14);
+															  painelCarregamento.add(lblNewLabel_13_2);
+															  
+															  JLabel lblNewLabel_13_2_1 = new JLabel("Restante:");
+															  lblNewLabel_13_2_1.setBounds(546, 488, 65, 14);
+															  painelCarregamento.add(lblNewLabel_13_2_1);
+															  
+															   lblPesoTotalNotasFiscaisRestante = new JLabel("0 Kg | 0 Sacos");
+															  lblPesoTotalNotasFiscaisRestante.setFont(new Font("Tahoma", Font.BOLD, 14));
+															  lblPesoTotalNotasFiscaisRestante.setBorder(new LineBorder(new Color(0, 0, 0)));
+															  lblPesoTotalNotasFiscaisRestante.setBounds(614, 484, 283, 23);
+															  painelCarregamento.add(lblPesoTotalNotasFiscaisRestante);
+															  btnAdicionarCarregamento.addActionListener(new ActionListener() {
+															  	public void actionPerformed(ActionEvent e) {
+
+															  	
+															  		TelaConfirmarCarregamento tela_confirmar = new TelaConfirmarCarregamento(contrato_local);
+															  		tela_confirmar.setTelaPai(isto);
+															  		tela_confirmar.setVisible(true);
+
+															  	}
+															  });
 
 		setPagamentos(contrato);
 
@@ -569,7 +718,9 @@ public class TelaGerenciarContrato extends JDialog {
 		carregarDocumento(url_original);
 		getTarefas();
 
+		setarInformacoesPainelCarregamentos();
 		pesquisar_carregamentos();
+		
 
 		this.setLocationRelativeTo(null);
 
@@ -884,6 +1035,8 @@ public class TelaGerenciarContrato extends JDialog {
 		
 		ArrayList<CadastroNFe> notas_fiscais_carregamentos = new ArrayList<>();
 		modelo_carregamentos.setNumRows(0);
+		peso_total_cargas_nfe = 0.0;
+		peso_total_cargas = 0.0;
 
 		if (lista_carregamentos != null) {
 			lista_carregamentos.clear();
@@ -949,17 +1102,132 @@ public class TelaGerenciarContrato extends JDialog {
 			peso_total_cargas += carregamento.getPeso_real_carga();
 		}
 		
-		lblPesoTotalRealCargas.setText(Double.toString(peso_total_cargas));
-        //faz a soma dos pesos das notas fiscais
+		 //faz a soma dos pesos das notas fiscais
 		for(CadastroNFe nfe : notas_fiscais_carregamentos) {
 			
 			if(nfe != null) {
-				peso_total_cargas_nfe += Double.parseDouble(nfe.getQuantidade());
+				peso_total_cargas_nfe += Double.parseDouble(nfe.getQuantidade().replace(".", "").replace(",", "."));
 			}
 			
 		}
 		
-		lblPesoTotalNotasFiscais.setText(Double.toString(peso_total_cargas_nfe));
+		double peso_total_kg = 0,  peso_total_sacos = 0,
+				peso_carregado_kg = 0, peso_carregado_sacos= 0,
+						peso_restante_kg = 0, peso_restante_sacos = 0	;
+		
+		  NumberFormat z = NumberFormat.getNumberInstance();
+
+		if(contrato_local.getMedida().equals("KG")){
+			 peso_total_kg = contrato_local.getQuantidade();
+			 peso_total_sacos = peso_total_kg/60;
+			
+			 peso_carregado_kg = peso_total_cargas;
+			 peso_carregado_sacos = peso_total_cargas / 60;
+			
+			 peso_restante_kg = peso_total_kg - peso_carregado_kg;
+			 peso_restante_sacos = peso_total_sacos - peso_carregado_sacos;
+
+			
+			
+		}else if(contrato_local.getMedida().equalsIgnoreCase("Sacos")) {
+			 peso_total_sacos = contrato_local.getQuantidade();
+			 peso_total_kg = peso_total_sacos * 60;
+			 
+			 peso_carregado_sacos = peso_total_cargas / 60; 
+			 peso_carregado_kg = peso_total_cargas;
+			 
+			 peso_restante_sacos = peso_total_sacos - peso_carregado_sacos;
+			 peso_restante_kg = peso_total_kg - peso_carregado_kg;
+			
+		}
+		
+		
+		lblPesoTotal.setText(z.format(peso_total_kg) + " Kg " + " | "+ z.format(peso_total_sacos) + " Sacos");
+	     //peso total das cargas
+		lblPesoTotalRealCargas.setText(z.format(peso_carregado_kg) + " Kg" + " | "+ z.format(peso_carregado_sacos) + " Sacos");
+		//peso restante
+		lblPesoTotalRealRestante.setText( z.format(peso_restante_kg) + " Kg" + " | " + z.format(peso_restante_sacos) + " Sacos");
+		
+       
+		double peso_total_nf_kg = peso_total_cargas_nfe;
+		double peso_total_nf_sacos  = peso_total_nf_kg / 60;
+		
+		double peso_total_nf_kg_restante = peso_total_kg - peso_total_nf_kg  ;
+		double peso_total_nf_sacos_restante  = peso_total_sacos-  peso_total_nf_sacos  ;
+		
+		lblPesoTotalNotasFiscais.setText(z.format(peso_total_nf_kg) + " Kg" + " | "+ z.format(peso_total_nf_sacos) + " Sacos");
+		
+		lblPesoTotalNotasFiscaisRestante.setText(z.format(peso_total_nf_kg_restante) + " Kg" + " | "+ z.format(peso_total_nf_sacos_restante) + " Sacos");
 
 	}
+	
+	
+	public void setarInformacoesPainelCarregamentos() {
+		
+		lblDataContrato.setText(contrato_local.getData_contrato());
+
+		CadastroCliente compradores[] = contrato_local.getCompradores();
+		CadastroCliente vendedores[] = contrato_local.getVendedores();
+		CadastroCliente corretores[] = contrato_local.getCorretores();
+
+		String nome_corretores = "";
+		String nome_vendedores = "";
+		String nome_compradores = "";
+
+		if (corretores[0] != null) {
+			if (corretores[0].getTipo_pessoa() == 0) {
+				// pessoa fisica
+				nome_corretores = corretores[0].getNome_empresarial();
+			} else {
+				nome_corretores = corretores[0].getNome_fantaia();
+
+			}
+		}
+		lblCorretor.setText(nome_corretores);
+
+
+		if (compradores[0] != null) {
+			if (compradores[0].getTipo_pessoa() == 0) {
+				// pessoa fisica
+				nome_compradores = compradores[0].getNome_empresarial();
+			} else {
+				nome_compradores = compradores[0].getNome_fantaia();
+
+			}
+		}
+        lblCompradores.setText(nome_compradores);
+		
+		for (CadastroCliente vendedor : vendedores) {
+			if (vendedor != null) {
+				if (vendedor.getTipo_pessoa() == 0) {
+					// pessoa fisica
+					nome_vendedores += vendedor.getNome_empresarial();
+				} else {
+					nome_vendedores += vendedor.getNome_fantaia();
+
+				}
+				nome_vendedores += " ,";
+
+			}
+		}
+		lblVendedores.setText(nome_vendedores);
+		
+		Locale ptBr = new Locale("pt", "BR");
+		String valorString = NumberFormat.getCurrencyInstance(ptBr)
+				.format(contrato_local.getValor_produto());
+		
+		
+		lblValorSaco.setText(valorString);
+		
+		  NumberFormat z = NumberFormat.getNumberInstance();
+
+		
+		lblQuantidade.setText(z.format(contrato_local.getQuantidade()) + " " + contrato_local.getMedida());
+	
+		String valor_total = NumberFormat.getCurrencyInstance(ptBr)
+				.format(contrato_local.getValor_a_pagar());
+		lblValorTotal.setText(valor_total);
+		
+	}
+
 }
