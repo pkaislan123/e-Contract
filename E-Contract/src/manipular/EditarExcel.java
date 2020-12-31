@@ -96,7 +96,7 @@ public class EditarExcel {
     private String servidor_unidade;
 
 	
-	public EditarExcel(CadastroModelo modelo, TelaEmEspera background, int tipoContrato, CadastroContrato contrato)
+	public EditarExcel(CadastroModelo modelo, TelaEmEspera background, int tipoContrato)
 	{
 		getDadosGlobais();
 		this.modelo = modelo;

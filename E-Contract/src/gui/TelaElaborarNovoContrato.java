@@ -192,7 +192,7 @@ private JTextField entClausula4;
 private JPanel panel;
 private Log GerenciadorLog;
 private CadastroLogin login;
-private ConfiguracoesGlobais configs_globais;
+private ConfiguracoesGlobais configs_globais = new ConfiguracoesGlobais();
 private CadastroContrato contrato_pai_local;
 
 
@@ -222,6 +222,9 @@ private CadastroContrato contrato_pai_local;
 	private ArrayList<Integer> pagamento_a_excluir = null;
 	
 	public TelaElaborarNovoContrato(CadastroModelo modelo, int tipoContrato, CadastroContrato contrato_pai, int flag_edicao) {
+		
+		getDadosGlobais();
+
 		setModal(true);
 		
 		flag_edicao_global = flag_edicao;
@@ -260,7 +263,6 @@ private CadastroContrato contrato_pai_local;
 		
 		setResizable(false);
 	
-		getDadosGlobais();
 		setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 		
 	
@@ -2366,7 +2368,7 @@ private CadastroContrato contrato_pai_local;
 				                               
 				                               CadastroCliente localRetirada = (CadastroCliente) modelLocalRetirada.getSelectedItem();
 				                               novo_contrato.setLocal_retirada(localRetirada.getNome_fantaia());
-				                              
+				                               novo_contrato.setCliente_retirada(localRetirada);
 				                              
 				                              
 				                              novo_contrato.setQuantidade(Double.parseDouble(entQuantidade.getText()));
@@ -2412,23 +2414,30 @@ private CadastroContrato contrato_pai_local;
                                              try {  
                                             	 System.out.println("tipo do modelo selecionado: " + modelo.getNome_modelo());
                                             	 if(modelo.getNome_modelo().equals("informal"))	{	
-       				        	        		  editar = new EditarExcel(modelo, esperar, tipoContrato, contrato_pai);
+       				        	        		  editar = new EditarExcel(modelo, esperar, tipoContrato);
     				                               contrato_alterado = editar.alterar(novo_contrato);
+    					                            
     				                               //criar pdf
-    					                              ConverterPdf converter_pdf = new ConverterPdf();
-    					                            //  String url = converter_pdf.excel_pdf_file(contrato_alterado);
-    					                            //TelaVizualizarPdf  vizualizar =  new TelaVizualizarPdf(url);
-    					                              ByteArrayOutputStream pdf_alterado = converter_pdf.excel_pdf_stream(contrato_alterado);
-    					                              TelaVizualizarPdf  vizualizar =  new TelaVizualizarPdf(new ByteArrayInputStream (pdf_alterado.toByteArray()), isto, esperar);
-    					                              
+
+                                             	  ConverterPdf converter_pdf = new ConverterPdf();
+   					                            //  String url = converter_pdf.excel_pdf_file(contrato_alterado);
+   					                            //TelaVizualizarPdf  vizualizar =  new TelaVizualizarPdf(url);
+   					                              ByteArrayOutputStream pdf_alterado = converter_pdf.excel_pdf_stream(contrato_alterado);
+   					                              TelaVizualizarPdf  vizualizar =  new TelaVizualizarPdf(new ByteArrayInputStream (pdf_alterado.toByteArray()), isto, esperar);
+   					                              
+ 				                             
                                             	 }
        				        				    else{
        				        				    	System.out.println("Preparando para elaborar novo contrato formal");
-       				        					   editarWord = new EditarWord(modelo, esperar, tipoContrato);
-    				                             // editarWord.alterar(novo_contrato);
+       				        					   editarWord = new EditarWord(modelo, esperar, tipoContrato,novo_contrato);
+       				        					   contrato_alterado = editarWord.preparar();
+       				        					   
+                                              	  ConverterPdf converter_pdf = new ConverterPdf();
+   					                              ByteArrayOutputStream pdf_alterado = converter_pdf.word_pdf_stream(contrato_alterado);
+
+       				        					
        				        				    }
-				                              
-				                             
+  				                             
 				                        
 	                                        }catch(Exception e) {
 	                                        	esperar.fechar();

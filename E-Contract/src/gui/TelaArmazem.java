@@ -95,7 +95,9 @@ public class TelaArmazem extends JDialog {
 		btnarmazm.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 			
-			TelaCadastroCliente tela = new TelaCadastroCliente(5,  null, null);
+			TelaCadastroCliente tela = new TelaCadastroCliente(5,  null);
+			tela.setTelaPai(isto);
+			tela.setVisible(true);
 			}
 		});
 		btnarmazm.setBounds(519, 68, 89, 23);
@@ -145,7 +147,9 @@ public class TelaArmazem extends JDialog {
 			public void actionPerformed(ActionEvent arg0) {
 				int indiceDaLinha = tabela.getSelectedRow();
 
-				TelaCadastroCliente telaEdicao = new TelaCadastroCliente(6, armazens_disponiveis.get(indiceDaLinha), null);
+				TelaCadastroCliente telaEdicao = new TelaCadastroCliente(6, armazens_disponiveis.get(indiceDaLinha));
+				telaEdicao.setTelaPai(isto);
+				telaEdicao.setVisible(true);
 
 			}
 		});
@@ -158,4 +162,9 @@ public class TelaArmazem extends JDialog {
 		
 		
 	}
+	
+	public void atualizaTabela() {
+		pesquisar(modelo);
+	}
+	
 }

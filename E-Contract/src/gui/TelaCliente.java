@@ -51,6 +51,8 @@ public class TelaCliente extends JDialog {
 	private CadastroCliente clienteSelecionado;
 	private JTextField entPesquisa;
 	
+	private TelaCliente isto;
+	
 	public static void pesquisar(DefaultTableModel modelo)
 	{ 
 		modelo.setNumRows(0);
@@ -145,7 +147,7 @@ public class TelaCliente extends JDialog {
 		//flag_tipo_cliente == 2 //retorna vendedor
 		setModal(true);
 
-		TelaCliente isto = this;
+		 isto = this;
 		setTitle("E-Contract - Clientes");
 
 		
@@ -165,7 +167,9 @@ public class TelaCliente extends JDialog {
 		btnUsurio.setIcon(new ImageIcon(TelaCliente.class.getResource("/imagens/add_cliente.png")));
 		btnUsurio.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				TelaCadastroCliente novoCliente = new TelaCadastroCliente(1, null, isto);
+				TelaCadastroCliente novoCliente = new TelaCadastroCliente(1, null);
+				novoCliente.setTelaPai(isto);
+				novoCliente.setVisible(true);
 			}
 		});		btnUsurio.setBounds(543, 389, 120, 23);
 		contentPane.add(btnUsurio);
@@ -308,6 +312,11 @@ public class TelaCliente extends JDialog {
    					((TelaElaborarNovoContrato) telaPai).setCorretor(clienteSelecionado);
    				else if (flag_tipo_cliente == 5)
    					((TelaConfirmarCarregamento) telaPai).setClienteCarregamento(clienteSelecionado);
+   				else if (flag_tipo_cliente == 8)
+   					((TelaConfirmarPagamentoContratual) telaPai).setDepositante(clienteSelecionado);
+   				else if (flag_tipo_cliente == 9)
+   					((TelaConfirmarPagamentoContratual) telaPai).setFavorecido(clienteSelecionado);
+
 
 				isto.dispose();
 			}
@@ -413,7 +422,9 @@ public class TelaCliente extends JDialog {
 	}
 	
 	public void editarCliente( int indiceDaLinha) {
-		TelaCadastroCliente telaEdicao = new TelaCadastroCliente(0, clientes_disponiveis.get(indiceDaLinha), this);
+		TelaCadastroCliente telaEdicao = new TelaCadastroCliente(0, clientes_disponiveis.get(indiceDaLinha));
+		telaEdicao.setTelaPai(isto);
+		telaEdicao.setVisible(true);
 
 	}
 	

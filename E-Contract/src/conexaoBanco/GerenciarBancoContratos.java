@@ -2242,5 +2242,239 @@ public class GerenciarBancoContratos {
               
   	   
      }
+     
+     
+     
+     public boolean inserirPagamento(int id_contrato, CadastroContrato.CadastroPagamentoContratual pagamento) {
+    	 
+    	  //inserir primeiro o carregamento
+    	 int retorno_inserir_pagamento = inserir_pagamento_contratual_retorno(pagamento);
+    	 if(retorno_inserir_pagamento > 0) {
+    		 //inserir nova relacao contrato_pagamentos
+    		 boolean inserir_relacao_contrato_pagamentos = inserir_contrato_pagamento_contratual(id_contrato, retorno_inserir_pagamento);
+               if(inserir_relacao_contrato_pagamentos) {
+          		 System.out.println("Pagamento Cadastrado");
+          		 return true;
+
+               }else {
+          		 System.out.println("Erro ao inserir um novo pagamento!");
+        		 return false;
+
+               }
+            	   
+    	 }else {
+    		 System.out.println("Erro ao inserir um novo pagamento!");
+    		 return false;
+    	 }
+    	 
+    	 
+     }
+     
+     
+     
+     
+     public int inserir_pagamento_contratual_retorno(CadastroContrato.CadastroPagamentoContratual pagamento) {
+    	 
+    	 int result = -1;
+   	  if( pagamento != null) {
+               Connection conn = null;
+               try {
+               	
+                   conn = ConexaoBanco.getConexao();
+       	       
+                   String query = sql_pagamento_contratual(pagamento);
+                  Statement stmt = (Statement) conn.createStatement();
+                  int numero = stmt.executeUpdate(query, Statement.RETURN_GENERATED_KEYS);
+
+                  ResultSet rs = stmt.getGeneratedKeys();
+                  if (rs.next()){
+   	                                result=rs.getInt(1);
+   	                                System.out.println("Id pagamento inserido: "+ result);
+                                }
+                   rs.close();
+                   stmt.close();
+                   
+                   return result;
+    
+               } catch (Exception e) {
+                  JOptionPane.showMessageDialog(null, "Erro ao inserir o pagamento no banco de "
+                         + "dados " + e.getMessage());
+               	GerenciadorLog.registrarLogDiario("falha", "falha ao adicionar pagamento contratual: " + e.getMessage() + " causa: " + e.getCause());
+                   return -1;
+               }
+           } else {
+               System.out.println("O pagamento enviado por parametro esta vazio");
+               return -1;
+           }
+    	 
+    	 
+     }
+     
+     
+     private boolean inserir_contrato_pagamento_contratual(int id_contrato, int id_pagamento){
+		  Connection conn = null;
+      try {
+          conn = ConexaoBanco.getConexao();
+          String sql = "insert into contrato_pagamentos\r\n" + 
+          		"(id_contrato, id_pagamento) values ('"
+	    			+id_contrato
+	    			+ "','"
+	    			+ id_pagamento	
+	    			+ "')";
+	       
+	        PreparedStatement grava = (PreparedStatement) conn.prepareStatement(sql); 
+	        grava.execute();    
+          ConexaoBanco.fechaConexao(conn, grava);
+          JOptionPane.showMessageDialog(null, "Relação contrato_pagamentos  cadastrado com sucesso");
+
+       
+           return true;
+
+      } catch (Exception e) {
+    	  JOptionPane.showMessageDialog(null, "Erro ao inserir a relação contrato_carregamento no banco de dados ");
+           return false;
+      }
+			  
+	         
+	  }
+	  
+     public ArrayList<CadastroContrato.CadastroPagamentoContratual> getPagamentosContratuais(int id_contrato){
+    	 
+    	 System.out.println("Listar pagamentos foi chamado!");
+    	 String selectPagamentos = "select * from contrato_pagamentos\r\n"
+    	 		+ "LEFT JOIN pagamento  on pagamento.id_pagamento = contrato_pagamentos.id_pagamento \r\n"
+    	 		+ "where contrato_pagamentos.id_contrato = ?;";
+    	 Connection conn = null;
+	      PreparedStatement pstm = null;
+	      ResultSet rs = null;
+	      ArrayList<CadastroContrato.CadastroPagamentoContratual> lista_pagamentos = new ArrayList<>();
+	      
+	      try {
+	          conn = ConexaoBanco.getConexao();
+	          pstm = conn.prepareStatement(selectPagamentos);
+	          pstm.setInt(1, id_contrato);
+	          		
+	          rs = pstm.executeQuery();
+
+	          while (rs.next()) {
+	        	  
+	        	  
+	        	 if(rs != null) {
+	        		 System.out.print("pagamento não e nulo!");
+	        		 
+	        	  CadastroContrato.CadastroPagamentoContratual pagamento = new CadastroContrato.CadastroPagamentoContratual();
+	        	  
+	        	  pagamento.setId_pagamento(rs.getInt("id_pagamento"));
+	        	  pagamento.setData_pagamento(rs.getString("data_pagamento"));
+	              pagamento.setValor_pagamento(rs.getDouble("valor"));
+	              pagamento.setId_depositante(rs.getInt("id_depositante"));
+	              pagamento.setId_conta_depositante(rs.getInt("id_conta_depositante"));
+	              pagamento.setId_favorecido(rs.getInt("id_favorecido"));
+	              pagamento.setId_conta_favorecido(rs.getInt("id_conta_favorecido"));
+	        	
+	        	
+
+	        	 
+		        	 
+	              lista_pagamentos.add(pagamento);
+	        
+	        	  }
+	           }
+	      
+	          ConexaoBanco.fechaConexao(conn, pstm, rs);
+	          System.out.println("Pagamentos foram listadas com sucesso!");
+	          return lista_pagamentos;
+	      } catch (Exception e) {
+	          JOptionPane.showMessageDialog(null, "Erro ao listar os pagamentos do contrato: " + id_contrato + " erro: " + e.getMessage() + "causa: " + e.getCause());
+	          return null;
+	      }		  
+	   
+    	 
+     }
+     
+     public boolean removerPagamentoContratual(int id_contrato, int id_pagamento) {
+    	 
+    	 return remover_pagamento_contratual(id_pagamento) && remover_contrato_pagamento_contratual(id_contrato, id_pagamento);
+    	 
+     }
+	  
+     
+     private boolean remover_pagamento_contratual( int id_pagamento) {
+    	 
+    	 String sql_delete_pagamento = "DELETE FROM pagamento WHERE id_pagamento = ?";
+      	  Connection conn = null;
+              ResultSet rs = null;	      
+              try {
+                  conn = ConexaoBanco.getConexao();
+                  PreparedStatement pstm;
+                  pstm = conn.prepareStatement(sql_delete_pagamento);
+       
+                  pstm.setInt(1, id_pagamento);
+       
+                  pstm.execute();
+                  ConexaoBanco.fechaConexao(conn, pstm);
+                  JOptionPane.showMessageDialog(null, "Pagamento excluido, banco normalizado ");
+                 return true;
+                  
+       
+              } catch (Exception f) {
+                  JOptionPane.showMessageDialog(null, "Erro ao excluir o pagamento do banco de"
+                          + "dados " + f.getMessage());
+                 return false;
+              }
+    	 
+    	 
+     }
+     
+     private boolean remover_contrato_pagamento_contratual(int id_contrato, int id_pagamento) {
+    	 
+    	 String sql_delete_contrato_pagamento = "DELETE FROM contrato_pagamentos WHERE id_contrato = ? and id_pagamento = ?";
+      	  Connection conn = null;
+              ResultSet rs = null;	      
+              try {
+                  conn = ConexaoBanco.getConexao();
+                  PreparedStatement pstm;
+                  pstm = conn.prepareStatement(sql_delete_contrato_pagamento);
+       
+                  pstm.setInt(1, id_contrato);
+                  pstm.setInt(2, id_pagamento);
+
+                  pstm.execute();
+                  ConexaoBanco.fechaConexao(conn, pstm);
+                  JOptionPane.showMessageDialog(null, "Relacao contrato_pagamentos excluida, banco normalizado ");
+                 return true;
+                  
+       
+              } catch (Exception f) {
+                  JOptionPane.showMessageDialog(null, "Erro ao excluir a relacao contrato_pagamentos do banco de"
+                          + "dados " + f.getMessage());
+                 return false;
+              }
+       	 
+    	 
+     }
+     
+     public String sql_pagamento_contratual(CadastroContrato.CadastroPagamentoContratual pagamento){
+    		
+  	   String query ="insert into pagamento (data_pagamento, valor , id_depositante, id_conta_depositante, id_favorecido, id_conta_favorecido) values ('"
+        		  + pagamento.getData_pagamento()
+                + "','"
+                + pagamento.getValor_pagamento()
+                + "','"
+                + pagamento.getId_depositante()
+                + "','"
+                + pagamento.getId_conta_depositante()
+                + "','"
+                + pagamento.getId_favorecido()
+                + "','"
+                + pagamento.getId_conta_favorecido()
+               
+                + "')";	
+          return query;
+          
+              
+  	   
+     }
+   
    
 }

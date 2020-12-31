@@ -83,7 +83,7 @@ public class Email
     }
   }
   
-  public void enviarAnexo(String remetente, String destinatario, String assunto, String saudacao, String mensagem, String assinatura, ArrayList<File> anexos) {
+ /* public void enviarAnexo(String remetente, String destinatario, String assunto, String saudacao, String mensagem, String assinatura, ArrayList<File> anexos) {
 	  try 
 	  {
 	      // cria a mensagem
@@ -105,7 +105,7 @@ public class Email
 	      for(File arquivo : anexos) {
 		    MimeBodyPart anexo = new MimeBodyPart();
 
-	         FileDataSource fds = new FileDataSource(arquivo);
+	      FileDataSource fds = new FileDataSource(arquivo);
 	      anexo.setDataHandler(new DataHandler(fds));
 	      anexo.setFileName(fds.getName());
 	      partes_anexos.add(anexo);
@@ -137,7 +137,7 @@ public class Email
 	      
 	    }
 	 
-  }
+  }*/
 
 }
 

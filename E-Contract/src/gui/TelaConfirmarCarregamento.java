@@ -358,7 +358,7 @@ public class TelaConfirmarCarregamento extends JDialog {
 		lblNotaFiscalCarregamento.setBounds(92, 238, 389, 32);
 		painelConfirmar.add(lblNotaFiscalCarregamento);
 
-		// this.setUndecorated(false);
+	    this.setUndecorated(true);
 		this.setLocationRelativeTo(null);
 
 	}

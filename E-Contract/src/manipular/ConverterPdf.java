@@ -7,6 +7,8 @@ import java.io.FileInputStream;
 import java.io.InputStream;
 import java.io.OutputStream;
 
+import org.apache.poi.xwpf.usermodel.XWPFDocument;
+
 import com.spire.xls.*;
 
 import gui.TelaVizualizarPdf;
@@ -57,6 +59,29 @@ public class ConverterPdf {
 
 	}
 
+	public ByteArrayOutputStream word_pdf_stream(ByteArrayOutputStream saida_apos_edicao)
+
+	{
+		
+		
+		 InputStream inputStream = new ByteArrayInputStream(saida_apos_edicao.toByteArray());
+		  
+			 XWPFDocument word = new XWPFDocument();
+			 
+		      
+		
+	        
+	            XWPFDocument document = new XWPFDocument(inputStream);
+	            PdfOptions options = PdfOptions.create();
+	  		    ByteArrayOutputStream saida = new ByteArrayOutputStream();
+	            PdfConverter.getInstance().convert(document, saida, options);
+	            System.out.println("Done");
+	            
+		     		     return saida;
+
+
+	}
+	
 	public ByteArrayOutputStream excel2pdf(InputStream stream)
 
 	{

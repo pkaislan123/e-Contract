@@ -38,7 +38,11 @@ public class GerenciarBancoClientes {
 	                RegistroAdicionarContaBancaria adicionar_contas = null;
 	                
 	                ArrayList<CadastroCliente.Veiculo> veiculos = new ArrayList<>();
+	                if(cliente.getTransportador() == 1) {
 	                veiculos = cliente.getVeiculos();
+	                }else {
+	                	
+	                }
 	                RegistroAdicionarVeiculos adicionar_veiculos = null;
 	                
 	                 try { 
@@ -1282,17 +1286,40 @@ public int inserir_cliente(CadastroCliente cliente)
 	            }
 	            else
 	            {
-	            	 atualizar = "update cliente set tipo_identificacao = ?, identificacao = ?, cpf_responsavel = ?, senha = ?, apelido = ? where id_cliente = ? ";
-	            	 conn = ConexaoBanco.getConexao();
-	            	 pstm = conn.prepareStatement(atualizar);
+	            	 atualizar = "update cliente set razao_social = ?, status_empresa = ?,cnpj = ?, descricao = ?, tipo_identificacao = ?, identificacao = ?, cpf_responsavel = ?, senha = ?, apelido = ? , nome_empresarial = ?, ocupacao = ?, porte = ?, atividade = ?, cpf = ?,"
+		            	 		+ "ie = ?, status_ie = ?, rua = ?, bairro = ? ,cep = ? ,cidade = ?, numero = ? ,uf = ?  where id_cliente = ? ";
+		            	 conn = ConexaoBanco.getConexao();
+		            	 pstm = conn.prepareStatement(atualizar);
 
-	            	
-		             pstm.setString(1, cliente.getTipo_identificacao());
-		             pstm.setString(2, cliente.getIdentificacao_sefaz());
-		             pstm.setString(3, cliente.getCpf_responsavel());
-		             pstm.setString(4, cliente.getSenha());
-		             pstm.setString(5, cliente.getApelido());
-		             pstm.setInt(6, cliente.getId());	            	//pessoa juridica
+			             pstm.setString(1, cliente.getRazao_social());
+			             pstm.setString(2, cliente.getStatus());
+			             pstm.setString(3, cliente.getCnpj());
+
+			             pstm.setString(4, cliente.getDescricao());
+			             pstm.setString(5, cliente.getTipo_identificacao());
+			             pstm.setString(6, cliente.getIdentificacao_sefaz());
+			             pstm.setString(7, cliente.getCpf_responsavel());
+			             pstm.setString(8, cliente.getSenha());
+			             pstm.setString(9, cliente.getApelido());
+			             pstm.setString(10, cliente.getNome_empresarial());
+			             pstm.setString(11, cliente.getOcupacao());
+			             pstm.setString(12, cliente.getPorte());
+			             pstm.setString(13, cliente.getAtividade());
+			             pstm.setString(14, cliente.getCpf());
+
+
+			             //dados de empresa
+			             pstm.setString(15, cliente.getIe());
+			             pstm.setString(16, cliente.getStatus_ie());
+			             pstm.setString(17, cliente.getRua());
+			             pstm.setString(18, cliente.getBairro());
+			             pstm.setString(19, cliente.getCep());
+			             pstm.setString(20, cliente.getCidade());
+			             pstm.setString(21, cliente.getNumero());
+			             pstm.setString(22, cliente.getUf());
+			             
+			             
+			             pstm.setInt(23, cliente.getId());
 	            }
 	            	
 	            	

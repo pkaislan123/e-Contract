@@ -18,14 +18,7 @@ import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
 
-import javafx.scene.web.WebView;
 
-import javafx.application.Platform;
-import javafx.embed.swing.JFXPanel;
-import javafx.scene.Group;
-import javafx.scene.Scene;
-import javafx.scene.paint.*;
-import javafx.scene.text.*;
 import javax.swing.JFrame;
 import javax.swing.SwingUtilities;
 

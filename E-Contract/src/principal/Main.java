@@ -30,6 +30,7 @@ import gui.TelaPlanilhaNFeInternas;
 import gui.TelaPrincipal;
 import manipular.ArquivoConfiguracoes;
 import manipular.ConfiguracoesGlobais;
+import manipular.ConsumidorKafka;
 import manipular.EditarWord;
 import manipular.Email;
 import manipular.ManipularTxt;
@@ -56,7 +57,6 @@ public class Main {
 	   
 	
 	
-	  
 		try {
 			for ( LookAndFeelInfo info : UIManager.getInstalledLookAndFeels() ) {
 			if ( "Nimbus".equals( info.getName() ) ) {

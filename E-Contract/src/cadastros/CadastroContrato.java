@@ -8,7 +8,21 @@ public class CadastroContrato {
 	private String texto_clausulas;
     private ArrayList<CadastroContrato.CadastroTarefa> lista_tarefas;
     
+    private CadastroCliente cliente_retirada;
     
+    
+
+	public CadastroCliente getCliente_retirada() {
+		return cliente_retirada;
+	}
+
+
+
+	public void setCliente_retirada(CadastroCliente cliente_retirada) {
+		this.cliente_retirada = cliente_retirada;
+	}
+
+
 
 	public ArrayList<CadastroContrato.CadastroTarefa> getLista_tarefas() {
 		return lista_tarefas;
@@ -675,6 +689,61 @@ local retirada: 24 2
 			this.peso_real_carga = peso_real_carga;
 		}
 		
+		
+		
+		
+		
+	}
+	
+	
+	public static class CadastroPagamentoContratual{
+		
+		
+		String data_pagamento;
+		double valor_pagamento;
+		int id_pagamento, id_depositante, id_conta_depositante, id_favorecido, id_conta_favorecido;
+		public String getData_pagamento() {
+			return data_pagamento;
+		}
+		public void setData_pagamento(String data_pagamento) {
+			this.data_pagamento = data_pagamento;
+		}
+		public double getValor_pagamento() {
+			return valor_pagamento;
+		}
+		public void setValor_pagamento(double valor_pagamento) {
+			this.valor_pagamento = valor_pagamento;
+		}
+		public int getId_pagamento() {
+			return id_pagamento;
+		}
+		public void setId_pagamento(int id_pagamento) {
+			this.id_pagamento = id_pagamento;
+		}
+		public int getId_depositante() {
+			return id_depositante;
+		}
+		public void setId_depositante(int id_depositante) {
+			this.id_depositante = id_depositante;
+		}
+		public int getId_conta_depositante() {
+			return id_conta_depositante;
+		}
+		public void setId_conta_depositante(int id_conta_depositante) {
+			this.id_conta_depositante = id_conta_depositante;
+		}
+		public int getId_favorecido() {
+			return id_favorecido;
+		}
+		public void setId_favorecido(int id_favorecido) {
+			this.id_favorecido = id_favorecido;
+		}
+		public int getId_conta_favorecido() {
+			return id_conta_favorecido;
+		}
+		public void setId_conta_favorecido(int id_conta_favorecido) {
+			this.id_conta_favorecido = id_conta_favorecido;
+		}
 		
 		
 		
