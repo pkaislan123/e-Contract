@@ -243,6 +243,12 @@ public class TelaCliente extends JDialog {
        					((TelaElaborarNovoContrato) telaPai).setCorretor(clienteSelecionado);
        				else if (flag_tipo_cliente == 5)
        					((TelaConfirmarCarregamento) telaPai).setClienteCarregamento(clienteSelecionado);
+       				else if (flag_tipo_cliente == 6)
+       					((TelaConfirmarCarregamento) telaPai).setVendedor(clienteSelecionado);
+       				else if (flag_tipo_cliente == 8)
+       					((TelaConfirmarPagamentoContratual) telaPai).setDepositante(clienteSelecionado);
+       				else if (flag_tipo_cliente == 9)
+       					((TelaConfirmarPagamentoContratual) telaPai).setFavorecido(clienteSelecionado);
 
     				isto.dispose();
                 	}
@@ -312,6 +318,8 @@ public class TelaCliente extends JDialog {
    					((TelaElaborarNovoContrato) telaPai).setCorretor(clienteSelecionado);
    				else if (flag_tipo_cliente == 5)
    					((TelaConfirmarCarregamento) telaPai).setClienteCarregamento(clienteSelecionado);
+   				else if (flag_tipo_cliente == 6)
+   					((TelaConfirmarCarregamento) telaPai).setVendedor(clienteSelecionado);
    				else if (flag_tipo_cliente == 8)
    					((TelaConfirmarPagamentoContratual) telaPai).setDepositante(clienteSelecionado);
    				else if (flag_tipo_cliente == 9)

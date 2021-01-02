@@ -65,6 +65,12 @@ public class DadosGlobais {
 		return telaPrincipal;
 	}
 	
+	
+	public void atualizarGraficosTelaPrincipal() {
+		this.telaPrincipal.getDadosContratos();
+		this.telaPrincipal.atualizarGraficoContratos();
+	}
+	
 	public CadastroLogin getLogin()
 	{
 		return this.Login;

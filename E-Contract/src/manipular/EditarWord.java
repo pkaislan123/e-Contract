@@ -7,6 +7,7 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.text.DateFormat;
 import java.text.NumberFormat;
@@ -22,6 +23,8 @@ import java.util.List;
 import java.util.Locale;
 import java.util.StringTokenizer;
 
+import javax.swing.JOptionPane;
+
 import org.apache.pdfbox.printing.Orientation;
 import org.apache.poi.openxml4j.opc.OPCPackage;
 import org.apache.poi.ss.usermodel.Sheet;
@@ -35,12 +38,18 @@ import org.apache.poi.xwpf.usermodel.XWPFParagraph;
 import org.apache.poi.xwpf.usermodel.XWPFRun;
 import org.apache.poi.xwpf.usermodel.XWPFTable;
 import org.apache.poi.xwpf.usermodel.XWPFTableCell;
+import org.apache.poi.xwpf.usermodel.XWPFTableCell.XWPFVertAlign;
 import org.apache.poi.xwpf.usermodel.XWPFTableRow;
 import org.openxmlformats.schemas.wordprocessingml.x2006.main.CTBody;
 import org.openxmlformats.schemas.wordprocessingml.x2006.main.CTDocument1;
+import org.openxmlformats.schemas.wordprocessingml.x2006.main.CTHMerge;
+import org.openxmlformats.schemas.wordprocessingml.x2006.main.CTJc;
 import org.openxmlformats.schemas.wordprocessingml.x2006.main.CTPageMar;
 import org.openxmlformats.schemas.wordprocessingml.x2006.main.CTPageSz;
 import org.openxmlformats.schemas.wordprocessingml.x2006.main.CTSectPr;
+import org.openxmlformats.schemas.wordprocessingml.x2006.main.CTTblPr;
+import org.openxmlformats.schemas.wordprocessingml.x2006.main.STJc;
+import org.openxmlformats.schemas.wordprocessingml.x2006.main.STMerge;
 
 import com.itextpdf.text.PageSize;
 
@@ -49,6 +58,7 @@ import cadastros.CadastroContrato;
 import cadastros.CadastroLogin;
 import cadastros.CadastroModelo;
 import outros.DadosGlobais;
+import outros.GetData;
 import tratamento_proprio.Log;
 import views_personalizadas.TelaEmEspera;
 
@@ -89,6 +99,8 @@ public class EditarWord {
 	    pageMar.setTop(BigInteger.valueOf(1440L));
 	    pageMar.setRight(BigInteger.valueOf(720L));
 	    pageMar.setBottom(BigInteger.valueOf(1440L));
+	    
+	    document_global.createStyles();
 		
 	}
 	
@@ -180,11 +192,8 @@ public class EditarWord {
 		substituirTexto("[Tabela] [1] – [Especificações] [e] [Descontos:]\r\n"
 				+ "[Especificações] [Descontos]");
 		
-		/*
-		 * tabela de descontos
-		 * 
-		 * 
-		 */
+		
+		criarTabela();
 		
 		substituirTexto("[4.1.] A adequação do [Produto] às [Especificações] será verificada pelo [Comprador] (diretamente ou por terceiros contratados), por meio de classificação (“[Classificação]”) a ser realizada no [Local de Entrega].\r\n"
 				+
@@ -203,15 +212,75 @@ public class EditarWord {
 				);
 		
 
-		/*
-		 * 6.0 clausula para adicionar preco do produto
 		
-		*/
+		
+		substituirTexto("[6.] [Preço.]\r\n"
+				+ "O preço a ser pago pelo [Comprador] ao [Vendedor] em contraprestação pela efetiva entrega da [Quantidade] total do [Produto] ([“Preço”]), fica desde já fixado no valor de preco_decimal ( preco_extenso ) por saca de 60Kg (sessenta quilogramas).\r\n"
+				);
+		
+		
 		substituirTexto("[6.1]. O [Preço] relativamente à quantidade de [Produto] cujo [Preço] já foi fixado, nos termos deste [Contrato], será pago pelo [Comprador] ao [Vendedor] assim que cumprir a entrega total do produto.");
 		/*
 		 * 6.2 clausula para adicionar valores
 		
 		*/
+		boolean tem_pagamento_antecipado = false;
+		for(CadastroContrato.CadastroPagamento pagamento : novo_contrato.getPagamentos()) {
+             if(pagamento.getPagamento_adiantado() == 1) {
+            	 tem_pagamento_antecipado = true;
+            	 break;
+             }else {
+            	 tem_pagamento_antecipado = false;
+
+             }
+		}
+		
+		if(tem_pagamento_antecipado) {
+			
+			double quantidade_total_recebida_quilogramas = 0, quantidade_total_recebida_sacos = 0, valor_total_ja_recebido = 0;
+			
+			for(CadastroContrato.CadastroPagamento pagamento : novo_contrato.getPagamentos()) {
+	             if(pagamento.getPagamento_adiantado() == 1) {
+	            	 //se for um pagamento antecipado, soma seu valor no total
+	            		
+	         		if(novo_contrato.getMedida().equalsIgnoreCase("SACOS")) {
+	         			
+	         			double valor_pag = Double.parseDouble(pagamento.getValor().toPlainString());
+	         			double resultado = valor_pag / novo_contrato.getValor_produto();
+	         			quantidade_total_recebida_sacos += resultado;
+	         			quantidade_total_recebida_quilogramas += (resultado * 60);
+	         			
+	         		}else if(novo_contrato.getMedida().equalsIgnoreCase("KG")) {
+	         			double valor_pag = Double.parseDouble(pagamento.getValor().toPlainString());
+
+	         			double resultado = valor_pag / novo_contrato.getValor_produto();
+	         			quantidade_total_recebida_quilogramas += resultado;
+	         			quantidade_total_recebida_sacos += (resultado/60);
+
+	         		}
+	         		
+	         		valor_total_ja_recebido += Double.parseDouble(pagamento.getValor().toPlainString());
+	             }
+			}
+			
+			
+			adicionarClausulaPagamentoAntecipado(quantidade_total_recebida_quilogramas, quantidade_total_recebida_sacos, valor_total_ja_recebido);
+		//	adicionarClausulaPagamentoAntecipado(0, 0, 0);
+
+		}else {
+			adicionarClausulaPagamento();
+
+		}
+
+
+		for(CadastroContrato.CadastroPagamento pagamento : novo_contrato.getPagamentos()) {
+			if(pagamento.getPagamento_adiantado() != 1) {
+				criarTabelaPagamento(pagamento);
+
+			}
+
+		}
+		
 		
 
 		substituirTexto("[6.3.] Armazenagem e a comissão da venda será por conta do Comprador");
@@ -294,14 +363,25 @@ public class EditarWord {
 			double quantidade_kg  = quantidade_sacos * 60;
 			
 			adicionarTextoParagrafoAtual(z.format(quantidade_kg).toUpperCase(), true);
+			adicionarTextoParagrafoAtual(" " , false);
+			adicionarTextoParagrafoAtual("(" , false);
+	    	String valor_extenso = new PorExtenso(quantidade_kg).toString();
+			adicionarTextoParagrafoAtual(valor_extenso.toLowerCase().replaceAll("reais", "").replace("centavos", ""), false);
+
+			adicionarTextoParagrafoAtual(") " , false);
 
 		}else if(novo_contrato.getMedida().equalsIgnoreCase("KG")) {
 			adicionarTextoParagrafoAtual(z.format(novo_contrato.getQuantidade()).toUpperCase(), true);
+			adicionarTextoParagrafoAtual(" " , false);
+			adicionarTextoParagrafoAtual("(" , false);
+	    	String valor_extenso = new PorExtenso(new BigDecimal(Double.toString(novo_contrato.getQuantidade()))).toString();
+			adicionarTextoParagrafoAtual(valor_extenso.toLowerCase().replaceAll("reais", "").replace("centavos", "") , false);
 
+			adicionarTextoParagrafoAtual(") " , false);
 		}
 		
 
-		adicionarTextoParagrafoAtual(" " , false);
+
 		adicionarTextoParagrafoAtual("quilogramas", true);
 
 		adicionarTextoParagrafoAtual(" de " , false);
@@ -437,10 +517,25 @@ public class EditarWord {
 		for(String palavra : separador_palabras) {
 			if(palavra.contains("[") || palavra.contains("]")) {
 		        adicionarTextoParagrafoAtual(palavra.replaceAll("[\\[\\]]", "") + " ", true);
-
+                	  
+                  
 			}else {
-		        adicionarTextoParagrafoAtual(palavra + " ", false);
+                if(palavra.equals("preco_decimal")) {
+                	 
+			       	  	Locale ptBr = new Locale("pt", "BR");
+			       	   	String valorString = NumberFormat.getCurrencyInstance(ptBr).format((novo_contrato.getValor_produto()));
+			       	   	System.out.println(valorString);   
+        		
+    		        adicionarTextoParagrafoAtual(valorString + " ", true);
+                }
+                else if(palavra.equals("preco_extenso")){
+                	
+                	String valor_extenso = new PorExtenso(novo_contrato.getValor_produto()).toString();
+    		        adicionarTextoParagrafoAtual(palavra.replace("preco_extenso" ,valor_extenso.toLowerCase() + ""), false);
 
+                }else {
+		        adicionarTextoParagrafoAtual(palavra + " ", false);
+                }
 			}
 
 		}
@@ -473,6 +568,314 @@ public class EditarWord {
 		paragrafo_atual  = paragrafo;
 	}
 	
+	
+	public void criarParagrafoTabela(XWPFParagraph paragraph, String texto, boolean negrito) {
+		paragraph.setIndentationLeft(100);
+		paragraph.setIndentationRight(100);
+		 paragraph.setAlignment(ParagraphAlignment.CENTER);
+
+		 XWPFRun run = paragraph.createRun();
+
+         run.setFontFamily("Times New Roman");
+          run.setFontSize(9);
+          run.setBold(negrito);
+          run.setText(texto);
+
+		      
+       
+		
+	}
+	
+	public void criarTabelaPagamento(CadastroContrato.CadastroPagamento pagamento) {
+		criarParagrafo(1);
+	    XWPFTable table = document_global.createTable(8, 2);
+	    setTableAlign(table, ParagraphAlignment.LEFT);
+	    
+	    XWPFTableRow tableRowOne = table.getRow(0);
+	    tableRowOne.getCell(0).removeParagraph(0);
+
+        XWPFParagraph paragraph = tableRowOne.getCell(0).addParagraph();
+
+        
+        //linha 1, banco
+	    tableRowOne = table.getRow(0);
+	    tableRowOne.getCell(0).removeParagraph(0);
+        paragraph = tableRowOne.getCell(0).addParagraph();
+        criarParagrafoTabela(paragraph,"BANCO: ", false );
+   
+        tableRowOne = table.getRow(0);
+	    tableRowOne.getCell(1).removeParagraph(0);
+        paragraph = tableRowOne.getCell(1).addParagraph();
+        criarParagrafoTabela(paragraph,pagamento.getConta().getBanco(), true );
+   
+        //linha 1, codigo banco
+        tableRowOne = table.getRow(1);
+	    tableRowOne.getCell(0).removeParagraph(0);
+        paragraph = tableRowOne.getCell(0).addParagraph();
+        criarParagrafoTabela(paragraph,"CÓDIGO: ", false );
+   
+        tableRowOne = table.getRow(1);
+	    tableRowOne.getCell(1).removeParagraph(0);
+        paragraph = tableRowOne.getCell(1).addParagraph();
+        criarParagrafoTabela(paragraph, pagamento.getConta().getCodigo(), true );
+        
+        //linha 2, titual
+        tableRowOne = table.getRow(2);
+	    tableRowOne.getCell(0).removeParagraph(0);
+        paragraph = tableRowOne.getCell(0).addParagraph();
+        criarParagrafoTabela(paragraph,"TITULAR: ", false );
+   
+        tableRowOne = table.getRow(2);
+	    tableRowOne.getCell(1).removeParagraph(0);
+        paragraph = tableRowOne.getCell(1).addParagraph();
+        criarParagrafoTabela(paragraph, pagamento.getConta().getNome().toUpperCase(), true );
+        
+        //linha 3, cpf
+        tableRowOne = table.getRow(3);
+	    tableRowOne.getCell(0).removeParagraph(0);
+        paragraph = tableRowOne.getCell(0).addParagraph();
+        criarParagrafoTabela(paragraph,"CPF: ", false );
+   
+        tableRowOne = table.getRow(3);
+	    tableRowOne.getCell(1).removeParagraph(0);
+        paragraph = tableRowOne.getCell(1).addParagraph();
+        criarParagrafoTabela(paragraph, pagamento.getConta().getCpf_titular(), true );
+   
+        //linha 4, agencia
+        tableRowOne = table.getRow(4);
+	    tableRowOne.getCell(0).removeParagraph(0);
+        paragraph = tableRowOne.getCell(0).addParagraph();
+        criarParagrafoTabela(paragraph,"AGÊNCIA: ", false );
+   
+        tableRowOne = table.getRow(4);
+	    tableRowOne.getCell(1).removeParagraph(0);
+        paragraph = tableRowOne.getCell(1).addParagraph();
+        criarParagrafoTabela(paragraph, pagamento.getConta().getAgencia(), true );
+        
+        //linha 5, conta
+        tableRowOne = table.getRow(5);
+	    tableRowOne.getCell(0).removeParagraph(0);
+        paragraph = tableRowOne.getCell(0).addParagraph();
+        criarParagrafoTabela(paragraph,"CONTA: ", false );
+   
+        tableRowOne = table.getRow(5);
+	    tableRowOne.getCell(1).removeParagraph(0);
+        paragraph = tableRowOne.getCell(1).addParagraph();
+        criarParagrafoTabela(paragraph, pagamento.getConta().getConta(), true );
+        
+        //linha 5, valor
+        tableRowOne = table.getRow(6);
+	    tableRowOne.getCell(0).removeParagraph(0);
+        paragraph = tableRowOne.getCell(0).addParagraph();
+        criarParagrafoTabela(paragraph,"VALOR: ", false );
+   
+        tableRowOne = table.getRow(6);
+	    tableRowOne.getCell(1).removeParagraph(0);
+        paragraph = tableRowOne.getCell(1).addParagraph();
+    	Locale ptBr = new Locale("pt", "BR");
+   	   	String valorString = NumberFormat.getCurrencyInstance(ptBr).format((pagamento.getValor()));
+   	   	System.out.println(valorString + "(" + new PorExtenso(pagamento.getValor()));   
+        criarParagrafoTabela(paragraph,valorString , true );
+        
+        //linha 6, data
+        tableRowOne = table.getRow(7);
+	    tableRowOne.getCell(0).removeParagraph(0);
+        paragraph = tableRowOne.getCell(0).addParagraph();
+        criarParagrafoTabela(paragraph,"DATA: ", false );
+   
+        tableRowOne = table.getRow(7);
+	    tableRowOne.getCell(1).removeParagraph(0);
+        paragraph = tableRowOne.getCell(1).addParagraph();
+    
+        criarParagrafoTabela(paragraph,pagamento.getData_pagamento() , true );
+       
+	    
+	    
+	    
+	    criarParagrafo(2);
+
+	}
+	
+	public void criarTabela() {
+		
+		criarParagrafo(1);
+		    XWPFTable table = document_global.createTable(9, 3);
+
+		    setTableAlign(table, ParagraphAlignment.CENTER);
+		    XWPFTableRow tableRowOne = table.getRow(0);
+		    tableRowOne.getCell(0).removeParagraph(0);
+		   
+		    
+            XWPFParagraph paragraph = tableRowOne.getCell(0).addParagraph();
+
+            criarParagrafoTabela(paragraph,"Especificações e Descontos", true );
+           
+		      
+		      //pega a linha 0, coluna 1
+		    XWPFTableCell cellRow1 = table.getRow(0).getCell(0);
+
+		    cellRow1.getCTTc().addNewTcPr();
+		    cellRow1.getCTTc().getTcPr().addNewGridSpan();
+		    cellRow1.getCTTc().getTcPr().getGridSpan().setVal(BigInteger.valueOf(3L));
+
+		     tableRowOne = table.getRow(1);
+		    tableRowOne.getCell(0).removeParagraph(0);
+
+             paragraph = tableRowOne.getCell(0).addParagraph();
+            criarParagrafoTabela(paragraph,"Especificações", true );
+		   
+		      XWPFTableCell cellRow2 = table.getRow(1).getCell(0);
+
+			    cellRow2.getCTTc().addNewTcPr();
+			    cellRow2.getCTTc().getTcPr().addNewGridSpan();
+			    cellRow2.getCTTc().getTcPr().getGridSpan().setVal(BigInteger.valueOf(2L));
+			    
+
+			      tableRowOne = table.getRow(1);
+				    tableRowOne.getCell(1).removeParagraph(0);
+
+		             paragraph = tableRowOne.getCell(1).addParagraph();
+		            criarParagrafoTabela(paragraph,"Descontos", true );
+			      
+			      
+			        tableRowOne = table.getRow(2);
+				    tableRowOne.getCell(0).removeParagraph(0);
+                    paragraph = tableRowOne.getCell(0).addParagraph();
+		            criarParagrafoTabela(paragraph,"Fator", true );
+			      
+		            
+		            
+		            tableRowOne = table.getRow(2);
+				    tableRowOne.getCell(1).removeParagraph(0);
+                    paragraph = tableRowOne.getCell(1).addParagraph();
+		            criarParagrafoTabela(paragraph,"Tolerância (em %)", true );
+
+		            
+		            tableRowOne = table.getRow(2);
+				    tableRowOne.getCell(2).removeParagraph(0);
+                    paragraph = tableRowOne.getCell(2).addParagraph();
+		            criarParagrafoTabela(paragraph,"Porcentagem a ser descontada da Quantidade em caso de entrega de Produto fora das Especificações", true );
+		       
+
+		            //linha 3
+		            tableRowOne = table.getRow(3);
+				    tableRowOne.getCell(0).removeParagraph(0);
+                    paragraph = tableRowOne.getCell(0).addParagraph();
+		            criarParagrafoTabela(paragraph,"Umidade", false );
+		       
+		            tableRowOne = table.getRow(3);
+				    tableRowOne.getCell(1).removeParagraph(0);
+                    paragraph = tableRowOne.getCell(1).addParagraph();
+		            criarParagrafoTabela(paragraph,"Máxima de 14%", false );
+		       
+		            tableRowOne = table.getRow(3);
+				    tableRowOne.getCell(2).removeParagraph(0);
+                    paragraph = tableRowOne.getCell(2).addParagraph();
+		            criarParagrafoTabela(paragraph,"1,5% para cada faixa de 1% excedente a 14%", false );
+		       
+
+		            //linha 4
+		            
+		            tableRowOne = table.getRow(4);
+				    tableRowOne.getCell(0).removeParagraph(0);
+                    paragraph = tableRowOne.getCell(0).addParagraph();
+		            criarParagrafoTabela(paragraph,"Impureza", false );
+		       
+		            tableRowOne = table.getRow(4);
+				    tableRowOne.getCell(1).removeParagraph(0);
+                    paragraph = tableRowOne.getCell(1).addParagraph();
+		            criarParagrafoTabela(paragraph,"Máxima de 1 %", false );
+		       
+		            tableRowOne = table.getRow(4);
+				    tableRowOne.getCell(2).removeParagraph(0);
+                    paragraph = tableRowOne.getCell(2).addParagraph();
+		            criarParagrafoTabela(paragraph,"1,0% para cada faixa de 1% excedente a 1%", false );
+			
+		            //linha 5
+		            
+		            
+		            tableRowOne = table.getRow(5);
+				    tableRowOne.getCell(0).removeParagraph(0);
+                    paragraph = tableRowOne.getCell(0).addParagraph();
+		            criarParagrafoTabela(paragraph,"Grãos Ardidos e Avariados", false );
+		       
+		            tableRowOne = table.getRow(5);
+				    tableRowOne.getCell(1).removeParagraph(0);
+                    paragraph = tableRowOne.getCell(1).addParagraph();
+		            criarParagrafoTabela(paragraph,"Máxima de 8 %", false );
+		       
+		            tableRowOne = table.getRow(5);
+				    tableRowOne.getCell(2).removeParagraph(0);
+                    paragraph = tableRowOne.getCell(2).addParagraph();
+		            criarParagrafoTabela(paragraph,"1,0% para cada faixa de 1% excedente a 8%", false );
+			
+			      
+			    //linha 6
+		            
+		            
+		            tableRowOne = table.getRow(6);
+				    tableRowOne.getCell(0).removeParagraph(0);
+                    paragraph = tableRowOne.getCell(0).addParagraph();
+		            criarParagrafoTabela(paragraph,"Deteriorado", false );
+		       
+		            tableRowOne = table.getRow(6);
+				    tableRowOne.getCell(1).removeParagraph(0);
+                    paragraph = tableRowOne.getCell(1).addParagraph();
+		            criarParagrafoTabela(paragraph,"Máxima de 0 %", false );
+		       
+		            tableRowOne = table.getRow(6);
+				    tableRowOne.getCell(2).removeParagraph(0);
+                    paragraph = tableRowOne.getCell(2).addParagraph();
+		            criarParagrafoTabela(paragraph,"1,0% para cada faixa de 1% excedente a 0%", false );
+		            
+		           //linha 7
+		            
+		            tableRowOne = table.getRow(7);
+				    tableRowOne.getCell(0).removeParagraph(0);
+                    paragraph = tableRowOne.getCell(0).addParagraph();
+		            criarParagrafoTabela(paragraph,"Quebrados Máximo", false );
+		       
+		            tableRowOne = table.getRow(7);
+				    tableRowOne.getCell(1).removeParagraph(0);
+                    paragraph = tableRowOne.getCell(1).addParagraph();
+		            criarParagrafoTabela(paragraph,"Máxima de 30 %", false );
+		       
+		            tableRowOne = table.getRow(7);
+				    tableRowOne.getCell(2).removeParagraph(0);
+                    paragraph = tableRowOne.getCell(2).addParagraph();
+		            criarParagrafoTabela(paragraph,"1,0% para cada faixa de 1% excedente a 30%", false );
+
+			       //linha 8
+		            
+		            tableRowOne = table.getRow(8);
+				    tableRowOne.getCell(0).removeParagraph(0);
+                    paragraph = tableRowOne.getCell(0).addParagraph();
+		            criarParagrafoTabela(paragraph,"Tipo", false );
+		       
+		            tableRowOne = table.getRow(8);
+				    tableRowOne.getCell(1).removeParagraph(0);
+                    paragraph = tableRowOne.getCell(1).addParagraph();
+		            criarParagrafoTabela(paragraph,"N/A", false );
+		       
+		            tableRowOne = table.getRow(8);
+				    tableRowOne.getCell(2).removeParagraph(0);
+                    paragraph = tableRowOne.getCell(2).addParagraph();
+		            criarParagrafoTabela(paragraph,"N/A", false );
+		            
+			
+			    
+			    criarParagrafo(2);
+		    
+		    
+			    
+	}
+	
+	public void setTableAlign(XWPFTable table,ParagraphAlignment align) {
+	    CTTblPr tblPr = table.getCTTbl().getTblPr();
+	    CTJc jc = (tblPr.isSetJc() ? tblPr.getJc() : tblPr.addNewJc());
+	    STJc.Enum en = STJc.Enum.forInt(align.getValue());
+	    jc.setVal(en);
+	}
 	
 	public void adicionarTextoParagrafoAtual(String texto, boolean negrito) {
 		XWPFRun run = paragrafo_atual.createRun();
@@ -771,6 +1174,321 @@ public class EditarWord {
 				);
 	}
 	
+	public void adicionarClausulaPagamento() {
+		String text_amostra = "[6.2.] O pagamento da quantidade de quanti_total ( quanti_total_extenso ) [quilogramas] | quanti_total_sacos ( quanti_total_sacos_extenso ) [sacos], no valor total de valor_total ( valor_total_extenso ) se dará mediante crédito conforme tabelas de pagamentos a seguir:";
+		NumberFormat z = NumberFormat.getNumberInstance();
+
+		//pegar os paragrafos
+		String separador_paragrafo[] = text_amostra.split("\n");
+		for(String paragrafo : separador_paragrafo) {
+			criarParagrafo(2);
+
+			paragrafo = paragrafo.replaceAll(" ", "&");
+		
+		String separador_palabras[] = paragrafo.split("&");
+		for(String palavra : separador_palabras) {
+			if(palavra.contains("[") || palavra.contains("]")) {
+		        adicionarTextoParagrafoAtual(palavra.replaceAll("[\\[\\]]", "") + " ", true);
+                	  
+                  
+			}else {
+                if(palavra.equals("quanti_total")) {
+                	 
+                	if(novo_contrato.getMedida().equalsIgnoreCase("SACOS")) {
+            			double quantidade_sacos = novo_contrato.getQuantidade();
+            			double quantidade_kg  = quantidade_sacos * 60;
+
+	    		        adicionarTextoParagrafoAtual(z.format(quantidade_kg) + " ", true);
+
+
+            		}else if(novo_contrato.getMedida().equalsIgnoreCase("KG")) {
+	    		        adicionarTextoParagrafoAtual(z.format(novo_contrato.getQuantidade()) + " ", true);
+
+            		}
+        	
+                }else if(palavra.equals("quanti_total_extenso")) {
+
+                	if(novo_contrato.getMedida().equalsIgnoreCase("SACOS")) {
+            			double quantidade_sacos = novo_contrato.getQuantidade();
+            			double quantidade_kg  = quantidade_sacos * 60;
+
+	    		        adicionarTextoParagrafoAtual(new PorExtenso(quantidade_kg).toString().replace("reais", "").replace("centavos", "").toLowerCase() + " ", true);
+
+
+            		}else if(novo_contrato.getMedida().equalsIgnoreCase("KG")) {
+	    		        adicionarTextoParagrafoAtual(new PorExtenso(novo_contrato.getQuantidade()).toString().replace("reais", "").replace("centavos", "").toLowerCase() + " ", true);
+
+            		}
+                }else if(palavra.equals("quanti_total_sacos")) {
+                	 
+                	if(novo_contrato.getMedida().equalsIgnoreCase("SACOS")) {
+            			double quantidade_sacos = novo_contrato.getQuantidade();
+
+	    		        adicionarTextoParagrafoAtual(z.format(quantidade_sacos) + " ", true);
+
+
+            		}else if(novo_contrato.getMedida().equalsIgnoreCase("KG")) {
+            			double quantidade_sacos = novo_contrato.getQuantidade() / 60;
+
+            			
+	    		        adicionarTextoParagrafoAtual(z.format(quantidade_sacos) + " ", true);
+
+            		}
+        	
+                }else if(palavra.equals("quanti_total_sacos_extenso")) {
+                	 
+                	if(novo_contrato.getMedida().equalsIgnoreCase("SACOS")) {
+            			double quantidade_sacos = novo_contrato.getQuantidade();
+
+	    		        adicionarTextoParagrafoAtual(new PorExtenso(quantidade_sacos).toString().replace("reais", "").replace("centavos", "").toLowerCase() + " ", true);
+
+            		}else if(novo_contrato.getMedida().equalsIgnoreCase("KG")) {
+            			double quantidade_sacos = novo_contrato.getQuantidade() / 60;
+
+	    		        adicionarTextoParagrafoAtual(new PorExtenso(quantidade_sacos).toString().replace("reais", "").replace("centavos", "").toLowerCase() + " ", true);
+
+            		}
+        	
+                }
+                else if(palavra.equals("valor_total")) {
+               	 
+                	Locale ptBr = new Locale("pt", "BR");
+		       	   	String valorString = NumberFormat.getCurrencyInstance(ptBr).format((novo_contrato.getValor_a_pagar()));
+  	    		   adicionarTextoParagrafoAtual(valorString + " ", true);
+
+            		
+                }else if(palavra.equals("valor_total_extenso")){
+ 	    		   adicionarTextoParagrafoAtual(new PorExtenso(novo_contrato.getValor_a_pagar()).toString().toLowerCase() + " ", true);
+
+                }
+                
+                else {
+		        adicionarTextoParagrafoAtual(palavra + " ", false);
+                }
+			}
+
+		}
+		}
+
+		
+	}
+	
+	public void adicionarClausulaPagamentoAntecipado(double quantidade_total_recebidas_quilogramas, double quantidade_total_recebidas_sacos , double valor_total_ja_recebido) {
+		String text_amostra = "[6.2.] O pagamento da quantidade de quanti_total [quilogramas] | quanti_total_sacos [sacos], onde o [Vendedor] deste [Contrato] por modalidade de [pagamento antecipado] já recebeu o valor de valor_total_ja_recebido  referentes a quanti_total_recebida  [quilogramas] | quanti_total_recebida_sacos  sacos, sendo assim a quantidade a ser recebida será referente aos quanti_total_restante  [quilogramas] | quanti_total_sacos_restante  sacos restantes ainda não pagos, o valor restante a ser recebido no total de  valor_total_restante  ( valor_total_restante_extenso ) será de acordo com a tabela de pagamentos abaixo:";
+		
+		//criarParagrafo(2);
+
+		NumberFormat z = NumberFormat.getNumberInstance();
+
+				//pegar os paragrafos
+				String separador_paragrafo[] = text_amostra.split("\n");
+				for(String paragrafo : separador_paragrafo) {
+					criarParagrafo(2);
+
+					paragrafo = paragrafo.replaceAll(" ", "&");
+				
+				String separador_palabras[] = paragrafo.split("&");
+				for(String palavra : separador_palabras) {
+					if(palavra.contains("[") || palavra.contains("]")) {
+				        adicionarTextoParagrafoAtual(palavra.replaceAll("[\\[\\]]", "") + " ", true);
+		                	  
+		                  
+					}else {
+		                if(palavra.equals("quanti_total")) {
+		                	 
+		                	if(novo_contrato.getMedida().equalsIgnoreCase("SACOS")) {
+		            			double quantidade_sacos = novo_contrato.getQuantidade();
+		            			double quantidade_kg  = quantidade_sacos * 60;
+
+			    		        adicionarTextoParagrafoAtual(z.format(quantidade_kg) + " ", true);
+
+
+		            		}else if(novo_contrato.getMedida().equalsIgnoreCase("KG")) {
+			    		        adicionarTextoParagrafoAtual(z.format(novo_contrato.getQuantidade()) + " ", true);
+
+		            		}
+		        	
+		                }else if(palavra.equals("quanti_total_extenso")) {
+
+		                	if(novo_contrato.getMedida().equalsIgnoreCase("SACOS")) {
+		            			double quantidade_sacos = novo_contrato.getQuantidade();
+		            			double quantidade_kg  = quantidade_sacos * 60;
+
+			    		        adicionarTextoParagrafoAtual(new PorExtenso(quantidade_kg).toString().replace("reais", "").replace("centavos", "").toLowerCase() + " ", true);
+
+
+		            		}else if(novo_contrato.getMedida().equalsIgnoreCase("KG")) {
+			    		        adicionarTextoParagrafoAtual(new PorExtenso(novo_contrato.getQuantidade()).toString().replace("reais", "").replace("centavos", "").toLowerCase() + " ", true);
+
+		            		}
+		                }else if(palavra.equals("quanti_total_sacos")) {
+		                	 
+		                	if(novo_contrato.getMedida().equalsIgnoreCase("SACOS")) {
+		            			double quantidade_sacos = novo_contrato.getQuantidade();
+
+			    		        adicionarTextoParagrafoAtual(z.format(quantidade_sacos) + " ", true);
+
+
+		            		}else if(novo_contrato.getMedida().equalsIgnoreCase("KG")) {
+		            			double quantidade_sacos = novo_contrato.getQuantidade() / 60;
+
+		            			
+			    		        adicionarTextoParagrafoAtual(z.format(quantidade_sacos) + " ", true);
+
+		            		}
+		        	
+		                }else if(palavra.equals("quanti_total_sacos_extenso")) {
+		                	 
+		                	if(novo_contrato.getMedida().equalsIgnoreCase("SACOS")) {
+		            			double quantidade_sacos = novo_contrato.getQuantidade();
+
+			    		        adicionarTextoParagrafoAtual(new PorExtenso(quantidade_sacos).toString().replace("reais", "").replace("centavos", "").toLowerCase() + " ", true);
+
+		            		}else if(novo_contrato.getMedida().equalsIgnoreCase("KG")) {
+		            			double quantidade_sacos = novo_contrato.getQuantidade() / 60;
+
+			    		        adicionarTextoParagrafoAtual(new PorExtenso(quantidade_sacos).toString().replace("reais", "").replace("centavos", "").toLowerCase() + " ", true);
+
+		            		}
+		                }
+		                else if(palavra.equals("quanti_total_recebida")) {
+		    		        adicionarTextoParagrafoAtual(z.format(quantidade_total_recebidas_quilogramas), true);
+
+		                }
+		                else if(palavra.equals("quanti_total_recebida_extenso")) {
+		    		        adicionarTextoParagrafoAtual(new PorExtenso(quantidade_total_recebidas_quilogramas).toString().replace("reais", "").replace("centavos", "").toLowerCase() + " ", true);
+
+
+		                }
+		                else if(palavra.equals("quanti_total_recebida_sacos")) {
+		    		        adicionarTextoParagrafoAtual(z.format(quantidade_total_recebidas_sacos), true);
+
+		                }
+		                else if(palavra.equals("quanti_total_recebida_sacos_extenso")) {
+		    		        adicionarTextoParagrafoAtual(new PorExtenso(quantidade_total_recebidas_sacos).toString().replace("reais", "").replace("centavos", "").toLowerCase() + " ", true);
+
+
+		                }
+		                else if(palavra.equals("valor_total_ja_recebido")) {
+		            	  	Locale ptBr = new Locale("pt", "BR");
+				       	   	String valorString = NumberFormat.getCurrencyInstance(ptBr).format((valor_total_ja_recebido));
+				       	   	System.out.println(valorString);   
+	        		
+		    		        adicionarTextoParagrafoAtual(valorString, true);
+
+
+		                }
+		                else if(palavra.equals("valor_total_restante")) {
+		            	  	Locale ptBr = new Locale("pt", "BR");
+				       	   	String valorString = NumberFormat.getCurrencyInstance(ptBr).format((Double.parseDouble(novo_contrato.getValor_a_pagar().toPlainString()) - valor_total_ja_recebido));
+				       	   	System.out.println(valorString);   
+	        		
+		    		        adicionarTextoParagrafoAtual(valorString, true);
+
+
+		                }
+		                else if(palavra.equals("valor_total_restante_extenso")) {
+		            	  
+	        		        double result = Double.parseDouble(novo_contrato.getValor_a_pagar().toPlainString()) - valor_total_ja_recebido;
+		    		        adicionarTextoParagrafoAtual(new PorExtenso(result).toString().toLowerCase() + " ", true);
+
+
+		                }
+		                else if(palavra.equals("quanti_total_restante")) {
+		                	
+		                	if(novo_contrato.getMedida().equalsIgnoreCase("SACOS")) {
+		                		double quant_sacos = novo_contrato.getQuantidade();
+		                		double quant_kg = quant_sacos * 60;
+		                			
+				                 double result = quant_kg - quantidade_total_recebidas_quilogramas;
+				    		        adicionarTextoParagrafoAtual(z.format(result), true);
+
+
+		                	}else if(novo_contrato.getMedida().equalsIgnoreCase("KG")) {
+		                		double quant_kg = novo_contrato.getQuantidade();
+		                		double quant_sacos = quant_kg/60;
+
+				                 double result = quant_kg - quantidade_total_recebidas_quilogramas;
+				    		        adicionarTextoParagrafoAtual(z.format(result), true);
+		                	}
+		                	
+		                	
+		                	
+
+		                }
+		                else if(palavra.equals("quanti_total_restante_extenso")) {
+		                	if(novo_contrato.getMedida().equalsIgnoreCase("SACOS")) {
+		                		double quant_sacos = novo_contrato.getQuantidade();
+		                		double quant_kg = quant_sacos * 60;
+		                			
+				                 double result = quant_kg - quantidade_total_recebidas_quilogramas;
+				    		        adicionarTextoParagrafoAtual(new PorExtenso(result).toString().replace("reais", "").replace("centavos", "").toLowerCase() + " ", true);
+
+
+		                	}else if(novo_contrato.getMedida().equalsIgnoreCase("KG")) {
+		                		double quant_kg = novo_contrato.getQuantidade();
+		                		double quant_sacos = quant_kg/60;
+
+				                 double result = quant_kg - quantidade_total_recebidas_quilogramas;
+				    		        adicionarTextoParagrafoAtual(new PorExtenso(result).toString().replace("reais", "").replace("centavos", "").toLowerCase() + " ", true);
+		                	}
+
+
+
+		                }
+		                else if(palavra.equals("quanti_total_sacos_restante")) {
+		                 	if(novo_contrato.getMedida().equalsIgnoreCase("SACOS")) {
+		                		double quant_sacos = novo_contrato.getQuantidade();
+		                		double quant_kg = quant_sacos * 60;
+		                			
+				                 double result = quant_sacos - quantidade_total_recebidas_sacos;
+				    		        adicionarTextoParagrafoAtual(z.format(result), true);
+
+
+		                	}else if(novo_contrato.getMedida().equalsIgnoreCase("KG")) {
+		                		double quant_kg = novo_contrato.getQuantidade();
+		                		double quant_sacos = quant_kg/60;
+
+				                 double result = quant_sacos - quantidade_total_recebidas_sacos;
+				    		        adicionarTextoParagrafoAtual(z.format(result), true);
+		                	}
+
+			                }
+			                else if(palavra.equals("quanti_total_sacos_restante_extenso")) {
+			                	if(novo_contrato.getMedida().equalsIgnoreCase("SACOS")) {
+			                		double quant_sacos = novo_contrato.getQuantidade();
+			                		double quant_kg = quant_sacos * 60;
+			                			
+					                 double result = quant_sacos - quantidade_total_recebidas_sacos;
+					    		       adicionarTextoParagrafoAtual(new PorExtenso(result).toString().replaceAll("reais", "").replaceAll("centavos", "").toLowerCase() + " ", true);
+
+
+			                	}else if(novo_contrato.getMedida().equalsIgnoreCase("KG")) {
+			                		double quant_kg = novo_contrato.getQuantidade();
+			                		double quant_sacos = quant_kg/60;
+
+					                 double result = quant_sacos - quantidade_total_recebidas_sacos;
+					                 String extenso = new PorExtenso(result).toString().replace("centavos", "");
+					                 extenso =  extenso.replace("reais", "");
+					    		        adicionarTextoParagrafoAtual( extenso, true);
+			                	}
+
+
+
+			                }
+		               
+		                else {
+				        adicionarTextoParagrafoAtual(palavra + " ", false);
+		                }
+		                
+					
+
+				}
+				}//fim do for
+		
+	}//fim for externo
+	}
+	
 	public void adicionarData() {
 		//data contrato
 				String data_extenso = "";
@@ -822,7 +1540,7 @@ public class EditarWord {
 					}
 					
 					
-					substituirTexto("[_______________________________________________________________]                                                                                      -"
+					substituirTexto("[_______________________________________________________________]                                                                                         "
 							+ "["  + nome_assinatura_negrito.toUpperCase() + "]\r\n"
 							+ "");
 				
@@ -851,7 +1569,7 @@ public class EditarWord {
 								}
 								
 								
-								substituirTexto("[_______________________________________________________________]                                                                                      -"
+								substituirTexto("[_______________________________________________________________]                                                                                         "
 										+ "["  + nome_assinatura_negrito.toUpperCase() + "]\r\n"
 										+ "");
 							
@@ -879,8 +1597,8 @@ public class EditarWord {
 								}
 								
 								
-								substituirTexto("[_______________________________________________________________]                                                                                      -"
-										+ "["  + nome_assinatura_negrito.toUpperCase() + "]\r\n"
+								substituirTexto("[_______________________________________________________________]                                                                                         "
+										+ "["  + nome_assinatura_negrito.toUpperCase() + "]\r\n\n"
 										+ "");
 							
 							}
@@ -890,21 +1608,330 @@ public class EditarWord {
 		//testemunhas
 		substituirTexto("[TESTEMUNHAS:]\r\n"
 				+ 
-				"[1.] _________________________________                                                                                                                                                -"
-				+ "Nome:                                                                                                                                                                                                           -"
-				+ "CPF:                                                                                                                                                                                                             - "
+				"[1._____________________________________________________________]                                                                                         "
+				+ "Nome:                                                                                                                                                                                                              "
+				+ "CPF:                                                                                                                                                                                                                 "
 				);
 		
 		substituirTexto(
-				"[2.] _________________________________                                                                                                                                                -"
-				+ "Nome:                                                                                                                                                                                                           -"
-				+ "CPF:                                                                                                                                                                                                             - "
+				"[2._____________________________________________________________]                                                                                         "
+				+ "Nome:                                                                                                                                                                                                              "
+				+ "CPF:                                                                                                                                                                                                                 "
 				);
 		
 		
 
 	}
 	
+	public int salvar( int tipo_salvamento) 
+	{
+		int retorno_final = -1;
+		boolean proceder = false;
+		
+		if(tipo_salvamento == 1) {
+			//esta em edicao, apagar os arquivos fisicos e na nuvem
+			String BaseDados_DiretorioArquivo =  servidor_unidade + novo_contrato.getCaminho_arquivo();
+			System.out.println("caminho do arquivo completo para apagar: " + BaseDados_DiretorioArquivo);
+			ManipularTxt manipular_apagar = new ManipularTxt();
+			if(manipular_apagar.apagarArquivo(BaseDados_DiretorioArquivo)) {
+				if(manipular_apagar.apagarArquivo(BaseDados_DiretorioArquivo.replace("pdf", "docx"))) {
+					
+					//apagar o diretorio
+					if(manipular_apagar.limparDiretorio(new File(servidor_unidade + novo_contrato.getCaminho_diretorio_contrato()))) {
+					  //Diretorio foi excluido
+						Nuvem nuvem = new Nuvem();
+				         nuvem.abrir();
+				         nuvem.testar();
+				         nuvem.listar();
+				         nuvem.deletarArquivo(novo_contrato.getNome_arquivo());
+				       JOptionPane.showMessageDialog(null, "Os arquivos foram apagados da memoria e da nuvem!");
+					
+				       proceder = true;
+					}
+					else {
+						proceder = false;
+						System.out.println("Erro ao excluir o direrorio do contrato");
+
+					}
+				}else {
+					System.out.println("erro ao excluir arquivo docx, operação cancelada!");
+					retorno_final = 4;
+					proceder = false;
+				}
+				
+			}else {
+				System.out.println("erro ao excluir arquivo .pdf, operação cancelada!");
+				retorno_final = 4;
+				proceder = false;
+			}
+			
+		}
+
+	  if(tipo_salvamento == 1 && proceder || tipo_salvamento == 0) {
+        boolean arquivos_comprador_criado = false;
+		boolean arquivos_vendedor1_criado = false;
+		boolean arquivos_vendedor2_criado = false;
+
+		
+		String nome_comprador_arquivo ;
+		String nome_vendedor1_arquivo ;
+		String nome_vendedor2_arquivo;
+		
+		if(compradores[0].getTipo_pessoa() == 0)
+			nome_comprador_arquivo = compradores[0].getNome_empresarial();
+		else
+			nome_comprador_arquivo = compradores[0].getNome_fantaia();
+
+		if(vendedores[0].getTipo_pessoa() == 0)
+			nome_vendedor1_arquivo = vendedores[0].getNome_empresarial();
+		else
+			nome_vendedor1_arquivo = vendedores[0].getNome_fantaia();
+		
+		if(vendedores[1] != null) {
+		if(vendedores[1].getTipo_pessoa() == 0)
+			nome_vendedor2_arquivo = vendedores[1].getNome_empresarial();
+		else
+			nome_vendedor2_arquivo = vendedores[1].getNome_fantaia();
+		}else
+			nome_vendedor2_arquivo = null;
+		
+		//E:\E-Contract\arquivos\clientes\Daniel Alves de Almeida\contratos\compra\2020\milho
+		
+		GetData data = new GetData();
+		
+	   if(novo_contrato.getSub_contrato() == 0) {
+		   //é um comprato pai, salvar na pasta do comprador
+
+			 String caminho_salvar_contrato__no_hd = servidor_unidade + "E-contract\\arquivos\\clientes\\" + nome_comprador_arquivo + "\\contratos" + "\\compra\\"  + data.getAnoAtual() + "\\" + novo_contrato.getModelo_safra().getProduto().getNome_produto() + "\\";
+			System.out.println("caminho para salvar o contrato do comprador no hd: " + caminho_salvar_contrato__no_hd);	
+			String caminho_salvar_contrato_no_banco_dados = "E-contract\\\\arquivos\\\\clientes\\\\" + nome_comprador_arquivo + "\\\\contratos" + "\\\\compra\\\\"  + data.getAnoAtual() + "\\\\" + novo_contrato.getModelo_safra().getProduto().getNome_produto() + "\\\\";
+
+		      String nome_pasta_arquivo = novo_contrato.getCodigo();
+
+		      String nome_arquivo = novo_contrato.getCodigo() + " "  + nome_comprador_arquivo + " x " + nome_vendedor1_arquivo ; 
+		       
+				if(nome_vendedor2_arquivo != null) {
+					nome_arquivo +=  (" " + nome_vendedor2_arquivo);
+
+				}
+				
+				String extensao_arquivo = ".docx";
+				String caminho_completo_salvar_contrato_no_hd = caminho_salvar_contrato__no_hd + nome_pasta_arquivo + "\\" + nome_arquivo ;
+				
+			    String caminho_completo_salvar_contrato_no_bando_dados = caminho_salvar_contrato_no_banco_dados + nome_pasta_arquivo +"\\\\" + nome_arquivo;
+			    String nome_diretorio_arquivo_contrato = caminho_salvar_contrato_no_banco_dados + nome_pasta_arquivo;
+
+				//criar o diretorio
+				ManipularTxt manipular = new ManipularTxt();
+				if(manipular.criarDiretorio(caminho_salvar_contrato__no_hd + nome_pasta_arquivo + "\\"))
+				{
+					System.out.println("diretorio criado para o novo contrato");
+					  if(criarArquivos(nome_arquivo,caminho_completo_salvar_contrato_no_hd,  caminho_completo_salvar_contrato_no_bando_dados,nome_diretorio_arquivo_contrato))
+					    	arquivos_comprador_criado = true;
+					    else
+					    	arquivos_comprador_criado = false;
+				}else {
+					System.out.println("erro ao criar diretorio para o contrato ");
+					arquivos_comprador_criado = false;
+				}
+				
+				
+			  
+
+		   
+	   }else {
+		   //e um contrato filho, salvar nas pastas dos vendedores
+		   if(vendedores[0] != null) {
+			   System.out.println("vendedor 1 existe para este contrato");
+
+			   if(vendedores[0].getNome_empresarial() != null || vendedores[0].getNome_fantaia() != null){
+ 
+				   String caminho_salvar_contrato__no_hd = servidor_unidade + "E-contract\\arquivos\\clientes\\" + nome_vendedor1_arquivo + "\\contratos" + "\\venda\\"  + data.getAnoAtual() + "\\" + novo_contrato.getModelo_safra().getProduto().getNome_produto() + "\\";
+					System.out.println("caminho para salvar o contrato do comprador no hd: " + caminho_salvar_contrato__no_hd);	
+					String caminho_salvar_contrato_no_banco_dados = "E-contract\\\\arquivos\\\\clientes\\\\" + nome_vendedor1_arquivo + "\\\\contratos" + "\\\\venda\\\\"  + data.getAnoAtual() + "\\\\" + novo_contrato.getModelo_safra().getProduto().getNome_produto() + "\\\\";
+
+				      String nome_pasta_arquivo = novo_contrato.getCodigo();
+                     
+				       
+				      String nome_arquivo = novo_contrato.getCodigo() + " "  + nome_comprador_arquivo + " x " + nome_vendedor1_arquivo ; 
+				       
+						if(nome_vendedor2_arquivo != null) {
+							nome_arquivo +=  (" " + nome_vendedor2_arquivo);
+
+						}
+						
+						String extensao_arquivo = ".docx";
+						String caminho_completo_salvar_contrato_no_hd = caminho_salvar_contrato__no_hd + nome_pasta_arquivo + "\\" + nome_arquivo ;
+						
+					    String caminho_completo_salvar_contrato_no_bando_dados = caminho_salvar_contrato_no_banco_dados + nome_pasta_arquivo +"\\\\" + nome_arquivo;
+					    String nome_diretorio_arquivo_sub_contrato1 = caminho_salvar_contrato_no_banco_dados + nome_pasta_arquivo;
+						//criar o diretorio
+						ManipularTxt manipular = new ManipularTxt();
+						if(manipular.criarDiretorio(caminho_salvar_contrato__no_hd + nome_pasta_arquivo + "\\"))
+						{
+							System.out.println("diretorio criado para o novo sub contrato vendedor1");
+							  if(criarArquivos(nome_arquivo,caminho_completo_salvar_contrato_no_hd,  caminho_completo_salvar_contrato_no_bando_dados, nome_diretorio_arquivo_sub_contrato1))
+							    	arquivos_vendedor1_criado = true;
+							    else
+							    	arquivos_vendedor1_criado = false;
+						}else {
+							System.out.println("erro ao criar diretorio para o sub contrato vendedor1");
+							arquivos_vendedor1_criado = false;
+						}
+					
+				
+			   }
+
+			   
+		   }
+		   
+		   if(vendedores[1] != null) {
+			   System.out.println("vendedor 2 existe para este contrato");
+			   
+			   String caminho_salvar_contrato__no_hd = servidor_unidade + "E-contract\\arquivos\\clientes\\" + nome_vendedor2_arquivo + "\\contratos" + "\\venda\\"  + data.getAnoAtual() + "\\" + novo_contrato.getModelo_safra().getProduto().getNome_produto() + "\\";
+				System.out.println("caminho para salvar o contrato do comprador no hd: " + caminho_salvar_contrato__no_hd);	
+				String caminho_salvar_contrato_no_banco_dados = "E-contract\\\\arquivos\\\\clientes\\\\" + nome_vendedor2_arquivo + "\\\\contratos" + "\\\\venda\\\\"  + data.getAnoAtual() + "\\\\" + novo_contrato.getModelo_safra().getProduto().getNome_produto() + "\\\\";
+
+			      String nome_pasta_arquivo = novo_contrato.getCodigo();
+
+			      String nome_arquivo = novo_contrato.getCodigo() + " "  + nome_comprador_arquivo + " x " + nome_vendedor1_arquivo ; 
+			       
+					if(nome_vendedor2_arquivo != null) {
+						nome_arquivo +=  (" " + nome_vendedor2_arquivo);
+
+					}
+					
+					String extensao_arquivo = ".docx";
+					String caminho_completo_salvar_contrato_no_hd = caminho_salvar_contrato__no_hd + nome_pasta_arquivo + "\\" + nome_arquivo ;
+					
+				    String caminho_completo_salvar_contrato_no_bando_dados = caminho_salvar_contrato_no_banco_dados + nome_pasta_arquivo +"\\\\" + nome_arquivo;
+				    String nome_diretorio_arquivo_sub_contrato2 = caminho_salvar_contrato_no_banco_dados + nome_pasta_arquivo;
+
+					//criar o diretorio
+					ManipularTxt manipular = new ManipularTxt();
+					if(manipular.criarDiretorio(caminho_salvar_contrato__no_hd + nome_pasta_arquivo + "\\"))
+					{
+						System.out.println("diretorio criado para o novo sub contrato vendedor2");
+						  if(criarArquivos(nome_arquivo,caminho_completo_salvar_contrato_no_hd,  caminho_completo_salvar_contrato_no_bando_dados, nome_diretorio_arquivo_sub_contrato2))
+						    	arquivos_vendedor2_criado = true;
+						    else
+						    	arquivos_vendedor2_criado = false;
+					}else {
+						System.out.println("erro ao criar diretorio para o sub contrato vendedor2");
+						arquivos_vendedor2_criado = false;
+					}
+				   
+
+			   
+		   }
+		 
+	   }
+		
+	   if(novo_contrato.getSub_contrato() == 0) {
+		   //e comtrato pai, retorno apenas oa varaivel do comprador
+		   if(arquivos_comprador_criado) {
+			   retorno_final = 1; //avisa para quem chamou a funcao que o contrato do comprador foi salvo
+		   GerenciadorLog.registrarLogDiario("aviso", "o contrato de numero " + novo_contrato.getCodigo() + " foi criado na base de arquivos fisico");
+	        }else {
+				   retorno_final = -1; //avisa para quem chamou a funcao que o contrato do comprador não foi salvo
+				   GerenciadorLog.registrarLogDiario("falha", "o contrato de numero " + novo_contrato.getCodigo() + " não foi criado na base de arquivos fisico");
+
+	        }
+	   }else {
+		   if(vendedores[0] != null && vendedores[1] != null) {
+			   //ha dois vendedores, retorno as duas variaveis
+			   if(arquivos_vendedor1_criado && arquivos_vendedor1_criado) {
+				   retorno_final = 10; //avisa pra quem chamou a funcao que o contrato do vendedor1 e do vendedor2 foi salvo
+				   GerenciadorLog.registrarLogDiario("aviso", "o sub_contrato de numero " + novo_contrato.getCodigo() + " foi criado na base de arquivos fisico");
+
+			   }else {
+				   retorno_final = 11; //avisa pra quem chamou a funcao que o contrato do vendedor1 e do vendedor2 não foram salvo
+				   GerenciadorLog.registrarLogDiario("falha", "o sub_contrato de numero " + novo_contrato.getCodigo() + " não foi criado na base de arquivos fisico");
+
+			   }
+		   }else if (vendedores[0] != null && vendedores[1] == null){
+			   if(arquivos_vendedor1_criado) {
+				   retorno_final = 12; //avisa pra quem chamou a funcao que o contrato do vendedor1  foi salvo
+				   GerenciadorLog.registrarLogDiario("aviso", "o sub_contrato de numero " + novo_contrato.getCodigo() + "  foi criado na base de arquivos fisico");
+
+			   } else {
+				   retorno_final = 13; //avisa pra quem chamou a funcao que o contrato do vendedor1  não foram salvo
+				   GerenciadorLog.registrarLogDiario("falha", "o sub_contrato de numero " + novo_contrato.getCodigo() + " não foi criado na base de arquivos fisico");
+
+			   }
+		   }else if (vendedores[0] == null && vendedores[1] != null){
+			   if(arquivos_vendedor2_criado) {
+				   retorno_final = 14; //avisa pra quem chamou a funcao que o contrato do vendedor2  foi salvo
+				   GerenciadorLog.registrarLogDiario("aviso", "o sub_contrato de numero " + novo_contrato.getCodigo() + "  foi criado na base de arquivos fisico");
+
+			   } else {
+				   retorno_final = 15; //avisa pra quem chamou a funcao que o contrato do vendedor2  não foram salvo
+				   GerenciadorLog.registrarLogDiario("falha", "o sub_contrato de numero " + novo_contrato.getCodigo() + " não foi criado na base de arquivos fisico");
+
+			   }
+		   }
+
+	   }
+	  }else {
+		  
+	  }
+		
+		return retorno_final; 
+	}
+	
+	
+	
+	public boolean criarArquivos(String nome_arquivo, String caminh_completo_salvar_no_hd, String caminho_completo_salvar_no_banco_dados, String caminho_completo_diretorio_arquivo) {
+		
+		FileOutputStream outputStream;
+		try {
+			outputStream = new FileOutputStream (caminh_completo_salvar_no_hd + ".docx");
+			
+			//novo_contrato.setCaminho_arquivo(url.toString());
+			
+			document_global.write(outputStream);
+			 //  workbook_aberto.close();
+  				outputStream.close();
+
+			
+				
+				//workbook.close();
+			//Converter e salvar em pdf
+             //criar pdf
+             ConverterPdf converter_pdf = new ConverterPdf();
+           //  String url = converter_pdf.excel_pdf_file(contrato_alterado);
+           //TelaVizualizarPdf  vizualizar =  new TelaVizualizarPdf(url);
+             if (converter_pdf.word_pdf_file(caminh_completo_salvar_no_hd)) {
+            	 System.out.println("Arquivo pdf convertido e salvo!");
+            	
+            	 
+            	 System.out.println("caminho para salvar na nuvem: " + caminh_completo_salvar_no_hd);
+            	 novo_contrato.setCaminho_arquivo(caminho_completo_salvar_no_banco_dados + ".pdf") ;
+            	 novo_contrato.setCaminho_diretorio_contrato(caminho_completo_diretorio_arquivo);
+            	 //salvar no drobox
+            	 Nuvem nuvem = new Nuvem();
+            	 nuvem.abrir();
+                 nuvem.testar();
+                
+                boolean retorno = nuvem.carregar(caminh_completo_salvar_no_hd + ".pdf", nome_arquivo + ".pdf");
+                 if(retorno) {
+                	 System.out.println("Arquivo salvo na nuvem");
+                	 novo_contrato.setNome_arquivo(nome_arquivo + ".pdf" );
+                 }
+        	    // System.out.println("link: " + nuvem.getUrlArquivo("/contratos));
+     			return true;
+
+             }else {
+            	 return false;
+             }
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			System.out.println("erro ao criar o arquivo fisico, erro: " + e.getMessage());
+			e.printStackTrace();
+			
+			return false;
+		} 
+	}
 	
 
 }

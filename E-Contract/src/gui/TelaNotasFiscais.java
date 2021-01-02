@@ -56,7 +56,7 @@ public class TelaNotasFiscais extends JDialog {
 	
 	private JTextField entChavePesquisa;
 
-	public TelaNotasFiscais(CadastroContrato contrato) {
+	public TelaNotasFiscais(CadastroCliente vendedor) {
 		setModal(true);
 
 		isto = this;
@@ -152,7 +152,7 @@ public class TelaNotasFiscais extends JDialog {
 		new Thread() {
 			@Override
 			public void run() {
-				pesquisarNotas(contrato);
+				pesquisarNotas(vendedor);
 
 			}
 		}.start();
@@ -161,34 +161,19 @@ public class TelaNotasFiscais extends JDialog {
 
 	}
 
-	public void pesquisarNotas(CadastroContrato contrato) {
-		// acesar lista de sub contratos
-		GerenciarBancoContratos gerenciar = new GerenciarBancoContratos();
-		ArrayList<CadastroContrato> sub_contratos = gerenciar.getSubContratos(contrato.getId());
-		ArrayList<CadastroCliente> clientes_acessar_notas = new ArrayList<>();
+	public void pesquisarNotas(CadastroCliente vendedor) {
+		
 
-		for (CadastroContrato sub : sub_contratos) {
-			// acessar vendedores desse subcontrato
-			CadastroCliente vendedores[];
-			String nome_vendedor1, nome_vendedor2;
-
-			vendedores = sub.getVendedores();
-			for (CadastroCliente ved : vendedores) {
-				if (ved != null)
-					clientes_acessar_notas.add(ved);
-			}
-
-		}
 
 		// acessar caminho desses vendedores
 
-		for (CadastroCliente acessar_notas : clientes_acessar_notas) {
+	
 			String nome_pasta;
 
-			if (acessar_notas.getTipo_pessoa() == 0) {
-				nome_pasta = acessar_notas.getNome_empresarial().toUpperCase();
+			if (vendedor.getTipo_pessoa() == 0) {
+				nome_pasta = vendedor.getNome_empresarial().toUpperCase();
 			} else {
-				nome_pasta = acessar_notas.getNome_fantaia().toUpperCase();
+				nome_pasta = vendedor.getNome_fantaia().toUpperCase();
 			}
 
 			String unidade_base_dados = configs_globais.getServidorUnidade();
@@ -215,8 +200,8 @@ public class TelaNotasFiscais extends JDialog {
 			 * notas_fiscais_disponivel.add(nota);
 			 * 
 			 * } }); }
-			 */
-		}
+			*/
+		
 
 	}
 

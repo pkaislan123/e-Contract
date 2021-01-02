@@ -9,6 +9,23 @@ import javax.swing.JOptionPane;
 public class GerenciarBancoPadrao {
 
 	
+	 public boolean getConexao() {
+		 try {
+			 
+	            Connection conn = ConexaoBanco.getConexao();
+                ConexaoBanco.encerrar(conn);
+                
+	            return true;
+	            
+
+		 }catch(Exception e) {
+			 return false;
+		 }
+		 
+		 
+	 }
+	
+	
 	  public int insert(String dados) {
 		  if( dados != null) {
 	            Connection conn = null;

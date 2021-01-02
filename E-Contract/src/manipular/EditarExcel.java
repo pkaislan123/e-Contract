@@ -65,7 +65,6 @@ import outros.GetData;
 import tratamento_proprio.Log;
 import views_personalizadas.TelaEmEspera;
 
-import com.spire.*;
 
 
 public class EditarExcel {
@@ -884,7 +883,12 @@ public ByteArrayOutputStream alterar(CadastroContrato novo_contrato)
 	    InputStream inputStream = new ByteArrayInputStream(modelo.getArquivo());
 	    
 		//FileInputStream inputStream = new FileInputStream(new File(path));
-		 workbook = WorkbookFactory.create(inputStream);
+		 try {
+			workbook = WorkbookFactory.create(inputStream);
+		} catch (InvalidFormatException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
 
 		 sheet = workbook.getSheetAt(0);
 		 
@@ -1174,8 +1178,7 @@ public ByteArrayOutputStream alterar(CadastroContrato novo_contrato)
 		
 		  // TelaVizualizarPdf vizualizar_pdf = new TelaVizualizarPdf("", new ByteArrayInputStream(convertido_pdf.toByteArray()));
 
-	} catch (IOException | EncryptedDocumentException
-			| InvalidFormatException ex) {
+	} catch (IOException | EncryptedDocumentException ex) {
 		ex.printStackTrace();
 		return null;
 	}

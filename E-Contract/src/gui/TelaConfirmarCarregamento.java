@@ -46,7 +46,7 @@ public class TelaConfirmarCarregamento extends JDialog {
 	private JDialog telaPai;
 	private JTextField entDataCarregamento;
 	private JTextField entPesoRealCarga;
-	private JComboBox cBContrato, cBCliente, cBProduto, cBNotaFiscal, cbVeiculo, cBTransportador;
+	private JComboBox cBContrato, cBCliente, cBProduto, cBNotaFiscal, cbVeiculo, cBTransportador, cBVendedor;
 	private CadastroContrato contrato_local;
 
 	private CadastroCliente transportador_carregamento;
@@ -55,6 +55,7 @@ public class TelaConfirmarCarregamento extends JDialog {
 	private CadastroNFe nota_fiscal_carregamento;
 	private CadastroContrato contrato_carregamento;
 	private CadastroCliente.Veiculo veiculo_carregamento;
+	private CadastroCliente vendedor;
 	private JLabel lblNotaFiscalCarregamento, lblPesoRealCarregamento, lblProdutoCarregamento, lblDataCarregamento,
 			lblClienteCarregamento, lblContratoCarregamento, lblTransportadorCarregamento, lblVeiculoCarregamento;
 
@@ -82,7 +83,7 @@ public class TelaConfirmarCarregamento extends JDialog {
 
 		JPanel panel_1 = new JPanel();
 		panel_1.setLayout(null);
-		panel_1.setBounds(21, 11, 492, 335);
+		panel_1.setBounds(21, 11, 492, 383);
 		painelSelecionar.add(panel_1);
 
 		JLabel lblNewLabel_3 = new JLabel("Data:");
@@ -102,11 +103,11 @@ public class TelaConfirmarCarregamento extends JDialog {
 		panel_1.add(chkBoxDataHoje);
 
 		JLabel lblNewLabel_5 = new JLabel("Transportador:");
-		lblNewLabel_5.setBounds(56, 135, 88, 14);
+		lblNewLabel_5.setBounds(56, 172, 88, 14);
 		panel_1.add(lblNewLabel_5);
 
 		cBTransportador = new JComboBox();
-		cBTransportador.setBounds(135, 129, 248, 30);
+		cBTransportador.setBounds(135, 166, 248, 30);
 		panel_1.add(cBTransportador);
 
 		JButton btnSelecionarTransportador = new JButton("Selecionar");
@@ -117,35 +118,35 @@ public class TelaConfirmarCarregamento extends JDialog {
 				selecionar_transportador.setVisible(true);
 			}
 		});
-		btnSelecionarTransportador.setBounds(393, 129, 89, 30);
+		btnSelecionarTransportador.setBounds(393, 166, 89, 30);
 		panel_1.add(btnSelecionarTransportador);
 
 		cbVeiculo = new JComboBox();
 		cbVeiculo.setEditable(false);
-		cbVeiculo.setBounds(136, 161, 186, 30);
+		cbVeiculo.setBounds(136, 198, 186, 30);
 		panel_1.add(cbVeiculo);
 
 		JLabel lblNewLabel_5_1 = new JLabel("Veiculo:");
-		lblNewLabel_5_1.setBounds(89, 160, 56, 14);
+		lblNewLabel_5_1.setBounds(89, 197, 56, 14);
 		panel_1.add(lblNewLabel_5_1);
 
 		JLabel lblNewLabel_6 = new JLabel("Nota Fiscal:");
-		lblNewLabel_6.setBounds(59, 286, 65, 26);
+		lblNewLabel_6.setBounds(59, 323, 65, 26);
 		panel_1.add(lblNewLabel_6);
 
 		cBNotaFiscal = new JComboBox();
-		cBNotaFiscal.setBounds(134, 284, 209, 30);
+		cBNotaFiscal.setBounds(134, 321, 209, 30);
 		panel_1.add(cBNotaFiscal);
 
 		JButton btnSelecionarNF = new JButton("Selecionar");
 		btnSelecionarNF.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				TelaNotasFiscais tela = new TelaNotasFiscais(contrato_local);
+				TelaNotasFiscais tela = new TelaNotasFiscais(vendedor);
 				tela.setPai(isto);
 				tela.setVisible(true);
 			}
 		});
-		btnSelecionarNF.setBounds(352, 284, 89, 30);
+		btnSelecionarNF.setBounds(352, 321, 89, 30);
 		panel_1.add(btnSelecionarNF);
 
 		JButton btnAdicionarCarregamento = new JButton("Adicionar");
@@ -191,24 +192,24 @@ public class TelaConfirmarCarregamento extends JDialog {
 		panel_1.add(btnSelecionarCliente);
 
 		JLabel lblNewLabel_9 = new JLabel("Peso Real da Carga:");
-		lblNewLabel_9.setBounds(27, 253, 106, 14);
+		lblNewLabel_9.setBounds(27, 290, 106, 14);
 		panel_1.add(lblNewLabel_9);
 
 		entPesoRealCarga = new JTextField();
 		entPesoRealCarga.setColumns(10);
-		entPesoRealCarga.setBounds(135, 246, 168, 27);
+		entPesoRealCarga.setBounds(135, 283, 168, 27);
 		panel_1.add(entPesoRealCarga);
 
 		JLabel lblNewLabel_10 = new JLabel("KG");
-		lblNewLabel_10.setBounds(313, 243, 26, 24);
+		lblNewLabel_10.setBounds(313, 280, 26, 24);
 		panel_1.add(lblNewLabel_10);
 
 		JLabel lblNewLabel_9_1 = new JLabel("Produto:");
-		lblNewLabel_9_1.setBounds(54, 212, 70, 14);
+		lblNewLabel_9_1.setBounds(54, 249, 70, 14);
 		panel_1.add(lblNewLabel_9_1);
 
 		cBProduto = new JComboBox();
-		cBProduto.setBounds(134, 202, 209, 30);
+		cBProduto.setBounds(134, 239, 209, 30);
 		panel_1.add(cBProduto);
 
 		JButton btnSelecionarProduto = new JButton("Selecionar");
@@ -219,14 +220,42 @@ public class TelaConfirmarCarregamento extends JDialog {
 				produto.setVisible(true);
 			}
 		});
-		btnSelecionarProduto.setBounds(352, 202, 89, 30);
+		btnSelecionarProduto.setBounds(352, 239, 89, 30);
 		panel_1.add(btnSelecionarProduto);
+		
+		JLabel lblNewLabel_8_1_1 = new JLabel("Vendedor:");
+		lblNewLabel_8_1_1.setBounds(69, 136, 56, 14);
+		panel_1.add(lblNewLabel_8_1_1);
+		
+		 cBVendedor = new JComboBox();
+		cBVendedor.setBounds(135, 131, 248, 30);
+		panel_1.add(cBVendedor);
+		
+		JButton btnSelecionarVendedor = new JButton("Selecionar");
+		btnSelecionarVendedor.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				TelaCliente tela = new TelaCliente(0, 6);
+				tela.setTelaPai(isto);
+				tela.setVisible(true);
+			}
+		});
+		btnSelecionarVendedor.setBounds(393, 129, 89, 30);
+		panel_1.add(btnSelecionarVendedor);
+		
+		JButton btnCancelar_1 = new JButton("Revisar");
+		btnCancelar_1.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				isto.dispose();
+			}
+		});
+		btnCancelar_1.setBounds(424, 405, 89, 23);
+		painelSelecionar.add(btnCancelar_1);
 
 		getContentPane().add(abas, BorderLayout.CENTER);
 
 		setBackground(new Color(255, 255, 255));
 		setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-		setBounds(100, 100, 544, 420);
+		setBounds(100, 100, 544, 506);
 		painelConfirmar.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseEntered(MouseEvent arg0) {
@@ -289,7 +318,7 @@ public class TelaConfirmarCarregamento extends JDialog {
 
 			}
 		});
-		btnSalvar.setBounds(288, 294, 89, 23);
+		btnSalvar.setBounds(288, 358, 89, 23);
 		painelConfirmar.add(btnSalvar);
 
 		JButton btnCancelar = new JButton("Revisar");
@@ -299,7 +328,7 @@ public class TelaConfirmarCarregamento extends JDialog {
 				isto.dispose();
 			}
 		});
-		btnCancelar.setBounds(392, 294, 89, 23);
+		btnCancelar.setBounds(392, 358, 89, 23);
 		painelConfirmar.add(btnCancelar);
 
 		JLabel lblNewLabel_1 = new JLabel("Contrato:");
@@ -358,7 +387,7 @@ public class TelaConfirmarCarregamento extends JDialog {
 		lblNotaFiscalCarregamento.setBounds(92, 238, 389, 32);
 		painelConfirmar.add(lblNotaFiscalCarregamento);
 
-	    this.setUndecorated(true);
+	    //this.setUndecorated(true);
 		this.setLocationRelativeTo(null);
 
 	}
@@ -509,5 +538,33 @@ public class TelaConfirmarCarregamento extends JDialog {
 
 	public void setTelaPai(JDialog dialog) {
 		this.telaPai = dialog;
+	}
+	
+	public void setVendedor(CadastroCliente _vendedor) {
+		this.vendedor = _vendedor;
+		java.awt.EventQueue.invokeLater(new Runnable() {
+			public void run() {
+				//cBVendedor.removeAll();
+				cBVendedor.removeAllItems();
+				cBVendedor.repaint();
+				cBVendedor.updateUI();
+				
+				String nome;
+				if(vendedor.getTipo_pessoa() == 0) {
+					//pessoa fisica
+					nome = vendedor.getNome_empresarial();
+				}else {
+					nome = vendedor.getNome_fantaia();
+
+				}
+
+				cBVendedor.addItem(nome);
+
+				cBVendedor.repaint();
+				cBVendedor.updateUI();
+
+				
+			}
+		});
 	}
 }

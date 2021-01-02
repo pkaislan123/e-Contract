@@ -359,34 +359,41 @@ public class GerenciarBancoContratos {
 	  
 	  private boolean inserir_cliente_corretor(CadastroContrato contrato, int id_contrato) {
 
-		  boolean reverter = false;
+		  boolean retorno = false;
+		  //verifica se a corretores a serem cadastrados
+		  boolean tem_corretores = false;
 		   
  		 CadastroCliente corretores [] = contrato.listaCorretores();
+ 	     for(CadastroCliente corretor: corretores) {
+ 	    	 if(corretor != null ) {
+ 	    		tem_corretores = true;
+ 	    		break;
+ 	    	 }else {
+ 	    		 tem_corretores = false;
+ 	    	 }
+ 	     }
+ 		 
+ 	     if(tem_corretores) {
  		 for(int i = 0; i < corretores.length; i++) {
  			 if(corretores[i] != null) {
  		      if(inserir_corretor(corretores[i], id_contrato)) {
  		    	 //tabela criada com exito;
  		    	  System.out.println("Relação contrato corretor criado com sucesso");
- 		    	 reverter = false;
+ 		    	 retorno = true;
  		      }else {
  		    	 //falha ao adicionar algum dos corretores, o processo deve ser desfeito
  		    	  System.out.println("falha ao adicionar a relação contrato corretor na base de dados");
 
- 		    	 reverter = true;
+ 		    	 retorno = false;
  		    	  break;
  		      }
  			 }
  		 }
  		 
- 		 if(reverter == true) {
- 			 return false;
- 			 //retorna fase, devera ser revertido o processo
- 			 //reverter todo o processo
- 		 }else {
- 			 //todos os corretorres forama dicionados com sucesso, retorne true para continuar o processo
- 			 return true;
- 		 }
-		  
+ 		return retorno;
+ 	     }else {
+ 	    	 return true;
+ 	     }
 	  }
 	  
 	  private boolean inserir_cliente_comprador(CadastroContrato contrato, int id_contrato) {
@@ -749,6 +756,31 @@ public class GerenciarBancoContratos {
 	        }
 	  }
 	  
+	  public boolean remover_contrato_rotina(int id_contrato) {
+		  String sql_delete_relacao = "call excluir_contrato(?)";
+		  Connection conn = null;
+	        ResultSet rs = null;	      
+	        try {
+	            conn = ConexaoBanco.getConexao();
+	            PreparedStatement pstm;
+	            pstm = conn.prepareStatement(sql_delete_relacao);
+	 
+	            pstm.setInt(1, id_contrato);
+	 
+	            pstm.execute();
+	            ConexaoBanco.fechaConexao(conn, pstm);
+	            JOptionPane.showMessageDialog(null, "Toda as rotinas do contrato foram excluidas com sucesso!");
+	           return true;
+	            
+	 
+	        } catch (Exception f) {
+	            JOptionPane.showMessageDialog(null, "Erro ao excluir as rotinas do contrato da base de dados\nBanco de dados corrompido!\nConsulte o administrador do sistema"
+	                    + "dados " + f.getMessage());
+	           return false;
+	        }
+	  }
+	  
+	  
 	  private boolean remover_tabelas_contrato_corretor() {
 		  boolean retorno = false;
 		  
@@ -797,7 +829,7 @@ public class GerenciarBancoContratos {
 	  
 	  
 	  public String sql_modelo_pagamento(CadastroContrato.CadastroPagamento pagamento) {
-          String query = "insert into modelo_pagamento (id_conta_bancaria, data_pagamento, valor, descricao_pagamento) values ('"
+          String query = "insert into modelo_pagamento (id_conta_bancaria, data_pagamento, valor, descricao_pagamento, antecipado) values ('"
         		 + pagamento.getConta().getId_conta() 
                  + "','"
                 + pagamento.getData_pagamento()
@@ -805,6 +837,8 @@ public class GerenciarBancoContratos {
                 + pagamento.getValor()
                 + "','"
                 + pagamento.getDescricao_pagamento()
+                + "','"
+                + pagamento.getPagamento_adiantado()
                 + "')";	
           return query;
 
@@ -1465,6 +1499,7 @@ public class GerenciarBancoContratos {
 	        	  pagamento.setValor_string(rs.getString("valor"));
 	        	  pagamento.setValor(new BigDecimal(rs.getString("valor")));
 	        	  pagamento.setData_pagamento(rs.getString("data_pagamento"));
+	        	  pagamento.setPagamento_adiantado(rs.getInt("antecipado"));
 	        	  ContaBancaria conta = null;
 	        			  
 	        	  int id_cb = rs.getInt("id_conta_bancaria");
@@ -1548,6 +1583,34 @@ public class GerenciarBancoContratos {
 	   
    }
    
+public int getNumeroTotalContratos() {
+	   
+	   String selectGetNumContratos = "SELECT COUNT(*) FROM contrato where sub_contrato = 0";
+		  Connection conn = null;
+	      PreparedStatement pstm = null;
+	      ResultSet rs = null;
+	      
+	      try {
+	          conn = ConexaoBanco.getConexao();
+	          pstm = conn.prepareStatement(selectGetNumContratos);
+	          		
+	          rs = pstm.executeQuery();
+	          rs.next();
+	          int i = rs.getInt("COUNT(*)");
+	          
+	          
+	          
+	          ConexaoBanco.fechaConexao(conn, pstm, rs);
+              return i;
+	        
+	      
+	      } catch (Exception e) {
+	          JOptionPane.showMessageDialog(null, "Erro ao listar o numero total de contratos!" +  " erro: " + e.getMessage() + "causa: " + e.getCause());
+	         return -1;
+	        }		  
+	   
+	   
+   }
    
    
    private boolean inserir_contrato_sub_contrato( int id_contrato_pai, int id_sub_contrato){

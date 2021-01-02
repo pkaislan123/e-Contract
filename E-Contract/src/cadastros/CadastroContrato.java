@@ -472,6 +472,16 @@ local retirada: 24 2
 	{
 		
 		int id;
+		int pagamento_adiantado;
+		
+		
+		
+		public int getPagamento_adiantado() {
+			return pagamento_adiantado;
+		}
+		public void setPagamento_adiantado(int pagamento_adiantado) {
+			this.pagamento_adiantado = pagamento_adiantado;
+		}
 		public int getId() {
 			return id;
 		}

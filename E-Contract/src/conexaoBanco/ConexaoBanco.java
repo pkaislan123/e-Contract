@@ -87,6 +87,21 @@ public class ConexaoBanco {
 		            System.out.println("nao foi possivel fechar o statement " + e.getMessage());
 		        }
 		    }
+ 
+          public static void encerrar(Connection conn ) {
+		 
+		        try {
+		            if (conn != null) {
+		                fechaConexao(conn);
+		            }
+		           
+		 
+		 
+		        } catch (Exception e) {
+		            System.out.println("nao foi possivel fechar o statement " + e.getMessage());
+		        }
+		    }
+		 
 		 
 		    public static void fechaConexao(Connection conn, 
 		    PreparedStatement stmt, ResultSet rs) {

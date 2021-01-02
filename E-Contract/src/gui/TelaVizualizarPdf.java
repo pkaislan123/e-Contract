@@ -21,7 +21,6 @@ import org.apache.poi.EncryptedDocumentException;
 import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.ss.usermodel.WorkbookFactory;
-import org.icepdf.ri.common.ComponentKeyBinding;
 import org.icepdf.ri.common.SwingController;
 import org.icepdf.ri.common.SwingViewBuilder;
 import org.icepdf.ri.util.PropertiesManager;
@@ -32,6 +31,7 @@ import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.ByteArrayInputStream;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 
@@ -43,7 +43,7 @@ public class TelaVizualizarPdf extends JDialog {
 	private TelaEmEspera telaInformacoes;
 
 	//public TelaVizualizarPdf(String arquivo) {
-	public TelaVizualizarPdf(InputStream stream, TelaElaborarNovoContrato pai, TelaEmEspera telaBack) {
+	public TelaVizualizarPdf(InputStream stream, TelaElaborarNovoContrato pai, TelaEmEspera telaBack, String file) {
 		setModal(true);
 
 		TelaVizualizarPdf isto = this;
@@ -65,6 +65,7 @@ public class TelaVizualizarPdf extends JDialog {
 		
 		 propriedades.setBoolean (PropertiesManager.PROPERTY_SHOW_TOOLBAR_ANNOTATION,
 		         Boolean.FALSE);
+		 
 		 propriedades.setBoolean (PropertiesManager.PROPERTY_VIEWPREF_HIDEMENUBAR,
 		         Boolean.TRUE);
 		 propriedades.setBoolean (PropertiesManager.PROPERTY_VIEWPREF_HIDETOOLBAR,
@@ -77,12 +78,12 @@ public class TelaVizualizarPdf extends JDialog {
 		 SwingViewBuilder factory = new SwingViewBuilder(controller, propriedades);
 		// Use the factory to build a JPanel that is pre-configured
 		//with a complete, active Viewer UI.
-		controller.getDocumentViewController().setAnnotationCallback(
+		/*controller.getDocumentViewController().setAnnotationCallback(
 			     new org.icepdf.ri.common.MyAnnotationCallback(
 			            controller.getDocumentViewController()));
 
 
-		
+		*/
 		JPanel viewerComponentPanel = factory.buildViewerPanel();
 
 		// add copy keyboard command
@@ -91,8 +92,11 @@ public class TelaVizualizarPdf extends JDialog {
 		// add interactive mouse link annotation support via callback
 		
 		//controller.openDocument(arquivo);
+		if(stream != null)
 		controller.openDocument(stream , "", "");
-
+		else
+			controller.openDocument(file);
+		
 		setContentPane(viewerComponentPanel);
 		
 			addWindowListener(new WindowAdapter() {
