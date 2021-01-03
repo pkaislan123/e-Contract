@@ -3,7 +3,15 @@ package cadastros;
 public class CadastroLogin {
 
 	private int id;
-	private String nome, sobrenome, login, email, senha , senhaEmail, cargo, celular, genero, tratamento;
+	private String nome, sobrenome, login, email, senha , senhaEmail, cargo, celular, genero, tratamento, ip_ativo;
+	public String getIp_ativo() {
+		return ip_ativo;
+	}
+	public void setIp_ativo(String ip_ativo) {
+		this.ip_ativo = ip_ativo;
+	}
+
+
 	private Preferencias configs_preferencias;
 	private Privilegios configs_privilegios;
 	

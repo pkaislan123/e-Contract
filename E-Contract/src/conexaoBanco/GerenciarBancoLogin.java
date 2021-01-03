@@ -49,7 +49,7 @@ public class GerenciarBancoLogin {
 	            Login.setSobrenome(rs.getString("sobrenome"));
 	            Login.setCelular(rs.getString("celular"));
 	            Login.setCargo(rs.getString("cargo"));
-
+                Login.setIp_ativo(rs.getString("ip_ativo"));
 	            Login.setLogin(rs.getString("login"));
 	            Login.setEmail(rs.getString("email"));
 	            Login.setSenha(rs.getString("senha"));
@@ -95,6 +95,7 @@ public class GerenciarBancoLogin {
 	            Login.setSobrenome(rs.getString("sobrenome"));
 	            Login.setCelular(rs.getString("celular"));
 	            Login.setCargo(rs.getString("cargo"));
+	            Login.setIp_ativo(rs.getString("ip_ativo"));
 
 	            Login.setLogin(rs.getString("login"));
 	            Login.setEmail(rs.getString("email"));
@@ -161,7 +162,7 @@ public class GerenciarBancoLogin {
 	            Login.setSobrenome(rs.getString("sobrenome"));
 	            Login.setCelular(rs.getString("celular"));
 	            Login.setCargo(rs.getString("cargo"));
-
+                Login.setIp_ativo(rs.getString("ip_ativo"));
 	            Login.setLogin(rs.getString("login"));
 	            Login.setEmail(rs.getString("email"));
 	            Login.setSenha(rs.getString("senha"));
@@ -843,7 +844,31 @@ public class GerenciarBancoLogin {
 		  
 	  }
 	  
-	  
+	  public boolean informarLogado(String ip, int id_usuario) {
+		  Connection conn = null;
+          PreparedStatement pstm;
+		  String sql = "update usuarios set ip_ativo = ? where id_usuario = ?";
+		  
+		  try {
+			 conn = ConexaoBanco.getConexao();
+        	 pstm = conn.prepareStatement(sql);
+             pstm.setString(1, ip);
+             pstm.setInt(2, id_usuario);
+
+
+        	  pstm.execute();
+
+        	  System.out.println("Ip Atualizado com sucesso");
+              ConexaoBanco.fechaConexao(conn);
+        	 return true;
+		  }catch(Exception e) {
+        	  System.out.println("Erro ao atualizar ip, erro: " + e.getMessage());
+
+			  return false;
+		  }
+        	 
+		  
+	  }
 	  
 	  
 	  public void getDadosGlobais() {
