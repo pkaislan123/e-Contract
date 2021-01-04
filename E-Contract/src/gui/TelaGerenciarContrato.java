@@ -203,7 +203,8 @@ public class TelaGerenciarContrato extends JDialog {
 		getDadosGlobais();
 		servidor_unidade = configs_globais.getServidorUnidade();
 
-		setModal(true);
+		//setModal(true);
+				setAlwaysOnTop(true);
 
 		contrato_local = contrato;
 		isto = this;

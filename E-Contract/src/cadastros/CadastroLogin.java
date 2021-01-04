@@ -173,4 +173,55 @@ public class CadastroLogin {
 	}
 	
 	
+	public static class Mensagem{
+		
+		int id_mensagem, id_remetente, id_destinatario;
+		String conteudo, data, hora;
+		public int getId_mensagem() {
+			return id_mensagem;
+		}
+		public void setId_mensagem(int id_mensagem) {
+			this.id_mensagem = id_mensagem;
+		}
+		public int getId_remetente() {
+			return id_remetente;
+		}
+		public void setId_remetente(int id_remetente) {
+			this.id_remetente = id_remetente;
+		}
+		public int getId_destinatario() {
+			return id_destinatario;
+		}
+		public void setId_destinatario(int id_destinatario) {
+			this.id_destinatario = id_destinatario;
+		}
+		public String getConteudo() {
+			return conteudo;
+		}
+		public void setConteudo(String conteudo) {
+			this.conteudo = conteudo;
+		}
+		public String getData() {
+			return data;
+		}
+		public void setData(String data) {
+			this.data = data;
+		}
+		public String getHora() {
+			return hora;
+		}
+		public void setHora(String hora) {
+			this.hora = hora;
+		}
+		
+		@Override
+		public String toString() {
+		    return conteudo;
+		}
+		
+		
+		
+	}
+	
+	
 }

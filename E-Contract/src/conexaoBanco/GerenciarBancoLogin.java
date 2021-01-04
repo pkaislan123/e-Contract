@@ -61,7 +61,7 @@ public class GerenciarBancoLogin {
             }
             ConexaoBanco.fechaConexao(conn, pstm, rs);
         } catch (Exception e) {
-            //JOptionPane.showMessageDialog(null, "Erro ao listar usuarios" + e.getMessage());
+            JOptionPane.showMessageDialog(null, "Erro ao listar usuarios" + e.getMessage());
         }
         return listaUsuarios;
     }
@@ -879,5 +879,163 @@ public class GerenciarBancoLogin {
 			 //usuario logado
 			 loginGlobal = dados.getLogin();
 		}
+	
+	  
+	  
+	  public ArrayList<CadastroLogin.Mensagem> getMensagens(int id_remetente, int id_destinatario) {
+		  
+
+	        Connection conn = null;
+	        PreparedStatement pstm = null;
+	        ResultSet rs = null;
+	        String selectMensagens = "select * from mensagem where id_remetente = ? and id_destinatario = ? \r\n"
+	        		+ "union select * from mensagem where id_remetente = ? and id_destinatario = ?";
+	        
+	        ArrayList<CadastroLogin.Mensagem> listaMensagens = new ArrayList<>();
+	        try {
+	            conn = ConexaoBanco.getConexao();
+	            pstm = conn.prepareStatement(selectMensagens);
+	            pstm.setInt(1, id_remetente);
+	            pstm.setInt(2, id_destinatario);
+	            pstm.setInt(3, id_destinatario);
+	            pstm.setInt(4, id_remetente);
+
+	            
+	            rs = pstm.executeQuery();
+	            while (rs.next()) {
+	            	CadastroLogin.Mensagem msg = new CadastroLogin.Mensagem();
+	                msg.setId_mensagem(rs.getInt("id_mensagem"));
+	                msg.setData(rs.getString("data_mensagem"));
+	                msg.setHora(rs.getString("hora_mensagem"));
+	                msg.setConteudo(rs.getString("conteudo"));
+	                msg.setId_remetente(rs.getInt("id_remetente"));
+	                msg.setId_destinatario(rs.getInt("id_destinatario"));
+	            
+	            	listaMensagens.add(msg);
+	            }
+	            ConexaoBanco.fechaConexao(conn, pstm, rs);
+	        } catch (Exception e) {
+	            JOptionPane.showMessageDialog(null, "Erro ao listar mensagens do usuario" + e.getMessage());
+	        }
+	        
+	        return listaMensagens;
+		  
+		  
+		  
+	  }
+	  
+	  
+	  public boolean enviarMensagem(CadastroLogin.Mensagem msg) {
+		  
+		  //inseria a mensagem
+		  int retorno = inserir_mensagem_retorno(msg);
+		 if( retorno >0 ) {
+			 
+			/* if(inserir_usuario_mensagens(id_usuario, retorno)) {
+				 //JOptionPane.showMessageDialog(null, "Mensagem Enviada");
+
+				 return true;
+
+			 }else {
+				 System.out.println("Erro ao enviar a mensagem");
+                     return false;
+			 }*/
+			 return true;
+			 
+		 }else {
+			 System.out.println("Erro ao enviar a mensagem");
+			 return false;
+		 }
+		  
+		  
+	  }
+	  
+	  
+	  private int inserir_mensagem_retorno(CadastroLogin.Mensagem msg) {
+		   int result = -1;
+		   int id_cliente = -1;
+		   
+		 
+			   
+			   if( msg != null) {
+		            Connection conn = null;
+		            try {
+		            	
+		                conn = ConexaoBanco.getConexao();
+		    	       
+		                String query = sql_msg(msg);
+	                  Statement stmt = (Statement) conn.createStatement();
+	                  int numero = stmt.executeUpdate(query, Statement.RETURN_GENERATED_KEYS);
+
+	                  ResultSet rs = stmt.getGeneratedKeys();
+	                  if (rs.next()){
+	 	                                result=rs.getInt(1);
+	 	                                System.out.println("Id mensagem inserida: "+ result);
+	                                }
+	                   rs.close();
+	                   stmt.close();
+	                   
+	                   return result;
+		 
+		            } catch (Exception e) {
+		               JOptionPane.showMessageDialog(null, "Erro ao inserir a mensagem no banco de"
+		                      + "dados " + e.getMessage());
+		            	GerenciadorLog.registrarLogDiario("falha", "falha ao inserir mensagem ao banco de dados: " + e.getMessage() + " causa: " + e.getCause());
+		                return -1;
+		            }
+		        } else {
+		            System.out.println("a mensagem enviado por parametro esta vazio");
+		            return -1;
+		        } 
+			   
+		   
+		   
+		 
+	  }
+	  
+	 /* private boolean inserir_usuario_mensagens(int id_usuario, int id_msg){
+		  Connection conn = null;
+          try {
+              conn = ConexaoBanco.getConexao();
+              String sql = "insert into usuario_mensagens\r\n" + 
+              		"(id_usuario , id_mensagem ) values ('"
+  	    			+ id_usuario
+  	    			+  "','"
+  	    			+ id_msg	
+  	    			+ "')";
+  	       
+  	        PreparedStatement grava = (PreparedStatement) conn.prepareStatement(sql); 
+  	        grava.execute();    
+              ConexaoBanco.fechaConexao(conn, grava);
+              JOptionPane.showMessageDialog(null, "Relação usuario_mensagem cadastrado com sucesso");
+        
+               return true;
+
+          } catch (Exception e) {
+        	  JOptionPane.showMessageDialog(null, "Erro ao inserir a relação usuario_mensagens no banco de"
+                       + " dados, usuario: " + id_usuario + " id mensagem: " + id_msg + e.getMessage());
+               return false;
+          }
+ 			  
+ 	         
+	  }*/
+	  
+	  public String sql_msg(CadastroLogin.Mensagem msg) {
+		  
+		  return "insert into mensagem (data_mensagem , hora_mensagem, conteudo, id_remetente, id_destinatario  )  values ('"
+	    			+ msg.getData()
+	    			+ "','"
+	    			+ msg.getHora()
+	    			+ "','"
+	    			+ msg.getConteudo()
+	    			+ "','"
+	    			+ msg.getId_remetente()
+	    			+ "','"
+	    			+ msg.getId_destinatario()
+	    			+ "')";
+		  
+	  }
+	  
+	  
 	
 }

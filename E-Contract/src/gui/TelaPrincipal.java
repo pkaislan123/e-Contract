@@ -15,17 +15,25 @@ import java.awt.event.WindowEvent;
 import java.awt.event.WindowStateListener;
 import java.io.IOException;
 import java.net.MalformedURLException;
+import java.net.ServerSocket;
+import java.net.Socket;
 import java.net.SocketException;
 import java.net.URL;
 import java.net.URLConnection;
 import java.util.ArrayList;
+import java.util.ConcurrentModificationException;
 import java.util.List;
-
+import javax.swing.DefaultListModel;
 import javax.swing.ImageIcon;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JList;
+
+
 import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
+import javax.swing.table.DefaultTableModel;
+
 
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartPanel;
@@ -38,7 +46,11 @@ import cadastros.CadastroBaseArquivos;
 import cadastros.CadastroBaseDados;
 import cadastros.CadastroLogin;
 import cadastros.CadastroModelo;
+import cadastros.Contato;
 import cadastros.DadosContratos;
+import chat.Cliente;
+import chat.Servidor;
+import classesExtras.RenderizadorChat;
 import conexaoBanco.GerenciarBancoContratos;
 import conexaoBanco.GerenciarBancoLogin;
 import conexaoBanco.GerenciarBancoPadrao;
@@ -47,6 +59,7 @@ import manipular.ConfiguracoesGlobais;
 import manipular.EditarWord;
 import manipular.GetDadosGlobais;
 import outros.DadosGlobais;
+import outros.GetData;
 import outros.JPanelBackground;
 import graficos.JPanelGrafico;
 import outros.ReproduzirAudio;
@@ -59,12 +72,24 @@ import javax.swing.JMenuBar;
 import javax.swing.JMenu;
 import javax.swing.JMenuItem;
 import java.awt.event.ActionListener;
+import java.awt.event.AdjustmentEvent;
+import java.awt.event.AdjustmentListener;
 import java.awt.event.ActionEvent;
 import javax.swing.SwingConstants;
 import java.awt.Point;
 import java.awt.Insets;
+import java.awt.LayoutManager;
+
 import javax.swing.JButton;
 import javax.swing.JTextField;
+import javax.swing.ScrollPaneConstants;
+
+import net.miginfocom.swing.MigLayout;
+import javax.swing.JScrollPane;
+import javax.swing.JTable;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import javax.swing.JTabbedPane;
 
 public class TelaPrincipal extends JFrame implements GetDadosGlobais {
 
@@ -80,8 +105,19 @@ public class TelaPrincipal extends JFrame implements GetDadosGlobais {
 	private boolean executou = false;
 	private DadosContratos dados_contratos = new DadosContratos();
 
-	private JLabel lblBD, lblBaseDeArquivos, lblNuvem, lblnet, urlBancoDados, imgBaseDados, urlBaseArquivos, imgBaseArquivos, urlInternet, imgInternet, urlNuvem ,imgNuvem;
+	private JLabel lblBD, lblBaseDeArquivos, lblNuvem, lblnet, urlBancoDados, imgBaseDados, urlBaseArquivos,
+			imgBaseArquivos, urlInternet, imgInternet, urlNuvem, imgNuvem;
 	private ConfiguracoesGlobais configs_globais;
+	private ArrayList<CadastroLogin> usuarios = new ArrayList<>();
+
+	DefaultTableModel modelo_usuarios = new DefaultTableModel() {
+		public boolean isCellEditable(int linha, int coluna) {
+			return false;
+		}
+	};
+	
+	
+	private TelaChat telaChat;
 
 	public TelaPrincipal() {
 
@@ -133,7 +169,7 @@ public class TelaPrincipal extends JFrame implements GetDadosGlobais {
 
 		setTitle("E-Contract");
 
-		setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setBounds(100, 100, d.width, d.height - taskBarHeight);
 		contentPane = new JPanelBackground();
 
@@ -310,55 +346,55 @@ public class TelaPrincipal extends JFrame implements GetDadosGlobais {
 		lblInfo.setBounds(0, 0, 230, 14);
 		painelInfoConexao.add(lblInfo);
 
-		 lblnet = new JLabel("Internet:");
+		lblnet = new JLabel("Internet:");
 		lblnet.setBounds(55, 25, 175, 14);
 		painelInfoConexao.add(lblnet);
 
-		 lblBaseDeArquivos = new JLabel("Base de Arquivos:");
+		lblBaseDeArquivos = new JLabel("Base de Arquivos:");
 		lblBaseDeArquivos.setBounds(55, 118, 175, 14);
 		painelInfoConexao.add(lblBaseDeArquivos);
 
-		 lblBD = new JLabel("Banco de Dados:");
+		lblBD = new JLabel("Banco de Dados:");
 		lblBD.setBounds(55, 162, 175, 14);
 		painelInfoConexao.add(lblBD);
 
-		 urlBancoDados = new JLabel("erro");
+		urlBancoDados = new JLabel("erro");
 		urlBancoDados.setBounds(55, 180, 135, 14);
 		painelInfoConexao.add(urlBancoDados);
 
-		 urlBaseArquivos = new JLabel("erro");
+		urlBaseArquivos = new JLabel("erro");
 		urlBaseArquivos.setBounds(55, 137, 135, 14);
 		painelInfoConexao.add(urlBaseArquivos);
 
-		 urlInternet = new JLabel("http://www.google.com.br");
+		urlInternet = new JLabel("http://www.google.com.br");
 		urlInternet.setBounds(55, 43, 186, 14);
 		painelInfoConexao.add(urlInternet);
-		
-		 imgBaseDados = new JLabel("New label");
+
+		imgBaseDados = new JLabel("New label");
 		imgBaseDados.setIcon(new ImageIcon(TelaPrincipal.class.getResource("/imagens/base_dados_offline.png")));
 		imgBaseDados.setBounds(13, 162, 32, 32);
 		painelInfoConexao.add(imgBaseDados);
-		
-		 imgBaseArquivos = new JLabel("");
+
+		imgBaseArquivos = new JLabel("");
 		imgBaseArquivos.setIcon(new ImageIcon(TelaPrincipal.class.getResource("/imagens/base_arquivos_offline.png")));
 		imgBaseArquivos.setBounds(13, 118, 32, 32);
 		painelInfoConexao.add(imgBaseArquivos);
-		
-		 imgInternet = new JLabel("");
-		 imgInternet.setIcon(new ImageIcon(TelaPrincipal.class.getResource("/imagens/internet_offline.png")));
+
+		imgInternet = new JLabel("");
+		imgInternet.setIcon(new ImageIcon(TelaPrincipal.class.getResource("/imagens/internet_offline.png")));
 		imgInternet.setBounds(13, 25, 32, 32);
 		painelInfoConexao.add(imgInternet);
-		
-		 imgNuvem = new JLabel("");
-		 imgNuvem.setIcon(new ImageIcon(TelaPrincipal.class.getResource("/imagens/nuvem_offline.png")));
+
+		imgNuvem = new JLabel("");
+		imgNuvem.setIcon(new ImageIcon(TelaPrincipal.class.getResource("/imagens/nuvem_offline.png")));
 		imgNuvem.setBounds(13, 75, 32, 32);
 		painelInfoConexao.add(imgNuvem);
-		
-		 lblNuvem = new JLabel("Nuvem");
+
+		lblNuvem = new JLabel("Nuvem");
 		lblNuvem.setBounds(55, 75, 175, 14);
 		painelInfoConexao.add(lblNuvem);
-		
-		 urlNuvem = new JLabel("https://www.dropbox.com/");
+
+		urlNuvem = new JLabel("https://www.dropbox.com/");
 		urlNuvem.setBounds(55, 93, 186, 14);
 		painelInfoConexao.add(urlNuvem);
 
@@ -418,36 +454,36 @@ public class TelaPrincipal extends JFrame implements GetDadosGlobais {
 		lblTotalContratosAssinados = new JLabel("");
 		lblTotalContratosAssinados.setBounds(149, 81, 46, 14);
 		painelGrafico.add(lblTotalContratosAssinados);
+
+		modelo_usuarios.addColumn("Usuario");
+		modelo_usuarios.addColumn("Ip");
+		modelo_usuarios.addColumn("Status");
 		
-		JPanel painelMensagens = new JPanel();
-		painelMensagens.setBackground(Color.WHITE);
-		painelMensagens.setBounds(1099, 329, 251, 360);
-		contentPane.add(painelMensagens);
-		painelMensagens.setLayout(null);
+		JPanel panel_2 = new JPanel();
+		panel_2.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseClicked(MouseEvent arg0) {
+				
+				if(telaChat == null)
+				  telaChat = new TelaChat();
+				else {
+					telaChat.setVisible(true);
+				}
+				
+			}
+		});
+		panel_2.setLayout(null);
+		panel_2.setBackground(new Color(75, 0, 130));
+		panel_2.setBounds(1099, 642, 251, 47);
+		contentPane.add(panel_2);
 		
-		
-		JPanel panel = new  JPanel();
-		panel.setBounds(0, 5, 251, 47);
-		panel.setBackground(new Color(75, 0, 130));
-		painelMensagens.add(panel);
-		panel.setLayout(null);
-		
-		
-		JLabel lblNewLabel = new JLabel("     Mensagens");
-		lblNewLabel.setBackground(new Color(0, 0, 153));
-		lblNewLabel.setForeground(Color.WHITE);
-		lblNewLabel.setFont(new Font("Arial", Font.BOLD, 14));
-		lblNewLabel.setOpaque(true);
-		lblNewLabel.setBounds(110, 11, 161, 28);
-		panel.add(lblNewLabel);
-		
-		JLabel lblNewLabel_2 = new JLabel("Usuários Online:");
-		lblNewLabel_2.setBounds(10, 53, 127, 14);
-		painelMensagens.add(lblNewLabel_2);
-		
-	
-		
-		
+		JLabel lblNewLabel_3 = new JLabel("     Mensagens");
+		lblNewLabel_3.setOpaque(true);
+		lblNewLabel_3.setForeground(Color.WHITE);
+		lblNewLabel_3.setFont(new Font("Arial", Font.BOLD, 14));
+		lblNewLabel_3.setBackground(new Color(0, 0, 153));
+		lblNewLabel_3.setBounds(110, 11, 161, 28);
+		panel_2.add(lblNewLabel_3);
 
 		getDadosContratos();
 		atualizarGraficoContratos();
@@ -455,9 +491,8 @@ public class TelaPrincipal extends JFrame implements GetDadosGlobais {
 		buscaConexaoBanco();
 		buscaConexaoServidorArquivos();
 		buscarConexaoNuvem();
-		procuraUsuariosOnline();
-		testeMensageria();
-		
+
+
 		
 		this.setLocationRelativeTo(null);
 
@@ -471,8 +506,7 @@ public class TelaPrincipal extends JFrame implements GetDadosGlobais {
 		// gerenciador de log
 		DadosGlobais dados = DadosGlobais.getInstance();
 		GerenciadorLog = dados.getGerenciadorLog();
-		 configs_globais = dados.getConfigs_globais();
-
+		configs_globais = dados.getConfigs_globais();
 
 		// usuario logado
 		login = dados.getLogin();
@@ -528,17 +562,19 @@ public class TelaPrincipal extends JFrame implements GetDadosGlobais {
 						URLConnection connection = url.openConnection();
 						connection.connect();
 						lblnet.setText("Internet: Conectada");
-						imgInternet.setIcon(new ImageIcon(TelaPrincipal.class.getResource("/imagens/internet_online.png")));
+						imgInternet.setIcon(
+								new ImageIcon(TelaPrincipal.class.getResource("/imagens/internet_online.png")));
 
-					} catch ( IOException f  ) {
+					} catch (IOException f) {
 						f.printStackTrace();
 						System.out.println("erro ao se conectar a internet!");
 						novaNotificacao("Sem conexão com a internet, algumas funções seram limitadas até a reconexão!",
 								"/audio/beep_erro_net.wav", 2);
-						
+
 						lblnet.setText("Internet: Desconectada");
 
-						imgInternet.setIcon(new ImageIcon(TelaPrincipal.class.getResource("/imagens/internet_offline.png")));
+						imgInternet.setIcon(
+								new ImageIcon(TelaPrincipal.class.getResource("/imagens/internet_offline.png")));
 
 					}
 					try {
@@ -552,8 +588,7 @@ public class TelaPrincipal extends JFrame implements GetDadosGlobais {
 		}.start();
 
 	}
-	
-	
+
 	public void buscarConexaoNuvem() {
 		new Thread() {
 			private URL url = null;
@@ -571,7 +606,7 @@ public class TelaPrincipal extends JFrame implements GetDadosGlobais {
 						lblNuvem.setText("Nuvem: Conectada");
 						imgNuvem.setIcon(new ImageIcon(TelaPrincipal.class.getResource("/imagens/nuvem_online.png")));
 
-					} catch ( IOException f  ) {
+					} catch (IOException f) {
 						f.printStackTrace();
 						System.out.println("erro ao se conectar ao dropbpx!");
 						novaNotificacao("Sem conexão com a nuvem, algumas funções seram limitadas até a reconexão!",
@@ -581,7 +616,7 @@ public class TelaPrincipal extends JFrame implements GetDadosGlobais {
 						imgNuvem.setIcon(new ImageIcon(TelaPrincipal.class.getResource("/imagens/nuvem_offline.png")));
 
 					}
-					
+
 					try {
 						Thread.sleep(5000);
 					} catch (InterruptedException e) {
@@ -629,28 +664,31 @@ public class TelaPrincipal extends JFrame implements GetDadosGlobais {
 			public void run() {
 
 				while (true) {
-					
-					CadastroBaseDados bd ;
-					
-			        bd = configs_globais.getBaseDados();
 
-					 String url = "jdbc:mysql://" + bd.getHost() + ":" + bd.getPorta() + "/" + bd.getNome_banco() + "?useTimezone=true&serverTimezone=UTC";
+					CadastroBaseDados bd;
+
+					bd = configs_globais.getBaseDados();
+
+					String url = "jdbc:mysql://" + bd.getHost() + ":" + bd.getPorta() + "/" + bd.getNome_banco()
+							+ "?useTimezone=true&serverTimezone=UTC";
 
 					urlBancoDados.setText(url);
 					GerenciarBancoPadrao gerenciar = new GerenciarBancoPadrao();
 					if (gerenciar.getConexao()) {
 						System.out.println("Banco de Dados OnLine!");
 						lblBD.setText("Banco de Dados: Conectada");
-						imgBaseDados.setIcon(new ImageIcon(TelaPrincipal.class.getResource("/imagens/base_dados_online.png")));
+						imgBaseDados.setIcon(
+								new ImageIcon(TelaPrincipal.class.getResource("/imagens/base_dados_online.png")));
 
 					} else {
 						System.out.println("Banco de Dados Offline!");
 						lblBD.setText("Banco de Dados: Desconectada");
 
-						imgBaseDados.setIcon(new ImageIcon(TelaPrincipal.class.getResource("/imagens/base_dados_offline.png")));
+						imgBaseDados.setIcon(
+								new ImageIcon(TelaPrincipal.class.getResource("/imagens/base_dados_offline.png")));
 
 					}
-					
+
 					try {
 						Thread.sleep(5000);
 					} catch (InterruptedException e) {
@@ -662,34 +700,35 @@ public class TelaPrincipal extends JFrame implements GetDadosGlobais {
 			}
 		}.start();
 	}
-	
-	
+
 	public void buscaConexaoServidorArquivos() {
 
 		new Thread() {
 			public void run() {
 
 				while (true) {
-					
-					CadastroBaseArquivos base = configs_globais.getServidor_arquivos() ;
-					
-                    String host = base.getServidor();
+
+					CadastroBaseArquivos base = configs_globais.getServidor_arquivos();
+
+					String host = base.getServidor();
 
 					urlBaseArquivos.setText(host);
 					lblBaseDeArquivos.setText("Base de Arquivos: Conectada");
 					TesteConexao gerenciar = new TesteConexao();
 					if (gerenciar.doPing(host)) {
 						System.out.println("Banco de Arquivos OnLine!");
-						imgBaseArquivos.setIcon(new ImageIcon(TelaPrincipal.class.getResource("/imagens/base_arquivos_online.png")));
+						imgBaseArquivos.setIcon(
+								new ImageIcon(TelaPrincipal.class.getResource("/imagens/base_arquivos_online.png")));
 
 					} else {
 						lblBaseDeArquivos.setText("Base de Arquivos: Desconectada");
 
 						System.out.println("Banco de Arquivos Offline!");
-						imgBaseArquivos.setIcon(new ImageIcon(TelaPrincipal.class.getResource("/imagens/base_arquivos_offline.png")));
+						imgBaseArquivos.setIcon(
+								new ImageIcon(TelaPrincipal.class.getResource("/imagens/base_arquivos_offline.png")));
 
 					}
-					
+
 					try {
 						Thread.sleep(5000);
 					} catch (InterruptedException e) {
@@ -735,75 +774,6 @@ public class TelaPrincipal extends JFrame implements GetDadosGlobais {
 		}.start();
 
 	}
-	
-	public void procuraUsuariosOnline() {
-		
-	   new Thread() {	
-		   
-		 @Override
-		 public void run() {
-		while(true) {
-		GerenciarBancoLogin gerenciarUsuarios = new GerenciarBancoLogin();
-		ArrayList<CadastroLogin> usuarios = gerenciarUsuarios.getUsuarios();
-		
-		
-		//verifica se esse usuario tem um ip
-		for(CadastroLogin usuario: usuarios) {
-			if(usuario.getIp_ativo() != null) {
-				if(!usuario.getIp_ativo().equals(" ") && !usuario.getIp_ativo().equals("") && usuario.getIp_ativo().length() > 7) {
-					//tem um ip valido, tentar conexao
-					TesteConexao gerenciar = new TesteConexao();
-					if (gerenciar.doPing(usuario.getIp_ativo())) {
-						System.out.println("Ip " + usuario.getIp_ativo() + " para o usuario: " + usuario.getLogin() + " esta ativo!");
 
-					} else {
-
-						System.out.println("Ip " + usuario.getIp_ativo() + " para o usuario: " + usuario.getLogin() + " não esta ativo!");
-
-					}
-				}
-			}
-			
-			
-			
-		}
-		
-		try {
-			Thread.sleep(5000);
-		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		
-		}
-		 }
-	   }.start();
-		
-	}
-	
-	
-	public void testeMensageria() {
-		
-		new Thread() {
-			
-			@Override
-			public void run() {
-				while(true) {
-					MainTeste teste = new MainTeste();
-					
-					try {
-						Thread.sleep(5000);
-					} catch (InterruptedException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-					}
-				}
-				
-				
-			}
-			
-		}.start();
-		
-	}
 	
 }

@@ -17,8 +17,7 @@ import org.springframework.jms.core.JmsTemplate;
 
 	@Override
 	public void onMessage(Message message) {
-		 TextMessage msg = (TextMessage) message
-	     println "--> Receptor: recebeu mensagem fila - " + msg.text
+		
 	
 	}
 	

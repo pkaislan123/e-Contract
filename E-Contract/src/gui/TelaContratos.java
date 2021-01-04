@@ -48,7 +48,8 @@ public class TelaContratos extends JDialog {
     
 
 	public TelaContratos(int flag_retorno) {
-		setModal(true);
+		//setModal(true);
+		setAlwaysOnTop(true);
 
 		TelaContratos isto = this;
 		

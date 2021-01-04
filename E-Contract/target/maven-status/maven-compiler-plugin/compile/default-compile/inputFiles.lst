@@ -4,10 +4,12 @@ C:\Users\aisla\git\e-Contract\E-Contract\src\outros\JTabbedPanePersonalizado.jav
 C:\Users\aisla\git\e-Contract\E-Contract\src\gui\TelaSafra.java
 C:\Users\aisla\git\e-Contract\E-Contract\src\gui\TelaPadrao.java
 C:\Users\aisla\git\e-Contract\E-Contract\src\conexaoBanco\ConexaoBanco.java
+C:\Users\aisla\git\e-Contract\E-Contract\src\manipular\PorExtenso.java
 C:\Users\aisla\git\e-Contract\E-Contract\src\gui\TelaContratos.java
 C:\Users\aisla\git\e-Contract\E-Contract\src\gui\TelaEnviarMsgWhatsapp.java
 C:\Users\aisla\git\e-Contract\E-Contract\src\gui\TelaPreferencias.java
 C:\Users\aisla\git\e-Contract\E-Contract\src\gui\TelaUsuarios.java
+C:\Users\aisla\git\e-Contract\E-Contract\src\graficos\JPanelGrafico.java
 C:\Users\aisla\git\e-Contract\E-Contract\src\gui\TelaLogin.java
 C:\Users\aisla\git\e-Contract\E-Contract\src\outros\DadosGlobais.java
 C:\Users\aisla\git\e-Contract\E-Contract\src\gui\TelaVizualizarPdf.java
@@ -31,6 +33,7 @@ C:\Users\aisla\git\e-Contract\E-Contract\src\conexaoBanco\GerenciarBancoSafras.j
 C:\Users\aisla\git\e-Contract\E-Contract\src\tratamento_proprio\Log.java
 C:\Users\aisla\git\e-Contract\E-Contract\src\cadastros\CadastroLogin.java
 C:\Users\aisla\git\e-Contract\E-Contract\src\gui\TelaEscolhaTipoNovoContrato.java
+C:\Users\aisla\git\e-Contract\E-Contract\src\mensageria\Start.java
 C:\Users\aisla\git\e-Contract\E-Contract\src\classesExtras\ComboBoxRenderPersonalizado.java
 C:\Users\aisla\git\e-Contract\E-Contract\src\classesExtras\CBLocalRetiradaPersonalizado.java
 C:\Users\aisla\git\e-Contract\E-Contract\src\outros\JProgressBarPersonalizado.java
@@ -58,8 +61,10 @@ C:\Users\aisla\git\e-Contract\E-Contract\src\gui\TelaCadastroSafra.java
 C:\Users\aisla\git\e-Contract\E-Contract\src\cadastros\CadastroModelo.java
 C:\Users\aisla\git\e-Contract\E-Contract\src\gui\TelaGerenciarContrato.java
 C:\Users\aisla\git\e-Contract\E-Contract\src\conexaoBanco\GerenciarBancoPadrao.java
+C:\Users\aisla\git\e-Contract\E-Contract\src\conexoes\TesteConexao.java
 C:\Users\aisla\git\e-Contract\E-Contract\src\manipular\ArquivoConfiguracoes.java
 C:\Users\aisla\git\e-Contract\E-Contract\src\gui\TelaPrincipal.java
+C:\Users\aisla\git\e-Contract\E-Contract\src\graficos\Grafico.java
 C:\Users\aisla\git\e-Contract\E-Contract\src\cadastros\CadastroNFe.java
 C:\Users\aisla\git\e-Contract\E-Contract\src\gui\TelaArmazem.java
 C:\Users\aisla\git\e-Contract\E-Contract\src\cadastros\CadastroProduto.java
@@ -73,6 +78,7 @@ C:\Users\aisla\git\e-Contract\E-Contract\src\manipular\Nuvem.java
 C:\Users\aisla\git\e-Contract\E-Contract\src\cadastros\CadastroBaseDados.java
 C:\Users\aisla\git\e-Contract\E-Contract\src\gui\TelaCliente.java
 C:\Users\aisla\git\e-Contract\E-Contract\src\manipular\ManipularTxt.java
+C:\Users\aisla\git\e-Contract\E-Contract\src\cadastros\DadosContratos.java
 C:\Users\aisla\git\e-Contract\E-Contract\src\classesExtras\Carregamento.java
 C:\Users\aisla\git\e-Contract\E-Contract\src\outros\GetHttp.java
 C:\Users\aisla\git\e-Contract\E-Contract\src\gui\TelaPadraoAbas.java
