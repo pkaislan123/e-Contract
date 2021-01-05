@@ -5,6 +5,7 @@ import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.GraphicsDevice;
 import java.awt.GraphicsEnvironment;
+import java.awt.Point;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -62,12 +63,14 @@ public class TelaChat extends JDialog {
 	private int contadorMensagens[];
 	private ArrayList<RegistroMensagem> registro_mensagens = new ArrayList<>();
 	private ArrayList<DefaultListModel<CadastroLogin.Mensagem>> listModels = new ArrayList<DefaultListModel<CadastroLogin.Mensagem>>();
+	private JFrame telaPrincipal;
+	private TelaChat isto;
 	public TelaChat() {
 
 		getDadosGlobais();
 		// setModal(true);
 
-		TelaChat isto = this;
+		 isto = this;
 
 		setResizable(true);
 		setTitle("E-Contract - Tela Padrao");
@@ -349,6 +352,12 @@ public class TelaChat extends JDialog {
 	
 	public void abrirChat() {
 		
+		new Thread() {
+			
+			public void run() {
+				
+				while(true) {
+		
 		GerenciarBancoLogin gerenciarUsuarios = new GerenciarBancoLogin();
 		ArrayList<CadastroLogin> usuarios_encontrados = gerenciarUsuarios.getUsuarios();
 		
@@ -482,6 +491,8 @@ public class TelaChat extends JDialog {
 						}
 					});
 					
+					
+					
 					//cria uma thread que fica escutando se recebeu novas mensagens
 					new Thread() {
 
@@ -489,7 +500,7 @@ public class TelaChat extends JDialog {
 
 							while (true) {
 
-								ArrayList<CadastroLogin.Mensagem> mensagens = null;
+								        ArrayList<CadastroLogin.Mensagem> mensagens = null;
 
 
 										// pega as mensagens
@@ -536,10 +547,16 @@ public class TelaChat extends JDialog {
 											if (registro_mensagens.get(indice).getNum_mensagens_atual() < registro
 													.getNum_mensagens_atual()) {
 												//atualizar listmodel
-												
+												if(isto.isVisible()) {
+													
+												}else {
+													((TelaPrincipal) telaPrincipal).setNumeroMensagensNovas();
+												}
 												//JOptionPane.showMessageDialog(null, "Nova mensagem recebida!");
 												
-
+												
+										
+											
 								
 														listModel.clear();
 														
@@ -548,9 +565,18 @@ public class TelaChat extends JDialog {
 															listModel.addElement(msg);
 
 														}
+														//cria uma nova notificacao de mensagem
+                                                         
+														CadastroLogin.Mensagem ultima_mensagem = listModel.get(listModel.size() - 1);
+														
+														if(!(ultima_mensagem.getId_remetente() == login.getId())) {
+														CadastroLogin login_msg = gerenciar.getLogin(ultima_mensagem.getId_remetente());
+														String text = login_msg.getLogin() + " diz: \n             " + ultima_mensagem.getConteudo();
+														((TelaPrincipal) telaPrincipal).setNovaNotificacaoMensagem(text);
 
-													
-												
+														int maxValue = scrollPane.getVerticalScrollBar().getMaximum();
+														scrollPane.getViewport().setViewPosition(new Point(0,maxValue));
+														}
 											}
 
 											registro_mensagens.add(indice, registro);
@@ -574,7 +600,17 @@ public class TelaChat extends JDialog {
 				}
 	    }
 	}
-		
+	    
+
+		try {
+			Thread.sleep(5000);
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}//fecha o while
+}//fecha a run
+}.start();//fecha a thread
 		
 	}
 	
@@ -599,6 +635,10 @@ public class TelaChat extends JDialog {
 			this.num_mensagens_atual = num_mensagens_atual;
 		}
 
+	}
+	
+	public void setTelaPai(JFrame pai) {
+		this.telaPrincipal = pai;
 	}
 
 }

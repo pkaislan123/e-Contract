@@ -67,6 +67,7 @@ import principal.MainTeste;
 import tratamento_proprio.Log;
 import views_personalizadas.TelaMensagens;
 import views_personalizadas.TelaNotificacao;
+import views_personalizadas.TelaNotificacaoSuperior;
 
 import javax.swing.JMenuBar;
 import javax.swing.JMenu;
@@ -106,7 +107,7 @@ public class TelaPrincipal extends JFrame implements GetDadosGlobais {
 	private DadosContratos dados_contratos = new DadosContratos();
 
 	private JLabel lblBD, lblBaseDeArquivos, lblNuvem, lblnet, urlBancoDados, imgBaseDados, urlBaseArquivos,
-			imgBaseArquivos, urlInternet, imgInternet, urlNuvem, imgNuvem;
+			imgBaseArquivos, urlInternet, imgInternet, urlNuvem, imgNuvem, lblNovaMensagem;
 	private ConfiguracoesGlobais configs_globais;
 	private ArrayList<CadastroLogin> usuarios = new ArrayList<>();
 
@@ -464,17 +465,28 @@ public class TelaPrincipal extends JFrame implements GetDadosGlobais {
 			@Override
 			public void mouseClicked(MouseEvent arg0) {
 				
-				if(telaChat == null)
+				if(telaChat == null) {
 				  telaChat = new TelaChat();
+				  telaChat.setTelaPai(isto);
+				}
 				else {
 					telaChat.setVisible(true);
+					java.awt.EventQueue.invokeLater(new Runnable() { 
+					    public void run() { 
+					lblNovaMensagem.setIcon(null);
+					
+					lblNovaMensagem.repaint();
+			    	lblNovaMensagem.updateUI();
+					    } 
+					}); 
+				
 				}
 				
 			}
 		});
 		panel_2.setLayout(null);
-		panel_2.setBackground(new Color(75, 0, 130));
-		panel_2.setBounds(1099, 642, 251, 47);
+		panel_2.setBackground(new Color(102, 204, 204));
+		panel_2.setBounds(1099, 627, 251, 62);
 		contentPane.add(panel_2);
 		
 		JLabel lblNewLabel_3 = new JLabel("     Mensagens");
@@ -482,8 +494,14 @@ public class TelaPrincipal extends JFrame implements GetDadosGlobais {
 		lblNewLabel_3.setForeground(Color.WHITE);
 		lblNewLabel_3.setFont(new Font("Arial", Font.BOLD, 14));
 		lblNewLabel_3.setBackground(new Color(0, 0, 153));
-		lblNewLabel_3.setBounds(110, 11, 161, 28);
+		lblNewLabel_3.setBounds(133, 17, 161, 28);
 		panel_2.add(lblNewLabel_3);
+		
+		 lblNovaMensagem = new JLabel("");
+		lblNovaMensagem.setFont(new Font("Tahoma", Font.PLAIN, 18));
+		lblNovaMensagem.setForeground(Color.WHITE);
+		lblNovaMensagem.setBounds(33, 17, 32, 32);
+		panel_2.add(lblNovaMensagem);
 
 		getDadosContratos();
 		atualizarGraficoContratos();
@@ -491,8 +509,15 @@ public class TelaPrincipal extends JFrame implements GetDadosGlobais {
 		buscaConexaoBanco();
 		buscaConexaoServidorArquivos();
 		buscarConexaoNuvem();
-
-
+         
+		if(telaChat == null) {
+			  telaChat = new TelaChat();
+			  telaChat.setTelaPai(isto);
+		      telaChat.setVisible(false);
+		}
+			else {
+				telaChat.setVisible(true);
+			}
 		
 		this.setLocationRelativeTo(null);
 
@@ -775,5 +800,37 @@ public class TelaPrincipal extends JFrame implements GetDadosGlobais {
 
 	}
 
+	
+	public void setNumeroMensagensNovas() {
+		java.awt.EventQueue.invokeLater(new Runnable() { 
+		    public void run() { 
+		    	lblNovaMensagem.setIcon(new ImageIcon(TelaPrincipal.class.getResource("/imagens/icone_mensagem_nao_lida.png")));
+
+		    	lblNovaMensagem.repaint();
+		    	lblNovaMensagem.updateUI();
+						   
+		    } 
+		}); 
+	}
+	
+	
+	public void setNovaNotificacaoMensagem(String mensagem) {
+		
+		//if(!telaChat.isVisible())
+			try {
+				TelaNotificacaoSuperior tela = new TelaNotificacaoSuperior();
+
+				tela.setMensagem(mensagem);
+				tela.setVisible(true);
+
+				Thread.sleep(5000);
+				tela.fechar();
+			} catch (InterruptedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+		
+	
 	
 }

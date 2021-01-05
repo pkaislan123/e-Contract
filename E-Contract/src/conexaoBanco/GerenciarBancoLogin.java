@@ -186,18 +186,26 @@ public class GerenciarBancoLogin {
 			  int retorno_login_inserido = inserir_login_retorno(login);
 			  
 			  if(retorno_login_inserido > 0 ) {
+				  JOptionPane.showMessageDialog(null, "Usuario inserido na tabela de usuarios");
 				  //inserir privilegios
 				  int retorno_privilegio_inserido = inserir_privilegios_retorno(login.getConfigs_privilegios());
 				  if(retorno_privilegio_inserido > 0) {
+					  JOptionPane.showMessageDialog(null, "privilegios inserido na tabela de privigelios");
+
 					  //privilegios inseridos, inserir tabela usuarios_privilegios
 					  if(inserir_usuarios_privilegios(retorno_login_inserido, retorno_privilegio_inserido) ) {
+						  JOptionPane.showMessageDialog(null, "relação usaario_privilegio inserido na tabela com sucesso");
+
 						  //privilegios cadastrados com sucesso
 						  //inserir preferencias
 						  int retorno_preferencias_inserido = inserir_preferencias_retorno(login.getConfigs_preferencias());
 						  if(retorno_preferencias_inserido > 0) {
+							  JOptionPane.showMessageDialog(null, "preferencias inseridas na tabela de preferencias");
+
 							  //preferencias inseridas, inserir tabela relacao usuario preferencias
 							  if(inserir_usuarios_preferencias(retorno_login_inserido, retorno_preferencias_inserido)) {
-								  
+								  JOptionPane.showMessageDialog(null, "relação usaario_preferencias inserido na tabela com sucesso");
+
 								  System.out.println("Usuario Cadastrado com sucesso!");
 								  //cadastro de usuario concluido, return 1;
 								  return 1;
@@ -261,6 +269,8 @@ public class GerenciarBancoLogin {
 					  
 					  
 				  }else {
+					  JOptionPane.showMessageDialog(null, "erro ao inserir privilegios na tabela de privigelios");
+
 					  //erro ao inserir privilegios, deletar usuario criado
 					  if(remover_usuario(retorno_login_inserido)) {
 						  System.out.println("Erro ao cadastrar tabela de privilegios para o usuario, banco de dados normalizado");
@@ -467,7 +477,7 @@ public class GerenciarBancoLogin {
 	  }
 	  
 	  private boolean remover_usuario(int id_usuario) {
-		  String sql_delete_relacao = "DELETE FROM usuarios WHERE id = ?";
+		  String sql_delete_relacao = "DELETE FROM usuarios WHERE id_usuario = ?";
 		  Connection conn = null;
 	        ResultSet rs = null;	      
 	        try {
@@ -889,7 +899,7 @@ public class GerenciarBancoLogin {
 	        PreparedStatement pstm = null;
 	        ResultSet rs = null;
 	        String selectMensagens = "select * from mensagem where id_remetente = ? and id_destinatario = ? \r\n"
-	        		+ "union select * from mensagem where id_remetente = ? and id_destinatario = ?";
+	        		+ "union select * from mensagem where id_remetente = ? and id_destinatario = ? order by id_mensagem";
 	        
 	        ArrayList<CadastroLogin.Mensagem> listaMensagens = new ArrayList<>();
 	        try {

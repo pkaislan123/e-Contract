@@ -47,11 +47,11 @@ public class TelaCadastroUsuario extends JDialog implements GetDadosGlobais {
 	private JTextFieldPersonalizado entEmail, entSenhaGmail, entCelular, entLogin, entSenha, entSenha1, entSobrenome, entNome;
 	private JComboBox cBCargo, cBDireitos , cBGenero;
 	private Log GerenciadorLog;
-	private CadastroLogin login;
+	private CadastroLogin login_edicao;
 	private TelaCadastroUsuario isto;
 	private JCheckBox chkBoxAlterarApis ;
 
-	public TelaCadastroUsuario(int flag_tipo_tela, CadastroLogin login_edicao) {
+	public TelaCadastroUsuario(int flag_tipo_tela, CadastroLogin _login_edicao) {
 		
 		getDadosGlobais();
 		
@@ -65,7 +65,7 @@ public class TelaCadastroUsuario extends JDialog implements GetDadosGlobais {
 		if(flag_tipo_tela == 1) {
 			//modo edicao
 			setTitle("E-Contract - Edição de Usuário");
-			this.login = login_edicao;
+			this.login_edicao = _login_edicao;
 
 		}else {
 			setTitle("E-Contract - Cadastro Usuário");
@@ -561,16 +561,17 @@ public class TelaCadastroUsuario extends JDialog implements GetDadosGlobais {
  	
  		    
  			if(flag == 0) {
+ 				novo_usuario.setConfigs_preferencias(novas_preferencias);
+ 	 			novo_usuario.setConfigs_privilegios(novos_privilegios);
  				// salvar
  				salvar(novo_usuario);
  				
- 	 			novo_usuario.setConfigs_preferencias(novas_preferencias);
- 	 			novo_usuario.setConfigs_privilegios(novos_privilegios);
+ 	 			
  			}else {
- 				int id_login_edicao = login.getId();
+ 				int id_login_edicao = login_edicao.getId();
  				
- 				novas_preferencias.setId_preferencias(login.getConfigs_preferencias().getId_preferencias());
- 				novos_privilegios.setId_privilegios(login.getConfigs_privilegios().getId_privilegios());
+ 				novas_preferencias.setId_preferencias(login_edicao.getConfigs_preferencias().getId_preferencias());
+ 				novos_privilegios.setId_privilegios(login_edicao.getConfigs_privilegios().getId_privilegios());
 
  	 			novo_usuario.setConfigs_preferencias(novas_preferencias);
  	 			novo_usuario.setConfigs_privilegios(novos_privilegios);
@@ -623,24 +624,24 @@ public class TelaCadastroUsuario extends JDialog implements GetDadosGlobais {
 	
 	public void getDadosCompletosLogin() {
 		GerenciarBancoLogin gerenciar = new GerenciarBancoLogin();
-		login = gerenciar.buscaLogin(login.getLogin());
+		login_edicao = gerenciar.buscaLogin(login_edicao.getLogin());
 		
 	}
 	
 	public void setConfiguracoesEdicao() {
 		
-		entNome.setText(login.getNome());
-		entSobrenome.setText(login.getSobrenome());
-		cBCargo.setSelectedItem(login.getCargo());
-		entCelular.setText(login.getCelular());
-		entLogin.setText(login.getLogin());
-		entSenha.setText(login.getSenha());
-		entSenha1.setText(login.getSenha());
-		entEmail.setText(login.getEmail());
-		entSenhaGmail.setText(login.getSenhaEmail());
-		cBGenero.setSelectedItem(login.getGenero());
+		entNome.setText(login_edicao.getNome());
+		entSobrenome.setText(login_edicao.getSobrenome());
+		cBCargo.setSelectedItem(login_edicao.getCargo());
+		entCelular.setText(login_edicao.getCelular());
+		entLogin.setText(login_edicao.getLogin());
+		entSenha.setText(login_edicao.getSenha());
+		entSenha1.setText(login_edicao.getSenha());
+		entEmail.setText(login_edicao.getEmail());
+		entSenhaGmail.setText(login_edicao.getSenhaEmail());
+		cBGenero.setSelectedItem(login_edicao.getGenero());
 		
-		int direito = login.getConfigs_privilegios().getNivel_privilegios();
+		int direito = login_edicao.getConfigs_privilegios().getNivel_privilegios();
 		
 		if(direito == 1) {
 			cBDireitos.setSelectedItem("Administrativos do Sistema");
@@ -651,7 +652,7 @@ public class TelaCadastroUsuario extends JDialog implements GetDadosGlobais {
 			cBDireitos.setSelectedItem("Administrativos");
 		}
 		
-		int alterar_api = login.getConfigs_privilegios().getPrivilegio_alterar_apis();
+		int alterar_api = login_edicao.getConfigs_privilegios().getPrivilegio_alterar_apis();
 		if(alterar_api == 1) {
 			chkBoxAlterarApis.setSelected(true);
 		}else	if(direito == 2) {
@@ -664,14 +665,14 @@ public class TelaCadastroUsuario extends JDialog implements GetDadosGlobais {
 		
 		
 	}
-	
+	  
 	public void getDadosGlobais() {
 		//gerenciador de log
 		DadosGlobais dados = DadosGlobais.getInstance();
 		 GerenciadorLog = dados.getGerenciadorLog();
 		 
 		 //usuario logado
-		  login = dados.getLogin();
+//		  login = dados.getLogin();
 
 	}
 }
