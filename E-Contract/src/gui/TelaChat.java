@@ -44,14 +44,13 @@ import javax.swing.JTable;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
 
-public class TelaChat extends JDialog{
+public class TelaChat extends JDialog {
 
 	private final JPanel painelPrincipal = new JPanel();
 	private Log GerenciadorLog;
 	private CadastroLogin login;
 	private ConfiguracoesGlobais configs_globais;
 	private ArrayList<CadastroLogin> usuarios = new ArrayList<>();
-
 
 	DefaultTableModel modelo_usuarios = new DefaultTableModel() {
 		public boolean isCellEditable(int linha, int coluna) {
@@ -61,19 +60,18 @@ public class TelaChat extends JDialog{
 	private JTabbedPane abaConversas;
 	private JTable tabela_usuarios_online;
 	private int contadorMensagens[];
-	private ArrayList<RegistroMensagem> registro_mensagens;
-
+	private ArrayList<RegistroMensagem> registro_mensagens = new ArrayList<>();
+	private ArrayList<DefaultListModel<CadastroLogin.Mensagem>> listModels = new ArrayList<DefaultListModel<CadastroLogin.Mensagem>>();
 	public TelaChat() {
-		
+
 		getDadosGlobais();
-	//	setModal(true);
+		// setModal(true);
 
 		TelaChat isto = this;
-		
+
 		setResizable(true);
 		setTitle("E-Contract - Tela Padrao");
 
-		
 		setBackground(new Color(255, 255, 255));
 		setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 		setBounds(100, 100, 360, 575);
@@ -81,27 +79,25 @@ public class TelaChat extends JDialog{
 		painelPrincipal.setBorder(new EmptyBorder(5, 5, 5, 5));
 		setContentPane(painelPrincipal);
 		painelPrincipal.setLayout(null);
-		
+
 		JPanel painelMensagens = new JPanel();
 		painelMensagens.setBounds(0, 141, 522, 395);
 		painelMensagens.setBackground(Color.WHITE);
 		painelPrincipal.add(painelMensagens);
-		
-		
 
 		modelo_usuarios.addColumn("Usuario");
 		modelo_usuarios.addColumn("Ip");
 		modelo_usuarios.addColumn("Status");
-		 painelMensagens.setLayout(null);
-		
-		 abaConversas = new JTabbedPane(JTabbedPane.TOP);
-		 abaConversas.setBounds(0, 0, 344, 395);
+		painelMensagens.setLayout(null);
+
+		abaConversas = new JTabbedPane(JTabbedPane.TOP);
+		abaConversas.setBounds(0, 0, 344, 395);
 		painelMensagens.add(abaConversas);
-		
+
 		JPanel panel = new JPanel();
 		panel.setBounds(0, 28, 344, 108);
 		painelPrincipal.add(panel);
-		
+
 		tabela_usuarios_online = new JTable(modelo_usuarios);
 		tabela_usuarios_online.addMouseListener(new MouseAdapter() {
 			@Override
@@ -110,183 +106,18 @@ public class TelaChat extends JDialog{
 					CadastroLogin login_selecionado;
 					int indiceDaLinha = tabela_usuarios_online.getSelectedRow();
 					login_selecionado = usuarios.get(indiceDaLinha);
+
 					
-					java.awt.EventQueue.invokeLater(new Runnable() { 
-					    public void run() { 
-					    	//cria uma abas para este usuario
-					    	boolean ja_existe  = false;
-					    	
-					    	for(int i = 0; i < abaConversas.getComponents().length; i++) {
-					   		 if(abaConversas.getComponent(i) instanceof JPanel) {
-					   			 
-					   			 System.out.println("Nome do componenet: " +  abaConversas.getComponent(i).getName());
-					   			 if(abaConversas.getComponent(i).getName().equals(login_selecionado.getLogin()) ) {
-					   				 ja_existe = true;
-					   				 break;
-					   			 }
-					   			 
-					   		 }
-					    	}
-					    	
-					    	if(!ja_existe) {
-					    	
-					    		//criar a modelo da lista
-					    		DefaultListModel<CadastroLogin.Mensagem> listModel = new DefaultListModel<>();
-					    		
-					    		//cria o redenrizador
-					    		RenderizadorChat render = new RenderizadorChat();
-					    		render.setServidor(login.getId());
-					    		
-					    		//recupera as mensagens
-					    		
-					    		GerenciarBancoLogin gerenciar = new GerenciarBancoLogin();
-					    		//ArrayList<CadastroLogin.Mensagem> mensagens = gerenciar.getMensagens(login.getId(),login_selecionado.getId());
-					    		ArrayList<CadastroLogin.Mensagem> mensagens = null;
-					    		
-					    		for(CadastroLogin login_selecionado : usuarios) {
 
-					                //pega as mensagens
-					    			mensagens = gerenciar.getMensagens(login.getId(),login_selecionado.getId());
-					        		
-					        		RegistroMensagem registro = new RegistroMensagem();
-					        		registro.setLogin_selecionado(login_selecionado);
-					        		registro.setNum_mensagens_atual(mensagens.size());
-					        		
-					        		boolean ja_registrado = false;
-					        		int indice = -1;
-					        		
-					        	   for(int i = 0; i <  registro_mensagens.size(); i++ ) {	
-					        		if(registro_mensagens.get(i) != null) {
-					        			if(registro_mensagens.get(i).getLogin_selecionado().getId() == login_selecionado.getId()) {
-					        				//este login ja tem registro
-					        				ja_registrado = true;
-					        				indice = i;
-					        				break;
-					        			}
-					        		}
-					        	   }
-					        	   
-					        	   if(!ja_registrado) {
-					        		   //se este login ainda nao estiver registro, adiciona ele no array
-					        		   
-					        		registro_mensagens.add(registro);
-					        	   }else {
-					        		   //se este login ja estiver registrado, verifique se chegou uma
-					        		   //mensagem nova verificando o numero de mensagens antigo com o lido agora
-					        		   
-					        		   if(registro_mensagens.get(indice).getNum_mensagens_atual() < registro.getNum_mensagens_atual() ) {
-					        			   JOptionPane.showMessageDialog(null, "Nova mensagem recebida!");
-					        		   }
-					        		   
-					        		   registro_mensagens.add(indice, registro);
-					        	   }
-					        	   
-					        	 
-					      
-					    			
-					    		}
-					    		
-					    		
-					    		//adiciona as mensagens na lista
-					    		for(CadastroLogin.Mensagem msg : mensagens) {
-					    			
-					    			
-							            listModel.addElement(msg);
-
-					    			
-					    			
-
-					    		}
-					    		
-					    		//cria a lista
-
-
-					    	
-					    		String nameAba = login_selecionado.getLogin();
-					
-						
-
-
-				    		JPanel panelGuiaMensagens = new JPanel();
-				    		panelGuiaMensagens.setBounds(0, 0, 314, 338);
-				    		panelGuiaMensagens.setName(nameAba);
-				    		panelGuiaMensagens.setLayout(new MigLayout("", "[grow][]", "[grow][]"));
-							abaConversas.addTab(login_selecionado.getLogin(), panelGuiaMensagens);
-
-				    		JList<CadastroLogin.Mensagem> lista_mensagens = new JList<>(listModel);
-
-				    		JScrollPane scrollPane = new JScrollPane(lista_mensagens);
-				    		panelGuiaMensagens.add(scrollPane, "cell 0 0 2 1,grow");
-				    		
-				    		JTextArea enviar_mensagem = new JTextArea();
-				    		panelGuiaMensagens.add(enviar_mensagem, "cell 0 1,growx");
-				    		enviar_mensagem.setLineWrap(true);
-				    		
-				    		
-				    		JButton btnEnviarMensagem = new JButton("Enviar");
-				    		panelGuiaMensagens.add(btnEnviarMensagem, "cell 1 1");
-
-
-				    	  	lista_mensagens.setCellRenderer(render);
-
-							//scrollPane.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED);
-							//scrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
-							
-				
-				    		btnEnviarMensagem.addActionListener(new ActionListener() {
-								public void actionPerformed(ActionEvent e) {
-									
-									String mensagem = enviar_mensagem.getText();
-									
-									GetData data = new GetData();
-									String agora = data.getData();
-									String hora = data.getHora();
-									
-									CadastroLogin.Mensagem mensagem_enviar = new CadastroLogin.Mensagem();
-									mensagem_enviar.setConteudo(mensagem);
-									mensagem_enviar.setData(agora);
-									mensagem_enviar.setHora(hora);
-									mensagem_enviar.setId_destinatario(login_selecionado.getId());
-									mensagem_enviar.setId_remetente(login.getId());
-									
-				
-									
-									
-									GerenciarBancoLogin gerenciar = new GerenciarBancoLogin();
-									boolean enviado = gerenciar.enviarMensagem(mensagem_enviar);
-						            if(enviado)
-						            	listModel.addElement(mensagem_enviar);
-            
-						            
-						            enviar_mensagem.setText("");
-							
-								}
-							});
-					    
-					    	}
-					    	
-					    	
-					    
-					    	
-					    	
-					    	
-
-									   
-					    } 
-					}); 
-					
-					
-					
-					
 				}
 			}
 		});
 		panel.setLayout(null);
-		
+
 		JScrollPane scrollPane = new JScrollPane(tabela_usuarios_online);
 		scrollPane.setBounds(7, 7, 337, 85);
 		panel.add(scrollPane);
-		
+
 		JLabel lblNewLabel = new JLabel("Minimizar");
 		lblNewLabel.setBounds(446, 0, 64, 17);
 		painelPrincipal.add(lblNewLabel);
@@ -297,47 +128,38 @@ public class TelaChat extends JDialog{
 			}
 		});
 		lblNewLabel.setFont(new Font("Tahoma", Font.BOLD, 14));
-		
-		
-	
 
-		   Dimension scrnSize = Toolkit.getDefaultToolkit().getScreenSize();
-	        java.awt.Rectangle winSize = GraphicsEnvironment.getLocalGraphicsEnvironment().getMaximumWindowBounds();
-	        int taskBarHeight = scrnSize.height - winSize.height;
-	        System.out.printf("Altura: %d\n", taskBarHeight);
-	        
-	        GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
-	        GraphicsDevice defaultScreen = ge.getDefaultScreenDevice();
-	        java.awt.Rectangle rect = defaultScreen.getDefaultConfiguration().getBounds();
-	        int x = (int) rect.getMaxX() - getWidth( ) ;
-	        int y = (int) rect.getMaxY() - getHeight() - taskBarHeight  ;
-		
+		Dimension scrnSize = Toolkit.getDefaultToolkit().getScreenSize();
+		java.awt.Rectangle winSize = GraphicsEnvironment.getLocalGraphicsEnvironment().getMaximumWindowBounds();
+		int taskBarHeight = scrnSize.height - winSize.height;
+		System.out.printf("Altura: %d\n", taskBarHeight);
 
-           this.setLocation(x, y);
-			setAlwaysOnTop(true);
-			procuraUsuariosOnline();
-			abrirServidorChat();
-			procurarMensagens();
-			
-     
-		   this.setVisible(true);
-   
+		GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
+		GraphicsDevice defaultScreen = ge.getDefaultScreenDevice();
+		java.awt.Rectangle rect = defaultScreen.getDefaultConfiguration().getBounds();
+		int x = (int) rect.getMaxX() - getWidth();
+		int y = (int) rect.getMaxY() - getHeight() - taskBarHeight;
+
+		this.setLocation(x, y);
+		setAlwaysOnTop(true);
+		procuraUsuariosOnline();
+		//procurarMensagens();
+		abrirChat();
 		
-		
-		
+		this.setVisible(true);
+
 	}
 
 	public void getDadosGlobais() {
-		//gerenciador de log
-				DadosGlobais dados = DadosGlobais.getInstance();
-				 GerenciadorLog = dados.getGerenciadorLog();
-				 configs_globais = dados.getConfigs_globais();
-				 
-				 //usuario logado
-				  login = dados.getLogin();
-		
-	}
+		// gerenciador de log
+		DadosGlobais dados = DadosGlobais.getInstance();
+		GerenciadorLog = dados.getGerenciadorLog();
+		configs_globais = dados.getConfigs_globais();
 
+		// usuario logado
+		login = dados.getLogin();
+
+	}
 
 	public void procuraUsuariosOnline() {
 
@@ -425,113 +247,358 @@ public class TelaChat extends JDialog{
 
 	}
 
-	public void abrirServidorChat() {
+	public void procurarMensagens() {
 
 		new Thread() {
 
-			@Override
 			public void run() {
 
-				try {
-					// Cria os objetos necessário para instânciar o servidor
+				while (true) {
 
-					ServerSocket server = new ServerSocket(1234);
-					System.out.println("Servidor IP: " + login.getIp_ativo() + " ativo na porta: " + 1234);
+					ArrayList<CadastroLogin.Mensagem> mensagens = null;
 
-					while (true) {
-						System.out.println("Aguardando conexão...");
-						Socket con = server.accept();
-						System.out.println("Cliente conectado...");
-						Thread t = new Servidor(con);
-						t.start();
+					if (usuarios != null && usuarios.size() > 0) {
+						for (CadastroLogin login_selecionado : usuarios) {
+
+							// pega as mensagens
+							//JOptionPane.showMessageDialog(null, "procurando mensagens da conversa entre "
+								//	+ login.getLogin() + " e " + login_selecionado.getLogin());
+							GerenciarBancoLogin gerenciar = new GerenciarBancoLogin();
+							mensagens = gerenciar.getMensagens(login.getId(), login_selecionado.getId());
+
+							RegistroMensagem registro = new RegistroMensagem();
+							registro.setLogin_selecionado(login_selecionado);
+							/*JOptionPane.showMessageDialog(null,
+									"numero de mensagens encontradas:  " + mensagens.size());
+*/
+							registro.setNum_mensagens_atual(mensagens.size());
+
+							boolean ja_registrado = false;
+							int indice = -1;
+
+							for (int i = 0; i < registro_mensagens.size(); i++) {
+								if (registro_mensagens.get(i) != null) {
+									if (registro_mensagens.get(i).getLogin_selecionado().getId() == login_selecionado
+											.getId()) {
+										// este login ja tem registro
+
+										ja_registrado = true;
+										indice = i;
+										break;
+									}
+								}
+							}
+
+							if (!ja_registrado) {
+								// se este login ainda nao estiver registro, adiciona ele no array
+
+								registro_mensagens.add(registro);
+								//JOptionPane.showMessageDialog(null, "Nova mensagem recebida!");
+
+							} else {
+								// se este login ja estiver registrado, verifique se chegou uma
+								// mensagem nova verificando o numero de mensagens antigo com o lido agora
+								/*JOptionPane.showMessageDialog(null, "Este login ja tem registro de mensagens, login : "
+										+ login_selecionado.getLogin());
+*/
+								if (registro_mensagens.get(indice).getNum_mensagens_atual() < registro
+										.getNum_mensagens_atual()) {
+									//atualizar listmodel
+									
+									//JOptionPane.showMessageDialog(null, "Nova mensagem recebida!");
+									
+
+									for(DefaultListModel<CadastroLogin.Mensagem> listModel : listModels) {
+					
+									
+										if(listModel.get(0).getId_remetente() == mensagens.get(0).getId_remetente()) {
+											listModel.clear();
+											
+											for (CadastroLogin.Mensagem msg : mensagens) {
+
+												listModel.addElement(msg);
+
+											}
+
+										}
+									}
+								}
+
+								registro_mensagens.add(indice, registro);
+							}
+
+						}
 					}
 
-				} catch (Exception e) {
+					try {
+						Thread.sleep(3000);
+					} catch (InterruptedException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
 
-					e.printStackTrace();
 				}
 
 			}
+
 		}.start();
-	}
-	
-	
-	
-	public ArrayList<CadastroLogin.Mensagem> procurarMensagens() {
-		ArrayList<CadastroLogin.Mensagem> mensagens = null;
-		
-		for(CadastroLogin login_selecionado : usuarios) {
 
-            //pega as mensagens
-			GerenciarBancoLogin gerenciar = new GerenciarBancoLogin();
-			mensagens = gerenciar.getMensagens(login.getId(),login_selecionado.getId());
-    		
-    		RegistroMensagem registro = new RegistroMensagem();
-    		registro.setLogin_selecionado(login_selecionado);
-    		registro.setNum_mensagens_atual(mensagens.size());
-    		
-    		boolean ja_registrado = false;
-    		int indice = -1;
-    		
-    	   for(int i = 0; i <  registro_mensagens.size(); i++ ) {	
-    		if(registro_mensagens.get(i) != null) {
-    			if(registro_mensagens.get(i).getLogin_selecionado().getId() == login_selecionado.getId()) {
-    				//este login ja tem registro
-    				ja_registrado = true;
-    				indice = i;
-    				break;
-    			}
-    		}
-    	   }
-    	   
-    	   if(!ja_registrado) {
-    		   //se este login ainda nao estiver registro, adiciona ele no array
-    		   
-    		registro_mensagens.add(registro);
-    	   }else {
-    		   //se este login ja estiver registrado, verifique se chegou uma
-    		   //mensagem nova verificando o numero de mensagens antigo com o lido agora
-    		   
-    		   if(registro_mensagens.get(indice).getNum_mensagens_atual() < registro.getNum_mensagens_atual() ) {
-    			   JOptionPane.showMessageDialog(null, "Nova mensagem recebida!");
-    		   }
-    		   
-    		   registro_mensagens.add(indice, registro);
-    	   }
-    	   
-    	 
-  
-			
-		}
-		
-		return mensagens;
+	}
 
+	
+	
+	public void abrirChat() {
+		
+		GerenciarBancoLogin gerenciarUsuarios = new GerenciarBancoLogin();
+		ArrayList<CadastroLogin> usuarios_encontrados = gerenciarUsuarios.getUsuarios();
+		
+	    for(CadastroLogin login_selecionado : usuarios_encontrados) {
+	    	if(login_selecionado.getId() != login.getId()) {
+				// cria uma abas para este usuario
+				boolean ja_existe = false;
+
+				for (int i = 0; i < abaConversas.getComponents().length; i++) {
+					if (abaConversas.getComponent(i) instanceof JPanel) {
+
+						System.out.println("Nome do componenet: " + abaConversas.getComponent(i).getName());
+						if (abaConversas.getComponent(i).getName().equals(login_selecionado.getLogin())) {
+							ja_existe = true;
+							break;
+						}
+
+					}
+				}
+
+				if (!ja_existe) {
+
+					// criar a modelo da lista
+					DefaultListModel<CadastroLogin.Mensagem> listModel = new DefaultListModel<>();
+					// cria o redenrizador
+					RenderizadorChat render = new RenderizadorChat();
+					render.setServidor(login.getId());
+
+					// recupera as mensagens
+
+					GerenciarBancoLogin gerenciar = new GerenciarBancoLogin();
+					// ArrayList<CadastroLogin.Mensagem> mensagens =
+					// gerenciar.getMensagens(login.getId(),login_selecionado.getId());
+					ArrayList<CadastroLogin.Mensagem> mensagens = null;
+
+					// pega as mensagens
+					mensagens = gerenciar.getMensagens(login.getId(), login_selecionado.getId());
+
+					RegistroMensagem registro = new RegistroMensagem();
+					registro.setLogin_selecionado(login_selecionado);
+					registro.setNum_mensagens_atual(mensagens.size());
+
+					boolean ja_registrado = false;
+					int indice = -1;
+
+					for (int i = 0; i < registro_mensagens.size(); i++) {
+						if (registro_mensagens.get(i) != null) {
+							if (registro_mensagens.get(i).getLogin_selecionado()
+									.getId() == login_selecionado.getId()) {
+								// este login ja tem registro
+								ja_registrado = true;
+								indice = i;
+								break;
+							}
+						}
+					}
+
+					if (!ja_registrado) {
+						// se este login ainda nao estiver registro, adiciona ele no array
+
+						registro_mensagens.add(registro);
+					} else {
+						// se este login ja estiver registrado, verifique se chegou uma
+						// mensagem nova verificando o numero de mensagens antigo com o lido agora
+
+						if (registro_mensagens.get(indice).getNum_mensagens_atual() < registro
+								.getNum_mensagens_atual()) {
+							JOptionPane.showMessageDialog(null, "Nova mensagem recebida!");
+						}
+
+						registro_mensagens.add(indice, registro);
+					}
+
+					// adiciona as mensagens na lista
+					for (CadastroLogin.Mensagem msg : mensagens) {
+
+						listModel.addElement(msg);
+
+					}
+
+
+					String nameAba = login_selecionado.getLogin();
+
+					JPanel panelGuiaMensagens = new JPanel();
+					panelGuiaMensagens.setBounds(0, 0, 314, 338);
+					panelGuiaMensagens.setName(nameAba);
+					panelGuiaMensagens.setLayout(new MigLayout("", "[grow][]", "[grow][]"));
+					abaConversas.addTab(login_selecionado.getLogin(), panelGuiaMensagens);
+
+					JList<CadastroLogin.Mensagem> lista_mensagens = new JList<>(listModel);
+
+					JScrollPane scrollPane = new JScrollPane(lista_mensagens);
+					panelGuiaMensagens.add(scrollPane, "cell 0 0 2 1,grow");
+
+					JTextArea enviar_mensagem = new JTextArea();
+					panelGuiaMensagens.add(enviar_mensagem, "cell 0 1,growx");
+					enviar_mensagem.setLineWrap(true);
+
+					JButton btnEnviarMensagem = new JButton("Enviar");
+					panelGuiaMensagens.add(btnEnviarMensagem, "cell 1 1");
+
+					lista_mensagens.setCellRenderer(render);
+
+					// scrollPane.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED);
+					// scrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
+                    listModels.add(listModel);
+
+					btnEnviarMensagem.addActionListener(new ActionListener() {
+						public void actionPerformed(ActionEvent e) {
+
+							String mensagem = enviar_mensagem.getText();
+
+							GetData data = new GetData();
+							String agora = data.getData();
+							String hora = data.getHora();
+
+							CadastroLogin.Mensagem mensagem_enviar = new CadastroLogin.Mensagem();
+							mensagem_enviar.setConteudo(mensagem);
+							mensagem_enviar.setData(agora);
+							mensagem_enviar.setHora(hora);
+							mensagem_enviar.setId_destinatario(login_selecionado.getId());
+							mensagem_enviar.setId_remetente(login.getId());
+
+							GerenciarBancoLogin gerenciar = new GerenciarBancoLogin();
+							boolean enviado = gerenciar.enviarMensagem(mensagem_enviar);
+							if (enviado)
+								listModel.addElement(mensagem_enviar);
+
+							enviar_mensagem.setText("");
+
+						}
+					});
+					
+					//cria uma thread que fica escutando se recebeu novas mensagens
+					new Thread() {
+
+						public void run() {
+
+							while (true) {
+
+								ArrayList<CadastroLogin.Mensagem> mensagens = null;
+
+
+										// pega as mensagens
+										//JOptionPane.showMessageDialog(null, "procurando mensagens da conversa entre "
+											//	+ login.getLogin() + " e " + login_selecionado.getLogin());
+										GerenciarBancoLogin gerenciar = new GerenciarBancoLogin();
+										mensagens = gerenciar.getMensagens(login.getId(), login_selecionado.getId());
+
+										RegistroMensagem registro = new RegistroMensagem();
+										registro.setLogin_selecionado(login_selecionado);
+										/*JOptionPane.showMessageDialog(null,
+												"numero de mensagens encontradas:  " + mensagens.size());
+			*/
+										registro.setNum_mensagens_atual(mensagens.size());
+
+										boolean ja_registrado = false;
+										int indice = -1;
+
+										for (int i = 0; i < registro_mensagens.size(); i++) {
+											if (registro_mensagens.get(i) != null) {
+												if (registro_mensagens.get(i).getLogin_selecionado().getId() == login_selecionado
+														.getId()) {
+													// este login ja tem registro
+
+													ja_registrado = true;
+													indice = i;
+													break;
+												}
+											}
+										}
+
+										if (!ja_registrado) {
+											// se este login ainda nao estiver registro, adiciona ele no array
+
+											registro_mensagens.add(registro);
+											//JOptionPane.showMessageDialog(null, "Nova mensagem recebida!");
+
+										} else {
+											// se este login ja estiver registrado, verifique se chegou uma
+											// mensagem nova verificando o numero de mensagens antigo com o lido agora
+											/*JOptionPane.showMessageDialog(null, "Este login ja tem registro de mensagens, login : "
+													+ login_selecionado.getLogin());
+			*/
+											if (registro_mensagens.get(indice).getNum_mensagens_atual() < registro
+													.getNum_mensagens_atual()) {
+												//atualizar listmodel
+												
+												//JOptionPane.showMessageDialog(null, "Nova mensagem recebida!");
+												
+
+								
+														listModel.clear();
+														
+														for (CadastroLogin.Mensagem msg : mensagens) {
+
+															listModel.addElement(msg);
+
+														}
+
+													
+												
+											}
+
+											registro_mensagens.add(indice, registro);
+										}
+
+									
+								
+
+								try {
+									Thread.sleep(1000);
+								} catch (InterruptedException e) {
+									// TODO Auto-generated catch block
+									e.printStackTrace();
+								}
+
+							}
+
+						}
+
+					}.start();
+				}
+	    }
+	}
+		
 		
 	}
-	
 	
 	public static class RegistroMensagem {
-		
+
 		private CadastroLogin login_selecionado;
 		private int num_mensagens_atual;
+
 		public CadastroLogin getLogin_selecionado() {
 			return login_selecionado;
 		}
+
 		public void setLogin_selecionado(CadastroLogin login_selecionado) {
 			this.login_selecionado = login_selecionado;
 		}
+
 		public int getNum_mensagens_atual() {
 			return num_mensagens_atual;
 		}
+
 		public void setNum_mensagens_atual(int num_mensagens_atual) {
 			this.num_mensagens_atual = num_mensagens_atual;
 		}
-		
-		
-		
-	}
-	
-	
-}
-	
 
+	}
+
+}
