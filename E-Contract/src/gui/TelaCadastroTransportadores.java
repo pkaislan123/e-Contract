@@ -212,7 +212,9 @@ public class TelaCadastroTransportadores extends JDialog {
 		
 
 		getDadosGlobais();
-		setModal(true);
+		setAlwaysOnTop(true);
+
+		//setModal(true);
 
 		TelaCadastroTransportadores isto = this;
 		
@@ -1624,7 +1626,7 @@ public class TelaCadastroTransportadores extends JDialog {
 						 			System.out.println(uf);
 						 			System.out.println(cpf);
 									
-						 			GetSintegra sintegra = new GetSintegra(cpf, uf);
+						 			GetSintegra sintegra = new GetSintegra(cpf, uf, 0);
 									String result = sintegra.captura();
 									System.out.println(result);
                                    

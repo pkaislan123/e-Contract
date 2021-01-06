@@ -85,6 +85,7 @@ import java.awt.Component;
 import java.awt.event.FocusAdapter;
 import java.awt.event.FocusEvent;
 import javax.swing.JEditorPane;
+import javax.swing.JFileChooser;
 import javax.swing.JTextArea;
 import javax.swing.table.TableModel;
 import javax.swing.BoxLayout;
@@ -98,6 +99,8 @@ import javax.swing.JTextField;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.border.LineBorder;
+import javax.swing.filechooser.FileNameExtensionFilter;
+
 import java.awt.GridBagConstraints;
 import java.awt.Insets;
 
@@ -194,7 +197,6 @@ public class TelaGerenciarContrato extends JDialog {
 	private JTable table_pagamentos_contratuais;
 
 	private JLabel lblTotalPagamentosRestantes, lblTotalPagamentosEfetuados, lblTotalPagamentos;
-
 	
 	
 	
@@ -204,7 +206,7 @@ public class TelaGerenciarContrato extends JDialog {
 		servidor_unidade = configs_globais.getServidorUnidade();
 
 		//setModal(true);
-				setAlwaysOnTop(true);
+			//	setAlwaysOnTop(true);
 
 		contrato_local = contrato;
 		isto = this;
@@ -357,22 +359,11 @@ public class TelaGerenciarContrato extends JDialog {
 			}
 		});
 
-		btnEditarContrato.setBounds(429, 497, 89, 23);
+		btnEditarContrato.setBounds(331, 497, 89, 23);
 
 		painelDadosIniciais.add(btnEditarContrato);
 
-		int status = contrato.getStatus_contrato();
-		if (status == 1) {
-			lblStatusContrato.setText("Status do Contrato: " + "Recolher Assinaturas");
-
-		} else if (status == 2) {
-			lblStatusContrato.setText("Status do Contrato: " + "Assinado");
-
-		} else if (status == 3) {
-			lblStatusContrato.setText("Status do Contrato: " + "Cumprindo");
-
-		}
-
+		
 		
 		GetData data = new GetData();
 
@@ -384,7 +375,7 @@ public class TelaGerenciarContrato extends JDialog {
 			}
 		});
 
-		btnEnviarMsg.setBounds(330, 497, 89, 23);
+		btnEnviarMsg.setBounds(232, 497, 89, 23);
 
 		painelDadosIniciais.add(btnEnviarMsg);
 		lblTipoContrato.setOpaque(true);
@@ -439,13 +430,27 @@ public class TelaGerenciarContrato extends JDialog {
 				
 			}
 		});
-		btnExcluirContrato.setBounds(231, 497, 89, 23);
+		btnExcluirContrato.setBounds(133, 497, 89, 23);
 
 		painelDadosIniciais.add(btnExcluirContrato);
-
-		JPanel panel = new JPanel();
-		panel.setBounds(554, 271, 161, 128);
-		painelDadosIniciais.add(panel);
+		
+		JButton btnAssinarContrato = new JButton("Assinar");
+		btnAssinarContrato.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				assinar();
+			}
+		});
+		btnAssinarContrato.setBounds(34, 497, 89, 23);
+		painelDadosIniciais.add(btnAssinarContrato);
+		
+		JButton btnVizualizar = new JButton("Vizualizar");
+		btnVizualizar.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				vizualizarContrato();
+			}
+		});
+		btnVizualizar.setBounds(426, 494, 90, 28);
+		painelDadosIniciais.add(btnVizualizar);
 
 		modelo.addColumn("Id Pagamento");
 		modelo.addColumn("Id Conta");
@@ -879,6 +884,7 @@ public class TelaGerenciarContrato extends JDialog {
 		carregarDocumento(url_original);
 		getTarefas();
 
+		setarInformacoesPainelPrincipal();
 		setarInformacoesPainelCarregamentos();
 		pesquisar_carregamentos();
 		pesquisar_pagamentos();
@@ -1722,4 +1728,114 @@ public class TelaGerenciarContrato extends JDialog {
 		
 		return retorno;
 	}
+	
+	
+	public void assinar() {
+		JOptionPane.showMessageDialog(null, "Na próxima tela, importe o arquivo digitalizado\ncom assinatura de ambas as partes");
+
+		JFileChooser fileChooser = new JFileChooser();
+		fileChooser.setPreferredSize(new Dimension(800, 600));
+		fileChooser.setMultiSelectionEnabled(true);
+		
+		FileNameExtensionFilter  filter = new FileNameExtensionFilter("Arquivo .PDF", "pdf");
+		 fileChooser.addChoosableFileFilter(filter);
+		
+		int result = fileChooser.showOpenDialog(isto);
+		
+		String caminho_arquivo = fileChooser.getSelectedFile().toString();
+		
+		try {
+		//copiar o arquivo para a pasta do contrato
+		ManipularTxt manipular = new ManipularTxt();
+		String unidade_base_dados = configs_globais.getServidorUnidade();
+
+		String caminho_salvar = unidade_base_dados + "\\" + contrato_local.getCaminho_diretorio_contrato() ;
+		String caminho_completo = caminho_salvar + "\\" + "comprovante_assinatura_" + contrato_local.getCodigo() +".pdf";
+		boolean movido = manipular.copiarNFe(caminho_arquivo, caminho_completo);
+		
+		if(movido) {
+			JOptionPane.showMessageDialog(null, "Arquivo copiado\nOrigem: " + caminho_arquivo + "\nDestino: "  + caminho_completo);
+			//atualizar status do contrato
+			GerenciarBancoContratos gerenciar = new GerenciarBancoContratos();
+		    boolean assinou = gerenciar.atualizarStatusContrato(contrato_local.getId(), 2);
+		    if(assinou) {
+				JOptionPane.showMessageDialog(null, "Status do Contrato Atualizado");
+
+		    }else {
+				JOptionPane.showMessageDialog(null, "Status do Contrato NÃO Atualizado");
+
+		    }
+
+		}else {
+			JOptionPane.showMessageDialog(null, "Arquivo  não pode ser copiado\nOrigem: " + caminho_arquivo + "\nDestino: "  + caminho_completo+ "\n Consulte o administrador!");
+
+		}
+		
+		}catch(Exception e) {
+			
+		}
+		
+		
+		setarInformacoesPainelPrincipal();
+	}
+	
+	
+	
+	public void setarInformacoesPainelPrincipal() {
+		java.awt.EventQueue.invokeLater(new Runnable() { 
+		    public void run() { 
+		    	GerenciarBancoContratos gerenciar = new GerenciarBancoContratos();
+		    	contrato_local= gerenciar.getContrato(contrato_local.getId());
+		    	
+		    	int status = contrato_local.getStatus_contrato();
+				if (status == 1) {
+					lblStatusContrato.setText("Status do Contrato: " + "Recolher Assinaturas");
+
+				} else if (status == 2) {
+					lblStatusContrato.setText("Status do Contrato: " + "Assinado");
+					btnEditarContrato.setVisible(false);
+					btnEditarContrato.setEnabled(false);
+					
+					btnExcluirContrato.setVisible(false);
+					btnExcluirContrato.setEnabled(false);
+
+
+
+				} else if (status == 3) {
+					lblStatusContrato.setText("Status do Contrato: " + "Cumprindo");
+					btnEditarContrato.setVisible(false);
+					btnEditarContrato.setEnabled(false);
+					
+					btnExcluirContrato.setVisible(false);
+					btnExcluirContrato.setEnabled(false);
+				}
+				
+				DadosGlobais dados = DadosGlobais.getInstance();
+                JFrame telaPrincipal = dados.getTelaPrincipal();
+				((TelaPrincipal) telaPrincipal).atualizarGraficoContratos();
+						   
+		    } 
+		}); 
+		
+		
+		
+
+		
+		
+	}
+	
+	public void vizualizarContrato() {
+		
+		String unidade_base_dados = configs_globais.getServidorUnidade();
+		
+		String caminho_completo = unidade_base_dados + "\\" + contrato_local.getCaminho_arquivo();
+		if (Desktop.isDesktopSupported()) {
+			 try {
+			     Desktop desktop = Desktop.getDesktop();
+			     File myFile = new File(caminho_completo);
+			     desktop.open(myFile);
+			     } catch (IOException ex) {}
+			 }
+	}
+	
 }

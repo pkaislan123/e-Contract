@@ -145,7 +145,9 @@ public class TelaCliente extends JDialog {
 		
 		//flag_tipo_cliente == 1 //retorna comprador
 		//flag_tipo_cliente == 2 //retorna vendedor
-		setModal(true);
+		//setAlwaysOnTop(true);
+
+		//setModal(true);
 
 		 isto = this;
 		setTitle("E-Contract - Clientes");
@@ -369,6 +371,22 @@ public class TelaCliente extends JDialog {
 		JLabel lblNewLabel = new JLabel("Ordernar por:");
 		lblNewLabel.setBounds(495, 43, 114, 14);
 		contentPane.add(lblNewLabel);
+		
+		JButton btnVerNotasFiscais = new JButton("Acessar NF's");
+		btnVerNotasFiscais.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				int indiceDaLinha = 0;
+				indiceDaLinha = tabela.getSelectedRow();
+				
+				TelaNotasFiscais verNotas = new TelaNotasFiscais(1, clientes_disponiveis.get(indiceDaLinha));
+				 verNotas.setVisible(true);
+				//
+				
+			}
+		});
+		btnVerNotasFiscais.setBackground(Color.WHITE);
+		btnVerNotasFiscais.setBounds(272, 389, 121, 23);
+		contentPane.add(btnVerNotasFiscais);
 		
 	   if(flag_tipo_tela == 1)
 	   {

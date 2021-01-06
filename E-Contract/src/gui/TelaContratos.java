@@ -6,12 +6,15 @@ import java.awt.FlowLayout;
 
 import javax.swing.JButton;
 import javax.swing.JDialog;
+import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
+import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.ImageIcon;
 import java.awt.event.ActionListener;
+import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 import java.net.URLConnection;
@@ -30,6 +33,10 @@ import javax.swing.table.DefaultTableModel;
 import cadastros.CadastroCliente;
 import cadastros.CadastroContrato;
 import conexaoBanco.GerenciarBancoContratos;
+import manipular.ManipularArquivoTerceiros;
+import manipular.ManipularNotasFiscais;
+import manipular.ManipularTxt;
+
 import javax.swing.ScrollPaneConstants;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
@@ -46,12 +53,13 @@ public class TelaContratos extends JDialog {
         }  
     };
     
+    private TelaContratos isto;
 
 	public TelaContratos(int flag_retorno) {
 		//setModal(true);
-		setAlwaysOnTop(true);
+		//setAlwaysOnTop(true);
 
-		TelaContratos isto = this;
+		 isto = this;
 		
 		//setResizable(false);
 		setTitle("E-Contract - Contratos");
@@ -190,7 +198,6 @@ public class TelaContratos extends JDialog {
 				
 			
 						TelaGerenciarContrato gerenciar_contrato = new TelaGerenciarContrato(contrato_selecionado);
-
 					
 			}
 		});
@@ -217,6 +224,15 @@ public class TelaContratos extends JDialog {
 		});
 		btnSelecionar.setBounds(682, 439, 89, 23);
 		painelPrincipal.add(btnSelecionar);
+		
+		JButton btnImportarTerceiros = new JButton("Importar");
+		btnImportarTerceiros.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				importarContratoTerceiros();
+			}
+		});
+		btnImportarTerceiros.setBounds(583, 439, 89, 23);
+		painelPrincipal.add(btnImportarTerceiros);
 		
 				
 		if(flag_retorno == 1) {
@@ -323,6 +339,30 @@ public class TelaContratos extends JDialog {
 		  
 		  public void setTelaPai(JDialog _telaPai) {
 			  this.telaPai = _telaPai;
+		  }
+		  
+		  
+		  
+		  public void importarContratoTerceiros() {
+			  
+			  JOptionPane.showMessageDialog(null, "Na próxima tela, importe os arquivos\ndo contrato de terceiros");
+
+			  JFileChooser fileChooser = new JFileChooser();
+				fileChooser.setPreferredSize(new Dimension(800, 600));
+				fileChooser.setMultiSelectionEnabled(true);
+				FileNameExtensionFilter  filter = new FileNameExtensionFilter("Arquivo PDF", "pdf");
+				
+				int result = fileChooser.showOpenDialog(isto);
+				
+				File[] files = fileChooser.getSelectedFiles();
+
+				
+				
+				for(File arquivo : files) {
+					ManipularArquivoTerceiros manipular = new ManipularArquivoTerceiros();
+					CadastroContrato contrato_importar = manipular.filtrar(arquivo);
+				
+				}
 		  }
 		  
 }

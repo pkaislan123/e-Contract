@@ -47,7 +47,9 @@ public class TelaImportarModelo extends JDialog {
 
 
 	public TelaImportarModelo() {
-		setModal(true);
+		setAlwaysOnTop(true);
+
+		//setModal(true);
 
 		TelaImportarModelo isto = this;
 		

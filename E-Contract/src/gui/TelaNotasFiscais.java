@@ -13,7 +13,17 @@ import javax.swing.table.DefaultTableModel;
 import javax.swing.*;
 import javax.swing.table.*;
 import java.awt.*;
+import javax.swing.filechooser.FileNameExtensionFilter;
 
+import org.apache.poi.hssf.usermodel.HSSFDataFormat;
+import org.apache.poi.hssf.usermodel.HSSFSheet;
+import org.apache.poi.hssf.usermodel.HSSFWorkbook;
+import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.CellStyle;
+import org.apache.poi.ss.usermodel.HorizontalAlignment;
+import org.apache.poi.ss.usermodel.IndexedColors;
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.VerticalAlignment;
 import org.icepdf.ri.common.ComponentKeyBinding;
 import org.icepdf.ri.common.SwingController;
 import org.icepdf.ri.common.SwingViewBuilder;
@@ -25,10 +35,20 @@ import cadastros.CadastroNFe;
 import conexaoBanco.GerenciarBancoContratos;
 import manipular.ConfiguracoesGlobais;
 import manipular.ManipularNotasFiscais;
+import manipular.ManipularTxt;
 import outros.DadosGlobais;
+import outros.MyFileVisitor;
 import tratamento_proprio.Log;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
+import java.io.File;
+import java.io.FileFilter;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 
 public class TelaNotasFiscais extends JDialog {
 
@@ -44,6 +64,9 @@ public class TelaNotasFiscais extends JDialog {
 	private JButton btnSelecionarNota;
 	
 	private JLabel lblStatusAdicionandoNotas;
+	private int contador = 0;
+	private JFileChooser fileChooser_global ;
+	  private ArrayList<String> listadeArquivos = new ArrayList<>();
 
 	private final JPanel painelPrincipal = new JPanel();
 	/*DefaultTableModel modelo_nfs = new DefaultTableModel() {
@@ -55,10 +78,16 @@ public class TelaNotasFiscais extends JDialog {
 	private TableRowSorter<NFeTableModel> sorter;
 	
 	private JTextField entChavePesquisa;
+	private JButton btnVizualizarNF;
+	private JButton btnExportar;
+	private JButton btnImportarNFe;
+	private CadastroCliente cliente_global;
 
-	public TelaNotasFiscais(CadastroCliente vendedor) {
-		setModal(true);
+	public TelaNotasFiscais(int flag,CadastroCliente vendedor) {
+		setAlwaysOnTop(true);
 
+		//setModal(true);
+		cliente_global= vendedor;
 		isto = this;
 		getDadosGlobais();
 		setResizable(true);
@@ -120,6 +149,8 @@ public class TelaNotasFiscais extends JDialog {
 		scrollPaneNFs.setBounds(10, 11, 606, 219);
 		panel.add(scrollPaneNFs);
 
+		
+		
 		 btnSelecionarNota = new JButton("Selecionar");
 		btnSelecionarNota.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
@@ -146,9 +177,65 @@ public class TelaNotasFiscais extends JDialog {
 		entChavePesquisa.setColumns(10);
 
 		lblStatusAdicionandoNotas = new JLabel("Adicionando Notas...");
-		lblStatusAdicionandoNotas.setBounds(10, 374, 527, 23);
+		lblStatusAdicionandoNotas.setBounds(10, 408, 626, 23);
 		painelPrincipal.add(lblStatusAdicionandoNotas);
+		
+		btnVizualizarNF = new JButton("Vizualizar");
+		btnVizualizarNF.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				
+				int rowSel = table_nfs.getSelectedRow();//pega o indice da linha na tabela
+				int indexRowModel = table_nfs.getRowSorter().convertRowIndexToModel(rowSel);//converte pro indice do model
+				CadastroNFe nota_vizualizar = notas_fiscais_disponivel.get(indexRowModel);
+				
+				if (Desktop.isDesktopSupported()) {
+					 try {
+					     Desktop desktop = Desktop.getDesktop();
+					     File myFile = new File(nota_vizualizar.getCaminho_arquivo());
+					     desktop.open(myFile);
+					     } catch (IOException ex) {}
+					 }
+			}
+		});
+		btnVizualizarNF.setBounds(448, 374, 89, 23);
+		painelPrincipal.add(btnVizualizarNF);
+		
+		btnExportar = new JButton("Exportar");
+		btnExportar.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				exportar();
+			}
+		});
+		btnExportar.setBounds(349, 374, 89, 23);
+		painelPrincipal.add(btnExportar);
+		
+		btnImportarNFe = new JButton("Importar");
+		btnImportarNFe.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				importar();
+				
+				
+			}
+		});
+		btnImportarNFe.setBounds(253, 374, 89, 23);
+		painelPrincipal.add(btnImportarNFe);
 
+		if(flag == 1) {
+			//esconder o botao selecionar
+
+			 btnSelecionarNota.setVisible(false);
+
+			 btnSelecionarNota.setEnabled(false);
+			
+		}else if(flag == 0) {
+			//esconder o botão vizualizar nf
+			btnVizualizarNF.setVisible(false);
+			btnVizualizarNF.setEnabled(false);
+			
+		}
+		
+		
+		
 		new Thread() {
 			@Override
 			public void run() {
@@ -443,4 +530,314 @@ public class TelaNotasFiscais extends JDialog {
 	 
 	}
 
+	
+	public void exportar() {
+		HSSFWorkbook workbook = new HSSFWorkbook();
+		HSSFSheet sheet = workbook.createSheet("Notas");
+		
+		// Definindo alguns padroes de layout
+		sheet.setDefaultColumnWidth(15);
+		sheet.setDefaultRowHeight((short)400);
+		
+		int rownum = 0;
+		int cellnum = 0;
+		Cell cell;
+		Row row;
+
+		//Configurando estilos de células (Cores, alinhamento, formatação, etc..)
+		HSSFDataFormat numberFormat = workbook.createDataFormat();
+	
+		CellStyle headerStyle = workbook.createCellStyle();
+		headerStyle.setFillForegroundColor(IndexedColors.GREY_25_PERCENT.getIndex());
+		//headerStyle.setFillPattern(CellStyle.SOLID_FOREGROUND);
+		headerStyle.setAlignment(HorizontalAlignment.CENTER);
+		headerStyle.setVerticalAlignment(VerticalAlignment.CENTER);
+
+		CellStyle textStyle = workbook.createCellStyle();
+		//textStyle.setAlignment(Alignment.CENTER);
+		textStyle.setVerticalAlignment(VerticalAlignment.CENTER);
+
+		CellStyle numberStyle = workbook.createCellStyle();
+		numberStyle.setDataFormat(numberFormat.getFormat("#,##0.00"));
+		numberStyle.setVerticalAlignment(VerticalAlignment.CENTER);
+
+		// Configurando Header
+		row = sheet.createRow(rownum++);
+		cell = row.createCell(cellnum++);
+		cell.setCellStyle(headerStyle);
+		cell.setCellValue("NFE");
+
+		cell = row.createCell(cellnum++);
+		cell.setCellStyle(headerStyle);
+		cell.setCellValue("Serie");
+
+		cell = row.createCell(cellnum++);
+		cell.setCellStyle(headerStyle);
+		cell.setCellValue("Remetente");
+		
+
+		cell = row.createCell(cellnum++);
+		cell.setCellStyle(headerStyle);
+		cell.setCellValue("Inscricao");
+		
+
+		cell = row.createCell(cellnum++);
+		cell.setCellStyle(headerStyle);
+		cell.setCellValue("Protocolo");
+		
+
+		cell = row.createCell(cellnum++);
+		cell.setCellStyle(headerStyle);
+		cell.setCellValue("Data");
+				
+
+		cell = row.createCell(cellnum++);
+		cell.setCellStyle(headerStyle);
+		cell.setCellValue("Natureza");
+		
+
+		cell = row.createCell(cellnum++);
+		cell.setCellStyle(headerStyle);
+		cell.setCellValue("Destinatario");
+		
+
+		cell = row.createCell(cellnum++);
+		cell.setCellStyle(headerStyle);
+		cell.setCellValue("Inscricao");
+		
+
+		cell = row.createCell(cellnum++);
+		cell.setCellStyle(headerStyle);
+		cell.setCellValue("Produto");
+		
+
+		cell = row.createCell(cellnum++);
+		cell.setCellStyle(headerStyle);
+		cell.setCellValue("Quantidade");
+		
+		cell = row.createCell(cellnum++);
+		cell.setCellStyle(headerStyle);
+		cell.setCellValue("Valor");
+		
+		
+		for (CadastroNFe cadastro : notas_fiscais_disponivel) {
+			row = sheet.createRow(rownum++);
+			cellnum = 0;
+
+			cell = row.createCell(cellnum++);
+			cell.setCellStyle(textStyle);
+			cell.setCellValue(cadastro.getNfe());
+
+			cell = row.createCell(cellnum++);
+			cell.setCellStyle(textStyle);
+			cell.setCellValue(cadastro.getSerie());
+
+			cell = row.createCell(cellnum++);
+			cell.setCellStyle(numberStyle);
+			cell.setCellValue(cadastro.getNome_remetente());
+			
+			cell = row.createCell(cellnum++);
+			cell.setCellStyle(numberStyle);
+			cell.setCellValue(cadastro.getInscricao_remetente());
+			
+			cell = row.createCell(cellnum++);
+			cell.setCellStyle(numberStyle);
+			cell.setCellValue(cadastro.getProtocolo());
+			
+			
+			cell = row.createCell(cellnum++);
+			cell.setCellStyle(numberStyle);
+			cell.setCellValue(cadastro.getData());
+			
+	
+			
+			
+			cell = row.createCell(cellnum++);
+			cell.setCellStyle(numberStyle);
+			cell.setCellValue(cadastro.getNatureza());
+			
+			
+			
+			cell = row.createCell(cellnum++);
+			cell.setCellStyle(numberStyle);
+			cell.setCellValue(cadastro.getNome_destinatario());
+			
+			
+			cell = row.createCell(cellnum++);
+			cell.setCellStyle(numberStyle);
+			cell.setCellValue(cadastro.getInscricao_destinatario());
+			
+			cell = row.createCell(cellnum++);
+			cell.setCellStyle(numberStyle);
+			cell.setCellValue(cadastro.getProduto());
+			
+			
+			cell = row.createCell(cellnum++);
+			cell.setCellStyle(numberStyle);
+			cell.setCellValue(cadastro.getQuantidade());
+			
+			
+			cell = row.createCell(cellnum++);
+			cell.setCellStyle(numberStyle);
+			cell.setCellValue(cadastro.getValor());
+			
+			}
+		
+		try {
+
+		   //pega a pasta meus documentos
+			String caminho_raiz = javax.swing.filechooser.FileSystemView.getFileSystemView().getDefaultDirectory().toString();
+			//criar o diretorio de exportacoes
+			ManipularTxt manipular = new ManipularTxt();
+			System.out.println("Cminho raiz: " + caminho_raiz);
+			manipular.criarDiretorio(caminho_raiz + "\\E-Contract\\Exportacoes"); 
+			
+			String nome_arquivo = notas_fiscais_disponivel.get(0).getNome_remetente();
+			//Escrevendo o arquivo em disco
+			FileOutputStream out = new FileOutputStream(new File(caminho_raiz + "\\E-Contract\\Exportacoes"+ "\\" + nome_arquivo + ".xls"));
+			workbook.write(out);
+			workbook.close();
+			out.close();
+			//workbook.close();
+			JOptionPane.showMessageDialog(null, "Exportação concluida\nArquivo pode ser encontrado na pasta:\n"+ caminho_raiz + "\\E-Contract\\Exportacoes" + nome_arquivo + ".xls");
+			System.out.println("Success!!");
+
+			} catch (Exception e) {
+				JOptionPane.showMessageDialog(null, "Erro ao Exportar!\nConsulte o Administrador");
+
+			e.printStackTrace();
+			}
+
+	}
+		
+	
+	public void importar() {
+		
+
+		
+		JFileChooser fileChooser = new JFileChooser();
+		fileChooser.setPreferredSize(new Dimension(800, 600));
+		fileChooser.setMultiSelectionEnabled(true);
+		FileNameExtensionFilter  filter = new FileNameExtensionFilter("Excel file", "xls", "xlsx");
+		 fileChooser.addChoosableFileFilter(filter);
+		if(contador == 0)
+		{
+			//fileChooser.setCurrentDirectory(new File(System.getProperty("user.home")));
+			//fileChooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+			fileChooser_global = fileChooser;
+            contador++;
+		}
+		else
+		{
+			fileChooser = fileChooser_global;
+			
+		}
+		int result = fileChooser.showOpenDialog(isto);
+		
+		File[] files = fileChooser.getSelectedFiles();
+
+		
+		
+		for(File arquivo : files) {
+			ManipularNotasFiscais manipular = new ManipularNotasFiscais("");
+
+			try {
+			CadastroNFe cadastro = manipular.filtrar(arquivo);
+			
+			//verifica se essa nota ja existe
+			boolean ja_existe = false;
+			for(CadastroNFe nfe : notas_fiscais_disponivel) {
+				if(nfe.getNfe().equals(cadastro.getNfe())) {
+					ja_existe = true;
+					break;
+				}
+			}
+			
+			if(!ja_existe) {
+				
+				//ie do remetente nf
+				String ie_remetente_nf = cadastro.getInscricao_remetente().replaceAll("[^0-9]+", "");
+				//ie do destinatario nf
+				String ie_destinatario_nf = cadastro.getInscricao_destinatario().replaceAll("[^0-9]+", "");
+
+				// ie cliente
+				String ie_cliente = cliente_global.getIe();
+
+				if(ie_remetente_nf.equals(ie_cliente)) {
+					JOptionPane.showMessageDialog(null, "Nota pode ser adicionado, o cliente e remetente desta nota fiscal\n IE da nota: " + ie_remetente_nf + " IE do cliente: " + ie_cliente);
+
+				
+					
+					//copia o arquivo para a basta de notas fiscais do cliente
+					
+					String nome_pasta;
+
+					if (cliente_global.getTipo_pessoa() == 0) {
+						nome_pasta = cliente_global.getNome_empresarial().toUpperCase();
+					} else {
+						nome_pasta = cliente_global.getNome_fantaia().toUpperCase();
+					}
+
+					String unidade_base_dados = configs_globais.getServidorUnidade();
+					String sub_pasta = "E-Contract\\arquivos\\clientes";
+					
+					ManipularTxt manipular_arq = new ManipularTxt();
+					
+					String caminho_completo_nf = unidade_base_dados + "\\" + sub_pasta + "\\" + nome_pasta.toUpperCase() + "\\"
+							+ "NOTAS FISCAIS" + "\\NFA-" + cadastro.getNfe().trim() + ".pdf";
+					
+					JOptionPane.showMessageDialog(null, "Copiando de :\n" + cadastro.getCaminho_arquivo()+ "\nPara:\n" + caminho_completo_nf);
+					boolean copiar = manipular_arq.copiarNFe(cadastro.getCaminho_arquivo(), caminho_completo_nf );
+					if(copiar) {
+						//adiciona a nota no array local
+						notas_fiscais_disponivel.add(cadastro);
+						
+						//adiciona na tabela
+						
+						addNota(cadastro);
+						
+						//informa que adicionou a nota
+						JOptionPane.showMessageDialog(null, "Arquivo selecionado:\n" + arquivo.getAbsolutePath() + "\nFoi adicionado");
+					}else {
+						JOptionPane.showMessageDialog(null, "Arquivo selecionado:\n" + arquivo.getAbsolutePath() + "\nErro ao efetuar a importação\nConsulte o Administrador");
+
+					}
+					
+	                 
+				}else if (ie_destinatario_nf.equals(ie_cliente)) {
+					JOptionPane.showMessageDialog(null, "Nota pode ser adicionado, o cliente e destinatario desta nota fiscal\n IE da nota: " + ie_destinatario_nf + " IE do cliente: " + ie_cliente);
+
+					//adiciona a nota no array local
+					notas_fiscais_disponivel.add(cadastro);
+					
+					//adiciona na tabela
+					addNota(cadastro);
+					
+					//informa que adicionou a nota
+					JOptionPane.showMessageDialog(null, "Arquivo selecionado:\n" + arquivo.getAbsolutePath() + "\nFoi adicionado");
+	                 
+				}else {
+					JOptionPane.showMessageDialog(null, "Arquivo selecionado:\n" + arquivo.getAbsolutePath() + "\nNão é uma nota fiscal para este cliente\nIE do cliente: " + ie_cliente + "\nIE do Destinatario da nota: " + ie_destinatario_nf + "\nIE do Remetente da nota: " + ie_remetente_nf);
+
+				}
+				
+				
+			
+			
+			}else {
+				JOptionPane.showMessageDialog(null, "Arquivo selecionado:\n" + arquivo.getAbsolutePath() + "\nJá está adicionado");
+
+			}
+
+			}catch(Exception e) {
+				JOptionPane.showMessageDialog(null, "Arquivo selecionado:\n" + arquivo.getAbsolutePath() + "\nNão é uma nota fiscal valida, por isso não foi adicionado");
+
+			}
+		}
+		
+		//verifica se o arquivo e uma nota fiscal valida
+		
+	}
+	
+	
 }

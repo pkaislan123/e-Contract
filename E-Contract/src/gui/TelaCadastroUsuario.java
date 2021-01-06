@@ -54,9 +54,9 @@ public class TelaCadastroUsuario extends JDialog implements GetDadosGlobais {
 	public TelaCadastroUsuario(int flag_tipo_tela, CadastroLogin _login_edicao) {
 		
 		getDadosGlobais();
-		
-		setModal(true);
+		setAlwaysOnTop(true);
 
+		//setModal(true);
 		 isto = this;
 		
 		setResizable(false);

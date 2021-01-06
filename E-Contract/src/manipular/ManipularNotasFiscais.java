@@ -99,7 +99,7 @@ public class ManipularNotasFiscais {
 		return notas_fiscais;
 	}
 
-	private CadastroNFe filtrar(File file) {
+	public CadastroNFe filtrar(File file) {
 		CadastroNFe cadastro = new CadastroNFe();
 
 		cadastro.setCaminho_arquivo(file.getAbsolutePath());

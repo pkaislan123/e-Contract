@@ -278,6 +278,22 @@ public class ManipularTxt {
 		return caminho_saida;
 	}
 		
+	
+	public boolean copiarNFe(String entrada, String saida) throws IOException {
+		
+		try{
+			Path yourFile = Paths.get(entrada);
+		
+
+		 
+
+		 Files.copy(yourFile, yourFile.resolveSibling(saida));
+		   return true;
+		}catch(Exception e) {
+			return false;
+		}
+	}
+		
   
 	   
 	   public boolean limparDiretorio(File f) {

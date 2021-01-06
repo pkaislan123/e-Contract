@@ -93,7 +93,7 @@ public class TelaCadastroCliente extends JDialog {
 	// painel pessoa fisica e juridico
 	private JPanelTransparent panelPessoaFisica = new JPanelTransparent();
 	private JPanelTransparent panelPessoaJuridica = new JPanelTransparent();
-	private JComboBox cBTipoIdentificacao;
+	private JComboBox cBTipoIdentificacao, cBUFIE;
 
 	// outros paineis
 
@@ -175,7 +175,9 @@ public class TelaCadastroCliente extends JDialog {
 		setForeground(new Color(255, 255, 255));
 
 		getDadosGlobais();
-		setModal(true);
+		//setAlwaysOnTop(true);
+
+		//setModal(true);
 
 		TelaCadastroCliente isto = this;
 
@@ -769,116 +771,9 @@ public class TelaCadastroCliente extends JDialog {
 		btnVerificarCNPJ.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
 				String cnpj = entCNPJ.getText();
-				cnpj = cnpj.replaceAll("[^0-9]+", "");
-				ValidaCNPJ valida = new ValidaCNPJ();
 
-				if (cnpj.length() != 14) {
-					JOptionPane.showMessageDialog(null, "CNPJ Invalido!");
-
-				} else {
-					if (valida.isCNPJ(cnpj)) {
-
-						String cnpj_formatado = cnpj;
-						// 24.986679000106
-						// 24.986.679/0001-06
-						StringBuilder stringBuilder = new StringBuilder(cnpj_formatado);
-						stringBuilder.insert(cnpj_formatado.length() - 12, '.');
-						stringBuilder.insert(cnpj_formatado.length() - 8, '.');
-						stringBuilder.insert(cnpj_formatado.length() - 4, '/');
-						stringBuilder.insert(cnpj_formatado.length() + 1, '-');
-
-						entCNPJ.setText(stringBuilder.toString());
-
-						String entcnpj = cnpj;
-						String result = null;
-						try {
-							GetHttp buscarCnpj = new GetHttp(entcnpj);
-
-							result = buscarCnpj.captura();
-						} catch (Exception e) {
-
-						}
-						if (result != null) {
-							result = result.replaceAll("\"", "");
-							result = result.replaceAll("\n", "&");
-
-							System.out.println(result);
-
-							TratarDados separar = new TratarDados(result);
-
-							String nome = separar.tratar("name:", "&al");
-							String nomeFantasia = separar.tratar("alias:", "&");
-
-							if (!nome.equals("null"))
-								entRazaoSocial.setText(nome);
-
-							if (!nomeFantasia.equals("null"))
-								entNomeFantasia.setText(nomeFantasia);
-							else
-								entNomeFantasia.setText(nome);
-
-							// tratando dados de enderecos
-							String bairro = separar.tratar("neighborhood:", "&");
-							entBairro.setText(bairro);
-							String cep = separar.tratar("zip:", "&");
-							entCep.setText(cep);
-							String estado = separar.tratar("state:", "&");
-							entEstado.setText(estado);
-							String cidade = separar.tratar("city:", "&");
-							entCidade.setText(cidade);
-							String numero = separar.tratar("number:", "&details");
-							entNumEndereco.setText(numero);
-							String endereco = separar.tratar("street:", "&");
-							entLogradouro.setText(endereco);
-
-							// tratando dados de atividades primaria
-							String at_pri = separar.tratar("primary_activity:", "secondary");
-							// System.out.println(at_pri);
-							TratarDados atividades = new TratarDados(at_pri);
-							at_pri = atividades.tratar("description:", "}&");
-							entAtividadesPri.setText("Primária: " + at_pri);
-
-							String at_sec = separar.tratar("secondary_activities:", "membership");
-							System.out.println(at_sec);
-							TratarDados sec_atividades = new TratarDados(at_sec);
-							at_sec = sec_atividades.tratar("description:", "}&");
-							entAtividadeSec.setText("Secundária: " + at_sec);
-
-							// tratando dados status
-							String status = separar.tratar("federal_entity:", "}");
-							// System.out.println(status);
-							TratarDados status_ = new TratarDados(status);
-							status = status_.tratar("status:", "&status_date");
-							entStatus.setText(status);
-
-							// tratando dados descricao
-							String descricao = separar.tratar("legal_nature:", "&pri");
-							System.out.println(descricao);
-							TratarDados descricao_ = new TratarDados(descricao);
-							descricao = descricao_.tratar("description:", "}");
-							entDescricao.setText(descricao);
-
-							// tratar dados de inscricao estadual
-							String inscricao_estadual = separar.tratar("registrations:", "]");
-							System.out.println(inscricao_estadual);
-							TratarDados inscricao_estadual_ = new TratarDados(inscricao_estadual);
-							inscricao_estadual = inscricao_estadual_.tratar("number:", "&");
-							entIE.setText(inscricao_estadual);
-
-							String statusIE = inscricao_estadual_.tratar("enabled:", "}");
-							if (statusIE.equals("true"))
-								entStatusIE.setText("Ativo");
-							else
-								entStatusIE.setText("Não Habilitado");
-
-						} else {
-							System.out.println("Erro ao realizar a consulta \n Tente Novamente!");
-
-						}
-
-					} else
-						JOptionPane.showMessageDialog(null, "CNPJ Invalido!");
-				}
+				pesquisarCNPJ( cnpj);
+				
 			}
 		});
 		btnVerificarCNPJ.setBounds(549, 126, 155, 33);
@@ -1107,81 +1002,11 @@ public class TelaCadastroCliente extends JDialog {
 		btnPesquisarCPF.setFont(new Font("Arial", Font.BOLD, 16));
 		btnPesquisarCPF.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
+				
 				String cpf = entCpf.getText().toString();
-				CPFValidator cpfValidator = new CPFValidator();
-				List<ValidationMessage> erros = cpfValidator.invalidMessagesFor(cpf);
-				if (erros.size() > 0)
-					JOptionPane.showMessageDialog(null, "CPF Inválido!");
 
-				else {
-					// JOptionPane.showMessageDialog(null, "CPF Válido!");
-					cpf = cpf.replace(".", "");
-					cpf = cpf.replace("-", "");
-					System.out.println(uf);
-					System.out.println(cpf);
-
-					GetSintegra sintegra = new GetSintegra(cpf, uf);
-					String result = sintegra.captura();
-					System.out.println(result);
-
-					// result = result.replaceAll ("{", "");
-					result = result.replaceAll("\"", "");
-					result = result.replaceAll(",", "&");
-					System.out.println(result);
-
-					TratarDados separar = new TratarDados(result);
-
-					String code = separar.tratar("code:", "&s");
-					System.out.println("Codigo: " + code);
-					if (code.equals("0")) {
-						entCpfResponsavel.setText(cpf);
-						String nome_empresarial = separar.tratar("nome_empresarial:", "&");
-						System.out.println(nome_empresarial);
-						entNomeEmpresarial.setText(nome_empresarial);
-
-						String ie = separar.tratar("inscricao_estadual:", "&");
-						System.out.println(ie);
-						entIE.setText(ie);
-
-						String status = separar.tratar("situacao_ie:", "&");
-						System.out.println(status);
-						entStatusIE.setText(status);
-
-						String nome_fantasia = separar.tratar("nome_fantasia:", "&");
-						System.out.println(nome_fantasia);
-						entNomeFantasia.setText(nome_fantasia);
-
-						String porte = separar.tratar("porte_empresa:", "&");
-						System.out.println(porte);
-						entPorte.setText(porte);
-
-						String cnae = separar.tratar("text:", "&");
-						System.out.println(cnae);
-						entCnae.setText(cnae);
-
-						String ocupacao = separar.tratar("tipo_inscricao:", "&");
-						System.out.println(ocupacao);
-						entOcupacao.setText(ocupacao);
-
-						// tratando dados de enderecos
-						String bairro = separar.tratar("bairro:", "&");
-						entBairro.setText(bairro);
-						String cep = separar.tratar("cep:", "&");
-						entCep.setText(cep);
-						// String estado = separar.tratar("state:", "&");
-						entEstado.setText(uf);
-						String cidade = separar.tratar("municipio:", "&log");
-						entCidade.setText(cidade);
-						String numero = separar.tratar("numero:", "&");
-						entNumEndereco.setText(numero);
-						String endereco = separar.tratar("logradouro:", "&");
-						entLogradouro.setText(endereco);
-					} else {
-						JOptionPane.showMessageDialog(null, "Erro ao consultar dados no Sintegra");
-
-					}
-
-				}
+				pesquisarCpf(cpf);
+			
 			}
 		});
 		btnPesquisarCPF.setBounds(550, 113, 147, 34);
@@ -1458,13 +1283,13 @@ public class TelaCadastroCliente extends JDialog {
 		lblIe.setForeground(Color.BLACK);
 		lblIe.setFont(new Font("Arial Black", Font.PLAIN, 14));
 		lblIe.setBackground(Color.ORANGE);
-		lblIe.setBounds(220, 100, 64, 33);
+		lblIe.setBounds(129, 77, 64, 33);
 		painelEmpresa.add(lblIe);
 
 		entIE = new JTextFieldPersonalizado();
 		entIE.setForeground(Color.BLACK);
 		entIE.setColumns(10);
-		entIE.setBounds(294, 102, 220, 33);
+		entIE.setBounds(203, 79, 220, 33);
 		painelEmpresa.add(entIE);
 
 		JLabel lblStatus_1 = new JLabel("Status:");
@@ -1472,13 +1297,13 @@ public class TelaCadastroCliente extends JDialog {
 		lblStatus_1.setForeground(Color.BLACK);
 		lblStatus_1.setFont(new Font("Arial Black", Font.PLAIN, 14));
 		lblStatus_1.setBackground(Color.ORANGE);
-		lblStatus_1.setBounds(220, 144, 64, 33);
+		lblStatus_1.setBounds(129, 121, 64, 33);
 		painelEmpresa.add(lblStatus_1);
 
 		entStatusIE = new JTextFieldPersonalizado();
 		entStatusIE.setForeground(Color.BLACK);
 		entStatusIE.setColumns(10);
-		entStatusIE.setBounds(294, 146, 220, 33);
+		entStatusIE.setBounds(203, 123, 220, 33);
 		painelEmpresa.add(entStatusIE);
 
 		JLabel lblLogradouro_1 = new JLabel("Logradouro:");
@@ -1498,6 +1323,35 @@ public class TelaCadastroCliente extends JDialog {
 		lblCadastro_2_1.setHorizontalAlignment(JLabel.LEFT);
 
 		painelEmpresa.add(lblCadastro_2_1);
+		
+		 cBUFIE = new JComboBox();
+		cBUFIE.setFont(new Font("Arial", Font.BOLD, 14));
+		cBUFIE.setBounds(471, 78, 72, 35);
+		cBUFIE.addItem("MG");
+		cBUFIE.addItem("SP");
+		cBUFIE.addItem("MT");
+
+		painelEmpresa.add(cBUFIE);
+		
+		JButton btnPesquisarIE = new JButton("Pesquisar");
+		btnPesquisarIE.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				String ie = entIE.getText().replaceAll("[^0-9]+", "");
+				String uf = cBUFIE.getSelectedItem().toString();
+			    pesquisarIE(ie, uf);
+			}
+		});
+		btnPesquisarIE.setFont(new Font("Arial", Font.BOLD, 16));
+		btnPesquisarIE.setBounds(553, 77, 147, 34);
+		painelEmpresa.add(btnPesquisarIE);
+		
+		JLabel lblUf_1 = new JLabel("UF:");
+		lblUf_1.setHorizontalAlignment(SwingConstants.TRAILING);
+		lblUf_1.setForeground(Color.BLACK);
+		lblUf_1.setFont(new Font("Arial", Font.PLAIN, 16));
+		lblUf_1.setBackground(Color.ORANGE);
+		lblUf_1.setBounds(433, 80, 35, 29);
+		painelEmpresa.add(lblUf_1);
 
 		// configura os widgets no painel de dados Bancarios
 
@@ -2433,4 +2287,287 @@ public class TelaCadastroCliente extends JDialog {
 		this.telaPai = tela_pai;
 	}
 
+	
+	public void setInformacoesNovoCliente(CadastroCliente vendedor_contrato, String uf_inscricao, ContaBancaria conta) {
+		
+		if(vendedor_contrato.getTipo_pessoa() == 0) {
+			entCpf.setText(vendedor_contrato.getCpf());
+			 pesquisarCpf(vendedor_contrato.getCpf());
+		}else {
+			CardLayout cardLayout = (CardLayout) panelDinamico.getLayout();
+			cardLayout.show(panelDinamico, "PessoaJuridica");
+			entCNPJ.setText(vendedor_contrato.getCnpj());
+			pesquisarCNPJ(vendedor_contrato.getCnpj());
+		}
+		
+		//pesquisar a ie
+		 pesquisarIE(vendedor_contrato.getIe().replaceAll("[^0-9+]", ""), uf_inscricao) ;
+		
+		//adicionar uma conta conta bancaria
+		
+		entCpfTitular.setText(conta.getCpf_titular() );
+		entBanco.setText( conta.getBanco());
+		entCodBanco.setText(conta.getCodigo() );
+		entAgencia.setText(conta.getAgencia() );
+		entConta.setText( conta.getConta());
+		
+	}
+	
+	public void pesquisarCNPJ(String cnpj) {
+
+		cnpj = cnpj.replaceAll("[^0-9]+", "");
+		ValidaCNPJ valida = new ValidaCNPJ();
+
+		if (cnpj.length() != 14) {
+			JOptionPane.showMessageDialog(null, "CNPJ Invalido!");
+
+		} else {
+			if (valida.isCNPJ(cnpj)) {
+
+				String cnpj_formatado = cnpj;
+				// 24.986679000106
+				// 24.986.679/0001-06
+				StringBuilder stringBuilder = new StringBuilder(cnpj_formatado);
+				stringBuilder.insert(cnpj_formatado.length() - 12, '.');
+				stringBuilder.insert(cnpj_formatado.length() - 8, '.');
+				stringBuilder.insert(cnpj_formatado.length() - 4, '/');
+				stringBuilder.insert(cnpj_formatado.length() + 1, '-');
+
+				entCNPJ.setText(stringBuilder.toString());
+
+				String entcnpj = cnpj;
+				String result = null;
+				try {
+					GetHttp buscarCnpj = new GetHttp(entcnpj);
+
+					result = buscarCnpj.captura();
+				} catch (Exception e) {
+
+				}
+				if (result != null) {
+					result = result.replaceAll("\"", "");
+					result = result.replaceAll("\n", "&");
+
+					System.out.println(result);
+
+					TratarDados separar = new TratarDados(result);
+
+					String nome = separar.tratar("name:", "&al");
+					String nomeFantasia = separar.tratar("alias:", "&");
+
+					if (!nome.equals("null"))
+						entRazaoSocial.setText(nome);
+
+					if (!nomeFantasia.equals("null"))
+						entNomeFantasia.setText(nomeFantasia);
+					else
+						entNomeFantasia.setText(nome);
+
+					// tratando dados de enderecos
+					String bairro = separar.tratar("neighborhood:", "&");
+					entBairro.setText(bairro);
+					String cep = separar.tratar("zip:", "&");
+					entCep.setText(cep);
+					String estado = separar.tratar("state:", "&");
+					entEstado.setText(estado);
+					String cidade = separar.tratar("city:", "&");
+					entCidade.setText(cidade);
+					String numero = separar.tratar("number:", "&details");
+					entNumEndereco.setText(numero);
+					String endereco = separar.tratar("street:", "&");
+					entLogradouro.setText(endereco);
+
+					// tratando dados de atividades primaria
+					String at_pri = separar.tratar("primary_activity:", "secondary");
+					// System.out.println(at_pri);
+					TratarDados atividades = new TratarDados(at_pri);
+					at_pri = atividades.tratar("description:", "}&");
+					entAtividadesPri.setText("Primária: " + at_pri);
+
+					String at_sec = separar.tratar("secondary_activities:", "membership");
+					System.out.println(at_sec);
+					TratarDados sec_atividades = new TratarDados(at_sec);
+					at_sec = sec_atividades.tratar("description:", "}&");
+					entAtividadeSec.setText("Secundária: " + at_sec);
+
+					// tratando dados status
+					String status = separar.tratar("federal_entity:", "}");
+					// System.out.println(status);
+					TratarDados status_ = new TratarDados(status);
+					status = status_.tratar("status:", "&status_date");
+					entStatus.setText(status);
+
+					// tratando dados descricao
+					String descricao = separar.tratar("legal_nature:", "&pri");
+					System.out.println(descricao);
+					TratarDados descricao_ = new TratarDados(descricao);
+					descricao = descricao_.tratar("description:", "}");
+					entDescricao.setText(descricao);
+
+					// tratar dados de inscricao estadual
+					String inscricao_estadual = separar.tratar("registrations:", "]");
+					System.out.println(inscricao_estadual);
+					TratarDados inscricao_estadual_ = new TratarDados(inscricao_estadual);
+					inscricao_estadual = inscricao_estadual_.tratar("number:", "&");
+					entIE.setText(inscricao_estadual);
+
+					String statusIE = inscricao_estadual_.tratar("enabled:", "}");
+					if (statusIE.equals("true"))
+						entStatusIE.setText("Ativo");
+					else
+						entStatusIE.setText("Não Habilitado");
+
+				} else {
+					System.out.println("Erro ao realizar a consulta \n Tente Novamente!");
+
+				}
+
+			} else
+				JOptionPane.showMessageDialog(null, "CNPJ Invalido!");
+		}
+	}
+	
+	public void pesquisarCpf(String cpf) {
+		CPFValidator cpfValidator = new CPFValidator();
+		List<ValidationMessage> erros = cpfValidator.invalidMessagesFor(cpf);
+		if (erros.size() > 0)
+			JOptionPane.showMessageDialog(null, "CPF Inválido!");
+
+		else {
+			// JOptionPane.showMessageDialog(null, "CPF Válido!");
+			cpf = cpf.replace(".", "");
+			cpf = cpf.replace("-", "");
+			System.out.println(uf);
+			System.out.println(cpf);
+
+			GetSintegra sintegra = new GetSintegra(cpf, uf, 0);
+			String result = sintegra.captura();
+			System.out.println(result);
+
+			// result = result.replaceAll ("{", "");
+			result = result.replaceAll("\"", "");
+			result = result.replaceAll(",", "&");
+			System.out.println(result);
+
+			TratarDados separar = new TratarDados(result);
+
+			String code = separar.tratar("code:", "&s");
+			System.out.println("Codigo: " + code);
+			if (code.equals("0")) {
+				entCpfResponsavel.setText(cpf);
+				String nome_empresarial = separar.tratar("nome_empresarial:", "&");
+				System.out.println(nome_empresarial);
+				entNomeEmpresarial.setText(nome_empresarial);
+
+				String ie = separar.tratar("inscricao_estadual:", "&");
+				System.out.println(ie);
+				entIE.setText(ie);
+
+				String status = separar.tratar("situacao_ie:", "&");
+				System.out.println(status);
+				entStatusIE.setText(status);
+
+				String nome_fantasia = separar.tratar("nome_fantasia:", "&");
+				System.out.println(nome_fantasia);
+				entNomeFantasia.setText(nome_fantasia);
+
+				String porte = separar.tratar("porte_empresa:", "&");
+				System.out.println(porte);
+				entPorte.setText(porte);
+
+				String cnae = separar.tratar("text:", "&");
+				System.out.println(cnae);
+				entCnae.setText(cnae);
+
+				String ocupacao = separar.tratar("tipo_inscricao:", "&");
+				System.out.println(ocupacao);
+				entOcupacao.setText(ocupacao);
+
+				// tratando dados de enderecos
+				String bairro = separar.tratar("bairro:", "&");
+				entBairro.setText(bairro);
+				String cep = separar.tratar("cep:", "&");
+				entCep.setText(cep);
+				// String estado = separar.tratar("state:", "&");
+				entEstado.setText(uf);
+				String cidade = separar.tratar("municipio:", "&log");
+				entCidade.setText(cidade);
+				String numero = separar.tratar("numero:", "&");
+				entNumEndereco.setText(numero);
+				String endereco = separar.tratar("logradouro:", "&");
+				entLogradouro.setText(endereco);
+			} else {
+				JOptionPane.showMessageDialog(null, "Erro ao consultar dados de CPF no Sintegra");
+
+			}
+
+		}
+	}
+	
+	
+	public void pesquisarIE(String ie_, String uf) {
+		GetSintegra sintegra = new GetSintegra(ie_, uf, 1);
+		String result = sintegra.captura();
+		System.out.println(result);
+		
+		result = result.replaceAll("\"", "");
+		result = result.replaceAll(",", "&");
+		System.out.println("Resultado da pesquisa de ie: " + result);
+
+		TratarDados separar = new TratarDados(result);
+
+		String code = separar.tratar("code:", "&s");
+		System.out.println("Codigo: " + code);
+		if (code.equals("0")) {
+			entCpfResponsavel.setText(ie_);
+			String nome_empresarial = separar.tratar("nome_empresarial:", "&");
+			System.out.println(nome_empresarial);
+			entNomeEmpresarial.setText(nome_empresarial);
+
+			String ie = separar.tratar("inscricao_estadual:", "&");
+			System.out.println(ie);
+			entIE.setText(ie);
+
+			String status = separar.tratar("situacao_ie:", "&");
+			System.out.println(status);
+			entStatusIE.setText(status);
+
+			String nome_fantasia = separar.tratar("nome_fantasia:", "&");
+			System.out.println(nome_fantasia);
+			entNomeFantasia.setText(nome_fantasia);
+
+			String porte = separar.tratar("porte_empresa:", "&");
+			System.out.println(porte);
+			entPorte.setText(porte);
+
+			String cnae = separar.tratar("text:", "&");
+			System.out.println(cnae);
+			entCnae.setText(cnae);
+
+			String ocupacao = separar.tratar("tipo_inscricao:", "&");
+			System.out.println(ocupacao);
+			entOcupacao.setText(ocupacao);
+
+			// tratando dados de enderecos
+			String bairro = separar.tratar("bairro:", "&");
+			entBairro.setText(bairro);
+			String cep = separar.tratar("cep:", "&");
+			entCep.setText(cep);
+			// String estado = separar.tratar("state:", "&");
+			entEstado.setText(uf);
+			String cidade = separar.tratar("municipio:", "&log");
+			entCidade.setText(cidade);
+			String numero = separar.tratar("numero:", "&");
+			entNumEndereco.setText(numero);
+			String endereco = separar.tratar("logradouro:", "&");
+			entLogradouro.setText(endereco);
+		} else {
+			JOptionPane.showMessageDialog(null, "Erro ao consultar dados de IE no Sintegra");
+
+		}
+		
+		
+		
+		
+	}
 }

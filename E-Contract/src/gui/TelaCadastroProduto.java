@@ -34,7 +34,9 @@ public class TelaCadastroProduto extends JDialog {
 
 
 	public TelaCadastroProduto() {
-		setModal(true);
+		setAlwaysOnTop(true);
+
+		//setModal(true);
 
 		TelaCadastroProduto isto = this;
 		

@@ -76,8 +76,9 @@ public class TelaTransportadores extends JDialog {
 		
 	}
 	public TelaTransportadores(int flag_operacao) {
-		setModal(true);
+		setAlwaysOnTop(true);
 
+		//setModal(true);
 		TelaTransportadores isto = this;
 		
 		setResizable(false);

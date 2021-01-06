@@ -24,20 +24,25 @@ public class GetSintegra {
 
 	
 	private String plugin = "ST";
-	
-	public  GetSintegra(String cpf, String uf)
+	private int flag = -1;
+	public  GetSintegra(String cpf, String uf, int tipo_busca)
 	{
 		this.cpf = cpf;
 		this.uf = uf;
+		this.flag = tipo_busca;
 	}
 	
 
 	public String captura() {
 	OkHttpClient client = new OkHttpClient();
-	String token = "B2925B10-A525-423D-B302-F3B73169A92A";
+	String token = "37B9C76F-EE1F-4D15-8EE6-9299460AD464";
+    String url_ = "";
+	if(flag == 0)
+		url_ = "https://www.sintegraws.com.br/api/v1/execute-api.php?token=" + token + "&cpf=" + cpf + "&uf=" + uf + "&plugin=" + plugin;
+	else if(flag == 1)
+		url_ = "https://www.sintegraws.com.br/api/v1/execute-api.php?token=" + token + "&ie=" + cpf + "&uf=" + uf + "&plugin=" + plugin;
 
-	  String url_ = "https://www.sintegraws.com.br/api/v1/execute-api.php?token=" + token + "&cpf=" + cpf + "&uf=" + uf + "&plugin=" + plugin;
-      //var response = client.GetAsync(url).Result;
+	//var response = client.GetAsync(url).Result;
 	
 	//Request request = new Request.Builder()
 	  //.url(url_)

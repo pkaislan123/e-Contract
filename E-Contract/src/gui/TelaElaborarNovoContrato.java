@@ -231,7 +231,9 @@ public class TelaElaborarNovoContrato extends JDialog {
 		modelo_global = modelo;
 		getDadosGlobais();
 
-		setModal(true);
+		setAlwaysOnTop(true);
+
+		//setModal(true);
 
 		flag_edicao_global = flag_edicao;
 

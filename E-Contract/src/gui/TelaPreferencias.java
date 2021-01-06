@@ -59,7 +59,9 @@ public class TelaPreferencias extends JDialog {
 	 
 	public TelaPreferencias() {
 	
-		setModal(true);
+		setAlwaysOnTop(true);
+
+		//setModal(true);
 		 getDadosGlobais();
 		TelaPreferencias isto = this;
 		

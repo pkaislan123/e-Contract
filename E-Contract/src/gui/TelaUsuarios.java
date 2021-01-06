@@ -75,7 +75,9 @@ public class TelaUsuarios extends JDialog {
      }
 
 	public TelaUsuarios() {
-		
+		setAlwaysOnTop(true);
+
+		//setModal(true);
 		
 		getDadosGlobais();
 		
@@ -174,7 +176,6 @@ public class TelaUsuarios extends JDialog {
 		
 		this.setResizable(false);
 		this.setLocationRelativeTo(null);
-		setModal(true);
 		setVisible(true);
 
 	}

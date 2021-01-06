@@ -2538,6 +2538,32 @@ public int getNumeroTotalContratos() {
               
   	   
      }
+     
+     public boolean atualizarStatusContrato(int id_contrato, int status) {
+    	 
+    	 String sql_atualizar_status_contrato = "update contrato set status_contrato = ? where id = ?";
+     	  Connection conn = null;
+             ResultSet rs = null;	      
+             try {
+                 conn = ConexaoBanco.getConexao();
+                 PreparedStatement pstm;
+                 pstm = conn.prepareStatement(sql_atualizar_status_contrato);
+      
+                 pstm.setInt(1, status);
+                 pstm.setInt(2, id_contrato);
+
+                 pstm.execute();
+                 ConexaoBanco.fechaConexao(conn, pstm);
+                 JOptionPane.showMessageDialog(null, "Status do contrato Atualizado");
+                return true;
+                 
+      
+             } catch (Exception f) {
+                 JOptionPane.showMessageDialog(null, "Erro ao atualizar o status do contrato no banco de"
+                         + "dados " + f.getMessage());
+                return false;
+             }
+     }
    
    
 }

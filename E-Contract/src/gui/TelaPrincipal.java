@@ -768,6 +768,7 @@ public class TelaPrincipal extends JFrame implements GetDadosGlobais {
 
 	public void atualizarGraficoContratos() {
 
+		getDadosContratos();
 		lblTotalContratos.setText(dados_contratos.getNumero_total_contratos() + "");
 		lblTotalContratosAssinados.setText(dados_contratos.getNumero_contratos_assinados() + "");
 		lblTotalContratosAssinar.setText(dados_contratos.getNumero_contratos_assinar() + "");
