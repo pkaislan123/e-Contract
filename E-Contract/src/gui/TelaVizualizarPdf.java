@@ -44,7 +44,7 @@ public class TelaVizualizarPdf extends JDialog {
 
 	//public TelaVizualizarPdf(String arquivo) {
 	public TelaVizualizarPdf(InputStream stream, TelaElaborarNovoContrato pai, TelaEmEspera telaBack, String file) {
-		setAlwaysOnTop(true);
+		//setAlwaysOnTop(true);
 
 		//setModal(true);
 

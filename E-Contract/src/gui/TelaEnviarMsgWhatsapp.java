@@ -93,7 +93,7 @@ public class TelaEnviarMsgWhatsapp extends JDialog {
 
 
 	public TelaEnviarMsgWhatsapp(CadastroContrato contrato) {
-		setAlwaysOnTop(true);
+		//setAlwaysOnTop(true);
 
 		//setModal(true);
 		

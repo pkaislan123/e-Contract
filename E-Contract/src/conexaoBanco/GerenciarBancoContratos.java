@@ -602,7 +602,7 @@ public class GerenciarBancoContratos {
 		  }
 		  
 		  
-          String query = "insert into contrato (codigo, sub_contrato,id_safra, id_produto, medida, quantidade, valor_produto, valor_a_pagar,comissao, clausula_comissao, valor_comissao, clausulas, data_contrato, data_entrega, status_contrato, caminho_diretorio, caminho_arquivo, nome_arquivo) values ('"
+          String query = "insert into contrato (codigo, sub_contrato,id_safra, id_produto, medida, quantidade, valor_produto, valor_a_pagar,frete, clausula_frete,  armazenagem, clausula_armazenagem,  comissao, clausula_comissao, valor_comissao, clausulas, data_contrato, data_entrega, status_contrato, caminho_diretorio, caminho_arquivo, nome_arquivo) values ('"
         		 + contrato.getCodigo() 
                  + "','"
                      + contrato.getSub_contrato()
@@ -618,6 +618,14 @@ public class GerenciarBancoContratos {
                 + contrato.getValor_produto()
                 + "','"
                 + contrato.getValor_a_pagar()
+                + "','"
+                 + contrato.getFrete()
+                + "','"
+                    + contrato.getClausula_frete()
+                + "','"
+                  + contrato.getArmazenagem()
+                + "','"
+                + contrato.getClausula_armazenagem()
                 + "','"
                  + contrato.getComissao()
                 + "','"
@@ -1102,8 +1110,12 @@ public class GerenciarBancoContratos {
                          contrato.setClausula_comissao(rs.getInt("clausula_comissao"));
                          contrato.setValor_comissao(new BigDecimal(rs.getString("valor_comissao")));
                          
-                       
-	            		 
+                        //dados de frete
+                         contrato.setFrete(rs.getString("frete"));
+                         contrato.setClausula_frete(rs.getString("clausula_frete"));
+                         //dados de armazenagem
+                         contrato.setArmazenagem(rs.getString("armazenagem"));
+	            		 contrato.setClausula_armazenagem(rs.getString("clausula_armazenagem"));
     	                 ConexaoBanco.fechaConexao(conn, pstm, rs);
 	            			
 	            		 return contrato;
@@ -1129,7 +1141,7 @@ public class GerenciarBancoContratos {
             String atualizar = null;
             PreparedStatement pstm;
             String sql_update_contrato ="update contrato set id_safra = ?, id_produto = ?, medida = ?, quantidade = ?,\r\n"
-    		 		+ "valor_produto = ?, valor_a_pagar = ?, comissao = ?, clausula_comissao = ?, valor_comissao = ?, clausulas = ?,\r\n"
+    		 		+ "valor_produto = ?, valor_a_pagar = ?, frete = ?, clausula_frete = ?,  armazenagem = ?, clausula_armazenagem = ?, comissao = ?, clausula_comissao = ?, valor_comissao = ?, clausulas = ?,\r\n"
     		 		+ "data_contrato = ?, data_entrega = ?, status_contrato = ?, caminho_diretorio = ?, caminho_arquivo = ?,\r\n"
     		 		+ "nome_arquivo = ? where id = ?;";
             
@@ -1151,19 +1163,24 @@ public class GerenciarBancoContratos {
 		     pstm.setString(5, Double.toString(contrato.getValor_produto()));
 		     
 		     pstm.setString(6, contrato.getValor_a_pagar().toPlainString());
-		     pstm.setString(7, Integer.toString(contrato.getComissao()));
-		     pstm.setString(8, Integer.toString(contrato.getClausula_comissao()));
-		     pstm.setString(9, contrato.getValor_comissao().toPlainString());
-		     pstm.setString(10, texto_clausulas);
+		     pstm.setString(7, contrato.getFrete());
+		     pstm.setString(8, contrato.getClausula_frete());
+		     pstm.setString(9, contrato.getArmazenagem());
+		     pstm.setString(10, contrato.getClausula_armazenagem());
 
-		     pstm.setString(11, contrato.getData_contrato());
-		     pstm.setString(12, contrato.getData_entrega());
-		     pstm.setString(13, Integer.toString(contrato.getStatus_contrato()));
-		     pstm.setString(14,  contrato.getCaminho_diretorio_contrato());
-		     pstm.setString(15, contrato.getCaminho_arquivo());
-		     pstm.setString(16,  contrato.getNome_arquivo());
+		     pstm.setString(11, Integer.toString(contrato.getComissao()));
+		     pstm.setString(12, Integer.toString(contrato.getClausula_comissao()));
+		     pstm.setString(13, contrato.getValor_comissao().toPlainString());
+		     pstm.setString(14, texto_clausulas);
 
-		     pstm.setInt(17, contrato.getId());
+		     pstm.setString(15, contrato.getData_contrato());
+		     pstm.setString(16, contrato.getData_entrega());
+		     pstm.setString(17, Integer.toString(contrato.getStatus_contrato()));
+		     pstm.setString(18,  contrato.getCaminho_diretorio_contrato());
+		     pstm.setString(19, contrato.getCaminho_arquivo());
+		     pstm.setString(20,  contrato.getNome_arquivo());
+
+		     pstm.setInt(21, contrato.getId());
 		     
 		     
 		  
@@ -1298,7 +1315,6 @@ public class GerenciarBancoContratos {
 	            	 contrato.setValor_a_pagar(new BigDecimal(rs.getString("valor_a_pagar")));
 	            	 contrato.setStatus_contrato(rs.getInt("status_contrato"));
 	            	 contrato.setData_contrato(rs.getString("data_contrato"));
-	            	 
 	            	 
 	            	 
 	                 contrato.setNomes_compradores(rs.getString("compradores"));

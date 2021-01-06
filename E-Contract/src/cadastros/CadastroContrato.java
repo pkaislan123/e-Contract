@@ -12,6 +12,62 @@ public class CadastroContrato {
     
     
 
+    private String frete;
+    private String clausula_frete;
+    private String armazenagem;
+    private String clausula_armazenagem;
+    
+    
+    
+    
+	public String getClausula_frete() {
+		return clausula_frete;
+	}
+
+
+
+	public void setClausula_frete(String clausula_frete) {
+		this.clausula_frete = clausula_frete;
+	}
+
+
+
+	public String getClausula_armazenagem() {
+		return clausula_armazenagem;
+	}
+
+
+
+	public void setClausula_armazenagem(String clausula_armazenagem) {
+		this.clausula_armazenagem = clausula_armazenagem;
+	}
+
+
+
+	public String getFrete() {
+		return frete;
+	}
+
+
+
+	public void setFrete(String frete) {
+		this.frete = frete;
+	}
+
+
+
+	public String getArmazenagem() {
+		return armazenagem;
+	}
+
+
+
+	public void setArmazenagem(String armazenagem) {
+		this.armazenagem = armazenagem;
+	}
+
+
+
 	public CadastroCliente getCliente_retirada() {
 		return cliente_retirada;
 	}

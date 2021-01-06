@@ -59,7 +59,7 @@ public class TelaEscolhaTipoNovoContrato extends JDialog {
 				}
 			}
 		});
-		setAlwaysOnTop(true);
+    //		setAlwaysOnTop(true);
 
 		//setModal(true);
 		getDadosGlobais();
