@@ -14,6 +14,21 @@ public class JPanelGrafico extends JPanel{
 	private int assinados = 0;
 	private int total_global = 0 ;
 	
+	public JPanelGrafico(int total, int assinados)
+	{
+		this.assinados = assinados;
+		this.total_global = total;
+		
+		 
+		
+	    lblassinados.setBounds(350, 27, 150, 14);
+	    this.add(lblassinados);
+
+	    lblnao_assinados.setBounds(100, 224, 150, 25);
+	    this.add(lblnao_assinados);
+	}
+	
+	
 	public void setDados(int total, int assinados)
 	{
 	 this.total_global =total;	
@@ -88,18 +103,5 @@ public class JPanelGrafico extends JPanel{
 	 *    
 	 */
 	
-	public JPanelGrafico(int total, int assinados)
-	{
-		this.assinados = assinados;
-		this.total_global = total;
-		
-		 
-		
-	    lblassinados.setBounds(350, 27, 150, 14);
-	    this.add(lblassinados);
 
-	    lblnao_assinados.setBounds(100, 224, 150, 25);
-	    this.add(lblnao_assinados);
-	}
-	
 }

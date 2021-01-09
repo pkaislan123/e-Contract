@@ -84,7 +84,7 @@ public class TelaNotasFiscais extends JDialog {
 	private CadastroCliente cliente_global;
 
 	public TelaNotasFiscais(int flag,CadastroCliente vendedor) {
-		setAlwaysOnTop(true);
+		//setAlwaysOnTop(true);
 
 		//setModal(true);
 		cliente_global= vendedor;
@@ -253,7 +253,7 @@ public class TelaNotasFiscais extends JDialog {
 
 
 		// acessar caminho desses vendedores
-
+           try {
 	
 			String nome_pasta;
 
@@ -289,7 +289,9 @@ public class TelaNotasFiscais extends JDialog {
 			 * } }); }
 			*/
 		
-
+           }catch(Exception f) {
+        	   JOptionPane.showMessageDialog(null, "Erro ao listar notas fiscaisz\nCausa: " + f.getCause() + "\nErro: " + f.getMessage());
+           }
 	}
 
 	public void getDadosGlobais() {

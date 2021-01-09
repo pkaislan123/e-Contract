@@ -632,6 +632,27 @@ ultima_linha 1 Local da Retirada
 
     	}
     	
+    	   if(novo_contrato.getFrete() != null) {
+  	    	 if(!novo_contrato.getFrete().equals("") && novo_contrato.getFrete().length() > 5) {
+  	    		atualizarCelula(formatar(true, 'T', false, false, true, false), ultima_linha,1, "");
+
+  	    		atualizarCelula(formatar(true, 'T', false, false, false, false), ultima_linha,2, novo_contrato.getClausula_frete());
+  	    		atualizarCelula(formatar(true, 'T', false, false, false, true), ultima_linha,9, "");
+  	          	 ultima_linha++;
+  	    	 }
+  	     }
+  	     
+  	     if(novo_contrato.getArmazenagem() != null) {
+  	    	 if(!novo_contrato.getArmazenagem().equals("") && novo_contrato.getArmazenagem().length() > 5) {
+  	    		atualizarCelula(formatar(true, 'T', false, false, true, false), ultima_linha,1, "");
+
+  	    		atualizarCelula(formatar(true, 'T', false, false, false, false), ultima_linha,2, novo_contrato.getClausula_armazenagem());
+  	    		atualizarCelula(formatar(true, 'T', false, false, false, true), ultima_linha,9, "");
+  	          	 ultima_linha++;
+  	    	 }
+  	     }
+
+    	
 		ultima_linha++;
 
 		atualizarCelula(formatar(true, 'T', false, false, true, false), ultima_linha-1,1, "");
@@ -649,6 +670,7 @@ ultima_linha 1 Local da Retirada
     	
     }
 	
+   
     
     public void adicionarAssinaturas(String [] assinaturas)
     {
@@ -976,9 +998,12 @@ public ByteArrayOutputStream alterar(CadastroContrato novo_contrato)
         }
         
 	     ArrayList<String> clausulas_locais = novo_contrato.getClausulas();
-	     adicionarClausulas(clausulas_locais);
-		 adicionarLinhaBranca();
+
+	  
 	     
+	     adicionarClausulas(clausulas_locais);
+	     
+		 adicionarLinhaBranca();
 	     //adicionar assinaturas
 		 adicionarAssinaturas(assinaturas);
 		
@@ -1218,8 +1243,34 @@ public ByteArrayOutputStream alterar(CadastroContrato novo_contrato)
 					}
 				}else {
 					System.out.println("erro ao excluir arquivo xlsx, operação cancelada!");
+					//tentar excluir um arquivo .docx
+					
+					if(manipular_apagar.apagarArquivo(BaseDados_DiretorioArquivo.replace("pdf", "docx"))) {
+						//estamos numa tentativa de conversao de tipo de contrato
+						
+						//apagar o diretorio
+						if(manipular_apagar.limparDiretorio(new File(servidor_unidade + novo_contrato.getCaminho_diretorio_contrato()))) {
+						  //Diretorio foi excluido
+							Nuvem nuvem = new Nuvem();
+					         nuvem.abrir();
+					         nuvem.testar();
+					         nuvem.listar();
+					         nuvem.deletarArquivo(novo_contrato.getNome_arquivo());
+					       JOptionPane.showMessageDialog(null, "Os arquivos foram apagados da memoria e da nuvem!");
+						
+					       proceder = true;
+						}
+						else {
+							proceder = false;
+							System.out.println("Erro ao excluir o direrorio do contrato");
+
+						}
+						
+						
+					}else {
 					retorno_final = 4;
 					proceder = false;
+					}
 				}
 				
 			}else {

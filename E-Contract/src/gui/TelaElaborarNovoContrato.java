@@ -22,6 +22,7 @@ import cadastros.CadastroSafra;
 import conexaoBanco.GerenciarBancoClientes;
 import conexaoBanco.GerenciarBancoContratos;
 import conexaoBanco.GerenciarBancoSafras;
+import gui.TelaGerenciarContrato.PainelInformativo;
 import cadastros.ContaBancaria;
 import classesExtras.CBLocalRetiradaPersonalizado;
 import classesExtras.CBLocalRetiradaRenderPersonalizado;
@@ -34,6 +35,8 @@ import manipular.EditarExcel;
 import manipular.EditarWord;
 import manipular.Excel;
 import manipular.ManipularTxt;
+import manipular.PorExtenso;
+import net.miginfocom.swing.MigLayout;
 import outros.DadosGlobais;
 import outros.GetData;
 import tratamento_proprio.Log;
@@ -98,7 +101,7 @@ public class TelaElaborarNovoContrato extends JDialog {
 	private JPanel painelEmpresa = new JPanel();
 	private JPanel painelFinalizar = new JPanel();
 	private JComboBox cBComprador, cBFrete, cBArmazenagem;
-;
+
 	private CadastroContrato novo_contrato = new CadastroContrato();
 	private JComboBox cBVendedor1;
 	private JTextField entQuantidade;
@@ -227,6 +230,7 @@ public class TelaElaborarNovoContrato extends JDialog {
 	private JLabel mostrar_soma_atual_restante;
 	private JTextField entClausulaFrete;
 	private JTextField entClausulaArmazenagem;
+	private JPanel painelInfoTelaPrincipal;
 
 	public TelaElaborarNovoContrato(CadastroModelo modelo, int tipoContrato, CadastroContrato contrato_pai,
 			int flag_edicao) {
@@ -384,10 +388,8 @@ public class TelaElaborarNovoContrato extends JDialog {
 		chBoxClausula3.setFont(new Font("SansSerif", Font.PLAIN, 14));
 
 		entClausula3 = new JTextField();
-		entClausula3.setEnabled(false);
 		entClausula3.setBounds(280, 125, 681, 28);
 		panel.add(entClausula3);
-		entClausula3.setEditable(false);
 		entClausula3.setFont(new Font("SansSerif", Font.PLAIN, 14));
 		entClausula3.setColumns(10);
 
@@ -1037,8 +1039,9 @@ public class TelaElaborarNovoContrato extends JDialog {
 		lblNomeVendedor.setFont(new Font("Tahoma", Font.PLAIN, 14));
 
 		painelDadosCodigoData = new JPanel();
+		painelDadosCodigoData.setBorder(new LineBorder(new Color(0, 0, 0)));
 		painelDadosCodigoData.setBackground(SystemColor.text);
-		painelDadosCodigoData.setBounds(251, 37, 388, 154);
+		painelDadosCodigoData.setBounds(270, 76, 395, 154);
 		painelDadosIniciais.add(painelDadosCodigoData);
 		painelDadosCodigoData.setLayout(null);
 
@@ -1143,7 +1146,7 @@ public class TelaElaborarNovoContrato extends JDialog {
 
 		painelDefinirPartes = new JPanel();
 		painelDefinirPartes.setBackground(SystemColor.text);
-		painelDefinirPartes.setBounds(649, 37, 688, 193);
+		painelDefinirPartes.setBounds(684, 37, 653, 193);
 
 		Border lineBorder1 = BorderFactory.createLineBorder(Color.black);
 		TitledBorder title1 = BorderFactory.createTitledBorder(lineBorder, "");
@@ -1517,6 +1520,8 @@ public class TelaElaborarNovoContrato extends JDialog {
 		lblIe_3.setFont(new Font("Tahoma", Font.PLAIN, 14));
 		lblIe_3.setBounds(332, 62, 27, 14);
 		painelDadosCorretor.add(lblIe_3);
+		
+	
 
 		btnPesquisarVendedor1.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
@@ -1641,7 +1646,7 @@ public class TelaElaborarNovoContrato extends JDialog {
 		lblValorTotalComisao1 = new JLabel("");
 		lblValorTotalComisao1.setFont(new Font("Tahoma", Font.BOLD, 14));
 		lblValorTotalComisao1.setEnabled(false);
-		lblValorTotalComisao1.setBounds(638, 349, 174, 28);
+		lblValorTotalComisao1.setBounds(754, 486, 174, 28);
 		painelDadosProdutos.add(lblValorTotalComisao1);
 
 		entComissao.setEditable(false);
@@ -1722,7 +1727,7 @@ public class TelaElaborarNovoContrato extends JDialog {
 
 		mostrar_valor_total_contrato = new JLabel("");
 		mostrar_valor_total_contrato.setFont(new Font("Tahoma", Font.BOLD, 16));
-		mostrar_valor_total_contrato.setBounds(142, 32, 110, 42);
+		mostrar_valor_total_contrato.setBounds(142, 32, 177, 42);
 		painelEmpresa.add(mostrar_valor_total_contrato);
 
 		painel_table_cb = new JPanel();
@@ -2052,7 +2057,8 @@ public class TelaElaborarNovoContrato extends JDialog {
 						.replace(".", "").replace(",", ".");
 
 				System.out.println("Svalor_pagamento: " + Svalor_pagamento);
-				BigDecimal valor_pagamento = new BigDecimal(Float.parseFloat(Svalor_pagamento));
+				Svalor_pagamento = Svalor_pagamento.replaceAll( " ", "");
+				BigDecimal valor_pagamento = new BigDecimal(Svalor_pagamento);
 
 				int id_conta = Integer.parseInt(table_cb.getValueAt(indiceDaLinha, 1).toString());
 
@@ -2406,7 +2412,9 @@ public class TelaElaborarNovoContrato extends JDialog {
 							clausulas_locais.add(entClausula1.getText().toString());
 							clausulas_locais.add(entClausula2.getText().toString());
 
-							
+							if (chBoxClausulaComissao.isSelected()) {
+								clausulas_locais.add(entClausula3.getText().toString());
+							}
 							
 							if (chBoxClausula4.isSelected()) {
 								clausulas_locais.add(entClausula4.getText().toString());
@@ -2421,9 +2429,8 @@ public class TelaElaborarNovoContrato extends JDialog {
 
 							}
 							
-							if (chBoxClausulaComissao.isSelected()) {
-								clausulas_locais.add(entClausula3.getText().toString());
-							}
+							novo_contrato.setClausulas(clausulas_locais);
+
 							
 							//clausula frete
 
@@ -2432,6 +2439,8 @@ public class TelaElaborarNovoContrato extends JDialog {
 								novo_contrato.setFrete(cBFrete.getSelectedItem().toString());
 								novo_contrato.setClausula_frete(entClausulaFrete.getText());
 
+							}else {
+								novo_contrato.setFrete("");
 							}
 							
 							//clausula armazenagem
@@ -2440,9 +2449,10 @@ public class TelaElaborarNovoContrato extends JDialog {
 								novo_contrato.setArmazenagem(cBArmazenagem.getSelectedItem().toString());
 								novo_contrato.setClausula_armazenagem(entClausulaArmazenagem.getText());
 
+							}else {
+								novo_contrato.setArmazenagem("");
 							}
 	                        
-							novo_contrato.setClausulas(clausulas_locais);
 							esperar.setMsg("Elaborando Contrato");
 
 							// editar.abrir();
@@ -2513,13 +2523,40 @@ public class TelaElaborarNovoContrato extends JDialog {
 				rotinasEdicao();
 				setClausulas();
 				// modo de edicao de subcontrato
-				setInfoPai();
+			
+
+				//setInfoPai();
 
 			} else {
 				rotinasSubContrato();
-				setInfoPai();
 
 			}
+			
+			PainelInformativo painel_informacoes1 = new PainelInformativo();
+			PainelInformativo painel_informacoes2 = new PainelInformativo();
+
+			JPanel panelInformativoAbaPrincipal = new JPanel();
+			JPanel panelInformativoAbaproduto = new JPanel();
+
+			panelInformativoAbaPrincipal.setBounds(0, 0, 411, 335);
+			panelInformativoAbaPrincipal.add(painel_informacoes1);
+			
+			panelInformativoAbaproduto.setBounds(0, 0, 411, 335);
+			panelInformativoAbaproduto.add(painel_informacoes2);
+			
+			
+			painelDadosIniciais.add(panelInformativoAbaPrincipal);
+			painelDadosProdutos.add(panelInformativoAbaproduto);
+
+			panelInformativoAbaPrincipal.setBackground(Color.white);
+			panelInformativoAbaPrincipal.setLayout(null);
+			
+			panelInformativoAbaproduto.setBackground(Color.white);
+			panelInformativoAbaproduto.setLayout(null);
+			
+			
+			
+			
 		} else {
 			// e um contrato original
 			if (flag_edicao == 1) {
@@ -2531,10 +2568,14 @@ public class TelaElaborarNovoContrato extends JDialog {
 			}
 		}
 
+	
+		
 		this.setLocationRelativeTo(null);
 		this.setBounds(GraphicsEnvironment.getLocalGraphicsEnvironment().getMaximumWindowBounds());
 		isto = this;
 
+	
+		
 		this.setVisible(true);
 
 	}
@@ -2784,7 +2825,7 @@ public class TelaElaborarNovoContrato extends JDialog {
 			} else if (result == 5) {
 				JOptionPane.showMessageDialog(null, "Contrato atualizado e salvo na base de dados");
 				DadosGlobais dados = DadosGlobais.getInstance();
-				// dados.getTeraGerenciarContratoPai().atualizarContratoLocal();
+				 dados.getTeraGerenciarContratoPai().atualizarContratoLocal();
 				isto.dispose();
 			}
 		} else {
@@ -2878,9 +2919,27 @@ public class TelaElaborarNovoContrato extends JDialog {
 	}
 
 	public void setClausulaComissao(String valor) {
-		if (chBoxClausulaComissao.isSelected())
-			entClausula3.setText("Comissão de R$ " + valor + " por " + unidadeGlobal + " pagas ao corretor");
+		try {
+		if (chBoxClausulaComissao.isSelected()) {
+		  
+			String valor_texto = new PorExtenso(Double.parseDouble(valor.replace(",", "."))).toString();
+			double _valor = Double.parseDouble(valor.replace(",", "."));
+			
+			String s_quantidade = entQuantidade.getText();
+			double quantidade = Double.parseDouble(s_quantidade);
+			
+			double valor_total = quantidade * _valor;
+			
+			String valor_total_extenso = new PorExtenso(valor_total).toString();
 
+			entClausula3.setText("Comissão de R$ " + _valor + " ( " + valor_texto.toLowerCase() + " ) por " + unidadeGlobal + 
+					" pagas ao CORRETOR do CONTRATO, no valor total de R$ " + valor_total + " ("
+					+ valor_total_extenso.toLowerCase() + " ).");
+
+		}
+		}catch(Exception e) {
+			JOptionPane.showMessageDialog(null, "Informe a quantidade e o valor da comissão corretamente!");
+		}
 	}
 
 	public void setClausula2(String nome_produto) {
@@ -2997,13 +3056,15 @@ public class TelaElaborarNovoContrato extends JDialog {
 
 			}
 
-		}
-		String valorString2 = NumberFormat.getCurrencyInstance(ptBr)
-				.format(Float.parseFloat(valor_tot_comissao.toPlainString()));
+			String valorString2 = NumberFormat.getCurrencyInstance(ptBr)
+					.format(Float.parseFloat(valor_tot_comissao.toPlainString()));
 
-		mostrar_valor_total_comissao.setText(valorString2);
-		lblValorTotalComisao1.setText(valorString2);
-		valor_total_comissao = valor_tot_comissao;
+			mostrar_valor_total_comissao.setText(valorString2);
+			lblValorTotalComisao1.setText(valorString2);
+			valor_total_comissao = valor_tot_comissao;
+			
+		}
+		
 
 		setPagamentos();
 
@@ -3281,131 +3342,7 @@ public class TelaElaborarNovoContrato extends JDialog {
 
 	}
 
-	public void setInfoPai() {
 
-		CadastroCliente compradores[] = contrato_pai_local.getCompradores();
-		CadastroCliente vendedores[] = contrato_pai_local.getVendedores();
-
-		JPanel painelInfoPai = new JPanel();
-		painelInfoPai.setBackground(SystemColor.info);
-		painelInfoPai.setBounds(43, 41, 241, 245);
-		painelDadosIniciais.add(painelInfoPai);
-		painelDadosProdutos.add(painelInfoPai);
-
-		painelInfoPai.setLayout(null);
-
-		JLabel lblNewLabel_1 = new JLabel("Informações do contrato original");
-		lblNewLabel_1.setBounds(44, 13, 171, 14);
-		painelInfoPai.add(lblNewLabel_1);
-
-		JLabel lblNewLabel_2 = new JLabel("Comprador:");
-		lblNewLabel_2.setBounds(10, 38, 69, 14);
-		painelInfoPai.add(lblNewLabel_2);
-
-		JLabel lblNewLabel_2_1 = new JLabel("Vendedor:");
-		lblNewLabel_2_1.setBounds(10, 63, 69, 14);
-		painelInfoPai.add(lblNewLabel_2_1);
-
-		JLabel lblNewLabel_2_1_1 = new JLabel("Vendedor:");
-		lblNewLabel_2_1_1.setBounds(10, 88, 69, 14);
-		painelInfoPai.add(lblNewLabel_2_1_1);
-
-		JLabel lblNewLabel_2_1_1_1 = new JLabel("Safra:");
-		lblNewLabel_2_1_1_1.setBounds(10, 113, 69, 14);
-		painelInfoPai.add(lblNewLabel_2_1_1_1);
-
-		JLabel lblNewLabel_2_1_1_2 = new JLabel("Medida:");
-		lblNewLabel_2_1_1_2.setBounds(10, 138, 69, 14);
-		painelInfoPai.add(lblNewLabel_2_1_1_2);
-
-		JLabel lblNewLabel_2_1_1_2_1 = new JLabel("Quantidade:");
-		lblNewLabel_2_1_1_2_1.setBounds(10, 166, 69, 14);
-		painelInfoPai.add(lblNewLabel_2_1_1_2_1);
-
-		JLabel lblNewLabel_2_1_1_2_1_1 = new JLabel("Valor por Medida:");
-		lblNewLabel_2_1_1_2_1_1.setBounds(10, 199, 96, 14);
-		painelInfoPai.add(lblNewLabel_2_1_1_2_1_1);
-
-		JLabel lblNewLabel_2_1_1_2_1_2 = new JLabel("Valor Total:");
-		lblNewLabel_2_1_1_2_1_2.setBounds(10, 224, 69, 14);
-		painelInfoPai.add(lblNewLabel_2_1_1_2_1_2);
-
-		JLabel lblInfoComprador = new JLabel("");
-		lblInfoComprador.setBounds(129, 38, 103, 14);
-		painelInfoPai.add(lblInfoComprador);
-		if (compradores[0].getTipo_pessoa() == 0) {
-			// pessoa fisica
-			lblInfoComprador.setText(compradores[0].getNome_empresarial());
-
-		} else {
-			lblInfoComprador.setText(compradores[0].getNome_fantaia());
-
-		}
-
-		JLabel lblInfoVendedor1 = new JLabel("");
-		lblInfoVendedor1.setBounds(129, 63, 86, 14);
-		painelInfoPai.add(lblInfoVendedor1);
-		if (vendedores[0].getTipo_pessoa() == 0) {
-			// pessoa fisica
-			lblInfoComprador.setText(vendedores[0].getNome_empresarial());
-
-		} else {
-			lblInfoVendedor1.setText(vendedores[0].getNome_fantaia());
-
-		}
-
-		JLabel lblInfoVendedor2 = new JLabel("");
-		lblInfoVendedor2.setBounds(129, 88, 86, 14);
-		painelInfoPai.add(lblInfoVendedor2);
-		if (vendedores[1] != null) {
-			if (vendedores[1].getTipo_pessoa() == 0) {
-
-				// pessoa fisica
-				lblInfoComprador.setText(vendedores[0].getNome_empresarial());
-			} else {
-				lblInfoVendedor1.setText(vendedores[0].getNome_fantaia());
-
-			}
-
-		}
-
-		JLabel lblInfoSafra = new JLabel("");
-		lblInfoSafra.setBounds(129, 113, 90, 14);
-		painelInfoPai.add(lblInfoSafra);
-		String info_safra = contrato_pai_local.getModelo_safra().getProduto().getNome_produto() + " "
-				+ contrato_pai_local.getModelo_safra().getAno_plantio() + "/"
-				+ contrato_pai_local.getModelo_safra().getAno_colheita();
-
-		lblInfoSafra.setText(info_safra);
-
-		JLabel lblInfoMedida = new JLabel("");
-		lblInfoMedida.setBounds(129, 138, 96, 14);
-		painelInfoPai.add(lblInfoMedida);
-		lblInfoMedida.setText(contrato_pai_local.getMedida());
-
-		JLabel lblInfoQuantidade = new JLabel("");
-		lblInfoQuantidade.setBounds(129, 166, 90, 14);
-		painelInfoPai.add(lblInfoQuantidade);
-		lblInfoQuantidade
-				.setText(Double.toString(contrato_pai_local.getQuantidade()) + " " + contrato_pai_local.getMedida());
-
-		JLabel lblInfoValorQuantidade = new JLabel("");
-		lblInfoValorQuantidade.setBounds(129, 199, 90, 14);
-		painelInfoPai.add(lblInfoValorQuantidade);
-		Locale ptBr = new Locale("pt", "BR");
-		String valorString = NumberFormat.getCurrencyInstance(ptBr).format(contrato_pai_local.getValor_produto());
-		lblInfoValorQuantidade.setText(valorString);
-
-		JLabel lblInfoValorTotal = new JLabel("");
-		lblInfoValorTotal.setBounds(136, 224, 96, 14);
-		painelInfoPai.add(lblInfoValorTotal);
-		valorString = NumberFormat.getCurrencyInstance(ptBr)
-				.format(Double.parseDouble(contrato_pai_local.getValor_a_pagar().toPlainString()));
-
-		lblInfoValorTotal.setText(valorString);
-	}
-	
-	
 	
 	public String calculoCobertura(double valor_pagamento) {
 		String retorno = "";
@@ -3442,4 +3379,207 @@ public class TelaElaborarNovoContrato extends JDialog {
 		
 		return retorno;
 	}
+	
+	
+	public class PainelInformativo extends JPanel {
+		
+		
+		
+		public PainelInformativo() {
+			CadastroCliente compradores[] = contrato_pai_local.getCompradores();
+			CadastroCliente vendedores[] = contrato_pai_local.getVendedores();
+
+			
+			
+			
+			JPanel panel = this;
+			panel.setBorder(new LineBorder(new Color(0, 0, 0)));
+			panel.setBackground(new Color(255, 255, 255));
+			panel.setBounds(0, 0, 349, 271);
+			panel.setLayout(new MigLayout("", "[][][]", "[][][][][][][][][][][][][][]"));
+			
+			JLabel lblInformaesDoContrato = new JLabel("Informações do Contrato Original");
+			lblInformaesDoContrato.setFont(new Font("Dialog", Font.BOLD, 10));
+			panel.add(lblInformaesDoContrato, "cell 1 0,alignx left");
+			
+			JLabel lblNewLabel_2_1_1_2_1_2_1_1 = new JLabel("Data Contrato:");
+			lblNewLabel_2_1_1_2_1_2_1_1.setFont(new Font("Dialog", Font.PLAIN, 12));
+			panel.add(lblNewLabel_2_1_1_2_1_2_1_1, "cell 0 1,alignx left");
+			
+			JLabel lblInfoDataContrato = new JLabel("01/01/01");
+			lblInfoDataContrato.setFont(new Font("Dialog", Font.PLAIN, 12));
+			panel.add(lblInfoDataContrato, "cell 1 1,alignx left");
+			
+			JLabel lblNewLabel_2 = new JLabel("Comprador:");
+			lblNewLabel_2.setFont(new Font("Dialog", Font.PLAIN, 12));
+			panel.add(lblNewLabel_2, "cell 0 2,alignx left");
+			
+			JLabel lblInfoComprador = new JLabel("Marcos Alexandre Andrade de Carvalho e Outros");
+			lblInfoComprador.setFont(new Font("Dialog", Font.PLAIN, 12));
+			panel.add(lblInfoComprador, "cell 1 2,alignx left");
+			
+			JLabel lblNewLabel_2_1 = new JLabel("Vendedor:");
+			lblNewLabel_2_1.setFont(new Font("Dialog", Font.PLAIN, 12));
+			panel.add(lblNewLabel_2_1, "cell 0 3,alignx left");
+			
+			JLabel lblInfoVendedor1 = new JLabel("Vendedor1");
+			lblInfoVendedor1.setFont(new Font("Dialog", Font.PLAIN, 12));
+			panel.add(lblInfoVendedor1, "cell 1 3,alignx left");
+			
+			JLabel lblNewLabel_2_1_1 = new JLabel("Vendedor:");
+			lblNewLabel_2_1_1.setFont(new Font("Dialog", Font.PLAIN, 12));
+			panel.add(lblNewLabel_2_1_1, "cell 0 4,alignx left");
+			
+			JLabel lblInfoVendedor2 = new JLabel(" ");
+			lblInfoVendedor2.setFont(new Font("Dialog", Font.PLAIN, 12));
+			panel.add(lblInfoVendedor2, "cell 1 4,alignx left");
+			
+			JLabel lblNewLabel_2_1_1_1 = new JLabel("Safra:");
+			lblNewLabel_2_1_1_1.setFont(new Font("Dialog", Font.PLAIN, 12));
+			panel.add(lblNewLabel_2_1_1_1, "cell 0 5,alignx left");
+			
+			JLabel lblInfoSafra = new JLabel("<dynamic> 0/0");
+			lblInfoSafra.setFont(new Font("Dialog", Font.PLAIN, 12));
+			panel.add(lblInfoSafra, "cell 1 5,alignx left");
+			
+			JLabel lblNewLabel_2_1_1_2 = new JLabel("Medida:");
+			lblNewLabel_2_1_1_2.setFont(new Font("Dialog", Font.PLAIN, 12));
+			panel.add(lblNewLabel_2_1_1_2, "cell 0 6,alignx left");
+			
+			JLabel lblInfoMedida = new JLabel("Sacos");
+			lblInfoMedida.setFont(new Font("Dialog", Font.PLAIN, 12));
+			panel.add(lblInfoMedida, "cell 1 6,alignx left");
+			
+			JLabel lblNewLabel_2_1_1_2_1 = new JLabel("Quantidade:");
+			lblNewLabel_2_1_1_2_1.setFont(new Font("Dialog", Font.PLAIN, 12));
+			panel.add(lblNewLabel_2_1_1_2_1, "cell 0 7,alignx left");
+			
+			JLabel lblInfoQuantidade = new JLabel("0.0 <dynamic>");
+			lblInfoQuantidade.setFont(new Font("Dialog", Font.PLAIN, 12));
+			panel.add(lblInfoQuantidade, "cell 1 7,alignx left");
+			
+			JLabel lblNewLabel_2_1_1_2_1_1 = new JLabel("Valor por Medida:");
+			lblNewLabel_2_1_1_2_1_1.setFont(new Font("Dialog", Font.PLAIN, 12));
+			panel.add(lblNewLabel_2_1_1_2_1_1, "cell 0 8,alignx left");
+			
+			JLabel lblInfoValorMedida = new JLabel("R$ 0,00");
+			lblInfoValorMedida.setFont(new Font("Dialog", Font.PLAIN, 12));
+			panel.add(lblInfoValorMedida, "cell 1 8,alignx left");
+			
+			JLabel lblNewLabel_2_1_1_2_1_2 = new JLabel("Valor Total:");
+			lblNewLabel_2_1_1_2_1_2.setFont(new Font("Dialog", Font.PLAIN, 12));
+			panel.add(lblNewLabel_2_1_1_2_1_2, "cell 0 9,alignx left");
+			
+			JLabel lblInfoValorTotal = new JLabel("R$ 0,00");
+			lblInfoValorTotal.setFont(new Font("Dialog", Font.PLAIN, 12));
+			panel.add(lblInfoValorTotal, "cell 1 9,alignx left");
+			
+			JLabel lblNewLabel_2_1_1_2_1_2_1 = new JLabel("Data Entrega:");
+			lblNewLabel_2_1_1_2_1_2_1.setFont(new Font("Dialog", Font.PLAIN, 12));
+			panel.add(lblNewLabel_2_1_1_2_1_2_1, "cell 0 10,alignx left");
+			
+			JLabel lblInfoDataEntrega = new JLabel("R$ 0,00");
+			lblInfoDataEntrega.setFont(new Font("Dialog", Font.PLAIN, 12));
+			panel.add(lblInfoDataEntrega, "cell 1 10,alignx left");
+			
+			JLabel lblNewComissao = new JLabel("Comissão:");
+			lblNewComissao.setFont(new Font("Dialog", Font.PLAIN, 12));
+			panel.add(lblNewComissao, "cell 0 11,alignx left");
+			
+			JLabel lblInfoComissao = new JLabel("Sim");
+			lblInfoComissao.setFont(new Font("Dialog", Font.PLAIN, 12));
+			panel.add(lblInfoComissao, "cell 1 11,alignx left");
+			
+			JLabel lblValorComisso1 = new JLabel("Valor Comissão:");
+			lblValorComisso1.setFont(new Font("Dialog", Font.PLAIN, 12));
+			panel.add(lblValorComisso1, "cell 0 12,alignx left");
+			
+			JLabel lblValorComissao = new JLabel("R$ 0,00");
+			lblValorComissao.setFont(new Font("Dialog", Font.PLAIN, 12));
+			lblValorComissao.setToolTipText("");
+			panel.add(lblValorComissao, "cell 1 12,alignx left");
+		
+		
+		
+		
+			lblInfoDataContrato.setText(contrato_pai_local.getData_contrato());
+			lblInfoDataEntrega.setText(contrato_pai_local.getData_entrega());
+
+		
+	          if(contrato_pai_local.getComissao() == 1) {
+	        	  
+	        	  //tem comissao
+	        	  lblInfoComissao.setText("SIM");
+
+	        	  lblValorComissao.setText(contrato_pai_local.getValor_comissao().toPlainString());
+
+	          }else {
+	        	  lblInfoComissao.setText("NÃO");
+	        	  lblValorComissao.setText("");
+
+	          }
+	
+			
+			
+			
+			if (compradores[0].getTipo_pessoa() == 0) {
+				// pessoa fisica
+				lblInfoComprador.setText(compradores[0].getNome_empresarial());
+
+			} else {
+				lblInfoComprador.setText(compradores[0].getNome_fantaia());
+
+			}
+
+			if (vendedores[0].getTipo_pessoa() == 0) {
+				// pessoa fisica
+				lblInfoVendedor1.setText(vendedores[0].getNome_empresarial());
+
+			} else {
+				lblInfoVendedor1.setText(vendedores[0].getNome_fantaia());
+
+			}
+
+			
+			if (vendedores[1] != null) {
+				if (vendedores[1].getTipo_pessoa() == 0) {
+
+					// pessoa fisica
+					lblInfoVendedor2.setText(vendedores[0].getNome_empresarial());
+				} else {
+					lblInfoVendedor2.setText(vendedores[0].getNome_fantaia());
+
+				}
+
+			}
+
+		
+			String info_safra = contrato_pai_local.getModelo_safra().getProduto().getNome_produto() + " "
+					+ contrato_pai_local.getModelo_safra().getAno_plantio() + "/"
+					+ contrato_pai_local.getModelo_safra().getAno_colheita();
+
+			lblInfoSafra.setText(info_safra);
+
+			
+			lblInfoMedida.setText(contrato_pai_local.getMedida());
+
+			
+			lblInfoQuantidade.setText(Double.toString(contrato_pai_local.getQuantidade()) + " " + contrato_pai_local.getMedida());
+
+		
+			Locale ptBr = new Locale("pt", "BR");
+			String valorString = NumberFormat.getCurrencyInstance(ptBr).format(contrato_pai_local.getValor_produto());
+			lblInfoValorMedida.setText(valorString);
+
+			
+			valorString = NumberFormat.getCurrencyInstance(ptBr)
+					.format(Double.parseDouble(contrato_pai_local.getValor_a_pagar().toPlainString()));
+
+			lblInfoValorTotal.setText(valorString);
+		}
+
+		
+	}
+	
+	
 }

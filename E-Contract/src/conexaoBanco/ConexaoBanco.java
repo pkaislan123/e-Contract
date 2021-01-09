@@ -7,6 +7,8 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 
+import javax.swing.JOptionPane;
+
 import cadastros.CadastroBaseDados;
 import cadastros.CadastroLogin;
 import manipular.ConfiguracoesGlobais;
@@ -49,7 +51,11 @@ public class ConexaoBanco {
 	 
  }catch (SQLException e) {
      System.out.println("erro na conexao com o bd");
-
+        JOptionPane.showMessageDialog(null, "Erro ao se conectar no banco de dados:\nErro: " 
+        		+ e.getMessage()+
+        		"\nCausa: " + e.getCause()
+        		
+        		);
         throw new SQLException("Erro ao conectar "
                 + "com a base de dados" + 
                 e.getMessage());

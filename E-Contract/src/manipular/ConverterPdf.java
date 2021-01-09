@@ -102,7 +102,7 @@ public class ConverterPdf {
 			e.printStackTrace();
 		}
 
-		 com.spire.xls.Workbook  workbook1 = new com.spire.xls.Workbook();;
+		 com.spire.xls.Workbook  workbook1 = new com.spire.xls.Workbook();
 		 workbook1.loadFromFile("C:\\ProgramData\\E-Contract\\temp_files\\teste.xlsx");
 
 	        //Get the second worksheet

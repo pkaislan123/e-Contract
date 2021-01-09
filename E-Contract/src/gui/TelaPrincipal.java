@@ -29,11 +29,9 @@ import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JList;
 
-
 import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
 import javax.swing.table.DefaultTableModel;
-
 
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartPanel;
@@ -46,14 +44,18 @@ import cadastros.CadastroBaseArquivos;
 import cadastros.CadastroBaseDados;
 import cadastros.CadastroLogin;
 import cadastros.CadastroModelo;
+import cadastros.CadastroSafra;
 import cadastros.Contato;
 import cadastros.DadosContratos;
 import chat.Cliente;
 import chat.Servidor;
+import classesExtras.ComboBoxPersonalizado;
+import classesExtras.ComboBoxRenderPersonalizado;
 import classesExtras.RenderizadorChat;
 import conexaoBanco.GerenciarBancoContratos;
 import conexaoBanco.GerenciarBancoLogin;
 import conexaoBanco.GerenciarBancoPadrao;
+import conexaoBanco.GerenciarBancoSafras;
 import conexoes.TesteConexao;
 import manipular.ConfiguracoesGlobais;
 import manipular.EditarWord;
@@ -91,6 +93,7 @@ import javax.swing.JTable;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import javax.swing.JTabbedPane;
+import javax.swing.JComboBox;
 
 public class TelaPrincipal extends JFrame implements GetDadosGlobais {
 
@@ -101,7 +104,7 @@ public class TelaPrincipal extends JFrame implements GetDadosGlobais {
 	private JLabel lblDireitos;
 	private Log GerenciadorLog;
 	private CadastroLogin login;
-	private JPanelGrafico painelGrafico;
+	private JPanelGrafico painelGraficoContratos;
 	private JLabel lblTotalContratos, lblTotalContratosAssinar, lblTotalContratosAssinados;
 	private boolean executou = false;
 	private DadosContratos dados_contratos = new DadosContratos();
@@ -110,14 +113,19 @@ public class TelaPrincipal extends JFrame implements GetDadosGlobais {
 			imgBaseArquivos, urlInternet, imgInternet, urlNuvem, imgNuvem, lblNovaMensagem;
 	private ConfiguracoesGlobais configs_globais;
 	private ArrayList<CadastroLogin> usuarios = new ArrayList<>();
+	private JComboBox cbContratosPorSafra;
 
+	private ComboBoxPersonalizado modelSafra = new ComboBoxPersonalizado();
+	private ComboBoxRenderPersonalizado cBSafraPersonalizado;
+	private static ArrayList<CadastroSafra> safras = new ArrayList<>();
+
+	
 	DefaultTableModel modelo_usuarios = new DefaultTableModel() {
 		public boolean isCellEditable(int linha, int coluna) {
 			return false;
 		}
 	};
-	
-	
+
 	private TelaChat telaChat;
 
 	public TelaPrincipal() {
@@ -427,68 +435,38 @@ public class TelaPrincipal extends JFrame implements GetDadosGlobais {
 				lblDireitos.setText("Auxiliar Administrativo");
 		}
 
-		painelGrafico = new JPanelGrafico(0, 0);
-		painelGrafico.setBounds(10, 62, 487, 269);
-		contentPane.add(painelGrafico);
-		painelGrafico.setLayout(null);
-
-		JLabel lblNewLabel_1 = new JLabel("Total de Contratos:");
-		lblNewLabel_1.setBounds(22, 31, 117, 14);
-		painelGrafico.add(lblNewLabel_1);
-
-		lblTotalContratos = new JLabel("");
-		lblTotalContratos.setBounds(149, 31, 46, 14);
-		painelGrafico.add(lblTotalContratos);
-
-		JLabel lblNewLabel_1_1 = new JLabel("Assinar:");
-		lblNewLabel_1_1.setBounds(22, 56, 94, 14);
-		painelGrafico.add(lblNewLabel_1_1);
-
-		lblTotalContratosAssinar = new JLabel("");
-		lblTotalContratosAssinar.setBounds(149, 56, 46, 14);
-		painelGrafico.add(lblTotalContratosAssinar);
-
-		JLabel lblNewLabel_1_2 = new JLabel("Assinados:");
-		lblNewLabel_1_2.setBounds(22, 81, 94, 14);
-		painelGrafico.add(lblNewLabel_1_2);
-
-		lblTotalContratosAssinados = new JLabel("");
-		lblTotalContratosAssinados.setBounds(149, 81, 46, 14);
-		painelGrafico.add(lblTotalContratosAssinados);
-
 		modelo_usuarios.addColumn("Usuario");
 		modelo_usuarios.addColumn("Ip");
 		modelo_usuarios.addColumn("Status");
-		
+
 		JPanel panel_2 = new JPanel();
 		panel_2.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent arg0) {
-				
-				if(telaChat == null) {
-				  telaChat = new TelaChat();
-				  telaChat.setTelaPai(isto);
-				}
-				else {
+
+				if (telaChat == null) {
+					telaChat = new TelaChat();
+					telaChat.setTelaPai(isto);
+				} else {
 					telaChat.setVisible(true);
-					java.awt.EventQueue.invokeLater(new Runnable() { 
-					    public void run() { 
-					lblNovaMensagem.setIcon(null);
-					
-					lblNovaMensagem.repaint();
-			    	lblNovaMensagem.updateUI();
-					    } 
-					}); 
-				
+					java.awt.EventQueue.invokeLater(new Runnable() {
+						public void run() {
+							lblNovaMensagem.setIcon(null);
+
+							lblNovaMensagem.repaint();
+							lblNovaMensagem.updateUI();
+						}
+					});
+
 				}
-				
+
 			}
 		});
 		panel_2.setLayout(null);
 		panel_2.setBackground(new Color(102, 204, 204));
 		panel_2.setBounds(1099, 627, 251, 62);
 		contentPane.add(panel_2);
-		
+
 		JLabel lblNewLabel_3 = new JLabel("     Mensagens");
 		lblNewLabel_3.setOpaque(true);
 		lblNewLabel_3.setForeground(Color.WHITE);
@@ -496,12 +474,125 @@ public class TelaPrincipal extends JFrame implements GetDadosGlobais {
 		lblNewLabel_3.setBackground(new Color(0, 0, 153));
 		lblNewLabel_3.setBounds(133, 17, 161, 28);
 		panel_2.add(lblNewLabel_3);
-		
-		 lblNovaMensagem = new JLabel("");
+
+		lblNovaMensagem = new JLabel("");
 		lblNovaMensagem.setFont(new Font("Tahoma", Font.PLAIN, 18));
 		lblNovaMensagem.setForeground(Color.WHITE);
 		lblNovaMensagem.setBounds(33, 17, 32, 32);
 		panel_2.add(lblNovaMensagem);
+
+		JPanel panelContratos = new JPanel();
+		panelContratos.setBounds(23, 67, 764, 298);
+		contentPane.add(panelContratos);
+		panelContratos.setLayout(null);
+
+		painelGraficoContratos = new JPanelGrafico(0, 0);
+		painelGraficoContratos.setBounds(10, 11, 498, 269);
+		panelContratos.add(painelGraficoContratos);
+		painelGraficoContratos.setLayout(null);
+
+		JLabel lblNewLabel_1 = new JLabel("Total de Contratos:");
+		lblNewLabel_1.setBounds(22, 31, 117, 14);
+		painelGraficoContratos.add(lblNewLabel_1);
+
+		lblTotalContratos = new JLabel("");
+		lblTotalContratos.setBounds(149, 31, 46, 14);
+		painelGraficoContratos.add(lblTotalContratos);
+
+		JLabel lblNewLabel_1_1 = new JLabel("Assinar:");
+		lblNewLabel_1_1.setBounds(22, 56, 94, 14);
+		painelGraficoContratos.add(lblNewLabel_1_1);
+
+		lblTotalContratosAssinar = new JLabel("");
+		lblTotalContratosAssinar.setBounds(149, 56, 46, 14);
+		painelGraficoContratos.add(lblTotalContratosAssinar);
+
+		JLabel lblNewLabel_1_2 = new JLabel("Assinados:");
+		lblNewLabel_1_2.setBounds(22, 81, 94, 14);
+		painelGraficoContratos.add(lblNewLabel_1_2);
+
+		lblTotalContratosAssinados = new JLabel("");
+		lblTotalContratosAssinados.setBounds(149, 81, 46, 14);
+		painelGraficoContratos.add(lblTotalContratosAssinados);
+		
+		JLabel lblNewLabel = new JLabel("Safra:");
+		lblNewLabel.setFont(new Font("Tahoma", Font.PLAIN, 14));
+		lblNewLabel.setBounds(507, 25, 46, 14);
+		panelContratos.add(lblNewLabel);
+		
+		 cBSafraPersonalizado = new ComboBoxRenderPersonalizado();
+		
+		
+		 cbContratosPorSafra = new JComboBox();
+		 cbContratosPorSafra.addActionListener(new ActionListener() {
+		 	public void actionPerformed(ActionEvent e) {
+		 		
+		 		try {
+					CadastroSafra safra = (CadastroSafra) modelSafra.getSelectedItem();
+					//procura no banco os contratos de acordo com a safra selecionada
+					
+					GerenciarBancoContratos gerenciar = new GerenciarBancoContratos();
+					int num_contratos_total = gerenciar.consultaContratos(0, safra.getId_safra());
+					int num_contratos_assinar = gerenciar.consultaContratos(1, safra.getId_safra());
+					
+					//atualizar o grafico
+					atualizarGraficoContratos(num_contratos_total, num_contratos_assinar);
+
+				} catch (Exception t) {
+
+				}
+		 	}
+		 });
+		cbContratosPorSafra.setBounds(552, 11, 202, 34);
+		cbContratosPorSafra.setModel(modelSafra);
+		cbContratosPorSafra.setRenderer(cBSafraPersonalizado);
+		panelContratos.add(cbContratosPorSafra);
+		
+		
+		pesquisarSafras();
+
+		for (CadastroSafra safra : safras) {
+
+			// cBSafra.addItem(safra.getProduto().getNome_produto() + " " +
+			// safra.getAno_plantio() + "/" + safra.getAno_colheita());
+			// cBSafra.addItem(safra);
+			modelSafra.addSafra(safra);
+
+		}
+
+		JPanel painelSacos = new JPanel();
+		painelSacos.setBounds(23, 376, 554, 302);
+		contentPane.add(painelSacos);
+		painelSacos.setLayout(null);
+
+		JPanelGrafico painelGraficoSacos = new JPanelGrafico(0, 0);
+		painelGraficoSacos.setLayout(null);
+		painelGraficoSacos.setBounds(10, 11, 487, 269);
+		painelSacos.add(painelGraficoSacos);
+
+		JLabel lblNewLabel_1_3 = new JLabel("Quantidade total de sacos:");
+		lblNewLabel_1_3.setBounds(22, 31, 157, 14);
+		painelGraficoSacos.add(lblNewLabel_1_3);
+
+		JLabel lblTotalSacos = new JLabel("0");
+		lblTotalSacos.setBounds(192, 31, 46, 14);
+		painelGraficoSacos.add(lblTotalSacos);
+
+		JLabel lblNewLabel_1_1_1 = new JLabel("Quantidade Total Carregada:");
+		lblNewLabel_1_1_1.setBounds(22, 56, 157, 14);
+		painelGraficoSacos.add(lblNewLabel_1_1_1);
+
+		JLabel lblTotalCarregado = new JLabel("0");
+		lblTotalCarregado.setBounds(192, 56, 46, 14);
+		painelGraficoSacos.add(lblTotalCarregado);
+
+		JLabel lblNewLabel_1_2_1 = new JLabel("Quantidade Total a Carregar:");
+		lblNewLabel_1_2_1.setBounds(22, 81, 157, 14);
+		painelGraficoSacos.add(lblNewLabel_1_2_1);
+
+		JLabel lblTotalCarregar = new JLabel("0");
+		lblTotalCarregar.setBounds(192, 81, 46, 14);
+		painelGraficoSacos.add(lblTotalCarregar);
 
 		getDadosContratos();
 		atualizarGraficoContratos();
@@ -509,16 +600,15 @@ public class TelaPrincipal extends JFrame implements GetDadosGlobais {
 		buscaConexaoBanco();
 		buscaConexaoServidorArquivos();
 		buscarConexaoNuvem();
-         
-		if(telaChat == null) {
-			  telaChat = new TelaChat();
-			  telaChat.setTelaPai(isto);
-		      telaChat.setVisible(false);
+
+		if (telaChat == null) {
+			telaChat = new TelaChat();
+			telaChat.setTelaPai(isto);
+			telaChat.setVisible(false);
+		} else {
+			telaChat.setVisible(true);
 		}
-			else {
-				telaChat.setVisible(true);
-			}
-		
+
 		this.setLocationRelativeTo(null);
 
 		this.setVisible(true);
@@ -572,6 +662,8 @@ public class TelaPrincipal extends JFrame implements GetDadosGlobais {
 
 	}
 
+	
+	
 	public void buscarConexao() {
 		new Thread() {
 			private URL url = null;
@@ -784,8 +876,77 @@ public class TelaPrincipal extends JFrame implements GetDadosGlobais {
 					// System.out.printf("Disponivel e %d\n ", disponivel);
 					// System.out.printf("Usado e %d\n", usado);
 
-					painelGrafico.setDados(dados_contratos.getNumero_total_contratos(), i);
-					painelGrafico.repaint();
+					painelGraficoContratos.setDados(dados_contratos.getNumero_total_contratos(), i);
+					painelGraficoContratos.repaint();
+					try {
+						Thread.sleep(100);
+					} catch (InterruptedException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+
+					i++;
+				}
+
+			}
+		}.start();
+
+	}
+	
+	
+	public void atualizarGraficoContratos(CadastroSafra safra) {
+
+		getDadosContratos();
+		lblTotalContratos.setText(dados_contratos.getNumero_total_contratos() + "");
+		lblTotalContratosAssinados.setText(dados_contratos.getNumero_contratos_assinados() + "");
+		lblTotalContratosAssinar.setText(dados_contratos.getNumero_contratos_assinar() + "");
+
+		new Thread() {
+
+			@Override
+			public void run() {
+
+				int i = 0;
+				while (i <= dados_contratos.getNumero_contratos_assinados()) {
+
+					// System.out.printf("Disponivel e %d\n ", disponivel);
+					// System.out.printf("Usado e %d\n", usado);
+
+					painelGraficoContratos.setDados(dados_contratos.getNumero_total_contratos(), i);
+					painelGraficoContratos.repaint();
+					try {
+						Thread.sleep(100);
+					} catch (InterruptedException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+
+					i++;
+				}
+
+			}
+		}.start();
+
+	}
+	
+	public void atualizarGraficoContratos(int num_total, int num_assinar) {
+		lblTotalContratos.setText(num_total + "");
+		lblTotalContratosAssinados.setText((num_total - num_assinar) + "");
+		lblTotalContratosAssinar.setText(num_assinar + "");
+
+		new Thread() {
+
+			@Override
+			public void run() {
+
+				int i = 0;
+				while (i <= num_total - num_assinar) {
+
+					// System.out.printf("Disponivel e %d\n ", disponivel);
+					// System.out.printf("Usado e %d\n", usado);
+
+					painelGraficoContratos.setDados(num_total, i);
+					painelGraficoContratos.repaint();
 					try {
 						Thread.sleep(100);
 					} catch (InterruptedException e) {
@@ -801,37 +962,55 @@ public class TelaPrincipal extends JFrame implements GetDadosGlobais {
 
 	}
 
-	
 	public void setNumeroMensagensNovas() {
-		java.awt.EventQueue.invokeLater(new Runnable() { 
-		    public void run() { 
-		    	lblNovaMensagem.setIcon(new ImageIcon(TelaPrincipal.class.getResource("/imagens/icone_mensagem_nao_lida.png")));
+		java.awt.EventQueue.invokeLater(new Runnable() {
+			public void run() {
+				lblNovaMensagem.setIcon(
+						new ImageIcon(TelaPrincipal.class.getResource("/imagens/icone_mensagem_nao_lida.png")));
 
-		    	lblNovaMensagem.repaint();
-		    	lblNovaMensagem.updateUI();
-						   
-		    } 
-		}); 
+				lblNovaMensagem.repaint();
+				lblNovaMensagem.updateUI();
+
+			}
+		});
+	}
+
+	public void setNovaNotificacaoMensagem(String mensagem) {
+
+		// if(!telaChat.isVisible())
+		try {
+			TelaNotificacaoSuperior tela = new TelaNotificacaoSuperior();
+
+			tela.setMensagem(mensagem);
+			tela.setVisible(true);
+
+			Thread.sleep(5000);
+			tela.fechar();
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 	
+	public static void pesquisarSafras() {
+		GerenciarBancoSafras listaSafras = new GerenciarBancoSafras();
+		safras = listaSafras.getSafras();
+	}
 	
-	public void setNovaNotificacaoMensagem(String mensagem) {
+	public void atualizarComboBoxContratosPorSafra() {
 		
-		//if(!telaChat.isVisible())
-			try {
-				TelaNotificacaoSuperior tela = new TelaNotificacaoSuperior();
+		cbContratosPorSafra.removeAllItems();
+		pesquisarSafras();
+		for (CadastroSafra safra : safras) {
 
-				tela.setMensagem(mensagem);
-				tela.setVisible(true);
+			// cBSafra.addItem(safra.getProduto().getNome_produto() + " " +
+			// safra.getAno_plantio() + "/" + safra.getAno_colheita());
+			// cBSafra.addItem(safra);
+			modelSafra.addSafra(safra);
 
-				Thread.sleep(5000);
-				tela.fechar();
-			} catch (InterruptedException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
 		}
 		
+	}
 	
 	
 }

@@ -29,10 +29,12 @@ import java.awt.Dimension;
 
 import javax.swing.JTable;
 import javax.swing.table.DefaultTableModel;
+import javax.swing.table.TableRowSorter;
 
 import cadastros.CadastroCliente;
 import cadastros.CadastroContrato;
 import conexaoBanco.GerenciarBancoContratos;
+import gui.TelaNotasFiscais.NFeTableModel;
 import manipular.ManipularArquivoTerceiros;
 import manipular.ManipularNotasFiscais;
 import manipular.ManipularTxt;
@@ -40,6 +42,11 @@ import manipular.ManipularTxt;
 import javax.swing.ScrollPaneConstants;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import javax.swing.JTextField;
+import javax.swing.RowFilter;
+
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
 
 public class TelaContratos extends JDialog {
 
@@ -54,6 +61,9 @@ public class TelaContratos extends JDialog {
     };
     
     private TelaContratos isto;
+    private JTextField entChavePesquisa;
+	private TableRowSorter<DefaultTableModel> sorter;
+
 
 	public TelaContratos(int flag_retorno) {
 		//setModal(true);
@@ -68,7 +78,7 @@ public class TelaContratos extends JDialog {
 
 		setBackground(new Color(255, 255, 255));
 		setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-		setBounds(100, 100, 933, 632);
+		setBounds(100, 100, 1074, 493);
 		painelPrincipal.setBackground(new Color(255, 255, 255));
 		painelPrincipal.setBorder(new EmptyBorder(5, 5, 5, 5));
 		setContentPane(painelPrincipal);
@@ -82,21 +92,28 @@ public class TelaContratos extends JDialog {
 		});
 		//btnContrato.setIcon(new ImageIcon(TelaContratos.class.getResource("/imagens/add_contrato.png")));
 		btnContrato.setToolTipText("Adicionar Novo Contrato");
-		btnContrato.setBounds(730, 82, 172, 33);
+		btnContrato.setBounds(864, 80, 172, 33);
 		painelPrincipal.add(btnContrato);
 		
 		JPanel panel = new JPanel();
 		panel.setLayout(null);
-		panel.setBounds(30, 126, 872, 266);
+		panel.setBounds(30, 126, 1006, 266);
 		painelPrincipal.add(panel);
 		
         JTable tabela = new JTable(modelo);
+        sorter = new TableRowSorter<DefaultTableModel>(modelo);
+        
 		
+        tabela.setRowSorter(sorter);
+        
 		tabela.setBackground(new Color(255, 255, 255));
 		//tabela.setPreferredSize(new Dimension(0, 200)); 
 		tabela.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
 		modelo.addColumn("ID");
 		modelo.addColumn("Código");
+		   modelo.addColumn("Compradores");
+
+	        modelo.addColumn("Vendedores");
 		 modelo.addColumn("Status");
 
         modelo.addColumn("Quantidade");
@@ -105,9 +122,7 @@ public class TelaContratos extends JDialog {
         modelo.addColumn("Safra");
         modelo.addColumn("Valor Produto");
         modelo.addColumn("Valor Total");
-        modelo.addColumn("Compradores");
-
-        modelo.addColumn("Vendedores");
+     
         modelo.addColumn("Corretores");
         modelo.addColumn("Data do Contrato");
        
@@ -156,7 +171,7 @@ public class TelaContratos extends JDialog {
 		scrollPane.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED);
 		scrollPane.setBackground(Color.WHITE);
 		scrollPane.setAutoscrolls(true);
-		scrollPane.setBounds(10, 11, 852, 244);
+		scrollPane.setBounds(10, 11, 986, 244);
 		
 		panel.add(scrollPane);
 		
@@ -168,11 +183,11 @@ public class TelaContratos extends JDialog {
 			public void actionPerformed(ActionEvent e) {
 				int indiceDaLinha = tabela.getSelectedRow();
 				
-				
+			
 
-				int id_contrato = Integer.parseInt(tabela.getValueAt(indiceDaLinha, 0).toString());
-				GerenciarBancoContratos gerenciar = new GerenciarBancoContratos();
-				CadastroContrato contrato_selecionado = gerenciar.getContrato(id_contrato);
+				int id_contrato_selecionado = Integer.parseInt(tabela.getValueAt(indiceDaLinha, 0).toString());
+				GerenciarBancoContratos gerenciar_cont = new GerenciarBancoContratos();
+				CadastroContrato contrato_selecionado = gerenciar_cont.getContrato(id_contrato_selecionado);
 				
 				
 				System.out.println("Produto: " + contrato_selecionado.getModelo_safra().getProduto().getNome_produto());
@@ -201,7 +216,7 @@ public class TelaContratos extends JDialog {
 					
 			}
 		});
-		btnAbrir.setBounds(781, 439, 121, 23);
+		btnAbrir.setBounds(915, 403, 121, 23);
 		getContentPane().add(btnAbrir);
 		
 		JButton btnSelecionar = new JButton("Selecionar");
@@ -222,7 +237,7 @@ public class TelaContratos extends JDialog {
 				}
 			}
 		});
-		btnSelecionar.setBounds(682, 439, 89, 23);
+		btnSelecionar.setBounds(816, 403, 89, 23);
 		painelPrincipal.add(btnSelecionar);
 		
 		JButton btnImportarTerceiros = new JButton("Importar");
@@ -231,8 +246,20 @@ public class TelaContratos extends JDialog {
 				importarContratoTerceiros();
 			}
 		});
-		btnImportarTerceiros.setBounds(583, 439, 89, 23);
+		btnImportarTerceiros.setBounds(717, 403, 89, 23);
 		painelPrincipal.add(btnImportarTerceiros);
+		
+		entChavePesquisa = new JTextField();
+		entChavePesquisa.addKeyListener(new KeyAdapter() {
+			@Override
+			public void keyTyped(KeyEvent e) {
+				 String  text = entChavePesquisa.getText().toUpperCase();
+				    sorter.setRowFilter(RowFilter.regexFilter(text));
+			}
+		});
+		entChavePesquisa.setBounds(30, 80, 456, 33);
+		painelPrincipal.add(entChavePesquisa);
+		entChavePesquisa.setColumns(10);
 		
 				
 		if(flag_retorno == 1) {
@@ -294,15 +321,19 @@ public class TelaContratos extends JDialog {
 
 		    */
 		
-		if(contrato.getSub_contrato() == 0) {
+		if(contrato.getSub_contrato() == 0 || contrato.getSub_contrato() == 3) {
 			
-			 modelo.addRow(new Object[]{contrato.getId(), contrato.getCodigo(), text_status, contrato.getQuantidade(), 
-	            		contrato.getMedida().toUpperCase(),
-	            contrato.getProduto().toUpperCase(),
+			String corretores = "";
+			if(contrato.getNomes_corretores() != null){
+				corretores = contrato.getNomes_corretores().toUpperCase(); 
+			}
+			 modelo.addRow(new Object[]{contrato.getId(), contrato.getCodigo(),  contrato.getNomes_compradores().toUpperCase(), contrato.getNomes_vendedores().toUpperCase(), text_status.toUpperCase(), contrato.getQuantidade(), 
+	            		contrato.getMedida().toUpperCase().toUpperCase(),
+	            contrato.getProduto().toUpperCase().toUpperCase(),
 	            contrato.getModelo_safra().getAno_colheita() + "/" +  contrato.getModelo_safra().getAno_plantio(),
 	             "R$ " + contrato.getValor_produto(), 
 	            "R$ " + contrato.getValor_a_pagar(), 
-	            contrato.getNomes_compradores(), contrato.getNomes_vendedores(), contrato.getNomes_corretores(),
+	            corretores,
 	            contrato.getData_contrato()
 	            
 	            });
@@ -364,5 +395,4 @@ public class TelaContratos extends JDialog {
 				
 				}
 		  }
-		  
 }

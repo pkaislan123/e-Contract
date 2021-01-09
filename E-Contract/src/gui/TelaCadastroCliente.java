@@ -1330,6 +1330,9 @@ public class TelaCadastroCliente extends JDialog {
 		cBUFIE.addItem("MG");
 		cBUFIE.addItem("SP");
 		cBUFIE.addItem("MT");
+		cBUFIE.addItem("SC");
+		cBUFIE.addItem("GO");
+
 
 		painelEmpresa.add(cBUFIE);
 		

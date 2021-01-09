@@ -60,7 +60,7 @@ public class TelaConfirmarCarregamento extends JDialog {
 			lblClienteCarregamento, lblContratoCarregamento, lblTransportadorCarregamento, lblVeiculoCarregamento;
 
 	public TelaConfirmarCarregamento(CadastroContrato _contrato_local) {
-		setAlwaysOnTop(true);
+		//setAlwaysOnTop(true);
 
 		//setModal(true);
 
@@ -143,6 +143,9 @@ public class TelaConfirmarCarregamento extends JDialog {
 		JButton btnSelecionarNF = new JButton("Selecionar");
 		btnSelecionarNF.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
+				
+				
+				
 				TelaNotasFiscais tela = new TelaNotasFiscais(0,vendedor);
 				tela.setPai(isto);
 				tela.setVisible(true);

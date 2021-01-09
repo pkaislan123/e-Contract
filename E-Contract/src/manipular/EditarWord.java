@@ -282,8 +282,62 @@ public class EditarWord {
 		}
 		
 		
+         //adicionar clausula de frete
+		boolean tem_clausula_frete = false;
+		boolean tem_clausula_armazenagem = false;
+		
+		  if(novo_contrato.getFrete() != null) {
+	  	    	 if(!novo_contrato.getFrete().equals("") && novo_contrato.getFrete().length() > 5) {
+	  		  	   		substituirTexto("[6.3.] " +  novo_contrato.getClausula_frete());
+	  		  	   	tem_clausula_frete = true;
 
-		substituirTexto("[6.3.] Armazenagem e a comissão da venda será por conta do Comprador");
+	  	    	 }
+	  	     }
+		  
+	  	     //adicionar clausula armazenagem
+	  	     if(novo_contrato.getArmazenagem() != null) {
+	  	    	 if(!novo_contrato.getArmazenagem().equals("") && novo_contrato.getArmazenagem().length() > 5) {
+	  	    		
+	  	    		 if(tem_clausula_frete) {
+		  		  	   	 substituirTexto("[6.4.] " +  novo_contrato.getClausula_armazenagem());
+	  	    		 }
+	  	    		 else{
+	  	    			 substituirTexto("[6.3.] " +  novo_contrato.getClausula_armazenagem());
+	  	    		 }
+
+		  		  	 tem_clausula_armazenagem = true;
+
+	  	    	 }
+	  	     }
+	  		  	 
+	  	     
+	  	     //adicionar clausula de comissão
+	  	     
+	  	     if(novo_contrato.getComissao() == 1) {
+	  	    	 //tem comissao
+	  	    	 if(novo_contrato.getClausula_comissao() == 1) {
+	  	    		 
+	  	    		 //pega a 3 clausula, sendo ela a clausula de comissao
+	  	    		 ArrayList<String> clausulas_locais = novo_contrato.getClausulas();
+	  	    		 String clausula_comissao = clausulas_locais.get(2);
+	  	    		
+	  	    		  	  	    		 
+	  	    	 if(tem_clausula_frete &&  tem_clausula_armazenagem) {
+  	    			 substituirTexto("[6.5.] " +  clausula_comissao);
+
+	  	    	 }else if(tem_clausula_frete &&  !tem_clausula_armazenagem){
+  	    			 substituirTexto("[6.4.] " +  clausula_comissao);
+
+	  	    	 }else if(!tem_clausula_frete &&  tem_clausula_armazenagem){
+  	    			 substituirTexto("[6.4.] " +  clausula_comissao);
+
+	  	    	 }
+	  	    	 else if(!tem_clausula_frete &&  !tem_clausula_armazenagem){
+  	    			 substituirTexto("[6.3.] " +  clausula_comissao);
+
+	  	    	 }
+	  	    	 }
+	  	     }
 		substituirTextoLongo();
 
 		//local e data
@@ -1654,9 +1708,33 @@ public class EditarWord {
 
 					}
 				}else {
-					System.out.println("erro ao excluir arquivo docx, operação cancelada!");
-					retorno_final = 4;
-					proceder = false;
+					
+					if(manipular_apagar.apagarArquivo(BaseDados_DiretorioArquivo.replace("pdf", "xlsx"))) {
+						//apagar o diretorio
+						if(manipular_apagar.limparDiretorio(new File(servidor_unidade + novo_contrato.getCaminho_diretorio_contrato()))) {
+						  //Diretorio foi excluido
+							Nuvem nuvem = new Nuvem();
+					         nuvem.abrir();
+					         nuvem.testar();
+					         nuvem.listar();
+					         nuvem.deletarArquivo(novo_contrato.getNome_arquivo());
+					       JOptionPane.showMessageDialog(null, "Os arquivos foram apagados da memoria e da nuvem!");
+						
+					       proceder = true;
+						}
+						else {
+							proceder = false;
+							System.out.println("Erro ao excluir o direrorio do contrato");
+
+						}
+					}
+					else {
+						System.out.println("erro ao excluir arquivo docx, operação cancelada!");
+						retorno_final = 4;
+						proceder = false;
+					}
+					
+					
 				}
 				
 			}else {
