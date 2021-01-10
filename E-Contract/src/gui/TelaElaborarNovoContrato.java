@@ -2801,6 +2801,11 @@ public class TelaElaborarNovoContrato extends JDialog {
 				ArquivoConfiguracoes arquivo = new ArquivoConfiguracoes();
 				arquivo.setCodidoSequencial(configs_globais.getCodigoSequencial() + 1);
 				arquivo.salvarNovasConfiguragoes();
+				
+				if(novo_contrato.getSub_contrato() == 1) {
+					DadosGlobais dados = DadosGlobais.getInstance();
+					dados.getTeraGerenciarContratoPai().atualizarContratoLocal();
+				}
 
 				isto.dispose();
 				

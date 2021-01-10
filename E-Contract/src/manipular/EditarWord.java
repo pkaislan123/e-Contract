@@ -1,5 +1,6 @@
 package manipular;
 
+import java.awt.Color;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -30,6 +31,8 @@ import org.apache.poi.openxml4j.opc.OPCPackage;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xwpf.extractor.XWPFWordExtractor;
+import org.apache.poi.xwpf.model.XWPFHeaderFooterPolicy;
+import org.apache.poi.xwpf.model.XWPFParagraphDecorator;
 import org.apache.poi.xwpf.usermodel.IBodyElement;
 import org.apache.poi.xwpf.usermodel.ParagraphAlignment;
 import org.apache.poi.xwpf.usermodel.UnderlinePatterns;
@@ -44,10 +47,12 @@ import org.openxmlformats.schemas.wordprocessingml.x2006.main.CTBody;
 import org.openxmlformats.schemas.wordprocessingml.x2006.main.CTDocument1;
 import org.openxmlformats.schemas.wordprocessingml.x2006.main.CTHMerge;
 import org.openxmlformats.schemas.wordprocessingml.x2006.main.CTJc;
+import org.openxmlformats.schemas.wordprocessingml.x2006.main.CTP;
 import org.openxmlformats.schemas.wordprocessingml.x2006.main.CTPageMar;
 import org.openxmlformats.schemas.wordprocessingml.x2006.main.CTPageSz;
 import org.openxmlformats.schemas.wordprocessingml.x2006.main.CTSectPr;
 import org.openxmlformats.schemas.wordprocessingml.x2006.main.CTTblPr;
+import org.openxmlformats.schemas.wordprocessingml.x2006.main.CTText;
 import org.openxmlformats.schemas.wordprocessingml.x2006.main.STJc;
 import org.openxmlformats.schemas.wordprocessingml.x2006.main.STMerge;
 
@@ -111,7 +116,14 @@ public class EditarWord {
 		  vendedores = novo_contrato.listaVendedores();
 		  corretores = novo_contrato.listaCorretores();
 		  
-		// cria o paragrafo do titulo
+		// cria o paragrafo do rodape
+		XWPFParagraph rodape = document_global.createParagraph();
+		rodape.setAlignment(ParagraphAlignment.LEFT);
+		
+
+
+		
+		//criar o paragrafo do titulo
 		XWPFParagraph title = document_global.createParagraph();
 		title.setAlignment(ParagraphAlignment.CENTER);
 
@@ -346,6 +358,50 @@ public class EditarWord {
 		//campos de assinatura
 		
 		adicionarCamposAssinaturas();
+		
+		//cabecalho e rodape
+
+		try {
+			CTP ctP = CTP.Factory.newInstance();
+
+			// header text
+			CTText t = ctP.addNewR().addNewT();
+
+
+			XWPFParagraph cabecalho = new XWPFParagraph(ctP, document_global);
+			XWPFRun cabecalhoRun = cabecalho.createRun();
+			cabecalhoRun.setFontSize(16);
+			cabecalhoRun.setFontFamily("Arial Black");
+			cabecalhoRun.setText("LD ARMAZÉNS GERAIS");
+			cabecalhoRun.setUnderline(UnderlinePatterns.SINGLE);
+			cabecalhoRun.setColor("00A000");
+
+			XWPFParagraph pars[] = new XWPFParagraph[1];
+
+			pars[0] = cabecalho;
+
+			pars[0].setAlignment(ParagraphAlignment.LEFT);
+		
+			
+			
+			
+			XWPFHeaderFooterPolicy hfPolicy = document_global.createHeaderFooterPolicy();
+			hfPolicy.createHeader(XWPFHeaderFooterPolicy.DEFAULT, pars);
+
+			ctP = CTP.Factory.newInstance();
+			t = ctP.addNewR().addNewT();
+
+			// footer text
+			t.setStringValue("Contrato Nº " + novo_contrato.getCodigo() + " LD ARMAZÉNS GERAIS");
+
+			pars[0] = new XWPFParagraph(ctP, document_global);
+			hfPolicy.createFooter(XWPFHeaderFooterPolicy.DEFAULT, pars);
+
+			
+		} catch (Exception e) {
+			JOptionPane.showMessageDialog(null, "Erro ao criar cabecalho e rodape do contrato!\nConsulte o administrador do sistema!");
+			e.printStackTrace();
+		}
 		
 		ByteArrayOutputStream saida_apos_edicao = new ByteArrayOutputStream();
 

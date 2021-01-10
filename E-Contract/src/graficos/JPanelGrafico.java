@@ -41,7 +41,7 @@ public class JPanelGrafico extends JPanel{
 
 	public void paintComponent( Graphics g ) {
 	    super.paintComponent( g );
-	    
+	    this.setBackground(Color.white);
 	    
 	    int percentualassinados = 0; 
 	    int percentualnao_assinados = 0; 
@@ -56,10 +56,10 @@ public class JPanelGrafico extends JPanel{
 	    	
 
 	    	lblassinados.setText("Assinados: "+ 0 + "%");
-	    	lblnao_assinados.setText("Assinar: "+ 0 + "%");
+	    	lblnao_assinados.setText("Assinar: "+ 100 + "%");
 	    	
-	    	circulo_nao_assinado = 0; 
-	     	circulo_assinado = 0; 
+	    	 circulo_nao_assinado = 360; 
+		     	circulo_assinado = 0 ;
 	    	
 	    }else {
 	    	percentualassinados = (assinados * 100)  / total_global;
@@ -67,8 +67,10 @@ public class JPanelGrafico extends JPanel{
 	    	
 	    	
 	    	lblassinados.setText("Assinados: "+ percentualassinados  + "%");
+	    	lblassinados.setForeground(Color.green);
 	    	lblnao_assinados.setText("Assinar: "+ percentualnao_assinados + "%");
-	  	    
+	    	lblnao_assinados.setForeground(Color.red);
+
 	    	 if(percentualnao_assinados + percentualassinados != 100) {
 	 	    	int diferenca = 100 - (percentualnao_assinados + percentualassinados);
 	 	    	System.out.println("falta para os 100%: " + diferenca );
@@ -93,7 +95,7 @@ public class JPanelGrafico extends JPanel{
         g.setColor(Color.green);
         g.fillArc(200,50,200,200, 90,circulo_assinado * (-1) );
 
-        g.setColor(Color.white);
+        g.setColor(Color.blue);
         g.fillOval(250, 100, 100, 100);
         //g.fillOval(10,50, 180, 180);	
 	    

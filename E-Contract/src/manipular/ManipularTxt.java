@@ -285,6 +285,7 @@ public class ManipularTxt {
 			Path yourFile = Paths.get(entrada);
 		
 
+			
 		 
 
 		 Files.copy(yourFile, yourFile.resolveSibling(saida));
@@ -333,6 +334,32 @@ public class ManipularTxt {
 		    } catch (IOException e) {
 		        e.printStackTrace();
 		        System.out.println("erro ao renomear arquivo!");
+
+		        return false;
+		    }
+		   
+		   
+	   }
+	   
+	   public boolean excluir(String caminho) {
+		    File target = new File(caminho);
+		    
+		    System.out.println("Caminho de origem: " + caminho);
+
+		    try {
+
+		    	if(target.exists()) {
+		    		
+	
+		    		return target.delete();
+		    	}else {
+		    		return true;
+		    	}
+		    
+
+		    } catch (Exception e) {
+		        e.printStackTrace();
+		        System.out.println("erro ao excluir arquivo!");
 
 		        return false;
 		    }

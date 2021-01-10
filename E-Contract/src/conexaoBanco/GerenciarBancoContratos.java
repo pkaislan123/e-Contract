@@ -731,6 +731,30 @@ public class GerenciarBancoContratos {
 		}
 	}
 
+	public boolean remover_sub_contrato_rotina(int id_contrato) {
+		String sql_delete_relacao = "call excluir_sub_contrato(?)";
+		Connection conn = null;
+		ResultSet rs = null;
+		try {
+			conn = ConexaoBanco.getConexao();
+			PreparedStatement pstm;
+			pstm = conn.prepareStatement(sql_delete_relacao);
+
+			pstm.setInt(1, id_contrato);
+
+			pstm.execute();
+			ConexaoBanco.fechaConexao(conn, pstm);
+			JOptionPane.showMessageDialog(null, "Toda as rotinas do contrato foram excluidas com sucesso!");
+			return true;
+
+		} catch (Exception f) {
+			JOptionPane.showMessageDialog(null,
+					"Erro ao excluir as rotinas do contrato da base de dados\nBanco de dados corrompido!\nConsulte o administrador do sistema"
+							+ "dados " + f.getMessage());
+			return false;
+		}
+	}
+	
 	private boolean remover_tabelas_contrato_corretor() {
 		boolean retorno = false;
 
@@ -1635,6 +1659,7 @@ public class GerenciarBancoContratos {
 
 					contrato.setCaminho_arquivo(rs.getString("caminho_arquivo"));
 					contrato.setNome_arquivo(rs.getString("nome_arquivo"));
+					contrato.setCaminho_diretorio_contrato(rs.getString("caminho_diretorio"));
 
 					// dados de comissao
 					contrato.setComissao(rs.getInt("comissao"));

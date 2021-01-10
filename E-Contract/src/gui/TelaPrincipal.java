@@ -94,6 +94,7 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import javax.swing.JTabbedPane;
 import javax.swing.JComboBox;
+import javax.swing.border.LineBorder;
 
 public class TelaPrincipal extends JFrame implements GetDadosGlobais {
 
@@ -482,6 +483,7 @@ public class TelaPrincipal extends JFrame implements GetDadosGlobais {
 		panel_2.add(lblNovaMensagem);
 
 		JPanel panelContratos = new JPanel();
+		panelContratos.setBackground(Color.WHITE);
 		panelContratos.setBounds(23, 67, 764, 298);
 		contentPane.add(panelContratos);
 		panelContratos.setLayout(null);
@@ -491,28 +493,22 @@ public class TelaPrincipal extends JFrame implements GetDadosGlobais {
 		panelContratos.add(painelGraficoContratos);
 		painelGraficoContratos.setLayout(null);
 
-		JLabel lblNewLabel_1 = new JLabel("Total de Contratos:");
-		lblNewLabel_1.setBounds(22, 31, 117, 14);
-		painelGraficoContratos.add(lblNewLabel_1);
-
 		lblTotalContratos = new JLabel("");
-		lblTotalContratos.setBounds(149, 31, 46, 14);
+		lblTotalContratos.setFont(new Font("Arial", Font.BOLD, 14));
+		lblTotalContratos.setBorder(new LineBorder(new Color(0, 0, 0)));
+		lblTotalContratos.setBounds(10, 11, 173, 24);
 		painelGraficoContratos.add(lblTotalContratos);
 
-		JLabel lblNewLabel_1_1 = new JLabel("Assinar:");
-		lblNewLabel_1_1.setBounds(22, 56, 94, 14);
-		painelGraficoContratos.add(lblNewLabel_1_1);
-
 		lblTotalContratosAssinar = new JLabel("");
-		lblTotalContratosAssinar.setBounds(149, 56, 46, 14);
+		lblTotalContratosAssinar.setFont(new Font("Arial", Font.BOLD, 14));
+		lblTotalContratosAssinar.setBorder(new LineBorder(new Color(0, 0, 0)));
+		lblTotalContratosAssinar.setBounds(10, 46, 173, 24);
 		painelGraficoContratos.add(lblTotalContratosAssinar);
 
-		JLabel lblNewLabel_1_2 = new JLabel("Assinados:");
-		lblNewLabel_1_2.setBounds(22, 81, 94, 14);
-		painelGraficoContratos.add(lblNewLabel_1_2);
-
 		lblTotalContratosAssinados = new JLabel("");
-		lblTotalContratosAssinados.setBounds(149, 81, 46, 14);
+		lblTotalContratosAssinados.setFont(new Font("Arial", Font.BOLD, 14));
+		lblTotalContratosAssinados.setBorder(new LineBorder(new Color(0, 0, 0)));
+		lblTotalContratosAssinados.setBounds(10, 85, 173, 24);
 		painelGraficoContratos.add(lblTotalContratosAssinados);
 		
 		JLabel lblNewLabel = new JLabel("Safra:");
@@ -564,35 +560,6 @@ public class TelaPrincipal extends JFrame implements GetDadosGlobais {
 		painelSacos.setBounds(23, 376, 554, 302);
 		contentPane.add(painelSacos);
 		painelSacos.setLayout(null);
-
-		JPanelGrafico painelGraficoSacos = new JPanelGrafico(0, 0);
-		painelGraficoSacos.setLayout(null);
-		painelGraficoSacos.setBounds(10, 11, 487, 269);
-		painelSacos.add(painelGraficoSacos);
-
-		JLabel lblNewLabel_1_3 = new JLabel("Quantidade total de sacos:");
-		lblNewLabel_1_3.setBounds(22, 31, 157, 14);
-		painelGraficoSacos.add(lblNewLabel_1_3);
-
-		JLabel lblTotalSacos = new JLabel("0");
-		lblTotalSacos.setBounds(192, 31, 46, 14);
-		painelGraficoSacos.add(lblTotalSacos);
-
-		JLabel lblNewLabel_1_1_1 = new JLabel("Quantidade Total Carregada:");
-		lblNewLabel_1_1_1.setBounds(22, 56, 157, 14);
-		painelGraficoSacos.add(lblNewLabel_1_1_1);
-
-		JLabel lblTotalCarregado = new JLabel("0");
-		lblTotalCarregado.setBounds(192, 56, 46, 14);
-		painelGraficoSacos.add(lblTotalCarregado);
-
-		JLabel lblNewLabel_1_2_1 = new JLabel("Quantidade Total a Carregar:");
-		lblNewLabel_1_2_1.setBounds(22, 81, 157, 14);
-		painelGraficoSacos.add(lblNewLabel_1_2_1);
-
-		JLabel lblTotalCarregar = new JLabel("0");
-		lblTotalCarregar.setBounds(192, 81, 46, 14);
-		painelGraficoSacos.add(lblTotalCarregar);
 
 		getDadosContratos();
 		atualizarGraficoContratos();
@@ -861,10 +828,9 @@ public class TelaPrincipal extends JFrame implements GetDadosGlobais {
 	public void atualizarGraficoContratos() {
 
 		getDadosContratos();
-		lblTotalContratos.setText(dados_contratos.getNumero_total_contratos() + "");
-		lblTotalContratosAssinados.setText(dados_contratos.getNumero_contratos_assinados() + "");
-		lblTotalContratosAssinar.setText(dados_contratos.getNumero_contratos_assinar() + "");
-
+		lblTotalContratos.setText("Total de Contratos: " + dados_contratos.getNumero_total_contratos());
+		lblTotalContratosAssinados.setText("Assinados: "  + dados_contratos.getNumero_contratos_assinados() );
+		lblTotalContratosAssinar.setText("Assinar: " + dados_contratos.getNumero_contratos_assinar());
 		new Thread() {
 
 			@Override
@@ -897,9 +863,9 @@ public class TelaPrincipal extends JFrame implements GetDadosGlobais {
 	public void atualizarGraficoContratos(CadastroSafra safra) {
 
 		getDadosContratos();
-		lblTotalContratos.setText(dados_contratos.getNumero_total_contratos() + "");
-		lblTotalContratosAssinados.setText(dados_contratos.getNumero_contratos_assinados() + "");
-		lblTotalContratosAssinar.setText(dados_contratos.getNumero_contratos_assinar() + "");
+		lblTotalContratos.setText("Total de Contratos: " + dados_contratos.getNumero_total_contratos());
+		lblTotalContratosAssinados.setText("Assinados: "  + dados_contratos.getNumero_contratos_assinados() );
+		lblTotalContratosAssinar.setText("Assinar: " + dados_contratos.getNumero_contratos_assinar());
 
 		new Thread() {
 
@@ -930,9 +896,9 @@ public class TelaPrincipal extends JFrame implements GetDadosGlobais {
 	}
 	
 	public void atualizarGraficoContratos(int num_total, int num_assinar) {
-		lblTotalContratos.setText(num_total + "");
-		lblTotalContratosAssinados.setText((num_total - num_assinar) + "");
-		lblTotalContratosAssinar.setText(num_assinar + "");
+		lblTotalContratos.setText("Total de Contratos: " + num_total );
+		lblTotalContratosAssinados.setText("Assinados: "  + (num_total - num_assinar) );
+		lblTotalContratosAssinar.setText("Assinar: " + num_assinar );
 
 		new Thread() {
 
@@ -1011,6 +977,4 @@ public class TelaPrincipal extends JFrame implements GetDadosGlobais {
 		}
 		
 	}
-	
-	
 }
