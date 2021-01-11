@@ -43,7 +43,7 @@ public class TelaVizualizarPdf extends JDialog {
 	private TelaEmEspera telaInformacoes;
 
 	//public TelaVizualizarPdf(String arquivo) {
-	public TelaVizualizarPdf(InputStream stream, TelaElaborarNovoContrato pai, TelaEmEspera telaBack, String file) {
+	public TelaVizualizarPdf(InputStream stream, JDialog pai, TelaEmEspera telaBack, String file) {
 		//setAlwaysOnTop(true);
 
 		//setModal(true);
@@ -104,11 +104,12 @@ public class TelaVizualizarPdf extends JDialog {
 			addWindowListener(new WindowAdapter() {
 				@Override
 				public void windowClosing(WindowEvent e) {
+					if(telaInformacoes != null) {
 					if (JOptionPane.showConfirmDialog(isto, 
 				            "Salvar", "Deseja Salvar o contrato?", 
 				            JOptionPane.YES_NO_OPTION,
 				            JOptionPane.QUESTION_MESSAGE) == JOptionPane.YES_OPTION){
-						      pai.salvarArquivo();
+						      ((TelaElaborarNovoContrato)pai).salvarArquivo();
 								telaInformacoes.setMsg("Contrato Salvo");
 								telaInformacoes.fechar();
 
@@ -119,7 +120,23 @@ public class TelaVizualizarPdf extends JDialog {
 						telaInformacoes.fechar();
 						
 					}
+				}else {
+					if (JOptionPane.showConfirmDialog(isto, 
+				            "Deseja Salvar o Aditivo?", "Salvar Aditivo", 
+				            JOptionPane.YES_NO_OPTION,
+				            JOptionPane.QUESTION_MESSAGE) == JOptionPane.YES_OPTION){
+						
+						    ((TelaCriarAditivo) pai).salvar(file);	
+						    isto.dispose();
+				        }
+					else
+					{
+						isto.dispose();
+						telaInformacoes.fechar();
+						
+					}
 				}
+			   }
 			});
 		
 		

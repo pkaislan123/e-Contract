@@ -90,5 +90,31 @@ public class GerenciarBancoDocumento {
         return listaDocs;
 	}
 	
+	
+	public boolean removerDocumento(int id_documento)
+	{
+		  String sql_delete_documento = "DELETE FROM documento WHERE id_documento = ?";
+		  Connection conn = null;
+	        ResultSet rs = null;	      
+	        try {
+	            conn = ConexaoBanco.getConexao();
+	            PreparedStatement pstm;
+	            pstm = conn.prepareStatement(sql_delete_documento);
+	 
+	            pstm.setInt(1, id_documento);
+	 
+	            pstm.execute();
+	            ConexaoBanco.fechaConexao(conn, pstm);
+	            JOptionPane.showMessageDialog(null, "Documento Excluido, banco normalizado ");
+	           return true;
+	            
+	 
+	        } catch (Exception f) {
+	            JOptionPane.showMessageDialog(null, "Erro ao excluir o documento do banco de"
+	                    + "dados " + f.getMessage());
+	           return false;
+	        }
+	}
+	
 
 }

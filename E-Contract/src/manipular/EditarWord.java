@@ -1861,8 +1861,19 @@ public class EditarWord {
 				{
 					System.out.println("diretorio criado para o novo contrato");
 					  if(criarArquivos(nome_arquivo,caminho_completo_salvar_contrato_no_hd,  caminho_completo_salvar_contrato_no_bando_dados,nome_diretorio_arquivo_contrato))
-					    	arquivos_comprador_criado = true;
-					    else
+					  { 	
+					 
+						  
+						  if(manipular.criarDiretorio(caminho_salvar_contrato__no_hd + nome_pasta_arquivo + "\\comprovantes"))
+						{
+						  arquivos_comprador_criado = true;
+
+						}else {
+							arquivos_comprador_criado = false;
+
+						}	
+				       } 
+					  else
 					    	arquivos_comprador_criado = false;
 				}else {
 					System.out.println("erro ao criar diretorio para o contrato ");
@@ -1905,8 +1916,18 @@ public class EditarWord {
 						{
 							System.out.println("diretorio criado para o novo sub contrato vendedor1");
 							  if(criarArquivos(nome_arquivo,caminho_completo_salvar_contrato_no_hd,  caminho_completo_salvar_contrato_no_bando_dados, nome_diretorio_arquivo_sub_contrato1))
-							    	arquivos_vendedor1_criado = true;
-							    else
+							    	{
+							    	
+								  if(manipular.criarDiretorio(caminho_salvar_contrato__no_hd + nome_pasta_arquivo + "\\comprovantes"))
+									{
+									  arquivos_vendedor1_criado = true;
+
+									}else {
+										arquivos_vendedor1_criado = false;
+
+									}	
+							    	
+							    	}else
 							    	arquivos_vendedor1_criado = false;
 						}else {
 							System.out.println("erro ao criar diretorio para o sub contrato vendedor1");
@@ -1947,8 +1968,18 @@ public class EditarWord {
 					{
 						System.out.println("diretorio criado para o novo sub contrato vendedor2");
 						  if(criarArquivos(nome_arquivo,caminho_completo_salvar_contrato_no_hd,  caminho_completo_salvar_contrato_no_bando_dados, nome_diretorio_arquivo_sub_contrato2))
-						    	arquivos_vendedor2_criado = true;
-						    else
+						    	{
+							  
+							  if(manipular.criarDiretorio(caminho_salvar_contrato__no_hd + nome_pasta_arquivo + "\\comprovantes"))
+								{
+								  arquivos_vendedor2_criado = true;
+
+								}else {
+									arquivos_vendedor2_criado = false;
+
+								}	
+							  
+						    	}else
 						    	arquivos_vendedor2_criado = false;
 					}else {
 						System.out.println("erro ao criar diretorio para o sub contrato vendedor2");

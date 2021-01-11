@@ -92,7 +92,6 @@ import javax.swing.UIManager;
 import javax.swing.border.LineBorder;
 
 public class TelaElaborarNovoContrato extends JDialog {
-
 	private JTabbedPane painelPrincipal = new JTabbedPane();
 	private JPanel painelDadosIniciais = new JPanel();
 

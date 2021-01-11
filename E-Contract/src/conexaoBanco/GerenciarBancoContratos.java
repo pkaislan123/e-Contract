@@ -2366,7 +2366,7 @@ public class GerenciarBancoContratos {
 
 	public int getNumeroTotalContratos() {
 
-		String selectGetNumContratos = "SELECT COUNT(*) FROM contrato where sub_contrato = 0 or sub_contrato = 3";
+		String selectGetNumContratos = "SELECT (SELECT count(*) from contrato) + (SELECT count(*) from aditivo) as result";
 		Connection conn = null;
 		PreparedStatement pstm = null;
 		ResultSet rs = null;
@@ -2377,7 +2377,7 @@ public class GerenciarBancoContratos {
 
 			rs = pstm.executeQuery();
 			rs.next();
-			int i = rs.getInt("COUNT(*)");
+			int i = rs.getInt("result");
 
 			ConexaoBanco.fechaConexao(conn, pstm, rs);
 			return i;
@@ -2392,7 +2392,8 @@ public class GerenciarBancoContratos {
 
 	public int getNumeroContratosParaAssinar() {
 
-		String selectGetNumContratos = "SELECT COUNT(*) FROM contrato where (sub_contrato = 0 or sub_contrato = 3) and status_contrato = 1";
+		String selectGetNumContratos = "SELECT (SELECT count(*) from contrato where status_contrato = 1) "
+				+ " + (SELECT count(*) from aditivo where status_aditivo = 1) as result;";
 		Connection conn = null;
 		PreparedStatement pstm = null;
 		ResultSet rs = null;
@@ -2403,7 +2404,7 @@ public class GerenciarBancoContratos {
 
 			rs = pstm.executeQuery();
 			rs.next();
-			int i = rs.getInt("COUNT(*)");
+			int i = rs.getInt("result");
 
 			ConexaoBanco.fechaConexao(conn, pstm, rs);
 			return i;
@@ -2421,12 +2422,26 @@ public class GerenciarBancoContratos {
 		String selectGetNumContratos = "";
 		if (select == 0) {
 			// numero total de contratos
-			selectGetNumContratos = "SELECT COUNT(*) FROM contrato where (sub_contrato = 0 or sub_contrato = 3)\n"
-					+ "and id_safra = ?";
+			selectGetNumContratos = "SELECT\n"
+					+ " (SELECT COUNT(*) FROM contrato where id_safra = ?)\n"
+					+ " + \n"
+					+ " (SELECT  COUNT(*) from aditivo \n"
+					+ "LEFT JOIN contrato on contrato.id = aditivo.id_contrato_pai\n"
+					+ "LEFT JOIN safra on safra.id_safra = contrato.id_safra = ?\n"
+					+ "where contrato.id = aditivo.id_contrato_pai and contrato.id_safra = ?\n"
+					+ ") \n"
+					+ " as result";
 		} else if (select == 1) {
 			// numero total de constratos para assinar
-			selectGetNumContratos = "SELECT COUNT(*) FROM contrato where (sub_contrato = 0 or sub_contrato = 3) and status_contrato = 1\n"
-					+ "and id_safra = ?";
+			selectGetNumContratos = "SELECT\n"
+					+ " (SELECT COUNT(*) FROM contrato where status_contrato = 1 and  id_safra = ?)\n"
+					+ " + \n"
+					+ " (SELECT  COUNT(*) from aditivo \n"
+					+ "LEFT JOIN contrato on contrato.id = aditivo.id_contrato_pai\n"
+					+ "LEFT JOIN safra on safra.id_safra = contrato.id_safra = ?\n"
+					+ "where contrato.id = aditivo.id_contrato_pai and contrato.id_safra = ? and aditivo.status_aditivo = 1\n"
+					+ ") \n"
+					+ " as result;";
 		}
 
 		Connection conn = null;
@@ -2436,10 +2451,14 @@ public class GerenciarBancoContratos {
 		try {
 			conn = ConexaoBanco.getConexao();
 			pstm = conn.prepareStatement(selectGetNumContratos);
-			pstm.setInt(1, id_safra);
+		
+				pstm.setInt(1, id_safra);
+				pstm.setInt(2, id_safra);
+				pstm.setInt(3, id_safra);
+
 			rs = pstm.executeQuery();
 			rs.next();
-			int i = rs.getInt("COUNT(*)");
+			int i = rs.getInt("result");
 
 			ConexaoBanco.fechaConexao(conn, pstm, rs);
 			return i;
