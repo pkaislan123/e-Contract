@@ -86,7 +86,7 @@ public class TelaNotasFiscais extends JDialog {
 	public TelaNotasFiscais(int flag,CadastroCliente vendedor) {
 		//setAlwaysOnTop(true);
 
-		//setModal(true);
+		setModal(true);
 		cliente_global= vendedor;
 		isto = this;
 		getDadosGlobais();

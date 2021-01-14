@@ -694,9 +694,17 @@ local retirada: 24 2
 	
 	public static class Carregamento{
 		
-		int id_carregamento, id_cliente, id_transportador, id_veiculo, id_contrato, id_produto;
+		int id_carregamento, id_cliente, id_transportador, id_veiculo, id_contrato, id_produto, id_vendedor;
 		String codigo_nota_fiscal, data;
 		double peso_real_carga;
+		
+		public int getId_vendedor() {
+			return id_vendedor;
+		}
+		public void setId_vendedor(int id_vendedor) {
+			this.id_vendedor = id_vendedor;
+		}
+	
 		
 		
 		
@@ -810,6 +818,65 @@ local retirada: 24 2
 		public void setId_conta_favorecido(int id_conta_favorecido) {
 			this.id_conta_favorecido = id_conta_favorecido;
 		}
+		
+		
+		
+		
+	}
+	
+	public static class CadastroTransferenciaPagamentoContratual{
+		int id_transferencia, id_contrato_remetente, id_contrato_destinatario, id_pagamento_contratual;
+		
+		String data, descricao;
+
+		public int getId_transferencia() {
+			return id_transferencia;
+		}
+
+		public void setId_transferencia(int id_transferencia) {
+			this.id_transferencia = id_transferencia;
+		}
+
+		public int getId_contrato_remetente() {
+			return id_contrato_remetente;
+		}
+
+		public void setId_contrato_remetente(int id_contrato_remetente) {
+			this.id_contrato_remetente = id_contrato_remetente;
+		}
+
+		public int getId_contrato_destinatario() {
+			return id_contrato_destinatario;
+		}
+
+		public void setId_contrato_destinatario(int id_contrato_destinatario) {
+			this.id_contrato_destinatario = id_contrato_destinatario;
+		}
+
+		public int getId_pagamento_contratual() {
+			return id_pagamento_contratual;
+		}
+
+		public void setId_pagamento_contratual(int id_pagamento_contratual) {
+			this.id_pagamento_contratual = id_pagamento_contratual;
+		}
+
+		public String getData() {
+			return data;
+		}
+
+		public void setData(String data) {
+			this.data = data;
+		}
+
+		public String getDescricao() {
+			return descricao;
+		}
+
+		public void setDescricao(String descricao) {
+			this.descricao = descricao;
+		}
+
 		
 		
 		

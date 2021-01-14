@@ -62,7 +62,7 @@ public class TelaConfirmarCarregamento extends JDialog {
 	public TelaConfirmarCarregamento(CadastroContrato _contrato_local) {
 		//setAlwaysOnTop(true);
 
-		//setModal(true);
+		setModal(true);
 
 		isto = this;
 		this.contrato_local = _contrato_local;
@@ -301,6 +301,7 @@ public class TelaConfirmarCarregamento extends JDialog {
 				CadastroContrato.Carregamento carregamento_a_inserir = new CadastroContrato.Carregamento();
 				carregamento_a_inserir.setData(lblDataCarregamento.getText());
 				carregamento_a_inserir.setId_cliente(cliente_carregamento.getId());
+				carregamento_a_inserir.setId_vendedor(vendedor.getId());
 				carregamento_a_inserir.setId_contrato(contrato_carregamento.getId());
 				carregamento_a_inserir.setId_transportador(transportador_carregamento.getId());
 				carregamento_a_inserir.setId_veiculo(veiculo_carregamento.getId_veiculo());

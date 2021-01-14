@@ -60,9 +60,9 @@ public class TelaProdutos extends JDialog {
 		
 	
 	public TelaProdutos(int flag_retorno) {
-		setAlwaysOnTop(true);
+		//setAlwaysOnTop(true);
 
-		//setModal(true);
+		setModal(true);
 
 		TelaProdutos isto = this;
 		

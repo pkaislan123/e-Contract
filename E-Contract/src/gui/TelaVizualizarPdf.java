@@ -41,14 +41,14 @@ public class TelaVizualizarPdf extends JDialog {
 
 
 	private TelaEmEspera telaInformacoes;
-
+	private TelaVizualizarPdf isto; 
 	//public TelaVizualizarPdf(String arquivo) {
 	public TelaVizualizarPdf(InputStream stream, JDialog pai, TelaEmEspera telaBack, String file) {
 		//setAlwaysOnTop(true);
 
-		//setModal(true);
+		setModal(true);
 
-		TelaVizualizarPdf isto = this;
+		 isto = this;
 		this.telaInformacoes = telaBack;
 		
 		setResizable(true);
@@ -121,6 +121,9 @@ public class TelaVizualizarPdf extends JDialog {
 						
 					}
 				}else {
+					
+					if(pai instanceof TelaCriarAditivo) {
+					
 					if (JOptionPane.showConfirmDialog(isto, 
 				            "Deseja Salvar o Aditivo?", "Salvar Aditivo", 
 				            JOptionPane.YES_NO_OPTION,
@@ -133,6 +136,16 @@ public class TelaVizualizarPdf extends JDialog {
 					{
 						isto.dispose();
 						telaInformacoes.fechar();
+						
+					}
+					}else if(pai instanceof TelaGerenciarContrato) {
+						
+						TelaSalvarEnviarRelatorio tela = new TelaSalvarEnviarRelatorio(file);
+						tela.setTelaPai(isto);
+						tela.setVisible(true);
+						
+						//cria tela para salvar, imprimir ou enviar o documento
+						
 						
 					}
 				}
@@ -150,6 +163,10 @@ public class TelaVizualizarPdf extends JDialog {
 		
 
 		
+	}
+	
+	public void fecharTela() {
+		isto.dispose();
 	}
 
 }

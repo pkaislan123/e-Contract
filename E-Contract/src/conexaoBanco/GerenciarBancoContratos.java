@@ -14,6 +14,7 @@ import com.mysql.cj.exceptions.RSAException;
 
 import cadastros.CadastroCliente;
 import cadastros.CadastroContrato;
+import cadastros.CadastroContrato.CadastroPagamentoContratual;
 import cadastros.CadastroLogin;
 import cadastros.CadastroModelo;
 import cadastros.CadastroProduto;
@@ -1321,6 +1322,136 @@ public class GerenciarBancoContratos {
 
 	}
 
+	
+	
+	public ArrayList<CadastroContrato> getContratosPorCliente( int flag_select, int id_busca_safra, int id_cliente) {
+		
+		String selectContratos = "";
+		
+		if(flag_select == 1) {
+		    //modo de busca de contratos que o cliente é o comprador
+			
+			selectContratos = "select * from contrato\n"
+					+ "LEFT JOIN contrato_comprador on contrato_comprador.id_contrato = contrato.id\n"
+					+ "where contrato_comprador.id_cliente = ? and (contrato.sub_contrato = 0 or contrato.sub_contrato = 4)";
+		 
+		}else if(flag_select == 2) {
+			//modo de busca de contratos que o cliente é o vendedor
+			selectContratos = "select * from contrato\n"
+					+ "LEFT JOIN contrato_vendedor on contrato_vendedor.id_contrato = contrato.id\n"
+					+ "where contrato_vendedor.id_cliente = ? and (contrato.sub_contrato = 0 or contrato.sub_contrato = 4)";
+			
+		}else if(flag_select == 3) {
+			//modo de busca de contratos que o cliente é o corretor
+			selectContratos = "select * from contrato\n"
+					+ "LEFT JOIN contrato_corretor on contrato_corretor.id_contrato = contrato.id\n"
+					+ "where contrato_corretor.id_cliente = ? and (contrato.sub_contrato = 0 or contrato.sub_contrato = 4)";
+		}
+		
+		if(id_busca_safra > 0)
+			selectContratos = selectContratos + " and contrato.id_safra = ?";
+		
+		
+		Connection conn = null;
+		PreparedStatement pstm = null;
+		ResultSet rs = null;
+		ArrayList<CadastroContrato> lsitaContratos = new ArrayList<CadastroContrato>();
+		try {
+			conn = ConexaoBanco.getConexao();
+			pstm = conn.prepareStatement(selectContratos);
+			
+			pstm.setInt(1, id_cliente);
+			if(id_busca_safra > 0)
+				pstm.setInt(2, id_busca_safra);
+
+
+			rs = pstm.executeQuery();
+			while (rs.next()) {
+				CadastroContrato contrato = new CadastroContrato();
+				
+
+				contrato.setId(rs.getInt("id"));
+				int id = contrato.getId();
+
+				contrato.setCodigo(rs.getString("codigo"));
+				contrato.setSub_contrato(rs.getInt("sub_contrato"));
+				contrato.setTexto_clausulas(rs.getString("clausulas"));
+
+				int id_safra = rs.getInt("id_safra");
+
+				GerenciarBancoSafras gerenciar = new GerenciarBancoSafras();
+				CadastroSafra safra = gerenciar.getSafra(id_safra);
+
+				if (safra != null) {
+
+					contrato.setQuantidade(Double.parseDouble(rs.getString("quantidade")));
+					contrato.setMedida(rs.getString("medida"));
+
+					contrato.setValor_produto(Double.parseDouble(rs.getString("valor_produto")));
+					contrato.setValor_a_pagar(new BigDecimal(rs.getString("valor_a_pagar")));
+
+					contrato.setModelo_safra(safra);
+
+					GerenciarBancoContratos gerenciar_corretores = new GerenciarBancoContratos();
+					CadastroCliente corretores[] = gerenciar_corretores.getCorretores(id);
+					contrato.setCorretores(corretores);
+
+
+					GerenciarBancoContratos gerenciar_vendedores = new GerenciarBancoContratos();
+					CadastroCliente vendedores[] = gerenciar_vendedores.getVendedores(id);
+					contrato.setVendedores(vendedores);
+
+
+					
+					GerenciarBancoContratos gerenciar_compradores = new GerenciarBancoContratos();
+					CadastroCliente compradores[] = gerenciar_compradores.getCompradores(id);
+					contrato.setCompradores(compradores);
+
+
+					GerenciarBancoContratos gerenciar_pagamentos = new GerenciarBancoContratos();
+					ArrayList<CadastroContrato.CadastroPagamento> pagamentos_contrato = gerenciar_pagamentos
+							.getPagamentos(id);
+					contrato.setPagamentos(pagamentos_contrato);
+
+
+					
+					contrato.setStatus_contrato(rs.getInt("status_contrato"));
+					contrato.setData_contrato(rs.getString("data_contrato"));
+					contrato.setData_entrega(rs.getString("data_entrega"));
+					contrato.setCaminho_diretorio_contrato(rs.getString("caminho_diretorio"));
+					contrato.setCaminho_arquivo(rs.getString("caminho_arquivo"));
+					contrato.setNome_arquivo(rs.getString("nome_arquivo"));
+
+					// dados de comissao
+					contrato.setComissao(rs.getInt("comissao"));
+					if (contrato.getComissao() == 1) {
+						contrato.setClausula_comissao(rs.getInt("clausula_comissao"));
+						contrato.setValor_comissao(new BigDecimal(rs.getString("valor_comissao")));
+					}
+
+					// dados de frete
+					contrato.setFrete(rs.getString("frete"));
+					contrato.setClausula_frete(rs.getString("clausula_frete"));
+					// dados de armazenagem
+					contrato.setArmazenagem(rs.getString("armazenagem"));
+					contrato.setClausula_armazenagem(rs.getString("clausula_armazenagem"));
+					
+				lsitaContratos.add(contrato);
+
+			}
+		} 
+			ConexaoBanco.fechaConexao(conn, pstm, rs);
+			return lsitaContratos;
+
+		}
+			catch (Exception e) {
+			JOptionPane.showMessageDialog(null, "Erro ao listar contratos\nMensagem: " + e.getMessage() + "\nCausa: " + e.getCause());
+			return null;
+		}
+
+	}
+	
+	
 	public CadastroCliente[] getCorretores(int id_contrato) {
 
 		String selectCorretores = "select c.id_cliente from contrato_corretor cc LEFT JOIN cliente c on c.id_cliente = cc.id_cliente  where cc.id_contrato = ?";
@@ -2045,6 +2176,7 @@ public class GerenciarBancoContratos {
 					carga.setData(rs.getString("data_carregamento"));
 					carga.setId_contrato(rs.getInt("id_contrato_carregamento"));
 					carga.setId_cliente(rs.getInt("id_cliente"));
+					carga.setId_vendedor(rs.getInt("id_vendedor"));
 					carga.setId_transportador(rs.getInt("id_transportador"));
 					carga.setId_veiculo(rs.getInt("id_veiculo"));
 					carga.setId_produto(rs.getInt("id_produto"));
@@ -2067,6 +2199,162 @@ public class GerenciarBancoContratos {
 
 	}
 
+	
+	public ArrayList<CadastroContrato.Carregamento> getCarregamentosPorComprador(int id_comprador) {
+
+		System.out.println("Lista carregamento foi chamado!");
+		String selectCarregamentos = "select * from carregamento where id_cliente = ?";
+		Connection conn = null;
+		PreparedStatement pstm = null;
+		ResultSet rs = null;
+		ArrayList<CadastroContrato.Carregamento> lista_carregamentos = new ArrayList<>();
+
+		try {
+			conn = ConexaoBanco.getConexao();
+			pstm = conn.prepareStatement(selectCarregamentos);
+			pstm.setInt(1, id_comprador);
+
+			rs = pstm.executeQuery();
+
+			while (rs.next()) {
+
+				if (rs != null) {
+					System.out.print("carregamento não e nulo!");
+
+					CadastroContrato.Carregamento carga = new CadastroContrato.Carregamento();
+
+					carga.setId_carregamento(rs.getInt("id_carregamento"));
+					carga.setData(rs.getString("data_carregamento"));
+					carga.setId_contrato(rs.getInt("id_contrato_carregamento"));
+					carga.setId_cliente(rs.getInt("id_cliente"));
+					
+					carga.setId_vendedor(rs.getInt("id_vendedor"));
+					carga.setId_transportador(rs.getInt("id_transportador"));
+					carga.setId_veiculo(rs.getInt("id_veiculo"));
+					carga.setId_produto(rs.getInt("id_produto"));
+					carga.setPeso_real_carga(rs.getDouble("peso_real_carga"));
+					carga.setCodigo_nota_fiscal(rs.getString("codigo_nota_fiscal"));
+
+					lista_carregamentos.add(carga);
+
+				}
+			}
+
+			ConexaoBanco.fechaConexao(conn, pstm, rs);
+			System.out.println("Carregamentos foram listadas com sucesso!");
+			return lista_carregamentos;
+		} catch (Exception e) {
+			JOptionPane.showMessageDialog(null, "Erro ao listar os carregamentos do comprador: " + id_comprador
+					+ " erro: " + e.getMessage() + "causa: " + e.getCause());
+			return null;
+		}
+
+	}
+	
+	public ArrayList<CadastroContrato.Carregamento> getCarregamentosPorVendedor(int id_vendedor) {
+
+		System.out.println("Lista carregamento foi chamado!");
+		String selectCarregamentos = "select * from carregamento where id_vendedor = ?";
+		Connection conn = null;
+		PreparedStatement pstm = null;
+		ResultSet rs = null;
+		ArrayList<CadastroContrato.Carregamento> lista_carregamentos = new ArrayList<>();
+
+		try {
+			conn = ConexaoBanco.getConexao();
+			pstm = conn.prepareStatement(selectCarregamentos);
+			pstm.setInt(1, id_vendedor);
+
+			rs = pstm.executeQuery();
+
+			while (rs.next()) {
+
+				if (rs != null) {
+					System.out.print("carregamento não e nulo!");
+
+					CadastroContrato.Carregamento carga = new CadastroContrato.Carregamento();
+
+					carga.setId_carregamento(rs.getInt("id_carregamento"));
+					carga.setData(rs.getString("data_carregamento"));
+					carga.setId_contrato(rs.getInt("id_contrato_carregamento"));
+					carga.setId_cliente(rs.getInt("id_cliente"));
+					
+					carga.setId_vendedor(rs.getInt("id_vendedor"));
+					carga.setId_transportador(rs.getInt("id_transportador"));
+					carga.setId_veiculo(rs.getInt("id_veiculo"));
+					carga.setId_produto(rs.getInt("id_produto"));
+					carga.setPeso_real_carga(rs.getDouble("peso_real_carga"));
+					carga.setCodigo_nota_fiscal(rs.getString("codigo_nota_fiscal"));
+
+					lista_carregamentos.add(carga);
+
+				}
+			}
+
+			ConexaoBanco.fechaConexao(conn, pstm, rs);
+			System.out.println("Carregamentos foram listadas com sucesso!");
+			return lista_carregamentos;
+		} catch (Exception e) {
+			JOptionPane.showMessageDialog(null, "Erro ao listar os carregamentos do vendedor: " + id_vendedor
+					+ " erro: " + e.getMessage() + "causa: " + e.getCause());
+			return null;
+		}
+
+	}
+	
+	
+	public ArrayList<CadastroContrato.Carregamento> getCarregamentosDirecionados(int id_comprador, int id_vendedor) {
+
+		System.out.println("Lista carregamento foi chamado!");
+		String selectCarregamentos = "select * from carregamento where id_cliente = ? and id_vendedor";
+		Connection conn = null;
+		PreparedStatement pstm = null;
+		ResultSet rs = null;
+		ArrayList<CadastroContrato.Carregamento> lista_carregamentos = new ArrayList<>();
+
+		try {
+			conn = ConexaoBanco.getConexao();
+			pstm = conn.prepareStatement(selectCarregamentos);
+			pstm.setInt(1, id_comprador);
+			pstm.setInt(2, id_vendedor);
+
+			rs = pstm.executeQuery();
+
+			while (rs.next()) {
+
+				if (rs != null) {
+					System.out.print("carregamento não e nulo!");
+
+					CadastroContrato.Carregamento carga = new CadastroContrato.Carregamento();
+
+					carga.setId_carregamento(rs.getInt("id_carregamento"));
+					carga.setData(rs.getString("data_carregamento"));
+					carga.setId_contrato(rs.getInt("id_contrato_carregamento"));
+					carga.setId_cliente(rs.getInt("id_cliente"));
+					
+					carga.setId_vendedor(rs.getInt("id_vendedor"));
+					carga.setId_transportador(rs.getInt("id_transportador"));
+					carga.setId_veiculo(rs.getInt("id_veiculo"));
+					carga.setId_produto(rs.getInt("id_produto"));
+					carga.setPeso_real_carga(rs.getDouble("peso_real_carga"));
+					carga.setCodigo_nota_fiscal(rs.getString("codigo_nota_fiscal"));
+
+					lista_carregamentos.add(carga);
+
+				}
+			}
+
+			ConexaoBanco.fechaConexao(conn, pstm, rs);
+			System.out.println("Carregamentos foram listadas com sucesso!");
+			return lista_carregamentos;
+		} catch (Exception e) {
+			JOptionPane.showMessageDialog(null, "Erro ao listar os carregamentos do vendedor: " + id_vendedor
+					+ " erro: " + e.getMessage() + "causa: " + e.getCause());
+			return null;
+		}
+
+	}
+	
 	public boolean removerCarregamento(int id_contrato, int id_carregamento) {
 
 		return remover_carregamento(id_carregamento) && remover_contrato_carregamento(id_contrato, id_carregamento);
@@ -2126,10 +2414,15 @@ public class GerenciarBancoContratos {
 
 	public String sql_carregamento(CadastroContrato.Carregamento carregamento) {
 
-		String query = "insert into carregamento (data_carregamento, id_contrato_carregamento, id_cliente , id_transportador, id_veiculo, id_produto, peso_real_carga, codigo_nota_fiscal) values ('"
-				+ carregamento.getData() + "','" + carregamento.getId_contrato() + "','" + carregamento.getId_cliente()
-				+ "','" + carregamento.getId_transportador() + "','" + carregamento.getId_veiculo() + "','"
-				+ carregamento.getId_produto() + "','" + carregamento.getPeso_real_carga()
+		String query = "insert into carregamento (data_carregamento, id_contrato_carregamento, id_cliente, id_vendedor , id_transportador, id_veiculo, id_produto, peso_real_carga, codigo_nota_fiscal) values ('"
+				+ carregamento.getData() + "','"
+				+ carregamento.getId_contrato()
+				+ "','" + carregamento.getId_cliente() 
+				+ "','" + carregamento.getId_vendedor()
+				+ "','" + carregamento.getId_transportador() 
+				+ "','" + carregamento.getId_veiculo() 
+				+ "','" + carregamento.getId_produto()
+				+ "','" + carregamento.getPeso_real_carga()
 
 				+ "','" + carregamento.getCodigo_nota_fiscal()
 
@@ -2264,6 +2557,195 @@ public class GerenciarBancoContratos {
 			return lista_pagamentos;
 		} catch (Exception e) {
 			JOptionPane.showMessageDialog(null, "Erro ao listar os pagamentos do contrato: " + id_contrato + " erro: "
+					+ e.getMessage() + "causa: " + e.getCause());
+			return null;
+		}
+
+	}
+	
+	
+	
+	public ArrayList<CadastroPagamentoContratual> getPagamentosPorDepositante(int id_depositante){
+		
+		System.out.println("Listar pagamentos foi chamado!");
+		String selectPagamentos = "select * from pagamento where id_depositante = ?";
+		Connection conn = null;
+		PreparedStatement pstm = null;
+		ResultSet rs = null;
+		ArrayList<CadastroContrato.CadastroPagamentoContratual> lista_pagamentos = new ArrayList<>();
+
+		try {
+			conn = ConexaoBanco.getConexao();
+			pstm = conn.prepareStatement(selectPagamentos);
+			pstm.setInt(1, id_depositante);
+
+			rs = pstm.executeQuery();
+
+			while (rs.next()) {
+
+				if (rs != null) {
+					System.out.print("pagamento não e nulo!");
+
+					CadastroContrato.CadastroPagamentoContratual pagamento = new CadastroContrato.CadastroPagamentoContratual();
+
+					pagamento.setId_pagamento(rs.getInt("id_pagamento"));
+					pagamento.setData_pagamento(rs.getString("data_pagamento"));
+					pagamento.setValor_pagamento(rs.getDouble("valor"));
+					pagamento.setId_depositante(rs.getInt("id_depositante"));
+					pagamento.setId_conta_depositante(rs.getInt("id_conta_depositante"));
+					pagamento.setId_favorecido(rs.getInt("id_favorecido"));
+					pagamento.setId_conta_favorecido(rs.getInt("id_conta_favorecido"));
+
+					lista_pagamentos.add(pagamento);
+
+				}
+			}
+
+			ConexaoBanco.fechaConexao(conn, pstm, rs);
+			System.out.println("Pagamentos foram listadas com sucesso!");
+			return lista_pagamentos;
+		} catch (Exception e) {
+			JOptionPane.showMessageDialog(null, "Erro ao listar os pagamentos do depositante: " + id_depositante + " erro: "
+					+ e.getMessage() + "causa: " + e.getCause());
+			return null;
+		}
+		
+	}
+	
+
+	public ArrayList<CadastroPagamentoContratual> getPagamentosPorFavorecido (int id_favorecido){
+		
+		System.out.println("Listar pagamentos foi chamado!");
+		String selectPagamentos = "select * from pagamento where id_favorecido = ?";
+		Connection conn = null;
+		PreparedStatement pstm = null;
+		ResultSet rs = null;
+		ArrayList<CadastroContrato.CadastroPagamentoContratual> lista_pagamentos = new ArrayList<>();
+
+		try {
+			conn = ConexaoBanco.getConexao();
+			pstm = conn.prepareStatement(selectPagamentos);
+			pstm.setInt(1, id_favorecido);
+
+			rs = pstm.executeQuery();
+
+			while (rs.next()) {
+
+				if (rs != null) {
+					System.out.print("pagamento não e nulo!");
+
+					CadastroContrato.CadastroPagamentoContratual pagamento = new CadastroContrato.CadastroPagamentoContratual();
+
+					pagamento.setId_pagamento(rs.getInt("id_pagamento"));
+					pagamento.setData_pagamento(rs.getString("data_pagamento"));
+					pagamento.setValor_pagamento(rs.getDouble("valor"));
+					pagamento.setId_depositante(rs.getInt("id_depositante"));
+					pagamento.setId_conta_depositante(rs.getInt("id_conta_depositante"));
+					pagamento.setId_favorecido(rs.getInt("id_favorecido"));
+					pagamento.setId_conta_favorecido(rs.getInt("id_conta_favorecido"));
+
+					lista_pagamentos.add(pagamento);
+
+				}
+			}
+
+			ConexaoBanco.fechaConexao(conn, pstm, rs);
+			System.out.println("Pagamentos foram listadas com sucesso!");
+			return lista_pagamentos;
+		} catch (Exception e) {
+			JOptionPane.showMessageDialog(null, "Erro ao listar os pagamentos do depositante: " + id_favorecido + " erro: "
+					+ e.getMessage() + "causa: " + e.getCause());
+			return null;
+		}
+		
+	}
+	
+	
+	public ArrayList<CadastroPagamentoContratual> getPagamentosDirecionados (int id_depositante, int id_favorecido){
+		
+		System.out.println("Listar pagamentos foi chamado!");
+		String selectPagamentos = "select * from pagamento where id_depositante = ? and id_favoreicod = ?";
+		Connection conn = null;
+		PreparedStatement pstm = null;
+		ResultSet rs = null;
+		ArrayList<CadastroContrato.CadastroPagamentoContratual> lista_pagamentos = new ArrayList<>();
+
+		try {
+			conn = ConexaoBanco.getConexao();
+			pstm = conn.prepareStatement(selectPagamentos);
+			pstm.setInt(1, id_depositante);
+			pstm.setInt(2, id_favorecido);
+
+			rs = pstm.executeQuery();
+
+			while (rs.next()) {
+
+				if (rs != null) {
+					System.out.print("pagamento não e nulo!");
+
+					CadastroContrato.CadastroPagamentoContratual pagamento = new CadastroContrato.CadastroPagamentoContratual();
+
+					pagamento.setId_pagamento(rs.getInt("id_pagamento"));
+					pagamento.setData_pagamento(rs.getString("data_pagamento"));
+					pagamento.setValor_pagamento(rs.getDouble("valor"));
+					pagamento.setId_depositante(rs.getInt("id_depositante"));
+					pagamento.setId_conta_depositante(rs.getInt("id_conta_depositante"));
+					pagamento.setId_favorecido(rs.getInt("id_favorecido"));
+					pagamento.setId_conta_favorecido(rs.getInt("id_conta_favorecido"));
+
+					lista_pagamentos.add(pagamento);
+
+				}
+			}
+
+			ConexaoBanco.fechaConexao(conn, pstm, rs);
+			System.out.println("Pagamentos foram listadas com sucesso!");
+			return lista_pagamentos;
+		} catch (Exception e) {
+			JOptionPane.showMessageDialog(null, "Erro ao listar os pagamentos do depositante: " + id_favorecido + " erro: "
+					+ e.getMessage() + "causa: " + e.getCause());
+			return null;
+		}
+		
+	}
+	
+	public CadastroContrato.CadastroPagamentoContratual getPagamentoContratual(int id_pagamento) {
+
+		System.out.println("Listar pagamentos foi chamado!");
+		String selectPagamentos = "select * from pagamento where id_pagamento = ?";
+		Connection conn = null;
+		PreparedStatement pstm = null;
+		ResultSet rs = null;
+		CadastroContrato.CadastroPagamentoContratual pagamento = new CadastroContrato.CadastroPagamentoContratual();
+
+		try {
+			conn = ConexaoBanco.getConexao();
+			pstm = conn.prepareStatement(selectPagamentos);
+			pstm.setInt(1, id_pagamento);
+
+			rs = pstm.executeQuery();
+
+		     rs.next();
+
+					
+
+
+					pagamento.setId_pagamento(rs.getInt("id_pagamento"));
+					pagamento.setData_pagamento(rs.getString("data_pagamento"));
+					pagamento.setValor_pagamento(rs.getDouble("valor"));
+					pagamento.setId_depositante(rs.getInt("id_depositante"));
+					pagamento.setId_conta_depositante(rs.getInt("id_conta_depositante"));
+					pagamento.setId_favorecido(rs.getInt("id_favorecido"));
+					pagamento.setId_conta_favorecido(rs.getInt("id_conta_favorecido"));
+
+					
+			
+
+			ConexaoBanco.fechaConexao(conn, pstm, rs);
+			System.out.println("Pagamentos foram listadas com sucesso!");
+			return pagamento;
+		} catch (Exception e) {
+			JOptionPane.showMessageDialog(null, "Erro ao listar o pagamento de id: " + id_pagamento + " erro: "
 					+ e.getMessage() + "causa: " + e.getCause());
 			return null;
 		}

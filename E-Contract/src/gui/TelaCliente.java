@@ -11,7 +11,9 @@ import javax.swing.border.EmptyBorder;
 import javax.swing.table.DefaultTableModel;
 
 import cadastros.CadastroCliente;
+import cadastros.CadastroGrupo;
 import conexaoBanco.GerenciarBancoClientes;
+import conexaoBanco.GerenciarBancoGrupos;
 
 import javax.swing.JButton;
 import javax.swing.SwingConstants;
@@ -33,6 +35,7 @@ import outros.JPanelBackground;
 import javax.swing.JComboBox;
 import javax.swing.JTextField;
 import javax.swing.JLabel;
+import javax.swing.JTabbedPane;
 
 public class TelaCliente extends JDialog {
 
@@ -45,13 +48,21 @@ public class TelaCliente extends JDialog {
          }  
      };
      
+     DefaultTableModel modelo_grupos = new DefaultTableModel(){
+         public boolean isCellEditable(int linha, int coluna) {  
+             return false;
+         }  
+     };
+     
     private static ArrayList<CadastroCliente> clientes_pesquisados = new ArrayList<>();
 	private static ArrayList<CadastroCliente> clientes_disponiveis = new ArrayList<>();
+	private static ArrayList<CadastroGrupo> lista_grupos = new ArrayList<>();
 
 	private CadastroCliente clienteSelecionado;
 	private JTextField entPesquisa;
 	
 	private TelaCliente isto;
+	private JTable table;
 	
 	public static void pesquisar(DefaultTableModel modelo)
 	{ 
@@ -147,7 +158,7 @@ public class TelaCliente extends JDialog {
 		//flag_tipo_cliente == 2 //retorna vendedor
 		//setAlwaysOnTop(true);
 
-		//setModal(true);
+	setModal(true);
 
 		 isto = this;
 		setTitle("E-Contract - Clientes");
@@ -158,13 +169,22 @@ public class TelaCliente extends JDialog {
 		
 		setBackground(new Color(255, 255, 255));
 		setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-		setBounds(100, 100, 679, 508);
+		setBounds(100, 100, 810, 539);
 		contentPane = new JPanel();
 		contentPane.setBackground(new Color(255, 255, 255));
 		contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
 		setContentPane(contentPane);
 		contentPane.setLayout(null);
-	
+
+		JPanel painelClientes = new JPanel();
+		painelClientes.setBackground(Color.WHITE);
+		painelClientes.setBounds(10, 11, 739, 446);
+		
+		
+		JPanel painelGrupos = new JPanel();
+		painelGrupos.setBackground(Color.WHITE);
+		painelGrupos.setBounds(10, 11, 739, 446);
+		
 		JButton btnUsurio = new JButton("+ Cliente");
 		btnUsurio.setIcon(new ImageIcon(TelaCliente.class.getResource("/imagens/add_cliente.png")));
 		btnUsurio.addActionListener(new ActionListener() {
@@ -173,12 +193,31 @@ public class TelaCliente extends JDialog {
 				novoCliente.setTelaPai(isto);
 				novoCliente.setVisible(true);
 			}
-		});		btnUsurio.setBounds(543, 389, 120, 23);
-		contentPane.add(btnUsurio);
+		});		painelClientes.setLayout(null);
+		
+	 	JButtonBackground btnPesquisar = new JButtonBackground();
+	 	btnPesquisar.addActionListener(new ActionListener() {
+	 		public void actionPerformed(ActionEvent arg0) {
+	 			pesquisar();
+	 		}
+	 	});
+	 	
+	 	btnPesquisar.setBounds(637, 46, 75, 38);
+	 	btnPesquisar.setBorder(null);
+	 	//btnPesquisar.setImg(img_botao);
+	 	//btnPesquisar.repaint();
+
+	 	painelClientes.add(btnPesquisar);
+	 	
+	 	JLabel label = new JLabel("");
+	 	btnPesquisar.add(label);
+		btnUsurio.setBounds(607, 392, 105, 33);
+		painelClientes.add(btnUsurio);
 		
 		JPanel panel = new JPanel();
-		panel.setBounds(10, 106, 653, 266);
-		contentPane.add(panel);
+		panel.setBackground(Color.WHITE);
+		panel.setBounds(22, 95, 690, 275);
+		painelClientes.add(panel);
 		//panel.setLayout(null);
 		
 		
@@ -203,6 +242,16 @@ public class TelaCliente extends JDialog {
        					((TelaElaborarNovoContrato) telaPai).setCorretor(clienteSelecionado);
        				else if (flag_tipo_cliente == 5)
        					((TelaConfirmarCarregamento) telaPai).setClienteCarregamento(clienteSelecionado);
+       				else if (flag_tipo_cliente == 6)
+       					((TelaConfirmarCarregamento) telaPai).setVendedor(clienteSelecionado);
+       				else if (flag_tipo_cliente == 8)
+       					((TelaConfirmarPagamentoContratual) telaPai).setDepositante(clienteSelecionado);
+       				else if (flag_tipo_cliente == 9)
+       					((TelaConfirmarPagamentoContratual) telaPai).setFavorecido(clienteSelecionado);
+       				else if (flag_tipo_cliente == 10)
+       					((TelaCadastroGrupo) telaPai).adicionarIntegrante(clienteSelecionado);
+       				else if (flag_tipo_cliente == 11)
+       					((TelaRelatoriaContratos) telaPai).setClienteAlvo(clienteSelecionado);
 
     				isto.dispose();
 					}
@@ -251,6 +300,11 @@ public class TelaCliente extends JDialog {
        					((TelaConfirmarPagamentoContratual) telaPai).setDepositante(clienteSelecionado);
        				else if (flag_tipo_cliente == 9)
        					((TelaConfirmarPagamentoContratual) telaPai).setFavorecido(clienteSelecionado);
+       				else if (flag_tipo_cliente == 10)
+       					((TelaCadastroGrupo) telaPai).adicionarIntegrante(clienteSelecionado);
+       				else if (flag_tipo_cliente == 11)
+       					((TelaRelatoriaContratos) telaPai).setClienteAlvo(clienteSelecionado);
+
 
     				isto.dispose();
                 	}
@@ -281,7 +335,7 @@ public class TelaCliente extends JDialog {
 
         	}
         });
-        scrollPane.setBounds(10, 11, 633, 244);
+        scrollPane.setBounds(0, 0, 690, 275);
         scrollPane.setAutoscrolls(true);
         scrollPane.setBackground(new Color(255, 255, 255));
 		panel.add(scrollPane);
@@ -301,8 +355,8 @@ public class TelaCliente extends JDialog {
 				
 			}
 		});
-		btnEditar.setBounds(403, 389, 121, 23);
-		contentPane.add(btnEditar);
+		btnEditar.setBounds(389, 392, 89, 33);
+		painelClientes.add(btnEditar);
 		
 		JButton btnSelecionar = new JButton("Selecionar");
 		btnSelecionar.setIcon(new ImageIcon(TelaCliente.class.getResource("/imagens/lista.png")));
@@ -326,51 +380,20 @@ public class TelaCliente extends JDialog {
    					((TelaConfirmarPagamentoContratual) telaPai).setDepositante(clienteSelecionado);
    				else if (flag_tipo_cliente == 9)
    					((TelaConfirmarPagamentoContratual) telaPai).setFavorecido(clienteSelecionado);
+   				else if (flag_tipo_cliente == 10)
+   					((TelaCadastroGrupo) telaPai).adicionarIntegrante(clienteSelecionado);
+   				else if (flag_tipo_cliente == 11)
+   					((TelaRelatoriaContratos) telaPai).setClienteAlvo(clienteSelecionado);
 
 
 				isto.dispose();
 			}
 		});
-		btnSelecionar.setBounds(403, 389, 121, 23);
-		contentPane.add(btnSelecionar);
-		
-		 cBOrdernar = new JComboBox();
-		cBOrdernar.setBounds(495, 62, 114, 33);
-		contentPane.add(cBOrdernar);
-		cBOrdernar.addItem("Id");
-		cBOrdernar.addItem("IE");
-		cBOrdernar.addItem("Apelido");
-		cBOrdernar.addItem("CPF/CNPJ");
-		cBOrdernar.addItem("Nome");
-		
-		entPesquisa = new JTextField();
-		entPesquisa.setBounds(10, 62, 486, 33);
-		contentPane.add(entPesquisa);
-		entPesquisa.setColumns(10);
+		btnSelecionar.setBounds(488, 392, 109, 33);
+		painelClientes.add(btnSelecionar);
 		
 		 URL url = getClass().getResource("/imagens/pesquisar.png");
 	 	ImageIcon img_botao = new ImageIcon(url);
-		
-	 	JButtonBackground btnPesquisar = new JButtonBackground();
-	 	btnPesquisar.addActionListener(new ActionListener() {
-	 		public void actionPerformed(ActionEvent arg0) {
-	 			pesquisar();
-	 		}
-	 	});
-		
-	 	btnPesquisar.setBounds(609, 62, 54, 33);
-		btnPesquisar.setBorder(null);
-		btnPesquisar.setImg(img_botao);
-		//btnPesquisar.repaint();
-
-		contentPane.add(btnPesquisar);
-		
-		JLabel label = new JLabel("");
-		btnPesquisar.add(label);
-		
-		JLabel lblNewLabel = new JLabel("Ordernar por:");
-		lblNewLabel.setBounds(495, 43, 114, 14);
-		contentPane.add(lblNewLabel);
 		
 		JButton btnVerNotasFiscais = new JButton("Acessar NF's");
 		btnVerNotasFiscais.addActionListener(new ActionListener() {
@@ -385,10 +408,100 @@ public class TelaCliente extends JDialog {
 			}
 		});
 		btnVerNotasFiscais.setBackground(Color.WHITE);
-		btnVerNotasFiscais.setBounds(272, 389, 121, 23);
-		contentPane.add(btnVerNotasFiscais);
+		btnVerNotasFiscais.setBounds(286, 397, 93, 23);
+		painelClientes.add(btnVerNotasFiscais);
 		
-	   if(flag_tipo_tela == 1)
+		 cBOrdernar = new JComboBox();
+		 cBOrdernar.setBounds(502, 51, 114, 33);
+		 painelClientes.add(cBOrdernar);
+		 cBOrdernar.addItem("Id");
+		 cBOrdernar.addItem("IE");
+		 cBOrdernar.addItem("Apelido");
+		 cBOrdernar.addItem("CPF/CNPJ");
+		 cBOrdernar.addItem("Nome");
+		 
+		 JLabel lblNewLabel = new JLabel("Ordernar por:");
+		 lblNewLabel.setBounds(411, 60, 67, 14);
+		 painelClientes.add(lblNewLabel);
+		 
+		 entPesquisa = new JTextField();
+		 entPesquisa.setBounds(22, 51, 379, 33);
+		 painelClientes.add(entPesquisa);
+		 entPesquisa.setColumns(10);
+		 
+		
+		 JTabbedPane painelPrincipal = new JTabbedPane();;
+		 painelPrincipal.setBounds(26, 23, 768, 476);
+		   painelPrincipal.setBackground(new Color(255, 255, 255));
+			painelPrincipal.setBorder(new EmptyBorder(5, 5, 5, 5));
+			
+			
+		
+			painelPrincipal.addTab("Clientes", painelClientes);
+			painelPrincipal.addTab("Grupos", painelGrupos);
+			painelGrupos.setLayout(null);
+			
+			JPanel panel_1 = new JPanel();
+			panel_1.setBounds(22, 95, 690, 275);
+			painelGrupos.add(panel_1);
+			panel_1.setLayout(null);
+			
+			modelo_grupos.addColumn("Id");
+			modelo_grupos.addColumn("Nome");
+			modelo_grupos.addColumn("Descrição");
+			
+			table= new JTable(modelo_grupos);
+			
+			JScrollPane scrollPaneGrupos = new JScrollPane(table);
+			scrollPaneGrupos.setBounds(0, 0, 690, 275);
+			panel_1.add(scrollPaneGrupos);
+			
+			
+			
+			JButton btnNewButton = new JButton("+Grupo");
+			btnNewButton.addActionListener(new ActionListener() {
+				public void actionPerformed(ActionEvent e) {
+					TelaCadastroGrupo tela = new TelaCadastroGrupo(0, null);
+					tela.setTelaPai(isto);
+					tela.setVisible(true);
+				}
+			});
+			btnNewButton.setBounds(607, 392, 105, 33);
+			painelGrupos.add(btnNewButton);
+			
+			JButton btnEditarGrupo = new JButton("Editar");
+			btnEditarGrupo.addActionListener(new ActionListener() {
+				public void actionPerformed(ActionEvent e) {
+					int indiceDaLinha = 0;
+					indiceDaLinha = table.getSelectedRow();
+					
+				   TelaCadastroGrupo tela_edicao_grupo = new TelaCadastroGrupo(1, lista_grupos.get(indiceDaLinha));
+				   tela_edicao_grupo.setTelaPai(isto);
+				   tela_edicao_grupo.setVisible(true);
+					
+				}
+			});
+			btnEditarGrupo.setBounds(389, 392, 89, 33);
+			painelGrupos.add(btnEditarGrupo);
+			
+			JButton btnSelecionarGrupo = new JButton("Selecionar");
+			btnSelecionarGrupo.addActionListener(new ActionListener() {
+				public void actionPerformed(ActionEvent e) {
+					if(flag_tipo_tela == 0) {
+						int indiceDaLinha = table.getSelectedRow();
+	    				CadastroGrupo grupo_selecionado = lista_grupos.get(indiceDaLinha);
+	    				((TelaRelatoriaContratos) telaPai).setGrupoAlvo(grupo_selecionado);
+	    				isto.dispose();
+					}
+	    				
+				}
+			});
+			btnSelecionarGrupo.setBounds(496, 397, 89, 23);
+			painelGrupos.add(btnSelecionarGrupo);
+
+			contentPane.add(painelPrincipal, BorderLayout.CENTER);
+			
+			if(flag_tipo_tela == 1)
 	   {
 		   //em modo cliente
 		   btnSelecionar.setEnabled(false);
@@ -405,7 +518,7 @@ public class TelaCliente extends JDialog {
 		   
 	   }
 	
-	
+			atualizarTabelaGrupos();
 		
 		
 		this.setLocationRelativeTo(null);
@@ -470,4 +583,19 @@ public class TelaCliente extends JDialog {
 		this.telaPai = _telapai;
 	}
 	
+	
+	public void atualizarTabelaGrupos() {
+		modelo_grupos.setNumRows(0);
+	    GerenciarBancoGrupos gerenciar = new GerenciarBancoGrupos();
+	    lista_grupos.clear();
+	    lista_grupos = gerenciar.getGrupos();
+	 
+	    for (CadastroGrupo grupo : lista_grupos) {
+	    	
+	   
+	    	modelo_grupos.addRow(new Object[]{grupo.getId_grupo(),grupo.getNome_grupo(),grupo.getDescricao_grupo()});
+
+	    	
+	    }
+	}
 }

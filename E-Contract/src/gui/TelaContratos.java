@@ -66,7 +66,7 @@ public class TelaContratos extends JDialog {
 
 
 	public TelaContratos(int flag_retorno) {
-		//setModal(true);
+		setModal(true);
 		//setAlwaysOnTop(true);
 
 		 isto = this;
@@ -235,6 +235,12 @@ public class TelaContratos extends JDialog {
 					isto.dispose();
 					
 				}
+				else if(flag_retorno == 2) {
+				
+					((TelaConfirmarTransferenciaPagamentoContratual ) telaPai).setContratoDestintario(contrato_selecionado);
+					isto.dispose();
+					
+				}
 			}
 		});
 		btnSelecionar.setBounds(816, 403, 89, 23);
@@ -262,7 +268,7 @@ public class TelaContratos extends JDialog {
 		entChavePesquisa.setColumns(10);
 		
 				
-		if(flag_retorno == 1) {
+		if(flag_retorno == 1 || flag_retorno == 2) {
 			//selecionar contrato para carregamento
 			btnAbrir.setEnabled(false);
 			btnAbrir.setVisible(false);

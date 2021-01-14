@@ -72,7 +72,7 @@ public class TelaConfirmarPagamentoContratual extends JDialog {
 	public TelaConfirmarPagamentoContratual(CadastroContrato _contrato_local) {
 		//setAlwaysOnTop(true);
 
-		//setModal(true);
+		setModal(true);
 
 		isto = this;
 		this.contrato_local = _contrato_local;

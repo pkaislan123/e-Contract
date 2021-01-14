@@ -38,7 +38,9 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.text.NumberFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.Locale;
 import java.util.ResourceBundle;
 
@@ -78,14 +80,17 @@ import conexaoBanco.GerenciarBancoContratos;
 import conexaoBanco.GerenciarBancoDocumento;
 import conexaoBanco.GerenciarBancoLogin;
 import conexaoBanco.GerenciarBancoProdutos;
+import conexaoBanco.GerenciarBancoTransferencias;
 import manipular.ConfiguracoesGlobais;
 import manipular.ConverterPdf;
+import manipular.EditarWord;
 import manipular.ManipularNotasFiscais;
 import manipular.ManipularTxt;
 import manipular.Nuvem;
 import outros.DadosGlobais;
 import outros.GetData;
 import outros.JTextFieldPersonalizado;
+import relatoria.RelatorioContratoIndividual;
 import tratamento_proprio.Log;
 import views_personalizadas.TelaEscolha;
 
@@ -147,6 +152,7 @@ public class TelaGerenciarContrato extends JDialog {
 	private JTree arvore_documentos;
 	private JTree arvore_contratos;
 
+	private String caminho_salvar_comprovante_pagamento;
 	DefaultMutableTreeNode no_assinaturas; 
 	DefaultMutableTreeNode no_pagamentos;
 	DefaultMutableTreeNode no_carregamentos ;
@@ -157,7 +163,7 @@ public class TelaGerenciarContrato extends JDialog {
 
 	private DefaultMutableTreeNode no_selecionado;
 	private final JLabel lblStatusContrato = new JLabel("Status do Contrato:");
-	private final JLabel lblValorTotalPagamentos;
+	private final JLabel lblValorTotalPagamentos, lblTotalTransferenciasRecebidas ,lblTotalTransferenciasRetiradas;
 	InputStream stream = null;
 	private final JButton btnEditarContrato = new JButton("Editar");
 	private JPanel painel_vizualizar;
@@ -183,6 +189,8 @@ public class TelaGerenciarContrato extends JDialog {
 	private ArrayList<CadastroContrato.CadastroTarefa> lista_tarefas = null;
 	private ArrayList<CadastroContrato.Carregamento> lista_carregamentos = null;
 	private ArrayList<CadastroContrato.CadastroPagamentoContratual> lista_pagamentos_contratuais = null;
+	private ArrayList<CadastroContrato.CadastroTransferenciaPagamentoContratual> lista_transferencias_contratuais_remetente = null;
+	private ArrayList<CadastroContrato.CadastroTransferenciaPagamentoContratual> lista_transferencias_contratuais_destinatario = null;
 
 	private Double peso_total_cargas_nfe = 0.0;
 	private Double peso_total_cargas = 0.0;
@@ -259,7 +267,7 @@ public class TelaGerenciarContrato extends JDialog {
 		getDadosGlobais();
 		servidor_unidade = configs_globais.getServidorUnidade();
 
-		// setModal(true);
+		setModal(true);
 		// setAlwaysOnTop(true);
 
 		contrato_local = contrato;
@@ -493,6 +501,8 @@ public class TelaGerenciarContrato extends JDialog {
 		modelo_carregamentos.addColumn("Data");
 		modelo_carregamentos.addColumn("Contrato Destinado");
 		modelo_carregamentos.addColumn("Cliente");
+		modelo_carregamentos.addColumn("Vendedor");
+
 		modelo_carregamentos.addColumn("Transportador");
 		modelo_carregamentos.addColumn("Veiculo");
 		modelo_carregamentos.addColumn("Produto");
@@ -760,7 +770,7 @@ public class TelaGerenciarContrato extends JDialog {
 		panelInformativoAbaPagamentos.setLayout(null);
 
 		JLabel lblNewLabel_14_2 = new JLabel("Restante:");
-		lblNewLabel_14_2.setBounds(135, 527, 68, 14);
+		lblNewLabel_14_2.setBounds(135, 603, 68, 14);
 		painelPagamentos.add(lblNewLabel_14_2);
 
 		lblTotalPagamentosEfetuados = new JLabel("");
@@ -783,7 +793,7 @@ public class TelaGerenciarContrato extends JDialog {
 
 		lblTotalPagamentosRestantes = new JLabel("");
 		lblTotalPagamentosRestantes.setBorder(new LineBorder(new Color(0, 0, 0)));
-		lblTotalPagamentosRestantes.setBounds(199, 518, 143, 23);
+		lblTotalPagamentosRestantes.setBounds(199, 594, 143, 23);
 		painelPagamentos.add(lblTotalPagamentosRestantes);
 
 		painelPagamentos.add(lblNewLabel);
@@ -835,8 +845,11 @@ public class TelaGerenciarContrato extends JDialog {
 		
 		JPopupMenu jPopupMenuTabelPagamentos = new JPopupMenu();
 		JMenuItem jMenuItemInserirComprovantePagamento = new JMenuItem();
+		JMenuItem jMenuItemInserirTransferirPagamento = new JMenuItem();
+
 		jMenuItemInserirComprovantePagamento.setText("Inserir Comprovante");
-		
+	    jMenuItemInserirTransferirPagamento.setText("Transferir Pagamento");
+
 		jMenuItemInserirComprovantePagamento.addActionListener(
 				  new java.awt.event.ActionListener() {
 				    // Importe a classe java.awt.event.ActionEvent
@@ -848,7 +861,22 @@ public class TelaGerenciarContrato extends JDialog {
 				    }
 				  });
 		
+		
+
+		jMenuItemInserirTransferirPagamento.addActionListener(
+				  new java.awt.event.ActionListener() {
+				    // Importe a classe java.awt.event.ActionEvent
+				    public void actionPerformed(ActionEvent e) { 
+				      int index = table_pagamentos_contratuais.getSelectedRow();
+						String id = table_pagamentos_contratuais.getValueAt(index, 0).toString();
+						int i_id = Integer.parseInt(id);
+						transferirPagamentoContratual(i_id);
+
+				    }
+				  });
+		
 		jPopupMenuTabelPagamentos.add(jMenuItemInserirComprovantePagamento);
+		jPopupMenuTabelPagamentos.add(jMenuItemInserirTransferirPagamento);
 
 		
 		table_pagamentos_contratuais.addMouseListener(
@@ -865,7 +893,10 @@ public class TelaGerenciarContrato extends JDialog {
 		
 		
 		modelo_pagamentos_contratuais.addColumn("Id Pagamento");
+		modelo_pagamentos_contratuais.addColumn("Descrição");
+
 		modelo_pagamentos_contratuais.addColumn("Data");
+
 		modelo_pagamentos_contratuais.addColumn("Valor");
 		modelo_pagamentos_contratuais.addColumn("Depositante");
 		modelo_pagamentos_contratuais.addColumn("Conta Depositante");
@@ -883,31 +914,91 @@ public class TelaGerenciarContrato extends JDialog {
 		JButton btnExcluirPagamento = new JButton("Excluir");
 		btnExcluirPagamento.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
-				if (JOptionPane.showConfirmDialog(isto, "Excluir", "Deseja excluir o pagamento?",
-						JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE) == JOptionPane.YES_OPTION) {
+				
 					try {
+						
 						int indiceDaLinha = table_pagamentos_contratuais.getSelectedRow();
 
-						int id_pagamento_selecionado = Integer
-								.parseInt(table_pagamentos_contratuais.getValueAt(indiceDaLinha, 0).toString());
-						GerenciarBancoContratos gerenciar = new GerenciarBancoContratos();
+						String descricao = table_pagamentos_contratuais.getValueAt(indiceDaLinha, 1).toString();
+					
+						if(!descricao.equalsIgnoreCase("+Transferencia") && !descricao.equalsIgnoreCase("-Transferencia")){
+							
+							if (JOptionPane.showConfirmDialog(isto, 
+						            "Excluir Pagamento?", "Deseja excluir o pagamento?", 
+						            JOptionPane.YES_NO_OPTION,
+						            JOptionPane.QUESTION_MESSAGE) == JOptionPane.YES_OPTION){
+								int id_pagamento_selecionado = Integer
+										.parseInt(table_pagamentos_contratuais.getValueAt(indiceDaLinha, 0).toString());
+								
+								//verifica se esse pagamento esta anexado a uma transferencia
+								GerenciarBancoTransferencias gerenciar_trans = new GerenciarBancoTransferencias();
+								boolean tem_transferencia_anexada = false;
+								ArrayList<CadastroContrato.CadastroTransferenciaPagamentoContratual> transferencias = gerenciar_trans.getTransferencias();
+								for(CadastroContrato.CadastroTransferenciaPagamentoContratual trans : transferencias) {
+									if(trans.getId_pagamento_contratual() == id_pagamento_selecionado) {
+										tem_transferencia_anexada = true;
+										break;
+									}
+									
+								}
+								
+								if(!tem_transferencia_anexada) {
+									GerenciarBancoContratos gerenciar = new GerenciarBancoContratos();
 
-						if (gerenciar.removerPagamentoContratual(contrato_local.getId(), id_pagamento_selecionado)) {
-							JOptionPane.showMessageDialog(null, "Pagamento Excluido!");
-							pesquisar_pagamentos();
+									if (gerenciar.removerPagamentoContratual(contrato_local.getId(), id_pagamento_selecionado)) {
+										JOptionPane.showMessageDialog(null, "Pagamento Excluido!");
+										pesquisar_pagamentos();
 
-						} else {
+									} else {
+										JOptionPane.showMessageDialog(null,
+												"Erro ao remover o pagamento selecionado\nConsulte o administrador do sistema!");
+									}
+								}else {
+									JOptionPane.showMessageDialog(null,
+											"Esse pagamento tem uma tranferencia anexada a ele, remova ha antes!");
+								}
+						
+		
+							}else {
+								
+							}
+						}
+						
+						
+						else if(descricao.equalsIgnoreCase("-Transferencia")) {
+							if (JOptionPane.showConfirmDialog(isto, 
+						            "Excluir Transferencia?", "Deseja excluir essa transferencia?", 
+						            JOptionPane.YES_NO_OPTION,
+						            JOptionPane.QUESTION_MESSAGE) == JOptionPane.YES_OPTION){
+							//excluir transferencia
+							int id_transferencia_selecionada = Integer
+									.parseInt(table_pagamentos_contratuais.getValueAt(indiceDaLinha, 0).toString());
+							GerenciarBancoTransferencias gerenciar = new GerenciarBancoTransferencias();
+
+							if (gerenciar.removerTransferencia(id_transferencia_selecionada)) {
+								JOptionPane.showMessageDialog(null, "Transferencia removida!");
+								pesquisar_pagamentos();
+
+							} else {
+								JOptionPane.showMessageDialog(null,
+										"Erro ao remover a transferencia selecionada\nConsulte o administrador do sistema!");
+							}
+						}else {
+							
+						}
+						}
+						
+						
+						else {
 							JOptionPane.showMessageDialog(null,
-									"Erro ao remover o pagamento selecionado\nConsulte o administrador do sistema!");
+									"Remova essa transfência no contrato de origem");
 						}
 					} catch (NumberFormatException n) {
 						JOptionPane.showMessageDialog(null, "Nenhum pagamento selecionado para excluir");
 
 					}
 
-				} else {
-
-				}
+				
 			}
 		});
 		btnExcluirPagamento.setBounds(1012, 411, 89, 23);
@@ -928,6 +1019,24 @@ public class TelaGerenciarContrato extends JDialog {
 		painelGraficoPagamentos.setLayout(null);
 		painelGraficoPagamentos.setBounds(344, 404, 300, 250);
 		painelPagamentos.add(painelGraficoPagamentos);
+		
+		 lblTotalTransferenciasRetiradas = new JLabel("");
+		lblTotalTransferenciasRetiradas.setBorder(new LineBorder(new Color(0, 0, 0)));
+		lblTotalTransferenciasRetiradas.setBounds(199, 519, 143, 23);
+		painelPagamentos.add(lblTotalTransferenciasRetiradas);
+		
+		JLabel lblNewLabel_14_1_1 = new JLabel("Transferencias:(-)");
+		lblNewLabel_14_1_1.setBounds(92, 525, 101, 14);
+		painelPagamentos.add(lblNewLabel_14_1_1);
+		
+		 lblTotalTransferenciasRecebidas = new JLabel("");
+		lblTotalTransferenciasRecebidas.setBorder(new LineBorder(new Color(0, 0, 0)));
+		lblTotalTransferenciasRecebidas.setBounds(199, 553, 143, 23);
+		painelPagamentos.add(lblTotalTransferenciasRecebidas);
+		
+		JLabel lblNewLabel_14_1_1_1 = new JLabel("Transferencias:(+)");
+		lblNewLabel_14_1_1_1.setBounds(92, 559, 101, 14);
+		painelPagamentos.add(lblNewLabel_14_1_1_1);
 
 		painelListaTarefas.setBackground(new Color(255, 255, 255));
 
@@ -951,10 +1060,18 @@ public class TelaGerenciarContrato extends JDialog {
 		scrollPaneTarefas.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED);
 		scrollPaneTarefas.setBackground(Color.WHITE);
 		scrollPaneTarefas.setAutoscrolls(true);
-		scrollPaneTarefas.setBounds(28, 55, 1002, 470);
+		scrollPaneTarefas.setBounds(28, 55, 1310, 351);
 		painelListaTarefas.add(scrollPaneTarefas);
+		
+		JButton btnAdcionarTarefa = new JButton("Adicionar");
+		btnAdcionarTarefa.setBounds(1249, 430, 89, 23);
+		painelListaTarefas.add(btnAdcionarTarefa);
+		
+		JButton btnExcluirTarefa = new JButton("Excluir");
+		btnExcluirTarefa.setBounds(1150, 430, 89, 23);
+		painelListaTarefas.add(btnExcluirTarefa);
 
-		painelPrincipal.addTab("Documentos", painelComprovantes);
+		painelPrincipal.addTab("Documentos, Aditivos e Relatórios", painelComprovantes);
 		painelComprovantes.setLayout(null);
 
 		JPanel painelInserirDocumento = new JPanel();
@@ -1060,8 +1177,8 @@ public class TelaGerenciarContrato extends JDialog {
 		getTarefas();
 
 	
-	//setarInformacoesPainelPrincipal(); setarInformacoesPainelCarregamentos();
-	//pesquisar_carregamentos(); pesquisar_pagamentos();
+		//setarInformacoesPainelPrincipal(); setarInformacoesPainelCarregamentos();
+		//pesquisar_carregamentos(); pesquisar_pagamentos();
 		
 		setSubContratos(contrato_local);
 		if(contrato_local.getSub_contrato() == 0) {
@@ -1441,6 +1558,17 @@ public class TelaGerenciarContrato extends JDialog {
 			} else {
 				nome_cliente = cliente_carregamento.getNome_fantaia();
 			}
+			
+			
+			// pegar vendedor
+						CadastroCliente vendedor_carregamento = gerenciar_clientes.getCliente(carregamento.getId_vendedor());
+						String nome_vendedor;
+						if (vendedor_carregamento.getTipo_pessoa() == 0) {
+							// pessoa fisica
+							nome_vendedor = vendedor_carregamento.getNome_empresarial();
+						} else {
+							nome_vendedor = vendedor_carregamento.getNome_fantaia();
+						}
 
 			// pegar transportador e veiculo
 			CadastroCliente transportador_carregamento = gerenciar_clientes
@@ -1470,7 +1598,7 @@ public class TelaGerenciarContrato extends JDialog {
 			double peso_nota_restante = peso_carregado - peso_nota;
 
 			modelo_carregamentos.addRow(new Object[] { carregamento.getId_carregamento(), carregamento.getData(),
-					contrato_destinatario.getCodigo(), nome_cliente,
+					contrato_destinatario.getCodigo(), nome_cliente, nome_vendedor,
 					transportador_carregamento.getNome() + " " + transportador_carregamento.getSobrenome(),
 					veiculo_carregamento.getPlaca_trator(), produto_carregamento.getNome_produto(),
 					z.format(peso_carregado) + " Kg", z.format(peso_nota) + " Kg", z.format(peso_nota_restante) + " Kg",
@@ -1557,6 +1685,8 @@ public class TelaGerenciarContrato extends JDialog {
 
 		double valor_total_pagamentos = Double.parseDouble(contrato_local.getValor_a_pagar().toPlainString());
 		double valor_total_pagamentos_efetuados = 0;
+		double valor_total_transferencias_retiradas = 0;
+		double valor_total_transferencias_recebidas = 0;
 		double valor_total_pagamentos_restantes = 0;
 
 		if (lista_pagamentos_contratuais != null) {
@@ -1565,12 +1695,32 @@ public class TelaGerenciarContrato extends JDialog {
 			lista_pagamentos_contratuais = new ArrayList<>();
 		}
 
+		
+		if (lista_transferencias_contratuais_remetente != null) {
+			lista_transferencias_contratuais_remetente.clear();
+		} else {
+			lista_transferencias_contratuais_remetente = new ArrayList<>();
+		}
+
+		
+		if (lista_transferencias_contratuais_destinatario != null) {
+			lista_transferencias_contratuais_destinatario.clear();
+		} else {
+			lista_transferencias_contratuais_destinatario = new ArrayList<>();
+		}
+
 		GerenciarBancoContratos gerenciar = new GerenciarBancoContratos();
 		lista_pagamentos_contratuais = gerenciar.getPagamentosContratuais(contrato_local.getId());
+		
+
+		GerenciarBancoTransferencias gerenciar_transferencias = new GerenciarBancoTransferencias();
+		lista_transferencias_contratuais_remetente = gerenciar_transferencias.getTransferenciasRemetente(contrato_local.getId());
+	   lista_transferencias_contratuais_destinatario = gerenciar_transferencias.getTransferenciaDestinatario(contrato_local.getId());
 
 		/*
 		 * 
 		 * modelo_pagamentos_contratuais.addColumn("Id Pagamento");
+		 *  modelo_pagamentos_contratuais.addColumn("Descrição");
 		 * modelo_pagamentos_contratuais.addColumn("Data");
 		 * modelo_pagamentos_contratuais.addColumn("Valor");
 		 * modelo_pagamentos_contratuais.addColumn("Depositante");
@@ -1614,7 +1764,7 @@ public class TelaGerenciarContrato extends JDialog {
 			Locale ptBr = new Locale("pt", "BR");
 			String valorString = NumberFormat.getCurrencyInstance(ptBr).format(valor_pagamento);
 
-			modelo_pagamentos_contratuais.addRow(new Object[] { pagamento.getId_pagamento(), data, valorString,
+			modelo_pagamentos_contratuais.addRow(new Object[] { pagamento.getId_pagamento(), "Pagamento", data, valorString,
 					nome_depositante, conta_depositante.getNome(), nome_favorecido, conta_favorecido.getNome()
 
 			});
@@ -1623,6 +1773,67 @@ public class TelaGerenciarContrato extends JDialog {
 
 		}
 
+		
+		for (CadastroContrato.CadastroTransferenciaPagamentoContratual transferencia : lista_transferencias_contratuais_remetente) {
+
+			GerenciarBancoContratos gerenciar_contratos = new GerenciarBancoContratos();
+
+			CadastroContrato.CadastroPagamentoContratual pag_transferencia = null;
+			
+			//pegar o pagamento
+			pag_transferencia = gerenciar_contratos.getPagamentoContratual(transferencia.getId_pagamento_contratual());
+			
+			// pegar data do pagmento
+			String data = transferencia.getData();
+			double valor_pagamento = pag_transferencia.getValor_pagamento();
+
+			//pegar o destinatario
+			CadastroContrato destinatario = gerenciar_contratos.getContrato(transferencia.getId_contrato_destinatario());
+		
+
+			Locale ptBr = new Locale("pt", "BR");
+			String valorString = NumberFormat.getCurrencyInstance(ptBr).format(valor_pagamento);
+
+			modelo_pagamentos_contratuais.addRow(new Object[] { transferencia.getId_transferencia(), "-Transferencia", data, valorString,
+					contrato_local.getCodigo(), "", destinatario.getCodigo(), ""
+
+			});
+
+			valor_total_transferencias_retiradas += valor_pagamento;
+			//valor_total_pagamentos_efetuados -= valor_pagamento;
+
+		}
+
+		
+		for (CadastroContrato.CadastroTransferenciaPagamentoContratual transferencia : lista_transferencias_contratuais_destinatario) {
+			GerenciarBancoContratos gerenciar_contratos = new GerenciarBancoContratos();
+
+			CadastroContrato.CadastroPagamentoContratual pag_transferencia = null;
+			
+			//pegar o pagamento
+			pag_transferencia = gerenciar_contratos.getPagamentoContratual(transferencia.getId_pagamento_contratual());
+			
+			// pegar data do pagmento
+			String data = transferencia.getData();
+			double valor_pagamento = pag_transferencia.getValor_pagamento();
+
+			//pegar o destinatario
+			CadastroContrato remetente = gerenciar_contratos.getContrato(transferencia.getId_contrato_remetente());
+		
+
+			Locale ptBr = new Locale("pt", "BR");
+			String valorString = NumberFormat.getCurrencyInstance(ptBr).format(valor_pagamento);
+
+			modelo_pagamentos_contratuais.addRow(new Object[] { transferencia.getId_transferencia(), "+Transferencia", data, valorString,
+					remetente.getCodigo(), "", contrato_local.getCodigo(), ""
+
+			});
+			valor_total_transferencias_recebidas += valor_pagamento;
+			//valor_total_pagamentos_efetuados += valor_pagamento;
+
+		}
+
+		
 		Locale ptBr = new Locale("pt", "BR");
 		String valor = NumberFormat.getCurrencyInstance(ptBr).format(valor_total_pagamentos);
 
@@ -1632,9 +1843,18 @@ public class TelaGerenciarContrato extends JDialog {
 
 		lblTotalPagamentosEfetuados.setText(valor);
 
-		valor_total_pagamentos_restantes = valor_total_pagamentos - valor_total_pagamentos_efetuados;
+		valor = NumberFormat.getCurrencyInstance(ptBr).format(valor_total_transferencias_retiradas);
+
+		lblTotalTransferenciasRetiradas.setText(valor);
+
+		valor = NumberFormat.getCurrencyInstance(ptBr).format(valor_total_transferencias_recebidas);
+
+		lblTotalTransferenciasRecebidas.setText(valor);
+		
+		valor_total_pagamentos_restantes = valor_total_pagamentos - valor_total_pagamentos_efetuados + valor_total_transferencias_retiradas - valor_total_transferencias_recebidas;
 		valor = NumberFormat.getCurrencyInstance(ptBr).format(valor_total_pagamentos_restantes);
 
+		
 		lblTotalPagamentosRestantes.setText(valor);
 
 		int n1 = (int) valor_total_pagamentos;
@@ -2208,18 +2428,21 @@ public class TelaGerenciarContrato extends JDialog {
 		int result = fileChooser.showOpenDialog(isto);
 
 		String caminho_arquivo = fileChooser.getSelectedFile().toString();
+		
+		TelaRecortarImagem2 tela = new TelaRecortarImagem2(caminho_arquivo);
+		tela.setTelaPai(isto);
+		tela.setVisible(true);
 
 		try {
 			// copiar o arquivo para a pasta do contrato
 			ManipularTxt manipular = new ManipularTxt();
 			String unidade_base_dados = configs_globais.getServidorUnidade();
 			String caminho_salvar = unidade_base_dados + "\\" + contrato_local.getCaminho_diretorio_contrato();
-			String extensaoDoArquivo = FilenameUtils.getExtension(caminho_arquivo);
 
-			String nome_arquivo = "comprovante_pagamento_" + id_pagamento + "_" + contrato_local.getCodigo() + "." + extensaoDoArquivo ;;
+			String nome_arquivo = "comprovante_pagamento_" + id_pagamento + "_" + contrato_local.getCodigo() + "." + "png" ;;
 			
 			String caminho_completo = caminho_salvar + "\\comprovantes\\" + nome_arquivo;
-			boolean movido = manipular.copiarNFe(caminho_arquivo, caminho_completo);
+			boolean movido = manipular.copiarNFe(caminho_salvar_comprovante_pagamento, caminho_completo);
 
 			if (movido) {
 				
@@ -3071,6 +3294,39 @@ public class TelaGerenciarContrato extends JDialog {
 				scrollPane.setBounds(10, 11, 732, 110);
 				panel_1.add(scrollPane);
 				
+				JButton btnNewButton = new JButton("Completo");
+				btnNewButton.addActionListener(new ActionListener() {
+					public void actionPerformed(ActionEvent e) {
+						gerarRelatorioContratoIndividual();
+						
+					}
+				});
+				btnNewButton.setBounds(1017, 95, 152, 23);
+				painelComprovantes.add(btnNewButton);
+				
+				JLabel lblNewLabel_25 = new JLabel("Relatorios");
+				lblNewLabel_25.setFont(new Font("Sitka Small", Font.PLAIN, 14));
+				lblNewLabel_25.setBounds(971, 56, 72, 14);
+				painelComprovantes.add(lblNewLabel_25);
+				
+				JButton btnSimplificado = new JButton("Simplificado");
+				btnSimplificado.addActionListener(new ActionListener() {
+					public void actionPerformed(ActionEvent e) {
+						Date hoje = new Date();
+						SimpleDateFormat df = new SimpleDateFormat("dd/MM/yyyy");
+						contrato_local.setData_contrato(df.format(hoje));
+						RelatorioContratoIndividual relatorio = new RelatorioContratoIndividual(contrato_local);
+						System.out.println("Preparando para elaborar novo relatorio contrato individual");
+						ByteArrayOutputStream contrato_alterado = relatorio.preparar(2);
+				         
+						ConverterPdf converter_pdf = new ConverterPdf();
+						String pdf_alterado = converter_pdf.word_pdf_stream(contrato_alterado);
+						TelaVizualizarPdf vizualizar = new TelaVizualizarPdf(null, isto, null, pdf_alterado);
+					}
+				});
+				btnSimplificado.setBounds(842, 95, 152, 23);
+				painelComprovantes.add(btnSimplificado);
+				
 				setInformacoesAditivos();
 
 			}
@@ -3822,5 +4078,34 @@ public void atualizarArvoreContratos() {
 		}
 	}
 		
+	public void gerarRelatorioContratoIndividual() {
+		Date hoje = new Date();
+		SimpleDateFormat df = new SimpleDateFormat("dd/MM/yyyy");
+		contrato_local.setData_contrato(df.format(hoje));
+		RelatorioContratoIndividual relatorio = new RelatorioContratoIndividual(contrato_local);
+		System.out.println("Preparando para elaborar novo relatorio contrato individual");
+		ByteArrayOutputStream contrato_alterado = relatorio.preparar(1);
+         
+		ConverterPdf converter_pdf = new ConverterPdf();
+		String pdf_alterado = converter_pdf.word_pdf_stream(contrato_alterado);
+		TelaVizualizarPdf vizualizar = new TelaVizualizarPdf(null, isto, null, pdf_alterado);
+		
+		
+		
+		
+	}
 	
+	
+	public void transferirPagamentoContratual( int id_pagamento_contratual) {
+		
+		TelaConfirmarTransferenciaPagamentoContratual tela = new TelaConfirmarTransferenciaPagamentoContratual(contrato_local, id_pagamento_contratual);
+		tela.setTelaPag(isto);
+		tela.setVisible(true);
+		
+	}
+	
+	
+	public void caminho_salvar_comprovante_pagamento(String caminho) {
+		this.caminho_salvar_comprovante_pagamento = caminho;
+	}
 }

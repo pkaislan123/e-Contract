@@ -239,7 +239,7 @@ public class TelaElaborarNovoContrato extends JDialog {
 
 		//setAlwaysOnTop(true);
 
-		//setModal(true);
+		setModal(true);
 
 		flag_edicao_global = flag_edicao;
 
