@@ -1,6 +1,7 @@
 package graficos;
 
 import java.awt.Color;
+import java.awt.Font;
 import java.awt.Graphics;
 
 import javax.swing.JLabel;
@@ -20,11 +21,17 @@ public class JPanelGrafico extends JPanel{
 		this.total_global = total;
 		
 		 
-		
+
 	    lblassinados.setBounds(350, 27, 150, 14);
+	    lblassinados.setFont(new Font("Tahoma", Font.BOLD, 14));
+    	lblassinados.setForeground(new Color(0,100,0));
+
 	    this.add(lblassinados);
 
 	    lblnao_assinados.setBounds(100, 224, 150, 25);
+	    lblnao_assinados.setFont(new Font("Tahoma", Font.BOLD, 14));
+    	lblnao_assinados.setForeground(Color.red);
+
 	    this.add(lblnao_assinados);
 	}
 	
@@ -67,9 +74,7 @@ public class JPanelGrafico extends JPanel{
 	    	
 	    	
 	    	lblassinados.setText("Assinados: "+ percentualassinados  + "%");
-	    	lblassinados.setForeground(Color.green);
 	    	lblnao_assinados.setText("Assinar: "+ percentualnao_assinados + "%");
-	    	lblnao_assinados.setForeground(Color.red);
 
 	    	 if(percentualnao_assinados + percentualassinados != 100) {
 	 	    	int diferenca = 100 - (percentualnao_assinados + percentualassinados);
@@ -89,13 +94,14 @@ public class JPanelGrafico extends JPanel{
 	 
 	   
 	   
-	    g.setColor(Color.red);
+	    g.setColor(new Color(255,69,0));
         g.fillArc(200,50,200,200, 90,circulo_nao_assinado );
         		    
-        g.setColor(Color.green);
+        g.setColor(new Color(0,255,127));
         g.fillArc(200,50,200,200, 90,circulo_assinado * (-1) );
 
-        g.setColor(Color.blue);
+       
+        g.setColor(new Color( 255, 250 ,205));
         g.fillOval(250, 100, 100, 100);
         //g.fillOval(10,50, 180, 180);	
 	    

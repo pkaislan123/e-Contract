@@ -166,16 +166,18 @@ public class TelaCadastroCliente extends JDialog {
 	CadastroCliente cliente_atualizar = new CadastroCliente();
 	private JDialog telaPai;
 
+	private JPanel painelCentral = new JPanel();
 	private JLabel lblCodigoGerado, lblCodigo;
 
 	public TelaCadastroCliente(int flag_tipo_tela, CadastroCliente cliente) {
+		getContentPane().setBackground(new Color(0, 153, 0));
 		getContentPane().setFont(new Font("Arial", Font.BOLD, 18));
 		getContentPane().setForeground(Color.WHITE);
 		setFont(new Font("Arial", Font.BOLD, 18));
 		setForeground(new Color(255, 255, 255));
 
 		getDadosGlobais();
-		//setAlwaysOnTop(true);
+		// setAlwaysOnTop(true);
 
 		setModal(true);
 
@@ -195,11 +197,17 @@ public class TelaCadastroCliente extends JDialog {
 			cliente_atualizar = cliente;
 		}
 
-		setBounds(100, 100, 810, 589);
+		setBounds(100, 100, 1036, 587);
+		painelCentral.setLayout(null);
+		painelCentral.setBounds(208, 0, 822, 560);
+		getContentPane().add(painelCentral);
 
 		// configuracao de paineis
 		// painel pai
+
 		painelPrincipal = new JTabbedPane();
+
+		painelPrincipal.setBounds(0, 0, 913, 560);
 		painelPrincipal.setFont(new Font("Arial", Font.BOLD, 14));
 		// painelPrincipal.setBackground(new Color(255, 255, 255));
 		painelPrincipal.setBorder(new EmptyBorder(5, 5, 5, 5));
@@ -324,6 +332,68 @@ public class TelaCadastroCliente extends JDialog {
 		// adicionar o painel de contato ao painel principal
 		painelPrincipal.addTab("Dados Contato", painelContato);
 
+		JButton btnExcluirContato = new JButton("Excluir");
+		btnExcluirContato.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				int indiceDaLinha = table.getSelectedRow();
+				if (flag_tipo_tela == 0 || flag_tipo_tela == 6) {
+
+					String id_excluir = table.getValueAt(indiceDaLinha, 0).toString();
+					if (id_excluir.equals("0000")) {
+					} else {
+						contatos_excluir.add(Integer.parseInt(id_excluir));
+
+					}
+
+					((DefaultTableModel) table.getModel()).removeRow(indiceDaLinha);
+					table.repaint();
+					table.validate();
+
+				} else {
+
+					((DefaultTableModel) table.getModel()).removeRow(indiceDaLinha);
+					table.repaint();
+					table.validate();
+
+				}
+			}
+		});
+		btnExcluirContato.setHorizontalAlignment(SwingConstants.LEADING);
+		btnExcluirContato.setBounds(699, 214, 63, 23);
+		painelContato.add(btnExcluirContato);
+
+		JPanel panel = new JPanel();
+		panel.setBounds(38, 65, 724, 138);
+		painelContato.add(panel);
+
+		modelo.addColumn("id");
+		modelo.addColumn("Nome");
+		modelo.addColumn("Cargo");
+		modelo.addColumn("Celular");
+		modelo.addColumn("Fixo");
+		modelo.addColumn("E-mail");
+		modelo.addColumn("Descrição");
+		modelo.addColumn("Observação");
+		modelo.setNumRows(0);
+
+		
+		table = new JTable(modelo);
+		table.setBackground(new Color(255, 255, 255));
+
+		table.getColumnModel().getColumn(0).setPreferredWidth(20);
+		table.getColumnModel().getColumn(1).setPreferredWidth(20);
+		table.getColumnModel().getColumn(2).setPreferredWidth(130);
+		table.getColumnModel().getColumn(3).setPreferredWidth(30);
+		table.getColumnModel().getColumn(4).setPreferredWidth(30);
+		table.getColumnModel().getColumn(5).setPreferredWidth(100);
+
+		panel.setLayout(null);
+		JScrollPane scrollPane = new JScrollPane(table);
+		scrollPane.setBounds(10, 5, 704, 122);
+		scrollPane.setAutoscrolls(true);
+		scrollPane.setBackground(new Color(255, 255, 255));
+		panel.add(scrollPane);
+
 		JLabel lblCelular = new JLabel("Celular:");
 		lblCelular.setHorizontalAlignment(SwingConstants.TRAILING);
 		lblCelular.setForeground(Color.BLACK);
@@ -428,37 +498,7 @@ public class TelaCadastroCliente extends JDialog {
 		entEmailContato.setColumns(10);
 		entEmailContato.setBounds(116, 395, 220, 33);
 		painelContato.add(entEmailContato);
-
-		JPanel panel = new JPanel();
-		panel.setBounds(38, 65, 724, 138);
-		painelContato.add(panel);
-
-		table = new JTable(modelo);
-		table.setBackground(new Color(255, 255, 255));
-		modelo.addColumn("id");
-		modelo.addColumn("Nome");
-		modelo.addColumn("Cargo");
-		modelo.addColumn("Celular");
-		modelo.addColumn("Fixo");
-		modelo.addColumn("E-mail");
-		modelo.addColumn("Descrição");
-		modelo.addColumn("Observação");
-
-		table.getColumnModel().getColumn(0).setPreferredWidth(20);
-		table.getColumnModel().getColumn(1).setPreferredWidth(20);
-		table.getColumnModel().getColumn(2).setPreferredWidth(130);
-		table.getColumnModel().getColumn(3).setPreferredWidth(30);
-		table.getColumnModel().getColumn(4).setPreferredWidth(30);
-		table.getColumnModel().getColumn(5).setPreferredWidth(100);
-
-		panel.setLayout(null);
-		modelo.setNumRows(0);
-		JScrollPane scrollPane = new JScrollPane(table);
-		scrollPane.setBounds(10, 5, 704, 122);
-		scrollPane.setAutoscrolls(true);
-		scrollPane.setBackground(new Color(255, 255, 255));
-		panel.add(scrollPane);
-
+	
 		JButton btnAdicionarNovoContato = new JButton("Adicionar");
 		btnAdicionarNovoContato.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
@@ -485,36 +525,6 @@ public class TelaCadastroCliente extends JDialog {
 		});
 		btnAdicionarNovoContato.setBounds(673, 415, 89, 33);
 		painelContato.add(btnAdicionarNovoContato);
-
-		JButton btnExcluirContato = new JButton("Excluir");
-		btnExcluirContato.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				int indiceDaLinha = table.getSelectedRow();
-				if (flag_tipo_tela == 0 || flag_tipo_tela == 6) {
-
-					String id_excluir = table.getValueAt(indiceDaLinha, 0).toString();
-					if (id_excluir.equals("0000")) {
-					} else {
-						contatos_excluir.add(Integer.parseInt(id_excluir));
-
-					}
-
-					((DefaultTableModel) table.getModel()).removeRow(indiceDaLinha);
-					table.repaint();
-					table.validate();
-
-				} else {
-
-					((DefaultTableModel) table.getModel()).removeRow(indiceDaLinha);
-					table.repaint();
-					table.validate();
-
-				}
-			}
-		});
-		btnExcluirContato.setHorizontalAlignment(SwingConstants.LEADING);
-		btnExcluirContato.setBounds(699, 200, 63, 23);
-		painelContato.add(btnExcluirContato);
 
 		JLabel lblNome_1_1 = new JLabel("Descrição:");
 		lblNome_1_1.setHorizontalAlignment(SwingConstants.TRAILING);
@@ -602,11 +612,11 @@ public class TelaCadastroCliente extends JDialog {
 				if (salvar(flag_tipo_tela) == true) {
 
 					if (telaPai != null) {
-						if(flag_tipo_tela == 1 || flag_tipo_tela == 0) {
-							//salvar novo cliente comun
+						if (flag_tipo_tela == 1 || flag_tipo_tela == 0) {
+							// salvar novo cliente comun
 							((TelaCliente) telaPai).atualizaTabela();
 
-						}else if(flag_tipo_tela == 5 || flag_tipo_tela == 6) {
+						} else if (flag_tipo_tela == 5 || flag_tipo_tela == 6) {
 							((TelaArmazem) telaPai).atualizaTabela();
 
 						}
@@ -614,14 +624,17 @@ public class TelaCadastroCliente extends JDialog {
 
 					gerarPastas();
 
-					if(cliente_cadastrar.getIdentificacao_sefaz() != null && cliente_cadastrar.getIdentificacao_sefaz().length() > 3 && !cliente_cadastrar.getIdentificacao_sefaz().equals(" ")) {
-					
-						if(cliente_cadastrar.getSenha() != null && cliente_cadastrar.getSenha().length() > 3 && !cliente_cadastrar.getSenha().equals(" ")) {
-							
-						     BaixarNotasFiscais baixar = new BaixarNotasFiscais(cliente_cadastrar, "VENDA");
-					         baixar.iniciarPesquisas();
+					if (cliente_cadastrar.getIdentificacao_sefaz() != null
+							&& cliente_cadastrar.getIdentificacao_sefaz().length() > 3
+							&& !cliente_cadastrar.getIdentificacao_sefaz().equals(" ")) {
+
+						if (cliente_cadastrar.getSenha() != null && cliente_cadastrar.getSenha().length() > 3
+								&& !cliente_cadastrar.getSenha().equals(" ")) {
+
+							BaixarNotasFiscais baixar = new BaixarNotasFiscais(cliente_cadastrar, "VENDA");
+							baixar.iniciarPesquisas();
 						}
-					
+
 					}
 
 					isto.dispose();
@@ -637,9 +650,9 @@ public class TelaCadastroCliente extends JDialog {
 			public void actionPerformed(ActionEvent e) {
 
 				if (atualizar(flag_tipo_tela) == true) {
-					if(flag_tipo_tela == 0 || flag_tipo_tela == 1) {
+					if (flag_tipo_tela == 0 || flag_tipo_tela == 1) {
 						((TelaCliente) telaPai).atualizaTabela();
-					}else if(flag_tipo_tela == 5 || flag_tipo_tela == 6) {
+					} else if (flag_tipo_tela == 5 || flag_tipo_tela == 6) {
 						((TelaArmazem) telaPai).atualizaTabela();
 
 					}
@@ -772,8 +785,8 @@ public class TelaCadastroCliente extends JDialog {
 			public void actionPerformed(ActionEvent arg0) {
 				String cnpj = entCNPJ.getText();
 
-				pesquisarCNPJ( cnpj);
-				
+				pesquisarCNPJ(cnpj);
+
 			}
 		});
 		btnVerificarCNPJ.setBounds(549, 126, 155, 33);
@@ -1002,11 +1015,11 @@ public class TelaCadastroCliente extends JDialog {
 		btnPesquisarCPF.setFont(new Font("Arial", Font.BOLD, 16));
 		btnPesquisarCPF.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				
+
 				String cpf = entCpf.getText().toString();
 
 				pesquisarCpf(cpf);
-			
+
 			}
 		});
 		btnPesquisarCPF.setBounds(550, 113, 147, 34);
@@ -1323,8 +1336,8 @@ public class TelaCadastroCliente extends JDialog {
 		lblCadastro_2_1.setHorizontalAlignment(JLabel.LEFT);
 
 		painelEmpresa.add(lblCadastro_2_1);
-		
-		 cBUFIE = new JComboBox();
+
+		cBUFIE = new JComboBox();
 		cBUFIE.setFont(new Font("Arial", Font.BOLD, 14));
 		cBUFIE.setBounds(471, 78, 72, 35);
 		cBUFIE.addItem("MG");
@@ -1333,21 +1346,20 @@ public class TelaCadastroCliente extends JDialog {
 		cBUFIE.addItem("SC");
 		cBUFIE.addItem("GO");
 
-
 		painelEmpresa.add(cBUFIE);
-		
+
 		JButton btnPesquisarIE = new JButton("Pesquisar");
 		btnPesquisarIE.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
 				String ie = entIE.getText().replaceAll("[^0-9]+", "");
 				String uf = cBUFIE.getSelectedItem().toString();
-			    pesquisarIE(ie, uf);
+				pesquisarIE(ie, uf);
 			}
 		});
 		btnPesquisarIE.setFont(new Font("Arial", Font.BOLD, 16));
 		btnPesquisarIE.setBounds(553, 77, 147, 34);
 		painelEmpresa.add(btnPesquisarIE);
-		
+
 		JLabel lblUf_1 = new JLabel("UF:");
 		lblUf_1.setHorizontalAlignment(SwingConstants.TRAILING);
 		lblUf_1.setForeground(Color.BLACK);
@@ -1541,10 +1553,12 @@ public class TelaCadastroCliente extends JDialog {
 		painelDadosBancarios.add(lblCadastro);
 
 		uf = cBUF.getSelectedItem().toString();
+		getContentPane().setLayout(null);
 
 		// configura widgets no painel finalizar
 
-		getContentPane().add(painelPrincipal, BorderLayout.CENTER);
+		// getContentPane().add(painelPrincipal);
+		painelCentral.add(painelPrincipal);
 
 		if (flag_tipo_tela == 0 || flag_tipo_tela == 6) // 0 atualuzar //1 novo cliente
 		{
@@ -1694,7 +1708,6 @@ public class TelaCadastroCliente extends JDialog {
 		adicionarFocus(isto.getComponents());
 
 		this.setLocationRelativeTo(null);
-
 
 	}
 
@@ -2075,12 +2088,11 @@ public class TelaCadastroCliente extends JDialog {
 		String rua = entLogradouro.getText().toString();
 
 		cadastro.setRua(rua);
-		
+
 		String numero = entNumEndereco.getText().toString();
 
 		cadastro.setNumero(numero);
-		
-		
+
 		String cep = entCep.getText().toString();
 
 		cadastro.setCep(cep);
@@ -2126,29 +2138,29 @@ public class TelaCadastroCliente extends JDialog {
 		}
 		// dados de apelido e finalizar contrato
 
-		if(permitir_cadastro) {
-		
-			permitir_cadastro = getDadosFinais(cliente_cadastrar);
-       
-	     if(permitir_cadastro) {		
-		  retorno = false;
 		if (permitir_cadastro) {
-			GerenciarBancoClientes cadastrar = new GerenciarBancoClientes();
-			boolean cadastrou = cadastrar.inserir(cliente_cadastrar);
-			if (cadastrou) {
-				JOptionPane.showMessageDialog(null, "Cadastro Completo!");
-				// isto.dispose();
-				gerarPastas();
-				retorno = true;
 
-			} else {
-				JOptionPane.showMessageDialog(null, "Erro ao Cadastrar");
+			permitir_cadastro = getDadosFinais(cliente_cadastrar);
+
+			if (permitir_cadastro) {
 				retorno = false;
+				if (permitir_cadastro) {
+					GerenciarBancoClientes cadastrar = new GerenciarBancoClientes();
+					boolean cadastrou = cadastrar.inserir(cliente_cadastrar);
+					if (cadastrou) {
+						JOptionPane.showMessageDialog(null, "Cadastro Completo!");
+						// isto.dispose();
+						gerarPastas();
+						retorno = true;
 
+					} else {
+						JOptionPane.showMessageDialog(null, "Erro ao Cadastrar");
+						retorno = false;
+
+					}
+
+				}
 			}
-
-		}
-		}
 		}
 		return retorno;
 
@@ -2284,38 +2296,36 @@ public class TelaCadastroCliente extends JDialog {
 		login = dados.getLogin();
 
 	}
-	
-	
+
 	public void setTelaPai(JDialog tela_pai) {
 		this.telaPai = tela_pai;
 	}
 
-	
 	public void setInformacoesNovoCliente(CadastroCliente vendedor_contrato, String uf_inscricao, ContaBancaria conta) {
-		
-		if(vendedor_contrato.getTipo_pessoa() == 0) {
+
+		if (vendedor_contrato.getTipo_pessoa() == 0) {
 			entCpf.setText(vendedor_contrato.getCpf());
-			 pesquisarCpf(vendedor_contrato.getCpf());
-		}else {
+			pesquisarCpf(vendedor_contrato.getCpf());
+		} else {
 			CardLayout cardLayout = (CardLayout) panelDinamico.getLayout();
 			cardLayout.show(panelDinamico, "PessoaJuridica");
 			entCNPJ.setText(vendedor_contrato.getCnpj());
 			pesquisarCNPJ(vendedor_contrato.getCnpj());
 		}
-		
-		//pesquisar a ie
-		 pesquisarIE(vendedor_contrato.getIe().replaceAll("[^0-9+]", ""), uf_inscricao) ;
-		
-		//adicionar uma conta conta bancaria
-		
-		entCpfTitular.setText(conta.getCpf_titular() );
-		entBanco.setText( conta.getBanco());
-		entCodBanco.setText(conta.getCodigo() );
-		entAgencia.setText(conta.getAgencia() );
-		entConta.setText( conta.getConta());
-		
+
+		// pesquisar a ie
+		pesquisarIE(vendedor_contrato.getIe().replaceAll("[^0-9+]", ""), uf_inscricao);
+
+		// adicionar uma conta conta bancaria
+
+		entCpfTitular.setText(conta.getCpf_titular());
+		entBanco.setText(conta.getBanco());
+		entCodBanco.setText(conta.getCodigo());
+		entAgencia.setText(conta.getAgencia());
+		entConta.setText(conta.getConta());
+
 	}
-	
+
 	public void pesquisarCNPJ(String cnpj) {
 
 		cnpj = cnpj.replaceAll("[^0-9]+", "");
@@ -2429,7 +2439,7 @@ public class TelaCadastroCliente extends JDialog {
 				JOptionPane.showMessageDialog(null, "CNPJ Invalido!");
 		}
 	}
-	
+
 	public void pesquisarCpf(String cpf) {
 		CPFValidator cpfValidator = new CPFValidator();
 		List<ValidationMessage> erros = cpfValidator.invalidMessagesFor(cpf);
@@ -2506,13 +2516,12 @@ public class TelaCadastroCliente extends JDialog {
 
 		}
 	}
-	
-	
+
 	public void pesquisarIE(String ie_, String uf) {
 		GetSintegra sintegra = new GetSintegra(ie_, uf, 1);
 		String result = sintegra.captura();
 		System.out.println(result);
-		
+
 		result = result.replaceAll("\"", "");
 		result = result.replaceAll(",", "&");
 		System.out.println("Resultado da pesquisa de ie: " + result);
@@ -2568,9 +2577,6 @@ public class TelaCadastroCliente extends JDialog {
 			JOptionPane.showMessageDialog(null, "Erro ao consultar dados de IE no Sintegra");
 
 		}
-		
-		
-		
-		
+
 	}
 }

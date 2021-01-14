@@ -25,6 +25,9 @@ import tratamento_proprio.Log;
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
 import javax.swing.ImageIcon;
+import javax.swing.JTextField;
+import javax.swing.JLabel;
+import java.awt.Font;
 
 public class TelaUsuarios extends JDialog {
 
@@ -34,11 +37,16 @@ public class TelaUsuarios extends JDialog {
     private CadastroLogin login;
 	private CadastroLogin usuarioSelecionado;
 	private Log GerenciadorLog;
+	private JDialog telaPai;
+	private JTable tabela ;
+	
 	 DefaultTableModel modelo = new DefaultTableModel(){
          public boolean isCellEditable(int linha, int coluna) {  
              return false;
          }  
      };
+	 private JTextField entPesquisa;
+	 private final JPanel panel_2 = new JPanel();
      
      public static void pesquisar(DefaultTableModel modelo)
  	{ 
@@ -74,36 +82,97 @@ public class TelaUsuarios extends JDialog {
      
      }
 
-	public TelaUsuarios() {
-		setAlwaysOnTop(true);
+	public TelaUsuarios(int flag_modo_tela) {
 
-		//setModal(true);
+		setModal(true);
 		
 		getDadosGlobais();
 		
+		//flag_modo_tela == 1 //modo selecao
+		
 		TelaUsuarios isto = this;
-		setBounds(100, 100, 679, 508);
 		setTitle("Usuários");
 		getContentPane().setLayout(new BorderLayout());
 		
 		
 		setBackground(new Color(255, 255, 255));
 		setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-		setBounds(100, 100, 679, 508);
+		setBounds(100, 100, 817, 468);
 		contentPanel = new JPanel();
 		contentPanel.setBackground(new Color(255, 255, 255));
 		contentPanel.setBorder(new EmptyBorder(5, 5, 5, 5));
 		setContentPane(contentPanel);
 		contentPanel.setLayout(null);
+		panel_2.setBackground(new Color(51, 0, 102));
+		panel_2.setBounds(0, 0, 219, 523);
+		contentPanel.add(panel_2);
+		panel_2.setLayout(null);
+		
+		JButton btnUsurio = new JButton("+ Usuário");
+		btnUsurio.setBounds(41, 303, 120, 23);
+		panel_2.add(btnUsurio);
+		btnUsurio.setIcon(new ImageIcon(TelaUsuarios.class.getResource("/imagens/add_usuario.png")));
+		
+		JButton btnSelecionar = new JButton("Selecionar");
+		btnSelecionar.setBounds(41, 269, 120, 23);
+		panel_2.add(btnSelecionar);
+		
+		JButton btnEditar = new JButton("Editar");
+		btnEditar.setBounds(41, 234, 120, 23);
+		panel_2.add(btnEditar);
+		btnEditar.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				int indiceDaLinha = 0;
+				indiceDaLinha = tabela.getSelectedRow();
+				
+	
+				
+				if(login.getConfigs_privilegios().getNivel_privilegios() != 1) {
+
+					JOptionPane.showMessageDialog(null, "Requer Elevação de Direitos \n Reportado ao Administrador");
+					GerenciadorLog.registrarLogDiario("aviso", "tentativa de criação de novo usuário");
+				}else {
+					TelaCadastroUsuario cadastrarUsuario = new TelaCadastroUsuario(1, usuarios_disponiveis.get(indiceDaLinha));
+				}
+			}
+		});
+		btnEditar.setIcon(new ImageIcon(TelaUsuarios.class.getResource("/imagens/editar.png")));
+		btnSelecionar.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				if(flag_modo_tela == 1) {
+					int indiceDaLinha = tabela.getSelectedRow();
+					usuarioSelecionado = usuarios_disponiveis.get(indiceDaLinha);
+    				
+    					((TelaCriarTarefa) telaPai).setExecutor(usuarioSelecionado);
+       		
+
+    				isto.dispose();
+					}
+				
+				
+			}
+		});
+		btnUsurio.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				if(login.getConfigs_privilegios().getNivel_privilegios() != 1) {
+
+					JOptionPane.showMessageDialog(null, "Requer Elevação de Direitos \n Reportado ao Administrador");
+					GerenciadorLog.registrarLogDiario("aviso", "tentativa de criação de novo usuário");
+				}else {
+					TelaCadastroUsuario cadastrarUsuario = new TelaCadastroUsuario(0, null);
+				}
+			}
+		});
 		
 		JPanel panel = new JPanel();
-		panel.setBounds(10, 67, 653, 305);
+		panel.setBackground(Color.WHITE);
+		panel.setBounds(241, 183, 560, 202);
 		panel.setLayout(null);
 		contentPanel.add(panel);
 		
 		
 		
-		JTable tabela = new JTable(modelo);
+		 tabela = new JTable(modelo);
 		
 		tabela.setBackground(new Color(255, 255, 255));
 		modelo.addColumn("Id");
@@ -128,55 +197,49 @@ public class TelaUsuarios extends JDialog {
 
         	}
         });
-        scrollPane.setBounds(10, 11, 633, 283);
+        scrollPane.setBounds(0, 0, 560, 202);
         scrollPane.setAutoscrolls(true);
-        scrollPane.setBackground(new Color(255, 255, 255));
+        scrollPane.setBackground(Color.WHITE);
 		panel.add(scrollPane);
 		
-		JButton btnUsurio = new JButton("+ Usuário");
-		btnUsurio.setIcon(new ImageIcon(TelaUsuarios.class.getResource("/imagens/add_usuario.png")));
-		btnUsurio.addActionListener(new ActionListener() {
+		entPesquisa = new JTextField();
+		entPesquisa.setBounds(241, 144, 263, 28);
+		contentPanel.add(entPesquisa);
+		entPesquisa.setColumns(10);
+		
+		JPanel panel_1 = new JPanel();
+		panel_1.setBackground(new Color(102, 0, 255));
+		panel_1.setBounds(206, 25, 623, 77);
+		contentPanel.add(panel_1);
+		panel_1.setLayout(null);
+		
+		JLabel lblNewLabel = new JLabel("Gerenciar Usuários");
+		lblNewLabel.setBackground(new Color(102, 0, 102));
+		lblNewLabel.setForeground(Color.WHITE);
+		lblNewLabel.setFont(new Font("Tahoma", Font.PLAIN, 22));
+		lblNewLabel.setBounds(25, 11, 397, 46);
+		panel_1.add(lblNewLabel);
+		
+		JButton btnNewButton = new JButton("Sair");
+		btnNewButton.setBounds(681, 408, 120, 23);
+		contentPanel.add(btnNewButton);
+		btnNewButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				if(login.getConfigs_privilegios().getNivel_privilegios() != 1) {
-
-					JOptionPane.showMessageDialog(null, "Requer Elevação de Direitos \n Reportado ao Administrador");
-					GerenciadorLog.registrarLogDiario("aviso", "tentativa de criação de novo usuário");
-				}else {
-					TelaCadastroUsuario cadastrarUsuario = new TelaCadastroUsuario(0, null);
-				}
+				isto.dispose();
 			}
 		});
-		btnUsurio.setBounds(526, 426, 120, 23);
-		contentPanel.add(btnUsurio);
 		
-		JButton btnEditar = new JButton("Editar");
-		btnEditar.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent arg0) {
-				int indiceDaLinha = 0;
-				indiceDaLinha = tabela.getSelectedRow();
-				
-	
-				
-				if(login.getConfigs_privilegios().getNivel_privilegios() != 1) {
+		if(flag_modo_tela == 0 ) {
+	          btnSelecionar.setEnabled(false);
+	          btnSelecionar.setVisible(false);
 
-					JOptionPane.showMessageDialog(null, "Requer Elevação de Direitos \n Reportado ao Administrador");
-					GerenciadorLog.registrarLogDiario("aviso", "tentativa de criação de novo usuário");
-				}else {
-					TelaCadastroUsuario cadastrarUsuario = new TelaCadastroUsuario(1, usuarios_disponiveis.get(indiceDaLinha));
-				}
-			}
-		});
-		btnEditar.setIcon(new ImageIcon(TelaUsuarios.class.getResource("/imagens/editar.png")));
-		btnEditar.setBounds(427, 426, 89, 23);
-		contentPanel.add(btnEditar);
-		
-		
+		}
 		
 		
 		
 		this.setResizable(false);
 		this.setLocationRelativeTo(null);
-		setVisible(true);
+		this.setUndecorated(true);
 
 	}
 	
@@ -189,5 +252,8 @@ public class TelaUsuarios extends JDialog {
 		 //usuario logado
 		  login = dados.getLogin();
 	}
-
+	
+	public void setTelaPai(JDialog tela_pai) {
+		this.telaPai = tela_pai;
+	}
 }

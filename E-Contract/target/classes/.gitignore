@@ -1,4 +1,4 @@
-/audio/
+/imagens/
 /cadastros/
 /chat/
 /classesExtras/
@@ -6,9 +6,10 @@
 /conexoes/
 /graficos/
 /gui/
-/imagens/
 /manipular/
 /mensageria/
 /outros/
 /principal/
 /relatoria/
+/tratamento_proprio/
+/views_personalizadas/

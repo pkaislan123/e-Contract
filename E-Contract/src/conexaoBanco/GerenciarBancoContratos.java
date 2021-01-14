@@ -1333,19 +1333,19 @@ public class GerenciarBancoContratos {
 			
 			selectContratos = "select * from contrato\n"
 					+ "LEFT JOIN contrato_comprador on contrato_comprador.id_contrato = contrato.id\n"
-					+ "where contrato_comprador.id_cliente = ? and (contrato.sub_contrato = 0 or contrato.sub_contrato = 4)";
+					+ "where contrato_comprador.id_cliente = ? and (contrato.sub_contrato = 0 or contrato.sub_contrato = 3)";
 		 
 		}else if(flag_select == 2) {
 			//modo de busca de contratos que o cliente é o vendedor
 			selectContratos = "select * from contrato\n"
 					+ "LEFT JOIN contrato_vendedor on contrato_vendedor.id_contrato = contrato.id\n"
-					+ "where contrato_vendedor.id_cliente = ? and (contrato.sub_contrato = 0 or contrato.sub_contrato = 4)";
+					+ "where contrato_vendedor.id_cliente = ? and (contrato.sub_contrato = 0 or contrato.sub_contrato = 3)";
 			
 		}else if(flag_select == 3) {
 			//modo de busca de contratos que o cliente é o corretor
 			selectContratos = "select * from contrato\n"
 					+ "LEFT JOIN contrato_corretor on contrato_corretor.id_contrato = contrato.id\n"
-					+ "where contrato_corretor.id_cliente = ? and (contrato.sub_contrato = 0 or contrato.sub_contrato = 4)";
+					+ "where contrato_corretor.id_cliente = ? and (contrato.sub_contrato = 0 or contrato.sub_contrato = 3)";
 		}
 		
 		if(id_busca_safra > 0)
@@ -1814,7 +1814,7 @@ public class GerenciarBancoContratos {
 
 	}
 
-	private boolean inserirTarefas(int id_contrato, ArrayList<CadastroContrato.CadastroTarefa> lista_tarefas) {
+	public boolean inserirTarefas(int id_contrato, ArrayList<CadastroContrato.CadastroTarefa> lista_tarefas) {
 		boolean retorno = false;
 
 		if (lista_tarefas != null && lista_tarefas.size() > 0) {
@@ -2953,4 +2953,182 @@ public class GerenciarBancoContratos {
 
 	}
 
+	
+	public int getNumTarefas(int id_executor) {
+		
+		String selectGetNumContratos = "select count(*)  as num_tarefas from tarefa where status_tarefa = 2 and id_usuario_executor = ?";
+		Connection conn = null;
+		PreparedStatement pstm = null;
+		ResultSet rs = null;
+
+		try {
+			conn = ConexaoBanco.getConexao();
+			pstm = conn.prepareStatement(selectGetNumContratos);
+            pstm.setInt(1, id_executor );
+			rs = pstm.executeQuery();
+			rs.next();
+			int i = rs.getInt("num_tarefas");
+
+			ConexaoBanco.fechaConexao(conn, pstm, rs);
+			return i;
+
+		} catch (Exception e) {
+			JOptionPane.showMessageDialog(null, "Erro ao listar o numero total de tarefas!" + " erro: "
+					+ e.getMessage() + "causa: " + e.getCause());
+			return -1;
+		}
+	}
+	
+	
+	public double getQuantidadeSacos() {
+		
+		String selectGetQuantidadeTotalSacos = "select medida, quantidade from contrato where  sub_contrato = 0 or sub_contrato = 3";
+		Connection conn = null;
+		PreparedStatement pstm = null;
+		ResultSet rs = null;
+		double quantidade_total = 0;
+
+		try {
+			conn = ConexaoBanco.getConexao();
+			pstm = conn.prepareStatement(selectGetQuantidadeTotalSacos);
+			rs = pstm.executeQuery();
+
+			while (rs.next()) {
+
+				if (rs != null) {
+					
+					String medida = rs.getString("medida");
+					double quantidade_lida = Double.parseDouble(rs.getString("quantidade"));
+					double quantidade_sacos = 0;
+					
+					if(medida.equalsIgnoreCase("Sacos")) {
+						quantidade_sacos = quantidade_lida;
+					}else if(medida.equalsIgnoreCase("KG")) {
+						quantidade_sacos = quantidade_lida / 60;
+					}
+					
+					
+					quantidade_total += quantidade_sacos;
+				}
+			}
+
+
+			ConexaoBanco.fechaConexao(conn, pstm, rs);
+			return quantidade_total;
+
+		} catch (Exception e) {
+			JOptionPane.showMessageDialog(null, "Erro ao listar a quantidade total de sacos" + " erro: "
+					+ e.getMessage() + "causa: " + e.getCause());
+			return -1;
+		}
+		
+	}
+	
+	
+public double getQuantidadeSacosCarregados() {
+		
+		String selectGetQuantidadeTotalSacosCarregados = "SELECT SUM(peso_real_carga) AS quantidade_carregada FROM carregamento";
+		Connection conn = null;
+		PreparedStatement pstm = null;
+		ResultSet rs = null;
+		double quantidade_total = 0;
+
+		try {
+			conn = ConexaoBanco.getConexao();
+			pstm = conn.prepareStatement(selectGetQuantidadeTotalSacosCarregados);
+			rs = pstm.executeQuery();
+			rs.next();
+			double i = rs.getInt("quantidade_carregada");
+
+			ConexaoBanco.fechaConexao(conn, pstm, rs);
+			return i/60;
+
+
+		} catch (Exception e) {
+			JOptionPane.showMessageDialog(null, "Erro ao listar a quantidade total de sacos carregados" + " erro: "
+					+ e.getMessage() + "causa: " + e.getCause());
+			return -1;
+		}
+		
+	}
+
+
+
+public double getQuantidadeSacosCarregadosPorSafra(int id_safra) {
+	
+	String selectGetQuantidadeTotalSacosCarregados = "select sum(peso_real_carga) as quantidade_total_carregada from carregamento\n"
+			+ "left join contrato on contrato.id = carregamento.id_contrato_carregamento\n"
+			+ "where contrato.id_safra = ?";
+	Connection conn = null;
+	PreparedStatement pstm = null;
+	ResultSet rs = null;
+	double quantidade_total = 0;
+
+	try {
+		conn = ConexaoBanco.getConexao();
+		pstm = conn.prepareStatement(selectGetQuantidadeTotalSacosCarregados);
+		rs = pstm.executeQuery();
+		pstm.setInt(1, id_safra);
+		rs.next();
+		double i = rs.getInt("quantidade_total_carregada");
+
+		ConexaoBanco.fechaConexao(conn, pstm, rs);
+		return i/60;
+
+
+	} catch (Exception e) {
+		JOptionPane.showMessageDialog(null, "Erro ao listar a quantidade total de sacos carregados da safra selecionada" + " erro: "
+				+ e.getMessage() + "causa: " + e.getCause());
+		return -1;
+	}
+	
+}
+
+public double getQuantidadeSacosPorSafra(int id_safra) {
+	
+	String selectGetQuantidadeTotalSacosPorSafra = "select medida, quantidade from contrato\n"
+			+ " where  (sub_contrato = 0 or sub_contrato = 3 )and\n"
+			+ "contrato.id_safra = ?";
+	Connection conn = null;
+	PreparedStatement pstm = null;
+	ResultSet rs = null;
+	double quantidade_total = 0;
+
+	try {
+		conn = ConexaoBanco.getConexao();
+		pstm = conn.prepareStatement(selectGetQuantidadeTotalSacosPorSafra);
+		rs = pstm.executeQuery();
+          pstm.setInt(1, id_safra);
+		while (rs.next()) {
+
+			if (rs != null) {
+				
+				String medida = rs.getString("medida");
+				double quantidade_lida = Double.parseDouble(rs.getString("quantidade"));
+				double quantidade_sacos = 0;
+				
+				if(medida.equalsIgnoreCase("Sacos")) {
+					quantidade_sacos = quantidade_lida;
+				}else if(medida.equalsIgnoreCase("KG")) {
+					quantidade_sacos = quantidade_lida / 60;
+				}
+				
+				
+				quantidade_total += quantidade_sacos;
+			}
+		}
+
+
+		ConexaoBanco.fechaConexao(conn, pstm, rs);
+		return quantidade_total;
+
+	} catch (Exception e) {
+		JOptionPane.showMessageDialog(null, "Erro ao listar a quantidade total de sacos para a safra selecionada" + " erro: "
+				+ e.getMessage() + "causa: " + e.getCause());
+		return -1;
+	}
+	
+}
+
+	
 }

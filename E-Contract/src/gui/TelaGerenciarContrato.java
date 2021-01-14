@@ -1064,6 +1064,13 @@ public class TelaGerenciarContrato extends JDialog {
 		painelListaTarefas.add(scrollPaneTarefas);
 		
 		JButton btnAdcionarTarefa = new JButton("Adicionar");
+		btnAdcionarTarefa.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				TelaCriarTarefa tarefa = new TelaCriarTarefa(contrato_local);
+				tarefa.setTelaPai(isto);
+				tarefa.setVisible(true);
+			}
+		});
 		btnAdcionarTarefa.setBounds(1249, 430, 89, 23);
 		painelListaTarefas.add(btnAdcionarTarefa);
 		
@@ -1232,12 +1239,27 @@ public class TelaGerenciarContrato extends JDialog {
 
 			if (tarefa.getStatus_tarefa() == 1) {
 				status_tarefa = "Concluida";
+			}else if(tarefa.getStatus_tarefa() == 2) {
+				status_tarefa = "Em Andamento";
+
 			}
 
 			if (tarefa.getPrioridade() == 1) {
-				prioridade = "Imediata";
+				prioridade = "Imediata - Neste Momento";
+			}else if(tarefa.getPrioridade() == 2) {
+				prioridade = "Urgente - Nesta Hora";
+			}else if(tarefa.getPrioridade() == 3) {
+				prioridade = "Quanto Antes - Ainda Hoje";
 			}
-
+			else if(tarefa.getPrioridade() == 4) {
+				prioridade = "Média - Ainda essa semana";
+			}
+			else if(tarefa.getPrioridade() == 5) {
+				prioridade = "Leve - Ainda esse mês";
+			}
+			
+			
+	
 			GerenciarBancoLogin gerenciarUsuarios = new GerenciarBancoLogin();
 			CadastroLogin criador = gerenciarUsuarios.getLogin(tarefa.getCriador().getId());
 			CadastroLogin executor = gerenciarUsuarios.getLogin(tarefa.getExecutor().getId());
@@ -4108,4 +4130,9 @@ public void atualizarArvoreContratos() {
 	public void caminho_salvar_comprovante_pagamento(String caminho) {
 		this.caminho_salvar_comprovante_pagamento = caminho;
 	}
+	
+	public void atualizarListaTarefas() {
+		getTarefas();
+	}
+	
 }

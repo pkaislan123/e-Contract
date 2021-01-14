@@ -36,6 +36,7 @@ import javax.swing.JComboBox;
 import javax.swing.JTextField;
 import javax.swing.JLabel;
 import javax.swing.JTabbedPane;
+import java.awt.Toolkit;
 
 public class TelaCliente extends JDialog {
 
@@ -150,6 +151,7 @@ public class TelaCliente extends JDialog {
 	}
 	
 	public TelaCliente(int flag_tipo_tela, int flag_tipo_cliente) {
+		setIconImage(Toolkit.getDefaultToolkit().getImage(TelaCliente.class.getResource("/imagens/equipe.png")));
 		
 		// flag_tipo_tela == 1 //modo cliente edição
 		// flag_tipo_tela == 0 //modo cliente seleção

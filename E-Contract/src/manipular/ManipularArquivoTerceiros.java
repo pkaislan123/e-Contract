@@ -1208,7 +1208,7 @@ public class ManipularArquivoTerceiros {
                produto = "SOJA GMO";  
                break;
 			}else if((lines[i].contains("soja"))){
-				produto = "SOJA";  
+				produto = "SOJA GMO";  
 	               break;
 			}
 		}
@@ -2150,7 +2150,7 @@ public class ManipularArquivoTerceiros {
                produto = "SOJA GMO";  
                break;
 			}else if((lines[i].contains("soja"))){
-				produto = "SOJA";  
+				produto = "SOJA GMO";  
 	               break;
 			}
 		}
@@ -3055,11 +3055,11 @@ public class ManipularArquivoTerceiros {
                produto = "SOJA GMO";  
                break;
 			}else if((lines[i].contains("soja"))){
-				produto = "SOJA";  
+				produto = "SOJA GMO";  
 	               break;
 			}
 		else if((lines[i].contains("Soja"))){
-			produto = "SOJA";  
+			produto = "SOJA GMO";  
                break;
 		}
 		}

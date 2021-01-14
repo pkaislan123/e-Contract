@@ -2,13 +2,18 @@ package gui;
 
 import java.applet.Applet;
 import graficos.JPanelGrafico;
+import graficos.JPanelGraficoCarregamento;
 
 import java.applet.AudioClip;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.EventQueue;
+import javax.swing.JComponent;
+import javax.swing.plaf.basic.BasicMenuBarUI;
+
 import java.awt.Font;
+import java.awt.Graphics;
 import java.awt.GraphicsEnvironment;
 import java.awt.Toolkit;
 import java.awt.event.WindowEvent;
@@ -44,9 +49,12 @@ import cadastros.CadastroBaseArquivos;
 import cadastros.CadastroBaseDados;
 import cadastros.CadastroLogin;
 import cadastros.CadastroModelo;
+import cadastros.CadastroProduto;
 import cadastros.CadastroSafra;
 import cadastros.Contato;
 import cadastros.DadosContratos;
+import cadastros.DadosCarregamento;
+
 import chat.Cliente;
 import chat.Servidor;
 import classesExtras.ComboBoxPersonalizado;
@@ -74,6 +82,8 @@ import views_personalizadas.TelaNotificacaoSuperior;
 import javax.swing.JMenuBar;
 import javax.swing.JMenu;
 import javax.swing.JMenuItem;
+import javax.swing.JOptionPane;
+
 import java.awt.event.ActionListener;
 import java.awt.event.AdjustmentEvent;
 import java.awt.event.AdjustmentListener;
@@ -95,6 +105,7 @@ import java.awt.event.MouseEvent;
 import javax.swing.JTabbedPane;
 import javax.swing.JComboBox;
 import javax.swing.border.LineBorder;
+import java.awt.Component;
 
 public class TelaPrincipal extends JFrame implements GetDadosGlobais {
 
@@ -106,21 +117,26 @@ public class TelaPrincipal extends JFrame implements GetDadosGlobais {
 	private Log GerenciadorLog;
 	private CadastroLogin login;
 	private JPanelGrafico painelGraficoContratos;
+	private JPanelGraficoCarregamento painelGraficoCarregamentos;
+
 	private JLabel lblTotalContratos, lblTotalContratosAssinar, lblTotalContratosAssinados;
 	private boolean executou = false;
 	private DadosContratos dados_contratos = new DadosContratos();
-
+	private DadosCarregamento dados_carregamentos = new DadosCarregamento();
+    private JComboBox cbCarregamentoPorSafra;
+	private int num_tarefas_nesta_secao = -1;
+	private JLabel lblNumeroTarefas;
 	private JLabel lblBD, lblBaseDeArquivos, lblNuvem, lblnet, urlBancoDados, imgBaseDados, urlBaseArquivos,
 			imgBaseArquivos, urlInternet, imgInternet, urlNuvem, imgNuvem, lblNovaMensagem;
 	private ConfiguracoesGlobais configs_globais;
 	private ArrayList<CadastroLogin> usuarios = new ArrayList<>();
 	private JComboBox cbContratosPorSafra;
-
+	private boolean notificando = false;
 	private ComboBoxPersonalizado modelSafra = new ComboBoxPersonalizado();
 	private ComboBoxRenderPersonalizado cBSafraPersonalizado;
 	private static ArrayList<CadastroSafra> safras = new ArrayList<>();
+	private JLabel lblTotalSacosRetirar, lblTotalSacos, lblTotalSacosRetirados;
 
-	
 	DefaultTableModel modelo_usuarios = new DefaultTableModel() {
 		public boolean isCellEditable(int linha, int coluna) {
 			return false;
@@ -130,6 +146,8 @@ public class TelaPrincipal extends JFrame implements GetDadosGlobais {
 	private TelaChat telaChat;
 
 	public TelaPrincipal() {
+		setIconImage(Toolkit.getDefaultToolkit()
+				.getImage(TelaPrincipal.class.getResource("/imagens/logo_para_relatorio_24.png")));
 
 		getDadosGlobais();
 
@@ -190,10 +208,21 @@ public class TelaPrincipal extends JFrame implements GetDadosGlobais {
 
 		JMenuBar menuBar = new JMenuBar();
 		menuBar.setBackground(Color.WHITE);
-		menuBar.setBounds(0, 0, 1129, 56);
+		menuBar.setBounds(0, 0, 963, 56);
+		menuBar.setUI(new BasicMenuBarUI() {
+			public void paint(Graphics g, JComponent c) {
+
+				g.setColor(new Color(102, 204, 204));
+				g.fillRect(0, 0, c.getWidth(), c.getHeight());
+			}
+		});
+		menuBar.setForeground(Color.WHITE);
+
+		menuBar.setOpaque(true);
 		contentPane.add(menuBar);
 
 		JMenu Dados = new JMenu("Cadastros");
+		Dados.setIcon(new ImageIcon(TelaPrincipal.class.getResource("/imagens/icone_cadastro_menu.png")));
 		Dados.setBackground(Color.WHITE);
 		Dados.setFont(new Font("Arial", Font.PLAIN, 18));
 		menuBar.add(Dados);
@@ -256,12 +285,15 @@ public class TelaPrincipal extends JFrame implements GetDadosGlobais {
 		mntmUsurios.setIcon(new ImageIcon(TelaPrincipal.class.getResource("/imagens/usuarios.png")));
 		mntmUsurios.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
-				TelaUsuarios usuarios = new TelaUsuarios();
+				TelaUsuarios usuarios = new TelaUsuarios(0);
+				usuarios.setVisible(true);
 			}
 		});
 		Dados.add(mntmUsurios);
 
 		JMenuItem mntmNewMenuItem = new JMenuItem("Transportadores");
+		mntmNewMenuItem.setMargin(new Insets(0, 10, 0, 0));
+		mntmNewMenuItem.setIcon(new ImageIcon(TelaPrincipal.class.getResource("/imagens/caminhao.png")));
 		mntmNewMenuItem.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				TelaTransportadores tela = new TelaTransportadores(0);
@@ -271,10 +303,14 @@ public class TelaPrincipal extends JFrame implements GetDadosGlobais {
 		Dados.add(mntmNewMenuItem);
 
 		JMenu mnContratos = new JMenu("Contratos");
+		mnContratos.setIcon(new ImageIcon(TelaPrincipal.class.getResource("/imagens/icone_contrato_menu.png")));
 		mnContratos.setFont(new Font("Arial", Font.PLAIN, 18));
 		menuBar.add(mnContratos);
 
 		JMenuItem mntmContratos = new JMenuItem("Contratos");
+		mntmContratos.setIcon(new ImageIcon(TelaPrincipal.class.getResource("/imagens/contrato.png")));
+		mntmContratos.setMargin(new Insets(0, 10, 0, 0));
+		mntmContratos.setFont(new Font("Segoe UI", Font.PLAIN, 16));
 		mntmContratos.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
 				TelaContratos telaContratos = new TelaContratos(0);
@@ -283,34 +319,34 @@ public class TelaPrincipal extends JFrame implements GetDadosGlobais {
 		});
 		mnContratos.add(mntmContratos);
 
-		JMenuItem mntmNovoModeloContrato = new JMenuItem("Modelos");
-		mntmNovoModeloContrato.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				// TelaModelosContratos telaModelosContratos = new TelaModelosContratos();
-				TelaImportarModelo telaModelosContratos = new TelaImportarModelo();
-			}
-		});
-		mnContratos.add(mntmNovoModeloContrato);
-		
 		JMenuItem mntmNewMenuItem_1 = new JMenuItem("Relatoria");
+		mntmNewMenuItem_1.setIcon(new ImageIcon(TelaPrincipal.class.getResource("/imagens/relatorio-de-negocios.png")));
+		mntmNewMenuItem_1.setMargin(new Insets(0, 10, 0, 0));
+		mntmNewMenuItem_1.setFont(new Font("Segoe UI", Font.PLAIN, 16));
 		mntmNewMenuItem_1.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				
+
 				TelaRelatoriaContratos tela = new TelaRelatoriaContratos();
-				
-				
+
 			}
 		});
 		mnContratos.add(mntmNewMenuItem_1);
 
 		JMenu mnFerramentas = new JMenu("Ferramentas");
+		mnFerramentas.setIcon(new ImageIcon(TelaPrincipal.class.getResource("/imagens/ferramentas-de-reparacao.png")));
+		mnFerramentas.setMargin(new Insets(0, 10, 0, 0));
 		mnFerramentas.setFont(new Font("Arial", Font.PLAIN, 18));
 		menuBar.add(mnFerramentas);
 
 		JMenu mnPlanilhasDeControle = new JMenu("Planilhas de Controle");
+		mnPlanilhasDeControle
+				.setIcon(new ImageIcon(TelaPrincipal.class.getResource("/imagens/aplicativo-de-planilha.png")));
+		mnPlanilhasDeControle.setFont(new Font("Segoe UI", Font.PLAIN, 16));
+		mnPlanilhasDeControle.setMargin(new Insets(0, 10, 0, 0));
 		mnFerramentas.add(mnPlanilhasDeControle);
 
 		JMenuItem mntmAPartirDe = new JMenuItem("a partir de NFe Siare");
+		mntmAPartirDe.setMargin(new Insets(0, 10, 0, 0));
 		mntmAPartirDe.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
 				TelaPlanilhaNFe tela = new TelaPlanilhaNFe();
@@ -319,6 +355,7 @@ public class TelaPrincipal extends JFrame implements GetDadosGlobais {
 		mnPlanilhasDeControle.add(mntmAPartirDe);
 
 		JMenuItem mntmAPartirDe_1 = new JMenuItem("a partir de NFe Interna");
+		mntmAPartirDe_1.setMargin(new Insets(0, 10, 0, 0));
 		mntmAPartirDe_1.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
 				TelaPlanilhaNFeInternas tela = new TelaPlanilhaNFeInternas();
@@ -327,19 +364,14 @@ public class TelaPrincipal extends JFrame implements GetDadosGlobais {
 		});
 		mnPlanilhasDeControle.add(mntmAPartirDe_1);
 
-		JMenuItem mntmBaixarNotas = new JMenuItem("Baixar Notas");
-		mntmBaixarNotas.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent arg0) {
-				TelaBaixarNotas tela = new TelaBaixarNotas();
-			}
-		});
-		mnFerramentas.add(mntmBaixarNotas);
-
 		JMenu mnNewMenu = new JMenu("Configurações");
+		mnNewMenu.setIcon(new ImageIcon(TelaPrincipal.class.getResource("/imagens/preferencias.png")));
 		mnNewMenu.setFont(new Font("Arial", Font.PLAIN, 18));
 		menuBar.add(mnNewMenu);
 
 		JMenuItem mntmPastas = new JMenuItem("Preferências");
+		mntmPastas.setIcon(new ImageIcon(TelaPrincipal.class.getResource("/imagens/definicoes.png")));
+		mntmPastas.setMargin(new Insets(0, 10, 0, 0));
 		mntmPastas.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
 				TelaPreferencias tela = new TelaPreferencias();
@@ -500,62 +532,76 @@ public class TelaPrincipal extends JFrame implements GetDadosGlobais {
 		panelContratos.setLayout(null);
 
 		painelGraficoContratos = new JPanelGrafico(0, 0);
-		painelGraficoContratos.setBounds(10, 11, 498, 269);
+		painelGraficoContratos.setBounds(10, 11, 493, 269);
 		panelContratos.add(painelGraficoContratos);
 		painelGraficoContratos.setLayout(null);
 
-		lblTotalContratos = new JLabel("");
-		lblTotalContratos.setFont(new Font("Arial", Font.BOLD, 14));
-		lblTotalContratos.setBorder(new LineBorder(new Color(0, 0, 0)));
-		lblTotalContratos.setBounds(10, 11, 173, 24);
-		painelGraficoContratos.add(lblTotalContratos);
-
-		lblTotalContratosAssinar = new JLabel("");
-		lblTotalContratosAssinar.setFont(new Font("Arial", Font.BOLD, 14));
-		lblTotalContratosAssinar.setBorder(new LineBorder(new Color(0, 0, 0)));
-		lblTotalContratosAssinar.setBounds(10, 46, 173, 24);
-		painelGraficoContratos.add(lblTotalContratosAssinar);
-
 		lblTotalContratosAssinados = new JLabel("");
+		lblTotalContratosAssinados.setBounds(10, 57, 173, 24);
+		painelGraficoContratos.add(lblTotalContratosAssinados);
 		lblTotalContratosAssinados.setFont(new Font("Arial", Font.BOLD, 14));
 		lblTotalContratosAssinados.setBorder(new LineBorder(new Color(0, 0, 0)));
-		lblTotalContratosAssinados.setBounds(10, 85, 173, 24);
-		painelGraficoContratos.add(lblTotalContratosAssinados);
-		
+
+		lblTotalContratosAssinar = new JLabel("");
+		lblTotalContratosAssinar.setBounds(10, 92, 173, 24);
+		painelGraficoContratos.add(lblTotalContratosAssinar);
+		lblTotalContratosAssinar.setFont(new Font("Arial", Font.BOLD, 14));
+		lblTotalContratosAssinar.setBorder(new LineBorder(new Color(0, 0, 0)));
+
+		lblTotalContratos = new JLabel("");
+		lblTotalContratos.setBounds(10, 22, 173, 24);
+		painelGraficoContratos.add(lblTotalContratos);
+		lblTotalContratos.setFont(new Font("Arial", Font.BOLD, 14));
+		lblTotalContratos.setBorder(new LineBorder(new Color(0, 0, 0)));
+
 		JLabel lblNewLabel = new JLabel("Safra:");
 		lblNewLabel.setFont(new Font("Tahoma", Font.PLAIN, 14));
-		lblNewLabel.setBounds(507, 25, 46, 14);
+		lblNewLabel.setBounds(507, 55, 46, 14);
 		panelContratos.add(lblNewLabel);
-		
-		 cBSafraPersonalizado = new ComboBoxRenderPersonalizado();
-		
-		
-		 cbContratosPorSafra = new JComboBox();
-		 cbContratosPorSafra.addActionListener(new ActionListener() {
-		 	public void actionPerformed(ActionEvent e) {
-		 		
-		 		try {
+
+		cBSafraPersonalizado = new ComboBoxRenderPersonalizado();
+
+		cbContratosPorSafra = new JComboBox();
+		cbContratosPorSafra.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+
+				try {
 					CadastroSafra safra = (CadastroSafra) modelSafra.getSelectedItem();
-					//procura no banco os contratos de acordo com a safra selecionada
-					
+
+					// procura no banco os contratos de acordo com a safra selecionada
+
 					GerenciarBancoContratos gerenciar = new GerenciarBancoContratos();
 					int num_contratos_total = gerenciar.consultaContratos(0, safra.getId_safra());
 					int num_contratos_assinar = gerenciar.consultaContratos(1, safra.getId_safra());
-					
-					//atualizar o grafico
+
+					// atualizar o grafico
 					atualizarGraficoContratos(num_contratos_total, num_contratos_assinar);
 
 				} catch (Exception t) {
 
 				}
-		 	}
-		 });
-		cbContratosPorSafra.setBounds(552, 11, 202, 34);
+			}
+		});
+		cbContratosPorSafra.setBounds(552, 41, 202, 34);
 		cbContratosPorSafra.setModel(modelSafra);
 		cbContratosPorSafra.setRenderer(cBSafraPersonalizado);
 		panelContratos.add(cbContratosPorSafra);
-		
-		
+
+		JLabel lblNewLabel_6 = new JLabel("Todas as Safras", JLabel.CENTER);
+		lblNewLabel_6.setBorder(new LineBorder(new Color(0, 0, 0)));
+		lblNewLabel_6.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseClicked(MouseEvent e) {
+				atualizarGraficoContratos();
+			}
+		});
+		lblNewLabel_6.setForeground(Color.WHITE);
+		lblNewLabel_6.setBackground(new Color(0, 206, 209));
+		lblNewLabel_6.setFont(new Font("Tahoma", Font.PLAIN, 14));
+		lblNewLabel_6.setOpaque(true);
+		lblNewLabel_6.setBounds(552, 11, 202, 22);
+		panelContratos.add(lblNewLabel_6);
+
 		pesquisarSafras();
 
 		for (CadastroSafra safra : safras) {
@@ -567,11 +613,75 @@ public class TelaPrincipal extends JFrame implements GetDadosGlobais {
 
 		}
 
-		JPanel painelSacos = new JPanel();
-		painelSacos.setBounds(23, 376, 554, 302);
-		contentPane.add(painelSacos);
-		painelSacos.setLayout(null);
+		JLabel lblNewLabel_1 = new JLabel("");
+		lblNewLabel_1.setIcon(new ImageIcon(TelaPrincipal.class.getResource("/imagens/icone_tarefa.png")));
+		lblNewLabel_1.setBounds(973, 11, 64, 64);
+		contentPane.add(lblNewLabel_1);
 
+		JLabel lblNewLabel_2 = new JLabel("Você tem:");
+		lblNewLabel_2.setBounds(1032, 9, 76, 36);
+		contentPane.add(lblNewLabel_2);
+
+		lblNumeroTarefas = new JLabel("0");
+		lblNumeroTarefas.setFont(new Font("Tahoma", Font.BOLD, 18));
+		lblNumeroTarefas.setBounds(1042, 37, 46, 27);
+		contentPane.add(lblNumeroTarefas);
+
+		JLabel lblNewLabel_4 = new JLabel("tarefas");
+		lblNewLabel_4.setBounds(1062, 56, 64, 37);
+		contentPane.add(lblNewLabel_4);
+
+		JPanel panel = new JPanel();
+		panel.setBackground(Color.WHITE);
+		panel.setBounds(306, 376, 784, 291);
+		contentPane.add(panel);
+		panel.setLayout(null);
+
+		lblTotalSacosRetirados = new JLabel("a Carregar: 0");
+		lblTotalSacosRetirados.setFont(new Font("Arial", Font.BOLD, 14));
+		lblTotalSacosRetirados.setBorder(new LineBorder(new Color(0, 0, 0)));
+		lblTotalSacosRetirados.setBounds(523, 203, 261, 24);
+		panel.add(lblTotalSacosRetirados);
+
+		lblTotalSacos = new JLabel("Quantidade Total: 0");
+		lblTotalSacos.setFont(new Font("Arial", Font.BOLD, 14));
+		lblTotalSacos.setBorder(new LineBorder(new Color(0, 0, 0)));
+		lblTotalSacos.setBounds(523, 168, 261, 24);
+		panel.add(lblTotalSacos);
+
+		lblTotalSacosRetirar = new JLabel("Carregados: 0 ");
+		lblTotalSacosRetirar.setFont(new Font("Arial", Font.BOLD, 14));
+		lblTotalSacosRetirar.setBorder(new LineBorder(new Color(0, 0, 0)));
+		lblTotalSacosRetirar.setBounds(523, 239, 261, 24);
+		panel.add(lblTotalSacosRetirar);
+
+		JLabel lblNewLabel_5 = new JLabel("Safra:");
+		lblNewLabel_5.setFont(new Font("Tahoma", Font.PLAIN, 14));
+		lblNewLabel_5.setBounds(523, 73, 46, 14);
+		panel.add(lblNewLabel_5);
+
+		 cbCarregamentoPorSafra = new JComboBox();
+		cbCarregamentoPorSafra.setBounds(568, 59, 202, 34);
+		panel.add(cbCarregamentoPorSafra);
+
+		painelGraficoCarregamentos = new JPanelGraficoCarregamento(0, 0);
+		painelGraficoCarregamentos.setLayout(null);
+		painelGraficoCarregamentos.setBounds(20, 11, 493, 269);
+		panel.add(painelGraficoCarregamentos);
+		
+		JLabel lblNewLabel_6_1 = new JLabel("Todas as Safras", SwingConstants.CENTER);
+		lblNewLabel_6_1.setOpaque(true);
+		lblNewLabel_6_1.setForeground(Color.WHITE);
+		lblNewLabel_6_1.setFont(new Font("Tahoma", Font.PLAIN, 14));
+		lblNewLabel_6_1.setBorder(new LineBorder(new Color(0, 0, 0)));
+		lblNewLabel_6_1.setBackground(new Color(0, 206, 209));
+		lblNewLabel_6_1.setBounds(568, 26, 202, 22);
+		panel.add(lblNewLabel_6_1);
+
+		atualizarNumTarefas();
+
+		getDadosCarregamento();
+		atualizarGraficoCarregamentos();
 		getDadosContratos();
 		atualizarGraficoContratos();
 		buscarConexao();
@@ -625,6 +735,9 @@ public class TelaPrincipal extends JFrame implements GetDadosGlobais {
 					@Override
 					public void run() {
 
+						while (notificando) {
+
+						}
 						novaNotificacao(
 								"Há " + numerosContratosSemAssinar
 										+ " contratos com carencia de assinatura na base de dados",
@@ -640,8 +753,19 @@ public class TelaPrincipal extends JFrame implements GetDadosGlobais {
 
 	}
 
-	
-	
+	public void getDadosCarregamento() {
+
+		GerenciarBancoContratos gerenciar = new GerenciarBancoContratos();
+		double quantidade_total_sacos = gerenciar.getQuantidadeSacos();
+		double quantidade_total_sacos_carregados = gerenciar.getQuantidadeSacosCarregados();
+		double quantidade_total_sacos_a_carregar = quantidade_total_sacos - quantidade_total_sacos_carregados;
+
+		dados_carregamentos.setQuantidade_total_sacos(quantidade_total_sacos);
+		dados_carregamentos.setQuantidade_total_carregada(quantidade_total_sacos_carregados);
+		dados_carregamentos.setQuantidade_total_a_carregar(quantidade_total_sacos_a_carregar);
+
+	}
+
 	public void buscarConexao() {
 		new Thread() {
 			private URL url = null;
@@ -663,6 +787,9 @@ public class TelaPrincipal extends JFrame implements GetDadosGlobais {
 					} catch (IOException f) {
 						f.printStackTrace();
 						System.out.println("erro ao se conectar a internet!");
+						while (notificando) {
+
+						}
 						novaNotificacao("Sem conexão com a internet, algumas funções seram limitadas até a reconexão!",
 								"/audio/beep_erro_net.wav", 2);
 
@@ -704,6 +831,9 @@ public class TelaPrincipal extends JFrame implements GetDadosGlobais {
 					} catch (IOException f) {
 						f.printStackTrace();
 						System.out.println("erro ao se conectar ao dropbpx!");
+						while (notificando) {
+
+						}
 						novaNotificacao("Sem conexão com a nuvem, algumas funções seram limitadas até a reconexão!",
 								"/audio/beep_erro_net.wav", 2);
 						lblNuvem.setText("Nuvem: Desconectada");
@@ -726,6 +856,7 @@ public class TelaPrincipal extends JFrame implements GetDadosGlobais {
 
 	public void novaNotificacao(String texto, String song, int repeticao) {
 		try {
+			notificando = true;
 			Thread.sleep(1000);
 			URL url = TelaPrincipal.class.getResource(song);
 			TelaNotificacao tela = new TelaNotificacao();
@@ -747,6 +878,7 @@ public class TelaPrincipal extends JFrame implements GetDadosGlobais {
 
 			Thread.sleep(5000);
 			tela.fechar();
+			notificando = false;
 		} catch (InterruptedException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -840,7 +972,7 @@ public class TelaPrincipal extends JFrame implements GetDadosGlobais {
 
 		getDadosContratos();
 		lblTotalContratos.setText("Total de Contratos: " + dados_contratos.getNumero_total_contratos());
-		lblTotalContratosAssinados.setText("Assinados: "  + dados_contratos.getNumero_contratos_assinados() );
+		lblTotalContratosAssinados.setText("Assinados: " + dados_contratos.getNumero_contratos_assinados());
 		lblTotalContratosAssinar.setText("Assinar: " + dados_contratos.getNumero_contratos_assinar());
 		new Thread() {
 
@@ -869,13 +1001,49 @@ public class TelaPrincipal extends JFrame implements GetDadosGlobais {
 		}.start();
 
 	}
-	
-	
+
+	public void atualizarGraficoCarregamentos() {
+
+
+		
+		
+		lblTotalSacos.setText("Quantidade Total(sacos): " + (int) dados_carregamentos.getQuantidade_total_sacos());
+		lblTotalSacosRetirados.setText("Carregados(sacos): " + (int)  dados_carregamentos.getQuantidade_total_carregada());
+		lblTotalSacosRetirar.setText("a Carregar(sacos): " + (int)  dados_carregamentos.getQuantidade_total_a_carregar());
+
+		new Thread() {
+
+			@Override
+			public void run() {
+
+				int i = 0;
+				while (i <= (int) dados_carregamentos.getQuantidade_total_carregada()) {
+
+					// System.out.printf("Disponivel e %d\n ", disponivel);
+					// System.out.printf("Usado e %d\n", usado);
+
+					painelGraficoCarregamentos.setDados((int) dados_carregamentos.getQuantidade_total_sacos(), i);
+					painelGraficoCarregamentos.repaint();
+					try {
+						Thread.sleep(100);
+					} catch (InterruptedException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+
+					i++;
+				}
+
+			}
+		}.start();
+
+	}
+
 	public void atualizarGraficoContratos(CadastroSafra safra) {
 
 		getDadosContratos();
 		lblTotalContratos.setText("Total de Contratos: " + dados_contratos.getNumero_total_contratos());
-		lblTotalContratosAssinados.setText("Assinados: "  + dados_contratos.getNumero_contratos_assinados() );
+		lblTotalContratosAssinados.setText("Assinados: " + dados_contratos.getNumero_contratos_assinados());
 		lblTotalContratosAssinar.setText("Assinar: " + dados_contratos.getNumero_contratos_assinar());
 
 		new Thread() {
@@ -905,11 +1073,11 @@ public class TelaPrincipal extends JFrame implements GetDadosGlobais {
 		}.start();
 
 	}
-	
+
 	public void atualizarGraficoContratos(int num_total, int num_assinar) {
-		lblTotalContratos.setText("Total de Contratos: " + num_total );
-		lblTotalContratosAssinados.setText("Assinados: "  + (num_total - num_assinar) );
-		lblTotalContratosAssinar.setText("Assinar: " + num_assinar );
+		lblTotalContratos.setText("Total de Contratos: " + num_total);
+		lblTotalContratosAssinados.setText("Assinados: " + (num_total - num_assinar));
+		lblTotalContratosAssinar.setText("Assinar: " + num_assinar);
 
 		new Thread() {
 
@@ -939,6 +1107,41 @@ public class TelaPrincipal extends JFrame implements GetDadosGlobais {
 
 	}
 
+	
+	public void atualizarGraficoCarregamentos(double quantidade_total, double quantidade_carregada) {
+		lblTotalSacos.setText("Quantidade Total(sacos): " + (int) quantidade_total);
+		lblTotalSacosRetirados.setText("Carregados(sacos): " + (int) quantidade_carregada);
+		lblTotalSacosRetirar.setText("a Carregar(sacos): " + (int) (quantidade_total - quantidade_carregada ));
+
+		new Thread() {
+
+			@Override
+			public void run() {
+
+				int i = 0;
+				while (i <= (int) (quantidade_total - quantidade_carregada)) {
+
+					// System.out.printf("Disponivel e %d\n ", disponivel);
+					// System.out.printf("Usado e %d\n", usado);
+
+					painelGraficoContratos.setDados((int)quantidade_total, i);
+					painelGraficoContratos.repaint();
+					try {
+						Thread.sleep(100);
+					} catch (InterruptedException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+
+					i++;
+				}
+
+			}
+		}.start();
+
+	}
+
+	
 	public void setNumeroMensagensNovas() {
 		java.awt.EventQueue.invokeLater(new Runnable() {
 			public void run() {
@@ -956,6 +1159,7 @@ public class TelaPrincipal extends JFrame implements GetDadosGlobais {
 
 		// if(!telaChat.isVisible())
 		try {
+			notificando = true;
 			TelaNotificacaoSuperior tela = new TelaNotificacaoSuperior();
 
 			tela.setMensagem(mensagem);
@@ -963,19 +1167,21 @@ public class TelaPrincipal extends JFrame implements GetDadosGlobais {
 
 			Thread.sleep(5000);
 			tela.fechar();
+			notificando = false;
+
 		} catch (InterruptedException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}
-	
+
 	public static void pesquisarSafras() {
 		GerenciarBancoSafras listaSafras = new GerenciarBancoSafras();
 		safras = listaSafras.getSafras();
 	}
-	
+
 	public void atualizarComboBoxContratosPorSafra() {
-		
+
 		cbContratosPorSafra.removeAllItems();
 		pesquisarSafras();
 		for (CadastroSafra safra : safras) {
@@ -986,6 +1192,65 @@ public class TelaPrincipal extends JFrame implements GetDadosGlobais {
 			modelSafra.addSafra(safra);
 
 		}
-		
+
+	}
+
+	public void atualizarNumTarefas() {
+
+		new Thread() {
+			public void run() {
+				try {
+					Thread.sleep(1000);
+				} catch (InterruptedException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+				while (true) {
+
+					GerenciarBancoContratos gerenciar = new GerenciarBancoContratos();
+					int num_agora = gerenciar.getNumTarefas(login.getId());
+					lblNumeroTarefas.setText(num_agora + "");
+
+					if (num_tarefas_nesta_secao == -1) {
+
+						if (num_agora > 0) {
+							while (notificando == true) {
+								System.out.println("Notificacao em andamento");
+
+							}
+							novaNotificacao("Você possui tarefas a concluir", "/audio/beep_notificacao.wav", 1);
+							num_tarefas_nesta_secao = num_agora;
+						} else {
+							num_tarefas_nesta_secao = 0;
+						}
+
+					} else if (num_agora > num_tarefas_nesta_secao) {
+						// nova tarefa recebida, notificar
+						while (notificando) {
+
+						}
+						try {
+							Thread.sleep(1000);
+						} catch (InterruptedException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						}
+
+						novaNotificacao("Nova Tarefa Recebida!", "/audio/beep_notificacao.wav", 1);
+					} else {
+						// quantidade de tarefas e a mesma
+					}
+
+					try {
+						Thread.sleep(10000);
+					} catch (InterruptedException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+
+				}
+			}
+		}.start();
+
 	}
 }

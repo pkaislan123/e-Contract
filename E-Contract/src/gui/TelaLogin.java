@@ -95,9 +95,11 @@ public class TelaLogin extends JFrame implements GetDadosGlobais {
 		setContentPane(contentPane);
 
 		panel = new JPanelTransparent();
+		panel.setTransparencia(1);
 
 		panel.setBackground(new Color(123, 104, 238));
 		panel.setBounds(529, 158, 451, 353);
+		panel.repaint();
 		// URL url2 = getClass().getResource("fundo.jpg");
 		// ImageIcon img2 = new ImageIcon(url2);
 		contentPane.setLayout(null);
