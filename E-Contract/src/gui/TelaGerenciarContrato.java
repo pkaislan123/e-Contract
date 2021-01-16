@@ -510,6 +510,8 @@ public class TelaGerenciarContrato extends JDialog {
 		modelo_carregamentos.addColumn("Peso Nota");
 		modelo_carregamentos.addColumn("Peso Restante Nota");
 		modelo_carregamentos.addColumn("Nota Fiscal");
+		modelo_carregamentos.addColumn("Caminho Nota Fiscal");
+
 
 		lblPesoTotalRealCargas = new JLabel("");
 		lblPesoTotalRealCargas.setBounds(111, 451, 193, 23);
@@ -551,7 +553,11 @@ public class TelaGerenciarContrato extends JDialog {
 		
 		JPopupMenu jPopupMenuTabelCarregamento = new JPopupMenu();
 		JMenuItem jMenuItemInserirComprovante = new JMenuItem();
+		JMenuItem jMenuItemVizualizarNFAe = new JMenuItem();
+
 		jMenuItemInserirComprovante.setText("Inserir Comprovante");
+		jMenuItemVizualizarNFAe.setText("Vizualizar NFA-e");
+
 		
 		jMenuItemInserirComprovante.addActionListener(
 				  new java.awt.event.ActionListener() {
@@ -564,7 +570,32 @@ public class TelaGerenciarContrato extends JDialog {
 				    }
 				  });
 		
+		jMenuItemVizualizarNFAe.addActionListener(
+				  new java.awt.event.ActionListener() {
+				    // Importe a classe java.awt.event.ActionEvent
+				    public void actionPerformed(ActionEvent e) { 
+				      int index = table_carregamento.getSelectedRow();
+						String id = table_carregamento.getValueAt(index, 0).toString();
+						String caminho_nota =  table_carregamento.getValueAt(index, 12).toString();
+						String unidade_base_dados = configs_globais.getServidorUnidade();
+						String caminho_abrir= unidade_base_dados + "\\" + caminho_nota;
+						
+						
+						if (Desktop.isDesktopSupported()) {
+							try {
+								Desktop desktop = Desktop.getDesktop();
+								File myFile = new File(caminho_abrir);
+								desktop.open(myFile);
+							} catch (IOException ex) {
+							}
+						}
+					
+				     
+				    }
+				  });
+		
 		jPopupMenuTabelCarregamento.add(jMenuItemInserirComprovante);
+		jPopupMenuTabelCarregamento.add(jMenuItemVizualizarNFAe);
 
 		
 		table_carregamento.addMouseListener(
@@ -1185,7 +1216,7 @@ public class TelaGerenciarContrato extends JDialog {
 
 	
 		//setarInformacoesPainelPrincipal(); setarInformacoesPainelCarregamentos();
-		//pesquisar_carregamentos(); pesquisar_pagamentos();
+	    //pesquisar_carregamentos(); pesquisar_pagamentos();
 		
 		setSubContratos(contrato_local);
 		if(contrato_local.getSub_contrato() == 0) {
@@ -1624,7 +1655,7 @@ public class TelaGerenciarContrato extends JDialog {
 					transportador_carregamento.getNome() + " " + transportador_carregamento.getSobrenome(),
 					veiculo_carregamento.getPlaca_trator(), produto_carregamento.getNome_produto(),
 					z.format(peso_carregado) + " Kg", z.format(peso_nota) + " Kg", z.format(peso_nota_restante) + " Kg",
-					carregamento.getCodigo_nota_fiscal()
+					carregamento.getCodigo_nota_fiscal(), carregamento.getCaminho_nota_fiscal()
 
 			});
 
@@ -3519,7 +3550,7 @@ public class TelaGerenciarContrato extends JDialog {
 
 				// abre a tela de gerenciar o contrato selecionado na lista de sub contratos
 				TelaGerenciarContrato gerenciar_contrato = new TelaGerenciarContrato(
-						lista_sub_contratos.get(indiceDaLinha));
+				lista_sub_contratos.get(indiceDaLinha));
 
 			}
 		});
@@ -4134,5 +4165,7 @@ public void atualizarArvoreContratos() {
 	public void atualizarListaTarefas() {
 		getTarefas();
 	}
+	
+	
 	
 }

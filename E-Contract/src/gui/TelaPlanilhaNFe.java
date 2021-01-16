@@ -12,8 +12,10 @@ import java.math.BigDecimal;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Date;
 
 import javax.swing.JButton;
 import javax.swing.JDialog;
@@ -490,7 +492,11 @@ public class TelaPlanilhaNFe extends JDialog {
 			    			cadastro.setNome_remetente(nome_remetente);
 			    			cadastro.setInscricao_remetente(inscricao_remetente);
 			    			cadastro.setProtocolo(protocolo);
-			    			cadastro.setData(data);
+			    			/*SimpleDateFormat formato = new SimpleDateFormat("dd/MM/yyyy"); 
+							Date data_formatada = formato.parse(data);
+
+			    			cadastro.setData(data_formatada);
+			    			*/
 			    			cadastro.setNatureza(natureza);
 			    			cadastro.setNome_destinatario(nome_destinatario);
 			    			cadastro.setInscricao_destinatario(inscricao_destinatario);
@@ -699,7 +705,7 @@ public class TelaPlanilhaNFe extends JDialog {
 						
 						cell = row.createCell(cellnum++);
 						cell.setCellStyle(numberStyle);
-						cell.setCellValue(cadastro.getData());
+						cell.setCellValue(cadastro.getData().toString());
 						
 				
 						

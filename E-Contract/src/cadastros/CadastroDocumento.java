@@ -4,7 +4,13 @@ public class CadastroDocumento {
 
 	
 	int id_documento;
-	int id_contrato_pai, tipo, id_pai;
+	int id_contrato_pai, tipo, id_pai, id_cliente;
+	public int getId_cliente() {
+		return id_cliente;
+	}
+	public void setId_cliente(int id_cliente) {
+		this.id_cliente = id_cliente;
+	}
 	public int getTipo() {
 		return tipo;
 	}

@@ -1,6 +1,7 @@
 package cadastros;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.util.ArrayList;
 
 public class CadastroContrato {
@@ -695,7 +696,13 @@ local retirada: 24 2
 	public static class Carregamento{
 		
 		int id_carregamento, id_cliente, id_transportador, id_veiculo, id_contrato, id_produto, id_vendedor;
-		String codigo_nota_fiscal, data;
+		String codigo_nota_fiscal, data, caminho_nota_fiscal;
+		public String getCaminho_nota_fiscal() {
+			return caminho_nota_fiscal;
+		}
+		public void setCaminho_nota_fiscal(String caminho_nota_fiscal) {
+			this.caminho_nota_fiscal = caminho_nota_fiscal;
+		}
 		double peso_real_carga;
 		
 		public int getId_vendedor() {

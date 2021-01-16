@@ -6,6 +6,9 @@ import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.regex.PatternSyntaxException;
 
 import javax.swing.border.EmptyBorder;
@@ -14,7 +17,7 @@ import javax.swing.*;
 import javax.swing.table.*;
 import java.awt.*;
 import javax.swing.filechooser.FileNameExtensionFilter;
-
+import javax.swing.RowFilter.ComparisonType;
 import org.apache.poi.hssf.usermodel.HSSFDataFormat;
 import org.apache.poi.hssf.usermodel.HSSFSheet;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
@@ -49,6 +52,11 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.time.LocalDate;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 
 public class TelaNotasFiscais extends JDialog {
 
@@ -82,6 +90,19 @@ public class TelaNotasFiscais extends JDialog {
 	private JButton btnExportar;
 	private JButton btnImportarNFe;
 	private CadastroCliente cliente_global;
+	private JTextField entProduto;
+	private JButton btnFiltrar;
+	private JLabel lblNewLabel;
+	private JLabel lblRemetente;
+	private JTextField entRemetente;
+	private JLabel lblNatureza;
+	private JTextField entNatureza;
+	private JLabel lblProduto;
+	private JLabel lblNewLabel_1;
+	private JLabel lblD;
+	private JLabel lblAt;
+	private JTextField entMenorData;
+	private JTextField entMaiorData;
 
 	public TelaNotasFiscais(int flag,CadastroCliente vendedor) {
 		//setAlwaysOnTop(true);
@@ -95,14 +116,14 @@ public class TelaNotasFiscais extends JDialog {
 
 		setBackground(new Color(255, 255, 255));
 		setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-		setBounds(100, 100, 679, 508);
+		setBounds(100, 100, 684, 531);
 		painelPrincipal.setBackground(new Color(255, 255, 255));
 		painelPrincipal.setBorder(new EmptyBorder(5, 5, 5, 5));
 		setContentPane(painelPrincipal);
 		painelPrincipal.setLayout(null);
 
 		JPanel panel = new JPanel();
-		panel.setBounds(10, 122, 626, 241);
+		panel.setBounds(26, 179, 626, 241);
 		painelPrincipal.add(panel);
 
 		table_nfs = new JTable(modelo_nfs);
@@ -161,23 +182,26 @@ public class TelaNotasFiscais extends JDialog {
 
 			}
 		});
-		btnSelecionarNota.setBounds(547, 374, 89, 23);
+		btnSelecionarNota.setBounds(563, 431, 89, 23);
 		painelPrincipal.add(btnSelecionarNota);
 
+
+		entProduto = new JTextField();
+		
+		entProduto.setBounds(144, 92, 242, 28);
+		painelPrincipal.add(entProduto);
+		entProduto.setColumns(10);
+		
 		entChavePesquisa = new JTextField();
-		entChavePesquisa.addKeyListener(new KeyAdapter() {
-			@Override
-			public void keyTyped(KeyEvent arg0) {
-			    String  text = entChavePesquisa.getText().toUpperCase();
-			    sorter.setRowFilter(RowFilter.regexFilter(text));
-			}
-		});
-		entChavePesquisa.setBounds(10, 75, 626, 34);
+		
+		entChavePesquisa.setBounds(144, 27, 242, 28);
 		painelPrincipal.add(entChavePesquisa);
 		entChavePesquisa.setColumns(10);
 
+		
+		
 		lblStatusAdicionandoNotas = new JLabel("Adicionando Notas...");
-		lblStatusAdicionandoNotas.setBounds(10, 408, 626, 23);
+		lblStatusAdicionandoNotas.setBounds(26, 458, 626, 23);
 		painelPrincipal.add(lblStatusAdicionandoNotas);
 		
 		btnVizualizarNF = new JButton("Vizualizar");
@@ -197,7 +221,7 @@ public class TelaNotasFiscais extends JDialog {
 					 }
 			}
 		});
-		btnVizualizarNF.setBounds(448, 374, 89, 23);
+		btnVizualizarNF.setBounds(464, 431, 89, 23);
 		painelPrincipal.add(btnVizualizarNF);
 		
 		btnExportar = new JButton("Exportar");
@@ -206,7 +230,7 @@ public class TelaNotasFiscais extends JDialog {
 				exportar();
 			}
 		});
-		btnExportar.setBounds(349, 374, 89, 23);
+		btnExportar.setBounds(365, 431, 89, 23);
 		painelPrincipal.add(btnExportar);
 		
 		btnImportarNFe = new JButton("Importar");
@@ -217,8 +241,83 @@ public class TelaNotasFiscais extends JDialog {
 				
 			}
 		});
-		btnImportarNFe.setBounds(253, 374, 89, 23);
+		btnImportarNFe.setBounds(269, 431, 89, 23);
 		painelPrincipal.add(btnImportarNFe);
+		
+		btnFiltrar = new JButton("Filtrar");
+		btnFiltrar.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+			   filtrar();
+			}
+		});
+		btnFiltrar.setBounds(545, 126, 59, 28);
+		painelPrincipal.add(btnFiltrar);
+		
+		lblNewLabel = new JLabel("Destinatario:");
+		lblNewLabel.setFont(new Font("Tahoma", Font.PLAIN, 14));
+		lblNewLabel.setBounds(62, 31, 77, 17);
+		painelPrincipal.add(lblNewLabel);
+		
+		lblRemetente = new JLabel("Remetente:");
+		lblRemetente.setFont(new Font("Tahoma", Font.PLAIN, 14));
+		lblRemetente.setBounds(67, 64, 72, 17);
+		painelPrincipal.add(lblRemetente);
+		
+		entRemetente = new JTextField();
+		entRemetente.setColumns(10);
+		entRemetente.setBounds(144, 59, 242, 28);
+		painelPrincipal.add(entRemetente);
+		
+		lblNatureza = new JLabel("Natureza:");
+		lblNatureza.setFont(new Font("Tahoma", Font.PLAIN, 14));
+		lblNatureza.setBounds(80, 131, 59, 17);
+		painelPrincipal.add(lblNatureza);
+		
+		entNatureza = new JTextField();
+		entNatureza.setColumns(10);
+		entNatureza.setBounds(144, 126, 242, 28);
+		painelPrincipal.add(entNatureza);
+		
+		lblProduto = new JLabel("Produto:");
+		lblProduto.setFont(new Font("Tahoma", Font.PLAIN, 14));
+		lblProduto.setBounds(84, 97, 55, 17);
+		painelPrincipal.add(lblProduto);
+		
+		lblNewLabel_1 = new JLabel("Periodo");
+		lblNewLabel_1.setBounds(489, 27, 43, 16);
+		painelPrincipal.add(lblNewLabel_1);
+		
+		lblD = new JLabel("Dé:");
+		lblD.setFont(new Font("Tahoma", Font.PLAIN, 14));
+		lblD.setBounds(399, 62, 22, 17);
+		painelPrincipal.add(lblD);
+		
+		lblAt = new JLabel("Até:");
+		lblAt.setFont(new Font("Tahoma", Font.PLAIN, 14));
+		lblAt.setBounds(396, 90, 25, 17);
+		painelPrincipal.add(lblAt);
+		
+		entMenorData = new JTextField();
+		entMenorData.setColumns(10);
+		entMenorData.setBounds(435, 49, 169, 28);
+		painelPrincipal.add(entMenorData);
+		
+		entMaiorData = new JTextField();
+		entMaiorData.setColumns(10);
+		entMaiorData.setBounds(435, 88, 169, 28);
+		painelPrincipal.add(entMaiorData);
+		
+		JButton btnLimpar = new JButton("Limpar");
+		btnLimpar.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				
+				    
+				    sorter.setRowFilter( RowFilter.regexFilter(""));
+			}
+		});
+		btnLimpar.setBounds(474, 126, 67, 28);
+		painelPrincipal.add(btnLimpar);
+		
 
 		if(flag == 1) {
 			//esconder o botao selecionar
@@ -229,8 +328,8 @@ public class TelaNotasFiscais extends JDialog {
 			
 		}else if(flag == 0) {
 			//esconder o botão vizualizar nf
-			btnVizualizarNF.setVisible(false);
-			btnVizualizarNF.setEnabled(false);
+			//btnVizualizarNF.setVisible(false);
+			//btnVizualizarNF.setEnabled(false);
 			
 		}
 		
@@ -386,7 +485,7 @@ public class TelaNotasFiscais extends JDialog {
 	        case protocolo:
 	            return String.class;
 	        case data_nfe:
-	            return String.class;
+	            return Date.class;
 	        case natureza:
 	            return String.class;
 	        case destinatario:
@@ -428,8 +527,10 @@ public class TelaNotasFiscais extends JDialog {
 	            return nota.getInscricao_remetente();
 	        case protocolo:
 	            return nota.getProtocolo();
-	        case data_nfe:
-	            return nota.getData();
+	        case data_nfe:{
+	      
+	        	return nota.getData();
+	        }
 	        case natureza:
 	            return nota.getNatureza();
 	        case destinatario:
@@ -649,7 +750,7 @@ public class TelaNotasFiscais extends JDialog {
 			
 			cell = row.createCell(cellnum++);
 			cell.setCellStyle(numberStyle);
-			cell.setCellValue(cadastro.getData());
+			cell.setCellValue(cadastro.getData().toString());
 			
 	
 			
@@ -841,5 +942,75 @@ public class TelaNotasFiscais extends JDialog {
 		
 	}
 	
+	public void filtrar() {
+		 ArrayList<RowFilter<Object,Object>> filters = new ArrayList<RowFilter<Object,Object>>(2);
+
+		    String produto = entProduto.getText().toUpperCase();
+		    String destinatario =  entChavePesquisa.getText().toUpperCase();
+		    String remetente = entRemetente.getText().toUpperCase();
+		    String natureza = entNatureza.getText().toUpperCase();
+
+		    String menor = entMenorData.getText();
+		    String maior = entMaiorData.getText();
+		    
+		    if(checkString(menor) && checkString(maior) ) {
+			Date data_menor = null;
+			Date data_maior = null ;
+			try {
+				data_menor = new SimpleDateFormat("dd/MM/yyyy").parse(menor);
+				data_maior = new SimpleDateFormat("dd/MM/yyyy").parse(maior);
+
+			} catch (ParseException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			
+			Set<RowFilter<Object, Object>> datas = new HashSet<>();
+			datas.add(RowFilter.dateFilter(RowFilter.ComparisonType.AFTER,
+					data_menor, 5));
+			datas.add(RowFilter.dateFilter(RowFilter.ComparisonType.EQUAL,
+					data_menor, 5));
+			filters.add(RowFilter.orFilter(datas));
+	        
+		  //  filters.add( RowFilter.dateFilter(ComparisonType.AFTER, data_menor, 5) );
+		   // filters.add( RowFilter.dateFilter(ComparisonType.EQUAL, data_menor, 5) );
+
+		   // filters.add( RowFilter.dateFilter(ComparisonType.BEFORE, data_maior, 5) );
+		   // filters.add( RowFilter.dateFilter(ComparisonType.EQUAL, data_maior, 5) );
+			Set<RowFilter<Object, Object>> datas_maior = new HashSet<>();
+			datas_maior.add(RowFilter.dateFilter(RowFilter.ComparisonType.BEFORE,
+					data_maior, 5));
+			datas_maior.add(RowFilter.dateFilter(RowFilter.ComparisonType.EQUAL,
+					data_maior, 5));
+			filters.add(RowFilter.orFilter(datas_maior));
+		    }
+		    if(checkString(remetente))
+		    filters.add(RowFilter.regexFilter(remetente, 2));
+		    
+		    if(checkString(natureza))
+		    filters.add(RowFilter.regexFilter(natureza, 6));
+
+		    if(checkString(destinatario))
+		    filters.add(RowFilter.regexFilter(destinatario, 7));
+		    
+		    if(checkString(produto))
+		    filters.add(RowFilter.regexFilter(produto, 9));
+		    
+		    sorter.setRowFilter( RowFilter.andFilter(filters));
+	}
 	
+	public boolean checkString(String txt) {
+		return txt != null && !txt.equals("") && !txt.equals(" ") && !txt.equals("  ");
+	}
+	
+	public void setDadosPesquisa(String destinatario, String remetente, String natureza, String produto) {
+		
+		entChavePesquisa.setText(destinatario);
+		entRemetente.setText(remetente);
+		entNatureza.setText(natureza);
+		entProduto.setText(produto);
+	
+		
+		filtrar();
+	}
 }

@@ -6,10 +6,15 @@ import java.math.BigDecimal;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.text.SimpleDateFormat;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Date;
 
 import javax.swing.JFileChooser;
+import javax.swing.JOptionPane;
 import javax.swing.JTable;
 import javax.swing.table.DefaultTableModel;
 
@@ -405,7 +410,17 @@ public class ManipularNotasFiscais {
 				cadastro.setNome_remetente(nome_remetente);
 				cadastro.setInscricao_remetente(inscricao_remetente);
 				cadastro.setProtocolo(protocolo);
-				cadastro.setData(data);
+				
+				try {
+					
+					
+					Date date = new SimpleDateFormat("dd/MM/yyyy").parse(data);
+					
+				cadastro.setData(date);
+				}catch(Exception t) {
+					JOptionPane.showMessageDialog(null, "Erro ao listar NFA-e\nErro:  " + t.getMessage() + "\nConsulte o Administrador");
+					return null;
+				}
 				cadastro.setNatureza(natureza);
 				cadastro.setNome_destinatario(nome_destinatario);
 				cadastro.setInscricao_destinatario(inscricao_destinatario);
@@ -417,6 +432,7 @@ public class ManipularNotasFiscais {
 			return cadastro;
 
 		} catch (Exception e1) {
+			//JOptionPane.showMessageDialog(null, "Erro ao listar NFA-e\nErro:  " + e1.getMessage() + "\nConsulte o Administrador");
 			return null;
 		}
 	}

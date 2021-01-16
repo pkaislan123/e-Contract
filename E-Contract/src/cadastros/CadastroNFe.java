@@ -1,5 +1,8 @@
 package cadastros;
 
+import java.time.LocalDate;
+import java.util.Date;
+
 public class CadastroNFe {
 
 	private String nfe;
@@ -7,7 +10,13 @@ public class CadastroNFe {
 	private String nome_remetente;
 	private String inscricao_remetente;
 	private String protocolo;
-	private String data;
+	private Date  data;
+	public Date getData() {
+		return data;
+	}
+	public void setData(Date data) {
+		this.data = data;
+	}
 	private String natureza;
 	private String nome_destinatario;
 	private String inscricao_destinatario;
@@ -45,12 +54,11 @@ public class CadastroNFe {
 	public void setProtocolo(String protocolo) {
 		this.protocolo = protocolo;
 	}
-	public String getData() {
-		return data;
-	}
-	public void setData(String data) {
-		this.data = data;
-	}
+	
+
+
+	
+	
 	public String getNatureza() {
 		return natureza;
 	}

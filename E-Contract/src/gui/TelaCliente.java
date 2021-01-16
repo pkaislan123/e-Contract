@@ -42,7 +42,6 @@ public class TelaCliente extends JDialog {
 
 	private JDialog telaPai;
 	private JPanel contentPane;
-	private JComboBox cBOrdernar;
 	 DefaultTableModel modelo = new DefaultTableModel(){
          public boolean isCellEditable(int linha, int coluna) {  
              return false;
@@ -196,23 +195,6 @@ public class TelaCliente extends JDialog {
 				novoCliente.setVisible(true);
 			}
 		});		painelClientes.setLayout(null);
-		
-	 	JButtonBackground btnPesquisar = new JButtonBackground();
-	 	btnPesquisar.addActionListener(new ActionListener() {
-	 		public void actionPerformed(ActionEvent arg0) {
-	 			pesquisar();
-	 		}
-	 	});
-	 	
-	 	btnPesquisar.setBounds(637, 46, 75, 38);
-	 	btnPesquisar.setBorder(null);
-	 	//btnPesquisar.setImg(img_botao);
-	 	//btnPesquisar.repaint();
-
-	 	painelClientes.add(btnPesquisar);
-	 	
-	 	JLabel label = new JLabel("");
-	 	btnPesquisar.add(label);
 		btnUsurio.setBounds(607, 392, 105, 33);
 		painelClientes.add(btnUsurio);
 		
@@ -342,7 +324,7 @@ public class TelaCliente extends JDialog {
         scrollPane.setBackground(new Color(255, 255, 255));
 		panel.add(scrollPane);
 		
-		JButton btnEditar = new JButton("Editar");
+		JButton btnEditar = new JButton("Gerenciar");
 		btnEditar.setBackground(Color.WHITE);
 		btnEditar.setIcon(new ImageIcon(TelaCliente.class.getResource("/imagens/editar.png")));
 		btnEditar.addActionListener(new ActionListener() {
@@ -351,13 +333,14 @@ public class TelaCliente extends JDialog {
 				indiceDaLinha = tabela.getSelectedRow();
 				
 				
-				
+				TelaGerenciarCliente telagerenciar  = new TelaGerenciarCliente(clientes_disponiveis.get(indiceDaLinha));
+				telagerenciar.setVisible(true);
 				//TelaCadastroCliente telaEdicao = new TelaCadastroCliente(0, clientes_disponiveis.get(indiceDaLinha));
-				editarCliente(indiceDaLinha);
+				//editarCliente(indiceDaLinha);
 				
 			}
 		});
-		btnEditar.setBounds(389, 392, 89, 33);
+		btnEditar.setBounds(371, 392, 107, 33);
 		painelClientes.add(btnEditar);
 		
 		JButton btnSelecionar = new JButton("Selecionar");
@@ -410,21 +393,8 @@ public class TelaCliente extends JDialog {
 			}
 		});
 		btnVerNotasFiscais.setBackground(Color.WHITE);
-		btnVerNotasFiscais.setBounds(286, 397, 93, 23);
+		btnVerNotasFiscais.setBounds(254, 397, 93, 23);
 		painelClientes.add(btnVerNotasFiscais);
-		
-		 cBOrdernar = new JComboBox();
-		 cBOrdernar.setBounds(502, 51, 114, 33);
-		 painelClientes.add(cBOrdernar);
-		 cBOrdernar.addItem("Id");
-		 cBOrdernar.addItem("IE");
-		 cBOrdernar.addItem("Apelido");
-		 cBOrdernar.addItem("CPF/CNPJ");
-		 cBOrdernar.addItem("Nome");
-		 
-		 JLabel lblNewLabel = new JLabel("Ordernar por:");
-		 lblNewLabel.setBounds(411, 60, 67, 14);
-		 painelClientes.add(lblNewLabel);
 		 
 		 entPesquisa = new JTextField();
 		 entPesquisa.setBounds(22, 51, 379, 33);
@@ -529,37 +499,6 @@ public class TelaCliente extends JDialog {
 
 
 
-	}
-	
-	public void pesquisar() {
-		String campo_busca, ordem;
-		int id_ordem = -1;
-		
-		campo_busca = entPesquisa.getText();
-		ordem = cBOrdernar.getSelectedItem().toString();
-	
-		
-		if(ordem.equals("Id")) {
-			id_ordem = 1;
-		}
-		if(ordem.equals("Nome")) {
-			id_ordem = 2;
-		}
-		
-		if(ordem.equals("IE")) {
-			id_ordem = 3;
-		}
-		if(ordem.equals("Apelido")) {
-			id_ordem = 4;
-		}
-		if(ordem.equals("CPF/CNPJ")) {
-			id_ordem = 5;
-		}
-		
-		if(campo_busca != null && campo_busca != "" && campo_busca != " " && campo_busca.length() > 2)
-		pesquisarPersonalizado( modelo,1, id_ordem, campo_busca );
-
-		
 	}
 	
 	public void editarCliente( int indiceDaLinha) {

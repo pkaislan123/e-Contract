@@ -7,6 +7,8 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.Statement;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 import javax.swing.JOptionPane;
 
@@ -1027,6 +1029,11 @@ public class GerenciarBancoContratos {
 				contrato.setValor_a_pagar(new BigDecimal(rs.getString("valor_a_pagar")));
 
 				contrato.setModelo_safra(safra);
+				
+				//produto
+				GerenciarBancoProdutos gerenciar_prod = new GerenciarBancoProdutos();
+				CadastroProduto prod = gerenciar_prod.getProduto(safra.getProduto().getId_produto());
+				contrato.setModelo_produto(prod);
 
 				GerenciarBancoContratos gerenciar_corretores = new GerenciarBancoContratos();
 				CadastroCliente corretores[] = gerenciar_corretores.getCorretores(id);
@@ -2150,9 +2157,9 @@ public class GerenciarBancoContratos {
 	public ArrayList<CadastroContrato.Carregamento> getCarregamentos(int id_contrato) {
 
 		System.out.println("Lista carregamento foi chamado!");
-		String selectCarregamentos = "select * from contrato_carregamentos\r\n"
-				+ "LEFT JOIN carregamento  on carregamento.id_carregamento = contrato_carregamentos.id_carregamento \r\n"
-				+ "where contrato_carregamentos.id_contrato = ?;";
+		String selectCarregamentos = "select * from contrato_carregamentos \n"
+				+ "LEFT JOIN carregamento  on carregamento.id_carregamento = contrato_carregamentos.id_carregamento \n"
+				+ "where contrato_carregamentos.id_contrato = ?";
 		Connection conn = null;
 		PreparedStatement pstm = null;
 		ResultSet rs = null;
@@ -2171,9 +2178,9 @@ public class GerenciarBancoContratos {
 					System.out.print("carregamento não e nulo!");
 
 					CadastroContrato.Carregamento carga = new CadastroContrato.Carregamento();
-
+                
 					carga.setId_carregamento(rs.getInt("id_carregamento"));
-					carga.setData(rs.getString("data_carregamento"));
+					carga.setData(rs.getDate("data_carregamento").toString());
 					carga.setId_contrato(rs.getInt("id_contrato_carregamento"));
 					carga.setId_cliente(rs.getInt("id_cliente"));
 					carga.setId_vendedor(rs.getInt("id_vendedor"));
@@ -2182,6 +2189,7 @@ public class GerenciarBancoContratos {
 					carga.setId_produto(rs.getInt("id_produto"));
 					carga.setPeso_real_carga(rs.getDouble("peso_real_carga"));
 					carga.setCodigo_nota_fiscal(rs.getString("codigo_nota_fiscal"));
+					carga.setCaminho_nota_fiscal(rs.getString("caminho_nota_fiscal"));
 
 					lista_carregamentos.add(carga);
 
@@ -2224,7 +2232,7 @@ public class GerenciarBancoContratos {
 					CadastroContrato.Carregamento carga = new CadastroContrato.Carregamento();
 
 					carga.setId_carregamento(rs.getInt("id_carregamento"));
-					carga.setData(rs.getString("data_carregamento"));
+					carga.setData(rs.getDate("data_carregamento").toString());
 					carga.setId_contrato(rs.getInt("id_contrato_carregamento"));
 					carga.setId_cliente(rs.getInt("id_cliente"));
 					
@@ -2275,7 +2283,7 @@ public class GerenciarBancoContratos {
 					CadastroContrato.Carregamento carga = new CadastroContrato.Carregamento();
 
 					carga.setId_carregamento(rs.getInt("id_carregamento"));
-					carga.setData(rs.getString("data_carregamento"));
+					carga.setData(rs.getDate("data_carregamento").toString());
 					carga.setId_contrato(rs.getInt("id_contrato_carregamento"));
 					carga.setId_cliente(rs.getInt("id_cliente"));
 					
@@ -2328,7 +2336,7 @@ public class GerenciarBancoContratos {
 					CadastroContrato.Carregamento carga = new CadastroContrato.Carregamento();
 
 					carga.setId_carregamento(rs.getInt("id_carregamento"));
-					carga.setData(rs.getString("data_carregamento"));
+					carga.setData(rs.getDate("data_carregamento").toString());
 					carga.setId_contrato(rs.getInt("id_contrato_carregamento"));
 					carga.setId_cliente(rs.getInt("id_cliente"));
 					
@@ -2414,7 +2422,7 @@ public class GerenciarBancoContratos {
 
 	public String sql_carregamento(CadastroContrato.Carregamento carregamento) {
 
-		String query = "insert into carregamento (data_carregamento, id_contrato_carregamento, id_cliente, id_vendedor , id_transportador, id_veiculo, id_produto, peso_real_carga, codigo_nota_fiscal) values ('"
+		String query = "insert into carregamento (data_carregamento, id_contrato_carregamento, id_cliente, id_vendedor , id_transportador, id_veiculo, id_produto, peso_real_carga, codigo_nota_fiscal, caminho_nota_fiscal) values ('"
 				+ carregamento.getData() + "','"
 				+ carregamento.getId_contrato()
 				+ "','" + carregamento.getId_cliente() 
@@ -2425,6 +2433,7 @@ public class GerenciarBancoContratos {
 				+ "','" + carregamento.getPeso_real_carga()
 
 				+ "','" + carregamento.getCodigo_nota_fiscal()
+				+ "','" + carregamento.getCaminho_nota_fiscal()
 
 				+ "')";
 		return query;
@@ -3027,7 +3036,9 @@ public class GerenciarBancoContratos {
 	
 public double getQuantidadeSacosCarregados() {
 		
-		String selectGetQuantidadeTotalSacosCarregados = "SELECT SUM(peso_real_carga) AS quantidade_carregada FROM carregamento";
+		String selectGetQuantidadeTotalSacosCarregados = "select sum(peso_real_carga) as quantidade_total_carregada from carregamento\n"
+				+ "left join contrato on contrato.id = carregamento.id_contrato_carregamento\n"
+				+ "where (contrato.sub_contrato = 0 or contrato.sub_contrato = 3)";
 		Connection conn = null;
 		PreparedStatement pstm = null;
 		ResultSet rs = null;
@@ -3038,7 +3049,7 @@ public double getQuantidadeSacosCarregados() {
 			pstm = conn.prepareStatement(selectGetQuantidadeTotalSacosCarregados);
 			rs = pstm.executeQuery();
 			rs.next();
-			double i = rs.getInt("quantidade_carregada");
+			double i = rs.getInt("quantidade_total_carregada");
 
 			ConexaoBanco.fechaConexao(conn, pstm, rs);
 			return i/60;
@@ -3058,7 +3069,7 @@ public double getQuantidadeSacosCarregadosPorSafra(int id_safra) {
 	
 	String selectGetQuantidadeTotalSacosCarregados = "select sum(peso_real_carga) as quantidade_total_carregada from carregamento\n"
 			+ "left join contrato on contrato.id = carregamento.id_contrato_carregamento\n"
-			+ "where contrato.id_safra = ?";
+			+ "where (contrato.sub_contrato = 0 or contrato.sub_contrato = 3) and contrato.id_safra = ?";
 	Connection conn = null;
 	PreparedStatement pstm = null;
 	ResultSet rs = null;
@@ -3067,8 +3078,9 @@ public double getQuantidadeSacosCarregadosPorSafra(int id_safra) {
 	try {
 		conn = ConexaoBanco.getConexao();
 		pstm = conn.prepareStatement(selectGetQuantidadeTotalSacosCarregados);
-		rs = pstm.executeQuery();
 		pstm.setInt(1, id_safra);
+
+		rs = pstm.executeQuery();
 		rs.next();
 		double i = rs.getInt("quantidade_total_carregada");
 
@@ -3097,8 +3109,9 @@ public double getQuantidadeSacosPorSafra(int id_safra) {
 	try {
 		conn = ConexaoBanco.getConexao();
 		pstm = conn.prepareStatement(selectGetQuantidadeTotalSacosPorSafra);
+        pstm.setInt(1, id_safra);
+
 		rs = pstm.executeQuery();
-          pstm.setInt(1, id_safra);
 		while (rs.next()) {
 
 			if (rs != null) {
@@ -3127,6 +3140,74 @@ public double getQuantidadeSacosPorSafra(int id_safra) {
 				+ e.getMessage() + "causa: " + e.getCause());
 		return -1;
 	}
+	
+}
+
+
+
+public    Map<String,Double> getCarregamentosPorData(String menor_data, String maior_data, int id_safra) {
+	String selectCarregamentosPorData = "";
+	
+	if(id_safra > 0) {
+		selectCarregamentosPorData = "select data_carregamento, sum(peso_real_carga) as total_carregado_dia from carregamento\n"
+				+ "left join contrato on contrato.id = carregamento.id_contrato_carregamento\n"
+				+ "where (contrato.sub_contrato = 0 or contrato.sub_contrato = 3)\n"
+				+ " and data_carregamento BETWEEN (?) AND (?) and contrato.id_safra = ?\n"
+				+ "GROUP BY\n"
+				+ "  day( data_carregamento )";
+	}else {
+		selectCarregamentosPorData = "select data_carregamento, sum(peso_real_carga) as total_carregado_dia from carregamento\n"
+				+ "left join contrato on contrato.id = carregamento.id_contrato_carregamento\n"
+				+ "where (contrato.sub_contrato = 0 or contrato.sub_contrato = 3)\n"
+				+ " and data_carregamento BETWEEN (?) AND (?)\n"
+				+ "GROUP BY\n"
+				+ "  day( data_carregamento )";
+	}
+	
+	Connection conn = null;
+	PreparedStatement pstm = null;
+	ResultSet rs = null;
+	double quantidade_total = 0;
+	   Map<String,Double> total_carregados_por_dia = new HashMap<String,Double>();
+
+		
+				
+				
+	try {
+		conn = ConexaoBanco.getConexao();
+		pstm = conn.prepareStatement(selectCarregamentosPorData);
+        pstm.setString(1, menor_data);
+        pstm.setString(2, maior_data);
+        
+        if(id_safra > 0)
+            pstm.setInt(3, id_safra);
+
+
+		rs = pstm.executeQuery();
+		while (rs.next()) {
+
+			if (rs != null) {
+				
+				
+				String data = rs.getDate("data_carregamento").toString();
+				double quantidade_sacos = Double.parseDouble(rs.getString("total_carregado_dia")) /60;
+				total_carregados_por_dia.put( data, quantidade_sacos);
+				
+				
+			}
+		}
+
+
+		ConexaoBanco.fechaConexao(conn, pstm, rs);
+		return total_carregados_por_dia;
+
+	} catch (Exception e) {
+		JOptionPane.showMessageDialog(null, "Erro ao listar a quantidade total de sacos para a safra selecionada" + " erro: "
+				+ e.getMessage() + "causa: " + e.getCause());
+		return null;
+	}
+	
+	
 	
 }
 

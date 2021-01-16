@@ -79,7 +79,7 @@ public class JPanelGraficoCarregamento extends JPanel{
 
 	    	 if(percentualnao_carregados + percentualcarregados != 100) {
 	 	    	int diferenca = 100 - (percentualnao_carregados + percentualcarregados);
-	 	    	System.out.println("falta para os 100%: " + diferenca );
+	 	    //	System.out.println("falta para os 100%: " + diferenca );
 
 	 	    	percentualcarregados = percentualcarregados + diferenca;
 	 	    }

@@ -1,6 +1,8 @@
 package gui;
 
 import java.applet.Applet;
+
+import graficos.GraficoLinha;
 import graficos.JPanelGrafico;
 import graficos.JPanelGraficoCarregamento;
 
@@ -25,9 +27,14 @@ import java.net.Socket;
 import java.net.SocketException;
 import java.net.URL;
 import java.net.URLConnection;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.ConcurrentModificationException;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+
 import javax.swing.DefaultListModel;
 import javax.swing.ImageIcon;
 import javax.swing.JFrame;
@@ -47,6 +54,7 @@ import org.jfree.data.general.DefaultPieDataset;
 
 import cadastros.CadastroBaseArquivos;
 import cadastros.CadastroBaseDados;
+import cadastros.CadastroContrato;
 import cadastros.CadastroLogin;
 import cadastros.CadastroModelo;
 import cadastros.CadastroProduto;
@@ -106,6 +114,7 @@ import javax.swing.JTabbedPane;
 import javax.swing.JComboBox;
 import javax.swing.border.LineBorder;
 import java.awt.Component;
+import javax.swing.JSeparator;
 
 public class TelaPrincipal extends JFrame implements GetDadosGlobais {
 
@@ -118,12 +127,12 @@ public class TelaPrincipal extends JFrame implements GetDadosGlobais {
 	private CadastroLogin login;
 	private JPanelGrafico painelGraficoContratos;
 	private JPanelGraficoCarregamento painelGraficoCarregamentos;
-
+	private JPanel panelGraficoLinha;
 	private JLabel lblTotalContratos, lblTotalContratosAssinar, lblTotalContratosAssinados;
 	private boolean executou = false;
 	private DadosContratos dados_contratos = new DadosContratos();
 	private DadosCarregamento dados_carregamentos = new DadosCarregamento();
-    private JComboBox cbCarregamentoPorSafra;
+	private JComboBox cbCarregamentoPorSafra;
 	private int num_tarefas_nesta_secao = -1;
 	private JLabel lblNumeroTarefas;
 	private JLabel lblBD, lblBaseDeArquivos, lblNuvem, lblnet, urlBancoDados, imgBaseDados, urlBaseArquivos,
@@ -136,14 +145,16 @@ public class TelaPrincipal extends JFrame implements GetDadosGlobais {
 	private ComboBoxRenderPersonalizado cBSafraPersonalizado;
 	private static ArrayList<CadastroSafra> safras = new ArrayList<>();
 	private JLabel lblTotalSacosRetirar, lblTotalSacos, lblTotalSacosRetirados;
-
+	private GraficoLinha linha = null;
 	DefaultTableModel modelo_usuarios = new DefaultTableModel() {
 		public boolean isCellEditable(int linha, int coluna) {
 			return false;
 		}
 	};
 
+	private ChartPanel chartPanel;
 	private TelaChat telaChat;
+	private DefaultCategoryDataset dataset;
 
 	public TelaPrincipal() {
 		setIconImage(Toolkit.getDefaultToolkit()
@@ -205,6 +216,14 @@ public class TelaPrincipal extends JFrame implements GetDadosGlobais {
 		contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
 		setContentPane(contentPane);
 		contentPane.setLayout(null);
+
+		panelGraficoLinha = new JPanel();
+
+		panelGraficoLinha.setBackground(Color.WHITE);
+		panelGraficoLinha.setBounds(0, 409, 405, 280);
+
+		contentPane.add(panelGraficoLinha);
+		panelGraficoLinha.setLayout(null);
 
 		JMenuBar menuBar = new JMenuBar();
 		menuBar.setBackground(Color.WHITE);
@@ -320,7 +339,7 @@ public class TelaPrincipal extends JFrame implements GetDadosGlobais {
 		mnContratos.add(mntmContratos);
 
 		JMenuItem mntmNewMenuItem_1 = new JMenuItem("Relatoria");
-		mntmNewMenuItem_1.setIcon(new ImageIcon(TelaPrincipal.class.getResource("/imagens/relatorio-de-negocios.png")));
+		mntmNewMenuItem_1.setIcon(new ImageIcon(TelaPrincipal.class.getResource("/imagens/grafico.png")));
 		mntmNewMenuItem_1.setMargin(new Insets(0, 10, 0, 0));
 		mntmNewMenuItem_1.setFont(new Font("Segoe UI", Font.PLAIN, 16));
 		mntmNewMenuItem_1.addActionListener(new ActionListener() {
@@ -390,6 +409,7 @@ public class TelaPrincipal extends JFrame implements GetDadosGlobais {
 		contentPane.add(lblDireitos);
 
 		JPanel painelInfoConexao = new JPanel();
+		painelInfoConexao.setBorder(new LineBorder(new Color(0, 0, 0)));
 		painelInfoConexao.setBackground(Color.WHITE);
 		painelInfoConexao.setBounds(1099, 109, 251, 209);
 		contentPane.add(painelInfoConexao);
@@ -633,61 +653,112 @@ public class TelaPrincipal extends JFrame implements GetDadosGlobais {
 
 		JPanel panel = new JPanel();
 		panel.setBackground(Color.WHITE);
-		panel.setBounds(306, 376, 784, 291);
+		panel.setBounds(415, 376, 681, 287);
 		contentPane.add(panel);
 		panel.setLayout(null);
 
-		lblTotalSacosRetirados = new JLabel("a Carregar: 0");
-		lblTotalSacosRetirados.setFont(new Font("Arial", Font.BOLD, 14));
-		lblTotalSacosRetirados.setBorder(new LineBorder(new Color(0, 0, 0)));
-		lblTotalSacosRetirados.setBounds(523, 203, 261, 24);
-		panel.add(lblTotalSacosRetirados);
-
-		lblTotalSacos = new JLabel("Quantidade Total: 0");
-		lblTotalSacos.setFont(new Font("Arial", Font.BOLD, 14));
-		lblTotalSacos.setBorder(new LineBorder(new Color(0, 0, 0)));
-		lblTotalSacos.setBounds(523, 168, 261, 24);
-		panel.add(lblTotalSacos);
-
-		lblTotalSacosRetirar = new JLabel("Carregados: 0 ");
-		lblTotalSacosRetirar.setFont(new Font("Arial", Font.BOLD, 14));
-		lblTotalSacosRetirar.setBorder(new LineBorder(new Color(0, 0, 0)));
-		lblTotalSacosRetirar.setBounds(523, 239, 261, 24);
-		panel.add(lblTotalSacosRetirar);
-
-		JLabel lblNewLabel_5 = new JLabel("Safra:");
-		lblNewLabel_5.setFont(new Font("Tahoma", Font.PLAIN, 14));
-		lblNewLabel_5.setBounds(523, 73, 46, 14);
-		panel.add(lblNewLabel_5);
-
-		 cbCarregamentoPorSafra = new JComboBox();
-		cbCarregamentoPorSafra.setBounds(568, 59, 202, 34);
-		panel.add(cbCarregamentoPorSafra);
-
 		painelGraficoCarregamentos = new JPanelGraficoCarregamento(0, 0);
 		painelGraficoCarregamentos.setLayout(null);
-		painelGraficoCarregamentos.setBounds(20, 11, 493, 269);
+		painelGraficoCarregamentos.setBounds(10, 0, 671, 287);
 		panel.add(painelGraficoCarregamentos);
-		
+
+		cbCarregamentoPorSafra = new JComboBox();
+		cbCarregamentoPorSafra.setBounds(10, 44, 177, 34);
+		painelGraficoCarregamentos.add(cbCarregamentoPorSafra);
+		cbCarregamentoPorSafra.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				try {
+					CadastroSafra safra = (CadastroSafra) modelSafra.getSelectedItem();
+
+					// procura no banco os contratos de acordo com a safra selecionada
+
+					GerenciarBancoContratos gerenciar = new GerenciarBancoContratos();
+					double num_total_sacos = gerenciar.getQuantidadeSacosPorSafra(safra.getId_safra());
+					double num_total_sacos_carregados = gerenciar
+							.getQuantidadeSacosCarregadosPorSafra(safra.getId_safra());
+
+					// atualizar o grafico
+					atualizarGraficoCarregamentos(num_total_sacos, num_total_sacos_carregados);
+					atualizarPainelGraficoLinhasSafra(safra.getId_safra());
+					//getCarregamentoPorPeriodoSafra(safra.getId_safra());
+
+				} catch (Exception t) {
+
+				}
+			}
+		});
+
+		cbCarregamentoPorSafra.setModel(modelSafra);
+		cbCarregamentoPorSafra.setRenderer(cBSafraPersonalizado);
+
 		JLabel lblNewLabel_6_1 = new JLabel("Todas as Safras", SwingConstants.CENTER);
+		lblNewLabel_6_1.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseClicked(MouseEvent e) {
+
+				getDadosCarregamento();
+				atualizarGraficoCarregamentos();
+				atualizarPainelGraficoLinhasTodasSafras();
+			}
+		});
+		lblNewLabel_6_1.setBounds(10, 11, 177, 22);
+		painelGraficoCarregamentos.add(lblNewLabel_6_1);
 		lblNewLabel_6_1.setOpaque(true);
 		lblNewLabel_6_1.setForeground(Color.WHITE);
 		lblNewLabel_6_1.setFont(new Font("Tahoma", Font.PLAIN, 14));
 		lblNewLabel_6_1.setBorder(new LineBorder(new Color(0, 0, 0)));
 		lblNewLabel_6_1.setBackground(new Color(0, 206, 209));
-		lblNewLabel_6_1.setBounds(568, 26, 202, 22);
-		panel.add(lblNewLabel_6_1);
+
+		lblTotalSacosRetirar = new JLabel("Carregados: 0 ");
+		lblTotalSacosRetirar.setBounds(408, 245, 253, 24);
+		painelGraficoCarregamentos.add(lblTotalSacosRetirar);
+		lblTotalSacosRetirar.setFont(new Font("Arial", Font.BOLD, 14));
+		lblTotalSacosRetirar.setBorder(new LineBorder(new Color(0, 0, 0)));
+
+		lblTotalSacosRetirados = new JLabel("a Carregar: 0");
+		lblTotalSacosRetirados.setBounds(408, 209, 253, 24);
+		painelGraficoCarregamentos.add(lblTotalSacosRetirados);
+		lblTotalSacosRetirados.setFont(new Font("Arial", Font.BOLD, 14));
+		lblTotalSacosRetirados.setBorder(new LineBorder(new Color(0, 0, 0)));
+
+		lblTotalSacos = new JLabel("Quantidade Total: 0");
+		lblTotalSacos.setBounds(408, 174, 253, 24);
+		painelGraficoCarregamentos.add(lblTotalSacos);
+		lblTotalSacos.setFont(new Font("Arial", Font.BOLD, 14));
+		lblTotalSacos.setBorder(new LineBorder(new Color(0, 0, 0)));
+
+		JButton btnNewButton = new JButton("Vizualizar");
+		btnNewButton.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				TelaVizualizarGrafico tela = new TelaVizualizarGrafico(dataset);
+			}
+		});
+		btnNewButton.setBounds(33, 376, 89, 23);
+		contentPane.add(btnNewButton);
+		
+		JLabel lblNewLabel_5_1 = new JLabel("");
+		lblNewLabel_5_1.setOpaque(true);
+		lblNewLabel_5_1.setBackground(Color.BLACK);
+		lblNewLabel_5_1.setBounds(10, 366, 1350, 2);
+		contentPane.add(lblNewLabel_5_1);
 
 		atualizarNumTarefas();
 
 		getDadosCarregamento();
 		atualizarGraficoCarregamentos();
+
 		getDadosContratos();
 		atualizarGraficoContratos();
+
+		getCarregamentoPorPeriodo();
+
 		buscarConexao();
 		buscaConexaoBanco();
 		buscaConexaoServidorArquivos();
 		buscarConexaoNuvem();
+
+		ThreadGetDadosContratos();
+		ThreadGetDadosCarregamento();
 
 		if (telaChat == null) {
 			telaChat = new TelaChat();
@@ -745,7 +816,7 @@ public class TelaPrincipal extends JFrame implements GetDadosGlobais {
 
 					}
 				}.start();
-
+				executou = true;
 			} else {
 				System.out.println("Não foi possivel buscar o numero de contratos sem assinar no banco de dados!");
 			}
@@ -763,6 +834,70 @@ public class TelaPrincipal extends JFrame implements GetDadosGlobais {
 		dados_carregamentos.setQuantidade_total_sacos(quantidade_total_sacos);
 		dados_carregamentos.setQuantidade_total_carregada(quantidade_total_sacos_carregados);
 		dados_carregamentos.setQuantidade_total_a_carregar(quantidade_total_sacos_a_carregar);
+
+	}
+
+	public void ThreadGetDadosCarregamento() {
+
+		new Thread() {
+
+			@Override
+			public void run() {
+				while (true) {
+					try {
+						Thread.sleep(40000);
+					} catch (InterruptedException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+
+					getDadosCarregamento();
+					atualizarGraficoCarregamentos();
+					getCarregamentoPorPeriodo();
+
+					try {
+						Thread.sleep(40000);
+					} catch (InterruptedException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+
+				}
+
+			}
+
+		}.start();
+
+	}
+
+	public void ThreadGetDadosContratos() {
+
+		new Thread() {
+
+			@Override
+			public void run() {
+				try {
+					Thread.sleep(40000);
+				} catch (InterruptedException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+
+				while (true) {
+					atualizarGraficoContratos();
+
+					try {
+						Thread.sleep(40000);
+					} catch (InterruptedException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+
+				}
+
+			}
+
+		}.start();
 
 	}
 
@@ -988,44 +1123,7 @@ public class TelaPrincipal extends JFrame implements GetDadosGlobais {
 					painelGraficoContratos.setDados(dados_contratos.getNumero_total_contratos(), i);
 					painelGraficoContratos.repaint();
 					try {
-						Thread.sleep(100);
-					} catch (InterruptedException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-					}
-
-					i++;
-				}
-
-			}
-		}.start();
-
-	}
-
-	public void atualizarGraficoCarregamentos() {
-
-
-		
-		
-		lblTotalSacos.setText("Quantidade Total(sacos): " + (int) dados_carregamentos.getQuantidade_total_sacos());
-		lblTotalSacosRetirados.setText("Carregados(sacos): " + (int)  dados_carregamentos.getQuantidade_total_carregada());
-		lblTotalSacosRetirar.setText("a Carregar(sacos): " + (int)  dados_carregamentos.getQuantidade_total_a_carregar());
-
-		new Thread() {
-
-			@Override
-			public void run() {
-
-				int i = 0;
-				while (i <= (int) dados_carregamentos.getQuantidade_total_carregada()) {
-
-					// System.out.printf("Disponivel e %d\n ", disponivel);
-					// System.out.printf("Usado e %d\n", usado);
-
-					painelGraficoCarregamentos.setDados((int) dados_carregamentos.getQuantidade_total_sacos(), i);
-					painelGraficoCarregamentos.repaint();
-					try {
-						Thread.sleep(100);
+						Thread.sleep(10);
 					} catch (InterruptedException e) {
 						// TODO Auto-generated catch block
 						e.printStackTrace();
@@ -1107,11 +1205,13 @@ public class TelaPrincipal extends JFrame implements GetDadosGlobais {
 
 	}
 
-	
-	public void atualizarGraficoCarregamentos(double quantidade_total, double quantidade_carregada) {
-		lblTotalSacos.setText("Quantidade Total(sacos): " + (int) quantidade_total);
-		lblTotalSacosRetirados.setText("Carregados(sacos): " + (int) quantidade_carregada);
-		lblTotalSacosRetirar.setText("a Carregar(sacos): " + (int) (quantidade_total - quantidade_carregada ));
+	public void atualizarGraficoCarregamentos() {
+
+		lblTotalSacos.setText("Quantidade Total(sacos): " + (int) dados_carregamentos.getQuantidade_total_sacos());
+		lblTotalSacosRetirados
+				.setText("Carregados(sacos): " + (int) dados_carregamentos.getQuantidade_total_carregada());
+		lblTotalSacosRetirar
+				.setText("a Carregar(sacos): " + (int) dados_carregamentos.getQuantidade_total_a_carregar());
 
 		new Thread() {
 
@@ -1119,13 +1219,40 @@ public class TelaPrincipal extends JFrame implements GetDadosGlobais {
 			public void run() {
 
 				int i = 0;
-				while (i <= (int) (quantidade_total - quantidade_carregada)) {
+				while (i <= (int) dados_carregamentos.getQuantidade_total_carregada()) {
 
 					// System.out.printf("Disponivel e %d\n ", disponivel);
 					// System.out.printf("Usado e %d\n", usado);
 
-					painelGraficoContratos.setDados((int)quantidade_total, i);
-					painelGraficoContratos.repaint();
+					painelGraficoCarregamentos.setDados((int) dados_carregamentos.getQuantidade_total_sacos(), i);
+					painelGraficoCarregamentos.repaint();
+
+					i++;
+				}
+
+			}
+		}.start();
+
+	}
+
+	public void atualizarGraficoCarregamentos(double quantidade_total, double quantidade_carregada) {
+		lblTotalSacos.setText("Quantidade Total(sacos): " + (int) quantidade_total);
+		lblTotalSacosRetirados.setText("Carregados(sacos): " + (int) quantidade_carregada);
+		lblTotalSacosRetirar.setText("a Carregar(sacos): " + (int) (quantidade_total - quantidade_carregada));
+
+		new Thread() {
+
+			@Override
+			public void run() {
+
+				int i = (int) quantidade_carregada;
+				while (i <= (int) quantidade_carregada) {
+
+					// System.out.printf("Disponivel e %d\n ", disponivel);
+					// System.out.printf("Usado e %d\n", usado);
+
+					painelGraficoCarregamentos.setDados((int) quantidade_total, i);
+					painelGraficoCarregamentos.repaint();
 					try {
 						Thread.sleep(100);
 					} catch (InterruptedException e) {
@@ -1141,7 +1268,6 @@ public class TelaPrincipal extends JFrame implements GetDadosGlobais {
 
 	}
 
-	
 	public void setNumeroMensagensNovas() {
 		java.awt.EventQueue.invokeLater(new Runnable() {
 			public void run() {
@@ -1252,5 +1378,79 @@ public class TelaPrincipal extends JFrame implements GetDadosGlobais {
 			}
 		}.start();
 
+	}
+
+	public void getCarregamentoPorPeriodo() {
+
+		GerenciarBancoContratos gerenciar = new GerenciarBancoContratos();
+		String hoje = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
+		String semana = LocalDateTime.now().minusDays(7).format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
+
+		Map<String, Double> lista_cargas = gerenciar.getCarregamentosPorData(semana, hoje, 0);
+		dataset = new DefaultCategoryDataset();
+
+		for (Map.Entry<String, Double> pair : lista_cargas.entrySet()) {
+
+			System.out.println(pair.getKey());
+			System.out.println(pair.getValue());
+
+			dataset.addValue(pair.getValue(), "", pair.getKey());
+
+		}
+
+	
+			linha = new GraficoLinha();
+
+		linha.setDataset(dataset);
+		chartPanel = linha.getGraficoLinha(200, 200,"Últimos 7 dias");
+	
+		panelGraficoLinha.add(chartPanel);
+	
+	}
+
+	public void getCarregamentoPorPeriodoSafra(int id_safra) {
+
+		GerenciarBancoContratos gerenciar = new GerenciarBancoContratos();
+		String hoje = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
+		String semana = LocalDateTime.now().minusDays(7).format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
+
+		Map<String, Double> lista_cargas = gerenciar.getCarregamentosPorData(semana, hoje, id_safra);
+		dataset = new DefaultCategoryDataset();
+
+		for (Map.Entry<String, Double> pair : lista_cargas.entrySet()) {
+
+			System.out.println(pair.getKey());
+			System.out.println(pair.getValue());
+
+			dataset.addValue(pair.getValue(), "", pair.getKey());
+
+		}
+
+
+			
+					linha = new GraficoLinha();
+
+				linha.setDataset(dataset);
+			
+				chartPanel = linha.getGraficoLinha(200, 200, "Últimos 7 dias");
+			
+				panelGraficoLinha.add(chartPanel);
+			
+			
+
+	}
+
+	public void atualizarPainelGraficoLinhasSafra(int id_safra) {
+		panelGraficoLinha.removeAll();
+		panelGraficoLinha.updateUI();
+		panelGraficoLinha.repaint();
+		getCarregamentoPorPeriodoSafra(id_safra);
+	}
+	
+	public void atualizarPainelGraficoLinhasTodasSafras() {
+		panelGraficoLinha.removeAll();
+		panelGraficoLinha.updateUI();
+		panelGraficoLinha.repaint();
+		getCarregamentoPorPeriodo();
 	}
 }

@@ -233,7 +233,7 @@ public class TelaCriarTarefa extends JDialog {
 				String nome, descricao, mensagem, hora, data, prioridade;
 				boolean criar = false;
 				
-				LocalTime localTime4  = LocalTime.now().plusMinutes(15);
+				LocalTime localTime4  = LocalTime.now();
 				 String hora_criacao =  localTime4.format(DateTimeFormatter.ofPattern("HH:mm"));
 				 
 				 String data_criacao   = LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd/MM/yyyy"));
@@ -357,8 +357,7 @@ public class TelaCriarTarefa extends JDialog {
 		 cBPrioridade.addActionListener(new ActionListener() {
 		 	public void actionPerformed(ActionEvent e) {
 		           String itemSelecionado = cBPrioridade.getSelectedItem().toString();
-		           String data = pegarData();
-		           String hora = pegarHora();
+		        
 		           
 		           if(itemSelecionado.equalsIgnoreCase("Imediata - Neste Momento")) {
 		        	   LocalTime localTime4  = LocalTime.now().plusMinutes(15);

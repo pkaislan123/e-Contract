@@ -186,7 +186,7 @@ public class TelaCadastroCliente extends JDialog {
 		setResizable(false);
 
 		setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-		if (flag_tipo_tela == 1)
+		if (flag_tipo_tela == 1 )
 			setTitle("E-Contract - Novo Cliente");
 		else if (flag_tipo_tela == 5)
 			setTitle("E-Contract - Novo Armazém");
@@ -614,6 +614,7 @@ public class TelaCadastroCliente extends JDialog {
 					if (telaPai != null) {
 						if (flag_tipo_tela == 1 || flag_tipo_tela == 0) {
 							// salvar novo cliente comun
+							if(telaPai != null)
 							((TelaCliente) telaPai).atualizaTabela();
 
 						} else if (flag_tipo_tela == 5 || flag_tipo_tela == 6) {
@@ -651,7 +652,15 @@ public class TelaCadastroCliente extends JDialog {
 
 				if (atualizar(flag_tipo_tela) == true) {
 					if (flag_tipo_tela == 0 || flag_tipo_tela == 1) {
-						((TelaCliente) telaPai).atualizaTabela();
+						if(telaPai != null)
+							if(telaPai instanceof TelaCliente) {
+								((TelaCliente) telaPai).atualizaTabela();
+
+							}else if(telaPai instanceof TelaGerenciarCliente) {
+								((TelaGerenciarCliente) telaPai).atualizarInfo();
+
+							}
+							
 					} else if (flag_tipo_tela == 5 || flag_tipo_tela == 6) {
 						((TelaArmazem) telaPai).atualizaTabela();
 

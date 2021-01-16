@@ -75,7 +75,7 @@ public class TelaCriarAditivo extends JDialog {
 	
 	public TelaCriarAditivo(CadastroContrato contrato) {
 		getDadosGlobais();
-		//setModal(true);
+		setModal(true);
 		
 		contrato_local = contrato;
 

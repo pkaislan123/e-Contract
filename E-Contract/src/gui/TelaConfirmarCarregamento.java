@@ -25,16 +25,23 @@ import cadastros.CadastroNFe;
 import cadastros.CadastroProduto;
 import classesExtras.Carregamento;
 import conexaoBanco.GerenciarBancoContratos;
+import outros.TratarDados;
 
 import javax.swing.JLabel;
 import javax.swing.border.LineBorder;
 import javax.swing.JTextField;
+import javax.swing.JTextArea;
+
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import java.awt.event.FocusAdapter;
 import java.awt.event.FocusEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
+import javax.swing.JScrollPane;
 
 public class TelaConfirmarCarregamento extends JDialog {
 
@@ -56,9 +63,10 @@ public class TelaConfirmarCarregamento extends JDialog {
 	private CadastroContrato contrato_carregamento;
 	private CadastroCliente.Veiculo veiculo_carregamento;
 	private CadastroCliente vendedor;
-	private JLabel lblNotaFiscalCarregamento, lblPesoRealCarregamento, lblProdutoCarregamento, lblDataCarregamento,
-			lblClienteCarregamento, lblContratoCarregamento, lblTransportadorCarregamento, lblVeiculoCarregamento;
+	private JLabel  lblPesoRealCarregamento, lblProdutoCarregamento, lblDataCarregamento,
+			lblClienteCarregamento, lblContratoCarregamento, lblTransportadorCarregamento, lblVeiculoCarregamento, lblCaminhoNFa;
 
+	private JTextArea lblNotaFiscalCarregamento;
 	public TelaConfirmarCarregamento(CadastroContrato _contrato_local) {
 		//setAlwaysOnTop(true);
 
@@ -93,13 +101,34 @@ public class TelaConfirmarCarregamento extends JDialog {
 		panel_1.add(lblNewLabel_3);
 
 		entDataCarregamento = new JTextField();
-		entDataCarregamento.setText("26/12/2020");
+		entDataCarregamento.setEnabled(false);
+
+		 String strLocalDate2   = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
+		 entDataCarregamento.setText(strLocalDate2);
+		
 		entDataCarregamento.setEditable(false);
 		entDataCarregamento.setColumns(10);
 		entDataCarregamento.setBounds(135, 8, 116, 30);
 		panel_1.add(entDataCarregamento);
 
 		JCheckBox chkBoxDataHoje = new JCheckBox("Data Atual");
+		chkBoxDataHoje.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				
+	        	  
+				if(chkBoxDataHoje.isSelected()) {
+					chkBoxDataHoje.setSelected(true);
+					entDataCarregamento.setEditable(false);
+					 String strLocalDate2   = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
+					 entDataCarregamento.setText(strLocalDate2);
+					
+				}else {
+					chkBoxDataHoje.setSelected(false);
+					entDataCarregamento.setEnabled(true);
+					entDataCarregamento.setEditable(true);
+				}
+			}
+		});
 		chkBoxDataHoje.setSelected(true);
 		chkBoxDataHoje.setBounds(257, 7, 88, 23);
 		panel_1.add(chkBoxDataHoje);
@@ -148,6 +177,28 @@ public class TelaConfirmarCarregamento extends JDialog {
 				
 				TelaNotasFiscais tela = new TelaNotasFiscais(0,vendedor);
 				tela.setPai(isto);
+				
+				String destinatario = "";
+				
+				if(cliente_carregamento.getTipo_pessoa() == 0) {
+					destinatario = cliente_carregamento.getNome_empresarial();
+				}else {
+					destinatario = cliente_carregamento.getNome_fantaia();
+				}
+				
+					String remetente = "";
+				
+				if(vendedor.getTipo_pessoa() == 0) {
+					remetente = vendedor.getNome_empresarial();
+				}else {
+					remetente = vendedor.getNome_fantaia();
+				}
+				
+				
+				String produto = produto_carregamento.getNome_produto();
+				
+				
+				tela.setDadosPesquisa(destinatario, remetente, "Venda", produto);
 				tela.setVisible(true);
 			}
 		});
@@ -163,10 +214,13 @@ public class TelaConfirmarCarregamento extends JDialog {
 		panel_1.add(lblNewLabel_8);
 
 		cBContrato = new JComboBox();
+		cBContrato.setEnabled(false);
 		cBContrato.setBounds(135, 49, 248, 30);
 		panel_1.add(cBContrato);
 
 		JButton btnSelecionarContrato = new JButton("Selecionar");
+		btnSelecionarContrato.setEnabled(false);
+		btnSelecionarContrato.setVisible(false);
 		btnSelecionarContrato.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
 				TelaContratos contrato = new TelaContratos(1);
@@ -193,6 +247,10 @@ public class TelaConfirmarCarregamento extends JDialog {
 				tela.setVisible(true);
 			}
 		});
+		CadastroCliente compradores[] = contrato_local.getCompradores();
+		setClienteCarregamento(compradores[0]);
+		
+		
 		btnSelecionarCliente.setBounds(393, 88, 89, 30);
 		panel_1.add(btnSelecionarCliente);
 
@@ -217,6 +275,7 @@ public class TelaConfirmarCarregamento extends JDialog {
 		cBProduto.setBounds(134, 239, 209, 30);
 		panel_1.add(cBProduto);
 
+		
 		JButton btnSelecionarProduto = new JButton("Selecionar");
 		btnSelecionarProduto.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
@@ -227,6 +286,9 @@ public class TelaConfirmarCarregamento extends JDialog {
 		});
 		btnSelecionarProduto.setBounds(352, 239, 89, 30);
 		panel_1.add(btnSelecionarProduto);
+		
+		CadastroProduto prod = contrato_local.getModelo_produto();
+		setProduto(prod);
 		
 		JLabel lblNewLabel_8_1_1 = new JLabel("Vendedor:");
 		lblNewLabel_8_1_1.setBounds(69, 136, 56, 14);
@@ -246,6 +308,9 @@ public class TelaConfirmarCarregamento extends JDialog {
 		});
 		btnSelecionarVendedor.setBounds(393, 129, 89, 30);
 		panel_1.add(btnSelecionarVendedor);
+		
+		CadastroCliente vendedores[] = contrato_local.getVendedores();
+		setVendedor(vendedores[0]);
 		
 		JButton btnCancelar_1 = new JButton("Revisar");
 		btnCancelar_1.addActionListener(new ActionListener() {
@@ -302,13 +367,26 @@ public class TelaConfirmarCarregamento extends JDialog {
 				carregamento_a_inserir.setData(lblDataCarregamento.getText());
 				carregamento_a_inserir.setId_cliente(cliente_carregamento.getId());
 				carregamento_a_inserir.setId_vendedor(vendedor.getId());
-				carregamento_a_inserir.setId_contrato(contrato_carregamento.getId());
+				carregamento_a_inserir.setId_contrato(contrato_local.getId());
 				carregamento_a_inserir.setId_transportador(transportador_carregamento.getId());
 				carregamento_a_inserir.setId_veiculo(veiculo_carregamento.getId_veiculo());
 				carregamento_a_inserir.setId_produto(produto_carregamento.getId_produto());
 				carregamento_a_inserir.setPeso_real_carga(Double.parseDouble(lblPesoRealCarregamento.getText()));
-				carregamento_a_inserir.setCodigo_nota_fiscal(lblNotaFiscalCarregamento.getText());
+				carregamento_a_inserir.setCodigo_nota_fiscal(nota_fiscal_carregamento.getNfe());
+				
+				String caminho_completo = nota_fiscal_carregamento.getCaminho_arquivo();
+				TratarDados tratar = new TratarDados(caminho_completo);
+					String caminho_normalizado = tratar.tratar("E-Contract", "pdf")	;
+					String caminho_completo_normalizado = "E-Contract" +  caminho_normalizado + "pdf";
+					String conteudo [] = caminho_completo_normalizado.split("\\\\");
+					String url_final = "";
+					for(String str : conteudo) {
+						
+						url_final = url_final + str + "\\\\";
+					}
+				carregamento_a_inserir.setCaminho_nota_fiscal(url_final);
 
+				
 				boolean retorno = gerenciar.inserirCarregamento(contrato_local.getId(),
 						carregamento_a_inserir);
 				if (retorno) {
@@ -387,12 +465,22 @@ public class TelaConfirmarCarregamento extends JDialog {
 		JLabel lblNewLabel_2 = new JLabel("Nota Fiscal:");
 		lblNewLabel_2.setBounds(10, 249, 72, 14);
 		painelConfirmar.add(lblNewLabel_2);
-
-		lblNotaFiscalCarregamento = new JLabel("");
+		
+		lblNotaFiscalCarregamento = new JTextArea("");
+		lblNotaFiscalCarregamento.setLineWrap(true);
+		lblNotaFiscalCarregamento.setWrapStyleWord(true);
 		lblNotaFiscalCarregamento.setBorder(new LineBorder(new Color(0, 0, 0)));
-		lblNotaFiscalCarregamento.setBounds(92, 238, 389, 32);
-		painelConfirmar.add(lblNotaFiscalCarregamento);
 
+		
+		JScrollPane scrollPane = new JScrollPane(lblNotaFiscalCarregamento);
+		scrollPane.setBounds(88, 237, 403, 95);
+		painelConfirmar.add(scrollPane);
+		
+		 lblCaminhoNFa = new JLabel("");
+		lblCaminhoNFa.setBounds(92, 336, 399, 14);
+		painelConfirmar.add(lblCaminhoNFa);
+		
+			
 	    //this.setUndecorated(true);
 		this.setLocationRelativeTo(null);
 
@@ -519,7 +607,7 @@ public class TelaConfirmarCarregamento extends JDialog {
 		}
 		lblClienteCarregamento.setText(nome_cliente);
 
-		lblContratoCarregamento.setText(contrato_carregamento.getCodigo());
+		lblContratoCarregamento.setText(contrato_local.getCodigo());
 		lblTransportadorCarregamento
 				.setText(transportador_carregamento.getNome() + " " + transportador_carregamento.getSobrenome());
 
@@ -538,7 +626,34 @@ public class TelaConfirmarCarregamento extends JDialog {
 		
 		lblPesoRealCarregamento.setText(entPesoRealCarga.getText());
 		lblProdutoCarregamento.setText(produto_carregamento.getNome_produto());
-		lblNotaFiscalCarregamento.setText(nota_fiscal_carregamento.getNfe());
+		
+		String codigo = nota_fiscal_carregamento.getNfe();
+		String peso_nf = nota_fiscal_carregamento.getQuantidade();
+		String destinatario = nota_fiscal_carregamento.getNome_destinatario();
+		String remetente = nota_fiscal_carregamento.getNome_remetente();
+		String natureza = nota_fiscal_carregamento.getNatureza();
+		String data = nota_fiscal_carregamento.getData().toString();
+		String produto = nota_fiscal_carregamento.getProduto();
+		String valor = nota_fiscal_carregamento.getValor();
+		
+		String texto_revisao_nfs = "";
+		
+		texto_revisao_nfs = "NFe: " + codigo +
+				"\nRemetente: " + remetente +
+				"\nDestinatario: " + destinatario +
+				"\nNatureza: " + natureza +
+				"\nData: " + data +
+				"\nProduto: " + produto +
+				"\nPeso: " + peso_nf +
+				"\nValor: " + valor
+				
+				;
+		lblNotaFiscalCarregamento.setText(texto_revisao_nfs);
+		String caminho_completo = nota_fiscal_carregamento.getCaminho_arquivo();
+		TratarDados tratar = new TratarDados(caminho_completo);
+			String caminho_normalizado = tratar.tratar("E-Contract", "pdf")	;
+			String caminho_completo_normalizado = "E-Contract" +  caminho_normalizado + "pdf".replace("\"", "\\");
+		lblCaminhoNFa.setText(caminho_completo_normalizado);
 
 	}
 
