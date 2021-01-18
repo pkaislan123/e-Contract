@@ -21,18 +21,27 @@ import java.net.URLConnection;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.text.NumberFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashSet;
+import java.util.Locale;
+import java.util.Set;
 import java.awt.event.ActionEvent;
 import javax.swing.JScrollPane;
 import java.awt.Component;
 import java.awt.Dimension;
 
 import javax.swing.JTable;
+import javax.swing.table.AbstractTableModel;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableRowSorter;
 
 import cadastros.CadastroCliente;
 import cadastros.CadastroContrato;
+import cadastros.CadastroNFe;
 import conexaoBanco.GerenciarBancoContratos;
 import gui.TelaNotasFiscais.NFeTableModel;
 import manipular.ManipularArquivoTerceiros;
@@ -47,6 +56,8 @@ import javax.swing.RowFilter;
 
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
+import javax.swing.JLabel;
+import java.awt.Font;
 
 public class TelaContratos extends JDialog {
 
@@ -61,10 +72,16 @@ public class TelaContratos extends JDialog {
     };
     
     private TelaContratos isto;
-    private JTextField entChavePesquisa;
-	private TableRowSorter<DefaultTableModel> sorter;
+    private JTextField entNomeComprador;
+	private JTextField entNomeVendedor;
 
-
+	private ContratoTableModel modelo_contratos = new ContratoTableModel();
+	private TableRowSorter<ContratoTableModel> sorter;
+	private JTextField entProduto;
+	private JTextField entSafra;
+	private JTextField entCodigo;
+	private JTextField entStatus;
+	
 	public TelaContratos(int flag_retorno) {
 		setModal(true);
 		//setAlwaysOnTop(true);
@@ -78,7 +95,7 @@ public class TelaContratos extends JDialog {
 
 		setBackground(new Color(255, 255, 255));
 		setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-		setBounds(100, 100, 1074, 493);
+		setBounds(100, 100, 1074, 532);
 		painelPrincipal.setBackground(new Color(255, 255, 255));
 		painelPrincipal.setBorder(new EmptyBorder(5, 5, 5, 5));
 		setContentPane(painelPrincipal);
@@ -92,79 +109,49 @@ public class TelaContratos extends JDialog {
 		});
 		//btnContrato.setIcon(new ImageIcon(TelaContratos.class.getResource("/imagens/add_contrato.png")));
 		btnContrato.setToolTipText("Adicionar Novo Contrato");
-		btnContrato.setBounds(864, 80, 172, 33);
+		btnContrato.setBounds(933, 457, 106, 28);
 		painelPrincipal.add(btnContrato);
 		
 		JPanel panel = new JPanel();
 		panel.setLayout(null);
-		panel.setBounds(30, 126, 1006, 266);
+		panel.setBounds(30, 180, 1006, 266);
 		painelPrincipal.add(panel);
 		
-        JTable tabela = new JTable(modelo);
-        sorter = new TableRowSorter<DefaultTableModel>(modelo);
+        JTable tabela = new JTable(modelo_contratos);
+        sorter = new TableRowSorter<ContratoTableModel>(modelo_contratos);
         
-		
+        tabela.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
+
+        tabela.getColumnModel().getColumn(0).setPreferredWidth(40);
+		tabela.getColumnModel().getColumn(1).setPreferredWidth(90);
+		tabela.getColumnModel().getColumn(2).setPreferredWidth(300);
+		tabela.getColumnModel().getColumn(3).setPreferredWidth(300);
+		tabela.getColumnModel().getColumn(4).setPreferredWidth(180);
+		tabela.getColumnModel().getColumn(5).setPreferredWidth(70);
+		tabela.getColumnModel().getColumn(6).setPreferredWidth(50);
+		tabela.getColumnModel().getColumn(7).setPreferredWidth(70);
+		tabela.getColumnModel().getColumn(8).setPreferredWidth(120);
+		tabela.getColumnModel().getColumn(9).setPreferredWidth(100);
+		tabela.getColumnModel().getColumn(10).setPreferredWidth(120);
+		tabela.getColumnModel().getColumn(11).setPreferredWidth(120);
+		tabela.getColumnModel().getColumn(12).setPreferredWidth(120);
+
         tabela.setRowSorter(sorter);
         
 		tabela.setBackground(new Color(255, 255, 255));
 		//tabela.setPreferredSize(new Dimension(0, 200)); 
 		tabela.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
-		modelo.addColumn("ID");
-		modelo.addColumn("Código");
-		   modelo.addColumn("Compradores");
+		
 
-	        modelo.addColumn("Vendedores");
-		 modelo.addColumn("Status");
-
-        modelo.addColumn("Quantidade");
-        modelo.addColumn("Medida");
-        modelo.addColumn("Produto");
-        modelo.addColumn("Safra");
-        modelo.addColumn("Valor Produto");
-        modelo.addColumn("Valor Total");
-     
-        modelo.addColumn("Corretores");
-        modelo.addColumn("Data do Contrato");
-       
-
-        pesquisar(modelo);
+        pesquisar();
 
         
-      
-        tabela.getColumnModel().getColumn(0)
-        .setPreferredWidth(40);
-        tabela.getColumnModel().getColumn(1)
-        .setPreferredWidth(90);
-        tabela.getColumnModel().getColumn(2)
-        .setPreferredWidth(170);
-        tabela.getColumnModel().getColumn(3)
-        .setPreferredWidth(80);
-        tabela.getColumnModel().getColumn(4)
-        .setPreferredWidth(80);
-        tabela.getColumnModel().getColumn(5)
-        .setPreferredWidth(70);
-        tabela.getColumnModel().getColumn(6)
-        .setPreferredWidth(70);
-        tabela.getColumnModel().getColumn(7)
-        .setPreferredWidth(90);
-        tabela.getColumnModel().getColumn(8)
-        .setPreferredWidth(80);
-        tabela.getColumnModel().getColumn(9)
-        .setPreferredWidth(150);
-        tabela.getColumnModel().getColumn(10)
-        .setPreferredWidth(150);
-        tabela.getColumnModel().getColumn(11)
-        .setPreferredWidth(100);
-        tabela.getColumnModel().getColumn(12)
-        .setPreferredWidth(80);
-        
-       
 		
 		JScrollPane scrollPane = new JScrollPane(tabela);
 		scrollPane.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent arg0) {
-				pesquisar(modelo);
+				//pesquisar();
 			}
 		});
 		scrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED);
@@ -216,7 +203,7 @@ public class TelaContratos extends JDialog {
 					
 			}
 		});
-		btnAbrir.setBounds(915, 403, 121, 23);
+		btnAbrir.setBounds(802, 457, 121, 23);
 		getContentPane().add(btnAbrir);
 		
 		JButton btnSelecionar = new JButton("Selecionar");
@@ -243,7 +230,7 @@ public class TelaContratos extends JDialog {
 				}
 			}
 		});
-		btnSelecionar.setBounds(816, 403, 89, 23);
+		btnSelecionar.setBounds(703, 457, 89, 23);
 		painelPrincipal.add(btnSelecionar);
 		
 		JButton btnImportarTerceiros = new JButton("Importar");
@@ -252,20 +239,98 @@ public class TelaContratos extends JDialog {
 				importarContratoTerceiros();
 			}
 		});
-		btnImportarTerceiros.setBounds(717, 403, 89, 23);
+		btnImportarTerceiros.setBounds(604, 457, 89, 23);
 		painelPrincipal.add(btnImportarTerceiros);
 		
-		entChavePesquisa = new JTextField();
-		entChavePesquisa.addKeyListener(new KeyAdapter() {
-			@Override
-			public void keyTyped(KeyEvent e) {
-				 String  text = entChavePesquisa.getText().toUpperCase();
-				    sorter.setRowFilter(RowFilter.regexFilter(text));
+		entNomeComprador = new JTextField();
+		
+		entNomeComprador.setBounds(115, 28, 456, 33);
+		painelPrincipal.add(entNomeComprador);
+		entNomeComprador.setColumns(10);
+		
+		JLabel lblNewLabel = new JLabel("Comprador:");
+		lblNewLabel.setFont(new Font("Tahoma", Font.PLAIN, 14));
+		lblNewLabel.setBounds(30, 34, 75, 17);
+		painelPrincipal.add(lblNewLabel);
+		
+		JLabel lblVendedor = new JLabel("Vendedor:");
+		lblVendedor.setFont(new Font("Tahoma", Font.PLAIN, 14));
+		lblVendedor.setBounds(41, 86, 64, 17);
+		painelPrincipal.add(lblVendedor);
+		
+		entNomeVendedor = new JTextField();
+		entNomeVendedor.setColumns(10);
+		entNomeVendedor.setBounds(115, 80, 456, 33);
+		painelPrincipal.add(entNomeVendedor);
+		
+		entProduto = new JTextField();
+		entProduto.setColumns(10);
+		entProduto.setBounds(115, 136, 195, 33);
+		painelPrincipal.add(entProduto);
+		
+		JLabel lblProduto = new JLabel("Produto:");
+		lblProduto.setFont(new Font("Tahoma", Font.PLAIN, 14));
+		lblProduto.setBounds(50, 142, 55, 17);
+		painelPrincipal.add(lblProduto);
+		
+		JLabel lblSafra = new JLabel("Safra:");
+		lblSafra.setFont(new Font("Tahoma", Font.PLAIN, 14));
+		lblSafra.setBounds(333, 142, 36, 17);
+		painelPrincipal.add(lblSafra);
+		
+		entSafra = new JTextField();
+		entSafra.setColumns(10);
+		entSafra.setBounds(407, 136, 164, 33);
+		painelPrincipal.add(entSafra);
+		
+		JButton btnFiltrar = new JButton("Filtrar");
+		btnFiltrar.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				
+				filtrar();
 			}
 		});
-		entChavePesquisa.setBounds(30, 80, 456, 33);
-		painelPrincipal.add(entChavePesquisa);
-		entChavePesquisa.setColumns(10);
+		btnFiltrar.setBounds(737, 137, 89, 23);
+		painelPrincipal.add(btnFiltrar);
+		
+		JButton btnLimparFiltros = new JButton("Limpar");
+		btnLimparFiltros.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+			    sorter.setRowFilter( RowFilter.regexFilter(""));
+
+			}
+		});
+		btnLimparFiltros.setBounds(638, 136, 89, 23);
+		painelPrincipal.add(btnLimparFiltros);
+		
+		JLabel lblCdigo = new JLabel("Código:");
+		lblCdigo.setFont(new Font("Tahoma", Font.PLAIN, 14));
+		lblCdigo.setBounds(604, 37, 48, 17);
+		painelPrincipal.add(lblCdigo);
+		
+		JLabel lblStatus = new JLabel("Status:");
+		lblStatus.setFont(new Font("Tahoma", Font.PLAIN, 14));
+		lblStatus.setBounds(604, 89, 48, 17);
+		painelPrincipal.add(lblStatus);
+		
+		entCodigo = new JTextField();
+		entCodigo.setColumns(10);
+		entCodigo.setBounds(662, 28, 164, 33);
+		painelPrincipal.add(entCodigo);
+		
+		entStatus = new JTextField();
+		entStatus.setColumns(10);
+		entStatus.setBounds(662, 80, 164, 33);
+		painelPrincipal.add(entStatus);
+		
+		JButton btnRefazerPesquisa = new JButton("Refazer Pesquisa");
+		btnRefazerPesquisa.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				pesquisar();
+			}
+		});
+		btnRefazerPesquisa.setBounds(894, 60, 126, 28);
+		painelPrincipal.add(btnRefazerPesquisa);
 		
 				
 		if(flag_retorno == 1 || flag_retorno == 2) {
@@ -281,69 +346,24 @@ public class TelaContratos extends JDialog {
 
 	}
 	
-		public static void pesquisar(DefaultTableModel modelo)
+	public void pesquisar( )
 	{ 
-		modelo.setNumRows(0);
     GerenciarBancoContratos gerenciar = new GerenciarBancoContratos();
     lista_contratos.clear();
+    modelo_contratos.onRemoveAll();
 
       
     
    
     for (CadastroContrato contrato : gerenciar.getContratos()) {
-    	String cpf, cnpj, nome;
    
-
-		int status = contrato.getStatus_contrato();
-		String text_status = "";
-		if(status== 1) {
-			text_status=  "Recolher Assinaturas".toUpperCase();
-
-		}
-		else if(status == 2) {
-			text_status = "Assinado".toUpperCase();
-
-		}
-		else if(status == 3) {
-			text_status = "Cumprindo".toUpperCase();
-
-		}
-		
-		/*
-		    * 	modelo.addColumn("ID");
-		modelo.addColumn("Código");
-		 modelo.addColumn("Status");
-
-        modelo.addColumn("Quantidade");
-        modelo.addColumn("Medida");
-        modelo.addColumn("Produto");
-        modelo.addColumn("Safra");
-        modelo.addColumn("Valor Produto");
-        modelo.addColumn("Valor Total");
-        modelo.addColumn("Vendedores");
-        modelo.addColumn("Compradores");
-        modelo.addColumn("Corretores");
-        modelo.addColumn("Data do Contrato");
-
-		    */
 		
 		if(contrato.getSub_contrato() == 0 || contrato.getSub_contrato() == 3) {
 			
-			String corretores = "";
-			if(contrato.getNomes_corretores() != null){
-				corretores = contrato.getNomes_corretores().toUpperCase(); 
-			}
-			 modelo.addRow(new Object[]{contrato.getId(), contrato.getCodigo(),  contrato.getNomes_compradores().toUpperCase(), contrato.getNomes_vendedores().toUpperCase(), text_status.toUpperCase(), contrato.getQuantidade(), 
-	            		contrato.getMedida().toUpperCase().toUpperCase(),
-	            contrato.getProduto().toUpperCase().toUpperCase(),
-	            contrato.getModelo_safra().getAno_colheita() + "/" +  contrato.getModelo_safra().getAno_plantio(),
-	             "R$ " + contrato.getValor_produto(), 
-	            "R$ " + contrato.getValor_a_pagar(), 
-	            corretores,
-	            contrato.getData_contrato()
-	            
-	            });
-	            lista_contratos.add(contrato);
+			
+			modelo_contratos.onAdd(contrato);
+
+	        lista_contratos.add(contrato);
 	    	}
 			
 		}
@@ -401,4 +421,277 @@ public class TelaContratos extends JDialog {
 				
 				}
 		  }
+		  
+		  public void filtrar() {
+				 ArrayList<RowFilter<Object,Object>> filters = new ArrayList<RowFilter<Object,Object>>(2);
+
+				    String produto = entProduto.getText().toUpperCase();
+				    String comprador =  entNomeComprador.getText().toUpperCase();
+				    String vendedor = entNomeVendedor.getText().toUpperCase();
+				    String codigo = entCodigo.getText().toUpperCase();
+				    String safra = entSafra.getText().toUpperCase();
+				    String status = entStatus.getText().toUpperCase();
+
+				  
+				    if(checkString(codigo))
+				    filters.add(RowFilter.regexFilter(codigo, 1));
+				    
+				    if(checkString(comprador))
+				    filters.add(RowFilter.regexFilter(comprador, 2));
+
+				    if(checkString(vendedor))
+				    filters.add(RowFilter.regexFilter(vendedor, 3));
+				    
+				    if(checkString(status))
+				    filters.add(RowFilter.regexFilter(status, 4));
+				    
+				    if(checkString(produto))
+					    filters.add(RowFilter.regexFilter(produto, 7));
+				    
+				    if(checkString(safra))
+					    filters.add(RowFilter.regexFilter(safra, 8));
+				    
+				    sorter.setRowFilter( RowFilter.andFilter(filters));
+			}
+			
+		  
+		  public boolean checkString(String txt) {
+				return txt != null && !txt.equals("") && !txt.equals(" ") && !txt.equals("  ");
+			}
+
+			public  class ContratoTableModel extends AbstractTableModel{
+			
+			    //constantes p/identificar colunas
+			    private final int id=0;
+			    private final int codigo=1;
+			    private final int compradores=2;
+			    private final int vendedores=3;
+			    private final int status=4;
+			    private final int quantidade=5;
+			    private final int medida=6;
+			    private final int produto=7;
+			    private final int safra=8;
+			    private final int valor_produto=9;
+			    private final int valor_total=10;
+			    private final int corretores=11;
+			    private final int data_contrato=12;
+
+			 
+			    private final String colunas[]={"ID","Código","Compradores:","Vendedores:","Status:","Quantidade:",
+			    		"Medida:", "Produto:", "Safra:", "Valor Produto:", "Valor Total:", "Corretores:", "Data Contrato"};
+			    private final ArrayList<CadastroContrato> dados = new ArrayList<>();//usamos como dados uma lista genérica de nfs
+			 
+			    public ContratoTableModel() {
+			        
+			    }
+			 
+			    @Override
+			    public int getColumnCount() {
+			        //retorna o total de colunas
+			        return colunas.length;
+			    }
+			 
+			    @Override
+			    public int getRowCount() {
+			        //retorna o total de linhas na tabela
+			        return dados.size();
+			    }
+			 
+			    @Override
+			    public Class<?> getColumnClass(int columnIndex) {
+			        //retorna o tipo de dado, para cada coluna
+			        switch (columnIndex) {
+			        case id:
+			            return Integer.class;
+			        case codigo:
+			            return String.class;
+			        case compradores:
+			            return String.class;
+			        case vendedores:
+			            return String.class;
+			        case status:
+			            return String.class;
+			        case quantidade:
+			            return String.class;
+			        case medida:
+			            return String.class;
+			        case produto:
+			            return String.class;
+			        case safra:
+			            return String.class;
+			        case valor_produto:
+			            return String.class;
+			        case valor_total:
+			            return String.class;
+			        case corretores:
+			            return String.class;
+			        case data_contrato:
+			            return String.class;
+			        default:
+			            throw new IndexOutOfBoundsException("Coluna Inválida!!!");
+			        }
+			    }
+			 
+			    @Override
+			    public String getColumnName(int columnIndex) {
+			        return colunas[columnIndex];
+			    }
+			 
+			    @Override
+			    public Object getValueAt(int rowIndex, int columnIndex) {
+			        //retorna o valor conforme a coluna e linha
+					Locale ptBr = new Locale("pt", "BR");
+					NumberFormat z = NumberFormat.getNumberInstance();
+
+			        //pega o dados corrente da linha
+			        CadastroContrato contrato = dados.get(rowIndex);
+			 
+			        //retorna o valor da coluna
+			        switch (columnIndex) {
+			        case id:
+			            return contrato.getId();
+			        case codigo:
+			            return contrato.getCodigo();
+			        case compradores:{
+			        
+			        	return  contrato.getNomes_compradores().toUpperCase();
+			        
+			        }
+			        case vendedores:{
+			           return  contrato.getNomes_vendedores().toUpperCase();
+			        }
+			        case status:{
+			        	int status = contrato.getStatus_contrato();
+			    		String text_status = "";
+			    		if(status== 1) {
+			    			return "Recolher Assinaturas".toUpperCase();
+
+			    		}
+			    		else if(status == 2) {
+			    			return "Assinado".toUpperCase();
+
+			    		}
+			    		else if(status == 3) {
+			    			return "Cumprindo".toUpperCase();
+
+			    		}
+			        }
+			        case quantidade:{
+			        	String t = z.format(contrato.getQuantidade());
+			            return t;
+			        }
+			        case medida:
+			            return contrato.getMedida();
+			        case produto:
+			            return contrato.getProduto().toUpperCase();
+			        case safra:
+			            return contrato.getModelo_safra().getAno_plantio() + "/" + contrato.getModelo_safra().getAno_colheita();
+			        case valor_produto:{
+			        	String valorString = NumberFormat.getCurrencyInstance(ptBr).format(contrato.getValor_produto());
+			        	return valorString;
+			        	
+			        }
+			        case valor_total:{
+			        	String valorString = NumberFormat.getCurrencyInstance(ptBr).format(contrato.getValor_a_pagar());
+			        	return valorString;
+			            
+			        }
+			        case corretores:{
+			        	String corretores = "";
+						if(contrato.getNomes_corretores() != null){
+							corretores = contrato.getNomes_corretores().toUpperCase(); 
+						}
+				           return  corretores;
+			        }
+			        case data_contrato:
+			            return contrato.getData_contrato();
+			        default:
+			            throw new IndexOutOfBoundsException("Coluna Inválida!!!");
+			        }
+			    }
+			 
+			    @Override
+			    public boolean isCellEditable(int rowIndex, int columnIndex) {
+			        //metodo identifica qual coluna é editavel
+			 
+			        //só iremos editar a coluna BENEFICIO, 
+			        //que será um checkbox por ser boolean
+			      
+			 
+			        return false;
+			    }
+			 
+			    @Override
+			    public void setValueAt(Object aValue, int rowIndex, int columnIndex) {
+			        CadastroContrato contrato =dados.get(rowIndex);
+			 
+			      
+			    }
+			 
+			    //Métodos abaixo são para manipulação de dados
+			 
+			    /**
+			     * retorna o valor da linha indicada
+			     * @param rowIndex
+			     * @return
+			     */
+			    public CadastroContrato getValue(int rowIndex){
+			        return dados.get(rowIndex);
+			    }
+			 
+			    /**
+			     * retorna o indice do objeto
+			     * @param empregado
+			     * @return
+			     */
+			    public int indexOf(CadastroContrato contrato) {
+			        return dados.indexOf(contrato);
+			    }
+			 
+			    /**
+			     * add um empregado á lista
+			     * @param empregado
+			     */
+			    public void onAdd(CadastroContrato contrato) {
+			        dados.add(contrato);
+			        fireTableRowsInserted(indexOf(contrato), indexOf(contrato));
+			    }
+			 
+			    /**
+			     * add uma lista de empregados
+			     * @param dadosIn
+			     */
+			    public void onAddAll(ArrayList<CadastroContrato> dadosIn) {
+			        dados.addAll(dadosIn);
+			        fireTableDataChanged();
+			    }
+			 
+			    /**
+			     * remove um registro da lista, através do indice
+			     * @param rowIndex
+			     */
+			    public void onRemove(int rowIndex) {
+			        dados.remove(rowIndex);
+			        fireTableRowsDeleted(rowIndex, rowIndex);
+			    }
+			 
+			    /**
+			     * remove um registro da lista, através do objeto
+			     * @param empregado
+			     */
+			    public void onRemove(CadastroContrato contrato) {
+			        int indexBefore=indexOf(contrato);//pega o indice antes de apagar
+			        dados.remove(contrato);  
+			        fireTableRowsDeleted(indexBefore, indexBefore);
+			    }
+			 
+			    /**
+			     * remove todos registros da lista
+			     */
+			    public void onRemoveAll() {
+			        dados.clear();
+			        fireTableDataChanged();
+			    }
+			 
+			}
 }

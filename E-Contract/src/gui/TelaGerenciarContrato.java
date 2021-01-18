@@ -1215,8 +1215,8 @@ public class TelaGerenciarContrato extends JDialog {
 		getTarefas();
 
 	
-		//setarInformacoesPainelPrincipal(); setarInformacoesPainelCarregamentos();
-	    //pesquisar_carregamentos(); pesquisar_pagamentos();
+	setarInformacoesPainelPrincipal(); setarInformacoesPainelCarregamentos();
+	   pesquisar_carregamentos(); pesquisar_pagamentos();
 		
 		setSubContratos(contrato_local);
 		if(contrato_local.getSub_contrato() == 0) {
@@ -4008,8 +4008,14 @@ public void atualizarArvoreContratos() {
 			double valor_local = Double.parseDouble(sub.getValor_a_pagar().toPlainString());
 			valor_total_sub_contratos += valor_local;
 		}
-		
-		double valor_total_diferenca_contratos = valor_total_contrato_original - valor_total_sub_contratos;
+		double valor_total_diferenca_contratos = 0;
+		if(valor_total_sub_contratos == 0) {
+			 valor_total_diferenca_contratos = 0;
+
+		}else {
+			 valor_total_diferenca_contratos = valor_total_contrato_original - valor_total_sub_contratos;
+
+		}
 		
 		double valor_total_comissoes = 0;
 		

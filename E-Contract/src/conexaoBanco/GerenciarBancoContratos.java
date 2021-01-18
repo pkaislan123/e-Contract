@@ -1340,20 +1340,31 @@ public class GerenciarBancoContratos {
 			
 			selectContratos = "select * from contrato\n"
 					+ "LEFT JOIN contrato_comprador on contrato_comprador.id_contrato = contrato.id\n"
-					+ "where contrato_comprador.id_cliente = ? and (contrato.sub_contrato = 0 or contrato.sub_contrato = 3)";
+					+ "where contrato_comprador.id_cliente = ?";
 		 
 		}else if(flag_select == 2) {
 			//modo de busca de contratos que o cliente é o vendedor
 			selectContratos = "select * from contrato\n"
 					+ "LEFT JOIN contrato_vendedor on contrato_vendedor.id_contrato = contrato.id\n"
-					+ "where contrato_vendedor.id_cliente = ? and (contrato.sub_contrato = 0 or contrato.sub_contrato = 3)";
+					+ "where contrato_vendedor.id_cliente = ?";
 			
 		}else if(flag_select == 3) {
 			//modo de busca de contratos que o cliente é o corretor
 			selectContratos = "select * from contrato\n"
 					+ "LEFT JOIN contrato_corretor on contrato_corretor.id_contrato = contrato.id\n"
 					+ "where contrato_corretor.id_cliente = ? and (contrato.sub_contrato = 0 or contrato.sub_contrato = 3)";
+		}else if(flag_select == 4) {
+			selectContratos = "select * from contrato\n"
+					+ "LEFT JOIN contrato_comprador on contrato_comprador.id_contrato = contrato.id\n"
+					+ "where contrato_comprador.id_cliente = ? and (contrato.sub_contrato = 0 or contrato.sub_contrato = 3)";
+		}else if(flag_select == 5) {
+			//modo de busca de contratos que o cliente é o vendedor
+			selectContratos = "select * from contrato\n"
+					+ "LEFT JOIN contrato_vendedor on contrato_vendedor.id_contrato = contrato.id\n"
+					+ "where contrato_vendedor.id_cliente = ? and (contrato.sub_contrato = 0 or contrato.sub_contrato = 3)";
+			
 		}
+		
 		
 		if(id_busca_safra > 0)
 			selectContratos = selectContratos + " and contrato.id_safra = ?";
@@ -3208,6 +3219,35 @@ public    Map<String,Double> getCarregamentosPorData(String menor_data, String m
 	}
 	
 	
+	
+}
+
+
+public int getContratoDonoPagamento(int id_pagamento) {
+	String query = "select id from contrato\n"
+			+ "left join contrato_pagamentos on contrato_pagamentos.id_pagamento = ?\n"
+			+ "where contrato.id = contrato_pagamentos.id_contrato";
+	Connection conn = null;
+	PreparedStatement pstm = null;
+	ResultSet rs = null;
+	double quantidade_total = 0;
+
+	try {
+		conn = ConexaoBanco.getConexao();
+		pstm = conn.prepareStatement(query);
+		pstm.setInt(1, id_pagamento);
+
+		rs = pstm.executeQuery();
+		rs.next();
+		int id = rs.getInt("id");
+          return id;
+	
+
+	} catch (Exception e) {
+		JOptionPane.showMessageDialog(null, "Erro ao listar o dono do pagamento " + id_pagamento + " erro: "
+				+ e.getMessage() + "causa: " + e.getCause());
+		return -1;
+	}
 	
 }
 

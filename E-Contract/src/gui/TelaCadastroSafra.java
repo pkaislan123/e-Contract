@@ -45,9 +45,9 @@ public class TelaCadastroSafra extends JDialog {
     private JLabel lblCodigoProduto;
 
 	public TelaCadastroSafra() {
-		setAlwaysOnTop(true);
+		//setAlwaysOnTop(true);
 
-		//setModal(true);
+		setModal(true);
 
 		TelaCadastroSafra isto = this;
 		

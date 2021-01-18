@@ -124,12 +124,13 @@ public class TelaGerenciarCliente extends JDialog {
 		setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 		setBounds(100, 100, 1078, 595);
 		painelPrincipal.setForeground(Color.BLACK);
-		painelPrincipal.setBackground(new Color(255, 255, 255));
+		painelPrincipal.setBackground(Color.WHITE);
 		painelPrincipal.setBorder(new EmptyBorder(5, 5, 5, 5));
 		setContentPane(painelPrincipal);
 		painelPrincipal.setLayout(null);
 		
 		JPanel painelDadosIniciais = new JPanel();
+		painelDadosIniciais.setBackground(new Color(0, 128, 128));
 		painelDadosIniciais.setBounds(198, 153, 864, 358);
 		painelPrincipal.add(painelDadosIniciais);
 		painelDadosIniciais.setLayout(null);
@@ -142,12 +143,12 @@ public class TelaGerenciarCliente extends JDialog {
 				telaEdicao.setVisible(true);
 			}
 		});
-		btnEditar.setBounds(455, 301, 89, 23);
+		btnEditar.setBounds(629, 297, 89, 23);
 		painelDadosIniciais.add(btnEditar);
 		
 		JPanel painelInfo = new JPanel();
-		painelInfo.setBackground(new Color(204, 255, 255));
-		painelInfo.setBounds(22, 11, 522, 275);
+		painelInfo.setBackground(new Color(0, 100, 0));
+		painelInfo.setBounds(22, 11, 696, 275);
 		painelDadosIniciais.add(painelInfo);
 		painelInfo.setLayout(new MigLayout("", "[][]", "[][][][][][][]"));
 		
@@ -158,7 +159,8 @@ public class TelaGerenciarCliente extends JDialog {
 		
 		
 		 lblTipoPessoa = new JLabel("Juridica");
-		lblTipoPessoa.setFont(new Font("Tahoma", Font.PLAIN, 14));
+		 lblTipoPessoa.setForeground(Color.WHITE);
+		lblTipoPessoa.setFont(new Font("Tahoma", Font.PLAIN, 16));
 		painelInfo.add(lblTipoPessoa, "cell 1 0");
 		
 		 lblTipoIdentificacao = new JLabel("CPF/CNPJ:");
@@ -166,7 +168,8 @@ public class TelaGerenciarCliente extends JDialog {
 		painelInfo.add(lblTipoIdentificacao, "cell 0 1,alignx right");
 		
 		 lblIdentificacao = new JLabel("120.927.986-00");
-		lblIdentificacao.setFont(new Font("Tahoma", Font.PLAIN, 14));
+		 lblIdentificacao.setForeground(Color.WHITE);
+		lblIdentificacao.setFont(new Font("Tahoma", Font.PLAIN, 16));
 		painelInfo.add(lblIdentificacao, "cell 1 1");
 		
 		 lblIe = new JLabel("IE:");
@@ -174,7 +177,8 @@ public class TelaGerenciarCliente extends JDialog {
 		painelInfo.add(lblIe, "cell 0 3,alignx right");
 		
 		lblIE = new JLabel("120.927.986-00");
-		lblIE.setFont(new Font("Tahoma", Font.PLAIN, 14));
+		lblIE.setForeground(Color.WHITE);
+		lblIE.setFont(new Font("Tahoma", Font.PLAIN, 16));
 		painelInfo.add(lblIE, "cell 1 3,alignx left");
 		
 		JLabel lblnasdad = new JLabel("Status:");
@@ -182,7 +186,8 @@ public class TelaGerenciarCliente extends JDialog {
 		painelInfo.add(lblnasdad, "cell 0 4,alignx right");
 		
 		 lblStatus = new JLabel("120.927.986-00");
-		lblStatus.setFont(new Font("Tahoma", Font.PLAIN, 14));
+		 lblStatus.setForeground(Color.WHITE);
+		lblStatus.setFont(new Font("Tahoma", Font.PLAIN, 16));
 		painelInfo.add(lblStatus, "cell 1 4,alignx left");
 		
 		JLabel lblEndereo = new JLabel("Endereço:");
@@ -190,7 +195,8 @@ public class TelaGerenciarCliente extends JDialog {
 		painelInfo.add(lblEndereo, "cell 0 6,alignx right");
 		
 		 lblEndereco = new JLabel("Rodovia MG 188, km 242, Zona Rural, Guarda-Mor/MG 38570-000");
-		lblEndereco.setFont(new Font("Tahoma", Font.PLAIN, 14));
+		 lblEndereco.setForeground(Color.WHITE);
+		lblEndereco.setFont(new Font("Tahoma", Font.PLAIN, 16));
 		painelInfo.add(lblEndereco, "cell 1 6");
 		
 		
@@ -204,7 +210,7 @@ public class TelaGerenciarCliente extends JDialog {
 		 
 		 JPanelTransparent panel = new JPanelTransparent();
 		 panel.setLayout(null);
-		 panel.setBounds(10, 233, 181, 131);
+		 panel.setBounds(10, 167, 181, 181);
 		 menu_lateral.add(panel);
 		 
 		 JLabel btnDocumentos = new JLabel("Documentos");
@@ -222,6 +228,13 @@ public class TelaGerenciarCliente extends JDialog {
 		 btnDadosIniciais.setBounds(10, 22, 161, 20);
 		 panel.add(btnDadosIniciais);
 		 
+		 JLabel btnContratos = new JLabel("Contratos");
+		 btnContratos.setForeground(Color.WHITE);
+		 btnContratos.setFont(new Font("Tahoma", Font.PLAIN, 16));
+		 btnContratos.setBackground(new Color(0, 0, 0, 100));
+		 btnContratos.setBounds(10, 84, 146, 20);
+		 panel.add(btnContratos);
+		 
 		 JPanel panel_1_1_1 = new JPanel();
 		 panel_1_1_1.setBackground(Color.BLACK);
 		 panel_1_1_1.setBounds(10, 449, 23, 107);
@@ -232,6 +245,14 @@ public class TelaGerenciarCliente extends JDialog {
 		 panel_1_1_1_1.setBounds(43, 375, 23, 181);
 		 menu_lateral.add(panel_1_1_1_1);
 		 
+		 JPanel painelContratos = new JPanel();
+		 painelContratos.setBackground(Color.WHITE);
+		 painelContratos.setForeground(Color.BLACK);
+		 painelContratos.setBounds(197, 154, 865, 356);
+		 painelPrincipal.add(painelContratos);
+		 painelContratos.setLayout(null);
+		 
+
 		 KGradientPanel panelTopo = new KGradientPanel();
 		 panelTopo.kStartColor = new Color(51, 0, 51);
 		 panelTopo.kEndColor = new Color(153, 51, 204);
@@ -261,7 +282,6 @@ public class TelaGerenciarCliente extends JDialog {
 		 painelDocumentos.setBounds(198, 153, 864, 358);
 		 painelPrincipal.add(painelDocumentos);
 		 painelDocumentos.setLayout(null);
-		 painelDocumentos.setVisible(false);
 		 
 		 painelDocumentos.add(panel_docs);
 		 
@@ -328,7 +348,7 @@ public class TelaGerenciarCliente extends JDialog {
 
 		 
 		 JButton btnSair = new JButton("Sair");
-		 btnSair.setBounds(973, 522, 89, 23);
+		 btnSair.setBounds(923, 522, 89, 23);
 		 painelPrincipal.add(btnSair);
 		 
 		 JPanel panel_1 = new JPanel();
@@ -358,6 +378,10 @@ public class TelaGerenciarCliente extends JDialog {
 					painelDadosIniciais.setEnabled(true);
 					painelDadosIniciais.setVisible(true);
 
+					painelContratos.setEnabled(false);
+					painelContratos.setVisible(false);
+
+					
 					btnDadosIniciais.setOpaque(true);
 					btnDadosIniciais.setBackground(new Color(0, 0, 0, 100));
 
@@ -370,7 +394,11 @@ public class TelaGerenciarCliente extends JDialog {
 					btnDocumentos.repaint();
 					btnDocumentos.updateUI();
 
-				
+					btnContratos.setOpaque(false);
+					btnContratos.setBackground(new Color(0, 0, 0, 100));
+
+					btnContratos.repaint();
+					btnContratos.updateUI();
 
 				}
 			});
@@ -387,6 +415,10 @@ public class TelaGerenciarCliente extends JDialog {
 					painelDocumentos.setEnabled(true);
 					painelDocumentos.setVisible(true);
 
+
+					painelContratos.setEnabled(false);
+					painelContratos.setVisible(false);
+					
 					btnDadosIniciais.setOpaque(false);
 					btnDadosIniciais.setBackground(new Color(0, 0, 0, 100));
 
@@ -399,13 +431,60 @@ public class TelaGerenciarCliente extends JDialog {
 					btnDocumentos.repaint();
 					btnDocumentos.updateUI();
 
+		
+					btnContratos.setOpaque(false);
+					btnContratos.setBackground(new Color(0, 0, 0, 100));
+
+					btnContratos.repaint();
+					btnContratos.updateUI();
+				
+
+				}
+			});
+
+		 
+		 btnContratos.addMouseListener(new MouseAdapter() {
+				@Override
+				public void mouseClicked(MouseEvent e) {
+					
+
+					painelContratos.setEnabled(true);
+					painelContratos.setVisible(true);
+
+					painelDadosIniciais.setEnabled(false);
+					painelDadosIniciais.setVisible(false);
+					
+					painelDocumentos.setEnabled(false);
+					painelDocumentos.setVisible(false);
+
+
+					btnContratos.setOpaque(true);
+					btnContratos.setBackground(new Color(0, 0, 0, 100));
+
+					btnContratos.repaint();
+					btnContratos.updateUI();
+					
+					
+					btnDadosIniciais.setOpaque(false);
+					btnDadosIniciais.setBackground(new Color(0, 0, 0, 100));
+
+					btnDadosIniciais.repaint();
+					btnDadosIniciais.updateUI();
+
+					btnDocumentos.setOpaque(false);
+					btnDocumentos.setBackground(new Color(0, 0, 0, 100));
+
+					btnDocumentos.repaint();
+					btnDocumentos.updateUI();
+
+		
 				
 
 				}
 			});
 
 		 setInformacoesDocumentos();
-		 setInfo();
+	   // setInfo();
 
 		this.setLocationRelativeTo(null);
 
@@ -884,7 +963,8 @@ public void atualizarArvoreDocumentos() {
           lblIE.setText(cliente_local.getIe());
           String endereco_completo = cliente_local.getRua() + ", Nº: " + cliente_local.getNumero() + ", " + cliente_local.getBairro()
           + ", " + cliente_local.getCidade() + "/"+ cliente_local.getUf() + " Cep: " + cliente_local.getCep();
-	   
+	      lblEndereco.setText(endereco_completo);
+
 	   
 	   
    }
@@ -908,8 +988,7 @@ public void atualizarArvoreDocumentos() {
           lblIE.setText(cliente_local.getIe());
           String endereco_completo = cliente_local.getRua() + ", Nº: " + cliente_local.getNumero() + ", " + cliente_local.getBairro()
           + ", " + cliente_local.getCidade() + "/"+ cliente_local.getUf() + " Cep: " + cliente_local.getCep();
-	   
+	      lblEndereco.setText(endereco_completo);
 	   
    }
-
 }

@@ -573,6 +573,11 @@ public class TelaPrincipal extends JFrame implements GetDadosGlobais {
 		painelGraficoContratos.add(lblTotalContratos);
 		lblTotalContratos.setFont(new Font("Arial", Font.BOLD, 14));
 		lblTotalContratos.setBorder(new LineBorder(new Color(0, 0, 0)));
+		
+		JLabel lblNewLabel_5_2 = new JLabel("");
+		lblNewLabel_5_2.setBounds(419, 70, 64, 64);
+		painelGraficoContratos.add(lblNewLabel_5_2);
+		lblNewLabel_5_2.setIcon(new ImageIcon(TelaPrincipal.class.getResource("/imagens/icone_contrato.png")));
 
 		JLabel lblNewLabel = new JLabel("Safra:");
 		lblNewLabel.setFont(new Font("Tahoma", Font.PLAIN, 14));
@@ -726,6 +731,11 @@ public class TelaPrincipal extends JFrame implements GetDadosGlobais {
 		painelGraficoCarregamentos.add(lblTotalSacos);
 		lblTotalSacos.setFont(new Font("Arial", Font.BOLD, 14));
 		lblTotalSacos.setBorder(new LineBorder(new Color(0, 0, 0)));
+		
+		JLabel lblNewLabel_5 = new JLabel("");
+		lblNewLabel_5.setBounds(408, 65, 64, 64);
+		painelGraficoCarregamentos.add(lblNewLabel_5);
+		lblNewLabel_5.setIcon(new ImageIcon(TelaPrincipal.class.getResource("/imagens/icone_caminhao.png")));
 
 		JButton btnNewButton = new JButton("Vizualizar");
 		btnNewButton.addActionListener(new ActionListener() {
@@ -741,6 +751,11 @@ public class TelaPrincipal extends JFrame implements GetDadosGlobais {
 		lblNewLabel_5_1.setBackground(Color.BLACK);
 		lblNewLabel_5_1.setBounds(10, 366, 1350, 2);
 		contentPane.add(lblNewLabel_5_1);
+		
+		JLabel lblNewLabel_7 = new JLabel("");
+		lblNewLabel_7.setBounds(786, 85, 303, 252);
+		contentPane.add(lblNewLabel_7);
+		lblNewLabel_7.setIcon(new ImageIcon(TelaPrincipal.class.getResource("/imagens/icone_silos.png")));
 
 		atualizarNumTarefas();
 

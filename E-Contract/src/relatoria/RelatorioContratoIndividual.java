@@ -1433,7 +1433,7 @@ public void adicionarComprovantesPagamentos(ArrayList<CadastroContrato.CadastroP
 					            paragraph = tableRowOne.getCell(8).addParagraph();
 					 		    criarParagrafoTabela(paragraph, z.format(peso_nota), false );
 				 		    
-		            	
+		            	i++;
 		            }
 
 		

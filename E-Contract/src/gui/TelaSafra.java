@@ -61,9 +61,9 @@ public class TelaSafra extends JDialog {
 		
 
 	public TelaSafra() {
-		setAlwaysOnTop(true);
+		//setAlwaysOnTop(true);
 
-		//setModal(true);
+		setModal(true);
 
 		TelaSafra isto = this;
 		
