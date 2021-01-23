@@ -632,8 +632,9 @@ public class TelaCadastroCliente extends JDialog {
 						if (cliente_cadastrar.getSenha() != null && cliente_cadastrar.getSenha().length() > 3
 								&& !cliente_cadastrar.getSenha().equals(" ")) {
 
-							BaixarNotasFiscais baixar = new BaixarNotasFiscais(cliente_cadastrar, "VENDA");
+							/*BaixarNotasFiscais baixar = new BaixarNotasFiscais(cliente_cadastrar, "VENDA");
 							baixar.iniciarPesquisas();
+							*/
 						}
 
 					}
@@ -666,10 +667,10 @@ public class TelaCadastroCliente extends JDialog {
 
 					}
 					gerarPastasAtualizar();
-					// BaixarNotasFiscais baixar = new BaixarNotasFiscais(cliente_atualizar,
-					// "VENDA");
-					// baixar.iniciarPesquisas();
-
+					/*BaixarNotasFiscais baixar = new BaixarNotasFiscais(cliente_atualizar,
+					"VENDA");
+					 baixar.iniciarPesquisas();
+                     */
 					isto.dispose();
 				}
 			}

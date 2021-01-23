@@ -54,6 +54,7 @@ import org.jfree.data.general.DefaultPieDataset;
 
 import cadastros.CadastroBaseArquivos;
 import cadastros.CadastroBaseDados;
+import cadastros.CadastroCliente;
 import cadastros.CadastroContrato;
 import cadastros.CadastroLogin;
 import cadastros.CadastroModelo;
@@ -76,6 +77,7 @@ import conexoes.TesteConexao;
 import manipular.ConfiguracoesGlobais;
 import manipular.EditarWord;
 import manipular.GetDadosGlobais;
+import outros.BaixarNotasFiscais;
 import outros.DadosGlobais;
 import outros.GetData;
 import outros.JPanelBackground;
@@ -146,6 +148,12 @@ public class TelaPrincipal extends JFrame implements GetDadosGlobais {
 	private static ArrayList<CadastroSafra> safras = new ArrayList<>();
 	private JLabel lblTotalSacosRetirar, lblTotalSacos, lblTotalSacosRetirados;
 	private GraficoLinha linha = null;
+	
+	private GerenciarBancoContratos gerenciarAtualizarTarefas, gerenciarDadosCarregamento,
+	gerenciarDadosContrato, gerenciarCarregamentoPorPeriodo ;
+	
+	private GerenciarBancoPadrao gerenciarBancoPadrao;
+	
 	DefaultTableModel modelo_usuarios = new DefaultTableModel() {
 		public boolean isCellEditable(int linha, int coluna) {
 			return false;
@@ -803,9 +811,13 @@ public class TelaPrincipal extends JFrame implements GetDadosGlobais {
 	}
 
 	public void getDadosContratos() {
-		GerenciarBancoContratos gerenciar = new GerenciarBancoContratos();
-		int numeroTotalContratos = gerenciar.getNumeroTotalContratos();
-		int numerosContratosSemAssinar = gerenciar.getNumeroContratosParaAssinar();
+		
+		if(gerenciarDadosContrato == null)
+		 gerenciarDadosContrato = new GerenciarBancoContratos();
+		
+		
+		int numeroTotalContratos = gerenciarDadosContrato.getNumeroTotalContratos();
+		int numerosContratosSemAssinar = gerenciarDadosContrato.getNumeroContratosParaAssinar();
 
 		dados_contratos.setNumero_total_contratos(numeroTotalContratos);
 		dados_contratos.setNumero_contratos_assinar(numerosContratosSemAssinar);
@@ -841,9 +853,11 @@ public class TelaPrincipal extends JFrame implements GetDadosGlobais {
 
 	public void getDadosCarregamento() {
 
-		GerenciarBancoContratos gerenciar = new GerenciarBancoContratos();
-		double quantidade_total_sacos = gerenciar.getQuantidadeSacos();
-		double quantidade_total_sacos_carregados = gerenciar.getQuantidadeSacosCarregados();
+		if(gerenciarDadosCarregamento == null)
+         gerenciarDadosCarregamento = new GerenciarBancoContratos();
+		
+		double quantidade_total_sacos = gerenciarDadosCarregamento.getQuantidadeSacos();
+		double quantidade_total_sacos_carregados = gerenciarDadosCarregamento.getQuantidadeSacosCarregados();
 		double quantidade_total_sacos_a_carregar = quantidade_total_sacos - quantidade_total_sacos_carregados;
 
 		dados_carregamentos.setQuantidade_total_sacos(quantidade_total_sacos);
@@ -1050,8 +1064,9 @@ public class TelaPrincipal extends JFrame implements GetDadosGlobais {
 							+ "?useTimezone=true&serverTimezone=UTC";
 
 					urlBancoDados.setText(url);
-					GerenciarBancoPadrao gerenciar = new GerenciarBancoPadrao();
-					if (gerenciar.getConexao()) {
+					if(gerenciarBancoPadrao == null)
+						gerenciarBancoPadrao = new GerenciarBancoPadrao();
+					if (gerenciarBancoPadrao.getConexao()) {
 						System.out.println("Banco de Dados OnLine!");
 						lblBD.setText("Banco de Dados: Conectada");
 						imgBaseDados.setIcon(
@@ -1348,8 +1363,10 @@ public class TelaPrincipal extends JFrame implements GetDadosGlobais {
 				}
 				while (true) {
 
-					GerenciarBancoContratos gerenciar = new GerenciarBancoContratos();
-					int num_agora = gerenciar.getNumTarefas(login.getId());
+					if(gerenciarAtualizarTarefas == null)
+					 gerenciarAtualizarTarefas = new GerenciarBancoContratos();
+					
+					int num_agora = gerenciarAtualizarTarefas.getNumTarefas(login.getId());
 					lblNumeroTarefas.setText(num_agora + "");
 
 					if (num_tarefas_nesta_secao == -1) {
@@ -1383,7 +1400,7 @@ public class TelaPrincipal extends JFrame implements GetDadosGlobais {
 					}
 
 					try {
-						Thread.sleep(10000);
+						Thread.sleep(30000);
 					} catch (InterruptedException e) {
 						// TODO Auto-generated catch block
 						e.printStackTrace();
@@ -1397,11 +1414,12 @@ public class TelaPrincipal extends JFrame implements GetDadosGlobais {
 
 	public void getCarregamentoPorPeriodo() {
 
-		GerenciarBancoContratos gerenciar = new GerenciarBancoContratos();
+		if(gerenciarCarregamentoPorPeriodo == null)
+		 gerenciarCarregamentoPorPeriodo = new GerenciarBancoContratos();
 		String hoje = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
 		String semana = LocalDateTime.now().minusDays(7).format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
 
-		Map<String, Double> lista_cargas = gerenciar.getCarregamentosPorData(semana, hoje, 0);
+		Map<String, Double> lista_cargas = gerenciarCarregamentoPorPeriodo.getCarregamentosPorData(semana, hoje, 0);
 		dataset = new DefaultCategoryDataset();
 
 		for (Map.Entry<String, Double> pair : lista_cargas.entrySet()) {
@@ -1468,4 +1486,18 @@ public class TelaPrincipal extends JFrame implements GetDadosGlobais {
 		panelGraficoLinha.repaint();
 		getCarregamentoPorPeriodo();
 	}
+	
+	public void baixarNotasEmSegundoPlano(CadastroCliente cliente, int mes_inicio, int mes_final, int ano_final) {
+		new Thread() {
+			@Override
+			public void run() {
+				
+				BaixarNotasFiscais baixar = new BaixarNotasFiscais(cliente,"VENDA");
+				  baixar.iniciarPesquisas(mes_inicio, mes_final, ano_final);
+			}
+			
+		}.start();
+	}
+	
+	
 }

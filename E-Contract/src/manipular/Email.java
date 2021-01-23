@@ -5,7 +5,8 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.Properties;
 
-
+import javax.activation.DataHandler;
+import javax.activation.FileDataSource;
 import javax.mail.Address;
 import javax.mail.Message;
 import javax.mail.MessagingException;
@@ -55,7 +56,7 @@ public class Email
   }
 
   
-  public void enviar(String remetente, String destinatario,String assunto, String mensagem) {
+  public boolean enviar(String remetente, String destinatario, String assunto, String saudacao, String mensagem, String assinatura) {
     try {
 
       Message message = new MimeMessage(session);
@@ -67,11 +68,13 @@ public class Email
 
       message.setRecipients(Message.RecipientType.TO, toUser);
       message.setSubject(assunto);//Assunto
-      message.setText(mensagem);
+      message.setText(saudacao + mensagem + assinatura);
+
       /**Método para enviar a mensagem criada*/
       Transport.send(message);
 
       System.out.println("Feito!!!");
+      return true;
 
      } catch (MessagingException mex) {
     	 mex.printStackTrace();
@@ -79,11 +82,11 @@ public class Email
          if ((ex = mex.getNextException()) != null) {
        ex.printStackTrace();
          }
-      
+      return false;
     }
   }
   
- /* public void enviarAnexo(String remetente, String destinatario, String assunto, String saudacao, String mensagem, String assinatura, ArrayList<File> anexos) {
+  public boolean enviarAnexo(String remetente, String destinatario, String assunto, String saudacao, String mensagem, String assinatura, ArrayList<File> anexos) {
 	  try 
 	  {
 	      // cria a mensagem
@@ -127,6 +130,7 @@ public class Email
 	      
 	      // envia a mensagem
 	      Transport.send(msg);
+	      return true;
 	      
 	  } catch (MessagingException mex) {
 	    	 mex.printStackTrace();
@@ -134,10 +138,11 @@ public class Email
 	         if ((ex = mex.getNextException()) != null) {
 	       ex.printStackTrace();
 	         }
+	         return false;
 	      
 	    }
 	 
-  }*/
+  }
 
 }
 

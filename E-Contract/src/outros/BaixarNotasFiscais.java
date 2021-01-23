@@ -75,6 +75,8 @@ public void abrirPagina(String s_dataInicio, String s_dataFim, String natureza) 
 	        FirefoxProfile profile = profileIni.getProfile("notas_siare");
 	        FirefoxOptions options = new FirefoxOptions();
 	        options.setProfile(profile);
+	     //   options.setHeadless(true);
+	       // options.addArguments("--headless");
 	        WebDriver driver = null;
 
          for(int i = 0; i < 10; i++) {
@@ -82,9 +84,8 @@ public void abrirPagina(String s_dataInicio, String s_dataFim, String natureza) 
         	 System.out.println("teste de conexao: " + i);
           try {	
   	         driver = new FirefoxDriver(options);
-
+        	 
 	        driver.get("https://www2.fazenda.mg.gov.br/sol/");
-
 	        continuar = true;
 	        break;
           }catch(Exception e) {
@@ -1011,15 +1012,14 @@ public void abrirPagina(String s_dataInicio, String s_dataFim, String natureza) 
     	
       }
       
-      public void iniciarPesquisas() {
+      public void iniciarPesquisas(int mes_inicio, int mes_fim, int ano_inicio) {
 
 			novaNotificacao("Donwload de Notas Iniciado!", "/audio/beep_notificacao.wav", 1);
 
     	  PesquisaParalela pesquisar = null;
 
-	    int ano = 2020;
-	   
-    	  for(int mes = 3; mes <= 3; mes++) {	
+	     int ano = ano_inicio;
+    	  for(int mes = mes_inicio; mes <= mes_fim; mes++) {	
 	    	  for(int dia = 1; dia <= 21; dia += 10) {
 	    		 
 	    		 
@@ -1056,6 +1056,7 @@ public void abrirPagina(String s_dataInicio, String s_dataFim, String natureza) 
     		
 	    	 
 	      }
+	    
 	      GerenciarThreads();
        
 	} 

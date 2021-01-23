@@ -25,6 +25,7 @@ import org.icepdf.ri.common.SwingController;
 import org.icepdf.ri.common.SwingViewBuilder;
 import org.icepdf.ri.util.PropertiesManager;
 
+import cadastros.CadastroContrato;
 import views_personalizadas.TelaEmEspera;
 
 import java.awt.event.WindowAdapter;
@@ -43,7 +44,7 @@ public class TelaVizualizarPdf extends JDialog {
 	private TelaEmEspera telaInformacoes;
 	private TelaVizualizarPdf isto; 
 	//public TelaVizualizarPdf(String arquivo) {
-	public TelaVizualizarPdf(InputStream stream, JDialog pai, TelaEmEspera telaBack, String file) {
+	public TelaVizualizarPdf(InputStream stream, JDialog pai, TelaEmEspera telaBack, String file, CadastroContrato contrato) {
 		//setAlwaysOnTop(true);
 
 		setModal(true);
@@ -140,7 +141,7 @@ public class TelaVizualizarPdf extends JDialog {
 					}
 					}else if(pai instanceof TelaGerenciarContrato) {
 						
-						TelaSalvarEnviarRelatorio tela = new TelaSalvarEnviarRelatorio(file);
+						TelaSalvarEnviarRelatorio tela = new TelaSalvarEnviarRelatorio(2, contrato, file);
 						tela.setTelaPai(isto);
 						tela.setVisible(true);
 						

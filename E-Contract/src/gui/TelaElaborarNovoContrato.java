@@ -2469,7 +2469,7 @@ public class TelaElaborarNovoContrato extends JDialog {
 									// TelaVizualizarPdf vizualizar = new TelaVizualizarPdf(url);
 									String pdf_alterado = converter_pdf.excel_pdf_stream(contrato_alterado);
 									TelaVizualizarPdf vizualizar = new TelaVizualizarPdf(null, isto, esperar,
-											pdf_alterado);
+											pdf_alterado, null);
 
 								} else {
 									System.out.println("Preparando para elaborar novo contrato formal");
@@ -2479,7 +2479,7 @@ public class TelaElaborarNovoContrato extends JDialog {
 									ConverterPdf converter_pdf = new ConverterPdf();
 									String pdf_alterado = converter_pdf.word_pdf_stream(contrato_alterado);
 									TelaVizualizarPdf vizualizar = new TelaVizualizarPdf(null, isto, esperar,
-											pdf_alterado);
+											pdf_alterado, null);
 
 								}
 

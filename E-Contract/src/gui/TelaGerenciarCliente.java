@@ -13,6 +13,7 @@ import java.awt.event.MouseEvent;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
+import java.net.URL;
 import java.text.NumberFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -54,10 +55,14 @@ import com.jgoodies.forms.layout.RowSpec;
 import cadastros.CadastroCliente;
 import cadastros.CadastroContrato;
 import cadastros.CadastroDocumento;
+import cadastros.CadastroGrupo;
 import cadastros.CadastroLogin;
+import cadastros.CadastroPontuacao;
 import conexaoBanco.GerenciarBancoAditivos;
 import conexaoBanco.GerenciarBancoClientes;
+import conexaoBanco.GerenciarBancoContratos;
 import conexaoBanco.GerenciarBancoDocumento;
+import conexaoBanco.GerenciarBancoPontuacao;
 import keeptoo.KGradientPanel;
 import manipular.ConfiguracoesGlobais;
 import manipular.ConverterPdf;
@@ -71,10 +76,13 @@ import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeCellRenderer;
 import javax.swing.tree.DefaultTreeModel;
 
+import outros.BaixarNotasFiscais;
 import outros.DadosGlobais;
 import outros.GetData;
 import outros.JPanelTransparent;
+import relatoria.RelatorioContratoComprador;
 import relatoria.RelatorioContratoIndividual;
+import relatoria.RelatorioContratos;
 import tratamento_proprio.Log;
 
 import java.awt.Button;
@@ -105,8 +113,9 @@ public class TelaGerenciarCliente extends JDialog {
 	private JTextField entNomeDocumento;
 	private  JTextArea entDescricaoDocumento;
 	private JLabel lblTipoPessoa, lblTipoIdentificacao, lblIdentificacao, lblIe, lblIE, lblStatus, lblEndereco;
+    private  JLabel lblTotalContratosConcluidosComprador, lblTotalContratosComprador, lblTotalContratosAbertosComprador;
 
-	
+    private JLabel lblTotalContratosConcluidosVendedor, lblTotalContratosVendedor, lblTotalContratosAbertosVendedor, lblNivel;
 	public TelaGerenciarCliente(CadastroCliente cliente_selecionado) {
 		setModal(true);
 		
@@ -129,6 +138,230 @@ public class TelaGerenciarCliente extends JDialog {
 		setContentPane(painelPrincipal);
 		painelPrincipal.setLayout(null);
 		
+		
+		
+		JPanel painelContratos = new JPanel();
+		painelContratos.setBackground(Color.WHITE);
+		painelContratos.setForeground(Color.WHITE);
+		painelContratos.setBounds(198, 154, 864, 356);
+		painelPrincipal.add(painelContratos);
+		painelContratos.setLayout(null);
+		   
+		   JPanel panel_1 = new JPanel();
+		   panel_1.setBorder(new LineBorder(new Color(0, 0, 0)));
+		   panel_1.setBackground(new Color(255, 255, 204));
+		   panel_1.setBounds(22, 6, 365, 312);
+		   painelContratos.add(panel_1);
+		   panel_1.setLayout(null);
+		   
+		   JLabel lblNewLabel_1 = new JLabel("Contratos como vendedor:");
+		   lblNewLabel_1.setBounds(6, 17, 206, 19);
+		   panel_1.add(lblNewLabel_1);
+		   lblNewLabel_1.setFont(new Font("SansSerif", Font.BOLD, 14));
+		   
+		   JLabel lblNewLabelT = new JLabel("Total Contratos:");
+		   lblNewLabelT.setBounds(66, 58, 115, 20);
+		   panel_1.add(lblNewLabelT);
+		   lblNewLabelT.setFont(new Font("Tahoma", Font.PLAIN, 16));
+		   
+		   
+		    lblTotalContratosVendedor = new JLabel("New label");
+		    lblTotalContratosVendedor.setBounds(193, 55, 138, 24);
+		    panel_1.add(lblTotalContratosVendedor);
+		    lblTotalContratosVendedor.setFont(new Font("SansSerif", Font.PLAIN, 16));
+		    
+		    JLabel lblAbertos = new JLabel("Abertos:");
+		    lblAbertos.setBounds(122, 89, 61, 20);
+		    panel_1.add(lblAbertos);
+		    lblAbertos.setFont(new Font("Tahoma", Font.PLAIN, 16));
+		    
+		     lblTotalContratosAbertosVendedor = new JLabel("New label");
+		     lblTotalContratosAbertosVendedor.setBounds(193, 90, 138, 24);
+		     panel_1.add(lblTotalContratosAbertosVendedor);
+		     lblTotalContratosAbertosVendedor.setFont(new Font("SansSerif", Font.PLAIN, 16));
+		     
+		     JLabel lblConcluidos = new JLabel("Concluidos:");
+		     lblConcluidos.setBounds(103, 126, 83, 15);
+		     panel_1.add(lblConcluidos);
+		     lblConcluidos.setFont(new Font("Tahoma", Font.PLAIN, 16));
+		     
+		      lblTotalContratosConcluidosVendedor = new JLabel("New label");
+		      lblTotalContratosConcluidosVendedor.setBounds(193, 120, 138, 24);
+		      panel_1.add(lblTotalContratosConcluidosVendedor);
+		      lblTotalContratosConcluidosVendedor.setFont(new Font("SansSerif", Font.PLAIN, 16));
+		      
+		      JButton btnVerRelatorioComoVendedor = new JButton("Ver Relatorio Completo");
+		      btnVerRelatorioComoVendedor.setForeground(SystemColor.desktop);
+		      btnVerRelatorioComoVendedor.setBackground(SystemColor.activeCaptionBorder);
+		      btnVerRelatorioComoVendedor.setBounds(6, 182, 156, 28);
+		      panel_1.add(btnVerRelatorioComoVendedor);
+		      
+		      JButton btnVerRelatorioSimplificado = new JButton("Ver Relatorio Simplificado");
+		      btnVerRelatorioSimplificado.addActionListener(new ActionListener() {
+		      	public void actionPerformed(ActionEvent e) {
+		      		ArrayList<CadastroCliente> clientes = new ArrayList<>();
+		      		clientes.add(cliente_selecionado);
+		      		
+		      		/*public RelatorioContratos(int _tipo_contrato, boolean _contrato, boolean _contrato_como_comprador,  
+			 boolean _pagamento, boolean _pagamento_como_depositante,
+			boolean _pagamento_como_favorecido, boolean _carregamento, boolean _carregamento_como_comprador,
+			boolean _carregamento_como_vendedor, int _id_safra, boolean _sub_contratos, boolean _incluir_comissao,
+			boolean _incluir_ganhos_potenciais, boolean _somar_sub_contratos, ArrayList<CadastroCliente> _clientes_globais, CadastroGrupo _grupo_alvo) {*/
+		      		RelatorioContratos relatar = new RelatorioContratos(2, true, false, false,
+		      				false, false, false,
+		      				false, false, 0, false,
+		      				false, false, false, clientes, null);
+				ByteArrayOutputStream contrato_alterado = relatar.preparar();
+
+				ConverterPdf converter_pdf = new ConverterPdf();
+				String pdf_alterado = converter_pdf.word_pdf_stream(contrato_alterado);
+				TelaVizualizarPdf vizualizar = new TelaVizualizarPdf(null, isto, null, pdf_alterado, null);
+		      	}
+		      });
+		      btnVerRelatorioSimplificado.setForeground(new Color(0, 0, 0));
+		      btnVerRelatorioSimplificado.setBackground(SystemColor.activeCaptionBorder);
+		      btnVerRelatorioSimplificado.setBounds(6, 222, 170, 28);
+		      panel_1.add(btnVerRelatorioSimplificado);
+		      
+		      JPanel panel_1_1 = new JPanel();
+		      panel_1_1.setBorder(new LineBorder(new Color(0, 0, 0)));
+		      panel_1_1.setBackground(new Color(204, 255, 153));
+		      panel_1_1.setLayout(null);
+		      panel_1_1.setBounds(457, 6, 365, 312);
+		      painelContratos.add(panel_1_1);
+		      
+		      JLabel lblNewLabel_1_1 = new JLabel("Contratos como comprador:");
+		      lblNewLabel_1_1.setFont(new Font("SansSerif", Font.BOLD, 14));
+		      lblNewLabel_1_1.setBounds(6, 17, 206, 19);
+		      panel_1_1.add(lblNewLabel_1_1);
+		      
+		      JLabel lblNewLabelT_1 = new JLabel("Total Contratos:");
+		      lblNewLabelT_1.setFont(new Font("Tahoma", Font.PLAIN, 16));
+		      lblNewLabelT_1.setBounds(66, 58, 115, 20);
+		      panel_1_1.add(lblNewLabelT_1);
+		      
+		      
+		       lblTotalContratosComprador = new JLabel("New label");
+		      lblTotalContratosComprador.setFont(new Font("SansSerif", Font.PLAIN, 16));
+		      lblTotalContratosComprador.setBounds(193, 55, 138, 24);
+		      panel_1_1.add(lblTotalContratosComprador);
+		      
+		      JLabel lblAbertos_1 = new JLabel("Abertos:");
+		      lblAbertos_1.setFont(new Font("Tahoma", Font.PLAIN, 16));
+		      lblAbertos_1.setBounds(122, 89, 61, 20);
+		      panel_1_1.add(lblAbertos_1);
+		      
+		       lblTotalContratosAbertosComprador = new JLabel("New label");
+		      lblTotalContratosAbertosComprador.setFont(new Font("SansSerif", Font.PLAIN, 16));
+		      lblTotalContratosAbertosComprador.setBounds(193, 90, 138, 24);
+		      panel_1_1.add(lblTotalContratosAbertosComprador);
+		      
+		      JLabel lblConcluidos_1 = new JLabel("Concluidos:");
+		      lblConcluidos_1.setFont(new Font("Tahoma", Font.PLAIN, 16));
+		      lblConcluidos_1.setBounds(103, 126, 83, 15);
+		      panel_1_1.add(lblConcluidos_1);
+		      
+		       lblTotalContratosConcluidosComprador = new JLabel("New label");
+		      lblTotalContratosConcluidosComprador.setFont(new Font("SansSerif", Font.PLAIN, 16));
+		      lblTotalContratosConcluidosComprador.setBounds(193, 120, 138, 24);
+		      panel_1_1.add(lblTotalContratosConcluidosComprador);
+		      
+		      JButton btnVerRelatorioSem = new JButton("Ver Relatorio Completo");
+		      btnVerRelatorioSem.setBackground(SystemColor.activeCaptionBorder);
+		      btnVerRelatorioSem.setForeground(SystemColor.menuText);
+		      btnVerRelatorioSem.addActionListener(new ActionListener() {
+		      	public void actionPerformed(ActionEvent e) {
+		      		ArrayList<CadastroCliente> clientes = new ArrayList<>();
+		      		clientes.add(cliente_selecionado);
+		      	/*	
+		      		RelatorioContratoComprador relatar = new RelatorioContratoComprador(tipo_contrato, contrato,
+							contrato_como_comprador, pagamento, pagamento_como_despositante, pagamento_como_favorecido,
+							carregamento, carregamento_como_comprador, carregamento_como_vendedor, id_safra,
+							sub_contratos, incluir_comissao, incluir_ganhos_potencias, somar_sub_contratos, clientes,
+							grupo_alvo);*/
+		      	
+		      		
+		      		
+		      		RelatorioContratoComprador relatar = new RelatorioContratoComprador();
+				    relatar.setId_safra(0);
+				    relatar.setClientes_globais(clientes);
+				    relatar.setContrato(true);
+				    relatar.setTipo_contrato(1);
+				    relatar.setContrato_como_comprador(true);
+				    relatar.setIncluir_comissao(true);
+				    relatar.setIncluir_ganhos_potencias(true);
+				    relatar.setSub_contratos(true);
+				    
+		      		
+		      		ByteArrayOutputStream contrato_alterado = relatar.preparar();
+
+				ConverterPdf converter_pdf = new ConverterPdf();
+				String pdf_alterado = converter_pdf.word_pdf_stream(contrato_alterado);
+				TelaVizualizarPdf vizualizar = new TelaVizualizarPdf(null, isto, null, pdf_alterado, null);
+		      	}
+		      });
+		      btnVerRelatorioSem.setBounds(22, 186, 156, 28);
+		      panel_1_1.add(btnVerRelatorioSem);
+		      
+		      JButton btnVerRelatorioSimplificado_1 = new JButton("Ver Relatorio Simplificado");
+		      btnVerRelatorioSimplificado_1.addActionListener(new ActionListener() {
+		      	public void actionPerformed(ActionEvent e) {
+		      		ArrayList<CadastroCliente> clientes = new ArrayList<>();
+		      		clientes.add(cliente_selecionado);
+		      	/*	
+		      		RelatorioContratoComprador relatar = new RelatorioContratoComprador(tipo_contrato, contrato,
+							contrato_como_comprador, pagamento, pagamento_como_despositante, pagamento_como_favorecido,
+							carregamento, carregamento_como_comprador, carregamento_como_vendedor, id_safra,
+							sub_contratos, incluir_comissao, incluir_ganhos_potencias, somar_sub_contratos, clientes,
+							grupo_alvo);*/
+		      	
+		      		
+		      		
+		      		RelatorioContratoComprador relatar = new RelatorioContratoComprador();
+				    relatar.setId_safra(0);
+				    relatar.setClientes_globais(clientes);
+				    relatar.setContrato(true);
+				    relatar.setTipo_contrato(2);
+				    relatar.setContrato_como_comprador(true);
+				    relatar.setIncluir_comissao(false);
+				    relatar.setIncluir_ganhos_potencias(false);
+				    relatar.setSub_contratos(false);
+				    
+		      		
+		      		ByteArrayOutputStream contrato_alterado = relatar.preparar();
+
+				ConverterPdf converter_pdf = new ConverterPdf();
+				String pdf_alterado = converter_pdf.word_pdf_stream(contrato_alterado);
+				TelaVizualizarPdf vizualizar = new TelaVizualizarPdf(null, isto, null, pdf_alterado, null);
+		      	}
+		      });
+		      btnVerRelatorioSimplificado_1.setForeground(SystemColor.textText);
+		      btnVerRelatorioSimplificado_1.setBackground(SystemColor.activeCaptionBorder);
+		      btnVerRelatorioSimplificado_1.setBounds(22, 223, 170, 28);
+		      panel_1_1.add(btnVerRelatorioSimplificado_1);
+		      btnVerRelatorioComoVendedor.addActionListener(new ActionListener() {
+		      	public void actionPerformed(ActionEvent e) {
+		      		
+		      		ArrayList<CadastroCliente> clientes = new ArrayList<>();
+		      		clientes.add(cliente_selecionado);
+		      		
+		      		/*public RelatorioContratos(int _tipo_contrato, boolean _contrato, boolean _contrato_como_comprador,  
+			 boolean _pagamento, boolean _pagamento_como_depositante,
+			boolean _pagamento_como_favorecido, boolean _carregamento, boolean _carregamento_como_comprador,
+			boolean _carregamento_como_vendedor, int _id_safra, boolean _sub_contratos, boolean _incluir_comissao,
+			boolean _incluir_ganhos_potenciais, boolean _somar_sub_contratos, ArrayList<CadastroCliente> _clientes_globais, CadastroGrupo _grupo_alvo) {*/
+		      		RelatorioContratos relatar = new RelatorioContratos(1, true, false, false,
+		      				false, false, false,
+		      				false, false, 0, false,
+		      				false, false, false, clientes, null);
+				ByteArrayOutputStream contrato_alterado = relatar.preparar();
+
+				ConverterPdf converter_pdf = new ConverterPdf();
+				String pdf_alterado = converter_pdf.word_pdf_stream(contrato_alterado);
+				TelaVizualizarPdf vizualizar = new TelaVizualizarPdf(null, isto, null, pdf_alterado, null);
+		      	}
+		      });
+		
 		JPanel painelDadosIniciais = new JPanel();
 		painelDadosIniciais.setBackground(new Color(0, 128, 128));
 		painelDadosIniciais.setBounds(198, 153, 864, 358);
@@ -147,7 +380,7 @@ public class TelaGerenciarCliente extends JDialog {
 		painelDadosIniciais.add(btnEditar);
 		
 		JPanel painelInfo = new JPanel();
-		painelInfo.setBackground(new Color(0, 100, 0));
+		painelInfo.setBackground(new Color(0, 128, 128));
 		painelInfo.setBounds(22, 11, 696, 275);
 		painelDadosIniciais.add(painelInfo);
 		painelInfo.setLayout(new MigLayout("", "[][]", "[][][][][][][]"));
@@ -160,44 +393,57 @@ public class TelaGerenciarCliente extends JDialog {
 		
 		 lblTipoPessoa = new JLabel("Juridica");
 		 lblTipoPessoa.setForeground(Color.WHITE);
-		lblTipoPessoa.setFont(new Font("Tahoma", Font.PLAIN, 16));
-		painelInfo.add(lblTipoPessoa, "cell 1 0");
-		
-		 lblTipoIdentificacao = new JLabel("CPF/CNPJ:");
-		lblTipoIdentificacao.setFont(new Font("Tahoma", Font.PLAIN, 14));
-		painelInfo.add(lblTipoIdentificacao, "cell 0 1,alignx right");
-		
-		 lblIdentificacao = new JLabel("120.927.986-00");
-		 lblIdentificacao.setForeground(Color.WHITE);
-		lblIdentificacao.setFont(new Font("Tahoma", Font.PLAIN, 16));
-		painelInfo.add(lblIdentificacao, "cell 1 1");
-		
-		 lblIe = new JLabel("IE:");
-		lblIe.setFont(new Font("Tahoma", Font.PLAIN, 14));
-		painelInfo.add(lblIe, "cell 0 3,alignx right");
-		
-		lblIE = new JLabel("120.927.986-00");
-		lblIE.setForeground(Color.WHITE);
-		lblIE.setFont(new Font("Tahoma", Font.PLAIN, 16));
-		painelInfo.add(lblIE, "cell 1 3,alignx left");
-		
-		JLabel lblnasdad = new JLabel("Status:");
-		lblnasdad.setFont(new Font("Tahoma", Font.PLAIN, 14));
-		painelInfo.add(lblnasdad, "cell 0 4,alignx right");
-		
-		 lblStatus = new JLabel("120.927.986-00");
-		 lblStatus.setForeground(Color.WHITE);
-		lblStatus.setFont(new Font("Tahoma", Font.PLAIN, 16));
-		painelInfo.add(lblStatus, "cell 1 4,alignx left");
-		
-		JLabel lblEndereo = new JLabel("Endereço:");
-		lblEndereo.setFont(new Font("Tahoma", Font.PLAIN, 14));
-		painelInfo.add(lblEndereo, "cell 0 6,alignx right");
-		
-		 lblEndereco = new JLabel("Rodovia MG 188, km 242, Zona Rural, Guarda-Mor/MG 38570-000");
-		 lblEndereco.setForeground(Color.WHITE);
-		lblEndereco.setFont(new Font("Tahoma", Font.PLAIN, 16));
-		painelInfo.add(lblEndereco, "cell 1 6");
+		 lblTipoPessoa.setFont(new Font("Tahoma", Font.PLAIN, 16));
+		 painelInfo.add(lblTipoPessoa, "cell 1 0");
+		 
+		  lblTipoIdentificacao = new JLabel("CPF/CNPJ:");
+		  lblTipoIdentificacao.setFont(new Font("Tahoma", Font.PLAIN, 14));
+		  painelInfo.add(lblTipoIdentificacao, "cell 0 1,alignx right");
+		  
+		   lblIdentificacao = new JLabel("120.927.986-00");
+		   lblIdentificacao.setForeground(Color.WHITE);
+		   lblIdentificacao.setFont(new Font("Tahoma", Font.PLAIN, 16));
+		   painelInfo.add(lblIdentificacao, "cell 1 1");
+		   
+		    lblIe = new JLabel("IE:");
+		    lblIe.setFont(new Font("Tahoma", Font.PLAIN, 14));
+		    painelInfo.add(lblIe, "cell 0 3,alignx right");
+		    
+		    lblIE = new JLabel("120.927.986-00");
+		    lblIE.setForeground(Color.WHITE);
+		    lblIE.setFont(new Font("Tahoma", Font.PLAIN, 16));
+		    painelInfo.add(lblIE, "cell 1 3,alignx left");
+		    
+		    JLabel lblnasdad = new JLabel("Status:");
+		    lblnasdad.setFont(new Font("Tahoma", Font.PLAIN, 14));
+		    painelInfo.add(lblnasdad, "cell 0 4,alignx right");
+		    
+		     lblStatus = new JLabel("120.927.986-00");
+		     lblStatus.setForeground(Color.WHITE);
+		     lblStatus.setFont(new Font("Tahoma", Font.PLAIN, 16));
+		     painelInfo.add(lblStatus, "cell 1 4,alignx left");
+		     
+		     JLabel lblEndereo = new JLabel("Endereço:");
+		     lblEndereo.setFont(new Font("Tahoma", Font.PLAIN, 14));
+		     painelInfo.add(lblEndereo, "cell 0 6,alignx right");
+		     
+		      lblEndereco = new JLabel("Rodovia MG 188, km 242, Zona Rural, Guarda-Mor/MG 38570-000");
+		      lblEndereco.setForeground(Color.WHITE);
+		      lblEndereco.setFont(new Font("Tahoma", Font.PLAIN, 16));
+		      painelInfo.add(lblEndereco, "cell 1 6");
+		      lblNewLabel.setFont(new Font("Tahoma", Font.PLAIN, 16));
+		      lblNewLabel.setBounds(45, 67, 115, 20);
+		      
+		      JButton btnNewButton = new JButton("Baixar Notas");
+		      btnNewButton.addActionListener(new ActionListener() {
+		      	public void actionPerformed(ActionEvent e) {
+		      		
+		      	  TelaEscolherDataBaixarNotas tela = new TelaEscolherDataBaixarNotas(cliente_local);
+		      	  tela.setVisible(true);
+		      	}
+		      });
+		      btnNewButton.setBounds(527, 294, 98, 28);
+		      painelDadosIniciais.add(btnNewButton);
 		
 		
 			
@@ -235,23 +481,6 @@ public class TelaGerenciarCliente extends JDialog {
 		 btnContratos.setBounds(10, 84, 146, 20);
 		 panel.add(btnContratos);
 		 
-		 JPanel panel_1_1_1 = new JPanel();
-		 panel_1_1_1.setBackground(Color.BLACK);
-		 panel_1_1_1.setBounds(10, 449, 23, 107);
-		 menu_lateral.add(panel_1_1_1);
-		 
-		 JPanel panel_1_1_1_1 = new JPanel();
-		 panel_1_1_1_1.setBackground(Color.BLACK);
-		 panel_1_1_1_1.setBounds(43, 375, 23, 181);
-		 menu_lateral.add(panel_1_1_1_1);
-		 
-		 JPanel painelContratos = new JPanel();
-		 painelContratos.setBackground(Color.WHITE);
-		 painelContratos.setForeground(Color.BLACK);
-		 painelContratos.setBounds(197, 154, 865, 356);
-		 painelPrincipal.add(painelContratos);
-		 painelContratos.setLayout(null);
-		 
 
 		 KGradientPanel panelTopo = new KGradientPanel();
 		 panelTopo.kStartColor = new Color(51, 0, 51);
@@ -273,12 +502,34 @@ public class TelaGerenciarCliente extends JDialog {
 		 lblNomeUsuario.setBounds(44, 32, 567, 33);
 		 panelTopo.add(lblNomeUsuario);
 		 
+		  lblNivel = new JLabel("");
+		 lblNivel.setBounds(641, 16, 170, 30);
+		 panelTopo.add(lblNivel);
+		 
+		 JButton btnNewButton_1 = new JButton("Entenda a pontuação");
+		 btnNewButton_1.addActionListener(new ActionListener() {
+		 	public void actionPerformed(ActionEvent e) {
+		 		TelaMostrarPontuacao tela = new TelaMostrarPontuacao(cliente_local);
+		 		tela.setTelaPai(isto);
+		 		tela.setInfoPontuacao(cliente_local.getId());
+		 		tela.setVisible(true);
+		 		
+		 	}
+		 });
+		 btnNewButton_1.setForeground(Color.WHITE);
+		 btnNewButton_1.setBackground(new Color(51, 0, 204));
+		 btnNewButton_1.setFont(new Font("Arial", Font.PLAIN, 10));
+		 btnNewButton_1.setBounds(685, 56, 131, 25);
+		 panelTopo.add(btnNewButton_1);
+		 
 		  panel_docs = new JPanel();
 		  panel_docs.setBackground(Color.WHITE);
 		 panel_docs.setBounds(43, 11, 315, 336);
 		
 		 
 		 JPanel painelDocumentos = new JPanel();
+		 painelDocumentos.setEnabled(false);
+		 painelDocumentos.setVisible(false);
 		 painelDocumentos.setBounds(198, 153, 864, 358);
 		 painelPrincipal.add(painelDocumentos);
 		 painelDocumentos.setLayout(null);
@@ -350,16 +601,6 @@ public class TelaGerenciarCliente extends JDialog {
 		 JButton btnSair = new JButton("Sair");
 		 btnSair.setBounds(923, 522, 89, 23);
 		 painelPrincipal.add(btnSair);
-		 
-		 JPanel panel_1 = new JPanel();
-		 panel_1.setBackground(Color.BLACK);
-		 panel_1.setBounds(911, 9, 151, 17);
-		 painelPrincipal.add(panel_1);
-		 
-		 JPanel panel_1_1 = new JPanel();
-		 panel_1_1.setBackground(Color.BLACK);
-		 panel_1_1.setBounds(803, 37, 259, 17);
-		 painelPrincipal.add(panel_1_1);
 		 btnSair.addActionListener(new ActionListener() {
 		 	public void actionPerformed(ActionEvent e) {
 		 		isto.dispose();
@@ -483,9 +724,15 @@ public class TelaGerenciarCliente extends JDialog {
 				}
 			});
 
-		 setInformacoesDocumentos();
-	   // setInfo();
+		 
+	
+		   setInformacoesDocumentos();
+	     setInfo();
+	     setInfoContratosComoVendedor();
+	     setInfoContratosComoComprador();
 
+	     setInfoPontuacao();
+	  
 		this.setLocationRelativeTo(null);
 
 		
@@ -989,6 +1236,159 @@ public void atualizarArvoreDocumentos() {
           String endereco_completo = cliente_local.getRua() + ", Nº: " + cliente_local.getNumero() + ", " + cliente_local.getBairro()
           + ", " + cliente_local.getCidade() + "/"+ cliente_local.getUf() + " Cep: " + cliente_local.getCep();
 	      lblEndereco.setText(endereco_completo);
+	   
+   }
+   
+   public void setInfoContratosComoVendedor() {
+	   
+	   int num_total_concluidos = 0;
+		GerenciarBancoContratos procura_contratos = new GerenciarBancoContratos();
+
+		//recupera todos os contratos aonde este cliente e vender, indepedente se
+		//for contrato original ou subcontrato
+	  ArrayList<CadastroContrato> lista_contratos_como_vendedor = procura_contratos.getContratosPorCliente(2, 0,
+			  cliente_local.getId());
+
+	  
+		ArrayList<CadastroContrato> lista_final = new ArrayList<>();
+
+		lista_final = new ArrayList(lista_contratos_como_vendedor.size() );
+		
+		if (lista_contratos_como_vendedor.size() > 0) {
+			lista_final.addAll(lista_contratos_como_vendedor);
+
+		}
+		
+
+			for (int i = 0; i < lista_final.size(); i++) {
+                    //busca os subcontratos deste contrato
+				ArrayList<CadastroContrato> sub_contratos_deste_contrato = procura_contratos
+						.getSubContratos(lista_final.get(i).getId());
+				
+				//se este contrato tiver subcontrato, remove o contrato original da lista
+				if(sub_contratos_deste_contrato.size() > 0) {
+					boolean tem_contrato = false;
+                        //verifica se nesses subcontratos, ha contratos aonde o mesmo cliente local e o vendedor
+					for(CadastroContrato sub : sub_contratos_deste_contrato) {
+						//captura os vendedores desse subcontrato
+						CadastroCliente vendedores_subs [] = sub.getVendedores();
+						//itera sobre os vendedores
+						for(CadastroCliente vend : vendedores_subs) {
+							if(vend != null) {
+							if(vend.getId() == cliente_local.getId()) {
+								tem_contrato = false;
+								lista_final.remove(lista_final.get(i));
+							    boolean esta_na_lista = false;
+								for(CadastroContrato cont : lista_final) {
+									if(cont.getId() == sub.getId()) {
+										tem_contrato = true;
+												break;
+									}
+								}
+								if(!tem_contrato)
+								lista_final.add(sub);
+								break;
+							}
+							}
+						}
+						
+						
+					}
+				}
+				
+			
+				
+
+			}
+			
+			for(CadastroContrato contrato: lista_final) {
+				if(contrato.getStatus_contrato() == 3) {
+					num_total_concluidos++;
+				}
+			}
+			
+		
+			lblTotalContratosVendedor.setText(lista_final.size() + "");
+			lblTotalContratosConcluidosVendedor.setText(num_total_concluidos + "");
+			lblTotalContratosAbertosVendedor.setText(lista_final.size() - num_total_concluidos + "");
+			
+			
+			
+
+
+   }
+   
+   
+ public void setInfoContratosComoComprador() {
+	   
+	   int num_total_concluidos = 0;
+		GerenciarBancoContratos procura_contratos = new GerenciarBancoContratos();
+
+		//recupera todos os contratos aonde este cliente e vender, indepedente se
+		//for contrato original ou subcontrato
+	  ArrayList<CadastroContrato> lista_contratos_como_comprador = procura_contratos.getContratosPorCliente(1, 0,
+			  cliente_local.getId());
+
+	  
+
+		
+			GerenciarBancoContratos gerenciar_buscar_num_contratos = new GerenciarBancoContratos();
+
+			for (int i = 0; i < lista_contratos_como_comprador.size(); i++) {
+                    //busca os subcontratos deste contrato
+				ArrayList<CadastroContrato> sub_contratos_deste_contrato = gerenciar_buscar_num_contratos
+						.getSubContratos(lista_contratos_como_comprador.get(i).getId());
+				
+				//se este contrato tiver subcontrato, remove o contrato original da lista
+				
+			
+				
+
+			}
+			
+			for(CadastroContrato contrato: lista_contratos_como_comprador) {
+				if(contrato.getStatus_contrato() == 3) {
+					num_total_concluidos++;
+				}
+			}
+			
+		
+			lblTotalContratosComprador.setText(lista_contratos_como_comprador.size() + "");
+			lblTotalContratosConcluidosComprador.setText(num_total_concluidos + "");
+			lblTotalContratosAbertosComprador.setText(lista_contratos_como_comprador.size() - num_total_concluidos + "");
+			
+			
+			
+
+
+   }
+   
+   public void setInfoPontuacao() {
+	   
+	   GerenciarBancoPontuacao gerenciar = new GerenciarBancoPontuacao();
+	    ArrayList<CadastroPontuacao> pontos_global = gerenciar.getPontuacaoPorCliente(cliente_local.getId());
+	   
+	   int pontuacao_total = 0;
+	   int num_pontuacao = pontos_global.size();
+	   int num_estrelas;
+	   
+	   if(pontos_global.size() > 0) {
+		   for(CadastroPontuacao ponto : pontos_global) {
+			   pontuacao_total  = pontuacao_total +  ponto.getPontos();
+		   }
+		
+		    num_estrelas = pontuacao_total / num_pontuacao;
+		    
+		    
+		    URL url = getClass().getResource("/imagens/icone_" + num_estrelas + "_estrelas.png");
+			ImageIcon img = new ImageIcon(url);
+			lblNivel.setIcon(img);
+		   
+	   }else {
+		 
+		   lblNivel.setText("Sem pontuação");
+	   }
+	   
 	   
    }
 }

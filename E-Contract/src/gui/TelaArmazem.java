@@ -75,9 +75,8 @@ public class TelaArmazem extends JDialog {
 		
 	}
 	public TelaArmazem() {
-		setAlwaysOnTop(true);
 
-		//setModal(true);
+		setModal(true);
 
 		TelaArmazem isto = this;
 		

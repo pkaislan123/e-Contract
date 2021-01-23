@@ -392,6 +392,25 @@ public class TelaConfirmarCarregamento extends JDialog {
 				if (retorno) {
 					JOptionPane.showMessageDialog(null, "Carregamento Cadastrado!");
 					((TelaGerenciarContrato) telaPai).pesquisar_carregamentos();
+					
+					
+					
+					/*if (JOptionPane.showConfirmDialog(isto, 
+				            "Replicar este carregamento nos sub-contratos deste contrato?", "Replicar", 
+				            JOptionPane.YES_NO_OPTION,
+				            JOptionPane.QUESTION_MESSAGE) == JOptionPane.YES_OPTION){
+						
+						    TelaReplicarCarregamento replicar = new TelaReplicarCarregamento(contrato_local, carregamento_a_inserir);
+						    replicar.setTelaPai(isto);
+						    replicar.setVisible(true);
+						    isto.dispose();
+						
+					}else {
+						isto.dispose();
+
+					}
+					*/
+					
 					isto.dispose();
 
 				} else {

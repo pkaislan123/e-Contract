@@ -58,6 +58,8 @@ import javax.swing.border.LineBorder;
 import javax.swing.JTextField;
 import javax.swing.JComboBox;
 import javax.swing.JCheckBox;
+import java.awt.Component;
+import javax.swing.Box;
 
 
 

@@ -101,50 +101,6 @@ public class RenderizadorChat implements ListCellRenderer<CadastroLogin.Mensagem
 	
 	}
 	
-	/*
-	
-	@Override
-	public Component getListCellRendererComponent(JList<? extends Mensagem> arg0, Mensagem msg, int arg2, boolean arg3,
-			boolean arg4) {
-		
 
-		String conteudo = msg.getConteudo();
-		String data_hora = msg.getData() + " as " + msg.getHora();
-
-		
-	
-		JPanel panel = new JPanel();
-		panel.setBackground(new Color(102, 255, 51));
-		panel.setBounds(0, 0, 303, 82);
-		panel.setLayout(new MigLayout("", "[][][][][][][][][]", "[][][]"));
-		
-		if(msg.getId_remetente() == id_servidor) {
-
-			panel.setBackground(new Color(102, 255, 51));
-			}else {
-				panel.setBackground(new Color(255, 255, 255));
-
-			}
-		
-		JTextArea mostrar_conteudo = new JTextArea(conteudo);
-		mostrar_conteudo.setBackground(new Color(0, 0, 0, 0));
-		mostrar_conteudo.setBorder(null);
-		mostrar_conteudo.setOpaque(false);
-		mostrar_conteudo.setFont(new Font("Arial", Font.BOLD, 14));
-		mostrar_conteudo.setLineWrap(true);
-
-		panel.add(mostrar_conteudo, "cell 0 0 8 2,grow");
-		
-		JLabel mostrar_data_hora = new JLabel(data_hora);
-		panel.add(mostrar_data_hora, "cell 6 2");
-		
-		JLabel mostrar_enviado = new JLabel("+");
-		mostrar_enviado.setFont(new Font("Tahoma", Font.BOLD, 18));
-		panel.add(mostrar_enviado, "cell 8 2");
-		
-		return panel;
-
-	}
-	*/
 
 }

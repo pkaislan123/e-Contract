@@ -53,6 +53,7 @@ public class TelaChat extends JDialog {
 	private ConfiguracoesGlobais configs_globais;
 	private ArrayList<CadastroLogin> usuarios = new ArrayList<>();
 
+	private GerenciarBancoLogin gerenciarUsuarios, gerenciarMensagens;
 	DefaultTableModel modelo_usuarios = new DefaultTableModel() {
 		public boolean isCellEditable(int linha, int coluna) {
 			return false;
@@ -171,7 +172,8 @@ public class TelaChat extends JDialog {
 			@Override
 			public void run() {
 				while (true) {
-					GerenciarBancoLogin gerenciarUsuarios = new GerenciarBancoLogin();
+					if(gerenciarUsuarios == null)
+					 gerenciarUsuarios = new GerenciarBancoLogin();
 					ArrayList<CadastroLogin> usuarios_encontrados = gerenciarUsuarios.getUsuarios();
 
 					// verifica se esse usuario tem um ip
@@ -266,8 +268,8 @@ public class TelaChat extends JDialog {
 							// pega as mensagens
 							//JOptionPane.showMessageDialog(null, "procurando mensagens da conversa entre "
 								//	+ login.getLogin() + " e " + login_selecionado.getLogin());
-							GerenciarBancoLogin gerenciar = new GerenciarBancoLogin();
-							mensagens = gerenciar.getMensagens(login.getId(), login_selecionado.getId());
+							 gerenciarMensagens = new GerenciarBancoLogin();
+							mensagens = gerenciarMensagens.getMensagens(login.getId(), login_selecionado.getId());
 
 							RegistroMensagem registro = new RegistroMensagem();
 							registro.setLogin_selecionado(login_selecionado);
@@ -358,7 +360,8 @@ public class TelaChat extends JDialog {
 				
 				while(true) {
 		
-		GerenciarBancoLogin gerenciarUsuarios = new GerenciarBancoLogin();
+	 if(gerenciarUsuarios == null)				
+		 gerenciarUsuarios = new GerenciarBancoLogin();
 		ArrayList<CadastroLogin> usuarios_encontrados = gerenciarUsuarios.getUsuarios();
 		
 	    for(CadastroLogin login_selecionado : usuarios_encontrados) {
@@ -388,13 +391,14 @@ public class TelaChat extends JDialog {
 
 					// recupera as mensagens
 
-					GerenciarBancoLogin gerenciar = new GerenciarBancoLogin();
+					if(gerenciarUsuarios == null)
+					 gerenciarUsuarios = new GerenciarBancoLogin();
 					// ArrayList<CadastroLogin.Mensagem> mensagens =
 					// gerenciar.getMensagens(login.getId(),login_selecionado.getId());
 					ArrayList<CadastroLogin.Mensagem> mensagens = null;
 
 					// pega as mensagens
-					mensagens = gerenciar.getMensagens(login.getId(), login_selecionado.getId());
+					mensagens = gerenciarUsuarios.getMensagens(login.getId(), login_selecionado.getId());
 
 					RegistroMensagem registro = new RegistroMensagem();
 					registro.setLogin_selecionado(login_selecionado);
@@ -481,8 +485,9 @@ public class TelaChat extends JDialog {
 							mensagem_enviar.setId_destinatario(login_selecionado.getId());
 							mensagem_enviar.setId_remetente(login.getId());
 
-							GerenciarBancoLogin gerenciar = new GerenciarBancoLogin();
-							boolean enviado = gerenciar.enviarMensagem(mensagem_enviar);
+							if(gerenciarMensagens == null)
+							 gerenciarMensagens = new GerenciarBancoLogin();
+							boolean enviado = gerenciarMensagens.enviarMensagem(mensagem_enviar);
 							if (enviado)
 								listModel.addElement(mensagem_enviar);
 
@@ -506,8 +511,9 @@ public class TelaChat extends JDialog {
 										// pega as mensagens
 										//JOptionPane.showMessageDialog(null, "procurando mensagens da conversa entre "
 											//	+ login.getLogin() + " e " + login_selecionado.getLogin());
-										GerenciarBancoLogin gerenciar = new GerenciarBancoLogin();
-										mensagens = gerenciar.getMensagens(login.getId(), login_selecionado.getId());
+										if(gerenciarMensagens == null)
+								        gerenciarMensagens = new GerenciarBancoLogin();
+										mensagens = gerenciarMensagens.getMensagens(login.getId(), login_selecionado.getId());
 
 										RegistroMensagem registro = new RegistroMensagem();
 										registro.setLogin_selecionado(login_selecionado);
@@ -570,7 +576,7 @@ public class TelaChat extends JDialog {
 														CadastroLogin.Mensagem ultima_mensagem = listModel.get(listModel.size() - 1);
 														
 														if(!(ultima_mensagem.getId_remetente() == login.getId())) {
-														CadastroLogin login_msg = gerenciar.getLogin(ultima_mensagem.getId_remetente());
+														CadastroLogin login_msg = gerenciarMensagens.getLogin(ultima_mensagem.getId_remetente());
 														String text = login_msg.getLogin() + " diz: \n             " + ultima_mensagem.getConteudo();
 														((TelaPrincipal) telaPrincipal).setNovaNotificacaoMensagem(text);
 
@@ -586,7 +592,7 @@ public class TelaChat extends JDialog {
 								
 
 								try {
-									Thread.sleep(1000);
+									Thread.sleep(3000);
 								} catch (InterruptedException e) {
 									// TODO Auto-generated catch block
 									e.printStackTrace();

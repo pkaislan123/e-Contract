@@ -1100,9 +1100,7 @@ public class TelaCadastroTransportadores extends JDialog {
 		 		{
 		 			//telaPai.atualizaTabela();
 		 			gerarPastasAtualizar();
-		 			BaixarNotasFiscais baixar =  new BaixarNotasFiscais(cliente_atualizar, "VENDA");
-		 			baixar.iniciarPesquisas();
-
+		 			
 		 			isto.dispose();
 		 		}
 		 	}

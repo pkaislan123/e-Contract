@@ -77,7 +77,7 @@ public class TelaConfirmarTransferenciaPagamentoContratual extends JDialog {
 		
 		setBackground(new Color(255, 255, 255));
 		setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-		setBounds(100, 100, 468, 255);
+		setBounds(100, 100, 468, 297);
 		painelPrincipal.setBackground(new Color(255, 255, 255));
 		painelPrincipal.setBorder(new EmptyBorder(5, 5, 5, 5));
 		setContentPane(painelPrincipal);

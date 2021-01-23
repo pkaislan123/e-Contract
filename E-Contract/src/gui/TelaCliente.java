@@ -27,8 +27,12 @@ import javax.swing.JTable;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.net.URL;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashSet;
+import java.util.Set;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import javax.swing.ImageIcon;
@@ -39,6 +43,7 @@ import outros.JPanelBackground;
 
 import javax.swing.JComboBox;
 import javax.swing.JTextField;
+import javax.swing.RowFilter;
 import javax.swing.JLabel;
 import javax.swing.JTabbedPane;
 import java.awt.Toolkit;
@@ -126,7 +131,7 @@ public class TelaCliente extends JDialog {
 		
 		setBackground(new Color(255, 255, 255));
 		setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-		setBounds(100, 100, 810, 583);
+		setBounds(100, 100, 810, 612);
 		contentPane = new JPanel();
 		contentPane.setBackground(new Color(255, 255, 255));
 		contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
@@ -144,7 +149,7 @@ public class TelaCliente extends JDialog {
 		
 		JPanel panel = new JPanel();
 		panel.setBackground(Color.WHITE);
-		panel.setBounds(10, 150, 748, 275);
+		panel.setBounds(6, 151, 748, 329);
 		painelClientes.add(panel);
 		//panel.setLayout(null);
 		
@@ -153,7 +158,7 @@ public class TelaCliente extends JDialog {
 		JTable tabela = new JTable(modelo_cliente);
 		
 		 sorter = new TableRowSorter<ClienteTableModel>(modelo_cliente);
-	        
+
 			
 		 tabela.setRowSorter(sorter);
 		tabela.addKeyListener(new KeyAdapter() {
@@ -205,15 +210,18 @@ public class TelaCliente extends JDialog {
 	
        
         tabela.getColumnModel().getColumn(0)
-        .setPreferredWidth(10);
+        .setPreferredWidth(20);
         tabela.getColumnModel().getColumn(1)
+        .setPreferredWidth(100);
+        tabela.getColumnModel().getColumn(4)
         .setPreferredWidth(120);
         tabela.addMouseListener(new MouseAdapter(){
             public void mouseClicked(MouseEvent e){
                 if(e.getClickCount() == 2){
                 	if(flag_tipo_tela == 0) {
                 		int rowSel = tabela.getSelectedRow();//pega o indice da linha na tabela
-    					int indiceDaLinha = tabela.getRowSorter().convertRowIndexToModel(rowSel);//converte pro indice do model    				clienteSelecionado = clientes_disponiveis.get(indiceDaLinha);
+    					int indiceDaLinha = tabela.getRowSorter().convertRowIndexToModel(rowSel);//converte pro indice do model    
+    					clienteSelecionado = clientes_disponiveis.get(indiceDaLinha);
     				if(flag_tipo_cliente == 1)
     					((TelaElaborarNovoContrato) telaPai).setComprador1(clienteSelecionado);
        				else if (flag_tipo_cliente == 2)
@@ -270,6 +278,88 @@ public class TelaCliente extends JDialog {
         scrollPane.setBackground(new Color(255, 255, 255));
 		panel.add(scrollPane);
 		
+		JButton btnUsurio = new JButton("+ Cliente");
+		btnUsurio.setBounds(636, 276, 105, 33);
+		panel.add(btnUsurio);
+		btnUsurio.setIcon(new ImageIcon(TelaCliente.class.getResource("/imagens/add_cliente.png")));
+		
+		JButton btnSelecionar = new JButton("Selecionar");
+		btnSelecionar.setBounds(517, 276, 109, 33);
+		panel.add(btnSelecionar);
+		btnSelecionar.setIcon(new ImageIcon(TelaCliente.class.getResource("/imagens/lista.png")));
+		
+		JButton btnEditar = new JButton("Gerenciar");
+		btnEditar.setBounds(400, 276, 110, 36);
+		panel.add(btnEditar);
+		btnEditar.setBackground(Color.WHITE);
+		btnEditar.setIcon(new ImageIcon(TelaCliente.class.getResource("/imagens/editar.png")));
+		
+		JButton btnVerNotasFiscais = new JButton("Acessar NF's");
+		btnVerNotasFiscais.setBounds(283, 281, 101, 28);
+		panel.add(btnVerNotasFiscais);
+		btnVerNotasFiscais.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				int indiceDaLinha = 0;
+				indiceDaLinha = tabela.getSelectedRow();
+				
+				TelaNotasFiscais verNotas = new TelaNotasFiscais(1, clientes_disponiveis.get(indiceDaLinha));
+				 verNotas.setVisible(true);
+				//
+				
+			}
+		});
+		btnVerNotasFiscais.setBackground(Color.WHITE);
+		btnEditar.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				int indiceDaLinha = 0;
+				indiceDaLinha = tabela.getSelectedRow();
+				
+				
+				TelaGerenciarCliente telagerenciar  = new TelaGerenciarCliente(clientes_disponiveis.get(indiceDaLinha));
+				telagerenciar.setVisible(true);
+				//TelaCadastroCliente telaEdicao = new TelaCadastroCliente(0, clientes_disponiveis.get(indiceDaLinha));
+				//editarCliente(indiceDaLinha);
+				
+			}
+		});
+		btnSelecionar.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				int rowSel = tabela.getSelectedRow();//pega o indice da linha na tabela
+				int indiceDaLinha = tabela.getRowSorter().convertRowIndexToModel(rowSel);//converte pro indice do model				
+				clienteSelecionado = clientes_disponiveis.get(indiceDaLinha);
+				if(flag_tipo_cliente == 1)
+					((TelaElaborarNovoContrato) telaPai).setComprador1(clienteSelecionado);
+   				else if (flag_tipo_cliente == 2)
+   					((TelaElaborarNovoContrato) telaPai).setVendedor1(clienteSelecionado);
+   				else if (flag_tipo_cliente == 3)
+   					((TelaElaborarNovoContrato) telaPai).setVendedor2(clienteSelecionado);
+   				else if (flag_tipo_cliente == 4)
+   					((TelaElaborarNovoContrato) telaPai).setCorretor(clienteSelecionado);
+   				else if (flag_tipo_cliente == 5)
+   					((TelaConfirmarCarregamento) telaPai).setClienteCarregamento(clienteSelecionado);
+   				else if (flag_tipo_cliente == 6)
+   					((TelaConfirmarCarregamento) telaPai).setVendedor(clienteSelecionado);
+   				else if (flag_tipo_cliente == 8)
+   					((TelaConfirmarPagamentoContratual) telaPai).setDepositante(clienteSelecionado);
+   				else if (flag_tipo_cliente == 9)
+   					((TelaConfirmarPagamentoContratual) telaPai).setFavorecido(clienteSelecionado);
+   				else if (flag_tipo_cliente == 10)
+   					((TelaCadastroGrupo) telaPai).adicionarIntegrante(clienteSelecionado);
+   				else if (flag_tipo_cliente == 11)
+   					((TelaRelatoriaContratos) telaPai).setClienteAlvo(clienteSelecionado);
+
+
+				isto.dispose();
+			}
+		});
+		btnUsurio.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				TelaCadastroCliente novoCliente = new TelaCadastroCliente(1, null);
+				novoCliente.setTelaPai(isto);
+				novoCliente.setVisible(true);
+			}
+		});		
+		
 		 URL url = getClass().getResource("/imagens/pesquisar.png");
 	 	ImageIcon img_botao = new ImageIcon(url);
 		 
@@ -280,7 +370,7 @@ public class TelaCliente extends JDialog {
 		 
 		
 		 JTabbedPane painelPrincipal = new JTabbedPane();;
-		 painelPrincipal.setBounds(26, 23, 768, 476);
+		 painelPrincipal.setBounds(26, 23, 768, 511);
 		   painelPrincipal.setBackground(new Color(255, 255, 255));
 			painelPrincipal.setBorder(new EmptyBorder(5, 5, 5, 5));
 			
@@ -314,10 +404,21 @@ public class TelaCliente extends JDialog {
 			painelClientes.add(entCpfCnpj);
 			
 			JButton btnFiltrar = new JButton("Filtrar");
+			btnFiltrar.addActionListener(new ActionListener() {
+				public void actionPerformed(ActionEvent e) {
+					filtrar();
+				}
+			});
 			btnFiltrar.setBounds(623, 116, 89, 23);
 			painelClientes.add(btnFiltrar);
 			
 			JButton btnLimpar = new JButton("Limpar");
+			btnLimpar.addActionListener(new ActionListener() {
+				public void actionPerformed(ActionEvent e) {
+				    sorter.setRowFilter( RowFilter.regexFilter(""));
+
+				}
+			});
 			btnLimpar.setBounds(524, 118, 89, 23);
 			painelClientes.add(btnLimpar);
 			
@@ -332,6 +433,11 @@ public class TelaCliente extends JDialog {
 			painelClientes.add(entIe);
 			
 			JButton btnRefazerPesquisa = new JButton("Refazer Pesquisa");
+			btnRefazerPesquisa.addActionListener(new ActionListener() {
+				public void actionPerformed(ActionEvent e) {
+					pesquisar();
+				}
+			});
 			btnRefazerPesquisa.setBounds(386, 116, 126, 28);
 			painelClientes.add(btnRefazerPesquisa);
 			painelPrincipal.addTab("Grupos", painelGrupos);
@@ -396,87 +502,6 @@ public class TelaCliente extends JDialog {
 			painelGrupos.add(btnSelecionarGrupo);
 
 			contentPane.add(painelPrincipal, BorderLayout.CENTER);
-			
-			JButton btnUsurio = new JButton("+ Cliente");
-			btnUsurio.setBounds(689, 496, 105, 33);
-			contentPane.add(btnUsurio);
-			btnUsurio.setIcon(new ImageIcon(TelaCliente.class.getResource("/imagens/add_cliente.png")));
-			
-			JButton btnSelecionar = new JButton("Selecionar");
-			btnSelecionar.setBounds(570, 496, 109, 33);
-			contentPane.add(btnSelecionar);
-			btnSelecionar.setIcon(new ImageIcon(TelaCliente.class.getResource("/imagens/lista.png")));
-			
-			JButton btnEditar = new JButton("Gerenciar");
-			btnEditar.setBounds(453, 496, 107, 33);
-			contentPane.add(btnEditar);
-			btnEditar.setBackground(Color.WHITE);
-			btnEditar.setIcon(new ImageIcon(TelaCliente.class.getResource("/imagens/editar.png")));
-			
-			JButton btnVerNotasFiscais = new JButton("Acessar NF's");
-			btnVerNotasFiscais.setBounds(336, 501, 101, 28);
-			contentPane.add(btnVerNotasFiscais);
-			btnVerNotasFiscais.addActionListener(new ActionListener() {
-				public void actionPerformed(ActionEvent e) {
-					int indiceDaLinha = 0;
-					indiceDaLinha = tabela.getSelectedRow();
-					
-					TelaNotasFiscais verNotas = new TelaNotasFiscais(1, clientes_disponiveis.get(indiceDaLinha));
-					 verNotas.setVisible(true);
-					//
-					
-				}
-			});
-			btnVerNotasFiscais.setBackground(Color.WHITE);
-			btnEditar.addActionListener(new ActionListener() {
-				public void actionPerformed(ActionEvent arg0) {
-					int indiceDaLinha = 0;
-					indiceDaLinha = tabela.getSelectedRow();
-					
-					
-					TelaGerenciarCliente telagerenciar  = new TelaGerenciarCliente(clientes_disponiveis.get(indiceDaLinha));
-					telagerenciar.setVisible(true);
-					//TelaCadastroCliente telaEdicao = new TelaCadastroCliente(0, clientes_disponiveis.get(indiceDaLinha));
-					//editarCliente(indiceDaLinha);
-					
-				}
-			});
-			btnSelecionar.addActionListener(new ActionListener() {
-				public void actionPerformed(ActionEvent e) {
-					int rowSel = tabela.getSelectedRow();//pega o indice da linha na tabela
-					int indiceDaLinha = tabela.getRowSorter().convertRowIndexToModel(rowSel);//converte pro indice do model					clienteSelecionado = clientes_disponiveis.get(indiceDaLinha);
-					if(flag_tipo_cliente == 1)
-						((TelaElaborarNovoContrato) telaPai).setComprador1(clienteSelecionado);
-   				else if (flag_tipo_cliente == 2)
-   					((TelaElaborarNovoContrato) telaPai).setVendedor1(clienteSelecionado);
-   				else if (flag_tipo_cliente == 3)
-   					((TelaElaborarNovoContrato) telaPai).setVendedor2(clienteSelecionado);
-   				else if (flag_tipo_cliente == 4)
-   					((TelaElaborarNovoContrato) telaPai).setCorretor(clienteSelecionado);
-   				else if (flag_tipo_cliente == 5)
-   					((TelaConfirmarCarregamento) telaPai).setClienteCarregamento(clienteSelecionado);
-   				else if (flag_tipo_cliente == 6)
-   					((TelaConfirmarCarregamento) telaPai).setVendedor(clienteSelecionado);
-   				else if (flag_tipo_cliente == 8)
-   					((TelaConfirmarPagamentoContratual) telaPai).setDepositante(clienteSelecionado);
-   				else if (flag_tipo_cliente == 9)
-   					((TelaConfirmarPagamentoContratual) telaPai).setFavorecido(clienteSelecionado);
-   				else if (flag_tipo_cliente == 10)
-   					((TelaCadastroGrupo) telaPai).adicionarIntegrante(clienteSelecionado);
-   				else if (flag_tipo_cliente == 11)
-   					((TelaRelatoriaContratos) telaPai).setClienteAlvo(clienteSelecionado);
-
-
-					isto.dispose();
-				}
-			});
-			btnUsurio.addActionListener(new ActionListener() {
-				public void actionPerformed(ActionEvent e) {
-					TelaCadastroCliente novoCliente = new TelaCadastroCliente(1, null);
-					novoCliente.setTelaPai(isto);
-					novoCliente.setVisible(true);
-				}
-			});		
 			
 			if(flag_tipo_tela == 1)
 	   {
@@ -613,7 +638,7 @@ public class TelaCliente extends JDialog {
 	        case ie:
 	            return nota.getIe();
 	        case apelido:
-	            return nota.getApelido();
+	            return nota.getApelido().toUpperCase();
 	        case cpf_cnpj:{
 	        	if(nota.getTipo_pessoa() == 0)
 	            return nota.getCpf();
@@ -624,9 +649,9 @@ public class TelaCliente extends JDialog {
 	        }
 	        case nome:
 	        	if(nota.getTipo_pessoa() == 0)
-		            return nota.getNome_empresarial();
+		            return nota.getNome_empresarial().toUpperCase();
 		        	else
-			            return nota.getNome_fantaia();
+			            return nota.getNome_fantaia().toUpperCase();
 	       
 	        default:
 	            throw new IndexOutOfBoundsException("Coluna Inválida!!!");
@@ -717,5 +742,34 @@ public class TelaCliente extends JDialog {
 	    }
 	 
 	}
+	public void filtrar() {
+		 ArrayList<RowFilter<Object,Object>> filters = new ArrayList<RowFilter<Object,Object>>(2);
+
+		    String nome = entNome.getText().toUpperCase();
+		    String apelido = entApelido.getText().toUpperCase();
+		    String ie =  entIe.getText().toUpperCase();
+		    String cpnf_cnpj = entCpfCnpj.getText().toUpperCase();
+
+		   
+		    if(checkString(ie))
+		    filters.add(RowFilter.regexFilter(ie, 1));
+		    
+		    if(checkString(apelido))
+		    filters.add(RowFilter.regexFilter(apelido, 2));
+
+		    if(checkString(cpnf_cnpj))
+		    filters.add(RowFilter.regexFilter(cpnf_cnpj, 3));
+		    
+		    if(checkString(nome))
+			    filters.add(RowFilter.regexFilter(nome, 4));
+		  
+		    
+		    sorter.setRowFilter( RowFilter.andFilter(filters));
+	}
+	
+	public boolean checkString(String txt) {
+		return txt != null && !txt.equals("") && !txt.equals(" ") && !txt.equals("  ");
+	}
+	
 	
 }

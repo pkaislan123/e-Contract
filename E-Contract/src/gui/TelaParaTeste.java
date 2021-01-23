@@ -7,6 +7,7 @@ import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
 import javax.swing.JDialog;
 import javax.swing.JScrollPane;
+import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.JButton;
 import net.miginfocom.swing.MigLayout;
@@ -43,26 +44,41 @@ public class TelaParaTeste extends JDialog{
 		setContentPane(painelPrincipal);
 		painelPrincipal.setLayout(null);
 		
-		String nameAba = "";
+         JPanel painel_msg = new JPanel();
+         painel_msg.setBorder(new LineBorder(new Color(0, 0, 0)));
 		
-		JPanel panelGuiaMensagens = new JPanel();
-		panelGuiaMensagens.setBounds(0, 0, 314, 338);
-		painelPrincipal.add(panelGuiaMensagens);
-		painelPrincipal.setName(nameAba);
-		panelGuiaMensagens.setLayout(new MigLayout("", "[grow][]", "[grow][]"));
+		painel_msg.setBackground(new Color(255, 255, 204));
+		painel_msg.setBounds(0, 0, 800, 72);
+		painel_msg.setLayout(new MigLayout("", "[][][][][grow][][][][][][][][][][]", "[grow]"));
+	
 		
-		JScrollPane scrollPane = new JScrollPane();
-		scrollPane.setViewportBorder(new LineBorder(new Color(0, 0, 0)));
-		panelGuiaMensagens.add(scrollPane, "cell 0 0 2 1,grow");
-		scrollPane.setLayout(null);
 		
-		entMensagem = new JTextField();
-		panelGuiaMensagens.add(entMensagem, "cell 0 1,growx");
-		entMensagem.setColumns(10);
 		
-		JButton btnEnviarMensagem = new JButton("Enviar");
-		panelGuiaMensagens.add(btnEnviarMensagem, "cell 1 1");
-
+		JLabel lblCodigoContrato = new JLabel("4444.6.5.6666");
+		lblCodigoContrato.setBackground(new Color(153, 204, 0));
+		lblCodigoContrato.setFont(new Font("Tahoma", Font.PLAIN, 14));
+		painel_msg.add(lblCodigoContrato, "cell 0 0");
+		
+		JLabel lblCliente = new JLabel("Francisco Guimaraes Pereire e Outros");
+		lblCliente.setFont(new Font("Tahoma", Font.BOLD, 11));
+		painel_msg.add(lblCliente, "cell 1 0");
+		
+		JLabel lblPontos = new JLabel("5");
+		lblPontos.setFont(new Font("Tahoma", Font.PLAIN, 18));
+		painel_msg.add(lblPontos, "cell 2 0");
+		
+		JLabel lblMotivo = new JLabel("Não entregara a quantidade de sacos combinada, porem tem producao");
+		painel_msg.add(lblMotivo, "cell 3 0");
+		
+		JTextArea textAreaDescricao = new JTextArea();
+		textAreaDescricao.setBackground(new Color(255, 255, 204));
+		textAreaDescricao.setFont(new Font("Arial", Font.BOLD | Font.ITALIC, 11));
+		textAreaDescricao.setText("Não entergará a quantiade de sacos combinada");
+		textAreaDescricao.setLineWrap(true);
+		textAreaDescricao.setWrapStyleWord(true);
+		painel_msg.add(textAreaDescricao, "cell 4 0,grow");
+		
+	
 		
 		
 

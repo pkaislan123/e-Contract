@@ -14,6 +14,7 @@ import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
 
 import cadastros.CadastroContrato;
+import gui.TelaEnviarMsgMail;
 import gui.TelaEnviarMsgWhatsapp;
 import outros.JPanelTransparent;
 import javax.swing.JTextArea;
@@ -21,6 +22,9 @@ import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.io.File;
+import java.awt.event.ActionListener;
+import java.awt.event.ActionEvent;
 
 
 
@@ -32,16 +36,29 @@ public class TelaEscolha extends JDialog {
 	private JLabel lblNewLabel;
 	
 	
-	public TelaEscolha(CadastroContrato contrato) {
+	public TelaEscolha(int flag, CadastroContrato contrato, File documento) {
 		getContentPane().setBackground(new Color(0, 102, 102));
 		
 		setBounds(100, 100, 286, 98);
 		 isto = this;
 		getContentPane().setLayout(null);
 		
+		JButton btnNewButton = new JButton("X");
+		btnNewButton.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				isto.dispose();
+			}
+		});
+		btnNewButton.setBorder(null);
+		btnNewButton.setBackground(Color.BLACK);
+		btnNewButton.setFont(new Font("Tahoma", Font.BOLD, 14));
+		btnNewButton.setForeground(Color.WHITE);
+		btnNewButton.setBounds(248, 0, 38, 29);
+		getContentPane().add(btnNewButton);
+		
 		
 		JLabel status_msg_1 = new JLabel("     Enviar contrato via:");
-		status_msg_1.setBounds(0, 0, 286, 26);
+		status_msg_1.setBounds(0, 2, 286, 26);
 		getContentPane().add(status_msg_1);
 		status_msg_1.setOpaque(true);
 		status_msg_1.setBackground(new Color(0, 51, 51));
@@ -60,6 +77,19 @@ public class TelaEscolha extends JDialog {
 		lblNewLabel.setIcon(new ImageIcon(TelaEscolha.class.getResource("/imagens/waz.png")));
 		lblNewLabel.setBounds(64, 37, 48, 48);
 		getContentPane().add(lblNewLabel);
+		
+		JLabel lblNewLabel_1 = new JLabel("");
+		lblNewLabel_1.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseClicked(MouseEvent e) {
+				TelaEnviarMsgMail tela = new TelaEnviarMsgMail(flag, contrato, documento);
+				tela.setVisible(true);
+				isto.dispose();
+			}
+		});
+		lblNewLabel_1.setIcon(new ImageIcon(TelaEscolha.class.getResource("/imagens/icone_gmail.png")));
+		lblNewLabel_1.setBounds(136, 37, 48, 48);
+		getContentPane().add(lblNewLabel_1);
 		URL url2 = getClass().getResource("/imagens/infinite.gif");
 		ImageIcon img2 = new ImageIcon(url2);
 		

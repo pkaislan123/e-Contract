@@ -28,6 +28,10 @@ import outros.TratarDados;
 public class ZapMessenger {
 
 	
+	private String chave = "d366b8f8c2aaf99473bfc90742ebb1c4_42258_3d03a9bb7a4ff54ae039245c6";
+	private String usuario  = "aislan-c@hotmail.com";
+	private String senha = "titaniwm2014";
+	
 	public ZapMessenger() {
 		
 	}
@@ -47,7 +51,7 @@ public class ZapMessenger {
 			    valores.add(new BasicNameValuePair("message", msg));
 
 
-			    valores.add(new BasicNameValuePair("apikey", "2bab9632786a28e1b293a997f12453e8_39549_053220610bd14bab5877227df"));
+			    valores.add(new BasicNameValuePair("apikey", chave));
 
 			    
 			    httppost.setEntity( new UrlEncodedFormEntity( valores ) );
@@ -92,7 +96,7 @@ public class ZapMessenger {
 			    valores.add(new BasicNameValuePair("attachment", url));
 
 
-			    valores.add(new BasicNameValuePair("apikey", "2bab9632786a28e1b293a997f12453e8_39549_053220610bd14bab5877227df"));
+			    valores.add(new BasicNameValuePair("apikey", chave));
 
 			    
 			    httppost.setEntity( new UrlEncodedFormEntity( valores ) );
@@ -132,10 +136,10 @@ public class ZapMessenger {
 			
 			try { 
 			    ArrayList<NameValuePair> valores = new ArrayList<NameValuePair>();
-			    valores.add(new BasicNameValuePair("username", "comprasaislan@gmail.com"));
-			    valores.add(new BasicNameValuePair("password", "titaniwm2014"));
+			    valores.add(new BasicNameValuePair("username", usuario));
+			    valores.add(new BasicNameValuePair("password", senha));
 
-			    valores.add(new BasicNameValuePair("apikey", "2bab9632786a28e1b293a997f12453e8_39549_053220610bd14bab5877227df"));
+			    valores.add(new BasicNameValuePair("apikey", chave));
 
 
 			    

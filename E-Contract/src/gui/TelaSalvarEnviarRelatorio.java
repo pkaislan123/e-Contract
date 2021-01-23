@@ -50,7 +50,8 @@ public class TelaSalvarEnviarRelatorio extends JDialog {
 	private TelaSalvarEnviarRelatorio isto;
     private JDialog telaPai;
     private String caminho;
-	public TelaSalvarEnviarRelatorio(String file) {
+    
+	public TelaSalvarEnviarRelatorio(int flag,CadastroContrato contrato, String file) {
 		setModal(true);
 		caminho = file;
 
@@ -98,6 +99,13 @@ public class TelaSalvarEnviarRelatorio extends JDialog {
 		painelPrincipal.add(btnNewButton);
 		
 		JButton btnNewButton_1 = new JButton("Enviar via E-mail");
+		btnNewButton_1.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				TelaEnviarMsgMail tela = new TelaEnviarMsgMail(flag, contrato,new File(file));
+				tela.setVisible(true);
+				isto.dispose();
+			}
+		});
 		btnNewButton_1.setBounds(141, 30, 118, 23);
 		painelPrincipal.add(btnNewButton_1);
 		

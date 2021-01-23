@@ -601,7 +601,14 @@ local retirada: 24 2
 		private String data;
 		private String nome_tarefa;
 		private CadastroLogin criador;
+		private String resposta;
 		
+		public String getResposta() {
+			return resposta;
+		}
+		public void setResposta(String resposta) {
+			this.resposta = resposta;
+		}
 		private String hora_agendada;
 		private String data_agendada;
 		private int prioridade;
@@ -780,9 +787,21 @@ local retirada: 24 2
 	public static class CadastroPagamentoContratual{
 		
 		
-		String data_pagamento;
+		public String getDescricao() {
+			return descricao;
+		}
+		public void setDescricao(String descricao) {
+			this.descricao = descricao;
+		}
+		public int getTipo() {
+			return tipo;
+		}
+		public void setTipo(int tipo) {
+			this.tipo = tipo;
+		}
+		String data_pagamento, descricao;
 		double valor_pagamento;
-		int id_pagamento, id_depositante, id_conta_depositante, id_favorecido, id_conta_favorecido;
+		int tipo,id_pagamento, id_depositante, id_conta_depositante, id_favorecido, id_conta_favorecido;
 		public String getData_pagamento() {
 			return data_pagamento;
 		}

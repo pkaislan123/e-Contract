@@ -54,7 +54,8 @@ public class TelaConfirmarPagamentoContratual extends JDialog {
 	private JDialog telaPai;
 	private JTextField entDataPagamento;
 	private JComboBox cBDepositante, cBContaDepositante;
-	private JComboBox cBFavorecido, cBContaFavorecido;
+	private JComboBox cBFavorecido, cBContaFavorecido, cBTipo;
+	private JTextArea textAreaDescricao ;
 
 	private CadastroContrato contrato_local;
 
@@ -67,7 +68,8 @@ public class TelaConfirmarPagamentoContratual extends JDialog {
 
 	private JLabel lblValorPagamento, lblFavorecidoPagamento, lblDataPagamento, lblDepositantePagamento  ;
 
-	private JTextArea lblContaDepositantePagamento, lblContaFavorecidoPagamento;
+	private JTextArea lblContaDepositantePagamento, lblContaFavorecidoPagamento, lblDescricaoPagamento;
+	private JLabel lblTipoPagamento;
 	
 	public TelaConfirmarPagamentoContratual(CadastroContrato _contrato_local) {
 		//setAlwaysOnTop(true);
@@ -182,6 +184,27 @@ public class TelaConfirmarPagamentoContratual extends JDialog {
 		btnSelecionarFavorecido.setBounds(393, 190, 89, 30);
 		panel_1.add(btnSelecionarFavorecido);
 		
+		JLabel lblNewLabel_5_1_1 = new JLabel("Tipo:");
+		lblNewLabel_5_1_1.setBounds(98, 279, 27, 16);
+		panel_1.add(lblNewLabel_5_1_1);
+		
+		 cBTipo = new JComboBox();
+		cBTipo.setBounds(135, 272, 248, 30);
+		panel_1.add(cBTipo);
+		cBTipo.addItem("Normal");
+		cBTipo.addItem("Comissão");
+
+		
+		JLabel lblNewLabel_5_1_1_1 = new JLabel("Descrição:");
+		lblNewLabel_5_1_1_1.setBounds(66, 319, 59, 16);
+		panel_1.add(lblNewLabel_5_1_1_1);
+		
+		 textAreaDescricao = new JTextArea();
+		textAreaDescricao.setLineWrap(true);
+		textAreaDescricao.setWrapStyleWord(true);
+		textAreaDescricao.setBounds(135, 313, 347, 77);
+		panel_1.add(textAreaDescricao);
+		
 		JButton btnCancelar_2 = new JButton("Cancelar");
 		btnCancelar_2.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
@@ -189,14 +212,14 @@ public class TelaConfirmarPagamentoContratual extends JDialog {
 
 			}
 		});
-		btnCancelar_2.setBounds(424, 357, 89, 23);
+		btnCancelar_2.setBounds(424, 415, 89, 23);
 		painelSelecionar.add(btnCancelar_2);
 
 		getContentPane().add(abas, BorderLayout.CENTER);
 
 		setBackground(new Color(255, 255, 255));
 		setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-		setBounds(100, 100, 544, 420);
+		setBounds(100, 100, 572, 518);
 		painelConfirmar.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseEntered(MouseEvent arg0) {
@@ -226,6 +249,18 @@ public class TelaConfirmarPagamentoContratual extends JDialog {
 				CadastroContrato.CadastroPagamentoContratual pagamento_a_inserir = new CadastroContrato.CadastroPagamentoContratual();
 				
 				
+				String s_tipo = cBTipo.getSelectedItem().toString();
+				
+				int tipo = -1;
+				
+				if(s_tipo.equalsIgnoreCase("Normal")) {
+					tipo = 1;
+				}else if(s_tipo.equalsIgnoreCase("Comissão")) {
+					tipo = 2;
+				}
+				
+				pagamento_a_inserir.setDescricao(lblDescricaoPagamento.getText());
+				pagamento_a_inserir.setTipo(tipo);
 				pagamento_a_inserir.setData_pagamento(lblDataPagamento.getText());
 				pagamento_a_inserir.setValor_pagamento(Double.parseDouble(lblValorPagamento.getText()));
 				pagamento_a_inserir.setId_depositante(depositante.getId());
@@ -249,7 +284,7 @@ public class TelaConfirmarPagamentoContratual extends JDialog {
 				
 			}
 		});
-		btnSalvar.setBounds(319, 358, 89, 23);
+		btnSalvar.setBounds(319, 420, 89, 23);
 		painelConfirmar.add(btnSalvar);
 
 		JButton btnCancelar = new JButton("Cancelar");
@@ -259,40 +294,40 @@ public class TelaConfirmarPagamentoContratual extends JDialog {
 				isto.dispose();
 			}
 		});
-		btnCancelar.setBounds(423, 358, 89, 23);
+		btnCancelar.setBounds(423, 420, 89, 23);
 		painelConfirmar.add(btnCancelar);
 		
 		JLabel lblDepositante = new JLabel("Depositante:");
-		lblDepositante.setBounds(36, 146, 73, 14);
+		lblDepositante.setBounds(36, 97, 73, 14);
 		painelConfirmar.add(lblDepositante);
 		
 		
 		
 		lblDepositantePagamento = new JLabel("");
 		lblDepositantePagamento.setBorder(new LineBorder(new Color(0, 0, 0)));
-		lblDepositantePagamento.setBounds(105, 135, 184, 32);
+		lblDepositantePagamento.setBounds(105, 86, 426, 32);
 		painelConfirmar.add(lblDepositantePagamento);
 		
 		JLabel lblConta = new JLabel("Conta:");
-		lblConta.setBounds(65, 189, 44, 14);
+		lblConta.setBounds(65, 140, 44, 14);
 		painelConfirmar.add(lblConta);
 		
 		 lblContaDepositantePagamento = new JTextArea();
 		 lblContaDepositantePagamento.setEditable(false);
 		lblContaDepositantePagamento.setBorder(new LineBorder(new Color(0, 0, 0)));
-		lblContaDepositantePagamento.setBounds(105, 178, 407, 57);
+		lblContaDepositantePagamento.setBounds(105, 129, 426, 57);
 		lblContaDepositantePagamento.setLineWrap(true);
 
 		painelConfirmar.add(lblContaDepositantePagamento);
 		
 		JLabel lblConta_1 = new JLabel("Conta:");
-		lblConta_1.setBounds(65, 300, 44, 14);
+		lblConta_1.setBounds(65, 251, 44, 14);
 		painelConfirmar.add(lblConta_1);
 		
 		 lblContaFavorecidoPagamento = new JTextArea();
 		 lblContaFavorecidoPagamento.setEditable(false);
 		lblContaFavorecidoPagamento.setBorder(new LineBorder(new Color(0, 0, 0)));
-		lblContaFavorecidoPagamento.setBounds(105, 289, 407, 58);
+		lblContaFavorecidoPagamento.setBounds(105, 240, 426, 58);
 		lblContaFavorecidoPagamento.setLineWrap(true);
 
 		painelConfirmar.add(lblContaFavorecidoPagamento);
@@ -300,23 +335,43 @@ public class TelaConfirmarPagamentoContratual extends JDialog {
 		
 		 lblFavorecidoPagamento = new JLabel("");
 		lblFavorecidoPagamento.setBorder(new LineBorder(new Color(0, 0, 0)));
-		lblFavorecidoPagamento.setBounds(105, 246, 184, 32);
+		lblFavorecidoPagamento.setBounds(105, 197, 426, 32);
 		painelConfirmar.add(lblFavorecidoPagamento);
 		
 		JLabel lblFavorecido = new JLabel("Favorecido:");
-		lblFavorecido.setBounds(36, 257, 73, 14);
+		lblFavorecido.setBounds(36, 208, 73, 14);
 		painelConfirmar.add(lblFavorecido);
 		
 		 lblValorPagamento = new JLabel("");
 		lblValorPagamento.setBorder(new LineBorder(new Color(0, 0, 0)));
-		lblValorPagamento.setBounds(105, 85, 184, 32);
+		lblValorPagamento.setBounds(347, 42, 184, 32);
 		painelConfirmar.add(lblValorPagamento);
 		
 		JLabel lblValor = new JLabel("Valor:");
-		lblValor.setBounds(59, 96, 36, 14);
+		lblValor.setBounds(301, 53, 36, 14);
 		painelConfirmar.add(lblValor);
+		
+		JLabel lblConta_1_1 = new JLabel("Tipo:");
+		lblConta_1_1.setBounds(65, 310, 44, 14);
+		painelConfirmar.add(lblConta_1_1);
+		
+		lblTipoPagamento = new JLabel("");
+		lblTipoPagamento.setBorder(new LineBorder(new Color(0, 0, 0)));
+		lblTipoPagamento.setBounds(105, 310, 426, 32);
+		painelConfirmar.add(lblTipoPagamento);
+		
+		JLabel lblConta_1_1_1 = new JLabel("Descrição:");
+		lblConta_1_1_1.setBounds(36, 355, 59, 16);
+		painelConfirmar.add(lblConta_1_1_1);
+		
+		 lblDescricaoPagamento = new JTextArea();
+		lblDescricaoPagamento.setLineWrap(true);
+		lblDescricaoPagamento.setEditable(false);
+		lblDescricaoPagamento.setBorder(new LineBorder(new Color(0, 0, 0)));
+		lblDescricaoPagamento.setBounds(105, 354, 426, 58);
+		painelConfirmar.add(lblDescricaoPagamento);
 
-	    this.setUndecorated(true);
+	    //this.setUndecorated(true);
 		this.setLocationRelativeTo(null);
 
 	}
@@ -450,6 +505,9 @@ public class TelaConfirmarPagamentoContratual extends JDialog {
 			}
 			
 		}
+		
+		lblTipoPagamento.setText(cBTipo.getSelectedItem().toString());
+		lblDescricaoPagamento.setText(textAreaDescricao.getText());
 		
 	}
 	
