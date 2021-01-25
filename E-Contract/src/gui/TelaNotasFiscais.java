@@ -103,8 +103,11 @@ public class TelaNotasFiscais extends JDialog {
 	private JLabel lblAt;
 	private JTextField entMenorData;
 	private JTextField entMaiorData;
+	private JLabel lblNewLabel_2;
+	private JLabel lblNewLabel_4;
 
 	public TelaNotasFiscais(int flag,CadastroCliente vendedor) {
+		setIconImage(Toolkit.getDefaultToolkit().getImage(TelaNotasFiscais.class.getResource("/imagens/icone_notas_fiscais.png")));
 		//setAlwaysOnTop(true);
 
 		setModal(true);
@@ -116,14 +119,15 @@ public class TelaNotasFiscais extends JDialog {
 
 		setBackground(new Color(255, 255, 255));
 		setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-		setBounds(100, 100, 684, 531);
-		painelPrincipal.setBackground(new Color(255, 255, 255));
+		setBounds(100, 100, 1000, 580);
+		painelPrincipal.setBackground(Color.WHITE);
 		painelPrincipal.setBorder(new EmptyBorder(5, 5, 5, 5));
 		setContentPane(painelPrincipal);
 		painelPrincipal.setLayout(null);
 
 		JPanel panel = new JPanel();
-		panel.setBounds(26, 179, 626, 241);
+		panel.setBackground(Color.WHITE);
+		panel.setBounds(26, 231, 922, 234);
 		painelPrincipal.add(panel);
 
 		table_nfs = new JTable(modelo_nfs);
@@ -167,7 +171,7 @@ public class TelaNotasFiscais extends JDialog {
 		panel.setLayout(null);
 		panel.setLayout(null);
 		JScrollPane scrollPaneNFs = new JScrollPane(table_nfs);
-		scrollPaneNFs.setBounds(10, 11, 606, 219);
+		scrollPaneNFs.setBounds(10, 11, 906, 217);
 		panel.add(scrollPaneNFs);
 
 		
@@ -182,26 +186,26 @@ public class TelaNotasFiscais extends JDialog {
 
 			}
 		});
-		btnSelecionarNota.setBounds(563, 431, 89, 23);
+		btnSelecionarNota.setBounds(859, 477, 89, 23);
 		painelPrincipal.add(btnSelecionarNota);
 
 
 		entProduto = new JTextField();
 		
-		entProduto.setBounds(144, 92, 242, 28);
+		entProduto.setBounds(474, 113, 242, 28);
 		painelPrincipal.add(entProduto);
 		entProduto.setColumns(10);
 		
 		entChavePesquisa = new JTextField();
 		
-		entChavePesquisa.setBounds(144, 27, 242, 28);
+		entChavePesquisa.setBounds(130, 115, 268, 28);
 		painelPrincipal.add(entChavePesquisa);
 		entChavePesquisa.setColumns(10);
 
 		
 		
 		lblStatusAdicionandoNotas = new JLabel("Adicionando Notas...");
-		lblStatusAdicionandoNotas.setBounds(26, 458, 626, 23);
+		lblStatusAdicionandoNotas.setBounds(26, 512, 626, 23);
 		painelPrincipal.add(lblStatusAdicionandoNotas);
 		
 		btnVizualizarNF = new JButton("Vizualizar");
@@ -221,7 +225,7 @@ public class TelaNotasFiscais extends JDialog {
 					 }
 			}
 		});
-		btnVizualizarNF.setBounds(464, 431, 89, 23);
+		btnVizualizarNF.setBounds(760, 477, 89, 23);
 		painelPrincipal.add(btnVizualizarNF);
 		
 		btnExportar = new JButton("Exportar");
@@ -230,7 +234,7 @@ public class TelaNotasFiscais extends JDialog {
 				exportar();
 			}
 		});
-		btnExportar.setBounds(365, 431, 89, 23);
+		btnExportar.setBounds(661, 477, 89, 23);
 		painelPrincipal.add(btnExportar);
 		
 		btnImportarNFe = new JButton("Importar");
@@ -241,7 +245,7 @@ public class TelaNotasFiscais extends JDialog {
 				
 			}
 		});
-		btnImportarNFe.setBounds(269, 431, 89, 23);
+		btnImportarNFe.setBounds(565, 477, 89, 23);
 		painelPrincipal.add(btnImportarNFe);
 		
 		btnFiltrar = new JButton("Filtrar");
@@ -250,61 +254,61 @@ public class TelaNotasFiscais extends JDialog {
 			   filtrar();
 			}
 		});
-		btnFiltrar.setBounds(545, 126, 59, 28);
+		btnFiltrar.setBounds(889, 191, 59, 28);
 		painelPrincipal.add(btnFiltrar);
 		
 		lblNewLabel = new JLabel("Destinatario:");
 		lblNewLabel.setFont(new Font("Tahoma", Font.PLAIN, 14));
-		lblNewLabel.setBounds(62, 31, 77, 17);
+		lblNewLabel.setBounds(48, 119, 77, 17);
 		painelPrincipal.add(lblNewLabel);
 		
 		lblRemetente = new JLabel("Remetente:");
 		lblRemetente.setFont(new Font("Tahoma", Font.PLAIN, 14));
-		lblRemetente.setBounds(67, 64, 72, 17);
+		lblRemetente.setBounds(53, 152, 72, 17);
 		painelPrincipal.add(lblRemetente);
 		
 		entRemetente = new JTextField();
 		entRemetente.setColumns(10);
-		entRemetente.setBounds(144, 59, 242, 28);
+		entRemetente.setBounds(130, 147, 268, 28);
 		painelPrincipal.add(entRemetente);
 		
 		lblNatureza = new JLabel("Natureza:");
 		lblNatureza.setFont(new Font("Tahoma", Font.PLAIN, 14));
-		lblNatureza.setBounds(80, 131, 59, 17);
+		lblNatureza.setBounds(410, 152, 59, 17);
 		painelPrincipal.add(lblNatureza);
 		
 		entNatureza = new JTextField();
 		entNatureza.setColumns(10);
-		entNatureza.setBounds(144, 126, 242, 28);
+		entNatureza.setBounds(474, 147, 242, 28);
 		painelPrincipal.add(entNatureza);
 		
 		lblProduto = new JLabel("Produto:");
 		lblProduto.setFont(new Font("Tahoma", Font.PLAIN, 14));
-		lblProduto.setBounds(84, 97, 55, 17);
+		lblProduto.setBounds(414, 118, 55, 17);
 		painelPrincipal.add(lblProduto);
 		
 		lblNewLabel_1 = new JLabel("Periodo");
-		lblNewLabel_1.setBounds(489, 27, 43, 16);
+		lblNewLabel_1.setBounds(833, 92, 43, 16);
 		painelPrincipal.add(lblNewLabel_1);
 		
 		lblD = new JLabel("Dé:");
 		lblD.setFont(new Font("Tahoma", Font.PLAIN, 14));
-		lblD.setBounds(399, 62, 22, 17);
+		lblD.setBounds(743, 127, 22, 17);
 		painelPrincipal.add(lblD);
 		
 		lblAt = new JLabel("Até:");
 		lblAt.setFont(new Font("Tahoma", Font.PLAIN, 14));
-		lblAt.setBounds(396, 90, 25, 17);
+		lblAt.setBounds(740, 155, 25, 17);
 		painelPrincipal.add(lblAt);
 		
 		entMenorData = new JTextField();
 		entMenorData.setColumns(10);
-		entMenorData.setBounds(435, 49, 169, 28);
+		entMenorData.setBounds(779, 114, 169, 28);
 		painelPrincipal.add(entMenorData);
 		
 		entMaiorData = new JTextField();
 		entMaiorData.setColumns(10);
-		entMaiorData.setBounds(435, 88, 169, 28);
+		entMaiorData.setBounds(779, 153, 169, 28);
 		painelPrincipal.add(entMaiorData);
 		
 		JButton btnLimpar = new JButton("Limpar");
@@ -315,8 +319,21 @@ public class TelaNotasFiscais extends JDialog {
 				    sorter.setRowFilter( RowFilter.regexFilter(""));
 			}
 		});
-		btnLimpar.setBounds(474, 126, 67, 28);
+		btnLimpar.setBounds(818, 191, 67, 28);
 		painelPrincipal.add(btnLimpar);
+		
+		lblNewLabel_2 = new JLabel("");
+		lblNewLabel_2.setIcon(new ImageIcon(TelaNotasFiscais.class.getResource("/imagens/icone_notas_fiscais.png")));
+		lblNewLabel_2.setBounds(0, 6, 64, 64);
+		painelPrincipal.add(lblNewLabel_2);
+		
+		lblNewLabel_4 = new JLabel("     NF's");
+		lblNewLabel_4.setOpaque(true);
+		lblNewLabel_4.setForeground(Color.WHITE);
+		lblNewLabel_4.setFont(new Font("Arial", Font.PLAIN, 18));
+		lblNewLabel_4.setBackground(new Color(0, 51, 0));
+		lblNewLabel_4.setBounds(48, 48, 61, 22);
+		painelPrincipal.add(lblNewLabel_4);
 		
 
 		if(flag == 1) {

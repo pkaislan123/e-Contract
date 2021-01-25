@@ -153,6 +153,8 @@ public class TelaGerenciarContrato extends JDialog {
 	private JTabbedPane painelPrincipal = new JTabbedPane();
 	private JPanel painelDadosIniciais = new JPanel();
 	private JPanel painelPagamentos = new JPanel();
+	private JPanel painelRecebimentoEntrada = new JPanel();
+
 	private JPanel painelCarregamento = new JPanel();
 	private JPanel painelListaTarefas = new JPanel();
 	private JPanel painelComprovantes = new JPanel();
@@ -303,6 +305,11 @@ public class TelaGerenciarContrato extends JDialog {
 		// adiciona novos paines e suas abas
 		painelPrincipal.addTab("Contrato", painelDadosIniciais);
 		painelDadosIniciais.setLayout(null);
+		painelRecebimentoEntrada.setBackground(Color.WHITE);
+		
+	
+		
+		painelDadosIniciais.setLayout(null);
 
 		if (contrato.getSub_contrato() == 0) {
 			// não é um subcontrato
@@ -342,6 +349,24 @@ public class TelaGerenciarContrato extends JDialog {
 			}
 		});
 
+		
+		//adiciona o painel de recebimento
+		painelPrincipal.addTab("Recebimento de Entrada", painelRecebimentoEntrada);
+		painelRecebimentoEntrada.setLayout(null);
+		
+		JLabel lblNewLabel_4_1 = new JLabel("     Recebimento");
+		lblNewLabel_4_1.setOpaque(true);
+		lblNewLabel_4_1.setForeground(Color.WHITE);
+		lblNewLabel_4_1.setFont(new Font("Arial", Font.PLAIN, 18));
+		lblNewLabel_4_1.setBackground(new Color(0, 51, 0));
+		lblNewLabel_4_1.setBounds(0, 22, 158, 31);
+		painelRecebimentoEntrada.add(lblNewLabel_4_1);
+		
+		JLabel lblNewLabel_28 = new JLabel("");
+		lblNewLabel_28.setIcon(new ImageIcon(TelaGerenciarContrato.class.getResource("/imagens/icone_caminhao_descarregando4.png")));
+		lblNewLabel_28.setBounds(30, 52, 183, 77);
+		painelRecebimentoEntrada.add(lblNewLabel_28);
+		
 		btnEditarContrato.setBounds(331, 497, 89, 23);
 
 		painelDadosIniciais.add(btnEditarContrato);
@@ -525,6 +550,16 @@ public class TelaGerenciarContrato extends JDialog {
 		});
 		btnReabrir.setBounds(426, 568, 100, 28);
 		painelDadosIniciais.add(btnReabrir);
+		
+		JButton btnNewButton = new JButton("Visão Geral");
+		btnNewButton.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				TelaVisaoGeralContrato tela = new TelaVisaoGeralContrato(contrato_local);
+				tela.setVisible(true);
+			}
+		});
+		btnNewButton.setBounds(934, 385, 92, 28);
+		painelDadosIniciais.add(btnNewButton);
 
 		modelo.addColumn("Id Pagamento");
 		modelo.addColumn("Id Conta");
@@ -804,6 +839,11 @@ public class TelaGerenciarContrato extends JDialog {
 		painelGraficoNFs.setLayout(null);
 		painelGraficoNFs.setBounds(916, 382, 300, 250);
 		painelCarregamento.add(painelGraficoNFs);
+		
+		JLabel lblNewLabel_29 = new JLabel("");
+		lblNewLabel_29.setIcon(new ImageIcon(TelaGerenciarContrato.class.getResource("/imagens/icone_caminhao_carregado2.png")));
+		lblNewLabel_29.setBounds(87, 48, 130, 97);
+		painelCarregamento.add(lblNewLabel_29);
 
 		painelPagamentos.setBackground(new Color(255, 255, 255));
 
@@ -1283,7 +1323,6 @@ public class TelaGerenciarContrato extends JDialog {
 		
 		travarContrato();
 	*/
-
 		this.setLocationRelativeTo(null);
 
 		this.setVisible(true);
@@ -3680,6 +3719,7 @@ public class TelaGerenciarContrato extends JDialog {
 		java.awt.EventQueue.invokeLater(new Runnable() {
 			public void run() {
 
+
 				// create the root node
 				DefaultMutableTreeNode root_contratos = new DefaultMutableTreeNode("Raíz");
 				// create the child nodes
@@ -3767,6 +3807,9 @@ public class TelaGerenciarContrato extends JDialog {
 				painel_pai.add(arvore_contratos, "cell 0 1,grow");
 
 				expandAllNodes(arvore_contratos, 0, arvore_contratos.getRowCount());
+				
+				painelInformacoes.setInformacoesSubContrato(contrato_local);
+
 
 			}
 		});

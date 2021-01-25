@@ -2,8 +2,11 @@ package classesExtras;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Font;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 
 import javax.swing.ImageIcon;
+import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.JPanel;
@@ -16,6 +19,7 @@ import cadastros.CadastroLogin;
 import cadastros.CadastroLogin.Mensagem;
 import conexaoBanco.GerenciarBancoClientes;
 import conexaoBanco.GerenciarBancoContratos;
+import gui.TelaVisaoGeralContrato;
 import cadastros.CadastroPontuacao;
 import net.miginfocom.swing.MigLayout;
 import javax.swing.JTextArea;
@@ -87,7 +91,7 @@ public class RenderizadorPontuacao implements ListCellRenderer<CadastroPontuacao
 			painel_msg.add(textAreaDescricao, "cell 4 0,grow");
 		
 		
-		
+			
 		
 		return painel_msg;
 	}

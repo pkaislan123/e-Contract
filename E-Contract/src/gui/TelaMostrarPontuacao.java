@@ -2,9 +2,12 @@ package gui;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.Component;
 import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.net.URL;
 import java.text.NumberFormat;
 import java.util.ArrayList;
@@ -23,6 +26,7 @@ import org.icepdf.ri.common.SwingViewBuilder;
 import net.miginfocom.swing.MigLayout;
 import javax.swing.JLabel;
 import javax.swing.JList;
+import javax.swing.JOptionPane;
 
 import java.awt.Font;
 import javax.swing.JTextArea;
@@ -30,6 +34,7 @@ import javax.swing.BoxLayout;
 import javax.swing.DefaultListModel;
 
 import java.awt.GridLayout;
+import java.awt.Point;
 import java.awt.SystemColor;
 import java.awt.GridBagLayout;
 import java.awt.GridBagConstraints;
@@ -58,6 +63,7 @@ public class TelaMostrarPontuacao extends JDialog {
     private JLabel lblTotalContratosConcluidos, lblTotalContratos, lblTotalContratosAbertos;
     private TelaMostrarPontuacao isto;
     private JDialog telaPai;
+    private  JList<CadastroPontuacao> lista_pontuacao ;
     
     private JLabel lblNumeroAvaliacoes, lblCalculo,lblEstrelas;
 
@@ -72,7 +78,7 @@ public class TelaMostrarPontuacao extends JDialog {
 		
 		setBackground(new Color(255, 255, 255));
 		setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-		setBounds(100, 100, 841, 425);
+		setBounds(100, 100, 902, 507);
 		painelPrincipal.kStartColor = Color.WHITE;
 		painelPrincipal.kEndColor = Color.WHITE;
 		painelPrincipal.setBackground(new Color(255, 255, 255));
@@ -87,21 +93,26 @@ public class TelaMostrarPontuacao extends JDialog {
 		painelPrincipal.add(lblNumeroAvaliacoes);
 		
 		JButton btnNewButton = new JButton("Sair");
+		btnNewButton.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				isto.dispose();
+			}
+		});
 		btnNewButton.setForeground(Color.WHITE);
 		btnNewButton.setBackground(new Color(102, 0, 0));
-		btnNewButton.setBounds(740, 352, 50, 28);
+		btnNewButton.setBounds(819, 434, 50, 28);
 		painelPrincipal.add(btnNewButton);
 		
 		JPanel panel = new JPanel();
 		panel.setBackground(new Color(204, 255, 153));
-		panel.setBounds(26, 100, 793, 226);
+		panel.setBounds(26, 100, 843, 322);
 		painelPrincipal.add(panel);
 		panel.setLayout(null);
-			
+		
 		 DefaultListModel<CadastroPontuacao>   listModelGlobal = new DefaultListModel<CadastroPontuacao>();
-		 
+		 ArrayList<CadastroPontuacao>  avaliacoes = new  ArrayList<>();
 		   GerenciarBancoPontuacao gerenciar = new GerenciarBancoPontuacao();
-			 ArrayList<CadastroPontuacao>  avaliacoes = gerenciar.getPontuacaoPorCliente(cliente_local.getId());
+		  avaliacoes = gerenciar.getPontuacaoPorCliente(cliente_local.getId());
 		 
 		 for(CadastroPontuacao pontuacao : avaliacoes) {
 				
@@ -112,23 +123,30 @@ public class TelaMostrarPontuacao extends JDialog {
 		 RenderizadorPontuacao render = new RenderizadorPontuacao();
 
 		 
-			JList<CadastroPontuacao> lista_pontuacao = new JList<>();
+		 lista_pontuacao = new JList<>();
 			lista_pontuacao.setBackground(new Color(255, 255, 255));
 			
 			 lista_pontuacao.setCellRenderer(render);
 			 lista_pontuacao.setModel(listModelGlobal);
+			lista_pontuacao.addMouseListener(new MouseAdapter()
+			    {
+			      @Override
+			      public void mouseClicked(MouseEvent event)
+			      {
+			        clickButtonAt(event.getPoint());
+			      }
+			    });
 
 		  lblNumeroAvaliacoes.setText("Pontuação com base em " + avaliacoes.size() + " avaliações");
 			
-			
 		
 		JScrollPane scrollPane = new JScrollPane(lista_pontuacao);
-		scrollPane.setBounds(6, 53, 781, 167);
+		scrollPane.setBounds(6, 53, 831, 263);
 		panel.add(scrollPane);
 		
 		
 		  JPanel painel_msg = new JPanel();
-		  painel_msg.setBounds(6, 6, 781, 47);
+		  painel_msg.setBounds(6, 6, 831, 47);
 		  panel.add(painel_msg);
 		  painel_msg.setBorder(new LineBorder(new Color(0, 0, 0)));
 		  
@@ -143,15 +161,15 @@ public class TelaMostrarPontuacao extends JDialog {
 		  	lblCodigoContrato.setFont(new Font("Tahoma", Font.BOLD, 14));
 		  	painel_msg.add(lblCodigoContrato, "cell 0 0");
 		  	
-		  	JLabel lblCliente = new JLabel("               Cliente       ");
+		  	JLabel lblCliente = new JLabel("      Cliente      ");
 		  	lblCliente.setFont(new Font("Tahoma", Font.BOLD, 14));
 		  	painel_msg.add(lblCliente, "cell 1 0");
 		  	
-		  	JLabel lblPontos = new JLabel("            Pontuação            ");
+		  	JLabel lblPontos = new JLabel("  Pontuação   ");
 		  	lblPontos.setFont(new Font("Arial", Font.BOLD, 14));
 		  	painel_msg.add(lblPontos, "cell 2 0");
 		  	
-		  	JLabel lblMotivo = new JLabel("                        Motivo       ");
+		  	JLabel lblMotivo = new JLabel("                                Motivo                   ");
 		  	lblMotivo.setFont(new Font("Arial", Font.BOLD, 14));
 		  	painel_msg.add(lblMotivo, "cell 3 0");
 		  	
@@ -177,6 +195,24 @@ public class TelaMostrarPontuacao extends JDialog {
 		
 	}
 	
+	 private void clickButtonAt(Point point)
+	  {
+	    int index = lista_pontuacao.locationToIndex(point);
+	    CadastroPontuacao item = (CadastroPontuacao) lista_pontuacao.getModel().getElementAt(index);
+	    CadastroContrato contrato = new GerenciarBancoContratos().getContrato(item.getId_contrato());
+	    
+	    if(contrato.getSub_contrato() == 1) {
+		    TelaVisaoGeralSubContrato tela = new TelaVisaoGeralSubContrato(contrato);
+		    tela.setVisible(true);
+	    }else {
+	    TelaVisaoGeralContrato tela = new TelaVisaoGeralContrato(contrato);
+	    tela.setVisible(true);
+	    }
+
+	  }
+	 
+	
+	 
 	public void setTelaPai(JDialog _tela_pai) {
 		this.telaPai = _tela_pai;
 	}
@@ -214,6 +250,4 @@ public class TelaMostrarPontuacao extends JDialog {
 		   
 		   
 	   }
-	
-	
 }
