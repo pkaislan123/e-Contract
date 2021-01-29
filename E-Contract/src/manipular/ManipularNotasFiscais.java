@@ -27,6 +27,8 @@ import cadastros.CadastroLogin;
 import cadastros.CadastroNFe;
 import gui.TelaGerenciarContrato;
 import gui.TelaNotasFiscais;
+import gui.TelaTodasNotasFiscais;
+
 import outros.DadosGlobais;
 import outros.MyFileVisitor;
 import outros.TratarDados;
@@ -69,7 +71,7 @@ public class ManipularNotasFiscais {
 		}
 
 		for (int i = 0; i < listadeArquivos.size(); i++) {
-			// System.out.println(listadeArquivos.get(i).toString());
+			 System.out.println(listadeArquivos.get(i).toString());
 			countArquivos++;
 		}
 
@@ -83,7 +85,11 @@ public class ManipularNotasFiscais {
 				if (cadastro != null) {
 					notas_fiscais.add(cadastro);
 					countNotas++;
+					
+					if(tela_pai instanceof TelaNotasFiscais)
 					((TelaNotasFiscais) tela_pai).addNota(cadastro);
+					else
+					((TelaTodasNotasFiscais) tela_pai).addNota(cadastro);
 
 				}
 
@@ -107,7 +113,7 @@ public class ManipularNotasFiscais {
 	public CadastroNFe filtrar(File file) {
 		CadastroNFe cadastro = new CadastroNFe();
 
-		// System.out.println("caminho do arquivo: " + cadastro.getCaminho_arquivo());
+		 System.out.println("caminho do arquivo: " + file.getAbsolutePath());
 
 		try (PDDocument document = PDDocument.load(file)) {
 
@@ -122,31 +128,36 @@ public class ManipularNotasFiscais {
 
 				String lines[] = pdfFileInText.split("\r\n");
 				// String linhas = Arrays.toString(lines);
-				String demais = lines[118];
+				//String demais = lines[118];
 				// System.out.println("Demais: " + demais);
-				String separados[] = demais.split(" ");
+				//String separados[] = demais.split(" ");
 				/*
 				 * for (String line : separados) { System.out.println(line); }
 				 */
-				/*
-				 * for (String line : lines) { System.out.println(line); }
-				 */
+				
+				 // for (String line : lines) { System.out.println(line); }
+				 
 
 				String tratar = Arrays.toString(lines);
 				// tratar = tratar.replaceAll("\n", "*");
-				// System.out.println(tratar);
+				//System.out.println(tratar);
 				TratarDados tratamentoDados = new TratarDados(tratar);
 
 				for(String linha : lines) {
 					if(linha.contains("EPEC")) {
-						//nfa interna
+						//nfe interna
 						
 						cadastro = tratar_nfe_interna(lines ,file);
 
 					}else if(linha.contains("NFA-e")) {
 						//nfa siare
 						cadastro = tratar_nfa_siare(lines, file);
+					}else if(linha.contains("Oobj")) {
+						JOptionPane.showMessageDialog(null, "Iniciando tratamento de nfe siacon");
+						//nfe siacon
+						cadastro = tratar_nfe_interna_siacon(lines, file);
 					}
+					
 				}
 
 				
@@ -155,7 +166,7 @@ public class ManipularNotasFiscais {
 			return cadastro;
 
 		} catch (Exception e1) {
-			//JOptionPane.showMessageDialog(null, "Erro ao listar NFA-e\nErro:  " + e1.getMessage() + "\nConsulte o Administrador");
+			JOptionPane.showMessageDialog(null, "Erro ao ler nota fiscal\nErro:  " + e1.getMessage() + "\nConsulte o Administrador");
 			return null;
 		}
 	}
@@ -452,7 +463,7 @@ public class ManipularNotasFiscais {
 				
 			cadastro.setData(date);
 			}catch(Exception t) {
-				JOptionPane.showMessageDialog(null, "Erro ao listar NFA-e\nErro:  " + t.getMessage() + "\nConsulte o Administrador");
+				JOptionPane.showMessageDialog(null, "Erro ao listar NFA do siare\nErro:  " + t.getMessage() + "\nConsulte o Administrador");
 				return null;
 			}
 			cadastro.setNatureza(natureza);
@@ -697,7 +708,7 @@ public class ManipularNotasFiscais {
 					
 				cadastro.setData(date);
 				}catch(Exception t) {
-					JOptionPane.showMessageDialog(null, "Erro ao listar NFA-e\nErro:  " + t.getMessage() + "\nConsulte o Administrador");
+					JOptionPane.showMessageDialog(null, "Erro ao listar NF-e interna sucess\nErro:  " + t.getMessage() + "\nConsulte o Administrador");
 					
 				}
   			cadastro.setNatureza(natureza);
@@ -707,6 +718,166 @@ public class ManipularNotasFiscais {
   			cadastro.setQuantidade(quantidade);
   			cadastro.setValor(valor);
   			
+			 return cadastro;
+
+		}
+       
+       
+       
+       public CadastroNFe tratar_nfe_interna_siacon (String lines[], File file) {
+			CadastroNFe cadastro = new CadastroNFe();
+
+     		cadastro.setCaminho_arquivo(file.getAbsolutePath());
+
+   	   String tratar = Arrays.toString(lines);
+          // tratar = tratar.replaceAll("\n", "*");
+           System.out.println(tratar);
+             TratarDados tratamentoDados  = new TratarDados(tratar );
+
+             String nfe = tratamentoDados.tratar("Nº "," ").replaceAll("[^0-9]", "");
+             //String nfe = null;
+             String natureza = tratamentoDados.tratar("NATUREZA DA OPERAÇÃO, ", ",");
+             
+             String serie = tratamentoDados.tratar("SÉRIE ", ",");
+           
+            String nome_remetente = tratamentoDados.tratar("RECEBEMOS DE ", "-");
+           
+             String protocolo = tratamentoDados.tratar("PROT. DE AUTORIZAÇÃO ", " ");
+            
+             
+             
+            
+          
+             
+             
+             String inscricao_remetente = tratamentoDados.tratar("Simples Nacional,", "SUBST").replaceAll("[^0-9]", "");
+
+             
+             String nome_destinatario = tratamentoDados.tratar("DESTINATÁRIO/REMETENTE, ", ",");
+
+             //String data = lines[33].toString();
+            
+             String data = tratamentoDados.tratar("DATA DE EMISSÃO: ", ",");
+             
+
+            //inscricao do destinatario
+             
+             String linha_com_info_destinatario = tratamentoDados.tratar("DESTINATÁRIO/REMETENTE, ", "HORA");
+             
+             //quebrar string
+             String string_quebrada[] = linha_com_info_destinatario.split(",");
+             
+             
+         
+             String inscricao_destinatario = string_quebrada[5].replaceAll("[^0-9]", "");
+
+             
+             String valor = tratamentoDados.tratar("VALOR TOTAL DA NOTA, ", "TRANSPORTADOR");
+             valor = valor.trim();
+             valor = valor.substring(0, valor.length() - 1);
+
+             
+             boolean procura_produto = tratar.contains("SOJA");
+             String produto = null;
+             if(procura_produto)
+             {
+             	produto = "SOJA";
+             }
+             else
+             {
+             	procura_produto = tratar.contains("SORGO");
+             	if(procura_produto) {
+             	produto = "SORGO";
+             	}
+             	else
+             	{
+             		procura_produto = tratar.contains("MILHO");
+	                	if(procura_produto) {
+	                	produto = "MILHO";
+	                	}
+	                	else
+	                	{
+	                		System.out.println("Nenhum Produto Escontrado");
+	                	}
+             		
+             	}
+             	
+             }
+             
+             boolean procura_unidade = tratar.contains("KG");
+             String unidade = null;
+             if(procura_unidade)
+             {
+             	unidade = "KG";
+             }
+             else
+             {
+             	procura_unidade = tratar.contains("SC");
+             	if(procura_unidade) {
+             		unidade = "SC";
+             	}
+             	else
+             	{
+             		procura_unidade = tratar.contains("TON");
+	                	if(procura_unidade) {
+	                		unidade = "TON";
+	                	}
+	                	else
+	                	{
+	                		System.out.println("Nenhum Produto Escontrado");
+	                	}
+             		
+             	}
+             	
+             }
+             
+             String quantidade = tratamentoDados.tratar(unidade + " ", " ");
+
+             
+             System.out.println("Numero nfe: " + nfe);
+
+             System.out.println("Serie: " + serie );
+             System.out.println("Remetente: " + nome_remetente);
+             System.out.println("Inscrição do remetente: " + inscricao_remetente);
+             
+             System.out.println("Protocolo: " + protocolo);
+             System.out.println("Data: " + data );
+             System.out.println("Natureza: " + natureza);
+
+             System.out.println("Nome do Destinatario: " + nome_destinatario);
+             
+            System.out.println("Inscricao Destinatario: "+ inscricao_destinatario);
+         
+            System.out.println("Produto: "+ produto);
+            System.out.println("Unidade: "+ unidade);
+            System.out.println("Quantidade: " + quantidade);
+            System.out.println("Valor: " + valor);
+            
+
+ 		
+            
+ 			cadastro.setNfe(nfe);
+ 			cadastro.setSerie(serie);
+ 			cadastro.setNome_remetente(nome_remetente);
+ 			cadastro.setInscricao_remetente(inscricao_remetente);
+ 			cadastro.setProtocolo(protocolo);
+ 			try {
+					
+					
+					Date date = new SimpleDateFormat("dd/MM/yyyy").parse(data);
+					
+				cadastro.setData(date);
+				}catch(Exception t) {
+					JOptionPane.showMessageDialog(null, "Erro ao ler nota fiscal interna siacon\nErro:  " + t.getMessage() + "\nConsulte o Administrador");
+					
+				}
+ 			cadastro.setNatureza(natureza);
+ 			cadastro.setNome_destinatario(nome_destinatario);
+ 			cadastro.setInscricao_destinatario(inscricao_destinatario);
+ 			cadastro.setProduto(produto);
+ 			cadastro.setQuantidade(quantidade);
+ 			cadastro.setValor(valor);
+ 			
 			 return cadastro;
 
 		}

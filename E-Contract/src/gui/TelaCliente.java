@@ -294,15 +294,15 @@ public class TelaCliente extends JDialog {
 		btnEditar.setBackground(Color.WHITE);
 		btnEditar.setIcon(new ImageIcon(TelaCliente.class.getResource("/imagens/editar.png")));
 		
-		JButton btnVerNotasFiscais = new JButton("Acessar NF's");
-		btnVerNotasFiscais.setBounds(283, 281, 101, 28);
+		JButton btnVerNotasFiscais = new JButton("Todas as NF's");
+		btnVerNotasFiscais.setBounds(283, 281, 108, 28);
 		panel.add(btnVerNotasFiscais);
 		btnVerNotasFiscais.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				int indiceDaLinha = 0;
 				indiceDaLinha = tabela.getSelectedRow();
 				
-				TelaNotasFiscais verNotas = new TelaNotasFiscais(1, clientes_disponiveis.get(indiceDaLinha));
+				TelaTodasNotasFiscais verNotas = new TelaTodasNotasFiscais(1);
 				 verNotas.setVisible(true);
 				//
 				

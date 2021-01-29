@@ -12,7 +12,7 @@ public class CadastroContrato {
     private CadastroCliente cliente_retirada;
     
     
-
+    private int tipo_entrega;
     private String frete;
     private String clausula_frete;
     private String armazenagem;
@@ -21,6 +21,18 @@ public class CadastroContrato {
     
     
     
+	public int getTipo_entrega() {
+		return tipo_entrega;
+	}
+
+
+
+	public void setTipo_entrega(int tipo_entrega) {
+		this.tipo_entrega = tipo_entrega;
+	}
+
+
+
 	public String getClausula_frete() {
 		return clausula_frete;
 	}

@@ -13,6 +13,8 @@ import javax.swing.border.EmptyBorder;
 import javax.swing.border.TitledBorder;
 import javax.swing.table.DefaultTableModel;
 
+import org.springframework.util.StringUtils;
+
 import cadastros.CadastroCliente;
 import cadastros.CadastroContrato;
 import cadastros.CadastroContrato.CadastroPagamento;
@@ -71,6 +73,7 @@ import java.math.BigDecimal;
 import java.net.URL;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -100,6 +103,7 @@ public class TelaElaborarNovoContrato extends JDialog {
 	private JPanel painelEmpresa = new JPanel();
 	private JPanel painelFinalizar = new JPanel();
 	private JComboBox cBComprador, cBFrete, cBArmazenagem;
+    private JRadioButton rBPostoSobreRodas, rBJaDepositada;
 
 	private CadastroContrato novo_contrato = new CadastroContrato();
 	private JComboBox cBVendedor1;
@@ -2052,13 +2056,24 @@ public class TelaElaborarNovoContrato extends JDialog {
 				int indiceDaLinha = table_cb.getSelectedRow();
 
 				String get_valor_linha = table_cb.getValueAt(indiceDaLinha, 8).toString();
-				String Svalor_pagamento = get_valor_linha.replaceAll("R", "").replaceAll(" ", "").replace("$", "")
-						.replace(".", "").replace(",", ".");
+				String Svalor_pagamento = get_valor_linha.replaceAll("R", "").replace("$", "");
 
 				System.out.println("Svalor_pagamento: " + Svalor_pagamento);
-				Svalor_pagamento = Svalor_pagamento.replaceAll( " ", "");
-				BigDecimal valor_pagamento = new BigDecimal(Svalor_pagamento);
+				Svalor_pagamento = Svalor_pagamento.replaceAll("[^0-9.,]", "");
+				
+				
+				NumberFormat z = NumberFormat.getNumberInstance();
 
+				   Number number = null;
+					try {
+						number = z.parse(Svalor_pagamento);
+					} catch (ParseException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+					double Dvalor_pagamento = number.doubleValue();
+
+				BigDecimal valor_pagamento = new BigDecimal(Dvalor_pagamento);
 				int id_conta = Integer.parseInt(table_cb.getValueAt(indiceDaLinha, 1).toString());
 
 				valor_acumulado = valor_acumulado.subtract(valor_pagamento);
@@ -2319,6 +2334,42 @@ public class TelaElaborarNovoContrato extends JDialog {
 		painelEmpresa.add(mostrar_soma_atual_restante);
 
 		chBoxClausulaComissao.setEnabled(false);
+		
+		
+		 rBPostoSobreRodas = new JRadioButton("\"Posto sobre rodas\"");
+		 rBPostoSobreRodas.addActionListener(new ActionListener() {
+		 	public void actionPerformed(ActionEvent e) {
+		 		
+		 		if(rBPostoSobreRodas.isSelected()) {
+		 			rBPostoSobreRodas.setSelected(true);
+		 			rBJaDepositada.setSelected(false);
+		 		}else {
+		 			rBPostoSobreRodas.setSelected(false);
+		 			rBJaDepositada.setSelected(true);
+
+		 		}
+		 	}
+		 });
+		rBPostoSobreRodas.setSelected(true);
+		rBPostoSobreRodas.setBounds(765, 280, 132, 18);
+		painelDadosProdutos.add(rBPostoSobreRodas);
+		
+		 rBJaDepositada = new JRadioButton("\"Já Depositada\"");
+		 rBJaDepositada.addActionListener(new ActionListener() {
+		 	
+			 public void actionPerformed(ActionEvent e) {
+				 if(rBJaDepositada.isSelected()) {
+			 			rBPostoSobreRodas.setSelected(false);
+			 			rBJaDepositada.setSelected(true);
+			 		}else {
+			 			rBPostoSobreRodas.setSelected(true);
+			 			rBJaDepositada.setSelected(false);
+
+			 		}
+		 	}
+		 });
+		rBJaDepositada.setBounds(907, 281, 110, 18);
+		painelDadosProdutos.add(rBJaDepositada);
 
 		// adiciona o paiel de salvar o contrato
 		painelPrincipal.addTab("Finalizar", painelFinalizar);
@@ -2392,6 +2443,17 @@ public class TelaElaborarNovoContrato extends JDialog {
 
 							CadastroCliente localRetirada = (CadastroCliente) modelLocalRetirada.getSelectedItem();
 							novo_contrato.setLocal_retirada(localRetirada.getNome_fantaia());
+							int tipo_entrega = -1;
+							
+							if(rBJaDepositada.isSelected()) {
+								tipo_entrega = 2;
+							}else {
+								tipo_entrega = 1;
+							}
+							
+							novo_contrato.setTipo_entrega(tipo_entrega);
+							
+							
 							novo_contrato.setCliente_retirada(localRetirada);
 
 							novo_contrato.setQuantidade(Double.parseDouble(entQuantidade.getText()));
@@ -3584,6 +3646,4 @@ public class TelaElaborarNovoContrato extends JDialog {
 
 		
 	}
-	
-	
 }

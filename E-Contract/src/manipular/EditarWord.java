@@ -195,11 +195,22 @@ public class EditarWord {
 
 		adicionarObjeto();
 		adicionarEntrega(novo_contrato.getCliente_retirada());
-		adicionarClausula2_1();
-		adicionarClausula3();
-		substituirTexto("[3.1.] O [Vendedor] deverá iniciar a entrega do [Produto] ao [Comprador] imediatamente a partir do início da sua colheita. Na hipótese de, a partir do momento em que o [Produto] estiver apto a ser colhido, ser constatado o transporte ou entrega de qualquer quantidade do [Produto] a qualquer outro destino que não o [Local de Entrega], restará caracterizado seu desvio para terceiros, o que caracterizará inadimplemento contratual de pleno direito, de forma automática e independentemente de qualquer formalidade adicional.");
-		substituirTexto("[4.] [Qualidade:] Quando de sua entrega pelo [Vendedor] ao [Comprador], o [Produto] objeto do presente [Contrato] deverá atender às especificações de qualidade indicadas na [Tabela 1] abaixo (“[Especificações]”). O [Comprador] poderá, a seu exclusivo critério, receber [Produto] que não atenda às [Especificações]. Nesta hipótese, o [Produto] entregue fora das [Especificações] estará sujeito aos descontos indicados na [Tabela] [1] abaixo (“[Descontos]”):");
 		
+		if(novo_contrato.getTipo_entrega() == 1) {
+		adicionarClausula2_1();
+		
+		adicionarClausula3();
+		
+		substituirTexto("[3.1.] O [Vendedor] deverá iniciar a entrega do [Produto] ao [Comprador] imediatamente a partir do início da sua colheita. Na hipótese de, a partir do momento em que o [Produto] estiver apto a ser colhido, ser constatado o transporte ou entrega de qualquer quantidade do [Produto] a qualquer outro destino que não o [Local de Entrega], restará caracterizado seu desvio para terceiros, o que caracterizará inadimplemento contratual de pleno direito, de forma automática e independentemente de qualquer formalidade adicional.");
+		
+	}
+		
+		if(novo_contrato.getTipo_entrega() == 1) {
+		substituirTexto("[4.] [Qualidade:] Quando de sua entrega pelo [Vendedor] ao [Comprador], o [Produto] objeto do presente [Contrato] deverá atender às especificações de qualidade indicadas na [Tabela 1] abaixo (“[Especificações]”). O [Comprador] poderá, a seu exclusivo critério, receber [Produto] que não atenda às [Especificações]. Nesta hipótese, o [Produto] entregue fora das [Especificações] estará sujeito aos descontos indicados na [Tabela] [1] abaixo (“[Descontos]”):");
+	    }else {
+			substituirTexto("[3.] [Qualidade:] Quando de sua entrega pelo [Vendedor] ao [Comprador], o [Produto] objeto do presente [Contrato] deverá atender às especificações de qualidade indicadas na [Tabela 1] abaixo (“[Especificações]”). O [Comprador] poderá, a seu exclusivo critério, receber [Produto] que não atenda às [Especificações]. Nesta hipótese, o [Produto] entregue fora das [Especificações] estará sujeito aos descontos indicados na [Tabela] [1] abaixo (“[Descontos]”):");
+
+	    }
 		
 		substituirTexto("[Tabela] [1] – [Especificações] [e] [Descontos:]\r\n"
 				+ "[Especificações] [Descontos]");
@@ -207,6 +218,7 @@ public class EditarWord {
 		
 		criarTabela();
 		
+		if(novo_contrato.getTipo_entrega() == 1){
 		substituirTexto("[4.1.] A adequação do [Produto] às [Especificações] será verificada pelo [Comprador] (diretamente ou por terceiros contratados), por meio de classificação (“[Classificação]”) a ser realizada no [Local de Entrega].\r\n"
 				+
 				"[4.2.] Fica desde já facultado ao [Vendedor] o acompanhamento da [Classificação]. Em caso de discordância, o Vendedor deverá manifestá-la no ato e por escrito, sob pena de preclusão.\r\n"
@@ -222,16 +234,43 @@ public class EditarWord {
 				 "[5.] [Pesagem]:\r\n"
 				+ "A fim de que seja aferida a quantidade de [Produto] efetivamente entregue pelo [Vendedor] ao [Comprador], a pesagem do [Produto] será realizada caminhão a caminhão, na balança rodoviária localizada no [Local] [de] [Entrega] ou, no local mais próximo possível."
 				);
+		}
+		else {
+			substituirTexto("[3.1.] A adequação do [Produto] às [Especificações] será verificada pelo [Comprador] (diretamente ou por terceiros contratados), por meio de classificação (“[Classificação]”) a ser realizada no [Local de Entrega].\r\n"
+					+
+					"[3.2.] Fica desde já facultado ao [Vendedor] o acompanhamento da [Classificação]. Em caso de discordância, o Vendedor deverá manifestá-la no ato e por escrito, sob pena de preclusão.\r\n"
+					+ 
+					 "[3.3.] O [Comprador] recusará o recebimento de qualquer quantidade do [Produto] que não atenda às [Especificações]. Nesta hipótese, a quantidade de [Produto] que não atender às [Especificações] será considerada como não entregue pelo [Vendedor] ao [Comprador], devendo o [Vendedor] promover a sua substituição no prazo máximo de 2 (dois) dias contado a partir da [Classificação], respeitada, em qualquer caso, a [Data] [de] [Entrega].\r\n"
+					+ 
+					 "[3.4.] Promovida a [Classificação] do [Produto], caso o [Comprador] aceite receber qualquer quantidade de [Produto] que esteja fora das [Especificações], serão aplicados os [Descontos] estabelecidos na [Tabela] [1] da cláusula [5] sobre a [Quantidade] total do [Produto].\r\n"
+					+ 
+					 "[3.4.1.] Caso a aplicação dos [Descontos] prevista na cláusula [4.4] acima seja insuficiente para o cumprimento, pelo [Vendedor], de suas obrigações ao abrigo deste [Contrato], o [Vendedor] ficará obrigado entregar ao [Comprador] quantidade complementar de [Produto].\r\n"
+					+ 
+					 "[3.4.2.] Caso o [Vendedor] não cumpra o quanto disposto na cláusula [4.4.1] até a [Data] [de] [Entrega], o valor correspondente aos [Descontos] (a ser estabelecido pela multiplicação da quantidade de [Produto] objeto dos [Descontos] pelo [Preço]) será considerado crédito líquido, certo e exigível, de titularidade do Comprador contra o [Vendedor.]\r\n"
+					+ 
+					 "[4.] [Pesagem]:\r\n"
+					+ "A fim de que seja aferida a quantidade de [Produto] efetivamente entregue pelo [Vendedor] ao [Comprador], a pesagem do [Produto] será realizada caminhão a caminhão, na balança rodoviária localizada no [Local] [de] [Entrega] ou, no local mais próximo possível."
+					);
+		}
 		
 
 		
-		
+		if(novo_contrato.getTipo_entrega() == 1) {
 		substituirTexto("[6.] [Preço.]\r\n"
 				+ "O preço a ser pago pelo [Comprador] ao [Vendedor] em contraprestação pela efetiva entrega da [Quantidade] total do [Produto] ([“Preço”]), fica desde já fixado no valor de preco_decimal ( preco_extenso ) por saca de 60Kg (sessenta quilogramas).\r\n"
 				);
 		
 		
 		substituirTexto("[6.1]. O [Preço] relativamente à quantidade de [Produto] cujo [Preço] já foi fixado, nos termos deste [Contrato], será pago pelo [Comprador] ao [Vendedor] assim que cumprir a entrega total do produto.");
+		}else {
+			substituirTexto("[5.] [Preço.]\r\n"
+					+ "O preço a ser pago pelo [Comprador] ao [Vendedor] em contraprestação pela efetiva entrega da [Quantidade] total do [Produto] ([“Preço”]), fica desde já fixado no valor de preco_decimal ( preco_extenso ) por saca de 60Kg (sessenta quilogramas).\r\n"
+					);
+			
+			
+			substituirTexto("[5.1]. O [Preço] relativamente à quantidade de [Produto] cujo [Preço] já foi fixado, nos termos deste [Contrato], será pago pelo [Comprador] ao [Vendedor] assim que cumprir a entrega total do produto.");
+			
+		}
 		/*
 		 * 6.2 clausula para adicionar valores
 		
@@ -300,8 +339,13 @@ public class EditarWord {
 		
 		  if(novo_contrato.getFrete() != null) {
 	  	    	 if(!novo_contrato.getFrete().equals("") && novo_contrato.getFrete().length() > 5) {
-	  		  	   		substituirTexto("[6.3.] " +  novo_contrato.getClausula_frete());
-	  		  	   	tem_clausula_frete = true;
+	  	    		 
+	  		  	   	if(novo_contrato.getTipo_entrega() == 1)
+	  	    		 substituirTexto("[6.3.] " +  novo_contrato.getClausula_frete());
+	  		  	   	else
+		  	    		 substituirTexto("[5.3.] " +  novo_contrato.getClausula_frete());
+
+	  	    		 tem_clausula_frete = true;
 
 	  	    	 }
 	  	     }
@@ -311,10 +355,18 @@ public class EditarWord {
 	  	    	 if(!novo_contrato.getArmazenagem().equals("") && novo_contrato.getArmazenagem().length() > 5) {
 	  	    		
 	  	    		 if(tem_clausula_frete) {
+	  	    			 if(novo_contrato.getTipo_entrega() == 1)
 		  		  	   	 substituirTexto("[6.4.] " +  novo_contrato.getClausula_armazenagem());
+	  	    			 else
+			  		  	   	 substituirTexto("[5.4.] " +  novo_contrato.getClausula_armazenagem());
+
 	  	    		 }
 	  	    		 else{
+	  	    			 if(novo_contrato.getTipo_entrega() == 1)
 	  	    			 substituirTexto("[6.3.] " +  novo_contrato.getClausula_armazenagem());
+	  	    			 else
+		  	    			 substituirTexto("[5.3.] " +  novo_contrato.getClausula_armazenagem());
+
 	  	    		 }
 
 		  		  	 tem_clausula_armazenagem = true;
@@ -335,22 +387,39 @@ public class EditarWord {
 	  	    		
 	  	    		  	  	    		 
 	  	    	 if(tem_clausula_frete &&  tem_clausula_armazenagem) {
+	  	    		 if(novo_contrato.getTipo_entrega() == 1)
   	    			 substituirTexto("[6.5.] " +  clausula_comissao);
+	  	    		 else
+	  	    			 substituirTexto("[5.5.] " +  clausula_comissao);
+
 
 	  	    	 }else if(tem_clausula_frete &&  !tem_clausula_armazenagem){
+	  	    		 if(novo_contrato.getTipo_entrega() == 1)
   	    			 substituirTexto("[6.4.] " +  clausula_comissao);
+	  	    		 else
+	  	    			 substituirTexto("[5.4.] " +  clausula_comissao);
 
 	  	    	 }else if(!tem_clausula_frete &&  tem_clausula_armazenagem){
+	  	    		 if(novo_contrato.getTipo_entrega() == 1)
   	    			 substituirTexto("[6.4.] " +  clausula_comissao);
+	  	    		 else
+	  	    			 substituirTexto("[5.4.] " +  clausula_comissao);
 
 	  	    	 }
 	  	    	 else if(!tem_clausula_frete &&  !tem_clausula_armazenagem){
+	  	    		 if(novo_contrato.getTipo_entrega() == 1)
   	    			 substituirTexto("[6.3.] " +  clausula_comissao);
+	  	    		 else
+	  	    			 substituirTexto("[5.3.] " +  clausula_comissao);
 
 	  	    	 }
 	  	    	 }
 	  	     }
+	  	     
+	  	  if(novo_contrato.getTipo_entrega() == 1)   
 		substituirTextoLongo();
+	  	  else
+	  		substituirTextoLongoTipoEntrega2();
 
 		//local e data
 		adicionarData();
@@ -516,12 +585,19 @@ public class EditarWord {
 	public void adicionarEntrega(CadastroCliente local_entrega) {
 		criarParagrafo(2);
 		adicionarTextoParagrafoAtual("2. Entrega:                                                                                                                                                                                                   -" , true);
+
+		if(novo_contrato.getTipo_entrega() == 1) {
+		
 		adicionarTextoParagrafoAtual("O ", false);
 		adicionarTextoParagrafoAtual("Vendedor ", true);
 		adicionarTextoParagrafoAtual("obriga-se a entregar o ", false);
 		adicionarTextoParagrafoAtual("Produto ao Comprador ", true);
 		adicionarTextoParagrafoAtual("na condição “posto sobre rodas”, no seguinte local de entrega: ", false);
+		}
+		else {
+			adicionarTextoParagrafoAtual("A mercadoria se encontra depositada no seguinte local: ", false);
 
+		}
 		String nome = "";
 		if(local_entrega.getTipo_pessoa() == 0) {
 			//pessoa fisica
@@ -564,9 +640,12 @@ public class EditarWord {
 		adicionarTextoParagrafoAtual( local_entrega.getCep() , false);
 		adicionarTextoParagrafoAtual( " (“Local de Entrega”). " , true);
 		
+		
+		
+		if(novo_contrato.getTipo_entrega() == 1) {
 		criarParagrafo(2);
 		adicionarTextoParagrafoAtual( "Correrão por conta exclusiva do Vendedor todos os custos e riscos relacionados ao Produto (incluindo, mas não se limitando os riscos relacionados ao plantio, cultivo, colheita, bem como a sua adequação às Especificações), até a sua efetiva entrega ao Comprador no Local de Entrega, na condição estabelecida nesta cláusula." , false);
-
+		}
 		
 		
 		
@@ -1284,8 +1363,65 @@ public class EditarWord {
 				);
 	}
 	
+	
+	public void substituirTextoLongoTipoEntrega2() {
+		substituirTexto("[6.] [Disposições] [Gerais.]\r\n"
+				+ "O [Vendedor] é responsável pela manutenção e conservação do [Produto], bem como pela sua adequação às [Especificações], até sua entrega ao Comprador nos termos deste [Contrato], e responderá civil e criminalmente por eventual desvio, correndo por sua conta exclusiva todos os custos e riscos inerentes à sua produção, inclusive o risco do [Produto] não vir a existir em razão de pragas, intempéries, caso fortuito ou motivo de força maior.\r\n"
+				+ 
+				 "[6.1.] Se o [Vendedor], por qualquer motivo, deixar de colher, carregar ou transportar o [Produto] no tempo e condições previstas neste [Contrato], fica facultado ao [Comprador] realizar estes serviços, por si ou por terceiros, suprindo assim a omissão do [[Vendedor]]. Nessa hipótese, o [Vendedor] deverá pagar ao Comprador todos os valores por ela ([Compradora]) incorridos com estas atividades, acrescidos de 20% (vinte por cento) a título de taxa de administração, atualização monetária pelo IGPM-FGV e juros de 1% (um por cento) ao mês, calculados “pro rata die” desde a data de sua inocorrência pelo [Comprador] até o seu efetivo reembolso pelo [Vendedor], o que constituirá crédito líquido, certo e exigível do [Comprador] contra o [Vendedor].\r\n"
+				+ 
+				 "[6.2.] Os seguintes eventos acarretarão o vencimento antecipado de todas as obrigações atribuídas ao [Vendedor] no presente [Contrato], de forma automática e independentemente de qualquer formalidade ou notificação: \r\n"
+				+ "[(i)] o descumprimento, pelo [Vendedor], de qualquer das obrigações estabelecidas neste [Contrato] ou em quaisquer outros contratos firmados entre o [Comprador] e o [Vendedor]; (ii) a verificação, pelo [Comprador], de que o [Vendedor] não realizou o plantio ou não adotou os corretos e adequados tratos das lavouras cuja produção deveria ser entregue em regular cumprimento às suas obrigações no presente[ Contrato]; ou ([iii]) a constatação, pelo [Comprador], de que o [Vendedor] realizou o desvio e/ou a entrega a terceiros de qualquer quantidade do [Produto].\r\n"
+				+ 
+				 "[6.3.] A instituição prévia, concomitante ou posterior à celebração deste [Contrato] de ônus, gravames ou constrições sobre o [Produto] sobrestará o vencimento da obrigação de pagamento do [Preço] até a apresentação, pelo [Vendedor] ao [Comprador], de prova definitiva da respectiva desoneração.\r\n"
+				+ 
+				 "[6.3.1.] Caso não haja a eliminação dos ônus, gravames ou constrições existentes sobre o [Produto] no prazo de 5 (cinco) dias contado a partir da [Data] [de] [Entrega], restará caracterizado o inadimplemento contratual do [Vendedor], hipótese em que o [Comprador] poderá rescindir este [Contrato] total ou parcialmente, sujeitando-se o [Vendedor] às multas e penalidades previstas na cláusula [08].\r\n"
+				+ 
+				 "[6.4.] As [Partes] declaram e aceitam, em caráter irrevogável e irretratável, que a ocorrência de grandes aumentos ou reduções das cotações e preços do [Produto] no mercado interno ou externo, assim como a incidência de pragas, doenças, intempéries ou variações climáticas nas lavouras onde será produzido o [Produto], são fatos absolutamente previsíveis, ordinários e inerentes à atividade agropecuária e ao agronegócio, e em nenhuma hipótese motivarão a resolução do presente [Contrato] ou a revisão de qualquer das obrigações aqui atribuídas às [Partes].\r\n"
+				+ 
+				 "[7.] [Multas] [e] [Penalidades].\r\n"
+				+ 
+				 "[7.1.] No caso de infração de quaisquer cláusulas deste [Contrato], ficará facultado à parte prejudicada o direito de, cumulativamente:\r\n"
+				+ "[(i)] exigir da parte inadimplente a restituição dos valores pagos antecipadamente, acrescidos de atualização monetária e juros, na forma da cláusula [08.1.1];\r\n"
+				+ "[(ii)] considerar o presente [Contrato] rescindido de pleno direito, total ou parcialmente, independentemente de notificação ou interpelação;\r\n"
+				+ "[(iii)] exigir da parte inadimplente o pagamento de multa não compensatória de 15% (quinze por cento) do valor total deste [Contrato], calculado pela multiplicação da [Quantidade] pelo [Preço];\r\n"
+				+ "(iv) exigir da parte inadimplente indenização das perdas e danos efetivamente incorridos, respeitados os valores mínimos estabelecidos na cláusula [08.1.2].\r\n"
+				+ 
+				 "[7.1.1.] Em se tratando de inadimplência de obrigações de pagamento, ficará ainda sujeita a parte inadimplente ao pagamento de juros de mora de 1% ao mês e atualizações monetárias pela variação do IGPM-FGV (Índice Geral de Preços de Mercado – Fundação Getúlio Vargas) calculados “pro rata die” entre a data do vencimento da obrigação e a data do efetivo pagamento. Considerar-se-á, também, rescindido de pleno direito o presente [Contrato], no caso de impetração, requerimento ou decretação de falência, insolvência, recuperação ou liquidação judicial ou extrajudicial do [Vendedor]. Na hipótese de extinção do IGPM-FGV aplicar-se-á o seu substituto na forma da lei e, se não existir substituto, será aplicado o índice Geral de Preços ao Consumidor (IPC) editado pela Fundação Instituto de Pesquisa Econômica (FIPE).\r\n"
+				+ 
+				"[7.1.2.] Fica convencionado entre as [Partes], em caráter irrevogável e irretratável, que o valor mínimo da indenização por perdas e danos devida pela [Parte] inadimplente à [Parte] inocente, nos termos do disposto no item [(iv)] da cláusula [08.1], nunca será inferior ao maior valor dentre os seguintes:\r\n"
+				+ "[(i)] 20% (vinte por cento) [Preço] da quantidade de [Produto] não entregue pelo [Vendedor] ao [Comprador] nos termos deste [Contrato]; ou\r\n"
+				+ "[(ii)] O valor correspondente à diferença entre o preço de mercado do [Produto] não entregue e o [Preço] estabelecido na forma do presente [Contrato]. O preço de mercado da quantidade de [Produto] não entregue será equivalente à média dos preços de compra do [Produto] que estiverem sendo praticados, no [Local] [de] [Entrega], na [Data] [de] [Entrega], pelo [Comprador] e pelas seguintes empresas, desde que operem no [Local] [de] [Entrega]: Cargill, Bunge, ADM e Cocari.\r\n"
+				+ 
+				 "[7.2.] Na hipótese de uma das [Partes] ver-se obrigada a recorrer aos meios judiciais para fazer valer o presente [Contrato], além da multa penal, das perdas e danos e da restituição das importâncias eventualmente antecipadas, acrescidas dos juros e correção monetária previstos na cláusula [08.1.1], a [Parte] inadimplente ficará sujeito ao pagamento das custas e despesas judiciais incorridas pela outra [Parte], bem como honorários advocatícios desde já fixados em 20% do montante devido.\r\n"
+				+ 
+				 "[7.3.] Não constituirão inadimplência deste [Contrato]: [(i)] eventuais atrasos bancários alheios à vontade do [Comprador]; [(ii)] o não pagamento do [Preço] em decorrência do descumprimento, pelo [Vendedor], de quaisquer das obrigações a ele atribuídas no presente [Contrato].\r\n"
+				+ 
+				 "[8.] [Disposições] [Finais].\r\n"
+				+ "O presente [Contrato] constitui título executivo nos termos do artigo 585, inciso II, do Código de Processo Civil, considerando-se líquidos, certos e exigíveis todos os valores dele decorrentes, inclusive e em especial os montantes que venham a ser devidos pelo [Vendedor] nos termos das cláusulas [08.1] a [08.2] retro, desistindo desde já este último, em caráter irrevogável e irretratável, de qualquer processo especial de verificação de ditos montantes, bastando para sua comprovação os comprovantes dos pagamentos efetuados pelo [Comprador] ou um demonstrativo sintético da composição da dívida.\r\n"
+				+ 
+				"[8.1.] É vedado ao [Vendedor] ceder, dar em garantia, securitizar, transferir a terceiros ou emitir ou sacar títulos representativos de quaisquer créditos que detenha contra o [Comprador] e que sejam relacionados ao presente Contrato, sem a prévia e expressa autorização escrita do [Comprador]. Qualquer cessão realizada em descumprimento desta obrigação será considerada nula de pleno direito, sendo considerados regularmente realizados e liberatórios da obrigação de pagamento do [Comprador] todos os pagamentos feitos pelo [Comprador] diretamente ao [Vendedor] nos termos deste [Contrato]. O [Comprador] fica desde já autorizado pelo Vendedor a ceder ou transferir os direitos ou obrigações decorrentes deste [Contrato] a quaisquer terceiros, mediante simples comunicação escrita ao [Vendedor].\r\n"
+				+ 
+				 "[8.2.] A tolerância, por qualquer das [Partes], em relação ao descumprimento de quaisquer dos compromissos recíprocos aqui avençados, constituirá mera liberalidade e não poderá de forma alguma ser caracterizada como novação ou precedente invocável pela outra parte.\r\n"
+				+ 
+				"[8.3.] O presente [Contrato] é celebrado em caráter irrevogável e irretratável, perfeito e acabado, o qual obriga não só as [Partes] ora contratantes, como também seus herdeiros e/ou sucessores a qualquer título.\r\n"
+				+ 
+				"[8.4.] Todas as obrigações atribuídas ao [Comprador] ao abrigo do presente [Contrato] poderão ser adimplidas por meio de compensação, independentemente de prestação de contas e nos termos dos artigos 368 e seguintes do Código Civil. \r\n"
+				+ 
+				 "[8.5.] Para dirimir quaisquer questões decorrentes deste [Contrato], as [Partes] elegem o foro da Comarca de Vazante, Estado de Minas Gerais, renunciando qualquer outro, por mais privilegiado que seja. \r\n"
+				+ 
+				"E por estarem assim justas e contratadas, firmam as [Partes] o presente instrumento em 2 (duas) vias de igual teor e forma, na presença de 2 (duas) testemunha.\r\n"
+				);
+	}
+	
 	public void adicionarClausulaPagamento() {
-		String text_amostra = "[6.2.] O pagamento da quantidade de quanti_total ( quanti_total_extenso ) [quilogramas] | quanti_total_sacos ( quanti_total_sacos_extenso ) [sacos], no valor total de valor_total ( valor_total_extenso ) se dará mediante crédito conforme tabelas de pagamentos a seguir:";
+		String text_amostra = "";
+		
+		if(novo_contrato.getTipo_entrega() == 1)
+		 text_amostra = "[6.2.] O pagamento da quantidade de quanti_total ( quanti_total_extenso ) [quilogramas] | quanti_total_sacos ( quanti_total_sacos_extenso ) [sacos], no valor total de valor_total ( valor_total_extenso ) se dará mediante crédito conforme tabelas de pagamentos a seguir:";
+		else
+			 text_amostra = "[5.2.] O pagamento da quantidade de quanti_total ( quanti_total_extenso ) [quilogramas] | quanti_total_sacos ( quanti_total_sacos_extenso ) [sacos], no valor total de valor_total ( valor_total_extenso ) se dará mediante crédito conforme tabelas de pagamentos a seguir:";
+
 		NumberFormat z = NumberFormat.getNumberInstance();
 
 		//pegar os paragrafos
@@ -1384,8 +1520,13 @@ public class EditarWord {
 	}
 	
 	public void adicionarClausulaPagamentoAntecipado(double quantidade_total_recebidas_quilogramas, double quantidade_total_recebidas_sacos , double valor_total_ja_recebido) {
-		String text_amostra = "[6.2.] O pagamento da quantidade de quanti_total [quilogramas] | quanti_total_sacos [sacos], onde o [Vendedor] deste [Contrato] por modalidade de [pagamento antecipado] já recebeu o valor de valor_total_ja_recebido  referentes a quanti_total_recebida  [quilogramas] | quanti_total_recebida_sacos  sacos, sendo assim a quantidade a ser recebida será referente aos quanti_total_restante  [quilogramas] | quanti_total_sacos_restante  sacos restantes ainda não pagos, o valor restante a ser recebido no total de  valor_total_restante  ( valor_total_restante_extenso ) será de acordo com a tabela de pagamentos abaixo:";
+		String text_amostra = "";
 		
+		if(novo_contrato.getTipo_entrega() == 1)
+		 text_amostra = "[6.2.] O pagamento da quantidade de quanti_total [quilogramas] | quanti_total_sacos [sacos], onde o [Vendedor] deste [Contrato] por modalidade de [pagamento antecipado] já recebeu o valor de valor_total_ja_recebido  referentes a quanti_total_recebida  [quilogramas] | quanti_total_recebida_sacos  sacos, sendo assim a quantidade a ser recebida será referente aos quanti_total_restante  [quilogramas] | quanti_total_sacos_restante  sacos restantes ainda não pagos, o valor restante a ser recebido no total de  valor_total_restante  ( valor_total_restante_extenso ) será de acordo com a tabela de pagamentos abaixo:";
+		else
+			 text_amostra = "[5.2.] O pagamento da quantidade de quanti_total [quilogramas] | quanti_total_sacos [sacos], onde o [Vendedor] deste [Contrato] por modalidade de [pagamento antecipado] já recebeu o valor de valor_total_ja_recebido  referentes a quanti_total_recebida  [quilogramas] | quanti_total_recebida_sacos  sacos, sendo assim a quantidade a ser recebida será referente aos quanti_total_restante  [quilogramas] | quanti_total_sacos_restante  sacos restantes ainda não pagos, o valor restante a ser recebido no total de  valor_total_restante  ( valor_total_restante_extenso ) será de acordo com a tabela de pagamentos abaixo:";
+
 		//criarParagrafo(2);
 
 		NumberFormat z = NumberFormat.getNumberInstance();

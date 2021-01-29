@@ -37,6 +37,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.text.NumberFormat;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -1306,7 +1307,7 @@ public class TelaGerenciarContrato extends JDialog {
 		carregarDocumento(url_original);
 		getTarefas();
 
-		/*
+		
 		 setarInformacoesPainelPrincipal(); setarInformacoesPainelCarregamentos();
 		 pesquisar_carregamentos(); pesquisar_pagamentos();
 		 
@@ -1322,7 +1323,7 @@ public class TelaGerenciarContrato extends JDialog {
 		setInformacoesAditivos();
 		
 		travarContrato();
-	*/
+	
 		this.setLocationRelativeTo(null);
 
 		this.setVisible(true);
@@ -1742,7 +1743,15 @@ public class TelaGerenciarContrato extends JDialog {
 			// definir peso carregamento
 			double peso_carregado = carregamento.getPeso_real_carga();
 			// definir peso da nota
-			double peso_nota = Double.parseDouble(nota.getQuantidade());
+			
+		    Number number = null;
+			try {
+				number = z.parse(nota.getQuantidade());
+			} catch (ParseException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			double peso_nota = number.doubleValue();
 			// definir peso restante para nota
 			double peso_nota_restante = peso_carregado - peso_nota;
 

@@ -937,7 +937,17 @@ public class TelaNotasFiscais extends JDialog {
 					JOptionPane.showMessageDialog(null, "Arquivo selecionado:\n" + arquivo.getAbsolutePath() + "\nFoi adicionado");
 	                 
 				}else {
-					JOptionPane.showMessageDialog(null, "Arquivo selecionado:\n" + arquivo.getAbsolutePath() + "\nNão é uma nota fiscal para este cliente\nIE do cliente: " + ie_cliente + "\nIE do Destinatario da nota: " + ie_destinatario_nf + "\nIE do Remetente da nota: " + ie_remetente_nf);
+					String nome_cliente_selecionado = "";
+					if(cliente_global.getTipo_pessoa() == 0)
+						nome_cliente_selecionado = cliente_global.getNome_empresarial();
+					else
+						nome_cliente_selecionado = cliente_global.getNome_fantaia();
+
+					//nome destinatario
+					String nome_destinatario = cadastro.getNome_destinatario();
+					String nome_remetente = cadastro.getNome_remetente();
+					
+					JOptionPane.showMessageDialog(null, "Arquivo selecionado:\n" + arquivo.getAbsolutePath() + "\nNão é uma nota fiscal para este cliente\nNome do cliente selecionado: " + nome_cliente_selecionado    + " IE do cliente selecionado: " + ie_cliente + "\nNome Destinatario:  " + nome_destinatario + " IE do Destinatario da nota:" + ie_destinatario_nf +"\nNome Remetente: " + nome_remetente  + " Inscrição Remetente: " + ie_remetente_nf);
 
 				}
 				

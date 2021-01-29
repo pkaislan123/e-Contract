@@ -212,9 +212,8 @@ public class TelaCadastroTransportadores extends JDialog {
 		
 
 		getDadosGlobais();
-		setAlwaysOnTop(true);
 
-		//setModal(true);
+		setModal(true);
 
 		TelaCadastroTransportadores isto = this;
 		
