@@ -20,10 +20,12 @@ public class GerenciarBancoProdutos {
 	            try {
 	                conn = ConexaoBanco.getConexao();
 	                String sql = "insert into produto\r\n" + 
-	                		"(nome_produto, descricao_produto, codigo_produto) values ('"
+	                		"(nome_produto, descricao_produto, transgenia, codigo_produto) values ('"
 	    	    			+ produto.getNome_produto()
 	    	    			+ "','"
 	    	    			+ produto.getDescricao_produto()	
+	    	    			+ "','"
+	    	    			+ produto.getTransgenia()
 	    	    			+ "','"
 	    	    			+ produto.getCodigo()	
 	    	    			+ "')";
@@ -64,6 +66,7 @@ public class GerenciarBancoProdutos {
 	                produto.setNome_produto(rs.getString("nome_produto"));
 	                produto.setDescricao_produto(rs.getString("descricao_produto"));
 	                produto.setCodigo(rs.getInt("codigo_produto"));
+	                produto.setTransgenia(rs.getString("transgenia"));
 	                
 	          
 	                listaProdutos.add(produto);
@@ -94,7 +97,8 @@ public class GerenciarBancoProdutos {
 	                produto.setNome_produto(rs.getString("nome_produto"));
 	                produto.setDescricao_produto(rs.getString("descricao_produto"));
 	                produto.setCodigo(rs.getInt("codigo_produto"));
-	                
+	                produto.setTransgenia(rs.getString("transgenia"));
+
 	          
 	            
 	            ConexaoBanco.fechaConexao(conn, pstm, rs);

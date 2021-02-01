@@ -311,11 +311,10 @@ public class TelaCliente extends JDialog {
 		btnVerNotasFiscais.setBackground(Color.WHITE);
 		btnEditar.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
-				int indiceDaLinha = 0;
-				indiceDaLinha = tabela.getSelectedRow();
-				
-				
-				TelaGerenciarCliente telagerenciar  = new TelaGerenciarCliente(clientes_disponiveis.get(indiceDaLinha));
+			
+				int rowSel = tabela.getSelectedRow();//pega o indice da linha na tabela
+				int indexRowModel = tabela.getRowSorter().convertRowIndexToModel(rowSel);//converte pro indice do model
+				TelaGerenciarCliente telagerenciar  = new TelaGerenciarCliente(clientes_disponiveis.get(indexRowModel));
 				telagerenciar.setVisible(true);
 				//TelaCadastroCliente telaEdicao = new TelaCadastroCliente(0, clientes_disponiveis.get(indiceDaLinha));
 				//editarCliente(indiceDaLinha);

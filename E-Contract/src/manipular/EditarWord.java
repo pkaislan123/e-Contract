@@ -533,35 +533,39 @@ public class EditarWord {
 		adicionarTextoParagrafoAtual("Comprador(es)".toUpperCase() , true);
 
 		NumberFormat z = NumberFormat.getNumberInstance();
-
+		double quantidade_sacos =0;
+		double quantidade_kg  = 0;
 
 		adicionarTextoParagrafoAtual(" a quantidade de " , false);
 		
 		if(novo_contrato.getMedida().equalsIgnoreCase("SACOS")) {
-			double quantidade_sacos = novo_contrato.getQuantidade();
-			double quantidade_kg  = quantidade_sacos * 60;
+			 quantidade_sacos = novo_contrato.getQuantidade();
+			 quantidade_kg  = quantidade_sacos * 60;
 			
 			adicionarTextoParagrafoAtual(z.format(quantidade_kg).toUpperCase(), true);
-			adicionarTextoParagrafoAtual(" " , false);
-			adicionarTextoParagrafoAtual("(" , false);
+			adicionarTextoParagrafoAtual(" KG" , false);
+			adicionarTextoParagrafoAtual(" (" , false);
 	    	String valor_extenso = new PorExtenso(quantidade_kg).toString();
 			adicionarTextoParagrafoAtual(valor_extenso.toLowerCase().replaceAll("reais", "").replace("centavos", ""), false);
 
-			adicionarTextoParagrafoAtual(") " , false);
 
 		}else if(novo_contrato.getMedida().equalsIgnoreCase("KG")) {
+			 quantidade_kg  = novo_contrato.getQuantidade();
+			 quantidade_sacos = quantidade_kg / 60;
+
 			adicionarTextoParagrafoAtual(z.format(novo_contrato.getQuantidade()).toUpperCase(), true);
-			adicionarTextoParagrafoAtual(" " , false);
-			adicionarTextoParagrafoAtual("(" , false);
+			adicionarTextoParagrafoAtual(" KG" , false);
+			adicionarTextoParagrafoAtual(" (" , false);
 	    	String valor_extenso = new PorExtenso(new BigDecimal(Double.toString(novo_contrato.getQuantidade()))).toString();
 			adicionarTextoParagrafoAtual(valor_extenso.toLowerCase().replaceAll("reais", "").replace("centavos", "") , false);
 
-			adicionarTextoParagrafoAtual(") " , false);
 		}
 		
 
 
-		adicionarTextoParagrafoAtual("quilogramas", true);
+		adicionarTextoParagrafoAtual("quilogramas) ", false);
+		adicionarTextoParagrafoAtual("(" + z.format(quantidade_sacos) + " sacos)", false);
+
 
 		adicionarTextoParagrafoAtual(" de " , false);
 		adicionarTextoParagrafoAtual(novo_contrato.getProduto().toUpperCase(), true);

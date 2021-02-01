@@ -7,10 +7,22 @@ public class Endereco {
 	String bairro;
 	String cidade;
 	String uf;
+	String cep;
 	
 	public String getLogradouro() {
 		return logradouro;
 	}
+	
+
+	public String getCep() {
+		return cep;
+	}
+
+
+	public void setCep(String cep) {
+		this.cep = cep;
+	}
+
 
 	public void setLogradouro(String logradouro) {
 		this.logradouro = logradouro;

@@ -1667,7 +1667,7 @@ public class TelaElaborarNovoContrato extends JDialog {
 		cBSafra = new JComboBox();
 		cBSafra.setModel(modelSafra);
 		cBSafra.setRenderer(cBSafraPersonalizado);
-		cBSafra.setBounds(586, 224, 174, 33);
+		cBSafra.setBounds(586, 224, 342, 33);
 		painelDadosProdutos.add(cBSafra);
 
 		cBSafra.addActionListener(new ActionListener() {
@@ -2379,7 +2379,7 @@ public class TelaElaborarNovoContrato extends JDialog {
 		btnTeste.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 
-				TelaEmEspera esperar = new TelaEmEspera();
+				TelaEmEspera esperar = new TelaEmEspera(0);
 
 				new Thread() {
 
@@ -2443,18 +2443,20 @@ public class TelaElaborarNovoContrato extends JDialog {
 
 							CadastroCliente localRetirada = (CadastroCliente) modelLocalRetirada.getSelectedItem();
 							novo_contrato.setLocal_retirada(localRetirada.getNome_fantaia());
-							int tipo_entrega = -1;
+							
+							
+							
+							novo_contrato.setCliente_retirada(localRetirada);
+							novo_contrato.setId_local_retirada(novo_contrato.getCliente_retirada().getId());
+                            int tipo_entrega = -1;
 							
 							if(rBJaDepositada.isSelected()) {
 								tipo_entrega = 2;
-							}else {
+							}else if (rBPostoSobreRodas.isSelected()){
 								tipo_entrega = 1;
 							}
 							
 							novo_contrato.setTipo_entrega(tipo_entrega);
-							
-							
-							novo_contrato.setCliente_retirada(localRetirada);
 
 							novo_contrato.setQuantidade(Double.parseDouble(entQuantidade.getText()));
 							novo_contrato.setValor_produto(Double.parseDouble(entPreco.getText()));
@@ -3130,6 +3132,27 @@ public class TelaElaborarNovoContrato extends JDialog {
 			valor_total_comissao = valor_tot_comissao;
 			
 		}
+		
+		if(contrato_pai_local.getTipo_entrega() == 1) {
+			rBPostoSobreRodas.setSelected(true);
+			rBJaDepositada.setSelected(false);
+
+		}else if(contrato_pai_local.getTipo_entrega() == 2) {
+			rBJaDepositada.setSelected(true);
+			rBPostoSobreRodas.setSelected(false);
+
+		}
+		
+		CadastroCliente localRetirada = new GerenciarBancoClientes().getCliente(contrato_pai_local.getId_local_retirada());
+		int indice = -1;
+		for(int i = 0; i < modelLocalRetirada.getSize(); i++) {
+			if(modelLocalRetirada.getElementAt(i).getId() == localRetirada.getId()) {
+				indice = i;
+			}
+		}
+		
+		modelLocalRetirada.setSelectedItem(localRetirada);
+			
 		
 
 		setPagamentos();

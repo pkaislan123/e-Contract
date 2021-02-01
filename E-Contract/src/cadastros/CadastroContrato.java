@@ -17,10 +17,24 @@ public class CadastroContrato {
     private String clausula_frete;
     private String armazenagem;
     private String clausula_armazenagem;
+    private int id_local_retirada;
     
     
     
     
+    
+	public int getId_local_retirada() {
+		return id_local_retirada;
+	}
+
+
+
+	public void setId_local_retirada(int id_local_retirada) {
+		this.id_local_retirada = id_local_retirada;
+	}
+
+
+
 	public int getTipo_entrega() {
 		return tipo_entrega;
 	}

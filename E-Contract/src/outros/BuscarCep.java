@@ -65,4 +65,40 @@ public class BuscarCep {
 		
 	}
 	
+	
+    public Endereco buscarCep(Endereco _endereco) {
+		
+		String json;      
+		String strCep;
+		
+		
+		 try {
+	            URL url = new URL("https://viacep.com.br/ws/" + _endereco.getUf() + "/" + _endereco.getCidade().replaceAll(" ", "%20") + "/" + _endereco.getLogradouro().replaceAll(" ", "%20") + "/json");
+	            URLConnection urlConnection = url.openConnection();
+	            InputStream is = urlConnection.getInputStream();
+	            BufferedReader br = new BufferedReader(new InputStreamReader(is));
+
+	            StringBuilder jsonSb = new StringBuilder();
+
+	            br.lines().forEach(l -> jsonSb.append(l.trim()));
+	            json = jsonSb.toString();
+	            
+	            
+	            json = json.replaceAll("[{},:\\[\"]", "");
+	          
+	            TratarDados tratar = new TratarDados(json);
+	            
+	            String cep = tratar.tratar("cep ", "logradouro");
+	            _endereco.setCep(cep);
+	          
+              return _endereco;	            
+	        } catch (Exception e) {
+	           JOptionPane.showMessageDialog(null, "Erro ao realizar consulta!\nErro:" + e.getMessage());
+	           return null;
+	        }
+
+		
+	}
+	
+	
 }

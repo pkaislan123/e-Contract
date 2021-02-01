@@ -29,6 +29,7 @@ import org.icepdf.ri.common.SwingController;
 import org.icepdf.ri.common.SwingViewBuilder;
 
 import cadastros.CadastroCliente;
+import cadastros.CadastroCliente.Veiculo;
 import cadastros.CadastroContrato;
 import cadastros.CadastroLogin;
 import cadastros.CadastroNFe;
@@ -78,11 +79,7 @@ public class TelaRomaneios extends JDialog {
 	  private ArrayList<String> listadeArquivos = new ArrayList<>();
 
 	private final JPanel painelPrincipal = new JPanel();
-	/*DefaultTableModel modelo_nfs = new DefaultTableModel() {
-		public boolean isCellEditable(int linha, int coluna) {
-			return false;
-		}
-	};*/
+	
 	private RomaneioTableModel modelo_nfs = new RomaneioTableModel();
 	private TableRowSorter<RomaneioTableModel> sorter;
 	
@@ -303,7 +300,7 @@ public class TelaRomaneios extends JDialog {
 		new Thread() {
 			@Override
 			public void run() {
-				pesquisarNotas(vendedor);
+				pesquisarRomaneios(vendedor);
 
 			}
 		}.start();
@@ -312,7 +309,7 @@ public class TelaRomaneios extends JDialog {
 
 	}
 
-	public void pesquisarNotas(CadastroCliente vendedor) {
+	public void pesquisarRomaneios(CadastroCliente vendedor) {
 		
 
 
@@ -329,29 +326,21 @@ public class TelaRomaneios extends JDialog {
 
 			String unidade_base_dados = configs_globais.getServidorUnidade();
 			String sub_pasta = "E-Contract\\arquivos\\clientes";
+			nome_pasta = nome_pasta.trim();
 
 			String caminho_completo_nf = unidade_base_dados + "\\" + sub_pasta + "\\" + nome_pasta.toUpperCase() + "\\"
-					+ "NOTAS FISCAIS";
+					+ "ROMANEIOS";
 
-			ManipularNotasFiscais manipular_notas = new ManipularNotasFiscais(caminho_completo_nf);
-			manipular_notas.setPai(isto);
-			ArrayList<CadastroNFe> notas_fiscais = manipular_notas.tratar();
-
-			/*
-			 * for (CadastroNFe nota : notas_fiscais) {
-			 * 
-			 * java.awt.EventQueue.invokeLater(new Runnable() { public void run() {
-			 * modelo_nfs.addRow(new Object[] { nota.getNfe(), nota.getSerie(),
-			 * nota.getNome_remetente(), nota.getInscricao_remetente(), nota.getProtocolo(),
-			 * nota.getData(), nota.getNatureza(), nota.getNome_destinatario(),
-			 * nota.getInscricao_destinatario(), nota.getProduto(), nota.getQuantidade(),
-			 * nota.getValor() });
-			 * 
-			 * table_nfs.repaint(); table_nfs.updateUI();
-			 * notas_fiscais_disponivel.add(nota);
-			 * 
-			 * } }); }
-			*/
+			ManipularRomaneios manipular_romaneios = new ManipularRomaneios(caminho_completo_nf);
+			manipular_romaneios.setPai(isto);
+			ArrayList<CadastroRomaneio> romaneios = manipular_romaneios.tratar();
+  
+			for(CadastroRomaneio rom : romaneios) {
+				if(romaneios != null) {
+					addNota(rom);
+				}
+			}
+	
 		
            }catch(Exception f) {
         	   JOptionPane.showMessageDialog(null, "Erro ao listar romaneios\nCausa: " + f.getCause() + "\nErro: " + f.getMessage());
@@ -373,22 +362,22 @@ public class TelaRomaneios extends JDialog {
 		this.tela_pai = _pai;
 	}
 
-	public void addNota(CadastroRomaneio nota) {
+	public void addNota(CadastroRomaneio romaneio) {
 
 		java.awt.EventQueue.invokeLater(new Runnable() {
 			public void run() {
-				modelo_nfs.onAdd(nota);
+				modelo_nfs.onAdd(romaneio);
 			/*	modelo_nfs.addRow(new Object[] { nota.getNfe(), nota.getSerie(), nota.getNome_remetente(),
 						nota.getInscricao_remetente(), nota.getProtocolo(), nota.getData(), nota.getNatureza(),
 						nota.getNome_destinatario(), nota.getInscricao_destinatario(), nota.getProduto(),
 						nota.getQuantidade(), nota.getValor() });*/
 
 				lblStatusAdicionandoNotas
-						.setText("Aguarde, romaneio estão sendo carregados: Adicionando nota fiscal " + nota.getNumero_romaneio());
+						.setText("Aguarde, romaneio estão sendo carregados: Adicionando romaneio " + romaneio.getNumero_romaneio());
 				lblStatusAdicionandoNotas.repaint();
 				lblStatusAdicionandoNotas.updateUI();
 
-				romaneios_disponivel.add(nota);
+				romaneios_disponivel.add(romaneio);
 
 			}
 		});
@@ -402,22 +391,31 @@ public class TelaRomaneios extends JDialog {
 		 
 	    //constantes p/identificar colunas
 	    private final int numero_romaneio = 0;
-	    private final int data = 1 ;
-	    private final int produto = 2;
-	    private final int safra = 3 ;
-	    private final int nome_remetente= 4;
-	    private final int nome_destinatario = 5;
-	    private final int peso_bruto = 6;
-	    private final int tara= 7;
-	    private final int peso_liquido =8;
-	    private final int umidade=9;
-	    private final int impureza=10;
-	    private final int ardidos=11;
-	    private final int avariados=12;
+	    private final int operacao = 1;
+
+	    private final int data = 2 ;
+	    private final int produto = 3;
+	    private final int transgenia = 4 ;
+
+	    private final int safra = 5 ;
+	    private final int nome_remetente= 6;
+	    private final int nome_destinatario =7;
+	    private final int peso_bruto = 8;
+	    private final int tara= 9;
+	    private final int peso_liquido =10;
+	    private final int umidade=11;
+	    private final int impureza=12;
+	    private final int ardidos=13;
+	    private final int avariados=14;
+	    private final int cfop=15;
+	    private final int descricao=16;
+
+	    private final int motorista=17;
+	    private final int placa=18;
 
 	 
-	    private final String colunas[]={"Número","Data:","Produto:","Safra:","Remetente:","Destinatario:",
-	    		"Peso Bruto:", "Tara:", "Peso Liquido:", "Umidade:", "Impureza:", "Ardidos", "Avariados"};
+	    private final String colunas[]={"Número","Operação", "Data:","Produto:", "Transgenia:", "Safra:","Remetente:","Destinatario:",
+	    		"Peso Bruto:", "Tara:", "Peso Liquido:", "Umidade:", "Impureza:", "Ardidos", "Avariados", "CFOP", "Descrição" ,"Motorista", "Placa"};
 	    private final ArrayList<CadastroRomaneio> dados = new ArrayList<>();//usamos como dados uma lista genérica de nfs
 	 
 	    public RomaneioTableModel() {
@@ -442,9 +440,13 @@ public class TelaRomaneios extends JDialog {
 	        switch (columnIndex) {
 	        case numero_romaneio:
 	            return int.class;
+	        case operacao:
+	            return String.class;
 	        case data:
 	            return Date.class;
 	        case produto:
+	            return String.class;
+	        case transgenia:
 	            return String.class;
 	        case safra:
 	            return String.class;
@@ -466,7 +468,14 @@ public class TelaRomaneios extends JDialog {
 	            return Double.class;
 	        case avariados:
 	            return Double.class;
-	            
+	        case cfop:
+	            return String.class;
+	        case descricao:
+	            return String.class;
+	        case motorista:
+	            return String.class;
+	        case placa:
+	            return String.class;
 	     
 	       
 	        default:
@@ -484,19 +493,23 @@ public class TelaRomaneios extends JDialog {
 	        //retorna o valor conforme a coluna e linha
 	 
 	        //pega o dados corrente da linha
-	    	CadastroRomaneio romaneio =dados.get(rowIndex);
+	    	CadastroRomaneio romaneio = dados.get(rowIndex);
 	 
 	        //retorna o valor da coluna
 	        switch (columnIndex) {
 	        case numero_romaneio:
 	            return romaneio.getNumero_romaneio();
+	        case operacao:
+	            return romaneio.getOperacao();
 	        case data:
 	            return romaneio.getData();
 	        case produto:{
-	            CadastroProduto prod = romaneio.getProduto();
+	            CadastroProduto prod = romaneio.getSafra().getProduto();
 	            return prod.getNome_produto();
 	            
 	        }
+	        case transgenia:
+	            return romaneio.getProduto().getTransgenia();
 	        case safra:{
                CadastroSafra safra = romaneio.getSafra();
                return safra.getAno_plantio() + "/" + safra.getAno_colheita();
@@ -536,11 +549,22 @@ public class TelaRomaneios extends JDialog {
 	        case umidade:
 	            return romaneio.getUmidade();
 	        case impureza:
-	            return romaneio.getUmidade();
+	            return romaneio.getInpureza();
 	        case ardidos:
 	            return romaneio.getArdidos();
 	        case avariados:
 	            return romaneio.getAvariados();
+	        case cfop:
+	            return romaneio.getCfop();
+	        case descricao:
+	            return romaneio.getDescricao_cfop();
+	        case motorista:
+	            return romaneio.getMotorista().getNome_empresarial();
+	        case placa:{
+	        	ArrayList<CadastroCliente.Veiculo> veiculos = romaneio.getMotorista().getVeiculos();
+	        	return veiculos.get(0).getPlaca_trator();
+	        	
+	        }
 	            
 	        default:
 	            throw new IndexOutOfBoundsException("Coluna Inválida!!!");
@@ -658,19 +682,20 @@ public class TelaRomaneios extends JDialog {
 		int result = fileChooser.showOpenDialog(isto);
 		
 		File[] files = fileChooser.getSelectedFiles();
+		ManipularRomaneios manipular = new ManipularRomaneios("");
 
 		
 		
 		for(File arquivo : files) {
-			ManipularRomaneios manipular = new ManipularRomaneios("");
+			JOptionPane.showMessageDialog(null, "Caminho do arquivo q sera lido: " + arquivo.getAbsolutePath());
 
 			try {
-				CadastroRomaneio cadastro = manipular.filtrar(arquivo);
+				CadastroRomaneio romaneio = manipular.filtrar(arquivo);
 			
 			//verifica se essa nota ja existe
 			boolean ja_existe = false;
-			for(CadastroRomaneio romaneio : romaneios_disponivel) {
-				if(romaneio.getNumero_romaneio() == cadastro.getNumero_romaneio()) {
+			for(CadastroRomaneio rom : romaneios_disponivel) {
+				if(rom.getNumero_romaneio() == romaneio.getNumero_romaneio()) {
 					ja_existe = true;
 					break;
 				}
@@ -679,15 +704,20 @@ public class TelaRomaneios extends JDialog {
 			if(!ja_existe) {
 				
 				//ie do remetente nf
-				String ie_remetente_nf = cadastro.getRemetente().getIe();
+				
+				
+				
+				String ie_remetente = romaneio.getRemetente().getIe();
 				//ie do destinatario nf
-				String ie_destinatario_nf = cadastro.getDestinatario().getIe();
+				String ie_destinatario = romaneio.getDestinatario().getIe();
+
+			
 
 				// ie cliente
 				String ie_cliente = cliente_global.getIe();
 
-				if(ie_remetente_nf.equals(ie_cliente)) {
-					JOptionPane.showMessageDialog(null, "Romaneio pode ser adicionado, o cliente e remetente deste romaeio\n IE do romaneio: " + ie_remetente_nf + " IE do cliente: " + ie_cliente);
+				if(ie_remetente.equals(ie_cliente)) {
+					JOptionPane.showMessageDialog(null, "Romaneio pode ser adicionado, o cliente e remetente deste romaeio\n IE do romaneio: " + ie_remetente + " IE do cliente: " + ie_cliente);
 
 				
 					
@@ -706,18 +736,20 @@ public class TelaRomaneios extends JDialog {
 					
 					ManipularTxt manipular_arq = new ManipularTxt();
 					
-					String caminho_completo_nf = unidade_base_dados + "\\" + sub_pasta + "\\" + nome_pasta.toUpperCase() + "\\"
-							+ "NOTAS FISCAIS" + "\\NFA-" + cadastro.getNumero_romaneio() + ".pdf";
+					nome_pasta = nome_pasta.trim();
 					
-					JOptionPane.showMessageDialog(null, "Copiando de :\n" + cadastro.getCaminho_arquivo()+ "\nPara:\n" + caminho_completo_nf);
-					boolean copiar = manipular_arq.copiarNFe(cadastro.getCaminho_arquivo(), caminho_completo_nf );
+					String caminho_completo_nf = unidade_base_dados + "\\" + sub_pasta + "\\" + nome_pasta.toUpperCase() + "\\"
+							+ "ROMANEIOS" + "\\romaneio-" + romaneio.getNumero_romaneio() + ".pdf";
+					
+					JOptionPane.showMessageDialog(null, "Copiando de :\n" + romaneio.getCaminho_arquivo()+ "\nPara:\n" + caminho_completo_nf);
+					boolean copiar = manipular_arq.copiarNFe(romaneio.getCaminho_arquivo(), caminho_completo_nf );
 					if(copiar) {
 						//adiciona a nota no array local
-						romaneios_disponivel.add(cadastro);
+						romaneios_disponivel.add(romaneio);
 						
 						//adiciona na tabela
 						
-						addNota(cadastro);
+						addNota(romaneio);
 						
 						//informa que adicionou a nota
 						JOptionPane.showMessageDialog(null, "Arquivo selecionado:\n" + arquivo.getAbsolutePath() + "\nFoi adicionado");
@@ -727,14 +759,14 @@ public class TelaRomaneios extends JDialog {
 					}
 					
 	                 
-				}else if (ie_destinatario_nf.equals(ie_cliente)) {
-					JOptionPane.showMessageDialog(null, "Romaneio pode ser adicionado, o cliente e destinatario deste romaneio\n IE da nota: " + ie_destinatario_nf + " IE do cliente: " + ie_cliente);
+				}else if (ie_destinatario.equals(ie_cliente)) {
+					JOptionPane.showMessageDialog(null, "Romaneio pode ser adicionado, o cliente e destinatario deste romaneio\n IE da nota: " + ie_destinatario + " IE do cliente: " + ie_cliente);
 
 					//adiciona a nota no array local
-					romaneios_disponivel.add(cadastro);
+					romaneios_disponivel.add(romaneio);
 					
 					//adiciona na tabela
-					addNota(cadastro);
+					addNota(romaneio);
 					
 					//informa que adicionou a nota
 					JOptionPane.showMessageDialog(null, "Arquivo selecionado:\n" + arquivo.getAbsolutePath() + "\nFoi adicionado");
@@ -749,7 +781,7 @@ public class TelaRomaneios extends JDialog {
 					//nome destinatario
 					
 					String nome_destinatario = "";
-		            CadastroCliente destinatario = cadastro.getDestinatario();
+		            CadastroCliente destinatario = romaneio.getDestinatario();
 		            
 		            if(destinatario.getTipo_pessoa() == 0) {
 		            	nome_destinatario = destinatario.getNome_empresarial();
@@ -757,7 +789,7 @@ public class TelaRomaneios extends JDialog {
 		            	nome_destinatario = destinatario.getNome_fantaia();
 		            
 		            String nome_remetente = "";
-		            CadastroCliente remetente = cadastro.getRemetente();
+		            CadastroCliente remetente = romaneio.getRemetente();
 		            
 		            if(remetente.getTipo_pessoa() == 0) {
 		            	nome_remetente = remetente.getNome_empresarial();
@@ -766,7 +798,7 @@ public class TelaRomaneios extends JDialog {
 		            
 		            
 					
-					JOptionPane.showMessageDialog(null, "Arquivo selecionado:\n" + arquivo.getAbsolutePath() + "\nNão é um romaneio para este cliente\nNome do cliente selecionado: " + nome_cliente_selecionado    + " IE do cliente selecionado: " + ie_cliente + "\nNome Destinatario:  " + nome_destinatario + " IE do Destinatario do romaneio:" + ie_destinatario_nf +"\nNome Remetente: " + nome_remetente  + " Inscrição Remetente: " + ie_remetente_nf);
+					JOptionPane.showMessageDialog(null, "Arquivo selecionado:\n" + arquivo.getAbsolutePath() + "\nNão é um romaneio para este cliente\nNome do cliente selecionado: " + nome_cliente_selecionado    + " IE do cliente selecionado: " + ie_cliente + "\nNome Destinatario:  " + nome_destinatario + " IE do Destinatario do romaneio:" + ie_destinatario +"\nNome Remetente: " + nome_remetente  + " Inscrição Remetente: " + ie_remetente);
 
 				}
 				
@@ -779,7 +811,7 @@ public class TelaRomaneios extends JDialog {
 			}
 
 			}catch(Exception e) {
-				JOptionPane.showMessageDialog(null, "Arquivo selecionado:\n" + arquivo.getAbsolutePath() + "\nNão é uma nota fiscal valida, por isso não foi adicionado");
+				JOptionPane.showMessageDialog(null, "Arquivo selecionado:\n" + arquivo.getAbsolutePath() + "\nNão é um romaneio valido, por isso não foi adicionado");
 
 			}
 		}

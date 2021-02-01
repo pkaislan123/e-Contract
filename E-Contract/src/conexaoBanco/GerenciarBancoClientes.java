@@ -1552,6 +1552,57 @@ public int inserir_cliente(CadastroCliente cliente)
 	    	 
 	     }
 	     
+	   public ArrayList<CadastroCliente.Veiculo> getVeiculos(){
+			 System.out.println("Lista Veiculos foi chamado!");
+	    	 String selectVeiculos = "select * from veiculo";
+	    	 Connection conn = null;
+		      PreparedStatement pstm = null;
+		      ResultSet rs = null;
+		      ArrayList<CadastroCliente.Veiculo> lista_veiculos = null;
+		      
+		      try {
+		          conn = ConexaoBanco.getConexao();
+		          pstm = conn.prepareStatement(selectVeiculos);
+		          		
+		          rs = pstm.executeQuery();
+		          int i = 0;
+
+		          while (rs.next()) {
+		        	  
+		        	  
+		        	 if(rs != null) {
+		        		 System.out.print("veiculo não e nulo!");
+		        		 
+		        		 CadastroCliente.Veiculo veiculo = new CadastroCliente.Veiculo();
+		        	  
+		        		 veiculo.setId_veiculo(rs.getInt("id_veiculo"));
+		        		 veiculo.setRegistro_trator(rs.getString("rntrc"));
+		        		 veiculo.setPlaca_trator(rs.getString("placa"));
+		        		 veiculo.setEixos_trator(rs.getString("eixos"));
+		        		 veiculo.setTipo_trator(rs.getString("tipo"));
+		        		 veiculo.setCidade_trator(rs.getString("cidade"));
+		        		 veiculo.setUf_trator(rs.getString("estado"));
+		        	
+		        	  if(lista_veiculos == null)
+		        		  lista_veiculos = new ArrayList<>();
+			        	 
+		        	  lista_veiculos.add(veiculo);
+		        
+		        	  }
+		           }
+		      
+		          ConexaoBanco.fechaConexao(conn, pstm, rs);
+		          System.out.println("Veiculos foram listadas com sucesso!");
+		          return lista_veiculos;
+		      } catch (Exception e) {
+		          JOptionPane.showMessageDialog(null, "Erro ao listar todos os veiculos erro: " + e.getMessage() + "causa: " + e.getCause());
+		          return null;
+		      }		  
+		   
+	    	 
+	    	 
+	    	 
+	     }
 	
 	  
 }

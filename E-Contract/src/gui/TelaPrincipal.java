@@ -20,6 +20,7 @@ import java.awt.GraphicsEnvironment;
 import java.awt.Toolkit;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowStateListener;
+import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.ServerSocket;
@@ -59,6 +60,7 @@ import cadastros.CadastroContrato;
 import cadastros.CadastroLogin;
 import cadastros.CadastroModelo;
 import cadastros.CadastroProduto;
+import cadastros.CadastroRomaneio;
 import cadastros.CadastroSafra;
 import cadastros.Contato;
 import cadastros.DadosContratos;
@@ -69,6 +71,7 @@ import chat.Servidor;
 import classesExtras.ComboBoxPersonalizado;
 import classesExtras.ComboBoxRenderPersonalizado;
 import classesExtras.RenderizadorChat;
+import conexaoBanco.GerenciarBancoClientes;
 import conexaoBanco.GerenciarBancoContratos;
 import conexaoBanco.GerenciarBancoLogin;
 import conexaoBanco.GerenciarBancoPadrao;
@@ -77,6 +80,8 @@ import conexoes.TesteConexao;
 import manipular.ConfiguracoesGlobais;
 import manipular.EditarWord;
 import manipular.GetDadosGlobais;
+import manipular.ManipularRomaneios;
+import manipular.ManipularTxt;
 import outros.BaixarNotasFiscais;
 import outros.DadosGlobais;
 import outros.GetData;
@@ -148,12 +153,12 @@ public class TelaPrincipal extends JFrame implements GetDadosGlobais {
 	private static ArrayList<CadastroSafra> safras = new ArrayList<>();
 	private JLabel lblTotalSacosRetirar, lblTotalSacos, lblTotalSacosRetirados;
 	private GraficoLinha linha = null;
-	
-	private GerenciarBancoContratos gerenciarAtualizarTarefas, gerenciarDadosCarregamento,
-	gerenciarDadosContrato, gerenciarCarregamentoPorPeriodo ;
-	
+
+	private GerenciarBancoContratos gerenciarAtualizarTarefas, gerenciarDadosCarregamento, gerenciarDadosContrato,
+			gerenciarCarregamentoPorPeriodo;
+
 	private GerenciarBancoPadrao gerenciarBancoPadrao;
-	
+
 	DefaultTableModel modelo_usuarios = new DefaultTableModel() {
 		public boolean isCellEditable(int linha, int coluna) {
 			return false;
@@ -228,7 +233,7 @@ public class TelaPrincipal extends JFrame implements GetDadosGlobais {
 		panelGraficoLinha = new JPanel();
 
 		panelGraficoLinha.setBackground(Color.WHITE);
-		panelGraficoLinha.setBounds(0, 409, 405, 280);
+		panelGraficoLinha.setBounds(0, 409, 369, 280);
 
 		contentPane.add(panelGraficoLinha);
 		panelGraficoLinha.setLayout(null);
@@ -555,7 +560,7 @@ public class TelaPrincipal extends JFrame implements GetDadosGlobais {
 
 		JPanel panelContratos = new JPanel();
 		panelContratos.setBackground(Color.WHITE);
-		panelContratos.setBounds(23, 67, 764, 298);
+		panelContratos.setBounds(23, 67, 1025, 298);
 		contentPane.add(panelContratos);
 		panelContratos.setLayout(null);
 
@@ -568,20 +573,20 @@ public class TelaPrincipal extends JFrame implements GetDadosGlobais {
 		lblTotalContratosAssinados.setBounds(10, 57, 173, 24);
 		painelGraficoContratos.add(lblTotalContratosAssinados);
 		lblTotalContratosAssinados.setFont(new Font("Arial", Font.BOLD, 14));
-		lblTotalContratosAssinados.setBorder(new LineBorder(new Color(0, 0, 0)));
+		lblTotalContratosAssinados.setBorder(new EmptyBorder(0, 0, 0, 0));
 
 		lblTotalContratosAssinar = new JLabel("");
 		lblTotalContratosAssinar.setBounds(10, 92, 173, 24);
 		painelGraficoContratos.add(lblTotalContratosAssinar);
 		lblTotalContratosAssinar.setFont(new Font("Arial", Font.BOLD, 14));
-		lblTotalContratosAssinar.setBorder(new LineBorder(new Color(0, 0, 0)));
+		lblTotalContratosAssinar.setBorder(new EmptyBorder(0, 0, 0, 0));
 
 		lblTotalContratos = new JLabel("");
 		lblTotalContratos.setBounds(10, 22, 173, 24);
 		painelGraficoContratos.add(lblTotalContratos);
 		lblTotalContratos.setFont(new Font("Arial", Font.BOLD, 14));
-		lblTotalContratos.setBorder(new LineBorder(new Color(0, 0, 0)));
-		
+		lblTotalContratos.setBorder(new EmptyBorder(0, 0, 0, 0));
+
 		JLabel lblNewLabel_5_2 = new JLabel("");
 		lblNewLabel_5_2.setBounds(419, 70, 64, 64);
 		painelGraficoContratos.add(lblNewLabel_5_2);
@@ -595,6 +600,7 @@ public class TelaPrincipal extends JFrame implements GetDadosGlobais {
 		cBSafraPersonalizado = new ComboBoxRenderPersonalizado();
 
 		cbContratosPorSafra = new JComboBox();
+		cbContratosPorSafra.setFont(new Font("Tahoma", Font.BOLD, 10));
 		cbContratosPorSafra.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 
@@ -615,7 +621,7 @@ public class TelaPrincipal extends JFrame implements GetDadosGlobais {
 				}
 			}
 		});
-		cbContratosPorSafra.setBounds(552, 41, 202, 34);
+		cbContratosPorSafra.setBounds(552, 41, 320, 34);
 		cbContratosPorSafra.setModel(modelSafra);
 		cbContratosPorSafra.setRenderer(cBSafraPersonalizado);
 		panelContratos.add(cbContratosPorSafra);
@@ -632,8 +638,13 @@ public class TelaPrincipal extends JFrame implements GetDadosGlobais {
 		lblNewLabel_6.setBackground(new Color(0, 206, 209));
 		lblNewLabel_6.setFont(new Font("Tahoma", Font.PLAIN, 14));
 		lblNewLabel_6.setOpaque(true);
-		lblNewLabel_6.setBounds(552, 11, 202, 22);
+		lblNewLabel_6.setBounds(552, 11, 320, 22);
 		panelContratos.add(lblNewLabel_6);
+
+		JLabel lblNewLabel_7 = new JLabel("");
+		lblNewLabel_7.setBounds(722, 86, 303, 214);
+		panelContratos.add(lblNewLabel_7);
+		lblNewLabel_7.setIcon(new ImageIcon(TelaPrincipal.class.getResource("/imagens/icone_silos.png")));
 
 		pesquisarSafras();
 
@@ -648,7 +659,7 @@ public class TelaPrincipal extends JFrame implements GetDadosGlobais {
 
 		JLabel lblNewLabel_1 = new JLabel("");
 		lblNewLabel_1.setIcon(new ImageIcon(TelaPrincipal.class.getResource("/imagens/icone_tarefa.png")));
-		lblNewLabel_1.setBounds(973, 11, 64, 64);
+		lblNewLabel_1.setBounds(973, 0, 64, 64);
 		contentPane.add(lblNewLabel_1);
 
 		JLabel lblNewLabel_2 = new JLabel("Você tem:");
@@ -664,20 +675,59 @@ public class TelaPrincipal extends JFrame implements GetDadosGlobais {
 		lblNewLabel_4.setBounds(1062, 56, 64, 37);
 		contentPane.add(lblNewLabel_4);
 
+		JButton btnNewButton = new JButton("Vizualizar");
+		btnNewButton.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				TelaVizualizarGrafico tela = new TelaVizualizarGrafico(dataset);
+			}
+		});
+		btnNewButton.setBounds(33, 376, 89, 23);
+		contentPane.add(btnNewButton);
+
+		JLabel lblNewLabel_5_1 = new JLabel("");
+		lblNewLabel_5_1.setOpaque(true);
+		lblNewLabel_5_1.setBackground(Color.BLACK);
+		lblNewLabel_5_1.setBounds(10, 366, 1350, 2);
+		contentPane.add(lblNewLabel_5_1);
+
 		JPanel panel = new JPanel();
 		panel.setBackground(Color.WHITE);
-		panel.setBounds(415, 376, 681, 287);
+		panel.setBounds(379, 376, 868, 287);
 		contentPane.add(panel);
 		panel.setLayout(null);
 
 		painelGraficoCarregamentos = new JPanelGraficoCarregamento(0, 0);
 		painelGraficoCarregamentos.setLayout(null);
-		painelGraficoCarregamentos.setBounds(10, 0, 671, 287);
+		painelGraficoCarregamentos.setBounds(0, 0, 491, 287);
 		panel.add(painelGraficoCarregamentos);
 
+		lblTotalSacosRetirar = new JLabel("Carregados: 0 ");
+		lblTotalSacosRetirar.setBounds(0, 71, 253, 24);
+		painelGraficoCarregamentos.add(lblTotalSacosRetirar);
+		lblTotalSacosRetirar.setFont(new Font("Arial", Font.BOLD, 14));
+		lblTotalSacosRetirar.setBorder(new EmptyBorder(0, 0, 0, 0));
+
+		lblTotalSacosRetirados = new JLabel("a Carregar: 0");
+		lblTotalSacosRetirados.setBounds(0, 35, 253, 24);
+		painelGraficoCarregamentos.add(lblTotalSacosRetirados);
+		lblTotalSacosRetirados.setFont(new Font("Arial", Font.BOLD, 14));
+		lblTotalSacosRetirados.setBorder(new EmptyBorder(0, 0, 0, 0));
+
+		lblTotalSacos = new JLabel("Quantidade Total: 0");
+		lblTotalSacos.setBounds(0, 0, 253, 24);
+		painelGraficoCarregamentos.add(lblTotalSacos);
+		lblTotalSacos.setFont(new Font("Arial", Font.BOLD, 14));
+		lblTotalSacos.setBorder(new EmptyBorder(0, 0, 0, 0));
+
+		JLabel lblNewLabel_5 = new JLabel("");
+		lblNewLabel_5.setBounds(408, 65, 64, 64);
+		painelGraficoCarregamentos.add(lblNewLabel_5);
+		lblNewLabel_5.setIcon(new ImageIcon(TelaPrincipal.class.getResource("/imagens/icone_caminhao.png")));
+
 		cbCarregamentoPorSafra = new JComboBox();
-		cbCarregamentoPorSafra.setBounds(10, 44, 177, 34);
-		painelGraficoCarregamentos.add(cbCarregamentoPorSafra);
+		cbCarregamentoPorSafra.setBounds(494, 44, 326, 34);
+		panel.add(cbCarregamentoPorSafra);
+		cbCarregamentoPorSafra.setFont(new Font("Tahoma", Font.BOLD, 10));
 		cbCarregamentoPorSafra.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				try {
@@ -693,7 +743,7 @@ public class TelaPrincipal extends JFrame implements GetDadosGlobais {
 					// atualizar o grafico
 					atualizarGraficoCarregamentos(num_total_sacos, num_total_sacos_carregados);
 					atualizarPainelGraficoLinhasSafra(safra.getId_safra());
-					//getCarregamentoPorPeriodoSafra(safra.getId_safra());
+					// getCarregamentoPorPeriodoSafra(safra.getId_safra());
 
 				} catch (Exception t) {
 
@@ -705,6 +755,8 @@ public class TelaPrincipal extends JFrame implements GetDadosGlobais {
 		cbCarregamentoPorSafra.setRenderer(cBSafraPersonalizado);
 
 		JLabel lblNewLabel_6_1 = new JLabel("Todas as Safras", SwingConstants.CENTER);
+		lblNewLabel_6_1.setBounds(494, 11, 326, 22);
+		panel.add(lblNewLabel_6_1);
 		lblNewLabel_6_1.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent e) {
@@ -714,56 +766,11 @@ public class TelaPrincipal extends JFrame implements GetDadosGlobais {
 				atualizarPainelGraficoLinhasTodasSafras();
 			}
 		});
-		lblNewLabel_6_1.setBounds(10, 11, 177, 22);
-		painelGraficoCarregamentos.add(lblNewLabel_6_1);
 		lblNewLabel_6_1.setOpaque(true);
 		lblNewLabel_6_1.setForeground(Color.WHITE);
 		lblNewLabel_6_1.setFont(new Font("Tahoma", Font.PLAIN, 14));
 		lblNewLabel_6_1.setBorder(new LineBorder(new Color(0, 0, 0)));
 		lblNewLabel_6_1.setBackground(new Color(0, 206, 209));
-
-		lblTotalSacosRetirar = new JLabel("Carregados: 0 ");
-		lblTotalSacosRetirar.setBounds(408, 245, 253, 24);
-		painelGraficoCarregamentos.add(lblTotalSacosRetirar);
-		lblTotalSacosRetirar.setFont(new Font("Arial", Font.BOLD, 14));
-		lblTotalSacosRetirar.setBorder(new LineBorder(new Color(0, 0, 0)));
-
-		lblTotalSacosRetirados = new JLabel("a Carregar: 0");
-		lblTotalSacosRetirados.setBounds(408, 209, 253, 24);
-		painelGraficoCarregamentos.add(lblTotalSacosRetirados);
-		lblTotalSacosRetirados.setFont(new Font("Arial", Font.BOLD, 14));
-		lblTotalSacosRetirados.setBorder(new LineBorder(new Color(0, 0, 0)));
-
-		lblTotalSacos = new JLabel("Quantidade Total: 0");
-		lblTotalSacos.setBounds(408, 174, 253, 24);
-		painelGraficoCarregamentos.add(lblTotalSacos);
-		lblTotalSacos.setFont(new Font("Arial", Font.BOLD, 14));
-		lblTotalSacos.setBorder(new LineBorder(new Color(0, 0, 0)));
-		
-		JLabel lblNewLabel_5 = new JLabel("");
-		lblNewLabel_5.setBounds(408, 65, 64, 64);
-		painelGraficoCarregamentos.add(lblNewLabel_5);
-		lblNewLabel_5.setIcon(new ImageIcon(TelaPrincipal.class.getResource("/imagens/icone_caminhao.png")));
-
-		JButton btnNewButton = new JButton("Vizualizar");
-		btnNewButton.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				TelaVizualizarGrafico tela = new TelaVizualizarGrafico(dataset);
-			}
-		});
-		btnNewButton.setBounds(33, 376, 89, 23);
-		contentPane.add(btnNewButton);
-		
-		JLabel lblNewLabel_5_1 = new JLabel("");
-		lblNewLabel_5_1.setOpaque(true);
-		lblNewLabel_5_1.setBackground(Color.BLACK);
-		lblNewLabel_5_1.setBounds(10, 366, 1350, 2);
-		contentPane.add(lblNewLabel_5_1);
-		
-		JLabel lblNewLabel_7 = new JLabel("");
-		lblNewLabel_7.setBounds(786, 85, 303, 252);
-		contentPane.add(lblNewLabel_7);
-		lblNewLabel_7.setIcon(new ImageIcon(TelaPrincipal.class.getResource("/imagens/icone_silos.png")));
 
 		atualizarNumTarefas();
 
@@ -791,11 +798,13 @@ public class TelaPrincipal extends JFrame implements GetDadosGlobais {
 			telaChat.setVisible(true);
 		}
 
+		vigiarRomaneios();
+
 		this.setLocationRelativeTo(null);
+		this.setExtendedState(JFrame.MAXIMIZED_BOTH);
 
 		this.setVisible(true);
 
-		this.setExtendedState(JFrame.MAXIMIZED_BOTH);
 	}
 
 	@Override
@@ -811,11 +820,10 @@ public class TelaPrincipal extends JFrame implements GetDadosGlobais {
 	}
 
 	public void getDadosContratos() {
-		
-		if(gerenciarDadosContrato == null)
-		 gerenciarDadosContrato = new GerenciarBancoContratos();
-		
-		
+
+		if (gerenciarDadosContrato == null)
+			gerenciarDadosContrato = new GerenciarBancoContratos();
+
 		int numeroTotalContratos = gerenciarDadosContrato.getNumeroTotalContratos();
 		int numerosContratosSemAssinar = gerenciarDadosContrato.getNumeroContratosParaAssinar();
 
@@ -853,9 +861,9 @@ public class TelaPrincipal extends JFrame implements GetDadosGlobais {
 
 	public void getDadosCarregamento() {
 
-		if(gerenciarDadosCarregamento == null)
-         gerenciarDadosCarregamento = new GerenciarBancoContratos();
-		
+		if (gerenciarDadosCarregamento == null)
+			gerenciarDadosCarregamento = new GerenciarBancoContratos();
+
 		double quantidade_total_sacos = gerenciarDadosCarregamento.getQuantidadeSacos();
 		double quantidade_total_sacos_carregados = gerenciarDadosCarregamento.getQuantidadeSacosCarregados();
 		double quantidade_total_sacos_a_carregar = quantidade_total_sacos - quantidade_total_sacos_carregados;
@@ -1064,7 +1072,7 @@ public class TelaPrincipal extends JFrame implements GetDadosGlobais {
 							+ "?useTimezone=true&serverTimezone=UTC";
 
 					urlBancoDados.setText(url);
-					if(gerenciarBancoPadrao == null)
+					if (gerenciarBancoPadrao == null)
 						gerenciarBancoPadrao = new GerenciarBancoPadrao();
 					if (gerenciarBancoPadrao.getConexao()) {
 						System.out.println("Banco de Dados OnLine!");
@@ -1363,9 +1371,9 @@ public class TelaPrincipal extends JFrame implements GetDadosGlobais {
 				}
 				while (true) {
 
-					if(gerenciarAtualizarTarefas == null)
-					 gerenciarAtualizarTarefas = new GerenciarBancoContratos();
-					
+					if (gerenciarAtualizarTarefas == null)
+						gerenciarAtualizarTarefas = new GerenciarBancoContratos();
+
 					int num_agora = gerenciarAtualizarTarefas.getNumTarefas(login.getId());
 					lblNumeroTarefas.setText(num_agora + "");
 
@@ -1414,8 +1422,8 @@ public class TelaPrincipal extends JFrame implements GetDadosGlobais {
 
 	public void getCarregamentoPorPeriodo() {
 
-		if(gerenciarCarregamentoPorPeriodo == null)
-		 gerenciarCarregamentoPorPeriodo = new GerenciarBancoContratos();
+		if (gerenciarCarregamentoPorPeriodo == null)
+			gerenciarCarregamentoPorPeriodo = new GerenciarBancoContratos();
 		String hoje = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
 		String semana = LocalDateTime.now().minusDays(7).format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
 
@@ -1431,14 +1439,13 @@ public class TelaPrincipal extends JFrame implements GetDadosGlobais {
 
 		}
 
-	
-			linha = new GraficoLinha();
+		linha = new GraficoLinha();
 
 		linha.setDataset(dataset);
-		chartPanel = linha.getGraficoLinha(200, 200,"Últimos 7 dias");
-	
+		chartPanel = linha.getGraficoLinha(200, 200, "Últimos 7 dias");
+
 		panelGraficoLinha.add(chartPanel);
-	
+
 	}
 
 	public void getCarregamentoPorPeriodoSafra(int id_safra) {
@@ -1459,17 +1466,13 @@ public class TelaPrincipal extends JFrame implements GetDadosGlobais {
 
 		}
 
+		linha = new GraficoLinha();
 
-			
-					linha = new GraficoLinha();
+		linha.setDataset(dataset);
 
-				linha.setDataset(dataset);
-			
-				chartPanel = linha.getGraficoLinha(200, 200, "Últimos 7 dias");
-			
-				panelGraficoLinha.add(chartPanel);
-			
-			
+		chartPanel = linha.getGraficoLinha(200, 200, "Últimos 7 dias");
+
+		panelGraficoLinha.add(chartPanel);
 
 	}
 
@@ -1479,25 +1482,357 @@ public class TelaPrincipal extends JFrame implements GetDadosGlobais {
 		panelGraficoLinha.repaint();
 		getCarregamentoPorPeriodoSafra(id_safra);
 	}
-	
+
 	public void atualizarPainelGraficoLinhasTodasSafras() {
 		panelGraficoLinha.removeAll();
 		panelGraficoLinha.updateUI();
 		panelGraficoLinha.repaint();
 		getCarregamentoPorPeriodo();
 	}
-	
+
 	public void baixarNotasEmSegundoPlano(CadastroCliente cliente, int mes_inicio, int mes_final, int ano_final) {
 		new Thread() {
 			@Override
 			public void run() {
-				
-				BaixarNotasFiscais baixar = new BaixarNotasFiscais(cliente,"VENDA");
-				  baixar.iniciarPesquisas(mes_inicio, mes_final, ano_final);
+
+				BaixarNotasFiscais baixar = new BaixarNotasFiscais(cliente, "VENDA");
+				baixar.iniciarPesquisas(mes_inicio, mes_final, ano_final);
 			}
-			
+
 		}.start();
 	}
-	
-	
+
+	public void vigiarRomaneios() {
+		new Thread() {
+
+			@Override
+			public void run() {
+
+				TelaNotificacaoSuperior avisos = new TelaNotificacaoSuperior();
+
+				new Thread() {
+					@Override
+					public void run() {
+						avisos.setMensagem("Modo de Busca");
+						avisos.setVisible(true);
+					}
+				}.start();
+
+				while (true) {
+
+					try {
+						Thread.sleep(10000);
+					} catch (InterruptedException e2) {
+						// TODO Auto-generated catch block
+						e2.printStackTrace();
+					}
+
+					try {
+
+						avisos.setMensagem("Modo de Busca");
+
+						String unidade_base_dados = configs_globais.getServidorUnidade();
+						String sub_pasta = "E-Contract\\arquivos\\romaneios";
+						String pasta_final = unidade_base_dados + "\\" + sub_pasta;
+
+						ManipularRomaneios manipular = new ManipularRomaneios(pasta_final);
+						ArrayList<CadastroRomaneio> romaneios = manipular.tratar();
+
+						GerenciarBancoClientes gerenciar_clientes = new GerenciarBancoClientes();
+						ArrayList<CadastroCliente> clientes_cadastrados = gerenciar_clientes.getClientes(0, 0, "");
+
+						for (CadastroRomaneio roms : romaneios) {
+
+							avisos.setMensagem("Novo Romaneio Encontrado");
+
+							Thread.sleep(3000);
+
+							CadastroCliente remetente = roms.getRemetente();
+							CadastroCliente destinatario = roms.getDestinatario();
+
+							boolean remetente_cadastrado = true;
+							boolean destinatario_cadastrado = true;
+							// verifica se o remetente ja esta cadastrado
+
+							for (CadastroCliente cliente : clientes_cadastrados) {
+								if (cliente.getIe().trim().equals(remetente.getIe().trim())) {
+									remetente_cadastrado = true;
+									break;
+								}
+							}
+
+							for (CadastroCliente cliente : clientes_cadastrados) {
+								if (cliente.getIe().trim().equals(destinatario.getIe().trim())) {
+									destinatario_cadastrado = true;
+									break;
+								}
+							}
+
+							if (remetente_cadastrado && !destinatario_cadastrado) {
+								// mover para a pasta do remetente
+
+								ManipularTxt manipular_txt = new ManipularTxt();
+								String nome_pasta;
+
+								if (remetente.getTipo_pessoa() == 0) {
+									nome_pasta = remetente.getNome_empresarial().toUpperCase();
+								} else {
+									nome_pasta = remetente.getNome_fantaia().toUpperCase();
+								}
+
+								unidade_base_dados = configs_globais.getServidorUnidade();
+								sub_pasta = "E-Contract\\arquivos\\clientes";
+
+								ManipularTxt manipular_arq = new ManipularTxt();
+
+								nome_pasta = nome_pasta.trim();
+
+								String caminho_completo_nf = unidade_base_dados + "\\" + sub_pasta + "\\"
+										+ nome_pasta.toUpperCase() + "\\" + "ROMANEIOS" + "\\romaneio-"
+										+ roms.getNumero_romaneio() + ".pdf";
+
+								// JOptionPane.showMessageDialog(null, "Movendo de :\n" +
+								// roms.getCaminho_arquivo()+ "\nPara:\n" + caminho_completo_nf);
+								avisos.setMensagem("Movendo...");
+
+								// primeiro veririca se nao existe um arquivo com esse nome
+								File file = new File(caminho_completo_nf);
+
+								if (!file.exists()) {
+									boolean mover = manipular_arq.moverArquivo(roms.getCaminho_arquivo(),
+											caminho_completo_nf);
+
+									if (mover) {
+										avisos.setMensagem("Romaneio movido para a pasta do remetente");
+
+										// JOptionPane.showMessageDialog(null, "Romaneio movido para a pasta do
+										// remetente");
+									} else {
+										// JOptionPane.showMessageDialog(null, "Erro ao mover o romaneio");
+										avisos.setMensagem("Erro ao mover o romaneio para pasta do remetente");
+
+									}
+								} else {
+									avisos.setMensagem("Romaneio já lido");
+									new File(roms.getCaminho_arquivo()).delete();
+
+								}
+
+							} else if (!remetente_cadastrado && destinatario_cadastrado) {
+								// mover para a pasta do destinatario
+
+								ManipularTxt manipular_txt = new ManipularTxt();
+								String nome_pasta;
+
+								if (destinatario.getTipo_pessoa() == 0) {
+									nome_pasta = destinatario.getNome_empresarial().toUpperCase();
+								} else {
+									nome_pasta = destinatario.getNome_fantaia().toUpperCase();
+								}
+
+								unidade_base_dados = configs_globais.getServidorUnidade();
+								sub_pasta = "E-Contract\\arquivos\\clientes";
+
+								ManipularTxt manipular_arq = new ManipularTxt();
+
+								nome_pasta = nome_pasta.trim();
+
+								String caminho_completo_nf = unidade_base_dados + "\\" + sub_pasta + "\\"
+										+ nome_pasta.toUpperCase() + "\\" + "ROMANEIOS" + "\\romaneio-"
+										+ roms.getNumero_romaneio() + ".pdf";
+
+								// JOptionPane.showMessageDialog(null, "Movendo de :\n" +
+								// roms.getCaminho_arquivo()+ "\nPara:\n" + caminho_completo_nf);
+								avisos.setMensagem("Movendo...");
+
+								// primeiro veririca se nao existe um arquivo com esse nome
+								File file = new File(caminho_completo_nf);
+
+								if (!file.exists()) {
+									boolean mover = manipular_arq.moverArquivo(roms.getCaminho_arquivo(),
+											caminho_completo_nf);
+									if (mover) {
+
+										// JOptionPane.showMessageDialog(null, "Romaneio movido para a pasta do
+										// remetente");
+										avisos.setMensagem("Romaneio movido para a pasta do remetente");
+
+									} else {
+										// JOptionPane.showMessageDialog(null, "Erro ao mover o romaneio");
+										avisos.setMensagem("Erro ao mover romaneio para a pasta do remetente");
+
+									}
+								} else {
+									avisos.setMensagem("Romaneio já lido");
+									new File(roms.getCaminho_arquivo()).delete();
+								}
+							} else if (remetente_cadastrado && destinatario_cadastrado) {
+
+								if (remetente.getIe().trim().equals(destinatario.getIe().trim())) {
+									// mover para o remetente
+									// copiar para o remetente
+									ManipularTxt manipular_txt = new ManipularTxt();
+									String nome_pasta;
+
+									if (destinatario.getTipo_pessoa() == 0) {
+										nome_pasta = remetente.getNome_empresarial().toUpperCase();
+									} else {
+										nome_pasta = remetente.getNome_fantaia().toUpperCase();
+									}
+
+									unidade_base_dados = configs_globais.getServidorUnidade();
+									sub_pasta = "E-Contract\\arquivos\\clientes";
+
+									ManipularTxt manipular_arq = new ManipularTxt();
+
+									nome_pasta = nome_pasta.trim();
+
+									String caminho_completo_nf = unidade_base_dados + "\\" + sub_pasta + "\\"
+											+ nome_pasta.toUpperCase() + "\\" + "ROMANEIOS" + "\\romaneio-"
+											+ roms.getNumero_romaneio() + ".pdf";
+
+									// JOptionPane.showMessageDialog(null, "Copiando de :\n" +
+									// roms.getCaminho_arquivo()+ "\nPara:\n" + caminho_completo_nf);
+									avisos.setMensagem("Copiando...");
+									// primeiro veririca se nao existe um arquivo com esse nome
+									File file = new File(caminho_completo_nf);
+
+									if (!file.exists()) {
+										boolean copiar = manipular_arq.moverArquivo(roms.getCaminho_arquivo(),
+												caminho_completo_nf);
+										if (copiar) {
+
+											// JOptionPane.showMessageDialog(null, "Romaneio movido para a pasta do
+											// remetente");
+											avisos.setMensagem("Romaneio movido para a pasta do remetente");
+
+											// mover para a pasta do destinatario
+										} else {
+											// JOptionPane.showMessageDialog(null, "Romaneio não pode ser movido para a
+											// pasta do remetente");
+											avisos.setMensagem(
+													"Romaneio não pode ser movido para a pasta do remetente");
+
+										}
+
+									} else {
+										avisos.setMensagem("Romaneio já lido");
+										new File(roms.getCaminho_arquivo()).delete();
+									}
+								} else {
+									// copiar para o remetente
+									ManipularTxt manipular_txt = new ManipularTxt();
+									String nome_pasta;
+
+									if (destinatario.getTipo_pessoa() == 0) {
+										nome_pasta = remetente.getNome_empresarial().toUpperCase();
+									} else {
+										nome_pasta = remetente.getNome_fantaia().toUpperCase();
+									}
+
+									unidade_base_dados = configs_globais.getServidorUnidade();
+									sub_pasta = "E-Contract\\arquivos\\clientes";
+
+									ManipularTxt manipular_arq = new ManipularTxt();
+
+									nome_pasta = nome_pasta.trim();
+
+									String caminho_completo_nf = unidade_base_dados + "\\" + sub_pasta + "\\"
+											+ nome_pasta.toUpperCase() + "\\" + "ROMANEIOS" + "\\romaneio-"
+											+ roms.getNumero_romaneio() + ".pdf";
+
+									avisos.setMensagem("Copiando...");
+
+									// JOptionPane.showMessageDialog(null, "Copiando de :\n" +
+									// roms.getCaminho_arquivo()+ "\nPara:\n" + caminho_completo_nf);
+									
+									//primeiro veririca se nao existe um arquivo com esse nome
+									File file = new File(caminho_completo_nf);
+									
+									if(!file.exists() ) {
+									boolean copiar = manipular_arq.copiarNFe(roms.getCaminho_arquivo(),
+											caminho_completo_nf);
+									if (copiar) {
+
+										// JOptionPane.showMessageDialog(null, "Romaneio copiado para a pasta do
+										// remetente");
+										avisos.setMensagem("Romaneio copiado para a pasta do remetente");
+
+										// mover para a pasta do destinatario
+
+										if (destinatario.getTipo_pessoa() == 0) {
+											nome_pasta = destinatario.getNome_empresarial().toUpperCase();
+										} else {
+											nome_pasta = destinatario.getNome_fantaia().toUpperCase();
+										}
+
+										unidade_base_dados = configs_globais.getServidorUnidade();
+										sub_pasta = "E-Contract\\arquivos\\clientes";
+
+										nome_pasta = nome_pasta.trim();
+
+										caminho_completo_nf = unidade_base_dados + "\\" + sub_pasta + "\\"
+												+ nome_pasta.toUpperCase() + "\\" + "ROMANEIOS" + "\\romaneio-"
+												+ roms.getNumero_romaneio() + ".pdf";
+
+										// JOptionPane.showMessageDialog(null, "Movendo de :\n" +
+										// roms.getCaminho_arquivo()+ "\nPara:\n" + caminho_completo_nf);
+										avisos.setMensagem("Movendo...");
+
+										boolean mover = manipular_arq.moverArquivo(roms.getCaminho_arquivo(),
+												caminho_completo_nf);
+										if (mover) {
+
+											// JOptionPane.showMessageDialog(null, "Romaneio movido para a pasta do
+											// destinatario");
+											avisos.setMensagem("Romaneio movido para a pasta do destinatario");
+
+										} else {
+											// JOptionPane.showMessageDialog(null, "Erro ao mover o romaneio para a
+											// pasta do destinatario");
+											avisos.setMensagem("Erro ao mover o romaneio para a pasta do destinatario");
+
+										}
+
+									} else {
+										// JOptionPane.showMessageDialog(null, "Erro ao copiar o romaneio para a pasta
+										// do remetente");
+										avisos.setMensagem("Erro ao copiar o romaneio para a pasta do remetente");
+									}
+									}else {
+										avisos.setMensagem("Romaneio já lido");
+										new File(roms.getCaminho_arquivo()).delete();
+									}
+
+								}
+
+							} else {
+								// JOptionPane.showMessageDialog(null, "Romaneio lido mas nem o cliente
+								// remetente e nem o cliente destinatario estão cadastrado");
+								avisos.setMensagem(
+										"Romaneio lido mas nem o cliente remetente e nem o cliente destinatario estão cadastrado");
+							}
+
+						}
+
+					} catch (Exception e) {
+						// JOptionPane.showMessageDialog(null, "Erro ao ler romaneios");
+						avisos.setMensagem("Erro ao ler romaneios");
+
+					}
+
+					try {
+						Thread.sleep(10000);
+					} catch (InterruptedException e1) {
+						// TODO Auto-generated catch block
+						e1.printStackTrace();
+					}
+
+				}
+
+			}
+
+		}.start();
+	}
+
 }

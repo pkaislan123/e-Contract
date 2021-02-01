@@ -17,7 +17,7 @@ public class CBProdutoRenderPersonalizado extends DefaultListCellRenderer{
 	         
 	        if (value instanceof CadastroProduto) {
 	        	CadastroProduto produto = (CadastroProduto) value;
-	            setText(produto.getId_produto() + "-" +  produto.getNome_produto());
+	            setText(produto.getId_produto() + "-" +  produto.getNome_produto() + " Transgenia: " + produto.getTransgenia());
 	        }
 	        return this;
 	    }

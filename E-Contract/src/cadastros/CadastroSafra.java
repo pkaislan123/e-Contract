@@ -10,6 +10,7 @@ public class CadastroSafra {
 	
 	
 	
+
 	private String descricao_safra;
 	
 	public String getDescricao_safra() {

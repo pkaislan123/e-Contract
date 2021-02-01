@@ -74,7 +74,7 @@ public class TelaNotificacaoSuperior extends JDialog {
 	        GraphicsDevice defaultScreen = ge.getDefaultScreenDevice();
 	        java.awt.Rectangle rect = defaultScreen.getDefaultConfiguration().getBounds();
 	        int x = (int) rect.getMaxX() - getWidth( ) - 10;
-	        int y = (int) rect.getMaxY() - getHeight() - taskBarHeight  - 10;
+	        int y = (int) rect.getMaxY() - getHeight() - taskBarHeight  -90;
 		
 			setAlwaysOnTop(true);
 

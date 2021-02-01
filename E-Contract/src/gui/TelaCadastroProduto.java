@@ -25,13 +25,14 @@ import java.awt.Font;
 import javax.swing.JTextField;
 import javax.swing.JTextArea;
 import java.awt.SystemColor;
+import javax.swing.JComboBox;
 
 public class TelaCadastroProduto extends JDialog {
 
 	private final JPanel painelPrincipal = new JPanel();
 	private JTextField entNomeProduto;
 	private JTextField entCodigo;
-
+    private JComboBox cBTransgenia;
 
 	public TelaCadastroProduto() {
 
@@ -45,7 +46,7 @@ public class TelaCadastroProduto extends JDialog {
 		
 		setBackground(new Color(255, 255, 255));
 		setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-		setBounds(100, 100, 509, 407);
+		setBounds(100, 100, 412, 398);
 		painelPrincipal.setBackground(new Color(255, 255, 255));
 		painelPrincipal.setBorder(new EmptyBorder(5, 5, 5, 5));
 		setContentPane(painelPrincipal);
@@ -58,7 +59,7 @@ public class TelaCadastroProduto extends JDialog {
 		
 		JLabel lblDescrio = new JLabel("Descrição:");
 		lblDescrio.setFont(new Font("Trebuchet MS", Font.BOLD, 20));
-		lblDescrio.setBounds(60, 126, 103, 51);
+		lblDescrio.setBounds(61, 182, 103, 51);
 		painelPrincipal.add(lblDescrio);
 		
 		entNomeProduto = new JTextField();
@@ -67,8 +68,10 @@ public class TelaCadastroProduto extends JDialog {
 		entNomeProduto.setColumns(10);
 		
 		JTextArea entDescricao = new JTextArea();
+		entDescricao.setLineWrap(true);
+		entDescricao.setWrapStyleWord(true);
 		entDescricao.setBackground(SystemColor.inactiveCaptionBorder);
-		entDescricao.setBounds(173, 130, 273, 139);
+		entDescricao.setBounds(174, 186, 196, 139);
 		painelPrincipal.add(entDescricao);
 		
 		JButton btnSalvar = new JButton("Salvar");
@@ -95,6 +98,7 @@ public class TelaCadastroProduto extends JDialog {
 					produto.setNome_produto(nome);
 					produto.setDescricao_produto(descricao);
 					produto.setCodigo(Integer.parseInt(codigo));
+					produto.setTransgenia(cBTransgenia.getSelectedItem().toString());
 					
 					 if(gerenciar.inserir_produto(produto) == 1)
 					    {
@@ -123,7 +127,7 @@ public class TelaCadastroProduto extends JDialog {
 				
 			}
 		});
-		btnSalvar.setBounds(396, 331, 89, 23);
+		btnSalvar.setBounds(281, 337, 89, 23);
 		painelPrincipal.add(btnSalvar);
 		
 		JLabel lblCodigoParaContratos = new JLabel("       Codigo:");
@@ -135,6 +139,19 @@ public class TelaCadastroProduto extends JDialog {
 		entCodigo.setColumns(10);
 		entCodigo.setBounds(170, 74, 200, 36);
 		painelPrincipal.add(entCodigo);
+		
+		JLabel lblTransgenia = new JLabel("Transgenia:");
+		lblTransgenia.setFont(new Font("Trebuchet MS", Font.BOLD, 20));
+		lblTransgenia.setBounds(49, 136, 111, 24);
+		painelPrincipal.add(lblTransgenia);
+		
+		 cBTransgenia = new JComboBox();
+		cBTransgenia.setFont(new Font("SansSerif", Font.PLAIN, 14));
+		cBTransgenia.setBounds(170, 137, 200, 29);
+		cBTransgenia.addItem("Transgenico(GMO)");
+		cBTransgenia.addItem("Convencional(NON-GMO)");
+	
+		painelPrincipal.add(cBTransgenia);
 		
 		entCodigo.addKeyListener(new KeyAdapter() {
 			@Override

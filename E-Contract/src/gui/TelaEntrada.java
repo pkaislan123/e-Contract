@@ -194,7 +194,7 @@ public class TelaEntrada extends JDialog implements GetDadosGlobais{
 			TelaLogin telaLogin = new TelaLogin();
 
 		}else {
-			TelaEmEspera esperar_sair = new TelaEmEspera();
+			TelaEmEspera esperar_sair = new TelaEmEspera(0);
 			
 			new Thread() {
 				@Override

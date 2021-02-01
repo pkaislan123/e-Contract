@@ -52,6 +52,7 @@ import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
 import javax.swing.border.EmptyBorder;
+import javax.swing.table.AbstractTableModel;
 import javax.swing.table.DefaultTableModel;
 
 import org.apache.commons.io.FileUtils;
@@ -75,6 +76,8 @@ import cadastros.CadastroModelo;
 import cadastros.CadastroNFe;
 import cadastros.CadastroPontuacao;
 import cadastros.CadastroProduto;
+import cadastros.CadastroRomaneio;
+import cadastros.CadastroSafra;
 import cadastros.ContaBancaria;
 import cadastros.Registros;
 import classesExtras.CBProdutoPersonalizado;
@@ -123,6 +126,7 @@ import javax.swing.JEditorPane;
 import javax.swing.JFileChooser;
 import javax.swing.JTextArea;
 import javax.swing.table.TableModel;
+import javax.swing.table.TableRowSorter;
 import javax.swing.BoxLayout;
 import java.awt.GridBagLayout;
 import net.miginfocom.swing.MigLayout;
@@ -142,11 +146,25 @@ import java.awt.PopupMenu;
 
 import graficos.JPanelGrafico;
 import graficos.JPanelGraficoPadrao;
+import gui.TelaRomaneios.RomaneioTableModel;
+
 import javax.swing.JTree;
 import javax.swing.JRadioButton;
+import java.awt.Rectangle;
 
 public class TelaGerenciarContrato extends JDialog {
 
+	private JDialog tela_pai;
+	private ArrayList<CadastroRomaneio> romaneios_disponivel = new ArrayList<>();
+	private JTable table_romaneios;
+	private JButton btnSelecionarNota;
+
+	private JLabel lblStatusAdicionandoNotas;
+	private int contador = 0;
+	private JFileChooser fileChooser_global;
+	private ArrayList<String> listadeArquivos = new ArrayList<>();
+
+	private RomaneioTableModel modelo_romaneios = new RomaneioTableModel();
 	private Log GerenciadorLog;
 	private CadastroLogin login;
 	private ConfiguracoesGlobais configs_globais;
@@ -205,7 +223,7 @@ public class TelaGerenciarContrato extends JDialog {
 	private JPopupMenu jPopupMenuTabelCarregamento;
 	private JPopupMenu jPopupMenuTabelPagamentos;
 	private JPopupMenu jPopupMenuDocumentos;
-	private JPopupMenu  jPopupMenuTabelAditivos;
+	private JPopupMenu jPopupMenuTabelAditivos;
 	private Double peso_total_cargas_nfe = 0.0;
 	private Double peso_total_cargas = 0.0;
 	private JLabel lblPesoTotalRealCargas, lblPesoTotalNotasFiscais, lblPesoTotal, lblPesoTotalRealRestante,
@@ -307,9 +325,7 @@ public class TelaGerenciarContrato extends JDialog {
 		painelPrincipal.addTab("Contrato", painelDadosIniciais);
 		painelDadosIniciais.setLayout(null);
 		painelRecebimentoEntrada.setBackground(Color.WHITE);
-		
-	
-		
+
 		painelDadosIniciais.setLayout(null);
 
 		if (contrato.getSub_contrato() == 0) {
@@ -350,11 +366,10 @@ public class TelaGerenciarContrato extends JDialog {
 			}
 		});
 
-		
-		//adiciona o painel de recebimento
+		// adiciona o painel de recebimento
 		painelPrincipal.addTab("Recebimento de Entrada", painelRecebimentoEntrada);
 		painelRecebimentoEntrada.setLayout(null);
-		
+
 		JLabel lblNewLabel_4_1 = new JLabel("     Recebimento");
 		lblNewLabel_4_1.setOpaque(true);
 		lblNewLabel_4_1.setForeground(Color.WHITE);
@@ -362,12 +377,42 @@ public class TelaGerenciarContrato extends JDialog {
 		lblNewLabel_4_1.setBackground(new Color(0, 51, 0));
 		lblNewLabel_4_1.setBounds(0, 22, 158, 31);
 		painelRecebimentoEntrada.add(lblNewLabel_4_1);
-		
+
 		JLabel lblNewLabel_28 = new JLabel("");
-		lblNewLabel_28.setIcon(new ImageIcon(TelaGerenciarContrato.class.getResource("/imagens/icone_caminhao_descarregando4.png")));
+		lblNewLabel_28.setIcon(
+				new ImageIcon(TelaGerenciarContrato.class.getResource("/imagens/icone_caminhao_descarregando4.png")));
 		lblNewLabel_28.setBounds(30, 52, 183, 77);
 		painelRecebimentoEntrada.add(lblNewLabel_28);
-		
+
+		JPanel panel_1 = new JPanel();
+		panel_1.setBounds(30, 172, 1313, 234);
+		painelRecebimentoEntrada.add(panel_1);
+		panel_1.setLayout(null);
+		panel_1.setBackground(Color.WHITE);
+
+		table_romaneios = new JTable(modelo_romaneios);
+
+		table_romaneios.setBackground(new Color(255, 255, 255));
+
+		table_romaneios.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
+
+		table_romaneios.getColumnModel().getColumn(0).setPreferredWidth(80);
+		table_romaneios.getColumnModel().getColumn(1).setPreferredWidth(50);
+		table_romaneios.getColumnModel().getColumn(2).setPreferredWidth(250);
+		table_romaneios.getColumnModel().getColumn(3).setPreferredWidth(120);
+		table_romaneios.getColumnModel().getColumn(4).setPreferredWidth(120);
+		table_romaneios.getColumnModel().getColumn(5).setPreferredWidth(70);
+		table_romaneios.getColumnModel().getColumn(6).setPreferredWidth(120);
+		table_romaneios.getColumnModel().getColumn(7).setPreferredWidth(250);
+		table_romaneios.getColumnModel().getColumn(8).setPreferredWidth(120);
+		table_romaneios.getColumnModel().getColumn(9).setPreferredWidth(100);
+		table_romaneios.getColumnModel().getColumn(10).setPreferredWidth(120);
+		table_romaneios.getColumnModel().getColumn(11).setPreferredWidth(120);
+
+		JScrollPane scrollPaneRomaneios = new JScrollPane(table_romaneios);
+		scrollPaneRomaneios.setBounds(10, 11, 1297, 217);
+		panel_1.add(scrollPaneRomaneios);
+
 		btnEditarContrato.setBounds(331, 497, 89, 23);
 
 		painelDadosIniciais.add(btnEditarContrato);
@@ -511,31 +556,28 @@ public class TelaGerenciarContrato extends JDialog {
 					boolean atualizou = gerenciar.atualizarStatusContrato(contrato_local.getId(), 2);
 					if (atualizou) {
 						JOptionPane.showMessageDialog(null, "Contrato Desbloqueado!");
-						//retirar pontucao
+						// retirar pontucao
 						GerenciarBancoPontuacao gerenciar_pontuacao = new GerenciarBancoPontuacao();
 
+						// primeiro verifica se existe uma pontuacao para esta combinacao contrato
+						// cliente
+						ArrayList<CadastroPontuacao> lista_pontuacao = gerenciar_pontuacao
+								.getPontuacaoPorContrato(contrato_local.getId());
+						if (lista_pontuacao.size() > 0) {
+							for (CadastroPontuacao pontos_antigos : lista_pontuacao) {
 
-							// primeiro verifica se existe uma pontuacao para esta combinacao contrato
-							// cliente
-							ArrayList<CadastroPontuacao> lista_pontuacao = gerenciar_pontuacao
-									.getPontuacaoPorContrato(contrato_local.getId());
-							if (lista_pontuacao.size() > 0) {
-								for (CadastroPontuacao pontos_antigos : lista_pontuacao) {
-
-									boolean removido = gerenciar_pontuacao
-											.removerPontuacao(pontos_antigos.getId_pontuacao());
-									if (removido) {
-									} else {
-										JOptionPane.showMessageDialog(null,
-												"Erro ao remover pontuacao antiga\nConsulte o administrador!");
-										break;
-									}
-
+								boolean removido = gerenciar_pontuacao
+										.removerPontuacao(pontos_antigos.getId_pontuacao());
+								if (removido) {
+								} else {
+									JOptionPane.showMessageDialog(null,
+											"Erro ao remover pontuacao antiga\nConsulte o administrador!");
+									break;
 								}
+
 							}
-						
-						
-						
+						}
+
 						setarInformacoesPainelPrincipal();
 						destravarContrato();
 					} else {
@@ -551,7 +593,7 @@ public class TelaGerenciarContrato extends JDialog {
 		});
 		btnReabrir.setBounds(426, 568, 100, 28);
 		painelDadosIniciais.add(btnReabrir);
-		
+
 		JButton btnNewButton = new JButton("Visão Geral");
 		btnNewButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
@@ -840,9 +882,10 @@ public class TelaGerenciarContrato extends JDialog {
 		painelGraficoNFs.setLayout(null);
 		painelGraficoNFs.setBounds(916, 382, 300, 250);
 		painelCarregamento.add(painelGraficoNFs);
-		
+
 		JLabel lblNewLabel_29 = new JLabel("");
-		lblNewLabel_29.setIcon(new ImageIcon(TelaGerenciarContrato.class.getResource("/imagens/icone_caminhao_carregado2.png")));
+		lblNewLabel_29.setIcon(
+				new ImageIcon(TelaGerenciarContrato.class.getResource("/imagens/icone_caminhao_carregado2.png")));
 		lblNewLabel_29.setBounds(87, 48, 130, 97);
 		painelCarregamento.add(lblNewLabel_29);
 
@@ -1182,94 +1225,93 @@ public class TelaGerenciarContrato extends JDialog {
 		JButton btnExcluirTarefa = new JButton("Excluir");
 		btnExcluirTarefa.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				
+
 				int indiceDaLinha = 0;
 				indiceDaLinha = table_tarefas.getSelectedRow();
-				
+
 				CadastroTarefa tarefa_selecionada = lista_tarefas.get(indiceDaLinha);
 				JOptionPane.showMessageDialog(null, "Id da tarefa selecionada: " + tarefa_selecionada.getId_tarefa());
-				
-				if(login.getId() == tarefa_selecionada.getCriador().getId()) {
-					//verifica se a tarefa ja foi concluida
-					if(tarefa_selecionada.getStatus_tarefa() != 1) {
-						if (JOptionPane.showConfirmDialog(isto, 
-					            "Deseja excluir a tarefa selecionada", "Excluir Tarefa", 
-					            JOptionPane.YES_NO_OPTION,
-					            JOptionPane.QUESTION_MESSAGE) == JOptionPane.YES_OPTION){
-							
-							
+
+				if (login.getId() == tarefa_selecionada.getCriador().getId()) {
+					// verifica se a tarefa ja foi concluida
+					if (tarefa_selecionada.getStatus_tarefa() != 1) {
+						if (JOptionPane.showConfirmDialog(isto, "Deseja excluir a tarefa selecionada", "Excluir Tarefa",
+								JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE) == JOptionPane.YES_OPTION) {
+
 							GerenciarBancoContratos gerenciar = new GerenciarBancoContratos();
-							//remover relacao contrato tarefa
-							boolean remover_relacao = gerenciar.remover_contrato_tarefa(contrato_local.getId(), tarefa_selecionada.getId_tarefa());
-							if(remover_relacao) {
+							// remover relacao contrato tarefa
+							boolean remover_relacao = gerenciar.remover_contrato_tarefa(contrato_local.getId(),
+									tarefa_selecionada.getId_tarefa());
+							if (remover_relacao) {
 								boolean remover_tarefa = gerenciar.remover_tarefa(tarefa_selecionada.getId_tarefa());
-								if(remover_tarefa) {
+								if (remover_tarefa) {
 									JOptionPane.showMessageDialog(null, "Tarefa Excluida com sucesso");
 									getTarefas();
 
-								}else {
-									JOptionPane.showMessageDialog(null, "Erro ao a tarefa!\nBanco Corrompido\nConsulte o administrador");
+								} else {
+									JOptionPane.showMessageDialog(null,
+											"Erro ao a tarefa!\nBanco Corrompido\nConsulte o administrador");
 									getTarefas();
 
 								}
-								
-							}else {
-								JOptionPane.showMessageDialog(null, "Erro ao remover tarefa!\nConsulte o administrador");
+
+							} else {
+								JOptionPane.showMessageDialog(null,
+										"Erro ao remover tarefa!\nConsulte o administrador");
 							}
-							
-							
-							
-						}else {
-							
+
+						} else {
+
 						}
 
-					}else {
+					} else {
 						JOptionPane.showMessageDialog(null, "Uma tarefa já concluida não pode ser excluida");
 
 					}
 
-				}else {
+				} else {
 					JOptionPane.showMessageDialog(null, "Apenas o criador da tarefa pode excluí-la!");
 				}
-				
+
 			}
 		});
 		btnExcluirTarefa.setBounds(1072, 430, 64, 28);
 		painelListaTarefas.add(btnExcluirTarefa);
-		
+
 		JButton btnResponder = new JButton("Responder");
 		btnResponder.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				int indiceDaLinha = 0;
 				indiceDaLinha = table_tarefas.getSelectedRow();
-				
+
 				CadastroTarefa tarefa_selecionada = lista_tarefas.get(indiceDaLinha);
 				JOptionPane.showMessageDialog(null, "Id da tarefa selecionada: " + tarefa_selecionada.getId_tarefa());
-				
-				if(tarefa_selecionada.getExecutor().getId() == login.getId()) {
-					
-					if(tarefa_selecionada.getStatus_tarefa() == 2) {
-					
-					JOptionPane.showMessageDialog(null, "Uma tarefa após ser respondida não pode ser editada nem excluida!");
-					TelaCriarTarefaResposta responder = new TelaCriarTarefaResposta(tarefa_selecionada);
-					responder.setTelaPai(isto);
-					responder.setVisible(true);
-					}else {
+
+				if (tarefa_selecionada.getExecutor().getId() == login.getId()) {
+
+					if (tarefa_selecionada.getStatus_tarefa() == 2) {
+
+						JOptionPane.showMessageDialog(null,
+								"Uma tarefa após ser respondida não pode ser editada nem excluida!");
+						TelaCriarTarefaResposta responder = new TelaCriarTarefaResposta(tarefa_selecionada);
+						responder.setTelaPai(isto);
+						responder.setVisible(true);
+					} else {
 						JOptionPane.showMessageDialog(null, "Tarefa já concluida");
- 
+
 					}
-					
-				}else {
+
+				} else {
 					JOptionPane.showMessageDialog(null, "Você só pode responder tarefas designadas a seu usuário!");
 
 				}
-				
+
 			}
 		});
 		btnResponder.setBounds(1148, 430, 90, 28);
 		painelListaTarefas.add(btnResponder);
 
-		painelPrincipal.addTab("Documentos, Aditivos e Relatórios", painelComprovantes);
+		painelPrincipal.addTab("Documentos, Distratos, Aditivos e Relatórios", painelComprovantes);
 		painelComprovantes.setLayout(null);
 
 		btnAdicionarCarregamento.addActionListener(new ActionListener() {
@@ -1307,23 +1349,22 @@ public class TelaGerenciarContrato extends JDialog {
 		carregarDocumento(url_original);
 		getTarefas();
 
-		
-		 setarInformacoesPainelPrincipal(); setarInformacoesPainelCarregamentos();
-		 pesquisar_carregamentos(); pesquisar_pagamentos();
-		 
-		
-		
-		setSubContratos(contrato_local);
-		if (contrato_local.getSub_contrato() == 0) {
-			setarPainelGanhosPotenciais();
+		/*
+		 * setarInformacoesPainelPrincipal(); setarInformacoesPainelCarregamentos();
+		 * pesquisar_carregamentos(); pesquisar_pagamentos();
+		 * 
+		 * 
+		 * 
+		 * setSubContratos(contrato_local); if (contrato_local.getSub_contrato() == 0) {
+		 * setarPainelGanhosPotenciais();
+		 * 
+		 * } setInformacoesDocumentos();
+		 * 
+		 * setInformacoesAditivos();
+		 * 
+		 * travarContrato();
+		 */
 
-		}
-		setInformacoesDocumentos();
-
-		setInformacoesAditivos();
-		
-		travarContrato();
-	
 		this.setLocationRelativeTo(null);
 
 		this.setVisible(true);
@@ -1366,14 +1407,12 @@ public class TelaGerenciarContrato extends JDialog {
 			String prioridade = "";
 			String resposta = "";
 
-			
 			if (tarefa.getStatus_tarefa() == 1) {
 				status_tarefa = "Concluida";
 				resposta = tarefa.getResposta();
 			} else if (tarefa.getStatus_tarefa() == 2) {
 				status_tarefa = "Em Andamento";
-				 resposta = "Executor da tarefa ainda não respondeu";
-
+				resposta = "Executor da tarefa ainda não respondeu";
 
 			}
 
@@ -1388,7 +1427,6 @@ public class TelaGerenciarContrato extends JDialog {
 			} else if (tarefa.getPrioridade() == 5) {
 				prioridade = "Leve - Ainda esse mês";
 			}
-			
 
 			GerenciarBancoLogin gerenciarUsuarios = new GerenciarBancoLogin();
 			CadastroLogin criador = gerenciarUsuarios.getLogin(tarefa.getCriador().getId());
@@ -1743,8 +1781,8 @@ public class TelaGerenciarContrato extends JDialog {
 			// definir peso carregamento
 			double peso_carregado = carregamento.getPeso_real_carga();
 			// definir peso da nota
-			
-		    Number number = null;
+
+			Number number = null;
 			try {
 				number = z.parse(nota.getQuantidade());
 			} catch (ParseException e) {
@@ -1933,8 +1971,8 @@ public class TelaGerenciarContrato extends JDialog {
 
 					});
 
-			if(pagamento.getTipo() == 1)
-			valor_total_pagamentos_efetuados += valor_pagamento;
+			if (pagamento.getTipo() == 1)
+				valor_total_pagamentos_efetuados += valor_pagamento;
 
 		}
 
@@ -2915,7 +2953,7 @@ public class TelaGerenciarContrato extends JDialog {
 			}
 
 			atualizarContratoLocal();
-			//setarInformacoesPainelPrincipal();
+			// setarInformacoesPainelPrincipal();
 
 		} else {
 
@@ -3112,8 +3150,6 @@ public class TelaGerenciarContrato extends JDialog {
 
 				setMenuDocumentos();
 
-				
-
 				arvore_documentos.setCellRenderer(new DefaultTreeCellRenderer() {
 					ImageIcon icone_assinatura = new ImageIcon(
 							TelaGerenciarContrato.class.getResource("/imagens/icone_assinatura.png"));
@@ -3223,7 +3259,7 @@ public class TelaGerenciarContrato extends JDialog {
 				JButton btnSimplificado = new JButton("Gerar");
 				btnSimplificado.setBounds(207, 371, 59, 28);
 				panel_2.add(btnSimplificado);
-				
+
 				JLabel lblNewLabel_26 = new JLabel("Tipo:");
 				lblNewLabel_26.setFont(new Font("SansSerif", Font.PLAIN, 14));
 				lblNewLabel_26.setBounds(6, 45, 32, 19);
@@ -3241,41 +3277,39 @@ public class TelaGerenciarContrato extends JDialog {
 
 				chckbxExterno.addActionListener(new ActionListener() {
 					public void actionPerformed(ActionEvent e) {
-						if(chckbxExterno.isSelected()) {
+						if (chckbxExterno.isSelected()) {
 							chkbxInterno.setSelected(false);
 							chckbxExterno.setSelected(true);
 							painelOpcaoInternas.setVisible(false);
 							chckbxIncluirTransferencias.setEnabled(false);
 							chckbxIncluirTransferencias.setSelected(false);
 
-						}else {
+						} else {
 							chkbxInterno.setSelected(true);
 							chckbxExterno.setSelected(false);
 							painelOpcaoInternas.setVisible(true);
-							
-							if(chckbxIncluirPagamentos.isSelected()) {
+
+							if (chckbxIncluirPagamentos.isSelected()) {
 								chckbxIncluirTransferencias.setEnabled(true);
 
-
-							}else {
+							} else {
 								chckbxIncluirTransferencias.setEnabled(false);
 
 							}
 
-							
 						}
 					}
 				});
 
 				chkbxInterno.addActionListener(new ActionListener() {
 					public void actionPerformed(ActionEvent e) {
-						if(chkbxInterno.isSelected()) {
+						if (chkbxInterno.isSelected()) {
 							chkbxInterno.setSelected(true);
 							chckbxExterno.setSelected(false);
-							
+
 							painelOpcaoInternas.setVisible(true);
-							
-						}else {
+
+						} else {
 							chkbxInterno.setSelected(false);
 							chckbxExterno.setSelected(true);
 							painelOpcaoInternas.setVisible(false);
@@ -3285,80 +3319,78 @@ public class TelaGerenciarContrato extends JDialog {
 				});
 				chkbxInterno.setBounds(50, 46, 60, 18);
 				panel_2.add(chkbxInterno);
-				
+
 				chckbxExterno.setBounds(122, 46, 63, 18);
 				panel_2.add(chckbxExterno);
-				
+
 				painelOpcaoInternas.setBounds(16, 76, 251, 162);
 				panel_2.add(painelOpcaoInternas);
 				painelOpcaoInternas.setLayout(null);
-				
+
 				JCheckBox chckbxIncluirSubContratos = new JCheckBox("Incluir Sub-Contratos");
 				chckbxIncluirSubContratos.addActionListener(new ActionListener() {
 					public void actionPerformed(ActionEvent e) {
-						
-						if(chckbxIncluirSubContratos.isSelected()) {
+
+						if (chckbxIncluirSubContratos.isSelected()) {
 							chckbxIncluirSubContratos.setSelected(true);
 							chckbxIncluirGanhosPotenciais.setEnabled(true);
-						}else {
+						} else {
 							chckbxIncluirSubContratos.setSelected(false);
 							chckbxIncluirGanhosPotenciais.setEnabled(false);
 						}
-						
-						
+
 					}
 				});
 				chckbxIncluirSubContratos.setBounds(16, 63, 138, 18);
 				painelOpcaoInternas.add(chckbxIncluirSubContratos);
-				
+
 				JCheckBox chckbxIncluirComisso = new JCheckBox("Incluir Comissão");
 				chckbxIncluirComisso.setBounds(16, 36, 138, 18);
 				painelOpcaoInternas.add(chckbxIncluirComisso);
-				
+
 				chckbxIncluirGanhosPotenciais.setEnabled(false);
 				chckbxIncluirGanhosPotenciais.setBounds(44, 93, 163, 18);
 				painelOpcaoInternas.add(chckbxIncluirGanhosPotenciais);
-				
+
 				JLabel lblNewLabel_27 = new JLabel("Opções relatorio interno:");
 				lblNewLabel_27.setBounds(21, 8, 135, 16);
 				painelOpcaoInternas.add(lblNewLabel_27);
-				
+
 				JCheckBox chckbxIncluirCarregamento = new JCheckBox("Incluir Carregamentos");
 				chckbxIncluirCarregamento.setBounds(37, 250, 163, 18);
 				panel_2.add(chckbxIncluirCarregamento);
-				
+
 				chckbxIncluirPagamentos.addActionListener(new ActionListener() {
 					public void actionPerformed(ActionEvent e) {
-						
-						
-						if(chckbxIncluirPagamentos.isSelected()) {
+
+						if (chckbxIncluirPagamentos.isSelected()) {
 							chckbxIncluirPagamentos.setSelected(true);
 							chckbxIncluirComprovantesPagamentos.setEnabled(true);
-							
-							if(chkbxInterno.isSelected()) {
-							chckbxIncluirTransferencias.setEnabled(true);
-							}else {
+
+							if (chkbxInterno.isSelected()) {
+								chckbxIncluirTransferencias.setEnabled(true);
+							} else {
 								chckbxIncluirTransferencias.setEnabled(false);
 								chckbxIncluirTransferencias.setSelected(false);
 
 							}
-							
-						}else {
+
+						} else {
 							chckbxIncluirPagamentos.setSelected(false);
 							chckbxIncluirComprovantesPagamentos.setEnabled(false);
 							chckbxIncluirTransferencias.setEnabled(false);
 							chckbxIncluirTransferencias.setSelected(false);
 
 						}
-						
+
 					}
 				});
 				chckbxIncluirPagamentos.setBounds(37, 278, 163, 18);
 				panel_2.add(chckbxIncluirPagamentos);
-				
+
 				chckbxIncluirComprovantesPagamentos.setBounds(81, 308, 139, 18);
 				panel_2.add(chckbxIncluirComprovantesPagamentos);
-				
+
 				chckbxIncluirTransferencias.setEnabled(false);
 				chckbxIncluirTransferencias.setBounds(81, 338, 141, 18);
 				panel_2.add(chckbxIncluirTransferencias);
@@ -3411,107 +3443,91 @@ public class TelaGerenciarContrato extends JDialog {
 				btnAdicionarDocumento.addActionListener(new ActionListener() {
 					public void actionPerformed(ActionEvent e) {
 
-						if(contrato_local.getStatus_contrato() != 3)
-						adicionarNovoDocumento();
+						if (contrato_local.getStatus_contrato() != 3)
+							adicionarNovoDocumento();
 
 					}
 				});
 				btnSelecionarDocumento.addActionListener(new ActionListener() {
 					public void actionPerformed(ActionEvent e) {
-						if(contrato_local.getStatus_contrato() != 3)
-						selecionarDocumento();
+						if (contrato_local.getStatus_contrato() != 3)
+							selecionarDocumento();
 					}
 				});
 				btnSimplificado.addActionListener(new ActionListener() {
 					public void actionPerformed(ActionEvent e) {
 						RelatorioContratoIndividual relatorio = new RelatorioContratoIndividual(contrato_local);
 
-						
-					   if(chkbxInterno.isSelected()) {
-						   relatorio.setExterno(false);
-						   relatorio.setInterno(true);
-						   
-						  
-						   
-						   if(chckbxIncluirSubContratos.isSelected()) {
-							   relatorio.setIncluir_sub_contratos(true);
-							   
-							   if(chckbxIncluirGanhosPotenciais.isSelected()) {
-								   relatorio.setIncluir_ganhos_potenciais(true);
-							   }else {
-								   relatorio.setIncluir_ganhos_potenciais(false);
+						if (chkbxInterno.isSelected()) {
+							relatorio.setExterno(false);
+							relatorio.setInterno(true);
 
-							   }
-							   
-							   
-						   }else {
-							   relatorio.setIncluir_sub_contratos(false);
-							   relatorio.setIncluir_ganhos_potenciais(false);
+							if (chckbxIncluirSubContratos.isSelected()) {
+								relatorio.setIncluir_sub_contratos(true);
 
-						   }
-						   
-						   
-						   if(chckbxIncluirComisso.isSelected()) {
-							   relatorio.setIncluir_comissao(true);
-						   }else {
-							   relatorio.setIncluir_comissao(false);
+								if (chckbxIncluirGanhosPotenciais.isSelected()) {
+									relatorio.setIncluir_ganhos_potenciais(true);
+								} else {
+									relatorio.setIncluir_ganhos_potenciais(false);
 
-						   }
-						   
-						   
-					   }else if(chckbxExterno.isSelected()) {
-						   relatorio.setExterno(true);
-						   relatorio.setInterno(false);
-						   
-						   relatorio.setIncluir_comissao(false);
-						   relatorio.setIncluir_ganhos_potenciais(false);
-						   relatorio.setIncluir_sub_contratos(false);
+								}
 
-						   
-					   }
-					   
-					   if(chckbxIncluirCarregamento.isSelected()) {
-						   relatorio.setIncluir_carregamento(true);
-					   }else {
-						   relatorio.setIncluir_carregamento(false);
+							} else {
+								relatorio.setIncluir_sub_contratos(false);
+								relatorio.setIncluir_ganhos_potenciais(false);
 
-					   }
+							}
 
-					   
-					   if(chckbxIncluirPagamentos.isSelected()) {
-						   relatorio.setIncluir_pagamento(true);
-						   
-						   if(chckbxIncluirComprovantesPagamentos.isSelected()) {
-							   relatorio.setIncluir_comprovantes_pagamentos(true);
+							if (chckbxIncluirComisso.isSelected()) {
+								relatorio.setIncluir_comissao(true);
+							} else {
+								relatorio.setIncluir_comissao(false);
 
-						   }else {
-							   relatorio.setIncluir_comprovantes_pagamentos(false);
+							}
 
-						   }
-						   
-						   if(chckbxIncluirTransferencias.isSelected()) {
-							   relatorio.setIncluir_transferencias(true);
+						} else if (chckbxExterno.isSelected()) {
+							relatorio.setExterno(true);
+							relatorio.setInterno(false);
 
-						   }else {
-							   relatorio.setIncluir_transferencias(false);
+							relatorio.setIncluir_comissao(false);
+							relatorio.setIncluir_ganhos_potenciais(false);
+							relatorio.setIncluir_sub_contratos(false);
 
-						   }
-						   
-						   
-						   
+						}
 
-						   
-					   }else {
-						   relatorio.setIncluir_pagamento(false);
-						   relatorio.setIncluir_comprovantes_pagamentos(false);
-						   relatorio.setIncluir_transferencias(false);
+						if (chckbxIncluirCarregamento.isSelected()) {
+							relatorio.setIncluir_carregamento(true);
+						} else {
+							relatorio.setIncluir_carregamento(false);
 
-					   }
-					   
+						}
 
+						if (chckbxIncluirPagamentos.isSelected()) {
+							relatorio.setIncluir_pagamento(true);
 
-					   
-						
+							if (chckbxIncluirComprovantesPagamentos.isSelected()) {
+								relatorio.setIncluir_comprovantes_pagamentos(true);
+
+							} else {
+								relatorio.setIncluir_comprovantes_pagamentos(false);
+
+							}
+
+							if (chckbxIncluirTransferencias.isSelected()) {
+								relatorio.setIncluir_transferencias(true);
+
+							} else {
+								relatorio.setIncluir_transferencias(false);
+
+							}
+
+						} else {
+							relatorio.setIncluir_pagamento(false);
+							relatorio.setIncluir_comprovantes_pagamentos(false);
+							relatorio.setIncluir_transferencias(false);
+
+						}
+
 						Date hoje = new Date();
 						SimpleDateFormat df = new SimpleDateFormat("dd/MM/yyyy");
 						contrato_local.setData_contrato(df.format(hoje));
@@ -3520,7 +3536,8 @@ public class TelaGerenciarContrato extends JDialog {
 
 						ConverterPdf converter_pdf = new ConverterPdf();
 						String pdf_alterado = converter_pdf.word_pdf_stream(contrato_alterado);
-						TelaVizualizarPdf vizualizar = new TelaVizualizarPdf(null, isto, null, pdf_alterado, contrato_local);
+						TelaVizualizarPdf vizualizar = new TelaVizualizarPdf(null, isto, null, pdf_alterado,
+								contrato_local);
 					}
 				});
 
@@ -3728,7 +3745,6 @@ public class TelaGerenciarContrato extends JDialog {
 		java.awt.EventQueue.invokeLater(new Runnable() {
 			public void run() {
 
-
 				// create the root node
 				DefaultMutableTreeNode root_contratos = new DefaultMutableTreeNode("Raíz");
 				// create the child nodes
@@ -3816,9 +3832,8 @@ public class TelaGerenciarContrato extends JDialog {
 				painel_pai.add(arvore_contratos, "cell 0 1,grow");
 
 				expandAllNodes(arvore_contratos, 0, arvore_contratos.getRowCount());
-				
-				painelInformacoes.setInformacoesSubContrato(contrato_local);
 
+				painelInformacoes.setInformacoesSubContrato(contrato_local);
 
 			}
 		});
@@ -4225,8 +4240,6 @@ public class TelaGerenciarContrato extends JDialog {
 		}
 	}
 
-	
-
 	public void transferirPagamentoContratual(int id_pagamento_contratual) {
 
 		TelaConfirmarTransferenciaPagamentoContratual tela = new TelaConfirmarTransferenciaPagamentoContratual(
@@ -4311,20 +4324,22 @@ public class TelaGerenciarContrato extends JDialog {
 				tela.apresentarContratoCompleto(contrato_local, registro_pagamento_global,
 						registro_carregamento_global);
 				tela.setVisible(true);
-			} else{
-				
-				if (JOptionPane.showConfirmDialog(isto, "Requisitos do contrato não cumpridos, deseja continuar?", "Concluir",
-						JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE) == JOptionPane.YES_OPTION) {
-				
+			} else {
+
+				if (JOptionPane.showConfirmDialog(isto, "Requisitos do contrato não cumpridos, deseja continuar?",
+						"Concluir", JOptionPane.YES_NO_OPTION,
+						JOptionPane.QUESTION_MESSAGE) == JOptionPane.YES_OPTION) {
+
 					TelaFinalizarContratoIncompleto tela = new TelaFinalizarContratoIncompleto();
 					tela.setTelaPai(isto);
-					tela.apresentarContratoIncompleto(contrato_local, registro_pagamento_global, registro_carregamento_global);
+					tela.apresentarContratoIncompleto(contrato_local, registro_pagamento_global,
+							registro_carregamento_global);
 					tela.setVisible(true);
-					
-				}else {
-					
+
+				} else {
+
 				}
-				
+
 			}
 
 		} else {
@@ -4374,9 +4389,9 @@ public class TelaGerenciarContrato extends JDialog {
 
 					Component c = painelSubContratos.getComponent(i);
 					if (c instanceof JButton) {
-					  if( !((JButton) c).getText().equals("Abrir")  )
-					 	c.setEnabled(false);
-						
+						if (!((JButton) c).getText().equals("Abrir"))
+							c.setEnabled(false);
+
 					}
 
 				}
@@ -4387,19 +4402,19 @@ public class TelaGerenciarContrato extends JDialog {
 			jPopupMenuDocumentos = null;
 
 			jPopupMenuTabelPagamentos = null;
-			
+
 			jPopupMenuTabelAditivos = null;
 
 		}
 		atualizarContratoLocal();
 
-		//setarInformacoesPainelPrincipal();
+		// setarInformacoesPainelPrincipal();
 
 	}
 
 	public void destravarContrato() {
 		atualizarContratoLocal();
-		//setarInformacoesPainelPrincipal();
+		// setarInformacoesPainelPrincipal();
 
 		for (int i = 0; i < painelCarregamento.getComponentCount(); i++) {
 
@@ -4448,135 +4463,135 @@ public class TelaGerenciarContrato extends JDialog {
 		setMenuDocumentos();
 
 		setMenuPagamentos();
-		
+
 		setMenuAditivos();
 
 	}
 
 	public void setMenuDocumentos() {
-		
-		if(contrato_local.getStatus_contrato() != 3) {
-		jPopupMenuDocumentos = new JPopupMenu();
-		JMenuItem jMenuItemVizualizar = new JMenuItem();
-		JMenuItem jMenuItemExcluir = new JMenuItem();
-		JMenuItem jMenuItemEnviar = new JMenuItem();
-		jMenuItemEnviar.setText("Enviar");
-		
-		jMenuItemVizualizar.setText("Vizualizar");
-		jMenuItemExcluir.setText("Excluir");
 
-		jMenuItemVizualizar.addActionListener(new java.awt.event.ActionListener() {
-			// Importe a classe java.awt.event.ActionEvent
-			public void actionPerformed(ActionEvent e) {
-				String nome_arquivo = no_selecionado.getUserObject().toString();
+		if (contrato_local.getStatus_contrato() != 3) {
+			jPopupMenuDocumentos = new JPopupMenu();
+			JMenuItem jMenuItemVizualizar = new JMenuItem();
+			JMenuItem jMenuItemExcluir = new JMenuItem();
+			JMenuItem jMenuItemEnviar = new JMenuItem();
+			jMenuItemEnviar.setText("Enviar");
 
-				String quebra[] = nome_arquivo.split("@");
+			jMenuItemVizualizar.setText("Vizualizar");
+			jMenuItemExcluir.setText("Excluir");
 
-				String nome_official = "";
-				for (int i = 1; i < quebra.length; i++) {
-					nome_official += quebra[i];
-				}
-
-				String unidade_base_dados = configs_globais.getServidorUnidade();
-				String caminho_completo = unidade_base_dados + "\\" + contrato_local.getCaminho_diretorio_contrato()
-						+ "\\" + "comprovantes\\" + nome_official;
-				if (Desktop.isDesktopSupported()) {
-					try {
-						Desktop desktop = Desktop.getDesktop();
-						File myFile = new File(caminho_completo);
-						desktop.open(myFile);
-					} catch (IOException ex) {
-					}
-				}
-			}
-		});
-
-		jMenuItemExcluir.addActionListener(new java.awt.event.ActionListener() {
-			// Importe a classe java.awt.event.ActionEvent
-			public void actionPerformed(ActionEvent e) {
-				if (JOptionPane.showConfirmDialog(isto, "Deseja Excluir este comprovante", "Exclusão",
-						JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE) == JOptionPane.YES_OPTION) {
-
+			jMenuItemVizualizar.addActionListener(new java.awt.event.ActionListener() {
+				// Importe a classe java.awt.event.ActionEvent
+				public void actionPerformed(ActionEvent e) {
 					String nome_arquivo = no_selecionado.getUserObject().toString();
+
 					String quebra[] = nome_arquivo.split("@");
-					String id = quebra[0];
-					int i_id = Integer.parseInt(id);
 
 					String nome_official = "";
 					for (int i = 1; i < quebra.length; i++) {
 						nome_official += quebra[i];
 					}
+
+					String unidade_base_dados = configs_globais.getServidorUnidade();
+					String caminho_completo = unidade_base_dados + "\\" + contrato_local.getCaminho_diretorio_contrato()
+							+ "\\" + "comprovantes\\" + nome_official;
+					if (Desktop.isDesktopSupported()) {
+						try {
+							Desktop desktop = Desktop.getDesktop();
+							File myFile = new File(caminho_completo);
+							desktop.open(myFile);
+						} catch (IOException ex) {
+						}
+					}
+				}
+			});
+
+			jMenuItemExcluir.addActionListener(new java.awt.event.ActionListener() {
+				// Importe a classe java.awt.event.ActionEvent
+				public void actionPerformed(ActionEvent e) {
+					if (JOptionPane.showConfirmDialog(isto, "Deseja Excluir este comprovante", "Exclusão",
+							JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE) == JOptionPane.YES_OPTION) {
+
+						String nome_arquivo = no_selecionado.getUserObject().toString();
+						String quebra[] = nome_arquivo.split("@");
+						String id = quebra[0];
+						int i_id = Integer.parseInt(id);
+
+						String nome_official = "";
+						for (int i = 1; i < quebra.length; i++) {
+							nome_official += quebra[i];
+						}
+						String unidade_base_dados = configs_globais.getServidorUnidade();
+						String caminho_completo = unidade_base_dados + "\\"
+								+ contrato_local.getCaminho_diretorio_contrato() + "\\" + "comprovantes\\"
+								+ nome_official;
+
+						boolean excluido = new ManipularTxt().apagarArquivo(caminho_completo);
+						if (excluido) {
+
+							GerenciarBancoDocumento gerenciar_docs = new GerenciarBancoDocumento();
+							boolean excluir_documento = gerenciar_docs.removerDocumento(i_id);
+
+							if (excluir_documento) {
+								JOptionPane.showMessageDialog(null, "Comprovante Excluido!");
+
+							} else {
+								JOptionPane.showMessageDialog(null,
+										"Arquivo fisico apagado, mas as informações\ndeste comprovante ainda estão no \nConsulte o administrador");
+
+							}
+
+							atualizarArvoreDocumentos();
+
+						} else {
+							JOptionPane.showMessageDialog(null,
+									"Erro ao excluir o comprovante\nConsulte o administrador!");
+						}
+
+					} else {
+
+					}
+				}
+			});
+
+			jMenuItemEnviar.addActionListener(new java.awt.event.ActionListener() {
+				// Importe a classe java.awt.event.ActionEvent
+				public void actionPerformed(ActionEvent e) {
+					String nome_arquivo = no_selecionado.getUserObject().toString();
+
+					String quebra[] = nome_arquivo.split("@");
+
+					String nome_official = "";
+					for (int i = 1; i < quebra.length; i++) {
+						nome_official += quebra[i];
+					}
+
 					String unidade_base_dados = configs_globais.getServidorUnidade();
 					String caminho_completo = unidade_base_dados + "\\" + contrato_local.getCaminho_diretorio_contrato()
 							+ "\\" + "comprovantes\\" + nome_official;
 
-					boolean excluido = new ManipularTxt().apagarArquivo(caminho_completo);
-					if (excluido) {
+					File doc = new File(caminho_completo);
 
-						GerenciarBancoDocumento gerenciar_docs = new GerenciarBancoDocumento();
-						boolean excluir_documento = gerenciar_docs.removerDocumento(i_id);
+					TelaEscolha tela = new TelaEscolha(2, contrato_local, doc);
+					tela.setVisible(true);
+				}
+			});
 
-						if (excluir_documento) {
-							JOptionPane.showMessageDialog(null, "Comprovante Excluido!");
+			jPopupMenuDocumentos.add(jMenuItemVizualizar);
+			jPopupMenuDocumentos.add(jMenuItemExcluir);
+			jPopupMenuDocumentos.add(jMenuItemEnviar);
 
-						} else {
-							JOptionPane.showMessageDialog(null,
-									"Arquivo fisico apagado, mas as informações\ndeste comprovante ainda estão no \nConsulte o administrador");
-
-						}
-
-						atualizarArvoreDocumentos();
-
-					} else {
-						JOptionPane.showMessageDialog(null, "Erro ao excluir o comprovante\nConsulte o administrador!");
+			arvore_documentos.addMouseListener(new java.awt.event.MouseAdapter() {
+				// Importe a classe java.awt.event.MouseEvent
+				public void mouseClicked(MouseEvent e) {
+					// Se o botão direito do mouse foi pressionado
+					if (e.getButton() == MouseEvent.BUTTON3) {
+						// Exibe o popup menu na posição do mouse.
+						jPopupMenuDocumentos.show(arvore_documentos, e.getX(), e.getY());
 					}
-
-				} else {
-
 				}
-			}
-		});
-		
-		jMenuItemEnviar.addActionListener(new java.awt.event.ActionListener() {
-			// Importe a classe java.awt.event.ActionEvent
-			public void actionPerformed(ActionEvent e) {
-				String nome_arquivo = no_selecionado.getUserObject().toString();
+			});
 
-				String quebra[] = nome_arquivo.split("@");
-
-				String nome_official = "";
-				for (int i = 1; i < quebra.length; i++) {
-					nome_official += quebra[i];
-				}
-
-				String unidade_base_dados = configs_globais.getServidorUnidade();
-				String caminho_completo = unidade_base_dados + "\\" + contrato_local.getCaminho_diretorio_contrato()
-						+ "\\" + "comprovantes\\" + nome_official;
-				
-				   File doc = new File(caminho_completo);
-				    
-				    TelaEscolha tela = new TelaEscolha(2, contrato_local, doc);
-				    tela.setVisible(true);
-			}
-		});
-
-		
-		
-		jPopupMenuDocumentos.add(jMenuItemVizualizar);
-		jPopupMenuDocumentos.add(jMenuItemExcluir);
-		jPopupMenuDocumentos.add(jMenuItemEnviar);
-		
-		arvore_documentos.addMouseListener(new java.awt.event.MouseAdapter() {
-			// Importe a classe java.awt.event.MouseEvent
-			public void mouseClicked(MouseEvent e) {
-				// Se o botão direito do mouse foi pressionado
-				if (e.getButton() == MouseEvent.BUTTON3) {
-					// Exibe o popup menu na posição do mouse.
-					jPopupMenuDocumentos.show(arvore_documentos, e.getX(), e.getY());
-				}
-			}
-		});
-		
 		}
 	}
 
@@ -4658,8 +4673,7 @@ public class TelaGerenciarContrato extends JDialog {
 		jMenuItemInserirComprovante.setText("Inserir Comprovante");
 		jMenuItemVizualizarNFAe.setText("Vizualizar NFA-e");
 		jMenuItemReplicarCarregamento.setText("Replicar");
-		
-		
+
 		jMenuItemInserirComprovante.addActionListener(new java.awt.event.ActionListener() {
 			// Importe a classe java.awt.event.ActionEvent
 			public void actionPerformed(ActionEvent e) {
@@ -4720,17 +4734,15 @@ public class TelaGerenciarContrato extends JDialog {
 			}
 		});
 
-		
 		jPopupMenuTabelCarregamento.add(jMenuItemInserirComprovante);
 		jPopupMenuTabelCarregamento.add(jMenuItemVizualizarNFAe);
 		jPopupMenuTabelCarregamento.add(jMenuItemReplicarCarregamento);
 
-		
 	}
-	
+
 	public void setMenuAditivos() {
-		if(contrato_local.getStatus_contrato() != 3) {
-		 jPopupMenuTabelAditivos = new JPopupMenu();
+		if (contrato_local.getStatus_contrato() != 3) {
+			jPopupMenuTabelAditivos = new JPopupMenu();
 			JMenuItem jMenuItemAssinarAditivo = new JMenuItem();
 			JMenuItem jMenuItemRevogarAssinatura = new JMenuItem();
 
@@ -4780,8 +4792,7 @@ public class TelaGerenciarContrato extends JDialog {
 
 					String unidade_base_dados = configs_globais.getServidorUnidade();
 					String nome_arquivo = table_aditivos.getValueAt(index, 4).toString();
-					String caminho_salvar = unidade_base_dados + "\\"
-							+ contrato_local.getCaminho_diretorio_contrato();
+					String caminho_salvar = unidade_base_dados + "\\" + contrato_local.getCaminho_diretorio_contrato();
 
 					String caminho_completo = caminho_salvar + "\\comprovantes\\" + nome_arquivo;
 					if (Desktop.isDesktopSupported()) {
@@ -4831,8 +4842,7 @@ public class TelaGerenciarContrato extends JDialog {
 							}
 
 						} else {
-							JOptionPane.showMessageDialog(null,
-									"Erro ao excluir o aditivo\nConsulte o adiministrador");
+							JOptionPane.showMessageDialog(null, "Erro ao excluir o aditivo\nConsulte o adiministrador");
 
 						}
 
@@ -4858,11 +4868,311 @@ public class TelaGerenciarContrato extends JDialog {
 					}
 				}
 			});
+		}
 	}
+
+	public static class RomaneioTableModel extends AbstractTableModel {
+
+		// constantes p/identificar colunas
+		private final int numero_romaneio = 0;
+		private final int operacao = 1;
+
+		private final int data = 2;
+		private final int produto = 3;
+		private final int transgenia = 4;
+
+		private final int safra = 5;
+		private final int nome_remetente = 6;
+		private final int nome_destinatario = 7;
+		private final int peso_bruto = 8;
+		private final int tara = 9;
+		private final int peso_liquido = 10;
+		private final int umidade = 11;
+		private final int impureza = 12;
+		private final int ardidos = 13;
+		private final int avariados = 14;
+		private final int cfop = 15;
+		private final int descricao = 16;
+
+		private final int motorista = 17;
+		private final int placa = 18;
+
+		private final String colunas[] = { "Número", "Operação", "Data:", "Produto:", "Transgenia:", "Safra:",
+				"Remetente:", "Destinatario:", "Peso Bruto:", "Tara:", "Peso Liquido:", "Umidade:", "Impureza:",
+				"Ardidos", "Avariados", "CFOP", "Descrição", "Motorista", "Placa" };
+		private final ArrayList<CadastroRomaneio> dados = new ArrayList<>();// usamos como dados uma lista genérica de
+																			// nfs
+
+		public RomaneioTableModel() {
+
+		}
+
+		@Override
+		public int getColumnCount() {
+			// retorna o total de colunas
+			return colunas.length;
+		}
+
+		@Override
+		public int getRowCount() {
+			// retorna o total de linhas na tabela
+			return dados.size();
+		}
+
+		@Override
+		public Class<?> getColumnClass(int columnIndex) {
+			// retorna o tipo de dado, para cada coluna
+			switch (columnIndex) {
+			case numero_romaneio:
+				return int.class;
+			case operacao:
+				return String.class;
+			case data:
+				return Date.class;
+			case produto:
+				return String.class;
+			case transgenia:
+				return String.class;
+			case safra:
+				return String.class;
+			case nome_remetente:
+				return String.class;
+			case nome_destinatario:
+				return String.class;
+			case peso_bruto:
+				return Double.class;
+			case tara:
+				return Double.class;
+			case peso_liquido:
+				return Double.class;
+			case umidade:
+				return Double.class;
+			case impureza:
+				return Double.class;
+			case ardidos:
+				return Double.class;
+			case avariados:
+				return Double.class;
+			case cfop:
+				return String.class;
+			case descricao:
+				return String.class;
+			case motorista:
+				return String.class;
+			case placa:
+				return String.class;
+
+			default:
+				throw new IndexOutOfBoundsException("Coluna Inválida!!!");
+			}
+		}
+
+		@Override
+		public String getColumnName(int columnIndex) {
+			return colunas[columnIndex];
+		}
+
+		@Override
+		public Object getValueAt(int rowIndex, int columnIndex) {
+			// retorna o valor conforme a coluna e linha
+
+			// pega o dados corrente da linha
+			CadastroRomaneio romaneio = dados.get(rowIndex);
+
+			// retorna o valor da coluna
+			switch (columnIndex) {
+			case numero_romaneio:
+				return romaneio.getNumero_romaneio();
+			case operacao:
+				return romaneio.getOperacao();
+			case data:
+				return romaneio.getData();
+			case produto: {
+				CadastroProduto prod = romaneio.getSafra().getProduto();
+				return prod.getNome_produto();
+
+			}
+			case transgenia:
+				return romaneio.getProduto().getTransgenia();
+			case safra: {
+				CadastroSafra safra = romaneio.getSafra();
+				return safra.getAno_plantio() + "/" + safra.getAno_colheita();
+
+			}
+			case nome_remetente: {
+				String nome_cliente = "";
+				CadastroCliente remetente = romaneio.getRemetente();
+
+				if (remetente.getTipo_pessoa() == 0) {
+					nome_cliente = remetente.getNome_empresarial();
+				} else
+					nome_cliente = remetente.getNome_fantaia();
+
+				return nome_cliente;
+
+			}
+			case nome_destinatario: {
+				String nome_cliente = "";
+				CadastroCliente destinatario = romaneio.getDestinatario();
+
+				if (destinatario.getTipo_pessoa() == 0) {
+					nome_cliente = destinatario.getNome_empresarial();
+				} else
+					nome_cliente = destinatario.getNome_fantaia();
+
+				return nome_cliente;
+			}
+			case peso_bruto:
+				return romaneio.getPeso_bruto();
+			case tara:
+				return romaneio.getTara();
+			case peso_liquido:
+				return romaneio.getPeso_liquido();
+			case umidade:
+				return romaneio.getUmidade();
+			case impureza:
+				return romaneio.getInpureza();
+			case ardidos:
+				return romaneio.getArdidos();
+			case avariados:
+				return romaneio.getAvariados();
+			case cfop:
+				return romaneio.getCfop();
+			case descricao:
+				return romaneio.getDescricao_cfop();
+			case motorista:
+				return romaneio.getMotorista().getNome_empresarial();
+			case placa: {
+				ArrayList<CadastroCliente.Veiculo> veiculos = romaneio.getMotorista().getVeiculos();
+				return veiculos.get(0).getPlaca_trator();
+
+			}
+
+			default:
+				throw new IndexOutOfBoundsException("Coluna Inválida!!!");
+			}
+		}
+
+		@Override
+		public boolean isCellEditable(int rowIndex, int columnIndex) {
+			// metodo identifica qual coluna é editavel
+
+			// só iremos editar a coluna BENEFICIO,
+			// que será um checkbox por ser boolean
+
+			return false;
+		}
+
+		@Override
+		public void setValueAt(Object aValue, int rowIndex, int columnIndex) {
+			CadastroRomaneio nota = dados.get(rowIndex);
+
+		}
+
+		// Métodos abaixo são para manipulação de dados
+
+		/**
+		 * retorna o valor da linha indicada
+		 * 
+		 * @param rowIndex
+		 * @return
+		 */
+		public CadastroRomaneio getValue(int rowIndex) {
+			return dados.get(rowIndex);
+		}
+
+		/**
+		 * retorna o indice do objeto
+		 * 
+		 * @param empregado
+		 * @return
+		 */
+		public int indexOf(CadastroRomaneio nota) {
+			return dados.indexOf(nota);
+		}
+
+		/**
+		 * add um empregado á lista
+		 * 
+		 * @param empregado
+		 */
+		public void onAdd(CadastroRomaneio nota) {
+			dados.add(nota);
+			fireTableRowsInserted(indexOf(nota), indexOf(nota));
+		}
+
+		/**
+		 * add uma lista de empregados
+		 * 
+		 * @param dadosIn
+		 */
+		public void onAddAll(ArrayList<CadastroRomaneio> dadosIn) {
+			dados.addAll(dadosIn);
+			fireTableDataChanged();
+		}
+
+		/**
+		 * remove um registro da lista, através do indice
+		 * 
+		 * @param rowIndex
+		 */
+		public void onRemove(int rowIndex) {
+			dados.remove(rowIndex);
+			fireTableRowsDeleted(rowIndex, rowIndex);
+		}
+
+		/**
+		 * remove um registro da lista, através do objeto
+		 * 
+		 * @param empregado
+		 */
+		public void onRemove(CadastroRomaneio nota) {
+			int indexBefore = indexOf(nota);// pega o indice antes de apagar
+			dados.remove(nota);
+			fireTableRowsDeleted(indexBefore, indexBefore);
+		}
+
+		/**
+		 * remove todos registros da lista
+		 */
+		public void onRemoveAll() {
+			dados.clear();
+			fireTableDataChanged();
+		}
+
 	}
-	
+
 	public void atualizarTabelaTarefas() {
 		getTarefas();
+	}
+	
+	
+	public void lerRomaneios() {
+		
+		if(contrato_local.getSub_contrato() == 0 ) {
+			//é um contrato pai local
+			
+			//verifica se ele possui subcontrato
+			GerenciarBancoContratos gerenciar = new GerenciarBancoContratos();
+			ArrayList<CadastroContrato> sub_contratos = gerenciar.getSubContratos(contrato_local.getId());
+			
+			if(sub_contratos.size() < 0) {
+				//o contrato não possui sub-contratos
+			}
+			
+			
+			
+			
+			
+			
+		}else if(contrato_local.getSub_contrato() == 1) {
+			//é um sub contrato
+		}else if(contrato_local.getSub_contrato() == 3) {
+			// é um contrato terceirizado, carrega os romaneios dos vendedores
+			
+			
+		}
+		
 	}
 	
 }

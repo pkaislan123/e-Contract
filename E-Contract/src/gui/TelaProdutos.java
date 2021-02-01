@@ -45,14 +45,16 @@ public class TelaProdutos extends JDialog {
        
      */
     for (CadastroProduto produto : produtos) {
-    	String  nome_produto, descricao;
+    	String  nome_produto, descricao, transgenia;
      	int id;
    
     	
     		id = produto.getId_produto();
     		nome_produto = produto.getNome_produto();
     		descricao = produto.getDescricao_produto();
-            modelo.addRow(new Object[]{id, nome_produto, descricao});
+    		transgenia = produto.getTransgenia();
+    		
+            modelo.addRow(new Object[]{id, nome_produto, descricao,transgenia });
 
     	}
     }
@@ -93,6 +95,7 @@ public class TelaProdutos extends JDialog {
 		modelo.addColumn("Id");
         modelo.addColumn("Produto");
         modelo.addColumn("Descrição");
+        modelo.addColumn("Transgenia");
 
         tabela.getColumnModel().getColumn(0)
         .setPreferredWidth(10);

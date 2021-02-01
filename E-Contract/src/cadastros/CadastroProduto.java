@@ -5,7 +5,16 @@ public class CadastroProduto {
 	
 	private int id_produto;
 	private int codigo;
+	private String transgenia;
 	
+	
+	
+	public String getTransgenia() {
+		return transgenia;
+	}
+	public void setTransgenia(String transgenia) {
+		this.transgenia = transgenia;
+	}
 	public int getCodigo() {
 		return codigo;
 	}

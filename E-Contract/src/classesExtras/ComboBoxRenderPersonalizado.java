@@ -5,7 +5,9 @@ import java.awt.Component;
 import javax.swing.DefaultListCellRenderer;
 import javax.swing.JList;
 
+import cadastros.CadastroProduto;
 import cadastros.CadastroSafra;
+import conexaoBanco.GerenciarBancoProdutos;
 
 public class ComboBoxRenderPersonalizado extends DefaultListCellRenderer{
 	 @Override
@@ -15,7 +17,10 @@ public class ComboBoxRenderPersonalizado extends DefaultListCellRenderer{
 	         
 	        if (value instanceof CadastroSafra) {
 	        	CadastroSafra safra = (CadastroSafra) value;
-	            setText(safra.getCodigo() + "-" + safra.getProduto().getNome_produto() + " " + safra.getAno_plantio() + "/" + safra.getAno_colheita());
+	            GerenciarBancoProdutos gerenciar = new GerenciarBancoProdutos();
+	            CadastroProduto prod = gerenciar.getProduto(safra.getProduto().getId_produto());
+	            
+	            setText(safra.getCodigo() + "-" + safra.getProduto().getNome_produto() + " TRANSGENIA: " + prod.getTransgenia() + " " + safra.getAno_plantio() + "/" + safra.getAno_colheita());
 	        }
 	        return this;
 	    }

@@ -139,7 +139,6 @@ public class ManipularNotasFiscais {
 				 
 
 				String tratar = Arrays.toString(lines);
-				// tratar = tratar.replaceAll("\n", "*");
 				//System.out.println(tratar);
 				TratarDados tratamentoDados = new TratarDados(tratar);
 

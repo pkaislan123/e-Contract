@@ -27,6 +27,32 @@ public class CadastroRomaneio {
 	double peso_bruto, tara, peso_liquido;
 	
 	private CadastroCliente motorista;
+	
+	private String cfop, descricao_cfop, operacao;
+
+	public String getCfop() {
+		return cfop;
+	}
+
+	public void setCfop(String cfop) {
+		this.cfop = cfop;
+	}
+
+	public String getDescricao_cfop() {
+		return descricao_cfop;
+	}
+
+	public void setDescricao_cfop(String descricao_cfop) {
+		this.descricao_cfop = descricao_cfop;
+	}
+
+	public String getOperacao() {
+		return operacao;
+	}
+
+	public void setOperacao(String operacao) {
+		this.operacao = operacao;
+	}
 
 	public Date getData() {
 		return data;

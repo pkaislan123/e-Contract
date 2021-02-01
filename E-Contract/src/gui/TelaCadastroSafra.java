@@ -82,7 +82,7 @@ public class TelaCadastroSafra extends JDialog {
 		cBProduto = new JComboBox();
 		cBProduto.setModel(modelProduto);
 		cBProduto.setRenderer(cBProdutoPersonalizado);
-		cBProduto.setBounds(214, 195, 188, 33);
+		cBProduto.setBounds(214, 195, 305, 33);
 		painelPrincipal.add(cBProduto);
 		
 		cBProduto.addActionListener(new ActionListener() {
