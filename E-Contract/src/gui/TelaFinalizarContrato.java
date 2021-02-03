@@ -27,9 +27,13 @@ import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 
 import java.awt.Font;
+import java.awt.GraphicsConfiguration;
+
 import javax.swing.JTextArea;
 import javax.swing.BoxLayout;
 import java.awt.GridLayout;
+import java.awt.Point;
+import java.awt.Rectangle;
 import java.awt.SystemColor;
 import java.awt.GridBagLayout;
 import java.awt.GridBagConstraints;
@@ -57,10 +61,10 @@ public class TelaFinalizarContrato extends JDialog {
 	private JPanelTransparent painelVendedor2;
 	private JLabel lblNomeVendedor2, lblNumeroEstrelasVendedor2;
 	private CadastroContrato sub_contrato_global;
-
+    private JFrame telaPaiJFrame;
 	private JLabel lblNomeComprador, lblNomeVendedor1;
 
-	public TelaFinalizarContrato() {
+	public TelaFinalizarContrato(JFrame janela_pai) {
 		setModal(true);
 
 		isto = this;
@@ -249,7 +253,9 @@ public class TelaFinalizarContrato extends JDialog {
 					} 
 					}
 
-					((TelaGerenciarContrato) telaPai).travarContrato();
+					//((TelaGerenciarContrato) telaPai).travarContrato();
+					((TelaGerenciarContrato) telaPaiJFrame).travarContrato();
+
 					isto.dispose();
 
 				} else {
@@ -270,8 +276,19 @@ public class TelaFinalizarContrato extends JDialog {
 		btnCancelar.setBounds(524, 318, 111, 28);
 		painelPrincipal.add(btnCancelar);
 
+		
 		this.setUndecorated(true);
-		this.setLocationRelativeTo(null);
+		
+		 GraphicsConfiguration gc = janela_pai.getGraphicsConfiguration();
+			Rectangle bounds = gc.getBounds();
+			  
+			  
+			Point realLocation = new Point(); // holds final location of dialog.
+			realLocation.x = (bounds.x + bounds.width / 2) - (isto.getWidth() / 2);
+			realLocation.y = (bounds.y + bounds.height / 2 )- (isto.getHeight() / 2);
+			  
+			this.setLocation(realLocation);
+
 
 	}
 
@@ -329,5 +346,9 @@ public class TelaFinalizarContrato extends JDialog {
 
 	public void setTelaPai(JDialog _tela_pai) {
 		this.telaPai = _tela_pai;
+	}
+	
+	public void setTelaPai(JFrame tela_pai) {
+		this.telaPaiJFrame = tela_pai;
 	}
 }

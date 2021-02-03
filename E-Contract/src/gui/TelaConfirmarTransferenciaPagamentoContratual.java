@@ -60,9 +60,9 @@ public class TelaConfirmarTransferenciaPagamentoContratual extends JDialog {
     private JCheckBox chkBoxDataAtual ;
     private CadastroContrato contrato_destinatario;
     private JComboBox cBContratoDestinatario ;
-    
+    private JFrame telaPaiJFrame;
 
-	public TelaConfirmarTransferenciaPagamentoContratual(CadastroContrato contrato_remetente, int id_pagamento_contratual) {
+	public TelaConfirmarTransferenciaPagamentoContratual(CadastroContrato contrato_remetente, int id_pagamento_contratual, JFrame janela_pai) {
 		setModal(true);
 
 		 isto = this;
@@ -209,8 +209,8 @@ public class TelaConfirmarTransferenciaPagamentoContratual extends JDialog {
 				GerenciarBancoTransferencias gerenciar = new GerenciarBancoTransferencias();
 				int transferiou = gerenciar.inserirTransferencia(transferencia);
 				if(transferiou > 0) {
-					((TelaGerenciarContrato) telaPai).pesquisar_pagamentos();
-
+					//((TelaGerenciarContrato) telaPai).pesquisar_pagamentos();
+					((TelaGerenciarContrato) telaPaiJFrame).pesquisar_pagamentos();
 					JOptionPane.showMessageDialog(null, "Transferencia Efetuada");
 					isto.dispose();
 				}else {
@@ -228,7 +228,7 @@ public class TelaConfirmarTransferenciaPagamentoContratual extends JDialog {
 		JButton btnSelecionarContratoDestinatario = new JButton("Selecionar");
 		btnSelecionarContratoDestinatario.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				TelaContratos contrato = new TelaContratos(2);
+				TelaContratos contrato = new TelaContratos(2, isto);
 				contrato.setTelaPai(isto);
 				contrato.setVisible(true);
 			}
@@ -245,7 +245,7 @@ public class TelaConfirmarTransferenciaPagamentoContratual extends JDialog {
 		
 		
 
-		this.setLocationRelativeTo(null);
+		this.setLocationRelativeTo(janela_pai);
 
 		
 		
@@ -279,5 +279,9 @@ public class TelaConfirmarTransferenciaPagamentoContratual extends JDialog {
 	
 	public void setTelaPag(JDialog tela_pai) {
 		this.telaPai = tela_pai;
+	}
+	
+	public void setTelaPag(JFrame tela_pai) {
+		this.telaPaiJFrame = tela_pai;
 	}
 }

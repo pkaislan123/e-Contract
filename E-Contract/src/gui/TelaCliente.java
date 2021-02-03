@@ -47,7 +47,9 @@ import javax.swing.RowFilter;
 import javax.swing.JLabel;
 import javax.swing.JTabbedPane;
 import java.awt.Toolkit;
+import java.awt.Window;
 import java.awt.Font;
+import java.awt.Frame;
 
 public class TelaCliente extends JDialog {
 
@@ -110,7 +112,7 @@ public class TelaCliente extends JDialog {
 
 	
 	
-	public TelaCliente(int flag_tipo_tela, int flag_tipo_cliente) {
+	public TelaCliente(int flag_tipo_tela, int flag_tipo_cliente, Window janela_pai) {
 		setIconImage(Toolkit.getDefaultToolkit().getImage(TelaCliente.class.getResource("/imagens/equipe.png")));
 		
 		// flag_tipo_tela == 1 //modo cliente edição
@@ -522,7 +524,7 @@ public class TelaCliente extends JDialog {
 			atualizarTabelaGrupos();
 		
 		
-		this.setLocationRelativeTo(null);
+		this.setLocationRelativeTo(janela_pai);
 
 
 

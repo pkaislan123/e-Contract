@@ -3,6 +3,7 @@ package gui;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.FlowLayout;
+import java.awt.Window;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
@@ -75,7 +76,7 @@ public class TelaTransportadores extends JDialog {
     }
 		
 	}
-	public TelaTransportadores(int flag_operacao) {
+	public TelaTransportadores(int flag_operacao, Window janela_pai) {
 		//setAlwaysOnTop(true);
 
 		setModal(true);
@@ -175,7 +176,7 @@ public class TelaTransportadores extends JDialog {
 			btnSelecionarTransportador.setEnabled(true);
 		}
 		
-		this.setLocationRelativeTo(null);
+		this.setLocationRelativeTo(janela_pai);
 
 		//this.setVisible(true);
 		

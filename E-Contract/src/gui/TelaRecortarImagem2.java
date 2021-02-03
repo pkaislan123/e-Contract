@@ -4,6 +4,7 @@ import java.awt.BasicStroke;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
+import java.awt.DisplayMode;
 import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -12,6 +13,7 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
 import java.awt.image.BufferedImage;
+import java.awt.image.RenderedImage;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -41,6 +43,9 @@ import javax.swing.SwingUtilities;
 import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
+import java.awt.GraphicsConfiguration;
+import java.awt.GraphicsDevice;
+import java.awt.GraphicsEnvironment;
 
 import javax.swing.JTextArea;
 import javax.swing.BoxLayout;
@@ -52,6 +57,7 @@ import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.SystemColor;
 import java.awt.Toolkit;
+import java.awt.Window;
 import java.awt.GridBagLayout;
 import java.awt.GridBagConstraints;
 import com.jgoodies.forms.layout.FormLayout;
@@ -68,6 +74,7 @@ import javax.swing.ScrollPaneConstants;
 import java.awt.event.MouseWheelListener;
 import java.awt.event.MouseWheelEvent;
 import java.awt.Label;
+import java.awt.List;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.awt.Panel;
@@ -80,7 +87,7 @@ public class TelaRecortarImagem2 extends JDialog{
     Dimension Dimensao = Toolkit.getDefaultToolkit().getScreenSize();  
     private BufferedImage Buffered_da_Imagem = new BufferedImage((int)Dimensao.getWidth(),
             (int)Dimensao.getHeight(), BufferedImage.TYPE_INT_RGB);
-   
+    private JFrame telaPaiJFrame;
     private int valor;
     private Color Ultima_Cor;
     private int x;
@@ -96,7 +103,10 @@ public class TelaRecortarImagem2 extends JDialog{
 	 private static volatile boolean controlStatus = false;
 	 private JLabel lblCtrlPressionado, lblPorcentagem;
 
-	public TelaRecortarImagem2(String imagem) {
+	 GraphicsEnvironment ge = GraphicsEnvironment .getLocalGraphicsEnvironment();
+	 GraphicsDevice[] gds = ge.getScreenDevices();
+	 
+	public TelaRecortarImagem2(String imagem, JFrame janela_pai) {
 		setModal(true);
 		
 		
@@ -185,7 +195,9 @@ public class TelaRecortarImagem2 extends JDialog{
 				
 				String caminh_imagem = panel.retornarImagem();
 				if(caminh_imagem != null) {
-					((TelaGerenciarContrato) telaPai).caminho_salvar_comprovante_pagamento(caminh_imagem);
+					//((TelaGerenciarContrato) telaPai).caminho_salvar_comprovante_pagamento(caminh_imagem);
+					((TelaGerenciarContrato) telaPaiJFrame).caminho_salvar_comprovante_pagamento(caminh_imagem);
+					
 					isto.dispose();
 				}else {
 					JOptionPane.showMessageDialog(null, "Erro ao salvar a imagem recortada\nConsulte o administrador!");
@@ -193,12 +205,13 @@ public class TelaRecortarImagem2 extends JDialog{
 			}
 		});
 			
-		this.setLocationRelativeTo(null);
-		setResizable(false);
+			
+	    		this.setLocationRelativeTo(janela_pai);
 
-		
-		
+	        
+
 	}
+	
 	
 	
 	
@@ -249,6 +262,9 @@ public class TelaRecortarImagem2 extends JDialog{
 	  
 
 	  
-	 
+	public void setTelaPai(JFrame tela_pai) {
+		this.telaPaiJFrame = tela_pai;
+	}	
+       
               
 }

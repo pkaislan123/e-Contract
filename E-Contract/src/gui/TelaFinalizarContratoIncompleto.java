@@ -27,9 +27,13 @@ import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 
 import java.awt.Font;
+import java.awt.GraphicsConfiguration;
+
 import javax.swing.JTextArea;
 import javax.swing.BoxLayout;
 import java.awt.GridLayout;
+import java.awt.Point;
+import java.awt.Rectangle;
 import java.awt.SystemColor;
 import java.awt.GridBagLayout;
 import java.awt.GridBagConstraints;
@@ -59,13 +63,13 @@ public class TelaFinalizarContratoIncompleto extends JDialog {
     private JPanelTransparent painelVendedor2;
     private JLabel lblNomeVendedor2, lblNumeroEstrelasVendedor2;
     private CadastroContrato sub_contrato_global;
-    
+    private JFrame telaPaiJFrame;
     
     private JComboBox cBNumeroEstrelasComprador, cBNumeroEstrelasVendedor1, cBNumeroEstrelasVendedor2, cBMotivoComprador, cBMotivoVendedor1, cBMotivoVendedor2;
     private JTextArea textAreaMotivoComprador, textAreaMotivoVendedor1, textAreaMotivoVendedor2;
 
     private JLabel lblNomeComprador, lblNomeVendedor1 ;
-	public TelaFinalizarContratoIncompleto() {
+	public TelaFinalizarContratoIncompleto(JFrame janela_pai) {
 		setModal(true);
 
 		 isto = this;
@@ -307,8 +311,9 @@ public class TelaFinalizarContratoIncompleto extends JDialog {
 					}
 
 					
-					((TelaGerenciarContrato) telaPai).travarContrato();
-                    isto.dispose();
+					//((TelaGerenciarContrato) telaPai).travarContrato();
+					((TelaGerenciarContrato) telaPaiJFrame).travarContrato();
+					isto.dispose();
 					
 				}else {
 					JOptionPane.showMessageDialog(null, "Erro ao atualizar o status do contrato\nTente novamente, se persistir o erro consulte o administrador");
@@ -436,11 +441,18 @@ public class TelaFinalizarContratoIncompleto extends JDialog {
 		
 		
 		
-       // this.setUndecorated(true);
-		this.setLocationRelativeTo(null);
-
-		
-		
+     /*  // this.setUndecorated(true);
+		 GraphicsConfiguration gc = janela_pai.getGraphicsConfiguration();
+			Rectangle bounds = gc.getBounds();
+			  
+			  
+			Point realLocation = new Point(); // holds final location of dialog.
+			realLocation.x = (bounds.x + bounds.width / 2) - (isto.getWidth() / 2);
+			realLocation.y = (bounds.y + bounds.height / 2 )- (isto.getHeight() / 2);
+			  
+			this.setLocation(realLocation);
+		*/
+		this.setLocationRelativeTo(janela_pai);
 		
 	}
 	
@@ -507,5 +519,9 @@ public class TelaFinalizarContratoIncompleto extends JDialog {
 	
 	public void setTelaPai(JDialog _tela_pai) {
 		this.telaPai = _tela_pai;
+	}
+	
+	public void setTelaPai(JFrame tela_pai) {
+		this.telaPaiJFrame = tela_pai;
 	}
 }

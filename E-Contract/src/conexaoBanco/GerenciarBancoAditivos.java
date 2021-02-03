@@ -179,7 +179,7 @@ public class GerenciarBancoAditivos {
 
 			pstm.execute();
 			ConexaoBanco.fechaConexao(conn, pstm);
-			JOptionPane.showMessageDialog(null, "status do ditivo atualizado, banco normalizado ");
+			JOptionPane.showMessageDialog(null, "status do aditivo atualizado, banco normalizado ");
 			return true;
 
 		} catch (Exception f) {

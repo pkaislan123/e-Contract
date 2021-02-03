@@ -202,10 +202,10 @@ public class TelaMostrarPontuacao extends JDialog {
 	    CadastroContrato contrato = new GerenciarBancoContratos().getContrato(item.getId_contrato());
 	    
 	    if(contrato.getSub_contrato() == 1) {
-		    TelaVisaoGeralSubContrato tela = new TelaVisaoGeralSubContrato(contrato);
+		    TelaVisaoGeralSubContrato tela = new TelaVisaoGeralSubContrato(contrato, null);
 		    tela.setVisible(true);
 	    }else {
-	    TelaVisaoGeralContrato tela = new TelaVisaoGeralContrato(contrato);
+	    TelaVisaoGeralContrato tela = new TelaVisaoGeralContrato(contrato, null);
 	    tela.setVisible(true);
 	    }
 

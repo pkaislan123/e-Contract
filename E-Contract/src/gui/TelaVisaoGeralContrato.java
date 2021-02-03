@@ -89,7 +89,7 @@ public class TelaVisaoGeralContrato extends JDialog {
 		private JLabel lblPesoTotal, lblPesoTotalRealCargas, lblPesoTotalRealRestante,lblPesoTotalNotasFiscais, lblPesoTotalNotasFiscaisRestante;
 
 		private ArrayList<CadastroContrato>  sub_contratos;
-	public TelaVisaoGeralContrato(CadastroContrato contrato) {
+	public TelaVisaoGeralContrato(CadastroContrato contrato, JFrame janela_pai) {
 		setModal(true);
 
 		 isto = this;
@@ -408,7 +408,7 @@ public class TelaVisaoGeralContrato extends JDialog {
 		pesquisar_carregamentos();
 		
 		criarGrafico();
-		this.setLocationRelativeTo(null);
+		this.setLocationRelativeTo(janela_pai);
 
 		
 		

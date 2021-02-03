@@ -3,6 +3,7 @@ package gui;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.FlowLayout;
+import java.awt.Window;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
@@ -61,7 +62,7 @@ public class TelaProdutos extends JDialog {
     
 		
 	
-	public TelaProdutos(int flag_retorno) {
+	public TelaProdutos(int flag_retorno, Window janela_pai) {
 		//setAlwaysOnTop(true);
 
 		setModal(true);
@@ -148,7 +149,7 @@ public class TelaProdutos extends JDialog {
 			btnSelecionarProduto.setEnabled(false);
 		}
 		
-		this.setLocationRelativeTo(null);
+		this.setLocationRelativeTo(janela_pai);
 
 		
 		

@@ -14,12 +14,25 @@ import net.miginfocom.swing.MigLayout;
 import javax.swing.ScrollPaneConstants;
 import javax.swing.JLabel;
 import java.awt.Font;
+import java.awt.Graphics;
+import java.awt.GraphicsConfiguration;
+import java.awt.GraphicsDevice;
+import java.awt.GraphicsEnvironment;
+
 import javax.swing.JList;
+import javax.swing.JOptionPane;
 import javax.swing.BoxLayout;
 import java.awt.Component;
+import java.awt.Dimension;
+import java.awt.DisplayMode;
 import java.awt.GridBagLayout;
 import java.awt.GridBagConstraints;
 import java.awt.Insets;
+import java.awt.Point;
+import java.awt.Rectangle;
+import java.awt.Toolkit;
+import java.awt.event.ComponentEvent;
+import java.awt.event.ComponentListener;
 import java.text.NumberFormat;
 import java.util.Locale;
 
@@ -29,107 +42,77 @@ import cadastros.CadastroCliente;
 import cadastros.CadastroContrato;
 import javax.swing.border.MatteBorder;
 
-public class TelaParaTeste extends JDialog{
+public class TelaParaTeste extends JDialog implements ComponentListener{
 
 	private final JPanel painelPrincipal = new JPanel();
-	private JTextField entMensagem;
-	private CadastroContrato contrato = new CadastroContrato();
 
 
-	public TelaParaTeste() {
-		setModal(true);
+	private TelaParaTeste isto ;
+
+	 GraphicsEnvironment ge = GraphicsEnvironment .getLocalGraphicsEnvironment();
+	 GraphicsDevice[] gds = ge.getScreenDevices();
+	 
+	public TelaParaTeste(int index_tela_pai, JFrame janelaPai) {
+        super(janelaPai, true); 
+
+		//setModal(true);
 
 		
 		setResizable(true);
 		setTitle("E-Contract - Tela Padrao");
 
-		
+		isto = this;
 		setBackground(new Color(255, 255, 255));
 		setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-		setBounds(100, 100, 1430, 377);
+		setBounds(0, 0, 510, 319);
 		painelPrincipal.setBackground(new Color(255, 255, 255));
 		painelPrincipal.setBorder(new EmptyBorder(5, 5, 5, 5));
 		setContentPane(painelPrincipal);
 		painelPrincipal.setLayout(null);
-		
+		isto.addComponentListener(this);
 
 	
-		NumberFormat z = NumberFormat.getNumberInstance();
-		Locale ptBr = new Locale("pt", "BR");
-
+	    		
 		
-
-		JLabel tPContratoOriginal = new JLabel();
-		tPContratoOriginal.setFont(new Font("Arial", Font.PLAIN, 14));
-		tPContratoOriginal.setBorder(new MatteBorder(0, 0, 3, 0, (Color) new Color(0, 0, 102)));
-		tPContratoOriginal.setBounds(20, 49, 1131, 65);
-		
-		//nome comprador
-		String nome_comprador = "";
-		String nome_vendedor1 = "";
-		String nome_vendedor2  = "";
-		
-		CadastroCliente compradores[] = contrato.getCompradores();
-		CadastroCliente vendedores[] = contrato.getVendedores();
-
-		
-		
-		if(compradores[0].getTipo_pessoa() == 0)
-		    nome_comprador = compradores[0].getNome_empresarial();
-		else
-			nome_comprador = compradores[0].getNome_fantaia();
-		
-		if(vendedores[0].getTipo_pessoa() == 0)
-			nome_vendedor1 = vendedores[0].getNome_empresarial();
-		else
-			nome_vendedor1 = vendedores[0].getNome_fantaia();
-		
-		if(vendedores[1] != null) {
-			if(vendedores[1].getTipo_pessoa() == 0)
-				nome_vendedor2 = vendedores[1].getNome_empresarial();
-			else
-				nome_vendedor2 = vendedores[1].getNome_fantaia();
-		}
-		
-
-		double quantidade_sacos = 0;
-		double quantidade_kg = 0;
-		if(contrato.getMedida().equalsIgnoreCase("Sacos")) {
-			quantidade_sacos = contrato.getQuantidade();
-			quantidade_kg = quantidade_sacos * 60;
-		}else if(contrato.getMedida().equalsIgnoreCase("KG")) {
-			quantidade_kg = contrato.getQuantidade();
-			quantidade_sacos = quantidade_kg / 60;
-		}
 		  
-			String quantidade = z.format(quantidade_sacos);
-			
-		String valor_por_saco = 	NumberFormat.getCurrencyInstance(ptBr).format(contrato.getValor_produto());
-         String valor_a_pagar = NumberFormat.getCurrencyInstance(ptBr).format(contrato.getValor_a_pagar());
-		
-		
-		String produto = contrato.getModelo_safra().getProduto().getNome_produto();
-		
-		String safra = contrato.getModelo_safra().getAno_plantio() + "/" + contrato.getModelo_safra().getAno_plantio();
-		
-		
-		if(vendedores[1] == null) {
-		tPContratoOriginal.setText("<html> " + contrato.getCodigo() + " <b>" + quantidade +"</b> sacos de " + produto +" da safra <b>" + safra + "</b> no valor de <b>" + valor_por_saco + "</b> por saca,\r\n   "
-				+ "<br> do Vendedor <b>" + nome_vendedor1 + "</b> ao Comprador <b>" + nome_comprador + "</b>\r\n Valor Total: <b>" + valor_a_pagar + "</b></html>");
-		}else {
-			tPContratoOriginal.setText("<html> " + contrato.getCodigo() + " <b>" + quantidade +"</b> sacos de " + produto +" da safra <b>" + safra + "</b> no valor de <b>" + valor_por_saco + "</b> por saca,\r\n   "
-					+ "<br> do Vendedor <b>" + nome_vendedor1 + "</b> com o Vendedor <b>" + nome_vendedor2 + "</b> ao Comprador <b>" + nome_comprador + "</b>\r\n Valor Total: <b>" + valor_a_pagar + "</b></html>");
-			
-		}
-		
-		
-		painelPrincipal.add(tPContratoOriginal);
-				
-		this.setLocationRelativeTo(null);
+		GraphicsConfiguration gc = janelaPai.getGraphicsConfiguration();
+		Rectangle bounds = gc.getBounds();
+		  
+		  
+		Point realLocation = new Point(); // holds final location of dialog.
+		realLocation.x = (bounds.x + bounds.width / 2) - (isto.getWidth() / 2);
+		realLocation.y = (bounds.y + bounds.height / 2 )- (isto.getHeight() / 2);
+		  
+		this.setLocation(realLocation);
 
-		this.setVisible(true);
+	    		        
+	    
+
 		
 		
+	}
+	
+	
+	
+    public void componentMoved(ComponentEvent e) {
+    	JDialog d = (JDialog) e.getComponent();
+    }
+
+	@Override
+	public void componentResized(ComponentEvent e) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void componentShown(ComponentEvent e) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void componentHidden(ComponentEvent e) {
+		// TODO Auto-generated method stub
 		
 	}
 }

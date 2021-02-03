@@ -2,6 +2,7 @@ package gui;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.Component;
 import java.awt.FlowLayout;
 import java.awt.GraphicsEnvironment;
 import java.awt.event.ActionEvent;
@@ -44,7 +45,7 @@ public class TelaVizualizarPdf extends JDialog {
 	private TelaEmEspera telaInformacoes;
 	private TelaVizualizarPdf isto; 
 	//public TelaVizualizarPdf(String arquivo) {
-	public TelaVizualizarPdf(InputStream stream, JDialog pai, TelaEmEspera telaBack, String file, CadastroContrato contrato) {
+	public TelaVizualizarPdf(InputStream stream, Component pai, TelaEmEspera telaBack, String file, CadastroContrato contrato) {
 		//setAlwaysOnTop(true);
 
 		setModal(true);
@@ -110,9 +111,12 @@ public class TelaVizualizarPdf extends JDialog {
 				            "Salvar", "Deseja Salvar o contrato?", 
 				            JOptionPane.YES_NO_OPTION,
 				            JOptionPane.QUESTION_MESSAGE) == JOptionPane.YES_OPTION){
-						      ((TelaElaborarNovoContrato)pai).salvarArquivo();
+						     
+						if(pai instanceof TelaElaborarNovoContrato){
+						       ((TelaElaborarNovoContrato)pai).salvarArquivo();
 								telaInformacoes.setMsg("Contrato Salvo");
 								telaInformacoes.fechar();
+						}
 
 				        }
 					else

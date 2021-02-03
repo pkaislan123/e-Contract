@@ -48,7 +48,7 @@ public class TelaConfirmarCarregamento extends JDialog {
 	private JTabbedPane abas = new JTabbedPane();
 	private JPanel painelConfirmar = new JPanel();
 	private JPanel painelSelecionar = new JPanel();
-
+	private JFrame telaPaiJFrame;
 	private TelaConfirmarCarregamento isto;
 	private JDialog telaPai;
 	private JTextField entDataCarregamento;
@@ -67,7 +67,7 @@ public class TelaConfirmarCarregamento extends JDialog {
 			lblClienteCarregamento, lblContratoCarregamento, lblTransportadorCarregamento, lblVeiculoCarregamento, lblCaminhoNFa;
 
 	private JTextArea lblNotaFiscalCarregamento;
-	public TelaConfirmarCarregamento(CadastroContrato _contrato_local) {
+	public TelaConfirmarCarregamento(CadastroContrato _contrato_local, JFrame janela_pai) {
 		//setAlwaysOnTop(true);
 
 		setModal(true);
@@ -144,7 +144,7 @@ public class TelaConfirmarCarregamento extends JDialog {
 		JButton btnSelecionarTransportador = new JButton("Selecionar");
 		btnSelecionarTransportador.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				TelaTransportadores selecionar_transportador = new TelaTransportadores(1);
+				TelaTransportadores selecionar_transportador = new TelaTransportadores(1,isto);
 				selecionar_transportador.setTelaPai(isto);
 				selecionar_transportador.setVisible(true);
 			}
@@ -175,7 +175,7 @@ public class TelaConfirmarCarregamento extends JDialog {
 				
 				
 				
-				TelaNotasFiscais tela = new TelaNotasFiscais(0,vendedor);
+				TelaNotasFiscais tela = new TelaNotasFiscais(0,vendedor,isto);
 				tela.setPai(isto);
 				
 				String destinatario = "";
@@ -223,7 +223,7 @@ public class TelaConfirmarCarregamento extends JDialog {
 		btnSelecionarContrato.setVisible(false);
 		btnSelecionarContrato.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
-				TelaContratos contrato = new TelaContratos(1);
+				TelaContratos contrato = new TelaContratos(1, isto);
 				contrato.setTelaPai(isto);
 				contrato.setVisible(true);
 			}
@@ -242,7 +242,7 @@ public class TelaConfirmarCarregamento extends JDialog {
 		JButton btnSelecionarCliente = new JButton("Selecionar");
 		btnSelecionarCliente.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				TelaCliente tela = new TelaCliente(0, 5);
+				TelaCliente tela = new TelaCliente(0, 5, isto);
 				tela.setTelaPai(isto);
 				tela.setVisible(true);
 			}
@@ -279,7 +279,7 @@ public class TelaConfirmarCarregamento extends JDialog {
 		JButton btnSelecionarProduto = new JButton("Selecionar");
 		btnSelecionarProduto.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				TelaProdutos produto = new TelaProdutos(1);
+				TelaProdutos produto = new TelaProdutos(1,isto);
 				produto.setTelaPai(isto);
 				produto.setVisible(true);
 			}
@@ -301,7 +301,7 @@ public class TelaConfirmarCarregamento extends JDialog {
 		JButton btnSelecionarVendedor = new JButton("Selecionar");
 		btnSelecionarVendedor.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				TelaCliente tela = new TelaCliente(0, 6);
+				TelaCliente tela = new TelaCliente(0, 6, isto);
 				tela.setTelaPai(isto);
 				tela.setVisible(true);
 			}
@@ -391,8 +391,8 @@ public class TelaConfirmarCarregamento extends JDialog {
 						carregamento_a_inserir);
 				if (retorno) {
 					JOptionPane.showMessageDialog(null, "Carregamento Cadastrado!");
-					((TelaGerenciarContrato) telaPai).pesquisar_carregamentos();
-					
+					//((TelaGerenciarContrato) telaPai).pesquisar_carregamentos();
+					((TelaGerenciarContrato) telaPaiJFrame).pesquisar_carregamentos();
 					
 					
 					/*if (JOptionPane.showConfirmDialog(isto, 
@@ -501,7 +501,7 @@ public class TelaConfirmarCarregamento extends JDialog {
 		
 			
 	    //this.setUndecorated(true);
-		this.setLocationRelativeTo(null);
+		this.setLocationRelativeTo(janela_pai);
 
 	}
 
@@ -707,4 +707,9 @@ public class TelaConfirmarCarregamento extends JDialog {
 			}
 		});
 	}
+	
+	public void setTelaPai(JFrame tela_pai) {
+		this.telaPaiJFrame = tela_pai;
+	}	
+       
 }

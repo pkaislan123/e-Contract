@@ -56,7 +56,8 @@ public class TelaReplicarPagamento extends JDialog {
 	private JDialog telaPai;
 	private JComboBox cBSubContratoSelecionado;
 	private TelaReplicarPagamento isto;
-
+    private JFrame telaPaiJFrame;
+    
 	public TelaReplicarPagamento(CadastroContrato contrato_pai,
 			CadastroContrato.CadastroPagamentoContratual pagamento) {
 		setModal(true);
@@ -99,7 +100,7 @@ public class TelaReplicarPagamento extends JDialog {
 		JButton btnNewButton_1 = new JButton("Selecionar");
 		btnNewButton_1.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				TelaContratos tela = new TelaContratos(4);
+				TelaContratos tela = new TelaContratos(4,isto);
 
 				tela.setTelaPai(isto);
 				tela.pesquisar_sub_contratos(contrato_pai_local.getId());
@@ -183,4 +184,10 @@ public class TelaReplicarPagamento extends JDialog {
 		isto.dispose();
 
 	}
+	
+
+public void setTelaPai(JFrame tela_pai) {
+		this.telaPaiJFrame = tela_pai;
+	}	
+       
 }

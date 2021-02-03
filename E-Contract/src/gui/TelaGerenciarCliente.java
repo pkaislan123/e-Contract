@@ -243,7 +243,7 @@ public class TelaGerenciarCliente extends JDialog {
 		      JButton btnAcessarNfs = new JButton("Ver NF's");
 		      btnAcessarNfs.addActionListener(new ActionListener() {
 		      	public void actionPerformed(ActionEvent e) {
-		      		TelaNotasFiscais verNotas = new TelaNotasFiscais(1, cliente_local);
+		      		TelaNotasFiscais verNotas = new TelaNotasFiscais(1, cliente_local, isto);
 					 verNotas.setVisible(true);
 		      	}
 		      });

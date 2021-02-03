@@ -52,6 +52,7 @@ public class TelaConfirmarPagamentoContratual extends JDialog {
 
 	private TelaConfirmarPagamentoContratual isto;
 	private JDialog telaPai;
+	private JFrame  telaPaiJFrame;
 	private JTextField entDataPagamento;
 	private JComboBox cBDepositante, cBContaDepositante;
 	private JComboBox cBFavorecido, cBContaFavorecido, cBTipo;
@@ -71,7 +72,7 @@ public class TelaConfirmarPagamentoContratual extends JDialog {
 	private JTextArea lblContaDepositantePagamento, lblContaFavorecidoPagamento, lblDescricaoPagamento;
 	private JLabel lblTipoPagamento;
 	
-	public TelaConfirmarPagamentoContratual(CadastroContrato _contrato_local) {
+	public TelaConfirmarPagamentoContratual(CadastroContrato _contrato_local, JFrame janela_pai) {
 		//setAlwaysOnTop(true);
 
 		setModal(true);
@@ -144,7 +145,7 @@ public class TelaConfirmarPagamentoContratual extends JDialog {
 		JButton btnSelecionarDepositante = new JButton("Selecionar");
 		btnSelecionarDepositante.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				TelaCliente tela = new TelaCliente(0, 8);
+				TelaCliente tela = new TelaCliente(0, 8, isto);
 				tela.setTelaPai(isto);
 				tela.setVisible(true);
 			}
@@ -176,7 +177,7 @@ public class TelaConfirmarPagamentoContratual extends JDialog {
 		JButton btnSelecionarFavorecido = new JButton("Selecionar");
 		btnSelecionarFavorecido.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
-				TelaCliente tela = new TelaCliente(0, 9);
+				TelaCliente tela = new TelaCliente(0, 9, isto);
 				tela.setTelaPai(isto);
 				tela.setVisible(true);
 			}
@@ -271,12 +272,14 @@ public class TelaConfirmarPagamentoContratual extends JDialog {
 				boolean retorno = gerenciar.inserirPagamento(contrato_local.getId(), pagamento_a_inserir
 						);
 				if (retorno) {
-					JOptionPane.showMessageDialog(null, "Pagamento Cadastrado!");
-					((TelaGerenciarContrato) telaPai).pesquisar_pagamentos();
+					JOptionPane.showMessageDialog(isto, "Pagamento Cadastrado!");
+					//((TelaGerenciarContrato) telaPai).pesquisar_pagamentos();
+					((TelaGerenciarContrato) telaPaiJFrame).pesquisar_pagamentos();
+
 					isto.dispose();
 
 				} else {
-					JOptionPane.showMessageDialog(null,
+					JOptionPane.showMessageDialog(isto,
 							"Erro ao inserir o pagamento\nConsulte o administrador do sistema!");
 					isto.dispose();
 				}
@@ -372,7 +375,7 @@ public class TelaConfirmarPagamentoContratual extends JDialog {
 		painelConfirmar.add(lblDescricaoPagamento);
 
 	    //this.setUndecorated(true);
-		this.setLocationRelativeTo(null);
+		this.setLocationRelativeTo(janela_pai);
 
 	}
 
@@ -514,5 +517,9 @@ public class TelaConfirmarPagamentoContratual extends JDialog {
 
 	public void setTelaPai(JDialog dialog) {
 		this.telaPai = dialog;
+	}
+	
+	public void setTelaPai(JFrame dialog) {
+		this.telaPaiJFrame = dialog;
 	}
 }

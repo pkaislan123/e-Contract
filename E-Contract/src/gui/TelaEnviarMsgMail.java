@@ -107,7 +107,7 @@ public class TelaEnviarMsgMail extends JDialog {
 	}
 
 
-	public TelaEnviarMsgMail(int flag_tipo_envio, CadastroContrato contrato, File documento) {
+	public TelaEnviarMsgMail(int flag_tipo_envio, CadastroContrato contrato, File documento,JFrame janela_pai) {
 		//setAlwaysOnTop(true);
 
 		this.flag_global = flag_tipo_envio;
@@ -593,7 +593,7 @@ public class TelaEnviarMsgMail extends JDialog {
 						btnMsg2.setVisible(true);
 				  }
 				  
-		this.setLocationRelativeTo(null);
+		this.setLocationRelativeTo(janela_pai);
 		this.setUndecorated(true);
 
 		//this.setVisible(true);

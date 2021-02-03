@@ -38,9 +38,16 @@ import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 
 import java.awt.Font;
+import java.awt.Graphics;
+import java.awt.GraphicsConfiguration;
+import java.awt.GraphicsDevice;
+import java.awt.GraphicsEnvironment;
+
 import javax.swing.JTextArea;
 import javax.swing.BoxLayout;
 import java.awt.GridLayout;
+import java.awt.Point;
+import java.awt.Rectangle;
 import java.awt.SystemColor;
 import java.awt.GridBagLayout;
 import java.awt.GridBagConstraints;
@@ -59,6 +66,8 @@ import javax.swing.JTextField;
 import javax.swing.JComboBox;
 import javax.swing.JCheckBox;
 import java.awt.Component;
+import java.awt.DisplayMode;
+
 import javax.swing.Box;
 
 
@@ -78,15 +87,18 @@ public class TelaCriarTarefa extends JDialog {
     private JDialog telaPai;
     private JTextArea textAreaMensagem;
 	private CadastroContrato contrato_local;
-    
-    public TelaCriarTarefa(CadastroContrato contrato) {
+	 private JFrame telaPaiJFrame;
+	 GraphicsEnvironment ge = GraphicsEnvironment .getLocalGraphicsEnvironment();
+	 GraphicsDevice[] gds = ge.getScreenDevices();
+	 
+	 
+    public TelaCriarTarefa(CadastroContrato contrato, JFrame janela_pai ) {
 		setModal(true);
 
 		
 		contrato_local = contrato;
 		 isto = this;
 		 getDadosGlobais();
-		setResizable(true);
 		setTitle("E-Contract - Cria Nova Tarefa");
 
 		
@@ -303,7 +315,9 @@ public class TelaCriarTarefa extends JDialog {
 					 boolean criado = gerenciar.inserirTarefas(contrato_local.getId(), tarefas);
 					 if(criado) {
 						 JOptionPane.showMessageDialog(null, "Tarefa Criada com Sucesso");
-						 ((TelaGerenciarContrato) telaPai).atualizarListaTarefas();
+						// ((TelaGerenciarContrato) telaPai).atualizarListaTarefas();
+						 ((TelaGerenciarContrato) telaPaiJFrame).atualizarListaTarefas();
+						 
 						 isto.dispose();
 					 }else {
 						 JOptionPane.showMessageDialog(null, "Erro ao inserir tarefa no banco de dado\nConsulte o administrador");
@@ -417,15 +431,17 @@ public class TelaCriarTarefa extends JDialog {
         entData.setText(strLocalDate2);
 		
 		
-		
+	
+		  
+		this.setLocationRelativeTo(janela_pai);
 
-		this.setLocationRelativeTo(null);
 
 		
 		
 		
 	}
-	
+    
+    
 	
 	
 	
@@ -482,7 +498,9 @@ public class TelaCriarTarefa extends JDialog {
 				  login = dados.getLogin();
 		
 	}
-	
+	public void setTelaPai(JFrame tela_pai) {
+		this.telaPaiJFrame = tela_pai;
+	}
 	public void setTelaPai(JDialog tela_pai) {
 		this.telaPai = tela_pai;
 	}	

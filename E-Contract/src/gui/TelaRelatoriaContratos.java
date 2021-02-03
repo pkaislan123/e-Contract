@@ -328,7 +328,7 @@ public class TelaRelatoriaContratos extends JDialog {
 		btnNewButton_1.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 
-				TelaCliente cliente = new TelaCliente(0, 11);
+				TelaCliente cliente = new TelaCliente(0, 11, null);
 				cliente.setTelaPai(isto);
 				cliente.setVisible(true);
 

@@ -65,6 +65,7 @@ public class TelaCriarAditivo extends JDialog {
 	private JTextField entData;
 	private JTextArea textAreaTextoFinal;
 	private JDialog telaPai;
+	private JFrame telaPaiJrame;
 	private Log GerenciadorLog;
 	private CadastroLogin login;
 	private ConfiguracoesGlobais configs_globais;
@@ -73,7 +74,7 @@ public class TelaCriarAditivo extends JDialog {
 	private TelaCriarAditivo isto;
 	EditarAditivo editarWord ;
 	
-	public TelaCriarAditivo(CadastroContrato contrato) {
+	public TelaCriarAditivo(CadastroContrato contrato, JFrame janela_pai) {
 		getDadosGlobais();
 		setModal(true);
 		
@@ -207,7 +208,7 @@ public class TelaCriarAditivo extends JDialog {
 		
 		
 
-		this.setLocationRelativeTo(null);
+		this.setLocationRelativeTo(janela_pai);
 
 		
 		
@@ -217,6 +218,8 @@ public class TelaCriarAditivo extends JDialog {
 	public void setTelaPai(JDialog tela_pai) {
 		this.telaPai = tela_pai;
 	}
+	
+	
 	
 	public void getDadosGlobais() {
 		//gerenciador de log
@@ -267,7 +270,9 @@ public class TelaCriarAditivo extends JDialog {
 				
                 boolean deletar_arquivo = manipular.apagarArquivo(caminho_completo + ".docx");
 				JOptionPane.showMessageDialog(null, "Aditivo Criado com sucesso");
-				((TelaGerenciarContrato) telaPai).setInformacoesAditivos();
+				//((TelaGerenciarContrato) telaPai).setInformacoesAditivos();
+				((TelaGerenciarContrato) telaPaiJrame).setInformacoesAditivos();
+
 				isto.dispose();
 
 			}else {
@@ -287,5 +292,9 @@ public class TelaCriarAditivo extends JDialog {
 		
 		
 	}
+	
+	public void setTelaPai(JFrame tela_pai) {
+		this.telaPaiJrame = tela_pai;
+	}	
 	
 }

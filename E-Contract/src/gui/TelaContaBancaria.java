@@ -67,7 +67,7 @@ public class TelaContaBancaria extends JDialog {
 	   
 	    }
 
-	public TelaContaBancaria(TelaElaborarNovoContrato telaContrato)  {
+	public TelaContaBancaria(TelaElaborarNovoContrato telaContrato, JFrame janela_pai)  {
 		setModal(true);
 
 		TelaContaBancaria isto = this;
@@ -147,7 +147,7 @@ public class TelaContaBancaria extends JDialog {
 	        
 	        pesquisar_contas(modelo_cb);
 	        
-		this.setLocationRelativeTo(null);
+		this.setLocationRelativeTo(janela_pai);
 
 		this.setVisible(true);
 		

@@ -5,6 +5,7 @@ import java.awt.Color;
 import java.awt.Container;
 import java.awt.Desktop;
 import java.awt.Dimension;
+import java.awt.DisplayMode;
 import java.awt.FlowLayout;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -12,7 +13,7 @@ import java.io.File;
 import javax.swing.JPopupMenu;
 import javax.swing.JMenuItem;
 import javax.swing.JSeparator;
-
+import javax.swing.UIManager;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -70,6 +71,7 @@ import cadastros.CadastroAditivo;
 import cadastros.CadastroCliente;
 import cadastros.CadastroContrato;
 import cadastros.CadastroContrato.CadastroTarefa;
+import cadastros.CadastroDistrato;
 import cadastros.CadastroDocumento;
 import cadastros.CadastroLogin;
 import cadastros.CadastroModelo;
@@ -85,6 +87,7 @@ import classesExtras.Carregamento;
 import conexaoBanco.GerenciarBancoAditivos;
 import conexaoBanco.GerenciarBancoClientes;
 import conexaoBanco.GerenciarBancoContratos;
+import conexaoBanco.GerenciarBancoDistratos;
 import conexaoBanco.GerenciarBancoDocumento;
 import conexaoBanco.GerenciarBancoLogin;
 import conexaoBanco.GerenciarBancoPontuacao;
@@ -115,7 +118,12 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.ActionEvent;
 import java.awt.Font;
+import java.awt.GraphicsConfiguration;
+import java.awt.GraphicsDevice;
+import java.awt.GraphicsEnvironment;
 import java.awt.ScrollPane;
+import java.awt.Window;
+
 import javax.swing.JTable;
 import javax.swing.ScrollPaneConstants;
 import javax.swing.JScrollPane;
@@ -142,6 +150,7 @@ import javax.swing.filechooser.FileNameExtensionFilter;
 
 import java.awt.GridBagConstraints;
 import java.awt.Insets;
+import java.awt.Point;
 import java.awt.PopupMenu;
 
 import graficos.JPanelGrafico;
@@ -152,12 +161,12 @@ import javax.swing.JTree;
 import javax.swing.JRadioButton;
 import java.awt.Rectangle;
 
-public class TelaGerenciarContrato extends JDialog {
+public class TelaGerenciarContrato extends JFrame {
 
 	private JDialog tela_pai;
 	private ArrayList<CadastroRomaneio> romaneios_disponivel = new ArrayList<>();
 	private JTable table_romaneios;
-	private JButton btnSelecionarNota;
+	private JButton btnSelecionarNota, btnCriarDistrato;
 
 	private JLabel lblStatusAdicionandoNotas;
 	private int contador = 0;
@@ -224,6 +233,8 @@ public class TelaGerenciarContrato extends JDialog {
 	private JPopupMenu jPopupMenuTabelPagamentos;
 	private JPopupMenu jPopupMenuDocumentos;
 	private JPopupMenu jPopupMenuTabelAditivos;
+	private JPopupMenu jPopupMenuTabelDistratos;
+
 	private Double peso_total_cargas_nfe = 0.0;
 	private Double peso_total_cargas = 0.0;
 	private JLabel lblPesoTotalRealCargas, lblPesoTotalNotasFiscais, lblPesoTotal, lblPesoTotalRealRestante,
@@ -243,6 +254,13 @@ public class TelaGerenciarContrato extends JDialog {
 			return false;
 		}
 	};
+	
+	DefaultTableModel modelo_distratos= new DefaultTableModel() {
+		public boolean isCellEditable(int linha, int coluna) {
+			return false;
+		}
+	};
+
 
 	DefaultTableModel modelo_sub_contratos = new DefaultTableModel() {
 		public boolean isCellEditable(int linha, int coluna) {
@@ -291,14 +309,17 @@ public class TelaGerenciarContrato extends JDialog {
 	private JTextField entNomeDocumento;
 	private JComboBox cBTipoDocumento;
 	private JTable table_aditivos;
+	private JTable table_distratos;
+
 	private ArrayList<CadastroAditivo> lista_aditivos = new ArrayList<>();
+	private ArrayList<CadastroDistrato> lista_distratos = new ArrayList<>();
 
 	public TelaGerenciarContrato(CadastroContrato contrato) {
 
 		getDadosGlobais();
 		servidor_unidade = configs_globais.getServidorUnidade();
 
-		setModal(true);
+		//setModal(true);
 		// setAlwaysOnTop(true);
 
 		contrato_local = contrato;
@@ -449,7 +470,7 @@ public class TelaGerenciarContrato extends JDialog {
 
 				if (pagamentos.size() > 0) {
 					permitir_exclusao = false;
-					JOptionPane.showMessageDialog(null,
+					JOptionPane.showMessageDialog(isto,
 							"Exclusão não permitida!\nHá pagamentos contratuais adicionados a este contrato\nExclua os antes de tentar a exclusão!");
 				} else {
 					permitir_exclusao = true;
@@ -459,7 +480,7 @@ public class TelaGerenciarContrato extends JDialog {
 							.getCarregamentos(contrato_local.getId());
 					if (carregamentos.size() > 0) {
 						permitir_exclusao = false;
-						JOptionPane.showMessageDialog(null,
+						JOptionPane.showMessageDialog(isto,
 								"Exclusão não permitida!\nHá carregamentos adicionados a este contrato\nExclua os antes de tentar a exclusão!");
 					} else {
 						permitir_exclusao = true;
@@ -468,11 +489,11 @@ public class TelaGerenciarContrato extends JDialog {
 						ArrayList<CadastroContrato> sub_contratos = gerenciar.getSubContratos(contrato_local.getId());
 						if (sub_contratos.size() > 0) {
 							permitir_exclusao = false;
-							JOptionPane.showMessageDialog(null,
+							JOptionPane.showMessageDialog(isto,
 									"Exclusão não permitida!\nHá sub-contratos adicionados a este contrato\nExclua os antes de tentar a exclusão!");
 						} else {
 							permitir_exclusao = true;
-							// JOptionPane.showMessageDialog(null, "Exclusão permitida!");
+							// JOptionPane.showMessageDialog(isto, "Exclusão permitida!");
 
 							excluir_contrato();
 
@@ -509,20 +530,21 @@ public class TelaGerenciarContrato extends JDialog {
 		btnCriarAditivo = new JButton("Criar Aditivo");
 		btnCriarAditivo.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				TelaCriarAditivo tela = new TelaCriarAditivo(contrato_local);
+				TelaCriarAditivo tela = new TelaCriarAditivo(contrato_local, isto);
 
 				tela.setTelaPai(isto);
 				tela.setVisible(true);
 
 			}
 		});
-		btnCriarAditivo.setBounds(640, 178, 136, 23);
+		btnCriarAditivo.setBounds(673, 155, 93, 28);
+		painelComprovantes.setBackground(new Color(51, 153, 153));
 		painelComprovantes.add(btnCriarAditivo);
 
 		JPanel panelInformativoPrincipal = new JPanel();
 		painel_informacoes_tab_principal = new PainelInformativo();
 		panelInformativoPrincipal.add(painel_informacoes_tab_principal);
-		panelInformativoPrincipal.setBounds(554, 162, 470, 200);
+		panelInformativoPrincipal.setBounds(554, 162, 470, 350);
 		painelDadosIniciais.add(panelInformativoPrincipal);
 		panelInformativoPrincipal.setLayout(null);
 
@@ -555,7 +577,7 @@ public class TelaGerenciarContrato extends JDialog {
 					GerenciarBancoContratos gerenciar = new GerenciarBancoContratos();
 					boolean atualizou = gerenciar.atualizarStatusContrato(contrato_local.getId(), 2);
 					if (atualizou) {
-						JOptionPane.showMessageDialog(null, "Contrato Desbloqueado!");
+						JOptionPane.showMessageDialog(isto, "Contrato Desbloqueado!");
 						// retirar pontucao
 						GerenciarBancoPontuacao gerenciar_pontuacao = new GerenciarBancoPontuacao();
 
@@ -570,7 +592,7 @@ public class TelaGerenciarContrato extends JDialog {
 										.removerPontuacao(pontos_antigos.getId_pontuacao());
 								if (removido) {
 								} else {
-									JOptionPane.showMessageDialog(null,
+									JOptionPane.showMessageDialog(isto,
 											"Erro ao remover pontuacao antiga\nConsulte o administrador!");
 									break;
 								}
@@ -581,7 +603,7 @@ public class TelaGerenciarContrato extends JDialog {
 						setarInformacoesPainelPrincipal();
 						destravarContrato();
 					} else {
-						JOptionPane.showMessageDialog(null,
+						JOptionPane.showMessageDialog(isto,
 								"Erro ao desbloquear o contrato, tente novamente!\nSe o erro persistir, consulte o administrador");
 					}
 
@@ -597,11 +619,11 @@ public class TelaGerenciarContrato extends JDialog {
 		JButton btnNewButton = new JButton("Visão Geral");
 		btnNewButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				TelaVisaoGeralContrato tela = new TelaVisaoGeralContrato(contrato_local);
+				TelaVisaoGeralContrato tela = new TelaVisaoGeralContrato(contrato_local, isto);
 				tela.setVisible(true);
 			}
 		});
-		btnNewButton.setBounds(934, 385, 92, 28);
+		btnNewButton.setBounds(932, 472, 92, 28);
 		painelDadosIniciais.add(btnNewButton);
 
 		modelo.addColumn("Id Pagamento");
@@ -744,15 +766,15 @@ public class TelaGerenciarContrato extends JDialog {
 						GerenciarBancoContratos gerenciar = new GerenciarBancoContratos();
 
 						if (gerenciar.removerCarregamento(contrato_local.getId(), id_carregamento_selecionado)) {
-							JOptionPane.showMessageDialog(null, "Carregamento Excluido!");
+							JOptionPane.showMessageDialog(isto, "Carregamento Excluido!");
 							pesquisar_carregamentos();
 
 						} else {
-							JOptionPane.showMessageDialog(null,
+							JOptionPane.showMessageDialog(isto,
 									"Erro ao remover o carregamento selecionado\nConsulte o administrador do sistema!");
 						}
 					} catch (NumberFormatException n) {
-						JOptionPane.showMessageDialog(null, "Nenhum carregamento selecionado para excluir");
+						JOptionPane.showMessageDialog(isto, "Nenhum carregamento selecionado para excluir");
 
 					}
 
@@ -1050,12 +1072,12 @@ public class TelaGerenciarContrato extends JDialog {
 								// excluiir somente a relacao
 								if (gerenciar.remover_contrato_pagamento_contratual(contrato_local.getId(),
 										id_pagamento_selecionado)) {
-									JOptionPane.showMessageDialog(null, "Pagamento Excluido!");
+									JOptionPane.showMessageDialog(isto, "Pagamento Excluido!");
 
 									pesquisar_pagamentos();
 
 								} else {
-									JOptionPane.showMessageDialog(null,
+									JOptionPane.showMessageDialog(isto,
 											"Erro ao remover o relação do pagamento selecionado\nConsulte o administrador do sistema!");
 								}
 
@@ -1064,7 +1086,7 @@ public class TelaGerenciarContrato extends JDialog {
 									// excluiir somente a relacao
 									if (gerenciar.removerPagamentoContratual(contrato_local.getId(),
 											id_pagamento_selecionado)) {
-										JOptionPane.showMessageDialog(null, "Pagamento Excluido!");
+										JOptionPane.showMessageDialog(isto, "Pagamento Excluido!");
 
 										boolean tem_replica = false;
 										// verifica se esse pagamento esta replicado
@@ -1086,11 +1108,11 @@ public class TelaGerenciarContrato extends JDialog {
 												boolean remover_replica = gerenciar
 														.removerPagamentoContratual(pair.getKey(), pair.getValue());
 												if (remover_replica) {
-													JOptionPane.showMessageDialog(null,
+													JOptionPane.showMessageDialog(isto,
 															"A replica deste pagamento foi excluida para manter a coesão das operações");
 
 												} else {
-													JOptionPane.showMessageDialog(null,
+													JOptionPane.showMessageDialog(isto,
 															"Erro ao excluir a replica deste pagamento\nBanco de Dados Corrompido\nConsulte o administrador!");
 												}
 
@@ -1103,11 +1125,11 @@ public class TelaGerenciarContrato extends JDialog {
 										pesquisar_pagamentos();
 
 									} else {
-										JOptionPane.showMessageDialog(null,
+										JOptionPane.showMessageDialog(isto,
 												"Erro ao remover o pagamento selecionado\nConsulte o administrador do sistema!");
 									}
 								} else {
-									JOptionPane.showMessageDialog(null,
+									JOptionPane.showMessageDialog(isto,
 											"Esse pagamento tem uma tranferencia anexada a ele, remova ha antes!");
 								}
 							}
@@ -1127,11 +1149,11 @@ public class TelaGerenciarContrato extends JDialog {
 							GerenciarBancoTransferencias gerenciar = new GerenciarBancoTransferencias();
 
 							if (gerenciar.removerTransferencia(id_transferencia_selecionada)) {
-								JOptionPane.showMessageDialog(null, "Transferencia removida!");
+								JOptionPane.showMessageDialog(isto, "Transferencia removida!");
 								pesquisar_pagamentos();
 
 							} else {
-								JOptionPane.showMessageDialog(null,
+								JOptionPane.showMessageDialog(isto,
 										"Erro ao remover a transferencia selecionada\nConsulte o administrador do sistema!");
 							}
 						} else {
@@ -1140,10 +1162,10 @@ public class TelaGerenciarContrato extends JDialog {
 					}
 
 					else {
-						JOptionPane.showMessageDialog(null, "Remova essa transfência no contrato de origem");
+						JOptionPane.showMessageDialog(isto, "Remova essa transfência no contrato de origem");
 					}
 				} catch (NumberFormatException n) {
-					JOptionPane.showMessageDialog(null, "Nenhum pagamento selecionado para excluir");
+					JOptionPane.showMessageDialog(isto, "Nenhum pagamento selecionado para excluir");
 
 				}
 
@@ -1155,7 +1177,7 @@ public class TelaGerenciarContrato extends JDialog {
 		JButton btnAdicionarPagamento = new JButton("Novo Pagamento");
 		btnAdicionarPagamento.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				TelaConfirmarPagamentoContratual tela_confirmar = new TelaConfirmarPagamentoContratual(contrato_local);
+				TelaConfirmarPagamentoContratual tela_confirmar = new TelaConfirmarPagamentoContratual(contrato_local, isto);
 				tela_confirmar.setTelaPai(isto);
 				tela_confirmar.setVisible(true);
 			}
@@ -1214,9 +1236,11 @@ public class TelaGerenciarContrato extends JDialog {
 		JButton btnAdcionarTarefa = new JButton("Adicionar");
 		btnAdcionarTarefa.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				TelaCriarTarefa tarefa = new TelaCriarTarefa(contrato_local);
+				TelaCriarTarefa tarefa = new TelaCriarTarefa(contrato_local, isto);
 				tarefa.setTelaPai(isto);
 				tarefa.setVisible(true);
+				
+				
 			}
 		});
 		btnAdcionarTarefa.setBounds(1249, 430, 79, 28);
@@ -1230,7 +1254,7 @@ public class TelaGerenciarContrato extends JDialog {
 				indiceDaLinha = table_tarefas.getSelectedRow();
 
 				CadastroTarefa tarefa_selecionada = lista_tarefas.get(indiceDaLinha);
-				JOptionPane.showMessageDialog(null, "Id da tarefa selecionada: " + tarefa_selecionada.getId_tarefa());
+				JOptionPane.showMessageDialog(isto, "Id da tarefa selecionada: " + tarefa_selecionada.getId_tarefa());
 
 				if (login.getId() == tarefa_selecionada.getCriador().getId()) {
 					// verifica se a tarefa ja foi concluida
@@ -1245,18 +1269,18 @@ public class TelaGerenciarContrato extends JDialog {
 							if (remover_relacao) {
 								boolean remover_tarefa = gerenciar.remover_tarefa(tarefa_selecionada.getId_tarefa());
 								if (remover_tarefa) {
-									JOptionPane.showMessageDialog(null, "Tarefa Excluida com sucesso");
+									JOptionPane.showMessageDialog(isto, "Tarefa Excluida com sucesso");
 									getTarefas();
 
 								} else {
-									JOptionPane.showMessageDialog(null,
+									JOptionPane.showMessageDialog(isto,
 											"Erro ao a tarefa!\nBanco Corrompido\nConsulte o administrador");
 									getTarefas();
 
 								}
 
 							} else {
-								JOptionPane.showMessageDialog(null,
+								JOptionPane.showMessageDialog(isto,
 										"Erro ao remover tarefa!\nConsulte o administrador");
 							}
 
@@ -1265,12 +1289,12 @@ public class TelaGerenciarContrato extends JDialog {
 						}
 
 					} else {
-						JOptionPane.showMessageDialog(null, "Uma tarefa já concluida não pode ser excluida");
+						JOptionPane.showMessageDialog(isto, "Uma tarefa já concluida não pode ser excluida");
 
 					}
 
 				} else {
-					JOptionPane.showMessageDialog(null, "Apenas o criador da tarefa pode excluí-la!");
+					JOptionPane.showMessageDialog(isto, "Apenas o criador da tarefa pode excluí-la!");
 				}
 
 			}
@@ -1285,25 +1309,30 @@ public class TelaGerenciarContrato extends JDialog {
 				indiceDaLinha = table_tarefas.getSelectedRow();
 
 				CadastroTarefa tarefa_selecionada = lista_tarefas.get(indiceDaLinha);
-				JOptionPane.showMessageDialog(null, "Id da tarefa selecionada: " + tarefa_selecionada.getId_tarefa());
-
+				JOptionPane.showMessageDialog(isto, "Id da tarefa selecionada: " + tarefa_selecionada.getId_tarefa());
+				
+			
+			
 				if (tarefa_selecionada.getExecutor().getId() == login.getId()) {
 
 					if (tarefa_selecionada.getStatus_tarefa() == 2) {
 
-						JOptionPane.showMessageDialog(null,
-								"Uma tarefa após ser respondida não pode ser editada nem excluida!");
-						TelaCriarTarefaResposta responder = new TelaCriarTarefaResposta(tarefa_selecionada);
-						responder.setTelaPai(isto);
+						JOptionPane.showMessageDialog(isto,
+							"Uma tarefa após ser respondida não pode ser editada nem excluida!");
+						
+				
+						
+						TelaCriarTarefaResposta responder = new TelaCriarTarefaResposta(tarefa_selecionada, isto);
+						responder.setLocationRelativeTo(isto);
 						responder.setVisible(true);
 					} else {
-						JOptionPane.showMessageDialog(null, "Tarefa já concluida");
-
+						JOptionPane.showMessageDialog(isto, "Tarefa já concluida");
+						
 					}
 
 				} else {
-					JOptionPane.showMessageDialog(null, "Você só pode responder tarefas designadas a seu usuário!");
-
+					JOptionPane.showMessageDialog(isto, "Você só pode responder tarefas designadas a seu usuário!");
+				
 				}
 
 			}
@@ -1317,7 +1346,7 @@ public class TelaGerenciarContrato extends JDialog {
 		btnAdicionarCarregamento.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 
-				TelaConfirmarCarregamento tela_confirmar = new TelaConfirmarCarregamento(contrato_local);
+				TelaConfirmarCarregamento tela_confirmar = new TelaConfirmarCarregamento(contrato_local, isto);
 				tela_confirmar.setTelaPai(isto);
 				tela_confirmar.setVisible(true);
 
@@ -1364,7 +1393,24 @@ public class TelaGerenciarContrato extends JDialog {
 		 * 
 		 * travarContrato();
 		 */
+		/*
+		setarInformacoesPainelPrincipal();
+		 setarInformacoesPainelCarregamentos();
+		 pesquisar_carregamentos();
+		  pesquisar_pagamentos();
+		  setSubContratos(contrato_local); 
+		  if (contrato_local.getSub_contrato() == 0) {
+			setarPainelGanhosPotenciais();
+		  }
+		  setInformacoesDocumentos();
 
+		  criarTabelaAditivos();
+		  setInformacoesAditivos();
+		  criarTabelaDistratos();
+		  setInformacoesDistratos();
+*/
+		 
+		this.setResizable(true);
 		this.setLocationRelativeTo(null);
 
 		this.setVisible(true);
@@ -1682,8 +1728,10 @@ public class TelaGerenciarContrato extends JDialog {
 		setarInformacoesPainelCarregamentos();
 
 		// atualiza os subcontratos
+		if(contrato_local.getSub_contrato() != 3) {
 		setSubContratos(contrato_local);
 		atualizarArvoreContratos();
+		}
 		painel_informacoes_tab_principal.setarInformacoesPainelCarregamentosInformativos();
 		painel_informacoes_tab_pagamentos.setarInformacoesPainelCarregamentosInformativos();
 
@@ -2143,10 +2191,24 @@ public class TelaGerenciarContrato extends JDialog {
 		private JLabel _lblDataContrato, _lblCorretor, _lblCompradores, _lblVendedores, _lblValorSaco, _lblQuantidade,
 				_lblValorTotal;
 
+		private JLabel lblnew;
+		private JLabel _lblnewtra;
+		private JLabel _lblnewsafra;
+		private JLabel _lblProduto;
+		private JLabel _lblTransgenia;
+		private JLabel _lblSafra;
+		private JLabel _lblnewcomissoa;
+		private JLabel _lblComissao;
+		private JLabel _lblnewfrete;
+		private JLabel _lblnewarmazenagem;
+		private JLabel _lblFrete;
+		private JLabel _lblArmazenagem;
+		private JLabel _lblnewdataentrega;
+		private JLabel _lblDataEntrega;
 		public PainelInformativo() {
 
 			setBackground(Color.WHITE);
-			setBounds(0, 0, 500, 190);
+			setBounds(0, 0, 500, 350);
 			setLayout(new MigLayout("", "[99px][93px][85px][79px][78px][67px]", "[17px][17px][14px][17px][17px]"));
 
 			JLabel _lblNewLabel_5 = new JLabel("Data:");
@@ -2208,6 +2270,62 @@ public class TelaGerenciarContrato extends JDialog {
 			_lblValorTotal.setFont(new Font("Arial", Font.BOLD, 14));
 			add(_lblValorTotal, "cell 1 6,alignx center,aligny center");
 
+			lblnew = new JLabel("Produto:");
+			lblnew.setFont(new Font("Arial", Font.PLAIN, 12));
+			add(lblnew, "cell 0 7,alignx right");
+			
+			_lblProduto = new JLabel("Soja");
+			_lblProduto.setFont(new Font("Arial", Font.BOLD, 14));
+			add(_lblProduto, "cell 1 7,alignx center");
+			
+			_lblnewtra = new JLabel("Transgenese:");
+			_lblnewtra.setFont(new Font("Arial", Font.PLAIN, 12));
+			add(_lblnewtra, "cell 0 8,alignx right");
+			
+			_lblTransgenia = new JLabel("Convencional");
+			_lblTransgenia.setFont(new Font("Arial", Font.BOLD, 14));
+		add(_lblTransgenia, "cell 1 8,alignx center");
+			
+			_lblnewsafra = new JLabel("Safra:");
+			_lblnewsafra.setFont(new Font("Arial", Font.PLAIN, 12));
+		add(_lblnewsafra, "cell 0 9,alignx right");
+			
+			_lblSafra = new JLabel("2020/2021");
+			_lblSafra.setFont(new Font("Arial", Font.BOLD, 14));
+			add(_lblSafra, "cell 1 9,alignx center");
+			
+			_lblnewcomissoa = new JLabel("Comissão:");
+			_lblnewcomissoa.setFont(new Font("Arial", Font.PLAIN, 12));
+			add(_lblnewcomissoa, "cell 0 10,alignx right");
+			
+			_lblComissao = new JLabel("R$ 2500");
+			_lblComissao.setFont(new Font("Arial", Font.BOLD, 14));
+			add(_lblComissao, "cell 1 10,alignx center");
+			
+			_lblnewfrete = new JLabel("Frete:");
+			_lblnewfrete.setFont(new Font("Arial", Font.PLAIN, 12));
+			add(_lblnewfrete, "cell 0 11,alignx right");
+			
+			_lblFrete = new JLabel("Comprador");
+			_lblFrete.setFont(new Font("Arial", Font.BOLD, 14));
+			add(_lblFrete, "cell 1 11,alignx center");
+			
+			_lblnewarmazenagem = new JLabel("Armazenagem:");
+			_lblnewarmazenagem.setFont(new Font("Arial", Font.PLAIN, 12));
+			add(_lblnewarmazenagem, "cell 0 12,alignx right");
+			
+			_lblArmazenagem = new JLabel("Vendedor");
+			_lblArmazenagem.setFont(new Font("Arial", Font.BOLD, 14));
+			add(_lblArmazenagem, "cell 1 12,alignx center");
+			
+			_lblnewdataentrega = new JLabel("Data Entrega:");
+			_lblnewdataentrega.setFont(new Font("Arial", Font.PLAIN, 12));
+			add(_lblnewdataentrega, "cell 0 13,alignx right");
+			
+			_lblDataEntrega = new JLabel("23/08/2021");
+			_lblDataEntrega.setFont(new Font("Arial", Font.BOLD, 14));
+			add(_lblDataEntrega, "cell 1 13,alignx center");
+			
 			setarInformacoesPainelCarregamentosInformativos();
 		}
 
@@ -2271,6 +2389,19 @@ public class TelaGerenciarContrato extends JDialog {
 
 			String valor_total = NumberFormat.getCurrencyInstance(ptBr).format(contrato_local.getValor_a_pagar());
 			_lblValorTotal.setText(valor_total);
+			
+			_lblProduto.setText(contrato_local.getModelo_safra().getProduto().getNome_produto());
+			_lblTransgenia.setText(contrato_local.getModelo_safra().getProduto().getTransgenia());
+			_lblSafra.setText(contrato_local.getModelo_safra().getAno_plantio() + "/" + contrato_local.getModelo_safra().getAno_colheita());
+			_lblDataEntrega.setText(contrato_local.getData_entrega());
+			if(contrato_local.getComissao() == 1) {
+				//tem comissao
+				_lblComissao.setText( NumberFormat.getCurrencyInstance(ptBr).format(contrato_local.getValor_comissao()));
+			}else {
+				_lblComissao.setText("NÃO");
+			}
+			_lblFrete.setText(contrato_local.getFrete());
+			_lblArmazenagem.setText(contrato_local.getArmazenagem());
 
 		}
 	}
@@ -2298,7 +2429,7 @@ public class TelaGerenciarContrato extends JDialog {
 				boolean exclusao_diretorio = manipular.limparDiretorio(new File(
 						configs_globais.getServidorUnidade() + contrato_local.getCaminho_diretorio_contrato()));
 				if (exclusao_diretorio) {
-					JOptionPane.showMessageDialog(null, "Contrato Excluido!");
+					JOptionPane.showMessageDialog(isto, "Contrato Excluido!");
 
 					// excluir diretorio da nuvem
 					Nuvem nuvem = new Nuvem();
@@ -2307,22 +2438,22 @@ public class TelaGerenciarContrato extends JDialog {
 					nuvem.listar();
 					boolean exclusao_nuvem = nuvem.deletarArquivo(contrato_local.getNome_arquivo());
 					if (exclusao_nuvem) {
-						JOptionPane.showMessageDialog(null, "Contrato excluido");
+						JOptionPane.showMessageDialog(isto, "Contrato excluido");
 						isto.dispose();
 
 					} else {
-						JOptionPane.showMessageDialog(null,
+						JOptionPane.showMessageDialog(isto,
 								"Contrato excluido, diretorio local apagado, mas o arquivo ainda está na nuvem\nConsulte o administrador!");
 
 					}
 
 				} else {
-					JOptionPane.showMessageDialog(null,
+					JOptionPane.showMessageDialog(isto,
 							"Contrato excluido, mas o diretorio nao pode ser apagado!\nConsulte o administrador");
 				}
 
 			} else {
-				JOptionPane.showMessageDialog(null, "Erro ao excluir o contrato\nConsulte o administrador!");
+				JOptionPane.showMessageDialog(isto, "Erro ao excluir o contrato\nConsulte o administrador!");
 
 			}
 
@@ -2360,7 +2491,7 @@ public class TelaGerenciarContrato extends JDialog {
 	}
 
 	public void assinar() {
-		JOptionPane.showMessageDialog(null,
+		JOptionPane.showMessageDialog(isto,
 				"Na próxima tela, importe o arquivo digitalizado\ncom assinatura de ambas as partes");
 
 		JFileChooser fileChooser = new JFileChooser();
@@ -2408,37 +2539,37 @@ public class TelaGerenciarContrato extends JDialog {
 					int cadastrar = gerenciar_doc.inserir_documento_padrao(novo_documento);
 					if (cadastrar > 0) {
 
-						JOptionPane.showMessageDialog(null, "Arquivo copiado\nOrigem: " + caminho_arquivo
+						JOptionPane.showMessageDialog(isto, "Arquivo copiado\nOrigem: " + caminho_arquivo
 								+ "\nDestino: " + caminho_completo + "\nStatus do Contrato Atualizado");
 
 						atualizarArvoreDocumentos();
 					} else {
-						JOptionPane.showMessageDialog(null,
+						JOptionPane.showMessageDialog(isto,
 								"Arquivo copiado, mas não pode ser salvo na base de dados\nConsulte o adiministrador do sistema!");
 						// cancelar operacao e excluir o arquivo
 						if (manipular.apagarArquivo(caminho_completo)) {
 
 						} else {
-							JOptionPane.showMessageDialog(null,
+							JOptionPane.showMessageDialog(isto,
 									"Erro ao excluir arquivo!\nConsulte o administrador do sistema");
 						}
 					}
 
 				} else {
-					JOptionPane.showMessageDialog(null, "Status do Contrato NÃO Atualizado");
-					JOptionPane.showMessageDialog(null,
+					JOptionPane.showMessageDialog(isto, "Status do Contrato NÃO Atualizado");
+					JOptionPane.showMessageDialog(isto,
 							"Arquivo copiado, mas não pode ser salvo na base de dados\nConsulte o adiministrador do sistema!");
 					// cancelar operacao e excluir o arquivo
 					if (manipular.apagarArquivo(caminho_completo)) {
 
 					} else {
-						JOptionPane.showMessageDialog(null,
+						JOptionPane.showMessageDialog(isto,
 								"Erro ao excluir arquivo!\nConsulte o administrador do sistema");
 					}
 				}
 
 			} else {
-				JOptionPane.showMessageDialog(null, "Arquivo  não pode ser copiado\nOrigem: " + caminho_arquivo
+				JOptionPane.showMessageDialog(isto, "Arquivo  não pode ser copiado\nOrigem: " + caminho_arquivo
 						+ "\nDestino: " + caminho_completo + "\n Consulte o administrador!");
 
 			}
@@ -2451,8 +2582,8 @@ public class TelaGerenciarContrato extends JDialog {
 	}
 
 	public void assinarAditivo(int id_aditivo) {
-		JOptionPane.showMessageDialog(null,
-				"Na próxima tela, importe o arquivo digitalizado\ncom assinatura de ambas as partes");
+		JOptionPane.showMessageDialog(isto,
+				"Na próxima tela, importe o arquivo digitalizado\ncom assinatura de todas as partes");
 
 		JFileChooser fileChooser = new JFileChooser();
 		fileChooser.setPreferredSize(new Dimension(800, 600));
@@ -2495,37 +2626,38 @@ public class TelaGerenciarContrato extends JDialog {
 					int cadastrar = gerenciar_doc.inserir_documento_padrao(novo_documento);
 					if (cadastrar > 0) {
 
-						JOptionPane.showMessageDialog(null, "Arquivo copiado\nOrigem: " + caminho_arquivo
-								+ "\nDestino: " + caminho_completo + "\nStatus do Contrato Atualizado");
+						JOptionPane.showMessageDialog(isto, "Arquivo copiado\nOrigem: " + caminho_arquivo
+								+ "\nDestino: " + caminho_completo + "\nStatus do Aditivo Atualizado");
 
+						setInformacoesAditivos();
 						atualizarArvoreDocumentos();
 					} else {
-						JOptionPane.showMessageDialog(null,
+						JOptionPane.showMessageDialog(isto,
 								"Arquivo copiado, mas não pode ser salvo na base de dados\nConsulte o adiministrador do sistema!");
 						// cancelar operacao e excluir o arquivo
 						if (manipular.apagarArquivo(caminho_completo)) {
 
 						} else {
-							JOptionPane.showMessageDialog(null,
+							JOptionPane.showMessageDialog(isto,
 									"Erro ao excluir arquivo!\nConsulte o administrador do sistema");
 						}
 					}
 
 				} else {
-					JOptionPane.showMessageDialog(null, "Status do Contrato NÃO Atualizado");
-					JOptionPane.showMessageDialog(null,
+					JOptionPane.showMessageDialog(isto, "Status do aditivo NÃO Atualizado");
+					JOptionPane.showMessageDialog(isto,
 							"Arquivo copiado, mas não pode ser salvo na base de dados\nConsulte o adiministrador do sistema!");
 					// cancelar operacao e excluir o arquivo
 					if (manipular.apagarArquivo(caminho_completo)) {
 
 					} else {
-						JOptionPane.showMessageDialog(null,
+						JOptionPane.showMessageDialog(isto,
 								"Erro ao excluir arquivo!\nConsulte o administrador do sistema");
 					}
 				}
 
 			} else {
-				JOptionPane.showMessageDialog(null, "Arquivo  não pode ser copiado\nOrigem: " + caminho_arquivo
+				JOptionPane.showMessageDialog(isto, "Arquivo  não pode ser copiado\nOrigem: " + caminho_arquivo
 						+ "\nDestino: " + caminho_completo + "\n Consulte o administrador!");
 
 			}
@@ -2534,11 +2666,10 @@ public class TelaGerenciarContrato extends JDialog {
 
 		}
 
-		setarInformacoesPainelPrincipal();
 	}
 
 	public void importarComprovanteCarregamento(int id_carregamento) {
-		JOptionPane.showMessageDialog(null, "Na próxima tela, importe o arquivo \ncomprovante!");
+		JOptionPane.showMessageDialog(isto, "Na próxima tela, importe o arquivo \ncomprovante!");
 
 		JFileChooser fileChooser = new JFileChooser();
 		fileChooser.setPreferredSize(new Dimension(800, 600));
@@ -2578,24 +2709,24 @@ public class TelaGerenciarContrato extends JDialog {
 				int cadastrar = gerenciar_doc.inserir_documento_padrao(novo_documento);
 				if (cadastrar > 0) {
 
-					JOptionPane.showMessageDialog(null,
+					JOptionPane.showMessageDialog(isto,
 							"Arquivo copiado\nOrigem: " + caminho_arquivo + "\nDestino: " + caminho_completo);
 
 					atualizarArvoreDocumentos();
 				} else {
-					JOptionPane.showMessageDialog(null,
+					JOptionPane.showMessageDialog(isto,
 							"Arquivo copiado, mas não pode ser salvo na base de dados\nConsulte o adiministrador do sistema!");
 					// cancelar operacao e excluir o arquivo
 					if (manipular.apagarArquivo(caminho_completo)) {
 
 					} else {
-						JOptionPane.showMessageDialog(null,
+						JOptionPane.showMessageDialog(isto,
 								"Erro ao excluir arquivo!\nConsulte o administrador do sistema");
 					}
 				}
 
 			} else {
-				JOptionPane.showMessageDialog(null, "Arquivo  não pode ser copiado\nOrigem: " + caminho_arquivo
+				JOptionPane.showMessageDialog(isto, "Arquivo  não pode ser copiado\nOrigem: " + caminho_arquivo
 						+ "\nDestino: " + caminho_completo + "\n Consulte o administrador!");
 
 			}
@@ -2608,7 +2739,10 @@ public class TelaGerenciarContrato extends JDialog {
 	}
 
 	public void importarComprovantePagamento(int id_pagamento) {
-		JOptionPane.showMessageDialog(null, "Na próxima tela, importe o arquivo \ncomprovante!");
+		Window myWindow = isto;
+		
+		abrirAviso(isto, "Na próxima tela, importe o arquivo \ncomprovante! " + getIndiceTela());
+		//JOptionPane.showMessageDialog(myWindow, "Na próxima tela, importe o arquivo \ncomprovante!");
 
 		JFileChooser fileChooser = new JFileChooser();
 		fileChooser.setPreferredSize(new Dimension(800, 600));
@@ -2618,9 +2752,29 @@ public class TelaGerenciarContrato extends JDialog {
 
 		String caminho_arquivo = fileChooser.getSelectedFile().toString();
 
-		TelaRecortarImagem2 tela = new TelaRecortarImagem2(caminho_arquivo);
+		
+		
+				// ...
+				GraphicsConfiguration config = myWindow.getGraphicsConfiguration();
+				GraphicsDevice myScreen = config.getDevice();
+				GraphicsEnvironment env = GraphicsEnvironment.getLocalGraphicsEnvironment();
+				// AFAIK - there are no guarantees that screen devices are in order... 
+				// but they have been on every system I've used.
+				GraphicsDevice[] allScreens = env.getScreenDevices();
+				int myScreenIndex = -1;
+				for (int i = 0; i < allScreens.length; i++) {
+				    if (allScreens[i].equals(myScreen))
+				    {
+				        myScreenIndex = i;
+				        break;
+				    }
+				}
+				System.out.println("window is on screen" + myScreenIndex);
+		
+		TelaRecortarImagem2 tela = new TelaRecortarImagem2(caminho_arquivo,isto);
 		tela.setTelaPai(isto);
 		tela.setVisible(true);
+		
 
 		try {
 			// copiar o arquivo para a pasta do contrato
@@ -2651,24 +2805,24 @@ public class TelaGerenciarContrato extends JDialog {
 				int cadastrar = gerenciar_doc.inserir_documento_padrao(novo_documento);
 				if (cadastrar > 0) {
 
-					JOptionPane.showMessageDialog(null,
+					JOptionPane.showMessageDialog(isto,
 							"Arquivo copiado\nOrigem: " + caminho_arquivo + "\nDestino: " + caminho_completo);
 
 					atualizarArvoreDocumentos();
 				} else {
-					JOptionPane.showMessageDialog(null,
+					JOptionPane.showMessageDialog(isto,
 							"Arquivo copiado, mas não pode ser salvo na base de dados\nConsulte o adiministrador do sistema!");
 					// cancelar operacao e excluir o arquivo
 					if (manipular.apagarArquivo(caminho_completo)) {
 
 					} else {
-						JOptionPane.showMessageDialog(null,
+						JOptionPane.showMessageDialog(isto,
 								"Erro ao excluir arquivo!\nConsulte o administrador do sistema");
 					}
 				}
 
 			} else {
-				JOptionPane.showMessageDialog(null, "Arquivo  não pode ser copiado\nOrigem: " + caminho_arquivo
+				JOptionPane.showMessageDialog(isto, "Arquivo  não pode ser copiado\nOrigem: " + caminho_arquivo
 						+ "\nDestino: " + caminho_completo + "\n Consulte o administrador!");
 
 			}
@@ -2693,6 +2847,8 @@ public class TelaGerenciarContrato extends JDialog {
 					btnCriarAditivo.setEnabled(false);
 					btnCriarAditivo.setVisible(false);
 
+					
+
 					btnRevogarAssinatura.setEnabled(false);
 					btnRevogarAssinatura.setVisible(false);
 
@@ -2700,11 +2856,26 @@ public class TelaGerenciarContrato extends JDialog {
 					btnConcluir.setVisible(false);
 
 					if (contrato_local.getSub_contrato() == 3) {
+						//contrato de terceiros
 						btnEditarContrato.setVisible(false);
 						btnEditarContrato.setEnabled(false);
+						
+						btnCriarAditivo.setVisible(false);
+						btnCriarAditivo.setEnabled(false);
+						
+						btnCriarDistrato.setVisible(false);
+						btnCriarDistrato.setEnabled(false);
+						
+						
 					} else {
 						btnEditarContrato.setVisible(true);
 						btnEditarContrato.setEnabled(true);
+						
+						btnCriarAditivo.setVisible(true);
+						btnCriarAditivo.setEnabled(true);
+						
+						btnCriarDistrato.setVisible(true);
+						btnCriarDistrato.setEnabled(true);
 					}
 
 					btnExcluirContrato.setVisible(true);
@@ -2738,6 +2909,29 @@ public class TelaGerenciarContrato extends JDialog {
 
 					btnReabrir.setEnabled(false);
 					btnReabrir.setVisible(false);
+					
+					if (contrato_local.getSub_contrato() == 3) {
+						//contrato de terceiros
+						btnEditarContrato.setVisible(false);
+						btnEditarContrato.setEnabled(false);
+						
+						btnCriarAditivo.setVisible(false);
+						btnCriarAditivo.setEnabled(false);
+						
+						btnCriarDistrato.setVisible(false);
+						btnCriarDistrato.setEnabled(false);
+						
+						
+					} else {
+						btnEditarContrato.setVisible(true);
+						btnEditarContrato.setEnabled(true);
+						
+						btnCriarAditivo.setVisible(true);
+						btnCriarAditivo.setEnabled(true);
+						
+						btnCriarDistrato.setVisible(true);
+						btnCriarDistrato.setEnabled(true);
+					}
 
 				} else if (status == 3) {
 					lblStatusContrato.setText("Status do Contrato: " + "Cumprindo");
@@ -2752,6 +2946,9 @@ public class TelaGerenciarContrato extends JDialog {
 
 					btnCriarAditivo.setEnabled(false);
 					btnCriarAditivo.setVisible(false);
+					
+					btnCriarDistrato.setEnabled(false);
+					btnCriarDistrato.setVisible(false);
 
 					btnRevogarAssinatura.setEnabled(false);
 					btnRevogarAssinatura.setVisible(false);
@@ -2945,10 +3142,10 @@ public class TelaGerenciarContrato extends JDialog {
 			boolean revogado = gerenciar.atualizarStatusContrato(contrato_local.getId(), 1);
 
 			if (revogado) {
-				JOptionPane.showMessageDialog(null, "Assinatura do Contrato Retirada");
+				JOptionPane.showMessageDialog(isto, "Assinatura do Contrato Retirada");
 
 			} else {
-				JOptionPane.showMessageDialog(null, "Erro ao revogar a assinatura!\nConsulte o administrador!");
+				JOptionPane.showMessageDialog(isto, "Erro ao revogar a assinatura!\nConsulte o administrador!");
 
 			}
 
@@ -2970,15 +3167,45 @@ public class TelaGerenciarContrato extends JDialog {
 			boolean revogado = gerenciar.atualizarStatusAditivo(id_aditivo, 1);
 
 			if (revogado) {
-				JOptionPane.showMessageDialog(null, "Assinatura do aditivo Retirada");
+				JOptionPane.showMessageDialog(isto, "Assinatura do aditivo Retirada");
 
 			} else {
-				JOptionPane.showMessageDialog(null, "Erro ao revogar a assinatura!\nConsulte o administrador!");
+				JOptionPane.showMessageDialog(isto, "Erro ao revogar a assinatura!\nConsulte o administrador!");
 
 			}
 
-			atualizarContratoLocal();
-			setarInformacoesPainelPrincipal();
+			//atualizarContratoLocal();
+			setInformacoesDocumentos();
+			 
+			  setInformacoesAditivos();
+
+		} else {
+
+		}
+
+	}
+	
+	public void revogarAssinaturaDistrato(int id_distrato) {
+
+		if (JOptionPane.showConfirmDialog(isto, "Revogar Assinatura", "Deseja revogar a assinatura deste distrato?",
+				JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE) == JOptionPane.YES_OPTION) {
+
+			GerenciarBancoDistratos gerenciar = new GerenciarBancoDistratos();
+			boolean revogado = gerenciar.atualizarStatusDistrato(id_distrato, 1);
+
+			if (revogado) {
+				JOptionPane.showMessageDialog(isto, "Assinatura do distrato Revogada");
+
+			} else {
+				JOptionPane.showMessageDialog(isto, "Erro ao revogar a assinatura!\nConsulte o administrador!");
+
+			}
+
+			//atualizarContratoLocal();
+			//setInformacoesDocumentos();
+			setInformacoesDistratos();
+			 atualizarArvoreDocumentos();
+			  //setInformacoesAditivos();
 
 		} else {
 
@@ -3067,7 +3294,7 @@ public class TelaGerenciarContrato extends JDialog {
 						GerenciarBancoDocumento gerenciar_doc = new GerenciarBancoDocumento();
 						int cadastrar = gerenciar_doc.inserir_documento_padrao(novo_documento);
 						if (cadastrar > 0) {
-							JOptionPane.showMessageDialog(null, "Arquivo copiado e salvo na base de dados\nOrigem: "
+							JOptionPane.showMessageDialog(isto, "Arquivo copiado e salvo na base de dados\nOrigem: "
 									+ caminho_arquivo + "\nDestino: " + caminho_completo);
 
 							entNomeDocumento.setText("");
@@ -3076,28 +3303,28 @@ public class TelaGerenciarContrato extends JDialog {
 
 							atualizarArvoreDocumentos();
 						} else {
-							JOptionPane.showMessageDialog(null,
+							JOptionPane.showMessageDialog(isto,
 									"Arquivo copiado, mas não pode ser salvo\nConsulte o adiministrador do sistema!");
 							// cancelar operacao e excluir o arquivo
 							if (manipular.apagarArquivo(caminho_completo)) {
 
 							} else {
-								JOptionPane.showMessageDialog(null,
+								JOptionPane.showMessageDialog(isto,
 										"Erro ao excluir arquivo!\nConsulte o administrador do sistema");
 							}
 						}
 
 					} else {
-						JOptionPane.showMessageDialog(null, "Arquivo  não pode ser copiado\nOrigem: " + caminho_arquivo
+						JOptionPane.showMessageDialog(isto, "Arquivo  não pode ser copiado\nOrigem: " + caminho_arquivo
 								+ "\nDestino: " + caminho_completo + "\n Consulte o administrador!");
 
 					}
 				} else {
-					JOptionPane.showMessageDialog(null, "Nome do arquivo invalido!");
+					JOptionPane.showMessageDialog(isto, "Nome do arquivo invalido!");
 
 				}
 			} else {
-				JOptionPane.showMessageDialog(null, "Caminho do arquivo invalido!");
+				JOptionPane.showMessageDialog(isto, "Caminho do arquivo invalido!");
 			}
 
 		} catch (IOException f) {
@@ -3115,7 +3342,8 @@ public class TelaGerenciarContrato extends JDialog {
 			public void run() {
 
 				JPanel panel = new JPanel();
-				panel.setBounds(24, 260, 431, 302);
+				panel.setBackground(new Color(255, 255, 204));
+				panel.setBounds(34, 373, 421, 268);
 				painelComprovantes.add(panel);
 				panel.setLayout(new MigLayout("", "[grow]", "[][grow]"));
 
@@ -3139,6 +3367,7 @@ public class TelaGerenciarContrato extends JDialog {
 
 				// create the tree by passing in the root node
 				arvore_documentos = new JTree(root);
+				arvore_documentos.setBackground(new Color(255, 255, 204));
 
 				arvore_documentos.getSelectionModel().addTreeSelectionListener(new TreeSelectionListener() {
 					@Override
@@ -3225,9 +3454,9 @@ public class TelaGerenciarContrato extends JDialog {
 				lblNoSelecionado = new JLabel("");
 				lblNoSelecionado.setBounds(24, 347, 431, 14);
 				painelComprovantes.add(lblNoSelecionado);
-
+/*
 				JPanel panel_1 = new JPanel();
-				panel_1.setBounds(24, 36, 752, 132);
+				panel_1.setBounds(24, 36, 752, 121);
 				painelComprovantes.add(panel_1);
 				panel_1.setLayout(null);
 
@@ -3243,9 +3472,10 @@ public class TelaGerenciarContrato extends JDialog {
 
 				JScrollPane scrollPane = new JScrollPane(table_aditivos);
 				scrollPane.setBounds(10, 11, 732, 110);
-				panel_1.add(scrollPane);
+				panel_1.add(scrollPane);*/
 
 				JPanel panel_2 = new JPanel();
+				panel_2.setBackground(new Color(0, 255, 153));
 				panel_2.setBorder(new LineBorder(new Color(0, 0, 0)));
 				panel_2.setBounds(1006, 36, 284, 434);
 				painelComprovantes.add(panel_2);
@@ -3273,6 +3503,7 @@ public class TelaGerenciarContrato extends JDialog {
 				JCheckBox chckbxIncluirPagamentos = new JCheckBox("Incluir Pagamentos");
 
 				JPanel painelOpcaoInternas = new JPanel();
+				painelOpcaoInternas.setBackground(new Color(51, 255, 204));
 				painelOpcaoInternas.setBorder(new LineBorder(new Color(0, 0, 0)));
 
 				chckbxExterno.addActionListener(new ActionListener() {
@@ -3396,20 +3627,20 @@ public class TelaGerenciarContrato extends JDialog {
 				panel_2.add(chckbxIncluirTransferencias);
 
 				entNomeDocumento = new JTextField();
-				entNomeDocumento.setBounds(546, 293, 330, 27);
+				entNomeDocumento.setBounds(535, 372, 330, 27);
 				painelComprovantes.add(entNomeDocumento);
 				entNomeDocumento.setColumns(10);
 
 				JLabel lblNewLabel_15 = new JLabel("Nome:");
-				lblNewLabel_15.setBounds(505, 296, 46, 14);
+				lblNewLabel_15.setBounds(486, 378, 37, 16);
 				painelComprovantes.add(lblNewLabel_15);
 
 				JLabel lblNewLabel_16_1 = new JLabel("Tipo:");
-				lblNewLabel_16_1.setBounds(490, 343, 70, 14);
+				lblNewLabel_16_1.setBounds(496, 421, 27, 16);
 				painelComprovantes.add(lblNewLabel_16_1);
 
 				cBTipoDocumento = new JComboBox();
-				cBTipoDocumento.setBounds(546, 339, 330, 22);
+				cBTipoDocumento.setBounds(535, 418, 330, 22);
 				painelComprovantes.add(cBTipoDocumento);
 				cBTipoDocumento.addItem("Assinaturas");
 				cBTipoDocumento.addItem("Pagamentos");
@@ -3417,29 +3648,51 @@ public class TelaGerenciarContrato extends JDialog {
 				cBTipoDocumento.addItem("Outros");
 
 				JLabel lblNewLabel_16 = new JLabel("Descrição:");
-				lblNewLabel_16.setBounds(490, 390, 70, 14);
+				lblNewLabel_16.setBounds(467, 470, 59, 16);
 				painelComprovantes.add(lblNewLabel_16);
 
 				entDescricaoDocumento = new JTextArea();
-				entDescricaoDocumento.setBounds(546, 385, 330, 85);
+				entDescricaoDocumento.setBounds(535, 464, 330, 85);
 				painelComprovantes.add(entDescricaoDocumento);
 
 				JLabel lblNewLabel_17 = new JLabel("Arquivo:");
-				lblNewLabel_17.setBounds(490, 495, 46, 14);
+				lblNewLabel_17.setBounds(479, 574, 46, 14);
 				painelComprovantes.add(lblNewLabel_17);
 
 				entCaminhoDocumento = new JTextField();
-				entCaminhoDocumento.setBounds(546, 483, 231, 39);
+				entCaminhoDocumento.setBounds(535, 562, 231, 39);
 				painelComprovantes.add(entCaminhoDocumento);
 				entCaminhoDocumento.setColumns(10);
 
 				JButton btnSelecionarDocumento = new JButton("Selecionar");
-				btnSelecionarDocumento.setBounds(787, 490, 89, 24);
+				btnSelecionarDocumento.setBounds(776, 569, 87, 28);
 				painelComprovantes.add(btnSelecionarDocumento);
 
 				JButton btnAdicionarDocumento = new JButton("Adicionar");
-				btnAdicionarDocumento.setBounds(787, 539, 89, 23);
+				btnAdicionarDocumento.setBounds(776, 618, 89, 23);
 				painelComprovantes.add(btnAdicionarDocumento);
+				
+				JButton btnImportarDeTerceiros = new JButton("Importar de Terceiros");
+				btnImportarDeTerceiros.addActionListener(new ActionListener() {
+					public void actionPerformed(ActionEvent e) {
+						importarAditivo();
+					}
+				});
+				btnImportarDeTerceiros.setBounds(515, 155, 146, 28);
+				painelComprovantes.add(btnImportarDeTerceiros);
+				
+				JButton btnImportarDeTerceiros_1 = new JButton("Importar de Terceiros");
+				btnImportarDeTerceiros_1.addActionListener(new ActionListener() {
+					public void actionPerformed(ActionEvent e) {
+						importarDistrato();
+					}
+				});
+				btnImportarDeTerceiros_1.setBounds(507, 317, 146, 28);
+				painelComprovantes.add(btnImportarDeTerceiros_1);
+				
+				 btnCriarDistrato = new JButton("Criar Distrato");
+				btnCriarDistrato.setBounds(665, 317, 101, 28);
+				painelComprovantes.add(btnCriarDistrato);
 				btnAdicionarDocumento.addActionListener(new ActionListener() {
 					public void actionPerformed(ActionEvent e) {
 
@@ -4243,7 +4496,7 @@ public class TelaGerenciarContrato extends JDialog {
 	public void transferirPagamentoContratual(int id_pagamento_contratual) {
 
 		TelaConfirmarTransferenciaPagamentoContratual tela = new TelaConfirmarTransferenciaPagamentoContratual(
-				contrato_local, id_pagamento_contratual);
+				contrato_local, id_pagamento_contratual, isto);
 		tela.setTelaPag(isto);
 		tela.setVisible(true);
 
@@ -4280,7 +4533,7 @@ public class TelaGerenciarContrato extends JDialog {
 
 			} else {
 
-				JOptionPane.showMessageDialog(null,
+				JOptionPane.showMessageDialog(isto,
 						"Há sub-contratos deste contrato ainda em abertos!\nFinalize-os para poder concluir o contrato original");
 
 			}
@@ -4319,18 +4572,18 @@ public class TelaGerenciarContrato extends JDialog {
 
 			if (pagamento_concluido && carregamento_concluido && nf_concluido) {
 
-				TelaFinalizarContrato tela = new TelaFinalizarContrato();
+				TelaFinalizarContrato tela = new TelaFinalizarContrato(isto);
 				tela.setTelaPai(isto);
 				tela.apresentarContratoCompleto(contrato_local, registro_pagamento_global,
 						registro_carregamento_global);
 				tela.setVisible(true);
 			} else {
 
-				if (JOptionPane.showConfirmDialog(isto, "Requisitos do contrato não cumpridos, deseja continuar?",
+				if (JOptionPane.showConfirmDialog(null, "Requisitos do contrato não cumpridos, deseja continuar?",
 						"Concluir", JOptionPane.YES_NO_OPTION,
 						JOptionPane.QUESTION_MESSAGE) == JOptionPane.YES_OPTION) {
 
-					TelaFinalizarContratoIncompleto tela = new TelaFinalizarContratoIncompleto();
+					TelaFinalizarContratoIncompleto tela = new TelaFinalizarContratoIncompleto(isto);
 					tela.setTelaPai(isto);
 					tela.apresentarContratoIncompleto(contrato_local, registro_pagamento_global,
 							registro_carregamento_global);
@@ -4533,10 +4786,10 @@ public class TelaGerenciarContrato extends JDialog {
 							boolean excluir_documento = gerenciar_docs.removerDocumento(i_id);
 
 							if (excluir_documento) {
-								JOptionPane.showMessageDialog(null, "Comprovante Excluido!");
+								JOptionPane.showMessageDialog(isto, "Comprovante Excluido!");
 
 							} else {
-								JOptionPane.showMessageDialog(null,
+								JOptionPane.showMessageDialog(isto,
 										"Arquivo fisico apagado, mas as informações\ndeste comprovante ainda estão no \nConsulte o administrador");
 
 							}
@@ -4544,7 +4797,7 @@ public class TelaGerenciarContrato extends JDialog {
 							atualizarArvoreDocumentos();
 
 						} else {
-							JOptionPane.showMessageDialog(null,
+							JOptionPane.showMessageDialog(isto,
 									"Erro ao excluir o comprovante\nConsulte o administrador!");
 						}
 
@@ -4628,15 +4881,15 @@ public class TelaGerenciarContrato extends JDialog {
 
 					if (pagamento != null) {
 						TelaReplicarPagamento replicar = new TelaReplicarPagamento(contrato_local, pagamento);
-						replicar.setTelaPai(isto);
+						//replicar.setTelaPai(isto);
 						replicar.setVisible(true);
 
 					} else {
-						JOptionPane.showMessageDialog(null,
+						JOptionPane.showMessageDialog(isto,
 								"Erro ao consultar este pagamento!\nConsulte o administrador do sistema!");
 					}
 				} else {
-					JOptionPane.showMessageDialog(null,
+					JOptionPane.showMessageDialog(isto,
 							"Não é possivel replicar um pagamento a partir de um sub-contrato");
 
 				}
@@ -4653,7 +4906,7 @@ public class TelaGerenciarContrato extends JDialog {
 					int i_id = Integer.parseInt(id);
 					transferirPagamentoContratual(i_id);
 				} else {
-					JOptionPane.showMessageDialog(null, "Não é possivel transferir um pagamento de sub-contrato");
+					JOptionPane.showMessageDialog(isto, "Não é possivel transferir um pagamento de sub-contrato");
 				}
 
 			}
@@ -4701,12 +4954,12 @@ public class TelaGerenciarContrato extends JDialog {
 						replicar.setVisible(true);
 
 					} else {
-						JOptionPane.showMessageDialog(null,
+						JOptionPane.showMessageDialog(isto,
 								"Erro ao consultar este carregamento!\nConsulte o administrador do sistema!");
 					}
 
 				} else {
-					JOptionPane.showMessageDialog(null,
+					JOptionPane.showMessageDialog(isto,
 							"Não é possivel replicar um carregamento apartir de um sub-contrato");
 
 				}
@@ -4765,7 +5018,7 @@ public class TelaGerenciarContrato extends JDialog {
 					int i_id = Integer.parseInt(id);
 
 					if (status.equals("Recolher Assinatura")) {
-
+                          JOptionPane.showMessageDialog(isto, "O aditivo não esta assinado!");
 					} else if (status.equals("Assinado")) {
 						revogarAssinaturaAditivo(i_id);
 						setInformacoesAditivos();
@@ -4794,7 +5047,7 @@ public class TelaGerenciarContrato extends JDialog {
 					String nome_arquivo = table_aditivos.getValueAt(index, 4).toString();
 					String caminho_salvar = unidade_base_dados + "\\" + contrato_local.getCaminho_diretorio_contrato();
 
-					String caminho_completo = caminho_salvar + "\\comprovantes\\" + nome_arquivo;
+					String caminho_completo = caminho_salvar + "\\documentos\\" + nome_arquivo;
 					if (Desktop.isDesktopSupported()) {
 						try {
 							Desktop desktop = Desktop.getDesktop();
@@ -4812,38 +5065,43 @@ public class TelaGerenciarContrato extends JDialog {
 				public void actionPerformed(ActionEvent e) {
 					int index = table_aditivos.getSelectedRow();
 					String id = table_aditivos.getValueAt(index, 0).toString();
+					String status = table_aditivos.getValueAt(index, 1).toString();
 					int i_id = Integer.parseInt(id);
 
 					if (JOptionPane.showConfirmDialog(isto, "Deseja Excluir este Aditivo?", "Excluir aditivo",
 							JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE) == JOptionPane.YES_OPTION) {
 
-						GerenciarBancoAditivos gerenciar = new GerenciarBancoAditivos();
-						boolean excluir = gerenciar.removerAditivo(contrato_local.getId(), i_id);
+						if(status.equals("Assinado")) {
+							JOptionPane.showMessageDialog(isto, "Revogue a assinatura antes de excluir o aditivo");
+						}else {
+							GerenciarBancoAditivos gerenciar = new GerenciarBancoAditivos();
+							boolean excluir = gerenciar.removerAditivo(contrato_local.getId(), i_id);
 
-						if (excluir) {
-							// excluir o arquivo
-							String unidade_base_dados = configs_globais.getServidorUnidade();
-							String nome_arquivo = table_aditivos.getValueAt(index, 4).toString();
-							String caminho_salvar = unidade_base_dados + "\\"
-									+ contrato_local.getCaminho_diretorio_contrato();
+							if (excluir) {
+								// excluir o arquivo
+								String unidade_base_dados = configs_globais.getServidorUnidade();
+								String nome_arquivo = table_aditivos.getValueAt(index, 4).toString();
+								String caminho_salvar = unidade_base_dados + "\\"
+										+ contrato_local.getCaminho_diretorio_contrato();
 
-							String caminho_completo = caminho_salvar + "\\comprovantes\\" + nome_arquivo;
+								String caminho_completo = caminho_salvar + "\\documentos\\" + nome_arquivo;
 
-							ManipularTxt manipular = new ManipularTxt();
-							boolean arquivo_excluido = manipular.apagarArquivo(caminho_completo);
-							if (arquivo_excluido) {
-								JOptionPane.showMessageDialog(null, "O aditivo foi excluido com sucesso!");
-								setInformacoesAditivos();
+								ManipularTxt manipular = new ManipularTxt();
+								boolean arquivo_excluido = manipular.apagarArquivo(caminho_completo);
+								if (arquivo_excluido) {
+									JOptionPane.showMessageDialog(isto, "O aditivo foi excluido com sucesso!");
+									setInformacoesAditivos();
+
+								} else {
+									JOptionPane.showMessageDialog(isto,
+											"O aditivo foi excluido, porem o arquivo fisico ainda esta salvo\nConsulte o adiministrador");
+
+								}
 
 							} else {
-								JOptionPane.showMessageDialog(null,
-										"O aditivo foi excluido, porem o arquivo fisico ainda esta salvo\nConsulte o adiministrador");
+								JOptionPane.showMessageDialog(isto, "Erro ao excluir o aditivo\nConsulte o adiministrador");
 
 							}
-
-						} else {
-							JOptionPane.showMessageDialog(null, "Erro ao excluir o aditivo\nConsulte o adiministrador");
-
 						}
 
 					} else {
@@ -5175,4 +5433,519 @@ public class TelaGerenciarContrato extends JDialog {
 		
 	}
 	
+	public void importarAditivo() {
+		
+		GetData hj = new GetData();
+		String hora =  hj.getHora().replace(":", " ");
+		
+		JOptionPane.showMessageDialog(isto,
+				"Na próxima tela, importe o arquivo original \ndo aditivo a ser importado");
+
+		JFileChooser fileChooser = new JFileChooser();
+		fileChooser.setPreferredSize(new Dimension(800, 600));
+		fileChooser.setMultiSelectionEnabled(true);
+
+		FileNameExtensionFilter filter = new FileNameExtensionFilter("Arquivo .PDF", "pdf");
+		fileChooser.addChoosableFileFilter(filter);
+
+		int result = fileChooser.showOpenDialog(isto);
+
+		String caminho_arquivo = fileChooser.getSelectedFile().toString();
+
+		try {
+			// copiar o arquivo para a pasta do contrato
+			ManipularTxt manipular = new ManipularTxt();
+			String unidade_base_dados = configs_globais.getServidorUnidade();
+
+			String caminho_salvar = unidade_base_dados + "\\" + contrato_local.getCaminho_diretorio_contrato();
+			String nome_arquivo = "aditivo_contrato" + contrato_local.getCodigo() + hora + ".pdf";
+			
+
+			String caminho_completo = caminho_salvar + "\\documentos\\" + nome_arquivo;
+			boolean copiado = manipular.copiarNFe(caminho_arquivo, caminho_completo);
+
+			if(copiado) {
+
+				CadastroAditivo aditivo = new CadastroAditivo();
+				aditivo.setTexto("");
+				aditivo.setData(contrato_local.getData_contrato());
+				aditivo.setStatus(1);
+				aditivo.setId_contrato_pai(contrato_local.getId());
+				aditivo.setNome_arquivo(nome_arquivo);
+				
+				GerenciarBancoAditivos gerenciar = new GerenciarBancoAditivos();
+				int guardar = gerenciar.inserirAditivo(aditivo);
+				
+				if(guardar > 0) {
+					
+					JOptionPane.showMessageDialog(isto, "Aditivo importado com sucesso");
+				
+
+				}else {
+					JOptionPane.showMessageDialog(isto, "Erro ao guardar o aditivo na base de dados!\nConsulte o administrador");
+	              
+
+				}
+			}else {
+				JOptionPane.showMessageDialog(isto, "Erro ao copiar o arquivo fisico!\nConsulte o administrador");
+
+			}
+
+		} catch (Exception e) {
+
+		}
+
+		setInformacoesDocumentos();
+		 
+		  setInformacoesAditivos();
+		
+	}
+	
+public void importarDistrato() {
+		
+		GetData hj = new GetData();
+		String hora =  hj.getHora().replace(":", " ");
+		
+		JOptionPane.showMessageDialog(isto,
+				"Na próxima tela, importe o arquivo original \ndo distrato a ser importado");
+
+		JFileChooser fileChooser = new JFileChooser();
+		fileChooser.setPreferredSize(new Dimension(800, 600));
+		fileChooser.setMultiSelectionEnabled(true);
+
+		FileNameExtensionFilter filter = new FileNameExtensionFilter("Arquivo .PDF", "pdf");
+		fileChooser.addChoosableFileFilter(filter);
+
+		int result = fileChooser.showOpenDialog(isto);
+
+		String caminho_arquivo = fileChooser.getSelectedFile().toString();
+
+		try {
+			// copiar o arquivo para a pasta do contrato
+			ManipularTxt manipular = new ManipularTxt();
+			String unidade_base_dados = configs_globais.getServidorUnidade();
+
+			String caminho_salvar = unidade_base_dados + "\\" + contrato_local.getCaminho_diretorio_contrato();
+			String nome_arquivo = "distrato_contrato" + contrato_local.getCodigo() + hora + ".pdf";
+			
+
+			String caminho_completo = caminho_salvar + "\\documentos\\" + nome_arquivo;
+			boolean copiado = manipular.copiarNFe(caminho_arquivo, caminho_completo);
+
+			if(copiado) {
+
+				CadastroDistrato distrato = new CadastroDistrato();
+				distrato.setTexto("");
+				distrato.setData(contrato_local.getData_contrato());
+				distrato.setStatus(1);
+				distrato.setId_contrato_pai(contrato_local.getId());
+				distrato.setNome_arquivo(nome_arquivo);
+				
+				GerenciarBancoDistratos gerenciar = new GerenciarBancoDistratos();
+				int guardar = gerenciar.inserirDistrato(distrato);
+				
+				if(guardar > 0) {
+					
+					JOptionPane.showMessageDialog(isto, "Distrato importado com sucesso");
+				
+
+				}else {
+					JOptionPane.showMessageDialog(isto, "Erro ao guardar o distrato na base de dados!\nConsulte o administrador");
+	              
+
+				}
+			}else {
+				JOptionPane.showMessageDialog(isto, "Erro ao copiar o arquivo fisico!\nConsulte o administrador");
+
+			}
+
+		} catch (Exception e) {
+
+		}
+
+		atualizarArvoreDocumentos();
+		 
+		  setInformacoesDistratos();
+		
+	}
+	
+	public void criarTabelaAditivos() {
+		JPanel panel_1 = new JPanel();
+		panel_1.setBackground(new Color(0, 153, 153));
+		panel_1.setBounds(24, 36, 752, 121);
+		painelComprovantes.add(panel_1);
+		panel_1.setLayout(null);
+
+		modelo_aditivos.addColumn("Id");
+		modelo_aditivos.addColumn("Status");
+		modelo_aditivos.addColumn("Data");
+		modelo_aditivos.addColumn("Texto");
+		modelo_aditivos.addColumn("Nome Arquivo");
+
+		table_aditivos = new JTable(modelo_aditivos);
+		table_aditivos.setBackground(new Color(153, 255, 255));
+
+		setMenuAditivos();
+
+		JScrollPane scrollPane = new JScrollPane(table_aditivos);
+		scrollPane.setBackground(new Color(0, 153, 153));
+		scrollPane.setBounds(10, 11, 732, 110);
+		panel_1.add(scrollPane);
+		
+		JLabel lblNewLabel_30 = new JLabel("Aditivos:");
+		lblNewLabel_30.setFont(new Font("SansSerif", Font.BOLD, 18));
+		lblNewLabel_30.setBounds(104, 17, 79, 24);
+		painelComprovantes.add(lblNewLabel_30);
+		
+	
+		
+		
+	}
+	
+	public void criarTabelaDistratos() {
+		
+		JLabel lblNewLabel_30_1 = new JLabel("Distratos:");
+		lblNewLabel_30_1.setFont(new Font("SansSerif", Font.BOLD, 18));
+		lblNewLabel_30_1.setBounds(104, 179, 85, 24);
+		painelComprovantes.add(lblNewLabel_30_1);
+		
+		JPanel panelDistratos = new JPanel();
+		panelDistratos.setBounds(34, 209, 732, 107);
+		painelComprovantes.add(panelDistratos);
+		panelDistratos.setLayout(null);
+		
+
+		
+		modelo_distratos.addColumn("Id");
+		modelo_distratos.addColumn("Status");
+		modelo_distratos.addColumn("Data");
+		modelo_distratos.addColumn("Texto");
+		modelo_distratos.addColumn("Nome Arquivo");
+
+		table_distratos = new JTable(modelo_distratos);
+		table_distratos.setBackground(new Color(153, 255, 255));
+
+		JScrollPane scrollPane = new JScrollPane(table_distratos);
+		scrollPane.setBounds(0, 0, 732, 107);
+		panelDistratos.add(scrollPane);
+		
+		setMenuDistratos();
+
+	}
+	
+	public void setMenuDistratos() {
+		if (contrato_local.getStatus_contrato() != 3) {
+			jPopupMenuTabelDistratos = new JPopupMenu();
+			JMenuItem jMenuItemAssinarDistrato = new JMenuItem();
+			JMenuItem jMenuItemRevogarAssinatura = new JMenuItem();
+
+			JMenuItem jMenuItemVizualizarDistrato= new JMenuItem();
+			JMenuItem jMenuItemExcluirDistrato = new JMenuItem();
+
+			jMenuItemAssinarDistrato.setText("Assinar");
+			jMenuItemVizualizarDistrato.setText("Vizualizar");
+			jMenuItemExcluirDistrato.setText("Excluir");
+			jMenuItemRevogarAssinatura.setText("Revogar");
+
+			jMenuItemRevogarAssinatura.addActionListener(new java.awt.event.ActionListener() {
+				// Importe a classe java.awt.event.ActionEvent
+				public void actionPerformed(ActionEvent e) {
+					int index = table_distratos.getSelectedRow();
+					String status = table_distratos.getValueAt(index, 1).toString();
+					String id = table_distratos.getValueAt(index, 0).toString();
+
+					int i_id = Integer.parseInt(id);
+
+					if (status.equals("Recolher Assinatura")) {
+                          JOptionPane.showMessageDialog(isto, "O distrato não esta assinado!");
+					} else if (status.equals("Assinado")) {
+						revogarAssinaturaDistrato(i_id);
+						setInformacoesDistratos();
+					}
+
+				}
+			});
+
+			jMenuItemAssinarDistrato.addActionListener(new java.awt.event.ActionListener() {
+				// Importe a classe java.awt.event.ActionEvent
+				public void actionPerformed(ActionEvent e) {
+					int index = table_distratos.getSelectedRow();
+					String id = table_distratos.getValueAt(index, 0).toString();
+					int i_id = Integer.parseInt(id);
+
+					assinarDistrato(i_id);
+				}
+			});
+
+			jMenuItemVizualizarDistrato.addActionListener(new java.awt.event.ActionListener() {
+				// Importe a classe java.awt.event.ActionEvent
+				public void actionPerformed(ActionEvent e) {
+					int index = table_distratos.getSelectedRow();
+
+					String unidade_base_dados = configs_globais.getServidorUnidade();
+					String nome_arquivo = table_distratos.getValueAt(index, 4).toString();
+					String caminho_salvar = unidade_base_dados + "\\" + contrato_local.getCaminho_diretorio_contrato();
+
+					String caminho_completo = caminho_salvar + "\\documentos\\" + nome_arquivo;
+					if (Desktop.isDesktopSupported()) {
+						try {
+							Desktop desktop = Desktop.getDesktop();
+							File myFile = new File(caminho_completo);
+							desktop.open(myFile);
+						} catch (IOException ex) {
+						}
+					}
+
+				}
+			});
+
+			jMenuItemExcluirDistrato.addActionListener(new java.awt.event.ActionListener() {
+				// Importe a classe java.awt.event.ActionEvent
+				public void actionPerformed(ActionEvent e) {
+					int index = table_distratos.getSelectedRow();
+					String id = table_distratos.getValueAt(index, 0).toString();
+					String status = table_distratos.getValueAt(index, 1).toString();
+					int i_id = Integer.parseInt(id);
+
+					if (JOptionPane.showConfirmDialog(isto, "Deseja Excluir este distrato?", "Excluir aditivo",
+							JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE) == JOptionPane.YES_OPTION) {
+
+						if(status.equals("Assinado")) {
+							JOptionPane.showMessageDialog(isto, "Revogue a assinatura antes de excluir o aditivo");
+						}else {
+							GerenciarBancoDistratos gerenciar = new GerenciarBancoDistratos();
+							boolean excluir = gerenciar.removerDistrato(contrato_local.getId(), i_id);
+
+							if (excluir) {
+								// excluir o arquivo
+								String unidade_base_dados = configs_globais.getServidorUnidade();
+								String nome_arquivo = table_distratos.getValueAt(index, 4).toString();
+								String caminho_salvar = unidade_base_dados + "\\"
+										+ contrato_local.getCaminho_diretorio_contrato();
+
+								String caminho_completo = caminho_salvar + "\\documentos\\" + nome_arquivo;
+
+								ManipularTxt manipular = new ManipularTxt();
+								boolean arquivo_excluido = manipular.apagarArquivo(caminho_completo);
+								if (arquivo_excluido) {
+									JOptionPane.showMessageDialog(isto, "O distrato foi excluido com sucesso!");
+									setInformacoesDistratos();
+
+								} else {
+									JOptionPane.showMessageDialog(isto,
+											"O distrato foi excluido, porem o arquivo fisico ainda esta salvo\nConsulte o adiministrador");
+
+								}
+
+							} else {
+								JOptionPane.showMessageDialog(isto, "Erro ao excluir o distrato\nConsulte o adiministrador");
+
+							}
+						}
+
+					} else {
+
+					}
+
+				}
+			});
+
+			jPopupMenuTabelDistratos.add(jMenuItemAssinarDistrato);
+			jPopupMenuTabelDistratos.add(jMenuItemVizualizarDistrato);
+			jPopupMenuTabelDistratos.add(jMenuItemExcluirDistrato);
+			jPopupMenuTabelDistratos.add(jMenuItemRevogarAssinatura);
+
+			table_distratos.addMouseListener(new java.awt.event.MouseAdapter() {
+				// Importe a classe java.awt.event.MouseEvent
+				public void mouseClicked(MouseEvent e) {
+					// Se o botão direito do mouse foi pressionado
+					if (e.getButton() == MouseEvent.BUTTON3) {
+						// Exibe o popup menu na posição do mouse.
+						jPopupMenuTabelDistratos.show(table_distratos, e.getX(), e.getY());
+					}
+				}
+			});
+		}
+	}
+	
+	public void setInformacoesDistratos() {
+		modelo_distratos.setNumRows(0);
+		GerenciarBancoDistratos gerenciar = new GerenciarBancoDistratos();
+
+		lista_distratos = gerenciar.getDistratos(contrato_local.getId());
+
+		/*
+		 * modelo_aditivos.addColumn("Id"); modelo_aditivos.addColumn("Status");
+		 * modelo_aditivos.addColumn("Data"); modelo_aditivos.addColumn("Texto");
+		 * 
+		 */
+		for (CadastroDistrato distrato : lista_distratos) {
+			String data = "", texto = "", nome_arquivo;
+
+			int id = distrato.getId_distrato();
+			int status = distrato.getStatus();
+			data = distrato.getData();
+			texto = distrato.getTexto();
+			nome_arquivo = distrato.getNome_arquivo();
+
+			String sts = "";
+			if (status == 1) {
+				sts = "Recolher Assinatura";
+			} else {
+				sts = "Assinado";
+			}
+
+			modelo_distratos.addRow(new Object[] { id, sts, data, texto, nome_arquivo });
+
+		}
+	}
+	
+	public void assinarDistrato(int id_distrato) {
+		JOptionPane.showMessageDialog(isto,
+				"Na próxima tela, importe o arquivo digitalizado\ncom assinatura de todas as partes");
+
+		JFileChooser fileChooser = new JFileChooser();
+		fileChooser.setPreferredSize(new Dimension(800, 600));
+		fileChooser.setMultiSelectionEnabled(true);
+
+		int result = fileChooser.showOpenDialog(isto);
+
+		String caminho_arquivo = fileChooser.getSelectedFile().toString();
+
+		try {
+			// copiar o arquivo para a pasta do contrato
+			ManipularTxt manipular = new ManipularTxt();
+			String unidade_base_dados = configs_globais.getServidorUnidade();
+
+			String caminho_salvar = unidade_base_dados + "\\" + contrato_local.getCaminho_diretorio_contrato();
+			String nome_arquivo = "comprovante_assinatura_aditivo_" + id_distrato + "_" + contrato_local.getCodigo()
+					+ ".pdf";
+			;
+
+			String caminho_completo = caminho_salvar + "\\comprovantes\\" + nome_arquivo;
+			boolean movido = manipular.copiarNFe(caminho_arquivo, caminho_completo);
+
+			if (movido) {
+
+				// atualizar status do distrato
+				GerenciarBancoDistratos gerenciar = new GerenciarBancoDistratos();
+				boolean assinou = gerenciar.atualizarStatusDistrato(2,id_distrato);
+				if (assinou) {
+
+					CadastroDocumento novo_documento = new CadastroDocumento();
+					novo_documento.setDescricao("Comprovante de Assinatura de Distrato");
+					novo_documento.setNome("comprovante_distrato");
+
+					novo_documento.setTipo(4);
+					novo_documento.setId_pai(id_distrato);
+					novo_documento.setNome_arquivo(nome_arquivo);
+					novo_documento.setId_contrato_pai(contrato_local.getId());
+
+					GerenciarBancoDocumento gerenciar_doc = new GerenciarBancoDocumento();
+					int cadastrar = gerenciar_doc.inserir_documento_padrao(novo_documento);
+					if (cadastrar > 0) {
+
+						JOptionPane.showMessageDialog(isto, "Arquivo copiado\nOrigem: " + caminho_arquivo
+								+ "\nDestino: " + caminho_completo + "\nStatus do Distrato Atualizado");
+
+						setInformacoesDistratos();
+						atualizarArvoreDocumentos();
+					} else {
+						JOptionPane.showMessageDialog(isto,
+								"Arquivo copiado, mas não pode ser salvo na base de dados\nConsulte o adiministrador do sistema!");
+						// cancelar operacao e excluir o arquivo
+						if (manipular.apagarArquivo(caminho_completo)) {
+
+						} else {
+							JOptionPane.showMessageDialog(isto,
+									"Erro ao excluir arquivo!\nConsulte o administrador do sistema");
+						}
+					}
+
+				} else {
+					JOptionPane.showMessageDialog(isto, "Status do distrato NÃO Atualizado");
+					JOptionPane.showMessageDialog(isto,
+							"Arquivo copiado, mas não pode ser salvo na base de dados\nConsulte o adiministrador do sistema!");
+					// cancelar operacao e excluir o arquivo
+					if (manipular.apagarArquivo(caminho_completo)) {
+
+					} else {
+						JOptionPane.showMessageDialog(isto,
+								"Erro ao excluir arquivo!\nConsulte o administrador do sistema");
+					}
+				}
+
+			} else {
+				JOptionPane.showMessageDialog(isto, "Arquivo  não pode ser copiado\nOrigem: " + caminho_arquivo
+						+ "\nDestino: " + caminho_completo + "\n Consulte o administrador!");
+
+			}
+
+		} catch (Exception e) {
+
+		}
+	}
+	
+	public void abrirAviso(JFrame pai, String mensagem) {
+	
+	    
+	    GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
+	    GraphicsDevice[] gds = ge.getScreenDevices();
+	    GraphicsConfiguration gc = gds[getIndiceTela()].getDefaultConfiguration();
+	    Rectangle rect = gc.getBounds();
+
+	    DisplayMode dm =gds[getIndiceTela()].getDisplayMode();
+	    
+	  
+    
+		
+	        if( getIndiceTela() > 0 && getIndiceTela() < 2 ) {
+	        	JOptionPane pane2 = new JOptionPane(mensagem);
+	    		JDialog dialog2 = pane2.createDialog(pai, "Informação");
+	    		
+	    		dialog2.getContentPane().setLayout(new MigLayout("", "[]", "[]"));
+	    		dialog2.setModal(true);
+	    		 int x = dialog2.getWidth();
+	    	        int y = dialog2.getHeight();
+	    	        dialog2.setLocation((gds[getIndiceTela()].getDefaultConfiguration().getBounds().width * 3/2) - x,   (gds[getIndiceTela()].getDefaultConfiguration().getBounds().height *1/2) - y);
+	    	   
+	    		dialog2.show();
+
+	        } else if( getIndiceTela() == 0) {
+	        	JOptionPane pane2 = new JOptionPane(mensagem);
+	    		JDialog dialog2 = pane2.createDialog(pai, "Informação");
+	    		
+	    		dialog2.getContentPane().setLayout(new MigLayout("", "[]", "[]"));
+	    		dialog2.setModal(true);
+	    		dialog2.setLocationRelativeTo(null);
+	    		dialog2.show();
+
+	        } 
+
+
+	}
+	
+	public int getIndiceTela() {
+		
+		 
+		GraphicsConfiguration config = isto.getGraphicsConfiguration();
+		
+		GraphicsDevice myScreen = config.getDevice();
+		
+
+		GraphicsEnvironment env = GraphicsEnvironment.getLocalGraphicsEnvironment();
+	
+
+		GraphicsDevice[] allScreens = env.getScreenDevices();
+		int myScreenIndex = -1;
+		for (int i = 0; i < allScreens.length; i++) {
+		    if (allScreens[i].equals(myScreen))
+		    {
+		        myScreenIndex = i;
+		        break;
+		    }
+		}
+		
+		return myScreenIndex;
+	}
 }

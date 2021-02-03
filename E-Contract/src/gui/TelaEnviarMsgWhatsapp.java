@@ -92,7 +92,7 @@ public class TelaEnviarMsgWhatsapp extends JDialog {
 	}
 
 
-	public TelaEnviarMsgWhatsapp(CadastroContrato contrato) {
+	public TelaEnviarMsgWhatsapp(CadastroContrato contrato, JFrame janela_pai) {
 		//setAlwaysOnTop(true);
 
 		setModal(true);
@@ -427,7 +427,7 @@ public class TelaEnviarMsgWhatsapp extends JDialog {
 			            + login.getSobrenome() + "\nE-mail: " + login.getEmail() + "\n\n LD Armazens Gerais!";
 			set_msg_notificacao();
 
-		this.setLocationRelativeTo(null);
+		this.setLocationRelativeTo(janela_pai);
 		this.setUndecorated(true);
 
 		this.setVisible(true);

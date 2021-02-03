@@ -58,6 +58,7 @@ import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import javax.swing.JLabel;
 import java.awt.Font;
+import java.awt.Window;
 
 public class TelaContratos extends JDialog {
 
@@ -84,9 +85,10 @@ public class TelaContratos extends JDialog {
 	private int id_contrato_pai_para_replica_global = 0;
 
 	private int flag_retorno_global;
+	private JTextField entTransgenia;
 
-	public TelaContratos(int flag_retorno) {
-		setModal(true);
+	public TelaContratos(int flag_retorno, Window janela_pai) {
+		//setModal(true);
 		// setAlwaysOnTop(true);
 
 		isto = this;
@@ -309,7 +311,7 @@ public class TelaContratos extends JDialog {
 				filtrar();
 			}
 		});
-		btnFiltrar.setBounds(737, 137, 89, 23);
+		btnFiltrar.setBounds(950, 137, 89, 23);
 		painelPrincipal.add(btnFiltrar);
 
 		JButton btnLimparFiltros = new JButton("Limpar");
@@ -319,7 +321,7 @@ public class TelaContratos extends JDialog {
 
 			}
 		});
-		btnLimparFiltros.setBounds(638, 136, 89, 23);
+		btnLimparFiltros.setBounds(851, 136, 89, 23);
 		painelPrincipal.add(btnLimparFiltros);
 
 		JLabel lblCdigo = new JLabel("Código:");
@@ -357,6 +359,16 @@ public class TelaContratos extends JDialog {
 		});
 		btnRefazerPesquisa.setBounds(894, 60, 126, 28);
 		painelPrincipal.add(btnRefazerPesquisa);
+		
+		JLabel lblTransgnese = new JLabel("Transgênese:");
+		lblTransgnese.setFont(new Font("Tahoma", Font.PLAIN, 14));
+		lblTransgnese.setBounds(570, 143, 82, 17);
+		painelPrincipal.add(lblTransgnese);
+		
+		entTransgenia = new JTextField();
+		entTransgenia.setColumns(10);
+		entTransgenia.setBounds(662, 136, 164, 33);
+		painelPrincipal.add(entTransgenia);
 
 		if (flag_retorno == 1 || flag_retorno == 2 || flag_retorno == 3 || flag_retorno == 4) {
 			// selecionar contrato para carregamento
@@ -367,7 +379,7 @@ public class TelaContratos extends JDialog {
 			btnSelecionar.setEnabled(false);
 			btnSelecionar.setVisible(false);
 		}
-		this.setLocationRelativeTo(null);
+		this.setLocationRelativeTo(janela_pai);
 
 	}
 
@@ -461,6 +473,7 @@ public class TelaContratos extends JDialog {
 		String codigo = entCodigo.getText().toUpperCase();
 		String safra = entSafra.getText().toUpperCase();
 		String status = entStatus.getText().toUpperCase();
+		String transgenese = entTransgenia.getText().toUpperCase();
 
 		if (checkString(codigo))
 			filters.add(RowFilter.regexFilter(codigo, 1));
@@ -476,6 +489,10 @@ public class TelaContratos extends JDialog {
 
 		if (checkString(produto))
 			filters.add(RowFilter.regexFilter(produto, 7));
+
+		if (checkString(transgenese))
+			filters.add(RowFilter.regexFilter(transgenese, 8));
+		
 
 		if (checkString(safra))
 			filters.add(RowFilter.regexFilter(safra, 8));
@@ -498,14 +515,15 @@ public class TelaContratos extends JDialog {
 		private final int quantidade = 5;
 		private final int medida = 6;
 		private final int produto = 7;
-		private final int safra = 8;
-		private final int valor_produto = 9;
-		private final int valor_total = 10;
-		private final int corretores = 11;
-		private final int data_contrato = 12;
+		private final int transgenia = 8;
+		private final int safra = 9;
+		private final int valor_produto = 10;
+		private final int valor_total = 11;
+		private final int corretores = 12;
+		private final int data_contrato = 13;
 
 		private final String colunas[] = { "ID", "Código", "Compradores:", "Vendedores:", "Status:", "Quantidade:",
-				"Medida:", "Produto:", "Safra:", "Valor Produto:", "Valor Total:", "Corretores:", "Data Contrato" };
+				"Medida:", "Produto:", "Transgênese", "Safra:", "Valor Produto:", "Valor Total:", "Corretores:", "Data Contrato" };
 		private final ArrayList<CadastroContrato> dados = new ArrayList<>();// usamos como dados uma lista genérica de
 																			// nfs
 
@@ -544,6 +562,8 @@ public class TelaContratos extends JDialog {
 			case medida:
 				return String.class;
 			case produto:
+				return String.class;
+			case transgenia:
 				return String.class;
 			case safra:
 				return String.class;
@@ -610,6 +630,9 @@ public class TelaContratos extends JDialog {
 				return contrato.getMedida();
 			case produto:
 				return contrato.getProduto().toUpperCase();
+			case transgenia:{
+				return contrato.getModelo_safra().getProduto().getTransgenia().toUpperCase();
+			}
 			case safra:
 				return contrato.getModelo_safra().getAno_plantio() + "/" + contrato.getModelo_safra().getAno_colheita();
 			case valor_produto: {

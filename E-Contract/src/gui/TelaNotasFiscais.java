@@ -106,7 +106,7 @@ public class TelaNotasFiscais extends JDialog {
 	private JLabel lblNewLabel_2;
 	private JLabel lblNewLabel_4;
 
-	public TelaNotasFiscais(int flag,CadastroCliente vendedor) {
+	public TelaNotasFiscais(int flag,CadastroCliente vendedor, Window janela_pai) {
 		setIconImage(Toolkit.getDefaultToolkit().getImage(TelaNotasFiscais.class.getResource("/imagens/icone_notas_fiscais.png")));
 		//setAlwaysOnTop(true);
 
@@ -360,7 +360,7 @@ public class TelaNotasFiscais extends JDialog {
 			}
 		}.start();
 
-		this.setLocationRelativeTo(null);
+		this.setLocationRelativeTo(janela_pai);
 
 	}
 

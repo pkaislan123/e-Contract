@@ -154,7 +154,7 @@ public class TelaCadastroGrupo extends JDialog {
 		JButton btnAdicionarIntegrante = new JButton("+Integrante");
 		btnAdicionarIntegrante.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				TelaCliente tela = new TelaCliente(0,10);
+				TelaCliente tela = new TelaCliente(0,10, null);
 				tela.setTelaPai(isto);
 				tela.setVisible(true);
 			}

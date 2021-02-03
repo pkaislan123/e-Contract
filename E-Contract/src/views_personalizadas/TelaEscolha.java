@@ -69,7 +69,7 @@ public class TelaEscolha extends JDialog {
 		lblNewLabel.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent arg0) {
-				TelaEnviarMsgWhatsapp enviar = new TelaEnviarMsgWhatsapp(contrato);
+				TelaEnviarMsgWhatsapp enviar = new TelaEnviarMsgWhatsapp(contrato,null);
                 isto.dispose();
 			}
 		});
@@ -82,7 +82,7 @@ public class TelaEscolha extends JDialog {
 		lblNewLabel_1.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent e) {
-				TelaEnviarMsgMail tela = new TelaEnviarMsgMail(flag, contrato, documento);
+				TelaEnviarMsgMail tela = new TelaEnviarMsgMail(flag, contrato, documento,null);
 				tela.setVisible(true);
 				isto.dispose();
 			}

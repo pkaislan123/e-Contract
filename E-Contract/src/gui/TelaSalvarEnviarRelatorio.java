@@ -101,7 +101,7 @@ public class TelaSalvarEnviarRelatorio extends JDialog {
 		JButton btnNewButton_1 = new JButton("Enviar via E-mail");
 		btnNewButton_1.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				TelaEnviarMsgMail tela = new TelaEnviarMsgMail(flag, contrato,new File(file));
+				TelaEnviarMsgMail tela = new TelaEnviarMsgMail(flag, contrato,new File(file), null);
 				tela.setVisible(true);
 				isto.dispose();
 			}

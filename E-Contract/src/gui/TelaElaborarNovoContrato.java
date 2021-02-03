@@ -1179,7 +1179,7 @@ public class TelaElaborarNovoContrato extends JDialog {
 			@Override
 			public void keyPressed(KeyEvent e) {
 				if (e.getKeyCode() == KeyEvent.VK_ENTER) {
-					TelaCliente clientes = new TelaCliente(0, 2);
+					TelaCliente clientes = new TelaCliente(0, 2,null);
 					clientes.setTelaPai(isto);
 					clientes.setVisible(true);
 				}
@@ -1242,7 +1242,7 @@ public class TelaElaborarNovoContrato extends JDialog {
 			@Override
 			public void keyPressed(KeyEvent e) {
 				if (e.getKeyCode() == KeyEvent.VK_ENTER) {
-					TelaCliente clientes = new TelaCliente(0, 1);
+					TelaCliente clientes = new TelaCliente(0, 1,null);
 					clientes.setTelaPai(isto);
 					clientes.setVisible(true);
 				}
@@ -1268,7 +1268,7 @@ public class TelaElaborarNovoContrato extends JDialog {
 			@Override
 			public void keyPressed(KeyEvent e) {
 				if (e.getKeyCode() == KeyEvent.VK_ENTER) {
-					TelaCliente clientes = new TelaCliente(0, 4);
+					TelaCliente clientes = new TelaCliente(0, 4,null);
 					clientes.setTelaPai(isto);
 					clientes.setVisible(true);
 				}
@@ -1309,7 +1309,7 @@ public class TelaElaborarNovoContrato extends JDialog {
 			@Override
 			public void keyPressed(KeyEvent arg0) {
 				if (arg0.getKeyCode() == KeyEvent.VK_ENTER) {
-					TelaCliente clientes = new TelaCliente(0, 3);
+					TelaCliente clientes = new TelaCliente(0, 3,null);
 					clientes.setTelaPai(isto);
 					clientes.setVisible(true);
 				}
@@ -1344,7 +1344,7 @@ public class TelaElaborarNovoContrato extends JDialog {
 		JButton btnPesquisarVendedor2 = new JButton("Pesquisar Vendedor");
 		btnPesquisarVendedor2.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
-				TelaCliente clientes = new TelaCliente(0, 3);
+				TelaCliente clientes = new TelaCliente(0, 3,null);
 				clientes.setTelaPai(isto);
 				clientes.setVisible(true);
 
@@ -1356,7 +1356,7 @@ public class TelaElaborarNovoContrato extends JDialog {
 		btnPesquisarCorretor = new JButton("Pesquisar Corretor");
 		btnPesquisarCorretor.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				TelaCliente clientes = new TelaCliente(0, 4);
+				TelaCliente clientes = new TelaCliente(0, 4,null);
 				clientes.setTelaPai(isto);
 				clientes.setVisible(true);
 
@@ -1528,14 +1528,14 @@ public class TelaElaborarNovoContrato extends JDialog {
 
 		btnPesquisarVendedor1.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
-				TelaCliente clientes = new TelaCliente(0, 2);
+				TelaCliente clientes = new TelaCliente(0, 2,null);
 				clientes.setTelaPai(isto);
 				clientes.setVisible(true);
 			}
 		});
 		btnPesquisarComprador.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				TelaCliente clientes = new TelaCliente(0, 1);
+				TelaCliente clientes = new TelaCliente(0, 1,null);
 				clientes.setTelaPai(isto);
 				clientes.setVisible(true);
 			}
@@ -1788,7 +1788,7 @@ public class TelaElaborarNovoContrato extends JDialog {
 		JButton btnPesquisarCB = new JButton("Pesquisar");
 		btnPesquisarCB.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
-				TelaContaBancaria tela = new TelaContaBancaria(isto);
+				TelaContaBancaria tela = new TelaContaBancaria(isto,null);
 			}
 		});
 		btnPesquisarCB.setBounds(393, 351, 89, 23);

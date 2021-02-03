@@ -56,7 +56,7 @@ public class TelaReplicarCarregamento extends JDialog {
 	private JDialog telaPai;
 	private JComboBox cBSubContratoSelecionado;
 	private TelaReplicarCarregamento isto;
-
+	   private JFrame telaPaiJFrame;
 	DefaultTableModel modelo = new DefaultTableModel() {
 		public boolean isCellEditable(int linha, int coluna) {
 			return false;
@@ -111,7 +111,7 @@ public class TelaReplicarCarregamento extends JDialog {
 		JButton btnNewButton_1 = new JButton("Selecionar");
 		btnNewButton_1.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				TelaContratos tela = new TelaContratos(3);
+				TelaContratos tela = new TelaContratos(3, isto);
 
 				tela.setTelaPai(isto);
 				tela.pesquisar_sub_contratos(contrato_pai_local.getId());
@@ -151,7 +151,7 @@ public class TelaReplicarCarregamento extends JDialog {
 		GerenciarBancoContratos gerenciar = new GerenciarBancoContratos();
 		String url = carregamento_local.getCaminho_nota_fiscal();
 
-		if (telaPai instanceof TelaGerenciarContrato) {
+		if (telaPaiJFrame instanceof TelaGerenciarContrato) {
 			String sub_url = url.substring(0, url.length() - 1);
 			String conteudo[] = sub_url.split("\\\\");
 			String url_final = "";
@@ -209,5 +209,9 @@ public class TelaReplicarCarregamento extends JDialog {
 
 		isto.dispose();
 
+	}
+	
+	public void setTelaPai(JFrame tela_pai) {
+		this.telaPaiJFrame = tela_pai;
 	}
 }

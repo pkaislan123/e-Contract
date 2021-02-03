@@ -1447,6 +1447,8 @@ public class GerenciarBancoContratos {
 				contrato.setNomes_vendedores(rs.getString("vendedores"));
 				contrato.setNomes_corretores(rs.getString("corretores"));
 
+				produto.setTransgenia(rs.getString("transgenia"));
+				
 				safra.setProduto(produto);
 				contrato.setModelo_safra(safra);
 				lsitaContratos.add(contrato);

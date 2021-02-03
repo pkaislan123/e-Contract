@@ -134,6 +134,13 @@ public class ManipularArquivoTerceiros {
 		contrato_local.setSub_contrato(3);
 		
 
+		String armazenagem = tratamentoDados.tratar("Armazenagem: ", "Frete").replace(" ", "");
+		JOptionPane.showMessageDialog(null, "Armazenagem por conta do: " + armazenagem);
+		contrato_local.setArmazenagem(armazenagem);
+		
+		String frete = tratamentoDados.tratar("Frete ", "CIF").replace("(", "").replaceAll(" ", "");
+		JOptionPane.showMessageDialog(null, "Frete por conta do: " + frete);
+		contrato_local.setFrete(frete);
 
 		CadastroCliente comprador_contrato = new CadastroCliente();
 		String cnpj_comprador = tratamentoDados.tratar(" CNPJ: ", " ");
@@ -426,11 +433,8 @@ public class ManipularArquivoTerceiros {
 		//seta o valor total no contrato
 		contrato_local.setValor_a_pagar(new BigDecimal(Double.toString(valor_total)));
 		
-		//armazenagem
-		String armazenagem = tratamentoDados.tratar("Armazenagem: ", " ");
+	
 		
-		//frete
-		String frete = tratamentoDados.tratar("Frete ", "CIF").replace("(", "");
 		//local retirada
 		String local_retirada =  tratamentoDados.tratar("Local de Retirada: ", "Prazo").replaceFirst(",", ""); 
 		//prazo final da entrada
@@ -1143,6 +1147,8 @@ public class ManipularArquivoTerceiros {
 		contrato_local.setCodigo(codigo_contrato);
 		contrato_local.setSub_contrato(3);
 		
+        contrato_local.setFrete("Não Especificado");
+        contrato_local.setArmazenagem("Não Especificado");
 
 
 		CadastroCliente comprador_contrato = new CadastroCliente();
@@ -2141,7 +2147,7 @@ public class ManipularArquivoTerceiros {
 		contrato_local.setCodigo(codigo_contrato);
 		contrato_local.setSub_contrato(3);
 		
-
+         
 
 		CadastroCliente comprador_contrato = new CadastroCliente();
 		int linha_cnpj = - 1;
@@ -2465,7 +2471,15 @@ public class ManipularArquivoTerceiros {
 				
 		}
 		
+		//frete e armazenagem
+		String armazenagem = tratamentoDados.tratar("armazenagem por conta e risco do ", " até"); 
+		JOptionPane.showMessageDialog(null, "Armazenagem por conta do: " + armazenagem);
+		 contrato_local.setArmazenagem(armazenagem);
 		
+		 String frete = tratamentoDados.tratar("FRETE ATÉ LOCAL DE ENTREGA POR CONTA DO: ", "DESPESA").replaceAll(" ", ""); 
+			JOptionPane.showMessageDialog(null, "frete por conta do: " + frete);
+			 contrato_local.setFrete(frete);
+			 
 		//quantidade do produto
 		String quantidade = tratamentoDados.tratar("QUANTIDADE EM KGS: ", " ");
 		quantidade = quantidade.trim();
@@ -3245,6 +3259,8 @@ public class ManipularArquivoTerceiros {
 		contrato_local.setCodigo(codigo_contrato);
 		contrato_local.setSub_contrato(3);
 		
+		contrato_local.setFrete("Não Especificado");
+		contrato_local.setArmazenagem("Não Especificado");
 
 
 		CadastroCliente comprador_contrato = new CadastroCliente();
