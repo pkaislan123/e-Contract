@@ -47,5 +47,8 @@
 	<classpathentry kind="con" path="GROOVY_DSL_SUPPORT"/>
 	<classpathentry kind="con" path="GROOVY_SUPPORT"/>
 	<classpathentry kind="lib" path="dependencias/KGradientPanel.jar"/>
+	<classpathentry kind="lib" path="dependencias/jcalendar.jar"/>
+	<classpathentry kind="lib" path="dependencias/jwizard.jar"/>
+	<classpathentry kind="lib" path="dependencias/tablelayout.jar"/>
 	<classpathentry kind="output" path="target/classes"/>
 </classpath>

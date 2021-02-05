@@ -110,7 +110,7 @@ public class TelaNotasFiscais extends JDialog {
 		setIconImage(Toolkit.getDefaultToolkit().getImage(TelaNotasFiscais.class.getResource("/imagens/icone_notas_fiscais.png")));
 		//setAlwaysOnTop(true);
 
-		setModal(true);
+		//setModal(true);
 		cliente_global= vendedor;
 		isto = this;
 		getDadosGlobais();

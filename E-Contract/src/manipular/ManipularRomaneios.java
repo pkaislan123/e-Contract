@@ -124,7 +124,8 @@ public class ManipularRomaneios {
 		CadastroRomaneio romaneio = null ;
 
 		 System.out.println("caminho do arquivo: " + file.getAbsolutePath());
-
+	
+		 if(file.getAbsolutePath().toUpperCase().contains("ROMANEIOS")) {
 		try (PDDocument document = PDDocument.load(file)) {
 
 			if (!document.isEncrypted()) {
@@ -138,8 +139,22 @@ public class ManipularRomaneios {
 
 				String lines[] = pdfFileInText.split("\r\n");
 				
+				boolean e_romaneio = false;
 
+				   String tratar = Arrays.toString(lines);
+					TratarDados tratamentoDados = new TratarDados(tratar);
+				 String busca_numero_romaneio =  tratamentoDados.tratar(" , Romaneio", "Produto");
+				   
+				 try {
+				 int numero_romaneio = Integer.parseInt(busca_numero_romaneio);
+				 e_romaneio = true;
+				 }catch(Exception n) {
+					 e_romaneio = false;
+				 }
+				    
+               
 				
+                if(e_romaneio)
                 romaneio = tratar_romaneio(lines, file);
 				
 
@@ -150,6 +165,10 @@ public class ManipularRomaneios {
 			 //	JOptionPane.showMessageDialog(null, "Erro ao ler romaneio\nErro:  " + e1.getMessage() + "\nConsulte o Administrador");
 			return null;
 		}
+		 }else {
+			 return null;
+		 }
+		 
 	}
 	
 	

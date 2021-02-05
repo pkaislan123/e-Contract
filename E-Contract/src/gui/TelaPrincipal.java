@@ -59,6 +59,7 @@ import cadastros.CadastroCliente;
 import cadastros.CadastroContrato;
 import cadastros.CadastroLogin;
 import cadastros.CadastroModelo;
+import cadastros.CadastroNota;
 import cadastros.CadastroProduto;
 import cadastros.CadastroRomaneio;
 import cadastros.CadastroSafra;
@@ -74,6 +75,7 @@ import classesExtras.RenderizadorChat;
 import conexaoBanco.GerenciarBancoClientes;
 import conexaoBanco.GerenciarBancoContratos;
 import conexaoBanco.GerenciarBancoLogin;
+import conexaoBanco.GerenciarBancoNotas;
 import conexaoBanco.GerenciarBancoPadrao;
 import conexaoBanco.GerenciarBancoSafras;
 import conexoes.TesteConexao;
@@ -160,10 +162,7 @@ public class TelaPrincipal extends JFrame implements GetDadosGlobais {
 	private GerenciarBancoPadrao gerenciarBancoPadrao;
 
 	DefaultTableModel modelo_usuarios = new DefaultTableModel() {
-		public boolean isCellEditable(int linha, int coluna) {
-			return false;
-		}
-	};
+		public boolean isCellEditable(int linha,int coluna){return false;}};
 
 	private ChartPanel chartPanel;
 	private TelaChat telaChat;
@@ -266,7 +265,7 @@ public class TelaPrincipal extends JFrame implements GetDadosGlobais {
 		mntmClientes.setFont(new Font("Segoe UI", Font.PLAIN, 16));
 		mntmClientes.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
-				TelaCliente clientes = new TelaCliente(1, 0, null);
+				TelaCliente clientes = new TelaCliente(1, 0, isto);
 				clientes.setVisible(true);
 			}
 		});
@@ -395,6 +394,48 @@ public class TelaPrincipal extends JFrame implements GetDadosGlobais {
 			}
 		});
 		mnPlanilhasDeControle.add(mntmAPartirDe_1);
+		
+		JMenuItem mntmNewMenuItem_2 = new JMenuItem("Monitoria");
+		mntmNewMenuItem_2.setMargin(new Insets(0, 10, 2, 0));
+		mntmNewMenuItem_2.setIcon(new ImageIcon(TelaPrincipal.class.getResource("/imagens/aplicativo-de-monitoria.png")));
+		mntmNewMenuItem_2.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				TelaMonitoria monitor = new TelaMonitoria();
+				monitor.setVisible(true);
+				monitor.vigilante_todos_os_romaneios();
+				
+			}
+		});
+		mnFerramentas.add(mntmNewMenuItem_2);
+		
+		JMenuItem mntmNewMenuItem_3 = new JMenuItem("Anotações");
+		mntmNewMenuItem_3.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				TelaNotas notas ;
+			
+				if (TelaNotas.instance == null){
+					TelaNotas.instance = new TelaNotas(isto);  
+					TelaNotas.instance.setVisible(true);  
+					}else{
+						TelaNotas.instance.setVisible(true);  
+					}
+					
+			}
+		
+		});
+		mntmNewMenuItem_3.setMargin(new Insets(0, 10, 0, 0));
+		mntmNewMenuItem_3.setIcon(new ImageIcon(TelaPrincipal.class.getResource("/imagens/icone_menu_notas.png")));
+		mnFerramentas.add(mntmNewMenuItem_3);
+		
+		JMenuItem mntmNewMenuItem_4 = new JMenuItem("Calendário");
+		mntmNewMenuItem_4.setIcon(new ImageIcon(TelaPrincipal.class.getResource("/imagens/icone_menu_calendario.png")));
+		mntmNewMenuItem_4.setMargin(new Insets(0, 10, 0, 0));
+		mnFerramentas.add(mntmNewMenuItem_4);
+		
+		JMenuItem mntmNewMenuItem_5 = new JMenuItem("Tarefas");
+		mntmNewMenuItem_5.setIcon(new ImageIcon(TelaPrincipal.class.getResource("/imagens/icone_menu_tarefas.png")));
+		mntmNewMenuItem_5.setMargin(new Insets(0, 10, 0, 0));
+		mnFerramentas.add(mntmNewMenuItem_5);
 
 		JMenu mnNewMenu = new JMenu("Configurações");
 		mnNewMenu.setIcon(new ImageIcon(TelaPrincipal.class.getResource("/imagens/preferencias.png")));
@@ -799,7 +840,18 @@ public class TelaPrincipal extends JFrame implements GetDadosGlobais {
 		}
 
 		vigiarRomaneios();
-
+		
+		new Thread() {
+			@Override
+			public void run() {
+				TelaPost post = new TelaPost();
+				
+				post.setVisible(true);  
+				post.procurarNotas();
+					
+			}
+		}.start();
+		
 		this.setLocationRelativeTo(null);
 		this.setExtendedState(JFrame.MAXIMIZED_BOTH);
 
@@ -1834,5 +1886,8 @@ public class TelaPrincipal extends JFrame implements GetDadosGlobais {
 
 		}.start();
 	}
-
+	
+	
+	
+	
 }

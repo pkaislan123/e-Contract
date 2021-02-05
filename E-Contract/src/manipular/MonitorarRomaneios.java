@@ -2,6 +2,7 @@ package manipular;
 
 import java.io.File;
 import java.util.ArrayList;
+import javax.swing.JOptionPane;
 
 import cadastros.CadastroCliente;
 import cadastros.CadastroLogin;
@@ -26,7 +27,7 @@ public class MonitorarRomaneios {
 		
                  try {
 						String unidade_base_dados = configs_globais.getServidorUnidade();
-						String sub_pasta = "E-Contract\\arquivos\\romaneios";
+						String sub_pasta = "E-Contract\\arquivos\\clientes";
 						String pasta_final = unidade_base_dados + "\\" + sub_pasta;
 
 						ManipularRomaneios manipular = new ManipularRomaneios(pasta_final);
@@ -35,7 +36,7 @@ public class MonitorarRomaneios {
 					  return romaneios;
 
 					} catch (Exception e) {
-						// JOptionPane.showMessageDialog(null, "Erro ao ler romaneios");
+						 JOptionPane.showMessageDialog(null, "Erro ao ler romaneios");
                        return null;
 					}
 					

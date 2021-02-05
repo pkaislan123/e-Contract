@@ -104,11 +104,11 @@ public class TelaRomaneios extends JDialog {
 	private JLabel lblNewLabel_4;
 	private JButton btnImportar;
 
-	public TelaRomaneios(int flag,CadastroCliente vendedor) {
+	public TelaRomaneios(int flag,CadastroCliente vendedor, Window janela_pai) {
 		setIconImage(Toolkit.getDefaultToolkit().getImage(TelaRomaneios.class.getResource("/imagens/icone_notas_fiscais.png")));
 		//setAlwaysOnTop(true);
 
-		setModal(true);
+		//setModal(true);
 		cliente_global= vendedor;
 		isto = this;
 		getDadosGlobais();
@@ -305,7 +305,7 @@ public class TelaRomaneios extends JDialog {
 			}
 		}.start();
 
-		this.setLocationRelativeTo(null);
+		this.setLocationRelativeTo(janela_pai);
 
 	}
 

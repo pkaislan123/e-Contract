@@ -41,6 +41,7 @@ import javax.swing.border.LineBorder;
 import cadastros.CadastroCliente;
 import cadastros.CadastroContrato;
 import javax.swing.border.MatteBorder;
+import javax.swing.ImageIcon;
 
 public class TelaParaTeste extends JDialog implements ComponentListener{
 
@@ -64,11 +65,40 @@ public class TelaParaTeste extends JDialog implements ComponentListener{
 		isto = this;
 		setBackground(new Color(255, 255, 255));
 		setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-		setBounds(0, 0, 510, 319);
+		setBounds(0, 0, 510, 505);
 		painelPrincipal.setBackground(new Color(255, 255, 255));
 		painelPrincipal.setBorder(new EmptyBorder(5, 5, 5, 5));
 		setContentPane(painelPrincipal);
 		painelPrincipal.setLayout(null);
+		
+		JPanel panel_1 = new JPanel();
+		panel_1.setBorder(new LineBorder(new Color(0, 0, 0), 2, true));
+		panel_1.setBounds(0, 0, 301, 357);
+		painelPrincipal.add(panel_1);
+		panel_1.setLayout(null);
+		
+		JPanel panel = new JPanel();
+		panel.setBackground(Color.WHITE);
+		panel.setBounds(9, 9, 283, 93);
+		panel_1.add(panel);
+		panel.setLayout(null);
+		
+		JLabel lblNewLabel = new JLabel("Nome da Anotação");
+		lblNewLabel.setBounds(7, 20, 150, 22);
+		lblNewLabel.setForeground(new Color(0, 0, 128));
+		lblNewLabel.setFont(new Font("Tahoma", Font.PLAIN, 18));
+		panel.add(lblNewLabel);
+		
+		JLabel lblNewLabel_1 = new JLabel("");
+		lblNewLabel_1.setBounds(195, 20, 48, 48);
+		lblNewLabel_1.setIcon(new ImageIcon(TelaParaTeste.class.getResource("/imagens/icone_ferramentas_48.png")));
+		panel.add(lblNewLabel_1);
+		
+		JLabel lblDescrioDaAnotao = new JLabel("Descrição da Anotação");
+		lblDescrioDaAnotao.setBounds(7, 59, 178, 22);
+		lblDescrioDaAnotao.setForeground(new Color(0, 153, 51));
+		lblDescrioDaAnotao.setFont(new Font("Tahoma", Font.PLAIN, 18));
+		panel.add(lblDescrioDaAnotao);
 		isto.addComponentListener(this);
 
 	

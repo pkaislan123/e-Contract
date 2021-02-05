@@ -46,6 +46,7 @@ import javax.swing.JTree;
 import javax.swing.BoxLayout;
 import java.awt.GridLayout;
 import java.awt.SystemColor;
+import java.awt.Window;
 import java.awt.GridBagLayout;
 import java.awt.GridBagConstraints;
 import com.jgoodies.forms.layout.FormLayout;
@@ -116,8 +117,8 @@ public class TelaGerenciarCliente extends JDialog {
     private  JLabel lblTotalContratosConcluidosComprador, lblTotalContratosComprador, lblTotalContratosAbertosComprador;
 
     private JLabel lblTotalContratosConcluidosVendedor, lblTotalContratosVendedor, lblTotalContratosAbertosVendedor, lblNivel;
-	public TelaGerenciarCliente(CadastroCliente cliente_selecionado) {
-		setModal(true);
+	public TelaGerenciarCliente(CadastroCliente cliente_selecionado, Window janela_pai) {
+		//setModal(true);
 		
 		
 		getDadosGlobais();
@@ -150,7 +151,7 @@ public class TelaGerenciarCliente extends JDialog {
 		JButton btnNewButton_2 = new JButton("Romaneios\r\n");
 		btnNewButton_2.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				TelaRomaneios romaneios = new TelaRomaneios(1, cliente_local);
+				TelaRomaneios romaneios = new TelaRomaneios(1, cliente_local, isto);
 				romaneios.setVisible(true);
 			}
 		});
@@ -839,16 +840,16 @@ public class TelaGerenciarCliente extends JDialog {
 		 });
 		
 
-		/*
+		
 		   setInformacoesDocumentos();
 	     setInfo();
 	     setInfoContratosComoVendedor();
 	     setInfoContratosComoComprador();
 
 	     setInfoPontuacao();
-	     */
+	     
 	  
-		this.setLocationRelativeTo(null);
+		this.setLocationRelativeTo(janela_pai);
 
 		
 		

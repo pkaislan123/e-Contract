@@ -122,7 +122,7 @@ public class TelaCliente extends JDialog {
 		//flag_tipo_cliente == 2 //retorna vendedor
 		//setAlwaysOnTop(true);
 
-	setModal(true);
+	//setModal(true);
 
 		 isto = this;
 		setTitle("E-Contract - Clientes");
@@ -316,7 +316,7 @@ public class TelaCliente extends JDialog {
 			
 				int rowSel = tabela.getSelectedRow();//pega o indice da linha na tabela
 				int indexRowModel = tabela.getRowSorter().convertRowIndexToModel(rowSel);//converte pro indice do model
-				TelaGerenciarCliente telagerenciar  = new TelaGerenciarCliente(clientes_disponiveis.get(indexRowModel));
+				TelaGerenciarCliente telagerenciar  = new TelaGerenciarCliente(clientes_disponiveis.get(indexRowModel), isto);
 				telagerenciar.setVisible(true);
 				//TelaCadastroCliente telaEdicao = new TelaCadastroCliente(0, clientes_disponiveis.get(indiceDaLinha));
 				//editarCliente(indiceDaLinha);
