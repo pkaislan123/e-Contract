@@ -33,6 +33,7 @@ import cadastros.CadastroLogin;
 import conexaoBanco.GerenciarBancoLogin;
 import manipular.GetDadosGlobais;
 import outros.DadosGlobais;
+import outros.GetData;
 import outros.JButtonPersonalizado;
 import outros.JPanelBackground;
 import outros.JPanelTransparent;
@@ -46,6 +47,7 @@ import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import javax.swing.JTextArea;
+import java.awt.Toolkit;
 
 public class TelaLogin extends JFrame implements GetDadosGlobais {
 
@@ -61,6 +63,7 @@ public class TelaLogin extends JFrame implements GetDadosGlobais {
 	private JLabel lblNewLabel_1;
 
 	public TelaLogin() {
+		setIconImage(Toolkit.getDefaultToolkit().getImage(TelaLogin.class.getResource("/imagens/logo_icone4.png")));
 
 		getDadosGlobais();
 
@@ -233,7 +236,7 @@ public class TelaLogin extends JFrame implements GetDadosGlobais {
 		lblEsconder.setVisible(false);
 		panel.add(lblEsconder);
 
-		JLabel lblNewLabel = new JLabel("*Copyright Todos os Direitos Reservados E-Contract Titaniwm 2020 ");
+		JLabel lblNewLabel = new JLabel("*Copyright Todos os Direitos Reservados E-Contract Titaniwm " + new GetData().getAnoAtual());
 		lblNewLabel.setForeground(new Color(0, 0, 128));
 		lblNewLabel.setBounds(329, 522, 451, 14);
 		contentPane.add(lblNewLabel);
@@ -254,7 +257,7 @@ public class TelaLogin extends JFrame implements GetDadosGlobais {
 		txtrNsDaTitaniwm.setEditable(false);
 		txtrNsDaTitaniwm.setFont(new Font("Arial", Font.BOLD, 18));
 		txtrNsDaTitaniwm.setText(
-				"Nós da Titaniwm damos total atenção a você e os dados da sua empresa!\r\n\r\nPor isso, tenha mais tempo pra você e sua      empresa e deixe seus contratos conosco.\r\n                                                                                                 \r\n                                                                                 \r\n\r\n");
+				"Nós da Titaniwm damos total atenção a você eos dados da sua empresa!\r\n\r\nPor isso, tenha mais tempo pra você e sua      empresa e deixe seus contratos conosco.\r\n                                                                                                 \r\n                                                                                 \r\n\r\n");
 		txtrNsDaTitaniwm.setForeground(Color.WHITE);
 		txtrNsDaTitaniwm.setBackground(new Color(0, 0, 0, 0));
 		txtrNsDaTitaniwm.setBorder(null);

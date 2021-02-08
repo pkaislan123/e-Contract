@@ -11,6 +11,8 @@ import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.JButton;
 import net.miginfocom.swing.MigLayout;
+import outros.TratarDados;
+
 import javax.swing.ScrollPaneConstants;
 import javax.swing.JLabel;
 import java.awt.Font;
@@ -42,6 +44,8 @@ import cadastros.CadastroCliente;
 import cadastros.CadastroContrato;
 import javax.swing.border.MatteBorder;
 import javax.swing.ImageIcon;
+import java.awt.event.ActionListener;
+import java.awt.event.ActionEvent;
 
 public class TelaParaTeste extends JDialog implements ComponentListener{
 
@@ -71,53 +75,54 @@ public class TelaParaTeste extends JDialog implements ComponentListener{
 		setContentPane(painelPrincipal);
 		painelPrincipal.setLayout(null);
 		
-		JPanel panel_1 = new JPanel();
-		panel_1.setBorder(new LineBorder(new Color(0, 0, 0), 2, true));
-		panel_1.setBounds(0, 0, 301, 357);
-		painelPrincipal.add(panel_1);
-		panel_1.setLayout(null);
+		String conteudo = "Revisão de Contrato";
+		String data_hora = "";
+	
+JPanel painel_msg = new JPanel();
+		
+		//painel mensagem destinatario a remetente
+		
+		painel_msg.setBackground(Color.WHITE);
+		painel_msg.setBounds(0, 0, 414, 80);
+		painel_msg.setLayout(new MigLayout("", "[][][][][][][][][][][][][grow]", "[grow]"));
+		
+		
+		JLabel lblNewLabel = new JLabel("teste de espaçamento");
+		lblNewLabel.setBackground(Color.BLUE);
+		lblNewLabel.setVisible(false);
+		painel_msg.add(lblNewLabel, "cell 0 0 4 1");
+		
 		
 		JPanel panel = new JPanel();
-		panel.setBackground(Color.WHITE);
-		panel.setBounds(9, 9, 283, 93);
-		panel_1.add(panel);
-		panel.setLayout(null);
+		panel.setBackground(Color.GREEN);
+		painel_msg.add(panel, "cell 4 0 9 1,grow");
+		panel.setLayout(new MigLayout("", "[grow][][][][][][][]", "[grow][]"));
 		
-		JLabel lblNewLabel = new JLabel("Nome da Anotação");
-		lblNewLabel.setBounds(7, 20, 150, 22);
-		lblNewLabel.setForeground(new Color(0, 0, 128));
-		lblNewLabel.setFont(new Font("Tahoma", Font.PLAIN, 18));
-		panel.add(lblNewLabel);
-		
-		JLabel lblNewLabel_1 = new JLabel("");
-		lblNewLabel_1.setBounds(195, 20, 48, 48);
-		lblNewLabel_1.setIcon(new ImageIcon(TelaParaTeste.class.getResource("/imagens/icone_ferramentas_48.png")));
-		panel.add(lblNewLabel_1);
-		
-		JLabel lblDescrioDaAnotao = new JLabel("Descrição da Anotação");
-		lblDescrioDaAnotao.setBounds(7, 59, 178, 22);
-		lblDescrioDaAnotao.setForeground(new Color(0, 153, 51));
-		lblDescrioDaAnotao.setFont(new Font("Tahoma", Font.PLAIN, 18));
-		panel.add(lblDescrioDaAnotao);
-		isto.addComponentListener(this);
+		JTextArea mostrar_conteudo = new JTextArea(conteudo);
+		mostrar_conteudo.setBackground(new Color(0, 0, 0, 0));
+		mostrar_conteudo.setBorder(null);
+		mostrar_conteudo.setOpaque(false);
+		mostrar_conteudo.setLineWrap(true);
+		mostrar_conteudo.setWrapStyleWord(true);
 
-	
-	    		
+
+		panel.add(mostrar_conteudo, "cell 0 0 8 1,grow");
+
+		JLabel mostrar_data_hora = new JLabel(data_hora);
+		mostrar_data_hora.setFont(new Font("Tahoma", Font.PLAIN, 12));
+		panel.add(mostrar_data_hora, "cell 7 1");
 		
-		  
-		GraphicsConfiguration gc = janelaPai.getGraphicsConfiguration();
-		Rectangle bounds = gc.getBounds();
-		  
-		  
-		Point realLocation = new Point(); // holds final location of dialog.
-		realLocation.x = (bounds.x + bounds.width / 2) - (isto.getWidth() / 2);
-		realLocation.y = (bounds.y + bounds.height / 2 )- (isto.getHeight() / 2);
-		  
-		this.setLocation(realLocation);
-
-	    		        
-	    
-
+		
+		
+			
+		JButton btnNewButton = new JButton("Clique para acessar o contrato");
+		btnNewButton.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+			}
+		});
+		painel_msg.add(btnNewButton, "cell 6 1 2 1");
+		
+		
 		
 		
 	}

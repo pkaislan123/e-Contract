@@ -4,10 +4,8 @@ import java.awt.Dimension;
 import java.awt.GraphicsDevice;
 import java.awt.GraphicsEnvironment;
 import java.awt.Toolkit;
-import javax.script.*;
 import javax.swing.JDialog;
 
-import outros.JPanelTransparent;
 import javax.swing.JPanel;
 import javax.swing.JLabel;
 import java.awt.Font;

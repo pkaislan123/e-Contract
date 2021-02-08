@@ -65,7 +65,7 @@ public class TelaCadastroGrupo extends JDialog {
      };
 
 	public TelaCadastroGrupo(int flag_modo_tela, CadastroGrupo grupo) {
-		setModal(true);
+		//setModal(true);
 
 		TelaCadastroGrupo isto = this;
 		

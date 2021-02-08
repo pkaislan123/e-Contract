@@ -151,6 +151,46 @@ public class GerenciarBancoNotas {
 
 	}
 	
+	public ArrayList<CadastroNota> getTodasNotas() {
+		String selectAdivitos = "select * from nota";
+		Connection conn = null;
+		PreparedStatement pstm = null;
+		ResultSet rs = null;
+		ArrayList<CadastroNota> lista_notas = new ArrayList<CadastroNota>();
+		try {
+			conn = ConexaoBanco.getConexao();
+			pstm = conn.prepareStatement(selectAdivitos);
+			// pstm.setString(1, chave);
+
+			rs = pstm.executeQuery();
+			while (rs.next()) {
+				CadastroNota nota = new CadastroNota();
+			
+				
+				nota.setId(rs.getInt("id_nota"));
+				nota.setNome(rs.getString("nome"));
+				nota.setDescricao(rs.getString("descricao"));
+				nota.setTexto(rs.getString("texto"));
+				nota.setData_nota(rs.getDate("data_nota"));
+				nota.setId_usuario_pai(rs.getInt("id_usuario_pai"));
+				nota.setLembrar(rs.getInt("lembrar"));
+				nota.setTipo(rs.getInt("tipo"));
+				nota.setData_lembrete(rs.getDate("data_lembrete"));
+				nota.setHora_lembrete(rs.getTime("hora_lembrete").toLocalTime());
+				nota.setNotificar(rs.getInt("notificar"));
+				nota.setUni_tempo(rs.getInt("uni_tempo"));
+				nota.setTempo_notificacao(rs.getInt("tempo_notificacao"));
+
+				lista_notas.add(nota);
+
+			}
+			ConexaoBanco.fechaConexao(conn, pstm, rs);
+		} catch (Exception e) {
+			JOptionPane.showMessageDialog(null, "Erro ao listar notas" + e.getMessage());
+		}
+		return lista_notas;
+
+	}
 	
 	public CadastroNota getnota(int id) {
 

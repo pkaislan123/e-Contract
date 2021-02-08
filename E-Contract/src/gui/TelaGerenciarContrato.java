@@ -54,7 +54,9 @@ import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
 import javax.swing.border.EmptyBorder;
 import javax.swing.table.AbstractTableModel;
+import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
+import javax.swing.table.TableCellRenderer;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
@@ -167,7 +169,7 @@ public class TelaGerenciarContrato extends JFrame {
 	private ArrayList<CadastroRomaneio> romaneios_disponivel = new ArrayList<>();
 	private JTable table_romaneios;
 	private JButton btnSelecionarNota, btnCriarDistrato;
-
+   private JTable tabela_sub_contratos;
 	private JLabel lblStatusAdicionandoNotas;
 	private int contador = 0;
 	private JFileChooser fileChooser_global;
@@ -234,7 +236,7 @@ public class TelaGerenciarContrato extends JFrame {
 	private JPopupMenu jPopupMenuDocumentos;
 	private JPopupMenu jPopupMenuTabelAditivos;
 	private JPopupMenu jPopupMenuTabelDistratos;
-
+    private JButton btnAprovar;
 	private Double peso_total_cargas_nfe = 0.0;
 	private Double peso_total_cargas = 0.0;
 	private JLabel lblPesoTotalRealCargas, lblPesoTotalNotasFiscais, lblPesoTotal, lblPesoTotalRealRestante,
@@ -314,7 +316,7 @@ public class TelaGerenciarContrato extends JFrame {
 	private ArrayList<CadastroAditivo> lista_aditivos = new ArrayList<>();
 	private ArrayList<CadastroDistrato> lista_distratos = new ArrayList<>();
 
-	public TelaGerenciarContrato(CadastroContrato contrato) {
+	public TelaGerenciarContrato(CadastroContrato contrato, Window janela_pai) {
 
 		getDadosGlobais();
 		servidor_unidade = configs_globais.getServidorUnidade();
@@ -378,10 +380,10 @@ public class TelaGerenciarContrato extends JFrame {
 				dados.setTeraGerenciarContratoPai(isto);
 				if (contrato.getSub_contrato() == 0) {
 					// e um contrato pai, abre a tela em modo de edicao
-					TelaEscolhaTipoNovoContrato tela = new TelaEscolhaTipoNovoContrato(0, contrato_local, 1);
+					TelaEscolhaTipoNovoContrato tela = new TelaEscolhaTipoNovoContrato(0, contrato_local, 1, isto);
 				} else {
 					// e um subcontrato, o tipo do contrato e 1, e entra no modo de edicao
-					TelaEscolhaTipoNovoContrato tela = new TelaEscolhaTipoNovoContrato(1, contrato_local, 1);
+					TelaEscolhaTipoNovoContrato tela = new TelaEscolhaTipoNovoContrato(1, contrato_local, 1,isto);
 
 				}
 			}
@@ -544,7 +546,7 @@ public class TelaGerenciarContrato extends JFrame {
 		JPanel panelInformativoPrincipal = new JPanel();
 		painel_informacoes_tab_principal = new PainelInformativo();
 		panelInformativoPrincipal.add(painel_informacoes_tab_principal);
-		panelInformativoPrincipal.setBounds(554, 162, 470, 350);
+		panelInformativoPrincipal.setBounds(554, 162, 470, 394);
 		painelDadosIniciais.add(panelInformativoPrincipal);
 		panelInformativoPrincipal.setLayout(null);
 
@@ -623,8 +625,19 @@ public class TelaGerenciarContrato extends JFrame {
 				tela.setVisible(true);
 			}
 		});
-		btnNewButton.setBounds(932, 472, 92, 28);
+		btnNewButton.setBounds(932, 568, 92, 28);
 		painelDadosIniciais.add(btnNewButton);
+		
+		 btnAprovar = new JButton("Aprovar");
+		 btnAprovar.setEnabled(false);
+		 btnAprovar.setVisible(false);
+		btnAprovar.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				aprovar();
+			}
+		});
+		btnAprovar.setBounds(330, 532, 90, 28);
+		painelDadosIniciais.add(btnAprovar);
 
 		modelo.addColumn("Id Pagamento");
 		modelo.addColumn("Id Conta");
@@ -1393,7 +1406,8 @@ public class TelaGerenciarContrato extends JFrame {
 		 * 
 		 * travarContrato();
 		 */
-		/*
+		
+		
 		setarInformacoesPainelPrincipal();
 		 setarInformacoesPainelCarregamentos();
 		 pesquisar_carregamentos();
@@ -1408,10 +1422,10 @@ public class TelaGerenciarContrato extends JFrame {
 		  setInformacoesAditivos();
 		  criarTabelaDistratos();
 		  setInformacoesDistratos();
-*/
-		 
+		  travarContrato();
+		  
 		this.setResizable(true);
-		this.setLocationRelativeTo(null);
+		this.setLocationRelativeTo(janela_pai);
 
 		this.setVisible(true);
 
@@ -1546,13 +1560,16 @@ public class TelaGerenciarContrato extends JFrame {
 				int status = contrato.getStatus_contrato();
 				String text_status = "";
 				if (status == 1) {
-					text_status = "Recolher Assinaturas".toUpperCase();
+					text_status = "RECOLHER ASSINATURAS".toUpperCase();
 
 				} else if (status == 2) {
 					text_status = "Assinado".toUpperCase();
 
 				} else if (status == 3) {
 					text_status = "Cumprindo".toUpperCase();
+
+				} else if(status == 0) {
+					text_status = "REQUISIÇÃO DE APROVAÇÃO".toUpperCase();
 
 				}
 
@@ -2841,6 +2858,7 @@ public class TelaGerenciarContrato extends JFrame {
 				contrato_local = gerenciar.getContrato(contrato_local.getId());
 
 				int status = contrato_local.getStatus_contrato();
+
 				if (status == 1) {
 					lblStatusContrato.setText("Status do Contrato: " + "Recolher Assinaturas");
 
@@ -2886,6 +2904,9 @@ public class TelaGerenciarContrato extends JFrame {
 
 					btnReabrir.setEnabled(false);
 					btnReabrir.setVisible(false);
+					
+					btnAprovar.setEnabled(false);
+					btnAprovar.setVisible(false);
 
 				} else if (status == 2) {
 					lblStatusContrato.setText("Status do Contrato: " + "Assinado");
@@ -2933,6 +2954,8 @@ public class TelaGerenciarContrato extends JFrame {
 						btnCriarDistrato.setEnabled(true);
 					}
 
+					btnAprovar.setEnabled(false);
+					btnAprovar.setVisible(false);
 				} else if (status == 3) {
 					lblStatusContrato.setText("Status do Contrato: " + "Cumprindo");
 					btnEditarContrato.setVisible(false);
@@ -2958,7 +2981,41 @@ public class TelaGerenciarContrato extends JFrame {
 
 					btnReabrir.setEnabled(true);
 					btnReabrir.setVisible(true);
+					
+					btnAprovar.setEnabled(false);
+					btnAprovar.setVisible(false);
 
+				}else if(status == 0) {
+					lblStatusContrato.setText("Status do Contrato: " + "Requisitar Aprovação de Contrato");
+					btnEditarContrato.setVisible(true);
+					btnEditarContrato.setEnabled(true);
+					
+					btnAprovar.setEnabled(true);
+					btnAprovar.setVisible(true);
+
+					btnExcluirContrato.setVisible(true);
+					btnExcluirContrato.setEnabled(true);
+
+					btnAssinarContrato.setEnabled(false);
+					btnAssinarContrato.setVisible(false);
+
+					btnCriarAditivo.setEnabled(false);
+					btnCriarAditivo.setVisible(false);
+					
+					btnCriarDistrato.setEnabled(false);
+					btnCriarDistrato.setVisible(false);
+
+					btnRevogarAssinatura.setEnabled(false);
+					btnRevogarAssinatura.setVisible(false);
+
+					btnConcluir.setEnabled(false);
+					btnConcluir.setVisible(false);
+
+					btnReabrir.setEnabled(false);
+					btnReabrir.setVisible(false);
+
+					btnEnviarMsg.setVisible(false);
+					btnEnviarMsg.setEnabled(false);
 				}
 
 				/*
@@ -3885,7 +3942,9 @@ public class TelaGerenciarContrato extends JFrame {
 
 	public void criarAbaSubContrato() {
 
-		JTable tabela_sub_contratos = new JTable(modelo_sub_contratos);
+		 tabela_sub_contratos = new JTable(modelo_sub_contratos);
+		 TableCellRenderer renderer = new EvenOddRenderer();
+		 tabela_sub_contratos.setDefaultRenderer(Object.class, renderer);
 		// tabela_modelo_pagamentos.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
 
 		tabela_sub_contratos.setBackground(new Color(255, 255, 255));
@@ -3945,7 +4004,7 @@ public class TelaGerenciarContrato extends JFrame {
 			public void actionPerformed(ActionEvent arg0) {
 				DadosGlobais dados = DadosGlobais.getInstance();
 				dados.setTeraGerenciarContratoPai(isto);
-				TelaEscolhaTipoNovoContrato telaNovoCadastro = new TelaEscolhaTipoNovoContrato(1, contrato_local, 0);
+				TelaEscolhaTipoNovoContrato telaNovoCadastro = new TelaEscolhaTipoNovoContrato(1, contrato_local, 0, isto);
 
 			}
 		});
@@ -3958,7 +4017,7 @@ public class TelaGerenciarContrato extends JFrame {
 
 				// abre a tela de gerenciar o contrato selecionado na lista de sub contratos
 				TelaGerenciarContrato gerenciar_contrato = new TelaGerenciarContrato(
-						lista_sub_contratos.get(indiceDaLinha));
+						lista_sub_contratos.get(indiceDaLinha), isto);
 
 			}
 		});
@@ -3992,6 +4051,36 @@ public class TelaGerenciarContrato extends JFrame {
 			}
 		});
 	}
+	
+	class EvenOddRenderer implements TableCellRenderer {
+
+		  public  final DefaultTableCellRenderer DEFAULT_RENDERER = new DefaultTableCellRenderer();
+
+		  public Component getTableCellRendererComponent(JTable table, Object value,
+		      boolean isSelected, boolean hasFocus, int row, int column) {
+		    Component renderer = DEFAULT_RENDERER.getTableCellRendererComponent(
+		        table, value, isSelected, hasFocus, row, column);
+		    ((JLabel) renderer).setOpaque(true);
+		   
+		      String dados = (String) table.getValueAt(row, 2);
+		   
+		     if(isSelected) {
+				    renderer.setBackground(Color.blue);
+
+		     }else {
+		     if(dados.equalsIgnoreCase("RECOLHER ASSINATURAS")) {
+				    renderer.setBackground(Color.white);
+
+		     }else if(dados.equalsIgnoreCase("REQUISIÇÃO DE APROVAÇÃO")){
+				    renderer.setBackground(Color.yellow);
+
+		     }
+		     }
+		    
+		  
+		    return renderer;
+		  }
+		}
 
 	public void setInformacoesArvoreContratos(JPanel painel_pai, PainelInformativoSubContratos painelInformacoes) {
 
@@ -4603,8 +4692,8 @@ public class TelaGerenciarContrato extends JFrame {
 
 	public void travarContrato() {
 		atualizarContratoLocal();
-		if (contrato_local.getStatus_contrato() == 3) {
-
+		if (contrato_local.getStatus_contrato() == 3 || contrato_local.getStatus_contrato() == 0) {
+               //contrato concluido ou em aprovacao
 			for (int i = 0; i < painelCarregamento.getComponentCount(); i++) {
 
 				Component c = painelCarregamento.getComponent(i);
@@ -4621,14 +4710,14 @@ public class TelaGerenciarContrato extends JFrame {
 
 			}
 
-			for (int i = 0; i < painelListaTarefas.getComponentCount(); i++) {
+		/*	for (int i = 0; i < painelListaTarefas.getComponentCount(); i++) {
 
 				Component c = painelListaTarefas.getComponent(i);
 				if (c instanceof JButton)
 					c.setEnabled(false);
 
 			}
-
+           */
 			for (int i = 0; i < painelComprovantes.getComponentCount(); i++) {
 
 				Component c = painelComprovantes.getComponent(i);
@@ -5948,4 +6037,61 @@ public void importarDistrato() {
 		
 		return myScreenIndex;
 	}
+	
+	
+	public void aprovar() {
+		
+		if(login.getConfigs_privilegios().getNivel_privilegios() <= 2) {
+			if (JOptionPane.showConfirmDialog(isto, 
+		            "Deseja aprovar o contrato", "Aprovar contrato", 
+		            JOptionPane.YES_NO_OPTION,
+		            JOptionPane.QUESTION_MESSAGE) == JOptionPane.YES_OPTION){
+				
+				     GerenciarBancoContratos gerenciar = new GerenciarBancoContratos();
+				     boolean atualizou = gerenciar.atualizarStatusContrato(contrato_local.getId(), 1);
+				     if(atualizou) {
+					     destravarContrato();
+							JOptionPane.showMessageDialog(isto, "Contrato aprovado");
+
+				     }else {
+							JOptionPane.showMessageDialog(isto, "Erro ao aprovar o contrato\nContrate o administrador");
+
+				     }
+				
+				
+		        }
+			else
+			{
+				
+				
+			}
+
+		}else {
+			JOptionPane.showMessageDialog(isto, "Requer Elevação de Direitos");
+		}
+		
+		
+	}
+	
+	
+	public void abrirAbaTarefasContrato() {
+		
+		if(contrato_local.getSub_contrato() == 0 || contrato_local.getSub_contrato() == 3)
+		painelPrincipal.setSelectedIndex(5);
+		else {
+			painelPrincipal.setSelectedIndex(4);
+
+		}
+	}
+	
+public void abrirAbaTarefasSubContrato(CadastroContrato sub_contrato) {
+		
+		    
+			painelPrincipal.setSelectedIndex(1);
+			TelaGerenciarContrato tela_sub_contrato = new TelaGerenciarContrato(sub_contrato, isto);
+			
+            
+		
+	}
+	
 }

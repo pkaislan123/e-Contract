@@ -1312,7 +1312,7 @@ public class RelatorioContratoComprador {
 				}
 				
 				
-				if (local.getSub_contrato() == 0) {
+				if (local.getSub_contrato() == 0 || local.getSub_contrato() == 3) {
 					quantitade_total_sacos += quantidade_sacos_sub;
 					valor_total = valor_total.add(local.getValor_a_pagar());
 				} else {

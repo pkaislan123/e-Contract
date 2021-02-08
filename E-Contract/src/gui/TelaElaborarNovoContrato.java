@@ -13,16 +13,19 @@ import javax.swing.border.EmptyBorder;
 import javax.swing.border.TitledBorder;
 import javax.swing.table.DefaultTableModel;
 
+import org.codehaus.groovy.runtime.dgmimpl.arrays.BooleanArrayGetAtMetaMethod;
 import org.springframework.util.StringUtils;
 
 import cadastros.CadastroCliente;
 import cadastros.CadastroContrato;
 import cadastros.CadastroContrato.CadastroPagamento;
 import cadastros.CadastroLogin;
+import cadastros.CadastroLogin.Mensagem;
 import cadastros.CadastroModelo;
 import cadastros.CadastroSafra;
 import conexaoBanco.GerenciarBancoClientes;
 import conexaoBanco.GerenciarBancoContratos;
+import conexaoBanco.GerenciarBancoLogin;
 import conexaoBanco.GerenciarBancoSafras;
 import gui.TelaGerenciarContrato.PainelInformativo;
 import cadastros.ContaBancaria;
@@ -99,7 +102,7 @@ public class TelaElaborarNovoContrato extends JDialog {
 	private JPanel painelDadosIniciais = new JPanel();
 
 	private JPanel painelDadosProdutos = new JPanel();
-
+	private JButton btnPesquisarComprador;
 	private JPanel painelEmpresa = new JPanel();
 	private JPanel painelFinalizar = new JPanel();
 	private JComboBox cBComprador, cBFrete, cBArmazenagem;
@@ -131,7 +134,7 @@ public class TelaElaborarNovoContrato extends JDialog {
 
 	private ComboBoxPersonalizado modelSafra = new ComboBoxPersonalizado();
 	private CBLocalRetiradaPersonalizado modelLocalRetirada = new CBLocalRetiradaPersonalizado();
-
+	private JLabel lblStatusInicial;
 	private ContaBancaria conta_atual;
 
 	private BigDecimal valor_total;
@@ -190,7 +193,7 @@ public class TelaElaborarNovoContrato extends JDialog {
 	private JLabel lblEnderecoVendedor2;
 	private JLabel lblCpfCnpjVendedor2;
 	private JLabel lblNomeVendedor2;
-	private JButton btnPesquisarCorretor;
+	private JButton btnPesquisarCorretor,  btnPesquisarVendedor1 ,btnPesquisarVendedor2;
 
 	private JLabel lblNomeCorretor, lblIECorretor, lblBairroCorretor, lblEstadoCorretor, lblCpfCnpjCorretor,
 			lblEnderecoCorretor, lblMunicipioCorretor;
@@ -243,7 +246,7 @@ public class TelaElaborarNovoContrato extends JDialog {
 
 		//setAlwaysOnTop(true);
 
-		setModal(true);
+		//setModal(true);
 
 		flag_edicao_global = flag_edicao;
 
@@ -256,11 +259,15 @@ public class TelaElaborarNovoContrato extends JDialog {
 					// é um contrato pai em modo criacao
 					setTitle("E-Contract - Novo Contrato");
 
-				} else {
+				} else if (tipoContrato == 1){
 					// é um sub contrato em modo criacao
 
 					setTitle("E-Contract - Novo Sub-Contrato para o contrato " + contrato_pai.getCodigo());
 
+				}else {
+					// é importacao manual de contrato de terceiros
+
+					setTitle("E-Contract - Importação de Contrato Manual");
 				}
 			} catch (NullPointerException nu) {
 				setTitle("E-Contract - Novo Contrato");
@@ -1250,11 +1257,11 @@ public class TelaElaborarNovoContrato extends JDialog {
 			}
 		});
 
-		JButton btnPesquisarComprador = new JButton("Pesquisar Comprador");
+		 btnPesquisarComprador = new JButton("Pesquisar Comprador");
 		btnPesquisarComprador.setBounds(396, 60, 220, 33);
 		painelDefinirPartes.add(btnPesquisarComprador);
 
-		JButton btnPesquisarVendedor1 = new JButton("Pesquisar Vendedor");
+		 btnPesquisarVendedor1 = new JButton("Pesquisar Vendedor");
 		btnPesquisarVendedor1.setBounds(398, 100, 218, 33);
 		painelDefinirPartes.add(btnPesquisarVendedor1);
 
@@ -1341,7 +1348,7 @@ public class TelaElaborarNovoContrato extends JDialog {
 			}
 
 		});
-		JButton btnPesquisarVendedor2 = new JButton("Pesquisar Vendedor");
+		 btnPesquisarVendedor2 = new JButton("Pesquisar Vendedor");
 		btnPesquisarVendedor2.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
 				TelaCliente clientes = new TelaCliente(0, 3,null);
@@ -2420,8 +2427,16 @@ public class TelaElaborarNovoContrato extends JDialog {
 							}
 							data_contrato = entDataContrato.getText();
 							novo_contrato.setData_contrato(data_contrato);
+                           
+							if(login.getConfigs_privilegios().getNivel_privilegios() <= 2) {
+								novo_contrato.setStatus_contrato(1); //aprovado
+								lblStatusInicial.setText("Status Inicial: Recolher Assinatura");
 
-							novo_contrato.setStatus_contrato(1);
+							}else {
+								novo_contrato.setStatus_contrato(0); //ir para aprovacao
+								lblStatusInicial.setText("Status Inicial: Aguardar Revisão e Aprovação");
+
+							}
 
 							novo_contrato.setCodigo(codigo);
 							if (rQuanKG.isSelected())
@@ -2574,9 +2589,17 @@ public class TelaElaborarNovoContrato extends JDialog {
 		btnTeste.setBounds(847, 561, 89, 23);
 		painelFinalizar.add(btnTeste);
 
-		JLabel lblStatusInicial = new JLabel("Status Inicial: Assinar");
+		
+		if(login.getConfigs_privilegios().getNivel_privilegios() <=2) {
+			
+			 lblStatusInicial = new JLabel("Status Inicial: Recolher Assinatura");
+
+		}else {
+			 lblStatusInicial = new JLabel("Status Inicial: Requisitar Aprovação");
+
+		}
 		lblStatusInicial.setFont(new Font("Arial Black", Font.PLAIN, 14));
-		lblStatusInicial.setBounds(40, 35, 228, 42);
+		lblStatusInicial.setBounds(40, 35, 564, 42);
 		painelFinalizar.add(lblStatusInicial);
 		chBoxClausulaComissao.setVisible(false);
 
@@ -2828,7 +2851,41 @@ public class TelaElaborarNovoContrato extends JDialog {
 					// criar tarefa se inserção de contrato
 					ArrayList<CadastroContrato.CadastroTarefa> lista_tarefas = new ArrayList<>();
 
-					lista_tarefas.add(criarTarefa(1));
+					lista_tarefas.add(criarTarefa(1, "Contrato Criado", "Criação de Novo Contrato", "Tarefa Criada para novo contrato", login, 1));
+					
+					if(novo_contrato.getStatus_contrato() == 0) {
+						//criar tarefa de aprovacao de contrato
+						//procurar executor com direitor <=2
+						ArrayList<CadastroLogin> usuarios_gerente = new ArrayList<>() ;
+						for(CadastroLogin user : new GerenciarBancoLogin().getUsuarios()) {
+							CadastroLogin user_final = new GerenciarBancoLogin().buscaLogin(user.getLogin());
+							if(user_final.getConfigs_privilegios().getNivel_privilegios() <= 2) {
+								usuarios_gerente.add(user_final);
+							}
+						}
+						
+						for(CadastroLogin user: usuarios_gerente) {
+						
+							
+						lista_tarefas.add(criarTarefa(2, "Revisão de Contrato", "Revisar Novo Contrato", "Tarefa Criada para analisar e aprovar este contrato", user, 5));
+                         //criar uma mensagem informando sobre o pedido de revisao
+						Mensagem mensagem = new Mensagem();
+						mensagem.setId_remetente(login.getId());
+						mensagem.setId_destinatario(user.getId());
+						GetData data = new GetData();
+						String agora = data.getData();
+						String hora = data.getHora();
+						mensagem.setData(agora);
+						mensagem.setHora(hora);
+						mensagem.setConteudo("Revisão de Contrato ID: " + novo_contrato.getCodigo() +" \n Um novo contrato criado aguarda sua revisão e aprovação");
+						
+						GerenciarBancoLogin gerenciar = new GerenciarBancoLogin();
+						boolean criou = gerenciar.enviarMensagem(mensagem);
+						
+						}
+						
+						
+					}
 					novo_contrato.setLista_tarefas(lista_tarefas);
 					result = gerenciarContratos.inserirContrato(novo_contrato, null);
 
@@ -2844,7 +2901,35 @@ public class TelaElaborarNovoContrato extends JDialog {
 					// criar tarefa se inserção de contrato
 					ArrayList<CadastroContrato.CadastroTarefa> lista_tarefas = new ArrayList<>();
 
-					lista_tarefas.add(criarTarefa(2));
+					lista_tarefas.add(criarTarefa(1, "Sub Contrato Criado", "Criação de Sub-Contrato", "Tarefa para sub contrato criada", login, 1));
+					
+					
+					if(novo_contrato.getStatus_contrato() == 0) {
+						//criar tarefa de aprovacao de sub_contrato
+						//procurar executor com direitor <=2
+						ArrayList<CadastroLogin> usuarios_gerente = new ArrayList<>() ;
+						for(CadastroLogin user : new GerenciarBancoLogin().getUsuarios()) {
+							CadastroLogin user_final = new GerenciarBancoLogin().buscaLogin(user.getLogin());
+							if(user_final.getConfigs_privilegios().getNivel_privilegios() <= 2) {
+								usuarios_gerente.add(user_final);
+							}
+						}
+						
+						for(CadastroLogin user: usuarios_gerente) {
+						
+							
+						lista_tarefas.add(criarTarefa(2, "Revisão de Sub-Contrato", "Revisar Novo Sub-Contrato", "Tarefa Criada para analisar e aprovar este sub-contrato", user, 5));
+
+						}
+						
+						
+					}
+					
+					
+					
+					
+					
+					
 					novo_contrato.setLista_tarefas(lista_tarefas);
 					result = gerenciarContratos.inserirContrato(novo_contrato, contrato_pai_local);
 
@@ -3142,6 +3227,8 @@ public class TelaElaborarNovoContrato extends JDialog {
 			rBPostoSobreRodas.setSelected(false);
 
 		}
+		JOptionPane.showMessageDialog(isto, "Rotinas de edicao: procurar local retirada");
+
 		
 		CadastroCliente localRetirada = new GerenciarBancoClientes().getCliente(contrato_pai_local.getId_local_retirada());
 		int indice = -1;
@@ -3152,6 +3239,23 @@ public class TelaElaborarNovoContrato extends JDialog {
 		}
 		
 		modelLocalRetirada.setSelectedItem(localRetirada);
+		
+		JOptionPane.showMessageDialog(isto, "Rotinas de edicao: local retirada encontrado");
+
+		if(contrato_pai_local.getSub_contrato() == 0) {
+			cBComprador.setEnabled(false);
+			btnPesquisarComprador.setEnabled(false);
+		}else if(contrato_pai_local.getSub_contrato() == 1) {
+			cBComprador.setEnabled(false);
+			btnPesquisarComprador.setEnabled(false);
+			
+			cBVendedor1.setEnabled(false);
+			btnPesquisarVendedor1.setEnabled(false);
+			
+			
+			cBVendedor2.setEnabled(false);
+			btnPesquisarVendedor2.setEnabled(false);
+		}
 			
 		
 
@@ -3384,21 +3488,19 @@ public class TelaElaborarNovoContrato extends JDialog {
 
 	}
 
-	public CadastroContrato.CadastroTarefa criarTarefa(int flag) {
+	public CadastroContrato.CadastroTarefa criarTarefa(int status, String nome_tarefa, String descricao, String msg, CadastroLogin executor, int prioridade) {
 
 		CadastroContrato.CadastroTarefa tarefa = new CadastroContrato.CadastroTarefa();
 
-		if (flag == 1) {
-			tarefa.setNome_tarefa("Contrato Criado");
-		} else if (flag == 2) {
-			tarefa.setNome_tarefa("Sub contrato Criado");
-		}
+		
+			tarefa.setNome_tarefa(nome_tarefa);
+		
 		// cria a tarefa de insercao de contrato
 		tarefa.setId_tarefa(0);
-		tarefa.setDescricao_tarefa("Criação de tarefa");
+		tarefa.setDescricao_tarefa(descricao);
 
-		tarefa.setStatus_tarefa(1);
-		tarefa.setMensagem("tarefa criada");
+		tarefa.setStatus_tarefa(status);
+		tarefa.setMensagem(msg);
 
 		GetData data = new GetData();
 		tarefa.setHora(data.getHora());
@@ -3407,9 +3509,9 @@ public class TelaElaborarNovoContrato extends JDialog {
 		tarefa.setData_agendada(data.getData());
 
 		tarefa.setCriador(login);
-		tarefa.setExecutor(login);
+		tarefa.setExecutor(executor);
 
-		tarefa.setPrioridade(1);
+		tarefa.setPrioridade(prioridade);
 
 		return tarefa;
 

@@ -846,7 +846,7 @@ public int inserir_cliente(CadastroCliente cliente)
 	                
 	            
 	        } catch (Exception e) {
-	            JOptionPane.showMessageDialog(null, "Erro ao listar cliente id: " + id_cliente + " erro: " + e.getMessage());
+	            JOptionPane.showMessageDialog(null, "Erro ao listar cliente(gbc) id: " + id_cliente + " erro: " + e.getMessage());
 	            return null;
 	        }
 	     

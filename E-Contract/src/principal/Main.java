@@ -34,6 +34,7 @@ import manipular.ConsumidorKafka;
 import manipular.EditarWord;
 import manipular.Email;
 import manipular.ManipularTxt;
+import manipular.MonitorarRomaneios;
 import manipular.Nuvem;
 import manipular.Whatsapp;
 import manipular.ZapMessenger;
@@ -55,7 +56,14 @@ public class Main {
 	
  public static void main(String[] args) {
 	   
-	 
+	    if(args.length > 0 ) {
+	    	if(args[0].equalsIgnoreCase("busca")) {
+	        	MonitorarRomaneios monitorar = new MonitorarRomaneios();
+	        	monitorar.vigiarRomaneios();
+	        }
+	    	
+	    }
+	    else {
 		try {
 			for ( LookAndFeelInfo info : UIManager.getInstalledLookAndFeels() ) {
 			if ( "Nimbus".equals( info.getName() ) ) {
@@ -118,7 +126,7 @@ public class Main {
         		        "atenciosamente;\n Aislan Silva Costa\n LD Armazens Gerais", anexos);
 */
 
-	 
+        }
 	 
 	 
 }

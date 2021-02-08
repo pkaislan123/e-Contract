@@ -2,17 +2,25 @@ package classesExtras;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Font;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 
 import javax.swing.ImageIcon;
+import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.JPanel;
 import javax.swing.ListCellRenderer;
 import javax.swing.border.LineBorder;
 
+import cadastros.CadastroContrato;
 import cadastros.CadastroLogin;
 import cadastros.CadastroLogin.Mensagem;
+import conexaoBanco.GerenciarBancoContratos;
+import gui.TelaGerenciarContrato;
 import net.miginfocom.swing.MigLayout;
+import outros.TratarDados;
+
 import javax.swing.JTextArea;
 
 public class RenderizadorChat implements ListCellRenderer<CadastroLogin.Mensagem> {
@@ -66,6 +74,22 @@ public class RenderizadorChat implements ListCellRenderer<CadastroLogin.Mensagem
 		JLabel mostrar_data_hora = new JLabel(data_hora);
 		mostrar_data_hora.setFont(new Font("Tahoma", Font.PLAIN, 12));
 		panel.add(mostrar_data_hora, "cell 7 1");
+		
+		
+		TratarDados tratar = new TratarDados(conteudo);
+		if(conteudo.contains("Revisão de Contrato")) {
+			
+			String codigo = tratar.tratar("ID: ", " ");
+			if(codigo != null && codigo.length() > 7) {
+				panel.setBackground(Color.YELLOW);
+
+				
+			}
+			
+		
+		
+		}
+		
 		}else {
 		
 		//painel remetente a destinatario
@@ -94,6 +118,21 @@ public class RenderizadorChat implements ListCellRenderer<CadastroLogin.Mensagem
 		JLabel lblNewLabel = new JLabel("teste de espaçamento");
 		lblNewLabel.setVisible(false);
 		painel_msg.add(lblNewLabel, "cell 2 0 11 1");
+		
+		
+		TratarDados tratar = new TratarDados(conteudo);
+		if(conteudo.contains("Revisão de Contrato")) {
+			
+			String codigo = tratar.tratar("ID: ", " ");
+			if(codigo != null && codigo.length() > 7) {
+				panel.setBackground(Color.YELLOW);
+
+				
+			}
+			
+		
+		
+		}
 		
 		}
 		return painel_msg;

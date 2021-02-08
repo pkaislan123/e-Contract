@@ -8,8 +8,19 @@ public class CadastroContrato {
 
 	private String texto_clausulas;
     private ArrayList<CadastroContrato.CadastroTarefa> lista_tarefas;
+    private int status_aprovacao;
     
-    private CadastroCliente cliente_retirada;
+    
+    public int getStatus_aprovacao() {
+		return status_aprovacao;
+	}
+
+
+
+	public void setStatus_aprovacao(int status_aprovacao) {
+		this.status_aprovacao = status_aprovacao;
+	}
+	private CadastroCliente cliente_retirada;
     
     
     private int tipo_entrega;

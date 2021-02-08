@@ -95,6 +95,7 @@ import tratamento_proprio.Log;
 import views_personalizadas.TelaMensagens;
 import views_personalizadas.TelaNotificacao;
 import views_personalizadas.TelaNotificacaoSuperior;
+import views_personalizadas.TelaNotificacaoSuperiorModoBusca;
 
 import javax.swing.JMenuBar;
 import javax.swing.JMenu;
@@ -124,6 +125,7 @@ import javax.swing.JComboBox;
 import javax.swing.border.LineBorder;
 import java.awt.Component;
 import javax.swing.JSeparator;
+import javax.swing.JTextArea;
 
 public class TelaPrincipal extends JFrame implements GetDadosGlobais {
 
@@ -155,6 +157,8 @@ public class TelaPrincipal extends JFrame implements GetDadosGlobais {
 	private static ArrayList<CadastroSafra> safras = new ArrayList<>();
 	private JLabel lblTotalSacosRetirar, lblTotalSacos, lblTotalSacosRetirados;
 	private GraficoLinha linha = null;
+	TelaPost telaPost;
+	TelaTarefas tela_tarefas;
 
 	private GerenciarBancoContratos gerenciarAtualizarTarefas, gerenciarDadosCarregamento, gerenciarDadosContrato,
 			gerenciarCarregamentoPorPeriodo;
@@ -162,15 +166,17 @@ public class TelaPrincipal extends JFrame implements GetDadosGlobais {
 	private GerenciarBancoPadrao gerenciarBancoPadrao;
 
 	DefaultTableModel modelo_usuarios = new DefaultTableModel() {
-		public boolean isCellEditable(int linha,int coluna){return false;}};
+		public boolean isCellEditable(int linha, int coluna) {
+			return false;
+		}
+	};
 
 	private ChartPanel chartPanel;
 	private TelaChat telaChat;
 	private DefaultCategoryDataset dataset;
 
 	public TelaPrincipal() {
-		setIconImage(Toolkit.getDefaultToolkit()
-				.getImage(TelaPrincipal.class.getResource("/imagens/logo_para_relatorio_24.png")));
+		setIconImage(Toolkit.getDefaultToolkit().getImage(TelaPrincipal.class.getResource("/imagens/logo_icone4.png")));
 
 		getDadosGlobais();
 
@@ -239,7 +245,7 @@ public class TelaPrincipal extends JFrame implements GetDadosGlobais {
 
 		JMenuBar menuBar = new JMenuBar();
 		menuBar.setBackground(Color.WHITE);
-		menuBar.setBounds(0, 0, 963, 56);
+		menuBar.setBounds(0, 0, 842, 56);
 		menuBar.setUI(new BasicMenuBarUI() {
 			public void paint(Graphics g, JComponent c) {
 
@@ -394,45 +400,59 @@ public class TelaPrincipal extends JFrame implements GetDadosGlobais {
 			}
 		});
 		mnPlanilhasDeControle.add(mntmAPartirDe_1);
-		
+
 		JMenuItem mntmNewMenuItem_2 = new JMenuItem("Monitoria");
 		mntmNewMenuItem_2.setMargin(new Insets(0, 10, 2, 0));
-		mntmNewMenuItem_2.setIcon(new ImageIcon(TelaPrincipal.class.getResource("/imagens/aplicativo-de-monitoria.png")));
+		mntmNewMenuItem_2
+				.setIcon(new ImageIcon(TelaPrincipal.class.getResource("/imagens/aplicativo-de-monitoria.png")));
 		mntmNewMenuItem_2.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				TelaMonitoria monitor = new TelaMonitoria();
 				monitor.setVisible(true);
 				monitor.vigilante_todos_os_romaneios();
-				
+
 			}
 		});
 		mnFerramentas.add(mntmNewMenuItem_2);
-		
+
 		JMenuItem mntmNewMenuItem_3 = new JMenuItem("Anotações");
 		mntmNewMenuItem_3.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				TelaNotas notas ;
-			
-				if (TelaNotas.instance == null){
-					TelaNotas.instance = new TelaNotas(isto);  
-					TelaNotas.instance.setVisible(true);  
-					}else{
-						TelaNotas.instance.setVisible(true);  
-					}
-					
+				TelaNotas notas;
+
+				if (TelaNotas.instance == null) {
+					TelaNotas.instance = new TelaNotas(isto);
+					TelaNotas.instance.setVisible(true);
+				} else {
+					TelaNotas.instance.setVisible(true);
+				}
+
 			}
-		
+
 		});
 		mntmNewMenuItem_3.setMargin(new Insets(0, 10, 0, 0));
 		mntmNewMenuItem_3.setIcon(new ImageIcon(TelaPrincipal.class.getResource("/imagens/icone_menu_notas.png")));
 		mnFerramentas.add(mntmNewMenuItem_3);
-		
+
 		JMenuItem mntmNewMenuItem_4 = new JMenuItem("Calendário");
 		mntmNewMenuItem_4.setIcon(new ImageIcon(TelaPrincipal.class.getResource("/imagens/icone_menu_calendario.png")));
 		mntmNewMenuItem_4.setMargin(new Insets(0, 10, 0, 0));
 		mnFerramentas.add(mntmNewMenuItem_4);
-		
+
 		JMenuItem mntmNewMenuItem_5 = new JMenuItem("Tarefas");
+		mntmNewMenuItem_5.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				
+				if(tela_tarefas == null) {
+				tela_tarefas = new TelaTarefas(isto);
+				 tela_tarefas.getTarefas();
+				 tela_tarefas.setVisible(true);
+				}else{
+					 tela_tarefas.setVisible(true);
+
+				}
+			}
+		});
 		mntmNewMenuItem_5.setIcon(new ImageIcon(TelaPrincipal.class.getResource("/imagens/icone_menu_tarefas.png")));
 		mntmNewMenuItem_5.setMargin(new Insets(0, 10, 0, 0));
 		mnFerramentas.add(mntmNewMenuItem_5);
@@ -528,9 +548,14 @@ public class TelaPrincipal extends JFrame implements GetDadosGlobais {
 		JButton btnSair = new JButton("Sair");
 		btnSair.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				isto.dispose();
+
+					telaPost.fechar();
+					if(tela_tarefas != null)
+					tela_tarefas.dispose();
+				
 				TelaLogin entrada = new TelaLogin();
 				entrada.setVisible(true);
+				isto.dispose();
 			}
 		});
 		btnSair.setBounds(1251, 70, 89, 23);
@@ -699,6 +724,19 @@ public class TelaPrincipal extends JFrame implements GetDadosGlobais {
 		}
 
 		JLabel lblNewLabel_1 = new JLabel("");
+		lblNewLabel_1.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseClicked(MouseEvent e) {
+				if(tela_tarefas == null) {
+					tela_tarefas = new TelaTarefas(isto);
+					 tela_tarefas.getTarefas();
+					 tela_tarefas.setVisible(true);
+					}else{
+						 tela_tarefas.setVisible(true);
+
+					}
+			}
+		});
 		lblNewLabel_1.setIcon(new ImageIcon(TelaPrincipal.class.getResource("/imagens/icone_tarefa.png")));
 		lblNewLabel_1.setBounds(973, 0, 64, 64);
 		contentPane.add(lblNewLabel_1);
@@ -813,6 +851,25 @@ public class TelaPrincipal extends JFrame implements GetDadosGlobais {
 		lblNewLabel_6_1.setBorder(new LineBorder(new Color(0, 0, 0)));
 		lblNewLabel_6_1.setBackground(new Color(0, 206, 209));
 
+		JLabel lblNewLabel_8 = new JLabel("");
+		lblNewLabel_8.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseClicked(MouseEvent e) {
+                  
+				if (telaPost == null) {
+					telaPost = new TelaPost(isto);
+					telaPost.setVisible(true);
+					telaPost.procurarNotas(true);
+				} else {
+					telaPost.setVisible(true);
+				}
+			}
+		});
+		lblNewLabel_8
+				.setIcon(new ImageIcon(TelaPrincipal.class.getResource("/imagens/icone_anotacoes_tela_principal.png")));
+		lblNewLabel_8.setBounds(862, 0, 64, 64);
+		contentPane.add(lblNewLabel_8);
+
 		atualizarNumTarefas();
 
 		getDadosCarregamento();
@@ -839,19 +896,23 @@ public class TelaPrincipal extends JFrame implements GetDadosGlobais {
 			telaChat.setVisible(true);
 		}
 
-		vigiarRomaneios();
-		
+		// vigiarRomaneios();
+
 		new Thread() {
 			@Override
 			public void run() {
-				TelaPost post = new TelaPost();
-				
-				post.setVisible(true);  
-				post.procurarNotas();
-					
+
+				if (telaPost == null) {
+					telaPost = new TelaPost(isto);
+					telaPost.procurarNotas(true);
+					telaPost.setVisible(true);
+				} else {
+					telaPost.setVisible(true);
+				}
+
 			}
 		}.start();
-		
+
 		this.setLocationRelativeTo(null);
 		this.setExtendedState(JFrame.MAXIMIZED_BOTH);
 
@@ -1416,7 +1477,7 @@ public class TelaPrincipal extends JFrame implements GetDadosGlobais {
 		new Thread() {
 			public void run() {
 				try {
-					Thread.sleep(1000);
+					Thread.sleep(5000);
 				} catch (InterruptedException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
@@ -1430,7 +1491,6 @@ public class TelaPrincipal extends JFrame implements GetDadosGlobais {
 					lblNumeroTarefas.setText(num_agora + "");
 
 					if (num_tarefas_nesta_secao == -1) {
-
 						if (num_agora > 0) {
 							while (notificando == true) {
 								System.out.println("Notificacao em andamento");
@@ -1443,6 +1503,7 @@ public class TelaPrincipal extends JFrame implements GetDadosGlobais {
 						}
 
 					} else if (num_agora > num_tarefas_nesta_secao) {
+
 						// nova tarefa recebida, notificar
 						while (notificando) {
 
@@ -1453,16 +1514,19 @@ public class TelaPrincipal extends JFrame implements GetDadosGlobais {
 							// TODO Auto-generated catch block
 							e.printStackTrace();
 						}
+						num_tarefas_nesta_secao = num_agora;
 
 						novaNotificacao("Nova Tarefa Recebida!", "/audio/beep_notificacao.wav", 1);
-					} else {
+					} else if (num_agora > num_tarefas_nesta_secao){
 						// quantidade de tarefas e a mesma
+						num_tarefas_nesta_secao = num_agora;
+
 					}
 
 					try {
-						Thread.sleep(30000);
+						Thread.sleep(5000);
 					} catch (InterruptedException e) {
-						// TODO Auto-generated catch block
+						JOptionPane.showMessageDialog(null, "Erro ao buscar tarefas!");
 						e.printStackTrace();
 					}
 
@@ -1560,7 +1624,7 @@ public class TelaPrincipal extends JFrame implements GetDadosGlobais {
 			@Override
 			public void run() {
 
-				TelaNotificacaoSuperior avisos = new TelaNotificacaoSuperior();
+				TelaNotificacaoSuperiorModoBusca avisos = new TelaNotificacaoSuperiorModoBusca();
 
 				new Thread() {
 					@Override
@@ -1797,61 +1861,63 @@ public class TelaPrincipal extends JFrame implements GetDadosGlobais {
 
 									// JOptionPane.showMessageDialog(null, "Copiando de :\n" +
 									// roms.getCaminho_arquivo()+ "\nPara:\n" + caminho_completo_nf);
-									
-									//primeiro veririca se nao existe um arquivo com esse nome
+
+									// primeiro veririca se nao existe um arquivo com esse nome
 									File file = new File(caminho_completo_nf);
-									
-									if(!file.exists() ) {
-									boolean copiar = manipular_arq.copiarNFe(roms.getCaminho_arquivo(),
-											caminho_completo_nf);
-									if (copiar) {
 
-										// JOptionPane.showMessageDialog(null, "Romaneio copiado para a pasta do
-										// remetente");
-										avisos.setMensagem("Romaneio copiado para a pasta do remetente");
-
-										// mover para a pasta do destinatario
-
-										if (destinatario.getTipo_pessoa() == 0) {
-											nome_pasta = destinatario.getNome_empresarial().toUpperCase();
-										} else {
-											nome_pasta = destinatario.getNome_fantaia().toUpperCase();
-										}
-
-										unidade_base_dados = configs_globais.getServidorUnidade();
-										sub_pasta = "E-Contract\\arquivos\\clientes";
-
-										nome_pasta = nome_pasta.trim();
-
-										caminho_completo_nf = unidade_base_dados + "\\" + sub_pasta + "\\"
-												+ nome_pasta.toUpperCase() + "\\" + "ROMANEIOS" + "\\romaneio-"
-												+ roms.getNumero_romaneio() + ".pdf";
-
-										// JOptionPane.showMessageDialog(null, "Movendo de :\n" +
-										// roms.getCaminho_arquivo()+ "\nPara:\n" + caminho_completo_nf);
-										avisos.setMensagem("Movendo...");
-
-										boolean mover = manipular_arq.moverArquivo(roms.getCaminho_arquivo(),
+									if (!file.exists()) {
+										boolean copiar = manipular_arq.copiarNFe(roms.getCaminho_arquivo(),
 												caminho_completo_nf);
-										if (mover) {
+										if (copiar) {
 
-											// JOptionPane.showMessageDialog(null, "Romaneio movido para a pasta do
-											// destinatario");
-											avisos.setMensagem("Romaneio movido para a pasta do destinatario");
+											// JOptionPane.showMessageDialog(null, "Romaneio copiado para a pasta do
+											// remetente");
+											avisos.setMensagem("Romaneio copiado para a pasta do remetente");
+
+											// mover para a pasta do destinatario
+
+											if (destinatario.getTipo_pessoa() == 0) {
+												nome_pasta = destinatario.getNome_empresarial().toUpperCase();
+											} else {
+												nome_pasta = destinatario.getNome_fantaia().toUpperCase();
+											}
+
+											unidade_base_dados = configs_globais.getServidorUnidade();
+											sub_pasta = "E-Contract\\arquivos\\clientes";
+
+											nome_pasta = nome_pasta.trim();
+
+											caminho_completo_nf = unidade_base_dados + "\\" + sub_pasta + "\\"
+													+ nome_pasta.toUpperCase() + "\\" + "ROMANEIOS" + "\\romaneio-"
+													+ roms.getNumero_romaneio() + ".pdf";
+
+											// JOptionPane.showMessageDialog(null, "Movendo de :\n" +
+											// roms.getCaminho_arquivo()+ "\nPara:\n" + caminho_completo_nf);
+											avisos.setMensagem("Movendo...");
+
+											boolean mover = manipular_arq.moverArquivo(roms.getCaminho_arquivo(),
+													caminho_completo_nf);
+											if (mover) {
+
+												// JOptionPane.showMessageDialog(null, "Romaneio movido para a pasta do
+												// destinatario");
+												avisos.setMensagem("Romaneio movido para a pasta do destinatario");
+
+											} else {
+												// JOptionPane.showMessageDialog(null, "Erro ao mover o romaneio para a
+												// pasta do destinatario");
+												avisos.setMensagem(
+														"Erro ao mover o romaneio para a pasta do destinatario");
+
+											}
 
 										} else {
-											// JOptionPane.showMessageDialog(null, "Erro ao mover o romaneio para a
-											// pasta do destinatario");
-											avisos.setMensagem("Erro ao mover o romaneio para a pasta do destinatario");
-
+											// JOptionPane.showMessageDialog(null, "Erro ao copiar o romaneio para a
+											// pasta
+											// do remetente");
+											avisos.setMensagem("Erro ao copiar o romaneio para a pasta do remetente");
 										}
-
 									} else {
-										// JOptionPane.showMessageDialog(null, "Erro ao copiar o romaneio para a pasta
-										// do remetente");
-										avisos.setMensagem("Erro ao copiar o romaneio para a pasta do remetente");
-									}
-									}else {
 										avisos.setMensagem("Romaneio já lido");
 										new File(roms.getCaminho_arquivo()).delete();
 									}
@@ -1886,8 +1952,4 @@ public class TelaPrincipal extends JFrame implements GetDadosGlobais {
 
 		}.start();
 	}
-	
-	
-	
-	
 }

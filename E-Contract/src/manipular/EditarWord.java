@@ -2011,8 +2011,15 @@ public class EditarWord {
 						  
 						  if(manipular.criarDiretorio(caminho_salvar_contrato__no_hd + nome_pasta_arquivo + "\\comprovantes"))
 						{
-						  arquivos_comprador_criado = true;
+                                  //criar diretorio documentos
+						  if(manipular.criarDiretorio(caminho_salvar_contrato__no_hd + nome_pasta_arquivo + "\\documentos"))
+							{
+							  arquivos_comprador_criado = true;
 
+							}else {
+								arquivos_comprador_criado = false;
+
+							}	
 						}else {
 							arquivos_comprador_criado = false;
 
@@ -2065,7 +2072,15 @@ public class EditarWord {
 							    	
 								  if(manipular.criarDiretorio(caminho_salvar_contrato__no_hd + nome_pasta_arquivo + "\\comprovantes"))
 									{
-									  arquivos_vendedor1_criado = true;
+									  //criar diretorio documentos
+									  if(manipular.criarDiretorio(caminho_salvar_contrato__no_hd + nome_pasta_arquivo + "\\documentos"))
+										{
+										  arquivos_vendedor1_criado = true;
+
+										}else {
+											arquivos_vendedor1_criado = false;
+
+										}	
 
 									}else {
 										arquivos_vendedor1_criado = false;
@@ -2117,7 +2132,15 @@ public class EditarWord {
 							  
 							  if(manipular.criarDiretorio(caminho_salvar_contrato__no_hd + nome_pasta_arquivo + "\\comprovantes"))
 								{
-								  arquivos_vendedor2_criado = true;
+								  //criar diretorio documentos
+								  if(manipular.criarDiretorio(caminho_salvar_contrato__no_hd + nome_pasta_arquivo + "\\documentos"))
+									{
+									  arquivos_vendedor2_criado = true;
+
+									}else {
+										arquivos_vendedor2_criado = false;
+
+									}	
 
 								}else {
 									arquivos_vendedor2_criado = false;

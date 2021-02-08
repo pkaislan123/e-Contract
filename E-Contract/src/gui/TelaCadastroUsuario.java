@@ -798,7 +798,7 @@ public class TelaCadastroUsuario extends JDialog implements GetDadosGlobais {
 		GerenciadorLog = dados.getGerenciadorLog();
 
 		// usuario logado
-//		  login = dados.getLogin();
+       //	  login = dados.getLogin();
 
 	}
 }

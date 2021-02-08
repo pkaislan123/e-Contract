@@ -56,6 +56,7 @@ public class GerenciarBancoLogin {
 	            Login.setSenhaEmail(rs.getString("senha_email"));
 	            Login.setGenero(rs.getString("genero"));
 	               
+	            
                 
                 listaUsuarios.add(Login);
             }

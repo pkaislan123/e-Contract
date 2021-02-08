@@ -27,20 +27,18 @@ import java.awt.Font;
 import java.awt.GraphicsDevice;
 import java.awt.GraphicsEnvironment;
 import java.awt.Toolkit;
+import java.awt.Window;
 
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
+import javax.swing.border.LineBorder;
 
 public class TelaPost extends JDialog {
 
-	private JTabbedPane painelPrincipal ;
 	private JPanel abaMeus = new JPanel();
-	private JPanel abaGlobais = new JPanel();
 	private TelaPost isto;
-	private final JButton btnMudar = new JButton("Próximo");
 	private final JLabel lblNomeNota = new JLabel("");
 	private final JTextArea textAreaTexto;
-	private final JButton btnVizualizarNota = new JButton("Vizualizar");
 	private final JLabel lblNomeNotaGlobal = new JLabel("Anotação 1");
 	private final JTextArea textAreaTextoGlobal = new JTextArea();
 	private final JButton btnVizualizarNotaGlobal = new JButton("Vizualizar");
@@ -48,23 +46,21 @@ public class TelaPost extends JDialog {
 	private Log GerenciadorLog;
 	private CadastroLogin login;
 	private ConfiguracoesGlobais configs_globais;
+	public boolean ativo = false;
 	
 	
-	
-	public TelaPost() {
+	public TelaPost(Window janela_pai) {
 
 		 isto = this;
-		
 		setResizable(false);
 	
 		getDadosGlobais();
 
 		setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 		setTitle("E-Contract - Topicos");
-		setBounds(0, 0, 370, 239);
-		painelPrincipal = new JTabbedPane();
-		painelPrincipal.setBackground(new Color(255, 255, 255));
-		painelPrincipal.setBorder(new EmptyBorder(5, 5, 5, 5));
+		setBounds(0, 0, 215, 170);
+		getContentPane().setLayout(null);
+		abaMeus.setBounds(0, 0, 215, 170);
 		
 		//contentPanel.setBackground(new Color(255, 255, 255));
 		//contentPanel.setBorder(new EmptyBorder(5, 5, 5, 5));
@@ -72,61 +68,41 @@ public class TelaPost extends JDialog {
 		//contentPanel.setLayout(null);
 		
 		abaMeus.setBackground(new Color(255, 255, 153));
-		abaGlobais.setBackground(new Color(255, 255, 153));
 
 		//adiciona novos paines e suas abas
-		painelPrincipal.addTab("Meus", abaMeus);
 		abaMeus.setLayout(null);
-		btnMudar.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-			}
-		});
-		btnMudar.setBounds(281, 141, 73, 28);
-		
-		abaMeus.add(btnMudar);
 		lblNomeNota.setFont(new Font("SansSerif", Font.BOLD, 12));
-		lblNomeNota.setBounds(118, 6, 141, 16);
+		lblNomeNota.setBounds(23, 6, 141, 16);
 		
 		abaMeus.add(lblNomeNota);
 		textAreaTexto = new JTextArea();
 		textAreaTexto.setLocation(6, 34);
-		textAreaTexto.setSize(342, 100);
+		textAreaTexto.setSize(203, 130);
 		textAreaTexto.setForeground(new Color(0, 0, 102));
 		textAreaTexto.setFont(new Font("SansSerif", Font.PLAIN, 20));
 		textAreaTexto.setOpaque(true);
 		textAreaTexto.setBackground(new Color(0,0,0,0));
-		textAreaTexto.setBorder(null);
+		textAreaTexto.setBorder(new LineBorder(new Color(0, 0, 0), 1, true));
 		textAreaTexto.setEditable(false);
 		textAreaTexto.setWrapStyleWord(true);
 		textAreaTexto.setLineWrap(true);
 		
 		
 		abaMeus.add(textAreaTexto);
+		getContentPane().add(abaMeus);
 		
-		btnVizualizarNota.setBounds(181, 141, 90, 28);
+		JButton btnNewButton = new JButton("X");
+		btnNewButton.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				isto.setVisible(false);
+			}
+		});
+		btnNewButton.setBackground(Color.RED);
+		btnNewButton.setFont(new Font("SansSerif", Font.PLAIN, 8));
+		btnNewButton.setBounds(176, 6, 33, 22);
+		abaMeus.add(btnNewButton);
 		
-		abaMeus.add(btnVizualizarNota);
-		painelPrincipal.addTab("Globais", abaGlobais);
-		abaGlobais.setLayout(null);
-		lblNomeNotaGlobal.setFont(new Font("SansSerif", Font.BOLD, 12));
-		lblNomeNotaGlobal.setBounds(6, 6, 344, 16);
-		
-		abaGlobais.add(lblNomeNotaGlobal);
-		textAreaTextoGlobal.setEditable(false);
-		textAreaTextoGlobal.setWrapStyleWord(true);
-		textAreaTextoGlobal.setLineWrap(true);
-		textAreaTextoGlobal.setBounds(9, 31, 338, 91);
-		
-		abaGlobais.add(textAreaTextoGlobal);
-		btnVizualizarNotaGlobal.setBounds(177, 136, 90, 28);
-		
-		abaGlobais.add(btnVizualizarNotaGlobal);
-		btnMudarGlobal.setBounds(277, 136, 73, 28);
-		
-		abaGlobais.add(btnMudarGlobal);
-		
-		getContentPane().add(painelPrincipal, BorderLayout.CENTER);
-
+ 
 		   Dimension scrnSize = Toolkit.getDefaultToolkit().getScreenSize();
 	        java.awt.Rectangle winSize = GraphicsEnvironment.getLocalGraphicsEnvironment().getMaximumWindowBounds();
 	        int taskBarHeight = scrnSize.height - winSize.height;
@@ -157,28 +133,35 @@ public class TelaPost extends JDialog {
 			
 
           
-
+              this.setUndecorated(true);
 
 			
 		
 
 	}
 	
-	
+	public void fechar() {
+		this.ativo = false;
+		isto.dispose();
+	}
 
-	public void procurarNotas() {
+	public void procurarNotas(boolean _ativo) {
+		this.ativo = _ativo;
+
 		new Thread() {
 			@Override
 			public void run() {
 				
-				while(true) {
+				while(ativo) {
 					
 					//pegar minhas anotacoes
 					ArrayList<CadastroNota> minhas_notas = new ArrayList<>();
+					ArrayList<CadastroNota> todas_as_notas = new ArrayList<>();
+
 					GerenciarBancoNotas gerenciar = new GerenciarBancoNotas();
 					
 					minhas_notas = gerenciar.getnotas(login.getId());
-					
+					todas_as_notas = gerenciar.getTodasNotas();
 					//verifica quais notas sao de topico
 					ArrayList<CadastroNota> minhas_notas_topico = new ArrayList<>();
 					for(CadastroNota not: minhas_notas) {
@@ -188,8 +171,22 @@ public class TelaPost extends JDialog {
 						}
 					}
 					
-					if(minhas_notas_topico.size() > 0) {
-						for(CadastroNota not: minhas_notas_topico) {
+					//verifica quais notas sao de topico global
+					ArrayList<CadastroNota> notas_topico_global = new ArrayList<>();
+					for(CadastroNota not: minhas_notas) {
+						if(not.getTipo() == 3) {
+							//se e uma nota do tipo topico global
+							notas_topico_global.add(not);
+						}
+					}
+					
+					ArrayList<CadastroNota> notas_mostrar = new ArrayList<>();
+					notas_mostrar.addAll(notas_topico_global);
+					notas_mostrar.addAll(minhas_notas_topico);
+
+					
+					if(notas_mostrar.size() > 0) {
+						for(CadastroNota not: notas_mostrar) {
 
 							java.awt.EventQueue.invokeLater(new Runnable() { 
 							    public void run() { 
@@ -214,6 +211,8 @@ public class TelaPost extends JDialog {
 						}
 						
 						
+						
+						
 					}
 					
 					
@@ -236,5 +235,4 @@ public class TelaPost extends JDialog {
 				  login = dados.getLogin();
 		
 	}
-	 
 }

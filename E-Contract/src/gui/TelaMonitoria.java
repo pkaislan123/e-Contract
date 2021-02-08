@@ -103,16 +103,16 @@ public class TelaMonitoria extends JFrame {
 	private DefaultTableModel modelo_romaneios_entrada_aba_recebimento = new DefaultTableModel();
 	private DefaultTableModel modelo_romaneios_saida_aba_carregamentos = new DefaultTableModel();
 
-	private JLabel lblUmidadeMediaDescargaAbaRecebimento, lblNumTotalCargasAbaRecebimento,lblUmidadeMediaCargaAbaCarregamento,lblTotalSacosCargaAbaRecebimento,lblNumTotalKGCargaAbaRecebimento,lblArdidosMediaAbaCarregamentos,lblAvariadosMediaAbaCarregamentos;
-	private JLabel lblUmidadeMedia, lblKgDescarga, lblNumSacosDescarga, lblNumDescargas,lblUmidadeMediaAbaRecebimento,lblArdidosMediaAbaRecebimento ,lblAvariadosMediaAbaRecebimento;
+	private JLabel lblUmidadeMediaDescargaAbaRecebimento, lblNumTotalCargasAbaRecebimento,lblUmidadeMediaCargaAbaCarregamento,lblTotalSacosCargaAbaRecebimento,lblNumTotalKGCargaAbaRecebimento,lblImpurezaMediaAbaCarregamentos,lblAvariadosMediaAbaCarregamentos;
+	private JLabel lblUmidadeMedia, lblKgDescarga, lblNumSacosDescarga, lblNumDescargas,lblUmidadeMediaAbaRecebimento,lblImpurezaMediaAbaRecebimento ,lblAvariadosMediaAbaRecebimento;
 	private int num_descargas = 0;
 	private double total_sacos_descarga;
 	private double total_kg_descarga;
 	private double umidade_media;
 	private double avariados_media;
-	private double ardidos_media;
+	private double impureza_media;
 	private double avariados_media_carregamento;
-	private double ardidos_media_carregamento;
+	private double impureza_media_carregamento;
 	private boolean todas_as_safras = true;
 	private boolean todo_periodo = false;
 	// variaveis para carregamento
@@ -258,7 +258,7 @@ public class TelaMonitoria extends JFrame {
 		modelo_romaneios_entrada_aba_recebimento.addColumn("Total");
 		modelo_romaneios_entrada_aba_recebimento.addColumn("Liquido");
 		modelo_romaneios_entrada_aba_recebimento.addColumn("Umidade");
-		modelo_romaneios_entrada_aba_recebimento.addColumn("Ardidos");
+		modelo_romaneios_entrada_aba_recebimento.addColumn("Impureza");
 		modelo_romaneios_entrada_aba_recebimento.addColumn("Avariados");
 		modelo_romaneios_entrada_aba_recebimento.addColumn("Data");
 
@@ -298,23 +298,22 @@ public class TelaMonitoria extends JFrame {
 		panel_2_2_1.setBounds(765, 125, 259, 81);
 		painelRecebimento.add(panel_2_2_1);
 		
-		JLabel lblNewLabel_4_4_1 = new JLabel("Ardidos");
+		JLabel lblNewLabel_4_4_1 = new JLabel("Impureza");
 		lblNewLabel_4_4_1.setForeground(Color.WHITE);
 		lblNewLabel_4_4_1.setFont(new Font("SansSerif", Font.PLAIN, 20));
-		lblNewLabel_4_4_1.setBounds(6, 15, 77, 26);
+		lblNewLabel_4_4_1.setBounds(6, 15, 81, 26);
 		panel_2_2_1.add(lblNewLabel_4_4_1);
 		
 		JLabel lblNewLabel_5_3_1 = new JLabel("média:");
 		lblNewLabel_5_3_1.setForeground(Color.WHITE);
-		lblNewLabel_5_3_1.setFont(new Font("SansSerif", Font.PLAIN, 20));
 		lblNewLabel_5_3_1.setBounds(50, 44, 59, 26);
 		panel_2_2_1.add(lblNewLabel_5_3_1);
 		
-		 lblArdidosMediaAbaRecebimento = new JLabel("00,0%");
-		lblArdidosMediaAbaRecebimento.setForeground(new Color(0, 0, 153));
-		lblArdidosMediaAbaRecebimento.setFont(new Font("SansSerif", Font.PLAIN, 50));
-		lblArdidosMediaAbaRecebimento.setBounds(110, 6, 142, 64);
-		panel_2_2_1.add(lblArdidosMediaAbaRecebimento);
+		 lblImpurezaMediaAbaRecebimento = new JLabel("00,0%");
+		lblImpurezaMediaAbaRecebimento.setForeground(new Color(0, 0, 153));
+		lblImpurezaMediaAbaRecebimento.setFont(new Font("SansSerif", Font.PLAIN, 50));
+		lblImpurezaMediaAbaRecebimento.setBounds(110, 6, 142, 64);
+		panel_2_2_1.add(lblImpurezaMediaAbaRecebimento);
 		
 		JPanel panel_2_2_1_1 = new JPanel();
 		panel_2_2_1_1.setLayout(null);
@@ -427,7 +426,7 @@ public class TelaMonitoria extends JFrame {
 		modelo_romaneios_saida_aba_carregamentos.addColumn("Total");
 		modelo_romaneios_saida_aba_carregamentos.addColumn("Liquido");
 		modelo_romaneios_saida_aba_carregamentos.addColumn("Umidade");
-		modelo_romaneios_saida_aba_carregamentos.addColumn("Ardidos");
+		modelo_romaneios_saida_aba_carregamentos.addColumn("Impureza");
 		modelo_romaneios_saida_aba_carregamentos.addColumn("Avariados");
 		modelo_romaneios_saida_aba_carregamentos.addColumn("Data");
 
@@ -470,10 +469,10 @@ public class TelaMonitoria extends JFrame {
 		panel_2_2_1_2.setBounds(290, 110, 259, 81);
 		painelCarregamento.add(panel_2_2_1_2);
 		
-		JLabel lblNewLabel_4_4_1_2 = new JLabel("Ardidos");
+		JLabel lblNewLabel_4_4_1_2 = new JLabel("Impureza");
 		lblNewLabel_4_4_1_2.setForeground(Color.WHITE);
 		lblNewLabel_4_4_1_2.setFont(new Font("SansSerif", Font.PLAIN, 20));
-		lblNewLabel_4_4_1_2.setBounds(6, 15, 77, 26);
+		lblNewLabel_4_4_1_2.setBounds(6, 15, 81, 26);
 		panel_2_2_1_2.add(lblNewLabel_4_4_1_2);
 		
 		JLabel lblNewLabel_5_3_1_2 = new JLabel("média:");
@@ -482,11 +481,11 @@ public class TelaMonitoria extends JFrame {
 		lblNewLabel_5_3_1_2.setBounds(50, 44, 59, 26);
 		panel_2_2_1_2.add(lblNewLabel_5_3_1_2);
 		
-		 lblArdidosMediaAbaCarregamentos = new JLabel("00,0%");
-		lblArdidosMediaAbaCarregamentos.setForeground(new Color(0, 0, 153));
-		lblArdidosMediaAbaCarregamentos.setFont(new Font("SansSerif", Font.PLAIN, 50));
-		lblArdidosMediaAbaCarregamentos.setBounds(110, 6, 142, 64);
-		panel_2_2_1_2.add(lblArdidosMediaAbaCarregamentos);
+		 lblImpurezaMediaAbaCarregamentos = new JLabel("00,0%");
+		lblImpurezaMediaAbaCarregamentos.setForeground(new Color(0, 0, 153));
+		lblImpurezaMediaAbaCarregamentos.setFont(new Font("SansSerif", Font.PLAIN, 50));
+		lblImpurezaMediaAbaCarregamentos.setBounds(110, 6, 142, 64);
+		panel_2_2_1_2.add(lblImpurezaMediaAbaCarregamentos);
 		
 		JPanel panel_2_2_1_1_1 = new JPanel();
 		panel_2_2_1_1_1.setLayout(null);
@@ -903,7 +902,7 @@ public class TelaMonitoria extends JFrame {
 				modelo_romaneios_entrada_aba_recebimento.setNumRows(0);
 
 				umidade_media = 0;
-				ardidos_media = 0;
+				impureza_media = 0;
 				avariados_media = 0;
 				num_descargas = 0;
 				total_sacos_descarga = 0;
@@ -929,6 +928,7 @@ public class TelaMonitoria extends JFrame {
 				 */
 
 				for (CadastroRomaneio rom : romaneios) {
+
 
 					String nome_remetente, nome_destinatario, safra;
 					double bruto, tara, liquido, umidade;
@@ -1015,12 +1015,12 @@ public class TelaMonitoria extends JFrame {
 								modelo_romaneios_entrada.addRow(
 										new Object[] { nome_remetente, safra, d_peso_liquido + " KG / " + ((int) d_peso_liquido / 60) + " SCs"});
 								modelo_romaneios_entrada_aba_recebimento.addRow(
-										new Object[] { nome_remetente_completo, safra, rom.getPeso_bruto() + " KG" , rom.getTara()+ " KG", d_peso_liquido+ " KG", rom.getUmidade() + "%", rom.getArdidos() + "%", rom.getAvariados() + "%", dateFormat.format(rom.getData())});
+										new Object[] { nome_remetente_completo, safra, rom.getPeso_bruto() + " KG" , rom.getTara()+ " KG", d_peso_liquido+ " KG", rom.getUmidade() + "%", rom.getInpureza()+ "%", rom.getAvariados() + "%", dateFormat.format(rom.getData())});
 								num_descargas++;
 
 								umidade_media = umidade_media + rom.getUmidade();
 								avariados_media = avariados_media + rom.getAvariados();
-								ardidos_media = ardidos_media + rom.getArdidos();
+								impureza_media = impureza_media + rom.getInpureza();
 								total_sacos_descarga = total_sacos_descarga + (d_peso_liquido / 60);
 								total_kg_descarga = total_kg_descarga + d_peso_liquido;
 							} else {
@@ -1030,13 +1030,13 @@ public class TelaMonitoria extends JFrame {
 									modelo_romaneios_entrada.addRow(
 											new Object[] { nome_remetente, safra, d_peso_liquido + " KG / " + ((int) d_peso_liquido / 60) + " SCs"});
 									modelo_romaneios_entrada_aba_recebimento.addRow(
-											new Object[] { nome_remetente_completo, safra, rom.getPeso_bruto() + " KG", rom.getTara()+ " KG", d_peso_liquido+ " KG", rom.getUmidade() + "%", rom.getArdidos() + "%", rom.getAvariados() + "%", dateFormat.format(rom.getData())});
+											new Object[] { nome_remetente_completo, safra, rom.getPeso_bruto() + " KG", rom.getTara()+ " KG", d_peso_liquido+ " KG", rom.getUmidade() + "%", rom.getInpureza() + "%", rom.getAvariados() + "%", dateFormat.format(rom.getData())});
 									
 									num_descargas++;
 
 									umidade_media = umidade_media + rom.getUmidade();
 									avariados_media = avariados_media + rom.getAvariados();
-									ardidos_media = ardidos_media + rom.getArdidos();
+									impureza_media = impureza_media + rom.getInpureza();
 									total_sacos_descarga = total_sacos_descarga + (d_peso_liquido / 60);
 									total_kg_descarga = total_kg_descarga + d_peso_liquido;
 								}
@@ -1049,12 +1049,12 @@ public class TelaMonitoria extends JFrame {
 								num_cargas++;
 
 								modelo_romaneios_saida_aba_carregamentos.addRow(
-										new Object[] { nome_destinatario_completo, safra, rom.getPeso_bruto() + " KG", rom.getTara()+ " KG", d_peso_liquido+ " KG", rom.getUmidade() + "%", rom.getArdidos() + "%", rom.getAvariados() + "%", dateFormat.format(rom.getData())});
+										new Object[] { nome_destinatario_completo, safra, rom.getPeso_bruto() + " KG", rom.getTara()+ " KG", d_peso_liquido+ " KG", rom.getUmidade() + "%", rom.getInpureza() + "%", rom.getAvariados() + "%", dateFormat.format(rom.getData())});
 								
 								
 								umidade_media_saida = umidade_media_saida + rom.getUmidade();
 								avariados_media_carregamento = avariados_media_carregamento + rom.getAvariados();
-								ardidos_media_carregamento = ardidos_media_carregamento + rom.getArdidos();
+								impureza_media_carregamento = impureza_media_carregamento + rom.getInpureza();
 								
 								
 
@@ -1067,7 +1067,7 @@ public class TelaMonitoria extends JFrame {
 											d_peso_liquido });
 									num_cargas++;
 									modelo_romaneios_saida_aba_carregamentos.addRow(
-											new Object[] { nome_destinatario_completo, safra, rom.getPeso_bruto() + " KG", rom.getTara()+ " KG", d_peso_liquido+ " KG", rom.getUmidade() + "%", rom.getArdidos() + "%", rom.getAvariados() + "%", dateFormat.format(rom.getData())});
+											new Object[] { nome_destinatario_completo, safra, rom.getPeso_bruto() + " KG", rom.getTara()+ " KG", d_peso_liquido+ " KG", rom.getUmidade() + "%", rom.getInpureza() + "%", rom.getAvariados() + "%", dateFormat.format(rom.getData())});
 									
 									umidade_media_saida = umidade_media_saida + rom.getUmidade();
 
@@ -1075,7 +1075,7 @@ public class TelaMonitoria extends JFrame {
 									total_sacos_carga = total_sacos_carga + (d_peso_liquido / 60);
 									total_kg_carga = total_kg_carga + d_peso_liquido;
 									avariados_media_carregamento = avariados_media_carregamento + rom.getAvariados();
-									ardidos_media_carregamento = ardidos_media_carregamento + rom.getArdidos();
+									impureza_media_carregamento = impureza_media_carregamento + rom.getInpureza();
 								}
 
 							}
@@ -1084,17 +1084,18 @@ public class TelaMonitoria extends JFrame {
 					}else {
 						if (rom.getOperacao().equals("Prestação de Serviços")) {
 
+							
 							if (todas_as_safras) {
 								modelo_romaneios_entrada.addRow(
 										new Object[] { nome_remetente, safra, d_peso_liquido + " KG / " + ((int) d_peso_liquido / 60) + " SCs"});
 								modelo_romaneios_entrada_aba_recebimento.addRow(
-										new Object[] { nome_remetente_completo, safra, rom.getPeso_bruto() + " KG", rom.getTara()+ " KG", d_peso_liquido+ " KG", rom.getUmidade() + "%", rom.getArdidos() + "%", rom.getAvariados() + "%", dateFormat.format(rom.getData())});
+										new Object[] { nome_remetente_completo, safra, rom.getPeso_bruto() + " KG", rom.getTara()+ " KG", d_peso_liquido+ " KG", rom.getUmidade() + "%", rom.getInpureza() + "%", rom.getAvariados() + "%", dateFormat.format(rom.getData())});
 								
 								num_descargas++;
 
 								umidade_media = umidade_media + rom.getUmidade();
 								avariados_media = avariados_media + rom.getAvariados();
-								ardidos_media = ardidos_media + rom.getArdidos();
+								impureza_media = impureza_media + rom.getInpureza();
 								total_sacos_descarga = total_sacos_descarga + (d_peso_liquido / 60);
 								total_kg_descarga = total_kg_descarga + d_peso_liquido;
 							} else {
@@ -1104,13 +1105,13 @@ public class TelaMonitoria extends JFrame {
 									modelo_romaneios_entrada.addRow(
 											new Object[] { nome_remetente, safra, d_peso_liquido + " KG / " + ((int) d_peso_liquido / 60) + " SCs"});
 									modelo_romaneios_entrada_aba_recebimento.addRow(
-											new Object[] { nome_remetente_completo, safra, rom.getPeso_bruto() + " KG", rom.getTara()+ " KG", d_peso_liquido+ " KG", rom.getUmidade() + "%", rom.getArdidos() + "%", rom.getAvariados() + "%", dateFormat.format(rom.getData())});
+											new Object[] { nome_remetente_completo, safra, rom.getPeso_bruto() + " KG", rom.getTara()+ " KG", d_peso_liquido+ " KG", rom.getUmidade() + "%", rom.getInpureza() + "%", rom.getAvariados() + "%", dateFormat.format(rom.getData())});
 									
 									num_descargas++;
 
 									umidade_media = umidade_media + rom.getUmidade();
 									avariados_media = avariados_media + rom.getAvariados();
-									ardidos_media = ardidos_media + rom.getArdidos();
+									impureza_media = impureza_media + rom.getInpureza();
 									total_sacos_descarga = total_sacos_descarga + (d_peso_liquido / 60);
 									total_kg_descarga = total_kg_descarga + d_peso_liquido;
 								}
@@ -1121,7 +1122,7 @@ public class TelaMonitoria extends JFrame {
 								modelo_romaneios_saida.addRow(
 										new Object[] { nome_destinatario, safra, d_peso_liquido });
 								modelo_romaneios_saida_aba_carregamentos.addRow(
-										new Object[] { nome_destinatario_completo, safra, rom.getPeso_bruto() + " KG", rom.getTara()+ " KG", d_peso_liquido+ " KG", rom.getUmidade() + "%", rom.getArdidos() + "%", rom.getAvariados() + "%", dateFormat.format(rom.getData())});
+										new Object[] { nome_destinatario_completo, safra, rom.getPeso_bruto() + " KG", rom.getTara()+ " KG", d_peso_liquido+ " KG", rom.getUmidade() + "%", rom.getInpureza() + "%", rom.getAvariados() + "%", dateFormat.format(rom.getData())});
 								
 								num_cargas++;
 
@@ -1129,13 +1130,13 @@ public class TelaMonitoria extends JFrame {
 								total_sacos_carga = total_sacos_carga + (d_peso_liquido / 60);
 								total_kg_carga = total_kg_carga + d_peso_liquido;
 								avariados_media_carregamento = avariados_media_carregamento + rom.getAvariados();
-								ardidos_media_carregamento = ardidos_media_carregamento + rom.getArdidos();
+								impureza_media_carregamento = impureza_media_carregamento + rom.getInpureza();
 							} else {
 								if (rom.getSafra().getId_safra() == safra_selecionada.getId_safra()) {
 									modelo_romaneios_saida.addRow(new Object[] { nome_destinatario, safra,
 											d_peso_liquido});
 									modelo_romaneios_saida_aba_carregamentos.addRow(
-											new Object[] { nome_destinatario_completo, safra, rom.getPeso_bruto() + " KG", rom.getTara()+ " KG", d_peso_liquido+ " KG", rom.getUmidade() + "%", rom.getArdidos() + "%", rom.getAvariados() + "%", dateFormat.format(rom.getData())});
+											new Object[] { nome_destinatario_completo, safra, rom.getPeso_bruto() + " KG", rom.getTara()+ " KG", d_peso_liquido+ " KG", rom.getUmidade() + "%", rom.getInpureza() + "%", rom.getAvariados() + "%", dateFormat.format(rom.getData())});
 									
 									num_cargas++;
 
@@ -1143,7 +1144,7 @@ public class TelaMonitoria extends JFrame {
 									total_sacos_carga = total_sacos_carga + (d_peso_liquido / 60);
 									total_kg_carga = total_kg_carga + d_peso_liquido;
 									avariados_media_carregamento = avariados_media_carregamento + rom.getAvariados();
-									ardidos_media_carregamento = ardidos_media_carregamento + rom.getArdidos();
+									impureza_media_carregamento = impureza_media_carregamento + rom.getInpureza();
 								}
 
 							}
@@ -1156,8 +1157,12 @@ public class TelaMonitoria extends JFrame {
 
 				umidade_media = umidade_media / num_descargas;
 				umidade_media_saida = umidade_media_saida / num_cargas;
-                ardidos_media = ardidos_media / num_descargas;
+				
+                impureza_media = impureza_media / num_descargas;
                 avariados_media = avariados_media / num_descargas;
+                
+                avariados_media_carregamento = avariados_media_carregamento / num_cargas;
+				impureza_media_carregamento = impureza_media_carregamento / num_cargas;
 				
 				setRomaneiosRecebimento();
 				setRomaneiosCarregamento();
@@ -1182,8 +1187,8 @@ public class TelaMonitoria extends JFrame {
 				lblUmidadeMedia.setText(string + "%");
 				lblUmidadeMediaAbaRecebimento.setText(string + "%");
 				
-				 string = fmt.format(ardidos_media);
-				lblArdidosMediaAbaRecebimento.setText(string + "%");
+				 string = fmt.format(impureza_media);
+				lblImpurezaMediaAbaRecebimento.setText(string + "%");
 				
 				 string = fmt.format(avariados_media);
 				lblAvariadosMediaAbaRecebimento.setText(string + "%");
@@ -1224,8 +1229,8 @@ public class TelaMonitoria extends JFrame {
 				lblTotalSacosCargaAbaRecebimento.setText(string2);
 				lblNumTotalKGCargaAbaRecebimento.setText(z.format(total_kg_carga) + " KG");
 				
-				 string = fmt.format(ardidos_media_carregamento);
-				lblArdidosMediaAbaCarregamentos.setText(string + "%");
+				 string = fmt.format(impureza_media_carregamento);
+				lblImpurezaMediaAbaCarregamentos.setText(string + "%");
 
 				 string = fmt.format(avariados_media_carregamento);
 
@@ -1234,21 +1239,5 @@ public class TelaMonitoria extends JFrame {
 		});
 	}
 
-	public class TabelaCellRenderer extends JLabel  implements TableCellRenderer {  
-		  
-        public TabelaCellRenderer() {  
-  
-          
-        }  
-  
-       
-
-		@Override
-		public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus,
-				int row, int column) {
-			 this.setText(value.toString());  
-			 this.setBounds(0, 0, 30, 250);
-			
-			return null;
-		}}  
+	
 }

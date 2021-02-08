@@ -6,6 +6,7 @@ import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.text.NumberFormat;
+import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Locale;
 import javax.swing.border.CompoundBorder;
@@ -100,159 +101,177 @@ public class TelaVisaoGeralContrato extends JDialog {
 		
 		setBackground(new Color(255, 255, 255));
 		setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-		setBounds(100, 100, 1087, 620);
+		setBounds(100, 100, 1060, 614);
 		painelPai.setBackground(new Color(255, 255, 255));
 		painelPai.setBorder(new EmptyBorder(5, 5, 5, 5));
 		setContentPane(painelPai);
 		painelPai.setLayout(null);
 	
 		painelAbas = new JTabbedPane();
-		painelAbas.setBounds(0, 0, 1071, 581);
+		painelAbas.setBounds(0, 0, 1087, 581);
 		painelAbas.setBackground(new Color(255, 255, 255));
 		painelAbas.setBorder(new EmptyBorder(5, 5, 5, 5));
 		painelPai.add(painelAbas);
 		
 		painelAbas.addTab("Informações Gerais", painelPrincipal);
-		painelGraficos.setBackground(Color.WHITE);
+		painelGraficos.setBackground(new Color(0, 0, 0));
 		painelAbas.addTab("Dashboard", painelGraficos);
 		painelGraficos.setLayout(null);
 		
-		JLabel lblNewLabel_14_3 = new JLabel("Pagamentos");
-		lblNewLabel_14_3.setBounds(152, 286, 71, 16);
-		painelGraficos.add(lblNewLabel_14_3);
-		
-		JLabel lblNewLabel_14 = new JLabel("Total:");
-		lblNewLabel_14.setBounds(112, 321, 45, 14);
-		painelGraficos.add(lblNewLabel_14);
-		
-		JLabel lblNewLabel_14_1 = new JLabel("Efetuados:");
-		lblNewLabel_14_1.setBounds(89, 352, 68, 14);
-		painelGraficos.add(lblNewLabel_14_1);
-		
-		JLabel lblNewLabel_14_1_1 = new JLabel("Transferencias:(-)");
-		lblNewLabel_14_1_1.setBounds(56, 384, 101, 14);
-		painelGraficos.add(lblNewLabel_14_1_1);
-		
-		JLabel lblNewLabel_14_1_1_1 = new JLabel("Transferencias:(+)");
-		lblNewLabel_14_1_1_1.setBounds(56, 418, 101, 14);
-		painelGraficos.add(lblNewLabel_14_1_1_1);
+		JPanel panel_1 = new JPanel();
+		panel_1.setBackground(new Color(51, 153, 51));
+		panel_1.setBounds(6, 6, 341, 497);
+		painelGraficos.add(panel_1);
+		panel_1.setLayout(null);
 		
 		JLabel lblNewLabel_14_2 = new JLabel("Restante:");
-		lblNewLabel_14_2.setBounds(99, 462, 68, 14);
-		painelGraficos.add(lblNewLabel_14_2);
+		lblNewLabel_14_2.setBounds(84, 196, 68, 14);
+		panel_1.add(lblNewLabel_14_2);
 		
-		 lblTotalPagamentosRestantes = new JLabel("R$ 0,00");
-		lblTotalPagamentosRestantes.setBorder(new LineBorder(new Color(0, 0, 0)));
-		lblTotalPagamentosRestantes.setBounds(163, 453, 143, 23);
-		painelGraficos.add(lblTotalPagamentosRestantes);
+		JLabel lblNewLabel_14_1_1_1 = new JLabel("Transferencias:(+)");
+		lblNewLabel_14_1_1_1.setBounds(41, 152, 101, 14);
+		panel_1.add(lblNewLabel_14_1_1_1);
 		
-		 lblTotalTransferenciasRecebidas = new JLabel("R$ 0,00");
-		lblTotalTransferenciasRecebidas.setBorder(new LineBorder(new Color(0, 0, 0)));
-		lblTotalTransferenciasRecebidas.setBounds(163, 412, 143, 23);
-		painelGraficos.add(lblTotalTransferenciasRecebidas);
+		JLabel lblNewLabel_14_1_1 = new JLabel("Transferencias:(-)");
+		lblNewLabel_14_1_1.setBounds(41, 118, 101, 14);
+		panel_1.add(lblNewLabel_14_1_1);
 		
-		 lblTotalTransferenciasRetiradas = new JLabel("R$ 0,00");
-		lblTotalTransferenciasRetiradas.setBorder(new LineBorder(new Color(0, 0, 0)));
-		lblTotalTransferenciasRetiradas.setBounds(163, 378, 143, 23);
-		painelGraficos.add(lblTotalTransferenciasRetiradas);
+		JLabel lblNewLabel_14_1 = new JLabel("Efetuados:");
+		lblNewLabel_14_1.setBounds(74, 86, 68, 14);
+		panel_1.add(lblNewLabel_14_1);
 		
-		 lblTotalPagamentosEfetuados = new JLabel("R$ 0,00");
-		lblTotalPagamentosEfetuados.setBorder(new LineBorder(new Color(0, 0, 0)));
-		lblTotalPagamentosEfetuados.setBounds(163, 346, 143, 23);
-		painelGraficos.add(lblTotalPagamentosEfetuados);
+		JLabel lblNewLabel_14 = new JLabel("Total:");
+		lblNewLabel_14.setBounds(97, 55, 45, 14);
+		panel_1.add(lblNewLabel_14);
+		
+		JLabel lblNewLabel_14_3 = new JLabel("Pagamentos");
+		lblNewLabel_14_3.setBounds(137, 20, 71, 16);
+		panel_1.add(lblNewLabel_14_3);
 		
 		 lblTotalPagamentos = new JLabel("R$ 0,00");
-		lblTotalPagamentos.setBorder(new LineBorder(new Color(0, 0, 0)));
-		lblTotalPagamentos.setBounds(163, 312, 143, 23);
-		painelGraficos.add(lblTotalPagamentos);
-		
-		JLabel lblNewLabel_3 = new JLabel("Carregamento de Saída");
-		lblNewLabel_3.setBounds(473, 286, 132, 16);
-		painelGraficos.add(lblNewLabel_3);
-		
-		JLabel lblNewLabel_12 = new JLabel("Total:");
-		lblNewLabel_12.setBounds(428, 321, 46, 14);
-		painelGraficos.add(lblNewLabel_12);
-		
-		JLabel lblNewLabel_13 = new JLabel("Total Carregado:");
-		lblNewLabel_13.setBounds(385, 356, 101, 14);
-		painelGraficos.add(lblNewLabel_13);
-		
-		 lblPesoTotal = new JLabel("0 Kg  | 0 Sacos");
-		lblPesoTotal.setFont(new Font("Tahoma", Font.BOLD, 11));
-		lblPesoTotal.setBorder(new LineBorder(new Color(0, 0, 0)));
-		lblPesoTotal.setBounds(486, 315, 193, 23);
-		painelGraficos.add(lblPesoTotal);
-		
-		 lblPesoTotalRealCargas = new JLabel("0 Kg | 0 Sacos");
-		lblPesoTotalRealCargas.setFont(new Font("Tahoma", Font.BOLD, 11));
-		lblPesoTotalRealCargas.setBorder(new LineBorder(new Color(0, 0, 0)));
-		lblPesoTotalRealCargas.setBounds(486, 350, 193, 23);
-		painelGraficos.add(lblPesoTotalRealCargas);
-		
-		JLabel lblNewLabel_13_1 = new JLabel("Restante:");
-		lblNewLabel_13_1.setBounds(421, 392, 65, 14);
-		painelGraficos.add(lblNewLabel_13_1);
-		
-		 lblPesoTotalRealRestante = new JLabel("0 Kg | 0 Sacos");
-		lblPesoTotalRealRestante.setFont(new Font("Tahoma", Font.BOLD, 11));
-		lblPesoTotalRealRestante.setBorder(new LineBorder(new Color(0, 0, 0)));
-		lblPesoTotalRealRestante.setBounds(486, 386, 193, 23);
-		painelGraficos.add(lblPesoTotalRealRestante);
-		
-		JLabel lblNewLabel_13_2 = new JLabel("Total Carregado:");
-		lblNewLabel_13_2.setBounds(744, 317, 92, 16);
-		painelGraficos.add(lblNewLabel_13_2);
-		
-		JLabel lblNewLabel_13_2_1 = new JLabel("Restante:");
-		lblNewLabel_13_2_1.setBounds(783, 350, 53, 16);
-		painelGraficos.add(lblNewLabel_13_2_1);
-		
-		 lblPesoTotalNotasFiscaisRestante = new JLabel("0 Kg | 0 Sacos");
-		lblPesoTotalNotasFiscaisRestante.setFont(new Font("Tahoma", Font.BOLD, 11));
-		lblPesoTotalNotasFiscaisRestante.setBorder(new LineBorder(new Color(0, 0, 0)));
-		lblPesoTotalNotasFiscaisRestante.setBounds(839, 349, 185, 23);
-		painelGraficos.add(lblPesoTotalNotasFiscaisRestante);
-		
-		 lblPesoTotalNotasFiscais = new JLabel("0 Kg | 0 Sacos");
-		lblPesoTotalNotasFiscais.setFont(new Font("Tahoma", Font.BOLD, 11));
-		lblPesoTotalNotasFiscais.setBorder(new LineBorder(new Color(0, 0, 0)));
-		lblPesoTotalNotasFiscais.setBounds(839, 315, 185, 23);
-		painelGraficos.add(lblPesoTotalNotasFiscais);
-		
-		JLabel lblNewLabel_3_1 = new JLabel("Notas Fiscais:");
-		lblNewLabel_3_1.setBounds(846, 286, 79, 16);
-		painelGraficos.add(lblNewLabel_3_1);
-		
-		 painelGraficoCarregamento = new JPanelGraficoPadrao(0, 0, "Carregado:", "a Carregar:");
-		painelGraficoCarregamento.setLayout(null);
-		painelGraficoCarregamento.setBounds(385, 24, 317, 250);
-		painelGraficos.add(painelGraficoCarregamento);
-		
-		JLabel lblNewLabel_1 = new JLabel("");
-		lblNewLabel_1.setIcon(new ImageIcon(TelaVisaoGeralContrato.class.getResource("/imagens/icone_caminhao.png")));
-		lblNewLabel_1.setBounds(6, 6, 64, 64);
-		painelGraficoCarregamento.add(lblNewLabel_1);
-		
-		 painelGraficoPagamentos = new JPanelGraficoPadrao(0, 0, "Pago: ", "a Pagar: ");
-		painelGraficoPagamentos.setLayout(null);
-		painelGraficoPagamentos.setBounds(24, 24, 300, 250);
-		painelGraficos.add(painelGraficoPagamentos);
-		
-		JLabel lblNewLabel = new JLabel("");
-		lblNewLabel.setIcon(new ImageIcon(TelaVisaoGeralContrato.class.getResource("/imagens/icone_dinheiro.png")));
-		lblNewLabel.setBounds(0, 6, 64, 64);
-		painelGraficoPagamentos.add(lblNewLabel);
-		
-		 painelGraficoNFs = new JPanelGraficoPadrao(0, 0, "Total NF:", "Falta Tirar:");
-		painelGraficoNFs.setLayout(null);
-		painelGraficoNFs.setBounds(731, 24, 300, 250);
-		painelGraficos.add(painelGraficoNFs);
-		
-		JLabel lblNewLabel_2 = new JLabel("New label");
-		lblNewLabel_2.setIcon(new ImageIcon(TelaVisaoGeralContrato.class.getResource("/imagens/icone_nf.png")));
-		lblNewLabel_2.setBounds(6, 6, 64, 64);
-		painelGraficoNFs.add(lblNewLabel_2);
+		 lblTotalPagamentos.setBounds(148, 46, 143, 23);
+		 panel_1.add(lblTotalPagamentos);
+		 lblTotalPagamentos.setBorder(new LineBorder(new Color(0, 0, 0)));
+		 
+		  lblTotalPagamentosEfetuados = new JLabel("R$ 0,00");
+		  lblTotalPagamentosEfetuados.setBounds(148, 80, 143, 23);
+		  panel_1.add(lblTotalPagamentosEfetuados);
+		  lblTotalPagamentosEfetuados.setBorder(new LineBorder(new Color(0, 0, 0)));
+		  
+		   lblTotalTransferenciasRetiradas = new JLabel("R$ 0,00");
+		   lblTotalTransferenciasRetiradas.setBounds(148, 112, 143, 23);
+		   panel_1.add(lblTotalTransferenciasRetiradas);
+		   lblTotalTransferenciasRetiradas.setBorder(new LineBorder(new Color(0, 0, 0)));
+		   
+		    lblTotalTransferenciasRecebidas = new JLabel("R$ 0,00");
+		    lblTotalTransferenciasRecebidas.setBounds(148, 146, 143, 23);
+		    panel_1.add(lblTotalTransferenciasRecebidas);
+		    lblTotalTransferenciasRecebidas.setBorder(new LineBorder(new Color(0, 0, 0)));
+		    
+		     lblTotalPagamentosRestantes = new JLabel("R$ 0,00");
+		     lblTotalPagamentosRestantes.setBounds(148, 187, 143, 23);
+		     panel_1.add(lblTotalPagamentosRestantes);
+		     lblTotalPagamentosRestantes.setBorder(new LineBorder(new Color(0, 0, 0)));
+		     
+		      painelGraficoPagamentos = new JPanelGraficoPadrao(0, 0, "Pago: ", "a Pagar: ");
+		      painelGraficoPagamentos.setBounds(21, 222, 300, 250);
+		      panel_1.add(painelGraficoPagamentos);
+		      painelGraficoPagamentos.setLayout(null);
+		      
+		      JLabel lblNewLabel = new JLabel("");
+		      lblNewLabel.setBounds(6, 6, 64, 64);
+		      panel_1.add(lblNewLabel);
+		      lblNewLabel.setIcon(new ImageIcon(TelaVisaoGeralContrato.class.getResource("/imagens/icone_dinheiro.png")));
+		      
+		      JPanel panel_2 = new JPanel();
+		      panel_2.setBounds(349, 6, 341, 497);
+		      painelGraficos.add(panel_2);
+		      panel_2.setBackground(new Color(102, 102, 102));
+		      panel_2.setLayout(null);
+		      
+		      JLabel lblNewLabel_3 = new JLabel("Carregamento de Saída");
+		      lblNewLabel_3.setBounds(106, 56, 132, 16);
+		      panel_2.add(lblNewLabel_3);
+		      
+		      JLabel lblNewLabel_12 = new JLabel("Total:");
+		      lblNewLabel_12.setBounds(61, 91, 46, 14);
+		      panel_2.add(lblNewLabel_12);
+		      
+		      JLabel lblNewLabel_13 = new JLabel("Total Carregado:");
+		      lblNewLabel_13.setBounds(18, 126, 101, 14);
+		      panel_2.add(lblNewLabel_13);
+		      
+		      JLabel lblNewLabel_13_1 = new JLabel("Restante:");
+		      lblNewLabel_13_1.setBounds(54, 162, 65, 14);
+		      panel_2.add(lblNewLabel_13_1);
+		      
+		       lblPesoTotalRealRestante = new JLabel("0 Kg | 0 Sacos");
+		       lblPesoTotalRealRestante.setBounds(119, 156, 193, 23);
+		       panel_2.add(lblPesoTotalRealRestante);
+		       lblPesoTotalRealRestante.setFont(new Font("Tahoma", Font.BOLD, 11));
+		       lblPesoTotalRealRestante.setBorder(new LineBorder(new Color(0, 0, 0)));
+		       
+		        lblPesoTotalRealCargas = new JLabel("0 Kg | 0 Sacos");
+		        lblPesoTotalRealCargas.setBounds(119, 120, 193, 23);
+		        panel_2.add(lblPesoTotalRealCargas);
+		        lblPesoTotalRealCargas.setFont(new Font("Tahoma", Font.BOLD, 11));
+		        lblPesoTotalRealCargas.setBorder(new LineBorder(new Color(0, 0, 0)));
+		        
+		         lblPesoTotal = new JLabel("0 Kg  | 0 Sacos");
+		         lblPesoTotal.setBounds(119, 85, 193, 23);
+		         panel_2.add(lblPesoTotal);
+		         lblPesoTotal.setFont(new Font("Tahoma", Font.BOLD, 11));
+		         lblPesoTotal.setBorder(new LineBorder(new Color(0, 0, 0)));
+		         
+		          painelGraficoCarregamento = new JPanelGraficoPadrao(0, 0, "Carregado:", "a Carregar:");
+		          painelGraficoCarregamento.setBounds(21, 222, 300, 250);
+		          panel_2.add(painelGraficoCarregamento);
+		          painelGraficoCarregamento.setLayout(null);
+		          
+		          JLabel lblNewLabel_1 = new JLabel("");
+		          lblNewLabel_1.setBounds(6, 6, 64, 64);
+		          panel_2.add(lblNewLabel_1);
+		          lblNewLabel_1.setIcon(new ImageIcon(TelaVisaoGeralContrato.class.getResource("/imagens/icone_caminhao.png")));
+		          
+		          JPanel panel_3 = new JPanel();
+		          panel_3.setBounds(694, 6, 341, 497);
+		          painelGraficos.add(panel_3);
+		          panel_3.setBackground(new Color(0, 102, 255));
+		          panel_3.setLayout(null);
+		          
+		          JLabel lblNewLabel_13_2 = new JLabel("Total Carregado:");
+		          lblNewLabel_13_2.setBounds(26, 108, 92, 16);
+		          panel_3.add(lblNewLabel_13_2);
+		          
+		           lblPesoTotalNotasFiscais = new JLabel("0 Kg | 0 Sacos");
+		           lblPesoTotalNotasFiscais.setBounds(121, 106, 185, 23);
+		           panel_3.add(lblPesoTotalNotasFiscais);
+		           lblPesoTotalNotasFiscais.setFont(new Font("Tahoma", Font.BOLD, 11));
+		           lblPesoTotalNotasFiscais.setBorder(new LineBorder(new Color(0, 0, 0)));
+		           
+		           JLabel lblNewLabel_3_1 = new JLabel("Notas Fiscais:");
+		           lblNewLabel_3_1.setBounds(128, 77, 79, 16);
+		           panel_3.add(lblNewLabel_3_1);
+		           
+		            lblPesoTotalNotasFiscaisRestante = new JLabel("0 Kg | 0 Sacos");
+		            lblPesoTotalNotasFiscaisRestante.setBounds(121, 140, 185, 23);
+		            panel_3.add(lblPesoTotalNotasFiscaisRestante);
+		            lblPesoTotalNotasFiscaisRestante.setFont(new Font("Tahoma", Font.BOLD, 11));
+		            lblPesoTotalNotasFiscaisRestante.setBorder(new LineBorder(new Color(0, 0, 0)));
+		            
+		            JLabel lblNewLabel_13_2_1 = new JLabel("Restante:");
+		            lblNewLabel_13_2_1.setBounds(65, 141, 53, 16);
+		            panel_3.add(lblNewLabel_13_2_1);
+		            
+		             painelGraficoNFs = new JPanelGraficoPadrao(0, 0, "Total NF:", "Falta Tirar:");
+		             painelGraficoNFs.setBounds(21, 222, 300, 250);
+		             panel_3.add(painelGraficoNFs);
+		             painelGraficoNFs.setLayout(null);
+		             
+		             JLabel lblNewLabel_2 = new JLabel("New label");
+		             lblNewLabel_2.setBounds(6, 6, 64, 64);
+		             panel_3.add(lblNewLabel_2);
+		             lblNewLabel_2.setIcon(new ImageIcon(TelaVisaoGeralContrato.class.getResource("/imagens/icone_nf.png")));
 		
 		painelPrincipal.setBackground(new Color(255, 255, 255));
 		painelPrincipal.setBorder(new EmptyBorder(5, 5, 5, 5));
@@ -299,7 +318,7 @@ public class TelaVisaoGeralContrato extends JDialog {
 		JScrollPane scrollPane = new JScrollPane(lista_sub_contratos);
 		scrollPane.setBorder(new MatteBorder(2, 2, 0, 3, (Color) new Color(0, 0, 153)));
 		scrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
-		scrollPane.setBounds(6, 6, 1045, 122);
+		scrollPane.setBounds(6, 6, 1016, 122);
 		scrollPane.setAutoscrolls(false);
 
 		panel.add(scrollPane);
@@ -307,7 +326,7 @@ public class TelaVisaoGeralContrato extends JDialog {
 		JLabel tPContratoOriginal = new JLabel();
 		tPContratoOriginal.setFont(new Font("Arial", Font.PLAIN, 14));
 		tPContratoOriginal.setBorder(new LineBorder(new Color(0, 0, 0), 1, true));
-		tPContratoOriginal.setBounds(20, 49, 1035, 65);
+		tPContratoOriginal.setBounds(20, 49, 1012, 65);
 
 		NumberFormat z = NumberFormat.getNumberInstance();
 		Locale ptBr = new Locale("pt", "BR");
@@ -674,7 +693,14 @@ public class TelaVisaoGeralContrato extends JDialog {
 			// definir peso carregamento
 			double peso_carregado = carregamento.getPeso_real_carga();
 			// definir peso da nota
-			double peso_nota = Double.parseDouble(nota.getQuantidade());
+			Number number = null;
+			try {
+				number = z.parse(nota.getQuantidade());
+			} catch (ParseException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			double peso_nota = number.doubleValue();
 			// definir peso restante para nota
 			double peso_nota_restante = peso_carregado - peso_nota;
 

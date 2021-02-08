@@ -51,7 +51,8 @@ public class JPanelGraficoPadrao extends JPanel{
 	public void paintComponent( Graphics g ) {
 	    super.paintComponent( g );
 	    
-	    this.setBackground(Color.white);
+	    this.setBackground(new Color(0,0,0,0));
+	    this.setOpaque(true);
 
 	    int percentualassinados = 0; 
 	    int percentualnao_assinados = 0; 

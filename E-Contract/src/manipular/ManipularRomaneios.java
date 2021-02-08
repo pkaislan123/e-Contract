@@ -95,7 +95,9 @@ public class ManipularRomaneios {
 				CadastroRomaneio romaneio = filtrar(file);
 
 				if (romaneio != null) {
+
 					romaneios.add(romaneio);
+
 					countNotas++;
 					
 				}
@@ -155,7 +157,7 @@ public class ManipularRomaneios {
                
 				
                 if(e_romaneio)
-                romaneio = tratar_romaneio(lines, file);
+                  romaneio = tratar_romaneio(lines, file);
 				
 
 			}
@@ -212,13 +214,16 @@ public class ManipularRomaneios {
  		
 		String umidade = tratamentoDados.tratar("UMIDADE                 ", " ");
 		romaneio.setUmidade(Double.parseDouble(umidade.replaceAll(",", ".")));
-       
+		
+		
          String impureza = tratamentoDados.tratar("IMPUREZA                 ", " ");
+
          romaneio.setInpureza(Double.parseDouble(impureza.replaceAll(",", ".")));
-         
+
          String avariado = tratamentoDados.tratar("AVARIADO                 ", " ");
          romaneio.setAvariados(Double.parseDouble(avariado.replaceAll(",", ".")));
-         
+
+
          //procurar por pesos
          String linha_com_pesos = tratamentoDados.tratar("Tara Observações", ", Inclusão:");
          linha_com_pesos = linha_com_pesos.replaceAll("[^0-9., ]", "");
@@ -552,12 +557,18 @@ public class ManipularRomaneios {
 	    	prosseguir = false;
 
 	    }
+
 	    
 	    if(prosseguir) {
+
 	    	romaneio.setDestinatario(destinatario);
+			
+			
+
+
 	    	romaneio.setRemetente(remetente);
 	    	
-	    	
+
 	    	
 	    	return romaneio;
 	    }else {

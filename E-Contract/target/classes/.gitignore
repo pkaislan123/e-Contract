@@ -1,5 +1,3 @@
-/imagens/
-/mensageria/
 /cadastros/
 /chat/
 /classesExtras/
@@ -7,7 +5,9 @@
 /conexoes/
 /graficos/
 /gui/
+/imagens/
 /manipular/
+/mensageria/
 /outros/
 /principal/
 /relatoria/

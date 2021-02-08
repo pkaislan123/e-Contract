@@ -3,7 +3,7 @@ package gui;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.FlowLayout;
-
+import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.JButton;
 import javax.swing.JDialog;
 import javax.swing.JFileChooser;
@@ -15,6 +15,7 @@ import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.ImageIcon;
 import java.awt.event.ActionListener;
 import java.io.File;
+import javax.swing.table.TableCellRenderer;
 import java.io.IOException;
 import java.net.URL;
 import java.net.URLConnection;
@@ -25,8 +26,10 @@ import java.text.NumberFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Locale;
 import java.util.Set;
 import java.awt.event.ActionEvent;
@@ -107,7 +110,7 @@ public class TelaContratos extends JDialog {
 		JButton btnContrato = new JButton("Novo Contrato");
 		btnContrato.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				TelaEscolhaTipoNovoContrato telaNovoCadastro = new TelaEscolhaTipoNovoContrato(0, null, 0);
+				TelaEscolhaTipoNovoContrato telaNovoCadastro = new TelaEscolhaTipoNovoContrato(0, null, 0,isto);
 			}
 		});
 		// btnContrato.setIcon(new
@@ -120,8 +123,11 @@ public class TelaContratos extends JDialog {
 		panel.setLayout(null);
 		panel.setBounds(30, 180, 1006, 266);
 		painelPrincipal.add(panel);
+		
 
 		JTable tabela = new JTable(modelo_contratos);
+		TableCellRenderer renderer = new EvenOddRenderer();
+		tabela.setDefaultRenderer(Object.class, renderer);
 		sorter = new TableRowSorter<ContratoTableModel>(modelo_contratos);
 
 		tabela.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
@@ -150,6 +156,9 @@ public class TelaContratos extends JDialog {
 
 		} else
 			pesquisar();
+		
+		tabela.setRowHeight (30); 
+
 
 		JScrollPane scrollPane = new JScrollPane(tabela);
 		scrollPane.addMouseListener(new MouseAdapter() {
@@ -199,11 +208,11 @@ public class TelaContratos extends JDialog {
 								+ vendedor.getNome_fantaia());
 				}
 
-				TelaGerenciarContrato gerenciar_contrato = new TelaGerenciarContrato(contrato_selecionado);
+				TelaGerenciarContrato gerenciar_contrato = new TelaGerenciarContrato(contrato_selecionado,isto);
 
 			}
 		});
-		btnAbrir.setBounds(802, 457, 121, 23);
+		btnAbrir.setBounds(840, 453, 81, 36);
 		getContentPane().add(btnAbrir);
 
 		JButton btnSelecionar = new JButton("Selecionar");
@@ -251,7 +260,7 @@ public class TelaContratos extends JDialog {
 				}
 			}
 		});
-		btnSelecionar.setBounds(703, 457, 89, 23);
+		btnSelecionar.setBounds(741, 457, 87, 28);
 		painelPrincipal.add(btnSelecionar);
 
 		JButton btnImportarTerceiros = new JButton("Importar");
@@ -260,7 +269,7 @@ public class TelaContratos extends JDialog {
 				importarContratoTerceiros();
 			}
 		});
-		btnImportarTerceiros.setBounds(604, 457, 89, 23);
+		btnImportarTerceiros.setBounds(655, 457, 74, 28);
 		painelPrincipal.add(btnImportarTerceiros);
 
 		entNomeComprador = new JTextField();
@@ -369,6 +378,40 @@ public class TelaContratos extends JDialog {
 		entTransgenia.setColumns(10);
 		entTransgenia.setBounds(662, 136, 164, 33);
 		painelPrincipal.add(entTransgenia);
+		
+		JButton btnImportarManualmente = new JButton("Importar Manualmente");
+		btnImportarManualmente.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				JOptionPane.showMessageDialog(null, "Na próxima tela, importe o arquivo\ndo contrato de terceiro");
+
+				JFileChooser fileChooser = new JFileChooser();
+				fileChooser.setPreferredSize(new Dimension(800, 600));
+				fileChooser.setMultiSelectionEnabled(false);
+				FileNameExtensionFilter filter = new FileNameExtensionFilter("Arquivo PDF", "pdf");
+
+				int result = fileChooser.showOpenDialog(isto);
+
+				File file = fileChooser.getSelectedFile();
+
+				
+					ManipularArquivoTerceiros manipular = new ManipularArquivoTerceiros();
+					CadastroContrato contrato_importar = manipular.filtrar(file);
+                
+					if(contrato_importar != null) {
+						//JOptionPane.showMessageDialog(isto, "O arquivo selecionado pode ser lido de for automatica!");
+
+					}else {
+						//abrir tela de adicionar novo contrato
+						TelaElaborarNovoContrato tela = new TelaElaborarNovoContrato(null, 2, null, 0);
+						tela.setVisible(true);
+
+					}
+				
+			
+			}
+		});
+		btnImportarManualmente.setBounds(491, 457, 152, 28);
+		painelPrincipal.add(btnImportarManualmente);
 
 		if (flag_retorno == 1 || flag_retorno == 2 || flag_retorno == 3 || flag_retorno == 4) {
 			// selecionar contrato para carregamento
@@ -393,11 +436,13 @@ public class TelaContratos extends JDialog {
 			if (contrato.getSub_contrato() == 0 || contrato.getSub_contrato() == 3) {
 
 				modelo_contratos.onAdd(contrato);
-
+			
 				lista_contratos.add(contrato);
 			}
 
 		}
+		
+		
 
 	}
 
@@ -504,6 +549,38 @@ public class TelaContratos extends JDialog {
 		return txt != null && !txt.equals("") && !txt.equals(" ") && !txt.equals("  ");
 	}
 
+	
+	
+	class EvenOddRenderer implements TableCellRenderer {
+
+		  public  final DefaultTableCellRenderer DEFAULT_RENDERER = new DefaultTableCellRenderer();
+
+		  public Component getTableCellRendererComponent(JTable table, Object value,
+		      boolean isSelected, boolean hasFocus, int row, int column) {
+		    Component renderer = DEFAULT_RENDERER.getTableCellRendererComponent(
+		        table, value, isSelected, hasFocus, row, column);
+		    ((JLabel) renderer).setOpaque(true);
+		   
+		      String dados = (String) table.getValueAt(row, 4);
+		   
+		     if(isSelected) {
+				    renderer.setBackground(Color.blue);
+
+		     }else {
+		     if(dados.equalsIgnoreCase("RECOLHER ASSINATURAS")) {
+				    renderer.setBackground(Color.white);
+
+		     }else if(dados.equalsIgnoreCase("Em Aprovação")){
+				    renderer.setBackground(Color.yellow);
+
+		     }
+		     }
+		    
+		  
+		    return renderer;
+		  }
+		}
+	
 	public class ContratoTableModel extends AbstractTableModel {
 
 		// constantes p/identificar colunas
@@ -522,6 +599,13 @@ public class TelaContratos extends JDialog {
 		private final int corretores = 12;
 		private final int data_contrato = 13;
 
+		List<Color> rowColours = Arrays.asList(
+		        Color.RED,
+		        Color.GREEN,
+		        Color.CYAN
+		    );
+
+		
 		private final String colunas[] = { "ID", "Código", "Compradores:", "Vendedores:", "Status:", "Quantidade:",
 				"Medida:", "Produto:", "Transgênese", "Safra:", "Valor Produto:", "Valor Total:", "Corretores:", "Data Contrato" };
 		private final ArrayList<CadastroContrato> dados = new ArrayList<>();// usamos como dados uma lista genérica de
@@ -536,6 +620,7 @@ public class TelaContratos extends JDialog {
 			// retorna o total de colunas
 			return colunas.length;
 		}
+		
 
 		@Override
 		public int getRowCount() {
@@ -619,6 +704,9 @@ public class TelaContratos extends JDialog {
 
 				} else if (status == 3) {
 					return "Cumprindo".toUpperCase();
+
+				}else if(status == 0) {
+					return "Em Aprovação".toUpperCase();
 
 				}
 			}

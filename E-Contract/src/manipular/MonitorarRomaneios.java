@@ -11,6 +11,7 @@ import conexaoBanco.GerenciarBancoClientes;
 import outros.DadosGlobais;
 import tratamento_proprio.Log;
 import views_personalizadas.TelaNotificacaoSuperior;
+import views_personalizadas.TelaNotificacaoSuperiorModoBusca;
 
 public class MonitorarRomaneios {
 
@@ -50,7 +51,7 @@ public class MonitorarRomaneios {
 			@Override
 			public void run() {
 
-				TelaNotificacaoSuperior avisos = new TelaNotificacaoSuperior();
+				TelaNotificacaoSuperiorModoBusca avisos = new TelaNotificacaoSuperiorModoBusca();
 
 				new Thread() {
 					@Override

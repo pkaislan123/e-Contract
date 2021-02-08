@@ -26,6 +26,7 @@ import javax.swing.JTextArea;
 import javax.swing.BoxLayout;
 import java.awt.GridLayout;
 import java.awt.SystemColor;
+import java.awt.Window;
 import java.awt.GridBagLayout;
 import java.awt.GridBagConstraints;
 import com.jgoodies.forms.layout.FormLayout;
@@ -47,7 +48,7 @@ public class TelaPadrao extends JDialog {
     private TelaPadrao isto;
     private JDialog telaPai;
 
-	public TelaPadrao() {
+	public TelaPadrao(Window janela_pai) {
 		setModal(true);
 
 		 isto = this;
@@ -68,7 +69,7 @@ public class TelaPadrao extends JDialog {
 		
 		
 
-		this.setLocationRelativeTo(null);
+		this.setLocationRelativeTo(janela_pai);
 
 		
 		

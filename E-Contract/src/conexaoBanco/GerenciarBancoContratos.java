@@ -1111,6 +1111,110 @@ public class GerenciarBancoContratos {
 
 	}
 
+	public CadastroContrato getContratoPorCodigo(String id_codigo) {
+
+		String selectContrato = "select * from contrato where codigo = ?";
+		Connection conn = null;
+		PreparedStatement pstm = null;
+		ResultSet rs = null;
+		CadastroContrato contrato = new CadastroContrato();
+
+		try {
+			conn = ConexaoBanco.getConexao();
+			pstm = conn.prepareStatement(selectContrato);
+			pstm.setString(1, id_codigo);
+
+			rs = pstm.executeQuery();
+			rs.next();
+
+			contrato.setId(rs.getInt("id"));
+			contrato.setCodigo(rs.getString("codigo"));
+			contrato.setSub_contrato(rs.getInt("sub_contrato"));
+			contrato.setTexto_clausulas(rs.getString("clausulas"));
+
+			int id_safra = rs.getInt("id_safra");
+
+			GerenciarBancoSafras gerenciar = new GerenciarBancoSafras();
+			CadastroSafra safra = gerenciar.getSafra(id_safra);
+
+			if (safra != null) {
+
+				contrato.setQuantidade(Double.parseDouble(rs.getString("quantidade")));
+				contrato.setMedida(rs.getString("medida"));
+
+				contrato.setValor_produto(Double.parseDouble(rs.getString("valor_produto")));
+				contrato.setValor_a_pagar(new BigDecimal(rs.getString("valor_a_pagar")));
+
+				contrato.setModelo_safra(safra);
+
+				// produto
+				GerenciarBancoProdutos gerenciar_prod = new GerenciarBancoProdutos();
+				CadastroProduto prod = gerenciar_prod.getProduto(safra.getProduto().getId_produto());
+				contrato.setModelo_produto(prod);
+
+				GerenciarBancoContratos gerenciar_corretores = new GerenciarBancoContratos();
+				CadastroCliente corretores[] = gerenciar_corretores.getCorretores(contrato.getId());
+				contrato.setCorretores(corretores);
+
+				GerenciarBancoContratos gerenciar_vendedores = new GerenciarBancoContratos();
+				CadastroCliente vendedores[] = gerenciar_vendedores.getVendedores(contrato.getId());
+				contrato.setVendedores(vendedores);
+
+				GerenciarBancoContratos gerenciar_compradores = new GerenciarBancoContratos();
+				CadastroCliente compradores[] = gerenciar_compradores.getCompradores(contrato.getId());
+				contrato.setCompradores(compradores);
+
+				GerenciarBancoContratos gerenciar_pagamentos = new GerenciarBancoContratos();
+				ArrayList<CadastroContrato.CadastroPagamento> pagamentos_contrato = gerenciar_pagamentos
+						.getPagamentos(contrato.getId());
+				contrato.setPagamentos(pagamentos_contrato);
+
+				contrato.setStatus_contrato(rs.getInt("status_contrato"));
+				contrato.setData_contrato(rs.getString("data_contrato"));
+				contrato.setData_entrega(rs.getString("data_entrega"));
+				contrato.setCaminho_diretorio_contrato(rs.getString("caminho_diretorio"));
+				contrato.setCaminho_arquivo(rs.getString("caminho_arquivo"));
+				contrato.setNome_arquivo(rs.getString("nome_arquivo"));
+
+				// dados de comissao
+				contrato.setComissao(rs.getInt("comissao"));
+				if (contrato.getComissao() == 1) {
+					contrato.setClausula_comissao(rs.getInt("clausula_comissao"));
+					contrato.setValor_comissao(new BigDecimal(rs.getString("valor_comissao")));
+				}
+
+				// dados de frete
+				contrato.setFrete(rs.getString("frete"));
+				contrato.setClausula_frete(rs.getString("clausula_frete"));
+				// dados de armazenagem
+				contrato.setArmazenagem(rs.getString("armazenagem"));
+				contrato.setClausula_armazenagem(rs.getString("clausula_armazenagem"));
+				
+	            //dados de retirada
+				
+				contrato.setId_local_retirada(rs.getInt("id_local_retirada"));
+				contrato.setTipo_entrega(rs.getInt("tipo_entrega"));
+				
+				
+				ConexaoBanco.fechaConexao(conn, pstm, rs);
+				
+			
+
+				return contrato;
+			} else {
+
+				return null;
+			}
+
+		} catch (Exception e) {
+			JOptionPane.showMessageDialog(null, "Erro ao listar contrato codigo: " + id_codigo + " erro: " + e.getMessage());
+			System.out.println(
+					"Erro ao listar contrato codigo: " + id_codigo + " erro: " + e.getMessage() + "\ncausa: " + e.getCause());
+			return null;
+		}
+
+	}
+	
 	public CadastroContrato getContratoPai(int id_sub_contrato) {
 
 		String selectContrato = "select * from contrato\n"
@@ -2122,12 +2226,44 @@ public class GerenciarBancoContratos {
 		}
 
 	}
+	
+	
+	public int getContratoPorTarefa(int id_tarefa) {
+		System.out.println("Lista tarefas foi chamado!");
+		String selectTarefas = "select id_contrato from contrato_tarefas \n"
+				+ "LEFT JOIN tarefa  on tarefa.id_tarefa = contrato_tarefas.id_tarefa\n"
+				+ "where tarefa.id_tarefa = ?";
+		Connection conn = null;
+		PreparedStatement pstm = null;
+		ResultSet rs = null;
+        int id_contrato = -1;
+		try {
+			conn = ConexaoBanco.getConexao();
+			pstm = conn.prepareStatement(selectTarefas);
+			pstm.setInt(1, id_tarefa);
+
+			rs = pstm.executeQuery();
+			rs.next();
+			id_contrato = rs.getInt("id_contrato");
+
+
+				
+
+			ConexaoBanco.fechaConexao(conn, pstm, rs);
+			return id_contrato;
+		} catch (Exception e) {
+			JOptionPane.showMessageDialog(null, "Erro ao listar contrato por tarefa: " + id_tarefa + " erro: "
+					+ e.getMessage() + "causa: " + e.getCause());
+			return -1;
+		}
+
+	}
 
 	public ArrayList<CadastroContrato.CadastroTarefa> getTarefas(int id_contrato) {
 		System.out.println("Lista tarefas foi chamado!");
 		String selectTarefas = "select * from contrato_tarefas \r\n"
 				+ "LEFT JOIN tarefa  on tarefa.id_tarefa = contrato_tarefas.id_tarefa \r\n"
-				+ "where contrato_tarefas.id_contrato = ?;\r\n" + "";
+				+ "where contrato_tarefas.id_contrato = ?;\r\n";
 		Connection conn = null;
 		PreparedStatement pstm = null;
 		ResultSet rs = null;
@@ -2189,6 +2325,71 @@ public class GerenciarBancoContratos {
 
 	}
 
+	public ArrayList<CadastroContrato.CadastroTarefa> getTodasTarefas() {
+		System.out.println("Lista tarefas foi chamado!");
+		String selectTarefas = "select * from contrato_tarefas \n"
+				+ "LEFT JOIN tarefa  on tarefa.id_tarefa = contrato_tarefas.id_tarefa";
+		Connection conn = null;
+		PreparedStatement pstm = null;
+		ResultSet rs = null;
+		ArrayList<CadastroContrato.CadastroTarefa> lista_tarefas = null;
+
+		try {
+			conn = ConexaoBanco.getConexao();
+			pstm = conn.prepareStatement(selectTarefas);
+
+			rs = pstm.executeQuery();
+			int i = 0;
+
+			while (rs.next()) {
+
+				if (rs != null) {
+					System.out.print("tarefa não e nula!");
+
+					CadastroContrato.CadastroTarefa tarefa = new CadastroContrato.CadastroTarefa();
+
+					tarefa.setId_tarefa(rs.getInt("id_tarefa"));
+					tarefa.setStatus_tarefa(rs.getInt("status_tarefa"));
+					tarefa.setNome_tarefa(rs.getString("nome_tarefa"));
+					tarefa.setDescricao_tarefa(rs.getString("descricao_tarefa"));
+					tarefa.setMensagem(rs.getString("mensagem"));
+					tarefa.setHora(rs.getString("hora"));
+					tarefa.setData(rs.getString("data_tarefa"));
+					tarefa.setResposta(rs.getString("resposta"));
+
+					CadastroLogin criador = new CadastroLogin();
+					CadastroLogin executor = new CadastroLogin();
+
+					criador.setId(rs.getInt("id_usuario_criador"));
+					executor.setId(rs.getInt("id_usuario_executor"));
+
+					tarefa.setCriador(criador);
+					tarefa.setExecutor(executor);
+
+					tarefa.setHora_agendada(rs.getString("hora_agendada"));
+					tarefa.setData_agendada(rs.getString("data_agendada"));
+					tarefa.setPrioridade(rs.getInt("prioridade"));
+
+					if (lista_tarefas == null)
+						lista_tarefas = new ArrayList<>();
+
+					lista_tarefas.add(tarefa);
+
+				}
+			}
+
+			ConexaoBanco.fechaConexao(conn, pstm, rs);
+			System.out.println("Tarefas foram listadas com sucesso!");
+			return lista_tarefas;
+		} catch (Exception e) {
+			JOptionPane.showMessageDialog(null, "Erro ao listar todas as tarefas \n erro: "
+					+ e.getMessage() + "causa: " + e.getCause());
+			return null;
+		}
+
+	}
+
+	
 	public boolean removerTarefas() {
 		boolean retorno = false;
 

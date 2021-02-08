@@ -51,8 +51,9 @@ import java.io.File;
 import java.io.IOException;
 
 import javax.swing.JTextArea;
+import java.awt.Toolkit;
 
-public class TelaEntrada extends JDialog implements GetDadosGlobais{
+public class TelaEntrada extends JFrame implements GetDadosGlobais{
 
 
 	private JPanelBackground contentPane;
@@ -64,12 +65,12 @@ public class TelaEntrada extends JDialog implements GetDadosGlobais{
 	private TelaEntrada isto; 
 	
 	public TelaEntrada() {
+		setIconImage(Toolkit.getDefaultToolkit().getImage(TelaEntrada.class.getResource("/imagens/logo_icone4.png")));
 		
 		getDadosGlobais();
 		
         
 		 isto = this;
-		setModal(true);
 		setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 		setBounds(100, 100, 399, 273);
 		

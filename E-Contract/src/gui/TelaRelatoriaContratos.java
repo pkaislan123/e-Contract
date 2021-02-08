@@ -86,7 +86,7 @@ public class TelaRelatoriaContratos extends JDialog {
 	}
 
 	public TelaRelatoriaContratos() {
-		setModal(true);
+		//setModal(true);
 
 		TelaRelatoriaContratos isto = this;
 

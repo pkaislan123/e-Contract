@@ -41,7 +41,7 @@ public class ManipularArquivoTerceiros {
 		 
 		 file = _file;
 
-		CadastroContrato contrato_local = new CadastroContrato();
+		CadastroContrato contrato_local = new CadastroContrato() ;
 		
 		
 		try (PDDocument document = PDDocument.load(file)) {
@@ -82,6 +82,8 @@ public class ManipularArquivoTerceiros {
 						
 					}else if(lines[i].contains("BUNGE")) {
 						contrato_bungue = true;
+					}else {
+						
 					}
 						
 				}
@@ -99,6 +101,8 @@ public class ManipularArquivoTerceiros {
                 	  contrato_local = contratoFortunato(contrato_local);
                   else if(contrato_bungue)
                 	  contrato_local = contratoBungue(contrato_local);
+                  else
+                	  contrato_local = null;
                   
     			
     			
@@ -128,6 +132,7 @@ public class ManipularArquivoTerceiros {
 	
 	public CadastroContrato contratoCJSelecta(CadastroContrato contrato_local) {
 
+		
 		try {
 		String codigo_contrato = tratamentoDados.tratar("Nº ", " ");
 		contrato_local.setCodigo(codigo_contrato);

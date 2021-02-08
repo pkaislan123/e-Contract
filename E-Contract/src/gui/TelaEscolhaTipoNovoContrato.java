@@ -18,6 +18,8 @@ import conexaoBanco.GerenciarBancoSafras;
 
 import javax.swing.JLabel;
 import java.awt.Font;
+import java.awt.Window;
+
 import javax.swing.SwingConstants;
 import javax.swing.JComboBox;
 import java.awt.event.ActionListener;
@@ -47,7 +49,7 @@ public class TelaEscolhaTipoNovoContrato extends JDialog {
 		    
 	}
 
-	public TelaEscolhaTipoNovoContrato(int tipoContrato, CadastroContrato contrato_pai, int flag_edicao) {
+	public TelaEscolhaTipoNovoContrato(int tipoContrato, CadastroContrato contrato_pai, int flag_edicao,Window janela_pai) {
 		addWindowListener(new WindowAdapter() {
 			@Override
 			public void windowClosed(WindowEvent arg0) {
@@ -61,7 +63,7 @@ public class TelaEscolhaTipoNovoContrato extends JDialog {
 		});
     //		setAlwaysOnTop(true);
 
-		setModal(true);
+		//setModal(true);
 		getDadosGlobais();
 
 		TelaEscolhaTipoNovoContrato isto = this;
@@ -130,7 +132,7 @@ public class TelaEscolhaTipoNovoContrato extends JDialog {
 		painelPrincipal.add(btnCancelarCriarContrato);
 		
 		pesquisarModelos();
-		this.setLocationRelativeTo(null);
+		this.setLocationRelativeTo(janela_pai);
 
 		this.setVisible(true);
 		
