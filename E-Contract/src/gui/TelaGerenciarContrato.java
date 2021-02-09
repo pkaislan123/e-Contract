@@ -99,6 +99,7 @@ import manipular.ConfiguracoesGlobais;
 import manipular.ConverterPdf;
 import manipular.EditarWord;
 import manipular.ManipularNotasFiscais;
+import manipular.ManipularRomaneios;
 import manipular.ManipularTxt;
 import manipular.Nuvem;
 import outros.DadosGlobais;
@@ -1407,7 +1408,6 @@ public class TelaGerenciarContrato extends JFrame {
 		 * travarContrato();
 		 */
 		
-		
 		setarInformacoesPainelPrincipal();
 		 setarInformacoesPainelCarregamentos();
 		 pesquisar_carregamentos();
@@ -1424,6 +1424,7 @@ public class TelaGerenciarContrato extends JFrame {
 		  setInformacoesDistratos();
 		  travarContrato();
 		  
+		lerRomaneios();
 		this.setResizable(true);
 		this.setLocationRelativeTo(janela_pai);
 
@@ -5499,28 +5500,118 @@ public class TelaGerenciarContrato extends JFrame {
 		if(contrato_local.getSub_contrato() == 0 ) {
 			//é um contrato pai local
 			
+			
 			//verifica se ele possui subcontrato
 			GerenciarBancoContratos gerenciar = new GerenciarBancoContratos();
 			ArrayList<CadastroContrato> sub_contratos = gerenciar.getSubContratos(contrato_local.getId());
 			
 			if(sub_contratos.size() < 0) {
 				//o contrato não possui sub-contratos
+				//carrega os romaneios do vendedor do contrato pai
+				
+				CadastroCliente[] clientes_contrato_pai = contrato_local.getVendedores();
+                for(int i = 0; i < clientes_contrato_pai.length;i++) {
+                	if(clientes_contrato_pai[i] != null)
+                	pesquisarRomaneios(clientes_contrato_pai[i]);
+                }
+				
+				
+				
+			}else {
+				//contrato pai com subcontratos
+				//carrega lista de vendedores de cada subcontrato
+				for(CadastroContrato sub : sub_contratos) {
+					CadastroCliente[] clientes_contrato_pai = sub.getVendedores();
+	                for(int i = 0; i < clientes_contrato_pai.length;i++) {
+	                	if(clientes_contrato_pai[i] != null)
+	                	pesquisarRomaneios(clientes_contrato_pai[i]);
+					
+				}
+				
+				
 			}
 			
-			
-			
-			
-			
+			}
 			
 		}else if(contrato_local.getSub_contrato() == 1) {
-			//é um sub contrato
+			//é um sub contrato carrega seus vendedores
+			CadastroCliente[] clientes_contrato_pai = contrato_local.getVendedores();
+            for(int i = 0; i < clientes_contrato_pai.length;i++) {
+            	if(clientes_contrato_pai[i] != null)
+            	pesquisarRomaneios(clientes_contrato_pai[i]);
+            }
 		}else if(contrato_local.getSub_contrato() == 3) {
 			// é um contrato terceirizado, carrega os romaneios dos vendedores
-			
+			CadastroCliente[] clientes_contrato_pai = contrato_local.getVendedores();
+            for(int i = 0; i < clientes_contrato_pai.length;i++) {
+            	if(clientes_contrato_pai[i] != null)
+            	pesquisarRomaneios(clientes_contrato_pai[i]);
+            }
 			
 		}
 		
 	}
+	
+public void pesquisarRomaneios(CadastroCliente vendedor) {
+		
+
+
+		// acessar caminho desses vendedores
+           try {
+	
+			String nome_pasta;
+
+			if (vendedor.getTipo_pessoa() == 0) {
+				nome_pasta = vendedor.getNome_empresarial().toUpperCase();
+			} else {
+				nome_pasta = vendedor.getNome_fantaia().toUpperCase();
+			}
+
+			String unidade_base_dados = configs_globais.getServidorUnidade();
+			String sub_pasta = "E-Contract\\arquivos\\clientes";
+			nome_pasta = nome_pasta.trim();
+
+			String caminho_completo_nf = unidade_base_dados + "\\" + sub_pasta + "\\" + nome_pasta.toUpperCase() + "\\"
+					+ "ROMANEIOS";
+
+			ManipularRomaneios manipular_romaneios = new ManipularRomaneios(caminho_completo_nf);
+			ArrayList<CadastroRomaneio> romaneios = manipular_romaneios.tratar();
+  
+			for(CadastroRomaneio rom : romaneios) {
+				if(romaneios != null) {
+					if(rom.getSafra().getId_safra() == contrato_local.getModelo_safra().getId_safra())
+						addRom(rom);
+				}
+			}
+	
+		
+           }catch(Exception f) {
+        	   JOptionPane.showMessageDialog(isto, "Erro ao listar romaneios\nCausa: " + f.getCause() + "\nErro: " + f.getMessage());
+           }
+	}
+
+public void addRom(CadastroRomaneio romaneio) {
+
+	java.awt.EventQueue.invokeLater(new Runnable() {
+		public void run() {
+			modelo_romaneios.onAdd(romaneio);
+		/*	modelo_nfs.addRow(new Object[] { nota.getNfe(), nota.getSerie(), nota.getNome_remetente(),
+					nota.getInscricao_remetente(), nota.getProtocolo(), nota.getData(), nota.getNatureza(),
+					nota.getNome_destinatario(), nota.getInscricao_destinatario(), nota.getProduto(),
+					nota.getQuantidade(), nota.getValor() });*/
+
+			lblStatusAdicionandoNotas
+					.setText("Aguarde, romaneio estão sendo carregados: Adicionando romaneio " + romaneio.getNumero_romaneio());
+			lblStatusAdicionandoNotas.repaint();
+			lblStatusAdicionandoNotas.updateUI();
+
+			romaneios_disponivel.add(romaneio);
+
+		}
+	});
+
+}
+
 	
 	public void importarAditivo() {
 		

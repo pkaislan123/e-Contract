@@ -564,16 +564,27 @@ public class TelaContratos extends JDialog {
 		      String dados = (String) table.getValueAt(row, 4);
 		   
 		     if(isSelected) {
-				    renderer.setBackground(Color.blue);
+				    renderer.setBackground(new Color  (139,69,19)); //marrom
+				  
 
 		     }else {
 		     if(dados.equalsIgnoreCase("RECOLHER ASSINATURAS")) {
-				    renderer.setBackground(Color.white);
-
-		     }else if(dados.equalsIgnoreCase("Em Aprovação")){
 				    renderer.setBackground(Color.yellow);
 
+		     }else if(dados.equalsIgnoreCase("Em Aprovação")){
+				    renderer.setBackground(new Color(255,69,0)); //laranja
+				    
 		     }
+		     else if(dados.equalsIgnoreCase("Assinado")){
+				    renderer.setBackground(new Color(95,159,159)); //verde
+
+
+		     } else if (dados.equalsIgnoreCase("Cumprindo")) {
+				    renderer.setBackground(new Color(0,100,0)); //verde
+
+
+				} 
+
 		     }
 		    
 		  

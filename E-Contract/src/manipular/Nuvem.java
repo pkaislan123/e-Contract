@@ -6,6 +6,8 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.Locale;
 
+import javax.swing.JOptionPane;
+
 import com.dropbox.core.DbxApiException;
 import com.dropbox.core.DbxAppInfo;
 import com.dropbox.core.DbxAuthFinish;
@@ -27,9 +29,9 @@ import com.dropbox.core.v2.users.FullAccount;
 public class Nuvem {
 
 	
-	final String APP_KEY = "emfrs8dnamy2akw";
-	final String APP_SECRET = "emk2292wuo58xfa";
-    private  static  final  String  ACCESS_TOKEN  =  "jHnQFUSy5YUAAAAAAAAAAeor8xtM_IOcCmsyDiu_ngsRUeuWTOg2pMfP9N5m1fFl" ;
+	final String APP_KEY = "8jwob8m3dm9cr2j";
+	final String APP_SECRET = "ml3brqscy8vb26t";
+    private  static  final  String  ACCESS_TOKEN  =  "fyBpaZh_e20AAAAAAAAAAS1VuOB5royOV3ZLjoUKsa3rCZdSopbvxyfLHmixRZ8K" ;
 
     DbxClientV2 client;
     

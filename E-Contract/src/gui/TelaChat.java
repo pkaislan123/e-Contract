@@ -6,7 +6,9 @@ import java.awt.Font;
 import java.awt.GraphicsDevice;
 import java.awt.GraphicsEnvironment;
 import java.awt.Point;
+import java.awt.Rectangle;
 import java.awt.Toolkit;
+import java.awt.Window;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
@@ -66,7 +68,7 @@ public class TelaChat extends JDialog {
 	private ArrayList<DefaultListModel<CadastroLogin.Mensagem>> listModels = new ArrayList<DefaultListModel<CadastroLogin.Mensagem>>();
 	private JFrame telaPrincipal;
 	private TelaChat isto;
-	public TelaChat() {
+	public TelaChat(Window janela_pai) {
 
 		getDadosGlobais();
 		// setModal(true);
@@ -133,11 +135,10 @@ public class TelaChat extends JDialog {
 		});
 		lblNewLabel.setFont(new Font("Tahoma", Font.BOLD, 14));
 
-		Dimension scrnSize = Toolkit.getDefaultToolkit().getScreenSize();
-		java.awt.Rectangle winSize = GraphicsEnvironment.getLocalGraphicsEnvironment().getMaximumWindowBounds();
-		int taskBarHeight = scrnSize.height - winSize.height;
-		System.out.printf("Altura: %d\n", taskBarHeight);
-
+		
+		
+		
+/*
 		GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
 		GraphicsDevice defaultScreen = ge.getDefaultScreenDevice();
 		java.awt.Rectangle rect = defaultScreen.getDefaultConfiguration().getBounds();
@@ -145,15 +146,44 @@ public class TelaChat extends JDialog {
 		int y = (int) rect.getMaxY() - getHeight() - taskBarHeight;
 
 		this.setLocation(x, y);
+		*/
+		
+
+	 
+		
+		
 		setAlwaysOnTop(true);
+		
 		procuraUsuariosOnline();
 		//procurarMensagens();
 		abrirChat();
 		
-		this.setVisible(true);
+		//this.setVisible(true);
 
 	}
+	
+	public void mostrar(int index_tela_pai) {
+		
+		Dimension scrnSize = Toolkit.getDefaultToolkit().getScreenSize();
+		java.awt.Rectangle winSize = GraphicsEnvironment.getLocalGraphicsEnvironment().getMaximumWindowBounds();
+		int taskBarHeight = scrnSize.height - winSize.height;
+		System.out.printf("Altura: %d\n", taskBarHeight);
+		
+		GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
+    	JOptionPane.showMessageDialog(null, "id da tela pai: " + index_tela_pai);
 
+	    GraphicsDevice[] gd = ge.getScreenDevices();
+	    Rectangle rect = gd[index_tela_pai].getDefaultConfiguration().getBounds();
+		rect = gd[index_tela_pai].getDefaultConfiguration().getBounds();
+		int x = (int) rect.getMaxX() - getWidth();
+		int y = (int) rect.getMaxY() - getHeight() - taskBarHeight;
+	    this.setLocation(x, y);
+	    this.setVisible(true);
+	}
+	
+	
+	
+	
 	public void getDadosGlobais() {
 		// gerenciador de log
 		DadosGlobais dados = DadosGlobais.getInstance();

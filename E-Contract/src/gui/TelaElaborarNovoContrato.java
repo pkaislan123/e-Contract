@@ -2983,7 +2983,7 @@ public class TelaElaborarNovoContrato extends JDialog {
 			}
 		} else {
 			JOptionPane.showMessageDialog(null,
-					"Houve um erro é o contrato não pode ser salvo fisicamente\nOperação cancelada!");
+					"Houve um erro é o contrato não pode ser salvo fisicamente\nOperação cancelada!\nRetorno: " + salvou);
 			isto.dispose();
 
 		}

@@ -2260,6 +2260,8 @@ public class GerenciarBancoContratos {
 	}
 
 	public ArrayList<CadastroContrato.CadastroTarefa> getTarefas(int id_contrato) {
+		
+		
 		System.out.println("Lista tarefas foi chamado!");
 		String selectTarefas = "select * from contrato_tarefas \r\n"
 				+ "LEFT JOIN tarefa  on tarefa.id_tarefa = contrato_tarefas.id_tarefa \r\n"
@@ -3417,7 +3419,7 @@ public class GerenciarBancoContratos {
 
 	public int getNumeroContratosParaAssinar() {
 
-		String selectGetNumContratos = "SELECT (SELECT count(*) from contrato where status_contrato = 1) "
+		String selectGetNumContratos = "SELECT (SELECT count(*) from contrato where status_contrato = 1 or status_contrato = 0) "
 				+ " + (SELECT count(*) from aditivo where status_aditivo = 1) as result;";
 		Connection conn = null;
 		PreparedStatement pstm = null;

@@ -332,7 +332,6 @@ public class TelaRomaneios extends JDialog {
 					+ "ROMANEIOS";
 
 			ManipularRomaneios manipular_romaneios = new ManipularRomaneios(caminho_completo_nf);
-			manipular_romaneios.setPai(isto);
 			ArrayList<CadastroRomaneio> romaneios = manipular_romaneios.tratar();
   
 			for(CadastroRomaneio rom : romaneios) {

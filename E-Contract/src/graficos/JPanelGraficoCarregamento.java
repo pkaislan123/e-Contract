@@ -22,13 +22,13 @@ public class JPanelGraficoCarregamento extends JPanel{
 		
 		 
 
-	    lblCarregados.setBounds(350, 27, 150, 14);
+	    lblCarregados.setBounds(350, 27, 150, 40);
 	    lblCarregados.setFont(new Font("Tahoma", Font.BOLD, 14));
     	lblCarregados.setForeground(new Color(0,100,0));
 
 	    this.add(lblCarregados);
 
-	    lblNaoCarregados.setBounds(100, 224, 150, 25);
+	    lblNaoCarregados.setBounds(100, 224, 150, 40);
 	    lblNaoCarregados.setFont(new Font("Tahoma", Font.BOLD, 14));
     	lblNaoCarregados.setForeground(Color.red);
 

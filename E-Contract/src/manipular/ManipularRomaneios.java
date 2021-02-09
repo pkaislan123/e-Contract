@@ -53,7 +53,6 @@ public class ManipularRomaneios {
 	private CadastroLogin login;
 	private ConfiguracoesGlobais configs_globais;
 
-	private JDialog tela_pai;
 	
 	public ManipularRomaneios(String _caminho) {
 		getDadosGlobais();
@@ -583,10 +582,7 @@ public class ManipularRomaneios {
 	
 
 
-	public void setPai(JDialog _pai) {
-		this.tela_pai = _pai;
-
-	}
+	
 
 	private void getDadosGlobais() {
 		// gerenciador de log
