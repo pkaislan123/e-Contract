@@ -1119,7 +1119,7 @@ public void abrirPagina(String s_dataInicio, String s_dataFim, String natureza) 
   	  		String nome_nota = "NFA-" + s_id_nota + ".pdf";
   	  		//renomear essa nota
   	  		ManipularTxt manipular = new ManipularTxt();
-  	  		String caminho_completo_origem = configs_globais.getServidorUnidade() + "E-Contract\\arquivos\\notas_baixadas\\"  + nome_nota;
+  	  		String caminho_completo_origem = configs_globais.getServidorUnidade() + "E-Contract\\arquivos\\arquivos_comuns\\"  + nome_nota;
   	  		String caminho_completo_destino = s_caminho_diretorio_proprio + nome_nota; 
   	  		
   	  		

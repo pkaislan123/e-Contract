@@ -3,6 +3,7 @@ package outros;
 import cadastros.CadastroBaseDados;
 import cadastros.CadastroLogin;
 import gui.TelaGerenciarContrato;
+import gui.TelaMain;
 import gui.TelaElaborarNovoContrato;
 import gui.TelaPrincipal;
 import manipular.ConfiguracoesGlobais;
@@ -13,7 +14,7 @@ public class DadosGlobais {
 
 	private static DadosGlobais INSTANCE;
 	private CadastroLogin Login;
-	private TelaPrincipal telaPrincipal;
+	private TelaMain telaPrincipal;
 	private Log gerenciador_logs;
 	private  ConfiguracoesGlobais configs_globais;
 	private TelaGerenciarContrato teraGerenciarContratoPai;
@@ -53,14 +54,14 @@ public class DadosGlobais {
 		
 	}
 	
-	public void setTelaPrincipal(TelaPrincipal isto)
+	public void setTelaPrincipal(TelaMain isto)
 	{
 		
 		this.telaPrincipal = isto;
 	}
 	
 	
-	public TelaPrincipal getTelaPrincipal()
+	public TelaMain getTelaPrincipal()
 	{
 		return telaPrincipal;
 	}

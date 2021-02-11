@@ -36,6 +36,7 @@ import cadastros.CadastroNFe;
 import cadastros.CadastroProduto;
 import cadastros.CadastroRomaneio;
 import cadastros.CadastroSafra;
+import conexaoBanco.GerenciarBancoClientes;
 import conexaoBanco.GerenciarBancoContratos;
 import manipular.ConfiguracoesGlobais;
 import manipular.ManipularNotasFiscais;
@@ -72,17 +73,17 @@ public class TelaRomaneios extends JDialog {
 	private JTable table_nfs;
 	private TelaRomaneios isto;
 	private JButton btnSelecionarNota;
-	
+
 	private JLabel lblStatusAdicionandoNotas;
 	private int contador = 0;
-	private JFileChooser fileChooser_global ;
-	  private ArrayList<String> listadeArquivos = new ArrayList<>();
+	private JFileChooser fileChooser_global;
+	private ArrayList<String> listadeArquivos = new ArrayList<>();
 
 	private final JPanel painelPrincipal = new JPanel();
-	
+
 	private RomaneioTableModel modelo_nfs = new RomaneioTableModel();
 	private TableRowSorter<RomaneioTableModel> sorter;
-	
+
 	private JTextField entChavePesquisa;
 	private JButton btnVizualizarNF;
 	private JButton btnExportar;
@@ -103,13 +104,14 @@ public class TelaRomaneios extends JDialog {
 	private JLabel lblNewLabel_2;
 	private JLabel lblNewLabel_4;
 	private JButton btnImportar;
+	private JButton btnNewButton_1;
+	private JButton btnNewButton_2;
 
-	public TelaRomaneios(int flag,CadastroCliente vendedor, Window janela_pai) {
+	public TelaRomaneios( Window janela_pai) {
 		setIconImage(Toolkit.getDefaultToolkit().getImage(TelaRomaneios.class.getResource("/imagens/icone_notas_fiscais.png")));
 		//setAlwaysOnTop(true);
 
 		//setModal(true);
-		cliente_global= vendedor;
 		isto = this;
 		getDadosGlobais();
 		setResizable(true);
@@ -117,7 +119,7 @@ public class TelaRomaneios extends JDialog {
 
 		setBackground(new Color(255, 255, 255));
 		setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-		setBounds(100, 100, 1000, 580);
+		setBounds(100, 100, 1302, 691);
 		painelPrincipal.setBackground(Color.WHITE);
 		painelPrincipal.setBorder(new EmptyBorder(5, 5, 5, 5));
 		setContentPane(painelPrincipal);
@@ -125,7 +127,7 @@ public class TelaRomaneios extends JDialog {
 
 		JPanel panel = new JPanel();
 		panel.setBackground(Color.WHITE);
-		panel.setBounds(26, 231, 922, 234);
+		panel.setBounds(26, 231, 1250, 340);
 		painelPrincipal.add(panel);
 
 		table_nfs = new JTable(modelo_nfs);
@@ -152,11 +154,12 @@ public class TelaRomaneios extends JDialog {
 		table_nfs.getColumnModel().getColumn(9).setPreferredWidth(100);
 		table_nfs.getColumnModel().getColumn(10).setPreferredWidth(120);
 		table_nfs.getColumnModel().getColumn(11).setPreferredWidth(120);
+		table_nfs.setRowHeight (30); 
 
 		panel.setLayout(null);
 		panel.setLayout(null);
 		JScrollPane scrollPaneNFs = new JScrollPane(table_nfs);
-		scrollPaneNFs.setBounds(10, 11, 906, 217);
+		scrollPaneNFs.setBounds(10, 11, 1230, 329);
 		panel.add(scrollPaneNFs);
 
 		
@@ -166,20 +169,20 @@ public class TelaRomaneios extends JDialog {
 
 		entProduto = new JTextField();
 		
-		entProduto.setBounds(474, 113, 242, 28);
+		entProduto.setBounds(610, 108, 242, 28);
 		painelPrincipal.add(entProduto);
 		entProduto.setColumns(10);
 		
 		entChavePesquisa = new JTextField();
 		
-		entChavePesquisa.setBounds(130, 115, 268, 28);
+		entChavePesquisa.setBounds(266, 110, 268, 28);
 		painelPrincipal.add(entChavePesquisa);
 		entChavePesquisa.setColumns(10);
 
 		
 		
 		lblStatusAdicionandoNotas = new JLabel("Lendo Romaneios...");
-		lblStatusAdicionandoNotas.setBounds(26, 512, 626, 23);
+		lblStatusAdicionandoNotas.setBounds(26, 618, 626, 23);
 		painelPrincipal.add(lblStatusAdicionandoNotas);
 		
 		btnVizualizarNF = new JButton("Vizualizar");
@@ -199,7 +202,7 @@ public class TelaRomaneios extends JDialog {
 					 }
 			}
 		});
-		btnVizualizarNF.setBounds(760, 477, 89, 23);
+		btnVizualizarNF.setBounds(1174, 592, 89, 23);
 		painelPrincipal.add(btnVizualizarNF);
 		
 
@@ -207,56 +210,56 @@ public class TelaRomaneios extends JDialog {
 		
 		lblNewLabel = new JLabel("Destinatario:");
 		lblNewLabel.setFont(new Font("Tahoma", Font.PLAIN, 14));
-		lblNewLabel.setBounds(48, 119, 77, 17);
+		lblNewLabel.setBounds(184, 114, 77, 17);
 		painelPrincipal.add(lblNewLabel);
 		
 		lblRemetente = new JLabel("Remetente:");
 		lblRemetente.setFont(new Font("Tahoma", Font.PLAIN, 14));
-		lblRemetente.setBounds(53, 152, 72, 17);
+		lblRemetente.setBounds(189, 147, 72, 17);
 		painelPrincipal.add(lblRemetente);
 		
 		entRemetente = new JTextField();
 		entRemetente.setColumns(10);
-		entRemetente.setBounds(130, 147, 268, 28);
+		entRemetente.setBounds(266, 142, 268, 28);
 		painelPrincipal.add(entRemetente);
 		
 		lblNatureza = new JLabel("Natureza:");
 		lblNatureza.setFont(new Font("Tahoma", Font.PLAIN, 14));
-		lblNatureza.setBounds(410, 152, 59, 17);
+		lblNatureza.setBounds(546, 147, 59, 17);
 		painelPrincipal.add(lblNatureza);
 		
 		entNatureza = new JTextField();
 		entNatureza.setColumns(10);
-		entNatureza.setBounds(474, 147, 242, 28);
+		entNatureza.setBounds(610, 142, 242, 28);
 		painelPrincipal.add(entNatureza);
 		
 		lblProduto = new JLabel("Produto:");
 		lblProduto.setFont(new Font("Tahoma", Font.PLAIN, 14));
-		lblProduto.setBounds(414, 118, 55, 17);
+		lblProduto.setBounds(550, 113, 55, 17);
 		painelPrincipal.add(lblProduto);
 		
 		lblNewLabel_1 = new JLabel("Periodo");
-		lblNewLabel_1.setBounds(833, 92, 43, 16);
+		lblNewLabel_1.setBounds(969, 87, 43, 16);
 		painelPrincipal.add(lblNewLabel_1);
 		
 		lblD = new JLabel("Dé:");
 		lblD.setFont(new Font("Tahoma", Font.PLAIN, 14));
-		lblD.setBounds(743, 127, 22, 17);
+		lblD.setBounds(879, 122, 22, 17);
 		painelPrincipal.add(lblD);
 		
 		lblAt = new JLabel("Até:");
 		lblAt.setFont(new Font("Tahoma", Font.PLAIN, 14));
-		lblAt.setBounds(740, 155, 25, 17);
+		lblAt.setBounds(876, 150, 25, 17);
 		painelPrincipal.add(lblAt);
 		
 		entMenorData = new JTextField();
 		entMenorData.setColumns(10);
-		entMenorData.setBounds(779, 114, 169, 28);
+		entMenorData.setBounds(915, 109, 169, 28);
 		painelPrincipal.add(entMenorData);
 		
 		entMaiorData = new JTextField();
 		entMaiorData.setColumns(10);
-		entMaiorData.setBounds(779, 153, 169, 28);
+		entMaiorData.setBounds(915, 148, 169, 28);
 		painelPrincipal.add(entMaiorData);
 		
 		JButton btnLimpar = new JButton("Limpar");
@@ -267,7 +270,7 @@ public class TelaRomaneios extends JDialog {
 				    sorter.setRowFilter( RowFilter.regexFilter(""));
 			}
 		});
-		btnLimpar.setBounds(818, 191, 67, 28);
+		btnLimpar.setBounds(1110, 148, 67, 28);
 		painelPrincipal.add(btnLimpar);
 		
 		lblNewLabel_2 = new JLabel("");
@@ -289,39 +292,271 @@ public class TelaRomaneios extends JDialog {
 			importar();
 			}
 		});
-		btnImportar.setBounds(661, 477, 89, 23);
+		btnImportar.setBounds(1075, 592, 89, 23);
 		painelPrincipal.add(btnImportar);
+		
+		JButton btnFiltrar_1 = new JButton("Filtrar");
+		btnFiltrar_1.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				 ArrayList<RowFilter<Object,Object>> filters = new ArrayList<RowFilter<Object,Object>>(2);
+
+				    String produto = entProduto.getText().toUpperCase();
+				    String destinatario =  entChavePesquisa.getText().toUpperCase();
+				    String remetente = entRemetente.getText().toUpperCase();
+				    String natureza = entNatureza.getText().toUpperCase();
+
+				    String menor = entMenorData.getText();
+				    String maior = entMaiorData.getText();
+				    
+				    if(checkString(menor) && checkString(maior) ) {
+					Date data_menor = null;
+					Date data_maior = null ;
+					try {
+						data_menor = new SimpleDateFormat("dd/MM/yyyy").parse(menor);
+						data_maior = new SimpleDateFormat("dd/MM/yyyy").parse(maior);
+
+					} catch (ParseException i) {
+						// TODO Auto-generated catch block
+						i.printStackTrace();
+					}
+					
+					Set<RowFilter<Object, Object>> datas = new HashSet<>();
+					datas.add(RowFilter.dateFilter(RowFilter.ComparisonType.AFTER,
+							data_menor, 2));
+					datas.add(RowFilter.dateFilter(RowFilter.ComparisonType.EQUAL,
+							data_menor, 2));
+					filters.add(RowFilter.orFilter(datas));
+			        
+				  //  filters.add( RowFilter.dateFilter(ComparisonType.AFTER, data_menor, 5) );
+				   // filters.add( RowFilter.dateFilter(ComparisonType.EQUAL, data_menor, 5) );
+
+				   // filters.add( RowFilter.dateFilter(ComparisonType.BEFORE, data_maior, 5) );
+				   // filters.add( RowFilter.dateFilter(ComparisonType.EQUAL, data_maior, 5) );
+					Set<RowFilter<Object, Object>> datas_maior = new HashSet<>();
+					datas_maior.add(RowFilter.dateFilter(RowFilter.ComparisonType.BEFORE,
+							data_maior, 2));
+					datas_maior.add(RowFilter.dateFilter(RowFilter.ComparisonType.EQUAL,
+							data_maior, 2));
+					filters.add(RowFilter.orFilter(datas_maior));
+				    }
+				    if(checkString(remetente))
+				    filters.add(RowFilter.regexFilter(remetente, 6));
+				    
+				    if(checkString(natureza))
+				    filters.add(RowFilter.regexFilter(natureza, 1));
+
+				    if(checkString(destinatario))
+				    filters.add(RowFilter.regexFilter(destinatario, 7));
+				    
+				    if(checkString(produto))
+				    filters.add(RowFilter.regexFilter(produto, 3));
+				    
+				    sorter.setRowFilter( RowFilter.andFilter(filters));
+			}
+		});
+		btnFiltrar_1.setBounds(1187, 146, 67, 28);
+		painelPrincipal.add(btnFiltrar_1);
+		
+		JButton btnNewButton = new JButton("Exportar Arquivos");
+		btnNewButton.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				exportar();
+				
+				
+			}
+		});
+		btnNewButton.setBounds(923, 592, 139, 23);
+		painelPrincipal.add(btnNewButton);
+		
+		btnNewButton_1 = new JButton("Excluir");
+		btnNewButton_1.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				if (JOptionPane.showConfirmDialog(isto, 
+			            "Deseja excluir o Romaneio?", "Excluir Romaneio", 
+			            JOptionPane.YES_NO_OPTION,
+			            JOptionPane.QUESTION_MESSAGE) == JOptionPane.YES_OPTION){
+					int rowSel = table_nfs.getSelectedRow();//pega o indice da linha na tabela
+					int indexRowModel = table_nfs.getRowSorter().convertRowIndexToModel(rowSel);//converte pro indice do model
+					ManipularTxt manipular = new ManipularTxt();
+					boolean apagado = manipular.apagarArquivo(romaneios_disponivel.get(indexRowModel).getCaminho_arquivo());
+					if(apagado) {
+						modelo_nfs.onRemove(romaneios_disponivel.get(indexRowModel));
+						JOptionPane.showMessageDialog(isto, "Romaneio Excluido");
+
+					}else {
+						JOptionPane.showMessageDialog(isto, "Erro ao excluir este Romaneio\nConsulte o administrador");
+					}
+			        }
+			}
+		});
+		btnNewButton_1.setBounds(823, 592, 89, 23);
+		painelPrincipal.add(btnNewButton_1);
+		
+		btnNewButton_2 = new JButton("Excluir Todos os Romaneios");
+		btnNewButton_2.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				if (JOptionPane.showConfirmDialog(isto, 
+			            "Deseja excluir todos os Romaneios?", "Excluir Romaneios", 
+			            JOptionPane.YES_NO_OPTION,
+			            JOptionPane.QUESTION_MESSAGE) == JOptionPane.YES_OPTION){
+
+                   try {
+                	   for(CadastroRomaneio rom : romaneios_disponivel) {
+					ManipularTxt manipular = new ManipularTxt();
+					boolean apagado = manipular.apagarArquivo(rom.getCaminho_arquivo());
+					if(apagado) {
+						modelo_nfs.onRemove(rom);
+
+					}else {
+						JOptionPane.showMessageDialog(isto, "Erro ao excluir este Romaneio\nConsulte o administrador");
+					}
+			        }
+						JOptionPane.showMessageDialog(isto, "Romaneios Excluidos");
+
+				}
+				catch(Exception i) {
+					JOptionPane.showMessageDialog(isto, "Erro ao excluir este Romaneio\nConsulte o administrador");
+
+				}
+			}
+			}
+		});
+		btnNewButton_2.setBounds(36, 582, 89, 23);
+		painelPrincipal.add(btnNewButton_2);
 		
 
 	
 		
 		
 		
-		new Thread() {
-			@Override
-			public void run() {
-				pesquisarRomaneios(vendedor);
-
-			}
-		}.start();
+		
 
 		this.setLocationRelativeTo(janela_pai);
 
 	}
 
-	public void pesquisarRomaneios(CadastroCliente vendedor) {
-		
+	public void exportar() {
 
+		ManipularTxt manipular = new ManipularTxt();
+
+		if (table_nfs.getSelectedRows().length > 0) {
+			if (table_nfs.getSelectedRows().length == 1) {
+
+				try {
+					JOptionPane.showMessageDialog(isto,
+							"Na próxima tela, selecione o local e escreva o nome do arquivo sem extensão");
+					File pasta_salvar = getDiretorioSalvar();
+					int rowSel = table_nfs.getSelectedRows()[0];
+					int indexRowModel = table_nfs.getRowSorter().convertRowIndexToModel(rowSel);// converte pro indice
+																								// do model
+					CadastroRomaneio rom = romaneios_disponivel.get(indexRowModel);
+
+					try {
+						boolean copiar = manipular.copiarNFe(rom.getCaminho_arquivo(),
+								pasta_salvar.getAbsolutePath() + ".pdf");
+						if (copiar) {
+						} else {
+							JOptionPane.showMessageDialog(isto, "Erro ao exportar notas fiscais");
+						}
+
+					} catch (IOException e) {
+						JOptionPane.showMessageDialog(isto, "Erro ao exportar notas fiscais");
+						e.printStackTrace();
+					}
+
+				} catch (Exception e) {
+					JOptionPane.showMessageDialog(isto, "Erro ao exportar notas fiscais");
+
+				}
+				JOptionPane.showMessageDialog(null, "Sucesso ao exportar NF");
+
+			} else {
+
+				try {
+					JOptionPane.showMessageDialog(isto,
+							"Na próxima tela, selecione o local e escreva o nome da pasta para salvar os arquivos");
+
+					File pasta_salvar = getDiretorioSalvar();
+
+					int indices[] = table_nfs.getSelectedRows();
+
+					if (!pasta_salvar.exists())
+						manipular.criarDiretorio(pasta_salvar.getAbsolutePath());
+
+					for (int i = 0; i < indices.length; i++) {
+						int rowSel = indices[i];
+						int indexRowModel = table_nfs.getRowSorter().convertRowIndexToModel(rowSel);// converte pro
+																									// indice do model
+						CadastroRomaneio rom = romaneios_disponivel.get(indexRowModel);
+
+						try {
+							boolean copiar = manipular.copiarNFe(rom.getCaminho_arquivo(),
+									pasta_salvar.getAbsolutePath() + "\\romaneio" + rom.getNumero_romaneio() + ".pdf");
+							if (copiar) {
+
+							} else {
+							}
+
+						} catch (IOException e) {
+							// TODO Auto-generated catch block
+							JOptionPane.showMessageDialog(isto, "Erro ao exportar notas fiscais");
+
+							e.printStackTrace();
+						}
+
+					}
+					JOptionPane.showMessageDialog(isto, "Sucesso ao exportar notas fiscais");
+
+				} catch (Exception t) {
+					JOptionPane.showMessageDialog(isto, "Erro ao exportar notas fiscais");
+
+				}
+
+			}
+		} else {
+			JOptionPane.showMessageDialog(isto, "Nenhuma linha selecionada");
+		}
+
+	}
+
+	public File getDiretorioSalvar() {
+		// Mostra a dialog de save file
+		JFileChooser fileChooser = new JFileChooser();
+
+		fileChooser.setMultiSelectionEnabled(true);
+		fileChooser.setPreferredSize(new Dimension(800, 600));
+
+		fileChooser.showSaveDialog(isto);
+
+		File pasta_selecionada = fileChooser.getSelectedFile();
+
+		JOptionPane.showMessageDialog(null, "Pasta para salvar: " + pasta_selecionada.getAbsolutePath());
+		return pasta_selecionada;
+
+	}
+
+	public void pesquisarTodosOsRomaneios(ArrayList<CadastroCliente> clientes) {
+		new Thread() {
+			@Override
+			public void run() {
+				for (CadastroCliente vend : clientes) {
+					pesquisarRomaneios(vend);
+				}
+			}
+		}.start();
+	}
+
+	public void pesquisarRomaneios(CadastroCliente vendedor) {
 
 		// acessar caminho desses vendedores
-           try {
-	
+		try {
+
 			String nome_pasta;
 
 			if (vendedor.getTipo_pessoa() == 0) {
-				nome_pasta = vendedor.getNome_empresarial().toUpperCase();
+				nome_pasta = vendedor.getNome_empresarial().toUpperCase().trim();
 			} else {
-				nome_pasta = vendedor.getNome_fantaia().toUpperCase();
+				nome_pasta = vendedor.getNome_fantaia().toUpperCase().trim();
 			}
 
 			String unidade_base_dados = configs_globais.getServidorUnidade();
@@ -333,17 +568,27 @@ public class TelaRomaneios extends JDialog {
 
 			ManipularRomaneios manipular_romaneios = new ManipularRomaneios(caminho_completo_nf);
 			ArrayList<CadastroRomaneio> romaneios = manipular_romaneios.tratar();
-  
-			for(CadastroRomaneio rom : romaneios) {
-				if(romaneios != null) {
+
+			for (CadastroRomaneio rom : romaneios) {
+				
+				if (rom != null) {
+					//verifica se o romaneio ja esta na lista
+					boolean ja_existe = false;
+					
+					for(CadastroRomaneio rom_na_lista : romaneios_disponivel) {
+						if(rom_na_lista.getNumero_romaneio() == rom.getNumero_romaneio())
+							ja_existe = true;
+					}
+					
+					if(!ja_existe)
 					addNota(rom);
 				}
 			}
-	
-		
-           }catch(Exception f) {
-        	   JOptionPane.showMessageDialog(null, "Erro ao listar romaneios\nCausa: " + f.getCause() + "\nErro: " + f.getMessage());
-           }
+
+		} catch (Exception f) {
+			JOptionPane.showMessageDialog(null,
+					"Erro ao listar romaneios\nCausa: " + f.getCause() + "\nErro: " + f.getMessage());
+		}
 	}
 
 	public void getDadosGlobais() {
@@ -366,13 +611,16 @@ public class TelaRomaneios extends JDialog {
 		java.awt.EventQueue.invokeLater(new Runnable() {
 			public void run() {
 				modelo_nfs.onAdd(romaneio);
-			/*	modelo_nfs.addRow(new Object[] { nota.getNfe(), nota.getSerie(), nota.getNome_remetente(),
-						nota.getInscricao_remetente(), nota.getProtocolo(), nota.getData(), nota.getNatureza(),
-						nota.getNome_destinatario(), nota.getInscricao_destinatario(), nota.getProduto(),
-						nota.getQuantidade(), nota.getValor() });*/
+				/*
+				 * modelo_nfs.addRow(new Object[] { nota.getNfe(), nota.getSerie(),
+				 * nota.getNome_remetente(), nota.getInscricao_remetente(), nota.getProtocolo(),
+				 * nota.getData(), nota.getNatureza(), nota.getNome_destinatario(),
+				 * nota.getInscricao_destinatario(), nota.getProduto(), nota.getQuantidade(),
+				 * nota.getValor() });
+				 */
 
-				lblStatusAdicionandoNotas
-						.setText("Aguarde, romaneio estão sendo carregados: Adicionando romaneio " + romaneio.getNumero_romaneio());
+				lblStatusAdicionandoNotas.setText("Aguarde, romaneio estão sendo carregados: Adicionando romaneio "
+						+ romaneio.getNumero_romaneio());
 				lblStatusAdicionandoNotas.repaint();
 				lblStatusAdicionandoNotas.updateUI();
 
@@ -383,449 +631,677 @@ public class TelaRomaneios extends JDialog {
 
 	}
 
-	
-	
-	
-	public static class RomaneioTableModel extends AbstractTableModel{
-		 
-	    //constantes p/identificar colunas
-	    private final int numero_romaneio = 0;
-	    private final int operacao = 1;
+	public static class RomaneioTableModel extends AbstractTableModel {
 
-	    private final int data = 2 ;
-	    private final int produto = 3;
-	    private final int transgenia = 4 ;
+		// constantes p/identificar colunas
+		private final int numero_romaneio = 0;
+		private final int operacao = 1;
 
-	    private final int safra = 5 ;
-	    private final int nome_remetente= 6;
-	    private final int nome_destinatario =7;
-	    private final int peso_bruto = 8;
-	    private final int tara= 9;
-	    private final int peso_liquido =10;
-	    private final int umidade=11;
-	    private final int impureza=12;
-	    private final int ardidos=13;
-	    private final int avariados=14;
-	    private final int cfop=15;
-	    private final int descricao=16;
+		private final int data = 2;
+		private final int produto = 3;
+		private final int transgenia = 4;
 
-	    private final int motorista=17;
-	    private final int placa=18;
+		private final int safra = 5;
+		private final int nome_remetente = 6;
+		private final int nome_destinatario = 7;
+		private final int peso_bruto = 8;
+		private final int tara = 9;
+		private final int peso_liquido = 10;
+		private final int umidade = 11;
+		private final int impureza = 12;
+		private final int ardidos = 13;
+		private final int avariados = 14;
+		private final int cfop = 15;
+		private final int descricao = 16;
 
-	 
-	    private final String colunas[]={"Número","Operação", "Data:","Produto:", "Transgenia:", "Safra:","Remetente:","Destinatario:",
-	    		"Peso Bruto:", "Tara:", "Peso Liquido:", "Umidade:", "Impureza:", "Ardidos", "Avariados", "CFOP", "Descrição" ,"Motorista", "Placa"};
-	    private final ArrayList<CadastroRomaneio> dados = new ArrayList<>();//usamos como dados uma lista genérica de nfs
-	 
-	    public RomaneioTableModel() {
-	        
-	    }
-	 
-	    @Override
-	    public int getColumnCount() {
-	        //retorna o total de colunas
-	        return colunas.length;
-	    }
-	 
-	    @Override
-	    public int getRowCount() {
-	        //retorna o total de linhas na tabela
-	        return dados.size();
-	    }
-	 
-	    @Override
-	    public Class<?> getColumnClass(int columnIndex) {
-	        //retorna o tipo de dado, para cada coluna
-	        switch (columnIndex) {
-	        case numero_romaneio:
-	            return int.class;
-	        case operacao:
-	            return String.class;
-	        case data:
-	            return Date.class;
-	        case produto:
-	            return String.class;
-	        case transgenia:
-	            return String.class;
-	        case safra:
-	            return String.class;
-	        case nome_remetente:
-	            return String.class;
-	        case nome_destinatario:
-	            return String.class;
-	        case peso_bruto:
-	            return Double.class;
-	        case tara:
-	            return Double.class;
-	        case peso_liquido:
-	            return Double.class;
-	        case umidade:
-	            return Double.class;
-	        case impureza:
-	            return Double.class;
-	        case ardidos:
-	            return Double.class;
-	        case avariados:
-	            return Double.class;
-	        case cfop:
-	            return String.class;
-	        case descricao:
-	            return String.class;
-	        case motorista:
-	            return String.class;
-	        case placa:
-	            return String.class;
-	     
-	       
-	        default:
-	            throw new IndexOutOfBoundsException("Coluna Inválida!!!");
-	        }
-	    }
-	 
-	    @Override
-	    public String getColumnName(int columnIndex) {
-	        return colunas[columnIndex];
-	    }
-	 
-	    @Override
-	    public Object getValueAt(int rowIndex, int columnIndex) {
-	        //retorna o valor conforme a coluna e linha
-	 
-	        //pega o dados corrente da linha
-	    	CadastroRomaneio romaneio = dados.get(rowIndex);
-	 
-	        //retorna o valor da coluna
-	        switch (columnIndex) {
-	        case numero_romaneio:
-	            return romaneio.getNumero_romaneio();
-	        case operacao:
-	            return romaneio.getOperacao();
-	        case data:
-	            return romaneio.getData();
-	        case produto:{
-	            CadastroProduto prod = romaneio.getSafra().getProduto();
-	            return prod.getNome_produto();
-	            
-	        }
-	        case transgenia:
-	            return romaneio.getProduto().getTransgenia();
-	        case safra:{
-               CadastroSafra safra = romaneio.getSafra();
-               return safra.getAno_plantio() + "/" + safra.getAno_colheita();
-	        	
-	        }
-	        case nome_remetente:{
-	            String nome_cliente = "";
-	            CadastroCliente remetente = romaneio.getRemetente();
-	            
-	            if(remetente.getTipo_pessoa() == 0) {
-	            	nome_cliente = remetente.getNome_empresarial();
-	            }else
-	            	nome_cliente = remetente.getNome_fantaia();
-	            
-	            
-	            return nome_cliente;
-	            
-	        }
-	        case nome_destinatario:{
-	        	 String nome_cliente = "";
-		            CadastroCliente destinatario = romaneio.getDestinatario();
-		            
-		            if(destinatario.getTipo_pessoa() == 0) {
-		            	nome_cliente = destinatario.getNome_empresarial();
-		            }else
-		            	nome_cliente = destinatario.getNome_fantaia();
-		            
-		            
-		            return nome_cliente;	    
-		            }
-	        case peso_bruto:
-	            return romaneio.getPeso_bruto();
-	        case tara:
-	            return romaneio.getTara();
-	        case peso_liquido:
-	            return romaneio.getPeso_liquido();
-	        case umidade:
-	            return romaneio.getUmidade();
-	        case impureza:
-	            return romaneio.getInpureza();
-	        case ardidos:
-	            return romaneio.getArdidos();
-	        case avariados:
-	            return romaneio.getAvariados();
-	        case cfop:
-	            return romaneio.getCfop();
-	        case descricao:
-	            return romaneio.getDescricao_cfop();
-	        case motorista:
-	            return romaneio.getMotorista().getNome_empresarial();
-	        case placa:{
-	        	ArrayList<CadastroCliente.Veiculo> veiculos = romaneio.getMotorista().getVeiculos();
-	        	return veiculos.get(0).getPlaca_trator();
-	        	
-	        }
-	            
-	        default:
-	            throw new IndexOutOfBoundsException("Coluna Inválida!!!");
-	        }
-	    }
-	 
-	    @Override
-	    public boolean isCellEditable(int rowIndex, int columnIndex) {
-	        //metodo identifica qual coluna é editavel
-	 
-	        //só iremos editar a coluna BENEFICIO, 
-	        //que será um checkbox por ser boolean
-	      
-	 
-	        return false;
-	    }
-	 
-	    @Override
-	    public void setValueAt(Object aValue, int rowIndex, int columnIndex) {
-	        CadastroRomaneio nota=dados.get(rowIndex);
-	 
-	      
-	    }
-	 
-	    //Métodos abaixo são para manipulação de dados
-	 
-	    /**
-	     * retorna o valor da linha indicada
-	     * @param rowIndex
-	     * @return
-	     */
-	    public CadastroRomaneio getValue(int rowIndex){
-	        return dados.get(rowIndex);
-	    }
-	 
-	    /**
-	     * retorna o indice do objeto
-	     * @param empregado
-	     * @return
-	     */
-	    public int indexOf(CadastroRomaneio nota) {
-	        return dados.indexOf(nota);
-	    }
-	 
-	    /**
-	     * add um empregado á lista
-	     * @param empregado
-	     */
-	    public void onAdd(CadastroRomaneio nota) {
-	        dados.add(nota);
-	        fireTableRowsInserted(indexOf(nota), indexOf(nota));
-	    }
-	 
-	    /**
-	     * add uma lista de empregados
-	     * @param dadosIn
-	     */
-	    public void onAddAll(ArrayList<CadastroRomaneio> dadosIn) {
-	        dados.addAll(dadosIn);
-	        fireTableDataChanged();
-	    }
-	 
-	    /**
-	     * remove um registro da lista, através do indice
-	     * @param rowIndex
-	     */
-	    public void onRemove(int rowIndex) {
-	        dados.remove(rowIndex);
-	        fireTableRowsDeleted(rowIndex, rowIndex);
-	    }
-	 
-	    /**
-	     * remove um registro da lista, através do objeto
-	     * @param empregado
-	     */
-	    public void onRemove(CadastroRomaneio nota) {
-	        int indexBefore=indexOf(nota);//pega o indice antes de apagar
-	        dados.remove(nota);  
-	        fireTableRowsDeleted(indexBefore, indexBefore);
-	    }
-	 
-	    /**
-	     * remove todos registros da lista
-	     */
-	    public void onRemoveAll() {
-	        dados.clear();
-	        fireTableDataChanged();
-	    }
-	 
+		private final int motorista = 17;
+		private final int placa = 18;
+
+		private final String colunas[] = { "Número", "Operação", "Data:", "Produto:", "Transgenia:", "Safra:",
+				"Produtor", "Destino", "Peso Bruto:", "Tara:", "Peso Liquido:", "Umidade:", "Impureza:",
+				"Ardidos", "Avariados", "CFOP", "Descrição", "Motorista", "Placa" };
+		private final ArrayList<CadastroRomaneio> dados = new ArrayList<>();// usamos como dados uma lista genérica de
+																			// nfs
+
+		public RomaneioTableModel() {
+
+		}
+
+		@Override
+		public int getColumnCount() {
+			// retorna o total de colunas
+			return colunas.length;
+		}
+
+		@Override
+		public int getRowCount() {
+			// retorna o total de linhas na tabela
+			return dados.size();
+		}
+
+		@Override
+		public Class<?> getColumnClass(int columnIndex) {
+			// retorna o tipo de dado, para cada coluna
+			switch (columnIndex) {
+			case numero_romaneio:
+				return int.class;
+			case operacao:
+				return String.class;
+			case data:
+				return Date.class;
+			case produto:
+				return String.class;
+			case transgenia:
+				return String.class;
+			case safra:
+				return String.class;
+			case nome_remetente:
+				return String.class;
+			case nome_destinatario:
+				return String.class;
+			case peso_bruto:
+				return Double.class;
+			case tara:
+				return Double.class;
+			case peso_liquido:
+				return Double.class;
+			case umidade:
+				return Double.class;
+			case impureza:
+				return Double.class;
+			case ardidos:
+				return Double.class;
+			case avariados:
+				return Double.class;
+			case cfop:
+				return String.class;
+			case descricao:
+				return String.class;
+			case motorista:
+				return String.class;
+			case placa:
+				return String.class;
+
+			default:
+				throw new IndexOutOfBoundsException("Coluna Inválida!!!");
+			}
+		}
+
+		@Override
+		public String getColumnName(int columnIndex) {
+			return colunas[columnIndex];
+		}
+
+		@Override
+		public Object getValueAt(int rowIndex, int columnIndex) {
+			// retorna o valor conforme a coluna e linha
+
+			// pega o dados corrente da linha
+			CadastroRomaneio romaneio = dados.get(rowIndex);
+
+			// retorna o valor da coluna
+			switch (columnIndex) {
+			case numero_romaneio:
+				return romaneio.getNumero_romaneio();
+			case operacao:
+				return romaneio.getOperacao();
+			case data:
+				return romaneio.getData();
+			case produto: {
+				CadastroProduto prod = romaneio.getSafra().getProduto();
+				return prod.getNome_produto();
+
+			}
+			case transgenia:
+				return romaneio.getProduto().getTransgenia();
+			case safra: {
+				CadastroSafra safra = romaneio.getSafra();
+				return safra.getAno_plantio() + "/" + safra.getAno_colheita();
+
+			}
+			case nome_remetente: {
+				String nome_cliente = "";
+				CadastroCliente remetente = romaneio.getRemetente();
+
+				if (remetente.getTipo_pessoa() == 0) {
+					nome_cliente = remetente.getNome_empresarial();
+				} else
+					nome_cliente = remetente.getNome_fantaia();
+
+				return nome_cliente;
+
+			}
+			case nome_destinatario: {
+				String nome_cliente = "";
+				CadastroCliente destinatario = romaneio.getDestinatario();
+
+				if (destinatario.getTipo_pessoa() == 0) {
+					nome_cliente = destinatario.getNome_empresarial();
+				} else
+					nome_cliente = destinatario.getNome_fantaia();
+
+				return nome_cliente;
+			}
+			case peso_bruto:
+				return romaneio.getPeso_bruto();
+			case tara:
+				return romaneio.getTara();
+			case peso_liquido:
+				return romaneio.getPeso_liquido();
+			case umidade:
+				return romaneio.getUmidade();
+			case impureza:
+				return romaneio.getInpureza();
+			case ardidos:
+				return romaneio.getArdidos();
+			case avariados:
+				return romaneio.getAvariados();
+			case cfop:
+				return romaneio.getCfop();
+			case descricao:
+				return romaneio.getDescricao_cfop();
+			case motorista:
+				return romaneio.getMotorista().getNome_empresarial();
+			case placa: {
+				ArrayList<CadastroCliente.Veiculo> veiculos = romaneio.getMotorista().getVeiculos();
+				return veiculos.get(0).getPlaca_trator();
+
+			}
+
+			default:
+				throw new IndexOutOfBoundsException("Coluna Inválida!!!");
+			}
+		}
+
+		@Override
+		public boolean isCellEditable(int rowIndex, int columnIndex) {
+			// metodo identifica qual coluna é editavel
+
+			// só iremos editar a coluna BENEFICIO,
+			// que será um checkbox por ser boolean
+
+			return false;
+		}
+
+		@Override
+		public void setValueAt(Object aValue, int rowIndex, int columnIndex) {
+			CadastroRomaneio nota = dados.get(rowIndex);
+
+		}
+
+		// Métodos abaixo são para manipulação de dados
+
+		/**
+		 * retorna o valor da linha indicada
+		 * 
+		 * @param rowIndex
+		 * @return
+		 */
+		public CadastroRomaneio getValue(int rowIndex) {
+			return dados.get(rowIndex);
+		}
+
+		/**
+		 * retorna o indice do objeto
+		 * 
+		 * @param empregado
+		 * @return
+		 */
+		public int indexOf(CadastroRomaneio nota) {
+			return dados.indexOf(nota);
+		}
+
+		/**
+		 * add um empregado á lista
+		 * 
+		 * @param empregado
+		 */
+		public void onAdd(CadastroRomaneio nota) {
+			dados.add(nota);
+			fireTableRowsInserted(indexOf(nota), indexOf(nota));
+		}
+
+		/**
+		 * add uma lista de empregados
+		 * 
+		 * @param dadosIn
+		 */
+		public void onAddAll(ArrayList<CadastroRomaneio> dadosIn) {
+			dados.addAll(dadosIn);
+			fireTableDataChanged();
+		}
+
+		/**
+		 * remove um registro da lista, através do indice
+		 * 
+		 * @param rowIndex
+		 */
+		public void onRemove(int rowIndex) {
+			dados.remove(rowIndex);
+			fireTableRowsDeleted(rowIndex, rowIndex);
+		}
+
+		/**
+		 * remove um registro da lista, através do objeto
+		 * 
+		 * @param empregado
+		 */
+		public void onRemove(CadastroRomaneio nota) {
+			int indexBefore = indexOf(nota);// pega o indice antes de apagar
+			dados.remove(nota);
+			fireTableRowsDeleted(indexBefore, indexBefore);
+		}
+
+		/**
+		 * remove todos registros da lista
+		 */
+		public void onRemoveAll() {
+			dados.clear();
+			fireTableDataChanged();
+		}
+
 	}
 
-	
-
 	public void importar() {
-		
 
-		
 		JFileChooser fileChooser = new JFileChooser();
 		fileChooser.setPreferredSize(new Dimension(800, 600));
 		fileChooser.setMultiSelectionEnabled(true);
-		FileNameExtensionFilter  filter = new FileNameExtensionFilter("Excel file", "xls", "xlsx");
-		 fileChooser.addChoosableFileFilter(filter);
-		if(contador == 0)
-		{
-			//fileChooser.setCurrentDirectory(new File(System.getProperty("user.home")));
-			//fileChooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+		FileNameExtensionFilter filter = new FileNameExtensionFilter("Excel file", "xls", "xlsx");
+		fileChooser.addChoosableFileFilter(filter);
+		if (contador == 0) {
+			// fileChooser.setCurrentDirectory(new File(System.getProperty("user.home")));
+			// fileChooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
 			fileChooser_global = fileChooser;
-            contador++;
-		}
-		else
-		{
+			contador++;
+		} else {
 			fileChooser = fileChooser_global;
-			
+
 		}
 		int result = fileChooser.showOpenDialog(isto);
-		
-		File[] files = fileChooser.getSelectedFiles();
-		ManipularRomaneios manipular = new ManipularRomaneios("");
 
+		File[] files = fileChooser.getSelectedFiles();
 		
-		
-		for(File arquivo : files) {
+		if(cliente_global != null) {
+		ManipularRomaneios manipular = new ManipularRomaneios(1);
+
+		for (File arquivo : files) {
 			JOptionPane.showMessageDialog(null, "Caminho do arquivo q sera lido: " + arquivo.getAbsolutePath());
 
 			try {
 				CadastroRomaneio romaneio = manipular.filtrar(arquivo);
-			
-			//verifica se essa nota ja existe
-			boolean ja_existe = false;
-			for(CadastroRomaneio rom : romaneios_disponivel) {
-				if(rom.getNumero_romaneio() == romaneio.getNumero_romaneio()) {
-					ja_existe = true;
-					break;
-				}
-			}
-			
-			if(!ja_existe) {
-				
-				//ie do remetente nf
-				
-				
-				
-				String ie_remetente = romaneio.getRemetente().getIe();
-				//ie do destinatario nf
-				String ie_destinatario = romaneio.getDestinatario().getIe();
 
-			
-
-				// ie cliente
-				String ie_cliente = cliente_global.getIe();
-
-				if(ie_remetente.equals(ie_cliente)) {
-					JOptionPane.showMessageDialog(null, "Romaneio pode ser adicionado, o cliente e remetente deste romaeio\n IE do romaneio: " + ie_remetente + " IE do cliente: " + ie_cliente);
-
-				
-					
-					//copia o arquivo para a basta de notas fiscais do cliente
-					
-					String nome_pasta;
-
-					if (cliente_global.getTipo_pessoa() == 0) {
-						nome_pasta = cliente_global.getNome_empresarial().toUpperCase();
-					} else {
-						nome_pasta = cliente_global.getNome_fantaia().toUpperCase();
+				// verifica se essa nota ja existe
+				boolean ja_existe = false;
+				for (CadastroRomaneio rom : romaneios_disponivel) {
+					if (rom.getNumero_romaneio() == romaneio.getNumero_romaneio()) {
+						ja_existe = true;
+						break;
 					}
+				}
 
-					String unidade_base_dados = configs_globais.getServidorUnidade();
-					String sub_pasta = "E-Contract\\arquivos\\clientes";
-					
-					ManipularTxt manipular_arq = new ManipularTxt();
-					
-					nome_pasta = nome_pasta.trim();
-					
-					String caminho_completo_nf = unidade_base_dados + "\\" + sub_pasta + "\\" + nome_pasta.toUpperCase() + "\\"
-							+ "ROMANEIOS" + "\\romaneio-" + romaneio.getNumero_romaneio() + ".pdf";
-					
-					JOptionPane.showMessageDialog(null, "Copiando de :\n" + romaneio.getCaminho_arquivo()+ "\nPara:\n" + caminho_completo_nf);
-					boolean copiar = manipular_arq.copiarNFe(romaneio.getCaminho_arquivo(), caminho_completo_nf );
-					if(copiar) {
-						//adiciona a nota no array local
+				if (!ja_existe) {
+
+					// ie do remetente nf
+
+					String ie_remetente = romaneio.getRemetente().getIe();
+					// ie do destinatario nf
+					String ie_destinatario = romaneio.getDestinatario().getIe();
+
+					// ie cliente
+					String ie_cliente = cliente_global.getIe();
+
+					if (ie_remetente.equals(ie_cliente)) {
+						JOptionPane.showMessageDialog(null,
+								"Romaneio pode ser adicionado, o cliente e remetente deste romaeio\n IE do romaneio: "
+										+ ie_remetente + " IE do cliente: " + ie_cliente);
+
+						// copia o arquivo para a basta de notas fiscais do cliente
+
+						String nome_pasta;
+
+						if (cliente_global.getTipo_pessoa() == 0) {
+							nome_pasta = cliente_global.getNome_empresarial().toUpperCase();
+						} else {
+							nome_pasta = cliente_global.getNome_fantaia().toUpperCase();
+						}
+
+						String unidade_base_dados = configs_globais.getServidorUnidade();
+						String sub_pasta = "E-Contract\\arquivos\\clientes";
+
+						ManipularTxt manipular_arq = new ManipularTxt();
+
+						nome_pasta = nome_pasta.trim();
+
+						String caminho_completo_nf = unidade_base_dados + "\\" + sub_pasta + "\\"
+								+ nome_pasta.toUpperCase() + "\\" + "ROMANEIOS" + "\\romaneio-"
+								+ romaneio.getNumero_romaneio() + ".pdf";
+
+						JOptionPane.showMessageDialog(null,
+								"Copiando de :\n" + romaneio.getCaminho_arquivo() + "\nPara:\n" + caminho_completo_nf);
+						boolean copiar = manipular_arq.copiarNFe(romaneio.getCaminho_arquivo(), caminho_completo_nf);
+						if (copiar) {
+							// adiciona a nota no array local
+							romaneios_disponivel.add(romaneio);
+
+							// adiciona na tabela
+
+							addNota(romaneio);
+
+							// informa que adicionou a nota
+							JOptionPane.showMessageDialog(null,
+									"Arquivo selecionado:\n" + arquivo.getAbsolutePath() + "\nFoi adicionado");
+						} else {
+							JOptionPane.showMessageDialog(null, "Arquivo selecionado:\n" + arquivo.getAbsolutePath()
+									+ "\nErro ao efetuar a importação\nConsulte o Administrador");
+
+						}
+
+					} else if (ie_destinatario.equals(ie_cliente)) {
+						JOptionPane.showMessageDialog(null,
+								"Romaneio pode ser adicionado, o cliente e destinatario deste romaneio\n IE da nota: "
+										+ ie_destinatario + " IE do cliente: " + ie_cliente);
+
+						// adiciona a nota no array local
 						romaneios_disponivel.add(romaneio);
-						
-						//adiciona na tabela
-						
+
+						// adiciona na tabela
 						addNota(romaneio);
-						
-						//informa que adicionou a nota
-						JOptionPane.showMessageDialog(null, "Arquivo selecionado:\n" + arquivo.getAbsolutePath() + "\nFoi adicionado");
-					}else {
-						JOptionPane.showMessageDialog(null, "Arquivo selecionado:\n" + arquivo.getAbsolutePath() + "\nErro ao efetuar a importação\nConsulte o Administrador");
+
+						// informa que adicionou a nota
+						JOptionPane.showMessageDialog(null,
+								"Arquivo selecionado:\n" + arquivo.getAbsolutePath() + "\nFoi adicionado");
+
+					} else {
+						String nome_cliente_selecionado = "";
+						if (cliente_global.getTipo_pessoa() == 0)
+							nome_cliente_selecionado = cliente_global.getNome_empresarial();
+						else
+							nome_cliente_selecionado = cliente_global.getNome_fantaia();
+
+						// nome destinatario
+
+						String nome_destinatario = "";
+						CadastroCliente destinatario = romaneio.getDestinatario();
+
+						if (destinatario.getTipo_pessoa() == 0) {
+							nome_destinatario = destinatario.getNome_empresarial();
+						} else
+							nome_destinatario = destinatario.getNome_fantaia();
+
+						String nome_remetente = "";
+						CadastroCliente remetente = romaneio.getRemetente();
+
+						if (remetente.getTipo_pessoa() == 0) {
+							nome_remetente = remetente.getNome_empresarial();
+						} else
+							nome_remetente = remetente.getNome_fantaia();
+
+						JOptionPane.showMessageDialog(null,
+								"Arquivo selecionado:\n" + arquivo.getAbsolutePath()
+										+ "\nNão é um romaneio para este cliente\nNome do cliente selecionado: "
+										+ nome_cliente_selecionado + " IE do cliente selecionado: " + ie_cliente
+										+ "\nNome Destinatario:  " + nome_destinatario
+										+ " IE do Destinatario do romaneio:" + ie_destinatario + "\nNome Remetente: "
+										+ nome_remetente + " Inscrição Remetente: " + ie_remetente);
 
 					}
-					
-	                 
-				}else if (ie_destinatario.equals(ie_cliente)) {
-					JOptionPane.showMessageDialog(null, "Romaneio pode ser adicionado, o cliente e destinatario deste romaneio\n IE da nota: " + ie_destinatario + " IE do cliente: " + ie_cliente);
 
-					//adiciona a nota no array local
-					romaneios_disponivel.add(romaneio);
-					
-					//adiciona na tabela
-					addNota(romaneio);
-					
-					//informa que adicionou a nota
-					JOptionPane.showMessageDialog(null, "Arquivo selecionado:\n" + arquivo.getAbsolutePath() + "\nFoi adicionado");
-	                 
-				}else {
-					String nome_cliente_selecionado = "";
-					if(cliente_global.getTipo_pessoa() == 0)
-						nome_cliente_selecionado = cliente_global.getNome_empresarial();
-					else
-						nome_cliente_selecionado = cliente_global.getNome_fantaia();
-
-					//nome destinatario
-					
-					String nome_destinatario = "";
-		            CadastroCliente destinatario = romaneio.getDestinatario();
-		            
-		            if(destinatario.getTipo_pessoa() == 0) {
-		            	nome_destinatario = destinatario.getNome_empresarial();
-		            }else
-		            	nome_destinatario = destinatario.getNome_fantaia();
-		            
-		            String nome_remetente = "";
-		            CadastroCliente remetente = romaneio.getRemetente();
-		            
-		            if(remetente.getTipo_pessoa() == 0) {
-		            	nome_remetente = remetente.getNome_empresarial();
-		            }else
-		            	nome_remetente = remetente.getNome_fantaia();
-		            
-		            
-					
-					JOptionPane.showMessageDialog(null, "Arquivo selecionado:\n" + arquivo.getAbsolutePath() + "\nNão é um romaneio para este cliente\nNome do cliente selecionado: " + nome_cliente_selecionado    + " IE do cliente selecionado: " + ie_cliente + "\nNome Destinatario:  " + nome_destinatario + " IE do Destinatario do romaneio:" + ie_destinatario +"\nNome Remetente: " + nome_remetente  + " Inscrição Remetente: " + ie_remetente);
+				} else {
+					JOptionPane.showMessageDialog(null,
+							"Arquivo selecionado:\n" + arquivo.getAbsolutePath() + "\nJá está adicionado");
 
 				}
-				
-				
-			
-			
-			}else {
-				JOptionPane.showMessageDialog(null, "Arquivo selecionado:\n" + arquivo.getAbsolutePath() + "\nJá está adicionado");
 
-			}
-
-			}catch(Exception e) {
-				JOptionPane.showMessageDialog(null, "Arquivo selecionado:\n" + arquivo.getAbsolutePath() + "\nNão é um romaneio valido, por isso não foi adicionado");
+			} catch (Exception e) {
+				JOptionPane.showMessageDialog(null, "Arquivo selecionado:\n" + arquivo.getAbsolutePath()
+						+ "\nNão é um romaneio valido, por isso não foi adicionado\nErro: " + e.getMessage() + "\nCausa: " + e.getCause());
 
 			}
 		}
-		
-		//verifica se o arquivo e uma nota fiscal valida
-		
+		}else {
+			String unidade_base_dados = configs_globais.getServidorUnidade();
+			String sub_pasta = "E-Contract\\arquivos\\arquivos_comuns";
+			String pasta_final = unidade_base_dados + "\\" + sub_pasta;
+			GerenciarBancoClientes gerenciar_clientes = new GerenciarBancoClientes();
+			ArrayList<CadastroCliente> clientes_cadastrados = gerenciar_clientes.getClientes(0, 0, "");
+			//cliente nao esta definido, tela todos os romaneios
+			ManipularRomaneios manipular = new ManipularRomaneios(1);
+
+			for (File arquivo : files) {
+
+				try {
+					CadastroRomaneio roms = manipular.filtrar(arquivo);
+					Thread.sleep(3000);
+					CadastroCliente remetente = roms.getRemetente();
+					CadastroCliente destinatario = roms.getDestinatario();
+					boolean remetente_cadastrado = false;
+					boolean destinatario_cadastrado = false;
+					// verifica se o remetente ja esta cadastrado
+					for (CadastroCliente cliente : clientes_cadastrados) {
+						if (cliente.getIe().trim().equals(remetente.getIe().trim())) {
+							remetente_cadastrado = true;
+						//	JOptionPane.showMessageDialog(null, "Remetente Cadastrado");
+							break;
+						}
+					}
+					for (CadastroCliente cliente : clientes_cadastrados) {
+						if (cliente.getIe().trim().equals(destinatario.getIe().trim())) {
+							destinatario_cadastrado = true;
+						//	JOptionPane.showMessageDialog(null, "Destinatario Cadastrado");
+
+							break;
+						}
+					}
+					
+					if (destinatario.getTipo_pessoa() == 0) {
+					//	JOptionPane.showMessageDialog(null, "Nome destinatario: " + destinatario.getNome_empresarial());
+					} else {
+					//	JOptionPane.showMessageDialog(null, "Nome destinatario: " + destinatario.getNome_fantaia());
+					}
+					
+					if (remetente.getTipo_pessoa() == 0) {
+					//	JOptionPane.showMessageDialog(null, "Nome remetente: " + remetente.getNome_empresarial());
+					} else {
+					//	JOptionPane.showMessageDialog(null, "Nome remetente: " + remetente.getNome_fantaia());
+					}
+					
+					
+					
+					
+					
+					if (remetente_cadastrado && !destinatario_cadastrado) {
+						// mover para a pasta do remetente
+						ManipularTxt manipular_txt = new ManipularTxt();
+						String nome_pasta;
+						if (remetente.getTipo_pessoa() == 0) {
+							nome_pasta = remetente.getNome_empresarial().toUpperCase();
+						} else {
+
+							nome_pasta = remetente.getNome_fantaia().toUpperCase();
+						}
+						unidade_base_dados = configs_globais.getServidorUnidade();
+						sub_pasta = "E-Contract\\arquivos\\clientes";
+						ManipularTxt manipular_arq = new ManipularTxt();
+						nome_pasta = nome_pasta.trim();
+						String caminho_completo_nf = unidade_base_dados + "\\" + sub_pasta + "\\"
+								+ nome_pasta.toUpperCase() + "\\" + "ROMANEIOS" + "\\romaneio-"
+								+ roms.getNumero_romaneio() + ".pdf";
+						// JOptionPane.showMessageDialog(null, "Movendo de :\n" +
+						// roms.getCaminho_arquivo()+ "\nPara:\n" + caminho_completo_nf);
+						// primeiro veririca se nao existe um arquivo com esse nome
+						File file = new File(caminho_completo_nf);
+						if (!file.exists()) {
+							boolean mover = manipular_arq.moverArquivo(roms.getCaminho_arquivo(),
+									caminho_completo_nf);
+							if (mover) {
+								// JOptionPane.showMessageDialog(null, "Romaneio movido para a pasta do
+								// remetente");
+							} else {
+								// JOptionPane.showMessageDialog(null, "Erro ao mover o romaneio");
+							}
+						} else {
+							
+						}
+					} else if (!remetente_cadastrado && destinatario_cadastrado) {
+						// mover para a pasta do destinatario
+						ManipularTxt manipular_txt = new ManipularTxt();
+						String nome_pasta;
+						if (destinatario.getTipo_pessoa() == 0) {
+							nome_pasta = destinatario.getNome_empresarial().toUpperCase();
+						} else {
+
+							nome_pasta = destinatario.getNome_fantaia().toUpperCase();
+						}
+						unidade_base_dados = configs_globais.getServidorUnidade();
+						sub_pasta = "E-Contract\\arquivos\\clientes";
+						ManipularTxt manipular_arq = new ManipularTxt();
+						nome_pasta = nome_pasta.trim();
+						String caminho_completo_nf = unidade_base_dados + "\\" + sub_pasta + "\\"
+								+ nome_pasta.toUpperCase() + "\\" + "ROMANEIOS" + "\\romaneio-"
+								+ roms.getNumero_romaneio() + ".pdf";
+						// JOptionPane.showMessageDialog(null, "Movendo de :\n" +
+						// roms.getCaminho_arquivo()+ "\nPara:\n" + caminho_completo_nf);
+						// primeiro veririca se nao existe um arquivo com esse nome
+						File file = new File(caminho_completo_nf);
+						if (!file.exists()) {
+							boolean mover = manipular_arq.moverArquivo(roms.getCaminho_arquivo(),
+									caminho_completo_nf);
+							if (mover) {
+								// JOptionPane.showMessageDialog(null, "Romaneio movido para a pasta do
+								// remetente");
+							} else {
+								// JOptionPane.showMessageDialog(null, "Erro ao mover o romaneio");
+							}
+						} else {
+							
+						}
+					} else if (remetente_cadastrado && destinatario_cadastrado) {
+						if (remetente.getIe().trim().equals(destinatario.getIe().trim())) {
+							// mover para o remetente
+							// copiar para o remetente
+							ManipularTxt manipular_txt = new ManipularTxt();
+							String nome_pasta;
+							if (remetente.getTipo_pessoa() == 0) {
+
+								nome_pasta = remetente.getNome_empresarial();
+							} else {
+
+								nome_pasta = remetente.getNome_fantaia();
+							}
+							unidade_base_dados = configs_globais.getServidorUnidade();
+							sub_pasta = "E-Contract\\arquivos\\clientes";
+							ManipularTxt manipular_arq = new ManipularTxt();
+							nome_pasta = nome_pasta.trim();
+							String caminho_completo_nf = unidade_base_dados + "\\" + sub_pasta + "\\"
+									+ nome_pasta + "\\" + "ROMANEIOS" + "\\romaneio-"
+									+ roms.getNumero_romaneio() + ".pdf";
+							// JOptionPane.showMessageDialog(null, "Copiando de :\n" +
+							// roms.getCaminho_arquivo()+ "\nPara:\n" + caminho_completo_nf);
+							// primeiro veririca se nao existe um arquivo com esse nome
+							File file = new File(caminho_completo_nf);
+							if (!file.exists()) {
+								boolean copiar = manipular_arq.moverArquivo(roms.getCaminho_arquivo(),
+										caminho_completo_nf);
+								if (copiar) {
+									// JOptionPane.showMessageDialog(null, "Romaneio movido para a pasta do
+									// remetente");
+									// mover para a pasta do destinatario
+								} else {
+									// JOptionPane.showMessageDialog(null, "Romaneio não pode ser movido para a
+									// pasta do remetente");
+									
+								}
+							} else {
+								
+							}
+						} else {
+							//Romaneio com destinatario e remetente diferente
+							// copiar para o destinatario
+							ManipularTxt manipular_txt = new ManipularTxt();
+							String nome_pasta;
+							
+							if (destinatario.getTipo_pessoa() == 0) {
+								nome_pasta = destinatario.getNome_empresarial();
+							} else {
+								nome_pasta = destinatario.getNome_fantaia();
+							}
+							
+							unidade_base_dados = configs_globais.getServidorUnidade();
+							sub_pasta = "E-Contract\\arquivos\\clientes";
+							ManipularTxt manipular_arq = new ManipularTxt();
+							nome_pasta = nome_pasta.trim();
+							String caminho_completo_nf = unidade_base_dados + "\\" + sub_pasta + "\\"
+									+ nome_pasta + "\\" + "ROMANEIOS" + "\\romaneio-"
+									+ roms.getNumero_romaneio() + ".pdf";
+							// JOptionPane.showMessageDialog(null, "Copiando de :\n" +
+							// roms.getCaminho_arquivo()+ "\nPara:\n" + caminho_completo_nf);
+							// primeiro veririca se nao existe um arquivo com esse nome
+							File file = new File(caminho_completo_nf);
+							if (!file.exists()) {
+								boolean copiar = manipular_arq.copiarNFe(roms.getCaminho_arquivo(),
+										caminho_completo_nf);
+								if (copiar) {
+									// JOptionPane.showMessageDialog(null, "Romaneio copiado para a pasta do
+									// destinatario");
+									// mover para a pasta do remetente
+									
+									
+									if (remetente.getTipo_pessoa() == 0) {
+										nome_pasta = remetente.getNome_empresarial().toUpperCase();
+									} else {
+
+										nome_pasta = remetente.getNome_fantaia().toUpperCase();
+									}
+									unidade_base_dados = configs_globais.getServidorUnidade();
+									sub_pasta = "E-Contract\\arquivos\\clientes";
+									nome_pasta = nome_pasta.trim();
+									caminho_completo_nf = unidade_base_dados + "\\" + sub_pasta + "\\"
+											+ nome_pasta.toUpperCase() + "\\" + "ROMANEIOS" + "\\romaneio-"
+											+ roms.getNumero_romaneio() + ".pdf";
+									// JOptionPane.showMessageDialog(null, "Movendo de :\n" +
+									// roms.getCaminho_arquivo()+ "\nPara:\n" + caminho_completo_nf);
+									boolean mover = manipular_arq.moverArquivo(roms.getCaminho_arquivo(),
+											caminho_completo_nf);
+									if (mover) {
+										// JOptionPane.showMessageDialog(null, "Romaneio movido para a pasta do
+										// destinatario");
+									} else {
+										// JOptionPane.showMessageDialog(null, "Erro ao mover o romaneio para a
+										// pasta do destinatario");
+									
+									}
+								} else {
+									// JOptionPane.showMessageDialog(null, "Erro ao copiar o romaneio para a
+									// pasta
+									// do remetente");
+								}
+							} else {
+							
+							}
+						}
+					} else {
+						// JOptionPane.showMessageDialog(null, "Romaneio lido mas nem o cliente
+						// remetente e nem o cliente destinatario estão cadastrado");
+					}
+				
+					
+				}catch(Exception y) {
+					JOptionPane.showMessageDialog(null, "Erro ao importar o romaneio");
+				}
+				
+			}
+			
+			
+			
+			
+		}
+
+		// verifica se o arquivo e uma nota fiscal valida
+
 	}
-		
-		
-	
-	
+
 	public boolean checkString(String txt) {
 		return txt != null && !txt.equals("") && !txt.equals(" ") && !txt.equals("  ");
 	}
-	
-	
-	
 }

@@ -23,6 +23,7 @@ import gui.TelaCliente;
 import gui.TelaContratos;
 import gui.TelaEntrada;
 import gui.TelaLogin;
+import gui.TelaMain;
 import gui.TelaElaborarNovoContrato;
 import gui.TelaPadrao;
 import gui.TelaPlanilhaNFe;
@@ -56,11 +57,41 @@ public class Main {
 	
  public static void main(String[] args) {
 	 
-	    if(args.length > 0 ) {
+	  String start = "";
+	
+	    if(args.length > 0   ) {
 	    	if(args[0].equalsIgnoreCase("busca")) {
-	        	MonitorarRomaneios monitorar = new MonitorarRomaneios();
-	        	monitorar.vigiarRomaneios();
+	    		ArquivoConfiguracoes ler = new ArquivoConfiguracoes();
+
+		        boolean leitura = false;
+				
+				leitura = ler.testeConfiguragoes();
+				
+				if(leitura) {
+
+					MonitorarRomaneios monitorar = new MonitorarRomaneios();
+		        	monitorar.vigiarRomaneios();
+
+				}else {
+					
+				}
 	        }
+	    	
+	    }else if(start.equals("busca")) {
+	    	ArquivoConfiguracoes ler = new ArquivoConfiguracoes();
+
+	        boolean leitura = false;
+			
+			leitura = ler.testeConfiguragoes();
+			
+			if(leitura) {
+
+				MonitorarRomaneios monitorar = new MonitorarRomaneios();
+	        	monitorar.vigiarRomaneios();
+
+			}else {
+				
+			}
 	    	
 	    }
 	    else {

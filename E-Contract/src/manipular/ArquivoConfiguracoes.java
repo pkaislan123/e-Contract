@@ -10,6 +10,7 @@ import java.util.Properties;
 import cadastros.CadastroBaseArquivos;
 import cadastros.CadastroBaseDados;
 import cadastros.CadastroLogin;
+import cadastros.CadastroZapMessenger;
 import outros.DadosGlobais;
 import outros.TratarDados;
 import tratamento_proprio.Log;
@@ -127,6 +128,33 @@ public class ArquivoConfiguracoes {
 		}
 	}*/
 	
+	
+	public CadastroZapMessenger getConfigsZapMessenger() {
+		String api_key, senha, email;
+		CadastroZapMessenger zap = new CadastroZapMessenger();
+		Properties prop;
+		try {
+			api_key = propriedades_local.getProperty("prop.zapmessenger.apikey");
+			System.out.println("Api key zap messenger: " + api_key);
+
+			
+			email = propriedades_local.getProperty("prop.zapmessenger.mailzap");
+			System.out.println("email zap messenger: " + email);
+			
+
+			senha = propriedades_local.getProperty("prop.zapmessenger.zapkey");
+			System.out.println("email zap messenger: " + senha);
+			
+			zap.setApi_key(api_key);
+			zap.setEmail(email);
+			zap.setSenha(senha);
+			
+		return zap;
+		}catch(Exception e ) {
+			return null;
+		}
+		
+	}
 	
 	public int getCodigoSequencial() {
 		int cod ;
@@ -270,6 +298,7 @@ public class ArquivoConfiguracoes {
 	
 	public boolean testeConfiguragoes() {
 		CadastroBaseArquivos config_pasta_raiz = getPastaRaiz();
+		CadastroZapMessenger zap_zap = getConfigsZapMessenger();
 		
 		boolean retorno_positivo = false;
 		
@@ -282,11 +311,19 @@ public class ArquivoConfiguracoes {
 
 				    CadastroBaseDados cad = getDadosBaseDados();
                     if(cad != null)	{			 
-                      configs_globais.setBaseDados(cad);;
-                      DadosGlobais dados = DadosGlobais.getInstance();
+                     
+                    	//testa as configuracoes de zapmessenger
+                    	if(zap_zap != null) {
+                    		configs_globais.setZap_zap(zap_zap);
+                    		
+                    		configs_globais.setBaseDados(cad);
+                            DadosGlobais dados = DadosGlobais.getInstance();
 
-         			 dados.setConfigs_globais(configs_globais);	 
-         			retorno_positivo = true;
+               			 dados.setConfigs_globais(configs_globais);	 
+               			retorno_positivo = true;
+                    	}
+                    	
+                    
                     }
                     else {
                     	return false;

@@ -49,7 +49,6 @@ public class TelaPadrao extends JDialog {
     private JDialog telaPai;
 
 	public TelaPadrao(Window janela_pai) {
-		setModal(true);
 
 		 isto = this;
 		

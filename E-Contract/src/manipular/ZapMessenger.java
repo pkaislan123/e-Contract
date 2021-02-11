@@ -18,22 +18,26 @@ import org.apache.http.impl.client.HttpClients;
 import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.util.EntityUtils;
 
+import cadastros.CadastroLogin;
+import cadastros.CadastroZapMessenger;
 import okhttp3.MediaType;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.RequestBody;
 import okhttp3.Response;
+import outros.DadosGlobais;
 import outros.TratarDados;
 
 public class ZapMessenger {
-
+	private CadastroLogin login;
+	private ConfiguracoesGlobais configs_globais;
 	
-	private String chave = "d366b8f8c2aaf99473bfc90742ebb1c4_42258_3d03a9bb7a4ff54ae039245c6";
-	private String usuario  = "aislan-c@hotmail.com";
-	private String senha = "titaniwm2014";
+	private String chave = "";
+	private String usuario  = "";
+	private String senha = "";
 	
 	public ZapMessenger() {
-		
+		getDadosGlobais();
 	}
 	
 	
@@ -168,6 +172,18 @@ public class ZapMessenger {
 			    return false;			} finally {
 			    httppost.releaseConnection();;
 			}
+		}
+		
+		
+		public void getDadosGlobais() {
+			//gerenciador de log
+					DadosGlobais dados = DadosGlobais.getInstance();
+					 configs_globais = dados.getConfigs_globais();
+					 CadastroZapMessenger zap = configs_globais.getZap_zap();
+					 this.chave = zap.getApi_key();
+					 this.usuario = zap.getEmail();
+					 this.senha = zap.getSenha();
+			
 		}
 	
 	

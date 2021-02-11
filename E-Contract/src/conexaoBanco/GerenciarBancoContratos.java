@@ -359,8 +359,8 @@ public class GerenciarBancoContratos {
 				return result;
 
 			} catch (Exception e) {
-				JOptionPane.showMessageDialog(null,
-						"Erro ao inserir o Contrato no banco de " + "dados " + e.getMessage());
+				//JOptionPane.showMessageDialog(null,
+					//	"Erro ao inserir o Contrato no banco de " + "dados " + e.getMessage());
 				GerenciadorLog.registrarLogDiario("falha",
 						"falha ao adicionar novo contrato: " + e.getMessage() + " causa: " + e.getCause());
 				return -1;
@@ -486,7 +486,7 @@ public class GerenciarBancoContratos {
 			PreparedStatement grava = (PreparedStatement) conn.prepareStatement(sql);
 			grava.execute();
 			ConexaoBanco.fechaConexao(conn, grava);
-			JOptionPane.showMessageDialog(null, "Relação contrato_corretor  cadastrado com sucesso");
+			//JOptionPane.showMessageDialog(null, "Relação contrato_corretor  cadastrado com sucesso");
 			registro_geral_relacao_contrato_corretor.setIdContrato(id_contrato);
 			registro_geral_relacao_contrato_corretor.adicionar_id(corretor.getId());
 			return true;
@@ -509,7 +509,7 @@ public class GerenciarBancoContratos {
 			PreparedStatement grava = (PreparedStatement) conn.prepareStatement(sql);
 			grava.execute();
 			ConexaoBanco.fechaConexao(conn, grava);
-			JOptionPane.showMessageDialog(null, "Relação contrato_comprador  cadastrado com sucesso");
+			//JOptionPane.showMessageDialog(null, "Relação contrato_comprador  cadastrado com sucesso");
 			registro_geral_relacao_contrato_comprador.setIdContrato(id_contrato);
 			registro_geral_relacao_contrato_comprador.adicionar_id(comprador.getId());
 			return true;
@@ -532,7 +532,7 @@ public class GerenciarBancoContratos {
 			PreparedStatement grava = (PreparedStatement) conn.prepareStatement(sql);
 			grava.execute();
 			ConexaoBanco.fechaConexao(conn, grava);
-			JOptionPane.showMessageDialog(null, "Relação contrato_vendedor cadastrado com sucesso");
+			//JOptionPane.showMessageDialog(null, "Relação contrato_vendedor cadastrado com sucesso");
 			registro_geral_relacao_contrato_vendedor.setIdContrato(id_contrato);
 			registro_geral_relacao_contrato_vendedor.adicionar_id(vendedor.getId());
 			return true;
@@ -635,7 +635,7 @@ public class GerenciarBancoContratos {
 
 			pstm.execute();
 			ConexaoBanco.fechaConexao(conn, pstm);
-			JOptionPane.showMessageDialog(null, "Relação contrato_corretor excluido, banco normalizado ");
+			//JOptionPane.showMessageDialog(null, "Relação contrato_corretor excluido, banco normalizado ");
 			return true;
 
 		} catch (Exception f) {
@@ -661,7 +661,7 @@ public class GerenciarBancoContratos {
 
 			pstm.execute();
 			ConexaoBanco.fechaConexao(conn, pstm);
-			JOptionPane.showMessageDialog(null, "Relação contrato_comprador excluido, banco normalizado ");
+		//	JOptionPane.showMessageDialog(null, "Relação contrato_comprador excluido, banco normalizado ");
 			return true;
 
 		} catch (Exception f) {
@@ -687,7 +687,7 @@ public class GerenciarBancoContratos {
 
 			pstm.execute();
 			ConexaoBanco.fechaConexao(conn, pstm);
-			JOptionPane.showMessageDialog(null, "Relação contrato_vendedor excluido, banco normalizado ");
+		//	JOptionPane.showMessageDialog(null, "Relação contrato_vendedor excluido, banco normalizado ");
 			return true;
 
 		} catch (Exception f) {
@@ -914,7 +914,7 @@ public class GerenciarBancoContratos {
 			PreparedStatement grava = (PreparedStatement) conn.prepareStatement(sql);
 			grava.execute();
 			ConexaoBanco.fechaConexao(conn, grava);
-			JOptionPane.showMessageDialog(null, "Relação contrato_modelo_pagamento  cadastrado com sucesso");
+			//JOptionPane.showMessageDialog(null, "Relação contrato_modelo_pagamento  cadastrado com sucesso");
 			registro_geral_relacao_contrato_modelo_pagamento.setIdContrato(id_contrato);
 			registro_geral_relacao_contrato_modelo_pagamento.adicionar_id(id_pagamento);
 			return true;
@@ -995,7 +995,7 @@ public class GerenciarBancoContratos {
 
 			pstm.execute();
 			ConexaoBanco.fechaConexao(conn, pstm);
-			JOptionPane.showMessageDialog(null, "Relação contrato_modelo_pagamento excluido, banco normalizado ");
+			//JOptionPane.showMessageDialog(null, "Relação contrato_modelo_pagamento excluido, banco normalizado ");
 			return true;
 
 		} catch (Exception f) {
@@ -1972,7 +1972,7 @@ public class GerenciarBancoContratos {
 			PreparedStatement grava = (PreparedStatement) conn.prepareStatement(sql);
 			grava.execute();
 			ConexaoBanco.fechaConexao(conn, grava);
-			JOptionPane.showMessageDialog(null, "Relação contrato_sub_contrato cadastrado com sucesso");
+			//JOptionPane.showMessageDialog(null, "Relação contrato_sub_contrato cadastrado com sucesso");
 			registro_geral_relacao_contrato_sub_contrato.setIdContrato(id_contrato_pai);
 			registro_geral_relacao_contrato_sub_contrato.adicionar_id(id_sub_contrato);
 			return true;
@@ -1999,7 +1999,7 @@ public class GerenciarBancoContratos {
 
 			pstm.execute();
 			ConexaoBanco.fechaConexao(conn, pstm);
-			JOptionPane.showMessageDialog(null, "Relação contrato_sub_contrato excluido, banco normalizado ");
+			//JOptionPane.showMessageDialog(null, "Relação contrato_sub_contrato excluido, banco normalizado ");
 			return true;
 
 		} catch (Exception f) {
@@ -2214,7 +2214,7 @@ public class GerenciarBancoContratos {
 			PreparedStatement grava = (PreparedStatement) conn.prepareStatement(sql);
 			grava.execute();
 			ConexaoBanco.fechaConexao(conn, grava);
-			JOptionPane.showMessageDialog(null, "Relação contrato_tarefas  cadastrado com sucesso");
+			//JOptionPane.showMessageDialog(null, "Relação contrato_tarefas  cadastrado com sucesso");
 			registro_geral_relacao_contrato_tarefa.setIdContrato(id_contrato);
 			registro_geral_relacao_contrato_tarefa.adicionar_id(id_tarefa);
 
@@ -2561,7 +2561,7 @@ public class GerenciarBancoContratos {
 			PreparedStatement grava = (PreparedStatement) conn.prepareStatement(sql);
 			grava.execute();
 			ConexaoBanco.fechaConexao(conn, grava);
-			JOptionPane.showMessageDialog(null, "Relação contrato_carregamento  cadastrado com sucesso");
+			//JOptionPane.showMessageDialog(null, "Relação contrato_carregamento  cadastrado com sucesso");
 
 			return true;
 
@@ -2969,7 +2969,7 @@ public class GerenciarBancoContratos {
 			PreparedStatement grava = (PreparedStatement) conn.prepareStatement(sql);
 			grava.execute();
 			ConexaoBanco.fechaConexao(conn, grava);
-			JOptionPane.showMessageDialog(null, "Relação contrato_pagamentos  cadastrado com sucesso");
+			//JOptionPane.showMessageDialog(null, "Relação contrato_pagamentos  cadastrado com sucesso");
 
 			return true;
 

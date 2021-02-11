@@ -86,11 +86,12 @@ public class ManipularNotasFiscais {
 					notas_fiscais.add(cadastro);
 					countNotas++;
 					
+					if(tela_pai != null) {
 					if(tela_pai instanceof TelaNotasFiscais)
 					((TelaNotasFiscais) tela_pai).addNota(cadastro);
 					else
 					((TelaTodasNotasFiscais) tela_pai).addNota(cadastro);
-
+					}
 				}
 
 				// enviar nota para a tela pai
@@ -110,6 +111,64 @@ public class ManipularNotasFiscais {
 		return notas_fiscais;
 	}
 
+	
+	
+	public ArrayList<CadastroNFe> tratarRapido() {
+
+		MyFileVisitor arquivos = new MyFileVisitor();
+		Path source = Paths.get(caminho);
+		try {
+			Files.walkFileTree(source, arquivos);
+			listadeArquivos = arquivos.getArquivos();
+
+		} catch (IOException ex) {
+			ex.printStackTrace();
+		}
+
+		for (int i = 0; i < listadeArquivos.size(); i++) {
+			 System.out.println(listadeArquivos.get(i).toString());
+			countArquivos++;
+		}
+
+		for (int i = 0; i < listadeArquivos.size(); i++) {
+			if(listadeArquivos.get(i).contains("NOTAS FISCAIS")) {
+			if (listadeArquivos.get(i).endsWith(".pdf") || listadeArquivos.get(i).endsWith(".Pdf")) {
+				countPDF++;
+
+				File file = new File(listadeArquivos.get(i).toString());
+				CadastroNFe cadastro = filtrar(file);
+
+				if (cadastro != null) {
+					notas_fiscais.add(cadastro);
+					countNotas++;
+					
+					if(tela_pai != null) {
+					if(tela_pai instanceof TelaNotasFiscais)
+					((TelaNotasFiscais) tela_pai).addNota(cadastro);
+					else
+					((TelaTodasNotasFiscais) tela_pai).addNota(cadastro);
+					}
+				}
+
+				// enviar nota para a tela pai
+				// System.out.println("enviando nota para a tela pai");
+
+				// System.out.print("Numero de arquivos: " + countArquivos);
+				// System.out.print("Numero de PDF's: " + countPDF);
+
+				// System.out.print("Numero de Notas: " + countNotas);
+
+			} else {
+				String nomeArquivo = listadeArquivos.get(i).toString();
+				// System.out.println("O arquivo " + nomeArquivo + " não é um PDF");
+			}
+		}
+		}
+
+		return notas_fiscais;
+	}
+
+	
 	public CadastroNFe filtrar(File file) {
 		CadastroNFe cadastro = new CadastroNFe();
 
@@ -152,7 +211,7 @@ public class ManipularNotasFiscais {
 						//nfa siare
 						cadastro = tratar_nfa_siare(lines, file);
 					}else if(linha.contains("Oobj")) {
-						JOptionPane.showMessageDialog(null, "Iniciando tratamento de nfe siacon");
+					//	JOptionPane.showMessageDialog(null, "Iniciando tratamento de nfe siacon");
 						//nfe siacon
 						cadastro = tratar_nfe_interna_siacon(lines, file);
 					}
@@ -724,7 +783,10 @@ public class ManipularNotasFiscais {
        
        
        public CadastroNFe tratar_nfe_interna_siacon (String lines[], File file) {
-			CadastroNFe cadastro = new CadastroNFe();
+			
+    	   
+    	   try {
+    	   CadastroNFe cadastro = new CadastroNFe();
 
      		cadastro.setCaminho_arquivo(file.getAbsolutePath());
 
@@ -762,14 +824,31 @@ public class ManipularNotasFiscais {
             //inscricao do destinatario
              
              String linha_com_info_destinatario = tratamentoDados.tratar("DESTINATÁRIO/REMETENTE, ", "HORA");
-             
+             //JOptionPane.showMessageDialog(null, "linha info dest: " + linha_com_info_destinatario);
              //quebrar string
              String string_quebrada[] = linha_com_info_destinatario.split(",");
              
-             
-         
-             String inscricao_destinatario = string_quebrada[5].replaceAll("[^0-9]", "");
+             for(int i  = 0; i < string_quebrada.length; i++) {
+            	 // JOptionPane.showMessageDialog(null,"Linha (" + i + "): "+ string_quebrada[i] );
+             }
+             String inscricao_destinatario = "";
+             if( string_quebrada[5].replaceAll("[^0-9]", "").length() > 5) {
+              inscricao_destinatario = string_quebrada[5].replaceAll("[^0-9]", "");
+             }else {
+            	 if( string_quebrada[6].replaceAll("[^0-9]", "").length() > 5) {
+                     inscricao_destinatario = string_quebrada[6].replaceAll("[^0-9]", "");
 
+            	 }else {
+            		 if( string_quebrada[7].replaceAll("[^0-9]", "").length() > 5) {
+                         inscricao_destinatario = string_quebrada[7].replaceAll("[^0-9]", "");
+                           
+                	 }else {
+                         inscricao_destinatario = string_quebrada[8].replaceAll("[^0-9]", "");
+
+                	 }
+            	 }
+
+             }
              
              String valor = tratamentoDados.tratar("VALOR TOTAL DA NOTA, ", "TRANSPORTADOR");
              valor = valor.trim();
@@ -878,6 +957,10 @@ public class ManipularNotasFiscais {
  			cadastro.setValor(valor);
  			
 			 return cadastro;
+    	   }catch(Exception e) {
+    		   JOptionPane.showMessageDialog(null, "Erro ao ler nota fiscal\nErro: " + e.getMessage() + "\nCausa: " + e.getCause());
+    		   return null;
+    	   }
 
 		}
 		  		

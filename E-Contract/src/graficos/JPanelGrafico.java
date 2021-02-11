@@ -23,13 +23,13 @@ public class JPanelGrafico extends JPanel{
 		
 		 
 
-	    lblassinados.setBounds(350, 27, 150, 14);
+	    lblassinados.setBounds(350, 27, 150, 30);
 	    lblassinados.setFont(new Font("Tahoma", Font.BOLD, 14));
     	lblassinados.setForeground(new Color(0,100,0));
 
 	    this.add(lblassinados);
 
-	    lblnao_assinados.setBounds(100, 224, 150, 25);
+	    lblnao_assinados.setBounds(100, 224, 150, 30);
 	    lblnao_assinados.setFont(new Font("Tahoma", Font.BOLD, 14));
     	lblnao_assinados.setForeground(Color.red);
 

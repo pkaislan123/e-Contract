@@ -140,11 +140,11 @@ public class ManipularArquivoTerceiros {
 		
 
 		String armazenagem = tratamentoDados.tratar("Armazenagem: ", "Frete").replace(" ", "");
-		JOptionPane.showMessageDialog(null, "Armazenagem por conta do: " + armazenagem);
+		//JOptionPane.showMessageDialog(null, "Armazenagem por conta do: " + armazenagem);
 		contrato_local.setArmazenagem(armazenagem);
 		
 		String frete = tratamentoDados.tratar("Frete ", "CIF").replace("(", "").replaceAll(" ", "");
-		JOptionPane.showMessageDialog(null, "Frete por conta do: " + frete);
+		//JOptionPane.showMessageDialog(null, "Frete por conta do: " + frete);
 		contrato_local.setFrete(frete);
 
 		CadastroCliente comprador_contrato = new CadastroCliente();
@@ -181,17 +181,17 @@ public class ManipularArquivoTerceiros {
 			}
 		}
 		String nome_vendedor_busca = "";
-		JOptionPane.showMessageDialog(null, "Linha de nome de: " + lines[linha_nome_vendedor]);
+		//JOptionPane.showMessageDialog(null, "Linha de nome de: " + lines[linha_nome_vendedor]);
 	
 		if(lines[linha_nome_vendedor].length() < 11 ) {
 			//nome grande
-			JOptionPane.showMessageDialog(null, "nome grande");
+			//JOptionPane.showMessageDialog(null, "nome grande");
 			
 			 nome_vendedor_busca = lines[linha_nome_vendedor] + lines[linha_nome_vendedor+1] +  lines[linha_nome_vendedor+2] + ";";
 			 linha_nome_vendedor +=  2;
 
 		}else{
-			JOptionPane.showMessageDialog(null, "nome pequeno");
+			//JOptionPane.showMessageDialog(null, "nome pequeno");
 
 			 nome_vendedor_busca = lines[linha_nome_vendedor] + ";";
 
@@ -200,7 +200,7 @@ public class ManipularArquivoTerceiros {
 		TratarDados tratar = new TratarDados(nome_vendedor_busca);
 		System.out.println("nome vendedor da busca: " + nome_vendedor_busca);
 		String nome_vendedor = tratar.tratar("Vendedor: ", ";");
-		JOptionPane.showMessageDialog(null, "Nome vendedor: " + nome_vendedor);
+		//JOptionPane.showMessageDialog(null, "Nome vendedor: " + nome_vendedor);
 		String nome_vendedor_quebrado [] = nome_vendedor.split(" ");
 		vendedor_contrato.setNome(nome_vendedor_quebrado[0]);
 		String sobre_nome = "";
@@ -318,7 +318,7 @@ public class ManipularArquivoTerceiros {
 		 String inscricao_contrato = lines[linha_inscricao_contrato].replaceAll("[^0-9+]", "");
 		 
 		  String linha_endereco = lines[linha_nome_vendedor + 1] + lines[linha_nome_vendedor + 2];
-           JOptionPane.showMessageDialog(null, "Endereço: " + linha_endereco);
+		  // JOptionPane.showMessageDialog(null, "Endereço: " + linha_endereco);
            System.out.println("Endereço da faz: " + linha_endereco);
            TratarDados tratar_endereco = new TratarDados(linha_endereco);
            String rua = tratar_endereco.tratar("Endereço: ", ",");
@@ -331,7 +331,7 @@ public class ManipularArquivoTerceiros {
            estado = estado.replaceAll("-", "").trim();
            estado = estado.replaceAll(" ", "").trim();
            
-           JOptionPane.showMessageDialog(null, "Rua: " + rua + "\ncidade: " + cidade + "\nestado: " + estado);
+           // JOptionPane.showMessageDialog(null, "Rua: " + rua + "\ncidade: " + cidade + "\nestado: " + estado);
    		
            vendedor_contrato.setRua(rua);
            vendedor_contrato.setCidade(cidade);
@@ -343,19 +343,19 @@ public class ManipularArquivoTerceiros {
 		//percorre as linhas do array procurando a palavra soja
 		for(int i = 0; i < lines.length; i++) {
 			if(lines[i].contains("Soja GMO")) {
-				produto = "SOJA";
+				produto = "SOJA GMO";
                transgenia_proxima =  "Transgenico(GMO)";
                break;
 			}else if(lines[i].contains("Soja Non-GMO")) {
-				produto = "SOJA";
+				produto = "SOJA NON-GMO";
 
 				transgenia_proxima =  "Convencional(NON-GMO)";
 	               break;
 			}
 		}
 		
-		JOptionPane.showMessageDialog(null, "produto: " + produto);
-		JOptionPane.showMessageDialog(null, "transgenia: " + transgenia_proxima);
+		//JOptionPane.showMessageDialog(null, "produto: " + produto);
+		//JOptionPane.showMessageDialog(null, "transgenia: " + transgenia_proxima);
 
 		//procura pelo produto no  banco de dados
 		GerenciarBancoProdutos gerenciar_produtos = new GerenciarBancoProdutos();
@@ -364,7 +364,7 @@ public class ManipularArquivoTerceiros {
 			if(prod.getNome_produto().equalsIgnoreCase(produto)) {
 				if(prod.getTransgenia().equalsIgnoreCase(transgenia_proxima)) {
 					contrato_local.setModelo_produto(prod);
-					JOptionPane.showMessageDialog(null, "Produto cadastrado");
+					//JOptionPane.showMessageDialog(null, "Produto cadastrado");
 					break;
 				}
 				
@@ -382,7 +382,7 @@ public class ManipularArquivoTerceiros {
 			if(saf.getProduto().getId_produto() == contrato_local.getModelo_produto().getId_produto()) {
 				//encontrado a safra que possui o produto deste contrato
 				contrato_local.setModelo_safra(saf);
-				JOptionPane.showMessageDialog(null, "safra cadastrada");
+				//JOptionPane.showMessageDialog(null, "safra cadastrada");
 
 				break;
 				
@@ -419,7 +419,7 @@ public class ManipularArquivoTerceiros {
 		
 		//valor
 		String valor =  tratamentoDados.tratar(" foi estabelecido entre as partes", "saca").replaceAll("[^0-9]+", "");
-		JOptionPane.showMessageDialog(null, "tamanho da string valor: " + valor.length());
+		//JOptionPane.showMessageDialog(null, "tamanho da string valor: " + valor.length());
 		if(valor.length() == 4) {
 			valor = valor.substring(0, 2).concat(".").concat( valor.substring(2 , 4));
 
@@ -427,7 +427,7 @@ public class ManipularArquivoTerceiros {
 			valor = valor.substring(0, 3).concat(".").concat( valor.substring(3 , 5));
 
 		}
-		JOptionPane.showMessageDialog(null, "Valor encontrato: " + valor);
+		//JOptionPane.showMessageDialog(null, "Valor encontrato: " + valor);
 		double valor_double = Double.parseDouble(valor);
 		
 		//seta o valor por saco no contrato
@@ -569,7 +569,7 @@ public class ManipularArquivoTerceiros {
 		 String banco = tratamentoDados.tratar("crédito no ", " ");
 		 String agencia =  tratamentoDados.tratar("Agência: ", "Conta").replace(",", "").trim();
 		 String conta_corrente =   tratamentoDados.tratar("Conta", "em").replaceAll("[^0-9-]", "");
-		 JOptionPane.showMessageDialog(null, "CC: " + conta_corrente);
+		 // JOptionPane.showMessageDialog(null, "CC: " + conta_corrente);
 		 String data_pagamento =  conteudo_pagamento[conteudo_pagamento.length - 1];
 		 data_pagamento = data_pagamento.replace(".", "");
 		 
@@ -1148,7 +1148,7 @@ public class ManipularArquivoTerceiros {
 
 		try {
 		String codigo_contrato = tratamentoDados.tratar("Nº ", " ");
-		JOptionPane.showMessageDialog(null, "Codigo do contrato: " + codigo_contrato);
+		//JOptionPane.showMessageDialog(null, "Codigo do contrato: " + codigo_contrato);
 		contrato_local.setCodigo(codigo_contrato);
 		contrato_local.setSub_contrato(3);
 		
@@ -1320,7 +1320,7 @@ public class ManipularArquivoTerceiros {
 		
 		 String inscricao_contrato = tratamentoDados.tratar("Inscrição Estadual: ", " ");
 		
-		 JOptionPane.showMessageDialog(null, "Enderço: " + fazenda_lavoura_linha);
+		 ////JOptionPane.showMessageDialog(null, "Enderço: " + fazenda_lavoura_linha);
 			System.out.println("Endereço: " + fazenda_lavoura_linha);
 			
 		String endereco = fazenda_lavoura_linha.replaceAll("Endereço: ", "");
@@ -1329,7 +1329,7 @@ public class ManipularArquivoTerceiros {
 		String cidade = endereco_quebrado[2].trim(); 
 		String estado = endereco_quebrado[3].trim(); 
 
-        JOptionPane.showMessageDialog(null, "Rua: " + rua + "\ncidade: " + cidade + "\nestado: " + estado);
+		//JOptionPane.showMessageDialog(null, "Rua: " + rua + "\ncidade: " + cidade + "\nestado: " + estado);
 		
         vendedor_contrato.setRua(rua);
         vendedor_contrato.setCidade(cidade);
@@ -1341,11 +1341,11 @@ public class ManipularArquivoTerceiros {
 		//percorre as linhas do array procurando a palavra soja
 		for(int i = 0; i < lines.length; i++) {
 			if(lines[i].contains("Soja GMO")) {
-				produto = "SOJA";
+				produto = "SOJA GMO";
                transgenia_proxima =  "Transgenico(GMO)";
                break;
 			}else if((lines[i].contains("soja"))){
-				produto = "SOJA";
+				produto = "SOJA GMO";
 
 				transgenia_proxima =  "Transgenico(GMO)";
 	               break;
@@ -2092,12 +2092,14 @@ public class ManipularArquivoTerceiros {
 
                                    }else {
                   						JOptionPane.showMessageDialog(null, "O arquivo não foi copiado para  nova pasta, tente novamente");
+                  						JOptionPane.showMessageDialog(null, "Origem: " + file.getAbsolutePath() + "\ndestino: " +  caminho_salvar_contrato__no_hd + nome_pasta_arquivo + "\\" + nome_arquivo + ".pdf");
 
                                    }
 								
 							}else {
 								System.out.println("erro ao criar diretorio para o contrato ");
           						JOptionPane.showMessageDialog(null, "O arquivo não foi copiado para  nova pasta, tente novamente");
+          						JOptionPane.showMessageDialog(null, "Origem: " + file.getAbsolutePath() + "\ndestino: " +  caminho_salvar_contrato__no_hd + nome_pasta_arquivo + "\\" + nome_arquivo + ".pdf");
 
 								
 							}
@@ -2148,7 +2150,7 @@ public class ManipularArquivoTerceiros {
 		}
 		
 		codigo_contrato = lines[linha_codigo].replaceAll("[^0-9]", "");
-		JOptionPane.showMessageDialog(null, "Codigo do contrato: " + codigo_contrato);
+		//JOptionPane.showMessageDialog(null, "Codigo do contrato: " + codigo_contrato);
 		contrato_local.setCodigo(codigo_contrato);
 		contrato_local.setSub_contrato(3);
 		
@@ -2170,7 +2172,7 @@ public class ManipularArquivoTerceiros {
 
 		cnpj_comprador = lines[linha_cnpj].replaceAll("[^0-9]", "");
 		ie_comprador = lines[linha_ie_comprador].replaceAll("[^0-9]", "");
-		 JOptionPane.showMessageDialog(null, "CNPJ do comprador: " + cnpj_comprador + "\nIE do comprador: " + ie_comprador);
+		//JOptionPane.showMessageDialog(null, "CNPJ do comprador: " + cnpj_comprador + "\nIE do comprador: " + ie_comprador);
 		//procura nos clientes se existe este comprador
 	     GerenciarBancoClientes gerenciar = new GerenciarBancoClientes();
 	     ArrayList<CadastroCliente> clientes = gerenciar.getClientes(0, 0, "");
@@ -2221,7 +2223,7 @@ public class ManipularArquivoTerceiros {
 				forma_producao = 3;
 			}
 		}
-		JOptionPane.showMessageDialog(null, "Forma de produção: " + forma_producao);
+		//JOptionPane.showMessageDialog(null, "Forma de produção: " + forma_producao);
 		
 		identificacao_vendedor = lines[linha_identificacao_vendedor];
 		TratarDados tratar_iden_vendedor = new TratarDados(identificacao_vendedor);
@@ -2229,7 +2231,7 @@ public class ManipularArquivoTerceiros {
 		identificacao_vendedor = identificacao_vendedor.replaceAll("[^0-9]", "");
 		ie_vendedor = lines[linha_ie_vendedor].replaceAll("[^0-9]", "");
 		
-		JOptionPane.showMessageDialog(null, "Cpf do vendedor: " + identificacao_vendedor + "\n IE do vendedor: "+ie_vendedor);
+		//JOptionPane.showMessageDialog(null, "Cpf do vendedor: " + identificacao_vendedor + "\n IE do vendedor: "+ie_vendedor);
 		
 		//seta os vendedores do contrato
 				String nome_vendedor = "";
@@ -2237,7 +2239,7 @@ public class ManipularArquivoTerceiros {
 					nome_vendedor = lines[linha_nome_vendedor];
 					nome_vendedor = nome_vendedor.replaceAll("B\\) VENDEDOR: ", "");
 				
-				JOptionPane.showMessageDialog(null, "Vendedor do contrato: " + nome_vendedor);
+					//JOptionPane.showMessageDialog(null, "Vendedor do contrato: " + nome_vendedor);
 				String nome_quebrado[] = nome_vendedor.split(" ");
 				
 				    String sobrenome = "";
@@ -2350,7 +2352,7 @@ public class ManipularArquivoTerceiros {
 		 }else {
 			 linha_endereco = lines[linha_nome_vendedor + 1] + lines[linha_nome_vendedor + 2];
 		 }
-		  JOptionPane.showMessageDialog(null, "endereco da fazenda: " + linha_endereco);
+		 //JOptionPane.showMessageDialog(null, "endereco da fazenda: " + linha_endereco);
 		  System.out.println("Linha endereço : " + linha_endereco);
 		  linha_endereco = linha_endereco + ";";
          TratarDados tratar_endereco = new TratarDados(linha_endereco);
@@ -2369,7 +2371,7 @@ public class ManipularArquivoTerceiros {
 			fazenda_lavoura = tratar_endereco_quebrado.tratar("ENDEREÇO: ", "-").trim();
 		}
 		
-		JOptionPane.showMessageDialog(null, "Fazenda lavoura: " + fazenda_lavoura);
+		//JOptionPane.showMessageDialog(null, "Fazenda lavoura: " + fazenda_lavoura);
 
 		if(linha_endereco.contains("MINAS GERAIS ")) {
 			uf_inscricao_contrato = "MG";
@@ -2395,9 +2397,9 @@ public class ManipularArquivoTerceiros {
 		String cidade = "";
 		
 		String cidade_busca = tratar_endereco_quebrado.tratar("MUNICÍPIO/ES", ";");
-		JOptionPane.showMessageDialog(null, "Cidade da busca: " + cidade_busca );
+		//JOptionPane.showMessageDialog(null, "Cidade da busca: " + cidade_busca );
 		cidade_busca = cidade_busca.replaceAll("/", ",");
-		JOptionPane.showMessageDialog(null, "Cidade da busca sem /:" + cidade_busca );
+		//JOptionPane.showMessageDialog(null, "Cidade da busca sem /:" + cidade_busca );
 		System.out.println("Cidade da busca sem /: " + cidade_busca);
         TratarDados tratar_cidade_busca = new TratarDados(cidade_busca);
 		 cidade = tratar_cidade_busca.tratar("TADO: ", ",").trim();
@@ -2414,8 +2416,8 @@ public class ManipularArquivoTerceiros {
 		
 		
 		
-		JOptionPane.showMessageDialog(null, "Informacoes de endereço: \nRua: " + rua +
-				"\nBairro: " + bairro + "\nCidade: " + cidade + "\nEstado: " + estado ); 
+		//JOptionPane.showMessageDialog(null, "Informacoes de endereço: \nRua: " + rua +
+		//		"\nBairro: " + bairro + "\nCidade: " + cidade + "\nEstado: " + estado ); 
 		
 		//JOptionPane.showMessageDialog(null, "uf da inscricao do contrato: " + uf_inscricao_contrato);
 		 String inscricao_contrato = ie_vendedor;
@@ -2428,16 +2430,16 @@ public class ManipularArquivoTerceiros {
 		//percorre as linhas do array procurando a palavra soja
 		for(int i = 0; i < lines.length; i++) {
 			if(lines[i].contains("Soja GMO")) {
-				produto = "SOJA";
+				produto = "SOJA GMO";
                transgenia_proxima =  "Transgenico(GMO)";
                break;
 			}else if((lines[i].contains("soja"))){
-				produto = "SOJA";
+				produto = "SOJA GMO";
 
 				transgenia_proxima =  "Transgenico(GMO)";
 	               break;
 			}else if((lines[i].contains("SOJA"))){
-				produto = "SOJA";
+				produto = "SOJA GMO";
 
 				transgenia_proxima =  "Transgenico(GMO)";
 	               break;
@@ -2478,11 +2480,11 @@ public class ManipularArquivoTerceiros {
 		
 		//frete e armazenagem
 		String armazenagem = tratamentoDados.tratar("armazenagem por conta e risco do ", " até"); 
-		JOptionPane.showMessageDialog(null, "Armazenagem por conta do: " + armazenagem);
+		//JOptionPane.showMessageDialog(null, "Armazenagem por conta do: " + armazenagem);
 		 contrato_local.setArmazenagem(armazenagem);
 		
 		 String frete = tratamentoDados.tratar("FRETE ATÉ LOCAL DE ENTREGA POR CONTA DO: ", "DESPESA").replaceAll(" ", ""); 
-			JOptionPane.showMessageDialog(null, "frete por conta do: " + frete);
+		 //JOptionPane.showMessageDialog(null, "frete por conta do: " + frete);
 			 contrato_local.setFrete(frete);
 			 
 		//quantidade do produto
@@ -3215,12 +3217,14 @@ public class ManipularArquivoTerceiros {
 
                                    }else {
                   						JOptionPane.showMessageDialog(null, "O arquivo não foi copiado para  nova pasta, tente novamente");
+                  						JOptionPane.showMessageDialog(null, "origem: " + file.getAbsolutePath() + "\ndestino: " + caminho_salvar_contrato__no_hd + nome_pasta_arquivo + "\\" + nome_arquivo + ".pdf");
 
                                    }
 								
 							}else {
 								System.out.println("erro ao criar diretorio para o contrato ");
           						JOptionPane.showMessageDialog(null, "O arquivo não foi copiado para  nova pasta, tente novamente");
+          						JOptionPane.showMessageDialog(null, "origem: " + file.getAbsolutePath() + "\ndestino: " + caminho_salvar_contrato__no_hd + nome_pasta_arquivo + "\\" + nome_arquivo + ".pdf");
 
 								
 							}
@@ -3260,7 +3264,7 @@ public class ManipularArquivoTerceiros {
 
 		try {
 		String codigo_contrato = tratamentoDados.tratar("N.º ", "DADOS").replaceAll("[^0-9]", "");
-		JOptionPane.showMessageDialog(null, "Codigo do contrato: " + codigo_contrato);
+		//JOptionPane.showMessageDialog(null, "Codigo do contrato: " + codigo_contrato);
 		contrato_local.setCodigo(codigo_contrato);
 		contrato_local.setSub_contrato(3);
 		
@@ -3271,7 +3275,7 @@ public class ManipularArquivoTerceiros {
 		CadastroCliente comprador_contrato = new CadastroCliente();
 		String cnpj_comprador = tratamentoDados.tratar("CNPJ: ", "ENDEREÇO").replaceAll("[^0-9]", "");
 		
-		JOptionPane.showMessageDialog(null, "cnpj do comprador: " +cnpj_comprador);
+		//JOptionPane.showMessageDialog(null, "cnpj do comprador: " +cnpj_comprador);
 
 		//procura nos clientes se existe este comprador
 	     GerenciarBancoClientes gerenciar = new GerenciarBancoClientes();
@@ -3289,69 +3293,7 @@ public class ManipularArquivoTerceiros {
 		
 		
 		
-		CadastroCliente vendedor_contrato = new CadastroCliente();
-
-		String identificacao_vendedor = tratamentoDados.tratar("CNPJ/CPF: ", "ENDEREÇO:");
-		identificacao_vendedor = identificacao_vendedor.replaceAll("[^0-9]+", "");
-        int tipo_vendedor = -1;
-        
-        JOptionPane.showMessageDialog(null, "Id do vendedor: " + identificacao_vendedor);
-		
-
-        if(identificacao_vendedor.length() == 11) {
-        	tipo_vendedor = 0;
-        	vendedor_contrato.setTipo_pessoa(0);
-        	vendedor_contrato.setCpf(identificacao_vendedor);
-        }
-        else if(identificacao_vendedor.length() == 14) {
-        	tipo_vendedor = 1;
-        	vendedor_contrato.setTipo_pessoa(1);
-        	vendedor_contrato.setCnpj(identificacao_vendedor);
-        }
-		
-        boolean vendedor_cadastrado = false;
-		for(CadastroCliente cliente : clientes) {
-			
-			if(tipo_vendedor == 0) {
-				if(cliente.getTipo_pessoa() == 0) {
-					if(cliente.getCpf().equals(identificacao_vendedor)) {
-						vendedor_contrato = cliente;
-						vendedor_cadastrado  = true;
-					break;
-					}
-				}
-				
-			}else {
-				if(cliente.getTipo_pessoa() == 1) {
-					if(cliente.getCnpj().equals(identificacao_vendedor)) {
-						vendedor_contrato = cliente;
-						vendedor_cadastrado  = true;
-
-					break;
-					}
-				}
-			}
-			
-		}
-		
 	
-		
-		//seta os vendedores do contrato
-		String nome_vendedor = "";
-		
-		if(vendedor_cadastrado) {
-			
-			if(vendedor_contrato.getTipo_pessoa() == 0) {
-				//pessoa fisica
-				nome_vendedor = vendedor_contrato.getNome_empresarial();
-			}else {
-				nome_vendedor = vendedor_contrato.getNome_fantaia();
-
-			}
-			
-			
-			
-		}
 		
 	
 		
@@ -3362,7 +3304,7 @@ public class ManipularArquivoTerceiros {
 		int ano_plantio_safra = ano_colheita_safra - 1;
 		
 		safra = Integer.toString(ano_plantio_safra) + "/" + Integer.toString(ano_colheita_safra);
-		JOptionPane.showMessageDialog(null, "safra: " + safra);
+		//JOptionPane.showMessageDialog(null, "safra: " + safra);
 	
 		//encontrar a linha que contem a string "OBJETO"
 		 int linha_objeto = -1;
@@ -3378,10 +3320,75 @@ public class ManipularArquivoTerceiros {
 		 String uf_inscricao_contrato =  lines[linha_objeto - 3].replaceAll("ESTADO: ", "").trim();
 		 String inscricao_contrato = tratamentoDados.tratar("INSCRIÇÃO ESTADUAL: ", "I.").replaceAll(",", "");
 		 
-		JOptionPane.showMessageDialog(null, "Inscricao do contrato: " + inscricao_contrato);
-		JOptionPane.showMessageDialog(null, "UF da inscrição: " + uf_inscricao_contrato);
-		JOptionPane.showMessageDialog(null, "Endereço: " + fazenda_lavoura);
+		 
+		// JOptionPane.showMessageDialog(null, "Inscricao do contrato: " + inscricao_contrato);
+		 //JOptionPane.showMessageDialog(null, "UF da inscrição: " + uf_inscricao_contrato);
+		 //JOptionPane.showMessageDialog(null, "Endereço: " + fazenda_lavoura);
+          
+			CadastroCliente vendedor_contrato = new CadastroCliente();
 
+			String identificacao_vendedor = tratamentoDados.tratar("CNPJ/CPF: ", "ENDEREÇO:");
+			identificacao_vendedor = identificacao_vendedor.replaceAll("[^0-9]+", "");
+	        int tipo_vendedor = -1;
+	        vendedor_contrato.setIe(inscricao_contrato);
+	        
+	        //JOptionPane.showMessageDialog(null, "Id do vendedor: " + identificacao_vendedor);
+			
+
+	        if(identificacao_vendedor.length() == 11) {
+	        	tipo_vendedor = 0;
+	        	vendedor_contrato.setTipo_pessoa(0);
+	        	vendedor_contrato.setCpf(identificacao_vendedor);
+	        }
+	        else if(identificacao_vendedor.length() == 14) {
+	        	tipo_vendedor = 1;
+	        	vendedor_contrato.setTipo_pessoa(1);
+	        	vendedor_contrato.setCnpj(identificacao_vendedor);
+	        }
+			
+	        boolean vendedor_cadastrado = false;
+			for(CadastroCliente cliente : clientes) {
+				
+				if(tipo_vendedor == 0) {
+					if(cliente.getTipo_pessoa() == 0) {
+						if(cliente.getCpf().equals(identificacao_vendedor)) {
+							vendedor_contrato = cliente;
+							vendedor_cadastrado  = true;
+						break;
+						}
+					}
+					
+				}else {
+					if(cliente.getTipo_pessoa() == 1) {
+						if(cliente.getCnpj().equals(identificacao_vendedor)) {
+							vendedor_contrato = cliente;
+							vendedor_cadastrado  = true;
+
+						break;
+						}
+					}
+				}
+				
+			}
+			
+		
+			
+			//seta os vendedores do contrato
+			String nome_vendedor = "";
+			
+			if(vendedor_cadastrado) {
+				
+				if(vendedor_contrato.getTipo_pessoa() == 0) {
+					//pessoa fisica
+					nome_vendedor = vendedor_contrato.getNome_empresarial();
+				}else {
+					nome_vendedor = vendedor_contrato.getNome_fantaia();
+
+				}
+				
+				
+				
+			}
 		
 		//dados do produto
 		 String produto = "";
@@ -3389,11 +3396,11 @@ public class ManipularArquivoTerceiros {
 		//percorre as linhas do array procurando a palavra soja
 		for(int i = 0; i < lines.length; i++) {
 			if(lines[i].contains("Soja GMO")) {
-				produto = "SOJA";
+				produto = "SOJA GMO";
               transgenia_proxima =  "Transgenico(GMO)";
               break;
 			}else if((lines[i].contains("soja"))){
-				produto = "SOJA";
+				produto = "SOJA GMO";
 
 				transgenia_proxima =  "Transgenico(GMO)";
 	               break;
@@ -3447,9 +3454,8 @@ public class ManipularArquivoTerceiros {
 		contrato_local.setQuantidade(quantidade_double_sacos);
 		//seta a medida no contrato
 		contrato_local.setMedida("Sacos");
-		
-		JOptionPane.showMessageDialog(null, "quantidade em sacos: " + quantidade_double_sacos);
-		JOptionPane.showMessageDialog(null, "quantidade em quilogramas: " + quantidade_double);
+		//JOptionPane.showMessageDialog(null, "quantidade em sacos: " + quantidade_double_sacos);
+		//JOptionPane.showMessageDialog(null, "quantidade em quilogramas: " + quantidade_double);
 
 		//valor
 		
@@ -3478,13 +3484,13 @@ public class ManipularArquivoTerceiros {
 		
 		contrato_local.setValor_a_pagar(new BigDecimal(Double.toString(valor_total)));
 		
-		JOptionPane.showMessageDialog(null, "Valor por saco: " + valor);
-		JOptionPane.showMessageDialog(null, "Valor total: " + valor_total);
+		//JOptionPane.showMessageDialog(null, "Valor por saco: " + valor);
+		//JOptionPane.showMessageDialog(null, "Valor total: " + valor_total);
 
 		valor = tratamentoDados.tratar("Valor: ", "reais");
 		valor = valor.replaceAll("[^0-9.,]", "");
 		
-		JOptionPane.showMessageDialog(null, "Valor do pagamento no contrato: " + valor);
+		//JOptionPane.showMessageDialog(null, "Valor do pagamento no contrato: " + valor);
 		//prazo final da entrada
 
 	
@@ -3506,13 +3512,13 @@ public class ManipularArquivoTerceiros {
 		data_entrega = data_entrega.replaceAll("[^0-9]", "/");
 
 		contrato_local.setData_entrega(data_entrega);
-		JOptionPane.showMessageDialog(null, "Data da entrega:" + data_entrega);
+		//JOptionPane.showMessageDialog(null, "Data da entrega:" + data_entrega);
 
 		
 		//local retirada
 		String local_retirada = "LD ARMAZENS GERAIS LTDA";
 		
-		JOptionPane.showMessageDialog(null, "local retirada: " + local_retirada);
+		//JOptionPane.showMessageDialog(null, "local retirada: " + local_retirada);
 		
 		//data do contrato
 		
@@ -3530,7 +3536,7 @@ public class ManipularArquivoTerceiros {
 		
 		linha_data = linha_data +  1;
 		 String local_data = lines[linha_data];
-		 JOptionPane.showMessageDialog(null, "linha para busca de data do contrato: " + local_data) ;
+		 // JOptionPane.showMessageDialog(null, "linha para busca de data do contrato: " + local_data) ;
 
 		 local_data = local_data.replace(",", "");
 		 String conteudo_data_contrato[] = local_data.split(" ");
@@ -3574,9 +3580,9 @@ public class ManipularArquivoTerceiros {
 		 //seta a data do contrato
 		 contrato_local.setData_contrato(data_completa);
 		 
-		 JOptionPane.showMessageDialog(null, "Local do contrato: " + local_assinatura) ;
+		 //JOptionPane.showMessageDialog(null, "Local do contrato: " + local_assinatura) ;
 
-		 JOptionPane.showMessageDialog(null, "Data do contrato: " + data_completa) ;
+		 //JOptionPane.showMessageDialog(null, "Data do contrato: " + data_completa) ;
 		 
 		 
 		 //linha com informacoes do pagamento do contrato
@@ -3601,7 +3607,7 @@ public class ManipularArquivoTerceiros {
 			
 			
 			linha_banco++;
-			 JOptionPane.showMessageDialog(null, "Linha banco: " + lines[linha_banco]);
+			// JOptionPane.showMessageDialog(null, "Linha banco: " + lines[linha_banco]);
 
 			 String conteudo_linha_banco []= lines[linha_banco].split("-");
 			 
@@ -3614,12 +3620,12 @@ public class ManipularArquivoTerceiros {
          String codigo_banco = tratamentoDados.tratar("Cód. Banco: ", "Banco:").replace(",", "");
 	
 		 
-		 JOptionPane.showMessageDialog(null, "Banco: " + banco);
-		 JOptionPane.showMessageDialog(null, "Cod Banco: " + codigo_banco);
-
-		 JOptionPane.showMessageDialog(null, "Agencia: " + agencia);
-		 JOptionPane.showMessageDialog(null, "cc: " + conta_corrente);
-		 JOptionPane.showMessageDialog(null, "data pagmento: " + data_pagamento);
+         //JOptionPane.showMessageDialog(null, "Banco: " + banco);
+         // JOptionPane.showMessageDialog(null, "Cod Banco: " + codigo_banco);
+         //  //
+         // JOptionPane.showMessageDialog(null, "Agencia: " + agencia);
+		 // JOptionPane.showMessageDialog(null, "cc: " + conta_corrente);
+         //JOptionPane.showMessageDialog(null, "data pagmento: " + data_pagamento);
 
 		ContaBancaria conta_pagamento = new ContaBancaria();
 		 conta_pagamento.setBanco(banco);

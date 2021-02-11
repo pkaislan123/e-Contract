@@ -158,7 +158,7 @@ public class TelaEscolherDataBaixarNotas extends JDialog {
 					DadosGlobais dados = DadosGlobais.getInstance();
 
 					
-					  TelaPrincipal telaP = dados.getTelaPrincipal();
+					  TelaMain telaP = dados.getTelaPrincipal();
 					  telaP.baixarNotasEmSegundoPlano(cliente, i_mes_inicio, i_mes_fim, i_ano);
 					  
 					  JOptionPane.showMessageDialog(null, "Download de nota foi iniciado em segundo plano");

@@ -311,6 +311,19 @@ public class TelaCliente extends JDialog {
 			}
 		});
 		btnVerNotasFiscais.setBackground(Color.WHITE);
+		
+		JButton btnNewButton_1 = new JButton("Todos os Romaneios");
+		btnNewButton_1.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				
+				TelaRomaneios tela = new TelaRomaneios(isto);
+					tela.pesquisarTodosOsRomaneios(clientes_disponiveis);
+				
+				tela.setVisible(true);
+			}
+		});
+		btnNewButton_1.setBounds(123, 278, 148, 28);
+		panel.add(btnNewButton_1);
 		btnEditar.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
 			
@@ -771,6 +784,4 @@ public class TelaCliente extends JDialog {
 	public boolean checkString(String txt) {
 		return txt != null && !txt.equals("") && !txt.equals(" ") && !txt.equals("  ");
 	}
-	
-	
 }

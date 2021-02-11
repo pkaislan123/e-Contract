@@ -127,6 +127,7 @@ public class TelaMonitoria extends JFrame {
 	private NumberFormat z = NumberFormat.getNumberInstance();
 	private JTable table;
 	private JTable table_1;
+	private ArrayList<CadastroRomaneio> romaneios_locais = new ArrayList<>();
 
 	public static void pesquisarSafras() {
 		GerenciarBancoSafras listaSafras = new GerenciarBancoSafras();
@@ -884,7 +885,7 @@ public class TelaMonitoria extends JFrame {
 		lblNewLabel_2.setBounds(280, 250, 32, 32);
 		painelPrincipal.add(lblNewLabel_2);
 		
-		this.setLocationRelativeTo(null);
+		this.setLocationRelativeTo(isto);
 
 	}
 
@@ -915,7 +916,7 @@ public class TelaMonitoria extends JFrame {
 				total_sacos_carga = 0;
 				total_kg_carga = 0;
 
-				ArrayList<CadastroRomaneio> romaneios = new MonitorarRomaneios().vigiarTodosRomaneios();
+				ArrayList<CadastroRomaneio> romaneios = new MonitorarRomaneios().vigiarTodosRomaneiosMaisRapido();
 				/*
 				 * 
 				 * modelo_romaneios_entrada.addColumn("Produtor");
@@ -926,10 +927,20 @@ public class TelaMonitoria extends JFrame {
 				 * 
 				 * 
 				 */
+				
+				//retirar romaneios com id repetido da lista
+			
+				romaneios_locais.clear();
 
 				for (CadastroRomaneio rom : romaneios) {
+					//verifica se o romaneio nao esta na lista
+					boolean ja_existe = false;
+					for(CadastroRomaneio rom_na_lista : romaneios_locais) {
+						if(rom_na_lista.getNumero_romaneio() == rom.getNumero_romaneio())
+							ja_existe = true;
+					}
 
-
+                  if(!ja_existe) {
 					String nome_remetente, nome_destinatario, safra;
 					double bruto, tara, liquido, umidade;
 
@@ -947,6 +958,7 @@ public class TelaMonitoria extends JFrame {
 					String nome_remetente_quebrado[] = nome_remetente.split(" ");
 					//rodrigo cesar de moura
 					//[0] rodrigo [1] cesar [2] de  [3] moura
+					try {
 					if(nome_remetente_quebrado.length > 1) {
 					    if(nome_remetente_quebrado[2].length() > 2) {
 					    	nome_remetente = nome_remetente_quebrado[0] + " "+ nome_remetente_quebrado[2];
@@ -959,8 +971,10 @@ public class TelaMonitoria extends JFrame {
 
 					    	}
 					    }
+					}}catch(Exception y) {
+						nome_remetente = nome_remetente_completo;
 					}
-					
+				
 					CadastroCliente destinatario = rom.getDestinatario();
 					if (destinatario.getTipo_pessoa() == 0) {
 						nome_destinatario = destinatario.getNome_empresarial().toUpperCase();
@@ -970,7 +984,9 @@ public class TelaMonitoria extends JFrame {
 					}
 					String nome_destinatario_completo = nome_destinatario;
 
-                     	String nome_destinatario_quebrado[] = nome_remetente.split(" ");
+                 	String nome_destinatario_quebrado[] = nome_remetente.split(" ");
+					try {
+				
 					
 					if(nome_destinatario_quebrado.length > 2) {
 					    if(nome_destinatario_quebrado[2].length() > 1) {
@@ -985,6 +1001,11 @@ public class TelaMonitoria extends JFrame {
 					    	}
 					    }
 					}
+					
+					}catch(Exception v) {
+						nome_destinatario = nome_destinatario_completo;
+					}
+					
                      String ano_plantio = Integer.toString( rom.getSafra().getAno_plantio());
                      ano_plantio = ano_plantio.substring(2, 4);
                      
@@ -1152,7 +1173,8 @@ public class TelaMonitoria extends JFrame {
 						
 						
 					}
-
+                   romaneios_locais.add(rom);
+                  }
 				}
 
 				umidade_media = umidade_media / num_descargas;

@@ -2,6 +2,7 @@ package manipular;
 
 import cadastros.CadastroBaseArquivos;
 import cadastros.CadastroBaseDados;
+import cadastros.CadastroZapMessenger;
 
 public class ConfiguracoesGlobais {
 
@@ -9,6 +10,7 @@ public class ConfiguracoesGlobais {
 	private CadastroBaseArquivos servidor_arquivos;
 	private int codigoSequencial;
 	private CadastroBaseDados baseDados;
+	private CadastroZapMessenger zap_zap;
 	
 	public ConfiguracoesGlobais() {
 		
@@ -61,6 +63,22 @@ public class ConfiguracoesGlobais {
 
 
 
+
+
+
+
+
+	public CadastroZapMessenger getZap_zap() {
+		return zap_zap;
+	}
+
+
+
+
+
+	public void setZap_zap(CadastroZapMessenger zap_zap) {
+		this.zap_zap = zap_zap;
+	}
 
 
 

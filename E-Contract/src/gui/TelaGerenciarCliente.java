@@ -151,7 +151,8 @@ public class TelaGerenciarCliente extends JDialog {
 		JButton btnNewButton_2 = new JButton("Romaneios\r\n");
 		btnNewButton_2.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				TelaRomaneios romaneios = new TelaRomaneios(1, cliente_local, isto);
+				TelaRomaneios romaneios = new TelaRomaneios(isto);
+				romaneios.pesquisarRomaneios(cliente_selecionado);
 				romaneios.setVisible(true);
 			}
 		});

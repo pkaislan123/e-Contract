@@ -62,11 +62,13 @@ import java.awt.event.KeyEvent;
 import javax.swing.JLabel;
 import java.awt.Font;
 import java.awt.Window;
+import net.miginfocom.swing.MigLayout;
 
 public class TelaContratos extends JDialog {
 
 	private static ArrayList<CadastroContrato> lista_contratos = new ArrayList<>();
 	private JDialog telaPai;
+	private JTable tabela;
 
 	private final JPanel painelPrincipal = new JPanel();
 	DefaultTableModel modelo = new DefaultTableModel() {
@@ -74,10 +76,15 @@ public class TelaContratos extends JDialog {
 			return false;
 		}
 	};
+	private JLabel lblTotalContratosEmAnalise,
+	lblTotalContratosAssinar,
+	lblTotalContratosConcluidos,
+	lblTotalContratosAssinados;
 
 	private TelaContratos isto;
 	private JTextField entNomeComprador;
 	private JTextField entNomeVendedor;
+    private JLabel lblTotalSacosKGs,lblNumContratos;
 
 	private ContratoTableModel modelo_contratos = new ContratoTableModel();
 	private TableRowSorter<ContratoTableModel> sorter;
@@ -101,7 +108,7 @@ public class TelaContratos extends JDialog {
 
 		setBackground(new Color(255, 255, 255));
 		setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-		setBounds(100, 100, 1074, 532);
+		setBounds(100, 100, 1074, 631);
 		painelPrincipal.setBackground(new Color(255, 255, 255));
 		painelPrincipal.setBorder(new EmptyBorder(5, 5, 5, 5));
 		setContentPane(painelPrincipal);
@@ -116,7 +123,7 @@ public class TelaContratos extends JDialog {
 		// btnContrato.setIcon(new
 		// ImageIcon(TelaContratos.class.getResource("/imagens/add_contrato.png")));
 		btnContrato.setToolTipText("Adicionar Novo Contrato");
-		btnContrato.setBounds(933, 457, 106, 28);
+		btnContrato.setBounds(930, 539, 106, 28);
 		painelPrincipal.add(btnContrato);
 
 		JPanel panel = new JPanel();
@@ -125,7 +132,7 @@ public class TelaContratos extends JDialog {
 		painelPrincipal.add(panel);
 		
 
-		JTable tabela = new JTable(modelo_contratos);
+		 tabela = new JTable(modelo_contratos);
 		TableCellRenderer renderer = new EvenOddRenderer();
 		tabela.setDefaultRenderer(Object.class, renderer);
 		sorter = new TableRowSorter<ContratoTableModel>(modelo_contratos);
@@ -152,10 +159,7 @@ public class TelaContratos extends JDialog {
 		// tabela.setPreferredSize(new Dimension(0, 200));
 		tabela.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
 
-		if (flag_retorno == 3 || flag_retorno == 4) {
-
-		} else
-			pesquisar();
+		
 		
 		tabela.setRowHeight (30); 
 
@@ -212,7 +216,7 @@ public class TelaContratos extends JDialog {
 
 			}
 		});
-		btnAbrir.setBounds(840, 453, 81, 36);
+		btnAbrir.setBounds(837, 535, 81, 36);
 		getContentPane().add(btnAbrir);
 
 		JButton btnSelecionar = new JButton("Selecionar");
@@ -260,7 +264,7 @@ public class TelaContratos extends JDialog {
 				}
 			}
 		});
-		btnSelecionar.setBounds(741, 457, 87, 28);
+		btnSelecionar.setBounds(738, 539, 87, 28);
 		painelPrincipal.add(btnSelecionar);
 
 		JButton btnImportarTerceiros = new JButton("Importar");
@@ -269,7 +273,7 @@ public class TelaContratos extends JDialog {
 				importarContratoTerceiros();
 			}
 		});
-		btnImportarTerceiros.setBounds(655, 457, 74, 28);
+		btnImportarTerceiros.setBounds(652, 539, 74, 28);
 		painelPrincipal.add(btnImportarTerceiros);
 
 		entNomeComprador = new JTextField();
@@ -328,6 +332,53 @@ public class TelaContratos extends JDialog {
 			public void actionPerformed(ActionEvent e) {
 				sorter.setRowFilter(RowFilter.regexFilter(""));
 
+				NumberFormat z = NumberFormat.getNumberInstance();
+
+				double quantidade_sacos_total = 0;
+				double quantidade_kg_total = 0;
+				
+				int total_contratos_em_analise = 0;
+				int total_contratos_assinar = 0;
+				int total_contratos_assinado = 0;
+				int total_contratos_concluido = 0;
+				  for(int row = 0;row < tabela.getRowCount();row++) {
+					  
+					  int index = tabela.convertRowIndexToModel(row);
+					  CadastroContrato contrato = modelo_contratos.getValue(index);
+					  double quantidade_sacos = 0;
+						double quantidade_kg = 0;
+					  
+					  if(contrato.getMedida().equalsIgnoreCase("SACOS")) {
+							quantidade_sacos = contrato.getQuantidade();
+							quantidade_kg = contrato.getQuantidade() * 60;
+
+						}else if(contrato.getMedida().equalsIgnoreCase("KG")) {
+							quantidade_kg = contrato.getQuantidade();
+							quantidade_sacos = quantidade_kg / 60;
+						}
+						
+						quantidade_sacos_total += quantidade_sacos;
+						quantidade_kg_total += quantidade_kg;
+
+if(contrato.getStatus_contrato() == 0) {
+					total_contratos_em_analise++;
+				}else if(contrato.getStatus_contrato() == 1) {
+					total_contratos_assinar ++;
+				}else if(contrato.getStatus_contrato() == 2){
+					total_contratos_assinado++;
+				}else if(contrato.getStatus_contrato() == 4) {
+					total_contratos_concluido++;
+				}
+
+		              
+		          }
+				  lblNumContratos.setText(tabela.getRowCount() + "");
+					lblTotalSacosKGs.setText(z.format(quantidade_sacos_total) + " Scs | " + z.format(quantidade_kg_total) + " Kgs");
+				
+					lblTotalContratosEmAnalise.setText(total_contratos_em_analise + "");
+					lblTotalContratosAssinar.setText(total_contratos_assinar+ "");
+					lblTotalContratosConcluidos.setText(total_contratos_assinado+ "");
+					lblTotalContratosAssinados.setText(total_contratos_concluido + "");
 			}
 		});
 		btnLimparFiltros.setBounds(851, 136, 89, 23);
@@ -410,8 +461,106 @@ public class TelaContratos extends JDialog {
 			
 			}
 		});
-		btnImportarManualmente.setBounds(491, 457, 152, 28);
+		btnImportarManualmente.setBounds(488, 539, 152, 28);
 		painelPrincipal.add(btnImportarManualmente);
+		
+		JPanel panel_1 = new JPanel();
+		panel_1.setBackground(new Color(0, 153, 51));
+		panel_1.setBounds(430, 450, 254, 33);
+		painelPrincipal.add(panel_1);
+		panel_1.setLayout(new MigLayout("", "[][]", "[]"));
+		
+		JLabel lblNewLabel_1 = new JLabel("Número de Contratos:");
+		lblNewLabel_1.setFont(new Font("SansSerif", Font.PLAIN, 14));
+		lblNewLabel_1.setForeground(Color.WHITE);
+		panel_1.add(lblNewLabel_1, "cell 0 0");
+		
+		
+		 lblNumContratos = new JLabel("999");
+		lblNumContratos.setForeground(Color.WHITE);
+		lblNumContratos.setFont(new Font("SansSerif", Font.BOLD, 14));
+		panel_1.add(lblNumContratos, "flowx,cell 1 0");
+		
+		JLabel lblNewLabel_3 = new JLabel("Contratos");
+		lblNewLabel_3.setForeground(Color.WHITE);
+		lblNewLabel_3.setFont(new Font("SansSerif", Font.PLAIN, 12));
+		panel_1.add(lblNewLabel_3, "cell 1 0");
+		
+		JPanel panel_1_1 = new JPanel();
+		panel_1_1.setBackground(new Color(102, 51, 0));
+		panel_1_1.setBounds(700, 450, 338, 33);
+		painelPrincipal.add(panel_1_1);
+		panel_1_1.setLayout(new MigLayout("", "[][]", "[]"));
+		
+		JLabel lblNewLabel_2 = new JLabel("Total Sacos:");
+		lblNewLabel_2.setFont(new Font("SansSerif", Font.PLAIN, 14));
+		lblNewLabel_2.setForeground(Color.WHITE);
+		panel_1_1.add(lblNewLabel_2, "cell 0 0");
+		
+		 lblTotalSacosKGs = new JLabel("99.999,66 SCs / 999999999999 KGs");
+		lblTotalSacosKGs.setForeground(Color.WHITE);
+		lblTotalSacosKGs.setFont(new Font("SansSerif", Font.BOLD, 14));
+		panel_1_1.add(lblTotalSacosKGs, "cell 1 0");
+		
+		JLabel lblNewLabel_4 = new JLabel("");
+		lblNewLabel_4.setOpaque(true);
+		lblNewLabel_4.setBounds(30, 458, 25, 17);
+		lblNewLabel_4.setBackground(new Color(255,69,0));
+		painelPrincipal.add(lblNewLabel_4);
+		
+		JLabel lblNewLabel_5 = new JLabel("Contrato em Análise:");
+		lblNewLabel_5.setBounds(60, 458, 115, 16);
+		painelPrincipal.add(lblNewLabel_5);
+		
+		JLabel lblNewLabel_4_1 = new JLabel("");
+		lblNewLabel_4_1.setOpaque(true);
+		lblNewLabel_4_1.setBackground(Color.yellow);
+		lblNewLabel_4_1.setBounds(30, 484, 25, 17);
+		painelPrincipal.add(lblNewLabel_4_1);
+		
+		JLabel lblNewLabel_5_1 = new JLabel("Recolher Assinatura:");
+		lblNewLabel_5_1.setBounds(60, 484, 115, 16);
+		painelPrincipal.add(lblNewLabel_5_1);
+		
+		JLabel lblNewLabel_4_2 = new JLabel("");
+		lblNewLabel_4_2.setOpaque(true);
+		lblNewLabel_4_2.setBackground(new Color(95,159,159));
+		lblNewLabel_4_2.setBounds(30, 508, 25, 17);
+		painelPrincipal.add(lblNewLabel_4_2);
+		
+		JLabel lblNewLabel_5_2 = new JLabel("Assinado:");
+		lblNewLabel_5_2.setBounds(60, 508, 112, 16);
+		painelPrincipal.add(lblNewLabel_5_2);
+		
+		JLabel lblNewLabel_4_3 = new JLabel("");
+		lblNewLabel_4_3.setOpaque(true);
+		lblNewLabel_4_3.setBackground(new Color(0,100,0));
+		lblNewLabel_4_3.setBounds(30, 535, 25, 17);
+		painelPrincipal.add(lblNewLabel_4_3);
+		
+		JLabel lblNewLabel_5_3 = new JLabel("Concluido:");
+		lblNewLabel_5_3.setBounds(60, 535, 112, 16);
+		painelPrincipal.add(lblNewLabel_5_3);
+		
+		 lblTotalContratosEmAnalise = new JLabel("999");
+		lblTotalContratosEmAnalise.setFont(new Font("SansSerif", Font.BOLD, 14));
+		lblTotalContratosEmAnalise.setBounds(187, 458, 55, 16);
+		painelPrincipal.add(lblTotalContratosEmAnalise);
+		
+		 lblTotalContratosAssinar = new JLabel("999");
+		lblTotalContratosAssinar.setFont(new Font("SansSerif", Font.BOLD, 14));
+		lblTotalContratosAssinar.setBounds(187, 484, 55, 16);
+		painelPrincipal.add(lblTotalContratosAssinar);
+		
+		 lblTotalContratosAssinados = new JLabel("999");
+		lblTotalContratosAssinados.setFont(new Font("SansSerif", Font.BOLD, 14));
+		lblTotalContratosAssinados.setBounds(187, 508, 55, 16);
+		painelPrincipal.add(lblTotalContratosAssinados);
+		
+		 lblTotalContratosConcluidos = new JLabel("999");
+		lblTotalContratosConcluidos.setFont(new Font("SansSerif", Font.BOLD, 14));
+		lblTotalContratosConcluidos.setBounds(187, 535, 55, 16);
+		painelPrincipal.add(lblTotalContratosConcluidos);
 
 		if (flag_retorno == 1 || flag_retorno == 2 || flag_retorno == 3 || flag_retorno == 4) {
 			// selecionar contrato para carregamento
@@ -422,6 +571,11 @@ public class TelaContratos extends JDialog {
 			btnSelecionar.setEnabled(false);
 			btnSelecionar.setVisible(false);
 		}
+		
+		if (flag_retorno == 3 || flag_retorno == 4) {
+
+		} else
+			pesquisar();
 		this.setLocationRelativeTo(janela_pai);
 
 	}
@@ -430,27 +584,70 @@ public class TelaContratos extends JDialog {
 		GerenciarBancoContratos gerenciar = new GerenciarBancoContratos();
 		lista_contratos.clear();
 		modelo_contratos.onRemoveAll();
+		double quantidade_sacos_total = 0;
+		double quantidade_kg_total = 0;
+		int total_contratos_em_analise = 0;
+		int total_contratos_assinar = 0;
+		int total_contratos_assinado = 0;
+		int total_contratos_concluido = 0;
+
+		NumberFormat z = NumberFormat.getNumberInstance();
+
 
 		for (CadastroContrato contrato : gerenciar.getContratos()) {
 
 			if (contrato.getSub_contrato() == 0 || contrato.getSub_contrato() == 3) {
 
 				modelo_contratos.onAdd(contrato);
-			
+				double quantidade_sacos = 0;
+				double quantidade_kg = 0;
+				
+				if(contrato.getMedida().equalsIgnoreCase("SACOS")) {
+					quantidade_sacos = contrato.getQuantidade();
+					quantidade_kg = contrato.getQuantidade() * 60;
+
+				}else if(contrato.getMedida().equalsIgnoreCase("KG")) {
+					quantidade_kg = contrato.getQuantidade();
+					quantidade_sacos = quantidade_kg / 60;
+				}
+				
+				if(contrato.getStatus_contrato() == 0) {
+					total_contratos_em_analise++;
+				}else if(contrato.getStatus_contrato() == 1) {
+					total_contratos_assinar ++;
+				}else if(contrato.getStatus_contrato() == 2){
+					total_contratos_assinado++;
+				}else if(contrato.getStatus_contrato() == 4) {
+					total_contratos_concluido++;
+				}
+				quantidade_sacos_total += quantidade_sacos;
+				quantidade_kg_total += quantidade_kg;
 				lista_contratos.add(contrato);
 			}
 
 		}
 		
-		
-
+		lblNumContratos.setText(lista_contratos.size() + "");
+		lblTotalSacosKGs.setText(z.format(quantidade_sacos_total) + " Scs | " + z.format(quantidade_kg_total) + " Kgs");
+		lblTotalContratosEmAnalise.setText(total_contratos_em_analise + "");
+		lblTotalContratosAssinar.setText(total_contratos_assinar+ "");
+		lblTotalContratosConcluidos.setText(total_contratos_assinado+ "");
+		lblTotalContratosAssinados.setText(total_contratos_concluido + "");
 	}
 
 	public void pesquisar_sub_contratos(int id_contrato_pai) {
+		
 		id_contrato_pai_para_replica_global = id_contrato_pai;
 		GerenciarBancoContratos gerenciar = new GerenciarBancoContratos();
 		lista_contratos.clear();
 		modelo_contratos.onRemoveAll();
+		double quantidade_sacos_total = 0;
+		double quantidade_kg_total = 0;
+		int total_contratos_em_analise = 0;
+		int total_contratos_assinar = 0;
+		int total_contratos_assinado = 0;
+		int total_contratos_concluido = 0;
+		NumberFormat z = NumberFormat.getNumberInstance();
 
 		ArrayList<CadastroContrato> sub_contratos = gerenciar.getInfoSubContratos(id_contrato_pai);
 
@@ -459,12 +656,42 @@ public class TelaContratos extends JDialog {
 			if (contrato.getSub_contrato() == 1) {
 
 				modelo_contratos.onAdd(contrato);
+				double quantidade_sacos = 0;
+				double quantidade_kg = 0;
+				
+				if(contrato.getMedida().equalsIgnoreCase("SACOS")) {
+					quantidade_sacos = contrato.getQuantidade();
+					quantidade_kg = contrato.getQuantidade() * 60;
 
+				}else if(contrato.getMedida().equalsIgnoreCase("KG")) {
+					quantidade_kg = contrato.getQuantidade();
+					quantidade_sacos = quantidade_kg / 60;
+				}
+				
+				if(contrato.getStatus_contrato() == 0) {
+					total_contratos_em_analise++;
+				}else if(contrato.getStatus_contrato() == 1) {
+					total_contratos_assinar ++;
+				}else if(contrato.getStatus_contrato() == 2){
+					total_contratos_assinado++;
+				}else if(contrato.getStatus_contrato() == 4) {
+					total_contratos_concluido++;
+				}
+				quantidade_sacos_total += quantidade_sacos;
+				quantidade_kg_total += quantidade_kg;
 				lista_contratos.add(contrato);
 			}
 
 		}
 
+		
+		
+		lblNumContratos.setText(lista_contratos.size() + "");
+		lblTotalSacosKGs.setText(z.format(quantidade_sacos_total) + " Scs | " + z.format(quantidade_kg_total) + " Kgs");
+		lblTotalContratosEmAnalise.setText(total_contratos_em_analise + "");
+		lblTotalContratosAssinar.setText(total_contratos_assinar+ "");
+		lblTotalContratosConcluidos.setText(total_contratos_assinado+ "");
+		lblTotalContratosAssinados.setText(total_contratos_concluido + "");
 	}
 
 	public boolean testeConexao() {
@@ -510,6 +737,14 @@ public class TelaContratos extends JDialog {
 	}
 
 	public void filtrar() {
+		NumberFormat z = NumberFormat.getNumberInstance();
+
+		double quantidade_sacos_total = 0;
+		double quantidade_kg_total = 0;
+		int total_contratos_em_analise = 0;
+		int total_contratos_assinar = 0;
+		int total_contratos_assinado = 0;
+		int total_contratos_concluido = 0;
 		ArrayList<RowFilter<Object, Object>> filters = new ArrayList<RowFilter<Object, Object>>(2);
 
 		String produto = entProduto.getText().toUpperCase();
@@ -543,6 +778,46 @@ public class TelaContratos extends JDialog {
 			filters.add(RowFilter.regexFilter(safra, 8));
 
 		sorter.setRowFilter(RowFilter.andFilter(filters));
+		
+		
+		  for(int row = 0;row < tabela.getRowCount();row++) {
+			  
+			  int index = tabela.convertRowIndexToModel(row);
+			  CadastroContrato contrato = modelo_contratos.getValue(index);
+			  double quantidade_sacos = 0;
+				double quantidade_kg = 0;
+			  
+			  if(contrato.getMedida().equalsIgnoreCase("SACOS")) {
+					quantidade_sacos = contrato.getQuantidade();
+					quantidade_kg = contrato.getQuantidade() * 60;
+
+				}else if(contrato.getMedida().equalsIgnoreCase("KG")) {
+					quantidade_kg = contrato.getQuantidade();
+					quantidade_sacos = quantidade_kg / 60;
+				}
+				
+			  if(contrato.getStatus_contrato() == 0) {
+					total_contratos_em_analise++;
+				}else if(contrato.getStatus_contrato() == 1) {
+					total_contratos_assinar ++;
+				}else if(contrato.getStatus_contrato() == 2){
+					total_contratos_assinado++;
+				}else if(contrato.getStatus_contrato() == 4) {
+					total_contratos_concluido++;
+				}
+			  
+				quantidade_sacos_total += quantidade_sacos;
+				quantidade_kg_total += quantidade_kg;
+
+
+              
+          }
+		  lblNumContratos.setText(tabela.getRowCount() + "");
+			lblTotalSacosKGs.setText(z.format(quantidade_sacos_total) + " Scs | " + z.format(quantidade_kg_total) + " Kgs");
+			lblTotalContratosEmAnalise.setText(total_contratos_em_analise + "");
+			lblTotalContratosAssinar.setText(total_contratos_assinar+ "");
+			lblTotalContratosConcluidos.setText(total_contratos_assinado+ "");
+			lblTotalContratosAssinados.setText(total_contratos_concluido + "");
 	}
 
 	public boolean checkString(String txt) {
@@ -722,6 +997,15 @@ public class TelaContratos extends JDialog {
 				}
 			}
 			case quantidade: {
+				/*double quantidade_sacos = 0;
+				double quantidade_kg = 0;
+				
+				if(contrato.getMedida().equalsIgnoreCase("SACOS")) {
+					quantidade_sacos = contrato.getQuantidade();
+				}else if(contrato.getMedida().equalsIgnoreCase("KG")) {
+					quantidade_kg = contrato.getQuantidade();
+					quantidade_sacos = quantidade_kg / 60;
+				}*/
 				String t = z.format(contrato.getQuantidade());
 				return t;
 			}
@@ -845,5 +1129,8 @@ public class TelaContratos extends JDialog {
 			fireTableDataChanged();
 		}
 
+		public CadastroContrato onGet(int row) {
+			return dados.get(row);
+		}
 	}
 }

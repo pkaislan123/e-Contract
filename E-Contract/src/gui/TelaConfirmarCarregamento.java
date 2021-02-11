@@ -181,17 +181,17 @@ public class TelaConfirmarCarregamento extends JDialog {
 				String destinatario = "";
 				
 				if(cliente_carregamento.getTipo_pessoa() == 0) {
-					destinatario = cliente_carregamento.getNome_empresarial();
+					destinatario = cliente_carregamento.getNome_empresarial().trim();
 				}else {
-					destinatario = cliente_carregamento.getNome_fantaia();
+					destinatario = cliente_carregamento.getNome_fantaia().trim();
 				}
 				
 					String remetente = "";
 				
 				if(vendedor.getTipo_pessoa() == 0) {
-					remetente = vendedor.getNome_empresarial();
+					remetente = vendedor.getNome_empresarial().trim();
 				}else {
-					remetente = vendedor.getNome_fantaia();
+					remetente = vendedor.getNome_fantaia().trim();
 				}
 				
 				

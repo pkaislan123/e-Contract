@@ -75,7 +75,7 @@ public class GetSintegra {
          br.lines().forEach(l -> jsonSb.append(l.trim()));
          json = jsonSb.toString();
          
-         JOptionPane.showMessageDialog(null,"Erro na consulta sintegra aws: " +  json);
+        // JOptionPane.showMessageDialog(null,"Erro na consulta sintegra aws: " +  json);
 
          
          return json;

@@ -133,7 +133,7 @@ public class TelaLogin extends JFrame implements GetDadosGlobais {
 					} else {
 						informarLogon();
 						isto.dispose();
-						TelaPrincipal tela = new TelaPrincipal();
+						TelaMain tela = new TelaMain(isto);
 					}
 				}
 
@@ -157,7 +157,7 @@ public class TelaLogin extends JFrame implements GetDadosGlobais {
 						informarLogon();
 
 						isto.dispose();
-						TelaPrincipal tela = new TelaPrincipal();
+						TelaMain tela = new TelaMain(isto);
 					}
 				}
 
@@ -276,6 +276,17 @@ public class TelaLogin extends JFrame implements GetDadosGlobais {
 		lblNewLabel_1.setIcon(new ImageIcon(TelaLogin.class.getResource("/imagens/logo.png")));
 		lblNewLabel_1.setBounds(51, 77, 217, 160);
 		contentPane.add(lblNewLabel_1);
+		
+		JButton btnSair = new JButton("X");
+		btnSair.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				isto.dispose();
+			}
+		});
+		btnSair.setForeground(Color.WHITE);
+		btnSair.setBackground(new Color(102, 0, 153));
+		btnSair.setBounds(981, 11, 35, 28);
+		contentPane.add(btnSair);
 
 		btnLogin.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
@@ -290,7 +301,7 @@ public class TelaLogin extends JFrame implements GetDadosGlobais {
 					informarLogon();
 
 					isto.dispose();
-					TelaPrincipal tela = new TelaPrincipal();
+					TelaMain tela = new TelaMain(isto);
 
 				}
 			}
@@ -312,7 +323,7 @@ public class TelaLogin extends JFrame implements GetDadosGlobais {
 						informarLogon();
 
 						isto.dispose();
-						TelaPrincipal tela = new TelaPrincipal();
+						TelaMain tela = new TelaMain(isto);
 					}
 				}
 
@@ -353,7 +364,7 @@ public class TelaLogin extends JFrame implements GetDadosGlobais {
 
 							result = 1;
 							// isto.dispose();
-							// TelaPrincipal tela = new TelaPrincipal();
+							// TelaMain tela = new TelaMain();
 
 						} else {
 							// JOptionPane.showMessageDialog(null, "Usu�rio ou senha Incorretos");
