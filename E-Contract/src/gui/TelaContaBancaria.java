@@ -33,7 +33,7 @@ public class TelaContaBancaria extends JDialog {
 	private DefaultTableModel modelo_cb = new DefaultTableModel();
 	
 	private ContaBancaria contaSelecionada;
-	
+	private JDialog telaPai;
 	private static ArrayList<ContaBancaria> contas_bancarias = new ArrayList<>();
 	private JButton btnSelecionar;
 	 
@@ -67,7 +67,7 @@ public class TelaContaBancaria extends JDialog {
 	   
 	    }
 
-	public TelaContaBancaria(TelaElaborarNovoContrato telaContrato, JFrame janela_pai)  {
+	public TelaContaBancaria(JFrame janela_pai)  {
 		setModal(true);
 
 		TelaContaBancaria isto = this;
@@ -135,7 +135,16 @@ public class TelaContaBancaria extends JDialog {
 	        	public void actionPerformed(ActionEvent e) {
 	        		int indiceDaLinha = table_cb.getSelectedRow();
 	        		contaSelecionada = contas_bancarias.get(indiceDaLinha);
-					telaContrato.setContaBancaria(contaSelecionada);
+					
+	        		if(telaPai != null) {
+	        			if(telaPai instanceof TelaElaborarNovoContrato) {
+	        				((TelaElaborarNovoContrato) telaPai).setContaBancaria(contaSelecionada);
+
+	        			}else if(telaPai instanceof TelaImportarContratoManual) {
+	        				((TelaImportarContratoManual) telaPai).setContaBancaria(contaSelecionada);
+
+	        			}
+	        		}
 				
 
 					isto.dispose();
@@ -149,9 +158,12 @@ public class TelaContaBancaria extends JDialog {
 	        
 		this.setLocationRelativeTo(janela_pai);
 
-		this.setVisible(true);
 		
 		
+	}
+	
+	public void setTelaPai(JDialog _telaPai) {
+		this.telaPai = _telaPai;
 	}
 
 }

@@ -24,13 +24,14 @@ public class TelaNotificacaoSuperiorModoBusca extends JDialog {
 	private JTextArea statusNotificacao;
 	
 	public TelaNotificacaoSuperiorModoBusca() {
+		setTitle("Busca por Romaneios e NF's");
 		
 		setIconImage(Toolkit.getDefaultToolkit().getImage(TelaNotificacaoSuperiorModoBusca.class.getResource("/imagens/logo_icone4.png")));
 		
 		
 		isto = this;
 		
-		this.setBounds(0, 0, 268, 135);
+		this.setBounds(0, 0, 290, 172);
 		
 		
 		
@@ -40,8 +41,8 @@ public class TelaNotificacaoSuperiorModoBusca extends JDialog {
 		getContentPane().add(panel);
 		panel.setLayout(null);
 		
-		JLabel lblNewLabel = new JLabel("Buscar novos romaneios\r\n");
-		lblNewLabel.setBounds(69, 7, 183, 17);
+		JLabel lblNewLabel = new JLabel("Busca por Romaneios e NF's");
+		lblNewLabel.setBounds(6, 6, 200, 17);
 		lblNewLabel.setBackground(new Color(0, 128, 128));
 		lblNewLabel.setForeground(Color.WHITE);
 		lblNewLabel.setFont(new Font("Arial", Font.BOLD, 14));
@@ -49,7 +50,7 @@ public class TelaNotificacaoSuperiorModoBusca extends JDialog {
 		panel.add(lblNewLabel);
 		
 		 statusNotificacao = new JTextArea();
-		 statusNotificacao.setBounds(81, 35, 159, 54);
+		 statusNotificacao.setBounds(81, 35, 187, 92);
 		 statusNotificacao.setMargin(new Insets(8, 8, 8, 8));
 		 statusNotificacao.setText("teste");
 		 statusNotificacao.setToolTipText("teste");
@@ -58,14 +59,13 @@ public class TelaNotificacaoSuperiorModoBusca extends JDialog {
 			statusNotificacao.setWrapStyleWord(true);
 		 statusNotificacao.setFont(new Font("Arial", Font.PLAIN, 14));
 		statusNotificacao.setForeground(Color.WHITE);
-		statusNotificacao.setEditable(false);
 		statusNotificacao.setBorder(null);
 		statusNotificacao.setOpaque(false);
 
 		panel.add(statusNotificacao);
 		
 		JLabel lblNewLabel_1 = new JLabel("");
-		lblNewLabel_1.setBounds(7, 7, 64, 48);
+		lblNewLabel_1.setBounds(6, 44, 64, 48);
 		lblNewLabel_1.setIcon(new ImageIcon(TelaNotificacao.class.getResource("/imagens/logo_64.png")));
 		panel.add(lblNewLabel_1);
 

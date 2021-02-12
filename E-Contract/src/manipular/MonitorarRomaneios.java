@@ -67,7 +67,7 @@ public class MonitorarRomaneios {
 	
 	public void vigiarRomaneios() {
 		TelaNotificacaoSuperiorModoBusca avisos = new TelaNotificacaoSuperiorModoBusca();
-		
+
 
 		new Thread() {
 			@Override
@@ -79,15 +79,17 @@ public class MonitorarRomaneios {
 				new Thread() {
 					@Override
 					public void run() {
+
 						avisos.setMensagem("Modo de Busca");
+
 						avisos.setVisible(true);
 					}
 				}.start();
 				
-				
+
 				while (true) {
 					try {
-						Thread.sleep(1000);
+						Thread.sleep(2000);
 					} catch (InterruptedException e2) {
 						// TODO Auto-generated catch block
 						e2.printStackTrace();
@@ -96,6 +98,7 @@ public class MonitorarRomaneios {
 						avisos.setMensagem("Modo de Busca");
 						
 						ManipularRomaneios manipular = new ManipularRomaneios(pasta_final);
+						manipular.setTelaMensagem(avisos);
 						ArrayList<CadastroRomaneio> romaneios = manipular.tratar();
 						GerenciarBancoClientes gerenciar_clientes = new GerenciarBancoClientes();
 						ArrayList<CadastroCliente> clientes_cadastrados = gerenciar_clientes.getClientes(0, 0, "");
@@ -124,15 +127,15 @@ public class MonitorarRomaneios {
 							}
 							
 							if (destinatario.getTipo_pessoa() == 0) {
-							//	JOptionPane.showMessageDialog(null, "Nome destinatario: " + destinatario.getNome_empresarial());
+								//JOptionPane.showMessageDialog(null, "Nome destinatario: " + destinatario.getNome_empresarial());
 							} else {
-							//	JOptionPane.showMessageDialog(null, "Nome destinatario: " + destinatario.getNome_fantaia());
+								//JOptionPane.showMessageDialog(null, "Nome destinatario: " + destinatario.getNome_fantaia());
 							}
 							
 							if (remetente.getTipo_pessoa() == 0) {
-							//	JOptionPane.showMessageDialog(null, "Nome remetente: " + remetente.getNome_empresarial());
+								//JOptionPane.showMessageDialog(null, "Nome remetente: " + remetente.getNome_empresarial());
 							} else {
-							//	JOptionPane.showMessageDialog(null, "Nome remetente: " + remetente.getNome_fantaia());
+								//JOptionPane.showMessageDialog(null, "Nome remetente: " + remetente.getNome_fantaia());
 							}
 							
 							
@@ -173,7 +176,7 @@ public class MonitorarRomaneios {
 										avisos.setMensagem("Erro ao mover o romaneio para pasta do remetente");
 									}
 								} else {
-									avisos.setMensagem("Romaneio já lido");
+									avisos.setMensagem("Romaneio ja lido");
 									new File(roms.getCaminho_arquivo()).delete();
 								}
 							} else if (!remetente_cadastrado && destinatario_cadastrado) {
@@ -210,7 +213,7 @@ public class MonitorarRomaneios {
 										avisos.setMensagem("Erro ao mover romaneio para a pasta do remetente");
 									}
 								} else {
-									avisos.setMensagem("Romaneio já lido");
+									avisos.setMensagem("Romaneio ja lido");
 									new File(roms.getCaminho_arquivo()).delete();
 								}
 							} else if (remetente_cadastrado && destinatario_cadastrado) {
@@ -253,7 +256,7 @@ public class MonitorarRomaneios {
 													"Romaneio não pode ser movido para a pasta do remetente");
 										}
 									} else {
-										avisos.setMensagem("Romaneio já lido");
+										avisos.setMensagem("Romaneio ja lido");
 										new File(roms.getCaminho_arquivo()).delete();
 									}
 								} else {
@@ -324,7 +327,7 @@ public class MonitorarRomaneios {
 											avisos.setMensagem("Erro ao copiar o romaneio para a pasta do remetente");
 										}
 									} else {
-										avisos.setMensagem("Romaneio já lido");
+										avisos.setMensagem("Romaneio ja lido");
 										new File(roms.getCaminho_arquivo()).delete();
 									}
 								}

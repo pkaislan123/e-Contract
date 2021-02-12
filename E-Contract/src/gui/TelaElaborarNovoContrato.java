@@ -1795,7 +1795,9 @@ public class TelaElaborarNovoContrato extends JDialog {
 		JButton btnPesquisarCB = new JButton("Pesquisar");
 		btnPesquisarCB.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
-				TelaContaBancaria tela = new TelaContaBancaria(isto,null);
+				TelaContaBancaria tela = new TelaContaBancaria(null);
+				tela.setTelaPai(isto);
+				tela.setVisible(true);
 			}
 		});
 		btnPesquisarCB.setBounds(393, 351, 89, 23);

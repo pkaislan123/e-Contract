@@ -1173,7 +1173,7 @@ public class RelatorioContratos {
 			String cor_dados = "000000";
 			CadastroContrato local = lista_contratos.get(indice);
 
-			if (local.getSub_contrato() != 4) {
+			if (local.getSub_contrato() != 8) {
 
 				if (local.getSub_contrato() == 1) {
 					// seta a cor vermelha
@@ -1444,10 +1444,11 @@ public class RelatorioContratos {
 				tableRowOne.getCell(0).removeParagraph(0);
 
 				paragraph = tableRowOne.getCell(0).addParagraph();
-
+                
+			
 				valorTotalString = NumberFormat.getCurrencyInstance(ptBr).format(local.getValor_comissao());
 				texto = texto + " Total(sub-contrato): " + valorTotalString;
-
+				
 				valorTotalString = NumberFormat.getCurrencyInstance(ptBr)
 						.format(local.getValor_a_pagar().subtract(local.getValor_comissao()));
 				texto = texto + " Diferença: " + valorTotalString;

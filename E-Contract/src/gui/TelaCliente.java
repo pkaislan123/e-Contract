@@ -193,6 +193,14 @@ public class TelaCliente extends JDialog {
        					((TelaCadastroGrupo) telaPai).adicionarIntegrante(clienteSelecionado);
        				else if (flag_tipo_cliente == 11)
        					((TelaRelatoriaContratos) telaPai).setClienteAlvo(clienteSelecionado);
+       				else if (flag_tipo_cliente == 12)
+       					((TelaImportarContratoManual) telaPai).setCorretor(clienteSelecionado);
+       				else if (flag_tipo_cliente == 13)
+       					((TelaImportarContratoManual) telaPai).setComprador1(clienteSelecionado);
+       				else if (flag_tipo_cliente == 14)
+       					((TelaImportarContratoManual) telaPai).setVendedor1(clienteSelecionado);
+       				else if (flag_tipo_cliente == 15)
+       					((TelaImportarContratoManual) telaPai).setVendedor2(clienteSelecionado);
 
     				isto.dispose();
 					}
@@ -244,6 +252,14 @@ public class TelaCliente extends JDialog {
        					((TelaCadastroGrupo) telaPai).adicionarIntegrante(clienteSelecionado);
        				else if (flag_tipo_cliente == 11)
        					((TelaRelatoriaContratos) telaPai).setClienteAlvo(clienteSelecionado);
+       				else if (flag_tipo_cliente == 12)
+       					((TelaImportarContratoManual) telaPai).setCorretor(clienteSelecionado);
+       				else if (flag_tipo_cliente == 13)
+       					((TelaImportarContratoManual) telaPai).setComprador1(clienteSelecionado);
+       				else if (flag_tipo_cliente == 14)
+       					((TelaImportarContratoManual) telaPai).setVendedor1(clienteSelecionado);
+       				else if (flag_tipo_cliente == 15)
+       					((TelaImportarContratoManual) telaPai).setVendedor2(clienteSelecionado);
 
 
     				isto.dispose();
@@ -361,8 +377,14 @@ public class TelaCliente extends JDialog {
    					((TelaCadastroGrupo) telaPai).adicionarIntegrante(clienteSelecionado);
    				else if (flag_tipo_cliente == 11)
    					((TelaRelatoriaContratos) telaPai).setClienteAlvo(clienteSelecionado);
-
-
+   				else if (flag_tipo_cliente == 12)
+   					((TelaImportarContratoManual) telaPai).setCorretor(clienteSelecionado);
+   				else if (flag_tipo_cliente == 13)
+   					((TelaImportarContratoManual) telaPai).setComprador1(clienteSelecionado);
+   				else if (flag_tipo_cliente == 14)
+   					((TelaImportarContratoManual) telaPai).setVendedor1(clienteSelecionado);
+   				else if (flag_tipo_cliente == 15)
+   					((TelaImportarContratoManual) telaPai).setVendedor2(clienteSelecionado);
 				isto.dispose();
 			}
 		});

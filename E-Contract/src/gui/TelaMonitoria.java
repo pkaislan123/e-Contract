@@ -1,6 +1,7 @@
 package gui;
 
 import java.awt.BorderLayout;
+import java.awt.CardLayout;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.DisplayMode;
@@ -17,6 +18,8 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.Locale;
+import java.util.concurrent.TimeUnit;
+
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableCellRenderer;
 import javax.swing.ImageIcon;
@@ -52,6 +55,7 @@ import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.SystemColor;
 import java.awt.Toolkit;
+import java.awt.Window;
 import java.awt.GridBagLayout;
 import java.awt.GridBagConstraints;
 import com.jgoodies.forms.layout.FormLayout;
@@ -134,7 +138,7 @@ public class TelaMonitoria extends JFrame {
 		safras = listaSafras.getSafras();
 	}
 
-	public TelaMonitoria() {
+	public TelaMonitoria(Window janela_pai) {
 
 		isto = this;
 
@@ -165,7 +169,7 @@ public class TelaMonitoria extends JFrame {
 		painelPrincipal.setLayout(null);
 
 		painelAbas.addTab("Monitor Principal", painelPrincipal);
-		
+
 		painelRecebimento = new JPanel();
 		painelRecebimento.setBackground(Color.WHITE);
 		painelRecebimento.setLayout(null);
@@ -340,6 +344,17 @@ public class TelaMonitoria extends JFrame {
 		lblAvariadosMediaAbaRecebimento.setBounds(110, 6, 142, 64);
 		panel_2_2_1_1.add(lblAvariadosMediaAbaRecebimento);
 		
+		JLabel lblNewLabel_6_2_1 = new JLabel("minuto");
+		lblNewLabel_6_2_1.setForeground(new Color(0, 102, 0));
+		lblNewLabel_6_2_1.setFont(new Font("SansSerif", Font.BOLD, 20));
+		lblNewLabel_6_2_1.setBounds(1269, 6, 65, 26);
+		painelRecebimento.add(lblNewLabel_6_2_1);
+		
+		JLabel lblNewLabel_6_3 = new JLabel("Atualizado a cada ");
+		lblNewLabel_6_3.setFont(new Font("SansSerif", Font.BOLD, 20));
+		lblNewLabel_6_3.setBounds(1097, 6, 172, 26);
+		painelRecebimento.add(lblNewLabel_6_3);
+		
 		painelCarregamento = new JPanel();
 		painelCarregamento.setBackground(Color.WHITE);
 		painelCarregamento.setLayout(null);
@@ -511,6 +526,17 @@ public class TelaMonitoria extends JFrame {
 		lblAvariadosMediaAbaCarregamentos.setFont(new Font("SansSerif", Font.PLAIN, 50));
 		lblAvariadosMediaAbaCarregamentos.setBounds(110, 6, 142, 64);
 		panel_2_2_1_1_1.add(lblAvariadosMediaAbaCarregamentos);
+		
+		JLabel lblNewLabel_6_2_2 = new JLabel("minuto");
+		lblNewLabel_6_2_2.setForeground(new Color(0, 102, 0));
+		lblNewLabel_6_2_2.setFont(new Font("SansSerif", Font.BOLD, 20));
+		lblNewLabel_6_2_2.setBounds(1271, 6, 65, 26);
+		painelCarregamento.add(lblNewLabel_6_2_2);
+		
+		JLabel lblNewLabel_6_4 = new JLabel("Atualizado a cada ");
+		lblNewLabel_6_4.setFont(new Font("SansSerif", Font.BOLD, 20));
+		lblNewLabel_6_4.setBounds(1099, 6, 172, 26);
+		painelCarregamento.add(lblNewLabel_6_4);
 
 		JLabel lblNewLabel_8 = new JLabel("");
 		lblNewLabel_8.setOpaque(true);
@@ -885,7 +911,18 @@ public class TelaMonitoria extends JFrame {
 		lblNewLabel_2.setBounds(280, 250, 32, 32);
 		painelPrincipal.add(lblNewLabel_2);
 		
-		this.setLocationRelativeTo(isto);
+		JLabel lblNewLabel_6 = new JLabel("Atualizado a cada ");
+		lblNewLabel_6.setFont(new Font("SansSerif", Font.BOLD, 20));
+		lblNewLabel_6.setBounds(1097, 6, 172, 26);
+		painelPrincipal.add(lblNewLabel_6);
+		
+		JLabel lblNewLabel_6_2 = new JLabel("minuto");
+		lblNewLabel_6_2.setForeground(new Color(0, 102, 0));
+		lblNewLabel_6_2.setFont(new Font("SansSerif", Font.BOLD, 20));
+		lblNewLabel_6_2.setBounds(1269, 6, 65, 26);
+		painelPrincipal.add(lblNewLabel_6_2);
+		slide();
+		this.setLocationRelativeTo(janela_pai);
 
 	}
 
@@ -899,6 +936,10 @@ public class TelaMonitoria extends JFrame {
 
 			@Override
 			public void run() {
+				limpar();
+				
+				
+				while(true) {
 				modelo_romaneios_entrada.setNumRows(0);
 				modelo_romaneios_entrada_aba_recebimento.setNumRows(0);
 
@@ -1189,8 +1230,17 @@ public class TelaMonitoria extends JFrame {
 				setRomaneiosRecebimento();
 				setRomaneiosCarregamento();
 
+				try
+				{
+				    Thread.sleep(60000);
+				}
+				catch(InterruptedException ex)
+				{
+				    Thread.currentThread().interrupt();
+				}
+				
 			}
-
+			}
 		}.start();
 
 	}
@@ -1260,6 +1310,83 @@ public class TelaMonitoria extends JFrame {
 			}
 		});
 	}
+	
+	public void limpar() {
+		java.awt.EventQueue.invokeLater(new Runnable() {
+			public void run() {
+				lblUmidadeMedia.setText("");
+				lblUmidadeMediaAbaRecebimento.setText("");
+				
+				lblImpurezaMediaAbaRecebimento.setText("");
+				
+				lblAvariadosMediaAbaRecebimento.setText("");
 
+				lblNumSacosDescarga.setText("");
+				lblNumSacosDescargaAbaRecebimento.setText("");
+
+				lblNumDescargas.setText("");
+				lblNumDescargasAbaRecebimento.setText("");
+
+				lblKgDescarga.setText("");
+				lblKgDescargaAbaRecebimento.setText("");
+			   
+				
+				lblUmidadeMediaCarga.setText("");
+
+				lblTotalSacosCarga.setText("");
+				lblNumTotalCargas.setText(Integer.toString(num_cargas));
+
+				lblNumTotalKGCarga.setText("");
+
+				
+				//aba carregamento
+				lblUmidadeMediaCargaAbaCarregamento.setText("");
+				lblNumTotalCargasAbaRecebimento.setText("");
+				
+				lblTotalSacosCargaAbaRecebimento.setText("");
+				lblNumTotalKGCargaAbaRecebimento.setText("");
+				
+				lblImpurezaMediaAbaCarregamentos.setText("");
+
+
+				lblAvariadosMediaAbaCarregamentos.setText("");
+			
+				modelo_romaneios_entrada.setNumRows(0);
+				modelo_romaneios_entrada_aba_recebimento.setNumRows(0);
+			}
+		});
+			
+	}
+	
+	
+	public void slide() {
+		
+		new Thread() {
+			@Override public void run() {
+				
+				while(true) {
+				
+					for(int i = 0; i < 3; i++) {
+						painelAbas.setSelectedIndex(i);
+			              System.out.println( "mudando de tela");
+						try
+						{
+						    Thread.sleep(20000);
+						}
+						catch(InterruptedException ex)
+						{
+						    Thread.currentThread().interrupt();
+						}
+							
+
+					}
+			
+				
+				}
+				
+			}
+		}.start();
+		
+	}
 	
 }

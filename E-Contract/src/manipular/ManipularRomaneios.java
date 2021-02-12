@@ -36,6 +36,8 @@ import outros.DadosGlobais;
 import outros.MyFileVisitor;
 import outros.TratarDados;
 import tratamento_proprio.Log;
+import views_personalizadas.TelaNotificacaoSuperior;
+import views_personalizadas.TelaNotificacaoSuperiorModoBusca;
 
 public class ManipularRomaneios {
 	private JFileChooser fileChooserGlobal;
@@ -48,7 +50,7 @@ public class ManipularRomaneios {
 	private int countArquivos;
 	private int countPDF;
 	private int countNotas;
-
+    private TelaNotificacaoSuperiorModoBusca avisos;
 	private Log GerenciadorLog;
 	private CadastroLogin login;
 	private ConfiguracoesGlobais configs_globais;
@@ -268,7 +270,7 @@ public class ManipularRomaneios {
 
        //operacao
 		String operacao = tratamentoDados.tratar("Operação", "Motorista");
-		 //JOptionPane.showMessageDialog(null, "Operação: " + operacao);
+		// JOptionPane.showMessageDialog(null, "Operação: " + operacao);
          romaneio.setOperacao(operacao);
          String cfop ="";
  		if(tratar.contains("5906")) {
@@ -282,24 +284,92 @@ public class ManipularRomaneios {
  		}else if(tratar.contains("1934")) {
  			cfop = "1934";
 
+ 		}else if(tratar.contains("1949")) {
+ 			cfop = "1949";
  		}
+ 		//JOptionPane.showMessageDialog(null, "CFOP: " + cfop);
 
  		romaneio.setCfop(cfop);
  		
  		String descricao_cfop = tratamentoDados.tratar(cfop + " ", ",");
-         
+ 		//JOptionPane.showMessageDialog(null, "descricao cfop: " + tratamentoDados.tratar(cfop + " ", ","));
+
  		romaneio.setDescricao_cfop(descricao_cfop);
+       
  		
-		String umidade = tratamentoDados.tratar("UMIDADE                 ", " ");
+
+		String umidade = "";
+		String busca_umidade = tratamentoDados.tratar("UMIDADE", "IMPUREZA");
+
+		
+		 String busca_umidade_quebrado[] = busca_umidade.split(" ");
+		    ArrayList<String> busca_quebrados = new ArrayList<>();
+		    
+		    for(int i = 0; i < busca_umidade_quebrado.length; i++) {
+		    	busca_umidade_quebrado[i] = busca_umidade_quebrado[i].replaceAll(" ", "");
+		    	if(busca_umidade_quebrado[i].length() > 2 ) {
+		    		//JOptionPane.showMessageDialog(null, "Essa linha contem numeros, sera adicionado" + linha_destinatario_remetente_quebrada[i]);
+		    		busca_quebrados.add(busca_umidade_quebrado[i]);
+		    	}else {
+		    		//JOptionPane.showMessageDialog(null, "Essa linha não contem numeros, sera excluido" + linha_destinatario_remetente_quebrada[i]);
+		
+		    	}
+		    }
+		 umidade = busca_quebrados.get(0);
+		
+				
 		romaneio.setUmidade(Double.parseDouble(umidade.replaceAll(",", ".")));
+		//JOptionPane.showMessageDialog(null, "umidade: " + umidade);
+
+		  
+		 
+		 
+		 
+		String impureza = "";
+		String busca_impureza = tratamentoDados.tratar("IMPUREZA", "AVARIADO");
+
 		
+		 String busca_impureza_quebrados[] = busca_impureza.split(" ");
+		    ArrayList<String> impureza_quebrados = new ArrayList<>();
+		    
+		    for(int i = 0; i < busca_impureza_quebrados.length; i++) {
+		    	busca_impureza_quebrados[i] = busca_impureza_quebrados[i].replaceAll(" ", "");
+		    	if(busca_impureza_quebrados[i].length() > 2 ) {
+		    		//JOptionPane.showMessageDialog(null, "Essa linha contem numeros, sera adicionado" + linha_destinatario_remetente_quebrada[i]);
+		    		impureza_quebrados.add(busca_impureza_quebrados[i]);
+		    	}else {
+		    		//JOptionPane.showMessageDialog(null, "Essa linha não contem numeros, sera excluido" + linha_destinatario_remetente_quebrada[i]);
 		
-         String impureza = tratamentoDados.tratar("IMPUREZA                 ", " ");
+		    	}
+		    }
+		 impureza = impureza_quebrados.get(0);
+		 //  JOptionPane.showMessageDialog(null, "impureza: " + impureza);
 
          romaneio.setInpureza(Double.parseDouble(impureza.replaceAll(",", ".")));
 
-         String avariado = tratamentoDados.tratar("AVARIADO                 ", " ");
+
+         String avariado = "";
+ 		String busca_avariado = tratamentoDados.tratar("AVARIADO", "Assinatura");
+
+ 		
+ 		 String busca_avariados_quebrados[] = busca_avariado.split(" ");
+ 		    ArrayList<String> avariados_quebrados = new ArrayList<>();
+ 		    
+ 		    for(int i = 0; i < busca_avariados_quebrados.length; i++) {
+ 		    	busca_avariados_quebrados[i] = busca_avariados_quebrados[i].replaceAll(" ", "");
+ 		    	if(busca_avariados_quebrados[i].length() > 2 ) {
+ 		    		//JOptionPane.showMessageDialog(null, "Essa linha contem numeros, sera adicionado" + linha_destinatario_remetente_quebrada[i]);
+ 		    		avariados_quebrados.add(busca_avariados_quebrados[i]);
+ 		    	}else {
+ 		    		//JOptionPane.showMessageDialog(null, "Essa linha não contem numeros, sera excluido" + linha_destinatario_remetente_quebrada[i]);
+ 		
+ 		    	}
+ 		    }
+ 		 avariado = avariados_quebrados.get(0);
+         
+         
          romaneio.setAvariados(Double.parseDouble(avariado.replaceAll(",", ".")));
+         //  JOptionPane.showMessageDialog(null, "avariado" + avariado);
 
 
          //procurar por pesos
@@ -322,6 +392,7 @@ public class ManipularRomaneios {
 				e.printStackTrace();
 			}
 			double peso_bruto = numero_peso_bruto.doubleValue();
+			 //JOptionPane.showMessageDialog(null, "peso bruto: " + peso_bruto);
 			romaneio.setPeso_bruto(peso_bruto);
 			
 
@@ -333,6 +404,8 @@ public class ManipularRomaneios {
 					e.printStackTrace();
 				}
 				double peso_tara = numero_peso_tara.doubleValue();
+				 //JOptionPane.showMessageDialog(null, "peso tara: " + peso_tara);
+
 				romaneio.setTara(peso_tara);
 
 				   Number numero_peso_liquido = null;
@@ -344,6 +417,8 @@ public class ManipularRomaneios {
 					}
 					double peso_liquido = numero_peso_liquido.doubleValue();
 			         romaneio.setPeso_liquido(peso_liquido);
+			         //	JOptionPane.showMessageDialog(null, "peso liquido: " + peso_liquido);
+
         
         String busca_numero_romaneio =  tratamentoDados.tratar(" , Romaneio", "Produto");
 	    int numero_romaneio = Integer.parseInt(busca_numero_romaneio);
@@ -354,7 +429,7 @@ public class ManipularRomaneios {
     //  JOptionPane.showMessageDialog(null, "produto: " + s_produto);
 	    
 	    String transgenia = tratamentoDados.tratar("Transgenia", ",").trim();
-	    //  JOptionPane.showMessageDialog(null, "transgenia: " + transgenia);
+	    //JOptionPane.showMessageDialog(null, "transgenia: " + transgenia);
 	    
 	    String transgenia_proxima = "";
 	    
@@ -407,7 +482,7 @@ public class ManipularRomaneios {
 		  
 	    	if(prod.getNome_produto().equalsIgnoreCase(produto_busca)) {
                if(prod.getTransgenia().trim().equalsIgnoreCase(transgenia_proxima)) {
-            	   //  JOptionPane.showMessageDialog(null, "Produto encontrado: " + prod.getNome_produto() + " Transgenia: " + prod.getTransgenia());
+            	   //JOptionPane.showMessageDialog(null, "Produto encontrado: " + prod.getNome_produto() + " Transgenia: " + prod.getTransgenia());
 
             	   produto = prod;
             	   break;
@@ -473,7 +548,7 @@ public class ManipularRomaneios {
 
     			 
 	    		if(prod_safra.getId_produto() == produto.getId_produto() ) {
-	    			 //JOptionPane.showMessageDialog(null, "Safra e produto encontrada");
+	    			//JOptionPane.showMessageDialog(null, "Safra e produto encontrada");
 	    			safra = busca;
 	    			  
 	    		    romaneio.setSafra(safra);
@@ -523,9 +598,9 @@ public class ManipularRomaneios {
          romaneio.setMotorista(motorista);
 		
 	    //procurar remetente destinatario
-       // JOptionPane.showMessageDialog(null, "linha pesos quebradas 8: " + linha_pesos_quebrada[8]);
+         //JOptionPane.showMessageDialog(null, "linha pesos quebradas 8: " + linha_pesos_quebrada[8]);
 	    String linha_destinatario_remetente = tratamentoDados.tratar(linha_pesos_quebrada[8] + ", Cpf/Cnpj: ", ", Desconto");
-      // JOptionPane.showMessageDialog(null, "linha destinatario remetnte quebradas 8: " + linha_destinatario_remetente);
+	    // JOptionPane.showMessageDialog(null, "linha destinatario remetnte quebradas 8: " + linha_destinatario_remetente);
 
 	    String linha_destinatario_remetente_quebrada[] = linha_destinatario_remetente.split(" ");
 	    ArrayList<String> quebrados = new ArrayList<>();
@@ -533,7 +608,7 @@ public class ManipularRomaneios {
 	    for(int i = 0; i < linha_destinatario_remetente_quebrada.length; i++) {
 	    	linha_destinatario_remetente_quebrada[i] = linha_destinatario_remetente_quebrada[i].replaceAll(" ", "");
 	    	if(linha_destinatario_remetente_quebrada[i].length() > 10  ) {
-	    		//JOptionPane.showMessageDialog(null, "Essa linha contem numeros, sera adicionado" + linha_destinatario_remetente_quebrada[i]);
+	    		 //JOptionPane.showMessageDialog(null, "Essa linha contem numeros, sera adicionado" + linha_destinatario_remetente_quebrada[i]);
 	    		quebrados.add(linha_destinatario_remetente_quebrada[i]);
 	    	}else {
 	    		//JOptionPane.showMessageDialog(null, "Essa linha não contem numeros, sera excluido" + linha_destinatario_remetente_quebrada[i]);
@@ -545,15 +620,15 @@ public class ManipularRomaneios {
 	    
 	    
 	    String identificacao_produtor = quebrados.get(0).replaceAll("[^0-9]", "");
-	   //  JOptionPane.showMessageDialog(null, "Id do destinatario: " + identificacao_produtor);
+	    //  JOptionPane.showMessageDialog(null, "Id do destinatario: " + identificacao_produtor);
 	    String ie_produtor = quebrados.get(1).replaceAll("[^0-9]", "");
-	    //  JOptionPane.showMessageDialog(null, "IE do destinatario: " + ie_produtor);
-
+	    //JOptionPane.showMessageDialog(null, "IE do destinatario: " + ie_produtor);
+	    //
 	    String identificacao_destino = quebrados.get(2).replaceAll("[^0-9]", "");
 	    // JOptionPane.showMessageDialog(null, "Id do remetente: " + identificacao_destino);
 
 	    String ie_destino  = quebrados.get(3).replaceAll("[^0-9]", "");
-	    // JOptionPane.showMessageDialog(null, "IE do remetente: " + ie_destino);
+  // JOptionPane.showMessageDialog(null, "IE do remetente: " + ie_destino);
 
 	    
 	    GerenciarBancoClientes gerente_clientes = new GerenciarBancoClientes();
@@ -569,6 +644,7 @@ public class ManipularRomaneios {
 	    		if(busca.getCpf().equals(identificacao_produtor)) {
 	    			//identificacao encontrada, verifica a IE
 	    			identificacao_produtor_encontrato = true;
+	    			if(busca.getIe() != null) {
 	    			if(busca.getIe().equals(ie_produtor)) {
 	    				produtor = busca;
 	    				ie_produtor_encontrato = true;
@@ -577,12 +653,17 @@ public class ManipularRomaneios {
 	    			}else {
 	    				
 	    			}
+	    			}
+	    		}else {
+
 	    		}
 	    	}else {
 	    		if(busca.getCnpj().equals(identificacao_produtor)) {
 	    			//identificacao encontrada, verifica a IE
 	    			identificacao_produtor_encontrato = true;
+	    			if(busca.getIe() != null) {
 	    			if(busca.getIe().equals(ie_produtor)) {
+
 	    			    produtor = busca;
 	    			    ie_produtor_encontrato = true;
 
@@ -590,11 +671,12 @@ public class ManipularRomaneios {
 	    			}else {
 	    				
 	    			}
+	    			}
 	    		}
 	    	}
 	    }
 	    
-
+        
          
 		  //procurar remetente
 	    CadastroCliente destino = new CadastroCliente();
@@ -603,9 +685,11 @@ public class ManipularRomaneios {
 	    
 	    for(CadastroCliente busca : lista_clientes) {
 	    	if(busca.getTipo_pessoa() == 0) {
+	    		
 	    		if(busca.getCpf().equals(identificacao_destino)) {
 	    			//identificacao encontrada, verifica a IE
 	    			identificacao_destino_encontrado = true;
+	    			if(busca.getIe() != null) {
 	    			if(busca.getIe().equals(ie_destino)) {
 	    			    destino = busca;
 	    			    ie_destino_encontrado = true;
@@ -613,11 +697,13 @@ public class ManipularRomaneios {
 	    			}else {
 	    				
 	    			}
+	    		}
 	    		}
 	    	}else {
 	    		if(busca.getCnpj().equals(identificacao_destino)) {
 	    			//identificacao encontrada, verifica a IE
 	    			identificacao_destino_encontrado = true;
+	    			if(busca.getIe() != null) {
 	    			if(busca.getIe().equals(ie_destino)) {
 	    			    destino = busca;
 	    			    ie_destino_encontrado = true;
@@ -626,38 +712,79 @@ public class ManipularRomaneios {
 	    			}else {
 	    				
 	    			}
+	    			}
 	    		}
 	    	}
 	    }
- 
-	    boolean prosseguir = false;
+
+	    boolean prosseguir_produtor = false;
 	    
 	    if(identificacao_produtor_encontrato && ie_destino_encontrado) {
-	    	prosseguir = true;
-
+	    	prosseguir_produtor = true;
+	    	if(avisos != null) {
+	    	   avisos.setMensagem("Produtor Cadastrado");
+		        Thread.sleep(1000);
+	    	}
 	    }else if(identificacao_produtor_encontrato && !ie_destino_encontrado) {
+	        if(avisos != null) {
+            avisos.setMensagem("Ha cadastro para este produtor, mas com I.E diferente, cadastre a nova I.E\n"
+            		+ "\nProdutor: " + identificacao_produtor + "\nNova I.E: " + ie_produtor);
+	        Thread.sleep(10000);
+	        }
 
 	    }else if(!identificacao_produtor_encontrato && !ie_destino_encontrado){
+	        if(avisos != null) {
+	    	  avisos.setMensagem("Cadastre o Produtor: " + identificacao_produtor + "\nI.E: " + ie_produtor);
+	        Thread.sleep(10000);
+	    	prosseguir_produtor = false;
+	        }
 
 	    }else {
-	
+	    	prosseguir_produtor = false;
+	        if(avisos != null) {
+		    	  avisos.setMensagem("Cadastre o Produtor: " + identificacao_produtor + "\nI.E: " + ie_produtor);
+	        Thread.sleep(10000);
+	        }
 	    }
 	    
+	    boolean prosseguir_destino = false;
+
 	    
 	    if(identificacao_destino_encontrado && ie_destino_encontrado) {
-	    	prosseguir = true;
+	    	prosseguir_destino = true;
+	    	if(avisos != null) {
+	    	   avisos.setMensagem("Destinatario Cadastrado");
+		        Thread.sleep(1000);
+	    	}
+
 	    }else if(identificacao_destino_encontrado && !ie_destino_encontrado) {
-	    	prosseguir = false;
+	    	prosseguir_destino = false;
+	        if(avisos != null) {
+	    	avisos.setMensagem("Ha cadastro para este destinatario, mas com I.E diferente, cadastre a nova I.E\n"
+            		+ "Destinatario: " + identificacao_destino + "\nNova I.E: " + ie_destino);
+	        Thread.sleep(10000);
+	        }
+
+
 
 	    }else if(!identificacao_destino_encontrado && !ie_destino_encontrado){
-	    	prosseguir = false;
+	    	prosseguir_destino = false;
+	        if(avisos != null) {
+	    	  avisos.setMensagem("Cadastre o Destinatario: " + identificacao_destino + "\nI.E: " + ie_destino);
+	        Thread.sleep(10000);
+	        }
+
 
 	    }else {
-	    		
+	    	prosseguir_destino = false;
+	    		if(avisos != null) {
+	  	    	  avisos.setMensagem("Cadastre o Destinatario: " + identificacao_destino + "\nI.E: " + ie_destino);
+	  	        Thread.sleep(10000);
+	    		}
 	    }
 
 	    
-	    if(prosseguir) {
+	    if(prosseguir_destino && prosseguir_produtor) {
 
 	    	romaneio.setDestinatario(destino);
 			
@@ -674,7 +801,17 @@ public class ManipularRomaneios {
 
 	    }
 		}catch(Exception e) {
-			JOptionPane.showMessageDialog(null, "Excessao ao tratar romaneio\nErro: " + e.getMessage() + "\nCausa: " + e.getCause() );
+			//JOptionPane.showMessageDialog(null, "Excessao ao tratar romaneio\nErro: " + e.getMessage() + "\nCausa: " + e.getCause() );
+		      if(avisos != null) {
+		    	  avisos.setMensagem("Erro ao tratar romaneio\nConsulte o administrador\nErro: " + e.getMessage() + "\nCausa: " + e.getCause());
+		  	        try {
+						Thread.sleep(10000);
+					} catch (InterruptedException e1) {
+						// TODO Auto-generated catch block
+						e1.printStackTrace();
+					}
+
+		      }
 			return null;
 		}
 	    
@@ -684,7 +821,9 @@ public class ManipularRomaneios {
 	
 	
 
-
+  public void setTelaMensagem(TelaNotificacaoSuperiorModoBusca tela) {
+	  this.avisos = tela;
+  }
 	
 
 	private void getDadosGlobais() {

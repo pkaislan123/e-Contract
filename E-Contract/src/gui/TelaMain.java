@@ -349,7 +349,7 @@ public class TelaMain extends JFrame {
 				.setIcon(new ImageIcon(TelaPrincipal.class.getResource("/imagens/aplicativo-de-monitoria.png")));
 		mntmNewMenuItem_2.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				TelaMonitoria monitor = new TelaMonitoria();
+				TelaMonitoria monitor = new TelaMonitoria(isto);
 				monitor.setVisible(true);
 				monitor.vigilante_todos_os_romaneios();
 			}

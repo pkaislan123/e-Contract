@@ -79,6 +79,7 @@ where sf.id_produto = pd.id_produto;
 	            	produto.setId_produto(rs.getInt("id_produto"));
 	            	produto.setDescricao_produto(rs.getString("descricao_produto"));
 	            	produto.setNome_produto(rs.getString("nome_produto"));
+	            	produto.setTransgenia(rs.getString("transgenia"));
 	            	safra.setProduto(produto);
 
 	          

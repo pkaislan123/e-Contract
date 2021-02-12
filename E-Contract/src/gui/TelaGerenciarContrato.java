@@ -158,6 +158,7 @@ import java.awt.PopupMenu;
 
 import graficos.JPanelGrafico;
 import graficos.JPanelGraficoPadrao;
+import gui.TelaContratos.EvenOddRenderer;
 import gui.TelaRomaneios.RomaneioTableModel;
 
 import javax.swing.JTree;
@@ -175,12 +176,13 @@ public class TelaGerenciarContrato extends JFrame {
 	private int contador = 0;
 	private JFileChooser fileChooser_global;
 	private ArrayList<String> listadeArquivos = new ArrayList<>();
-
+    private double total_sacos_recebidos = 0, total_kg_recebidos;
+    private int total_romaneios_entrada = 0;
 	private RomaneioTableModel modelo_romaneios = new RomaneioTableModel();
 	private Log GerenciadorLog;
 	private CadastroLogin login;
 	private ConfiguracoesGlobais configs_globais;
-
+	private JPanel jpanel2, panel_1_2;
 	private JTabbedPane painelPrincipal = new JTabbedPane();
 	private JPanel painelDadosIniciais = new JPanel();
 	private JPanel painelPagamentos = new JPanel();
@@ -215,7 +217,7 @@ public class TelaGerenciarContrato extends JFrame {
 	private SwingViewBuilder factory;
 	private TelaGerenciarContrato isto;
 	private String servidor_unidade;
-
+    private JLabel lblNumeroTotalRomaneiosEntrada, lblTotalSacosEntrada;
 	private CadastroCliente cliente_carregamento;
 	private CadastroContrato contrato_carregamento;
 
@@ -352,7 +354,7 @@ public class TelaGerenciarContrato extends JFrame {
 
 		painelDadosIniciais.setLayout(null);
 
-		if (contrato.getSub_contrato() == 0) {
+		if (contrato.getSub_contrato() == 0 || contrato.getSub_contrato() == 5) {
 			// não é um subcontrato
 			// criarAbaSubContrato();
 			painelSubContratos.setBackground(new Color(255, 255, 255));
@@ -382,7 +384,11 @@ public class TelaGerenciarContrato extends JFrame {
 				if (contrato.getSub_contrato() == 0) {
 					// e um contrato pai, abre a tela em modo de edicao
 					TelaEscolhaTipoNovoContrato tela = new TelaEscolhaTipoNovoContrato(0, contrato_local, 1, isto);
-				} else {
+				}else if(contrato.getSub_contrato() == 4 || contrato.getSub_contrato() == 5) {
+					TelaImportarContratoManual tela = new TelaImportarContratoManual(contrato.getSub_contrato(), contrato, 1, null);
+					tela.setVisible(true);
+				}
+				else {
 					// e um subcontrato, o tipo do contrato e 1, e entra no modo de edicao
 					TelaEscolhaTipoNovoContrato tela = new TelaEscolhaTipoNovoContrato(1, contrato_local, 1,isto);
 
@@ -415,7 +421,8 @@ public class TelaGerenciarContrato extends JFrame {
 		panel_1.setBackground(Color.WHITE);
 
 		table_romaneios = new JTable(modelo_romaneios);
-
+		TableCellRenderer renderer = new RenderizadorTabelaRomaneios();
+		table_romaneios.setDefaultRenderer(Object.class, renderer);
 		table_romaneios.setBackground(new Color(255, 255, 255));
 
 		table_romaneios.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
@@ -433,9 +440,47 @@ public class TelaGerenciarContrato extends JFrame {
 		table_romaneios.getColumnModel().getColumn(10).setPreferredWidth(120);
 		table_romaneios.getColumnModel().getColumn(11).setPreferredWidth(120);
 
+		table_romaneios.setRowHeight(30);
+		
+		
 		JScrollPane scrollPaneRomaneios = new JScrollPane(table_romaneios);
 		scrollPaneRomaneios.setBounds(10, 11, 1297, 217);
 		panel_1.add(scrollPaneRomaneios);
+		
+		 jpanel2 = new JPanel();
+		jpanel2.setBackground(new Color(102, 51, 0));
+		jpanel2.setBounds(996, 430, 338, 33);
+		painelRecebimentoEntrada.add(jpanel2);
+		jpanel2.setLayout(new MigLayout("", "[][]", "[]"));
+		
+		JLabel lblNewLabel_33 = new JLabel("Total Produto:");
+		lblNewLabel_33.setForeground(Color.WHITE);
+		jpanel2.add(lblNewLabel_33, "cell 0 0");
+		
+		 lblTotalSacosEntrada = new JLabel("99.999,66 SCs / 999999999999 KGs");
+		lblTotalSacosEntrada.setFont(new Font("SansSerif", Font.BOLD, 14));
+		lblTotalSacosEntrada.setForeground(Color.WHITE);
+		jpanel2.add(lblTotalSacosEntrada, "cell 1 0");
+		
+		 panel_1_2 = new JPanel();
+		panel_1_2.setBackground(new Color(0, 153, 51));
+		panel_1_2.setBounds(776, 430, 208, 33);
+		painelRecebimentoEntrada.add(panel_1_2);
+		panel_1_2.setLayout(new MigLayout("", "[][][]", "[]"));
+		
+		JLabel lblNewLabel_31 = new JLabel("Total Romaneios:");
+		lblNewLabel_31.setForeground(Color.WHITE);
+		panel_1_2.add(lblNewLabel_31, "cell 0 0");
+		
+		
+		 lblNumeroTotalRomaneiosEntrada = new JLabel("999");
+		lblNumeroTotalRomaneiosEntrada.setForeground(Color.WHITE);
+		lblNumeroTotalRomaneiosEntrada.setFont(new Font("SansSerif", Font.BOLD, 14));
+		panel_1_2.add(lblNumeroTotalRomaneiosEntrada, "cell 1 0");
+		
+		JLabel lblNewLabel_32 = new JLabel("recebidos");
+		lblNewLabel_32.setForeground(Color.WHITE);
+		panel_1_2.add(lblNewLabel_32, "cell 2 0");
 
 		btnEditarContrato.setBounds(331, 497, 89, 23);
 
@@ -1371,22 +1416,40 @@ public class TelaGerenciarContrato extends JFrame {
 
 		if (contrato_local.getSub_contrato() == 1) {
 			// é um sub contrato
-			lblTipoContrato.setText("Tipo Contrato: Sub-Contrato");
+			lblTipoContrato.setText("Tipo Contrato: Sub-Contrato Proprietario Elaborado");
 		} else {
-			lblTipoContrato.setText("Tipo Contrato: Contrato Original");
+			lblTipoContrato.setText("Tipo Contrato: Original Proprietario Elaborado");
 
 		}
 
-		if (contrato_local.getSub_contrato() == 3) {
+		if (contrato_local.getSub_contrato() == 3  ) {
 			// nao permitir edica
-			lblTipoContrato.setText("Tipo Contrato: Contrato Original de Terceiros");
+			lblTipoContrato.setText("Tipo Contrato: Original de Terceiros Importado Automaticamente");
 
 			btnEditarContrato.setEnabled(false);
 			btnEditarContrato.setVisible(false);
 
 			// desativar aba de subcontratos
 
+		}else if(contrato_local.getSub_contrato() == 4) {
+			lblTipoContrato.setText("Tipo Contrato: Original de Terceiros Importado Manualmente");
+
+			btnEditarContrato.setEnabled(false);
+			btnEditarContrato.setVisible(false);
 		}
+		else if(contrato_local.getSub_contrato() == 5) {
+			lblTipoContrato.setText("Tipo Contrato: Original Proprietario Importado Manualmente");
+
+			btnEditarContrato.setEnabled(true);
+			btnEditarContrato.setVisible(true);
+		}
+		else if(contrato_local.getSub_contrato() == 6) {
+			lblTipoContrato.setText("Tipo Contrato: Sub-Contrato Proprietario Importado Manualmente");
+
+			btnEditarContrato.setEnabled(true);
+			btnEditarContrato.setVisible(true);
+		}
+
 
 		String url_original = servidor_unidade + contrato_local.getCaminho_arquivo();
 		carregarDocumento(url_original);
@@ -1408,6 +1471,9 @@ public class TelaGerenciarContrato extends JFrame {
 		 * travarContrato();
 		 */
 		
+		
+		System.out.println("");
+		
 		setarInformacoesPainelPrincipal();
 		 setarInformacoesPainelCarregamentos();
 		 pesquisar_carregamentos();
@@ -1427,7 +1493,7 @@ public class TelaGerenciarContrato extends JFrame {
 		lerRomaneios();
 		this.setResizable(true);
 		this.setLocationRelativeTo(janela_pai);
-
+        
 		this.setVisible(true);
 
 	}
@@ -2431,11 +2497,11 @@ public class TelaGerenciarContrato extends JFrame {
 
 			GerenciarBancoContratos gerenciar = new GerenciarBancoContratos();
 			boolean excluido = false;
-			if (contrato_local.getSub_contrato() == 0 || contrato_local.getSub_contrato() == 3) {
+			if (contrato_local.getSub_contrato() == 0 || contrato_local.getSub_contrato() == 3  || contrato_local.getSub_contrato() == 5 || contrato_local.getSub_contrato() == 4) {
 				// é um contrato pai, e um contrato pai tereceirizado
 				excluido = gerenciar.remover_contrato_rotina(contrato_local.getId());
 
-			} else if (contrato_local.getSub_contrato() == 1) {
+			} else if (contrato_local.getSub_contrato() == 1 || contrato_local.getSub_contrato() == 6) {
 				excluido = gerenciar.remover_sub_contrato_rotina(contrato_local.getId());
 
 			}
@@ -2874,7 +2940,7 @@ public class TelaGerenciarContrato extends JFrame {
 					btnConcluir.setEnabled(false);
 					btnConcluir.setVisible(false);
 
-					if (contrato_local.getSub_contrato() == 3) {
+					if (contrato_local.getSub_contrato() == 3 || contrato_local.getSub_contrato() == 4) {
 						//contrato de terceiros
 						btnEditarContrato.setVisible(false);
 						btnEditarContrato.setEnabled(false);
@@ -2932,7 +2998,7 @@ public class TelaGerenciarContrato extends JFrame {
 					btnReabrir.setEnabled(false);
 					btnReabrir.setVisible(false);
 					
-					if (contrato_local.getSub_contrato() == 3) {
+					if (contrato_local.getSub_contrato() == 3 || contrato_local.getSub_contrato() == 4) {
 						//contrato de terceiros
 						btnEditarContrato.setVisible(false);
 						btnEditarContrato.setEnabled(false);
@@ -5497,6 +5563,10 @@ public class TelaGerenciarContrato extends JFrame {
 	
 	public void lerRomaneios() {
 		
+		new Thread() {
+		
+			@Override
+			public void run() {
 		if(contrato_local.getSub_contrato() == 0 ) {
 			//é um contrato pai local
 			
@@ -5549,6 +5619,13 @@ public class TelaGerenciarContrato extends JFrame {
             }
 			
 		}
+		getAtualizarInformacoesTelaRomaneiosEntrada();
+
+			}
+		
+
+		}.start();
+		
 		
 	}
 	
@@ -5592,25 +5669,72 @@ public void pesquisarRomaneios(CadastroCliente vendedor) {
 
 public void addRom(CadastroRomaneio romaneio) {
 
-	java.awt.EventQueue.invokeLater(new Runnable() {
-		public void run() {
+	
+
+			if(romaneio.getOperacao().equals("Prestação de Serviços")) {
 			modelo_romaneios.onAdd(romaneio);
-		/*	modelo_nfs.addRow(new Object[] { nota.getNfe(), nota.getSerie(), nota.getNome_remetente(),
-					nota.getInscricao_remetente(), nota.getProtocolo(), nota.getData(), nota.getNatureza(),
-					nota.getNome_destinatario(), nota.getInscricao_destinatario(), nota.getProduto(),
-					nota.getQuantidade(), nota.getValor() });*/
-
-			lblStatusAdicionandoNotas
-					.setText("Aguarde, romaneio estão sendo carregados: Adicionando romaneio " + romaneio.getNumero_romaneio());
-			lblStatusAdicionandoNotas.repaint();
-			lblStatusAdicionandoNotas.updateUI();
-
+		
 			romaneios_disponivel.add(romaneio);
+			
+			 double quantidade_sacos = 0, quantidade_kg = 0;
+			 quantidade_kg = romaneio.getPeso_liquido();
 
-		}
-	});
+			 quantidade_sacos = quantidade_kg/60;
+			 
+			 total_sacos_recebidos = total_sacos_recebidos + quantidade_sacos;
+			 total_kg_recebidos = total_kg_recebidos + quantidade_kg;
+			 total_romaneios_entrada++;
+			 
+			
+			}
 
 }
+
+public void getAtualizarInformacoesTelaRomaneiosEntrada() {
+	
+	
+
+	NumberFormat z = NumberFormat.getNumberInstance();
+
+	 lblNumeroTotalRomaneiosEntrada.setText(total_romaneios_entrada + "");
+	 lblTotalSacosEntrada.setText(z.format(total_sacos_recebidos) + "SCs / " + z.format(total_kg_recebidos) + " KGs");
+	 
+	
+}
+
+
+class RenderizadorTabelaRomaneios implements TableCellRenderer {
+
+	  public  final DefaultTableCellRenderer DEFAULT_RENDERER = new DefaultTableCellRenderer();
+
+	  public Component getTableCellRendererComponent(JTable table, Object value,
+	      boolean isSelected, boolean hasFocus, int row, int column) {
+	    Component renderer = DEFAULT_RENDERER.getTableCellRendererComponent(
+	        table, value, isSelected, hasFocus, row, column);
+	    ((JLabel) renderer).setOpaque(true);
+	   
+	      String dados = (String) table.getValueAt(row, 1);
+	   
+	     if(isSelected) {
+			    renderer.setBackground(new Color  (139,69,19)); //marrom
+			  
+
+	     }else {
+	     
+	    	  if(dados.equalsIgnoreCase("Prestação de Serviços")) {
+	    		  renderer.setBackground(new Color(124,252,0));
+
+	    	  }else if(dados.equalsIgnoreCase("Saída")){
+	    		  renderer.setBackground(new Color(255,99,71));
+
+	    	  }
+
+	     }
+	    
+	  
+	    return renderer;
+	  }
+	}
 
 	
 	public void importarAditivo() {
@@ -6184,5 +6308,4 @@ public void abrirAbaTarefasSubContrato(CadastroContrato sub_contrato) {
             
 		
 	}
-	
 }

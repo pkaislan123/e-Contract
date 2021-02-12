@@ -60,8 +60,8 @@ import cadastros.CadastroSafra;
 import cadastros.Contato;
 import cadastros.DadosContratos;
 import cadastros.DadosCarregamento;
-import chat.Cliente;
-import chat.Servidor;
+
+
 import classesExtras.ComboBoxPersonalizado;
 import classesExtras.ComboBoxRenderPersonalizado;
 import classesExtras.RenderizadorChat;
@@ -83,7 +83,6 @@ import outros.GetData;
 import outros.JPanelBackground;
 import graficos.JPanelGrafico;
 import outros.ReproduzirAudio;
-import principal.MainTeste;
 import tratamento_proprio.Log;
 import views_personalizadas.TelaMensagens;
 import views_personalizadas.TelaNotificacao;
@@ -356,7 +355,7 @@ public class TelaPrincipal extends JFrame implements GetDadosGlobais {
 				.setIcon(new ImageIcon(TelaPrincipal.class.getResource("/imagens/aplicativo-de-monitoria.png")));
 		mntmNewMenuItem_2.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				TelaMonitoria monitor = new TelaMonitoria();
+				TelaMonitoria monitor = new TelaMonitoria(isto);
 				monitor.setVisible(true);
 				monitor.vigilante_todos_os_romaneios();
 			}

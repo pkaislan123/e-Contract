@@ -126,7 +126,7 @@ public class GerenciarBancoContratos {
 						if (inserir_contrato_vendedor(contrato, retorno_contrato_inserido)) {
 							if (inserirModelosPagamentos(retorno_contrato_inserido, contrato.getPagamentos())) {
 
-								if (contrato.getSub_contrato() == 0 || contrato.getSub_contrato() == 3) {
+								if (contrato.getSub_contrato() == 0 || contrato.getSub_contrato() == 3 || contrato.getSub_contrato() == 4 || contrato.getSub_contrato() == 5) {
 									// e um contrato pai, nao fazer mais nada
 									reverter = false;
 									return 1;
@@ -1638,16 +1638,16 @@ public class GerenciarBancoContratos {
 			// modo de busca de contratos que o cliente é o corretor
 			selectContratos = "select * from contrato\n"
 					+ "LEFT JOIN contrato_corretor on contrato_corretor.id_contrato = contrato.id\n"
-					+ "where contrato_corretor.id_cliente = ? and (contrato.sub_contrato = 0 or contrato.sub_contrato = 3)";
+					+ "where contrato_corretor.id_cliente = ? and (contrato.sub_contrato = 0 or contrato.sub_contrato = 3 or contrato.sub_contrato = 4 or contrato.sub_contrato = 5)";
 		} else if (flag_select == 4) {
 			selectContratos = "select * from contrato\n"
 					+ "LEFT JOIN contrato_comprador on contrato_comprador.id_contrato = contrato.id\n"
-					+ "where contrato_comprador.id_cliente = ? and (contrato.sub_contrato = 0 or contrato.sub_contrato = 3)";
+					+ "where contrato_comprador.id_cliente = ? and (contrato.sub_contrato = 0 or contrato.sub_contrato = 3 or contrato.sub_contrato = 4 or contrato.sub_contrato = 5)";
 		} else if (flag_select == 5) {
 			// modo de busca de contratos que o cliente é o vendedor
 			selectContratos = "select * from contrato\n"
 					+ "LEFT JOIN contrato_vendedor on contrato_vendedor.id_contrato = contrato.id\n"
-					+ "where contrato_vendedor.id_cliente = ? and (contrato.sub_contrato = 0 or contrato.sub_contrato = 3)";
+					+ "where contrato_vendedor.id_cliente = ? and (contrato.sub_contrato = 0 or contrato.sub_contrato = 3 or contrato.sub_contrato = 4 or contrato.sub_contrato = 5)";
 
 		}
 
@@ -3563,7 +3563,7 @@ public class GerenciarBancoContratos {
 
 		String selectGetQuantidadeTotalSacosCarregados = "select sum(peso_real_carga) as quantidade_total_carregada from carregamento\n"
 				+ "left join contrato on contrato.id = carregamento.id_contrato_carregamento\n"
-				+ "where (contrato.sub_contrato = 0 or contrato.sub_contrato = 3)";
+				+ "where (contrato.sub_contrato = 0 or contrato.sub_contrato = 3 or contrato.sub_contrato = 4 or contrato.sub_contrato = 5)";
 		Connection conn = null;
 		PreparedStatement pstm = null;
 		ResultSet rs = null;
@@ -3591,7 +3591,7 @@ public class GerenciarBancoContratos {
 
 		String selectGetQuantidadeTotalSacosCarregados = "select sum(peso_real_carga) as quantidade_total_carregada from carregamento\n"
 				+ "left join contrato on contrato.id = carregamento.id_contrato_carregamento\n"
-				+ "where (contrato.sub_contrato = 0 or contrato.sub_contrato = 3) and contrato.id_safra = ?";
+				+ "where (contrato.sub_contrato = 0 or contrato.sub_contrato = 3 or contrato.sub_contrato = 4 or contrato.sub_contrato = 5) and contrato.id_safra = ?";
 		Connection conn = null;
 		PreparedStatement pstm = null;
 		ResultSet rs = null;
@@ -3621,7 +3621,7 @@ public class GerenciarBancoContratos {
 	public double getQuantidadeSacosPorSafra(int id_safra) {
 
 		String selectGetQuantidadeTotalSacosPorSafra = "select medida, quantidade from contrato\n"
-				+ " where  (sub_contrato = 0 or sub_contrato = 3 )and\n" + "contrato.id_safra = ?";
+				+ " where  (sub_contrato = 0 or sub_contrato = 3 or contrato.sub_contrato = 4 or contrato.sub_contrato = 5)and\n" + "contrato.id_safra = ?";
 		Connection conn = null;
 		PreparedStatement pstm = null;
 		ResultSet rs = null;
@@ -3668,13 +3668,13 @@ public class GerenciarBancoContratos {
 		if (id_safra > 0) {
 			selectCarregamentosPorData = "select data_carregamento, sum(peso_real_carga) as total_carregado_dia from carregamento\n"
 					+ "left join contrato on contrato.id = carregamento.id_contrato_carregamento\n"
-					+ "where (contrato.sub_contrato = 0 or contrato.sub_contrato = 3)\n"
+					+ "where (contrato.sub_contrato = 0 or contrato.sub_contrato = 3 or contrato.sub_contrato = 4 or contrato.sub_contrato = 4)\n"
 					+ " and data_carregamento BETWEEN (?) AND (?) and contrato.id_safra = ?\n" + "GROUP BY\n"
 					+ "  day( data_carregamento )";
 		} else {
 			selectCarregamentosPorData = "select data_carregamento, sum(peso_real_carga) as total_carregado_dia from carregamento\n"
 					+ "left join contrato on contrato.id = carregamento.id_contrato_carregamento\n"
-					+ "where (contrato.sub_contrato = 0 or contrato.sub_contrato = 3)\n"
+					+ "where (contrato.sub_contrato = 0 or contrato.sub_contrato = 3 or contrato.sub_contrato = 4 or contrato.sub_contrato = 5)\n"
 					+ " and data_carregamento BETWEEN (?) AND (?)\n" + "GROUP BY\n" + "  day( data_carregamento )";
 		}
 

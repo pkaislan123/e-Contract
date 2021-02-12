@@ -32,7 +32,6 @@ import javax.swing.table.DefaultTableModel;
 
 import cadastros.CadastroLogin;
 import cadastros.CadastroLogin.Mensagem;
-import chat.Servidor;
 import classesExtras.RenderizadorChat;
 import conexaoBanco.GerenciarBancoLogin;
 import conexoes.TesteConexao;

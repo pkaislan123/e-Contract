@@ -453,7 +453,7 @@ if(contrato.getStatus_contrato() == 0) {
 
 					}else {
 						//abrir tela de adicionar novo contrato
-						TelaElaborarNovoContrato tela = new TelaElaborarNovoContrato(null, 2, null, 0);
+						TelaImportarContratoManual tela = new TelaImportarContratoManual( 4, null, 0, file);
 						tela.setVisible(true);
 
 					}
@@ -596,7 +596,7 @@ if(contrato.getStatus_contrato() == 0) {
 
 		for (CadastroContrato contrato : gerenciar.getContratos()) {
 
-			if (contrato.getSub_contrato() == 0 || contrato.getSub_contrato() == 3) {
+			if (contrato.getSub_contrato() == 0 || contrato.getSub_contrato() == 3 || contrato.getSub_contrato() == 4 || contrato.getSub_contrato() == 5) {
 
 				modelo_contratos.onAdd(contrato);
 				double quantidade_sacos = 0;

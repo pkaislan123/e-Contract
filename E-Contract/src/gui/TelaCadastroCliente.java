@@ -180,7 +180,7 @@ public class TelaCadastroCliente extends JDialog {
 		getDadosGlobais();
 		// setAlwaysOnTop(true);
 
-		setModal(true);
+		//setModal(true);
 
 		TelaCadastroCliente isto = this;
 
