@@ -445,19 +445,11 @@ if(contrato.getStatus_contrato() == 0) {
 				File file = fileChooser.getSelectedFile();
 
 				
-					ManipularArquivoTerceiros manipular = new ManipularArquivoTerceiros();
-					CadastroContrato contrato_importar = manipular.filtrar(file);
-                
-					if(contrato_importar != null) {
-						//JOptionPane.showMessageDialog(isto, "O arquivo selecionado pode ser lido de for automatica!");
-
-					}else {
-						//abrir tela de adicionar novo contrato
-						TelaImportarContratoManual tela = new TelaImportarContratoManual( 4, null, 0, file);
-						tela.setVisible(true);
-
-					}
 				
+							//abrir tela de adicionar novo contrato
+							TelaImportarContratoManual tela = new TelaImportarContratoManual( 4, null, 0, file);
+							tela.setVisible(true);
+						
 			
 			}
 		});
@@ -631,8 +623,8 @@ if(contrato.getStatus_contrato() == 0) {
 		lblTotalSacosKGs.setText(z.format(quantidade_sacos_total) + " Scs | " + z.format(quantidade_kg_total) + " Kgs");
 		lblTotalContratosEmAnalise.setText(total_contratos_em_analise + "");
 		lblTotalContratosAssinar.setText(total_contratos_assinar+ "");
-		lblTotalContratosConcluidos.setText(total_contratos_assinado+ "");
-		lblTotalContratosAssinados.setText(total_contratos_concluido + "");
+		lblTotalContratosConcluidos.setText(total_contratos_concluido + "");
+		lblTotalContratosAssinados.setText(total_contratos_assinado + "");
 	}
 
 	public void pesquisar_sub_contratos(int id_contrato_pai) {
@@ -690,8 +682,8 @@ if(contrato.getStatus_contrato() == 0) {
 		lblTotalSacosKGs.setText(z.format(quantidade_sacos_total) + " Scs | " + z.format(quantidade_kg_total) + " Kgs");
 		lblTotalContratosEmAnalise.setText(total_contratos_em_analise + "");
 		lblTotalContratosAssinar.setText(total_contratos_assinar+ "");
-		lblTotalContratosConcluidos.setText(total_contratos_assinado+ "");
-		lblTotalContratosAssinados.setText(total_contratos_concluido + "");
+		lblTotalContratosConcluidos.setText(total_contratos_concluido  + "");
+		lblTotalContratosAssinados.setText(total_contratos_assinado + "");
 	}
 
 	public boolean testeConexao() {
@@ -816,8 +808,8 @@ if(contrato.getStatus_contrato() == 0) {
 			lblTotalSacosKGs.setText(z.format(quantidade_sacos_total) + " Scs | " + z.format(quantidade_kg_total) + " Kgs");
 			lblTotalContratosEmAnalise.setText(total_contratos_em_analise + "");
 			lblTotalContratosAssinar.setText(total_contratos_assinar+ "");
-			lblTotalContratosConcluidos.setText(total_contratos_assinado+ "");
-			lblTotalContratosAssinados.setText(total_contratos_concluido + "");
+			lblTotalContratosConcluidos.setText(total_contratos_concluido + "");
+			lblTotalContratosAssinados.setText(total_contratos_assinado + "");
 	}
 
 	public boolean checkString(String txt) {

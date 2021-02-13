@@ -354,9 +354,17 @@ public class TelaCliente extends JDialog {
 		});
 		btnSelecionar.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				int rowSel = tabela.getSelectedRow();//pega o indice da linha na tabela
-				int indiceDaLinha = tabela.getRowSorter().convertRowIndexToModel(rowSel);//converte pro indice do model				
-				clienteSelecionado = clientes_disponiveis.get(indiceDaLinha);
+				int rowSel = -1;
+				int indiceDaLinha = -1;
+				
+				if(flag_tipo_cliente == 10) {
+					
+				}else {
+					 rowSel = tabela.getSelectedRow();//pega o indice da linha na tabela
+					 indiceDaLinha = tabela.getRowSorter().convertRowIndexToModel(rowSel);//converte pro indice do model				
+					clienteSelecionado = clientes_disponiveis.get(indiceDaLinha);
+				}
+			
 				if(flag_tipo_cliente == 1)
 					((TelaElaborarNovoContrato) telaPai).setComprador1(clienteSelecionado);
    				else if (flag_tipo_cliente == 2)
@@ -373,8 +381,22 @@ public class TelaCliente extends JDialog {
    					((TelaConfirmarPagamentoContratual) telaPai).setDepositante(clienteSelecionado);
    				else if (flag_tipo_cliente == 9)
    					((TelaConfirmarPagamentoContratual) telaPai).setFavorecido(clienteSelecionado);
-   				else if (flag_tipo_cliente == 10)
-   					((TelaCadastroGrupo) telaPai).adicionarIntegrante(clienteSelecionado);
+   				else if (flag_tipo_cliente == 10) {
+   					
+   					ArrayList<CadastroCliente> integrantes_selecionados = new ArrayList<>();
+   					int linhas_selecionadas[] = tabela.getSelectedRows();//pega o indice da linha na tabela
+   					
+   					for(int i = 0; i < linhas_selecionadas.length; i++) {
+   						
+   						int indice = tabela.getRowSorter().convertRowIndexToModel(linhas_selecionadas[i]);//converte pro indice do model				
+   	   					clienteSelecionado = clientes_disponiveis.get(indice);
+   	   				    integrantes_selecionados.add(clienteSelecionado);
+   					}
+   					
+   					
+   					((TelaCadastroGrupo) telaPai).adicionarIntegrantes(integrantes_selecionados);
+   					
+   				}
    				else if (flag_tipo_cliente == 11)
    					((TelaRelatoriaContratos) telaPai).setClienteAlvo(clienteSelecionado);
    				else if (flag_tipo_cliente == 12)
@@ -499,12 +521,12 @@ public class TelaCliente extends JDialog {
 			JButton btnNewButton = new JButton("+Grupo");
 			btnNewButton.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent e) {
-					TelaCadastroGrupo tela = new TelaCadastroGrupo(0, null);
+					TelaCadastroGrupo tela = new TelaCadastroGrupo(0, null, isto);
 					tela.setTelaPai(isto);
 					tela.setVisible(true);
 				}
 			});
-			btnNewButton.setBounds(607, 392, 105, 33);
+			btnNewButton.setBounds(607, 392, 69, 28);
 			painelGrupos.add(btnNewButton);
 			
 			JButton btnEditarGrupo = new JButton("Editar");
@@ -513,13 +535,13 @@ public class TelaCliente extends JDialog {
 					int indiceDaLinha = 0;
 					indiceDaLinha = table.getSelectedRow();
 					
-				   TelaCadastroGrupo tela_edicao_grupo = new TelaCadastroGrupo(1, lista_grupos.get(indiceDaLinha));
+				   TelaCadastroGrupo tela_edicao_grupo = new TelaCadastroGrupo(1, lista_grupos.get(indiceDaLinha), isto);
 				   tela_edicao_grupo.setTelaPai(isto);
 				   tela_edicao_grupo.setVisible(true);
 					
 				}
 			});
-			btnEditarGrupo.setBounds(389, 392, 89, 33);
+			btnEditarGrupo.setBounds(441, 392, 60, 28);
 			painelGrupos.add(btnEditarGrupo);
 			
 			JButton btnSelecionarGrupo = new JButton("Selecionar");
@@ -534,7 +556,7 @@ public class TelaCliente extends JDialog {
 	    				
 				}
 			});
-			btnSelecionarGrupo.setBounds(496, 397, 89, 23);
+			btnSelecionarGrupo.setBounds(513, 392, 87, 28);
 			painelGrupos.add(btnSelecionarGrupo);
 
 			contentPane.add(painelPrincipal, BorderLayout.CENTER);
@@ -555,9 +577,19 @@ public class TelaCliente extends JDialog {
 		   btnUsurio.setVisible(false);
 		   
 	   }
-	
+			if(flag_tipo_tela == 0) {
+		          //modo selecao
+				
+			}else {
+				btnSelecionar.setEnabled(false);
+				btnSelecionar.setVisible(false);
+				
+				btnSelecionarGrupo.setEnabled(false);
+				btnSelecionarGrupo.setVisible(false);
+			}
 			atualizarTabelaGrupos();
-		
+	
+			
 		
 		this.setLocationRelativeTo(janela_pai);
 

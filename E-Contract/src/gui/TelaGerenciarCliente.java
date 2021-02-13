@@ -143,6 +143,235 @@ public class TelaGerenciarCliente extends JDialog {
 		JPanel painelDeposito = new JPanel();
 		painelDeposito.setBackground(Color.WHITE);
 		painelDeposito.setVisible(false);
+		
+		
+		
+		JPanel painelContratos = new JPanel();
+		painelContratos.setVisible(false);
+		painelContratos.setBackground(Color.WHITE);
+		painelContratos.setForeground(Color.WHITE);
+		painelContratos.setBounds(198, 154, 864, 356);
+		painelPrincipal.add(painelContratos);
+		painelContratos.setLayout(null);
+		
+		JPanel panel_1 = new JPanel();
+		panel_1.setBorder(new LineBorder(new Color(0, 0, 0)));
+		panel_1.setBackground(new Color(255, 255, 204));
+		panel_1.setBounds(22, 6, 365, 312);
+		painelContratos.add(panel_1);
+		panel_1.setLayout(null);
+		
+		JLabel lblNewLabel_1 = new JLabel("Contratos como vendedor:");
+		lblNewLabel_1.setBounds(6, 17, 206, 19);
+		panel_1.add(lblNewLabel_1);
+		lblNewLabel_1.setFont(new Font("SansSerif", Font.BOLD, 14));
+		
+		JLabel lblNewLabelT = new JLabel("Total Contratos:");
+		lblNewLabelT.setBounds(66, 58, 115, 20);
+		panel_1.add(lblNewLabelT);
+		lblNewLabelT.setFont(new Font("Tahoma", Font.PLAIN, 16));
+		
+		
+		 lblTotalContratosVendedor = new JLabel("New label");
+		 lblTotalContratosVendedor.setBounds(193, 55, 138, 24);
+		 panel_1.add(lblTotalContratosVendedor);
+		 lblTotalContratosVendedor.setFont(new Font("SansSerif", Font.PLAIN, 16));
+		 
+		 JLabel lblAbertos = new JLabel("Abertos:");
+		 lblAbertos.setBounds(122, 89, 61, 20);
+		 panel_1.add(lblAbertos);
+		 lblAbertos.setFont(new Font("Tahoma", Font.PLAIN, 16));
+		 
+		  lblTotalContratosAbertosVendedor = new JLabel("New label");
+		  lblTotalContratosAbertosVendedor.setBounds(193, 90, 138, 24);
+		  panel_1.add(lblTotalContratosAbertosVendedor);
+		  lblTotalContratosAbertosVendedor.setFont(new Font("SansSerif", Font.PLAIN, 16));
+		  
+		  JLabel lblConcluidos = new JLabel("Concluidos:");
+		  lblConcluidos.setBounds(103, 126, 83, 15);
+		  panel_1.add(lblConcluidos);
+		  lblConcluidos.setFont(new Font("Tahoma", Font.PLAIN, 16));
+		  
+		   lblTotalContratosConcluidosVendedor = new JLabel("New label");
+		   lblTotalContratosConcluidosVendedor.setBounds(193, 120, 138, 24);
+		   panel_1.add(lblTotalContratosConcluidosVendedor);
+		   lblTotalContratosConcluidosVendedor.setFont(new Font("SansSerif", Font.PLAIN, 16));
+		   
+		   JButton btnVerRelatorioComoVendedor = new JButton("Ver Relatorio Completo");
+		   btnVerRelatorioComoVendedor.setForeground(SystemColor.desktop);
+		   btnVerRelatorioComoVendedor.setBackground(SystemColor.activeCaptionBorder);
+		   btnVerRelatorioComoVendedor.setBounds(6, 182, 156, 28);
+		   panel_1.add(btnVerRelatorioComoVendedor);
+		   
+		   JButton btnVerRelatorioSimplificado = new JButton("Ver Relatorio Simplificado");
+		   btnVerRelatorioSimplificado.addActionListener(new ActionListener() {
+		   	public void actionPerformed(ActionEvent e) {
+		   		ArrayList<CadastroCliente> clientes = new ArrayList<>();
+		   		clientes.add(cliente_selecionado);
+		   		
+		   		/*public RelatorioContratos(int _tipo_contrato, boolean _contrato, boolean _contrato_como_comprador,  
+			 boolean _pagamento, boolean _pagamento_como_depositante,
+			boolean _pagamento_como_favorecido, boolean _carregamento, boolean _carregamento_como_comprador,
+			boolean _carregamento_como_vendedor, int _id_safra, boolean _sub_contratos, boolean _incluir_comissao,
+			boolean _incluir_ganhos_potenciais, boolean _somar_sub_contratos, ArrayList<CadastroCliente> _clientes_globais, CadastroGrupo _grupo_alvo) {*/
+		   		RelatorioContratos relatar = new RelatorioContratos(2, true, false, false,
+		   				false, false, false,
+		   				false, false, 0, false,
+		   				false, false, false, clientes, null);
+				ByteArrayOutputStream contrato_alterado = relatar.preparar();
+
+				ConverterPdf converter_pdf = new ConverterPdf();
+				String pdf_alterado = converter_pdf.word_pdf_stream(contrato_alterado);
+				TelaVizualizarPdf vizualizar = new TelaVizualizarPdf(null, isto, null, pdf_alterado, null);
+		   	}
+		   });
+		   btnVerRelatorioSimplificado.setForeground(new Color(0, 0, 0));
+		   btnVerRelatorioSimplificado.setBackground(SystemColor.activeCaptionBorder);
+		   btnVerRelatorioSimplificado.setBounds(6, 222, 170, 28);
+		   panel_1.add(btnVerRelatorioSimplificado);
+		   
+		   JButton btnNewButton_3 = new JButton("DashBoard");
+		   btnNewButton_3.setBounds(252, 264, 91, 28);
+		   panel_1.add(btnNewButton_3);
+		   
+		   JPanel panel_1_1 = new JPanel();
+		   panel_1_1.setBorder(new LineBorder(new Color(0, 0, 0)));
+		   panel_1_1.setBackground(new Color(204, 255, 153));
+		   panel_1_1.setLayout(null);
+		   panel_1_1.setBounds(457, 6, 365, 312);
+		   painelContratos.add(panel_1_1);
+		   
+		   JLabel lblNewLabel_1_1 = new JLabel("Contratos como comprador:");
+		   lblNewLabel_1_1.setFont(new Font("SansSerif", Font.BOLD, 14));
+		   lblNewLabel_1_1.setBounds(6, 17, 206, 19);
+		   panel_1_1.add(lblNewLabel_1_1);
+		   
+		   JLabel lblNewLabelT_1 = new JLabel("Total Contratos:");
+		   lblNewLabelT_1.setFont(new Font("Tahoma", Font.PLAIN, 16));
+		   lblNewLabelT_1.setBounds(66, 58, 115, 20);
+		   panel_1_1.add(lblNewLabelT_1);
+		   
+		   
+		    lblTotalContratosComprador = new JLabel("New label");
+		    lblTotalContratosComprador.setFont(new Font("SansSerif", Font.PLAIN, 16));
+		    lblTotalContratosComprador.setBounds(193, 55, 138, 24);
+		    panel_1_1.add(lblTotalContratosComprador);
+		    
+		    JLabel lblAbertos_1 = new JLabel("Abertos:");
+		    lblAbertos_1.setFont(new Font("Tahoma", Font.PLAIN, 16));
+		    lblAbertos_1.setBounds(122, 89, 61, 20);
+		    panel_1_1.add(lblAbertos_1);
+		    
+		     lblTotalContratosAbertosComprador = new JLabel("New label");
+		     lblTotalContratosAbertosComprador.setFont(new Font("SansSerif", Font.PLAIN, 16));
+		     lblTotalContratosAbertosComprador.setBounds(193, 90, 138, 24);
+		     panel_1_1.add(lblTotalContratosAbertosComprador);
+		     
+		     JLabel lblConcluidos_1 = new JLabel("Concluidos:");
+		     lblConcluidos_1.setFont(new Font("Tahoma", Font.PLAIN, 16));
+		     lblConcluidos_1.setBounds(103, 126, 83, 15);
+		     panel_1_1.add(lblConcluidos_1);
+		     
+		      lblTotalContratosConcluidosComprador = new JLabel("New label");
+		      lblTotalContratosConcluidosComprador.setFont(new Font("SansSerif", Font.PLAIN, 16));
+		      lblTotalContratosConcluidosComprador.setBounds(193, 120, 138, 24);
+		      panel_1_1.add(lblTotalContratosConcluidosComprador);
+		      
+		      JButton btnVerRelatorioSem = new JButton("Ver Relatorio Completo");
+		      btnVerRelatorioSem.setBackground(SystemColor.activeCaptionBorder);
+		      btnVerRelatorioSem.setForeground(SystemColor.menuText);
+		      btnVerRelatorioSem.addActionListener(new ActionListener() {
+		      	public void actionPerformed(ActionEvent e) {
+		      		ArrayList<CadastroCliente> clientes = new ArrayList<>();
+		      		clientes.add(cliente_selecionado);
+		      	/*	
+		      		RelatorioContratoComprador relatar = new RelatorioContratoComprador(tipo_contrato, contrato,
+							contrato_como_comprador, pagamento, pagamento_como_despositante, pagamento_como_favorecido,
+							carregamento, carregamento_como_comprador, carregamento_como_vendedor, id_safra,
+							sub_contratos, incluir_comissao, incluir_ganhos_potencias, somar_sub_contratos, clientes,
+							grupo_alvo);*/
+		      	
+		      		
+		      		
+		      		RelatorioContratoComprador relatar = new RelatorioContratoComprador();
+				    relatar.setId_safra(0);
+				    relatar.setClientes_globais(clientes);
+				    relatar.setContrato(true);
+				    relatar.setTipo_contrato(1);
+				    relatar.setContrato_como_comprador(true);
+				    relatar.setIncluir_comissao(true);
+				    relatar.setIncluir_ganhos_potencias(true);
+				    relatar.setSub_contratos(true);
+				    
+		      		
+		      		ByteArrayOutputStream contrato_alterado = relatar.preparar();
+
+				ConverterPdf converter_pdf = new ConverterPdf();
+				String pdf_alterado = converter_pdf.word_pdf_stream(contrato_alterado);
+				TelaVizualizarPdf vizualizar = new TelaVizualizarPdf(null, isto, null, pdf_alterado, null);
+		      	}
+		      });
+		      btnVerRelatorioSem.setBounds(22, 186, 156, 28);
+		      panel_1_1.add(btnVerRelatorioSem);
+		      
+		      JButton btnVerRelatorioSimplificado_1 = new JButton("Ver Relatorio Simplificado");
+		      btnVerRelatorioSimplificado_1.addActionListener(new ActionListener() {
+		      	public void actionPerformed(ActionEvent e) {
+		      		ArrayList<CadastroCliente> clientes = new ArrayList<>();
+		      		clientes.add(cliente_selecionado);
+		      	/*	
+		      		RelatorioContratoComprador relatar = new RelatorioContratoComprador(tipo_contrato, contrato,
+							contrato_como_comprador, pagamento, pagamento_como_despositante, pagamento_como_favorecido,
+							carregamento, carregamento_como_comprador, carregamento_como_vendedor, id_safra,
+							sub_contratos, incluir_comissao, incluir_ganhos_potencias, somar_sub_contratos, clientes,
+							grupo_alvo);*/
+		      	
+		      		
+		      		
+		      		RelatorioContratoComprador relatar = new RelatorioContratoComprador();
+				    relatar.setId_safra(0);
+				    relatar.setClientes_globais(clientes);
+				    relatar.setContrato(true);
+				    relatar.setTipo_contrato(2);
+				    relatar.setContrato_como_comprador(true);
+				    relatar.setIncluir_comissao(false);
+				    relatar.setIncluir_ganhos_potencias(false);
+				    relatar.setSub_contratos(false);
+				    
+		      		
+		      		ByteArrayOutputStream contrato_alterado = relatar.preparar();
+
+				ConverterPdf converter_pdf = new ConverterPdf();
+				String pdf_alterado = converter_pdf.word_pdf_stream(contrato_alterado);
+				TelaVizualizarPdf vizualizar = new TelaVizualizarPdf(null, isto, null, pdf_alterado, null);
+		      	}
+		      });
+		      btnVerRelatorioSimplificado_1.setForeground(SystemColor.textText);
+		      btnVerRelatorioSimplificado_1.setBackground(SystemColor.activeCaptionBorder);
+		      btnVerRelatorioSimplificado_1.setBounds(22, 223, 170, 28);
+		      panel_1_1.add(btnVerRelatorioSimplificado_1);
+		      btnVerRelatorioComoVendedor.addActionListener(new ActionListener() {
+		      	public void actionPerformed(ActionEvent e) {
+		      		
+		      		ArrayList<CadastroCliente> clientes = new ArrayList<>();
+		      		clientes.add(cliente_selecionado);
+		      		
+		      		/*public RelatorioContratos(int _tipo_contrato, boolean _contrato, boolean _contrato_como_comprador,  
+			 boolean _pagamento, boolean _pagamento_como_depositante,
+			boolean _pagamento_como_favorecido, boolean _carregamento, boolean _carregamento_como_comprador,
+			boolean _carregamento_como_vendedor, int _id_safra, boolean _sub_contratos, boolean _incluir_comissao,
+			boolean _incluir_ganhos_potenciais, boolean _somar_sub_contratos, ArrayList<CadastroCliente> _clientes_globais, CadastroGrupo _grupo_alvo) {*/
+		      		RelatorioContratos relatar = new RelatorioContratos(1, true, false, false,
+		      				false, false, false,
+		      				false, false, 0, false,
+		      				false, false, false, clientes, null);
+				ByteArrayOutputStream contrato_alterado = relatar.preparar();
+
+				ConverterPdf converter_pdf = new ConverterPdf();
+				String pdf_alterado = converter_pdf.word_pdf_stream(contrato_alterado);
+				TelaVizualizarPdf vizualizar = new TelaVizualizarPdf(null, isto, null, pdf_alterado, null);
+		      	}
+		      });
 		painelDeposito.setEnabled(false);
 		painelDeposito.setBounds(198, 153, 864, 358);
 		painelPrincipal.add(painelDeposito);
@@ -335,209 +564,6 @@ public class TelaGerenciarCliente extends JDialog {
 		 JButton btnSair = new JButton("Sair");
 		 btnSair.setBounds(923, 522, 89, 23);
 		 painelPrincipal.add(btnSair);
-		 
-		 
-		 
-		 JPanel painelContratos = new JPanel();
-		 painelContratos.setVisible(false);
-		 painelContratos.setBackground(Color.WHITE);
-		 painelContratos.setForeground(Color.WHITE);
-		 painelContratos.setBounds(198, 154, 864, 356);
-		 painelPrincipal.add(painelContratos);
-		 painelContratos.setLayout(null);
-		 
-		 JPanel panel_1 = new JPanel();
-		 panel_1.setBorder(new LineBorder(new Color(0, 0, 0)));
-		 panel_1.setBackground(new Color(255, 255, 204));
-		 panel_1.setBounds(22, 6, 365, 312);
-		 painelContratos.add(panel_1);
-		 panel_1.setLayout(null);
-		 
-		 JLabel lblNewLabel_1 = new JLabel("Contratos como vendedor:");
-		 lblNewLabel_1.setBounds(6, 17, 206, 19);
-		 panel_1.add(lblNewLabel_1);
-		 lblNewLabel_1.setFont(new Font("SansSerif", Font.BOLD, 14));
-		 
-		 JLabel lblNewLabelT = new JLabel("Total Contratos:");
-		 lblNewLabelT.setBounds(66, 58, 115, 20);
-		 panel_1.add(lblNewLabelT);
-		 lblNewLabelT.setFont(new Font("Tahoma", Font.PLAIN, 16));
-		 
-		 
-		  lblTotalContratosVendedor = new JLabel("New label");
-		  lblTotalContratosVendedor.setBounds(193, 55, 138, 24);
-		  panel_1.add(lblTotalContratosVendedor);
-		  lblTotalContratosVendedor.setFont(new Font("SansSerif", Font.PLAIN, 16));
-		  
-		  JLabel lblAbertos = new JLabel("Abertos:");
-		  lblAbertos.setBounds(122, 89, 61, 20);
-		  panel_1.add(lblAbertos);
-		  lblAbertos.setFont(new Font("Tahoma", Font.PLAIN, 16));
-		  
-		   lblTotalContratosAbertosVendedor = new JLabel("New label");
-		   lblTotalContratosAbertosVendedor.setBounds(193, 90, 138, 24);
-		   panel_1.add(lblTotalContratosAbertosVendedor);
-		   lblTotalContratosAbertosVendedor.setFont(new Font("SansSerif", Font.PLAIN, 16));
-		   
-		   JLabel lblConcluidos = new JLabel("Concluidos:");
-		   lblConcluidos.setBounds(103, 126, 83, 15);
-		   panel_1.add(lblConcluidos);
-		   lblConcluidos.setFont(new Font("Tahoma", Font.PLAIN, 16));
-		   
-		    lblTotalContratosConcluidosVendedor = new JLabel("New label");
-		    lblTotalContratosConcluidosVendedor.setBounds(193, 120, 138, 24);
-		    panel_1.add(lblTotalContratosConcluidosVendedor);
-		    lblTotalContratosConcluidosVendedor.setFont(new Font("SansSerif", Font.PLAIN, 16));
-		    
-		    JButton btnVerRelatorioComoVendedor = new JButton("Ver Relatorio Completo");
-		    btnVerRelatorioComoVendedor.setForeground(SystemColor.desktop);
-		    btnVerRelatorioComoVendedor.setBackground(SystemColor.activeCaptionBorder);
-		    btnVerRelatorioComoVendedor.setBounds(6, 182, 156, 28);
-		    panel_1.add(btnVerRelatorioComoVendedor);
-		    
-		    JButton btnVerRelatorioSimplificado = new JButton("Ver Relatorio Simplificado");
-		    btnVerRelatorioSimplificado.addActionListener(new ActionListener() {
-		    	public void actionPerformed(ActionEvent e) {
-		    		ArrayList<CadastroCliente> clientes = new ArrayList<>();
-		    		clientes.add(cliente_selecionado);
-		    		
-		    		/*public RelatorioContratos(int _tipo_contrato, boolean _contrato, boolean _contrato_como_comprador,  
-			 boolean _pagamento, boolean _pagamento_como_depositante,
-			boolean _pagamento_como_favorecido, boolean _carregamento, boolean _carregamento_como_comprador,
-			boolean _carregamento_como_vendedor, int _id_safra, boolean _sub_contratos, boolean _incluir_comissao,
-			boolean _incluir_ganhos_potenciais, boolean _somar_sub_contratos, ArrayList<CadastroCliente> _clientes_globais, CadastroGrupo _grupo_alvo) {*/
-		    		RelatorioContratos relatar = new RelatorioContratos(2, true, false, false,
-		    				false, false, false,
-		    				false, false, 0, false,
-		    				false, false, false, clientes, null);
-				ByteArrayOutputStream contrato_alterado = relatar.preparar();
-
-				ConverterPdf converter_pdf = new ConverterPdf();
-				String pdf_alterado = converter_pdf.word_pdf_stream(contrato_alterado);
-				TelaVizualizarPdf vizualizar = new TelaVizualizarPdf(null, isto, null, pdf_alterado, null);
-		    	}
-		    });
-		    btnVerRelatorioSimplificado.setForeground(new Color(0, 0, 0));
-		    btnVerRelatorioSimplificado.setBackground(SystemColor.activeCaptionBorder);
-		    btnVerRelatorioSimplificado.setBounds(6, 222, 170, 28);
-		    panel_1.add(btnVerRelatorioSimplificado);
-		    
-		    JPanel panel_1_1 = new JPanel();
-		    panel_1_1.setBorder(new LineBorder(new Color(0, 0, 0)));
-		    panel_1_1.setBackground(new Color(204, 255, 153));
-		    panel_1_1.setLayout(null);
-		    panel_1_1.setBounds(457, 6, 365, 312);
-		    painelContratos.add(panel_1_1);
-		    
-		    JLabel lblNewLabel_1_1 = new JLabel("Contratos como comprador:");
-		    lblNewLabel_1_1.setFont(new Font("SansSerif", Font.BOLD, 14));
-		    lblNewLabel_1_1.setBounds(6, 17, 206, 19);
-		    panel_1_1.add(lblNewLabel_1_1);
-		    
-		    JLabel lblNewLabelT_1 = new JLabel("Total Contratos:");
-		    lblNewLabelT_1.setFont(new Font("Tahoma", Font.PLAIN, 16));
-		    lblNewLabelT_1.setBounds(66, 58, 115, 20);
-		    panel_1_1.add(lblNewLabelT_1);
-		    
-		    
-		     lblTotalContratosComprador = new JLabel("New label");
-		     lblTotalContratosComprador.setFont(new Font("SansSerif", Font.PLAIN, 16));
-		     lblTotalContratosComprador.setBounds(193, 55, 138, 24);
-		     panel_1_1.add(lblTotalContratosComprador);
-		     
-		     JLabel lblAbertos_1 = new JLabel("Abertos:");
-		     lblAbertos_1.setFont(new Font("Tahoma", Font.PLAIN, 16));
-		     lblAbertos_1.setBounds(122, 89, 61, 20);
-		     panel_1_1.add(lblAbertos_1);
-		     
-		      lblTotalContratosAbertosComprador = new JLabel("New label");
-		      lblTotalContratosAbertosComprador.setFont(new Font("SansSerif", Font.PLAIN, 16));
-		      lblTotalContratosAbertosComprador.setBounds(193, 90, 138, 24);
-		      panel_1_1.add(lblTotalContratosAbertosComprador);
-		      
-		      JLabel lblConcluidos_1 = new JLabel("Concluidos:");
-		      lblConcluidos_1.setFont(new Font("Tahoma", Font.PLAIN, 16));
-		      lblConcluidos_1.setBounds(103, 126, 83, 15);
-		      panel_1_1.add(lblConcluidos_1);
-		      
-		       lblTotalContratosConcluidosComprador = new JLabel("New label");
-		       lblTotalContratosConcluidosComprador.setFont(new Font("SansSerif", Font.PLAIN, 16));
-		       lblTotalContratosConcluidosComprador.setBounds(193, 120, 138, 24);
-		       panel_1_1.add(lblTotalContratosConcluidosComprador);
-		       
-		       JButton btnVerRelatorioSem = new JButton("Ver Relatorio Completo");
-		       btnVerRelatorioSem.setBackground(SystemColor.activeCaptionBorder);
-		       btnVerRelatorioSem.setForeground(SystemColor.menuText);
-		       btnVerRelatorioSem.addActionListener(new ActionListener() {
-		       	public void actionPerformed(ActionEvent e) {
-		       		ArrayList<CadastroCliente> clientes = new ArrayList<>();
-		       		clientes.add(cliente_selecionado);
-		       	/*	
-		       		RelatorioContratoComprador relatar = new RelatorioContratoComprador(tipo_contrato, contrato,
-							contrato_como_comprador, pagamento, pagamento_como_despositante, pagamento_como_favorecido,
-							carregamento, carregamento_como_comprador, carregamento_como_vendedor, id_safra,
-							sub_contratos, incluir_comissao, incluir_ganhos_potencias, somar_sub_contratos, clientes,
-							grupo_alvo);*/
-		       	
-		       		
-		       		
-		       		RelatorioContratoComprador relatar = new RelatorioContratoComprador();
-				    relatar.setId_safra(0);
-				    relatar.setClientes_globais(clientes);
-				    relatar.setContrato(true);
-				    relatar.setTipo_contrato(1);
-				    relatar.setContrato_como_comprador(true);
-				    relatar.setIncluir_comissao(true);
-				    relatar.setIncluir_ganhos_potencias(true);
-				    relatar.setSub_contratos(true);
-				    
-		       		
-		       		ByteArrayOutputStream contrato_alterado = relatar.preparar();
-
-				ConverterPdf converter_pdf = new ConverterPdf();
-				String pdf_alterado = converter_pdf.word_pdf_stream(contrato_alterado);
-				TelaVizualizarPdf vizualizar = new TelaVizualizarPdf(null, isto, null, pdf_alterado, null);
-		       	}
-		       });
-		       btnVerRelatorioSem.setBounds(22, 186, 156, 28);
-		       panel_1_1.add(btnVerRelatorioSem);
-		       
-		       JButton btnVerRelatorioSimplificado_1 = new JButton("Ver Relatorio Simplificado");
-		       btnVerRelatorioSimplificado_1.addActionListener(new ActionListener() {
-		       	public void actionPerformed(ActionEvent e) {
-		       		ArrayList<CadastroCliente> clientes = new ArrayList<>();
-		       		clientes.add(cliente_selecionado);
-		       	/*	
-		       		RelatorioContratoComprador relatar = new RelatorioContratoComprador(tipo_contrato, contrato,
-							contrato_como_comprador, pagamento, pagamento_como_despositante, pagamento_como_favorecido,
-							carregamento, carregamento_como_comprador, carregamento_como_vendedor, id_safra,
-							sub_contratos, incluir_comissao, incluir_ganhos_potencias, somar_sub_contratos, clientes,
-							grupo_alvo);*/
-		       	
-		       		
-		       		
-		       		RelatorioContratoComprador relatar = new RelatorioContratoComprador();
-				    relatar.setId_safra(0);
-				    relatar.setClientes_globais(clientes);
-				    relatar.setContrato(true);
-				    relatar.setTipo_contrato(2);
-				    relatar.setContrato_como_comprador(true);
-				    relatar.setIncluir_comissao(false);
-				    relatar.setIncluir_ganhos_potencias(false);
-				    relatar.setSub_contratos(false);
-				    
-		       		
-		       		ByteArrayOutputStream contrato_alterado = relatar.preparar();
-
-				ConverterPdf converter_pdf = new ConverterPdf();
-				String pdf_alterado = converter_pdf.word_pdf_stream(contrato_alterado);
-				TelaVizualizarPdf vizualizar = new TelaVizualizarPdf(null, isto, null, pdf_alterado, null);
-		       	}
-		       });
-		       btnVerRelatorioSimplificado_1.setForeground(SystemColor.textText);
-		       btnVerRelatorioSimplificado_1.setBackground(SystemColor.activeCaptionBorder);
-		       btnVerRelatorioSimplificado_1.setBounds(22, 223, 170, 28);
-		       panel_1_1.add(btnVerRelatorioSimplificado_1);
 		       
 		        panel_docs = new JPanel();
 		        panel_docs.setBackground(Color.WHITE);
@@ -613,28 +639,6 @@ public class TelaGerenciarCliente extends JDialog {
 		           cBTipoDocumento.addItem("Documento Pessoal");
 		           cBTipoDocumento.addItem("Comprovantes");
 		           cBTipoDocumento.addItem("Outros");
-		       btnVerRelatorioComoVendedor.addActionListener(new ActionListener() {
-		       	public void actionPerformed(ActionEvent e) {
-		       		
-		       		ArrayList<CadastroCliente> clientes = new ArrayList<>();
-		       		clientes.add(cliente_selecionado);
-		       		
-		       		/*public RelatorioContratos(int _tipo_contrato, boolean _contrato, boolean _contrato_como_comprador,  
-			 boolean _pagamento, boolean _pagamento_como_depositante,
-			boolean _pagamento_como_favorecido, boolean _carregamento, boolean _carregamento_como_comprador,
-			boolean _carregamento_como_vendedor, int _id_safra, boolean _sub_contratos, boolean _incluir_comissao,
-			boolean _incluir_ganhos_potenciais, boolean _somar_sub_contratos, ArrayList<CadastroCliente> _clientes_globais, CadastroGrupo _grupo_alvo) {*/
-		       		RelatorioContratos relatar = new RelatorioContratos(1, true, false, false,
-		       				false, false, false,
-		       				false, false, 0, false,
-		       				false, false, false, clientes, null);
-				ByteArrayOutputStream contrato_alterado = relatar.preparar();
-
-				ConverterPdf converter_pdf = new ConverterPdf();
-				String pdf_alterado = converter_pdf.word_pdf_stream(contrato_alterado);
-				TelaVizualizarPdf vizualizar = new TelaVizualizarPdf(null, isto, null, pdf_alterado, null);
-		       	}
-		       });
 		 btnSair.addActionListener(new ActionListener() {
 		 	public void actionPerformed(ActionEvent e) {
 		 		isto.dispose();
@@ -841,14 +845,14 @@ public class TelaGerenciarCliente extends JDialog {
 		 });
 		
 
-		
+		/*
 		   setInformacoesDocumentos();
 	     setInfo();
 	     setInfoContratosComoVendedor();
 	     setInfoContratosComoComprador();
 
 	     setInfoPontuacao();
-	     
+	     */
 	  
 		this.setLocationRelativeTo(janela_pai);
 

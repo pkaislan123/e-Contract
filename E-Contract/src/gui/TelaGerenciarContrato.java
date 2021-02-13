@@ -1401,6 +1401,26 @@ public class TelaGerenciarContrato extends JFrame {
 
 		painelPrincipal.addTab("Documentos, Distratos, Aditivos e Relatórios", painelComprovantes);
 		painelComprovantes.setLayout(null);
+		
+		JButton btnAbrirPasta = new JButton("Abrir Pasta");
+		btnAbrirPasta.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				try {
+					servidor_unidade = configs_globais.getServidorUnidade();
+
+					Runtime.getRuntime().exec("explorer " + servidor_unidade + contrato_local.getCaminho_diretorio_contrato());
+				} catch (IOException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				}
+			}
+		});
+		btnAbrirPasta.setBounds(1127, 555, 90, 28);
+		painelComprovantes.add(btnAbrirPasta);
+		
+		JButton btnBackup = new JButton("Backup");
+		btnBackup.setBounds(1127, 595, 90, 28);
+		painelComprovantes.add(btnBackup);
 
 		btnAdicionarCarregamento.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {

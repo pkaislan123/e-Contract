@@ -26,6 +26,7 @@ import javax.swing.JTextArea;
 import javax.swing.BoxLayout;
 import java.awt.GridLayout;
 import java.awt.SystemColor;
+import java.awt.Window;
 import java.awt.GridBagLayout;
 import java.awt.GridBagConstraints;
 import com.jgoodies.forms.layout.FormLayout;
@@ -64,7 +65,7 @@ public class TelaCadastroGrupo extends JDialog {
          }  
      };
 
-	public TelaCadastroGrupo(int flag_modo_tela, CadastroGrupo grupo) {
+	public TelaCadastroGrupo(int flag_modo_tela, CadastroGrupo grupo, Window janela_pai) {
 		//setModal(true);
 
 		TelaCadastroGrupo isto = this;
@@ -262,7 +263,7 @@ public class TelaCadastroGrupo extends JDialog {
 		
 		
 
-		this.setLocationRelativeTo(null);
+		this.setLocationRelativeTo(janela_pai);
 
 		
 		
@@ -305,6 +306,38 @@ public class TelaCadastroGrupo extends JDialog {
 	    	}
 	    }
 	    }
+	}
+	
+	
+	public void adicionarIntegrantes(ArrayList<CadastroCliente> lista_clientes) {
+		modelo.setNumRows(0);
+		integrantes.addAll(lista_clientes);
+		
+	    for (CadastroCliente cliente : integrantes) {
+	    	String cpf, cnpj, nome;
+	     	
+	    if(cliente.getArmazem() == 1 || cliente.getTransportador() == 1)	
+	    {
+	    	
+	    }else {
+	    	if(cliente.getTipo_pessoa() == 1)
+	    	{	//cnpj
+	    	    cnpj = cliente.getCnpj();
+	    	    nome = cliente.getRazao_social();
+	            modelo.addRow(new Object[]{cliente.getId(),cliente.getIe(), cliente.getApelido(), cnpj, nome});
+
+	    	}
+	    	else
+	    	{
+	    		cpf = cliente.getCpf();
+	    		nome = cliente.getNome() + " " + cliente.getSobrenome();
+	            modelo.addRow(new Object[]{cliente.getId(),cliente.getIe(), cliente.getApelido(), cpf, nome});
+
+	    	}
+	    }
+	    }
+	    
+		
 	}
 	
 	public void rotinaEdicao() {

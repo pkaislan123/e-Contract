@@ -25,7 +25,7 @@ import java.util.Locale;
 import java.util.StringTokenizer;
 
 import javax.swing.JOptionPane;
-
+import javax.swing.text.MaskFormatter;
 import org.apache.pdfbox.printing.Orientation;
 import org.apache.poi.openxml4j.opc.OPCPackage;
 import org.apache.poi.ss.usermodel.Sheet;
@@ -571,10 +571,10 @@ public class EditarWord {
 		adicionarTextoParagrafoAtual(novo_contrato.getProduto().toUpperCase(), true);
 
 		adicionarTextoParagrafoAtual(" em grãos, da safra " , false);
-		adicionarTextoParagrafoAtual(Integer.toString(novo_contrato.getModelo_safra().getAno_colheita()), true);
+		adicionarTextoParagrafoAtual(Integer.toString(novo_contrato.getModelo_safra().getAno_plantio()), true);
 
 		adicionarTextoParagrafoAtual("/" , false);
-		adicionarTextoParagrafoAtual(Integer.toString(novo_contrato.getModelo_safra().getAno_plantio()), true);
+		adicionarTextoParagrafoAtual(Integer.toString(novo_contrato.getModelo_safra().getAno_colheita()), true);
 
 		adicionarTextoParagrafoAtual(" conforme padrões de qualidade estabelecidos no presente " , false);
 
@@ -606,42 +606,59 @@ public class EditarWord {
 		if(local_entrega.getTipo_pessoa() == 0) {
 			//pessoa fisica
 			nome = local_entrega.getNome_empresarial();
-			adicionarTextoParagrafoAtual(nome, true);
-
+			adicionarTextoParagrafoAtual(nome.toUpperCase().trim(), true);
+			
+			
+			
 			adicionarTextoParagrafoAtual( " CPF: " , false);
-			adicionarTextoParagrafoAtual(local_entrega.getCpf(), true);
+			try {
+				adicionarTextoParagrafoAtual(formatarCpf(local_entrega.getCpf().replaceAll("[^0-9]", "")), true);
+			} catch (ParseException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 
 
 		}else {
 			nome = local_entrega.getNome_fantaia();
 			adicionarTextoParagrafoAtual(nome, true);
 			adicionarTextoParagrafoAtual( " CNPJ: " , false);
-			adicionarTextoParagrafoAtual(local_entrega.getCnpj(), true);
+			try {
+				adicionarTextoParagrafoAtual(formatarCNPJ(local_entrega.getCnpj().replaceAll("[^0-9]", "")), true);
+			} catch (ParseException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 
 		}
 		adicionarTextoParagrafoAtual( " - IE: " , false);
 		adicionarTextoParagrafoAtual( local_entrega.getIe() , true);
 		
 		adicionarTextoParagrafoAtual(" localizado na " , false);
-		adicionarTextoParagrafoAtual( local_entrega.getRua() , true);
+		adicionarTextoParagrafoAtual( local_entrega.getRua().toUpperCase().trim() , true);
 		adicionarTextoParagrafoAtual( ", ", false);
 
 		adicionarTextoParagrafoAtual( local_entrega.getNumero(), true);
 
 		adicionarTextoParagrafoAtual( " Bairro: " , false);
-		adicionarTextoParagrafoAtual( local_entrega.getBairro() , true);
+		adicionarTextoParagrafoAtual( local_entrega.getBairro().toUpperCase().toString() , true);
 
 
 		adicionarTextoParagrafoAtual( " Cidade: " , false);
-		adicionarTextoParagrafoAtual( local_entrega.getCidade() , true);
+		adicionarTextoParagrafoAtual( local_entrega.getCidade().toUpperCase().trim() , true);
 
 
 		adicionarTextoParagrafoAtual( " " , false);
-		adicionarTextoParagrafoAtual( local_entrega.getUf() , true);
+		adicionarTextoParagrafoAtual( local_entrega.getUf().toUpperCase().trim() , true);
 
 
 		adicionarTextoParagrafoAtual( " CEP: " , true);
-		adicionarTextoParagrafoAtual( local_entrega.getCep() , false);
+		try {
+			adicionarTextoParagrafoAtual( formatarCep(local_entrega.getCep().replaceAll("[^0-9]", "")) , false);
+		} catch (ParseException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 		adicionarTextoParagrafoAtual( " (“Local de Entrega”). " , true);
 		
 		
@@ -1121,9 +1138,9 @@ public class EditarWord {
 		String nome_corretor = "";
 		if(cliente.getTipo_pessoa() == 0) {
 			//pessoa fisica
-			nome_corretor = cliente.getNome_empresarial();
+			nome_corretor = cliente.getNome_empresarial().toUpperCase().trim();
 		}else {
-			nome_corretor = cliente.getNome_fantaia();
+			nome_corretor = cliente.getNome_fantaia().toUpperCase().trim();
 
 		}
 		
@@ -1146,7 +1163,7 @@ public class EditarWord {
 		enderecoCorretorrun.setFontFamily("Times New Roman");
 		enderecoCorretorrun.setFontSize(10);
 		enderecoCorretorrun.setBold(true);
-		enderecoCorretorrun.setText(cliente.getRua() + ", " + cliente.getBairro());
+		enderecoCorretorrun.setText(cliente.getRua().toUpperCase().trim() + ", " + cliente.getBairro().toUpperCase().trim());
 
 		XWPFRun adicional2run = parte.createRun();
 		adicional2run.setColor("000000");
@@ -1160,7 +1177,7 @@ public class EditarWord {
 		cidadeRun.setFontFamily("Times New Roman");
 		cidadeRun.setFontSize(10);
 		cidadeRun.setBold(true);
-		cidadeRun.setText(cliente.getCidade());
+		cidadeRun.setText(cliente.getCidade().toUpperCase().trim());
 		
 		XWPFRun infoEstadoRun = parte.createRun();
 		infoEstadoRun.setColor("000000");
@@ -1174,7 +1191,7 @@ public class EditarWord {
 		estadoRUn.setFontFamily("Times New Roman");
 		estadoRUn.setFontSize(10);
 		estadoRUn.setBold(true);
-		estadoRUn.setText(cliente.getUf());
+		estadoRUn.setText(cliente.getUf().toUpperCase());
 
 		XWPFRun adicional3ceprun = parte.createRun();
 		adicional3ceprun.setColor("000000");
@@ -1188,7 +1205,18 @@ public class EditarWord {
 		cepRun.setFontFamily("Times New Roman");
 		cepRun.setFontSize(10);
 		cepRun.setBold(true);
-		cepRun.setText(cliente.getCep());
+		
+		 String cep = ""; 
+	       try{
+
+	           MaskFormatter formater_cep = new MaskFormatter("#####-###");
+	           formater_cep.setValueContainsLiteralCharacters(false);
+	           cep = formater_cep.valueToString(cliente.getCep().replaceAll("[^0-9]", ""));
+
+
+	        }catch (Exception e){}
+		
+		cepRun.setText(cep);
 
 		
 		XWPFRun adicionarCpfRun = parte.createRun();
@@ -1205,14 +1233,34 @@ public class EditarWord {
 		
 		if(cliente.getTipo_pessoa() == 0) {
 			adicionarCpfRun.setText(", inscrito no CPF sob nº ");
-			cpfRun.setText(cliente.getCpf());
+			 String cpf = ""; 
+		       try{
+
+		           MaskFormatter formater_cpf = new MaskFormatter("###.###.###-##");
+		           formater_cpf.setValueContainsLiteralCharacters(false);
+		           cpf = formater_cpf.valueToString(cliente.getCpf());
+
+
+		        }catch (Exception e){}
+			cpfRun.setText(cpf);
 
 		}else {
 			adicionarCpfRun.setText(", inscrito no CNPJ sob nº ");
-			cpfRun.setText(cliente.getCnpj());
+			String cnpj = ""; 
+		       try{
+
+		           MaskFormatter formater_cnpj = new MaskFormatter("##.###.###/####-##");
+		           formater_cnpj.setValueContainsLiteralCharacters(false);
+		           cnpj = formater_cnpj.valueToString(cliente.getCnpj());
+
+
+		        }catch (Exception e){}
+			cpfRun.setText(cnpj);
 
 		}
 		
+	
+	    
 
 		
 
@@ -1766,7 +1814,7 @@ public class EditarWord {
 					e.printStackTrace();
 				}
 				
-				substituirTexto("Guarda-Mor MG " + data_extenso);
+				substituirTexto("Guarda-Mor/MG " + data_extenso + ".");
 	}
 	
 	public void adicionarCamposAssinaturas() {
@@ -1793,7 +1841,8 @@ public class EditarWord {
 					for(String palavra : separados) {
 						nome_assinatura_negrito += "[" + palavra + "]" + " ";
 					}
-					
+					substituirTexto("");
+
 					
 					substituirTexto("[_______________________________________________________________]                                                                                         "
 							+ "["  + nome_assinatura_negrito.toUpperCase() + "]\r\n"
@@ -1823,7 +1872,8 @@ public class EditarWord {
 									nome_assinatura_negrito += "[" + palavra + "]" + " ";
 								}
 								
-								
+								substituirTexto("");
+
 								substituirTexto("[_______________________________________________________________]                                                                                         "
 										+ "["  + nome_assinatura_negrito.toUpperCase() + "]\r\n"
 										+ "");
@@ -1851,7 +1901,8 @@ public class EditarWord {
 									nome_assinatura_negrito += "[" + palavra + "]" + " ";
 								}
 								
-								
+								substituirTexto("");
+
 								substituirTexto("[_______________________________________________________________]                                                                                         "
 										+ "["  + nome_assinatura_negrito.toUpperCase() + "]\r\n\n"
 										+ "");
@@ -1861,6 +1912,7 @@ public class EditarWord {
 
 		
 		//testemunhas
+						substituirTexto("");
 		substituirTexto("[TESTEMUNHAS:]\r\n"
 				+ 
 				"[1._____________________________________________________________]                                                                                         "
@@ -2266,5 +2318,22 @@ public class EditarWord {
 		} 
 	}
 	
+	 public static String formatarCpf(String texto ) throws ParseException {
+	        MaskFormatter mf = new MaskFormatter("###.###.###-##");
+	        mf.setValueContainsLiteralCharacters(false);
+	        return mf.valueToString(texto);
+	    }
+	 
+	 public static String formatarCNPJ(String texto ) throws ParseException {
+	        MaskFormatter mf = new MaskFormatter("##.###.###/####-##");
+	        mf.setValueContainsLiteralCharacters(false);
+	        return mf.valueToString(texto);
+	    }
+	 
+	 public static String formatarCep(String texto ) throws ParseException {
+	        MaskFormatter mf = new MaskFormatter("#####-###");
+	        mf.setValueContainsLiteralCharacters(false);
+	        return mf.valueToString(texto);
+	    }
 
 }

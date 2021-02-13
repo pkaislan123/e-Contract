@@ -53,6 +53,7 @@ import com.aspose.cells.FileFormatType;
 import com.aspose.cells.Worksheet;
 import com.itextpdf.text.DocumentException;
 import javax.swing.JOptionPane;
+import javax.swing.text.MaskFormatter;
 
 import cadastros.CadastroCliente;
 import cadastros.CadastroContrato;
@@ -214,12 +215,22 @@ public class EditarExcel {
 		
 	    if(cliente.getTipo_pessoa() == 0) //0 e pessoa fisica
 		{
-			atualizarCelula(formatar(false, 'T', false, false, false, false), ultima_linha, 2, cliente.getCpf().toUpperCase());
+			try {
+				atualizarCelula(formatar(false, 'T', false, false, false, false), ultima_linha, 2, formatarCpf(cliente.getCpf().replaceAll("[^0-9]", "")).toUpperCase());
+			} catch (ParseException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 
 		}
 		else
 		{
-			atualizarCelula(formatar(false, 'T', false, false, false, false), ultima_linha, 2, cliente.getCnpj().toUpperCase());
+			try {
+				atualizarCelula(formatar(false, 'T', false, false, false, false), ultima_linha, 2, formatarCNPJ(cliente.getCnpj().replaceAll("[^0-9]", "").toUpperCase()));
+			} catch (ParseException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 
 		}
 	
@@ -254,8 +265,14 @@ public class EditarExcel {
 
         atualizarCelula(formatar(false, 'C', false, true, true, false), ultima_linha, 1, "Município:");
       //cidade
-       
-		atualizarCelula(formatar(false, 'T', false, false, false, false), ultima_linha, 2, cliente.getCidade().toUpperCase());
+        String cep = "";
+        try {
+			 cep = formatarCep(cliente.getCep().replaceAll("[^0-9]", ""));
+		} catch (ParseException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		atualizarCelula(formatar(false, 'T', false, false, false, false), ultima_linha, 2, cliente.getCidade().toUpperCase() + " CEP: " + cep);
 		
 
 	
@@ -482,7 +499,17 @@ ultima_linha 1 Local da Retirada
 		ultima_linha++;
  		
  		atualizarCelula(formatar(false, 'T', false, false, true, false), ultima_linha,1, "Local Retirada");
- 		atualizarCelula(formatar(false, 'T', false, false, false, false), ultima_linha,3, novo_contrato.getLocal_retirada().toUpperCase());
+ 		
+ 		if(novo_contrato.getTipo_entrega() == 2) {
+ 			//mercadoria ja depositada
+ 	 		atualizarCelula(formatar(true, 'T', false, false, false, false), ultima_linha,3, novo_contrato.getLocal_retirada().toUpperCase());
+
+ 		}else if(novo_contrato.getTipo_entrega() == 1) {
+ 			//mercadoria sobre rodas
+ 	 		atualizarCelula(formatar(true, 'T', false, false, false, false), ultima_linha,3, novo_contrato.getLocal_retirada().toUpperCase());
+
+ 		}
+ 		
  		atualizarCelula(formatar(true, 'T', false, false, false, true), ultima_linha,9, "");
 
  		
@@ -540,7 +567,20 @@ ultima_linha 1 Local da Retirada
          atualizarCelula(formatar(true, 'T', false, false, false, false), ultima_linha,2, pagamento.getConta().getNome().toUpperCase());
 
          atualizarCelula(formatar(false, 'T', false, false, false, false), ultima_linha,6, "CPF:");
-         atualizarCelula(formatar(true, 'T', false, false, false, false), ultima_linha,7, pagamento.getConta().getCpf_titular().toUpperCase());
+         String cpf = "";
+		try {
+			cpf = formatarCpf(pagamento.getConta().getCpf_titular().replaceAll("[^0-9]", "")).toUpperCase();
+		} catch (ParseException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		if(pagamento.getConta().getCpf_titular().equalsIgnoreCase("Há Informar")) {
+	         atualizarCelula(formatar(true, 'T', false, false, false, false), ultima_linha,7, "HÁ INFORMAR");
+
+		}else {
+	         atualizarCelula(formatar(true, 'T', false, false, false, false), ultima_linha,7, cpf);
+
+		}
          atualizarCelula(formatar(true, 'T', false, false, false, true), ultima_linha,9, "");
          ultima_linha++;
 		
@@ -621,8 +661,10 @@ ultima_linha 1 Local da Retirada
     	{
     		if(clausulas_locais != null) {
     		atualizarCelula(formatar(true, 'T', false, false, true, false), ultima_linha,1, "");
+         
+         	atualizarCelula(formatar(true, 'T', false, false, false, false), ultima_linha,2, clausula);
 
-    		atualizarCelula(formatar(true, 'T', false, false, false, false), ultima_linha,2, clausula);
+             
     		atualizarCelula(formatar(true, 'T', false, false, false, true), ultima_linha,9, "");
           	 ultima_linha++;
           	numero_clausula++;
@@ -1677,6 +1719,26 @@ public ByteArrayOutputStream alterar(CadastroContrato novo_contrato)
 				  login = dados.getLogin();
 		
 	}
+	
+	
+	 public static String formatarCpf(String texto ) throws ParseException {
+	        MaskFormatter mf = new MaskFormatter("###.###.###-##");
+	        mf.setValueContainsLiteralCharacters(false);
+	        return mf.valueToString(texto);
+	    }
+	 
+	 public static String formatarCNPJ(String texto ) throws ParseException {
+	        MaskFormatter mf = new MaskFormatter("##.###.###/####-##");
+	        mf.setValueContainsLiteralCharacters(false);
+	        return mf.valueToString(texto);
+	    }
+	 
+	 public static String formatarCep(String texto ) throws ParseException {
+	        MaskFormatter mf = new MaskFormatter("#####-###");
+	        mf.setValueContainsLiteralCharacters(false);
+	        return mf.valueToString(texto);
+	    }
+
 	
 	
 }

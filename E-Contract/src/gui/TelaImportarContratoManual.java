@@ -850,10 +850,24 @@ public class TelaImportarContratoManual extends JDialog {
 		painelDadosProdutos.add(rQuanKG);
 
 		rQuanS = new JRadioButton("SC");
+		rQuanS.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseClicked(MouseEvent e) {
+				if (e.getClickCount() == 2 ) {
+				      
+					double quantidade_atual = Double.parseDouble(entQuantidade.getText());
+					quantidade_atual = quantidade_atual / 60;
+					entQuantidade.setText(Double.toString(quantidade_atual));
+					
+					rQuanS.setSelected(true);
+				    }
+			}
+		});
 		rQuanS.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				rQuanKG.setSelected(false);
 				rQuanT.setSelected(false);
+				rQuanS.setSelected(true);
 
 				lblQuant.setText("Sacos");
 				lblPreco.setText("por Saco");
@@ -4501,6 +4515,21 @@ public class TelaImportarContratoManual extends JDialog {
 							if(manipular.criarDiretorio(caminho_salvar_contrato__no_hd + nome_pasta_arquivo + "\\"))
 							{
 								System.out.println("diretorio criado para o novo contrato");
+								//criar pastas documentos e comprovantes
+           						if(manipular.criarDiretorio(caminho_salvar_contrato__no_hd + nome_pasta_arquivo + "\\comprovantes"))
+    							{
+    					    		  //criar diretorio documentos
+    								  if(manipular.criarDiretorio(caminho_salvar_contrato__no_hd + nome_pasta_arquivo + "\\documentos"))
+    									{
+
+    									}else {
+
+    									}	
+
+    							}else {
+
+    							}
+           						
 								 //copiar arquivo para o novo diretorio
 								boolean copiar = false;
 								try {
@@ -4798,6 +4827,21 @@ public class TelaImportarContratoManual extends JDialog {
 						if(manipular.criarDiretorio(caminho_salvar_contrato__no_hd + nome_pasta_arquivo + "\\"))
 						{
 							System.out.println("diretorio criado para o novo contrato");
+							//criar pastas documentos e comprovantes
+       						if(manipular.criarDiretorio(caminho_salvar_contrato__no_hd + nome_pasta_arquivo + "\\comprovantes"))
+							{
+					    		  //criar diretorio documentos
+								  if(manipular.criarDiretorio(caminho_salvar_contrato__no_hd + nome_pasta_arquivo + "\\documentos"))
+									{
+
+									}else {
+
+									}	
+
+							}else {
+
+							}
+       						
 							 //copiar arquivo para o novo diretorio
 							boolean copiar = false;
 							try {

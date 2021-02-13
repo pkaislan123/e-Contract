@@ -1068,10 +1068,44 @@ public class ManipularArquivoTerceiros {
 							if(manipular.criarDiretorio(caminho_salvar_contrato__no_hd + nome_pasta_arquivo + "\\"))
 							{
 								System.out.println("diretorio criado para o novo contrato");
+
+								//criar pastas documentos e comprovantes
+           						if(manipular.criarDiretorio(caminho_salvar_contrato__no_hd + nome_pasta_arquivo + "\\comprovantes"))
+    							{
+    					    		  //criar diretorio documentos
+    								  if(manipular.criarDiretorio(caminho_salvar_contrato__no_hd + nome_pasta_arquivo + "\\documentos"))
+    									{
+
+    									}else {
+
+    									}	
+
+    							}else {
+
+    							}
+           						
 								 //copiar arquivo para o novo diretorio
 								boolean copiar = manipular.copiarNFe(file.getAbsolutePath(), caminho_salvar_contrato__no_hd + nome_pasta_arquivo + "\\" + nome_arquivo + ".pdf" );
                                    if(copiar) {
                						JOptionPane.showMessageDialog(null, "Arquivo copiado para a nova pasta!");
+               						
+               						//criar pastas documentos e comprovantes
+               						if(manipular.criarDiretorio(caminho_salvar_contrato__no_hd + nome_pasta_arquivo + "\\comprovantes"))
+        							{
+        					    		  //criar diretorio documentos
+        								  if(manipular.criarDiretorio(caminho_salvar_contrato__no_hd + nome_pasta_arquivo + "\\documentos"))
+        									{
+
+        									}else {
+
+        									}	
+
+        							}else {
+
+        							}
+               						
+               						
+               						
                						//inserir o contrato no banco de dados
                						contrato_local.setCaminho_diretorio_contrato(nome_diretorio_arquivo_contrato);
                						contrato_local.setCaminho_arquivo(caminho_salvar_contrato_no_banco_dados + nome_pasta_arquivo + "\\\\" + nome_arquivo + ".pdf");
@@ -2057,6 +2091,22 @@ public class ManipularArquivoTerceiros {
 							if(manipular.criarDiretorio(caminho_salvar_contrato__no_hd + nome_pasta_arquivo + "\\"))
 							{
 								System.out.println("diretorio criado para o novo contrato");
+								//criar pastas documentos e comprovantes
+           						if(manipular.criarDiretorio(caminho_salvar_contrato__no_hd + nome_pasta_arquivo + "\\comprovantes"))
+    							{
+    					    		  //criar diretorio documentos
+    								  if(manipular.criarDiretorio(caminho_salvar_contrato__no_hd + nome_pasta_arquivo + "\\documentos"))
+    									{
+
+    									}else {
+
+    									}	
+
+    							}else {
+
+    							}
+           						
+								
 								 //copiar arquivo para o novo diretorio
 								boolean copiar = manipular.copiarNFe(file.getAbsolutePath(), caminho_salvar_contrato__no_hd + nome_pasta_arquivo + "\\" + nome_arquivo + ".pdf" );
                                    if(copiar) {
@@ -3182,7 +3232,24 @@ public class ManipularArquivoTerceiros {
 							if(manipular.criarDiretorio(caminho_salvar_contrato__no_hd + nome_pasta_arquivo + "\\"))
 							{
 								System.out.println("diretorio criado para o novo contrato");
+								
+								//criar pastas documentos e comprovantes
+           						if(manipular.criarDiretorio(caminho_salvar_contrato__no_hd + nome_pasta_arquivo + "\\comprovantes"))
+    							{
+    					    		  //criar diretorio documentos
+    								  if(manipular.criarDiretorio(caminho_salvar_contrato__no_hd + nome_pasta_arquivo + "\\documentos"))
+    									{
+
+    									}else {
+
+    									}	
+
+    							}else {
+
+    							}
+           						
 								 //copiar arquivo para o novo diretorio
+								
 								boolean copiar = manipular.copiarNFe(file.getAbsolutePath(), caminho_salvar_contrato__no_hd + nome_pasta_arquivo + "\\" + nome_arquivo + ".pdf" );
                                    if(copiar) {
                						JOptionPane.showMessageDialog(null, "Arquivo copiado para a nova pasta!");
@@ -4120,6 +4187,23 @@ public class ManipularArquivoTerceiros {
 							if(manipular.criarDiretorio(caminho_salvar_contrato__no_hd + nome_pasta_arquivo + "\\"))
 							{
 								System.out.println("diretorio criado para o novo contrato");
+								
+								//criar pastas documentos e comprovantes
+           						if(manipular.criarDiretorio(caminho_salvar_contrato__no_hd + nome_pasta_arquivo + "\\comprovantes"))
+    							{
+    					    		  //criar diretorio documentos
+    								  if(manipular.criarDiretorio(caminho_salvar_contrato__no_hd + nome_pasta_arquivo + "\\documentos"))
+    									{
+
+    									}else {
+
+    									}	
+
+    							}else {
+
+    							}
+           														
+								
 								 //copiar arquivo para o novo diretorio
 								boolean copiar = manipular.copiarNFe(file.getAbsolutePath(), caminho_salvar_contrato__no_hd + nome_pasta_arquivo + "\\" + nome_arquivo + ".pdf" );
                                    if(copiar) {
