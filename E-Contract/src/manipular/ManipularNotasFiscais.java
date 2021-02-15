@@ -963,7 +963,12 @@ public class ManipularNotasFiscais {
     	   }
 
 		}
-		  		
+		
+       
+     public CadastroNFe getNotaFiscalPorArquivo(String caminho_arquivo) {
+ 		return filtrar(new File(caminho_arquivo));
+
+     }
 
 	public CadastroNFe getNotaFiscal(String codigo) {
 

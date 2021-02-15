@@ -95,10 +95,12 @@ import graficos.JPanelGrafico;
 import javax.swing.SwingConstants;
 import javax.swing.JComboBox;
 import graficos.JPanelGraficoCarregamento;
+import graficos.JPanelGraficoRecebimento;
 import manipular.ConfiguracoesGlobais;
 import manipular.ManipularRomaneios;
 import manipular.ManipularTxt;
 import manipular.MonitorarRomaneios;
+import manipular.Whatsapp;
 
 
 
@@ -127,6 +129,8 @@ public class TelaMain extends JFrame {
 	private GraficoLinha linha = null;
 	TelaPost telaPost;
 	TelaTarefas tela_tarefas;
+	private JLabel lblStatusWhatsapp,imgWhatsapp;
+
 	private GerenciarBancoContratos gerenciarAtualizarTarefas, gerenciarDadosCarregamento, gerenciarDadosContrato,
 			gerenciarCarregamentoPorPeriodo;
 	private GerenciarBancoPadrao gerenciarBancoPadrao;
@@ -145,6 +149,7 @@ public class TelaMain extends JFrame {
 	private Log GerenciadorLog;
 	private CadastroLogin login;
 	private JPanelGrafico painelGraficoContratos;
+	private  JPanelGraficoRecebimento painelGraficoRecebimento;
 	
 	
 	public TelaMain(Window janela_pai) {
@@ -244,7 +249,7 @@ public class TelaMain extends JFrame {
 		mntmArmazns.setFont(new Font("Segoe UI", Font.PLAIN, 16));
 		mntmArmazns.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
-				TelaArmazem tela = new TelaArmazem();
+				TelaArmazem tela = new TelaArmazem(isto);
 			}
 		});
 		Dados.add(mntmArmazns);
@@ -255,7 +260,7 @@ public class TelaMain extends JFrame {
 		mntmSafra.setFont(new Font("Segoe UI", Font.PLAIN, 16));
 		mntmSafra.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				TelaSafra safra = new TelaSafra();
+				TelaSafra safra = new TelaSafra(isto);
 			}
 		});
 		Dados.add(mntmSafra);
@@ -276,7 +281,7 @@ public class TelaMain extends JFrame {
 		mntmUsurios.setIcon(new ImageIcon(TelaPrincipal.class.getResource("/imagens/usuarios.png")));
 		mntmUsurios.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
-				TelaUsuarios usuarios = new TelaUsuarios(0);
+				TelaUsuarios usuarios = new TelaUsuarios(0, isto);
 				usuarios.setVisible(true);
 			}
 		});
@@ -312,7 +317,7 @@ public class TelaMain extends JFrame {
 		mntmNewMenuItem_1.setFont(new Font("Segoe UI", Font.PLAIN, 16));
 		mntmNewMenuItem_1.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				TelaRelatoriaContratos tela = new TelaRelatoriaContratos();
+				TelaRelatoriaContratos tela = new TelaRelatoriaContratos(isto);
 			}
 		});
 		mnContratos.add(mntmNewMenuItem_1);
@@ -458,8 +463,8 @@ public class TelaMain extends JFrame {
 		JScrollPane scrollPane = new JScrollPane(panel_3);
 		GridBagLayout gbl_panel_3 = new GridBagLayout();
 		gbl_panel_3.columnWidths = new int[]{500, -27, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 57, 68, 0, 0, 0, 0, 0, 0, 0, 0, 0};
-		gbl_panel_3.rowHeights = new int[]{137, 309, 263, 13, 1, 0};
-		gbl_panel_3.columnWeights = new double[]{0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0, Double.MIN_VALUE};
+		gbl_panel_3.rowHeights = new int[]{304, 309, 263, 13, 1, 0};
+		gbl_panel_3.columnWeights = new double[]{1.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0, Double.MIN_VALUE};
 		gbl_panel_3.rowWeights = new double[]{0.0, 1.0, 1.0, 1.0, 0.0, Double.MIN_VALUE};
 		panel_3.setLayout(gbl_panel_3);
 		
@@ -572,66 +577,150 @@ public class TelaMain extends JFrame {
 		panel_3.add(painelInfoConexao, gbc_painelInfoConexao);
 		
 		JLabel lblInfo = new JLabel("Informações de Conexão");
-		lblInfo.setBounds(0, 0, 230, 14);
+		lblInfo.setForeground(Color.WHITE);
+		lblInfo.setFont(new Font("SansSerif", Font.BOLD, 20));
+		lblInfo.setBounds(21, 16, 235, 26);
 		painelInfoConexao.add(lblInfo);
 		
 		 lblnet = new JLabel("Internet:");
-		lblnet.setBounds(139, 59, 175, 14);
+		 lblnet.setForeground(Color.WHITE);
+		 lblnet.setFont(new Font("SansSerif", Font.BOLD, 14));
+		lblnet.setBounds(63, 54, 295, 19);
 		painelInfoConexao.add(lblnet);
 		
 		 lblBaseDeArquivos = new JLabel("Base de Arquivos:");
-		lblBaseDeArquivos.setBounds(139, 152, 175, 14);
+		 lblBaseDeArquivos.setForeground(Color.WHITE);
+		 lblBaseDeArquivos.setFont(new Font("SansSerif", Font.BOLD, 14));
+		lblBaseDeArquivos.setBounds(63, 152, 295, 14);
 		painelInfoConexao.add(lblBaseDeArquivos);
 		
 		 lblBD = new JLabel("Banco de Dados:");
-		lblBD.setBounds(139, 196, 175, 14);
+		 lblBD.setForeground(Color.WHITE);
+		 lblBD.setFont(new Font("SansSerif", Font.BOLD, 14));
+		lblBD.setBounds(63, 196, 264, 14);
 		painelInfoConexao.add(lblBD);
 		
 		 urlBancoDados = new JLabel("erro");
-		urlBancoDados.setBounds(139, 214, 135, 14);
+		 urlBancoDados.setForeground(Color.WHITE);
+		 urlBancoDados.setFont(new Font("SansSerif", Font.BOLD, 14));
+		urlBancoDados.setBounds(63, 214, 280, 19);
 		painelInfoConexao.add(urlBancoDados);
 		
 		 urlBaseArquivos = new JLabel("erro");
-		urlBaseArquivos.setBounds(139, 171, 135, 14);
+		 urlBaseArquivos.setForeground(Color.WHITE);
+		 urlBaseArquivos.setFont(new Font("SansSerif", Font.BOLD, 14));
+		urlBaseArquivos.setBounds(63, 171, 295, 19);
 		painelInfoConexao.add(urlBaseArquivos);
 		
 		 urlInternet = new JLabel("http://www.google.com.br");
-		urlInternet.setBounds(139, 77, 186, 14);
+		 urlInternet.setForeground(Color.WHITE);
+		 urlInternet.setFont(new Font("SansSerif", Font.BOLD, 14));
+		urlInternet.setBounds(63, 77, 295, 26);
 		painelInfoConexao.add(urlInternet);
 		
 		 imgBaseDados = new JLabel("New label");
-		imgBaseDados.setBounds(97, 196, 32, 32);
+		imgBaseDados.setBounds(21, 196, 32, 32);
 		painelInfoConexao.add(imgBaseDados);
 		
 		 imgBaseArquivos = new JLabel("");
-		imgBaseArquivos.setBounds(97, 152, 32, 32);
+		imgBaseArquivos.setBounds(21, 152, 32, 32);
 		painelInfoConexao.add(imgBaseArquivos);
 		
 		 imgInternet = new JLabel("");
-		imgInternet.setBounds(97, 59, 32, 32);
+		imgInternet.setBounds(21, 59, 32, 32);
 		painelInfoConexao.add(imgInternet);
 		
 		 imgNuvem = new JLabel("");
-		imgNuvem.setBounds(97, 109, 32, 32);
+		imgNuvem.setBounds(21, 109, 32, 32);
 		painelInfoConexao.add(imgNuvem);
 		
 		 lblNuvem = new JLabel("Nuvem");
-		lblNuvem.setBounds(139, 109, 175, 14);
+		 lblNuvem.setForeground(Color.WHITE);
+		 lblNuvem.setFont(new Font("SansSerif", Font.BOLD, 14));
+		lblNuvem.setBounds(63, 109, 311, 14);
 		painelInfoConexao.add(lblNuvem);
 		
 		 urlNuvem = new JLabel("https://www.dropbox.com/");
-		urlNuvem.setBounds(139, 127, 186, 14);
+		 urlNuvem.setForeground(Color.WHITE);
+		 urlNuvem.setFont(new Font("SansSerif", Font.BOLD, 14));
+		urlNuvem.setBounds(63, 127, 295, 19);
 		painelInfoConexao.add(urlNuvem);
 		
-		JPanel panel_8 = new JPanel();
-		GridBagConstraints gbc_panel_8 = new GridBagConstraints();
-		gbc_panel_8.gridwidth = 24;
-		gbc_panel_8.insets = new Insets(0, 0, 5, 0);
-		gbc_panel_8.fill = GridBagConstraints.BOTH;
-		gbc_panel_8.gridx = 0;
-		gbc_panel_8.gridy = 1;
-		panel_3.add(panel_8, gbc_panel_8);
-		panel_8.setLayout(new GridLayout(1, 0, 0, 0));
+		JLabel lblWhatsapp = new JLabel("Whatsapp:");
+		lblWhatsapp.setForeground(Color.WHITE);
+		lblWhatsapp.setFont(new Font("SansSerif", Font.BOLD, 14));
+		lblWhatsapp.setBounds(63, 245, 264, 14);
+		painelInfoConexao.add(lblWhatsapp);
+		
+		
+		 lblStatusWhatsapp = new JLabel("Status:");
+		lblStatusWhatsapp.setForeground(Color.WHITE);
+		lblStatusWhatsapp.setFont(new Font("SansSerif", Font.BOLD, 14));
+		lblStatusWhatsapp.setBounds(63, 263, 280, 19);
+		painelInfoConexao.add(lblStatusWhatsapp);
+		
+		 imgWhatsapp = new JLabel("New label");
+		imgWhatsapp.setBounds(21, 245, 32, 32);
+		painelInfoConexao.add(imgWhatsapp);
+		
+		 painelGraficoRecebimento = new JPanelGraficoRecebimento(0, 0);
+		painelGraficoRecebimento.setLayout(null);
+		GridBagConstraints gbc_painelGraficoRecebimento = new GridBagConstraints();
+		gbc_painelGraficoRecebimento.insets = new Insets(0, 0, 5, 5);
+		gbc_painelGraficoRecebimento.fill = GridBagConstraints.BOTH;
+		gbc_painelGraficoRecebimento.gridx = 0;
+		gbc_painelGraficoRecebimento.gridy = 1;
+		panel_3.add(painelGraficoRecebimento, gbc_painelGraficoRecebimento);
+		
+		JLabel lblARecebersacos = new JLabel("a Receber(sacos): 0");
+		lblARecebersacos.setFont(new Font("Arial", Font.BOLD, 14));
+		lblARecebersacos.setBorder(new EmptyBorder(0, 0, 0, 0));
+		lblARecebersacos.setBounds(0, 71, 253, 24);
+		painelGraficoRecebimento.add(lblARecebersacos);
+		
+		JLabel lblRecebidossacos = new JLabel("Recebidos(sacos): 0");
+		lblRecebidossacos.setFont(new Font("Arial", Font.BOLD, 14));
+		lblRecebidossacos.setBorder(new EmptyBorder(0, 0, 0, 0));
+		lblRecebidossacos.setBounds(0, 35, 253, 24);
+		painelGraficoRecebimento.add(lblRecebidossacos);
+		
+		JLabel lblTotalSacos_1 = new JLabel("Quantidade Total(sacos): 0");
+		lblTotalSacos_1.setFont(new Font("Arial", Font.BOLD, 14));
+		lblTotalSacos_1.setBorder(new EmptyBorder(0, 0, 0, 0));
+		lblTotalSacos_1.setBounds(0, -1, 253, 24);
+		painelGraficoRecebimento.add(lblTotalSacos_1);
+		
+		JLabel lblNewLabel_9_1 = new JLabel("");
+		lblNewLabel_9_1.setBounds(128, 149, 64, 75);
+		painelGraficoRecebimento.add(lblNewLabel_9_1);
+		
+		JLabel lblNewLabel_5 = new JLabel("Valores Baseados na leitura de romaneios, pode não corresponder a realidade");
+		lblNewLabel_5.setForeground(Color.RED);
+		lblNewLabel_5.setBounds(6, 282, 494, 16);
+		painelGraficoRecebimento.add(lblNewLabel_5);
+		
+		JPanel panel_7 = new JPanel();
+		panel_7.setBackground(Color.WHITE);
+		GridBagConstraints gbc_panel_7 = new GridBagConstraints();
+		gbc_panel_7.gridwidth = 11;
+		gbc_panel_7.insets = new Insets(0, 0, 5, 5);
+		gbc_panel_7.fill = GridBagConstraints.BOTH;
+		gbc_panel_7.gridx = 1;
+		gbc_panel_7.gridy = 1;
+		panel_3.add(panel_7, gbc_panel_7);
+		panel_7.setLayout(new MigLayout("", "[grow]", "[][][]"));
+		
+		JLabel lblTodasAsSafrasRecebimento = new JLabel("Todas as Safras", SwingConstants.CENTER);
+		lblTodasAsSafrasRecebimento.setOpaque(true);
+		lblTodasAsSafrasRecebimento.setForeground(Color.WHITE);
+		lblTodasAsSafrasRecebimento.setFont(new Font("Tahoma", Font.PLAIN, 14));
+		lblTodasAsSafrasRecebimento.setBorder(new LineBorder(new Color(0, 0, 0)));
+		lblTodasAsSafrasRecebimento.setBackground(new Color(0, 206, 209));
+		panel_7.add(lblTodasAsSafrasRecebimento, "cell 0 1,growx");
+		
+		JComboBox cbRecebimentosPorSafra = new JComboBox();
+		cbRecebimentosPorSafra.setFont(new Font("Tahoma", Font.BOLD, 10));
+		panel_7.add(cbRecebimentosPorSafra, "cell 0 2,growx");
 		
 		JPanel panel_6 = new JPanel();
 		panel_6.setBackground(Color.WHITE);
@@ -687,7 +776,7 @@ public class TelaMain extends JFrame {
 		panel_9.setBackground(Color.WHITE);
 		GridBagConstraints gbc_panel_9 = new GridBagConstraints();
 		gbc_panel_9.gridwidth = 9;
-		gbc_panel_9.insets = new Insets(0, 0, 5, 5);
+		gbc_panel_9.insets = new Insets(0, 0, 5, 0);
 		gbc_panel_9.fill = GridBagConstraints.BOTH;
 		gbc_panel_9.gridx = 15;
 		gbc_panel_9.gridy = 2;
@@ -835,6 +924,8 @@ public class TelaMain extends JFrame {
 		getCarregamentoPorPeriodo();
 		buscarConexao();
 		buscaConexaoBanco();
+		buscarConexaoWhatsapp();
+
 		buscaConexaoServidorArquivos();
 		buscarConexaoNuvem();
 		ThreadGetDadosContratos();
@@ -1045,6 +1136,46 @@ public class TelaMain extends JFrame {
 		}.start();
 	}
 
+	public void buscarConexaoWhatsapp() {
+		new Thread() {
+
+			@Override
+			public void run() {
+				while (true) {
+					try {
+						 Whatsapp zap = new Whatsapp();
+						 
+						if(zap.status().contains("OK")) {
+							//conectado
+							lblStatusWhatsapp.setText("Status: Conectado");
+							imgWhatsapp.setIcon(new ImageIcon(TelaPrincipal.class.getResource("/imagens/zap_online.png")));
+						}else {
+							//nao conectado
+							lblStatusWhatsapp.setText("Status: Desconectado");
+							imgWhatsapp.setIcon(new ImageIcon(TelaPrincipal.class.getResource("/imagens/zap_offline.png")));
+						}
+						
+					} catch (Exception f) {
+						f.printStackTrace();
+						System.out.println("erro ao se conectar ao whatsapp!");
+						while (notificando) {
+						}
+						novaNotificacao("Sem conexão com o Whatsapp, algumas funções seram limitadas até a reconexão!",
+								"/audio/beep_erro_net.wav", 2);
+						lblStatusWhatsapp.setText("Status: Desconectado");
+						imgWhatsapp.setIcon(new ImageIcon(TelaPrincipal.class.getResource("/imagens/zap_offline.png")));
+					}
+					try {
+						Thread.sleep(30000);
+					} catch (InterruptedException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+				}
+			}
+		}.start();
+	}
+	
 	public void novaNotificacao(String texto, String song, int repeticao) {
 		try {
 			notificando = true;

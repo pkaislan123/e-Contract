@@ -76,11 +76,13 @@ public class TelaTransportadores extends JDialog {
     }
 		
 	}
+	
+	private TelaTransportadores isto ;
 	public TelaTransportadores(int flag_operacao, Window janela_pai) {
 		//setAlwaysOnTop(true);
 
-		setModal(true);
-		TelaTransportadores isto = this;
+		//setModal(true);
+		 isto = this;
 		
 		setResizable(false);
 		setTitle("E-Contract - Transportadores");
@@ -88,7 +90,7 @@ public class TelaTransportadores extends JDialog {
 		
 		setBackground(new Color(255, 255, 255));
 		setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-		setBounds(100, 100, 679, 508);
+		setBounds(100, 100, 892, 624);
 		painelPrincipal.setBackground(new Color(255, 255, 255));
 		painelPrincipal.setBorder(new EmptyBorder(5, 5, 5, 5));
 		setContentPane(painelPrincipal);
@@ -98,16 +100,16 @@ public class TelaTransportadores extends JDialog {
 		btnarmazm.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 			
-				TelaCadastroTransportadores tela = new TelaCadastroTransportadores(0,  null, null);
+				TelaCadastroTransportadores tela = new TelaCadastroTransportadores(0,  null, null, isto);
 			}
 		});
-		btnarmazm.setBounds(574, 403, 89, 23);
+		btnarmazm.setBounds(749, 517, 113, 28);
 		painelPrincipal.add(btnarmazm);
 		
 		
 		
 		JPanel panel = new JPanel();
-		panel.setBounds(10, 106, 653, 266);
+		panel.setBounds(10, 145, 852, 343);
 		painelPrincipal.add(panel);
 		//panel.setLayout(null);
 	
@@ -138,7 +140,7 @@ public class TelaTransportadores extends JDialog {
 
         	}
         });
-        scrollPane.setBounds(10, 11, 633, 244);
+        scrollPane.setBounds(10, 0, 842, 343);
         scrollPane.setAutoscrolls(true);
         scrollPane.setBackground(new Color(255, 255, 255));
 		panel.add(scrollPane);
@@ -148,11 +150,11 @@ public class TelaTransportadores extends JDialog {
 			public void actionPerformed(ActionEvent arg0) {
 				int indiceDaLinha = tabela.getSelectedRow();
 
-				TelaCadastroTransportadores telaEdicao = new TelaCadastroTransportadores(1, transportadores_disponiveis.get(indiceDaLinha), null);
+				TelaCadastroTransportadores telaEdicao = new TelaCadastroTransportadores(1, transportadores_disponiveis.get(indiceDaLinha), null, isto);
 
 			}
 		});
-		btnEditar.setBounds(475, 403, 89, 23);
+		btnEditar.setBounds(650, 517, 89, 23);
 		painelPrincipal.add(btnEditar);
 		
 		JButton btnSelecionarTransportador = new JButton("Selecionar");
@@ -163,15 +165,15 @@ public class TelaTransportadores extends JDialog {
 				isto.dispose();
 			}
 		});
-		btnSelecionarTransportador.setBounds(376, 403, 89, 23);
+		btnSelecionarTransportador.setBounds(551, 517, 89, 23);
 		painelPrincipal.add(btnSelecionarTransportador);
 		
 		
-		if(flag_operacao == 0) {
+		if(flag_operacao != 2) {
 			btnSelecionarTransportador.setVisible(false);
 			btnSelecionarTransportador.setEnabled(false);
 			
-		}else {
+		} else {
 			btnSelecionarTransportador.setVisible(true);
 			btnSelecionarTransportador.setEnabled(true);
 		}

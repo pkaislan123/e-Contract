@@ -722,7 +722,7 @@ public class ManipularArquivoTerceiros {
 			            JOptionPane.YES_NO_OPTION,
 			            JOptionPane.QUESTION_MESSAGE) == JOptionPane.YES_OPTION){
 					    
-					TelaCadastroCliente tela = new TelaCadastroCliente(1, null);
+					TelaCadastroCliente tela = new TelaCadastroCliente(1, null,null);
 					tela.setModal(true);
 					vendedor_contrato.setIe(inscricao_contrato);
 					tela.setInformacoesNovoCliente(vendedor_contrato, uf_inscricao_contrato, conta_pagamento);
@@ -847,7 +847,7 @@ public class ManipularArquivoTerceiros {
 		            JOptionPane.YES_NO_OPTION,
 		            JOptionPane.QUESTION_MESSAGE) == JOptionPane.YES_OPTION){
 				    
-				TelaCadastroCliente tela = new TelaCadastroCliente(1, null);
+				TelaCadastroCliente tela = new TelaCadastroCliente(1, null,null);
 				tela.setModal(true);
 				vendedor_contrato.setIe(inscricao_contrato);
 
@@ -1746,7 +1746,7 @@ public class ManipularArquivoTerceiros {
 			            JOptionPane.YES_NO_OPTION,
 			            JOptionPane.QUESTION_MESSAGE) == JOptionPane.YES_OPTION){
 					    
-					TelaCadastroCliente tela = new TelaCadastroCliente(1, null);
+					TelaCadastroCliente tela = new TelaCadastroCliente(1, null,null);
 					tela.setModal(true);
 					vendedor_contrato.setIe(inscricao_contrato);
 					tela.setInformacoesNovoCliente(vendedor_contrato, uf_inscricao_contrato, conta_pagamento);
@@ -1870,7 +1870,7 @@ public class ManipularArquivoTerceiros {
 		            JOptionPane.YES_NO_OPTION,
 		            JOptionPane.QUESTION_MESSAGE) == JOptionPane.YES_OPTION){
 				    
-				TelaCadastroCliente tela = new TelaCadastroCliente(1, null);
+				TelaCadastroCliente tela = new TelaCadastroCliente(1, null,null);
 				tela.setModal(true);
 				vendedor_contrato.setIe(inscricao_contrato);
 
@@ -2894,7 +2894,7 @@ public class ManipularArquivoTerceiros {
 			            JOptionPane.YES_NO_OPTION,
 			            JOptionPane.QUESTION_MESSAGE) == JOptionPane.YES_OPTION){
 					    
-					TelaCadastroCliente tela = new TelaCadastroCliente(1, null);
+					TelaCadastroCliente tela = new TelaCadastroCliente(1, null,null);
 					tela.setModal(true);
 					vendedor_contrato.setIe(inscricao_contrato);
 					tela.setInformacoesNovoCliente(vendedor_contrato, uf_inscricao_contrato, conta_pagamento);
@@ -3014,7 +3014,7 @@ public class ManipularArquivoTerceiros {
 		            JOptionPane.YES_NO_OPTION,
 		            JOptionPane.QUESTION_MESSAGE) == JOptionPane.YES_OPTION){
 				    
-				TelaCadastroCliente tela = new TelaCadastroCliente(1, null);
+				TelaCadastroCliente tela = new TelaCadastroCliente(1, null,null);
 				//tela.setModal(true);
 				vendedor_contrato.setIe(inscricao_contrato);
 
@@ -3842,7 +3842,7 @@ public class ManipularArquivoTerceiros {
 			            JOptionPane.YES_NO_OPTION,
 			            JOptionPane.QUESTION_MESSAGE) == JOptionPane.YES_OPTION){
 					    
-					TelaCadastroCliente tela = new TelaCadastroCliente(1, null);
+					TelaCadastroCliente tela = new TelaCadastroCliente(1, null, null);
 					tela.setModal(true);
 					vendedor_contrato.setIe(inscricao_contrato);
 					tela.setInformacoesNovoCliente(vendedor_contrato, uf_inscricao_contrato, conta_pagamento);
@@ -3966,7 +3966,7 @@ public class ManipularArquivoTerceiros {
 		            JOptionPane.YES_NO_OPTION,
 		            JOptionPane.QUESTION_MESSAGE) == JOptionPane.YES_OPTION){
 				    
-				TelaCadastroCliente tela = new TelaCadastroCliente(1, null);
+				TelaCadastroCliente tela = new TelaCadastroCliente(1, null, null);
 				tela.setModal(true);
 				vendedor_contrato.setIe(inscricao_contrato);
 

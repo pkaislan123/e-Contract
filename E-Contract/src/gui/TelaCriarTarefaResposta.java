@@ -166,7 +166,7 @@ public class TelaCriarTarefaResposta extends JDialog {
 
             			isto.dispose();
             		}else {
-            			JOptionPane.showMessageDialog(null, "Erro ao atualizar a tarefa!\nConsulte o administrador");
+            			JOptionPane.showMessageDialog(isto, "Erro ao atualizar a tarefa!\nConsulte o administrador");
             			isto.dispose();
             		}
         			

@@ -397,7 +397,7 @@ public class TelaGerenciarCliente extends JDialog {
 		JButton btnEditar = new JButton("Editar");
 		btnEditar.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				TelaCadastroCliente telaEdicao = new TelaCadastroCliente(0, cliente_selecionado);
+				TelaCadastroCliente telaEdicao = new TelaCadastroCliente(0, cliente_selecionado, isto);
 				telaEdicao.setTelaPai(isto);
 				telaEdicao.setVisible(true);
 			}
@@ -464,7 +464,7 @@ public class TelaGerenciarCliente extends JDialog {
 		      btnNewButton.addActionListener(new ActionListener() {
 		      	public void actionPerformed(ActionEvent e) {
 		      		
-		      	  TelaEscolherDataBaixarNotas tela = new TelaEscolherDataBaixarNotas(cliente_local);
+		      	  TelaEscolherDataBaixarNotas tela = new TelaEscolherDataBaixarNotas(cliente_local, isto);
 		      	  tela.setVisible(true);
 		      	}
 		      });
@@ -845,14 +845,14 @@ public class TelaGerenciarCliente extends JDialog {
 		 });
 		
 
-		/*
+	
 		   setInformacoesDocumentos();
 	     setInfo();
 	     setInfoContratosComoVendedor();
 	     setInfoContratosComoComprador();
 
 	     setInfoPontuacao();
-	     */
+	     
 	  
 		this.setLocationRelativeTo(janela_pai);
 
@@ -1189,7 +1189,7 @@ public class TelaGerenciarCliente extends JDialog {
 				GerenciarBancoDocumento gerenciar_doc = new GerenciarBancoDocumento();
 				int cadastrar = gerenciar_doc.inserir_documento_padrao_cliente(novo_documento);
 				if (cadastrar > 0) {
-					JOptionPane.showMessageDialog(null, "Arquivo copiado e salvo na base de dados\nOrigem: "
+					JOptionPane.showMessageDialog(isto, "Arquivo copiado e salvo na base de dados\nOrigem: "
 							+ caminho_arquivo + "\nDestino: " + caminho_completo);
 					
 					entNomeDocumento.setText("");
@@ -1198,28 +1198,28 @@ public class TelaGerenciarCliente extends JDialog {
 					
 					atualizarArvoreDocumentos();
 				} else {
-					JOptionPane.showMessageDialog(null,
+					JOptionPane.showMessageDialog(isto,
 							"Arquivo copiado, mas não pode ser salvo\nConsulte o adiministrador do sistema!");
 					// cancelar operacao e excluir o arquivo
 					if (manipular.apagarArquivo(caminho_completo)) {
 
 					} else {
-						JOptionPane.showMessageDialog(null,
+						JOptionPane.showMessageDialog(isto,
 								"Erro ao excluir arquivo!\nConsulte o administrador do sistema");
 					}
 				}
 
 			} else {
-				JOptionPane.showMessageDialog(null, "Arquivo  não pode ser copiado\nOrigem: " + caminho_arquivo
+				JOptionPane.showMessageDialog(isto, "Arquivo  não pode ser copiado\nOrigem: " + caminho_arquivo
 						+ "\nDestino: " + caminho_completo + "\n Consulte o administrador!");
 
 			}
 				}else {
-					JOptionPane.showMessageDialog(null, "Nome do arquivo invalido!");
+					JOptionPane.showMessageDialog(isto, "Nome do arquivo invalido!");
 
 				}
 			}else {
-				JOptionPane.showMessageDialog(null, "Caminho do arquivo invalido!");
+				JOptionPane.showMessageDialog(isto, "Caminho do arquivo invalido!");
 			}
 
 		} catch (IOException f) {

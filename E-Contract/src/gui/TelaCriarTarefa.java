@@ -276,11 +276,11 @@ public class TelaCriarTarefa extends JDialog {
 				 if(checkString(nome))
 					 criar = true;
 				 else
-					 JOptionPane.showMessageDialog(null, "Nome da Tarefa Invalido");
+					 JOptionPane.showMessageDialog(isto, "Nome da Tarefa Invalido");
 				
 				 if(executor == null) {
 					 criar = false;
-					 JOptionPane.showMessageDialog(null, "Selecione o usuario que ira executar a tarefa");
+					 JOptionPane.showMessageDialog(isto, "Selecione o usuario que ira executar a tarefa");
 				 }
 				 else {
 					 criar = true;
@@ -314,13 +314,13 @@ public class TelaCriarTarefa extends JDialog {
 					 tarefas.add(nova_tarefa);
 					 boolean criado = gerenciar.inserirTarefas(contrato_local.getId(), tarefas);
 					 if(criado) {
-						 JOptionPane.showMessageDialog(null, "Tarefa Criada com Sucesso");
+						 JOptionPane.showMessageDialog(isto, "Tarefa Criada com Sucesso");
 						// ((TelaGerenciarContrato) telaPai).atualizarListaTarefas();
 						 ((TelaGerenciarContrato) telaPaiJFrame).atualizarListaTarefas();
 						 
 						 isto.dispose();
 					 }else {
-						 JOptionPane.showMessageDialog(null, "Erro ao inserir tarefa no banco de dado\nConsulte o administrador");
+						 JOptionPane.showMessageDialog(isto, "Erro ao inserir tarefa no banco de dado\nConsulte o administrador");
 
 					 }
 					 
@@ -343,7 +343,7 @@ public class TelaCriarTarefa extends JDialog {
 		JButton btnSelecionarExecutor = new JButton("Selecionar");
 		btnSelecionarExecutor.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				TelaUsuarios tela = new TelaUsuarios(1);
+				TelaUsuarios tela = new TelaUsuarios(1,isto);
 				tela.setTelaPai(isto);
 				tela.setVisible(true);
 			}

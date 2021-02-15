@@ -1334,20 +1334,20 @@ public ByteArrayOutputStream alterar(CadastroContrato novo_contrato)
 		String nome_vendedor2_arquivo;
 		
 		if(compradores[0].getTipo_pessoa() == 0)
-			nome_comprador_arquivo = compradores[0].getNome_empresarial();
+			nome_comprador_arquivo = compradores[0].getNome_empresarial().trim();
 		else
-			nome_comprador_arquivo = compradores[0].getNome_fantaia();
+			nome_comprador_arquivo = compradores[0].getNome_fantaia().trim();
 
 		if(vendedores[0].getTipo_pessoa() == 0)
-			nome_vendedor1_arquivo = vendedores[0].getNome_empresarial();
+			nome_vendedor1_arquivo = vendedores[0].getNome_empresarial().trim();
 		else
-			nome_vendedor1_arquivo = vendedores[0].getNome_fantaia();
+			nome_vendedor1_arquivo = vendedores[0].getNome_fantaia().trim();
 		
 		if(vendedores[1] != null) {
 		if(vendedores[1].getTipo_pessoa() == 0)
-			nome_vendedor2_arquivo = vendedores[1].getNome_empresarial();
+			nome_vendedor2_arquivo = vendedores[1].getNome_empresarial().trim();
 		else
-			nome_vendedor2_arquivo = vendedores[1].getNome_fantaia();
+			nome_vendedor2_arquivo = vendedores[1].getNome_fantaia().trim();
 		}else
 			nome_vendedor2_arquivo = null;
 		

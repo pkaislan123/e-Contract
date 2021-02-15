@@ -228,7 +228,7 @@ public class TelaFinalizarContratoIncompleto extends JDialog {
 				boolean fechar = gerenciar.atualizarStatusContrato(sub_contrato_global.getId(), 3);
 				
 				if(fechar) {
-					JOptionPane.showMessageDialog(null, "Contrato Finalizado com o status 'Cumprido Parcialmente'");
+					JOptionPane.showMessageDialog(isto, "Contrato Finalizado com o status 'Cumprido Parcialmente'");
 					GerenciarBancoPontuacao gerenciar_pontuacao = new GerenciarBancoPontuacao();
 					
 					CadastroCliente compradores[] = sub_contrato_global.getCompradores();
@@ -285,7 +285,7 @@ public class TelaFinalizarContratoIncompleto extends JDialog {
 								if (removido) {
 									prosseguir = true;
 								} else {
-									JOptionPane.showMessageDialog(null,
+									JOptionPane.showMessageDialog(isto,
 											"Erro ao remover pontuacao antiga\nConsulte o administrador!");
 									prosseguir = false;
 									break;
@@ -303,7 +303,7 @@ public class TelaFinalizarContratoIncompleto extends JDialog {
 						if (result > 0) {
 
 						} else {
-							JOptionPane.showMessageDialog(null,
+							JOptionPane.showMessageDialog(isto,
 									"Erro ao inserir pontuação de contrato\nConsulte o administrador");
 							break;
 						}
@@ -316,7 +316,7 @@ public class TelaFinalizarContratoIncompleto extends JDialog {
 					isto.dispose();
 					
 				}else {
-					JOptionPane.showMessageDialog(null, "Erro ao atualizar o status do contrato\nTente novamente, se persistir o erro consulte o administrador");
+					JOptionPane.showMessageDialog(isto, "Erro ao atualizar o status do contrato\nTente novamente, se persistir o erro consulte o administrador");
 				}
 			}
 		});

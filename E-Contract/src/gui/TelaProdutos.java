@@ -123,7 +123,7 @@ public class TelaProdutos extends JDialog {
 		JButton btnProduto = new JButton("+ Produto");
 		btnProduto.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				TelaCadastroProduto tela = new TelaCadastroProduto();
+				TelaCadastroProduto tela = new TelaCadastroProduto(isto);
 			}
 		});
 		btnProduto.setBounds(554, 55, 89, 23);

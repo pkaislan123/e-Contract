@@ -235,7 +235,7 @@ public class RelatorioContratos {
 				ArrayList<CadastroContrato> lista_contratos_como_comprador = new ArrayList<>();
 
 				if (contrato_como_comprador) {
-					JOptionPane.showMessageDialog(null, "Tipo do contrato: " + tipo_contrato);
+					//JOptionPane.showMessageDialog(null, "Tipo do contrato: " + tipo_contrato);
 					if(tipo_contrato == 1) {
 					lista_contratos_como_comprador = procura_contratos_grupo.getContratosPorCliente(1, id_safra,
 							cliente.getId());
@@ -244,9 +244,9 @@ public class RelatorioContratos {
 								cliente.getId());
 					}
 				}else {
-					JOptionPane.showMessageDialog(null, "Pesquisa como vendedor");
+					//JOptionPane.showMessageDialog(null, "Pesquisa como vendedor");
 
-					JOptionPane.showMessageDialog(null, "Tipo do contrato: " + tipo_contrato);
+					//JOptionPane.showMessageDialog(null, "Tipo do contrato: " + tipo_contrato);
 					if(tipo_contrato == 1) {
 					lista_contratos_como_comprador = procura_contratos_grupo.getContratosPorCliente(2, id_safra,
 							cliente.getId());
@@ -308,9 +308,9 @@ public class RelatorioContratos {
 			ArrayList<CadastroContrato> lista_contratos_como_vendedor = new ArrayList<>();
 
 				
-				JOptionPane.showMessageDialog(null, "Pesquisa como vendedor");
+				//JOptionPane.showMessageDialog(null, "Pesquisa como vendedor");
 
-				JOptionPane.showMessageDialog(null, "Tipo do contrato: " + tipo_contrato);
+				//JOptionPane.showMessageDialog(null, "Tipo do contrato: " + tipo_contrato);
 				
 			
 				lista_contratos_como_vendedor = procura_contratos_grupo.getContratosPorCliente(2, id_safra,
@@ -408,7 +408,7 @@ public class RelatorioContratos {
 				this.contrato_irmao = true;
 
             	//contrato interno
-            	JOptionPane.showMessageDialog(null, "Relatorio interno");
+            	//JOptionPane.showMessageDialog(null, "Relatorio interno");
             	//verifica se este contrato e um subcontrato
             	for(CadastroContrato contrato_na_lista : lista_contratos_como_vendedor) {
             		if(contrato_na_lista.getSub_contrato() == 1) {
@@ -554,7 +554,7 @@ public class RelatorioContratos {
 
 		if (carregamento) {
 
-			JOptionPane.showMessageDialog(null, "Carregamento  selecionado");
+			//JOptionPane.showMessageDialog(null, "Carregamento  selecionado");
 
 			// obter carregamentos desde cliente
 			GerenciarBancoContratos gerenciar = new GerenciarBancoContratos();
@@ -565,7 +565,7 @@ public class RelatorioContratos {
 				lista_carregamento_como_comprador = gerenciar.getCarregamentosPorComprador(cliente_alvo_global.getId());
 			}
 			if (carregamento_como_vendedor) {
-				JOptionPane.showMessageDialog(null, "Carregamento como vendedor  selecionado");
+				//JOptionPane.showMessageDialog(null, "Carregamento como vendedor  selecionado");
 				lista_carregamento_como_vendedor = gerenciar.getCarregamentosPorVendedor(cliente_alvo_global.getId());
 
 			}
@@ -590,7 +590,7 @@ public class RelatorioContratos {
 			    CadastroContrato contrato_carga = gerenciar_cargas.getContrato(lista_carregamento_como_vendedor.get(i).getId_contrato());
 
 			    if(contrato_carga.getSub_contrato() != 1) {
-					JOptionPane.showMessageDialog(null, "adicionando item na lista final");
+					//JOptionPane.showMessageDialog(null, "adicionando item na lista final");
 
 					lista_final.add(lista_carregamento_como_vendedor.get(i));	    		
 			    	
@@ -671,8 +671,8 @@ public class RelatorioContratos {
 					Units.toEMU(30), Units.toEMU(30));
 
 		} catch (Exception e) {
-			JOptionPane.showMessageDialog(null,
-					"Erro ao criar cabecalho e rodape do contrato!\nConsulte o administrador do sistema!");
+			//JOptionPane.showMessageDialog(null,
+				//	"Erro ao criar cabecalho e rodape do contrato!\nConsulte o administrador do sistema!");
 			e.printStackTrace();
 		}
 

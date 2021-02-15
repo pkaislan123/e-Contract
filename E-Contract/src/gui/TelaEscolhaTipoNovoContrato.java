@@ -104,14 +104,14 @@ public class TelaEscolhaTipoNovoContrato extends JDialog {
                    if(opcao.equals("Padrão - Formal"))
                    {
                 	   System.out.println("padrao escolhido: " + modelos.get(1).getNome_modelo());
-                	   TelaElaborarNovoContrato contrato = new TelaElaborarNovoContrato(modelos.get(1), tipoContrato, contrato_pai, flag_edicao);
+                	   TelaElaborarNovoContrato contrato = new TelaElaborarNovoContrato(modelos.get(1), tipoContrato, contrato_pai, flag_edicao, isto);
                  	  
                  	  // TelaNovoContrato contrato = new TelaNovoContrato("C:\\Users\\Aislan\\Documents\\modelo_informal_padrao.xlsx");
                  	   isto.dispose();  
                    }
                    if(opcao.equals("Padrão - Informal"))
                    {
-                	  TelaElaborarNovoContrato contrato = new TelaElaborarNovoContrato(modelos.get(0), tipoContrato, contrato_pai, flag_edicao);
+                	  TelaElaborarNovoContrato contrato = new TelaElaborarNovoContrato(modelos.get(0), tipoContrato, contrato_pai, flag_edicao,isto);
                 	  
                 	  // TelaNovoContrato contrato = new TelaNovoContrato("C:\\Users\\Aislan\\Documents\\modelo_informal_padrao.xlsx");
                 	   isto.dispose();

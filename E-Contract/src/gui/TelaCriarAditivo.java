@@ -34,6 +34,7 @@ import javax.swing.JTextArea;
 import javax.swing.BoxLayout;
 import java.awt.GridLayout;
 import java.awt.SystemColor;
+import java.awt.Window;
 import java.awt.GridBagLayout;
 import java.awt.GridBagConstraints;
 import com.jgoodies.forms.layout.FormLayout;
@@ -74,7 +75,7 @@ public class TelaCriarAditivo extends JDialog {
 	private TelaCriarAditivo isto;
 	EditarAditivo editarWord ;
 	
-	public TelaCriarAditivo(CadastroContrato contrato, JFrame janela_pai) {
+	public TelaCriarAditivo(CadastroContrato contrato, Window janela_pai) {
 		getDadosGlobais();
 		setModal(true);
 		
@@ -269,14 +270,14 @@ public class TelaCriarAditivo extends JDialog {
 			if(guardar > 0) {
 				
                 boolean deletar_arquivo = manipular.apagarArquivo(caminho_completo + ".docx");
-				JOptionPane.showMessageDialog(null, "Aditivo Criado com sucesso");
+				JOptionPane.showMessageDialog(isto, "Aditivo Criado com sucesso");
 				//((TelaGerenciarContrato) telaPai).setInformacoesAditivos();
 				((TelaGerenciarContrato) telaPaiJrame).setInformacoesAditivos();
 
 				isto.dispose();
 
 			}else {
-				JOptionPane.showMessageDialog(null, "Erro ao guardar o aditivo na base de dados!\nConsulte o administrador");
+				JOptionPane.showMessageDialog(isto, "Erro ao guardar o aditivo na base de dados!\nConsulte o administrador");
                 boolean deletar_arquivo = manipular.apagarArquivo(caminho_completo + ".docx");
                 boolean deletar_pdf = manipular.apagarArquivo(caminho_completo + ".pdf");
 
@@ -286,7 +287,7 @@ public class TelaCriarAditivo extends JDialog {
 			
 			
 		}else {
-			JOptionPane.showMessageDialog(null, "Erro ao salvar o arquivo fisico!\nConsulte o administrador");
+			JOptionPane.showMessageDialog(isto, "Erro ao salvar o arquivo fisico!\nConsulte o administrador");
 
 		}
 		

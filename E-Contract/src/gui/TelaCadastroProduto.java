@@ -25,6 +25,8 @@ import java.awt.Font;
 import javax.swing.JTextField;
 import javax.swing.JTextArea;
 import java.awt.SystemColor;
+import java.awt.Window;
+
 import javax.swing.JComboBox;
 
 public class TelaCadastroProduto extends JDialog {
@@ -34,7 +36,7 @@ public class TelaCadastroProduto extends JDialog {
 	private JTextField entCodigo;
     private JComboBox cBTransgenia;
 
-	public TelaCadastroProduto() {
+	public TelaCadastroProduto(Window janela_pai) {
 
 		setModal(true);
 
@@ -110,12 +112,12 @@ public class TelaCadastroProduto extends JDialog {
 					    	
 					    }
 					}catch(Exception t) {
-						 JOptionPane.showMessageDialog(null, "Código Invalido!");
+						 JOptionPane.showMessageDialog(isto, "Código Invalido!");
 
 					}
 					
 				}else {
-					 JOptionPane.showMessageDialog(null, "Código Invalido!");
+					 JOptionPane.showMessageDialog(isto, "Código Invalido!");
 
 				}
 				
@@ -150,7 +152,8 @@ public class TelaCadastroProduto extends JDialog {
 		cBTransgenia.setBounds(170, 137, 200, 29);
 		cBTransgenia.addItem("Transgenico(GMO)");
 		cBTransgenia.addItem("Convencional(NON-GMO)");
-	
+		cBTransgenia.addItem("Não Informar");
+
 		painelPrincipal.add(cBTransgenia);
 		
 		entCodigo.addKeyListener(new KeyAdapter() {
@@ -175,7 +178,7 @@ public class TelaCadastroProduto extends JDialog {
 			}
 		});
 		
-		this.setLocationRelativeTo(null);
+		this.setLocationRelativeTo(janela_pai);
 
 		this.setVisible(true);
 		

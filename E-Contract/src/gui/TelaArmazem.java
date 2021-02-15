@@ -3,6 +3,7 @@ package gui;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.FlowLayout;
+import java.awt.Window;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
@@ -74,9 +75,9 @@ public class TelaArmazem extends JDialog {
     }
 		
 	}
-	public TelaArmazem() {
+	public TelaArmazem(Window janela_pai) {
 
-		setModal(true);
+		//setModal(true);
 
 		TelaArmazem isto = this;
 		
@@ -96,7 +97,7 @@ public class TelaArmazem extends JDialog {
 		btnarmazm.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 			
-			TelaCadastroCliente tela = new TelaCadastroCliente(5,  null);
+			TelaCadastroCliente tela = new TelaCadastroCliente(5,  null, isto);
 			tela.setTelaPai(isto);
 			tela.setVisible(true);
 			}
@@ -148,7 +149,7 @@ public class TelaArmazem extends JDialog {
 			public void actionPerformed(ActionEvent arg0) {
 				int indiceDaLinha = tabela.getSelectedRow();
 
-				TelaCadastroCliente telaEdicao = new TelaCadastroCliente(6, armazens_disponiveis.get(indiceDaLinha));
+				TelaCadastroCliente telaEdicao = new TelaCadastroCliente(6, armazens_disponiveis.get(indiceDaLinha), isto);
 				telaEdicao.setTelaPai(isto);
 				telaEdicao.setVisible(true);
 
@@ -157,7 +158,7 @@ public class TelaArmazem extends JDialog {
 		btnEditar.setBounds(574, 400, 89, 23);
 		painelPrincipal.add(btnEditar);
 		
-		this.setLocationRelativeTo(null);
+		this.setLocationRelativeTo(janela_pai);
 
 		this.setVisible(true);
 		

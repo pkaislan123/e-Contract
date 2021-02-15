@@ -33,6 +33,7 @@ import javax.swing.JTextArea;
 import javax.swing.BoxLayout;
 import java.awt.GridLayout;
 import java.awt.SystemColor;
+import java.awt.Window;
 import java.awt.GridBagLayout;
 import java.awt.GridBagConstraints;
 import com.jgoodies.forms.layout.FormLayout;
@@ -60,7 +61,7 @@ public class TelaEscolherDataBaixarNotas extends JDialog {
 	private CadastroLogin login;
 	private ConfiguracoesGlobais configs_globais;
 
-	public TelaEscolherDataBaixarNotas(CadastroCliente cliente) {
+	public TelaEscolherDataBaixarNotas(CadastroCliente cliente, Window janela_pai) {
 		setModal(true);
         getDadosGlobais();
 		 isto = this;
@@ -149,7 +150,7 @@ public class TelaEscolherDataBaixarNotas extends JDialog {
 				int i_mes_fim = checkMes(mes_fim);
 				
 				if(i_mes_inicio == i_mes_fim) {
-					JOptionPane.showMessageDialog(null, "Intervalo mensal deve ser superior a um mês");
+					JOptionPane.showMessageDialog(isto, "Intervalo mensal deve ser superior a um mês");
 				}else {
 					String ano = cBAno.getSelectedItem().toString();
 					try {
@@ -161,11 +162,11 @@ public class TelaEscolherDataBaixarNotas extends JDialog {
 					  TelaMain telaP = dados.getTelaPrincipal();
 					  telaP.baixarNotasEmSegundoPlano(cliente, i_mes_inicio, i_mes_fim, i_ano);
 					  
-					  JOptionPane.showMessageDialog(null, "Download de nota foi iniciado em segundo plano");
+					  JOptionPane.showMessageDialog(isto, "Download de nota foi iniciado em segundo plano");
 					  isto.dispose();
 					 
 					}catch(Exception f) {
-						JOptionPane.showMessageDialog(null, "Não foi possivel converter o ano\nConsulte o administrador");
+						JOptionPane.showMessageDialog(isto, "Não foi possivel converter o ano\nConsulte o administrador");
 
 					}
 				}
@@ -187,7 +188,7 @@ public class TelaEscolherDataBaixarNotas extends JDialog {
 		
 		
 
-		this.setLocationRelativeTo(null);
+		this.setLocationRelativeTo(janela_pai);
 
 		
 		

@@ -325,10 +325,10 @@ public class EditarWord {
 
 
 		for(CadastroContrato.CadastroPagamento pagamento : novo_contrato.getPagamentos()) {
-			if(pagamento.getPagamento_adiantado() != 1) {
+			
 				criarTabelaPagamento(pagamento);
 
-			}
+			
 
 		}
 		
@@ -897,6 +897,10 @@ public class EditarWord {
 	    tableRowOne.getCell(1).removeParagraph(0);
         paragraph = tableRowOne.getCell(1).addParagraph();
     
+        if(pagamento.getPagamento_adiantado() == 1) {
+            criarParagrafoTabela(paragraph,"Pagamento Antecipado,Já Efetuado" , true );
+	
+        }else
         criarParagrafoTabela(paragraph,pagamento.getData_pagamento() , true );
        
 	    
@@ -2009,20 +2013,20 @@ public class EditarWord {
 		String nome_vendedor2_arquivo;
 		
 		if(compradores[0].getTipo_pessoa() == 0)
-			nome_comprador_arquivo = compradores[0].getNome_empresarial();
+			nome_comprador_arquivo = compradores[0].getNome_empresarial().trim();
 		else
-			nome_comprador_arquivo = compradores[0].getNome_fantaia();
+			nome_comprador_arquivo = compradores[0].getNome_fantaia().trim();
 
 		if(vendedores[0].getTipo_pessoa() == 0)
-			nome_vendedor1_arquivo = vendedores[0].getNome_empresarial();
+			nome_vendedor1_arquivo = vendedores[0].getNome_empresarial().trim();
 		else
-			nome_vendedor1_arquivo = vendedores[0].getNome_fantaia();
+			nome_vendedor1_arquivo = vendedores[0].getNome_fantaia().trim();
 		
 		if(vendedores[1] != null) {
 		if(vendedores[1].getTipo_pessoa() == 0)
-			nome_vendedor2_arquivo = vendedores[1].getNome_empresarial();
+			nome_vendedor2_arquivo = vendedores[1].getNome_empresarial().trim();
 		else
-			nome_vendedor2_arquivo = vendedores[1].getNome_fantaia();
+			nome_vendedor2_arquivo = vendedores[1].getNome_fantaia().trim();
 		}else
 			nome_vendedor2_arquivo = null;
 		
@@ -2119,6 +2123,7 @@ public class EditarWord {
 						if(manipular.criarDiretorio(caminho_salvar_contrato__no_hd + nome_pasta_arquivo + "\\"))
 						{
 							System.out.println("diretorio criado para o novo sub contrato vendedor1");
+							   JOptionPane.showMessageDialog(null, "diretorio criado para o sub contrato");
 							  if(criarArquivos(nome_arquivo,caminho_completo_salvar_contrato_no_hd,  caminho_completo_salvar_contrato_no_bando_dados, nome_diretorio_arquivo_sub_contrato1))
 							    	{
 							    	
@@ -2131,16 +2136,20 @@ public class EditarWord {
 
 										}else {
 											arquivos_vendedor1_criado = false;
+	                                        JOptionPane.showMessageDialog(null, "Erro ao criar o diretorio documentos");
 
 										}	
 
 									}else {
 										arquivos_vendedor1_criado = false;
-
+                                        JOptionPane.showMessageDialog(null, "Erro ao criar o diretorio comprovantes");
 									}	
 							    	
-							    	}else
+							    	}else {
 							    	arquivos_vendedor1_criado = false;
+                                    JOptionPane.showMessageDialog(null, "Erro ao criar o arquivo ");
+
+							    	}
 						}else {
 							System.out.println("erro ao criar diretorio para o sub contrato vendedor1");
 							arquivos_vendedor1_criado = false;
@@ -2311,6 +2320,7 @@ public class EditarWord {
              }
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
+			JOptionPane.showMessageDialog(null, "Erro ao criar o arquivo fisico\nErro; " + e.getMessage() + " Causa: " + e.getCause());
 			System.out.println("erro ao criar o arquivo fisico, erro: " + e.getMessage());
 			e.printStackTrace();
 			

@@ -169,7 +169,7 @@ public class TelaChat extends JDialog {
 		System.out.printf("Altura: %d\n", taskBarHeight);
 		
 		GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
-    	JOptionPane.showMessageDialog(null, "id da tela pai: " + index_tela_pai);
+    	JOptionPane.showMessageDialog(isto, "id da tela pai: " + index_tela_pai);
 
 	    GraphicsDevice[] gd = ge.getScreenDevices();
 	    Rectangle rect = gd[index_tela_pai].getDefaultConfiguration().getBounds();
@@ -458,7 +458,7 @@ public class TelaChat extends JDialog {
 
 						if (registro_mensagens.get(indice).getNum_mensagens_atual() < registro
 								.getNum_mensagens_atual()) {
-							JOptionPane.showMessageDialog(null, "Nova mensagem recebida!");
+							JOptionPane.showMessageDialog(isto, "Nova mensagem recebida!");
 						}
 
 						registro_mensagens.add(indice, registro);

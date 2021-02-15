@@ -185,7 +185,7 @@ public class TelaCadastroGrupo extends JDialog {
 				String nome_grupo = entNomeGrupo.getText();
 				
 				if(nome_grupo == null || nome_grupo.equals(" ") || nome_grupo.equals("") || nome_grupo.length() < 5) {
-					JOptionPane.showMessageDialog(null, "Nome de Grupo Invalido!");
+					JOptionPane.showMessageDialog(isto, "Nome de Grupo Invalido!");
 				}else {
 					
 					String descricao = textAreaDescricaoGrupo.getText();
@@ -204,10 +204,10 @@ public class TelaCadastroGrupo extends JDialog {
 					int salvar = gerenciar.inserirGrupo(grupo);
 					
 					if(salvar > 0) {
-						JOptionPane.showMessageDialog(null, "Grupo Criado com Sucesso");
+						JOptionPane.showMessageDialog(isto, "Grupo Criado com Sucesso");
 
 					}else {
-						JOptionPane.showMessageDialog(null, "Erro ao inserir grupo\nConsulte o administrador");
+						JOptionPane.showMessageDialog(isto, "Erro ao inserir grupo\nConsulte o administrador");
 
 					}
 					
@@ -218,7 +218,7 @@ public class TelaCadastroGrupo extends JDialog {
 					String nome_grupo = entNomeGrupo.getText();
 					
 					if(nome_grupo == null || nome_grupo.equals(" ") || nome_grupo.equals("") || nome_grupo.length() < 5) {
-						JOptionPane.showMessageDialog(null, "Nome de Grupo Invalido!");
+						JOptionPane.showMessageDialog(isto, "Nome de Grupo Invalido!");
 					}else {
 						
 						String descricao = textAreaDescricaoGrupo.getText();
@@ -237,10 +237,10 @@ public class TelaCadastroGrupo extends JDialog {
 						boolean salvar = gerenciar.atualizarGrupo(grupo);
 						
 						if(salvar) {
-							JOptionPane.showMessageDialog(null, "Grupo Atualizo com Sucesso");
+							JOptionPane.showMessageDialog(isto, "Grupo Atualizo com Sucesso");
 
 						}else {
-							JOptionPane.showMessageDialog(null, "Erro ao atualizar grupo\nConsulte o administrador");
+							JOptionPane.showMessageDialog(isto, "Erro ao atualizar grupo\nConsulte o administrador");
 
 						}
 						

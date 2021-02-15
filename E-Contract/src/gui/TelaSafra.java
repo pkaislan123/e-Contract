@@ -3,6 +3,7 @@ package gui;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.FlowLayout;
+import java.awt.Window;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
@@ -60,10 +61,10 @@ public class TelaSafra extends JDialog {
     
 		
 
-	public TelaSafra() {
+	public TelaSafra(Window janela_pai) {
 		//setAlwaysOnTop(true);
 
-		setModal(true);
+		
 
 		TelaSafra isto = this;
 		
@@ -82,7 +83,7 @@ public class TelaSafra extends JDialog {
 		JButton btnsafra = new JButton("+Safra");
 		btnsafra.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-			TelaCadastroSafra tela = new TelaCadastroSafra();
+			TelaCadastroSafra tela = new TelaCadastroSafra(isto);
 			}
 		});
 		btnsafra.setBounds(537, 70, 89, 23);
@@ -125,7 +126,7 @@ public class TelaSafra extends JDialog {
         scrollPane.setBackground(new Color(255, 255, 255));
 		panel.add(scrollPane);
 		
-		this.setLocationRelativeTo(null);
+		this.setLocationRelativeTo(janela_pai);
 
 		this.setVisible(true);
 		

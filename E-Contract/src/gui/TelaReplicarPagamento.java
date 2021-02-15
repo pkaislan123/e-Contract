@@ -28,6 +28,7 @@ import javax.swing.JTextArea;
 import javax.swing.BoxLayout;
 import java.awt.GridLayout;
 import java.awt.SystemColor;
+import java.awt.Window;
 import java.awt.GridBagLayout;
 import java.awt.GridBagConstraints;
 import com.jgoodies.forms.layout.FormLayout;
@@ -59,7 +60,7 @@ public class TelaReplicarPagamento extends JDialog {
     private JFrame telaPaiJFrame;
     
 	public TelaReplicarPagamento(CadastroContrato contrato_pai,
-			CadastroContrato.CadastroPagamentoContratual pagamento) {
+			CadastroContrato.CadastroPagamentoContratual pagamento, Window janela_pai) {
 		setModal(true);
 
 		this.contrato_pai_local = contrato_pai;
@@ -110,7 +111,7 @@ public class TelaReplicarPagamento extends JDialog {
 		btnNewButton_1.setBounds(254, 67, 90, 28);
 		painelPrincipal.add(btnNewButton_1);
 
-		this.setLocationRelativeTo(null);
+		this.setLocationRelativeTo(janela_pai);
 
 	}
 
@@ -157,24 +158,24 @@ public class TelaReplicarPagamento extends JDialog {
 				boolean retorno = gerenciar.inserir_contrato_pagamento_contratual(sub_contrato.getId(),
 						pagamento_local.getId_pagamento());
 				if (retorno) {
-					JOptionPane.showMessageDialog(null, "Pagamento Replicado!");
+					JOptionPane.showMessageDialog(isto, "Pagamento Replicado!");
 
 					int anexo_replicado = gerenciar_docs.inserir_documento_padrao(doc);
 					if (anexo_replicado > 1) {
-						JOptionPane.showMessageDialog(null, "Comprovante deste pagamento também foi replicado");
+						JOptionPane.showMessageDialog(isto, "Comprovante deste pagamento também foi replicado");
 
 					} else {
-						JOptionPane.showMessageDialog(null, "Erro ao replicar anexo!\nConsulte o administrador!");
+						JOptionPane.showMessageDialog(isto, "Erro ao replicar anexo!\nConsulte o administrador!");
 
 					}
 
 				} else {
-					JOptionPane.showMessageDialog(null,
+					JOptionPane.showMessageDialog(isto,
 							"Erro ao Replicar o Pagamento\nNão ha erros no banco de dados\nTente Novamente!");
 					isto.dispose();
 				}
 			} else {
-				JOptionPane.showMessageDialog(null,
+				JOptionPane.showMessageDialog(isto,
 						"O arquivo fisico não foi copiao! Replica cancelada!\nTente Novamente, se o erro persistir, consulte o administrador");
 
 			}

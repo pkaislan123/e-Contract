@@ -70,7 +70,7 @@ public class TelaConfirmarCarregamento extends JDialog {
 	public TelaConfirmarCarregamento(CadastroContrato _contrato_local, JFrame janela_pai) {
 		//setAlwaysOnTop(true);
 
-		setModal(true);
+		//setModal(true);
 
 		isto = this;
 		this.contrato_local = _contrato_local;
@@ -93,7 +93,7 @@ public class TelaConfirmarCarregamento extends JDialog {
 
 		JPanel panel_1 = new JPanel();
 		panel_1.setLayout(null);
-		panel_1.setBounds(21, 11, 492, 383);
+		panel_1.setBounds(21, 11, 492, 417);
 		painelSelecionar.add(panel_1);
 
 		JLabel lblNewLabel_3 = new JLabel("Data:");
@@ -144,7 +144,7 @@ public class TelaConfirmarCarregamento extends JDialog {
 		JButton btnSelecionarTransportador = new JButton("Selecionar");
 		btnSelecionarTransportador.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				TelaTransportadores selecionar_transportador = new TelaTransportadores(1,isto);
+				TelaTransportadores selecionar_transportador = new TelaTransportadores(2,isto);
 				selecionar_transportador.setTelaPai(isto);
 				selecionar_transportador.setVisible(true);
 			}
@@ -318,14 +318,14 @@ public class TelaConfirmarCarregamento extends JDialog {
 				isto.dispose();
 			}
 		});
-		btnCancelar_1.setBounds(424, 405, 89, 23);
+		btnCancelar_1.setBounds(424, 439, 89, 23);
 		painelSelecionar.add(btnCancelar_1);
 
 		getContentPane().add(abas, BorderLayout.CENTER);
 
 		setBackground(new Color(255, 255, 255));
 		setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-		setBounds(100, 100, 544, 506);
+		setBounds(100, 100, 544, 559);
 		painelConfirmar.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseEntered(MouseEvent arg0) {
@@ -390,7 +390,7 @@ public class TelaConfirmarCarregamento extends JDialog {
 				boolean retorno = gerenciar.inserirCarregamento(contrato_local.getId(),
 						carregamento_a_inserir);
 				if (retorno) {
-					JOptionPane.showMessageDialog(null, "Carregamento Cadastrado!");
+					JOptionPane.showMessageDialog(isto, "Carregamento Cadastrado!");
 					//((TelaGerenciarContrato) telaPai).pesquisar_carregamentos();
 					((TelaGerenciarContrato) telaPaiJFrame).pesquisar_carregamentos();
 					
@@ -414,14 +414,14 @@ public class TelaConfirmarCarregamento extends JDialog {
 					isto.dispose();
 
 				} else {
-					JOptionPane.showMessageDialog(null,
+					JOptionPane.showMessageDialog(isto,
 							"Erro ao inserir o carregamento\nConsulte o administrador do sistema!");
 					isto.dispose();
 				}
 
 			}
 		});
-		btnSalvar.setBounds(288, 358, 89, 23);
+		btnSalvar.setBounds(298, 424, 89, 23);
 		painelConfirmar.add(btnSalvar);
 
 		JButton btnCancelar = new JButton("Revisar");
@@ -431,7 +431,7 @@ public class TelaConfirmarCarregamento extends JDialog {
 				isto.dispose();
 			}
 		});
-		btnCancelar.setBounds(392, 358, 89, 23);
+		btnCancelar.setBounds(402, 424, 89, 23);
 		painelConfirmar.add(btnCancelar);
 
 		JLabel lblNewLabel_1 = new JLabel("Contrato:");
@@ -482,7 +482,7 @@ public class TelaConfirmarCarregamento extends JDialog {
 		painelConfirmar.add(lblPesoRealCarregamento);
 
 		JLabel lblNewLabel_2 = new JLabel("Nota Fiscal:");
-		lblNewLabel_2.setBounds(10, 249, 72, 14);
+		lblNewLabel_2.setBounds(10, 256, 72, 14);
 		painelConfirmar.add(lblNewLabel_2);
 		
 		lblNotaFiscalCarregamento = new JTextArea("");
@@ -492,7 +492,7 @@ public class TelaConfirmarCarregamento extends JDialog {
 
 		
 		JScrollPane scrollPane = new JScrollPane(lblNotaFiscalCarregamento);
-		scrollPane.setBounds(88, 237, 403, 95);
+		scrollPane.setBounds(92, 251, 403, 134);
 		painelConfirmar.add(scrollPane);
 		
 		 lblCaminhoNFa = new JLabel("");
@@ -595,7 +595,14 @@ public class TelaConfirmarCarregamento extends JDialog {
 				cBTransportador.repaint();
 				cBTransportador.updateUI();
 
-				cBTransportador.addItem(_transportador.getNome() + _transportador.getSobrenome());
+				if(_transportador.getTipo_pessoa() == 0) {
+					//pessoa fisica
+					cBTransportador.addItem(_transportador.getNome_empresarial().toUpperCase().trim());
+
+				}else {
+					cBTransportador.addItem(_transportador.getNome_fantaia().toUpperCase().trim());
+
+				}
 
 				cBTransportador.repaint();
 				cBTransportador.updateUI();
@@ -627,9 +634,13 @@ public class TelaConfirmarCarregamento extends JDialog {
 		lblClienteCarregamento.setText(nome_cliente);
 
 		lblContratoCarregamento.setText(contrato_local.getCodigo());
+		if(transportador_carregamento.getTipo_pessoa() == 0) {
 		lblTransportadorCarregamento
-				.setText(transportador_carregamento.getNome() + " " + transportador_carregamento.getSobrenome());
-
+				.setText(transportador_carregamento.getNome_empresarial());
+		}else {
+			lblTransportadorCarregamento
+			.setText(transportador_carregamento.getNome_fantaia());
+		}
 		String s_veiculo = cbVeiculo.getSelectedItem().toString();
 		String separados[] = s_veiculo.split("-");
 		int id_veiculo = Integer.parseInt(separados[0]);

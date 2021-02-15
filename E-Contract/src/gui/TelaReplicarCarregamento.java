@@ -28,6 +28,7 @@ import javax.swing.JTextArea;
 import javax.swing.BoxLayout;
 import java.awt.GridLayout;
 import java.awt.SystemColor;
+import java.awt.Window;
 import java.awt.GridBagLayout;
 import java.awt.GridBagConstraints;
 import com.jgoodies.forms.layout.FormLayout;
@@ -63,8 +64,8 @@ public class TelaReplicarCarregamento extends JDialog {
 		}
 	};
 
-	public TelaReplicarCarregamento(CadastroContrato contrato_pai, CadastroContrato.Carregamento carregamento) {
-		setModal(true);
+	public TelaReplicarCarregamento(CadastroContrato contrato_pai, CadastroContrato.Carregamento carregamento, Window janela_pai) {
+		//setModal(true);
 
 		this.contrato_pai_local = contrato_pai;
 		this.carregamento_local = carregamento;
@@ -121,7 +122,7 @@ public class TelaReplicarCarregamento extends JDialog {
 		btnNewButton_1.setBounds(254, 67, 90, 28);
 		painelPrincipal.add(btnNewButton_1);
 
-		this.setLocationRelativeTo(null);
+		this.setLocationRelativeTo(janela_pai);
 
 	}
 
@@ -184,23 +185,23 @@ public class TelaReplicarCarregamento extends JDialog {
 
 				int anexo_replicado = gerenciar_docs.inserir_documento_padrao(doc);
 				if (anexo_replicado > 1) {
-					JOptionPane.showMessageDialog(null, "Comprovante deste carregamento também foi replicado");
+					JOptionPane.showMessageDialog(isto, "Comprovante deste carregamento também foi replicado");
 
 					boolean retorno = gerenciar.inserirCarregamento(sub_contrato.getId(), carregamento_local);
 					if (retorno) {
-						JOptionPane.showMessageDialog(null, "Carregamento Replicado!");
+						JOptionPane.showMessageDialog(isto, "Carregamento Replicado!");
 
 					} else {
-						JOptionPane.showMessageDialog(null,
+						JOptionPane.showMessageDialog(isto,
 								"Erro ao Replicar o Carregamento\nNão ha erros no banco de dados\nTente Novamente!");
 						isto.dispose();
 					}
 				} else {
-					JOptionPane.showMessageDialog(null, "Erro ao replicar anexo!\nConsulte o administrador!");
+					JOptionPane.showMessageDialog(isto, "Erro ao replicar anexo!\nConsulte o administrador!");
 
 				}
 			} else {
-				JOptionPane.showMessageDialog(null,
+				JOptionPane.showMessageDialog(isto,
 						"O arquivo fisico não foi copiao! Replica cancelada!\nTente Novamente, se o erro persistir, consulte o administrador");
 
 			}

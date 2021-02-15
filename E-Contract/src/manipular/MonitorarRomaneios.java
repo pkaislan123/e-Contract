@@ -8,6 +8,7 @@ import cadastros.CadastroCliente;
 import cadastros.CadastroLogin;
 import cadastros.CadastroNFe;
 import cadastros.CadastroRomaneio;
+import cadastros.CadastroSafra;
 import conexaoBanco.GerenciarBancoClientes;
 import outros.DadosGlobais;
 import tratamento_proprio.Log;
@@ -60,6 +61,30 @@ public class MonitorarRomaneios {
 			} catch (Exception e) {
 				 JOptionPane.showMessageDialog(null, "Erro ao ler romaneios");
               return null;
+			}
+			
+		
+}
+	
+	
+public int vigiarTodosRomaneiosMaisRapidoRetornoQuantidadeRecebida(CadastroSafra safra) {
+		
+        try {
+        	 
+        	 double quantidade_total_sacos_recebidos_safra_selecionada ;
+				String unidade_base_dados = configs_globais.getServidorUnidade();
+				String sub_pasta = "E-Contract\\arquivos\\clientes";
+				String pasta_final = unidade_base_dados + "\\" + sub_pasta;
+
+				ManipularRomaneios manipular = new ManipularRomaneios(pasta_final);
+				ArrayList<CadastroRomaneio> romaneios = manipular.tratarMaisRapido();
+
+			  
+				return 0;
+
+			} catch (Exception e) {
+				 JOptionPane.showMessageDialog(null, "Erro ao ler romaneios");
+              return -1;
 			}
 			
 		

@@ -211,10 +211,10 @@ public class TelaConfirmarTransferenciaPagamentoContratual extends JDialog {
 				if(transferiou > 0) {
 					//((TelaGerenciarContrato) telaPai).pesquisar_pagamentos();
 					((TelaGerenciarContrato) telaPaiJFrame).pesquisar_pagamentos();
-					JOptionPane.showMessageDialog(null, "Transferencia Efetuada");
+					JOptionPane.showMessageDialog(isto, "Transferencia Efetuada");
 					isto.dispose();
 				}else {
-					JOptionPane.showMessageDialog(null, "Erro ao realizar Transferencia Efetuada\nConsulte o administrador");
+					JOptionPane.showMessageDialog(isto, "Erro ao realizar Transferencia Efetuada\nConsulte o administrador");
 					isto.dispose();
 
 				}

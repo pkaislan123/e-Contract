@@ -30,6 +30,7 @@ import cadastros.ContaBancaria;
 import classesExtras.Carregamento;
 import conexaoBanco.GerenciarBancoClientes;
 import conexaoBanco.GerenciarBancoContratos;
+import outros.GetData;
 
 import javax.swing.JLabel;
 import javax.swing.JTextArea;
@@ -75,7 +76,7 @@ public class TelaConfirmarPagamentoContratual extends JDialog {
 	public TelaConfirmarPagamentoContratual(CadastroContrato _contrato_local, JFrame janela_pai) {
 		//setAlwaysOnTop(true);
 
-		setModal(true);
+		//setModal(true);
 
 		isto = this;
 		this.contrato_local = _contrato_local;
@@ -107,13 +108,27 @@ public class TelaConfirmarPagamentoContratual extends JDialog {
 		panel_1.add(lblNewLabel_3);
 
 		entDataPagamento = new JTextField();
-		entDataPagamento.setText("26/12/2020");
+		entDataPagamento.setText(new GetData().getData());
 		entDataPagamento.setEditable(false);
 		entDataPagamento.setColumns(10);
 		entDataPagamento.setBounds(135, 8, 116, 30);
 		panel_1.add(entDataPagamento);
 
 		JCheckBox chkBoxDataHoje = new JCheckBox("Data Atual");
+		chkBoxDataHoje.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				if(chkBoxDataHoje.isSelected()) {
+					entDataPagamento.setEditable(false);
+					entDataPagamento.setEnabled(false);
+					entDataPagamento.setText(new GetData().getData());
+
+				}else {
+					entDataPagamento.setEditable(true);
+					entDataPagamento.setEnabled(true);
+
+				}
+			}
+		});
 		chkBoxDataHoje.setSelected(true);
 		chkBoxDataHoje.setBounds(257, 7, 88, 23);
 		panel_1.add(chkBoxDataHoje);

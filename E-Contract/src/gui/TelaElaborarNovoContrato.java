@@ -92,6 +92,7 @@ import java.util.Locale;
 import javax.swing.SwingConstants;
 import javax.swing.JCheckBox;
 import java.awt.SystemColor;
+import java.awt.Window;
 
 import javax.swing.border.Border;
 import javax.swing.border.CompoundBorder;
@@ -278,12 +279,13 @@ public class TelaElaborarNovoContrato extends JDialog {
 	private int tipo_contrato_global;
 
 	public TelaElaborarNovoContrato(CadastroModelo modelo, int tipoContrato, CadastroContrato contrato_pai,
-			int flag_edicao) {
+			int flag_edicao, Window janela_pai) {
 
 		modelo_global = modelo;
 		getDadosGlobais();
 		tipo_contrato_global = tipoContrato;
 		//setAlwaysOnTop(true);
+		isto = this;
 
 		//setModal(true);
 
@@ -324,7 +326,6 @@ public class TelaElaborarNovoContrato extends JDialog {
 
 		}
 
-		setResizable(false);
 
 		setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 
@@ -2681,7 +2682,7 @@ public class TelaElaborarNovoContrato extends JDialog {
 							} catch (Exception e) {
 								esperar.fechar();
 								System.out.println("erro ao elaborar contrato, erro: " + e.getMessage());
-								JOptionPane.showMessageDialog(null,
+								JOptionPane.showMessageDialog(isto,
 										"Erro fatal, consulte o administrador do sistema\nErro: " + e.getMessage());
 								isto.dispose();
 								DadosGlobais dados = DadosGlobais.getInstance();
@@ -2702,7 +2703,7 @@ public class TelaElaborarNovoContrato extends JDialog {
 
 			}
 		});
-		btnTeste.setBounds(847, 561, 89, 23);
+		btnTeste.setBounds(823, 615, 89, 23);
 		painelFinalizar.add(btnTeste);
 
 		
@@ -3056,14 +3057,15 @@ public class TelaElaborarNovoContrato extends JDialog {
 		lblTipoContrato.setBounds(659, 112, 564, 42);
 		painelFinalizar.add(lblTipoContrato);
 		
-		this.setLocationRelativeTo(null);
-		this.setBounds(GraphicsEnvironment.getLocalGraphicsEnvironment().getMaximumWindowBounds());
-		isto = this;
 
 		if (modelo_global.getNome_modelo().equals("formal")) {
 			retirarClausulasAdicionaisContratoFormal();
 		} 
+		this.setResizable(false);
+		this.setBounds(GraphicsEnvironment.getLocalGraphicsEnvironment().getMaximumWindowBounds());
 		
+		this.setLocationRelativeTo(janela_pai);
+
 		this.setVisible(true);
 
 	}
@@ -3345,7 +3347,7 @@ public class TelaElaborarNovoContrato extends JDialog {
 			}
 			System.out.println("Result: " + result);
 			if (result == 1) {
-				JOptionPane.showMessageDialog(null, "Contrato criado e salvo na base de dados");
+				JOptionPane.showMessageDialog(isto, "Contrato criado e salvo na base de dados");
 				// salvar arquivo fisico
 				// aumentar mais 1 na sequencia
 				ArquivoConfiguracoes arquivo = new ArquivoConfiguracoes();
@@ -3361,30 +3363,30 @@ public class TelaElaborarNovoContrato extends JDialog {
 				
 			
 			} else if (result == 0) {
-				JOptionPane.showMessageDialog(null,
+				JOptionPane.showMessageDialog(isto,
 						"Contrato não pode ser criado, mas não houve falhas no banco de dados!\nConsulte o administrador");
 				// apagar o diretorio criado
 				apagarDiretorio();
 
 				isto.dispose();
 			} else if (result == -1) {
-				JOptionPane.showMessageDialog(null,
+				JOptionPane.showMessageDialog(isto,
 						"Contrato não pode ser criado\nHouve falhas no banco de dados!\nConsulte o administrador");
 				apagarDiretorio();
 
 				isto.dispose();
 			} else if (result == -2) {
-				JOptionPane.showMessageDialog(null,
+				JOptionPane.showMessageDialog(isto,
 						"Contrato não pode ser atualizado\nHouve falhas no banco de dados!\nConsulte o administrador");
 				isto.dispose();
 			} else if (result == 5) {
-				JOptionPane.showMessageDialog(null, "Contrato atualizado e salvo na base de dados");
+				JOptionPane.showMessageDialog(isto, "Contrato atualizado e salvo na base de dados");
 				DadosGlobais dados = DadosGlobais.getInstance();
 				 dados.getTeraGerenciarContratoPai().atualizarContratoLocal();
 				isto.dispose();
 			}
 		} else {
-			JOptionPane.showMessageDialog(null,
+			JOptionPane.showMessageDialog(isto,
 					"Houve um erro é o contrato não pode ser salvo fisicamente\nOperação cancelada!\nRetorno: " + salvou);
 			isto.dispose();
 
@@ -3414,15 +3416,15 @@ public class TelaElaborarNovoContrato extends JDialog {
 		String retorno = null;
 
 		if (cod_safra.equals("") || cod_safra.equals(" ") || cod_safra == null || cod_safra.length() <= 3) {
-			JOptionPane.showMessageDialog(null, "Safra não selecionada!");
+			//JOptionPane.showMessageDialog(isto, "Safra não selecionada!");
 
 		} else {
 			if (cod_comprador.equals("") || cod_comprador.equals(" ") || cod_comprador == null) {
-				JOptionPane.showMessageDialog(null, "Comprador não selecionada!");
+				//JOptionPane.showMessageDialog(isto, "Comprador não selecionada!");
 
 			} else {
 				if (cod_vendedor.equals("") || cod_vendedor.equals(" ") || cod_vendedor == null) {
-					JOptionPane.showMessageDialog(null, "Vendedor não selecionada!");
+					//JOptionPane.showMessageDialog(isto, "Vendedor não selecionada!");
 
 				} else {
 					retorno = cod_safra + "." + cod_comprador + "." + cod_vendedor + "." + cod_sequencial;
@@ -3504,7 +3506,7 @@ public class TelaElaborarNovoContrato extends JDialog {
 
 		}
 		}catch(Exception e) {
-			JOptionPane.showMessageDialog(null, "Informe a quantidade e o valor da comissão corretamente!");
+			JOptionPane.showMessageDialog(isto, "Informe a quantidade e o valor da comissão corretamente!");
 		}
 	}
 
@@ -3640,7 +3642,7 @@ public class TelaElaborarNovoContrato extends JDialog {
 			rBPostoSobreRodas.setSelected(false);
 
 		}
-		JOptionPane.showMessageDialog(isto, "Rotinas de edicao: procurar local retirada");
+		//JOptionPane.showMessageDialog(isto, "Rotinas de edicao: procurar local retirada");
 
 		
 		CadastroCliente localRetirada = new GerenciarBancoClientes().getCliente(contrato_pai_local.getId_local_retirada());
@@ -3653,7 +3655,7 @@ public class TelaElaborarNovoContrato extends JDialog {
 		
 		modelLocalRetirada.setSelectedItem(localRetirada);
 		
-		JOptionPane.showMessageDialog(isto, "Rotinas de edicao: local retirada encontrado");
+	//	JOptionPane.showMessageDialog(isto, "Rotinas de edicao: local retirada encontrado");
 
 		if(contrato_pai_local.getSub_contrato() == 0) {
 			cBComprador.setEnabled(false);

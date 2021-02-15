@@ -331,7 +331,7 @@ public class RelatorioContratoComprador {
 				ArrayList<CadastroContrato> lista_contratos_como_comprador = new ArrayList<>();
 
 				if (contrato_como_comprador) {
-					JOptionPane.showMessageDialog(null, "Tipo do contrato: " + tipo_contrato);
+					//JOptionPane.showMessageDialog(null, "Tipo do contrato: " + tipo_contrato);
 					if (tipo_contrato == 1) {
 						// contrato interno
 						lista_contratos_como_comprador = procura_contratos.getContratosPorCliente(1, id_safra,
@@ -539,8 +539,8 @@ public class RelatorioContratoComprador {
 					Units.toEMU(30), Units.toEMU(30));
 
 		} catch (Exception e) {
-			JOptionPane.showMessageDialog(null,
-					"Erro ao criar cabecalho e rodape do contrato!\nConsulte o administrador do sistema!");
+			//JOptionPane.showMessageDialog(null,
+			//	"Erro ao criar cabecalho e rodape do contrato!\nConsulte o administrador do sistema!");
 			e.printStackTrace();
 		}
 

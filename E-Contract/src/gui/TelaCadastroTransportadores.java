@@ -8,6 +8,7 @@ import java.awt.Container;
 import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.Graphics;
+import java.awt.Window;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyAdapter;
@@ -201,10 +202,11 @@ public class TelaCadastroTransportadores extends JDialog {
 	CadastroCliente cliente_atualizar = new CadastroCliente();
 	
 	private JLabel lblCodigoGerado, lblCodigo;
-	
-	public TelaCadastroTransportadores(int flag_tipo_tela, CadastroCliente cliente, TelaTransportadores telaPai) {
+	private TelaCadastroTransportadores isto;
+	private CadastroCliente cliente_global;
+	public TelaCadastroTransportadores(int flag_tipo_tela, CadastroCliente cliente, TelaTransportadores telaPai, Window janela_pai) {
 		
-		
+		cliente_global = cliente;
 		getContentPane().setFont(new Font("Arial", Font.BOLD, 18));
 		getContentPane().setForeground(Color.WHITE);
 		setFont(new Font("Arial", Font.BOLD, 18));
@@ -213,7 +215,7 @@ public class TelaCadastroTransportadores extends JDialog {
 
 		getDadosGlobais();
 
-		setModal(true);
+		//setModal(true);
 
 		TelaCadastroTransportadores isto = this;
 		
@@ -760,6 +762,7 @@ public class TelaCadastroTransportadores extends JDialog {
 						else
 						{
 							//adiciona um veiculo ja existe na lista de veiculos para excluir
+							JOptionPane.showMessageDialog(isto, "Veiculo adicionado para excluosao");
 							veiculos_excluir.add(Integer.parseInt(id_excluir));
 
 						}
@@ -945,7 +948,7 @@ public class TelaCadastroTransportadores extends JDialog {
 					
 				      celular = celular.replace("(", "").replace(")", "").replace(" ", "").replace("-", "");
 					if( celular.length() != 11) {
-						JOptionPane.showMessageDialog(null, "Contato com número de celular incorreto");
+						JOptionPane.showMessageDialog(isto, "Contato com número de celular incorreto");
 					}else {
 						
 						modelo.addRow(new Object[]{id, nome, cargo, 
@@ -1079,7 +1082,7 @@ public class TelaCadastroTransportadores extends JDialog {
 		 	public void actionPerformed(ActionEvent e) {
 		 	  
 		 	 	if(salvar()) {
-		 	 		JOptionPane.showMessageDialog(null, "Transportador Cadastrado");
+		 	 		JOptionPane.showMessageDialog(isto, "Transportador Cadastrado");
 		 	 		isto.dispose();
 		 	 	}else {
 		 	 		//JOptionPane.showMessageDialog(null, "Erro ao cadastrar\nConsulte o Administrador do Sistema!");
@@ -1120,15 +1123,15 @@ public class TelaCadastroTransportadores extends JDialog {
 		 lblRntrc.setBounds(77, 141, 150, 33);
 		 painelFinalizar.add(lblRntrc);
 		
-		if(flag_tipo_tela == 0 || flag_tipo_tela == 6 )
-		{
-			btnAtualizar.setVisible(true);
-			btnAtualizar.setEnabled(true);
-		}
-		else
+		if(flag_tipo_tela == 0)
 		{
 			btnAtualizar.setVisible(false);
 			btnAtualizar.setEnabled(false);
+		}
+		else if(flag_tipo_tela == 1)
+		{
+			btnFinalizarCadastro.setVisible(false);
+			btnFinalizarCadastro.setEnabled(false);
 		}
 				//painel fisico e juridico
 		
@@ -1246,7 +1249,7 @@ public class TelaCadastroTransportadores extends JDialog {
 						
 						if(cnpj.length() != 14)
 						{
-				            JOptionPane.showMessageDialog(null, "CNPJ Invalido!");
+				            JOptionPane.showMessageDialog(isto, "CNPJ Invalido!");
 
 						}
 						else {
@@ -1365,7 +1368,7 @@ public class TelaCadastroTransportadores extends JDialog {
 						
 							}
 						else
-				            JOptionPane.showMessageDialog(null, "CNPJ Invalido!");
+				            JOptionPane.showMessageDialog(isto, "CNPJ Invalido!");
 						}
 					}
 				});
@@ -1613,7 +1616,7 @@ public class TelaCadastroTransportadores extends JDialog {
 						 		CPFValidator cpfValidator = new CPFValidator(); 
 						 		List<ValidationMessage> erros = cpfValidator.invalidMessagesFor(cpf); 
 						 		if(erros.size() > 0) {
-						            JOptionPane.showMessageDialog(null, "CPF Inválido!");
+						            JOptionPane.showMessageDialog(isto, "CPF Inválido!");
 						 		}
 						 		else
 						 		{
@@ -1683,7 +1686,7 @@ public class TelaCadastroTransportadores extends JDialog {
 							}
 		                            	else
 		                            		{
-		                            			JOptionPane.showMessageDialog(null, "Erro ao consultar dados no Sintegra");
+		                            			JOptionPane.showMessageDialog(isto, "Erro ao consultar dados no Sintegra");
 
 		                            		}
 									
@@ -1935,7 +1938,7 @@ public class TelaCadastroTransportadores extends JDialog {
 								int cep = Integer.parseInt(entCep.getText().toString());
 								if(entCep.getText().toString().length() != 8)
 								{
-						            JOptionPane.showMessageDialog(null, "Cep Invalido!");
+						            JOptionPane.showMessageDialog(isto, "Cep Invalido!");
 
 								}
 								else
@@ -2240,7 +2243,9 @@ public class TelaCadastroTransportadores extends JDialog {
 
 			 btnFinalizarCadastro.setEnabled(false);
 			 lblCodigo.setText(Integer.toString(cliente.getId()));
-			 
+			 entRegistroTransportador.setText(cliente.getRntrc());
+			 getVeiculos() ;
+
 			 if(cliente.getTipo_pessoa() == 1)
 			 {
 				 //pesoa juridica
@@ -2406,13 +2411,35 @@ public class TelaCadastroTransportadores extends JDialog {
 		 }
 		 adicionarFocus(isto.getComponents());
 		 
-		 this.setLocationRelativeTo(null);
-
+		 this.setLocationRelativeTo(janela_pai);
 		this.setVisible(true);
 		
 	}
 
 
+	
+	
+	public void getVeiculos() {
+		
+ 	     
+ 	     GerenciarBancoClientes clientes = new GerenciarBancoClientes();
+          ArrayList< CadastroCliente.Veiculo> veiculos = clientes.getVeiculos(cliente_global.getId());
+		
+		if(veiculos != null && veiculos.size() > 0) {
+      for(CadastroCliente.Veiculo veiculo : veiculos) {
+    	  
+    	  int id = veiculo.getId_veiculo();
+   		String registro_trator = veiculo.getRegistro_trator()
+   		, placa_trator = veiculo.getPlaca_trator(), eixos_trator = veiculo.getEixos_trator(), tipo_trator = veiculo.getTipo_trator(), cidade_trator = veiculo.getCidade_trator(), uf_trator = veiculo.getUf_trator();
+   		String registro_reboque1 = veiculo.getRegistro_reboque1(), placa_reboque1 = veiculo.getPlaca_reboque1(), eixos_reboque1 = veiculo.getEixos_reboque1(), tipo_reboque1 = veiculo.getTipo_reboque1(), cidade_reboque1 = veiculo.getCidade_reboque1(), uf_reboque1 = veiculo.getUf_reboque1();
+   		String registro_reboque2 = veiculo.getRegistro_reboque2(), placa_reboque2 = veiculo.getPlaca_reboque2(), eixos_reboque2  = veiculo.getEixos_reboque2(), tipo_reboque2 = veiculo.getTipo_reboque2(), cidade_reboque2 = veiculo.getCidade_reboque2(), uf_reboque2 = veiculo.getUf_reboque2();
+   		
+   		
+		modelo_veiculos.addRow(new Object[]{id, registro_trator, placa_trator, 
+				eixos_trator, tipo_trator, cidade_trator, uf_trator});
+      }
+		}
+	}
 
 	public  void adicionarFocus(Component [] components) {
 		for (Component c : components) {
@@ -2576,11 +2603,11 @@ public class TelaCadastroTransportadores extends JDialog {
  		getDadosContato(cliente_atualizar);
  		getDadosEmpresa(cliente_atualizar);
  		getDadosBancarios(cliente_atualizar);
-
+ 		getDadosVeiculos(cliente_atualizar);
  	}
  	//dados de apelido e finalizar contrato
  	
- 	permitir_cadastro = getDadosFinais(cliente_atualizar);
+  	permitir_cadastro = getDadosFinais(cliente_atualizar);
      System.out.println("Dados finais foram adicionados para atualizar? - " + permitir_cadastro);
 	   
      GerenciarBancoClientes atualizar = new GerenciarBancoClientes();
@@ -2593,7 +2620,7 @@ public class TelaCadastroTransportadores extends JDialog {
  		  {
  			  if ( atualizar.deleteContato(id_contato, cliente_atualizar.getId()) == false)
  			  {
- 	               JOptionPane.showMessageDialog(null, "Erro ao deletar os contatos, corrupção no banco de dados!");
+ 	               JOptionPane.showMessageDialog(isto, "Erro ao deletar os contatos, corrupção no banco de dados!");
  	              permitir_cadastro = false;                 
  				  break;
  			  }
@@ -2611,7 +2638,7 @@ public class TelaCadastroTransportadores extends JDialog {
  	 		  {
  	 			  if ( atualizar.deleteConta(id_conta, cliente_atualizar.getId()) == false)
  	 			  {
- 	 	               JOptionPane.showMessageDialog(null, "Erro ao deletar os contatos, corrupção no banco de dados!");
+ 	 	               JOptionPane.showMessageDialog(isto, "Erro ao deletar os contatos, corrupção no banco de dados!");
  	 	             permitir_cadastro = false;                 
  	 				  break;
  	 			  }
@@ -2622,6 +2649,49 @@ public class TelaCadastroTransportadores extends JDialog {
  	 			  }
  	 		  }
  		  }
+ 		  
+ 		  
+ 		  //excluir veiculos que tiver pra excluir
+ 		 if(permitir_cadastro)
+		  {
+			 for( Integer id_veiculo : veiculos_excluir)
+	 		  {
+	 			  if ( atualizar.deleteVeiculo(cliente_atualizar.getId(), id_veiculo) == false)
+	 			  {
+	 	               JOptionPane.showMessageDialog(isto, "Erro ao deletar os veiculo, corrupção no banco de dados!");
+	 	             permitir_cadastro = false;                 
+	 				  break;
+	 			  }
+	 			  else
+	 			  {
+	 				permitir_cadastro = true;
+	 	               JOptionPane.showMessageDialog(isto, "Veiculo Excluido");
+
+	 			  }
+	 		  }
+		  }
+		  
+ 		  //adicionar veiculos que tiver pra atualizar
+
+		  if(permitir_cadastro)
+		  {
+			 if(cliente_atualizar.getVeiculos().size() > 0 && cliente_atualizar != null) {
+				//ha novos veiculos a serem inseridos
+	 			  if ( atualizar.inserirVeiculos(cliente_atualizar.getVeiculos(), cliente_atualizar.getId()) == 1)
+	 			  {
+	 	              
+	 				permitir_cadastro = true;
+	 	               JOptionPane.showMessageDialog(isto, "Veiculo Adicionado");
+	 			  }
+	 			  else
+	 			  {
+	 				 JOptionPane.showMessageDialog(isto, "Erro ao deletar incluir veiculos, corrupção no banco de dados!");
+	 	             permitir_cadastro = false;                 
+
+	 			  }
+			 }
+	 		  
+		  }
  		  
  		 //adicionar contas bancarias
  		  if(permitir_cadastro)
@@ -2655,16 +2725,17 @@ public class TelaCadastroTransportadores extends JDialog {
  		 
  		 if(permitir_cadastro) { 
  		   System.out.println("tentando atualizar cliente");	 
- 		   boolean atualizou = atualizar.atualizarCliente(cliente_atualizar);
+ 		   JOptionPane.showMessageDialog(null, "RNTRC: " + cliente_atualizar.getRntrc() + " Status RNTRC: " + cliente_atualizar.getStatus_cadastro());
+ 		   boolean atualizou = atualizar.atualizarClienteTransportador(cliente_atualizar);
  		   if(atualizou) {
-               JOptionPane.showMessageDialog(null, "Cadastro Atualizado!");
+               JOptionPane.showMessageDialog(isto, "Cadastro Atualizado!");
                //isto.dispose();
                permitir_cadastro =  true;
 
  		   }
  		   else
  		   {
-               JOptionPane.showMessageDialog(null, "Erro ao atualizar");
+               JOptionPane.showMessageDialog(isto, "Erro ao atualizar");
                permitir_cadastro =  false;
 
  		   }
@@ -2689,7 +2760,7 @@ public class TelaCadastroTransportadores extends JDialog {
 	 		if(apelido == null || apelido.equals("") || apelido.equals(" "))
 	 		{
 	 			retorno = false;
-	               JOptionPane.showMessageDialog(null, "Informe um Alias para o novo Transportador");
+	               JOptionPane.showMessageDialog( isto, "Informe um Alias para o novo Transportador");
 
 	 		}
 	 		else
@@ -2718,7 +2789,7 @@ public class TelaCadastroTransportadores extends JDialog {
  		CPFValidator cpfValidator = new CPFValidator(); 
  		List<ValidationMessage> erros = cpfValidator.invalidMessagesFor(cpf); 
  		if(erros.size() > 0) {
-            JOptionPane.showMessageDialog(null, "CPF Inválido!");
+            JOptionPane.showMessageDialog(isto, "CPF Inválido!");
             retorno = false;
  		}
  		else
@@ -2770,7 +2841,7 @@ public class TelaCadastroTransportadores extends JDialog {
 		
 		if(cnpj.length() != 14)
 		{
-            JOptionPane.showMessageDialog(null, "CNPJ Invalido!");
+            JOptionPane.showMessageDialog(isto, "CNPJ Invalido!");
 			retorno = false;
 
 		}
@@ -2802,7 +2873,7 @@ public class TelaCadastroTransportadores extends JDialog {
 			}
 			else
 			{
-	            JOptionPane.showMessageDialog(null, "CNPJ Invalido!");
+	            JOptionPane.showMessageDialog(isto, "CNPJ Invalido!");
 	            retorno = false;
 
 			}
@@ -2943,14 +3014,14 @@ public class TelaCadastroTransportadores extends JDialog {
  	 		   GerenciarBancoClientes cadastrar = new GerenciarBancoClientes();
  	 		   boolean cadastrou = cadastrar.inserir(cliente_cadastrar);
  	 		   if(cadastrou) {
- 	               JOptionPane.showMessageDialog(null, "Cadastro Completo!");
+ 	               JOptionPane.showMessageDialog(isto, "Cadastro Completo!");
  	               //isto.dispose();
  	               retorno =  true;
 
  	 		   }
  	 		   else
  	 		   {
- 	               JOptionPane.showMessageDialog(null, "Erro ao Cadastrar");
+ 	               JOptionPane.showMessageDialog(isto, "Erro ao Cadastrar");
  	               retorno =  false;
 
  	 		   }

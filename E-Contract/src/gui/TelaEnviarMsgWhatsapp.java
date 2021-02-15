@@ -8,6 +8,7 @@ import java.awt.event.ActionListener;
 import java.net.URL;
 import java.text.Normalizer;
 import java.util.ArrayList;
+import java.util.Arrays;
 
 import javax.swing.JOptionPane;
 
@@ -25,7 +26,13 @@ import org.icepdf.ri.common.SwingViewBuilder;
 import cadastros.CadastroCliente;
 import cadastros.CadastroContrato;
 import cadastros.CadastroLogin;
+import cadastros.CadastroSafra;
 import cadastros.Contato;
+import classesExtras.CBLocalRetiradaPersonalizado;
+import classesExtras.ComboBoxContato;
+import classesExtras.ComboBoxPersonalizado;
+import classesExtras.ComboBoxRenderPersonalizado;
+import classesExtras.RenderizadorContato;
 import conexaoBanco.GerenciarBancoClientes;
 import manipular.ConfiguracoesGlobais;
 import manipular.Nuvem;
@@ -40,6 +47,8 @@ import java.awt.Font;
 import javax.swing.JTextArea;
 import javax.swing.JComboBox;
 import java.awt.GridLayout;
+import java.awt.Window;
+
 import javax.swing.BoxLayout;
 import net.miginfocom.swing.MigLayout;
 import java.awt.Component;
@@ -63,16 +72,23 @@ public class TelaEnviarMsgWhatsapp extends JDialog {
 	private JCheckBox chkOutroContato, chkAnexarContrato;
 	private JComboBox cBContato;
 	private JLabel lblNaoinclua;
-	private String nome_comprador_global, mensagem_anexo, mensagem_notificacao;
+	private String mensagem_notificacao_global, mensagem_anexo_global, nome_comprador_global, mensagem_anexo_comprador, mensagem_notificacao_comprador, mensagem_anexo_vendedor1, mensagem_notificacao_vendedor1,mensagem_anexo_vendedor2, mensagem_notificacao_vendedor2, nome_vendedor1_global,nome_vendedor2_global;
 	private JRadioButton rdLivre, rdAnexo, rdNot;
 	private CadastroContrato contrato_local;
 	private JTextArea textArea ;
 	private TelaEnviarMsgWhatsapp isto;
 	private JLabel lblNaoAcentue;
+	private ArrayList<Contato> todos_contatos_comprador = new ArrayList<>();
+	private ArrayList<Contato> todos_contatos_vendedor1 = new ArrayList<>();
+	private ArrayList<Contato> todos_contatos_vendedor2 = new ArrayList<>();
 
-		
+	private JCheckBox chckbxContatosComprador, chckbxContatosVendedor1, chckbxContatosVendedor2; 
+
+	private ComboBoxContato modelContato = new ComboBoxContato();
+	private RenderizadorContato renderContato ;
 	
-	public void pesquisarContatos(int id_cliente) {
+	
+	public void pesquisarContatos(int flag, int id_cliente) {
 		GerenciarBancoClientes gerenciar = new GerenciarBancoClientes();
 		ArrayList<Contato> lista_contatos =  gerenciar.getContatos(id_cliente);
 		
@@ -82,8 +98,18 @@ public class TelaEnviarMsgWhatsapp extends JDialog {
 			   if(celular != null && celular.length() == 11) {
 				    //celular aceito
 				   System.out.println("Celular:" + celular);
-				   
-				   cBContato.addItem(contato.getCargo() + " " + celular);
+                    if(flag == 1) {
+                    	//adiciona os contatos ao comprador
+                    	todos_contatos_comprador.add(contato);
+                    }else if(flag == 2) {
+                    	todos_contatos_vendedor1.add(contato);
+
+                    }
+                    else if(flag == 3) {
+                    	todos_contatos_vendedor2.add(contato);
+
+                    }
+				 //  cBContato.addItem(contato.getCargo() + " " + celular);
 				   
 			   }
 			}
@@ -92,15 +118,18 @@ public class TelaEnviarMsgWhatsapp extends JDialog {
 	}
 
 
-	public TelaEnviarMsgWhatsapp(CadastroContrato contrato, JFrame janela_pai) {
+	public TelaEnviarMsgWhatsapp(CadastroContrato contrato, Window janela_pai) {
 		//setAlwaysOnTop(true);
 
 		setModal(true);
 		
 		contrato_local = contrato;
         CadastroCliente compradores[] = contrato.getCompradores();
+        CadastroCliente vendedores[] = contrato.getVendedores();
+
 		
 		System.out.println("Nome do comprador: " + compradores[0].getNome_empresarial() + "outro nome: " + compradores[0].getNome_fantaia());
+		
 		
 		if(compradores[0].getTipo_pessoa() == 0) {
 			//pessoa fisica
@@ -111,6 +140,31 @@ public class TelaEnviarMsgWhatsapp extends JDialog {
 			nome_comprador_global = compradores[0].getNome_fantaia();
 
 		}
+		
+		if(vendedores[0].getTipo_pessoa() == 0) {
+			//pessoa fisica
+			nome_vendedor1_global = vendedores[0].getNome_empresarial();
+
+		}else {
+			//pessoa juridica
+			nome_vendedor1_global = vendedores[0].getNome_fantaia();
+
+		}
+		
+		if(vendedores[1] != null) {
+
+		if(vendedores[1].getTipo_pessoa() == 0) {
+			//pessoa fisica
+			nome_vendedor2_global = vendedores[1].getNome_empresarial();
+
+		}else {
+			//pessoa juridica
+			nome_vendedor2_global = vendedores[1].getNome_fantaia();
+
+		}
+		
+		}
+		
 		
 		
 		getDadosGlobais();
@@ -156,8 +210,45 @@ public class TelaEnviarMsgWhatsapp extends JDialog {
 		lblContato.setBounds(53, 85, 65, 37);
 		painelPrincipal.add(lblContato);
 		
-		 cBContato = new JComboBox();
-		cBContato.setBounds(119, 93, 297, 23);
+		renderContato = new RenderizadorContato();
+		cBContato = new JComboBox();
+		cBContato.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				
+				if(chckbxContatosComprador.isSelected()) {
+					//comprador selecionado
+					
+					if(rdNot.isSelected()) {
+						//mensagem de notificacao ao comprador
+						set_msg_notificacao(1);
+					}else if(rdAnexo.isSelected()) {
+						//mensagem de anexo ao comprador
+						set_msg_anexo(1);
+					}
+					
+				}else if(chckbxContatosVendedor1.isSelected()) {
+					if(rdNot.isSelected()) {
+						//mensagem de notificacao ao comprador
+						set_msg_notificacao(2);
+					}else if(rdAnexo.isSelected()) {
+						//mensagem de anexo ao comprador
+						set_msg_anexo(2);
+					}
+				}else if(chckbxContatosVendedor2.isSelected()) {
+					if(rdNot.isSelected()) {
+						//mensagem de notificacao ao comprador
+						set_msg_notificacao(3);
+					}else if(rdAnexo.isSelected()) {
+						//mensagem de anexo ao comprador
+						set_msg_anexo(3);
+					}
+				}
+				
+			}
+		});
+		cBContato.setModel(modelContato);
+		cBContato.setRenderer(renderContato);
+				cBContato.setBounds(119, 93, 297, 23);
 		painelPrincipal.add(cBContato);
 		
 		JLabel lblNewLabel_1 = new JLabel("       Enviar contrato via whatsapp");
@@ -219,28 +310,11 @@ public class TelaEnviarMsgWhatsapp extends JDialog {
 		chkOutroContato.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
 				
-				if(!chkOutroContato.isSelected()) {
-					//esta selecionado, desmarque
-
-					chkOutroContato.setSelected(false);
+				
 					
-					etNumero.setEditable(false);
-					etNumero.setEnabled(false);
-					lblNaoinclua.setVisible(false);
-					cBContato.setEnabled(true);
-					
-					
-				}else {
-					//nao esta selecionado
-					
-					chkOutroContato.setSelected(true);
-					
-					etNumero.setEditable(true);
-					etNumero.setEnabled(true);
-					cBContato.setEnabled(false);
-					lblNaoinclua.setVisible(true);
-					
-				}
+					chamar_outro_contato();
+				
+				
 				
 			}
 		});
@@ -267,16 +341,19 @@ public class TelaEnviarMsgWhatsapp extends JDialog {
 					etNumero.setText(etNumero.getText().concat(") "));
 				}
 			
+				if(texto.length()==6 && evt.getKeyChar() != '\b'){
+					etNumero.setText(etNumero.getText().concat(" "));
+				}
 				
-				if(texto.length()==9 && evt.getKeyChar() != '\b'){
+				if(texto.length()==11 && evt.getKeyChar() != '\b'){
 					etNumero.setText(etNumero.getText().concat("-"));
 				}
 				
-				if(etNumero.getText().length()>=14){
+				if(etNumero.getText().length()>=16){
 					//if para saber se precisa verificar também o tamanho da string do campo
 					// maior ou igual ao tamanho máximo, cancela e nao deixa inserir mais
 					evt.consume();
-					etNumero.setText(etNumero.getText().substring(0,14));
+					etNumero.setText(etNumero.getText().substring(0,16));
 				}
 			
 			}
@@ -288,7 +365,7 @@ public class TelaEnviarMsgWhatsapp extends JDialog {
 		painelPrincipal.add(etNumero);
 		etNumero.setColumns(10);
 		
-		 lblNaoinclua = new JLabel("Não inclua o novo digito");
+		 lblNaoinclua = new JLabel("Formato: (38) 9 XXXX-XXXX");
 		 lblNaoinclua.setVisible(false);
 		lblNaoinclua.setForeground(Color.ORANGE);
 		lblNaoinclua.setBounds(173, 171, 243, 14);
@@ -314,20 +391,29 @@ public class TelaEnviarMsgWhatsapp extends JDialog {
 				public void actionPerformed(ActionEvent arg0) {
 					
 					
-					if(rdNot.isSelected()) {
-						
-
 						rdNot.setSelected(true);	
 						rdAnexo.setSelected(false);
 						rdLivre.setSelected(false);
 						
 						chkAnexarContrato.setVisible(false);
-						set_msg_notificacao();
 						
-					}else {
-						rdNot.setSelected(true);	
+						
+						if(chckbxContatosComprador.isSelected()) {
+							set_msg_notificacao(1);
 
-					}
+						}else if(chckbxContatosVendedor1.isSelected()) {
+							set_msg_notificacao(2);
+						}else if(chckbxContatosVendedor2.isSelected()) {
+							set_msg_notificacao(3);
+
+						}else {
+							chamar_outro_contato();
+							chkOutroContato.setEnabled(false);
+						}
+						
+						
+						
+				
 					
 				}
 			});
@@ -349,7 +435,6 @@ public class TelaEnviarMsgWhatsapp extends JDialog {
 			 rdAnexo = new JRadioButton("Anexo");
 			 rdAnexo.addActionListener(new ActionListener() {
 			 	public void actionPerformed(ActionEvent e) {
-	                    if(rdAnexo.isSelected()) {
 						
 
 						rdNot.setSelected(false);	
@@ -357,15 +442,19 @@ public class TelaEnviarMsgWhatsapp extends JDialog {
 						rdLivre.setSelected(false);
 						
 						chkAnexarContrato.setVisible(false);
-						set_msg_anexo();
 						
-						
-						
-					}else {
-						rdAnexo.setSelected(true);	
+						if(chckbxContatosComprador.isSelected()) {
+							set_msg_anexo(1);
 
-					}
-					
+						}else if(chckbxContatosVendedor1.isSelected()) {
+							set_msg_anexo(2);
+						}else if(chckbxContatosVendedor2.isSelected()) {
+							set_msg_anexo(3);
+
+						}
+						
+						
+				
 			 	}
 			 });
 			rdAnexo.setOpaque(false);
@@ -409,27 +498,96 @@ public class TelaEnviarMsgWhatsapp extends JDialog {
 			lblNaoAcentue.setBounds(119, 563, 266, 14);
 			painelPrincipal.add(lblNaoAcentue);
 			
+			 chckbxContatosComprador = new JCheckBox("Comprador");
+			 chckbxContatosComprador.addActionListener(new ActionListener() {
+			 	public void actionPerformed(ActionEvent e) {
+			 		
+			 	 pesquisar_comprador(vendedores);
+			 	}
+			 });
+			chckbxContatosComprador.setBounds(119, 63, 97, 23);
 			
 			
-			pesquisarContatos(compradores[0].getId());
-			  mensagem_anexo = "Ola! \n \nSou " + login.getNome() + " " + login.getSobrenome() +","
-			    		+ "  represento a LD Armazens de Guarda-Mor/MG. \n\nEste  numero esta cadastrado em nossa base de dados para entrar em contato com o produtor rural "
-			    		+ nome_comprador_global + " , assim sendo, envio essa mensagem para notifica-lo que o contrato de " + contrato_local.getQuantidade() + " " 
-			    		+ contrato_local.getMedida() + " de " + contrato_local.getModelo_safra().getProduto().getNome_produto() +   " firmado na data de " 
-			    		+ contrato_local.getData_contrato()+ " ainda encontra na nossa base de dados com a carencia de assinatura" + ".\n \n \nQualquer duvida entrar em contato  conosco! \natenciosamente; \n" + login.getNome() + " " 
-			            + login.getSobrenome() + "\nE-mail: " + login.getEmail() + "\n\n LD Armazens Gerais!";	
-				 
-				  mensagem_notificacao = "Ola! \n \nSou " + login.getNome() + " " + login.getSobrenome() +","
-			    		+ "  represento a LD Armazens de Guarda-Mor/MG. \n\nEste  numero esta cadastrado em nossa base de dados para entrar em contato com o produtor rural "
-			    		+ nome_comprador_global + " , assim sendo, envio essa mensagem   para notifica-lo que o contrato de " + contrato_local.getQuantidade() + " " 
-			    		+ contrato_local.getMedida() + " de " + contrato_local.getModelo_safra().getProduto().getNome_produto() +   " firmado na data de " 
-			    		+ contrato_local.getData_contrato() + " ainda encontra na nossa base de dados com a carencia de assinatura"+ ".\n \n \nQualquer duvida entrar em contato  conosco! \natenciosamente; \n" + login.getNome() + " " 
-			            + login.getSobrenome() + "\nE-mail: " + login.getEmail() + "\n\n LD Armazens Gerais!";
-			set_msg_notificacao();
+			
+			painelPrincipal.add(chckbxContatosComprador);
+			
+			 chckbxContatosVendedor1 = new JCheckBox("Vendedor1");
+			 chckbxContatosVendedor1.addActionListener(new ActionListener() {
+			 	public void actionPerformed(ActionEvent e) {
+			 		
+			 		pesquisar_vendedor1(vendedores);
+			 	}
+			 });
+			chckbxContatosVendedor1.setBounds(231, 63, 97, 23);
+			painelPrincipal.add(chckbxContatosVendedor1);
+			
+			chckbxContatosVendedor2 = new JCheckBox("Vendedor2");
+			chckbxContatosVendedor2.addActionListener(new ActionListener() {
+				public void actionPerformed(ActionEvent e) {
+					
+				      pesquisar_vendedor2(vendedores);
+				}
+			});
+			chckbxContatosVendedor2.setBounds(337, 63, 97, 23);
+			painelPrincipal.add(chckbxContatosVendedor2);
+			
+			JLabel lblDestinatrio = new JLabel("Destinatário:");
+			lblDestinatrio.setForeground(Color.WHITE);
+			lblDestinatrio.setFont(new Font("Arial", Font.BOLD, 14));
+			lblDestinatrio.setBounds(20, 65, 98, 17);
+			painelPrincipal.add(lblDestinatrio);
+			
+			
+			
+			pesquisarContatos(1, compradores[0].getId());
+			pesquisarContatos(2, vendedores[0].getId());
 
+			if(vendedores[1] != null) {
+				pesquisarContatos(3, vendedores[1].getId());
+
+			}
+			
+				
+				  
+				if(todos_contatos_comprador.size() > 0) {
+					//comprador possui contatos
+					pesquisar_comprador(vendedores);
+					cBContato.setSelectedIndex(0);
+					  set_msg_notificacao(1);
+
+					
+				}else if(todos_contatos_vendedor1.size() > 0) {
+					//vendedor1 possui contatos
+					pesquisar_vendedor1(vendedores);
+					cBContato.setSelectedIndex(0);
+					  set_msg_notificacao(2);
+
+				}else if(todos_contatos_vendedor2.size() > 0) {
+					//vendedor2 possui contatos
+					pesquisar_vendedor2(vendedores);
+					cBContato.setSelectedIndex(0);
+					  set_msg_notificacao(3);
+				}else {
+					//nao ha contato
+					chkOutroContato.setSelected(true);
+					
+				}
+                  
+				  
+				  
+				  
 		this.setLocationRelativeTo(janela_pai);
 		this.setUndecorated(true);
 
+		if(vendedores[1] != null) {
+			chckbxContatosVendedor2.setEnabled(true);
+			chckbxContatosVendedor2.setVisible(true);
+		
+		}else {
+			chckbxContatosVendedor2.setEnabled(false);
+			chckbxContatosVendedor2.setVisible(false);
+
+		}
 		this.setVisible(true);
 		
 		
@@ -437,22 +595,94 @@ public class TelaEnviarMsgWhatsapp extends JDialog {
 	}
 	
 	
-	public void set_msg_notificacao() {
+	public void set_msg_notificacao(int flag_cliente) {
+		String mensagem = "";
 		
-		textArea.setText(mensagem_notificacao);
+		if(flag_cliente == 1) {
+			mensagem = "Ola! \\n \\nSou " + login.getNome() + " " + login.getSobrenome() +","
+			    		+ "  represento a LD Armazens de Guarda-Mor/MG. \\n\\nEste  numero esta cadastrado em nossa base de dados para entrar em contato com o produtor rural "
+			    		+ nome_comprador_global + " , assim sendo, envio essa mensagem para notifica-lo que o contrato de " + contrato_local.getQuantidade() + " " 
+			    		+ contrato_local.getMedida() + " de " + contrato_local.getModelo_safra().getProduto().getNome_produto() +   " firmado na data de " 
+			    		+ contrato_local.getData_contrato()+ " ainda encontra na nossa base de dados com a carencia de assinatura" + ".\\n \\n \\nQualquer duvida entrar em contato  conosco! \\natenciosamente; \\n" + login.getNome() + " " 
+			            + login.getSobrenome() + "\\nE-mail: " + login.getEmail() + "\\n\\n LD Armazens Gerais!";				
+			
+		}else if(flag_cliente == 2) {
+			//mensagem ao vendedor1
+			mensagem = "Ola! \\n \\nSou " + login.getNome() + " " + login.getSobrenome() +","
+		    		+ "  represento a LD Armazens de Guarda-Mor/MG. \\n\\nEste  numero esta cadastrado em nossa base de dados para entrar em contato com o produtor rural "
+		    		+ nome_vendedor1_global + " , assim sendo, envio essa mensagem para notifica-lo que o contrato de " + contrato_local.getQuantidade() + " " 
+		    		+ contrato_local.getMedida() + " de " + contrato_local.getModelo_safra().getProduto().getNome_produto() +   " firmado na data de " 
+		    		+ contrato_local.getData_contrato()+ " ainda encontra na nossa base de dados com a carencia de assinatura" + ".\\n \\n \\nQualquer duvida entrar em contato  conosco! \\natenciosamente; \\n" + login.getNome() + " " 
+		            + login.getSobrenome() + "\\nE-mail: " + login.getEmail() + "\\n\\n LD Armazens Gerais!";				
+		
+		}else if(flag_cliente == 3) {
+			//mensagem ao vendedor2
+			mensagem = "Ola! \\n \\nSou " + login.getNome() + " " + login.getSobrenome() +","
+		    		+ "  represento a LD Armazens de Guarda-Mor/MG. \\n\\nEste  numero esta cadastrado em nossa base de dados para entrar em contato com o produtor rural "
+		    		+ nome_vendedor2_global + " , assim sendo, envio essa mensagem para notifica-lo que o contrato de " + contrato_local.getQuantidade() + " " 
+		    		+ contrato_local.getMedida() + " de " + contrato_local.getModelo_safra().getProduto().getNome_produto() +   " firmado na data de " 
+		    		+ contrato_local.getData_contrato()+ " ainda encontra na nossa base de dados com a carencia de assinatura" + ".\\n \\n \\nQualquer duvida entrar em contato  conosco! \\natenciosamente; \\n" + login.getNome() + " " 
+		            + login.getSobrenome() + "\\nE-mail: " + login.getEmail() + "\\n\\n LD Armazens Gerais!";				
+		
+			
+		}
+		
+		
+		textArea.setText(mensagem);
 		textArea.setEditable(false);
 		lblNaoAcentue.setVisible(false);
+		mensagem_notificacao_global = mensagem;
 
 		
 	}
 	
 	
-	public void set_msg_anexo() {
+	public void set_msg_anexo(int flag_cliente) {
 		
-			textArea.setText(mensagem_anexo);
-			textArea.setEditable(false);
-			lblNaoAcentue.setVisible(false);
-
+	String mensagem = "";
+		
+		if(flag_cliente == 1) {
+			 
+			mensagem = "Ola! \\n \\nSou " + login.getNome() + " " + login.getSobrenome() +","
+		    		+ "  represento a LD Armazens de Guarda-Mor/MG. \\n\\nEste  numero esta cadastrado em nossa base de dados para entrar em contato com o produtor rural "
+		    		+ nome_comprador_global + " , assim sendo, envio essa mensagem   para notifica-lo que o contrato de " + contrato_local.getQuantidade() + " " 
+		    		+ contrato_local.getMedida() + " de " + contrato_local.getModelo_safra().getProduto().getNome_produto() +   " firmado na data de " 
+		    		+ contrato_local.getData_contrato() + " ainda encontra na nossa base de dados com a carencia de assinatura"+ ".\\n \\n \\nQualquer duvida entrar em contato  conosco! \\natenciosamente; \\n" + login.getNome() + " " 
+		            + login.getSobrenome() + "\\nE-mail: " + login.getEmail() + "\\n\\n LD Armazens Gerais!";
+		
+			  
+			
+			
+		}else if(flag_cliente == 2) {
+			//mensagem ao vendedor1
+			
+			mensagem = "Ola! \\n \\nSou " + login.getNome() + " " + login.getSobrenome() +","
+			    		+ "  represento a LD Armazens de Guarda-Mor/MG. \\n\\nEste  numero esta cadastrado em nossa base de dados para entrar em contato com o produtor rural "
+			    		+ nome_vendedor1_global + " , assim sendo, envio essa mensagem   para notifica-lo que o contrato de " + contrato_local.getQuantidade() + " " 
+			    		+ contrato_local.getMedida() + " de " + contrato_local.getModelo_safra().getProduto().getNome_produto() +   " firmado na data de " 
+			    		+ contrato_local.getData_contrato() + " ainda encontra na nossa base de dados com a carencia de assinatura"+ ".\\n \\n \\nQualquer duvida entrar em contato  conosco! \\natenciosamente; \\n" + login.getNome() + " " 
+			            + login.getSobrenome() + "\\nE-mail: " + login.getEmail() + "\\n\\n LD Armazens Gerais!";
+			
+				  
+		}else if(flag_cliente == 3) {
+			//mensagem ao vendedor2
+			mensagem = "Ola! \\n \\nSou " + login.getNome() + " " + login.getSobrenome() +","
+			    		+ "  represento a LD Armazens de Guarda-Mor/MG. \\n\\nEste  numero esta cadastrado em nossa base de dados para entrar em contato com o produtor rural "
+			    		+ nome_vendedor2_global + " , assim sendo, envio essa mensagem   para notifica-lo que o contrato de " + contrato_local.getQuantidade() + " " 
+			    		+ contrato_local.getMedida() + " de " + contrato_local.getModelo_safra().getProduto().getNome_produto() +   " firmado na data de " 
+			    		+ contrato_local.getData_contrato() + " ainda encontra na nossa base de dados com a carencia de assinatura"+ ".\\n \\n \\nQualquer duvida entrar em contato  conosco! \\natenciosamente; \\n" + login.getNome() + " " 
+			            + login.getSobrenome() + "\\nE-mail: " + login.getEmail() + "\\n\\n LD Armazens Gerais!";
+			
+				  
+			
+		}
+		
+		
+		textArea.setText(mensagem);
+		textArea.setEditable(false);
+		lblNaoAcentue.setVisible(false);
+ 
+		mensagem_anexo_global = mensagem;
 	}
 	
 	public void set_msg_livre() {
@@ -477,9 +707,11 @@ public class TelaEnviarMsgWhatsapp extends JDialog {
 	
 	public void enviar_Mensagem() {
 
-        ZapMessenger zap = new ZapMessenger();
-        zap.logar();
+        //ZapMessenger zap = new ZapMessenger();
+        //zap.logar();
 		Nuvem nuvem = new Nuvem();
+		Whatsapp zap = new Whatsapp();
+		
 		
 		nuvem.abrir();
 		nuvem.testar();
@@ -489,15 +721,20 @@ public class TelaEnviarMsgWhatsapp extends JDialog {
 		 String mensagem_enviar = "";
 		 
 		  if(rdNot.isSelected()) {
-			  mensagem_enviar = mensagem_notificacao;
+			  mensagem_enviar = mensagem_notificacao_global;
 		  }else if(rdAnexo.isSelected()) {
-			  mensagem_enviar =  mensagem_anexo;
+			  mensagem_enviar =  mensagem_anexo_global;
 		  }else if(rdLivre.isSelected()){
 			  
 			  mensagem_enviar = textArea.getText().toString();
 			  mensagem_enviar= Normalizer.normalize(mensagem_enviar, Normalizer.Form.NFD).replaceAll("[^\\p{ASCII}]", "");
-
 			  
+			  String mensagem_enviar_quebrada[] = mensagem_enviar.split("\n");
+			  String mensagem_enviar_final  = "";
+			  for(int i = 0; i < mensagem_enviar_quebrada.length; i++) {
+				  mensagem_enviar_final = mensagem_enviar_final + mensagem_enviar_quebrada[i] + "\\n";
+			  }
+			  mensagem_enviar = mensagem_enviar_final;
 		  }		
 		
 		if(chkOutroContato.isSelected()) {
@@ -505,15 +742,17 @@ public class TelaEnviarMsgWhatsapp extends JDialog {
 			String celular = etNumero.getText();
 			String celular_reformado = celular.replaceAll("[^0-9]+", "");
 			
-			if(celular_reformado.length() == 10) {
+			if(celular_reformado.length() == 11) {
 				//celular aceito
-				 celular_reformado = "+55" + celular_reformado;
+				 celular_reformado =  celular_reformado;
 					
 			      if(rdLivre.isSelected() && chkAnexarContrato.isSelected()) {
-			    	  boolean retorno = zap.enviarArquivo(celular_reformado, mensagem_enviar, url);
+			    	  boolean retorno = zap.enviarArquivo( contrato_local.getCodigo() + ".pdf", celular, url);
+			    	  boolean retorno2 = zap.enviarMensagem(celular_reformado, mensagem_enviar);
+
 						//String retorno = enviar.enviarMensagem(mensagem, "38999280886");
 
-						if(retorno) {
+						if(retorno && retorno2) {
 							JOptionPane.showMessageDialog(null, "Contrato enviado!" );
 							isto.dispose();
 						}else {
@@ -546,10 +785,10 @@ public class TelaEnviarMsgWhatsapp extends JDialog {
 						}
 			      }else if(rdAnexo.isSelected()) {
 			    	//envia somente a mensagem
-			    	  boolean retorno = zap.enviarArquivo(celular_reformado, mensagem_enviar, url);
-						//String retorno = enviar.enviarMensagem(mensagem, "38999280886");
+			    	  boolean retorno = zap.enviarArquivo( contrato_local.getCodigo() + ".pdf", celular_reformado, url);
+			    	  boolean retorno2 = zap.enviarMensagem(celular_reformado, mensagem_enviar);
 
-						if(retorno) {
+						if(retorno && retorno2) {
 							JOptionPane.showMessageDialog(null, "Contrato enviado!" );
 							isto.dispose();
 						}else {
@@ -565,17 +804,20 @@ public class TelaEnviarMsgWhatsapp extends JDialog {
 		}else {
 			//enviar mensagem belo combobox
 			
-			String celular = cBContato.getSelectedItem().toString().replaceAll("[^0-9]+", "");
-			celular = celular.replaceFirst("9", "");
+			Contato contato = (Contato) modelContato.getSelectedItem();
+			
+			String celular = contato.getCelular().replaceAll("[^0-9]", "");
 				System.out.println("Celular do combobox selecionado: " + celular);
 				//celular aceito
-				celular = "+55" + celular;
+				celular =  celular;
 					
 			      if(rdLivre.isSelected() && chkAnexarContrato.isSelected()) {
-			    	  boolean retorno = zap.enviarArquivo(celular, mensagem_enviar, url);
+			    	  boolean retorno = zap.enviarArquivo( contrato_local.getCodigo() + ".pdf", celular, url);
+			    	  boolean retorno2 = zap.enviarMensagem(celular, mensagem_enviar);
+
 						//String retorno = enviar.enviarMensagem(mensagem, "38999280886");
 
-						if(retorno) {
+						if(retorno && retorno2) {
 							JOptionPane.showMessageDialog(null, "Contrato enviado!" );
 							isto.dispose();
 						}else {
@@ -585,9 +827,11 @@ public class TelaEnviarMsgWhatsapp extends JDialog {
 			      }else if(rdLivre.isSelected() && !chkAnexarContrato.isSelected()){
 			    	  //envia somente a mensagem
 			    	  boolean retorno = zap.enviarMensagem(celular, mensagem_enviar);
+			    	  boolean retorno2 = zap.enviarMensagem(celular, mensagem_enviar);
+
 						//String retorno = enviar.enviarMensagem(mensagem, "38999280886");
 
-						if(retorno) {
+						if(retorno && retorno2) {
 							JOptionPane.showMessageDialog(null, "Contrato enviado!" );
 							isto.dispose();
 						}else {
@@ -608,10 +852,12 @@ public class TelaEnviarMsgWhatsapp extends JDialog {
 						}
 			      }else if(rdAnexo.isSelected()) {
 			    	//envia somente a mensagem
-			    	  boolean retorno = zap.enviarArquivo(celular, mensagem_enviar, url);
+			    	  boolean retorno = zap.enviarArquivo( contrato_local.getCodigo() + ".pdf", celular, url);
+			    	  boolean retorno2 = zap.enviarMensagem(celular, mensagem_enviar);
+
 						//String retorno = enviar.enviarMensagem(mensagem, "38999280886");
 
-						if(retorno) {
+						if(retorno && retorno2) {
 							JOptionPane.showMessageDialog(null, "Contrato enviado!" );
 							isto.dispose();
 						}else {
@@ -623,4 +869,108 @@ public class TelaEnviarMsgWhatsapp extends JDialog {
 		}
 	}
 	
+	public void pesquisar_vendedor2(CadastroCliente [] vendedores) {
+		if(chkOutroContato.isSelected()) {
+			if(rdNot.isSelected())
+	 			set_msg_notificacao(3);
+	 			else if(rdAnexo.isSelected())
+	 				set_msg_anexo(3);
+		}else {
+		if(vendedores[1] != null) {
+			chckbxContatosVendedor1.setSelected(false);
+ 			chckbxContatosComprador.setSelected(false);
+ 			chckbxContatosVendedor2.setSelected(true);
+
+ 			
+ 			
+ 			modelContato.resetar();
+				cBContato.removeAll();
+				cBContato.setSelectedItem("");
+ 			for(Contato contato : todos_contatos_vendedor2) {
+ 				
+ 				if(contato != null) {
+ 					modelContato.addContato(contato);
+ 				}
+ 			}
+ 			cBContato.setSelectedIndex(0);
+			
+			
+		}
+		}
+	}
+	
+	public void pesquisar_vendedor1(CadastroCliente [] vendedores) {
+
+ 		if(chkOutroContato.isSelected()) {
+ 			if(rdNot.isSelected())
+ 			set_msg_notificacao(2);
+ 			else if(rdAnexo.isSelected())
+ 				set_msg_anexo(2);
+ 		}else {
+ 		
+ 			chckbxContatosVendedor1.setSelected(true);
+ 			chckbxContatosComprador.setSelected(false);
+ 			if(vendedores[1] != null)
+ 			chckbxContatosVendedor2.setSelected(false);
+
+ 			
+ 			
+ 			modelContato.resetar();
+				cBContato.removeAll();
+				cBContato.setSelectedItem("");
+ 			for(Contato contato : todos_contatos_vendedor1) {
+ 				
+ 				if(contato != null) {
+ 					modelContato.addContato(contato);
+ 				}
+ 			}
+ 			cBContato.setSelectedIndex(0);
+
+ 			
+ 	}
+	}
+
+	public void pesquisar_comprador(CadastroCliente [] vendedores) {
+		if(chkOutroContato.isSelected()) {
+ 			//nao atualiza contatos, apenas troca a mensagem
+ 			if(rdNot.isSelected())
+	 			set_msg_notificacao(1);
+	 			else if(rdAnexo.isSelected())
+	 				set_msg_anexo(1);
+ 			
+ 			
+ 		}else {
+ 			chckbxContatosComprador.setSelected(true);
+ 			chckbxContatosVendedor1.setSelected(false);
+ 			if(vendedores[1] != null)
+ 			chckbxContatosVendedor2.setSelected(false);
+
+ 			
+ 			modelContato.resetar();
+				cBContato.removeAll();
+				cBContato.setSelectedItem("");
+
+ 			for(Contato contato : todos_contatos_comprador) {
+ 				
+ 				if(contato != null) {
+ 					modelContato.addContato(contato);
+ 				}
+ 			}
+ 			
+ 			cBContato.setSelectedIndex(0);
+
+ 	
+ 	
+ 		
+ 	}
+	}
+	
+	public void chamar_outro_contato() {
+		chkOutroContato.setSelected(true);
+		
+		etNumero.setEditable(true);
+		etNumero.setEnabled(true);
+		cBContato.setEnabled(false);
+		lblNaoinclua.setVisible(true);
+	}
 }

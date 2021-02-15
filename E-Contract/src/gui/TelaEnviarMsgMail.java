@@ -41,6 +41,8 @@ import java.awt.Font;
 import javax.swing.JTextArea;
 import javax.swing.JComboBox;
 import java.awt.GridLayout;
+import java.awt.Window;
+
 import javax.swing.BoxLayout;
 import net.miginfocom.swing.MigLayout;
 import java.awt.Component;
@@ -107,7 +109,7 @@ public class TelaEnviarMsgMail extends JDialog {
 	}
 
 
-	public TelaEnviarMsgMail(int flag_tipo_envio, CadastroContrato contrato, File documento,JFrame janela_pai) {
+	public TelaEnviarMsgMail(int flag_tipo_envio, CadastroContrato contrato, File documento,Window janela_pai) {
 		//setAlwaysOnTop(true);
 
 		this.flag_global = flag_tipo_envio;
@@ -658,6 +660,7 @@ public void set_msg_livre() {
 		
 			//enviar contrato fixo
 			 Email mail = new Email();
+			 
 		        mail.logar(remetente_global.trim(), login.getSenhaEmail().trim());
 		        
 		        String remetente = remetente_global.trim();
@@ -688,14 +691,14 @@ public void set_msg_livre() {
 
 		                boolean enviado = mail.enviar(remetente_global, destinatario, assunto,saudacao, mensagem, assinatura);
 		        		    if(enviado == true) {
-		        		    	JOptionPane.showMessageDialog(null, "E-mail enviado");
+		        		    	JOptionPane.showMessageDialog(isto, "E-mail enviado");
 		        		    	isto.dispose();
 
 		        		    }else {
-		        		    	JOptionPane.showMessageDialog(null, "E-mail não enviado\nConsulte o administrador");
+		        		    	JOptionPane.showMessageDialog(isto, "E-mail não enviado\nConsulte o administrador");
 		        		    }
 		                }else {
-		        	    	JOptionPane.showMessageDialog(null, "Destinatario Invalido!");
+		        	    	JOptionPane.showMessageDialog(isto, "Destinatario Invalido!");
 
 		                }
 		        	
@@ -714,14 +717,14 @@ public void set_msg_livre() {
 		                
 		                boolean enviado = mail.enviarAnexo(remetente_global, destinatario, assunto, saudacao, mensagem, assinatura, arquivos);
 		        		    if(enviado == true) {
-		        		    	JOptionPane.showMessageDialog(null, "E-mail enviado");
+		        		    	JOptionPane.showMessageDialog(isto, "E-mail enviado");
 		        		    	isto.dispose();
 
 		        		    }else {
-		        		    	JOptionPane.showMessageDialog(null, "E-mail não enviado\nConsulte o administrador");
+		        		    	JOptionPane.showMessageDialog(isto, "E-mail não enviado\nConsulte o administrador");
 		        		    }
 		                }else {
-		        	    	JOptionPane.showMessageDialog(null, "Destinatario Invalido!");
+		        	    	JOptionPane.showMessageDialog(isto, "Destinatario Invalido!");
 
 		                }
 		        	
@@ -747,15 +750,15 @@ public void set_msg_livre() {
 				     		
 		                  boolean enviado = mail.enviarAnexo(remetente_global, destinatario, assunto, saudacao, mensagem, assinatura, arquivos);
 		       		    if(enviado == true) {
-		       		    	JOptionPane.showMessageDialog(null, "E-mail enviado");
+		       		    	JOptionPane.showMessageDialog(isto, "E-mail enviado");
 		       		    	isto.dispose();
 
 		       		    }else {
-		       		    	JOptionPane.showMessageDialog(null, "E-mail não enviado\nConsulte o administrador");
+		       		    	JOptionPane.showMessageDialog(isto, "E-mail não enviado\nConsulte o administrador");
 		       		    }
 		               
 		        	    } else {
-	            	    	JOptionPane.showMessageDialog(null, "Destinatario Invalido!");
+	            	    	JOptionPane.showMessageDialog(isto, "Destinatario Invalido!");
 
 	                    }
 		        		
@@ -766,14 +769,14 @@ public void set_msg_livre() {
 
 		                    boolean enviado = mail.enviar(remetente_global, destinatario, assunto,saudacao, mensagem, assinatura);
 		            		    if(enviado == true) {
-		            		    	JOptionPane.showMessageDialog(null, "E-mail enviado");
+		            		    	JOptionPane.showMessageDialog(isto, "E-mail enviado");
 		            		    	isto.dispose();
 
 		            		    }else {
-		            		    	JOptionPane.showMessageDialog(null, "E-mail não enviado\nConsulte o administrador");
+		            		    	JOptionPane.showMessageDialog(isto, "E-mail não enviado\nConsulte o administrador");
 		            		    }
 		                    }else {
-		            	    	JOptionPane.showMessageDialog(null, "Destinatario Invalido!");
+		            	    	JOptionPane.showMessageDialog(isto, "Destinatario Invalido!");
 
 		                    }
 		        		

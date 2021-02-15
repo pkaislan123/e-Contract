@@ -18,6 +18,7 @@ import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeBodyPart;
 import javax.mail.internet.MimeMessage;
 import javax.mail.internet.MimeMultipart;
+import javax.swing.JOptionPane;
 
 public class Email
 {
@@ -25,9 +26,14 @@ public class Email
 	
 	 Properties props ;
 	 Session session ;
+	 private String email_local, senha_local;
 	 
-  public  Email() {
+  public void abrirEmail() {
+	  
      props = new Properties();
+     
+     if(email_local.contains("gmail")) {
+    	 JOptionPane.showMessageDialog(null, "Email gmail");
     /** Parâmetros de conexão com servidor Gmail */
     props.put("mail.smtp.host", "smtp.gmail.com");
     props.put("mail.smtp.socketFactory.port", "465");
@@ -35,12 +41,31 @@ public class Email
     "javax.net.ssl.SSLSocketFactory");
     props.put("mail.smtp.auth", "true");
     props.put("mail.smtp.port", "465");
-    
+     }else if(email_local.contains("hotmail") || email_local.contains("live")) {
+    	 JOptionPane.showMessageDialog(null, "Email hotmail.com");
+
+           /** Parâmetros de conexão com servidor Hotmail */
+           props.put("mail.transport.protocol", "smtp");
+           props.put("mail.smtp.host", "smtp.live.com");
+           props.put("mail.smtp.socketFactory.port", "587");
+           props.put("mail.smtp.socketFactory.fallback", "false");
+           props.put("mail.smtp.starttls.enable", "true");
+           props.put("mail.smtp.auth", "true");
+           props.put("mail.smtp.port", "587");
+
+         
+     }
     
   }
   
   public void logar(String email, String senha) {
 
+	  this.email_local = email;
+	  this.senha_local = senha;
+	  abrirEmail() ;
+	  
+	  
+	  
      session = Session.getDefaultInstance(props,
       new javax.mail.Authenticator() {
            protected PasswordAuthentication getPasswordAuthentication()
@@ -50,6 +75,7 @@ public class Email
            }
       });
 
+   
     /** Ativa Debug para sessão */
     session.setDebug(true);
     

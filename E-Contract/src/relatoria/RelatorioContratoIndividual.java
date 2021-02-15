@@ -445,8 +445,8 @@ public class RelatorioContratoIndividual {
 					Units.toEMU(30), Units.toEMU(30));
 
 		} catch (Exception e) {
-			JOptionPane.showMessageDialog(null,
-					"Erro ao criar cabecalho e rodape do contrato!\nConsulte o administrador do sistema!");
+			//JOptionPane.showMessageDialog(null,
+				//	"Erro ao criar cabecalho e rodape do contrato!\nConsulte o administrador do sistema!");
 			e.printStackTrace();
 		}
 
@@ -1520,8 +1520,8 @@ public void incluir_legenda_transferencias_positivas(ArrayList<CadastroContrato.
 
 			// pegar a nota
 			ManipularNotasFiscais manipular = new ManipularNotasFiscais("");
-			CadastroNFe nota = manipular.getNotaFiscal(carregamento.getCodigo_nota_fiscal());
-
+			//CadastroNFe nota = manipular.getNotaFiscal(carregamento.getCodigo_nota_fiscal());
+			CadastroNFe nota = manipular.getNotaFiscalPorArquivo(servidor_unidade + carregamento.getCaminho_nota_fiscal());
 			// definir peso carregamento
 			double peso_carregado = carregamento.getPeso_real_carga();
 					

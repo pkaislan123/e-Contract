@@ -29,6 +29,8 @@ import java.awt.Font;
 import javax.swing.JComboBox;
 import javax.swing.JTextArea;
 import java.awt.SystemColor;
+import java.awt.Window;
+
 import javax.swing.JTextField;
 import javax.swing.JOptionPane;
 
@@ -43,13 +45,13 @@ public class TelaCadastroSafra extends JDialog {
     private JTextArea entDescricao;
     private JTextField entCodigoSafra;
     private JLabel lblCodigoProduto;
-
-	public TelaCadastroSafra() {
+    private TelaCadastroSafra isto ;
+	public TelaCadastroSafra(Window janela_pai) {
 		//setAlwaysOnTop(true);
 
-		setModal(true);
+		//setModal(true);
 
-		TelaCadastroSafra isto = this;
+		 isto = this;
 		
 		setResizable(false);
 		setTitle("E-Contract - Nova Safra");
@@ -152,12 +154,12 @@ public class TelaCadastroSafra extends JDialog {
 						
 					}
 					}catch(Exception g) {
-						JOptionPane.showMessageDialog(null, "Codigo Invalido!");
+						JOptionPane.showMessageDialog(isto, "Codigo Invalido!");
 
 					}
 						
 				}else {
-					JOptionPane.showMessageDialog(null, "Codigo Invalido!");
+					JOptionPane.showMessageDialog(isto, "Codigo Invalido!");
 				}
 				
 				
@@ -232,7 +234,7 @@ public class TelaCadastroSafra extends JDialog {
 		   CadastroProduto produto= (CadastroProduto) modelProduto.getSelectedItem();
            lblCodigoProduto.setText(Integer.toString(produto.getCodigo()));
 
-		this.setLocationRelativeTo(null);
+		this.setLocationRelativeTo(janela_pai);
 
 		this.setVisible(true);
 		

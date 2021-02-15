@@ -3,6 +3,7 @@ package gui;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.FlowLayout;
+import java.awt.Window;
 
 import javax.swing.JButton;
 import javax.swing.JDialog;
@@ -59,11 +60,11 @@ public class TelaBaixarNotas extends JDialog {
 	
 
 	
-	public TelaBaixarNotas() {
+	public TelaBaixarNotas(Window janela_pai) {
 	
 	
 		
-		setModal(true);
+		//setModal(true);
 
 		TelaBaixarNotas isto = this;
 		
@@ -136,7 +137,7 @@ public class TelaBaixarNotas extends JDialog {
 		
 	
         
-		this.setLocationRelativeTo(null);
+		this.setLocationRelativeTo(janela_pai);
 
 		this.setVisible(true);
 	

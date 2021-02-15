@@ -250,7 +250,7 @@ public class TelaPrincipal extends JFrame implements GetDadosGlobais {
 		mntmArmazns.setFont(new Font("Segoe UI", Font.PLAIN, 16));
 		mntmArmazns.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
-				TelaArmazem tela = new TelaArmazem();
+				TelaArmazem tela = new TelaArmazem(isto);
 			}
 		});
 		Dados.add(mntmArmazns);
@@ -261,7 +261,7 @@ public class TelaPrincipal extends JFrame implements GetDadosGlobais {
 		mntmSafra.setFont(new Font("Segoe UI", Font.PLAIN, 16));
 		mntmSafra.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				TelaSafra safra = new TelaSafra();
+				TelaSafra safra = new TelaSafra(isto);
 			}
 		});
 		Dados.add(mntmSafra);
@@ -282,7 +282,7 @@ public class TelaPrincipal extends JFrame implements GetDadosGlobais {
 		mntmUsurios.setIcon(new ImageIcon(TelaPrincipal.class.getResource("/imagens/usuarios.png")));
 		mntmUsurios.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
-				TelaUsuarios usuarios = new TelaUsuarios(0);
+				TelaUsuarios usuarios = new TelaUsuarios(0, isto);
 				usuarios.setVisible(true);
 			}
 		});
@@ -318,7 +318,7 @@ public class TelaPrincipal extends JFrame implements GetDadosGlobais {
 		mntmNewMenuItem_1.setFont(new Font("Segoe UI", Font.PLAIN, 16));
 		mntmNewMenuItem_1.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				TelaRelatoriaContratos tela = new TelaRelatoriaContratos();
+				TelaRelatoriaContratos tela = new TelaRelatoriaContratos(isto);
 			}
 		});
 		mnContratos.add(mntmNewMenuItem_1);

@@ -21,6 +21,7 @@ import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 
 import java.awt.Font;
+import java.awt.Window;
 import java.awt.event.FocusAdapter;
 import java.awt.event.FocusEvent;
 import java.awt.event.KeyAdapter;
@@ -57,12 +58,12 @@ public class TelaCadastroUsuario extends JDialog implements GetDadosGlobais {
 	private TelaCadastroUsuario isto;
 	private JCheckBox chkBoxAlterarApis;
 
-	public TelaCadastroUsuario(int flag_tipo_tela, CadastroLogin _login_edicao) {
+	public TelaCadastroUsuario(int flag_tipo_tela, CadastroLogin _login_edicao, Window janela_pai) {
 
 		getDadosGlobais();
 		// setAlwaysOnTop(true);
 
-		setModal(true);
+		//setModal(true);
 		isto = this;
 
 		setResizable(false);
@@ -99,7 +100,7 @@ public class TelaCadastroUsuario extends JDialog implements GetDadosGlobais {
 		entSenha1.setForeground(Color.BLACK);
 		entSenha1.setFont(new Font("Arial", Font.BOLD, 20));
 		entSenha1.setColumns(10);
-		entSenha1.setBounds(256, 146, 242, 28);
+		entSenha1.setBounds(256, 146, 247, 36);
 		painelEmpresa.add(entSenha1);
 
 		JLabel lblSenha2 = new JLabel("Confirmar Senha:");
@@ -122,14 +123,14 @@ public class TelaCadastroUsuario extends JDialog implements GetDadosGlobais {
 		entSenha.setForeground(Color.BLACK);
 		entSenha.setFont(new Font("Arial", Font.BOLD, 20));
 		entSenha.setColumns(10);
-		entSenha.setBounds(256, 109, 242, 28);
+		entSenha.setBounds(256, 109, 247, 36);
 		painelEmpresa.add(entSenha);
 
 		entLogin = new JTextFieldPersonalizado();
 		entLogin.setForeground(Color.BLACK);
 		entLogin.setFont(new Font("Arial", Font.BOLD, 20));
 		entLogin.setColumns(10);
-		entLogin.setBounds(256, 65, 242, 28);
+		entLogin.setBounds(256, 65, 247, 36);
 		painelEmpresa.add(entLogin);
 
 		JLabel lblLogin = new JLabel("Login:");
@@ -153,7 +154,7 @@ public class TelaCadastroUsuario extends JDialog implements GetDadosGlobais {
 		lblCadastro_2_1_2_1.setForeground(Color.BLACK);
 		lblCadastro_2_1_2_1.setFont(new Font("Arial", Font.PLAIN, 14));
 		lblCadastro_2_1_2_1.setBackground(Color.ORANGE);
-		lblCadastro_2_1_2_1.setBounds(292, 172, 120, 33);
+		lblCadastro_2_1_2_1.setBounds(292, 198, 120, 33);
 		painelEmpresa.add(lblCadastro_2_1_2_1);
 
 		JLabel Celu = new JLabel("Celular:");
@@ -161,14 +162,14 @@ public class TelaCadastroUsuario extends JDialog implements GetDadosGlobais {
 		Celu.setForeground(Color.BLACK);
 		Celu.setFont(new Font("Arial", Font.PLAIN, 16));
 		Celu.setBackground(Color.ORANGE);
-		Celu.setBounds(179, 221, 72, 21);
+		Celu.setBounds(179, 247, 72, 21);
 		painelEmpresa.add(Celu);
 
 		entCelular = new JTextFieldPersonalizado();
 		entCelular.setForeground(Color.BLACK);
 		entCelular.setFont(new Font("Arial", Font.BOLD, 20));
 		entCelular.setColumns(10);
-		entCelular.setBounds(256, 216, 242, 28);
+		entCelular.setBounds(256, 242, 247, 36);
 		painelEmpresa.add(entCelular);
 		entCelular.addKeyListener(new KeyAdapter() {
 			@Override
@@ -196,30 +197,30 @@ public class TelaCadastroUsuario extends JDialog implements GetDadosGlobais {
 		entEmail.setForeground(Color.BLACK);
 		entEmail.setFont(new Font("Arial", Font.BOLD, 20));
 		entEmail.setColumns(10);
-		entEmail.setBounds(256, 258, 242, 28);
+		entEmail.setBounds(256, 284, 247, 36);
 		painelEmpresa.add(entEmail);
 
-		JLabel lblEmailgmail = new JLabel("Email(gmail):");
+		JLabel lblEmailgmail = new JLabel("Email:");
 		lblEmailgmail.setHorizontalAlignment(SwingConstants.TRAILING);
 		lblEmailgmail.setForeground(Color.BLACK);
 		lblEmailgmail.setFont(new Font("Arial", Font.PLAIN, 16));
 		lblEmailgmail.setBackground(Color.ORANGE);
-		lblEmailgmail.setBounds(159, 263, 92, 21);
+		lblEmailgmail.setBounds(159, 289, 92, 21);
 		painelEmpresa.add(lblEmailgmail);
 
-		JLabel lblSenhagmail = new JLabel("Senha(gmail):");
+		JLabel lblSenhagmail = new JLabel("Senha:");
 		lblSenhagmail.setHorizontalAlignment(SwingConstants.TRAILING);
 		lblSenhagmail.setForeground(Color.BLACK);
 		lblSenhagmail.setFont(new Font("Arial", Font.PLAIN, 16));
 		lblSenhagmail.setBackground(Color.ORANGE);
-		lblSenhagmail.setBounds(144, 302, 107, 21);
+		lblSenhagmail.setBounds(144, 328, 107, 21);
 		painelEmpresa.add(lblSenhagmail);
 
 		entSenhaGmail = new JTextFieldPersonalizado();
 		entSenhaGmail.setForeground(Color.BLACK);
 		entSenhaGmail.setFont(new Font("Arial", Font.BOLD, 20));
 		entSenhaGmail.setColumns(10);
-		entSenhaGmail.setBounds(256, 297, 242, 28);
+		entSenhaGmail.setBounds(256, 323, 247, 36);
 		painelEmpresa.add(entSenhaGmail);
 
 		JButton btnSalvar = new JButton("Salvar");
@@ -540,7 +541,7 @@ public class TelaCadastroUsuario extends JDialog implements GetDadosGlobais {
 
 		adicionarFocus(isto.getComponents());
 
-		this.setLocationRelativeTo(null);
+		this.setLocationRelativeTo(janela_pai);
 
 		this.setVisible(true);
 
@@ -615,51 +616,51 @@ public class TelaCadastroUsuario extends JDialog implements GetDadosGlobais {
 							if (celular != null && !celular.equals(" ") && celular.length() == 11) {
 								aceitar_cadastro = true;
 
-								if (email != null && !email.equals(" ") && email.contains("@gmail.com")) {
+								if (email != null && !email.equals(" ") ) {
 									aceitar_cadastro = true;
 
 									if (senhaEmail != null && !senhaEmail.equals(" ") && senhaEmail.length() >= 8) {
 										aceitar_cadastro = true;
 
 									} else {
-										JOptionPane.showMessageDialog(null,
+										JOptionPane.showMessageDialog(isto,
 												"Senha gmail informada não atende aos padrões do\n servidor gmail");
 										aceitar_cadastro = false;
 									}
 								} else {
-									JOptionPane.showMessageDialog(null,
+									JOptionPane.showMessageDialog(isto,
 											"Necessário um e-mail do servidor gmail válido!");
 									aceitar_cadastro = false;
 								}
 
 							} else {
-								JOptionPane.showMessageDialog(null, "Celular Necessita ser 11 caracteres");
+								JOptionPane.showMessageDialog(isto, "Celular Necessita ser 11 caracteres");
 								aceitar_cadastro = false;
 							}
 
 						} else {
-							JOptionPane.showMessageDialog(null, "Senhas não conferem");
+							JOptionPane.showMessageDialog(isto, "Senhas não conferem");
 							aceitar_cadastro = false;
 						}
 
 					} else {
-						JOptionPane.showMessageDialog(null, "Senha de login necessita ter 4 ou mais caracteres ");
+						JOptionPane.showMessageDialog(isto, "Senha de login necessita ter 4 ou mais caracteres ");
 						aceitar_cadastro = false;
 
 					}
 
 				} else {
-					JOptionPane.showMessageDialog(null, "Login Incorreto");
+					JOptionPane.showMessageDialog(isto, "Login Incorreto");
 					aceitar_cadastro = false;
 				}
 
 			} else {
-				JOptionPane.showMessageDialog(null, "Sobrenome Incorreto");
+				JOptionPane.showMessageDialog(isto, "Sobrenome Incorreto");
 				aceitar_cadastro = false;
 			}
 
 		} else {
-			JOptionPane.showMessageDialog(null, "Nome Incorreto");
+			JOptionPane.showMessageDialog(isto, "Nome Incorreto");
 			aceitar_cadastro = false;
 
 		}
@@ -723,11 +724,11 @@ public class TelaCadastroUsuario extends JDialog implements GetDadosGlobais {
 		GerenciarBancoLogin gerenciarLogin = new GerenciarBancoLogin();
 		boolean result = gerenciarLogin.atualizarUsuario(login_atualizar);
 		if (result) {
-			JOptionPane.showMessageDialog(null, "Usuário Atualizado");
+			JOptionPane.showMessageDialog(isto, "Usuário Atualizado");
 			GerenciadorLog.registrarLogDiario("aviso", "novo usuario cadastrado, login: " + login_atualizar.getLogin());
 			isto.dispose();
 		} else {
-			JOptionPane.showMessageDialog(null, "Erro ao Cadastrar Usuário\n Contate o Administrador do Sistema");
+			JOptionPane.showMessageDialog(isto, "Erro ao Cadastrar Usuário\n Contate o Administrador do Sistema");
 			GerenciadorLog.registrarLogDiario("falha", "erro ao cadastrar novo usuario: " + login_atualizar.getLogin());
 
 		}
@@ -738,16 +739,16 @@ public class TelaCadastroUsuario extends JDialog implements GetDadosGlobais {
 		GerenciarBancoLogin gerenciarLogin = new GerenciarBancoLogin();
 		int result = gerenciarLogin.inserirLogin(novo_usuario);
 		if (result == 1) {
-			JOptionPane.showMessageDialog(null, "Usuário Cadastrado");
+			JOptionPane.showMessageDialog(isto, "Usuário Cadastrado");
 			GerenciadorLog.registrarLogDiario("aviso", "novo usuario cadastrado, login: " + novo_usuario.getLogin());
 			isto.dispose();
 		} else if (result == 0) {
-			JOptionPane.showMessageDialog(null, "Login já esta cadastrado, tente um diferente!");
+			JOptionPane.showMessageDialog(isto, "Login já esta cadastrado, tente um diferente!");
 			GerenciadorLog.registrarLogDiario("falha",
 					"erro ao cadastrar novo usuario: login já existe " + novo_usuario.getLogin());
 
 		} else {
-			JOptionPane.showMessageDialog(null, "Erro ao Cadastrar Usuário\n Contate o Administrador do Sistema");
+			JOptionPane.showMessageDialog(isto, "Erro ao Cadastrar Usuário\n Contate o Administrador do Sistema");
 			GerenciadorLog.registrarLogDiario("falha", "erro ao cadastrar novo usuario: " + novo_usuario.getLogin());
 
 		}

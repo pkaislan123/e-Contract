@@ -170,7 +170,7 @@ public class TelaFinalizarContrato extends JDialog {
 				boolean fechar = gerenciar.atualizarStatusContrato(sub_contrato_global.getId(), 3);
 
 				if (fechar) {
-					JOptionPane.showMessageDialog(null, "Contrato Finalizado com o status 'Cumprido Corretamente'");
+					JOptionPane.showMessageDialog(isto, "Contrato Finalizado com o status 'Cumprido Corretamente'");
 
 					CadastroCliente compradores[] = sub_contrato_global.getCompradores();
 
@@ -228,7 +228,7 @@ public class TelaFinalizarContrato extends JDialog {
 								if (removido) {
 									prosseguir = true;
 								} else {
-									JOptionPane.showMessageDialog(null,
+									JOptionPane.showMessageDialog(isto,
 											"Erro ao remover pontuacao antiga\nConsulte o administrador!");
 									prosseguir = false;
 									break;
@@ -246,7 +246,7 @@ public class TelaFinalizarContrato extends JDialog {
 						if (result > 0) {
 
 						} else {
-							JOptionPane.showMessageDialog(null,
+							JOptionPane.showMessageDialog(isto,
 									"Erro ao inserir pontuação de contrato\nConsulte o administrador");
 							break;
 						}
@@ -259,7 +259,7 @@ public class TelaFinalizarContrato extends JDialog {
 					isto.dispose();
 
 				} else {
-					JOptionPane.showMessageDialog(null,
+					JOptionPane.showMessageDialog(isto,
 							"Erro ao atualizar o status do contrato\nTente novamente, se persistir o erro consulte o administrador");
 				}
 			}
@@ -279,15 +279,7 @@ public class TelaFinalizarContrato extends JDialog {
 		
 		this.setUndecorated(true);
 		
-		 GraphicsConfiguration gc = janela_pai.getGraphicsConfiguration();
-			Rectangle bounds = gc.getBounds();
-			  
-			  
-			Point realLocation = new Point(); // holds final location of dialog.
-			realLocation.x = (bounds.x + bounds.width / 2) - (isto.getWidth() / 2);
-			realLocation.y = (bounds.y + bounds.height / 2 )- (isto.getHeight() / 2);
-			  
-			this.setLocation(realLocation);
+	    this.setLocationRelativeTo(janela_pai);
 
 
 	}

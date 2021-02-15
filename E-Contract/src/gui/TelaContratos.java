@@ -108,7 +108,7 @@ public class TelaContratos extends JDialog {
 
 		setBackground(new Color(255, 255, 255));
 		setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-		setBounds(100, 100, 1074, 631);
+		setBounds(100, 100, 1200, 701);
 		painelPrincipal.setBackground(new Color(255, 255, 255));
 		painelPrincipal.setBorder(new EmptyBorder(5, 5, 5, 5));
 		setContentPane(painelPrincipal);
@@ -123,12 +123,12 @@ public class TelaContratos extends JDialog {
 		// btnContrato.setIcon(new
 		// ImageIcon(TelaContratos.class.getResource("/imagens/add_contrato.png")));
 		btnContrato.setToolTipText("Adicionar Novo Contrato");
-		btnContrato.setBounds(930, 539, 106, 28);
+		btnContrato.setBounds(1059, 603, 106, 28);
 		painelPrincipal.add(btnContrato);
 
 		JPanel panel = new JPanel();
 		panel.setLayout(null);
-		panel.setBounds(30, 180, 1006, 266);
+		panel.setBounds(30, 180, 1135, 368);
 		painelPrincipal.add(panel);
 		
 
@@ -175,7 +175,7 @@ public class TelaContratos extends JDialog {
 		scrollPane.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED);
 		scrollPane.setBackground(Color.WHITE);
 		scrollPane.setAutoscrolls(true);
-		scrollPane.setBounds(10, 11, 986, 244);
+		scrollPane.setBounds(0, 0, 1135, 362);
 
 		panel.add(scrollPane);
 
@@ -216,7 +216,7 @@ public class TelaContratos extends JDialog {
 
 			}
 		});
-		btnAbrir.setBounds(837, 535, 81, 36);
+		btnAbrir.setBounds(966, 599, 81, 36);
 		getContentPane().add(btnAbrir);
 
 		JButton btnSelecionar = new JButton("Selecionar");
@@ -239,7 +239,7 @@ public class TelaContratos extends JDialog {
 							.setContratoDestintario(contrato_selecionado);
 					isto.dispose();
 					}else {
-						JOptionPane.showMessageDialog(null, "Não é possivel transferir um pagamento para um contrato finalizado");
+						JOptionPane.showMessageDialog(isto, "Não é possivel transferir um pagamento para um contrato finalizado");
 					}
 
 				} else if (flag_retorno == 3) {
@@ -248,7 +248,7 @@ public class TelaContratos extends JDialog {
 					((TelaReplicarCarregamento) telaPai).setSubContrato(contrato_selecionado);
 					isto.dispose();
 					}else {
-						JOptionPane.showMessageDialog(null, "Não é possivel replicar um carregamento para um contrato finalizado");
+						JOptionPane.showMessageDialog(isto, "Não é possivel replicar um carregamento para um contrato finalizado");
 					}
 
 				} else if (flag_retorno == 4) {
@@ -258,13 +258,13 @@ public class TelaContratos extends JDialog {
 					((TelaReplicarPagamento) telaPai).setSubContrato(contrato_selecionado);
 					isto.dispose();
 					}else {
-						JOptionPane.showMessageDialog(null, "Não é possivel replicar um pagamento para um contrato finalizado");
+						JOptionPane.showMessageDialog(isto, "Não é possivel replicar um pagamento para um contrato finalizado");
 					}
 
 				}
 			}
 		});
-		btnSelecionar.setBounds(738, 539, 87, 28);
+		btnSelecionar.setBounds(867, 603, 87, 28);
 		painelPrincipal.add(btnSelecionar);
 
 		JButton btnImportarTerceiros = new JButton("Importar");
@@ -273,7 +273,7 @@ public class TelaContratos extends JDialog {
 				importarContratoTerceiros();
 			}
 		});
-		btnImportarTerceiros.setBounds(652, 539, 74, 28);
+		btnImportarTerceiros.setBounds(781, 603, 74, 28);
 		painelPrincipal.add(btnImportarTerceiros);
 
 		entNomeComprador = new JTextField();
@@ -433,7 +433,7 @@ if(contrato.getStatus_contrato() == 0) {
 		JButton btnImportarManualmente = new JButton("Importar Manualmente");
 		btnImportarManualmente.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				JOptionPane.showMessageDialog(null, "Na próxima tela, importe o arquivo\ndo contrato de terceiro");
+				JOptionPane.showMessageDialog(isto, "Na próxima tela, importe o arquivo\ndo contrato de terceiro");
 
 				JFileChooser fileChooser = new JFileChooser();
 				fileChooser.setPreferredSize(new Dimension(800, 600));
@@ -447,18 +447,18 @@ if(contrato.getStatus_contrato() == 0) {
 				
 				
 							//abrir tela de adicionar novo contrato
-							TelaImportarContratoManual tela = new TelaImportarContratoManual( 4, null, 0, file);
+							TelaImportarContratoManual tela = new TelaImportarContratoManual( 4, null, 0, file, isto);
 							tela.setVisible(true);
 						
 			
 			}
 		});
-		btnImportarManualmente.setBounds(488, 539, 152, 28);
+		btnImportarManualmente.setBounds(617, 603, 152, 28);
 		painelPrincipal.add(btnImportarManualmente);
 		
 		JPanel panel_1 = new JPanel();
 		panel_1.setBackground(new Color(0, 153, 51));
-		panel_1.setBounds(430, 450, 254, 33);
+		panel_1.setBounds(557, 554, 254, 33);
 		painelPrincipal.add(panel_1);
 		panel_1.setLayout(new MigLayout("", "[][]", "[]"));
 		
@@ -479,8 +479,8 @@ if(contrato.getStatus_contrato() == 0) {
 		panel_1.add(lblNewLabel_3, "cell 1 0");
 		
 		JPanel panel_1_1 = new JPanel();
-		panel_1_1.setBackground(new Color(102, 51, 0));
-		panel_1_1.setBounds(700, 450, 338, 33);
+		panel_1_1.setBackground(new Color(51, 153, 102));
+		panel_1_1.setBounds(827, 554, 338, 33);
 		painelPrincipal.add(panel_1_1);
 		panel_1_1.setLayout(new MigLayout("", "[][]", "[]"));
 		
@@ -496,62 +496,62 @@ if(contrato.getStatus_contrato() == 0) {
 		
 		JLabel lblNewLabel_4 = new JLabel("");
 		lblNewLabel_4.setOpaque(true);
-		lblNewLabel_4.setBounds(30, 458, 25, 17);
+		lblNewLabel_4.setBounds(30, 541, 25, 17);
 		lblNewLabel_4.setBackground(new Color(255,69,0));
 		painelPrincipal.add(lblNewLabel_4);
 		
 		JLabel lblNewLabel_5 = new JLabel("Contrato em Análise:");
-		lblNewLabel_5.setBounds(60, 458, 115, 16);
+		lblNewLabel_5.setBounds(60, 541, 115, 16);
 		painelPrincipal.add(lblNewLabel_5);
 		
 		JLabel lblNewLabel_4_1 = new JLabel("");
 		lblNewLabel_4_1.setOpaque(true);
 		lblNewLabel_4_1.setBackground(Color.yellow);
-		lblNewLabel_4_1.setBounds(30, 484, 25, 17);
+		lblNewLabel_4_1.setBounds(30, 567, 25, 17);
 		painelPrincipal.add(lblNewLabel_4_1);
 		
 		JLabel lblNewLabel_5_1 = new JLabel("Recolher Assinatura:");
-		lblNewLabel_5_1.setBounds(60, 484, 115, 16);
+		lblNewLabel_5_1.setBounds(60, 567, 115, 16);
 		painelPrincipal.add(lblNewLabel_5_1);
 		
 		JLabel lblNewLabel_4_2 = new JLabel("");
 		lblNewLabel_4_2.setOpaque(true);
 		lblNewLabel_4_2.setBackground(new Color(95,159,159));
-		lblNewLabel_4_2.setBounds(30, 508, 25, 17);
+		lblNewLabel_4_2.setBounds(30, 591, 25, 17);
 		painelPrincipal.add(lblNewLabel_4_2);
 		
 		JLabel lblNewLabel_5_2 = new JLabel("Assinado:");
-		lblNewLabel_5_2.setBounds(60, 508, 112, 16);
+		lblNewLabel_5_2.setBounds(60, 591, 112, 16);
 		painelPrincipal.add(lblNewLabel_5_2);
 		
 		JLabel lblNewLabel_4_3 = new JLabel("");
 		lblNewLabel_4_3.setOpaque(true);
 		lblNewLabel_4_3.setBackground(new Color(0,100,0));
-		lblNewLabel_4_3.setBounds(30, 535, 25, 17);
+		lblNewLabel_4_3.setBounds(30, 618, 25, 17);
 		painelPrincipal.add(lblNewLabel_4_3);
 		
 		JLabel lblNewLabel_5_3 = new JLabel("Concluido:");
-		lblNewLabel_5_3.setBounds(60, 535, 112, 16);
+		lblNewLabel_5_3.setBounds(60, 618, 112, 16);
 		painelPrincipal.add(lblNewLabel_5_3);
 		
 		 lblTotalContratosEmAnalise = new JLabel("999");
 		lblTotalContratosEmAnalise.setFont(new Font("SansSerif", Font.BOLD, 14));
-		lblTotalContratosEmAnalise.setBounds(187, 458, 55, 16);
+		lblTotalContratosEmAnalise.setBounds(187, 541, 55, 16);
 		painelPrincipal.add(lblTotalContratosEmAnalise);
 		
 		 lblTotalContratosAssinar = new JLabel("999");
 		lblTotalContratosAssinar.setFont(new Font("SansSerif", Font.BOLD, 14));
-		lblTotalContratosAssinar.setBounds(187, 484, 55, 16);
+		lblTotalContratosAssinar.setBounds(187, 567, 55, 16);
 		painelPrincipal.add(lblTotalContratosAssinar);
 		
 		 lblTotalContratosAssinados = new JLabel("999");
 		lblTotalContratosAssinados.setFont(new Font("SansSerif", Font.BOLD, 14));
-		lblTotalContratosAssinados.setBounds(187, 508, 55, 16);
+		lblTotalContratosAssinados.setBounds(187, 591, 55, 16);
 		painelPrincipal.add(lblTotalContratosAssinados);
 		
 		 lblTotalContratosConcluidos = new JLabel("999");
 		lblTotalContratosConcluidos.setFont(new Font("SansSerif", Font.BOLD, 14));
-		lblTotalContratosConcluidos.setBounds(187, 535, 55, 16);
+		lblTotalContratosConcluidos.setBounds(187, 618, 55, 16);
 		painelPrincipal.add(lblTotalContratosConcluidos);
 
 		if (flag_retorno == 1 || flag_retorno == 2 || flag_retorno == 3 || flag_retorno == 4) {
@@ -710,7 +710,7 @@ if(contrato.getStatus_contrato() == 0) {
 
 	public void importarContratoTerceiros() {
 
-		JOptionPane.showMessageDialog(null, "Na próxima tela, importe os arquivos\ndo contrato de terceiros");
+		JOptionPane.showMessageDialog(isto, "Na próxima tela, importe os arquivos\ndo contrato de terceiros");
 
 		JFileChooser fileChooser = new JFileChooser();
 		fileChooser.setPreferredSize(new Dimension(800, 600));

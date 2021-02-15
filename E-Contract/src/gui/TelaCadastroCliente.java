@@ -8,6 +8,7 @@ import java.awt.Container;
 import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.Graphics;
+import java.awt.Window;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyAdapter;
@@ -169,8 +170,9 @@ public class TelaCadastroCliente extends JDialog {
 
 	private JPanel painelCentral = new JPanel();
 	private JLabel lblCodigoGerado, lblCodigo;
+	private TelaCadastroCliente isto;
 
-	public TelaCadastroCliente(int flag_tipo_tela, CadastroCliente cliente) {
+	public TelaCadastroCliente(int flag_tipo_tela, CadastroCliente cliente, Window janela_pai) {
 		getContentPane().setBackground(new Color(0, 153, 0));
 		getContentPane().setFont(new Font("Arial", Font.BOLD, 18));
 		getContentPane().setForeground(Color.WHITE);
@@ -181,8 +183,7 @@ public class TelaCadastroCliente extends JDialog {
 		// setAlwaysOnTop(true);
 
 		//setModal(true);
-
-		TelaCadastroCliente isto = this;
+		isto = this;
 
 		setResizable(false);
 
@@ -516,7 +517,7 @@ public class TelaCadastroCliente extends JDialog {
 
 				celular = celular.replace("(", "").replace(")", "").replace(" ", "").replace("-", "");
 				if (celular.length() != 11) {
-					JOptionPane.showMessageDialog(null, "Contato com número de celular incorreto");
+					JOptionPane.showMessageDialog(isto, "Contato com número de celular incorreto");
 				} else {
 
 					modelo.addRow(new Object[] { id, nome, cargo, celular, fixo, email, descricao, observacao });
@@ -1266,7 +1267,7 @@ public class TelaCadastroCliente extends JDialog {
 				try {
 					int cep = Integer.parseInt(entCep.getText().toString());
 					if (entCep.getText().toString().length() != 8) {
-						JOptionPane.showMessageDialog(null, "Cep Invalido!");
+						JOptionPane.showMessageDialog(isto, "Cep Invalido!");
 
 					} else {
 						BuscarCep busca = new BuscarCep(cep);
@@ -1735,7 +1736,7 @@ public class TelaCadastroCliente extends JDialog {
 		}
 		adicionarFocus(isto.getComponents());
 
-		this.setLocationRelativeTo(null);
+		this.setLocationRelativeTo(janela_pai);
 
 	}
 
@@ -1856,7 +1857,7 @@ public class TelaCadastroCliente extends JDialog {
 			// excluir contatos que tiver para excluir
 			for (Integer id_contato : contatos_excluir) {
 				if (atualizar.deleteContato(id_contato, cliente_atualizar.getId()) == false) {
-					JOptionPane.showMessageDialog(null, "Erro ao deletar os contatos, corrupção no banco de dados!");
+					JOptionPane.showMessageDialog(isto, "Erro ao deletar os contatos, corrupção no banco de dados!");
 					permitir_cadastro = false;
 					break;
 				} else {
@@ -1869,7 +1870,7 @@ public class TelaCadastroCliente extends JDialog {
 			if (permitir_cadastro) {
 				for (Integer id_conta : contas_excluir) {
 					if (atualizar.deleteConta(id_conta, cliente_atualizar.getId()) == false) {
-						JOptionPane.showMessageDialog(null,
+						JOptionPane.showMessageDialog(isto,
 								"Erro ao deletar os contatos, corrupção no banco de dados!");
 						permitir_cadastro = false;
 						break;
@@ -1912,12 +1913,12 @@ public class TelaCadastroCliente extends JDialog {
 				System.out.println("tentando atualizar cliente");
 				boolean atualizou = atualizar.atualizarCliente(cliente_atualizar);
 				if (atualizou) {
-					JOptionPane.showMessageDialog(null, "Cadastro Atualizado!");
+					JOptionPane.showMessageDialog(isto, "Cadastro Atualizado!");
 					// isto.dispose();
 					permitir_cadastro = true;
 
 				} else {
-					JOptionPane.showMessageDialog(null, "Erro ao atualizar");
+					JOptionPane.showMessageDialog(isto, "Erro ao atualizar");
 					permitir_cadastro = false;
 
 				}
@@ -1935,7 +1936,7 @@ public class TelaCadastroCliente extends JDialog {
 		String apelido = entApelido.getText().toString();
 		if (apelido == null || apelido.equals("") || apelido.equals(" ")) {
 			retorno = false;
-			JOptionPane.showMessageDialog(null, "Informe um Alias para o novo Cliente");
+			JOptionPane.showMessageDialog(isto, "Informe um Alias para o novo Cliente");
 
 		} else {
 			String id_cliente = lblCodigo.getText();
@@ -1958,7 +1959,7 @@ public class TelaCadastroCliente extends JDialog {
 		CPFValidator cpfValidator = new CPFValidator();
 		List<ValidationMessage> erros = cpfValidator.invalidMessagesFor(cpf);
 		if (erros.size() > 0) {
-			JOptionPane.showMessageDialog(null, "CPF Inválido!");
+			JOptionPane.showMessageDialog(isto, "CPF Inválido!");
 			retorno = false;
 		} else {
 			cpf = cpf.replace(".", "");
@@ -2003,7 +2004,7 @@ public class TelaCadastroCliente extends JDialog {
 		ValidaCNPJ valida = new ValidaCNPJ();
 
 		if (cnpj.length() != 14) {
-			JOptionPane.showMessageDialog(null, "CNPJ Invalido!");
+			JOptionPane.showMessageDialog(isto, "CNPJ Invalido!");
 			retorno = false;
 
 		} else {
@@ -2031,7 +2032,7 @@ public class TelaCadastroCliente extends JDialog {
 				retorno = true;
 
 			} else {
-				JOptionPane.showMessageDialog(null, "CNPJ Invalido!");
+				JOptionPane.showMessageDialog(isto, "CNPJ Invalido!");
 				retorno = false;
 
 			}
@@ -2176,13 +2177,13 @@ public class TelaCadastroCliente extends JDialog {
 					GerenciarBancoClientes cadastrar = new GerenciarBancoClientes();
 					boolean cadastrou = cadastrar.inserir(cliente_cadastrar);
 					if (cadastrou) {
-						JOptionPane.showMessageDialog(null, "Cadastro Completo!");
+						JOptionPane.showMessageDialog(isto, "Cadastro Completo!");
 						// isto.dispose();
 						gerarPastas();
 						retorno = true;
 
 					} else {
-						JOptionPane.showMessageDialog(null, "Erro ao Cadastrar");
+						JOptionPane.showMessageDialog(isto, "Erro ao Cadastrar");
 						retorno = false;
 
 					}
@@ -2401,7 +2402,7 @@ public class TelaCadastroCliente extends JDialog {
 		ValidaCNPJ valida = new ValidaCNPJ();
 
 		if (cnpj.length() != 14) {
-			JOptionPane.showMessageDialog(null, "CNPJ Invalido!");
+			JOptionPane.showMessageDialog(isto, "CNPJ Invalido!");
 
 		} else {
 			if (valida.isCNPJ(cnpj)) {
@@ -2505,7 +2506,7 @@ public class TelaCadastroCliente extends JDialog {
 				}
 
 			} else
-				JOptionPane.showMessageDialog(null, "CNPJ Invalido!");
+				JOptionPane.showMessageDialog(isto, "CNPJ Invalido!");
 		}
 	}
 
@@ -2518,7 +2519,7 @@ public class TelaCadastroCliente extends JDialog {
 		CPFValidator cpfValidator = new CPFValidator();
 		List<ValidationMessage> erros = cpfValidator.invalidMessagesFor(icpf);
 		if (erros.size() > 0)
-			JOptionPane.showMessageDialog(null, "CPF Inválido!");
+			JOptionPane.showMessageDialog(isto, "CPF Inválido!");
 
 		else {
 
@@ -2732,7 +2733,7 @@ public class TelaCadastroCliente extends JDialog {
 			
 
 		} catch (Exception e1) {
-             JOptionPane.showMessageDialog(null, "Erro na consulta de cep");
+             JOptionPane.showMessageDialog(isto, "Erro na consulta de cep");
 		}
 
 	}

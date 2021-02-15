@@ -92,6 +92,7 @@ import java.util.Locale;
 import javax.swing.SwingConstants;
 import javax.swing.JCheckBox;
 import java.awt.SystemColor;
+import java.awt.Window;
 
 import javax.swing.border.Border;
 import javax.swing.border.CompoundBorder;
@@ -278,7 +279,7 @@ public class TelaImportarContratoManual extends JDialog {
     private JLabel lblTipo;
 	 
 	public TelaImportarContratoManual( int tipoContrato, CadastroContrato contrato_pai,
-			int flag_edicao, File arquivo) {
+			int flag_edicao, File arquivo, Window janela_pai) {
 
 		file_global = arquivo;
 		getDadosGlobais();
@@ -2958,7 +2959,7 @@ public class TelaImportarContratoManual extends JDialog {
 
 	
 		
-		this.setLocationRelativeTo(null);
+		this.setLocationRelativeTo(janela_pai);
 		this.setBounds(GraphicsEnvironment.getLocalGraphicsEnvironment().getMaximumWindowBounds());
 		isto = this;
 

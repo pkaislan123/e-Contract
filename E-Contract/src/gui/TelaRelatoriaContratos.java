@@ -35,6 +35,7 @@ import javax.swing.AbstractButton;
 import javax.swing.BoxLayout;
 import java.awt.GridLayout;
 import java.awt.SystemColor;
+import java.awt.Window;
 import java.awt.GridBagLayout;
 import java.awt.GridBagConstraints;
 import com.jgoodies.forms.layout.FormLayout;
@@ -85,7 +86,7 @@ public class TelaRelatoriaContratos extends JDialog {
 		safras = listaSafras.getSafras();
 	}
 
-	public TelaRelatoriaContratos() {
+	public TelaRelatoriaContratos(Window janela_pai) {
 		//setModal(true);
 
 		TelaRelatoriaContratos isto = this;
@@ -160,7 +161,7 @@ public class TelaRelatoriaContratos extends JDialog {
 				} else {
 					CadastroSafra safra = (CadastroSafra) modelSafra.getSelectedItem();
 					if (safra == null) {
-						JOptionPane.showMessageDialog(null, "Marque a caixa Todas as safras ou\nSelecione uma safra");
+						JOptionPane.showMessageDialog(isto, "Marque a caixa Todas as safras ou\nSelecione uma safra");
 						gerar = false;
 					} else {
 						id_safra = safra.getId_safra();
@@ -661,7 +662,7 @@ public class TelaRelatoriaContratos extends JDialog {
 
 		}
 
-		this.setLocationRelativeTo(null);
+		this.setLocationRelativeTo(janela_pai);
 
 		this.setVisible(true);
 

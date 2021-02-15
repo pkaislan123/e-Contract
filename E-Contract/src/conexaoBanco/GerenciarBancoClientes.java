@@ -265,11 +265,18 @@ public int inserir_cliente(CadastroCliente cliente)
        	
            if(cliente.getTipo_pessoa() == 0)
            { //0 pessoa fisica
+        	   if(cliente.getTransportador() == 1) {
+        		   string_pessoa_fisica_transportador(cliente);
+        	   }else
              sql_cadastro_cliente = string_pessoa_fisica(cliente);
            }
            else
            {
            	//cadastrar pessoa fisica
+        	   if(cliente.getTransportador() == 1) {
+                   sql_cadastro_cliente = string_pessoa_juridica_transportador(cliente);
+
+        	   }else
                sql_cadastro_cliente = string_pessoa_juridica(cliente);
               
            }
@@ -1342,7 +1349,114 @@ public int inserir_cliente(CadastroCliente cliente)
 	 
 	    }
 	  
-	
+	  public boolean atualizarClienteTransportador(CadastroCliente cliente) {
+	        if (cliente != null) {
+	            Connection conn = null;
+	            String atualizar = null;
+              PreparedStatement pstm;
+
+	           
+	            try {
+	            if(cliente.getTipo_pessoa() == 0)
+	            {//pessoa fisica
+	            	 atualizar = "update cliente set nome = ?, sobrenome = ?,nascimento = ?, rg = ?, tipo_identificacao = ?, identificacao = ?, cpf_responsavel = ?, senha = ?, apelido = ? , nome_empresarial = ?, ocupacao = ?, porte = ?, atividade = ?, cpf = ?,"
+	            	 		+ "ie = ?, status_ie = ?, rua = ?, bairro = ? ,cep = ? ,cidade = ?, numero = ? ,uf = ? , rntrc = ?, status_rntrc = ? where id_cliente = ? ";
+	            	 conn = ConexaoBanco.getConexao();
+	            	 pstm = conn.prepareStatement(atualizar);
+
+		             pstm.setString(1, cliente.getNome());
+		             pstm.setString(2, cliente.getSobrenome());
+		             pstm.setString(3, cliente.getNascimento());
+
+		             pstm.setString(4, cliente.getRg());
+		             pstm.setString(5, "");
+		             pstm.setString(6, "");
+		             pstm.setString(7, "");
+		             pstm.setString(8, "");
+		             pstm.setString(9, cliente.getApelido());
+		             pstm.setString(10, cliente.getNome_empresarial());
+		             pstm.setString(11, cliente.getOcupacao());
+		             pstm.setString(12, cliente.getPorte());
+		             pstm.setString(13, cliente.getAtividade());
+		             pstm.setString(14, cliente.getCpf());
+
+
+		             //dados de empresa
+		             pstm.setString(15, cliente.getIe());
+		             pstm.setString(16, cliente.getStatus_ie());
+		             pstm.setString(17, cliente.getRua());
+		             pstm.setString(18, cliente.getBairro());
+		             pstm.setString(19, cliente.getCep());
+		             pstm.setString(20, cliente.getCidade());
+		             pstm.setString(21, cliente.getNumero());
+		             pstm.setString(22, cliente.getUf());
+		             
+		             
+		             pstm.setString(23, cliente.getRntrc());
+		             pstm.setString(24, cliente.getStatus_cadastro());
+		             pstm.setInt(25, cliente.getId());
+
+		             
+	            }
+	            else
+	            {
+	            	 atualizar = "update cliente set razao_social = ?, status_empresa = ?,cnpj = ?, descricao = ?, tipo_identificacao = ?, identificacao = ?, cpf_responsavel = ?, senha = ?, apelido = ? , nome_empresarial = ?, ocupacao = ?, porte = ?, atividade = ?, cpf = ?,"
+		            	 		+ "ie = ?, status_ie = ?, rua = ?, bairro = ? ,cep = ? ,cidade = ?, numero = ? ,uf = ? , rntrc = ?, status_rntrc = ? where id_cliente = ? ";
+		            	 conn = ConexaoBanco.getConexao();
+		            	 pstm = conn.prepareStatement(atualizar);
+
+			             pstm.setString(1, cliente.getRazao_social());
+			             pstm.setString(2, cliente.getStatus());
+			             pstm.setString(3, cliente.getCnpj());
+
+			             pstm.setString(4, cliente.getDescricao());
+			             pstm.setString(5,"");
+			             pstm.setString(6,"");
+			             pstm.setString(7, "");
+			             pstm.setString(8,"");
+			             pstm.setString(9, cliente.getApelido());
+			             pstm.setString(10, cliente.getNome_empresarial());
+			             pstm.setString(11, cliente.getOcupacao());
+			             pstm.setString(12, cliente.getPorte());
+			             pstm.setString(13, cliente.getAtividade());
+			             pstm.setString(14, cliente.getCpf());
+
+
+			             //dados de empresa
+			             pstm.setString(15, cliente.getIe());
+			             pstm.setString(16, cliente.getStatus_ie());
+			             pstm.setString(17, cliente.getRua());
+			             pstm.setString(18, cliente.getBairro());
+			             pstm.setString(19, cliente.getCep());
+			             pstm.setString(20, cliente.getCidade());
+			             pstm.setString(21, cliente.getNumero());
+			             pstm.setString(22, cliente.getUf());
+			             
+			             
+			             pstm.setString(23, cliente.getRntrc());
+			             pstm.setString(24, cliente.getStatus_cadastro());
+			             pstm.setInt(25, cliente.getId());
+	            }
+	            	
+	            	
+	             
+	                pstm.execute();
+	                //JOptionPane.showMessageDialog(null, "Cliente atualizado com sucesso");
+	                System.out.println("Cliente Atualizado com sucesso");
+	                ConexaoBanco.fechaConexao(conn);
+	              return true;
+	            } catch (Exception e) {
+	                JOptionPane.showMessageDialog(null, "Erro ao atualizar cliente no banco de"
+	                        + "dados " + e.getMessage());
+	                return false;
+	            }
+	        } else {
+	            JOptionPane.showMessageDialog(null, "Os dados do cliente estão vazios");
+	            return false;
+	        }
+	 
+	 
+	    }
 
 	  
 	  public String string_pessoa_juridica(CadastroCliente cliente)
@@ -1397,7 +1511,118 @@ public int inserir_cliente(CadastroCliente cliente)
 	    	    			+ "')";	
 	  }
 	  
+	  public String string_pessoa_juridica_transportador(CadastroCliente cliente)
+	  {
+		  return "insert into cliente (tipo_cliente, apelido, razao_social, nome_fantasia, cnpj, descricao, at_primaria, at_secundaria, ie, status_empresa, status_ie, rua, bairro, cep, cidade, numero, uf, tipo_identificacao, identificacao, cpf_responsavel, senha, armazem, transportador) values ('"
+          		
+	                		+ cliente.getTipo_pessoa()
+	    	    			+ "','"
+	    	    			+ cliente.getApelido()
+	    	    			+ "','"
+	    	    			+ cliente.getRazao_social()
+	    	    			+ "','"
+	    	    			+ cliente.getNome_fantaia()
+                            + "','"
+                            + cliente.getCnpj()
+                            + "','"
+                             + cliente.getDescricao()
+                            + "','"
+                            + cliente.getAt_primaria()
+                            + "','"
+                            + cliente.getAt_secundaria()
+                            + "','"
+                            + cliente.getIe()
+                            + "','"
+                            + cliente.getStatus()
+                            + "','"
+                            + cliente.getStatus_ie()
+                            + "','"
+                            + cliente.getRua()
+                            + "','"
+                            + cliente.getBairro()
+                            + "','"
+                            + cliente.getCep()
+                            + "','"
+                            + cliente.getCidade()
+                            + "','"
+                            + cliente.getNumero()
+                            + "','"
+                            + cliente.getUf()
+                            + "','"
+                            + " "
+                            + "','"
+                            + " "
+                            + "','"
+                            + " "
+                            + "','"
+                            + cliente.getSenha()
+                            + "','"
+                            + cliente.getArmazem()
+                            + "','"
+                            + cliente.getTransportador()
+	    	    			+ "')";	
+	  }
+	  
 	  public String string_pessoa_fisica(CadastroCliente cliente)
+	  {
+		  return  "insert into cliente (tipo_cliente, apelido, cpf, nome_empresarial, nome, sobrenome, nascimento, rg, ocupacao, porte, atividade, ie, status_empresa, status_ie, rua, bairro, cep, cidade, numero, uf, tipo_identificacao, identificacao, cpf_responsavel, senha, armazem, transportador) values ('"
+          		
+      		+ cliente.getTipo_pessoa()
+  			+ "','"
+  			+ cliente.getApelido()
+  			+ "','"
+  			+ cliente.getCpf()
+  			+ "','"
+  			+ cliente.getNome_empresarial()
+              + "','"
+              + cliente.getNome()
+              + "','"
+               + cliente.getSobrenome()
+              + "','"
+              + cliente.getNascimento()
+              + "','"
+              + cliente.getRg()
+              + "','"
+              + cliente.getOcupacao()
+              + "','"
+              + cliente.getPorte()
+              + "','"
+              + cliente.getAtividade()
+              + "','"
+              + cliente.getIe()
+              + "','"
+              + cliente.getStatus()
+              + "','"
+              + cliente.getStatus_ie()
+              + "','"
+              + cliente.getRua()
+              + "','"
+              + cliente.getBairro()
+              + "','"
+              + cliente.getCep()
+              + "','"
+              + cliente.getCidade()
+              + "','"
+              + cliente.getNumero()
+              + "','"
+              + cliente.getUf()
+              + "','"
+              + cliente.getTipo_identificacao()
+              + "','"
+              + cliente.getIdentificacao_sefaz()
+              + "','"
+              + cliente.getCpf_responsavel()
+              + "','"
+              + cliente.getSenha()
+              + "','"
+              + cliente.getArmazem()
+              + "','"
+              + cliente.getTransportador()
+  			+ "')";		 
+		  
+	  }
+	  
+	  public String string_pessoa_fisica_transportador(CadastroCliente cliente)
 	  {
 		  return  "insert into cliente (tipo_cliente, apelido, cpf, nome_empresarial, nome, sobrenome, nascimento, rg, ocupacao, porte, atividade, ie, status_empresa, status_ie, rua, bairro, cep, cidade, numero, uf, tipo_identificacao, identificacao, cpf_responsavel, senha, armazem, transportador) values ('"
           		
@@ -1520,7 +1745,7 @@ public int inserir_cliente(CadastroCliente cliente)
 		        	  
 		        	 if(rs != null) {
 		        		 System.out.print("veiculo não e nulo!");
-		        		 
+
 		        		 CadastroCliente.Veiculo veiculo = new CadastroCliente.Veiculo();
 		        	  
 		        		 veiculo.setId_veiculo(rs.getInt("id_veiculo"));
@@ -1540,7 +1765,6 @@ public int inserir_cliente(CadastroCliente cliente)
 		           }
 		      
 		          ConexaoBanco.fechaConexao(conn, pstm, rs);
-		          System.out.println("Veiculos foram listadas com sucesso!");
 		          return lista_veiculos;
 		      } catch (Exception e) {
 		          JOptionPane.showMessageDialog(null, "Erro ao listar as veiculos do transportador: " + id_cliente + " erro: " + e.getMessage() + "causa: " + e.getCause());
@@ -1604,6 +1828,26 @@ public int inserir_cliente(CadastroCliente cliente)
 	    	 
 	     }
 	
+	   public int inserirVeiculos(ArrayList<CadastroCliente.Veiculo> veiculos, int id_cliente) {
+		     //inserir veiculos
+         
+           if(veiculos.size() > 0) {
+               
+        	   RegistroAdicionarVeiculos adicionar_veiculos = adicionarVeiculos(veiculos, id_cliente);
+                if(adicionar_veiculos.isResposta() == true && adicionar_veiculos.ids_veiculos.size() > 0) {
+      		        return 1;
+                }
+                else {
+          		     System.out.println("Erro ao incluir veiculos, excluir o cliente gerado!");
+                       return 0;
+              	 
+                }
+               
+           
+            }else 
+            	return -1;
+      
+	   }
 	  
 }
 	

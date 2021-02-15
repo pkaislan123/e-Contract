@@ -412,7 +412,7 @@ public class TelaCliente extends JDialog {
 		});
 		btnUsurio.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				TelaCadastroCliente novoCliente = new TelaCadastroCliente(1, null);
+				TelaCadastroCliente novoCliente = new TelaCadastroCliente(1, null, isto);
 				novoCliente.setTelaPai(isto);
 				novoCliente.setVisible(true);
 			}
@@ -590,17 +590,13 @@ public class TelaCliente extends JDialog {
 			atualizarTabelaGrupos();
 	
 			
-		
 		this.setLocationRelativeTo(janela_pai);
-
-
-
 
 
 	}
 	
 	public void editarCliente( int indiceDaLinha) {
-		TelaCadastroCliente telaEdicao = new TelaCadastroCliente(0, clientes_disponiveis.get(indiceDaLinha));
+		TelaCadastroCliente telaEdicao = new TelaCadastroCliente(0, clientes_disponiveis.get(indiceDaLinha), isto);
 		telaEdicao.setTelaPai(isto);
 		telaEdicao.setVisible(true);
 

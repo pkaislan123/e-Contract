@@ -28,6 +28,7 @@ import javax.swing.ImageIcon;
 import javax.swing.JTextField;
 import javax.swing.JLabel;
 import java.awt.Font;
+import java.awt.Window;
 
 public class TelaUsuarios extends JDialog {
 
@@ -82,9 +83,9 @@ public class TelaUsuarios extends JDialog {
      
      }
 
-	public TelaUsuarios(int flag_modo_tela) {
+	public TelaUsuarios(int flag_modo_tela, Window janela_pai) {
 
-		setModal(true);
+		//setModal(true);
 		
 		getDadosGlobais();
 		
@@ -132,7 +133,7 @@ public class TelaUsuarios extends JDialog {
 					JOptionPane.showMessageDialog(null, "Requer Elevação de Direitos \n Reportado ao Administrador");
 					GerenciadorLog.registrarLogDiario("aviso", "tentativa de criação de novo usuário");
 				}else {
-					TelaCadastroUsuario cadastrarUsuario = new TelaCadastroUsuario(1, usuarios_disponiveis.get(indiceDaLinha));
+					TelaCadastroUsuario cadastrarUsuario = new TelaCadastroUsuario(1, usuarios_disponiveis.get(indiceDaLinha), isto);
 				}
 			}
 		});
@@ -159,7 +160,7 @@ public class TelaUsuarios extends JDialog {
 					JOptionPane.showMessageDialog(null, "Requer Elevação de Direitos \n Reportado ao Administrador");
 					GerenciadorLog.registrarLogDiario("aviso", "tentativa de criação de novo usuário");
 				}else {
-					TelaCadastroUsuario cadastrarUsuario = new TelaCadastroUsuario(0, null);
+					TelaCadastroUsuario cadastrarUsuario = new TelaCadastroUsuario(0, null, isto);
 				}
 			}
 		});
@@ -238,7 +239,7 @@ public class TelaUsuarios extends JDialog {
 		
 		
 		this.setResizable(false);
-		this.setLocationRelativeTo(null);
+		this.setLocationRelativeTo(janela_pai);
 		this.setUndecorated(true);
 
 	}
