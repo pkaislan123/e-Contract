@@ -49,6 +49,7 @@ import java.awt.GridLayout;
 import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.SystemColor;
+import java.awt.Window;
 import java.awt.GridBagLayout;
 import java.awt.GridBagConstraints;
 import com.jgoodies.forms.layout.FormLayout;
@@ -92,8 +93,8 @@ public class TelaCriarTarefa extends JDialog {
 	 GraphicsDevice[] gds = ge.getScreenDevices();
 	 
 	 
-    public TelaCriarTarefa(CadastroContrato contrato, JFrame janela_pai ) {
-		setModal(true);
+    public TelaCriarTarefa(CadastroContrato contrato, Window janela_pai ) {
+		//setModal(true);
 
 		
 		contrato_local = contrato;

@@ -222,7 +222,7 @@ public class TelaGerenciarCliente extends JDialog {
 
 				ConverterPdf converter_pdf = new ConverterPdf();
 				String pdf_alterado = converter_pdf.word_pdf_stream(contrato_alterado);
-				TelaVizualizarPdf vizualizar = new TelaVizualizarPdf(null, isto, null, pdf_alterado, null);
+				TelaVizualizarPdf vizualizar = new TelaVizualizarPdf(null, isto, null, pdf_alterado, null, isto);
 		   	}
 		   });
 		   btnVerRelatorioSimplificado.setForeground(new Color(0, 0, 0));
@@ -308,7 +308,7 @@ public class TelaGerenciarCliente extends JDialog {
 
 				ConverterPdf converter_pdf = new ConverterPdf();
 				String pdf_alterado = converter_pdf.word_pdf_stream(contrato_alterado);
-				TelaVizualizarPdf vizualizar = new TelaVizualizarPdf(null, isto, null, pdf_alterado, null);
+				TelaVizualizarPdf vizualizar = new TelaVizualizarPdf(null, isto, null, pdf_alterado, null, isto);
 		      	}
 		      });
 		      btnVerRelatorioSem.setBounds(22, 186, 156, 28);
@@ -343,7 +343,7 @@ public class TelaGerenciarCliente extends JDialog {
 
 				ConverterPdf converter_pdf = new ConverterPdf();
 				String pdf_alterado = converter_pdf.word_pdf_stream(contrato_alterado);
-				TelaVizualizarPdf vizualizar = new TelaVizualizarPdf(null, isto, null, pdf_alterado, null);
+				TelaVizualizarPdf vizualizar = new TelaVizualizarPdf(null, isto, null, pdf_alterado, null, isto);
 		      	}
 		      });
 		      btnVerRelatorioSimplificado_1.setForeground(SystemColor.textText);
@@ -369,7 +369,7 @@ public class TelaGerenciarCliente extends JDialog {
 
 				ConverterPdf converter_pdf = new ConverterPdf();
 				String pdf_alterado = converter_pdf.word_pdf_stream(contrato_alterado);
-				TelaVizualizarPdf vizualizar = new TelaVizualizarPdf(null, isto, null, pdf_alterado, null);
+				TelaVizualizarPdf vizualizar = new TelaVizualizarPdf(null, isto, null, pdf_alterado, null, isto);
 		      	}
 		      });
 		painelDeposito.setEnabled(false);

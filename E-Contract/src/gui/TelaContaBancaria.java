@@ -29,6 +29,7 @@ import javax.swing.JTextField;
 import javax.swing.RowFilter;
 import javax.swing.JLabel;
 import java.awt.Font;
+import java.awt.Window;
 
 
 
@@ -74,8 +75,8 @@ public class TelaContaBancaria extends JDialog {
 	   
 	    }
 
-	public TelaContaBancaria(JFrame janela_pai)  {
-		setModal(true);
+	public TelaContaBancaria(Window janela_pai)  {
+		//setModal(true);
 
 		TelaContaBancaria isto = this;
 		
@@ -122,7 +123,10 @@ public class TelaContaBancaria extends JDialog {
 	        btnSelecionar = new JButton("Selecionar");
 	        btnSelecionar.addActionListener(new ActionListener() {
 	        	public void actionPerformed(ActionEvent e) {
-	        		int indiceDaLinha = table_cb.getSelectedRow();
+	        		
+	        		int rowSel = table_cb.getSelectedRow();//pega o indice da linha na tabela
+					int  indiceDaLinha = table_cb.getRowSorter().convertRowIndexToModel(rowSel);//converte pro indice do model				
+					
 	        		contaSelecionada = contas_bancarias.get(indiceDaLinha);
 					
 	        		if(telaPai != null) {

@@ -65,7 +65,8 @@ public class TelaNotificacaoSuperior extends JDialog {
 		lblNewLabel_1.setIcon(new ImageIcon(TelaNotificacao.class.getResource("/imagens/logo_64.png")));
 		panel.add(lblNewLabel_1);
 
-		   Dimension scrnSize = Toolkit.getDefaultToolkit().getScreenSize();
+		
+		 Dimension scrnSize = Toolkit.getDefaultToolkit().getScreenSize();
 	        java.awt.Rectangle winSize = GraphicsEnvironment.getLocalGraphicsEnvironment().getMaximumWindowBounds();
 	        int taskBarHeight = scrnSize.height - winSize.height;
 	        System.out.printf("Altura: %d\n", taskBarHeight);
@@ -73,15 +74,32 @@ public class TelaNotificacaoSuperior extends JDialog {
 	        GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
 	        GraphicsDevice defaultScreen = ge.getDefaultScreenDevice();
 	        java.awt.Rectangle rect = defaultScreen.getDefaultConfiguration().getBounds();
-	        int x = (int) rect.getMaxX() - getWidth( ) - 10;
-	        int y = (int) rect.getMaxY() - getHeight() - taskBarHeight  -90;
+	        int x = (int) rect.getMaxX() - getWidth( ) ;
+	        int y = 10 ;
 		
 			setAlwaysOnTop(true);
 
+			
+		
+			    GraphicsDevice[] gd = ge.getScreenDevices();
+			    if(gd.length > 5) {
+				        rect = gd[1].getDefaultConfiguration().getBounds();
+				         x = (int) rect.getMaxX() - getWidth( ) ;
+				         y = 80 ;
+			           this.setLocation(x, y);
+
+			    }else {
+			           this.setLocation(x, y);
+
+			    }
+			
+			
+		
+
 			this.setUndecorated(true);
 
-        this.setLocation(x, y);
 
+        
 
 	}
 	

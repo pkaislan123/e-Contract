@@ -121,7 +121,6 @@ public class TelaEnviarMsgWhatsapp extends JDialog {
 	public TelaEnviarMsgWhatsapp(CadastroContrato contrato, Window janela_pai) {
 		//setAlwaysOnTop(true);
 
-		setModal(true);
 		
 		contrato_local = contrato;
         CadastroCliente compradores[] = contrato.getCompradores();

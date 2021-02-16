@@ -1144,7 +1144,7 @@ public class RelatorioContratoComprador {
 			String cor_dados = "000000";
 			CadastroContrato local = lista_contratos_com_subcontratos.get(indice);
 
-			if (local.getSub_contrato() != 4) {
+			if (local.getSub_contrato() != 8 ) {
 
 				if (local.getSub_contrato() == 1) {
 					// seta a cor vermelha
@@ -1312,7 +1312,7 @@ public class RelatorioContratoComprador {
 				}
 				
 				
-				if (local.getSub_contrato() == 0 || local.getSub_contrato() == 3) {
+				if (local.getSub_contrato() == 0 || local.getSub_contrato() == 3 || local.getSub_contrato() == 4 || local.getSub_contrato() == 5) {
 					quantitade_total_sacos += quantidade_sacos_sub;
 					valor_total = valor_total.add(local.getValor_a_pagar());
 				} else {

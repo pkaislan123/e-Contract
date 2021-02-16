@@ -57,7 +57,7 @@ public class GerenciarBancoPadrao {
 	 
 	            } catch (Exception e) {
 	                JOptionPane.showMessageDialog(null, "Erro ao inserir a dado no banco de"
-	                        + "dados " + e.getMessage());
+	                        + "dados "  );
 	                return 0;
 	            }
 	        } else {

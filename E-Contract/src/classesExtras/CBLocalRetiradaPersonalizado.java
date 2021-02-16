@@ -20,6 +20,8 @@ public int getSize() {
      return listaArmazens.size();
 }
 
+
+
 @Override
 public CadastroCliente getElementAt(int indice) {
 	// TODO Auto-generated method stub
@@ -41,8 +43,7 @@ public void setSelectedItem(Object item) {
 
 public void addArmazem(CadastroCliente armazem) {
 	listaArmazens.add(armazem);
-    fireIntervalAdded(this, getSize() - 1, getSize() - 1);
-    setSelectedItem(listaArmazens.get(getSize() - 1));
+ 
 }
 
 }

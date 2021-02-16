@@ -47,7 +47,7 @@ public class GerenciarBancoGrupos {
 
 			} catch (Exception e) {
 				JOptionPane.showMessageDialog(null,
-						"Erro ao inserir o grupo no banco de " + "dados " + e.getMessage());
+						"Erro ao inserir o grupo no banco de " + "dados "  );
 				
 				return -1;
 			}
@@ -84,7 +84,7 @@ public class GerenciarBancoGrupos {
 			}
 			ConexaoBanco.fechaConexao(conn, pstm, rs);
 		} catch (Exception e) {
-			JOptionPane.showMessageDialog(null, "Erro ao listar grupos" + e.getMessage());
+			JOptionPane.showMessageDialog(null, "Erro ao listar grupos"  );
 		}
 		return lista_grupos;
 
@@ -116,9 +116,9 @@ public class GerenciarBancoGrupos {
 		    return grupo;
 
 		} catch (Exception e) {
-			JOptionPane.showMessageDialog(null, "Erro ao listar o grupo de id: " + id_grupo + " erro: " + e.getMessage());
+			JOptionPane.showMessageDialog(null, "Erro ao listar o grupo de id: " + id_grupo + " erro: "  );
 			System.out.println(
-					"Erro ao listar grupo id: " + id_grupo + " erro: " + e.getMessage() + "\ncausa: " + e.getCause());
+					"Erro ao listar grupo id: " + id_grupo + " erro: "   + "\ncausa: "  );
 			return null;
 		}
 

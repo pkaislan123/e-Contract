@@ -87,7 +87,7 @@ public class TelaEmEspera extends JDialog {
 		
 		setLocationRelativeTo(null);
 		setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
-		setModal(true);
+		//setModal(true);
 		setResizable(false);
 		setUndecorated(true);
 		

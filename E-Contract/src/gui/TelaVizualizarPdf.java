@@ -5,6 +5,7 @@ import java.awt.Color;
 import java.awt.Component;
 import java.awt.FlowLayout;
 import java.awt.GraphicsEnvironment;
+import java.awt.Window;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ResourceBundle;
@@ -45,10 +46,10 @@ public class TelaVizualizarPdf extends JDialog {
 	private TelaEmEspera telaInformacoes;
 	private TelaVizualizarPdf isto; 
 	//public TelaVizualizarPdf(String arquivo) {
-	public TelaVizualizarPdf(InputStream stream, Component pai, TelaEmEspera telaBack, String file, CadastroContrato contrato) {
+	public TelaVizualizarPdf(InputStream stream, Component pai, TelaEmEspera telaBack, String file, CadastroContrato contrato, Window janela_pai) {
 		//setAlwaysOnTop(true);
 
-		setModal(true);
+		//setModal(true);
 
 		 isto = this;
 		this.telaInformacoes = telaBack;
@@ -71,9 +72,9 @@ public class TelaVizualizarPdf extends JDialog {
 		         Boolean.FALSE);
 		 
 		 propriedades.setBoolean (PropertiesManager.PROPERTY_VIEWPREF_HIDEMENUBAR,
-		         Boolean.TRUE);
+		         Boolean.FALSE);
 		 propriedades.setBoolean (PropertiesManager.PROPERTY_VIEWPREF_HIDETOOLBAR,
-		         Boolean.TRUE);
+		         Boolean.FALSE);
 		 propriedades.setBoolean (PropertiesManager.PROPERTY_SHOW_TOOLBAR_FIT,
 		         Boolean.FALSE);
 		 
@@ -159,7 +160,7 @@ public class TelaVizualizarPdf extends JDialog {
 		
 		
 		
-		this.setLocationRelativeTo(null);
+		this.setLocationRelativeTo(janela_pai);
 
 		this.setUndecorated (false);
 		this.setBounds (GraphicsEnvironment.getLocalGraphicsEnvironment (). getMaximumWindowBounds ());

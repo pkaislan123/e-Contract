@@ -47,7 +47,7 @@ public class GerenciarBancoDocumento {
 			return result;
 		} catch (Exception e) {
 			JOptionPane.showMessageDialog(null,
-					"Erro ao inserir o documento no banco de" + "dados\n Erro: " + e.getMessage());
+					"Erro ao inserir o documento no banco de" + "dados\n Erro: "  );
 			return -1;
 		}
 
@@ -86,7 +86,7 @@ public class GerenciarBancoDocumento {
 			return result;
 		} catch (Exception e) {
 			JOptionPane.showMessageDialog(null,
-					"Erro ao inserir o documento no banco de" + "dados\n Erro: " + e.getMessage());
+					"Erro ao inserir o documento no banco de" + "dados\n Erro: "  );
 			return -1;
 		}
 
@@ -123,7 +123,7 @@ public class GerenciarBancoDocumento {
             }
             ConexaoBanco.fechaConexao(conn, pstm, rs);
         } catch (Exception e) {
-            JOptionPane.showMessageDialog(null, "Erro ao listar documentos" + e.getMessage());
+            JOptionPane.showMessageDialog(null, "Erro ao listar documentos"  );
         }
         return listaDocs;
 	}
@@ -159,7 +159,7 @@ public class GerenciarBancoDocumento {
             }
             ConexaoBanco.fechaConexao(conn, pstm, rs);
         } catch (Exception e) {
-            JOptionPane.showMessageDialog(null, "Erro ao listar documentos anexados ao id_pai: " + id_pai + " " + e.getMessage());
+            JOptionPane.showMessageDialog(null, "Erro ao listar documentos anexados ao id_pai: " + id_pai + " "  );
         }
         return listaDocs;
 	}
@@ -195,7 +195,7 @@ public class GerenciarBancoDocumento {
             }
             ConexaoBanco.fechaConexao(conn, pstm, rs);
         } catch (Exception e) {
-            JOptionPane.showMessageDialog(null, "Erro ao listar documentos" + e.getMessage());
+            JOptionPane.showMessageDialog(null, "Erro ao listar documentos"  );
         }
         return listaDocs;
 	}

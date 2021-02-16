@@ -3,9 +3,13 @@ package gui;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
-
+import javax.swing.event.CaretEvent;
+import javax.swing.event.CaretListener;
 import javax.swing.JDialog;
+import javax.swing.ListCellRenderer;
 import javax.swing.JFrame;
+import javax.swing.JList;
+
 import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
 import javax.swing.JTable;
@@ -13,6 +17,7 @@ import javax.swing.border.EmptyBorder;
 import javax.swing.border.TitledBorder;
 import javax.swing.table.AbstractTableModel;
 import javax.swing.table.DefaultTableModel;
+import javax.swing.SwingUtilities;
 
 import org.codehaus.groovy.runtime.dgmimpl.arrays.BooleanArrayGetAtMetaMethod;
 import org.springframework.util.StringUtils;
@@ -31,6 +36,7 @@ import conexaoBanco.GerenciarBancoLogin;
 import conexaoBanco.GerenciarBancoSafras;
 import gui.TelaGerenciarContrato.PainelInformativo;
 import gui.TelaGerenciarContrato.RomaneioTableModel;
+import javafx.stage.FileChooser;
 import cadastros.ContaBancaria;
 import classesExtras.CBLocalRetiradaPersonalizado;
 import classesExtras.CBLocalRetiradaRenderPersonalizado;
@@ -146,6 +152,7 @@ public class TelaImportarContratoManual extends JDialog {
 
 	private ComboBoxPersonalizado modelSafra = new ComboBoxPersonalizado();
 	private CBLocalRetiradaPersonalizado modelLocalRetirada = new CBLocalRetiradaPersonalizado();
+	private CBLocalRetiradaRenderPersonalizado cBLocalRetiradaPersonalizado;
 	private JLabel lblStatusInicial;
 	private ContaBancaria conta_atual;
     private JComboBox cBTipoContrato;
@@ -619,20 +626,25 @@ public class TelaImportarContratoManual extends JDialog {
 		lblLocalRetirada.setBounds(450, 268, 126, 42);
 		painelDadosProdutos.add(lblLocalRetirada);
 
-		cBLocalRetirada = new JComboBox();
-		cBLocalRetirada.setBounds(585, 269, 174, 36);
+		cBLocalRetiradaPersonalizado =  new CBLocalRetiradaRenderPersonalizado();
+		cBLocalRetirada =  new JComboBox();
 		cBLocalRetirada.setModel(modelLocalRetirada);
-		cBLocalRetirada.setRenderer(new CBLocalRetiradaRenderPersonalizado());
+		cBLocalRetirada.setEditable(false);
+		cBLocalRetirada.setRenderer(cBLocalRetiradaPersonalizado);
+		cBLocalRetirada.setBounds(585, 269, 174, 36);
+
 		painelDadosProdutos.add(cBLocalRetirada);
 
 		pesquisarArmazens();
 
 		for (CadastroCliente armazem : armazens) {
-			if (armazem.getArmazem() == 1)
+			if (armazem.getArmazem() == 1) {
 				modelLocalRetirada.addArmazem(armazem);
+	
+			}
 
 		}
-
+		
 		JLabel lblDataEntrega = new JLabel("Data Entrega:");
 		lblDataEntrega.setFont(new Font("Arial Black", Font.PLAIN, 14));
 		lblDataEntrega.setBounds(461, 321, 114, 42);
@@ -1699,19 +1711,14 @@ public class TelaImportarContratoManual extends JDialog {
 		cBSafraPersonalizado = new ComboBoxRenderPersonalizado();
 		cBSafra = new JComboBox();
 		cBSafra.setModel(modelSafra);
+		cBSafra.setEditable(false);
+
 		cBSafra.setRenderer(cBSafraPersonalizado);
 		cBSafra.setBounds(586, 224, 342, 33);
+	       
 		painelDadosProdutos.add(cBSafra);
 
-		cBSafra.addActionListener(new ActionListener() {
-
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				CadastroSafra produto = (CadastroSafra) modelSafra.getSelectedItem();
-
-			}
-
-		});
+	
 
 		chBoxClausulaComissao = new JCheckBox("Criar clausula contratual para comissão");
 		chBoxClausulaComissao.addActionListener(new ActionListener() {
@@ -1755,6 +1762,7 @@ public class TelaImportarContratoManual extends JDialog {
 
 		}
 
+        
 		JLabel lblOutro = new JLabel("Valor Total:");
 		lblOutro.setFont(new Font("Arial Black", Font.PLAIN, 14));
 		lblOutro.setBounds(50, 32, 89, 42);
@@ -1820,7 +1828,7 @@ public class TelaImportarContratoManual extends JDialog {
 		JButton btnPesquisarCB = new JButton("Pesquisar");
 		btnPesquisarCB.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
-				TelaContaBancaria tela = new TelaContaBancaria(null);
+				TelaContaBancaria tela = new TelaContaBancaria(isto);
 				tela.setTelaPai(isto);
 				tela.setVisible(true);
 			}
@@ -2451,15 +2459,10 @@ public class TelaImportarContratoManual extends JDialog {
 							data_contrato = entDataContrato.getText();
 							novo_contrato.setData_contrato(data_contrato);
                            
-							if(login.getConfigs_privilegios().getNivel_privilegios() <= 2) {
 								novo_contrato.setStatus_contrato(1); //aprovado
 								lblStatusInicial.setText("Status Inicial: Recolher Assinatura");
 
-							}else {
-								novo_contrato.setStatus_contrato(0); //ir para aprovacao
-								lblStatusInicial.setText("Status Inicial: Aguardar Revisão e Aprovação");
-
-							}
+							
 
 							novo_contrato.setCodigo(codigo);
 							if (rQuanKG.isSelected())
@@ -2962,7 +2965,6 @@ public class TelaImportarContratoManual extends JDialog {
 		this.setLocationRelativeTo(janela_pai);
 		this.setBounds(GraphicsEnvironment.getLocalGraphicsEnvironment().getMaximumWindowBounds());
 		isto = this;
-
 
 		
 		this.setVisible(true);
@@ -4145,16 +4147,10 @@ public class TelaImportarContratoManual extends JDialog {
 		
 		
 		
-		if(login.getConfigs_privilegios().getNivel_privilegios() <=2) {
 			
 			 lblStatusInicial.setText("Status Inicial: Recolher Assinatura");
 			 novo_contrato.setStatus_contrato(1);
 
-		}else {
-			 lblStatusInicial.setText("Status Inicial: Requisitar Aprovação");
-			 novo_contrato.setStatus_contrato(0);
-
-		}
 		
 		Locale ptBr = new Locale("pt", "BR");
 		NumberFormat z = NumberFormat.getNumberInstance();
@@ -4191,15 +4187,10 @@ public class TelaImportarContratoManual extends JDialog {
 					novo_contrato.setData_entrega(data_entrega);
 					lblDataEntregaInfo.setText(novo_contrato.getData_entrega());
                    
-					if(login.getConfigs_privilegios().getNivel_privilegios() <= 2) {
 						novo_contrato.setStatus_contrato(1); //aprovado
 						lblStatusInicial.setText("Status Inicial: Recolher Assinatura");
 
-					}else {
-						novo_contrato.setStatus_contrato(0); //ir para aprovacao
-						lblStatusInicial.setText("Status Inicial: Aguardar Revisão e Aprovação");
-
-					}
+				
 
 					if (rQuanKG.isSelected())
 						medida = "KG";
@@ -4437,9 +4428,9 @@ public class TelaImportarContratoManual extends JDialog {
 				if (corretores[0] != null) {
 					if (corretores[0].getTipo_pessoa() == 0) {
 						// pessoa fisica
-						nome_corretor = corretores[0].getNome_empresarial();
+						nome_corretor = corretores[0].getNome_empresarial().trim();
 					} else {
-						nome_corretor = corretores[0].getNome_fantaia();
+						nome_corretor = corretores[0].getNome_fantaia().trim();
 
 					}
 				}
@@ -4447,24 +4438,24 @@ public class TelaImportarContratoManual extends JDialog {
 				if (compradores[0] != null) {
 					if (compradores[0].getTipo_pessoa() == 0) {
 						// pessoa fisica
-						nome_comprador = compradores[0].getNome_empresarial();
+						nome_comprador = compradores[0].getNome_empresarial().trim();
 					} else {
-						nome_comprador = compradores[0].getNome_fantaia();
+						nome_comprador = compradores[0].getNome_fantaia().trim();
 
 					}
 				}
 
 				if(vendedores[0].getTipo_pessoa() == 0) {
-					nome_vendedor1 = vendedores[0].getNome_empresarial();
+					nome_vendedor1 = vendedores[0].getNome_empresarial().trim();
 				}else {
-					nome_vendedor1 = vendedores[0].getNome_fantaia();
+					nome_vendedor1 = vendedores[0].getNome_fantaia().trim();
 				}
 				
 				if(vendedores[1] != null) {
 					if(vendedores[1].getTipo_pessoa() == 0) {
-						nome_vendedor2 = vendedores[1].getNome_empresarial();
+						nome_vendedor2 = vendedores[1].getNome_empresarial().trim();
 					}else {
-						nome_vendedor2 = vendedores[1].getNome_fantaia();
+						nome_vendedor2 = vendedores[1].getNome_fantaia().trim();
 					}
 				}
 				
@@ -4475,14 +4466,14 @@ public class TelaImportarContratoManual extends JDialog {
 				
 					
 					if(compradores[0].getTipo_pessoa() == 0)
-						nome_comprador_arquivo = compradores[0].getNome_empresarial();
+						nome_comprador_arquivo = compradores[0].getNome_empresarial().trim();
 					else
-						nome_comprador_arquivo = compradores[0].getNome_fantaia();
+						nome_comprador_arquivo = compradores[0].getNome_fantaia().trim();
 					
 					if(vendedores[0].getTipo_pessoa() == 0)
-						nome_vendedor_arquivo = vendedores[0].getNome_empresarial();
+						nome_vendedor_arquivo = vendedores[0].getNome_empresarial().trim();
 					else
-						nome_vendedor_arquivo = vendedores[0].getNome_fantaia();
+						nome_vendedor_arquivo = vendedores[0].getNome_fantaia().trim();
 
 					String servidor_unidade = configs_globais.getServidorUnidade();
 
@@ -4922,4 +4913,12 @@ public class TelaImportarContratoManual extends JDialog {
 	   }
    }
 
+   
+  
+
+ 
+
+
+
+   
 }

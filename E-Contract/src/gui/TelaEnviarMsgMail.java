@@ -114,8 +114,8 @@ public class TelaEnviarMsgMail extends JDialog {
 
 		this.flag_global = flag_tipo_envio;
 		this.documento_global = documento;
+		
 		getDadosGlobais();
-		setModal(true);
 		
 		contrato_local = contrato;
         CadastroCliente compradores[] = contrato.getCompradores();

@@ -51,11 +51,11 @@ public class ConexaoBanco {
 	 
  }catch (SQLException e) {
      System.out.println("erro na conexao com o bd");
-        JOptionPane.showMessageDialog(null, "Erro ao se conectar no banco de dados:\nErro: " 
+        /*JOptionPane.showMessageDialog(null, "Erro ao se conectar no banco de dados:\nErro: " 
         		+ e.getMessage()+
         		"\nCausa: " + e.getCause()
         		
-        		);
+        		);*/
         throw new SQLException("Erro ao conectar "
                 + "com a base de dados" + 
                 e.getMessage());

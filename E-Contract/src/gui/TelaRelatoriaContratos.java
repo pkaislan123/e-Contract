@@ -295,7 +295,7 @@ public class TelaRelatoriaContratos extends JDialog {
 
 					ConverterPdf converter_pdf = new ConverterPdf();
 					String pdf_alterado = converter_pdf.word_pdf_stream(contrato_alterado);
-					TelaVizualizarPdf vizualizar = new TelaVizualizarPdf(null, isto, null, pdf_alterado, null);
+					TelaVizualizarPdf vizualizar = new TelaVizualizarPdf(null, isto, null, pdf_alterado, null, isto);
 
 				} else if (gerar && chkBoxContratosComoVendedor.isSelected()) {
 					RelatorioContratos relatar = new RelatorioContratos(tipo_contrato, contrato, false, pagamento,
@@ -306,7 +306,7 @@ public class TelaRelatoriaContratos extends JDialog {
 
 					ConverterPdf converter_pdf = new ConverterPdf();
 					String pdf_alterado = converter_pdf.word_pdf_stream(contrato_alterado);
-					TelaVizualizarPdf vizualizar = new TelaVizualizarPdf(null, isto, null, pdf_alterado, null);
+					TelaVizualizarPdf vizualizar = new TelaVizualizarPdf(null, isto, null, pdf_alterado, null, isto);
 					
 				}else if (gerar && !chkBoxContratosComoVendedor.isSelected() && !chkBoxContratosComoComprador.isSelected()) {
 					RelatorioContratos relatar = new RelatorioContratos(tipo_contrato, contrato, false, pagamento,
@@ -317,7 +317,7 @@ public class TelaRelatoriaContratos extends JDialog {
 
 					ConverterPdf converter_pdf = new ConverterPdf();
 					String pdf_alterado = converter_pdf.word_pdf_stream(contrato_alterado);
-					TelaVizualizarPdf vizualizar = new TelaVizualizarPdf(null, isto, null, pdf_alterado, null);
+					TelaVizualizarPdf vizualizar = new TelaVizualizarPdf(null, isto, null, pdf_alterado, null, isto);
 				}
 
 			}

@@ -54,7 +54,7 @@ public class GerenciarBancoTransferencias {
 
 			} catch (Exception e) {
 				JOptionPane.showMessageDialog(null,
-						"Erro ao inserir o transferencia no banco de " + "dados " + e.getMessage());
+						"Erro ao inserir o transferencia no banco de " + "dados "  );
 				
 				return -1;
 			}
@@ -93,7 +93,7 @@ public class GerenciarBancoTransferencias {
 			}
 			ConexaoBanco.fechaConexao(conn, pstm, rs);
 		} catch (Exception e) {
-			JOptionPane.showMessageDialog(null, "Erro ao listar transferencias de remetente" + e.getMessage());
+			JOptionPane.showMessageDialog(null, "Erro ao listar transferencias de remetente"  );
 		}
 		return lista_trasnferencias;
 
@@ -128,7 +128,7 @@ public class GerenciarBancoTransferencias {
 			}
 			ConexaoBanco.fechaConexao(conn, pstm, rs);
 		} catch (Exception e) {
-			JOptionPane.showMessageDialog(null, "Erro ao listar transferencias de remetente" + e.getMessage());
+			JOptionPane.showMessageDialog(null, "Erro ao listar transferencias de remetente"  );
 		}
 		return lista_trasnferencias;
 
@@ -189,7 +189,7 @@ public class GerenciarBancoTransferencias {
 			}
 			ConexaoBanco.fechaConexao(conn, pstm, rs);
 		} catch (Exception e) {
-			JOptionPane.showMessageDialog(null, "Erro ao listar transferencias " + e.getMessage());
+			JOptionPane.showMessageDialog(null, "Erro ao listar transferencias "  );
 		}
 		return lista_trasnferencias;
 

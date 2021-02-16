@@ -46,6 +46,7 @@ import java.awt.GridLayout;
 import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.SystemColor;
+import java.awt.Window;
 import java.awt.GridBagLayout;
 import java.awt.GridBagConstraints;
 import com.jgoodies.forms.layout.FormLayout;
@@ -77,13 +78,12 @@ public class TelaCriarTarefaResposta extends JDialog {
 	private JTextField entData;
 	private JTextField entHora;
     private CadastroLogin executor;
-    private JDialog telaPai;
-    private JFrame telaPaiJFrame;
+    private Window telaPai;
 
     private JTextArea textAreaResposta;
     
-    public TelaCriarTarefaResposta(CadastroTarefa tarefa, JFrame janela_pai) {
-		setModal(true);
+    public TelaCriarTarefaResposta(CadastroTarefa tarefa, Window janela_pai) {
+		//setModal(true);
 
 		
 		 isto = this;
@@ -159,10 +159,10 @@ public class TelaCriarTarefaResposta extends JDialog {
             		boolean atualizou = gerenciar.atualizarStatusTarefa(resposta, tarefa.getId_tarefa());
             		if(atualizou) {
             			
-            			JOptionPane.showMessageDialog(null, "Tarefa atualizada e status alterado para concluido!");
+            			JOptionPane.showMessageDialog(isto, "Tarefa atualizada e status alterado para concluido!");
             			
             			//((TelaGerenciarContrato) telaPai).atualizarListaTarefas();
-            			((TelaGerenciarContrato) telaPaiJFrame).atualizarListaTarefas();
+            			((TelaGerenciarContrato) telaPai).atualizarListaTarefas();
 
             			isto.dispose();
             		}else {
@@ -190,16 +190,8 @@ public class TelaCriarTarefaResposta extends JDialog {
         painelPrincipal.add(btnCancelar);
 		
 		
-		
-        GraphicsConfiguration gc = janela_pai.getGraphicsConfiguration();
-		Rectangle bounds = gc.getBounds();
 		  
-		  
-		Point realLocation = new Point(); // holds final location of dialog.
-		realLocation.x = (bounds.x + bounds.width / 2) - (isto.getWidth() / 2);
-		realLocation.y = (bounds.y + bounds.height / 2 )- (isto.getHeight() / 2);
-		  
-		this.setLocation(realLocation);
+		this.setLocationRelativeTo(janela_pai);
 
 		
 		
@@ -243,11 +235,9 @@ public class TelaCriarTarefaResposta extends JDialog {
 		
 	}
 	
-	public void setTelaPai(JDialog tela_pai) {
+	public void setTelaPai(Window tela_pai) {
 		this.telaPai = tela_pai;
 	}	
 	
-	public void setTelaPai(JFrame tela_pai) {
-		this.telaPaiJFrame = tela_pai;
-	}
+	
 }

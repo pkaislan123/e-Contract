@@ -54,7 +54,7 @@ public class GerenciarBancoPontuacao {
 
 			} catch (Exception e) {
 				JOptionPane.showMessageDialog(null,
-						"Erro ao inserir a pontuacao no banco de " + "dados " + e.getMessage());
+						"Erro ao inserir a pontuacao no banco de " + "dados "  );
 				
 				return -1;
 			}
@@ -93,7 +93,7 @@ public class GerenciarBancoPontuacao {
 			}
 			ConexaoBanco.fechaConexao(conn, pstm, rs);
 		} catch (Exception e) {
-			JOptionPane.showMessageDialog(null, "Erro ao listar pontuacao" + e.getMessage());
+			JOptionPane.showMessageDialog(null, "Erro ao listar pontuacao"  );
 		}
 		return lista_pontuacao;
 
@@ -135,7 +135,7 @@ public class GerenciarBancoPontuacao {
 			return lista_pontuacao;
 
 		} catch (Exception e) {
-			JOptionPane.showMessageDialog(null, "Erro ao listar pontuacao" + e.getMessage());
+			JOptionPane.showMessageDialog(null, "Erro ao listar pontuacao"  );
 			return null;
 		}
 		
@@ -172,7 +172,7 @@ public class GerenciarBancoPontuacao {
 			}
 			ConexaoBanco.fechaConexao(conn, pstm, rs);
 		} catch (Exception e) {
-			JOptionPane.showMessageDialog(null, "Erro ao listar pontuacao" + e.getMessage());
+			JOptionPane.showMessageDialog(null, "Erro ao listar pontuacao"  );
 		}
 		return lista_pontuacao;
 

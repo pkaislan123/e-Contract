@@ -109,6 +109,7 @@ public class TelaMain extends JFrame {
 	private JPanelBackground contentPane;
 	private JLabel lblUser, lblNovaMensagem;
 	private JLabel lblDireitos;
+	private TelaContratos telaContratos ;
 	private JPanelGraficoCarregamento painelGraficoCarregamentos;
 	private JPanel panelGraficoLinha;
 	private JLabel lblTotalContratosAssinar, lblTotalContratosAssinados;
@@ -306,8 +307,14 @@ public class TelaMain extends JFrame {
 		mntmContratos.setFont(new Font("Segoe UI", Font.PLAIN, 16));
 		mntmContratos.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
-				TelaContratos telaContratos = new TelaContratos(0, isto);
-				telaContratos.setVisible(true);
+				
+				if(telaContratos == null) {
+				 telaContratos = new TelaContratos(0, isto);
+				 telaContratos.setVisible(true);
+
+				}
+				else
+				 telaContratos.setVisible(true);
 			}
 		});
 		mnContratos.add(mntmContratos);
@@ -383,7 +390,14 @@ public class TelaMain extends JFrame {
 		mntmNewMenuItem_5.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 
-			
+
+				if (tela_tarefas == null) {
+					tela_tarefas = new TelaTarefas(isto);
+					tela_tarefas.getTarefas();
+					tela_tarefas.setVisible(true);
+				} else {
+					tela_tarefas.setVisible(true);
+				}
 			}
 		});
 		mntmNewMenuItem_5.setIcon(new ImageIcon(TelaPrincipal.class.getResource("/imagens/icone_menu_tarefas.png")));
@@ -416,10 +430,32 @@ public class TelaMain extends JFrame {
 		panel_1.setLayout(new MigLayout("", "[][][][][][][]", "[][-18.00][]"));
 		
 		JLabel lblNewLabel_8 = new JLabel("");
+		lblNewLabel_8.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseClicked(MouseEvent e) {
+				if (telaPost == null) {
+					telaPost = new TelaPost(isto);
+				} else {
+					telaPost.setVisible(true);
+				}
+			}
+		});
 		panel_1.add(lblNewLabel_8, "cell 0 0");
 		lblNewLabel_8.setIcon(new ImageIcon(TelaMain.class.getResource("/imagens/icone_anotacoes_tela_principal.png")));
 		
 		JLabel lblNewLabel_1 = new JLabel("");
+		lblNewLabel_1.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseClicked(MouseEvent e) {
+				if (tela_tarefas == null) {
+					tela_tarefas = new TelaTarefas(isto);
+					tela_tarefas.getTarefas();
+					tela_tarefas.setVisible(true);
+				} else {
+					tela_tarefas.setVisible(true);
+				}
+			}
+		});
 		panel_1.add(lblNewLabel_1, "cell 1 0");
 		lblNewLabel_1.setIcon(new ImageIcon(TelaMain.class.getResource("/imagens/icone_tarefa.png")));
 		
@@ -708,7 +744,7 @@ public class TelaMain extends JFrame {
 		gbc_panel_7.gridx = 1;
 		gbc_panel_7.gridy = 1;
 		panel_3.add(panel_7, gbc_panel_7);
-		panel_7.setLayout(new MigLayout("", "[grow]", "[][][]"));
+		panel_7.setLayout(new MigLayout("", "[grow]", "[][][][][]"));
 		
 		JLabel lblTodasAsSafrasRecebimento = new JLabel("Todas as Safras", SwingConstants.CENTER);
 		lblTodasAsSafrasRecebimento.setOpaque(true);
@@ -721,6 +757,15 @@ public class TelaMain extends JFrame {
 		JComboBox cbRecebimentosPorSafra = new JComboBox();
 		cbRecebimentosPorSafra.setFont(new Font("Tahoma", Font.BOLD, 10));
 		panel_7.add(cbRecebimentosPorSafra, "cell 0 2,growx");
+		
+		JButton btnNewButton = new JButton("New button");
+		btnNewButton.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				TelaParaTeste tela = new TelaParaTeste(0, isto);
+				tela.setVisible(true);
+			}
+		});
+		panel_7.add(btnNewButton, "cell 0 4");
 		
 		JPanel panel_6 = new JPanel();
 		panel_6.setBackground(Color.WHITE);
@@ -944,8 +989,6 @@ public class TelaMain extends JFrame {
 			public void run() {
 				if (telaPost == null) {
 					telaPost = new TelaPost(isto);
-					telaPost.procurarNotas(true);
-					telaPost.setVisible(true);
 				} else {
 					telaPost.setVisible(true);
 				}

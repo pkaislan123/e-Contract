@@ -175,7 +175,7 @@ public class TelaCriarAditivo extends JDialog {
 				ConverterPdf converter_pdf = new ConverterPdf();
 				String pdf_alterado = converter_pdf.word_pdf_stream(contrato_alterado);
 				TelaVizualizarPdf vizualizar = new TelaVizualizarPdf(null, isto, null,
-						pdf_alterado, null);
+						pdf_alterado, null, isto);
 			}
 		});
 		btnCriarAditivo.setBounds(513, 381, 89, 23);

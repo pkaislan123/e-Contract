@@ -64,6 +64,8 @@ public class RenderizadorChat implements ListCellRenderer<CadastroLogin.Mensagem
 		JTextArea mostrar_conteudo = new JTextArea(conteudo);
 		mostrar_conteudo.setBackground(new Color(0, 0, 0, 0));
 		mostrar_conteudo.setBorder(null);
+		mostrar_conteudo.setFont(new Font("SansSerif", Font.PLAIN, 20));
+
 		mostrar_conteudo.setOpaque(false);
 		mostrar_conteudo.setLineWrap(true);
 		mostrar_conteudo.setWrapStyleWord(true);
@@ -108,6 +110,8 @@ public class RenderizadorChat implements ListCellRenderer<CadastroLogin.Mensagem
 		mostrar_conteudo.setBackground(new Color(0, 0, 0, 0));
 		mostrar_conteudo.setBorder(null);
 		mostrar_conteudo.setOpaque(false);
+		mostrar_conteudo.setFont(new Font("SansSerif", Font.PLAIN, 20));
+
 		mostrar_conteudo.setLineWrap(true);
 		panel.add(mostrar_conteudo, "cell 0 0 8 1,grow");
 		

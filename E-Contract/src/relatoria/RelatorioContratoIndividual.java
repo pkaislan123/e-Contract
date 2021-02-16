@@ -106,7 +106,7 @@ public class RelatorioContratoIndividual {
 
 	CadastroContrato novo_contrato;
 	private TelaEmEspera telaInformacoes;
-
+    private int contador_comprovantes;
 	private Log GerenciadorLog;
 	private CadastroLogin login;
 	private ConfiguracoesGlobais configs_globais;
@@ -521,8 +521,12 @@ public class RelatorioContratoIndividual {
 				num_comprovantes++;
 			}
 		}
+		
+		//define o numero de linhas
+		int num_linhas = num_comprovantes / 3 + 1;
+		
 
-		XWPFTable table = document_global.createTable(1, num_comprovantes);
+		XWPFTable table = document_global.createTable(num_linhas, num_comprovantes);
 
 		setTableAlign(table, ParagraphAlignment.CENTER);
 		XWPFTableRow tableRowOne = table.getRow(0);
@@ -530,7 +534,8 @@ public class RelatorioContratoIndividual {
 
 		XWPFParagraph paragraph = tableRowOne.getCell(0).addParagraph();
 
-		int celula_global = 0;
+		int linha_comprovante  = -1;
+		int coluna_comprovante = 0;
 
 		for (CadastroContrato.CadastroPagamentoContratual pag : pagamentos) {
 			// verifica se há algum documento do tipo 2(comprovante de pagamento) para este
@@ -580,9 +585,19 @@ public class RelatorioContratoIndividual {
 					FileInputStream in;
 					try {
 
-						tableRowOne = table.getRow(0);
-						tableRowOne.getCell(celula_global).removeParagraph(0);
-						paragraph = tableRowOne.getCell(celula_global).addParagraph();
+						
+						if(contador_comprovantes > 3) {
+							linha_comprovante = 1;
+						}else if(contador_comprovantes <= 3) {
+							linha_comprovante = 0;
+						}else if(contador_comprovantes > 6) {
+							linha_comprovante = 2;
+
+						}
+						
+						tableRowOne = table.getRow(linha_comprovante);
+						tableRowOne.getCell(coluna_comprovante).removeParagraph(0);
+						paragraph = tableRowOne.getCell(coluna_comprovante).addParagraph();
 						paragraph.setAlignment(ParagraphAlignment.CENTER);
 
 						XWPFRun run = paragraph.createRun();
@@ -591,6 +606,12 @@ public class RelatorioContratoIndividual {
 						run.addPicture(in, Document.PICTURE_TYPE_JPEG, comprovante.getNome_arquivo(),
 								Units.toEMU(x / 2), Units.toEMU(y / 2));
 						in.close();
+						contador_comprovantes++;
+						coluna_comprovante++;
+						
+						if(coluna_comprovante >= 3) {
+							coluna_comprovante = 0;
+						}
 					} catch (FileNotFoundException e) {
 						// TODO Auto-generated catch block
 						e.printStackTrace();
@@ -604,7 +625,6 @@ public class RelatorioContratoIndividual {
 
 				}
 
-				celula_global++;
 			}
 
 		}

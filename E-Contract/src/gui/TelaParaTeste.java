@@ -46,8 +46,11 @@ import javax.swing.border.MatteBorder;
 import javax.swing.ImageIcon;
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
+import javax.swing.JDesktopPane;
+import java.awt.FlowLayout;
+import javax.swing.JInternalFrame;
 
-public class TelaParaTeste extends JDialog implements ComponentListener{
+public class TelaParaTeste extends JFrame {
 
 	private final JPanel painelPrincipal = new JPanel();
 
@@ -58,9 +61,7 @@ public class TelaParaTeste extends JDialog implements ComponentListener{
 	 GraphicsDevice[] gds = ge.getScreenDevices();
 	 
 	public TelaParaTeste(int index_tela_pai, JFrame janelaPai) {
-        super(janelaPai, true); 
 
-		//setModal(true);
 
 		
 		setResizable(true);
@@ -69,85 +70,60 @@ public class TelaParaTeste extends JDialog implements ComponentListener{
 		isto = this;
 		setBackground(new Color(255, 255, 255));
 		setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-		setBounds(0, 0, 510, 505);
-		painelPrincipal.setBackground(new Color(255, 255, 255));
-		painelPrincipal.setBorder(new EmptyBorder(5, 5, 5, 5));
-		setContentPane(painelPrincipal);
-		painelPrincipal.setLayout(null);
-		
-		String conteudo = "Revisão de Contrato";
-		String data_hora = "";
 	
-JPanel painel_msg = new JPanel();
-		
-		//painel mensagem destinatario a remetente
-		
-		painel_msg.setBackground(Color.WHITE);
-		painel_msg.setBounds(0, 0, 414, 80);
-		painel_msg.setLayout(new MigLayout("", "[][][][][][][][][][][][][grow]", "[grow]"));
-		
-		
-		JLabel lblNewLabel = new JLabel("teste de espaçamento");
-		lblNewLabel.setBackground(Color.BLUE);
-		lblNewLabel.setVisible(false);
-		painel_msg.add(lblNewLabel, "cell 0 0 4 1");
-		
-		
-		JPanel panel = new JPanel();
-		panel.setBackground(Color.GREEN);
-		painel_msg.add(panel, "cell 4 0 9 1,grow");
-		panel.setLayout(new MigLayout("", "[grow][][][][][][][]", "[grow][]"));
-		
-		JTextArea mostrar_conteudo = new JTextArea(conteudo);
-		mostrar_conteudo.setBackground(new Color(0, 0, 0, 0));
-		mostrar_conteudo.setBorder(null);
-		mostrar_conteudo.setOpaque(false);
-		mostrar_conteudo.setLineWrap(true);
-		mostrar_conteudo.setWrapStyleWord(true);
-
-
-		panel.add(mostrar_conteudo, "cell 0 0 8 1,grow");
-
-		JLabel mostrar_data_hora = new JLabel(data_hora);
-		mostrar_data_hora.setFont(new Font("Tahoma", Font.PLAIN, 12));
-		panel.add(mostrar_data_hora, "cell 7 1");
 		
 		
 		
-			
-		JButton btnNewButton = new JButton("Clique para acessar o contrato");
-		btnNewButton.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-			}
-		});
-		painel_msg.add(btnNewButton, "cell 6 1 2 1");
+		GridBagLayout gridBagLayout = new GridBagLayout();
+		gridBagLayout.columnWidths = new int[]{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+		gridBagLayout.rowHeights = new int[]{0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+		gridBagLayout.columnWeights = new double[]{1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0, Double.MIN_VALUE};
+		gridBagLayout.rowWeights = new double[]{1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0, Double.MIN_VALUE};
+		getContentPane().setLayout(gridBagLayout);
 		
+		JDesktopPane desktopPane_1 = new JDesktopPane();
+		GridBagConstraints gbc_desktopPane_1 = new GridBagConstraints();
+		gbc_desktopPane_1.gridheight = 9;
+		gbc_desktopPane_1.gridwidth = 7;
+		gbc_desktopPane_1.insets = new Insets(0, 0, 0, 5);
+		gbc_desktopPane_1.fill = GridBagConstraints.BOTH;
+		gbc_desktopPane_1.gridx = 0;
+		gbc_desktopPane_1.gridy = 0;
+		getContentPane().add(desktopPane_1, gbc_desktopPane_1);
 		
+		JLabel lblNewLabel = new JLabel("||||");
+		lblNewLabel.setOpaque(true);
+		lblNewLabel.setBackground(Color.BLACK);
+		GridBagConstraints gbc_lblNewLabel = new GridBagConstraints();
+		gbc_lblNewLabel.fill = GridBagConstraints.BOTH;
+		gbc_lblNewLabel.gridheight = 9;
+		gbc_lblNewLabel.insets = new Insets(0, 0, 0, 5);
+		gbc_lblNewLabel.gridx = 7;
+		gbc_lblNewLabel.gridy = 0;
+		getContentPane().add(lblNewLabel, gbc_lblNewLabel);
 		
-		
-	}
+		JDesktopPane desktopPane = new JDesktopPane();
+		GridBagConstraints gbc_desktopPane = new GridBagConstraints();
+		gbc_desktopPane.gridheight = 9;
+		gbc_desktopPane.gridwidth = 7;
+		gbc_desktopPane.fill = GridBagConstraints.BOTH;
+		gbc_desktopPane.gridx = 8;
+		gbc_desktopPane.gridy = 0;
+		getContentPane().add(desktopPane, gbc_desktopPane);
 	
-	
-	
-    public void componentMoved(ComponentEvent e) {
-    	JDialog d = (JDialog) e.getComponent();
-    }
-
-	@Override
-	public void componentResized(ComponentEvent e) {
-		// TODO Auto-generated method stub
+		TelaCriarNota nota = new TelaCriarNota(1,null, null);
+		nota.setLocation(22, 31);
+		desktopPane_1.add(nota);
 		
-	}
-
-	@Override
-	public void componentShown(ComponentEvent e) {
-		// TODO Auto-generated method stub
 		
-	}
+		TelaHome home = new TelaHome();
+		desktopPane.add(home);
+	
+		this.setExtendedState(JFrame.MAXIMIZED_BOTH);
+		this.setLocationRelativeTo(janelaPai);
 
-	@Override
-	public void componentHidden(ComponentEvent e) {
-		// TODO Auto-generated method stub
+	    this.setLocationRelativeTo(janelaPai);
+		this.setVisible(true);
 		
 	}
 }

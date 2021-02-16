@@ -115,8 +115,7 @@ public class TelaDefinirTempo extends JDialog {
 			JButton btnNewButton = new JButton("Ok");
 			btnNewButton.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent e) {
-					((TelaCriarNota) telaPai).setData(calendar1.getCalendar());
-					isto.dispose();
+					
 				}
 			});
 			btnNewButton.setBounds(466, 355, 89, 23);

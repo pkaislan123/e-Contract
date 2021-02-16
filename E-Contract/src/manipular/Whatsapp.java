@@ -143,14 +143,11 @@ public boolean enviarMensagem(String numero, String msg) {
 				 return false;
 
 			}else {
-			 saida = response.message();
 			 return true;
 			}
 		} catch (IOException e) {
 			System.out.println("Erro " + e.getMessage() + " causa: " + e.getCause());
-			// TODO Auto-generated catch block
 			e.printStackTrace();
-			saida = "Erro " + e.getMessage() + " causa: " + e.getCause();
            return false;
 		}
 		

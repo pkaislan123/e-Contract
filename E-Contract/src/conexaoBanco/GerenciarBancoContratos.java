@@ -60,7 +60,7 @@ public class GerenciarBancoContratos {
 				return 1;
 
 			} catch (Exception e) {
-				JOptionPane.showMessageDialog(null, "Erro ao inserir o modelo no banco de" + "dados " + e.getMessage());
+				JOptionPane.showMessageDialog(null, "Erro ao inserir o modelo no banco de" + "dados "  );
 				return 0;
 			}
 		} else {
@@ -94,7 +94,7 @@ public class GerenciarBancoContratos {
 			}
 			ConexaoBanco.fechaConexao(conn, pstm, rs);
 		} catch (Exception e) {
-			JOptionPane.showMessageDialog(null, "Erro ao listar modelos de contratos" + e.getMessage());
+			JOptionPane.showMessageDialog(null, "Erro ao listar modelos de contratos"  );
 		}
 		return listaModelos;
 	}
@@ -360,9 +360,9 @@ public class GerenciarBancoContratos {
 
 			} catch (Exception e) {
 				//JOptionPane.showMessageDialog(null,
-					//	"Erro ao inserir o Contrato no banco de " + "dados " + e.getMessage());
+					//	"Erro ao inserir o Contrato no banco de " + "dados "  );
 				GerenciadorLog.registrarLogDiario("falha",
-						"falha ao adicionar novo contrato: " + e.getMessage() + " causa: " + e.getCause());
+						"falha ao adicionar novo contrato: "   + " causa: "  );
 				return -1;
 			}
 		} else {
@@ -493,7 +493,7 @@ public class GerenciarBancoContratos {
 
 		} catch (Exception e) {
 			JOptionPane.showMessageDialog(null, "Erro ao inserir a relação cliente_corretor no banco de"
-					+ " dados, corretor: " + corretor.getId() + " contrado: " + id_contrato + e.getMessage());
+					+ " dados, corretor: " + corretor.getId() + " contrado: " + id_contrato  );
 			return false;
 		}
 
@@ -516,7 +516,7 @@ public class GerenciarBancoContratos {
 
 		} catch (Exception e) {
 			JOptionPane.showMessageDialog(null, "Erro ao inserir a relação cliente_corretor no banco de"
-					+ " dados, corretor: " + comprador.getId() + " contrado: " + id_contrato + e.getMessage());
+					+ " dados, corretor: " + comprador.getId() + " contrado: " + id_contrato  );
 			return false;
 		}
 
@@ -539,7 +539,7 @@ public class GerenciarBancoContratos {
 
 		} catch (Exception e) {
 			JOptionPane.showMessageDialog(null, "Erro ao inserir a relação cliente_vendedor no banco de"
-					+ " dados, corretor: " + vendedor.getId() + " contrado: " + id_contrato + e.getMessage());
+					+ " dados, corretor: " + vendedor.getId() + " contrado: " + id_contrato  );
 			return false;
 		}
 
@@ -893,9 +893,9 @@ public class GerenciarBancoContratos {
 
 			} catch (Exception e) {
 				JOptionPane.showMessageDialog(null,
-						"Erro ao inserir o pagamento no banco de" + "dados " + e.getMessage());
+						"Erro ao inserir o pagamento no banco de" + "dados "  );
 				GerenciadorLog.registrarLogDiario("falha",
-						"falha ao adicionar novo pagamento: " + e.getMessage() + " causa: " + e.getCause());
+						"falha ao adicionar novo pagamento: "   + " causa: "  );
 				return -1;
 			}
 		} else {
@@ -921,7 +921,7 @@ public class GerenciarBancoContratos {
 
 		} catch (Exception e) {
 			JOptionPane.showMessageDialog(null,
-					"Erro ao inserir a relação contrato_modelo_pagamento no banco de" + e.getMessage());
+					"Erro ao inserir a relação contrato_modelo_pagamento no banco de"  );
 			return false;
 		}
 
@@ -1103,9 +1103,9 @@ public class GerenciarBancoContratos {
 			}
 
 		} catch (Exception e) {
-			JOptionPane.showMessageDialog(null, "Erro ao listar contrato id: " + id + " erro: " + e.getMessage());
+			JOptionPane.showMessageDialog(null, "Erro ao listar contrato id: " + id + " erro: "  );
 			System.out.println(
-					"Erro ao listar contrato id: " + id + " erro: " + e.getMessage() + "\ncausa: " + e.getCause());
+					"Erro ao listar contrato id: " + id + " erro: "   + "\ncausa: "  );
 			return null;
 		}
 
@@ -1207,9 +1207,9 @@ public class GerenciarBancoContratos {
 			}
 
 		} catch (Exception e) {
-			JOptionPane.showMessageDialog(null, "Erro ao listar contrato codigo: " + id_codigo + " erro: " + e.getMessage());
+			JOptionPane.showMessageDialog(null, "Erro ao listar contrato codigo: " + id_codigo + " erro: "  );
 			System.out.println(
-					"Erro ao listar contrato codigo: " + id_codigo + " erro: " + e.getMessage() + "\ncausa: " + e.getCause());
+					"Erro ao listar contrato codigo: " + id_codigo + " erro: "   + "\ncausa: "  );
 			return null;
 		}
 
@@ -1312,9 +1312,9 @@ public class GerenciarBancoContratos {
 
 		} catch (Exception e) {
 			JOptionPane.showMessageDialog(null,
-					"Erro ao listar contrato pai do subcontrato id: " + id_sub_contrato + " erro: " + e.getMessage());
+					"Erro ao listar contrato pai do subcontrato id: " + id_sub_contrato + " erro: "  );
 			System.out.println("Erro ao listar contrato pai do subcontrato id: " + id_sub_contrato + " erro: "
-					+ e.getMessage() + "\ncausa: " + e.getCause());
+					  + "\ncausa: "  );
 			return null;
 		}
 
@@ -1507,7 +1507,7 @@ public class GerenciarBancoContratos {
 			}
 
 		} catch (Exception e) {
-			JOptionPane.showMessageDialog(null, "Erro ao atualizar contrato no banco de" + "dados " + e.getMessage());
+			JOptionPane.showMessageDialog(null, "Erro ao atualizar contrato no banco de" + "dados "  );
 			return -2;
 		}
 
@@ -1552,6 +1552,7 @@ public class GerenciarBancoContratos {
 				contrato.setNomes_corretores(rs.getString("corretores"));
 
 				produto.setTransgenia(rs.getString("transgenia"));
+				contrato.setId_local_retirada(rs.getInt("id_local_retirada"));
 				
 				safra.setProduto(produto);
 				contrato.setModelo_safra(safra);
@@ -1560,7 +1561,7 @@ public class GerenciarBancoContratos {
 			}
 			ConexaoBanco.fechaConexao(conn, pstm, rs);
 		} catch (Exception e) {
-			JOptionPane.showMessageDialog(null, "Erro ao listar contratos" + e.getMessage());
+			JOptionPane.showMessageDialog(null, "Erro ao listar contratos"  );
 		}
 		return lsitaContratos;
 
@@ -1611,7 +1612,7 @@ public class GerenciarBancoContratos {
 			}
 			ConexaoBanco.fechaConexao(conn, pstm, rs);
 		} catch (Exception e) {
-			JOptionPane.showMessageDialog(null, "Erro ao listar contratos" + e.getMessage());
+			JOptionPane.showMessageDialog(null, "Erro ao listar contratos"  );
 		}
 		return lsitaContratos;
 
@@ -1743,7 +1744,7 @@ public class GerenciarBancoContratos {
 
 		} catch (Exception e) {
 			JOptionPane.showMessageDialog(null,
-					"Erro ao listar contratos\nMensagem: " + e.getMessage() + "\nCausa: " + e.getCause());
+					"Erro ao listar contratos\nMensagem: "   + "\nCausa: "  );
 			return null;
 		}
 
@@ -1791,7 +1792,7 @@ public class GerenciarBancoContratos {
 			return lista_corretores;
 		} catch (Exception e) {
 			JOptionPane.showMessageDialog(null, "Erro ao listar os corretores do contrato: " + id_contrato + " erro: "
-					+ e.getMessage() + "causa: " + e.getCause());
+					  + "causa: "  );
 			return null;
 		}
 
@@ -1838,7 +1839,7 @@ public class GerenciarBancoContratos {
 			return lista_compradores;
 		} catch (Exception e) {
 			JOptionPane.showMessageDialog(null, "Erro ao listar os compradores do contrato: " + id_contrato + " erro: "
-					+ e.getMessage() + "causa: " + e.getCause());
+					  + "causa: "  );
 			return null;
 		}
 
@@ -1886,7 +1887,7 @@ public class GerenciarBancoContratos {
 			return lista_vendedores;
 		} catch (Exception e) {
 			JOptionPane.showMessageDialog(null, "Erro ao listar os vendedores do contrato: " + id_contrato + " erro: "
-					+ e.getMessage() + "causa: " + e.getCause());
+					  + "causa: "  );
 			return null;
 		}
 
@@ -1956,7 +1957,7 @@ public class GerenciarBancoContratos {
 			return lista_pagamentos;
 		} catch (Exception e) {
 			JOptionPane.showMessageDialog(null, "Erro ao listar os pagamentos do contrato: " + id_contrato + " erro: "
-					+ e.getMessage() + "causa: " + e.getCause());
+					  + "causa: "  );
 			return null;
 		}
 
@@ -1979,7 +1980,7 @@ public class GerenciarBancoContratos {
 
 		} catch (Exception e) {
 			JOptionPane.showMessageDialog(null,
-					"Erro ao inserir a relação contrato_sub_contrato no banco de" + " dados" + e.getMessage());
+					"Erro ao inserir a relação contrato_sub_contrato no banco de" + " dados"  );
 			return false;
 		}
 
@@ -2108,7 +2109,7 @@ public class GerenciarBancoContratos {
 
 		} catch (Exception e) {
 			JOptionPane.showMessageDialog(null,
-					"Erro ao listar contrato filhos do contrato id: " + id_contrato_pai + " erro: " + e.getMessage());
+					"Erro ao listar contrato filhos do contrato id: " + id_contrato_pai + " erro: "  );
 			return null;
 		}
 		return lsitaContratos;
@@ -2180,9 +2181,9 @@ public class GerenciarBancoContratos {
 
 			} catch (Exception e) {
 				JOptionPane.showMessageDialog(null,
-						"Erro ao inserir a tarefa no banco de " + "dados " + e.getMessage());
+						"Erro ao inserir a tarefa no banco de " + "dados "  );
 				GerenciadorLog.registrarLogDiario("falha",
-						"falha ao adicionar tarefa: " + e.getMessage() + " causa: " + e.getCause());
+						"falha ao adicionar tarefa: "   + " causa: "  );
 				return -1;
 			}
 		} else {
@@ -2253,7 +2254,7 @@ public class GerenciarBancoContratos {
 			return id_contrato;
 		} catch (Exception e) {
 			JOptionPane.showMessageDialog(null, "Erro ao listar contrato por tarefa: " + id_tarefa + " erro: "
-					+ e.getMessage() + "causa: " + e.getCause());
+					  + "causa: "  );
 			return -1;
 		}
 
@@ -2321,7 +2322,7 @@ public class GerenciarBancoContratos {
 			return lista_tarefas;
 		} catch (Exception e) {
 			JOptionPane.showMessageDialog(null, "Erro ao listar as tarefas do contrato: " + id_contrato + " erro: "
-					+ e.getMessage() + "causa: " + e.getCause());
+					  + "causa: "  );
 			return null;
 		}
 
@@ -2385,7 +2386,7 @@ public class GerenciarBancoContratos {
 			return lista_tarefas;
 		} catch (Exception e) {
 			JOptionPane.showMessageDialog(null, "Erro ao listar todas as tarefas \n erro: "
-					+ e.getMessage() + "causa: " + e.getCause());
+					  + "causa: "  );
 			return null;
 		}
 
@@ -2508,7 +2509,7 @@ public class GerenciarBancoContratos {
 			return true;
 
 		} catch (Exception e) {
-			JOptionPane.showMessageDialog(null, "Erro ao atualizar tarefa no banco de" + "dados " + e.getMessage());
+			JOptionPane.showMessageDialog(null, "Erro ao atualizar tarefa no banco de" + "dados "  );
 			return false;
 		}
 
@@ -2539,9 +2540,9 @@ public class GerenciarBancoContratos {
 
 			} catch (Exception e) {
 				JOptionPane.showMessageDialog(null,
-						"Erro ao inserir o carregamento no banco de " + "dados " + e.getMessage());
+						"Erro ao inserir o carregamento no banco de " + "dados "  );
 				GerenciadorLog.registrarLogDiario("falha",
-						"falha ao adicionar carregamento: " + e.getMessage() + " causa: " + e.getCause());
+						"falha ao adicionar carregamento: "   + " causa: "  );
 				return -1;
 			}
 		} else {
@@ -2619,7 +2620,7 @@ public class GerenciarBancoContratos {
 			return lista_carregamentos;
 		} catch (Exception e) {
 			JOptionPane.showMessageDialog(null, "Erro ao listar os carregamentos do contrato: " + id_contrato
-					+ " erro: " + e.getMessage() + "causa: " + e.getCause());
+					+ " erro: "   + "causa: "  );
 			return null;
 		}
 
@@ -2665,7 +2666,7 @@ public class GerenciarBancoContratos {
 			return carga;
 		} catch (Exception e) {
 			JOptionPane.showMessageDialog(null, "Erro ao listar o carregamento id: " + id_carregamento + " erro: "
-					+ e.getMessage() + "causa: " + e.getCause());
+					  + "causa: "  );
 			return null;
 		}
 
@@ -2716,7 +2717,7 @@ public class GerenciarBancoContratos {
 			return lista_carregamentos;
 		} catch (Exception e) {
 			JOptionPane.showMessageDialog(null, "Erro ao listar os carregamentos do comprador: " + id_comprador
-					+ " erro: " + e.getMessage() + "causa: " + e.getCause());
+					+ " erro: "   + "causa: "  );
 			return null;
 		}
 
@@ -2767,7 +2768,7 @@ public class GerenciarBancoContratos {
 			return lista_carregamentos;
 		} catch (Exception e) {
 			JOptionPane.showMessageDialog(null, "Erro ao listar os carregamentos do vendedor: " + id_vendedor
-					+ " erro: " + e.getMessage() + "causa: " + e.getCause());
+					+ " erro: "   + "causa: "  );
 			return null;
 		}
 
@@ -2819,7 +2820,7 @@ public class GerenciarBancoContratos {
 			return lista_carregamentos;
 		} catch (Exception e) {
 			JOptionPane.showMessageDialog(null, "Erro ao listar os carregamentos do vendedor: " + id_vendedor
-					+ " erro: " + e.getMessage() + "causa: " + e.getCause());
+					+ " erro: "   + "causa: "  );
 			return null;
 		}
 
@@ -2947,9 +2948,9 @@ public class GerenciarBancoContratos {
 
 			} catch (Exception e) {
 				JOptionPane.showMessageDialog(null,
-						"Erro ao inserir o pagamento no banco de " + "dados " + e.getMessage());
+						"Erro ao inserir o pagamento no banco de " + "dados "  );
 				GerenciadorLog.registrarLogDiario("falha",
-						"falha ao adicionar pagamento contratual: " + e.getMessage() + " causa: " + e.getCause());
+						"falha ao adicionar pagamento contratual: "   + " causa: "  );
 				return -1;
 			}
 		} else {
@@ -3025,7 +3026,7 @@ public class GerenciarBancoContratos {
 			return lista_pagamentos;
 		} catch (Exception e) {
 			JOptionPane.showMessageDialog(null, "Erro ao listar os pagamentos do contrato: " + id_contrato + " erro: "
-					+ e.getMessage() + "causa: " + e.getCause());
+					  + "causa: "  );
 			return null;
 		}
 
@@ -3072,7 +3073,7 @@ public class GerenciarBancoContratos {
 			return lista_pagamentos;
 		} catch (Exception e) {
 			JOptionPane.showMessageDialog(null, "Erro ao listar o pagamento: " + id_pagamento + " erro: "
-					+ e.getMessage() + "causa: " + e.getCause());
+					  + "causa: "  );
 			return null;
 		}
 
@@ -3119,7 +3120,7 @@ public class GerenciarBancoContratos {
 			return lista_pagamentos;
 		} catch (Exception e) {
 			JOptionPane.showMessageDialog(null, "Erro ao listar os pagamentos do depositante: " + id_depositante
-					+ " erro: " + e.getMessage() + "causa: " + e.getCause());
+					+ " erro: "   + "causa: "  );
 			return null;
 		}
 
@@ -3166,7 +3167,7 @@ public class GerenciarBancoContratos {
 			return lista_pagamentos;
 		} catch (Exception e) {
 			JOptionPane.showMessageDialog(null, "Erro ao listar os pagamentos do depositante: " + id_favorecido
-					+ " erro: " + e.getMessage() + "causa: " + e.getCause());
+					+ " erro: "   + "causa: "  );
 			return null;
 		}
 
@@ -3214,7 +3215,7 @@ public class GerenciarBancoContratos {
 			return lista_pagamentos;
 		} catch (Exception e) {
 			JOptionPane.showMessageDialog(null, "Erro ao listar os pagamentos do depositante: " + id_favorecido
-					+ " erro: " + e.getMessage() + "causa: " + e.getCause());
+					+ " erro: "   + "causa: "  );
 			return null;
 		}
 
@@ -3253,7 +3254,7 @@ public class GerenciarBancoContratos {
 			return pagamento;
 		} catch (Exception e) {
 			JOptionPane.showMessageDialog(null, "Erro ao listar o pagamento de id: " + id_pagamento + " erro: "
-					+ e.getMessage() + "causa: " + e.getCause());
+					  + "causa: "  );
 			return null;
 		}
 
@@ -3293,7 +3294,7 @@ public class GerenciarBancoContratos {
 			return relacao;
 		} catch (Exception e) {
 			JOptionPane.showMessageDialog(null, "Erro ao listar as relacoes de pagamentos com id: " + id_pag + " erro: "
-					+ e.getMessage() + "causa: " + e.getCause());
+					  + "causa: "  );
 			return null;
 		}
 	}
@@ -3411,7 +3412,7 @@ public class GerenciarBancoContratos {
 
 		} catch (Exception e) {
 			JOptionPane.showMessageDialog(null, "Erro ao listar o numero total de contratos!" + " erro: "
-					+ e.getMessage() + "causa: " + e.getCause());
+					  + "causa: "  );
 			return -1;
 		}
 
@@ -3438,7 +3439,7 @@ public class GerenciarBancoContratos {
 
 		} catch (Exception e) {
 			JOptionPane.showMessageDialog(null, "Erro ao listar o numero de  contratos sem assinaturas: " + " erro: "
-					+ e.getMessage() + "causa: " + e.getCause());
+					  + "causa: "  );
 			return -1;
 		}
 
@@ -3486,7 +3487,7 @@ public class GerenciarBancoContratos {
 
 		} catch (Exception e) {
 			JOptionPane.showMessageDialog(null,
-					"Erro ao fazer a consulta de contratos: " + " erro: " + e.getMessage() + "causa: " + e.getCause());
+					"Erro ao fazer a consulta de contratos: " + " erro: "   + "causa: "  );
 			return -1;
 		}
 
@@ -3511,8 +3512,8 @@ public class GerenciarBancoContratos {
 			return i;
 
 		} catch (Exception e) {
-			JOptionPane.showMessageDialog(null, "Erro ao listar o numero total de tarefas!" + " erro: " + e.getMessage()
-					+ "causa: " + e.getCause());
+			JOptionPane.showMessageDialog(null, "Erro ao listar o numero total de tarefas!" + " erro: "  
+					+ "causa: "  );
 			return -1;
 		}
 	}
@@ -3553,7 +3554,7 @@ public class GerenciarBancoContratos {
 
 		} catch (Exception e) {
 			JOptionPane.showMessageDialog(null, "Erro ao listar a quantidade total de sacos" + " erro: "
-					+ e.getMessage() + "causa: " + e.getCause());
+					  + "causa: "  );
 			return -1;
 		}
 
@@ -3581,7 +3582,7 @@ public class GerenciarBancoContratos {
 
 		} catch (Exception e) {
 			JOptionPane.showMessageDialog(null, "Erro ao listar a quantidade total de sacos carregados" + " erro: "
-					+ e.getMessage() + "causa: " + e.getCause());
+					  + "causa: "  );
 			return -1;
 		}
 
@@ -3612,7 +3613,7 @@ public class GerenciarBancoContratos {
 		} catch (Exception e) {
 			JOptionPane.showMessageDialog(null,
 					"Erro ao listar a quantidade total de sacos carregados da safra selecionada" + " erro: "
-							+ e.getMessage() + "causa: " + e.getCause());
+							  + "causa: "  );
 			return -1;
 		}
 
@@ -3656,7 +3657,7 @@ public class GerenciarBancoContratos {
 
 		} catch (Exception e) {
 			JOptionPane.showMessageDialog(null, "Erro ao listar a quantidade total de sacos para a safra selecionada"
-					+ " erro: " + e.getMessage() + "causa: " + e.getCause());
+					+ " erro: "   + "causa: "  );
 			return -1;
 		}
 
@@ -3710,7 +3711,7 @@ public class GerenciarBancoContratos {
 
 		} catch (Exception e) {
 			JOptionPane.showMessageDialog(null, "Erro ao listar a quantidade total de sacos para a safra selecionada"
-					+ " erro: " + e.getMessage() + "causa: " + e.getCause());
+					+ " erro: "   + "causa: "  );
 			return null;
 		}
 
@@ -3737,7 +3738,7 @@ public class GerenciarBancoContratos {
 
 		} catch (Exception e) {
 			JOptionPane.showMessageDialog(null, "Erro ao listar o dono do pagamento " + id_pagamento + " erro: "
-					+ e.getMessage() + "causa: " + e.getCause());
+					  + "causa: "  );
 			return -1;
 		}
 

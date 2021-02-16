@@ -1,6 +1,7 @@
 package gui;
 
 import java.awt.BorderLayout;
+import javax.swing.JInternalFrame;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.FlowLayout;
@@ -67,8 +68,9 @@ import javax.swing.JScrollPane;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JRadioButton;
+import java.awt.Insets;
 
-public class TelaCriarNota extends JDialog {
+public class TelaCriarNota extends JInternalFrame {
 
 	private final KGradientPanel painelPrincipal = new KGradientPanel();
 	private JLabel lblTotalContratosConcluidos, lblTotalContratos, lblTotalContratosAbertos;
@@ -80,186 +82,119 @@ public class TelaCriarNota extends JDialog {
 	private JPanel painelNotificar;
 	private JRadioButton rBHoras, rBDias, rBMinutos;
 	private JLabel lblDataLembrete;
-	private  JButton btnDefinirTempo;
-    private JCheckBox chkBoxSim,chkBoxNao, chckBoxNaoNotificar;
-    private Calendar data_selecionada;
-    private JComboBox cBTipo ;
+	private JButton btnDefinirTempo;
+	private JCheckBox chkBoxSim, chkBoxNao, chckBoxNaoNotificar;
+	private Calendar data_selecionada;
+	private JComboBox cBTipo;
 	private Log GerenciadorLog;
 	private CadastroLogin login;
 	private ConfiguracoesGlobais configs_globais;
-	private TelaCriarNota instance ;
+	private TelaCriarNota instance;
 	private CadastroNota nota_global;
 	private JTextArea textAreaAnotacao;
-	
-	public TelaCriarNota(int flag_modo_operacao, CadastroNota nota,  Window janela_pai) {
+
+	public TelaCriarNota(int flag_modo_operacao, CadastroNota nota, Window janela_pai) {
 		// setModal(true);
-         getDadosGlobais();
+		getDadosGlobais();
 		isto = this;
-         instance = this;
+		instance = this;
 		setResizable(true);
 		nota_global = nota;
-		if(flag_modo_operacao == 1) {
-		setTitle("E-Contract - Criar Anotação");
-		}else {
+		if (flag_modo_operacao == 1) {
+			setTitle("E-Contract - Criar Anotação");
+		} else {
 			setTitle("E-Contract - Editar Anotação");
 
 		}
 		setBackground(new Color(255, 255, 255));
 		setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-		setBounds(100, 100, 1204, 660);
-		painelPrincipal.kEndColor = new Color(102, 153, 0);
-		painelPrincipal.kStartColor = new Color(51, 255, 0);
+		setBounds(100, 100, 628, 660);
+		painelPrincipal.kEndColor = Color.WHITE;
+		painelPrincipal.kStartColor = Color.WHITE;
 		painelPrincipal.setBackground(new Color(51, 153, 204));
 		painelPrincipal.setBorder(new EmptyBorder(5, 5, 5, 5));
 		setContentPane(painelPrincipal);
-		painelPrincipal.setLayout(null);
+		GridBagLayout gbl_painelPrincipal = new GridBagLayout();
+		gbl_painelPrincipal.columnWidths = new int[] { 395, 185, 37, 6, 0 };
+		gbl_painelPrincipal.rowHeights = new int[] { 64, 143, 29, 336, 28, 0 };
+		gbl_painelPrincipal.columnWeights = new double[] { 1.0, 1.0, 0.0, 0.0, Double.MIN_VALUE };
+		gbl_painelPrincipal.rowWeights = new double[] { 0.0, 0.0, 0.0, 1.0, 0.0, Double.MIN_VALUE };
+		painelPrincipal.setLayout(gbl_painelPrincipal);
 
-		JLabel lblNewLabel_1 = new JLabel("");
-		lblNewLabel_1.setIcon(new ImageIcon(TelaCriarNota.class.getResource("/imagens/icone_grande_anotacao.png")));
-		lblNewLabel_1.setBounds(28, 18, 96, 96);
-		painelPrincipal.add(lblNewLabel_1);
+		JPanel panel = new JPanel();
+		panel.setBackground(Color.WHITE);
+		GridBagConstraints gbc_panel = new GridBagConstraints();
+		gbc_panel.fill = GridBagConstraints.BOTH;
+		gbc_panel.insets = new Insets(0, 0, 5, 5);
+		gbc_panel.gridwidth = 4;
+		gbc_panel.gridx = 0;
+		gbc_panel.gridy = 0;
+		painelPrincipal.add(panel, gbc_panel);
+		GridBagLayout gbl_panel = new GridBagLayout();
+		gbl_panel.columnWidths = new int[] { 0, 0, 0 };
+		gbl_panel.rowHeights = new int[] { 0, 0, 0 };
+		gbl_panel.columnWeights = new double[] { 0.0, 1.0, Double.MIN_VALUE };
+		gbl_panel.rowWeights = new double[] { 0.0, 0.0, Double.MIN_VALUE };
+		panel.setLayout(gbl_panel);
 
 		JLabel lblNewLabel = new JLabel("Nome:");
-		lblNewLabel.setFont(new Font("Tahoma", Font.PLAIN, 20));
-		lblNewLabel.setBounds(77, 134, 59, 25);
-		painelPrincipal.add(lblNewLabel);
+		lblNewLabel.setForeground(Color.BLACK);
+		GridBagConstraints gbc_lblNewLabel = new GridBagConstraints();
+		gbc_lblNewLabel.insets = new Insets(0, 0, 5, 5);
+		gbc_lblNewLabel.gridx = 0;
+		gbc_lblNewLabel.gridy = 0;
+		panel.add(lblNewLabel, gbc_lblNewLabel);
+		lblNewLabel.setFont(new Font("Tahoma", Font.BOLD, 14));
 
 		entNome = new JTextField();
-		entNome.setBounds(138, 126, 452, 33);
-		painelPrincipal.add(entNome);
+		GridBagConstraints gbc_entNome = new GridBagConstraints();
+		gbc_entNome.fill = GridBagConstraints.HORIZONTAL;
+		gbc_entNome.insets = new Insets(0, 0, 5, 0);
+		gbc_entNome.gridx = 1;
+		gbc_entNome.gridy = 0;
+		panel.add(entNome, gbc_entNome);
 		entNome.setColumns(10);
 
 		JLabel lblDescrio = new JLabel("Descrição:");
-		lblDescrio.setFont(new Font("Tahoma", Font.PLAIN, 20));
-		lblDescrio.setBounds(43, 179, 93, 25);
-		painelPrincipal.add(lblDescrio);
+		lblDescrio.setForeground(Color.BLACK);
+		GridBagConstraints gbc_lblDescrio = new GridBagConstraints();
+		gbc_lblDescrio.insets = new Insets(0, 0, 0, 5);
+		gbc_lblDescrio.gridx = 0;
+		gbc_lblDescrio.gridy = 1;
+		panel.add(lblDescrio, gbc_lblDescrio);
+		lblDescrio.setFont(new Font("Tahoma", Font.BOLD, 14));
 
 		entDescricao = new JTextField();
+		GridBagConstraints gbc_entDescricao = new GridBagConstraints();
+		gbc_entDescricao.fill = GridBagConstraints.HORIZONTAL;
+		gbc_entDescricao.gridx = 1;
+		gbc_entDescricao.gridy = 1;
+		panel.add(entDescricao, gbc_entDescricao);
 		entDescricao.setColumns(10);
-		entDescricao.setBounds(138, 171, 452, 33);
-		painelPrincipal.add(entDescricao);
 
-		JLabel lblDescrio_1 = new JLabel("Texto:");
-		lblDescrio_1.setFont(new Font("Tahoma", Font.PLAIN, 20));
-		lblDescrio_1.setBounds(277, 246, 58, 25);
-		painelPrincipal.add(lblDescrio_1);
+		JPanel panel_1 = new JPanel();
+		panel_1.setBackground(Color.WHITE);
+		GridBagConstraints gbc_panel_1 = new GridBagConstraints();
+		gbc_panel_1.fill = GridBagConstraints.BOTH;
+		gbc_panel_1.insets = new Insets(0, 0, 5, 5);
+		gbc_panel_1.gridwidth = 4;
+		gbc_panel_1.gridx = 0;
+		gbc_panel_1.gridy = 1;
+		painelPrincipal.add(panel_1, gbc_panel_1);
+		GridBagLayout gbl_panel_1 = new GridBagLayout();
+		gbl_panel_1.columnWidths = new int[] { 189, 0, 0 };
+		gbl_panel_1.rowHeights = new int[] { 0, 0, 0, 0, 0 };
+		gbl_panel_1.columnWeights = new double[] { 0.0, 0.0, Double.MIN_VALUE };
+		gbl_panel_1.rowWeights = new double[] { 0.0, 0.0, 0.0, 0.0, Double.MIN_VALUE };
+		panel_1.setLayout(gbl_panel_1);
 
-		 textAreaAnotacao = new JTextArea();
-		textAreaAnotacao.setBackground(new Color(51, 255, 204));
-		textAreaAnotacao.setFont(new Font("SansSerif", Font.PLAIN, 18));
-		textAreaAnotacao.setLineWrap(true);
-		textAreaAnotacao.setWrapStyleWord(true);
-
-		JScrollPane scrollPane = new JScrollPane(textAreaAnotacao);
-		scrollPane.setBackground(Color.WHITE);
-		scrollPane.setBounds(43, 283, 548, 270);
-		painelPrincipal.add(scrollPane);
-
-		JLabel lblNewLabel_4 = new JLabel("     Nova Anotação");
-		lblNewLabel_4.setOpaque(true);
-		lblNewLabel_4.setForeground(Color.WHITE);
-		lblNewLabel_4.setFont(new Font("Arial", Font.PLAIN, 18));
-		lblNewLabel_4.setBackground(new Color(0, 51, 0));
-		lblNewLabel_4.setBounds(93, 84, 147, 22);
-		painelPrincipal.add(lblNewLabel_4);
-
-		JButton btnSalvar = new JButton("Salvar");
-		btnSalvar.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				
-				
-				String nome, descricao, texto;
-				
-				int notificar, lembrar, uni_tempo = 0, tempo_notificacao = 0, tipo;
-				
-				
-				
-				if(chckBoxNaoNotificar.isSelected()) {
-					notificar = 0;
-				}else {
-					
-				   if(rBMinutos.isSelected()) {
-					   uni_tempo = 1;
-				   }else if(rBHoras.isSelected()) {
-					   uni_tempo = 2;
-				   }else if(rBDias.isSelected()) {
-					   uni_tempo = 3;
-				   }
-					
-					tempo_notificacao = Integer.parseInt(entTempoNotificacao.getText()) ;
-					
-					notificar = 1;
-				}
-				
-				nome = entNome.getText();
-				descricao = entDescricao.getText();
-				texto = textAreaAnotacao.getText();
-				
-				Date date_lembrete = null;
-				LocalTime hora_lembrete = null;
-
-				if(chkBoxSim.isSelected()){
-					lembrar = 1;
-					
-					date_lembrete = data_selecionada.getTime(); 
-					LocalDateTime data_completa = toLocalDateTime(data_selecionada);
-					hora_lembrete = data_completa.toLocalTime();
-					
-		      	}else {
-		      		lembrar = 0;
-		      	}
-
-				
-				
-			
-
-				Date date_hoje = new Date();
-
-				
-
-				/*cBTipo.addItem("Anotação comum");
-				cBTipo.addItem("Tópico Fixo");
-				cBTipo.addItem("Tópico Fixo Broadcast");
-				cBTipo.addItem("Lembrete");
-*/                   
-				tipo = cBTipo.getSelectedIndex() + 1;
-				
-			        CadastroNota nota = new CadastroNota();
-			         nota.setData_nota(date_hoje);
-			        nota.setData_lembrete(date_lembrete);
-			        nota.setHora_lembrete(hora_lembrete);
-			         nota.setNome(nome);
-			         nota.setDescricao(descricao);
-			         nota.setTexto(texto);
-			         nota.setNotificar(notificar);
-			         nota.setUni_tempo(uni_tempo);
-			         nota.setTempo_notificacao(tempo_notificacao);
-			         nota.setLembrar(lembrar);
-			         nota.setTipo(tipo);
-			         nota.setId_usuario_pai(login.getId());
-			         
-			         GerenciarBancoNotas gerenciar = new GerenciarBancoNotas();
-			         int salvou = gerenciar.inserirnota(nota);
-			         if(salvou > 0) {
-			        	 JOptionPane.showMessageDialog(isto, "Anotação criada com sucesso!");
-			        	 ((TelaNotas) telaPai).atualizarLista();
-			        	 isto.dispose();
-			         }else {
-			        	 JOptionPane.showMessageDialog(isto, "Erro ao salvar anotação\nConsulte o administrador!");
-			         }
-			         
-				
-			}
-		});
-		btnSalvar.setBounds(1073, 565, 90, 28);
-		painelPrincipal.add(btnSalvar);
-
-		JLabel lblLembrete = new JLabel("Notificar me a cada:");
-		lblLembrete.setFont(new Font("Tahoma", Font.PLAIN, 20));
-		lblLembrete.setBounds(602, 134, 180, 25);
-		painelPrincipal.add(lblLembrete);
-
-		 chckBoxNaoNotificar = new JCheckBox("Não notificar");
+		chckBoxNaoNotificar = new JCheckBox("Não notificar");
+		chckBoxNaoNotificar.setForeground(Color.BLACK);
+		GridBagConstraints gbc_chckBoxNaoNotificar = new GridBagConstraints();
+		gbc_chckBoxNaoNotificar.insets = new Insets(0, 0, 5, 0);
+		gbc_chckBoxNaoNotificar.gridx = 1;
+		gbc_chckBoxNaoNotificar.gridy = 0;
+		panel_1.add(chckBoxNaoNotificar, gbc_chckBoxNaoNotificar);
 		chckBoxNaoNotificar.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 
@@ -283,45 +218,77 @@ public class TelaCriarNota extends JDialog {
 		});
 		chckBoxNaoNotificar.setSelected(true);
 		chckBoxNaoNotificar.setFont(new Font("SansSerif", Font.PLAIN, 14));
-		chckBoxNaoNotificar.setBounds(788, 88, 104, 18);
-		painelPrincipal.add(chckBoxNaoNotificar);
 
-		JLabel lblColas = new JLabel("Colas:");
-		lblColas.setFont(new Font("Tahoma", Font.PLAIN, 20));
-		lblColas.setBounds(603, 291, 59, 25);
-		painelPrincipal.add(lblColas);
-
-		JButton btnNewButton_1 = new JButton("Pesquisa Informações");
-		btnNewButton_1.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				TelaHome tela = new TelaHome(isto);
-				tela.setVisible(true);
-			}
-		});
-		btnNewButton_1.setBounds(1010, 292, 153, 28);
-		painelPrincipal.add(btnNewButton_1);
-
-		JTextArea textAreaCola = new JTextArea();
-		textAreaCola.setWrapStyleWord(true);
-		textAreaCola.setLineWrap(true);
-		textAreaCola.setFont(new Font("SansSerif", Font.PLAIN, 18));
-		textAreaCola.setBackground(new Color(255, 255, 102));
-
-		JScrollPane scrollPane_1 = new JScrollPane(textAreaCola);
-		scrollPane_1.setBounds(603, 328, 560, 225);
-		painelPrincipal.add(scrollPane_1);
+		JLabel lblLembrete = new JLabel("Notificar me a cada:");
+		lblLembrete.setForeground(Color.BLACK);
+		GridBagConstraints gbc_lblLembrete = new GridBagConstraints();
+		gbc_lblLembrete.anchor = GridBagConstraints.EAST;
+		gbc_lblLembrete.insets = new Insets(0, 0, 5, 5);
+		gbc_lblLembrete.gridx = 0;
+		gbc_lblLembrete.gridy = 1;
+		panel_1.add(lblLembrete, gbc_lblLembrete);
+		lblLembrete.setFont(new Font("Tahoma", Font.BOLD, 14));
 
 		painelNotificar = new JPanel();
+		GridBagConstraints gbc_painelNotificar = new GridBagConstraints();
+		gbc_painelNotificar.insets = new Insets(0, 0, 5, 0);
+		gbc_painelNotificar.gridx = 1;
+		gbc_painelNotificar.gridy = 1;
+		panel_1.add(painelNotificar, gbc_painelNotificar);
 		painelNotificar.setEnabled(false);
-		painelNotificar.setBounds(788, 119, 317, 40);
-		painelPrincipal.add(painelNotificar);
-		painelNotificar.setLayout(new MigLayout("", "[][][][]", "[]"));
+		GridBagLayout gbl_painelNotificar = new GridBagLayout();
+		gbl_painelNotificar.columnWidths = new int[] { 95, 65, 56, 48, 0 };
+		gbl_painelNotificar.rowHeights = new int[] { 28, 0 };
+		gbl_painelNotificar.columnWeights = new double[] { 0.0, 0.0, 0.0, 0.0, Double.MIN_VALUE };
+		gbl_painelNotificar.rowWeights = new double[] { 0.0, Double.MIN_VALUE };
+		painelNotificar.setLayout(gbl_painelNotificar);
+
+		rBDias = new JRadioButton("Dias");
+		rBDias.setBackground(Color.WHITE);
+		rBDias.setOpaque(true);
+		rBDias.setForeground(Color.BLACK);
+		rBDias.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				if (rBDias.isSelected()) {
+					rBDias.setSelected(true);
+					rBHoras.setSelected(false);
+					rBMinutos.setSelected(false);
+
+				}
+			}
+		});
 
 		entTempoNotificacao = new JTextField();
-		painelNotificar.add(entTempoNotificacao, "cell 0 0");
+		entTempoNotificacao.setForeground(Color.BLACK);
+		entTempoNotificacao.setText("Exemplo:  30");
+		GridBagConstraints gbc_entTempoNotificacao = new GridBagConstraints();
+		gbc_entTempoNotificacao.anchor = GridBagConstraints.NORTH;
+		gbc_entTempoNotificacao.fill = GridBagConstraints.HORIZONTAL;
+		gbc_entTempoNotificacao.insets = new Insets(0, 0, 0, 5);
+		gbc_entTempoNotificacao.gridx = 0;
+		gbc_entTempoNotificacao.gridy = 0;
+		painelNotificar.add(entTempoNotificacao, gbc_entTempoNotificacao);
 		entTempoNotificacao.setColumns(10);
 
+		rBHoras = new JRadioButton("Horas");
+		rBHoras.setBackground(Color.WHITE);
+		rBHoras.setOpaque(true);
+		rBHoras.setForeground(Color.BLACK);
+		rBHoras.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				if (rBHoras.isSelected()) {
+					rBHoras.setSelected(true);
+					rBMinutos.setSelected(false);
+					rBDias.setSelected(false);
+
+				}
+			}
+		});
+
 		rBMinutos = new JRadioButton("Minutos");
+		rBMinutos.setOpaque(true);
+		rBMinutos.setBackground(Color.WHITE);
+		rBMinutos.setForeground(Color.BLACK);
 		rBMinutos.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				if (rBMinutos.isSelected()) {
@@ -333,254 +300,413 @@ public class TelaCriarNota extends JDialog {
 			}
 		});
 		rBMinutos.setSelected(true);
-		painelNotificar.add(rBMinutos, "cell 1 0");
-
-		rBHoras = new JRadioButton("Horas");
-		rBHoras.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				if (rBHoras.isSelected()) {
-					rBHoras.setSelected(true);
-					rBMinutos.setSelected(false);
-					rBDias.setSelected(false);
-
-				}
-			}
-		});
-		painelNotificar.add(rBHoras, "cell 2 0");
-
-		rBDias = new JRadioButton("Dias");
-		rBDias.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				if (rBDias.isSelected()) {
-					rBDias.setSelected(true);
-					rBHoras.setSelected(false);
-					rBMinutos.setSelected(false);
-
-				}
-			}
-		});
-		painelNotificar.add(rBDias, "cell 3 0");
+		GridBagConstraints gbc_rBMinutos = new GridBagConstraints();
+		gbc_rBMinutos.anchor = GridBagConstraints.WEST;
+		gbc_rBMinutos.insets = new Insets(0, 0, 0, 5);
+		gbc_rBMinutos.gridx = 1;
+		gbc_rBMinutos.gridy = 0;
+		painelNotificar.add(rBMinutos, gbc_rBMinutos);
+		GridBagConstraints gbc_rBHoras = new GridBagConstraints();
+		gbc_rBHoras.anchor = GridBagConstraints.WEST;
+		gbc_rBHoras.insets = new Insets(0, 0, 0, 5);
+		gbc_rBHoras.gridx = 2;
+		gbc_rBHoras.gridy = 0;
+		painelNotificar.add(rBHoras, gbc_rBHoras);
+		GridBagConstraints gbc_rBDias = new GridBagConstraints();
+		gbc_rBDias.anchor = GridBagConstraints.WEST;
+		gbc_rBDias.gridx = 3;
+		gbc_rBDias.gridy = 0;
+		painelNotificar.add(rBDias, gbc_rBDias);
 
 		JLabel lblTipo = new JLabel("Tipo:");
-		lblTipo.setFont(new Font("Tahoma", Font.PLAIN, 20));
-		lblTipo.setBounds(612, 179, 46, 25);
-		painelPrincipal.add(lblTipo);
+		lblTipo.setForeground(Color.BLACK);
+		GridBagConstraints gbc_lblTipo = new GridBagConstraints();
+		gbc_lblTipo.anchor = GridBagConstraints.EAST;
+		gbc_lblTipo.insets = new Insets(0, 0, 5, 5);
+		gbc_lblTipo.gridx = 0;
+		gbc_lblTipo.gridy = 2;
+		panel_1.add(lblTipo, gbc_lblTipo);
+		lblTipo.setFont(new Font("Tahoma", Font.BOLD, 14));
 
-		 cBTipo = new JComboBox();
-		cBTipo.setBounds(664, 167, 165, 37);
+		cBTipo = new JComboBox();
+		cBTipo.setFont(new Font("SansSerif", Font.BOLD, 12));
+		cBTipo.setForeground(Color.WHITE);
+		GridBagConstraints gbc_cBTipo = new GridBagConstraints();
+		gbc_cBTipo.fill = GridBagConstraints.HORIZONTAL;
+		gbc_cBTipo.insets = new Insets(0, 0, 5, 0);
+		gbc_cBTipo.gridx = 1;
+		gbc_cBTipo.gridy = 2;
+		panel_1.add(cBTipo, gbc_cBTipo);
 		cBTipo.addItem("Anotação comum");
 		cBTipo.addItem("Tópico Fixo");
 		cBTipo.addItem("Tópico Fixo Broadcast");
 
-		painelPrincipal.add(cBTipo);
-
 		JLabel lblLembrete_1 = new JLabel("Lembrete:");
-		lblLembrete_1.setFont(new Font("Tahoma", Font.PLAIN, 20));
-		lblLembrete_1.setBounds(835, 179, 104, 25);
-		painelPrincipal.add(lblLembrete_1);
+		lblLembrete_1.setForeground(Color.BLACK);
+		GridBagConstraints gbc_lblLembrete_1 = new GridBagConstraints();
+		gbc_lblLembrete_1.anchor = GridBagConstraints.EAST;
+		gbc_lblLembrete_1.insets = new Insets(0, 0, 0, 5);
+		gbc_lblLembrete_1.gridx = 0;
+		gbc_lblLembrete_1.gridy = 3;
+		panel_1.add(lblLembrete_1, gbc_lblLembrete_1);
+		lblLembrete_1.setFont(new Font("Tahoma", Font.BOLD, 14));
 
-	    
-		 chkBoxNao = new JCheckBox("Não");
+		JPanel panel_2 = new JPanel();
+		panel_2.setBackground(Color.WHITE);
+		GridBagConstraints gbc_panel_2 = new GridBagConstraints();
+		gbc_panel_2.fill = GridBagConstraints.BOTH;
+		gbc_panel_2.gridx = 1;
+		gbc_panel_2.gridy = 3;
+		panel_1.add(panel_2, gbc_panel_2);
+		GridBagLayout gbl_panel_2 = new GridBagLayout();
+		gbl_panel_2.columnWidths = new int[] { 0, 0, 0, 0 };
+		gbl_panel_2.rowHeights = new int[] { 0, 0, 0 };
+		gbl_panel_2.columnWeights = new double[] { 0.0, 0.0, 0.0, Double.MIN_VALUE };
+		gbl_panel_2.rowWeights = new double[] { 0.0, 0.0, Double.MIN_VALUE };
+		panel_2.setLayout(gbl_panel_2);
+
+		chkBoxNao = new JCheckBox("Não");
+		chkBoxNao.setFont(new Font("SansSerif", Font.BOLD, 12));
+		chkBoxNao.setForeground(Color.BLACK);
+		GridBagConstraints gbc_chkBoxNao = new GridBagConstraints();
+		gbc_chkBoxNao.fill = GridBagConstraints.HORIZONTAL;
+		gbc_chkBoxNao.insets = new Insets(0, 0, 5, 5);
+		gbc_chkBoxNao.gridx = 0;
+		gbc_chkBoxNao.gridy = 0;
+		panel_2.add(chkBoxNao, gbc_chkBoxNao);
 		chkBoxNao.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				setChkBoxNaoLembrarSelecionado();
 			}
 		});
 		chkBoxNao.setSelected(true);
-		chkBoxNao.setBounds(939, 179, 45, 18);
-		painelPrincipal.add(chkBoxNao);
+
+		chkBoxSim = new JCheckBox("Sim");
+		chkBoxSim.setFont(new Font("SansSerif", Font.BOLD, 12));
+		chkBoxSim.setForeground(Color.BLACK);
+		GridBagConstraints gbc_chkBoxSim = new GridBagConstraints();
+		gbc_chkBoxSim.fill = GridBagConstraints.HORIZONTAL;
+		gbc_chkBoxSim.insets = new Insets(0, 0, 5, 5);
+		gbc_chkBoxSim.gridx = 1;
+		gbc_chkBoxSim.gridy = 0;
+		panel_2.add(chkBoxSim, gbc_chkBoxSim);
+		chkBoxSim.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+
+				setChkBoxSimLembrarSelecionado();
+
+			}
+		});
+
+		btnDefinirTempo = new JButton("Definir Tempo");
+		btnDefinirTempo.setFont(new Font("SansSerif", Font.BOLD, 12));
+		GridBagConstraints gbc_btnDefinirTempo = new GridBagConstraints();
+		gbc_btnDefinirTempo.fill = GridBagConstraints.HORIZONTAL;
+		gbc_btnDefinirTempo.insets = new Insets(0, 0, 5, 0);
+		gbc_btnDefinirTempo.gridx = 2;
+		gbc_btnDefinirTempo.gridy = 0;
+		panel_2.add(btnDefinirTempo, gbc_btnDefinirTempo);
+		btnDefinirTempo.setEnabled(false);
+
+		JPanel panel_3 = new JPanel();
+		panel_3.setBackground(new Color(51, 153, 102));
+		GridBagConstraints gbc_panel_3 = new GridBagConstraints();
+		gbc_panel_3.gridwidth = 3;
+		gbc_panel_3.insets = new Insets(0, 0, 0, 5);
+		gbc_panel_3.fill = GridBagConstraints.BOTH;
+		gbc_panel_3.gridx = 0;
+		gbc_panel_3.gridy = 1;
+		panel_2.add(panel_3, gbc_panel_3);
+		GridBagLayout gbl_panel_3 = new GridBagLayout();
+		gbl_panel_3.columnWidths = new int[] { 0, 0 };
+		gbl_panel_3.rowHeights = new int[] { 0, 0 };
+		gbl_panel_3.columnWeights = new double[] { 0.0, Double.MIN_VALUE };
+		gbl_panel_3.rowWeights = new double[] { 0.0, Double.MIN_VALUE };
+		panel_3.setLayout(gbl_panel_3);
+
+		lblDataLembrete = new JLabel("Lembrar em: 10/02/2021 as 14:20");
+		GridBagConstraints gbc_lblDataLembrete = new GridBagConstraints();
+		gbc_lblDataLembrete.fill = GridBagConstraints.HORIZONTAL;
+		gbc_lblDataLembrete.gridx = 0;
+		gbc_lblDataLembrete.gridy = 0;
+		panel_3.add(lblDataLembrete, gbc_lblDataLembrete);
+		lblDataLembrete.setVisible(false);
+		lblDataLembrete.setEnabled(false);
+		lblDataLembrete.setFont(new Font("SansSerif", Font.BOLD, 12));
+		lblDataLembrete.setForeground(Color.WHITE);
+		btnDefinirTempo.setVisible(false);
+		btnDefinirTempo.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+
+			}
+		});
+
+		JLabel lblDescrio_1 = new JLabel("Texto:");
+		lblDescrio_1.setFont(new Font("Tahoma", Font.PLAIN, 20));
+		GridBagConstraints gbc_lblDescrio_1 = new GridBagConstraints();
+		gbc_lblDescrio_1.fill = GridBagConstraints.HORIZONTAL;
+		gbc_lblDescrio_1.anchor = GridBagConstraints.NORTH;
+		gbc_lblDescrio_1.insets = new Insets(0, 0, 5, 5);
+		gbc_lblDescrio_1.gridx = 0;
+		gbc_lblDescrio_1.gridy = 2;
+		painelPrincipal.add(lblDescrio_1, gbc_lblDescrio_1);
+
+		textAreaAnotacao = new JTextArea();
+		textAreaAnotacao.setBackground(new Color(51, 255, 204));
+		textAreaAnotacao.setFont(new Font("SansSerif", Font.PLAIN, 18));
+		textAreaAnotacao.setLineWrap(true);
+		textAreaAnotacao.setWrapStyleWord(true);
+
+		JScrollPane scrollPane = new JScrollPane(textAreaAnotacao);
+		scrollPane.setBackground(Color.WHITE);
+		GridBagConstraints gbc_scrollPane = new GridBagConstraints();
+		gbc_scrollPane.fill = GridBagConstraints.BOTH;
+		gbc_scrollPane.insets = new Insets(0, 0, 5, 5);
+		gbc_scrollPane.gridx = 0;
+		gbc_scrollPane.gridy = 3;
+		painelPrincipal.add(scrollPane, gbc_scrollPane);
+
+		JTextArea textAreaCola = new JTextArea();
+		GridBagConstraints gbc_textAreaCola = new GridBagConstraints();
+		gbc_textAreaCola.gridwidth = 3;
+		gbc_textAreaCola.fill = GridBagConstraints.BOTH;
+		gbc_textAreaCola.insets = new Insets(0, 0, 5, 5);
+		gbc_textAreaCola.gridx = 1;
+		gbc_textAreaCola.gridy = 3;
+		painelPrincipal.add(textAreaCola, gbc_textAreaCola);
+		textAreaCola.setWrapStyleWord(true);
+		textAreaCola.setLineWrap(true);
+		textAreaCola.setFont(new Font("SansSerif", Font.PLAIN, 18));
+		textAreaCola.setBackground(new Color(255, 255, 102));
+
+		JButton btnAtualizar = new JButton("Atualizar");
+		btnAtualizar.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+
+				String nome, descricao, texto;
+
+				int notificar, lembrar, uni_tempo = 0, tempo_notificacao = 0, tipo;
+
+				if (chckBoxNaoNotificar.isSelected()) {
+					notificar = 0;
+				} else {
+
+					if (rBMinutos.isSelected()) {
+						uni_tempo = 1;
+					} else if (rBHoras.isSelected()) {
+						uni_tempo = 2;
+					} else if (rBDias.isSelected()) {
+						uni_tempo = 3;
+					}
+
+					tempo_notificacao = Integer.parseInt(entTempoNotificacao.getText());
+
+					notificar = 1;
+				}
+
+				nome = entNome.getText();
+				descricao = entDescricao.getText();
+				texto = textAreaAnotacao.getText();
+
+				Date date_lembrete = null;
+				LocalTime hora_lembrete = null;
+
+				if (chkBoxSim.isSelected()) {
+					lembrar = 1;
+
+					date_lembrete = data_selecionada.getTime();
+					LocalDateTime data_completa = toLocalDateTime(data_selecionada);
+					hora_lembrete = data_completa.toLocalTime();
+
+				} else {
+					lembrar = 0;
+				}
+
+				Date date_hoje = new Date();
+
+				/*
+				 * cBTipo.addItem("Anotação comum"); cBTipo.addItem("Tópico Fixo");
+				 * cBTipo.addItem("Tópico Fixo Broadcast"); cBTipo.addItem("Lembrete");
+				 */
+				tipo = cBTipo.getSelectedIndex() + 1;
+
+				nota_global.setData_lembrete(date_lembrete);
+				nota_global.setHora_lembrete(hora_lembrete);
+				nota_global.setNome(nome);
+				nota_global.setDescricao(descricao);
+				nota_global.setTexto(texto);
+				nota_global.setNotificar(notificar);
+				nota_global.setUni_tempo(uni_tempo);
+				nota_global.setTempo_notificacao(tempo_notificacao);
+				nota_global.setLembrar(lembrar);
+				nota_global.setTipo(tipo);
+				nota_global.setId_usuario_pai(login.getId());
+
+				GerenciarBancoNotas gerenciar = new GerenciarBancoNotas();
+				boolean atualizou = gerenciar.atualizarStatusnota(nota_global);
+				if (atualizou) {
+					JOptionPane.showMessageDialog(null, "Anotação atualizada");
+					((TelaNotas) telaPai).atualizarLista();
+
+					isto.dispose();
+				} else {
+					JOptionPane.showMessageDialog(null, "Erro ao atualizar a anotação\nConsulte o administrado!");
+					((TelaNotas) telaPai).atualizarLista();
+
+					isto.dispose();
+				}
+
+			}
+		});
+
+		JButton btnSalvar = new JButton("Salvar");
+		btnSalvar.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+
+				String nome, descricao, texto;
+
+				int notificar, lembrar, uni_tempo = 0, tempo_notificacao = 0, tipo;
+
+				if (chckBoxNaoNotificar.isSelected()) {
+					notificar = 0;
+				} else {
+
+					if (rBMinutos.isSelected()) {
+						uni_tempo = 1;
+					} else if (rBHoras.isSelected()) {
+						uni_tempo = 2;
+					} else if (rBDias.isSelected()) {
+						uni_tempo = 3;
+					}
+
+					tempo_notificacao = Integer.parseInt(entTempoNotificacao.getText());
+
+					notificar = 1;
+				}
+
+				nome = entNome.getText();
+				descricao = entDescricao.getText();
+				texto = textAreaAnotacao.getText();
+
+				Date date_lembrete = null;
+				LocalTime hora_lembrete = null;
+
+				if (chkBoxSim.isSelected()) {
+					lembrar = 1;
+
+					date_lembrete = data_selecionada.getTime();
+					LocalDateTime data_completa = toLocalDateTime(data_selecionada);
+					hora_lembrete = data_completa.toLocalTime();
+
+				} else {
+					lembrar = 0;
+				}
+
+				Date date_hoje = new Date();
+
+				/*
+				 * cBTipo.addItem("Anotação comum"); cBTipo.addItem("Tópico Fixo");
+				 * cBTipo.addItem("Tópico Fixo Broadcast"); cBTipo.addItem("Lembrete");
+				 */
+				tipo = cBTipo.getSelectedIndex() + 1;
+
+				CadastroNota nota = new CadastroNota();
+				nota.setData_nota(date_hoje);
+				nota.setData_lembrete(date_lembrete);
+				nota.setHora_lembrete(hora_lembrete);
+				nota.setNome(nome);
+				nota.setDescricao(descricao);
+				nota.setTexto(texto);
+				nota.setNotificar(notificar);
+				nota.setUni_tempo(uni_tempo);
+				nota.setTempo_notificacao(tempo_notificacao);
+				nota.setLembrar(lembrar);
+				nota.setTipo(tipo);
+				nota.setId_usuario_pai(login.getId());
+
+				GerenciarBancoNotas gerenciar = new GerenciarBancoNotas();
+				int salvou = gerenciar.inserirnota(nota);
+				if (salvou > 0) {
+					JOptionPane.showMessageDialog(isto, "Anotação criada com sucesso!");
+					((TelaNotas) telaPai).atualizarLista();
+					isto.dispose();
+				} else {
+					JOptionPane.showMessageDialog(isto, "Erro ao salvar anotação\nConsulte o administrador!");
+				}
+
+			}
+		});
+		GridBagConstraints gbc_btnSalvar = new GridBagConstraints();
+		gbc_btnSalvar.gridwidth = 3;
+		gbc_btnSalvar.anchor = GridBagConstraints.NORTHEAST;
+		gbc_btnSalvar.insets = new Insets(0, 0, 0, 5);
+		gbc_btnSalvar.gridx = 1;
+		gbc_btnSalvar.gridy = 4;
+		painelPrincipal.add(btnSalvar, gbc_btnSalvar);
+		GridBagConstraints gbc_btnAtualizar = new GridBagConstraints();
+		gbc_btnAtualizar.anchor = GridBagConstraints.NORTHEAST;
+		gbc_btnAtualizar.insets = new Insets(0, 0, 0, 5);
+		gbc_btnAtualizar.gridx = 1;
+		gbc_btnAtualizar.gridy = 4;
+		painelPrincipal.add(btnAtualizar, gbc_btnAtualizar);
 
 		for (int i = 0; i < painelNotificar.getComponentCount(); i++) {
 			Component c = painelNotificar.getComponent(i);
 			c.setEnabled(false);
 		}
 
-	
-		     chkBoxSim = new JCheckBox("Sim");
-		    chkBoxSim.addActionListener(new ActionListener() {
-		    	public void actionPerformed(ActionEvent e) {
-		    		
-		    		setChkBoxSimLembrarSelecionado();
-		    		
-		    		
-		    	}
-		    });
-		    chkBoxSim.setBounds(996, 179, 45, 18);
-		    painelPrincipal.add(chkBoxSim);
-		    
-		    
-		    btnDefinirTempo = new JButton("Definir Tempo");
-		    btnDefinirTempo.setEnabled(false);
-		    btnDefinirTempo.setVisible(false);
-		    btnDefinirTempo.addActionListener(new ActionListener() {
-		    	public void actionPerformed(ActionEvent e) {
-		    		TelaDefinirTempo tempo = new TelaDefinirTempo(isto, data_selecionada);
-		    		tempo.setTelaPai(isto);
-		    		tempo.setVisible(true);
-		    	}
-		    });
-		    btnDefinirTempo.setBounds(1053, 173, 106, 28);
-		    painelPrincipal.add(btnDefinirTempo);
-		    
-		     lblDataLembrete = new JLabel("Lembrar em: 10/02/2021 as 14:20");
-		     lblDataLembrete.setVisible(false);
-		     lblDataLembrete.setEnabled(false);
-		    lblDataLembrete.setFont(new Font("SansSerif", Font.BOLD, 12));
-		    lblDataLembrete.setForeground(Color.WHITE);
-		    lblDataLembrete.setBounds(837, 216, 326, 16);
-		    painelPrincipal.add(lblDataLembrete);
-		    
-		    JButton btnAtualizar = new JButton("Atualizar");
-		    btnAtualizar.addActionListener(new ActionListener() {
-		    	public void actionPerformed(ActionEvent e) {
-		    		
-		    		String nome, descricao, texto;
-					
-					int notificar, lembrar, uni_tempo = 0, tempo_notificacao = 0, tipo;
-					
-					
-					
-					if(chckBoxNaoNotificar.isSelected()) {
-						notificar = 0;
-					}else {
-						
-					   if(rBMinutos.isSelected()) {
-						   uni_tempo = 1;
-					   }else if(rBHoras.isSelected()) {
-						   uni_tempo = 2;
-					   }else if(rBDias.isSelected()) {
-						   uni_tempo = 3;
-					   }
-						
-						tempo_notificacao = Integer.parseInt(entTempoNotificacao.getText()) ;
-						
-						notificar = 1;
-					}
-					
-					nome = entNome.getText();
-					descricao = entDescricao.getText();
-					texto = textAreaAnotacao.getText();
-					
-					Date date_lembrete = null;
-					LocalTime hora_lembrete = null;
+		if (flag_modo_operacao == 1) {
+			btnAtualizar.setEnabled(false);
+			btnAtualizar.setVisible(false);
 
-					if(chkBoxSim.isSelected()){
-						lembrar = 1;
-						
-						date_lembrete = data_selecionada.getTime(); 
-						LocalDateTime data_completa = toLocalDateTime(data_selecionada);
-						hora_lembrete = data_completa.toLocalTime();
-						
-			      	}else {
-			      		lembrar = 0;
-			      	}
+		} else {
+			btnSalvar.setEnabled(false);
+			btnSalvar.setVisible(false);
+			rotinasEdicao();
+		}
 
-					
-					
-				
-
-					Date date_hoje = new Date();
-
-					
-
-					/*cBTipo.addItem("Anotação comum");
-					cBTipo.addItem("Tópico Fixo");
-					cBTipo.addItem("Tópico Fixo Broadcast");
-					cBTipo.addItem("Lembrete");
-	*/                   
-					tipo = cBTipo.getSelectedIndex() + 1;
-					
-					nota_global.setData_lembrete(date_lembrete);
-					nota_global.setHora_lembrete(hora_lembrete);
-					nota_global.setNome(nome);
-					nota_global.setDescricao(descricao);
-					nota_global.setTexto(texto);
-					nota_global.setNotificar(notificar);
-					nota_global.setUni_tempo(uni_tempo);
-					nota_global.setTempo_notificacao(tempo_notificacao);
-					nota_global.setLembrar(lembrar);
-					nota_global.setTipo(tipo);
-					nota_global.setId_usuario_pai(login.getId());
-				         
-				      
-		    		
-		    		GerenciarBancoNotas gerenciar = new GerenciarBancoNotas();
-		    		boolean atualizou = gerenciar.atualizarStatusnota(nota_global);
-		    		if(atualizou) {
-		    			JOptionPane.showMessageDialog(null, "Anotação atualizada");
-			        	 ((TelaNotas) telaPai).atualizarLista();
-
-		    			isto.dispose();
-		    		}else {
-		    			JOptionPane.showMessageDialog(null, "Erro ao atualizar a anotação\nConsulte o administrado!");
-			        	 ((TelaNotas) telaPai).atualizarLista();
-
-		    			isto.dispose();
-		    		}
-		    		
-		    	}
-		    });
-		    btnAtualizar.setBounds(1073, 565, 90, 28);
-		    painelPrincipal.add(btnAtualizar);
-		    
-		    if(flag_modo_operacao == 1) {
-		    	btnAtualizar.setEnabled(false);
-		    	btnAtualizar.setVisible(false);
-		    	
-		    }else {
-		    	btnSalvar.setEnabled(false);
-		    	btnSalvar.setVisible(false);
-		    	rotinasEdicao();
-		    }
-
-		this.setLocationRelativeTo(janela_pai);
-
+		this.setVisible(true);
 	}
-	
+
 	public void rotinasEdicao() {
 		entNome.setText(nota_global.getNome());
 		entDescricao.setText(nota_global.getDescricao());
 		textAreaAnotacao.setText(nota_global.getTexto());
-		
-		
-		//set tip
-		cBTipo.setSelectedIndex(nota_global.getTipo() -1);
-		
-		
-		//set notificar
-		if(nota_global.getNotificar() == 1) {
-			
-				chckBoxNaoNotificar.setSelected(false);
-				painelNotificar.setEnabled(true);
-				for (int i = 0; i < painelNotificar.getComponentCount(); i++) {
-					Component c = painelNotificar.getComponent(i);
-					c.setEnabled(true);
-				}
-				
-				if(nota_global.getUni_tempo() == 1) {
-					rBMinutos.setSelected(true);
-					rBHoras.setSelected(false);
-					rBDias.setSelected(false);
 
-				}else if(nota_global.getUni_tempo() == 2) {
-					rBHoras.setSelected(true);
-					rBMinutos.setSelected(false);
-					rBDias.setSelected(false);
+		// set tip
+		cBTipo.setSelectedIndex(nota_global.getTipo() - 1);
 
-				}else {
-					rBDias.setSelected(true);
-					rBMinutos.setSelected(false);
-					rBHoras.setSelected(false);
+		// set notificar
+		if (nota_global.getNotificar() == 1) {
 
-				}
-				
-				entTempoNotificacao.setText(Integer.toString(nota_global.getTempo_notificacao()));
-			
+			chckBoxNaoNotificar.setSelected(false);
+			painelNotificar.setEnabled(true);
+			for (int i = 0; i < painelNotificar.getComponentCount(); i++) {
+				Component c = painelNotificar.getComponent(i);
+				c.setEnabled(true);
+			}
+
+			if (nota_global.getUni_tempo() == 1) {
+				rBMinutos.setSelected(true);
+				rBHoras.setSelected(false);
+				rBDias.setSelected(false);
+
+			} else if (nota_global.getUni_tempo() == 2) {
+				rBHoras.setSelected(true);
+				rBMinutos.setSelected(false);
+				rBDias.setSelected(false);
+
+			} else {
+				rBDias.setSelected(true);
+				rBMinutos.setSelected(false);
+				rBHoras.setSelected(false);
+
+			}
+
+			entTempoNotificacao.setText(Integer.toString(nota_global.getTempo_notificacao()));
+
 		}
-		
-		
-		
-		
+
 	}
 
 	private class MyDateListener implements DateListener {
@@ -597,52 +723,52 @@ public class TelaCriarNota extends JDialog {
 	}
 
 	public void getDadosGlobais() {
-		//gerenciador de log
-				DadosGlobais dados = DadosGlobais.getInstance();
-				 GerenciadorLog = dados.getGerenciadorLog();
-				 configs_globais = dados.getConfigs_globais();
-				 
-				 //usuario logado
-				  login = dados.getLogin();
-		
+		// gerenciador de log
+		DadosGlobais dados = DadosGlobais.getInstance();
+		GerenciadorLog = dados.getGerenciadorLog();
+		configs_globais = dados.getConfigs_globais();
+
+		// usuario logado
+		login = dados.getLogin();
+
 	}
-	
+
 	public static LocalDateTime toLocalDateTime(Calendar calendar) {
-	      if (calendar == null) {
-	          return null;
-	      }
-	      TimeZone tz = calendar.getTimeZone();
-	      ZoneId zid = tz == null ? ZoneId.systemDefault() : tz.toZoneId();
-	      return LocalDateTime.ofInstant(calendar.toInstant(), zid);
-	  }
-	
+		if (calendar == null) {
+			return null;
+		}
+		TimeZone tz = calendar.getTimeZone();
+		ZoneId zid = tz == null ? ZoneId.systemDefault() : tz.toZoneId();
+		return LocalDateTime.ofInstant(calendar.toInstant(), zid);
+	}
+
 	public void setData(Calendar date) {
 		String strDateLembrete = "";
-		
+
 		DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
 
-		 strDateLembrete = dateFormat.format(date.getTime());
-			lblDataLembrete.setText(strDateLembrete);
+		strDateLembrete = dateFormat.format(date.getTime());
+		lblDataLembrete.setText(strDateLembrete);
 
 		data_selecionada = date;
 	}
+
 	public void setTelaPai(JDialog _tela_pai) {
 		this.telaPai = _tela_pai;
 	}
-	
-	
+
 	public void setChkBoxSimLembrarSelecionado() {
-		if(chkBoxSim.isSelected()) {
+		if (chkBoxSim.isSelected()) {
 			chkBoxSim.setSelected(true);
 			chkBoxNao.setSelected(false);
-			
+
 			btnDefinirTempo.setEnabled(true);
 			btnDefinirTempo.setVisible(true);
 
 			lblDataLembrete.setEnabled(true);
 			lblDataLembrete.setVisible(true);
 
-		}else {
+		} else {
 			chkBoxNao.setSelected(true);
 			chkBoxSim.setSelected(false);
 
@@ -653,9 +779,9 @@ public class TelaCriarNota extends JDialog {
 			lblDataLembrete.setVisible(false);
 		}
 	}
-	
+
 	public void setChkBoxNaoLembrarSelecionado() {
-		if(chkBoxNao.isSelected()) {
+		if (chkBoxNao.isSelected()) {
 			chkBoxNao.setSelected(true);
 			chkBoxSim.setSelected(false);
 
@@ -665,10 +791,10 @@ public class TelaCriarNota extends JDialog {
 			lblDataLembrete.setEnabled(false);
 			lblDataLembrete.setVisible(false);
 
-		}else {
+		} else {
 			chkBoxSim.setSelected(true);
 			chkBoxNao.setSelected(false);
-			
+
 			btnDefinirTempo.setEnabled(true);
 			btnDefinirTempo.setVisible(true);
 
@@ -676,5 +802,5 @@ public class TelaCriarNota extends JDialog {
 			lblDataLembrete.setVisible(true);
 		}
 	}
-	
+
 }

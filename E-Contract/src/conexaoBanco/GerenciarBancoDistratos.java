@@ -55,7 +55,7 @@ public class GerenciarBancoDistratos {
 
 			} catch (Exception e) {
 				JOptionPane.showMessageDialog(null,
-						"Erro ao inserir o distrato no banco de " + "dados " + e.getMessage());
+						"Erro ao inserir o distrato no banco de " + "dados "  );
 				
 				return -1;
 			}
@@ -95,7 +95,7 @@ public class GerenciarBancoDistratos {
 			}
 			ConexaoBanco.fechaConexao(conn, pstm, rs);
 		} catch (Exception e) {
-			JOptionPane.showMessageDialog(null, "Erro ao listar distratos" + e.getMessage());
+			JOptionPane.showMessageDialog(null, "Erro ao listar distratos"  );
 		}
 		return lista_distratos;
 
@@ -130,9 +130,9 @@ public class GerenciarBancoDistratos {
 		    return distrato;
 
 		} catch (Exception e) {
-			JOptionPane.showMessageDialog(null, "Erro ao listar o distrato id: " + id + " erro: " + e.getMessage());
+			JOptionPane.showMessageDialog(null, "Erro ao listar o distrato id: " + id + " erro: "  );
 			System.out.println(
-					"Erro ao listar distrato id: " + id + " erro: " + e.getMessage() + "\ncausa: " + e.getCause());
+					"Erro ao listar distrato id: " + id + " erro: "   + "\ncausa: "  );
 			return null;
 		}
 

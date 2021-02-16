@@ -182,7 +182,7 @@ public class GerenciarBancoClientes {
 	                    
 	                }catch(Exception e)
 	                 {
-	                	 JOptionPane.showMessageDialog(null, "Erro ao inserir o Cliente no banco de dados " + e.getMessage());
+	                	 JOptionPane.showMessageDialog(null, "Erro ao inserir o Cliente no banco de dados ");
 	                	  if(deletar_contatos)
 	       	           {
 	       	        	  
@@ -294,8 +294,7 @@ public int inserir_cliente(CadastroCliente cliente)
                        stmt.close();
                        return result;
                      }catch(Exception e) {
-                    	  JOptionPane.showMessageDialog(null, "Erro ao inserir cliente no banco de"
-          	                    + "dados\n Erro: " + e.getMessage());
+                    	  JOptionPane.showMessageDialog(null, "Erro ao inserir cliente no banco de dados");
                                   return -1;
                           }
 		  
@@ -387,7 +386,7 @@ public int inserir_cliente(CadastroCliente cliente)
                 contatos.add(contato);
           }
           }   catch (Exception e) {
-	            JOptionPane.showMessageDialog(null, "Erro ao listar contatos " + e.getMessage());
+	            JOptionPane.showMessageDialog(null, "Erro ao listar contatos ");
 	        }
 
           
@@ -429,7 +428,7 @@ public int inserir_cliente(CadastroCliente cliente)
                 contas.add(conta);
           }
           }   catch (Exception e) {
-	            JOptionPane.showMessageDialog(null, "Erro ao listar contas bancarias " + e.getMessage());
+	            JOptionPane.showMessageDialog(null, "Erro ao listar contas bancarias ");
 	        }
 
           
@@ -456,6 +455,7 @@ public int inserir_cliente(CadastroCliente cliente)
                  ContaBancaria conta = new ContaBancaria();
                      
                  conta.setId_conta(rs.getInt("id_conta"));
+
                  conta.setNome(rs.getString("nome"));
                  conta.setCpf_titular(rs.getString("cpf"));
                  conta.setBanco(rs.getString("banco"));
@@ -467,7 +467,7 @@ public int inserir_cliente(CadastroCliente cliente)
                 contas.add(conta);
           }
           }   catch (Exception e) {
-	            JOptionPane.showMessageDialog(null, "Erro ao listar contas bancarias " + e.getMessage());
+	            JOptionPane.showMessageDialog(null, "Erro ao listar contas bancarias ");
 	        }
 
           
@@ -757,7 +757,7 @@ public int inserir_cliente(CadastroCliente cliente)
 	            }
 	            ConexaoBanco.fechaConexao(conn, pstm, rs);
 	        } catch (Exception e) {
-	            JOptionPane.showMessageDialog(null, "Erro ao listar clientes" + e.getMessage());
+	            JOptionPane.showMessageDialog(null, "Erro ao listar clientes");
 	        }
 	        return listaClientes;
 	
@@ -853,7 +853,103 @@ public int inserir_cliente(CadastroCliente cliente)
 	                
 	            
 	        } catch (Exception e) {
-	            JOptionPane.showMessageDialog(null, "Erro ao listar cliente(gbc) id: " + id_cliente + " erro: " + e.getMessage());
+	           // JOptionPane.showMessageDialog(null, "Erro ao listar cliente(gbc) id: " + id_cliente );
+	            return null;
+	        }
+	     
+	
+}
+	  
+	  public CadastroCliente getCliente(String nome) {
+		  String  selectClientes = "select * from cliente where nome_empresarial like '%" + nome + "%' or nome_fantasia like '%" + nome + "%' and cliente.armazem = 1";
+		  		
+
+			 
+	        Connection conn = null;
+	        PreparedStatement pstm = null;
+	        ResultSet rs = null;
+	        try {
+	            conn = ConexaoBanco.getConexao();
+	            pstm = conn.prepareStatement(selectClientes);
+	           	           
+	            		
+	                rs = pstm.executeQuery();
+	               rs.next();
+	                CadastroCliente cliente = new CadastroCliente();
+	 
+
+	                cliente.setTipo_pessoa(rs.getInt("tipo_cliente"));
+	                if(cliente.getTipo_pessoa() == 1)
+	                {
+	                	//cnpj
+	                	cliente.setCnpj(rs.getString("cnpj"));
+	                	
+	                }
+	                else
+	                {
+	                	//cpf
+	                	cliente.setCpf(rs.getString("cpf"));
+	                	
+	                }
+	                
+	                cliente.setId(rs.getInt("id_cliente"));
+	                cliente.setIe(rs.getString("ie"));
+	                cliente.setStatus_ie(rs.getString("status_ie"));
+	                cliente.setStatus(rs.getString("status_empresa"));
+                    cliente.setOcupacao(rs.getString("ocupacao"));
+	                cliente.setAtividade(rs.getString("atividade"));
+	                cliente.setNascimento(rs.getString("nascimento"));
+
+	                cliente.setApelido(rs.getString("apelido"));
+	                cliente.setNome(rs.getString("nome"));
+	                cliente.setSobrenome(rs.getString("sobrenome"));
+	                cliente.setRazao_social(rs.getString("razao_social"));
+	                cliente.setNome_fantaia(rs.getString("nome_fantasia"));
+	                cliente.setDescricao(rs.getString("descricao"));
+
+	                cliente.setAt_primaria(rs.getString("at_primaria"));
+	                cliente.setAt_secundaria(rs.getString("at_secundaria"));
+
+	                cliente.setAtividade(rs.getString("atividade"));
+	                cliente.setPorte(rs.getString("porte"));
+
+	                
+	                cliente.setNome_empresarial(rs.getString("nome_empresarial"));
+
+	                
+	                
+	                cliente.setRua(rs.getString("rua"));
+	                cliente.setNumero(rs.getString("numero"));
+	                cliente.setBairro(rs.getString("bairro"));
+	                cliente.setCep(rs.getString("cep"));
+	                cliente.setCidade(rs.getString("cidade"));
+	                cliente.setUf(rs.getString("uf"));
+	                
+	                cliente.setTipo_identificacao(rs.getString("tipo_identificacao"));
+	                cliente.setIdentificacao_sefaz(rs.getString("identificacao"));
+	                cliente.setCpf_responsavel(rs.getString("cpf_responsavel"));
+	                cliente.setSenha(rs.getString("senha"));
+
+	                cliente.setArmazem(rs.getInt("armazem"));
+	                cliente.setTransportador(rs.getInt("transportador"));
+	                
+	                if(cliente.getTransportador() == 1) {
+	                	//e um transportaor
+	                	cliente.setRntrc(rs.getString("rntrc"));
+	                	cliente.setStatus_cadastro(rs.getString("status_rntrc"));
+	                	
+	                	//capturar veiculos
+	                	GerenciarBancoClientes gerenciar_veiculos = new GerenciarBancoClientes();
+	                	cliente.setVeiculos(gerenciar_veiculos.getVeiculos(cliente.getId()));
+	                }
+
+		            ConexaoBanco.fechaConexao(conn, pstm, rs);
+
+	                return cliente;
+	                
+	            
+	        } catch (Exception e) {
+	            JOptionPane.showMessageDialog(null, "Erro ao listar cliente" );
 	            return null;
 	        }
 	     
@@ -965,8 +1061,7 @@ public int inserir_cliente(CadastroCliente cliente)
            
               
                         } catch (Exception e) {
-	                JOptionPane.showMessageDialog(null, "Erro ao inserir conta bancaria no banco de"
-	                        + "dados " + e.getMessage());
+	                JOptionPane.showMessageDialog(null, "Erro ao inserir conta bancaria no banco de dados");
 	            }
 	  }//fim do for
 		    System.out.println("Número de contas para cadastrar: " + ids_contas.size());
@@ -997,8 +1092,7 @@ public int inserir_cliente(CadastroCliente cliente)
 
 	               
 	                } catch (Exception e) {
-		                JOptionPane.showMessageDialog(null, "Erro ao crir a relação Cliente-Conta Bancaria"
-		                        + " " + e.getMessage());
+		                JOptionPane.showMessageDialog(null, "Erro ao crir a relação Cliente-Conta Bancaria");
 		                resposta = false;
 		                registro.setIds_contas(ids_contas);
 		            	  registro.setResposta(resposta);
@@ -1074,8 +1168,7 @@ public int inserir_cliente(CadastroCliente cliente)
            
               
                         } catch (Exception e) {
-	                JOptionPane.showMessageDialog(null, "Erro ao inserir veiculo no banco de"
-	                        + "dados " + e.getMessage());
+	                JOptionPane.showMessageDialog(null, "Erro ao inserir veiculo no banco de dados");
 	            }
 	  }//fim do for
 		    System.out.println("Número de veiculos para cadastrar: " + ids_veiculos.size());
@@ -1106,8 +1199,7 @@ public int inserir_cliente(CadastroCliente cliente)
 
 	               
 	                } catch (Exception e) {
-		                JOptionPane.showMessageDialog(null, "Erro ao crir a relação transportador_veiculo"
-		                        + " " + e.getMessage());
+		                JOptionPane.showMessageDialog(null, "Erro ao crir a relação transportador_veiculo");
 		                resposta = false;
 		                registro.setIds_veiculos(ids_veiculos);
 		            	  registro.setResposta(resposta);
@@ -1205,7 +1297,7 @@ public int inserir_cliente(CadastroCliente cliente)
                 
                           } catch (Exception e) {
 	                JOptionPane.showMessageDialog(null, "Erro ao inserir Contato no banco de"
-	                        + "dados " + e.getMessage());
+	                        + "dados "  );
 	            }
 	  }//fim do for
 		    System.out.println("Número de contatos para cadastrar: " + ids_contatos.size());
@@ -1233,7 +1325,7 @@ public int inserir_cliente(CadastroCliente cliente)
 	               
 	                } catch (Exception e) {
 		                JOptionPane.showMessageDialog(null, "Erro ao crir a tabela cliente_contato"
-		                        + " " + e.getMessage());
+		                        + " "  );
 		                resposta = false;
 		             	registro.setIds_contatos(ids_contatos);
 		              	registro.setResposta(resposta);
@@ -1338,7 +1430,7 @@ public int inserir_cliente(CadastroCliente cliente)
 	              return true;
 	            } catch (Exception e) {
 	                JOptionPane.showMessageDialog(null, "Erro ao atualizar cliente no banco de"
-	                        + "dados " + e.getMessage());
+	                        + "dados "  );
 	                return false;
 	            }
 	        } else {
@@ -1447,7 +1539,7 @@ public int inserir_cliente(CadastroCliente cliente)
 	              return true;
 	            } catch (Exception e) {
 	                JOptionPane.showMessageDialog(null, "Erro ao atualizar cliente no banco de"
-	                        + "dados " + e.getMessage());
+	                        + "dados "  );
 	                return false;
 	            }
 	        } else {
@@ -1714,7 +1806,7 @@ public int inserir_cliente(CadastroCliente cliente)
                 
           
           }   catch (Exception e) {
-	            JOptionPane.showMessageDialog(null, "Erro ao listar conta bancaria id: " + id_conta + "erro: " + e.getMessage());
+	            JOptionPane.showMessageDialog(null, "Erro ao listar conta bancaria id: " + id_conta + "erro: "  );
 	            return null;
 	        }
 
@@ -1767,7 +1859,7 @@ public int inserir_cliente(CadastroCliente cliente)
 		          ConexaoBanco.fechaConexao(conn, pstm, rs);
 		          return lista_veiculos;
 		      } catch (Exception e) {
-		          JOptionPane.showMessageDialog(null, "Erro ao listar as veiculos do transportador: " + id_cliente + " erro: " + e.getMessage() + "causa: " + e.getCause());
+		          JOptionPane.showMessageDialog(null, "Erro ao listar as veiculos do transportador: " + id_cliente + " erro: "   + "causa: "  );
 		          return null;
 		      }		  
 		   
@@ -1819,7 +1911,7 @@ public int inserir_cliente(CadastroCliente cliente)
 		          System.out.println("Veiculos foram listadas com sucesso!");
 		          return lista_veiculos;
 		      } catch (Exception e) {
-		          JOptionPane.showMessageDialog(null, "Erro ao listar todos os veiculos erro: " + e.getMessage() + "causa: " + e.getCause());
+		          JOptionPane.showMessageDialog(null, "Erro ao listar todos os veiculos erro: "   + "causa: "  );
 		          return null;
 		      }		  
 		   

@@ -63,7 +63,7 @@ public class TelaConfirmarTransferenciaPagamentoContratual extends JDialog {
     private JFrame telaPaiJFrame;
 
 	public TelaConfirmarTransferenciaPagamentoContratual(CadastroContrato contrato_remetente, int id_pagamento_contratual, JFrame janela_pai) {
-		setModal(true);
+	//	setModal(true);
 
 		 isto = this;
 	

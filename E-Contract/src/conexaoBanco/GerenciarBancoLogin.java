@@ -62,7 +62,7 @@ public class GerenciarBancoLogin {
             }
             ConexaoBanco.fechaConexao(conn, pstm, rs);
         } catch (Exception e) {
-            JOptionPane.showMessageDialog(null, "Erro ao listar usuarios" + e.getMessage());
+            JOptionPane.showMessageDialog(null, "Erro ao listar usuarios"  );
         }
         return listaUsuarios;
     }
@@ -122,7 +122,7 @@ public class GerenciarBancoLogin {
 	            
 	            ConexaoBanco.fechaConexao(conn, pstm, rs);
 	        } catch (Exception e) {
-	           // JOptionPane.showMessageDialog(null, "Erro ao buscar login ="+login+" no bando de dados" + e.getMessage());
+	           // JOptionPane.showMessageDialog(null, "Erro ao buscar login ="+login+" no bando de dados"  );
 	        }
 	        return Login;
 		 
@@ -173,7 +173,7 @@ public class GerenciarBancoLogin {
 	            
 	            ConexaoBanco.fechaConexao(conn, pstm, rs);
 	        } catch (Exception e) {
-	            //JOptionPane.showMessageDialog(null, "Erro ao buscar id ="+id+" no bando de dados" + e.getMessage());
+	            //JOptionPane.showMessageDialog(null, "Erro ao buscar id ="+id+" no bando de dados"  );
 	        }
 	        return Login;
 		 
@@ -340,7 +340,7 @@ public class GerenciarBancoLogin {
 	              return true;
 	            } catch (Exception e) {
 	                JOptionPane.showMessageDialog(null, "Erro ao atualizar usuario no banco de"
-	                        + "dados " + e.getMessage());
+	                        + "dados "  );
 	                return false;
 	            }
 	        } else {
@@ -380,7 +380,7 @@ public class GerenciarBancoLogin {
 	              return true;
 	            } catch (Exception e) {
 	                JOptionPane.showMessageDialog(null, "Erro ao atualizar preferencias no banco de"
-	                        + "dados " + e.getMessage());
+	                        + "dados "  );
 	                return false;
 	            }
 	        } else {
@@ -420,7 +420,7 @@ public class GerenciarBancoLogin {
 	              return true;
 	            } catch (Exception e) {
 	                JOptionPane.showMessageDialog(null, "Erro ao atualizar privilegios no banco de"
-	                        + "dados " + e.getMessage());
+	                        + "dados "  );
 	                return false;
 	            }
 	        } else {
@@ -463,8 +463,8 @@ public class GerenciarBancoLogin {
 		 
 		            } catch (Exception e) {
 		               JOptionPane.showMessageDialog(null, "Erro ao inserir o login no banco de"
-		                      + "dados " + e.getMessage());
-		            	GerenciadorLog.registrarLogDiario("falha", "falha ao adicionar novo login: " + e.getMessage() + " causa: " + e.getCause());
+		                      + "dados "  );
+		            	GerenciadorLog.registrarLogDiario("falha", "falha ao adicionar novo login: "   + " causa: "  );
 		                return -1;
 		            }
 		        } else {
@@ -533,8 +533,8 @@ public class GerenciarBancoLogin {
 		 
 		            } catch (Exception e) {
 		               JOptionPane.showMessageDialog(null, "Erro ao inserir o prvilegios no banco de"
-		                      + "dados " + e.getMessage());
-		            	GerenciadorLog.registrarLogDiario("falha", "falha ao adicionar novo privilegio: " + e.getMessage() + " causa: " + e.getCause());
+		                      + "dados "  );
+		            	GerenciadorLog.registrarLogDiario("falha", "falha ao adicionar novo privilegio: "   + " causa: "  );
 		                return -1;
 		            }
 		        } else {
@@ -568,7 +568,7 @@ public class GerenciarBancoLogin {
 
           } catch (Exception e) {
         	  JOptionPane.showMessageDialog(null, "Erro ao inserir a relação usuario_privilegios no banco de"
-                       + " dados, usuario: " + id_login + " contrado: " + id_privilegios + e.getMessage());
+                       + " dados, usuario: " + id_login + " contrado: " + id_privilegios  );
                return false;
           }
  			  
@@ -659,8 +659,8 @@ public class GerenciarBancoLogin {
 		 
 		            } catch (Exception e) {
 		               JOptionPane.showMessageDialog(null, "Erro ao inserir o preferencias no banco de"
-		                      + "dados " + e.getMessage());
-		            	GerenciadorLog.registrarLogDiario("falha", "falha ao adicionar novas preferencias: " + e.getMessage() + " causa: " + e.getCause());
+		                      + "dados "  );
+		            	GerenciadorLog.registrarLogDiario("falha", "falha ao adicionar novas preferencias: "   + " causa: "  );
 		                return -1;
 		            }
 		        } else {
@@ -694,7 +694,7 @@ public class GerenciarBancoLogin {
 
           } catch (Exception e) {
         	  JOptionPane.showMessageDialog(null, "Erro ao inserir a relação usuario_privilegios no banco de"
-                       + " dados, usuario: " + id_login + " preferencias: " + id_preferencias + e.getMessage());
+                       + " dados, usuario: " + id_login + " preferencias: " + id_preferencias  );
                return false;
           }
  			  
@@ -873,7 +873,7 @@ public class GerenciarBancoLogin {
               ConexaoBanco.fechaConexao(conn);
         	 return true;
 		  }catch(Exception e) {
-        	  System.out.println("Erro ao atualizar ip, erro: " + e.getMessage());
+        	  System.out.println("Erro ao atualizar ip, erro: "  );
 
 			  return false;
 		  }
@@ -926,7 +926,7 @@ public class GerenciarBancoLogin {
 	            }
 	            ConexaoBanco.fechaConexao(conn, pstm, rs);
 	        } catch (Exception e) {
-	            JOptionPane.showMessageDialog(null, "Erro ao listar mensagens do usuario" + e.getMessage());
+	            JOptionPane.showMessageDialog(null, "Erro ao listar mensagens do usuario"  );
 	        }
 	        
 	        return listaMensagens;
@@ -990,8 +990,8 @@ public class GerenciarBancoLogin {
 		 
 		            } catch (Exception e) {
 		               JOptionPane.showMessageDialog(null, "Erro ao inserir a mensagem no banco de"
-		                      + "dados " + e.getMessage());
-		            	GerenciadorLog.registrarLogDiario("falha", "falha ao inserir mensagem ao banco de dados: " + e.getMessage() + " causa: " + e.getCause());
+		                      + "dados "  );
+		            	GerenciadorLog.registrarLogDiario("falha", "falha ao inserir mensagem ao banco de dados: "   + " causa: "  );
 		                return -1;
 		            }
 		        } else {
@@ -1024,7 +1024,7 @@ public class GerenciarBancoLogin {
 
           } catch (Exception e) {
         	  JOptionPane.showMessageDialog(null, "Erro ao inserir a relação usuario_mensagens no banco de"
-                       + " dados, usuario: " + id_usuario + " id mensagem: " + id_msg + e.getMessage());
+                       + " dados, usuario: " + id_usuario + " id mensagem: " + id_msg  );
                return false;
           }
  			  

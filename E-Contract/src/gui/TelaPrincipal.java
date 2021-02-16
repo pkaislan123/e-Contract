@@ -467,17 +467,7 @@ public class TelaPrincipal extends JFrame implements GetDadosGlobais {
 		urlNuvem.setBounds(55, 93, 186, 14);
 		painelInfoConexao.add(urlNuvem);
 		JButton btnSair = new JButton("Sair");
-		btnSair.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				telaPost.fechar();
-				if (tela_tarefas != null)
-					tela_tarefas.dispose();
-
-				TelaLogin entrada = new TelaLogin();
-				entrada.setVisible(true);
-				isto.dispose();
-			}
-		});
+		
 		btnSair.setBounds(1251, 70, 89, 23);
 		contentPane.add(btnSair);
 		if (login.getConfigs_privilegios().getNivel_privilegios() == 1) {

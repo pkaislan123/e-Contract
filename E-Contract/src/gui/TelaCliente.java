@@ -320,7 +320,7 @@ public class TelaCliente extends JDialog {
 				int indiceDaLinha = 0;
 				indiceDaLinha = tabela.getSelectedRow();
 				
-				TelaTodasNotasFiscais verNotas = new TelaTodasNotasFiscais(1);
+				TelaTodasNotasFiscais verNotas = new TelaTodasNotasFiscais(1, isto);
 				 verNotas.setVisible(true);
 				//
 				

@@ -96,7 +96,6 @@ public class TelaEscolha extends JDialog {
 		setLocationRelativeTo(null);
 		setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
 
-		setModal(true);
 		setResizable(false);
 		setUndecorated(true);
 		setVisible(true);

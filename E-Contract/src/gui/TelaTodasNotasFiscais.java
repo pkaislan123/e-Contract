@@ -108,14 +108,14 @@ public class TelaTodasNotasFiscais extends JDialog {
 	private JLabel lblNewLabel_4;
 	private JButton btnNewButton;
 
-	public TelaTodasNotasFiscais(int flag) {
+	public TelaTodasNotasFiscais(int flag, Window janela_pai) {
 		setIconImage(Toolkit.getDefaultToolkit().getImage(TelaNotasFiscais.class.getResource("/imagens/icone_notas_fiscais.png")));
 		//setAlwaysOnTop(true);
 
-		setModal(true);
+		//setModal(true);
 		isto = this;
 		getDadosGlobais();
-		setResizable(true);
+		setResizable(false);
 		setTitle("E-Contract - Notas Fiscais");
 
 		setBackground(new Color(255, 255, 255));
@@ -389,7 +389,7 @@ public class TelaTodasNotasFiscais extends JDialog {
 			}
 		}.start();
 
-		this.setLocationRelativeTo(null);
+		this.setLocationRelativeTo(janela_pai);
 
 	}
 

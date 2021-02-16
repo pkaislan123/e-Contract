@@ -98,7 +98,7 @@ public class GerenciarBancoNotas {
 
 			} catch (Exception e) {
 				JOptionPane.showMessageDialog(null,
-						"Erro ao inserir o nota no banco de " + "dados " + e.getMessage());
+						"Erro ao inserir o nota no banco de " + "dados "  );
 				
 				return -1;
 			}
@@ -145,7 +145,7 @@ public class GerenciarBancoNotas {
 			}
 			ConexaoBanco.fechaConexao(conn, pstm, rs);
 		} catch (Exception e) {
-			JOptionPane.showMessageDialog(null, "Erro ao listar notas" + e.getMessage());
+			JOptionPane.showMessageDialog(null, "Erro ao listar notas"  );
 		}
 		return lista_notas;
 
@@ -186,7 +186,7 @@ public class GerenciarBancoNotas {
 			}
 			ConexaoBanco.fechaConexao(conn, pstm, rs);
 		} catch (Exception e) {
-			JOptionPane.showMessageDialog(null, "Erro ao listar notas" + e.getMessage());
+			JOptionPane.showMessageDialog(null, "Erro ao listar notas"  );
 		}
 		return lista_notas;
 
@@ -227,9 +227,9 @@ public class GerenciarBancoNotas {
 		    return nota;
 
 		} catch (Exception e) {
-			JOptionPane.showMessageDialog(null, "Erro ao listar o nota id: " + id + " erro: " + e.getMessage());
+			JOptionPane.showMessageDialog(null, "Erro ao listar o nota id: " + id + " erro: "  );
 			System.out.println(
-					"Erro ao listar nota id: " + id + " erro: " + e.getMessage() + "\ncausa: " + e.getCause());
+					"Erro ao listar nota id: " + id + " erro: "   + "\ncausa: "  );
 			return null;
 		}
 

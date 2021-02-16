@@ -54,7 +54,7 @@ public class GerenciarBancoAditivos {
 
 			} catch (Exception e) {
 				JOptionPane.showMessageDialog(null,
-						"Erro ao inserir o aditivo no banco de " + "dados " + e.getMessage());
+						"Erro ao inserir o aditivo no banco de dados");
 				
 				return -1;
 			}
@@ -94,7 +94,7 @@ public class GerenciarBancoAditivos {
 			}
 			ConexaoBanco.fechaConexao(conn, pstm, rs);
 		} catch (Exception e) {
-			JOptionPane.showMessageDialog(null, "Erro ao listar aditivos" + e.getMessage());
+			JOptionPane.showMessageDialog(null, "Erro ao listar aditivos");//  );
 		}
 		return lista_aditivos;
 
@@ -129,9 +129,9 @@ public class GerenciarBancoAditivos {
 		    return aditivo;
 
 		} catch (Exception e) {
-			JOptionPane.showMessageDialog(null, "Erro ao listar o aditivo id: " + id + " erro: " + e.getMessage());
+			JOptionPane.showMessageDialog(null, "Erro ao listar o aditivo id: " + id );// );
 			System.out.println(
-					"Erro ao listar aditivo id: " + id + " erro: " + e.getMessage() + "\ncausa: " + e.getCause());
+					"Erro ao listar aditivo id: " + id + " erro: "   + "\ncausa: "  );
 			return null;
 		}
 

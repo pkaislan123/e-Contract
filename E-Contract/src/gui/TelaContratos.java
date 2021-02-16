@@ -45,8 +45,13 @@ import javax.swing.table.TableRowSorter;
 import cadastros.CadastroCliente;
 import cadastros.CadastroContrato;
 import cadastros.CadastroNFe;
+import conexaoBanco.GerenciarBancoClientes;
 import conexaoBanco.GerenciarBancoContratos;
 import gui.TelaNotasFiscais.NFeTableModel;
+import javafx.application.Platform;
+import javafx.embed.swing.JFXPanel;
+import javafx.stage.FileChooser;
+import javafx.stage.Stage;
 import manipular.ManipularArquivoTerceiros;
 import manipular.ManipularNotasFiscais;
 import manipular.ManipularTxt;
@@ -68,8 +73,10 @@ public class TelaContratos extends JDialog {
 
 	private static ArrayList<CadastroContrato> lista_contratos = new ArrayList<>();
 	private JDialog telaPai;
+	private boolean finalizado = false;
 	private JTable tabela;
-
+    private boolean nulo = false;
+    private File file_selecionado ;
 	private final JPanel painelPrincipal = new JPanel();
 	DefaultTableModel modelo = new DefaultTableModel() {
 		public boolean isCellEditable(int linha, int coluna) {
@@ -96,6 +103,9 @@ public class TelaContratos extends JDialog {
 
 	private int flag_retorno_global;
 	private JTextField entTransgenia;
+	private FileChooser d;
+	private JTextField entLocalRetirada;
+
 
 	public TelaContratos(int flag_retorno, Window janela_pai) {
 		//setModal(true);
@@ -128,7 +138,7 @@ public class TelaContratos extends JDialog {
 
 		JPanel panel = new JPanel();
 		panel.setLayout(null);
-		panel.setBounds(30, 180, 1135, 368);
+		panel.setBounds(30, 180, 1135, 346);
 		painelPrincipal.add(panel);
 		
 
@@ -175,7 +185,7 @@ public class TelaContratos extends JDialog {
 		scrollPane.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED);
 		scrollPane.setBackground(Color.WHITE);
 		scrollPane.setAutoscrolls(true);
-		scrollPane.setBounds(0, 0, 1135, 362);
+		scrollPane.setBounds(0, 0, 1135, 340);
 
 		panel.add(scrollPane);
 
@@ -324,7 +334,7 @@ public class TelaContratos extends JDialog {
 				filtrar();
 			}
 		});
-		btnFiltrar.setBounds(950, 137, 89, 23);
+		btnFiltrar.setBounds(1034, 126, 89, 23);
 		painelPrincipal.add(btnFiltrar);
 
 		JButton btnLimparFiltros = new JButton("Limpar");
@@ -374,34 +384,41 @@ if(contrato.getStatus_contrato() == 0) {
 		          }
 				  lblNumContratos.setText(tabela.getRowCount() + "");
 					lblTotalSacosKGs.setText(z.format(quantidade_sacos_total) + " Scs | " + z.format(quantidade_kg_total) + " Kgs");
-				
+				/*
 					lblTotalContratosEmAnalise.setText(total_contratos_em_analise + "");
 					lblTotalContratosAssinar.setText(total_contratos_assinar+ "");
 					lblTotalContratosConcluidos.setText(total_contratos_assinado+ "");
 					lblTotalContratosAssinados.setText(total_contratos_concluido + "");
+					*/
+					
+					lblTotalContratosEmAnalise.setText(total_contratos_em_analise + " - " +( (int) (((double) ((double)total_contratos_em_analise/(double)tabela.getRowCount()) * 100))) + "%");
+					lblTotalContratosAssinar.setText(total_contratos_assinar+  " - " +( (int) (((double) ((double)total_contratos_assinar/(double)tabela.getRowCount()) * 100))) + "%");
+					lblTotalContratosConcluidos.setText(total_contratos_concluido +  " - " +( (int) (((double)  ((double)total_contratos_concluido/(double)tabela.getRowCount())) * 100)) +"%");
+					lblTotalContratosAssinados.setText(total_contratos_assinado +  " - " +( (int) (((double)  ((double)total_contratos_assinado/(double)tabela.getRowCount()) * 100))) + "%");
+			
 			}
 		});
-		btnLimparFiltros.setBounds(851, 136, 89, 23);
+		btnLimparFiltros.setBounds(907, 126, 89, 23);
 		painelPrincipal.add(btnLimparFiltros);
 
 		JLabel lblCdigo = new JLabel("Código:");
 		lblCdigo.setFont(new Font("Tahoma", Font.PLAIN, 14));
-		lblCdigo.setBounds(604, 37, 48, 17);
+		lblCdigo.setBounds(632, 37, 48, 17);
 		painelPrincipal.add(lblCdigo);
 
 		JLabel lblStatus = new JLabel("Status:");
 		lblStatus.setFont(new Font("Tahoma", Font.PLAIN, 14));
-		lblStatus.setBounds(604, 89, 48, 17);
+		lblStatus.setBounds(632, 89, 48, 17);
 		painelPrincipal.add(lblStatus);
 
 		entCodigo = new JTextField();
 		entCodigo.setColumns(10);
-		entCodigo.setBounds(662, 28, 164, 33);
+		entCodigo.setBounds(690, 28, 164, 33);
 		painelPrincipal.add(entCodigo);
 
 		entStatus = new JTextField();
 		entStatus.setColumns(10);
-		entStatus.setBounds(662, 80, 164, 33);
+		entStatus.setBounds(690, 80, 164, 33);
 		painelPrincipal.add(entStatus);
 
 		JButton btnRefazerPesquisa = new JButton("Refazer Pesquisa");
@@ -417,41 +434,51 @@ if(contrato.getStatus_contrato() == 0) {
 				}
 			}
 		});
-		btnRefazerPesquisa.setBounds(894, 60, 126, 28);
+		btnRefazerPesquisa.setBounds(952, 86, 126, 28);
 		painelPrincipal.add(btnRefazerPesquisa);
 		
 		JLabel lblTransgnese = new JLabel("Transgênese:");
 		lblTransgnese.setFont(new Font("Tahoma", Font.PLAIN, 14));
-		lblTransgnese.setBounds(570, 143, 82, 17);
+		lblTransgnese.setBounds(598, 143, 82, 17);
 		painelPrincipal.add(lblTransgnese);
 		
 		entTransgenia = new JTextField();
 		entTransgenia.setColumns(10);
-		entTransgenia.setBounds(662, 136, 164, 33);
+		entTransgenia.setBounds(690, 136, 164, 33);
 		painelPrincipal.add(entTransgenia);
 		
 		JButton btnImportarManualmente = new JButton("Importar Manualmente");
 		btnImportarManualmente.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				JOptionPane.showMessageDialog(isto, "Na próxima tela, importe o arquivo\ndo contrato de terceiro");
+				JOptionPane.showMessageDialog(isto, "Na próxima tela, importe o arquivo\ndo contrato de terceiros");
 
-				JFileChooser fileChooser = new JFileChooser();
-				fileChooser.setPreferredSize(new Dimension(800, 600));
-				fileChooser.setMultiSelectionEnabled(false);
-				FileNameExtensionFilter filter = new FileNameExtensionFilter("Arquivo PDF", "pdf");
+						new JFXPanel();
+						Platform.runLater(() -> {
 
-				int result = fileChooser.showOpenDialog(isto);
+							//pegar ultima pasta
+							ManipularTxt manipular_ultima_pasta = new ManipularTxt();
+							String ultima_pasta = manipular_ultima_pasta.lerArquivo(new File("C:\\ProgramData\\E-Contract\\configs\\ultima_pasta.txt"));
+							if(d == null) {
+							   d = new FileChooser();
+							}
+							   d.setInitialDirectory(new File(ultima_pasta));
+							File file = d.showOpenDialog(new Stage());
+							String caminho_arquivo = "";
+							if (file != null) {
+								caminho_arquivo = file.getAbsolutePath();
+								
+								manipular_ultima_pasta.rescreverArquivo(new File("C:\\ProgramData\\E-Contract\\configs\\ultima_pasta.txt"), file.getParent());
+								TelaImportarContratoManual tela = new TelaImportarContratoManual( 4, null, 0, file, isto);
+								tela.setVisible(true);
 
-				File file = fileChooser.getSelectedFile();
-
-				
-				
-							//abrir tela de adicionar novo contrato
-							TelaImportarContratoManual tela = new TelaImportarContratoManual( 4, null, 0, file, isto);
-							tela.setVisible(true);
+							}
+								
 						
-			
+
+				  });
+	       
 			}
+			
 		});
 		btnImportarManualmente.setBounds(617, 603, 152, 28);
 		painelPrincipal.add(btnImportarManualmente);
@@ -536,23 +563,33 @@ if(contrato.getStatus_contrato() == 0) {
 		
 		 lblTotalContratosEmAnalise = new JLabel("999");
 		lblTotalContratosEmAnalise.setFont(new Font("SansSerif", Font.BOLD, 14));
-		lblTotalContratosEmAnalise.setBounds(187, 541, 55, 16);
+		lblTotalContratosEmAnalise.setBounds(187, 541, 219, 16);
 		painelPrincipal.add(lblTotalContratosEmAnalise);
 		
 		 lblTotalContratosAssinar = new JLabel("999");
 		lblTotalContratosAssinar.setFont(new Font("SansSerif", Font.BOLD, 14));
-		lblTotalContratosAssinar.setBounds(187, 567, 55, 16);
+		lblTotalContratosAssinar.setBounds(187, 567, 182, 16);
 		painelPrincipal.add(lblTotalContratosAssinar);
 		
 		 lblTotalContratosAssinados = new JLabel("999");
 		lblTotalContratosAssinados.setFont(new Font("SansSerif", Font.BOLD, 14));
-		lblTotalContratosAssinados.setBounds(187, 591, 55, 16);
+		lblTotalContratosAssinados.setBounds(187, 591, 182, 16);
 		painelPrincipal.add(lblTotalContratosAssinados);
 		
 		 lblTotalContratosConcluidos = new JLabel("999");
 		lblTotalContratosConcluidos.setFont(new Font("SansSerif", Font.BOLD, 14));
-		lblTotalContratosConcluidos.setBounds(187, 618, 55, 16);
+		lblTotalContratosConcluidos.setBounds(187, 618, 182, 16);
 		painelPrincipal.add(lblTotalContratosConcluidos);
+		
+		JLabel lblLocalRetirada = new JLabel("Local Retirada:");
+		lblLocalRetirada.setFont(new Font("Tahoma", Font.PLAIN, 14));
+		lblLocalRetirada.setBounds(864, 35, 90, 17);
+		painelPrincipal.add(lblLocalRetirada);
+		
+		entLocalRetirada = new JTextField();
+		entLocalRetirada.setColumns(10);
+		entLocalRetirada.setBounds(959, 28, 164, 33);
+		painelPrincipal.add(entLocalRetirada);
 
 		if (flag_retorno == 1 || flag_retorno == 2 || flag_retorno == 3 || flag_retorno == 4) {
 			// selecionar contrato para carregamento
@@ -621,10 +658,17 @@ if(contrato.getStatus_contrato() == 0) {
 		
 		lblNumContratos.setText(lista_contratos.size() + "");
 		lblTotalSacosKGs.setText(z.format(quantidade_sacos_total) + " Scs | " + z.format(quantidade_kg_total) + " Kgs");
-		lblTotalContratosEmAnalise.setText(total_contratos_em_analise + "");
+		
+		/*lblTotalContratosEmAnalise.setText(total_contratos_em_analise + "");
 		lblTotalContratosAssinar.setText(total_contratos_assinar+ "");
 		lblTotalContratosConcluidos.setText(total_contratos_concluido + "");
-		lblTotalContratosAssinados.setText(total_contratos_assinado + "");
+		lblTotalContratosAssinados.setText(total_contratos_assinado + "");*/
+		
+		lblTotalContratosEmAnalise.setText(total_contratos_em_analise + " - " +( (int) (((double) ((double)total_contratos_em_analise/(double)tabela.getRowCount()) * 100))) + "%");
+		lblTotalContratosAssinar.setText(total_contratos_assinar+  " - " +( (int) (((double) ((double)total_contratos_assinar/(double)tabela.getRowCount()) * 100))) + "%");
+		lblTotalContratosConcluidos.setText(total_contratos_concluido +  " - " +( (int) (((double)  ((double)total_contratos_concluido/(double)tabela.getRowCount())) * 100)) +"%");
+		lblTotalContratosAssinados.setText(total_contratos_assinado +  " - " +( (int) (((double)  ((double)total_contratos_assinado/(double)tabela.getRowCount()) * 100))) + "%");
+
 	}
 
 	public void pesquisar_sub_contratos(int id_contrato_pai) {
@@ -712,21 +756,42 @@ if(contrato.getStatus_contrato() == 0) {
 
 		JOptionPane.showMessageDialog(isto, "Na próxima tela, importe os arquivos\ndo contrato de terceiros");
 
-		JFileChooser fileChooser = new JFileChooser();
-		fileChooser.setPreferredSize(new Dimension(800, 600));
-		fileChooser.setMultiSelectionEnabled(true);
-		FileNameExtensionFilter filter = new FileNameExtensionFilter("Arquivo PDF", "pdf");
+		new JFXPanel();
+		Platform.runLater(() -> {
 
-		int result = fileChooser.showOpenDialog(isto);
+			//pegar ultima pasta
+			ManipularTxt manipular_ultima_pasta = new ManipularTxt();
+			String ultima_pasta = manipular_ultima_pasta.lerArquivo(new File("C:\\ProgramData\\E-Contract\\configs\\ultima_pasta.txt"));
+			if(d == null) {
+			   d = new FileChooser();
+			}
+			   d.setInitialDirectory(new File(ultima_pasta));
+			   
+			File file = d.showOpenDialog(new Stage());
+			String caminho_arquivo = "";
+			if (file != null) {
+				caminho_arquivo = file.getAbsolutePath();
+				
+				manipular_ultima_pasta.rescreverArquivo(new File("C:\\ProgramData\\E-Contract\\configs\\ultima_pasta.txt"), file.getParent());
+			
 
-		File[] files = fileChooser.getSelectedFiles();
+				ManipularArquivoTerceiros manipular = new ManipularArquivoTerceiros();
+				CadastroContrato contrato_importar = manipular.filtrar(file);
 
-		for (File arquivo : files) {
-			ManipularArquivoTerceiros manipular = new ManipularArquivoTerceiros();
-			CadastroContrato contrato_importar = manipular.filtrar(arquivo);
+			}else {
+				JOptionPane.showMessageDialog(isto, "Nenhum arquivo selecionado");
+			}
+				
+		
 
-		}
-	}
+  });
+		
+	
+}
+		
+
+		
+
 
 	public void filtrar() {
 		NumberFormat z = NumberFormat.getNumberInstance();
@@ -737,6 +802,7 @@ if(contrato.getStatus_contrato() == 0) {
 		int total_contratos_assinar = 0;
 		int total_contratos_assinado = 0;
 		int total_contratos_concluido = 0;
+		int total_contratos = 0;
 		ArrayList<RowFilter<Object, Object>> filters = new ArrayList<RowFilter<Object, Object>>(2);
 
 		String produto = entProduto.getText().toUpperCase();
@@ -746,6 +812,7 @@ if(contrato.getStatus_contrato() == 0) {
 		String safra = entSafra.getText().toUpperCase();
 		String status = entStatus.getText().toUpperCase();
 		String transgenese = entTransgenia.getText().toUpperCase();
+		String local_retirada = entLocalRetirada.getText().toUpperCase();
 
 		if (checkString(codigo))
 			filters.add(RowFilter.regexFilter(codigo, 1));
@@ -768,6 +835,9 @@ if(contrato.getStatus_contrato() == 0) {
 
 		if (checkString(safra))
 			filters.add(RowFilter.regexFilter(safra, 8));
+		
+		if(checkString(local_retirada))
+			filters.add(RowFilter.regexFilter(local_retirada, 14));
 
 		sorter.setRowFilter(RowFilter.andFilter(filters));
 		
@@ -801,15 +871,16 @@ if(contrato.getStatus_contrato() == 0) {
 				quantidade_sacos_total += quantidade_sacos;
 				quantidade_kg_total += quantidade_kg;
 
-
+				total_contratos++;
               
           }
-		  lblNumContratos.setText(tabela.getRowCount() + "");
+		    lblNumContratos.setText(tabela.getRowCount() + "");
 			lblTotalSacosKGs.setText(z.format(quantidade_sacos_total) + " Scs | " + z.format(quantidade_kg_total) + " Kgs");
-			lblTotalContratosEmAnalise.setText(total_contratos_em_analise + "");
-			lblTotalContratosAssinar.setText(total_contratos_assinar+ "");
-			lblTotalContratosConcluidos.setText(total_contratos_concluido + "");
-			lblTotalContratosAssinados.setText(total_contratos_assinado + "");
+			
+			lblTotalContratosEmAnalise.setText(total_contratos_em_analise + " - " +( (int) (((double) ((double)total_contratos_em_analise/(double)tabela.getRowCount()) * 100))) + "%");
+			lblTotalContratosAssinar.setText(total_contratos_assinar+  " - " +( (int) (((double) ((double)total_contratos_assinar/(double)tabela.getRowCount()) * 100))) + "%");
+			lblTotalContratosConcluidos.setText(total_contratos_concluido +  " - " +( (int) (((double)  ((double)total_contratos_concluido/(double)tabela.getRowCount())) * 100)) +"%");
+			lblTotalContratosAssinados.setText(total_contratos_assinado +  " - " +( (int) (((double)  ((double)total_contratos_assinado/(double)tabela.getRowCount()) * 100))) + "%");
 	}
 
 	public boolean checkString(String txt) {
@@ -876,6 +947,7 @@ if(contrato.getStatus_contrato() == 0) {
 		private final int valor_total = 11;
 		private final int corretores = 12;
 		private final int data_contrato = 13;
+		private final int local_retirada = 14;
 
 		List<Color> rowColours = Arrays.asList(
 		        Color.RED,
@@ -885,7 +957,7 @@ if(contrato.getStatus_contrato() == 0) {
 
 		
 		private final String colunas[] = { "ID", "Código", "Compradores:", "Vendedores:", "Status:", "Quantidade:",
-				"Medida:", "Produto:", "Transgênese", "Safra:", "Valor Produto:", "Valor Total:", "Corretores:", "Data Contrato" };
+				"Medida:", "Produto:", "Transgênese", "Safra:", "Valor Produto:", "Valor Total:", "Corretores:", "Data Contrato", "Local Retirada" };
 		private final ArrayList<CadastroContrato> dados = new ArrayList<>();// usamos como dados uma lista genérica de
 																			// nfs
 
@@ -938,6 +1010,9 @@ if(contrato.getStatus_contrato() == 0) {
 				return String.class;
 			case data_contrato:
 				return String.class;
+			case local_retirada:
+				return String.class;
+				
 			default:
 				throw new IndexOutOfBoundsException("Coluna Inválida!!!");
 			}
@@ -1029,6 +1104,28 @@ if(contrato.getStatus_contrato() == 0) {
 			}
 			case data_contrato:
 				return contrato.getData_contrato();
+			case local_retirada:
+			{
+				GerenciarBancoClientes gerenciar = new GerenciarBancoClientes();
+				if(contrato.getId_local_retirada() > 0) {
+				CadastroCliente local_retirar = gerenciar.getCliente(contrato.getId_local_retirada());
+				if(local_retirar != null) {
+					if(local_retirar.getTipo_pessoa() == 0) {
+						//pessoa fisica
+						return local_retirar.getNome_empresarial();
+					}else {
+						return local_retirar.getNome_fantaia();
+					}
+				}else {
+					return "Não Especificado";
+				}
+				}else {
+					return "Não Especificado";
+
+				}
+				
+				
+			}
 			default:
 				throw new IndexOutOfBoundsException("Coluna Inválida!!!");
 			}

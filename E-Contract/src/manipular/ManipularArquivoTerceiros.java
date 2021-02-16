@@ -111,7 +111,8 @@ public class ManipularArquivoTerceiros {
 			
 			
 		}catch (Exception e) {
-			JOptionPane.showMessageDialog(null, "Não foi possivel importar este contrato\nConsulte o administrador!\ncausa do erro: " + e.getMessage());
+			JOptionPane.showMessageDialog(null, "Não foi possivel importar este contrato\nConsulte o administrador!"
+					+ "\nTente a Importação Manual");
 			
 		}
 		
@@ -441,7 +442,16 @@ public class ManipularArquivoTerceiros {
 	
 		
 		//local retirada
-		String local_retirada =  tratamentoDados.tratar("Local de Retirada: ", "Prazo").replaceFirst(",", ""); 
+		String local_retirada =  tratamentoDados.tratar("Local de Retirada: ", "Prazo").replaceFirst(",", "").trim(); 
+		JOptionPane.showMessageDialog(null, "Local retirada: " + local_retirada);
+		
+        CadastroCliente armazem = gerenciar.getCliente(local_retirada);
+		
+        if(armazem != null) {
+        	contrato_local.setId_local_retirada(armazem.getId());
+        }
+		
+		
 		//prazo final da entrada
 		String data_entrega = tratamentoDados.tratar("Prazo Final de Entrega: ", " ");
 		contrato_local.setData_entrega(data_entrega);
@@ -1170,7 +1180,7 @@ public class ManipularArquivoTerceiros {
 		
 		return contrato_local;
 		}catch(Exception e) {
-			JOptionPane.showMessageDialog(null, "Erro ao importar contrato cj selecta: \nErro: " + e.getMessage() + "\nCausa: " + e.getCause());
+			JOptionPane.showMessageDialog(null, "Erro ao importar contrato cj selecta: \nTente a Importação Manual");
 			return null;
 		}
 		
@@ -2178,7 +2188,7 @@ public class ManipularArquivoTerceiros {
 		return contrato_local;
 		}catch(Exception e) {
 			
-			JOptionPane.showMessageDialog(null, "Erro ao importar contrato da Gavilon\nErro: " + e.getMessage() + "\nCausa: " + e.getCause());
+			JOptionPane.showMessageDialog(null, "Erro ao importar contrato da Gavilon\nTente a Importação Manual");
 			return null;
 		}
 		
@@ -3320,7 +3330,7 @@ public class ManipularArquivoTerceiros {
 		return contrato_local;
 		}catch(Exception e) {
 			
-			JOptionPane.showMessageDialog(null, "Erro ao importar contrato da Fortunato\nErro: " + e.getMessage() + "\nCausa: " + e.getCause());
+			JOptionPane.showMessageDialog(null, "Erro ao importar contrato da Fortunato\nTente a imporação manual");
 			return null;
 		}
 		
@@ -4273,7 +4283,7 @@ public class ManipularArquivoTerceiros {
 		return contrato_local;
 		}catch(Exception e) {
 			
-			JOptionPane.showMessageDialog(null, "Erro ao importar contrato da Gavilon\nErro: " + e.getMessage() + "\nCausa: " + e.getCause());
+			JOptionPane.showMessageDialog(null, "Erro ao importar contrato da Gavilon\nTente a Importação Manual");
 			return null;
 		}
 		

@@ -16,6 +16,7 @@ public class ComboBoxRenderPersonalizado extends DefaultListCellRenderer{
 	        super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
 	         
 	        if (value instanceof CadastroSafra) {
+	        	
 	        	CadastroSafra safra = (CadastroSafra) value;
 	            GerenciarBancoProdutos gerenciar = new GerenciarBancoProdutos();
 	            CadastroProduto prod = gerenciar.getProduto(safra.getProduto().getId_produto());

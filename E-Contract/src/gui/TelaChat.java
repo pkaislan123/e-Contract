@@ -74,20 +74,20 @@ public class TelaChat extends JDialog {
 
 		 isto = this;
 
-		setResizable(true);
-		setTitle("E-Contract - Tela Padrao");
+		setResizable(false);
+		setTitle("E-Contract - Mensagens\r\n");
 
 		setBackground(new Color(255, 255, 255));
 		setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-		setBounds(100, 100, 360, 575);
-		painelPrincipal.setBackground(new Color(255, 255, 255));
+		setBounds(100, 100, 453, 678);
+		painelPrincipal.setBackground(new Color(0, 0, 0));
 		painelPrincipal.setBorder(new EmptyBorder(5, 5, 5, 5));
 		setContentPane(painelPrincipal);
 		painelPrincipal.setLayout(null);
 
 		JPanel painelMensagens = new JPanel();
-		painelMensagens.setBounds(0, 141, 522, 395);
-		painelMensagens.setBackground(Color.WHITE);
+		painelMensagens.setBounds(10, 229, 417, 395);
+		painelMensagens.setBackground(new Color(51, 51, 0));
 		painelPrincipal.add(painelMensagens);
 
 		modelo_usuarios.addColumn("Usuario");
@@ -96,14 +96,18 @@ public class TelaChat extends JDialog {
 		painelMensagens.setLayout(null);
 
 		abaConversas = new JTabbedPane(JTabbedPane.TOP);
-		abaConversas.setBounds(0, 0, 344, 395);
+		abaConversas.setBackground(new Color(51, 51, 0));
+		abaConversas.setBounds(0, 0, 417, 395);
 		painelMensagens.add(abaConversas);
 
 		JPanel panel = new JPanel();
-		panel.setBounds(0, 28, 344, 108);
+		panel.setBounds(10, 51, 417, 167);
 		painelPrincipal.add(panel);
 
 		tabela_usuarios_online = new JTable(modelo_usuarios);
+		tabela_usuarios_online.setForeground(Color.WHITE);
+		tabela_usuarios_online.setBackground(new Color(0, 51, 102));
+		tabela_usuarios_online.setRowHeight(30);
 		tabela_usuarios_online.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent arg0) {
@@ -120,11 +124,12 @@ public class TelaChat extends JDialog {
 		panel.setLayout(null);
 
 		JScrollPane scrollPane = new JScrollPane(tabela_usuarios_online);
-		scrollPane.setBounds(7, 7, 337, 85);
+		scrollPane.setBounds(0, 0, 417, 167);
 		panel.add(scrollPane);
 
 		JLabel lblNewLabel = new JLabel("Minimizar");
-		lblNewLabel.setBounds(446, 0, 64, 17);
+		lblNewLabel.setForeground(Color.WHITE);
+		lblNewLabel.setBounds(348, 23, 64, 17);
 		painelPrincipal.add(lblNewLabel);
 		lblNewLabel.addMouseListener(new MouseAdapter() {
 			@Override
@@ -136,8 +141,13 @@ public class TelaChat extends JDialog {
 
 		
 		
-		
-/*
+
+		   Dimension scrnSize = Toolkit.getDefaultToolkit().getScreenSize();
+	        java.awt.Rectangle winSize = GraphicsEnvironment.getLocalGraphicsEnvironment().getMaximumWindowBounds();
+	        int taskBarHeight = scrnSize.height - winSize.height;
+	        System.out.printf("Altura: %d\n", taskBarHeight);
+	        
+
 		GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
 		GraphicsDevice defaultScreen = ge.getDefaultScreenDevice();
 		java.awt.Rectangle rect = defaultScreen.getDefaultConfiguration().getBounds();
@@ -145,7 +155,7 @@ public class TelaChat extends JDialog {
 		int y = (int) rect.getMaxY() - getHeight() - taskBarHeight;
 
 		this.setLocation(x, y);
-		*/
+		
 		
 
 	 
@@ -156,7 +166,7 @@ public class TelaChat extends JDialog {
 		procuraUsuariosOnline();
 		//procurarMensagens();
 		abrirChat();
-		
+		//procurarMensagens();
 		//this.setVisible(true);
 
 	}
@@ -365,7 +375,7 @@ public class TelaChat extends JDialog {
 					}
 
 					try {
-						Thread.sleep(10000);
+						Thread.sleep(5000);
 					} catch (InterruptedException e) {
 						// TODO Auto-generated catch block
 						e.printStackTrace();
@@ -458,7 +468,7 @@ public class TelaChat extends JDialog {
 
 						if (registro_mensagens.get(indice).getNum_mensagens_atual() < registro
 								.getNum_mensagens_atual()) {
-							JOptionPane.showMessageDialog(isto, "Nova mensagem recebida!");
+							//JOptionPane.showMessageDialog(isto, "Nova mensagem recebida!");
 						}
 
 						registro_mensagens.add(indice, registro);
@@ -477,6 +487,7 @@ public class TelaChat extends JDialog {
 					JPanel panelGuiaMensagens = new JPanel();
 					panelGuiaMensagens.setBounds(0, 0, 314, 338);
 					panelGuiaMensagens.setName(nameAba);
+					panelGuiaMensagens.setBackground(new Color(51, 51, 0));
 					panelGuiaMensagens.setLayout(new MigLayout("", "[grow][]", "[grow][]"));
 					abaConversas.addTab(login_selecionado.getLogin(), panelGuiaMensagens);
 
@@ -585,7 +596,7 @@ public class TelaChat extends JDialog {
 												if(isto.isVisible()) {
 													
 												}else {
-													((TelaPrincipal) telaPrincipal).setNumeroMensagensNovas();
+													((TelaMain) telaPrincipal).setNumeroMensagensNovas();
 												}
 												//JOptionPane.showMessageDialog(null, "Nova mensagem recebida!");
 												
@@ -607,7 +618,7 @@ public class TelaChat extends JDialog {
 														if(!(ultima_mensagem.getId_remetente() == login.getId())) {
 														CadastroLogin login_msg = gerenciarMensagens.getLogin(ultima_mensagem.getId_remetente());
 														String text = login_msg.getLogin() + " diz: \n             " + ultima_mensagem.getConteudo();
-														((TelaPrincipal) telaPrincipal).setNovaNotificacaoMensagem(text);
+														((TelaMain) telaPrincipal).setNovaNotificacaoMensagem(text);
 
 														int maxValue = scrollPane.getVerticalScrollBar().getMaximum();
 														scrollPane.getViewport().setViewPosition(new Point(0,maxValue));
@@ -621,7 +632,7 @@ public class TelaChat extends JDialog {
 								
 
 								try {
-									Thread.sleep(3000);
+									Thread.sleep(5000);
 								} catch (InterruptedException e) {
 									// TODO Auto-generated catch block
 									e.printStackTrace();

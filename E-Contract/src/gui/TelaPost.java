@@ -32,75 +32,82 @@ import java.awt.Window;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.border.LineBorder;
+import net.miginfocom.swing.MigLayout;
+import java.awt.GridBagLayout;
+import java.awt.GridBagConstraints;
+import java.awt.Insets;
+import java.awt.GridLayout;
 
 public class TelaPost extends JDialog {
-
-	private JPanel abaMeus = new JPanel();
 	private TelaPost isto;
-	private final JLabel lblNomeNota = new JLabel("");
-	private final JTextArea textAreaTexto;
 	private final JLabel lblNomeNotaGlobal = new JLabel("Anotação 1");
 	private final JTextArea textAreaTextoGlobal = new JTextArea();
 	private final JButton btnVizualizarNotaGlobal = new JButton("Vizualizar");
 	private final JButton btnMudarGlobal = new JButton("Próximo");
 	private Log GerenciadorLog;
 	private CadastroLogin login;
+	private JTextArea textAreaTexto;
+	private JLabel lblNomeNota;
 	private ConfiguracoesGlobais configs_globais;
 	public boolean ativo = false;
-	
+	private JPanel panel;
 	
 	public TelaPost(Window janela_pai) {
+		getContentPane().setBackground(new Color(255, 255, 204));
+		GridBagLayout gridBagLayout = new GridBagLayout();
+		gridBagLayout.columnWidths = new int[]{0, 0};
+		gridBagLayout.rowHeights = new int[]{0, 0};
+		gridBagLayout.columnWeights = new double[]{1.0, Double.MIN_VALUE};
+		gridBagLayout.rowWeights = new double[]{1.0, Double.MIN_VALUE};
+		getContentPane().setLayout(gridBagLayout);
+		
+		 panel = new JPanel();
+		panel.setBackground(new Color(255, 255, 204));
+		GridBagConstraints gbc_panel = new GridBagConstraints();
+		gbc_panel.fill = GridBagConstraints.BOTH;
+		gbc_panel.gridx = 0;
+		gbc_panel.gridy = 0;
+		getContentPane().add(panel, gbc_panel);
+		GridBagLayout gbl_panel = new GridBagLayout();
+		gbl_panel.columnWidths = new int[]{0, 0, 0, 0, 0, 0};
+		gbl_panel.rowHeights = new int[]{0, 0, 0, 0, 0};
+		gbl_panel.columnWeights = new double[]{0.0, 0.0, 0.0, 0.0, 1.0, Double.MIN_VALUE};
+		gbl_panel.rowWeights = new double[]{0.0, 0.0, 0.0, 1.0, Double.MIN_VALUE};
+		panel.setLayout(gbl_panel);
+		
+		 lblNomeNota = new JLabel("New label");
+		lblNomeNota.setFont(new Font("Arial", Font.BOLD, 14));
+		GridBagConstraints gbc_lblNomeNota = new GridBagConstraints();
+		gbc_lblNomeNota.fill = GridBagConstraints.VERTICAL;
+		gbc_lblNomeNota.gridwidth = 5;
+		gbc_lblNomeNota.insets = new Insets(0, 0, 5, 0);
+		gbc_lblNomeNota.gridx = 0;
+		gbc_lblNomeNota.gridy = 0;
+		panel.add(lblNomeNota, gbc_lblNomeNota);
+		
+		 textAreaTexto = new JTextArea();
+		 textAreaTexto.setWrapStyleWord(true);
+		 textAreaTexto.setLineWrap(true);
+		 textAreaTexto.setEditable(false);
+		textAreaTexto.setBorder(new EmptyBorder(0, 0, 0, 0));
+		textAreaTexto.setFont(new Font("SansSerif", Font.BOLD, 18));
+		textAreaTexto.setBackground(new Color(255, 255, 204));
+		GridBagConstraints gbc_textAreaTexto = new GridBagConstraints();
+		gbc_textAreaTexto.gridheight = 3;
+		gbc_textAreaTexto.gridwidth = 5;
+		gbc_textAreaTexto.fill = GridBagConstraints.BOTH;
+		gbc_textAreaTexto.gridx = 0;
+		gbc_textAreaTexto.gridy = 1;
+		panel.add(textAreaTexto, gbc_textAreaTexto);
 
 		 isto = this;
-		setResizable(false);
+		setResizable(true);
 	
 		getDadosGlobais();
 
 		setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 		setTitle("E-Contract - Topicos");
-		setBounds(0, 0, 215, 170);
-		getContentPane().setLayout(null);
-		abaMeus.setBounds(0, 0, 215, 170);
-		
-		//contentPanel.setBackground(new Color(255, 255, 255));
-		//contentPanel.setBorder(new EmptyBorder(5, 5, 5, 5));
-		//setContentPane(contentPanel);
-		//contentPanel.setLayout(null);
-		
-		abaMeus.setBackground(new Color(255, 255, 153));
-
-		//adiciona novos paines e suas abas
-		abaMeus.setLayout(null);
-		lblNomeNota.setFont(new Font("SansSerif", Font.BOLD, 12));
-		lblNomeNota.setBounds(23, 6, 141, 16);
-		
-		abaMeus.add(lblNomeNota);
-		textAreaTexto = new JTextArea();
-		textAreaTexto.setLocation(6, 34);
-		textAreaTexto.setSize(203, 130);
-		textAreaTexto.setForeground(new Color(0, 0, 102));
-		textAreaTexto.setFont(new Font("SansSerif", Font.PLAIN, 20));
-		textAreaTexto.setOpaque(true);
-		textAreaTexto.setBackground(new Color(0,0,0,0));
-		textAreaTexto.setBorder(new LineBorder(new Color(0, 0, 0), 1, true));
-		textAreaTexto.setEditable(false);
-		textAreaTexto.setWrapStyleWord(true);
-		textAreaTexto.setLineWrap(true);
-		
-		
-		abaMeus.add(textAreaTexto);
-		getContentPane().add(abaMeus);
-		
-		JButton btnNewButton = new JButton("X");
-		btnNewButton.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				isto.setVisible(false);
-			}
-		});
-		btnNewButton.setBackground(Color.RED);
-		btnNewButton.setFont(new Font("SansSerif", Font.PLAIN, 8));
-		btnNewButton.setBounds(176, 6, 33, 22);
-		abaMeus.add(btnNewButton);
+		setBounds(0, 0, 352, 251);
 		
  
 		   Dimension scrnSize = Toolkit.getDefaultToolkit().getScreenSize();
@@ -114,12 +121,12 @@ public class TelaPost extends JDialog {
 	        int x = (int) rect.getMaxX() - getWidth( ) ;
 	        int y = 10 ;
 		
-			setAlwaysOnTop(true);
+			//setAlwaysOnTop(true);
 
 			
 		
 			    GraphicsDevice[] gd = ge.getScreenDevices();
-			    if(gd.length > 1) {
+			    if(gd.length > 3) {
 				        rect = gd[1].getDefaultConfiguration().getBounds();
 				         x = (int) rect.getMaxX() - getWidth( ) ;
 				         y = 80 ;
@@ -131,19 +138,11 @@ public class TelaPost extends JDialog {
 			    }
 			
 			
-
-          
-              this.setUndecorated(true);
-
-			
-		
-
+			    procurarNotas(true);
+			    isto.setVisible(true);
 	}
 	
-	public void fechar() {
-		this.ativo = false;
-		isto.dispose();
-	}
+	
 
 	public void procurarNotas(boolean _ativo) {
 		this.ativo = _ativo;
@@ -152,7 +151,7 @@ public class TelaPost extends JDialog {
 			@Override
 			public void run() {
 				
-				while(ativo) {
+				while(true) {
 					
 					//pegar minhas anotacoes
 					ArrayList<CadastroNota> minhas_notas = new ArrayList<>();
@@ -180,9 +179,19 @@ public class TelaPost extends JDialog {
 						}
 					}
 					
+					//verifica quais notas sao de topico global de outros usuarios
+					ArrayList<CadastroNota> notas_topico_global_outros_usuarios = new ArrayList<>();
+					for(CadastroNota not: todas_as_notas) {
+						if(not.getTipo() == 3) {
+							//se e uma nota do tipo topico global
+							notas_topico_global_outros_usuarios.add(not);
+						}
+					}
+					
 					ArrayList<CadastroNota> notas_mostrar = new ArrayList<>();
 					notas_mostrar.addAll(notas_topico_global);
 					notas_mostrar.addAll(minhas_notas_topico);
+					notas_mostrar.addAll(notas_topico_global_outros_usuarios);
 
 					
 					if(notas_mostrar.size() > 0) {
@@ -194,9 +203,10 @@ public class TelaPost extends JDialog {
 							    	
 							    	
 									textAreaTexto.setText(not.getTexto());
+									panel.repaint();
+									panel.updateUI();
 								
-                                      abaMeus.repaint();
-                                      abaMeus.updateUI();
+                                
 											   
 							    } 
 							}); 
