@@ -161,7 +161,13 @@ public class TelaTransportadores extends JDialog {
 		btnSelecionarTransportador.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				int indiceDaLinha = tabela.getSelectedRow();
+				
+				if(telaPai instanceof TelaConfirmarCarregamento) {
 				((TelaConfirmarCarregamento) telaPai).setTransportador(transportadores_disponiveis.get(indiceDaLinha));
+				}else if(telaPai instanceof TelaConfirmarRecebimento) {
+					((TelaConfirmarRecebimento) telaPai).setTransportador(transportadores_disponiveis.get(indiceDaLinha));
+
+				}
 				isto.dispose();
 			}
 		});

@@ -7,6 +7,8 @@ import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
 
+import javax.swing.JOptionPane;
+
 import org.openqa.selenium.By;
 import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.NoSuchElementException;
@@ -20,8 +22,10 @@ import org.openqa.selenium.support.ui.FluentWait;
 import org.openqa.selenium.support.ui.Select;
 import org.openqa.selenium.support.ui.Wait;
 
+import cadastros.CadastroAviso;
 import cadastros.CadastroCliente;
 import cadastros.CadastroLogin;
+import gui.TelaMain;
 import gui.TelaPrincipal;
 import manipular.ConfiguracoesGlobais;
 import manipular.ManipularTxt;
@@ -33,6 +37,7 @@ public class BaixarNotasFiscais {
 	private  String diretorio_todas_as_notas = "";
 
 	private Log GerenciadorLog;
+    private TelaMain telaPrincipal;
 	private CadastroLogin login;
 	private ConfiguracoesGlobais configs_globais;
 	private ArrayList<String> lista_nomes_arquivos = new ArrayList<>();
@@ -41,7 +46,8 @@ public class BaixarNotasFiscais {
 	private int contador_global_threads = 0;
 	private CadastroCliente cadastro;
 	private String natureza;
-	
+	private String servidor_unidade;
+	private ArrayList<WebDriver> drivers = new ArrayList<>();
 	
 	
 
@@ -54,9 +60,9 @@ public class BaixarNotasFiscais {
 		String nome_pasta = "";
 		if(cliente_pesquisar.getTipo_pessoa() == 0) {
 			//pessoa fisica
-			nome_pasta = cliente_pesquisar.getNome_empresarial();
+			nome_pasta = cliente_pesquisar.getNome_empresarial().toUpperCase().trim();
 		}else {
-			nome_pasta = cliente_pesquisar.getNome_fantaia();
+			nome_pasta = cliente_pesquisar.getNome_fantaia().toUpperCase().trim();
 
 		}
 		
@@ -71,25 +77,42 @@ public class BaixarNotasFiscais {
 public void abrirPagina(String s_dataInicio, String s_dataFim, String natureza) {
 		
 		boolean continuar = false;
+        System.setProperty("webdriver.gecko.driver", "C:\\geckodriver.exe");
+
 		    ProfilesIni profileIni = new ProfilesIni();
-	        FirefoxProfile profile = profileIni.getProfile("notas_siare");
+	      //  FirefoxProfile profile = profileIni.getProfile("notas_siare");
 	        FirefoxOptions options = new FirefoxOptions();
-	        options.setProfile(profile);
-	     //   options.setHeadless(true);
-	       // options.addArguments("--headless");
-	        WebDriver driver = null;
+	       //options.setProfile(profile);
+	           options.setHeadless(true);
+	         options.addArguments("--headless");
+	        
+	        FirefoxProfile profile = new FirefoxProfile();
+	         profile.setPreference("browser.download.folderList", 2);
+	 	      profile.setPreference ("browser.download.dir", servidor_unidade + "\\E-Contract\\arquivos\\arquivos_comuns");
+	 	     profile.setPreference("browser.download.useDownloadDir", true);
+	 	    profile.setPreference("browser.download.viewableInternally.enabledTypes", "");
+	 	   profile.setPreference("browser.helperApps.neverAsk.saveToDisk", "application/pdf");
+	 	  profile.setPreference("pdfjs.disabled", true);  // disable the built-in PDF viewer
+	  
+	 	     WebDriver driver = null;
+	 	     options.setProfile(profile);
 
          for(int i = 0; i < 10; i++) {
         	 //dez tentativas de conexao
-        	 System.out.println("teste de conexao: " + i);
+        	
           try {	
-  	         driver = new FirefoxDriver(options);
-        	 
+  	        // driver = new FirefoxDriver(options);
+        	  driver = new FirefoxDriver(options);
+           	 System.out.println("teste de conexao: " + i);
 	        driver.get("https://www2.fazenda.mg.gov.br/sol/");
+	        Thread.sleep(2000);
 	        continuar = true;
+	        drivers.add(driver);
+
 	        break;
           }catch(Exception e) {
            	System.out.println("erro, sem conexão com o siare!");
+
            	continuar = false;
 
            	String winHandleBefore = driver.getWindowHandle();
@@ -104,11 +127,13 @@ public void abrirPagina(String s_dataInicio, String s_dataFim, String natureza) 
 
            	driver.switchTo().window(winHandleBefore);
            	driver.close();
-
+               i++;
           }
          }
-          
+        
+	        
          if(continuar) {
+
         	 //realizar login
         	  //verifica se tem erro de seguranca
   		   if(getErroSeguranca(driver) == true) {
@@ -857,6 +882,9 @@ public void abrirPagina(String s_dataInicio, String s_dataFim, String natureza) 
 				 configs_globais = dados.getConfigs_globais();
 				 //usuario logado
 				  login = dados.getLogin();
+				  servidor_unidade = configs_globais.getServidorUnidade();
+					//telaprincipal
+					telaPrincipal = dados.getTelaPrincipal();
 		
 	}
 	
@@ -948,6 +976,14 @@ public void abrirPagina(String s_dataInicio, String s_dataFim, String natureza) 
     		boolean rodar = true;
     		
     	while(rodar) {	
+    		
+    		try {
+				Thread.sleep(5000);
+			} catch (InterruptedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+    		
     		int count_ociosas = 0;
     	  int count_online = 0;
   		int contador_threads_offline = 0;
@@ -997,15 +1033,37 @@ public void abrirPagina(String s_dataInicio, String s_dataFim, String natureza) 
     	  
     	  if(contador_threads_offline == contador_global_threads) {
   			novaNotificacao("Donwload de Notas Finalizado!", "/audio/beep_erro_net.wav", 2);
+  			CadastroAviso avisar = new CadastroAviso();
+			avisar.setTipo("Aviso");
+			String nome = "";
+			if(cadastro.getTipo_pessoa() == 0) {
+				nome = cadastro.getNome_empresarial();
 
+			}else {
+				nome = cadastro.getNome_fantaia();
+			}
+			avisar.setSetor("Download de Notas");
+			avisar.setMensagem("Download de notas Finalizado - Cliente: " + nome);
+            telaPrincipal.incluir_aviso(avisar);
+            
+  			  for(WebDriver driver : drivers) {
+  				  try{
+  					  driver.close();
+  	  				  driver.quit();
+
+  				  }catch(Exception e) {
+  					  
+  				  }
+  			  }
     		  rodar = false;
     	  }
-    	  
-    	 /* System.out.println("numero de threads total: " + contador_global_threads);
+    	
+    	  System.out.println("numero de threads total: " + contador_global_threads);
     	  System.out.println("numero de threads ociosas: " + count_ociosas);
     	  System.out.println("numero de thread  Online: " + count_online );
     	  System.out.println("numero de thread ja encerradas : " + contador_threads_offline );
-           */
+    	  
+           
     	}
     	}
     	}.start();
@@ -1015,7 +1073,20 @@ public void abrirPagina(String s_dataInicio, String s_dataFim, String natureza) 
       public void iniciarPesquisas(int mes_inicio, int mes_fim, int ano_inicio) {
 
 			novaNotificacao("Donwload de Notas Iniciado!", "/audio/beep_notificacao.wav", 1);
+			CadastroAviso avisar = new CadastroAviso();
+			avisar.setTipo("Aviso");
+			String nome = "";
+			if(cadastro.getTipo_pessoa() == 0) {
+				nome = cadastro.getNome_empresarial();
 
+			}else {
+				nome = cadastro.getNome_fantaia();
+			}
+			avisar.setSetor("Download de Notas");
+			avisar.setMensagem("Download de notas Iniciado - Cliente: " + nome);
+            telaPrincipal.incluir_aviso(avisar);
+            
+            
     	  PesquisaParalela pesquisar = null;
 
 	     int ano = ano_inicio;

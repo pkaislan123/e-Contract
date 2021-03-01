@@ -54,6 +54,8 @@ public class GerenciarBancoLogin {
 	            Login.setEmail(rs.getString("email"));
 	            Login.setSenha(rs.getString("senha"));
 	            Login.setSenhaEmail(rs.getString("senha_email"));
+	            Login.setEmail2(rs.getString("email2"));
+	            Login.setSenhaEmail2(rs.getString("senha_email2"));
 	            Login.setGenero(rs.getString("genero"));
 	               
 	            
@@ -103,7 +105,8 @@ public class GerenciarBancoLogin {
 	            Login.setSenha(rs.getString("senha"));
 	            Login.setSenhaEmail(rs.getString("senha_email"));
 	            Login.setGenero(rs.getString("genero"));
-	            
+	            Login.setEmail2(rs.getString("email2"));
+	            Login.setSenhaEmail2(rs.getString("senha_email2"));
 	            
 	            //get dados de privilegios
 	            CadastroLogin.Privilegios privilegios = new CadastroLogin.Privilegios();
@@ -170,7 +173,8 @@ public class GerenciarBancoLogin {
 	            Login.setSenhaEmail(rs.getString("senha_email"));
 	            Login.setGenero(rs.getString("genero"));
 	           
-	            
+	            Login.setEmail2(rs.getString("email2"));
+	            Login.setSenhaEmail2(rs.getString("senha_email2"));
 	            ConexaoBanco.fechaConexao(conn, pstm, rs);
 	        } catch (Exception e) {
 	            //JOptionPane.showMessageDialog(null, "Erro ao buscar id ="+id+" no bando de dados"  );
@@ -315,7 +319,7 @@ public class GerenciarBancoLogin {
 	           
 	            try {
 	          
-	            	 atualizar = "update usuarios set nome = ?, sobrenome = ?,celular = ? , cargo = ?, login = ?, email = ?, senha = ?, senha_email = ?, genero = ? where id_usuario = ? ";
+	            	 atualizar = "update usuarios set nome = ?, sobrenome = ?,celular = ? , cargo = ?, login = ?, email = ?, senha = ?, senha_email = ?,  genero = ?, email2 = ?, senha_email2 = ? where id_usuario = ? ";
 	            	 conn = ConexaoBanco.getConexao();
 	            	 pstm = conn.prepareStatement(atualizar);
 
@@ -328,8 +332,12 @@ public class GerenciarBancoLogin {
 		             pstm.setString(7, login.getSenha());
 		             pstm.setString(8, login.getSenhaEmail());
 		             pstm.setString(9, login.getGenero());
+		             
+		             pstm.setString(10, login.getEmail2());
+		             pstm.setString(11, login.getSenhaEmail2());
+		             
 
-		             pstm.setInt(10, login.getId());
+		             pstm.setInt(12, login.getId());
 
 		            
 	             
@@ -775,7 +783,7 @@ public class GerenciarBancoLogin {
 	 
 	  private String sql_login(CadastroLogin login) {
 		  String sql = "insert into usuarios\r\n" + 
-          		"(nome, sobrenome, celular, cargo, login, email, senha, senha_email, genero) values ('"
+          		"(nome, sobrenome, celular, cargo, login, email, senha, senha_email, genero, email2, senha_email2) values ('"
 	    			+ login.getNome()
 	    			+ "','"
 	    			+ login.getSobrenome()
@@ -793,6 +801,10 @@ public class GerenciarBancoLogin {
 	    			+ login.getSenhaEmail()
 	    			+ "','"
 	    			+ login.getGenero()
+	    			+ "','"
+	    			+ login.getEmail2()
+	    			+ "','"
+	    			+ login.getSenhaEmail2()
 	    			+ "')";
           
 		  return sql;

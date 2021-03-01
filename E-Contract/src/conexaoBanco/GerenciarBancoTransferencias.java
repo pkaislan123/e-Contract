@@ -20,10 +20,10 @@ public class GerenciarBancoTransferencias {
 	
 	
 	public String sql_transferencia(CadastroContrato.CadastroTransferenciaPagamentoContratual transferencia) {
-		return "insert into transferencia_pagamento_contratual ( id_contrato_remetente , id_contrato_destinatario ,id_pagamento_contratual , data_transferencia , descricao ) values ('"
+		return "insert into transferencia_pagamento_contratual ( id_contrato_remetente , id_contrato_destinatario ,valor , data_transferencia , descricao ) values ('"
 				+ transferencia.getId_contrato_remetente()+ "','"
 				+ transferencia.getId_contrato_destinatario() + "','"
-				+ transferencia.getId_pagamento_contratual() + "','"
+				+ transferencia.getValor() + "','"
 				+ transferencia.getData() + "','"
 
 				+ transferencia.getDescricao() + "')";
@@ -84,7 +84,7 @@ public class GerenciarBancoTransferencias {
 				transferencia.setId_transferencia(rs.getInt("id_transferencia"));
 				transferencia.setId_contrato_remetente(rs.getInt("id_contrato_remetente"));
 				transferencia.setId_contrato_destinatario(rs.getInt("id_contrato_destinatario"));
-				transferencia.setId_pagamento_contratual(rs.getInt("id_pagamento_contratual"));
+				transferencia.setValor(rs.getString("valor"));
 				transferencia.setData(rs.getString("data_transferencia"));
 				transferencia.setDescricao(rs.getString("descricao"));
 
@@ -119,7 +119,7 @@ public class GerenciarBancoTransferencias {
 				transferencia.setId_transferencia(rs.getInt("id_transferencia"));
 				transferencia.setId_contrato_remetente(rs.getInt("id_contrato_remetente"));
 				transferencia.setId_contrato_destinatario(rs.getInt("id_contrato_destinatario"));
-				transferencia.setId_pagamento_contratual(rs.getInt("id_pagamento_contratual"));
+				transferencia.setValor(rs.getString("valor"));
 				transferencia.setData(rs.getString("data_transferencia"));
 				transferencia.setDescricao(rs.getString("descricao"));
 
@@ -180,7 +180,7 @@ public class GerenciarBancoTransferencias {
 				transferencia.setId_transferencia(rs.getInt("id_transferencia"));
 				transferencia.setId_contrato_remetente(rs.getInt("id_contrato_remetente"));
 				transferencia.setId_contrato_destinatario(rs.getInt("id_contrato_destinatario"));
-				transferencia.setId_pagamento_contratual(rs.getInt("id_pagamento_contratual"));
+				transferencia.setValor(rs.getString("valor"));
 				transferencia.setData(rs.getString("data_transferencia"));
 				transferencia.setDescricao(rs.getString("descricao"));
 

@@ -62,14 +62,13 @@ public class TelaConfirmarTransferenciaPagamentoContratual extends JDialog {
     private JComboBox cBContratoDestinatario ;
     private JFrame telaPaiJFrame;
 
-	public TelaConfirmarTransferenciaPagamentoContratual(CadastroContrato contrato_remetente, int id_pagamento_contratual, JFrame janela_pai) {
+	public TelaConfirmarTransferenciaPagamentoContratual(CadastroContrato contrato_remetente, JFrame janela_pai) {
 	//	setModal(true);
 
 		 isto = this;
 	
 		 
 		 GerenciarBancoContratos gerenciar = new GerenciarBancoContratos();
-		 CadastroContrato.CadastroPagamentoContratual pagamento_contratual = gerenciar.getPagamentoContratual(id_pagamento_contratual);
 		 
 		setResizable(true);
 		setTitle("E-Contract - Transferencia de Pagamento");
@@ -150,13 +149,10 @@ public class TelaConfirmarTransferenciaPagamentoContratual extends JDialog {
 		painelPrincipal.add(lblValor, "cell 0 1,alignx trailing");
 		
 		entValor = new JTextField();
-		entValor.setEditable(false);
 		entValor.setFont(new Font("Tahoma", Font.PLAIN, 14));
 		
 		Locale ptBr = new Locale("pt", "BR");
-		String valorString = NumberFormat.getCurrencyInstance(ptBr).format(pagamento_contratual.getValor_pagamento());
 		
-		entValor.setText(valorString);
 		painelPrincipal.add(entValor, "cell 1 1,growx");
 		entValor.setColumns(10);
 		
@@ -204,7 +200,8 @@ public class TelaConfirmarTransferenciaPagamentoContratual extends JDialog {
 				transferencia.setDescricao(descricao);
 				transferencia.setId_contrato_destinatario(contrato_destinatario.getId());
 				transferencia.setId_contrato_remetente(contrato_remetente.getId());
-				transferencia.setId_pagamento_contratual(id_pagamento_contratual);
+				transferencia.setValor(entValor.getText());
+				
 				
 				GerenciarBancoTransferencias gerenciar = new GerenciarBancoTransferencias();
 				int transferiou = gerenciar.inserirTransferencia(transferencia);
@@ -230,6 +227,7 @@ public class TelaConfirmarTransferenciaPagamentoContratual extends JDialog {
 			public void actionPerformed(ActionEvent e) {
 				TelaContratos contrato = new TelaContratos(2, isto);
 				contrato.setTelaPai(isto);
+				contrato.pesquisar_contratos_e_sub_contratos();
 				contrato.setVisible(true);
 			}
 		});

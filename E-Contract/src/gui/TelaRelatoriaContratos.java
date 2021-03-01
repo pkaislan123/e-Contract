@@ -81,6 +81,10 @@ public class TelaRelatoriaContratos extends JDialog {
 	private JPanel painelOpcaosInternas;
 	private JLabel lblNewLabel_5;
 
+private  JCheckBox chckbxRecebimentos, chckbxRecebimentoComoComprador ,chckbxRecebimentoComoVendedor;
+private JCheckBox chckbxUnirRecebimentos;
+
+
 	public static void pesquisarSafras() {
 		GerenciarBancoSafras listaSafras = new GerenciarBancoSafras();
 		safras = listaSafras.getSafras();
@@ -149,6 +153,8 @@ public class TelaRelatoriaContratos extends JDialog {
 						contrato_como_corretor = false;
 				boolean pagamento = false, pagamento_como_despositante = false, pagamento_como_favorecido = false;
 				boolean carregamento = false, carregamento_como_comprador = false, carregamento_como_vendedor = false;
+				boolean recebimento = false, recebimento_como_comprador = false, recebimento_como_vendedor = false, unir_recebimentos = false;
+
 				Date hoje = new Date();
 				SimpleDateFormat df = new SimpleDateFormat("dd/MM/yyyy");
 
@@ -247,6 +253,27 @@ public class TelaRelatoriaContratos extends JDialog {
 					}
 
 				}
+				
+				if (chckbxRecebimentos.isSelected()) {
+					recebimento = true;
+
+					if (chckbxRecebimentoComoComprador.isSelected()) {
+						recebimento_como_comprador = true;
+					}
+
+					if (chckbxRecebimentoComoVendedor.isSelected()) {
+						recebimento_como_vendedor = true;
+					}
+					
+					if(chckbxUnirRecebimentos.isSelected()) {
+						unir_recebimentos = true;
+					}else {
+						unir_recebimentos = false;
+
+					}
+
+				}
+				
 				ArrayList<CadastroCliente> clientes = new ArrayList<>();
 
 				if (cliente_alvo != null) {
@@ -290,6 +317,10 @@ public class TelaRelatoriaContratos extends JDialog {
                     relatar.setPagamento(pagamento);
                     relatar.setPagamento_como_depositante(pagamento_como_despositante);
                     relatar.setPagamento_como_favorecido(pagamento_como_favorecido);
+                    relatar.setRecebimento(recebimento);
+                    relatar.setRecebimento_como_comprador(recebimento_como_comprador);
+                    relatar.setRecebimento_como_vendedor(recebimento_como_vendedor);
+                    relatar.setUnir_recebimentos(unir_recebimentos);
 					
 					ByteArrayOutputStream contrato_alterado = relatar.preparar();
 
@@ -300,7 +331,7 @@ public class TelaRelatoriaContratos extends JDialog {
 				} else if (gerar && chkBoxContratosComoVendedor.isSelected()) {
 					RelatorioContratos relatar = new RelatorioContratos(tipo_contrato, contrato, false, pagamento,
 							pagamento_como_despositante, pagamento_como_favorecido, carregamento,
-							carregamento_como_comprador, carregamento_como_vendedor, id_safra, sub_contratos,
+							carregamento_como_comprador, carregamento_como_vendedor, recebimento, recebimento_como_comprador, recebimento_como_vendedor,unir_recebimentos, id_safra, sub_contratos,
 							incluir_comissao, incluir_ganhos_potencias, somar_sub_contratos, clientes, grupo_alvo);
 					ByteArrayOutputStream contrato_alterado = relatar.preparar();
 
@@ -311,7 +342,7 @@ public class TelaRelatoriaContratos extends JDialog {
 				}else if (gerar && !chkBoxContratosComoVendedor.isSelected() && !chkBoxContratosComoComprador.isSelected()) {
 					RelatorioContratos relatar = new RelatorioContratos(tipo_contrato, contrato, false, pagamento,
 							pagamento_como_despositante, pagamento_como_favorecido, carregamento,
-							carregamento_como_comprador, carregamento_como_vendedor, id_safra, sub_contratos,
+							carregamento_como_comprador, carregamento_como_vendedor, recebimento, recebimento_como_comprador, recebimento_como_vendedor,unir_recebimentos, id_safra, sub_contratos,
 							incluir_comissao, incluir_ganhos_potencias, somar_sub_contratos, clientes, grupo_alvo);
 					ByteArrayOutputStream contrato_alterado = relatar.preparar();
 
@@ -650,6 +681,40 @@ public class TelaRelatoriaContratos extends JDialog {
 		lblNewLabel_5.setFont(new Font("Tahoma", Font.PLAIN, 14));
 		lblNewLabel_5.setBounds(10, 11, 182, 17);
 		painelOpcaosInternas.add(lblNewLabel_5);
+		
+		 chckbxRecebimentos = new JCheckBox("Recebimentos");
+		chckbxRecebimentos.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				if (chckbxRecebimentos.isSelected()) {
+					chckbxRecebimentos.setSelected(true);
+					chckbxRecebimentoComoComprador .setEnabled(true);
+					chckbxRecebimentoComoVendedor.setEnabled(true);
+					chckbxUnirRecebimentos.setEnabled(true);
+				} else {
+					chckbxRecebimentos.setSelected(false);
+					chckbxRecebimentoComoComprador .setEnabled(false);
+					chckbxRecebimentoComoVendedor.setEnabled(false);
+					chckbxUnirRecebimentos.setEnabled(false);
+				}
+			}
+		});
+		chckbxRecebimentos.setBounds(550, 297, 120, 23);
+		painelPrincipal.add(chckbxRecebimentos);
+		
+		 chckbxRecebimentoComoComprador = new JCheckBox("Alvo como Comprador");
+		chckbxRecebimentoComoComprador.setEnabled(false);
+		chckbxRecebimentoComoComprador.setBounds(574, 330, 168, 23);
+		painelPrincipal.add(chckbxRecebimentoComoComprador);
+		
+		 chckbxRecebimentoComoVendedor = new JCheckBox("Alvo como Vendedor");
+		chckbxRecebimentoComoVendedor.setEnabled(false);
+		chckbxRecebimentoComoVendedor.setBounds(574, 366, 168, 23);
+		painelPrincipal.add(chckbxRecebimentoComoVendedor);
+		
+		chckbxUnirRecebimentos = new JCheckBox("Unir");
+		chckbxUnirRecebimentos.setEnabled(false);
+		chckbxUnirRecebimentos.setBounds(600, 402, 168, 23);
+		painelPrincipal.add(chckbxUnirRecebimentos);
 
 		pesquisarSafras();
 

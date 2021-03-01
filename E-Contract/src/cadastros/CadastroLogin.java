@@ -3,12 +3,27 @@ package cadastros;
 public class CadastroLogin {
 
 	private int id;
-	private String nome, sobrenome, login, email, senha , senhaEmail, cargo, celular, genero, tratamento, ip_ativo;
+	private String nome, sobrenome, login, email, senha , senhaEmail, cargo, celular, genero, tratamento, ip_ativo, email2, senhaEmail2;
+	
 	public String getIp_ativo() {
 		return ip_ativo;
 	}
 	public void setIp_ativo(String ip_ativo) {
 		this.ip_ativo = ip_ativo;
+	}
+
+
+	public String getEmail2() {
+		return email2;
+	}
+	public void setEmail2(String email2) {
+		this.email2 = email2;
+	}
+	public String getSenhaEmail2() {
+		return senhaEmail2;
+	}
+	public void setSenhaEmail2(String senhaEmail2) {
+		this.senhaEmail2 = senhaEmail2;
 	}
 
 

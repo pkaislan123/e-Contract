@@ -54,6 +54,8 @@ import java.awt.event.KeyEvent;
 import java.io.File;
 
 import javax.swing.JRadioButton;
+import java.awt.event.ItemListener;
+import java.awt.event.ItemEvent;
 
 
 
@@ -66,15 +68,13 @@ public class TelaEnviarMsgMail extends JDialog {
 	private ConfiguracoesGlobais configs_globais;
 	private JTextField entEmailDestino;
 	private JCheckBox chkOutroContato, chkAnexarContrato;
-	private JComboBox cBContato;
+	private JComboBox cBContato, cBEmailRemetente;
 	private String nome_comprador_global, mensagem_anexo, mensagem_notificacao, mensagem_assinatura, mensagem_assunto, mensagem_saudacao;
 	private JRadioButton rdLivre, rdAnexo, rdNot;
 	private CadastroContrato contrato_local;
 	private JTextArea textArea, textAreaAssinatura ;
 	private TelaEnviarMsgMail isto;
 	private JLabel newll;
-	private JLabel lblRemetente;
-	private String remetente_global;
 	private JLabel lblAssunto_1;
 	private JTextField lblAssunto;
 	private JLabel lblAssunto_2;
@@ -451,15 +451,6 @@ public class TelaEnviarMsgMail extends JDialog {
 			painelPrincipal.add(newll);
 			
 			
-			lblRemetente = new JLabel();
-			if(login.getEmail() != null) {
-				lblRemetente.setText(login.getEmail());
-				remetente_global = login.getEmail();
-			}
-			lblRemetente.setFont(new Font("SansSerif", Font.BOLD, 14));
-			lblRemetente.setForeground(Color.WHITE);
-			lblRemetente.setBounds(178, 58, 212, 19);
-			painelPrincipal.add(lblRemetente);
 			
 			lblAssunto_1 = new JLabel("Assunto:");
 			lblAssunto_1.setForeground(Color.WHITE);
@@ -529,8 +520,18 @@ public class TelaEnviarMsgMail extends JDialog {
 			btnMsg2.setBounds(656, 134, 90, 28);
 			painelPrincipal.add(btnMsg2);
 			
+			 cBEmailRemetente = new JComboBox();
 			
+			cBEmailRemetente.setFont(new Font("SansSerif", Font.PLAIN, 14));
+			cBEmailRemetente.setBounds(180, 53, 342, 29);
+			painelPrincipal.add(cBEmailRemetente);
 			
+			if(checkEmail(login.getEmail())) {
+				cBEmailRemetente.addItem(login.getEmail());
+			}
+			if(checkEmail(login.getEmail2())) {
+				cBEmailRemetente.addItem(login.getEmail2());
+			}
 			
 			pesquisarContatos(compradores[0].getId());
 			  mensagem_anexo = "\n\nSou " + login.getNome() + " " + login.getSobrenome() +","
@@ -660,10 +661,20 @@ public void set_msg_livre() {
 		
 			//enviar contrato fixo
 			 Email mail = new Email();
-			 
-		        mail.logar(remetente_global.trim(), login.getSenhaEmail().trim());
+			   String remetente = "";
+		        if(cBEmailRemetente.getSelectedItem().toString().equals(login.getEmail())) {
+		        	JOptionPane.showMessageDialog(isto, "Email 1: " + login.getEmail() +" rementente: " + login.getEmail());
+			        mail.logar( login.getEmail(), login.getSenhaEmail().trim());
+		        	remetente = login.getEmail();
+
+		        }else if(cBEmailRemetente.getSelectedItem().toString().equals(login.getEmail2())) {
+		        	JOptionPane.showMessageDialog(isto, "Email 2: " + login.getEmail2() +" rementente: " + login.getEmail2());
+		        	remetente = login.getEmail2();
+		        	mail.logar( login.getEmail2(), login.getSenhaEmail2().trim());
+
+		        }
 		        
-		        String remetente = remetente_global.trim();
+		        
 		        
 		        String destinatario = "";
 		       if( chkOutroContato.isSelected()) {
@@ -689,7 +700,7 @@ public void set_msg_livre() {
 		            if(checkEmail(destinatario)) {
 		                //  public boolean enviar(String remetente, String destinatario, String assunto, String saudacao, String mensagem, String assinatura) {
 
-		                boolean enviado = mail.enviar(remetente_global, destinatario, assunto,saudacao, mensagem, assinatura);
+		                boolean enviado = mail.enviar(remetente, destinatario, assunto,saudacao, mensagem, assinatura);
 		        		    if(enviado == true) {
 		        		    	JOptionPane.showMessageDialog(isto, "E-mail enviado");
 		        		    	isto.dispose();
@@ -715,7 +726,7 @@ public void set_msg_livre() {
 		        	
 		            if(checkEmail(destinatario)) {
 		                
-		                boolean enviado = mail.enviarAnexo(remetente_global, destinatario, assunto, saudacao, mensagem, assinatura, arquivos);
+		                boolean enviado = mail.enviarAnexo(remetente, destinatario, assunto, saudacao, mensagem, assinatura, arquivos);
 		        		    if(enviado == true) {
 		        		    	JOptionPane.showMessageDialog(isto, "E-mail enviado");
 		        		    	isto.dispose();
@@ -748,7 +759,7 @@ public void set_msg_livre() {
 		        		}
 				     		
 				     		
-		                  boolean enviado = mail.enviarAnexo(remetente_global, destinatario, assunto, saudacao, mensagem, assinatura, arquivos);
+		                  boolean enviado = mail.enviarAnexo(remetente, destinatario, assunto, saudacao, mensagem, assinatura, arquivos);
 		       		    if(enviado == true) {
 		       		    	JOptionPane.showMessageDialog(isto, "E-mail enviado");
 		       		    	isto.dispose();
@@ -767,7 +778,7 @@ public void set_msg_livre() {
 		        	    if(checkEmail(destinatario)) {
 		                    //  public boolean enviar(String remetente, String destinatario, String assunto, String saudacao, String mensagem, String assinatura) {
 
-		                    boolean enviado = mail.enviar(remetente_global, destinatario, assunto,saudacao, mensagem, assinatura);
+		                    boolean enviado = mail.enviar(remetente, destinatario, assunto,saudacao, mensagem, assinatura);
 		            		    if(enviado == true) {
 		            		    	JOptionPane.showMessageDialog(isto, "E-mail enviado");
 		            		    	isto.dispose();

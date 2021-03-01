@@ -26,17 +26,22 @@ import com.dropbox.core.v2.sharing.CreateSharedLinkWithSettingsErrorException;
 import com.dropbox.core.v2.sharing.SharedLinkMetadata;
 import com.dropbox.core.v2.users.FullAccount;
 
+import cadastros.CadastroLogin;
+import cadastros.CadastroNuvem;
+import cadastros.CadastroZapMessenger;
+import outros.DadosGlobais;
+
 public class Nuvem {
 
+	private CadastroLogin login;
+	private ConfiguracoesGlobais configs_globais;
 	
-	final String APP_KEY = "8jwob8m3dm9cr2j";
-	final String APP_SECRET = "ml3brqscy8vb26t";
-    private  static  final  String  ACCESS_TOKEN  =  "fyBpaZh_e20AAAAAAAAAAS1VuOB5royOV3ZLjoUKsa3rCZdSopbvxyfLHmixRZ8K" ;
+    private CadastroNuvem nuvem;
 
     DbxClientV2 client;
     
 	public Nuvem() {
-		
+		getDadosGlobais();
 	}
 	
 	
@@ -56,7 +61,7 @@ public class Nuvem {
 		 // Criar cliente Dropbox 
 		// Create Dropbox client
         DbxRequestConfig config = DbxRequestConfig.newBuilder("dropbox/java-tutorial").build();
-        client = new DbxClientV2(config, ACCESS_TOKEN);
+        client = new DbxClientV2(config, nuvem.getToken());
 		
 		
 	}
@@ -144,6 +149,15 @@ public class Nuvem {
 			System.out.println("falha ao deleter o arquivo da nuvem, erro: " + e.getMessage());
 			return false;
 		}
+	}
+	
+	public void getDadosGlobais() {
+		//gerenciador de log
+				DadosGlobais dados = DadosGlobais.getInstance();
+				 configs_globais = dados.getConfigs_globais();
+				 CadastroZapMessenger zap = configs_globais.getZap_zap();
+				 nuvem = configs_globais.getNuvem();
+		
 	}
 	
 }

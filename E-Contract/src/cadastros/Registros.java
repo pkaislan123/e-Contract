@@ -102,4 +102,10 @@ public class Registros {
 
 	}
 
+	public static class RegistroRecebimento{
+		double quantidade_total_romaneios = 0;
+		double quantidade_total_nf_venda = 0;
+		
+	}
+	
 }

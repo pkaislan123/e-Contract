@@ -67,7 +67,6 @@ public class TelaNotasFiscais extends JDialog {
 
 	private JTable table_nfs;
 	private TelaNotasFiscais isto;
-	private JButton btnSelecionarNota;
 	
 	private JLabel lblStatusAdicionandoNotas;
 	private int contador = 0;
@@ -104,8 +103,9 @@ public class TelaNotasFiscais extends JDialog {
 	private JLabel lblNewLabel_2;
 	private JLabel lblNewLabel_4;
 	private JButton btnNewButton;
+	private JButton btnSelecionarNota;
 
-	public TelaNotasFiscais(int flag,CadastroCliente vendedor, Window janela_pai) {
+	public TelaNotasFiscais(int flag, int retorno,CadastroCliente vendedor, Window janela_pai) {
 		setIconImage(Toolkit.getDefaultToolkit().getImage(TelaNotasFiscais.class.getResource("/imagens/icone_notas_fiscais.png")));
 		//setAlwaysOnTop(true);
 
@@ -175,18 +175,7 @@ public class TelaNotasFiscais extends JDialog {
 
 		
 		
-		 btnSelecionarNota = new JButton("Selecionar");
-		btnSelecionarNota.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				int rowSel = table_nfs.getSelectedRow();//pega o indice da linha na tabela
-				int indexRowModel = table_nfs.getRowSorter().convertRowIndexToModel(rowSel);//converte pro indice do model
-				((TelaConfirmarCarregamento) tela_pai).setNotaFiscal(notas_fiscais_disponivel.get(indexRowModel));
-				isto.dispose();
-
-			}
-		});
-		btnSelecionarNota.setBounds(1162, 621, 89, 23);
-		painelPrincipal.add(btnSelecionarNota);
+		
 
 
 		entProduto = new JTextField();
@@ -362,13 +351,14 @@ public class TelaNotasFiscais extends JDialog {
 		btnNewButton.setBounds(787, 621, 64, 28);
 		painelPrincipal.add(btnNewButton);
 		
+		
+
+		
 
 		if(flag == 1) {
 			//esconder o botao selecionar
 
-			 btnSelecionarNota.setVisible(false);
-
-			 btnSelecionarNota.setEnabled(false);
+		
 			
 		}else if(flag == 0) {
 			//esconder o botão vizualizar nf

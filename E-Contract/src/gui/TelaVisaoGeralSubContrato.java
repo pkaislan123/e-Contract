@@ -404,14 +404,12 @@ public class TelaVisaoGeralSubContrato extends JDialog {
 
 			GerenciarBancoContratos gerenciar_contratos = new GerenciarBancoContratos();
 
-			CadastroContrato.CadastroPagamentoContratual pag_transferencia = null;
 
 			// pegar o pagamento
-			pag_transferencia = gerenciar_contratos.getPagamentoContratual(transferencia.getId_pagamento_contratual());
 
 			// pegar data do pagmento
 			String data = transferencia.getData();
-			double valor_pagamento = pag_transferencia.getValor_pagamento();
+			double valor_pagamento =Double.parseDouble(transferencia.getValor());
 
 			// pegar o destinatario
 			CadastroContrato destinatario = gerenciar_contratos
@@ -430,14 +428,12 @@ public class TelaVisaoGeralSubContrato extends JDialog {
 		for (CadastroContrato.CadastroTransferenciaPagamentoContratual transferencia : lista_transferencias_contratuais_destinatario) {
 			GerenciarBancoContratos gerenciar_contratos = new GerenciarBancoContratos();
 
-			CadastroContrato.CadastroPagamentoContratual pag_transferencia = null;
 
 			// pegar o pagamento
-			pag_transferencia = gerenciar_contratos.getPagamentoContratual(transferencia.getId_pagamento_contratual());
 
 			// pegar data do pagmento
 			String data = transferencia.getData();
-			double valor_pagamento = pag_transferencia.getValor_pagamento();
+			double valor_pagamento = Double.parseDouble(transferencia.getValor());
 
 			// pegar o destinatario
 			CadastroContrato remetente = gerenciar_contratos.getContrato(transferencia.getId_contrato_remetente());

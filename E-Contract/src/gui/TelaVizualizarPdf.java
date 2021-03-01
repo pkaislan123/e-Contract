@@ -9,6 +9,9 @@ import java.awt.Window;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ResourceBundle;
+import javax.swing.UIManager;
+import javax.swing.UIManager.LookAndFeelInfo;
+import javax.swing.UnsupportedLookAndFeelException;
 
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
@@ -64,7 +67,7 @@ public class TelaVizualizarPdf extends JDialog {
 		
 		// build a controller
 		SwingController controller = new SwingController();
-
+		
 		 PropertiesManager propriedades =  new PropertiesManager (System.getProperties (),ResourceBundle.getBundle (PropertiesManager.DEFAULT_MESSAGE_BUNDLE));
 		// Build a SwingViewFactory configured with the controller
 		
@@ -77,6 +80,7 @@ public class TelaVizualizarPdf extends JDialog {
 		         Boolean.FALSE);
 		 propriedades.setBoolean (PropertiesManager.PROPERTY_SHOW_TOOLBAR_FIT,
 		         Boolean.FALSE);
+
 		 
 		 propriedades.setFloat(PropertiesManager.PROPERTY_DEFAULT_ZOOM_LEVEL, 2.0f );
 

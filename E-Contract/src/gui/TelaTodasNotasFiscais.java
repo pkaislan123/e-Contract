@@ -37,6 +37,10 @@ import cadastros.CadastroLogin;
 import cadastros.CadastroNFe;
 import conexaoBanco.GerenciarBancoClientes;
 import conexaoBanco.GerenciarBancoContratos;
+import javafx.application.Platform;
+import javafx.embed.swing.JFXPanel;
+import javafx.stage.FileChooser;
+import javafx.stage.Stage;
 import manipular.ConfiguracoesGlobais;
 import manipular.ManipularNotasFiscais;
 import manipular.ManipularTxt;
@@ -107,8 +111,10 @@ public class TelaTodasNotasFiscais extends JDialog {
 	private JLabel lblNewLabel_2;
 	private JLabel lblNewLabel_4;
 	private JButton btnNewButton;
+	private JButton btnReleitura;
+	private JTextField entCodigo;
 
-	public TelaTodasNotasFiscais(int flag, Window janela_pai) {
+	public TelaTodasNotasFiscais(int flag, int retorno, Window janela_pai) {
 		setIconImage(Toolkit.getDefaultToolkit().getImage(TelaNotasFiscais.class.getResource("/imagens/icone_notas_fiscais.png")));
 		//setAlwaysOnTop(true);
 
@@ -180,9 +186,35 @@ public class TelaTodasNotasFiscais extends JDialog {
 		 btnSelecionarNota = new JButton("Selecionar");
 		btnSelecionarNota.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
+				
 				int rowSel = table_nfs.getSelectedRow();//pega o indice da linha na tabela
 				int indexRowModel = table_nfs.getRowSorter().convertRowIndexToModel(rowSel);//converte pro indice do model
-				((TelaConfirmarCarregamento) tela_pai).setNotaFiscal(notas_fiscais_disponivel.get(indexRowModel));
+				if(tela_pai instanceof TelaConfirmarCarregamento) {
+					
+					if(retorno == 1) {
+						//retorna a nf interna
+						((TelaConfirmarCarregamento) tela_pai).setNotaFiscalInterna(notas_fiscais_disponivel.get(indexRowModel));
+
+					}else if(retorno == 2) {
+						//retorna a nf de venda 1
+						((TelaConfirmarCarregamento) tela_pai).setNotaFiscalVenda1(notas_fiscais_disponivel.get(indexRowModel));
+
+					}else if(retorno == 3) {
+						//retorna a nf de complemento
+						((TelaConfirmarCarregamento) tela_pai).setNotaFiscalComplemento(notas_fiscais_disponivel.get(indexRowModel));
+
+					}
+					
+
+				}
+				else if(tela_pai instanceof TelaConfirmarRecebimento) {
+					if(retorno == 1)
+					((TelaConfirmarRecebimento) tela_pai).setNotaFiscalVenda(notas_fiscais_disponivel.get(indexRowModel));
+					else if(retorno == 2)
+						((TelaConfirmarRecebimento) tela_pai).setNotaFiscalRemessa(notas_fiscais_disponivel.get(indexRowModel));
+
+				}
+				
 				isto.dispose();
 
 			}
@@ -364,6 +396,32 @@ public class TelaTodasNotasFiscais extends JDialog {
 		btnNewButton.setBounds(803, 587, 64, 28);
 		painelPrincipal.add(btnNewButton);
 		
+		btnReleitura = new JButton("Releitura");
+		btnReleitura.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				
+				//adiciona a nota na lista
+				notas_fiscais_disponivel.clear();
+				modelo_nfs.onRemoveAll();
+				
+				
+				btnReleitura.setEnabled(false);
+				btnReleitura.setVisible(false);
+				
+				new Thread() {
+					@Override
+					public void run() {
+						pesquisarNotas();
+						btnReleitura.setEnabled(true);
+						btnReleitura.setVisible(true);
+
+					}
+				}.start();
+			}
+		});
+		btnReleitura.setBounds(864, 192, 90, 28);
+		painelPrincipal.add(btnReleitura);
+		
 
 		if(flag == 1) {
 			//esconder o botao selecionar
@@ -379,12 +437,25 @@ public class TelaTodasNotasFiscais extends JDialog {
 			
 		}
 		
+		btnReleitura.setEnabled(false);
 		
+		JLabel lblCdigo = new JLabel("Código:");
+		lblCdigo.setFont(new Font("Tahoma", Font.PLAIN, 14));
+		lblCdigo.setBounds(228, 187, 48, 17);
+		painelPrincipal.add(lblCdigo);
+		
+		entCodigo = new JTextField();
+		entCodigo.setColumns(10);
+		entCodigo.setBounds(281, 182, 268, 28);
+		painelPrincipal.add(entCodigo);
+		btnReleitura.setVisible(false);
 		
 		new Thread() {
 			@Override
 			public void run() {
 				pesquisarNotas();
+				btnReleitura.setEnabled(true);
+				btnReleitura.setVisible(true);
 
 			}
 		}.start();
@@ -409,21 +480,6 @@ public class TelaTodasNotasFiscais extends JDialog {
 				manipular_notas.setPai(isto);
 				ArrayList<CadastroNFe> notas_fiscais = manipular_notas.tratarRapido();
 
-				/*
-				 * for (CadastroNFe nota : notas_fiscais) {
-				 * 
-				 * java.awt.EventQueue.invokeLater(new Runnable() { public void run() {
-				 * modelo_nfs.addRow(new Object[] { nota.getNfe(), nota.getSerie(),
-				 * nota.getNome_remetente(), nota.getInscricao_remetente(), nota.getProtocolo(),
-				 * nota.getData(), nota.getNatureza(), nota.getNome_destinatario(),
-				 * nota.getInscricao_destinatario(), nota.getProduto(), nota.getQuantidade(),
-				 * nota.getValor() });
-				 * 
-				 * table_nfs.repaint(); table_nfs.updateUI();
-				 * notas_fiscais_disponivel.add(nota);
-				 * 
-				 * } }); }
-				*/
 			
 	           }catch(Exception f) {
 	        	   JOptionPane.showMessageDialog(null, "Erro ao listar notas fiscaisz\nCausa: " + f.getCause() + "\nErro: " + f.getMessage());
@@ -441,27 +497,33 @@ public class TelaTodasNotasFiscais extends JDialog {
 
 	}
 
-	public void setPai(JDialog _pai) {
-		this.tela_pai = _pai;
-	}
-
+	
 	public void addNota(CadastroNFe nota) {
 
 		java.awt.EventQueue.invokeLater(new Runnable() {
 			public void run() {
 				if(nota.getNfe() != null) {
-				modelo_nfs.onAdd(nota);
-			/*	modelo_nfs.addRow(new Object[] { nota.getNfe(), nota.getSerie(), nota.getNome_remetente(),
-						nota.getInscricao_remetente(), nota.getProtocolo(), nota.getData(), nota.getNatureza(),
-						nota.getNome_destinatario(), nota.getInscricao_destinatario(), nota.getProduto(),
-						nota.getQuantidade(), nota.getValor() });*/
-
-				lblStatusAdicionandoNotas
+			             boolean ja_esta_na_lista = false;
+                        String codigo_nota_a_ser_adicionada = nota.getNfe();
+					for(CadastroNFe nfe : notas_fiscais_disponivel) {
+						if(nfe.getNfe().equals(codigo_nota_a_ser_adicionada)) {
+							ja_esta_na_lista = true;
+							break;
+						}
+					}
+					
+					if(!ja_esta_na_lista) {
+						lblStatusAdicionandoNotas
 						.setText("Aguarde, notas estão sendo carregadas: Adicionando nota fiscal " + nota.getNfe());
 				lblStatusAdicionandoNotas.repaint();
 				lblStatusAdicionandoNotas.updateUI();
 
 				notas_fiscais_disponivel.add(nota);
+				modelo_nfs.onAdd(nota);
+
+					}
+					
+			
 				}
 			}
 		});
@@ -853,246 +915,266 @@ public class TelaTodasNotasFiscais extends JDialog {
 		
 	
 	public void importar() {
-		String unidade_base_dados = configs_globais.getServidorUnidade();
-		String sub_pasta = "E-Contract\\arquivos\\arquivos_comuns";
-		String pasta_final = unidade_base_dados + "\\" + sub_pasta;
-		ArrayList<CadastroCliente> clientes  = new GerenciarBancoClientes().getClientes(0, 0, "");
-
 		
-		JFileChooser fileChooser = new JFileChooser();
-		fileChooser.setPreferredSize(new Dimension(800, 600));
-		fileChooser.setMultiSelectionEnabled(true);
-		FileNameExtensionFilter  filter = new FileNameExtensionFilter("Excel file", "xls", "xlsx");
-		 fileChooser.addChoosableFileFilter(filter);
-		if(contador == 0)
-		{
-			//fileChooser.setCurrentDirectory(new File(System.getProperty("user.home")));
-			//fileChooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
-			fileChooser_global = fileChooser;
-            contador++;
-		}
-		else
-		{
-			fileChooser = fileChooser_global;
+		JOptionPane.showMessageDialog(isto,
+				"Na próxima tela, importe o arquivo digitalizado\ncom assinatura de ambas as partes");
+		try {
+			new JFXPanel();
+			Platform.runLater(() -> {
+
+				// pegar ultima pasta
+				ManipularTxt manipular_ultima_pasta = new ManipularTxt();
+				String ultima_pasta = manipular_ultima_pasta
+						.lerArquivo(new File("C:\\ProgramData\\E-Contract\\configs\\ultima_pasta.txt"));
+				FileChooser d =  new FileChooser();
+				
+				d.setInitialDirectory(new File(ultima_pasta));
+				File arquivo = d.showOpenDialog(new Stage());
+				String caminho_arquivo = "";
+				if (arquivo != null) {
+					
+					manipular_ultima_pasta.rescreverArquivo(
+							new File("C:\\ProgramData\\E-Contract\\configs\\ultima_pasta.txt"), arquivo.getParent());
+					
+					String unidade_base_dados = configs_globais.getServidorUnidade();
+					String sub_pasta = "E-Contract\\arquivos\\arquivos_comuns";
+					String pasta_final = unidade_base_dados + "\\" + sub_pasta;
+					ArrayList<CadastroCliente> clientes  = new GerenciarBancoClientes().getClientes(0, 0, "");
+
+					ManipularNotasFiscais manipular = new ManipularNotasFiscais("");
+
+					try {
+					CadastroNFe cadastro = manipular.filtrar(arquivo);
+					
+					//verifica se essa nota ja existe
+					boolean ja_existe = false;
+					for(CadastroNFe nfe : notas_fiscais_disponivel) {
+						if(nfe.getNfe().equals(cadastro.getNfe())) {
+							ja_existe = true;
+							break;
+						}
+					}
+					JOptionPane.showMessageDialog(isto, "Inscricao remetente: " + cadastro.getInscricao_remetente() + "\nInscricao Destinatario: " + cadastro.getInscricao_destinatario());
+
+					
+					if(!ja_existe) {
+						
+						boolean remetente_cadastrado = false;
+						CadastroCliente remetente = null;
+						
+						boolean destinatario_cadastrado = false;
+						CadastroCliente destinatario =null;
+						
+						
+					    //verifica-se  o remetente esta cadastrao
+					   for(CadastroCliente rem : clientes) {
+						   if(cadastro.getInscricao_remetente().trim() != null && !cadastro.getInscricao_remetente().trim() .equals(" ") && !cadastro.getInscricao_remetente().trim() .equals("")) {
+						   if(rem.getIe().trim().equals(cadastro.getInscricao_remetente().trim() )) {
+							   JOptionPane.showMessageDialog(null, "remetente cadastrado");
+							   remetente_cadastrado = true;
+							   remetente = rem;
+							   break;
+						   }
+						   }
+					   }
+					   
+					 //verifica-se  o destinatario esta cadastrao
+					   for(CadastroCliente dest : clientes) {
+						   if(cadastro.getInscricao_destinatario() != null && !cadastro.getInscricao_destinatario().trim() .equals(" ") && !cadastro.getInscricao_destinatario().trim() .equals("")) {
+
+						   if(dest.getIe().trim() .equals(cadastro.getInscricao_destinatario().trim() )) {
+							   JOptionPane.showMessageDialog(null, "destinatario cadastrado");
+							   destinatario_cadastrado = true;
+							   destinatario = dest;
+							   break;
+						   }
+					   }
+					   }
+					   
+					   
+					   if (remetente_cadastrado && !destinatario_cadastrado) {
+							//copiar para pasta do remetente
+							ManipularTxt manipular_txt = new ManipularTxt();
+							String nome_pasta;
+							if (remetente.getTipo_pessoa() == 0) {
+								nome_pasta = remetente.getNome_empresarial().toUpperCase();
+							} else {
+
+								nome_pasta = remetente.getNome_fantaia().toUpperCase();
+							}
+							unidade_base_dados = configs_globais.getServidorUnidade();
+							sub_pasta = "E-Contract\\arquivos\\clientes";
+							ManipularTxt manipular_arq = new ManipularTxt();
+							nome_pasta = nome_pasta.trim();
+							String caminho_completo_nf = unidade_base_dados + "\\" + sub_pasta + "\\" + nome_pasta.toUpperCase() + "\\"
+									+ "NOTAS FISCAIS" + "\\NFA-" + cadastro.getNfe().trim() + ".pdf";
+							
+							// JOptionPane.showMessageDialog(null, "Movendo de :\n" +
+							// roms.getCaminho_arquivo()+ "\nPara:\n" + caminho_completo_nf);
+						   
+							File file = new File(caminho_completo_nf);
+							if (!file.exists()) {
+								boolean mover = manipular_arq.copiarNFe(cadastro.getCaminho_arquivo(),
+										caminho_completo_nf);
+								if (mover) {
+									
+									 JOptionPane.showMessageDialog(null, "NF copiada para a pasta do remetente");
+									//adiciona a nota na lista
+										notas_fiscais_disponivel.add(cadastro);
+										modelo_nfs.onAdd(cadastro);
+								} else {
+									 JOptionPane.showMessageDialog(null, "Erro ao mover a nf para a pasta do remetente");
+									
+								}
+							} else {
+								JOptionPane.showMessageDialog(null, "NF já importada");
+							}
+						
+					   }else if(!remetente_cadastrado && destinatario_cadastrado) {
+						 //copiar para pasta do destinatario
+							ManipularTxt manipular_txt = new ManipularTxt();
+							String nome_pasta;
+							if (remetente.getTipo_pessoa() == 0) {
+								nome_pasta = destinatario.getNome_empresarial().toUpperCase();
+							} else {
+
+								nome_pasta = destinatario.getNome_fantaia().toUpperCase();
+							}
+							unidade_base_dados = configs_globais.getServidorUnidade();
+							sub_pasta = "E-Contract\\arquivos\\clientes";
+							ManipularTxt manipular_arq = new ManipularTxt();
+							nome_pasta = nome_pasta.trim();
+							String caminho_completo_nf = unidade_base_dados + "\\" + sub_pasta + "\\" + nome_pasta.toUpperCase() + "\\"
+									+ "NOTAS FISCAIS" + "\\NFA-" + cadastro.getNfe().trim() + ".pdf";
+							
+							// JOptionPane.showMessageDialog(null, "Movendo de :\n" +
+							// roms.getCaminho_arquivo()+ "\nPara:\n" + caminho_completo_nf);
+						   
+							File file = new File(caminho_completo_nf);
+							if (!file.exists()) {
+								boolean mover = manipular_arq.copiarNFe(cadastro.getCaminho_arquivo(),
+										caminho_completo_nf);
+								if (mover) {
+									
+									 JOptionPane.showMessageDialog(null, "NF copiada para a pasta do destinatario");
+										//adiciona a nota na lista
+										notas_fiscais_disponivel.add(cadastro);
+										modelo_nfs.onAdd(cadastro);
+								} else {
+									 JOptionPane.showMessageDialog(null, "Erro ao mover a nf para a pasta do destinatario");
+									
+								}
+							} else {
+								JOptionPane.showMessageDialog(null, "NF já importada");
+							}
+							
+							
+					   }else if(remetente_cadastrado && destinatario_cadastrado) {
+							//copiar para pasta do remetente
+							ManipularTxt manipular_txt = new ManipularTxt();
+							String nome_pasta;
+							if (remetente.getTipo_pessoa() == 0) {
+								nome_pasta = remetente.getNome_empresarial().toUpperCase();
+							} else {
+
+								nome_pasta = remetente.getNome_fantaia().toUpperCase();
+							}
+							JOptionPane.showMessageDialog(null, "nome da pasta remetente: " + nome_pasta);
+
+							unidade_base_dados = configs_globais.getServidorUnidade();
+							sub_pasta = "E-Contract\\arquivos\\clientes";
+							ManipularTxt manipular_arq = new ManipularTxt();
+							nome_pasta = nome_pasta.trim();
+							String caminho_completo_nf = unidade_base_dados + "\\" + sub_pasta + "\\" + nome_pasta.toUpperCase() + "\\"
+									+ "NOTAS FISCAIS" + "\\NFA-" + cadastro.getNfe().trim() + ".pdf";
+							
+							// JOptionPane.showMessageDialog(null, "Movendo de :\n" +
+							// roms.getCaminho_arquivo()+ "\nPara:\n" + caminho_completo_nf);
+						   
+							File file = new File(caminho_completo_nf);
+							if (!file.exists()) {
+								boolean mover = manipular_arq.copiarNFe(cadastro.getCaminho_arquivo(),
+										caminho_completo_nf);
+								if (mover) {
+									
+									 JOptionPane.showMessageDialog(null, "NF copiada para a pasta do remetente");
+								} else {
+									 JOptionPane.showMessageDialog(null, "Erro ao mover a nf para a pasta do remetente");
+									
+								}
+							} else {
+								JOptionPane.showMessageDialog(null, "NF já importada");
+							}
+							
+							//copiar para pasta do destinatario
+							if (destinatario.getTipo_pessoa() == 0) {
+								nome_pasta = destinatario.getNome_empresarial().toUpperCase();
+							} else {
+
+								nome_pasta = destinatario.getNome_fantaia().toUpperCase();
+							}
+							JOptionPane.showMessageDialog(null, "nome da pasta destinatario: " + nome_pasta);
+
+							unidade_base_dados = configs_globais.getServidorUnidade();
+							sub_pasta = "E-Contract\\arquivos\\clientes";
+							nome_pasta = nome_pasta.trim();
+							 caminho_completo_nf = unidade_base_dados + "\\" + sub_pasta + "\\" + nome_pasta.toUpperCase() + "\\"
+									+ "NOTAS FISCAIS" + "\\NFA-" + cadastro.getNfe().trim() + ".pdf";
+							
+							// JOptionPane.showMessageDialog(null, "Movendo de :\n" +
+							// roms.getCaminho_arquivo()+ "\nPara:\n" + caminho_completo_nf);
+						   
+							 file = new File(caminho_completo_nf);
+							if (!file.exists()) {
+								boolean mover = manipular_arq.copiarNFe(cadastro.getCaminho_arquivo(),
+										caminho_completo_nf);
+								if (mover) {
+									
+									 JOptionPane.showMessageDialog(null, "NF copiada para a pasta do destinatario");
+									//adiciona a nota na lista
+										notas_fiscais_disponivel.add(cadastro);
+										modelo_nfs.onAdd(cadastro);
+								} else {
+									 JOptionPane.showMessageDialog(null, "Erro ao mover a nf para a pasta do destinatario");
+									
+								}
+							} else {
+								JOptionPane.showMessageDialog(null, "NF já importada");
+							}
+							
+							
+					   }else {
+						JOptionPane.showMessageDialog(isto, "NF lida mas nem o remetente nem o destinatario esta cadastrado");
+						
+							 
+					   }
+						
+						
+					
+					}else {
+						JOptionPane.showMessageDialog(null, "Arquivo selecionado:\n" + arquivo.getAbsolutePath() + "\nJá está adicionado");
+
+					}
+
+					}catch(Exception e) {
+						JOptionPane.showMessageDialog(null, "Arquivo selecionado:\n" + arquivo.getAbsolutePath() + "\nNão é uma nota fiscal valida, por isso não foi adicionado");
+
+					}
 			
-		}
-		int result = fileChooser.showOpenDialog(isto);
-		
-		File[] files = fileChooser.getSelectedFiles();
-
-		
-		
-		for(File arquivo : files) {
-			ManipularNotasFiscais manipular = new ManipularNotasFiscais("");
-
-			try {
-			CadastroNFe cadastro = manipular.filtrar(arquivo);
-			
-			//verifica se essa nota ja existe
-			boolean ja_existe = false;
-			for(CadastroNFe nfe : notas_fiscais_disponivel) {
-				if(nfe.getNfe().equals(cadastro.getNfe())) {
-					ja_existe = true;
-					break;
+					
 				}
-			}
-			JOptionPane.showMessageDialog(isto, "Inscricao remetente: " + cadastro.getInscricao_remetente() + "\nInscricao Destinatario: " + cadastro.getInscricao_destinatario());
-
+				
+			});
+		
+		}catch(Exception e) {
 			
-			if(!ja_existe) {
-				
-				boolean remetente_cadastrado = false;
-				CadastroCliente remetente = null;
-				
-				boolean destinatario_cadastrado = false;
-				CadastroCliente destinatario =null;
-				
-				
-			    //verifica-se  o remetente esta cadastrao
-			   for(CadastroCliente rem : clientes) {
-				   if(cadastro.getInscricao_remetente() != null && !cadastro.getInscricao_remetente().equals(" ") && !cadastro.getInscricao_remetente().equals("")) {
-				   if(rem.getIe().equals(cadastro.getInscricao_remetente())) {
-					   JOptionPane.showMessageDialog(null, "remetente cadastrado");
-					   remetente_cadastrado = true;
-					   remetente = rem;
-					   break;
-				   }
-				   }
-			   }
-			   
-			 //verifica-se  o destinatario esta cadastrao
-			   for(CadastroCliente dest : clientes) {
-				   if(cadastro.getInscricao_destinatario() != null && !cadastro.getInscricao_destinatario().equals(" ") && !cadastro.getInscricao_destinatario().equals("")) {
-
-				   if(dest.getIe().equals(cadastro.getInscricao_destinatario())) {
-					   JOptionPane.showMessageDialog(null, "destinatario cadastrado");
-					   destinatario_cadastrado = true;
-					   destinatario = dest;
-					   break;
-				   }
-			   }
-			   }
-			   
-			   
-			   if (remetente_cadastrado && !destinatario_cadastrado) {
-					//copiar para pasta do remetente
-					ManipularTxt manipular_txt = new ManipularTxt();
-					String nome_pasta;
-					if (remetente.getTipo_pessoa() == 0) {
-						nome_pasta = remetente.getNome_empresarial().toUpperCase();
-					} else {
-
-						nome_pasta = remetente.getNome_fantaia().toUpperCase();
-					}
-					unidade_base_dados = configs_globais.getServidorUnidade();
-					sub_pasta = "E-Contract\\arquivos\\clientes";
-					ManipularTxt manipular_arq = new ManipularTxt();
-					nome_pasta = nome_pasta.trim();
-					String caminho_completo_nf = unidade_base_dados + "\\" + sub_pasta + "\\" + nome_pasta.toUpperCase() + "\\"
-							+ "NOTAS FISCAIS" + "\\NFA-" + cadastro.getNfe().trim() + ".pdf";
-					
-					// JOptionPane.showMessageDialog(null, "Movendo de :\n" +
-					// roms.getCaminho_arquivo()+ "\nPara:\n" + caminho_completo_nf);
-				   
-					File file = new File(caminho_completo_nf);
-					if (!file.exists()) {
-						boolean mover = manipular_arq.copiarNFe(cadastro.getCaminho_arquivo(),
-								caminho_completo_nf);
-						if (mover) {
-							
-							 JOptionPane.showMessageDialog(null, "NF copiada para a pasta do remetente");
-						} else {
-							 JOptionPane.showMessageDialog(null, "Erro ao mover a nf para a pasta do remetente");
-							
-						}
-					} else {
-						JOptionPane.showMessageDialog(null, "NF já importada");
-					}
-			   }else if(!remetente_cadastrado && destinatario_cadastrado) {
-				 //copiar para pasta do destinatario
-					ManipularTxt manipular_txt = new ManipularTxt();
-					String nome_pasta;
-					if (remetente.getTipo_pessoa() == 0) {
-						nome_pasta = destinatario.getNome_empresarial().toUpperCase();
-					} else {
-
-						nome_pasta = destinatario.getNome_fantaia().toUpperCase();
-					}
-					unidade_base_dados = configs_globais.getServidorUnidade();
-					sub_pasta = "E-Contract\\arquivos\\clientes";
-					ManipularTxt manipular_arq = new ManipularTxt();
-					nome_pasta = nome_pasta.trim();
-					String caminho_completo_nf = unidade_base_dados + "\\" + sub_pasta + "\\" + nome_pasta.toUpperCase() + "\\"
-							+ "NOTAS FISCAIS" + "\\NFA-" + cadastro.getNfe().trim() + ".pdf";
-					
-					// JOptionPane.showMessageDialog(null, "Movendo de :\n" +
-					// roms.getCaminho_arquivo()+ "\nPara:\n" + caminho_completo_nf);
-				   
-					File file = new File(caminho_completo_nf);
-					if (!file.exists()) {
-						boolean mover = manipular_arq.copiarNFe(cadastro.getCaminho_arquivo(),
-								caminho_completo_nf);
-						if (mover) {
-							
-							 JOptionPane.showMessageDialog(null, "NF copiada para a pasta do destinatario");
-						} else {
-							 JOptionPane.showMessageDialog(null, "Erro ao mover a nf para a pasta do destinatario");
-							
-						}
-					} else {
-						JOptionPane.showMessageDialog(null, "NF já importada");
-					}
-			   }else if(remetente_cadastrado && destinatario_cadastrado) {
-					//copiar para pasta do remetente
-					ManipularTxt manipular_txt = new ManipularTxt();
-					String nome_pasta;
-					if (remetente.getTipo_pessoa() == 0) {
-						nome_pasta = remetente.getNome_empresarial().toUpperCase();
-					} else {
-
-						nome_pasta = remetente.getNome_fantaia().toUpperCase();
-					}
-					JOptionPane.showMessageDialog(null, "nome da pasta remetente: " + nome_pasta);
-
-					unidade_base_dados = configs_globais.getServidorUnidade();
-					sub_pasta = "E-Contract\\arquivos\\clientes";
-					ManipularTxt manipular_arq = new ManipularTxt();
-					nome_pasta = nome_pasta.trim();
-					String caminho_completo_nf = unidade_base_dados + "\\" + sub_pasta + "\\" + nome_pasta.toUpperCase() + "\\"
-							+ "NOTAS FISCAIS" + "\\NFA-" + cadastro.getNfe().trim() + ".pdf";
-					
-					// JOptionPane.showMessageDialog(null, "Movendo de :\n" +
-					// roms.getCaminho_arquivo()+ "\nPara:\n" + caminho_completo_nf);
-				   
-					File file = new File(caminho_completo_nf);
-					if (!file.exists()) {
-						boolean mover = manipular_arq.copiarNFe(cadastro.getCaminho_arquivo(),
-								caminho_completo_nf);
-						if (mover) {
-							
-							 JOptionPane.showMessageDialog(null, "NF copiada para a pasta do remetente");
-						} else {
-							 JOptionPane.showMessageDialog(null, "Erro ao mover a nf para a pasta do remetente");
-							
-						}
-					} else {
-						JOptionPane.showMessageDialog(null, "NF já importada");
-					}
-					
-					//copiar para pasta do destinatario
-					if (destinatario.getTipo_pessoa() == 0) {
-						nome_pasta = destinatario.getNome_empresarial().toUpperCase();
-					} else {
-
-						nome_pasta = destinatario.getNome_fantaia().toUpperCase();
-					}
-					JOptionPane.showMessageDialog(null, "nome da pasta destinatario: " + nome_pasta);
-
-					unidade_base_dados = configs_globais.getServidorUnidade();
-					sub_pasta = "E-Contract\\arquivos\\clientes";
-					nome_pasta = nome_pasta.trim();
-					 caminho_completo_nf = unidade_base_dados + "\\" + sub_pasta + "\\" + nome_pasta.toUpperCase() + "\\"
-							+ "NOTAS FISCAIS" + "\\NFA-" + cadastro.getNfe().trim() + ".pdf";
-					
-					// JOptionPane.showMessageDialog(null, "Movendo de :\n" +
-					// roms.getCaminho_arquivo()+ "\nPara:\n" + caminho_completo_nf);
-				   
-					 file = new File(caminho_completo_nf);
-					if (!file.exists()) {
-						boolean mover = manipular_arq.copiarNFe(cadastro.getCaminho_arquivo(),
-								caminho_completo_nf);
-						if (mover) {
-							
-							 JOptionPane.showMessageDialog(null, "NF copiada para a pasta do destinatario");
-						} else {
-							 JOptionPane.showMessageDialog(null, "Erro ao mover a nf para a pasta do destinatario");
-							
-						}
-					} else {
-						JOptionPane.showMessageDialog(null, "NF já importada");
-					}
-					
-					
-			   }else {
-				JOptionPane.showMessageDialog(isto, "NF lida mas nem o remetente nem o destinatario esta cadastrado");
-					 
-			   }
-				
-				
-			
-			}else {
-				JOptionPane.showMessageDialog(null, "Arquivo selecionado:\n" + arquivo.getAbsolutePath() + "\nJá está adicionado");
-
-			}
-
-			}catch(Exception e) {
-				JOptionPane.showMessageDialog(null, "Arquivo selecionado:\n" + arquivo.getAbsolutePath() + "\nNão é uma nota fiscal valida, por isso não foi adicionado");
-
-			}
 		}
+		 
 		
-		//verifica se o arquivo e uma nota fiscal valida
-		
+	}
+	
+	public void setTelaPai(JDialog _telaPai) {
+		this.tela_pai = _telaPai;
 	}
 	
 	public void filtrar() {
@@ -1102,6 +1184,8 @@ public class TelaTodasNotasFiscais extends JDialog {
 		    String destinatario =  entChavePesquisa.getText().toUpperCase();
 		    String remetente = entRemetente.getText().toUpperCase();
 		    String natureza = entNatureza.getText().toUpperCase();
+		    
+		    String codigo = entCodigo.getText().toUpperCase();
 
 		    String menor = entMenorData.getText();
 		    String maior = entMaiorData.getText();
@@ -1148,6 +1232,9 @@ public class TelaTodasNotasFiscais extends JDialog {
 		    
 		    if(checkString(produto))
 		    filters.add(RowFilter.regexFilter(produto, 9));
+		    
+		    if(checkString(codigo))
+			    filters.add(RowFilter.regexFilter(codigo, 0));
 		    
 		    sorter.setRowFilter( RowFilter.andFilter(filters));
 	}

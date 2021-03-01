@@ -4,6 +4,7 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.FlowLayout;
 import java.awt.Font;
+import java.awt.Window;
 import java.net.URL;
 
 import javax.swing.ImageIcon;
@@ -36,7 +37,7 @@ public class TelaEscolha extends JDialog {
 	private JLabel lblNewLabel;
 	
 	
-	public TelaEscolha(int flag, CadastroContrato contrato, File documento) {
+	public TelaEscolha(int flag, CadastroContrato contrato, File documento, Window janela_pai) {
 		getContentPane().setBackground(new Color(0, 102, 102));
 		
 		setBounds(100, 100, 286, 98);
@@ -93,7 +94,7 @@ public class TelaEscolha extends JDialog {
 		URL url2 = getClass().getResource("/imagens/infinite.gif");
 		ImageIcon img2 = new ImageIcon(url2);
 		
-		setLocationRelativeTo(null);
+		setLocationRelativeTo(janela_pai);
 		setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
 
 		setResizable(false);

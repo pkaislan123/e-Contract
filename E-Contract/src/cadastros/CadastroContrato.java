@@ -6,6 +6,114 @@ import java.util.ArrayList;
 
 public class CadastroContrato {
 
+	/*
+	 * 
+	 * localizacao text 
+bruto_livre text 
+fertilizante text 
+penhor int(3) 
+status_penhor text 
+optante_folha int(3) 
+status_optante_folha text
+	 * 
+	 */
+	
+	private String descricao, observacao;
+	public String getDescricao() {
+		return descricao;
+	}
+
+
+
+	public void setDescricao(String descricao) {
+		this.descricao = descricao;
+	}
+
+
+
+	public String getObservacao() {
+		return observacao;
+	}
+
+
+
+	public void setObservacao(String observacao) {
+		this.observacao = observacao;
+	}
+	private String localizacao, bruto_livre, fertilizante, status_penhor, status_optante_folha;
+	private int optante_folha;
+	
+	
+	public String getLocalizacao() {
+		return localizacao;
+	}
+
+
+
+	public void setLocalizacao(String localizacao) {
+		this.localizacao = localizacao;
+	}
+
+
+
+	public String getBruto_livre() {
+		return bruto_livre;
+	}
+
+
+
+	public void setBruto_livre(String bruto_livre) {
+		this.bruto_livre = bruto_livre;
+	}
+
+
+
+	public String getFertilizante() {
+		return fertilizante;
+	}
+
+
+
+	public void setFertilizante(String fertilizante) {
+		this.fertilizante = fertilizante;
+	}
+
+
+
+	public String getStatus_penhor() {
+		return status_penhor;
+	}
+
+
+
+	public void setStatus_penhor(String status_penhor) {
+		this.status_penhor = status_penhor;
+	}
+
+
+
+	public String getStatus_optante_folha() {
+		return status_optante_folha;
+	}
+
+
+
+	public void setStatus_optante_folha(String status_optante_folha) {
+		this.status_optante_folha = status_optante_folha;
+	}
+
+
+
+
+	public int getOptante_folha() {
+		return optante_folha;
+	}
+
+
+
+	public void setOptante_folha(int optante_folha) {
+		this.optante_folha = optante_folha;
+	}
 	private String texto_clausulas;
     private ArrayList<CadastroContrato.CadastroTarefa> lista_tarefas;
     private int status_aprovacao;
@@ -128,6 +236,46 @@ public class CadastroContrato {
 		this.lista_tarefas = lista_tarefas;
 	}
 	private String caminho_diretorio_contrato;
+
+    private String caminho_diretorio_contrato2,  caminho_arquivo2, nome_arquivo2;
+    
+    
+    
+    
+
+	public String getCaminho_diretorio_contrato2() {
+		return caminho_diretorio_contrato2;
+	}
+
+
+
+	public void setCaminho_diretorio_contrato2(String caminho_diretorio_contrato2) {
+		this.caminho_diretorio_contrato2 = caminho_diretorio_contrato2;
+	}
+
+
+
+	public String getCaminho_arquivo2() {
+		return caminho_arquivo2;
+	}
+
+
+
+	public void setCaminho_arquivo2(String caminho_arquivo2) {
+		this.caminho_arquivo2 = caminho_arquivo2;
+	}
+
+
+
+	public String getNome_arquivo2() {
+		return nome_arquivo2;
+	}
+
+
+
+	public void setNome_arquivo2(String nome_arquivo2) {
+		this.nome_arquivo2 = nome_arquivo2;
+	}
 
 
 
@@ -379,9 +527,9 @@ public class CadastroContrato {
 	
 	public  CadastroContrato()
 	{
-		compradores = new CadastroCliente[1];
-		vendedores = new CadastroCliente[2];
-		corretores = new CadastroCliente[2];
+		compradores = new CadastroCliente[3];
+		vendedores = new CadastroCliente[3];
+		corretores = new CadastroCliente[3];
 	
 		 for(int i = 0; i < corretores.length; i++)
 	     {
@@ -741,6 +889,105 @@ local retirada: 24 2
 		
 		int id_carregamento, id_cliente, id_transportador, id_veiculo, id_contrato, id_produto, id_vendedor;
 		String codigo_nota_fiscal, data, caminho_nota_fiscal;
+		
+		
+		private String codigo_romaneio ,caminho_romaneio ,codigo_nf_venda1 , caminho_nf_venda1,codigo_nf_complemento ,caminho_nf_complemento ,codigo_nf_interna ,caminho_nf_interna ,observacao; 
+        double peso_romaneio, peso_nf_venda1, peso_nf_complemento,peso_nf_interna;
+        
+        BigDecimal valor_nf_venda1, valor_nf_complemento;
+		
+        
+        
+		public BigDecimal getValor_nf_venda1() {
+			return valor_nf_venda1;
+		}
+		public void setValor_nf_venda1(BigDecimal valor_nf_venda1) {
+			this.valor_nf_venda1 = valor_nf_venda1;
+		}
+		public BigDecimal getValor_nf_complemento() {
+			return valor_nf_complemento;
+		}
+		public void setValor_nf_complemento(BigDecimal valor_nf_complemento) {
+			this.valor_nf_complemento = valor_nf_complemento;
+		}
+		public String getCodigo_romaneio() {
+			return codigo_romaneio;
+		}
+		public void setCodigo_romaneio(String codigo_romaneio) {
+			this.codigo_romaneio = codigo_romaneio;
+		}
+		public String getCaminho_romaneio() {
+			return caminho_romaneio;
+		}
+		public void setCaminho_romaneio(String caminho_romaneio) {
+			this.caminho_romaneio = caminho_romaneio;
+		}
+		public String getCodigo_nf_venda1() {
+			return codigo_nf_venda1;
+		}
+		public void setCodigo_nf_venda1(String codigo_nf_venda1) {
+			this.codigo_nf_venda1 = codigo_nf_venda1;
+		}
+		public String getCaminho_nf_venda1() {
+			return caminho_nf_venda1;
+		}
+		public void setCaminho_nf_venda1(String caminho_nf_venda1) {
+			this.caminho_nf_venda1 = caminho_nf_venda1;
+		}
+		public String getCodigo_nf_complemento() {
+			return codigo_nf_complemento;
+		}
+		public void setCodigo_nf_complemento(String codigo_nf_complemento) {
+			this.codigo_nf_complemento = codigo_nf_complemento;
+		}
+		public String getCaminho_nf_complemento() {
+			return caminho_nf_complemento;
+		}
+		public void setCaminho_nf_complemento(String caminho_nf_complemento) {
+			this.caminho_nf_complemento = caminho_nf_complemento;
+		}
+		public String getCodigo_nf_interna() {
+			return codigo_nf_interna;
+		}
+		public void setCodigo_nf_interna(String codigo_nf_interna) {
+			this.codigo_nf_interna = codigo_nf_interna;
+		}
+		public String getCaminho_nf_interna() {
+			return caminho_nf_interna;
+		}
+		public void setCaminho_nf_interna(String caminho_nf_interna) {
+			this.caminho_nf_interna = caminho_nf_interna;
+		}
+		public String getObservacao() {
+			return observacao;
+		}
+		public void setObservacao(String observacao) {
+			this.observacao = observacao;
+		}
+		public double getPeso_romaneio() {
+			return peso_romaneio;
+		}
+		public void setPeso_romaneio(double peso_romaneio) {
+			this.peso_romaneio = peso_romaneio;
+		}
+		public double getPeso_nf_venda1() {
+			return peso_nf_venda1;
+		}
+		public void setPeso_nf_venda1(double peso_nf_venda1) {
+			this.peso_nf_venda1 = peso_nf_venda1;
+		}
+		public double getPeso_nf_complemento() {
+			return peso_nf_complemento;
+		}
+		public void setPeso_nf_complemento(double peso_nf_complemento) {
+			this.peso_nf_complemento = peso_nf_complemento;
+		}
+		public double getPeso_nf_interna() {
+			return peso_nf_interna;
+		}
+		public void setPeso_nf_interna(double peso_nf_interna) {
+			this.peso_nf_interna = peso_nf_interna;
+		}
 		public String getCaminho_nota_fiscal() {
 			return caminho_nota_fiscal;
 		}
@@ -888,9 +1135,9 @@ local retirada: 24 2
 	}
 	
 	public static class CadastroTransferenciaPagamentoContratual{
-		int id_transferencia, id_contrato_remetente, id_contrato_destinatario, id_pagamento_contratual;
+		int id_transferencia, id_contrato_remetente, id_contrato_destinatario;
 		
-		String data, descricao;
+		String data, descricao, valor;
 
 		public int getId_transferencia() {
 			return id_transferencia;
@@ -916,12 +1163,14 @@ local retirada: 24 2
 			this.id_contrato_destinatario = id_contrato_destinatario;
 		}
 
-		public int getId_pagamento_contratual() {
-			return id_pagamento_contratual;
+		
+		
+		public String getValor() {
+			return valor;
 		}
 
-		public void setId_pagamento_contratual(int id_pagamento_contratual) {
-			this.id_pagamento_contratual = id_pagamento_contratual;
+		public void setValor(String valor) {
+			this.valor = valor;
 		}
 
 		public String getData() {
@@ -940,6 +1189,130 @@ local retirada: 24 2
 			this.descricao = descricao;
 		}
 
+		
+		
+		
+		
+	}
+	
+	
+	public static class Recebimento{
+		/*
+		 * id_recebimento int(10) not null auto_increment,
+data_recebimento varchar(40),
+id_contrato_recebimento int(10),
+id_cliente int(10),
+id_transportador int(10),
+id_veiculo int(10),
+codigo_romaneio varchar(100),
+peso_romaneio double,
+caminho_romaneio text,
+nf_venda varchar (40),
+peso_nf_venda double,
+caminho_nf_venda text,
+nf_remessa varchar(40),
+peso_nf_remessa double,
+caminho_nf_remessa text,
+		 */
+		int id_recebimento, id_contrato_recebimento, id_cliente, id_transportador, id_veiculo, id_vendedor;
+		public int getId_vendedor() {
+			return id_vendedor;
+		}
+		public void setId_vendedor(int id_vendedor) {
+			this.id_vendedor = id_vendedor;
+		}
+		String data_recebimento, codigo_romaneio, caminho_romaneio, codigo_nf_venda, caminho_nf_venda, codigo_nf_remessa, caminho_nf_remessa;
+		double peso_romaneio, peso_nf_venda, peso_nf_remessa;
+		public int getId_recebimento() {
+			return id_recebimento;
+		}
+		public void setId_recebimento(int id_recebimento) {
+			this.id_recebimento = id_recebimento;
+		}
+		public int getId_contrato_recebimento() {
+			return id_contrato_recebimento;
+		}
+		public void setId_contrato_recebimento(int id_contrato_recebimento) {
+			this.id_contrato_recebimento = id_contrato_recebimento;
+		}
+		public int getId_cliente() {
+			return id_cliente;
+		}
+		public void setId_cliente(int id_cliente) {
+			this.id_cliente = id_cliente;
+		}
+		public int getId_transportador() {
+			return id_transportador;
+		}
+		public void setId_transportador(int id_transportador) {
+			this.id_transportador = id_transportador;
+		}
+		public int getId_veiculo() {
+			return id_veiculo;
+		}
+		public void setId_veiculo(int id_veiculo) {
+			this.id_veiculo = id_veiculo;
+		}
+		public String getData_recebimento() {
+			return data_recebimento;
+		}
+		public void setData_recebimento(String data_recebimento) {
+			this.data_recebimento = data_recebimento;
+		}
+		public String getCodigo_romaneio() {
+			return codigo_romaneio;
+		}
+		public void setCodigo_romaneio(String codigo_romaneio) {
+			this.codigo_romaneio = codigo_romaneio;
+		}
+		public String getCaminho_romaneio() {
+			return caminho_romaneio;
+		}
+		public void setCaminho_romaneio(String caminho_romaneio) {
+			this.caminho_romaneio = caminho_romaneio;
+		}
+		public String getCodigo_nf_venda() {
+			return codigo_nf_venda;
+		}
+		public void setCodigo_nf_venda(String codigo_nf_venda) {
+			this.codigo_nf_venda = codigo_nf_venda;
+		}
+		public String getCaminho_nf_venda() {
+			return caminho_nf_venda;
+		}
+		public void setCaminho_nf_venda(String caminho_nf_venda) {
+			this.caminho_nf_venda = caminho_nf_venda;
+		}
+		public String getCodigo_nf_remessa() {
+			return codigo_nf_remessa;
+		}
+		public void setCodigo_nf_remessa(String codigo_nf_remessa) {
+			this.codigo_nf_remessa = codigo_nf_remessa;
+		}
+		public String getCaminho_nf_remessa() {
+			return caminho_nf_remessa;
+		}
+		public void setCaminho_nf_remessa(String caminho_nf_remessa) {
+			this.caminho_nf_remessa = caminho_nf_remessa;
+		}
+		public double getPeso_romaneio() {
+			return peso_romaneio;
+		}
+		public void setPeso_romaneio(double peso_romaneio) {
+			this.peso_romaneio = peso_romaneio;
+		}
+		public double getPeso_nf_venda() {
+			return peso_nf_venda;
+		}
+		public void setPeso_nf_venda(double peso_nf_venda) {
+			this.peso_nf_venda = peso_nf_venda;
+		}
+		public double getPeso_nf_remessa() {
+			return peso_nf_remessa;
+		}
+		public void setPeso_nf_remessa(double peso_nf_remessa) {
+			this.peso_nf_remessa = peso_nf_remessa;
+		}
 		
 		
 		

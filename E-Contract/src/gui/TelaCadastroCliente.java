@@ -1956,6 +1956,39 @@ public class TelaCadastroCliente extends JDialog {
 		boolean retorno = false;
 
 		String cpf = entCpf.getText().toString();
+		
+		if(cpf.length() == 0) {
+			//cpf em branco, permite o cadastro
+			
+		
+			cadastro.setTipo_pessoa(0);
+
+			String nome_empresarial = entNomeEmpresarial.getText().toString();
+			String nome = entNome.getText().toString();
+			String sobrenome = entSobrenome.getText().toString();
+			String data_nascimento = entNascimento.getText().toString();
+			String rg = entRg.getText().toString();
+			String ocupacao = entOcupacao.getText().toString();
+			String porte = entPorte.getText().toString();
+			String cnae = entCnae.getText().toString();
+
+			cadastro.setNome_empresarial(nome_empresarial);
+
+			cadastro.setNome(nome);
+			cadastro.setSobrenome(sobrenome);
+
+			cadastro.setNascimento(data_nascimento);
+
+			cadastro.setRg(rg);
+
+			cadastro.setOcupacao(ocupacao);
+
+			cadastro.setPorte(porte);
+
+			cadastro.setAtividade(cnae);
+			retorno = true;
+		}else {
+		
 		CPFValidator cpfValidator = new CPFValidator();
 		List<ValidationMessage> erros = cpfValidator.invalidMessagesFor(cpf);
 		if (erros.size() > 0) {
@@ -1993,7 +2026,7 @@ public class TelaCadastroCliente extends JDialog {
 			cadastro.setAtividade(cnae);
 			retorno = true;
 		}
-
+		}
 		return retorno;
 	}
 

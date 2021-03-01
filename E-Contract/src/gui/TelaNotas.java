@@ -167,8 +167,7 @@ public class TelaNotas extends JDialog {
 		JButton btnNewButton = new JButton("+Anotação");
 		btnNewButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				TelaCriarNota tela = new TelaCriarNota(1, null, isto);
-				tela.setTelaPai(isto);
+				TelaCriarAnotacaoDesktopVirtual tela = new TelaCriarAnotacaoDesktopVirtual(0, isto);
 				tela.setVisible(true);
 			}
 		});

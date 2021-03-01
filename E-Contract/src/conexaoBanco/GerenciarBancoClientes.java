@@ -1919,6 +1919,52 @@ public int inserir_cliente(CadastroCliente cliente)
 	    	 
 	    	 
 	     }
+	   
+	   
+	   
+	   public CadastroCliente.Veiculo getVeiculo(int id_veiculo){
+	    	 String selectVeiculos = "select * from veiculo where id_veiculo = ?";
+	    	 Connection conn = null;
+		      PreparedStatement pstm = null;
+		      ResultSet rs = null;
+     		 CadastroCliente.Veiculo veiculo = new CadastroCliente.Veiculo();
+
+		      try {
+		          conn = ConexaoBanco.getConexao();
+		          pstm = conn.prepareStatement(selectVeiculos);
+		          pstm.setInt(1, id_veiculo);		
+		          rs = pstm.executeQuery();
+		          rs.next();
+		        	  
+		        	  
+		        	 if(rs != null) {
+		        		 System.out.print("veiculo não e nulo!");
+		        		 
+		        	  
+		        		 veiculo.setId_veiculo(rs.getInt("id_veiculo"));
+		        		 veiculo.setRegistro_trator(rs.getString("rntrc"));
+		        		 veiculo.setPlaca_trator(rs.getString("placa"));
+		        		 veiculo.setEixos_trator(rs.getString("eixos"));
+		        		 veiculo.setTipo_trator(rs.getString("tipo"));
+		        		 veiculo.setCidade_trator(rs.getString("cidade"));
+		        		 veiculo.setUf_trator(rs.getString("estado"));
+		        	
+		        
+		        	  
+		           }
+		      
+		          ConexaoBanco.fechaConexao(conn, pstm, rs);
+		          System.out.println("Veiculo listado com sucesso!");
+		          return veiculo;
+		      } catch (Exception e) {
+		         // JOptionPane.showMessageDialog(null, "Erro ao lista o veiculo do id: " + id_veiculo  );
+		          return null;
+		      }		  
+		   
+	    	 
+	    	 
+	    	 
+	     }
 	
 	   public int inserirVeiculos(ArrayList<CadastroCliente.Veiculo> veiculos, int id_cliente) {
 		     //inserir veiculos

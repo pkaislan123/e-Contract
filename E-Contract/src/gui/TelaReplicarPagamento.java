@@ -61,7 +61,6 @@ public class TelaReplicarPagamento extends JDialog {
     
 	public TelaReplicarPagamento(CadastroContrato contrato_pai,
 			CadastroContrato.CadastroPagamentoContratual pagamento, Window janela_pai) {
-		setModal(true);
 
 		this.contrato_pai_local = contrato_pai;
 		this.pagamento_local = pagamento;
@@ -143,6 +142,7 @@ public class TelaReplicarPagamento extends JDialog {
 		GerenciarBancoDocumento gerenciar_docs = new GerenciarBancoDocumento();
 		ArrayList<CadastroDocumento> documentos_anexados = gerenciar_docs
 				.getDocumentosPorPai(pagamento_local.getId_pagamento());
+		if(documentos_anexados.size() > 0) {
 		for (CadastroDocumento doc : documentos_anexados) {
 
 			CopiarArquivo copiar = new CopiarArquivo(doc, pagamento_local.getId_pagamento(), sub_contrato);
@@ -176,10 +176,23 @@ public class TelaReplicarPagamento extends JDialog {
 				}
 			} else {
 				JOptionPane.showMessageDialog(isto,
-						"O arquivo fisico não foi copiao! Replica cancelada!\nTente Novamente, se o erro persistir, consulte o administrador");
+						"O arquivo fisico não foi copiado! Replica cancelada!\nTente Novamente, se o erro persistir, consulte o administrador");
 
 			}
 
+		}
+		}else {
+			boolean retorno = gerenciar.inserir_contrato_pagamento_contratual(sub_contrato.getId(),
+					pagamento_local.getId_pagamento());
+			if (retorno) {
+				JOptionPane.showMessageDialog(isto, "Pagamento Replicado!");
+
+				
+			} else {
+				JOptionPane.showMessageDialog(isto,
+						"Erro ao Replicar o Pagamento\nNão ha erros no banco de dados\nTente Novamente!");
+				isto.dispose();
+			}
 		}
 
 		isto.dispose();

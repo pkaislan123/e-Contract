@@ -216,7 +216,7 @@ public class TelaGerenciarCliente extends JDialog {
 			boolean _incluir_ganhos_potenciais, boolean _somar_sub_contratos, ArrayList<CadastroCliente> _clientes_globais, CadastroGrupo _grupo_alvo) {*/
 		   		RelatorioContratos relatar = new RelatorioContratos(2, true, false, false,
 		   				false, false, false,
-		   				false, false, 0, false,
+		   				false, false, false, false, false, false, 0, false,
 		   				false, false, false, clientes, null);
 				ByteArrayOutputStream contrato_alterado = relatar.preparar();
 
@@ -363,7 +363,7 @@ public class TelaGerenciarCliente extends JDialog {
 			boolean _incluir_ganhos_potenciais, boolean _somar_sub_contratos, ArrayList<CadastroCliente> _clientes_globais, CadastroGrupo _grupo_alvo) {*/
 		      		RelatorioContratos relatar = new RelatorioContratos(1, true, false, false,
 		      				false, false, false,
-		      				false, false, 0, false,
+		      				false, false, false, false, false,false, 0, false,
 		      				false, false, false, clientes, null);
 				ByteArrayOutputStream contrato_alterado = relatar.preparar();
 
@@ -380,7 +380,7 @@ public class TelaGerenciarCliente extends JDialog {
 		JButton btnNewButton_2 = new JButton("Romaneios\r\n");
 		btnNewButton_2.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				TelaRomaneios romaneios = new TelaRomaneios(isto);
+				TelaRomaneios romaneios = new TelaRomaneios(0,isto);
 				romaneios.pesquisarRomaneios(cliente_selecionado);
 				romaneios.setVisible(true);
 			}
@@ -474,7 +474,7 @@ public class TelaGerenciarCliente extends JDialog {
 		      JButton btnAcessarNfs = new JButton("Ver NF's");
 		      btnAcessarNfs.addActionListener(new ActionListener() {
 		      	public void actionPerformed(ActionEvent e) {
-		      		TelaNotasFiscais verNotas = new TelaNotasFiscais(1, cliente_local, isto);
+		      		TelaNotasFiscais verNotas = new TelaNotasFiscais(1, 0, cliente_local, isto);
 					 verNotas.setVisible(true);
 		      	}
 		      });

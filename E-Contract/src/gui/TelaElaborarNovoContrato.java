@@ -169,6 +169,7 @@ public class TelaElaborarNovoContrato extends JDialog {
 	private JComboBox cBContaBancaria;
 	private JComboBox cBSafra;
 	private JComboBox cBLocalRetirada;
+	private JComboBox cBComprador2 ;
 
 	private ComboBoxPersonalizado modelSafra = new ComboBoxPersonalizado();
 	private CBLocalRetiradaPersonalizado modelLocalRetirada = new CBLocalRetiradaPersonalizado();
@@ -277,6 +278,24 @@ public class TelaElaborarNovoContrato extends JDialog {
 	private JPanel painelInfoTelaPrincipal;
 	private JLabel lblTipoContrato;
 	private int tipo_contrato_global;
+	private JLabel lblComprador_2;
+	private JPanel painelDadosComprador2;
+	private JLabel lblComprador_3;
+	private JLabel lblCpfcnpj_4;
+	private JLabel lblEndereo_5;
+	private JLabel lblEndereo_6;
+	private JLabel lblMunicipioComprador2;
+	private JLabel lblEnderecoComprador2;
+	private JLabel lblCpfCnpjComprador2;
+	private JLabel lblNomeComprador2;
+	private JLabel lblIEComprador2;
+	private JLabel lblBairro2_4;
+	private JLabel lblBairroComprador2;
+	private JLabel lblEstadoComprador2;
+	private JLabel lblEstado_3;
+	private JLabel lblIe_4;
+	private JLabel lblNewLabel_1_4;
+	private JLabel lblComprador2Info;
 
 	public TelaElaborarNovoContrato(CadastroModelo modelo, int tipoContrato, CadastroContrato contrato_pai,
 			int flag_edicao, Window janela_pai) {
@@ -993,10 +1012,10 @@ public class TelaElaborarNovoContrato extends JDialog {
 		JPanel painelDadosComprador = new JPanel();
 		painelDadosComprador.setBorder(new CompoundBorder());
 		painelDadosComprador.setBackground(SystemColor.text);
-		painelDadosComprador.setBounds(76, 460, 589, 139);
+		painelDadosComprador.setBounds(58, 361, 589, 139);
 
 		Border lineBorder = BorderFactory.createLineBorder(Color.black);
-		TitledBorder title = BorderFactory.createTitledBorder(lineBorder, "Comprador");
+		TitledBorder title = BorderFactory.createTitledBorder(lineBorder, "Comprador 1");
 		painelDadosComprador.setBorder(title);
 
 		painelDadosIniciais.add(painelDadosComprador);
@@ -1156,7 +1175,7 @@ public class TelaElaborarNovoContrato extends JDialog {
 		painelDadosCodigoData = new JPanel();
 		painelDadosCodigoData.setBorder(new LineBorder(new Color(0, 0, 0)));
 		painelDadosCodigoData.setBackground(SystemColor.text);
-		painelDadosCodigoData.setBounds(270, 76, 395, 154);
+		painelDadosCodigoData.setBounds(200, 44, 395, 154);
 		painelDadosIniciais.add(painelDadosCodigoData);
 		painelDadosCodigoData.setLayout(null);
 
@@ -1261,7 +1280,7 @@ public class TelaElaborarNovoContrato extends JDialog {
 
 		painelDefinirPartes = new JPanel();
 		painelDefinirPartes.setBackground(SystemColor.text);
-		painelDefinirPartes.setBounds(684, 37, 653, 193);
+		painelDefinirPartes.setBounds(684, 37, 653, 237);
 
 		Border lineBorder1 = BorderFactory.createLineBorder(Color.black);
 		TitledBorder title1 = BorderFactory.createTitledBorder(lineBorder, "");
@@ -1270,21 +1289,38 @@ public class TelaElaborarNovoContrato extends JDialog {
 		painelDadosIniciais.add(painelDefinirPartes);
 		painelDefinirPartes.setLayout(null);
 
-		JLabel lblNewLabel = new JLabel("Comprador:");
-		lblNewLabel.setBounds(25, 48, 95, 42);
+		JLabel lblNewLabel = new JLabel("Comprador 1:");
+		lblNewLabel.setBounds(14, 64, 101, 21);
 		painelDefinirPartes.add(lblNewLabel);
 		lblNewLabel.setFont(new Font("Arial Black", Font.PLAIN, 14));
 
-		JLabel lblVendedor = new JLabel("Vendedor:");
-		lblVendedor.setBounds(35, 93, 83, 42);
+		JLabel lblVendedor = new JLabel("Vendedor 1:");
+		lblVendedor.setBounds(25, 147, 90, 21);
 		painelDefinirPartes.add(lblVendedor);
 		lblVendedor.setFont(new Font("Arial Black", Font.PLAIN, 14));
 
 		cBVendedor1 = new JComboBox();
+		cBVendedor1.addItem("Indefinido");
 
 		cBVendedor1.addItemListener(new ItemListener() {
-			public void itemStateChanged(ItemEvent e) {
+			public void itemStateChanged(ItemEvent evt) {
+				if (evt.getStateChange() == java.awt.event.ItemEvent.SELECTED) {
+					if (evt.getItem().equals("Indefinido")) {
 
+						lblNomeVendedor.setText("");
+						lblCpfCnpjVendedor.setText("");
+						lblIEVendedor.setText("");
+						lblEnderecoVendedor.setText("");
+						lblBairroVendedor.setText("");
+						lblMunicipioVendedor.setText("");
+						lblEstadoVendedor.setText("");
+						// cBComprador.addItem("Indefinido");
+						novo_contrato.adicionarVendedor(0, null);
+					
+						lblCodigoContratoVendedor.setText("");
+						cBVendedor1.removeAllItems();
+					}
+				}
 			}
 		});
 		cBVendedor1.addKeyListener(new KeyAdapter() {
@@ -1297,32 +1333,10 @@ public class TelaElaborarNovoContrato extends JDialog {
 				}
 			}
 		});
-		cBVendedor1.setBounds(118, 101, 268, 29);
-		cBVendedor1.addItem("Indefinido");
+		cBVendedor1.setBounds(118, 144, 268, 29);
 		painelDefinirPartes.add(cBVendedor1);
 
-		cBVendedor1.addItemListener(new java.awt.event.ItemListener() {
-			public void itemStateChanged(java.awt.event.ItemEvent evt) {
-				if (evt.getStateChange() == java.awt.event.ItemEvent.SELECTED) {
-					if (cBVendedor1.getSelectedItem().equals("Indefinido")) {
-						lblNomeVendedor.setText("");
-						lblCpfCnpjVendedor.setText("");
-						lblIEVendedor.setText("");
-						lblEnderecoVendedor.setText("");
-						lblBairroVendedor.setText("");
-						lblMunicipioVendedor.setText("");
-						lblEstadoVendedor.setText("");
-						novo_contrato.adicionarCorretor(0, null);
-						cBVendedor1.removeAllItems();
-						lblCodigoContratoVendedor.setText("");
-
-					}
-				}
-
-			}
-
-		});
-
+		
 		cBComprador = new JComboBox();
 		cBComprador.setBounds(118, 61, 268, 29);
 		cBComprador.addItem("Indefinido");
@@ -1341,6 +1355,8 @@ public class TelaElaborarNovoContrato extends JDialog {
 						lblEstado.setText("");
 						// cBComprador.addItem("Indefinido");
 						novo_contrato.adicionarComprador(0, null);
+					
+
 						lblCodigoContratoComprador.setText("");
 						cBComprador.removeAllItems();
 					}
@@ -1362,12 +1378,12 @@ public class TelaElaborarNovoContrato extends JDialog {
 			}
 		});
 
-		 btnPesquisarComprador = new JButton("Pesquisar Comprador");
+		 btnPesquisarComprador = new JButton("Pesquisar Comprador 1");
 		btnPesquisarComprador.setBounds(396, 60, 220, 33);
 		painelDefinirPartes.add(btnPesquisarComprador);
 
-		 btnPesquisarVendedor1 = new JButton("Pesquisar Vendedor");
-		btnPesquisarVendedor1.setBounds(398, 100, 218, 33);
+		 btnPesquisarVendedor1 = new JButton("Pesquisar Vendedor 1");
+		btnPesquisarVendedor1.setBounds(398, 143, 218, 33);
 		painelDefinirPartes.add(btnPesquisarVendedor1);
 
 		lblCorretor = new JLabel("Corretor:");
@@ -1411,9 +1427,9 @@ public class TelaElaborarNovoContrato extends JDialog {
 
 		painelDefinirPartes.add(cBCorretor);
 
-		JLabel lblVendedor2 = new JLabel("Vendedor:");
+		JLabel lblVendedor2 = new JLabel("Vendedor 2:");
 		lblVendedor2.setFont(new Font("Arial Black", Font.PLAIN, 14));
-		lblVendedor2.setBounds(35, 133, 83, 42);
+		lblVendedor2.setBounds(25, 176, 93, 42);
 		painelDefinirPartes.add(lblVendedor2);
 
 		cBVendedor2 = new JComboBox();
@@ -1427,14 +1443,14 @@ public class TelaElaborarNovoContrato extends JDialog {
 				}
 			}
 		});
-		cBVendedor2.setBounds(118, 142, 268, 29);
+		cBVendedor2.setBounds(118, 185, 268, 29);
 		cBVendedor2.addItem("Indefinido");
 
 		painelDefinirPartes.add(cBVendedor2);
 		cBVendedor2.addItemListener(new java.awt.event.ItemListener() {
 			public void itemStateChanged(java.awt.event.ItemEvent evt) {
 				if (evt.getStateChange() == java.awt.event.ItemEvent.SELECTED) {
-					if (cBVendedor2.getSelectedItem().equals("Indefinido")) {
+					if (evt.getItem().equals("Indefinido")) {
 						lblNomeVendedor2.setText("");
 						lblCpfCnpjVendedor2.setText("");
 						lblIEVendedor2.setText("");
@@ -1445,7 +1461,6 @@ public class TelaElaborarNovoContrato extends JDialog {
 
 						novo_contrato.adicionarVendedor(1, null);
 						cBVendedor2.removeAllItems();
-						lblCodigoContratoVendedor.setText("");
 
 					}
 				}
@@ -1453,7 +1468,7 @@ public class TelaElaborarNovoContrato extends JDialog {
 			}
 
 		});
-		 btnPesquisarVendedor2 = new JButton("Pesquisar Vendedor");
+		 btnPesquisarVendedor2 = new JButton("Pesquisar Vendedor 2");
 		btnPesquisarVendedor2.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
 				TelaCliente clientes = new TelaCliente(0, 3,null);
@@ -1462,7 +1477,7 @@ public class TelaElaborarNovoContrato extends JDialog {
 
 			}
 		});
-		btnPesquisarVendedor2.setBounds(398, 139, 218, 33);
+		btnPesquisarVendedor2.setBounds(398, 182, 218, 33);
 		painelDefinirPartes.add(btnPesquisarVendedor2);
 
 		btnPesquisarCorretor = new JButton("Pesquisar Corretor");
@@ -1476,6 +1491,59 @@ public class TelaElaborarNovoContrato extends JDialog {
 		});
 		btnPesquisarCorretor.setBounds(396, 18, 220, 33);
 		painelDefinirPartes.add(btnPesquisarCorretor);
+		
+		lblComprador_2 = new JLabel("Comprador 2:");
+		lblComprador_2.setFont(new Font("Arial Black", Font.PLAIN, 14));
+		lblComprador_2.setBounds(14, 105, 101, 21);
+		painelDefinirPartes.add(lblComprador_2);
+		
+		 cBComprador2 = new JComboBox();
+		 cBComprador2.addItem("Indefinido");
+
+		 cBComprador2.addKeyListener(new KeyAdapter() {
+		 	@Override
+		 	public void keyPressed(KeyEvent e) {
+		 		if (e.getKeyCode() == KeyEvent.VK_ENTER) {
+					TelaCliente clientes = new TelaCliente(0, 18,null);
+					clientes.setTelaPai(isto);
+					clientes.setVisible(true);
+				}
+		 	}
+		 });
+		 cBComprador2.addItemListener(new ItemListener() {
+		 	public void itemStateChanged(ItemEvent e) {
+		 		if (e.getStateChange() == java.awt.event.ItemEvent.SELECTED) {
+					if (e.getItem().equals("Indefinido")) {
+
+						lblNomeComprador2.setText("");
+						lblCpfCnpjComprador2.setText("");
+						lblIEComprador2.setText("");
+						lblEnderecoComprador2.setText("");
+						lblBairroComprador2.setText("");
+						lblMunicipioComprador2.setText("");
+						lblEstadoComprador2.setText("");
+						// cBComprador.addItem("Indefinido");
+						novo_contrato.adicionarComprador(1, null);
+						
+						cBComprador2.removeAllItems();
+
+					}
+				}
+		 	}
+		 });
+		cBComprador2.setBounds(118, 102, 268, 29);
+		painelDefinirPartes.add(cBComprador2);
+		
+		JButton btnPesquisarComprador_2 = new JButton("Pesquisar Comprador 2");
+		btnPesquisarComprador_2.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				TelaCliente clientes = new TelaCliente(0, 18,null);
+				clientes.setTelaPai(isto);
+				clientes.setVisible(true);
+			}
+		});
+		btnPesquisarComprador_2.setBounds(396, 102, 220, 33);
+		painelDefinirPartes.add(btnPesquisarComprador_2);
 
 		panelDadosVendedor2 = new JPanel();
 		panelDadosVendedor2.setLayout(null);
@@ -1560,7 +1628,7 @@ public class TelaElaborarNovoContrato extends JDialog {
 		painelDadosCorretor.setLayout(null);
 		painelDadosCorretor.setBorder(new CompoundBorder());
 		painelDadosCorretor.setBackground(Color.WHITE);
-		painelDadosCorretor.setBounds(76, 318, 589, 139);
+		painelDadosCorretor.setBounds(58, 210, 589, 139);
 		Border lineBorderCorretor = BorderFactory.createLineBorder(Color.black);
 		TitledBorder titleCorretor = BorderFactory.createTitledBorder(lineBorder, "Corretor");
 		painelDadosCorretor.setBorder(titleCorretor);
@@ -1635,6 +1703,87 @@ public class TelaElaborarNovoContrato extends JDialog {
 		lblIe_3.setFont(new Font("Tahoma", Font.PLAIN, 14));
 		lblIe_3.setBounds(332, 62, 27, 14);
 		painelDadosCorretor.add(lblIe_3);
+		
+		painelDadosComprador2 = new JPanel();
+		painelDadosComprador2.setLayout(null);
+		painelDadosComprador2.setBorder(new CompoundBorder());
+		painelDadosComprador2.setBackground(Color.WHITE);
+		painelDadosComprador2.setBounds(58, 512, 589, 139);
+		painelDadosIniciais.add(painelDadosComprador2);
+		
+		Border lineBorderComprador2 = BorderFactory.createLineBorder(Color.black);
+		TitledBorder titleComprador2 = BorderFactory.createTitledBorder(lineBorderComprador2, "Comprador 2");
+		painelDadosComprador2.setBorder(titleComprador2);
+		
+		lblComprador_3 = new JLabel("Nome:");
+		lblComprador_3.setFont(new Font("Tahoma", Font.PLAIN, 14));
+		lblComprador_3.setBounds(43, 36, 83, 14);
+		painelDadosComprador2.add(lblComprador_3);
+		
+		lblCpfcnpj_4 = new JLabel("CPF/CNPJ:");
+		lblCpfcnpj_4.setFont(new Font("Tahoma", Font.PLAIN, 14));
+		lblCpfcnpj_4.setBounds(16, 62, 83, 14);
+		painelDadosComprador2.add(lblCpfcnpj_4);
+		
+		lblEndereo_5 = new JLabel("Endereço:");
+		lblEndereo_5.setFont(new Font("Tahoma", Font.PLAIN, 14));
+		lblEndereo_5.setBounds(26, 87, 83, 14);
+		painelDadosComprador2.add(lblEndereo_5);
+		
+		lblEndereo_6 = new JLabel("Municipio:");
+		lblEndereo_6.setFont(new Font("Tahoma", Font.PLAIN, 14));
+		lblEndereo_6.setBounds(29, 114, 70, 14);
+		painelDadosComprador2.add(lblEndereo_6);
+		
+		lblMunicipioComprador2 = new JLabel("");
+		lblMunicipioComprador2.setFont(new Font("Tahoma", Font.PLAIN, 14));
+		lblMunicipioComprador2.setBounds(99, 114, 205, 16);
+		painelDadosComprador2.add(lblMunicipioComprador2);
+		
+		lblEnderecoComprador2 = new JLabel("");
+		lblEnderecoComprador2.setFont(new Font("Tahoma", Font.PLAIN, 14));
+		lblEnderecoComprador2.setBounds(99, 87, 205, 16);
+		painelDadosComprador2.add(lblEnderecoComprador2);
+		
+		lblCpfCnpjComprador2 = new JLabel("");
+		lblCpfCnpjComprador2.setFont(new Font("Tahoma", Font.PLAIN, 14));
+		lblCpfCnpjComprador2.setBounds(98, 60, 206, 16);
+		painelDadosComprador2.add(lblCpfCnpjComprador2);
+		
+		lblNomeComprador2 = new JLabel("");
+		lblNomeComprador2.setFont(new Font("Tahoma", Font.PLAIN, 14));
+		lblNomeComprador2.setBounds(113, 33, 448, 16);
+		painelDadosComprador2.add(lblNomeComprador2);
+		
+		lblIEComprador2 = new JLabel("");
+		lblIEComprador2.setFont(new Font("Tahoma", Font.PLAIN, 14));
+		lblIEComprador2.setBounds(367, 60, 194, 16);
+		painelDadosComprador2.add(lblIEComprador2);
+		
+		lblBairro2_4 = new JLabel("Bairro:");
+		lblBairro2_4.setFont(new Font("Tahoma", Font.PLAIN, 14));
+		lblBairro2_4.setBounds(315, 87, 83, 14);
+		painelDadosComprador2.add(lblBairro2_4);
+		
+		lblBairroComprador2 = new JLabel("");
+		lblBairroComprador2.setFont(new Font("Tahoma", Font.PLAIN, 14));
+		lblBairroComprador2.setBounds(367, 87, 194, 16);
+		painelDadosComprador2.add(lblBairroComprador2);
+		
+		lblEstadoComprador2 = new JLabel("");
+		lblEstadoComprador2.setFont(new Font("Tahoma", Font.PLAIN, 14));
+		lblEstadoComprador2.setBounds(367, 112, 194, 16);
+		painelDadosComprador2.add(lblEstadoComprador2);
+		
+		lblEstado_3 = new JLabel("Estado:");
+		lblEstado_3.setFont(new Font("Tahoma", Font.PLAIN, 14));
+		lblEstado_3.setBounds(315, 112, 47, 14);
+		painelDadosComprador2.add(lblEstado_3);
+		
+		lblIe_4 = new JLabel("IE:");
+		lblIe_4.setFont(new Font("Tahoma", Font.PLAIN, 14));
+		lblIe_4.setBounds(332, 62, 27, 14);
+		painelDadosComprador2.add(lblIe_4);
 		
 	
 
@@ -2487,6 +2636,7 @@ public class TelaElaborarNovoContrato extends JDialog {
 		 });
 		rBJaDepositada.setBounds(907, 281, 110, 18);
 		painelDadosProdutos.add(rBJaDepositada);
+		painelFinalizar.setBackground(Color.WHITE);
 		painelFinalizar.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseEntered(MouseEvent e) {
@@ -2502,6 +2652,16 @@ public class TelaElaborarNovoContrato extends JDialog {
 		JButton btnTeste = new JButton("Salvar");
 		btnTeste.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
+				
+				CadastroCliente compradores [] = novo_contrato.getCompradores();
+				CadastroCliente vendedores [] = novo_contrato.getVendedores();
+				
+				
+				
+				if(compradores[0] == null || vendedores[0] == null) {
+					JOptionPane.showMessageDialog(isto, "Comprador 1 e Vendedor 1 não podem ser nulos");
+				}
+				else {
 
 				TelaEmEspera esperar = new TelaEmEspera(0);
 
@@ -2700,6 +2860,7 @@ public class TelaElaborarNovoContrato extends JDialog {
 				 * relatorio.imprimir(contratos); } catch (Exception e1) { // TODO
 				 * Auto-generated catch block e1.printStackTrace(); }
 				 */
+				}
 
 			}
 		});
@@ -2801,22 +2962,32 @@ public class TelaElaborarNovoContrato extends JDialog {
 		JLabel lblNewLabel_1 = new JLabel("Corretor:");
 		lblNewLabel_1.setForeground(Color.WHITE);
 		lblNewLabel_1.setFont(new Font("Tahoma", Font.PLAIN, 14));
-		panel_1.add(lblNewLabel_1, "cell 0 4,alignx right");
+		panel_1.add(lblNewLabel_1, "cell 0 3,alignx right");
 		
 		lblCorretorInfo = new JLabel("");
 		lblCorretorInfo.setForeground(Color.WHITE);
 		lblCorretorInfo.setFont(new Font("Tahoma", Font.BOLD, 14));
-		panel_1.add(lblCorretorInfo, "cell 1 4 4 1");
+		panel_1.add(lblCorretorInfo, "cell 1 3");
 		
-		JLabel lblNewLabel_1_1 = new JLabel("Comprador:");
+		JLabel lblNewLabel_1_1 = new JLabel("Comprador 1:");
 		lblNewLabel_1_1.setForeground(Color.WHITE);
 		lblNewLabel_1_1.setFont(new Font("Tahoma", Font.PLAIN, 14));
-		panel_1.add(lblNewLabel_1_1, "cell 0 5,alignx right");
+		panel_1.add(lblNewLabel_1_1, "cell 0 4,alignx right");
 		
 		lblCompradorInfo = new JLabel("");
 		lblCompradorInfo.setForeground(Color.WHITE);
 		lblCompradorInfo.setFont(new Font("Tahoma", Font.BOLD, 14));
-		panel_1.add(lblCompradorInfo, "cell 1 5 4 1");
+		panel_1.add(lblCompradorInfo, "cell 1 4");
+		
+		lblNewLabel_1_4 = new JLabel("Comprador 2:");
+		lblNewLabel_1_4.setForeground(Color.WHITE);
+		lblNewLabel_1_4.setFont(new Font("Tahoma", Font.PLAIN, 14));
+		panel_1.add(lblNewLabel_1_4, "cell 0 5,alignx right");
+		
+		lblComprador2Info = new JLabel("");
+		lblComprador2Info.setForeground(Color.WHITE);
+		lblComprador2Info.setFont(new Font("Tahoma", Font.BOLD, 14));
+		panel_1.add(lblComprador2Info, "cell 1 5");
 		
 		JLabel lblNewLabel_1_1_1 = new JLabel("Vendedor1:");
 		lblNewLabel_1_1_1.setForeground(Color.WHITE);
@@ -3107,6 +3278,45 @@ public class TelaElaborarNovoContrato extends JDialog {
 
 	}
 
+	
+	public void setComprador2(CadastroCliente comprador) {
+		novo_contrato.adicionarComprador(1, comprador);
+		//lblCodigoContratoComprador.setText(Integer.toString(comprador.getId()));
+
+		cBComprador2.removeAllItems();
+
+		if (comprador.getTipo_pessoa() == 0) // pessoa fisica
+		{
+			cBComprador2.addItem(comprador.getNome() + " " + comprador.getSobrenome());
+			cBComprador2.setSelectedItem(comprador.getNome() + " " + comprador.getSobrenome());
+			lblNomeComprador2.setText(comprador.getNome() + " " + comprador.getSobrenome());
+			cBComprador2.addItem("Indefinido");
+
+			lblCpfCnpjComprador2.setText(comprador.getCpf());
+			System.out.println("O comprador selecionado e uma pessoa fisica");
+
+		} else // pessoa juridica
+		{
+			System.out.println("O comprador selecionado e uma pessoa juridica");
+
+			cBComprador2.addItem(comprador.getRazao_social());
+			cBComprador2.setSelectedItem(comprador.getRazao_social());
+			cBComprador2.addItem("Indefinido");
+
+			lblCpfCnpjComprador2.setText(comprador.getCnpj());
+			lblNomeComprador2.setText(comprador.getRazao_social());
+
+		}
+
+		lblIEComprador2.setText(comprador.getIe());
+		lblEnderecoComprador2.setText(comprador.getRua());
+		lblMunicipioComprador2.setText(comprador.getCidade());
+		lblEstadoComprador2.setText(comprador.getUf());
+		lblBairroComprador2.setText(comprador.getBairro());
+
+	}
+
+	
 	public String pegarData() {
 
 		Date hoje = new Date();
@@ -3244,7 +3454,7 @@ public class TelaElaborarNovoContrato extends JDialog {
 			salvou = editarWord.salvar(tipo_salvamento);
 
 		}
-		if (salvou == 1 || salvou == 10 || salvou == 12 || salvou == 14) {
+		if (salvou == 1 || salvou == 10 || salvou == 12 || salvou == 14 || salvou == 30 || salvou == 32 || salvou == 34) {
 			int result = -1;
 
 			GerenciarBancoContratos gerenciarContratos = new GerenciarBancoContratos();
@@ -3553,6 +3763,10 @@ public class TelaElaborarNovoContrato extends JDialog {
 		if (compradores[0] != null) {
 			this.setComprador1(compradores[0]);
 		}
+		
+		if (compradores[1] != null) {
+			this.setComprador2(compradores[1]);
+		}
 
 		if (vendedores[0] != null) {
 			this.setVendedor1(vendedores[0]);
@@ -3657,20 +3871,7 @@ public class TelaElaborarNovoContrato extends JDialog {
 		
 	//	JOptionPane.showMessageDialog(isto, "Rotinas de edicao: local retirada encontrado");
 
-		if(contrato_pai_local.getSub_contrato() == 0) {
-			cBComprador.setEnabled(false);
-			btnPesquisarComprador.setEnabled(false);
-		}else if(contrato_pai_local.getSub_contrato() == 1) {
-			cBComprador.setEnabled(false);
-			btnPesquisarComprador.setEnabled(false);
-			
-			cBVendedor1.setEnabled(false);
-			btnPesquisarVendedor1.setEnabled(false);
-			
-			
-			cBVendedor2.setEnabled(false);
-			btnPesquisarVendedor2.setEnabled(false);
-		}
+		
 			
 		
 
@@ -4614,8 +4815,11 @@ public void atualizarPainelSalvar() {
 		String nome_corretor = "";
 		String nome_vendedor1 = "";
 		String nome_vendedor2 = "";
+		
 
 		String nome_comprador = "";
+		String nome_comprador2 = "";
+
 
 		if (corretores[0] != null) {
 			if (corretores[0].getTipo_pessoa() == 0) {
@@ -4625,6 +4829,8 @@ public void atualizarPainelSalvar() {
 				nome_corretor = corretores[0].getNome_fantaia();
 
 			}
+		}else {
+			nome_corretor = "";
 		}
 
 		if (compradores[0] != null) {
@@ -4635,12 +4841,30 @@ public void atualizarPainelSalvar() {
 				nome_comprador = compradores[0].getNome_fantaia();
 
 			}
+		}else {
+			nome_comprador = "";
+		}
+		
+		if (compradores[1] != null) {
+			if (compradores[1].getTipo_pessoa() == 0) {
+				// pessoa fisica
+				nome_comprador2 = compradores[1].getNome_empresarial();
+			} else {
+				nome_comprador2 = compradores[1].getNome_fantaia();
+
+			}
+		}else {
+			nome_comprador2 = "";
 		}
 
+		if(vendedores[0] != null) {
 		if(vendedores[0].getTipo_pessoa() == 0) {
 			nome_vendedor1 = vendedores[0].getNome_empresarial();
 		}else {
 			nome_vendedor1 = vendedores[0].getNome_fantaia();
+		}
+		}else {
+			nome_vendedor1 = "";
 		}
 		
 		if(vendedores[1] != null) {
@@ -4649,14 +4873,21 @@ public void atualizarPainelSalvar() {
 			}else {
 				nome_vendedor2 = vendedores[1].getNome_fantaia();
 			}
+		}else {
+			nome_vendedor2 = "";
 		}
 		
 		
 		lblCorretorInfo.setText(nome_corretor);
 		lblCompradorInfo.setText(nome_comprador);
+		lblComprador2Info.setText(nome_comprador2);
 		lblVendedor1Info.setText(nome_vendedor1);
 		if(vendedores[1] != null)
 			lblVendedor2Info.setText(nome_vendedor2);
+		else {
+			lblVendedor2Info.setText("");
+
+		}
 		
 		
 		}catch(Exception e) {
@@ -4705,5 +4936,4 @@ public void atualizarPainelSalvar() {
 		
 	
 	}
-	
 }

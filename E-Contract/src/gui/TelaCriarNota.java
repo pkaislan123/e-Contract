@@ -93,7 +93,7 @@ public class TelaCriarNota extends JInternalFrame {
 	private CadastroNota nota_global;
 	private JTextArea textAreaAnotacao;
 
-	public TelaCriarNota(int flag_modo_operacao, CadastroNota nota, Window janela_pai) {
+	public TelaCriarNota(int flag_modo_operacao, CadastroNota nota, Window janela_anotacoes) {
 		// setModal(true);
 		getDadosGlobais();
 		isto = this;
@@ -467,6 +467,7 @@ public class TelaCriarNota extends JInternalFrame {
 		painelPrincipal.add(scrollPane, gbc_scrollPane);
 
 		JTextArea textAreaCola = new JTextArea();
+		textAreaCola.setText("Atenção:  A janela ao lado ainda não esta totalmente funcional. Como estamos numa area de desktops virtuais, o modulo de pesquisa no sistema ainda está sendo programada. Você ainda pode criar, editar, salvar e excluir suas notas normalmente!");
 		GridBagConstraints gbc_textAreaCola = new GridBagConstraints();
 		gbc_textAreaCola.gridwidth = 3;
 		gbc_textAreaCola.fill = GridBagConstraints.BOTH;
@@ -548,12 +549,10 @@ public class TelaCriarNota extends JInternalFrame {
 					JOptionPane.showMessageDialog(null, "Anotação atualizada");
 					((TelaNotas) telaPai).atualizarLista();
 
-					isto.dispose();
 				} else {
 					JOptionPane.showMessageDialog(null, "Erro ao atualizar a anotação\nConsulte o administrado!");
-					((TelaNotas) telaPai).atualizarLista();
+					((TelaNotas) janela_anotacoes).atualizarLista();
 
-					isto.dispose();
 				}
 
 			}
@@ -628,8 +627,7 @@ public class TelaCriarNota extends JInternalFrame {
 				int salvou = gerenciar.inserirnota(nota);
 				if (salvou > 0) {
 					JOptionPane.showMessageDialog(isto, "Anotação criada com sucesso!");
-					((TelaNotas) telaPai).atualizarLista();
-					isto.dispose();
+					((TelaNotas) janela_anotacoes).atualizarLista();
 				} else {
 					JOptionPane.showMessageDialog(isto, "Erro ao salvar anotação\nConsulte o administrador!");
 				}

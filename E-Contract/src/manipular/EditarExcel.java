@@ -25,6 +25,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Random;
 
 import org.apache.poi.EncryptedDocumentException;
 import org.apache.poi.hssf.usermodel.HSSFCellStyle;
@@ -60,6 +61,7 @@ import cadastros.CadastroContrato;
 import cadastros.CadastroLogin;
 import cadastros.CadastroContrato.CadastroPagamento;
 import cadastros.CadastroModelo;
+import conexaoBanco.GerenciarBancoContratos;
 import gui.TelaVizualizarPdf;
 import outros.DadosGlobais;
 import outros.GetData;
@@ -81,7 +83,6 @@ public class EditarExcel {
 	private int contador = 0;
 	private String[] assinaturas = new String[5];
 	private int contador_assinaturas = 0;
-	String nome_comprador_arquivo, nome_vendedor_arquivo;
 	CadastroContrato novo_contrato;
 	private TelaEmEspera telaInformacoes;
 	private CadastroCliente compradores [], vendedores[], corretores[];
@@ -1253,52 +1254,53 @@ public ByteArrayOutputStream alterar(CadastroContrato novo_contrato)
 	
 	
 	
-	public int salvar( int tipo_salvamento) 
+	public int salvar(int tipo_salvamento) 
 	{
+		
+		
 		int retorno_final = -1;
 		boolean proceder = false;
+		String diretorio_pasta_bkp1 = null,  diretorio_pasta_bkp2 = null;
 		
 		if(tipo_salvamento == 1) {
-			//esta em edicao, apagar os arquivos fisicos e na nuvem
-			String BaseDados_DiretorioArquivo =  servidor_unidade + novo_contrato.getCaminho_arquivo();
-			System.out.println("caminho do arquivo completo para apagar: " + BaseDados_DiretorioArquivo);
-			ManipularTxt manipular_apagar = new ManipularTxt();
-			if(manipular_apagar.apagarArquivo(BaseDados_DiretorioArquivo)) {
-				if(manipular_apagar.apagarArquivo(BaseDados_DiretorioArquivo.replace("pdf", "xlsx"))) {
+			//JOptionPane.showMessageDialog(null, "Esta em modo edicao");
+			GerenciarBancoContratos gerenciar = new GerenciarBancoContratos();
+			//pegar os caminhso antigos
+			CadastroContrato contrato_antigo = gerenciar.getContrato(novo_contrato.getId());
+			
+			//esta em edicao, fazer o backup dos comprovantes e documentos
+			String caminho_diretorio = contrato_antigo.getCaminho_diretorio_contrato();
+			String caminho_diretorio2 = contrato_antigo.getCaminho_diretorio_contrato2();
+			
+			String caminho_arquivo = contrato_antigo.getCaminho_arquivo();
+			String caminho_arquivo2 = contrato_antigo.getCaminho_arquivo2();
+			
+			String nome_arquivo = contrato_antigo.getNome_arquivo();
+			String nome_arquivo2 = contrato_antigo.getNome_arquivo2();
+			
+			if(caminho_diretorio != null && nome_arquivo != null) {
+          
+				
+				ManipularTxt manipular_bkp = new ManipularTxt();
+				 diretorio_pasta_bkp1 = "C:\\ProgramData\\E-Contract\\bkp\\" + novo_contrato.getCodigo() + new Random().nextInt();
+				boolean bkp_criado = manipular_bkp.criar_bkp_diretorio(servidor_unidade + caminho_diretorio, diretorio_pasta_bkp1);
+				if(bkp_criado) {
 					
-					//apagar o diretorio
-					if(manipular_apagar.limparDiretorio(new File(servidor_unidade + novo_contrato.getCaminho_diretorio_contrato()))) {
-					  //Diretorio foi excluido
-						Nuvem nuvem = new Nuvem();
-				         nuvem.abrir();
-				         nuvem.testar();
-				         nuvem.listar();
-				         nuvem.deletarArquivo(novo_contrato.getNome_arquivo());
-				       JOptionPane.showMessageDialog(null, "Os arquivos foram apagados da memoria e da nuvem!");
-					
-				       proceder = true;
-					}
-					else {
-						proceder = false;
-						System.out.println("Erro ao excluir o direrorio do contrato");
-
-					}
-				}else {
-					System.out.println("erro ao excluir arquivo xlsx, operação cancelada!");
-					//tentar excluir um arquivo .docx
-					
-					if(manipular_apagar.apagarArquivo(BaseDados_DiretorioArquivo.replace("pdf", "docx"))) {
-						//estamos numa tentativa de conversao de tipo de contrato
+				String BaseDados_DiretorioArquivo =  servidor_unidade + caminho_arquivo;
+				System.out.println("caminho do arquivo completo para apagar: " + BaseDados_DiretorioArquivo);
+				ManipularTxt manipular_apagar = new ManipularTxt();
+				if(manipular_apagar.apagarArquivo(BaseDados_DiretorioArquivo)) {
+					if(manipular_apagar.apagarArquivo(BaseDados_DiretorioArquivo.replace("pdf", "xlsx"))) {
 						
 						//apagar o diretorio
-						if(manipular_apagar.limparDiretorio(new File(servidor_unidade + novo_contrato.getCaminho_diretorio_contrato()))) {
+						if(manipular_apagar.limparDiretorio(new File(servidor_unidade + caminho_diretorio))) {
 						  //Diretorio foi excluido
 							Nuvem nuvem = new Nuvem();
 					         nuvem.abrir();
 					         nuvem.testar();
 					         nuvem.listar();
-					         nuvem.deletarArquivo(novo_contrato.getNome_arquivo());
-					       JOptionPane.showMessageDialog(null, "Os arquivos foram apagados da memoria e da nuvem!");
+					         nuvem.deletarArquivo(nome_arquivo);
+					         // JOptionPane.showMessageDialog(null, "Os arquivos do alvo 1 foram apagados da memoria e da nuvem!");
 						
 					       proceder = true;
 						}
@@ -1307,41 +1309,154 @@ public ByteArrayOutputStream alterar(CadastroContrato novo_contrato)
 							System.out.println("Erro ao excluir o direrorio do contrato");
 
 						}
-						
-						
 					}else {
+						System.out.println("erro ao excluir arquivo xlsx, operação cancelada!");
+						//tentar excluir um arquivo .docx
+						
+						if(manipular_apagar.apagarArquivo(BaseDados_DiretorioArquivo.replace("pdf", "docx"))) {
+							//estamos numa tentativa de conversao de tipo de contrato
+							
+							//apagar o diretorio
+							if(manipular_apagar.limparDiretorio(new File(servidor_unidade + caminho_diretorio))) {
+							  //Diretorio foi excluido
+								Nuvem nuvem = new Nuvem();
+						         nuvem.abrir();
+						         nuvem.testar();
+						         nuvem.listar();
+						         nuvem.deletarArquivo(nome_arquivo);
+						         //   JOptionPane.showMessageDialog(null, "Os arquivos do alvo 1 foram apagados da memoria e da nuvem!");
+							
+						       proceder = true;
+							}
+							else {
+								proceder = false;
+								System.out.println("Erro ao excluir o direrorio do contrato");
+
+							}
+							
+							
+						}else {
+						retorno_final = 4;
+						proceder = false;
+						}
+					}
+					
+				}else {
+					System.out.println("erro ao excluir arquivo .pdf, operação cancelada!");
 					retorno_final = 4;
 					proceder = false;
-					}
 				}
+			}
 				
-			}else {
-				System.out.println("erro ao excluir arquivo .pdf, operação cancelada!");
-				retorno_final = 4;
-				proceder = false;
+			}
+			if(caminho_diretorio2 != null && caminho_diretorio2.length() > 20 && nome_arquivo2 != null ) {
+
+				ManipularTxt manipular_bkp = new ManipularTxt();
+				diretorio_pasta_bkp2 =  "C:\\ProgramData\\E-Contract\\bkp\\" + novo_contrato.getCodigo() + new Random().nextInt();
+				boolean bkp_criado = manipular_bkp.criar_bkp_diretorio(servidor_unidade + caminho_diretorio2, diretorio_pasta_bkp2);
+				if(bkp_criado) {
+					
+				String BaseDados_DiretorioArquivo =  servidor_unidade + caminho_arquivo2;
+				System.out.println("caminho do arquivo completo para apagar: " + BaseDados_DiretorioArquivo);
+				ManipularTxt manipular_apagar = new ManipularTxt();
+				if(manipular_apagar.apagarArquivo(BaseDados_DiretorioArquivo)) {
+					if(manipular_apagar.apagarArquivo(BaseDados_DiretorioArquivo.replace("pdf", "xlsx"))) {
+						
+						//apagar o diretorio
+						if(manipular_apagar.limparDiretorio(new File(servidor_unidade + caminho_diretorio2))) {
+						  //Diretorio foi excluido
+							Nuvem nuvem = new Nuvem();
+					         nuvem.abrir();
+					         nuvem.testar();
+					         nuvem.listar();
+					         nuvem.deletarArquivo(nome_arquivo2);
+					         //  JOptionPane.showMessageDialog(null, "Os arquivos do alvo 2 foram apagados da memoria e da nuvem!");
+						
+					       proceder = true;
+						}
+						else {
+							proceder = false;
+							System.out.println("Erro ao excluir o direrorio do contrato");
+
+						}
+					}else {
+						System.out.println("erro ao excluir arquivo xlsx, operação cancelada!");
+						//tentar excluir um arquivo .docx
+						
+						if(manipular_apagar.apagarArquivo(BaseDados_DiretorioArquivo.replace("pdf", "docx"))) {
+							//estamos numa tentativa de conversao de tipo de contrato
+							
+							//apagar o diretorio
+							if(manipular_apagar.limparDiretorio(new File(servidor_unidade + caminho_diretorio2))) {
+							  //Diretorio foi excluido
+								Nuvem nuvem = new Nuvem();
+						         nuvem.abrir();
+						         nuvem.testar();
+						         nuvem.listar();
+						         nuvem.deletarArquivo(nome_arquivo2);
+						         //  JOptionPane.showMessageDialog(null, "Os arquivos do alvo 2 foram apagados da memoria e da nuvem!");
+							
+						       proceder = true;
+							}
+							else {
+								proceder = false;
+								System.out.println("Erro ao excluir o direrorio do contrato");
+
+							}
+							
+							
+						}else {
+						retorno_final = 4;
+						proceder = false;
+						}
+					}
+					
+				}else {
+					System.out.println("erro ao excluir arquivo .pdf, operação cancelada!");
+					retorno_final = 4;
+					proceder = false;
+				}
+			}
 			}
 			
+		
 		}
 
 	  if(tipo_salvamento == 1 && proceder || tipo_salvamento == 0) {
-        boolean arquivos_comprador_criado = false;
+        boolean arquivos_comprador1_criado = false;
+        boolean arquivos_comprador2_criado = false;
+
 		boolean arquivos_vendedor1_criado = false;
 		boolean arquivos_vendedor2_criado = false;
 
 		
-		String nome_comprador_arquivo ;
-		String nome_vendedor1_arquivo ;
-		String nome_vendedor2_arquivo;
+		String nome_comprador1_arquivo = null;
+		String nome_comprador2_arquivo = null;
+
+		String nome_vendedor1_arquivo = null ;
+		String nome_vendedor2_arquivo = null;
 		
 		if(compradores[0].getTipo_pessoa() == 0)
-			nome_comprador_arquivo = compradores[0].getNome_empresarial().trim();
+			nome_comprador1_arquivo = compradores[0].getNome_empresarial().trim();
 		else
-			nome_comprador_arquivo = compradores[0].getNome_fantaia().trim();
+			nome_comprador1_arquivo = compradores[0].getNome_fantaia().trim();
+		
+		if(compradores[1] != null) {
+		if(compradores[1].getTipo_pessoa() == 0)
+			nome_comprador2_arquivo = compradores[1].getNome_empresarial().trim();
+		else
+			nome_comprador2_arquivo = compradores[1].getNome_fantaia().trim();
 
+		}
+		
+		if(vendedores[0] != null) {
 		if(vendedores[0].getTipo_pessoa() == 0)
 			nome_vendedor1_arquivo = vendedores[0].getNome_empresarial().trim();
 		else
 			nome_vendedor1_arquivo = vendedores[0].getNome_fantaia().trim();
+		
+		}
+		
 		
 		if(vendedores[1] != null) {
 		if(vendedores[1].getTipo_pessoa() == 0)
@@ -1358,140 +1473,34 @@ public ByteArrayOutputStream alterar(CadastroContrato novo_contrato)
 	   if(novo_contrato.getSub_contrato() == 0) {
 		   //é um comprato pai, salvar na pasta do comprador
 
-			 String caminho_salvar_contrato__no_hd = servidor_unidade + "E-contract\\arquivos\\clientes\\" + nome_comprador_arquivo + "\\contratos" + "\\compra\\"  + data.getAnoAtual() + "\\" + novo_contrato.getModelo_safra().getProduto().getNome_produto() + "\\";
-			System.out.println("caminho para salvar o contrato do comprador no hd: " + caminho_salvar_contrato__no_hd);	
-			String caminho_salvar_contrato_no_banco_dados = "E-contract\\\\arquivos\\\\clientes\\\\" + nome_comprador_arquivo + "\\\\contratos" + "\\\\compra\\\\"  + data.getAnoAtual() + "\\\\" + novo_contrato.getModelo_safra().getProduto().getNome_produto() + "\\\\";
-
-		      String nome_pasta_arquivo = novo_contrato.getCodigo();
-
-		      String nome_arquivo = novo_contrato.getCodigo() + " "  + nome_comprador_arquivo + " x " + nome_vendedor1_arquivo ; 
-		       
-				if(nome_vendedor2_arquivo != null) {
-					nome_arquivo +=  (" " + nome_vendedor2_arquivo);
-
-				}
-				
-				String extensao_arquivo = ".xlsx";
-				String caminho_completo_salvar_contrato_no_hd = caminho_salvar_contrato__no_hd + nome_pasta_arquivo + "\\" + nome_arquivo ;
-				
-			    String caminho_completo_salvar_contrato_no_bando_dados = caminho_salvar_contrato_no_banco_dados + nome_pasta_arquivo +"\\\\" + nome_arquivo;
-			    String nome_diretorio_arquivo_contrato = caminho_salvar_contrato_no_banco_dados + nome_pasta_arquivo;
-
-				//criar o diretorio
-				ManipularTxt manipular = new ManipularTxt();
-				if(manipular.criarDiretorio(caminho_salvar_contrato__no_hd + nome_pasta_arquivo + "\\"))
-				{
-					System.out.println("diretorio criado para o novo contrato");
-					  if(criarArquivos(nome_arquivo,caminho_completo_salvar_contrato_no_hd,  caminho_completo_salvar_contrato_no_bando_dados,nome_diretorio_arquivo_contrato)) {
-					    	if(manipular.criarDiretorio(caminho_salvar_contrato__no_hd + nome_pasta_arquivo + "\\comprovantes"))
-							{
-					    		  //criar diretorio documentos
-								  if(manipular.criarDiretorio(caminho_salvar_contrato__no_hd + nome_pasta_arquivo + "\\documentos"))
-									{
-									  arquivos_comprador_criado = true;
-
-									}else {
-										arquivos_comprador_criado = false;
-
-									}	
-
-							}else {
-						    	arquivos_comprador_criado = false;
-
-							}
-					  
-					  
-					  }else {
-					    	arquivos_comprador_criado = false;
-					    }
-				}else {
-					System.out.println("erro ao criar diretorio para o contrato ");
-					arquivos_comprador_criado = false;
-				}
-				
-				
+		   //salvar para todos os compradores, e salvar na nuvem
+		  if(compradores[0] != null) {
 			  
+			  //JOptionPane.showMessageDialog(null, "Criando informacoes do comprador 1");
 
-		   
-	   }else {
-		   //e um contrato filho, salvar nas pastas dos vendedores
-		   if(vendedores[0] != null) {
-			   System.out.println("vendedor 1 existe para este contrato");
-
-			   if(vendedores[0].getNome_empresarial() != null || vendedores[0].getNome_fantaia() != null){
- 
-				   String caminho_salvar_contrato__no_hd = servidor_unidade + "E-contract\\arquivos\\clientes\\" + nome_vendedor1_arquivo + "\\contratos" + "\\venda\\"  + data.getAnoAtual() + "\\" + novo_contrato.getModelo_safra().getProduto().getNome_produto() + "\\";
-					System.out.println("caminho para salvar o contrato do comprador no hd: " + caminho_salvar_contrato__no_hd);	
-					String caminho_salvar_contrato_no_banco_dados = "E-contract\\\\arquivos\\\\clientes\\\\" + nome_vendedor1_arquivo + "\\\\contratos" + "\\\\venda\\\\"  + data.getAnoAtual() + "\\\\" + novo_contrato.getModelo_safra().getProduto().getNome_produto() + "\\\\";
-
-				      String nome_pasta_arquivo = novo_contrato.getCodigo();
-                     
-				       
-				      String nome_arquivo = novo_contrato.getCodigo() + " "  + nome_comprador_arquivo + " x " + nome_vendedor1_arquivo ; 
-				       
-						if(nome_vendedor2_arquivo != null) {
-							nome_arquivo +=  (" " + nome_vendedor2_arquivo);
-
-						}
-						
-						String extensao_arquivo = ".xlsx";
-						String caminho_completo_salvar_contrato_no_hd = caminho_salvar_contrato__no_hd + nome_pasta_arquivo + "\\" + nome_arquivo ;
-						
-					    String caminho_completo_salvar_contrato_no_bando_dados = caminho_salvar_contrato_no_banco_dados + nome_pasta_arquivo +"\\\\" + nome_arquivo;
-					    String nome_diretorio_arquivo_sub_contrato1 = caminho_salvar_contrato_no_banco_dados + nome_pasta_arquivo;
-						//criar o diretorio
-						ManipularTxt manipular = new ManipularTxt();
-						if(manipular.criarDiretorio(caminho_salvar_contrato__no_hd + nome_pasta_arquivo + "\\"))
-						{
-							System.out.println("diretorio criado para o novo sub contrato vendedor1");
-							  if(criarArquivos(nome_arquivo,caminho_completo_salvar_contrato_no_hd,  caminho_completo_salvar_contrato_no_bando_dados, nome_diretorio_arquivo_sub_contrato1))
-							  {	
-							  if(manipular.criarDiretorio(caminho_salvar_contrato__no_hd + nome_pasta_arquivo + "\\comprovantes"))
-								{
-								  //criar diretorio documentos
-								  if(manipular.criarDiretorio(caminho_salvar_contrato__no_hd + nome_pasta_arquivo + "\\documentos"))
-									{
-									  arquivos_vendedor1_criado = true;
-
-									}else {
-										arquivos_vendedor1_criado = false;
-
-									}	
-
-								}else {
-									arquivos_vendedor1_criado = false;
-
-								}
-						   
-							  
-							  
-							  }else {
-							    	arquivos_vendedor1_criado = false;
-							  }
-						}else {
-							System.out.println("erro ao criar diretorio para o sub contrato vendedor1");
-							arquivos_vendedor1_criado = false;
-						}
-					
-				
-			   }
-
-			   
-		   }
-		   
-		   if(vendedores[1] != null) {
-			   System.out.println("vendedor 2 existe para este contrato");
-			   
-			   String caminho_salvar_contrato__no_hd = servidor_unidade + "E-contract\\arquivos\\clientes\\" + nome_vendedor2_arquivo + "\\contratos" + "\\venda\\"  + data.getAnoAtual() + "\\" + novo_contrato.getModelo_safra().getProduto().getNome_produto() + "\\";
+			  
+			  String caminho_salvar_contrato__no_hd = servidor_unidade + "E-contract\\arquivos\\clientes\\" + nome_comprador1_arquivo + "\\contratos" + "\\compra\\"  + data.getAnoAtual() + "\\" + novo_contrato.getModelo_safra().getProduto().getNome_produto() + "\\";
 				System.out.println("caminho para salvar o contrato do comprador no hd: " + caminho_salvar_contrato__no_hd);	
-				String caminho_salvar_contrato_no_banco_dados = "E-contract\\\\arquivos\\\\clientes\\\\" + nome_vendedor2_arquivo + "\\\\contratos" + "\\\\venda\\\\"  + data.getAnoAtual() + "\\\\" + novo_contrato.getModelo_safra().getProduto().getNome_produto() + "\\\\";
+				String caminho_salvar_contrato_no_banco_dados = "E-contract\\\\arquivos\\\\clientes\\\\" + nome_comprador1_arquivo + "\\\\contratos" + "\\\\compra\\\\"  + data.getAnoAtual() + "\\\\" + novo_contrato.getModelo_safra().getProduto().getNome_produto() + "\\\\";
 
 			      String nome_pasta_arquivo = novo_contrato.getCodigo();
 
-			      String nome_arquivo = novo_contrato.getCodigo() + " "  + nome_comprador_arquivo + " x " + nome_vendedor1_arquivo ; 
+			      String nome_arquivo = novo_contrato.getCodigo() + " "  + nome_comprador1_arquivo ; 
 			       
+			        if(nome_comprador2_arquivo != null) {
+						nome_arquivo = nome_arquivo +  " E " + nome_comprador2_arquivo;
+
+			        }
+			        nome_arquivo += " X ";
+			        
+			        
+			        if(nome_vendedor1_arquivo != null) {
+						nome_arquivo = nome_arquivo + nome_vendedor1_arquivo;
+
+			        }
+			      
 					if(nome_vendedor2_arquivo != null) {
-						nome_arquivo +=  (" " + nome_vendedor2_arquivo);
+						nome_arquivo =  nome_arquivo + " E " + nome_vendedor2_arquivo;
 
 					}
 					
@@ -1499,61 +1508,348 @@ public ByteArrayOutputStream alterar(CadastroContrato novo_contrato)
 					String caminho_completo_salvar_contrato_no_hd = caminho_salvar_contrato__no_hd + nome_pasta_arquivo + "\\" + nome_arquivo ;
 					
 				    String caminho_completo_salvar_contrato_no_bando_dados = caminho_salvar_contrato_no_banco_dados + nome_pasta_arquivo +"\\\\" + nome_arquivo;
-				    String nome_diretorio_arquivo_sub_contrato2 = caminho_salvar_contrato_no_banco_dados + nome_pasta_arquivo;
+				    String nome_diretorio_arquivo_contrato = caminho_salvar_contrato_no_banco_dados + nome_pasta_arquivo;
 
 					//criar o diretorio
 					ManipularTxt manipular = new ManipularTxt();
 					if(manipular.criarDiretorio(caminho_salvar_contrato__no_hd + nome_pasta_arquivo + "\\"))
 					{
-						System.out.println("diretorio criado para o novo sub contrato vendedor2");
-						  if(criarArquivos(nome_arquivo,caminho_completo_salvar_contrato_no_hd,  caminho_completo_salvar_contrato_no_bando_dados, nome_diretorio_arquivo_sub_contrato2))
-						  {	
-							  if(manipular.criarDiretorio(caminho_salvar_contrato__no_hd + nome_pasta_arquivo + "\\comprovantes"))
+						System.out.println("diretorio criado para o novo contrato");
+						  if(criarArquivos(1,nome_arquivo,caminho_completo_salvar_contrato_no_hd,  caminho_completo_salvar_contrato_no_bando_dados,nome_diretorio_arquivo_contrato)) {
+						    	if(manipular.criarDiretorio(caminho_salvar_contrato__no_hd + nome_pasta_arquivo + "\\comprovantes"))
 								{
-								  //criar diretorio documentos
-								  if(manipular.criarDiretorio(caminho_salvar_contrato__no_hd + nome_pasta_arquivo + "\\documentos"))
-									{
-									  arquivos_vendedor2_criado = true;
+						    		  //criar diretorio documentos
+									  if(manipular.criarDiretorio(caminho_salvar_contrato__no_hd + nome_pasta_arquivo + "\\documentos"))
+										{
+										  arquivos_comprador1_criado = true;
 
-									}else {
-										arquivos_vendedor2_criado = false;
+										}else {
+											arquivos_comprador1_criado = false;
 
-									}	
+										}	
 
 								}else {
-									arquivos_vendedor2_criado = false;
+							    	arquivos_comprador1_criado = false;
 
 								}
 						  
 						  
-						  } else
-						    	arquivos_vendedor2_criado = false;
+						  }else {
+						    	arquivos_comprador1_criado = false;
+						    }
 					}else {
-						System.out.println("erro ao criar diretorio para o sub contrato vendedor2");
-						arquivos_vendedor2_criado = false;
+						System.out.println("erro ao criar diretorio para o contrato ");
+						arquivos_comprador1_criado = false;
 					}
-				   
+					
+			  
+			  
+			  
+		  }else {
+			  novo_contrato.setCaminho_arquivo(null);
+			  novo_contrato.setNome_arquivo(null);
+			  novo_contrato.setCaminho_diretorio_contrato(null);
 
-			   
-		   }
-		 
+		  }
+		  if(compradores[1] != null) {
+			  // JOptionPane.showMessageDialog(null, "Criando informacoes do comprador 2");
+
+			  String caminho_salvar_contrato__no_hd = servidor_unidade + "E-contract\\arquivos\\clientes\\" + nome_comprador2_arquivo + "\\contratos" + "\\compra\\"  + data.getAnoAtual() + "\\" + novo_contrato.getModelo_safra().getProduto().getNome_produto() + "\\";
+				System.out.println("caminho para salvar o contrato do comprador no hd: " + caminho_salvar_contrato__no_hd);	
+				String caminho_salvar_contrato_no_banco_dados = "E-contract\\\\arquivos\\\\clientes\\\\" + nome_comprador2_arquivo + "\\\\contratos" + "\\\\compra\\\\"  + data.getAnoAtual() + "\\\\" + novo_contrato.getModelo_safra().getProduto().getNome_produto() + "\\\\";
+
+			      String nome_pasta_arquivo = novo_contrato.getCodigo();
+
+			      String nome_arquivo = novo_contrato.getCodigo() + " "  + nome_comprador2_arquivo ; 
+			       
+			        if(nome_comprador1_arquivo != null) {
+						nome_arquivo = nome_arquivo + " E " + nome_comprador1_arquivo;
+
+			        }
+			        nome_arquivo += " X ";
+			        
+			        
+			        if(nome_vendedor1_arquivo != null) {
+						nome_arquivo = nome_arquivo + nome_vendedor1_arquivo;
+
+			        }
+			      
+					if(nome_vendedor2_arquivo != null) {
+						nome_arquivo = nome_arquivo + " E " + nome_vendedor2_arquivo;
+
+					}
+					
+					String extensao_arquivo = ".xlsx";
+					String caminho_completo_salvar_contrato_no_hd = caminho_salvar_contrato__no_hd + nome_pasta_arquivo + "\\" + nome_arquivo ;
+					
+				    String caminho_completo_salvar_contrato_no_bando_dados = caminho_salvar_contrato_no_banco_dados + nome_pasta_arquivo +"\\\\" + nome_arquivo;
+				    String nome_diretorio_arquivo_contrato = caminho_salvar_contrato_no_banco_dados + nome_pasta_arquivo;
+
+					//criar o diretorio
+					ManipularTxt manipular = new ManipularTxt();
+					if(manipular.criarDiretorio(caminho_salvar_contrato__no_hd + nome_pasta_arquivo + "\\"))
+					{
+						System.out.println("diretorio criado para o novo contrato");
+						  if(criarArquivos(2,nome_arquivo,caminho_completo_salvar_contrato_no_hd,  caminho_completo_salvar_contrato_no_bando_dados,nome_diretorio_arquivo_contrato)) {
+						    	if(manipular.criarDiretorio(caminho_salvar_contrato__no_hd + nome_pasta_arquivo + "\\comprovantes"))
+								{
+						    		  //criar diretorio documentos
+									  if(manipular.criarDiretorio(caminho_salvar_contrato__no_hd + nome_pasta_arquivo + "\\documentos"))
+										{
+										  arquivos_comprador2_criado = true;
+
+										}else {
+											arquivos_comprador2_criado = false;
+
+										}	
+
+								}else {
+							    	arquivos_comprador2_criado = false;
+
+								}
+						  
+						  
+						  }else {
+						    	arquivos_comprador2_criado = false;
+						    }
+					}else {
+						System.out.println("erro ao criar diretorio para o contrato ");
+						
+						arquivos_comprador2_criado = false;
+					}
+		  }else {
+			  novo_contrato.setCaminho_arquivo2(null);
+			  novo_contrato.setNome_arquivo2(null);
+			  novo_contrato.setCaminho_diretorio_contrato2(null);
+		  }
+		   
+	   }else {
+		   //e um contrato filho, salvar nas pastas dos vendedores
+		 //salvar para todos os compradores, e salvar na nuvem
+			  if(vendedores[0] != null) {
+				  
+				  String caminho_salvar_contrato__no_hd = servidor_unidade + "E-contract\\arquivos\\clientes\\" + nome_vendedor1_arquivo + "\\contratos" + "\\venda\\"  + data.getAnoAtual() + "\\" + novo_contrato.getModelo_safra().getProduto().getNome_produto() + "\\";
+					System.out.println("caminho para salvar o contrato do comprador no hd: " + caminho_salvar_contrato__no_hd);	
+					String caminho_salvar_contrato_no_banco_dados = "E-contract\\\\arquivos\\\\clientes\\\\" + nome_vendedor1_arquivo + "\\\\contratos" + "\\\\venda\\\\"  + data.getAnoAtual() + "\\\\" + novo_contrato.getModelo_safra().getProduto().getNome_produto() + "\\\\";
+
+				      String nome_pasta_arquivo = novo_contrato.getCodigo();
+				      String nome_arquivo = novo_contrato.getCodigo() + " "  + nome_vendedor1_arquivo ; 
+				      
+				      if(nome_vendedor2_arquivo != null) {
+				    	  	nome_arquivo = nome_arquivo + " E " + nome_vendedor2_arquivo;
+
+				      }
+				      nome_arquivo += " PARA ";
+
+
+				      if(nome_comprador1_arquivo != null) {
+				    	  nome_arquivo = nome_arquivo + " E " + nome_comprador1_arquivo;
+
+				      }
+				     
+
+				      if(nome_comprador2_arquivo != null) {
+				    	  nome_arquivo = nome_arquivo + " E " + nome_comprador2_arquivo;
+
+				      }
+				     
+
+				    
+						String extensao_arquivo = ".xlsx";
+						String caminho_completo_salvar_contrato_no_hd = caminho_salvar_contrato__no_hd + nome_pasta_arquivo + "\\" + nome_arquivo ;
+						
+					    String caminho_completo_salvar_contrato_no_bando_dados = caminho_salvar_contrato_no_banco_dados + nome_pasta_arquivo +"\\\\" + nome_arquivo;
+					    String nome_diretorio_arquivo_contrato = caminho_salvar_contrato_no_banco_dados + nome_pasta_arquivo;
+
+						//criar o diretorio
+						ManipularTxt manipular = new ManipularTxt();
+						if(manipular.criarDiretorio(caminho_salvar_contrato__no_hd + nome_pasta_arquivo + "\\"))
+						{
+							System.out.println("diretorio criado para o novo contrato");
+							  if(criarArquivos(1,nome_arquivo,caminho_completo_salvar_contrato_no_hd,  caminho_completo_salvar_contrato_no_bando_dados,nome_diretorio_arquivo_contrato)) {
+							    	if(manipular.criarDiretorio(caminho_salvar_contrato__no_hd + nome_pasta_arquivo + "\\comprovantes"))
+									{
+							    		  //criar diretorio documentos
+										  if(manipular.criarDiretorio(caminho_salvar_contrato__no_hd + nome_pasta_arquivo + "\\documentos"))
+											{
+											  arquivos_vendedor1_criado = true;
+
+											}else {
+												arquivos_vendedor1_criado = false;
+
+											}	
+
+									}else {
+										arquivos_vendedor1_criado = false;
+
+									}
+							  
+							  
+							  }else {
+								  arquivos_vendedor1_criado = false;
+							    }
+						}else {
+							System.out.println("erro ao criar diretorio para o contrato ");
+							arquivos_vendedor1_criado = false;
+						}
+						
+				  
+				  
+				  
+			  }else {
+				  novo_contrato.setCaminho_arquivo(null);
+				  novo_contrato.setNome_arquivo(null);
+				  novo_contrato.setCaminho_diretorio_contrato(null);
+			  }
+			  if(vendedores[1] != null) {
+				  String caminho_salvar_contrato__no_hd = servidor_unidade + "E-contract\\arquivos\\clientes\\" + nome_vendedor2_arquivo + "\\contratos" + "\\venda\\"  + data.getAnoAtual() + "\\" + novo_contrato.getModelo_safra().getProduto().getNome_produto() + "\\";
+					System.out.println("caminho para salvar o contrato do comprador no hd: " + caminho_salvar_contrato__no_hd);	
+					String caminho_salvar_contrato_no_banco_dados = "E-contract\\\\arquivos\\\\clientes\\\\" + nome_vendedor2_arquivo + "\\\\contratos" + "\\\\venda\\\\"  + data.getAnoAtual() + "\\\\" + novo_contrato.getModelo_safra().getProduto().getNome_produto() + "\\\\";
+
+					String nome_pasta_arquivo = novo_contrato.getCodigo();
+				      String nome_arquivo = novo_contrato.getCodigo() + " "  + nome_vendedor2_arquivo ; 
+				      
+				      if(nome_vendedor1_arquivo != null) {
+				    	  	nome_arquivo = nome_arquivo + " E " + nome_vendedor1_arquivo;
+
+				      }
+				      nome_arquivo += " PARA ";
+
+
+				      if(nome_comprador1_arquivo != null) {
+				    	  nome_arquivo = nome_arquivo + " E " + nome_comprador1_arquivo;
+
+				      }
+				     
+
+				      if(nome_comprador2_arquivo != null) {
+				    	  nome_arquivo = nome_arquivo + " E " + nome_comprador2_arquivo;
+
+				      }
+						
+						String extensao_arquivo = ".xlsx";
+						String caminho_completo_salvar_contrato_no_hd = caminho_salvar_contrato__no_hd + nome_pasta_arquivo + "\\" + nome_arquivo ;
+						
+					    String caminho_completo_salvar_contrato_no_bando_dados = caminho_salvar_contrato_no_banco_dados + nome_pasta_arquivo +"\\\\" + nome_arquivo;
+					    String nome_diretorio_arquivo_contrato = caminho_salvar_contrato_no_banco_dados + nome_pasta_arquivo;
+
+						//criar o diretorio
+						ManipularTxt manipular = new ManipularTxt();
+						if(manipular.criarDiretorio(caminho_salvar_contrato__no_hd + nome_pasta_arquivo + "\\"))
+						{
+							System.out.println("diretorio criado para o novo contrato");
+							  if(criarArquivos(2,nome_arquivo,caminho_completo_salvar_contrato_no_hd,  caminho_completo_salvar_contrato_no_bando_dados,nome_diretorio_arquivo_contrato)) {
+							    	if(manipular.criarDiretorio(caminho_salvar_contrato__no_hd + nome_pasta_arquivo + "\\comprovantes"))
+									{
+							    		  //criar diretorio documentos
+										  if(manipular.criarDiretorio(caminho_salvar_contrato__no_hd + nome_pasta_arquivo + "\\documentos"))
+											{
+											  arquivos_vendedor2_criado = true;
+
+											}else {
+												arquivos_vendedor2_criado = false;
+
+											}	
+
+									}else {
+										arquivos_vendedor2_criado = false;
+
+									}
+							  
+							  
+							  }else {
+								  arquivos_vendedor2_criado = false;
+							    }
+						}else {
+							System.out.println("erro ao criar diretorio para o contrato ");
+							arquivos_vendedor2_criado = false;
+						}
+			  }else {
+				  novo_contrato.setCaminho_arquivo2(null);
+				  novo_contrato.setNome_arquivo2(null);
+				  novo_contrato.setCaminho_diretorio_contrato2(null);
+			  }
 	   }
 		
 	   if(novo_contrato.getSub_contrato() == 0) {
-		   //e comtrato pai, retorno apenas oa varaivel do comprador
-		   if(arquivos_comprador_criado) {
-			   retorno_final = 1; //avisa para quem chamou a funcao que o contrato do comprador foi salvo
-		   GerenciadorLog.registrarLogDiario("aviso", "o contrato de numero " + novo_contrato.getCodigo() + " foi criado na base de arquivos fisico");
-	        }else {
-				   retorno_final = -1; //avisa para quem chamou a funcao que o contrato do comprador não foi salvo
-				   GerenciadorLog.registrarLogDiario("falha", "o contrato de numero " + novo_contrato.getCodigo() + " não foi criado na base de arquivos fisico");
+		   //é um contrato pai
+		   //ha dois compradores, retorno as duas variaveis
 
-	        }
+		    if(compradores[0] != null && compradores[1] != null) {
+		    	 if(arquivos_comprador1_criado && arquivos_comprador2_criado) {
+					   retorno_final = 30; //avisa pra quem chamou a funcao que o contrato do vendedor1 e do vendedor2 foi salvo
+					   if(tipo_salvamento == 1) {
+					   //recupear o backup
+					   ManipularTxt restaurar_bkp = new ManipularTxt();
+					   restaurar_bkp.criar_bkp_diretorio(diretorio_pasta_bkp1 + "\\comprovantes", servidor_unidade + novo_contrato.getCaminho_diretorio_contrato() + "\\comprovantes");
+					   restaurar_bkp.criar_bkp_diretorio(diretorio_pasta_bkp1 + "\\documentos", servidor_unidade + novo_contrato.getCaminho_diretorio_contrato() + "\\documentos");
+
+					   restaurar_bkp.criar_bkp_diretorio(diretorio_pasta_bkp1 + "\\comprovantes", servidor_unidade + novo_contrato.getCaminho_diretorio_contrato2() + "\\comprovantes");
+					   restaurar_bkp.criar_bkp_diretorio(diretorio_pasta_bkp1 + "\\documentos", servidor_unidade + novo_contrato.getCaminho_diretorio_contrato2() + "\\documentos");
+					   }
+					   GerenciadorLog.registrarLogDiario("aviso", "o contrato de numero " + novo_contrato.getCodigo() + " foi criado na base de arquivos fisico");
+
+				   }else {
+					   retorno_final = 31; //avisa pra quem chamou a funcao que o contrato do vendedor1 e do vendedor2 não foram salvo
+					 
+					   GerenciadorLog.registrarLogDiario("falha", "o contrato de numero " + novo_contrato.getCodigo() + " não foi criado na base de arquivos fisico");
+
+				   }
+		    }else if (compradores[0] != null && compradores[1] == null){
+				   if(arquivos_comprador1_criado) {
+					   retorno_final = 32; //avisa pra quem chamou a funcao que o contrato do comprador  foi salvo
+					   if(tipo_salvamento == 1) {
+						   //recupear o backup
+						   ManipularTxt restaurar_bkp = new ManipularTxt();
+						   restaurar_bkp.criar_bkp_diretorio(diretorio_pasta_bkp1 + "\\comprovantes", servidor_unidade + novo_contrato.getCaminho_diretorio_contrato() + "\\comprovantes");
+						   restaurar_bkp.criar_bkp_diretorio(diretorio_pasta_bkp1 + "\\documentos", servidor_unidade + novo_contrato.getCaminho_diretorio_contrato() + "\\documentos");
+
+					 }
+					   GerenciadorLog.registrarLogDiario("aviso", "o contrato de numero " + novo_contrato.getCodigo() + "  foi criado na base de arquivos fisico");
+
+				   } else {
+					   retorno_final = 13; //avisa pra quem chamou a funcao que o contrato do vendedor1  não foram salvo
+					   GerenciadorLog.registrarLogDiario("falha", "o contrato de numero " + novo_contrato.getCodigo() + " não foi criado na base de arquivos fisico");
+
+				   }
+			   }else if (compradores[0] == null && compradores[1] != null){
+				   if(arquivos_comprador2_criado) {
+					   retorno_final = 34; //avisa pra quem chamou a funcao que o contrato do comprador2  foi salvo
+					   if(tipo_salvamento == 1) {
+						   //recupear o backup
+						   ManipularTxt restaurar_bkp = new ManipularTxt();
+						   restaurar_bkp.criar_bkp_diretorio(diretorio_pasta_bkp2 + "\\comprovantes", servidor_unidade + novo_contrato.getCaminho_diretorio_contrato() + "\\comprovantes");
+						   restaurar_bkp.criar_bkp_diretorio(diretorio_pasta_bkp2 + "\\documentos", servidor_unidade + novo_contrato.getCaminho_diretorio_contrato() + "\\documentos");
+
+					 }
+					   GerenciadorLog.registrarLogDiario("aviso", "o contrato de numero " + novo_contrato.getCodigo() + "  foi criado na base de arquivos fisico");
+
+				   } else {
+					   retorno_final = 35; //avisa pra quem chamou a funcao que o contrato do comprador2  não foram salvo
+					   GerenciadorLog.registrarLogDiario("falha", "o contrato de numero " + novo_contrato.getCodigo() + " não foi criado na base de arquivos fisico");
+
+				   }
+			   }
+		   
+		   
+		   
+		  
 	   }else {
+		   //é um sub contrato
+
 		   if(vendedores[0] != null && vendedores[1] != null) {
 			   //ha dois vendedores, retorno as duas variaveis
-			   if(arquivos_vendedor1_criado && arquivos_vendedor1_criado) {
+			   if(arquivos_vendedor1_criado && arquivos_vendedor2_criado) {
 				   retorno_final = 10; //avisa pra quem chamou a funcao que o contrato do vendedor1 e do vendedor2 foi salvo
+				   if(tipo_salvamento == 1) {
+					   //recupear o backup
+					   ManipularTxt restaurar_bkp = new ManipularTxt();
+					   restaurar_bkp.criar_bkp_diretorio(diretorio_pasta_bkp1 + "\\comprovantes", servidor_unidade + novo_contrato.getCaminho_diretorio_contrato() + "\\comprovantes");
+					   restaurar_bkp.criar_bkp_diretorio(diretorio_pasta_bkp1 + "\\documentos", servidor_unidade + novo_contrato.getCaminho_diretorio_contrato() + "\\documentos");
+
+					   restaurar_bkp.criar_bkp_diretorio(diretorio_pasta_bkp1 + "\\comprovantes", servidor_unidade + novo_contrato.getCaminho_diretorio_contrato2() + "\\comprovantes");
+					   restaurar_bkp.criar_bkp_diretorio(diretorio_pasta_bkp1 + "\\documentos", servidor_unidade + novo_contrato.getCaminho_diretorio_contrato2() + "\\documentos");
+					   }
 				   GerenciadorLog.registrarLogDiario("aviso", "o sub_contrato de numero " + novo_contrato.getCodigo() + " foi criado na base de arquivos fisico");
 
 			   }else {
@@ -1564,6 +1860,12 @@ public ByteArrayOutputStream alterar(CadastroContrato novo_contrato)
 		   }else if (vendedores[0] != null && vendedores[1] == null){
 			   if(arquivos_vendedor1_criado) {
 				   retorno_final = 12; //avisa pra quem chamou a funcao que o contrato do vendedor1  foi salvo
+				   if(tipo_salvamento == 1) {
+					   //recupear o backup
+					   ManipularTxt restaurar_bkp = new ManipularTxt();
+					   restaurar_bkp.criar_bkp_diretorio(diretorio_pasta_bkp1 + "\\comprovantes", servidor_unidade + novo_contrato.getCaminho_diretorio_contrato() + "\\comprovantes");
+					   restaurar_bkp.criar_bkp_diretorio(diretorio_pasta_bkp1 + "\\documentos", servidor_unidade + novo_contrato.getCaminho_diretorio_contrato() + "\\documentos");
+                  }
 				   GerenciadorLog.registrarLogDiario("aviso", "o sub_contrato de numero " + novo_contrato.getCodigo() + "  foi criado na base de arquivos fisico");
 
 			   } else {
@@ -1574,6 +1876,12 @@ public ByteArrayOutputStream alterar(CadastroContrato novo_contrato)
 		   }else if (vendedores[0] == null && vendedores[1] != null){
 			   if(arquivos_vendedor2_criado) {
 				   retorno_final = 14; //avisa pra quem chamou a funcao que o contrato do vendedor2  foi salvo
+				   if(tipo_salvamento == 1) {
+					   //recupear o backup
+					   ManipularTxt restaurar_bkp = new ManipularTxt();
+					   restaurar_bkp.criar_bkp_diretorio(diretorio_pasta_bkp2 + "\\comprovantes", servidor_unidade + novo_contrato.getCaminho_diretorio_contrato() + "\\comprovantes");
+					   restaurar_bkp.criar_bkp_diretorio(diretorio_pasta_bkp2 + "\\documentos", servidor_unidade + novo_contrato.getCaminho_diretorio_contrato() + "\\documentos");
+                  }
 				   GerenciadorLog.registrarLogDiario("aviso", "o sub_contrato de numero " + novo_contrato.getCodigo() + "  foi criado na base de arquivos fisico");
 
 			   } else {
@@ -1593,7 +1901,7 @@ public ByteArrayOutputStream alterar(CadastroContrato novo_contrato)
 	
 	
 	
-	public boolean criarArquivos(String nome_arquivo, String caminh_completo_salvar_no_hd, String caminho_completo_salvar_no_banco_dados, String caminho_completo_diretorio_arquivo) {
+	public boolean criarArquivos(int flag_alvo, String nome_arquivo, String caminh_completo_salvar_no_hd, String caminho_completo_salvar_no_banco_dados, String caminho_completo_diretorio_arquivo) {
 		
 		FileOutputStream outputStream;
 		try {
@@ -1616,10 +1924,15 @@ public ByteArrayOutputStream alterar(CadastroContrato novo_contrato)
              if (converter_pdf.excel_pdf_file(caminh_completo_salvar_no_hd)) {
             	 System.out.println("Arquivo pdf convertido e salvo!");
             	
-            	 
+            	 if(flag_alvo == 1) {
             	 System.out.println("caminho para salvar na nuvem: " + caminh_completo_salvar_no_hd);
             	 novo_contrato.setCaminho_arquivo(caminho_completo_salvar_no_banco_dados + ".pdf") ;
             	 novo_contrato.setCaminho_diretorio_contrato(caminho_completo_diretorio_arquivo);
+            	 }else if(flag_alvo == 2) {
+            		 System.out.println("caminho para salvar na nuvem: " + caminh_completo_salvar_no_hd);
+                	 novo_contrato.setCaminho_arquivo2(caminho_completo_salvar_no_banco_dados + ".pdf") ;
+                	 novo_contrato.setCaminho_diretorio_contrato2(caminho_completo_diretorio_arquivo);
+            	 }
             	 //salvar no drobox
             	 Nuvem nuvem = new Nuvem();
             	 nuvem.abrir();
@@ -1627,8 +1940,22 @@ public ByteArrayOutputStream alterar(CadastroContrato novo_contrato)
                 
                 boolean retorno = nuvem.carregar(caminh_completo_salvar_no_hd + ".pdf", nome_arquivo + ".pdf");
                  if(retorno) {
-                	 System.out.println("Arquivo salvo na nuvem");
-                	 novo_contrato.setNome_arquivo(nome_arquivo + ".pdf" );
+                	 // JOptionPane.showMessageDialog(null, "Arquivo salvo na nuvem");
+                	 if(flag_alvo == 1) {
+                		 // JOptionPane.showMessageDialog(null, "Arquivo comprador1 salvo na nuvem");
+
+                		 System.out.println("Arquivo salvo na nuvem");
+                    	 novo_contrato.setNome_arquivo(nome_arquivo + ".pdf" );
+                	 }else if(flag_alvo == 2) {
+                		 // JOptionPane.showMessageDialog(null, "Arquivo comprador2 salvo na nuvem");
+
+                		 System.out.println("Arquivo salvo na nuvem");
+                    	 novo_contrato.setNome_arquivo2(nome_arquivo + ".pdf" );
+                	 }
+                	 
+                 }else {
+                	 //JOptionPane.showMessageDialog(null, "Arquivo não salvo na nuvem");
+
                  }
         	    // System.out.println("link: " + nuvem.getUrlArquivo("/contratos));
      			return true;

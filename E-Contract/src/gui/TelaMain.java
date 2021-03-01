@@ -19,6 +19,7 @@ import java.text.NumberFormat;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.Locale;
 import java.util.Map;
 
@@ -64,15 +65,18 @@ import com.jgoodies.forms.layout.FormLayout;
 import com.jgoodies.forms.layout.ColumnSpec;
 import com.jgoodies.forms.layout.RowSpec;
 
+import cadastros.CadastroAviso;
 import cadastros.CadastroBaseArquivos;
 import cadastros.CadastroBaseDados;
 import cadastros.CadastroCliente;
 import cadastros.CadastroContrato;
 import cadastros.CadastroLogin;
+import cadastros.CadastroProduto;
 import cadastros.CadastroRomaneio;
 import cadastros.CadastroSafra;
 import cadastros.DadosCarregamento;
 import cadastros.DadosContratos;
+import cadastros.DadosRecebimento;
 import classesExtras.ComboBoxPersonalizado;
 import classesExtras.ComboBoxRenderPersonalizado;
 import conexaoBanco.GerenciarBancoClientes;
@@ -82,6 +86,7 @@ import conexaoBanco.GerenciarBancoSafras;
 import conexoes.TesteConexao;
 
 import javax.swing.border.LineBorder;
+import javax.swing.table.AbstractTableModel;
 import javax.swing.table.DefaultTableModel;
 
 import java.awt.Insets;
@@ -101,6 +106,8 @@ import manipular.ManipularRomaneios;
 import manipular.ManipularTxt;
 import manipular.MonitorarRomaneios;
 import manipular.Whatsapp;
+import javax.swing.JTable;
+import javax.swing.ScrollPaneConstants;
 
 
 
@@ -116,6 +123,8 @@ public class TelaMain extends JFrame {
 	private boolean executou = false;
 	private DadosContratos dados_contratos = new DadosContratos();
 	private DadosCarregamento dados_carregamentos = new DadosCarregamento();
+	private DadosRecebimento dados_recebimentos = new DadosRecebimento();
+    private ArrayList<CadastroAviso> lista_avisos = new ArrayList<>();
 	private int num_tarefas_nesta_secao = -1;
 	private JLabel lblNumeroTarefas;
 	private JLabel lblBD, lblBaseDeArquivos, lblNuvem, lblnet, urlBancoDados, imgBaseDados, urlBaseArquivos,
@@ -131,9 +140,12 @@ public class TelaMain extends JFrame {
 	TelaPost telaPost;
 	TelaTarefas tela_tarefas;
 	private JLabel lblStatusWhatsapp,imgWhatsapp;
+	private JLabel lblTotalSacosRecebidos, lblTotalSacosGraficoRecebimento, lblTotalSacosAReceber;
+	private JComboBox cbRecebimentosPorSafra;
+
 
 	private GerenciarBancoContratos gerenciarAtualizarTarefas, gerenciarDadosCarregamento, gerenciarDadosContrato,
-			gerenciarCarregamentoPorPeriodo;
+			gerenciarCarregamentoPorPeriodo, gerenciarDadosRecebimento;
 	private GerenciarBancoPadrao gerenciarBancoPadrao;
 	DefaultTableModel modelo_usuarios = new DefaultTableModel() {
 		public boolean isCellEditable(int linha, int coluna) {
@@ -151,7 +163,8 @@ public class TelaMain extends JFrame {
 	private CadastroLogin login;
 	private JPanelGrafico painelGraficoContratos;
 	private  JPanelGraficoRecebimento painelGraficoRecebimento;
-	
+	private JTable tabela_avisos;
+	private AvisoTableModel modelo_aviso = new AvisoTableModel();
 	
 	public TelaMain(Window janela_pai) {
 
@@ -307,6 +320,7 @@ public class TelaMain extends JFrame {
 		mntmContratos.setFont(new Font("Segoe UI", Font.PLAIN, 16));
 		mntmContratos.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
+				TelaContratos2 telaContratos2 = null;
 				
 				if(telaContratos == null) {
 				 telaContratos = new TelaContratos(0, isto);
@@ -315,6 +329,17 @@ public class TelaMain extends JFrame {
 				}
 				else
 				 telaContratos.setVisible(true);
+				 
+				
+				/*
+				if(telaContratos2 == null) {
+					 telaContratos2 = new TelaContratos2(0, isto);
+					 telaContratos2.setVisible(true);
+
+					}
+					else
+					 telaContratos2.setVisible(true);
+					 */
 			}
 		});
 		mnContratos.add(mntmContratos);
@@ -499,9 +524,9 @@ public class TelaMain extends JFrame {
 		JScrollPane scrollPane = new JScrollPane(panel_3);
 		GridBagLayout gbl_panel_3 = new GridBagLayout();
 		gbl_panel_3.columnWidths = new int[]{500, -27, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 57, 68, 0, 0, 0, 0, 0, 0, 0, 0, 0};
-		gbl_panel_3.rowHeights = new int[]{304, 309, 263, 13, 1, 0};
+		gbl_panel_3.rowHeights = new int[]{286, 309, 223, 19, 1, 0};
 		gbl_panel_3.columnWeights = new double[]{1.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0, Double.MIN_VALUE};
-		gbl_panel_3.rowWeights = new double[]{0.0, 1.0, 1.0, 1.0, 0.0, Double.MIN_VALUE};
+		gbl_panel_3.rowWeights = new double[]{0.0, 0.0, 1.0, 1.0, 0.0, Double.MIN_VALUE};
 		panel_3.setLayout(gbl_panel_3);
 		
 		JPanel panel_4 = new JPanel();
@@ -708,32 +733,38 @@ public class TelaMain extends JFrame {
 		gbc_painelGraficoRecebimento.gridy = 1;
 		panel_3.add(painelGraficoRecebimento, gbc_painelGraficoRecebimento);
 		
-		JLabel lblARecebersacos = new JLabel("a Receber(sacos): 0");
-		lblARecebersacos.setFont(new Font("Arial", Font.BOLD, 14));
-		lblARecebersacos.setBorder(new EmptyBorder(0, 0, 0, 0));
-		lblARecebersacos.setBounds(0, 71, 253, 24);
-		painelGraficoRecebimento.add(lblARecebersacos);
+		JLabel lblNewLabel_5 = new JLabel("de recebimento, pode não corresponder  a realidade atual do armazém(Estimativa)");
+		lblNewLabel_5.setForeground(Color.RED);
+		lblNewLabel_5.setBounds(6, 282, 467, 16);
+		painelGraficoRecebimento.add(lblNewLabel_5);
 		
-		JLabel lblRecebidossacos = new JLabel("Recebidos(sacos): 0");
-		lblRecebidossacos.setFont(new Font("Arial", Font.BOLD, 14));
-		lblRecebidossacos.setBorder(new EmptyBorder(0, 0, 0, 0));
-		lblRecebidossacos.setBounds(0, 35, 253, 24);
-		painelGraficoRecebimento.add(lblRecebidossacos);
+		lblTotalSacosAReceber  = new JLabel("a Receber(sacos): 0");
+		lblTotalSacosAReceber.setFont(new Font("Arial", Font.BOLD, 14));
+		lblTotalSacosAReceber.setBorder(new EmptyBorder(0, 0, 0, 0));
+		lblTotalSacosAReceber.setBounds(0, 71, 253, 24);
+		painelGraficoRecebimento.add(lblTotalSacosAReceber);
 		
-		JLabel lblTotalSacos_1 = new JLabel("Quantidade Total(sacos): 0");
-		lblTotalSacos_1.setFont(new Font("Arial", Font.BOLD, 14));
-		lblTotalSacos_1.setBorder(new EmptyBorder(0, 0, 0, 0));
-		lblTotalSacos_1.setBounds(0, -1, 253, 24);
-		painelGraficoRecebimento.add(lblTotalSacos_1);
+		
+		 lblTotalSacosRecebidos = new JLabel("Recebidos(sacos): 0");
+		lblTotalSacosRecebidos.setFont(new Font("Arial", Font.BOLD, 14));
+		lblTotalSacosRecebidos.setBorder(new EmptyBorder(0, 0, 0, 0));
+		lblTotalSacosRecebidos.setBounds(0, 35, 253, 24);
+		painelGraficoRecebimento.add(lblTotalSacosRecebidos);
+		
+		 lblTotalSacosGraficoRecebimento = new JLabel("Quantidade Total(sacos): 0");
+		lblTotalSacosGraficoRecebimento.setFont(new Font("Arial", Font.BOLD, 14));
+		lblTotalSacosGraficoRecebimento.setBorder(new EmptyBorder(0, 0, 0, 0));
+		lblTotalSacosGraficoRecebimento.setBounds(0, -1, 253, 24);
+		painelGraficoRecebimento.add(lblTotalSacosGraficoRecebimento);
 		
 		JLabel lblNewLabel_9_1 = new JLabel("");
 		lblNewLabel_9_1.setBounds(128, 149, 64, 75);
 		painelGraficoRecebimento.add(lblNewLabel_9_1);
 		
-		JLabel lblNewLabel_5 = new JLabel("Valores Baseados na leitura de romaneios, pode não corresponder a realidade");
-		lblNewLabel_5.setForeground(Color.RED);
-		lblNewLabel_5.setBounds(6, 282, 494, 16);
-		painelGraficoRecebimento.add(lblNewLabel_5);
+		JLabel lblNewLabel_5_1 = new JLabel("Valores Baseados na soma dos pesos liquidos do controle");
+		lblNewLabel_5_1.setForeground(Color.RED);
+		lblNewLabel_5_1.setBounds(6, 259, 420, 16);
+		painelGraficoRecebimento.add(lblNewLabel_5_1);
 		
 		JPanel panel_7 = new JPanel();
 		panel_7.setBackground(Color.WHITE);
@@ -747,6 +778,13 @@ public class TelaMain extends JFrame {
 		panel_7.setLayout(new MigLayout("", "[grow]", "[][][][][]"));
 		
 		JLabel lblTodasAsSafrasRecebimento = new JLabel("Todas as Safras", SwingConstants.CENTER);
+		lblTodasAsSafrasRecebimento.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseClicked(MouseEvent e) {
+				getDadosRecebimento();
+				atualizarGraficoRecebimentos();
+			}
+		});
 		lblTodasAsSafrasRecebimento.setOpaque(true);
 		lblTodasAsSafrasRecebimento.setForeground(Color.WHITE);
 		lblTodasAsSafrasRecebimento.setFont(new Font("Tahoma", Font.PLAIN, 14));
@@ -754,18 +792,78 @@ public class TelaMain extends JFrame {
 		lblTodasAsSafrasRecebimento.setBackground(new Color(0, 206, 209));
 		panel_7.add(lblTodasAsSafrasRecebimento, "cell 0 1,growx");
 		
-		JComboBox cbRecebimentosPorSafra = new JComboBox();
+		 cbRecebimentosPorSafra = new JComboBox();
+		 cbRecebimentosPorSafra.addActionListener(new ActionListener() {
+		 	public void actionPerformed(ActionEvent e) {
+		 		
+		 		try {
+					CadastroSafra safra = (CadastroSafra) modelSafra.getSelectedItem();
+					// procura no banco os contratos de acordo com a safra selecionada
+					GerenciarBancoContratos gerenciar = new GerenciarBancoContratos();
+					double num_total_sacos = gerenciar.getQuantidadeSacosPorSafra(safra.getId_safra());
+					double num_total_sacos_carregados = gerenciar
+							.getQuantidadeSacosRecebidosPorSafra(safra.getId_safra());
+					// atualizar o grafico
+					atualizarGraficoRecebimentos(num_total_sacos, num_total_sacos_carregados);
+				} catch (Exception t) {
+				}
+		 		
+		 	}
+		 });
 		cbRecebimentosPorSafra.setFont(new Font("Tahoma", Font.BOLD, 10));
 		panel_7.add(cbRecebimentosPorSafra, "cell 0 2,growx");
+		cbRecebimentosPorSafra.setModel(modelSafra);
+		cbRecebimentosPorSafra.setRenderer(cBSafraPersonalizado);
 		
-		JButton btnNewButton = new JButton("New button");
+		JPanel panel_8 = new JPanel();
+		panel_8.setBackground(Color.WHITE);
+		GridBagConstraints gbc_panel_8 = new GridBagConstraints();
+		gbc_panel_8.gridwidth = 12;
+		gbc_panel_8.insets = new Insets(0, 0, 5, 5);
+		gbc_panel_8.fill = GridBagConstraints.BOTH;
+		gbc_panel_8.gridx = 12;
+		gbc_panel_8.gridy = 1;
+		panel_3.add(panel_8, gbc_panel_8);
+		panel_8.setLayout(new MigLayout("", "[][grow]", "[][][211.00,grow][]"));
+		
+		JLabel lblNewLabel_10 = new JLabel("Avisos do Sistema");
+		lblNewLabel_10.setOpaque(true);
+		lblNewLabel_10.setForeground(Color.WHITE);
+		lblNewLabel_10.setBackground(new Color(0, 51, 0));
+		lblNewLabel_10.setFont(new Font("SansSerif", Font.PLAIN, 20));
+		panel_8.add(lblNewLabel_10, "cell 1 0");
+		
+	
+		
+		
+	
+		tabela_avisos = new JTable(modelo_aviso);
+
+		tabela_avisos.getColumnModel().getColumn(0).setPreferredWidth(50);
+		tabela_avisos.getColumnModel().getColumn(1).setPreferredWidth(250);
+		tabela_avisos.getColumnModel().getColumn(2).setPreferredWidth(800);
+		tabela_avisos.setRowHeight(30);
+		
+		
+		
+		JScrollPane scrollPane_1 = new JScrollPane(tabela_avisos);
+		scrollPane_1.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
+		scrollPane_1.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_ALWAYS);
+		scrollPane_1.setBackground(Color.WHITE);
+		panel_8.add(scrollPane_1, "cell 1 2,grow");
+		
+		JButton btnNewButton = new JButton("Excluir Aviso");
 		btnNewButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				TelaParaTeste tela = new TelaParaTeste(0, isto);
-				tela.setVisible(true);
+				
+				int indiceDaLinha = tabela_avisos.getSelectedRow();
+				CadastroAviso aviso_selecionado = lista_avisos.get(indiceDaLinha);
+				lista_avisos.remove(aviso_selecionado);
+				modelo_aviso.onRemove(indiceDaLinha);
 			}
 		});
-		panel_7.add(btnNewButton, "cell 0 4");
+		panel_8.add(btnNewButton, "cell 1 3,alignx right");
+		
 		
 		JPanel panel_6 = new JPanel();
 		panel_6.setBackground(Color.WHITE);
@@ -963,7 +1061,9 @@ public class TelaMain extends JFrame {
 		
 		atualizarNumTarefas();
 		getDadosCarregamento();
+		getDadosRecebimento();
 		atualizarGraficoCarregamentos();
+		atualizarGraficoRecebimentos();
 		getDadosContratos();
 		atualizarGraficoContratos();
 		getCarregamentoPorPeriodo();
@@ -975,6 +1075,8 @@ public class TelaMain extends JFrame {
 		buscarConexaoNuvem();
 		ThreadGetDadosContratos();
 		ThreadGetDadosCarregamento();
+		ThreadGetDadosRecebimento();
+
 		
 
 		if (telaChat == null) {
@@ -995,7 +1097,7 @@ public class TelaMain extends JFrame {
 			}
 		}.start();
 		
-		//vigiarRomaneios();
+		vigiarRomaneios();
 
 		
 		this.setLocationRelativeTo(null);
@@ -1059,6 +1161,19 @@ public class TelaMain extends JFrame {
 		dados_carregamentos.setQuantidade_total_a_carregar(quantidade_total_sacos_a_carregar);
 	}
 
+	public void getDadosRecebimento() {
+		if (gerenciarDadosRecebimento == null)
+			gerenciarDadosRecebimento = new GerenciarBancoContratos();
+		double quantidade_total_sacos = gerenciarDadosRecebimento.getQuantidadeSacos();
+		double quantidade_total_sacos_recebidos = gerenciarDadosRecebimento.getQuantidadeSacosRecebidos();
+		double quantidade_total_sacos_a_receber = quantidade_total_sacos - quantidade_total_sacos_recebidos;
+		dados_recebimentos.setQuantidade_total_sacos(quantidade_total_sacos);
+		dados_recebimentos.setQuantidade_total_recebidos(quantidade_total_sacos_recebidos);
+		dados_recebimentos.setQuantidade_total_a_receber(quantidade_total_sacos_a_receber);
+	}
+
+	
+	
 	public void ThreadGetDadosCarregamento() {
 		new Thread() {
 			@Override
@@ -1083,6 +1198,33 @@ public class TelaMain extends JFrame {
 			}
 		}.start();
 	}
+	
+	
+	public void ThreadGetDadosRecebimento() {
+		new Thread() {
+			@Override
+			public void run() {
+				while (true) {
+					try {
+						Thread.sleep(40000);
+					} catch (InterruptedException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+					getDadosRecebimento();
+					atualizarGraficoRecebimentos();
+					getCarregamentoPorPeriodo();
+					try {
+						Thread.sleep(40000);
+					} catch (InterruptedException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+				}
+			}
+		}.start();
+	}
+
 
 	public void ThreadGetDadosContratos() {
 		new Thread() {
@@ -1406,7 +1548,55 @@ public class TelaMain extends JFrame {
 			}
 		}.start();
 	}
+	
+	public void atualizarGraficoRecebimentos() {
+		lblTotalSacosGraficoRecebimento.setText("Quantidade Total(sacos): " + (int) dados_recebimentos.getQuantidade_total_sacos());
+		lblTotalSacosRecebidos
+				.setText("Recebidos(sacos): " + (int) dados_recebimentos.getQuantidade_total_recebidos());
+		lblTotalSacosAReceber
+				.setText("a Receber(sacos): " + (int) dados_recebimentos.getQuantidade_total_a_receber());
+		new Thread() {
+			@Override
+			public void run() {
+				int i = 0;
+				while (i <= (int) dados_recebimentos.getQuantidade_total_recebidos()) {
+					// System.out.printf("Disponivel e %d\n ", disponivel);
+					// System.out.printf("Usado e %d\n", usado);
+					painelGraficoRecebimento.setDados((int) dados_recebimentos.getQuantidade_total_sacos(), i);
+					painelGraficoRecebimento.repaint();
+					i++;
+				}
+			}
+		}.start();
+	}
 
+	public void atualizarGraficoRecebimentos(double quantidade_total, double quantidade_recebida) {
+		lblTotalSacosGraficoRecebimento.setText("Quantidade Total(sacos): " + (int) quantidade_total);
+		lblTotalSacosRecebidos.setText("Recebidos(sacos): " + (int) quantidade_recebida);
+		lblTotalSacosAReceber.setText("a Receber(sacos): " + (int) (quantidade_total - quantidade_recebida));
+		new Thread() {
+			@Override
+			public void run() {
+				int i = (int) quantidade_recebida;
+				while (i <= (int) quantidade_recebida) {
+					// System.out.printf("Disponivel e %d\n ", disponivel);
+					// System.out.printf("Usado e %d\n", usado);
+					painelGraficoRecebimento.setDados((int) quantidade_total, i);
+					painelGraficoRecebimento.repaint();
+					try {
+						Thread.sleep(100);
+					} catch (InterruptedException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+					i++;
+				}
+			}
+		}.start();
+	}
+
+	
+	
 	public void atualizarGraficoCarregamentos(double quantidade_total, double quantidade_carregada) {
 		lblTotalSacos.setText("Quantidade Total(sacos): " + (int) quantidade_total);
 		lblTotalSacosRetirados.setText("Carregados(sacos): " + (int) quantidade_carregada);
@@ -1870,7 +2060,7 @@ public class TelaMain extends JFrame {
 	
 	public void vigiarRomaneios() {
 		MonitorarRomaneios monitorar = new MonitorarRomaneios();
-    	monitorar.vigiarRomaneios();
+    	monitorar.vigiarRomaneiosSemTelaAvisos();
 	}
 
 	public int getIndexTelaPai() {
@@ -1893,4 +2083,199 @@ public class TelaMain extends JFrame {
 	public void setTelaPai(JDialog _tela_pai) {
 		this.telaPai = _tela_pai;
 	}
+	
+	
+	
+	
+	
+	public static class AvisoTableModel extends AbstractTableModel {
+
+		// constantes p/identificar colunas
+		private final int tipo = 0;
+		private final int setor = 1;
+
+		private final int mensagem = 2;
+
+
+		private final String colunas[] = { "Tipo", "Setor", "Mensagem:" };
+		private final ArrayList<CadastroAviso> dados = new ArrayList<>();// usamos como dados uma lista genérica de
+																			// nfs
+
+		public AvisoTableModel() {
+
+		}
+
+		@Override
+		public int getColumnCount() {
+			// retorna o total de colunas
+			return colunas.length;
+		}
+
+		@Override
+		public int getRowCount() {
+			// retorna o total de linhas na tabela
+			return dados.size();
+		}
+
+		@Override
+		public Class<?> getColumnClass(int columnIndex) {
+			// retorna o tipo de dado, para cada coluna
+			switch (columnIndex) {
+			case tipo:
+				return String.class;
+			case setor:
+				return String.class;
+			case mensagem:
+				return String.class;
+	
+
+			default:
+				throw new IndexOutOfBoundsException("Coluna Inválida!!!");
+			}
+		}
+
+		@Override
+		public String getColumnName(int columnIndex) {
+			return colunas[columnIndex];
+		}
+
+		@Override
+		public Object getValueAt(int rowIndex, int columnIndex) {
+			// retorna o valor conforme a coluna e linha
+
+			// pega o dados corrente da linha
+			CadastroAviso aviso = dados.get(rowIndex);
+
+			// retorna o valor da coluna
+			switch (columnIndex) {
+			case tipo:
+				return aviso.getTipo();
+			case setor:
+				return aviso.getSetor();
+			case mensagem:
+				return aviso.getMensagem();
+			default:
+				throw new IndexOutOfBoundsException("Coluna Inválida!!!");
+			}
+		}
+
+		@Override
+		public boolean isCellEditable(int rowIndex, int columnIndex) {
+			// metodo identifica qual coluna é editavel
+
+			// só iremos editar a coluna BENEFICIO,
+			// que será um checkbox por ser boolean
+
+			return true;
+		}
+
+		@Override
+		public void setValueAt(Object aValue, int rowIndex, int columnIndex) {
+			CadastroAviso nota = dados.get(rowIndex);
+
+		}
+
+		// Métodos abaixo são para manipulação de dados
+
+		/**
+		 * retorna o valor da linha indicada
+		 * 
+		 * @param rowIndex
+		 * @return
+		 */
+		public CadastroAviso getValue(int rowIndex) {
+			return dados.get(rowIndex);
+		}
+
+		/**
+		 * retorna o indice do objeto
+		 * 
+		 * @param empregado
+		 * @return
+		 */
+		public int indexOf(CadastroAviso nota) {
+			return dados.indexOf(nota);
+		}
+
+		/**
+		 * add um empregado á lista
+		 * 
+		 * @param empregado
+		 */
+		public void onAdd(CadastroAviso nota) {
+			dados.add(nota);
+			fireTableRowsInserted(indexOf(nota), indexOf(nota));
+		}
+
+		/**
+		 * add uma lista de empregados
+		 * 
+		 * @param dadosIn
+		 */
+		public void onAddAll(ArrayList<CadastroAviso> dadosIn) {
+			dados.addAll(dadosIn);
+			fireTableDataChanged();
+		}
+
+		/**
+		 * remove um registro da lista, através do indice
+		 * 
+		 * @param rowIndex
+		 */
+		public void onRemove(int rowIndex) {
+			dados.remove(rowIndex);
+			fireTableRowsDeleted(rowIndex, rowIndex);
+		}
+
+		/**
+		 * remove um registro da lista, através do objeto
+		 * 
+		 * @param empregado
+		 */
+		public void onRemove(CadastroAviso nota) {
+			int indexBefore = indexOf(nota);// pega o indice antes de apagar
+			dados.remove(nota);
+			fireTableRowsDeleted(indexBefore, indexBefore);
+		}
+
+		/**
+		 * remove todos registros da lista
+		 */
+		public void onRemoveAll() {
+			dados.clear();
+			fireTableDataChanged();
+		}
+
+	}
+	
+	
+	public void incluir_aviso(CadastroAviso avisar) {
+		
+				boolean ja_tem_na_lista = false;
+				for(CadastroAviso aviso : lista_avisos) {
+					
+							if(aviso.getMensagem().equals(avisar.getMensagem())) {
+								ja_tem_na_lista = true;
+								break;
+							}
+						
+				}
+				
+				if(!ja_tem_na_lista) {
+					//JOptionPane.showMessageDialog(isto, avisar.getMensagem());
+					
+			     lista_avisos.add(avisar);
+			 	java.awt.EventQueue.invokeLater(new Runnable() {
+					public void run() {
+					modelo_aviso.onAdd(avisar);
+
+					}
+				});
+				
+				}
+
+		
+		
+	}
+	
 }

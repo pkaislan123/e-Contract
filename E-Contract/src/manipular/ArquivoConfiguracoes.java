@@ -10,6 +10,7 @@ import java.util.Properties;
 import cadastros.CadastroBaseArquivos;
 import cadastros.CadastroBaseDados;
 import cadastros.CadastroLogin;
+import cadastros.CadastroNuvem;
 import cadastros.CadastroZapMessenger;
 import outros.DadosGlobais;
 import outros.TratarDados;
@@ -150,6 +151,34 @@ public class ArquivoConfiguracoes {
 			zap.setSenha(senha);
 			
 		return zap;
+		}catch(Exception e ) {
+			return null;
+		}
+		
+	}
+	
+	
+	public CadastroNuvem getConfigsNuvem() {
+		String app_key, app_secret, token;
+		CadastroNuvem nuvem = new CadastroNuvem();
+		Properties prop;
+		try {
+			app_key = propriedades_local.getProperty("prop.nuvem.appkey");
+			System.out.println("App key nuvem: " + app_key);
+
+			
+			app_secret = propriedades_local.getProperty("prop.nuvem.appsecret");
+			System.out.println("app secret  nuvem: " + app_secret);
+			
+
+			token = propriedades_local.getProperty("prop.nuvem.token");
+			System.out.println("token  nuvem: " + token);
+			
+			nuvem.setApp_key(app_key);
+			nuvem.setApp_secret(app_secret);
+			nuvem.setToken(token);
+			
+		return nuvem;
 		}catch(Exception e ) {
 			return null;
 		}
@@ -299,6 +328,7 @@ public class ArquivoConfiguracoes {
 	public boolean testeConfiguragoes() {
 		CadastroBaseArquivos config_pasta_raiz = getPastaRaiz();
 		CadastroZapMessenger zap_zap = getConfigsZapMessenger();
+		CadastroNuvem nuvem = getConfigsNuvem();
 		
 		boolean retorno_positivo = false;
 		
@@ -316,11 +346,14 @@ public class ArquivoConfiguracoes {
                     	if(zap_zap != null) {
                     		configs_globais.setZap_zap(zap_zap);
                     		
-                    		configs_globais.setBaseDados(cad);
-                            DadosGlobais dados = DadosGlobais.getInstance();
+                    		if(nuvem != null) {
+                    			configs_globais.setNuvem(nuvem);
+                    			configs_globais.setBaseDados(cad);
+                                DadosGlobais dados = DadosGlobais.getInstance();
 
-               			 dados.setConfigs_globais(configs_globais);	 
-               			retorno_positivo = true;
+                   			 dados.setConfigs_globais(configs_globais);	 
+                   			retorno_positivo = true;
+                    		}
                     	}
                     	
                     

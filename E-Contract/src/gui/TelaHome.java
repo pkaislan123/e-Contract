@@ -39,7 +39,6 @@ import cadastros.CadastroCliente;
 import cadastros.CadastroContrato;
 import conexaoBanco.GerenciarBancoClientes;
 import conexaoBanco.GerenciarBancoContratos;
-import gui_internal.TelaRelatoriaContratosInternal;
 import keeptoo.KGradientPanel;
 
 import javax.swing.border.LineBorder;
@@ -167,7 +166,7 @@ public class TelaHome extends JInternalFrame {
 		btnNotasFiscais.setForeground(Color.WHITE);
 		btnNotasFiscais.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				TelaTodasNotasFiscais verNotas = new TelaTodasNotasFiscais(1, null);
+				TelaTodasNotasFiscais verNotas = new TelaTodasNotasFiscais(1, 0,null);
 				 verNotas.setVisible(true);
 			}
 		});
@@ -179,7 +178,7 @@ public class TelaHome extends JInternalFrame {
 		btnRomaneios.setForeground(Color.WHITE);
 		btnRomaneios.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				TelaRomaneios tela = new TelaRomaneios(null);
+				TelaRomaneios tela = new TelaRomaneios(0,null);
 				tela.pesquisarTodosOsRomaneios(clientes_disponiveis);
 			}
 		});
@@ -190,8 +189,8 @@ public class TelaHome extends JInternalFrame {
 		btnRomaneios_1.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				  JDesktopPane desktopPane = getDesktopPane();
-				TelaRelatoriaContratosInternal tela = new TelaRelatoriaContratosInternal();
-				desktopPane.add(tela);
+				//TelaRelatoriaContratosInternal tela = new TelaRelatoriaContratosInternal();
+				//desktopPane.add(tela);
 
 			}
 		});

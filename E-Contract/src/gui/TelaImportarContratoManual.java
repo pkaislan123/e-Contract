@@ -35,7 +35,6 @@ import conexaoBanco.GerenciarBancoContratos;
 import conexaoBanco.GerenciarBancoLogin;
 import conexaoBanco.GerenciarBancoSafras;
 import gui.TelaGerenciarContrato.PainelInformativo;
-import gui.TelaGerenciarContrato.RomaneioTableModel;
 import javafx.stage.FileChooser;
 import cadastros.ContaBancaria;
 import classesExtras.CBLocalRetiradaPersonalizado;
@@ -94,6 +93,7 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
+import java.util.Random;
 
 import javax.swing.SwingConstants;
 import javax.swing.JCheckBox;
@@ -117,13 +117,13 @@ import java.awt.Insets;
 public class TelaImportarContratoManual extends JDialog {
 	private JTabbedPane painelPrincipal = new JTabbedPane();
 	private JPanel painelDadosIniciais = new JPanel();
-    private int tipoContrato_global ;
+	private int tipoContrato_global;
 	private JPanel painelDadosProdutos = new JPanel();
 	private JButton btnPesquisarComprador;
 	private JPanel painelEmpresa = new JPanel();
 	private JPanel painelFinalizar = new JPanel();
 	private JComboBox cBComprador, cBFrete, cBArmazenagem;
-    private JRadioButton rBPostoSobreRodas, rBJaDepositada;
+	private JRadioButton rBPostoSobreRodas, rBJaDepositada;
 	private ModeloPagamentoTableModel modelo_pagamentos = new ModeloPagamentoTableModel();
 
 	private CadastroContrato novo_contrato = new CadastroContrato();
@@ -137,11 +137,12 @@ public class TelaImportarContratoManual extends JDialog {
 
 	private static ArrayList<CadastroSafra> safras = new ArrayList<>();
 	private JLabel lblValorRestante;
+	private String diretorio_pasta_bkp1 = null,  diretorio_pasta_bkp2 = null;
 
 	private JLabel mostrar_valor_total_contrato;
 	private JPanel painel_table_cb;
 	private JTable table_cb;
-    private String codigo_antigo;
+	private String codigo_antigo;
 	private DefaultTableModel modelo = new DefaultTableModel();
 	private DefaultTableModel modelo_cb = new DefaultTableModel();
 	private JTextField entDataPagamento, entDataEntrega;
@@ -155,7 +156,7 @@ public class TelaImportarContratoManual extends JDialog {
 	private CBLocalRetiradaRenderPersonalizado cBLocalRetiradaPersonalizado;
 	private JLabel lblStatusInicial;
 	private ContaBancaria conta_atual;
-    private JComboBox cBTipoContrato;
+	private JComboBox cBTipoContrato;
 	private BigDecimal valor_total;
 	private BigDecimal valor_atual = new BigDecimal("0");
 	private BigDecimal valor_acumulado = new BigDecimal("0");
@@ -212,7 +213,7 @@ public class TelaImportarContratoManual extends JDialog {
 	private JLabel lblEnderecoVendedor2;
 	private JLabel lblCpfCnpjVendedor2;
 	private JLabel lblNomeVendedor2;
-	private JButton btnPesquisarCorretor,  btnPesquisarVendedor1 ,btnPesquisarVendedor2;
+	private JButton btnPesquisarCorretor, btnPesquisarVendedor1, btnPesquisarVendedor2;
 
 	private JLabel lblNomeCorretor, lblIECorretor, lblBairroCorretor, lblEstadoCorretor, lblCpfCnpjCorretor,
 			lblEnderecoCorretor, lblMunicipioCorretor;
@@ -228,7 +229,11 @@ public class TelaImportarContratoManual extends JDialog {
 	private ConfiguracoesGlobais configs_globais = new ConfiguracoesGlobais();
 	private CadastroContrato contrato_pai_local;
 
-	private JCheckBox chkBoxAntecipadoSim, chkBoxAntecipadoNao, chkBoxClausulaArmazenagem,chkBoxClausulaFrete;
+	private JCheckBox chkBoxAntecipadoSim, chkBoxAntecipadoNao, chkBoxClausulaArmazenagem, chkBoxClausulaFrete;
+
+    private String servidor_unidade;
+
+
 
 	public static void pesquisarArmazens() {
 		GerenciarBancoClientes listaArmazens = new GerenciarBancoClientes();
@@ -281,32 +286,52 @@ public class TelaImportarContratoManual extends JDialog {
 	private JLabel lblValorTotalJaPagoInfo;
 	private JLabel lblNewLabel_5;
 	private JLabel lblValorTotalHaPagarInfo;
-    private File file_global;
-    private JLabel lblTipoContrato;
-    private JLabel lblTipo;
-	 
-	public TelaImportarContratoManual( int tipoContrato, CadastroContrato contrato_pai,
-			int flag_edicao, File arquivo, Window janela_pai) {
+	private File file_global;
+	private JLabel lblTipoContrato;
+	private JLabel lblTipo;
+	private JButton btnPesquisarComprador_2;
+	private JComboBox cBComprador2;
+	private JLabel lblComprador_2;
+	private JPanel painelDadosComprador2;
+	private JLabel lblComprador_3;
+	private JLabel lblCpfcnpj_4;
+	private JLabel lblEndereo_5;
+	private JLabel lblEndereo_6;
+	private JLabel lblMunicipioComprador2;
+	private JLabel lblEnderecoComprador2;
+	private JLabel lblCpfCnpjComprador2;
+	private JLabel lblNomeComprador2;
+	private JLabel lblIEComprador2;
+	private JLabel lblBairro2_4;
+	private JLabel lblBairroComprador2;
+	private JLabel lblEstadoComprador2;
+	private JLabel lblEstado_3;
+	private JLabel lblIe_4;
+	private JLabel lblNewLabel_1_4;
+	private JLabel lblCompradorInfo2;
+
+	public TelaImportarContratoManual(int tipoContrato, CadastroContrato contrato_pai, int flag_edicao, File arquivo,
+			Window janela_pai) {
 
 		file_global = arquivo;
 		getDadosGlobais();
 		tipoContrato_global = tipoContrato;
 
-		//setAlwaysOnTop(true);
+		// setAlwaysOnTop(true);
 
-		//setModal(true);
+		// setModal(true);
 
 		flag_edicao_global = flag_edicao;
 
 		contrato_pai_local = contrato_pai;
 
 		if (flag_edicao == 0) {
-			//modo criacao
-			if(tipoContrato == 4) {
-				setTitle("E-Contract - Importação de Contrato Original Manual");
+			// modo criacao
+			if (tipoContrato == 4) {
+				setTitle("E-Contract - Importação de Contrato Manual");
 				novo_contrato.setSub_contrato(4);
 
-			}else if(tipoContrato == 5){
+			} else if (tipoContrato == 5) {
 				setTitle("E-Contract - Importação de Sub-Contrato Manual");
 				novo_contrato.setSub_contrato(5);
 
@@ -315,11 +340,14 @@ public class TelaImportarContratoManual extends JDialog {
 		} else {
 			// modo de edicao de contrato
 			novo_contrato = contrato_pai;
-			if (contrato_pai.getSub_contrato() == 4)
+			if (contrato_pai.getSub_contrato() == 4) {
 				// é um contrato pai em modo edicao
 				setTitle("E-Contract - Edição de Atributos de Contrato  Importado Manualmente");
-			
+			}else if(contrato_pai.getSub_contrato() == 5)
+			{
+				setTitle("E-Contract - Edição de Atributos de Sub-Contrato  Importado Manualmente");
 
+			}
 		}
 
 		setResizable(false);
@@ -490,15 +518,15 @@ public class TelaImportarContratoManual extends JDialog {
 		entClausula6.setEditable(false);
 		entClausula6.setFont(new Font("SansSerif", Font.PLAIN, 14));
 		entClausula6.setColumns(10);
-		
+
 		JLabel lblNewLabel_3 = new JLabel("Clausula Frete:");
 		lblNewLabel_3.setBounds(122, 286, 85, 18);
 		panel.add(lblNewLabel_3);
-		
+
 		JLabel lblNewLabel_3_1 = new JLabel("Clausula Armazenagem:");
 		lblNewLabel_3_1.setBounds(73, 310, 143, 18);
 		panel.add(lblNewLabel_3_1);
-		
+
 		cBFrete = new JComboBox();
 		cBFrete.setEnabled(false);
 		cBFrete.setBounds(971, 282, 150, 26);
@@ -506,52 +534,50 @@ public class TelaImportarContratoManual extends JDialog {
 		cBFrete.addItem("Vendedor");
 
 		panel.add(cBFrete);
-		
-		 cBArmazenagem = new JComboBox();
+
+		cBArmazenagem = new JComboBox();
 		cBArmazenagem.setEnabled(false);
 		cBArmazenagem.setBounds(971, 315, 150, 26);
 		cBArmazenagem.addItem("Comprador");
 		cBArmazenagem.addItem("Vendedor");
 		panel.add(cBArmazenagem);
-		
-		 chkBoxClausulaFrete = new JCheckBox("");
+
+		chkBoxClausulaFrete = new JCheckBox("");
 		chkBoxClausulaFrete.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
-				
-				if(chkBoxClausulaFrete.isSelected()) {
-					
+
+				if (chkBoxClausulaFrete.isSelected()) {
+
 					chkBoxClausulaFrete.setSelected(true);
 					entClausulaFrete.setEnabled(true);
 					entClausulaFrete.setEditable(true);
 					cBFrete.setEnabled(true);
-					
-					
-				}else {
+
+				} else {
 					chkBoxClausulaFrete.setSelected(false);
 					entClausulaFrete.setEnabled(false);
 					entClausulaFrete.setEditable(false);
 
 					cBFrete.setEnabled(false);
 				}
-				
+
 			}
 		});
 		chkBoxClausulaFrete.setFont(new Font("SansSerif", Font.PLAIN, 14));
 		chkBoxClausulaFrete.setBounds(226, 286, 48, 18);
 		panel.add(chkBoxClausulaFrete);
-		
+
 		chkBoxClausulaArmazenagem = new JCheckBox("");
 		chkBoxClausulaArmazenagem.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				
-				if(chkBoxClausulaArmazenagem.isSelected()) {
+
+				if (chkBoxClausulaArmazenagem.isSelected()) {
 					chkBoxClausulaArmazenagem.setSelected(true);
 					entClausulaArmazenagem.setEnabled(true);
 					entClausulaArmazenagem.setEditable(true);
 					cBArmazenagem.setEnabled(true);
 
-					
-				}else {
+				} else {
 					chkBoxClausulaArmazenagem.setSelected(false);
 					entClausulaArmazenagem.setEnabled(false);
 					entClausulaArmazenagem.setEditable(false);
@@ -563,7 +589,7 @@ public class TelaImportarContratoManual extends JDialog {
 		chkBoxClausulaArmazenagem.setFont(new Font("SansSerif", Font.PLAIN, 14));
 		chkBoxClausulaArmazenagem.setBounds(226, 319, 48, 18);
 		panel.add(chkBoxClausulaArmazenagem);
-		
+
 		entClausulaFrete = new JTextField();
 		entClausulaFrete.setEnabled(false);
 		entClausulaFrete.setFont(new Font("SansSerif", Font.PLAIN, 14));
@@ -571,7 +597,7 @@ public class TelaImportarContratoManual extends JDialog {
 		entClausulaFrete.setColumns(10);
 		entClausulaFrete.setBounds(280, 285, 681, 28);
 		panel.add(entClausulaFrete);
-		
+
 		entClausulaArmazenagem = new JTextField();
 		entClausulaArmazenagem.setEnabled(false);
 		entClausulaArmazenagem.setFont(new Font("SansSerif", Font.PLAIN, 14));
@@ -626,8 +652,8 @@ public class TelaImportarContratoManual extends JDialog {
 		lblLocalRetirada.setBounds(450, 268, 126, 42);
 		painelDadosProdutos.add(lblLocalRetirada);
 
-		cBLocalRetiradaPersonalizado =  new CBLocalRetiradaRenderPersonalizado();
-		cBLocalRetirada =  new JComboBox();
+		cBLocalRetiradaPersonalizado = new CBLocalRetiradaRenderPersonalizado();
+		cBLocalRetirada = new JComboBox();
 		cBLocalRetirada.setModel(modelLocalRetirada);
 		cBLocalRetirada.setEditable(false);
 		cBLocalRetirada.setRenderer(cBLocalRetiradaPersonalizado);
@@ -640,11 +666,11 @@ public class TelaImportarContratoManual extends JDialog {
 		for (CadastroCliente armazem : armazens) {
 			if (armazem.getArmazem() == 1) {
 				modelLocalRetirada.addArmazem(armazem);
-	
+
 			}
 
 		}
-		
+
 		JLabel lblDataEntrega = new JLabel("Data Entrega:");
 		lblDataEntrega.setFont(new Font("Arial Black", Font.PLAIN, 14));
 		lblDataEntrega.setBounds(461, 321, 114, 42);
@@ -866,14 +892,14 @@ public class TelaImportarContratoManual extends JDialog {
 		rQuanS.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent e) {
-				if (e.getClickCount() == 2 ) {
-				      
+				if (e.getClickCount() == 2) {
+
 					double quantidade_atual = Double.parseDouble(entQuantidade.getText());
 					quantidade_atual = quantidade_atual / 60;
 					entQuantidade.setText(Double.toString(quantidade_atual));
-					
+
 					rQuanS.setSelected(true);
-				    }
+				}
 			}
 		});
 		rQuanS.addActionListener(new ActionListener() {
@@ -944,10 +970,10 @@ public class TelaImportarContratoManual extends JDialog {
 		JPanel painelDadosComprador = new JPanel();
 		painelDadosComprador.setBorder(new CompoundBorder());
 		painelDadosComprador.setBackground(SystemColor.text);
-		painelDadosComprador.setBounds(76, 460, 589, 139);
+		painelDadosComprador.setBounds(48, 361, 589, 139);
 
 		Border lineBorder = BorderFactory.createLineBorder(Color.black);
-		TitledBorder title = BorderFactory.createTitledBorder(lineBorder, "Comprador");
+		TitledBorder title = BorderFactory.createTitledBorder(lineBorder, "Comprador 1");
 		painelDadosComprador.setBorder(title);
 
 		painelDadosIniciais.add(painelDadosComprador);
@@ -1107,17 +1133,17 @@ public class TelaImportarContratoManual extends JDialog {
 		painelDadosCodigoData = new JPanel();
 		painelDadosCodigoData.setBorder(new LineBorder(new Color(0, 0, 0)));
 		painelDadosCodigoData.setBackground(SystemColor.text);
-		painelDadosCodigoData.setBounds(270, 76, 395, 231);
+		painelDadosCodigoData.setBounds(161, 21, 395, 177);
 		painelDadosIniciais.add(painelDadosCodigoData);
 		painelDadosCodigoData.setLayout(null);
 
 		lblData = new JLabel("Data:");
-		lblData.setBounds(53, 101, 52, 42);
+		lblData.setBounds(52, 76, 52, 42);
 		painelDadosCodigoData.add(lblData);
 		lblData.setFont(new Font("Arial Black", Font.PLAIN, 14));
 
 		entDataContrato = new JTextField();
-		entDataContrato.setBounds(115, 110, 175, 29);
+		entDataContrato.setBounds(114, 85, 175, 29);
 		painelDadosCodigoData.add(entDataContrato);
 		entDataContrato.addKeyListener(new KeyAdapter() {
 			@Override
@@ -1152,7 +1178,7 @@ public class TelaImportarContratoManual extends JDialog {
 		entDataContrato.setEditable(false);
 
 		chbxDataAtual = new JCheckBox("Data Atual");
-		chbxDataAtual.setBounds(115, 70, 89, 23);
+		chbxDataAtual.setBounds(115, 54, 89, 23);
 		painelDadosCodigoData.add(chbxDataAtual);
 		chbxDataAtual.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
@@ -1171,33 +1197,36 @@ public class TelaImportarContratoManual extends JDialog {
 		chbxDataAtual.setSelected(true);
 
 		lbltext = new JLabel("Código:");
-		lbltext.setBounds(43, 15, 70, 42);
+		lbltext.setBounds(42, 6, 70, 42);
 		painelDadosCodigoData.add(lbltext);
 		lbltext.setFont(new Font("Arial Black", Font.PLAIN, 14));
-		
+
 		entCodigoContrato = new JTextField();
 		entCodigoContrato.setFont(new Font("Tahoma", Font.BOLD, 14));
-		entCodigoContrato.setBounds(118, 28, 172, 23);
+		entCodigoContrato.setBounds(117, 19, 172, 23);
 		painelDadosCodigoData.add(entCodigoContrato);
 		entCodigoContrato.setColumns(10);
-		
+
 		lblTipo = new JLabel("Tipo:");
 		lblTipo.setFont(new Font("Arial Black", Font.PLAIN, 14));
-		lblTipo.setBounds(53, 161, 52, 42);
+		lblTipo.setBounds(52, 119, 52, 42);
 		painelDadosCodigoData.add(lblTipo);
-		
-		 cBTipoContrato = new JComboBox();
+
+		cBTipoContrato = new JComboBox();
 		cBTipoContrato.setFont(new Font("Tahoma", Font.BOLD, 14));
-		cBTipoContrato.setBounds(115, 173, 270, 27);
+		cBTipoContrato.setBounds(114, 131, 270, 27);
 		painelDadosCodigoData.add(cBTipoContrato);
+		if(tipoContrato == 4) {
 		cBTipoContrato.addItem("Contrato Original de Terceiros");
 		cBTipoContrato.addItem("Contrato Original Proprietario");
-
-		
+		}else if(tipoContrato == 5) {
+			cBTipoContrato.addItem("Sub-Contrato Original de Terceiros");
+			cBTipoContrato.addItem("Sub-Contrato Original Proprietario");
+		}
 
 		painelDefinirPartes = new JPanel();
 		painelDefinirPartes.setBackground(SystemColor.text);
-		painelDefinirPartes.setBounds(684, 37, 653, 193);
+		painelDefinirPartes.setBounds(684, 37, 653, 237);
 
 		Border lineBorder1 = BorderFactory.createLineBorder(Color.black);
 		TitledBorder title1 = BorderFactory.createTitledBorder(lineBorder, "");
@@ -1206,13 +1235,13 @@ public class TelaImportarContratoManual extends JDialog {
 		painelDadosIniciais.add(painelDefinirPartes);
 		painelDefinirPartes.setLayout(null);
 
-		JLabel lblNewLabel = new JLabel("Comprador:");
-		lblNewLabel.setBounds(25, 48, 95, 42);
+		JLabel lblNewLabel = new JLabel("Comprador 1:");
+		lblNewLabel.setBounds(14, 64, 101, 21);
 		painelDefinirPartes.add(lblNewLabel);
 		lblNewLabel.setFont(new Font("Arial Black", Font.PLAIN, 14));
 
-		JLabel lblVendedor = new JLabel("Vendedor:");
-		lblVendedor.setBounds(35, 93, 83, 42);
+		JLabel lblVendedor = new JLabel("Vendedor 1:");
+		lblVendedor.setBounds(25, 149, 90, 21);
 		painelDefinirPartes.add(lblVendedor);
 		lblVendedor.setFont(new Font("Arial Black", Font.PLAIN, 14));
 
@@ -1227,13 +1256,13 @@ public class TelaImportarContratoManual extends JDialog {
 			@Override
 			public void keyPressed(KeyEvent e) {
 				if (e.getKeyCode() == KeyEvent.VK_ENTER) {
-					TelaCliente clientes = new TelaCliente(0, 2,null);
+					TelaCliente clientes = new TelaCliente(0, 2, isto);
 					clientes.setTelaPai(isto);
 					clientes.setVisible(true);
 				}
 			}
 		});
-		cBVendedor1.setBounds(118, 101, 268, 29);
+		cBVendedor1.setBounds(118, 146, 268, 29);
 		cBVendedor1.addItem("Indefinido");
 		painelDefinirPartes.add(cBVendedor1);
 
@@ -1288,7 +1317,7 @@ public class TelaImportarContratoManual extends JDialog {
 			@Override
 			public void keyPressed(KeyEvent e) {
 				if (e.getKeyCode() == KeyEvent.VK_ENTER) {
-					TelaCliente clientes = new TelaCliente(0, 1,null);
+					TelaCliente clientes = new TelaCliente(0, 1, isto);
 					clientes.setTelaPai(isto);
 					clientes.setVisible(true);
 				}
@@ -1296,12 +1325,12 @@ public class TelaImportarContratoManual extends JDialog {
 			}
 		});
 
-		 btnPesquisarComprador = new JButton("Pesquisar Comprador");
+		btnPesquisarComprador = new JButton("Pesquisar Comprador 1");
 		btnPesquisarComprador.setBounds(396, 60, 220, 33);
 		painelDefinirPartes.add(btnPesquisarComprador);
 
-		 btnPesquisarVendedor1 = new JButton("Pesquisar Vendedor");
-		btnPesquisarVendedor1.setBounds(398, 100, 218, 33);
+		btnPesquisarVendedor1 = new JButton("Pesquisar Vendedor 1");
+		btnPesquisarVendedor1.setBounds(398, 145, 218, 33);
 		painelDefinirPartes.add(btnPesquisarVendedor1);
 
 		lblCorretor = new JLabel("Corretor:");
@@ -1314,7 +1343,7 @@ public class TelaImportarContratoManual extends JDialog {
 			@Override
 			public void keyPressed(KeyEvent e) {
 				if (e.getKeyCode() == KeyEvent.VK_ENTER) {
-					TelaCliente clientes = new TelaCliente(0, 4,null);
+					TelaCliente clientes = new TelaCliente(0, 4, isto);
 					clientes.setTelaPai(isto);
 					clientes.setVisible(true);
 				}
@@ -1345,9 +1374,9 @@ public class TelaImportarContratoManual extends JDialog {
 
 		painelDefinirPartes.add(cBCorretor);
 
-		JLabel lblVendedor2 = new JLabel("Vendedor:");
+		JLabel lblVendedor2 = new JLabel("Vendedor 2:");
 		lblVendedor2.setFont(new Font("Arial Black", Font.PLAIN, 14));
-		lblVendedor2.setBounds(35, 133, 83, 42);
+		lblVendedor2.setBounds(25, 190, 90, 21);
 		painelDefinirPartes.add(lblVendedor2);
 
 		cBVendedor2 = new JComboBox();
@@ -1355,13 +1384,13 @@ public class TelaImportarContratoManual extends JDialog {
 			@Override
 			public void keyPressed(KeyEvent arg0) {
 				if (arg0.getKeyCode() == KeyEvent.VK_ENTER) {
-					TelaCliente clientes = new TelaCliente(0, 3,null);
+					TelaCliente clientes = new TelaCliente(0, 3, isto);
 					clientes.setTelaPai(isto);
 					clientes.setVisible(true);
 				}
 			}
 		});
-		cBVendedor2.setBounds(118, 142, 268, 29);
+		cBVendedor2.setBounds(118, 187, 268, 29);
 		cBVendedor2.addItem("Indefinido");
 
 		painelDefinirPartes.add(cBVendedor2);
@@ -1386,22 +1415,22 @@ public class TelaImportarContratoManual extends JDialog {
 			}
 
 		});
-		 btnPesquisarVendedor2 = new JButton("Pesquisar Vendedor");
+		btnPesquisarVendedor2 = new JButton("Pesquisar Vendedor 2");
 		btnPesquisarVendedor2.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
-				TelaCliente clientes = new TelaCliente(0, 15,null);
+				TelaCliente clientes = new TelaCliente(0, 15, isto);
 				clientes.setTelaPai(isto);
 				clientes.setVisible(true);
 
 			}
 		});
-		btnPesquisarVendedor2.setBounds(398, 139, 218, 33);
+		btnPesquisarVendedor2.setBounds(398, 184, 218, 33);
 		painelDefinirPartes.add(btnPesquisarVendedor2);
 
 		btnPesquisarCorretor = new JButton("Pesquisar Corretor");
 		btnPesquisarCorretor.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				TelaCliente clientes = new TelaCliente(0, 12,null);
+				TelaCliente clientes = new TelaCliente(0, 12, isto);
 				clientes.setTelaPai(isto);
 				clientes.setVisible(true);
 
@@ -1409,6 +1438,59 @@ public class TelaImportarContratoManual extends JDialog {
 		});
 		btnPesquisarCorretor.setBounds(396, 18, 220, 33);
 		painelDefinirPartes.add(btnPesquisarCorretor);
+
+		btnPesquisarComprador_2 = new JButton("Pesquisar Comprador 2");
+		btnPesquisarComprador_2.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				TelaCliente clientes = new TelaCliente(0, 20, isto);
+				clientes.setTelaPai(isto);
+				clientes.setVisible(true);
+			}
+		});
+		btnPesquisarComprador_2.setBounds(396, 101, 220, 33);
+		painelDefinirPartes.add(btnPesquisarComprador_2);
+
+		cBComprador2 = new JComboBox();
+		cBComprador2.addItem("Indefinido");
+
+		cBComprador2.addKeyListener(new KeyAdapter() {
+			@Override
+			public void keyPressed(KeyEvent e) {
+				if (e.getKeyCode() == KeyEvent.VK_ENTER) {
+					TelaCliente clientes = new TelaCliente(0, 20, isto);
+					clientes.setTelaPai(isto);
+					clientes.setVisible(true);
+				}
+			}
+		});
+		cBComprador2.addItemListener(new ItemListener() {
+			public void itemStateChanged(ItemEvent e) {
+				if (e.getStateChange() == java.awt.event.ItemEvent.SELECTED) {
+					if (e.getItem().equals("Indefinido")) {
+
+						lblNomeComprador2.setText("");
+						lblCpfCnpjComprador2.setText("");
+						lblIEComprador2.setText("");
+						lblEnderecoComprador2.setText("");
+						lblBairroComprador2.setText("");
+						lblMunicipioComprador2.setText("");
+						lblEstadoComprador2.setText("");
+						// cBComprador.addItem("Indefinido");
+						novo_contrato.adicionarComprador(1, null);
+
+						cBComprador2.removeAllItems();
+
+					}
+				}
+			}
+		});
+		cBComprador2.setBounds(118, 102, 268, 29);
+		painelDefinirPartes.add(cBComprador2);
+
+		lblComprador_2 = new JLabel("Comprador 2:");
+		lblComprador_2.setFont(new Font("Arial Black", Font.PLAIN, 14));
+		lblComprador_2.setBounds(14, 106, 101, 21);
+		painelDefinirPartes.add(lblComprador_2);
 
 		panelDadosVendedor2 = new JPanel();
 		panelDadosVendedor2.setLayout(null);
@@ -1493,7 +1575,7 @@ public class TelaImportarContratoManual extends JDialog {
 		painelDadosCorretor.setLayout(null);
 		painelDadosCorretor.setBorder(new CompoundBorder());
 		painelDadosCorretor.setBackground(Color.WHITE);
-		painelDadosCorretor.setBounds(76, 318, 589, 139);
+		painelDadosCorretor.setBounds(48, 210, 589, 139);
 		Border lineBorderCorretor = BorderFactory.createLineBorder(Color.black);
 		TitledBorder titleCorretor = BorderFactory.createTitledBorder(lineBorder, "Corretor");
 		painelDadosCorretor.setBorder(titleCorretor);
@@ -1568,19 +1650,98 @@ public class TelaImportarContratoManual extends JDialog {
 		lblIe_3.setFont(new Font("Tahoma", Font.PLAIN, 14));
 		lblIe_3.setBounds(332, 62, 27, 14);
 		painelDadosCorretor.add(lblIe_3);
-		
-	
+
+		painelDadosComprador2 = new JPanel();
+		painelDadosComprador2.setLayout(null);
+		painelDadosComprador2.setBorder(new CompoundBorder());
+		painelDadosComprador2.setBackground(Color.WHITE);
+		painelDadosComprador2.setBounds(48, 513, 589, 139);
+		painelDadosIniciais.add(painelDadosComprador2);
+
+		Border lineBorderComprador2 = BorderFactory.createLineBorder(Color.black);
+		TitledBorder titleComprador2 = BorderFactory.createTitledBorder(lineBorderComprador2, "Comprador 2");
+		painelDadosComprador2.setBorder(titleComprador2);
+
+		lblComprador_3 = new JLabel("Nome:");
+		lblComprador_3.setFont(new Font("Tahoma", Font.PLAIN, 14));
+		lblComprador_3.setBounds(43, 36, 83, 14);
+		painelDadosComprador2.add(lblComprador_3);
+
+		lblCpfcnpj_4 = new JLabel("CPF/CNPJ:");
+		lblCpfcnpj_4.setFont(new Font("Tahoma", Font.PLAIN, 14));
+		lblCpfcnpj_4.setBounds(16, 62, 83, 14);
+		painelDadosComprador2.add(lblCpfcnpj_4);
+
+		lblEndereo_5 = new JLabel("Endereço:");
+		lblEndereo_5.setFont(new Font("Tahoma", Font.PLAIN, 14));
+		lblEndereo_5.setBounds(26, 87, 83, 14);
+		painelDadosComprador2.add(lblEndereo_5);
+
+		lblEndereo_6 = new JLabel("Municipio:");
+		lblEndereo_6.setFont(new Font("Tahoma", Font.PLAIN, 14));
+		lblEndereo_6.setBounds(29, 114, 70, 14);
+		painelDadosComprador2.add(lblEndereo_6);
+
+		lblMunicipioComprador2 = new JLabel("");
+		lblMunicipioComprador2.setFont(new Font("Tahoma", Font.PLAIN, 14));
+		lblMunicipioComprador2.setBounds(99, 114, 205, 16);
+		painelDadosComprador2.add(lblMunicipioComprador2);
+
+		lblEnderecoComprador2 = new JLabel("");
+		lblEnderecoComprador2.setFont(new Font("Tahoma", Font.PLAIN, 14));
+		lblEnderecoComprador2.setBounds(99, 87, 205, 16);
+		painelDadosComprador2.add(lblEnderecoComprador2);
+
+		lblCpfCnpjComprador2 = new JLabel("");
+		lblCpfCnpjComprador2.setFont(new Font("Tahoma", Font.PLAIN, 14));
+		lblCpfCnpjComprador2.setBounds(98, 60, 206, 16);
+		painelDadosComprador2.add(lblCpfCnpjComprador2);
+
+		lblNomeComprador2 = new JLabel("");
+		lblNomeComprador2.setFont(new Font("Tahoma", Font.PLAIN, 14));
+		lblNomeComprador2.setBounds(113, 33, 448, 16);
+		painelDadosComprador2.add(lblNomeComprador2);
+
+		lblIEComprador2 = new JLabel("");
+		lblIEComprador2.setFont(new Font("Tahoma", Font.PLAIN, 14));
+		lblIEComprador2.setBounds(367, 60, 194, 16);
+		painelDadosComprador2.add(lblIEComprador2);
+
+		lblBairro2_4 = new JLabel("Bairro:");
+		lblBairro2_4.setFont(new Font("Tahoma", Font.PLAIN, 14));
+		lblBairro2_4.setBounds(315, 87, 83, 14);
+		painelDadosComprador2.add(lblBairro2_4);
+
+		lblBairroComprador2 = new JLabel("");
+		lblBairroComprador2.setFont(new Font("Tahoma", Font.PLAIN, 14));
+		lblBairroComprador2.setBounds(367, 87, 194, 16);
+		painelDadosComprador2.add(lblBairroComprador2);
+
+		lblEstadoComprador2 = new JLabel("");
+		lblEstadoComprador2.setFont(new Font("Tahoma", Font.PLAIN, 14));
+		lblEstadoComprador2.setBounds(367, 112, 194, 16);
+		painelDadosComprador2.add(lblEstadoComprador2);
+
+		lblEstado_3 = new JLabel("Estado:");
+		lblEstado_3.setFont(new Font("Tahoma", Font.PLAIN, 14));
+		lblEstado_3.setBounds(315, 112, 47, 14);
+		painelDadosComprador2.add(lblEstado_3);
+
+		lblIe_4 = new JLabel("IE:");
+		lblIe_4.setFont(new Font("Tahoma", Font.PLAIN, 14));
+		lblIe_4.setBounds(332, 62, 27, 14);
+		painelDadosComprador2.add(lblIe_4);
 
 		btnPesquisarVendedor1.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
-				TelaCliente clientes = new TelaCliente(0, 14,null);
+				TelaCliente clientes = new TelaCliente(0, 14, null);
 				clientes.setTelaPai(isto);
 				clientes.setVisible(true);
 			}
 		});
 		btnPesquisarComprador.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				TelaCliente clientes = new TelaCliente(0, 13,null);
+				TelaCliente clientes = new TelaCliente(0, 13, null);
 				clientes.setTelaPai(isto);
 				clientes.setVisible(true);
 			}
@@ -1715,10 +1876,8 @@ public class TelaImportarContratoManual extends JDialog {
 
 		cBSafra.setRenderer(cBSafraPersonalizado);
 		cBSafra.setBounds(586, 224, 342, 33);
-	       
-		painelDadosProdutos.add(cBSafra);
 
-	
+		painelDadosProdutos.add(cBSafra);
 
 		chBoxClausulaComissao = new JCheckBox("Criar clausula contratual para comissão");
 		chBoxClausulaComissao.addActionListener(new ActionListener() {
@@ -1762,7 +1921,6 @@ public class TelaImportarContratoManual extends JDialog {
 
 		}
 
-        
 		JLabel lblOutro = new JLabel("Valor Total:");
 		lblOutro.setFont(new Font("Arial Black", Font.PLAIN, 14));
 		lblOutro.setBounds(50, 32, 89, 42);
@@ -1955,11 +2113,6 @@ public class TelaImportarContratoManual extends JDialog {
 				 * 
 				 * 
 				 */
-				
-				
-				
-				
-				
 
 				// processa dados de data de pagamento
 
@@ -1991,15 +2144,14 @@ public class TelaImportarContratoManual extends JDialog {
 					String valorString = NumberFormat.getCurrencyInstance(ptBr)
 							.format(Float.parseFloat(valor_pagamento));
 					System.out.println(valorString);
-					
-					
-					 cobertura  = calculoCobertura(Double.parseDouble(valor_pagamento));
 
-					 NumberFormat formatter = new DecimalFormat("#0,00");
-					 System.out.println(formatter.format(Double.parseDouble(cobertura)));
-					 
+					cobertura = calculoCobertura(Double.parseDouble(valor_pagamento));
+
+					NumberFormat formatter = new DecimalFormat("#0,00");
+					System.out.println(formatter.format(Double.parseDouble(cobertura)));
+
 					modelo_cb.addRow(new Object[] { "00", id, cpf, nome, banco, codigo, agencia, conta, valorString,
-							antecipado,cobertura, data_pagamento });
+							antecipado, cobertura, data_pagamento });
 
 					conta_atual.setAgencia(agencia);
 					conta_atual.setId_conta(00);
@@ -2018,19 +2170,18 @@ public class TelaImportarContratoManual extends JDialog {
 					agencia = conta_atual.getAgencia();
 					conta = conta_atual.getConta();
 
-					
-					 cobertura  = calculoCobertura(Double.parseDouble(valor_pagamento));
+					cobertura = calculoCobertura(Double.parseDouble(valor_pagamento));
 
-					 NumberFormat formatter = new DecimalFormat("#0,00");
-					 System.out.println(formatter.format(Double.parseDouble(cobertura)));
+					NumberFormat formatter = new DecimalFormat("#0,00");
+					System.out.println(formatter.format(Double.parseDouble(cobertura)));
 
-						Locale ptBr = new Locale("pt", "BR");
-						String valorString = NumberFormat.getCurrencyInstance(ptBr)
-								.format(Float.parseFloat(valor_pagamento));
-						System.out.println(valorString);
+					Locale ptBr = new Locale("pt", "BR");
+					String valorString = NumberFormat.getCurrencyInstance(ptBr)
+							.format(Float.parseFloat(valor_pagamento));
+					System.out.println(valorString);
 
-					modelo_cb.addRow(new Object[] { "00", id, cpf, nome, banco, codigo, agencia, conta, valorString, antecipado, cobertura,
-							data_pagamento });
+					modelo_cb.addRow(new Object[] { "00", id, cpf, nome, banco, codigo, agencia, conta, valorString,
+							antecipado, cobertura, data_pagamento });
 
 				}
 
@@ -2052,7 +2203,7 @@ public class TelaImportarContratoManual extends JDialog {
 						.format(Float.parseFloat(valor_acumulado.toPlainString()));
 				System.out.println(valorString);
 				mostrar_soma_atual_pagamentos.setText(valorString);
-				
+
 				BigDecimal valor_restante = valor_total.subtract(valor_acumulado);
 				valorString = NumberFormat.getCurrencyInstance(ptBr)
 						.format(Float.parseFloat(valor_restante.toPlainString()));
@@ -2080,13 +2231,10 @@ public class TelaImportarContratoManual extends JDialog {
 					pagamentos.add(pagamento_atual);
 
 				}
-				
+
 				chkBoxAntecipadoSim.setSelected(false);
 				chkBoxAntecipadoNao.setSelected(true);
 
-
-				
-				
 			}
 		});
 		btnAdicionarPag.setBounds(278, 619, 89, 23);
@@ -2102,18 +2250,17 @@ public class TelaImportarContratoManual extends JDialog {
 
 				System.out.println("Svalor_pagamento: " + Svalor_pagamento);
 				Svalor_pagamento = Svalor_pagamento.replaceAll("[^0-9.,]", "");
-				
-				
+
 				NumberFormat z = NumberFormat.getNumberInstance();
 
-				   Number number = null;
-					try {
-						number = z.parse(Svalor_pagamento);
-					} catch (ParseException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-					}
-					double Dvalor_pagamento = number.doubleValue();
+				Number number = null;
+				try {
+					number = z.parse(Svalor_pagamento);
+				} catch (ParseException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+				double Dvalor_pagamento = number.doubleValue();
 
 				BigDecimal valor_pagamento = new BigDecimal(Dvalor_pagamento);
 				int id_conta = Integer.parseInt(table_cb.getValueAt(indiceDaLinha, 1).toString());
@@ -2163,14 +2310,13 @@ public class TelaImportarContratoManual extends JDialog {
 				((DefaultTableModel) table_cb.getModel()).removeRow(indiceDaLinha);
 				table_cb.repaint();
 				table_cb.validate();
-				
+
 				Locale ptBr = new Locale("pt", "BR");
 
 				BigDecimal valor_restante = valor_total.subtract(valor_acumulado);
 				String valorString = NumberFormat.getCurrencyInstance(ptBr)
 						.format(Float.parseFloat(valor_restante.toPlainString()));
 				mostrar_soma_atual_restante.setText(valorString);
-			
 
 			}
 		});
@@ -2362,12 +2508,12 @@ public class TelaImportarContratoManual extends JDialog {
 		chkBoxAntecipadoNao.setSelected(true);
 		chkBoxAntecipadoNao.setBounds(322, 566, 61, 23);
 		painelEmpresa.add(chkBoxAntecipadoNao);
-		
+
 		lblValorRestante_1 = new JLabel("Valor Restante:");
 		lblValorRestante_1.setFont(new Font("Arial Black", Font.PLAIN, 14));
 		lblValorRestante_1.setBounds(571, 311, 157, 42);
 		painelEmpresa.add(lblValorRestante_1);
-		
+
 		mostrar_soma_atual_restante = new JLabel("");
 		mostrar_soma_atual_restante.setForeground(Color.BLACK);
 		mostrar_soma_atual_restante.setFont(new Font("Tahoma", Font.BOLD, 14));
@@ -2376,46 +2522,44 @@ public class TelaImportarContratoManual extends JDialog {
 		painelEmpresa.add(mostrar_soma_atual_restante);
 
 		chBoxClausulaComissao.setEnabled(false);
-		
-		
-		 rBPostoSobreRodas = new JRadioButton("\"Posto sobre rodas\"");
-		 rBPostoSobreRodas.addActionListener(new ActionListener() {
-		 	public void actionPerformed(ActionEvent e) {
-		 		
-		 		if(rBPostoSobreRodas.isSelected()) {
-		 			rBPostoSobreRodas.setSelected(true);
-		 			rBJaDepositada.setSelected(false);
-		 		}else {
-		 			rBPostoSobreRodas.setSelected(false);
-		 			rBJaDepositada.setSelected(true);
 
-		 		}
-		 	}
-		 });
+		rBPostoSobreRodas = new JRadioButton("\"Posto sobre rodas\"");
+		rBPostoSobreRodas.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+
+				if (rBPostoSobreRodas.isSelected()) {
+					rBPostoSobreRodas.setSelected(true);
+					rBJaDepositada.setSelected(false);
+				} else {
+					rBPostoSobreRodas.setSelected(false);
+					rBJaDepositada.setSelected(true);
+
+				}
+			}
+		});
 		rBPostoSobreRodas.setSelected(true);
 		rBPostoSobreRodas.setBounds(765, 280, 132, 18);
 		painelDadosProdutos.add(rBPostoSobreRodas);
-		
-		 rBJaDepositada = new JRadioButton("\"Já Depositada\"");
-		 rBJaDepositada.addActionListener(new ActionListener() {
-		 	
-			 public void actionPerformed(ActionEvent e) {
-				 if(rBJaDepositada.isSelected()) {
-			 			rBPostoSobreRodas.setSelected(false);
-			 			rBJaDepositada.setSelected(true);
-			 		}else {
-			 			rBPostoSobreRodas.setSelected(true);
-			 			rBJaDepositada.setSelected(false);
 
-			 		}
-		 	}
-		 });
+		rBJaDepositada = new JRadioButton("\"Já Depositada\"");
+		rBJaDepositada.addActionListener(new ActionListener() {
+
+			public void actionPerformed(ActionEvent e) {
+				if (rBJaDepositada.isSelected()) {
+					rBPostoSobreRodas.setSelected(false);
+					rBJaDepositada.setSelected(true);
+				} else {
+					rBPostoSobreRodas.setSelected(true);
+					rBJaDepositada.setSelected(false);
+
+				}
+			}
+		});
 		rBJaDepositada.setBounds(907, 281, 110, 18);
 		painelDadosProdutos.add(rBJaDepositada);
 		painelFinalizar.addFocusListener(new FocusAdapter() {
 			@Override
 			public void focusGained(FocusEvent e) {
-				
 
 			}
 		});
@@ -2436,391 +2580,404 @@ public class TelaImportarContratoManual extends JDialog {
 		btnSalvar.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 
+				CadastroCliente compradores[] = novo_contrato.getCompradores();
+				CadastroCliente vendedores[] = novo_contrato.getVendedores();
 
-						String produto, medida, quantidade, preco, local_retirada, data_contrato, data_entrega, codigo;
+				if (compradores[0] == null || vendedores[0] == null) {
+					JOptionPane.showMessageDialog(isto, "Comprador 1 e Vendedor 1 não podem ser nulos");
+				} else {
 
+					String produto, medida, quantidade, preco, local_retirada, data_contrato, data_entrega, codigo;
 
-						 codigo = entCodigoContrato.getText();
-						
-							data_entrega = entDataEntrega.getText();
-							novo_contrato.setData_entrega(data_entrega);
-							int i_tipo_contrato = cBTipoContrato.getSelectedIndex();
+					codigo = entCodigoContrato.getText();
 
-							// definicoes de subContrato
-							if(i_tipo_contrato == 0) {
-								// contrato pai de terceiros
-								novo_contrato.setSub_contrato(4);
-							}else {
-								//contrato pai proprietario
-								novo_contrato.setSub_contrato(5);
+					data_entrega = entDataEntrega.getText();
+					novo_contrato.setData_entrega(data_entrega);
+					int i_tipo_contrato = cBTipoContrato.getSelectedIndex();
 
-							}
-							
-							data_contrato = entDataContrato.getText();
-							novo_contrato.setData_contrato(data_contrato);
-                           
-								novo_contrato.setStatus_contrato(1); //aprovado
-								lblStatusInicial.setText("Status Inicial: Recolher Assinatura");
+					if(tipoContrato_global == 4) {
+					// definicoes de contrato
+					if (i_tipo_contrato == 0) {
+						// contrato pai de terceiros
+						novo_contrato.setSub_contrato(4);
+					} else {
+						// contrato pai proprietario
+						novo_contrato.setSub_contrato(5);
 
-							
-
-							novo_contrato.setCodigo(codigo);
-							if (rQuanKG.isSelected())
-								medida = "KG";
-							else if (rQuanS.isSelected())
-								medida = "Sacos";
-							else
-								medida = "TON";
-							novo_contrato.setMedida(medida);
-
-							CadastroSafra safra = (CadastroSafra) modelSafra.getSelectedItem();
-							novo_contrato.setModelo_safra(safra);
-							novo_contrato.setModelo_produto(safra.getProduto());
-
-							novo_contrato.setSafra(safra.getAno_plantio() + "/" + safra.getAno_colheita());
-
-							produto = safra.getProduto().getNome_produto();
-							novo_contrato.setProduto(produto);
-
-							CadastroCliente localRetirada = (CadastroCliente) modelLocalRetirada.getSelectedItem();
-							novo_contrato.setLocal_retirada(localRetirada.getNome_fantaia());
-							
-							
-							
-							novo_contrato.setCliente_retirada(localRetirada);
-							novo_contrato.setId_local_retirada(novo_contrato.getCliente_retirada().getId());
-                            int tipo_entrega = -1;
-							
-							if(rBJaDepositada.isSelected()) {
-								tipo_entrega = 2;
-							}else if (rBPostoSobreRodas.isSelected()){
-								tipo_entrega = 1;
-							}
-							
-							novo_contrato.setTipo_entrega(tipo_entrega);
-
-							novo_contrato.setQuantidade(Double.parseDouble(entQuantidade.getText()));
-							novo_contrato.setValor_produto(Double.parseDouble(entPreco.getText()));
-							novo_contrato.setValor_a_pagar(valor_total);
-							novo_contrato.setValor_comissao(valor_total_comissao);
-
-							// pagamentos
-							novo_contrato.setPagamentos(pagamentos);
-
-							// adicionais
-							ArrayList<String> clausulas_locais = new ArrayList<>();
-
-							
-						
-
-							clausulas_locais.add(entClausula1.getText().toString());
-							clausulas_locais.add(entClausula2.getText().toString());
-
-							if (chBoxClausulaComissao.isSelected()) {
-								clausulas_locais.add(entClausula3.getText().toString());
-							}
-							
-							if (chBoxClausula4.isSelected()) {
-								clausulas_locais.add(entClausula4.getText().toString());
-
-							}
-							if (chBoxClausula5.isSelected()) {
-								clausulas_locais.add(entClausula5.getText().toString());
-
-							}
-							if (chBoxClausula6.isSelected()) {
-								clausulas_locais.add(entClausula6.getText().toString());
-
-							}
-							
-							novo_contrato.setClausulas(clausulas_locais);
-
-							
-							//clausula frete
-
-							if(chkBoxClausulaFrete.isSelected()) {
-								
-								novo_contrato.setFrete(cBFrete.getSelectedItem().toString());
-								novo_contrato.setClausula_frete(entClausulaFrete.getText());
-
-							}else {
-								novo_contrato.setFrete("");
-							}
-							
-							//clausula armazenagem
-							
-	                        if(chkBoxClausulaArmazenagem.isSelected()) {
-								novo_contrato.setArmazenagem(cBArmazenagem.getSelectedItem().toString());
-								novo_contrato.setClausula_armazenagem(entClausulaArmazenagem.getText());
-
-							}else {
-								novo_contrato.setArmazenagem("");
-							}
-	                        
-
-							try {
-							
-								
-
-							} catch (Exception i) {
-								System.out.println("erro ao elaborar contrato, erro: " + i.getMessage());
-								JOptionPane.showMessageDialog(null,
-										"Erro fatal, consulte o administrador do sistema\nErro: " + i.getMessage());
-								isto.dispose();
-								DadosGlobais dados = DadosGlobais.getInstance();
-                                   dados.atualizarGraficosTelaPrincipal();
-							
-							}
-							
-							//perguntar se quer salvar
-							if (JOptionPane.showConfirmDialog(isto, 
-						            "Confirmar Informações e Importar o Contrato?", "Importar Contrato", 
-						            JOptionPane.YES_NO_OPTION,
-						            JOptionPane.QUESTION_MESSAGE) == JOptionPane.YES_OPTION){
-								
-								    
-										importar();
-								
-								
-								
-						        }
-							
+					}}else if(tipoContrato_global == 5) {
+						//sub contratos
+						if (i_tipo_contrato == 0) {
+							// sub contrato  de terceiros
+							novo_contrato.setSub_contrato(6);
+						} else {
+							// sub contrato pai proprietario
+							novo_contrato.setSub_contrato(7);
 					}
-				
+					}
 
-			
+					data_contrato = entDataContrato.getText();
+					novo_contrato.setData_contrato(data_contrato);
+
+					novo_contrato.setStatus_contrato(1); // aprovado
+					lblStatusInicial.setText("Status Inicial: Recolher Assinatura");
+
+					novo_contrato.setCodigo(codigo);
+					if (rQuanKG.isSelected())
+						medida = "KG";
+					else if (rQuanS.isSelected())
+						medida = "Sacos";
+					else
+						medida = "TON";
+					novo_contrato.setMedida(medida);
+
+					CadastroSafra safra = (CadastroSafra) modelSafra.getSelectedItem();
+					novo_contrato.setModelo_safra(safra);
+					novo_contrato.setModelo_produto(safra.getProduto());
+
+					novo_contrato.setSafra(safra.getAno_plantio() + "/" + safra.getAno_colheita());
+
+					produto = safra.getProduto().getNome_produto();
+					novo_contrato.setProduto(produto);
+
+					CadastroCliente localRetirada = (CadastroCliente) modelLocalRetirada.getSelectedItem();
+					novo_contrato.setLocal_retirada(localRetirada.getNome_fantaia());
+
+					novo_contrato.setCliente_retirada(localRetirada);
+					novo_contrato.setId_local_retirada(novo_contrato.getCliente_retirada().getId());
+					int tipo_entrega = -1;
+
+					if (rBJaDepositada.isSelected()) {
+						tipo_entrega = 2;
+					} else if (rBPostoSobreRodas.isSelected()) {
+						tipo_entrega = 1;
+					}
+
+					novo_contrato.setTipo_entrega(tipo_entrega);
+
+					novo_contrato.setQuantidade(Double.parseDouble(entQuantidade.getText()));
+					novo_contrato.setValor_produto(Double.parseDouble(entPreco.getText()));
+					novo_contrato.setValor_a_pagar(valor_total);
+					novo_contrato.setValor_comissao(valor_total_comissao);
+
+					// pagamentos
+					novo_contrato.setPagamentos(pagamentos);
+
+					// adicionais
+					ArrayList<String> clausulas_locais = new ArrayList<>();
+
+					clausulas_locais.add(entClausula1.getText().toString());
+					clausulas_locais.add(entClausula2.getText().toString());
+
+					if (chBoxClausulaComissao.isSelected()) {
+						clausulas_locais.add(entClausula3.getText().toString());
+					}
+
+					if (chBoxClausula4.isSelected()) {
+						clausulas_locais.add(entClausula4.getText().toString());
+
+					}
+					if (chBoxClausula5.isSelected()) {
+						clausulas_locais.add(entClausula5.getText().toString());
+
+					}
+					if (chBoxClausula6.isSelected()) {
+						clausulas_locais.add(entClausula6.getText().toString());
+
+					}
+
+					novo_contrato.setClausulas(clausulas_locais);
+
+					// clausula frete
+
+					if (chkBoxClausulaFrete.isSelected()) {
+
+						novo_contrato.setFrete(cBFrete.getSelectedItem().toString());
+						novo_contrato.setClausula_frete(entClausulaFrete.getText());
+
+					} else {
+						novo_contrato.setFrete("");
+					}
+
+					// clausula armazenagem
+
+					if (chkBoxClausulaArmazenagem.isSelected()) {
+						novo_contrato.setArmazenagem(cBArmazenagem.getSelectedItem().toString());
+						novo_contrato.setClausula_armazenagem(entClausulaArmazenagem.getText());
+
+					} else {
+						novo_contrato.setArmazenagem("");
+					}
+
+					try {
+
+					} catch (Exception i) {
+						System.out.println("erro ao elaborar contrato, erro: " + i.getMessage());
+						JOptionPane.showMessageDialog(null,
+								"Erro fatal, consulte o administrador do sistema\nErro: " + i.getMessage());
+						isto.dispose();
+						DadosGlobais dados = DadosGlobais.getInstance();
+						dados.atualizarGraficosTelaPrincipal();
+
+					}
+
+					// perguntar se quer salvar
+					if (JOptionPane.showConfirmDialog(isto, "Confirmar Informações e Importar o Contrato?",
+							"Importar Contrato", JOptionPane.YES_NO_OPTION,
+							JOptionPane.QUESTION_MESSAGE) == JOptionPane.YES_OPTION) {
+
+						if(salvar()) {
+							isto.dispose();
+						}else {
+							JOptionPane.showMessageDialog(isto, "Consulte o administrador sobre este erro!");
+						}
+
+					}
+				}
+
+			}
+
 		});
 		btnSalvar.setBounds(593, 619, 89, 23);
 		painelFinalizar.add(btnSalvar);
 
 		lblStatusInicial = new JLabel("Status Inicial: ");
-	
+
 		lblStatusInicial.setFont(new Font("Arial Black", Font.PLAIN, 14));
 		lblStatusInicial.setBounds(652, 58, 564, 42);
 		painelFinalizar.add(lblStatusInicial);
-		
+
 		JPanel panel_1 = new JPanel();
 		panel_1.setBackground(new Color(0, 153, 153));
 		panel_1.setBounds(143, 11, 489, 580);
 		painelFinalizar.add(panel_1);
 		panel_1.setLayout(new MigLayout("", "[][][][][]", "[][][][][][][][][][][][][][][][][][][][][][][]"));
-		
+
 		JLabel lblNewLabel_1_2_1 = new JLabel("Informações Contratuais");
 		lblNewLabel_1_2_1.setForeground(Color.WHITE);
 		lblNewLabel_1_2_1.setFont(new Font("Tahoma", Font.PLAIN, 20));
 		panel_1.add(lblNewLabel_1_2_1, "cell 1 0");
-		
+
 		JLabel lblNewLabel_1_2 = new JLabel("Código:");
 		lblNewLabel_1_2.setForeground(Color.WHITE);
 		lblNewLabel_1_2.setFont(new Font("Tahoma", Font.PLAIN, 14));
 		panel_1.add(lblNewLabel_1_2, "cell 0 1,alignx right");
-		
+
 		lblCodigoContratoInfo = new JLabel("");
 		lblCodigoContratoInfo.setForeground(Color.WHITE);
 		lblCodigoContratoInfo.setFont(new Font("Tahoma", Font.BOLD, 14));
 		panel_1.add(lblCodigoContratoInfo, "cell 1 1 4 1");
-		
+
 		lblNewLabel_1_3 = new JLabel("Data:");
 		lblNewLabel_1_3.setForeground(Color.WHITE);
 		lblNewLabel_1_3.setFont(new Font("Tahoma", Font.PLAIN, 14));
 		panel_1.add(lblNewLabel_1_3, "cell 0 2,alignx right");
-		
+
 		lblDataInfo = new JLabel("");
 		lblDataInfo.setForeground(Color.WHITE);
 		lblDataInfo.setFont(new Font("Tahoma", Font.BOLD, 14));
 		panel_1.add(lblDataInfo, "cell 1 2 3 1");
-		
+
 		JLabel lblNewLabel_1 = new JLabel("Corretor:");
 		lblNewLabel_1.setForeground(Color.WHITE);
 		lblNewLabel_1.setFont(new Font("Tahoma", Font.PLAIN, 14));
-		panel_1.add(lblNewLabel_1, "cell 0 4,alignx right");
-		
+		panel_1.add(lblNewLabel_1, "cell 0 3,alignx right");
+
 		lblCorretorInfo = new JLabel("");
 		lblCorretorInfo.setForeground(Color.WHITE);
 		lblCorretorInfo.setFont(new Font("Tahoma", Font.BOLD, 14));
-		panel_1.add(lblCorretorInfo, "cell 1 4 4 1");
-		
-		JLabel lblNewLabel_1_1 = new JLabel("Comprador:");
+		panel_1.add(lblCorretorInfo, "cell 1 3 4 1,alignx center");
+
+		JLabel lblNewLabel_1_1 = new JLabel("Comprador 1:");
 		lblNewLabel_1_1.setForeground(Color.WHITE);
 		lblNewLabel_1_1.setFont(new Font("Tahoma", Font.PLAIN, 14));
-		panel_1.add(lblNewLabel_1_1, "cell 0 5,alignx right");
-		
+		panel_1.add(lblNewLabel_1_1, "cell 0 4,alignx right");
+
 		lblCompradorInfo = new JLabel("");
 		lblCompradorInfo.setForeground(Color.WHITE);
 		lblCompradorInfo.setFont(new Font("Tahoma", Font.BOLD, 14));
-		panel_1.add(lblCompradorInfo, "cell 1 5 4 1");
-		
+		panel_1.add(lblCompradorInfo, "cell 1 4 4 1");
+
+		lblNewLabel_1_4 = new JLabel("Comprador 2:");
+		lblNewLabel_1_4.setForeground(Color.WHITE);
+		lblNewLabel_1_4.setFont(new Font("Tahoma", Font.PLAIN, 14));
+		panel_1.add(lblNewLabel_1_4, "cell 0 5,alignx right");
+
+		lblCompradorInfo2 = new JLabel("");
+		lblCompradorInfo2.setForeground(Color.WHITE);
+		lblCompradorInfo2.setFont(new Font("Tahoma", Font.BOLD, 14));
+		panel_1.add(lblCompradorInfo2, "cell 1 5 2 1");
+
 		JLabel lblNewLabel_1_1_1 = new JLabel("Vendedor1:");
 		lblNewLabel_1_1_1.setForeground(Color.WHITE);
 		lblNewLabel_1_1_1.setFont(new Font("Tahoma", Font.PLAIN, 14));
 		panel_1.add(lblNewLabel_1_1_1, "cell 0 6,alignx right");
-		
+
 		lblVendedor1Info = new JLabel("");
 		lblVendedor1Info.setForeground(Color.WHITE);
 		lblVendedor1Info.setFont(new Font("Tahoma", Font.BOLD, 14));
 		panel_1.add(lblVendedor1Info, "cell 1 6 4 1");
-		
+
 		JLabel lblNewLabel_1_1_1_1 = new JLabel("Vendedor2:");
 		lblNewLabel_1_1_1_1.setForeground(Color.WHITE);
 		lblNewLabel_1_1_1_1.setFont(new Font("Tahoma", Font.PLAIN, 14));
 		panel_1.add(lblNewLabel_1_1_1_1, "cell 0 7,alignx right");
-		
+
 		lblVendedor2Info = new JLabel("");
 		lblVendedor2Info.setForeground(Color.WHITE);
 		lblVendedor2Info.setFont(new Font("Tahoma", Font.BOLD, 14));
 		panel_1.add(lblVendedor2Info, "cell 1 7 4 1");
-		
+
 		JLabel lblNewLabel_1_1_1_1_1 = new JLabel("Produto:");
 		lblNewLabel_1_1_1_1_1.setForeground(Color.WHITE);
 		lblNewLabel_1_1_1_1_1.setFont(new Font("Tahoma", Font.PLAIN, 14));
 		panel_1.add(lblNewLabel_1_1_1_1_1, "cell 0 9,alignx right");
-		
+
 		lblProdutoInfo = new JLabel("");
 		lblProdutoInfo.setForeground(Color.WHITE);
 		lblProdutoInfo.setFont(new Font("Tahoma", Font.BOLD, 14));
 		panel_1.add(lblProdutoInfo, "cell 1 9 4 1");
-		
+
 		JLabel lblNewLabel_1_1_1_1_1_1 = new JLabel("Transgenia:");
 		lblNewLabel_1_1_1_1_1_1.setForeground(Color.WHITE);
 		lblNewLabel_1_1_1_1_1_1.setFont(new Font("Tahoma", Font.PLAIN, 14));
 		panel_1.add(lblNewLabel_1_1_1_1_1_1, "cell 0 10,alignx right");
-		
+
 		lblTransgeniaInfo = new JLabel("");
 		lblTransgeniaInfo.setForeground(Color.WHITE);
 		lblTransgeniaInfo.setFont(new Font("Tahoma", Font.BOLD, 14));
 		panel_1.add(lblTransgeniaInfo, "cell 1 10 4 1");
-		
+
 		JLabel lblNewLabel_1_1_1_1_1_1_1 = new JLabel("Safra:");
 		lblNewLabel_1_1_1_1_1_1_1.setForeground(Color.WHITE);
 		lblNewLabel_1_1_1_1_1_1_1.setFont(new Font("Tahoma", Font.PLAIN, 14));
 		panel_1.add(lblNewLabel_1_1_1_1_1_1_1, "cell 0 11,alignx right");
-		
+
 		lblSafraInfo = new JLabel("");
 		lblSafraInfo.setForeground(Color.WHITE);
 		lblSafraInfo.setFont(new Font("Tahoma", Font.BOLD, 14));
 		panel_1.add(lblSafraInfo, "cell 1 11 4 1");
-		
+
 		lblNewLabel_1_1_1_1_1_1_2 = new JLabel("Data Entrega:");
 		lblNewLabel_1_1_1_1_1_1_2.setForeground(Color.WHITE);
 		lblNewLabel_1_1_1_1_1_1_2.setFont(new Font("Tahoma", Font.PLAIN, 14));
 		panel_1.add(lblNewLabel_1_1_1_1_1_1_2, "cell 0 12,alignx right");
-		
+
 		lblDataEntregaInfo = new JLabel("");
 		lblDataEntregaInfo.setForeground(Color.WHITE);
 		lblDataEntregaInfo.setFont(new Font("Tahoma", Font.BOLD, 14));
 		panel_1.add(lblDataEntregaInfo, "cell 1 12");
-		
+
 		JLabel lblNewLabel_1_1_1_1_1_1_1_1_2 = new JLabel("Quantidade:");
 		lblNewLabel_1_1_1_1_1_1_1_1_2.setForeground(Color.WHITE);
 		lblNewLabel_1_1_1_1_1_1_1_1_2.setFont(new Font("Tahoma", Font.PLAIN, 14));
 		panel_1.add(lblNewLabel_1_1_1_1_1_1_1_1_2, "cell 0 13,alignx right");
-		
+
 		lblQuantidadeInfo = new JLabel("");
 		lblQuantidadeInfo.setForeground(Color.WHITE);
 		lblQuantidadeInfo.setFont(new Font("Tahoma", Font.BOLD, 14));
 		panel_1.add(lblQuantidadeInfo, "cell 1 13 4 1");
-		
+
 		JLabel lblNewLabel_1_1_1_1_1_1_1_1_2_1_2 = new JLabel("Unidade:");
 		lblNewLabel_1_1_1_1_1_1_1_1_2_1_2.setForeground(Color.WHITE);
 		lblNewLabel_1_1_1_1_1_1_1_1_2_1_2.setFont(new Font("Tahoma", Font.PLAIN, 14));
 		panel_1.add(lblNewLabel_1_1_1_1_1_1_1_1_2_1_2, "cell 0 14,alignx right");
-		
+
 		lblUnidadeInfo = new JLabel("");
 		lblUnidadeInfo.setForeground(Color.WHITE);
 		lblUnidadeInfo.setFont(new Font("Tahoma", Font.BOLD, 14));
 		panel_1.add(lblUnidadeInfo, "cell 1 14 4 1");
-		
+
 		JLabel lblNewLabel_1_1_1_1_1_1_1_1_2_1 = new JLabel("Valor Unidade:");
 		lblNewLabel_1_1_1_1_1_1_1_1_2_1.setForeground(Color.WHITE);
 		lblNewLabel_1_1_1_1_1_1_1_1_2_1.setFont(new Font("Tahoma", Font.PLAIN, 14));
 		panel_1.add(lblNewLabel_1_1_1_1_1_1_1_1_2_1, "cell 0 15,alignx right");
-		
+
 		lblValorUnidadeInfo = new JLabel("");
 		lblValorUnidadeInfo.setForeground(Color.WHITE);
 		lblValorUnidadeInfo.setFont(new Font("Tahoma", Font.BOLD, 14));
 		panel_1.add(lblValorUnidadeInfo, "cell 1 15 4 1");
-		
+
 		JLabel lblNewLabel_1_1_1_1_1_1_1_1_2_1_1 = new JLabel("Valor Total:");
 		lblNewLabel_1_1_1_1_1_1_1_1_2_1_1.setForeground(Color.WHITE);
 		lblNewLabel_1_1_1_1_1_1_1_1_2_1_1.setFont(new Font("Tahoma", Font.PLAIN, 14));
 		panel_1.add(lblNewLabel_1_1_1_1_1_1_1_1_2_1_1, "cell 0 16,alignx right");
-		
+
 		lblValorTotalInfo = new JLabel("");
 		lblValorTotalInfo.setForeground(Color.WHITE);
 		lblValorTotalInfo.setFont(new Font("Tahoma", Font.BOLD, 14));
 		panel_1.add(lblValorTotalInfo, "cell 1 16 4 1");
-		
+
 		JLabel lblNewLabel_1_1_1_1_1_1_1_1_3 = new JLabel("Comissão:");
 		lblNewLabel_1_1_1_1_1_1_1_1_3.setForeground(Color.WHITE);
 		lblNewLabel_1_1_1_1_1_1_1_1_3.setFont(new Font("Tahoma", Font.PLAIN, 14));
 		panel_1.add(lblNewLabel_1_1_1_1_1_1_1_1_3, "cell 0 17,alignx right");
-		
+
 		lblComissaoInfo = new JLabel("");
 		lblComissaoInfo.setForeground(Color.WHITE);
 		lblComissaoInfo.setFont(new Font("Tahoma", Font.BOLD, 14));
 		panel_1.add(lblComissaoInfo, "cell 1 17 4 1");
-		
+
 		JLabel lblNewLabel_1_1_1_1_1_1_1_1_3_1 = new JLabel("Valor Total Comissão:");
 		lblNewLabel_1_1_1_1_1_1_1_1_3_1.setForeground(Color.WHITE);
 		lblNewLabel_1_1_1_1_1_1_1_1_3_1.setFont(new Font("Tahoma", Font.PLAIN, 14));
 		panel_1.add(lblNewLabel_1_1_1_1_1_1_1_1_3_1, "cell 0 18");
-		
+
 		lblValorTotalComissaoInfo = new JLabel("");
 		lblValorTotalComissaoInfo.setForeground(Color.WHITE);
 		lblValorTotalComissaoInfo.setFont(new Font("Tahoma", Font.BOLD, 14));
 		panel_1.add(lblValorTotalComissaoInfo, "cell 1 18 4 1");
-		
+
 		lblNewLabel_1_1_1_1_1_1_1_1_3_2 = new JLabel("Local Retirada:");
 		lblNewLabel_1_1_1_1_1_1_1_1_3_2.setForeground(Color.WHITE);
 		lblNewLabel_1_1_1_1_1_1_1_1_3_2.setFont(new Font("Tahoma", Font.PLAIN, 14));
 		panel_1.add(lblNewLabel_1_1_1_1_1_1_1_1_3_2, "cell 0 19,alignx right");
-		
+
 		lblLocalRetiradaInfo = new JLabel("");
 		lblLocalRetiradaInfo.setForeground(Color.WHITE);
 		lblLocalRetiradaInfo.setFont(new Font("Tahoma", Font.BOLD, 14));
 		panel_1.add(lblLocalRetiradaInfo, "cell 1 19");
-		
+
 		lblNewLabel_1_1_1_1_1_1_1_1_3_3 = new JLabel("Recebimento:");
 		lblNewLabel_1_1_1_1_1_1_1_1_3_3.setForeground(Color.WHITE);
 		lblNewLabel_1_1_1_1_1_1_1_1_3_3.setFont(new Font("Tahoma", Font.PLAIN, 14));
 		panel_1.add(lblNewLabel_1_1_1_1_1_1_1_1_3_3, "cell 0 20,alignx right");
-		
+
 		lblRecebimentoInfo = new JLabel("");
 		lblRecebimentoInfo.setForeground(Color.WHITE);
 		lblRecebimentoInfo.setFont(new Font("Tahoma", Font.BOLD, 14));
 		panel_1.add(lblRecebimentoInfo, "cell 1 20");
-		
+
 		JLabel lblNewLabel_1_1_1_1_1_1_1_1 = new JLabel("Frete:");
 		lblNewLabel_1_1_1_1_1_1_1_1.setForeground(Color.WHITE);
 		lblNewLabel_1_1_1_1_1_1_1_1.setFont(new Font("Tahoma", Font.PLAIN, 14));
 		panel_1.add(lblNewLabel_1_1_1_1_1_1_1_1, "cell 0 21,alignx right");
-		
+
 		lblFreteInfo = new JLabel("");
 		lblFreteInfo.setForeground(Color.WHITE);
 		lblFreteInfo.setFont(new Font("Tahoma", Font.BOLD, 14));
 		panel_1.add(lblFreteInfo, "cell 1 21 4 1");
-		
+
 		JLabel lblNewLabel_1_1_1_1_1_1_1_1_1 = new JLabel("Armazenagem:");
 		lblNewLabel_1_1_1_1_1_1_1_1_1.setForeground(Color.WHITE);
 		lblNewLabel_1_1_1_1_1_1_1_1_1.setFont(new Font("Tahoma", Font.PLAIN, 14));
 		panel_1.add(lblNewLabel_1_1_1_1_1_1_1_1_1, "cell 0 22,alignx right");
-		
+
 		lblArmazenagemInfo = new JLabel("");
 		lblArmazenagemInfo.setForeground(Color.WHITE);
 		lblArmazenagemInfo.setFont(new Font("Tahoma", Font.BOLD, 14));
 		panel_1.add(lblArmazenagemInfo, "cell 1 22 4 1");
-		
+
 		JPanel panel_2 = new JPanel();
 		panel_2.setBackground(new Color(0, 153, 0));
 		panel_2.setBounds(633, 219, 656, 371);
 		painelFinalizar.add(panel_2);
 		GridBagLayout gbl_panel_2 = new GridBagLayout();
-		gbl_panel_2.columnWidths = new int[]{121, 152, 210, 0, 0};
-		gbl_panel_2.rowHeights = new int[]{25, 303, 17, 0};
-		gbl_panel_2.columnWeights = new double[]{0.0, 0.0, 0.0, 0.0, Double.MIN_VALUE};
-		gbl_panel_2.rowWeights = new double[]{0.0, 0.0, 0.0, Double.MIN_VALUE};
+		gbl_panel_2.columnWidths = new int[] { 121, 152, 210, 0, 0 };
+		gbl_panel_2.rowHeights = new int[] { 25, 303, 17, 0 };
+		gbl_panel_2.columnWeights = new double[] { 0.0, 0.0, 0.0, 0.0, Double.MIN_VALUE };
+		gbl_panel_2.rowWeights = new double[] { 0.0, 0.0, 0.0, Double.MIN_VALUE };
 		panel_2.setLayout(gbl_panel_2);
-		
+
 		JLabel lblNewLabel_1_1_1_1_1_1_1_1_1_1 = new JLabel("Informações de Pagamento:");
 		lblNewLabel_1_1_1_1_1_1_1_1_1_1.setForeground(Color.WHITE);
 		lblNewLabel_1_1_1_1_1_1_1_1_1_1.setFont(new Font("Tahoma", Font.PLAIN, 20));
@@ -2830,10 +2987,10 @@ public class TelaImportarContratoManual extends JDialog {
 		gbc_lblNewLabel_1_1_1_1_1_1_1_1_1_1.gridx = 2;
 		gbc_lblNewLabel_1_1_1_1_1_1_1_1_1_1.gridy = 0;
 		panel_2.add(lblNewLabel_1_1_1_1_1_1_1_1_1_1, gbc_lblNewLabel_1_1_1_1_1_1_1_1_1_1);
-		
+
 		tabela_pagamentos_elaborados = new JTable(modelo_pagamentos);
 		tabela_pagamentos_elaborados.setRowHeight(30);
-		
+
 		JScrollPane scrollPane = new JScrollPane(tabela_pagamentos_elaborados);
 		GridBagConstraints gbc_scrollPane = new GridBagConstraints();
 		gbc_scrollPane.fill = GridBagConstraints.BOTH;
@@ -2842,7 +2999,7 @@ public class TelaImportarContratoManual extends JDialog {
 		gbc_scrollPane.gridx = 0;
 		gbc_scrollPane.gridy = 1;
 		panel_2.add(scrollPane, gbc_scrollPane);
-		
+
 		lblNewLabel_4 = new JLabel("Total Valor Já Pago:");
 		lblNewLabel_4.setForeground(Color.WHITE);
 		lblNewLabel_4.setFont(new Font("Tahoma", Font.PLAIN, 14));
@@ -2852,7 +3009,7 @@ public class TelaImportarContratoManual extends JDialog {
 		gbc_lblNewLabel_4.gridx = 0;
 		gbc_lblNewLabel_4.gridy = 2;
 		panel_2.add(lblNewLabel_4, gbc_lblNewLabel_4);
-		
+
 		lblValorTotalJaPagoInfo = new JLabel("New label");
 		lblValorTotalJaPagoInfo.setForeground(Color.WHITE);
 		lblValorTotalJaPagoInfo.setFont(new Font("Tahoma", Font.BOLD, 18));
@@ -2863,7 +3020,7 @@ public class TelaImportarContratoManual extends JDialog {
 		gbc_lblValorTotalJaPagoInfo.gridx = 1;
 		gbc_lblValorTotalJaPagoInfo.gridy = 2;
 		panel_2.add(lblValorTotalJaPagoInfo, gbc_lblValorTotalJaPagoInfo);
-		
+
 		lblNewLabel_5 = new JLabel("Total Valor Restante:");
 		lblNewLabel_5.setForeground(Color.WHITE);
 		lblNewLabel_5.setFont(new Font("Tahoma", Font.PLAIN, 14));
@@ -2874,7 +3031,7 @@ public class TelaImportarContratoManual extends JDialog {
 		gbc_lblNewLabel_5.gridx = 2;
 		gbc_lblNewLabel_5.gridy = 2;
 		panel_2.add(lblNewLabel_5, gbc_lblNewLabel_5);
-		
+
 		lblValorTotalHaPagarInfo = new JLabel("New label");
 		lblValorTotalHaPagarInfo.setForeground(Color.WHITE);
 		lblValorTotalHaPagarInfo.setFont(new Font("Tahoma", Font.BOLD, 18));
@@ -2883,25 +3040,24 @@ public class TelaImportarContratoManual extends JDialog {
 		gbc_lblValorTotalHaPagarInfo.gridx = 3;
 		gbc_lblValorTotalHaPagarInfo.gridy = 2;
 		panel_2.add(lblValorTotalHaPagarInfo, gbc_lblValorTotalHaPagarInfo);
-		
+
 		lblTipoContrato = new JLabel("Tipo Contrato:");
 		lblTipoContrato.setFont(new Font("Arial Black", Font.PLAIN, 14));
 		lblTipoContrato.setBounds(652, 124, 564, 42);
 		painelFinalizar.add(lblTipoContrato);
-		
+
 		JButton btnAtualizar = new JButton("Atualizar");
 		btnAtualizar.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				atualizar();
-				//atualizar o contrato 
-				//excluir o arquivo
-				
-				
+				// atualizar o contrato
+				// excluir o arquivo
+
 			}
 		});
 		btnAtualizar.setBounds(694, 619, 89, 23);
 		painelFinalizar.add(btnAtualizar);
-		
+
 		chBoxClausulaComissao.setVisible(false);
 
 		if (tipoContrato == 6) {
@@ -2910,15 +3066,14 @@ public class TelaImportarContratoManual extends JDialog {
 				rotinasEdicao();
 				setClausulas();
 				// modo de edicao de subcontrato
-			
 
-				//setInfoPai();
+				// setInfoPai();
 
 			} else {
 				rotinasSubContrato();
 
 			}
-			
+
 			PainelInformativo painel_informacoes1 = new PainelInformativo();
 			PainelInformativo painel_informacoes2 = new PainelInformativo();
 
@@ -2927,24 +3082,20 @@ public class TelaImportarContratoManual extends JDialog {
 
 			panelInformativoAbaPrincipal.setBounds(0, 0, 411, 335);
 			panelInformativoAbaPrincipal.add(painel_informacoes1);
-			
+
 			panelInformativoAbaproduto.setBounds(0, 0, 411, 335);
 			panelInformativoAbaproduto.add(painel_informacoes2);
-			
-			
+
 			painelDadosIniciais.add(panelInformativoAbaPrincipal);
 			painelDadosProdutos.add(panelInformativoAbaproduto);
 
 			panelInformativoAbaPrincipal.setBackground(Color.white);
 			panelInformativoAbaPrincipal.setLayout(null);
-			
+
 			panelInformativoAbaproduto.setBackground(Color.white);
 			panelInformativoAbaproduto.setLayout(null);
-			
-			
-			
-			
-		} else if(tipoContrato == 4 || tipoContrato == 5){
+
+		} else if (tipoContrato == 4 || tipoContrato == 5) {
 			// e um contrato original de terceiros passivel de edicao
 			if (flag_edicao == 1) {
 				btnSalvar.setEnabled(false);
@@ -2953,20 +3104,17 @@ public class TelaImportarContratoManual extends JDialog {
 				rotinasEdicao();
 				setClausulas();
 			} else {
-				
+
 				btnAtualizar.setEnabled(false);
 				btnAtualizar.setVisible(false);
 				// se esta no modo criacao
 			}
 		}
 
-	
-		
 		this.setLocationRelativeTo(janela_pai);
 		this.setBounds(GraphicsEnvironment.getLocalGraphicsEnvironment().getMaximumWindowBounds());
 		isto = this;
 
-		
 		this.setVisible(true);
 
 	}
@@ -3123,8 +3271,6 @@ public class TelaImportarContratoManual extends JDialog {
 
 	}
 
-
-
 	public void getDadosGlobais() {
 		// gerenciador de log
 		DadosGlobais dados = DadosGlobais.getInstance();
@@ -3133,10 +3279,9 @@ public class TelaImportarContratoManual extends JDialog {
 
 		// usuario logado
 		login = dados.getLogin();
+		servidor_unidade = configs_globais.getServidorUnidade();
 
 	}
-
-	
 
 	public void retirarComissao() {
 		rBComissaoSim.setSelected(false);
@@ -3179,24 +3324,24 @@ public class TelaImportarContratoManual extends JDialog {
 
 	public void setClausulaComissao(String valor) {
 		try {
-		if (chBoxClausulaComissao.isSelected()) {
-		  
-			String valor_texto = new PorExtenso(Double.parseDouble(valor.replace(",", "."))).toString();
-			double _valor = Double.parseDouble(valor.replace(",", "."));
-			
-			String s_quantidade = entQuantidade.getText();
-			double quantidade = Double.parseDouble(s_quantidade);
-			
-			double valor_total = quantidade * _valor;
-			
-			String valor_total_extenso = new PorExtenso(valor_total).toString();
+			if (chBoxClausulaComissao.isSelected()) {
 
-			entClausula3.setText("Comissão de R$ " + _valor + " ( " + valor_texto.toLowerCase() + " ) por " + unidadeGlobal + 
-					" pagas ao CORRETOR do CONTRATO, no valor total de R$ " + valor_total + " ("
-					+ valor_total_extenso.toLowerCase() + " ).");
+				String valor_texto = new PorExtenso(Double.parseDouble(valor.replace(",", "."))).toString();
+				double _valor = Double.parseDouble(valor.replace(",", "."));
 
-		}
-		}catch(Exception e) {
+				String s_quantidade = entQuantidade.getText();
+				double quantidade = Double.parseDouble(s_quantidade);
+
+				double valor_total = quantidade * _valor;
+
+				String valor_total_extenso = new PorExtenso(valor_total).toString();
+
+				entClausula3.setText("Comissão de R$ " + _valor + " ( " + valor_texto.toLowerCase() + " ) por "
+						+ unidadeGlobal + " pagas ao CORRETOR do CONTRATO, no valor total de R$ " + valor_total + " ("
+						+ valor_total_extenso.toLowerCase() + " ).");
+
+			}
+		} catch (Exception e) {
 			JOptionPane.showMessageDialog(null, "Informe a quantidade e o valor da comissão corretamente!");
 		}
 	}
@@ -3206,10 +3351,9 @@ public class TelaImportarContratoManual extends JDialog {
 				.setText(nome_produto + " acima de 14% de umidade será cobrado uma taxa de despesas para a secagem");
 
 	}
-	
+
 	public void setClausulaFrete() {
-	
-		
+
 	}
 
 	public String quebrarCodigo() {
@@ -3244,6 +3388,11 @@ public class TelaImportarContratoManual extends JDialog {
 
 		if (compradores[0] != null) {
 			this.setComprador1(compradores[0]);
+		}
+		
+
+		if (compradores[1] != null) {
+			this.setComprador2(compradores[1]);
 		}
 
 		if (vendedores[0] != null) {
@@ -3321,48 +3470,33 @@ public class TelaImportarContratoManual extends JDialog {
 			mostrar_valor_total_comissao.setText(valorString2);
 			lblValorTotalComisao1.setText(valorString2);
 			valor_total_comissao = valor_tot_comissao;
-			
+
 		}
-		
-		if(contrato_pai_local.getTipo_entrega() == 1) {
+
+		if (contrato_pai_local.getTipo_entrega() == 1) {
 			rBPostoSobreRodas.setSelected(true);
 			rBJaDepositada.setSelected(false);
 
-		}else if(contrato_pai_local.getTipo_entrega() == 2) {
+		} else if (contrato_pai_local.getTipo_entrega() == 2) {
 			rBJaDepositada.setSelected(true);
 			rBPostoSobreRodas.setSelected(false);
 
 		}
 
-		
-		CadastroCliente localRetirada = new GerenciarBancoClientes().getCliente(contrato_pai_local.getId_local_retirada());
+		CadastroCliente localRetirada = new GerenciarBancoClientes()
+				.getCliente(contrato_pai_local.getId_local_retirada());
 		int indice = -1;
-		for(int i = 0; i < modelLocalRetirada.getSize(); i++) {
-			if(modelLocalRetirada.getElementAt(i).getId() == localRetirada.getId()) {
+		for (int i = 0; i < modelLocalRetirada.getSize(); i++) {
+			if (modelLocalRetirada.getElementAt(i).getId() == localRetirada.getId()) {
 				indice = i;
 			}
 		}
-		
-		modelLocalRetirada.setSelectedItem(localRetirada);
-		
 
-		if(contrato_pai_local.getSub_contrato() == 0 || contrato_pai_local.getSub_contrato() == 4) {
-			cBComprador.setEnabled(false);
-			btnPesquisarComprador.setEnabled(false);
-		}else if(contrato_pai_local.getSub_contrato() == 1) {
-			cBComprador.setEnabled(false);
-			btnPesquisarComprador.setEnabled(false);
-			
-			cBVendedor1.setEnabled(false);
-			btnPesquisarVendedor1.setEnabled(false);
-			
-			
-			cBVendedor2.setEnabled(false);
-			btnPesquisarVendedor2.setEnabled(false);
-		}
-			
+		modelLocalRetirada.setSelectedItem(localRetirada);
+
+
+
 		entCodigoContrato.setText(contrato_pai_local.getCodigo());
-		
 
 		setPagamentos();
 
@@ -3390,14 +3524,13 @@ public class TelaImportarContratoManual extends JDialog {
 						codigo = conta_bc.getCodigo();
 						agencia = conta_bc.getAgencia();
 						conta = conta_bc.getConta();
-						
-						
-						if(pag.getPagamento_adiantado() == 1) {
+
+						if (pag.getPagamento_adiantado() == 1) {
 							antecipado = "SIM";
-						}else {
+						} else {
 							antecipado = "NÂO";
 						}
-						
+
 						cobre = calculoCobertura(Double.parseDouble(pag.getValor().toPlainString()));
 
 						valor_total_pagamentos += Float.parseFloat(pag.getValor_string());
@@ -3429,15 +3562,14 @@ public class TelaImportarContratoManual extends JDialog {
 	}
 
 	public void setClausulas() {
-		
-		
-		
-		if(contrato_pai_local.getFrete() != null) {
-			if(!contrato_pai_local.getFrete().equals("") && !contrato_pai_local.getFrete().equals(" ") && contrato_pai_local.getFrete().length() > 4) {
-				if(contrato_pai_local.getFrete().equalsIgnoreCase("Comprador")) {
+
+		if (contrato_pai_local.getFrete() != null) {
+			if (!contrato_pai_local.getFrete().equals("") && !contrato_pai_local.getFrete().equals(" ")
+					&& contrato_pai_local.getFrete().length() > 4) {
+				if (contrato_pai_local.getFrete().equalsIgnoreCase("Comprador")) {
 					cBFrete.setSelectedItem("Comprador");
 
-				}else {
+				} else {
 					cBFrete.setSelectedItem("Vendedor");
 
 				}
@@ -3449,15 +3581,14 @@ public class TelaImportarContratoManual extends JDialog {
 				entClausulaFrete.setText(contrato_pai_local.getClausula_frete());
 			}
 		}
-		
-		
-		
-		if(contrato_pai_local.getArmazenagem() != null) {
-			if(!contrato_pai_local.getArmazenagem().equals("") && !contrato_pai_local.getArmazenagem().equals(" ") && contrato_pai_local.getArmazenagem().length() > 4) {
-				if(contrato_pai_local.getArmazenagem().equalsIgnoreCase("Comprador")) {
+
+		if (contrato_pai_local.getArmazenagem() != null) {
+			if (!contrato_pai_local.getArmazenagem().equals("") && !contrato_pai_local.getArmazenagem().equals(" ")
+					&& contrato_pai_local.getArmazenagem().length() > 4) {
+				if (contrato_pai_local.getArmazenagem().equalsIgnoreCase("Comprador")) {
 					cBArmazenagem.setSelectedItem("Comprador");
 
-				}else {
+				} else {
 					cBArmazenagem.setSelectedItem("Vendedor");
 
 				}
@@ -3538,15 +3669,15 @@ public class TelaImportarContratoManual extends JDialog {
 
 						num_clausulas++;
 
-					} 
-					//set clausula de armazenagem
-					else if(num_clausulas == contrato_pai_local.getClausulas().size() - 1){
-                          //verifica a ultima clausula
-						if(contrato_pai_local.getFrete() != null ) {
-							if(contrato_pai_local.getFrete().equalsIgnoreCase("Comprador") ) {
+					}
+					// set clausula de armazenagem
+					else if (num_clausulas == contrato_pai_local.getClausulas().size() - 1) {
+						// verifica a ultima clausula
+						if (contrato_pai_local.getFrete() != null) {
+							if (contrato_pai_local.getFrete().equalsIgnoreCase("Comprador")) {
 								cBFrete.setSelectedItem("Comprador");
 								entClausulaFrete.setText(termo);
-							}else {
+							} else {
 								cBFrete.setSelectedItem("Vendedor");
 								entClausulaFrete.setText(termo);
 
@@ -3592,13 +3723,13 @@ public class TelaImportarContratoManual extends JDialog {
 
 	}
 
-	public CadastroContrato.CadastroTarefa criarTarefa(int status, String nome_tarefa, String descricao, String msg, CadastroLogin executor, int prioridade) {
+	public CadastroContrato.CadastroTarefa criarTarefa(int status, String nome_tarefa, String descricao, String msg,
+			CadastroLogin executor, int prioridade) {
 
 		CadastroContrato.CadastroTarefa tarefa = new CadastroContrato.CadastroTarefa();
 
-		
-			tarefa.setNome_tarefa(nome_tarefa);
-		
+		tarefa.setNome_tarefa(nome_tarefa);
+
 		// cria a tarefa de insercao de contrato
 		tarefa.setId_tarefa(0);
 		tarefa.setDescricao_tarefa(descricao);
@@ -3637,186 +3768,164 @@ public class TelaImportarContratoManual extends JDialog {
 
 	}
 
-
-	
 	public String calculoCobertura(double valor_pagamento) {
 		String retorno = "";
-		//quantidade
+		// quantidade
 		double quantidade = Double.parseDouble(entQuantidade.getText());
 		double preco = Double.parseDouble(entPreco.getText());
 
-		
-		
-		//unidade de medida
-		if(rQuanT.isSelected()) {
-			//unidade em toneladas
-			
+		// unidade de medida
+		if (rQuanT.isSelected()) {
+			// unidade em toneladas
 
 			double resultado = valor_pagamento / preco;
-			retorno = Double.toString(resultado) ;
-			
-		}else if(rQuanS.isSelected()) {
-			//unidade em sacos
-	
-			
-			double resultado = valor_pagamento / preco;
-			retorno = Double.toString(resultado) ;
-			
-		}else if(rQuanKG.isSelected()) {
-			//unidade em quilogramas
-			
+			retorno = Double.toString(resultado);
+
+		} else if (rQuanS.isSelected()) {
+			// unidade em sacos
 
 			double resultado = valor_pagamento / preco;
-			retorno = Double.toString(resultado) ;
+			retorno = Double.toString(resultado);
+
+		} else if (rQuanKG.isSelected()) {
+			// unidade em quilogramas
+
+			double resultado = valor_pagamento / preco;
+			retorno = Double.toString(resultado);
 		}
-		
-		
-		
+
 		return retorno;
 	}
-	
-	
+
 	public class PainelInformativo extends JPanel {
-		
-		
-		
+
 		public PainelInformativo() {
 			CadastroCliente compradores[] = contrato_pai_local.getCompradores();
 			CadastroCliente vendedores[] = contrato_pai_local.getVendedores();
 
-			
-			
-			
 			JPanel panel = this;
 			panel.setBorder(new LineBorder(new Color(0, 0, 0)));
 			panel.setBackground(new Color(255, 255, 255));
 			panel.setBounds(0, 0, 349, 271);
 			panel.setLayout(new MigLayout("", "[][][]", "[][][][][][][][][][][][][][]"));
-			
+
 			JLabel lblInformaesDoContrato = new JLabel("Informações do Contrato Original");
 			lblInformaesDoContrato.setFont(new Font("Dialog", Font.BOLD, 10));
 			panel.add(lblInformaesDoContrato, "cell 1 0,alignx left");
-			
+
 			JLabel lblNewLabel_2_1_1_2_1_2_1_1 = new JLabel("Data Contrato:");
 			lblNewLabel_2_1_1_2_1_2_1_1.setFont(new Font("Dialog", Font.PLAIN, 12));
 			panel.add(lblNewLabel_2_1_1_2_1_2_1_1, "cell 0 1,alignx left");
-			
+
 			JLabel lblInfoDataContrato = new JLabel("01/01/01");
 			lblInfoDataContrato.setFont(new Font("Dialog", Font.PLAIN, 12));
 			panel.add(lblInfoDataContrato, "cell 1 1,alignx left");
-			
+
 			JLabel lblNewLabel_2 = new JLabel("Comprador:");
 			lblNewLabel_2.setFont(new Font("Dialog", Font.PLAIN, 12));
 			panel.add(lblNewLabel_2, "cell 0 2,alignx left");
-			
+
 			JLabel lblInfoComprador = new JLabel("Marcos Alexandre Andrade de Carvalho e Outros");
 			lblInfoComprador.setFont(new Font("Dialog", Font.PLAIN, 12));
 			panel.add(lblInfoComprador, "cell 1 2,alignx left");
-			
+
 			JLabel lblNewLabel_2_1 = new JLabel("Vendedor:");
 			lblNewLabel_2_1.setFont(new Font("Dialog", Font.PLAIN, 12));
 			panel.add(lblNewLabel_2_1, "cell 0 3,alignx left");
-			
+
 			JLabel lblInfoVendedor1 = new JLabel("Vendedor1");
 			lblInfoVendedor1.setFont(new Font("Dialog", Font.PLAIN, 12));
 			panel.add(lblInfoVendedor1, "cell 1 3,alignx left");
-			
+
 			JLabel lblNewLabel_2_1_1 = new JLabel("Vendedor:");
 			lblNewLabel_2_1_1.setFont(new Font("Dialog", Font.PLAIN, 12));
 			panel.add(lblNewLabel_2_1_1, "cell 0 4,alignx left");
-			
+
 			JLabel lblInfoVendedor2 = new JLabel(" ");
 			lblInfoVendedor2.setFont(new Font("Dialog", Font.PLAIN, 12));
 			panel.add(lblInfoVendedor2, "cell 1 4,alignx left");
-			
+
 			JLabel lblNewLabel_2_1_1_1 = new JLabel("Safra:");
 			lblNewLabel_2_1_1_1.setFont(new Font("Dialog", Font.PLAIN, 12));
 			panel.add(lblNewLabel_2_1_1_1, "cell 0 5,alignx left");
-			
+
 			JLabel lblInfoSafra = new JLabel("<dynamic> 0/0");
 			lblInfoSafra.setFont(new Font("Dialog", Font.PLAIN, 12));
 			panel.add(lblInfoSafra, "cell 1 5,alignx left");
-			
+
 			JLabel lblNewLabel_2_1_1_2 = new JLabel("Medida:");
 			lblNewLabel_2_1_1_2.setFont(new Font("Dialog", Font.PLAIN, 12));
 			panel.add(lblNewLabel_2_1_1_2, "cell 0 6,alignx left");
-			
+
 			JLabel lblInfoMedida = new JLabel("Sacos");
 			lblInfoMedida.setFont(new Font("Dialog", Font.PLAIN, 12));
 			panel.add(lblInfoMedida, "cell 1 6,alignx left");
-			
+
 			JLabel lblNewLabel_2_1_1_2_1 = new JLabel("Quantidade:");
 			lblNewLabel_2_1_1_2_1.setFont(new Font("Dialog", Font.PLAIN, 12));
 			panel.add(lblNewLabel_2_1_1_2_1, "cell 0 7,alignx left");
-			
+
 			JLabel lblInfoQuantidade = new JLabel("0.0 <dynamic>");
 			lblInfoQuantidade.setFont(new Font("Dialog", Font.PLAIN, 12));
 			panel.add(lblInfoQuantidade, "cell 1 7,alignx left");
-			
+
 			JLabel lblNewLabel_2_1_1_2_1_1 = new JLabel("Valor por Medida:");
 			lblNewLabel_2_1_1_2_1_1.setFont(new Font("Dialog", Font.PLAIN, 12));
 			panel.add(lblNewLabel_2_1_1_2_1_1, "cell 0 8,alignx left");
-			
+
 			JLabel lblInfoValorMedida = new JLabel("R$ 0,00");
 			lblInfoValorMedida.setFont(new Font("Dialog", Font.PLAIN, 12));
 			panel.add(lblInfoValorMedida, "cell 1 8,alignx left");
-			
+
 			JLabel lblNewLabel_2_1_1_2_1_2 = new JLabel("Valor Total:");
 			lblNewLabel_2_1_1_2_1_2.setFont(new Font("Dialog", Font.PLAIN, 12));
 			panel.add(lblNewLabel_2_1_1_2_1_2, "cell 0 9,alignx left");
-			
+
 			JLabel lblInfoValorTotal = new JLabel("R$ 0,00");
 			lblInfoValorTotal.setFont(new Font("Dialog", Font.PLAIN, 12));
 			panel.add(lblInfoValorTotal, "cell 1 9,alignx left");
-			
+
 			JLabel lblNewLabel_2_1_1_2_1_2_1 = new JLabel("Data Entrega:");
 			lblNewLabel_2_1_1_2_1_2_1.setFont(new Font("Dialog", Font.PLAIN, 12));
 			panel.add(lblNewLabel_2_1_1_2_1_2_1, "cell 0 10,alignx left");
-			
+
 			JLabel lblInfoDataEntrega = new JLabel("R$ 0,00");
 			lblInfoDataEntrega.setFont(new Font("Dialog", Font.PLAIN, 12));
 			panel.add(lblInfoDataEntrega, "cell 1 10,alignx left");
-			
+
 			JLabel lblNewComissao = new JLabel("Comissão:");
 			lblNewComissao.setFont(new Font("Dialog", Font.PLAIN, 12));
 			panel.add(lblNewComissao, "cell 0 11,alignx left");
-			
+
 			JLabel lblInfoComissao = new JLabel("Sim");
 			lblInfoComissao.setFont(new Font("Dialog", Font.PLAIN, 12));
 			panel.add(lblInfoComissao, "cell 1 11,alignx left");
-			
+
 			JLabel lblValorComisso1 = new JLabel("Valor Comissão:");
 			lblValorComisso1.setFont(new Font("Dialog", Font.PLAIN, 12));
 			panel.add(lblValorComisso1, "cell 0 12,alignx left");
-			
+
 			JLabel lblValorComissao = new JLabel("R$ 0,00");
 			lblValorComissao.setFont(new Font("Dialog", Font.PLAIN, 12));
 			lblValorComissao.setToolTipText("");
 			panel.add(lblValorComissao, "cell 1 12,alignx left");
-		
-		
-		
-		
+
 			lblInfoDataContrato.setText(contrato_pai_local.getData_contrato());
 			lblInfoDataEntrega.setText(contrato_pai_local.getData_entrega());
 
-		
-	          if(contrato_pai_local.getComissao() == 1) {
-	        	  
-	        	  //tem comissao
-	        	  lblInfoComissao.setText("SIM");
+			if (contrato_pai_local.getComissao() == 1) {
 
-	        	  lblValorComissao.setText(contrato_pai_local.getValor_comissao().toPlainString());
+				// tem comissao
+				lblInfoComissao.setText("SIM");
 
-	          }else {
-	        	  lblInfoComissao.setText("NÃO");
-	        	  lblValorComissao.setText("");
+				lblValorComissao.setText(contrato_pai_local.getValor_comissao().toPlainString());
 
-	          }
-	
-			
-			
-			
+			} else {
+				lblInfoComissao.setText("NÃO");
+				lblValorComissao.setText("");
+
+			}
+
 			if (compradores[0].getTipo_pessoa() == 0) {
 				// pessoa fisica
 				lblInfoComprador.setText(compradores[0].getNome_empresarial());
@@ -3835,7 +3944,6 @@ public class TelaImportarContratoManual extends JDialog {
 
 			}
 
-			
 			if (vendedores[1] != null) {
 				if (vendedores[1].getTipo_pessoa() == 0) {
 
@@ -3848,35 +3956,29 @@ public class TelaImportarContratoManual extends JDialog {
 
 			}
 
-		
 			String info_safra = contrato_pai_local.getModelo_safra().getProduto().getNome_produto() + " "
 					+ contrato_pai_local.getModelo_safra().getAno_plantio() + "/"
 					+ contrato_pai_local.getModelo_safra().getAno_colheita();
 
 			lblInfoSafra.setText(info_safra);
 
-			
 			lblInfoMedida.setText(contrato_pai_local.getMedida());
 
-			
-			lblInfoQuantidade.setText(Double.toString(contrato_pai_local.getQuantidade()) + " " + contrato_pai_local.getMedida());
+			lblInfoQuantidade.setText(
+					Double.toString(contrato_pai_local.getQuantidade()) + " " + contrato_pai_local.getMedida());
 
-		
 			Locale ptBr = new Locale("pt", "BR");
 			String valorString = NumberFormat.getCurrencyInstance(ptBr).format(contrato_pai_local.getValor_produto());
 			lblInfoValorMedida.setText(valorString);
 
-			
 			valorString = NumberFormat.getCurrencyInstance(ptBr)
 					.format(Double.parseDouble(contrato_pai_local.getValor_a_pagar().toPlainString()));
 
 			lblInfoValorTotal.setText(valorString);
 		}
 
-		
 	}
-	
-	
+
 	public class ModeloPagamentoTableModel extends AbstractTableModel {
 
 		// constantes p/identificar colunas
@@ -3885,17 +3987,13 @@ public class TelaImportarContratoManual extends JDialog {
 		private final int data_pagamento = 2;
 		private final int antecipado = 3;
 		private final int valor_pagamento = 4;
-		
-		List<Color> rowColours = Arrays.asList(
-		        Color.RED,
-		        Color.GREEN,
-		        Color.CYAN
-		    );
 
-		
+		List<Color> rowColours = Arrays.asList(Color.RED, Color.GREEN, Color.CYAN);
+
 		private final String colunas[] = { "ID", "Favorecido", "Data Pag:", "Antecipação:", "Valor Pagamento:" };
-		private final ArrayList<CadastroContrato.CadastroPagamento> dados = new ArrayList<>();// usamos como dados uma lista genérica de
-																			// nfs
+		private final ArrayList<CadastroContrato.CadastroPagamento> dados = new ArrayList<>();// usamos como dados uma
+																								// lista genérica de
+		// nfs
 
 		public ModeloPagamentoTableModel() {
 
@@ -3906,7 +4004,6 @@ public class TelaImportarContratoManual extends JDialog {
 			// retorna o total de colunas
 			return colunas.length;
 		}
-		
 
 		@Override
 		public int getRowCount() {
@@ -3928,7 +4025,7 @@ public class TelaImportarContratoManual extends JDialog {
 				return String.class;
 			case valor_pagamento:
 				return String.class;
-			
+
 			default:
 				throw new IndexOutOfBoundsException("Coluna Inválida!!!");
 			}
@@ -3952,32 +4049,30 @@ public class TelaImportarContratoManual extends JDialog {
 			switch (columnIndex) {
 			case id:
 				return modelo_pagamento.getId();
-			case favorecido:
-			{
+			case favorecido: {
 				ContaBancaria conta = modelo_pagamento.getConta();
-				if(conta != null) {
-					return conta.getNome() + " " + conta.getCpf_titular() + " " + conta.getAgencia() + " " + conta.getConta();
-				}else {
+				if (conta != null) {
+					return conta.getNome() + " " + conta.getCpf_titular() + " " + conta.getAgencia() + " "
+							+ conta.getConta();
+				} else {
 					return "Há Informar";
 				}
 			}
 			case data_pagamento:
 				return modelo_pagamento.getData_pagamento();
-			case antecipado:{
-                 if(modelo_pagamento.getPagamento_adiantado() == 1) {
-     				return "SIM";
+			case antecipado: {
+				if (modelo_pagamento.getPagamento_adiantado() == 1) {
+					return "SIM";
 
-                 }else {
-      				return "NÃO";
+				} else {
+					return "NÃO";
 
-                 }
-				
+				}
+
 			}
-			case valor_pagamento:
-			{
+			case valor_pagamento: {
 
-				String valorString = NumberFormat.getCurrencyInstance(ptBr)
-						.format(modelo_pagamento.getValor());
+				String valorString = NumberFormat.getCurrencyInstance(ptBr).format(modelo_pagamento.getValor());
 				return valorString;
 
 			}
@@ -4077,629 +4172,327 @@ public class TelaImportarContratoManual extends JDialog {
 			return dados.get(row);
 		}
 	}
-	
+
 	public void atualizarPainelSalvar() {
-		
+
 		try {
-		CadastroCliente corretores[] = novo_contrato.getCorretores();
+			CadastroCliente corretores[] = novo_contrato.getCorretores();
 
-		CadastroCliente compradores[] = novo_contrato.getCompradores();
-		CadastroCliente vendedores[] = novo_contrato.getVendedores();
+			CadastroCliente compradores[] = novo_contrato.getCompradores();
+			CadastroCliente vendedores[] = novo_contrato.getVendedores();
 
+			String nome_corretor = "";
+			String nome_vendedor1 = "";
+			String nome_vendedor2 = "";
 
-		String nome_corretor = "";
-		String nome_vendedor1 = "";
-		String nome_vendedor2 = "";
+			String nome_comprador = "";
+			String nome_comprador2 = "";
 
-		String nome_comprador = "";
+			if (corretores[0] != null) {
+				if (corretores[0].getTipo_pessoa() == 0) {
+					// pessoa fisica
+					nome_corretor = corretores[0].getNome_empresarial();
+				} else {
+					nome_corretor = corretores[0].getNome_fantaia();
 
-		if (corretores[0] != null) {
-			if (corretores[0].getTipo_pessoa() == 0) {
-				// pessoa fisica
-				nome_corretor = corretores[0].getNome_empresarial();
+				}
 			} else {
-				nome_corretor = corretores[0].getNome_fantaia();
-
+				nome_corretor = "";
 			}
-		}
 
-		if (compradores[0] != null) {
-			if (compradores[0].getTipo_pessoa() == 0) {
-				// pessoa fisica
-				nome_comprador = compradores[0].getNome_empresarial();
+			if (compradores[0] != null) {
+				if (compradores[0].getTipo_pessoa() == 0) {
+					// pessoa fisica
+					nome_comprador = compradores[0].getNome_empresarial();
+				} else {
+					nome_comprador = compradores[0].getNome_fantaia();
+
+				}
 			} else {
-				nome_comprador = compradores[0].getNome_fantaia();
+				nome_comprador = "";
+			}
+
+			if (compradores[1] != null) {
+				if (compradores[1].getTipo_pessoa() == 0) {
+					// pessoa fisica
+					nome_comprador2 = compradores[1].getNome_empresarial();
+				} else {
+					nome_comprador2 = compradores[1].getNome_fantaia();
+
+				}
+			} else {
+				nome_comprador2 = "";
+			}
+
+			if (vendedores[0] != null) {
+				if (vendedores[0].getTipo_pessoa() == 0) {
+					nome_vendedor1 = vendedores[0].getNome_empresarial();
+				} else {
+					nome_vendedor1 = vendedores[0].getNome_fantaia();
+				}
+			} else {
+				nome_vendedor1 = "";
+			}
+
+			if (vendedores[1] != null) {
+				if (vendedores[1].getTipo_pessoa() == 0) {
+					nome_vendedor2 = vendedores[1].getNome_empresarial();
+				} else {
+					nome_vendedor2 = vendedores[1].getNome_fantaia();
+				}
+			} else {
+				nome_vendedor2 = "";
+			}
+
+			lblCorretorInfo.setText(nome_corretor);
+			lblCompradorInfo.setText(nome_comprador);
+			lblCompradorInfo2.setText(nome_comprador2);
+			lblVendedor1Info.setText(nome_vendedor1);
+			if (vendedores[1] != null)
+				lblVendedor2Info.setText(nome_vendedor2);
+			else {
+				lblVendedor2Info.setText("");
 
 			}
-		}
 
-		if(vendedores[0].getTipo_pessoa() == 0) {
-			nome_vendedor1 = vendedores[0].getNome_empresarial();
-		}else {
-			nome_vendedor1 = vendedores[0].getNome_fantaia();
-		}
-		
-		if(vendedores[1] != null) {
-			if(vendedores[1].getTipo_pessoa() == 0) {
-				nome_vendedor2 = vendedores[1].getNome_empresarial();
-			}else {
-				nome_vendedor2 = vendedores[1].getNome_fantaia();
-			}
-		}
-		
-		
-		lblCorretorInfo.setText(nome_corretor);
-		lblCompradorInfo.setText(nome_comprador);
-		lblVendedor1Info.setText(nome_vendedor1);
-		if(vendedores[1] != null)
-			lblVendedor2Info.setText(nome_vendedor2);
-		
-		
-		}catch(Exception e) {
-			
+		} catch (Exception e) {
+
 		}
 	}
-	
-	
-	public void getInformacoes() {
-		
-		
-		
-		
-		
-			
-			 lblStatusInicial.setText("Status Inicial: Recolher Assinatura");
-			 novo_contrato.setStatus_contrato(1);
 
-		
+	public void getInformacoes() {
+
+		lblStatusInicial.setText("Status Inicial: Recolher Assinatura");
+		novo_contrato.setStatus_contrato(1);
+
 		Locale ptBr = new Locale("pt", "BR");
 		NumberFormat z = NumberFormat.getNumberInstance();
 
 		String valorString = "";
 
-				String produto, medida, quantidade, preco, local_retirada, data_contrato, data_entrega, codigo, transgenia;
+		String produto, medida, quantidade, preco, local_retirada, data_contrato, data_entrega, codigo, transgenia;
 
+		codigo = entCodigoContrato.getText();
+		novo_contrato.setCodigo(codigo);
+		lblCodigoContratoInfo.setText(novo_contrato.getCodigo());
 
-				 codigo = entCodigoContrato.getText();
-				 novo_contrato.setCodigo(codigo);
-					lblCodigoContratoInfo.setText(novo_contrato.getCodigo());
+		data_contrato = entDataContrato.getText();
+		novo_contrato.setData_contrato(data_contrato);
+		lblDataInfo.setText(novo_contrato.getData_contrato());
 
-					data_contrato = entDataContrato.getText();
-					novo_contrato.setData_contrato(data_contrato);
-					lblDataInfo.setText(novo_contrato.getData_contrato());
+		// definicoes de subContrato
+		int i_tipo_contrato = cBTipoContrato.getSelectedIndex();
 
-					// definicoes de subContrato
-					int i_tipo_contrato = cBTipoContrato.getSelectedIndex();
+		if(tipoContrato_global == 4) {
+		if (i_tipo_contrato == 0) {
+			// contrato pai de terceiros
+			novo_contrato.setSub_contrato(4);
+			lblTipoContrato.setText("Tipo de Contrato: Contrato Original de Terceiros");
+		} else {
+			// contrato pai proprietario
+			novo_contrato.setSub_contrato(5);
+			lblTipoContrato.setText("Tipo de Contrato: Contrato Original Proprietario");
 
-					if(i_tipo_contrato == 0) {
-						// contrato pai de terceiros
-						novo_contrato.setSub_contrato(4);
-						lblTipoContrato.setText("Tipo de Contrato: Contrato Original de Terceiros");
-					}else {
-						//contrato pai proprietario
-						novo_contrato.setSub_contrato(5);
-						lblTipoContrato.setText("Tipo de Contrato: Contrato Original Proprietario");
+		}
+		}else if(tipoContrato_global == 5) {
+			if (i_tipo_contrato == 0) {
+				// contrato pai de terceiros
+				novo_contrato.setSub_contrato(6);
+				lblTipoContrato.setText("Tipo de Contrato: Sub-Contrato de Terceiros");
+			} else {
+				// contrato pai proprietario
+				novo_contrato.setSub_contrato(7);
+				lblTipoContrato.setText("Tipo de Contrato: Sub-Contrato Proprietario");
 
-					}
-					
-				
-					data_entrega = entDataEntrega.getText();
-					novo_contrato.setData_entrega(data_entrega);
-					lblDataEntregaInfo.setText(novo_contrato.getData_entrega());
-                   
-						novo_contrato.setStatus_contrato(1); //aprovado
-						lblStatusInicial.setText("Status Inicial: Recolher Assinatura");
+			}
+		}
 
-				
+		data_entrega = entDataEntrega.getText();
+		novo_contrato.setData_entrega(data_entrega);
+		lblDataEntregaInfo.setText(novo_contrato.getData_entrega());
 
-					if (rQuanKG.isSelected())
-						medida = "KG";
-					else if (rQuanS.isSelected())
-						medida = "Sacos";
-					else
-						medida = "TON";
-					novo_contrato.setMedida(medida);
-					lblUnidadeInfo.setText(novo_contrato.getMedida());
+		novo_contrato.setStatus_contrato(1); // aprovado
+		lblStatusInicial.setText("Status Inicial: Recolher Assinatura");
 
-					CadastroSafra safra = (CadastroSafra) modelSafra.getSelectedItem();
-					novo_contrato.setModelo_safra(safra);
-					novo_contrato.setModelo_produto(safra.getProduto());
-					
+		if (rQuanKG.isSelected())
+			medida = "KG";
+		else if (rQuanS.isSelected())
+			medida = "Sacos";
+		else
+			medida = "TON";
+		novo_contrato.setMedida(medida);
+		lblUnidadeInfo.setText(novo_contrato.getMedida());
 
-					novo_contrato.setSafra(safra.getAno_plantio() + "/" + safra.getAno_colheita());
-					lblSafraInfo.setText(novo_contrato.getSafra());
+		CadastroSafra safra = (CadastroSafra) modelSafra.getSelectedItem();
+		novo_contrato.setModelo_safra(safra);
+		novo_contrato.setModelo_produto(safra.getProduto());
 
-					produto = safra.getProduto().getNome_produto();
-					transgenia =  safra.getProduto().getTransgenia();
-					novo_contrato.setProduto(produto);
-					lblProdutoInfo.setText(novo_contrato.getProduto());
-					lblTransgeniaInfo.setText(transgenia);
+		novo_contrato.setSafra(safra.getAno_plantio() + "/" + safra.getAno_colheita());
+		lblSafraInfo.setText(novo_contrato.getSafra());
 
-					CadastroCliente localRetirada = (CadastroCliente) modelLocalRetirada.getSelectedItem();
-					novo_contrato.setLocal_retirada(localRetirada.getNome_fantaia());
-					
-					lblLocalRetiradaInfo.setText(novo_contrato.getLocal_retirada());
-					
-					
-					novo_contrato.setCliente_retirada(localRetirada);
-					novo_contrato.setId_local_retirada(novo_contrato.getCliente_retirada().getId());
-                    int tipo_entrega = -1;
-					
-					if(rBJaDepositada.isSelected()) {
-						tipo_entrega = 2;
-						lblRecebimentoInfo.setText("Já Depositada");
-					}else if (rBPostoSobreRodas.isSelected()){
-						tipo_entrega = 1;
-						lblRecebimentoInfo.setText("Sobre Rodas");
+		produto = safra.getProduto().getNome_produto();
+		transgenia = safra.getProduto().getTransgenia();
+		novo_contrato.setProduto(produto);
+		lblProdutoInfo.setText(novo_contrato.getProduto());
+		lblTransgeniaInfo.setText(transgenia);
 
-					}
-					
-					novo_contrato.setTipo_entrega(tipo_entrega);
+		CadastroCliente localRetirada = (CadastroCliente) modelLocalRetirada.getSelectedItem();
+		novo_contrato.setLocal_retirada(localRetirada.getNome_fantaia());
 
-					
-					
-					novo_contrato.setQuantidade(Double.parseDouble(entQuantidade.getText()));
-				
-					lblQuantidadeInfo.setText(z.format((Double.parseDouble(entQuantidade.getText()))));
-					
-					novo_contrato.setValor_produto(Double.parseDouble(entPreco.getText()));
-					valorString = NumberFormat.getCurrencyInstance(ptBr)
-							.format(novo_contrato.getValor_produto());
-					lblValorUnidadeInfo.setText(valorString);
-					
-					novo_contrato.setValor_a_pagar(valor_total);
-					valorString = NumberFormat.getCurrencyInstance(ptBr)
-							.format(novo_contrato.getValor_a_pagar());
-					lblValorTotalInfo.setText(valorString);
-					
-					if(rBComissaoSim.isSelected()) {
-						lblComissaoInfo.setText("Sim");
-					}else {
-						lblComissaoInfo.setText("Não");
+		lblLocalRetiradaInfo.setText(novo_contrato.getLocal_retirada());
 
-					}
-					
-					novo_contrato.setValor_comissao(valor_total_comissao);
-					valorString = NumberFormat.getCurrencyInstance(ptBr)
-							.format(novo_contrato.getValor_comissao());
-					lblValorTotalComissaoInfo.setText(valorString);
+		novo_contrato.setCliente_retirada(localRetirada);
+		novo_contrato.setId_local_retirada(novo_contrato.getCliente_retirada().getId());
+		int tipo_entrega = -1;
 
-					// pagamentos
-					novo_contrato.setPagamentos(pagamentos);
+		if (rBJaDepositada.isSelected()) {
+			tipo_entrega = 2;
+			lblRecebimentoInfo.setText("Já Depositada");
+		} else if (rBPostoSobreRodas.isSelected()) {
+			tipo_entrega = 1;
+			lblRecebimentoInfo.setText("Sobre Rodas");
 
-					// adicionais
-					ArrayList<String> clausulas_locais = new ArrayList<>();
+		}
 
-					
-				
+		novo_contrato.setTipo_entrega(tipo_entrega);
 
-					clausulas_locais.add(entClausula1.getText().toString());
-					clausulas_locais.add(entClausula2.getText().toString());
+		novo_contrato.setQuantidade(Double.parseDouble(entQuantidade.getText()));
 
-					if (chBoxClausulaComissao.isSelected()) {
-						clausulas_locais.add(entClausula3.getText().toString());
-					}
-					
-					if (chBoxClausula4.isSelected()) {
-						clausulas_locais.add(entClausula4.getText().toString());
+		lblQuantidadeInfo.setText(z.format((Double.parseDouble(entQuantidade.getText()))));
 
-					}
-					if (chBoxClausula5.isSelected()) {
-						clausulas_locais.add(entClausula5.getText().toString());
+		novo_contrato.setValor_produto(Double.parseDouble(entPreco.getText()));
+		valorString = NumberFormat.getCurrencyInstance(ptBr).format(novo_contrato.getValor_produto());
+		lblValorUnidadeInfo.setText(valorString);
 
-					}
-					if (chBoxClausula6.isSelected()) {
-						clausulas_locais.add(entClausula6.getText().toString());
+		novo_contrato.setValor_a_pagar(valor_total);
+		valorString = NumberFormat.getCurrencyInstance(ptBr).format(novo_contrato.getValor_a_pagar());
+		lblValorTotalInfo.setText(valorString);
 
-					}
-					
-					novo_contrato.setClausulas(clausulas_locais);
+		if (rBComissaoSim.isSelected()) {
+			lblComissaoInfo.setText("Sim");
+		} else {
+			lblComissaoInfo.setText("Não");
 
-					
-					//clausula frete
+		}
 
-					if(chkBoxClausulaFrete.isSelected()) {
-						
-						novo_contrato.setFrete(cBFrete.getSelectedItem().toString());
-						novo_contrato.setClausula_frete(entClausulaFrete.getText());
-						lblFreteInfo.setText(cBFrete.getSelectedItem().toString());
+		novo_contrato.setValor_comissao(valor_total_comissao);
+		valorString = NumberFormat.getCurrencyInstance(ptBr).format(novo_contrato.getValor_comissao());
+		lblValorTotalComissaoInfo.setText(valorString);
 
-					}else {
-						novo_contrato.setFrete("");
-						lblFreteInfo.setText("Não Especificado");
-					}
-					
-					//clausula armazenagem
-					
-                    if(chkBoxClausulaArmazenagem.isSelected()) {
-						novo_contrato.setArmazenagem(cBArmazenagem.getSelectedItem().toString());
-						novo_contrato.setClausula_armazenagem(entClausulaArmazenagem.getText());
-						lblArmazenagemInfo.setText(cBArmazenagem.getSelectedItem().toString());
+		// pagamentos
+		novo_contrato.setPagamentos(pagamentos);
 
-					}else {
-						novo_contrato.setArmazenagem("");
-						lblArmazenagemInfo.setText("Não Especificado");
-					}
-                    
-                    //pagamentos
-                    modelo_pagamentos.onRemoveAll();
-                    BigDecimal valor_total_ja_pago = BigDecimal.ZERO;
-                    BigDecimal valor_taotal_ha_pagar = BigDecimal.ZERO;
+		// adicionais
+		ArrayList<String> clausulas_locais = new ArrayList<>();
 
-                    for(CadastroContrato.CadastroPagamento modelo_pagamento : novo_contrato.getPagamentos()) {
-                    	addModeloPagamentoInfo(modelo_pagamento);
-                    	if(modelo_pagamento.getPagamento_adiantado() == 1) {
-                    		valor_total_ja_pago  =  valor_total_ja_pago.add(modelo_pagamento.getValor());
-                    	}else {
-                    		valor_taotal_ha_pagar = valor_taotal_ha_pagar.add(modelo_pagamento.getValor());
-                    	}
-                    }
-                	valorString = NumberFormat.getCurrencyInstance(ptBr)
-							.format(valor_total_ja_pago);
-                    lblValorTotalJaPagoInfo.setText(valorString);
-                    
-                	valorString = NumberFormat.getCurrencyInstance(ptBr)
-							.format(valor_taotal_ha_pagar);
-                    lblValorTotalHaPagarInfo.setText(valorString);
-                    
+		clausulas_locais.add(entClausula1.getText().toString());
+		clausulas_locais.add(entClausula2.getText().toString());
+
+		if (chBoxClausulaComissao.isSelected()) {
+			clausulas_locais.add(entClausula3.getText().toString());
+		}
+
+		if (chBoxClausula4.isSelected()) {
+			clausulas_locais.add(entClausula4.getText().toString());
+
+		}
+		if (chBoxClausula5.isSelected()) {
+			clausulas_locais.add(entClausula5.getText().toString());
+
+		}
+		if (chBoxClausula6.isSelected()) {
+			clausulas_locais.add(entClausula6.getText().toString());
+
+		}
+
+		novo_contrato.setClausulas(clausulas_locais);
+
+		// clausula frete
+
+		if (chkBoxClausulaFrete.isSelected()) {
+
+			novo_contrato.setFrete(cBFrete.getSelectedItem().toString());
+			novo_contrato.setClausula_frete(entClausulaFrete.getText());
+			lblFreteInfo.setText(cBFrete.getSelectedItem().toString());
+
+		} else {
+			novo_contrato.setFrete("");
+			lblFreteInfo.setText("Não Especificado");
+		}
+
+		// clausula armazenagem
+
+		if (chkBoxClausulaArmazenagem.isSelected()) {
+			novo_contrato.setArmazenagem(cBArmazenagem.getSelectedItem().toString());
+			novo_contrato.setClausula_armazenagem(entClausulaArmazenagem.getText());
+			lblArmazenagemInfo.setText(cBArmazenagem.getSelectedItem().toString());
+
+		} else {
+			novo_contrato.setArmazenagem("");
+			lblArmazenagemInfo.setText("Não Especificado");
+		}
+
+		// pagamentos
+		modelo_pagamentos.onRemoveAll();
+		BigDecimal valor_total_ja_pago = BigDecimal.ZERO;
+		BigDecimal valor_taotal_ha_pagar = BigDecimal.ZERO;
+
+		for (CadastroContrato.CadastroPagamento modelo_pagamento : novo_contrato.getPagamentos()) {
+			addModeloPagamentoInfo(modelo_pagamento);
+			if (modelo_pagamento.getPagamento_adiantado() == 1) {
+				valor_total_ja_pago = valor_total_ja_pago.add(modelo_pagamento.getValor());
+			} else {
+				valor_taotal_ha_pagar = valor_taotal_ha_pagar.add(modelo_pagamento.getValor());
+			}
+		}
+		valorString = NumberFormat.getCurrencyInstance(ptBr).format(valor_total_ja_pago);
+		lblValorTotalJaPagoInfo.setText(valorString);
+
+		valorString = NumberFormat.getCurrencyInstance(ptBr).format(valor_taotal_ha_pagar);
+		lblValorTotalHaPagarInfo.setText(valorString);
+
 	}
-	
-	
+
 	public void addModeloPagamentoInfo(CadastroContrato.CadastroPagamento pagamento) {
 
-		
 		modelo_pagamentos.onAdd(pagamento);
-	
-}
 
-	public void importar() {
-	
-			boolean ja_existe = false;
-			
-			//verifica pelo codigo do contrato se ele ja nao esta cadastrado
-			GerenciarBancoContratos gerenciar_cts = new GerenciarBancoContratos();
-			ArrayList<CadastroContrato> contratos = gerenciar_cts.getContratos();
-			
-			for(CadastroContrato ctr : contratos) {
-				if(ctr.getCodigo().equals(novo_contrato.getCodigo())) {
-					if(ctr.getCodigo().equals(codigo_antigo)) {
-						//é o proprio contrato que esta em edicao
-						ja_existe  = false;
-						break;
-					}else {
-					ja_existe  = true;
-					break;
-					}
-					
-				}
-			}
-			
-			if(!ja_existe) {
-				
-				
-				//contrato nao existe, cadastrar
-				JOptionPane.showMessageDialog(null, "Hapto para realizar o cadastro do contrato!");
-				
-				//adicionar a tarefa
-				
-				ArrayList<CadastroContrato.CadastroTarefa> tarefas = new ArrayList<>();
-				CadastroContrato.CadastroTarefa tarefa = new CadastroContrato.CadastroTarefa();
-
-			
-					tarefa.setNome_tarefa("Contrato Importado Manualmente");
-			
-				// cria a tarefa de insercao de contrato
-				tarefa.setId_tarefa(0);
-				tarefa.setDescricao_tarefa("Criação de tarefa");
-
-				tarefa.setStatus_tarefa(1);
-				tarefa.setMensagem("tarefa criada");
-
-				GetData data = new GetData();
-				tarefa.setHora(data.getHora());
-				tarefa.setData(data.getData());
-				tarefa.setHora_agendada(data.getHora());
-				tarefa.setData_agendada(data.getData());
-
-				tarefa.setCriador(login);
-				tarefa.setExecutor(login);
-
-				tarefa.setPrioridade(1);
-				
-				tarefas.add(tarefa);
-				
-				novo_contrato.setLista_tarefas(tarefas);
-				
-			
-				
-					//copiar o arquivo para a pasta do comprador
-				CadastroCliente corretores[] = novo_contrato.getCorretores();
-
-				CadastroCliente compradores[] = novo_contrato.getCompradores();
-				CadastroCliente vendedores[] = novo_contrato.getVendedores();
-
-
-				String nome_corretor = "";
-				String nome_vendedor1 = "";
-				String nome_vendedor2 = "";
-
-				String nome_comprador = "";
-
-				if (corretores[0] != null) {
-					if (corretores[0].getTipo_pessoa() == 0) {
-						// pessoa fisica
-						nome_corretor = corretores[0].getNome_empresarial().trim();
-					} else {
-						nome_corretor = corretores[0].getNome_fantaia().trim();
-
-					}
-				}
-
-				if (compradores[0] != null) {
-					if (compradores[0].getTipo_pessoa() == 0) {
-						// pessoa fisica
-						nome_comprador = compradores[0].getNome_empresarial().trim();
-					} else {
-						nome_comprador = compradores[0].getNome_fantaia().trim();
-
-					}
-				}
-
-				if(vendedores[0].getTipo_pessoa() == 0) {
-					nome_vendedor1 = vendedores[0].getNome_empresarial().trim();
-				}else {
-					nome_vendedor1 = vendedores[0].getNome_fantaia().trim();
-				}
-				
-				if(vendedores[1] != null) {
-					if(vendedores[1].getTipo_pessoa() == 0) {
-						nome_vendedor2 = vendedores[1].getNome_empresarial().trim();
-					}else {
-						nome_vendedor2 = vendedores[1].getNome_fantaia().trim();
-					}
-				}
-				
-			
-				
-					String nome_comprador_arquivo ;
-					String nome_vendedor_arquivo;
-				
-					
-					if(compradores[0].getTipo_pessoa() == 0)
-						nome_comprador_arquivo = compradores[0].getNome_empresarial().trim();
-					else
-						nome_comprador_arquivo = compradores[0].getNome_fantaia().trim();
-					
-					if(vendedores[0].getTipo_pessoa() == 0)
-						nome_vendedor_arquivo = vendedores[0].getNome_empresarial().trim();
-					else
-						nome_vendedor_arquivo = vendedores[0].getNome_fantaia().trim();
-
-					String servidor_unidade = configs_globais.getServidorUnidade();
-
-					String data_entrega = entDataEntrega.getText();
-					String data_quebrada[] = data_entrega.split("/");
-					String dia = data_quebrada[0];
-					String mes = data_quebrada[1];
-					String ano = data_quebrada[2];
-
-					
-					if(novo_contrato.getSub_contrato() == 5  || novo_contrato.getSub_contrato() == 4 || novo_contrato.getSub_contrato() == 3) {
-						 //copiar o arquivo para a pasta do comprador, pois e um contrato original
-						 //é um comprato pai, salvar na pasta do comprador
-
-						 String caminho_salvar_contrato__no_hd = servidor_unidade + "E-contract\\arquivos\\clientes\\" + nome_comprador_arquivo + "\\contratos" + "\\compra\\"  + ano + "\\" + novo_contrato.getModelo_safra().getProduto().getNome_produto() + "\\";
-						System.out.println("caminho para salvar o contrato do comprador no hd: " + caminho_salvar_contrato__no_hd);	
-						String caminho_salvar_contrato_no_banco_dados = "E-contract\\\\arquivos\\\\clientes\\\\" + nome_comprador_arquivo + "\\\\contratos" + "\\\\compra\\\\"  + ano + "\\\\" + novo_contrato.getModelo_safra().getProduto().getNome_produto() + "\\\\";
-
-					      String nome_pasta_arquivo = novo_contrato.getCodigo();
-
-					      String nome_arquivo = novo_contrato.getCodigo() + " "  + nome_comprador_arquivo + " x " + nome_vendedor_arquivo ; 
-					     
-							
-							String caminho_completo_salvar_contrato_no_hd = caminho_salvar_contrato__no_hd + nome_pasta_arquivo + "\\" + nome_arquivo ;
-							
-						    String caminho_completo_salvar_contrato_no_bando_dados = caminho_salvar_contrato_no_banco_dados + nome_pasta_arquivo +"\\\\" + nome_arquivo;
-						    String nome_diretorio_arquivo_contrato = caminho_salvar_contrato_no_banco_dados + nome_pasta_arquivo;
-
-							//criar o diretorio
-							ManipularTxt manipular = new ManipularTxt();
-							if(manipular.criarDiretorio(caminho_salvar_contrato__no_hd + nome_pasta_arquivo + "\\"))
-							{
-								System.out.println("diretorio criado para o novo contrato");
-								//criar pastas documentos e comprovantes
-           						if(manipular.criarDiretorio(caminho_salvar_contrato__no_hd + nome_pasta_arquivo + "\\comprovantes"))
-    							{
-    					    		  //criar diretorio documentos
-    								  if(manipular.criarDiretorio(caminho_salvar_contrato__no_hd + nome_pasta_arquivo + "\\documentos"))
-    									{
-
-    									}else {
-
-    									}	
-
-    							}else {
-
-    							}
-           						
-								 //copiar arquivo para o novo diretorio
-								boolean copiar = false;
-								try {
-									copiar = manipular.copiarNFe(file_global.getAbsolutePath(), caminho_salvar_contrato__no_hd + nome_pasta_arquivo + "\\" + nome_arquivo + ".pdf" );
-								} catch (IOException e) {
-									// TODO Auto-generated catch block
-									e.printStackTrace();
-								}
-                                  if(copiar) {
-              						JOptionPane.showMessageDialog(null, "Arquivo copiado para a nova pasta!");
-              						//inserir o contrato no banco de dados
-              						novo_contrato.setCaminho_diretorio_contrato(nome_diretorio_arquivo_contrato);
-              						novo_contrato.setCaminho_arquivo(caminho_salvar_contrato_no_banco_dados + nome_pasta_arquivo + "\\\\" + nome_arquivo + ".pdf");
-              						novo_contrato.setNome_arquivo(nome_arquivo + ".pdf");
-              						
-               					GerenciarBancoContratos gerenciarContratos = new GerenciarBancoContratos();
-               					
-               					int insercao = gerenciarContratos.inserirContrato(novo_contrato, null);
-               					if(insercao == 1) {
-                 						JOptionPane.showMessageDialog(null, "O Contrato foi salvo no banco de dados");
-                 						
-                 						//inserir o contrato na nuvem
-                 						 Nuvem nuvem = new Nuvem();
-                 		            	 nuvem.abrir();
-                 		                 nuvem.testar();
-                 		                
-                 		                boolean retorno = nuvem.carregar(caminho_salvar_contrato__no_hd + nome_pasta_arquivo + "\\" + nome_arquivo + ".pdf", nome_arquivo + ".pdf");
-                 		                 if(retorno) {
-                      						JOptionPane.showMessageDialog(null, "O Contrato  foi salvo na nuvem");
-                      						isto.dispose();
-                 		                 }else {
-                      						JOptionPane.showMessageDialog(null, "O Contrato não foi salvo na nuvem");
-
-                 		                 }
-
-               					}else {
-                 						JOptionPane.showMessageDialog(null, "O Contrato não foi salvo no banco de dados");
-
-               					}
-
-                                  }else {
-                 						JOptionPane.showMessageDialog(null, "O arquivo não foi copiado para  nova pasta, tente novamente");
-                 						JOptionPane.showMessageDialog(null, "Origem: " + file_global.getAbsolutePath() + "\ndestino: " +  caminho_salvar_contrato__no_hd + nome_pasta_arquivo + "\\" + nome_arquivo + ".pdf");
-
-                                  }
-								
-							}else {
-								System.out.println("erro ao criar diretorio para o contrato ");
-         						JOptionPane.showMessageDialog(null, "O arquivo não foi copiado para  nova pasta, tente novamente");
-         						JOptionPane.showMessageDialog(null, "Origem: " + file_global.getAbsolutePath() + "\ndestino: " +  caminho_salvar_contrato__no_hd + nome_pasta_arquivo + "\\" + nome_arquivo + ".pdf");
-
-								
-							}
-					
-				
-				
-				
-				
-							
-						}else if(novo_contrato.getSub_contrato() == 6) {
-							//copiar o arquivo para a pasta do vendedor pois e um subcontrato
-						}
-					
-					
-					  
-				
-				
-				
-				
-			}else {
-				JOptionPane.showMessageDialog(null, "O Contrato de codigo " + novo_contrato.getCodigo() + " já esta cadastrado!");
-
-			}
-			
-		
 	}
 
-   public File excluir_contrato() {
-	   File arquivo_temporario_retorno ;
-	 //esta em edicao, apagar os arquivos fisicos e na nuvem
-		String servidor_unidade = configs_globais.getServidorUnidade();
-		boolean prosseguir = false;
+	public boolean salvar() {
 
-		String BaseDados_DiretorioArquivo =  servidor_unidade + novo_contrato.getCaminho_arquivo();
-		System.out.println("caminho do arquivo completo para apagar: " + BaseDados_DiretorioArquivo);
-		ManipularTxt manipular_apagar = new ManipularTxt();
-		//primeiro copiar o arquivo para um local temporario
-		
-		boolean copiado = false;
-		try {
-			copiado = manipular_apagar.copiarNFe(BaseDados_DiretorioArquivo, "C:\\ProgramData\\E-Contract\\temp_files\\arquivo_temporario.pdf");
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		
-		if(copiado) {
-		
-			arquivo_temporario_retorno = new File("C:\\ProgramData\\E-Contract\\temp_files\\arquivo_temporario.pdf");
-			if(arquivo_temporario_retorno.exists()) {
-			
-			if(manipular_apagar.apagarArquivo(BaseDados_DiretorioArquivo)) {
-				
-				//apagar o diretorio
-				if(manipular_apagar.limparDiretorio(new File(servidor_unidade + novo_contrato.getCaminho_diretorio_contrato()))) {
-				  //Diretorio foi excluido
-					Nuvem nuvem = new Nuvem();
-			         nuvem.abrir();
-			         nuvem.testar();
-			         nuvem.listar();
-			         nuvem.deletarArquivo(novo_contrato.getNome_arquivo());
-			       JOptionPane.showMessageDialog(null, "Os arquivos foram apagados da memoria e da nuvem!");
-					 arquivo_temporario_retorno = arquivo_temporario_retorno;
-				}
-				else {
-					System.out.println("Erro ao excluir o direrorio do contrato");
-					 arquivo_temporario_retorno = null;
-				}
-			
-			
-		}else {
-		       JOptionPane.showMessageDialog(null, "Erro ao excluir o arquivo do contrato\nConsulte o administrador");
-				 arquivo_temporario_retorno = null;
-
-		}
-			}else {
-				 JOptionPane.showMessageDialog(null, "Erro ao criar o arquivo temporario, atualização de contrato cancelada\nConsulte o administrador");
-				 arquivo_temporario_retorno = null;
-			}
-		}else {
-			 JOptionPane.showMessageDialog(null, "Erro ao criar o arquivo temporario, atualização de contrato cancelada\nConsulte o administrador");
-			 arquivo_temporario_retorno = null;
-		}
-   
-     return arquivo_temporario_retorno;
-   }
-   
-   
-   public void atualizar() {
-	   
-	   boolean resultado = false;
-	   File arquivo_temporario = excluir_contrato();
-	   
-	   if(arquivo_temporario != null) {
-	   
-	   boolean ja_existe = false;
-		
-		//verifica pelo codigo do contrato se ele ja nao esta cadastrado
+		boolean ja_existe = false;
+        boolean retorno_global = false;
+		// verifica pelo codigo do contrato se ele ja nao esta cadastrado
 		GerenciarBancoContratos gerenciar_cts = new GerenciarBancoContratos();
 		ArrayList<CadastroContrato> contratos = gerenciar_cts.getContratos();
-		
-		for(CadastroContrato ctr : contratos) {
-			if(ctr.getCodigo().equals(novo_contrato.getCodigo())) {
-				if(ctr.getCodigo().equals(codigo_antigo)) {
-					//é o proprio contrato que esta em edicao
-					ja_existe  = false;
+
+		for (CadastroContrato ctr : contratos) {
+			if (ctr.getCodigo().equals(novo_contrato.getCodigo())) {
+				if (ctr.getCodigo().equals(codigo_antigo)) {
+					// é o proprio contrato que esta em edicao
+					ja_existe = false;
 					break;
-				}else {
-				ja_existe  = true;
-				break;
+				} else {
+					ja_existe = true;
+					break;
 				}
-				
+
 			}
 		}
-		
-		if(!ja_existe) {
-			
-			
-			//contrato nao existe, cadastrar
-			
-			//adicionar a tarefa
-			
+
+		if (!ja_existe) {
+
+			// contrato nao existe, cadastrar
+			//JOptionPane.showMessageDialog(null, "Hapto para realizar o cadastro do contrato!");
+
+			// adicionar a tarefa
+
 			ArrayList<CadastroContrato.CadastroTarefa> tarefas = new ArrayList<>();
 			CadastroContrato.CadastroTarefa tarefa = new CadastroContrato.CadastroTarefa();
 
-		
-				tarefa.setNome_tarefa("Contrato Importado Manualmente atualizou");
-		
+			tarefa.setNome_tarefa("Contrato Importado Manualmente");
+
 			// cria a tarefa de insercao de contrato
 			tarefa.setId_tarefa(0);
 			tarefa.setDescricao_tarefa("Criação de tarefa");
@@ -4717,32 +4510,30 @@ public class TelaImportarContratoManual extends JDialog {
 			tarefa.setExecutor(login);
 
 			tarefa.setPrioridade(1);
-			
+
 			tarefas.add(tarefa);
-			
+
 			novo_contrato.setLista_tarefas(tarefas);
-			
-		
-			
-				//copiar o arquivo para a pasta do comprador
+
+			// copiar o arquivo para a pasta do comprador
 			CadastroCliente corretores[] = novo_contrato.getCorretores();
 
 			CadastroCliente compradores[] = novo_contrato.getCompradores();
 			CadastroCliente vendedores[] = novo_contrato.getVendedores();
 
-
 			String nome_corretor = "";
 			String nome_vendedor1 = "";
 			String nome_vendedor2 = "";
 
-			String nome_comprador = "";
+			String nome_comprador1 = "";
+			String nome_comprador2 = "";
 
 			if (corretores[0] != null) {
 				if (corretores[0].getTipo_pessoa() == 0) {
 					// pessoa fisica
-					nome_corretor = corretores[0].getNome_empresarial();
+					nome_corretor = corretores[0].getNome_empresarial().trim();
 				} else {
-					nome_corretor = corretores[0].getNome_fantaia();
+					nome_corretor = corretores[0].getNome_fantaia().trim();
 
 				}
 			}
@@ -4750,39 +4541,875 @@ public class TelaImportarContratoManual extends JDialog {
 			if (compradores[0] != null) {
 				if (compradores[0].getTipo_pessoa() == 0) {
 					// pessoa fisica
-					nome_comprador = compradores[0].getNome_empresarial();
+					nome_comprador1 = compradores[0].getNome_empresarial().trim();
 				} else {
-					nome_comprador = compradores[0].getNome_fantaia();
+					nome_comprador1 = compradores[0].getNome_fantaia().trim();
 
 				}
 			}
 
-			if(vendedores[0].getTipo_pessoa() == 0) {
-				nome_vendedor1 = vendedores[0].getNome_empresarial();
-			}else {
-				nome_vendedor1 = vendedores[0].getNome_fantaia();
+			if (compradores[1] != null) {
+				if (compradores[0].getTipo_pessoa() == 0) {
+					// pessoa fisica
+					nome_comprador2 = compradores[1].getNome_empresarial().trim();
+				} else {
+					nome_comprador2 = compradores[1].getNome_fantaia().trim();
+
+				}
 			}
-			
-			if(vendedores[1] != null) {
-				if(vendedores[1].getTipo_pessoa() == 0) {
-					nome_vendedor2 = vendedores[1].getNome_empresarial();
+
+			if (vendedores[0].getTipo_pessoa() == 0) {
+				nome_vendedor1 = vendedores[0].getNome_empresarial().trim();
+			} else {
+				nome_vendedor1 = vendedores[0].getNome_fantaia().trim();
+			}
+
+			if (vendedores[1] != null) {
+				if (vendedores[1].getTipo_pessoa() == 0) {
+					nome_vendedor2 = vendedores[1].getNome_empresarial().trim();
+				} else {
+					nome_vendedor2 = vendedores[1].getNome_fantaia().trim();
+				}
+			}
+
+			boolean arquivos_comprador1_criado = false;
+			boolean arquivos_comprador2_criado = false;
+
+			boolean arquivos_vendedor1_criado = false;
+			boolean arquivos_vendedor2_criado = false;
+
+			String nome_comprador1_arquivo = null;
+			String nome_comprador2_arquivo = null;
+
+			String nome_vendedor1_arquivo = null;
+			String nome_vendedor2_arquivo = null;
+
+			if (compradores[0].getTipo_pessoa() == 0)
+				nome_comprador1_arquivo = compradores[0].getNome_empresarial().trim();
+			else
+				nome_comprador1_arquivo = compradores[0].getNome_fantaia().trim();
+
+			if (compradores[1] != null) {
+				if (compradores[1].getTipo_pessoa() == 0)
+					nome_comprador2_arquivo = compradores[1].getNome_empresarial().trim();
+				else
+					nome_comprador2_arquivo = compradores[1].getNome_fantaia().trim();
+
+			}
+
+			if (vendedores[0] != null) {
+				if (vendedores[0].getTipo_pessoa() == 0)
+					nome_vendedor1_arquivo = vendedores[0].getNome_empresarial().trim();
+				else
+					nome_vendedor1_arquivo = vendedores[0].getNome_fantaia().trim();
+
+			}
+
+			if (vendedores[1] != null) {
+				if (vendedores[1].getTipo_pessoa() == 0)
+					nome_vendedor2_arquivo = vendedores[1].getNome_empresarial().trim();
+				else
+					nome_vendedor2_arquivo = vendedores[1].getNome_fantaia().trim();
+			} else
+				nome_vendedor2_arquivo = null;
+
+			String servidor_unidade = configs_globais.getServidorUnidade();
+
+			String data_entrega = entDataEntrega.getText();
+			String data_quebrada[] = data_entrega.split("/");
+			String dia = data_quebrada[0];
+			String mes = data_quebrada[1];
+			String ano = data_quebrada[2];
+
+			if (novo_contrato.getSub_contrato() == 5 || novo_contrato.getSub_contrato() == 4
+					|| novo_contrato.getSub_contrato() == 3) {
+				// copiar o arquivo para a pasta do comprador, pois e um contrato original
+				// é um comprato pai, salvar na pasta do comprador
+
+				if (compradores[0] != null) {
+					String caminho_salvar_contrato__no_hd = servidor_unidade + "E-contract\\arquivos\\clientes\\"
+							+ nome_comprador1_arquivo + "\\contratos" + "\\compra\\" + ano + "\\"
+							+ novo_contrato.getModelo_safra().getProduto().getNome_produto() + "\\";
+					System.out.println(
+							"caminho para salvar o contrato do comprador no hd: " + caminho_salvar_contrato__no_hd);
+					String caminho_salvar_contrato_no_banco_dados = "E-contract\\\\arquivos\\\\clientes\\\\"
+							+ nome_comprador1_arquivo + "\\\\contratos" + "\\\\compra\\\\" + ano + "\\\\"
+							+ novo_contrato.getModelo_safra().getProduto().getNome_produto() + "\\\\";
+
+					String nome_pasta_arquivo = novo_contrato.getCodigo();
+
+					String nome_arquivo = novo_contrato.getCodigo() + " " + nome_comprador1_arquivo;
+
+					if (nome_comprador2_arquivo != null) {
+						nome_arquivo = nome_arquivo + " E " + nome_comprador2_arquivo;
+
+					}
+					nome_arquivo += " X ";
+
+					if (nome_vendedor1_arquivo != null) {
+						nome_arquivo = nome_arquivo + nome_vendedor1_arquivo;
+
+					}
+
+					if (nome_vendedor2_arquivo != null) {
+						nome_arquivo = nome_arquivo + " E " + nome_vendedor2_arquivo;
+
+					}
+
+					String caminho_completo_salvar_contrato_no_hd = caminho_salvar_contrato__no_hd + nome_pasta_arquivo
+							+ "\\" + nome_arquivo;
+
+					String caminho_completo_salvar_contrato_no_bando_dados = caminho_salvar_contrato_no_banco_dados
+							+ nome_pasta_arquivo + "\\\\" + nome_arquivo;
+					String nome_diretorio_arquivo_contrato = caminho_salvar_contrato_no_banco_dados
+							+ nome_pasta_arquivo;
+
+					// criar o diretorio
+					ManipularTxt manipular = new ManipularTxt();
+					if (manipular.criarDiretorio(caminho_salvar_contrato__no_hd + nome_pasta_arquivo + "\\")) {
+						System.out.println("diretorio criado para o novo contrato");
+						// criar pastas documentos e comprovantes
+						if (manipular.criarDiretorio(
+								caminho_salvar_contrato__no_hd + nome_pasta_arquivo + "\\comprovantes")) {
+							// criar diretorio documentos
+							if (manipular.criarDiretorio(
+									caminho_salvar_contrato__no_hd + nome_pasta_arquivo + "\\documentos")) {
+
+							} else {
+
+							}
+
+						} else {
+
+						}
+
+						// copiar arquivo para o novo diretorio
+						boolean copiar = false;
+						try {
+							copiar = manipular.copiarNFe(file_global.getAbsolutePath(),
+									caminho_salvar_contrato__no_hd + nome_pasta_arquivo + "\\" + nome_arquivo + ".pdf");
+						} catch (IOException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						}
+						if (copiar) {
+							//JOptionPane.showMessageDialog(null, "Arquivo copiado para a pasta do comprador 1!");
+							// inserir o contrato no banco de dados
+							novo_contrato.setCaminho_diretorio_contrato(nome_diretorio_arquivo_contrato);
+							novo_contrato.setCaminho_arquivo(caminho_salvar_contrato_no_banco_dados + nome_pasta_arquivo
+									+ "\\\\" + nome_arquivo + ".pdf");
+							novo_contrato.setNome_arquivo(nome_arquivo + ".pdf");
+							
+							//salvar na nuvem
+							 Nuvem nuvem = new Nuvem();
+			            	 nuvem.abrir();
+			                 nuvem.testar();
+			                
+			                boolean retorno = nuvem.carregar(caminho_completo_salvar_contrato_no_hd + ".pdf", nome_arquivo + ".pdf");
+			                 if(retorno) {
+			                	 // JOptionPane.showMessageDialog(null, "Arquivo salvo na nuvem");
+			                	 
+			                    	 novo_contrato.setNome_arquivo(nome_arquivo + ".pdf" );
+			                	 
+			                	 
+			                 }else {
+			                	 JOptionPane.showMessageDialog(null, "Arquivo não salvo na nuvem");
+
+			                 }
+
+							// copiar para o segundo comprador2
+
+							if (compradores[1] != null) {
+								caminho_salvar_contrato__no_hd = servidor_unidade + "E-contract\\arquivos\\clientes\\"
+										+ nome_comprador2_arquivo + "\\contratos" + "\\compra\\" + ano + "\\"
+										+ novo_contrato.getModelo_safra().getProduto().getNome_produto() + "\\";
+								System.out.println("caminho para salvar o contrato do comprador no hd: "
+										+ caminho_salvar_contrato__no_hd);
+								caminho_salvar_contrato_no_banco_dados = "E-contract\\\\arquivos\\\\clientes\\\\"
+										+ nome_comprador2_arquivo + "\\\\contratos" + "\\\\compra\\\\" + ano + "\\\\"
+										+ novo_contrato.getModelo_safra().getProduto().getNome_produto() + "\\\\";
+
+								nome_pasta_arquivo = novo_contrato.getCodigo();
+
+								nome_arquivo = novo_contrato.getCodigo() + " " + nome_comprador2_arquivo;
+
+								if (nome_comprador1_arquivo != null) {
+									nome_arquivo = nome_arquivo + " E " + nome_comprador1_arquivo;
+
+								}
+								nome_arquivo += " X ";
+
+								if (nome_vendedor1_arquivo != null) {
+									nome_arquivo = nome_arquivo + nome_vendedor1_arquivo;
+
+								}
+
+								if (nome_vendedor2_arquivo != null) {
+									nome_arquivo = nome_arquivo + " E " + nome_vendedor2_arquivo;
+
+								}
+
+								caminho_completo_salvar_contrato_no_hd = caminho_salvar_contrato__no_hd
+										+ nome_pasta_arquivo + "\\" + nome_arquivo;
+
+								caminho_completo_salvar_contrato_no_bando_dados = caminho_salvar_contrato_no_banco_dados
+										+ nome_pasta_arquivo + "\\\\" + nome_arquivo;
+								nome_diretorio_arquivo_contrato = caminho_salvar_contrato_no_banco_dados
+										+ nome_pasta_arquivo;
+
+								// criar o diretorio
+								manipular = new ManipularTxt();
+								if (manipular
+										.criarDiretorio(caminho_salvar_contrato__no_hd + nome_pasta_arquivo + "\\")) {
+									System.out.println("diretorio criado para o novo contrato");
+									// criar pastas documentos e comprovantes
+									if (manipular.criarDiretorio(
+											caminho_salvar_contrato__no_hd + nome_pasta_arquivo + "\\comprovantes")) {
+										// criar diretorio documentos
+										if (manipular.criarDiretorio(
+												caminho_salvar_contrato__no_hd + nome_pasta_arquivo + "\\documentos")) {
+
+										} else {
+
+										}
+
+									} else {
+
+									}
+
+									// copiar arquivo para o novo diretorio
+									copiar = false;
+									try {
+										copiar = manipular.copiarNFe(file_global.getAbsolutePath(),
+												caminho_salvar_contrato__no_hd + nome_pasta_arquivo + "\\"
+														+ nome_arquivo + ".pdf");
+									} catch (IOException e) {
+										// TODO Auto-generated catch block
+										e.printStackTrace();
+									}
+									if (copiar) {
+										////JOptionPane.showMessageDialog(null,
+										////		"Arquivo copiado para a pasta do comprador 2!");
+										// inserir o contrato no banco de dados
+										novo_contrato.setCaminho_diretorio_contrato2(nome_diretorio_arquivo_contrato);
+										novo_contrato.setCaminho_arquivo2(caminho_salvar_contrato_no_banco_dados
+												+ nome_pasta_arquivo + "\\\\" + nome_arquivo + ".pdf");
+										novo_contrato.setNome_arquivo2(nome_arquivo + ".pdf");
+
+										//salvar na nuvem
+										  nuvem = new Nuvem();
+						            	 nuvem.abrir();
+						                 nuvem.testar();
+						                
+						                 retorno = nuvem.carregar(caminho_completo_salvar_contrato_no_hd + ".pdf", nome_arquivo + ".pdf");
+						                 if(retorno) {
+						                	 //// JOptionPane.showMessageDialog(null, "Arquivo salvo na nuvem");
+						                	 
+						                    	 novo_contrato.setNome_arquivo2(nome_arquivo + ".pdf" );
+						                	 
+						                	 
+						                 }else {
+						                	 JOptionPane.showMessageDialog(null, "Arquivo não salvo na nuvem");
+
+						                 }
+						                 
+										GerenciarBancoContratos gerenciarContratos = new GerenciarBancoContratos();
+
+										int insercao = gerenciarContratos.inserirContrato(novo_contrato, null);
+										if (insercao == 1) {
+											JOptionPane.showMessageDialog(null,
+													"O Contrato foi salvo no banco de dados");
+											retorno_global= true;
+
+										} else {
+											JOptionPane.showMessageDialog(null,
+													"O Contrato não foi salvo no banco de dados\nConsulte o administrador");
+											retorno_global= false;
+										}
+
+									} else {
+										JOptionPane.showMessageDialog(null,
+												"O arquivo não foi copiado para  nova pasta, tente novamente");
+										JOptionPane.showMessageDialog(null,
+												"Origem: " + file_global.getAbsolutePath() + "\ndestino: "
+														+ caminho_salvar_contrato__no_hd + nome_pasta_arquivo + "\\"
+														+ nome_arquivo + ".pdf");
+
+									}
+
+								} else {
+									System.out.println("erro ao criar diretorio para o contrato ");
+									JOptionPane.showMessageDialog(null,
+											"O arquivo não foi copiado para  nova pasta, tente novamente");
+									JOptionPane.showMessageDialog(null,
+											"Origem: " + file_global.getAbsolutePath() + "\ndestino: "
+													+ caminho_salvar_contrato__no_hd + nome_pasta_arquivo + "\\"
+													+ nome_arquivo + ".pdf");
+
+								}
+
+							} else {
+								GerenciarBancoContratos gerenciarContratos = new GerenciarBancoContratos();
+
+								int insercao = gerenciarContratos.inserirContrato(novo_contrato, null);
+								if (insercao == 1) {
+									JOptionPane.showMessageDialog(null, "O Contrato foi salvo no banco de dados");
+									retorno_global= true;
+
+								} else {
+             						JOptionPane.showMessageDialog(null, "O Contrato não foi salvo no banco de dados\nConsulte o administrador");
+									retorno_global= false;
+								}
+
+							}
+
+						} else {
+							JOptionPane.showMessageDialog(null,
+									"O arquivo não foi copiado para  nova pasta, tente novamente");
+							JOptionPane.showMessageDialog(null,
+									"Origem: " + file_global.getAbsolutePath() + "\ndestino: "
+											+ caminho_salvar_contrato__no_hd + nome_pasta_arquivo + "\\" + nome_arquivo
+											+ ".pdf");
+						}
+
+					} else {
+						System.out.println("erro ao criar diretorio para o contrato ");
+						JOptionPane.showMessageDialog(null,
+								"O arquivo não foi copiado para  nova pasta, tente novamente");
+						JOptionPane.showMessageDialog(null, "Origem: " + file_global.getAbsolutePath() + "\ndestino: "
+								+ caminho_salvar_contrato__no_hd + nome_pasta_arquivo + "\\" + nome_arquivo + ".pdf");
+					}
+
 				}else {
-					nome_vendedor2 = vendedores[1].getNome_fantaia();
+				}
+
+			} else if (novo_contrato.getSub_contrato() == 6 || novo_contrato.getSub_contrato() == 7) {
+				// copiar o arquivo para a pasta do vendedor pois e um subcontrato
+				if (vendedores[0] != null) {
+					String caminho_salvar_contrato__no_hd = servidor_unidade + "E-contract\\arquivos\\clientes\\"
+							+ nome_vendedor1_arquivo + "\\contratos" + "\\venda\\" + ano + "\\"
+							+ novo_contrato.getModelo_safra().getProduto().getNome_produto() + "\\";
+					System.out.println(
+							"caminho para salvar o contrato do comprador no hd: " + caminho_salvar_contrato__no_hd);
+					String caminho_salvar_contrato_no_banco_dados = "E-contract\\\\arquivos\\\\clientes\\\\"
+							+ nome_vendedor1_arquivo + "\\\\contratos" + "\\\\venda\\\\" + ano + "\\\\"
+							+ novo_contrato.getModelo_safra().getProduto().getNome_produto() + "\\\\";
+
+					String nome_pasta_arquivo = novo_contrato.getCodigo();
+
+					String nome_arquivo = novo_contrato.getCodigo() + " " + nome_comprador1_arquivo;
+
+					if (nome_comprador2_arquivo != null) {
+						nome_arquivo = nome_arquivo + " E " + nome_comprador2_arquivo;
+
+					}
+					nome_arquivo += " X ";
+
+					if (nome_vendedor1_arquivo != null) {
+						nome_arquivo = nome_arquivo + nome_vendedor1_arquivo;
+
+					}
+
+					if (nome_vendedor2_arquivo != null) {
+						nome_arquivo = nome_arquivo + " E " + nome_vendedor2_arquivo;
+
+					}
+
+					String caminho_completo_salvar_contrato_no_hd = caminho_salvar_contrato__no_hd + nome_pasta_arquivo
+							+ "\\" + nome_arquivo;
+
+					String caminho_completo_salvar_contrato_no_bando_dados = caminho_salvar_contrato_no_banco_dados
+							+ nome_pasta_arquivo + "\\\\" + nome_arquivo;
+					String nome_diretorio_arquivo_contrato = caminho_salvar_contrato_no_banco_dados
+							+ nome_pasta_arquivo;
+
+					// criar o diretorio
+					ManipularTxt manipular = new ManipularTxt();
+					if (manipular.criarDiretorio(caminho_salvar_contrato__no_hd + nome_pasta_arquivo + "\\")) {
+						System.out.println("diretorio criado para o novo contrato");
+						// criar pastas documentos e comprovantes
+						if (manipular.criarDiretorio(
+								caminho_salvar_contrato__no_hd + nome_pasta_arquivo + "\\comprovantes")) {
+							// criar diretorio documentos
+							if (manipular.criarDiretorio(
+									caminho_salvar_contrato__no_hd + nome_pasta_arquivo + "\\documentos")) {
+
+							} else {
+
+							}
+
+						} else {
+
+						}
+
+						// copiar arquivo para o novo diretorio
+						boolean copiar = false;
+						try {
+							copiar = manipular.copiarNFe(file_global.getAbsolutePath(),
+									caminho_salvar_contrato__no_hd + nome_pasta_arquivo + "\\" + nome_arquivo + ".pdf");
+						} catch (IOException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						}
+						if (copiar) {
+							//JOptionPane.showMessageDialog(null, "Arquivo copiado para a pasta do comprador 1!");
+							// inserir o contrato no banco de dados
+							novo_contrato.setCaminho_diretorio_contrato(nome_diretorio_arquivo_contrato);
+							novo_contrato.setCaminho_arquivo(caminho_salvar_contrato_no_banco_dados + nome_pasta_arquivo
+									+ "\\\\" + nome_arquivo + ".pdf");
+							novo_contrato.setNome_arquivo(nome_arquivo + ".pdf");
+							
+							//salvar na nuvem
+							 Nuvem nuvem = new Nuvem();
+			            	 nuvem.abrir();
+			                 nuvem.testar();
+			                
+			                boolean retorno = nuvem.carregar(caminho_completo_salvar_contrato_no_hd + ".pdf", nome_arquivo + ".pdf");
+			                 if(retorno) {
+			                	 // JOptionPane.showMessageDialog(null, "Arquivo salvo na nuvem");
+			                	 
+			                    	 novo_contrato.setNome_arquivo(nome_arquivo + ".pdf" );
+			                	 
+			                	 
+			                 }else {
+			                	 JOptionPane.showMessageDialog(null, "Arquivo não salvo na nuvem");
+
+			                 }
+
+							// copiar para o segundo comprador2
+
+							if (vendedores[1] != null) {
+								caminho_salvar_contrato__no_hd = servidor_unidade + "E-contract\\arquivos\\clientes\\"
+										+ nome_vendedor2_arquivo + "\\contratos" + "\\venda\\" + ano + "\\"
+										+ novo_contrato.getModelo_safra().getProduto().getNome_produto() + "\\";
+								System.out.println("caminho para salvar o contrato do comprador no hd: "
+										+ caminho_salvar_contrato__no_hd);
+								caminho_salvar_contrato_no_banco_dados = "E-contract\\\\arquivos\\\\clientes\\\\"
+										+ nome_vendedor2_arquivo + "\\\\contratos" + "\\\\venda\\\\" + ano + "\\\\"
+										+ novo_contrato.getModelo_safra().getProduto().getNome_produto() + "\\\\";
+
+								nome_pasta_arquivo = novo_contrato.getCodigo();
+
+								nome_arquivo = novo_contrato.getCodigo() + " " + nome_comprador2_arquivo;
+
+								if (nome_comprador1_arquivo != null) {
+									nome_arquivo = nome_arquivo + " E " + nome_comprador1_arquivo;
+
+								}
+								nome_arquivo += " X ";
+
+								if (nome_vendedor1_arquivo != null) {
+									nome_arquivo = nome_arquivo + nome_vendedor1_arquivo;
+
+								}
+
+								if (nome_vendedor2_arquivo != null) {
+									nome_arquivo = nome_arquivo + " E " + nome_vendedor2_arquivo;
+
+								}
+
+								caminho_completo_salvar_contrato_no_hd = caminho_salvar_contrato__no_hd
+										+ nome_pasta_arquivo + "\\" + nome_arquivo;
+
+								caminho_completo_salvar_contrato_no_bando_dados = caminho_salvar_contrato_no_banco_dados
+										+ nome_pasta_arquivo + "\\\\" + nome_arquivo;
+								nome_diretorio_arquivo_contrato = caminho_salvar_contrato_no_banco_dados
+										+ nome_pasta_arquivo;
+
+								// criar o diretorio
+								manipular = new ManipularTxt();
+								if (manipular
+										.criarDiretorio(caminho_salvar_contrato__no_hd + nome_pasta_arquivo + "\\")) {
+									System.out.println("diretorio criado para o novo contrato");
+									// criar pastas documentos e comprovantes
+									if (manipular.criarDiretorio(
+											caminho_salvar_contrato__no_hd + nome_pasta_arquivo + "\\comprovantes")) {
+										// criar diretorio documentos
+										if (manipular.criarDiretorio(
+												caminho_salvar_contrato__no_hd + nome_pasta_arquivo + "\\documentos")) {
+
+										} else {
+
+										}
+
+									} else {
+
+									}
+
+									// copiar arquivo para o novo diretorio
+									copiar = false;
+									try {
+										copiar = manipular.copiarNFe(file_global.getAbsolutePath(),
+												caminho_salvar_contrato__no_hd + nome_pasta_arquivo + "\\"
+														+ nome_arquivo + ".pdf");
+									} catch (IOException e) {
+										// TODO Auto-generated catch block
+										e.printStackTrace();
+									}
+									if (copiar) {
+										////JOptionPane.showMessageDialog(null,
+										////		"Arquivo copiado para a pasta do comprador 2!");
+										// inserir o contrato no banco de dados
+										novo_contrato.setCaminho_diretorio_contrato2(nome_diretorio_arquivo_contrato);
+										novo_contrato.setCaminho_arquivo2(caminho_salvar_contrato_no_banco_dados
+												+ nome_pasta_arquivo + "\\\\" + nome_arquivo + ".pdf");
+										novo_contrato.setNome_arquivo2(nome_arquivo + ".pdf");
+
+										//salvar na nuvem
+										  nuvem = new Nuvem();
+						            	 nuvem.abrir();
+						                 nuvem.testar();
+						                
+						                 retorno = nuvem.carregar(caminho_completo_salvar_contrato_no_hd + ".pdf", nome_arquivo + ".pdf");
+						                 if(retorno) {
+						                	 //// JOptionPane.showMessageDialog(null, "Arquivo salvo na nuvem");
+						                	 
+						                    	 novo_contrato.setNome_arquivo2(nome_arquivo + ".pdf" );
+						                	 
+						                	 
+						                 }else {
+						                	 JOptionPane.showMessageDialog(null, "Arquivo não salvo na nuvem");
+
+						                 }
+						                 
+										GerenciarBancoContratos gerenciarContratos = new GerenciarBancoContratos();
+
+										int insercao = gerenciarContratos.inserirContrato(novo_contrato, null);
+										if (insercao == 1) {
+											JOptionPane.showMessageDialog(null,
+													"O Contrato foi salvo no banco de dados");
+											retorno_global= true;
+
+										} else {
+											JOptionPane.showMessageDialog(null,
+													"O Contrato não foi salvo no banco de dados\nConsulte o administrador");
+											retorno_global= false;
+										}
+
+									} else {
+										JOptionPane.showMessageDialog(null,
+												"O arquivo não foi copiado para  nova pasta, tente novamente");
+										JOptionPane.showMessageDialog(null,
+												"Origem: " + file_global.getAbsolutePath() + "\ndestino: "
+														+ caminho_salvar_contrato__no_hd + nome_pasta_arquivo + "\\"
+														+ nome_arquivo + ".pdf");
+
+									}
+
+								} else {
+									System.out.println("erro ao criar diretorio para o contrato ");
+									JOptionPane.showMessageDialog(null,
+											"O arquivo não foi copiado para  nova pasta, tente novamente");
+									JOptionPane.showMessageDialog(null,
+											"Origem: " + file_global.getAbsolutePath() + "\ndestino: "
+													+ caminho_salvar_contrato__no_hd + nome_pasta_arquivo + "\\"
+													+ nome_arquivo + ".pdf");
+
+								}
+
+							} else {
+								GerenciarBancoContratos gerenciarContratos = new GerenciarBancoContratos();
+
+								int insercao = -1;
+								
+								if(contrato_pai_local != null) {
+									 insercao = gerenciarContratos.inserirContrato(novo_contrato, contrato_pai_local);
+
+								}else {
+									 insercao = gerenciarContratos.inserirContrato(novo_contrato, null);
+								}
+								if (insercao == 1) {
+									JOptionPane.showMessageDialog(null, "O Contrato foi salvo no banco de dados");
+									retorno_global= true;
+
+								} else {
+             						JOptionPane.showMessageDialog(null, "O Contrato não foi salvo no banco de dados\nConsulte o administrador");
+									retorno_global= false;
+								}
+
+							}
+
+						} else {
+							JOptionPane.showMessageDialog(null,
+									"O arquivo não foi copiado para  nova pasta, tente novamente");
+							JOptionPane.showMessageDialog(null,
+									"Origem: " + file_global.getAbsolutePath() + "\ndestino: "
+											+ caminho_salvar_contrato__no_hd + nome_pasta_arquivo + "\\" + nome_arquivo
+											+ ".pdf");
+						}
+
+					} else {
+						System.out.println("erro ao criar diretorio para o contrato ");
+						JOptionPane.showMessageDialog(null,
+								"O arquivo não foi copiado para  nova pasta, tente novamente");
+						JOptionPane.showMessageDialog(null, "Origem: " + file_global.getAbsolutePath() + "\ndestino: "
+								+ caminho_salvar_contrato__no_hd + nome_pasta_arquivo + "\\" + nome_arquivo + ".pdf");
+					}
+
+				}else {
 				}
 			}
-			
+
+		} else {
+			JOptionPane.showMessageDialog(null,
+					"O Contrato de codigo " + novo_contrato.getCodigo() + " já esta cadastrado!");
+			retorno_global= true;
+
+		}
+		return retorno_global;
+
+	}
+
+	
+	
+	
+	public void atualizar() {
+		//realiza o backup dos compradores
+		int retorno_final = -1;
+		boolean proceder = false;
 		
+		
+			JOptionPane.showMessageDialog(null, "Esta em modo edicao");
+			GerenciarBancoContratos gerenciar = new GerenciarBancoContratos();
+			//pegar os caminhso antigos
+			CadastroContrato contrato_antigo = gerenciar.getContrato(novo_contrato.getId());
 			
-				String nome_comprador_arquivo ;
-				String nome_vendedor_arquivo;
+			//esta em edicao, fazer o backup dos comprovantes e documentos
+			String caminho_diretorio = contrato_antigo.getCaminho_diretorio_contrato();
+			String caminho_diretorio2 = contrato_antigo.getCaminho_diretorio_contrato2();
 			
+			String caminho_arquivo = contrato_antigo.getCaminho_arquivo();
+			String caminho_arquivo2 = contrato_antigo.getCaminho_arquivo2();
+			
+			String nome_arquivo = contrato_antigo.getNome_arquivo();
+			String nome_arquivo2 = contrato_antigo.getNome_arquivo2();
+			
+			if(caminho_diretorio != null && nome_arquivo != null) {
+          
 				
-				if(compradores[0].getTipo_pessoa() == 0)
+				ManipularTxt manipular_bkp = new ManipularTxt();
+				 diretorio_pasta_bkp1 = "C:\\ProgramData\\E-Contract\\bkp\\" + novo_contrato.getCodigo() + new Random().nextInt();
+				boolean bkp_criado = manipular_bkp.criar_bkp_diretorio(servidor_unidade + caminho_diretorio, diretorio_pasta_bkp1);
+				if(bkp_criado) {
+					
+				String BaseDados_DiretorioArquivo =  servidor_unidade + caminho_arquivo;
+				System.out.println("caminho do arquivo completo para apagar: " + BaseDados_DiretorioArquivo);
+				ManipularTxt manipular_apagar = new ManipularTxt();
+						//apagar o diretorio
+						if(manipular_apagar.limparDiretorio(new File(servidor_unidade + caminho_diretorio))) {
+						  //Diretorio foi excluido
+							Nuvem nuvem = new Nuvem();
+					         nuvem.abrir();
+					         nuvem.testar();
+					         nuvem.listar();
+					         nuvem.deletarArquivo(nome_arquivo);
+					       JOptionPane.showMessageDialog(null, "Os arquivos do alvo 1 foram apagados da memoria e da nuvem!");
+						
+					       proceder = true;
+						}
+						else {
+							proceder = false;
+							System.out.println("Erro ao excluir o direrorio do contrato");
+
+						}
+					
+				
+			}
+				
+			}
+			if(caminho_diretorio2 != null && caminho_diretorio2.length() > 20 && nome_arquivo2 != null ) {
+
+				ManipularTxt manipular_bkp = new ManipularTxt();
+				diretorio_pasta_bkp2 =  "C:\\ProgramData\\E-Contract\\bkp\\" + novo_contrato.getCodigo() + new Random().nextInt();
+				boolean bkp_criado = manipular_bkp.criar_bkp_diretorio(servidor_unidade + caminho_diretorio2, diretorio_pasta_bkp2);
+				if(bkp_criado) {
+					
+				String BaseDados_DiretorioArquivo =  servidor_unidade + caminho_arquivo2;
+				System.out.println("caminho do arquivo completo para apagar: " + BaseDados_DiretorioArquivo);
+				ManipularTxt manipular_apagar = new ManipularTxt();
+						
+						//apagar o diretorio
+						if(manipular_apagar.limparDiretorio(new File(servidor_unidade + caminho_diretorio2))) {
+						  //Diretorio foi excluido
+							Nuvem nuvem = new Nuvem();
+					         nuvem.abrir();
+					         nuvem.testar();
+					         nuvem.listar();
+					         nuvem.deletarArquivo(nome_arquivo2);
+						       JOptionPane.showMessageDialog(null, "Os arquivos do alvo 2 foram apagados da memoria e da nuvem!");
+						
+					       proceder = true;
+						}
+						else {
+							proceder = false;
+							System.out.println("Erro ao excluir o direrorio do contrato");
+
+						}
+					
+				
+			}
+			}
+			
+			//gerar as novas pastas
+			if(rotinasAtualizacao()) {
+				//recuperar os backups
+				if(novo_contrato.getCompradores()[0] != null && novo_contrato.getCompradores()[1] != null) {
+				   ManipularTxt restaurar_bkp = new ManipularTxt();
+				   restaurar_bkp.criar_bkp_diretorio(diretorio_pasta_bkp1 + "\\comprovantes", servidor_unidade + novo_contrato.getCaminho_diretorio_contrato() + "\\comprovantes");
+				   restaurar_bkp.criar_bkp_diretorio(diretorio_pasta_bkp1 + "\\documentos", servidor_unidade + novo_contrato.getCaminho_diretorio_contrato() + "\\documentos");
+				
+
+				   restaurar_bkp.criar_bkp_diretorio(diretorio_pasta_bkp1 + "\\comprovantes", servidor_unidade + novo_contrato.getCaminho_diretorio_contrato2() + "\\comprovantes");
+				   restaurar_bkp.criar_bkp_diretorio(diretorio_pasta_bkp1 + "\\documentos", servidor_unidade + novo_contrato.getCaminho_diretorio_contrato2() + "\\documentos");
+				  //salvar na nuvem
+				
+				}else if(novo_contrato.getCompradores()[0] != null && novo_contrato.getCompradores()[1] == null) {
+					   ManipularTxt restaurar_bkp = new ManipularTxt();
+   
+					restaurar_bkp.criar_bkp_diretorio(diretorio_pasta_bkp1 + "\\comprovantes", servidor_unidade + novo_contrato.getCaminho_diretorio_contrato() + "\\comprovantes");
+					   restaurar_bkp.criar_bkp_diretorio(diretorio_pasta_bkp1 + "\\documentos", servidor_unidade + novo_contrato.getCaminho_diretorio_contrato() + "\\documentos");
+					
+				}
+				else if(novo_contrato.getCompradores()[0] == null && novo_contrato.getCompradores()[1] != null) {
+					   ManipularTxt restaurar_bkp = new ManipularTxt();
+
+					restaurar_bkp.criar_bkp_diretorio(diretorio_pasta_bkp1 + "\\comprovantes", servidor_unidade + novo_contrato.getCaminho_diretorio_contrato2() + "\\comprovantes");
+					   restaurar_bkp.criar_bkp_diretorio(diretorio_pasta_bkp1 + "\\documentos", servidor_unidade + novo_contrato.getCaminho_diretorio_contrato2() + "\\documentos");
+					
+				}
+				
+				
+				DadosGlobais dados = DadosGlobais.getInstance();
+				 dados.getTeraGerenciarContratoPai().atualizarContratoLocal();
+				isto.dispose();
+				
+				
+			}else {
+				JOptionPane.showMessageDialog(isto, "Erro ao atualizar\nConsulte o Administrador");
+			}
+		
+		
+		
+		
+	}
+	
+	
+/*
+	public void atualizar() {
+
+		boolean resultado = false;
+		File arquivo_temporario = excluir_contrato();
+
+		if (arquivo_temporario != null) {
+
+			boolean ja_existe = false;
+
+			// verifica pelo codigo do contrato se ele ja nao esta cadastrado
+			GerenciarBancoContratos gerenciar_cts = new GerenciarBancoContratos();
+			ArrayList<CadastroContrato> contratos = gerenciar_cts.getContratos();
+
+			for (CadastroContrato ctr : contratos) {
+				if (ctr.getCodigo().equals(novo_contrato.getCodigo())) {
+					if (ctr.getCodigo().equals(codigo_antigo)) {
+						// é o proprio contrato que esta em edicao
+						ja_existe = false;
+						break;
+					} else {
+						ja_existe = true;
+						break;
+					}
+
+				}
+			}
+
+			if (!ja_existe) {
+
+				// contrato nao existe, cadastrar
+
+				// adicionar a tarefa
+
+				ArrayList<CadastroContrato.CadastroTarefa> tarefas = new ArrayList<>();
+				CadastroContrato.CadastroTarefa tarefa = new CadastroContrato.CadastroTarefa();
+
+				tarefa.setNome_tarefa("Contrato Importado Manualmente atualizou");
+
+				// cria a tarefa de insercao de contrato
+				tarefa.setId_tarefa(0);
+				tarefa.setDescricao_tarefa("Criação de tarefa");
+
+				tarefa.setStatus_tarefa(1);
+				tarefa.setMensagem("tarefa criada");
+
+				GetData data = new GetData();
+				tarefa.setHora(data.getHora());
+				tarefa.setData(data.getData());
+				tarefa.setHora_agendada(data.getHora());
+				tarefa.setData_agendada(data.getData());
+
+				tarefa.setCriador(login);
+				tarefa.setExecutor(login);
+
+				tarefa.setPrioridade(1);
+
+				tarefas.add(tarefa);
+
+				novo_contrato.setLista_tarefas(tarefas);
+
+				// copiar o arquivo para a pasta do comprador
+				CadastroCliente corretores[] = novo_contrato.getCorretores();
+
+				CadastroCliente compradores[] = novo_contrato.getCompradores();
+				CadastroCliente vendedores[] = novo_contrato.getVendedores();
+
+				String nome_corretor = "";
+				String nome_vendedor1 = "";
+				String nome_vendedor2 = "";
+
+				String nome_comprador = "";
+
+				if (corretores[0] != null) {
+					if (corretores[0].getTipo_pessoa() == 0) {
+						// pessoa fisica
+						nome_corretor = corretores[0].getNome_empresarial();
+					} else {
+						nome_corretor = corretores[0].getNome_fantaia();
+
+					}
+				}
+
+				if (compradores[0] != null) {
+					if (compradores[0].getTipo_pessoa() == 0) {
+						// pessoa fisica
+						nome_comprador = compradores[0].getNome_empresarial();
+					} else {
+						nome_comprador = compradores[0].getNome_fantaia();
+
+					}
+				}
+
+				if (vendedores[0].getTipo_pessoa() == 0) {
+					nome_vendedor1 = vendedores[0].getNome_empresarial();
+				} else {
+					nome_vendedor1 = vendedores[0].getNome_fantaia();
+				}
+
+				if (vendedores[1] != null) {
+					if (vendedores[1].getTipo_pessoa() == 0) {
+						nome_vendedor2 = vendedores[1].getNome_empresarial();
+					} else {
+						nome_vendedor2 = vendedores[1].getNome_fantaia();
+					}
+				}
+
+				String nome_comprador_arquivo;
+				String nome_vendedor_arquivo;
+
+				if (compradores[0].getTipo_pessoa() == 0)
 					nome_comprador_arquivo = compradores[0].getNome_empresarial();
 				else
 					nome_comprador_arquivo = compradores[0].getNome_fantaia();
-				
-				if(vendedores[0].getTipo_pessoa() == 0)
+
+				if (vendedores[0].getTipo_pessoa() == 0)
 					nome_vendedor_arquivo = vendedores[0].getNome_empresarial();
 				else
 					nome_vendedor_arquivo = vendedores[0].getNome_fantaia();
@@ -4795,130 +5422,629 @@ public class TelaImportarContratoManual extends JDialog {
 				String mes = data_quebrada[1];
 				String ano = data_quebrada[2];
 
-				
-				if(novo_contrato.getSub_contrato() == 5  || novo_contrato.getSub_contrato() == 4 || novo_contrato.getSub_contrato() == 3) {
-					 //copiar o arquivo para a pasta do comprador, pois e um contrato original
-					 //é um comprato pai, salvar na pasta do comprador
+				if (novo_contrato.getSub_contrato() == 5 || novo_contrato.getSub_contrato() == 4
+						|| novo_contrato.getSub_contrato() == 3) {
+					// copiar o arquivo para a pasta do comprador, pois e um contrato original
+					// é um comprato pai, salvar na pasta do comprador
 
-					 String caminho_salvar_contrato__no_hd = servidor_unidade + "E-contract\\arquivos\\clientes\\" + nome_comprador_arquivo + "\\contratos" + "\\compra\\"  + ano + "\\" + novo_contrato.getModelo_safra().getProduto().getNome_produto() + "\\";
-					System.out.println("caminho para salvar o contrato do comprador no hd: " + caminho_salvar_contrato__no_hd);	
-					String caminho_salvar_contrato_no_banco_dados = "E-contract\\\\arquivos\\\\clientes\\\\" + nome_comprador_arquivo + "\\\\contratos" + "\\\\compra\\\\"  + ano + "\\\\" + novo_contrato.getModelo_safra().getProduto().getNome_produto() + "\\\\";
+					String caminho_salvar_contrato__no_hd = servidor_unidade + "E-contract\\arquivos\\clientes\\"
+							+ nome_comprador_arquivo + "\\contratos" + "\\compra\\" + ano + "\\"
+							+ novo_contrato.getModelo_safra().getProduto().getNome_produto() + "\\";
+					System.out.println(
+							"caminho para salvar o contrato do comprador no hd: " + caminho_salvar_contrato__no_hd);
+					String caminho_salvar_contrato_no_banco_dados = "E-contract\\\\arquivos\\\\clientes\\\\"
+							+ nome_comprador_arquivo + "\\\\contratos" + "\\\\compra\\\\" + ano + "\\\\"
+							+ novo_contrato.getModelo_safra().getProduto().getNome_produto() + "\\\\";
 
-				      String nome_pasta_arquivo = novo_contrato.getCodigo();
+					String nome_pasta_arquivo = novo_contrato.getCodigo();
 
-				      String nome_arquivo = novo_contrato.getCodigo() + " "  + nome_comprador_arquivo + " x " + nome_vendedor_arquivo ; 
-				     
-						
-						String caminho_completo_salvar_contrato_no_hd = caminho_salvar_contrato__no_hd + nome_pasta_arquivo + "\\" + nome_arquivo ;
-						
-					    String caminho_completo_salvar_contrato_no_bando_dados = caminho_salvar_contrato_no_banco_dados + nome_pasta_arquivo +"\\\\" + nome_arquivo;
-					    String nome_diretorio_arquivo_contrato = caminho_salvar_contrato_no_banco_dados + nome_pasta_arquivo;
+					String nome_arquivo = novo_contrato.getCodigo() + " " + nome_comprador_arquivo + " x "
+							+ nome_vendedor_arquivo;
 
-						//criar o diretorio
-						ManipularTxt manipular = new ManipularTxt();
-						if(manipular.criarDiretorio(caminho_salvar_contrato__no_hd + nome_pasta_arquivo + "\\"))
-						{
-							System.out.println("diretorio criado para o novo contrato");
-							//criar pastas documentos e comprovantes
-       						if(manipular.criarDiretorio(caminho_salvar_contrato__no_hd + nome_pasta_arquivo + "\\comprovantes"))
-							{
-					    		  //criar diretorio documentos
-								  if(manipular.criarDiretorio(caminho_salvar_contrato__no_hd + nome_pasta_arquivo + "\\documentos"))
-									{
+					String caminho_completo_salvar_contrato_no_hd = caminho_salvar_contrato__no_hd + nome_pasta_arquivo
+							+ "\\" + nome_arquivo;
 
-									}else {
+					String caminho_completo_salvar_contrato_no_bando_dados = caminho_salvar_contrato_no_banco_dados
+							+ nome_pasta_arquivo + "\\\\" + nome_arquivo;
+					String nome_diretorio_arquivo_contrato = caminho_salvar_contrato_no_banco_dados
+							+ nome_pasta_arquivo;
 
-									}	
+					// criar o diretorio
+					ManipularTxt manipular = new ManipularTxt();
+					if (manipular.criarDiretorio(caminho_salvar_contrato__no_hd + nome_pasta_arquivo + "\\")) {
+						System.out.println("diretorio criado para o novo contrato");
+						// criar pastas documentos e comprovantes
+						if (manipular.criarDiretorio(
+								caminho_salvar_contrato__no_hd + nome_pasta_arquivo + "\\comprovantes")) {
+							// criar diretorio documentos
+							if (manipular.criarDiretorio(
+									caminho_salvar_contrato__no_hd + nome_pasta_arquivo + "\\documentos")) {
 
-							}else {
+							} else {
 
 							}
-       						
-							 //copiar arquivo para o novo diretorio
-							boolean copiar = false;
-							try {
-								copiar = manipular.moverArquivo(arquivo_temporario.getAbsolutePath(), caminho_salvar_contrato__no_hd + nome_pasta_arquivo + "\\" + nome_arquivo + ".pdf" );
-							} catch (Exception e) {
-								// TODO Auto-generated catch block
-								e.printStackTrace();
-							}
-                             if(copiar) {
-         						JOptionPane.showMessageDialog(null, "Arquivo copiado para a nova pasta!");
-         						//inserir o contrato no banco de dados
-         						novo_contrato.setCaminho_diretorio_contrato(nome_diretorio_arquivo_contrato);
-         						novo_contrato.setCaminho_arquivo(caminho_salvar_contrato_no_banco_dados + nome_pasta_arquivo + "\\\\" + nome_arquivo + ".pdf");
-         						novo_contrato.setNome_arquivo(nome_arquivo + ".pdf");
-         						
-          					GerenciarBancoContratos gerenciarContratos = new GerenciarBancoContratos();
-          					
-          					int atualizacao = gerenciarContratos.atualizarContrato(novo_contrato, pagamento_a_excluir);
-          					if(atualizacao == 5) {
-            						JOptionPane.showMessageDialog(null, "O Contrato foi atualizado no banco de dados");
-            						
-            						//inserir o contrato na nuvem
-            						 Nuvem nuvem = new Nuvem();
-            		            	 nuvem.abrir();
-            		                 nuvem.testar();
-            		                
-            		                boolean retorno = nuvem.carregar(caminho_salvar_contrato__no_hd + nome_pasta_arquivo + "\\" + nome_arquivo + ".pdf", nome_arquivo + ".pdf");
-            		                 if(retorno) {
-                 						JOptionPane.showMessageDialog(null, "O Contrato  foi salvo na nuvem");
-                 						isto.dispose();
-            		                 }else {
-                 						JOptionPane.showMessageDialog(null, "O Contrato não foi salvo na nuvem");
 
-            		                 }
+						} else {
 
-          					}else {
-            						JOptionPane.showMessageDialog(null, "O Contrato não foi salvo no banco de dados");
-
-          					}
-
-                             }else {
-            						JOptionPane.showMessageDialog(null, "O arquivo não foi copiado para  nova pasta, tente novamente");
-            						JOptionPane.showMessageDialog(null, "Origem: " + file_global.getAbsolutePath() + "\ndestino: " +  caminho_salvar_contrato__no_hd + nome_pasta_arquivo + "\\" + nome_arquivo + ".pdf");
-
-                             }
-							
-						}else {
-							System.out.println("erro ao criar diretorio para o contrato ");
-    						JOptionPane.showMessageDialog(null, "O arquivo não foi copiado para  nova pasta, tente novamente");
-    						JOptionPane.showMessageDialog(null, "Origem: " + file_global.getAbsolutePath() + "\ndestino: " +  caminho_salvar_contrato__no_hd + nome_pasta_arquivo + "\\" + nome_arquivo + ".pdf");
-
-							
 						}
-				
-			
-			
-			
-			
-						
-					}else if(novo_contrato.getSub_contrato() == 6) {
-						//copiar o arquivo para a pasta do vendedor pois e um subcontrato
+
+						// copiar arquivo para o novo diretorio
+						boolean copiar = false;
+						try {
+							copiar = manipular.moverArquivo(arquivo_temporario.getAbsolutePath(),
+									caminho_salvar_contrato__no_hd + nome_pasta_arquivo + "\\" + nome_arquivo + ".pdf");
+						} catch (Exception e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						}
+						if (copiar) {
+							JOptionPane.showMessageDialog(null, "Arquivo copiado para a nova pasta!");
+							// inserir o contrato no banco de dados
+							novo_contrato.setCaminho_diretorio_contrato(nome_diretorio_arquivo_contrato);
+							novo_contrato.setCaminho_arquivo(caminho_salvar_contrato_no_banco_dados + nome_pasta_arquivo
+									+ "\\\\" + nome_arquivo + ".pdf");
+							novo_contrato.setNome_arquivo(nome_arquivo + ".pdf");
+
+							GerenciarBancoContratos gerenciarContratos = new GerenciarBancoContratos();
+
+							int atualizacao = gerenciarContratos.atualizarContrato(novo_contrato, pagamento_a_excluir);
+							if (atualizacao == 5) {
+								JOptionPane.showMessageDialog(null, "O Contrato foi atualizado no banco de dados");
+
+								// inserir o contrato na nuvem
+								Nuvem nuvem = new Nuvem();
+								nuvem.abrir();
+								nuvem.testar();
+
+								boolean retorno = nuvem.carregar(caminho_salvar_contrato__no_hd + nome_pasta_arquivo
+										+ "\\" + nome_arquivo + ".pdf", nome_arquivo + ".pdf");
+								if (retorno) {
+									JOptionPane.showMessageDialog(null, "O Contrato  foi salvo na nuvem");
+									isto.dispose();
+								} else {
+									JOptionPane.showMessageDialog(null, "O Contrato não foi salvo na nuvem");
+
+								}
+
+							} else {
+								JOptionPane.showMessageDialog(null, "O Contrato não foi salvo no banco de dados");
+
+							}
+
+						} else {
+							JOptionPane.showMessageDialog(null,
+									"O arquivo não foi copiado para  nova pasta, tente novamente");
+							JOptionPane.showMessageDialog(null,
+									"Origem: " + file_global.getAbsolutePath() + "\ndestino: "
+											+ caminho_salvar_contrato__no_hd + nome_pasta_arquivo + "\\" + nome_arquivo
+											+ ".pdf");
+
+						}
+
+					} else {
+						System.out.println("erro ao criar diretorio para o contrato ");
+						JOptionPane.showMessageDialog(null,
+								"O arquivo não foi copiado para  nova pasta, tente novamente");
+						JOptionPane.showMessageDialog(null, "Origem: " + file_global.getAbsolutePath() + "\ndestino: "
+								+ caminho_salvar_contrato__no_hd + nome_pasta_arquivo + "\\" + nome_arquivo + ".pdf");
+
 					}
-				
-				
-				  
-			
-			
-			
-			
-		}else {
-			JOptionPane.showMessageDialog(null, "O Contrato de codigo " + novo_contrato.getCodigo() + " já esta cadastrado!");
+
+				} else if (novo_contrato.getSub_contrato() == 6) {
+					// copiar o arquivo para a pasta do vendedor pois e um subcontrato
+				}
+
+			} else {
+				JOptionPane.showMessageDialog(null,
+						"O Contrato de codigo " + novo_contrato.getCodigo() + " já esta cadastrado!");
+
+			}
+
+		} else {
+			JOptionPane.showMessageDialog(isto,
+					"Houve erro ao excluir os arquivos antigos\nPossivel Corrupção nas tabelas do BD\nConsulte o administrador");
+		}
+	}
+*/
+	public void setComprador2(CadastroCliente comprador) {
+		novo_contrato.adicionarComprador(1, comprador);
+		// lblCodigoContratoComprador.setText(Integer.toString(comprador.getId()));
+
+		cBComprador2.removeAllItems();
+
+		if (comprador.getTipo_pessoa() == 0) // pessoa fisica
+		{
+			cBComprador2.addItem(comprador.getNome() + " " + comprador.getSobrenome());
+			cBComprador2.setSelectedItem(comprador.getNome() + " " + comprador.getSobrenome());
+			lblNomeComprador2.setText(comprador.getNome() + " " + comprador.getSobrenome());
+			cBComprador2.addItem("Indefinido");
+
+			lblCpfCnpjComprador2.setText(comprador.getCpf());
+			System.out.println("O comprador selecionado e uma pessoa fisica");
+
+		} else // pessoa juridica
+		{
+			System.out.println("O comprador selecionado e uma pessoa juridica");
+
+			cBComprador2.addItem(comprador.getRazao_social());
+			cBComprador2.setSelectedItem(comprador.getRazao_social());
+			cBComprador2.addItem("Indefinido");
+
+			lblCpfCnpjComprador2.setText(comprador.getCnpj());
+			lblNomeComprador2.setText(comprador.getRazao_social());
 
 		}
-			   
-	   }else {
-		   JOptionPane.showMessageDialog(isto, "Houve erro ao excluir os arquivos antigos\nPossivel Corrupção nas tabelas do BD\nConsulte o administrador");
-	   }
-   }
 
-   
-  
+		lblIEComprador2.setText(comprador.getIe());
+		lblEnderecoComprador2.setText(comprador.getRua());
+		lblMunicipioComprador2.setText(comprador.getCidade());
+		lblEstadoComprador2.setText(comprador.getUf());
+		lblBairroComprador2.setText(comprador.getBairro());
 
- 
+	}
 
+	
+	public boolean rotinasAtualizacao() {
+		boolean ja_existe = false;
+        boolean retorno_global = false;
+        CadastroContrato contrato_antigo = new GerenciarBancoContratos().getContrato(novo_contrato.getId());
+		String nome_arquivo1_antes_atualizar = contrato_antigo.getNome_arquivo();
+		String nome_arquivo2_antes_atualizar = contrato_antigo.getNome_arquivo2();
 
+		
+		// verifica pelo codigo do contrato se ele ja nao esta cadastrado
+		GerenciarBancoContratos gerenciar_cts = new GerenciarBancoContratos();
+		ArrayList<CadastroContrato> contratos = gerenciar_cts.getContratos();
 
-   
+		for (CadastroContrato ctr : contratos) {
+			if (ctr.getCodigo().equals(novo_contrato.getCodigo())) {
+				if (ctr.getCodigo().equals(codigo_antigo)) {
+					// é o proprio contrato que esta em edicao
+					ja_existe = false;
+					break;
+				} else {
+					ja_existe = true;
+					break;
+				}
+
+			}
+		}
+
+		if (!ja_existe) {
+
+			// contrato nao existe, cadastrar
+			JOptionPane.showMessageDialog(null, "Hapto para realizar a atualização do contrato!");
+
+			// adicionar a tarefa
+
+			ArrayList<CadastroContrato.CadastroTarefa> tarefas = new ArrayList<>();
+			CadastroContrato.CadastroTarefa tarefa = new CadastroContrato.CadastroTarefa();
+
+			tarefa.setNome_tarefa("Contrato Importado Manualmente atualizado");
+
+			// cria a tarefa de insercao de contrato
+			tarefa.setId_tarefa(0);
+			tarefa.setDescricao_tarefa("Criação de tarefa");
+
+			tarefa.setStatus_tarefa(1);
+			tarefa.setMensagem("tarefa criada");
+
+			GetData data = new GetData();
+			tarefa.setHora(data.getHora());
+			tarefa.setData(data.getData());
+			tarefa.setHora_agendada(data.getHora());
+			tarefa.setData_agendada(data.getData());
+
+			tarefa.setCriador(login);
+			tarefa.setExecutor(login);
+
+			tarefa.setPrioridade(1);
+
+			tarefas.add(tarefa);
+
+			novo_contrato.setLista_tarefas(tarefas);
+
+			// copiar o arquivo para a pasta do comprador
+			CadastroCliente corretores[] = novo_contrato.getCorretores();
+
+			CadastroCliente compradores[] = novo_contrato.getCompradores();
+			CadastroCliente vendedores[] = novo_contrato.getVendedores();
+
+			String nome_corretor = "";
+			String nome_vendedor1 = "";
+			String nome_vendedor2 = "";
+
+			String nome_comprador1 = "";
+			String nome_comprador2 = "";
+
+			if (corretores[0] != null) {
+				if (corretores[0].getTipo_pessoa() == 0) {
+					// pessoa fisica
+					nome_corretor = corretores[0].getNome_empresarial().trim();
+				} else {
+					nome_corretor = corretores[0].getNome_fantaia().trim();
+
+				}
+			}
+
+			if (compradores[0] != null) {
+				if (compradores[0].getTipo_pessoa() == 0) {
+					// pessoa fisica
+					nome_comprador1 = compradores[0].getNome_empresarial().trim();
+				} else {
+					nome_comprador1 = compradores[0].getNome_fantaia().trim();
+
+				}
+			}
+
+			if (compradores[1] != null) {
+				if (compradores[0].getTipo_pessoa() == 0) {
+					// pessoa fisica
+					nome_comprador2 = compradores[1].getNome_empresarial().trim();
+				} else {
+					nome_comprador2 = compradores[1].getNome_fantaia().trim();
+
+				}
+			}
+
+			if (vendedores[0].getTipo_pessoa() == 0) {
+				nome_vendedor1 = vendedores[0].getNome_empresarial().trim();
+			} else {
+				nome_vendedor1 = vendedores[0].getNome_fantaia().trim();
+			}
+
+			if (vendedores[1] != null) {
+				if (vendedores[1].getTipo_pessoa() == 0) {
+					nome_vendedor2 = vendedores[1].getNome_empresarial().trim();
+				} else {
+					nome_vendedor2 = vendedores[1].getNome_fantaia().trim();
+				}
+			}
+
+			boolean arquivos_comprador1_criado = false;
+			boolean arquivos_comprador2_criado = false;
+
+			boolean arquivos_vendedor1_criado = false;
+			boolean arquivos_vendedor2_criado = false;
+
+			String nome_comprador1_arquivo = null;
+			String nome_comprador2_arquivo = null;
+
+			String nome_vendedor1_arquivo = null;
+			String nome_vendedor2_arquivo = null;
+
+			if (compradores[0].getTipo_pessoa() == 0)
+				nome_comprador1_arquivo = compradores[0].getNome_empresarial().trim();
+			else
+				nome_comprador1_arquivo = compradores[0].getNome_fantaia().trim();
+
+			if (compradores[1] != null) {
+				if (compradores[1].getTipo_pessoa() == 0)
+					nome_comprador2_arquivo = compradores[1].getNome_empresarial().trim();
+				else
+					nome_comprador2_arquivo = compradores[1].getNome_fantaia().trim();
+
+			}
+
+			if (vendedores[0] != null) {
+				if (vendedores[0].getTipo_pessoa() == 0)
+					nome_vendedor1_arquivo = vendedores[0].getNome_empresarial().trim();
+				else
+					nome_vendedor1_arquivo = vendedores[0].getNome_fantaia().trim();
+
+			}
+
+			if (vendedores[1] != null) {
+				if (vendedores[1].getTipo_pessoa() == 0)
+					nome_vendedor2_arquivo = vendedores[1].getNome_empresarial().trim();
+				else
+					nome_vendedor2_arquivo = vendedores[1].getNome_fantaia().trim();
+			} else
+				nome_vendedor2_arquivo = null;
+
+			String servidor_unidade = configs_globais.getServidorUnidade();
+
+			String data_entrega = entDataEntrega.getText();
+			String data_quebrada[] = data_entrega.split("/");
+			String dia = data_quebrada[0];
+			String mes = data_quebrada[1];
+			String ano = data_quebrada[2];
+
+			if (novo_contrato.getSub_contrato() == 5 || novo_contrato.getSub_contrato() == 4
+					|| novo_contrato.getSub_contrato() == 3) {
+				// copiar o arquivo para a pasta do comprador, pois e um contrato original
+				// é um comprato pai, salvar na pasta do comprador
+
+				if (compradores[0] != null) {
+					String caminho_salvar_contrato__no_hd = servidor_unidade + "E-contract\\arquivos\\clientes\\"
+							+ nome_comprador1_arquivo + "\\contratos" + "\\compra\\" + ano + "\\"
+							+ novo_contrato.getModelo_safra().getProduto().getNome_produto() + "\\";
+					System.out.println(
+							"caminho para salvar o contrato do comprador no hd: " + caminho_salvar_contrato__no_hd);
+					String caminho_salvar_contrato_no_banco_dados = "E-contract\\\\arquivos\\\\clientes\\\\"
+							+ nome_comprador1_arquivo + "\\\\contratos" + "\\\\compra\\\\" + ano + "\\\\"
+							+ novo_contrato.getModelo_safra().getProduto().getNome_produto() + "\\\\";
+
+					String nome_pasta_arquivo = novo_contrato.getCodigo();
+
+					String nome_arquivo = novo_contrato.getCodigo() + " " + nome_comprador1_arquivo;
+
+					if (nome_comprador2_arquivo != null) {
+						nome_arquivo = nome_arquivo + " E " + nome_comprador2_arquivo;
+
+					}
+					nome_arquivo += " X ";
+
+					if (nome_vendedor1_arquivo != null) {
+						nome_arquivo = nome_arquivo + nome_vendedor1_arquivo;
+
+					}
+
+					if (nome_vendedor2_arquivo != null) {
+						nome_arquivo = nome_arquivo + " E " + nome_vendedor2_arquivo;
+
+					}
+
+					String caminho_completo_salvar_contrato_no_hd = caminho_salvar_contrato__no_hd + nome_pasta_arquivo
+							+ "\\" + nome_arquivo;
+
+					String caminho_completo_salvar_contrato_no_bando_dados = caminho_salvar_contrato_no_banco_dados
+							+ nome_pasta_arquivo + "\\\\" + nome_arquivo;
+					String nome_diretorio_arquivo_contrato = caminho_salvar_contrato_no_banco_dados
+							+ nome_pasta_arquivo;
+
+					// criar o diretorio
+					ManipularTxt manipular = new ManipularTxt();
+					if (manipular.criarDiretorio(caminho_salvar_contrato__no_hd + nome_pasta_arquivo + "\\")) {
+						System.out.println("diretorio criado para o novo contrato");
+						// criar pastas documentos e comprovantes
+						if (manipular.criarDiretorio(
+								caminho_salvar_contrato__no_hd + nome_pasta_arquivo + "\\comprovantes")) {
+							// criar diretorio documentos
+							if (manipular.criarDiretorio(
+									caminho_salvar_contrato__no_hd + nome_pasta_arquivo + "\\documentos")) {
+
+							} else {
+
+							}
+
+						} else {
+
+						}
+
+						// copiar arquivo para o novo diretorio
+						boolean copiar = false;
+						try {
+							
+							
+									
+							
+							copiar = manipular.copiarNFe(diretorio_pasta_bkp1 + "\\" + nome_arquivo1_antes_atualizar,
+									caminho_salvar_contrato__no_hd + nome_pasta_arquivo + "\\" + nome_arquivo + ".pdf");
+						} catch (IOException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						}
+						if (copiar) {
+							JOptionPane.showMessageDialog(null, "Arquivo copiado para a pasta do comprador 1!");
+							// inserir o contrato no banco de dados
+							novo_contrato.setCaminho_diretorio_contrato(nome_diretorio_arquivo_contrato);
+							novo_contrato.setCaminho_arquivo(caminho_salvar_contrato_no_banco_dados + nome_pasta_arquivo
+									+ "\\\\" + nome_arquivo + ".pdf");
+							novo_contrato.setNome_arquivo(nome_arquivo + ".pdf");
+							
+                             //savalar na nuvem
+							// inserir o contrato na nuvem
+							Nuvem nuvem = new Nuvem();
+							nuvem.abrir();
+							nuvem.testar();
+
+							boolean retorno = nuvem.carregar(caminho_salvar_contrato__no_hd + nome_pasta_arquivo + "\\" + nome_arquivo + ".pdf", nome_arquivo + ".pdf");
+							if (retorno) {
+								JOptionPane.showMessageDialog(null, "O Contrato do comprador 1 foi salvo na nuvem");
+								isto.dispose();
+							} else {
+								JOptionPane.showMessageDialog(null, "O Contrato do comprador 2 não foi salvo na nuvem");
+
+							}
+							// copiar para o segundo comprador2
+
+							if (compradores[1] != null) {
+								caminho_salvar_contrato__no_hd = servidor_unidade + "E-contract\\arquivos\\clientes\\"
+										+ nome_comprador2_arquivo + "\\contratos" + "\\compra\\" + ano + "\\"
+										+ novo_contrato.getModelo_safra().getProduto().getNome_produto() + "\\";
+								System.out.println("caminho para salvar o contrato do comprador no hd: "
+										+ caminho_salvar_contrato__no_hd);
+								caminho_salvar_contrato_no_banco_dados = "E-contract\\\\arquivos\\\\clientes\\\\"
+										+ nome_comprador2_arquivo + "\\\\contratos" + "\\\\compra\\\\" + ano + "\\\\"
+										+ novo_contrato.getModelo_safra().getProduto().getNome_produto() + "\\\\";
+
+								nome_pasta_arquivo = novo_contrato.getCodigo();
+
+								nome_arquivo = novo_contrato.getCodigo() + " " + nome_comprador2_arquivo;
+
+								if (nome_comprador1_arquivo != null) {
+									nome_arquivo = nome_arquivo + " E " + nome_comprador1_arquivo;
+
+								}
+								nome_arquivo += " X ";
+
+								if (nome_vendedor1_arquivo != null) {
+									nome_arquivo = nome_arquivo + nome_vendedor1_arquivo;
+
+								}
+
+								if (nome_vendedor2_arquivo != null) {
+									nome_arquivo = nome_arquivo + " E " + nome_vendedor2_arquivo;
+
+								}
+
+								caminho_completo_salvar_contrato_no_hd = caminho_salvar_contrato__no_hd
+										+ nome_pasta_arquivo + "\\" + nome_arquivo;
+
+								caminho_completo_salvar_contrato_no_bando_dados = caminho_salvar_contrato_no_banco_dados
+										+ nome_pasta_arquivo + "\\\\" + nome_arquivo;
+								nome_diretorio_arquivo_contrato = caminho_salvar_contrato_no_banco_dados
+										+ nome_pasta_arquivo;
+
+								// criar o diretorio
+								manipular = new ManipularTxt();
+								if (manipular
+										.criarDiretorio(caminho_salvar_contrato__no_hd + nome_pasta_arquivo + "\\")) {
+									System.out.println("diretorio criado para o novo contrato");
+									// criar pastas documentos e comprovantes
+									if (manipular.criarDiretorio(
+											caminho_salvar_contrato__no_hd + nome_pasta_arquivo + "\\comprovantes")) {
+										// criar diretorio documentos
+										if (manipular.criarDiretorio(
+												caminho_salvar_contrato__no_hd + nome_pasta_arquivo + "\\documentos")) {
+
+										} else {
+
+										}
+
+									} else {
+
+									}
+
+									// copiar arquivo para o novo diretorio
+									copiar = false;
+									try {
+										
+										
+
+										String fonte = diretorio_pasta_bkp2 + "\\" + nome_arquivo2_antes_atualizar;
+										
+										if(fonte != null && fonte.length() > 20) {
+									
+											String destino = caminho_salvar_contrato__no_hd + nome_pasta_arquivo + "\\"
+												+ nome_arquivo + ".pdf";
+											copiar = manipular.copiarNFe(fonte,destino);
+
+										
+										}else {
+											try {
+												
+												 fonte = diretorio_pasta_bkp1 + "\\" + nome_arquivo1_antes_atualizar;
+												String destino = caminho_salvar_contrato__no_hd + nome_pasta_arquivo + "\\"
+														+ nome_arquivo + ".pdf";
+
+												copiar = manipular.copiarNFe(fonte,destino);
+											} catch (Exception e1) {
+												// TODO Auto-generated catch block
+												e1.printStackTrace();
+											}
+										}
+										
+									} catch (Exception e) {
+										
+
+									}
+									if (copiar) {
+										JOptionPane.showMessageDialog(null,
+												"Arquivo copiado para a pasta do comprador 2!");
+										// inserir o contrato no banco de dados
+										novo_contrato.setCaminho_diretorio_contrato2(nome_diretorio_arquivo_contrato);
+										novo_contrato.setCaminho_arquivo2(caminho_salvar_contrato_no_banco_dados
+												+ nome_pasta_arquivo + "\\\\" + nome_arquivo + ".pdf");
+										novo_contrato.setNome_arquivo2(nome_arquivo + ".pdf");
+
+										 nuvem = new Nuvem();
+										nuvem.abrir();
+										nuvem.testar();
+
+										 retorno = nuvem.carregar(caminho_salvar_contrato__no_hd + nome_pasta_arquivo + "\\" + nome_arquivo + ".pdf", nome_arquivo + ".pdf");
+										if (retorno) {
+											JOptionPane.showMessageDialog(null, "O Contrato do comprador 2 foi salvo na nuvem");
+											isto.dispose();
+										} else {
+											JOptionPane.showMessageDialog(null, "O Contrato do comprador 2 não foi salvo na nuvem");
+
+										}
+									
+						                 
+										GerenciarBancoContratos gerenciarContratos = new GerenciarBancoContratos();
+
+										int insercao = gerenciarContratos.atualizarContrato(contrato_pai_local, pagamento_a_excluir);
+										if (insercao == 5) {
+											JOptionPane.showMessageDialog(null,
+													"O Contrato foi atualizado no banco de dados");
+											retorno_global= true;
+
+										} else {
+											JOptionPane.showMessageDialog(null,
+													"O Contrato não foi atualizado no banco de dados\nConsulte o administrador");
+											retorno_global= false;
+										}
+
+									} else {
+										JOptionPane.showMessageDialog(null,
+												"O arquivo não foi copiado para  nova pasta, tente novamente");
+										
+
+									}
+
+								} else {
+									System.out.println("erro ao criar diretorio para o contrato ");
+									JOptionPane.showMessageDialog(null,
+											"O arquivo não foi copiado para  nova pasta, tente novamente");
+									JOptionPane.showMessageDialog(null,
+											"Origem: " + file_global.getAbsolutePath() + "\ndestino: "
+													+ caminho_salvar_contrato__no_hd + nome_pasta_arquivo + "\\"
+													+ nome_arquivo + ".pdf");
+
+								}
+
+							} else {
+								novo_contrato.setCaminho_arquivo2(null);
+								novo_contrato.setNome_arquivo2(null);
+								novo_contrato.setCaminho_diretorio_contrato2(null);
+
+								GerenciarBancoContratos gerenciarContratos = new GerenciarBancoContratos();
+
+								int insercao = gerenciarContratos.atualizarContrato(novo_contrato, pagamento_a_excluir);
+								if (insercao == 5) {
+									JOptionPane.showMessageDialog(null, "O Contrato foi atualizado no banco de dados");
+									retorno_global= true;
+
+								} else {
+             						JOptionPane.showMessageDialog(null, "O Contrato não foi atualizado no banco de dados\nConsulte o administrador");
+									retorno_global= false;
+								}
+
+							}
+
+						} else {
+							JOptionPane.showMessageDialog(null,
+									"O arquivo não foi copiado para  nova pasta, tente novamente");
+							JOptionPane.showMessageDialog(null,
+									"Origem: " + file_global.getAbsolutePath() + "\ndestino: "
+											+ caminho_salvar_contrato__no_hd + nome_pasta_arquivo + "\\" + nome_arquivo
+											+ ".pdf");
+						}
+
+					} else {
+						System.out.println("erro ao criar diretorio para o contrato ");
+						JOptionPane.showMessageDialog(null,
+								"O arquivo não foi copiado para  nova pasta, tente novamente");
+						JOptionPane.showMessageDialog(null, "Origem: " + file_global.getAbsolutePath() + "\ndestino: "
+								+ caminho_salvar_contrato__no_hd + nome_pasta_arquivo + "\\" + nome_arquivo + ".pdf");
+					}
+
+				}else {
+				}
+
+			} else if (novo_contrato.getSub_contrato() == 6) {
+				// copiar o arquivo para a pasta do vendedor pois e um subcontrato
+			}
+
+		} else {
+			JOptionPane.showMessageDialog(null,
+					"O Contrato de codigo " + novo_contrato.getCodigo() + " já esta cadastrado!");
+			retorno_global= true;
+
+		}
+		return retorno_global;
+	}
+	
 }

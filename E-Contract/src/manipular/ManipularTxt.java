@@ -315,6 +315,22 @@ public class ManipularTxt {
 		   }
 		   
 	   }
+	   
+	   public boolean criar_bkp_diretorio(String diretorio, String destino) {
+		   File source = new File(diretorio);
+		    File desc = new File(destino);
+		 
+		    try {
+		    	FileUtils.copyDirectory(source, desc);
+		 
+		    
+		      return true;
+		    } catch (IOException e) {
+		      e.printStackTrace();
+		    	return false;
+
+		    }
+	   }
 
 		
 	   public boolean moverArquivo(String caminho, String destino) {

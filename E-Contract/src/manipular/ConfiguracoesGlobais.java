@@ -2,6 +2,7 @@ package manipular;
 
 import cadastros.CadastroBaseArquivos;
 import cadastros.CadastroBaseDados;
+import cadastros.CadastroNuvem;
 import cadastros.CadastroZapMessenger;
 
 public class ConfiguracoesGlobais {
@@ -11,7 +12,26 @@ public class ConfiguracoesGlobais {
 	private int codigoSequencial;
 	private CadastroBaseDados baseDados;
 	private CadastroZapMessenger zap_zap;
+	private CadastroNuvem nuvem;
 	
+	
+	
+	public CadastroNuvem getNuvem() {
+		return nuvem;
+	}
+
+
+
+
+
+	public void setNuvem(CadastroNuvem nuvem) {
+		this.nuvem = nuvem;
+	}
+
+
+
+
+
 	public ConfiguracoesGlobais() {
 		
 	}

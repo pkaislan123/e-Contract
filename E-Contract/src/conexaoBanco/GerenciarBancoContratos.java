@@ -18,6 +18,7 @@ import cadastros.CadastroCliente;
 import cadastros.CadastroContrato;
 import cadastros.CadastroContrato.CadastroPagamentoContratual;
 import cadastros.CadastroContrato.CadastroTarefa;
+import cadastros.CadastroContrato.Recebimento;
 import cadastros.CadastroLogin;
 import cadastros.CadastroModelo;
 import cadastros.CadastroProduto;
@@ -131,7 +132,7 @@ public class GerenciarBancoContratos {
 									reverter = false;
 									return 1;
 
-								} else {
+								} else{
 									// e um contrato filho, criar relacao;
 									if (inserir_contrato_sub_contrato(contrato_pai.getId(),
 											retorno_contrato_inserido)) {
@@ -175,7 +176,6 @@ public class GerenciarBancoContratos {
 
 									}
 								}
-
 							} else {
 								// houve alguma excessao ao criar as tabelas relacao_contrato_pagamentos, devera
 								// ser feito o processo de
@@ -371,6 +371,59 @@ public class GerenciarBancoContratos {
 		}
 	}
 
+	
+	public boolean atualizarInfoExtras(CadastroContrato contrato) {
+		Connection conn = null;
+		String atualizar = null;
+		PreparedStatement pstm;
+		/*
+		 * localizacao text 
+bruto_livre text 
+fertilizante text 
+penhor int(3) 
+status_penhor text 
+optante_folha int(3) 
+status_optante_folha text 
+descricao text 
+observacao text
+		 */
+		String sql_update_contrato = "update contrato set  localizacao = ?, bruto_livre = ?,"
+				+ "fertilizante = ?, status_penhor = ?, optante_folha = ?, status_optante_folha = ?,"
+				+ "descricao = ?, observacao = ? where id = ?";
+
+		try {
+			String texto_clausulas = "";
+			int num_clausulas = 1;
+			for (String clausula_local : contrato.getClausulas()) {
+				texto_clausulas += (clausula_local + ";");
+				num_clausulas++;
+			}
+
+			conn = ConexaoBanco.getConexao();
+			pstm = conn.prepareStatement(sql_update_contrato);
+
+			
+			pstm.setString(1, contrato.getLocalizacao());
+			pstm.setString(2, contrato.getBruto_livre());
+			pstm.setString(3, contrato.getFertilizante());
+			pstm.setString(4, contrato.getStatus_penhor());
+
+			pstm.setInt(5, contrato.getOptante_folha());
+			pstm.setString(6, contrato.getStatus_optante_folha());
+			pstm.setString(7, contrato.getDescricao());
+			pstm.setString(8, contrato.getObservacao());
+			pstm.setInt(9, contrato.getId());
+			pstm.execute();
+
+			ConexaoBanco.fechaConexao(conn);
+			return true;
+		}catch(Exception e) {
+			return false;
+		}
+	
+		
+	}
+	
 	private boolean inserir_contrato_corretor(CadastroContrato contrato, int id_contrato) {
 
 		boolean retorno = false;
@@ -592,7 +645,7 @@ public class GerenciarBancoContratos {
 			texto_clausulas += (clausula_local + ";");
 		}
 
-		String query = "insert into contrato (codigo, sub_contrato,id_safra, id_produto, medida, quantidade, valor_produto, valor_a_pagar,frete, clausula_frete,  armazenagem, clausula_armazenagem,  comissao, clausula_comissao, valor_comissao, clausulas, id_local_retirada, tipo_entrega, data_contrato, data_entrega, status_contrato, caminho_diretorio, caminho_arquivo, nome_arquivo) values ('"
+		String query = "insert into contrato (codigo, sub_contrato,id_safra, id_produto, medida, quantidade, valor_produto, valor_a_pagar,frete, clausula_frete,  armazenagem, clausula_armazenagem,  comissao, clausula_comissao, valor_comissao, clausulas, id_local_retirada, tipo_entrega, data_contrato, data_entrega, status_contrato, caminho_diretorio, caminho_arquivo, nome_arquivo,caminho_diretorio2, caminho_arquivo2, nome_arquivo2 ) values ('"
 				+ contrato.getCodigo() + "','" + contrato.getSub_contrato() + "','"
 				+ contrato.getModelo_safra().getId_safra() + "','" 
 				+ contrato.getModelo_produto().getId_produto() + "','" 
@@ -614,8 +667,14 @@ public class GerenciarBancoContratos {
 				+ contrato.getData_entrega() + "','"
 				+ contrato.getStatus_contrato() + "','"
 
-				+ contrato.getCaminho_diretorio_contrato() + "','" + contrato.getCaminho_arquivo() + "','"
-				+ contrato.getNome_arquivo() 
+				+ contrato.getCaminho_diretorio_contrato() + "','"
+				+ contrato.getCaminho_arquivo() + "','"
+				+ contrato.getNome_arquivo()  + "','"
+				
+	+ contrato.getCaminho_diretorio_contrato2() + "','"
+	+ contrato.getCaminho_arquivo2() + "','"
+	+ contrato.getNome_arquivo2()
+	
 				+ "')";
 		return query;
 
@@ -1068,9 +1127,14 @@ public class GerenciarBancoContratos {
 				contrato.setStatus_contrato(rs.getInt("status_contrato"));
 				contrato.setData_contrato(rs.getString("data_contrato"));
 				contrato.setData_entrega(rs.getString("data_entrega"));
+				
 				contrato.setCaminho_diretorio_contrato(rs.getString("caminho_diretorio"));
 				contrato.setCaminho_arquivo(rs.getString("caminho_arquivo"));
 				contrato.setNome_arquivo(rs.getString("nome_arquivo"));
+				
+				contrato.setCaminho_diretorio_contrato2(rs.getString("caminho_diretorio2"));
+				contrato.setCaminho_arquivo2(rs.getString("caminho_arquivo2"));
+				contrato.setNome_arquivo2(rs.getString("nome_arquivo2"));
 
 				// dados de comissao
 				contrato.setComissao(rs.getInt("comissao"));
@@ -1091,6 +1155,17 @@ public class GerenciarBancoContratos {
 				contrato.setId_local_retirada(rs.getInt("id_local_retirada"));
 				contrato.setTipo_entrega(rs.getInt("tipo_entrega"));
 				
+				//informacoes extras
+				
+				contrato.setLocalizacao(rs.getString("localizacao"));
+				contrato.setBruto_livre(rs.getString("bruto_livre"));
+				contrato.setFertilizante(rs.getString("fertilizante"));
+				contrato.setStatus_penhor(rs.getString("status_penhor"));
+				contrato.setOptante_folha(rs.getInt("optante_folha"));
+				contrato.setStatus_optante_folha(rs.getString("status_optante_folha"));
+				contrato.setDescricao(rs.getString("descricao"));
+				contrato.setObservacao(rs.getString("observacao"));
+
 				
 				ConexaoBanco.fechaConexao(conn, pstm, rs);
 				
@@ -1175,6 +1250,10 @@ public class GerenciarBancoContratos {
 				contrato.setCaminho_diretorio_contrato(rs.getString("caminho_diretorio"));
 				contrato.setCaminho_arquivo(rs.getString("caminho_arquivo"));
 				contrato.setNome_arquivo(rs.getString("nome_arquivo"));
+				
+				contrato.setCaminho_diretorio_contrato2(rs.getString("caminho_diretorio2"));
+				contrato.setCaminho_arquivo2(rs.getString("caminho_arquivo2"));
+				contrato.setNome_arquivo2(rs.getString("nome_arquivo2"));
 
 				// dados de comissao
 				contrato.setComissao(rs.getInt("comissao"));
@@ -1195,6 +1274,16 @@ public class GerenciarBancoContratos {
 				contrato.setId_local_retirada(rs.getInt("id_local_retirada"));
 				contrato.setTipo_entrega(rs.getInt("tipo_entrega"));
 				
+//informacoes extras
+				
+				contrato.setLocalizacao(rs.getString("localizacao"));
+				contrato.setBruto_livre(rs.getString("bruto_livre"));
+				contrato.setFertilizante(rs.getString("fertilizante"));
+				contrato.setStatus_penhor(rs.getString("status_penhor"));
+				contrato.setOptante_folha(rs.getInt("optante_folha"));
+				contrato.setStatus_optante_folha(rs.getString("status_optante_folha"));
+				contrato.setDescricao(rs.getString("descricao"));
+				contrato.setObservacao(rs.getString("observacao"));
 				
 				ConexaoBanco.fechaConexao(conn, pstm, rs);
 				
@@ -1281,6 +1370,10 @@ public class GerenciarBancoContratos {
 				contrato.setCaminho_diretorio_contrato(rs.getString("caminho_diretorio"));
 				contrato.setCaminho_arquivo(rs.getString("caminho_arquivo"));
 				contrato.setNome_arquivo(rs.getString("nome_arquivo"));
+				
+				contrato.setCaminho_diretorio_contrato2(rs.getString("caminho_diretorio2"));
+				contrato.setCaminho_arquivo2(rs.getString("caminho_arquivo2"));
+				contrato.setNome_arquivo2(rs.getString("nome_arquivo2"));
 
 				// dados de comissao
 				contrato.setComissao(rs.getInt("comissao"));
@@ -1301,6 +1394,17 @@ public class GerenciarBancoContratos {
 				
 				contrato.setId_local_retirada(rs.getInt("id_local_retirada"));
 				contrato.setTipo_entrega(rs.getInt("tipo_entrega"));
+				
+//informacoes extras
+				
+				contrato.setLocalizacao(rs.getString("localizacao"));
+				contrato.setBruto_livre(rs.getString("bruto_livre"));
+				contrato.setFertilizante(rs.getString("fertilizante"));
+				contrato.setStatus_penhor(rs.getString("status_penhor"));
+				contrato.setOptante_folha(rs.getInt("optante_folha"));
+				contrato.setStatus_optante_folha(rs.getString("status_optante_folha"));
+				contrato.setDescricao(rs.getString("descricao"));
+				contrato.setObservacao(rs.getString("observacao"));
 				
 				ConexaoBanco.fechaConexao(conn, pstm, rs);
 
@@ -1324,10 +1428,10 @@ public class GerenciarBancoContratos {
 		Connection conn = null;
 		String atualizar = null;
 		PreparedStatement pstm;
-		String sql_update_contrato = "update contrato set id_safra = ?, id_produto = ?, medida = ?, quantidade = ?,\r\n"
+		String sql_update_contrato = "update contrato set  id_safra = ?, id_produto = ?, medida = ?, quantidade = ?,\r\n"
 				+ "valor_produto = ?, valor_a_pagar = ?, frete = ?, clausula_frete = ?,  armazenagem = ?, clausula_armazenagem = ?, comissao = ?, clausula_comissao = ?, valor_comissao = ?, clausulas = ?, id_local_retirada = ?, tipo_entrega = ?,\r\n"
 				+ "data_contrato = ?, data_entrega = ?, status_contrato = ?, caminho_diretorio = ?, caminho_arquivo = ?,\r\n"
-				+ "nome_arquivo = ? where id = ?;";
+				+ "nome_arquivo = ?, caminho_diretorio2 = ?, caminho_arquivo2 = ?, nome_arquivo2 = ?, codigo = ?, sub_contrato = ? where id = ?;";
 
 		try {
 			String texto_clausulas = "";
@@ -1367,9 +1471,15 @@ public class GerenciarBancoContratos {
 			pstm.setString(20, contrato.getCaminho_diretorio_contrato());
 			pstm.setString(21, contrato.getCaminho_arquivo());
 			pstm.setString(22, contrato.getNome_arquivo());
+			
+			pstm.setString(23, contrato.getCaminho_diretorio_contrato2());
+			pstm.setString(24, contrato.getCaminho_arquivo2());
+			pstm.setString(25, contrato.getNome_arquivo2());
 
-			pstm.setInt(23, contrato.getId());
+			pstm.setString(26, contrato.getCodigo());
+			pstm.setInt(27, contrato.getSub_contrato());
 
+			pstm.setInt(28, contrato.getId());
 			pstm.execute();
 			// JOptionPane.showMessageDialog(null, "Cliente atualizado com sucesso");
 			// System.out.println("Contrato Atualizado com sucesso");
@@ -1440,13 +1550,36 @@ public class GerenciarBancoContratos {
 				System.out.println("Não ha novos pagamentos a serem incluidos");
 
 			}
+			GerenciarBancoContratos gerenciar = new GerenciarBancoContratos();
+			CadastroContrato contrato_atual = gerenciar.getContrato(contrato.getId());
 
+
+			boolean compradores_atualizados = false;
+			//atualiza os compradores deste contrato
+			//pega os compradores atuais
+			CadastroCliente compradores_atuais[] = contrato_atual.getCompradores();
+
+			// pega os vendedores novos
+			CadastroCliente novos_compradores[] = contrato.getCompradores();
+			
+			// exclui os vendedores antigos
+			boolean remover_comprador1 = remover_contrato_comprador(contrato.getId(), compradores_atuais[0].getId());
+
+			if (compradores_atuais[1] != null) {
+				boolean remover_comprador2 = remover_contrato_comprador(contrato.getId(), compradores_atuais[1].getId());
+			}
+
+			// inserir novos vendedores
+			boolean inserir_novo_compradores = inserir_contrato_comprador(contrato, contrato.getId());
+			if (inserir_novo_compradores)
+				compradores_atualizados = true;
+
+			/*******************************************************************/
+			
 			boolean vendedores_atualizados = false;
 
 			// atualiza os vendedores deste contrato
 			// pega os vendedores atuais
-			GerenciarBancoContratos gerenciar = new GerenciarBancoContratos();
-			CadastroContrato contrato_atual = gerenciar.getContrato(contrato.getId());
 			// pega os vendedores atuais que estao cadastrados
 			CadastroCliente vendedores_atuais[] = contrato_atual.getVendedores();
 
@@ -1495,7 +1628,7 @@ public class GerenciarBancoContratos {
 			}
 
 			ConexaoBanco.fechaConexao(conn);
-			if (pagamentos_apagados && pagamentos_inseridos && vendedores_atualizados && corretores_atualizados) {
+			if (pagamentos_apagados && pagamentos_inseridos && vendedores_atualizados && corretores_atualizados && compradores_atualizados) {
 				System.out.println(
 						"Pagamentos que tinham foram apagados, e novos adicionados, alem do que os vendedores foram atualizados!");
 
@@ -1550,9 +1683,21 @@ public class GerenciarBancoContratos {
 				contrato.setNomes_compradores(rs.getString("compradores"));
 				contrato.setNomes_vendedores(rs.getString("vendedores"));
 				contrato.setNomes_corretores(rs.getString("corretores"));
-
+				
+	
 				produto.setTransgenia(rs.getString("transgenia"));
 				contrato.setId_local_retirada(rs.getInt("id_local_retirada"));
+				
+                //informacoes extras
+				
+				contrato.setLocalizacao(rs.getString("localizacao"));
+				contrato.setBruto_livre(rs.getString("bruto_livre"));
+				contrato.setFertilizante(rs.getString("fertilizante"));
+				contrato.setStatus_penhor(rs.getString("status_penhor"));
+				contrato.setOptante_folha(rs.getInt("optante_folha"));
+				contrato.setStatus_optante_folha(rs.getString("status_optante_folha"));
+				contrato.setDescricao(rs.getString("descricao"));
+				contrato.setObservacao(rs.getString("observacao"));
 				
 				safra.setProduto(produto);
 				contrato.setModelo_safra(safra);
@@ -1561,7 +1706,7 @@ public class GerenciarBancoContratos {
 			}
 			ConexaoBanco.fechaConexao(conn, pstm, rs);
 		} catch (Exception e) {
-			JOptionPane.showMessageDialog(null, "Erro ao listar contratos"  );
+			JOptionPane.showMessageDialog(null, "Erro ao listar contratos\nErro: " + e.getMessage() +"\nCausa: " + e.getCause()  );
 		}
 		return lsitaContratos;
 
@@ -1592,7 +1737,11 @@ public class GerenciarBancoContratos {
 				contrato.setSub_contrato(rs.getInt("sub_contrato"));
 				contrato.setQuantidade(Double.parseDouble(rs.getString("quantidade")));
 				contrato.setMedida(rs.getString("medida"));
-				contrato.setProduto(rs.getString("nome_produto"));
+				produto.setNome_produto(rs.getString("nome_produto"));
+				produto.setTransgenia(rs.getString("transgenia"));
+				contrato.setModelo_produto(produto);
+				contrato.setProduto(produto.getNome_produto());
+				
 				safra.setDescricao_safra(rs.getString("descricao_safra"));
 				safra.setAno_plantio(Integer.parseInt(rs.getString("ano_plantio")));
 				safra.setAno_colheita(Integer.parseInt(rs.getString("ano_colheita")));
@@ -1604,6 +1753,10 @@ public class GerenciarBancoContratos {
 				contrato.setNomes_compradores(rs.getString("compradores"));
 				contrato.setNomes_vendedores(rs.getString("vendedores"));
 				contrato.setNomes_corretores(rs.getString("corretores"));
+				
+				contrato.setCaminho_diretorio_contrato2(rs.getString("caminho_diretorio2"));
+				contrato.setCaminho_arquivo2(rs.getString("caminho_arquivo2"));
+				contrato.setNome_arquivo2(rs.getString("nome_arquivo2"));
 
 				safra.setProduto(produto);
 				contrato.setModelo_safra(safra);
@@ -1716,6 +1869,10 @@ public class GerenciarBancoContratos {
 					contrato.setCaminho_diretorio_contrato(rs.getString("caminho_diretorio"));
 					contrato.setCaminho_arquivo(rs.getString("caminho_arquivo"));
 					contrato.setNome_arquivo(rs.getString("nome_arquivo"));
+					
+					contrato.setCaminho_diretorio_contrato2(rs.getString("caminho_diretorio2"));
+					contrato.setCaminho_arquivo2(rs.getString("caminho_arquivo2"));
+					contrato.setNome_arquivo2(rs.getString("nome_arquivo2"));
 
 					// dados de comissao
 					contrato.setComissao(rs.getInt("comissao"));
@@ -1734,6 +1891,17 @@ public class GerenciarBancoContratos {
 					//dados retirada
 					contrato.setId_local_retirada(rs.getInt("id_local_retirada"));
 					contrato.setTipo_entrega(rs.getInt("tipo_entrega"));
+					
+					   //informacoes extras
+					
+					contrato.setLocalizacao(rs.getString("localizacao"));
+					contrato.setBruto_livre(rs.getString("bruto_livre"));
+					contrato.setFertilizante(rs.getString("fertilizante"));
+					contrato.setStatus_penhor(rs.getString("status_penhor"));
+					contrato.setOptante_folha(rs.getInt("optante_folha"));
+					contrato.setStatus_optante_folha(rs.getString("status_optante_folha"));
+					contrato.setDescricao(rs.getString("descricao"));
+					contrato.setObservacao(rs.getString("observacao"));
 
 					lsitaContratos.add(contrato);
 
@@ -2029,7 +2197,7 @@ public class GerenciarBancoContratos {
 	}
 
 	public ArrayList<CadastroContrato> getSubContratos(int id_contrato_pai) {
-		String selectContrato = "select * from contrato_sub_contrato sub_contrato LEFT JOIN contrato filho  on filho.id = sub_contrato.id_sub_contrato where filho.sub_contrato = 1 and id_contrato_pai = ?";
+		String selectContrato = "select * from contrato_sub_contrato sub_contrato LEFT JOIN contrato filho  on filho.id = sub_contrato.id_sub_contrato where (filho.sub_contrato = 1 or filho.sub_contrato = 6 or filho.sub_contrato = 7) and id_contrato_pai = ?";
 		Connection conn = null;
 		PreparedStatement pstm = null;
 		ResultSet rs = null;
@@ -2088,6 +2256,10 @@ public class GerenciarBancoContratos {
 					contrato.setCaminho_arquivo(rs.getString("caminho_arquivo"));
 					contrato.setNome_arquivo(rs.getString("nome_arquivo"));
 					contrato.setCaminho_diretorio_contrato(rs.getString("caminho_diretorio"));
+					
+					contrato.setCaminho_diretorio_contrato2(rs.getString("caminho_diretorio2"));
+					contrato.setCaminho_arquivo2(rs.getString("caminho_arquivo2"));
+					contrato.setNome_arquivo2(rs.getString("nome_arquivo2"));
 
 					// dados de comissao
 					contrato.setComissao(rs.getInt("comissao"));
@@ -2099,6 +2271,17 @@ public class GerenciarBancoContratos {
 					contrato.setId_local_retirada(rs.getInt("id_local_retirada"));
 					contrato.setTipo_entrega(rs.getInt("tipo_entrega"));
 
+					   //informacoes extras
+					
+					contrato.setLocalizacao(rs.getString("localizacao"));
+					contrato.setBruto_livre(rs.getString("bruto_livre"));
+					contrato.setFertilizante(rs.getString("fertilizante"));
+					contrato.setStatus_penhor(rs.getString("status_penhor"));
+					contrato.setOptante_folha(rs.getInt("optante_folha"));
+					contrato.setStatus_optante_folha(rs.getString("status_optante_folha"));
+					contrato.setDescricao(rs.getString("descricao"));
+					contrato.setObservacao(rs.getString("observacao"));
+					
 					lsitaContratos.add(contrato);
 
 				}
@@ -2490,6 +2673,32 @@ public class GerenciarBancoContratos {
 		}
 
 	}
+	
+	
+	public boolean inserirRecebimento(int id_contrato, Recebimento recebimento) {
+
+		// inserir primeiro o recebimento
+		int retorno_inserir_recebimento = inserir_recebimento_retorno(recebimento);
+		if (retorno_inserir_recebimento > 0) {
+			// inserir nova relacao contrato_recebimento
+			boolean inserir_relacao_contrato_recebimento = inserir_contrato_recebimento(id_contrato,
+					retorno_inserir_recebimento);
+			if (inserir_relacao_contrato_recebimento) {
+				System.out.println("Recebimento Cadastrado");
+				return true;
+
+			} else {
+				System.out.println("Erro ao inserir um novo recebimento!");
+				return false;
+
+			}
+
+		} else {
+			System.out.println("Erro ao inserir um novo recebimento!");
+			return false;
+		}
+
+	}
 
 	public boolean atualizarStatusTarefa(String resposta, int id_tarefa) {
 
@@ -2540,7 +2749,7 @@ public class GerenciarBancoContratos {
 
 			} catch (Exception e) {
 				JOptionPane.showMessageDialog(null,
-						"Erro ao inserir o carregamento no banco de " + "dados "  );
+						"Erro ao inserir o carregamento no banco de dados\nErro: " + e.getMessage()  );
 				GerenciadorLog.registrarLogDiario("falha",
 						"falha ao adicionar carregamento: "   + " causa: "  );
 				return -1;
@@ -2552,6 +2761,43 @@ public class GerenciarBancoContratos {
 
 	}
 
+	public int inserir_recebimento_retorno(CadastroContrato.Recebimento recebimento) {
+
+		int result = -1;
+		if (recebimento != null) {
+			Connection conn = null;
+			try {
+
+				conn = ConexaoBanco.getConexao();
+
+				String query = sql_recebimento(recebimento);
+				Statement stmt = (Statement) conn.createStatement();
+				int numero = stmt.executeUpdate(query, Statement.RETURN_GENERATED_KEYS);
+
+				ResultSet rs = stmt.getGeneratedKeys();
+				if (rs.next()) {
+					result = rs.getInt(1);
+					System.out.println("Id recebimento inserido: " + result);
+				}
+				rs.close();
+				stmt.close();
+
+				return result;
+
+			} catch (Exception e) {
+				JOptionPane.showMessageDialog(null,
+						"Erro ao inserir o recebimento no banco de " + "dados "  );
+				GerenciadorLog.registrarLogDiario("falha",
+						"falha ao adicionar carregamento: "   + " causa: "  );
+				return -1;
+			}
+		} else {
+			System.out.println("O recebimento enviado por parametro esta vazio");
+			return -1;
+		}
+
+	}
+	
 	private boolean inserir_contrato_carregamento(int id_contrato, int id_carregamento) {
 		Connection conn = null;
 		try {
@@ -2572,7 +2818,31 @@ public class GerenciarBancoContratos {
 		}
 
 	}
+	
+	private boolean inserir_contrato_recebimento(int id_contrato, int id_recebimento) {
+		Connection conn = null;
+		try {
+			conn = ConexaoBanco.getConexao();
+			String sql = "insert into contrato_recebimentos\r\n" + "(id_contrato, id_recebimento) values ('"
+					+ id_contrato + "','" + id_recebimento + "')";
 
+			PreparedStatement grava = (PreparedStatement) conn.prepareStatement(sql);
+			grava.execute();
+			ConexaoBanco.fechaConexao(conn, grava);
+			//JOptionPane.showMessageDialog(null, "Relação contrato_carregamento  cadastrado com sucesso");
+
+			return true;
+
+		} catch (Exception e) {
+			JOptionPane.showMessageDialog(null, "Erro ao inserir a relação contrato_recebimentos no banco de dados ");
+			return false;
+		}
+
+	}
+
+	
+	
+	
 	public ArrayList<CadastroContrato.Carregamento> getCarregamentos(int id_contrato) {
 
 		System.out.println("Lista carregamento foi chamado!");
@@ -2606,9 +2876,39 @@ public class GerenciarBancoContratos {
 					carga.setId_transportador(rs.getInt("id_transportador"));
 					carga.setId_veiculo(rs.getInt("id_veiculo"));
 					carga.setId_produto(rs.getInt("id_produto"));
-					carga.setPeso_real_carga(rs.getDouble("peso_real_carga"));
-					carga.setCodigo_nota_fiscal(rs.getString("codigo_nota_fiscal"));
-					carga.setCaminho_nota_fiscal(rs.getString("caminho_nota_fiscal"));
+					
+				    carga.setCodigo_romaneio(rs.getString("codigo_romaneio"));
+				    carga.setPeso_romaneio(rs.getDouble("peso_romaneio"));
+				    carga.setCaminho_romaneio(rs.getString("caminho_romaneio"));
+				    
+				    carga.setCodigo_nf_interna(rs.getString("codigo_nf_interna"));
+				    carga.setPeso_nf_interna(rs.getDouble("peso_nf_interna"));
+				    carga.setCaminho_nf_interna(rs.getString("caminho_nf_interna"));
+					
+				    carga.setCodigo_nf_venda1(rs.getString("codigo_nf_venda1"));
+				    carga.setPeso_nf_venda1(rs.getDouble("peso_nf_venda1"));
+				    try {
+				    carga.setValor_nf_venda1(new BigDecimal(rs.getString("valor_nf_venda1")));
+				    }catch(Exception e) {
+				    	JOptionPane.showMessageDialog(null,"Erro ao criar bigdecimal do valor de venda1\nErro: " + e.getMessage());
+				    	 carga.setValor_nf_venda1( BigDecimal.ZERO);
+				    	 
+				    }
+				    carga.setCaminho_nf_venda1(rs.getString("caminho_nf_venda1"));
+				    
+				    carga.setCodigo_nf_complemento(rs.getString("codigo_nf_complemento"));
+				    carga.setPeso_nf_complemento(rs.getDouble("peso_nf_complemento"));
+				    try {
+				    carga.setValor_nf_complemento(new BigDecimal(rs.getString("valor_nf_complemento")));
+				    }catch(Exception e) {
+				    	JOptionPane.showMessageDialog(null,"Erro ao criar bigdecimal do valor de nf complemento\nErro: " + e.getMessage());
+
+				    	 carga.setValor_nf_complemento( BigDecimal.ZERO);
+
+				    }
+				    carga.setCaminho_nf_complemento(rs.getString("caminho_nf_complemento"));
+				    
+				    carga.setObservacao(rs.getString("observacao"));
 
 					lista_carregamentos.add(carga);
 
@@ -2620,7 +2920,67 @@ public class GerenciarBancoContratos {
 			return lista_carregamentos;
 		} catch (Exception e) {
 			JOptionPane.showMessageDialog(null, "Erro ao listar os carregamentos do contrato: " + id_contrato
-					+ " erro: "   + "causa: "  );
+					+ " erro: " + e.getMessage()  + "causa: "  + e.getCause());
+			return null;
+		}
+
+	}
+	
+	public ArrayList<CadastroContrato.Recebimento> getRecebimentos(int id_contrato) {
+
+		System.out.println("Lista carregamento foi chamado!");
+		String selectRecebimentos = "select * from contrato_recebimentos\n"
+				+ "LEFT JOIN recebimento  on recebimento.id_recebimento = contrato_recebimentos.id_recebimento \n"
+				+ "where contrato_recebimentos.id_contrato = ?";
+		Connection conn = null;
+		PreparedStatement pstm = null;
+		ResultSet rs = null;
+		ArrayList<CadastroContrato.Recebimento> lista_recebimentos = new ArrayList<>();
+
+		try {
+			conn = ConexaoBanco.getConexao();
+			pstm = conn.prepareStatement(selectRecebimentos);
+			pstm.setInt(1, id_contrato);
+
+			rs = pstm.executeQuery();
+
+			while (rs.next()) {
+
+				if (rs != null) {
+					System.out.print("recebimento não e nulo!");
+
+					CadastroContrato.Recebimento recebido = new CadastroContrato.Recebimento();
+
+					recebido.setId_recebimento(rs.getInt("id_recebimento"));
+					recebido.setData_recebimento(rs.getString("data_recebimento").toString());
+					recebido.setId_contrato_recebimento(rs.getInt("id_contrato_recebimento"));
+					recebido.setId_cliente(rs.getInt("id_cliente"));
+					recebido.setId_vendedor(rs.getInt("id_vendedor"));
+					recebido.setId_transportador(rs.getInt("id_transportador"));
+					recebido.setId_veiculo(rs.getInt("id_veiculo"));
+					recebido.setCodigo_romaneio(rs.getString("codigo_romaneio"));
+					recebido.setPeso_romaneio(rs.getDouble("peso_romaneio"));
+					recebido.setCaminho_romaneio(rs.getString("caminho_romaneio"));
+					
+					recebido.setCodigo_nf_venda(rs.getString("codigo_nf_venda"));
+					recebido.setPeso_nf_venda(rs.getDouble("peso_nf_venda"));
+					recebido.setCaminho_nf_venda(rs.getString("caminho_nf_venda"));
+					
+					recebido.setCodigo_nf_remessa(rs.getString("codigo_nf_remessa"));
+					recebido.setCaminho_nf_remessa(rs.getString("caminho_nf_remessa"));
+
+
+					lista_recebimentos.add(recebido);
+
+				}
+			}
+
+			ConexaoBanco.fechaConexao(conn, pstm, rs);
+			System.out.println("Recebimentos foram listadas com sucesso!");
+			return lista_recebimentos;
+		} catch (Exception e) {
+			JOptionPane.showMessageDialog(null, "Erro ao listar os recebimentos do contrato: " + id_contrato
+					+ " erro: "+ e.getMessage()  + "causa: " + e.getCause()  );
 			return null;
 		}
 
@@ -2655,9 +3015,28 @@ public class GerenciarBancoContratos {
 				carga.setId_transportador(rs.getInt("id_transportador"));
 				carga.setId_veiculo(rs.getInt("id_veiculo"));
 				carga.setId_produto(rs.getInt("id_produto"));
-				carga.setPeso_real_carga(rs.getDouble("peso_real_carga"));
-				carga.setCodigo_nota_fiscal(rs.getString("codigo_nota_fiscal"));
-				carga.setCaminho_nota_fiscal(rs.getString("caminho_nota_fiscal"));
+				
+			    carga.setCodigo_romaneio(rs.getString("codigo_romaneio"));
+			    carga.setPeso_romaneio(rs.getDouble("peso_romaneio"));
+			    carga.setCaminho_romaneio(rs.getString("caminho_romaneio"));
+			    
+			    carga.setCodigo_nf_interna(rs.getString("codigo_nf_interna"));
+			    carga.setPeso_nf_interna(rs.getDouble("peso_nf_interna"));
+			    carga.setCaminho_nf_interna(rs.getString("caminho_nf_interna"));
+				
+			    carga.setCodigo_nf_venda1(rs.getString("codigo_nf_venda1"));
+			    carga.setPeso_nf_venda1(rs.getDouble("peso_nf_venda1"));
+			    carga.setValor_nf_venda1(new BigDecimal(rs.getString("valor_nf_venda1")));
+			    carga.setCaminho_nf_venda1(rs.getString("caminho_nf_venda1"));
+			    
+			    carga.setCodigo_nf_complemento(rs.getString("codigo_nf_complemento"));
+			    carga.setPeso_nf_complemento(rs.getDouble("peso_nf_complemento"));
+			    carga.setValor_nf_complemento(new BigDecimal(rs.getString("valor_nf_complemento")));
+
+			    carga.setCaminho_nf_complemento(rs.getString("caminho_nf_complemento"));
+			    
+			    carga.setObservacao(rs.getString("observacao"));
+
 
 			}
 
@@ -2694,18 +3073,37 @@ public class GerenciarBancoContratos {
 					System.out.print("carregamento não e nulo!");
 
 					CadastroContrato.Carregamento carga = new CadastroContrato.Carregamento();
-
 					carga.setId_carregamento(rs.getInt("id_carregamento"));
 					carga.setData(rs.getDate("data_carregamento").toString());
 					carga.setId_contrato(rs.getInt("id_contrato_carregamento"));
 					carga.setId_cliente(rs.getInt("id_cliente"));
-
 					carga.setId_vendedor(rs.getInt("id_vendedor"));
 					carga.setId_transportador(rs.getInt("id_transportador"));
 					carga.setId_veiculo(rs.getInt("id_veiculo"));
 					carga.setId_produto(rs.getInt("id_produto"));
-					carga.setPeso_real_carga(rs.getDouble("peso_real_carga"));
-					carga.setCodigo_nota_fiscal(rs.getString("codigo_nota_fiscal"));
+					
+				    carga.setCodigo_romaneio(rs.getString("codigo_romaneio"));
+				    carga.setPeso_romaneio(rs.getDouble("peso_romaneio"));
+				    carga.setCaminho_romaneio(rs.getString("caminho_romaneio"));
+				    
+				    carga.setCodigo_nf_interna(rs.getString("codigo_nf_interna"));
+				    carga.setPeso_nf_interna(rs.getDouble("peso_nf_interna"));
+				    carga.setCaminho_nf_interna(rs.getString("caminho_nf_interna"));
+					
+				    carga.setCodigo_nf_venda1(rs.getString("codigo_nf_venda1"));
+				    carga.setPeso_nf_venda1(rs.getDouble("peso_nf_venda1"));
+				    carga.setValor_nf_venda1(new BigDecimal(rs.getString("valor_nf_venda1")));
+				    carga.setCaminho_nf_venda1(rs.getString("caminho_nf_venda1"));
+				    
+				    carga.setCodigo_nf_complemento(rs.getString("codigo_nf_complemento"));
+				    carga.setPeso_nf_complemento(rs.getDouble("peso_nf_complemento"));
+				    carga.setValor_nf_complemento(new BigDecimal(rs.getString("valor_nf_complemento")));
+
+				    carga.setCaminho_nf_complemento(rs.getString("caminho_nf_complemento"));
+				    
+				    carga.setObservacao(rs.getString("observacao"));
+
+
 
 					lista_carregamentos.add(carga);
 
@@ -2750,13 +3148,33 @@ public class GerenciarBancoContratos {
 					carga.setData(rs.getDate("data_carregamento").toString());
 					carga.setId_contrato(rs.getInt("id_contrato_carregamento"));
 					carga.setId_cliente(rs.getInt("id_cliente"));
-
 					carga.setId_vendedor(rs.getInt("id_vendedor"));
 					carga.setId_transportador(rs.getInt("id_transportador"));
 					carga.setId_veiculo(rs.getInt("id_veiculo"));
 					carga.setId_produto(rs.getInt("id_produto"));
-					carga.setPeso_real_carga(rs.getDouble("peso_real_carga"));
-					carga.setCodigo_nota_fiscal(rs.getString("codigo_nota_fiscal"));
+					
+				    carga.setCodigo_romaneio(rs.getString("codigo_romaneio"));
+				    carga.setPeso_romaneio(rs.getDouble("peso_romaneio"));
+				    carga.setCaminho_romaneio(rs.getString("caminho_romaneio"));
+				    
+				    carga.setCodigo_nf_interna(rs.getString("codigo_nf_interna"));
+				    carga.setPeso_nf_interna(rs.getDouble("peso_nf_interna"));
+				    carga.setCaminho_nf_interna(rs.getString("caminho_nf_interna"));
+					
+				    carga.setCodigo_nf_venda1(rs.getString("codigo_nf_venda1"));
+				    carga.setPeso_nf_venda1(rs.getDouble("peso_nf_venda1"));
+				    carga.setValor_nf_venda1(new BigDecimal(rs.getString("valor_nf_venda1")));
+				    carga.setCaminho_nf_venda1(rs.getString("caminho_nf_venda1"));
+				    
+				    carga.setCodigo_nf_complemento(rs.getString("codigo_nf_complemento"));
+				    carga.setPeso_nf_complemento(rs.getDouble("peso_nf_complemento"));
+				    carga.setValor_nf_complemento(new BigDecimal(rs.getString("valor_nf_complemento")));
+
+				    carga.setCaminho_nf_complemento(rs.getString("caminho_nf_complemento"));
+				    
+				    carga.setObservacao(rs.getString("observacao"));
+
+
 
 					lista_carregamentos.add(carga);
 
@@ -2802,13 +3220,33 @@ public class GerenciarBancoContratos {
 					carga.setData(rs.getDate("data_carregamento").toString());
 					carga.setId_contrato(rs.getInt("id_contrato_carregamento"));
 					carga.setId_cliente(rs.getInt("id_cliente"));
-
 					carga.setId_vendedor(rs.getInt("id_vendedor"));
 					carga.setId_transportador(rs.getInt("id_transportador"));
 					carga.setId_veiculo(rs.getInt("id_veiculo"));
 					carga.setId_produto(rs.getInt("id_produto"));
-					carga.setPeso_real_carga(rs.getDouble("peso_real_carga"));
-					carga.setCodigo_nota_fiscal(rs.getString("codigo_nota_fiscal"));
+					
+				    carga.setCodigo_romaneio(rs.getString("codigo_romaneio"));
+				    carga.setPeso_romaneio(rs.getDouble("peso_romaneio"));
+				    carga.setCaminho_romaneio(rs.getString("caminho_romaneio"));
+				    
+				    carga.setCodigo_nf_interna(rs.getString("codigo_nf_interna"));
+				    carga.setPeso_nf_interna(rs.getDouble("peso_nf_interna"));
+				    carga.setCaminho_nf_interna(rs.getString("caminho_nf_interna"));
+					
+				    carga.setCodigo_nf_venda1(rs.getString("codigo_nf_venda1"));
+				    carga.setPeso_nf_venda1(rs.getDouble("peso_nf_venda1"));
+				    carga.setValor_nf_venda1(new BigDecimal(rs.getString("valor_nf_venda1")));
+				    carga.setCaminho_nf_venda1(rs.getString("caminho_nf_venda1"));
+				    
+				    carga.setCodigo_nf_complemento(rs.getString("codigo_nf_complemento"));
+				    carga.setPeso_nf_complemento(rs.getDouble("peso_nf_complemento"));
+				    carga.setValor_nf_complemento(new BigDecimal(rs.getString("valor_nf_complemento")));
+
+				    carga.setCaminho_nf_complemento(rs.getString("caminho_nf_complemento"));
+				    
+				    carga.setObservacao(rs.getString("observacao"));
+
+
 
 					lista_carregamentos.add(carga);
 
@@ -2831,7 +3269,204 @@ public class GerenciarBancoContratos {
 		return remover_carregamento(id_carregamento) && remover_contrato_carregamento(id_contrato, id_carregamento);
 
 	}
+	
+	
+	public boolean removerRecebimento(int id_contrato, int id_recebimento) {
 
+		return remover_recebimento(id_recebimento) && remover_contrato_recebimento(id_contrato, id_recebimento);
+
+	}
+	
+	private boolean remover_recebimento(int id_recebimento) {
+
+		String sql_delete_recebimento = "DELETE FROM recebimento WHERE id_recebimento = ?";
+		Connection conn = null;
+		ResultSet rs = null;
+		try {
+			conn = ConexaoBanco.getConexao();
+			PreparedStatement pstm;
+			pstm = conn.prepareStatement(sql_delete_recebimento);
+
+			pstm.setInt(1, id_recebimento);
+
+			pstm.execute();
+			ConexaoBanco.fechaConexao(conn, pstm);
+			//JOptionPane.showMessageDialog(null, "Recebimento excluido, banco normalizado ");
+			return true;
+
+		} catch (Exception f) {
+			JOptionPane.showMessageDialog(null,
+					"Erro ao excluir o recebimento do banco de" + "dados " + f.getMessage());
+			return false;
+		}
+
+	}
+	
+	private boolean remover_contrato_recebimento(int id_contrato, int id_recebimento) {
+
+		String sql_delete_contrato_recebimento = "DELETE FROM contrato_recebimentos WHERE id_contrato = ? and id_recebimento = ?";
+		Connection conn = null;
+		ResultSet rs = null;
+		try {
+			conn = ConexaoBanco.getConexao();
+			PreparedStatement pstm;
+			pstm = conn.prepareStatement(sql_delete_contrato_recebimento);
+
+			pstm.setInt(1, id_contrato);
+			pstm.setInt(2, id_recebimento);
+
+			pstm.execute();
+			ConexaoBanco.fechaConexao(conn, pstm);
+		//	JOptionPane.showMessageDialog(null, "Relacao contrato_recebimento excluida, banco normalizado ");
+			return true;
+
+		} catch (Exception f) {
+			JOptionPane.showMessageDialog(null,
+					"Erro ao excluir a relacao contrato_recebimento do banco de" + "dados " + f.getMessage());
+			return false;
+		}
+
+	}
+	
+	
+	public boolean atualizar_recebimento(CadastroContrato.Recebimento recebimento) {
+		/*
+		 * id_recebimento int(10) not null auto_increment,
+data_recebimento varchar(40),
+id_contrato_recebimento int(10),
+id_cliente int(10),
+id_vendedor int(10),
+id_transportador int(10),
+id_veiculo int(10),
+codigo_romaneio varchar(100),
+peso_romaneio double,
+caminho_romaneio text,
+codigo_nf_venda varchar (40),
+peso_nf_venda double,
+caminho_nf_venda text,
+codigo_nf_remessa varchar(40),
+peso_nf_remessa double,
+caminho_nf_remessa text,
+		 */
+		String sql_atualizar_recebimento = "update recebimento set data_recebimento = ?, id_cliente = ?, id_vendedor = ?, id_transportador = ?, id_veiculo = ?, codigo_romaneio = ?, peso_romaneio = ?, caminho_romaneio = ?, codigo_nf_venda = ?, peso_nf_venda = ?, caminho_nf_venda = ?, codigo_nf_remessa = ?, peso_nf_remessa = ?, caminho_nf_remessa = ? where id_recebimento = ?";
+				
+		Connection conn = null;
+		ResultSet rs = null;
+		try {
+			conn = ConexaoBanco.getConexao();
+			PreparedStatement pstm;
+			pstm = conn.prepareStatement(sql_atualizar_recebimento);
+
+			pstm.setString(1, recebimento.getData_recebimento());
+			pstm.setInt(2, recebimento.getId_cliente());
+			pstm.setInt(3, recebimento.getId_vendedor());
+			pstm.setInt(4, recebimento.getId_transportador());
+			pstm.setInt(5, recebimento.getId_veiculo());
+			pstm.setString(6, recebimento.getCodigo_romaneio());
+			pstm.setDouble(7, recebimento.getPeso_romaneio());
+			pstm.setString(8, recebimento.getCaminho_romaneio());
+			
+			pstm.setString(9, recebimento.getCodigo_nf_venda());
+			pstm.setDouble(10, recebimento.getPeso_nf_venda());
+			pstm.setString(11, recebimento.getCaminho_nf_venda());
+			
+			pstm.setString(12, recebimento.getCodigo_nf_remessa());
+			pstm.setDouble(13, recebimento.getPeso_nf_remessa());
+			pstm.setString(14, recebimento.getCaminho_nf_remessa());
+			
+			pstm.setInt(15, recebimento.getId_recebimento());
+		
+
+
+			pstm.execute();
+			ConexaoBanco.fechaConexao(conn, pstm);
+		//	JOptionPane.showMessageDialog(null, "Recebimento Atualizado");
+			return true;
+
+		} catch (Exception f) {
+			//JOptionPane.showMessageDialog(null,
+				//	"Erro ao atualizar o recebimento no banco de" + "dados " + f.getMessage());
+			return false;
+		}
+		
+	}
+
+	
+	public boolean atualizar_carregamento(CadastroContrato.Carregamento carregamento) {
+		/*
+		 * id_recebimento int(10) not null auto_increment,
+data_recebimento varchar(40),
+id_contrato_recebimento int(10),
+id_cliente int(10),
+id_vendedor int(10),
+id_transportador int(10),
+id_veiculo int(10),
+codigo_romaneio varchar(100),
+peso_romaneio double,
+caminho_romaneio text,
+codigo_nf_venda varchar (40),
+peso_nf_venda double,
+caminho_nf_venda text,
+codigo_nf_remessa varchar(40),
+peso_nf_remessa double,
+caminho_nf_remessa text,
+		 */
+		String sql_atualizar_carregamento = "update carregamento set data_carregamento = ?, id_cliente = ?, id_vendedor = ?, id_transportador = ?,\n"
+				+ "id_veiculo = ?, codigo_romaneio = ?, peso_romaneio = ?, caminho_romaneio = ?, codigo_nf_venda1 = ?, peso_nf_venda1 = ?, valor_nf_venda1 = ?,\n"
+				+ "caminho_nf_venda1 = ?, codigo_nf_complemento = ?, peso_nf_complemento = ?, valor_nf_complemento = ?, caminho_nf_complemento = ?, codigo_nf_interna = ?,\n"
+				+ "peso_nf_interna = ?, caminho_nf_interna = ?, observacao = ? where id_carregamento = ?;";
+		Connection conn = null;
+		ResultSet rs = null;
+		try {
+			conn = ConexaoBanco.getConexao();
+			PreparedStatement pstm;
+			pstm = conn.prepareStatement(sql_atualizar_carregamento);
+
+			pstm.setString(1, carregamento.getData());
+			pstm.setInt(2, carregamento.getId_cliente());
+			pstm.setInt(3, carregamento.getId_vendedor());
+			pstm.setInt(4, carregamento.getId_transportador());
+			pstm.setInt(5, carregamento.getId_veiculo());
+			pstm.setString(6, carregamento.getCodigo_romaneio());
+			pstm.setDouble(7, carregamento.getPeso_romaneio());
+			pstm.setString(8, carregamento.getCaminho_romaneio());
+			
+			pstm.setString(9, carregamento.getCodigo_nf_venda1());
+			pstm.setDouble(10, carregamento.getPeso_nf_venda1());
+			pstm.setString(11, carregamento.getValor_nf_venda1().toPlainString());
+
+			pstm.setString(12, carregamento.getCaminho_nf_venda1());
+			
+			pstm.setString(13, carregamento.getCodigo_nf_complemento());
+			pstm.setDouble(14, carregamento.getPeso_nf_complemento());
+			pstm.setString(15, carregamento.getValor_nf_complemento().toPlainString());
+
+			pstm.setString(16, carregamento.getCaminho_nf_complemento());
+			
+			pstm.setString(17, carregamento.getCodigo_nf_interna());
+			pstm.setDouble(18, carregamento.getPeso_nf_interna());
+			pstm.setString(19, carregamento.getCaminho_nf_interna());
+			
+			pstm.setString(20, carregamento.getObservacao());
+
+			pstm.setInt(21, carregamento.getId_carregamento());
+		
+
+
+			pstm.execute();
+			ConexaoBanco.fechaConexao(conn, pstm);
+		//	JOptionPane.showMessageDialog(null, "Recebimento Atualizado");
+			return true;
+
+		} catch (Exception f) {
+			JOptionPane.showMessageDialog(null,
+					"Erro ao atualizar o recebimento no banco de" + "dados " + f.getMessage());
+			return false;
+		}
+		
+	}
+
+	
 	private boolean remover_carregamento(int id_carregamento) {
 
 		String sql_delete_carregamento = "DELETE FROM carregamento WHERE id_carregamento = ?";
@@ -2885,13 +3520,61 @@ public class GerenciarBancoContratos {
 
 	public String sql_carregamento(CadastroContrato.Carregamento carregamento) {
 
-		String query = "insert into carregamento (data_carregamento, id_contrato_carregamento, id_cliente, id_vendedor , id_transportador, id_veiculo, id_produto, peso_real_carga, codigo_nota_fiscal, caminho_nota_fiscal) values ('"
-				+ carregamento.getData() + "','" + carregamento.getId_contrato() + "','" + carregamento.getId_cliente()
-				+ "','" + carregamento.getId_vendedor() + "','" + carregamento.getId_transportador() + "','"
-				+ carregamento.getId_veiculo() + "','" + carregamento.getId_produto() + "','"
-				+ carregamento.getPeso_real_carga()
+		String query = "insert into carregamento (data_carregamento, id_contrato_carregamento, id_cliente, id_vendedor , id_transportador, id_veiculo, id_produto, codigo_romaneio , peso_romaneio ,caminho_romaneio ,codigo_nf_venda1 ,peso_nf_venda1 , valor_nf_venda1,caminho_nf_venda1,codigo_nf_complemento ,peso_nf_complemento, valor_nf_complemento,caminho_nf_complemento ,codigo_nf_interna ,peso_nf_interna ,caminho_nf_interna ,observacao ) values ('"
+				+ carregamento.getData() + "','" 
+				+ carregamento.getId_contrato() + "','" 
+				+ carregamento.getId_cliente()+ "','"
+                + carregamento.getId_vendedor() + "','"
+				+ carregamento.getId_transportador() + "','"
+				+ carregamento.getId_veiculo() + "','"
+				+ carregamento.getId_produto() + "','"
+				+ carregamento.getCodigo_romaneio()+ "','"
+				+ carregamento.getPeso_romaneio()+ "','"
+				+ carregamento.getCaminho_romaneio() + "','"
+				
+	+ carregamento.getCodigo_nf_venda1()+ "','"
+	+ carregamento.getPeso_nf_venda1()+ "','"
+			+ carregamento.getValor_nf_venda1() + "','" 
+	+ carregamento.getCaminho_nf_venda1() + "','"
+	
+	
++ carregamento.getCodigo_nf_complemento()+ "','"
++ carregamento.getPeso_nf_complemento()+ "','"
+		+ carregamento.getValor_nf_complemento() + "','"
++ carregamento.getCaminho_nf_complemento() + "','"
 
-				+ "','" + carregamento.getCodigo_nota_fiscal() + "','" + carregamento.getCaminho_nota_fiscal()
+
++ carregamento.getCodigo_nf_interna()+ "','"
++ carregamento.getPeso_nf_interna()+ "','"
++ carregamento.getCaminho_nf_interna() + "','"
+
+				
+				+ carregamento.getObservacao()
+
+				+ "')";
+		return query;
+
+	}
+	
+	
+	public String sql_recebimento(Recebimento recebimento) {
+
+		String query = "insert into recebimento (data_recebimento, id_contrato_recebimento, id_cliente, id_vendedor , id_transportador, id_veiculo, codigo_romaneio, peso_romaneio, caminho_romaneio, codigo_nf_venda, peso_nf_venda, caminho_nf_venda,codigo_nf_remessa ,peso_nf_remessa,caminho_nf_remessa) values ('"
+				+ recebimento.getData_recebimento() + "','"
+				+ recebimento.getId_contrato_recebimento() + "','" 
+				+ recebimento.getId_cliente()+ "','"
+				+ recebimento.getId_vendedor() + "','" 
+				+ recebimento.getId_transportador() + "','"
+				+ recebimento.getId_veiculo() + "','" 
+				+ recebimento.getCodigo_romaneio() + "','"
+			    + recebimento.getPeso_romaneio() + "','"
+				+ recebimento.getCaminho_romaneio() + "','"
+				+ recebimento.getCodigo_nf_venda() + "','" 
+				+ recebimento.getPeso_nf_venda() + "','" 
+				+ recebimento.getCaminho_nf_venda() + "','" 
+				+ recebimento.getCodigo_nf_remessa() + "','" 
+				+ recebimento.getPeso_nf_remessa() + "','" 
+				+ recebimento.getCaminho_nf_remessa() 
 
 				+ "')";
 		return query;
@@ -3320,11 +4003,11 @@ public class GerenciarBancoContratos {
 
 			pstm.execute();
 			ConexaoBanco.fechaConexao(conn, pstm);
-			JOptionPane.showMessageDialog(null, "Pagamento excluido, banco normalizado ");
+			//JOptionPane.showMessageDialog(null, "Pagamento excluido, banco normalizado ");
 			return true;
 
 		} catch (Exception f) {
-			JOptionPane.showMessageDialog(null, "Erro ao excluir o pagamento do banco de" + "dados " + f.getMessage());
+		//	JOptionPane.showMessageDialog(null, "Erro ao excluir o pagamento do banco de" + "dados " + f.getMessage());
 			return false;
 		}
 
@@ -3345,12 +4028,11 @@ public class GerenciarBancoContratos {
 
 			pstm.execute();
 			ConexaoBanco.fechaConexao(conn, pstm);
-			JOptionPane.showMessageDialog(null, "Relacao contrato_pagamentos excluida, banco normalizado ");
+			//JOptionPane.showMessageDialog(null, "Relacao contrato_pagamentos excluida, banco normalizado ");
 			return true;
 
 		} catch (Exception f) {
-			JOptionPane.showMessageDialog(null,
-					"Erro ao excluir a relacao contrato_pagamentos do banco de" + "dados " + f.getMessage());
+			//JOptionPane.showMessageDialog(null, "Erro ao excluir a relacao contrato_pagamentos do banco de" + "dados " + f.getMessage());
 			return false;
 		}
 
@@ -3382,12 +4064,12 @@ public class GerenciarBancoContratos {
 
 			pstm.execute();
 			ConexaoBanco.fechaConexao(conn, pstm);
-			JOptionPane.showMessageDialog(null, "Status do contrato Atualizado");
+			//JOptionPane.showMessageDialog(null, "Status do contrato Atualizado");
 			return true;
 
 		} catch (Exception f) {
-			JOptionPane.showMessageDialog(null,
-					"Erro ao atualizar o status do contrato no banco de" + "dados " + f.getMessage());
+		//	JOptionPane.showMessageDialog(null,
+			//		"Erro ao atualizar o status do contrato no banco de" + "dados " + f.getMessage());
 			return false;
 		}
 	}
@@ -3520,7 +4202,7 @@ public class GerenciarBancoContratos {
 
 	public double getQuantidadeSacos() {
 
-		String selectGetQuantidadeTotalSacos = "select medida, quantidade from contrato where  sub_contrato = 0 or sub_contrato = 3";
+		String selectGetQuantidadeTotalSacos = "select medida, quantidade from contrato where  sub_contrato = 0 or sub_contrato = 3 or sub_contrato = 4 or sub_contrato = 5";
 		Connection conn = null;
 		PreparedStatement pstm = null;
 		ResultSet rs = null;
@@ -3559,10 +4241,43 @@ public class GerenciarBancoContratos {
 		}
 
 	}
+	
+	public double getQuantidadeSacosRecebidos() {
+		String selectGetQuantidadeTotalSacosCarregados = "select sum(peso_romaneio) as quantidade_total_recebida from recebimento\n"
+				+ "left join contrato on contrato.id = recebimento.id_contrato_recebimento\n"
+				+ "where (contrato.sub_contrato = 0 or contrato.sub_contrato = 3 or contrato.sub_contrato = 4 or contrato.sub_contrato = 5)";
+		Connection conn = null;
+		PreparedStatement pstm = null;
+		ResultSet rs = null;
+		double quantidade_total = 0;
 
+		try {
+			conn = ConexaoBanco.getConexao();
+			pstm = conn.prepareStatement(selectGetQuantidadeTotalSacosCarregados);
+			rs = pstm.executeQuery();
+			rs.next();
+			double i = rs.getInt("quantidade_total_recebida");
+
+			ConexaoBanco.fechaConexao(conn, pstm, rs);
+
+			return i / 60;
+
+		} catch (Exception e) {
+			JOptionPane.showMessageDialog(null, "Erro ao listar a quantidade total de sacos recebidos" + " erro: "
+					  + "causa: "  );
+			return -1;
+		}
+		
+		
+		
+	}
+
+	
+	
+	
 	public double getQuantidadeSacosCarregados() {
 
-		String selectGetQuantidadeTotalSacosCarregados = "select sum(peso_real_carga) as quantidade_total_carregada from carregamento\n"
+		String selectGetQuantidadeTotalSacosCarregados = "select sum(peso_romaneio) as quantidade_total_carregada from carregamento\n"
 				+ "left join contrato on contrato.id = carregamento.id_contrato_carregamento\n"
 				+ "where (contrato.sub_contrato = 0 or contrato.sub_contrato = 3 or contrato.sub_contrato = 4 or contrato.sub_contrato = 5)";
 		Connection conn = null;
@@ -3618,6 +4333,37 @@ public class GerenciarBancoContratos {
 		}
 
 	}
+	
+	public double getQuantidadeSacosRecebidosPorSafra(int id_safra) {
+
+		String selectGetQuantidadeTotalSacosRecebidos = "select sum(peso_romaneio) as quantidade_total_recebida from recebimento\n"
+				+ "left join contrato on contrato.id = recebimento.id_contrato_recebimento\n"
+				+ "where (contrato.sub_contrato = 0 or contrato.sub_contrato = 3 or contrato.sub_contrato = 4 or contrato.sub_contrato = 5) and contrato.id_safra = ?";
+		Connection conn = null;
+		PreparedStatement pstm = null;
+		ResultSet rs = null;
+		double quantidade_total = 0;
+
+		try {
+			conn = ConexaoBanco.getConexao();
+			pstm = conn.prepareStatement(selectGetQuantidadeTotalSacosRecebidos);
+			pstm.setInt(1, id_safra);
+
+			rs = pstm.executeQuery();
+			rs.next();
+			double i = rs.getInt("quantidade_total_recebida");
+
+			ConexaoBanco.fechaConexao(conn, pstm, rs);
+			return i / 60;
+
+		} catch (Exception e) {
+			JOptionPane.showMessageDialog(null,
+					"Erro ao listar a quantidade total de sacos recebidos da safra selecionada" + " erro: "
+							  + "causa: "  );
+			return -1;
+		}
+
+	}
 
 	public double getQuantidadeSacosPorSafra(int id_safra) {
 
@@ -3667,13 +4413,13 @@ public class GerenciarBancoContratos {
 		String selectCarregamentosPorData = "";
 
 		if (id_safra > 0) {
-			selectCarregamentosPorData = "select data_carregamento, sum(peso_real_carga) as total_carregado_dia from carregamento\n"
+			selectCarregamentosPorData = "select data_carregamento, sum(peso_romaneio) as total_carregado_dia from carregamento\n"
 					+ "left join contrato on contrato.id = carregamento.id_contrato_carregamento\n"
 					+ "where (contrato.sub_contrato = 0 or contrato.sub_contrato = 3 or contrato.sub_contrato = 4 or contrato.sub_contrato = 4)\n"
 					+ " and data_carregamento BETWEEN (?) AND (?) and contrato.id_safra = ?\n" + "GROUP BY\n"
 					+ "  day( data_carregamento )";
 		} else {
-			selectCarregamentosPorData = "select data_carregamento, sum(peso_real_carga) as total_carregado_dia from carregamento\n"
+			selectCarregamentosPorData = "select data_carregamento, sum(peso_romaneio) as total_carregado_dia from carregamento\n"
 					+ "left join contrato on contrato.id = carregamento.id_contrato_carregamento\n"
 					+ "where (contrato.sub_contrato = 0 or contrato.sub_contrato = 3 or contrato.sub_contrato = 4 or contrato.sub_contrato = 5)\n"
 					+ " and data_carregamento BETWEEN (?) AND (?)\n" + "GROUP BY\n" + "  day( data_carregamento )";

@@ -50,8 +50,8 @@ public class TelaCadastroUsuario extends JDialog implements GetDadosGlobais {
 	private JPanel painelDadosIniciais = new JPanel();
 	private JPanel painelEmpresa = new JPanel();
 	private JPanel painelPermissoes = new JPanel();
-	private JTextFieldPersonalizado entEmail, entSenhaGmail, entCelular, entLogin, entSenha, entSenha1, entSobrenome,
-			entNome;
+	private JTextFieldPersonalizado entEmail1, entSenhaEmail1, entCelular, entLogin, entSenha, entSenha1, entSobrenome,
+			entNome,entSenhaEmail2, entEmail2;
 	private JComboBox cBCargo, cBDireitos, cBGenero;
 	private Log GerenciadorLog;
 	private CadastroLogin login_edicao;
@@ -79,7 +79,7 @@ public class TelaCadastroUsuario extends JDialog implements GetDadosGlobais {
 		}
 		setBackground(new Color(255, 255, 255));
 		setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-		setBounds(100, 100, 952, 508);
+		setBounds(100, 100, 952, 562);
 		painelPrincipal.setBackground(new Color(255, 255, 255));
 		painelPrincipal.setBorder(new EmptyBorder(5, 5, 5, 5));
 		painelPrincipal.setLayout(null);
@@ -90,7 +90,7 @@ public class TelaCadastroUsuario extends JDialog implements GetDadosGlobais {
 
 		painelEmpresa.setBackground(new Color(255, 255, 255));
 		painelEmpresa.setLayout(null);
-		painelEmpresa.setBounds(200, 55, 746, 424);
+		painelEmpresa.setBounds(200, 55, 746, 478);
 		painelPrincipal.add(painelEmpresa);
 		painelEmpresa.setBackground(new Color(255, 255, 255));
 		// painelPrincipal.addTab("Dados Contato", painelEmpresa);
@@ -193,35 +193,35 @@ public class TelaCadastroUsuario extends JDialog implements GetDadosGlobais {
 			}
 		});
 
-		entEmail = new JTextFieldPersonalizado();
-		entEmail.setForeground(Color.BLACK);
-		entEmail.setFont(new Font("Arial", Font.BOLD, 20));
-		entEmail.setColumns(10);
-		entEmail.setBounds(256, 284, 247, 36);
-		painelEmpresa.add(entEmail);
+		entEmail1 = new JTextFieldPersonalizado();
+		entEmail1.setForeground(Color.BLACK);
+		entEmail1.setFont(new Font("Arial", Font.BOLD, 20));
+		entEmail1.setColumns(10);
+		entEmail1.setBounds(85, 298, 247, 36);
+		painelEmpresa.add(entEmail1);
 
-		JLabel lblEmailgmail = new JLabel("Email:");
+		JLabel lblEmailgmail = new JLabel("Email 1:");
 		lblEmailgmail.setHorizontalAlignment(SwingConstants.TRAILING);
 		lblEmailgmail.setForeground(Color.BLACK);
 		lblEmailgmail.setFont(new Font("Arial", Font.PLAIN, 16));
 		lblEmailgmail.setBackground(Color.ORANGE);
-		lblEmailgmail.setBounds(159, 289, 92, 21);
+		lblEmailgmail.setBounds(16, 308, 57, 19);
 		painelEmpresa.add(lblEmailgmail);
 
-		JLabel lblSenhagmail = new JLabel("Senha:");
+		JLabel lblSenhagmail = new JLabel("Senha 1:");
 		lblSenhagmail.setHorizontalAlignment(SwingConstants.TRAILING);
 		lblSenhagmail.setForeground(Color.BLACK);
 		lblSenhagmail.setFont(new Font("Arial", Font.PLAIN, 16));
 		lblSenhagmail.setBackground(Color.ORANGE);
-		lblSenhagmail.setBounds(144, 328, 107, 21);
+		lblSenhagmail.setBounds(11, 347, 62, 19);
 		painelEmpresa.add(lblSenhagmail);
 
-		entSenhaGmail = new JTextFieldPersonalizado();
-		entSenhaGmail.setForeground(Color.BLACK);
-		entSenhaGmail.setFont(new Font("Arial", Font.BOLD, 20));
-		entSenhaGmail.setColumns(10);
-		entSenhaGmail.setBounds(256, 323, 247, 36);
-		painelEmpresa.add(entSenhaGmail);
+		entSenhaEmail1 = new JTextFieldPersonalizado();
+		entSenhaEmail1.setForeground(Color.BLACK);
+		entSenhaEmail1.setFont(new Font("Arial", Font.BOLD, 20));
+		entSenhaEmail1.setColumns(10);
+		entSenhaEmail1.setBounds(85, 337, 247, 36);
+		painelEmpresa.add(entSenhaEmail1);
 
 		JButton btnSalvar = new JButton("Salvar");
 		btnSalvar.addActionListener(new ActionListener() {
@@ -230,7 +230,7 @@ public class TelaCadastroUsuario extends JDialog implements GetDadosGlobais {
 
 			}
 		});
-		btnSalvar.setBounds(604, 373, 89, 23);
+		btnSalvar.setBounds(604, 434, 89, 23);
 		painelEmpresa.add(btnSalvar);
 
 		JButton btnAtualizar = new JButton("Atualizar");
@@ -239,8 +239,37 @@ public class TelaCadastroUsuario extends JDialog implements GetDadosGlobais {
 				concluir(1);
 			}
 		});
-		btnAtualizar.setBounds(604, 373, 89, 23);
+		btnAtualizar.setBounds(604, 434, 89, 23);
 		painelEmpresa.add(btnAtualizar);
+		
+		JLabel lblEmailgmail_1 = new JLabel("Email 2:");
+		lblEmailgmail_1.setHorizontalAlignment(SwingConstants.TRAILING);
+		lblEmailgmail_1.setForeground(Color.BLACK);
+		lblEmailgmail_1.setFont(new Font("Arial", Font.PLAIN, 16));
+		lblEmailgmail_1.setBackground(Color.ORANGE);
+		lblEmailgmail_1.setBounds(355, 308, 57, 19);
+		painelEmpresa.add(lblEmailgmail_1);
+		
+		JLabel lblSenhagmail_1 = new JLabel("Senha 2:");
+		lblSenhagmail_1.setHorizontalAlignment(SwingConstants.TRAILING);
+		lblSenhagmail_1.setForeground(Color.BLACK);
+		lblSenhagmail_1.setFont(new Font("Arial", Font.PLAIN, 16));
+		lblSenhagmail_1.setBackground(Color.ORANGE);
+		lblSenhagmail_1.setBounds(350, 347, 62, 19);
+		painelEmpresa.add(lblSenhagmail_1);
+		
+		
+		 entSenhaEmail2 = new JTextFieldPersonalizado();
+		 entSenhaEmail2.setForeground(Color.BLACK);
+		 entSenhaEmail2.setFont(new Font("Arial", Font.BOLD, 20));
+		entSenhaEmail2.setBounds(426, 337, 247, 36);
+		painelEmpresa.add(entSenhaEmail2);
+		
+		 entEmail2 = new JTextFieldPersonalizado();
+		entEmail2.setBounds(426, 298, 247, 36);
+		entEmail2.setForeground(Color.BLACK);
+		entEmail2.setFont(new Font("Arial", Font.BOLD, 20));
+		painelEmpresa.add(entEmail2);
 
 		painelDadosIniciais.setBounds(200, 55, 746, 424);
 		painelDadosIniciais.setBackground(new Color(255, 255, 255));
@@ -378,7 +407,7 @@ public class TelaCadastroUsuario extends JDialog implements GetDadosGlobais {
 
 		JPanel panel = new JPanel();
 		panel.setBackground(new Color(51, 51, 153));
-		panel.setBounds(0, 0, 201, 479);
+		panel.setBounds(0, 0, 201, 533);
 		painelPrincipal.add(panel);
 		panel.setLayout(null);
 
@@ -582,7 +611,7 @@ public class TelaCadastroUsuario extends JDialog implements GetDadosGlobais {
 		CadastroLogin.Privilegios novos_privilegios = new CadastroLogin.Privilegios();
 		CadastroLogin.Preferencias novas_preferencias = new CadastroLogin.Preferencias();
 
-		String nome, sobrenome, cargo, direitos, s_login, senha, senha1, celular, email, senhaEmail, genero;
+		String nome, sobrenome, cargo, direitos, s_login, senha, senha1, celular, email1, senhaEmail1, email2, senhaEmail2, genero;
 		String alterar_apis;
 
 		nome = entNome.getText();
@@ -593,8 +622,10 @@ public class TelaCadastroUsuario extends JDialog implements GetDadosGlobais {
 		senha = entSenha.getText();
 		senha1 = entSenha1.getText();
 		celular = entCelular.getText();
-		email = entEmail.getText();
-		senhaEmail = entSenhaGmail.getText();
+		email1 = entEmail1.getText();
+		senhaEmail1 = entSenhaEmail1.getText();
+		email2 = entEmail2.getText();
+		senhaEmail2 = entSenhaEmail2.getText();
 		genero = cBGenero.getSelectedItem().toString();
 
 		boolean aceitar_cadastro = false;
@@ -616,20 +647,23 @@ public class TelaCadastroUsuario extends JDialog implements GetDadosGlobais {
 							if (celular != null && !celular.equals(" ") && celular.length() == 11) {
 								aceitar_cadastro = true;
 
-								if (email != null && !email.equals(" ") ) {
+								if (email1 != null && !email1.equals(" ") ) {
 									aceitar_cadastro = true;
 
-									if (senhaEmail != null && !senhaEmail.equals(" ") && senhaEmail.length() >= 8) {
+									if (senhaEmail1 != null && !senhaEmail1.equals(" ") && senhaEmail1.length() >= 8) {
+										
+										
+										
 										aceitar_cadastro = true;
 
 									} else {
 										JOptionPane.showMessageDialog(isto,
-												"Senha gmail informada não atende aos padrões do\n servidor gmail");
+												"Senha email informada não atende aos padrões do\n servidor de email");
 										aceitar_cadastro = false;
 									}
 								} else {
 									JOptionPane.showMessageDialog(isto,
-											"Necessário um e-mail do servidor gmail válido!");
+											"Necessário um e-mail do servidor gmail ou hotmail válido!");
 									aceitar_cadastro = false;
 								}
 
@@ -672,10 +706,12 @@ public class TelaCadastroUsuario extends JDialog implements GetDadosGlobais {
 			novo_usuario.setCelular(celular);
 			novo_usuario.setCargo(cargo);
 			novo_usuario.setLogin(s_login);
-			novo_usuario.setEmail(email);
+			novo_usuario.setEmail(email1);
 			novo_usuario.setSenha(senha);
-			novo_usuario.setSenhaEmail(senhaEmail);
+			novo_usuario.setSenhaEmail(senhaEmail1);
 			novo_usuario.setGenero(genero);
+			novo_usuario.setEmail2(email2);
+			novo_usuario.setSenhaEmail2(senhaEmail2);
 
 			if (direitos.equals("Administrativos do Sistema")) {
 				novos_privilegios.setNivel_privilegios(1);
@@ -770,8 +806,10 @@ public class TelaCadastroUsuario extends JDialog implements GetDadosGlobais {
 		entLogin.setText(login_edicao.getLogin());
 		entSenha.setText(login_edicao.getSenha());
 		entSenha1.setText(login_edicao.getSenha());
-		entEmail.setText(login_edicao.getEmail());
-		entSenhaGmail.setText(login_edicao.getSenhaEmail());
+		entEmail1.setText(login_edicao.getEmail());
+		entSenhaEmail1.setText(login_edicao.getSenhaEmail());
+		entEmail2.setText(login_edicao.getEmail2());
+		entSenhaEmail2.setText(login_edicao.getSenhaEmail2());
 		cBGenero.setSelectedItem(login_edicao.getGenero());
 
 		int direito = login_edicao.getConfigs_privilegios().getNivel_privilegios();

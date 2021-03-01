@@ -201,6 +201,15 @@ public class TelaCliente extends JDialog {
        					((TelaImportarContratoManual) telaPai).setVendedor1(clienteSelecionado);
        				else if (flag_tipo_cliente == 15)
        					((TelaImportarContratoManual) telaPai).setVendedor2(clienteSelecionado);
+       				else if (flag_tipo_cliente == 16)
+       					((TelaConfirmarRecebimento) telaPai).setClienteRecebimento(clienteSelecionado);
+       				else if (flag_tipo_cliente == 17)
+       					((TelaConfirmarRecebimento) telaPai).setVendedor(clienteSelecionado);
+       				else if (flag_tipo_cliente == 18)
+       					((TelaElaborarNovoContrato) telaPai).setComprador2(clienteSelecionado);
+       				else if (flag_tipo_cliente == 20)
+       					((TelaImportarContratoManual) telaPai).setComprador2(clienteSelecionado);
+
 
     				isto.dispose();
 					}
@@ -260,6 +269,14 @@ public class TelaCliente extends JDialog {
        					((TelaImportarContratoManual) telaPai).setVendedor1(clienteSelecionado);
        				else if (flag_tipo_cliente == 15)
        					((TelaImportarContratoManual) telaPai).setVendedor2(clienteSelecionado);
+       				else if (flag_tipo_cliente == 16)
+       					((TelaConfirmarRecebimento) telaPai).setClienteRecebimento(clienteSelecionado);
+       				else if (flag_tipo_cliente == 17)
+       					((TelaConfirmarRecebimento) telaPai).setVendedor(clienteSelecionado);
+       				else if (flag_tipo_cliente == 18)
+       					((TelaElaborarNovoContrato) telaPai).setComprador2(clienteSelecionado);
+       				else if (flag_tipo_cliente == 20)
+       					((TelaImportarContratoManual) telaPai).setComprador2(clienteSelecionado);
 
 
     				isto.dispose();
@@ -320,7 +337,7 @@ public class TelaCliente extends JDialog {
 				int indiceDaLinha = 0;
 				indiceDaLinha = tabela.getSelectedRow();
 				
-				TelaTodasNotasFiscais verNotas = new TelaTodasNotasFiscais(1, isto);
+				TelaTodasNotasFiscais verNotas = new TelaTodasNotasFiscais(1, 0, isto);
 				 verNotas.setVisible(true);
 				//
 				
@@ -332,8 +349,8 @@ public class TelaCliente extends JDialog {
 		btnNewButton_1.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				
-				TelaRomaneios tela = new TelaRomaneios(isto);
-					tela.pesquisarTodosOsRomaneios(clientes_disponiveis);
+				TelaRomaneios tela = new TelaRomaneios(0,isto);
+				tela.pesquisarTodosOsRomaneios(clientes_disponiveis);
 				
 				tela.setVisible(true);
 			}
@@ -407,6 +424,14 @@ public class TelaCliente extends JDialog {
    					((TelaImportarContratoManual) telaPai).setVendedor1(clienteSelecionado);
    				else if (flag_tipo_cliente == 15)
    					((TelaImportarContratoManual) telaPai).setVendedor2(clienteSelecionado);
+   				else if (flag_tipo_cliente == 16)
+   					((TelaConfirmarRecebimento) telaPai).setClienteRecebimento(clienteSelecionado);
+   				else if (flag_tipo_cliente == 17)
+   					((TelaConfirmarRecebimento) telaPai).setVendedor(clienteSelecionado);
+   				else if (flag_tipo_cliente == 18)
+   					((TelaElaborarNovoContrato) telaPai).setComprador2(clienteSelecionado);
+   				else if (flag_tipo_cliente == 20)
+   					((TelaImportarContratoManual) telaPai).setComprador2(clienteSelecionado);
 				isto.dispose();
 			}
 		});
@@ -570,11 +595,11 @@ public class TelaCliente extends JDialog {
 	   else
 	   {
 		   //em modo selecao
-		   btnEditar.setEnabled(false);
-		   btnEditar.setVisible(false);
+		  // btnEditar.setEnabled(false);
+		  // btnEditar.setVisible(false);
 		   
-		   btnUsurio.setEnabled(false);
-		   btnUsurio.setVisible(false);
+		  // btnUsurio.setEnabled(false);
+		  // btnUsurio.setVisible(false);
 		   
 	   }
 			if(flag_tipo_tela == 0) {

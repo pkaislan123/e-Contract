@@ -6,6 +6,7 @@ import java.util.Date;
 public class CadastroNFe {
 
 	private String nfe;
+	private String medida;
 	private String serie;
 	private String nome_remetente;
 	private String inscricao_remetente;
@@ -16,6 +17,12 @@ public class CadastroNFe {
 	}
 	public void setData(Date data) {
 		this.data = data;
+	}
+	public String getMedida() {
+		return medida;
+	}
+	public void setMedida(String medida) {
+		this.medida = medida;
 	}
 	private String natureza;
 	private String nome_destinatario;
