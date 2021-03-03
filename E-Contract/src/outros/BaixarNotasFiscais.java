@@ -83,8 +83,8 @@ public void abrirPagina(String s_dataInicio, String s_dataFim, String natureza) 
 	      //  FirefoxProfile profile = profileIni.getProfile("notas_siare");
 	        FirefoxOptions options = new FirefoxOptions();
 	       //options.setProfile(profile);
-	           options.setHeadless(true);
-	         options.addArguments("--headless");
+	         //  options.setHeadless(true);
+	       //  options.addArguments("--headless");
 	        
 	        FirefoxProfile profile = new FirefoxProfile();
 	         profile.setPreference("browser.download.folderList", 2);

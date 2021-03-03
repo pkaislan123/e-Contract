@@ -48,6 +48,7 @@ public class ManipularRomaneios {
 	private ArrayList<CadastroRomaneio> romaneios = new ArrayList<>();
     boolean e_romaneio_global = true;
 	private String caminho;
+	private int sinal_global;
 	private JTable table;
 	private int countArquivos;
 	private int countPDF;
@@ -83,14 +84,14 @@ public class ManipularRomaneios {
 
 		for (int i = 0; i < listadeArquivos.size(); i++) {
 			// System.out.println(listadeArquivos.get(i).toString());
-			//JOptionPane.showMessageDialog(null, listadeArquivos.get(i).toString());
+			////JOptionPane.showMessageDialog(null, listadeArquivos.get(i).toString());
 			countArquivos++;
 		}
 
 		for (int i = 0; i < listadeArquivos.size(); i++) {
 			
 			
-			//JOptionPane.showMessageDialog(null, "existem arquivos para serem processados");
+			////JOptionPane.showMessageDialog(null, "existem arquivos para serem processados");
 
 			String extensaoDoArquivo = FilenameUtils.getExtension(listadeArquivos.get(i).toString());
 
@@ -98,7 +99,7 @@ public class ManipularRomaneios {
 				countPDF++;
 
 				File file = new File(listadeArquivos.get(i).toString());
-				//JOptionPane.showMessageDialog(null, "filtrando arquivo: " + file.getAbsolutePath());
+				////JOptionPane.showMessageDialog(null, "filtrando arquivo: " + file.getAbsolutePath());
 
 				CadastroRomaneio romaneio = filtrar(file);
 
@@ -110,7 +111,7 @@ public class ManipularRomaneios {
 					
 				}else {
 					if(e_romaneio_global) {
-					//JOptionPane.showMessageDialog(null, "erro ao filtrar romaneio: " + file.getAbsolutePath());
+					////JOptionPane.showMessageDialog(null, "erro ao filtrar romaneio: " + file.getAbsolutePath());
 					CadastroAviso avisar = new CadastroAviso();
 					avisar.setTipo("Erro");
 					avisar.setSetor("Importação de Romaneio");
@@ -130,7 +131,7 @@ public class ManipularRomaneios {
 			} else {
 				String nomeArquivo = listadeArquivos.get(i).toString();
 				// System.out.println("O arquivo " + nomeArquivo + " não é um PDF");
-				//JOptionPane.showMessageDialog(null, "O arquivo  : " + nomeArquivo +" não é um PDF" );
+				////JOptionPane.showMessageDialog(null, "O arquivo  : " + nomeArquivo +" não é um PDF" );
 
 			}
 		}
@@ -153,14 +154,14 @@ public class ManipularRomaneios {
 
 		for (int i = 0; i < listadeArquivos.size(); i++) {
 			// System.out.println(listadeArquivos.get(i).toString());
-			//JOptionPane.showMessageDialog(null, listadeArquivos.get(i).toString());
+			////JOptionPane.showMessageDialog(null, listadeArquivos.get(i).toString());
 			countArquivos++;
 		}
 
 		for (int i = 0; i < listadeArquivos.size(); i++) {
 			
 			
-			//JOptionPane.showMessageDialog(null, "existem arquivos para serem processados");
+			////JOptionPane.showMessageDialog(null, "existem arquivos para serem processados");
           if(listadeArquivos.get(i).contains("romaneio")) {
 
 			String extensaoDoArquivo = FilenameUtils.getExtension(listadeArquivos.get(i).toString());
@@ -169,7 +170,7 @@ public class ManipularRomaneios {
 				countPDF++;
 
 				File file = new File(listadeArquivos.get(i).toString());
-				//JOptionPane.showMessageDialog(null, "filtrando arquivo: " + file.getAbsolutePath());
+				////JOptionPane.showMessageDialog(null, "filtrando arquivo: " + file.getAbsolutePath());
 
 				CadastroRomaneio romaneio = filtrar(file);
 
@@ -180,7 +181,7 @@ public class ManipularRomaneios {
 					countNotas++;
 					
 				}else {
-					//JOptionPane.showMessageDialog(null, "erro ao filtrar romaneio: " + file.getAbsolutePath());
+					////JOptionPane.showMessageDialog(null, "erro ao filtrar romaneio: " + file.getAbsolutePath());
 
 				}
 
@@ -195,7 +196,7 @@ public class ManipularRomaneios {
 			} else {
 				String nomeArquivo = listadeArquivos.get(i).toString();
 				// System.out.println("O arquivo " + nomeArquivo + " não é um PDF");
-				//JOptionPane.showMessageDialog(null, "O arquivo  : " + nomeArquivo +" não é um PDF" );
+				////JOptionPane.showMessageDialog(null, "O arquivo  : " + nomeArquivo +" não é um PDF" );
 
 			}
 	    	}
@@ -209,7 +210,7 @@ public class ManipularRomaneios {
 	public CadastroRomaneio filtrar(File file) {
 		CadastroRomaneio romaneio = null ;
 
-		 //JOptionPane.showMessageDialog(null, "caminho do arquivo sendo filtrado: " + file.getAbsolutePath());
+		 ////JOptionPane.showMessageDialog(null, "caminho do arquivo sendo filtrado: " + file.getAbsolutePath());
 	
 		try (PDDocument document = PDDocument.load(file)) {
 
@@ -243,13 +244,13 @@ public class ManipularRomaneios {
 				
                 if(e_romaneio) {
                 	
-                	//JOptionPane.showMessageDialog(null, "Tratando Romaneio");
+                	////JOptionPane.showMessageDialog(null, "Tratando Romaneio");
 
                   romaneio = tratar_romaneio(lines, file);
                 }else {
                 	e_romaneio = false;
                 	e_romaneio_global = false;
-                	//JOptionPane.showMessageDialog(null, "Arquivo nao e Romaneio");
+                	////JOptionPane.showMessageDialog(null, "Arquivo nao e Romaneio");
 
                 }
 				
@@ -258,7 +259,7 @@ public class ManipularRomaneios {
 			return romaneio;
 
 		} catch (Exception e1) {
-			//JOptionPane.showMessageDialog(null, "Erro ao ler romaneio\nErro:  " + e1.getMessage() + "\nConsulte o Administrador");
+			////JOptionPane.showMessageDialog(null, "Erro ao ler romaneio\nErro:  " + e1.getMessage() + "\nConsulte o Administrador");
 			return null;
 		}
 		
@@ -275,7 +276,7 @@ public class ManipularRomaneios {
 
 	   String tratar = Arrays.toString(lines);
       // tratar = tratar.replaceAll("\n", "*");
-       //JOptionPane.showMessageDialog(null, tratar);
+       ////JOptionPane.showMessageDialog(null, tratar);
       // tratar = tratar.replaceAll(" ", "");
        System.out.println(tratar);
 		TratarDados tratamentoDados = new TratarDados(tratar);
@@ -289,7 +290,7 @@ public class ManipularRomaneios {
 
 		}
 		
-		JOptionPane.showMessageDialog(null, "Operação: " + operacao);
+		//JOptionPane.showMessageDialog(null, "Operação: " + operacao);
          romaneio.setOperacao(operacao);
          String cfop ="";
  		if(tratar.contains("5906")) {
@@ -306,12 +307,12 @@ public class ManipularRomaneios {
  		}else if(tratar.contains("1949")) {
  			cfop = "1949";
  		}
- 		//JOptionPane.showMessageDialog(null, "CFOP: " + cfop);
+ 		////JOptionPane.showMessageDialog(null, "CFOP: " + cfop);
 
  		romaneio.setCfop(cfop);
  		
  		String descricao_cfop = tratamentoDados.tratar(cfop + " ", ",");
- 		//JOptionPane.showMessageDialog(null, "descricao cfop: " + tratamentoDados.tratar(cfop + " ", ","));
+ 		////JOptionPane.showMessageDialog(null, "descricao cfop: " + tratamentoDados.tratar(cfop + " ", ","));
 
  		romaneio.setDescricao_cfop(descricao_cfop);
        
@@ -327,10 +328,10 @@ public class ManipularRomaneios {
 		    for(int i = 0; i < busca_umidade_quebrado.length; i++) {
 		    	busca_umidade_quebrado[i] = busca_umidade_quebrado[i].replaceAll(" ", "");
 		    	if(busca_umidade_quebrado[i].length() > 2 ) {
-		    		//JOptionPane.showMessageDialog(null, "Essa linha contem numeros, sera adicionado" + linha_destinatario_remetente_quebrada[i]);
+		    		////JOptionPane.showMessageDialog(null, "Essa linha contem numeros, sera adicionado" + linha_destinatario_remetente_quebrada[i]);
 		    		busca_quebrados.add(busca_umidade_quebrado[i]);
 		    	}else {
-		    		//JOptionPane.showMessageDialog(null, "Essa linha não contem numeros, sera excluido" + linha_destinatario_remetente_quebrada[i]);
+		    		////JOptionPane.showMessageDialog(null, "Essa linha não contem numeros, sera excluido" + linha_destinatario_remetente_quebrada[i]);
 		
 		    	}
 		    }
@@ -338,7 +339,7 @@ public class ManipularRomaneios {
 		
 				
 		romaneio.setUmidade(Double.parseDouble(umidade.replaceAll(",", ".")));
-		//JOptionPane.showMessageDialog(null, "umidade: " + umidade);
+		////JOptionPane.showMessageDialog(null, "umidade: " + umidade);
 
 		  
 		 
@@ -354,15 +355,15 @@ public class ManipularRomaneios {
 		    for(int i = 0; i < busca_impureza_quebrados.length; i++) {
 		    	busca_impureza_quebrados[i] = busca_impureza_quebrados[i].replaceAll(" ", "");
 		    	if(busca_impureza_quebrados[i].length() > 2 ) {
-		    		//JOptionPane.showMessageDialog(null, "Essa linha contem numeros, sera adicionado" + linha_destinatario_remetente_quebrada[i]);
+		    		////JOptionPane.showMessageDialog(null, "Essa linha contem numeros, sera adicionado" + linha_destinatario_remetente_quebrada[i]);
 		    		impureza_quebrados.add(busca_impureza_quebrados[i]);
 		    	}else {
-		    		//JOptionPane.showMessageDialog(null, "Essa linha não contem numeros, sera excluido" + linha_destinatario_remetente_quebrada[i]);
+		    		////JOptionPane.showMessageDialog(null, "Essa linha não contem numeros, sera excluido" + linha_destinatario_remetente_quebrada[i]);
 		
 		    	}
 		    }
 		 impureza = impureza_quebrados.get(0);
-		 //  JOptionPane.showMessageDialog(null, "impureza: " + impureza);
+		 //  //JOptionPane.showMessageDialog(null, "impureza: " + impureza);
 
          romaneio.setInpureza(Double.parseDouble(impureza.replaceAll(",", ".")));
 
@@ -377,10 +378,10 @@ public class ManipularRomaneios {
  		    for(int i = 0; i < busca_avariados_quebrados.length; i++) {
  		    	busca_avariados_quebrados[i] = busca_avariados_quebrados[i].replaceAll(" ", "");
  		    	if(busca_avariados_quebrados[i].length() > 2 ) {
- 		    		//JOptionPane.showMessageDialog(null, "Essa linha contem numeros, sera adicionado" + linha_destinatario_remetente_quebrada[i]);
+ 		    		////JOptionPane.showMessageDialog(null, "Essa linha contem numeros, sera adicionado" + linha_destinatario_remetente_quebrada[i]);
  		    		avariados_quebrados.add(busca_avariados_quebrados[i]);
  		    	}else {
- 		    		//JOptionPane.showMessageDialog(null, "Essa linha não contem numeros, sera excluido" + linha_destinatario_remetente_quebrada[i]);
+ 		    		////JOptionPane.showMessageDialog(null, "Essa linha não contem numeros, sera excluido" + linha_destinatario_remetente_quebrada[i]);
  		
  		    	}
  		    }
@@ -388,7 +389,7 @@ public class ManipularRomaneios {
          
          
          romaneio.setAvariados(Double.parseDouble(avariado.replaceAll(",", ".")));
-         //  JOptionPane.showMessageDialog(null, "avariado" + avariado);
+         //  //JOptionPane.showMessageDialog(null, "avariado" + avariado);
 
 
          //procurar por pesos
@@ -411,7 +412,7 @@ public class ManipularRomaneios {
 				e.printStackTrace();
 			}
 			double peso_bruto = numero_peso_bruto.doubleValue();
-			 //JOptionPane.showMessageDialog(null, "peso bruto: " + peso_bruto);
+			 ////JOptionPane.showMessageDialog(null, "peso bruto: " + peso_bruto);
 			romaneio.setPeso_bruto(peso_bruto);
 			
 
@@ -423,7 +424,7 @@ public class ManipularRomaneios {
 					e.printStackTrace();
 				}
 				double peso_tara = numero_peso_tara.doubleValue();
-				 //JOptionPane.showMessageDialog(null, "peso tara: " + peso_tara);
+				 ////JOptionPane.showMessageDialog(null, "peso tara: " + peso_tara);
 
 				romaneio.setTara(peso_tara);
 
@@ -436,7 +437,7 @@ public class ManipularRomaneios {
 					}
 					double peso_liquido = numero_peso_liquido.doubleValue();
 			         romaneio.setPeso_liquido(peso_liquido);
-			         //	JOptionPane.showMessageDialog(null, "peso liquido: " + peso_liquido);
+			         //	//JOptionPane.showMessageDialog(null, "peso liquido: " + peso_liquido);
 
         
         String busca_numero_romaneio =  tratamentoDados.tratar(" , Romaneio", "Produto");
@@ -445,50 +446,50 @@ public class ManipularRomaneios {
 	    
     String s_produto = tratamentoDados.tratar("Romaneio" + numero_romaneio + "Produto", ",");
     String produto_busca = s_produto.replaceAll("EM GRÃOS", "").replaceAll(" ", "");
-    //  JOptionPane.showMessageDialog(null, "produto: " + s_produto);
+    //  //JOptionPane.showMessageDialog(null, "produto: " + s_produto);
 	    
 	    String transgenia = tratamentoDados.tratar("Transgenia", ",").trim();
-	    //JOptionPane.showMessageDialog(null, "transgenia: " + transgenia);
+	    ////JOptionPane.showMessageDialog(null, "transgenia: " + transgenia);
 	    
 	    String transgenia_proxima = "";
 	    
 	    if(transgenia.contains("Nao Informado")) {
-	    	 //JOptionPane.showMessageDialog(null, "nao informado encontrado");
+	    	 ////JOptionPane.showMessageDialog(null, "nao informado encontrado");
 	    	transgenia_proxima =  "Transgenico(GMO)";
 	    	produto_busca = produto_busca += " GMO";
 	    }else if(transgenia.contains("Intacta")) {
-	    	 //JOptionPane.showMessageDialog(null, "intacta encontrado");
+	    	 ////JOptionPane.showMessageDialog(null, "intacta encontrado");
 	    	produto_busca = produto_busca += " GMO";
 
 	    	transgenia_proxima =  "Transgenico(GMO)";
 	    }else if(transgenia.contains("RR")) {
-	    	 //JOptionPane.showMessageDialog(null, "RR encontrado");
+	    	 ////JOptionPane.showMessageDialog(null, "RR encontrado");
 	    	produto_busca = produto_busca += " GMO";
 
 	    	transgenia_proxima =  "Transgenico(GMO)";
 	    }else if(transgenia.contains("RR2")) {
-	    	 //	JOptionPane.showMessageDialog(null, "RR2 encontrado");
+	    	 //	//JOptionPane.showMessageDialog(null, "RR2 encontrado");
 	    	produto_busca = produto_busca += " GMO";
 
 	    	transgenia_proxima =  "Transgenico(GMO)";
 	    }else if(transgenia.contains("Transgênico")) {
-	    	 //JOptionPane.showMessageDialog(null, "Transgenico encontrado");
+	    	 ////JOptionPane.showMessageDialog(null, "Transgenico encontrado");
 	    	produto_busca = produto_busca += " GMO";
 
 	    	transgenia_proxima =  "Transgenico(GMO)";
 	    }else if(transgenia.contains("rr")) {
-	    	 //JOptionPane.showMessageDialog(null, "rr encontrado");
+	    	 ////JOptionPane.showMessageDialog(null, "rr encontrado");
 	    	produto_busca = produto_busca += " GMO";
 
 	    	transgenia_proxima =  "Transgenico(GMO)";
 	    }else {
-	    	 //JOptionPane.showMessageDialog(null, "Convencional encontrado");
+	    	 ////JOptionPane.showMessageDialog(null, "Convencional encontrado");
 	    	produto_busca = produto_busca += " NON-GMO";
 
 	    	transgenia_proxima =  "Convencional(NON-GMO)";
 
 	    }
-	    //  JOptionPane.showMessageDialog(null, "Produto do romaneio: " + produto_busca);
+	    //  //JOptionPane.showMessageDialog(null, "Produto do romaneio: " + produto_busca);
 
 	    //procura por produto
 	    GerenciarBancoProdutos gerenciar_produtos = new GerenciarBancoProdutos();
@@ -501,7 +502,7 @@ public class ManipularRomaneios {
 		  
 	    	if(prod.getNome_produto().equalsIgnoreCase(produto_busca)) {
                if(prod.getTransgenia().trim().equalsIgnoreCase(transgenia_proxima)) {
-            	   //JOptionPane.showMessageDialog(null, "Produto encontrado: " + prod.getNome_produto() + " Transgenia: " + prod.getTransgenia());
+            	   ////JOptionPane.showMessageDialog(null, "Produto encontrado: " + prod.getNome_produto() + " Transgenia: " + prod.getTransgenia());
 
             	   produto = prod;
             	   break;
@@ -562,19 +563,19 @@ public class ManipularRomaneios {
 	    for(CadastroSafra busca : lista_safras) {
 	    	if(busca.getAno_plantio() == ano_plantio && busca.getAno_colheita() == ano_colheita) {
 	    		CadastroProduto prod_safra = new GerenciarBancoProdutos().getProduto(busca.getProduto().getId_produto());
-	    		 //JOptionPane.showMessageDialog(null, "safra da lista: " + prod_safra.getNome_produto() + " Transgenia: " + prod_safra.getTransgenia() +
+	    		 ////JOptionPane.showMessageDialog(null, "safra da lista: " + prod_safra.getNome_produto() + " Transgenia: " + prod_safra.getTransgenia() +
 	    		 //"\nsafra que quero: " + produto.getNome_produto() + " Transgenia: " + produto.getTransgenia());
 
     			 
 	    		if(prod_safra.getId_produto() == produto.getId_produto() ) {
-	    			//JOptionPane.showMessageDialog(null, "Safra e produto encontrada");
+	    			////JOptionPane.showMessageDialog(null, "Safra e produto encontrada");
 	    			safra = busca;
 	    			  
 	    		    romaneio.setSafra(safra);
 	    		    romaneio.setProduto(prod_safra);
 	    			break;
 	    		}else {
-	    			 //	JOptionPane.showMessageDialog(null, "o produto desta safra nao e o produto do romaneio\n id produto da safra da lista: " + prod_safra.getId_produto() + "\n id do produto que quero: " + produto.getId_produto());
+	    			 //	//JOptionPane.showMessageDialog(null, "o produto desta safra nao e o produto do romaneio\n id produto da safra da lista: " + prod_safra.getId_produto() + "\n id do produto que quero: " + produto.getId_produto());
  
 	    			
 	    			
@@ -591,15 +592,15 @@ public class ManipularRomaneios {
 			
 		romaneio.setData(date);
 		}catch(Exception t) {
-			 // JOptionPane.showMessageDialog(null, "Erro ao listar data do romaneio\nErro:  " + t.getMessage() + "\nConsulte o Administrador");
+			 // //JOptionPane.showMessageDialog(null, "Erro ao listar data do romaneio\nErro:  " + t.getMessage() + "\nConsulte o Administrador");
 		}	   
 		
 		
 	    //motorista
 	    String nome_motorista = tratamentoDados.tratar(operacao + "Motorista", ",");
-	    // JOptionPane.showMessageDialog(null, "Motorista: " + nome_motorista);
+	    // //JOptionPane.showMessageDialog(null, "Motorista: " + nome_motorista);
 	    String placa = tratamentoDados.tratar("Placa", ",");
-	    // JOptionPane.showMessageDialog(null, "placa: " + placa);
+	    // //JOptionPane.showMessageDialog(null, "placa: " + placa);
 	    
 	   
 	     CadastroCliente motorista = new CadastroCliente();
@@ -617,9 +618,9 @@ public class ManipularRomaneios {
          romaneio.setMotorista(motorista);
 		
 	    //procurar remetente destinatario
-         //JOptionPane.showMessageDialog(null, "linha pesos quebradas 8: " + linha_pesos_quebrada[8]);
+         ////JOptionPane.showMessageDialog(null, "linha pesos quebradas 8: " + linha_pesos_quebrada[8]);
 	    String linha_destinatario_remetente = tratamentoDados.tratar(linha_pesos_quebrada[8] + ", Cpf/Cnpj: ", ", Desconto");
-	    // JOptionPane.showMessageDialog(null, "linha destinatario remetnte quebradas 8: " + linha_destinatario_remetente);
+	    // //JOptionPane.showMessageDialog(null, "linha destinatario remetnte quebradas 8: " + linha_destinatario_remetente);
 
 	    String linha_destinatario_remetente_quebrada[] = linha_destinatario_remetente.split(" ");
 	    ArrayList<String> quebrados = new ArrayList<>();
@@ -627,10 +628,10 @@ public class ManipularRomaneios {
 	    for(int i = 0; i < linha_destinatario_remetente_quebrada.length; i++) {
 	    	linha_destinatario_remetente_quebrada[i] = linha_destinatario_remetente_quebrada[i].replaceAll(" ", "");
 	    	if(linha_destinatario_remetente_quebrada[i].length() > 10  ) {
-	    		 //JOptionPane.showMessageDialog(null, "Essa linha contem numeros, sera adicionado" + linha_destinatario_remetente_quebrada[i]);
+	    		 ////JOptionPane.showMessageDialog(null, "Essa linha contem numeros, sera adicionado" + linha_destinatario_remetente_quebrada[i]);
 	    		quebrados.add(linha_destinatario_remetente_quebrada[i]);
 	    	}else {
-	    		//JOptionPane.showMessageDialog(null, "Essa linha não contem numeros, sera excluido" + linha_destinatario_remetente_quebrada[i]);
+	    		////JOptionPane.showMessageDialog(null, "Essa linha não contem numeros, sera excluido" + linha_destinatario_remetente_quebrada[i]);
 	
 	    	}
 	    }
@@ -639,15 +640,15 @@ public class ManipularRomaneios {
 	    
 	    
 	    String identificacao_produtor = quebrados.get(0).replaceAll("[^0-9]", "");
-	    //  JOptionPane.showMessageDialog(null, "Id do destinatario: " + identificacao_produtor);
+	    //  //JOptionPane.showMessageDialog(null, "Id do destinatario: " + identificacao_produtor);
 	    String ie_produtor = quebrados.get(1).replaceAll("[^0-9]", "");
-	    //JOptionPane.showMessageDialog(null, "IE do destinatario: " + ie_produtor);
+	    ////JOptionPane.showMessageDialog(null, "IE do destinatario: " + ie_produtor);
 	    //
 	    String identificacao_destino = quebrados.get(2).replaceAll("[^0-9]", "");
-	    // JOptionPane.showMessageDialog(null, "Id do remetente: " + identificacao_destino);
+	    // //JOptionPane.showMessageDialog(null, "Id do remetente: " + identificacao_destino);
 
 	    String ie_destino  = quebrados.get(3).replaceAll("[^0-9]", "");
-  // JOptionPane.showMessageDialog(null, "IE do remetente: " + ie_destino);
+  // //JOptionPane.showMessageDialog(null, "IE do remetente: " + ie_destino);
 
 	    
 	    GerenciarBancoClientes gerente_clientes = new GerenciarBancoClientes();
@@ -820,7 +821,7 @@ public class ManipularRomaneios {
 
 	    }
 		}catch(Exception e) {
-			//JOptionPane.showMessageDialog(null, "Excessao ao tratar romaneio\nErro: " + e.getMessage() + "\nCausa: " + e.getCause() );
+			////JOptionPane.showMessageDialog(null, "Excessao ao tratar romaneio\nErro: " + e.getMessage() + "\nCausa: " + e.getCause() );
 		      if(avisos != null) {
 		    	  avisos.setMensagem("Erro ao tratar romaneio\nConsulte o administrador\nErro: " + e.getMessage() + "\nCausa: " + e.getCause());
 		  	        try {
@@ -915,9 +916,9 @@ public CadastroRomaneio tratar_romaneio (String lines[], File file) {
 		 
 	   String tratar = Arrays.toString(lines);
       // tratar = tratar.replaceAll("\n", "*");
-       //JOptionPane.showMessageDialog(null, tratar);
+       ////JOptionPane.showMessageDialog(null, tratar);
       // tratar = tratar.replaceAll(" ", "");
-     //  System.out.println(tratar);
+        // System.out.println(tratar);
 		TratarDados tratamentoDados = new TratarDados(tratar);
 
 		String busca_numero_romaneio =  tratamentoDados.tratar("ROMANEIO DE PESO : ", ",");
@@ -986,7 +987,7 @@ public CadastroRomaneio tratar_romaneio (String lines[], File file) {
 				e.printStackTrace();
 			}
 			double peso_bruto = numero_peso_bruto.doubleValue();
-			// JOptionPane.showMessageDialog(null, "peso bruto: " + peso_bruto);
+			//JOptionPane.showMessageDialog(null, "peso bruto: " + peso_bruto);
 			romaneio.setPeso_bruto(peso_bruto);
 			
 	         String s_peso_tara = tratamentoDados.tratar("TARA: ", ",");
@@ -999,7 +1000,7 @@ public CadastroRomaneio tratar_romaneio (String lines[], File file) {
 					e.printStackTrace();
 				}
 				double peso_tara = numero_peso_tara.doubleValue();
-				// JOptionPane.showMessageDialog(null, "peso tara: " + peso_tara);
+				 //JOptionPane.showMessageDialog(null, "peso tara: " + peso_tara);
 
 				romaneio.setTara(peso_tara);
 
@@ -1014,7 +1015,7 @@ public CadastroRomaneio tratar_romaneio (String lines[], File file) {
 					}
 					double peso_liquido = numero_peso_liquido.doubleValue();
 			         romaneio.setPeso_liquido(peso_liquido);
-			         // JOptionPane.showMessageDialog(null, "peso liquido: " + peso_liquido);
+			          //JOptionPane.showMessageDialog(null, "peso liquido: " + peso_liquido);
 
         
       
@@ -1031,7 +1032,6 @@ public CadastroRomaneio tratar_romaneio (String lines[], File file) {
 
 	    }
 	    
-	    //JOptionPane.showMessageDialog(null, "transgenia: " + transgenia);
 	   
 	    String transgenia_proxima = "";
 	    
@@ -1044,7 +1044,7 @@ public CadastroRomaneio tratar_romaneio (String lines[], File file) {
 		    	transgenia_proxima =  "Transgenico(GMO)";
 		    	produto_busca = produto_busca += " GMO";
 	    }else if(tratar.contains("CONV.")){
-	    	// JOptionPane.showMessageDialog(null, "Convencional encontrado");
+	    	 //JOptionPane.showMessageDialog(null, "Convencional encontrado");
 	    	produto_busca = produto_busca += " NON-GMO";
 
 	    	transgenia_proxima =  "Convencional(NON-GMO)";
@@ -1053,7 +1053,7 @@ public CadastroRomaneio tratar_romaneio (String lines[], File file) {
 	    	transgenia_proxima =  "Não Informar";
 	    	produto_busca = produto_busca;
 	    }
-	   //  JOptionPane.showMessageDialog(null, "Produto do romaneio: " + produto_busca);
+	     //JOptionPane.showMessageDialog(null, "Produto do romaneio: " + produto_busca);
 
 	    //procura por produto
 	    GerenciarBancoProdutos gerenciar_produtos = new GerenciarBancoProdutos();
@@ -1127,7 +1127,7 @@ public CadastroRomaneio tratar_romaneio (String lines[], File file) {
 	    for(CadastroSafra busca : lista_safras) {
 	    	if(busca.getAno_plantio() == ano_plantio && busca.getAno_colheita() == ano_colheita) {
 	    		CadastroProduto prod_safra = new GerenciarBancoProdutos().getProduto(busca.getProduto().getId_produto());
-	    		   // JOptionPane.showMessageDialog(null, "safra da lista: " + prod_safra.getNome_produto() + " Transgenia: " + prod_safra.getTransgenia() +
+	    		    //JOptionPane.showMessageDialog(null, "safra da lista: " + prod_safra.getNome_produto() + " Transgenia: " + prod_safra.getTransgenia() +
 	    		   // "\nsafra que quero: " + produto.getNome_produto() + " Transgenia: " + produto.getTransgenia());
 
     			 
@@ -1140,7 +1140,7 @@ public CadastroRomaneio tratar_romaneio (String lines[], File file) {
 	    		    safra_encontrada = true;
 	    			break;
 	    		}else {
-	    			   // JOptionPane.showMessageDialog(null, "o produto desta safra nao e o produto do romaneio\n id produto da safra da lista: " + prod_safra.getId_produto() + "\n id do produto que quero: " + produto.getId_produto());
+	    			    //JOptionPane.showMessageDialog(null, "o produto desta safra nao e o produto do romaneio\n id produto da safra da lista: " + prod_safra.getId_produto() + "\n id do produto que quero: " + produto.getId_produto());
  
 	    			
 	    			
@@ -1166,19 +1166,19 @@ public CadastroRomaneio tratar_romaneio (String lines[], File file) {
 			
 		romaneio.setData(date);
 		}catch(Exception t) {
-			   // JOptionPane.showMessageDialog(null, "Erro ao listar data do romaneio\nErro:  " + t.getMessage() + "\nConsulte o Administrador");
+			    //JOptionPane.showMessageDialog(null, "Erro ao listar data do romaneio\nErro:  " + t.getMessage() + "\nConsulte o Administrador");
 		}	   
 		
 		   //JOptionPane.showMessageDialog(null, "Data: " + data);
 		
 	    //motorista
 	    String nome_motorista = tratamentoDados.tratar("MOTORISTA: ", "PRODUTO");
-	    // JOptionPane.showMessageDialog(null, "Motorista: " + nome_motorista);
+	     //JOptionPane.showMessageDialog(null, "Motorista: " + nome_motorista);
 	    String placa = tratamentoDados.tratar("PLACA: ", ", MOTORISTA");
 	    //JOptionPane.showMessageDialog(null, "placa: " + placa);
 	    
 	     String cpf_motorista = tratamentoDados.tratar(" CPF: ", ",");
-	     // JOptionPane.showMessageDialog(null, "Cpf motorista: " + cpf_motorista);
+	      //JOptionPane.showMessageDialog(null, "Cpf motorista: " + cpf_motorista);
 
 	     CadastroCliente motorista = new CadastroCliente();
 	     motorista.setTransportador(1);
@@ -1261,7 +1261,7 @@ public CadastroRomaneio tratar_romaneio (String lines[], File file) {
 	        Thread.sleep(10000);
 	        }
 	        //JOptionPane.showMessageDialog(null, "Ha cadastro para este depositante, mas com I.E diferente, cadastre a nova I.E\n"
-	        // 		+ "\nDepositante: " + s_depositante + "\nNova I.E: " + s_insc_depositante);
+	     // // 	+ "\nDepositante: " + s_depositante + "\nNova I.E: " + s_insc_depositante);
 	    	CadastroAviso avisar = new CadastroAviso();
 	    	avisar.setTipo("Aviso");
 	    	avisar.setSetor("Importação de Romaneio");
@@ -1346,7 +1346,18 @@ public CadastroRomaneio tratar_romaneio (String lines[], File file) {
 	        Thread.sleep(10000);
 	        }
 	        //JOptionPane.showMessageDialog(null, "Destinatario nao encontrado: " + s_insc_destino);
+	        CadastroAviso avisar = new CadastroAviso();
 
+	        if(sinal_global == 2) {
+	        	//está consultando romaneios
+	        }else {
+	    	avisar.setTipo("Aviso");
+	    	avisar.setSetor("Importação de Romaneio");
+	    	String nome_destinatario = tratamentoDados.tratar("REMET./DESTIN, ., ", " INSC");
+	    	avisar.setMensagem("Cadastre o Destinatario: " + nome_destinatario + " I.E: " + s_insc_destino );
+	    	telaPrincipal.incluir_aviso(avisar);
+
+	        }
 
 
 	    }
@@ -1388,5 +1399,10 @@ public CadastroRomaneio tratar_romaneio (String lines[], File file) {
 	    
 		
 	}
+
+
+  public void sinalizar(int sinal) {
+	  sinal_global = sinal;
+  }
 
 }

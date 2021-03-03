@@ -68,14 +68,12 @@ public class TelaTodasNotasFiscais extends JDialog {
 	private Log GerenciadorLog;
 	private CadastroLogin login;
 	private ConfiguracoesGlobais configs_globais;
-
+    private int retorno_global;
 	private JDialog tela_pai;
 	private ArrayList<CadastroNFe> notas_fiscais_disponivel = new ArrayList<>();
-
 	private JTable table_nfs;
 	private TelaTodasNotasFiscais isto;
 	private JButton btnSelecionarNota;
-	
 	private JLabel lblStatusAdicionandoNotas;
 	private int contador = 0;
 	private JFileChooser fileChooser_global ;
@@ -113,6 +111,8 @@ public class TelaTodasNotasFiscais extends JDialog {
 	private JButton btnNewButton;
 	private JButton btnReleitura;
 	private JTextField entCodigo;
+	private JTextField entIdentificacaoRemetente;
+	private JTextField entIdentificacaoDestinatario;
 
 	public TelaTodasNotasFiscais(int flag, int retorno, Window janela_pai) {
 		setIconImage(Toolkit.getDefaultToolkit().getImage(TelaNotasFiscais.class.getResource("/imagens/icone_notas_fiscais.png")));
@@ -191,15 +191,15 @@ public class TelaTodasNotasFiscais extends JDialog {
 				int indexRowModel = table_nfs.getRowSorter().convertRowIndexToModel(rowSel);//converte pro indice do model
 				if(tela_pai instanceof TelaConfirmarCarregamento) {
 					
-					if(retorno == 1) {
+					if(retorno_global == 1) {
 						//retorna a nf interna
 						((TelaConfirmarCarregamento) tela_pai).setNotaFiscalInterna(notas_fiscais_disponivel.get(indexRowModel));
 
-					}else if(retorno == 2) {
+					}else if(retorno_global == 2) {
 						//retorna a nf de venda 1
 						((TelaConfirmarCarregamento) tela_pai).setNotaFiscalVenda1(notas_fiscais_disponivel.get(indexRowModel));
 
-					}else if(retorno == 3) {
+					}else if(retorno_global == 3) {
 						//retorna a nf de complemento
 						((TelaConfirmarCarregamento) tela_pai).setNotaFiscalComplemento(notas_fiscais_disponivel.get(indexRowModel));
 
@@ -208,9 +208,9 @@ public class TelaTodasNotasFiscais extends JDialog {
 
 				}
 				else if(tela_pai instanceof TelaConfirmarRecebimento) {
-					if(retorno == 1)
+					if(retorno_global == 1)
 					((TelaConfirmarRecebimento) tela_pai).setNotaFiscalVenda(notas_fiscais_disponivel.get(indexRowModel));
-					else if(retorno == 2)
+					else if(retorno_global == 2)
 						((TelaConfirmarRecebimento) tela_pai).setNotaFiscalRemessa(notas_fiscais_disponivel.get(indexRowModel));
 
 				}
@@ -225,13 +225,13 @@ public class TelaTodasNotasFiscais extends JDialog {
 
 		entProduto = new JTextField();
 		
-		entProduto.setBounds(625, 114, 242, 28);
+		entProduto.setBounds(146, 170, 242, 28);
 		painelPrincipal.add(entProduto);
 		entProduto.setColumns(10);
 		
 		entChavePesquisa = new JTextField();
 		
-		entChavePesquisa.setBounds(281, 116, 268, 28);
+		entChavePesquisa.setBounds(145, 137, 268, 28);
 		painelPrincipal.add(entChavePesquisa);
 		entChavePesquisa.setColumns(10);
 
@@ -284,75 +284,77 @@ public class TelaTodasNotasFiscais extends JDialog {
 		btnFiltrar = new JButton("Filtrar");
 		btnFiltrar.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-			   filtrar();
+			
+					   filtrar();
+
+				
 			}
 		});
-		btnFiltrar.setBounds(1040, 192, 59, 28);
+		btnFiltrar.setBounds(1149, 137, 59, 28);
 		painelPrincipal.add(btnFiltrar);
 		
 		lblNewLabel = new JLabel("Destinatario:");
 		lblNewLabel.setFont(new Font("Tahoma", Font.PLAIN, 14));
-		lblNewLabel.setBounds(199, 120, 77, 17);
+		lblNewLabel.setBounds(63, 141, 77, 17);
 		painelPrincipal.add(lblNewLabel);
 		
 		lblRemetente = new JLabel("Remetente:");
 		lblRemetente.setFont(new Font("Tahoma", Font.PLAIN, 14));
-		lblRemetente.setBounds(204, 153, 72, 17);
+		lblRemetente.setBounds(68, 110, 72, 17);
 		painelPrincipal.add(lblRemetente);
 		
 		entRemetente = new JTextField();
 		entRemetente.setColumns(10);
-		entRemetente.setBounds(281, 148, 268, 28);
+		entRemetente.setBounds(145, 105, 268, 28);
 		painelPrincipal.add(entRemetente);
 		
 		lblNatureza = new JLabel("Natureza:");
 		lblNatureza.setFont(new Font("Tahoma", Font.PLAIN, 14));
-		lblNatureza.setBounds(561, 153, 59, 17);
+		lblNatureza.setBounds(403, 175, 59, 17);
 		painelPrincipal.add(lblNatureza);
 		
 		entNatureza = new JTextField();
 		entNatureza.setColumns(10);
-		entNatureza.setBounds(625, 148, 242, 28);
+		entNatureza.setBounds(464, 170, 237, 28);
 		painelPrincipal.add(entNatureza);
 		
 		lblProduto = new JLabel("Produto:");
 		lblProduto.setFont(new Font("Tahoma", Font.PLAIN, 14));
-		lblProduto.setBounds(565, 119, 55, 17);
+		lblProduto.setBounds(86, 175, 55, 17);
 		painelPrincipal.add(lblProduto);
 		
 		lblNewLabel_1 = new JLabel("Periodo");
-		lblNewLabel_1.setBounds(984, 93, 43, 16);
+		lblNewLabel_1.setBounds(825, 76, 43, 16);
 		painelPrincipal.add(lblNewLabel_1);
 		
 		lblD = new JLabel("Dé:");
 		lblD.setFont(new Font("Tahoma", Font.PLAIN, 14));
-		lblD.setBounds(894, 128, 22, 17);
+		lblD.setBounds(735, 111, 22, 17);
 		painelPrincipal.add(lblD);
 		
 		lblAt = new JLabel("Até:");
 		lblAt.setFont(new Font("Tahoma", Font.PLAIN, 14));
-		lblAt.setBounds(891, 156, 25, 17);
+		lblAt.setBounds(732, 139, 25, 17);
 		painelPrincipal.add(lblAt);
 		
 		entMenorData = new JTextField();
 		entMenorData.setColumns(10);
-		entMenorData.setBounds(930, 115, 169, 28);
+		entMenorData.setBounds(771, 98, 169, 28);
 		painelPrincipal.add(entMenorData);
 		
 		entMaiorData = new JTextField();
 		entMaiorData.setColumns(10);
-		entMaiorData.setBounds(930, 154, 169, 28);
+		entMaiorData.setBounds(771, 137, 169, 28);
 		painelPrincipal.add(entMaiorData);
 		
 		JButton btnLimpar = new JButton("Limpar");
 		btnLimpar.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				
-				    
-				    sorter.setRowFilter( RowFilter.regexFilter(""));
+				    limpar();
 			}
 		});
-		btnLimpar.setBounds(969, 192, 67, 28);
+		btnLimpar.setBounds(1078, 137, 67, 28);
 		painelPrincipal.add(btnLimpar);
 		
 		lblNewLabel_2 = new JLabel("");
@@ -419,7 +421,7 @@ public class TelaTodasNotasFiscais extends JDialog {
 				}.start();
 			}
 		});
-		btnReleitura.setBounds(864, 192, 90, 28);
+		btnReleitura.setBounds(973, 137, 90, 28);
 		painelPrincipal.add(btnReleitura);
 		
 
@@ -441,13 +443,33 @@ public class TelaTodasNotasFiscais extends JDialog {
 		
 		JLabel lblCdigo = new JLabel("Código:");
 		lblCdigo.setFont(new Font("Tahoma", Font.PLAIN, 14));
-		lblCdigo.setBounds(228, 187, 48, 17);
+		lblCdigo.setBounds(718, 175, 48, 17);
 		painelPrincipal.add(lblCdigo);
 		
 		entCodigo = new JTextField();
 		entCodigo.setColumns(10);
-		entCodigo.setBounds(281, 182, 268, 28);
+		entCodigo.setBounds(771, 170, 169, 28);
 		painelPrincipal.add(entCodigo);
+		
+		entIdentificacaoRemetente = new JTextField();
+		entIdentificacaoRemetente.setColumns(10);
+		entIdentificacaoRemetente.setBounds(464, 105, 237, 28);
+		painelPrincipal.add(entIdentificacaoRemetente);
+		
+		JLabel lblCpfcnpj = new JLabel("IE:");
+		lblCpfcnpj.setFont(new Font("Tahoma", Font.PLAIN, 14));
+		lblCpfcnpj.setBounds(445, 110, 17, 17);
+		painelPrincipal.add(lblCpfcnpj);
+		
+		JLabel lblCpfcnpj_1 = new JLabel("IE:");
+		lblCpfcnpj_1.setFont(new Font("Tahoma", Font.PLAIN, 14));
+		lblCpfcnpj_1.setBounds(445, 142, 17, 17);
+		painelPrincipal.add(lblCpfcnpj_1);
+		
+		entIdentificacaoDestinatario = new JTextField();
+		entIdentificacaoDestinatario.setColumns(10);
+		entIdentificacaoDestinatario.setBounds(464, 137, 237, 28);
+		painelPrincipal.add(entIdentificacaoDestinatario);
 		btnReleitura.setVisible(false);
 		
 		new Thread() {
@@ -617,8 +639,11 @@ public class TelaTodasNotasFiscais extends JDialog {
 	 
 	        //retorna o valor da coluna
 	        switch (columnIndex) {
-	        case nfe:
-	            return nota.getNfe();
+	        case nfe:{
+	            String codigo =  nota.getNfe().replaceAll("[^0-9]", "");
+	            return Integer.valueOf(codigo).toString();
+
+	        }
 	        case serie:
 	            return nota.getSerie();
 	        case remetente:
@@ -1189,7 +1214,9 @@ public class TelaTodasNotasFiscais extends JDialog {
 
 		    String menor = entMenorData.getText();
 		    String maior = entMaiorData.getText();
-		    
+		    String insc_remetetente = entIdentificacaoRemetente.getText().toUpperCase();
+		    String insc_destinatario = entIdentificacaoDestinatario.getText().toUpperCase();
+
 		    if(checkString(menor) && checkString(maior) ) {
 			Date data_menor = null;
 			Date data_maior = null ;
@@ -1236,6 +1263,13 @@ public class TelaTodasNotasFiscais extends JDialog {
 		    if(checkString(codigo))
 			    filters.add(RowFilter.regexFilter(codigo, 0));
 		    
+		    
+		    if(checkString(insc_remetetente))
+			    filters.add(RowFilter.regexFilter(insc_remetetente, 3));
+		    
+		    if(checkString(insc_destinatario))
+			    filters.add(RowFilter.regexFilter(insc_destinatario, 8));
+		    
 		    sorter.setRowFilter( RowFilter.andFilter(filters));
 	}
 	
@@ -1243,14 +1277,39 @@ public class TelaTodasNotasFiscais extends JDialog {
 		return txt != null && !txt.equals("") && !txt.equals(" ") && !txt.equals("  ");
 	}
 	
-	public void setDadosPesquisa(String destinatario, String remetente, String natureza, String produto) {
+	public void setDadosPesquisa(String destinatario, String remetente, String natureza, String produto, String codigo) {
 		
 		entChavePesquisa.setText(destinatario);
 		entRemetente.setText(remetente);
 		entNatureza.setText(natureza);
 		entProduto.setText(produto);
+		entCodigo.setText(codigo);
 	
 		
 		filtrar();
 	}
+	
+
+	public void desabilitarBtnSelecionar() {
+		 btnSelecionarNota.setVisible(false);
+
+		 btnSelecionarNota.setEnabled(false);
+	}
+	
+	public void habilitarBtnSelecionar() {
+		btnSelecionarNota.setVisible(true);
+
+		 btnSelecionarNota.setEnabled(true);
+	}
+
+	public void setRetornoGlobal(int retorno) {
+		retorno_global = retorno;
+	}
+	
+	public void limpar() {
+	    sorter.setRowFilter( RowFilter.regexFilter(""));
+
+	}
+	
+	
 }

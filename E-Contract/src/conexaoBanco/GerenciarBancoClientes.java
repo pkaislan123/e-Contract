@@ -266,9 +266,9 @@ public int inserir_cliente(CadastroCliente cliente)
            if(cliente.getTipo_pessoa() == 0)
            { //0 pessoa fisica
         	   if(cliente.getTransportador() == 1) {
-        		   string_pessoa_fisica_transportador(cliente);
+        		   sql_cadastro_cliente=   string_pessoa_fisica_transportador(cliente);
         	   }else
-             sql_cadastro_cliente = string_pessoa_fisica(cliente);
+                 sql_cadastro_cliente = string_pessoa_fisica(cliente);
            }
            else
            {
@@ -277,7 +277,7 @@ public int inserir_cliente(CadastroCliente cliente)
                    sql_cadastro_cliente = string_pessoa_juridica_transportador(cliente);
 
         	   }else
-               sql_cadastro_cliente = string_pessoa_juridica(cliente);
+                  sql_cadastro_cliente = string_pessoa_juridica(cliente);
               
            }
                 try {       
@@ -294,7 +294,7 @@ public int inserir_cliente(CadastroCliente cliente)
                        stmt.close();
                        return result;
                      }catch(Exception e) {
-                    	  JOptionPane.showMessageDialog(null, "Erro ao inserir cliente no banco de dados");
+                    	  JOptionPane.showMessageDialog(null, "Erro ao inserir cliente no banco de dados\nErro: " + e.getMessage() + "\nCausa:" + e.getCause());
                                   return -1;
                           }
 		  
@@ -1859,7 +1859,7 @@ public int inserir_cliente(CadastroCliente cliente)
 		          ConexaoBanco.fechaConexao(conn, pstm, rs);
 		          return lista_veiculos;
 		      } catch (Exception e) {
-		          JOptionPane.showMessageDialog(null, "Erro ao listar as veiculos do transportador: " + id_cliente + " erro: "   + "causa: "  );
+		          //JOptionPane.showMessageDialog(null, "Erro ao listar as veiculos do transportador: " + id_cliente + " erro: "   + "causa: "  );
 		          return null;
 		      }		  
 		   

@@ -950,6 +950,17 @@ public class TelaContratos extends JFrame {
 								"Não é possivel replicar um pagamento para um contrato finalizado");
 					}
 
+				}else if (flag_retorno == 5) {
+
+					if (contrato_selecionado.getStatus_contrato() != 3) {
+
+						((TelaConfirmarTransferenciaCarga) telaPai).setContratoDestintario(contrato_selecionado);
+						isto.dispose();
+					} else {
+						JOptionPane.showMessageDialog(isto,
+								"Não é possivel transferir volume para um contrato finalizado");
+					}
+
 				}
 				isto.dispose();
 			}
@@ -1007,7 +1018,7 @@ public class TelaContratos extends JFrame {
 		// ImageIcon(TelaContratos.class.getResource("/imagens/add_contrato.png")));
 		btnContrato.setToolTipText("Adicionar Novo Contrato");
 
-		if (flag_retorno == 1 || flag_retorno == 2 || flag_retorno == 3 || flag_retorno == 4) {
+		if (flag_retorno == 1 || flag_retorno == 2 || flag_retorno == 3 || flag_retorno == 4 ||  flag_retorno == 5) {
 			// selecionar contrato para carregamento
 			btnAbrir.setEnabled(false);
 			btnAbrir.setVisible(false);

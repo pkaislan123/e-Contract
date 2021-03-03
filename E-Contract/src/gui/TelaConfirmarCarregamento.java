@@ -25,6 +25,7 @@ import cadastros.CadastroLogin;
 import cadastros.CadastroNFe;
 import cadastros.CadastroProduto;
 import cadastros.CadastroRomaneio;
+import cadastros.CadastroContrato.Recebimento;
 import classesExtras.Carregamento;
 import conexaoBanco.GerenciarBancoClientes;
 import conexaoBanco.GerenciarBancoContratos;
@@ -71,6 +72,8 @@ public class TelaConfirmarCarregamento extends JDialog {
 	private JPanel painelConfirmar = new JPanel();
 	private JPanel painelSelecionar = new JPanel();
 	private JFrame telaPaiJFrame;
+	private TelaRomaneios telaRomaneio;
+	private TelaTodasNotasFiscais telaTodasNotasFiscais;
 	private String servidor_unidade;
 	private TelaConfirmarCarregamento isto;
 	private JDialog telaPai;
@@ -359,9 +362,7 @@ public class TelaConfirmarCarregamento extends JDialog {
 		btnLerRomaneio.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				GerenciarBancoClientes gerenciar = new GerenciarBancoClientes();
-				TelaRomaneios tela = new TelaRomaneios(0,isto);
-				tela.pesquisarTodosOsRomaneios(gerenciar.getClientes(-1, -1, "") );
-				tela.setTelaPai(isto);
+				
 				
 				
 				String destinatario = "";
@@ -383,9 +384,26 @@ public class TelaConfirmarCarregamento extends JDialog {
 				
 				String produto = produto_carregamento.getNome_produto().toUpperCase();
 				
-				
-				tela.setDadosPesquisa(destinatario, remetente, "", produto);
-				tela.setVisible(true);
+				if(telaRomaneio == null) {
+					telaRomaneio = new TelaRomaneios(0,isto);
+					telaRomaneio.pesquisarTodosOsRomaneios(new GerenciarBancoClientes().getClientes(-1, -1, ""));
+					DadosGlobais dados = DadosGlobais.getInstance();
+					telaRomaneio.limpar();
+					telaRomaneio.setDadosPesquisa("", "", "", produto, entRomaneio.getText());
+
+					dados.setTelaRomaneios(telaRomaneio);
+					telaRomaneio.setTelaPai(isto);
+					telaRomaneio.setVisible(true);
+				}else {
+					//telaRomaneio.pesquisarTodosOsRomaneios(clientes_disponiveis);
+					telaRomaneio.setTelaPai(isto);
+					telaRomaneio.limpar();
+
+					//telaRomaneio.setDadosPesquisa("", "", "ENTRADA".toUpperCase(), produto);
+					telaRomaneio.setDadosPesquisa("", "", "", produto, entRomaneio.getText());
+
+					telaRomaneio.setVisible(true);
+				}
 			}
 		});
 		btnLerRomaneio.setBounds(678, 348, 168, 28);
@@ -394,8 +412,7 @@ public class TelaConfirmarCarregamento extends JDialog {
 		JButton btnLerNfVenda = new JButton("Ler NF Venda 1");
 		btnLerNfVenda.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				TelaTodasNotasFiscais verNotas = new TelaTodasNotasFiscais(0, 2, isto);
-				verNotas.setTelaPai(isto);
+				
 				String destinatario = "";
 				
 				if(cliente_carregamento.getTipo_pessoa() == 0) {
@@ -416,8 +433,28 @@ public class TelaConfirmarCarregamento extends JDialog {
 				String produto = produto_carregamento.getNome_produto();
 				
 				
-				verNotas.setDadosPesquisa(destinatario, "", "Venda", produto);
-				verNotas.setVisible(true);
+				
+				if(telaTodasNotasFiscais == null) {
+					telaTodasNotasFiscais = new TelaTodasNotasFiscais(0,2,isto);
+					DadosGlobais dados = DadosGlobais.getInstance();
+
+					dados.setTelaTodasNotasFiscais(telaTodasNotasFiscais);
+					telaTodasNotasFiscais.setTelaPai(isto);
+					telaTodasNotasFiscais.limpar();
+					telaTodasNotasFiscais.setRetornoGlobal(2);
+					telaTodasNotasFiscais.setDadosPesquisa("", "", "Venda", produto, entCodigoNFVenda1.getText());
+					telaTodasNotasFiscais.habilitarBtnSelecionar();
+
+					telaTodasNotasFiscais.setVisible(true);
+				}else {
+					//telaRomaneio.pesquisarTodosOsRomaneios(clientes_disponiveis);
+					telaTodasNotasFiscais.setTelaPai(isto);
+					telaTodasNotasFiscais.limpar();
+					telaTodasNotasFiscais.setDadosPesquisa("", "", "Venda", produto,entCodigoNFVenda1.getText());
+					telaTodasNotasFiscais.setRetornoGlobal(2);
+					telaTodasNotasFiscais.habilitarBtnSelecionar();
+					telaTodasNotasFiscais.setVisible(true);
+				}
 			}
 		});
 		btnLerNfVenda.setBounds(962, 428, 113, 28);
@@ -450,8 +487,7 @@ public class TelaConfirmarCarregamento extends JDialog {
 		JButton btnLerNfInterna = new JButton("Ler NF Interna");
 		btnLerNfInterna.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				TelaTodasNotasFiscais verNotas = new TelaTodasNotasFiscais(0, 1, isto);
-				verNotas.setTelaPai(isto);
+			
 				String destinatario = "";
 				
 				if(cliente_carregamento.getTipo_pessoa() == 0) {
@@ -472,8 +508,28 @@ public class TelaConfirmarCarregamento extends JDialog {
 				String produto = produto_carregamento.getNome_produto();
 				
 				
-				verNotas.setDadosPesquisa(destinatario, "", "Retorno Mercadoria", produto);
-				verNotas.setVisible(true);
+				if(telaTodasNotasFiscais == null) {
+					telaTodasNotasFiscais = new TelaTodasNotasFiscais(0,2,isto);
+					DadosGlobais dados = DadosGlobais.getInstance();
+
+					dados.setTelaTodasNotasFiscais(telaTodasNotasFiscais);
+					telaTodasNotasFiscais.setTelaPai(isto);
+					telaTodasNotasFiscais.limpar();
+					telaTodasNotasFiscais.setRetornoGlobal(1);
+					telaTodasNotasFiscais.setDadosPesquisa("", "", "", produto, entCodigoNFInterna.getText());
+					telaTodasNotasFiscais.habilitarBtnSelecionar();
+
+					telaTodasNotasFiscais.setVisible(true);
+				}else {
+					//telaRomaneio.pesquisarTodosOsRomaneios(clientes_disponiveis);
+					telaTodasNotasFiscais.setTelaPai(isto);
+					telaTodasNotasFiscais.limpar();
+					telaTodasNotasFiscais.setDadosPesquisa("", "", "", produto,entCodigoNFInterna.getText());
+					telaTodasNotasFiscais.setRetornoGlobal(1);
+					telaTodasNotasFiscais.habilitarBtnSelecionar();
+					telaTodasNotasFiscais.setVisible(true);
+				}
+				
 			}
 		});
 		btnLerNfInterna.setBounds(682, 387, 168, 28);
@@ -506,8 +562,7 @@ public class TelaConfirmarCarregamento extends JDialog {
 		JButton btnLerNfComplemento = new JButton("Ler NF Complemento");
 		btnLerNfComplemento.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				TelaTodasNotasFiscais verNotas = new TelaTodasNotasFiscais(0, 3, isto);
-				verNotas.setTelaPai(isto);
+			
 				String destinatario = "";
 				
 				if(cliente_carregamento.getTipo_pessoa() == 0) {
@@ -528,8 +583,28 @@ public class TelaConfirmarCarregamento extends JDialog {
 				String produto = produto_carregamento.getNome_produto();
 				
 				
-				verNotas.setDadosPesquisa(destinatario, "", "Venda", produto);
-				verNotas.setVisible(true);
+				if(telaTodasNotasFiscais == null) {
+					telaTodasNotasFiscais = new TelaTodasNotasFiscais(0,2,isto);
+					DadosGlobais dados = DadosGlobais.getInstance();
+
+					dados.setTelaTodasNotasFiscais(telaTodasNotasFiscais);
+					telaTodasNotasFiscais.setTelaPai(isto);
+					telaTodasNotasFiscais.limpar();
+					telaTodasNotasFiscais.setRetornoGlobal(3);
+					telaTodasNotasFiscais.setDadosPesquisa(destinatario, "", "Venda", produto, entCodigoNFComplemento.getText());
+					telaTodasNotasFiscais.habilitarBtnSelecionar();
+
+					telaTodasNotasFiscais.setVisible(true);
+				}else {
+					//telaRomaneio.pesquisarTodosOsRomaneios(clientes_disponiveis);
+					telaTodasNotasFiscais.setTelaPai(isto);
+					telaTodasNotasFiscais.limpar();
+					telaTodasNotasFiscais.setDadosPesquisa(destinatario, "", "Venda", produto, entCodigoNFComplemento.getText());
+					telaTodasNotasFiscais.setRetornoGlobal(3);
+					telaTodasNotasFiscais.habilitarBtnSelecionar();
+					telaTodasNotasFiscais.setVisible(true);
+				}
+
 			}
 		});
 		btnLerNfComplemento.setBounds(962, 461, 147, 28);
@@ -618,32 +693,22 @@ public class TelaConfirmarCarregamento extends JDialog {
 			public void actionPerformed(ActionEvent e) {
 
 				GerenciarBancoContratos gerenciar = new GerenciarBancoContratos();
-				CadastroContrato.Carregamento carregamento_a_inserir = new CadastroContrato.Carregamento();
-			
-				
-				boolean retorno = gerenciar.inserirCarregamento(contrato_local.getId(),
-						getCarregamento(new CadastroContrato.Carregamento()));
-				if (retorno) {
-					JOptionPane.showMessageDialog(isto, "Carregamento Cadastrado!");
-					//((TelaGerenciarContrato) telaPai).pesquisar_carregamentos();
-					((TelaGerenciarContrato) telaPaiJFrame).pesquisar_carregamentos();
-					
-					
-					/*if (JOptionPane.showConfirmDialog(isto, 
-				            "Replicar este carregamento nos sub-contratos deste contrato?", "Replicar", 
-				            JOptionPane.YES_NO_OPTION,
-				            JOptionPane.QUESTION_MESSAGE) == JOptionPane.YES_OPTION){
-						
-						    TelaReplicarCarregamento replicar = new TelaReplicarCarregamento(contrato_local, carregamento_a_inserir);
-						    replicar.setTelaPai(isto);
-						    replicar.setVisible(true);
-						    isto.dispose();
-						
-					}else {
-						isto.dispose();
+				//CadastroContrato.Carregamento carregamento_a_inserir = new CadastroContrato.Carregamento();
+				CadastroContrato.Carregamento carregamento_a_inserir= getCarregamentoSalvar(new CadastroContrato.Carregamento());
 
-					}
-					*/
+				
+				int retorno = gerenciar.inserirCarregamento(contrato_local.getId(),
+						carregamento_a_inserir);
+				if (retorno > 0) {
+					JOptionPane.showMessageDialog(isto, "Carregamento Cadastrado!");
+	            	   ((TelaGerenciarContrato) telaPaiJFrame).pesquisar_recebimentos();
+
+					((TelaGerenciarContrato) telaPaiJFrame).pesquisar_carregamentos();
+					carregamento_a_inserir.setId_carregamento(retorno);
+				     carregamento_global =carregamento_a_inserir;
+					gerarPastasEArquivos();
+					
+				
 					
 					isto.dispose();
 
@@ -811,11 +876,13 @@ public class TelaConfirmarCarregamento extends JDialog {
 		btnAtualizar.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				GerenciarBancoContratos gerenciar = new GerenciarBancoContratos();
-	               boolean atualizou = gerenciar.atualizar_carregamento(getCarregamento(carregamento_global));
+	               boolean atualizou = gerenciar.atualizar_carregamento(getCarregamentoAtualizar(carregamento_global));
 	               
 	               if(atualizou) {
 	            	   JOptionPane.showMessageDialog(isto, "Carregamento Atualizado");
 	            	   
+	            	   ((TelaGerenciarContrato) telaPaiJFrame).pesquisar_recebimentos();
+
 	            	   ((TelaGerenciarContrato) telaPaiJFrame).pesquisar_carregamentos();
 	            	   isto.dispose();
 	               }else {
@@ -1250,8 +1317,435 @@ public void setRomaneio(CadastroRomaneio romaneio) {
 	}	
 	
 	
+	public void gerarPastasEArquivos() {
+		//criar a pasta para o recebimento
+		boolean pasta_carregamento_contrato1_existe = false;
+		boolean pasta_carregamento_contrato2_existe = false;
+		
+		String caminho_diretorio1 = servidor_unidade + contrato_local.getCaminho_diretorio_contrato();
+		String caminho_diretorio2 = "";
+		
+		if(contrato_local.getCaminho_diretorio_contrato2() != null) {
+			caminho_diretorio2  = servidor_unidade + contrato_local.getCaminho_diretorio_contrato2();
+		}else {
+			caminho_diretorio2 = null;
+		}
+				
+				
+
+		ManipularTxt manipular = new ManipularTxt();
+		//cria o diretorio recebimentos no contrato1
+		File diretorio_carregamentos_contrato1 = new File( caminho_diretorio1 + "\\carregamentos");
+		File diretorio_carregamentos_contrato2 = null;
+		if(!diretorio_carregamentos_contrato1.exists()) {
+			manipular.criarDiretorio(diretorio_carregamentos_contrato1.getAbsolutePath());
+		}
+		
+		if(caminho_diretorio2 != null) {
+			diretorio_carregamentos_contrato2 = new File( caminho_diretorio2 + "\\carregamentos");
+			if(!diretorio_carregamentos_contrato2.exists()) {
+				manipular.criarDiretorio(diretorio_carregamentos_contrato2.getAbsolutePath());
+			}
+		}
+		
+		//criar diretorio do recebimento na pasta do contrato 1
+		File diretorio_este_carregamento_contrato1 = new File( caminho_diretorio1 + "\\carregamentos" + "\\carregamento_" + carregamento_global.getId_carregamento());
+		if(!diretorio_este_carregamento_contrato1.exists()) {
+			boolean criar = manipular.criarDiretorio(diretorio_este_carregamento_contrato1.getAbsolutePath());
+			if(criar) {
+				//JOptionPane.showMessageDialog(isto, "diretorio recebimento_id criado");
+				pasta_carregamento_contrato1_existe = true;
+
+			}else {
+				
+			}
+		}else {
+			//JOptionPane.showMessageDialog(isto, "diretorio recebimento_id criado ja existe");
+
+			pasta_carregamento_contrato1_existe = true;
+		}
+		
+		File diretorio_este_carregamento_contrato2 = new File( caminho_diretorio2 + "\\carregamentos" + "\\carregamento_" + carregamento_global.getId_carregamento());
+
+		if(caminho_diretorio2 != null) {
+			
+			if(!diretorio_este_carregamento_contrato2.exists()) {
+				boolean criar = manipular.criarDiretorio(diretorio_este_carregamento_contrato2.getAbsolutePath());
+				if(criar) {
+					pasta_carregamento_contrato2_existe = true;
+
+				}else {
+					
+				}
+			}else {
+				pasta_carregamento_contrato2_existe = true;
+
+			}
+		}
+		
+
+		if(romaneio_carregamento != null) {
+
+			String caminho_completo = romaneio_carregamento.getCaminho_arquivo();
+					TratarDados tratar = new TratarDados(caminho_completo);
+						String caminho_normalizado = tratar.tratar("E-Contract", "pdf")	;
+						String caminho_completo_normalizado = "E-Contract" +  caminho_normalizado + "pdf";
+						String conteudo [] = caminho_completo_normalizado.split("\\\\");
+						String url_final = "";
+						for(String str : conteudo) {
+							
+							url_final = url_final + str + "\\\\";
+						}
+
+				if(pasta_carregamento_contrato1_existe) {
+							//copiar a nota para esta pasta
+							try {
+								
+								boolean copiar = manipular.copiarNFe(servidor_unidade + url_final, diretorio_este_carregamento_contrato1.getAbsolutePath() + "\\" + conteudo[conteudo.length -1]);
+							    
+							} catch (IOException e) {
+								//JOptionPane.showMessageDialog(isto, "erro ao copiar arquivo\nerro: " + e.getMessage() + "\nCausa: " + e.getCause());
+								e.printStackTrace();
+							}
+						}
+						if(pasta_carregamento_contrato2_existe) {
+							try {
+								boolean copiar = manipular.copiarNFe(servidor_unidade + url_final, diretorio_este_carregamento_contrato2.getAbsolutePath() + "\\" + conteudo[conteudo.length -1]);
+
+							} catch (IOException e) {
+								// TODO Auto-generated catch block
+								e.printStackTrace();
+							}
+						}
+
+			}
+		
+		
+		if(nota_fiscal_venda1_carregamento != null) {
+			String caminho_completo = nota_fiscal_venda1_carregamento.getCaminho_arquivo();
+						TratarDados tratar = new TratarDados(caminho_completo);
+							String caminho_normalizado = tratar.tratar("E-Contract", "pdf")	;
+							String caminho_completo_normalizado = "E-Contract" +  caminho_normalizado + "pdf";
+							String conteudo [] = caminho_completo_normalizado.split("\\\\");
+							String url_final = "";
+							for(String str : conteudo) {
+								
+								url_final = url_final + str + "\\\\";
+							}
+
+				if(pasta_carregamento_contrato1_existe) {
+								//copiar a nota para esta pasta
+								try {
+									
+									boolean copiar = manipular.copiarNFe(servidor_unidade + url_final, diretorio_este_carregamento_contrato1.getAbsolutePath() + "\\" + conteudo[conteudo.length -1]);
+								    
+								} catch (IOException e) {
+									//JOptionPane.showMessageDialog(isto, "erro ao copiar arquivo\nerro: " + e.getMessage() + "\nCausa: " + e.getCause());
+									e.printStackTrace();
+								}
+							}
+							if(pasta_carregamento_contrato2_existe) {
+								try {
+									boolean copiar = manipular.copiarNFe(servidor_unidade + url_final, diretorio_este_carregamento_contrato2.getAbsolutePath() + "\\" + conteudo[conteudo.length -1]);
+
+								} catch (IOException e) {
+									// TODO Auto-generated catch block
+									e.printStackTrace();
+								}
+							}
+
+			}
+		
+		
+		if(nota_fiscal_complemento_carregamento != null) {
+			String caminho_completo = nota_fiscal_complemento_carregamento.getCaminho_arquivo();
+			TratarDados tratar = new TratarDados(caminho_completo);
+				String caminho_normalizado = tratar.tratar("E-Contract", "pdf")	;
+				String caminho_completo_normalizado = "E-Contract" +  caminho_normalizado + "pdf";
+				String conteudo [] = caminho_completo_normalizado.split("\\\\");
+				String url_final = "";
+				for(String str : conteudo) {
+					
+					url_final = url_final + str + "\\\\";
+				}
+
+
+	if(pasta_carregamento_contrato1_existe) {
+					//copiar a nota para esta pasta
+					try {
+						
+						boolean copiar = manipular.copiarNFe(servidor_unidade + url_final, diretorio_este_carregamento_contrato1.getAbsolutePath() + "\\" + conteudo[conteudo.length -1]);
+					    
+					} catch (IOException e) {
+						//JOptionPane.showMessageDialog(isto, "erro ao copiar arquivo\nerro: " + e.getMessage() + "\nCausa: " + e.getCause());
+						e.printStackTrace();
+					}
+				}
+				if(pasta_carregamento_contrato2_existe) {
+					try {
+						boolean copiar = manipular.copiarNFe(servidor_unidade + url_final, diretorio_este_carregamento_contrato2.getAbsolutePath() + "\\" + conteudo[conteudo.length -1]);
+
+					} catch (IOException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+				}
+
+}
+		
+		
+		if(nota_fiscal_interna_carregamento != null) {
+			String caminho_completo = nota_fiscal_interna_carregamento.getCaminho_arquivo();
+			TratarDados tratar = new TratarDados(caminho_completo);
+				String caminho_normalizado = tratar.tratar("E-Contract", "pdf")	;
+				String caminho_completo_normalizado = "E-Contract" +  caminho_normalizado + "pdf";
+				String conteudo [] = caminho_completo_normalizado.split("\\\\");
+				String url_final = "";
+				for(String str : conteudo) {
+					
+					url_final = url_final + str + "\\\\";
+				}
+
+
+if(pasta_carregamento_contrato1_existe) {
+					//copiar a nota para esta pasta
+					try {
+						
+						boolean copiar = manipular.copiarNFe(servidor_unidade + url_final, diretorio_este_carregamento_contrato1.getAbsolutePath() + "\\" + conteudo[conteudo.length -1]);
+					    
+					} catch (IOException e) {
+						//JOptionPane.showMessageDialog(isto, "erro ao copiar arquivo\nerro: " + e.getMessage() + "\nCausa: " + e.getCause());
+						e.printStackTrace();
+					}
+				}
+				if(pasta_carregamento_contrato2_existe) {
+					try {
+						boolean copiar = manipular.copiarNFe(servidor_unidade + url_final, diretorio_este_carregamento_contrato2.getAbsolutePath() + "\\" + conteudo[conteudo.length -1]);
+
+					} catch (IOException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+				}
+
+}
+		
+		
+	}
 	
-public CadastroContrato.Carregamento getCarregamento(CadastroContrato.Carregamento carregamento_a_inserir){
+public CadastroContrato.Carregamento getCarregamentoSalvar(CadastroContrato.Carregamento carregamento_a_inserir){
+		
+	
+
+	
+	carregamento_a_inserir.setData(lblDataCarregamento.getText());
+	carregamento_a_inserir.setId_cliente(cliente_carregamento.getId());
+	carregamento_a_inserir.setId_vendedor(vendedor.getId());
+	carregamento_a_inserir.setId_contrato(contrato_local.getId());
+
+	
+	if(transportador_carregamento != null) {
+		carregamento_a_inserir.setId_transportador(transportador_carregamento.getId());
+		
+		if(veiculo_carregamento != null)
+		carregamento_a_inserir.setId_veiculo(veiculo_carregamento.getId_veiculo());
+	}
+	
+	
+	carregamento_a_inserir.setId_produto(produto_carregamento.getId_produto());
+	
+	if(romaneio_carregamento != null) {
+		String caminho_completo = romaneio_carregamento.getCaminho_arquivo();
+		TratarDados tratar = new TratarDados(caminho_completo);
+			String caminho_normalizado = tratar.tratar("E-Contract", "pdf")	;
+			String caminho_completo_normalizado = "E-Contract" +  caminho_normalizado + "pdf";
+			String conteudo [] = caminho_completo_normalizado.split("\\\\");
+			String url_final = "";
+			for(String str : conteudo) {
+				
+				url_final = url_final + str + "\\\\";
+			}
+			carregamento_a_inserir.setCodigo_romaneio(Integer.toString(romaneio_carregamento.getNumero_romaneio()));
+			carregamento_a_inserir.setPeso_romaneio(romaneio_carregamento.getPeso_liquido());
+		   
+			carregamento_a_inserir.setCaminho_romaneio(url_final);
+		
+	}else {
+		if(checkString(entRomaneio.getText()))   
+		carregamento_a_inserir.setCodigo_romaneio((entRomaneio.getText()));
+		if(checkString(pesoRomaneio.getText()))   
+		carregamento_a_inserir.setPeso_romaneio(Double.parseDouble(pesoRomaneio.getText()));
+	}
+
+		if(nota_fiscal_venda1_carregamento != null) {
+			String caminho_completo = nota_fiscal_venda1_carregamento.getCaminho_arquivo();
+			TratarDados tratar = new TratarDados(caminho_completo);
+				String caminho_normalizado = tratar.tratar("E-Contract", "pdf")	;
+				String caminho_completo_normalizado = "E-Contract" +  caminho_normalizado + "pdf";
+				String conteudo [] = caminho_completo_normalizado.split("\\\\");
+				String url_final = "";
+				for(String str : conteudo) {
+					
+					url_final = url_final + str + "\\\\";
+				}
+				carregamento_a_inserir.setCodigo_nf_venda1(nota_fiscal_venda1_carregamento.getNfe());
+				
+				Number number = null;
+				NumberFormat z = NumberFormat.getNumberInstance();
+
+				try {
+					number = z.parse(nota_fiscal_venda1_carregamento.getQuantidade());
+				} catch (ParseException i) {
+					// TODO Auto-generated catch block
+					i.printStackTrace();
+				}
+				double peso_nota = number.doubleValue();
+				carregamento_a_inserir.setPeso_nf_venda1(peso_nota);
+			   
+				carregamento_a_inserir.setCaminho_nf_venda1(url_final);
+			
+				String valor_nota = nota_fiscal_venda1_carregamento.getValor().replaceAll("[^0-9,]", "");
+
+				valor_nota = valor_nota.replaceAll(",", ".");
+
+				carregamento_a_inserir.setValor_nf_venda1(new BigDecimal(valor_nota));
+		}else {
+			if(checkString(entCodigoNFVenda1.getText())) {   
+			carregamento_a_inserir.setCodigo_nf_venda1(entCodigoNFVenda1.getText());
+			}else {
+				carregamento_a_inserir.setCodigo_nf_venda1("");
+
+			}
+			
+			if(checkString(entPesoNFVenda1.getText()))   {
+			carregamento_a_inserir.setPeso_nf_venda1(Double.parseDouble(entPesoNFVenda1.getText()));
+			}else {
+				carregamento_a_inserir.setPeso_nf_venda1(0.0);
+
+			}
+			try {
+			if(checkString(entValorNFVenda1.getText()))   
+				carregamento_a_inserir.setValor_nf_venda1(new BigDecimal(entValorNFVenda1.getText()));
+			else {
+				carregamento_a_inserir.setValor_nf_venda1(BigDecimal.ZERO);
+
+			}
+			}catch(Exception e) {
+				
+			}
+			
+		}
+		
+		if(nota_fiscal_complemento_carregamento != null) {
+			String caminho_completo = nota_fiscal_complemento_carregamento.getCaminho_arquivo();
+			TratarDados tratar = new TratarDados(caminho_completo);
+				String caminho_normalizado = tratar.tratar("E-Contract", "pdf")	;
+				String caminho_completo_normalizado = "E-Contract" +  caminho_normalizado + "pdf";
+				String conteudo [] = caminho_completo_normalizado.split("\\\\");
+				String url_final = "";
+				for(String str : conteudo) {
+					
+					url_final = url_final + str + "\\\\";
+				}
+				carregamento_a_inserir.setCodigo_nf_complemento(nota_fiscal_complemento_carregamento.getNfe());
+				
+				Number number = null;
+				NumberFormat z = NumberFormat.getNumberInstance();
+
+				try {
+					number = z.parse(nota_fiscal_complemento_carregamento.getQuantidade());
+				} catch (ParseException i) {
+					// TODO Auto-generated catch block
+					i.printStackTrace();
+				}
+				double peso_nota = number.doubleValue();
+				carregamento_a_inserir.setPeso_nf_complemento(peso_nota);
+			   
+				carregamento_a_inserir.setCaminho_nf_complemento(url_final);
+			
+				String valor_nota = nota_fiscal_complemento_carregamento.getValor().replaceAll("[^0-9,]", "");
+
+				valor_nota = valor_nota.replaceAll(",", ".");
+
+				carregamento_a_inserir.setValor_nf_complemento(new BigDecimal(valor_nota));
+		}else {
+			if(checkString(entCodigoNFComplemento.getText()))   
+			carregamento_a_inserir.setCodigo_nf_complemento(entCodigoNFComplemento.getText());
+			else {
+				carregamento_a_inserir.setCodigo_nf_complemento("");
+
+			}
+			if(checkString(entPesoNFComplemento.getText()))   
+			carregamento_a_inserir.setPeso_nf_complemento(Double.parseDouble(entPesoNFComplemento.getText()));
+			else {
+				carregamento_a_inserir.setPeso_nf_complemento(0.0);
+
+			}
+			try {
+			if(checkString(entValorNFComplemento.getText()))   
+				carregamento_a_inserir.setValor_nf_complemento(new BigDecimal(entValorNFComplemento.getText()));
+			else {
+				carregamento_a_inserir.setValor_nf_complemento(BigDecimal.ZERO);
+
+			}
+			}catch(Exception e) {
+				
+			}
+		}
+		
+		
+		if(nota_fiscal_interna_carregamento != null) {
+			String caminho_completo = nota_fiscal_interna_carregamento.getCaminho_arquivo();
+			TratarDados tratar = new TratarDados(caminho_completo);
+				String caminho_normalizado = tratar.tratar("E-Contract", "pdf")	;
+				String caminho_completo_normalizado = "E-Contract" +  caminho_normalizado + "pdf";
+				String conteudo [] = caminho_completo_normalizado.split("\\\\");
+				String url_final = "";
+				for(String str : conteudo) {
+					
+					url_final = url_final + str + "\\\\";
+				}
+				carregamento_a_inserir.setCodigo_nf_interna(nota_fiscal_interna_carregamento.getNfe());
+				
+				Number number = null;
+				NumberFormat z = NumberFormat.getNumberInstance();
+
+				try {
+					number = z.parse(nota_fiscal_interna_carregamento.getQuantidade());
+				} catch (ParseException i) {
+					// TODO Auto-generated catch block
+					i.printStackTrace();
+				}
+				double peso_nota = number.doubleValue();
+				carregamento_a_inserir.setPeso_nf_interna(peso_nota);
+			   
+				carregamento_a_inserir.setCaminho_nf_interna(url_final);
+				
+		}else {
+			if(checkString(entCodigoNFInterna.getText()))   
+			carregamento_a_inserir.setCodigo_nf_interna(entCodigoNFInterna.getText());
+			else {
+				carregamento_a_inserir.setCodigo_nf_interna("");
+
+			}
+			if(checkString(entPesoNFInterna.getText()))   
+			carregamento_a_inserir.setPeso_nf_interna(Double.parseDouble(entPesoNFInterna.getText()));
+			else {
+				carregamento_a_inserir.setPeso_nf_interna(0.0);
+
+			}
+		}
+		
+		
+		carregamento_a_inserir.setObservacao(textAreaObs.getText());
+		
+
+		return carregamento_a_inserir;
+	}
+
+
+
+public CadastroContrato.Carregamento getCarregamentoAtualizar(CadastroContrato.Carregamento carregamento_a_inserir){
 		
 	
 	//criar a pasta para o recebimento
@@ -1603,6 +2097,7 @@ public CadastroContrato.Carregamento getCarregamento(CadastroContrato.Carregamen
 		return carregamento_a_inserir;
 	}
 
+
 public void setTransportador(CadastroCliente _transportador, CadastroCliente.Veiculo veiculo) {
 
 	this.transportador_carregamento = _transportador;
@@ -1812,6 +2307,16 @@ public void getDadosGlobais() {
 			 servidor_unidade  = configs_globais.getServidorUnidade();
 			 //usuario logado
 			  login = dados.getLogin();
+		
+			  //telaRomaneios
+			  telaRomaneio = dados.getTelaRomaneios();
+			  
+			  //telaTodasNotasFicais
+			  telaTodasNotasFiscais = dados.getTelaTodasNotasFiscais();
 	
 }
+
+
+
+
 }

@@ -6,6 +6,8 @@ import gui.TelaGerenciarContrato;
 import gui.TelaMain;
 import gui.TelaElaborarNovoContrato;
 import gui.TelaPrincipal;
+import gui.TelaRomaneios;
+import gui.TelaTodasNotasFiscais;
 import manipular.ConfiguracoesGlobais;
 import tratamento_proprio.Log;
 
@@ -18,11 +20,30 @@ public class DadosGlobais {
 	private Log gerenciador_logs;
 	private  ConfiguracoesGlobais configs_globais;
 	private TelaGerenciarContrato teraGerenciarContratoPai;
+	private TelaRomaneios telaRomaneios;
+	
+	private TelaTodasNotasFiscais telaTodasNotasFiscais;
 	
 	
 	
 	
 	
+
+	public TelaTodasNotasFiscais getTelaTodasNotasFiscais() {
+		return telaTodasNotasFiscais;
+	}
+
+	public void setTelaTodasNotasFiscais(TelaTodasNotasFiscais telaTodasNotasFiscais) {
+		this.telaTodasNotasFiscais = telaTodasNotasFiscais;
+	}
+
+	public TelaRomaneios getTelaRomaneios() {
+		return telaRomaneios;
+	}
+
+	public void setTelaRomaneios(TelaRomaneios telaRomaneios) {
+		this.telaRomaneios = telaRomaneios;
+	}
 
 	public TelaGerenciarContrato getTeraGerenciarContratoPai() {
 		return teraGerenciarContratoPai;

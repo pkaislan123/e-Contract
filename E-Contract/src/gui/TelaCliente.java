@@ -14,6 +14,7 @@ import javax.swing.table.TableRowSorter;
 
 import cadastros.CadastroCliente;
 import cadastros.CadastroGrupo;
+import cadastros.CadastroLogin;
 import cadastros.CadastroNFe;
 import conexaoBanco.GerenciarBancoClientes;
 import conexaoBanco.GerenciarBancoGrupos;
@@ -38,8 +39,11 @@ import java.awt.event.KeyEvent;
 import javax.swing.ImageIcon;
 import gui.TelaElaborarNovoContrato;
 import gui.TelaNotasFiscais.NFeTableModel;
+import manipular.ConfiguracoesGlobais;
+import outros.DadosGlobais;
 import outros.JButtonBackground;
 import outros.JPanelBackground;
+import tratamento_proprio.Log;
 
 import javax.swing.JComboBox;
 import javax.swing.JTextField;
@@ -55,8 +59,10 @@ public class TelaCliente extends JDialog {
 
 	private JDialog telaPai;
 	private JPanel contentPane;
-
-     
+	private Log GerenciadorLog;
+	private CadastroLogin login;
+	private ConfiguracoesGlobais configs_globais;
+    private TelaRomaneios telaRomaneio;
      DefaultTableModel modelo_grupos = new DefaultTableModel(){
          public boolean isCellEditable(int linha, int coluna) {  
              return false;
@@ -67,7 +73,7 @@ public class TelaCliente extends JDialog {
     private static ArrayList<CadastroCliente> clientes_pesquisados = new ArrayList<>();
 	private static ArrayList<CadastroCliente> clientes_disponiveis = new ArrayList<>();
 	private static ArrayList<CadastroGrupo> lista_grupos = new ArrayList<>();
-
+    private TelaTodasNotasFiscais telaTodasNotasFiscais;
 	private CadastroCliente clienteSelecionado;
 	private JTextField entNome;
 	
@@ -114,7 +120,7 @@ public class TelaCliente extends JDialog {
 	
 	public TelaCliente(int flag_tipo_tela, int flag_tipo_cliente, Window janela_pai) {
 		setIconImage(Toolkit.getDefaultToolkit().getImage(TelaCliente.class.getResource("/imagens/equipe.png")));
-		
+		getDadosGlobais();
 		// flag_tipo_tela == 1 //modo cliente edição
 		// flag_tipo_tela == 0 //modo cliente seleção
 		
@@ -334,12 +340,25 @@ public class TelaCliente extends JDialog {
 		panel.add(btnVerNotasFiscais);
 		btnVerNotasFiscais.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				int indiceDaLinha = 0;
-				indiceDaLinha = tabela.getSelectedRow();
 				
-				TelaTodasNotasFiscais verNotas = new TelaTodasNotasFiscais(1, 0, isto);
-				 verNotas.setVisible(true);
-				//
+				if(telaTodasNotasFiscais == null) {
+					telaTodasNotasFiscais = new TelaTodasNotasFiscais(0,1,isto);
+					DadosGlobais dados = DadosGlobais.getInstance();
+
+					dados.setTelaTodasNotasFiscais(telaTodasNotasFiscais);
+					telaTodasNotasFiscais.setTelaPai(isto);
+					telaTodasNotasFiscais.limpar();
+					telaTodasNotasFiscais.desabilitarBtnSelecionar();
+
+					telaTodasNotasFiscais.setVisible(true);
+				}else {
+					//telaRomaneio.pesquisarTodosOsRomaneios(clientes_disponiveis);
+					telaTodasNotasFiscais.setTelaPai(isto);
+					telaTodasNotasFiscais.limpar();
+					telaTodasNotasFiscais.desabilitarBtnSelecionar();
+
+					telaTodasNotasFiscais.setVisible(true);
+				}
 				
 			}
 		});
@@ -349,10 +368,19 @@ public class TelaCliente extends JDialog {
 		btnNewButton_1.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				
-				TelaRomaneios tela = new TelaRomaneios(0,isto);
-				tela.pesquisarTodosOsRomaneios(clientes_disponiveis);
+				if(telaRomaneio == null) {
+					telaRomaneio = new TelaRomaneios(0,isto);
+					telaRomaneio.pesquisarTodosOsRomaneios(clientes_disponiveis);
+					DadosGlobais dados = DadosGlobais.getInstance();
+
+					dados.setTelaRomaneios(telaRomaneio);
+					telaRomaneio.setVisible(true);
+				}else {
+					//telaRomaneio.pesquisarTodosOsRomaneios(clientes_disponiveis);
+					
+					telaRomaneio.setVisible(true);
+				}
 				
-				tela.setVisible(true);
 			}
 		});
 		btnNewButton_1.setBounds(123, 278, 148, 28);
@@ -858,5 +886,22 @@ public class TelaCliente extends JDialog {
 	
 	public boolean checkString(String txt) {
 		return txt != null && !txt.equals("") && !txt.equals(" ") && !txt.equals("  ");
+	}
+	
+	public void getDadosGlobais() {
+		//gerenciador de log
+				DadosGlobais dados = DadosGlobais.getInstance();
+				 GerenciadorLog = dados.getGerenciadorLog();
+				 configs_globais = dados.getConfigs_globais();
+				 
+				 //usuario logado
+				  login = dados.getLogin();
+				  
+				  //telaRomaneios
+				  telaRomaneio = dados.getTelaRomaneios();
+				  
+				  //telaTodasNotasFiscais
+				  telaTodasNotasFiscais = dados.getTelaTodasNotasFiscais();
+		
 	}
 }

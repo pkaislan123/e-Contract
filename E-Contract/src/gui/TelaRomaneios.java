@@ -113,6 +113,8 @@ public class TelaRomaneios extends JDialog {
 	private JButton btnNewButton_2;
 	private JButton btnReleitura;
 	private JTextField entCodigo;
+	private JTextField entIdentificacaoDestinatario;
+	private JTextField entIdentificacaoRemetente;
 
 	public TelaRomaneios( int flag_tipo_tela, Window janela_pai) {
 		setIconImage(Toolkit.getDefaultToolkit().getImage(TelaRomaneios.class.getResource("/imagens/icone_notas_fiscais.png")));
@@ -176,13 +178,13 @@ public class TelaRomaneios extends JDialog {
 
 		entProduto = new JTextField();
 		
-		entProduto.setBounds(527, 118, 242, 28);
+		entProduto.setBounds(186, 185, 265, 28);
 		painelPrincipal.add(entProduto);
 		entProduto.setColumns(10);
 		
 		entChavePesquisa = new JTextField();
 		
-		entChavePesquisa.setBounds(183, 120, 268, 28);
+		entChavePesquisa.setBounds(184, 146, 268, 28);
 		painelPrincipal.add(entChavePesquisa);
 		entChavePesquisa.setColumns(10);
 
@@ -217,67 +219,66 @@ public class TelaRomaneios extends JDialog {
 		
 		lblNewLabel = new JLabel("Destinatario:");
 		lblNewLabel.setFont(new Font("Tahoma", Font.PLAIN, 14));
-		lblNewLabel.setBounds(101, 124, 77, 17);
+		lblNewLabel.setBounds(102, 150, 77, 17);
 		painelPrincipal.add(lblNewLabel);
 		
-		lblRemetente = new JLabel("Remetente:");
+		lblRemetente = new JLabel("Depositante:");
 		lblRemetente.setFont(new Font("Tahoma", Font.PLAIN, 14));
-		lblRemetente.setBounds(106, 157, 72, 17);
+		lblRemetente.setBounds(102, 111, 78, 17);
 		painelPrincipal.add(lblRemetente);
 		
 		entRemetente = new JTextField();
 		entRemetente.setColumns(10);
-		entRemetente.setBounds(183, 152, 268, 28);
+		entRemetente.setBounds(185, 107, 268, 28);
 		painelPrincipal.add(entRemetente);
 		
 		lblNatureza = new JLabel("Operação:");
 		lblNatureza.setFont(new Font("Tahoma", Font.PLAIN, 14));
-		lblNatureza.setBounds(461, 157, 64, 17);
+		lblNatureza.setBounds(464, 189, 64, 17);
 		painelPrincipal.add(lblNatureza);
 		
 		entNatureza = new JTextField();
 		entNatureza.setColumns(10);
-		entNatureza.setBounds(527, 152, 242, 28);
+		entNatureza.setBounds(538, 185, 242, 28);
 		painelPrincipal.add(entNatureza);
 		
 		lblProduto = new JLabel("Produto:");
 		lblProduto.setFont(new Font("Tahoma", Font.PLAIN, 14));
-		lblProduto.setBounds(467, 123, 55, 17);
+		lblProduto.setBounds(126, 190, 55, 17);
 		painelPrincipal.add(lblProduto);
 		
 		lblNewLabel_1 = new JLabel("Periodo");
-		lblNewLabel_1.setBounds(886, 97, 43, 16);
+		lblNewLabel_1.setBounds(920, 83, 43, 16);
 		painelPrincipal.add(lblNewLabel_1);
 		
 		lblD = new JLabel("Dé:");
 		lblD.setFont(new Font("Tahoma", Font.PLAIN, 14));
-		lblD.setBounds(796, 132, 22, 17);
+		lblD.setBounds(830, 118, 22, 17);
 		painelPrincipal.add(lblD);
 		
 		lblAt = new JLabel("Até:");
 		lblAt.setFont(new Font("Tahoma", Font.PLAIN, 14));
-		lblAt.setBounds(793, 160, 25, 17);
+		lblAt.setBounds(827, 146, 25, 17);
 		painelPrincipal.add(lblAt);
 		
 		entMenorData = new JTextField();
 		entMenorData.setColumns(10);
-		entMenorData.setBounds(832, 119, 169, 28);
+		entMenorData.setBounds(866, 105, 169, 28);
 		painelPrincipal.add(entMenorData);
 		
 		entMaiorData = new JTextField();
 		entMaiorData.setColumns(10);
-		entMaiorData.setBounds(832, 158, 169, 28);
+		entMaiorData.setBounds(866, 144, 169, 28);
 		painelPrincipal.add(entMaiorData);
 		
 		JButton btnLimpar = new JButton("Limpar");
 		btnLimpar.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				
-				    
-				    sorter.setRowFilter( RowFilter.regexFilter(""));
+				    limpar();
 			}
 		});
-		btnLimpar.setBounds(1027, 158, 67, 28);
+		btnLimpar.setBounds(1061, 144, 67, 28);
 		painelPrincipal.add(btnLimpar);
 		
 		lblNewLabel_2 = new JLabel("");
@@ -308,7 +309,7 @@ public class TelaRomaneios extends JDialog {
 				 filtrar();
 			}
 		});
-		btnFiltrar_1.setBounds(1104, 156, 67, 28);
+		btnFiltrar_1.setBounds(1138, 142, 67, 28);
 		painelPrincipal.add(btnFiltrar_1);
 		
 		JButton btnNewButton = new JButton("Exportar Arquivos");
@@ -403,18 +404,38 @@ public class TelaRomaneios extends JDialog {
 				pesquisarTodosOsRomaneios(gerenciar.getClientes(-1, -1, "") );
 			}
 		});
-		btnReleitura.setBounds(1027, 121, 144, 23);
+		btnReleitura.setBounds(1061, 107, 144, 23);
 		painelPrincipal.add(btnReleitura);
 		
 		JLabel lblCdigo = new JLabel("Código:");
 		lblCdigo.setFont(new Font("Tahoma", Font.PLAIN, 14));
-		lblCdigo.setBounds(770, 203, 48, 17);
+		lblCdigo.setBounds(804, 189, 48, 17);
 		painelPrincipal.add(lblCdigo);
 		
 		entCodigo = new JTextField();
 		entCodigo.setColumns(10);
-		entCodigo.setBounds(832, 197, 169, 28);
+		entCodigo.setBounds(866, 183, 169, 28);
 		painelPrincipal.add(entCodigo);
+		
+		JLabel lblCpfcnpj = new JLabel("CPF/CNPJ:");
+		lblCpfcnpj.setFont(new Font("Tahoma", Font.PLAIN, 14));
+		lblCpfcnpj.setBounds(462, 150, 77, 17);
+		painelPrincipal.add(lblCpfcnpj);
+		
+		entIdentificacaoDestinatario = new JTextField();
+		entIdentificacaoDestinatario.setColumns(10);
+		entIdentificacaoDestinatario.setBounds(539, 146, 241, 28);
+		painelPrincipal.add(entIdentificacaoDestinatario);
+		
+		JLabel lblCpfcnpj_1 = new JLabel("CPF/CNPJ:");
+		lblCpfcnpj_1.setFont(new Font("Tahoma", Font.PLAIN, 14));
+		lblCpfcnpj_1.setBounds(463, 112, 77, 17);
+		painelPrincipal.add(lblCpfcnpj_1);
+		
+		entIdentificacaoRemetente = new JTextField();
+		entIdentificacaoRemetente.setColumns(10);
+		entIdentificacaoRemetente.setBounds(540, 107, 241, 28);
+		painelPrincipal.add(entIdentificacaoRemetente);
 		
 
 	
@@ -537,7 +558,13 @@ public class TelaRomaneios extends JDialog {
 			@Override
 			public void run() {
 				for (CadastroCliente vend : clientes) {
-					pesquisarRomaneios(vend);
+					new Thread() {
+						@Override
+						public void run() {
+							pesquisarRomaneios(vend);
+
+						}
+					}.start();
 					
 				}
 				btnReleitura.setEnabled(true);
@@ -567,6 +594,7 @@ public class TelaRomaneios extends JDialog {
 					+ "ROMANEIOS";
 
 			ManipularRomaneios manipular_romaneios = new ManipularRomaneios(caminho_completo_nf);
+			manipular_romaneios.sinalizar(2);
 			ArrayList<CadastroRomaneio> romaneios = manipular_romaneios.tratar();
 
 			for (CadastroRomaneio rom : romaneios) {
@@ -586,9 +614,36 @@ public class TelaRomaneios extends JDialog {
 			}
 
 		} catch (Exception f) {
-			JOptionPane.showMessageDialog(null,
-					"Erro ao listar romaneios\nCausa: " + f.getCause() + "\nErro: " + f.getMessage());
+		//	JOptionPane.showMessageDialog(null,
+			//		"Erro ao listar romaneios\nCausa: " + f.getCause() + "\nErro: " + f.getMessage());
 		}
+	}
+	
+	public void filtrarRomaneiosCliente(CadastroCliente cliente) {
+		ArrayList<RowFilter<Object,Object>> filters = new ArrayList<RowFilter<Object,Object>>(2);
+
+		String numero_identificacao = "";
+		if(cliente.getTipo_pessoa() == 0) {
+			numero_identificacao = cliente.getCpf();
+		}else {
+			numero_identificacao = cliente.getCnpj();
+		}
+		
+		entIdentificacaoRemetente.setText(numero_identificacao);
+		entIdentificacaoDestinatario.setText(numero_identificacao);
+
+	    if(checkString(numero_identificacao))
+	    filters.add(RowFilter.regexFilter(numero_identificacao, 7));
+	
+	    if(checkString(numero_identificacao))
+	    filters.add(RowFilter.regexFilter(numero_identificacao, 9));
+	  
+	    
+	   
+	    
+	    sorter.setRowFilter( RowFilter.orFilter(filters));
+		
+		
 	}
 
 	public void getDadosGlobais() {
@@ -643,22 +698,24 @@ public class TelaRomaneios extends JDialog {
 
 		private final int safra = 5;
 		private final int nome_remetente = 6;
-		private final int nome_destinatario = 7;
-		private final int peso_bruto = 8;
-		private final int tara = 9;
-		private final int peso_liquido = 10;
-		private final int umidade = 11;
-		private final int impureza = 12;
-		private final int ardidos = 13;
-		private final int avariados = 14;
-		private final int cfop = 15;
-		private final int descricao = 16;
+		private final int id_remetente = 7;
+		private final int nome_destinatario = 8;
+		private final int id_destinatario = 9;
+		private final int peso_bruto = 10;
+		private final int tara = 11;
+		private final int peso_liquido = 12;
+		private final int umidade = 13;
+		private final int impureza = 14;
+		private final int ardidos = 15;
+		private final int avariados = 16;
+		private final int cfop = 17;
+		private final int descricao = 18;
 
-		private final int motorista = 17;
-		private final int placa = 18;
+		private final int motorista = 19;
+		private final int placa = 20;
 
 		private final String colunas[] = { "Número", "Operação", "Data:", "Produto:", "Transgenia:", "Safra:",
-				"Depositante:", "Rementente/Destinatario", "Peso Bruto:", "Tara:", "Peso Liquido:", "Umidade:", "Impureza:",
+				"Depositante:", "CPF/CNPJ Depositante", "Rementente/Destinatario", "CPF/CNPJ Rementente/Destinatario", "Peso Bruto:", "Tara:", "Peso Liquido:", "Umidade:", "Impureza:",
 				"Ardidos", "Avariados", "CFOP", "Descrição", "Motorista", "Placa" };
 		private final ArrayList<CadastroRomaneio> dados = new ArrayList<>();// usamos como dados uma lista genérica de
 																			// nfs
@@ -697,8 +754,13 @@ public class TelaRomaneios extends JDialog {
 				return String.class;
 			case nome_remetente:
 				return String.class;
+			case id_remetente:
+				return String.class;
 			case nome_destinatario:
 				return String.class;
+			case id_destinatario:
+				return String.class;
+
 			case peso_bruto:
 				return Double.class;
 			case tara:
@@ -738,6 +800,8 @@ public class TelaRomaneios extends JDialog {
 
 			// pega o dados corrente da linha
 			CadastroRomaneio romaneio = dados.get(rowIndex);
+			CadastroCliente remetente = romaneio.getRemetente();
+			CadastroCliente destinatario = romaneio.getDestinatario();
 
 			// retorna o valor da coluna
 			switch (columnIndex) {
@@ -764,20 +828,28 @@ public class TelaRomaneios extends JDialog {
 			}
 			case nome_remetente: {
 				String nome_cliente = "";
-				CadastroCliente remetente = romaneio.getRemetente();
               
 				if(remetente != null) {
 				if (remetente.getTipo_pessoa() == 0) {
-					nome_cliente = remetente.getNome_empresarial();
+					nome_cliente = remetente.getNome_empresarial().toUpperCase();
 				} else
-					nome_cliente = remetente.getNome_fantaia();
+					nome_cliente = remetente.getNome_fantaia().toUpperCase();
 				}
 				return nome_cliente;
 
 			}
+			case id_remetente:{
+				try {
+				if(remetente.getTipo_pessoa() == 0)
+					return remetente.getCpf();
+				else
+					return remetente.getCnpj();
+				}catch(Exception e) {
+					return "";
+				}
+			}
 			case nome_destinatario: {
 				String nome_cliente = "";
-				CadastroCliente destinatario = romaneio.getDestinatario();
 
 				if(destinatario != null) {
 				if (destinatario.getTipo_pessoa() == 0) {
@@ -786,6 +858,16 @@ public class TelaRomaneios extends JDialog {
 					nome_cliente = destinatario.getNome_fantaia().toUpperCase();
 				}
 				return nome_cliente;
+			}
+			case id_destinatario:{
+				try {
+				if(destinatario.getTipo_pessoa() == 0)
+					return destinatario.getCpf();
+				else
+					return destinatario.getCnpj();
+				}catch(Exception e) {
+					return "";
+				}
 			}
 			case peso_bruto:
 				return romaneio.getPeso_bruto();
@@ -958,6 +1040,7 @@ public class TelaRomaneios extends JDialog {
 
 		if(cliente_global != null) {
 		ManipularRomaneios manipular = new ManipularRomaneios(1);
+		manipular.sinalizar(2);
 
 			JOptionPane.showMessageDialog(null, "Caminho do arquivo q sera lido: " + arquivo.getAbsolutePath());
 			try {
@@ -1100,6 +1183,7 @@ public class TelaRomaneios extends JDialog {
 			//cliente nao esta definido, tela todos os romaneios
 			JOptionPane.showMessageDialog(null, "cliente nao esta definido, tela todos os romaneios");
 			ManipularRomaneios manipular = new ManipularRomaneios(1);
+			manipular.sinalizar(2);
 
 
 				try {
@@ -1352,12 +1436,15 @@ public class TelaRomaneios extends JDialog {
 	}
 	
 	
-public void setDadosPesquisa(String destinatario, String remetente, String natureza, String produto) {
+public void setDadosPesquisa(String destinatario, String remetente, String natureza, String produto, String codigo) {
 		
+    sorter.setRowFilter( RowFilter.regexFilter(""));
+
 		entChavePesquisa.setText(destinatario);
 		entRemetente.setText(remetente);
 		entNatureza.setText(natureza);
 		entProduto.setText(produto);
+		entCodigo.setText(codigo);
 	
 		
 		filtrar();
@@ -1372,6 +1459,8 @@ public void filtrar() {
 	    String remetente = entRemetente.getText().toUpperCase();
 	    String natureza = entNatureza.getText().toUpperCase();
 	    String codigo = entCodigo.getText().toUpperCase();
+	    String identificacaoRemetente = entIdentificacaoRemetente.getText().toUpperCase();
+	    String identificacaoDestinatario = entIdentificacaoDestinatario.getText().toUpperCase();
 
 	    String menor = entMenorData.getText();
 	    String maior = entMaiorData.getText();
@@ -1414,7 +1503,7 @@ public void filtrar() {
 	    filters.add(RowFilter.regexFilter(natureza, 1));
 
 	    if(checkString(destinatario))
-	    filters.add(RowFilter.regexFilter(destinatario, 7));
+	    filters.add(RowFilter.regexFilter(destinatario, 8));
 	    
 	    if(checkString(produto))
 	    filters.add(RowFilter.regexFilter(produto, 3));
@@ -1423,10 +1512,38 @@ public void filtrar() {
 	    if(checkString(codigo))
 	    filters.add(RowFilter.regexFilter(codigo, 0));
 	    
+	    if(checkString(identificacaoRemetente))
+		    filters.add(RowFilter.regexFilter(identificacaoRemetente, 7));
+		    
+	    
+	    if(checkString(identificacaoDestinatario))
+		    filters.add(RowFilter.regexFilter(identificacaoDestinatario, 9));
+		    
+	 
+	    
 	    sorter.setRowFilter( RowFilter.andFilter(filters));
 }
 
 
+public void limpar() {
+    sorter.setRowFilter( RowFilter.regexFilter(""));
+
+}
+
+public void adicionarNovoRomaneio(CadastroRomaneio rom) {
+	if (rom != null) {
+		//verifica se o romaneio ja esta na lista
+		boolean ja_existe = false;
+		
+		for(CadastroRomaneio rom_na_lista : romaneios_disponivel) {
+			if(rom_na_lista.getNumero_romaneio() == rom.getNumero_romaneio())
+				ja_existe = true;
+		}
+		
+		if(!ja_existe)
+		addNota(rom);
+	}
+}
 
 
 public void setTelaPai(JDialog _telaPai) {

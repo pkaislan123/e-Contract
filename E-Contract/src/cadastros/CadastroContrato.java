@@ -891,7 +891,13 @@ local retirada: 24 2
 		String codigo_nota_fiscal, data, caminho_nota_fiscal;
 		
 		
-		private String codigo_romaneio ,caminho_romaneio ,codigo_nf_venda1 , caminho_nf_venda1,codigo_nf_complemento ,caminho_nf_complemento ,codigo_nf_interna ,caminho_nf_interna ,observacao; 
+		public String getDescricao() {
+			return descricao;
+		}
+		public void setDescricao(String descricao) {
+			this.descricao = descricao;
+		}
+		private String descricao, codigo_romaneio ,caminho_romaneio ,codigo_nf_venda1 , caminho_nf_venda1,codigo_nf_complemento ,caminho_nf_complemento ,codigo_nf_interna ,caminho_nf_interna ,observacao; 
         double peso_romaneio, peso_nf_venda1, peso_nf_complemento,peso_nf_interna;
         
         BigDecimal valor_nf_venda1, valor_nf_complemento;
@@ -1196,6 +1202,72 @@ local retirada: 24 2
 	}
 	
 	
+	public static class CadastroTransferenciaCarga{
+	    int id_transferencia, id_contrato_remetente, id_contrato_destinatario, id_carregamento_remetente;
+		
+		String data, descricao, quantidade;
+
+		public int getId_transferencia() {
+			return id_transferencia;
+		}
+
+		public void setId_transferencia(int id_transferencia) {
+			this.id_transferencia = id_transferencia;
+		}
+
+		public int getId_contrato_remetente() {
+			return id_contrato_remetente;
+		}
+
+		public void setId_contrato_remetente(int id_contrato_remetente) {
+			this.id_contrato_remetente = id_contrato_remetente;
+		}
+
+		public int getId_contrato_destinatario() {
+			return id_contrato_destinatario;
+		}
+
+		public void setId_contrato_destinatario(int id_contrato_destinatario) {
+			this.id_contrato_destinatario = id_contrato_destinatario;
+		}
+
+		public int getId_carregamento_remetente() {
+			return id_carregamento_remetente;
+		}
+
+		public void setId_carregamento_remetente(int id_carregamento_remetente) {
+			this.id_carregamento_remetente = id_carregamento_remetente;
+		}
+
+		public String getData() {
+			return data;
+		}
+
+		public void setData(String data) {
+			this.data = data;
+		}
+
+		public String getDescricao() {
+			return descricao;
+		}
+
+		public void setDescricao(String descricao) {
+			this.descricao = descricao;
+		}
+
+		public String getQuantidade() {
+			return quantidade;
+		}
+
+		public void setQuantidade(String quantidade) {
+			this.quantidade = quantidade;
+		}
+		
+		
+		
+	}
+	
+	
 	public static class Recebimento{
 		/*
 		 * id_recebimento int(10) not null auto_increment,
@@ -1214,9 +1286,21 @@ nf_remessa varchar(40),
 peso_nf_remessa double,
 caminho_nf_remessa text,
 		 */
-		int id_recebimento, id_contrato_recebimento, id_cliente, id_transportador, id_veiculo, id_vendedor;
+		int id_recebimento, id_contrato_recebimento, id_cliente, id_transportador, id_veiculo, id_vendedor, nf_venda_aplicavel, nf_remessa_aplicavel;
 		public int getId_vendedor() {
 			return id_vendedor;
+		}
+		public int getNf_venda_aplicavel() {
+			return nf_venda_aplicavel;
+		}
+		public void setNf_venda_aplicavel(int nf_venda_aplicavel) {
+			this.nf_venda_aplicavel = nf_venda_aplicavel;
+		}
+		public int getNf_remessa_aplicavel() {
+			return nf_remessa_aplicavel;
+		}
+		public void setNf_remessa_aplicavel(int nf_remessa_aplicavel) {
+			this.nf_remessa_aplicavel = nf_remessa_aplicavel;
 		}
 		public void setId_vendedor(int id_vendedor) {
 			this.id_vendedor = id_vendedor;

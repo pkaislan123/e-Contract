@@ -122,6 +122,7 @@ import conexaoBanco.GerenciarBancoLogin;
 import conexaoBanco.GerenciarBancoPontuacao;
 import conexaoBanco.GerenciarBancoProdutos;
 import conexaoBanco.GerenciarBancoTransferencias;
+import conexaoBanco.GerenciarBancoTransferenciasCarga;
 import manipular.ConfiguracoesGlobais;
 import manipular.ConverterPdf;
 import manipular.EditarWord;
@@ -259,6 +260,7 @@ public class TelaGerenciarContrato extends JFrame {
 	DefaultMutableTreeNode no_contratos;
 	DefaultMutableTreeNode no_sub_contratos;
 	private DefaultMutableTreeNode no_contrato_selecionado;
+	private JLabel lblTotalTransferenciasCargaRetiradas, lblTotalTransferenciasCargaRecebidas;
 
 	private DefaultMutableTreeNode no_selecionado;
 	private final JLabel lblStatusContrato = new JLabel("Status do Contrato:");
@@ -280,7 +282,7 @@ public class TelaGerenciarContrato extends JFrame {
 	private JPanel painelSubContratos = new JPanel();
 	private Registros.RegistroCarregamento registro_carregamento_global;
 	private Registros.RegistroRecebimento registro_recebimento_global;
-
+    private double peso_total_recebido;
 	private CadastroNFe nota_fiscal;
 	private CadastroCliente transportador = new CadastroCliente();
 	private CadastroProduto produto = new CadastroProduto();
@@ -294,6 +296,11 @@ public class TelaGerenciarContrato extends JFrame {
 	private ArrayList<CadastroContrato.CadastroPagamentoContratual> lista_pagamentos_contratuais = null;
 	private ArrayList<CadastroContrato.CadastroTransferenciaPagamentoContratual> lista_transferencias_contratuais_remetente = null;
 	private ArrayList<CadastroContrato.CadastroTransferenciaPagamentoContratual> lista_transferencias_contratuais_destinatario = null;
+	
+	private ArrayList<CadastroContrato.CadastroTransferenciaCarga> lista_transferencias_carga_remetente = null;
+	private ArrayList<CadastroContrato.CadastroTransferenciaCarga> lista_transferencias_carga_destinatario = null;
+
+	
 	private JPopupMenu jPopupMenuTabelCarregamento;
 	private JPopupMenu jPopupMenuTabelPagamentos;
 	private JPopupMenu jPopupMenuDocumentos;
@@ -888,6 +895,7 @@ public class TelaGerenciarContrato extends JFrame {
 					cell.setCellStyle(numberStyle);
 					cell.setCellValue(cadastro.getPeso_romaneio());
 
+					if(cadastro.getNf_venda_aplicavel() == 1) {
 					cell = row.createCell(cellnum++);
 					cell.setCellStyle(textStyle);
 					cell.setCellValue(cadastro.getCodigo_nf_venda());
@@ -895,15 +903,30 @@ public class TelaGerenciarContrato extends JFrame {
 					cell = row.createCell(cellnum++);
 					cell.setCellStyle(numberStyle);
 					cell.setCellValue(cadastro.getPeso_nf_venda());
+					 quantidade_total_kgs_nf_venda = quantidade_total_kgs_nf_venda + cadastro.getPeso_nf_venda();
+
+					}else {
+						cell = row.createCell(cellnum++);
+						cell.setCellStyle(textStyle);
+						cell.setCellValue("Não Aplicável");
+
+						cell = row.createCell(cellnum++);
+						cell.setCellStyle(textStyle);
+						cell.setCellValue("Não Aplicável");
+					}
 					
 				
-					
+					if(cadastro.getNf_remessa_aplicavel() == 1) {
 					cell = row.createCell(cellnum++);
 					cell.setCellStyle(numberStyle);
 					cell.setCellValue(cadastro.getCodigo_nf_remessa());
+					}else {
+						cell = row.createCell(cellnum++);
+						cell.setCellStyle(textStyle);
+						cell.setCellValue("Não Aplicável");
+					}
 					
 					 quantidade_total_kgs_recebido = quantidade_total_kgs_recebido + cadastro.getPeso_romaneio();
-					 quantidade_total_kgs_nf_venda = quantidade_total_kgs_nf_venda + cadastro.getPeso_nf_venda();
 					
 
 				}
@@ -1374,7 +1397,11 @@ public class TelaGerenciarContrato extends JFrame {
 				 		  		contrato_local.setDescricao(textAreaDescricao.getText());
 				 		  		contrato_local.setObservacao(textAreaObservacoes.getText());
 				 		  		contrato_local.setFertilizante(entFertilizante.getText());
+				 		  		try {
 				 		  		contrato_local.setBruto_livre(cBBrutoLivre.getSelectedItem().toString());
+				 		  		}catch(Exception y) {
+				 		  			
+				 		  		}
 				 		  		contrato_local.setStatus_penhor(statusPenhor.getText());
 				 		  		contrato_local.setLocalizacao(entLocalizacao.getText());
 				 		  		
@@ -2044,25 +2071,25 @@ public class TelaGerenciarContrato extends JFrame {
 		panel.add(lblNewLabel_3);
 
 		JLabel lblNewLabel_12 = new JLabel("Total:");
-		lblNewLabel_12.setBounds(71, 612, 46, 14);
+		lblNewLabel_12.setBounds(87, 607, 30, 16);
 		panel.add(lblNewLabel_12);
 
 		JLabel lblNewLabel_13 = new JLabel("Total Carregado:");
-		lblNewLabel_13.setBounds(28, 647, 101, 14);
+		lblNewLabel_13.setBounds(28, 721, 101, 14);
 		panel.add(lblNewLabel_13);
 
 		JLabel lblNewLabel_13_1 = new JLabel("Restante:");
-		lblNewLabel_13_1.setBounds(64, 683, 65, 14);
+		lblNewLabel_13_1.setBounds(64, 757, 65, 14);
 		panel.add(lblNewLabel_13_1);
 
 		lblPesoTotalRealRestante = new JLabel("0.0 Kg");
-		lblPesoTotalRealRestante.setBounds(129, 677, 193, 23);
+		lblPesoTotalRealRestante.setBounds(129, 751, 193, 23);
 		panel.add(lblPesoTotalRealRestante);
 		lblPesoTotalRealRestante.setFont(new Font("Tahoma", Font.BOLD, 11));
 		lblPesoTotalRealRestante.setBorder(new LineBorder(new Color(0, 0, 0)));
 
 		lblPesoTotalRealCargas = new JLabel("");
-		lblPesoTotalRealCargas.setBounds(129, 641, 193, 23);
+		lblPesoTotalRealCargas.setBounds(129, 715, 193, 23);
 		panel.add(lblPesoTotalRealCargas);
 		lblPesoTotalRealCargas.setFont(new Font("Tahoma", Font.BOLD, 11));
 		lblPesoTotalRealCargas.setBorder(new LineBorder(new Color(0, 0, 0)));
@@ -2796,19 +2823,75 @@ public class TelaGerenciarContrato extends JFrame {
 
 			}
 		});
-		btnExportarCarregamentos.setBounds(772, 512, 123, 23);
+		btnExportarCarregamentos.setBounds(439, 512, 123, 23);
 		panel.add(btnExportarCarregamentos);
+		
+		JButton btnTransferirCarga = new JButton("Transferir");
+		btnTransferirCarga.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				  int rowSel = table_carregamento.getSelectedRow();//pega o indice da linha na tabela
+					CadastroContrato.Carregamento carga_selecionada =  lista_carregamentos.get(rowSel);
+					
+					TelaConfirmarTransferenciaCarga tela = new TelaConfirmarTransferenciaCarga(carga_selecionada, contrato_local, isto);
+			        tela.setTelaPag(isto);
+					tela.setVisible(true);
+			}
+		});
+		btnTransferirCarga.setBounds(772, 512, 123, 23);
+		panel.add(btnTransferirCarga);
+		
+		JLabel lblNewLabel_14_1_1_2 = new JLabel("Transferencias:(-)");
+		lblNewLabel_14_1_1_2.setBounds(16, 641, 101, 14);
+		panel.add(lblNewLabel_14_1_1_2);
+		
+		
+		
+		 lblTotalTransferenciasCargaRetiradas = new JLabel("");
+		lblTotalTransferenciasCargaRetiradas.setForeground(Color.BLACK);
+		lblTotalTransferenciasCargaRetiradas.setFont(new Font("Arial", Font.BOLD, 12));
+		lblTotalTransferenciasCargaRetiradas.setBorder(new LineBorder(new Color(0, 0, 0)));
+		lblTotalTransferenciasCargaRetiradas.setBounds(129, 641, 193, 23);
+		panel.add(lblTotalTransferenciasCargaRetiradas);
+		
+		 lblTotalTransferenciasCargaRecebidas = new JLabel("");
+		lblTotalTransferenciasCargaRecebidas.setForeground(Color.BLACK);
+		lblTotalTransferenciasCargaRecebidas.setFont(new Font("Arial", Font.BOLD, 12));
+		lblTotalTransferenciasCargaRecebidas.setBorder(new LineBorder(new Color(0, 0, 0)));
+		lblTotalTransferenciasCargaRecebidas.setBounds(129, 675, 193, 23);
+		panel.add(lblTotalTransferenciasCargaRecebidas);
+		
+		JLabel lblNewLabel_14_1_1_1_1 = new JLabel("Transferencias:(+)");
+		lblNewLabel_14_1_1_1_1.setBounds(17, 675, 101, 14);
+		panel.add(lblNewLabel_14_1_1_1_1);
+		
+		JLabel lblNewLabel_33_1_2 = new JLabel("");
+		lblNewLabel_33_1_2.setOpaque(true);
+		lblNewLabel_33_1_2.setBorder(new LineBorder(new Color(0, 0, 0)));
+		lblNewLabel_33_1_2.setBackground(new Color(204, 153, 0));
+		lblNewLabel_33_1_2.setBounds(197, 501, 30, 16);
+		panel.add(lblNewLabel_33_1_2);
+		
+		JLabel lblNewLabel_34_1_2 = new JLabel("Transferido");
+		lblNewLabel_34_1_2.setFont(new Font("SansSerif", Font.BOLD, 12));
+		lblNewLabel_34_1_2.setBorder(new MatteBorder(0, 0, 1, 0, (Color) new Color(0, 0, 0)));
+		lblNewLabel_34_1_2.setBounds(232, 501, 66, 17);
+		panel.add(lblNewLabel_34_1_2);
 		btnNewButton_1.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
-				if (JOptionPane.showConfirmDialog(isto, "Excluir", "Deseja excluir o carregamento?",
-						JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE) == JOptionPane.YES_OPTION) {
+			
 					try {
+						
+						
 						int indiceDaLinha = table_carregamento.getSelectedRow();
-
+						String descricao = table_carregamento.getValueAt(indiceDaLinha, 1).toString();
 						int id_carregamento_selecionado = Integer
 								.parseInt(table_carregamento.getValueAt(indiceDaLinha, 0).toString());
 						GerenciarBancoContratos gerenciar = new GerenciarBancoContratos();
 
+					
+					if(!descricao.equalsIgnoreCase("+Transferencia") && !descricao.equalsIgnoreCase("-Transferencia")) {
+						if (JOptionPane.showConfirmDialog(isto, "Excluir", "Deseja excluir o carregamento?",
+								JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE) == JOptionPane.YES_OPTION) {
 						if (gerenciar.removerCarregamento(contrato_local.getId(), id_carregamento_selecionado)) {
 							JOptionPane.showMessageDialog(isto, "Carregamento Excluido!");
 							pesquisar_carregamentos();
@@ -2817,14 +2900,38 @@ public class TelaGerenciarContrato extends JFrame {
 							JOptionPane.showMessageDialog(isto,
 									"Erro ao remover o carregamento selecionado\nConsulte o administrador do sistema!");
 						}
+						}
+					}else if(descricao.equalsIgnoreCase("-Transferencia")){
+						if (JOptionPane.showConfirmDialog(isto, "Excluir Transferencia?",
+								"Deseja excluir essa transferencia?", JOptionPane.YES_NO_OPTION,
+								JOptionPane.QUESTION_MESSAGE) == JOptionPane.YES_OPTION) {
+							// excluir transferencia
+							int id_transferencia_selecionada = Integer
+									.parseInt(table_carregamento.getValueAt(indiceDaLinha, 0).toString());
+							GerenciarBancoTransferenciasCarga gerenciar_cargas = new GerenciarBancoTransferenciasCarga();
+
+							if (gerenciar_cargas.removerTransferencia(id_transferencia_selecionada)) {
+								JOptionPane.showMessageDialog(isto, "Transferencia removida!");
+								pesquisar_carregamentos();
+
+							} else {
+								JOptionPane.showMessageDialog(isto,
+										"Erro ao remover a transferencia selecionada\nConsulte o administrador do sistema!");
+							}
+						} else {
+
+						}
+					}
+					else if(descricao.equalsIgnoreCase("+Transferencia")){
+						JOptionPane.showMessageDialog(isto, "Remova essa transferência no contrato de origem");
+					}
+						
 					} catch (NumberFormatException n) {
 						JOptionPane.showMessageDialog(isto, "Nenhum carregamento selecionado para excluir");
 
 					}
 
-				} else {
-
-				}
+				
 
 			}
 		});
@@ -3921,6 +4028,7 @@ public class TelaGerenciarContrato extends JFrame {
 		
 		  System.out.println("");
 
+		  
 		  setarInformacoesPainelPrincipal();
 		  setarInformacoesExtrasAbaPrincipal();
 		  //recebimentos 
@@ -3951,7 +4059,7 @@ public class TelaGerenciarContrato extends JFrame {
 		  setInformacoesDistratos(); 
 		  travarContrato();
 		
-
+         
 		this.pack();
 
 		this.setResizable(true);
@@ -4312,12 +4420,16 @@ public class TelaGerenciarContrato extends JFrame {
 		ManipularTxt manipular = new ManipularTxt();
 		return manipular.copiar(url, codigo);
 	}
+	
+	/*
 
 	public void pesquisar_carregamentos() {
 
-		registro_carregamento_global = new Registros.RegistroCarregamento();
 		modelo_carregamentos.onRemoveAll();
 
+		registro_carregamento_global = new Registros.RegistroCarregamento();
+		double valor_total_transferencias_retiradas = 0;
+		double valor_total_transferencias_recebidas = 0;
 		peso_total_cargas_nf_venda1 = 0.0;
 		peso_total_cargas_nf_complemento = 0.0;
 
@@ -4329,18 +4441,31 @@ public class TelaGerenciarContrato extends JFrame {
 			lista_carregamentos = new ArrayList<>();
 		}
 
+		if (lista_transferencias_carga_remetente != null) {
+			lista_transferencias_carga_remetente.clear();
+		} else {
+			lista_transferencias_carga_remetente = new ArrayList<>();
+		}
+
+		if (lista_transferencias_carga_destinatario != null) {
+			lista_transferencias_carga_destinatario.clear();
+		} else {
+			lista_transferencias_carga_destinatario = new ArrayList<>();
+		}
+
+		NumberFormat z = NumberFormat.getNumberInstance();
+
+		
 		GerenciarBancoContratos gerenciar = new GerenciarBancoContratos();
 		lista_carregamentos = gerenciar.getCarregamentos(contrato_local.getId());
+		
+		GerenciarBancoTransferenciasCarga gerenciar_transferencias = new GerenciarBancoTransferenciasCarga();
+		lista_transferencias_carga_remetente = gerenciar_transferencias
+				.getTransferenciasRemetente(contrato_local.getId());
+		lista_transferencias_carga_destinatario = gerenciar_transferencias
+				.getTransferenciaDestinatario(contrato_local.getId());
 
-		/*
-		 * modelo_carregamentos.addColumn("Id Carregamento");
-		 * modelo_carregamentos.addColumn("Data");
-		 * modelo.addColumn("Contrato Destinado"); modelo.addColumn("Cliente");
-		 * modelo.addColumn("Transportador"); modelo.addColumn("Veiculo");
-		 * modelo.addColumn("Produto"); modelo.addColumn("Peso Real Carga");
-		 * modelo.addColumn("Nota Fiscal");
-		 * 
-		 */
+		
 		for (CadastroContrato.Carregamento carregamento : lista_carregamentos) {
 			modelo_carregamentos.onAdd(carregamento);
 
@@ -4350,10 +4475,95 @@ public class TelaGerenciarContrato extends JFrame {
 
 		}
 
+		//transferencias como remetente //
+		for (CadastroContrato.CadastroTransferenciaCarga transferencia : lista_transferencias_carga_remetente) {
+
+			GerenciarBancoContratos gerenciar_contratos = new GerenciarBancoContratos();
+
+
+			// pegar o pagamento
+
+			// pegar data do pagmento
+			String data = transferencia.getData();
+			double quantidade = Double.parseDouble(transferencia.getQuantidade());
+
+			// pegar o destinatario
+			CadastroContrato destinatario = gerenciar_contratos
+					.getContrato(transferencia.getId_contrato_destinatario());
+
+			CadastroContrato.Carregamento carga_transferencia = new CadastroContrato.Carregamento();
+			carga_transferencia.setId_carregamento(transferencia.getId_transferencia());
+			String texto_obs = "Transferencia negativa de " + z.format(quantidade) + " kgs enviados ao contrato "
+					+ transferencia.getId_contrato_destinatario() ;
+			carga_transferencia.setObservacao(texto_obs);
+			carga_transferencia.setDescricao("-Transferencia");
+			carga_transferencia.setPeso_real_carga(quantidade);
+			carga_transferencia.setId_contrato(transferencia.getId_contrato_destinatario());
+			carga_transferencia.setData(data);
+			carga_transferencia.setPeso_romaneio(quantidade);
+			carga_transferencia.setId_produto(destinatario.getModelo_produto().getId_produto());
+			carga_transferencia.setPeso_nf_venda1(0);
+			carga_transferencia.setValor_nf_venda1(BigDecimal.ZERO);
+			carga_transferencia.setPeso_nf_interna(0);
+			carga_transferencia.setValor_nf_venda1(BigDecimal.ZERO);
+			carga_transferencia.setValor_nf_complemento(BigDecimal.ZERO);
+			carga_transferencia.setPeso_nf_complemento(0);
+			
+			
+			modelo_carregamentos.onAdd(carga_transferencia);
+			
+		
+
+			valor_total_transferencias_retiradas += quantidade;
+			// valor_total_pagamentos_efetuados -= valor_pagamento;
+
+		}
+		// transferencias como destinatario//
+
+		for (CadastroContrato.CadastroTransferenciaCarga transferencia : lista_transferencias_carga_destinatario) {
+			GerenciarBancoContratos gerenciar_contratos = new GerenciarBancoContratos();
+
+
+			// pegar data do pagmento
+			String data = transferencia.getData();
+			double quantidade = Double.parseDouble(transferencia.getQuantidade());
+
+			// pegar o destinatario
+			CadastroContrato remetente = gerenciar_contratos.getContrato(transferencia.getId_contrato_remetente());
+			// pegar o destinatario
+						CadastroContrato destinatario = gerenciar_contratos
+								.getContrato(transferencia.getId_contrato_destinatario());
+
+						CadastroContrato.Carregamento carga_transferencia = new CadastroContrato.Carregamento();
+						carga_transferencia.setId_carregamento(transferencia.getId_transferencia());
+						String texto_obs = "Transferencia positiva de " + z.format(quantidade) + " kgs oriundas do contrato "
+								+ transferencia.getId_contrato_remetente() ;
+						carga_transferencia.setObservacao(texto_obs);
+						carga_transferencia.setDescricao("+Transferencia");
+						carga_transferencia.setPeso_real_carga(quantidade);
+						carga_transferencia.setId_contrato(transferencia.getId_contrato_remetente());
+						carga_transferencia.setData(data);
+						carga_transferencia.setPeso_romaneio(quantidade);
+						carga_transferencia.setId_produto(destinatario.getModelo_produto().getId_produto());
+						carga_transferencia.setPeso_nf_venda1(0);
+						carga_transferencia.setValor_nf_venda1(BigDecimal.ZERO);
+						carga_transferencia.setPeso_nf_interna(0);
+						carga_transferencia.setValor_nf_venda1(BigDecimal.ZERO);
+						carga_transferencia.setValor_nf_complemento(BigDecimal.ZERO);
+						carga_transferencia.setPeso_nf_complemento(0);
+						
+						
+						modelo_carregamentos.onAdd(carga_transferencia);
+			
+			valor_total_transferencias_recebidas += quantidade;
+			// valor_total_pagamentos_efetuados += valor_pagamento;
+
+		}
+
+		
 		double peso_total_kg = 0, peso_total_sacos = 0, peso_carregado_kg = 0, peso_carregado_sacos = 0,
 				peso_restante_kg = 0, peso_restante_sacos = 0;
 
-		NumberFormat z = NumberFormat.getNumberInstance();
 
 		if (contrato_local.getMedida().equals("KG")) {
 			peso_total_kg = contrato_local.getQuantidade();
@@ -4369,21 +4579,234 @@ public class TelaGerenciarContrato extends JFrame {
 			peso_total_sacos = contrato_local.getQuantidade();
 			peso_total_kg = peso_total_sacos * 60;
 
-			peso_carregado_sacos = peso_total_cargas / 60;
-			peso_carregado_kg = peso_total_cargas;
+			peso_carregado_sacos = peso_total_cargas / 60 + (valor_total_transferencias_recebidas/60) - (valor_total_transferencias_retiradas/60) ;
+			peso_carregado_kg = peso_total_cargas + valor_total_transferencias_recebidas - valor_total_transferencias_retiradas;
 
 			peso_restante_sacos = peso_total_sacos - peso_carregado_sacos;
 			peso_restante_kg = peso_total_kg - peso_carregado_kg;
 
 		}
 
+		//retiradas
+
+		lblTotalTransferenciasCargaRetiradas.setText(z.format(valor_total_transferencias_retiradas) + " Kg " + " | " + z.format(valor_total_transferencias_retiradas/60) + " Sacos");
+
+		//recebidas
+
+		lblTotalTransferenciasCargaRecebidas.setText(z.format(valor_total_transferencias_recebidas) + " Kg " + " | " + z.format(valor_total_transferencias_recebidas/60) + " Sacos");
+		
+		//peso total do contrato
 		lblPesoTotal.setText(z.format(peso_total_kg) + " Kg " + " | " + z.format(peso_total_sacos) + " Sacos");
 		registro_carregamento_global.setQuantidade_total(peso_total_sacos);
 
-		// peso total das cargas
+		// peso total das carregado
 		lblPesoTotalRealCargas
 				.setText(z.format(peso_carregado_kg) + " Kg" + " | " + z.format(peso_carregado_sacos) + " Sacos");
-		// peso restante
+		// peso total restante
+		lblPesoTotalRealRestante
+				.setText(z.format(peso_restante_kg) + " Kg" + " | " + z.format(peso_restante_sacos) + " Sacos");
+		registro_carregamento_global.setQuantidade_restante(peso_restante_sacos);
+
+		double peso_total_nf_kg = peso_total_cargas_nf_venda1;
+		double peso_total_nf_sacos = peso_total_nf_kg / 60;
+
+		double peso_total_nf_emitidas_kg = peso_total_cargas_nf_complemento;
+		double peso_total_nf_emitidas_sacos = peso_total_nf_emitidas_kg / 60;
+
+		double peso_total_nf_kg_restante = peso_total_kg - (peso_total_nf_kg + peso_total_nf_emitidas_kg);
+		double peso_total_nf_sacos_restante = peso_total_sacos - (peso_total_nf_sacos + peso_total_nf_emitidas_sacos);
+
+		lblPesoTotalNotasFiscais
+				.setText(z.format(peso_total_kg) + " Kg" + " | " + z.format(peso_total_sacos) + " Sacos");
+		registro_carregamento_global.setQuantidade_total_nf(peso_total_sacos);
+
+		lblPesoTotalNotasFiscaisEmitidas.setText(z.format(peso_total_nf_kg + peso_total_nf_emitidas_kg) + " Kg" + " | "
+				+ z.format(peso_total_nf_sacos + peso_total_nf_emitidas_sacos) + " Sacos");
+
+		lblPesoTotalNotasFiscaisaEmitir.setText(z.format(peso_total_nf_kg_restante) + " Kg" + " | "
+				+ z.format(peso_total_nf_sacos_restante) + " Sacos");
+		registro_carregamento_global.setQuantidade_restante_nf(peso_total_nf_sacos_restante);
+
+		int n1 = (int) peso_total_sacos;
+		int n2 = ((int) peso_carregado_sacos);
+
+		atualizarGraficoContratos(n1, n2);
+
+		int n3 = (int) peso_total_sacos;
+		int n4 = n3 - ((int) peso_total_nf_sacos_restante);
+
+		atualizarGraficoNFs(n3, n4);
+
+	}
+*/
+	
+	public void pesquisar_carregamentos() {
+
+		modelo_carregamentos.onRemoveAll();
+
+		registro_carregamento_global = new Registros.RegistroCarregamento();
+		double valor_total_transferencias_retiradas = 0;
+		double valor_total_transferencias_recebidas = 0;
+		peso_total_cargas_nf_venda1 = 0.0;
+		peso_total_cargas_nf_complemento = 0.0;
+
+		peso_total_cargas = 0.0;
+
+		if (lista_carregamentos != null) {
+			lista_carregamentos.clear();
+		} else {
+			lista_carregamentos = new ArrayList<>();
+		}
+
+		if (lista_transferencias_carga_remetente != null) {
+			lista_transferencias_carga_remetente.clear();
+		} else {
+			lista_transferencias_carga_remetente = new ArrayList<>();
+		}
+
+		if (lista_transferencias_carga_destinatario != null) {
+			lista_transferencias_carga_destinatario.clear();
+		} else {
+			lista_transferencias_carga_destinatario = new ArrayList<>();
+		}
+
+		NumberFormat z = NumberFormat.getNumberInstance();
+
+		
+		GerenciarBancoContratos gerenciar = new GerenciarBancoContratos();
+		lista_carregamentos = gerenciar.getCarregamentos(contrato_local.getId());
+		
+		GerenciarBancoTransferenciasCarga gerenciar_transferencias = new GerenciarBancoTransferenciasCarga();
+		lista_transferencias_carga_remetente = gerenciar_transferencias
+				.getTransferenciasRemetente(contrato_local.getId());
+		lista_transferencias_carga_destinatario = gerenciar_transferencias
+				.getTransferenciaDestinatario(contrato_local.getId());
+
+		
+		for (CadastroContrato.Carregamento carregamento : lista_carregamentos) {
+			modelo_carregamentos.onAdd(carregamento);
+
+			peso_total_cargas = peso_total_cargas + carregamento.getPeso_romaneio();
+			peso_total_cargas_nf_venda1 = peso_total_cargas_nf_venda1 + carregamento.getPeso_nf_venda1();
+			peso_total_cargas_nf_complemento = peso_total_cargas_nf_complemento + carregamento.getPeso_nf_complemento();
+
+		}
+
+		//transferencias como remetente //
+		for (CadastroContrato.CadastroTransferenciaCarga transferencia : lista_transferencias_carga_remetente) {
+
+			GerenciarBancoContratos gerenciar_contratos = new GerenciarBancoContratos();
+
+
+			// pegar o pagamento
+
+			// pegar data do pagmento
+			String data = transferencia.getData();
+			double quantidade = Double.parseDouble(transferencia.getQuantidade());
+
+			// pegar o destinatario
+			CadastroContrato destinatario = gerenciar_contratos
+					.getContrato(transferencia.getId_contrato_destinatario());
+
+			CadastroContrato.Carregamento carga_transferencia = new CadastroContrato.Carregamento();
+			carga_transferencia.setId_carregamento(transferencia.getId_transferencia());
+			String texto_obs = "Transferencia negativa de " + z.format(quantidade) + " kgs enviados ao contrato "
+					+ transferencia.getId_contrato_destinatario() ;
+			carga_transferencia.setObservacao(texto_obs);
+			carga_transferencia.setDescricao("-Transferencia");
+			carga_transferencia.setPeso_real_carga(quantidade);
+			carga_transferencia.setId_contrato(transferencia.getId_contrato_destinatario());
+			carga_transferencia.setData(data);
+			carga_transferencia.setPeso_romaneio(quantidade);
+			carga_transferencia.setId_produto(destinatario.getModelo_produto().getId_produto());
+			carga_transferencia.setPeso_nf_venda1(0);
+			carga_transferencia.setValor_nf_venda1(BigDecimal.ZERO);
+			carga_transferencia.setPeso_nf_interna(0);
+			carga_transferencia.setValor_nf_venda1(BigDecimal.ZERO);
+			carga_transferencia.setValor_nf_complemento(BigDecimal.ZERO);
+			carga_transferencia.setPeso_nf_complemento(0);
+			
+			
+			modelo_carregamentos.onAdd(carga_transferencia);
+			
+		
+
+			valor_total_transferencias_retiradas += quantidade;
+			// valor_total_pagamentos_efetuados -= valor_pagamento;
+
+		}
+		// transferencias como destinatario//
+
+		for (CadastroContrato.CadastroTransferenciaCarga transferencia : lista_transferencias_carga_destinatario) {
+			GerenciarBancoContratos gerenciar_contratos = new GerenciarBancoContratos();
+
+
+			// pegar data do pagmento
+			String data = transferencia.getData();
+			double quantidade = Double.parseDouble(transferencia.getQuantidade());
+
+			// pegar o destinatario
+			CadastroContrato remetente = gerenciar_contratos.getContrato(transferencia.getId_contrato_remetente());
+			// pegar o destinatario
+						CadastroContrato destinatario = gerenciar_contratos
+								.getContrato(transferencia.getId_contrato_destinatario());
+
+						CadastroContrato.Carregamento carga_transferencia = new CadastroContrato.Carregamento();
+						carga_transferencia.setId_carregamento(transferencia.getId_transferencia());
+						String texto_obs = "Transferencia positiva de " + z.format(quantidade) + " kgs oriundas do contrato "
+								+ transferencia.getId_contrato_remetente() ;
+						carga_transferencia.setObservacao(texto_obs);
+						carga_transferencia.setDescricao("+Transferencia");
+						carga_transferencia.setPeso_real_carga(quantidade);
+						carga_transferencia.setId_contrato(transferencia.getId_contrato_remetente());
+						carga_transferencia.setData(data);
+						carga_transferencia.setPeso_romaneio(quantidade);
+						carga_transferencia.setId_produto(destinatario.getModelo_produto().getId_produto());
+						carga_transferencia.setPeso_nf_venda1(0);
+						carga_transferencia.setValor_nf_venda1(BigDecimal.ZERO);
+						carga_transferencia.setPeso_nf_interna(0);
+						carga_transferencia.setValor_nf_venda1(BigDecimal.ZERO);
+						carga_transferencia.setValor_nf_complemento(BigDecimal.ZERO);
+						carga_transferencia.setPeso_nf_complemento(0);
+						
+						
+						modelo_carregamentos.onAdd(carga_transferencia);
+			
+			valor_total_transferencias_recebidas += quantidade;
+			// valor_total_pagamentos_efetuados += valor_pagamento;
+
+		}
+
+		
+		double peso_total_kg = peso_total_recebido, peso_total_sacos = peso_total_recebido/60, peso_carregado_kg = 0, peso_carregado_sacos = 0,
+				peso_restante_kg = 0, peso_restante_sacos = 0;
+
+
+
+			peso_carregado_sacos = peso_total_cargas / 60 + (valor_total_transferencias_recebidas/60) - (valor_total_transferencias_retiradas/60) ;
+			peso_carregado_kg = peso_total_cargas + valor_total_transferencias_recebidas - valor_total_transferencias_retiradas;
+
+			peso_restante_sacos = peso_total_sacos - peso_carregado_sacos;
+			peso_restante_kg = peso_total_kg - peso_carregado_kg;
+
+		
+
+		//retiradas
+
+		lblTotalTransferenciasCargaRetiradas.setText(z.format(valor_total_transferencias_retiradas) + " Kg " + " | " + z.format(valor_total_transferencias_retiradas/60) + " Sacos");
+
+		//recebidas
+
+		lblTotalTransferenciasCargaRecebidas.setText(z.format(valor_total_transferencias_recebidas) + " Kg " + " | " + z.format(valor_total_transferencias_recebidas/60) + " Sacos");
+		
+		//peso total do contrato
+		lblPesoTotal.setText(z.format(peso_total_kg) + " Kg " + " | " + z.format(peso_total_sacos) + " Sacos");
+		registro_carregamento_global.setQuantidade_total(peso_total_sacos);
+
+		// peso total das carregado
+		lblPesoTotalRealCargas
+				.setText(z.format(peso_carregado_kg) + " Kg" + " | " + z.format(peso_carregado_sacos) + " Sacos");
+		// peso total restante
 		lblPesoTotalRealRestante
 				.setText(z.format(peso_restante_kg) + " Kg" + " | " + z.format(peso_restante_sacos) + " Sacos");
 		registro_carregamento_global.setQuantidade_restante(peso_restante_sacos);
@@ -4429,7 +4852,7 @@ public class TelaGerenciarContrato extends JFrame {
 
 		NumberFormat z = NumberFormat.getNumberInstance();
 
-		double peso_total_recebido = 0;
+		 peso_total_recebido = 0;
 		double peso_total_a_receber = 0;
 		double peso_total_restante = 0;
 
@@ -7168,9 +7591,15 @@ public class TelaGerenciarContrato extends JFrame {
 					column);
 			((JLabel) renderer).setOpaque(true);
 
-			double peso_romaneio = (double) table.getValueAt(row, 9);
-			double peso_nf1 = (double) table.getValueAt(row, 13);
-			double peso_complemento = (double) table.getValueAt(row, 16);
+			double peso_romaneio = (double) table.getValueAt(row, 10);
+			double peso_nf1 = (double) table.getValueAt(row, 14);
+			double peso_complemento = (double) table.getValueAt(row, 17);
+			String descricao = (String) table.getValueAt(row, 1);
+			
+			if(descricao != null && descricao.equalsIgnoreCase("-Transferencia") || descricao.equalsIgnoreCase("+Transferencia")) {
+				renderer.setBackground(new Color(204, 153, 0));
+
+			}else {
 			if (isSelected) {
 				renderer.setBackground(Color.blue);
 
@@ -7183,7 +7612,7 @@ public class TelaGerenciarContrato extends JFrame {
 
 				}
 			}
-
+			}
 			return renderer;
 		}
 	}
@@ -7198,6 +7627,8 @@ public class TelaGerenciarContrato extends JFrame {
 					column);
 			((JLabel) renderer).setOpaque(true);
 
+			CadastroContrato.Recebimento recebimento = lista_recebimentos.get(row);
+			
 			String codigo_nf_venda = (String) table.getValueAt(row, 4);
 			String codigo_nf_remessa = (String) table.getValueAt(row, 6);
 
@@ -7205,25 +7636,57 @@ public class TelaGerenciarContrato extends JFrame {
 				renderer.setBackground(Color.blue);
 
 			} else {
-				if (checkString(codigo_nf_venda) && checkString(codigo_nf_remessa)) {
-					// ok
+				
+				if(recebimento.getNf_venda_aplicavel() == 1 && recebimento.getNf_remessa_aplicavel() == 1) {
+
+					if (checkString(codigo_nf_venda) && checkString(codigo_nf_remessa)) {
+						// ok
+						renderer.setBackground(Color.green);
+
+					}
+
+					else if (!(checkString(codigo_nf_venda)) && !(checkString(codigo_nf_remessa))) {
+						// falta duas notas
+						renderer.setBackground(Color.gray);
+
+					} else if (!(checkString(codigo_nf_venda)) && checkString(codigo_nf_remessa)) {
+						// falta apenas nf de venda
+						renderer.setBackground(Color.orange);
+
+					} else if (!(checkString(codigo_nf_remessa)) && checkString(codigo_nf_venda)) {
+						// falta apenas nf remessa
+						renderer.setBackground(Color.yellow);
+
+					}
+				}else if(recebimento.getNf_venda_aplicavel() == 1 && recebimento.getNf_remessa_aplicavel() == 0) {
+					//apenas de venda aplicavel
+					if (checkString(codigo_nf_venda)){
+						// ok
+						renderer.setBackground(Color.green);
+
+					}else {
+						renderer.setBackground(Color.orange);
+
+					}
+
+					
+				}else if(recebimento.getNf_venda_aplicavel() == 0 && recebimento.getNf_remessa_aplicavel() == 1) {
+					//apenas a de remessa e aplicavel
+					if (checkString(codigo_nf_remessa)){
+						// ok
+						renderer.setBackground(Color.green);
+
+					}else {
+						renderer.setBackground(Color.yellow);
+
+					}
+				}else if(recebimento.getNf_venda_aplicavel() == 0 && recebimento.getNf_remessa_aplicavel() == 0) {
+					//nenhum aplicavel
 					renderer.setBackground(Color.green);
 
 				}
-
-				else if (!(checkString(codigo_nf_venda)) && !(checkString(codigo_nf_remessa))) {
-					// falta duas notas
-					renderer.setBackground(Color.gray);
-
-				} else if (!(checkString(codigo_nf_venda)) && checkString(codigo_nf_remessa)) {
-					// falta apenas nf de venda
-					renderer.setBackground(Color.orange);
-
-				} else if (!(checkString(codigo_nf_remessa)) && checkString(codigo_nf_venda)) {
-					// falta apenas nf remessa
-					renderer.setBackground(Color.yellow);
-
-				}
+				
+				
 			}
 
 			return renderer;
@@ -8147,15 +8610,16 @@ public class TelaGerenciarContrato extends JFrame {
 		jPopupMenuTabelPagamentos.add(jMenuItemReplicarPagamento);
 	}
 
-	public void setMenuCarregamento() {
+	/*public void setMenuCarregamento() {
 		jPopupMenuTabelCarregamento = new JPopupMenu();
 		JMenuItem jMenuItemInserirComprovante = new JMenuItem();
 		JMenuItem jMenuItemVizualizarNFAe = new JMenuItem();
-		JMenuItem jMenuItemReplicarCarregamento = new JMenuItem();
+		//JMenuItem jMenuItemReplicarCarregamento = new JMenuItem();
+
 
 		jMenuItemInserirComprovante.setText("Inserir Comprovante");
 		jMenuItemVizualizarNFAe.setText("Vizualizar NFA-e");
-		jMenuItemReplicarCarregamento.setText("Replicar");
+		//jMenuItemReplicarCarregamento.setText("Replicar");
 
 		jMenuItemInserirComprovante.addActionListener(new java.awt.event.ActionListener() {
 			// Importe a classe java.awt.event.ActionEvent
@@ -8196,6 +8660,7 @@ public class TelaGerenciarContrato extends JFrame {
 				}
 			}
 		});
+		
 
 		jMenuItemVizualizarNFAe.addActionListener(new java.awt.event.ActionListener() {
 			// Importe a classe java.awt.event.ActionEvent
@@ -8220,9 +8685,38 @@ public class TelaGerenciarContrato extends JFrame {
 
 		jPopupMenuTabelCarregamento.add(jMenuItemInserirComprovante);
 		jPopupMenuTabelCarregamento.add(jMenuItemVizualizarNFAe);
-		jPopupMenuTabelCarregamento.add(jMenuItemReplicarCarregamento);
+		//jPopupMenuTabelCarregamento.add(jMenuItemReplicarCarregamento);
 
-	}
+	}*/
+	
+	
+	public void setMenuCarregamento() {
+	jPopupMenuTabelCarregamento = new JPopupMenu();
+	JMenuItem jMenuItemDetalhar = new JMenuItem();
+	//JMenuItem jMenuItemReplicarCarregamento = new JMenuItem();
+
+
+	jMenuItemDetalhar.setText("Detalhar");
+
+
+	jMenuItemDetalhar.addActionListener(new java.awt.event.ActionListener() {
+		// Importe a classe java.awt.event.ActionEvent
+		public void actionPerformed(ActionEvent e) {
+			int index = table_carregamento.getSelectedRow();
+			String id = table_carregamento.getValueAt(index, 0).toString();
+            String descricao = table_carregamento.getValueAt(index, 1).toString();
+			
+			TelaDetalharTransferenciaCarga tela = new TelaDetalharTransferenciaCarga(Integer.parseInt(id), descricao, isto);
+			tela.setVisible(true);
+			
+		}
+	});
+
+
+	jPopupMenuTabelCarregamento.add(jMenuItemDetalhar);
+
+
+}
 
 	public void setMenuAditivos() {
 		if (contrato_local.getStatus_contrato() != 3) {
@@ -8451,12 +8945,30 @@ public class TelaGerenciarContrato extends JFrame {
 				return recebimento.getCodigo_romaneio();
 			case peso_romaneio:
 				return recebimento.getPeso_romaneio();
-			case codigo_nf_venda:
-				return recebimento.getCodigo_nf_venda();
-			case peso_nf_venda:
-				return recebimento.getPeso_nf_venda();
-			case codigo_nf_remessa:
-				return recebimento.getCodigo_nf_remessa();
+			case codigo_nf_venda:{
+				if(recebimento.getNf_venda_aplicavel() == 1) {
+					return recebimento.getCodigo_nf_venda();
+
+				}else {
+					return "Não Aplicável";
+				}
+			}
+			case peso_nf_venda:{
+				if(recebimento.getNf_venda_aplicavel() == 1) {
+					return recebimento.getPeso_nf_venda();
+
+				}else {
+					return "Não Aplicável";
+				}
+			}
+			case codigo_nf_remessa:{
+				if(recebimento.getNf_remessa_aplicavel() == 1) {
+					return recebimento.getCodigo_nf_remessa();
+
+				}else {
+					return "Não Aplicável";
+				}
+			}
 
 			default:
 				throw new IndexOutOfBoundsException("Coluna Inválida!!!");
@@ -8571,28 +9083,29 @@ public class TelaGerenciarContrato extends JFrame {
 		 */
 		// constantes p/identificar colunas
 		private final int id = 0;
-		private final int data = 1;
-		private final int contrato = 2;
+		private final int descricao = 1;
+		private final int data = 2;
+		private final int contrato = 3;
 
-		private final int comprador = 3;
-		private final int vendedor = 4;
-		private final int transportador = 5;
+		private final int comprador = 4;
+		private final int vendedor = 5;
+		private final int transportador = 6;
 
-		private final int veiculo = 6;
-		private final int produto = 7;
-		private final int romaneio = 8;
-		private final int peso_romaneio = 9;
-		private final int nf_interna = 10;
-		private final int peso_nf_interna = 11;
-		private final int nf_venda1 = 12;
-		private final int peso_nf_venda1 = 13;
-		private final int valor_nf_venda1 = 14;
-		private final int nf_complemento = 15;
-		private final int peso_nf_complemento = 16;
-		private final int valor_nf_complemento = 17;
-		private final int obs = 18;
+		private final int veiculo = 7;
+		private final int produto = 8;
+		private final int romaneio = 9;
+		private final int peso_romaneio = 10;
+		private final int nf_interna = 11;
+		private final int peso_nf_interna = 12;
+		private final int nf_venda1 = 13;
+		private final int peso_nf_venda1 = 14;
+		private final int valor_nf_venda1 = 15;
+		private final int nf_complemento = 16;
+		private final int peso_nf_complemento = 17;
+		private final int valor_nf_complemento = 18;
+		private final int obs = 19;
 
-		private final String colunas[] = { "ID:", "Data:", "Contrato:", "Comprador:", "Vendedor:", "Transportador:",
+		private final String colunas[] = { "ID:", "Descrição",  "Data:", "Contrato:", "Comprador:", "Vendedor:", "Transportador:",
 				"Veiculo:", "Produto:", "Romaneio", "Peso Romaneio", "NF Interna", "Peso NF Interna", "NF Venda 1",
 				"Peso NF Venda 1", "Valor NF Venda 1", "NF Complemento", "Peso NF Complemento", "Valor NF Complemento",
 				"Observação" };
@@ -8622,6 +9135,8 @@ public class TelaGerenciarContrato extends JFrame {
 			switch (columnIndex) {
 			case id:
 				return int.class;
+			case descricao:
+				return String.class;
 			case data:
 				return String.class;
 			case contrato:
@@ -8679,6 +9194,19 @@ public class TelaGerenciarContrato extends JFrame {
 			switch (columnIndex) {
 			case id:
 				return carregamento.getId_carregamento();
+			case descricao:{
+				String descricao = carregamento.getDescricao();
+				try {
+					if(descricao == null) {
+						return "Carregamento Normal";
+
+					}else {
+						return descricao;
+					}
+				}catch(Exception e) {
+					return "Carregamento Normal";
+				}
+			}
 			case data:
 				return carregamento.getData();
 			case contrato:
@@ -9462,5 +9990,4 @@ public class TelaGerenciarContrato extends JFrame {
 		entLocalizacao.setText(contrato_local.getLocalizacao());
 
 	}
-
 }

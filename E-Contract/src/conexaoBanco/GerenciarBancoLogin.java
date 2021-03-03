@@ -64,7 +64,7 @@ public class GerenciarBancoLogin {
             }
             ConexaoBanco.fechaConexao(conn, pstm, rs);
         } catch (Exception e) {
-            JOptionPane.showMessageDialog(null, "Erro ao listar usuarios"  );
+         //   JOptionPane.showMessageDialog(null, "Erro ao listar usuarios"  );
         }
         return listaUsuarios;
     }

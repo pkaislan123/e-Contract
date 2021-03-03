@@ -138,12 +138,13 @@ public class TelaMain extends JFrame {
 	private JLabel lblTotalSacosRetirar, lblTotalSacos, lblTotalSacosRetirados;
 	private GraficoLinha linha = null;
 	TelaPost telaPost;
+	private TelaTodasNotasFiscais telaTodasNotasFiscais ;
 	TelaTarefas tela_tarefas;
 	private JLabel lblStatusWhatsapp,imgWhatsapp;
 	private JLabel lblTotalSacosRecebidos, lblTotalSacosGraficoRecebimento, lblTotalSacosAReceber;
 	private JComboBox cbRecebimentosPorSafra;
 
-
+	private TelaRomaneios telaRomaneio;
 	private GerenciarBancoContratos gerenciarAtualizarTarefas, gerenciarDadosCarregamento, gerenciarDadosContrato,
 			gerenciarCarregamentoPorPeriodo, gerenciarDadosRecebimento;
 	private GerenciarBancoPadrao gerenciarBancoPadrao;
@@ -862,6 +863,17 @@ public class TelaMain extends JFrame {
 				modelo_aviso.onRemove(indiceDaLinha);
 			}
 		});
+		
+		JButton btnLimparAvisos = new JButton("Limpar");
+		btnLimparAvisos.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				tabela_avisos.removeAll();
+				lista_avisos.clear();
+				modelo_aviso.onRemoveAll();
+				
+			}
+		});
+		panel_8.add(btnLimparAvisos, "flowx,cell 1 3,alignx right");
 		panel_8.add(btnNewButton, "cell 1 3,alignx right");
 		
 		
@@ -1099,6 +1111,41 @@ public class TelaMain extends JFrame {
 		
 		vigiarRomaneios();
 
+		new Thread() {
+			@Override
+			public void run() {
+			if(telaRomaneio == null) {
+				telaRomaneio = new TelaRomaneios(0,isto);
+				telaRomaneio.pesquisarTodosOsRomaneios(new GerenciarBancoClientes().getClientes(-1, -1, ""));
+				DadosGlobais dados = DadosGlobais.getInstance();
+
+				dados.setTelaRomaneios(telaRomaneio);
+
+			}else {
+				//telaRomaneio.pesquisarTodosOsRomaneios(clientes_disponiveis);
+
+			}
+			}
+		}.start();
+		
+		
+		new Thread() {
+			@Override
+			public void run() {
+			if(telaTodasNotasFiscais == null) {
+				telaTodasNotasFiscais = new TelaTodasNotasFiscais(0, 0,isto);
+				
+				DadosGlobais dados = DadosGlobais.getInstance();
+
+				dados.setTelaTodasNotasFiscais(telaTodasNotasFiscais);
+
+			}else {
+				//telaRomaneio.pesquisarTodosOsRomaneios(clientes_disponiveis);
+
+			}
+			}
+		}.start();
+		
 		
 		this.setLocationRelativeTo(null);
 		this.setExtendedState(JFrame.MAXIMIZED_BOTH);
@@ -1117,6 +1164,12 @@ public class TelaMain extends JFrame {
 		configs_globais = dados.getConfigs_globais();
 		// usuario logado
 		login = dados.getLogin();
+		
+		//telaRomaneio
+		telaRomaneio = dados.getTelaRomaneios();
+		
+		//telaTodasNotasFiscais
+		telaTodasNotasFiscais = dados.getTelaTodasNotasFiscais();
 	}
 
 	public void getDadosContratos() {
@@ -1682,7 +1735,7 @@ public class TelaMain extends JFrame {
 					if (num_tarefas_nesta_secao == -1) {
 						if (num_agora > 0) {
 							while (notificando == true) {
-								System.out.println("Notificacao em andamento");
+								//System.out.println("Notificacao em andamento");
 							}
 							novaNotificacao("Você possui tarefas a concluir", "/audio/beep_notificacao.wav", 1);
 							num_tarefas_nesta_secao = num_agora;

@@ -1043,309 +1043,7 @@ public class ManipularNotasFiscais {
 	
 	
 	
-	public CadastroNFe tratar_nfe_interna_gescoop(String lines[], File file) {
-		
-		CadastroNFe cadastro = new CadastroNFe();
-  		cadastro.setCaminho_arquivo(file.getAbsolutePath());
 
-		String tratar = Arrays.toString(lines);
-		// tratar = tratar.replaceAll("\n", "*");
-		// System.out.println(tratar);
-		TratarDados tratamentoDados = new TratarDados(tratar);
-		
-		String procura_nfe = tratamentoDados.tratar("NFA-e", "VENDA");
-		String nfe = null;
-		String natureza = null;
-		if (procura_nfe.equals("") || procura_nfe == null) {
-			procura_nfe = tratamentoDados.tratar("NFA-e", "REMESSA");
-			if (procura_nfe.equals("") || procura_nfe == null) {
-				// procurar por outro tipo de nota
-				procura_nfe = tratamentoDados.tratar("NFA-e", "OUTRAS SAÍDAS");
-				if (procura_nfe.equals("") || procura_nfe == null) {
-					// System.out.println("Número NFA não encontrado");
-				} else {
-					nfe = procura_nfe;
-
-					natureza = "OUTRAS SAÍDAS";
-
-				}
-
-			} else {
-				nfe = procura_nfe;
-				natureza = "REMESSA";
-
-			}
-		} else {
-			nfe = procura_nfe;
-			natureza = "VENDA";
-		}
-		nfe = nfe.replaceAll(",", "");
-
-		// String nfe = lines[27].toString().replaceAll("[^0-9]+", "");
-		// System.out.println("Numero nfe: " + nfe);
-
-		String serie = tratamentoDados.tratar("SÉRIE", "C");
-		serie = serie.replaceAll("[^0-9]+", "");
-		// String serie = lines[90].toString().replaceAll("[^0-9]+", "");
-		// System.out.println("Serie: " + serie);
-
-		// String nome_remetente = lines[29].toString().replaceAll("[0-9]+", "");
-		// nome_remetente = nome_remetente.replaceAll("[^a-zA-Z ]", "");
-		// int linha_natureza = tratar.indexOf(tratar);
-
-		String nome_remetente = null;
-		if (natureza.equals("VENDA")) {
-			nome_remetente = tratamentoDados.tratar("VENDA,", ",");
-			nome_remetente = nome_remetente.replaceAll("[^a-zA-Z ]", "");
-
-		}
-		if (natureza.equals("REMESSA")) {
-			nome_remetente = tratamentoDados.tratar("REMESSA,", ",");
-			nome_remetente = nome_remetente.replaceAll("[^a-zA-Z ]", "");
-
-		}
-		if (natureza.equals("OUTRAS SAÍDAS")) {
-			nome_remetente = tratamentoDados.tratar("OUTRAS SAÍDAS,", ",");
-			nome_remetente = nome_remetente.replaceAll("[^a-zA-Z ]", "");
-
-		}
-
-		// System.out.println("Remetente: " + nome_remetente);
-		/*
-		 * String inscricao_remetente = lines[31].toString().replaceAll("[^0-9]+", "");
-		 * inscricao_remetente = inscricao_remetente.substring(4,
-		 * inscricao_remetente.length()); System.out.println("Inscricao: " +
-		 * inscricao_remetente);
-		 */
-
-		// String procura_inscricao_remetente = tratamentoDados.tratar("BRASIL", ",");
-
-		String teste_inscricao_remetente = tratar.replaceFirst("BRASIL", "XZYK");
-		TratarDados tratamentoDadosInscricaoRemetente = new TratarDados(teste_inscricao_remetente);
-		String inscricao_remetente = tratamentoDadosInscricaoRemetente.tratar("XZYK", ",");
-
-		// System.out.println(teste_inscricao_remetente);
-		teste_inscricao_remetente = teste_inscricao_remetente.replaceFirst(inscricao_remetente, "");
-		// System.out.println(teste_inscricao_remetente);
-		TratarDados tratamentoDadosNomeDestinatario = new TratarDados(teste_inscricao_remetente);
-		String nome_destinatario = tratamentoDadosNomeDestinatario.tratar("XZYK,", ",");
-		nome_destinatario = nome_destinatario.replaceAll("[^a-zA-Z ]", "");
-
-		// teste_inscricao_remetente = tratar.replaceFirst(inscricao_remetente, "");
-		// System.out.println(teste_inscricao_remetente);
-		/*
-		 * String procura_nome_destinatario = tratamentoDadosInscricao.tratar("XZYK",
-		 * ","); procura_nome_destinatario =
-		 * procura_nome_destinatario.replaceAll("[^a-zA-Z ]", ""); String
-		 * nome_destinatario = procura_nome_destinatario;
-		 */
-		String inscricao_destinatario = tratamentoDados.tratar("BRASIL", ",");
-		// System.out.println("Inscricao: " + inscricao_remetente);
-
-		// String array_protocolo[] = lines[95].split(" ");
-		String protocolo = tratamentoDados.tratar("USO", "-");
-		protocolo = protocolo.replaceAll("[^0-9]+", "");
-		// String protocolo = array_protocolo[0].toString();
-
-		// System.out.println("Protocolo: " + protocolo);
-
-		// String data = lines[33].toString();
-		teste_inscricao_remetente = teste_inscricao_remetente.replaceFirst(protocolo, "DATA");
-		TratarDados tratarDadosData = new TratarDados(teste_inscricao_remetente);
-		String data = tratarDadosData.tratar("DATA", ",");
-		data = data.replace("-", "");
-		// System.out.println("Data: " + data);
-
-		// String natureza = lines[28].toString();
-		// System.out.println("Natureza: " + natureza);
-
-		// String nome_destinatario = lines[32].toString().replaceAll("[0-9]+", "");
-		// nome_destinatario = nome_destinatario.replaceAll("[^a-zA-Z ]", "");
-
-		// System.out.println("Destinatario: " + nome_destinatario);
-
-		/*
-		 * String inscricao_destinatario = lines[36].toString().replaceAll("[^0-9]+",
-		 * ""); inscricao_destinatario = inscricao_destinatario.substring(4,
-		 * inscricao_destinatario.length()); System.out.println("Inscricao: " +
-		 * inscricao_destinatario);
-		 */
-
-		// String produto = separados[0].toString();
-		String produto = tratamentoDados.tratar("BC", "-");
-		produto = produto.replaceAll("[^a-zA-Z ]", "");
-		produto = produto.substring(5, produto.length());
-		// System.out.println("Produto: " + produto);
-
-		String dados_valorados = tratamentoDados.tratar("BC", "DADOS");
-		dados_valorados = dados_valorados.replaceAll(" ", "-");
-		// dados_valorados = dados_valorados.replaceAll(",", "*");
-		// dados_valorados = dados_valorados.replaceAll(" ", ",");
-
-		// System.out.println(dados_valorados);
-		TratarDados tratamentoDadosQuantidade = new TratarDados(dados_valorados);
-		// String dados_valorados_dividos[] = dados_valorados.split(" ");
-
-		// String quantidade = separados[5].toString();
-		// String quantidade = dados_valorados_dividos[7];
-		String teste_procura_quantidade = tratamentoDadosQuantidade.tratar("-SC-", "-");
-		String quantidade = null;
-		String quantidade_sem_formatacao = null;
-		String unidade = null;
-		// System.out.println("Procuradando: " + teste_procura_quantidade + "fim");
-		if (teste_procura_quantidade.length() < 2 || teste_procura_quantidade.equals("")
-				|| teste_procura_quantidade.equals(" ") || teste_procura_quantidade == null) {
-			teste_procura_quantidade = tratamentoDadosQuantidade.tratar("-KG-", "-");
-			// System.out.println("Procuradando: " + teste_procura_quantidade + "fim");
-
-			if (teste_procura_quantidade.length() < 2 || teste_procura_quantidade.equals("")
-					|| teste_procura_quantidade.equals(" ") || teste_procura_quantidade == null) {
-				teste_procura_quantidade = tratamentoDadosQuantidade.tratar(" TON", "  ");
-				// System.out.println("Procuradando: " + teste_procura_quantidade + "fim");
-
-				if (teste_procura_quantidade.equals("") || teste_procura_quantidade.equals(" ")
-						|| teste_procura_quantidade == null) {
-					// System.out.print("Nenhum especie de unidade encontrada");
-					teste_procura_quantidade = tratamentoDadosQuantidade.tratar(" CB", "  ");
-					if (teste_procura_quantidade.equals("") || teste_procura_quantidade.equals(" ")
-							|| teste_procura_quantidade == null) {
-						// System.out.print("Nenhum especie de unidade encontrada");
-
-					} else {
-						quantidade = teste_procura_quantidade;
-						quantidade_sem_formatacao = quantidade;
-						unidade = "CB";
-					}
-
-				} else {
-					quantidade = teste_procura_quantidade;
-					quantidade_sem_formatacao = quantidade;
-
-					unidade = "TON";
-				}
-
-			} else {
-				quantidade = teste_procura_quantidade;
-				quantidade_sem_formatacao = quantidade;
-
-				unidade = "KQ";
-			}
-
-		} else {
-			quantidade = teste_procura_quantidade;
-			quantidade_sem_formatacao = quantidade;
-
-			unidade = "SC";
-
-		}
-
-		String unidade_quantidade[] = quantidade.split(" ");
-		// quantidade = unidade_quantidade[1];
-		// quantidade_sem_formatacao = quantidade;
-
-		// System.out.println("Quantidade: " + quantidade);
-
-		// String unidade = separados[4].toString();
-		// String unidade = dados_valorados_dividos[6].toString();
-		// String unidade = unidade_quantidade[0];
-		// System.out.println(unidade);
-		if (unidade.equals("SC") || unidade.equals("sc") || unidade.equals(" SC ")) {
-			// System.out.println("Tentando formatar quantidade em SC para KG");
-			quantidade = quantidade.replaceAll("\\.", "");
-			quantidade = quantidade.replaceAll(",", ".");
-			// System.out.println("Quantidade formatada: " + quantidade);
-			try {
-
-				double quant = Double.parseDouble(quantidade);
-				// System.out.println("quantidade inteira: " + quant);
-				quant = quant * 60;
-				quantidade = Double.toString(quant);
-			} catch (Exception ev) {
-				// System.out.println("Erro ao converter quantidade para inteiros " +
-				// ev.getMessage());
-
-			}
-
-		}
-
-		if (unidade.equals("TON") || unidade.equals("ton") || unidade.equals(" TON ")) {
-			try {
-				// quantidade = quantidade.replaceAll(".", "");
-				quantidade = quantidade.replace(".", "");
-				quantidade = quantidade.replace(",", ".");
-				// double quant = Double.parseDouble(quantidade);
-				BigDecimal quant = new BigDecimal(quantidade);
-				// System.out.println("quantidade inteira: " + quant);
-				quant.multiply(new BigDecimal("100.00"));
-				quantidade = quant.toPlainString();
-			} catch (Exception ev) {
-				// System.out.println("Erro ao converter ton para double " + ev.getMessage());
-
-			}
-
-		}
-
-		// System.out.println("Quantidade: " + quantidade);
-
-		// String valor = lines[82].toString();
-		// String valor = dados_valorados_dividos[8];
-		// int linha = Arrays.toString(lines).indexOf("R$");
-		teste_inscricao_remetente = teste_inscricao_remetente.replaceAll("12019000", "&");
-		teste_inscricao_remetente = teste_inscricao_remetente.replaceAll("23021000", "&");
-		teste_inscricao_remetente = teste_inscricao_remetente.replaceAll("14049010", "&");
-		teste_inscricao_remetente = teste_inscricao_remetente.replaceAll("11042300", "&");
-		teste_inscricao_remetente = teste_inscricao_remetente.replaceAll("12081000", "&");
-		teste_inscricao_remetente = teste_inscricao_remetente.replaceAll("11031900", "&");
-
-		teste_inscricao_remetente = teste_inscricao_remetente.replaceAll("KG " + quantidade_sem_formatacao,
-				"INFOPRECO");
-		teste_inscricao_remetente = teste_inscricao_remetente.replaceAll("SC " + quantidade_sem_formatacao,
-				"INFOPRECO");
-		teste_inscricao_remetente = teste_inscricao_remetente.replaceAll("TON " + quantidade_sem_formatacao,
-				"INFOPRECO");
-
-		// System.out.println(teste_inscricao_remetente);
-		TratarDados tratarDadosValor = new TratarDados(teste_inscricao_remetente);
-		String valor = tratarDadosValor.tratar("INFOPRECO", "&");
-
-		// String valor = tratamentoDados.tratar("$" , "5");
-		// String valor = Arrays.toString(lines).substring(linha, linha + 13);
-		// valor = valor.replaceAll(",", "&");
-		// System.out.println("Valor: " + valor);
-
-		// String valor_split[] = valor.split(" ");
-		// valor = valor_split[4];
-		// valor = valor.substring(0, valor.indexOf(","));
-		// System.out.println("Valor: " + valor);
-
-		// System.out.println("Fim do processo");
-
-		cadastro.setNfe(nfe);
-		cadastro.setSerie(serie);
-		cadastro.setNome_remetente(nome_remetente);
-		cadastro.setInscricao_remetente(inscricao_remetente);
-		cadastro.setProtocolo(protocolo);
-		
-		try {
-			
-			
-			Date date = new SimpleDateFormat("dd/MM/yyyy").parse(data);
-			
-		cadastro.setData(date);
-		}catch(Exception t) {
-			//JOptionPane.showMessageDialog(null, "Erro ao listar NFA do siare\nErro:  " + t.getMessage() + "\nConsulte o Administrador");
-			return null;
-		}
-		cadastro.setNatureza(natureza);
-		cadastro.setNome_destinatario(nome_destinatario);
-		cadastro.setInscricao_destinatario(inscricao_destinatario);
-		cadastro.setProduto(produto);
-		cadastro.setQuantidade(quantidade);
-		cadastro.setValor(valor);
-		
-		 return cadastro;
-
-	}
 	  
 	public CadastroNFe tratar_nfe_cj(String lines[], File file) {
 		
@@ -1359,6 +1057,8 @@ public class ManipularNotasFiscais {
 		
 		String nfe = tratamentoDados.tratar("No. ", ",");
 		int i_nfe = Integer.parseInt(nfe);
+		
+		
 		cadastro.setNfe(Integer.toString(i_nfe));
 		
 		//JOptionPane.showMessageDialog(null, "Codigo nfe cj: " + cadastro.getNfe());
@@ -1379,6 +1079,210 @@ public class ManipularNotasFiscais {
 
 
 		String insc_remetente =  tratamentoDados.tratar("DADOS DA NF-e, INSCRIÇÃO ESTADUAL, ", ",").replaceAll("[^0-9]", "");
+	
+		//JOptionPane.showMessageDialog(null, "Inscrição do remetente: " + insc_remetente);
+        //busca por remetente no banco de dados
+	    GerenciarBancoClientes gerente_clientes = new GerenciarBancoClientes();
+	    ArrayList<CadastroCliente> lista_clientes = gerente_clientes.getClientes(0, 0, "");
+	    CadastroCliente remetente = null; 
+	    
+	        if(insc_remetente.length() > 9 ) { 
+			  //procurar remetente/destinatariop
+		    
+		    for(CadastroCliente busca : lista_clientes) {
+		    	
+		    			if(busca.getIe() != null) {
+		    			if(busca.getIe().equals(insc_remetente)) {
+		    			    remetente = busca;
+		    			    // JOptionPane.showMessageDialog(null, "Remetente encontrado");
+		    				break;
+		    			}else {
+		    				
+		    			}
+		    		}
+		    		
+		   }
+	       
+		    
+		
+		
+		
+		cadastro.setNfe(nfe);
+		cadastro.setSerie(serie);
+		if(remetente != null) {
+			if(remetente.getTipo_pessoa() == 0) {
+				cadastro.setNome_remetente(remetente.getNome_empresarial());
+			}else {
+				cadastro.setNome_remetente(remetente.getNome_fantaia());
+
+			}
+			cadastro.setInscricao_remetente(remetente.getIe());
+
+		}
+		}
+	        
+	        
+			String protocolo =  tratamentoDados.tratar("PROTOCOLO DE AUTORIZAÇÃO, ", ",").replaceAll("[^0-9]", "");
+			// JOptionPane.showMessageDialog(null, "protocolo: " + protocolo);
+	        
+		cadastro.setProtocolo(protocolo);
+		String data_busca = tratamentoDados.tratar("DATA DE SAÍDA/ENTRADA, ", ",");
+		
+		char[] charArray = data_busca.toCharArray();
+        for(int i = 0; i < charArray.length; i++) {
+        	if(charArray[i] == '.') {
+        		charArray[i] = '/';
+
+        	}
+        }
+        
+        String data = String.copyValueOf(charArray);
+        //JOptionPane.showMessageDialog(null, "Data: " + data);
+		
+		try {
+			
+			
+			Date date = new SimpleDateFormat("dd/MM/yyyy").parse(data);
+			//	JOptionPane.showMessageDialog(null, "data: " + date);
+
+		cadastro.setData(date);
+		}catch(Exception t) {
+			//JOptionPane.showMessageDialog(null, "Erro ao listar data NFA da CJ Selecta\nErro:  " + t.getMessage() + "\nConsulte o Administrador");
+			return null;
+		}
+		
+		String id_destinatario = tratamentoDados.tratar(" CNPJ / CPF, ", ",").replaceAll("[^0-9]", "");
+		//JOptionPane.showMessageDialog(null, "id destinatario: " + id_destinatario);
+		
+		String nome_destinatario = tratamentoDados.tratar("DESTINATÁRIO/REMETENTE, NOME/RAZÃO SOCIAL, ", ",");
+		//JOptionPane.showMessageDialog(null, "nome destinatario: " + nome_destinatario);
+		
+
+		String insc_destinatario = tratamentoDados.tratar("G, INSCRIÇÃO ESTADUAL, ", ",");
+		//JOptionPane.showMessageDialog(null, "inscricao destinatario: " + insc_destinatario);
+		
+		 CadastroCliente destinatario = null; 
+		    
+	        if(insc_destinatario.length() > 9 ) { 
+			  //procurar remetente/destinatariop
+		   
+		    for(CadastroCliente busca : lista_clientes) {
+		    	
+		    			if(busca.getIe() != null) {
+		    			if(busca.getIe().equals(insc_destinatario)) {
+		    				destinatario = busca;
+		    				// JOptionPane.showMessageDialog(null, "Destinatario encontrado");
+		    				break;
+		    			}else {
+		    				
+		    			}
+		    		}
+		    		
+		   }
+	        }
+		
+		    if(destinatario != null) {
+		    	cadastro.setNome_destinatario(nome_destinatario);
+				cadastro.setInscricao_destinatario(insc_destinatario);
+		    }
+		
+		  //produto
+		  
+		  
+		    String produto = "";
+		    if(tratar.contains("540183")) {
+		    	//soja gmo
+		    	produto  = "SOJA"  + " GMO";
+		    }else if(tratar.contains("540182")) {
+		    	//sona non gmo
+		    	produto  = "SOJA"  +" NON-GMO";
+		    	
+		    }
+		    
+		    // JOptionPane.showMessageDialog(null, "produto: " + produto);
+		    
+		cadastro.setProduto(produto);
+		
+		//tratamento da quantidade
+		String quantidade = "";
+
+		try {
+		if(tratar.contains("5905")) {
+			if(tratar.contains("KG")) {
+				cadastro.setMedida("KG");
+				quantidade = tratamentoDados.tratar("5905 KG ", " ").trim();
+				quantidade = quantidade.substring(0, quantidade.length() - 1);
+			}else if(tratar.contains("SC")) {
+				cadastro.setMedida("Sacos");
+				quantidade = tratamentoDados.tratar("5905 SC ", " ").trim();
+				quantidade = quantidade.substring(0, quantidade.length() - 1);
+
+			}
+		}
+		}catch(Exception e) {
+			if(tratar.contains("KG")) {
+				cadastro.setMedida("KG");
+				quantidade = tratamentoDados.tratar("PESO LÍQUIDO,", "KG").replaceAll("[^0-9.,]", "").trim();
+			}else if(tratar.contains("SC")) {
+				cadastro.setMedida("Sacos");
+				quantidade = tratamentoDados.tratar("PESO LÍQUIDO,", "SC").replaceAll("[^0-9.,]", "").trim();
+
+			}
+		}
+		cadastro.setQuantidade(quantidade);
+		//JOptionPane.showMessageDialog(null, "Quantidade: " + cadastro.getQuantidade());
+
+		String valor = "";
+		try {
+		 valor = tratamentoDados.tratar("VALOR TOTAL DA NF, ", " ").trim();
+		valor = valor.substring(0, valor.length() - 1);
+
+		cadastro.setValor(valor);
+		}catch(Exception e) {
+			 valor = tratamentoDados.tratar("VALOR TOTAL DA NF,", ", TRANSPORTADOR").replaceAll("[^0-9.,]", "").trim();
+
+				cadastro.setValor(valor);
+		}
+		//JOptionPane.showMessageDialog(null, "Valor: " + cadastro.getValor());
+
+		 return cadastro;
+
+	}
+	
+	
+public CadastroNFe tratar_nfe_interna_gescoop(String lines[], File file) {
+		
+		CadastroNFe cadastro = new CadastroNFe();
+  		cadastro.setCaminho_arquivo(file.getAbsolutePath());
+  		//JOptionPane.showMessageDialog(null, "Nf gescoop encontrada, caminho: " + cadastro.getCaminho_arquivo());
+
+  		try {
+		String tratar = Arrays.toString(lines);
+		// tratar = tratar.replaceAll("\n", "*");
+		 System.out.println("conteudo: " + tratar);
+		TratarDados tratamentoDados = new TratarDados(tratar);
+		
+		String nfe = tratamentoDados.tratar("Nº ", ",");
+		//JOptionPane.showMessageDialog(null, "N sem conversao: " + nfe);
+		
+		int i_nfe = Integer.parseInt(nfe.replaceAll("[^0-9]", ""));
+		cadastro.setNfe(Integer.toString(i_nfe));
+		
+		//JOptionPane.showMessageDialog(null, "Codigo nfe gescoop: " + cadastro.getNfe());
+		
+		String natureza = tratamentoDados.tratar("NATUREZA DA OPERAÇÃO, ", ",");
+		cadastro.setNatureza(natureza);
+		//JOptionPane.showMessageDialog(null, "natureza: " + cadastro.getNatureza());
+
+		
+		String serie = tratamentoDados.tratar("SÉRIE ", ",");
+		serie = serie.replaceAll("[^0-9]+", "");
+		cadastro.setSerie(serie);
+		
+		//JOptionPane.showMessageDialog(null, "Serie: " + cadastro.getSerie());
+
+
+		String insc_remetente =  tratamentoDados.tratar(", INSCRIÇÃO ESTADUAL, ", ",").replaceAll("[^0-9]", "");
 	
 		//JOptionPane.showMessageDialog(null, "Inscrição do remetente: " + insc_remetente);
         //busca por remetente no banco de dados
@@ -1422,22 +1326,14 @@ public class ManipularNotasFiscais {
 		}
 	        
 	        
-			String protocolo =  tratamentoDados.tratar("PROTOCOLO DE AUTORIZAÇÃO, ", ",").replaceAll("[^0-9]", "");
-             //JOptionPane.showMessageDialog(null, "protocolo: " + protocolo);
+			String protocolo =  tratamentoDados.tratar("AUTORIZAÇÃO DE USO, ", " ").replaceAll("[^0-9]", "");
+			// JOptionPane.showMessageDialog(null, "protocolo: " + protocolo);
 	        
 		cadastro.setProtocolo(protocolo);
-		String data_busca = tratamentoDados.tratar("DATA DE SAÍDA/ENTRADA, ", ",");
+		String data = tratamentoDados.tratar("DATA DA SAÍDA, ", ",");
 		
-		char[] charArray = data_busca.toCharArray();
-        for(int i = 0; i < charArray.length; i++) {
-        	if(charArray[i] == '.') {
-        		charArray[i] = '/';
-
-        	}
-        }
-        
-        String data = String.copyValueOf(charArray);
-        //JOptionPane.showMessageDialog(null, "Data: " + data);
+	
+		// JOptionPane.showMessageDialog(null, "Data: " + data);
 		
 		try {
 			
@@ -1451,14 +1347,14 @@ public class ManipularNotasFiscais {
 			return null;
 		}
 		
-		String id_destinatario = tratamentoDados.tratar(" CNPJ / CPF, ", ",").replaceAll("[^0-9]", "");
+		String id_destinatario = tratamentoDados.tratar(", CNPJ / CPF, ", ",").replaceAll("[^0-9]", "");
 		//JOptionPane.showMessageDialog(null, "id destinatario: " + id_destinatario);
 		
-		String nome_destinatario = tratamentoDados.tratar("DESTINATÁRIO/REMETENTE, NOME/RAZÃO SOCIAL, ", ",");
+		String nome_destinatario = tratamentoDados.tratar("Dest/Reme: ", "Valor");
 		//JOptionPane.showMessageDialog(null, "nome destinatario: " + nome_destinatario);
 		
 
-		String insc_destinatario = tratamentoDados.tratar("G, INSCRIÇÃO ESTADUAL, ", ",");
+		String insc_destinatario = tratamentoDados.tratar("FAX INSCRIÇÃO ESTADUAL, ", ",");
 		//JOptionPane.showMessageDialog(null, "inscricao destinatario: " + insc_destinatario);
 		
 		 CadastroCliente destinatario = null; 
@@ -1471,7 +1367,7 @@ public class ManipularNotasFiscais {
 		    			if(busca.getIe() != null) {
 		    			if(busca.getIe().equals(insc_destinatario)) {
 		    				destinatario = busca;
-		    			    //JOptionPane.showMessageDialog(null, "Destinatario encontrado");
+		    				//  JOptionPane.showMessageDialog(null, "Destinatario encontrado");
 		    				break;
 		    			}else {
 		    				
@@ -1490,19 +1386,26 @@ public class ManipularNotasFiscais {
 		  
 		  
 		    String produto = "";
-		    if(tratar.contains("540183")) {
+		    if(tratar.contains("MILHO")) {
 		    	//soja gmo
-		    	produto  = "SOJA"  + " GMO";
-		    }else if(tratar.contains("540182")) {
-		    	//sona non gmo
-		    	produto  = "SOJA"  +" NON-GMO";
+		    	produto  = "MILHO";
+		    }else if(tratar.contains("SOJA")) {
+		    	if(tratar.contains("CONV"))
+ 		    	 produto  = "SOJA"  +" NON-GMO";
+		    	else {
+	 		    	 produto  = "SOJA"  +" GMO";
+
+		    	}
 		    	
+		    }else if(tratar.contains("SORGO")) {
+		    	 produto  = "SORGO";
+
 		    }
 		    
 		    //JOptionPane.showMessageDialog(null, "produto: " + produto);
 		    
 		cadastro.setProduto(produto);
-		
+		/*
 		//tratamento da quantidade
 		String quantidade = "";
 		if(tratar.contains("5905")) {
@@ -1516,17 +1419,24 @@ public class ManipularNotasFiscais {
 				quantidade = quantidade.substring(0, quantidade.length() - 1);
 
 			}
-		}
+		}else if(tratar.contains("5906")) {
+			
+		}*/
+		String quantidade = tratamentoDados.tratar("XXX ", " ");
 		//JOptionPane.showMessageDialog(null, "Quantidade: " + quantidade);
 		cadastro.setQuantidade(quantidade);
 		
-		String valor = tratamentoDados.tratar("VALOR TOTAL DA NF, ", " ").trim();
+		String valor = tratamentoDados.tratar("VALOR TOTAL DA NOTA, ", " ").trim();
 		valor = valor.substring(0, valor.length() - 1);
 
 		//JOptionPane.showMessageDialog(null, "Valor: " + valor);
 		cadastro.setValor(valor);
 		
 		 return cadastro;
+  		}catch(Exception t) {
+  			//JOptionPane.showMessageDialog(null, "Erro ao processar daos da nf interna gescoop\nErro: " + t.getMessage() + "\nCausa: " + t.getCause());
+  			return null;
+  		}
 
 	}
 }

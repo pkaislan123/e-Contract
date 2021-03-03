@@ -35,7 +35,7 @@ public class GetSintegra {
 
 	public String captura() {
 	OkHttpClient client = new OkHttpClient();
-	String token = "37B9C76F-EE1F-4D15-8EE6-9299460AD464";
+	String token = "EEE8E6C3-8CC0-45E6-B575-4BA1751A48D4";
     String url_ = "";
 	if(flag == 0)
 		url_ = "https://www.sintegraws.com.br/api/v1/execute-api.php?token=" + token + "&cpf=" + cpf + "&uf=" + uf + "&plugin=" + plugin;

@@ -1753,10 +1753,7 @@ observacao text
 				contrato.setNomes_compradores(rs.getString("compradores"));
 				contrato.setNomes_vendedores(rs.getString("vendedores"));
 				contrato.setNomes_corretores(rs.getString("corretores"));
-				
-				contrato.setCaminho_diretorio_contrato2(rs.getString("caminho_diretorio2"));
-				contrato.setCaminho_arquivo2(rs.getString("caminho_arquivo2"));
-				contrato.setNome_arquivo2(rs.getString("nome_arquivo2"));
+			
 
 				safra.setProduto(produto);
 				contrato.setModelo_safra(safra);
@@ -2649,7 +2646,7 @@ observacao text
 
 	}
 
-	public boolean inserirCarregamento(int id_contrato, CadastroContrato.Carregamento carregamento) {
+	public int inserirCarregamento(int id_contrato, CadastroContrato.Carregamento carregamento) {
 
 		// inserir primeiro o carregamento
 		int retorno_inserir_carregamento = inserir_carregamento_retorno(carregamento);
@@ -2659,23 +2656,23 @@ observacao text
 					retorno_inserir_carregamento);
 			if (inserir_relacao_contrato_carregamento) {
 				System.out.println("Carregamento Cadastrado");
-				return true;
-
+                 return retorno_inserir_carregamento;
+				
 			} else {
 				System.out.println("Erro ao inserir um novo carregamento!");
-				return false;
+				return -1;
 
 			}
 
 		} else {
 			System.out.println("Erro ao inserir um novo carregamento!");
-			return false;
+			return -1;
 		}
 
 	}
 	
 	
-	public boolean inserirRecebimento(int id_contrato, Recebimento recebimento) {
+	public int inserirRecebimento(int id_contrato, Recebimento recebimento) {
 
 		// inserir primeiro o recebimento
 		int retorno_inserir_recebimento = inserir_recebimento_retorno(recebimento);
@@ -2685,17 +2682,17 @@ observacao text
 					retorno_inserir_recebimento);
 			if (inserir_relacao_contrato_recebimento) {
 				System.out.println("Recebimento Cadastrado");
-				return true;
+				return retorno_inserir_recebimento;
 
 			} else {
 				System.out.println("Erro ao inserir um novo recebimento!");
-				return false;
+				return -1;
 
 			}
 
 		} else {
 			System.out.println("Erro ao inserir um novo recebimento!");
-			return false;
+			return -1;
 		}
 
 	}
@@ -2869,7 +2866,7 @@ observacao text
 					CadastroContrato.Carregamento carga = new CadastroContrato.Carregamento();
 
 					carga.setId_carregamento(rs.getInt("id_carregamento"));
-					carga.setData(rs.getDate("data_carregamento").toString());
+					carga.setData(rs.getString("data_carregamento").toString());
 					carga.setId_contrato(rs.getInt("id_contrato_carregamento"));
 					carga.setId_cliente(rs.getInt("id_cliente"));
 					carga.setId_vendedor(rs.getInt("id_vendedor"));
@@ -2928,7 +2925,7 @@ observacao text
 	
 	public ArrayList<CadastroContrato.Recebimento> getRecebimentos(int id_contrato) {
 
-		System.out.println("Lista carregamento foi chamado!");
+		System.out.println("Lista recebimentos foi chamado!");
 		String selectRecebimentos = "select * from contrato_recebimentos\n"
 				+ "LEFT JOIN recebimento  on recebimento.id_recebimento = contrato_recebimentos.id_recebimento \n"
 				+ "where contrato_recebimentos.id_contrato = ?";
@@ -2962,10 +2959,12 @@ observacao text
 					recebido.setPeso_romaneio(rs.getDouble("peso_romaneio"));
 					recebido.setCaminho_romaneio(rs.getString("caminho_romaneio"));
 					
+					recebido.setNf_venda_aplicavel(rs.getInt("nf_venda_aplicavel"));
 					recebido.setCodigo_nf_venda(rs.getString("codigo_nf_venda"));
 					recebido.setPeso_nf_venda(rs.getDouble("peso_nf_venda"));
 					recebido.setCaminho_nf_venda(rs.getString("caminho_nf_venda"));
 					
+					recebido.setNf_remessa_aplicavel(rs.getInt("nf_remessa_aplicavel"));
 					recebido.setCodigo_nf_remessa(rs.getString("codigo_nf_remessa"));
 					recebido.setCaminho_nf_remessa(rs.getString("caminho_nf_remessa"));
 
@@ -3348,7 +3347,7 @@ codigo_nf_remessa varchar(40),
 peso_nf_remessa double,
 caminho_nf_remessa text,
 		 */
-		String sql_atualizar_recebimento = "update recebimento set data_recebimento = ?, id_cliente = ?, id_vendedor = ?, id_transportador = ?, id_veiculo = ?, codigo_romaneio = ?, peso_romaneio = ?, caminho_romaneio = ?, codigo_nf_venda = ?, peso_nf_venda = ?, caminho_nf_venda = ?, codigo_nf_remessa = ?, peso_nf_remessa = ?, caminho_nf_remessa = ? where id_recebimento = ?";
+		String sql_atualizar_recebimento = "update recebimento set data_recebimento = ?, id_cliente = ?, id_vendedor = ?, id_transportador = ?, id_veiculo = ?, codigo_romaneio = ?, peso_romaneio = ?, caminho_romaneio = ?, nf_venda_aplicavel = ?, codigo_nf_venda = ?, peso_nf_venda = ?, caminho_nf_venda = ?, nf_remessa_aplicavel = ?, codigo_nf_remessa = ?, peso_nf_remessa = ?, caminho_nf_remessa = ? where id_recebimento = ?";
 				
 		Connection conn = null;
 		ResultSet rs = null;
@@ -3366,15 +3365,18 @@ caminho_nf_remessa text,
 			pstm.setDouble(7, recebimento.getPeso_romaneio());
 			pstm.setString(8, recebimento.getCaminho_romaneio());
 			
-			pstm.setString(9, recebimento.getCodigo_nf_venda());
-			pstm.setDouble(10, recebimento.getPeso_nf_venda());
-			pstm.setString(11, recebimento.getCaminho_nf_venda());
+			pstm.setInt(9, recebimento.getNf_venda_aplicavel());
+
+			pstm.setString(10, recebimento.getCodigo_nf_venda());
+			pstm.setDouble(11, recebimento.getPeso_nf_venda());
+			pstm.setString(12, recebimento.getCaminho_nf_venda());
 			
-			pstm.setString(12, recebimento.getCodigo_nf_remessa());
-			pstm.setDouble(13, recebimento.getPeso_nf_remessa());
-			pstm.setString(14, recebimento.getCaminho_nf_remessa());
+			pstm.setInt(13, recebimento.getNf_remessa_aplicavel());
+			pstm.setString(14, recebimento.getCodigo_nf_remessa());
+			pstm.setDouble(15, recebimento.getPeso_nf_remessa());
+			pstm.setString(16, recebimento.getCaminho_nf_remessa());
 			
-			pstm.setInt(15, recebimento.getId_recebimento());
+			pstm.setInt(17, recebimento.getId_recebimento());
 		
 
 
@@ -3559,7 +3561,7 @@ caminho_nf_remessa text,
 	
 	public String sql_recebimento(Recebimento recebimento) {
 
-		String query = "insert into recebimento (data_recebimento, id_contrato_recebimento, id_cliente, id_vendedor , id_transportador, id_veiculo, codigo_romaneio, peso_romaneio, caminho_romaneio, codigo_nf_venda, peso_nf_venda, caminho_nf_venda,codigo_nf_remessa ,peso_nf_remessa,caminho_nf_remessa) values ('"
+		String query = "insert into recebimento (data_recebimento, id_contrato_recebimento, id_cliente, id_vendedor , id_transportador, id_veiculo, codigo_romaneio, peso_romaneio, caminho_romaneio, nf_venda_aplicavel, codigo_nf_venda, peso_nf_venda, caminho_nf_venda, nf_remessa_aplicavel, codigo_nf_remessa ,peso_nf_remessa,caminho_nf_remessa) values ('"
 				+ recebimento.getData_recebimento() + "','"
 				+ recebimento.getId_contrato_recebimento() + "','" 
 				+ recebimento.getId_cliente()+ "','"
@@ -3569,9 +3571,13 @@ caminho_nf_remessa text,
 				+ recebimento.getCodigo_romaneio() + "','"
 			    + recebimento.getPeso_romaneio() + "','"
 				+ recebimento.getCaminho_romaneio() + "','"
+						+ recebimento.getNf_venda_aplicavel() + "','" 
+
 				+ recebimento.getCodigo_nf_venda() + "','" 
 				+ recebimento.getPeso_nf_venda() + "','" 
 				+ recebimento.getCaminho_nf_venda() + "','" 
+						+ recebimento.getNf_remessa_aplicavel() + "','" 
+
 				+ recebimento.getCodigo_nf_remessa() + "','" 
 				+ recebimento.getPeso_nf_remessa() + "','" 
 				+ recebimento.getCaminho_nf_remessa() 
@@ -4305,7 +4311,7 @@ caminho_nf_remessa text,
 
 	public double getQuantidadeSacosCarregadosPorSafra(int id_safra) {
 
-		String selectGetQuantidadeTotalSacosCarregados = "select sum(peso_real_carga) as quantidade_total_carregada from carregamento\n"
+		String selectGetQuantidadeTotalSacosCarregados = "select sum(peso_romaneio) as quantidade_total_carregada from carregamento\n"
 				+ "left join contrato on contrato.id = carregamento.id_contrato_carregamento\n"
 				+ "where (contrato.sub_contrato = 0 or contrato.sub_contrato = 3 or contrato.sub_contrato = 4 or contrato.sub_contrato = 5) and contrato.id_safra = ?";
 		Connection conn = null;

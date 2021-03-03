@@ -79,7 +79,6 @@ public class JPanelGrafico extends JPanel{
 
 	    	 if(percentualnao_assinados + percentualassinados != 100) {
 	 	    	int diferenca = 100 - (percentualnao_assinados + percentualassinados);
-	 	    	System.out.println("falta para os 100%: " + diferenca );
 
 	 	    	percentualassinados = percentualassinados + diferenca;
 	 	    }

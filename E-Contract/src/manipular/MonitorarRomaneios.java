@@ -11,6 +11,7 @@ import cadastros.CadastroRomaneio;
 import cadastros.CadastroSafra;
 import conexaoBanco.GerenciarBancoClientes;
 import gui.TelaMain;
+import gui.TelaRomaneios;
 import outros.DadosGlobais;
 import tratamento_proprio.Log;
 import views_personalizadas.TelaNotificacaoSuperior;
@@ -22,7 +23,7 @@ public class MonitorarRomaneios {
 	private CadastroLogin login;
 	private ConfiguracoesGlobais configs_globais;
 	private TelaMain telaPrincipal;
-	
+	private TelaRomaneios telaRomaneio;
 	public MonitorarRomaneios() {
 		getDadosGlobais();
 	}
@@ -715,6 +716,9 @@ public int vigiarTodosRomaneiosMaisRapidoRetornoQuantidadeRecebida(CadastroSafra
 					
 					try {
 						
+						Thread.sleep(20000);
+						getDadosGlobais();
+						
 						ManipularRomaneios manipular = new ManipularRomaneios(pasta_final);
 						ArrayList<CadastroRomaneio> romaneios = manipular.tratar();
 						
@@ -804,6 +808,7 @@ public int vigiarTodosRomaneiosMaisRapidoRetornoQuantidadeRecebida(CadastroSafra
 										
 										// JOptionPane.showMessageDialog(null, "Romaneio movido para a pasta do
 										// remetente");
+										telaRomaneio.adicionarNovoRomaneio(roms);
 									} else {
 										// JOptionPane.showMessageDialog(null, "Erro ao mover o romaneio");
 									}
@@ -837,6 +842,8 @@ public int vigiarTodosRomaneiosMaisRapidoRetornoQuantidadeRecebida(CadastroSafra
 									if (mover) {
 										// JOptionPane.showMessageDialog(null, "Romaneio movido para a pasta do
 										// remetente");
+										telaRomaneio.adicionarNovoRomaneio(roms);
+
 									} else {
 										// JOptionPane.showMessageDialog(null, "Erro ao mover o romaneio");
 									}
@@ -873,6 +880,8 @@ public int vigiarTodosRomaneiosMaisRapidoRetornoQuantidadeRecebida(CadastroSafra
 										if (copiar) {
 											// JOptionPane.showMessageDialog(null, "Romaneio movido para a pasta do
 											// remetente");
+											telaRomaneio.adicionarNovoRomaneio(roms);
+
 											// mover para a pasta do destinatario
 										} else {
 											// JOptionPane.showMessageDialog(null, "Romaneio não pode ser movido para a
@@ -911,6 +920,8 @@ public int vigiarTodosRomaneiosMaisRapidoRetornoQuantidadeRecebida(CadastroSafra
 											// JOptionPane.showMessageDialog(null, "Romaneio copiado para a pasta do
 											// destinatario");
 											// mover para a pasta do remetente
+											telaRomaneio.adicionarNovoRomaneio(roms);
+
 											
 											
 											if (remetente.getTipo_pessoa() == 0) {
@@ -932,6 +943,8 @@ public int vigiarTodosRomaneiosMaisRapidoRetornoQuantidadeRecebida(CadastroSafra
 											if (mover) {
 												// JOptionPane.showMessageDialog(null, "Romaneio movido para a pasta do
 												// destinatario");
+												telaRomaneio.adicionarNovoRomaneio(roms);
+
 											} else {
 												// JOptionPane.showMessageDialog(null, "Erro ao mover o romaneio para a
 												// pasta do destinatario");														"Erro ao mover o romaneio para a pasta do remetente");
@@ -955,8 +968,7 @@ public int vigiarTodosRomaneiosMaisRapidoRetornoQuantidadeRecebida(CadastroSafra
 						// JOptionPane.showMessageDialog(null, "Erro ao ler romaneios");
 					//	JOptionPane.showMessageDialog(null, "Erro ao ler romaneios\nErro: " + e.getMessage() + "\nCausa: " + e.getCause());
 					}
-					
-					
+					/**************tratamento de notas fiscais**************/
 					//busca por nfs
 					try {
 						ManipularNotasFiscais manipularnf = new ManipularNotasFiscais(pasta_final);
@@ -1287,6 +1299,8 @@ public int vigiarTodosRomaneiosMaisRapidoRetornoQuantidadeRecebida(CadastroSafra
 				  //telaprincipal
 				  telaPrincipal = dados.getTelaPrincipal();
 		
+				  //telaRomaneio
+				  telaRomaneio = dados.getTelaRomaneios();
 	}
 	
 }

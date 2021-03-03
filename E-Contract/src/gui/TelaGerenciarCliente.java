@@ -106,13 +106,14 @@ public class TelaGerenciarCliente extends JDialog {
 	private DefaultMutableTreeNode no_selecionado;
     private CadastroCliente cliente_local;
     private  JComboBox cBTipoDocumento ;
-    
+    private TelaTodasNotasFiscais telaTodasNotasFiscais;
     private Log GerenciadorLog;
 	private CadastroLogin login;
 	private ConfiguracoesGlobais configs_globais;
 	private JTextField entCaminhoDocumento;
 	private JTextField entNomeDocumento;
 	private  JTextArea entDescricaoDocumento;
+	private TelaRomaneios telaRomaneio;
 	private JLabel lblTipoPessoa, lblTipoIdentificacao, lblIdentificacao, lblIe, lblIE, lblStatus, lblEndereco;
     private  JLabel lblTotalContratosConcluidosComprador, lblTotalContratosComprador, lblTotalContratosAbertosComprador;
 
@@ -380,9 +381,30 @@ public class TelaGerenciarCliente extends JDialog {
 		JButton btnNewButton_2 = new JButton("Romaneios\r\n");
 		btnNewButton_2.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
+				
+				if(telaRomaneio == null) {
+					telaRomaneio = new TelaRomaneios(0,isto);
+					telaRomaneio.pesquisarTodosOsRomaneios(new GerenciarBancoClientes().getClientes(-1, -1, ""));
+					DadosGlobais dados = DadosGlobais.getInstance();
+
+					dados.setTelaRomaneios(telaRomaneio);
+					telaRomaneio.limpar();
+					telaRomaneio.filtrarRomaneiosCliente(cliente_selecionado);
+					telaRomaneio.setTelaPai(isto);
+					telaRomaneio.setVisible(true);
+				}else {
+					//telaRomaneio.pesquisarTodosOsRomaneios(clientes_disponiveis);
+					telaRomaneio.setTelaPai(isto);
+
+					telaRomaneio.limpar();
+					telaRomaneio.filtrarRomaneiosCliente(cliente_selecionado);
+					telaRomaneio.setVisible(true);
+				
+				}
+				/*
 				TelaRomaneios romaneios = new TelaRomaneios(0,isto);
 				romaneios.pesquisarRomaneios(cliente_selecionado);
-				romaneios.setVisible(true);
+				romaneios.setVisible(true);*/
 			}
 		});
 		btnNewButton_2.setBounds(437, 290, 93, 28);
@@ -476,6 +498,8 @@ public class TelaGerenciarCliente extends JDialog {
 		      	public void actionPerformed(ActionEvent e) {
 		      		TelaNotasFiscais verNotas = new TelaNotasFiscais(1, 0, cliente_local, isto);
 					 verNotas.setVisible(true);
+					 
+					
 		      	}
 		      });
 		      btnAcessarNfs.setBounds(425, 294, 90, 28);
@@ -1237,6 +1261,11 @@ public class TelaGerenciarCliente extends JDialog {
 				 //usuario logado
 				  login = dados.getLogin();
 		
+				  //telaRomaneios
+				  telaRomaneio = dados.getTelaRomaneios();
+				  
+				  //telaTodasNotasFiscais
+				  telaTodasNotasFiscais = dados.getTelaTodasNotasFiscais();
 	}
 	
 	
