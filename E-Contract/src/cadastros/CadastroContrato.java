@@ -888,9 +888,28 @@ local retirada: 24 2
 	public static class Carregamento{
 		
 		int id_carregamento, id_cliente, id_transportador, id_veiculo, id_contrato, id_produto, id_vendedor;
+		int nf_venda1_aplicavel, nf_complemento_aplicavel, nf_interna_aplicavel;
 		String codigo_nota_fiscal, data, caminho_nota_fiscal;
 		
 		
+		public int getNf_venda1_aplicavel() {
+			return nf_venda1_aplicavel;
+		}
+		public void setNf_venda1_aplicavel(int nf_venda1_aplicavel) {
+			this.nf_venda1_aplicavel = nf_venda1_aplicavel;
+		}
+		public int getNf_complemento_aplicavel() {
+			return nf_complemento_aplicavel;
+		}
+		public void setNf_complemento_aplicavel(int nf_complemento_aplicavel) {
+			this.nf_complemento_aplicavel = nf_complemento_aplicavel;
+		}
+		public int getNf_interna_aplicavel() {
+			return nf_interna_aplicavel;
+		}
+		public void setNf_interna_aplicavel(int nf_interna_aplicavel) {
+			this.nf_interna_aplicavel = nf_interna_aplicavel;
+		}
 		public String getDescricao() {
 			return descricao;
 		}

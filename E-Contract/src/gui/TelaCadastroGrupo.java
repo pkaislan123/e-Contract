@@ -46,6 +46,7 @@ import javax.swing.JScrollPane;
 import javax.swing.JTable;
 
 import javax.swing.JOptionPane;
+import java.awt.Insets;
 
 
 public class TelaCadastroGrupo extends JDialog {
@@ -78,183 +79,182 @@ public class TelaCadastroGrupo extends JDialog {
 		if(flag_modo_tela == 0)
 		 setTitle("E-Contract - Cadastro Grupo");
 		else 
-		 setTitle("E-Contract - Edicao Grupo");
+		 setTitle("E-Contract - Edição Grupo");
 
 		
 		setBackground(new Color(255, 255, 255));
 		setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-		setBounds(100, 100, 582, 553);
-		painelPrincipal.setBackground(new Color(255, 255, 255));
+		setBounds(100, 100, 758, 641);
+		painelPrincipal.setBackground(new Color(0, 51, 51));
 		painelPrincipal.setBorder(new EmptyBorder(5, 5, 5, 5));
 		setContentPane(painelPrincipal);
-		painelPrincipal.setLayout(null);
-		
-		JLabel lblNewLabel = new JLabel("Codigo:");
-		lblNewLabel.setFont(new Font("Tahoma", Font.PLAIN, 14));
-		lblNewLabel.setBounds(10, 11, 76, 24);
-		painelPrincipal.add(lblNewLabel);
-		
-		JLabel lblNome = new JLabel("Nome:");
-		lblNome.setFont(new Font("Tahoma", Font.PLAIN, 14));
-		lblNome.setBounds(20, 52, 76, 24);
-		painelPrincipal.add(lblNome);
-		
-		 lblCodigo = new JLabel("");
-		lblCodigo.setBorder(new LineBorder(new Color(0, 0, 0)));
-		lblCodigo.setFont(new Font("Tahoma", Font.PLAIN, 14));
-		lblCodigo.setBounds(82, 11, 139, 21);
-		painelPrincipal.add(lblCodigo);
-		
-		entNomeGrupo = new JTextField();
-		entNomeGrupo.setBounds(82, 50, 420, 32);
-		painelPrincipal.add(entNomeGrupo);
-		entNomeGrupo.setColumns(10);
-		
-		JLabel lblIntegrantes = new JLabel("Integrantes:");
-		lblIntegrantes.setFont(new Font("Tahoma", Font.PLAIN, 14));
-		lblIntegrantes.setBounds(10, 187, 106, 24);
-		painelPrincipal.add(lblIntegrantes);
-		
-		JLabel lblDescrio = new JLabel("Descrição:");
-		lblDescrio.setFont(new Font("Tahoma", Font.PLAIN, 14));
-		lblDescrio.setBounds(10, 93, 76, 24);
-		painelPrincipal.add(lblDescrio);
-		
-		 textAreaDescricaoGrupo = new JTextArea();
-		textAreaDescricaoGrupo.setLineWrap(true);
-		textAreaDescricaoGrupo.setWrapStyleWord(true);
-		textAreaDescricaoGrupo.setBorder(new LineBorder(new Color(0, 0, 0)));
-		textAreaDescricaoGrupo.setBounds(81, 95, 421, 81);
-		painelPrincipal.add(textAreaDescricaoGrupo);
-		
-		JPanel panel_1 = new JPanel();
-		panel_1.setBackground(Color.WHITE);
-		panel_1.setBounds(82, 220, 420, 221);
-		painelPrincipal.add(panel_1);
-		panel_1.setLayout(null);
-		
-		JPanel panel = new JPanel();
-		panel.setBounds(0, 0, 420, 175);
-		panel_1.add(panel);
-		panel.setLayout(null);
+		 painelPrincipal.setLayout(new MigLayout("", "[80px][5px][497px][5px][109px]", "[22px][38px][59px][25px][326px][31px][31px]"));
+		 
+		 JLabel lblNewLabel = new JLabel("Codigo:");
+		 lblNewLabel.setForeground(Color.WHITE);
+		 lblNewLabel.setFont(new Font("Tahoma", Font.PLAIN, 18));
+		 painelPrincipal.add(lblNewLabel, "cell 0 0,alignx right,growy");
+		 
+		  lblCodigo = new JLabel("");
+		  lblCodigo.setForeground(Color.WHITE);
+		  lblCodigo.setBorder(new LineBorder(new Color(0, 0, 0)));
+		  lblCodigo.setFont(new Font("Tahoma", Font.BOLD, 14));
+		  painelPrincipal.add(lblCodigo, "cell 2 0 3 1,grow");
+		 
+		 JLabel lblNome = new JLabel("Nome:");
+		 lblNome.setForeground(Color.WHITE);
+		 lblNome.setFont(new Font("Tahoma", Font.PLAIN, 18));
+		 painelPrincipal.add(lblNome, "cell 0 1,alignx right,aligny center");
+		  
+		  entNomeGrupo = new JTextField();
+		  entNomeGrupo.setFont(new Font("SansSerif", Font.BOLD, 20));
+		  painelPrincipal.add(entNomeGrupo, "cell 2 1 3 1,grow");
+		  entNomeGrupo.setColumns(10);
+		  
+		  JLabel lblDescrio = new JLabel("Descrição:");
+		  lblDescrio.setForeground(Color.WHITE);
+		  lblDescrio.setFont(new Font("Tahoma", Font.PLAIN, 18));
+		  painelPrincipal.add(lblDescrio, "cell 0 2,growx,aligny top");
+		 
+		  textAreaDescricaoGrupo = new JTextArea();
+		  textAreaDescricaoGrupo.setFont(new Font("SansSerif", Font.BOLD, 20));
+		  textAreaDescricaoGrupo.setLineWrap(true);
+		  textAreaDescricaoGrupo.setWrapStyleWord(true);
+		  textAreaDescricaoGrupo.setBorder(new LineBorder(new Color(0, 0, 0)));
+		  painelPrincipal.add(textAreaDescricaoGrupo, "cell 2 2 3 1,grow");
+		 
+		 JLabel lblIntegrantes = new JLabel("                     Integrantes:");
+		 lblIntegrantes.setForeground(Color.WHITE);
+		 lblIntegrantes.setFont(new Font("Tahoma", Font.PLAIN, 20));
+		 painelPrincipal.add(lblIntegrantes, "cell 0 3 5 1,grow");
+		 
+		 
+		 table = new JTable(modelo);
+		 table.setBackground(Color.WHITE);
+		 JScrollPane scrollPane = new JScrollPane(table);
+		 scrollPane.setBackground(Color.WHITE);
+		 painelPrincipal.add(scrollPane, "cell 0 4 5 1,grow");
+		 
+		 table.setRowHeight(30);
+		 
+		 JButton btnExcluirIntegrante = new JButton("Excluir");
+		 btnExcluirIntegrante.setForeground(Color.WHITE);
+		 btnExcluirIntegrante.setFont(new Font("SansSerif", Font.BOLD, 14));
+		 btnExcluirIntegrante.setOpaque(false);
+		 btnExcluirIntegrante.setBackground(new Color(153, 51, 0));
+		 painelPrincipal.add(btnExcluirIntegrante, "cell 2 5,alignx right,aligny top");
+		 btnExcluirIntegrante.addActionListener(new ActionListener() {
+		 	public void actionPerformed(ActionEvent e) {
+		 		
+		 		int indiceDaLinha = table.getSelectedRow();
+		 		CadastroCliente clienteSelecionado = integrantes.get(indiceDaLinha);
+		 		integrantes.remove(clienteSelecionado);
+		 		modelo.removeRow(indiceDaLinha);
+		 	}
+		 });
+		 
+		 JButton btnConcluir = new JButton("Concluir");
+		 btnConcluir.setBackground(new Color(0, 51, 0));
+		 btnConcluir.setForeground(Color.WHITE);
+		 btnConcluir.setFont(new Font("SansSerif", Font.BOLD, 14));
+		 btnConcluir.addActionListener(new ActionListener() {
+		 	public void actionPerformed(ActionEvent e) {
+		 		
+		 	
+		 		if(flag_modo_tela == 0) {
+		 		String nome_grupo = entNomeGrupo.getText();
+		 		
+		 		if(nome_grupo == null || nome_grupo.equals(" ") || nome_grupo.equals("") || nome_grupo.length() < 5) {
+		 			JOptionPane.showMessageDialog(isto, "Nome de Grupo Invalido!");
+		 		}else {
+		 			
+		 			String descricao = textAreaDescricaoGrupo.getText();
+		 			String membros = "";
+		 			
+		 			for(CadastroCliente cliente :  integrantes) {
+		 				membros = membros + cliente.getId() + ";";
+		 			}
+		 			
+		 			CadastroGrupo grupo = new CadastroGrupo();
+		 			grupo.setNome_grupo(nome_grupo);
+		 			grupo.setDescricao_grupo(descricao);
+		 			grupo.setIntegrantes(membros);
+		 			
+		 			GerenciarBancoGrupos gerenciar = new GerenciarBancoGrupos();
+		 			int salvar = gerenciar.inserirGrupo(grupo);
+		 			
+		 			if(salvar > 0) {
+		 				JOptionPane.showMessageDialog(isto, "Grupo Criado com Sucesso");
+
+		 			}else {
+		 				JOptionPane.showMessageDialog(isto, "Erro ao inserir grupo\nConsulte o administrador");
+
+		 			}
+		 			
+		 			
+		 			
+		 		}
+		 		}else {
+		 			String nome_grupo = entNomeGrupo.getText();
+		 			
+		 			if(nome_grupo == null || nome_grupo.equals(" ") || nome_grupo.equals("") || nome_grupo.length() < 5) {
+		 				JOptionPane.showMessageDialog(isto, "Nome de Grupo Invalido!");
+		 			}else {
+		 				
+		 				String descricao = textAreaDescricaoGrupo.getText();
+		 				String membros = "";
+		 				
+		 				for(CadastroCliente cliente :  integrantes) {
+		 					membros = membros + cliente.getId() + ";";
+		 				}
+		 				
+		 				CadastroGrupo grupo = grupo_global;
+		 				grupo.setNome_grupo(nome_grupo);
+		 				grupo.setDescricao_grupo(descricao);
+		 				grupo.setIntegrantes(membros);
+		 				
+		 				GerenciarBancoGrupos gerenciar = new GerenciarBancoGrupos();
+		 				boolean salvar = gerenciar.atualizarGrupo(grupo);
+		 				
+		 				if(salvar) {
+		 					JOptionPane.showMessageDialog(isto, "Grupo Atualizo com Sucesso");
+
+		 				}else {
+		 					JOptionPane.showMessageDialog(isto, "Erro ao atualizar grupo\nConsulte o administrador");
+
+		 				}
+		 				
+		 		}
+		 		}
+		 		
+		 		((TelaCliente) telaPai).atualizarTabelaGrupos();
+		 		isto.dispose();
+
+
+		 	}
+		 });
+		 
+		 
+		 
+		 JButton btnAdicionarIntegrante = new JButton("+Integrante");
+		 btnAdicionarIntegrante.setBackground(new Color(153, 102, 51));
+		 btnAdicionarIntegrante.setFont(new Font("SansSerif", Font.BOLD, 14));
+		 btnAdicionarIntegrante.setForeground(Color.WHITE);
+		 painelPrincipal.add(btnAdicionarIntegrante, "cell 4 5,growx,aligny top");
+		 btnAdicionarIntegrante.addActionListener(new ActionListener() {
+		 	public void actionPerformed(ActionEvent e) {
+		 		TelaCliente tela = new TelaCliente(0,10, null);
+		 		tela.setTelaPai(isto);
+		 		tela.setVisible(true);
+		 	}
+		 });
+		 painelPrincipal.add(btnConcluir, "cell 4 6,growx,aligny top");
 		
 		modelo.addColumn("Id");
         modelo.addColumn("IE");
         modelo.addColumn("Apelido");
         modelo.addColumn("CPF/CNPJ");
         modelo.addColumn("Nome");
-       
-		
-		table = new JTable(modelo);
-		JScrollPane scrollPane = new JScrollPane(table);
-		scrollPane.setBounds(0, 0, 420, 175);
-		panel.add(scrollPane);
-		
-		
-		
-		JButton btnAdicionarIntegrante = new JButton("+Integrante");
-		btnAdicionarIntegrante.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				TelaCliente tela = new TelaCliente(0,10, null);
-				tela.setTelaPai(isto);
-				tela.setVisible(true);
-			}
-		});
-		btnAdicionarIntegrante.setBounds(309, 186, 111, 23);
-		panel_1.add(btnAdicionarIntegrante);
-		
-		JButton btnExcluirIntegrante = new JButton("Excluir");
-		btnExcluirIntegrante.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				
-				int indiceDaLinha = table.getSelectedRow();
-				CadastroCliente clienteSelecionado = integrantes.get(indiceDaLinha);
-				integrantes.remove(clienteSelecionado);
-				modelo.removeRow(indiceDaLinha);
-			}
-		});
-		btnExcluirIntegrante.setBounds(200, 186, 89, 23);
-		panel_1.add(btnExcluirIntegrante);
-		
-		JButton btnConcluir = new JButton("Concluir");
-		btnConcluir.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				
-			
-				if(flag_modo_tela == 0) {
-				String nome_grupo = entNomeGrupo.getText();
-				
-				if(nome_grupo == null || nome_grupo.equals(" ") || nome_grupo.equals("") || nome_grupo.length() < 5) {
-					JOptionPane.showMessageDialog(isto, "Nome de Grupo Invalido!");
-				}else {
-					
-					String descricao = textAreaDescricaoGrupo.getText();
-					String membros = "";
-					
-					for(CadastroCliente cliente :  integrantes) {
-						membros = membros + cliente.getId() + ";";
-					}
-					
-					CadastroGrupo grupo = new CadastroGrupo();
-					grupo.setNome_grupo(nome_grupo);
-					grupo.setDescricao_grupo(descricao);
-					grupo.setIntegrantes(membros);
-					
-					GerenciarBancoGrupos gerenciar = new GerenciarBancoGrupos();
-					int salvar = gerenciar.inserirGrupo(grupo);
-					
-					if(salvar > 0) {
-						JOptionPane.showMessageDialog(isto, "Grupo Criado com Sucesso");
-
-					}else {
-						JOptionPane.showMessageDialog(isto, "Erro ao inserir grupo\nConsulte o administrador");
-
-					}
-					
-					
-					
-				}
-				}else {
-					String nome_grupo = entNomeGrupo.getText();
-					
-					if(nome_grupo == null || nome_grupo.equals(" ") || nome_grupo.equals("") || nome_grupo.length() < 5) {
-						JOptionPane.showMessageDialog(isto, "Nome de Grupo Invalido!");
-					}else {
-						
-						String descricao = textAreaDescricaoGrupo.getText();
-						String membros = "";
-						
-						for(CadastroCliente cliente :  integrantes) {
-							membros = membros + cliente.getId() + ";";
-						}
-						
-						CadastroGrupo grupo = grupo_global;
-						grupo.setNome_grupo(nome_grupo);
-						grupo.setDescricao_grupo(descricao);
-						grupo.setIntegrantes(membros);
-						
-						GerenciarBancoGrupos gerenciar = new GerenciarBancoGrupos();
-						boolean salvar = gerenciar.atualizarGrupo(grupo);
-						
-						if(salvar) {
-							JOptionPane.showMessageDialog(isto, "Grupo Atualizo com Sucesso");
-
-						}else {
-							JOptionPane.showMessageDialog(isto, "Erro ao atualizar grupo\nConsulte o administrador");
-
-						}
-						
-				}
-				}
-				
-				((TelaCliente) telaPai).atualizarTabelaGrupos();
-				isto.dispose();
-
-
-			}
-		});
-		btnConcluir.setBounds(467, 480, 89, 23);
-		painelPrincipal.add(btnConcluir);
 		
 			
 		

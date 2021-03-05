@@ -26,7 +26,6 @@ import cadastros.CadastroNFe;
 import cadastros.CadastroProduto;
 import cadastros.CadastroRomaneio;
 import cadastros.CadastroContrato.Recebimento;
-import classesExtras.Carregamento;
 import conexaoBanco.GerenciarBancoClientes;
 import conexaoBanco.GerenciarBancoContratos;
 import manipular.ConfiguracoesGlobais;
@@ -100,7 +99,8 @@ public class TelaConfirmarCarregamento extends JDialog {
 	private JTextField entPesoNFComplemento;
 	private JCheckBox chkBoxDataHoje;
 	private CadastroContrato.Carregamento carregamento_global;
-	
+	private JCheckBox chckBoxNFInternaNaoAplicavel, chckBoxNFVenda1NaoAplicavel, chckBoxNFComplementoNaoAplicavel;
+
 	private CadastroRomaneio romaneio_carregamento;
 	private CadastroNFe nota_fiscal_venda1_carregamento, nota_fiscal_complemento_carregamento, nota_fiscal_interna_carregamento;
 	private Log GerenciadorLog;
@@ -111,6 +111,8 @@ public class TelaConfirmarCarregamento extends JDialog {
 	private JLabel lblCaminhoNFVenda1, lblCaminhoNFComplemento, lblCaminhoNFInterna;
 	private JTextField entValorNFVenda1;
 	private JTextField entValorNFComplemento;
+	private JButton btnLerNfInterna, btnLerNfVenda, btnLerNfComplemento;
+
 	
 	public TelaConfirmarCarregamento(int flag_modo_tela ,CadastroContrato _contrato_local, CadastroContrato.Carregamento _carregamento, Window janela_pai) {
 		//setAlwaysOnTop(true);
@@ -153,7 +155,7 @@ public class TelaConfirmarCarregamento extends JDialog {
 
 		JLabel lblNewLabel_3 = new JLabel("Data:");
 		lblNewLabel_3.setForeground(Color.WHITE);
-		lblNewLabel_3.setBounds(140, 85, 29, 16);
+		lblNewLabel_3.setBounds(139, 54, 29, 16);
 		panel_1.add(lblNewLabel_3);
 
 		entDataCarregamento = new JTextField();
@@ -164,7 +166,7 @@ public class TelaConfirmarCarregamento extends JDialog {
 		
 		entDataCarregamento.setEditable(false);
 		entDataCarregamento.setColumns(10);
-		entDataCarregamento.setBounds(177, 78, 116, 30);
+		entDataCarregamento.setBounds(176, 47, 116, 30);
 		panel_1.add(entDataCarregamento);
 
 		 chkBoxDataHoje = new JCheckBox("Data Atual");
@@ -186,16 +188,16 @@ public class TelaConfirmarCarregamento extends JDialog {
 			}
 		});
 		chkBoxDataHoje.setSelected(true);
-		chkBoxDataHoje.setBounds(299, 77, 88, 23);
+		chkBoxDataHoje.setBounds(298, 46, 88, 23);
 		panel_1.add(chkBoxDataHoje);
 
 		JLabel lblNewLabel_5 = new JLabel("Transportador:");
 		lblNewLabel_5.setForeground(Color.WHITE);
-		lblNewLabel_5.setBounds(88, 243, 81, 16);
+		lblNewLabel_5.setBounds(87, 212, 81, 16);
 		panel_1.add(lblNewLabel_5);
 
 		cBTransportador = new JComboBox();
-		cBTransportador.setBounds(177, 236, 248, 30);
+		cBTransportador.setBounds(176, 205, 248, 30);
 		panel_1.add(cBTransportador);
 
 		JButton btnSelecionarTransportador = new JButton("Selecionar");
@@ -206,27 +208,27 @@ public class TelaConfirmarCarregamento extends JDialog {
 				selecionar_transportador.setVisible(true);
 			}
 		});
-		btnSelecionarTransportador.setBounds(435, 236, 89, 30);
+		btnSelecionarTransportador.setBounds(434, 205, 89, 30);
 		panel_1.add(btnSelecionarTransportador);
 
 		cbVeiculo = new JComboBox();
 		cbVeiculo.setEditable(false);
-		cbVeiculo.setBounds(178, 268, 186, 30);
+		cbVeiculo.setBounds(177, 237, 186, 30);
 		panel_1.add(cbVeiculo);
 
 		JLabel lblNewLabel_5_1 = new JLabel("Veiculo:");
 		lblNewLabel_5_1.setForeground(Color.WHITE);
-		lblNewLabel_5_1.setBounds(126, 275, 43, 16);
+		lblNewLabel_5_1.setBounds(125, 244, 43, 16);
 		panel_1.add(lblNewLabel_5_1);
 
 		JLabel lblNewLabel_8 = new JLabel("Contrato:");
 		lblNewLabel_8.setForeground(Color.WHITE);
-		lblNewLabel_8.setBounds(119, 126, 50, 16);
+		lblNewLabel_8.setBounds(118, 95, 50, 16);
 		panel_1.add(lblNewLabel_8);
 
 		cBContrato = new JComboBox();
 		cBContrato.setEnabled(false);
-		cBContrato.setBounds(177, 119, 248, 30);
+		cBContrato.setBounds(176, 88, 248, 30);
 		panel_1.add(cBContrato);
 
 		JButton btnSelecionarContrato = new JButton("Selecionar");
@@ -239,16 +241,16 @@ public class TelaConfirmarCarregamento extends JDialog {
 				contrato.setVisible(true);
 			}
 		});
-		btnSelecionarContrato.setBounds(435, 119, 89, 30);
+		btnSelecionarContrato.setBounds(434, 88, 89, 30);
 		panel_1.add(btnSelecionarContrato);
 
 		JLabel lblNewLabel_8_1 = new JLabel("Comprador:");
 		lblNewLabel_8_1.setForeground(Color.WHITE);
-		lblNewLabel_8_1.setBounds(103, 167, 66, 16);
+		lblNewLabel_8_1.setBounds(102, 136, 66, 16);
 		panel_1.add(lblNewLabel_8_1);
 
 		cBCliente = new JComboBox();
-		cBCliente.setBounds(177, 160, 248, 30);
+		cBCliente.setBounds(176, 129, 248, 30);
 		panel_1.add(cBCliente);
 
 		JButton btnSelecionarCliente = new JButton("Selecionar");
@@ -263,16 +265,16 @@ public class TelaConfirmarCarregamento extends JDialog {
 		setClienteCarregamento(compradores[0]);
 		
 		
-		btnSelecionarCliente.setBounds(435, 158, 89, 30);
+		btnSelecionarCliente.setBounds(434, 127, 89, 30);
 		panel_1.add(btnSelecionarCliente);
 
 		JLabel lblNewLabel_9_1 = new JLabel("Produto:");
 		lblNewLabel_9_1.setForeground(Color.WHITE);
-		lblNewLabel_9_1.setBounds(126, 317, 46, 16);
+		lblNewLabel_9_1.setBounds(125, 286, 46, 16);
 		panel_1.add(lblNewLabel_9_1);
 
 		cBProduto = new JComboBox();
-		cBProduto.setBounds(176, 309, 209, 30);
+		cBProduto.setBounds(175, 278, 209, 30);
 		panel_1.add(cBProduto);
 
 		
@@ -284,7 +286,7 @@ public class TelaConfirmarCarregamento extends JDialog {
 				produto.setVisible(true);
 			}
 		});
-		btnSelecionarProduto.setBounds(394, 309, 89, 30);
+		btnSelecionarProduto.setBounds(393, 278, 89, 30);
 		panel_1.add(btnSelecionarProduto);
 		
 		CadastroProduto prod = contrato_local.getModelo_produto();
@@ -292,11 +294,11 @@ public class TelaConfirmarCarregamento extends JDialog {
 		
 		JLabel lblNewLabel_8_1_1 = new JLabel("Vendedor:");
 		lblNewLabel_8_1_1.setForeground(Color.WHITE);
-		lblNewLabel_8_1_1.setBounds(113, 205, 56, 16);
+		lblNewLabel_8_1_1.setBounds(112, 174, 56, 16);
 		panel_1.add(lblNewLabel_8_1_1);
 		
 		 cBVendedor = new JComboBox();
-		cBVendedor.setBounds(177, 201, 248, 30);
+		cBVendedor.setBounds(176, 170, 248, 30);
 		panel_1.add(cBVendedor);
 		
 		JButton btnSelecionarVendedor = new JButton("Selecionar");
@@ -307,55 +309,55 @@ public class TelaConfirmarCarregamento extends JDialog {
 				tela.setVisible(true);
 			}
 		});
-		btnSelecionarVendedor.setBounds(435, 199, 89, 30);
+		btnSelecionarVendedor.setBounds(434, 168, 89, 30);
 		panel_1.add(btnSelecionarVendedor);
 		
 		JLabel lblNewLabel_9_1_1 = new JLabel("Código Romaneio:");
 		lblNewLabel_9_1_1.setForeground(Color.WHITE);
-		lblNewLabel_9_1_1.setBounds(61, 357, 104, 16);
+		lblNewLabel_9_1_1.setBounds(60, 326, 104, 16);
 		panel_1.add(lblNewLabel_9_1_1);
 		
 		JLabel lblNewLabel_9_2 = new JLabel("Código NF Venda 1:");
 		lblNewLabel_9_2.setForeground(Color.WHITE);
-		lblNewLabel_9_2.setBounds(55, 434, 110, 16);
+		lblNewLabel_9_2.setBounds(56, 462, 110, 16);
 		panel_1.add(lblNewLabel_9_2);
 		
 		entRomaneio = new JTextField();
 		entRomaneio.setForeground(Color.BLACK);
 		entRomaneio.setColumns(10);
 		entRomaneio.setBackground(Color.WHITE);
-		entRomaneio.setBounds(177, 351, 174, 27);
+		entRomaneio.setBounds(176, 320, 174, 27);
 		panel_1.add(entRomaneio);
 		
 		entCodigoNFVenda1 = new JTextField();
 		entCodigoNFVenda1.setForeground(Color.BLACK);
 		entCodigoNFVenda1.setColumns(10);
 		entCodigoNFVenda1.setBackground(Color.WHITE);
-		entCodigoNFVenda1.setBounds(179, 428, 174, 27);
+		entCodigoNFVenda1.setBounds(180, 456, 174, 27);
 		panel_1.add(entCodigoNFVenda1);
 		
 		JLabel lblNewLabel_9_1_1_1 = new JLabel("Peso Romaneio:");
 		lblNewLabel_9_1_1_1.setForeground(Color.WHITE);
-		lblNewLabel_9_1_1_1.setBounds(402, 354, 93, 16);
+		lblNewLabel_9_1_1_1.setBounds(401, 323, 93, 16);
 		panel_1.add(lblNewLabel_9_1_1_1);
 		
 		JLabel lblNewLabel_9_1_1_1_1 = new JLabel("Peso NF Venda 1:");
 		lblNewLabel_9_1_1_1_1.setForeground(Color.WHITE);
-		lblNewLabel_9_1_1_1_1.setBounds(394, 434, 99, 16);
+		lblNewLabel_9_1_1_1_1.setBounds(395, 462, 99, 16);
 		panel_1.add(lblNewLabel_9_1_1_1_1);
 		
 		entPesoNFVenda1 = new JTextField();
 		entPesoNFVenda1.setForeground(Color.BLACK);
 		entPesoNFVenda1.setColumns(10);
 		entPesoNFVenda1.setBackground(Color.WHITE);
-		entPesoNFVenda1.setBounds(499, 428, 168, 27);
+		entPesoNFVenda1.setBounds(500, 456, 168, 27);
 		panel_1.add(entPesoNFVenda1);
 		
 		pesoRomaneio = new JTextField();
 		pesoRomaneio.setForeground(Color.BLACK);
 		pesoRomaneio.setColumns(10);
 		pesoRomaneio.setBackground(Color.WHITE);
-		pesoRomaneio.setBounds(501, 348, 168, 27);
+		pesoRomaneio.setBounds(500, 317, 168, 27);
 		panel_1.add(pesoRomaneio);
 		
 		JButton btnLerRomaneio = new JButton("Ler Romaneio");
@@ -406,10 +408,10 @@ public class TelaConfirmarCarregamento extends JDialog {
 				}
 			}
 		});
-		btnLerRomaneio.setBounds(678, 348, 168, 28);
+		btnLerRomaneio.setBounds(682, 320, 168, 28);
 		panel_1.add(btnLerRomaneio);
 		
-		JButton btnLerNfVenda = new JButton("Ler NF Venda 1");
+		 btnLerNfVenda = new JButton("Ler NF Venda 1");
 		btnLerNfVenda.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				
@@ -457,7 +459,7 @@ public class TelaConfirmarCarregamento extends JDialog {
 				}
 			}
 		});
-		btnLerNfVenda.setBounds(962, 428, 113, 28);
+		btnLerNfVenda.setBounds(963, 456, 113, 28);
 		panel_1.add(btnLerNfVenda);
 		
 		JLabel lblNewLabel_9_2_1 = new JLabel("Código NF Interna:");
@@ -484,7 +486,8 @@ public class TelaConfirmarCarregamento extends JDialog {
 		entPesoNFInterna.setBounds(501, 387, 168, 27);
 		panel_1.add(entPesoNFInterna);
 		
-		JButton btnLerNfInterna = new JButton("Ler NF Interna");
+		
+		 btnLerNfInterna = new JButton("Ler NF Interna");
 		btnLerNfInterna.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 			
@@ -537,29 +540,29 @@ public class TelaConfirmarCarregamento extends JDialog {
 		
 		JLabel lblNewLabel_9_2_2 = new JLabel("Código NF Complemento:");
 		lblNewLabel_9_2_2.setForeground(Color.WHITE);
-		lblNewLabel_9_2_2.setBounds(21, 470, 144, 16);
+		lblNewLabel_9_2_2.setBounds(22, 521, 144, 16);
 		panel_1.add(lblNewLabel_9_2_2);
 		
 		entCodigoNFComplemento = new JTextField();
 		entCodigoNFComplemento.setForeground(Color.BLACK);
 		entCodigoNFComplemento.setColumns(10);
 		entCodigoNFComplemento.setBackground(Color.WHITE);
-		entCodigoNFComplemento.setBounds(179, 464, 174, 27);
+		entCodigoNFComplemento.setBounds(180, 515, 174, 27);
 		panel_1.add(entCodigoNFComplemento);
 		
 		JLabel lblNewLabel_9_1_1_1_1_2 = new JLabel("Peso NF Complemento:");
 		lblNewLabel_9_1_1_1_1_2.setForeground(Color.WHITE);
-		lblNewLabel_9_1_1_1_1_2.setBounds(362, 467, 133, 16);
+		lblNewLabel_9_1_1_1_1_2.setBounds(363, 518, 133, 16);
 		panel_1.add(lblNewLabel_9_1_1_1_1_2);
 		
 		entPesoNFComplemento = new JTextField();
 		entPesoNFComplemento.setForeground(Color.BLACK);
 		entPesoNFComplemento.setColumns(10);
 		entPesoNFComplemento.setBackground(Color.WHITE);
-		entPesoNFComplemento.setBounds(501, 461, 168, 27);
+		entPesoNFComplemento.setBounds(502, 512, 168, 27);
 		panel_1.add(entPesoNFComplemento);
 		
-		JButton btnLerNfComplemento = new JButton("Ler NF Complemento");
+		 btnLerNfComplemento = new JButton("Ler NF Complemento");
 		btnLerNfComplemento.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 			
@@ -607,43 +610,88 @@ public class TelaConfirmarCarregamento extends JDialog {
 
 			}
 		});
-		btnLerNfComplemento.setBounds(962, 461, 147, 28);
+		btnLerNfComplemento.setBounds(963, 512, 147, 28);
 		panel_1.add(btnLerNfComplemento);
 		
 		JLabel lblNewLabel_4 = new JLabel("Observação:");
 		lblNewLabel_4.setForeground(Color.WHITE);
-		lblNewLabel_4.setBounds(103, 504, 69, 16);
+		lblNewLabel_4.setBounds(103, 556, 69, 16);
 		panel_1.add(lblNewLabel_4);
 		
 		 textAreaObs = new JTextArea();
 		textAreaObs.setWrapStyleWord(true);
 		textAreaObs.setLineWrap(true);
-		textAreaObs.setBounds(184, 498, 669, 60);
+		textAreaObs.setBounds(184, 550, 669, 60);
 		panel_1.add(textAreaObs);
 		
 		JLabel lblNewLabel_9_1_1_1_1_3 = new JLabel("Valor NF Venda 1:");
 		lblNewLabel_9_1_1_1_1_3.setForeground(Color.WHITE);
-		lblNewLabel_9_1_1_1_1_3.setBounds(679, 433, 99, 16);
+		lblNewLabel_9_1_1_1_1_3.setBounds(680, 461, 99, 16);
 		panel_1.add(lblNewLabel_9_1_1_1_1_3);
 		
 		entValorNFVenda1 = new JTextField();
 		entValorNFVenda1.setForeground(Color.BLACK);
 		entValorNFVenda1.setColumns(10);
 		entValorNFVenda1.setBackground(Color.WHITE);
-		entValorNFVenda1.setBounds(784, 428, 168, 27);
+		entValorNFVenda1.setBounds(785, 456, 168, 27);
 		panel_1.add(entValorNFVenda1);
 		
 		JLabel lblNewLabel_9_1_1_1_1_3_1 = new JLabel("Valor NF Compl:");
 		lblNewLabel_9_1_1_1_1_3_1.setForeground(Color.WHITE);
-		lblNewLabel_9_1_1_1_1_3_1.setBounds(678, 466, 99, 16);
+		lblNewLabel_9_1_1_1_1_3_1.setBounds(679, 517, 99, 16);
 		panel_1.add(lblNewLabel_9_1_1_1_1_3_1);
 		
 		entValorNFComplemento = new JTextField();
 		entValorNFComplemento.setForeground(Color.BLACK);
 		entValorNFComplemento.setColumns(10);
 		entValorNFComplemento.setBackground(Color.WHITE);
-		entValorNFComplemento.setBounds(783, 461, 168, 27);
+		entValorNFComplemento.setBounds(784, 512, 168, 27);
 		panel_1.add(entValorNFComplemento);
+		
+		 chckBoxNFComplementoNaoAplicavel = new JCheckBox("NF Complemento Não Aplicável");
+		 chckBoxNFComplementoNaoAplicavel.addActionListener(new ActionListener() {
+		 	public void actionPerformed(ActionEvent e) {
+		 		if(chckBoxNFComplementoNaoAplicavel.isSelected()) {
+		 			desativarNFComplemento();
+		 		}else {
+		 			ativarNFComplemento();
+		 		}
+		 	}
+		 });
+		chckBoxNFComplementoNaoAplicavel.setForeground(Color.WHITE);
+		chckBoxNFComplementoNaoAplicavel.setBounds(184, 491, 197, 18);
+		panel_1.add(chckBoxNFComplementoNaoAplicavel);
+		
+		 chckBoxNFVenda1NaoAplicavel = new JCheckBox("NF Venda 1 Não Aplicável");
+		 chckBoxNFVenda1NaoAplicavel.addActionListener(new ActionListener() {
+		 	public void actionPerformed(ActionEvent e) {
+		 		if(chckBoxNFVenda1NaoAplicavel.isSelected()) {
+		 			desativarNFVenda1();
+		 		}else {
+		 			ativarNFVenda1();
+
+		 		}
+		 	}
+		 });
+		chckBoxNFVenda1NaoAplicavel.setForeground(Color.WHITE);
+		chckBoxNFVenda1NaoAplicavel.setBounds(177, 429, 197, 18);
+		panel_1.add(chckBoxNFVenda1NaoAplicavel);
+		
+		
+		 chckBoxNFInternaNaoAplicavel = new JCheckBox("NF Interna Não Aplicável");
+		 chckBoxNFInternaNaoAplicavel.addActionListener(new ActionListener() {
+		 	public void actionPerformed(ActionEvent e) {
+		 		if(chckBoxNFInternaNaoAplicavel.isSelected()){
+		 			desativarNFInterna();
+		 		}else {
+		 			ativarNFInterna();
+
+		 		}
+		 	}
+		 });
+		chckBoxNFInternaNaoAplicavel.setForeground(Color.WHITE);
+		chckBoxNFInternaNaoAplicavel.setBounds(176, 359, 197, 18);
+		panel_1.add(chckBoxNFInternaNaoAplicavel);
 		
 		CadastroCliente vendedores[] = contrato_local.getVendedores();
 		setVendedor(vendedores[0]);
@@ -1098,7 +1146,7 @@ public class TelaConfirmarCarregamento extends JDialog {
 			lblPesoRomaneio.setText(z.format(Double.parseDouble(pesoRomaneio.getText())));
 		}
 		
-		
+		if(!chckBoxNFInternaNaoAplicavel.isSelected()) {
 		if(nota_fiscal_interna_carregamento != null) {
 			
 			String codigo = nota_fiscal_interna_carregamento.getNfe();
@@ -1139,7 +1187,12 @@ public class TelaConfirmarCarregamento extends JDialog {
 				}
 				
 			}
+		}else {
+			lblNotaFiscalInterna.setText("Não Aplicável");
+			nota_fiscal_interna_carregamento = null;
+		}
 		
+		if(!chckBoxNFVenda1NaoAplicavel.isSelected()) {
 		if(nota_fiscal_venda1_carregamento != null) {
 			
 		String codigo = nota_fiscal_venda1_carregamento.getNfe();
@@ -1174,18 +1227,41 @@ public class TelaConfirmarCarregamento extends JDialog {
 		}else {
 			Locale ptBr = new Locale("pt", "BR");
 			
-			
-			if(checkString(entCodigoNFVenda1.getText())  && checkString(entPesoNFVenda1.getText()))
-			lblNotaFiscalVenda1.setText("Código: " + entCodigoNFVenda1.getText() + " Peso: " + entPesoNFVenda1.getText() + " Valor: " +  NumberFormat.getCurrencyInstance(ptBr)
-			.format(new BigDecimal(entValorNFVenda1.getText())));
-			else {
-				lblNotaFiscalVenda1.setText("Código: " + "" + " Peso: " + 0.0 + " Valor: R$ 0.0");
+			String texto = "";
+			if(checkString(entCodigoNFVenda1.getText()) ) {
+				texto = texto + " Código: " + entCodigoNFVenda1.getText() ;
+			}else {
+				texto = texto + " Código: ";
+
 			}
 			
+			if(checkString(entPesoNFVenda1.getText())) {
+				texto = texto + " Peso: " + entPesoNFVenda1.getText() ;
+
+			}else {
+				texto = texto + " Peso: ";
+
+			}
+			if(checkString(entValorNFVenda1.getText())) {
+				texto = texto + " Valor: " +  NumberFormat.getCurrencyInstance(ptBr)
+					.format(new BigDecimal(entValorNFVenda1.getText()));
+
+			}else {
+				texto = texto + " Valor: ";
+			}
+			
+			
+			lblNotaFiscalVenda1.setText(texto);
+			
+			
+		}
+		}else {
+			lblNotaFiscalVenda1.setText("Não Aplicável");
+			nota_fiscal_venda1_carregamento = null;
 		}
 
 		
-
+        if(!chckBoxNFComplementoNaoAplicavel.isSelected()) {
 		if(nota_fiscal_complemento_carregamento != null) {
 			
 			String codigo = nota_fiscal_complemento_carregamento.getNfe();
@@ -1232,6 +1308,11 @@ public class TelaConfirmarCarregamento extends JDialog {
 					+ " Valor: R$ 0.0");
 				}
 				
+			}
+        }else {
+        	nota_fiscal_complemento_carregamento= null;
+				lblNotaFiscalComplemento.setText("Não Aplicável");
+
 			}
 		
 		
@@ -1576,7 +1657,9 @@ public CadastroContrato.Carregamento getCarregamentoSalvar(CadastroContrato.Carr
 		if(checkString(pesoRomaneio.getText()))   
 		carregamento_a_inserir.setPeso_romaneio(Double.parseDouble(pesoRomaneio.getText()));
 	}
-
+	
+	
+      if(!chckBoxNFVenda1NaoAplicavel.isSelected()) {
 		if(nota_fiscal_venda1_carregamento != null) {
 			String caminho_completo = nota_fiscal_venda1_carregamento.getCaminho_arquivo();
 			TratarDados tratar = new TratarDados(caminho_completo);
@@ -1588,6 +1671,7 @@ public CadastroContrato.Carregamento getCarregamentoSalvar(CadastroContrato.Carr
 					
 					url_final = url_final + str + "\\\\";
 				}
+				carregamento_a_inserir.setNf_venda1_aplicavel(1);
 				carregamento_a_inserir.setCodigo_nf_venda1(nota_fiscal_venda1_carregamento.getNfe());
 				
 				Number number = null;
@@ -1610,6 +1694,8 @@ public CadastroContrato.Carregamento getCarregamentoSalvar(CadastroContrato.Carr
 
 				carregamento_a_inserir.setValor_nf_venda1(new BigDecimal(valor_nota));
 		}else {
+			carregamento_a_inserir.setNf_venda1_aplicavel(1);
+
 			if(checkString(entCodigoNFVenda1.getText())) {   
 			carregamento_a_inserir.setCodigo_nf_venda1(entCodigoNFVenda1.getText());
 			}else {
@@ -1635,7 +1721,17 @@ public CadastroContrato.Carregamento getCarregamentoSalvar(CadastroContrato.Carr
 			}
 			
 		}
-		
+      }else {
+			nota_fiscal_venda1_carregamento = null;
+			carregamento_a_inserir.setCaminho_nf_venda1("");
+			carregamento_a_inserir.setNf_venda1_aplicavel(0);
+			carregamento_a_inserir.setValor_nf_venda1(BigDecimal.ZERO);
+			carregamento_a_inserir.setPeso_nf_venda1(0.0);
+
+      }
+      
+      
+		if(!chckBoxNFComplementoNaoAplicavel.isSelected()) {
 		if(nota_fiscal_complemento_carregamento != null) {
 			String caminho_completo = nota_fiscal_complemento_carregamento.getCaminho_arquivo();
 			TratarDados tratar = new TratarDados(caminho_completo);
@@ -1647,6 +1743,8 @@ public CadastroContrato.Carregamento getCarregamentoSalvar(CadastroContrato.Carr
 					
 					url_final = url_final + str + "\\\\";
 				}
+				carregamento_a_inserir.setNf_complemento_aplicavel(1);
+
 				carregamento_a_inserir.setCodigo_nf_complemento(nota_fiscal_complemento_carregamento.getNfe());
 				
 				Number number = null;
@@ -1669,6 +1767,8 @@ public CadastroContrato.Carregamento getCarregamentoSalvar(CadastroContrato.Carr
 
 				carregamento_a_inserir.setValor_nf_complemento(new BigDecimal(valor_nota));
 		}else {
+			carregamento_a_inserir.setNf_complemento_aplicavel(1);
+
 			if(checkString(entCodigoNFComplemento.getText()))   
 			carregamento_a_inserir.setCodigo_nf_complemento(entCodigoNFComplemento.getText());
 			else {
@@ -1692,8 +1792,16 @@ public CadastroContrato.Carregamento getCarregamentoSalvar(CadastroContrato.Carr
 				
 			}
 		}
+		}else {
+			nota_fiscal_complemento_carregamento = null;
+			carregamento_a_inserir.setNf_complemento_aplicavel(0);
+			carregamento_a_inserir.setValor_nf_complemento(BigDecimal.ZERO);
+			carregamento_a_inserir.setPeso_nf_complemento(0.0);
+			carregamento_a_inserir.setCaminho_nf_complemento("");
+
+		}
 		
-		
+		if(!chckBoxNFInternaNaoAplicavel.isSelected()) {
 		if(nota_fiscal_interna_carregamento != null) {
 			String caminho_completo = nota_fiscal_interna_carregamento.getCaminho_arquivo();
 			TratarDados tratar = new TratarDados(caminho_completo);
@@ -1705,6 +1813,8 @@ public CadastroContrato.Carregamento getCarregamentoSalvar(CadastroContrato.Carr
 					
 					url_final = url_final + str + "\\\\";
 				}
+				carregamento_a_inserir.setNf_interna_aplicavel(1);
+
 				carregamento_a_inserir.setCodigo_nf_interna(nota_fiscal_interna_carregamento.getNfe());
 				
 				Number number = null;
@@ -1722,6 +1832,8 @@ public CadastroContrato.Carregamento getCarregamentoSalvar(CadastroContrato.Carr
 				carregamento_a_inserir.setCaminho_nf_interna(url_final);
 				
 		}else {
+			carregamento_a_inserir.setNf_interna_aplicavel(1);
+
 			if(checkString(entCodigoNFInterna.getText()))   
 			carregamento_a_inserir.setCodigo_nf_interna(entCodigoNFInterna.getText());
 			else {
@@ -1735,7 +1847,13 @@ public CadastroContrato.Carregamento getCarregamentoSalvar(CadastroContrato.Carr
 
 			}
 		}
-		
+		}else {
+			nota_fiscal_interna_carregamento = null;
+			carregamento_a_inserir.setNf_interna_aplicavel(0);
+			carregamento_a_inserir.setPeso_nf_interna(0.0);
+			carregamento_a_inserir.setCaminho_nf_interna("");
+
+		}
 		
 		carregamento_a_inserir.setObservacao(textAreaObs.getText());
 		
@@ -1874,6 +1992,7 @@ public CadastroContrato.Carregamento getCarregamentoAtualizar(CadastroContrato.C
 		carregamento_a_inserir.setPeso_romaneio(Double.parseDouble(pesoRomaneio.getText()));
 	}
 
+	  if(!chckBoxNFVenda1NaoAplicavel.isSelected()) {
 		if(nota_fiscal_venda1_carregamento != null) {
 			String caminho_completo = nota_fiscal_venda1_carregamento.getCaminho_arquivo();
 			TratarDados tratar = new TratarDados(caminho_completo);
@@ -1885,6 +2004,8 @@ public CadastroContrato.Carregamento getCarregamentoAtualizar(CadastroContrato.C
 					
 					url_final = url_final + str + "\\\\";
 				}
+				carregamento_a_inserir.setNf_venda1_aplicavel(1);
+
 				carregamento_a_inserir.setCodigo_nf_venda1(nota_fiscal_venda1_carregamento.getNfe());
 				
 				Number number = null;
@@ -1926,6 +2047,8 @@ public CadastroContrato.Carregamento getCarregamentoAtualizar(CadastroContrato.C
 
 				carregamento_a_inserir.setValor_nf_venda1(new BigDecimal(valor_nota));
 		}else {
+			carregamento_a_inserir.setNf_venda1_aplicavel(1);
+
 			if(checkString(entCodigoNFVenda1.getText())) {   
 			carregamento_a_inserir.setCodigo_nf_venda1(entCodigoNFVenda1.getText());
 			}else {
@@ -1951,7 +2074,19 @@ public CadastroContrato.Carregamento getCarregamentoAtualizar(CadastroContrato.C
 			}
 			
 		}
+	  }
+	  else {
+		  nota_fiscal_venda1_carregamento = null;
+			carregamento_a_inserir.setNf_venda1_aplicavel(0);
+			carregamento_a_inserir.setValor_nf_venda1(BigDecimal.ZERO);
+			carregamento_a_inserir.setPeso_nf_venda1(0.0);
+			carregamento_a_inserir.setCaminho_nf_venda1("");
+			
+
+    }
 		
+
+		if(!chckBoxNFComplementoNaoAplicavel.isSelected()) {
 		if(nota_fiscal_complemento_carregamento != null) {
 			String caminho_completo = nota_fiscal_complemento_carregamento.getCaminho_arquivo();
 			TratarDados tratar = new TratarDados(caminho_completo);
@@ -1963,6 +2098,8 @@ public CadastroContrato.Carregamento getCarregamentoAtualizar(CadastroContrato.C
 					
 					url_final = url_final + str + "\\\\";
 				}
+				carregamento_a_inserir.setNf_complemento_aplicavel(1);
+
 				carregamento_a_inserir.setCodigo_nf_complemento(nota_fiscal_complemento_carregamento.getNfe());
 				
 				Number number = null;
@@ -2004,6 +2141,8 @@ public CadastroContrato.Carregamento getCarregamentoAtualizar(CadastroContrato.C
 
 				carregamento_a_inserir.setValor_nf_complemento(new BigDecimal(valor_nota));
 		}else {
+			carregamento_a_inserir.setNf_complemento_aplicavel(1);
+
 			if(checkString(entCodigoNFComplemento.getText()))   
 			carregamento_a_inserir.setCodigo_nf_complemento(entCodigoNFComplemento.getText());
 			else {
@@ -2027,8 +2166,17 @@ public CadastroContrato.Carregamento getCarregamentoAtualizar(CadastroContrato.C
 				
 			}
 		}
+		}else {
+			nota_fiscal_complemento_carregamento = null;
+			carregamento_a_inserir.setNf_complemento_aplicavel(0);
+			carregamento_a_inserir.setValor_nf_complemento(BigDecimal.ZERO);
+			carregamento_a_inserir.setPeso_nf_complemento(0.0);
+			carregamento_a_inserir.setCaminho_nf_complemento("");
+
+
+		}
 		
-		
+		if(!chckBoxNFInternaNaoAplicavel.isSelected()) {
 		if(nota_fiscal_interna_carregamento != null) {
 			String caminho_completo = nota_fiscal_interna_carregamento.getCaminho_arquivo();
 			TratarDados tratar = new TratarDados(caminho_completo);
@@ -2052,6 +2200,8 @@ public CadastroContrato.Carregamento getCarregamentoAtualizar(CadastroContrato.C
 					i.printStackTrace();
 				}
 				double peso_nota = number.doubleValue();
+				carregamento_a_inserir.setNf_interna_aplicavel(1);
+
 				carregamento_a_inserir.setPeso_nf_interna(peso_nota);
 			   
 				carregamento_a_inserir.setCaminho_nf_interna(url_final);
@@ -2076,6 +2226,8 @@ public CadastroContrato.Carregamento getCarregamentoAtualizar(CadastroContrato.C
 					}
 				}
 		}else {
+			carregamento_a_inserir.setNf_interna_aplicavel(1);
+
 			if(checkString(entCodigoNFInterna.getText()))   
 			carregamento_a_inserir.setCodigo_nf_interna(entCodigoNFInterna.getText());
 			else {
@@ -2088,6 +2240,14 @@ public CadastroContrato.Carregamento getCarregamentoAtualizar(CadastroContrato.C
 				carregamento_a_inserir.setPeso_nf_interna(0.0);
 
 			}
+		}
+
+		}else {
+			nota_fiscal_interna_carregamento = null;
+			carregamento_a_inserir.setNf_interna_aplicavel(0);
+			carregamento_a_inserir.setPeso_nf_interna(0.0);
+			carregamento_a_inserir.setCaminho_nf_interna("");
+
 		}
 		
 		
@@ -2190,6 +2350,9 @@ public void rotinasEdicao() {
 	
 	
 	//nf venda 1
+	if(carregamento_global.getNf_venda1_aplicavel() == 1) {
+		ativarNFVenda1();
+
 	try {
         if(checkString(carregamento_global.getCodigo_nf_venda1())){
         	if(carregamento_global.getCaminho_nf_venda1().length() > 10) {
@@ -2221,9 +2384,15 @@ public void rotinasEdicao() {
 			 if(checkString(carregamento_global.getValor_nf_venda1().toString()))
 			entValorNFVenda1.setText(carregamento_global.getValor_nf_venda1().toString());
 		}
+	}else {
+		desativarNFVenda1();
+	}
 	
 	
 	//nf interna1
+	if(carregamento_global.getNf_interna_aplicavel() == 1) {
+		ativarNFInterna();
+
 			try {
 		        if(checkString(carregamento_global.getCodigo_nf_interna())){
 		        	if(carregamento_global.getCaminho_nf_interna().length() > 10) {
@@ -2256,8 +2425,14 @@ public void rotinasEdicao() {
 							entPesoNFInterna.setText("0.0");
 
 				}
+	}else {
+		desativarNFInterna();
+	}
 	
 			//nf complemento
+	if(carregamento_global.getNf_complemento_aplicavel() == 1) {
+		ativarNFComplemento();
+
 			try {
 		        if(checkString(carregamento_global.getCodigo_nf_complemento())){
 		        	if(carregamento_global.getCaminho_nf_complemento().length() > 10) {
@@ -2291,6 +2466,9 @@ public void rotinasEdicao() {
 					entValorNFComplemento.setText(carregamento_global.getValor_nf_complemento().toPlainString());
 
 				}
+	}else {
+		desativarNFComplemento();
+	}
 	
 	
 			 if(checkString(carregamento_global.getObservacao())){
@@ -2298,6 +2476,90 @@ public void rotinasEdicao() {
 			 }
 			
 }
+
+public void desativarNFVenda1() {
+	chckBoxNFVenda1NaoAplicavel.setSelected(true);
+
+	 entCodigoNFVenda1.setEnabled(false);
+	 entPesoNFVenda1.setEnabled(false);
+	 entValorNFVenda1.setEnabled(false);
+	 btnLerNfVenda.setEnabled(false);
+	 
+	 entCodigoNFVenda1.setEditable(false);
+	 entPesoNFVenda1.setEditable(false);
+	 entValorNFVenda1.setEditable(false);
+}
+
+public void ativarNFVenda1() {
+	chckBoxNFVenda1NaoAplicavel.setSelected(false);
+
+	 entCodigoNFVenda1.setEnabled(true);
+	 entPesoNFVenda1.setEnabled(true);
+	 entValorNFVenda1.setEnabled(true);
+	 btnLerNfVenda.setEnabled(true);
+	 
+	 entCodigoNFVenda1.setEditable(true);
+	 entPesoNFVenda1.setEditable(true);
+	 entValorNFVenda1.setEditable(true);
+}
+
+
+public void desativarNFInterna() {
+	chckBoxNFInternaNaoAplicavel.setSelected(true);
+
+	 entCodigoNFInterna.setEnabled(false);
+	 entPesoNFInterna.setEnabled(false);
+	 btnLerNfInterna.setEnabled(false);
+
+	 
+
+	 entCodigoNFInterna.setEditable(false);
+	 entPesoNFInterna.setEditable(false);
+
+}
+
+public void ativarNFInterna() {
+	chckBoxNFInternaNaoAplicavel.setSelected(false);
+
+	 entCodigoNFInterna.setEnabled(true);
+	 entPesoNFInterna.setEnabled(true);
+	 btnLerNfInterna.setEnabled(true);
+
+	 
+
+	 entCodigoNFInterna.setEditable(true);
+	 entPesoNFInterna.setEditable(true);
+
+}
+
+public void desativarNFComplemento() {
+
+chckBoxNFComplementoNaoAplicavel.setSelected(true);
+
+ entCodigoNFComplemento.setEnabled(false);
+ entPesoNFComplemento.setEnabled(false);
+ entValorNFComplemento.setEnabled(false);
+ btnLerNfComplemento.setEnabled(false);
+ 
+ entCodigoNFComplemento.setEditable(false);
+ entPesoNFComplemento.setEditable(false);
+ entValorNFComplemento.setEditable(false);
+ 
+}
+
+public void ativarNFComplemento() {
+	chckBoxNFComplementoNaoAplicavel.setSelected(false);
+
+	 entCodigoNFComplemento.setEnabled(true);
+	 entPesoNFComplemento.setEnabled(true);
+	 entValorNFComplemento.setEnabled(true);
+	 btnLerNfComplemento.setEnabled(true);
+	 
+	 entCodigoNFComplemento.setEditable(true);
+	 entPesoNFComplemento.setEditable(true);
+	 entValorNFComplemento.setEditable(true);
+}
+
 
 
 public void getDadosGlobais() {
@@ -2315,8 +2577,4 @@ public void getDadosGlobais() {
 			  telaTodasNotasFiscais = dados.getTelaTodasNotasFiscais();
 	
 }
-
-
-
-
 }

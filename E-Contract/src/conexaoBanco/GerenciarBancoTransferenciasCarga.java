@@ -68,7 +68,7 @@ public class GerenciarBancoTransferenciasCarga {
 	
 	
 	public ArrayList<CadastroContrato.CadastroTransferenciaCarga> getTransferenciasRemetente(int id_contrato_remetente) {
-		String selectTransferenciasRemetente = "select * from transferencia_carga where id_contrato_remetente  = ?";
+		String selectTransferenciasRemetente = "select * from transferencia_carga where id_contrato_remetente  = ? order by id_transferencia ";
 		Connection conn = null;
 		PreparedStatement pstm = null;
 		ResultSet rs = null;
@@ -105,7 +105,7 @@ public class GerenciarBancoTransferenciasCarga {
 	
 	
 	public ArrayList<CadastroContrato.CadastroTransferenciaCarga> getTransferenciaDestinatario(int id_contrato_destinatario) {
-		String selectTransferenciasRemetente = "select * from transferencia_carga where id_contrato_destinatario  = ?";
+		String selectTransferenciasRemetente = "select * from transferencia_carga where id_contrato_destinatario  = ? order by id_transferencia";
 		Connection conn = null;
 		PreparedStatement pstm = null;
 		ResultSet rs = null;
@@ -169,7 +169,7 @@ public class GerenciarBancoTransferenciasCarga {
 
 	
 	public ArrayList<CadastroContrato.CadastroTransferenciaCarga> getTransferencias() {
-		String selectTransferenciasRemetente = "select * from transferencia_carga";
+		String selectTransferenciasRemetente = "select * from transferencia_carga order by id_transferencia";
 		Connection conn = null;
 		PreparedStatement pstm = null;
 		ResultSet rs = null;

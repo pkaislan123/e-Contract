@@ -37,8 +37,8 @@ public class GerenciarBancoProdutos {
 	                return 1;
 	 
 	            } catch (Exception e) {
-	                JOptionPane.showMessageDialog(null, "Erro ao inserir o produto no banco de"
-	                        + "dados "  );
+	            	  // JOptionPane.showMessageDialog(null, "Erro ao inserir o produto no banco de"
+	                //          + "dados "  );
 	                return 0;
 	            }
 	        } else {
@@ -73,7 +73,7 @@ public class GerenciarBancoProdutos {
 	            }
 	            ConexaoBanco.fechaConexao(conn, pstm, rs);
 	        } catch (Exception e) {
-	            JOptionPane.showMessageDialog(null, "Erro ao listar produtos"  );
+	          //  JOptionPane.showMessageDialog(null, "Erro ao listar produtos"  );
 	        }
 	        return listaProdutos;
 	    }
@@ -105,7 +105,7 @@ public class GerenciarBancoProdutos {
 		        return produto;
 
 	        } catch (Exception e) {
-	            JOptionPane.showMessageDialog(null, "Erro ao listar produto com id: " + id + " erro: "  );
+	        	  //  JOptionPane.showMessageDialog(null, "Erro ao listar produto com id: " + id + " erro: "  );
 	            return null;
 	        }
 	  }

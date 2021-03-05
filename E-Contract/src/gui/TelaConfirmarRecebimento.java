@@ -27,7 +27,6 @@ import cadastros.CadastroLogin;
 import cadastros.CadastroNFe;
 import cadastros.CadastroProduto;
 import cadastros.CadastroRomaneio;
-import classesExtras.Carregamento;
 import conexaoBanco.GerenciarBancoClientes;
 import conexaoBanco.GerenciarBancoContratos;
 import manipular.ConfiguracoesGlobais;

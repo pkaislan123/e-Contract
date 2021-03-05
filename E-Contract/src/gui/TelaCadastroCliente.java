@@ -1615,7 +1615,7 @@ public class TelaCadastroCliente extends JDialog {
 				cBPessoa.setSelectedItem("Física");
 				cBPessoa.setEnabled(false);
 				entCpf.setText(cliente.getCpf());
-				entCpf.setEditable(false);
+				entCpf.setEditable(true);
 				cBUF.setSelectedItem(cliente.getUf());
 				cBUF.setEnabled(false);
 				btnPesquisarCPF.setEnabled(false);

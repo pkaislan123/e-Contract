@@ -27,7 +27,6 @@ import cadastros.CadastroContrato;
 import cadastros.CadastroNFe;
 import cadastros.CadastroProduto;
 import cadastros.ContaBancaria;
-import classesExtras.Carregamento;
 import conexaoBanco.GerenciarBancoClientes;
 import conexaoBanco.GerenciarBancoContratos;
 import outros.GetData;

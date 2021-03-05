@@ -403,8 +403,8 @@ public class TelaTodasNotasFiscais extends JDialog {
 			public void actionPerformed(ActionEvent e) {
 				
 				//adiciona a nota na lista
-				notas_fiscais_disponivel.clear();
-				modelo_nfs.onRemoveAll();
+				//notas_fiscais_disponivel.clear();
+				//modelo_nfs.onRemoveAll();
 				
 				
 				btnReleitura.setEnabled(false);
@@ -499,12 +499,13 @@ public class TelaTodasNotasFiscais extends JDialog {
 				String caminho_completo_nf = unidade_base_dados + "\\" + sub_pasta;
 
 				ManipularNotasFiscais manipular_notas = new ManipularNotasFiscais(caminho_completo_nf);
+				manipular_notas.setListaAtual(notas_fiscais_disponivel);
 				manipular_notas.setPai(isto);
 				ArrayList<CadastroNFe> notas_fiscais = manipular_notas.tratarRapido();
 
 			
 	           }catch(Exception f) {
-	        	   JOptionPane.showMessageDialog(null, "Erro ao listar notas fiscaisz\nCausa: " + f.getCause() + "\nErro: " + f.getMessage());
+	        	//   JOptionPane.showMessageDialog(null, "Erro ao listar notas fiscaisz\nCausa: " + f.getCause() + "\nErro: " + f.getMessage());
 	           }
 	}
 

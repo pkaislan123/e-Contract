@@ -938,7 +938,7 @@ public class GerenciarBancoLogin {
 	            }
 	            ConexaoBanco.fechaConexao(conn, pstm, rs);
 	        } catch (Exception e) {
-	            JOptionPane.showMessageDialog(null, "Erro ao listar mensagens do usuario"  );
+	        	  //  //  JOptionPane.showMessageDialog(null, "Erro ao listar mensagens do usuario"  );
 	        }
 	        
 	        return listaMensagens;

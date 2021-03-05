@@ -1097,10 +1097,20 @@ public class TelaMain extends JFrame {
 
 		} 
 		
-		
+	
 		new Thread() {
+			
+			
 			@Override
 			public void run() {
+				try {
+					Thread.sleep(10000);
+				} catch (InterruptedException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+
+				
 				if (telaPost == null) {
 					telaPost = new TelaPost(isto);
 				} else {
@@ -1109,9 +1119,9 @@ public class TelaMain extends JFrame {
 			}
 		}.start();
 		
-		vigiarRomaneios();
-
+/*
 		new Thread() {
+		
 			@Override
 			public void run() {
 			if(telaRomaneio == null) {
@@ -1125,13 +1135,8 @@ public class TelaMain extends JFrame {
 				//telaRomaneio.pesquisarTodosOsRomaneios(clientes_disponiveis);
 
 			}
-			}
-		}.start();
+			
 		
-		
-		new Thread() {
-			@Override
-			public void run() {
 			if(telaTodasNotasFiscais == null) {
 				telaTodasNotasFiscais = new TelaTodasNotasFiscais(0, 0,isto);
 				
@@ -1144,9 +1149,13 @@ public class TelaMain extends JFrame {
 
 			}
 			}
+			
 		}.start();
+			*/
 		
 		
+		vigiarRomaneios();
+
 		this.setLocationRelativeTo(null);
 		this.setExtendedState(JFrame.MAXIMIZED_BOTH);
 		this.setVisible(true);

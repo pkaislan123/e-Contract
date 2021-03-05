@@ -5,6 +5,7 @@ import java.math.BigDecimal;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -2845,7 +2846,7 @@ observacao text
 		System.out.println("Lista carregamento foi chamado!");
 		String selectCarregamentos = "select * from contrato_carregamentos \n"
 				+ "LEFT JOIN carregamento  on carregamento.id_carregamento = contrato_carregamentos.id_carregamento \n"
-				+ "where contrato_carregamentos.id_contrato = ?";
+				+ "where contrato_carregamentos.id_contrato = ? order by carregamento.id_carregamento";
 		Connection conn = null;
 		PreparedStatement pstm = null;
 		ResultSet rs = null;
@@ -2878,10 +2879,12 @@ observacao text
 				    carga.setPeso_romaneio(rs.getDouble("peso_romaneio"));
 				    carga.setCaminho_romaneio(rs.getString("caminho_romaneio"));
 				    
+					carga.setNf_interna_aplicavel(rs.getInt("nf_interna_aplicavel"));
 				    carga.setCodigo_nf_interna(rs.getString("codigo_nf_interna"));
 				    carga.setPeso_nf_interna(rs.getDouble("peso_nf_interna"));
 				    carga.setCaminho_nf_interna(rs.getString("caminho_nf_interna"));
 					
+					carga.setNf_venda1_aplicavel(rs.getInt("nf_venda1_aplicavel"));
 				    carga.setCodigo_nf_venda1(rs.getString("codigo_nf_venda1"));
 				    carga.setPeso_nf_venda1(rs.getDouble("peso_nf_venda1"));
 				    try {
@@ -2893,6 +2896,7 @@ observacao text
 				    }
 				    carga.setCaminho_nf_venda1(rs.getString("caminho_nf_venda1"));
 				    
+				    carga.setNf_complemento_aplicavel(rs.getInt("nf_complemento_aplicavel"));
 				    carga.setCodigo_nf_complemento(rs.getString("codigo_nf_complemento"));
 				    carga.setPeso_nf_complemento(rs.getDouble("peso_nf_complemento"));
 				    try {
@@ -3019,15 +3023,18 @@ observacao text
 			    carga.setPeso_romaneio(rs.getDouble("peso_romaneio"));
 			    carga.setCaminho_romaneio(rs.getString("caminho_romaneio"));
 			    
+				carga.setNf_interna_aplicavel(rs.getInt("nf_interna_aplicavel"));
 			    carga.setCodigo_nf_interna(rs.getString("codigo_nf_interna"));
 			    carga.setPeso_nf_interna(rs.getDouble("peso_nf_interna"));
 			    carga.setCaminho_nf_interna(rs.getString("caminho_nf_interna"));
 				
+			    carga.setNf_venda1_aplicavel(rs.getInt("nf_venda1_aplicavel"));
 			    carga.setCodigo_nf_venda1(rs.getString("codigo_nf_venda1"));
 			    carga.setPeso_nf_venda1(rs.getDouble("peso_nf_venda1"));
 			    carga.setValor_nf_venda1(new BigDecimal(rs.getString("valor_nf_venda1")));
 			    carga.setCaminho_nf_venda1(rs.getString("caminho_nf_venda1"));
 			    
+			    carga.setNf_complemento_aplicavel(rs.getInt("nf_complemento_aplicavel"));
 			    carga.setCodigo_nf_complemento(rs.getString("codigo_nf_complemento"));
 			    carga.setPeso_nf_complemento(rs.getDouble("peso_nf_complemento"));
 			    carga.setValor_nf_complemento(new BigDecimal(rs.getString("valor_nf_complemento")));
@@ -3073,7 +3080,8 @@ observacao text
 
 					CadastroContrato.Carregamento carga = new CadastroContrato.Carregamento();
 					carga.setId_carregamento(rs.getInt("id_carregamento"));
-					carga.setData(rs.getDate("data_carregamento").toString());
+				
+					carga.setData(rs.getString("data_carregamento").toString());
 					carga.setId_contrato(rs.getInt("id_contrato_carregamento"));
 					carga.setId_cliente(rs.getInt("id_cliente"));
 					carga.setId_vendedor(rs.getInt("id_vendedor"));
@@ -3102,7 +3110,11 @@ observacao text
 				    
 				    carga.setObservacao(rs.getString("observacao"));
 
+					carga.setNf_interna_aplicavel(rs.getInt("nf_interna_aplicavel"));
 
+					carga.setNf_venda1_aplicavel(rs.getInt("nf_venda1_aplicavel"));
+
+				    carga.setNf_complemento_aplicavel(rs.getInt("nf_complemento_aplicavel"));
 
 					lista_carregamentos.add(carga);
 
@@ -3114,7 +3126,7 @@ observacao text
 			return lista_carregamentos;
 		} catch (Exception e) {
 			JOptionPane.showMessageDialog(null, "Erro ao listar os carregamentos do comprador: " + id_comprador
-					+ " erro: "   + "causa: "  );
+					+ " erro: " +e.getMessage()  + "causa: "  + e.getCause());
 			return null;
 		}
 
@@ -3173,7 +3185,11 @@ observacao text
 				    
 				    carga.setObservacao(rs.getString("observacao"));
 
+					carga.setNf_interna_aplicavel(rs.getInt("nf_interna_aplicavel"));
 
+					carga.setNf_venda1_aplicavel(rs.getInt("nf_venda1_aplicavel"));
+
+				    carga.setNf_complemento_aplicavel(rs.getInt("nf_complemento_aplicavel"));
 
 					lista_carregamentos.add(carga);
 
@@ -3187,7 +3203,18 @@ observacao text
 			JOptionPane.showMessageDialog(null, "Erro ao listar os carregamentos do vendedor: " + id_vendedor
 					+ " erro: "   + "causa: "  );
 			return null;
-		}
+		}finally{
+			 /*This block should be added to your code
+			  * You need to release the resources like connections
+			  */
+			 if(conn!=null)
+				try {
+					conn.close();
+				} catch (SQLException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			}
 
 	}
 
@@ -3244,7 +3271,11 @@ observacao text
 				    carga.setCaminho_nf_complemento(rs.getString("caminho_nf_complemento"));
 				    
 				    carga.setObservacao(rs.getString("observacao"));
+					carga.setNf_interna_aplicavel(rs.getInt("nf_interna_aplicavel"));
 
+					carga.setNf_venda1_aplicavel(rs.getInt("nf_venda1_aplicavel"));
+
+				    carga.setNf_complemento_aplicavel(rs.getInt("nf_complemento_aplicavel"));
 
 
 					lista_carregamentos.add(carga);
@@ -3414,8 +3445,8 @@ peso_nf_remessa double,
 caminho_nf_remessa text,
 		 */
 		String sql_atualizar_carregamento = "update carregamento set data_carregamento = ?, id_cliente = ?, id_vendedor = ?, id_transportador = ?,\n"
-				+ "id_veiculo = ?, codigo_romaneio = ?, peso_romaneio = ?, caminho_romaneio = ?, codigo_nf_venda1 = ?, peso_nf_venda1 = ?, valor_nf_venda1 = ?,\n"
-				+ "caminho_nf_venda1 = ?, codigo_nf_complemento = ?, peso_nf_complemento = ?, valor_nf_complemento = ?, caminho_nf_complemento = ?, codigo_nf_interna = ?,\n"
+				+ "id_veiculo = ?, codigo_romaneio = ?, peso_romaneio = ?, caminho_romaneio = ?, nf_venda1_aplicavel = ?, codigo_nf_venda1 = ?, peso_nf_venda1 = ?, valor_nf_venda1 = ?,\n"
+				+ "caminho_nf_venda1 = ?, nf_complemento_aplicavel = ?, codigo_nf_complemento = ?, peso_nf_complemento = ?, valor_nf_complemento = ?, caminho_nf_complemento = ?, nf_interna_aplicavel = ?, codigo_nf_interna = ?,\n"
 				+ "peso_nf_interna = ?, caminho_nf_interna = ?, observacao = ? where id_carregamento = ?;";
 		Connection conn = null;
 		ResultSet rs = null;
@@ -3433,25 +3464,27 @@ caminho_nf_remessa text,
 			pstm.setDouble(7, carregamento.getPeso_romaneio());
 			pstm.setString(8, carregamento.getCaminho_romaneio());
 			
-			pstm.setString(9, carregamento.getCodigo_nf_venda1());
-			pstm.setDouble(10, carregamento.getPeso_nf_venda1());
-			pstm.setString(11, carregamento.getValor_nf_venda1().toPlainString());
+			pstm.setInt(9, carregamento.getNf_venda1_aplicavel());
+			pstm.setString(10, carregamento.getCodigo_nf_venda1());
+			pstm.setDouble(11, carregamento.getPeso_nf_venda1());
+			pstm.setString(12, carregamento.getValor_nf_venda1().toPlainString());
 
-			pstm.setString(12, carregamento.getCaminho_nf_venda1());
+			pstm.setString(13, carregamento.getCaminho_nf_venda1());
 			
-			pstm.setString(13, carregamento.getCodigo_nf_complemento());
-			pstm.setDouble(14, carregamento.getPeso_nf_complemento());
-			pstm.setString(15, carregamento.getValor_nf_complemento().toPlainString());
+			pstm.setInt(14, carregamento.getNf_complemento_aplicavel());
+			pstm.setString(15, carregamento.getCodigo_nf_complemento());
+			pstm.setDouble(16, carregamento.getPeso_nf_complemento());
+			pstm.setString(17, carregamento.getValor_nf_complemento().toPlainString());
+			pstm.setString(18, carregamento.getCaminho_nf_complemento());
+			
+			pstm.setInt(19, carregamento.getNf_interna_aplicavel());
+			pstm.setString(20, carregamento.getCodigo_nf_interna());
+			pstm.setDouble(21, carregamento.getPeso_nf_interna());
+			pstm.setString(22, carregamento.getCaminho_nf_interna());
+			
+			pstm.setString(23, carregamento.getObservacao());
 
-			pstm.setString(16, carregamento.getCaminho_nf_complemento());
-			
-			pstm.setString(17, carregamento.getCodigo_nf_interna());
-			pstm.setDouble(18, carregamento.getPeso_nf_interna());
-			pstm.setString(19, carregamento.getCaminho_nf_interna());
-			
-			pstm.setString(20, carregamento.getObservacao());
-
-			pstm.setInt(21, carregamento.getId_carregamento());
+			pstm.setInt(24, carregamento.getId_carregamento());
 		
 
 
@@ -3522,7 +3555,7 @@ caminho_nf_remessa text,
 
 	public String sql_carregamento(CadastroContrato.Carregamento carregamento) {
 
-		String query = "insert into carregamento (data_carregamento, id_contrato_carregamento, id_cliente, id_vendedor , id_transportador, id_veiculo, id_produto, codigo_romaneio , peso_romaneio ,caminho_romaneio ,codigo_nf_venda1 ,peso_nf_venda1 , valor_nf_venda1,caminho_nf_venda1,codigo_nf_complemento ,peso_nf_complemento, valor_nf_complemento,caminho_nf_complemento ,codigo_nf_interna ,peso_nf_interna ,caminho_nf_interna ,observacao ) values ('"
+		String query = "insert into carregamento (data_carregamento, id_contrato_carregamento, id_cliente, id_vendedor , id_transportador, id_veiculo, id_produto, codigo_romaneio , peso_romaneio ,caminho_romaneio , nf_venda1_aplicavel, codigo_nf_venda1 ,peso_nf_venda1 , valor_nf_venda1,caminho_nf_venda1, nf_complemento_aplicavel, codigo_nf_complemento ,peso_nf_complemento, valor_nf_complemento,caminho_nf_complemento , nf_interna_aplicavel,codigo_nf_interna ,peso_nf_interna ,caminho_nf_interna ,observacao ) values ('"
 				+ carregamento.getData() + "','" 
 				+ carregamento.getId_contrato() + "','" 
 				+ carregamento.getId_cliente()+ "','"
@@ -3533,18 +3566,19 @@ caminho_nf_remessa text,
 				+ carregamento.getCodigo_romaneio()+ "','"
 				+ carregamento.getPeso_romaneio()+ "','"
 				+ carregamento.getCaminho_romaneio() + "','"
-				
+						+ carregamento.getNf_venda1_aplicavel() + "','"
 	+ carregamento.getCodigo_nf_venda1()+ "','"
 	+ carregamento.getPeso_nf_venda1()+ "','"
 			+ carregamento.getValor_nf_venda1() + "','" 
 	+ carregamento.getCaminho_nf_venda1() + "','"
 	
-	
+	+ carregamento.getNf_complemento_aplicavel() + "','"
 + carregamento.getCodigo_nf_complemento()+ "','"
 + carregamento.getPeso_nf_complemento()+ "','"
 		+ carregamento.getValor_nf_complemento() + "','"
 + carregamento.getCaminho_nf_complemento() + "','"
 
+	+ carregamento.getNf_interna_aplicavel() + "','"
 
 + carregamento.getCodigo_nf_interna()+ "','"
 + carregamento.getPeso_nf_interna()+ "','"
@@ -4126,8 +4160,8 @@ caminho_nf_remessa text,
 			return i;
 
 		} catch (Exception e) {
-			JOptionPane.showMessageDialog(null, "Erro ao listar o numero de  contratos sem assinaturas: " + " erro: "
-					  + "causa: "  );
+			//JOptionPane.showMessageDialog(null, "Erro ao listar o numero de  contratos sem assinaturas: " + " erro: "
+			//		  + "causa: "  );
 			return -1;
 		}
 
@@ -4200,8 +4234,8 @@ caminho_nf_remessa text,
 			return i;
 
 		} catch (Exception e) {
-			JOptionPane.showMessageDialog(null, "Erro ao listar o numero total de tarefas!" + " erro: "  
-					+ "causa: "  );
+			//JOptionPane.showMessageDialog(null, "Erro ao listar o numero total de tarefas!" + " erro: "  
+			//		+ "causa: "  );
 			return -1;
 		}
 	}
@@ -4241,8 +4275,8 @@ caminho_nf_remessa text,
 			return quantidade_total;
 
 		} catch (Exception e) {
-			JOptionPane.showMessageDialog(null, "Erro ao listar a quantidade total de sacos" + " erro: "
-					  + "causa: "  );
+			//	JOptionPane.showMessageDialog(null, "Erro ao listar a quantidade total de sacos" + " erro: "
+		//			  + "causa: "  );
 			return -1;
 		}
 
@@ -4269,8 +4303,8 @@ caminho_nf_remessa text,
 			return i / 60;
 
 		} catch (Exception e) {
-			JOptionPane.showMessageDialog(null, "Erro ao listar a quantidade total de sacos recebidos" + " erro: "
-					  + "causa: "  );
+			//JOptionPane.showMessageDialog(null, "Erro ao listar a quantidade total de sacos recebidos" + " erro: "
+			//		  + "causa: "  );
 			return -1;
 		}
 		
@@ -4302,8 +4336,8 @@ caminho_nf_remessa text,
 			return i / 60;
 
 		} catch (Exception e) {
-			JOptionPane.showMessageDialog(null, "Erro ao listar a quantidade total de sacos carregados" + " erro: "
-					  + "causa: "  );
+			//JOptionPane.showMessageDialog(null, "Erro ao listar a quantidade total de sacos carregados" + " erro: "
+			//		  + "causa: "  );
 			return -1;
 		}
 

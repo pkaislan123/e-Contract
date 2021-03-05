@@ -757,7 +757,9 @@ public int inserir_cliente(CadastroCliente cliente)
 	            }
 	            ConexaoBanco.fechaConexao(conn, pstm, rs);
 	        } catch (Exception e) {
-	            JOptionPane.showMessageDialog(null, "Erro ao listar clientes");
+	        	  //
+	        	  //
+	        	  //JOptionPane.showMessageDialog(null, "Erro ao listar clientes");
 	        }
 	        return listaClientes;
 	
@@ -949,7 +951,7 @@ public int inserir_cliente(CadastroCliente cliente)
 	                
 	            
 	        } catch (Exception e) {
-	            JOptionPane.showMessageDialog(null, "Erro ao listar cliente" );
+	        	  //    JOptionPane.showMessageDialog(null, "Erro ao listar cliente" );
 	            return null;
 	        }
 	     
@@ -1911,7 +1913,7 @@ public int inserir_cliente(CadastroCliente cliente)
 		          System.out.println("Veiculos foram listadas com sucesso!");
 		          return lista_veiculos;
 		      } catch (Exception e) {
-		          JOptionPane.showMessageDialog(null, "Erro ao listar todos os veiculos erro: "   + "causa: "  );
+		    	  // JOptionPane.showMessageDialog(null, "Erro ao listar todos os veiculos erro: "   + "causa: "  );
 		          return null;
 		      }		  
 		   

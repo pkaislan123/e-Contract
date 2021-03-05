@@ -5,6 +5,13 @@ import java.util.Date;
 
 public class CadastroNFe {
 
+	private int id;
+	public int getId() {
+		return id;
+	}
+	public void setId(int id) {
+		this.id = id;
+	}
 	private String nfe;
 	private String medida;
 	private String serie;

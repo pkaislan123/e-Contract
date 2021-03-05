@@ -112,7 +112,6 @@ import cadastros.CadastroSafra;
 import cadastros.ContaBancaria;
 import cadastros.Registros;
 import classesExtras.CBProdutoPersonalizado;
-import classesExtras.Carregamento;
 import conexaoBanco.GerenciarBancoAditivos;
 import conexaoBanco.GerenciarBancoClientes;
 import conexaoBanco.GerenciarBancoContratos;
@@ -259,7 +258,7 @@ public class TelaContratos2 extends JFrame {
 	private CadastroNFe nota_fiscal;
 	private CadastroCliente transportador = new CadastroCliente();
 	private CadastroProduto produto = new CadastroProduto();
-	private Carregamento carregamento_confirmar = new Carregamento();
+	private CadastroContrato.Carregamento carregamento_confirmar = new CadastroContrato.Carregamento();
 	private ArrayList<CadastroContrato.CadastroTarefa> lista_tarefas = null;
 	private ArrayList<CadastroContrato.Carregamento> lista_carregamentos = null;
 	private ArrayList<CadastroContrato.Recebimento> lista_recebimentos = null;

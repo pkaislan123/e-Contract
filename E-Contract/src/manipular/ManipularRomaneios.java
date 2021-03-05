@@ -57,6 +57,7 @@ public class ManipularRomaneios {
 	private Log GerenciadorLog;
 	private CadastroLogin login;
 	private ConfiguracoesGlobais configs_globais;
+	private ArrayList<CadastroRomaneio> lista_global;
 
 	
 	public ManipularRomaneios(String _caminho) {
@@ -98,9 +99,23 @@ public class ManipularRomaneios {
 			if (extensaoDoArquivo.equalsIgnoreCase("pdf")) {
 				countPDF++;
 
+				
 				File file = new File(listadeArquivos.get(i).toString());
 				////JOptionPane.showMessageDialog(null, "filtrando arquivo: " + file.getAbsolutePath());
-
+				boolean esta_na_lista = false;
+				//verifica se esse arquivo ja nao esta na lista
+				if(lista_global != null) {
+					if(lista_global.size() > 0) {
+						for(CadastroRomaneio elemento_da_lista : lista_global) {
+						if(listadeArquivos.get(i).toString().equalsIgnoreCase(elemento_da_lista.getCaminho_arquivo())) {
+							esta_na_lista = true;
+							break;
+						}
+							
+						}
+					}
+				}
+				if(!esta_na_lista) {
 				CadastroRomaneio romaneio = filtrar(file);
 
 				if (romaneio != null) {
@@ -119,7 +134,7 @@ public class ManipularRomaneios {
                     telaPrincipal.incluir_aviso(avisar);
 					}
 				}
-
+				}
 				// enviar nota para a tela pai
 				// System.out.println("enviando nota para a tela pai");
 
@@ -149,7 +164,7 @@ public class ManipularRomaneios {
 			listadeArquivos = arquivos.getArquivos();
 
 		} catch (IOException ex) {
-			ex.printStackTrace();
+			//ex.printStackTrace();
 		}
 
 		for (int i = 0; i < listadeArquivos.size(); i++) {
@@ -168,9 +183,23 @@ public class ManipularRomaneios {
 
 			if (extensaoDoArquivo.equalsIgnoreCase("pdf")) {
 				countPDF++;
-
+				
 				File file = new File(listadeArquivos.get(i).toString());
 				////JOptionPane.showMessageDialog(null, "filtrando arquivo: " + file.getAbsolutePath());
+				boolean esta_na_lista = false;
+				//verifica se esse arquivo ja nao esta na lista
+				if(lista_global != null) {
+					if(lista_global.size() > 0) {
+						for(CadastroRomaneio elemento_da_lista : lista_global) {
+						if(listadeArquivos.get(i).toString().equalsIgnoreCase(elemento_da_lista.getCaminho_arquivo())) {
+							esta_na_lista = true;
+							break;
+						}
+							
+						}
+					}
+				}
+				if(!esta_na_lista) {
 
 				CadastroRomaneio romaneio = filtrar(file);
 
@@ -185,13 +214,7 @@ public class ManipularRomaneios {
 
 				}
 
-				// enviar nota para a tela pai
-				// System.out.println("enviando nota para a tela pai");
-
-				// System.out.print("Numero de arquivos: " + countArquivos);
-				// System.out.print("Numero de PDF's: " + countPDF);
-
-				// System.out.print("Numero de Notas: " + countNotas);
+				}
 
 			} else {
 				String nomeArquivo = listadeArquivos.get(i).toString();
@@ -204,6 +227,11 @@ public class ManipularRomaneios {
 		
 
 		return romaneios;
+	}
+	
+	
+	public void setListaAtual(ArrayList<CadastroRomaneio> _lista_atual) {
+		this.lista_global = _lista_atual;
 	}
 	
 	

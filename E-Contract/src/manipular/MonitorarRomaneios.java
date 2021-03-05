@@ -10,6 +10,7 @@ import cadastros.CadastroNFe;
 import cadastros.CadastroRomaneio;
 import cadastros.CadastroSafra;
 import conexaoBanco.GerenciarBancoClientes;
+import conexaoBanco.GerenciarBancoNotasFiscais;
 import gui.TelaMain;
 import gui.TelaRomaneios;
 import outros.DadosGlobais;
@@ -1038,6 +1039,8 @@ public int vigiarTodosRomaneiosMaisRapidoRetornoQuantidadeRecebida(CadastroSafra
 												caminho_completo_nf);
 										if (mover) {
 											
+											
+											
 											//JOptionPane.showMessageDialog(null, "NF copiada para a pasta do remetente");
 										} else {
 											// JOptionPane.showMessageDialog(null, "Erro ao mover a nf para a pasta do remetente");
@@ -1074,6 +1077,8 @@ public int vigiarTodosRomaneiosMaisRapidoRetornoQuantidadeRecebida(CadastroSafra
 										if (mover) {
 											
 											// JOptionPane.showMessageDialog(null, "NF copiada para a pasta do destinatario");
+											
+											
 										} else {
 											// JOptionPane.showMessageDialog(null, "Erro ao mover a nf para a pasta do destinatario");
 											
@@ -1112,7 +1117,9 @@ public int vigiarTodosRomaneiosMaisRapidoRetornoQuantidadeRecebida(CadastroSafra
 											boolean mover = manipular_arq.moverArquivo(cadastro.getCaminho_arquivo(),
 													caminho_completo_nf);
 											if (mover) {
-
+								
+												
+												
 												// JOptionPane.showMessageDialog(null, "NF copiada para a pasta do remetente");
 											} else {
 												// JOptionPane.showMessageDialog(null, "Erro ao mover a nf para a pasta do remetente");
@@ -1174,6 +1181,7 @@ public int vigiarTodosRomaneiosMaisRapidoRetornoQuantidadeRecebida(CadastroSafra
 													 mover = manipular_arq.moverArquivo(cadastro.getCaminho_arquivo(),
 															caminho_completo_nf);
 													if (mover) {
+														
 														
 														//	 JOptionPane.showMessageDialog(null, "NF copiada para a pasta do destinatario");
 													} else {
@@ -1246,6 +1254,8 @@ public int vigiarTodosRomaneiosMaisRapidoRetornoQuantidadeRecebida(CadastroSafra
 												boolean  mover = manipular_arq.moverArquivo(cadastro.getCaminho_arquivo(),
 														caminho_completo_nf);
 												if (mover) {
+													
+													
 													
 													//	 JOptionPane.showMessageDialog(null, "NF copiada para a pasta do destinatario");
 												} else {

@@ -240,6 +240,64 @@ public class RelatorioContratos {
 		titleRun.setUnderline(UnderlinePatterns.SINGLE);
 		titleRun.setFontFamily("Arial");
 		titleRun.setFontSize(10);
+		
+		XWPFParagraph filtros = document_global.createParagraph();
+		filtros.setAlignment(ParagraphAlignment.LEFT);
+
+		XWPFRun dadosPesquisaRun = filtros.createRun();
+
+		String texto_pesquisa = "Busca por: ";
+		if(carregamento) {
+			texto_pesquisa = texto_pesquisa + "Carregamentos";
+			if(carregamento_como_comprador && carregamento_como_vendedor) {
+				texto_pesquisa = texto_pesquisa + " como Comprador e Vendedor";
+			}else if(carregamento_como_comprador && !carregamento_como_vendedor) {
+				texto_pesquisa = texto_pesquisa + " como Comprador";
+			}else if(!carregamento_como_comprador && carregamento_como_vendedor) {
+				texto_pesquisa = texto_pesquisa + " como Vendedor";
+
+			}else {
+				
+			}
+		}
+		texto_pesquisa = texto_pesquisa + "\n";
+		if(pagamento) {
+			texto_pesquisa = texto_pesquisa + " | Pagamentos";
+			if(pagamento_como_depositante && pagamento_como_favorecido) {
+				texto_pesquisa = texto_pesquisa + " como Depositante e Favorecido";
+			}else if(pagamento_como_depositante && !pagamento_como_favorecido) {
+				texto_pesquisa = texto_pesquisa + " como Depositante";
+			}else if(!pagamento_como_depositante && pagamento_como_favorecido) {
+				texto_pesquisa = texto_pesquisa + " como Favorecido";
+
+			}else {
+				
+			}
+		}
+		texto_pesquisa = texto_pesquisa + "\n";
+
+		if(recebimento) {
+			texto_pesquisa = texto_pesquisa + " | Recebimentos";
+			if(recebimento_como_comprador && recebimento_como_vendedor) {
+				texto_pesquisa = texto_pesquisa + " como Comprador e Vendedor";
+			}else if(recebimento_como_comprador && !recebimento_como_vendedor) {
+				texto_pesquisa = texto_pesquisa + " como Comprador";
+			}else if(!recebimento_como_comprador && recebimento_como_vendedor) {
+				texto_pesquisa = texto_pesquisa + " como Vendedor";
+
+			}else {
+				
+			}
+		}
+		
+		
+		
+		dadosPesquisaRun.setText("Filtros da pesquisa: \n" + texto_pesquisa );
+		dadosPesquisaRun.setColor("000000");
+		dadosPesquisaRun.setBold(false);
+		dadosPesquisaRun.setFontFamily("Arial");
+		dadosPesquisaRun.setFontSize(10);
+		
 
 		GerenciarBancoContratos procura_contratos_grupo = new GerenciarBancoContratos();
 		if (grupo_alvo_global != null) {
@@ -971,7 +1029,9 @@ public class RelatorioContratos {
 			String safra = contrato_deste_recebimento.getModelo_safra().getProduto().getNome_produto() + " " + contrato_deste_recebimento.getModelo_safra().getProduto().getTransgenia() +
 					" " + contrato_deste_recebimento.getModelo_safra().getAno_plantio() + "/" + contrato_deste_recebimento.getModelo_safra().getAno_colheita();
 			
-			criarParagrafoTabela(paragraph,"CTR: " + contrato_deste_recebimento.getCodigo() + " " + safra + " Quantidade Total: " + z.format(quantidade_kg) + " kgs | " + z.format(quantidade_sacos) + " sacos", true);
+			criarParagrafoTabela(paragraph,"CTR: " + contrato_deste_recebimento.getCodigo() + " " + safra + " Quantidade Total: " + z.format(quantidade_kg) + " kgs | " + z.format(quantidade_sacos) + " sacos "
+					+NumberFormat.getCurrencyInstance(ptBr).format(contrato_deste_recebimento.getValor_produto()) +
+							" por " + contrato_deste_recebimento.getMedida() + " totalizando: " +  NumberFormat.getCurrencyInstance(ptBr).format(contrato_deste_recebimento.getValor_a_pagar().doubleValue()), true);
 			tableRowOne.getCell(0).getCTTc().addNewTcPr().addNewShd().setFill("FFFFFF");
 			CTHMerge hMerge = CTHMerge.Factory.newInstance();
 			hMerge.setVal(STMerge.RESTART);
@@ -991,7 +1051,8 @@ public class RelatorioContratos {
 				
 			}
 			
-			
+			cabecalho++;
+
 			//linha com nome compradores x vendedores
 			
 			tableRowOne = table.getRow(cabecalho);

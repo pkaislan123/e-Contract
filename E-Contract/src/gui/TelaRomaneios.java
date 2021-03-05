@@ -348,6 +348,8 @@ public class TelaRomaneios extends JDialog {
 		painelPrincipal.add(btnNewButton_1);
 		
 		btnNewButton_2 = new JButton("Excluir Todos os Romaneios");
+		btnNewButton_2.setVisible(false);
+		btnNewButton_2.setEnabled(false);
 		btnNewButton_2.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				if (JOptionPane.showConfirmDialog(isto, 
@@ -552,23 +554,20 @@ public class TelaRomaneios extends JDialog {
 	}
 
 	public void pesquisarTodosOsRomaneios(ArrayList<CadastroCliente> clientes) {
-		btnReleitura.setEnabled(false);
-		btnReleitura.setVisible(false);
+		
 		new Thread() {
 			@Override
 			public void run() {
+				btnReleitura.setEnabled(false);
+				btnReleitura.setVisible(false);
 				for (CadastroCliente vend : clientes) {
-					new Thread() {
-						@Override
-						public void run() {
+				
 							pesquisarRomaneios(vend);
 
-						}
-					}.start();
-					
 				}
 				btnReleitura.setEnabled(true);
 				btnReleitura.setVisible(true);
+				
 			}
 		}.start();
 	}
@@ -595,7 +594,8 @@ public class TelaRomaneios extends JDialog {
 
 			ManipularRomaneios manipular_romaneios = new ManipularRomaneios(caminho_completo_nf);
 			manipular_romaneios.sinalizar(2);
-			ArrayList<CadastroRomaneio> romaneios = manipular_romaneios.tratar();
+			manipular_romaneios.setListaAtual(romaneios_disponivel);
+			ArrayList<CadastroRomaneio> romaneios = manipular_romaneios.tratarMaisRapido();
 
 			for (CadastroRomaneio rom : romaneios) {
 				

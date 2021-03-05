@@ -45,8 +45,8 @@ where sf.id_produto = pd.id_produto;
 	                return 1;
 	 
 	            } catch (Exception e) {
-	                JOptionPane.showMessageDialog(null, "Erro ao inserir a safra no banco de"
-	                        + "dados "  );
+	            	  //JOptionPane.showMessageDialog(null, "Erro ao inserir a safra no banco de"
+	                 //         + "dados "  );
 	                return 0;
 	            }
 	        } else {
@@ -87,7 +87,7 @@ where sf.id_produto = pd.id_produto;
 	            }
 	            ConexaoBanco.fechaConexao(conn, pstm, rs);
 	        } catch (Exception e) {
-	            JOptionPane.showMessageDialog(null, "Erro ao listar safras"  );
+	        	  // JOptionPane.showMessageDialog(null, "Erro ao listar safras"  );
 	        }
 	        return listaSafras;
 	    }
@@ -130,7 +130,7 @@ where sf.id_produto = pd.id_produto;
 		          
 	            
 	        } catch (Exception e) {
-	            JOptionPane.showMessageDialog(null, "Erro ao buscar por safra id: " + id + " erro: "  );
+	        	  //    JOptionPane.showMessageDialog(null, "Erro ao buscar por safra id: " + id + " erro: "  );
 	            return null;
 	        }
 		  

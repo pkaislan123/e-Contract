@@ -41,7 +41,7 @@ public class ManipularNotasFiscais {
 	private ArrayList<String> listadeArquivos = new ArrayList<>();
 
 	private ArrayList<CadastroNFe> notas_fiscais = new ArrayList<>();
-
+	ArrayList<CadastroNFe> lista_global = null;
 	private String caminho;
 	private JTable table;
 	private int countArquivos;
@@ -73,7 +73,7 @@ public class ManipularNotasFiscais {
 		}
 
 		for (int i = 0; i < listadeArquivos.size(); i++) {
-			 System.out.println(listadeArquivos.get(i).toString());
+			 //System.out.println(listadeArquivos.get(i).toString());
 			countArquivos++;
 		}
 
@@ -97,16 +97,16 @@ public class ManipularNotasFiscais {
 				}
 
 				// enviar nota para a tela pai
-				// System.out.println("enviando nota para a tela pai");
+				// //System.out.println("enviando nota para a tela pai");
 
-				// System.out.print("Numero de arquivos: " + countArquivos);
-				// System.out.print("Numero de PDF's: " + countPDF);
+				// //System.out.print("Numero de arquivos: " + countArquivos);
+				// //System.out.print("Numero de PDF's: " + countPDF);
 
-				// System.out.print("Numero de Notas: " + countNotas);
+				// //System.out.print("Numero de Notas: " + countNotas);
 
 			} else {
 				String nomeArquivo = listadeArquivos.get(i).toString();
-				// System.out.println("O arquivo " + nomeArquivo + " não é um PDF");
+				// //System.out.println("O arquivo " + nomeArquivo + " não é um PDF");
 			}
 		}
 
@@ -128,7 +128,7 @@ public class ManipularNotasFiscais {
 		}
 
 		for (int i = 0; i < listadeArquivos.size(); i++) {
-			 System.out.println(listadeArquivos.get(i).toString());
+			 //System.out.println(listadeArquivos.get(i).toString());
 			countArquivos++;
 		}
 
@@ -138,6 +138,22 @@ public class ManipularNotasFiscais {
 				countPDF++;
 
 				File file = new File(listadeArquivos.get(i).toString());
+				//percorre a lista e verifica se este aqui ja nao esta nela
+				boolean esta_na_lista = false;
+				
+				if(lista_global != null) {
+					if(lista_global.size() > 0) {
+						for(CadastroNFe na_lista : lista_global) {
+							if(na_lista.getCaminho_arquivo().equalsIgnoreCase(listadeArquivos.get(i).toString())) {
+								esta_na_lista = true;
+								break;
+								
+							}
+							
+						}
+					}
+				}
+				if(!esta_na_lista) {
 				CadastroNFe cadastro = filtrar(file);
 
 				if (cadastro != null) {
@@ -151,18 +167,9 @@ public class ManipularNotasFiscais {
 					((TelaTodasNotasFiscais) tela_pai).addNota(cadastro);
 					}
 				}
-
-				// enviar nota para a tela pai
-				// System.out.println("enviando nota para a tela pai");
-
-				// System.out.print("Numero de arquivos: " + countArquivos);
-				// System.out.print("Numero de PDF's: " + countPDF);
-
-				// System.out.print("Numero de Notas: " + countNotas);
-
+				}
 			} else {
 				String nomeArquivo = listadeArquivos.get(i).toString();
-				// System.out.println("O arquivo " + nomeArquivo + " não é um PDF");
 			}
 		}
 		}
@@ -173,8 +180,9 @@ public class ManipularNotasFiscais {
 	
 	public CadastroNFe filtrar(File file) {
 		CadastroNFe cadastro = new CadastroNFe();
+		//JOptionPane.showMessageDialog(null, "Filtragem de nota chamado");
 
-		 System.out.println("caminho do arquivo: " + file.getAbsolutePath());
+		////System.out.println("caminho do arquivo: " + file.getAbsolutePath());
 
 		try (PDDocument document = PDDocument.load(file)) {
 
@@ -190,17 +198,17 @@ public class ManipularNotasFiscais {
 				String lines[] = pdfFileInText.split("\r\n");
 				// String linhas = Arrays.toString(lines);
 				//String demais = lines[118];
-				// System.out.println("Demais: " + demais);
+				// //System.out.println("Demais: " + demais);
 				//String separados[] = demais.split(" ");
 				/*
-				 * for (String line : separados) { System.out.println(line); }
+				 * for (String line : separados) { //System.out.println(line); }
 				 */
 				
-				 // for (String line : lines) { System.out.println(line); }
+				 // for (String line : lines) { //System.out.println(line); }
 				 
 
 				String tratar = Arrays.toString(lines);
-				//System.out.println(tratar);
+				////System.out.println(tratar);
 				TratarDados tratamentoDados = new TratarDados(tratar);
 
 				for(String linha : lines) {
@@ -246,7 +254,7 @@ public class ManipularNotasFiscais {
 
 			String tratar = Arrays.toString(lines);
 			// tratar = tratar.replaceAll("\n", "*");
-			// System.out.println(tratar);
+			// //System.out.println(tratar);
 			TratarDados tratamentoDados = new TratarDados(tratar);
 			
 			String procura_nfe = tratamentoDados.tratar("NFA-e", "VENDA");
@@ -258,7 +266,7 @@ public class ManipularNotasFiscais {
 					// procurar por outro tipo de nota
 					procura_nfe = tratamentoDados.tratar("NFA-e", "OUTRAS SAÍDAS");
 					if (procura_nfe.equals("") || procura_nfe == null) {
-						// System.out.println("Número NFA não encontrado");
+						// ////System.out.println("Número NFA não encontrado");
 					} else {
 						nfe = procura_nfe;
 
@@ -278,12 +286,12 @@ public class ManipularNotasFiscais {
 			nfe = nfe.replaceAll(",", "");
 
 			// String nfe = lines[27].toString().replaceAll("[^0-9]+", "");
-			// System.out.println("Numero nfe: " + nfe);
+			// //System.out.println("Numero nfe: " + nfe);
 
 			String serie = tratamentoDados.tratar("SÉRIE", "C");
 			serie = serie.replaceAll("[^0-9]+", "");
 			// String serie = lines[90].toString().replaceAll("[^0-9]+", "");
-			// System.out.println("Serie: " + serie);
+			// //System.out.println("Serie: " + serie);
 
 			// String nome_remetente = lines[29].toString().replaceAll("[0-9]+", "");
 			// nome_remetente = nome_remetente.replaceAll("[^a-zA-Z ]", "");
@@ -306,11 +314,11 @@ public class ManipularNotasFiscais {
 
 			}
 
-			// System.out.println("Remetente: " + nome_remetente);
+			// //System.out.println("Remetente: " + nome_remetente);
 			/*
 			 * String inscricao_remetente = lines[31].toString().replaceAll("[^0-9]+", "");
 			 * inscricao_remetente = inscricao_remetente.substring(4,
-			 * inscricao_remetente.length()); System.out.println("Inscricao: " +
+			 * inscricao_remetente.length()); //System.out.println("Inscricao: " +
 			 * inscricao_remetente);
 			 */
 
@@ -320,15 +328,15 @@ public class ManipularNotasFiscais {
 			TratarDados tratamentoDadosInscricaoRemetente = new TratarDados(teste_inscricao_remetente);
 			String inscricao_remetente = tratamentoDadosInscricaoRemetente.tratar("XZYK", ",");
 
-			// System.out.println(teste_inscricao_remetente);
+			// //System.out.println(teste_inscricao_remetente);
 			teste_inscricao_remetente = teste_inscricao_remetente.replaceFirst(inscricao_remetente, "");
-			// System.out.println(teste_inscricao_remetente);
+			// //System.out.println(teste_inscricao_remetente);
 			TratarDados tratamentoDadosNomeDestinatario = new TratarDados(teste_inscricao_remetente);
 			String nome_destinatario = tratamentoDadosNomeDestinatario.tratar("XZYK,", ",");
 			nome_destinatario = nome_destinatario.replaceAll("[^a-zA-Z ]", "");
 
 			// teste_inscricao_remetente = tratar.replaceFirst(inscricao_remetente, "");
-			// System.out.println(teste_inscricao_remetente);
+			// //System.out.println(teste_inscricao_remetente);
 			/*
 			 * String procura_nome_destinatario = tratamentoDadosInscricao.tratar("XZYK",
 			 * ","); procura_nome_destinatario =
@@ -336,34 +344,34 @@ public class ManipularNotasFiscais {
 			 * nome_destinatario = procura_nome_destinatario;
 			 */
 			String inscricao_destinatario = tratamentoDados.tratar("BRASIL", ",");
-			// System.out.println("Inscricao: " + inscricao_remetente);
+			// //System.out.println("Inscricao: " + inscricao_remetente);
 
 			// String array_protocolo[] = lines[95].split(" ");
 			String protocolo = tratamentoDados.tratar("USO", "-");
 			protocolo = protocolo.replaceAll("[^0-9]+", "");
 			// String protocolo = array_protocolo[0].toString();
 
-			// System.out.println("Protocolo: " + protocolo);
+			// //System.out.println("Protocolo: " + protocolo);
 
 			// String data = lines[33].toString();
 			teste_inscricao_remetente = teste_inscricao_remetente.replaceFirst(protocolo, "DATA");
 			TratarDados tratarDadosData = new TratarDados(teste_inscricao_remetente);
 			String data = tratarDadosData.tratar("DATA", ",");
 			data = data.replace("-", "");
-			// System.out.println("Data: " + data);
+			// //System.out.println("Data: " + data);
 
 			// String natureza = lines[28].toString();
-			// System.out.println("Natureza: " + natureza);
+			// //System.out.println("Natureza: " + natureza);
 
 			// String nome_destinatario = lines[32].toString().replaceAll("[0-9]+", "");
 			// nome_destinatario = nome_destinatario.replaceAll("[^a-zA-Z ]", "");
 
-			// System.out.println("Destinatario: " + nome_destinatario);
+			// //System.out.println("Destinatario: " + nome_destinatario);
 
 			/*
 			 * String inscricao_destinatario = lines[36].toString().replaceAll("[^0-9]+",
 			 * ""); inscricao_destinatario = inscricao_destinatario.substring(4,
-			 * inscricao_destinatario.length()); System.out.println("Inscricao: " +
+			 * inscricao_destinatario.length()); //System.out.println("Inscricao: " +
 			 * inscricao_destinatario);
 			 */
 
@@ -371,14 +379,14 @@ public class ManipularNotasFiscais {
 			String produto = tratamentoDados.tratar("BC", "-");
 			produto = produto.replaceAll("[^a-zA-Z ]", "");
 			produto = produto.substring(5, produto.length());
-			// System.out.println("Produto: " + produto);
+			// //System.out.println("Produto: " + produto);
 
 			String dados_valorados = tratamentoDados.tratar("BC", "DADOS");
 			dados_valorados = dados_valorados.replaceAll(" ", "-");
 			// dados_valorados = dados_valorados.replaceAll(",", "*");
 			// dados_valorados = dados_valorados.replaceAll(" ", ",");
 
-			// System.out.println(dados_valorados);
+			// //System.out.println(dados_valorados);
 			TratarDados tratamentoDadosQuantidade = new TratarDados(dados_valorados);
 			// String dados_valorados_dividos[] = dados_valorados.split(" ");
 
@@ -388,24 +396,24 @@ public class ManipularNotasFiscais {
 			String quantidade = null;
 			String quantidade_sem_formatacao = null;
 			String unidade = null;
-			// System.out.println("Procuradando: " + teste_procura_quantidade + "fim");
+			// //System.out.println("Procuradando: " + teste_procura_quantidade + "fim");
 			if (teste_procura_quantidade.length() < 2 || teste_procura_quantidade.equals("")
 					|| teste_procura_quantidade.equals(" ") || teste_procura_quantidade == null) {
 				teste_procura_quantidade = tratamentoDadosQuantidade.tratar("-KG-", "-");
-				// System.out.println("Procuradando: " + teste_procura_quantidade + "fim");
+				// //System.out.println("Procuradando: " + teste_procura_quantidade + "fim");
 
 				if (teste_procura_quantidade.length() < 2 || teste_procura_quantidade.equals("")
 						|| teste_procura_quantidade.equals(" ") || teste_procura_quantidade == null) {
 					teste_procura_quantidade = tratamentoDadosQuantidade.tratar(" TON", "  ");
-					// System.out.println("Procuradando: " + teste_procura_quantidade + "fim");
+					// //System.out.println("Procuradando: " + teste_procura_quantidade + "fim");
 
 					if (teste_procura_quantidade.equals("") || teste_procura_quantidade.equals(" ")
 							|| teste_procura_quantidade == null) {
-						// System.out.print("Nenhum especie de unidade encontrada");
+						// //System.out.print("Nenhum especie de unidade encontrada");
 						teste_procura_quantidade = tratamentoDadosQuantidade.tratar(" CB", "  ");
 						if (teste_procura_quantidade.equals("") || teste_procura_quantidade.equals(" ")
 								|| teste_procura_quantidade == null) {
-							// System.out.print("Nenhum especie de unidade encontrada");
+							// //System.out.print("Nenhum especie de unidade encontrada");
 
 						} else {
 							quantidade = teste_procura_quantidade;
@@ -439,25 +447,25 @@ public class ManipularNotasFiscais {
 			// quantidade = unidade_quantidade[1];
 			// quantidade_sem_formatacao = quantidade;
 
-			// System.out.println("Quantidade: " + quantidade);
+			// //System.out.println("Quantidade: " + quantidade);
 
 			// String unidade = separados[4].toString();
 			// String unidade = dados_valorados_dividos[6].toString();
 			// String unidade = unidade_quantidade[0];
-			// System.out.println(unidade);
+			// //System.out.println(unidade);
 			if (unidade.equals("SC") || unidade.equals("sc") || unidade.equals(" SC ")) {
-				// System.out.println("Tentando formatar quantidade em SC para KG");
+				// //System.out.println("Tentando formatar quantidade em SC para KG");
 				quantidade = quantidade.replaceAll("\\.", "");
 				quantidade = quantidade.replaceAll(",", ".");
-				// System.out.println("Quantidade formatada: " + quantidade);
+				// //System.out.println("Quantidade formatada: " + quantidade);
 				try {
 
 					double quant = Double.parseDouble(quantidade);
-					// System.out.println("quantidade inteira: " + quant);
+					// //System.out.println("quantidade inteira: " + quant);
 					quant = quant * 60;
 					quantidade = Double.toString(quant);
 				} catch (Exception ev) {
-					// System.out.println("Erro ao converter quantidade para inteiros " +
+					// //System.out.println("Erro ao converter quantidade para inteiros " +
 					// ev.getMessage());
 
 				}
@@ -471,17 +479,17 @@ public class ManipularNotasFiscais {
 					quantidade = quantidade.replace(",", ".");
 					// double quant = Double.parseDouble(quantidade);
 					BigDecimal quant = new BigDecimal(quantidade);
-					// System.out.println("quantidade inteira: " + quant);
+					// //System.out.println("quantidade inteira: " + quant);
 					quant.multiply(new BigDecimal("100.00"));
 					quantidade = quant.toPlainString();
 				} catch (Exception ev) {
-					// System.out.println("Erro ao converter ton para double " + ev.getMessage());
+					// //System.out.println("Erro ao converter ton para double " + ev.getMessage());
 
 				}
 
 			}
 
-			// System.out.println("Quantidade: " + quantidade);
+			// //System.out.println("Quantidade: " + quantidade);
 
 			// String valor = lines[82].toString();
 			// String valor = dados_valorados_dividos[8];
@@ -500,21 +508,21 @@ public class ManipularNotasFiscais {
 			teste_inscricao_remetente = teste_inscricao_remetente.replaceAll("TON " + quantidade_sem_formatacao,
 					"INFOPRECO");
 
-			// System.out.println(teste_inscricao_remetente);
+			// //System.out.println(teste_inscricao_remetente);
 			TratarDados tratarDadosValor = new TratarDados(teste_inscricao_remetente);
 			String valor = tratarDadosValor.tratar("INFOPRECO", "&");
 
 			// String valor = tratamentoDados.tratar("$" , "5");
 			// String valor = Arrays.toString(lines).substring(linha, linha + 13);
 			// valor = valor.replaceAll(",", "&");
-			// System.out.println("Valor: " + valor);
+			// //System.out.println("Valor: " + valor);
 
 			// String valor_split[] = valor.split(" ");
 			// valor = valor_split[4];
 			// valor = valor.substring(0, valor.indexOf(","));
-			// System.out.println("Valor: " + valor);
+			// //System.out.println("Valor: " + valor);
 
-			// System.out.println("Fim do processo");
+			// //System.out.println("Fim do processo");
 
 			cadastro.setNfe(nfe);
 			cadastro.setSerie(serie);
@@ -551,7 +559,7 @@ public class ManipularNotasFiscais {
 
     	   String tratar = Arrays.toString(lines);
            // tratar = tratar.replaceAll("\n", "*");
-            //System.out.println(tratar);
+            ////System.out.println(tratar);
               TratarDados tratamentoDados  = new TratarDados(tratar );
 
               String nfe = tratamentoDados.tratar("Nº",",");
@@ -567,7 +575,7 @@ public class ManipularNotasFiscais {
 		                	procura_nfe = tratamentoDados.tratar("NFA-e","OUTRAS SAÍDAS");
 		                	 if(procura_nfe.equals("") || procura_nfe == null)
 				                {
-              		  System.out.println("Número NFA não encontrado");
+              		  //System.out.println("Número NFA não encontrado");
 				                }
 		                	 else
 		                	 {
@@ -637,7 +645,7 @@ public class ManipularNotasFiscais {
              /* 
               String inscricao_remetente  = lines[31].toString().replaceAll("[^0-9]+", "");
               inscricao_remetente =  inscricao_remetente.substring(4, inscricao_remetente.length());
-              System.out.println("Inscricao: " + inscricao_remetente);
+              //System.out.println("Inscricao: " + inscricao_remetente);
                */
               
               //String procura_inscricao_remetente = tratamentoDados.tratar("BRASIL", ",");
@@ -647,15 +655,15 @@ public class ManipularNotasFiscais {
               //String array_protocolo[] = lines[95].split(" ");
               String procura_protocolo = tratamentoDados.tratar("CNPJ/CPF,", "DATA DE RECEBIMENTO");
               String array_protocolo[] = procura_protocolo.split(" ");
-             // System.out.println("Possivel protocolo: "+array_protocolo[0] );
+             // //System.out.println("Possivel protocolo: "+array_protocolo[0] );
 
-            //  System.out.println("Possivel protocolo: "+array_protocolo[1] );
-             // System.out.println("Possivel protocolo: "+array_protocolo[2] );
-              //System.out.println("Possivel protocolo: "+array_protocolo[3] );
-              //System.out.println("Possivel protocolo: "+array_protocolo[4] );
-              //System.out.println("Possivel protocolo: "+array_protocolo[5] );
-              //System.out.println("Possivel protocolo: "+array_protocolo[6] );
-              //System.out.println("Possivel protocolo: "+array_protocolo[7] );
+            //  //System.out.println("Possivel protocolo: "+array_protocolo[1] );
+             // //System.out.println("Possivel protocolo: "+array_protocolo[2] );
+              ////System.out.println("Possivel protocolo: "+array_protocolo[3] );
+              ////System.out.println("Possivel protocolo: "+array_protocolo[4] );
+              ////System.out.println("Possivel protocolo: "+array_protocolo[5] );
+              ////System.out.println("Possivel protocolo: "+array_protocolo[6] );
+              ////System.out.println("Possivel protocolo: "+array_protocolo[7] );
 
 
 
@@ -674,9 +682,9 @@ public class ManipularNotasFiscais {
               
 
               String procura = nome_destinatario + data + ",";
-              //System.out.println("String de procura:" + procura);
+              ////System.out.println("String de procura:" + procura);
               String procura_inscriao_destinatario = tratamentoDados.tratar(procura, ",");
-            //  System.out.println("Procura inscricao: " + procura_inscriao_destinatario);
+            //  //System.out.println("Procura inscricao: " + procura_inscriao_destinatario);
              String inscricao_destinatario = procura_inscriao_destinatario;
            //  String natureza = lines[28].toString();
           
@@ -703,7 +711,7 @@ public class ManipularNotasFiscais {
 	                	}
 	                	else
 	                	{
-	                		System.out.println("Nenhum Produto Escontrado");
+	                		//System.out.println("Nenhum Produto Escontrado");
 	                	}
               		
               	}
@@ -730,7 +738,7 @@ public class ManipularNotasFiscais {
 	                	}
 	                	else
 	                	{
-	                		System.out.println("Nenhum Produto Escontrado");
+	                		//System.out.println("Nenhum Produto Escontrado");
 	                	}
               		
               	}
@@ -740,24 +748,24 @@ public class ManipularNotasFiscais {
               String quantidade = tratamentoDados.tratar("ISS, ", " ");
               quantidade = quantidade.replace(".", "");
               
-              System.out.println("Numero nfe: " + nfe);
+              //System.out.println("Numero nfe: " + nfe);
 
-              System.out.println("Serie: " + serie );
-              System.out.println("Remetente: " + nome_remetente);
-              System.out.println("Inscrição do remetente: " + inscricao_remetente);
+              //System.out.println("Serie: " + serie );
+              //System.out.println("Remetente: " + nome_remetente);
+              //System.out.println("Inscrição do remetente: " + inscricao_remetente);
               
-              System.out.println("Protocolo: " + protocolo);
-              System.out.println("Data: " + data );
-              System.out.println("Natureza: " + natureza);
+              //System.out.println("Protocolo: " + protocolo);
+              //System.out.println("Data: " + data );
+              //System.out.println("Natureza: " + natureza);
 
-              System.out.println("Nome do Destinatario: " + nome_destinatario);
+              //System.out.println("Nome do Destinatario: " + nome_destinatario);
               
-             System.out.println("Inscricao Destinatario: "+ inscricao_destinatario);
+             //System.out.println("Inscricao Destinatario: "+ inscricao_destinatario);
           
-             System.out.println("Produto: "+ produto);
-             System.out.println("Unidade: "+ unidade);
-             System.out.println("Quantidade: " + quantidade);
-             System.out.println("Valor: " + valor);
+             //System.out.println("Produto: "+ produto);
+             //System.out.println("Unidade: "+ unidade);
+             //System.out.println("Quantidade: " + quantidade);
+             //System.out.println("Valor: " + valor);
              
 
   		
@@ -800,7 +808,7 @@ public class ManipularNotasFiscais {
 
    	   String tratar = Arrays.toString(lines);
           // tratar = tratar.replaceAll("\n", "*");
-           //System.out.println(tratar);
+           ////System.out.println(tratar);
              TratarDados tratamentoDados  = new TratarDados(tratar );
 
              String nfe = tratamentoDados.tratar("Nº "," ").replaceAll("[^0-9]", "");
@@ -883,7 +891,7 @@ public class ManipularNotasFiscais {
 	                	}
 	                	else
 	                	{
-	                		System.out.println("Nenhum Produto Escontrado");
+	                		//System.out.println("Nenhum Produto Escontrado");
 	                	}
              		
              	}
@@ -910,7 +918,7 @@ public class ManipularNotasFiscais {
 	                	}
 	                	else
 	                	{
-	                		System.out.println("Nenhum Produto Escontrado");
+	                		//System.out.println("Nenhum Produto Escontrado");
 	                	}
              		
              	}
@@ -920,24 +928,24 @@ public class ManipularNotasFiscais {
              String quantidade = tratamentoDados.tratar(unidade + " ", " ");
 
              
-             System.out.println("Numero nfe: " + nfe);
+             //System.out.println("Numero nfe: " + nfe);
 
-             System.out.println("Serie: " + serie );
-             System.out.println("Remetente: " + nome_remetente);
-             System.out.println("Inscrição do remetente: " + inscricao_remetente);
+             //System.out.println("Serie: " + serie );
+             //System.out.println("Remetente: " + nome_remetente);
+             //System.out.println("Inscrição do remetente: " + inscricao_remetente);
              
-             System.out.println("Protocolo: " + protocolo);
-             System.out.println("Data: " + data );
-             System.out.println("Natureza: " + natureza);
+             //System.out.println("Protocolo: " + protocolo);
+             //System.out.println("Data: " + data );
+             //System.out.println("Natureza: " + natureza);
 
-             System.out.println("Nome do Destinatario: " + nome_destinatario);
+             //System.out.println("Nome do Destinatario: " + nome_destinatario);
              
-            System.out.println("Inscricao Destinatario: "+ inscricao_destinatario);
+            //System.out.println("Inscricao Destinatario: "+ inscricao_destinatario);
          
-            System.out.println("Produto: "+ produto);
-            System.out.println("Unidade: "+ unidade);
-            System.out.println("Quantidade: " + quantidade);
-            System.out.println("Valor: " + valor);
+            //System.out.println("Produto: "+ produto);
+            //System.out.println("Unidade: "+ unidade);
+            //System.out.println("Quantidade: " + quantidade);
+            //System.out.println("Valor: " + valor);
             
 
  		
@@ -984,7 +992,7 @@ public class ManipularNotasFiscais {
 		File file = null;
 		MyFileVisitor arquivos = new MyFileVisitor();
 		Path source = Paths.get(configs_globais.getServidorUnidade() + "E-Contract\\arquivos\\");
-		System.out.println("Pasta procura notas_fiscais: " + source);
+		//System.out.println("Pasta procura notas_fiscais: " + source);
 		try {
 			Files.walkFileTree(source, arquivos);
 			listaLocal = arquivos.getArquivos();
@@ -993,7 +1001,7 @@ public class ManipularNotasFiscais {
 			ex.printStackTrace();
 		}
 
-		System.out.println("numero de arquivos encontratos: " + listaLocal.size());
+		//System.out.println("numero de arquivos encontratos: " + listaLocal.size());
 
 		for (int i = 0; i < listaLocal.size(); i++) {
 			if (listaLocal.get(i).endsWith(".pdf") || listaLocal.get(i).endsWith(".Pdf")) {
@@ -1001,12 +1009,12 @@ public class ManipularNotasFiscais {
 
 				try {
 					String result = tratar.tratar("NFA-", ".pdf");
-					System.out.println("Result: " + result);
-					System.out.println("Codigo: " + codigo);
+					//System.out.println("Result: " + result);
+					//System.out.println("Codigo: " + codigo);
 
 					if (result != null && result.length() > 8) {
 						if (result.trim().equals(codigo.trim())) {
-							System.out.println("encontrato");
+							//System.out.println("encontrato");
 							file = new File(listaLocal.get(i).toString());
 
 							break;
@@ -1047,12 +1055,13 @@ public class ManipularNotasFiscais {
 	  
 	public CadastroNFe tratar_nfe_cj(String lines[], File file) {
 		
+		//JOptionPane.showMessageDialog(null, "NFE cj cahamada para tratar");
 		CadastroNFe cadastro = new CadastroNFe();
   		cadastro.setCaminho_arquivo(file.getAbsolutePath());
 
 		String tratar = Arrays.toString(lines);
 		// tratar = tratar.replaceAll("\n", "*");
-		// System.out.println(tratar);
+		 //System.out.println(tratar);
 		TratarDados tratamentoDados = new TratarDados(tratar);
 		
 		String nfe = tratamentoDados.tratar("No. ", ",");
@@ -1094,7 +1103,7 @@ public class ManipularNotasFiscais {
 		    			if(busca.getIe() != null) {
 		    			if(busca.getIe().equals(insc_remetente)) {
 		    			    remetente = busca;
-		    			    // JOptionPane.showMessageDialog(null, "Remetente encontrado");
+		    			    //  JOptionPane.showMessageDialog(null, "Remetente encontrado");
 		    				break;
 		    			}else {
 		    				
@@ -1137,13 +1146,13 @@ public class ManipularNotasFiscais {
         }
         
         String data = String.copyValueOf(charArray);
-        //JOptionPane.showMessageDialog(null, "Data: " + data);
+        // JOptionPane.showMessageDialog(null, "Data: " + data);
 		
 		try {
 			
 			
 			Date date = new SimpleDateFormat("dd/MM/yyyy").parse(data);
-			//	JOptionPane.showMessageDialog(null, "data: " + date);
+			//JOptionPane.showMessageDialog(null, "data: " + date);
 
 		cadastro.setData(date);
 		}catch(Exception t) {
@@ -1171,7 +1180,7 @@ public class ManipularNotasFiscais {
 		    			if(busca.getIe() != null) {
 		    			if(busca.getIe().equals(insc_destinatario)) {
 		    				destinatario = busca;
-		    				// JOptionPane.showMessageDialog(null, "Destinatario encontrado");
+		    		//		 JOptionPane.showMessageDialog(null, "Destinatario encontrado");
 		    				break;
 		    			}else {
 		    				
@@ -1259,7 +1268,7 @@ public CadastroNFe tratar_nfe_interna_gescoop(String lines[], File file) {
   		try {
 		String tratar = Arrays.toString(lines);
 		// tratar = tratar.replaceAll("\n", "*");
-		 System.out.println("conteudo: " + tratar);
+		 //System.out.println("conteudo: " + tratar);
 		TratarDados tratamentoDados = new TratarDados(tratar);
 		
 		String nfe = tratamentoDados.tratar("Nº ", ",");
@@ -1439,4 +1448,10 @@ public CadastroNFe tratar_nfe_interna_gescoop(String lines[], File file) {
   		}
 
 	}
+
+ public void setListaAtual(ArrayList<CadastroNFe> lista) {
+	 this.lista_global = lista;
+	 
+ }
+
 }
