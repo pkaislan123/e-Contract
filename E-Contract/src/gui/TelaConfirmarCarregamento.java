@@ -71,8 +71,6 @@ public class TelaConfirmarCarregamento extends JDialog {
 	private JPanel painelConfirmar = new JPanel();
 	private JPanel painelSelecionar = new JPanel();
 	private JFrame telaPaiJFrame;
-	private TelaRomaneios telaRomaneio;
-	private TelaTodasNotasFiscais telaTodasNotasFiscais;
 	private String servidor_unidade;
 	private TelaConfirmarCarregamento isto;
 	private JDialog telaPai;
@@ -386,26 +384,15 @@ public class TelaConfirmarCarregamento extends JDialog {
 				
 				String produto = produto_carregamento.getNome_produto().toUpperCase();
 				
-				if(telaRomaneio == null) {
-					telaRomaneio = new TelaRomaneios(0,isto);
-					telaRomaneio.pesquisarTodosOsRomaneios(new GerenciarBancoClientes().getClientes(-1, -1, ""));
-					DadosGlobais dados = DadosGlobais.getInstance();
-					telaRomaneio.limpar();
-					telaRomaneio.setDadosPesquisa("", "", "", produto, entRomaneio.getText());
+				 TelaRomaneios telaRomaneio;
+                 telaRomaneio = new TelaRomaneios(0,isto);
+				 telaRomaneio.limpar();
+				 telaRomaneio.setDadosPesquisa("", "", "", produto, entRomaneio.getText());
+				 telaRomaneio.setTelaPai(isto);
+				 telaRomaneio.pesquisarTodosOsRomaneios();
 
-					dados.setTelaRomaneios(telaRomaneio);
-					telaRomaneio.setTelaPai(isto);
-					telaRomaneio.setVisible(true);
-				}else {
-					//telaRomaneio.pesquisarTodosOsRomaneios(clientes_disponiveis);
-					telaRomaneio.setTelaPai(isto);
-					telaRomaneio.limpar();
-
-					//telaRomaneio.setDadosPesquisa("", "", "ENTRADA".toUpperCase(), produto);
-					telaRomaneio.setDadosPesquisa("", "", "", produto, entRomaneio.getText());
-
-					telaRomaneio.setVisible(true);
-				}
+				 telaRomaneio.setVisible(true);
+				
 			}
 		});
 		btnLerRomaneio.setBounds(682, 320, 168, 28);
@@ -436,27 +423,16 @@ public class TelaConfirmarCarregamento extends JDialog {
 				
 				
 				
-				if(telaTodasNotasFiscais == null) {
-					telaTodasNotasFiscais = new TelaTodasNotasFiscais(0,2,isto);
-					DadosGlobais dados = DadosGlobais.getInstance();
-
-					dados.setTelaTodasNotasFiscais(telaTodasNotasFiscais);
+				TelaTodasNotasFiscais telaTodasNotasFiscais = new TelaTodasNotasFiscais(0,2,isto);
 					telaTodasNotasFiscais.setTelaPai(isto);
 					telaTodasNotasFiscais.limpar();
 					telaTodasNotasFiscais.setRetornoGlobal(2);
 					telaTodasNotasFiscais.setDadosPesquisa("", "", "Venda", produto, entCodigoNFVenda1.getText());
 					telaTodasNotasFiscais.habilitarBtnSelecionar();
+					telaTodasNotasFiscais.pesquisar_notas();
 
 					telaTodasNotasFiscais.setVisible(true);
-				}else {
-					//telaRomaneio.pesquisarTodosOsRomaneios(clientes_disponiveis);
-					telaTodasNotasFiscais.setTelaPai(isto);
-					telaTodasNotasFiscais.limpar();
-					telaTodasNotasFiscais.setDadosPesquisa("", "", "Venda", produto,entCodigoNFVenda1.getText());
-					telaTodasNotasFiscais.setRetornoGlobal(2);
-					telaTodasNotasFiscais.habilitarBtnSelecionar();
-					telaTodasNotasFiscais.setVisible(true);
-				}
+				
 			}
 		});
 		btnLerNfVenda.setBounds(963, 456, 113, 28);
@@ -511,27 +487,17 @@ public class TelaConfirmarCarregamento extends JDialog {
 				String produto = produto_carregamento.getNome_produto();
 				
 				
-				if(telaTodasNotasFiscais == null) {
-					telaTodasNotasFiscais = new TelaTodasNotasFiscais(0,2,isto);
-					DadosGlobais dados = DadosGlobais.getInstance();
-
-					dados.setTelaTodasNotasFiscais(telaTodasNotasFiscais);
+				TelaTodasNotasFiscais telaTodasNotasFiscais = new TelaTodasNotasFiscais(0,2,isto);
+				
 					telaTodasNotasFiscais.setTelaPai(isto);
 					telaTodasNotasFiscais.limpar();
 					telaTodasNotasFiscais.setRetornoGlobal(1);
 					telaTodasNotasFiscais.setDadosPesquisa("", "", "", produto, entCodigoNFInterna.getText());
 					telaTodasNotasFiscais.habilitarBtnSelecionar();
+					telaTodasNotasFiscais.pesquisar_notas();
 
 					telaTodasNotasFiscais.setVisible(true);
-				}else {
-					//telaRomaneio.pesquisarTodosOsRomaneios(clientes_disponiveis);
-					telaTodasNotasFiscais.setTelaPai(isto);
-					telaTodasNotasFiscais.limpar();
-					telaTodasNotasFiscais.setDadosPesquisa("", "", "", produto,entCodigoNFInterna.getText());
-					telaTodasNotasFiscais.setRetornoGlobal(1);
-					telaTodasNotasFiscais.habilitarBtnSelecionar();
-					telaTodasNotasFiscais.setVisible(true);
-				}
+				
 				
 			}
 		});
@@ -586,27 +552,17 @@ public class TelaConfirmarCarregamento extends JDialog {
 				String produto = produto_carregamento.getNome_produto();
 				
 				
-				if(telaTodasNotasFiscais == null) {
-					telaTodasNotasFiscais = new TelaTodasNotasFiscais(0,2,isto);
-					DadosGlobais dados = DadosGlobais.getInstance();
-
-					dados.setTelaTodasNotasFiscais(telaTodasNotasFiscais);
+				
+				TelaTodasNotasFiscais telaTodasNotasFiscais = new TelaTodasNotasFiscais(0,2,isto);
 					telaTodasNotasFiscais.setTelaPai(isto);
 					telaTodasNotasFiscais.limpar();
 					telaTodasNotasFiscais.setRetornoGlobal(3);
 					telaTodasNotasFiscais.setDadosPesquisa(destinatario, "", "Venda", produto, entCodigoNFComplemento.getText());
 					telaTodasNotasFiscais.habilitarBtnSelecionar();
+					telaTodasNotasFiscais.pesquisar_notas();
 
 					telaTodasNotasFiscais.setVisible(true);
-				}else {
-					//telaRomaneio.pesquisarTodosOsRomaneios(clientes_disponiveis);
-					telaTodasNotasFiscais.setTelaPai(isto);
-					telaTodasNotasFiscais.limpar();
-					telaTodasNotasFiscais.setDadosPesquisa(destinatario, "", "Venda", produto, entCodigoNFComplemento.getText());
-					telaTodasNotasFiscais.setRetornoGlobal(3);
-					telaTodasNotasFiscais.habilitarBtnSelecionar();
-					telaTodasNotasFiscais.setVisible(true);
-				}
+				
 
 			}
 		});
@@ -749,9 +705,9 @@ public class TelaConfirmarCarregamento extends JDialog {
 						carregamento_a_inserir);
 				if (retorno > 0) {
 					JOptionPane.showMessageDialog(isto, "Carregamento Cadastrado!");
-	            	   ((TelaGerenciarContrato) telaPaiJFrame).pesquisar_recebimentos();
+	            	   ((TelaGerenciarContrato) telaPaiJFrame).pesquisar_recebimentos(true);
 
-					((TelaGerenciarContrato) telaPaiJFrame).pesquisar_carregamentos();
+					((TelaGerenciarContrato) telaPaiJFrame).pesquisar_carregamentos(true);
 					carregamento_a_inserir.setId_carregamento(retorno);
 				     carregamento_global =carregamento_a_inserir;
 					gerarPastasEArquivos();
@@ -929,9 +885,9 @@ public class TelaConfirmarCarregamento extends JDialog {
 	               if(atualizou) {
 	            	   JOptionPane.showMessageDialog(isto, "Carregamento Atualizado");
 	            	   
-	            	   ((TelaGerenciarContrato) telaPaiJFrame).pesquisar_recebimentos();
+	            	   ((TelaGerenciarContrato) telaPaiJFrame).pesquisar_recebimentos(true);
 
-	            	   ((TelaGerenciarContrato) telaPaiJFrame).pesquisar_carregamentos();
+	            	   ((TelaGerenciarContrato) telaPaiJFrame).pesquisar_carregamentos(true);
 	            	   isto.dispose();
 	               }else {
 	            	   JOptionPane.showMessageDialog(isto, "Erro ao atualizar o carregamento\nConsulte o Administrador");
@@ -2570,11 +2526,6 @@ public void getDadosGlobais() {
 			 //usuario logado
 			  login = dados.getLogin();
 		
-			  //telaRomaneios
-			  telaRomaneio = dados.getTelaRomaneios();
-			  
-			  //telaTodasNotasFicais
-			  telaTodasNotasFiscais = dados.getTelaTodasNotasFiscais();
-	
+			 
 }
 }

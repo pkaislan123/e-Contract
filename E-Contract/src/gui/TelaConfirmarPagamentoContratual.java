@@ -288,7 +288,7 @@ public class TelaConfirmarPagamentoContratual extends JDialog {
 				if (retorno) {
 					JOptionPane.showMessageDialog(isto, "Pagamento Cadastrado!");
 					//((TelaGerenciarContrato) telaPai).pesquisar_pagamentos();
-					((TelaGerenciarContrato) telaPaiJFrame).pesquisar_pagamentos();
+					((TelaGerenciarContrato) telaPaiJFrame).pesquisar_pagamentos(true);
 
 					isto.dispose();
 

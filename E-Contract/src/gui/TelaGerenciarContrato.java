@@ -101,6 +101,7 @@ import cadastros.CadastroCliente;
 import cadastros.CadastroContrato;
 import cadastros.CadastroContrato.CadastroPagamentoContratual;
 import cadastros.CadastroContrato.CadastroTarefa;
+import cadastros.CadastroContrato.CadastroTransferenciaPagamentoContratual;
 import cadastros.CadastroDistrato;
 import cadastros.CadastroDocumento;
 import cadastros.CadastroInformativo;
@@ -219,17 +220,20 @@ public class TelaGerenciarContrato extends JFrame {
 	private JLabel lblStatusAdicionandoNotas;
 	private int contador = 0;
 	private JLabel lblPesoTotalContrato, lblPesoTotalRecebido, lblPesoTotalRestante;
-	private JLabel lblNumRomaneiosRecebimento, lblTotalSacosKGsRomaneios, lblTotalSacosKGsNFVenda,
-			lblTotalSacosKGsNFVendaRestante;
-	private JPanel painelPaiGraficoRecebimento;
+	private JLabel lblNumRomaneiosRecebimento, lblTotalSacosKGsRomaneios, lblPesoTotalNFVendaEntrada,
+			lblPesoRestanteNFVendaEntrada, lblValorTotalNFVendaEntrada, lblPesoTotalNFRemessaEntrada,
+			lblPesoRestanteNFRemessaEntrada, lblValorTotalNFRemessaEntrada, lblStatusRecebimentoEntrada,
+			lblStatusNFRemessaEntrada, lblStatusNFVendaEntrada;
+	private JLabel lblStatusCarregamentoSaida ,lblStatusNFVendaSaida  ,lblStatusNFRemessaSaida ,lblNumRomaneiosCarregamento,lblTotalSacosKGsRomaneiosSaida ,lblPesoTotalNFInternaSaida ,lblPesoRestanteNFInternaSaida ,lblPesoTotalNFVendaSaida ,lblPesoRestanteNFVendaSaida;
+	
 	private FileChooser d;
+	private JPanelGraficoPadrao painelGraficoRecebimento;
 	private JFileChooser fileChooser_global;
 	private ArrayList<String> listadeArquivos = new ArrayList<>();
 	private double total_sacos_recebidos = 0, total_kg_recebidos;
 	private int total_romaneios_entrada = 0;
 	private RecebimentoTableModel modelo_recebimentos = new RecebimentoTableModel();
 	private CarregamentoTableModel modelo_carregamentos = new CarregamentoTableModel();
-	private JLabel lblPesoTotalNotasFiscaisEmitidas;
 	private Log GerenciadorLog;
 	private CadastroLogin login;
 	private JComboBox cBBrutoLivre, cBOptante;
@@ -240,7 +244,7 @@ public class TelaGerenciarContrato extends JFrame {
 	private JPanel painelRecebimentoEntrada = new JPanel();
 	private JLabel lblDataContratoRecebimento, lblCorretorRecebimento, lblCompradoresRecebimento,
 			lblVendedoresRecebimento, lblValorUnidadeRecebimento, lblQuantidadeRecebimento, lblValorTotalRecebimento,
-			lblProdutoRecebimento, lblSafraRecebimento;
+			lblProdutoRecebimento, lblSafraRecebimento,lblValorTotalNFVendaSaida;
 	private JPanel painelVizualizarContrato;
 	private ArrayList<CadastroInformativo> informacoes_atuais = new ArrayList<>();
 	private JPanel painelCarregamento = new JPanel();
@@ -248,12 +252,13 @@ public class TelaGerenciarContrato extends JFrame {
 	private JPanel painelComprovantes = new JPanel();
 	private JTree arvore_documentos;
 	private JTree arvore_contratos;
+	private ArrayList<String> horarios_informativos_ja_executados = new ArrayList<>();
 	private ArrayList<CadastroRomaneio> lista_romaneios_carregamento = new ArrayList<>();
 	private ArrayList<CadastroNFe> lista_nf_interna_carregamento = new ArrayList<>();
 	private ArrayList<CadastroNFe> lista_nf_venda1_carregamento = new ArrayList<>();
 	private ArrayList<CadastroNFe> lista_nf_complemento_carregamento = new ArrayList<>();
 	private JTextArea textAreaStatusOpcaoFolha, textAreaDescricao, textAreaObservacoes;
-
+	private ArrayList<Integer> informativos_ja_executados = new ArrayList<>();
 	private JCheckBox chckbxIncluirRecebimentos;
 	private Registros.RegistroPagamento registro_pagamento_global;
 	private String caminho_salvar_comprovante_pagamento;
@@ -271,6 +276,7 @@ public class TelaGerenciarContrato extends JFrame {
 	private final JLabel lblValorTotalPagamentos, lblTotalTransferenciasRecebidas, lblTotalTransferenciasRetiradas;
 	InputStream stream = null;
 	private final JButton btnEditarContrato = new JButton("Editar");
+	
 	private JPanel painel_vizualizar;
 	private final JButton btnEnviarMsg = new JButton("Enviar"), btnCriarAditivo, btnRevogarAssinatura;
 	private final JLabel lblNewLabel = new JLabel("     Modelos de Pagamento");
@@ -278,15 +284,15 @@ public class TelaGerenciarContrato extends JFrame {
 	private ArrayList<CadastroContrato> lista_sub_contratos = new ArrayList<>();
 	private SwingController controller = null;
 	private SwingViewBuilder factory;
+	ArrayList<JButton> botoes = new ArrayList<>();
 	private TelaGerenciarContrato isto;
 	private static String servidor_unidade;
 	private CadastroCliente cliente_carregamento;
 	private CadastroContrato contrato_carregamento;
-	private JPanelGraficoPadrao painelGraficoRecebimento;
 	private JPanel painelSubContratos = new JPanel();
 	private Registros.RegistroCarregamento registro_carregamento_global;
 	private Registros.RegistroRecebimento registro_recebimento_global;
-    private double peso_total_recebido;
+	private double peso_total_recebido;
 	private CadastroNFe nota_fiscal;
 	private CadastroCliente transportador = new CadastroCliente();
 	private CadastroProduto produto = new CadastroProduto();
@@ -300,11 +306,10 @@ public class TelaGerenciarContrato extends JFrame {
 	private ArrayList<CadastroContrato.CadastroPagamentoContratual> lista_pagamentos_contratuais = null;
 	private ArrayList<CadastroContrato.CadastroTransferenciaPagamentoContratual> lista_transferencias_contratuais_remetente = null;
 	private ArrayList<CadastroContrato.CadastroTransferenciaPagamentoContratual> lista_transferencias_contratuais_destinatario = null;
-	
+
 	private ArrayList<CadastroContrato.CadastroTransferenciaCarga> lista_transferencias_carga_remetente = null;
 	private ArrayList<CadastroContrato.CadastroTransferenciaCarga> lista_transferencias_carga_destinatario = null;
 
-	
 	private JPopupMenu jPopupMenuTabelCarregamento;
 	private JPopupMenu jPopupMenuTabelPagamentos;
 	private JPopupMenu jPopupMenuDocumentos;
@@ -313,11 +318,10 @@ public class TelaGerenciarContrato extends JFrame {
 	private JButton btnAprovar;
 
 	private Double peso_total_cargas_nf_venda1 = 0.0, peso_total_cargas_nf_complemento = 0.0;
-	private Double peso_total_cargas = 0.0;
-	private JLabel lblPesoTotalRealCargas, lblPesoTotalNotasFiscais, lblPesoTotal, lblPesoTotalRealRestante,
-			lblPesoTotalNotasFiscaisaEmitir, lblNoSelecionado;
+	private Double peso_total_cargas = 0.0, peso_total_cargas_nf_interna = 0.0;
+	private JLabel lblPesoTotalRealCargas, lblPesoTotal, lblPesoTotalRealRestante, lblNoSelecionado;
 
-	private JPanelGraficoPadrao painelGraficoCarregamento, painelGraficoNFs, painelGraficoPagamentos;
+	private JPanelGraficoPadrao painelGraficoCarregamento, painelGraficoPagamentos;
 
 	private JTextArea entDescricaoDocumento;
 	DefaultTableModel modelo = new DefaultTableModel() {
@@ -362,6 +366,8 @@ public class TelaGerenciarContrato extends JFrame {
 	private final JLabel lblTipoContrato = new JLabel("Tipo Contrato:");
 	private final JButton btnExcluirContrato = new JButton("Excluir");
 	private JTable table_tarefas;
+	private JButton btnImportarDeTerceiros, btnImportarDeTerceiros_1, btnSelecionarDocumento, btnAdicionarDocumento;
+
 	private final JButton btnAdicionarCarregamento = new JButton("Adicionar");
 	private JButton btnAssinarContrato, btnConcluir;
 	private final JScrollPane scrollPaneCarregamento;
@@ -404,7 +410,7 @@ public class TelaGerenciarContrato extends JFrame {
 				int xOfCurrentScreen = currentScreen.x;
 
 				if (currentScreen.height > 970 || currentScreen.width > 1400)
-					isto.setResizable(false);
+					isto.setResizable(true);
 				else
 					isto.setResizable(true);
 
@@ -432,11 +438,10 @@ public class TelaGerenciarContrato extends JFrame {
 		DisplayMode dm = myScreen.getDisplayMode();
 
 		if (dm.getHeight() > 800)
-			setBounds(0, 0, 1400, 970);
+			setBounds(0, 0, 1400, 1000);
 		else
 			setBounds(0, 0, 1371, 735);
 
-		
 
 		painelPrincipal.setBackground(new Color(255, 255, 255));
 		painelPrincipal.setBorder(new EmptyBorder(5, 5, 5, 5));
@@ -481,8 +486,6 @@ public class TelaGerenciarContrato extends JFrame {
 		modelo_tarefas.addColumn("Data Agendada");
 		modelo_tarefas.addColumn("Prioridade");
 
-		
-
 		setMenuCarregamento();
 
 		painel_informacoes_tab_pagamentos = new PainelInformativo();
@@ -502,7 +505,7 @@ public class TelaGerenciarContrato extends JFrame {
 
 		JPanel odin = new JPanel();
 		odin.setBackground(Color.white);
-		odin.setBounds(0, 0, 1366, 735);
+		// odin.setBounds(0, 0, 1366, 735);
 
 		// getContentPane().add(painelPrincipal, BorderLayout.CENTER);
 
@@ -521,8 +524,7 @@ public class TelaGerenciarContrato extends JFrame {
 		// adiciona novos paines e suas abas
 		painelPrincipal.addTab("Contrato", painelDadosIniciais);
 
-		if (contrato.getSub_contrato() == 0 || contrato.getSub_contrato() == 5) 
-		{
+		if (contrato.getSub_contrato() == 0 || contrato.getSub_contrato() == 5) {
 			// não é um subcontrato
 			// criarAbaSubContrato();
 			painelSubContratos.setBackground(new Color(255, 255, 255));
@@ -539,46 +541,104 @@ public class TelaGerenciarContrato extends JFrame {
 		// adiciona o painel de recebimento
 		painelPrincipal.addTab("Recebimento de Entrada", painelRecebimentoEntrada);
 		painelRecebimentoEntrada.setLayout(new BorderLayout(0, 0));
-
-		JPanel panelPaiRecebimento = new JPanel();
-		panelPaiRecebimento.setLocation(0, 0);
-		panelPaiRecebimento.setSize(1361, 888);
-
-		JScrollPane scrollPainelRecebimento = new JScrollPane(panelPaiRecebimento);
-		painelRecebimentoEntrada.add(scrollPainelRecebimento);
-		GridBagLayout gbl_panelPaiRecebimento = new GridBagLayout();
-		gbl_panelPaiRecebimento.columnWidths = new int[] { 1361, 0 };
-		gbl_panelPaiRecebimento.rowHeights = new int[] { 888, 0 };
-		gbl_panelPaiRecebimento.columnWeights = new double[] { 0.0, Double.MIN_VALUE };
-		gbl_panelPaiRecebimento.rowWeights = new double[] { 0.0, Double.MIN_VALUE };
-		panelPaiRecebimento.setLayout(gbl_panelPaiRecebimento);
+		// panelPaiRecebimento.setLayout(new BorderLayout(0, 0));
 
 		JPanel panel_5 = new JPanel();
 		panel_5.setBackground(Color.WHITE);
-		GridBagConstraints gbc_panel_5 = new GridBagConstraints();
-		gbc_panel_5.fill = GridBagConstraints.BOTH;
-		gbc_panel_5.gridx = 0;
-		gbc_panel_5.gridy = 0;
-		panelPaiRecebimento.add(panel_5, gbc_panel_5);
-		panel_5.setLayout(null);
+		// panelPaiRecebimento.add(panel_5);
+		painelRecebimentoEntrada.add(panel_5);
+		panel_5.setLayout(new MigLayout("", "[108px][0px][0px][0.00px][196.00px,grow][-14.00px][282.00px][7.00px][27.00px][12px][90px,grow][10px][90px][12px][143px,grow][][4px][][5px][grow][3px][][22px][5px][177.00px,grow]", "[148px][24px][226.00px,grow][10px][][17px][12px][17px][11px][52.00px][][35px][18px][]"));
 
 		JLabel lblNewLabel_4_1 = new JLabel("     Recebimento");
-		lblNewLabel_4_1.setBounds(0, 25, 158, 31);
-		panel_5.add(lblNewLabel_4_1);
+		panel_5.add(lblNewLabel_4_1, "cell 0 0 5 1,alignx left,aligny top");
 		lblNewLabel_4_1.setOpaque(true);
 		lblNewLabel_4_1.setForeground(Color.WHITE);
 		lblNewLabel_4_1.setFont(new Font("Arial", Font.PLAIN, 18));
 		lblNewLabel_4_1.setBackground(new Color(0, 51, 0));
 
 		JLabel lblNewLabel_28 = new JLabel("");
-		lblNewLabel_28.setBounds(30, 55, 183, 77);
-		panel_5.add(lblNewLabel_28);
+		panel_5.add(lblNewLabel_28, "cell 0 0 5 1,alignx left,aligny center");
 		lblNewLabel_28.setIcon(
 				new ImageIcon(TelaGerenciarContrato.class.getResource("/imagens/icone_caminhao_descarregando4.png")));
 
+		JPanel panel_13 = new JPanel();
+		panel_13.setBackground(new Color(0, 51, 51));
+		panel_5.add(panel_13, "cell 19 0 6 1,alignx center,aligny center");
+		GridBagLayout gbl_panel_13 = new GridBagLayout();
+		gbl_panel_13.columnWidths = new int[] { 0, 0, 0, 0, 0 };
+		gbl_panel_13.rowHeights = new int[] { 0, 0, 0, 0, 0, 0 };
+		gbl_panel_13.columnWeights = new double[] { 0.0, 0.0, 0.0, 0.0, Double.MIN_VALUE };
+		gbl_panel_13.rowWeights = new double[] { 0.0, 0.0, 0.0, 0.0, 0.0, Double.MIN_VALUE };
+		panel_13.setLayout(gbl_panel_13);
+
+		JLabel lblNewLabel_43 = new JLabel("Status do Recebimento");
+		lblNewLabel_43.setForeground(Color.WHITE);
+		lblNewLabel_43.setFont(new Font("SansSerif", Font.PLAIN, 16));
+		GridBagConstraints gbc_lblNewLabel_43 = new GridBagConstraints();
+		gbc_lblNewLabel_43.insets = new Insets(0, 0, 5, 5);
+		gbc_lblNewLabel_43.gridx = 1;
+		gbc_lblNewLabel_43.gridy = 0;
+		panel_13.add(lblNewLabel_43, gbc_lblNewLabel_43);
+
+		JLabel lblNewLabel_40 = new JLabel("Recebimento:");
+		lblNewLabel_40.setForeground(Color.WHITE);
+		lblNewLabel_40.setFont(new Font("SansSerif", Font.PLAIN, 16));
+		GridBagConstraints gbc_lblNewLabel_40 = new GridBagConstraints();
+		gbc_lblNewLabel_40.insets = new Insets(0, 0, 5, 5);
+		gbc_lblNewLabel_40.gridx = 0;
+		gbc_lblNewLabel_40.gridy = 2;
+		panel_13.add(lblNewLabel_40, gbc_lblNewLabel_40);
+
+		lblStatusRecebimentoEntrada = new JLabel("Aguardando:");
+		lblStatusRecebimentoEntrada.setForeground(Color.WHITE);
+		lblStatusRecebimentoEntrada.setFont(new Font("SansSerif", Font.BOLD, 16));
+		GridBagConstraints gbc_lblStatusRecebimentoEntrada = new GridBagConstraints();
+		gbc_lblStatusRecebimentoEntrada.gridwidth = 3;
+		gbc_lblStatusRecebimentoEntrada.insets = new Insets(0, 0, 5, 0);
+		gbc_lblStatusRecebimentoEntrada.gridx = 1;
+		gbc_lblStatusRecebimentoEntrada.gridy = 2;
+		panel_13.add(lblStatusRecebimentoEntrada, gbc_lblStatusRecebimentoEntrada);
+
+		JLabel lblNewLabel_40_1 = new JLabel("NF's Venda:");
+		lblNewLabel_40_1.setForeground(Color.WHITE);
+		lblNewLabel_40_1.setFont(new Font("SansSerif", Font.PLAIN, 16));
+		GridBagConstraints gbc_lblNewLabel_40_1 = new GridBagConstraints();
+		gbc_lblNewLabel_40_1.insets = new Insets(0, 0, 5, 5);
+		gbc_lblNewLabel_40_1.gridx = 0;
+		gbc_lblNewLabel_40_1.gridy = 3;
+		panel_13.add(lblNewLabel_40_1, gbc_lblNewLabel_40_1);
+
+		lblStatusNFVendaEntrada = new JLabel("Aguardando:");
+		lblStatusNFVendaEntrada.setForeground(Color.WHITE);
+		lblStatusNFVendaEntrada.setFont(new Font("SansSerif", Font.BOLD, 16));
+		GridBagConstraints gbc_lblStatusNFVendaEntrada = new GridBagConstraints();
+		gbc_lblStatusNFVendaEntrada.gridwidth = 3;
+		gbc_lblStatusNFVendaEntrada.insets = new Insets(0, 0, 5, 5);
+		gbc_lblStatusNFVendaEntrada.gridx = 1;
+		gbc_lblStatusNFVendaEntrada.gridy = 3;
+		panel_13.add(lblStatusNFVendaEntrada, gbc_lblStatusNFVendaEntrada);
+
+		JLabel lblNewLabel_40_2 = new JLabel("NF' Remessa:");
+		lblNewLabel_40_2.setForeground(Color.WHITE);
+		lblNewLabel_40_2.setFont(new Font("SansSerif", Font.PLAIN, 16));
+		GridBagConstraints gbc_lblNewLabel_40_2 = new GridBagConstraints();
+		gbc_lblNewLabel_40_2.insets = new Insets(0, 0, 0, 5);
+		gbc_lblNewLabel_40_2.gridx = 0;
+		gbc_lblNewLabel_40_2.gridy = 4;
+		panel_13.add(lblNewLabel_40_2, gbc_lblNewLabel_40_2);
+
+		lblStatusNFRemessaEntrada = new JLabel("Aguardando:");
+		lblStatusNFRemessaEntrada.setForeground(Color.WHITE);
+		lblStatusNFRemessaEntrada.setFont(new Font("SansSerif", Font.BOLD, 16));
+		GridBagConstraints gbc_lblStatusNFRemessaEntrada = new GridBagConstraints();
+		gbc_lblStatusNFRemessaEntrada.gridwidth = 3;
+		gbc_lblStatusNFRemessaEntrada.insets = new Insets(0, 0, 0, 5);
+		gbc_lblStatusNFRemessaEntrada.gridx = 1;
+		gbc_lblStatusNFRemessaEntrada.gridy = 4;
+		panel_13.add(lblStatusNFRemessaEntrada, gbc_lblStatusNFRemessaEntrada);
+
 		JPanel panel_1 = new JPanel();
-		panel_1.setBounds(78, 240, 1042, 349);
-		panel_5.add(panel_1);
+		panel_5.add(panel_1, "cell 0 2 25 1,grow");
 		panel_1.setBackground(Color.WHITE);
 
 		table_recebimentos = new JTable(modelo_recebimentos);
@@ -586,15 +646,19 @@ public class TelaGerenciarContrato extends JFrame {
 		table_recebimentos.setDefaultRenderer(Object.class, renderer_recebimentos);
 		table_recebimentos.setBackground(new Color(255, 255, 255));
 
-		table_recebimentos.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
-
-		table_recebimentos.getColumnModel().getColumn(0).setPreferredWidth(150);
-		table_recebimentos.getColumnModel().getColumn(1).setPreferredWidth(150);
-		table_recebimentos.getColumnModel().getColumn(2).setPreferredWidth(150);
-		table_recebimentos.getColumnModel().getColumn(3).setPreferredWidth(150);
-		table_recebimentos.getColumnModel().getColumn(4).setPreferredWidth(150);
-		table_recebimentos.getColumnModel().getColumn(5).setPreferredWidth(150);
-		table_recebimentos.getColumnModel().getColumn(6).setPreferredWidth(150);
+		table_recebimentos.setAutoResizeMode(JTable.AUTO_RESIZE_ALL_COLUMNS);
+		/*
+		 * table_recebimentos.getColumnModel().getColumn(0).setPreferredWidth(150);
+		 * table_recebimentos.getColumnModel().getColumn(1).setPreferredWidth(150);
+		 * table_recebimentos.getColumnModel().getColumn(2).setPreferredWidth(150);
+		 * table_recebimentos.getColumnModel().getColumn(3).setPreferredWidth(150);
+		 * table_recebimentos.getColumnModel().getColumn(4).setPreferredWidth(150);
+		 * table_recebimentos.getColumnModel().getColumn(5).setPreferredWidth(150);
+		 * table_recebimentos.getColumnModel().getColumn(6).setPreferredWidth(150);
+		 * table_recebimentos.getColumnModel().getColumn(7).setPreferredWidth(150);
+		 * table_recebimentos.getColumnModel().getColumn(8).setPreferredWidth(150);
+		 * table_recebimentos.getColumnModel().getColumn(9).setPreferredWidth(150);
+		 */
 		panel_1.setLayout(new BorderLayout(0, 0));
 
 		table_recebimentos.setRowHeight(30);
@@ -602,450 +666,10 @@ public class TelaGerenciarContrato extends JFrame {
 		JScrollPane scrollPaneRomaneios = new JScrollPane(table_recebimentos);
 		panel_1.add(scrollPaneRomaneios);
 
-		JButton btnNewButton_2 = new JButton("Adicionar");
-		btnNewButton_2.setBounds(995, 601, 90, 28);
-		panel_5.add(btnNewButton_2);
-
-		JButton btnNewButton_2_1 = new JButton("Excluir");
-		btnNewButton_2_1.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				
-				GerenciarBancoContratos gerenciar = new GerenciarBancoContratos();
-				int rowSel = table_recebimentos.getSelectedRow();//pega o indice da linha na tabela
-				
-				CadastroContrato.Recebimento recebimento_excluir = lista_recebimentos.get(rowSel);
-				
-				GerenciarBancoContratos gerenciar_contratos = new GerenciarBancoContratos();
-				boolean excluir = gerenciar_contratos.removerRecebimento(contrato_local.getId(), recebimento_excluir.getId_recebimento());
-				
-				if(excluir) {
-					//deletar o diretorio do recebimento
-					String diretorio_contrato = servidor_unidade + contrato_local.getCaminho_diretorio_contrato() + "\\recebimentos";
-					String diretorio_recebimento = diretorio_contrato + "\\recebimento_" +  recebimento_excluir.getId_recebimento();
-					
-					ManipularTxt manipular = new ManipularTxt();
-					boolean deletar = manipular.limparDiretorio(new File(diretorio_recebimento));
-					if(deletar) {
-						JOptionPane.showMessageDialog(isto, "Recebimento Excluido");
-					}else {
-						JOptionPane.showMessageDialog(isto, "Recebimento Excluido, mas a pasta do recebimento ainda existe\nConsulte o administrador");
-
-					}
-					
-					if(contrato_local.getCaminho_diretorio_contrato2()!= null) {
-						//deletar o direotiro do recebimento do contrato 2
-						String diretorio_contrato2 = servidor_unidade + contrato_local.getCaminho_diretorio_contrato2() + "\\recebimentos";
-						String diretorio_recebimento2 = diretorio_contrato + "\\recebimento_" +  recebimento_excluir.getId_recebimento();
-						
-						 deletar = manipular.limparDiretorio(new File(diretorio_recebimento2));
-						if(deletar) {
-							JOptionPane.showMessageDialog(isto, "Recebimento Excluido");
-						}else {
-							JOptionPane.showMessageDialog(isto, "Recebimento Excluido, mas a pasta do recebimento ainda existe\nConsulte o administrador");
-
-						}
-					}
-					
-					pesquisar_recebimentos();
-				}else {
-					JOptionPane.showMessageDialog(isto, "Erro ao excluir recebimentos\nConsulte o administrador");
-
-				}
-			
-			}
-		});
-		btnNewButton_2_1.setBounds(793, 601, 90, 28);
-		panel_5.add(btnNewButton_2_1);
-
-		JButton btnExportarRecebimentos = new JButton("Exportar");
-		btnExportarRecebimentos.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				HSSFWorkbook workbook = new HSSFWorkbook();
-				HSSFSheet sheet = workbook.createSheet("Recebimentos");
-
-				// Definindo alguns padroes de layout
-				sheet.setDefaultColumnWidth(15);
-				sheet.setDefaultRowHeight((short) 400);
-
-				int rownum = 0;
-				int cellnum = 0;
-				Cell cell;
-				Row row;
-
-				// Configurando estilos de células (Cores, alinhamento, formatação, etc..)
-				HSSFDataFormat numberFormat = workbook.createDataFormat();
-
-				CellStyle headerStyle = workbook.createCellStyle();
-				headerStyle.setFillForegroundColor(IndexedColors.GREY_25_PERCENT.getIndex());
-				// headerStyle.setFillPattern(CellStyle.SOLID_FOREGROUND);
-				headerStyle.setAlignment(HorizontalAlignment.CENTER);
-				headerStyle.setVerticalAlignment(VerticalAlignment.CENTER);
-
-				//celula para texto alinhado ao centro
-				CellStyle textStyle = workbook.createCellStyle();
-			     textStyle.setAlignment(HorizontalAlignment.CENTER);
-				textStyle.setVerticalAlignment(VerticalAlignment.CENTER);
-
-				//celula para numero alinhado ao centro
-				CellStyle numberStyle = workbook.createCellStyle();
-				numberStyle.setDataFormat(numberFormat.getFormat("#,##0.00"));
-				numberStyle.setAlignment(HorizontalAlignment.CENTER);
-				numberStyle.setVerticalAlignment(VerticalAlignment.CENTER);
-
-				//estilo para celula do tipo numero alinhado ao centro
-				CellStyle valorStyle = workbook.createCellStyle();
-				valorStyle.setDataFormat(numberFormat.getFormat("R$ #,##0.00"));
-				valorStyle.setAlignment(HorizontalAlignment.CENTER);
-				valorStyle.setVerticalAlignment(VerticalAlignment.CENTER);
-				
-				//estilo para cabecalho fundo laranja
-				CellStyle celula_fundo_laranja = workbook.createCellStyle();
-				celula_fundo_laranja.setFillPattern(FillPatternType.SOLID_FOREGROUND);
-				celula_fundo_laranja.setFillForegroundColor(IndexedColors.ORANGE.getIndex());
-				celula_fundo_laranja.setAlignment(HorizontalAlignment.CENTER);
-				celula_fundo_laranja.setVerticalAlignment(VerticalAlignment.CENTER);
-				
-				HSSFFont newFont = workbook.createFont();
-			     newFont.setBold(true);
-			     newFont.setColor(IndexedColors.BLACK.getIndex());
-			     newFont.setFontName("Calibri");
-			     newFont.setItalic(false);
-			     newFont.setFontHeight((short)(11*20));
-
-				celula_fundo_laranja.setFont(newFont);
-				
-				//celula_number_amarelo_texto_preto
-				//estilo para cabecalho fundo laranja
-				CellStyle celula_number_amarelo_texto_preto = workbook.createCellStyle();
-				celula_number_amarelo_texto_preto.setDataFormat(numberFormat.getFormat("#,##0.00"));
-				celula_number_amarelo_texto_preto.setFillPattern(FillPatternType.SOLID_FOREGROUND);
-				celula_number_amarelo_texto_preto.setFillForegroundColor(IndexedColors.YELLOW.getIndex());
-				celula_number_amarelo_texto_preto.setAlignment(HorizontalAlignment.CENTER);
-				celula_number_amarelo_texto_preto.setVerticalAlignment(VerticalAlignment.CENTER);
-				
-				HSSFFont newFont_blabk = workbook.createFont();
-				newFont_blabk.setBold(true);
-				newFont_blabk.setColor(IndexedColors.BLACK.getIndex());
-				newFont_blabk.setFontName("Calibri");
-				newFont_blabk.setItalic(false);
-				newFont_blabk.setFontHeight((short)(11*20));
-
-				celula_number_amarelo_texto_preto.setFont(newFont_blabk);
-
-				
-				//estilo para cabecalho fundo laranja
-				CellStyle celula_fundo_laranja_texto_branco = workbook.createCellStyle();
-				celula_fundo_laranja_texto_branco.setFillPattern(FillPatternType.SOLID_FOREGROUND);
-				celula_fundo_laranja_texto_branco.setFillForegroundColor(IndexedColors.ORANGE.getIndex());
-				celula_fundo_laranja_texto_branco.setAlignment(HorizontalAlignment.CENTER);
-				celula_fundo_laranja_texto_branco.setVerticalAlignment(VerticalAlignment.CENTER);
-				
-				HSSFFont newFont_branca = workbook.createFont();
-				newFont_branca.setBold(true);
-				newFont_branca.setColor(IndexedColors.WHITE.getIndex());
-				newFont_branca.setFontName("Calibri");
-				newFont_branca.setItalic(false);
-				newFont_branca.setFontHeight((short)(11*20));
-
-				celula_fundo_laranja_texto_branco.setFont(newFont_branca);
-
-				// Configurando as informacoes
-				row = sheet.createRow(rownum++);
-
-				CadastroCliente compradores [] = contrato_local.getCompradores();
-				CadastroCliente vendedores [] = contrato_local.getVendedores();
-
-				String nome_compradores;
-				String nome_vendedores;
-				if(compradores[0].getTipo_pessoa() == 0) {
-					nome_compradores = compradores[0].getNome_empresarial();
-				}else {
-					nome_compradores = compradores[0].getNome_fantaia();
-				}
-				
-				if(compradores[1] != null) {
-				if(compradores[1].getTipo_pessoa() == 0) {
-					nome_compradores = nome_compradores + ", " + compradores[1].getNome_empresarial();
-				}else {
-					nome_compradores = nome_compradores + ", " +  compradores[1].getNome_fantaia();
-				}
-				}
-				
-				
-				if(vendedores[0].getTipo_pessoa() == 0) {
-					nome_vendedores = vendedores[0].getNome_empresarial();
-				}else {
-					nome_vendedores = vendedores[0].getNome_fantaia();
-				}
-				
-				if(vendedores[1] != null) {
-				if(vendedores[1].getTipo_pessoa() == 0) {
-					nome_vendedores = nome_vendedores + ", " + vendedores[1].getNome_empresarial();
-				}else {
-					nome_vendedores = nome_vendedores + ", " +  vendedores[1].getNome_fantaia();
-				}
-				}
-				
-				
-				cell = row.createCell(cellnum);
-				cell.setCellStyle(celula_fundo_laranja);
-				cell.setCellValue(nome_compradores.toUpperCase() + " X " + nome_vendedores + " CTR " + contrato_local.getCodigo() + " IE.: " + vendedores[0].getIe() );
-				sheet.addMergedRegion(new CellRangeAddress(0, 0, cellnum,5));
-
-				//linha quantidade, safra, sacos, etc
-				row = sheet.createRow(rownum++);
-				cellnum = 0;
-				
-				cell = row.createCell(cellnum++);
-				cell.setCellStyle(celula_fundo_laranja);
-				
-				double quantidade_kg = 0;
-				double quantidade_sacos = 0;
-				
-				if(contrato.getMedida().equalsIgnoreCase("KG")) {
-					quantidade_kg = contrato.getQuantidade();
-					quantidade_sacos = quantidade_kg / 60;
-				}else if(contrato.getMedida().equalsIgnoreCase("Sacos")){
-					quantidade_sacos = contrato.getQuantidade();
-					quantidade_kg = quantidade_sacos * 60;
-				}
-				
-				Locale ptBr = new Locale("pt", "BR");
-				cell.setCellValue("Quantidade: " + quantidade_kg + " KGS | " + quantidade_sacos + " Sacos no valor de " +
-						 NumberFormat.getCurrencyInstance(ptBr)
-				.format(contrato.getValor_produto())+ " por " + contrato.getMedida() + " no valor total de: "
-					+  NumberFormat.getCurrencyInstance(ptBr)
-					.format(contrato.getValor_a_pagar() )
-						);
-				//cell.setCellValue("Quantidade: " + quantidade_kg + " KGS | " + quantidade_sacos + " Sacos" );
-				sheet.addMergedRegion(new CellRangeAddress(rownum-1, rownum-1, cellnum-1,5));
-
-				
-				
-				
-				row = sheet.createRow(rownum++);
-				cellnum = 0;
-				
-				cell = row.createCell(cellnum++);
-				cell.setCellStyle(celula_fundo_laranja);
-				cell.setCellValue(contrato.getModelo_safra().getProduto().getNome_produto() + " " + contrato.getModelo_safra().getProduto().getTransgenia() + " " + contrato.getModelo_safra().getAno_plantio() + "/" + contrato.getModelo_safra().getAno_colheita());
-				sheet.addMergedRegion(new CellRangeAddress(rownum-1, rownum-1, cellnum-1,5));
-
-				
-				
-				// Configurando Header
-				row = sheet.createRow(rownum++);
-				cellnum = 0;
-				cell = row.createCell(cellnum++);
-				cell.setCellStyle(celula_fundo_laranja_texto_branco);
-				cell.setCellValue("DATA");
-
-				cell = row.createCell(cellnum++);
-				cell.setCellStyle(celula_fundo_laranja_texto_branco);
-				cell.setCellValue("Romaneio".toUpperCase());
-
-				cell = row.createCell(cellnum++);
-				cell.setCellStyle(celula_fundo_laranja_texto_branco);
-				cell.setCellValue("Peso Romaneio".toUpperCase());
-
-				cell = row.createCell(cellnum++);
-				cell.setCellStyle(celula_fundo_laranja_texto_branco);
-				cell.setCellValue("NF Venda".toUpperCase());
-
-				cell = row.createCell(cellnum++);
-				cell.setCellStyle(celula_fundo_laranja_texto_branco);
-				cell.setCellValue("Peso NF Venda".toUpperCase());
-
-				cell = row.createCell(cellnum++);
-				cell.setCellStyle(celula_fundo_laranja_texto_branco);
-				cell.setCellValue("NF Remessa".toUpperCase());
-
-
-				ArrayList<CadastroContrato.Recebimento> contratos_selecionados = new ArrayList<>();
-				int linhas_selecionadas[] = table_recebimentos.getSelectedRows();// pega o indice da linha na tabela
-
-				for (int i = 0; i < linhas_selecionadas.length; i++) {
-
-					int indice = linhas_selecionadas[i];// 
-					CadastroContrato.Recebimento contrato_selecionados = lista_recebimentos.get(indice);
-					contratos_selecionados.add(contrato_selecionados);
-				}
-
-				double quantidade_total_kgs_recebido = 0;
-				double quantidade_total_kgs_nf_venda = 0;
-				
-				for (CadastroContrato.Recebimento cadastro : contratos_selecionados) {
-					
-					
-					
-					row = sheet.createRow(rownum++);
-					cellnum = 0;
-					/*
-					 * codigo compradores vendedores status quantidade medida produto transgenia
-					 * safra valor_produto valor_total data_contrato local_retirada
-					 */
-					cell = row.createCell(cellnum++);
-					cell.setCellStyle(textStyle);
-					cell.setCellValue(cadastro.getData_recebimento());
-
-					
-				
-					
-					cell = row.createCell(cellnum++);
-					cell.setCellStyle(textStyle);
-					cell.setCellValue(cadastro.getCodigo_romaneio());
-
-					cell = row.createCell(cellnum++);
-					cell.setCellStyle(numberStyle);
-					cell.setCellValue(cadastro.getPeso_romaneio());
-
-					if(cadastro.getNf_venda_aplicavel() == 1) {
-					cell = row.createCell(cellnum++);
-					cell.setCellStyle(textStyle);
-					cell.setCellValue(cadastro.getCodigo_nf_venda());
-
-					cell = row.createCell(cellnum++);
-					cell.setCellStyle(numberStyle);
-					cell.setCellValue(cadastro.getPeso_nf_venda());
-					 quantidade_total_kgs_nf_venda = quantidade_total_kgs_nf_venda + cadastro.getPeso_nf_venda();
-
-					}else {
-						cell = row.createCell(cellnum++);
-						cell.setCellStyle(textStyle);
-						cell.setCellValue("Não Aplicável");
-
-						cell = row.createCell(cellnum++);
-						cell.setCellStyle(textStyle);
-						cell.setCellValue("Não Aplicável");
-					}
-					
-				
-					if(cadastro.getNf_remessa_aplicavel() == 1) {
-					cell = row.createCell(cellnum++);
-					cell.setCellStyle(numberStyle);
-					cell.setCellValue(cadastro.getCodigo_nf_remessa());
-					}else {
-						cell = row.createCell(cellnum++);
-						cell.setCellStyle(textStyle);
-						cell.setCellValue("Não Aplicável");
-					}
-					
-					 quantidade_total_kgs_recebido = quantidade_total_kgs_recebido + cadastro.getPeso_romaneio();
-					
-
-				}
-				sheet.setAutoFilter(CellRangeAddress.valueOf("A4:F4")); 
-				
-				row = sheet.createRow(rownum+=2);
-				cellnum = 0;
-				
-				cell = row.createCell(cellnum++);
-				cell.setCellStyle(textStyle);
-				cell.setCellValue("");
-				
-				cell = row.createCell(cellnum++);
-				cell.setCellStyle(celula_fundo_laranja_texto_branco);
-				cell.setCellValue("Total Recebido: ");
-
-				cell = row.createCell(cellnum++);
-				cell.setCellStyle(celula_number_amarelo_texto_preto);
-				cell.setCellValue(quantidade_total_kgs_recebido);
-				
-				cell = row.createCell(cellnum++);
-				cell.setCellStyle(celula_fundo_laranja_texto_branco);
-				cell.setCellValue("Total NF Venda: ");
-
-				cell = row.createCell(cellnum++);
-				cell.setCellStyle(celula_number_amarelo_texto_preto);
-				cell.setCellValue(quantidade_total_kgs_nf_venda);
-				
-				row = sheet.createRow(rownum+=2);
-				cellnum = 0;
-				
-				cell = row.createCell(cellnum++);
-				cell.setCellStyle(textStyle);
-				cell.setCellValue("");
-				
-				cell = row.createCell(cellnum++);
-				cell.setCellStyle(celula_fundo_laranja_texto_branco);
-				cell.setCellValue("Total a Receber: ");
-
-				cell = row.createCell(cellnum++);
-				cell.setCellStyle(celula_number_amarelo_texto_preto);
-				cell.setCellValue(quantidade_kg - quantidade_total_kgs_recebido);
-				
-				cell = row.createCell(cellnum++);
-				cell.setCellStyle(celula_fundo_laranja_texto_branco);
-				cell.setCellValue("Total a emitir: ");
-
-				cell = row.createCell(cellnum++);
-				cell.setCellStyle(celula_number_amarelo_texto_preto);
-				cell.setCellValue(quantidade_kg -  quantidade_total_kgs_nf_venda);
-				
-				
-				try {
-
-					new JFXPanel();
-					Platform.runLater(() -> {
-
-						// pegar ultima pasta
-						ManipularTxt manipular_ultima_pasta = new ManipularTxt();
-						String ultima_pasta = manipular_ultima_pasta
-								.lerArquivo(new File("C:\\ProgramData\\E-Contract\\configs\\ultima_pasta.txt"));
-						if (d == null) {
-							d = new FileChooser();
-						}
-						d.setInitialDirectory(new File(ultima_pasta));
-						 d.getExtensionFilters().addAll(
-					              
-					                new FileChooser.ExtensionFilter("Excel", "*.xls")
-					            );
-						File file = d.showSaveDialog(new Stage());
-						String caminho_arquivo = "";
-						if (file != null) {
-							caminho_arquivo = file.getAbsolutePath();
-
-							manipular_ultima_pasta.rescreverArquivo(
-									new File("C:\\ProgramData\\E-Contract\\configs\\ultima_pasta.txt"), file.getParent());
-							// Escrevendo o arquivo em disco
-							FileOutputStream out;
-							try {
-								out = new FileOutputStream(file);
-								workbook.write(out);
-								workbook.close();
-								out.close();
-								// workbook.close();
-								
-								Runtime.getRuntime()
-								.exec("explorer " + file.getAbsolutePath());
-					
-								System.out.println("Success!!");
-							} catch (FileNotFoundException e1) {
-								// TODO Auto-generated catch block
-								e1.printStackTrace();
-							} catch (IOException e1) {
-								// TODO Auto-generated catch block
-								e1.printStackTrace();
-							}
-					
-						}
-					
-						});
-					
-				} catch (Exception k) {
-					k.printStackTrace();
-				}
-
-			}
-		});
-		btnExportarRecebimentos.setBounds(691, 601, 90, 28);
-		panel_5.add(btnExportarRecebimentos);
-
 		JPanel lbl_produto_aba_recebimento = new JPanel();
 		lbl_produto_aba_recebimento.setForeground(Color.WHITE);
 		lbl_produto_aba_recebimento.setBackground(new Color(0, 102, 102));
-		lbl_produto_aba_recebimento.setBounds(375, 25, 772, 148);
-		panel_5.add(lbl_produto_aba_recebimento);
+		panel_5.add(lbl_produto_aba_recebimento, "cell 6 0 13 1,alignx center,aligny center");
 		lbl_produto_aba_recebimento.setLayout(
 				new MigLayout("", "[99px][93px][85px][79px][78px][67px]", "[17px][17px][14px][17px][17px][]"));
 
@@ -1130,220 +754,1014 @@ public class TelaGerenciarContrato extends JFrame {
 		lblSafraRecebimento.setFont(new Font("SansSerif", Font.BOLD, 14));
 		lbl_produto_aba_recebimento.add(lblSafraRecebimento, "cell 3 5,alignx center");
 		
-		JPanel panel_6 = new JPanel();
-		panel_6.setBackground(new Color(0, 153, 255));
-		panel_6.setBounds(793, 658, 447, 31);
-		panel_5.add(panel_6);
-		GridBagLayout gbl_panel_6 = new GridBagLayout();
-		gbl_panel_6.columnWidths = new int[]{0, 0, 0, 0};
-		gbl_panel_6.rowHeights = new int[]{0, 0};
-		gbl_panel_6.columnWeights = new double[]{0.0, 0.0, 0.0, Double.MIN_VALUE};
-		gbl_panel_6.rowWeights = new double[]{0.0, Double.MIN_VALUE};
-		panel_6.setLayout(gbl_panel_6);
-		
-		JLabel lblNewLabel_32 = new JLabel("Romaneios:");
-		lblNewLabel_32.setForeground(Color.WHITE);
-		lblNewLabel_32.setFont(new Font("SansSerif", Font.PLAIN, 16));
-		GridBagConstraints gbc_lblNewLabel_32 = new GridBagConstraints();
-		gbc_lblNewLabel_32.anchor = GridBagConstraints.EAST;
-		gbc_lblNewLabel_32.insets = new Insets(0, 0, 0, 5);
-		gbc_lblNewLabel_32.gridx = 0;
-		gbc_lblNewLabel_32.gridy = 0;
-		panel_6.add(lblNewLabel_32, gbc_lblNewLabel_32);
-		
-		
-		 lblNumRomaneiosRecebimento = new JLabel("999");
-		lblNumRomaneiosRecebimento.setForeground(Color.WHITE);
-		lblNumRomaneiosRecebimento.setFont(new Font("SansSerif", Font.BOLD, 18));
-		GridBagConstraints gbc_lblNumRomaneiosRecebimento = new GridBagConstraints();
-		gbc_lblNumRomaneiosRecebimento.insets = new Insets(0, 0, 0, 5);
-		gbc_lblNumRomaneiosRecebimento.gridx = 1;
-		gbc_lblNumRomaneiosRecebimento.gridy = 0;
-		panel_6.add(lblNumRomaneiosRecebimento, gbc_lblNumRomaneiosRecebimento);
-		
-		JLabel lblNewLabel_32_1 = new JLabel("romaneios");
-		lblNewLabel_32_1.setForeground(Color.WHITE);
-		lblNewLabel_32_1.setFont(new Font("SansSerif", Font.PLAIN, 16));
-		GridBagConstraints gbc_lblNewLabel_32_1 = new GridBagConstraints();
-		gbc_lblNewLabel_32_1.anchor = GridBagConstraints.WEST;
-		gbc_lblNewLabel_32_1.gridx = 2;
-		gbc_lblNewLabel_32_1.gridy = 0;
-		panel_6.add(lblNewLabel_32_1, gbc_lblNewLabel_32_1);
-		
-		JPanel panel_1_1 = new JPanel();
-		panel_1_1.setBackground(new Color(0, 102, 0));
-		panel_1_1.setBounds(793, 701, 447, 33);
-		panel_5.add(panel_1_1);
-		panel_1_1.setLayout(new MigLayout("", "[][]", "[]"));
-		
-		JLabel lblNewLabel_32_2 = new JLabel("Peso Romaneios:");
-		lblNewLabel_32_2.setForeground(Color.WHITE);
-		lblNewLabel_32_2.setFont(new Font("SansSerif", Font.PLAIN, 16));
-		panel_1_1.add(lblNewLabel_32_2, "cell 0 0");
-		
-		 lblTotalSacosKGsRomaneios = new JLabel("99.999,66 SCs / 999999999999 KGs");
-		lblTotalSacosKGsRomaneios.setForeground(Color.WHITE);
-		lblTotalSacosKGsRomaneios.setFont(new Font("SansSerif", Font.BOLD, 14));
-		panel_1_1.add(lblTotalSacosKGsRomaneios, "cell 1 0");
-		
-		JPanel panel_1_1_1 = new JPanel();
-		panel_1_1_1.setBackground(new Color(0, 51, 102));
-		panel_1_1_1.setBounds(793, 746, 447, 33);
-		panel_5.add(panel_1_1_1);
-		panel_1_1_1.setLayout(new MigLayout("", "[][]", "[]"));
-		
-		JLabel lblNewLabel_32_2_1 = new JLabel("Peso NF's Venda:");
-		lblNewLabel_32_2_1.setForeground(Color.WHITE);
-		lblNewLabel_32_2_1.setFont(new Font("SansSerif", Font.PLAIN, 16));
-		panel_1_1_1.add(lblNewLabel_32_2_1, "cell 0 0");
-		
-		 lblTotalSacosKGsNFVenda = new JLabel("99.999,66 SCs / 999999999999 KGs");
-		lblTotalSacosKGsNFVenda.setForeground(Color.WHITE);
-		lblTotalSacosKGsNFVenda.setFont(new Font("SansSerif", Font.BOLD, 14));
-		panel_1_1_1.add(lblTotalSacosKGsNFVenda, "cell 1 0");
-		
-		JPanel panel_1_1_1_1 = new JPanel();
-		panel_1_1_1_1.setBackground(new Color(255, 51, 51));
-		panel_1_1_1_1.setBounds(793, 791, 447, 33);
-		panel_5.add(panel_1_1_1_1);
-		panel_1_1_1_1.setLayout(new MigLayout("", "[][]", "[]"));
-		
-		JLabel lblNewLabel_32_2_1_1 = new JLabel("Peso NF Venda Restante:");
-		lblNewLabel_32_2_1_1.setForeground(Color.WHITE);
-		lblNewLabel_32_2_1_1.setFont(new Font("SansSerif", Font.PLAIN, 16));
-		panel_1_1_1_1.add(lblNewLabel_32_2_1_1, "cell 0 0");
-		
-		 lblTotalSacosKGsNFVendaRestante = new JLabel("99.999,66 SCs / 999999999999 KGs");
-		lblTotalSacosKGsNFVendaRestante.setForeground(Color.WHITE);
-		lblTotalSacosKGsNFVendaRestante.setFont(new Font("SansSerif", Font.BOLD, 14));
-		panel_1_1_1_1.add(lblTotalSacosKGsNFVendaRestante, "cell 1 0");
-		
-		JLabel lblNewLabel_3_2 = new JLabel("Recebimentos:");
-		lblNewLabel_3_2.setBounds(50, 620, 84, 16);
-		panel_5.add(lblNewLabel_3_2);
-		
-		JLabel lblNewLabel_12_1 = new JLabel("Total:");
-		lblNewLabel_12_1.setBounds(78, 658, 30, 16);
-		panel_5.add(lblNewLabel_12_1);
-		
-		JLabel lblNewLabel_13_3 = new JLabel("Total Recebido:");
-		lblNewLabel_13_3.setBounds(22, 696, 86, 16);
-		panel_5.add(lblNewLabel_13_3);
-		
-		
-		 lblPesoTotalContrato = new JLabel("0.0 KG");
-		lblPesoTotalContrato.setFont(new Font("Tahoma", Font.BOLD, 11));
-		lblPesoTotalContrato.setBorder(new LineBorder(new Color(0, 0, 0)));
-		lblPesoTotalContrato.setBounds(117, 654, 193, 23);
-		panel_5.add(lblPesoTotalContrato);
-		
-		
-        lblPesoTotalRecebido = new JLabel("");
-		lblPesoTotalRecebido.setFont(new Font("Tahoma", Font.BOLD, 11));
-		lblPesoTotalRecebido.setBorder(new LineBorder(new Color(0, 0, 0)));
-		lblPesoTotalRecebido.setBounds(117, 689, 193, 23);
-		panel_5.add(lblPesoTotalRecebido);
-		
-		 lblPesoTotalRestante = new JLabel("0.0 Kg");
-		lblPesoTotalRestante.setFont(new Font("Tahoma", Font.BOLD, 11));
-		lblPesoTotalRestante.setBorder(new LineBorder(new Color(0, 0, 0)));
-		lblPesoTotalRestante.setBounds(117, 725, 193, 23);
-		panel_5.add(lblPesoTotalRestante);
-		
-		JLabel lblNewLabel_13_1_1 = new JLabel("Restante:");
-		lblNewLabel_13_1_1.setBounds(52, 731, 53, 16);
-		panel_5.add(lblNewLabel_13_1_1);
-		
+				JPanel panel_9 = new JPanel();
+				panel_9.setBackground(Color.WHITE);
+				panel_5.add(panel_9, "cell 16 4 6 1,alignx center,aligny top");
+				panel_9.setLayout(new MigLayout("", "[][][][][][][][][][][]", "[]"));
+				
+						JButton btnExportarRecebimentos = new JButton("Exportar");
+						panel_9.add(btnExportarRecebimentos, "cell 7 0");
+						btnExportarRecebimentos.addActionListener(new ActionListener() {
+							public void actionPerformed(ActionEvent e) {
+								HSSFWorkbook workbook = new HSSFWorkbook();
+								HSSFSheet sheet = workbook.createSheet("Recebimentos");
+
+								// Definindo alguns padroes de layout
+								sheet.setDefaultColumnWidth(15);
+								sheet.setDefaultRowHeight((short) 400);
+
+								int rownum = 0;
+								int cellnum = 0;
+								Cell cell;
+								Row row;
+
+								// Configurando estilos de células (Cores, alinhamento, formatação, etc..)
+								HSSFDataFormat numberFormat = workbook.createDataFormat();
+
+								CellStyle headerStyle = workbook.createCellStyle();
+								headerStyle.setFillForegroundColor(IndexedColors.GREY_25_PERCENT.getIndex());
+								// headerStyle.setFillPattern(CellStyle.SOLID_FOREGROUND);
+								headerStyle.setAlignment(HorizontalAlignment.CENTER);
+								headerStyle.setVerticalAlignment(VerticalAlignment.CENTER);
+
+								// celula para texto alinhado ao centro
+								CellStyle textStyle = workbook.createCellStyle();
+								textStyle.setAlignment(HorizontalAlignment.CENTER);
+								textStyle.setVerticalAlignment(VerticalAlignment.CENTER);
+
+								// celula para numero alinhado ao centro
+								CellStyle numberStyle = workbook.createCellStyle();
+								numberStyle.setDataFormat(numberFormat.getFormat("#,##0.00"));
+								numberStyle.setAlignment(HorizontalAlignment.CENTER);
+								numberStyle.setVerticalAlignment(VerticalAlignment.CENTER);
+
+								// estilo de celula negrito
+								CellStyle negrito = workbook.createCellStyle();
+								// textStyle.setAlignment(HorizontalAlignment.CENTER);
+								negrito.setFillPattern(FillPatternType.SOLID_FOREGROUND);
+								negrito.setFillForegroundColor(IndexedColors.WHITE.getIndex());
+								negrito.setAlignment(HorizontalAlignment.CENTER);
+								negrito.setVerticalAlignment(VerticalAlignment.CENTER);
+
+								HSSFFont newFontNegrita = workbook.createFont();
+								newFontNegrita.setBold(true);
+								newFontNegrita.setColor(IndexedColors.BLACK.getIndex());
+								newFontNegrita.setFontName("Arial");
+								newFontNegrita.setItalic(true);
+								newFontNegrita.setFontHeight((short) (11 * 20));
+
+								negrito.setFont(newFontNegrita);
+
+								// estilo para celula texto alinhado a esquerda
+								CellStyle negrito_esquerda = workbook.createCellStyle();
+								// textStyle.setAlignment(HorizontalAlignment.CENTER);
+								negrito_esquerda.setFillPattern(FillPatternType.SOLID_FOREGROUND);
+								negrito_esquerda.setFillForegroundColor(IndexedColors.WHITE.getIndex());
+								negrito_esquerda.setAlignment(HorizontalAlignment.LEFT);
+								negrito_esquerda.setVerticalAlignment(VerticalAlignment.CENTER);
+
+								HSSFFont newFontNegritaEsquerda = workbook.createFont();
+								newFontNegritaEsquerda.setBold(true);
+								newFontNegritaEsquerda.setColor(IndexedColors.BLACK.getIndex());
+								newFontNegritaEsquerda.setFontName("Arial");
+								newFontNegritaEsquerda.setItalic(true);
+								newFontNegritaEsquerda.setFontHeight((short) (11 * 20));
+
+								negrito_esquerda.setFont(newFontNegritaEsquerda);
+
+								// estilo para celula do tipo numero alinhado ao centro
+								CellStyle valorStyle = workbook.createCellStyle();
+								valorStyle.setDataFormat(numberFormat.getFormat("R$ #,##0.00"));
+								valorStyle.setAlignment(HorizontalAlignment.CENTER);
+								valorStyle.setVerticalAlignment(VerticalAlignment.CENTER);
+
+								// estilo para cabecalho fundo laranja
+								CellStyle celula_fundo_laranja = workbook.createCellStyle();
+								celula_fundo_laranja.setFillPattern(FillPatternType.SOLID_FOREGROUND);
+								celula_fundo_laranja.setFillForegroundColor(IndexedColors.ORANGE.getIndex());
+								celula_fundo_laranja.setAlignment(HorizontalAlignment.CENTER);
+								celula_fundo_laranja.setVerticalAlignment(VerticalAlignment.CENTER);
+
+								HSSFFont newFont = workbook.createFont();
+								newFont.setBold(true);
+								newFont.setColor(IndexedColors.BLACK.getIndex());
+								newFont.setFontName("Calibri");
+								newFont.setItalic(false);
+								newFont.setFontHeight((short) (11 * 20));
+
+								celula_fundo_laranja.setFont(newFont);
+
+								// celula_number_amarelo_texto_preto
+								// estilo para cabecalho fundo laranja
+								CellStyle celula_number_amarelo_texto_preto = workbook.createCellStyle();
+								celula_number_amarelo_texto_preto.setDataFormat(numberFormat.getFormat("#,##0.00"));
+								celula_number_amarelo_texto_preto.setFillPattern(FillPatternType.SOLID_FOREGROUND);
+								celula_number_amarelo_texto_preto.setFillForegroundColor(IndexedColors.YELLOW.getIndex());
+								celula_number_amarelo_texto_preto.setAlignment(HorizontalAlignment.CENTER);
+								celula_number_amarelo_texto_preto.setVerticalAlignment(VerticalAlignment.CENTER);
+
+								HSSFFont newFont_blabk = workbook.createFont();
+								newFont_blabk.setBold(true);
+								newFont_blabk.setColor(IndexedColors.BLACK.getIndex());
+								newFont_blabk.setFontName("Calibri");
+								newFont_blabk.setItalic(false);
+								newFont_blabk.setFontHeight((short) (11 * 20));
+
+								celula_number_amarelo_texto_preto.setFont(newFont_blabk);
+
+								// estilo para cabecalho fundo laranja
+								CellStyle celula_fundo_laranja_texto_branco = workbook.createCellStyle();
+								celula_fundo_laranja_texto_branco.setFillPattern(FillPatternType.SOLID_FOREGROUND);
+								celula_fundo_laranja_texto_branco.setFillForegroundColor(IndexedColors.ORANGE.getIndex());
+								celula_fundo_laranja_texto_branco.setAlignment(HorizontalAlignment.CENTER);
+								celula_fundo_laranja_texto_branco.setVerticalAlignment(VerticalAlignment.CENTER);
+
+								HSSFFont newFont_branca = workbook.createFont();
+								newFont_branca.setBold(true);
+								newFont_branca.setColor(IndexedColors.WHITE.getIndex());
+								newFont_branca.setFontName("Calibri");
+								newFont_branca.setItalic(false);
+								newFont_branca.setFontHeight((short) (11 * 20));
+
+								celula_fundo_laranja_texto_branco.setFont(newFont_branca);
+
+								// Configurando as informacoes
+								row = sheet.createRow(rownum++);
+
+								CadastroCliente compradores[] = contrato_local.getCompradores();
+								CadastroCliente vendedores[] = contrato_local.getVendedores();
+
+								String nome_compradores;
+								String nome_vendedores;
+								if (compradores[0].getTipo_pessoa() == 0) {
+									nome_compradores = compradores[0].getNome_empresarial();
+								} else {
+									nome_compradores = compradores[0].getNome_fantaia();
+								}
+
+								if (compradores[1] != null) {
+									if (compradores[1].getTipo_pessoa() == 0) {
+										nome_compradores = nome_compradores + ", " + compradores[1].getNome_empresarial();
+									} else {
+										nome_compradores = nome_compradores + ", " + compradores[1].getNome_fantaia();
+									}
+								}
+
+								if (vendedores[0].getTipo_pessoa() == 0) {
+									nome_vendedores = vendedores[0].getNome_empresarial();
+								} else {
+									nome_vendedores = vendedores[0].getNome_fantaia();
+								}
+
+								if (vendedores[1] != null) {
+									if (vendedores[1].getTipo_pessoa() == 0) {
+										nome_vendedores = nome_vendedores + ", " + vendedores[1].getNome_empresarial();
+									} else {
+										nome_vendedores = nome_vendedores + ", " + vendedores[1].getNome_fantaia();
+									}
+								}
+
+								cell = row.createCell(cellnum);
+								cell.setCellStyle(celula_fundo_laranja);
+								cell.setCellValue(nome_compradores.toUpperCase() + " X " + nome_vendedores + " CTR "
+										+ contrato_local.getCodigo() + " IE.: " + vendedores[0].getIe());
+								sheet.addMergedRegion(new CellRangeAddress(0, 0, cellnum, 5));
+
+								// linha quantidade, safra, sacos, etc
+								row = sheet.createRow(rownum++);
+								cellnum = 0;
+
+								cell = row.createCell(cellnum++);
+								cell.setCellStyle(celula_fundo_laranja);
+
+								double quantidade_kg = 0;
+								double quantidade_sacos = 0;
+
+								if (contrato.getMedida().equalsIgnoreCase("KG")) {
+									quantidade_kg = contrato.getQuantidade();
+									quantidade_sacos = quantidade_kg / 60;
+								} else if (contrato.getMedida().equalsIgnoreCase("Sacos")) {
+									quantidade_sacos = contrato.getQuantidade();
+									quantidade_kg = quantidade_sacos * 60;
+								}
+
+								Locale ptBr = new Locale("pt", "BR");
+								cell.setCellValue("Quantidade: " + quantidade_kg + " KGS | " + quantidade_sacos + " Sacos no valor de "
+										+ NumberFormat.getCurrencyInstance(ptBr).format(contrato.getValor_produto()) + " por "
+										+ contrato.getMedida() + " no valor total de: "
+										+ NumberFormat.getCurrencyInstance(ptBr).format(contrato.getValor_a_pagar()));
+								// cell.setCellValue("Quantidade: " + quantidade_kg + " KGS | " +
+								// quantidade_sacos + " Sacos" );
+								sheet.addMergedRegion(new CellRangeAddress(rownum - 1, rownum - 1, cellnum - 1, 5));
+
+								row = sheet.createRow(rownum++);
+								cellnum = 0;
+
+								cell = row.createCell(cellnum++);
+								cell.setCellStyle(celula_fundo_laranja);
+								cell.setCellValue(contrato.getModelo_safra().getProduto().getNome_produto() + " "
+										+ contrato.getModelo_safra().getProduto().getTransgenia() + " "
+										+ contrato.getModelo_safra().getAno_plantio() + "/"
+										+ contrato.getModelo_safra().getAno_colheita());
+								sheet.addMergedRegion(new CellRangeAddress(rownum - 1, rownum - 1, cellnum - 1, 5));
+
+								// Configurando Header
+								row = sheet.createRow(rownum++);
+								cellnum = 0;
+								cell = row.createCell(cellnum++);
+								cell.setCellStyle(celula_fundo_laranja_texto_branco);
+								cell.setCellValue("DATA");
+
+								cell = row.createCell(cellnum++);
+								cell.setCellStyle(celula_fundo_laranja_texto_branco);
+								cell.setCellValue("Romaneio".toUpperCase());
+
+								cell = row.createCell(cellnum++);
+								cell.setCellStyle(celula_fundo_laranja_texto_branco);
+								cell.setCellValue("Peso Romaneio".toUpperCase());
+
+								cell = row.createCell(cellnum++);
+								cell.setCellStyle(celula_fundo_laranja_texto_branco);
+								cell.setCellValue("NF Venda".toUpperCase());
+
+								cell = row.createCell(cellnum++);
+								cell.setCellStyle(celula_fundo_laranja_texto_branco);
+								cell.setCellValue("Peso NF Venda".toUpperCase());
+
+								cell = row.createCell(cellnum++);
+								cell.setCellStyle(celula_fundo_laranja_texto_branco);
+								cell.setCellValue("Valor NF Venda".toUpperCase());
+
+								cell = row.createCell(cellnum++);
+								cell.setCellStyle(celula_fundo_laranja_texto_branco);
+								cell.setCellValue("NF Remessa".toUpperCase());
+
+								cell = row.createCell(cellnum++);
+								cell.setCellStyle(celula_fundo_laranja_texto_branco);
+								cell.setCellValue("Peso NF Remessa".toUpperCase());
+
+								cell = row.createCell(cellnum++);
+								cell.setCellStyle(celula_fundo_laranja_texto_branco);
+								cell.setCellValue("Valor NF Remessa".toUpperCase());
+
+								ArrayList<CadastroContrato.Recebimento> contratos_selecionados = new ArrayList<>();
+								int linhas_selecionadas[] = table_recebimentos.getSelectedRows();// pega o indice da linha na tabela
+
+								for (int i = 0; i < linhas_selecionadas.length; i++) {
+
+									int indice = linhas_selecionadas[i];//
+									CadastroContrato.Recebimento contrato_selecionados = lista_recebimentos.get(indice);
+									contratos_selecionados.add(contrato_selecionados);
+								}
+
+								double quantidade_total_kgs_recebido = 0;
+								double quantidade_total_kgs_nf_venda = 0;
+								double quantidade_total_kgs_nf_remessa = 0;
+
+								BigDecimal valor_total_nf_venda = BigDecimal.ZERO;
+								BigDecimal valor_total_nf_remessa = BigDecimal.ZERO;
+
+								// checkagens
+								boolean nf_remessa_ativo = false;
+								boolean nf_venda_ativo = false;
+
+								// checka se ha no minimo uma nf remessa aplicavel
+								for (CadastroContrato.Recebimento recebimento : lista_recebimentos) {
+									if (recebimento.getNf_remessa_aplicavel() == 1) {
+										nf_remessa_ativo = true;
+										break;
+									}
+
+								}
+
+								// checka se ha no minimo uma nf venda aplicavel
+								for (CadastroContrato.Recebimento recebimento : lista_recebimentos) {
+									if (recebimento.getNf_venda_aplicavel() == 1) {
+										nf_venda_ativo = true;
+										break;
+									}
+
+								}
+
+								for (CadastroContrato.Recebimento cadastro : contratos_selecionados) {
+
+									row = sheet.createRow(rownum++);
+									cellnum = 0;
+									/*
+									 * codigo compradores vendedores status quantidade medida produto transgenia
+									 * safra valor_produto valor_total data_contrato local_retirada
+									 */
+									cell = row.createCell(cellnum++);
+									cell.setCellStyle(textStyle);
+									cell.setCellValue(cadastro.getData_recebimento());
+
+									cell = row.createCell(cellnum++);
+									cell.setCellStyle(textStyle);
+									cell.setCellValue(cadastro.getCodigo_romaneio());
+
+									cell = row.createCell(cellnum++);
+									cell.setCellStyle(numberStyle);
+									cell.setCellValue(cadastro.getPeso_romaneio());
+
+									if (cadastro.getNf_venda_aplicavel() == 1) {
+										cell = row.createCell(cellnum++);
+										cell.setCellStyle(textStyle);
+										cell.setCellValue(cadastro.getCodigo_nf_venda());
+
+										cell = row.createCell(cellnum++);
+										cell.setCellStyle(numberStyle);
+										cell.setCellValue(cadastro.getPeso_nf_venda());
+										quantidade_total_kgs_nf_venda = quantidade_total_kgs_nf_venda + cadastro.getPeso_nf_venda();
+
+										cell = row.createCell(cellnum++);
+										cell.setCellStyle(valorStyle);
+										cell.setCellValue(cadastro.getValor_nf_venda().doubleValue());
+										valor_total_nf_venda = valor_total_nf_venda.add(cadastro.getValor_nf_venda());
+
+									} else {
+										cell = row.createCell(cellnum++);
+										cell.setCellStyle(textStyle);
+										cell.setCellValue("Não Aplicável");
+
+										cell = row.createCell(cellnum++);
+										cell.setCellStyle(textStyle);
+										cell.setCellValue("Não Aplicável");
+
+										cell = row.createCell(cellnum++);
+										cell.setCellStyle(textStyle);
+										cell.setCellValue("Não Aplicável");
+									}
+
+									if (cadastro.getNf_remessa_aplicavel() == 1) {
+										cell = row.createCell(cellnum++);
+										cell.setCellStyle(numberStyle);
+										cell.setCellValue(cadastro.getCodigo_nf_remessa());
+
+										cell = row.createCell(cellnum++);
+										cell.setCellStyle(numberStyle);
+										cell.setCellValue(cadastro.getPeso_nf_remessa());
+										quantidade_total_kgs_nf_remessa = quantidade_total_kgs_nf_remessa
+												+ cadastro.getPeso_nf_remessa();
+
+										cell = row.createCell(cellnum++);
+										cell.setCellStyle(valorStyle);
+										cell.setCellValue(cadastro.getValor_nf_remessa().doubleValue());
+										valor_total_nf_remessa = valor_total_nf_remessa.add(cadastro.getValor_nf_remessa());
+
+									} else {
+										cell = row.createCell(cellnum++);
+										cell.setCellStyle(textStyle);
+										cell.setCellValue("Não Aplicável");
+
+										cell = row.createCell(cellnum++);
+										cell.setCellStyle(textStyle);
+										cell.setCellValue("Não Aplicável");
+
+										cell = row.createCell(cellnum++);
+										cell.setCellStyle(textStyle);
+										cell.setCellValue("Não Aplicável");
+									}
+
+									quantidade_total_kgs_recebido = quantidade_total_kgs_recebido + cadastro.getPeso_romaneio();
+
+								}
+								sheet.setAutoFilter(CellRangeAddress.valueOf("A4:I4"));
+								NumberFormat z = NumberFormat.getNumberInstance();
+
+								// somatorias
+								row = sheet.createRow(rownum++);
+
+								cell = row.createCell(2);
+								cell.setCellStyle(negrito);
+								cell.setCellValue(z.format(quantidade_total_kgs_recebido) + " Kgs");
+
+								cell = row.createCell(4);
+								cell.setCellStyle(negrito);
+								cell.setCellValue(z.format(quantidade_total_kgs_nf_venda) + " Kgs");
+
+								cell = row.createCell(5);
+								cell.setCellStyle(negrito);
+								cell.setCellValue(NumberFormat.getCurrencyInstance(ptBr).format(valor_total_nf_venda.doubleValue()));
+
+								cell = row.createCell(7);
+								cell.setCellStyle(negrito);
+								cell.setCellValue(z.format(quantidade_total_kgs_nf_remessa) + " Kgs");
+
+								cell = row.createCell(8);
+								cell.setCellStyle(negrito);
+								cell.setCellValue(NumberFormat.getCurrencyInstance(ptBr).format(valor_total_nf_remessa.doubleValue()));
+
+								//////////////////////
+								row = sheet.createRow(rownum += 2);
+								cellnum = 0;
+
+								cell = row.createCell(cellnum++);
+								cell.setCellStyle(textStyle);
+								cell.setCellValue("");
+
+								cell = row.createCell(cellnum++);
+								cell.setCellStyle(celula_fundo_laranja_texto_branco);
+								cell.setCellValue("Peso Recebido: ");
+
+								cell = row.createCell(cellnum++);
+								cell.setCellStyle(celula_number_amarelo_texto_preto);
+								cell.setCellValue(quantidade_total_kgs_recebido);
+
+								cell = row.createCell(cellnum++);
+								cell.setCellStyle(celula_fundo_laranja_texto_branco);
+								cell.setCellValue("Peso NF's Venda: ");
+
+								cell = row.createCell(cellnum++);
+								cell.setCellStyle(celula_number_amarelo_texto_preto);
+								if (nf_venda_ativo)
+									cell.setCellValue(quantidade_total_kgs_nf_venda);
+								else
+									cell.setCellValue("Não Aplicável");
+
+								cell = row.createCell(cellnum++);
+								cell.setCellStyle(celula_fundo_laranja_texto_branco);
+								cell.setCellValue("Valor NF's Venda: ");
+
+								cell = row.createCell(cellnum++);
+								cell.setCellStyle(celula_number_amarelo_texto_preto);
+
+								if (nf_venda_ativo)
+									cell.setCellValue(valor_total_nf_venda.doubleValue());
+								else
+									cell.setCellValue("Não Aplicável");
+
+								cell = row.createCell(cellnum++);
+								cell.setCellStyle(celula_fundo_laranja_texto_branco);
+								cell.setCellValue("Peso NF's Remessa: ");
+
+								cell = row.createCell(cellnum++);
+								cell.setCellStyle(celula_number_amarelo_texto_preto);
+								if (nf_remessa_ativo)
+									cell.setCellValue(quantidade_total_kgs_nf_remessa);
+								else
+									cell.setCellValue("Não Aplicável");
+
+								cell = row.createCell(cellnum++);
+								cell.setCellStyle(celula_fundo_laranja_texto_branco);
+								cell.setCellValue("Valor NF's Remessa: ");
+
+								cell = row.createCell(cellnum++);
+								cell.setCellStyle(celula_number_amarelo_texto_preto);
+								if (nf_remessa_ativo)
+									cell.setCellValue(valor_total_nf_remessa.doubleValue());
+								else
+									cell.setCellValue("Não Aplicável");
+
+								row = sheet.createRow(rownum += 2);
+								cellnum = 0;
+
+								cell = row.createCell(cellnum++);
+								cell.setCellStyle(textStyle);
+								cell.setCellValue("");
+
+								cell = row.createCell(cellnum++);
+								cell.setCellStyle(celula_fundo_laranja_texto_branco);
+								cell.setCellValue("Peso a Receber: ");
+
+								cell = row.createCell(cellnum++);
+								cell.setCellStyle(celula_number_amarelo_texto_preto);
+								cell.setCellValue(quantidade_kg - quantidade_total_kgs_recebido);
+
+								cell = row.createCell(cellnum++);
+								cell.setCellStyle(celula_fundo_laranja_texto_branco);
+								cell.setCellValue("Peso a emitir: ");
+
+								cell = row.createCell(cellnum++);
+								cell.setCellStyle(celula_number_amarelo_texto_preto);
+								if (nf_venda_ativo)
+									cell.setCellValue(quantidade_kg - quantidade_total_kgs_nf_venda);
+								else
+									cell.setCellValue("Não Aplicável");
+
+								cell = row.createCell(7);
+								cell.setCellStyle(celula_fundo_laranja_texto_branco);
+								cell.setCellValue("Peso a emitir: ");
+
+								cell = row.createCell(8);
+								cell.setCellStyle(celula_number_amarelo_texto_preto);
+								if (nf_remessa_ativo)
+									cell.setCellValue(quantidade_kg - quantidade_total_kgs_nf_remessa);
+								else
+									cell.setCellValue("Não Aplicável");
+
+								row = sheet.createRow(rownum += 2);
+								cellnum = 0;
+
+								cell = row.createCell(cellnum);
+								cell.setCellStyle(negrito_esquerda);
+								cell.setCellValue("Status gerado de forma automatica: ");
+
+								sheet.addMergedRegion(new CellRangeAddress(rownum, rownum, cellnum, 2));
+
+								row = sheet.createRow(rownum += 1);
+								cellnum = 0;
+
+								cell = row.createCell(cellnum);
+								cell.setCellStyle(negrito_esquerda);
+
+								String texto = "";
+								double diferenca = quantidade_kg - quantidade_total_kgs_recebido;
+								if (diferenca == 0) {
+									texto = texto + "Recebimento Concluído";
+								} else if (diferenca > 0) {
+									texto = texto + "Recebimento Incompleto, falta receber " + z.format(diferenca) + " Kgs";
+
+								} else if (diferenca < 0) {
+									texto = texto + "Recebimento Excedido, excedeu " + z.format(diferenca) + " Kgs";
+
+								}
+
+								cell.setCellValue(texto);
+
+								sheet.addMergedRegion(new CellRangeAddress(rownum, rownum, cellnum, 3));
+
+								// status de nf de venda
+								row = sheet.createRow(rownum += 1);
+								cellnum = 0;
+
+								cell = row.createCell(cellnum);
+								cell.setCellStyle(negrito_esquerda);
+
+								String texto_nf_venda = "";
+								double diferenca_nf_venda = quantidade_kg - quantidade_total_kgs_nf_venda;
+								if (diferenca_nf_venda == 0) {
+									texto_nf_venda = texto_nf_venda + "Emissão de NF's de Venda Concluído";
+								} else if (diferenca_nf_venda > 0) {
+									texto_nf_venda = texto_nf_venda + "Emissão de NF's de Venda Incompleto, falta emitir "
+											+ z.format(diferenca_nf_venda) + " Kgs";
+
+								} else if (diferenca_nf_venda < 0) {
+									texto_nf_venda = texto_nf_venda + "Emissão de NF's Excedido, excedeu "
+											+ z.format(diferenca_nf_venda) + " Kgs";
+
+								}
+
+								if (nf_venda_ativo)
+									cell.setCellValue(texto_nf_venda);
+								else
+									cell.setCellValue("Emissão de NF's Não Aplicável");
+
+								sheet.addMergedRegion(new CellRangeAddress(rownum, rownum, cellnum, 4));
+
+								// status nf remessa
+								row = sheet.createRow(rownum += 1);
+								cellnum = 0;
+
+								cell = row.createCell(cellnum);
+								cell.setCellStyle(negrito_esquerda);
+
+								String texto_nf_remessa = "";
+								double diferenca_nf_remessa = quantidade_kg - quantidade_total_kgs_nf_remessa;
+								if (diferenca_nf_remessa == 0) {
+									texto_nf_remessa = texto_nf_remessa + "Emissão de NF's de Remessa Concluído";
+								} else if (diferenca_nf_remessa > 0) {
+									texto_nf_remessa = texto_nf_remessa + "Emissão de NF's de Remessa Incompleto, falta emitir "
+											+ z.format(diferenca_nf_remessa) + " Kgs";
+
+								} else if (diferenca_nf_remessa < 0) {
+									texto_nf_remessa = texto_nf_remessa + "Emissão de NF's Remessa, excedeu "
+											+ z.format(diferenca_nf_remessa) + " Kgs";
+
+								}
+
+								if (nf_remessa_ativo)
+									cell.setCellValue(texto_nf_remessa);
+								else
+									cell.setCellValue("Emissão de NF's Não Aplicável");
+
+								sheet.addMergedRegion(new CellRangeAddress(rownum, rownum, cellnum, 4));
+
+								try {
+
+									new JFXPanel();
+									Platform.runLater(() -> {
+
+										// pegar ultima pasta
+										ManipularTxt manipular_ultima_pasta = new ManipularTxt();
+										String ultima_pasta = manipular_ultima_pasta
+												.lerArquivo(new File("C:\\ProgramData\\E-Contract\\configs\\ultima_pasta.txt"));
+										if (d == null) {
+											d = new FileChooser();
+										}
+										d.setInitialDirectory(new File(ultima_pasta));
+										d.getExtensionFilters().addAll(
+
+												new FileChooser.ExtensionFilter("Excel", "*.xls"));
+										File file = d.showSaveDialog(new Stage());
+										String caminho_arquivo = "";
+										if (file != null) {
+											caminho_arquivo = file.getAbsolutePath();
+
+											manipular_ultima_pasta.rescreverArquivo(
+													new File("C:\\ProgramData\\E-Contract\\configs\\ultima_pasta.txt"),
+													file.getParent());
+											// Escrevendo o arquivo em disco
+											FileOutputStream out;
+											try {
+												out = new FileOutputStream(file);
+												workbook.write(out);
+												workbook.close();
+												out.close();
+												// workbook.close();
+
+												Runtime.getRuntime().exec("explorer " + file.getAbsolutePath());
+
+												System.out.println("Success!!");
+											} catch (FileNotFoundException e1) {
+												// TODO Auto-generated catch block
+												e1.printStackTrace();
+											} catch (IOException e1) {
+												// TODO Auto-generated catch block
+												e1.printStackTrace();
+											}
+
+										}
+
+									});
+
+								} catch (Exception k) {
+									k.printStackTrace();
+								}
+
+							}
+						});
+						
+								JButton btnExcluirRecebimento = new JButton("Excluir");
+								panel_9.add(btnExcluirRecebimento, "cell 8 0");
+								btnExcluirRecebimento.addActionListener(new ActionListener() {
+									public void actionPerformed(ActionEvent e) {
+
+										GerenciarBancoContratos gerenciar = new GerenciarBancoContratos();
+										int rowSel = table_recebimentos.getSelectedRow();// pega o indice da linha na tabela
+
+										CadastroContrato.Recebimento recebimento_excluir = lista_recebimentos.get(rowSel);
+
+										GerenciarBancoContratos gerenciar_contratos = new GerenciarBancoContratos();
+										boolean excluir = gerenciar_contratos.removerRecebimento(contrato_local.getId(),
+												recebimento_excluir.getId_recebimento());
+
+										if (excluir) {
+											// deletar o diretorio do recebimento
+											String diretorio_contrato = servidor_unidade + contrato_local.getCaminho_diretorio_contrato()
+													+ "\\recebimentos";
+											String diretorio_recebimento = diretorio_contrato + "\\recebimento_"
+													+ recebimento_excluir.getId_recebimento();
+
+											ManipularTxt manipular = new ManipularTxt();
+											boolean deletar = manipular.limparDiretorio(new File(diretorio_recebimento));
+											if (deletar) {
+												JOptionPane.showMessageDialog(isto, "Recebimento Excluido");
+											} else {
+												JOptionPane.showMessageDialog(isto,
+														"Recebimento Excluido, mas a pasta do recebimento ainda existe\nConsulte o administrador");
+
+											}
+
+											if (contrato_local.getCaminho_diretorio_contrato2() != null) {
+												// deletar o direotiro do recebimento do contrato 2
+												String diretorio_contrato2 = servidor_unidade + contrato_local.getCaminho_diretorio_contrato2()
+														+ "\\recebimentos";
+												String diretorio_recebimento2 = diretorio_contrato + "\\recebimento_"
+														+ recebimento_excluir.getId_recebimento();
+
+												deletar = manipular.limparDiretorio(new File(diretorio_recebimento2));
+												if (deletar) {
+													JOptionPane.showMessageDialog(isto, "Recebimento Excluido");
+												} else {
+													JOptionPane.showMessageDialog(isto,
+															"Recebimento Excluido, mas a pasta do recebimento ainda existe\nConsulte o administrador");
+
+												}
+											}
+
+											pesquisar_recebimentos(true);
+										} else {
+											JOptionPane.showMessageDialog(isto, "Erro ao excluir recebimentos\nConsulte o administrador");
+
+										}
+
+									}
+								});
+								botoes.add(btnExcluirRecebimento);
+								
+										JButton btnEditar = new JButton("Editar");
+										panel_9.add(btnEditar, "cell 9 0");
+										btnEditar.addActionListener(new ActionListener() {
+											public void actionPerformed(ActionEvent e) {
+												int rowSel = table_recebimentos.getSelectedRow();// pega o indice da linha na tabela
+
+												TelaConfirmarRecebimento tela = new TelaConfirmarRecebimento(1, lista_recebimentos.get(rowSel),
+														contrato_local, isto);
+												tela.setTelaPai(isto);
+												tela.setVisible(true);
+											}
+										});
+										botoes.add(btnEditar);
+										
+												JButton btnAdicionarRecebimento = new JButton("Adicionar");
+												panel_9.add(btnAdicionarRecebimento, "cell 10 0");
+												botoes.add(btnAdicionarRecebimento);
+												
+														btnAdicionarRecebimento.addActionListener(new ActionListener() {
+															public void actionPerformed(ActionEvent e) {
+																TelaConfirmarRecebimento tela = new TelaConfirmarRecebimento(0, null, contrato_local, isto);
+																tela.setTelaPai(isto);
+																tela.setVisible(true);
+															}
+														});
+
+		JPanel panel_8 = new JPanel();
+		panel_8.setBackground(Color.WHITE);
+		panel_5.add(panel_8, "cell 0 9 5 1,alignx center,aligny center");
+		panel_8.setLayout(new MigLayout("", "[27.00][26.00][31.00][][][][][]", "[][][][][]"));
+
+		JLabel lblNewLabel_33_2 = new JLabel("     ");
+		panel_8.add(lblNewLabel_33_2, "cell 0 0,grow");
+		lblNewLabel_33_2.setOpaque(true);
+		lblNewLabel_33_2.setBorder(new LineBorder(new Color(0, 0, 0)));
+		lblNewLabel_33_2.setBackground(Color.green);
+
+		JLabel lblNewLabel_34_2 = new JLabel("OK");
+		panel_8.add(lblNewLabel_34_2, "cell 1 0,alignx left");
+		lblNewLabel_34_2.setFont(new Font("SansSerif", Font.BOLD, 12));
+		lblNewLabel_34_2.setBorder(new MatteBorder(0, 0, 1, 0, (Color) new Color(0, 0, 0)));
+
+		JLabel lblNewLabel_33_1_1 = new JLabel("     ");
+		panel_8.add(lblNewLabel_33_1_1, "cell 2 0,growx");
+		lblNewLabel_33_1_1.setOpaque(true);
+		lblNewLabel_33_1_1.setBorder(new LineBorder(new Color(0, 0, 0)));
+		lblNewLabel_33_1_1.setBackground(Color.gray);
+
+		JLabel lblNewLabel_34_1_1 = new JLabel("Falta NF Remessa e Venda");
+		panel_8.add(lblNewLabel_34_1_1, "cell 3 0,alignx left");
+		lblNewLabel_34_1_1.setFont(new Font("SansSerif", Font.BOLD, 12));
+		lblNewLabel_34_1_1.setBorder(new MatteBorder(0, 0, 1, 0, (Color) new Color(0, 0, 0)));
+
+		JLabel lblNewLabel_33_2_1 = new JLabel("     ");
+		panel_8.add(lblNewLabel_33_2_1, "cell 0 1,growx");
+		lblNewLabel_33_2_1.setOpaque(true);
+		lblNewLabel_33_2_1.setBorder(new LineBorder(new Color(0, 0, 0)));
+		lblNewLabel_33_2_1.setBackground(Color.ORANGE);
+
+		JLabel lblNewLabel_34_2_1 = new JLabel("Falta NF Venda");
+		panel_8.add(lblNewLabel_34_2_1, "cell 1 1,alignx left");
+		lblNewLabel_34_2_1.setFont(new Font("SansSerif", Font.BOLD, 12));
+		lblNewLabel_34_2_1.setBorder(new MatteBorder(0, 0, 1, 0, (Color) new Color(0, 0, 0)));
+
+		JLabel lblNewLabel_33_1_1_1 = new JLabel("     ");
+		panel_8.add(lblNewLabel_33_1_1_1, "cell 2 1,growx");
+		lblNewLabel_33_1_1_1.setOpaque(true);
+		lblNewLabel_33_1_1_1.setBorder(new LineBorder(new Color(0, 0, 0)));
+		lblNewLabel_33_1_1_1.setBackground(Color.YELLOW);
+
+		JLabel lblNewLabel_34_1_1_1 = new JLabel("Falta NF Remessa");
+		panel_8.add(lblNewLabel_34_1_1_1, "cell 3 1,alignx left");
+		lblNewLabel_34_1_1_1.setFont(new Font("SansSerif", Font.BOLD, 12));
+		lblNewLabel_34_1_1_1.setBorder(new MatteBorder(0, 0, 1, 0, (Color) new Color(0, 0, 0)));
+
+		painelGraficoRecebimento = new JPanelGraficoPadrao(0, 0, "Recebido:", "a Receber:");
+		painelGraficoRecebimento.setLayout(null);
+		panel_5.add(painelGraficoRecebimento, "cell 6 3 5 11,grow");
+
 		JLabel lblNewLabel_7_1 = new JLabel("Recebimentos desse contrato:");
 		lblNewLabel_7_1.setForeground(new Color(102, 51, 0));
 		lblNewLabel_7_1.setFont(new Font("SansSerif", Font.BOLD, 18));
 		lblNewLabel_7_1.setBackground(new Color(102, 51, 0));
-		lblNewLabel_7_1.setBounds(142, 204, 277, 24);
-		panel_5.add(lblNewLabel_7_1);
-		
-		JButton btnEditar = new JButton("Editar");
-		btnEditar.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				int rowSel = table_recebimentos.getSelectedRow();//pega o indice da linha na tabela
-			
-				
-				TelaConfirmarRecebimento tela = new TelaConfirmarRecebimento(1, lista_recebimentos.get(rowSel), contrato_local, isto);
-				tela.setTelaPai(isto);
-				tela.setVisible(true);
-			}
-		});
-		btnEditar.setBounds(893, 601, 90, 28);
-		panel_5.add(btnEditar);
-		
-		 painelPaiGraficoRecebimento = new JPanel();
-		painelPaiGraficoRecebimento.setBackground(Color.WHITE);
-		painelPaiGraficoRecebimento.setBounds(311, 601, 339, 274);
-		panel_5.add(painelPaiGraficoRecebimento);
-		  painelPaiGraficoRecebimento.setLayout(new BorderLayout(0, 0));
-		 
-		  painelGraficoRecebimento = new JPanelGraficoPadrao(0, 0, "Recebido:", "a Receber:");
-		  painelPaiGraficoRecebimento.add(painelGraficoRecebimento);
-		  painelGraficoRecebimento.setLayout(null);
-		  
-		  JLabel lblNewLabel_33_2 = new JLabel("");
-		  lblNewLabel_33_2.setOpaque(true);
-		  lblNewLabel_33_2.setBorder(new LineBorder(new Color(0, 0, 0)));
-		  lblNewLabel_33_2.setBackground(Color.green);
-		  lblNewLabel_33_2.setBounds(1142, 385, 30, 16);
-		  panel_5.add(lblNewLabel_33_2);
-		  
-		  JLabel lblNewLabel_34_2 = new JLabel("OK");
-		  lblNewLabel_34_2.setFont(new Font("SansSerif", Font.BOLD, 12));
-		  lblNewLabel_34_2.setBorder(new MatteBorder(0, 0, 1, 0, (Color) new Color(0, 0, 0)));
-		  lblNewLabel_34_2.setBounds(1177, 385, 83, 17);
-		  panel_5.add(lblNewLabel_34_2);
-		  
-		  JLabel lblNewLabel_33_1_1 = new JLabel("");
-		  lblNewLabel_33_1_1.setOpaque(true);
-		  lblNewLabel_33_1_1.setBorder(new LineBorder(new Color(0, 0, 0)));
-		  lblNewLabel_33_1_1.setBackground(Color.gray);
-		  lblNewLabel_33_1_1.setBounds(1142, 413, 30, 16);
-		  panel_5.add(lblNewLabel_33_1_1);
-		  
-		  JLabel lblNewLabel_34_1_1 = new JLabel("Falta NF Remessa e Venda");
-		  lblNewLabel_34_1_1.setFont(new Font("SansSerif", Font.BOLD, 12));
-		  lblNewLabel_34_1_1.setBorder(new MatteBorder(0, 0, 1, 0, (Color) new Color(0, 0, 0)));
-		  lblNewLabel_34_1_1.setBounds(1177, 412, 150, 17);
-		  panel_5.add(lblNewLabel_34_1_1);
-		  
-		  JLabel lblNewLabel_33_2_1 = new JLabel("");
-		  lblNewLabel_33_2_1.setOpaque(true);
-		  lblNewLabel_33_2_1.setBorder(new LineBorder(new Color(0, 0, 0)));
-		  lblNewLabel_33_2_1.setBackground(Color.ORANGE);
-		  lblNewLabel_33_2_1.setBounds(1142, 441, 30, 16);
-		  panel_5.add(lblNewLabel_33_2_1);
-		  
-		  JLabel lblNewLabel_33_1_1_1 = new JLabel("");
-		  lblNewLabel_33_1_1_1.setOpaque(true);
-		  lblNewLabel_33_1_1_1.setBorder(new LineBorder(new Color(0, 0, 0)));
-		  lblNewLabel_33_1_1_1.setBackground(Color.YELLOW);
-		  lblNewLabel_33_1_1_1.setBounds(1142, 469, 30, 16);
-		  panel_5.add(lblNewLabel_33_1_1_1);
-		  
-		  JLabel lblNewLabel_34_1_1_1 = new JLabel("Falta NF Remessa");
-		  lblNewLabel_34_1_1_1.setFont(new Font("SansSerif", Font.BOLD, 12));
-		  lblNewLabel_34_1_1_1.setBorder(new MatteBorder(0, 0, 1, 0, (Color) new Color(0, 0, 0)));
-		  lblNewLabel_34_1_1_1.setBounds(1177, 469, 101, 17);
-		  panel_5.add(lblNewLabel_34_1_1_1);
-		  
-		  JLabel lblNewLabel_34_2_1 = new JLabel("Falta NF Venda");
-		  lblNewLabel_34_2_1.setFont(new Font("SansSerif", Font.BOLD, 12));
-		  lblNewLabel_34_2_1.setBorder(new MatteBorder(0, 0, 1, 0, (Color) new Color(0, 0, 0)));
-		  lblNewLabel_34_2_1.setBounds(1177, 441, 83, 17);
-		  panel_5.add(lblNewLabel_34_2_1);
+		panel_5.add(lblNewLabel_7_1, "cell 4 1 3 1,alignx left,aligny top");
 
-		btnNewButton_2.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				TelaConfirmarRecebimento tela = new TelaConfirmarRecebimento(0, null, contrato_local, isto);
-				tela.setTelaPai(isto);
-				tela.setVisible(true);
-			}
-		});
+		JPanel panel_11 = new JPanel();
+		panel_11.setBackground(Color.WHITE);
+		panel_5.add(panel_11, "cell 4 10,alignx center,aligny center");
+		panel_11.setLayout(new MigLayout("", "[][]", "[][][][][]"));
+
+		JLabel lblNewLabel_3_2 = new JLabel("Recebimentos:");
+		panel_11.add(lblNewLabel_3_2, "cell 0 0");
+
+		JLabel lblNewLabel_12_1 = new JLabel("Total:");
+		panel_11.add(lblNewLabel_12_1, "cell 0 1");
+
+		lblPesoTotalContrato = new JLabel("0.0 KG");
+		panel_11.add(lblPesoTotalContrato, "cell 1 1");
+		lblPesoTotalContrato.setFont(new Font("Tahoma", Font.BOLD, 11));
+		lblPesoTotalContrato.setBorder(new LineBorder(new Color(0, 0, 0)));
+
+		JLabel lblNewLabel_13_3 = new JLabel("Total Recebido:");
+		panel_11.add(lblNewLabel_13_3, "cell 0 2");
+
+		lblPesoTotalRecebido = new JLabel("0.0 Kg");
+		panel_11.add(lblPesoTotalRecebido, "cell 1 2");
+		lblPesoTotalRecebido.setFont(new Font("Tahoma", Font.BOLD, 11));
+		lblPesoTotalRecebido.setBorder(new LineBorder(new Color(0, 0, 0)));
+
+		JLabel lblNewLabel_13_1_1 = new JLabel("Restante:");
+		panel_11.add(lblNewLabel_13_1_1, "cell 0 3");
+
+		lblPesoTotalRestante = new JLabel("0.0 Kg");
+		panel_11.add(lblPesoTotalRestante, "cell 1 3");
+		lblPesoTotalRestante.setFont(new Font("Tahoma", Font.BOLD, 11));
+		lblPesoTotalRestante.setBorder(new LineBorder(new Color(0, 0, 0)));
+
+		JPanel panel_6 = new JPanel();
+		panel_6.setBackground(new Color(102, 153, 102));
+		panel_5.add(panel_6, "cell 17 10 1 2,grow");
+		GridBagLayout gbl_panel_6 = new GridBagLayout();
+		gbl_panel_6.columnWidths = new int[] { 0, 0, 0 };
+		gbl_panel_6.rowHeights = new int[] { 0, 0, 0, 0, 0 };
+		gbl_panel_6.columnWeights = new double[] { 0.0, 0.0, Double.MIN_VALUE };
+		gbl_panel_6.rowWeights = new double[] { 0.0, 0.0, 0.0, 0.0, Double.MIN_VALUE };
+		panel_6.setLayout(gbl_panel_6);
+
+		JLabel lblNewLabel_32_1 = new JLabel("Romaneios");
+		lblNewLabel_32_1.setForeground(Color.BLACK);
+		lblNewLabel_32_1.setFont(new Font("SansSerif", Font.BOLD, 16));
+		GridBagConstraints gbc_lblNewLabel_32_1 = new GridBagConstraints();
+		gbc_lblNewLabel_32_1.gridwidth = 2;
+		gbc_lblNewLabel_32_1.insets = new Insets(0, 0, 5, 5);
+		gbc_lblNewLabel_32_1.gridx = 0;
+		gbc_lblNewLabel_32_1.gridy = 0;
+		panel_6.add(lblNewLabel_32_1, gbc_lblNewLabel_32_1);
+
+		JLabel lblNewLabel_32 = new JLabel("Num Romaneios:");
+		GridBagConstraints gbc_lblNewLabel_32 = new GridBagConstraints();
+		gbc_lblNewLabel_32.insets = new Insets(0, 0, 5, 5);
+		gbc_lblNewLabel_32.gridx = 0;
+		gbc_lblNewLabel_32.gridy = 2;
+		panel_6.add(lblNewLabel_32, gbc_lblNewLabel_32);
+		lblNewLabel_32.setForeground(Color.BLACK);
+		lblNewLabel_32.setFont(new Font("SansSerif", Font.PLAIN, 16));
+
+		lblNumRomaneiosRecebimento = new JLabel("0");
+		GridBagConstraints gbc_lblNumRomaneiosRecebimento = new GridBagConstraints();
+		gbc_lblNumRomaneiosRecebimento.insets = new Insets(0, 0, 5, 0);
+		gbc_lblNumRomaneiosRecebimento.gridx = 1;
+		gbc_lblNumRomaneiosRecebimento.gridy = 2;
+		panel_6.add(lblNumRomaneiosRecebimento, gbc_lblNumRomaneiosRecebimento);
+		lblNumRomaneiosRecebimento.setForeground(Color.BLACK);
+		lblNumRomaneiosRecebimento.setFont(new Font("SansSerif", Font.BOLD, 14));
+
+		JLabel lblNewLabel_32_2 = new JLabel("Peso Total:");
+		GridBagConstraints gbc_lblNewLabel_32_2 = new GridBagConstraints();
+		gbc_lblNewLabel_32_2.insets = new Insets(0, 0, 0, 5);
+		gbc_lblNewLabel_32_2.gridx = 0;
+		gbc_lblNewLabel_32_2.gridy = 3;
+		panel_6.add(lblNewLabel_32_2, gbc_lblNewLabel_32_2);
+		lblNewLabel_32_2.setForeground(Color.BLACK);
+		lblNewLabel_32_2.setFont(new Font("SansSerif", Font.PLAIN, 16));
+
+		lblTotalSacosKGsRomaneios = new JLabel("0.0");
+		GridBagConstraints gbc_lblTotalSacosKGsRomaneios = new GridBagConstraints();
+		gbc_lblTotalSacosKGsRomaneios.gridx = 1;
+		gbc_lblTotalSacosKGsRomaneios.gridy = 3;
+		panel_6.add(lblTotalSacosKGsRomaneios, gbc_lblTotalSacosKGsRomaneios);
+		lblTotalSacosKGsRomaneios.setForeground(Color.BLACK);
+		lblTotalSacosKGsRomaneios.setFont(new Font("SansSerif", Font.BOLD, 14));
+
+		JPanel panel_10 = new JPanel();
+		panel_10.setBackground(new Color(204, 153, 102));
+		panel_5.add(panel_10, "cell 19 10 1 2,alignx center,growy");
+		GridBagLayout gbl_panel_10 = new GridBagLayout();
+		gbl_panel_10.columnWidths = new int[] { 0, 0, 0 };
+		gbl_panel_10.rowHeights = new int[] { 0, 0, 0, 0, 0, 0 };
+		gbl_panel_10.columnWeights = new double[] { 0.0, 0.0, Double.MIN_VALUE };
+		gbl_panel_10.rowWeights = new double[] { 0.0, 0.0, 0.0, 0.0, 0.0, Double.MIN_VALUE };
+		panel_10.setLayout(gbl_panel_10);
+
+		JLabel lblNewLabel_39 = new JLabel("Notas Fiscais Venda");
+		GridBagConstraints gbc_lblNewLabel_39 = new GridBagConstraints();
+		gbc_lblNewLabel_39.gridwidth = 2;
+		gbc_lblNewLabel_39.insets = new Insets(0, 0, 5, 5);
+		gbc_lblNewLabel_39.gridx = 0;
+		gbc_lblNewLabel_39.gridy = 0;
+		panel_10.add(lblNewLabel_39, gbc_lblNewLabel_39);
+		lblNewLabel_39.setFont(new Font("SansSerif", Font.BOLD, 14));
+
+		JLabel lblNewLabel_32_2_1 = new JLabel("Peso Emitido:");
+		GridBagConstraints gbc_lblNewLabel_32_2_1 = new GridBagConstraints();
+		gbc_lblNewLabel_32_2_1.insets = new Insets(0, 0, 5, 5);
+		gbc_lblNewLabel_32_2_1.gridx = 0;
+		gbc_lblNewLabel_32_2_1.gridy = 2;
+		panel_10.add(lblNewLabel_32_2_1, gbc_lblNewLabel_32_2_1);
+		lblNewLabel_32_2_1.setForeground(Color.BLACK);
+		lblNewLabel_32_2_1.setFont(new Font("SansSerif", Font.PLAIN, 16));
+
+		lblPesoTotalNFVendaEntrada = new JLabel("0.0");
+		GridBagConstraints gbc_lblPesoTotalNFVendaEntrada = new GridBagConstraints();
+		gbc_lblPesoTotalNFVendaEntrada.insets = new Insets(0, 0, 5, 0);
+		gbc_lblPesoTotalNFVendaEntrada.gridx = 1;
+		gbc_lblPesoTotalNFVendaEntrada.gridy = 2;
+		panel_10.add(lblPesoTotalNFVendaEntrada, gbc_lblPesoTotalNFVendaEntrada);
+		lblPesoTotalNFVendaEntrada.setForeground(Color.BLACK);
+		lblPesoTotalNFVendaEntrada.setFont(new Font("SansSerif", Font.BOLD, 14));
+
+		JLabel lblNewLabel_32_2_1_1 = new JLabel("Peso a Emitir:");
+		GridBagConstraints gbc_lblNewLabel_32_2_1_1 = new GridBagConstraints();
+		gbc_lblNewLabel_32_2_1_1.insets = new Insets(0, 0, 5, 5);
+		gbc_lblNewLabel_32_2_1_1.gridx = 0;
+		gbc_lblNewLabel_32_2_1_1.gridy = 3;
+		panel_10.add(lblNewLabel_32_2_1_1, gbc_lblNewLabel_32_2_1_1);
+		lblNewLabel_32_2_1_1.setForeground(Color.BLACK);
+		lblNewLabel_32_2_1_1.setFont(new Font("SansSerif", Font.PLAIN, 16));
+
+		lblPesoRestanteNFVendaEntrada = new JLabel("0.0");
+		GridBagConstraints gbc_lblPesoRestanteNFVendaEntrada = new GridBagConstraints();
+		gbc_lblPesoRestanteNFVendaEntrada.insets = new Insets(0, 0, 5, 0);
+		gbc_lblPesoRestanteNFVendaEntrada.gridx = 1;
+		gbc_lblPesoRestanteNFVendaEntrada.gridy = 3;
+		panel_10.add(lblPesoRestanteNFVendaEntrada, gbc_lblPesoRestanteNFVendaEntrada);
+		lblPesoRestanteNFVendaEntrada.setForeground(Color.BLACK);
+		lblPesoRestanteNFVendaEntrada.setFont(new Font("SansSerif", Font.BOLD, 14));
+
+		JLabel lblNewLabel_38 = new JLabel("$ Total:");
+		GridBagConstraints gbc_lblNewLabel_38 = new GridBagConstraints();
+		gbc_lblNewLabel_38.insets = new Insets(0, 0, 0, 5);
+		gbc_lblNewLabel_38.gridx = 0;
+		gbc_lblNewLabel_38.gridy = 4;
+		panel_10.add(lblNewLabel_38, gbc_lblNewLabel_38);
+		lblNewLabel_38.setFont(new Font("SansSerif", Font.PLAIN, 16));
+
+		lblValorTotalNFVendaEntrada = new JLabel("0.0");
+		GridBagConstraints gbc_lblValorTotalNFVendaEntrada = new GridBagConstraints();
+		gbc_lblValorTotalNFVendaEntrada.gridx = 1;
+		gbc_lblValorTotalNFVendaEntrada.gridy = 4;
+		panel_10.add(lblValorTotalNFVendaEntrada, gbc_lblValorTotalNFVendaEntrada);
+		lblValorTotalNFVendaEntrada.setForeground(Color.BLACK);
+		lblValorTotalNFVendaEntrada.setFont(new Font("SansSerif", Font.BOLD, 14));
+
+		JPanel panel_12 = new JPanel();
+		panel_12.setBackground(new Color(204, 153, 153));
+		panel_5.add(panel_12, "cell 21 10 1 2,alignx center,growy");
+		GridBagLayout gbl_panel_12 = new GridBagLayout();
+		gbl_panel_12.columnWidths = new int[] { 0, 0, 0 };
+		gbl_panel_12.rowHeights = new int[] { 0, 0, 0, 0, 0, 0 };
+		gbl_panel_12.columnWeights = new double[] { 0.0, 0.0, Double.MIN_VALUE };
+		gbl_panel_12.rowWeights = new double[] { 0.0, 0.0, 0.0, 0.0, 0.0, Double.MIN_VALUE };
+		panel_12.setLayout(gbl_panel_12);
+
+		JLabel lblNewLabel_41 = new JLabel("Notas Fiscais Remessa");
+		lblNewLabel_41.setFont(new Font("SansSerif", Font.BOLD, 14));
+		GridBagConstraints gbc_lblNewLabel_41 = new GridBagConstraints();
+		gbc_lblNewLabel_41.gridwidth = 2;
+		gbc_lblNewLabel_41.insets = new Insets(0, 0, 5, 5);
+		gbc_lblNewLabel_41.gridx = 0;
+		gbc_lblNewLabel_41.gridy = 0;
+		panel_12.add(lblNewLabel_41, gbc_lblNewLabel_41);
+
+		JLabel lblNewLabel_42 = new JLabel("Peso Emitido:");
+		lblNewLabel_42.setFont(new Font("SansSerif", Font.PLAIN, 16));
+		GridBagConstraints gbc_lblNewLabel_42 = new GridBagConstraints();
+		gbc_lblNewLabel_42.insets = new Insets(0, 0, 5, 5);
+		gbc_lblNewLabel_42.gridx = 0;
+		gbc_lblNewLabel_42.gridy = 2;
+		panel_12.add(lblNewLabel_42, gbc_lblNewLabel_42);
+
+		lblPesoTotalNFRemessaEntrada = new JLabel("0.0");
+		lblPesoTotalNFRemessaEntrada.setFont(new Font("SansSerif", Font.BOLD, 14));
+		GridBagConstraints gbc_lblPesoTotalNFRemessaEntrada = new GridBagConstraints();
+		gbc_lblPesoTotalNFRemessaEntrada.insets = new Insets(0, 0, 5, 0);
+		gbc_lblPesoTotalNFRemessaEntrada.gridx = 1;
+		gbc_lblPesoTotalNFRemessaEntrada.gridy = 2;
+		panel_12.add(lblPesoTotalNFRemessaEntrada, gbc_lblPesoTotalNFRemessaEntrada);
+
+		JLabel lblNewLabel_42_1 = new JLabel("Peso a Emitir:");
+		lblNewLabel_42_1.setFont(new Font("SansSerif", Font.PLAIN, 16));
+		GridBagConstraints gbc_lblNewLabel_42_1 = new GridBagConstraints();
+		gbc_lblNewLabel_42_1.insets = new Insets(0, 0, 5, 5);
+		gbc_lblNewLabel_42_1.gridx = 0;
+		gbc_lblNewLabel_42_1.gridy = 3;
+		panel_12.add(lblNewLabel_42_1, gbc_lblNewLabel_42_1);
+
+		lblPesoRestanteNFRemessaEntrada = new JLabel("0.0");
+		lblPesoRestanteNFRemessaEntrada.setFont(new Font("SansSerif", Font.BOLD, 14));
+		GridBagConstraints gbc_lblPesoRestanteNFRemessaEntrada = new GridBagConstraints();
+		gbc_lblPesoRestanteNFRemessaEntrada.insets = new Insets(0, 0, 5, 0);
+		gbc_lblPesoRestanteNFRemessaEntrada.gridx = 1;
+		gbc_lblPesoRestanteNFRemessaEntrada.gridy = 3;
+		panel_12.add(lblPesoRestanteNFRemessaEntrada, gbc_lblPesoRestanteNFRemessaEntrada);
+
+		JLabel lblNewLabel_42_1_1 = new JLabel("$ Total:");
+		lblNewLabel_42_1_1.setFont(new Font("SansSerif", Font.PLAIN, 16));
+		GridBagConstraints gbc_lblNewLabel_42_1_1 = new GridBagConstraints();
+		gbc_lblNewLabel_42_1_1.insets = new Insets(0, 0, 0, 5);
+		gbc_lblNewLabel_42_1_1.gridx = 0;
+		gbc_lblNewLabel_42_1_1.gridy = 4;
+		panel_12.add(lblNewLabel_42_1_1, gbc_lblNewLabel_42_1_1);
+
+		lblValorTotalNFRemessaEntrada = new JLabel("0.0");
+		lblValorTotalNFRemessaEntrada.setFont(new Font("SansSerif", Font.BOLD, 14));
+		GridBagConstraints gbc_lblValorTotalNFRemessaEntrada = new GridBagConstraints();
+		gbc_lblValorTotalNFRemessaEntrada.gridx = 1;
+		gbc_lblValorTotalNFRemessaEntrada.gridy = 4;
+		panel_12.add(lblValorTotalNFRemessaEntrada, gbc_lblValorTotalNFRemessaEntrada);
+
+		btnCriarDistrato = new JButton("Criar Distrato");
+		btnCriarDistrato.setBounds(665, 317, 101, 28);
+		painelComprovantes.add(btnCriarDistrato);
+		botoes.add(btnCriarDistrato);
 
 		btnCriarAditivo = new JButton("Criar Aditivo");
 		btnCriarAditivo.addActionListener(new ActionListener() {
@@ -1355,6 +1773,8 @@ public class TelaGerenciarContrato extends JFrame {
 
 			}
 		});
+
+		botoes.add(btnCriarAditivo);
 		btnCriarAditivo.setBounds(673, 155, 93, 28);
 		painelComprovantes.setBackground(new Color(51, 153, 153));
 		painelComprovantes.add(btnCriarAditivo);
@@ -1364,398 +1784,279 @@ public class TelaGerenciarContrato extends JFrame {
 
 		JScrollPane scroolPainelDadosIniciasi = new JScrollPane(painel_pai_di);
 		painelDadosIniciais.add(scroolPainelDadosIniciasi);
-		GridBagLayout gbl_painel_pai_di = new GridBagLayout();
-		gbl_painel_pai_di.columnWidths = new int[]{1343, 0};
-		gbl_painel_pai_di.rowHeights = new int[]{876, 0};
-		gbl_painel_pai_di.columnWeights = new double[]{0.0, Double.MIN_VALUE};
-		gbl_painel_pai_di.rowWeights = new double[]{0.0, Double.MIN_VALUE};
-		painel_pai_di.setLayout(gbl_painel_pai_di);
-		
-				JPanel panel_2 = new JPanel();
-				panel_2.setBackground(new Color(255, 255, 255));
-				panel_2.setLayout(null);
-				
-				JPanel panel_7 = new JPanel();
-				panel_7.setBounds(806, 603, 476, 311);
-				panel_2.add(panel_7);
-				panel_7.setForeground(Color.BLACK);
-				panel_7.setBackground(Color.WHITE);
-				GridBagLayout gbl_panel_7 = new GridBagLayout();
-				gbl_panel_7.columnWidths = new int[]{0, 0, 0, 0, 0, 0, 0};
-				gbl_panel_7.rowHeights = new int[]{67, 54, 0, 0, 0, 0, 0, 55, 0, 0, 0, 0};
-				gbl_panel_7.columnWeights = new double[]{0.0, 1.0, 1.0, 1.0, 0.0, 0.0, Double.MIN_VALUE};
-				gbl_panel_7.rowWeights = new double[]{1.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, Double.MIN_VALUE};
-				panel_7.setLayout(gbl_panel_7);
-				 		  
-				 		  JScrollPane scrollPane_2 = new JScrollPane(panel_7);
-				 		  scrollPane_2.setBorder(new LineBorder(new Color(0, 0, 0)));
-				 		  
-				 		  JButton btnAtualizarInfoAuxiliares = new JButton("Atualizar");
-				 		  btnAtualizarInfoAuxiliares.setForeground(Color.BLACK);
-				 		  btnAtualizarInfoAuxiliares.addActionListener(new ActionListener() {
-				 		  	public void actionPerformed(ActionEvent e) {
-				 		  		
-				 		  		
-				 				
-				 			
-				 		  		contrato_local.setDescricao(textAreaDescricao.getText());
-				 		  		contrato_local.setObservacao(textAreaObservacoes.getText());
-				 		  		contrato_local.setFertilizante(entFertilizante.getText());
-				 		  		try {
-				 		  		contrato_local.setBruto_livre(cBBrutoLivre.getSelectedItem().toString());
-				 		  		}catch(Exception y) {
-				 		  			
-				 		  		}
-				 		  		contrato_local.setStatus_penhor(statusPenhor.getText());
-				 		  		contrato_local.setLocalizacao(entLocalizacao.getText());
-				 		  		
-				 		  		if (cBOptante.getSelectedIndex() == 0) {
-				 					contrato_local.setOptante_folha(0);
-				 					contrato_local.setStatus_optante_folha("");
 
-				 				} else {
-				 					contrato_local.setOptante_folha(1);
-				 					contrato_local.setStatus_optante_folha(textAreaStatusOpcaoFolha.getText().toString());
-				 				}
+		JPanel panel_2 = new JPanel();
+		panel_2.setBackground(new Color(255, 255, 255));
+		panel_2.setLayout(null);
 
-				 		  		GerenciarBancoContratos gerente = new GerenciarBancoContratos();
-				 		  		boolean atualizou = gerente.atualizarInfoExtras(contrato_local);
-				 		  		if(atualizou) {
-				 		  			JOptionPane.showMessageDialog(isto, "Feito");
-				 		  			GerenciarBancoInformativo gerenciar = new GerenciarBancoInformativo();
-				 		  			CadastroInformativo informativo = new CadastroInformativo();
-				 		  			informativo.setId_contrato(contrato_local.getId());
-				 		  			informativo.setId_usuario(login.getId());
-				 		  			informativo.setMensagem("contrato foi atualizado");
-				 		  			
-				 		  			boolean informou = gerenciar.inserirInformativo(informativo);
-				 		  			if(informou) {
-				 		  				JOptionPane.showMessageDialog(isto, "Informou");
-				 		  			}else {
-				 		  				JOptionPane.showMessageDialog(isto, "Erro ao Informar");
+		JPanel panel_7 = new JPanel();
+		panel_7.setBounds(806, 603, 476, 311);
+		panel_2.add(panel_7);
+		panel_7.setForeground(Color.BLACK);
+		panel_7.setBackground(Color.WHITE);
 
-				 		  			}
-				 		  			
-				 		  		}else {
-				 		  			JOptionPane.showMessageDialog(isto, "Erro ao atualizar\nConsulte o administrador");
+		JScrollPane scrollPane_2 = new JScrollPane(panel_7);
+		scrollPane_2.setBorder(new LineBorder(new Color(0, 0, 0)));
 
-				 		  		}
-				 		  	}
-				 		  });
-				 		    		 
-				 		    		 JLabel lblNewLabel_37_2_1 = new JLabel("Descrição:");
-				 		    		 lblNewLabel_37_2_1.setForeground(Color.BLACK);
-				 		    		 lblNewLabel_37_2_1.setFont(new Font("SansSerif", Font.BOLD, 12));
-				 		    		 GridBagConstraints gbc_lblNewLabel_37_2_1 = new GridBagConstraints();
-				 		    		 gbc_lblNewLabel_37_2_1.anchor = GridBagConstraints.EAST;
-				 		    		 gbc_lblNewLabel_37_2_1.insets = new Insets(0, 0, 5, 5);
-				 		    		 gbc_lblNewLabel_37_2_1.gridx = 0;
-				 		    		 gbc_lblNewLabel_37_2_1.gridy = 0;
-				 		    		 panel_7.add(lblNewLabel_37_2_1, gbc_lblNewLabel_37_2_1);
-				 		    		 
-				 		    		
-				 		    		 
-				 		    		  textAreaDescricao = new JTextArea();
-				 		    		  textAreaDescricao.setFont(new Font("SansSerif", Font.BOLD, 12));
-				 		    		  textAreaDescricao.setBorder(new LineBorder(new Color(0, 0, 0)));
-				 		    		  textAreaDescricao.setForeground(Color.BLACK);
-				 		    		 
-				 		    		 JScrollPane scrollPane_1_1 = new JScrollPane(textAreaDescricao);
-				 		    		 GridBagConstraints gbc_scrollPane_1_1 = new GridBagConstraints();
-				 		    		 gbc_scrollPane_1_1.gridwidth = 5;
-				 		    		 gbc_scrollPane_1_1.insets = new Insets(0, 0, 5, 0);
-				 		    		 gbc_scrollPane_1_1.fill = GridBagConstraints.BOTH;
-				 		    		 gbc_scrollPane_1_1.gridx = 1;
-				 		    		 gbc_scrollPane_1_1.gridy = 0;
-				 		    		 panel_7.add(scrollPane_1_1, gbc_scrollPane_1_1);
-				 		    		 
-				 		    		 JLabel lblNewLabel_37_2_1_1 = new JLabel("Observações:");
-				 		    		 lblNewLabel_37_2_1_1.setForeground(Color.BLACK);
-				 		    		 lblNewLabel_37_2_1_1.setFont(new Font("SansSerif", Font.BOLD, 12));
-				 		    		 GridBagConstraints gbc_lblNewLabel_37_2_1_1 = new GridBagConstraints();
-				 		    		 gbc_lblNewLabel_37_2_1_1.anchor = GridBagConstraints.EAST;
-				 		    		 gbc_lblNewLabel_37_2_1_1.insets = new Insets(0, 0, 5, 5);
-				 		    		 gbc_lblNewLabel_37_2_1_1.gridx = 0;
-				 		    		 gbc_lblNewLabel_37_2_1_1.gridy = 1;
-				 		    		 panel_7.add(lblNewLabel_37_2_1_1, gbc_lblNewLabel_37_2_1_1);
-				 		    		 
-				 		    	
-				 		    		 
-				 		    		  textAreaObservacoes = new JTextArea();
-				 		    		  textAreaObservacoes.setFont(new Font("SansSerif", Font.BOLD, 12));
-				 		    		  textAreaObservacoes.setBorder(new LineBorder(new Color(0, 0, 0)));
-				 		    		  textAreaObservacoes.setForeground(Color.BLACK);
-				 		    		 
-				 		    		 JScrollPane scrollPane_1_1_1 = new JScrollPane(textAreaObservacoes);
-				 		    		 GridBagConstraints gbc_scrollPane_1_1_1 = new GridBagConstraints();
-				 		    		 gbc_scrollPane_1_1_1.gridheight = 2;
-				 		    		 gbc_scrollPane_1_1_1.gridwidth = 5;
-				 		    		 gbc_scrollPane_1_1_1.insets = new Insets(0, 0, 5, 5);
-				 		    		 gbc_scrollPane_1_1_1.fill = GridBagConstraints.BOTH;
-				 		    		 gbc_scrollPane_1_1_1.gridx = 1;
-				 		    		 gbc_scrollPane_1_1_1.gridy = 1;
-				 		    		 panel_7.add(scrollPane_1_1_1, gbc_scrollPane_1_1_1);
-				 		    		 
-				 		    		 JLabel lblNewLabel_37_2 = new JLabel("Fertilizante:");
-				 		    		 lblNewLabel_37_2.setForeground(Color.BLACK);
-				 		    		 lblNewLabel_37_2.setFont(new Font("SansSerif", Font.BOLD, 12));
-				 		    		 GridBagConstraints gbc_lblNewLabel_37_2 = new GridBagConstraints();
-				 		    		 gbc_lblNewLabel_37_2.anchor = GridBagConstraints.EAST;
-				 		    		 gbc_lblNewLabel_37_2.insets = new Insets(0, 0, 5, 5);
-				 		    		 gbc_lblNewLabel_37_2.gridx = 0;
-				 		    		 gbc_lblNewLabel_37_2.gridy = 3;
-				 		    		 panel_7.add(lblNewLabel_37_2, gbc_lblNewLabel_37_2);
-				 		    		 
-				 		    		 entFertilizante = new JTextField();
-				 		    		 entFertilizante.setBorder(new LineBorder(new Color(0, 0, 0)));
-				 		    		 entFertilizante.setForeground(Color.BLACK);
-				 		    		 entFertilizante.setFont(new Font("SansSerif", Font.BOLD, 14));
-				 		    		 entFertilizante.setColumns(10);
-				 		    		 GridBagConstraints gbc_entFertilizante = new GridBagConstraints();
-				 		    		 gbc_entFertilizante.gridwidth = 5;
-				 		    		 gbc_entFertilizante.insets = new Insets(0, 0, 5, 0);
-				 		    		 gbc_entFertilizante.fill = GridBagConstraints.BOTH;
-				 		    		 gbc_entFertilizante.gridx = 1;
-				 		    		 gbc_entFertilizante.gridy = 3;
-				 		    		 panel_7.add(entFertilizante, gbc_entFertilizante);
-				 		    		 
-				 		    		 JLabel lblNewLabel_37 = new JLabel("Bruto x Livre:");
-				 		    		 lblNewLabel_37.setForeground(Color.BLACK);
-				 		    		 lblNewLabel_37.setFont(new Font("SansSerif", Font.BOLD, 12));
-				 		    		 GridBagConstraints gbc_lblNewLabel_37 = new GridBagConstraints();
-				 		    		 gbc_lblNewLabel_37.insets = new Insets(0, 0, 5, 5);
-				 		    		 gbc_lblNewLabel_37.anchor = GridBagConstraints.EAST;
-				 		    		 gbc_lblNewLabel_37.gridx = 0;
-				 		    		 gbc_lblNewLabel_37.gridy = 4;
-				 		    		 panel_7.add(lblNewLabel_37, gbc_lblNewLabel_37);
-				 		    		
-				 		    		 cBBrutoLivre = new JComboBox();
-				 		    		 cBBrutoLivre.setForeground(Color.BLACK);
-				 		    		 cBBrutoLivre.setFont(new Font("SansSerif", Font.BOLD, 12));
-				 		    		 GridBagConstraints gbc_cBBrutoLivre = new GridBagConstraints();
-				 		    		 gbc_cBBrutoLivre.gridwidth = 2;
-				 		    		 gbc_cBBrutoLivre.insets = new Insets(0, 0, 5, 5);
-				 		    		 gbc_cBBrutoLivre.fill = GridBagConstraints.HORIZONTAL;
-				 		    		 gbc_cBBrutoLivre.gridx = 1;
-				 		    		 gbc_cBBrutoLivre.gridy = 4;
-				 		    		 panel_7.add(cBBrutoLivre, gbc_cBBrutoLivre);
-				 		    		 cBBrutoLivre.addItem("Bruto");
-				 		    		 cBBrutoLivre.addItem("Livre");
-				 		    
-				 		    		
-				 		    		JLabel lblNewLabel_37_1 = new JLabel("Penhor:");
-				 		    		lblNewLabel_37_1.setForeground(Color.BLACK);
-				 		    		lblNewLabel_37_1.setFont(new Font("SansSerif", Font.BOLD, 12));
-				 		    		GridBagConstraints gbc_lblNewLabel_37_1 = new GridBagConstraints();
-				 		    		gbc_lblNewLabel_37_1.anchor = GridBagConstraints.EAST;
-				 		    		gbc_lblNewLabel_37_1.insets = new Insets(0, 0, 5, 5);
-				 		    		gbc_lblNewLabel_37_1.gridx = 0;
-				 		    		gbc_lblNewLabel_37_1.gridy = 5;
-				 		    		panel_7.add(lblNewLabel_37_1, gbc_lblNewLabel_37_1);
-				 		    
-				 		    statusPenhor = new JTextField();
-				 		    statusPenhor.setBorder(new LineBorder(new Color(0, 0, 0)));
-				 		    statusPenhor.setForeground(Color.BLACK);
-				 		    statusPenhor.setFont(new Font("SansSerif", Font.BOLD, 14));
-				 		    GridBagConstraints gbc_statusPenhor = new GridBagConstraints();
-				 		    gbc_statusPenhor.gridwidth = 5;
-				 		    gbc_statusPenhor.insets = new Insets(0, 0, 5, 0);
-				 		    gbc_statusPenhor.fill = GridBagConstraints.HORIZONTAL;
-				 		    gbc_statusPenhor.gridx = 1;
-				 		    gbc_statusPenhor.gridy = 5;
-				 		    panel_7.add(statusPenhor, gbc_statusPenhor);
-				 		    statusPenhor.setColumns(10);
-				 		    
-				 		    JLabel lblNewLabel_37_1_1 = new JLabel("Opção Folha:");
-				 		    lblNewLabel_37_1_1.setForeground(Color.BLACK);
-				 		    lblNewLabel_37_1_1.setFont(new Font("SansSerif", Font.BOLD, 12));
-				 		    GridBagConstraints gbc_lblNewLabel_37_1_1 = new GridBagConstraints();
-				 		    gbc_lblNewLabel_37_1_1.anchor = GridBagConstraints.EAST;
-				 		    gbc_lblNewLabel_37_1_1.insets = new Insets(0, 0, 5, 5);
-				 		    gbc_lblNewLabel_37_1_1.gridx = 0;
-				 		    gbc_lblNewLabel_37_1_1.gridy = 6;
-				 		    panel_7.add(lblNewLabel_37_1_1, gbc_lblNewLabel_37_1_1);
-				 		   
-				 		    cBOptante = new JComboBox();
-				 		    cBOptante.setForeground(Color.BLACK);
-				 		    cBOptante.setFont(new Font("SansSerif", Font.BOLD, 12));
-				 		    GridBagConstraints gbc_cBOptante = new GridBagConstraints();
-				 		    gbc_cBOptante.fill = GridBagConstraints.HORIZONTAL;
-				 		    gbc_cBOptante.insets = new Insets(0, 0, 5, 5);
-				 		    gbc_cBOptante.gridx = 1;
-				 		    gbc_cBOptante.gridy = 6;
-				 		    panel_7.add(cBOptante, gbc_cBOptante);
-				 		    
-				 		    cBOptante.addItem("Não Optante");
-				 		    cBOptante.addItem("Optante");
+		JButton btnAtualizarInfoAuxiliares = new JButton("Atualizar");
+		btnAtualizarInfoAuxiliares.setForeground(Color.BLACK);
+		btnAtualizarInfoAuxiliares.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
 
-				 		   
-				 		   JLabel lblNewLabel_37_1_1_1 = new JLabel("Status:");
-				 		   lblNewLabel_37_1_1_1.setForeground(Color.BLACK);
-				 		   lblNewLabel_37_1_1_1.setFont(new Font("SansSerif", Font.BOLD, 12));
-				 		   GridBagConstraints gbc_lblNewLabel_37_1_1_1 = new GridBagConstraints();
-				 		   gbc_lblNewLabel_37_1_1_1.anchor = GridBagConstraints.NORTHEAST;
-				 		   gbc_lblNewLabel_37_1_1_1.insets = new Insets(0, 0, 5, 5);
-				 		   gbc_lblNewLabel_37_1_1_1.gridx = 0;
-				 		   gbc_lblNewLabel_37_1_1_1.gridy = 7;
-				 		   panel_7.add(lblNewLabel_37_1_1_1, gbc_lblNewLabel_37_1_1_1);
-				 		  
-				 		  	
-				 		  
-				 		   textAreaStatusOpcaoFolha = new JTextArea();
-				 		   textAreaStatusOpcaoFolha.setFont(new Font("SansSerif", Font.BOLD, 12));
-				 		   textAreaStatusOpcaoFolha.setBorder(new LineBorder(new Color(0, 0, 0)));
-				 		   
-				 		   JScrollPane scrollPane_1 = new JScrollPane(textAreaStatusOpcaoFolha);
-				 		   scrollPane_1.setBorder(new LineBorder(new Color(0, 0, 0)));
-				 		   scrollPane_1.setFont(new Font("SansSerif", Font.BOLD, 12));
-				 		   GridBagConstraints gbc_scrollPane_1 = new GridBagConstraints();
-				 		   gbc_scrollPane_1.gridheight = 2;
-				 		   gbc_scrollPane_1.insets = new Insets(0, 0, 5, 0);
-				 		   gbc_scrollPane_1.gridwidth = 5;
-				 		   gbc_scrollPane_1.fill = GridBagConstraints.BOTH;
-				 		   gbc_scrollPane_1.gridx = 1;
-				 		   gbc_scrollPane_1.gridy = 7;
-				 		   panel_7.add(scrollPane_1, gbc_scrollPane_1);
-				 		  
-				 		  JLabel lblNewLabel_37_1_1_1_1 = new JLabel("Localização:");
-				 		  lblNewLabel_37_1_1_1_1.setForeground(Color.BLACK);
-				 		  lblNewLabel_37_1_1_1_1.setFont(new Font("SansSerif", Font.BOLD, 12));
-				 		  GridBagConstraints gbc_lblNewLabel_37_1_1_1_1 = new GridBagConstraints();
-				 		  gbc_lblNewLabel_37_1_1_1_1.anchor = GridBagConstraints.EAST;
-				 		  gbc_lblNewLabel_37_1_1_1_1.insets = new Insets(0, 0, 5, 5);
-				 		  gbc_lblNewLabel_37_1_1_1_1.gridx = 0;
-				 		  gbc_lblNewLabel_37_1_1_1_1.gridy = 9;
-				 		  panel_7.add(lblNewLabel_37_1_1_1_1, gbc_lblNewLabel_37_1_1_1_1);
-				 		  
-				 		  entLocalizacao = new JTextField();
-				 		  entLocalizacao.setBorder(new LineBorder(new Color(0, 0, 0)));
-				 		  entLocalizacao.setForeground(Color.BLACK);
-				 		  entLocalizacao.setFont(new Font("SansSerif", Font.BOLD, 14));
-				 		  entLocalizacao.setColumns(10);
-				 		  GridBagConstraints gbc_entLocalizacao = new GridBagConstraints();
-				 		  gbc_entLocalizacao.gridwidth = 5;
-				 		  gbc_entLocalizacao.insets = new Insets(0, 0, 5, 0);
-				 		  gbc_entLocalizacao.fill = GridBagConstraints.HORIZONTAL;
-				 		  gbc_entLocalizacao.gridx = 1;
-				 		  gbc_entLocalizacao.gridy = 9;
-				 		  panel_7.add(entLocalizacao, gbc_entLocalizacao);
-				 		  GridBagConstraints gbc_btnAtualizarInfoAuxiliares = new GridBagConstraints();
-				 		  gbc_btnAtualizarInfoAuxiliares.anchor = GridBagConstraints.NORTH;
-				 		  gbc_btnAtualizarInfoAuxiliares.fill = GridBagConstraints.HORIZONTAL;
-				 		  gbc_btnAtualizarInfoAuxiliares.gridx = 5;
-				 		  gbc_btnAtualizarInfoAuxiliares.gridy = 10;
-				 		  panel_7.add(btnAtualizarInfoAuxiliares, gbc_btnAtualizarInfoAuxiliares);
-				 		  scrollPane_2.setBounds(806, 569, 476, 301);
-				 		  panel_2.add(scrollPane_2);
-				lblStatusContrato.setBounds(781, 30, 519, 35);
-				panel_2.add(lblStatusContrato);
-				GridBagConstraints gbc_panel_2 = new GridBagConstraints();
-				gbc_panel_2.fill = GridBagConstraints.BOTH;
-				gbc_panel_2.gridx = 0;
-				gbc_panel_2.gridy = 0;
-				painel_pai_di.add(panel_2, gbc_panel_2);
-				
-						lblStatusContrato.setBackground(new Color(0, 128, 128));
-						lblStatusContrato.setOpaque(true);
-						lblStatusContrato.setForeground(Color.WHITE);
-						lblStatusContrato.setFont(new Font("Arial", Font.BOLD, 18));
-						btnEditarContrato.setBackground(new Color(0, 51, 51));
-						btnEditarContrato.setFont(new Font("SansSerif", Font.BOLD, 18));
-						btnEditarContrato.setForeground(Color.WHITE);
-						btnEditarContrato.setBounds(1045, 523, 237, 28);
-						panel_2.add(btnEditarContrato);
-						btnEnviarMsg.setBackground(new Color(0, 51, 51));
-						btnEnviarMsg.setFont(new Font("SansSerif", Font.BOLD, 18));
-						btnEnviarMsg.setForeground(Color.WHITE);
-						btnEnviarMsg.setBounds(1130, 444, 150, 28);
-						panel_2.add(btnEnviarMsg);
-						lblTipoContrato.setBounds(781, 77, 519, 29);
-						panel_2.add(lblTipoContrato);
-						lblTipoContrato.setOpaque(true);
-						lblTipoContrato.setForeground(Color.WHITE);
-						lblTipoContrato.setFont(new Font("Arial", Font.BOLD, 16));
-						lblTipoContrato.setBackground(new Color(102, 0, 102));
-						btnExcluirContrato.setBackground(new Color(0, 51, 51));
-						btnExcluirContrato.setFont(new Font("SansSerif", Font.BOLD, 18));
-						btnExcluirContrato.setForeground(Color.WHITE);
-						btnExcluirContrato.setBounds(806, 523, 231, 28);
-						panel_2.add(btnExcluirContrato);
-						
-								btnAssinarContrato = new JButton("Assinar");
-								btnAssinarContrato.setBackground(new Color(0, 51, 51));
-								btnAssinarContrato.setFont(new Font("SansSerif", Font.BOLD, 18));
-								btnAssinarContrato.setForeground(Color.WHITE);
-								btnAssinarContrato.setBounds(968, 483, 150, 28);
-								panel_2.add(btnAssinarContrato);
-								
-										JButton btnVizualizar = new JButton("Vizualizar");
-										btnVizualizar.setBackground(new Color(0, 51, 51));
-										btnVizualizar.setFont(new Font("SansSerif", Font.BOLD, 18));
-										btnVizualizar.setForeground(Color.WHITE);
-										btnVizualizar.setBounds(968, 444, 150, 28);
-										panel_2.add(btnVizualizar);
-												
-														btnRevogarAssinatura = new JButton("Revogar");
-														btnRevogarAssinatura.setBackground(new Color(102, 153, 204));
-														btnRevogarAssinatura.setFont(new Font("SansSerif", Font.BOLD, 18));
-														btnRevogarAssinatura.setForeground(Color.WHITE);
-														btnRevogarAssinatura.setBounds(968, 483, 150, 28);
-														panel_2.add(btnRevogarAssinatura);
-														
-																btnConcluir = new JButton("Concluir");
-																btnConcluir.setBackground(new Color(0, 51, 51));
-																btnConcluir.setFont(new Font("SansSerif", Font.BOLD, 18));
-																btnConcluir.setForeground(Color.WHITE);
-																btnConcluir.setBounds(1130, 483, 150, 28);
-																panel_2.add(btnConcluir);
-																
-																		btnReabrir = new JButton("Desbloquear");
-																		btnReabrir.setFont(new Font("SansSerif", Font.BOLD, 18));
-																		btnReabrir.setForeground(Color.WHITE);
-																		btnReabrir.setBounds(1132, 485, 150, 28);
-																		panel_2.add(btnReabrir);
-																		
-																				JButton btnNewButton = new JButton("Visão Geral");
-																				btnNewButton.setBackground(new Color(0, 51, 51));
-																				btnNewButton.setFont(new Font("SansSerif", Font.BOLD, 18));
-																				btnNewButton.setForeground(Color.WHITE);
-																				btnNewButton.setBounds(806, 443, 150, 28);
-																				panel_2.add(btnNewButton);
-																				
-																						btnAprovar = new JButton("Aprovar");
-																						btnAprovar.setBackground(new Color(0, 51, 51));
-																						btnAprovar.setFont(new Font("SansSerif", Font.BOLD, 18));
-																						btnAprovar.setForeground(Color.WHITE);
-																						btnAprovar.setBounds(806, 483, 150, 28);
-																						panel_2.add(btnAprovar);
-																						btnAprovar.setEnabled(false);
-																						
-																								JPanel panel_3 = new JPanel();
-																								panel_3.setBackground(Color.WHITE);
-																								panel_3.setBounds(19, 30, 734, 827);
-																								panel_2.add(panel_3);
-																								panel_3.setLayout(new BorderLayout(0, 0));
-																								
-																										painelVizualizarContrato = new JPanel();
-																										painelVizualizarContrato.setBorder(new LineBorder(new Color(0, 0, 0)));
-																										painelVizualizarContrato.setBackground(Color.WHITE);
-																										panel_3.add(painelVizualizarContrato);
-																										painelVizualizarContrato.setLayout(new BorderLayout(0, 0));
-																										
-																												JPanel panelInformativoPrincipal = new JPanel();
-																												panelInformativoPrincipal.setBackground(new Color(0, 153, 153));
-																												panelInformativoPrincipal.setBorder(new LineBorder(new Color(0, 0, 0)));
-																												panelInformativoPrincipal.setBounds(812, 118, 470, 313);
-																												panel_2.add(panelInformativoPrincipal);
-																												panelInformativoPrincipal.add(painel_informacoes_tab_principal);
-																												panelInformativoPrincipal.setLayout(null);
+				contrato_local.setDescricao(textAreaDescricao.getText());
+				contrato_local.setObservacao(textAreaObservacoes.getText());
+				contrato_local.setFertilizante(entFertilizante.getText());
+				try {
+					contrato_local.setBruto_livre(cBBrutoLivre.getSelectedItem().toString());
+				} catch (Exception y) {
+
+				}
+				contrato_local.setStatus_penhor(statusPenhor.getText());
+				contrato_local.setLocalizacao(entLocalizacao.getText());
+
+				if (cBOptante.getSelectedIndex() == 0) {
+					contrato_local.setOptante_folha(0);
+					contrato_local.setStatus_optante_folha("");
+
+				} else {
+					contrato_local.setOptante_folha(1);
+					contrato_local.setStatus_optante_folha(textAreaStatusOpcaoFolha.getText().toString());
+				}
+
+				GerenciarBancoContratos gerente = new GerenciarBancoContratos();
+				boolean atualizou = gerente.atualizarInfoExtras(contrato_local);
+				if (atualizou) {
+					JOptionPane.showMessageDialog(isto, "Feito");
+					GerenciarBancoInformativo gerenciar = new GerenciarBancoInformativo();
+					CadastroInformativo informativo = new CadastroInformativo();
+					informativo.setId_contrato(contrato_local.getId());
+					informativo.setId_usuario(login.getId());
+					informativo.setMensagem("contrato foi atualizado");
+					informativo.setHora_completa(new GetData().getHora());
+
+					boolean informou = gerenciar.inserirInformativo(informativo);
+
+				} else {
+					JOptionPane.showMessageDialog(isto, "Erro ao atualizar\nConsulte o administrador");
+
+				}
+			}
+		});
+		painel_pai_di.setLayout(new MigLayout("", "[1343px, grow]", "[876px, grow]"));
+		panel_7.setLayout(new MigLayout("", "[79px][210px][90px][74px]", "[62px][79px][21px][26px][21px][26px][80px][21px][28px]"));
+
+		JLabel lblNewLabel_37_2_1 = new JLabel("Descrição:");
+		lblNewLabel_37_2_1.setForeground(Color.BLACK);
+		lblNewLabel_37_2_1.setFont(new Font("SansSerif", Font.BOLD, 12));
+		panel_7.add(lblNewLabel_37_2_1, "cell 0 0,alignx right,aligny center");
+
+		textAreaDescricao = new JTextArea();
+		textAreaDescricao.setFont(new Font("SansSerif", Font.BOLD, 12));
+		textAreaDescricao.setBorder(new LineBorder(new Color(0, 0, 0)));
+		textAreaDescricao.setForeground(Color.BLACK);
+
+		JScrollPane scrollPane_1_1 = new JScrollPane(textAreaDescricao);
+		panel_7.add(scrollPane_1_1, "cell 1 0 3 1,grow");
+
+		JLabel lblNewLabel_37_2_1_1 = new JLabel("Observações:");
+		lblNewLabel_37_2_1_1.setForeground(Color.BLACK);
+		lblNewLabel_37_2_1_1.setFont(new Font("SansSerif", Font.BOLD, 12));
+		panel_7.add(lblNewLabel_37_2_1_1, "cell 0 1,alignx right,aligny center");
+
+		textAreaObservacoes = new JTextArea();
+		textAreaObservacoes.setFont(new Font("SansSerif", Font.BOLD, 12));
+		textAreaObservacoes.setBorder(new LineBorder(new Color(0, 0, 0)));
+		textAreaObservacoes.setForeground(Color.BLACK);
+
+		JScrollPane scrollPane_1_1_1 = new JScrollPane(textAreaObservacoes);
+		panel_7.add(scrollPane_1_1_1, "cell 1 1 3 1,grow");
+
+		JLabel lblNewLabel_37_2 = new JLabel("Fertilizante:");
+		lblNewLabel_37_2.setForeground(Color.BLACK);
+		lblNewLabel_37_2.setFont(new Font("SansSerif", Font.BOLD, 12));
+		panel_7.add(lblNewLabel_37_2, "cell 0 2,alignx right,aligny center");
+
+		entFertilizante = new JTextField();
+		entFertilizante.setBorder(new LineBorder(new Color(0, 0, 0)));
+		entFertilizante.setForeground(Color.BLACK);
+		entFertilizante.setFont(new Font("SansSerif", Font.BOLD, 14));
+		entFertilizante.setColumns(10);
+		panel_7.add(entFertilizante, "cell 1 2 3 1,grow");
+
+		JLabel lblNewLabel_37 = new JLabel("Bruto x Livre:");
+		lblNewLabel_37.setForeground(Color.BLACK);
+		lblNewLabel_37.setFont(new Font("SansSerif", Font.BOLD, 12));
+		panel_7.add(lblNewLabel_37, "cell 0 3,alignx right,aligny center");
+
+		cBBrutoLivre = new JComboBox();
+		cBBrutoLivre.setForeground(Color.BLACK);
+		cBBrutoLivre.setFont(new Font("SansSerif", Font.BOLD, 12));
+		panel_7.add(cBBrutoLivre, "cell 1 3,growx,aligny center");
+		cBBrutoLivre.addItem("Bruto");
+		cBBrutoLivre.addItem("Livre");
+
+		JLabel lblNewLabel_37_1 = new JLabel("Penhor:");
+		lblNewLabel_37_1.setForeground(Color.BLACK);
+		lblNewLabel_37_1.setFont(new Font("SansSerif", Font.BOLD, 12));
+		panel_7.add(lblNewLabel_37_1, "cell 0 4,alignx right,aligny center");
+
+		statusPenhor = new JTextField();
+		statusPenhor.setBorder(new LineBorder(new Color(0, 0, 0)));
+		statusPenhor.setForeground(Color.BLACK);
+		statusPenhor.setFont(new Font("SansSerif", Font.BOLD, 14));
+		panel_7.add(statusPenhor, "cell 1 4 3 1,growx,aligny center");
+		statusPenhor.setColumns(10);
+
+		JLabel lblNewLabel_37_1_1 = new JLabel("Opção Folha:");
+		lblNewLabel_37_1_1.setForeground(Color.BLACK);
+		lblNewLabel_37_1_1.setFont(new Font("SansSerif", Font.BOLD, 12));
+		panel_7.add(lblNewLabel_37_1_1, "cell 0 5,alignx right,aligny center");
+
+		cBOptante = new JComboBox();
+		cBOptante.setForeground(Color.BLACK);
+		cBOptante.setFont(new Font("SansSerif", Font.BOLD, 12));
+		panel_7.add(cBOptante, "cell 1 5,growx,aligny center");
+
+		cBOptante.addItem("Não Optante");
+		cBOptante.addItem("Optante");
+
+		JLabel lblNewLabel_37_1_1_1 = new JLabel("Status:");
+		lblNewLabel_37_1_1_1.setForeground(Color.BLACK);
+		lblNewLabel_37_1_1_1.setFont(new Font("SansSerif", Font.BOLD, 12));
+		panel_7.add(lblNewLabel_37_1_1_1, "cell 0 6,alignx right,aligny top");
+
+		textAreaStatusOpcaoFolha = new JTextArea();
+		textAreaStatusOpcaoFolha.setFont(new Font("SansSerif", Font.BOLD, 12));
+		textAreaStatusOpcaoFolha.setBorder(new LineBorder(new Color(0, 0, 0)));
+
+		JScrollPane scrollPane_1 = new JScrollPane(textAreaStatusOpcaoFolha);
+		scrollPane_1.setBorder(new LineBorder(new Color(0, 0, 0)));
+		scrollPane_1.setFont(new Font("SansSerif", Font.BOLD, 12));
+		panel_7.add(scrollPane_1, "cell 1 6 3 1,grow");
+
+		JLabel lblNewLabel_37_1_1_1_1 = new JLabel("Localização:");
+		lblNewLabel_37_1_1_1_1.setForeground(Color.BLACK);
+		lblNewLabel_37_1_1_1_1.setFont(new Font("SansSerif", Font.BOLD, 12));
+		panel_7.add(lblNewLabel_37_1_1_1_1, "cell 0 7,alignx right,aligny center");
+
+		entLocalizacao = new JTextField();
+		entLocalizacao.setBorder(new LineBorder(new Color(0, 0, 0)));
+		entLocalizacao.setForeground(Color.BLACK);
+		entLocalizacao.setFont(new Font("SansSerif", Font.BOLD, 14));
+		entLocalizacao.setColumns(10);
+		panel_7.add(entLocalizacao, "cell 1 7 3 1,growx,aligny center");
+		panel_7.add(btnAtualizarInfoAuxiliares, "cell 3 8,growx,aligny top");
+		scrollPane_2.setBounds(806, 569, 476, 301);
+		panel_2.add(scrollPane_2);
+		lblStatusContrato.setBounds(781, 30, 519, 35);
+		panel_2.add(lblStatusContrato);
+		painel_pai_di.add(panel_2, "cell 0 0,grow");
+
+		lblStatusContrato.setBackground(new Color(0, 128, 128));
+		lblStatusContrato.setOpaque(true);
+		lblStatusContrato.setForeground(Color.WHITE);
+		lblStatusContrato.setFont(new Font("Arial", Font.BOLD, 18));
+		btnEditarContrato.setBackground(new Color(0, 51, 51));
+		btnEditarContrato.setFont(new Font("SansSerif", Font.BOLD, 18));
+		btnEditarContrato.setForeground(Color.WHITE);
+		btnEditarContrato.setBounds(1045, 523, 237, 28);
+		panel_2.add(btnEditarContrato);
+		botoes.add(btnEditarContrato);
+		btnEnviarMsg.setBackground(new Color(0, 51, 51));
+		btnEnviarMsg.setFont(new Font("SansSerif", Font.BOLD, 18));
+		btnEnviarMsg.setForeground(Color.WHITE);
+		btnEnviarMsg.setBounds(1130, 444, 150, 28);
+		botoes.add(btnEnviarMsg);
+		panel_2.add(btnEnviarMsg);
+		lblTipoContrato.setBounds(781, 77, 519, 29);
+		panel_2.add(lblTipoContrato);
+		lblTipoContrato.setOpaque(true);
+		lblTipoContrato.setForeground(Color.WHITE);
+		lblTipoContrato.setFont(new Font("Arial", Font.BOLD, 16));
+		lblTipoContrato.setBackground(new Color(102, 0, 102));
+		btnExcluirContrato.setBackground(new Color(0, 51, 51));
+		btnExcluirContrato.setFont(new Font("SansSerif", Font.BOLD, 18));
+		btnExcluirContrato.setForeground(Color.WHITE);
+		btnExcluirContrato.setBounds(806, 523, 231, 28);
+		panel_2.add(btnExcluirContrato);
+		botoes.add(btnExcluirContrato);
+
+		btnAssinarContrato = new JButton("Assinar");
+		btnAssinarContrato.setBackground(new Color(0, 51, 51));
+		btnAssinarContrato.setFont(new Font("SansSerif", Font.BOLD, 18));
+		btnAssinarContrato.setForeground(Color.WHITE);
+		btnAssinarContrato.setBounds(968, 483, 150, 28);
+		panel_2.add(btnAssinarContrato);
+		botoes.add(btnAssinarContrato);
+
+		JButton btnVizualizar = new JButton("Vizualizar");
+		btnVizualizar.setBackground(new Color(0, 51, 51));
+		btnVizualizar.setFont(new Font("SansSerif", Font.BOLD, 18));
+		btnVizualizar.setForeground(Color.WHITE);
+		btnVizualizar.setBounds(968, 444, 150, 28);
+		panel_2.add(btnVizualizar);
+
+		btnRevogarAssinatura = new JButton("Revogar");
+		btnRevogarAssinatura.setBackground(new Color(102, 153, 204));
+		btnRevogarAssinatura.setFont(new Font("SansSerif", Font.BOLD, 18));
+		btnRevogarAssinatura.setForeground(Color.WHITE);
+		btnRevogarAssinatura.setBounds(968, 483, 150, 28);
+		panel_2.add(btnRevogarAssinatura);
+
+		btnConcluir = new JButton("Concluir");
+		btnConcluir.setBackground(new Color(0, 51, 51));
+		btnConcluir.setFont(new Font("SansSerif", Font.BOLD, 18));
+		btnConcluir.setForeground(Color.WHITE);
+		btnConcluir.setBounds(1130, 483, 150, 28);
+		panel_2.add(btnConcluir);
+
+		btnReabrir = new JButton("Desbloquear");
+		btnReabrir.setFont(new Font("SansSerif", Font.BOLD, 18));
+		btnReabrir.setForeground(Color.WHITE);
+		btnReabrir.setBounds(1132, 485, 150, 28);
+		panel_2.add(btnReabrir);
+
+		JButton btnNewButton = new JButton("Visão Geral");
+		btnNewButton.setBackground(new Color(0, 51, 51));
+		btnNewButton.setFont(new Font("SansSerif", Font.BOLD, 18));
+		btnNewButton.setForeground(Color.WHITE);
+		btnNewButton.setBounds(806, 443, 150, 28);
+		panel_2.add(btnNewButton);
+
+		btnAprovar = new JButton("Aprovar");
+		btnAprovar.setBackground(new Color(0, 51, 51));
+		btnAprovar.setFont(new Font("SansSerif", Font.BOLD, 18));
+		btnAprovar.setForeground(Color.WHITE);
+		btnAprovar.setBounds(806, 483, 150, 28);
+		panel_2.add(btnAprovar);
+		btnAprovar.setEnabled(false);
+
+		JPanel panel_3 = new JPanel();
+		panel_3.setBackground(Color.WHITE);
+		panel_3.setBounds(19, 30, 734, 827);
+		panel_2.add(panel_3);
+		panel_3.setLayout(new BorderLayout(0, 0));
+
+		painelVizualizarContrato = new JPanel();
+		painelVizualizarContrato.setBorder(new LineBorder(new Color(0, 0, 0)));
+		painelVizualizarContrato.setBackground(Color.WHITE);
+		panel_3.add(painelVizualizarContrato);
+		painelVizualizarContrato.setLayout(new BorderLayout(0, 0));
+
+		JPanel panelInformativoPrincipal = new JPanel();
+		panelInformativoPrincipal.setBackground(new Color(0, 153, 153));
+		panelInformativoPrincipal.setBorder(new LineBorder(new Color(0, 0, 0)));
+		panelInformativoPrincipal.setBounds(812, 118, 470, 313);
+		panel_2.add(panelInformativoPrincipal);
+		panelInformativoPrincipal.add(painel_informacoes_tab_principal);
+		panelInformativoPrincipal.setLayout(null);
 		btnAprovar.setVisible(false);
 		btnAprovar.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				aprovar();
 			}
 		});
+		botoes.add(btnAprovar);
 		btnNewButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				TelaVisaoGeralContrato tela = new TelaVisaoGeralContrato(contrato_local, isto);
@@ -1795,7 +2096,9 @@ public class TelaGerenciarContrato extends JFrame {
 						}
 
 						setarInformacoesPainelPrincipal();
+						informar_atualizou();
 						destravarContrato();
+
 					} else {
 						JOptionPane.showMessageDialog(isto,
 								"Erro ao desbloquear o contrato, tente novamente!\nSe o erro persistir, consulte o administrador");
@@ -1828,6 +2131,7 @@ public class TelaGerenciarContrato extends JFrame {
 				assinar();
 			}
 		});
+		botoes.add(btnAssinarContrato);
 		btnExcluirContrato.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 
@@ -1878,7 +2182,7 @@ public class TelaGerenciarContrato extends JFrame {
 
 		btnEnviarMsg.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				TelaEscolha escolher = new TelaEscolha(1, contrato, null,isto);
+				TelaEscolha escolher = new TelaEscolha(1, contrato, null, isto);
 			}
 		});
 		btnEditarContrato.addActionListener(new ActionListener() {
@@ -1915,17 +2219,21 @@ public class TelaGerenciarContrato extends JFrame {
 
 		// painelCarregamento.add(panel);
 
-		JPanel panelPaiCarga = new JPanel();
-		panelPaiCarga.setBackground(Color.WHITE);
+		// JPanel panelPaiCarga = new JPanel();
+		// panelPaiCarga.setBackground(Color.WHITE);
 
-		JScrollPane scroll_aba_carregameno = new JScrollPane(panelPaiCarga);
-		painelCarregamento.add(scroll_aba_carregameno);
-		GridBagLayout gbl_panelPaiCarga = new GridBagLayout();
-		gbl_panelPaiCarga.columnWidths = new int[] { 1349, 0 };
-		gbl_panelPaiCarga.rowHeights = new int[] { 876, 0 };
-		gbl_panelPaiCarga.columnWeights = new double[] { 0.0, Double.MIN_VALUE };
-		gbl_panelPaiCarga.rowWeights = new double[] { 0.0, Double.MIN_VALUE };
-		panelPaiCarga.setLayout(gbl_panelPaiCarga);
+		// JScrollPane scroll_aba_carregameno = new JScrollPane(panelPaiCarga);
+		// painelCarregamento.add(scroll_aba_carregameno);
+
+		// painelCarregamento.add(panelPaiCarga);
+		/*
+		 * GridBagLayout gbl_panelPaiCarga = new GridBagLayout();
+		 * gbl_panelPaiCarga.columnWidths = new int[] { 1349, 0 };
+		 * gbl_panelPaiCarga.rowHeights = new int[] { 876, 0 };
+		 * gbl_panelPaiCarga.columnWeights = new double[] { 0.0, Double.MIN_VALUE };
+		 * gbl_panelPaiCarga.rowWeights = new double[] { 0.0, Double.MIN_VALUE };
+		 * panelPaiCarga.setLayout(gbl_panelPaiCarga);
+		 */
 
 		JPanel panel = new JPanel();
 		panel.setBackground(new Color(255, 255, 255));
@@ -1933,130 +2241,14 @@ public class TelaGerenciarContrato extends JFrame {
 		gbc_panel.fill = GridBagConstraints.BOTH;
 		gbc_panel.gridx = 0;
 		gbc_panel.gridy = 0;
-		panelPaiCarga.add(panel, gbc_panel);
-
-		panel.setLayout(null);
-		lblNewLabel_4.setBounds(0, 20, 158, 31);
-		panel.add(lblNewLabel_4);
-
-		lblNewLabel_4.setOpaque(true);
-		lblNewLabel_4.setForeground(Color.WHITE);
-		lblNewLabel_4.setFont(new Font("Arial", Font.PLAIN, 18));
-		lblNewLabel_4.setBackground(new Color(0, 51, 0));
-
-		JLabel lblNewLabel_29 = new JLabel("");
-		lblNewLabel_29.setBounds(87, 46, 130, 97);
-		panel.add(lblNewLabel_29);
-		lblNewLabel_29.setIcon(
-				new ImageIcon(TelaGerenciarContrato.class.getResource("/imagens/icone_caminhao_carregado2.png")));
+		painelCarregamento.add(panel);
+		panel.setLayout(new MigLayout("", "[187px, grow][12px, grow][86px, grow][4px, grow][323px, grow][192px, grow][538px, grow]", "[136px][4px][24px][199px, grow][42px][33px][8px][12px][170px]"));
 
 		JLabel lblNewLabel_7 = new JLabel("Carregamentos desse contrato:");
 		lblNewLabel_7.setFont(new Font("SansSerif", Font.BOLD, 18));
 		lblNewLabel_7.setForeground(new Color(102, 51, 0));
 		lblNewLabel_7.setBackground(new Color(102, 51, 0));
-		lblNewLabel_7.setBounds(71, 205, 277, 24);
-		panel.add(lblNewLabel_7);
-
-		JPanel lbl_produto = new JPanel();
-		lbl_produto.setForeground(Color.WHITE);
-		lbl_produto.setBounds(372, 58, 772, 139);
-		panel.add(lbl_produto);
-		lbl_produto.setBackground(new Color(0, 102, 102));
-		lbl_produto.setLayout(
-				new MigLayout("", "[99px][93px][85px][79px][78px][67px]", "[17px][17px][14px][17px][17px][]"));
-
-		JLabel lblNewLabel_5 = new JLabel("Data:");
-		lblNewLabel_5.setForeground(Color.WHITE);
-		lblNewLabel_5.setAlignmentX(Component.RIGHT_ALIGNMENT);
-		lblNewLabel_5.setAlignmentY(Component.TOP_ALIGNMENT);
-		lblNewLabel_5.setBorder(null);
-		lblNewLabel_5.setFont(new Font("Arial", Font.PLAIN, 12));
-		lbl_produto.add(lblNewLabel_5, "cell 0 0,alignx right,aligny center");
-
-		lblDataContrato = new JLabel("data contrato");
-		lblDataContrato.setForeground(Color.WHITE);
-		lblDataContrato.setFont(new Font("Arial", Font.BOLD, 14));
-		lbl_produto.add(lblDataContrato, "cell 1 0,alignx center,aligny center");
-
-		JLabel lblNewLabel_9 = new JLabel("Corretor:");
-		lblNewLabel_9.setForeground(Color.WHITE);
-		lblNewLabel_9.setFont(new Font("Arial", Font.PLAIN, 12));
-		lbl_produto.add(lblNewLabel_9, "cell 0 1,alignx right,growy");
-
-		lblCorretor = new JLabel("corretor");
-		lblCorretor.setForeground(Color.WHITE);
-		lblCorretor.setFont(new Font("Arial", Font.BOLD, 14));
-		lbl_produto.add(lblCorretor, "cell 1 1,alignx center,aligny center");
-
-		JLabel lblNewLabel_6 = new JLabel("Compradores:");
-		lblNewLabel_6.setForeground(Color.WHITE);
-		lblNewLabel_6.setFont(new Font("Arial", Font.PLAIN, 12));
-		lbl_produto.add(lblNewLabel_6, "cell 0 2,alignx right,growy");
-
-		lblCompradores = new JLabel("compradores");
-		lblCompradores.setForeground(Color.WHITE);
-		lblCompradores.setFont(new Font("Arial", Font.BOLD, 14));
-		lbl_produto.add(lblCompradores, "cell 1 2,alignx center,aligny center");
-
-		JLabel lblNewLabel_8 = new JLabel("Vendedores:");
-		lblNewLabel_8.setForeground(Color.WHITE);
-		lblNewLabel_8.setFont(new Font("Arial", Font.PLAIN, 12));
-		lbl_produto.add(lblNewLabel_8, "cell 0 3,alignx right,aligny center");
-
-		lblVendedores = new JLabel("vendedores");
-		lblVendedores.setForeground(Color.WHITE);
-		lblVendedores.setFont(new Font("Arial", Font.BOLD, 14));
-		lbl_produto.add(lblVendedores, "cell 1 3,alignx center,aligny center");
-
-		JLabel lblnewvalorsaco = new JLabel("Valor Unidade:");
-		lblnewvalorsaco.setForeground(Color.WHITE);
-		lblnewvalorsaco.setFont(new Font("Arial", Font.PLAIN, 12));
-		lbl_produto.add(lblnewvalorsaco, "flowy,cell 0 4,alignx right,aligny center");
-
-		lblValorSaco = new JLabel("valor saco");
-		lblValorSaco.setForeground(Color.WHITE);
-		lblValorSaco.setFont(new Font("Arial", Font.BOLD, 14));
-		lbl_produto.add(lblValorSaco, "cell 1 4,alignx center,aligny center");
-
-		JLabel lblNewLabel_10 = new JLabel("Quantidade:");
-		lblNewLabel_10.setForeground(Color.WHITE);
-		lblNewLabel_10.setFont(new Font("Arial", Font.PLAIN, 12));
-		lbl_produto.add(lblNewLabel_10, "cell 2 4,alignx right,aligny center");
-
-		lblQuantidade = new JLabel("quantidade");
-		lblQuantidade.setForeground(Color.WHITE);
-		lblQuantidade.setFont(new Font("Arial", Font.BOLD, 14));
-		lbl_produto.add(lblQuantidade, "cell 3 4,alignx center,aligny center");
-
-		JLabel lblNewLabel_11 = new JLabel("Valor Total:");
-		lblNewLabel_11.setForeground(Color.WHITE);
-		lblNewLabel_11.setFont(new Font("Arial", Font.PLAIN, 12));
-		lbl_produto.add(lblNewLabel_11, "cell 4 4,alignx right,aligny center");
-
-		lblValorTotal = new JLabel("valor total do pagamento do contrato longo");
-		lblValorTotal.setForeground(Color.WHITE);
-		lblValorTotal.setFont(new Font("Arial", Font.BOLD, 14));
-		lbl_produto.add(lblValorTotal, "cell 5 4,alignx center,aligny center");
-
-		JLabel lblProdutonm = new JLabel("Produto:");
-		lblProdutonm.setForeground(Color.WHITE);
-		lblProdutonm.setFont(new Font("Arial", Font.PLAIN, 12));
-		lbl_produto.add(lblProdutonm, "cell 0 5,alignx right");
-
-		lblProduto = new JLabel("valor produto");
-		lblProduto.setForeground(Color.WHITE);
-		lblProduto.setFont(new Font("Arial", Font.BOLD, 14));
-		lbl_produto.add(lblProduto, "cell 1 5,alignx center");
-
-		JLabel lblSafran = new JLabel("Safra:");
-		lblSafran.setForeground(Color.WHITE);
-		lblSafran.setFont(new Font("Arial", Font.PLAIN, 12));
-		lbl_produto.add(lblSafran, "cell 2 5,alignx right");
-
-		lblSafra = new JLabel("valor produto");
-		lblSafra.setForeground(Color.WHITE);
-		lblSafra.setFont(new Font("Arial", Font.BOLD, 14));
-		lbl_produto.add(lblSafra, "cell 3 5,alignx center");
+		panel.add(lblNewLabel_7, "cell 0 2 3 1,alignx left,aligny top");
 
 		table_carregamento = new JTable(modelo_carregamentos);
 		CarregamentoCellRender renderer = new CarregamentoCellRender();
@@ -2086,7 +2278,6 @@ public class TelaGerenciarContrato extends JFrame {
 		table_carregamento.getColumnModel().getColumn(18).setPreferredWidth(150);
 		table_carregamento.getColumnModel().getColumn(19).setPreferredWidth(400);
 
-
 		table_carregamento.setRowHeight(30);
 
 		table_carregamento.addMouseListener(new java.awt.event.MouseAdapter() {
@@ -2101,145 +2292,188 @@ public class TelaGerenciarContrato extends JFrame {
 		});
 
 		scrollPaneCarregamento = new JScrollPane(table_carregamento);
-		scrollPaneCarregamento.setBounds(17, 230, 1283, 259);
-		panel.add(scrollPaneCarregamento);
+		panel.add(scrollPaneCarregamento, "cell 0 3 7 1,grow");
 		scrollPaneCarregamento.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED);
 		scrollPaneCarregamento.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED);
 		scrollPaneCarregamento.setBackground(Color.WHITE);
 		scrollPaneCarregamento.setAutoscrolls(true);
 
+		painelGraficoCarregamento = new JPanelGraficoPadrao(0, 0, "Carregado:", "a Carregar:");
+		panel.add(painelGraficoCarregamento, "cell 4 4 1 5,grow");
+		painelGraficoCarregamento.setLayout(null);
+
+		JPanel panel_14 = new JPanel();
+		panel_14.setBackground(Color.WHITE);
+		panel.add(panel_14, "cell 0 4 3 3,alignx center,aligny center");
+		panel_14.setLayout(new MigLayout("", "[11px][83px]", "[18px][][]"));
+
+		JLabel lblNewLabel_33_1_3 = new JLabel("       ");
+		panel_14.add(lblNewLabel_33_1_3, "cell 0 0,alignx center,aligny center");
+		lblNewLabel_33_1_3.setOpaque(true);
+		lblNewLabel_33_1_3.setBorder(new LineBorder(new Color(0, 0, 0)));
+		lblNewLabel_33_1_3.setBackground(Color.ORANGE);
+
+		JLabel lblNewLabel_34_1_3 = new JLabel("Falta NF Venda");
+		panel_14.add(lblNewLabel_34_1_3, "cell 1 0,alignx center,aligny center");
+		lblNewLabel_34_1_3.setFont(new Font("SansSerif", Font.BOLD, 12));
+		lblNewLabel_34_1_3.setBorder(new MatteBorder(0, 0, 1, 0, (Color) new Color(0, 0, 0)));
+		
+				JLabel lblNewLabel_33_1 = new JLabel("       ");
+				panel_14.add(lblNewLabel_33_1, "cell 4 0,alignx center,aligny center");
+				lblNewLabel_33_1.setBorder(new LineBorder(new Color(0, 0, 0)));
+				lblNewLabel_33_1.setOpaque(true);
+				lblNewLabel_33_1.setBackground(Color.yellow);
+				
+						JLabel lblNewLabel_34_1 = new JLabel("Falta NF Complemento");
+						panel_14.add(lblNewLabel_34_1, "cell 5 0,alignx center,aligny center");
+						lblNewLabel_34_1.setBorder(new MatteBorder(0, 0, 1, 0, (Color) new Color(0, 0, 0)));
+						lblNewLabel_34_1.setFont(new Font("SansSerif", Font.BOLD, 12));
+		
+				JLabel lblNewLabel_33_1_4 = new JLabel("       ");
+				panel_14.add(lblNewLabel_33_1_4, "cell 0 1,alignx center,aligny center");
+				lblNewLabel_33_1_4.setOpaque(true);
+				lblNewLabel_33_1_4.setBorder(new LineBorder(new Color(0, 0, 0)));
+				lblNewLabel_33_1_4.setBackground(new Color(204, 204, 102));
+				
+						JLabel lblNewLabel_34_1_4 = new JLabel("Falta NF Interna");
+						panel_14.add(lblNewLabel_34_1_4, "cell 1 1,alignx center,aligny center");
+						lblNewLabel_34_1_4.setFont(new Font("SansSerif", Font.BOLD, 12));
+						lblNewLabel_34_1_4.setBorder(new MatteBorder(0, 0, 1, 0, (Color) new Color(0, 0, 0)));
+								
+										JLabel lblNewLabel_33_1_2 = new JLabel("       ");
+										panel_14.add(lblNewLabel_33_1_2, "cell 4 1,alignx center,aligny center");
+										lblNewLabel_33_1_2.setOpaque(true);
+										lblNewLabel_33_1_2.setBorder(new LineBorder(new Color(0, 0, 0)));
+										lblNewLabel_33_1_2.setBackground(new Color(204, 153, 0));
+										
+												JLabel lblNewLabel_34_1_2 = new JLabel("Transferido");
+												panel_14.add(lblNewLabel_34_1_2, "cell 5 1,alignx left,aligny center");
+												lblNewLabel_34_1_2.setFont(new Font("SansSerif", Font.BOLD, 12));
+												lblNewLabel_34_1_2.setBorder(new MatteBorder(0, 0, 1, 0, (Color) new Color(0, 0, 0)));
+								
+										JLabel lblNewLabel_33 = new JLabel("       ");
+										panel_14.add(lblNewLabel_33, "cell 0 2,alignx center,aligny center");
+										lblNewLabel_33.setBorder(new LineBorder(new Color(0, 0, 0)));
+										lblNewLabel_33.setOpaque(true);
+										lblNewLabel_33.setBackground(new Color(0, 100, 0));
+										
+												JLabel lblNewLabel_34 = new JLabel("Concluido");
+												panel_14.add(lblNewLabel_34, "cell 1 2,alignx center,aligny center");
+												lblNewLabel_34.setBorder(new MatteBorder(0, 0, 1, 0, (Color) new Color(0, 0, 0)));
+												lblNewLabel_34.setFont(new Font("SansSerif", Font.BOLD, 12));
+
+		JPanel panel_15 = new JPanel();
+		panel_15.setBackground(Color.WHITE);
+		panel.add(panel_15, "cell 0 8 3 1,alignx center,aligny center");
+		GridBagLayout gbl_panel_15 = new GridBagLayout();
+		gbl_panel_15.columnWidths = new int[] { 0, 0, 0 };
+		gbl_panel_15.rowHeights = new int[] { 0, 0, 0, 0, 0, 0, 0 };
+		gbl_panel_15.columnWeights = new double[] { 0.0, 0.0, Double.MIN_VALUE };
+		gbl_panel_15.rowWeights = new double[] { 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, Double.MIN_VALUE };
+		panel_15.setLayout(gbl_panel_15);
+
 		JLabel lblNewLabel_3 = new JLabel("Cargas:");
-		lblNewLabel_3.setBounds(62, 572, 76, 23);
-		panel.add(lblNewLabel_3);
+		GridBagConstraints gbc_lblNewLabel_3 = new GridBagConstraints();
+		gbc_lblNewLabel_3.insets = new Insets(0, 0, 5, 5);
+		gbc_lblNewLabel_3.gridx = 0;
+		gbc_lblNewLabel_3.gridy = 0;
+		panel_15.add(lblNewLabel_3, gbc_lblNewLabel_3);
 
 		JLabel lblNewLabel_12 = new JLabel("Total:");
-		lblNewLabel_12.setBounds(87, 607, 30, 16);
-		panel.add(lblNewLabel_12);
-
-		JLabel lblNewLabel_13 = new JLabel("Total Carregado:");
-		lblNewLabel_13.setBounds(28, 721, 101, 14);
-		panel.add(lblNewLabel_13);
-
-		JLabel lblNewLabel_13_1 = new JLabel("Restante:");
-		lblNewLabel_13_1.setBounds(64, 757, 65, 14);
-		panel.add(lblNewLabel_13_1);
-
-		lblPesoTotalRealRestante = new JLabel("0.0 Kg");
-		lblPesoTotalRealRestante.setBounds(129, 751, 193, 23);
-		panel.add(lblPesoTotalRealRestante);
-		lblPesoTotalRealRestante.setFont(new Font("Tahoma", Font.BOLD, 11));
-		lblPesoTotalRealRestante.setBorder(new LineBorder(new Color(0, 0, 0)));
-
-		lblPesoTotalRealCargas = new JLabel("");
-		lblPesoTotalRealCargas.setBounds(129, 715, 193, 23);
-		panel.add(lblPesoTotalRealCargas);
-		lblPesoTotalRealCargas.setFont(new Font("Tahoma", Font.BOLD, 11));
-		lblPesoTotalRealCargas.setBorder(new LineBorder(new Color(0, 0, 0)));
+		GridBagConstraints gbc_lblNewLabel_12 = new GridBagConstraints();
+		gbc_lblNewLabel_12.insets = new Insets(0, 0, 5, 5);
+		gbc_lblNewLabel_12.gridx = 0;
+		gbc_lblNewLabel_12.gridy = 1;
+		panel_15.add(lblNewLabel_12, gbc_lblNewLabel_12);
 
 		lblPesoTotal = new JLabel("0.0 KG");
-		lblPesoTotal.setBounds(129, 606, 193, 23);
-		panel.add(lblPesoTotal);
+		GridBagConstraints gbc_lblPesoTotal = new GridBagConstraints();
+		gbc_lblPesoTotal.insets = new Insets(0, 0, 5, 0);
+		gbc_lblPesoTotal.gridx = 1;
+		gbc_lblPesoTotal.gridy = 1;
+		panel_15.add(lblPesoTotal, gbc_lblPesoTotal);
 		lblPesoTotal.setFont(new Font("Tahoma", Font.BOLD, 11));
 		lblPesoTotal.setBorder(new LineBorder(new Color(0, 0, 0)));
 
-		painelGraficoCarregamento = new JPanelGraficoPadrao(0, 0, "Carregado:", "a Carregar:");
-		painelGraficoCarregamento.setBounds(322, 565, 317, 250);
-		panel.add(painelGraficoCarregamento);
-		painelGraficoCarregamento.setLayout(null);
+		JLabel lblNewLabel_14_1_1_2 = new JLabel("Transferencias:(-)");
+		GridBagConstraints gbc_lblNewLabel_14_1_1_2 = new GridBagConstraints();
+		gbc_lblNewLabel_14_1_1_2.insets = new Insets(0, 0, 5, 5);
+		gbc_lblNewLabel_14_1_1_2.gridx = 0;
+		gbc_lblNewLabel_14_1_1_2.gridy = 2;
+		panel_15.add(lblNewLabel_14_1_1_2, gbc_lblNewLabel_14_1_1_2);
 
-		JLabel lblNewLabel_3_1 = new JLabel("Notas Fiscais:");
-		lblNewLabel_3_1.setBounds(668, 565, 79, 16);
-		panel.add(lblNewLabel_3_1);
+		lblTotalTransferenciasCargaRetiradas = new JLabel("0.0 KG");
+		GridBagConstraints gbc_lblTotalTransferenciasCargaRetiradas = new GridBagConstraints();
+		gbc_lblTotalTransferenciasCargaRetiradas.insets = new Insets(0, 0, 5, 0);
+		gbc_lblTotalTransferenciasCargaRetiradas.gridx = 1;
+		gbc_lblTotalTransferenciasCargaRetiradas.gridy = 2;
+		panel_15.add(lblTotalTransferenciasCargaRetiradas, gbc_lblTotalTransferenciasCargaRetiradas);
+		lblTotalTransferenciasCargaRetiradas.setForeground(Color.BLACK);
+		lblTotalTransferenciasCargaRetiradas.setFont(new Font("Arial", Font.BOLD, 12));
+		lblTotalTransferenciasCargaRetiradas.setBorder(new LineBorder(new Color(0, 0, 0)));
 
-		JLabel lblNewLabel_13_2 = new JLabel("Total:");
-		lblNewLabel_13_2.setBounds(717, 603, 30, 16);
-		panel.add(lblNewLabel_13_2);
+		JLabel lblNewLabel_14_1_1_1_1 = new JLabel("Transferencias:(+)");
+		GridBagConstraints gbc_lblNewLabel_14_1_1_1_1 = new GridBagConstraints();
+		gbc_lblNewLabel_14_1_1_1_1.insets = new Insets(0, 0, 5, 5);
+		gbc_lblNewLabel_14_1_1_1_1.gridx = 0;
+		gbc_lblNewLabel_14_1_1_1_1.gridy = 3;
+		panel_15.add(lblNewLabel_14_1_1_1_1, gbc_lblNewLabel_14_1_1_1_1);
 
-		lblPesoTotalNotasFiscais = new JLabel("");
-		lblPesoTotalNotasFiscais.setBounds(750, 596, 185, 23);
-		panel.add(lblPesoTotalNotasFiscais);
-		lblPesoTotalNotasFiscais.setFont(new Font("Tahoma", Font.BOLD, 11));
-		lblPesoTotalNotasFiscais.setBorder(new LineBorder(new Color(0, 0, 0)));
+		lblTotalTransferenciasCargaRecebidas = new JLabel("0.0 KG");
+		GridBagConstraints gbc_lblTotalTransferenciasCargaRecebidas = new GridBagConstraints();
+		gbc_lblTotalTransferenciasCargaRecebidas.insets = new Insets(0, 0, 5, 0);
+		gbc_lblTotalTransferenciasCargaRecebidas.gridx = 1;
+		gbc_lblTotalTransferenciasCargaRecebidas.gridy = 3;
+		panel_15.add(lblTotalTransferenciasCargaRecebidas, gbc_lblTotalTransferenciasCargaRecebidas);
+		lblTotalTransferenciasCargaRecebidas.setForeground(Color.BLACK);
+		lblTotalTransferenciasCargaRecebidas.setFont(new Font("Arial", Font.BOLD, 12));
+		lblTotalTransferenciasCargaRecebidas.setBorder(new LineBorder(new Color(0, 0, 0)));
 
-		lblPesoTotalNotasFiscaisaEmitir = new JLabel("0 Kg | 0 Sacos");
-		lblPesoTotalNotasFiscaisaEmitir.setBounds(750, 661, 185, 23);
-		panel.add(lblPesoTotalNotasFiscaisaEmitir);
-		lblPesoTotalNotasFiscaisaEmitir.setFont(new Font("Tahoma", Font.BOLD, 11));
-		lblPesoTotalNotasFiscaisaEmitir.setBorder(new LineBorder(new Color(0, 0, 0)));
+		JLabel lblNewLabel_13 = new JLabel("Total Carregado:");
+		GridBagConstraints gbc_lblNewLabel_13 = new GridBagConstraints();
+		gbc_lblNewLabel_13.insets = new Insets(0, 0, 5, 5);
+		gbc_lblNewLabel_13.gridx = 0;
+		gbc_lblNewLabel_13.gridy = 4;
+		panel_15.add(lblNewLabel_13, gbc_lblNewLabel_13);
 
-		JLabel lblNewLabel_13_2_1 = new JLabel("a Emitir:");
-		lblNewLabel_13_2_1.setBounds(702, 663, 45, 16);
-		panel.add(lblNewLabel_13_2_1);
+		lblPesoTotalRealCargas = new JLabel("");
+		GridBagConstraints gbc_lblPesoTotalRealCargas = new GridBagConstraints();
+		gbc_lblPesoTotalRealCargas.insets = new Insets(0, 0, 5, 0);
+		gbc_lblPesoTotalRealCargas.gridx = 1;
+		gbc_lblPesoTotalRealCargas.gridy = 4;
+		panel_15.add(lblPesoTotalRealCargas, gbc_lblPesoTotalRealCargas);
+		lblPesoTotalRealCargas.setFont(new Font("Tahoma", Font.BOLD, 11));
+		lblPesoTotalRealCargas.setBorder(new LineBorder(new Color(0, 0, 0)));
 
-		painelGraficoNFs = new JPanelGraficoPadrao(0, 0, "Total NF:", "Falta Tirar:");
-		painelGraficoNFs.setBounds(945, 565, 300, 250);
-		panel.add(painelGraficoNFs);
-		painelGraficoNFs.setLayout(null);
-		btnAdicionarCarregamento.setBounds(1177, 512, 123, 23);
-		panel.add(btnAdicionarCarregamento);
+		JLabel lblNewLabel_13_1 = new JLabel("Restante:");
+		GridBagConstraints gbc_lblNewLabel_13_1 = new GridBagConstraints();
+		gbc_lblNewLabel_13_1.insets = new Insets(0, 0, 0, 5);
+		gbc_lblNewLabel_13_1.gridx = 0;
+		gbc_lblNewLabel_13_1.gridy = 5;
+		panel_15.add(lblNewLabel_13_1, gbc_lblNewLabel_13_1);
 
-		JButton btnNewButton_1 = new JButton("Excluir");
-		btnNewButton_1.setBounds(1042, 512, 123, 23);
-		panel.add(btnNewButton_1);
-		
-		JLabel lblNewLabel_13_2_1_1 = new JLabel("Emitido:");
-		lblNewLabel_13_2_1_1.setBounds(702, 631, 45, 16);
-		panel.add(lblNewLabel_13_2_1_1);
-		
-		 lblPesoTotalNotasFiscaisEmitidas = new JLabel("0 Kg | 0 Sacos");
-		lblPesoTotalNotasFiscaisEmitidas.setFont(new Font("Tahoma", Font.BOLD, 11));
-		lblPesoTotalNotasFiscaisEmitidas.setBorder(new LineBorder(new Color(0, 0, 0)));
-		lblPesoTotalNotasFiscaisEmitidas.setBounds(750, 626, 185, 23);
-		panel.add(lblPesoTotalNotasFiscaisEmitidas);
-		
-		JButton btnEditarCarregamento = new JButton("Editar");
-		btnEditarCarregamento.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-	            int rowSel = table_carregamento.getSelectedRow();//pega o indice da linha na tabela
-			
-				
-				TelaConfirmarCarregamento tela = new TelaConfirmarCarregamento(1, contrato_local, lista_carregamentos.get(rowSel), isto);
-				tela.setTelaPai(isto);
-				tela.setVisible(true);
-			}
-		});
-		btnEditarCarregamento.setBounds(907, 512, 123, 23);
-		panel.add(btnEditarCarregamento);
-		
-		JLabel lblNewLabel_33 = new JLabel("");
-		lblNewLabel_33.setBorder(new LineBorder(new Color(0, 0, 0)));
-		lblNewLabel_33.setOpaque(true);
-		lblNewLabel_33.setBackground(new Color(0,100,0));
-		lblNewLabel_33.setBounds(129, 529, 30, 16);
-		panel.add(lblNewLabel_33);
-		
-		JLabel lblNewLabel_34 = new JLabel("Concluido");
-		lblNewLabel_34.setBorder(new MatteBorder(0, 0, 1, 0, (Color) new Color(0, 0, 0)));
-		lblNewLabel_34.setFont(new Font("SansSerif", Font.BOLD, 12));
-		lblNewLabel_34.setBounds(164, 529, 56, 16);
-		panel.add(lblNewLabel_34);
-		
-		JLabel lblNewLabel_33_1 = new JLabel("");
-		lblNewLabel_33_1.setBorder(new LineBorder(new Color(0, 0, 0)));
-		lblNewLabel_33_1.setOpaque(true);
-		lblNewLabel_33_1.setBackground(Color.yellow);
-		lblNewLabel_33_1.setBounds(190, 501, 30, 16);
-		panel.add(lblNewLabel_33_1);
-		
-		JLabel lblNewLabel_34_1 = new JLabel("Falta NF Complemento");
-		lblNewLabel_34_1.setBorder(new MatteBorder(0, 0, 1, 0, (Color) new Color(0, 0, 0)));
-		lblNewLabel_34_1.setFont(new Font("SansSerif", Font.BOLD, 12));
-		lblNewLabel_34_1.setBounds(225, 501, 126, 16);
-		panel.add(lblNewLabel_34_1);
-		
+		lblPesoTotalRealRestante = new JLabel("0.0 Kg");
+		GridBagConstraints gbc_lblPesoTotalRealRestante = new GridBagConstraints();
+		gbc_lblPesoTotalRealRestante.gridx = 1;
+		gbc_lblPesoTotalRealRestante.gridy = 5;
+		panel_15.add(lblPesoTotalRealRestante, gbc_lblPesoTotalRealRestante);
+		lblPesoTotalRealRestante.setFont(new Font("Tahoma", Font.BOLD, 11));
+		lblPesoTotalRealRestante.setBorder(new LineBorder(new Color(0, 0, 0)));
+
+		JPanel panel_16 = new JPanel();
+		panel_16.setBackground(Color.WHITE);
+		panel.add(panel_16, "cell 6 4,alignx right,aligny top");
+		panel_16.setLayout(new MigLayout("", "[73px][81px][60px][64px][79px]", "[28px]"));
+
 		JButton btnExportarCarregamentos = new JButton("Exportar");
+		panel_16.add(btnExportarCarregamentos, "cell 0 0,alignx center,aligny center");
 		btnExportarCarregamentos.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				HSSFWorkbook workbook = new HSSFWorkbook();
 				HSSFSheet sheet = workbook.createSheet("Carregamentos");
 
 				// Definindo alguns padroes de layout
-				sheet.setDefaultColumnWidth(15);
+				sheet.setDefaultColumnWidth(20);
 				sheet.setDefaultRowHeight((short) 400);
 
 				int rownum = 0;
@@ -2256,164 +2490,201 @@ public class TelaGerenciarContrato extends JFrame {
 				headerStyle.setAlignment(HorizontalAlignment.CENTER);
 				headerStyle.setVerticalAlignment(VerticalAlignment.CENTER);
 
-				//celula para texto alinhado ao centro
+				// celula para texto alinhado ao centro
 				CellStyle textStyle = workbook.createCellStyle();
-			     textStyle.setAlignment(HorizontalAlignment.CENTER);
+				textStyle.setAlignment(HorizontalAlignment.CENTER);
 				textStyle.setVerticalAlignment(VerticalAlignment.CENTER);
+				HSSFFont newFontforText = workbook.createFont();
+				newFontforText.setBold(false);
+				newFontforText.setColor(IndexedColors.BLACK.getIndex());
+				newFontforText.setFontName("Calibri");
+				newFontforText.setItalic(false);
+				newFontforText.setFontHeight((short) (11 * 20));
+				textStyle.setFont(newFontforText);
 
-				//celula para numero alinhado ao centro
+				// celula para texto alinhado ao esquerda
+				CellStyle textStyleAlinhadoEsquerda = workbook.createCellStyle();
+				textStyleAlinhadoEsquerda.setAlignment(HorizontalAlignment.LEFT);
+				HSSFFont newFontforTextAlinhaEsquerda = workbook.createFont();
+				newFontforTextAlinhaEsquerda.setBold(false);
+				newFontforTextAlinhaEsquerda.setColor(IndexedColors.BLACK.getIndex());
+				newFontforTextAlinhaEsquerda.setFontName("Calibri");
+				newFontforTextAlinhaEsquerda.setItalic(false);
+				newFontforTextAlinhaEsquerda.setFontHeight((short) (11 * 20));
+				textStyleAlinhadoEsquerda.setFont(newFontforTextAlinhaEsquerda);
+
+				// celula de aviso
+				CellStyle textStyleAlinhadoEsquerdaAviso = workbook.createCellStyle();
+				textStyleAlinhadoEsquerdaAviso.setAlignment(HorizontalAlignment.LEFT);
+				HSSFFont newFontforTextAlinhaEsquerdaAviso = workbook.createFont();
+				newFontforTextAlinhaEsquerdaAviso.setBold(false);
+				newFontforTextAlinhaEsquerdaAviso.setColor(IndexedColors.RED.getIndex());
+				newFontforTextAlinhaEsquerdaAviso.setFontName("Calibri");
+				newFontforTextAlinhaEsquerdaAviso.setItalic(false);
+				newFontforTextAlinhaEsquerdaAviso.setFontHeight((short) (11 * 20));
+				textStyleAlinhadoEsquerdaAviso.setFont(newFontforTextAlinhaEsquerdaAviso);
+
+				// celula de aviso negrito
+				CellStyle textStyleAlinhadoEsquerdaNegrito = workbook.createCellStyle();
+				textStyleAlinhadoEsquerdaNegrito.setAlignment(HorizontalAlignment.LEFT);
+				HSSFFont newFontforTextAlinhaEsquerdaNegrito = workbook.createFont();
+				newFontforTextAlinhaEsquerdaNegrito.setBold(true);
+				newFontforTextAlinhaEsquerdaNegrito.setColor(IndexedColors.BLACK.getIndex());
+				newFontforTextAlinhaEsquerdaNegrito.setFontName("Calibri");
+				newFontforTextAlinhaEsquerdaNegrito.setItalic(false);
+				newFontforTextAlinhaEsquerdaNegrito.setFontHeight((short) (11 * 20));
+				textStyleAlinhadoEsquerdaNegrito.setFont(newFontforTextAlinhaEsquerdaNegrito);
+
+				// celula para numero alinhado ao centro
 				CellStyle numberStyle = workbook.createCellStyle();
 				numberStyle.setDataFormat(numberFormat.getFormat("#,##0.00"));
 				numberStyle.setAlignment(HorizontalAlignment.CENTER);
 				numberStyle.setVerticalAlignment(VerticalAlignment.CENTER);
 
-				//estilo para celula do tipo numero alinhado ao centro
+				// estilo para celula do tipo numero alinhado ao centro
 				CellStyle valorStyle = workbook.createCellStyle();
 				valorStyle.setDataFormat(numberFormat.getFormat("R$ #,##0.00"));
 				valorStyle.setAlignment(HorizontalAlignment.CENTER);
 				valorStyle.setVerticalAlignment(VerticalAlignment.CENTER);
-				
-				//estilo para cabecalho fundo laranja
+
+				// estilo para cabecalho fundo laranja
 				CellStyle celula_fundo_laranja = workbook.createCellStyle();
 				celula_fundo_laranja.setFillPattern(FillPatternType.SOLID_FOREGROUND);
 				celula_fundo_laranja.setFillForegroundColor(IndexedColors.ORANGE.getIndex());
 				celula_fundo_laranja.setAlignment(HorizontalAlignment.CENTER);
 				celula_fundo_laranja.setVerticalAlignment(VerticalAlignment.CENTER);
-				
+
 				HSSFFont newFont = workbook.createFont();
-			     newFont.setBold(true);
-			     newFont.setColor(IndexedColors.BLACK.getIndex());
-			     newFont.setFontName("Calibri");
-			     newFont.setItalic(false);
-			     newFont.setFontHeight((short)(11*20));
+				newFont.setBold(true);
+				newFont.setColor(IndexedColors.BLACK.getIndex());
+				newFont.setFontName("Calibri");
+				newFont.setItalic(false);
+				newFont.setFontHeight((short) (11 * 20));
 
 				celula_fundo_laranja.setFont(newFont);
-				
-				//celula_number_amarelo_texto_preto
-				//estilo para cabecalho fundo laranja
+
+				// celula_number_amarelo_texto_preto
+				// estilo para cabecalho fundo laranja
 				CellStyle celula_number_amarelo_texto_preto = workbook.createCellStyle();
 				celula_number_amarelo_texto_preto.setDataFormat(numberFormat.getFormat("#,##0.00"));
 				celula_number_amarelo_texto_preto.setFillPattern(FillPatternType.SOLID_FOREGROUND);
 				celula_number_amarelo_texto_preto.setFillForegroundColor(IndexedColors.YELLOW.getIndex());
 				celula_number_amarelo_texto_preto.setAlignment(HorizontalAlignment.CENTER);
 				celula_number_amarelo_texto_preto.setVerticalAlignment(VerticalAlignment.CENTER);
-				
+
 				HSSFFont newFont_blabk = workbook.createFont();
 				newFont_blabk.setBold(true);
 				newFont_blabk.setColor(IndexedColors.BLACK.getIndex());
 				newFont_blabk.setFontName("Calibri");
 				newFont_blabk.setItalic(false);
-				newFont_blabk.setFontHeight((short)(11*20));
+				newFont_blabk.setFontHeight((short) (11 * 20));
 
 				celula_number_amarelo_texto_preto.setFont(newFont_blabk);
 				numberStyle.setFont(newFont_blabk);
-				
-				//estilo para cabecalho fundo laranja
+
+				// estilo para cabecalho fundo laranja
 				CellStyle celula_fundo_laranja_texto_branco = workbook.createCellStyle();
 				celula_fundo_laranja_texto_branco.setFillPattern(FillPatternType.SOLID_FOREGROUND);
 				celula_fundo_laranja_texto_branco.setFillForegroundColor(IndexedColors.ORANGE.getIndex());
 				celula_fundo_laranja_texto_branco.setAlignment(HorizontalAlignment.CENTER);
 				celula_fundo_laranja_texto_branco.setVerticalAlignment(VerticalAlignment.CENTER);
-				
+
 				HSSFFont newFont_branca = workbook.createFont();
 				newFont_branca.setBold(true);
 				newFont_branca.setColor(IndexedColors.WHITE.getIndex());
 				newFont_branca.setFontName("Calibri");
 				newFont_branca.setItalic(false);
-				newFont_branca.setFontHeight((short)(11*20));
+				newFont_branca.setFontHeight((short) (11 * 20));
 
 				celula_fundo_laranja_texto_branco.setFont(newFont_branca);
-				
-				//estilo para cabecalho fundo verde
+
+				// estilo para cabecalho fundo verde
 				CellStyle celula_fundo_verde_texto_branco = workbook.createCellStyle();
 				celula_fundo_verde_texto_branco.setFillPattern(FillPatternType.SOLID_FOREGROUND);
 				celula_fundo_verde_texto_branco.setFillForegroundColor(IndexedColors.GREEN.getIndex());
 				celula_fundo_verde_texto_branco.setAlignment(HorizontalAlignment.CENTER);
 				celula_fundo_verde_texto_branco.setVerticalAlignment(VerticalAlignment.CENTER);
-				
-		
+
 				celula_fundo_verde_texto_branco.setFont(newFont_branca);
 
 				// Configurando as informacoes
 				row = sheet.createRow(rownum++);
 
-				CadastroCliente compradores [] = contrato_local.getCompradores();
-				CadastroCliente vendedores [] = contrato_local.getVendedores();
+				CadastroCliente compradores[] = contrato_local.getCompradores();
+				CadastroCliente vendedores[] = contrato_local.getVendedores();
 
 				String nome_compradores;
 				String nome_vendedores;
-				if(compradores[0].getTipo_pessoa() == 0) {
+				if (compradores[0].getTipo_pessoa() == 0) {
 					nome_compradores = compradores[0].getNome_empresarial();
-				}else {
+				} else {
 					nome_compradores = compradores[0].getNome_fantaia();
 				}
-				
-				if(compradores[1] != null) {
-				if(compradores[1].getTipo_pessoa() == 0) {
-					nome_compradores = nome_compradores + ", " + compradores[1].getNome_empresarial();
-				}else {
-					nome_compradores = nome_compradores + ", " +  compradores[1].getNome_fantaia();
+
+				if (compradores[1] != null) {
+					if (compradores[1].getTipo_pessoa() == 0) {
+						nome_compradores = nome_compradores + ", " + compradores[1].getNome_empresarial();
+					} else {
+						nome_compradores = nome_compradores + ", " + compradores[1].getNome_fantaia();
+					}
 				}
-				}
-				
-				
-				if(vendedores[0].getTipo_pessoa() == 0) {
+
+				if (vendedores[0].getTipo_pessoa() == 0) {
 					nome_vendedores = vendedores[0].getNome_empresarial();
-				}else {
+				} else {
 					nome_vendedores = vendedores[0].getNome_fantaia();
 				}
-				
-				if(vendedores[1] != null) {
-				if(vendedores[1].getTipo_pessoa() == 0) {
-					nome_vendedores = nome_vendedores + ", " + vendedores[1].getNome_empresarial();
-				}else {
-					nome_vendedores = nome_vendedores + ", " +  vendedores[1].getNome_fantaia();
+
+				if (vendedores[1] != null) {
+					if (vendedores[1].getTipo_pessoa() == 0) {
+						nome_vendedores = nome_vendedores + ", " + vendedores[1].getNome_empresarial();
+					} else {
+						nome_vendedores = nome_vendedores + ", " + vendedores[1].getNome_fantaia();
+					}
 				}
-				}
-				
-				
+
 				cell = row.createCell(cellnum);
 				cell.setCellStyle(celula_fundo_verde_texto_branco);
-				cell.setCellValue(nome_compradores.toUpperCase() + " X " + nome_vendedores + " CTR " + contrato_local.getCodigo() + " IE.: " + vendedores[0].getIe() );
-				sheet.addMergedRegion(new CellRangeAddress(0, 0, cellnum,5));
+				cell.setCellValue(nome_compradores.toUpperCase() + " X " + nome_vendedores + " CTR "
+						+ contrato_local.getCodigo() + " IE.: " + vendedores[0].getIe());
+				sheet.addMergedRegion(new CellRangeAddress(0, 0, cellnum, 5));
 
-				//linha quantidade, safra, sacos, etc
+				// linha quantidade, safra, sacos, etc
 				row = sheet.createRow(rownum++);
 				cellnum = 0;
-				
+
 				cell = row.createCell(cellnum++);
 				cell.setCellStyle(celula_fundo_verde_texto_branco);
-				
+
 				double quantidade_kg = 0;
 				double quantidade_sacos = 0;
-				
-				if(contrato.getMedida().equalsIgnoreCase("KG")) {
+
+				if (contrato.getMedida().equalsIgnoreCase("KG")) {
 					quantidade_kg = contrato.getQuantidade();
 					quantidade_sacos = quantidade_kg / 60;
-				}else if(contrato.getMedida().equalsIgnoreCase("Sacos")){
+				} else if (contrato.getMedida().equalsIgnoreCase("Sacos")) {
 					quantidade_sacos = contrato.getQuantidade();
 					quantidade_kg = quantidade_sacos * 60;
 				}
 				Locale ptBr = new Locale("pt", "BR");
 
-				cell.setCellValue("Quantidade: " + quantidade_kg + " KGS | " + quantidade_sacos + " Sacos no valor de " +
-						 NumberFormat.getCurrencyInstance(ptBr)
-				.format(contrato.getValor_produto())+ " por " + contrato.getMedida() + " no valor total de: "
-					+  NumberFormat.getCurrencyInstance(ptBr)
-					.format(contrato.getValor_a_pagar() )
-						);
-				sheet.addMergedRegion(new CellRangeAddress(rownum-1, rownum-1, cellnum-1,5));
+				cell.setCellValue("Quantidade: " + quantidade_kg + " KGS | " + quantidade_sacos + " Sacos no valor de "
+						+ NumberFormat.getCurrencyInstance(ptBr).format(contrato.getValor_produto()) + " por "
+						+ contrato.getMedida() + " no valor total de: "
+						+ NumberFormat.getCurrencyInstance(ptBr).format(contrato.getValor_a_pagar()));
+				sheet.addMergedRegion(new CellRangeAddress(rownum - 1, rownum - 1, cellnum - 1, 5));
 
 				row = sheet.createRow(rownum++);
 				cellnum = 0;
-				
+
 				cell = row.createCell(cellnum++);
 				cell.setCellStyle(celula_fundo_verde_texto_branco);
-				cell.setCellValue(contrato.getModelo_safra().getProduto().getNome_produto() + " " + contrato.getModelo_safra().getProduto().getTransgenia() + " " + contrato.getModelo_safra().getAno_plantio() + "/" + contrato.getModelo_safra().getAno_colheita());
-				sheet.addMergedRegion(new CellRangeAddress(rownum-1, rownum-1, cellnum-1,5));
+				cell.setCellValue(contrato.getModelo_safra().getProduto().getNome_produto() + " "
+						+ contrato.getModelo_safra().getProduto().getTransgenia() + " "
+						+ contrato.getModelo_safra().getAno_plantio() + "/"
+						+ contrato.getModelo_safra().getAno_colheita());
+				sheet.addMergedRegion(new CellRangeAddress(rownum - 1, rownum - 1, cellnum - 1, 5));
 
-				
-				
 				// Configurando Header
 				row = sheet.createRow(rownum++);
 				cellnum = 0;
@@ -2424,12 +2695,11 @@ public class TelaGerenciarContrato extends JFrame {
 				cell = row.createCell(cellnum++);
 				cell.setCellStyle(celula_fundo_verde_texto_branco);
 				cell.setCellValue("CLIENTE".toUpperCase());
-				
+
 				cell = row.createCell(cellnum++);
 				cell.setCellStyle(celula_fundo_verde_texto_branco);
 				cell.setCellValue("MOTORISTA".toUpperCase());
-				
-				
+
 				cell = row.createCell(cellnum++);
 				cell.setCellStyle(celula_fundo_verde_texto_branco);
 				cell.setCellValue("PLACA".toUpperCase());
@@ -2438,7 +2708,6 @@ public class TelaGerenciarContrato extends JFrame {
 				cell.setCellStyle(celula_fundo_verde_texto_branco);
 				cell.setCellValue("ROMANEIO".toUpperCase());
 
-
 				cell = row.createCell(cellnum++);
 				cell.setCellStyle(celula_fundo_verde_texto_branco);
 				cell.setCellValue("PESO".toUpperCase());
@@ -2446,448 +2715,343 @@ public class TelaGerenciarContrato extends JFrame {
 				cell = row.createCell(cellnum++);
 				cell.setCellStyle(celula_fundo_verde_texto_branco);
 				cell.setCellValue("NF INTERNA".toUpperCase());
-				
+
 				cell = row.createCell(cellnum++);
 				cell.setCellStyle(celula_fundo_verde_texto_branco);
 				cell.setCellValue("PESO NF INTERNA".toUpperCase());
-				
-	
+
 				cell = row.createCell(cellnum++);
 				cell.setCellStyle(celula_fundo_verde_texto_branco);
 				cell.setCellValue("NF VENDA".toUpperCase());
-				
+
 				cell = row.createCell(cellnum++);
 				cell.setCellStyle(celula_fundo_verde_texto_branco);
 				cell.setCellValue("PESO NF VENDA".toUpperCase());
-				
+
+				cell = row.createCell(cellnum++);
+				cell.setCellStyle(celula_fundo_verde_texto_branco);
+				cell.setCellValue("VALOR NF VENDA".toUpperCase());
+
 				cell = row.createCell(cellnum++);
 				cell.setCellStyle(celula_fundo_verde_texto_branco);
 				cell.setCellValue("DIFERENÇA".toUpperCase());
-				
+
 				cell = row.createCell(cellnum++);
 				cell.setCellStyle(celula_fundo_verde_texto_branco);
 				cell.setCellValue("NF COMPLEMENTO".toUpperCase());
-				
+
 				cell = row.createCell(cellnum++);
 				cell.setCellStyle(celula_fundo_verde_texto_branco);
 				cell.setCellValue("PESO NF COMPLEMENTO".toUpperCase());
 
+				cell = row.createCell(cellnum++);
+				cell.setCellStyle(celula_fundo_verde_texto_branco);
+				cell.setCellValue("VALOR NF COMPLEMENTO".toUpperCase());
+
 				ArrayList<CadastroContrato.Carregamento> contratos_selecionados = new ArrayList<>();
 				int linhas_selecionadas[] = table_carregamento.getSelectedRows();// pega o indice da linha na tabela
 
-				
 				for (int i = 0; i < linhas_selecionadas.length; i++) {
 
-					int indice = linhas_selecionadas[i];// 
-					
-					String descricao = (String) table_carregamento.getValueAt(indice, 1);
-					
-					if(descricao != null && descricao.equalsIgnoreCase("-Transferencia") || descricao.equalsIgnoreCase("+Transferencia")) {
-						if( descricao.equalsIgnoreCase("-Transferencia")) {
-							CadastroContrato.Carregamento carregamento_selecionado = lista_carregamentos.get(indice);
-							contratos_selecionados.add(carregamento_selecionado);
-						}else if( descricao.equalsIgnoreCase("+Transferencia")) {
-							CadastroContrato.Carregamento carregamento_selecionado = lista_carregamentos.get(indice);
-							contratos_selecionados.add(carregamento_selecionado);
-						}
-							
-						}
-						else {
+					int indice = linhas_selecionadas[i];//
 
+					String descricao = (String) table_carregamento.getValueAt(indice, 1);
+
+					if (descricao != null && descricao.equalsIgnoreCase("-Transferencia")
+							|| descricao.equalsIgnoreCase("+Transferencia")) {
+						if (descricao.equalsIgnoreCase("-Transferencia")) {
+							CadastroContrato.Carregamento carregamento_selecionado = lista_carregamentos.get(indice);
+							contratos_selecionados.add(carregamento_selecionado);
+						} else if (descricao.equalsIgnoreCase("+Transferencia")) {
 							CadastroContrato.Carregamento carregamento_selecionado = lista_carregamentos.get(indice);
 							contratos_selecionados.add(carregamento_selecionado);
 						}
-				
-					
+
+					} else {
+
+						CadastroContrato.Carregamento carregamento_selecionado = lista_carregamentos.get(indice);
+						contratos_selecionados.add(carregamento_selecionado);
+					}
+
 				}
-				
+
 				double quantidade_total_kgs_carregados = 0;
 				double quantidade_total_kgs_nf_venda1 = 0;
 				double quantidade_total_kgs_nf_complemento = 0;
 				double quantidade_total_kgs_diferenca = 0;
 				double quantidade_total_kgs_nf_interna = 0;
+				BigDecimal valor_total_nf_venda1 = BigDecimal.ZERO;
+				BigDecimal valor_total_nf_complemento = BigDecimal.ZERO;
 
-				
+				boolean nf_interna_ativo = false;
+				boolean nf_venda_ativo = false;
+				boolean nf_complemento_ativo = false;
+
+				// checka se ha no minimo uma nf interna aplicavel
 				for (CadastroContrato.Carregamento carregamento : contratos_selecionados) {
-					if(carregamento.getDescricao() == null ){
-
-					GerenciarBancoContratos gerenciar = new GerenciarBancoContratos();
-					// pegar dados do contrato
-					CadastroContrato contrato_destinatario = gerenciar.getContrato(carregamento.getId_contrato());
-
-					// pegar cliente
-					GerenciarBancoClientes gerenciar_clientes = new GerenciarBancoClientes();
-					CadastroCliente cliente_carregamento = gerenciar_clientes.getCliente(carregamento.getId_cliente());
-					String nome_cliente;
-					if (cliente_carregamento.getTipo_pessoa() == 0) {
-						// pessoa fisica
-						nome_cliente = cliente_carregamento.getNome_empresarial();
-					} else {
-						nome_cliente = cliente_carregamento.getNome_fantaia();
-					}
-					
-					String nome_cliente_completo = nome_cliente;
-
-		         	String nome_cliente_quebrado[] = nome_cliente.split(" ");
-					try {
-				
-					
-					if(nome_cliente_quebrado.length > 2) {
-					    if(nome_cliente_quebrado[2].length() > 1) {
-					    	nome_cliente = nome_cliente_quebrado[0] + " " + nome_cliente_quebrado[2];
-					    }else {
-					    	if(nome_cliente_quebrado[3].length() > 1) {
-					    		nome_cliente = nome_cliente_quebrado[0] + " "+ nome_cliente_quebrado[3];
-
-					    	}else {
-					    		nome_cliente = nome_cliente_quebrado[0] + " "+ nome_cliente_quebrado[1];
-
-					    	}
-					    }
-					}
-					
-					}catch(Exception v) {
-						nome_cliente = nome_cliente_completo;
-					}
-					
-
-					// pegar vendedor
-					CadastroCliente vendedor_carregamento = gerenciar_clientes.getCliente(carregamento.getId_vendedor());
-					String nome_vendedor;
-					if (vendedor_carregamento.getTipo_pessoa() == 0) {
-						// pessoa fisica
-						nome_vendedor = vendedor_carregamento.getNome_empresarial();
-					} else {
-						nome_vendedor = vendedor_carregamento.getNome_fantaia();
+					if (carregamento.getNf_interna_aplicavel() == 1) {
+						nf_interna_ativo = true;
+						break;
 					}
 
+				}
 
-					String nome_vendedor_completo = nome_vendedor;
-
-		         	String nome_vendedor_quebrado[] = nome_vendedor.split(" ");
-					try {
-				
-					
-					if(nome_vendedor_quebrado.length > 2) {
-					    if(nome_vendedor_quebrado[2].length() > 1) {
-					    	nome_vendedor = nome_vendedor_quebrado[0] + " " + nome_vendedor_quebrado[2];
-					    }else {
-					    	if(nome_vendedor_quebrado[3].length() > 1) {
-					    		nome_vendedor = nome_vendedor_quebrado[0] + " "+ nome_vendedor_quebrado[3];
-
-					    	}else {
-					    		nome_vendedor = nome_vendedor_quebrado[0] + " "+ nome_vendedor_quebrado[1];
-
-					    	}
-					    }
+				// checka se ha no minimo uma nf venda aplicavel
+				for (CadastroContrato.Carregamento carregamento : contratos_selecionados) {
+					if (carregamento.getNf_venda1_aplicavel() == 1) {
+						nf_venda_ativo = true;
+						break;
 					}
-					
-					}catch(Exception v) {
-						nome_vendedor = nome_vendedor_completo;
-					}
-					
-					String nome_transportador = "";
-					String placa_trator = "";
-					if(carregamento.getId_transportador() > 0 ) {
-					// pegar transportador e veiculo
-					CadastroCliente transportador_carregamento = gerenciar_clientes
-							.getCliente(carregamento.getId_transportador());
-					
-					 if(transportador_carregamento != null) {
-						 if(transportador_carregamento.getTipo_pessoa() == 0) {
-							 nome_transportador = transportador_carregamento.getNome_empresarial();
-						 }else {
-							 nome_transportador = transportador_carregamento.getNome_fantaia();
 
-						 }
-					 }
-					 CadastroCliente.Veiculo veiculo_carregamento = null ;
-					 if(carregamento.getId_veiculo() > 0) {
-					for (CadastroCliente.Veiculo veiculo : transportador_carregamento.getVeiculos()) {
-						if (veiculo.getId_veiculo() == carregamento.getId_veiculo()) {
-							 veiculo_carregamento = veiculo;
-							break;
+				}
+
+				// checka se ha no minimo uma nf complemento aplicavel
+				for (CadastroContrato.Carregamento carregamento : contratos_selecionados) {
+					if (carregamento.getNf_complemento_aplicavel() == 1) {
+						nf_complemento_ativo = true;
+						break;
+					}
+
+				}
+
+				for (CadastroContrato.Carregamento carregamento : contratos_selecionados) {
+					if (carregamento.getDescricao() == null) {
+
+						GerenciarBancoContratos gerenciar = new GerenciarBancoContratos();
+						// pegar dados do contrato
+						CadastroContrato contrato_destinatario = gerenciar.getContrato(carregamento.getId_contrato());
+
+						// pegar cliente
+						GerenciarBancoClientes gerenciar_clientes = new GerenciarBancoClientes();
+						CadastroCliente cliente_carregamento = gerenciar_clientes
+								.getCliente(carregamento.getId_cliente());
+						String nome_cliente;
+						if (cliente_carregamento.getTipo_pessoa() == 0) {
+							// pessoa fisica
+							nome_cliente = cliente_carregamento.getNome_empresarial();
+						} else {
+							nome_cliente = cliente_carregamento.getNome_fantaia();
 						}
-					}
-					
-					if(veiculo_carregamento != null) {
-						placa_trator = veiculo_carregamento.getPlaca_trator();
-					}
-					 }
 
-					}
-					// pegar o produto
-					GerenciarBancoProdutos gerenciar_produtos = new GerenciarBancoProdutos();
-					CadastroProduto produto_carregamento = gerenciar_produtos.getProduto(carregamento.getId_produto());
+						String nome_cliente_completo = nome_cliente;
 
-					//codigos
-					String codigo_romaneio = "";
-					String codigo_nf_venda1 = "", codigo_nf_complemento = "", codigo_nf_interna = "";
-					//pesos
-					
-					double peso_romaneio = 0.0;
-					double peso_nf_venda1 = 0.0;
-					double peso_nf_interna = 0.0;
-
-					BigDecimal valor_nf_venda1 = BigDecimal.ZERO;
-					double peso_nf_complemento = 0.0;
-					BigDecimal valor_nf_complemento = BigDecimal.ZERO;
-
-					
-					try {
-					    if(checkString(carregamento.getCodigo_romaneio())){
-					    	//procurar por romaneio
-					    	if(checkString(carregamento.getCaminho_romaneio())){
-					    		ManipularRomaneios manipular = new ManipularRomaneios("");
-
-					        	CadastroRomaneio romaneio = manipular.filtrar(new File(servidor_unidade + carregamento.getCaminho_romaneio()));
-					        	codigo_romaneio = Integer.toString(romaneio.getNumero_romaneio());
-					        	peso_romaneio = romaneio.getPeso_liquido();
-					        	
-					    	}else {
-					    		codigo_romaneio = carregamento.getCodigo_romaneio();
-					    		peso_romaneio = carregamento.getPeso_romaneio();
-					    	}
-					    
-					    }
-						}catch(Exception t) {
-							//JOptionPane.showMessageDialog(isto, "Romaneio não Localizado");
-							codigo_romaneio = carregamento.getCodigo_romaneio();
-				    		peso_romaneio = carregamento.getPeso_romaneio();
-						}
-						
-					
-						
-						
-						//nf venda 1
+						String nome_cliente_quebrado[] = nome_cliente.split(" ");
 						try {
-					        if(checkString(carregamento.getCodigo_nf_venda1())){
-					        	if(carregamento.getCaminho_nf_venda1().length() > 10) {
-					        		//procurar por nf venda
-						        	ManipularNotasFiscais manipular = new ManipularNotasFiscais("");
-						        	CadastroNFe nota_fiscal_venda = manipular.filtrar(new File(servidor_unidade + carregamento.getCodigo_nf_venda1()));
-		                            codigo_nf_venda1 = nota_fiscal_venda.getNfe();
-		                            peso_nf_venda1 = Double.parseDouble(nota_fiscal_venda.getQuantidade());
-		                            try {
-		                            valor_nf_venda1 = new BigDecimal(nota_fiscal_venda.getValor());
-		                            }catch(Exception u) {
-		                            	valor_nf_venda1 = BigDecimal.ZERO;
-		                            }
-						        	
-					        	}else {
-					        		 codigo_nf_venda1 = carregamento.getCodigo_nf_venda1();
-			                            peso_nf_venda1 = carregamento.getPeso_nf_venda1();
-			                            valor_nf_venda1 = carregamento.getValor_nf_venda1();
-							        	
 
-					        	}
-					        
-					        	
-					        }
-							}catch(Exception g) {
-								//JOptionPane.showMessageDialog(isto, "Nota Fiscal de venda não Localizado");
-								 codigo_nf_venda1 = carregamento.getCodigo_nf_venda1();
-		                         peso_nf_venda1 = carregamento.getPeso_nf_venda1();
-		                         valor_nf_venda1 = carregamento.getValor_nf_venda1();
+							if (nome_cliente_quebrado.length > 2) {
+								if (nome_cliente_quebrado[2].length() > 1) {
+									nome_cliente = nome_cliente_quebrado[0] + " " + nome_cliente_quebrado[2];
+								} else {
+									if (nome_cliente_quebrado[3].length() > 1) {
+										nome_cliente = nome_cliente_quebrado[0] + " " + nome_cliente_quebrado[3];
+
+									} else {
+										nome_cliente = nome_cliente_quebrado[0] + " " + nome_cliente_quebrado[1];
+
+									}
+								}
+							}
+
+						} catch (Exception v) {
+							nome_cliente = nome_cliente_completo;
+						}
+
+						// pegar vendedor
+						CadastroCliente vendedor_carregamento = gerenciar_clientes
+								.getCliente(carregamento.getId_vendedor());
+						String nome_vendedor;
+						if (vendedor_carregamento.getTipo_pessoa() == 0) {
+							// pessoa fisica
+							nome_vendedor = vendedor_carregamento.getNome_empresarial();
+						} else {
+							nome_vendedor = vendedor_carregamento.getNome_fantaia();
+						}
+
+						String nome_vendedor_completo = nome_vendedor;
+
+						String nome_vendedor_quebrado[] = nome_vendedor.split(" ");
+						try {
+
+							if (nome_vendedor_quebrado.length > 2) {
+								if (nome_vendedor_quebrado[2].length() > 1) {
+									nome_vendedor = nome_vendedor_quebrado[0] + " " + nome_vendedor_quebrado[2];
+								} else {
+									if (nome_vendedor_quebrado[3].length() > 1) {
+										nome_vendedor = nome_vendedor_quebrado[0] + " " + nome_vendedor_quebrado[3];
+
+									} else {
+										nome_vendedor = nome_vendedor_quebrado[0] + " " + nome_vendedor_quebrado[1];
+
+									}
+								}
+							}
+
+						} catch (Exception v) {
+							nome_vendedor = nome_vendedor_completo;
+						}
+
+						String nome_transportador = "";
+						String placa_trator = "";
+						if (carregamento.getId_transportador() > 0) {
+							// pegar transportador e veiculo
+							CadastroCliente transportador_carregamento = gerenciar_clientes
+									.getCliente(carregamento.getId_transportador());
+
+							if (transportador_carregamento != null) {
+								if (transportador_carregamento.getTipo_pessoa() == 0) {
+									nome_transportador = transportador_carregamento.getNome_empresarial();
+								} else {
+									nome_transportador = transportador_carregamento.getNome_fantaia();
+
+								}
+							}
+							CadastroCliente.Veiculo veiculo_carregamento = null;
+							if (carregamento.getId_veiculo() > 0) {
+								for (CadastroCliente.Veiculo veiculo : transportador_carregamento.getVeiculos()) {
+									if (veiculo.getId_veiculo() == carregamento.getId_veiculo()) {
+										veiculo_carregamento = veiculo;
+										break;
+									}
+								}
+
+								if (veiculo_carregamento != null) {
+									placa_trator = veiculo_carregamento.getPlaca_trator();
+								}
+							}
+
+						}
+						// pegar o produto
+						GerenciarBancoProdutos gerenciar_produtos = new GerenciarBancoProdutos();
+						CadastroProduto produto_carregamento = gerenciar_produtos
+								.getProduto(carregamento.getId_produto());
+
+						// codigos
+						String codigo_romaneio = "";
+						String codigo_nf_venda1 = "", codigo_nf_complemento = "", codigo_nf_interna = "";
+						// pesos
+
+						double peso_romaneio = 0.0;
+						double peso_nf_venda1 = 0.0;
+						double peso_nf_interna = 0.0;
+
+						BigDecimal valor_nf_venda1 = BigDecimal.ZERO;
+						double peso_nf_complemento = 0.0;
+						BigDecimal valor_nf_complemento = BigDecimal.ZERO;
+
+						try {
+							if (checkString(carregamento.getCodigo_romaneio())) {
+								// procurar por romaneio
+								if (checkString(carregamento.getCaminho_romaneio())) {
+									ManipularRomaneios manipular = new ManipularRomaneios("");
+
+									CadastroRomaneio romaneio = manipular
+											.filtrar(new File(servidor_unidade + carregamento.getCaminho_romaneio()));
+									codigo_romaneio = Integer.toString(romaneio.getNumero_romaneio());
+									peso_romaneio = romaneio.getPeso_liquido();
+
+								} else {
+									codigo_romaneio = carregamento.getCodigo_romaneio();
+									peso_romaneio = carregamento.getPeso_romaneio();
+								}
 
 							}
-						
-						
-						
-						
-								//nf complemento
-								try {
-							        if(checkString(carregamento.getCodigo_nf_complemento())){
-							        	if(carregamento.getCaminho_nf_complemento().length() > 10) {
-							        		//procurar por nf remessa
-								        	ManipularNotasFiscais manipular = new ManipularNotasFiscais("");
-								        	CadastroNFe nota_fiscal_complemento = manipular.filtrar(new File(servidor_unidade + carregamento.getCaminho_nf_complemento()));
-								        	 codigo_nf_complemento = nota_fiscal_complemento.getNfe();
-					                            peso_nf_complemento= Double.parseDouble(nota_fiscal_complemento.getQuantidade());
-					                            try {
-					                                valor_nf_complemento = new BigDecimal(nota_fiscal_complemento.getValor());
-					                                }catch(Exception l) {
-					                                	valor_nf_complemento = BigDecimal.ZERO;
-					                                }
-					                            
-							        	}else {
-							        		codigo_nf_complemento = carregamento.getCodigo_nf_complemento();
-				                            peso_nf_complemento= carregamento.getPeso_nf_complemento();
-				                            valor_nf_complemento = carregamento.getValor_nf_complemento();
+						} catch (Exception t) {
+							// JOptionPane.showMessageDialog(isto, "Romaneio não Localizado");
+							codigo_romaneio = carregamento.getCodigo_romaneio();
+							peso_romaneio = carregamento.getPeso_romaneio();
+						}
 
-							        	}
-							        
-							        
-							        	
-							        }
-									}catch(Exception y) {
-										//JOptionPane.showMessageDialog(isto, "Nota Fiscal de remessa não Localizado");
-
-										codigo_nf_complemento = carregamento.getCodigo_nf_complemento();
-			                            peso_nf_complemento= carregamento.getPeso_nf_complemento();
-			                            valor_nf_complemento = carregamento.getValor_nf_complemento();
-
-									}
-						
-								//nf interna
-								try {
-							        if(checkString(carregamento.getCodigo_nf_interna())){
-							        	if(carregamento.getCaminho_nf_interna().length() > 10) {
-							        		//procurar por nf remessa
-								        	ManipularNotasFiscais manipular = new ManipularNotasFiscais("");
-								        	CadastroNFe nota_fiscal_interna = manipular.filtrar(new File(servidor_unidade + carregamento.getCaminho_nf_complemento()));
-								        	 codigo_nf_interna = nota_fiscal_interna.getNfe();
-					                            peso_nf_interna= Double.parseDouble(nota_fiscal_interna.getQuantidade());
-					                          
-					                            
-							        	}else {
-							        		codigo_nf_interna = carregamento.getCodigo_nf_interna();
-				                            peso_nf_interna= carregamento.getPeso_nf_interna();
-
-							        	}
-							        
-							        
-							        	
-							        }
-									}catch(Exception y) {
-										//JOptionPane.showMessageDialog(isto, "Nota Fiscal de remessa não Localizado");
-
-										codigo_nf_interna = carregamento.getCodigo_nf_interna();
-										peso_nf_interna= carregamento.getPeso_nf_interna();
-
+						// nf venda 1
+						try {
+							if (checkString(carregamento.getCodigo_nf_venda1())) {
+								if (carregamento.getCaminho_nf_venda1().length() > 10) {
+									// procurar por nf venda
+									ManipularNotasFiscais manipular = new ManipularNotasFiscais("");
+									CadastroNFe nota_fiscal_venda = manipular
+											.filtrar(new File(servidor_unidade + carregamento.getCodigo_nf_venda1()));
+									codigo_nf_venda1 = nota_fiscal_venda.getNfe();
+									peso_nf_venda1 = Double.parseDouble(nota_fiscal_venda.getQuantidade());
+									try {
+										valor_nf_venda1 = new BigDecimal(nota_fiscal_venda.getValor());
+									} catch (Exception u) {
+										valor_nf_venda1 = BigDecimal.ZERO;
 									}
 
-					
-					
-					row = sheet.createRow(rownum++);
-					cellnum = 0;
-					/*
-					 * codigo compradores vendedores status quantidade medida produto transgenia
-					 * safra valor_produto valor_total data_contrato local_retirada
-					 */
-					cell = row.createCell(cellnum++);
-					cell.setCellStyle(textStyle);
-					cell.setCellValue(carregamento.getData());
+								} else {
+									codigo_nf_venda1 = carregamento.getCodigo_nf_venda1();
+									peso_nf_venda1 = carregamento.getPeso_nf_venda1();
+									valor_nf_venda1 = carregamento.getValor_nf_venda1();
 
+								}
 
-					cell = row.createCell(cellnum++);
-					cell.setCellStyle(textStyle);
-					cell.setCellValue(nome_cliente);
-					
+							}
+						} catch (Exception g) {
+							// JOptionPane.showMessageDialog(isto, "Nota Fiscal de venda não Localizado");
+							codigo_nf_venda1 = carregamento.getCodigo_nf_venda1();
+							peso_nf_venda1 = carregamento.getPeso_nf_venda1();
+							valor_nf_venda1 = carregamento.getValor_nf_venda1();
 
-					cell = row.createCell(cellnum++);
-					cell.setCellStyle(textStyle);
-					cell.setCellValue(nome_transportador);
-
-					cell = row.createCell(cellnum++);
-					cell.setCellStyle(textStyle);
-					cell.setCellValue(placa_trator);
-
-					
-					cell = row.createCell(cellnum++);
-					cell.setCellStyle(textStyle);
-					cell.setCellValue(codigo_romaneio);
-				
-					cell = row.createCell(cellnum++);
-					cell.setCellStyle(numberStyle);
-					cell.setCellValue(peso_romaneio);
-					
-					if(carregamento.getNf_interna_aplicavel() == 1) {
-						cell = row.createCell(cellnum++);
-						cell.setCellStyle(textStyle);
-						cell.setCellValue(codigo_nf_interna);
-					}else {
-							cell = row.createCell(cellnum++);
-							cell.setCellStyle(textStyle);
-							cell.setCellValue("Não Aplicável");
 						}
-					
-					if(carregamento.getNf_interna_aplicavel() == 1) {
-						cell = row.createCell(cellnum++);
-						cell.setCellStyle(numberStyle);
-						cell.setCellValue(peso_nf_interna);
-						quantidade_total_kgs_nf_interna += peso_nf_interna;
-					}else {
-							cell = row.createCell(cellnum++);
-							cell.setCellStyle(textStyle);
-							cell.setCellValue("Não Aplicável");
+
+						// nf complemento
+						try {
+							if (checkString(carregamento.getCodigo_nf_complemento())) {
+								if (carregamento.getCaminho_nf_complemento().length() > 10) {
+									// procurar por nf remessa
+									ManipularNotasFiscais manipular = new ManipularNotasFiscais("");
+									CadastroNFe nota_fiscal_complemento = manipular.filtrar(
+											new File(servidor_unidade + carregamento.getCaminho_nf_complemento()));
+									codigo_nf_complemento = nota_fiscal_complemento.getNfe();
+									peso_nf_complemento = Double.parseDouble(nota_fiscal_complemento.getQuantidade());
+									try {
+										valor_nf_complemento = new BigDecimal(nota_fiscal_complemento.getValor());
+									} catch (Exception l) {
+										valor_nf_complemento = BigDecimal.ZERO;
+									}
+
+								} else {
+									codigo_nf_complemento = carregamento.getCodigo_nf_complemento();
+									peso_nf_complemento = carregamento.getPeso_nf_complemento();
+									valor_nf_complemento = carregamento.getValor_nf_complemento();
+
+								}
+
+							}
+						} catch (Exception y) {
+							// JOptionPane.showMessageDialog(isto, "Nota Fiscal de remessa não Localizado");
+
+							codigo_nf_complemento = carregamento.getCodigo_nf_complemento();
+							peso_nf_complemento = carregamento.getPeso_nf_complemento();
+							valor_nf_complemento = carregamento.getValor_nf_complemento();
+
 						}
-						
 
-					if(carregamento.getNf_venda1_aplicavel() == 1) {
-					cell = row.createCell(cellnum++);
-					cell.setCellStyle(textStyle);
-					cell.setCellValue(codigo_nf_venda1);
-					}else {
-						cell = row.createCell(cellnum++);
-						cell.setCellStyle(textStyle);
-						cell.setCellValue("Não Aplicável");
-					}
-					
-					if(carregamento.getNf_venda1_aplicavel() == 1) {
-					cell = row.createCell(cellnum++);
-					cell.setCellStyle(numberStyle);
-					cell.setCellValue(peso_nf_venda1);
-					 quantidade_total_kgs_nf_venda1 += peso_nf_venda1;
+						// nf interna
+						try {
+							if (checkString(carregamento.getCodigo_nf_interna())) {
+								if (carregamento.getCaminho_nf_interna().length() > 10) {
+									// procurar por nf remessa
+									ManipularNotasFiscais manipular = new ManipularNotasFiscais("");
+									CadastroNFe nota_fiscal_interna = manipular.filtrar(
+											new File(servidor_unidade + carregamento.getCaminho_nf_complemento()));
+									codigo_nf_interna = nota_fiscal_interna.getNfe();
+									peso_nf_interna = Double.parseDouble(nota_fiscal_interna.getQuantidade());
 
-					}else {
-						cell = row.createCell(cellnum++);
-						cell.setCellStyle(textStyle);
-						cell.setCellValue("Não Aplicável");
-					}
-					
-					if(carregamento.getNf_venda1_aplicavel() == 1 && carregamento.getNf_complemento_aplicavel() == 1) {
-					cell = row.createCell(cellnum++);
-					cell.setCellStyle(numberStyle);
-					cell.setCellValue(peso_romaneio - (peso_nf_venda1 + peso_nf_complemento));
-					}else if(carregamento.getNf_venda1_aplicavel() == 1 && carregamento.getNf_complemento_aplicavel() == 0) {
-						cell = row.createCell(cellnum++);
-						cell.setCellStyle(numberStyle);
-						cell.setCellValue(peso_romaneio - (peso_nf_venda1));
-					}else if(carregamento.getNf_venda1_aplicavel() == 0 && carregamento.getNf_complemento_aplicavel() == 1) {
-						cell = row.createCell(cellnum++);
-						cell.setCellStyle(numberStyle);
-						cell.setCellValue(peso_romaneio - (peso_nf_complemento));
-					}else {
-						cell = row.createCell(cellnum++);
-						cell.setCellStyle(textStyle);
-						cell.setCellValue("Não Aplicável");
-					}
-					
-					if(carregamento.getNf_complemento_aplicavel() == 1) {
-					cell = row.createCell(cellnum++);
-					cell.setCellStyle(textStyle);
-					cell.setCellValue(codigo_nf_complemento);
-					}else {
-						cell = row.createCell(cellnum++);
-						cell.setCellStyle(textStyle);
-						cell.setCellValue("Não Aplicável");
-					}
-					
-					if(carregamento.getNf_complemento_aplicavel() == 1) {
-					cell = row.createCell(cellnum++);
-					cell.setCellStyle(numberStyle);
-					cell.setCellValue(peso_nf_complemento);
-					 quantidade_total_kgs_nf_complemento += peso_nf_complemento;
-					}else {
-						cell = row.createCell(cellnum++);
-						cell.setCellStyle(textStyle);
-						cell.setCellValue("Não Aplicável");
-					}
+								} else {
+									codigo_nf_interna = carregamento.getCodigo_nf_interna();
+									peso_nf_interna = carregamento.getPeso_nf_interna();
 
-					 quantidade_total_kgs_carregados += peso_romaneio;
-					 if(carregamento.getNf_venda1_aplicavel() == 1 && carregamento.getNf_complemento_aplicavel() == 1) {
-					 quantidade_total_kgs_diferenca += (peso_romaneio - (peso_nf_venda1 + peso_nf_complemento));
-					 }else if(carregamento.getNf_venda1_aplicavel() == 1 && carregamento.getNf_complemento_aplicavel() == 0) {
-						 quantidade_total_kgs_diferenca += (peso_romaneio - (peso_nf_venda1 ));
+								}
 
-					 }else if(carregamento.getNf_venda1_aplicavel() == 0 && carregamento.getNf_complemento_aplicavel() == 1) {
-						 quantidade_total_kgs_diferenca += (peso_romaneio - (peso_nf_complemento ));
+							}
+						} catch (Exception y) {
+							// JOptionPane.showMessageDialog(isto, "Nota Fiscal de remessa não Localizado");
 
-					 }
-				
-				}//fim de configurar carregamento normal
-					else if(carregamento.getDescricao().equals("-Transferencia")) {
+							codigo_nf_interna = carregamento.getCodigo_nf_interna();
+							peso_nf_interna = carregamento.getPeso_nf_interna();
+
+						}
+
 						row = sheet.createRow(rownum++);
 						cellnum = 0;
 						/*
@@ -2898,24 +3062,179 @@ public class TelaGerenciarContrato extends JFrame {
 						cell.setCellStyle(textStyle);
 						cell.setCellValue(carregamento.getData());
 
+						cell = row.createCell(cellnum++);
+						cell.setCellStyle(textStyle);
+						cell.setCellValue(nome_cliente);
+
+						cell = row.createCell(cellnum++);
+						cell.setCellStyle(textStyle);
+						cell.setCellValue(nome_transportador);
+
+						cell = row.createCell(cellnum++);
+						cell.setCellStyle(textStyle);
+						cell.setCellValue(placa_trator);
+
+						cell = row.createCell(cellnum++);
+						cell.setCellStyle(textStyle);
+						cell.setCellValue(codigo_romaneio);
+
+						cell = row.createCell(cellnum++);
+						cell.setCellStyle(numberStyle);
+						cell.setCellValue(peso_romaneio);
+
+						if (carregamento.getNf_interna_aplicavel() == 1) {
+							cell = row.createCell(cellnum++);
+							cell.setCellStyle(textStyle);
+							cell.setCellValue(codigo_nf_interna);
+						} else {
+							cell = row.createCell(cellnum++);
+							cell.setCellStyle(textStyle);
+							cell.setCellValue("Não Aplicável");
+						}
+
+						if (carregamento.getNf_interna_aplicavel() == 1) {
+							cell = row.createCell(cellnum++);
+							cell.setCellStyle(numberStyle);
+							cell.setCellValue(peso_nf_interna);
+							quantidade_total_kgs_nf_interna += peso_nf_interna;
+						} else {
+							cell = row.createCell(cellnum++);
+							cell.setCellStyle(textStyle);
+							cell.setCellValue("Não Aplicável");
+						}
+
+						if (carregamento.getNf_venda1_aplicavel() == 1) {
+							cell = row.createCell(cellnum++);
+							cell.setCellStyle(textStyle);
+							cell.setCellValue(codigo_nf_venda1);
+						} else {
+							cell = row.createCell(cellnum++);
+							cell.setCellStyle(textStyle);
+							cell.setCellValue("Não Aplicável");
+						}
+
+						if (carregamento.getNf_venda1_aplicavel() == 1) {
+							cell = row.createCell(cellnum++);
+							cell.setCellStyle(numberStyle);
+							cell.setCellValue(peso_nf_venda1);
+							quantidade_total_kgs_nf_venda1 += peso_nf_venda1;
+
+						} else {
+							cell = row.createCell(cellnum++);
+							cell.setCellStyle(textStyle);
+							cell.setCellValue("Não Aplicável");
+						}
+
+						if (carregamento.getNf_venda1_aplicavel() == 1) {
+							cell = row.createCell(cellnum++);
+							cell.setCellStyle(valorStyle);
+							cell.setCellValue(valor_nf_venda1.doubleValue());
+							valor_total_nf_venda1 = valor_total_nf_venda1.add(valor_nf_venda1);
+
+						} else {
+							cell = row.createCell(cellnum++);
+							cell.setCellStyle(textStyle);
+							cell.setCellValue("Não Aplicável");
+						}
+
+						if (carregamento.getNf_venda1_aplicavel() == 1
+								&& carregamento.getNf_complemento_aplicavel() == 1) {
+							cell = row.createCell(cellnum++);
+							cell.setCellStyle(numberStyle);
+							cell.setCellValue(peso_romaneio - (peso_nf_venda1 + peso_nf_complemento));
+						} else if (carregamento.getNf_venda1_aplicavel() == 1
+								&& carregamento.getNf_complemento_aplicavel() == 0) {
+							cell = row.createCell(cellnum++);
+							cell.setCellStyle(numberStyle);
+							cell.setCellValue(peso_romaneio - (peso_nf_venda1));
+						} else if (carregamento.getNf_venda1_aplicavel() == 0
+								&& carregamento.getNf_complemento_aplicavel() == 1) {
+							cell = row.createCell(cellnum++);
+							cell.setCellStyle(numberStyle);
+							cell.setCellValue(peso_romaneio - (peso_nf_complemento));
+						} else {
+							cell = row.createCell(cellnum++);
+							cell.setCellStyle(textStyle);
+							cell.setCellValue("Não Aplicável");
+						}
+
+						if (carregamento.getNf_complemento_aplicavel() == 1) {
+							cell = row.createCell(cellnum++);
+							cell.setCellStyle(textStyle);
+							cell.setCellValue(codigo_nf_complemento);
+						} else {
+							cell = row.createCell(cellnum++);
+							cell.setCellStyle(textStyle);
+							cell.setCellValue("Não Aplicável");
+						}
+
+						if (carregamento.getNf_complemento_aplicavel() == 1) {
+							cell = row.createCell(cellnum++);
+							cell.setCellStyle(numberStyle);
+							cell.setCellValue(peso_nf_complemento);
+							quantidade_total_kgs_nf_complemento += peso_nf_complemento;
+						} else {
+							cell = row.createCell(cellnum++);
+							cell.setCellStyle(textStyle);
+							cell.setCellValue("Não Aplicável");
+						}
+
+						if (carregamento.getNf_complemento_aplicavel() == 1) {
+							cell = row.createCell(cellnum++);
+							cell.setCellStyle(valorStyle);
+							cell.setCellValue(valor_nf_complemento.doubleValue());
+							valor_total_nf_complemento = valor_total_nf_complemento.add(valor_nf_complemento);
+						} else {
+							cell = row.createCell(cellnum++);
+							cell.setCellStyle(textStyle);
+							cell.setCellValue("Não Aplicável");
+						}
+
+						quantidade_total_kgs_carregados += peso_romaneio;
+						if (carregamento.getNf_venda1_aplicavel() == 1
+								&& carregamento.getNf_complemento_aplicavel() == 1) {
+							quantidade_total_kgs_diferenca += (peso_romaneio - (peso_nf_venda1 + peso_nf_complemento));
+						} else if (carregamento.getNf_venda1_aplicavel() == 1
+								&& carregamento.getNf_complemento_aplicavel() == 0) {
+							quantidade_total_kgs_diferenca += (peso_romaneio - (peso_nf_venda1));
+
+						} else if (carregamento.getNf_venda1_aplicavel() == 0
+								&& carregamento.getNf_complemento_aplicavel() == 1) {
+							quantidade_total_kgs_diferenca += (peso_romaneio - (peso_nf_complemento));
+
+						}
+
+					} // fim de configurar carregamento normal
+					else if (carregamento.getDescricao().equals("-Transferencia")) {
+						row = sheet.createRow(rownum++);
+						cellnum = 0;
+						/*
+						 * codigo compradores vendedores status quantidade medida produto transgenia
+						 * safra valor_produto valor_total data_contrato local_retirada
+						 */
+						cell = row.createCell(cellnum++);
+						cell.setCellStyle(textStyle);
+						cell.setCellValue(carregamento.getData());
 
 						String texto_detalhado = "";
-						
+
 						GerenciarBancoTransferenciasCarga gerenciar = new GerenciarBancoTransferenciasCarga();
-							CadastroContrato.CadastroTransferenciaCarga transferencia = gerenciar.getTransferencia(carregamento.getId_carregamento());
-							
-					    GerenciarBancoContratos gerencia_contratos = new GerenciarBancoContratos();
-					    CadastroContrato remetente = gerencia_contratos.getContrato(transferencia.getId_contrato_remetente());
-					    CadastroContrato destinatario = gerencia_contratos.getContrato(transferencia.getId_contrato_destinatario());
-					    CadastroContrato.Carregamento carga = gerencia_contratos.getCarregamento(transferencia.getId_carregamento_remetente());
+						CadastroContrato.CadastroTransferenciaCarga transferencia = gerenciar
+								.getTransferencia(carregamento.getId_carregamento());
 
-						 CadastroCliente compradores_trans[] = destinatario.getCompradores();
-						 CadastroCliente vendedores_trans[] = destinatario.getVendedores();
+						GerenciarBancoContratos gerencia_contratos = new GerenciarBancoContratos();
+						CadastroContrato remetente = gerencia_contratos
+								.getContrato(transferencia.getId_contrato_remetente());
+						CadastroContrato destinatario = gerencia_contratos
+								.getContrato(transferencia.getId_contrato_destinatario());
+						CadastroContrato.Carregamento carga = gerencia_contratos
+								.getCarregamento(transferencia.getId_carregamento_remetente());
 
-						 nome_vendedores = "";
-						 nome_compradores = "";
+						CadastroCliente compradores_trans[] = destinatario.getCompradores();
+						CadastroCliente vendedores_trans[] = destinatario.getVendedores();
 
-						
+						nome_vendedores = "";
+						nome_compradores = "";
 
 						if (compradores_trans[0] != null) {
 							if (compradores_trans[0].getTipo_pessoa() == 0) {
@@ -2928,7 +3247,7 @@ public class TelaGerenciarContrato extends JFrame {
 						}
 
 						if (compradores_trans[1] != null) {
-							if (compradores[1].getTipo_pessoa() == 0) {
+							if (compradores_trans[1].getTipo_pessoa() == 0) {
 								// pessoa fisica
 								nome_compradores = nome_compradores + ", " + compradores_trans[1].getNome_empresarial();
 							} else {
@@ -2950,31 +3269,31 @@ public class TelaGerenciarContrato extends JFrame {
 
 							}
 						}
-						
-					    double quantidade = Double.parseDouble(transferencia.getQuantidade());
-					    
+
+						double quantidade = Double.parseDouble(transferencia.getQuantidade());
+
 						NumberFormat z = NumberFormat.getNumberInstance();
 
-							texto_detalhado = "Transferência Negativa: Transferência do volume de " + z.format(quantidade) + " kgs | " + z.format(quantidade/60) + " sacos deste contrato para o contrato ";
-							texto_detalhado = texto_detalhado +
-									 destinatario.getCodigo() + "\n"
-									+ nome_compradores + " X " + nome_vendedores + " "
-									+ z.format(destinatario.getQuantidade()) + " " + destinatario.getMedida() + " de " + destinatario.getModelo_safra().getProduto().getNome_produto() +
-									" " + destinatario.getModelo_safra().getProduto().getTransgenia() + " da safra " + destinatario.getModelo_safra().getAno_plantio() + "/" + destinatario.getModelo_safra().getAno_colheita() ;
-							texto_detalhado  = texto_detalhado + "";
-							sheet.addMergedRegion(new CellRangeAddress(rownum-1, rownum-1, 1,16));
+						texto_detalhado = "Transferência Negativa: Transferência do volume de " + z.format(quantidade)
+								+ " kgs | " + z.format(quantidade / 60) + " sacos deste contrato para o contrato ";
+						texto_detalhado = texto_detalhado + destinatario.getCodigo() + "\n" + nome_compradores + " X "
+								+ nome_vendedores + " " + z.format(destinatario.getQuantidade()) + " "
+								+ destinatario.getMedida() + " de "
+								+ destinatario.getModelo_safra().getProduto().getNome_produto() + " "
+								+ destinatario.getModelo_safra().getProduto().getTransgenia() + " da safra "
+								+ destinatario.getModelo_safra().getAno_plantio() + "/"
+								+ destinatario.getModelo_safra().getAno_colheita();
+						texto_detalhado = texto_detalhado + "";
+						sheet.addMergedRegion(new CellRangeAddress(rownum - 1, rownum - 1, 1, 16));
 
-						
 						cell = row.createCell(cellnum++);
-						cell.setCellStyle(textStyle);
-						
-						cell.setCellValue(texto_detalhado);
-						
-						 quantidade_total_kgs_carregados -= quantidade;
+						cell.setCellStyle(textStyleAlinhadoEsquerda);
 
-					
-						
-					}else if(carregamento.getDescricao().equals("+Transferencia")) {
+						cell.setCellValue(texto_detalhado);
+
+						quantidade_total_kgs_carregados -= quantidade;
+
+					} else if (carregamento.getDescricao().equals("+Transferencia")) {
 						row = sheet.createRow(rownum++);
 						cellnum = 0;
 						/*
@@ -2985,24 +3304,25 @@ public class TelaGerenciarContrato extends JFrame {
 						cell.setCellStyle(textStyle);
 						cell.setCellValue(carregamento.getData());
 
-
 						String texto_detalhado = "";
-						
+
 						GerenciarBancoTransferenciasCarga gerenciar = new GerenciarBancoTransferenciasCarga();
-							CadastroContrato.CadastroTransferenciaCarga transferencia = gerenciar.getTransferencia(carregamento.getId_carregamento());
-							
-					    GerenciarBancoContratos gerencia_contratos = new GerenciarBancoContratos();
-					    CadastroContrato remetente = gerencia_contratos.getContrato(transferencia.getId_contrato_remetente());
-					    CadastroContrato destinatario = gerencia_contratos.getContrato(transferencia.getId_contrato_destinatario());
-					    CadastroContrato.Carregamento carga = gerencia_contratos.getCarregamento(transferencia.getId_carregamento_remetente());
+						CadastroContrato.CadastroTransferenciaCarga transferencia = gerenciar
+								.getTransferencia(carregamento.getId_carregamento());
 
-						 CadastroCliente compradores_trans[] = destinatario.getCompradores();
-						 CadastroCliente vendedores_trans[] = destinatario.getVendedores();
+						GerenciarBancoContratos gerencia_contratos = new GerenciarBancoContratos();
+						CadastroContrato remetente = gerencia_contratos
+								.getContrato(transferencia.getId_contrato_remetente());
+						CadastroContrato destinatario = gerencia_contratos
+								.getContrato(transferencia.getId_contrato_destinatario());
+						CadastroContrato.Carregamento carga = gerencia_contratos
+								.getCarregamento(transferencia.getId_carregamento_remetente());
 
-						 nome_vendedores = "";
-						 nome_compradores = "";
+						CadastroCliente compradores_trans[] = remetente.getCompradores();
+						CadastroCliente vendedores_trans[] = remetente.getVendedores();
 
-						
+						nome_vendedores = "";
+						nome_compradores = "";
 
 						if (compradores_trans[0] != null) {
 							if (compradores_trans[0].getTipo_pessoa() == 0) {
@@ -3037,222 +3357,485 @@ public class TelaGerenciarContrato extends JFrame {
 
 							}
 						}
-						
-					    double quantidade = Double.parseDouble(transferencia.getQuantidade());
-					    
+
+						double quantidade = Double.parseDouble(transferencia.getQuantidade());
+
 						NumberFormat z = NumberFormat.getNumberInstance();
 
-							texto_detalhado = "Transferência Positiva: Recebimento de volume de " + z.format(quantidade) + " kgs | " + z.format(quantidade/60) + " sacos recebidos do contrato ";
-							texto_detalhado = texto_detalhado +
-									 destinatario.getCodigo() + " "
-									+ nome_compradores + " X " + nome_vendedores + " "
-									+ z.format(destinatario.getQuantidade()) + " " + destinatario.getMedida() + " de " + destinatario.getModelo_safra().getProduto().getNome_produto() +
-									" " + destinatario.getModelo_safra().getProduto().getTransgenia() + " da safra " + destinatario.getModelo_safra().getAno_plantio() + "/" + destinatario.getModelo_safra().getAno_colheita() ;
-							texto_detalhado  = texto_detalhado + "";
-							sheet.addMergedRegion(new CellRangeAddress(rownum-1, rownum-1, 1,16));
+						texto_detalhado = "Transferência Positiva: Recebimento de volume de " + z.format(quantidade)
+								+ " kgs | " + z.format(quantidade / 60) + " sacos recebidos do contrato ";
+						texto_detalhado = texto_detalhado + remetente.getCodigo() + " " + nome_compradores + " X "
+								+ nome_vendedores + " " + z.format(remetente.getQuantidade()) + " "
+								+ remetente.getMedida() + " de "
+								+ remetente.getModelo_safra().getProduto().getNome_produto() + " "
+								+ remetente.getModelo_safra().getProduto().getTransgenia() + " da safra "
+								+ remetente.getModelo_safra().getAno_plantio() + "/"
+								+ remetente.getModelo_safra().getAno_colheita();
+						texto_detalhado = texto_detalhado + "";
+						sheet.addMergedRegion(new CellRangeAddress(rownum - 1, rownum - 1, 1, 16));
 
-						
 						cell = row.createCell(cellnum++);
-						cell.setCellStyle(textStyle);
-						
-						cell.setCellValue(texto_detalhado);
-						 quantidade_total_kgs_carregados += quantidade;
+						cell.setCellStyle(textStyleAlinhadoEsquerda);
 
+						cell.setCellValue(texto_detalhado);
+						quantidade_total_kgs_carregados += quantidade;
 
 					}
-				}//fim do laço for
-				sheet.setAutoFilter(CellRangeAddress.valueOf("A4:M4")); 
-				
-				row = sheet.createRow(rownum+=2);
+				} // fim do laço for
+				sheet.setAutoFilter(CellRangeAddress.valueOf("A4:O4"));
+				NumberFormat z = NumberFormat.getNumberInstance();
+
+				row = sheet.createRow(rownum++);
 				cellnum = 0;
-				
+
 				cell = row.createCell(4);
 				cell.setCellStyle(textStyle);
 				cell.setCellValue("Totais(Kg's):");
-				
+
 				cell = row.createCell(5);
 				cell.setCellStyle(numberStyle);
 				cell.setCellValue(quantidade_total_kgs_carregados);
-				
+
 				cell = row.createCell(7);
 				cell.setCellStyle(numberStyle);
 				cell.setCellValue(quantidade_total_kgs_nf_interna);
-				
+
 				cell = row.createCell(9);
 				cell.setCellStyle(numberStyle);
 				cell.setCellValue(quantidade_total_kgs_nf_venda1);
-				
+
 				cell = row.createCell(10);
+				cell.setCellStyle(valorStyle);
+				cell.setCellValue(valor_total_nf_venda1.doubleValue());
+
+				cell = row.createCell(11);
 				cell.setCellStyle(numberStyle);
 				cell.setCellValue(quantidade_total_kgs_diferenca);
-				
-				cell = row.createCell(12);
+
+				cell = row.createCell(13);
 				cell.setCellStyle(numberStyle);
 				cell.setCellValue(quantidade_total_kgs_nf_complemento);
-				
-				row = sheet.createRow(rownum+=1);
-				
+
+				cell = row.createCell(14);
+				cell.setCellStyle(valorStyle);
+				cell.setCellValue(valor_total_nf_complemento.doubleValue());
+				row = sheet.createRow(rownum++);
+
 				cell = row.createCell(4);
 				cell.setCellStyle(textStyle);
 				cell.setCellValue("Totais(sacos):");
-				
+
 				cell = row.createCell(5);
 				cell.setCellStyle(numberStyle);
 				cell.setCellValue(quantidade_total_kgs_carregados / 60);
-				
+
 				cell = row.createCell(7);
 				cell.setCellStyle(numberStyle);
-				cell.setCellValue(quantidade_total_kgs_nf_interna/60);
-				
+				cell.setCellValue(quantidade_total_kgs_nf_interna / 60);
+
 				cell = row.createCell(9);
 				cell.setCellStyle(numberStyle);
 				cell.setCellValue(quantidade_total_kgs_nf_venda1 / 60);
-				
-				cell = row.createCell(10);
+
+				cell = row.createCell(11);
 				cell.setCellStyle(numberStyle);
 				cell.setCellValue(quantidade_total_kgs_diferenca / 60);
-				
-				cell = row.createCell(12);
+
+				cell = row.createCell(13);
 				cell.setCellStyle(numberStyle);
 				cell.setCellValue(quantidade_total_kgs_nf_complemento / 60);
-				
-				
-				//totais
-				row = sheet.createRow(rownum+=2);
-				cellnum = 0;
-				
+
+				if (quantidade_total_kgs_carregados < quantidade_kg) {
+					// totais
+					row = sheet.createRow(rownum += 1);
+					cellnum = 0;
+
+					cell = row.createCell(0);
+					cell.setCellStyle(textStyle);
+					cell.setCellValue("Peso Carregado");
+
+					cell = row.createCell(1);
+					cell.setCellStyle(numberStyle);
+					cell.setCellValue(z.format(quantidade_total_kgs_carregados) + " Kgs");
+
+					cell = row.createCell(2);
+					cell.setCellStyle(textStyle);
+					cell.setCellValue("Peso NF's Interna:");
+
+					cell = row.createCell(3);
+					cell.setCellStyle(numberStyle);
+					if (nf_interna_ativo) {
+
+						cell.setCellValue(z.format(quantidade_total_kgs_nf_interna) + " Kgs");
+					} else {
+						cell.setCellValue("Não Aplicável");
+
+					}
+
+					cell = row.createCell(4);
+					cell.setCellStyle(textStyle);
+					cell.setCellValue("Peso NF's Venda:");
+
+					cell = row.createCell(5);
+					cell.setCellStyle(numberStyle);
+					if (nf_venda_ativo || nf_complemento_ativo) {
+						cell.setCellValue(z.format(quantidade_total_kgs_nf_venda1 + quantidade_total_kgs_nf_complemento)
+								+ " Kgs");
+
+					} else {
+						cell.setCellValue("Não Aplicável");
+
+					}
+
+					cell = row.createCell(6);
+					cell.setCellStyle(textStyle);
+					cell.setCellValue("Valor NF's Venda:");
+
+					cell = row.createCell(7);
+					cell.setCellStyle(numberStyle);
+
+					BigDecimal soma = valor_total_nf_venda1.add(valor_total_nf_complemento);
+
+					if (nf_venda_ativo || nf_complemento_ativo) {
+						cell.setCellValue(NumberFormat.getCurrencyInstance(ptBr).format(soma.doubleValue()));
+
+					} else {
+						cell.setCellValue("Não Aplicável");
+
+					}
+
+					rownum++;
+					row = sheet.createRow(rownum);
+
+					cell = row.createCell(0);
+					cell.setCellStyle(textStyle);
+					cell.setCellValue("Peso a Carregar");
+
+					cell = row.createCell(1);
+					cell.setCellStyle(numberStyle);
+					cell.setCellValue(z.format(quantidade_kg - quantidade_total_kgs_carregados) + " Kgs");
+
+					cell = row.createCell(2);
+					cell.setCellStyle(textStyle);
+					cell.setCellValue("Peso a Emitir:");
+
+					cell = row.createCell(3);
+					cell.setCellStyle(numberStyle);
+					if (nf_interna_ativo) {
+						cell.setCellValue(
+								z.format(quantidade_total_kgs_carregados - quantidade_total_kgs_nf_interna) + " Kgs");
+					} else {
+						cell.setCellValue("Não Aplicável");
+
+					}
+
+					cell = row.createCell(4);
+					cell.setCellStyle(textStyle);
+					cell.setCellValue("Peso a Emitir:");
+
+					cell = row.createCell(5);
+					cell.setCellStyle(numberStyle);
+					if (nf_venda_ativo || nf_complemento_ativo) {
+						cell.setCellValue(z
+								.format(quantidade_total_kgs_carregados
+										- (quantidade_total_kgs_nf_venda1 + quantidade_total_kgs_nf_complemento))
+								+ " Kgs");
+
+					} else {
+						cell.setCellValue("Não Aplicável");
+
+					}
+
+					rownum++;
+					row = sheet.createRow(rownum);
+
+					cell = row.createCell(0);
+					cell.setCellStyle(textStyleAlinhadoEsquerdaAviso);
+					cell.setCellValue("*Pesos restantes calculados a partir do peso total já carregado");
+					sheet.addMergedRegion(new CellRangeAddress(rownum, rownum, cellnum, 3));
+
+					// status baseado no peso total ja carregado
+
+					rownum += 2;
+
+					row = sheet.createRow(rownum);
+
+					cell = row.createCell(cellnum);
+					cell.setCellStyle(textStyleAlinhadoEsquerdaNegrito);
+					cell.setCellValue(
+							"Status parcial gerado de forma automatica calculados a partir do peso total já carregado");
+
+					sheet.addMergedRegion(new CellRangeAddress(rownum, rownum, cellnum, 3));
+
+					rownum++;
+					row = sheet.createRow(rownum);
+					cellnum = 0;
+
+					cell = row.createCell(cellnum);
+					cell.setCellStyle(textStyleAlinhadoEsquerdaNegrito);
+
+					String texto = "";
+					double diferenca = quantidade_kg - quantidade_total_kgs_carregados;
+					if (diferenca == 0) {
+						texto = texto + "Carregamento Concluído";
+					} else if (diferenca > 0) {
+						texto = texto + "Carregamento Incompleto, falta carregar " + z.format(diferenca) + " Kgs";
+
+					} else if (diferenca < 0) {
+						texto = texto + "Carregamento Excedido, excedeu " + z.format(diferenca) + " Kgs";
+
+					}
+
+					cell.setCellValue(texto);
+
+					sheet.addMergedRegion(new CellRangeAddress(rownum, rownum, cellnum, 2));
+
+					// status nf remessa
+					rownum += 1;
+					row = sheet.createRow(rownum);
+					cellnum = 0;
+
+					cell = row.createCell(cellnum);
+					cell.setCellStyle(textStyleAlinhadoEsquerdaNegrito);
+
+					String texto_nf_remessa = "";
+					double diferenca_nf_remessa = quantidade_total_kgs_carregados - quantidade_total_kgs_nf_interna;
+					if (diferenca_nf_remessa == 0) {
+						texto_nf_remessa = texto_nf_remessa + "Emissão de NF's Interna Concluído";
+					} else if (diferenca_nf_remessa > 0) {
+						texto_nf_remessa = texto_nf_remessa + "Emissão de NF's Interna Incompleto, falta emitir "
+								+ z.format(diferenca_nf_remessa) + " Kgs";
+
+					} else if (diferenca_nf_remessa < 0) {
+						texto_nf_remessa = texto_nf_remessa + "Emissão de NF's Interna, excedeu "
+								+ z.format(diferenca_nf_remessa) + " Kgs";
+
+					}
+
+					if (nf_interna_ativo)
+						cell.setCellValue(texto_nf_remessa);
+					else
+						cell.setCellValue("Emissão de NF's Interna Não Aplicável");
+
+					sheet.addMergedRegion(new CellRangeAddress(rownum, rownum, cellnum, 3));
+
+					// status de nf de venda
+					rownum += 1;
+					row = sheet.createRow(rownum);
+					cellnum = 0;
+
+					cell = row.createCell(cellnum);
+					cell.setCellStyle(textStyleAlinhadoEsquerdaNegrito);
+
+					String texto_nf_venda = "";
+					double diferenca_nf_venda = quantidade_total_kgs_carregados
+							- (quantidade_total_kgs_nf_venda1 + quantidade_total_kgs_nf_complemento);
+					if (diferenca_nf_venda == 0) {
+						texto_nf_venda = texto_nf_venda + "Emissão de NF's de Venda Concluído";
+					} else if (diferenca_nf_venda > 0) {
+						texto_nf_venda = texto_nf_venda + "Emissão de NF's de Venda Incompleto, falta emitir "
+								+ z.format(diferenca_nf_venda) + " Kgs";
+
+					} else if (diferenca_nf_venda < 0) {
+						texto_nf_venda = texto_nf_venda + "Emissão de NF's Excedido, excedeu "
+								+ z.format(diferenca_nf_venda) + " Kgs";
+
+					}
+					if (nf_venda_ativo || nf_complemento_ativo)
+						cell.setCellValue(texto_nf_venda);
+					else
+						cell.setCellValue("Emissão de NF's de Venda Não Aplicável");
+
+					sheet.addMergedRegion(new CellRangeAddress(rownum, rownum, cellnum, 3));
+
+				}
+
+				// pesos baseados no total
+				rownum += 2;
+				row = sheet.createRow(rownum);
+
 				cell = row.createCell(0);
 				cell.setCellStyle(textStyle);
-				cell.setCellValue("Total Contrato:");
-				
-				cell = row.createCell(1);
-				cell.setCellStyle(numberStyle);
-				cell.setCellValue(quantidade_kg);
-				
-				cell = row.createCell(2);
-				cell.setCellStyle(textStyle);
-				cell.setCellValue("Total Roms:");
-				
-				cell = row.createCell(3);
-				cell.setCellStyle(numberStyle);
-				cell.setCellValue(quantidade_total_kgs_carregados);
-				
-				cell = row.createCell(4);
-				cell.setCellStyle(textStyle);
-				cell.setCellValue("Total Restante:");
-				
-				cell = row.createCell(5);
-				cell.setCellStyle(numberStyle);
-				cell.setCellValue(quantidade_kg - quantidade_total_kgs_carregados);
-				
-				row = sheet.createRow(rownum+=1);
+				cell.setCellValue("Peso Carregado");
 
 				cell = row.createCell(1);
 				cell.setCellStyle(numberStyle);
-				cell.setCellValue(quantidade_sacos);				
-				
+				cell.setCellValue(z.format(quantidade_total_kgs_carregados) + " Kgs");
+
+				cell = row.createCell(2);
+				cell.setCellStyle(textStyle);
+				cell.setCellValue("Peso NF's Interna:");
+
 				cell = row.createCell(3);
 				cell.setCellStyle(numberStyle);
-				cell.setCellValue(quantidade_total_kgs_carregados / 60);
-				
-		
+				if (nf_interna_ativo)
+					cell.setCellValue(z.format(quantidade_total_kgs_nf_interna) + " Kgs");
+				else
+					cell.setCellValue("Não Aplicável");
+
+				cell = row.createCell(4);
+				cell.setCellStyle(textStyle);
+				cell.setCellValue("Peso NF's Venda:");
+
 				cell = row.createCell(5);
 				cell.setCellStyle(numberStyle);
-				cell.setCellValue(quantidade_sacos - (quantidade_total_kgs_carregados / 60));
-				
-				row = sheet.createRow(rownum+=2);
-				cellnum = 0;
-				
+				if (nf_venda_ativo || nf_complemento_ativo)
+					cell.setCellValue(
+							z.format(quantidade_total_kgs_nf_venda1 + quantidade_total_kgs_nf_complemento) + " Kgs");
+				else
+					cell.setCellValue("Não Aplicável");
+
+				cell = row.createCell(6);
+				cell.setCellStyle(textStyle);
+				cell.setCellValue("Valor NF's Venda:");
+
+				cell = row.createCell(7);
+				cell.setCellStyle(numberStyle);
+
+				BigDecimal soma = valor_total_nf_venda1.add(valor_total_nf_complemento);
+
+				if (nf_venda_ativo || nf_complemento_ativo) {
+					cell.setCellValue(NumberFormat.getCurrencyInstance(ptBr).format(soma.doubleValue()));
+
+				} else {
+					cell.setCellValue("Não Aplicável");
+
+				}
+
+				rownum++;
+				row = sheet.createRow(rownum);
+
 				cell = row.createCell(0);
 				cell.setCellStyle(textStyle);
-				cell.setCellValue("Total dos Rom:");
-				
+				cell.setCellValue("Peso a Carregar");
 
 				cell = row.createCell(1);
 				cell.setCellStyle(numberStyle);
-				cell.setCellValue(quantidade_total_kgs_carregados);
-				
+				cell.setCellValue(z.format(quantidade_kg - quantidade_total_kgs_carregados) + " Kgs");
+
 				cell = row.createCell(2);
 				cell.setCellStyle(textStyle);
-				cell.setCellValue("Total NF's:");
-				
+				cell.setCellValue("Peso a Emitir:");
 
 				cell = row.createCell(3);
 				cell.setCellStyle(numberStyle);
-				cell.setCellValue(quantidade_total_kgs_nf_venda1 + quantidade_total_kgs_nf_complemento);
-				
-			
+				if (nf_interna_ativo)
+					cell.setCellValue(z.format(quantidade_kg - quantidade_total_kgs_nf_interna) + " Kgs");
+				else
+					cell.setCellValue("Não Aplicável");
+
 				cell = row.createCell(4);
 				cell.setCellStyle(textStyle);
-				cell.setCellValue("Total NF Restante:");
-				
+				cell.setCellValue("Peso a Emitir:");
 
 				cell = row.createCell(5);
 				cell.setCellStyle(numberStyle);
-				cell.setCellValue(quantidade_total_kgs_carregados - (quantidade_total_kgs_nf_complemento + quantidade_total_kgs_nf_venda1));
-				
-				row = sheet.createRow(rownum+=1);
+				if (nf_venda_ativo || nf_complemento_ativo)
+					cell.setCellValue(z.format(
+							quantidade_kg - (quantidade_total_kgs_nf_venda1 + quantidade_total_kgs_nf_complemento))
+							+ " Kgs");
+				else
+					cell.setCellValue("Não Aplicável");
 
-				cell = row.createCell(1);
-				cell.setCellStyle(numberStyle);
-				cell.setCellValue(quantidade_total_kgs_carregados/60);
-				
-				
-				cell = row.createCell(3);
-				cell.setCellStyle(numberStyle);
-				cell.setCellValue(quantidade_total_kgs_nf_complemento/60 + (quantidade_total_kgs_nf_venda1/60));
-				
-				cell = row.createCell(5);
-				cell.setCellStyle(numberStyle);
-				cell.setCellValue(quantidade_total_kgs_carregados/60 - ((quantidade_total_kgs_nf_complemento/60) + (quantidade_total_kgs_nf_venda1/60)));
-				
-				//totais nf interna
-				row = sheet.createRow(rownum+=2);
-				cellnum = 0;
-				
+				rownum++;
+				row = sheet.createRow(rownum);
 				cell = row.createCell(0);
-				cell.setCellStyle(textStyle);
-				cell.setCellValue("Total dos Rom:");
-				
+				cell.setCellStyle(textStyleAlinhadoEsquerdaAviso);
+				cell.setCellValue("*Pesos restantes calculados a partir do peso total do contrato");
+				sheet.addMergedRegion(new CellRangeAddress(rownum, rownum, cellnum, 3));
 
-				cell = row.createCell(1);
-				cell.setCellStyle(numberStyle);
-				cell.setCellValue(quantidade_total_kgs_carregados);
-				
-				cell = row.createCell(2);
-				cell.setCellStyle(textStyle);
-				cell.setCellValue("Total NF Interna:");
-				
-				cell = row.createCell(3);
-				cell.setCellStyle(numberStyle);
-				cell.setCellValue(quantidade_total_kgs_nf_interna);
-				
-			
-				cell = row.createCell(4);
-				cell.setCellStyle(textStyle);
-				cell.setCellValue("Total NF Restante:");
-				
+				// status baseado no peso total do contrato
+				rownum += 2;
 
-				cell = row.createCell(5);
-				cell.setCellStyle(numberStyle);
-				cell.setCellValue(quantidade_total_kgs_carregados - quantidade_total_kgs_nf_interna);
-				
-				row = sheet.createRow(rownum+=1);
+				row = sheet.createRow(rownum);
 
-				cell = row.createCell(1);
-				cell.setCellStyle(numberStyle);
-				cell.setCellValue(quantidade_total_kgs_carregados/60);
-				
-				
-				cell = row.createCell(3);
-				cell.setCellStyle(numberStyle);
-				cell.setCellValue(quantidade_total_kgs_nf_interna/60);
-				
-				cell = row.createCell(5);
-				cell.setCellStyle(numberStyle);
-				cell.setCellValue(quantidade_total_kgs_carregados/60  - (quantidade_total_kgs_nf_interna/60));
+				cell = row.createCell(cellnum);
+				cell.setCellStyle(textStyleAlinhadoEsquerdaNegrito);
+				cell.setCellValue("Status gerado de forma automatica calculados a partir do peso total do contrato");
 
-			
+				sheet.addMergedRegion(new CellRangeAddress(rownum, rownum, cellnum, 3));
+
+				rownum++;
+				row = sheet.createRow(rownum);
+				cellnum = 0;
+
+				cell = row.createCell(cellnum);
+				cell.setCellStyle(textStyleAlinhadoEsquerdaNegrito);
+
+				String texto = "";
+				double diferenca = quantidade_kg - quantidade_total_kgs_carregados;
+				if (diferenca == 0) {
+					texto = texto + "Carregamento Concluído";
+				} else if (diferenca > 0) {
+					texto = texto + "Carregamento Incompleto, falta receber " + z.format(diferenca) + " Kgs";
+
+				} else if (diferenca < 0) {
+					texto = texto + "Carregamento Excedido, excedeu " + z.format(diferenca) + " Kgs";
+
+				}
+
+				cell.setCellValue(texto);
+
+				sheet.addMergedRegion(new CellRangeAddress(rownum, rownum, cellnum, 2));
+
+				// status nf remessa
+				rownum += 1;
+				row = sheet.createRow(rownum);
+				cellnum = 0;
+
+				cell = row.createCell(cellnum);
+				cell.setCellStyle(textStyleAlinhadoEsquerdaNegrito);
+
+				String texto_nf_remessa = "";
+				double diferenca_nf_remessa = quantidade_kg - quantidade_total_kgs_nf_interna;
+				if (diferenca_nf_remessa == 0) {
+					texto_nf_remessa = texto_nf_remessa + "Emissão de NF's Interna Concluído";
+				} else if (diferenca_nf_remessa > 0) {
+					texto_nf_remessa = texto_nf_remessa + "Emissão de NF's Interna Incompleto, falta emitir "
+							+ z.format(diferenca_nf_remessa) + " Kgs";
+
+				} else if (diferenca_nf_remessa < 0) {
+					texto_nf_remessa = texto_nf_remessa + "Emissão de NF's Interna, excedeu "
+							+ z.format(diferenca_nf_remessa) + " Kgs";
+
+				}
+
+				if (nf_interna_ativo)
+					cell.setCellValue(texto_nf_remessa);
+				else
+					cell.setCellValue("Emissão de NF's Interna Não Aplicável");
+
+				sheet.addMergedRegion(new CellRangeAddress(rownum, rownum, cellnum, 3));
+
+				// status de nf de venda
+				rownum += 1;
+				row = sheet.createRow(rownum);
+				cellnum = 0;
+
+				cell = row.createCell(cellnum);
+				cell.setCellStyle(textStyleAlinhadoEsquerdaNegrito);
+
+				String texto_nf_venda = "";
+				double diferenca_nf_venda = quantidade_kg
+						- (quantidade_total_kgs_nf_venda1 + quantidade_total_kgs_nf_complemento);
+				if (diferenca_nf_venda == 0) {
+					texto_nf_venda = texto_nf_venda + "Emissão de NF's de Venda Concluído";
+				} else if (diferenca_nf_venda > 0) {
+					texto_nf_venda = texto_nf_venda + "Emissão de NF's de Venda Incompleto, falta emitir "
+							+ z.format(diferenca_nf_venda) + " Kgs";
+
+				} else if (diferenca_nf_venda < 0) {
+					texto_nf_venda = texto_nf_venda + "Emissão de NF's Excedido, excedeu "
+							+ z.format(diferenca_nf_venda) + " Kgs";
+
+				}
+				if (nf_venda_ativo || nf_complemento_ativo)
+					cell.setCellValue(texto_nf_venda);
+				else
+					cell.setCellValue("Emissão de NF's de Venda Não Aplicável");
+
+				sheet.addMergedRegion(new CellRangeAddress(rownum, rownum, cellnum, 3));
+
 				try {
 
 					new JFXPanel();
@@ -3266,17 +3849,17 @@ public class TelaGerenciarContrato extends JFrame {
 							d = new FileChooser();
 						}
 						d.setInitialDirectory(new File(ultima_pasta));
-						 d.getExtensionFilters().addAll(
-					              
-					                new FileChooser.ExtensionFilter("Excel", "*.xls")
-					            );
+						d.getExtensionFilters().addAll(
+
+								new FileChooser.ExtensionFilter("Excel", "*.xls"));
 						File file = d.showSaveDialog(new Stage());
 						String caminho_arquivo = "";
 						if (file != null) {
 							caminho_arquivo = file.getAbsolutePath();
 
 							manipular_ultima_pasta.rescreverArquivo(
-									new File("C:\\ProgramData\\E-Contract\\configs\\ultima_pasta.txt"), file.getParent());
+									new File("C:\\ProgramData\\E-Contract\\configs\\ultima_pasta.txt"),
+									file.getParent());
 							// Escrevendo o arquivo em disco
 							FileOutputStream out;
 							try {
@@ -3285,10 +3868,9 @@ public class TelaGerenciarContrato extends JFrame {
 								workbook.close();
 								out.close();
 								// workbook.close();
-								
-								Runtime.getRuntime()
-								.exec("explorer " + file.getAbsolutePath());
-					
+
+								Runtime.getRuntime().exec("explorer " + file.getAbsolutePath());
+
 								System.out.println("Success!!");
 							} catch (FileNotFoundException e1) {
 								// TODO Auto-generated catch block
@@ -3297,122 +3879,75 @@ public class TelaGerenciarContrato extends JFrame {
 								// TODO Auto-generated catch block
 								e1.printStackTrace();
 							}
-					
+
 						}
-					
-						});
-					
+
+					});
+
 				} catch (Exception k) {
 					k.printStackTrace();
 				}
 
 			}
 		});
-		btnExportarCarregamentos.setBounds(637, 512, 123, 23);
-		panel.add(btnExportarCarregamentos);
-		
+
 		JButton btnTransferirCarga = new JButton("Transferir");
+		panel_16.add(btnTransferirCarga, "cell 1 0,alignx center,aligny center");
 		btnTransferirCarga.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				  int rowSel = table_carregamento.getSelectedRow();//pega o indice da linha na tabela
-					CadastroContrato.Carregamento carga_selecionada =  lista_carregamentos.get(rowSel);
-					
-					TelaConfirmarTransferenciaCarga tela = new TelaConfirmarTransferenciaCarga(carga_selecionada, contrato_local, isto);
-			        tela.setTelaPag(isto);
-					tela.setVisible(true);
+				int rowSel = table_carregamento.getSelectedRow();// pega o indice da linha na tabela
+				CadastroContrato.Carregamento carga_selecionada = lista_carregamentos.get(rowSel);
+
+				TelaConfirmarTransferenciaCarga tela = new TelaConfirmarTransferenciaCarga(carga_selecionada,
+						contrato_local, isto);
+				tela.setTelaPag(isto);
+				tela.setVisible(true);
 			}
 		});
-		btnTransferirCarga.setBounds(772, 512, 123, 23);
-		panel.add(btnTransferirCarga);
-		
-		JLabel lblNewLabel_14_1_1_2 = new JLabel("Transferencias:(-)");
-		lblNewLabel_14_1_1_2.setBounds(16, 641, 101, 14);
-		panel.add(lblNewLabel_14_1_1_2);
-		
-		
-		
-		 lblTotalTransferenciasCargaRetiradas = new JLabel("");
-		lblTotalTransferenciasCargaRetiradas.setForeground(Color.BLACK);
-		lblTotalTransferenciasCargaRetiradas.setFont(new Font("Arial", Font.BOLD, 12));
-		lblTotalTransferenciasCargaRetiradas.setBorder(new LineBorder(new Color(0, 0, 0)));
-		lblTotalTransferenciasCargaRetiradas.setBounds(129, 641, 193, 23);
-		panel.add(lblTotalTransferenciasCargaRetiradas);
-		
-		 lblTotalTransferenciasCargaRecebidas = new JLabel("");
-		lblTotalTransferenciasCargaRecebidas.setForeground(Color.BLACK);
-		lblTotalTransferenciasCargaRecebidas.setFont(new Font("Arial", Font.BOLD, 12));
-		lblTotalTransferenciasCargaRecebidas.setBorder(new LineBorder(new Color(0, 0, 0)));
-		lblTotalTransferenciasCargaRecebidas.setBounds(129, 675, 193, 23);
-		panel.add(lblTotalTransferenciasCargaRecebidas);
-		
-		JLabel lblNewLabel_14_1_1_1_1 = new JLabel("Transferencias:(+)");
-		lblNewLabel_14_1_1_1_1.setBounds(17, 675, 101, 14);
-		panel.add(lblNewLabel_14_1_1_1_1);
-		
-		JLabel lblNewLabel_33_1_2 = new JLabel("");
-		lblNewLabel_33_1_2.setOpaque(true);
-		lblNewLabel_33_1_2.setBorder(new LineBorder(new Color(0, 0, 0)));
-		lblNewLabel_33_1_2.setBackground(new Color(204, 153, 0));
-		lblNewLabel_33_1_2.setBounds(17, 529, 30, 16);
-		panel.add(lblNewLabel_33_1_2);
-		
-		JLabel lblNewLabel_34_1_2 = new JLabel("Transferido");
-		lblNewLabel_34_1_2.setFont(new Font("SansSerif", Font.BOLD, 12));
-		lblNewLabel_34_1_2.setBorder(new MatteBorder(0, 0, 1, 0, (Color) new Color(0, 0, 0)));
-		lblNewLabel_34_1_2.setBounds(52, 529, 66, 17);
-		panel.add(lblNewLabel_34_1_2);
-		
-		JLabel lblNewLabel_33_1_3 = new JLabel("");
-		lblNewLabel_33_1_3.setOpaque(true);
-		lblNewLabel_33_1_3.setBorder(new LineBorder(new Color(0, 0, 0)));
-		lblNewLabel_33_1_3.setBackground(Color.ORANGE);
-		lblNewLabel_33_1_3.setBounds(17, 501, 30, 16);
-		panel.add(lblNewLabel_33_1_3);
-		
-		JLabel lblNewLabel_34_1_3 = new JLabel("Falta NF Venda");
-		lblNewLabel_34_1_3.setFont(new Font("SansSerif", Font.BOLD, 12));
-		lblNewLabel_34_1_3.setBorder(new MatteBorder(0, 0, 1, 0, (Color) new Color(0, 0, 0)));
-		lblNewLabel_34_1_3.setBounds(52, 501, 126, 16);
-		panel.add(lblNewLabel_34_1_3);
-		
-		JLabel lblNewLabel_33_1_4 = new JLabel("");
-		lblNewLabel_33_1_4.setOpaque(true);
-		lblNewLabel_33_1_4.setBorder(new LineBorder(new Color(0, 0, 0)));
-		lblNewLabel_33_1_4.setBackground(new Color(204, 204, 102));
-		lblNewLabel_33_1_4.setBounds(372, 501, 30, 16);
-		panel.add(lblNewLabel_33_1_4);
-		
-		JLabel lblNewLabel_34_1_4 = new JLabel("Falta NF Interna");
-		lblNewLabel_34_1_4.setFont(new Font("SansSerif", Font.BOLD, 12));
-		lblNewLabel_34_1_4.setBorder(new MatteBorder(0, 0, 1, 0, (Color) new Color(0, 0, 0)));
-		lblNewLabel_34_1_4.setBounds(407, 501, 126, 16);
-		panel.add(lblNewLabel_34_1_4);
-		btnNewButton_1.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent arg0) {
-			
-					try {
-						
-						
-						int indiceDaLinha = table_carregamento.getSelectedRow();
-						String descricao = table_carregamento.getValueAt(indiceDaLinha, 1).toString();
-						int id_carregamento_selecionado = Integer
-								.parseInt(table_carregamento.getValueAt(indiceDaLinha, 0).toString());
-						GerenciarBancoContratos gerenciar = new GerenciarBancoContratos();
+		botoes.add(btnTransferirCarga);
 
-					
-					if(!descricao.equalsIgnoreCase("+Transferencia") && !descricao.equalsIgnoreCase("-Transferencia")) {
+		JButton btnEditarCarregamento = new JButton("Editar");
+		panel_16.add(btnEditarCarregamento, "cell 2 0,alignx center,aligny center");
+		btnEditarCarregamento.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				int rowSel = table_carregamento.getSelectedRow();// pega o indice da linha na tabela
+
+				TelaConfirmarCarregamento tela = new TelaConfirmarCarregamento(1, contrato_local,
+						lista_carregamentos.get(rowSel), isto);
+				tela.setTelaPai(isto);
+				tela.setVisible(true);
+			}
+		});
+		botoes.add(btnEditarCarregamento);
+
+		JButton btnExcluirCarregamento = new JButton("Excluir");
+		panel_16.add(btnExcluirCarregamento, "cell 3 0,alignx center,aligny center");
+		botoes.add(btnExcluirCarregamento);
+		btnExcluirCarregamento.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+
+				try {
+
+					int indiceDaLinha = table_carregamento.getSelectedRow();
+					String descricao = table_carregamento.getValueAt(indiceDaLinha, 1).toString();
+					int id_carregamento_selecionado = Integer
+							.parseInt(table_carregamento.getValueAt(indiceDaLinha, 0).toString());
+					GerenciarBancoContratos gerenciar = new GerenciarBancoContratos();
+
+					if (!descricao.equalsIgnoreCase("+Transferencia")
+							&& !descricao.equalsIgnoreCase("-Transferencia")) {
 						if (JOptionPane.showConfirmDialog(isto, "Excluir", "Deseja excluir o carregamento?",
 								JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE) == JOptionPane.YES_OPTION) {
-						if (gerenciar.removerCarregamento(contrato_local.getId(), id_carregamento_selecionado)) {
-							JOptionPane.showMessageDialog(isto, "Carregamento Excluido!");
-							pesquisar_carregamentos();
+							if (gerenciar.removerCarregamento(contrato_local.getId(), id_carregamento_selecionado)) {
+								JOptionPane.showMessageDialog(isto, "Carregamento Excluido!");
+								pesquisar_carregamentos(true);
 
-						} else {
-							JOptionPane.showMessageDialog(isto,
-									"Erro ao remover o carregamento selecionado\nConsulte o administrador do sistema!");
+							} else {
+								JOptionPane.showMessageDialog(isto,
+										"Erro ao remover o carregamento selecionado\nConsulte o administrador do sistema!");
+							}
 						}
-						}
-					}else if(descricao.equalsIgnoreCase("-Transferencia")){
+					} else if (descricao.equalsIgnoreCase("-Transferencia")) {
 						if (JOptionPane.showConfirmDialog(isto, "Excluir Transferencia?",
 								"Deseja excluir essa transferencia?", JOptionPane.YES_NO_OPTION,
 								JOptionPane.QUESTION_MESSAGE) == JOptionPane.YES_OPTION) {
@@ -3423,7 +3958,7 @@ public class TelaGerenciarContrato extends JFrame {
 
 							if (gerenciar_cargas.removerTransferencia(id_transferencia_selecionada)) {
 								JOptionPane.showMessageDialog(isto, "Transferencia removida!");
-								pesquisar_carregamentos();
+								pesquisar_carregamentos(true);
 
 							} else {
 								JOptionPane.showMessageDialog(isto,
@@ -3432,20 +3967,399 @@ public class TelaGerenciarContrato extends JFrame {
 						} else {
 
 						}
-					}
-					else if(descricao.equalsIgnoreCase("+Transferencia")){
+					} else if (descricao.equalsIgnoreCase("+Transferencia")) {
 						JOptionPane.showMessageDialog(isto, "Remova essa transferência no contrato de origem");
 					}
-						
-					} catch (NumberFormatException n) {
-						JOptionPane.showMessageDialog(isto, "Nenhum carregamento selecionado para excluir");
 
-					}
+				} catch (NumberFormatException n) {
+					JOptionPane.showMessageDialog(isto, "Nenhum carregamento selecionado para excluir");
 
-				
+				}
 
 			}
 		});
+		botoes.add(btnAdicionarCarregamento);
+		panel_16.add(btnAdicionarCarregamento, "cell 4 0,alignx center,aligny center");
+		
+		JPanel panel_17 = new JPanel();
+		panel_17.setBackground(Color.WHITE);
+		panel.add(panel_17, "cell 0 0,grow");
+		panel_17.setLayout(new MigLayout("", "[]", "[][]"));
+				panel_17.add(lblNewLabel_4, "cell 0 0");
+		
+				lblNewLabel_4.setOpaque(true);
+				lblNewLabel_4.setForeground(Color.WHITE);
+				lblNewLabel_4.setFont(new Font("Arial", Font.PLAIN, 18));
+				lblNewLabel_4.setBackground(new Color(0, 51, 0));
+				
+						JLabel lblNewLabel_29 = new JLabel("");
+						panel_17.add(lblNewLabel_29, "cell 0 1");
+						lblNewLabel_29.setIcon(
+								new ImageIcon(TelaGerenciarContrato.class.getResource("/imagens/icone_caminhao_carregado2.png")));
+						
+						JPanel panel_18 = new JPanel();
+						panel_18.setBackground(Color.WHITE);
+						panel.add(panel_18, "cell 6 6 1 3,grow");
+						panel_18.setLayout(new MigLayout("", "[][][]", "[]"));
+						
+						JPanel panel_6_1 = new JPanel();
+						panel_18.add(panel_6_1, "cell 0 0");
+						panel_6_1.setBackground(new Color(102, 153, 102));
+						GridBagLayout gbl_panel_6_1 = new GridBagLayout();
+						gbl_panel_6_1.columnWidths = new int[]{0, 0, 0};
+						gbl_panel_6_1.rowHeights = new int[]{0, 0, 0, 0, 0};
+						gbl_panel_6_1.columnWeights = new double[]{0.0, 0.0, Double.MIN_VALUE};
+						gbl_panel_6_1.rowWeights = new double[]{0.0, 0.0, 0.0, 0.0, Double.MIN_VALUE};
+						panel_6_1.setLayout(gbl_panel_6_1);
+						
+						JLabel lblNewLabel_32_1_1 = new JLabel("Romaneios");
+						lblNewLabel_32_1_1.setForeground(Color.BLACK);
+						lblNewLabel_32_1_1.setFont(new Font("SansSerif", Font.BOLD, 16));
+						GridBagConstraints gbc_lblNewLabel_32_1_1 = new GridBagConstraints();
+						gbc_lblNewLabel_32_1_1.anchor = GridBagConstraints.NORTH;
+						gbc_lblNewLabel_32_1_1.gridwidth = 2;
+						gbc_lblNewLabel_32_1_1.insets = new Insets(0, 0, 5, 0);
+						gbc_lblNewLabel_32_1_1.gridx = 0;
+						gbc_lblNewLabel_32_1_1.gridy = 0;
+						panel_6_1.add(lblNewLabel_32_1_1, gbc_lblNewLabel_32_1_1);
+						
+						JLabel lblNewLabel_32_3 = new JLabel("Num Romaneios:");
+						lblNewLabel_32_3.setForeground(Color.BLACK);
+						lblNewLabel_32_3.setFont(new Font("SansSerif", Font.PLAIN, 16));
+						GridBagConstraints gbc_lblNewLabel_32_3 = new GridBagConstraints();
+						gbc_lblNewLabel_32_3.insets = new Insets(0, 0, 5, 5);
+						gbc_lblNewLabel_32_3.gridx = 0;
+						gbc_lblNewLabel_32_3.gridy = 2;
+						panel_6_1.add(lblNewLabel_32_3, gbc_lblNewLabel_32_3);
+						
+						 lblNumRomaneiosCarregamento = new JLabel("0");
+						 lblNumRomaneiosCarregamento.setForeground(Color.BLACK);
+						 lblNumRomaneiosCarregamento.setFont(new Font("SansSerif", Font.BOLD, 14));
+						 GridBagConstraints gbc_lblNumRomaneiosCarregamento = new GridBagConstraints();
+						 gbc_lblNumRomaneiosCarregamento.insets = new Insets(0, 0, 5, 0);
+						 gbc_lblNumRomaneiosCarregamento.gridx = 1;
+						 gbc_lblNumRomaneiosCarregamento.gridy = 2;
+						 panel_6_1.add(lblNumRomaneiosCarregamento, gbc_lblNumRomaneiosCarregamento);
+						 
+						 JLabel lblNewLabel_32_2_2 = new JLabel("Peso Total:");
+						 lblNewLabel_32_2_2.setForeground(Color.BLACK);
+						 lblNewLabel_32_2_2.setFont(new Font("SansSerif", Font.PLAIN, 16));
+						 GridBagConstraints gbc_lblNewLabel_32_2_2 = new GridBagConstraints();
+						 gbc_lblNewLabel_32_2_2.insets = new Insets(0, 0, 0, 5);
+						 gbc_lblNewLabel_32_2_2.gridx = 0;
+						 gbc_lblNewLabel_32_2_2.gridy = 3;
+						 panel_6_1.add(lblNewLabel_32_2_2, gbc_lblNewLabel_32_2_2);
+						 
+						  lblTotalSacosKGsRomaneiosSaida = new JLabel("0.0");
+						  lblTotalSacosKGsRomaneiosSaida.setForeground(Color.BLACK);
+						  lblTotalSacosKGsRomaneiosSaida.setFont(new Font("SansSerif", Font.BOLD, 14));
+						  GridBagConstraints gbc_lblTotalSacosKGsRomaneiosSaida = new GridBagConstraints();
+						  gbc_lblTotalSacosKGsRomaneiosSaida.gridx = 1;
+						  gbc_lblTotalSacosKGsRomaneiosSaida.gridy = 3;
+						  panel_6_1.add(lblTotalSacosKGsRomaneiosSaida, gbc_lblTotalSacosKGsRomaneiosSaida);
+						  
+						  JPanel panel_12_1 = new JPanel();
+						  panel_18.add(panel_12_1, "cell 1 0");
+						  panel_12_1.setBackground(new Color(204, 153, 153));
+						  GridBagLayout gbl_panel_12_1 = new GridBagLayout();
+						  gbl_panel_12_1.columnWidths = new int[]{0, 0, 0};
+						  gbl_panel_12_1.rowHeights = new int[]{0, 0, 0, 0, 0, 0};
+						  gbl_panel_12_1.columnWeights = new double[]{0.0, 0.0, Double.MIN_VALUE};
+						  gbl_panel_12_1.rowWeights = new double[]{0.0, 0.0, 0.0, 0.0, 0.0, Double.MIN_VALUE};
+						  panel_12_1.setLayout(gbl_panel_12_1);
+						  
+						  JLabel lblNewLabel_41_1 = new JLabel("Notas Fiscais Interna");
+						  lblNewLabel_41_1.setFont(new Font("SansSerif", Font.BOLD, 14));
+						  GridBagConstraints gbc_lblNewLabel_41_1 = new GridBagConstraints();
+						  gbc_lblNewLabel_41_1.gridwidth = 2;
+						  gbc_lblNewLabel_41_1.insets = new Insets(0, 0, 5, 0);
+						  gbc_lblNewLabel_41_1.gridx = 0;
+						  gbc_lblNewLabel_41_1.gridy = 0;
+						  panel_12_1.add(lblNewLabel_41_1, gbc_lblNewLabel_41_1);
+						  
+						  JLabel lblNewLabel_42_2 = new JLabel("Peso Emitido:");
+						  lblNewLabel_42_2.setFont(new Font("SansSerif", Font.PLAIN, 16));
+						  GridBagConstraints gbc_lblNewLabel_42_2 = new GridBagConstraints();
+						  gbc_lblNewLabel_42_2.insets = new Insets(0, 0, 5, 5);
+						  gbc_lblNewLabel_42_2.gridx = 0;
+						  gbc_lblNewLabel_42_2.gridy = 2;
+						  panel_12_1.add(lblNewLabel_42_2, gbc_lblNewLabel_42_2);
+						  
+						   lblPesoTotalNFInternaSaida = new JLabel("0.0");
+						   lblPesoTotalNFInternaSaida.setFont(new Font("SansSerif", Font.BOLD, 14));
+						   GridBagConstraints gbc_lblPesoTotalNFInternaSaida = new GridBagConstraints();
+						   gbc_lblPesoTotalNFInternaSaida.insets = new Insets(0, 0, 5, 0);
+						   gbc_lblPesoTotalNFInternaSaida.gridx = 1;
+						   gbc_lblPesoTotalNFInternaSaida.gridy = 2;
+						   panel_12_1.add(lblPesoTotalNFInternaSaida, gbc_lblPesoTotalNFInternaSaida);
+						   
+						   JLabel lblNewLabel_42_1_2 = new JLabel("Peso a Emitir:");
+						   lblNewLabel_42_1_2.setFont(new Font("SansSerif", Font.PLAIN, 16));
+						   GridBagConstraints gbc_lblNewLabel_42_1_2 = new GridBagConstraints();
+						   gbc_lblNewLabel_42_1_2.insets = new Insets(0, 0, 5, 5);
+						   gbc_lblNewLabel_42_1_2.gridx = 0;
+						   gbc_lblNewLabel_42_1_2.gridy = 3;
+						   panel_12_1.add(lblNewLabel_42_1_2, gbc_lblNewLabel_42_1_2);
+						   
+						    lblPesoRestanteNFInternaSaida = new JLabel("0.0");
+						    lblPesoRestanteNFInternaSaida.setFont(new Font("SansSerif", Font.BOLD, 14));
+						    GridBagConstraints gbc_lblPesoRestanteNFInternaSaida = new GridBagConstraints();
+						    gbc_lblPesoRestanteNFInternaSaida.insets = new Insets(0, 0, 5, 0);
+						    gbc_lblPesoRestanteNFInternaSaida.gridx = 1;
+						    gbc_lblPesoRestanteNFInternaSaida.gridy = 3;
+						    panel_12_1.add(lblPesoRestanteNFInternaSaida, gbc_lblPesoRestanteNFInternaSaida);
+						    
+						    JPanel panel_10_1 = new JPanel();
+						    panel_18.add(panel_10_1, "cell 2 0");
+						    panel_10_1.setBackground(new Color(204, 153, 102));
+						    GridBagLayout gbl_panel_10_1 = new GridBagLayout();
+						    gbl_panel_10_1.columnWidths = new int[]{0, 0, 0};
+						    gbl_panel_10_1.rowHeights = new int[]{0, 0, 0, 0, 0, 0};
+						    gbl_panel_10_1.columnWeights = new double[]{0.0, 0.0, Double.MIN_VALUE};
+						    gbl_panel_10_1.rowWeights = new double[]{0.0, 0.0, 0.0, 0.0, 0.0, Double.MIN_VALUE};
+						    panel_10_1.setLayout(gbl_panel_10_1);
+						    
+						    JLabel lblNewLabel_39_1 = new JLabel("Notas Fiscais Venda");
+						    lblNewLabel_39_1.setFont(new Font("SansSerif", Font.BOLD, 14));
+						    GridBagConstraints gbc_lblNewLabel_39_1 = new GridBagConstraints();
+						    gbc_lblNewLabel_39_1.gridwidth = 2;
+						    gbc_lblNewLabel_39_1.insets = new Insets(0, 0, 5, 0);
+						    gbc_lblNewLabel_39_1.gridx = 0;
+						    gbc_lblNewLabel_39_1.gridy = 0;
+						    panel_10_1.add(lblNewLabel_39_1, gbc_lblNewLabel_39_1);
+						    
+						    JLabel lblNewLabel_32_2_1_2 = new JLabel("Peso Emitido:");
+						    lblNewLabel_32_2_1_2.setForeground(Color.BLACK);
+						    lblNewLabel_32_2_1_2.setFont(new Font("SansSerif", Font.PLAIN, 16));
+						    GridBagConstraints gbc_lblNewLabel_32_2_1_2 = new GridBagConstraints();
+						    gbc_lblNewLabel_32_2_1_2.insets = new Insets(0, 0, 5, 5);
+						    gbc_lblNewLabel_32_2_1_2.gridx = 0;
+						    gbc_lblNewLabel_32_2_1_2.gridy = 2;
+						    panel_10_1.add(lblNewLabel_32_2_1_2, gbc_lblNewLabel_32_2_1_2);
+						    
+						     lblPesoTotalNFVendaSaida = new JLabel("0.0");
+						     lblPesoTotalNFVendaSaida.setForeground(Color.BLACK);
+						     lblPesoTotalNFVendaSaida.setFont(new Font("SansSerif", Font.BOLD, 14));
+						     GridBagConstraints gbc_lblPesoTotalNFVendaSaida = new GridBagConstraints();
+						     gbc_lblPesoTotalNFVendaSaida.insets = new Insets(0, 0, 5, 0);
+						     gbc_lblPesoTotalNFVendaSaida.gridx = 1;
+						     gbc_lblPesoTotalNFVendaSaida.gridy = 2;
+						     panel_10_1.add(lblPesoTotalNFVendaSaida, gbc_lblPesoTotalNFVendaSaida);
+						     
+						     JLabel lblNewLabel_32_2_1_1_1 = new JLabel("Peso a Emitir:");
+						     lblNewLabel_32_2_1_1_1.setForeground(Color.BLACK);
+						     lblNewLabel_32_2_1_1_1.setFont(new Font("SansSerif", Font.PLAIN, 16));
+						     GridBagConstraints gbc_lblNewLabel_32_2_1_1_1 = new GridBagConstraints();
+						     gbc_lblNewLabel_32_2_1_1_1.insets = new Insets(0, 0, 5, 5);
+						     gbc_lblNewLabel_32_2_1_1_1.gridx = 0;
+						     gbc_lblNewLabel_32_2_1_1_1.gridy = 3;
+						     panel_10_1.add(lblNewLabel_32_2_1_1_1, gbc_lblNewLabel_32_2_1_1_1);
+						     
+						      lblPesoRestanteNFVendaSaida = new JLabel("0.0");
+						      lblPesoRestanteNFVendaSaida.setForeground(Color.BLACK);
+						      lblPesoRestanteNFVendaSaida.setFont(new Font("SansSerif", Font.BOLD, 14));
+						      GridBagConstraints gbc_lblPesoRestanteNFVendaSaida = new GridBagConstraints();
+						      gbc_lblPesoRestanteNFVendaSaida.insets = new Insets(0, 0, 5, 0);
+						      gbc_lblPesoRestanteNFVendaSaida.gridx = 1;
+						      gbc_lblPesoRestanteNFVendaSaida.gridy = 3;
+						      panel_10_1.add(lblPesoRestanteNFVendaSaida, gbc_lblPesoRestanteNFVendaSaida);
+						      
+						      JLabel lblNewLabel_38_1 = new JLabel("$ Total:");
+						      lblNewLabel_38_1.setFont(new Font("SansSerif", Font.PLAIN, 16));
+						      GridBagConstraints gbc_lblNewLabel_38_1 = new GridBagConstraints();
+						      gbc_lblNewLabel_38_1.insets = new Insets(0, 0, 0, 5);
+						      gbc_lblNewLabel_38_1.gridx = 0;
+						      gbc_lblNewLabel_38_1.gridy = 4;
+						      panel_10_1.add(lblNewLabel_38_1, gbc_lblNewLabel_38_1);
+						      
+						       lblValorTotalNFVendaSaida = new JLabel("0.0");
+						       lblValorTotalNFVendaSaida.setForeground(Color.BLACK);
+						       lblValorTotalNFVendaSaida.setFont(new Font("SansSerif", Font.BOLD, 14));
+						       GridBagConstraints gbc_lblValorTotalNFVendaSaida = new GridBagConstraints();
+						       gbc_lblValorTotalNFVendaSaida.gridx = 1;
+						       gbc_lblValorTotalNFVendaSaida.gridy = 4;
+						       panel_10_1.add(lblValorTotalNFVendaSaida, gbc_lblValorTotalNFVendaSaida);
+						       
+						       JPanel panel_19 = new JPanel();
+						       panel_19.setBackground(Color.WHITE);
+						       panel.add(panel_19, "cell 2 0 5 3,growx,aligny top");
+						       panel_19.setLayout(new MigLayout("", "[][]", "[]"));
+						       
+						       		JPanel lbl_produto = new JPanel();
+						       		panel_19.add(lbl_produto, "cell 0 0");
+						       		lbl_produto.setForeground(Color.WHITE);
+						       		lbl_produto.setBackground(new Color(0, 102, 102));
+						       		lbl_produto.setLayout(
+						       				new MigLayout("", "[99px][93px][85px][79px][78px][67px]", "[17px][17px][14px][17px][17px][]"));
+						       		
+						       				JLabel lblNewLabel_5 = new JLabel("Data:");
+						       				lblNewLabel_5.setForeground(Color.WHITE);
+						       				lblNewLabel_5.setAlignmentX(Component.RIGHT_ALIGNMENT);
+						       				lblNewLabel_5.setAlignmentY(Component.TOP_ALIGNMENT);
+						       				lblNewLabel_5.setBorder(null);
+						       				lblNewLabel_5.setFont(new Font("Arial", Font.PLAIN, 12));
+						       				lbl_produto.add(lblNewLabel_5, "cell 0 0,alignx right,aligny center");
+						       				
+						       						lblDataContrato = new JLabel("data contrato");
+						       						lblDataContrato.setForeground(Color.WHITE);
+						       						lblDataContrato.setFont(new Font("Arial", Font.BOLD, 14));
+						       						lbl_produto.add(lblDataContrato, "cell 1 0,alignx center,aligny center");
+						       						
+						       								JLabel lblNewLabel_9 = new JLabel("Corretor:");
+						       								lblNewLabel_9.setForeground(Color.WHITE);
+						       								lblNewLabel_9.setFont(new Font("Arial", Font.PLAIN, 12));
+						       								lbl_produto.add(lblNewLabel_9, "cell 0 1,alignx right,growy");
+						       								
+						       										lblCorretor = new JLabel("corretor");
+						       										lblCorretor.setForeground(Color.WHITE);
+						       										lblCorretor.setFont(new Font("Arial", Font.BOLD, 14));
+						       										lbl_produto.add(lblCorretor, "cell 1 1,alignx center,aligny center");
+						       										
+						       												JLabel lblNewLabel_6 = new JLabel("Compradores:");
+						       												lblNewLabel_6.setForeground(Color.WHITE);
+						       												lblNewLabel_6.setFont(new Font("Arial", Font.PLAIN, 12));
+						       												lbl_produto.add(lblNewLabel_6, "cell 0 2,alignx right,growy");
+						       												
+						       														lblCompradores = new JLabel("compradores");
+						       														lblCompradores.setForeground(Color.WHITE);
+						       														lblCompradores.setFont(new Font("Arial", Font.BOLD, 14));
+						       														lbl_produto.add(lblCompradores, "cell 1 2,alignx center,aligny center");
+						       														
+						       																JLabel lblNewLabel_8 = new JLabel("Vendedores:");
+						       																lblNewLabel_8.setForeground(Color.WHITE);
+						       																lblNewLabel_8.setFont(new Font("Arial", Font.PLAIN, 12));
+						       																lbl_produto.add(lblNewLabel_8, "cell 0 3,alignx right,aligny center");
+						       																
+						       																		lblVendedores = new JLabel("vendedores");
+						       																		lblVendedores.setForeground(Color.WHITE);
+						       																		lblVendedores.setFont(new Font("Arial", Font.BOLD, 14));
+						       																		lbl_produto.add(lblVendedores, "cell 1 3,alignx center,aligny center");
+						       																		
+						       																				JLabel lblnewvalorsaco = new JLabel("Valor Unidade:");
+						       																				lblnewvalorsaco.setForeground(Color.WHITE);
+						       																				lblnewvalorsaco.setFont(new Font("Arial", Font.PLAIN, 12));
+						       																				lbl_produto.add(lblnewvalorsaco, "flowy,cell 0 4,alignx right,aligny center");
+						       																				
+						       																						lblValorSaco = new JLabel("valor saco");
+						       																						lblValorSaco.setForeground(Color.WHITE);
+						       																						lblValorSaco.setFont(new Font("Arial", Font.BOLD, 14));
+						       																						lbl_produto.add(lblValorSaco, "cell 1 4,alignx center,aligny center");
+						       																						
+						       																								JLabel lblNewLabel_10 = new JLabel("Quantidade:");
+						       																								lblNewLabel_10.setForeground(Color.WHITE);
+						       																								lblNewLabel_10.setFont(new Font("Arial", Font.PLAIN, 12));
+						       																								lbl_produto.add(lblNewLabel_10, "cell 2 4,alignx right,aligny center");
+						       																								
+						       																										lblQuantidade = new JLabel("quantidade");
+						       																										lblQuantidade.setForeground(Color.WHITE);
+						       																										lblQuantidade.setFont(new Font("Arial", Font.BOLD, 14));
+						       																										lbl_produto.add(lblQuantidade, "cell 3 4,alignx center,aligny center");
+						       																										
+						       																												JLabel lblNewLabel_11 = new JLabel("Valor Total:");
+						       																												lblNewLabel_11.setForeground(Color.WHITE);
+						       																												lblNewLabel_11.setFont(new Font("Arial", Font.PLAIN, 12));
+						       																												lbl_produto.add(lblNewLabel_11, "cell 4 4,alignx right,aligny center");
+						       																												
+						       																														lblValorTotal = new JLabel("valor total do pagamento do contrato longo");
+						       																														lblValorTotal.setForeground(Color.WHITE);
+						       																														lblValorTotal.setFont(new Font("Arial", Font.BOLD, 14));
+						       																														lbl_produto.add(lblValorTotal, "cell 5 4,alignx center,aligny center");
+						       																														
+						       																																JLabel lblProdutonm = new JLabel("Produto:");
+						       																																lblProdutonm.setForeground(Color.WHITE);
+						       																																lblProdutonm.setFont(new Font("Arial", Font.PLAIN, 12));
+						       																																lbl_produto.add(lblProdutonm, "cell 0 5,alignx right");
+						       																																
+						       																																		lblProduto = new JLabel("valor produto");
+						       																																		lblProduto.setForeground(Color.WHITE);
+						       																																		lblProduto.setFont(new Font("Arial", Font.BOLD, 14));
+						       																																		lbl_produto.add(lblProduto, "cell 1 5,alignx center");
+						       																																		
+						       																																				JLabel lblSafran = new JLabel("Safra:");
+						       																																				lblSafran.setForeground(Color.WHITE);
+						       																																				lblSafran.setFont(new Font("Arial", Font.PLAIN, 12));
+						       																																				lbl_produto.add(lblSafran, "cell 2 5,alignx right");
+						       																																				
+						       																																						lblSafra = new JLabel("valor produto");
+						       																																						lblSafra.setForeground(Color.WHITE);
+						       																																						lblSafra.setFont(new Font("Arial", Font.BOLD, 14));
+						       																																						lbl_produto.add(lblSafra, "cell 3 5,alignx center");
+						       																																						
+						       																																						JPanel panel_13_1 = new JPanel();
+						       																																						panel_19.add(panel_13_1, "cell 1 0");
+						       																																						panel_13_1.setBackground(new Color(0, 51, 51));
+						       																																						GridBagLayout gbl_panel_13_1 = new GridBagLayout();
+						       																																						gbl_panel_13_1.columnWidths = new int[]{0, 0, 0, 0, 0};
+						       																																						gbl_panel_13_1.rowHeights = new int[]{0, 0, 0, 0, 0, 0};
+						       																																						gbl_panel_13_1.columnWeights = new double[]{0.0, 0.0, 0.0, 0.0, Double.MIN_VALUE};
+						       																																						gbl_panel_13_1.rowWeights = new double[]{0.0, 0.0, 0.0, 0.0, 0.0, Double.MIN_VALUE};
+						       																																						panel_13_1.setLayout(gbl_panel_13_1);
+						       																																						
+						       																																						JLabel lblNewLabel_43_1 = new JLabel("Status do Carregamento");
+						       																																						lblNewLabel_43_1.setForeground(Color.WHITE);
+						       																																						lblNewLabel_43_1.setFont(new Font("SansSerif", Font.PLAIN, 16));
+						       																																						GridBagConstraints gbc_lblNewLabel_43_1 = new GridBagConstraints();
+						       																																						gbc_lblNewLabel_43_1.insets = new Insets(0, 0, 5, 5);
+						       																																						gbc_lblNewLabel_43_1.gridx = 1;
+						       																																						gbc_lblNewLabel_43_1.gridy = 0;
+						       																																						panel_13_1.add(lblNewLabel_43_1, gbc_lblNewLabel_43_1);
+						       																																						
+						       																																						JLabel lblNewLabel_40_3 = new JLabel("Recebimento:");
+						       																																						lblNewLabel_40_3.setForeground(Color.WHITE);
+						       																																						lblNewLabel_40_3.setFont(new Font("SansSerif", Font.PLAIN, 16));
+						       																																						GridBagConstraints gbc_lblNewLabel_40_3 = new GridBagConstraints();
+						       																																						gbc_lblNewLabel_40_3.insets = new Insets(0, 0, 5, 5);
+						       																																						gbc_lblNewLabel_40_3.gridx = 0;
+						       																																						gbc_lblNewLabel_40_3.gridy = 2;
+						       																																						panel_13_1.add(lblNewLabel_40_3, gbc_lblNewLabel_40_3);
+						       																																						
+						       																																						 lblStatusCarregamentoSaida = new JLabel("Aguardando:");
+						       																																						 lblStatusCarregamentoSaida.setForeground(Color.WHITE);
+						       																																						 lblStatusCarregamentoSaida.setFont(new Font("SansSerif", Font.BOLD, 16));
+						       																																						 GridBagConstraints gbc_lblStatusCarregamentoSaida = new GridBagConstraints();
+						       																																						 gbc_lblStatusCarregamentoSaida.gridwidth = 3;
+						       																																						 gbc_lblStatusCarregamentoSaida.insets = new Insets(0, 0, 5, 0);
+						       																																						 gbc_lblStatusCarregamentoSaida.gridx = 1;
+						       																																						 gbc_lblStatusCarregamentoSaida.gridy = 2;
+						       																																						 panel_13_1.add(lblStatusCarregamentoSaida, gbc_lblStatusCarregamentoSaida);
+						       																																						 
+						       																																						 JLabel lblNewLabel_40_1_1 = new JLabel("NF's Venda:");
+						       																																						 lblNewLabel_40_1_1.setForeground(Color.WHITE);
+						       																																						 lblNewLabel_40_1_1.setFont(new Font("SansSerif", Font.PLAIN, 16));
+						       																																						 GridBagConstraints gbc_lblNewLabel_40_1_1 = new GridBagConstraints();
+						       																																						 gbc_lblNewLabel_40_1_1.insets = new Insets(0, 0, 5, 5);
+						       																																						 gbc_lblNewLabel_40_1_1.gridx = 0;
+						       																																						 gbc_lblNewLabel_40_1_1.gridy = 3;
+						       																																						 panel_13_1.add(lblNewLabel_40_1_1, gbc_lblNewLabel_40_1_1);
+						       																																						 
+						       																																						  lblStatusNFVendaSaida = new JLabel("Aguardando:");
+						       																																						  lblStatusNFVendaSaida.setForeground(Color.WHITE);
+						       																																						  lblStatusNFVendaSaida.setFont(new Font("SansSerif", Font.BOLD, 16));
+						       																																						  GridBagConstraints gbc_lblStatusNFVendaSaida = new GridBagConstraints();
+						       																																						  gbc_lblStatusNFVendaSaida.gridwidth = 3;
+						       																																						  gbc_lblStatusNFVendaSaida.insets = new Insets(0, 0, 5, 0);
+						       																																						  gbc_lblStatusNFVendaSaida.gridx = 1;
+						       																																						  gbc_lblStatusNFVendaSaida.gridy = 3;
+						       																																						  panel_13_1.add(lblStatusNFVendaSaida, gbc_lblStatusNFVendaSaida);
+						       																																						  
+						       																																						  JLabel lblNewLabel_40_2_1 = new JLabel("NF' Interna:");
+						       																																						  lblNewLabel_40_2_1.setForeground(Color.WHITE);
+						       																																						  lblNewLabel_40_2_1.setFont(new Font("SansSerif", Font.PLAIN, 16));
+						       																																						  GridBagConstraints gbc_lblNewLabel_40_2_1 = new GridBagConstraints();
+						       																																						  gbc_lblNewLabel_40_2_1.insets = new Insets(0, 0, 0, 5);
+						       																																						  gbc_lblNewLabel_40_2_1.gridx = 0;
+						       																																						  gbc_lblNewLabel_40_2_1.gridy = 4;
+						       																																						  panel_13_1.add(lblNewLabel_40_2_1, gbc_lblNewLabel_40_2_1);
+						       																																						  
+						       																																						   lblStatusNFRemessaSaida = new JLabel("Aguardando:");
+						       																																						   lblStatusNFRemessaSaida.setForeground(Color.WHITE);
+						       																																						   lblStatusNFRemessaSaida.setFont(new Font("SansSerif", Font.BOLD, 16));
+						       																																						   GridBagConstraints gbc_lblStatusNFRemessaSaida = new GridBagConstraints();
+						       																																						   gbc_lblStatusNFRemessaSaida.insets = new Insets(0, 0, 0, 5);
+						       																																						   gbc_lblStatusNFRemessaSaida.gridwidth = 3;
+						       																																						   gbc_lblStatusNFRemessaSaida.gridx = 1;
+						       																																						   gbc_lblStatusNFRemessaSaida.gridy = 4;
+						       																																						   panel_13_1.add(lblStatusNFRemessaSaida, gbc_lblStatusNFRemessaSaida);
 
 		btnAdicionarCarregamento.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
@@ -3469,9 +4383,11 @@ public class TelaGerenciarContrato extends JFrame {
 		JPanel painelPaiPagamentos = new JPanel();
 		painelPaiPagamentos.setBounds(0, 0, 1355, 882);
 
-		JScrollPane scrollPagamentos = new JScrollPane(painelPaiPagamentos);
+		// JScrollPane scrollPagamentos = new JScrollPane(painelPaiPagamentos);
 
-		painelPagamentos.add(scrollPagamentos);
+		// painelPagamentos.add(scrollPagamentos);
+
+		painelPagamentos.add(painelPaiPagamentos);
 		GridBagLayout gbl_painelPaiPagamentos = new GridBagLayout();
 		gbl_painelPaiPagamentos.columnWidths = new int[] { 1355, 0 };
 		gbl_painelPaiPagamentos.rowHeights = new int[] { 882, 0 };
@@ -3578,7 +4494,7 @@ public class TelaGerenciarContrato extends JFrame {
 
 		table_pagamentos_contratuais = new JTable(modelo_pagamentos_contratuais);
 		table_pagamentos_contratuais.setOpaque(false);
-		
+
 		table_pagamentos_contratuais.setRowHeight(30);
 
 		table_pagamentos_contratuais.addMouseListener(new java.awt.event.MouseAdapter() {
@@ -3606,10 +4522,12 @@ public class TelaGerenciarContrato extends JFrame {
 		JButton btnExcluirPagamento = new JButton("Excluir");
 		btnExcluirPagamento.setBounds(1243, 611, 64, 28);
 		panel_4.add(btnExcluirPagamento);
+		botoes.add(btnExcluirPagamento);
 
 		JButton btnAdicionarPagamento = new JButton("Novo Pagamento");
 		btnAdicionarPagamento.setBounds(1078, 611, 153, 23);
 		panel_4.add(btnAdicionarPagamento);
+		botoes.add(btnAdicionarPagamento);
 
 		painelGraficoPagamentos = new JPanelGraficoPadrao(0, 0, "Pago: ", "a Pagar: ");
 		painelGraficoPagamentos.setBounds(411, 611, 300, 250);
@@ -3645,18 +4563,18 @@ public class TelaGerenciarContrato extends JFrame {
 		lblPagamentosDesteContrato.setBackground(new Color(0, 51, 0));
 		lblPagamentosDesteContrato.setBounds(6, 251, 230, 31);
 		panel_4.add(lblPagamentosDesteContrato);
-		
+
 		JButton btnTransferir = new JButton("Transferir");
 		btnTransferir.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				
-				
+
 				transferirPagamentoContratual();
 			}
 		});
+		botoes.add(btnTransferir);
 		btnTransferir.setBounds(985, 606, 81, 28);
 		panel_4.add(btnTransferir);
-		
+
 		JButton btnExportarPagamentos = new JButton("Exportar");
 		btnExportarPagamentos.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
@@ -3664,7 +4582,7 @@ public class TelaGerenciarContrato extends JFrame {
 				HSSFSheet sheet3 = workbook.createSheet("Pagamentos");
 
 				// Definindo alguns padroes de layout
-				sheet3.setDefaultColumnWidth(15);
+				sheet3.setDefaultColumnWidth(25);
 				sheet3.setDefaultRowHeight((short) 400);
 
 				int rownum = 0;
@@ -3681,175 +4599,174 @@ public class TelaGerenciarContrato extends JFrame {
 				headerStyle.setAlignment(HorizontalAlignment.CENTER);
 				headerStyle.setVerticalAlignment(VerticalAlignment.CENTER);
 
-				//celula para texto alinhado ao centro
+				// celula para texto alinhado ao centro
 				CellStyle textStyle = workbook.createCellStyle();
-			     textStyle.setAlignment(HorizontalAlignment.CENTER);
+				// textStyle.setAlignment(HorizontalAlignment.CENTER);
 				textStyle.setVerticalAlignment(VerticalAlignment.CENTER);
 
-				//celula para numero alinhado ao centro
+				// celula para numero alinhado ao centro
 				CellStyle numberStyle = workbook.createCellStyle();
 				numberStyle.setDataFormat(numberFormat.getFormat("#,##0.00"));
 				numberStyle.setAlignment(HorizontalAlignment.CENTER);
 				numberStyle.setVerticalAlignment(VerticalAlignment.CENTER);
 
-				//estilo para celula do tipo numero alinhado ao centro
+				// estilo para celula do tipo numero alinhado ao centro
 				CellStyle valorStyle = workbook.createCellStyle();
 				valorStyle.setDataFormat(numberFormat.getFormat("R$ #,##0.00"));
 				valorStyle.setAlignment(HorizontalAlignment.CENTER);
 				valorStyle.setVerticalAlignment(VerticalAlignment.CENTER);
-				
-				//estilo para cabecalho fundo laranja
+
+				// estilo para cabecalho fundo laranja
 				CellStyle celula_fundo_laranja = workbook.createCellStyle();
 				celula_fundo_laranja.setFillPattern(FillPatternType.SOLID_FOREGROUND);
 				celula_fundo_laranja.setFillForegroundColor(IndexedColors.ORANGE.getIndex());
 				celula_fundo_laranja.setAlignment(HorizontalAlignment.CENTER);
 				celula_fundo_laranja.setVerticalAlignment(VerticalAlignment.CENTER);
-				
+
 				HSSFFont newFont = workbook.createFont();
-			     newFont.setBold(true);
-			     newFont.setColor(IndexedColors.BLACK.getIndex());
-			     newFont.setFontName("Calibri");
-			     newFont.setItalic(false);
-			     newFont.setFontHeight((short)(11*20));
+				newFont.setBold(true);
+				newFont.setColor(IndexedColors.BLACK.getIndex());
+				newFont.setFontName("Calibri");
+				newFont.setItalic(false);
+				newFont.setFontHeight((short) (11 * 20));
 
 				celula_fundo_laranja.setFont(newFont);
-				
-				//celula_number_amarelo_texto_preto
-				//estilo para cabecalho fundo laranja
+
+				// celula_number_amarelo_texto_preto
+				// estilo para cabecalho fundo laranja
 				CellStyle celula_number_amarelo_texto_preto = workbook.createCellStyle();
 				celula_number_amarelo_texto_preto.setDataFormat(numberFormat.getFormat("#,##0.00"));
 				celula_number_amarelo_texto_preto.setFillPattern(FillPatternType.SOLID_FOREGROUND);
 				celula_number_amarelo_texto_preto.setFillForegroundColor(IndexedColors.YELLOW.getIndex());
 				celula_number_amarelo_texto_preto.setAlignment(HorizontalAlignment.CENTER);
 				celula_number_amarelo_texto_preto.setVerticalAlignment(VerticalAlignment.CENTER);
-				
+
 				HSSFFont newFont_blabk = workbook.createFont();
 				newFont_blabk.setBold(true);
 				newFont_blabk.setColor(IndexedColors.BLACK.getIndex());
 				newFont_blabk.setFontName("Calibri");
 				newFont_blabk.setItalic(false);
-				newFont_blabk.setFontHeight((short)(11*20));
+				newFont_blabk.setFontHeight((short) (11 * 20));
 
 				celula_number_amarelo_texto_preto.setFont(newFont_blabk);
 				numberStyle.setFont(newFont_blabk);
-				
-				//estilo para cabecalho fundo laranja
+
+				// estilo para cabecalho fundo laranja
 				CellStyle celula_fundo_laranja_texto_branco = workbook.createCellStyle();
 				celula_fundo_laranja_texto_branco.setFillPattern(FillPatternType.SOLID_FOREGROUND);
 				celula_fundo_laranja_texto_branco.setFillForegroundColor(IndexedColors.ORANGE.getIndex());
 				celula_fundo_laranja_texto_branco.setAlignment(HorizontalAlignment.CENTER);
 				celula_fundo_laranja_texto_branco.setVerticalAlignment(VerticalAlignment.CENTER);
-				
+
 				HSSFFont newFont_branca = workbook.createFont();
 				newFont_branca.setBold(true);
 				newFont_branca.setColor(IndexedColors.WHITE.getIndex());
 				newFont_branca.setFontName("Calibri");
 				newFont_branca.setItalic(false);
-				newFont_branca.setFontHeight((short)(11*20));
+				newFont_branca.setFontHeight((short) (11 * 20));
 
 				celula_fundo_laranja_texto_branco.setFont(newFont_branca);
-				
-				//estilo para cabecalho fundo verde
+
+				// estilo para cabecalho fundo verde
 				CellStyle celula_fundo_verde_texto_branco = workbook.createCellStyle();
 				celula_fundo_verde_texto_branco.setFillPattern(FillPatternType.SOLID_FOREGROUND);
 				celula_fundo_verde_texto_branco.setFillForegroundColor(IndexedColors.GREEN.getIndex());
 				celula_fundo_verde_texto_branco.setAlignment(HorizontalAlignment.CENTER);
 				celula_fundo_verde_texto_branco.setVerticalAlignment(VerticalAlignment.CENTER);
-				
-		
+
 				celula_fundo_verde_texto_branco.setFont(newFont_branca);
 
 				// Configurando as informacoes
 				row = sheet3.createRow(rownum++);
 
-				CadastroCliente compradores [] = contrato_local.getCompradores();
-				CadastroCliente vendedores [] = contrato_local.getVendedores();
+				CadastroCliente compradores[] = contrato_local.getCompradores();
+				CadastroCliente vendedores[] = contrato_local.getVendedores();
 
 				String nome_compradores;
 				String nome_vendedores;
-				if(compradores[0].getTipo_pessoa() == 0) {
+				if (compradores[0].getTipo_pessoa() == 0) {
 					nome_compradores = compradores[0].getNome_empresarial();
-				}else {
+				} else {
 					nome_compradores = compradores[0].getNome_fantaia();
 				}
-				
-				if(compradores[1] != null) {
-				if(compradores[1].getTipo_pessoa() == 0) {
-					nome_compradores = nome_compradores + ", " + compradores[1].getNome_empresarial();
-				}else {
-					nome_compradores = nome_compradores + ", " +  compradores[1].getNome_fantaia();
+
+				if (compradores[1] != null) {
+					if (compradores[1].getTipo_pessoa() == 0) {
+						nome_compradores = nome_compradores + ", " + compradores[1].getNome_empresarial();
+					} else {
+						nome_compradores = nome_compradores + ", " + compradores[1].getNome_fantaia();
+					}
 				}
-				}
-				
-				
-				if(vendedores[0].getTipo_pessoa() == 0) {
+
+				if (vendedores[0].getTipo_pessoa() == 0) {
 					nome_vendedores = vendedores[0].getNome_empresarial();
-				}else {
+				} else {
 					nome_vendedores = vendedores[0].getNome_fantaia();
 				}
-				
-				if(vendedores[1] != null) {
-				if(vendedores[1].getTipo_pessoa() == 0) {
-					nome_vendedores = nome_vendedores + ", " + vendedores[1].getNome_empresarial();
-				}else {
-					nome_vendedores = nome_vendedores + ", " +  vendedores[1].getNome_fantaia();
+
+				if (vendedores[1] != null) {
+					if (vendedores[1].getTipo_pessoa() == 0) {
+						nome_vendedores = nome_vendedores + ", " + vendedores[1].getNome_empresarial();
+					} else {
+						nome_vendedores = nome_vendedores + ", " + vendedores[1].getNome_fantaia();
+					}
 				}
-				}
-				
-				
+
 				cell = row.createCell(cellnum);
 				cell.setCellStyle(celula_fundo_verde_texto_branco);
-				cell.setCellValue(nome_compradores.toUpperCase() + " X " + nome_vendedores + " CTR " + contrato_local.getCodigo() + " IE.: " + vendedores[0].getIe() );
-				sheet3.addMergedRegion(new CellRangeAddress(0, 0, cellnum,5));
+				cell.setCellValue(nome_compradores.toUpperCase() + " X " + nome_vendedores + " CTR "
+						+ contrato_local.getCodigo() + " IE.: " + vendedores[0].getIe());
+				sheet3.addMergedRegion(new CellRangeAddress(0, 0, cellnum, 5));
 
-				//linha quantidade, safra, sacos, etc
+				// linha quantidade, safra, sacos, etc
 				row = sheet3.createRow(rownum++);
 				cellnum = 0;
-				
+
 				cell = row.createCell(cellnum++);
 				cell.setCellStyle(celula_fundo_verde_texto_branco);
-				
+
 				double quantidade_kg = 0;
 				double quantidade_sacos = 0;
-				
-				if(contrato.getMedida().equalsIgnoreCase("KG")) {
+
+				if (contrato.getMedida().equalsIgnoreCase("KG")) {
 					quantidade_kg = contrato.getQuantidade();
 					quantidade_sacos = quantidade_kg / 60;
-				}else if(contrato.getMedida().equalsIgnoreCase("Sacos")){
+				} else if (contrato.getMedida().equalsIgnoreCase("Sacos")) {
 					quantidade_sacos = contrato.getQuantidade();
 					quantidade_kg = quantidade_sacos * 60;
 				}
 				Locale ptBr = new Locale("pt", "BR");
 
-				cell.setCellValue("Quantidade: " + quantidade_kg + " KGS | " + quantidade_sacos + " Sacos no valor de " +
-						 NumberFormat.getCurrencyInstance(ptBr)
-				.format(contrato.getValor_produto())+ " por " + contrato.getMedida() + " no valor total de: "
-					+  NumberFormat.getCurrencyInstance(ptBr)
-					.format(contrato.getValor_a_pagar() )
-						);
-				sheet3.addMergedRegion(new CellRangeAddress(rownum-1, rownum-1, cellnum-1,5));
+				cell.setCellValue("Quantidade: " + quantidade_kg + " KGS | " + quantidade_sacos + " Sacos no valor de "
+						+ NumberFormat.getCurrencyInstance(ptBr).format(contrato.getValor_produto()) + " por "
+						+ contrato.getMedida() + " no valor total de: "
+						+ NumberFormat.getCurrencyInstance(ptBr).format(contrato.getValor_a_pagar()));
+				sheet3.addMergedRegion(new CellRangeAddress(rownum - 1, rownum - 1, cellnum - 1, 5));
 
 				row = sheet3.createRow(rownum++);
 				cellnum = 0;
-				
+
 				cell = row.createCell(cellnum++);
 				cell.setCellStyle(celula_fundo_verde_texto_branco);
-				cell.setCellValue(contrato.getModelo_safra().getProduto().getNome_produto() + " " + contrato.getModelo_safra().getProduto().getTransgenia() + " " + contrato.getModelo_safra().getAno_plantio() + "/" + contrato.getModelo_safra().getAno_colheita());
-				sheet3.addMergedRegion(new CellRangeAddress(rownum-1, rownum-1, cellnum-1,5));
+				cell.setCellValue(contrato.getModelo_safra().getProduto().getNome_produto() + " "
+						+ contrato.getModelo_safra().getProduto().getTransgenia() + " "
+						+ contrato.getModelo_safra().getAno_plantio() + "/"
+						+ contrato.getModelo_safra().getAno_colheita());
+				sheet3.addMergedRegion(new CellRangeAddress(rownum - 1, rownum - 1, cellnum - 1, 5));
 
-/*
- * modelo_pagamentos_contratuais.addColumn("Id Pagamento");
-		modelo_pagamentos_contratuais.addColumn("Descrição");
-
-		modelo_pagamentos_contratuais.addColumn("Data");
-
-		modelo_pagamentos_contratuais.addColumn("Valor");
-		modelo_pagamentos_contratuais.addColumn("Depositante");
-		modelo_pagamentos_contratuais.addColumn("Conta Depositante");
-		modelo_pagamentos_contratuais.addColumn("Favorecido");
-		modelo_pagamentos_contratuais.addColumn("Conta Favorecido");
-				
- */
+				/*
+				 * modelo_pagamentos_contratuais.addColumn("Id Pagamento");
+				 * modelo_pagamentos_contratuais.addColumn("Descrição");
+				 * 
+				 * modelo_pagamentos_contratuais.addColumn("Data");
+				 * 
+				 * modelo_pagamentos_contratuais.addColumn("Valor");
+				 * modelo_pagamentos_contratuais.addColumn("Depositante");
+				 * modelo_pagamentos_contratuais.addColumn("Conta Depositante");
+				 * modelo_pagamentos_contratuais.addColumn("Favorecido");
+				 * modelo_pagamentos_contratuais.addColumn("Conta Favorecido");
+				 * 
+				 */
 				// Configurando Header
 				row = sheet3.createRow(rownum++);
 				cellnum = 0;
@@ -3871,44 +4788,55 @@ public class TelaGerenciarContrato extends JFrame {
 
 				cell = row.createCell(cellnum++);
 				cell.setCellStyle(celula_fundo_verde_texto_branco);
-				cell.setCellValue("VAFORECIDO".toUpperCase());
-
-		
+				cell.setCellValue("FAVORECIDO".toUpperCase());
 
 				ArrayList<CadastroContrato.CadastroPagamentoContratual> pagamentos_selecionados = new ArrayList<>();
 				ArrayList<CadastroContrato.CadastroTransferenciaPagamentoContratual> transferencias_positivas_selecionadas = new ArrayList<>();
 				ArrayList<CadastroContrato.CadastroTransferenciaPagamentoContratual> transferencias_negativas_selecionadas = new ArrayList<>();
 
-				int linhas_selecionadas[] = table_pagamentos_contratuais.getSelectedRows();// pega o indice da linha na tabela
+				int linhas_selecionadas[] = table_pagamentos_contratuais.getSelectedRows();// pega o indice da linha na
+																							// tabela
 
 				for (int i = 0; i < linhas_selecionadas.length; i++) {
-					
+
 					int indice = linhas_selecionadas[i];
 
-
 					String descricao = table_pagamentos_contratuais.getValueAt(indice, 1).toString();
-					
+
 					if (!descricao.equalsIgnoreCase("+Transferencia")
 							&& !descricao.equalsIgnoreCase("-Transferencia")) {
+
 						CadastroPagamentoContratual pag_selecionado = lista_pagamentos_contratuais.get(indice);
 						pagamentos_selecionados.add(pag_selecionado);
-						
-						
-					}else if(descricao.equalsIgnoreCase("+Transferencia")
+
+					} else if (descricao.equalsIgnoreCase("+Transferencia")
 							&& !descricao.equalsIgnoreCase("-Transferencia")) {
-						
-						CadastroContrato.CadastroTransferenciaPagamentoContratual trans_positiva_selecionada = lista_transferencias_contratuais_destinatario.get(indice);
+						String s_id = table_pagamentos_contratuais.getValueAt(indice, 0).toString();
+						int id = Integer.parseInt(s_id);
+						CadastroContrato.CadastroTransferenciaPagamentoContratual trans_positiva_selecionada = null;
+						for (CadastroContrato.CadastroTransferenciaPagamentoContratual cad : lista_transferencias_contratuais_destinatario) {
+							if (cad.getId_transferencia() == id) {
+								trans_positiva_selecionada = cad;
+							}
+						}
+
 						transferencias_positivas_selecionadas.add(trans_positiva_selecionada);
-						
-						
-					}else if(!descricao.equalsIgnoreCase("+Transferencia")
+
+					} else if (!descricao.equalsIgnoreCase("+Transferencia")
 							&& descricao.equalsIgnoreCase("-Transferencia")) {
-						CadastroContrato.CadastroTransferenciaPagamentoContratual trans_negativa_selecionada = lista_transferencias_contratuais_remetente.get(indice);
+						String s_id = table_pagamentos_contratuais.getValueAt(indice, 0).toString();
+						int id = Integer.parseInt(s_id);
+						CadastroContrato.CadastroTransferenciaPagamentoContratual trans_negativa_selecionada = null;
+						for (CadastroContrato.CadastroTransferenciaPagamentoContratual cad : lista_transferencias_contratuais_remetente) {
+							if (cad.getId_transferencia() == id) {
+								trans_negativa_selecionada = cad;
+							}
+						}
+
 						transferencias_negativas_selecionadas.add(trans_negativa_selecionada);
-						
+
 					}
-					
-					
+
 				}
 
 				double soma_total_pagamentos = 0.0;
@@ -3925,10 +4853,7 @@ public class TelaGerenciarContrato extends JFrame {
 					}
 				}
 
-				
 				for (CadastroContrato.CadastroPagamentoContratual pagamento : pagamentos_selecionados) {
-					
-					
 
 					// pegar depositante
 					GerenciarBancoClientes gerenciar_clientes = new GerenciarBancoClientes();
@@ -3940,31 +4865,31 @@ public class TelaGerenciarContrato extends JFrame {
 					} else {
 						nome_depositante = depositante.getNome_fantaia();
 					}
-					
+
 					String nome_depositante_completo = nome_depositante;
 
-		         	String nome_depositante_quebrado[] = nome_depositante.split(" ");
+					String nome_depositante_quebrado[] = nome_depositante.split(" ");
 					try {
-				
-					
-					if(nome_depositante_quebrado.length > 2) {
-					    if(nome_depositante_quebrado[2].length() > 1) {
-					    	nome_depositante = nome_depositante_quebrado[0] + " " + nome_depositante_quebrado[2];
-					    }else {
-					    	if(nome_depositante_quebrado[3].length() > 1) {
-					    		nome_depositante = nome_depositante_quebrado[0] + " "+ nome_depositante_quebrado[3];
 
-					    	}else {
-					    		nome_depositante = nome_depositante_quebrado[0] + " "+ nome_depositante_quebrado[1];
+						if (nome_depositante_quebrado.length > 2) {
+							if (nome_depositante_quebrado[2].length() > 1) {
+								nome_depositante = nome_depositante_quebrado[0] + " " + nome_depositante_quebrado[2];
+							} else {
+								if (nome_depositante_quebrado[3].length() > 1) {
+									nome_depositante = nome_depositante_quebrado[0] + " "
+											+ nome_depositante_quebrado[3];
 
-					    	}
-					    }
-					}
-					
-					}catch(Exception v) {
+								} else {
+									nome_depositante = nome_depositante_quebrado[0] + " "
+											+ nome_depositante_quebrado[1];
+
+								}
+							}
+						}
+
+					} catch (Exception v) {
 						nome_depositante = nome_depositante_completo;
 					}
-					
 
 					// pegar favorecido
 					CadastroCliente favorecido = gerenciar_clientes.getCliente(pagamento.getId_favorecido());
@@ -3976,32 +4901,29 @@ public class TelaGerenciarContrato extends JFrame {
 						nome_favorecido = favorecido.getNome_fantaia();
 					}
 
-
 					String nome_favorecido_completo = nome_favorecido;
 
-		         	String nome_favorecido_quebrado[] = nome_favorecido.split(" ");
+					String nome_favorecido_quebrado[] = nome_favorecido.split(" ");
 					try {
-				
-					
-					if(nome_favorecido_quebrado.length > 2) {
-					    if(nome_favorecido_quebrado[2].length() > 1) {
-					    	nome_favorecido = nome_favorecido_quebrado[0] + " " + nome_favorecido_quebrado[2];
-					    }else {
-					    	if(nome_favorecido_quebrado[3].length() > 1) {
-					    		nome_favorecido = nome_favorecido_quebrado[0] + " "+ nome_favorecido_quebrado[3];
 
-					    	}else {
-					    		nome_favorecido = nome_favorecido_quebrado[0] + " "+ nome_favorecido_quebrado[1];
+						if (nome_favorecido_quebrado.length > 2) {
+							if (nome_favorecido_quebrado[2].length() > 1) {
+								nome_favorecido = nome_favorecido_quebrado[0] + " " + nome_favorecido_quebrado[2];
+							} else {
+								if (nome_favorecido_quebrado[3].length() > 1) {
+									nome_favorecido = nome_favorecido_quebrado[0] + " " + nome_favorecido_quebrado[3];
 
-					    	}
-					    }
-					}
-					
-					}catch(Exception v) {
+								} else {
+									nome_favorecido = nome_favorecido_quebrado[0] + " " + nome_favorecido_quebrado[1];
+
+								}
+							}
+						}
+
+					} catch (Exception v) {
 						nome_favorecido = nome_favorecido_completo;
 					}
-					
-					
+
 					row = sheet3.createRow(rownum++);
 					cellnum = 0;
 					/*
@@ -4012,17 +4934,16 @@ public class TelaGerenciarContrato extends JFrame {
 					cell.setCellStyle(textStyle);
 					cell.setCellValue(pagamento.getData_pagamento());
 
-					
 					cell = row.createCell(cellnum++);
 					cell.setCellStyle(textStyle);
 					int tipo = pagamento.getTipo();
 					String s_tipo = "";
-					if(tipo == 1) {
+					if (tipo == 1) {
 						s_tipo = "NORMAL";
-					}else if(tipo == 2) {
+					} else if (tipo == 2) {
 						s_tipo = "COMISSÃO";
 					}
-					
+
 					cell.setCellValue(s_tipo);
 
 					cell = row.createCell(cellnum++);
@@ -4031,33 +4952,186 @@ public class TelaGerenciarContrato extends JFrame {
 
 					cell = row.createCell(cellnum++);
 					cell.setCellStyle(textStyle);
-					cell.setCellValue(nome_depositante);
+					cell.setCellValue(nome_depositante.toUpperCase());
 
 					cell = row.createCell(cellnum++);
 					cell.setCellStyle(textStyle);
-					cell.setCellValue(nome_favorecido);
+					cell.setCellValue(nome_favorecido.toUpperCase());
 
 					soma_total_pagamentos += pagamento.getValor_pagamento();
 
 				}
-				sheet3.setAutoFilter(CellRangeAddress.valueOf("A4:E4")); 
-				
-				row = sheet3.createRow(rownum+=2);
+
+				for (CadastroContrato.CadastroTransferenciaPagamentoContratual local : transferencias_negativas_selecionadas) {
+					cellnum = 0;
+
+					row = sheet3.createRow(rownum++);
+					cell = row.createCell(cellnum++);
+					cell.setCellStyle(textStyle);
+					cell.setCellValue(local.getData());
+
+					cell = row.createCell(cellnum++);
+					cell.setCellStyle(textStyle);
+
+					cell.setCellValue("(*)(-)TRANSFERENCIA");
+
+					String valorString = NumberFormat.getCurrencyInstance(ptBr)
+							.format(Double.parseDouble(local.getValor()));
+
+					cell = row.createCell(cellnum++);
+					cell.setCellStyle(valorStyle);
+					cell.setCellValue(valorString);
+
+					cell = row.createCell(cellnum++);
+					cell.setCellStyle(textStyle);
+					cell.setCellValue(contrato_local.getCodigo());
+
+					CadastroContrato favorecido = new GerenciarBancoContratos()
+							.getContrato(local.getId_contrato_destinatario());
+
+					cell = row.createCell(cellnum++);
+					cell.setCellStyle(textStyle);
+					cell.setCellValue(favorecido.getCodigo());
+					soma_total_pagamentos -= Double.parseDouble(local.getValor());
+
+				}
+
+				for (CadastroContrato.CadastroTransferenciaPagamentoContratual local : transferencias_positivas_selecionadas) {
+
+					cellnum = 0;
+
+					row = sheet3.createRow(rownum++);
+					cell = row.createCell(cellnum++);
+					cell.setCellStyle(textStyle);
+					cell.setCellValue(local.getData());
+
+					cell = row.createCell(cellnum++);
+					cell.setCellStyle(textStyle);
+					cell.setCellValue("(*)(+)TRANSFERENCIA");
+
+					String valorString = NumberFormat.getCurrencyInstance(ptBr)
+							.format(Double.parseDouble(local.getValor()));
+
+					cell = row.createCell(cellnum++);
+					cell.setCellStyle(valorStyle);
+					cell.setCellValue(valorString);
+
+					CadastroContrato depositante = new GerenciarBancoContratos()
+							.getContrato(local.getId_contrato_remetente());
+
+					cell = row.createCell(cellnum++);
+					cell.setCellStyle(textStyle);
+					cell.setCellValue(depositante.getCodigo());
+
+					cell = row.createCell(cellnum++);
+					cell.setCellStyle(textStyle);
+					cell.setCellValue(contrato_local.getCodigo());
+
+					soma_total_pagamentos += Double.parseDouble(local.getValor());
+
+				}
+
+				sheet3.setAutoFilter(CellRangeAddress.valueOf("A4:E4"));
+
+				row = sheet3.createRow(rownum += 1);
 				cellnum = 0;
-				
+
 				cell = row.createCell(1);
 				cell.setCellStyle(textStyle);
-				cell.setCellValue("Total:");
-			
+				cell.setCellValue("TOTAL:");
+
+				CellStyle negrito = workbook.createCellStyle();
+				// textStyle.setAlignment(HorizontalAlignment.CENTER);
+				negrito.setFillPattern(FillPatternType.SOLID_FOREGROUND);
+				negrito.setFillForegroundColor(IndexedColors.WHITE.getIndex());
+				negrito.setAlignment(HorizontalAlignment.CENTER);
+				negrito.setVerticalAlignment(VerticalAlignment.CENTER);
+				negrito.setDataFormat(numberFormat.getFormat("R$ #,##0.00"));
+
+				HSSFFont newFontNegrita = workbook.createFont();
+				newFontNegrita.setBold(true);
+				newFontNegrita.setColor(IndexedColors.BLACK.getIndex());
+				newFontNegrita.setFontName("Arial");
+				newFontNegrita.setItalic(true);
+				newFontNegrita.setFontHeight((short) (11 * 20));
+
+				negrito.setFont(newFontNegrita);
+
 				cell = row.createCell(2);
-				cell.setCellStyle(valorStyle);
+				cell.setCellStyle(negrito);
 				cell.setCellValue(soma_total_pagamentos);
-				
-				rownum+=2;
+
+				// celula fundo branco em vermelho
+				CellStyle aviso = workbook.createCellStyle();
+				aviso.setFillPattern(FillPatternType.SOLID_FOREGROUND);
+				aviso.setFillForegroundColor(IndexedColors.WHITE.getIndex());
+				aviso.setAlignment(HorizontalAlignment.LEFT);
+				aviso.setVerticalAlignment(VerticalAlignment.CENTER);
+
+				HSSFFont newFontVermelha = workbook.createFont();
+				newFontVermelha.setBold(false);
+				newFontVermelha.setColor(IndexedColors.RED.getIndex());
+				newFontVermelha.setFontName("Arial");
+				newFontVermelha.setItalic(true);
+				newFontVermelha.setFontHeight((short) (11 * 20));
+
+				aviso.setFont(newFontVermelha);
+				rownum += 1;
+				if (transferencias_negativas_selecionadas != null || transferencias_positivas_selecionadas != null) {
+					// legendas de transferencias
+					rownum += 1;
+					cellnum = 0;
+
+					if (transferencias_negativas_selecionadas != null) {
+						for (CadastroContrato.CadastroTransferenciaPagamentoContratual transfer : transferencias_negativas_selecionadas) {
+
+							String legenda_remetene = incluir_legenda_transferencias_negativas(transfer);
+							row = sheet3.createRow(rownum);
+							cellnum = 0;
+
+							CellStyle alinha_a_esquerada = textStyle;
+							alinha_a_esquerada.setAlignment(HorizontalAlignment.LEFT);
+							cell = row.createCell(cellnum);
+							cell.setCellStyle(alinha_a_esquerada);
+							cell.setCellValue(legenda_remetene);
+							sheet3.addMergedRegion(new CellRangeAddress(rownum, rownum, 0, 10));
+							rownum += 1;
+
+						}
+					}
+
+					if (transferencias_positivas_selecionadas != null) {
+						for (CadastroContrato.CadastroTransferenciaPagamentoContratual transfer : transferencias_positivas_selecionadas) {
+							String legenda_destinatario = incluir_legenda_transferencias_positivas(transfer);
+							row = sheet3.createRow(rownum);
+							cellnum = 0;
+							CellStyle alinha_a_esquerada = textStyle;
+							alinha_a_esquerada.setAlignment(HorizontalAlignment.LEFT);
+							cell = row.createCell(cellnum);
+							cell.setCellStyle(alinha_a_esquerada);
+							cell.setCellValue(legenda_destinatario);
+							sheet3.addMergedRegion(new CellRangeAddress(rownum, rownum, 0, 10));
+							rownum += 1;
+						}
+					}
+
+				}
+
+				rownum += 2;
 				int column = 0;
 				int contador_comprovantes = 0;
-				
-				//adicionar comprovantes
+
+				// adicionar comprovantes
+				boolean linha2_criada = false;
+				boolean linha3_criada = false;
+				boolean linha4_criada = false;
+				boolean linha5_criada = false;
+				boolean linha6_criada = false;
+				boolean linha7_criada = false;
+				boolean linha8_criada = false;
+				boolean linha9_criada = false;
+				boolean linha10_criada = false;
+
 				for (CadastroContrato.CadastroPagamentoContratual pag : pagamentos_selecionados) {
 					// verifica se há algum documento do tipo 2(comprovante de pagamento) para este
 					// id de pagamento
@@ -4079,59 +5153,108 @@ public class TelaGerenciarContrato extends JFrame {
 						if (extensaoDoArquivo.equalsIgnoreCase("png")) {
 
 							String unidade_base_dados = configs_globais.getServidorUnidade();
-							String caminho_salvar = unidade_base_dados + "\\" + contrato_local.getCaminho_diretorio_contrato();
-							String caminho_completo = caminho_salvar + "\\comprovantes\\" + comprovante.getNome_arquivo();
+							String caminho_salvar = unidade_base_dados + "\\"
+									+ contrato_local.getCaminho_diretorio_contrato();
+							String caminho_completo = caminho_salvar + "\\comprovantes\\"
+									+ comprovante.getNome_arquivo();
 
-							 try {
-								 
-								   if(contador_comprovantes <= 3) {
-									   rownum = rownum;
-									}else if(contador_comprovantes <= 7) {
-										rownum += 12;
-
+							try {
+								if (contador_comprovantes <= 3) {
+									rownum = rownum;
+								} else if (contador_comprovantes <= 7) {
+									if (!linha2_criada) {
+										rownum += 13;
+										linha2_criada = true;
 									}
-								InputStream inputStream =  new FileInputStream(caminho_completo);
-								
+
+								} else if (contador_comprovantes <= 11) {
+									if (!linha3_criada) {
+										rownum += 13;
+										linha3_criada = true;
+									}
+
+								} else if (contador_comprovantes <= 15) {
+									if (!linha4_criada) {
+										rownum += 13;
+										linha4_criada = true;
+									}
+
+								} else if (contador_comprovantes <= 19) {
+									if (!linha5_criada) {
+										rownum += 13;
+										linha5_criada = true;
+									}
+
+								} else if (contador_comprovantes <= 23) {
+									if (!linha6_criada) {
+										rownum += 13;
+										linha6_criada = true;
+									}
+
+								} else if (contador_comprovantes <= 27) {
+									if (!linha7_criada) {
+										rownum += 13;
+										linha7_criada = true;
+									}
+
+								} else if (contador_comprovantes <= 31) {
+									if (!linha8_criada) {
+										rownum += 13;
+										linha8_criada = true;
+									}
+
+								} else if (contador_comprovantes <= 35) {
+									if (!linha9_criada) {
+										rownum += 13;
+										linha9_criada = true;
+									}
+
+								} else if (contador_comprovantes <= 39) {
+									if (!linha10_criada) {
+										rownum += 13;
+										linha10_criada = true;
+									}
+
+								}
+								InputStream inputStream = new FileInputStream(caminho_completo);
+
 								byte[] imageBytes = IOUtils.toByteArray(inputStream);
 
-								   int pictureureIdx = workbook.addPicture(imageBytes, Workbook.PICTURE_TYPE_PNG);
+								int pictureureIdx = workbook.addPicture(imageBytes, Workbook.PICTURE_TYPE_PNG);
 
-								   inputStream.close();
+								inputStream.close();
 
-								   CreationHelper helper = workbook.getCreationHelper();
+								CreationHelper helper = workbook.getCreationHelper();
 
-								   Drawing drawing = sheet3.createDrawingPatriarch();
+								Drawing drawing = sheet3.createDrawingPatriarch();
 
-								   ClientAnchor anchor = helper.createClientAnchor();
-								   
-								   anchor.setCol1(column);
-								   anchor.setCol2(column+3);
-								   anchor.setRow1(rownum);
-								   anchor.setRow2(rownum+12);
+								ClientAnchor anchor = helper.createClientAnchor();
 
-								   drawing.createPicture(anchor, pictureureIdx);
+								anchor.setCol1(column);
+								anchor.setCol2(column + 2);
+								anchor.setRow1(rownum);
+								anchor.setRow2(rownum + 12);
 
+								drawing.createPicture(anchor, pictureureIdx);
 
-								   column += 3;
-								   
-								   if(column > 15)
-									   column = 0;
-								   
-								
+								column += 2;
+
+								if (column > 7)
+									column = 0;
+
 							} catch (IOException e1) {
 								// TODO Auto-generated catch block
 								JOptionPane.showMessageDialog(isto, "Erro ao anexar imagem no xlsx");
 								e1.printStackTrace();
 							}
 
-
-
 						}
 
 					}
+					contador_comprovantes++;
 
 				}
-				
+
 				try {
 
 					new JFXPanel();
@@ -4145,17 +5268,17 @@ public class TelaGerenciarContrato extends JFrame {
 							d = new FileChooser();
 						}
 						d.setInitialDirectory(new File(ultima_pasta));
-						 d.getExtensionFilters().addAll(
-					              
-					                new FileChooser.ExtensionFilter("Excel", "*.xls")
-					            );
+						d.getExtensionFilters().addAll(
+
+								new FileChooser.ExtensionFilter("Excel", "*.xls"));
 						File file = d.showSaveDialog(new Stage());
 						String caminho_arquivo = "";
 						if (file != null) {
 							caminho_arquivo = file.getAbsolutePath();
 
 							manipular_ultima_pasta.rescreverArquivo(
-									new File("C:\\ProgramData\\E-Contract\\configs\\ultima_pasta.txt"), file.getParent());
+									new File("C:\\ProgramData\\E-Contract\\configs\\ultima_pasta.txt"),
+									file.getParent());
 							// Escrevendo o arquivo em disco
 							FileOutputStream out;
 							try {
@@ -4164,10 +5287,9 @@ public class TelaGerenciarContrato extends JFrame {
 								workbook.close();
 								out.close();
 								// workbook.close();
-								
-								Runtime.getRuntime()
-								.exec("explorer " + file.getAbsolutePath());
-					
+
+								Runtime.getRuntime().exec("explorer " + file.getAbsolutePath());
+
 								System.out.println("Success!!");
 							} catch (FileNotFoundException e1) {
 								// TODO Auto-generated catch block
@@ -4176,17 +5298,15 @@ public class TelaGerenciarContrato extends JFrame {
 								// TODO Auto-generated catch block
 								e1.printStackTrace();
 							}
-					
+
 						}
-					
-						});
-					
+
+					});
+
 				} catch (Exception k) {
 					k.printStackTrace();
 				}
 
-				
-				
 			}
 		});
 		btnExportarPagamentos.setBounds(883, 606, 73, 28);
@@ -4219,94 +5339,91 @@ public class TelaGerenciarContrato extends JFrame {
 
 							GerenciarBancoContratos gerenciar = new GerenciarBancoContratos();
 
-						
-
 							if (contrato_local.getSub_contrato() == 1 || contrato_local.getSub_contrato() == 6) {
-                                 //é um subcontrato original ou importado
+								// é um subcontrato original ou importado
 								// excluiir somente a relacao, verifica se este pagamento esta em replica
 								boolean vem_de_replica = false;
 								CadastroContrato pai = gerenciar.getContratoPai(contrato_local.getId());
-								//verifica se o pai possui esse pagamento
-								ArrayList<CadastroContrato.CadastroPagamentoContratual> pagamentos_do_contrato_pai = gerenciar.getPagamentosContratuais(pai.getId());
-								for(CadastroContrato.CadastroPagamentoContratual pag_cont : pagamentos_do_contrato_pai) {
-									if(pag_cont.getId_pagamento() == id_pagamento_selecionado) {
+								// verifica se o pai possui esse pagamento
+								ArrayList<CadastroContrato.CadastroPagamentoContratual> pagamentos_do_contrato_pai = gerenciar
+										.getPagamentosContratuais(pai.getId());
+								for (CadastroContrato.CadastroPagamentoContratual pag_cont : pagamentos_do_contrato_pai) {
+									if (pag_cont.getId_pagamento() == id_pagamento_selecionado) {
 										vem_de_replica = true;
 										break;
 									}
 								}
-								
-								if(vem_de_replica) {
-								if (gerenciar.remover_contrato_pagamento_contratual(contrato_local.getId(),
-										id_pagamento_selecionado)) {
-									JOptionPane.showMessageDialog(isto, "Pagamento Excluido!");
 
-									pesquisar_pagamentos();
+								if (vem_de_replica) {
+									if (gerenciar.remover_contrato_pagamento_contratual(contrato_local.getId(),
+											id_pagamento_selecionado)) {
+										JOptionPane.showMessageDialog(isto, "Pagamento Excluido!");
 
+										pesquisar_pagamentos(true);
+
+									} else {
+										JOptionPane.showMessageDialog(isto,
+												"Erro ao remover o relação do pagamento selecionado\nConsulte o administrador do sistema!");
+									}
 								} else {
-									JOptionPane.showMessageDialog(isto,
-											"Erro ao remover o relação do pagamento selecionado\nConsulte o administrador do sistema!");
-								}
-								}else {
-									//apaga totalmente o pagamento
+									// apaga totalmente o pagamento
 									if (gerenciar.removerPagamentoContratual(contrato_local.getId(),
 											id_pagamento_selecionado)) {
 										JOptionPane.showMessageDialog(isto, "Pagamento Excluido!");
-										pesquisar_pagamentos();
+										pesquisar_pagamentos(true);
 
-									}else
-									{
+									} else {
 										JOptionPane.showMessageDialog(isto,
 												"Erro ao excluir o pagamento\nConsulte o administrador do sistema!");
-									
+
 									}
 								}
 
 							} else {
-									if (gerenciar.removerPagamentoContratual(contrato_local.getId(),
-											id_pagamento_selecionado)) {
-										JOptionPane.showMessageDialog(isto, "Pagamento Excluido!");
+								if (gerenciar.removerPagamentoContratual(contrato_local.getId(),
+										id_pagamento_selecionado)) {
+									JOptionPane.showMessageDialog(isto, "Pagamento Excluido!");
 
-										boolean tem_replica = false;
-										// verifica se esse pagamento esta replicado
-										Map<Integer, Integer> pags = gerenciar
-												.getRelacaoReplica(id_pagamento_selecionado);
-										if (pags.size() > 0) {
-											// este pagamento esta replicado
-											tem_replica = true;
+									boolean tem_replica = false;
+									// verifica se esse pagamento esta replicado
+									Map<Integer, Integer> pags = gerenciar.getRelacaoReplica(id_pagamento_selecionado);
+									if (pags.size() > 0) {
+										// este pagamento esta replicado
+										tem_replica = true;
 
-										}
+									}
 
-										if (tem_replica) {
-											// apagar a relacao
-											for (Map.Entry<Integer, Integer> pair : pags.entrySet()) {
+									if (tem_replica) {
+										// apagar a relacao
+										for (Map.Entry<Integer, Integer> pair : pags.entrySet()) {
 
-												System.out.println(pair.getKey());
-												System.out.println(pair.getValue());
+											System.out.println(pair.getKey());
+											System.out.println(pair.getValue());
 
-												boolean remover_replica = gerenciar
-														.removerPagamentoContratual(pair.getKey(), pair.getValue());
-												if (remover_replica) {
-													JOptionPane.showMessageDialog(isto,
-															"A replica deste pagamento foi excluida para manter a coesão das operações");
+											boolean remover_replica = gerenciar
+													.removerPagamentoContratual(pair.getKey(), pair.getValue());
+											if (remover_replica) {
+												JOptionPane.showMessageDialog(isto,
+														"A replica deste pagamento foi excluida para manter a coesão das operações");
 
-												} else {
-													JOptionPane.showMessageDialog(isto,
-															"Erro ao excluir a replica deste pagamento\nBanco de Dados Corrompido\nConsulte o administrador!");
-												}
-
+											} else {
+												JOptionPane.showMessageDialog(isto,
+														"Erro ao excluir a replica deste pagamento\nBanco de Dados Corrompido\nConsulte o administrador!");
 											}
 
-										} else {
-
 										}
 
-										pesquisar_pagamentos();
-
 									} else {
-										JOptionPane.showMessageDialog(isto,
-												"Erro ao remover o pagamento selecionado\nConsulte o administrador do sistema!");
+
 									}
-								
+
+									pesquisar_pagamentos(true);
+
+								} else {
+									JOptionPane.showMessageDialog(isto,
+											"Erro ao remover o pagamento selecionado\nConsulte o administrador do sistema!");
+								}
+
 							}
 
 						} else {
@@ -4325,7 +5442,7 @@ public class TelaGerenciarContrato extends JFrame {
 
 							if (gerenciar.removerTransferencia(id_transferencia_selecionada)) {
 								JOptionPane.showMessageDialog(isto, "Transferencia removida!");
-								pesquisar_pagamentos();
+								pesquisar_pagamentos(true);
 
 							} else {
 								JOptionPane.showMessageDialog(isto,
@@ -4384,6 +5501,7 @@ public class TelaGerenciarContrato extends JFrame {
 
 			}
 		});
+		botoes.add(btnAdcionarTarefa);
 		btnAdcionarTarefa.setBounds(1249, 430, 79, 28);
 		painelListaTarefas.add(btnAdcionarTarefa);
 
@@ -4411,6 +5529,7 @@ public class TelaGerenciarContrato extends JFrame {
 								boolean remover_tarefa = gerenciar.remover_tarefa(tarefa_selecionada.getId_tarefa());
 								if (remover_tarefa) {
 									JOptionPane.showMessageDialog(isto, "Tarefa Excluida com sucesso");
+									informar_atualizou();
 									getTarefas();
 
 								} else {
@@ -4440,6 +5559,7 @@ public class TelaGerenciarContrato extends JFrame {
 
 			}
 		});
+		botoes.add(btnExcluirTarefa);
 		btnExcluirTarefa.setBounds(1072, 430, 64, 28);
 		painelListaTarefas.add(btnExcluirTarefa);
 
@@ -4473,6 +5593,7 @@ public class TelaGerenciarContrato extends JFrame {
 
 			}
 		});
+		botoes.add(btnResponder);
 		btnResponder.setBounds(1148, 430, 90, 28);
 		painelListaTarefas.add(btnResponder);
 
@@ -4519,152 +5640,98 @@ public class TelaGerenciarContrato extends JFrame {
 		carregarDocumento(url_original);
 		getTarefas();
 
-		/*
-		 * setarInformacoesPainelPrincipal(); setarInformacoesPainelCarregamentos();
-		 * pesquisar_carregamentos(); pesquisar_pagamentos();
-		 * 
-		 * 
-		 * 
-		 * setSubContratos(contrato_local); if (contrato_local.getSub_contrato() == 0) {
-		 * setarPainelGanhosPotenciais();
-		 * 
-		 * } setInformacoesDocumentos();
-		 * 
-		 * setInformacoesAditivos();
-		 * 
-		 * travarContrato();
+		System.out.println("");
+		/*****************
+		 * chamadas a adicionar
 		 */
+		setarInformacoesPainelPrincipal();
+		setarInformacoesExtrasAbaPrincipal();
+		// recebimentos
+		pesquisar_recebimentos(false);
+		setarInformacoesPainelRecebimentos();
 
-		
-		
-		  System.out.println("");
+		// carregamentos
+		pesquisar_carregamentos(false);
+		setarInformacoesPainelCarregamentos();
 
-		  
-		  setarInformacoesPainelPrincipal();
-		  setarInformacoesExtrasAbaPrincipal();
-		  //recebimentos 
-		  pesquisar_recebimentos();
-		  setarInformacoesPainelRecebimentos();
+		// pagamentos
+		pesquisar_pagamentos(false);
 
-		  //carregamentos
-		  pesquisar_carregamentos();
-		  setarInformacoesPainelCarregamentos();
-		  
-		  //pagamentos
-		  pesquisar_pagamentos();
-		 
-		  //subContratos
-		    setSubContratos(contrato_local);
-		   
-		  
-		  if (contrato_local.getSub_contrato() == 0 || contrato_local.getSub_contrato() == 5 ) { 
-		  setarPainelGanhosPotenciais();
-		  
-		  }
-		  
-		   setInformacoesDocumentos();
-		  
-		  criarTabelaAditivos(); 
-		  setInformacoesAditivos(); 
-		  criarTabelaDistratos();
-		  setInformacoesDistratos(); 
-		  travarContrato();
-		
-	
-		  
-		  new Thread() {
-			  @Override
-			  public void run() {
-				  while(isto != null) {
-					  
-					  try {
+		// subContratos
+		setSubContratos(contrato_local);
+
+		if (contrato_local.getSub_contrato() == 0 || contrato_local.getSub_contrato() == 5)
+			setarPainelGanhosPotenciais();
+
+		setInformacoesDocumentos();
+
+		criarTabelaAditivos();
+		setInformacoesAditivos();
+		criarTabelaDistratos();
+		setInformacoesDistratos();
+
+		travarContratoSemAtualizar();
+
+		new Thread() {
+
+			@Override
+			public void run() {
+				while (isto != null) {
+
+					try {
 						Thread.sleep(5000);
 					} catch (InterruptedException e) {
 						// TODO Auto-generated catch block
 						e.printStackTrace();
 					}
-					  
-					 GerenciarBancoInformativo gerenciar = new GerenciarBancoInformativo();
-					 ArrayList<CadastroInformativo> informativos_novos = gerenciar.getInformacoes();
-					 
-				
-					 
-					 if(informativos_novos.equals(informacoes_atuais)) {
-						 //nada atualizado
-					 }else {
-						 //atualizou informacoes
-						 informacoes_atuais = informativos_novos;
-						 
-						 
-						 for(CadastroInformativo informativo : informacoes_atuais) {
-							 if(informativo.getId_contrato() == contrato_local.getId()) {
-								 if(informativo.getId_usuario() != login.getId()) {
-								 //há uma nova mensagem para este contrato
-								 if(informativo.getMensagem().equals("contrato foi atualizado")) {
-									 //atualizar este contrato tambem
-									 atualizar_contrato();
-								 }
-								 }
-								 
-								 
-							 }
-							 
-							 
-						 }
-						 
-						 
-						 
-					 }
-					 
-					 
-					 
-					 
-				  }
-				
-			  }
-		  }.start();
-		  
-		  
-		this.pack();
 
+					GerenciarBancoInformativo gerenciar_informativos = new GerenciarBancoInformativo();
+					ArrayList<CadastroInformativo> informativos_novos = gerenciar_informativos.getInformacoes();
+
+					if (informativos_novos.equals(informacoes_atuais)) { // nada atualizado
+
+					} else { // atualizou informacoes informacoes_atuais = informativos_novos;
+
+						for (CadastroInformativo informativo : informacoes_atuais) {
+							if (informativo.getId_contrato() == contrato_local.getId()) {
+								if (informativo.getId_usuario() != login.getId()) { // há uma nova mensagem para este
+																					// contrato
+									if (informativo.getMensagem().equals("contrato foi atualizado")) {
+										// atualizar este contrato tambem
+										boolean ja_usado = false; // verifica se a hora desse informativo nao esta
+																	// registrado ja
+										for (String hora : horarios_informativos_ja_executados) {
+											if (hora.equals(informativo.getHora_completa())) {
+												// ja usado
+												ja_usado = true;
+												break;
+
+											}
+										}
+
+										if (!ja_usado) {
+											atualizarContratoAposInformativo();
+											horarios_informativos_ja_executados.add(informativo.getHora_completa());
+										}
+									}
+								}
+
+							}
+
+						}
+
+					}
+
+				}
+
+			}
+		}.start();
 		this.setResizable(true);
+		this.setExtendedState(JFrame.MAXIMIZED_BOTH);
+
 		this.setLocationRelativeTo(janela_pai);
 		this.setVisible(true);
 
-	}
-	public void atualizar_contrato() {
-
-		  
-		  setarInformacoesPainelPrincipal();
-		  setarInformacoesExtrasAbaPrincipal();
-		  //recebimentos 
-		  pesquisar_recebimentos();
-		  setarInformacoesPainelRecebimentos();
-
-		  //carregamentos
-		  pesquisar_carregamentos();
-		  setarInformacoesPainelCarregamentos();
-		  
-		  //pagamentos
-		  pesquisar_pagamentos();
-		 
-		  //subContratos
-		    setSubContratos(contrato_local);
-		   
-		  
-		  if (contrato_local.getSub_contrato() == 0 || contrato_local.getSub_contrato() == 5 ) { 
-		  setarPainelGanhosPotenciais();
-		  
-		  }
-		  
-		   setInformacoesDocumentos();
-		  
-		  criarTabelaAditivos(); 
-		  setInformacoesAditivos(); 
-		  criarTabelaDistratos();
-		  setInformacoesDistratos(); 
-		  travarContrato();
-		
 	}
 
 	public void getTarefas() {
@@ -4975,7 +6042,7 @@ public class TelaGerenciarContrato extends JFrame {
 
 	}
 
-	public void atualizarContratoLocal() {
+	public void atualizarContratoLocal(boolean informar_atualizacao) {
 
 		GerenciarBancoContratos gerenciar = new GerenciarBancoContratos();
 		contrato_local = gerenciar.getContrato(contrato_local.getId());
@@ -5001,6 +6068,9 @@ public class TelaGerenciarContrato extends JFrame {
 		painel_informacoes_tab_principal.setarInformacoesPainelCarregamentosInformativos();
 		painel_informacoes_tab_pagamentos.setarInformacoesPainelCarregamentosInformativos();
 
+		if (informar_atualizacao)
+			informar_atualizou();
+
 	}
 
 	public void getDadosGlobais() {
@@ -5019,234 +6089,238 @@ public class TelaGerenciarContrato extends JFrame {
 		ManipularTxt manipular = new ManipularTxt();
 		return manipular.copiar(url, codigo);
 	}
-	
+
 	/*
+	 * 
+	 * public void pesquisar_carregamentos() {
+	 * 
+	 * modelo_carregamentos.onRemoveAll();
+	 * 
+	 * registro_carregamento_global = new Registros.RegistroCarregamento(); double
+	 * valor_total_transferencias_retiradas = 0; double
+	 * valor_total_transferencias_recebidas = 0; peso_total_cargas_nf_venda1 = 0.0;
+	 * peso_total_cargas_nf_complemento = 0.0;
+	 * 
+	 * peso_total_cargas = 0.0;
+	 * 
+	 * if (lista_carregamentos != null) { lista_carregamentos.clear(); } else {
+	 * lista_carregamentos = new ArrayList<>(); }
+	 * 
+	 * if (lista_transferencias_carga_remetente != null) {
+	 * lista_transferencias_carga_remetente.clear(); } else {
+	 * lista_transferencias_carga_remetente = new ArrayList<>(); }
+	 * 
+	 * if (lista_transferencias_carga_destinatario != null) {
+	 * lista_transferencias_carga_destinatario.clear(); } else {
+	 * lista_transferencias_carga_destinatario = new ArrayList<>(); }
+	 * 
+	 * NumberFormat z = NumberFormat.getNumberInstance();
+	 * 
+	 * 
+	 * GerenciarBancoContratos gerenciar = new GerenciarBancoContratos();
+	 * lista_carregamentos = gerenciar.getCarregamentos(contrato_local.getId());
+	 * 
+	 * GerenciarBancoTransferenciasCarga gerenciar_transferencias = new
+	 * GerenciarBancoTransferenciasCarga(); lista_transferencias_carga_remetente =
+	 * gerenciar_transferencias .getTransferenciasRemetente(contrato_local.getId());
+	 * lista_transferencias_carga_destinatario = gerenciar_transferencias
+	 * .getTransferenciaDestinatario(contrato_local.getId());
+	 * 
+	 * 
+	 * for (CadastroContrato.Carregamento carregamento : lista_carregamentos) {
+	 * modelo_carregamentos.onAdd(carregamento);
+	 * 
+	 * peso_total_cargas = peso_total_cargas + carregamento.getPeso_romaneio();
+	 * peso_total_cargas_nf_venda1 = peso_total_cargas_nf_venda1 +
+	 * carregamento.getPeso_nf_venda1(); peso_total_cargas_nf_complemento =
+	 * peso_total_cargas_nf_complemento + carregamento.getPeso_nf_complemento();
+	 * 
+	 * }
+	 * 
+	 * //transferencias como remetente // for
+	 * (CadastroContrato.CadastroTransferenciaCarga transferencia :
+	 * lista_transferencias_carga_remetente) {
+	 * 
+	 * GerenciarBancoContratos gerenciar_contratos = new GerenciarBancoContratos();
+	 * 
+	 * 
+	 * // pegar o pagamento
+	 * 
+	 * // pegar data do pagmento String data = transferencia.getData(); double
+	 * quantidade = Double.parseDouble(transferencia.getQuantidade());
+	 * 
+	 * // pegar o destinatario CadastroContrato destinatario = gerenciar_contratos
+	 * .getContrato(transferencia.getId_contrato_destinatario());
+	 * 
+	 * CadastroContrato.Carregamento carga_transferencia = new
+	 * CadastroContrato.Carregamento();
+	 * carga_transferencia.setId_carregamento(transferencia.getId_transferencia());
+	 * String texto_obs = "Transferencia negativa de " + z.format(quantidade) +
+	 * " kgs enviados ao contrato " + transferencia.getId_contrato_destinatario() ;
+	 * carga_transferencia.setObservacao(texto_obs);
+	 * carga_transferencia.setDescricao("-Transferencia");
+	 * carga_transferencia.setPeso_real_carga(quantidade);
+	 * carga_transferencia.setId_contrato(transferencia.getId_contrato_destinatario(
+	 * )); carga_transferencia.setData(data);
+	 * carga_transferencia.setPeso_romaneio(quantidade);
+	 * carga_transferencia.setId_produto(destinatario.getModelo_produto().
+	 * getId_produto()); carga_transferencia.setPeso_nf_venda1(0);
+	 * carga_transferencia.setValor_nf_venda1(BigDecimal.ZERO);
+	 * carga_transferencia.setPeso_nf_interna(0);
+	 * carga_transferencia.setValor_nf_venda1(BigDecimal.ZERO);
+	 * carga_transferencia.setValor_nf_complemento(BigDecimal.ZERO);
+	 * carga_transferencia.setPeso_nf_complemento(0);
+	 * 
+	 * 
+	 * modelo_carregamentos.onAdd(carga_transferencia);
+	 * 
+	 * 
+	 * 
+	 * valor_total_transferencias_retiradas += quantidade; //
+	 * valor_total_pagamentos_efetuados -= valor_pagamento;
+	 * 
+	 * } // transferencias como destinatario//
+	 * 
+	 * for (CadastroContrato.CadastroTransferenciaCarga transferencia :
+	 * lista_transferencias_carga_destinatario) { GerenciarBancoContratos
+	 * gerenciar_contratos = new GerenciarBancoContratos();
+	 * 
+	 * 
+	 * // pegar data do pagmento String data = transferencia.getData(); double
+	 * quantidade = Double.parseDouble(transferencia.getQuantidade());
+	 * 
+	 * // pegar o destinatario CadastroContrato remetente =
+	 * gerenciar_contratos.getContrato(transferencia.getId_contrato_remetente()); //
+	 * pegar o destinatario CadastroContrato destinatario = gerenciar_contratos
+	 * .getContrato(transferencia.getId_contrato_destinatario());
+	 * 
+	 * CadastroContrato.Carregamento carga_transferencia = new
+	 * CadastroContrato.Carregamento();
+	 * carga_transferencia.setId_carregamento(transferencia.getId_transferencia());
+	 * String texto_obs = "Transferencia positiva de " + z.format(quantidade) +
+	 * " kgs oriundas do contrato " + transferencia.getId_contrato_remetente() ;
+	 * carga_transferencia.setObservacao(texto_obs);
+	 * carga_transferencia.setDescricao("+Transferencia");
+	 * carga_transferencia.setPeso_real_carga(quantidade);
+	 * carga_transferencia.setId_contrato(transferencia.getId_contrato_remetente());
+	 * carga_transferencia.setData(data);
+	 * carga_transferencia.setPeso_romaneio(quantidade);
+	 * carga_transferencia.setId_produto(destinatario.getModelo_produto().
+	 * getId_produto()); carga_transferencia.setPeso_nf_venda1(0);
+	 * carga_transferencia.setValor_nf_venda1(BigDecimal.ZERO);
+	 * carga_transferencia.setPeso_nf_interna(0);
+	 * carga_transferencia.setValor_nf_venda1(BigDecimal.ZERO);
+	 * carga_transferencia.setValor_nf_complemento(BigDecimal.ZERO);
+	 * carga_transferencia.setPeso_nf_complemento(0);
+	 * 
+	 * 
+	 * modelo_carregamentos.onAdd(carga_transferencia);
+	 * 
+	 * valor_total_transferencias_recebidas += quantidade; //
+	 * valor_total_pagamentos_efetuados += valor_pagamento;
+	 * 
+	 * }
+	 * 
+	 * 
+	 * double peso_total_kg = 0, peso_total_sacos = 0, peso_carregado_kg = 0,
+	 * peso_carregado_sacos = 0, peso_restante_kg = 0, peso_restante_sacos = 0;
+	 * 
+	 * 
+	 * if (contrato_local.getMedida().equals("KG")) { peso_total_kg =
+	 * contrato_local.getQuantidade(); peso_total_sacos = peso_total_kg / 60;
+	 * 
+	 * peso_carregado_kg = peso_total_cargas; peso_carregado_sacos =
+	 * peso_total_cargas / 60;
+	 * 
+	 * peso_restante_kg = peso_total_kg - peso_carregado_kg; peso_restante_sacos =
+	 * peso_total_sacos - peso_carregado_sacos;
+	 * 
+	 * } else if (contrato_local.getMedida().equalsIgnoreCase("Sacos")) {
+	 * peso_total_sacos = contrato_local.getQuantidade(); peso_total_kg =
+	 * peso_total_sacos * 60;
+	 * 
+	 * peso_carregado_sacos = peso_total_cargas / 60 +
+	 * (valor_total_transferencias_recebidas/60) -
+	 * (valor_total_transferencias_retiradas/60) ; peso_carregado_kg =
+	 * peso_total_cargas + valor_total_transferencias_recebidas -
+	 * valor_total_transferencias_retiradas;
+	 * 
+	 * peso_restante_sacos = peso_total_sacos - peso_carregado_sacos;
+	 * peso_restante_kg = peso_total_kg - peso_carregado_kg;
+	 * 
+	 * }
+	 * 
+	 * //retiradas
+	 * 
+	 * lblTotalTransferenciasCargaRetiradas.setText(z.format(
+	 * valor_total_transferencias_retiradas) + " Kg " + " | " +
+	 * z.format(valor_total_transferencias_retiradas/60) + " Sacos");
+	 * 
+	 * //recebidas
+	 * 
+	 * lblTotalTransferenciasCargaRecebidas.setText(z.format(
+	 * valor_total_transferencias_recebidas) + " Kg " + " | " +
+	 * z.format(valor_total_transferencias_recebidas/60) + " Sacos");
+	 * 
+	 * //peso total do contrato lblPesoTotal.setText(z.format(peso_total_kg) +
+	 * " Kg " + " | " + z.format(peso_total_sacos) + " Sacos");
+	 * registro_carregamento_global.setQuantidade_total(peso_total_sacos);
+	 * 
+	 * // peso total das carregado lblPesoTotalRealCargas
+	 * .setText(z.format(peso_carregado_kg) + " Kg" + " | " +
+	 * z.format(peso_carregado_sacos) + " Sacos"); // peso total restante
+	 * lblPesoTotalRealRestante .setText(z.format(peso_restante_kg) + " Kg" + " | "
+	 * + z.format(peso_restante_sacos) + " Sacos");
+	 * registro_carregamento_global.setQuantidade_restante(peso_restante_sacos);
+	 * 
+	 * double peso_total_nf_kg = peso_total_cargas_nf_venda1; double
+	 * peso_total_nf_sacos = peso_total_nf_kg / 60;
+	 * 
+	 * double peso_total_nf_emitidas_kg = peso_total_cargas_nf_complemento; double
+	 * peso_total_nf_emitidas_sacos = peso_total_nf_emitidas_kg / 60;
+	 * 
+	 * double peso_total_nf_kg_restante = peso_total_kg - (peso_total_nf_kg +
+	 * peso_total_nf_emitidas_kg); double peso_total_nf_sacos_restante =
+	 * peso_total_sacos - (peso_total_nf_sacos + peso_total_nf_emitidas_sacos);
+	 * 
+	 * lblPesoTotalNotasFiscais .setText(z.format(peso_total_kg) + " Kg" + " | " +
+	 * z.format(peso_total_sacos) + " Sacos");
+	 * registro_carregamento_global.setQuantidade_total_nf(peso_total_sacos);
+	 * 
+	 * lblPesoTotalNotasFiscaisEmitidas.setText(z.format(peso_total_nf_kg +
+	 * peso_total_nf_emitidas_kg) + " Kg" + " | " + z.format(peso_total_nf_sacos +
+	 * peso_total_nf_emitidas_sacos) + " Sacos");
+	 * 
+	 * lblPesoTotalNotasFiscaisaEmitir.setText(z.format(peso_total_nf_kg_restante) +
+	 * " Kg" + " | " + z.format(peso_total_nf_sacos_restante) + " Sacos");
+	 * registro_carregamento_global.setQuantidade_restante_nf(
+	 * peso_total_nf_sacos_restante);
+	 * 
+	 * int n1 = (int) peso_total_sacos; int n2 = ((int) peso_carregado_sacos);
+	 * 
+	 * atualizarGraficoContratos(n1, n2);
+	 * 
+	 * int n3 = (int) peso_total_sacos; int n4 = n3 - ((int)
+	 * peso_total_nf_sacos_restante);
+	 * 
+	 * atualizarGraficoNFs(n3, n4);
+	 * 
+	 * }
+	 */
 
-	public void pesquisar_carregamentos() {
+	public void informar_atualizou() {
+		GerenciarBancoInformativo gerenciar = new GerenciarBancoInformativo();
+		CadastroInformativo informativo = new CadastroInformativo();
+		informativo.setId_contrato(contrato_local.getId());
+		informativo.setId_usuario(login.getId());
+		informativo.setMensagem("contrato foi atualizado");
+		informativo.setHora_completa(new GetData().getHora());
 
-		modelo_carregamentos.onRemoveAll();
-
-		registro_carregamento_global = new Registros.RegistroCarregamento();
-		double valor_total_transferencias_retiradas = 0;
-		double valor_total_transferencias_recebidas = 0;
-		peso_total_cargas_nf_venda1 = 0.0;
-		peso_total_cargas_nf_complemento = 0.0;
-
-		peso_total_cargas = 0.0;
-
-		if (lista_carregamentos != null) {
-			lista_carregamentos.clear();
-		} else {
-			lista_carregamentos = new ArrayList<>();
-		}
-
-		if (lista_transferencias_carga_remetente != null) {
-			lista_transferencias_carga_remetente.clear();
-		} else {
-			lista_transferencias_carga_remetente = new ArrayList<>();
-		}
-
-		if (lista_transferencias_carga_destinatario != null) {
-			lista_transferencias_carga_destinatario.clear();
-		} else {
-			lista_transferencias_carga_destinatario = new ArrayList<>();
-		}
-
-		NumberFormat z = NumberFormat.getNumberInstance();
-
-		
-		GerenciarBancoContratos gerenciar = new GerenciarBancoContratos();
-		lista_carregamentos = gerenciar.getCarregamentos(contrato_local.getId());
-		
-		GerenciarBancoTransferenciasCarga gerenciar_transferencias = new GerenciarBancoTransferenciasCarga();
-		lista_transferencias_carga_remetente = gerenciar_transferencias
-				.getTransferenciasRemetente(contrato_local.getId());
-		lista_transferencias_carga_destinatario = gerenciar_transferencias
-				.getTransferenciaDestinatario(contrato_local.getId());
-
-		
-		for (CadastroContrato.Carregamento carregamento : lista_carregamentos) {
-			modelo_carregamentos.onAdd(carregamento);
-
-			peso_total_cargas = peso_total_cargas + carregamento.getPeso_romaneio();
-			peso_total_cargas_nf_venda1 = peso_total_cargas_nf_venda1 + carregamento.getPeso_nf_venda1();
-			peso_total_cargas_nf_complemento = peso_total_cargas_nf_complemento + carregamento.getPeso_nf_complemento();
-
-		}
-
-		//transferencias como remetente //
-		for (CadastroContrato.CadastroTransferenciaCarga transferencia : lista_transferencias_carga_remetente) {
-
-			GerenciarBancoContratos gerenciar_contratos = new GerenciarBancoContratos();
-
-
-			// pegar o pagamento
-
-			// pegar data do pagmento
-			String data = transferencia.getData();
-			double quantidade = Double.parseDouble(transferencia.getQuantidade());
-
-			// pegar o destinatario
-			CadastroContrato destinatario = gerenciar_contratos
-					.getContrato(transferencia.getId_contrato_destinatario());
-
-			CadastroContrato.Carregamento carga_transferencia = new CadastroContrato.Carregamento();
-			carga_transferencia.setId_carregamento(transferencia.getId_transferencia());
-			String texto_obs = "Transferencia negativa de " + z.format(quantidade) + " kgs enviados ao contrato "
-					+ transferencia.getId_contrato_destinatario() ;
-			carga_transferencia.setObservacao(texto_obs);
-			carga_transferencia.setDescricao("-Transferencia");
-			carga_transferencia.setPeso_real_carga(quantidade);
-			carga_transferencia.setId_contrato(transferencia.getId_contrato_destinatario());
-			carga_transferencia.setData(data);
-			carga_transferencia.setPeso_romaneio(quantidade);
-			carga_transferencia.setId_produto(destinatario.getModelo_produto().getId_produto());
-			carga_transferencia.setPeso_nf_venda1(0);
-			carga_transferencia.setValor_nf_venda1(BigDecimal.ZERO);
-			carga_transferencia.setPeso_nf_interna(0);
-			carga_transferencia.setValor_nf_venda1(BigDecimal.ZERO);
-			carga_transferencia.setValor_nf_complemento(BigDecimal.ZERO);
-			carga_transferencia.setPeso_nf_complemento(0);
-			
-			
-			modelo_carregamentos.onAdd(carga_transferencia);
-			
-		
-
-			valor_total_transferencias_retiradas += quantidade;
-			// valor_total_pagamentos_efetuados -= valor_pagamento;
-
-		}
-		// transferencias como destinatario//
-
-		for (CadastroContrato.CadastroTransferenciaCarga transferencia : lista_transferencias_carga_destinatario) {
-			GerenciarBancoContratos gerenciar_contratos = new GerenciarBancoContratos();
-
-
-			// pegar data do pagmento
-			String data = transferencia.getData();
-			double quantidade = Double.parseDouble(transferencia.getQuantidade());
-
-			// pegar o destinatario
-			CadastroContrato remetente = gerenciar_contratos.getContrato(transferencia.getId_contrato_remetente());
-			// pegar o destinatario
-						CadastroContrato destinatario = gerenciar_contratos
-								.getContrato(transferencia.getId_contrato_destinatario());
-
-						CadastroContrato.Carregamento carga_transferencia = new CadastroContrato.Carregamento();
-						carga_transferencia.setId_carregamento(transferencia.getId_transferencia());
-						String texto_obs = "Transferencia positiva de " + z.format(quantidade) + " kgs oriundas do contrato "
-								+ transferencia.getId_contrato_remetente() ;
-						carga_transferencia.setObservacao(texto_obs);
-						carga_transferencia.setDescricao("+Transferencia");
-						carga_transferencia.setPeso_real_carga(quantidade);
-						carga_transferencia.setId_contrato(transferencia.getId_contrato_remetente());
-						carga_transferencia.setData(data);
-						carga_transferencia.setPeso_romaneio(quantidade);
-						carga_transferencia.setId_produto(destinatario.getModelo_produto().getId_produto());
-						carga_transferencia.setPeso_nf_venda1(0);
-						carga_transferencia.setValor_nf_venda1(BigDecimal.ZERO);
-						carga_transferencia.setPeso_nf_interna(0);
-						carga_transferencia.setValor_nf_venda1(BigDecimal.ZERO);
-						carga_transferencia.setValor_nf_complemento(BigDecimal.ZERO);
-						carga_transferencia.setPeso_nf_complemento(0);
-						
-						
-						modelo_carregamentos.onAdd(carga_transferencia);
-			
-			valor_total_transferencias_recebidas += quantidade;
-			// valor_total_pagamentos_efetuados += valor_pagamento;
-
-		}
-
-		
-		double peso_total_kg = 0, peso_total_sacos = 0, peso_carregado_kg = 0, peso_carregado_sacos = 0,
-				peso_restante_kg = 0, peso_restante_sacos = 0;
-
-
-		if (contrato_local.getMedida().equals("KG")) {
-			peso_total_kg = contrato_local.getQuantidade();
-			peso_total_sacos = peso_total_kg / 60;
-
-			peso_carregado_kg = peso_total_cargas;
-			peso_carregado_sacos = peso_total_cargas / 60;
-
-			peso_restante_kg = peso_total_kg - peso_carregado_kg;
-			peso_restante_sacos = peso_total_sacos - peso_carregado_sacos;
-
-		} else if (contrato_local.getMedida().equalsIgnoreCase("Sacos")) {
-			peso_total_sacos = contrato_local.getQuantidade();
-			peso_total_kg = peso_total_sacos * 60;
-
-			peso_carregado_sacos = peso_total_cargas / 60 + (valor_total_transferencias_recebidas/60) - (valor_total_transferencias_retiradas/60) ;
-			peso_carregado_kg = peso_total_cargas + valor_total_transferencias_recebidas - valor_total_transferencias_retiradas;
-
-			peso_restante_sacos = peso_total_sacos - peso_carregado_sacos;
-			peso_restante_kg = peso_total_kg - peso_carregado_kg;
-
-		}
-
-		//retiradas
-
-		lblTotalTransferenciasCargaRetiradas.setText(z.format(valor_total_transferencias_retiradas) + " Kg " + " | " + z.format(valor_total_transferencias_retiradas/60) + " Sacos");
-
-		//recebidas
-
-		lblTotalTransferenciasCargaRecebidas.setText(z.format(valor_total_transferencias_recebidas) + " Kg " + " | " + z.format(valor_total_transferencias_recebidas/60) + " Sacos");
-		
-		//peso total do contrato
-		lblPesoTotal.setText(z.format(peso_total_kg) + " Kg " + " | " + z.format(peso_total_sacos) + " Sacos");
-		registro_carregamento_global.setQuantidade_total(peso_total_sacos);
-
-		// peso total das carregado
-		lblPesoTotalRealCargas
-				.setText(z.format(peso_carregado_kg) + " Kg" + " | " + z.format(peso_carregado_sacos) + " Sacos");
-		// peso total restante
-		lblPesoTotalRealRestante
-				.setText(z.format(peso_restante_kg) + " Kg" + " | " + z.format(peso_restante_sacos) + " Sacos");
-		registro_carregamento_global.setQuantidade_restante(peso_restante_sacos);
-
-		double peso_total_nf_kg = peso_total_cargas_nf_venda1;
-		double peso_total_nf_sacos = peso_total_nf_kg / 60;
-
-		double peso_total_nf_emitidas_kg = peso_total_cargas_nf_complemento;
-		double peso_total_nf_emitidas_sacos = peso_total_nf_emitidas_kg / 60;
-
-		double peso_total_nf_kg_restante = peso_total_kg - (peso_total_nf_kg + peso_total_nf_emitidas_kg);
-		double peso_total_nf_sacos_restante = peso_total_sacos - (peso_total_nf_sacos + peso_total_nf_emitidas_sacos);
-
-		lblPesoTotalNotasFiscais
-				.setText(z.format(peso_total_kg) + " Kg" + " | " + z.format(peso_total_sacos) + " Sacos");
-		registro_carregamento_global.setQuantidade_total_nf(peso_total_sacos);
-
-		lblPesoTotalNotasFiscaisEmitidas.setText(z.format(peso_total_nf_kg + peso_total_nf_emitidas_kg) + " Kg" + " | "
-				+ z.format(peso_total_nf_sacos + peso_total_nf_emitidas_sacos) + " Sacos");
-
-		lblPesoTotalNotasFiscaisaEmitir.setText(z.format(peso_total_nf_kg_restante) + " Kg" + " | "
-				+ z.format(peso_total_nf_sacos_restante) + " Sacos");
-		registro_carregamento_global.setQuantidade_restante_nf(peso_total_nf_sacos_restante);
-
-		int n1 = (int) peso_total_sacos;
-		int n2 = ((int) peso_carregado_sacos);
-
-		atualizarGraficoContratos(n1, n2);
-
-		int n3 = (int) peso_total_sacos;
-		int n4 = n3 - ((int) peso_total_nf_sacos_restante);
-
-		atualizarGraficoNFs(n3, n4);
-
+		boolean informou = gerenciar.inserirInformativo(informativo);
 	}
-*/
-	
-	
-	
 
-	
-	public void pesquisar_carregamentos() {
+	public void pesquisar_carregamentos(boolean informar_atualizacao) {
 
-
-		
 		modelo_carregamentos.onRemoveAll();
 
 		registro_carregamento_global = new Registros.RegistroCarregamento();
@@ -5254,6 +6328,10 @@ public class TelaGerenciarContrato extends JFrame {
 		double valor_total_transferencias_recebidas = 0;
 		peso_total_cargas_nf_venda1 = 0.0;
 		peso_total_cargas_nf_complemento = 0.0;
+		peso_total_cargas_nf_interna = 0.0;
+		
+		BigDecimal valor_total_nf_venda = BigDecimal.ZERO;
+
 
 		peso_total_cargas = 0.0;
 
@@ -5277,31 +6355,61 @@ public class TelaGerenciarContrato extends JFrame {
 
 		NumberFormat z = NumberFormat.getNumberInstance();
 
-		
 		GerenciarBancoContratos gerenciar = new GerenciarBancoContratos();
 		lista_carregamentos = gerenciar.getCarregamentos(contrato_local.getId());
-		
+
 		GerenciarBancoTransferenciasCarga gerenciar_transferencias = new GerenciarBancoTransferenciasCarga();
 		lista_transferencias_carga_remetente = gerenciar_transferencias
 				.getTransferenciasRemetente(contrato_local.getId());
 		lista_transferencias_carga_destinatario = gerenciar_transferencias
 				.getTransferenciaDestinatario(contrato_local.getId());
 
-		
+		boolean nf_interna_ativo = false;
+		boolean nf_venda_ativo = false;
+		boolean nf_complemento_ativo = false;
+
+		// checka se ha no minimo uma nf interna aplicavel
+		for (CadastroContrato.Carregamento carregamento : lista_carregamentos) {
+			if (carregamento.getNf_interna_aplicavel() == 1) {
+				nf_interna_ativo = true;
+				break;
+			}
+
+		}
+
+		// checka se ha no minimo uma nf venda aplicavel
+		for (CadastroContrato.Carregamento carregamento : lista_carregamentos) {
+			if (carregamento.getNf_venda1_aplicavel() == 1) {
+				nf_venda_ativo = true;
+				break;
+			}
+
+		}
+
+		// checka se ha no minimo uma nf complemento aplicavel
+		for (CadastroContrato.Carregamento carregamento : lista_carregamentos) {
+			if (carregamento.getNf_complemento_aplicavel() == 1) {
+				nf_complemento_ativo = true;
+				break;
+			}
+
+		}
 		for (CadastroContrato.Carregamento carregamento : lista_carregamentos) {
 			modelo_carregamentos.onAdd(carregamento);
 
 			peso_total_cargas = peso_total_cargas + carregamento.getPeso_romaneio();
 			peso_total_cargas_nf_venda1 = peso_total_cargas_nf_venda1 + carregamento.getPeso_nf_venda1();
 			peso_total_cargas_nf_complemento = peso_total_cargas_nf_complemento + carregamento.getPeso_nf_complemento();
-
+			peso_total_cargas_nf_interna = peso_total_cargas_nf_interna + carregamento.getPeso_nf_interna();
+			valor_total_nf_venda = valor_total_nf_venda.add(carregamento.getValor_nf_venda1());
+			valor_total_nf_venda = valor_total_nf_venda.add(carregamento.getValor_nf_complemento());
+			
 		}
 
-		//transferencias como remetente //
+		// transferencias como remetente //
 		for (CadastroContrato.CadastroTransferenciaCarga transferencia : lista_transferencias_carga_remetente) {
 
 			GerenciarBancoContratos gerenciar_contratos = new GerenciarBancoContratos();
-
 
 			// pegar o pagamento
 
@@ -5316,7 +6424,7 @@ public class TelaGerenciarContrato extends JFrame {
 			CadastroContrato.Carregamento carga_transferencia = new CadastroContrato.Carregamento();
 			carga_transferencia.setId_carregamento(transferencia.getId_transferencia());
 			String texto_obs = "Transferencia negativa de " + z.format(quantidade) + " kgs enviados ao contrato "
-					+ transferencia.getId_contrato_destinatario() ;
+					+ destinatario.getCodigo();
 			carga_transferencia.setObservacao(texto_obs);
 			carga_transferencia.setDescricao("-Transferencia");
 			carga_transferencia.setPeso_real_carga(quantidade);
@@ -5330,13 +6438,10 @@ public class TelaGerenciarContrato extends JFrame {
 			carga_transferencia.setValor_nf_venda1(BigDecimal.ZERO);
 			carga_transferencia.setValor_nf_complemento(BigDecimal.ZERO);
 			carga_transferencia.setPeso_nf_complemento(0);
-			
-			
+
 			modelo_carregamentos.onAdd(carga_transferencia);
 			lista_carregamentos.add(carga_transferencia);
 
-		
-
 			valor_total_transferencias_retiradas += quantidade;
 			// valor_total_pagamentos_efetuados -= valor_pagamento;
 
@@ -5346,7 +6451,6 @@ public class TelaGerenciarContrato extends JFrame {
 		for (CadastroContrato.CadastroTransferenciaCarga transferencia : lista_transferencias_carga_destinatario) {
 			GerenciarBancoContratos gerenciar_contratos = new GerenciarBancoContratos();
 
-
 			// pegar data do pagmento
 			String data = transferencia.getData();
 			double quantidade = Double.parseDouble(transferencia.getQuantidade());
@@ -5354,59 +6458,57 @@ public class TelaGerenciarContrato extends JFrame {
 			// pegar o destinatario
 			CadastroContrato remetente = gerenciar_contratos.getContrato(transferencia.getId_contrato_remetente());
 			// pegar o destinatario
-						CadastroContrato destinatario = gerenciar_contratos
-								.getContrato(transferencia.getId_contrato_destinatario());
+			CadastroContrato destinatario = gerenciar_contratos
+					.getContrato(transferencia.getId_contrato_destinatario());
 
-						CadastroContrato.Carregamento carga_transferencia = new CadastroContrato.Carregamento();
-						carga_transferencia.setId_carregamento(transferencia.getId_transferencia());
-						String texto_obs = "Transferencia positiva de " + z.format(quantidade) + " kgs oriundas do contrato "
-								+ transferencia.getId_contrato_remetente() ;
-						carga_transferencia.setObservacao(texto_obs);
-						carga_transferencia.setDescricao("+Transferencia");
-						carga_transferencia.setPeso_real_carga(quantidade);
-						carga_transferencia.setId_contrato(transferencia.getId_contrato_remetente());
-						carga_transferencia.setData(data);
-						carga_transferencia.setPeso_romaneio(quantidade);
-						carga_transferencia.setId_produto(destinatario.getModelo_produto().getId_produto());
-						carga_transferencia.setPeso_nf_venda1(0);
-						carga_transferencia.setValor_nf_venda1(BigDecimal.ZERO);
-						carga_transferencia.setPeso_nf_interna(0);
-						carga_transferencia.setValor_nf_venda1(BigDecimal.ZERO);
-						carga_transferencia.setValor_nf_complemento(BigDecimal.ZERO);
-						carga_transferencia.setPeso_nf_complemento(0);
-						
-						
-						modelo_carregamentos.onAdd(carga_transferencia);
-						lista_carregamentos.add(carga_transferencia);
+			CadastroContrato.Carregamento carga_transferencia = new CadastroContrato.Carregamento();
+			carga_transferencia.setId_carregamento(transferencia.getId_transferencia());
+			String texto_obs = "Transferencia positiva de " + z.format(quantidade) + " kgs oriundas do contrato "
+					+ remetente.getCodigo();
+			carga_transferencia.setObservacao(texto_obs);
+			carga_transferencia.setDescricao("+Transferencia");
+			carga_transferencia.setPeso_real_carga(quantidade);
+			carga_transferencia.setId_contrato(transferencia.getId_contrato_remetente());
+			carga_transferencia.setData(data);
+			carga_transferencia.setPeso_romaneio(quantidade);
+			carga_transferencia.setId_produto(destinatario.getModelo_produto().getId_produto());
+			carga_transferencia.setPeso_nf_venda1(0);
+			carga_transferencia.setValor_nf_venda1(BigDecimal.ZERO);
+			carga_transferencia.setPeso_nf_interna(0);
+			carga_transferencia.setValor_nf_venda1(BigDecimal.ZERO);
+			carga_transferencia.setValor_nf_complemento(BigDecimal.ZERO);
+			carga_transferencia.setPeso_nf_complemento(0);
+
+			modelo_carregamentos.onAdd(carga_transferencia);
+			lista_carregamentos.add(carga_transferencia);
 
 			valor_total_transferencias_recebidas += quantidade;
 			// valor_total_pagamentos_efetuados += valor_pagamento;
 
 		}
 
-		
-		double peso_total_kg = peso_total_recebido, peso_total_sacos = peso_total_recebido/60, peso_carregado_kg = 0, peso_carregado_sacos = 0,
-				peso_restante_kg = 0, peso_restante_sacos = 0;
+		double peso_total_kg = peso_total_recebido, peso_total_sacos = peso_total_recebido / 60, peso_carregado_kg = 0,
+				peso_carregado_sacos = 0, peso_restante_kg = 0, peso_restante_sacos = 0;
 
+		peso_carregado_sacos = peso_total_cargas / 60 + (valor_total_transferencias_recebidas / 60)
+				- (valor_total_transferencias_retiradas / 60);
+		peso_carregado_kg = peso_total_cargas + valor_total_transferencias_recebidas
+				- valor_total_transferencias_retiradas;
 
+		peso_restante_sacos = peso_total_sacos - peso_carregado_sacos;
+		peso_restante_kg = peso_total_kg - peso_carregado_kg;
 
-			peso_carregado_sacos = peso_total_cargas / 60 + (valor_total_transferencias_recebidas/60) - (valor_total_transferencias_retiradas/60) ;
-			peso_carregado_kg = peso_total_cargas + valor_total_transferencias_recebidas - valor_total_transferencias_retiradas;
+		// retiradas
 
-			peso_restante_sacos = peso_total_sacos - peso_carregado_sacos;
-			peso_restante_kg = peso_total_kg - peso_carregado_kg;
+		lblTotalTransferenciasCargaRetiradas.setText(z.format(valor_total_transferencias_retiradas) + " Kg " + " | "
+				+ z.format(valor_total_transferencias_retiradas / 60) + " Sacos");
 
-		
+		// recebidas
 
-		//retiradas
+		lblTotalTransferenciasCargaRecebidas.setText(z.format(valor_total_transferencias_recebidas) + " Kg " + " | "
+				+ z.format(valor_total_transferencias_recebidas / 60) + " Sacos");
 
-		lblTotalTransferenciasCargaRetiradas.setText(z.format(valor_total_transferencias_retiradas) + " Kg " + " | " + z.format(valor_total_transferencias_retiradas/60) + " Sacos");
-
-		//recebidas
-
-		lblTotalTransferenciasCargaRecebidas.setText(z.format(valor_total_transferencias_recebidas) + " Kg " + " | " + z.format(valor_total_transferencias_recebidas/60) + " Sacos");
-		
-		//peso total do contrato
+		// peso total do contrato
 		lblPesoTotal.setText(z.format(peso_total_kg) + " Kg " + " | " + z.format(peso_total_sacos) + " Sacos");
 		registro_carregamento_global.setQuantidade_total(peso_total_sacos);
 
@@ -5427,31 +6529,111 @@ public class TelaGerenciarContrato extends JFrame {
 		double peso_total_nf_kg_restante = peso_total_kg - (peso_total_nf_kg + peso_total_nf_emitidas_kg);
 		double peso_total_nf_sacos_restante = peso_total_sacos - (peso_total_nf_sacos + peso_total_nf_emitidas_sacos);
 
-		lblPesoTotalNotasFiscais
-				.setText(z.format(peso_total_kg) + " Kg" + " | " + z.format(peso_total_sacos) + " Sacos");
-		registro_carregamento_global.setQuantidade_total_nf(peso_total_sacos);
-
-		lblPesoTotalNotasFiscaisEmitidas.setText(z.format(peso_total_nf_kg + peso_total_nf_emitidas_kg) + " Kg" + " | "
-				+ z.format(peso_total_nf_sacos + peso_total_nf_emitidas_sacos) + " Sacos");
-
-		lblPesoTotalNotasFiscaisaEmitir.setText(z.format(peso_total_nf_kg_restante) + " Kg" + " | "
-				+ z.format(peso_total_nf_sacos_restante) + " Sacos");
+		
 		registro_carregamento_global.setQuantidade_restante_nf(peso_total_nf_sacos_restante);
 
+		Locale ptBr = new Locale("pt", "BR");
+		 
+		
+		//atualiza os paineis
+		//romaneios
+		lblNumRomaneiosCarregamento.setText(lista_carregamentos.size() + "");
+		//nfs internas
+		if(nf_interna_ativo) {
+		lblPesoTotalNFInternaSaida.setText(z.format(peso_total_cargas_nf_interna) + " Kgs | "  + z.format(peso_total_cargas_nf_interna/60)  + " sacos");
+		lblPesoRestanteNFInternaSaida.setText(z.format(peso_carregado_kg - peso_total_cargas_nf_interna) + " Kgs | "  + z.format((peso_carregado_kg - peso_total_cargas_nf_interna)/60)  + " sacos");
+		}else {
+			lblPesoTotalNFInternaSaida.setText("Não Aplicável");
+			lblPesoRestanteNFInternaSaida.setText("Não Aplicável");
+			
+		}
+		//nfs venda
+		if(nf_venda_ativo || nf_complemento_ativo) {
+		lblPesoTotalNFVendaSaida.setText(z.format(peso_total_nf_kg + peso_total_nf_emitidas_kg) + " Kgs | "  + z.format((peso_total_nf_kg + peso_total_nf_emitidas_kg)/60)  + " sacos");
+		lblPesoRestanteNFVendaSaida.setText(z.format(peso_carregado_kg - (peso_total_nf_kg + peso_total_nf_emitidas_kg)) + " Kgs | "  + z.format((peso_carregado_kg - ((peso_total_nf_kg + peso_total_nf_emitidas_kg)))/60)  + " sacos");
+		lblValorTotalNFVendaSaida.setText(NumberFormat.getCurrencyInstance(ptBr).format(valor_total_nf_venda));
+		}else {
+			lblPesoTotalNFVendaSaida.setText("Não Aplicável");
+			lblPesoRestanteNFVendaSaida.setText("Não Aplicável");
+			lblValorTotalNFVendaSaida.setText("Não Aplicável");
+				
+		}
+		
+		
+		//atualizar status
+		String texto = "";
+		double diferenca = peso_total_kg - peso_carregado_kg;
+		if (diferenca == 0) {
+			texto = texto + "Carregamento Concluído";
+		} else if (diferenca > 0) {
+			texto = texto + "Carregamento Incompleto, falta carregar " + z.format(diferenca) + " Kgs";
+
+		} else if (diferenca < 0) {
+			texto = texto + "Carregamento Excedido, excedeu " + z.format(diferenca) + " Kgs";
+
+		}
+
+		lblStatusCarregamentoSaida.setText(texto);
+
+		String texto_nf_remessa = "";
+		double diferenca_nf_remessa = peso_carregado_kg - peso_total_cargas_nf_interna;
+		if (diferenca_nf_remessa == 0) {
+			texto_nf_remessa = texto_nf_remessa + "Emissão de NF's Interna Concluído";
+		} else if (diferenca_nf_remessa > 0) {
+			texto_nf_remessa = texto_nf_remessa + "Emissão de NF's Interna Incompleto, falta emitir "
+					+ z.format(diferenca_nf_remessa) + " Kgs";
+
+		} else if (diferenca_nf_remessa < 0) {
+			texto_nf_remessa = texto_nf_remessa + "Emissão de NF's Interna, excedeu "
+					+ z.format(diferenca_nf_remessa) + " Kgs";
+
+		}
+
+		if (nf_interna_ativo)
+			lblStatusNFRemessaSaida.setText(texto_nf_remessa);
+		else
+			lblStatusNFRemessaSaida.setText("Emissão de NF's Interna Não Aplicável");
+
+
+		// status de nf de venda
+		
+		String texto_nf_venda = "";
+		double diferenca_nf_venda = peso_carregado_kg
+				- (peso_total_nf_kg + peso_total_nf_emitidas_kg);
+		if (diferenca_nf_venda == 0) {
+			texto_nf_venda = texto_nf_venda + "Emissão de NF's de Venda Concluído";
+		} else if (diferenca_nf_venda > 0) {
+			texto_nf_venda = texto_nf_venda + "Emissão de NF's de Venda Incompleto, falta emitir "
+					+ z.format(diferenca_nf_venda) + " Kgs";
+
+		} else if (diferenca_nf_venda < 0) {
+			texto_nf_venda = texto_nf_venda + "Emissão de NF's Excedido, excedeu "
+					+ z.format(diferenca_nf_venda) + " Kgs";
+
+		}
+		if (nf_venda_ativo || nf_complemento_ativo)
+			lblStatusNFVendaSaida.setText(texto_nf_venda);
+		else
+			lblStatusNFVendaSaida.setText("Emissão de NF's de Venda Não Aplicável");
+
+
+	
+
+		///////////////////////////////////////
+		
+		
 		int n1 = (int) peso_total_sacos;
 		int n2 = ((int) peso_carregado_sacos);
 
 		atualizarGraficoContratos(n1, n2);
 
-		int n3 = (int) peso_total_sacos;
-		int n4 = n3 - ((int) peso_total_nf_sacos_restante);
+		if (informar_atualizacao) {
+			informar_atualizou();
+		}
 
-		atualizarGraficoNFs(n3, n4);
-
-	
 	}
 
-	public void pesquisar_recebimentos() {
+	public void pesquisar_recebimentos(boolean informar_atualizacao) {
 
 		registro_recebimento_global = new Registros.RegistroRecebimento();
 		ArrayList<CadastroNFe> notas_fiscais_carregamentos = new ArrayList<>();
@@ -5460,12 +6642,18 @@ public class TelaGerenciarContrato extends JFrame {
 
 		NumberFormat z = NumberFormat.getNumberInstance();
 
-		 peso_total_recebido = 0;
+		peso_total_recebido = 0;
 		double peso_total_a_receber = 0;
 		double peso_total_restante = 0;
 
 		double peso_total_nf_venda_kgs = 0;
 		double peso_total_nf_venda_sacos = 0;
+
+		double peso_total_nf_remessa_kgs = 0;
+		double peso_total_nf_remessa_sacos = 0;
+
+		BigDecimal valor_total_nf_venda = BigDecimal.ZERO;
+		BigDecimal valor_total_nf_remessa = BigDecimal.ZERO;
 
 		peso_total_cargas = 0.0;
 
@@ -5478,13 +6666,47 @@ public class TelaGerenciarContrato extends JFrame {
 		GerenciarBancoContratos gerenciar = new GerenciarBancoContratos();
 		lista_recebimentos = gerenciar.getRecebimentos(contrato_local.getId());
 
+		boolean nf_remessa_ativo = false;
+		boolean nf_venda_ativo = false;
+
+		// checka se ha no minimo uma nf remessa aplicavel
+		for (CadastroContrato.Recebimento recebimento : lista_recebimentos) {
+			if (recebimento.getNf_remessa_aplicavel() == 1) {
+				nf_remessa_ativo = true;
+				break;
+			}
+
+		}
+
+		// checka se ha no minimo uma nf venda aplicavel
+		for (CadastroContrato.Recebimento recebimento : lista_recebimentos) {
+			if (recebimento.getNf_venda_aplicavel() == 1) {
+				nf_venda_ativo = true;
+				break;
+			}
+
+		}
+
 		for (CadastroContrato.Recebimento recebimento : lista_recebimentos) {
 
 			modelo_recebimentos.onAdd(recebimento);
 			peso_total_recebido = peso_total_recebido + recebimento.getPeso_romaneio();
 			num_total_romaneios++;
 
-			peso_total_nf_venda_kgs = peso_total_nf_venda_kgs + recebimento.getPeso_nf_venda();
+			if (recebimento.getNf_venda_aplicavel() == 1) {
+				peso_total_nf_venda_kgs = peso_total_nf_venda_kgs + recebimento.getPeso_nf_venda();
+
+				valor_total_nf_venda = valor_total_nf_venda.add(recebimento.getValor_nf_venda());
+
+			}
+
+			if (recebimento.getNf_remessa_aplicavel() == 1) {
+
+				peso_total_nf_remessa_kgs = peso_total_nf_remessa_kgs + recebimento.getPeso_nf_remessa();
+
+				valor_total_nf_remessa = valor_total_nf_remessa.add(recebimento.getValor_nf_remessa());
+
+			}
 
 		}
 
@@ -5510,15 +6732,105 @@ public class TelaGerenciarContrato extends JFrame {
 		lblNumRomaneiosRecebimento.setText(num_total_romaneios + "");
 		lblTotalSacosKGsRomaneios.setText(
 				z.format(peso_total_recebido) + " KGs" + " | " + z.format(peso_total_recebido / 60) + " sacos");
-		lblTotalSacosKGsNFVenda.setText(
-				z.format(peso_total_nf_venda_kgs) + " KGs" + " | " + z.format(peso_total_nf_venda_kgs / 60) + " sacos");
-		lblTotalSacosKGsNFVendaRestante.setText(z.format(peso_total_contrato_kgs - peso_total_nf_venda_kgs) + " KGs"
-				+ " | " + z.format((peso_total_contrato_kgs - peso_total_nf_venda_kgs) / 60) + " sacos");
+
+		String texto = "";
+		double diferenca = peso_total_contrato_kgs - peso_total_recebido;
+		if (diferenca == 0) {
+			texto = texto + "Concluído";
+		} else if (diferenca > 0) {
+			texto = texto + "Falta receber " + z.format(diferenca) + " Kgs";
+
+		} else if (diferenca < 0) {
+			texto = texto + "Excedeu " + z.format(diferenca) + " Kgs";
+
+		}
+
+		lblStatusRecebimentoEntrada.setText(texto);
+
+		Locale ptBr = new Locale("pt", "BR");
+
+		if (nf_venda_ativo) {
+			// pesos nf venda
+
+			lblPesoTotalNFVendaEntrada.setText(z.format(peso_total_nf_venda_kgs) + " KGs" + " | "
+					+ z.format(peso_total_nf_venda_kgs / 60) + " sacos");
+			lblPesoRestanteNFVendaEntrada.setText(z.format(peso_total_contrato_kgs - peso_total_nf_venda_kgs) + " KGs"
+					+ " | " + z.format((peso_total_contrato_kgs - peso_total_nf_venda_kgs) / 60) + " sacos");
+
+			// valores nf venda
+
+			String valor_nf_venda = NumberFormat.getCurrencyInstance(ptBr).format(valor_total_nf_venda.doubleValue());
+
+			lblValorTotalNFVendaEntrada.setText(valor_nf_venda);
+
+			// status de nf de venda
+
+			String texto_nf_venda = "";
+			double diferenca_nf_venda = peso_total_contrato_kgs - peso_total_nf_venda_kgs;
+			if (diferenca_nf_venda == 0) {
+				texto_nf_venda = texto_nf_venda + "Concluído";
+			} else if (diferenca_nf_venda > 0) {
+				texto_nf_venda = texto_nf_venda + "Falta emitir " + z.format(diferenca_nf_venda) + " Kgs";
+
+			} else if (diferenca_nf_venda < 0) {
+				texto_nf_venda = texto_nf_venda + "Excedeu " + z.format(diferenca_nf_venda) + " Kgs";
+
+			}
+
+			lblStatusNFVendaEntrada.setText(texto_nf_venda);
+		} else {
+			lblPesoTotalNFVendaEntrada.setText("Não Aplicável");
+			lblPesoRestanteNFVendaEntrada.setText("Não Aplicável");
+			lblValorTotalNFVendaEntrada.setText("Não Aplicável");
+			lblStatusNFVendaEntrada.setText("Não Aplicável");
+		}
+
+		if (nf_remessa_ativo) {
+			// pessos nf remessa
+			lblPesoTotalNFRemessaEntrada.setText(z.format(peso_total_nf_remessa_kgs) + " KGs" + " | "
+					+ z.format(peso_total_nf_remessa_kgs / 60) + " sacos");
+			lblPesoRestanteNFRemessaEntrada.setText(z.format(peso_total_contrato_kgs - peso_total_nf_remessa_kgs)
+					+ " KGs" + " | " + z.format((peso_total_contrato_kgs - peso_total_nf_remessa_kgs) / 60) + " sacos");
+
+			// valores nf remessa
+			String valor_nf_remessa = NumberFormat.getCurrencyInstance(ptBr)
+					.format(valor_total_nf_remessa.doubleValue());
+			lblValorTotalNFRemessaEntrada.setText(valor_nf_remessa);
+
+			// atualizar status
+
+			// status nf remessa
+
+			String texto_nf_remessa = "";
+			double diferenca_nf_remessa = peso_total_contrato_kgs - peso_total_nf_remessa_kgs;
+			if (diferenca_nf_remessa == 0) {
+				texto_nf_remessa = texto_nf_remessa + "Concluído";
+			} else if (diferenca_nf_remessa > 0) {
+				texto_nf_remessa = texto_nf_remessa + "Falta emitir " + z.format(diferenca_nf_remessa) + " Kgs";
+
+			} else if (diferenca_nf_remessa < 0) {
+				texto_nf_remessa = texto_nf_remessa + "Excedeu " + z.format(diferenca_nf_remessa) + " Kgs";
+
+			}
+
+			lblStatusNFRemessaEntrada.setText(texto_nf_remessa);
+		} else {
+			lblPesoTotalNFRemessaEntrada.setText("Não Aplicável");
+			lblPesoRestanteNFRemessaEntrada.setText("Não Aplicável");
+			lblValorTotalNFRemessaEntrada.setText("Não Aplicável");
+			lblStatusNFRemessaEntrada.setText("Não Aplicável");
+		}
+
+//////////
 
 		int n1 = (int) peso_total_contrato_scs;
 		int n2 = ((int) peso_total_recebido / 60);
 
 		atualizarGraficoRecebimento(n1, n2);
+
+		if (informar_atualizacao) {
+			informar_atualizou();
+		}
 
 	}
 
@@ -5526,11 +6838,8 @@ public class TelaGerenciarContrato extends JFrame {
 		return txt != null && !txt.equals("") && !txt.equals(" ") && !txt.equals("  ");
 	}
 
-	
-	public void pesquisar_pagamentos() {
+	public void pesquisar_pagamentos(boolean informar_atualizacao) {
 
-		
-		
 		modelo_pagamentos_contratuais.setNumRows(0);
 		registro_pagamento_global = new Registros.RegistroPagamento();
 		double valor_total_pagamentos = Double.parseDouble(contrato_local.getValor_a_pagar().toPlainString());
@@ -5566,7 +6875,6 @@ public class TelaGerenciarContrato extends JFrame {
 		lista_transferencias_contratuais_destinatario = gerenciar_transferencias
 				.getTransferenciaDestinatario(contrato_local.getId());
 
-		
 		for (CadastroContrato.CadastroPagamentoContratual pagamento : lista_pagamentos_contratuais) {
 
 			// pegar data do pagmento
@@ -5699,8 +7007,11 @@ public class TelaGerenciarContrato extends JFrame {
 		registro_pagamento_global.setValor_total_pagamentos_restantes(valor_total_pagamentos_restantes);
 		registro_pagamento_global.setValor_total_transferencias_recebidas(valor_total_transferencias_recebidas);
 		registro_pagamento_global.setValor_total_transferencias_retiradas(valor_total_transferencias_retiradas);
+		if (informar_atualizacao) {
+			informar_atualizou();
 		}
-	
+
+	}
 
 	public void setarInformacoesPainelCarregamentos() {
 
@@ -6362,6 +7673,7 @@ public class TelaGerenciarContrato extends JFrame {
 													+ caminho_completo_global + "\nStatus do Contrato Atualizado");
 
 									atualizarArvoreDocumentos();
+									informar_atualizou();
 								} else {
 									JOptionPane.showMessageDialog(isto,
 											"Arquivo copiado, mas não pode ser salvo na base de dados\nConsulte o adiministrador do sistema!");
@@ -6545,6 +7857,7 @@ public class TelaGerenciarContrato extends JFrame {
 								"Arquivo copiado\nOrigem: " + caminho_arquivo + "\nDestino: " + caminho_completo);
 
 						atualizarArvoreDocumentos();
+						informar_atualizou();
 					} else {
 						JOptionPane.showMessageDialog(isto,
 								"Arquivo copiado, mas não pode ser salvo na base de dados\nConsulte o adiministrador do sistema!");
@@ -6905,10 +8218,10 @@ public class TelaGerenciarContrato extends JFrame {
 							// System.out.printf("Usado e %d\n", usado);
 
 							painelGraficoRecebimento.setDados(num_total, i);
-							painelPaiGraficoRecebimento.repaint();
-							painelPaiGraficoRecebimento.updateUI();
+							painelGraficoRecebimento.repaint();
+							painelGraficoRecebimento.updateUI();
 
-							painelPaiGraficoRecebimento.getParent().repaint();
+							painelGraficoRecebimento.getParent().repaint();
 
 							i++;
 						}
@@ -6921,30 +8234,7 @@ public class TelaGerenciarContrato extends JFrame {
 
 	}
 
-	public void atualizarGraficoNFs(int num_total, int num_tirado) {
-
-		new Thread() {
-
-			@Override
-			public void run() {
-
-				int i = 0;
-				while (i <= num_tirado) {
-
-					// System.out.printf("Disponivel e %d\n ", disponivel);
-					// System.out.printf("Usado e %d\n", usado);
-
-					painelGraficoNFs.setDados(num_total, i);
-					painelGraficoNFs.repaint();
-
-					i++;
-				}
-
-			}
-		}.start();
-
-	}
-
+	
 	public void atualizarGraficoPagamentos(int num_total, int num_ja_pago) {
 
 		new Thread() {
@@ -7078,7 +8368,7 @@ public class TelaGerenciarContrato extends JFrame {
 
 			}
 
-			atualizarContratoLocal();
+			atualizarContratoLocal(true);
 			// setarInformacoesPainelPrincipal();
 
 		} else {
@@ -7120,7 +8410,7 @@ public class TelaGerenciarContrato extends JFrame {
 				JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE) == JOptionPane.YES_OPTION) {
 
 			GerenciarBancoDistratos gerenciar = new GerenciarBancoDistratos();
-			boolean revogado = gerenciar.atualizarStatusDistrato(id_distrato, 1);
+			boolean revogado = gerenciar.atualizarStatusDistrato(1, id_distrato);
 
 			if (revogado) {
 				JOptionPane.showMessageDialog(isto, "Assinatura do distrato Revogada");
@@ -7134,6 +8424,7 @@ public class TelaGerenciarContrato extends JFrame {
 			// setInformacoesDocumentos();
 			setInformacoesDistratos();
 			atualizarArvoreDocumentos();
+			informar_atualizou();
 			// setInformacoesAditivos();
 
 		} else {
@@ -7232,6 +8523,7 @@ public class TelaGerenciarContrato extends JFrame {
 							entCaminhoDocumento.setText("");
 
 							atualizarArvoreDocumentos();
+							informar_atualizou();
 						} else {
 							JOptionPane.showMessageDialog(isto,
 									"Arquivo copiado, mas não pode ser salvo\nConsulte o adiministrador do sistema!");
@@ -7694,35 +8986,36 @@ public class TelaGerenciarContrato extends JFrame {
 				painelComprovantes.add(entCaminhoDocumento);
 				entCaminhoDocumento.setColumns(10);
 
-				JButton btnSelecionarDocumento = new JButton("Selecionar");
+				btnSelecionarDocumento = new JButton("Selecionar");
 				btnSelecionarDocumento.setBounds(875, 691, 87, 28);
 				painelComprovantes.add(btnSelecionarDocumento);
+				botoes.add(btnSelecionarDocumento);
 
-				JButton btnAdicionarDocumento = new JButton("Adicionar");
+				btnAdicionarDocumento = new JButton("Adicionar");
 				btnAdicionarDocumento.setBounds(875, 740, 89, 23);
 				painelComprovantes.add(btnAdicionarDocumento);
+				botoes.add(btnAdicionarDocumento);
 
-				JButton btnImportarDeTerceiros = new JButton("Importar de Terceiros");
+				btnImportarDeTerceiros = new JButton("Importar de Terceiros");
 				btnImportarDeTerceiros.addActionListener(new ActionListener() {
 					public void actionPerformed(ActionEvent e) {
 						importarAditivo();
 					}
 				});
+				botoes.add(btnImportarDeTerceiros);
 				btnImportarDeTerceiros.setBounds(515, 155, 146, 28);
 				painelComprovantes.add(btnImportarDeTerceiros);
 
-				JButton btnImportarDeTerceiros_1 = new JButton("Importar de Terceiros");
+				btnImportarDeTerceiros_1 = new JButton("Importar de Terceiros");
 				btnImportarDeTerceiros_1.addActionListener(new ActionListener() {
 					public void actionPerformed(ActionEvent e) {
 						importarDistrato();
 					}
 				});
 				btnImportarDeTerceiros_1.setBounds(507, 317, 146, 28);
-				painelComprovantes.add(btnImportarDeTerceiros_1);
+				botoes.add(btnImportarDeTerceiros_1);
 
-				btnCriarDistrato = new JButton("Criar Distrato");
-				btnCriarDistrato.setBounds(665, 317, 101, 28);
-				painelComprovantes.add(btnCriarDistrato);
+				painelComprovantes.add(btnImportarDeTerceiros_1);
 
 				JLabel lblNewLabel_35 = new JLabel("Inserir Documentos");
 				lblNewLabel_35.setOpaque(true);
@@ -8192,118 +9485,111 @@ public class TelaGerenciarContrato extends JFrame {
 					column);
 			((JLabel) renderer).setOpaque(true);
 
-			
-			
 			String descricao = (String) table.getValueAt(row, 1);
-			
-			
-			if(descricao != null && descricao.equalsIgnoreCase("-Transferencia") || descricao.equalsIgnoreCase("+Transferencia")) {
-				//verifica se é uma transferencia
+
+			if (descricao != null && descricao.equalsIgnoreCase("-Transferencia")
+					|| descricao.equalsIgnoreCase("+Transferencia")) {
+				// verifica se é uma transferencia
 				if (isSelected) {
 					renderer.setBackground(Color.blue);
 
-				}else
+				} else
 					renderer.setBackground(new Color(204, 153, 0));
 
-			}else {
+			} else {
 				CadastroContrato.Carregamento carregamento = lista_carregamentos.get(row);
 
-			if (isSelected) {
-				renderer.setBackground(Color.blue);
+				if (isSelected) {
+					renderer.setBackground(Color.blue);
 
-			} else {
-				
-				if(carregamento.getNf_venda1_aplicavel() == 1 && carregamento.getNf_complemento_aplicavel() == 1) {
-					//as duas notas sao exigigidas
-					double peso_nf1,  peso_romaneio,peso_complemento;
-					peso_nf1 =(double) table.getValueAt(row, 14);
+				} else {
 
-					 peso_romaneio = (double) table.getValueAt(row, 10);
-					 peso_complemento = (double) table.getValueAt(row, 17);
-					
-					if ((peso_nf1 + peso_complemento) == peso_romaneio) {
-						//verifica se falta nf interna
-						if(carregamento.getNf_interna_aplicavel() == 1) {
-							if (checkString(carregamento.getCodigo_nf_interna())){
-								//ok
-								renderer.setBackground(new Color(0,100,0));
+					if (carregamento.getNf_venda1_aplicavel() == 1 && carregamento.getNf_complemento_aplicavel() == 1) {
+						// as duas notas sao exigigidas
+						double peso_nf1, peso_romaneio, peso_complemento;
+						peso_nf1 = (double) table.getValueAt(row, 14);
 
-							}else {
-								//falta nf interna
-								renderer.setBackground(new  Color(204, 204, 102) );
+						peso_romaneio = (double) table.getValueAt(row, 10);
+						peso_complemento = (double) table.getValueAt(row, 17);
 
+						if ((peso_nf1 + peso_complemento) == peso_romaneio) {
+							// verifica se falta nf interna
+							if (carregamento.getNf_interna_aplicavel() == 1) {
+								if (checkString(carregamento.getCodigo_nf_interna())) {
+									// ok
+									renderer.setBackground(new Color(0, 100, 0));
 
-							}
-						}else {
-							//nf interna nao aplicavel
-							//ok
-							renderer.setBackground(new Color(0,100,0));
+								} else {
+									// falta nf interna
+									renderer.setBackground(new Color(204, 204, 102));
 
-						}
-
-					} else if ((peso_nf1 + peso_complemento) < peso_romaneio) {
-						//falta nf de complemento
-						renderer.setBackground(Color.yellow);
-
-					}
-					
-					
-					
-				}else if(carregamento.getNf_venda1_aplicavel() == 1 && carregamento.getNf_complemento_aplicavel() == 0) {
-                     //apenas nf de venda esta aplicavel
-					if (checkString(carregamento.getCodigo_nf_venda1())) {
-						// nao falta a nf de venda
-						
-						//verifica se falta nf interna
-						if(carregamento.getNf_interna_aplicavel() == 1) {
-							if (checkString(carregamento.getCodigo_nf_interna())){
-								//ok
-								renderer.setBackground(new Color(0,100,0));
-
-							}else {
-								//falta nf interna
-								renderer.setBackground(new  Color(204, 204, 102) );
-
+								}
+							} else {
+								// nf interna nao aplicavel
+								// ok
+								renderer.setBackground(new Color(0, 100, 0));
 
 							}
-						}else {
-							//nf interna nao aplicavel
-							//ok
-							renderer.setBackground(new Color(0,100,0));
+
+						} else if ((peso_nf1 + peso_complemento) < peso_romaneio) {
+							// falta nf de complemento
+							renderer.setBackground(Color.yellow);
 
 						}
 
-					}else {
-						//falta nf de venda
-						renderer.setBackground(Color.orange);
+					} else if (carregamento.getNf_venda1_aplicavel() == 1
+							&& carregamento.getNf_complemento_aplicavel() == 0) {
+						// apenas nf de venda esta aplicavel
+						if (checkString(carregamento.getCodigo_nf_venda1())) {
+							// nao falta a nf de venda
 
-					}
-		
-				}else if(carregamento.getNf_venda1_aplicavel() == 0 && carregamento.getNf_complemento_aplicavel() == 0) {
-					//a nf de venda1 e nf de complemento estao nao aplicaveis
-					//verifica se falta nf interna
-					if(carregamento.getNf_interna_aplicavel() == 1) {
-						if (checkString(carregamento.getCodigo_nf_interna())){
-							//ok
-							renderer.setBackground(new Color(0,100,0));
+							// verifica se falta nf interna
+							if (carregamento.getNf_interna_aplicavel() == 1) {
+								if (checkString(carregamento.getCodigo_nf_interna())) {
+									// ok
+									renderer.setBackground(new Color(0, 100, 0));
 
-						}else {
-							//falta nf interna
-							renderer.setBackground(new  Color(204, 204, 102) );
+								} else {
+									// falta nf interna
+									renderer.setBackground(new Color(204, 204, 102));
 
+								}
+							} else {
+								// nf interna nao aplicavel
+								// ok
+								renderer.setBackground(new Color(0, 100, 0));
+
+							}
+
+						} else {
+							// falta nf de venda
+							renderer.setBackground(Color.orange);
 
 						}
-					}else {
-						//nf interna nao aplicavel
-						//ok
-						renderer.setBackground(new Color(0,100,0));
 
+					} else if (carregamento.getNf_venda1_aplicavel() == 0
+							&& carregamento.getNf_complemento_aplicavel() == 0) {
+						// a nf de venda1 e nf de complemento estao nao aplicaveis
+						// verifica se falta nf interna
+						if (carregamento.getNf_interna_aplicavel() == 1) {
+							if (checkString(carregamento.getCodigo_nf_interna())) {
+								// ok
+								renderer.setBackground(new Color(0, 100, 0));
+
+							} else {
+								// falta nf interna
+								renderer.setBackground(new Color(204, 204, 102));
+
+							}
+						} else {
+							// nf interna nao aplicavel
+							// ok
+							renderer.setBackground(new Color(0, 100, 0));
+
+						}
 					}
+
 				}
-				
-				
-				
-			}
 			}
 			return renderer;
 		}
@@ -8320,16 +9606,16 @@ public class TelaGerenciarContrato extends JFrame {
 			((JLabel) renderer).setOpaque(true);
 
 			CadastroContrato.Recebimento recebimento = lista_recebimentos.get(row);
-			
+
 			String codigo_nf_venda = (String) table.getValueAt(row, 4);
-			String codigo_nf_remessa = (String) table.getValueAt(row, 6);
+			String codigo_nf_remessa = (String) table.getValueAt(row, 7);
 
 			if (isSelected) {
 				renderer.setBackground(Color.blue);
 
 			} else {
-				
-				if(recebimento.getNf_venda_aplicavel() == 1 && recebimento.getNf_remessa_aplicavel() == 1) {
+
+				if (recebimento.getNf_venda_aplicavel() == 1 && recebimento.getNf_remessa_aplicavel() == 1) {
 
 					if (checkString(codigo_nf_venda) && checkString(codigo_nf_remessa)) {
 						// ok
@@ -8350,35 +9636,33 @@ public class TelaGerenciarContrato extends JFrame {
 						renderer.setBackground(Color.yellow);
 
 					}
-				}else if(recebimento.getNf_venda_aplicavel() == 1 && recebimento.getNf_remessa_aplicavel() == 0) {
-					//apenas de venda aplicavel
-					if (checkString(codigo_nf_venda)){
+				} else if (recebimento.getNf_venda_aplicavel() == 1 && recebimento.getNf_remessa_aplicavel() == 0) {
+					// apenas de venda aplicavel
+					if (checkString(codigo_nf_venda)) {
 						// ok
 						renderer.setBackground(Color.green);
 
-					}else {
+					} else {
 						renderer.setBackground(Color.orange);
 
 					}
 
-					
-				}else if(recebimento.getNf_venda_aplicavel() == 0 && recebimento.getNf_remessa_aplicavel() == 1) {
-					//apenas a de remessa e aplicavel
-					if (checkString(codigo_nf_remessa)){
+				} else if (recebimento.getNf_venda_aplicavel() == 0 && recebimento.getNf_remessa_aplicavel() == 1) {
+					// apenas a de remessa e aplicavel
+					if (checkString(codigo_nf_remessa)) {
 						// ok
 						renderer.setBackground(Color.green);
 
-					}else {
+					} else {
 						renderer.setBackground(Color.yellow);
 
 					}
-				}else if(recebimento.getNf_venda_aplicavel() == 0 && recebimento.getNf_remessa_aplicavel() == 0) {
-					//nenhum aplicavel
+				} else if (recebimento.getNf_venda_aplicavel() == 0 && recebimento.getNf_remessa_aplicavel() == 0) {
+					// nenhum aplicavel
 					renderer.setBackground(Color.green);
 
 				}
-				
-				
+
 			}
 
 			return renderer;
@@ -9004,52 +10288,13 @@ public class TelaGerenciarContrato extends JFrame {
 	}
 
 	public void travarContrato() {
-		atualizarContratoLocal();
+		atualizarContratoLocal(true);
+
 		if (contrato_local.getStatus_contrato() == 3 || contrato_local.getStatus_contrato() == 0) {
 			// contrato concluido ou em aprovacao
-			for (int i = 0; i < painelCarregamento.getComponentCount(); i++) {
+			for (JButton btn : botoes) {
+				btn.setEnabled(false);
 
-				Component c = painelCarregamento.getComponent(i);
-				if (c instanceof JButton)
-					c.setEnabled(false);
-
-			}
-
-			for (int i = 0; i < painelPagamentos.getComponentCount(); i++) {
-
-				Component c = painelPagamentos.getComponent(i);
-				if (c instanceof JButton)
-					c.setEnabled(false);
-
-			}
-
-			/*
-			 * for (int i = 0; i < painelListaTarefas.getComponentCount(); i++) {
-			 * 
-			 * Component c = painelListaTarefas.getComponent(i); if (c instanceof JButton)
-			 * c.setEnabled(false);
-			 * 
-			 * }
-			 */
-			for (int i = 0; i < painelComprovantes.getComponentCount(); i++) {
-
-				Component c = painelComprovantes.getComponent(i);
-				if (c instanceof JButton)
-					c.setEnabled(false);
-
-			}
-
-			if (contrato_local.getSub_contrato() != 1) {
-				for (int i = 0; i < painelSubContratos.getComponentCount(); i++) {
-
-					Component c = painelSubContratos.getComponent(i);
-					if (c instanceof JButton) {
-						if (!((JButton) c).getText().equals("Abrir"))
-							c.setEnabled(false);
-
-					}
-
-				}
 			}
 
 			jPopupMenuTabelCarregamento = null;
@@ -9060,57 +10305,29 @@ public class TelaGerenciarContrato extends JFrame {
 
 			jPopupMenuTabelAditivos = null;
 
+			jPopupMenuTabelDistratos = null;
+
 		}
-		atualizarContratoLocal();
+		btnImportarDeTerceiros.setEnabled(false);
+		btnImportarDeTerceiros_1.setEnabled(false);
+
+		btnAdicionarDocumento.setEnabled(false);
+
+		btnSelecionarDocumento.setEnabled(false);
 
 		// setarInformacoesPainelPrincipal();
 
 	}
 
 	public void destravarContrato() {
-		atualizarContratoLocal();
 		// setarInformacoesPainelPrincipal();
 
-		for (int i = 0; i < painelCarregamento.getComponentCount(); i++) {
-
-			Component c = painelCarregamento.getComponent(i);
-			if (c instanceof JButton)
-				c.setEnabled(true);
-
-		}
-
-		for (int i = 0; i < painelPagamentos.getComponentCount(); i++) {
-
-			Component c = painelPagamentos.getComponent(i);
-			if (c instanceof JButton)
-				c.setEnabled(true);
-
-		}
-
-		for (int i = 0; i < painelListaTarefas.getComponentCount(); i++) {
-
-			Component c = painelListaTarefas.getComponent(i);
-			if (c instanceof JButton)
-				c.setEnabled(true);
-
-		}
-
-		for (int i = 0; i < painelComprovantes.getComponentCount(); i++) {
-
-			Component c = painelComprovantes.getComponent(i);
-			if (c instanceof JButton)
-				c.setEnabled(true);
-
-		}
-
-		if (contrato_local.getSub_contrato() != 1) {
-			for (int i = 0; i < painelSubContratos.getComponentCount(); i++) {
-
-				Component c = painelSubContratos.getComponent(i);
-				if (c instanceof JButton)
-					c.setEnabled(true);
-
+		if (contrato_local.getStatus_contrato() == 3 || contrato_local.getStatus_contrato() == 0) {
+			// contrato concluido ou em aprovacao
+			for (JButton btn : botoes) {
+				btn.setEnabled(true);
 			}
+
 		}
 
 		setMenuCarregamento();
@@ -9118,6 +10335,8 @@ public class TelaGerenciarContrato extends JFrame {
 		setMenuDocumentos();
 
 		setMenuPagamentos();
+
+		setMenuDistratos();
 
 		setMenuAditivos();
 
@@ -9189,6 +10408,7 @@ public class TelaGerenciarContrato extends JFrame {
 
 							if (excluir_documento) {
 								JOptionPane.showMessageDialog(isto, "Comprovante Excluido!");
+								informar_atualizou();
 
 							} else {
 								JOptionPane.showMessageDialog(isto,
@@ -9197,6 +10417,7 @@ public class TelaGerenciarContrato extends JFrame {
 							}
 
 							atualizarArvoreDocumentos();
+							informar_atualizou();
 
 						} else {
 							JOptionPane.showMessageDialog(isto,
@@ -9302,113 +10523,97 @@ public class TelaGerenciarContrato extends JFrame {
 		jPopupMenuTabelPagamentos.add(jMenuItemReplicarPagamento);
 	}
 
-	/*public void setMenuCarregamento() {
-		jPopupMenuTabelCarregamento = new JPopupMenu();
-		JMenuItem jMenuItemInserirComprovante = new JMenuItem();
-		JMenuItem jMenuItemVizualizarNFAe = new JMenuItem();
-		//JMenuItem jMenuItemReplicarCarregamento = new JMenuItem();
+	/*
+	 * public void setMenuCarregamento() { jPopupMenuTabelCarregamento = new
+	 * JPopupMenu(); JMenuItem jMenuItemInserirComprovante = new JMenuItem();
+	 * JMenuItem jMenuItemVizualizarNFAe = new JMenuItem(); //JMenuItem
+	 * jMenuItemReplicarCarregamento = new JMenuItem();
+	 * 
+	 * 
+	 * jMenuItemInserirComprovante.setText("Inserir Comprovante");
+	 * jMenuItemVizualizarNFAe.setText("Vizualizar NFA-e");
+	 * //jMenuItemReplicarCarregamento.setText("Replicar");
+	 * 
+	 * jMenuItemInserirComprovante.addActionListener(new
+	 * java.awt.event.ActionListener() { // Importe a classe
+	 * java.awt.event.ActionEvent public void actionPerformed(ActionEvent e) { int
+	 * index = table_carregamento.getSelectedRow(); String id =
+	 * table_carregamento.getValueAt(index, 0).toString();
+	 * 
+	 * importarComprovanteCarregamento(Integer.parseInt(id)); } });
+	 * 
+	 * jMenuItemReplicarCarregamento.addActionListener(new
+	 * java.awt.event.ActionListener() { // Importe a classe
+	 * java.awt.event.ActionEvent public void actionPerformed(ActionEvent e) {
+	 * 
+	 * if (contrato_local.getSub_contrato() != 1) { int index =
+	 * table_carregamento.getSelectedRow(); String id =
+	 * table_carregamento.getValueAt(index, 0).toString();
+	 * 
+	 * GerenciarBancoContratos gerenciar = new GerenciarBancoContratos();
+	 * CadastroContrato.Carregamento carregamento =
+	 * gerenciar.getCarregamento(Integer.parseInt(id));
+	 * 
+	 * if (carregamento != null) { TelaReplicarCarregamento replicar = new
+	 * TelaReplicarCarregamento(contrato_local, carregamento, isto);
+	 * replicar.setTelaPai(isto); replicar.setVisible(true);
+	 * 
+	 * } else { JOptionPane.showMessageDialog(isto,
+	 * "Erro ao consultar este carregamento!\nConsulte o administrador do sistema!"
+	 * ); }
+	 * 
+	 * } else { JOptionPane.showMessageDialog(isto,
+	 * "Não é possivel replicar um carregamento apartir de um sub-contrato");
+	 * 
+	 * } } });
+	 * 
+	 * 
+	 * jMenuItemVizualizarNFAe.addActionListener(new java.awt.event.ActionListener()
+	 * { // Importe a classe java.awt.event.ActionEvent public void
+	 * actionPerformed(ActionEvent e) { int index =
+	 * table_carregamento.getSelectedRow(); String id =
+	 * table_carregamento.getValueAt(index, 0).toString(); String caminho_nota =
+	 * table_carregamento.getValueAt(index, 12).toString(); String
+	 * unidade_base_dados = configs_globais.getServidorUnidade(); String
+	 * caminho_abrir = unidade_base_dados + "\\" + caminho_nota;
+	 * 
+	 * if (Desktop.isDesktopSupported()) { try { Desktop desktop =
+	 * Desktop.getDesktop(); File myFile = new File(caminho_abrir);
+	 * desktop.open(myFile); } catch (IOException ex) { } }
+	 * 
+	 * } });
+	 * 
+	 * jPopupMenuTabelCarregamento.add(jMenuItemInserirComprovante);
+	 * jPopupMenuTabelCarregamento.add(jMenuItemVizualizarNFAe);
+	 * //jPopupMenuTabelCarregamento.add(jMenuItemReplicarCarregamento);
+	 * 
+	 * }
+	 */
 
-
-		jMenuItemInserirComprovante.setText("Inserir Comprovante");
-		jMenuItemVizualizarNFAe.setText("Vizualizar NFA-e");
-		//jMenuItemReplicarCarregamento.setText("Replicar");
-
-		jMenuItemInserirComprovante.addActionListener(new java.awt.event.ActionListener() {
-			// Importe a classe java.awt.event.ActionEvent
-			public void actionPerformed(ActionEvent e) {
-				int index = table_carregamento.getSelectedRow();
-				String id = table_carregamento.getValueAt(index, 0).toString();
-
-				importarComprovanteCarregamento(Integer.parseInt(id));
-			}
-		});
-
-		jMenuItemReplicarCarregamento.addActionListener(new java.awt.event.ActionListener() {
-			// Importe a classe java.awt.event.ActionEvent
-			public void actionPerformed(ActionEvent e) {
-
-				if (contrato_local.getSub_contrato() != 1) {
-					int index = table_carregamento.getSelectedRow();
-					String id = table_carregamento.getValueAt(index, 0).toString();
-
-					GerenciarBancoContratos gerenciar = new GerenciarBancoContratos();
-					CadastroContrato.Carregamento carregamento = gerenciar.getCarregamento(Integer.parseInt(id));
-
-					if (carregamento != null) {
-						TelaReplicarCarregamento replicar = new TelaReplicarCarregamento(contrato_local, carregamento,
-								isto);
-						replicar.setTelaPai(isto);
-						replicar.setVisible(true);
-
-					} else {
-						JOptionPane.showMessageDialog(isto,
-								"Erro ao consultar este carregamento!\nConsulte o administrador do sistema!");
-					}
-
-				} else {
-					JOptionPane.showMessageDialog(isto,
-							"Não é possivel replicar um carregamento apartir de um sub-contrato");
-
-				}
-			}
-		});
-		
-
-		jMenuItemVizualizarNFAe.addActionListener(new java.awt.event.ActionListener() {
-			// Importe a classe java.awt.event.ActionEvent
-			public void actionPerformed(ActionEvent e) {
-				int index = table_carregamento.getSelectedRow();
-				String id = table_carregamento.getValueAt(index, 0).toString();
-				String caminho_nota = table_carregamento.getValueAt(index, 12).toString();
-				String unidade_base_dados = configs_globais.getServidorUnidade();
-				String caminho_abrir = unidade_base_dados + "\\" + caminho_nota;
-
-				if (Desktop.isDesktopSupported()) {
-					try {
-						Desktop desktop = Desktop.getDesktop();
-						File myFile = new File(caminho_abrir);
-						desktop.open(myFile);
-					} catch (IOException ex) {
-					}
-				}
-
-			}
-		});
-
-		jPopupMenuTabelCarregamento.add(jMenuItemInserirComprovante);
-		jPopupMenuTabelCarregamento.add(jMenuItemVizualizarNFAe);
-		//jPopupMenuTabelCarregamento.add(jMenuItemReplicarCarregamento);
-
-	}*/
-	
-	
 	public void setMenuCarregamento() {
-	jPopupMenuTabelCarregamento = new JPopupMenu();
-	JMenuItem jMenuItemDetalhar = new JMenuItem();
-	//JMenuItem jMenuItemReplicarCarregamento = new JMenuItem();
+		jPopupMenuTabelCarregamento = new JPopupMenu();
+		JMenuItem jMenuItemDetalhar = new JMenuItem();
+		// JMenuItem jMenuItemReplicarCarregamento = new JMenuItem();
 
+		jMenuItemDetalhar.setText("Detalhar");
 
-	jMenuItemDetalhar.setText("Detalhar");
+		jMenuItemDetalhar.addActionListener(new java.awt.event.ActionListener() {
+			// Importe a classe java.awt.event.ActionEvent
+			public void actionPerformed(ActionEvent e) {
+				int index = table_carregamento.getSelectedRow();
+				String id = table_carregamento.getValueAt(index, 0).toString();
+				String descricao = table_carregamento.getValueAt(index, 1).toString();
 
+				TelaDetalharTransferenciaCarga tela = new TelaDetalharTransferenciaCarga(Integer.parseInt(id),
+						descricao, isto);
+				tela.setVisible(true);
 
-	jMenuItemDetalhar.addActionListener(new java.awt.event.ActionListener() {
-		// Importe a classe java.awt.event.ActionEvent
-		public void actionPerformed(ActionEvent e) {
-			int index = table_carregamento.getSelectedRow();
-			String id = table_carregamento.getValueAt(index, 0).toString();
-            String descricao = table_carregamento.getValueAt(index, 1).toString();
-			
-			TelaDetalharTransferenciaCarga tela = new TelaDetalharTransferenciaCarga(Integer.parseInt(id), descricao, isto);
-			tela.setVisible(true);
-			
-		}
-	});
+			}
+		});
 
+		jPopupMenuTabelCarregamento.add(jMenuItemDetalhar);
 
-	jPopupMenuTabelCarregamento.add(jMenuItemDetalhar);
-
-
-}
+	}
 
 	public void setMenuAditivos() {
 		if (contrato_local.getStatus_contrato() != 3) {
@@ -9557,11 +10762,14 @@ public class TelaGerenciarContrato extends JFrame {
 		private final int peso_romaneio = 3;
 		private final int codigo_nf_venda = 4;
 		private final int peso_nf_venda = 5;
+		private final int valor_nf_venda = 6;
 
-		private final int codigo_nf_remessa = 6;
+		private final int codigo_nf_remessa = 7;
+		private final int peso_nf_remessa = 8;
+		private final int valor_nf_remessa = 9;
 
 		private final String colunas[] = { "ID:", "Data:", "Código Romaneio:", "Peso Romaneio:", "Código NF Venda:",
-				"Peso NF Venda:", "Código NF Remessa:" };
+				"Peso NF Venda:", "Valor NF Venda:", "Código NF Remessa:", "Peso NF Remessa:", "Valor NF Remessa:" };
 		private final ArrayList<CadastroContrato.Recebimento> dados = new ArrayList<>();// usamos como dados uma lista
 																						// genérica de
 		// nfs
@@ -9607,7 +10815,13 @@ public class TelaGerenciarContrato extends JFrame {
 				return String.class;
 			case peso_nf_venda:
 				return String.class;
+			case valor_nf_venda:
+				return String.class;
 			case codigo_nf_remessa:
+				return String.class;
+			case peso_nf_remessa:
+				return String.class;
+			case valor_nf_remessa:
 				return String.class;
 
 			default:
@@ -9623,6 +10837,7 @@ public class TelaGerenciarContrato extends JFrame {
 		@Override
 		public Object getValueAt(int rowIndex, int columnIndex) {
 			// retorna o valor conforme a coluna e linha
+			NumberFormat z = NumberFormat.getNumberInstance();
 
 			// pega o dados corrente da linha
 			CadastroContrato.Recebimento recebimento = dados.get(rowIndex);
@@ -9636,28 +10851,61 @@ public class TelaGerenciarContrato extends JFrame {
 			case codigo_romaneio:
 				return recebimento.getCodigo_romaneio();
 			case peso_romaneio:
-				return recebimento.getPeso_romaneio();
-			case codigo_nf_venda:{
-				if(recebimento.getNf_venda_aplicavel() == 1) {
+				double peso_romaneio = recebimento.getPeso_romaneio();
+				return z.format(peso_romaneio) + " KGs";
+			case codigo_nf_venda: {
+				if (recebimento.getNf_venda_aplicavel() == 1) {
 					return recebimento.getCodigo_nf_venda();
 
-				}else {
+				} else {
 					return "Não Aplicável";
 				}
 			}
-			case peso_nf_venda:{
-				if(recebimento.getNf_venda_aplicavel() == 1) {
-					return recebimento.getPeso_nf_venda();
+			case peso_nf_venda: {
 
-				}else {
+				if (recebimento.getNf_venda_aplicavel() == 1) {
+					double peso_nf_venda = recebimento.getPeso_nf_venda();
+					return z.format(peso_nf_venda) + " KGs";
+
+				} else {
 					return "Não Aplicável";
 				}
 			}
-			case codigo_nf_remessa:{
-				if(recebimento.getNf_remessa_aplicavel() == 1) {
+			case valor_nf_venda: {
+				if (recebimento.getNf_venda_aplicavel() == 1) {
+					Locale ptBr = new Locale("pt", "BR");
+					String valorString = NumberFormat.getCurrencyInstance(ptBr).format(recebimento.getValor_nf_venda());
+					return valorString;
+
+				} else {
+					return "Não Aplicável";
+				}
+			}
+			case codigo_nf_remessa: {
+				if (recebimento.getNf_remessa_aplicavel() == 1) {
 					return recebimento.getCodigo_nf_remessa();
 
-				}else {
+				} else {
+					return "Não Aplicável";
+				}
+			}
+			case peso_nf_remessa: {
+				if (recebimento.getNf_remessa_aplicavel() == 1) {
+					double peso_nf_remessa = recebimento.getPeso_nf_remessa();
+					return z.format(peso_nf_remessa) + " KGs";
+
+				} else {
+					return "Não Aplicável";
+				}
+			}
+			case valor_nf_remessa: {
+				if (recebimento.getNf_remessa_aplicavel() == 1) {
+					Locale ptBr = new Locale("pt", "BR");
+					String valorString = NumberFormat.getCurrencyInstance(ptBr)
+							.format(recebimento.getValor_nf_remessa());
+					return valorString;
+
+				} else {
 					return "Não Aplicável";
 				}
 			}
@@ -9797,10 +11045,10 @@ public class TelaGerenciarContrato extends JFrame {
 		private final int valor_nf_complemento = 18;
 		private final int obs = 19;
 
-		private final String colunas[] = { "ID:", "Descrição",  "Data:", "Contrato:", "Comprador:", "Vendedor:", "Transportador:",
-				"Veiculo:", "Produto:", "Romaneio", "Peso Romaneio", "NF Interna", "Peso NF Interna", "NF Venda 1",
-				"Peso NF Venda 1", "Valor NF Venda 1", "NF Complemento", "Peso NF Complemento", "Valor NF Complemento",
-				"Observação" };
+		private final String colunas[] = { "ID:", "Descrição", "Data:", "Contrato:", "Comprador:", "Vendedor:",
+				"Transportador:", "Veiculo:", "Produto:", "Romaneio", "Peso Romaneio", "NF Interna", "Peso NF Interna",
+				"NF Venda 1", "Peso NF Venda 1", "Valor NF Venda 1", "NF Complemento", "Peso NF Complemento",
+				"Valor NF Complemento", "Observação" };
 		private final ArrayList<CadastroContrato.Carregamento> dados = new ArrayList<>();// usamos como dados uma lista
 																							// genérica de
 		// nfs
@@ -9886,16 +11134,16 @@ public class TelaGerenciarContrato extends JFrame {
 			switch (columnIndex) {
 			case id:
 				return carregamento.getId_carregamento();
-			case descricao:{
+			case descricao: {
 				String descricao = carregamento.getDescricao();
 				try {
-					if(descricao == null) {
+					if (descricao == null) {
 						return "Carregamento Normal";
 
-					}else {
+					} else {
 						return descricao;
 					}
-				}catch(Exception e) {
+				} catch (Exception e) {
 					return "Carregamento Normal";
 				}
 			}
@@ -9989,76 +11237,76 @@ public class TelaGerenciarContrato extends JFrame {
 				return carregamento.getPeso_romaneio();
 			}
 			case nf_interna: {
-				if(carregamento.getNf_interna_aplicavel() == 1) {
+				if (carregamento.getNf_interna_aplicavel() == 1) {
 					return carregamento.getCodigo_nf_interna();
 
-				}else {
+				} else {
 					return "Não Aplicável";
 				}
 			}
-			case peso_nf_interna:{
-				if(carregamento.getNf_interna_aplicavel() == 1) {
+			case peso_nf_interna: {
+				if (carregamento.getNf_interna_aplicavel() == 1) {
 					return carregamento.getPeso_nf_interna();
 
-				}else {
+				} else {
 					return "Não Aplicável";
 				}
 			}
-			case nf_venda1:{
-				if(carregamento.getNf_venda1_aplicavel() == 1) {
+			case nf_venda1: {
+				if (carregamento.getNf_venda1_aplicavel() == 1) {
 					return carregamento.getCodigo_nf_venda1();
 
-				}else {
+				} else {
 					return "Não Aplicável";
 				}
 			}
-			case peso_nf_venda1:{
-				if(carregamento.getNf_venda1_aplicavel() == 1) {
+			case peso_nf_venda1: {
+				if (carregamento.getNf_venda1_aplicavel() == 1) {
 					return carregamento.getPeso_nf_venda1();
 
-				}else {
+				} else {
 					return "Não Aplicável";
 				}
 			}
 			case valor_nf_venda1: {
-				if(carregamento.getNf_venda1_aplicavel() == 1) {
+				if (carregamento.getNf_venda1_aplicavel() == 1) {
 					Locale ptBr = new Locale("pt", "BR");
-					String valorString = NumberFormat.getCurrencyInstance(ptBr).format(carregamento.getValor_nf_venda1());
+					String valorString = NumberFormat.getCurrencyInstance(ptBr)
+							.format(carregamento.getValor_nf_venda1());
 					return valorString;
 
-				}else {
+				} else {
 					return "Não Aplicável";
 				}
-				
 
 			}
-			case nf_complemento:{
-				if(carregamento.getNf_complemento_aplicavel()== 1) {
+			case nf_complemento: {
+				if (carregamento.getNf_complemento_aplicavel() == 1) {
 					return carregamento.getCodigo_nf_complemento();
 
-				}else {
+				} else {
 					return "Não Aplicável";
 				}
 			}
-			case peso_nf_complemento:{
-				if(carregamento.getNf_complemento_aplicavel()== 1) {
+			case peso_nf_complemento: {
+				if (carregamento.getNf_complemento_aplicavel() == 1) {
 					return carregamento.getPeso_nf_complemento();
 
-				}else {
+				} else {
 					return "Não Aplicável";
 				}
 			}
 			case valor_nf_complemento: {
 
-				if(carregamento.getNf_complemento_aplicavel()== 1) {
+				if (carregamento.getNf_complemento_aplicavel() == 1) {
 					Locale ptBr = new Locale("pt", "BR");
 					String valorString = NumberFormat.getCurrencyInstance(ptBr)
 							.format(carregamento.getValor_nf_complemento());
 					return valorString;
-				}else {
+				} else {
 					return "Não Aplicável";
 				}
-			
+
 			}
 			case obs: {
 				return carregamento.getObservacao();
@@ -10191,7 +11439,12 @@ public class TelaGerenciarContrato extends JFrame {
 			String caminho_salvar = unidade_base_dados + "\\" + contrato_local.getCaminho_diretorio_contrato();
 			String nome_arquivo = "aditivo_contrato" + contrato_local.getCodigo() + hora + ".pdf";
 
+			File pasta_documentos = new File(caminho_salvar + "\\documentos\\");
+			if (!pasta_documentos.exists())
+				manipular.criarDiretorio(pasta_documentos.getAbsolutePath());
+
 			String caminho_completo = caminho_salvar + "\\documentos\\" + nome_arquivo;
+			JOptionPane.showMessageDialog(isto, "Copiando:\nDe: " + caminho_arquivo + "\nPara: " + caminho_completo);
 			boolean copiado = manipular.copiarNFe(caminho_arquivo, caminho_completo);
 
 			if (copiado) {
@@ -10291,6 +11544,7 @@ public class TelaGerenciarContrato extends JFrame {
 		}
 
 		atualizarArvoreDocumentos();
+		informar_atualizou();
 
 		setInformacoesDistratos();
 
@@ -10514,7 +11768,7 @@ public class TelaGerenciarContrato extends JFrame {
 			String sts = "";
 			if (status == 1) {
 				sts = "Recolher Assinatura";
-			} else {
+			} else if (status == 2) {
 				sts = "Assinado";
 			}
 
@@ -10541,7 +11795,7 @@ public class TelaGerenciarContrato extends JFrame {
 			String unidade_base_dados = configs_globais.getServidorUnidade();
 
 			String caminho_salvar = unidade_base_dados + "\\" + contrato_local.getCaminho_diretorio_contrato();
-			String nome_arquivo = "comprovante_assinatura_aditivo_" + id_distrato + "_" + contrato_local.getCodigo()
+			String nome_arquivo = "comprovante_assinatura_distrato_" + id_distrato + "_" + contrato_local.getCodigo()
 					+ ".pdf";
 			;
 
@@ -10573,6 +11827,7 @@ public class TelaGerenciarContrato extends JFrame {
 
 						setInformacoesDistratos();
 						atualizarArvoreDocumentos();
+						informar_atualizou();
 					} else {
 						JOptionPane.showMessageDialog(isto,
 								"Arquivo copiado, mas não pode ser salvo na base de dados\nConsulte o adiministrador do sistema!");
@@ -10725,6 +11980,171 @@ public class TelaGerenciarContrato extends JFrame {
 
 		statusPenhor.setText(contrato_local.getStatus_penhor());
 		entLocalizacao.setText(contrato_local.getLocalizacao());
+
+	}
+
+	public void atualizarContratoAposInformativo() {
+
+		// recebimentos
+		pesquisar_recebimentos(false);
+
+		// carregamentos
+		pesquisar_carregamentos(false);
+
+		// pagamentos
+		pesquisar_pagamentos(false);
+
+		atualizarArvoreDocumentos();
+
+		setInformacoesAditivos();
+		setInformacoesDistratos();
+
+		// atualizar demais informacoes
+		GerenciarBancoContratos gerenciar = new GerenciarBancoContratos();
+		contrato_local = gerenciar.getContrato(contrato_local.getId());
+		setPagamentos(contrato_local);
+		setSubContratos(contrato_local);
+
+		// criar acopia temporaria
+
+		String url_original = servidor_unidade + contrato_local.getCaminho_arquivo();
+		carregarDocumento(url_original);
+
+		// atualiza os paineis
+		setarInformacoesPainelPrincipal();
+		setarInformacoesExtrasAbaPrincipal();
+		setarInformacoesPainelCarregamentos();
+		setarInformacoesPainelRecebimentos();
+
+		// atualiza os subcontratos
+		if (contrato_local.getSub_contrato() != 3) {
+			setSubContratos(contrato_local);
+			atualizarArvoreContratos();
+		}
+
+		if (contrato_local.getSub_contrato() == 0 || contrato_local.getSub_contrato() == 5) {
+			setarPainelGanhosPotenciais();
+
+		}
+		painel_informacoes_tab_principal.setarInformacoesPainelCarregamentosInformativos();
+		painel_informacoes_tab_pagamentos.setarInformacoesPainelCarregamentosInformativos();
+		getTarefas();
+
+		if (contrato_local.getStatus_contrato() == 3 || contrato_local.getStatus_contrato() == 0) {
+			travarContratoSemAtualizar();
+
+		} else {
+			destravarContrato();
+
+		}
+	}
+
+	public void travarContratoSemAtualizar() {
+		atualizarTabelaTarefas();
+		atualizarContratoLocal(false);
+
+		if (contrato_local.getStatus_contrato() == 3 || contrato_local.getStatus_contrato() == 0) {
+			// contrato concluido ou em aprovacao
+			try {
+				for (JButton btn : botoes) {
+					btn.setEnabled(false);
+				}
+			} catch (Exception e) {
+				JOptionPane.showMessageDialog(isto, "erro: " + e.getMessage() + "\nCausa: " + e.getCause());
+			}
+
+			jPopupMenuTabelCarregamento = null;
+
+			jPopupMenuDocumentos = null;
+
+			jPopupMenuTabelPagamentos = null;
+
+			jPopupMenuTabelAditivos = null;
+
+			jPopupMenuTabelDistratos = null;
+
+		}
+
+	}
+
+	public String incluir_legenda_transferencias_positivas(CadastroTransferenciaPagamentoContratual transferencia) {
+
+		String texto = "";
+
+		GerenciarBancoContratos gerenciar = new GerenciarBancoContratos();
+		CadastroContrato contrato = gerenciar.getContrato(transferencia.getId_contrato_remetente());
+
+		CadastroCliente compradores[] = contrato.getCompradores();
+
+		String nome_comprador = "";
+		if (compradores[0].getTipo_pessoa() == 0)
+			nome_comprador = compradores[0].getNome_empresarial().toUpperCase();
+		else
+			nome_comprador = compradores[0].getNome_fantaia().toUpperCase();
+
+		CadastroCliente vendedores[] = contrato.getVendedores();
+
+		String nome_vendedor = "";
+		if (vendedores[0].getTipo_pessoa() == 0)
+			nome_vendedor = vendedores[0].getNome_empresarial().toUpperCase();
+		else
+			nome_vendedor = vendedores[0].getNome_fantaia().toUpperCase();
+
+		texto = "(*) Valor recebido do contrato " + contrato.getCodigo() + " entre " + nome_comprador + " x "
+				+ nome_vendedor + " " + contrato.getQuantidade() + " " + contrato.getMedida() + " de "
+				+ contrato.getModelo_produto().getNome_produto() + " da safra "
+				+ contrato.getModelo_safra().getAno_plantio() + "/" + contrato.getModelo_safra().getAno_colheita()
+
+		;
+
+		return texto;
+
+	}
+
+	public String incluir_legenda_transferencias_negativas(
+			CadastroContrato.CadastroTransferenciaPagamentoContratual transferencia) {
+		String texto = "";
+
+		GerenciarBancoContratos gerenciar = new GerenciarBancoContratos();
+		CadastroContrato contrato = gerenciar.getContrato(transferencia.getId_contrato_destinatario());
+
+		CadastroCliente compradores[] = contrato.getCompradores();
+
+		String nome_comprador = "";
+		if (compradores[0].getTipo_pessoa() == 0)
+			nome_comprador = compradores[0].getNome_empresarial().toUpperCase();
+		else
+			nome_comprador = compradores[0].getNome_fantaia().toUpperCase();
+
+		CadastroCliente vendedores[] = contrato.getVendedores();
+
+		String nome_vendedor = "";
+		if (vendedores[0].getTipo_pessoa() == 0)
+			nome_vendedor = vendedores[0].getNome_empresarial().toUpperCase();
+		else
+			nome_vendedor = vendedores[0].getNome_fantaia().toUpperCase();
+
+		texto = "(*) Valor transferido para o contrato " + contrato.getCodigo() + " entre " + nome_comprador + " x "
+				+ nome_vendedor + " " + contrato.getQuantidade() + " " + contrato.getMedida() + " de "
+				+ contrato.getModelo_produto().getNome_produto() + " da safra "
+				+ contrato.getModelo_safra().getAno_plantio() + "/" + contrato.getModelo_safra().getAno_colheita()
+
+		;
+
+		texto = texto + "\n";
+
+		return texto;
+
+	}
+
+	public void setTelaRecebimentos(int id_recebimento) {
+
+		if (contrato_local.getSub_contrato() == 3)
+			painelPrincipal.setSelectedIndex(1);
+		else {
+			painelPrincipal.setSelectedIndex(2);
+
+		}
 
 	}
 }

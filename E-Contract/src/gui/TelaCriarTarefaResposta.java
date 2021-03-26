@@ -163,6 +163,8 @@ public class TelaCriarTarefaResposta extends JDialog {
             			
             			//((TelaGerenciarContrato) telaPai).atualizarListaTarefas();
             			((TelaGerenciarContrato) telaPai).atualizarListaTarefas();
+            			((TelaGerenciarContrato) telaPai).informar_atualizou();
+
 
             			isto.dispose();
             		}else {

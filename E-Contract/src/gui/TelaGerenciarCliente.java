@@ -381,30 +381,15 @@ public class TelaGerenciarCliente extends JDialog {
 		JButton btnNewButton_2 = new JButton("Romaneios\r\n");
 		btnNewButton_2.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				
-				if(telaRomaneio == null) {
-					telaRomaneio = new TelaRomaneios(0,isto);
-					telaRomaneio.pesquisarTodosOsRomaneios(new GerenciarBancoClientes().getClientes(-1, -1, ""));
-					DadosGlobais dados = DadosGlobais.getInstance();
 
-					dados.setTelaRomaneios(telaRomaneio);
-					telaRomaneio.limpar();
-					telaRomaneio.filtrarRomaneiosCliente(cliente_selecionado);
+			    TelaRomaneios telaRomaneio;
+					telaRomaneio = new TelaRomaneios(1,isto);
 					telaRomaneio.setTelaPai(isto);
-					telaRomaneio.setVisible(true);
-				}else {
-					//telaRomaneio.pesquisarTodosOsRomaneios(clientes_disponiveis);
-					telaRomaneio.setTelaPai(isto);
-
-					telaRomaneio.limpar();
-					telaRomaneio.filtrarRomaneiosCliente(cliente_selecionado);
+					telaRomaneio.setClienteSelecionado(cliente_selecionado);
+				    telaRomaneio.pesquisarTodosOsRomaneios();
 					telaRomaneio.setVisible(true);
 				
-				}
-				/*
-				TelaRomaneios romaneios = new TelaRomaneios(0,isto);
-				romaneios.pesquisarRomaneios(cliente_selecionado);
-				romaneios.setVisible(true);*/
+				
 			}
 		});
 		btnNewButton_2.setBounds(437, 290, 93, 28);
@@ -496,8 +481,15 @@ public class TelaGerenciarCliente extends JDialog {
 		      JButton btnAcessarNfs = new JButton("Ver NF's");
 		      btnAcessarNfs.addActionListener(new ActionListener() {
 		      	public void actionPerformed(ActionEvent e) {
-		      		TelaNotasFiscais verNotas = new TelaNotasFiscais(1, 0, cliente_local, isto);
-					 verNotas.setVisible(true);
+
+
+					TelaTodasNotasFiscais telaTodasNotasFiscais = new TelaTodasNotasFiscais(0,1,isto);
+						telaTodasNotasFiscais.setTelaPai(isto);
+						telaTodasNotasFiscais.limpar();
+						telaTodasNotasFiscais.desabilitarBtnSelecionar();
+						telaTodasNotasFiscais.setClienteSelecionado(cliente_selecionado);
+						telaTodasNotasFiscais.pesquisar_notas();
+						telaTodasNotasFiscais.setVisible(true);
 					 
 					
 		      	}
@@ -571,9 +563,11 @@ public class TelaGerenciarCliente extends JDialog {
 		 JButton btnNewButton_1 = new JButton("Entenda a pontuação");
 		 btnNewButton_1.addActionListener(new ActionListener() {
 		 	public void actionPerformed(ActionEvent e) {
-		 		TelaMostrarPontuacao tela = new TelaMostrarPontuacao(cliente_local);
+		 		TelaMostrarPontuacao tela = new TelaMostrarPontuacao(cliente_local, isto);
 		 		tela.setTelaPai(isto);
 		 		tela.setInfoPontuacao(cliente_local.getId());
+		 		
+		 		tela.pesquisar_pontuacao();
 		 		tela.setVisible(true);
 		 		
 		 	}

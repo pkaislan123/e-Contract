@@ -38,6 +38,7 @@ import cadastros.CadastroRomaneio;
 import cadastros.CadastroSafra;
 import conexaoBanco.GerenciarBancoClientes;
 import conexaoBanco.GerenciarBancoContratos;
+import conexaoBanco.GerenciarBancoRomaneios;
 import javafx.application.Platform;
 import javafx.embed.swing.JFXPanel;
 import javafx.stage.FileChooser;
@@ -72,13 +73,13 @@ public class TelaRomaneios extends JDialog {
 	private ConfiguracoesGlobais configs_globais;
 
 	private JDialog tela_pai;
-	private ArrayList<CadastroRomaneio> romaneios_disponivel = new ArrayList<>();
+	private ArrayList<CadastroRomaneio> lista_romaneios = new ArrayList<>();
 
 	private JTable table_nfs;
 	private TelaRomaneios isto;
 	private JButton btnSelecionarNota;
 	private JDialog telaPai;
-
+    private CadastroCliente cliente_selecionado ;
 	private JLabel lblStatusAdicionandoNotas;
 	private int contador = 0;
 	private JFileChooser fileChooser_global;
@@ -86,7 +87,7 @@ public class TelaRomaneios extends JDialog {
 
 	private final JPanel painelPrincipal = new JPanel();
 
-	private RomaneioTableModel modelo_nfs = new RomaneioTableModel();
+	private RomaneioTableModel modelo_romaneios = new RomaneioTableModel();
 	private TableRowSorter<RomaneioTableModel> sorter;
 
 	private JTextField entChavePesquisa;
@@ -110,6 +111,7 @@ public class TelaRomaneios extends JDialog {
 	private JLabel lblNewLabel_4;
 	private JButton btnImportar;
 	private JButton btnNewButton_1;
+	private String servidor_unidade;
 	private JButton btnNewButton_2;
 	private JButton btnReleitura;
 	private JTextField entCodigo;
@@ -139,8 +141,8 @@ public class TelaRomaneios extends JDialog {
 		panel.setBounds(26, 231, 1250, 340);
 		painelPrincipal.add(panel);
 
-		table_nfs = new JTable(modelo_nfs);
-		 sorter = new TableRowSorter<RomaneioTableModel>(modelo_nfs);
+		table_nfs = new JTable(modelo_romaneios);
+		 sorter = new TableRowSorter<RomaneioTableModel>(modelo_romaneios);
         
 		
 		table_nfs.setRowSorter(sorter);
@@ -200,12 +202,12 @@ public class TelaRomaneios extends JDialog {
 				
 				int rowSel = table_nfs.getSelectedRow();//pega o indice da linha na tabela
 				int indexRowModel = table_nfs.getRowSorter().convertRowIndexToModel(rowSel);//converte pro indice do model
-				CadastroRomaneio nota_vizualizar = romaneios_disponivel.get(indexRowModel);
+				CadastroRomaneio nota_vizualizar = lista_romaneios.get(indexRowModel);
 				
 				if (Desktop.isDesktopSupported()) {
 					 try {
 					     Desktop desktop = Desktop.getDesktop();
-					     File myFile = new File(nota_vizualizar.getCaminho_arquivo());
+					     File myFile = new File(servidor_unidade + nota_vizualizar.getCaminho_arquivo());
 					     desktop.open(myFile);
 					     } catch (IOException ex) {}
 					 }
@@ -297,7 +299,6 @@ public class TelaRomaneios extends JDialog {
 		btnImportar = new JButton("Importar");
 		btnImportar.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-			importar();
 			}
 		});
 		btnImportar.setBounds(943, 592, 89, 23);
@@ -333,10 +334,20 @@ public class TelaRomaneios extends JDialog {
 					int rowSel = table_nfs.getSelectedRow();//pega o indice da linha na tabela
 					int indexRowModel = table_nfs.getRowSorter().convertRowIndexToModel(rowSel);//converte pro indice do model
 					ManipularTxt manipular = new ManipularTxt();
-					boolean apagado = manipular.apagarArquivo(romaneios_disponivel.get(indexRowModel).getCaminho_arquivo());
+					boolean apagado = manipular.apagarArquivo(servidor_unidade + lista_romaneios.get(indexRowModel).getCaminho_arquivo());
 					if(apagado) {
-						modelo_nfs.onRemove(romaneios_disponivel.get(indexRowModel));
-						JOptionPane.showMessageDialog(isto, "Romaneio Excluido");
+						
+						//remover do banco de dados
+						GerenciarBancoRomaneios gerenciar = new GerenciarBancoRomaneios();
+						boolean excluir = gerenciar.removerRomaneio(lista_romaneios.get(indexRowModel).getId_romaneio());
+						if(excluir) {
+							JOptionPane.showMessageDialog(isto, "Romaneio Excluido");
+							modelo_romaneios.onRemove(lista_romaneios.get(indexRowModel));
+
+						}else {
+							JOptionPane.showMessageDialog(isto, "Erro ao excluir este Romaneio\nConsulte o administrador");
+
+						}
 
 					}else {
 						JOptionPane.showMessageDialog(isto, "Erro ao excluir este Romaneio\nConsulte o administrador");
@@ -348,8 +359,6 @@ public class TelaRomaneios extends JDialog {
 		painelPrincipal.add(btnNewButton_1);
 		
 		btnNewButton_2 = new JButton("Excluir Todos os Romaneios");
-		btnNewButton_2.setVisible(false);
-		btnNewButton_2.setEnabled(false);
 		btnNewButton_2.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				if (JOptionPane.showConfirmDialog(isto, 
@@ -358,11 +367,11 @@ public class TelaRomaneios extends JDialog {
 			            JOptionPane.QUESTION_MESSAGE) == JOptionPane.YES_OPTION){
 
                    try {
-                	   for(CadastroRomaneio rom : romaneios_disponivel) {
+                	   for(CadastroRomaneio rom : lista_romaneios) {
 					ManipularTxt manipular = new ManipularTxt();
 					boolean apagado = manipular.apagarArquivo(rom.getCaminho_arquivo());
 					if(apagado) {
-						modelo_nfs.onRemove(rom);
+						modelo_romaneios.onRemove(rom);
 
 					}else {
 						JOptionPane.showMessageDialog(isto, "Erro ao excluir este Romaneio\nConsulte o administrador");
@@ -378,7 +387,7 @@ public class TelaRomaneios extends JDialog {
 			}
 			}
 		});
-		btnNewButton_2.setBounds(36, 582, 89, 23);
+		btnNewButton_2.setBounds(36, 582, 188, 23);
 		painelPrincipal.add(btnNewButton_2);
 		
 		JButton btnSelecionar = new JButton("Selecionar");
@@ -387,9 +396,9 @@ public class TelaRomaneios extends JDialog {
 				int rowSel = table_nfs.getSelectedRow();//pega o indice da linha na tabela
 				int indexRowModel = table_nfs.getRowSorter().convertRowIndexToModel(rowSel);//converte pro indice do model
 				if(telaPai instanceof TelaConfirmarRecebimento) {
-					((TelaConfirmarRecebimento) telaPai).setRomaneio(romaneios_disponivel.get(indexRowModel));
+					((TelaConfirmarRecebimento) telaPai).setRomaneio(lista_romaneios.get(indexRowModel));
 				}else if(telaPai instanceof TelaConfirmarCarregamento) {
-					((TelaConfirmarCarregamento) telaPai).setRomaneio(romaneios_disponivel.get(indexRowModel));
+					((TelaConfirmarCarregamento) telaPai).setRomaneio(lista_romaneios.get(indexRowModel));
 
 				}
 				isto.dispose();
@@ -399,11 +408,10 @@ public class TelaRomaneios extends JDialog {
 		btnSelecionar.setBounds(1141, 592, 89, 23);
 		painelPrincipal.add(btnSelecionar);
 		
-		btnReleitura = new JButton("Releitura");
+		btnReleitura = new JButton("Refazer Pesquisar");
 		btnReleitura.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				GerenciarBancoClientes gerenciar = new GerenciarBancoClientes();
-				pesquisarTodosOsRomaneios(gerenciar.getClientes(-1, -1, "") );
+				pesquisarTodosOsRomaneios();
 			}
 		});
 		btnReleitura.setBounds(1061, 107, 144, 23);
@@ -446,9 +454,7 @@ public class TelaRomaneios extends JDialog {
 			btnSelecionar.setEnabled(false);
 		}
 		
-		
-		
-
+	
 		this.setLocationRelativeTo(janela_pai);
 
 	}
@@ -467,7 +473,7 @@ public class TelaRomaneios extends JDialog {
 					int rowSel = table_nfs.getSelectedRows()[0];
 					int indexRowModel = table_nfs.getRowSorter().convertRowIndexToModel(rowSel);// converte pro indice
 																								// do model
-					CadastroRomaneio rom = romaneios_disponivel.get(indexRowModel);
+					CadastroRomaneio rom = lista_romaneios.get(indexRowModel);
 
 					try {
 						boolean copiar = manipular.copiarNFe(rom.getCaminho_arquivo(),
@@ -505,7 +511,7 @@ public class TelaRomaneios extends JDialog {
 						int rowSel = indices[i];
 						int indexRowModel = table_nfs.getRowSorter().convertRowIndexToModel(rowSel);// converte pro
 																									// indice do model
-						CadastroRomaneio rom = romaneios_disponivel.get(indexRowModel);
+						CadastroRomaneio rom = lista_romaneios.get(indexRowModel);
 
 						try {
 							boolean copiar = manipular.copiarNFe(rom.getCaminho_arquivo(),
@@ -553,98 +559,9 @@ public class TelaRomaneios extends JDialog {
 
 	}
 
-	public void pesquisarTodosOsRomaneios(ArrayList<CadastroCliente> clientes) {
-		
-		new Thread() {
-			@Override
-			public void run() {
-				btnReleitura.setEnabled(false);
-				btnReleitura.setVisible(false);
-				for (CadastroCliente vend : clientes) {
-				
-							pesquisarRomaneios(vend);
-
-				}
-				btnReleitura.setEnabled(true);
-				btnReleitura.setVisible(true);
-				
-			}
-		}.start();
-	}
-
-	public void pesquisarRomaneios(CadastroCliente vendedor) {
-
-		// acessar caminho desses vendedores
-		try {
-
-			String nome_pasta;
-
-			if (vendedor.getTipo_pessoa() == 0) {
-				nome_pasta = vendedor.getNome_empresarial().toUpperCase().trim();
-			} else {
-				nome_pasta = vendedor.getNome_fantaia().toUpperCase().trim();
-			}
-
-			String unidade_base_dados = configs_globais.getServidorUnidade();
-			String sub_pasta = "E-Contract\\arquivos\\clientes";
-			nome_pasta = nome_pasta.trim();
-
-			String caminho_completo_nf = unidade_base_dados + "\\" + sub_pasta + "\\" + nome_pasta.toUpperCase() + "\\"
-					+ "ROMANEIOS";
-
-			ManipularRomaneios manipular_romaneios = new ManipularRomaneios(caminho_completo_nf);
-			manipular_romaneios.sinalizar(2);
-			manipular_romaneios.setListaAtual(romaneios_disponivel);
-			ArrayList<CadastroRomaneio> romaneios = manipular_romaneios.tratarMaisRapido();
-
-			for (CadastroRomaneio rom : romaneios) {
-				
-				if (rom != null) {
-					//verifica se o romaneio ja esta na lista
-					boolean ja_existe = false;
-					
-					for(CadastroRomaneio rom_na_lista : romaneios_disponivel) {
-						if(rom_na_lista.getNumero_romaneio() == rom.getNumero_romaneio())
-							ja_existe = true;
-					}
-					
-					if(!ja_existe)
-					addNota(rom);
-				}
-			}
-
-		} catch (Exception f) {
-		//	JOptionPane.showMessageDialog(null,
-			//		"Erro ao listar romaneios\nCausa: " + f.getCause() + "\nErro: " + f.getMessage());
-		}
-	}
 	
-	public void filtrarRomaneiosCliente(CadastroCliente cliente) {
-		ArrayList<RowFilter<Object,Object>> filters = new ArrayList<RowFilter<Object,Object>>(2);
 
-		String numero_identificacao = "";
-		if(cliente.getTipo_pessoa() == 0) {
-			numero_identificacao = cliente.getCpf();
-		}else {
-			numero_identificacao = cliente.getCnpj();
-		}
-		
-		entIdentificacaoRemetente.setText(numero_identificacao);
-		entIdentificacaoDestinatario.setText(numero_identificacao);
-
-	    if(checkString(numero_identificacao))
-	    filters.add(RowFilter.regexFilter(numero_identificacao, 7));
 	
-	    if(checkString(numero_identificacao))
-	    filters.add(RowFilter.regexFilter(numero_identificacao, 9));
-	  
-	    
-	   
-	    
-	    sorter.setRowFilter( RowFilter.orFilter(filters));
-		
-		
-	}
 
 	public void getDadosGlobais() {
 		// gerenciador de log
@@ -652,6 +569,7 @@ public class TelaRomaneios extends JDialog {
 		GerenciadorLog = dados.getGerenciadorLog();
 		configs_globais = dados.getConfigs_globais();
 
+		 servidor_unidade = configs_globais.getServidorUnidade();
 		// usuario logado
 		login = dados.getLogin();
 
@@ -661,31 +579,32 @@ public class TelaRomaneios extends JDialog {
 		this.tela_pai = _pai;
 	}
 
-	public void addNota(CadastroRomaneio romaneio) {
-
-		java.awt.EventQueue.invokeLater(new Runnable() {
+	public void pesquisarTodosOsRomaneios() {
+		new Thread() {
+			@Override
 			public void run() {
-				modelo_nfs.onAdd(romaneio);
-				/*
-				 * modelo_nfs.addRow(new Object[] { nota.getNfe(), nota.getSerie(),
-				 * nota.getNome_remetente(), nota.getInscricao_remetente(), nota.getProtocolo(),
-				 * nota.getData(), nota.getNatureza(), nota.getNome_destinatario(),
-				 * nota.getInscricao_destinatario(), nota.getProduto(), nota.getQuantidade(),
-				 * nota.getValor() });
-				 */
+		GerenciarBancoRomaneios gerenciar = new GerenciarBancoRomaneios();
+		lista_romaneios.clear();
+		modelo_romaneios.onRemoveAll();
+	    
+		ArrayList<CadastroRomaneio> romaneios;
+		
+		if(cliente_selecionado == null) {
+			romaneios =  gerenciar.listarRomaneiosMaisRapido();
+		}else {
+			 romaneios =  gerenciar.listarRomaneiosPorCliente(cliente_selecionado.getId());
 
-				lblStatusAdicionandoNotas.setText("Aguarde, romaneio estão sendo carregados: Adicionando romaneio "
-						+ romaneio.getNumero_romaneio());
-				lblStatusAdicionandoNotas.repaint();
-				lblStatusAdicionandoNotas.updateUI();
-
-				romaneios_disponivel.add(romaneio);
-
+		}
+		for (CadastroRomaneio rom : romaneios) {
+			 modelo_romaneios.onAdd(rom);
+			 lista_romaneios.add(rom);
+		}
+		
 			}
-		});
-
+		}.start();
 	}
-
+	
+	
 	public static class RomaneioTableModel extends AbstractTableModel {
 
 		// constantes p/identificar colunas
@@ -813,10 +732,10 @@ public class TelaRomaneios extends JDialog {
 				return romaneio.getData();
 			case produto: {
 				try {
-				CadastroProduto prod = romaneio.getSafra().getProduto();
+				CadastroProduto prod = romaneio.getProduto();
 				return prod.getNome_produto();
 				}catch(Exception h) {
-					JOptionPane.showMessageDialog(null, "O romaneio codigo: " + romaneio.getNumero_romaneio() + " possui erro no produto");
+				//	JOptionPane.showMessageDialog(null, "O romaneio codigo: " + romaneio.getNumero_romaneio() + " possui erro no produto");
 				}
 			}
 			case transgenia:
@@ -827,6 +746,7 @@ public class TelaRomaneios extends JDialog {
 
 			}
 			case nome_remetente: {
+				try {
 				String nome_cliente = "";
               
 				if(remetente != null) {
@@ -836,7 +756,9 @@ public class TelaRomaneios extends JDialog {
 					nome_cliente = remetente.getNome_fantaia().toUpperCase();
 				}
 				return nome_cliente;
-
+				}catch(Exception e) {
+					return "";
+				}
 			}
 			case id_remetente:{
 				try {
@@ -849,6 +771,7 @@ public class TelaRomaneios extends JDialog {
 				}
 			}
 			case nome_destinatario: {
+				try {
 				String nome_cliente = "";
 
 				if(destinatario != null) {
@@ -858,6 +781,9 @@ public class TelaRomaneios extends JDialog {
 					nome_cliente = destinatario.getNome_fantaia().toUpperCase();
 				}
 				return nome_cliente;
+				}catch (Exception e) {
+					return "";
+				}
 			}
 			case id_destinatario:{
 				try {
@@ -909,12 +835,27 @@ public class TelaRomaneios extends JDialog {
 
 				}
 			}
-			case motorista:
-				return romaneio.getMotorista().getNome_empresarial().toUpperCase();
+			case motorista:{
+				try {
+				if(romaneio.getMotorista() != null) {
+					return romaneio.getMotorista().getNome_empresarial().toUpperCase();
+
+				}else 
+					return "";
+				}catch(Exception e) {
+					return "";
+				}
+			}
 			case placa: {
+				try {
+				if(romaneio.getMotorista() != null) {
 				ArrayList<CadastroCliente.Veiculo> veiculos = romaneio.getMotorista().getVeiculos();
 				return veiculos.get(0).getPlaca_trator().toUpperCase();
-
+				}else 
+					return "";
+				}catch(Exception y) {
+					return "";
+				}
 			}
 
 			default:
@@ -1011,425 +952,6 @@ public class TelaRomaneios extends JDialog {
 
 	}
 
-	public void importar() {
-		
-
-		JOptionPane.showMessageDialog(isto, "Na próxima tela, importe os arquivos\ndo contrato de terceiros");
-
-		new JFXPanel();
-		Platform.runLater(() -> {
-
-			// pegar ultima pasta
-			ManipularTxt manipular_ultima_pasta = new ManipularTxt();
-			String ultima_pasta = manipular_ultima_pasta
-					.lerArquivo(new File("C:\\ProgramData\\E-Contract\\configs\\ultima_pasta.txt"));
-			FileChooser d = new FileChooser();
-
-			d.setInitialDirectory(new File(ultima_pasta));
-
-			File files = d.showOpenDialog(new Stage());
-			String caminho_arquivo = "";
-			if (files != null) {
-				caminho_arquivo = files.getAbsolutePath();
-
-				manipular_ultima_pasta.rescreverArquivo(
-						new File("C:\\ProgramData\\E-Contract\\configs\\ultima_pasta.txt"), files.getParent());
-
-
-        File arquivo = files;
-
-		if(cliente_global != null) {
-		ManipularRomaneios manipular = new ManipularRomaneios(1);
-		manipular.sinalizar(2);
-
-			JOptionPane.showMessageDialog(null, "Caminho do arquivo q sera lido: " + arquivo.getAbsolutePath());
-			try {
-				CadastroRomaneio romaneio = manipular.filtrar(arquivo);
-
-				// verifica se essa nota ja existe
-				boolean ja_existe = false;
-				for (CadastroRomaneio rom : romaneios_disponivel) {
-					if (rom.getNumero_romaneio() == romaneio.getNumero_romaneio()) {
-						ja_existe = true;
-						break;
-					}
-				}
-
-				if (!ja_existe) {
-
-					// ie do remetente nf
-
-					String ie_remetente = romaneio.getRemetente().getIe();
-					// ie do destinatario nf
-					String ie_destinatario = romaneio.getDestinatario().getIe();
-
-					// ie cliente
-					String ie_cliente = cliente_global.getIe();
-
-					if (ie_remetente.equals(ie_cliente)) {
-						JOptionPane.showMessageDialog(null,
-								"Romaneio pode ser adicionado, o cliente e remetente deste romaeio\n IE do romaneio: "
-										+ ie_remetente + " IE do cliente: " + ie_cliente);
-
-						// copia o arquivo para a basta de notas fiscais do cliente
-
-						String nome_pasta;
-
-						if (cliente_global.getTipo_pessoa() == 0) {
-							nome_pasta = cliente_global.getNome_empresarial().toUpperCase();
-						} else {
-							nome_pasta = cliente_global.getNome_fantaia().toUpperCase();
-						}
-
-						String unidade_base_dados = configs_globais.getServidorUnidade();
-						String sub_pasta = "E-Contract\\arquivos\\clientes";
-
-						ManipularTxt manipular_arq = new ManipularTxt();
-
-						nome_pasta = nome_pasta.trim();
-
-						String caminho_completo_nf = unidade_base_dados + "\\" + sub_pasta + "\\"
-								+ nome_pasta.toUpperCase() + "\\" + "ROMANEIOS" + "\\romaneio-"
-								+ romaneio.getNumero_romaneio() + ".pdf";
-
-						JOptionPane.showMessageDialog(null,
-								"Copiando de :\n" + romaneio.getCaminho_arquivo() + "\nPara:\n" + caminho_completo_nf);
-						boolean copiar = manipular_arq.copiarNFe(romaneio.getCaminho_arquivo(), caminho_completo_nf);
-						if (copiar) {
-							// adiciona a nota no array local
-							romaneios_disponivel.add(romaneio);
-
-							// adiciona na tabela
-
-							addNota(romaneio);
-
-							// informa que adicionou a nota
-							JOptionPane.showMessageDialog(null,
-									"Arquivo selecionado:\n" + arquivo.getAbsolutePath() + "\nFoi adicionado");
-						} else {
-							JOptionPane.showMessageDialog(null, "Arquivo selecionado:\n" + arquivo.getAbsolutePath()
-									+ "\nErro ao efetuar a importação\nConsulte o Administrador");
-
-						}
-
-					} else if (ie_destinatario.equals(ie_cliente)) {
-						JOptionPane.showMessageDialog(null,
-								"Romaneio pode ser adicionado, o cliente e destinatario deste romaneio\n IE da nota: "
-										+ ie_destinatario + " IE do cliente: " + ie_cliente);
-
-						// adiciona a nota no array local
-						romaneios_disponivel.add(romaneio);
-
-						// adiciona na tabela
-						addNota(romaneio);
-
-						// informa que adicionou a nota
-						JOptionPane.showMessageDialog(null,
-								"Arquivo selecionado:\n" + arquivo.getAbsolutePath() + "\nFoi adicionado");
-
-					} else {
-						String nome_cliente_selecionado = "";
-						if (cliente_global.getTipo_pessoa() == 0)
-							nome_cliente_selecionado = cliente_global.getNome_empresarial();
-						else
-							nome_cliente_selecionado = cliente_global.getNome_fantaia();
-
-						// nome destinatario
-
-						String nome_destinatario = "";
-						CadastroCliente destinatario = romaneio.getDestinatario();
-
-						if (destinatario.getTipo_pessoa() == 0) {
-							nome_destinatario = destinatario.getNome_empresarial();
-						} else
-							nome_destinatario = destinatario.getNome_fantaia();
-
-						String nome_remetente = "";
-						CadastroCliente remetente = romaneio.getRemetente();
-
-						if (remetente.getTipo_pessoa() == 0) {
-							nome_remetente = remetente.getNome_empresarial();
-						} else
-							nome_remetente = remetente.getNome_fantaia();
-
-						JOptionPane.showMessageDialog(null,
-								"Arquivo selecionado:\n" + arquivo.getAbsolutePath()
-										+ "\nNão é um romaneio para este cliente\nNome do cliente selecionado: "
-										+ nome_cliente_selecionado + " IE do cliente selecionado: " + ie_cliente
-										+ "\nNome Destinatario:  " + nome_destinatario
-										+ " IE do Destinatario do romaneio:" + ie_destinatario + "\nNome Remetente: "
-										+ nome_remetente + " Inscrição Remetente: " + ie_remetente);
-
-					}
-
-				} else {
-					JOptionPane.showMessageDialog(null,
-							"Arquivo selecionado:\n" + arquivo.getAbsolutePath() + "\nJá está adicionado");
-
-				}
-
-			} catch (Exception e) {
-				JOptionPane.showMessageDialog(null, "Arquivo selecionado:\n" + arquivo.getAbsolutePath()
-						+ "\nNão é um romaneio valido, por isso não foi adicionado\nErro: " + e.getMessage() + "\nCausa: " + e.getCause());
-
-			}
-		
-		}else {
-			String unidade_base_dados = configs_globais.getServidorUnidade();
-			String sub_pasta = "E-Contract\\arquivos\\arquivos_comuns";
-			String pasta_final = unidade_base_dados + "\\" + sub_pasta;
-			GerenciarBancoClientes gerenciar_clientes = new GerenciarBancoClientes();
-			ArrayList<CadastroCliente> clientes_cadastrados = gerenciar_clientes.getClientes(0, 0, "");
-			//cliente nao esta definido, tela todos os romaneios
-			JOptionPane.showMessageDialog(null, "cliente nao esta definido, tela todos os romaneios");
-			ManipularRomaneios manipular = new ManipularRomaneios(1);
-			manipular.sinalizar(2);
-
-
-				try {
-					CadastroRomaneio roms = manipular.filtrar(arquivo);
-					CadastroCliente remetente = roms.getRemetente();
-					CadastroCliente destinatario = roms.getDestinatario();
-					boolean remetente_cadastrado = false;
-					boolean destinatario_cadastrado = false;
-					// verifica se o remetente ja esta cadastrado
-					
-					if(remetente != null) {
-					for (CadastroCliente cliente : clientes_cadastrados) {
-						if (cliente.getIe().trim().equals(remetente.getIe().trim())) {
-							remetente_cadastrado = true;
-							JOptionPane.showMessageDialog(null, "Remetente Cadastrado");
-							
-							if (remetente.getTipo_pessoa() == 0) {
-								JOptionPane.showMessageDialog(null, "Nome remetente: " + remetente.getNome_empresarial());
-							} else {
-							  JOptionPane.showMessageDialog(null, "Nome remetente: " + remetente.getNome_fantaia());
-							}
-							break;
-						}
-					}
-					}else {
-						remetente_cadastrado = false;
-
-					}
-					
-					if(destinatario != null) {
-					for (CadastroCliente cliente : clientes_cadastrados) {
-						if (cliente.getIe().trim().equals(destinatario.getIe().trim())) {
-							destinatario_cadastrado = true;
-							JOptionPane.showMessageDialog(null, "Destinatario Cadastrado");
-							
-							if (destinatario.getTipo_pessoa() == 0) {
-								JOptionPane.showMessageDialog(null, "Nome destinatario: " + destinatario.getNome_empresarial());
-							} else {
-								JOptionPane.showMessageDialog(null, "Nome destinatario: " + destinatario.getNome_fantaia());
-							}
-							
-							break;
-						}
-					}
-					}else {
-						destinatario_cadastrado = false;
-
-					}
-					
-					
-					if (remetente_cadastrado && !destinatario_cadastrado) {
-						// mover para a pasta do remetente
-						ManipularTxt manipular_txt = new ManipularTxt();
-						String nome_pasta;
-						if (remetente.getTipo_pessoa() == 0) {
-							nome_pasta = remetente.getNome_empresarial().toUpperCase();
-						} else {
-
-							nome_pasta = remetente.getNome_fantaia().toUpperCase();
-						}
-						unidade_base_dados = configs_globais.getServidorUnidade();
-						sub_pasta = "E-Contract\\arquivos\\clientes";
-						ManipularTxt manipular_arq = new ManipularTxt();
-						nome_pasta = nome_pasta.trim();
-						String caminho_completo_nf = unidade_base_dados + "\\" + sub_pasta + "\\"
-								+ nome_pasta.toUpperCase() + "\\" + "ROMANEIOS" + "\\romaneio-"
-								+ roms.getNumero_romaneio() + ".pdf";
-						// JOptionPane.showMessageDialog(null, "Movendo de :\n" +
-						// roms.getCaminho_arquivo()+ "\nPara:\n" + caminho_completo_nf);
-						// primeiro veririca se nao existe um arquivo com esse nome
-						File file = new File(caminho_completo_nf);
-						if (!file.exists()) {
-							boolean mover = manipular_arq.moverArquivo(roms.getCaminho_arquivo(),
-									caminho_completo_nf);
-							if (mover) {
-								// JOptionPane.showMessageDialog(null, "Romaneio movido para a pasta do
-								// remetente");
-							} else {
-								// JOptionPane.showMessageDialog(null, "Erro ao mover o romaneio");
-							}
-						} else {
-							
-						}
-					} else if (!remetente_cadastrado && destinatario_cadastrado) {
-						// mover para a pasta do destinatario
-						ManipularTxt manipular_txt = new ManipularTxt();
-						String nome_pasta;
-						if (destinatario.getTipo_pessoa() == 0) {
-							nome_pasta = destinatario.getNome_empresarial().toUpperCase();
-						} else {
-
-							nome_pasta = destinatario.getNome_fantaia().toUpperCase();
-						}
-						unidade_base_dados = configs_globais.getServidorUnidade();
-						sub_pasta = "E-Contract\\arquivos\\clientes";
-						ManipularTxt manipular_arq = new ManipularTxt();
-						nome_pasta = nome_pasta.trim();
-						String caminho_completo_nf = unidade_base_dados + "\\" + sub_pasta + "\\"
-								+ nome_pasta.toUpperCase() + "\\" + "ROMANEIOS" + "\\romaneio-"
-								+ roms.getNumero_romaneio() + ".pdf";
-						// JOptionPane.showMessageDialog(null, "Movendo de :\n" +
-						// roms.getCaminho_arquivo()+ "\nPara:\n" + caminho_completo_nf);
-						// primeiro veririca se nao existe um arquivo com esse nome
-						File file = new File(caminho_completo_nf);
-						if (!file.exists()) {
-							boolean mover = manipular_arq.moverArquivo(roms.getCaminho_arquivo(),
-									caminho_completo_nf);
-							if (mover) {
-								// JOptionPane.showMessageDialog(null, "Romaneio movido para a pasta do
-								// remetente");
-							} else {
-								// JOptionPane.showMessageDialog(null, "Erro ao mover o romaneio");
-							}
-						} else {
-							
-						}
-					} else if (remetente_cadastrado && destinatario_cadastrado) {
-						if (remetente.getIe().trim().equals(destinatario.getIe().trim())) {
-							// mover para o remetente
-							// copiar para o remetente
-							ManipularTxt manipular_txt = new ManipularTxt();
-							String nome_pasta;
-							if (remetente.getTipo_pessoa() == 0) {
-
-								nome_pasta = remetente.getNome_empresarial();
-							} else {
-
-								nome_pasta = remetente.getNome_fantaia();
-							}
-							unidade_base_dados = configs_globais.getServidorUnidade();
-							sub_pasta = "E-Contract\\arquivos\\clientes";
-							ManipularTxt manipular_arq = new ManipularTxt();
-							nome_pasta = nome_pasta.trim();
-							String caminho_completo_nf = unidade_base_dados + "\\" + sub_pasta + "\\"
-									+ nome_pasta + "\\" + "ROMANEIOS" + "\\romaneio-"
-									+ roms.getNumero_romaneio() + ".pdf";
-							// JOptionPane.showMessageDialog(null, "Copiando de :\n" +
-							// roms.getCaminho_arquivo()+ "\nPara:\n" + caminho_completo_nf);
-							// primeiro veririca se nao existe um arquivo com esse nome
-							File file = new File(caminho_completo_nf);
-							if (!file.exists()) {
-								boolean copiar = manipular_arq.moverArquivo(roms.getCaminho_arquivo(),
-										caminho_completo_nf);
-								if (copiar) {
-									// JOptionPane.showMessageDialog(null, "Romaneio movido para a pasta do
-									// remetente");
-									// mover para a pasta do destinatario
-								} else {
-									// JOptionPane.showMessageDialog(null, "Romaneio não pode ser movido para a
-									// pasta do remetente");
-									
-								}
-							} else {
-								
-							}
-						} else {
-							//Romaneio com destinatario e remetente diferente
-							// copiar para o destinatario
-							ManipularTxt manipular_txt = new ManipularTxt();
-							String nome_pasta;
-							
-							if (destinatario.getTipo_pessoa() == 0) {
-								nome_pasta = destinatario.getNome_empresarial();
-							} else {
-								nome_pasta = destinatario.getNome_fantaia();
-							}
-							
-							unidade_base_dados = configs_globais.getServidorUnidade();
-							sub_pasta = "E-Contract\\arquivos\\clientes";
-							ManipularTxt manipular_arq = new ManipularTxt();
-							nome_pasta = nome_pasta.trim();
-							String caminho_completo_nf = unidade_base_dados + "\\" + sub_pasta + "\\"
-									+ nome_pasta + "\\" + "ROMANEIOS" + "\\romaneio-"
-									+ roms.getNumero_romaneio() + ".pdf";
-							// JOptionPane.showMessageDialog(null, "Copiando de :\n" +
-							// roms.getCaminho_arquivo()+ "\nPara:\n" + caminho_completo_nf);
-							// primeiro veririca se nao existe um arquivo com esse nome
-							File file = new File(caminho_completo_nf);
-							if (!file.exists()) {
-								boolean copiar = manipular_arq.copiarNFe(roms.getCaminho_arquivo(),
-										caminho_completo_nf);
-								if (copiar) {
-									// JOptionPane.showMessageDialog(null, "Romaneio copiado para a pasta do
-									// destinatario");
-									// mover para a pasta do remetente
-									
-									
-									if (remetente.getTipo_pessoa() == 0) {
-										nome_pasta = remetente.getNome_empresarial().toUpperCase();
-									} else {
-
-										nome_pasta = remetente.getNome_fantaia().toUpperCase();
-									}
-									unidade_base_dados = configs_globais.getServidorUnidade();
-									sub_pasta = "E-Contract\\arquivos\\clientes";
-									nome_pasta = nome_pasta.trim();
-									caminho_completo_nf = unidade_base_dados + "\\" + sub_pasta + "\\"
-											+ nome_pasta.toUpperCase() + "\\" + "ROMANEIOS" + "\\romaneio-"
-											+ roms.getNumero_romaneio() + ".pdf";
-									// JOptionPane.showMessageDialog(null, "Movendo de :\n" +
-									// roms.getCaminho_arquivo()+ "\nPara:\n" + caminho_completo_nf);
-									boolean mover = manipular_arq.moverArquivo(roms.getCaminho_arquivo(),
-											caminho_completo_nf);
-									if (mover) {
-										// JOptionPane.showMessageDialog(null, "Romaneio movido para a pasta do
-										// destinatario");
-									} else {
-										// JOptionPane.showMessageDialog(null, "Erro ao mover o romaneio para a
-										// pasta do destinatario");
-									
-									}
-								} else {
-									// JOptionPane.showMessageDialog(null, "Erro ao copiar o romaneio para a
-									// pasta
-									// do remetente");
-								}
-							} else {
-							
-							}
-						}
-					} else {
-						 JOptionPane.showMessageDialog(null, "Romaneio lido mas nem o cliente remetente e nem o cliente destinatario estão cadastrado");
-					}
-				
-					
-				}catch(Exception y) {
-					JOptionPane.showMessageDialog(null, "Erro ao importar o romaneio\nVerifique se o depositante ou destinatario/remetente está cadastrado!\nConsulte o administrador!\nErro: " + y.getMessage()
-					+ "\nCausa: " + y.getCause());
-				}
-				
-			
-			
-			
-			
-			
-		}
-
-			}else {
-				JOptionPane.showMessageDialog(isto, "Nenhum arquivo selecionado");
-			}
-
-		});
-
-		// verifica se o arquivo e uma nota fiscal valida
-
-	}
 
 	public boolean checkString(String txt) {
 		return txt != null && !txt.equals("") && !txt.equals(" ") && !txt.equals("  ");
@@ -1530,19 +1052,8 @@ public void limpar() {
 
 }
 
-public void adicionarNovoRomaneio(CadastroRomaneio rom) {
-	if (rom != null) {
-		//verifica se o romaneio ja esta na lista
-		boolean ja_existe = false;
-		
-		for(CadastroRomaneio rom_na_lista : romaneios_disponivel) {
-			if(rom_na_lista.getNumero_romaneio() == rom.getNumero_romaneio())
-				ja_existe = true;
-		}
-		
-		if(!ja_existe)
-		addNota(rom);
-	}
+public void setClienteSelecionado(CadastroCliente cliente) {
+	this.cliente_selecionado = cliente;
 }
 
 

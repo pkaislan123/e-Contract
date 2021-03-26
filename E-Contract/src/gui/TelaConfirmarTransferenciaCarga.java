@@ -210,9 +210,9 @@ public class TelaConfirmarTransferenciaCarga extends JDialog {
 				int transferiou = gerenciar.inserirTransferencia(transferencia);
 				if(transferiou > 0) {
 					//((TelaGerenciarContrato) telaPai).pesquisar_pagamentos();
-	            	   ((TelaGerenciarContrato) telaPaiJFrame).pesquisar_recebimentos();
+	            	   ((TelaGerenciarContrato) telaPaiJFrame).pesquisar_recebimentos(true);
 
-					((TelaGerenciarContrato) telaPaiJFrame).pesquisar_carregamentos();
+					((TelaGerenciarContrato) telaPaiJFrame).pesquisar_carregamentos(true);
 					JOptionPane.showMessageDialog(isto, "Transferencia de Carga Efetuada");
 					isto.dispose();
 				}else {

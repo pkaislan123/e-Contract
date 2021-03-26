@@ -179,7 +179,7 @@ public class TelaHome extends JInternalFrame {
 		btnRomaneios.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				TelaRomaneios tela = new TelaRomaneios(0,null);
-				tela.pesquisarTodosOsRomaneios(clientes_disponiveis);
+				
 			}
 		});
 		btnRomaneios.setBounds(210, 335, 128, 23);

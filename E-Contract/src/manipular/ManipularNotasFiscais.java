@@ -88,12 +88,7 @@ public class ManipularNotasFiscais {
 					notas_fiscais.add(cadastro);
 					countNotas++;
 					
-					if(tela_pai != null) {
-					if(tela_pai instanceof TelaNotasFiscais)
-					((TelaNotasFiscais) tela_pai).addNota(cadastro);
-					else
-					((TelaTodasNotasFiscais) tela_pai).addNota(cadastro);
-					}
+					
 				}
 
 				// enviar nota para a tela pai
@@ -115,67 +110,6 @@ public class ManipularNotasFiscais {
 
 	
 	
-	public ArrayList<CadastroNFe> tratarRapido() {
-
-		MyFileVisitor arquivos = new MyFileVisitor();
-		Path source = Paths.get(caminho);
-		try {
-			Files.walkFileTree(source, arquivos);
-			listadeArquivos = arquivos.getArquivos();
-
-		} catch (IOException ex) {
-			ex.printStackTrace();
-		}
-
-		for (int i = 0; i < listadeArquivos.size(); i++) {
-			 //System.out.println(listadeArquivos.get(i).toString());
-			countArquivos++;
-		}
-
-		for (int i = 0; i < listadeArquivos.size(); i++) {
-			if(listadeArquivos.get(i).contains("NOTAS FISCAIS")) {
-			if (listadeArquivos.get(i).endsWith(".pdf") || listadeArquivos.get(i).endsWith(".Pdf")) {
-				countPDF++;
-
-				File file = new File(listadeArquivos.get(i).toString());
-				//percorre a lista e verifica se este aqui ja nao esta nela
-				boolean esta_na_lista = false;
-				
-				if(lista_global != null) {
-					if(lista_global.size() > 0) {
-						for(CadastroNFe na_lista : lista_global) {
-							if(na_lista.getCaminho_arquivo().equalsIgnoreCase(listadeArquivos.get(i).toString())) {
-								esta_na_lista = true;
-								break;
-								
-							}
-							
-						}
-					}
-				}
-				if(!esta_na_lista) {
-				CadastroNFe cadastro = filtrar(file);
-
-				if (cadastro != null) {
-					notas_fiscais.add(cadastro);
-					countNotas++;
-					
-					if(tela_pai != null) {
-					if(tela_pai instanceof TelaNotasFiscais)
-					((TelaNotasFiscais) tela_pai).addNota(cadastro);
-					else
-					((TelaTodasNotasFiscais) tela_pai).addNota(cadastro);
-					}
-				}
-				}
-			} else {
-				String nomeArquivo = listadeArquivos.get(i).toString();
-			}
-		}
-		}
-
-		return notas_fiscais;
-	}
 
 	
 	public CadastroNFe filtrar(File file) {

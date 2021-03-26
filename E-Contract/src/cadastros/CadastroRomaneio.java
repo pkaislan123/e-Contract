@@ -5,15 +5,30 @@ import java.util.Date;
 public class CadastroRomaneio {
 
 	
+	double umidade, impureza, ardidos, avariados;
+	
+	double peso_bruto, tara, peso_liquido;
+	
+	private CadastroCliente motorista;
+	
+	private String cfop, descricao_cfop, operacao;
 	
 	private Date  data;
-    private int numero_romaneio;
+    private int numero_romaneio, id_romaneio;
 	private CadastroSafra safra;
 	private CadastroProduto produto;
 	private CadastroCliente remetente, destinatario;
 	private String caminho_arquivo;
-	
-	
+   
+	public int getId_romaneio() {
+		return id_romaneio;
+	}
+
+	public void setId_romaneio(int id_romaneio) {
+		this.id_romaneio = id_romaneio;
+	}
+
+
 	public String getCaminho_arquivo() {
 		return caminho_arquivo;
 	}
@@ -22,13 +37,7 @@ public class CadastroRomaneio {
 		this.caminho_arquivo = caminho_arquivo;
 	}
 
-	double umidade, impureza, ardidos, avariados;
 	
-	double peso_bruto, tara, peso_liquido;
-	
-	private CadastroCliente motorista;
-	
-	private String cfop, descricao_cfop, operacao;
 
 	public String getCfop() {
 		return cfop;

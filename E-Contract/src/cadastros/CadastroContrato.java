@@ -1325,7 +1325,25 @@ caminho_nf_remessa text,
 			this.id_vendedor = id_vendedor;
 		}
 		String data_recebimento, codigo_romaneio, caminho_romaneio, codigo_nf_venda, caminho_nf_venda, codigo_nf_remessa, caminho_nf_remessa;
+		
+        BigDecimal valor_nf_venda, valor_nf_remessa;
+        
+
+		public BigDecimal getValor_nf_venda() {
+			return valor_nf_venda;
+		}
+		public void setValor_nf_venda(BigDecimal valor_nf_venda) {
+			this.valor_nf_venda = valor_nf_venda;
+		}
+		public BigDecimal getValor_nf_remessa() {
+			return valor_nf_remessa;
+		}
+		public void setValor_nf_remessa(BigDecimal valor_nf_remessa) {
+			this.valor_nf_remessa = valor_nf_remessa;
+		}
 		double peso_romaneio, peso_nf_venda, peso_nf_remessa;
+		
+		
 		public int getId_recebimento() {
 			return id_recebimento;
 		}

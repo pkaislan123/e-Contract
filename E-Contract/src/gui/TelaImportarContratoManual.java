@@ -20,7 +20,6 @@ import javax.swing.table.DefaultTableModel;
 import javax.swing.SwingUtilities;
 
 import org.codehaus.groovy.runtime.dgmimpl.arrays.BooleanArrayGetAtMetaMethod;
-import org.springframework.util.StringUtils;
 
 import cadastros.CadastroCliente;
 import cadastros.CadastroContrato;
@@ -5280,7 +5279,7 @@ public class TelaImportarContratoManual extends JDialog {
 				
 				
 				DadosGlobais dados = DadosGlobais.getInstance();
-				 dados.getTeraGerenciarContratoPai().atualizarContratoLocal();
+				 dados.getTeraGerenciarContratoPai().atualizarContratoLocal(true);
 				isto.dispose();
 				
 				

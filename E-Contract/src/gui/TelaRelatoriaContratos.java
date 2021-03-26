@@ -24,6 +24,7 @@ import org.icepdf.ri.common.SwingController;
 import org.icepdf.ri.common.SwingViewBuilder;
 import net.miginfocom.swing.MigLayout;
 import relatoria.RelatorioContratoIndividual;
+import relatoria.RelatorioContratoSimplificado;
 import relatoria.RelatorioContratos;
 import relatoria.RelatorioContratoComprador;
 import javax.swing.JLabel;
@@ -100,7 +101,7 @@ private JCheckBox chckbxUnirRecebimentos;
 
 		setBackground(new Color(255, 255, 255));
 		setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-		setBounds(100, 100, 805, 618);
+		setBounds(100, 100, 1066, 618);
 		painelPrincipal.setBackground(new Color(255, 255, 255));
 		painelPrincipal.setBorder(new EmptyBorder(5, 5, 5, 5));
 		setContentPane(painelPrincipal);
@@ -139,7 +140,7 @@ private JCheckBox chckbxUnirRecebimentos;
 		cBAlvo.setBounds(92, 97, 217, 28);
 		painelPrincipal.add(cBAlvo);
 
-		JButton btnNewButton = new JButton("Gerar");
+		JButton btnNewButton = new JButton("Gerar Relatorio Completo");
 		btnNewButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 
@@ -280,6 +281,7 @@ private JCheckBox chckbxUnirRecebimentos;
 					// um clinete apneas adicionado
 					clientes.add(cliente_alvo);
 				} else {
+					JOptionPane.showMessageDialog(null, "Grupo selecionado");
 					// e um grupo de cliente
 					String membros = grupo_alvo.getIntegrantes();
 					String membros_quebrado[] = membros.split(";");
@@ -311,6 +313,7 @@ private JCheckBox chckbxUnirRecebimentos;
 					relatar.setIncluir_ganhos_potencias(incluir_ganhos_potencias);
 					relatar.setSomar_sub_contratos(somar_sub_contratos);
 					relatar.setClientes_globais(clientes);
+					relatar.setGrupo_alvo_global(grupo_alvo);
 					relatar.setCarregamento(carregamento);
 					relatar.setCarregamento_como_comprador(carregamento_como_comprador);
 					relatar.setCarregamento_como_vendedor(carregamento_como_vendedor);
@@ -353,7 +356,7 @@ private JCheckBox chckbxUnirRecebimentos;
 
 			}
 		});
-		btnNewButton.setBounds(690, 545, 89, 23);
+		btnNewButton.setBounds(869, 525, 169, 28);
 		painelPrincipal.add(btnNewButton);
 
 		JButton btnNewButton_1 = new JButton("Selecionar");
@@ -698,23 +701,137 @@ private JCheckBox chckbxUnirRecebimentos;
 				}
 			}
 		});
-		chckbxRecebimentos.setBounds(550, 297, 120, 23);
+		chckbxRecebimentos.setBounds(780, 172, 120, 23);
 		painelPrincipal.add(chckbxRecebimentos);
 		
 		 chckbxRecebimentoComoComprador = new JCheckBox("Alvo como Comprador");
 		chckbxRecebimentoComoComprador.setEnabled(false);
-		chckbxRecebimentoComoComprador.setBounds(574, 330, 168, 23);
+		chckbxRecebimentoComoComprador.setBounds(804, 205, 168, 23);
 		painelPrincipal.add(chckbxRecebimentoComoComprador);
 		
 		 chckbxRecebimentoComoVendedor = new JCheckBox("Alvo como Vendedor");
 		chckbxRecebimentoComoVendedor.setEnabled(false);
-		chckbxRecebimentoComoVendedor.setBounds(574, 366, 168, 23);
+		chckbxRecebimentoComoVendedor.setBounds(804, 241, 168, 23);
 		painelPrincipal.add(chckbxRecebimentoComoVendedor);
 		
 		chckbxUnirRecebimentos = new JCheckBox("Unir");
 		chckbxUnirRecebimentos.setEnabled(false);
-		chckbxUnirRecebimentos.setBounds(600, 402, 168, 23);
+		chckbxUnirRecebimentos.setBounds(830, 277, 168, 23);
 		painelPrincipal.add(chckbxUnirRecebimentos);
+		
+		JButton btnGerarRelatorioSimplificado = new JButton("Gerar Relatorio Simplificado");
+		btnGerarRelatorioSimplificado.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				
+				int tipo_contrato = -1;
+				boolean gerar = false;
+				boolean somar_sub_contratos = false;
+				boolean incluir_comissao = false;
+				boolean incluir_ganhos_potencias = false;
+				boolean sub_contratos = false;
+				boolean contrato = false, contrato_como_comprador = false, contrato_como_vendedor = false,
+						contrato_como_corretor = false;
+				boolean pagamento = false, pagamento_como_despositante = false, pagamento_como_favorecido = false;
+				boolean carregamento = false, carregamento_como_comprador = false, carregamento_como_vendedor = false;
+				boolean recebimento = false, recebimento_como_comprador = false, recebimento_como_vendedor = false, unir_recebimentos = false;
+
+				Date hoje = new Date();
+				SimpleDateFormat df = new SimpleDateFormat("dd/MM/yyyy");
+
+				int id_safra = -1;
+
+				if (chckbxTodasAsSafras.isSelected()) {
+					// todas as safras selecionadas
+					id_safra = 0;
+					gerar = true;
+				} else {
+					CadastroSafra safra = (CadastroSafra) modelSafra.getSelectedItem();
+					if (safra == null) {
+						JOptionPane.showMessageDialog(isto, "Marque a caixa Todas as safras ou\nSelecione uma safra");
+						gerar = false;
+					} else {
+						id_safra = safra.getId_safra();
+						gerar = true;
+					}
+
+				}
+
+			
+				
+				if (chckbxRecebimentos.isSelected()) {
+					recebimento = true;
+
+					if (chckbxRecebimentoComoComprador.isSelected()) {
+						recebimento_como_comprador = true;
+					}
+
+					if (chckbxRecebimentoComoVendedor.isSelected()) {
+						recebimento_como_vendedor = true;
+					}
+					
+					if(chckbxUnirRecebimentos.isSelected()) {
+						unir_recebimentos = true;
+					}else {
+						unir_recebimentos = false;
+
+					}
+
+				}
+				
+				ArrayList<CadastroCliente> clientes = new ArrayList<>();
+
+				if (cliente_alvo != null) {
+					// um clinete apneas adicionado
+					clientes.add(cliente_alvo);
+				} else {
+					// e um grupo de cliente
+					String membros = grupo_alvo.getIntegrantes();
+					String membros_quebrado[] = membros.split(";");
+					for (String s_id : membros_quebrado) {
+						int id = Integer.parseInt(s_id);
+						GerenciarBancoClientes gerenciar_clientes = new GerenciarBancoClientes();
+						CadastroCliente cliente = gerenciar_clientes.getCliente(id);
+						clientes.add(cliente);
+
+					}
+					grupo_alvo.setClientes(clientes);
+
+				}
+
+			
+				if (gerar ) {
+					RelatorioContratoSimplificado relatar = new RelatorioContratoSimplificado();
+					relatar.setId_safra(id_safra);
+					relatar.setContrato(contrato);
+					relatar.setContrato_como_comprador(true);
+					relatar.setTipo_contrato(tipo_contrato);
+					relatar.setSub_contratos(sub_contratos);
+					relatar.setIncluir_comissao(incluir_comissao);
+					relatar.setIncluir_ganhos_potencias(incluir_ganhos_potencias);
+					relatar.setSomar_sub_contratos(somar_sub_contratos);
+					relatar.setClientes_globais(clientes);
+					relatar.setCarregamento(carregamento);
+					relatar.setCarregamento_como_comprador(carregamento_como_comprador);
+					relatar.setCarregamento_como_vendedor(carregamento_como_vendedor);
+                    relatar.setPagamento(pagamento);
+                    relatar.setPagamento_como_depositante(pagamento_como_despositante);
+                    relatar.setPagamento_como_favorecido(pagamento_como_favorecido);
+                    relatar.setRecebimento(recebimento);
+                    relatar.setRecebimento_como_comprador(recebimento_como_comprador);
+                    relatar.setRecebimento_como_vendedor(recebimento_como_vendedor);
+                    relatar.setUnir_recebimentos(unir_recebimentos);
+					
+					ByteArrayOutputStream contrato_alterado = relatar.preparar();
+
+					ConverterPdf converter_pdf = new ConverterPdf();
+					String pdf_alterado = converter_pdf.word_pdf_stream(contrato_alterado);
+					TelaVizualizarPdf vizualizar = new TelaVizualizarPdf(null, isto, null, pdf_alterado, null, isto);
+
+				} 
+			}
+		});
+		btnGerarRelatorioSimplificado.setBounds(804, 332, 183, 28);
+		painelPrincipal.add(btnGerarRelatorioSimplificado);
 
 		pesquisarSafras();
 

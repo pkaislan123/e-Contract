@@ -144,7 +144,6 @@ public class TelaMain extends JFrame {
 	private JLabel lblTotalSacosRecebidos, lblTotalSacosGraficoRecebimento, lblTotalSacosAReceber;
 	private JComboBox cbRecebimentosPorSafra;
 
-	private TelaRomaneios telaRomaneio;
 	private GerenciarBancoContratos gerenciarAtualizarTarefas, gerenciarDadosCarregamento, gerenciarDadosContrato,
 			gerenciarCarregamentoPorPeriodo, gerenciarDadosRecebimento;
 	private GerenciarBancoPadrao gerenciarBancoPadrao;
@@ -776,7 +775,7 @@ public class TelaMain extends JFrame {
 		gbc_panel_7.gridx = 1;
 		gbc_panel_7.gridy = 1;
 		panel_3.add(panel_7, gbc_panel_7);
-		panel_7.setLayout(new MigLayout("", "[grow]", "[][][][][]"));
+		panel_7.setLayout(new MigLayout("", "[grow]", "[][][][][][][]"));
 		
 		JLabel lblTodasAsSafrasRecebimento = new JLabel("Todas as Safras", SwingConstants.CENTER);
 		lblTodasAsSafrasRecebimento.addMouseListener(new MouseAdapter() {
@@ -815,6 +814,14 @@ public class TelaMain extends JFrame {
 		panel_7.add(cbRecebimentosPorSafra, "cell 0 2,growx");
 		cbRecebimentosPorSafra.setModel(modelSafra);
 		cbRecebimentosPorSafra.setRenderer(cBSafraPersonalizado);
+		
+		JLabel lblNewLabel_11 = new JLabel("SAFRA EM EVIDÊNCIA");
+		lblNewLabel_11.setFont(new Font("Tahoma", Font.PLAIN, 16));
+		panel_7.add(lblNewLabel_11, "cell 0 5,alignx center");
+		
+		JLabel lblNewLabel_12 = new JLabel("2020/2021");
+		lblNewLabel_12.setFont(new Font("Tahoma", Font.BOLD, 20));
+		panel_7.add(lblNewLabel_12, "cell 0 6,alignx center");
 		
 		JPanel panel_8 = new JPanel();
 		panel_8.setBackground(Color.WHITE);
@@ -1174,8 +1181,7 @@ public class TelaMain extends JFrame {
 		// usuario logado
 		login = dados.getLogin();
 		
-		//telaRomaneio
-		telaRomaneio = dados.getTelaRomaneios();
+		
 		
 		//telaTodasNotasFiscais
 		telaTodasNotasFiscais = dados.getTelaTodasNotasFiscais();
@@ -2339,5 +2345,4 @@ public class TelaMain extends JFrame {
 		
 		
 	}
-	
 }

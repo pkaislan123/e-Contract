@@ -279,12 +279,14 @@ public class TelaCriarTarefa extends JDialog {
 				 else
 					 JOptionPane.showMessageDialog(isto, "Nome da Tarefa Invalido");
 				
+				 if(!criar) {
 				 if(executor == null) {
 					 criar = false;
 					 JOptionPane.showMessageDialog(isto, "Selecione o usuario que ira executar a tarefa");
 				 }
 				 else {
 					 criar = true;
+				 }
 				 }
 				 
 				  
@@ -318,6 +320,8 @@ public class TelaCriarTarefa extends JDialog {
 						 JOptionPane.showMessageDialog(isto, "Tarefa Criada com Sucesso");
 						// ((TelaGerenciarContrato) telaPai).atualizarListaTarefas();
 						 ((TelaGerenciarContrato) telaPaiJFrame).atualizarListaTarefas();
+						 ((TelaGerenciarContrato) telaPaiJFrame).informar_atualizou();
+
 						 
 						 isto.dispose();
 					 }else {

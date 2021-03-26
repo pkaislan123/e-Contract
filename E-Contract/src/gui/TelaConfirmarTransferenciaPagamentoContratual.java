@@ -207,7 +207,7 @@ public class TelaConfirmarTransferenciaPagamentoContratual extends JDialog {
 				int transferiou = gerenciar.inserirTransferencia(transferencia);
 				if(transferiou > 0) {
 					//((TelaGerenciarContrato) telaPai).pesquisar_pagamentos();
-					((TelaGerenciarContrato) telaPaiJFrame).pesquisar_pagamentos();
+					((TelaGerenciarContrato) telaPaiJFrame).pesquisar_pagamentos(true);
 					JOptionPane.showMessageDialog(isto, "Transferencia Efetuada");
 					isto.dispose();
 				}else {

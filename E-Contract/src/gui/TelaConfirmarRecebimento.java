@@ -50,11 +50,14 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.io.File;
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.text.NumberFormat;
 import java.text.ParseException;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
+import java.util.Locale;
+
 import javax.swing.JScrollPane;
 import java.awt.Component;
 import java.awt.Font;
@@ -64,6 +67,8 @@ public class TelaConfirmarRecebimento extends JDialog {
 
 	private JTabbedPane abas = new JTabbedPane();
 	private JPanel painelConfirmar = new JPanel();
+	private JPanel painelPaiConfirmar = new JPanel();
+
 	private JPanel painelSelecionar = new JPanel();
 	private JFrame telaPaiJFrame;
 	private TelaConfirmarRecebimento isto;
@@ -71,9 +76,7 @@ public class TelaConfirmarRecebimento extends JDialog {
 	private Log GerenciadorLog;
 	private CadastroLogin login;
 	private ConfiguracoesGlobais configs_globais;
-    private TelaRomaneios telaRomaneio;
     private String servidor_unidade ;
-    private TelaTodasNotasFiscais telaTodasNotasFiscais;
 	private JTextField entDataRecebimento;
 	private JTextField entCodigoNFVenda;
 	private JComboBox cBContrato, cBCliente, cbVeiculo, cBTransportador, cBVendedor;
@@ -102,6 +105,9 @@ public class TelaConfirmarRecebimento extends JDialog {
 	private JLabel lblVendedorRecebimento, lblCaminhoNFRemessa, lblCaminhoRomaneio;
 	private JTextField entCodigoNFRemessa;
 	private JButton btnSelecionarNFVenda,btnSelecionarNFRemessa;
+	private JTextField entValorNFVenda;
+	private JTextField entPesoNFRemessa;
+	private JTextField entValorNFRemessa;
 	public TelaConfirmarRecebimento(int flag_modo_tela, CadastroContrato.Recebimento recebimento_edicao,  CadastroContrato _contrato_local, Window janela_pai) {
 		
 
@@ -136,7 +142,7 @@ public class TelaConfirmarRecebimento extends JDialog {
 		JPanel panel_1 = new JPanel();
 		panel_1.setBackground(new Color(0, 153, 153));
 		panel_1.setLayout(null);
-		panel_1.setBounds(0, 0, 736, 533);
+		panel_1.setBounds(0, 0, 1074, 533);
 		painelSelecionar.add(panel_1);
 
 		JLabel lblNewLabel_3 = new JLabel("Data:");
@@ -208,10 +214,6 @@ public class TelaConfirmarRecebimento extends JDialog {
 		lblNewLabel_5_1.setForeground(Color.WHITE);
 		lblNewLabel_5_1.setBounds(94, 253, 43, 16);
 		panel_1.add(lblNewLabel_5_1);
-
-		JButton btnAdicionarCarregamento = new JButton("Adicionar");
-		btnAdicionarCarregamento.setBounds(885, 180, 83, 23);
-		panel_1.add(btnAdicionarCarregamento);
 
 		JLabel lblNewLabel_8 = new JLabel("Contrato:");
 		lblNewLabel_8.setForeground(Color.WHITE);
@@ -316,19 +318,19 @@ public class TelaConfirmarRecebimento extends JDialog {
 		pesoRomaneio.setBackground(Color.WHITE);
 		pesoRomaneio.setForeground(Color.BLACK);
 		pesoRomaneio.setColumns(10);
-		pesoRomaneio.setBounds(417, 288, 168, 27);
+		pesoRomaneio.setBounds(425, 287, 168, 27);
 		panel_1.add(pesoRomaneio);
 		
 		JLabel lblNewLabel_9_1_1_1 = new JLabel("Peso NF Venda:");
 		lblNewLabel_9_1_1_1.setForeground(Color.WHITE);
-		lblNewLabel_9_1_1_1.setBounds(327, 365, 93, 16);
+		lblNewLabel_9_1_1_1.setBounds(325, 365, 93, 16);
 		panel_1.add(lblNewLabel_9_1_1_1);
 		
 		entPesoNFVenda = new JTextField();
 		entPesoNFVenda.setBackground(Color.WHITE);
 		entPesoNFVenda.setForeground(Color.BLACK);
 		entPesoNFVenda.setColumns(10);
-		entPesoNFVenda.setBounds(421, 359, 168, 27);
+		entPesoNFVenda.setBounds(421, 359, 164, 27);
 		panel_1.add(entPesoNFVenda);
 		
 		entCodigoNFRemessa = new JTextField();
@@ -370,26 +372,16 @@ public class TelaConfirmarRecebimento extends JDialog {
 				
 				
 				String produto = produto_carregamento.getNome_produto().toUpperCase();
-				
-				if(telaRomaneio == null) {
+			     TelaRomaneios telaRomaneio;
 					telaRomaneio = new TelaRomaneios(0,isto);
-					telaRomaneio.pesquisarTodosOsRomaneios(new GerenciarBancoClientes().getClientes(-1, -1, ""));
-					DadosGlobais dados = DadosGlobais.getInstance();
-
-					dados.setTelaRomaneios(telaRomaneio);
-					telaRomaneio.setTelaPai(isto);
-					telaRomaneio.setVisible(true);
-				}else {
-					//telaRomaneio.pesquisarTodosOsRomaneios(clientes_disponiveis);
-					telaRomaneio.setTelaPai(isto);
 					telaRomaneio.setDadosPesquisa("", "", "ENTRADA".toUpperCase(), produto, entRomaneio.getText());
-
+					telaRomaneio.setTelaPai(isto);
 					telaRomaneio.setVisible(true);
-				}
+				
 				
 			}
 		});
-		btnLerRomaneio.setBounds(598, 288, 107, 28);
+		btnLerRomaneio.setBounds(603, 287, 107, 28);
 		panel_1.add(btnLerRomaneio);
 		
 	 btnSelecionarNFVenda = new JButton("Ler NF Venda");
@@ -417,30 +409,20 @@ public class TelaConfirmarRecebimento extends JDialog {
 				String produto = produto_carregamento.getNome_produto();
 				
 				
-				if(telaTodasNotasFiscais == null) {
-					telaTodasNotasFiscais = new TelaTodasNotasFiscais(0,1,isto);
-					DadosGlobais dados = DadosGlobais.getInstance();
-
-					dados.setTelaTodasNotasFiscais(telaTodasNotasFiscais);
+				
+				TelaTodasNotasFiscais telaTodasNotasFiscais = new TelaTodasNotasFiscais(0,1,isto);
 					telaTodasNotasFiscais.setTelaPai(isto);
 					telaTodasNotasFiscais.limpar();
 					telaTodasNotasFiscais.setRetornoGlobal(1);
 					telaTodasNotasFiscais.setDadosPesquisa("", "", "VENDA", produto.replaceAll("NON-GMO", "").replaceAll("GMO", "").replaceAll("Não informar", "").replaceAll(" " , ""), entCodigoNFVenda.getText());
 					telaTodasNotasFiscais.habilitarBtnSelecionar();
+					telaTodasNotasFiscais.pesquisar_notas();
 
 					telaTodasNotasFiscais.setVisible(true);
-				}else {
-					//telaRomaneio.pesquisarTodosOsRomaneios(clientes_disponiveis);
-					telaTodasNotasFiscais.setTelaPai(isto);
-					telaTodasNotasFiscais.limpar();
-					telaTodasNotasFiscais.setDadosPesquisa("", "", "VENDA", produto.replaceAll("NON-GMO", "").replaceAll("GMO", "").replaceAll("Não informar", "").replaceAll(" " , ""),entCodigoNFVenda.getText());
-					telaTodasNotasFiscais.setRetornoGlobal(1);
-					telaTodasNotasFiscais.habilitarBtnSelecionar();
-					telaTodasNotasFiscais.setVisible(true);
-				}
+				
 			}
 		});
-		btnSelecionarNFVenda.setBounds(602, 359, 103, 28);
+		btnSelecionarNFVenda.setBounds(863, 359, 103, 28);
 		panel_1.add(btnSelecionarNFVenda);
 		
 		 btnSelecionarNFRemessa = new JButton("Ler NF Remessa");
@@ -471,31 +453,20 @@ public class TelaConfirmarRecebimento extends JDialog {
 				
 				
 				
-				if(telaTodasNotasFiscais == null) {
-					telaTodasNotasFiscais = new TelaTodasNotasFiscais(0,1,isto);
-					DadosGlobais dados = DadosGlobais.getInstance();
-
-					dados.setTelaTodasNotasFiscais(telaTodasNotasFiscais);
+				TelaTodasNotasFiscais telaTodasNotasFiscais = new TelaTodasNotasFiscais(0,1,isto);
 					telaTodasNotasFiscais.setTelaPai(isto);
 					telaTodasNotasFiscais.limpar();
 					telaTodasNotasFiscais.setRetornoGlobal(2);
-					telaTodasNotasFiscais.setDadosPesquisa("LD","CJ", "Remessa", produto, entCodigoNFRemessa.getText());
+					telaTodasNotasFiscais.setDadosPesquisa("LD","", "Remessa", produto, entCodigoNFRemessa.getText());
 					telaTodasNotasFiscais.habilitarBtnSelecionar();
+					telaTodasNotasFiscais.pesquisar_notas();
 
 					telaTodasNotasFiscais.setVisible(true);
-				}else {
-					//telaRomaneio.pesquisarTodosOsRomaneios(clientes_disponiveis);
-					telaTodasNotasFiscais.setTelaPai(isto);
-					telaTodasNotasFiscais.limpar();
-					telaTodasNotasFiscais.setDadosPesquisa("LD","CJ", "Remessa", produto,entCodigoNFRemessa.getText());
-					telaTodasNotasFiscais.setRetornoGlobal(2);
-					telaTodasNotasFiscais.habilitarBtnSelecionar();
-					telaTodasNotasFiscais.setVisible(true);
-				}
+				
 				
 			}
 		});
-		btnSelecionarNFRemessa.setBounds(320, 425, 123, 28);
+		btnSelecionarNFRemessa.setBounds(911, 425, 123, 28);
 		panel_1.add(btnSelecionarNFRemessa);
 		
 		
@@ -536,15 +507,51 @@ public class TelaConfirmarRecebimento extends JDialog {
 		chkBoxNFRemessaNaoAplicavel.setBounds(138, 398, 104, 18);
 		panel_1.add(chkBoxNFRemessaNaoAplicavel);
 		
+		JLabel lblNewLabel_9_1_1_2 = new JLabel("Valor NF Venda:");
+		lblNewLabel_9_1_1_2.setForeground(Color.WHITE);
+		lblNewLabel_9_1_1_2.setBounds(595, 365, 93, 16);
+		panel_1.add(lblNewLabel_9_1_1_2);
+		
+		entValorNFVenda = new JTextField();
+		entValorNFVenda.setForeground(Color.BLACK);
+		entValorNFVenda.setColumns(10);
+		entValorNFVenda.setBackground(Color.WHITE);
+		entValorNFVenda.setBounds(686, 359, 168, 27);
+		panel_1.add(entValorNFVenda);
+		
+		JLabel lblNewLabel_9_1_1_1_1 = new JLabel("Peso NF Remessa:");
+		lblNewLabel_9_1_1_1_1.setForeground(Color.WHITE);
+		lblNewLabel_9_1_1_1_1.setBounds(325, 431, 109, 16);
+		panel_1.add(lblNewLabel_9_1_1_1_1);
+		
+		entPesoNFRemessa = new JTextField();
+		entPesoNFRemessa.setForeground(Color.BLACK);
+		entPesoNFRemessa.setColumns(10);
+		entPesoNFRemessa.setBackground(Color.WHITE);
+		entPesoNFRemessa.setBounds(446, 425, 164, 27);
+		panel_1.add(entPesoNFRemessa);
+		
+		JLabel lblNewLabel_9_1_1_2_1 = new JLabel("Valor NF Remessa:");
+		lblNewLabel_9_1_1_2_1.setForeground(Color.WHITE);
+		lblNewLabel_9_1_1_2_1.setBounds(620, 431, 108, 16);
+		panel_1.add(lblNewLabel_9_1_1_2_1);
+		
+		entValorNFRemessa = new JTextField();
+		entValorNFRemessa.setForeground(Color.BLACK);
+		entValorNFRemessa.setColumns(10);
+		entValorNFRemessa.setBackground(Color.WHITE);
+		entValorNFRemessa.setBounds(733, 425, 168, 27);
+		panel_1.add(entValorNFRemessa);
+		
 		CadastroCliente vendedores[] = contrato_local.getVendedores();
 		setVendedor(vendedores[0]);
-		getContentPane().setLayout(new MigLayout("", "[736px]", "[653.00px]"));
+		getContentPane().setLayout(new MigLayout("", "[1079.00px]", "[653.00px]"));
 
 		getContentPane().add(abas, "cell 0 0,grow");
 
 		setBackground(new Color(255, 255, 255));
 		setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-		setBounds(100, 100, 752, 699);
+		setBounds(100, 100, 1104, 699);
 		painelConfirmar.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseEntered(MouseEvent arg0) {
@@ -553,10 +560,13 @@ public class TelaConfirmarRecebimento extends JDialog {
 		});
 
 		painelConfirmar.setBackground(new Color(0, 153, 153));
+		painelPaiConfirmar.setBackground(new Color(47, 79, 79));
 
 		// adiciona novos paines e suas abas
-		abas.addTab("Confirmar", painelConfirmar);
-		painelConfirmar.setLayout(new MigLayout("", "[105px][2px][186px][10px][99px][5px][65px][12px][44px][12px][98px]", "[44.00px][49.00px][47.00px][32px][44.00px][54.00px][29.00px][102.00px][23.00px][114.00px][20.00px][23px]"));
+		abas.addTab("Confirmar", painelPaiConfirmar);
+		
+		painelPaiConfirmar.add(painelConfirmar);
+		painelConfirmar.setLayout(new MigLayout("", "[105px][186px][18px][99px][13px][65px][20px][44px][20px][98px]", "[41px][47px][44px][30px][41px][52px][26px][100px][20px][112px][17px][28px]"));
 
 		JLabel lblNewLabel = new JLabel("Data:");
 		lblNewLabel.setFont(new Font("SansSerif", Font.BOLD, 12));
@@ -567,14 +577,14 @@ public class TelaConfirmarRecebimento extends JDialog {
 		lblDataRecebimento.setFont(new Font("SansSerif", Font.BOLD, 12));
 		lblDataRecebimento.setForeground(Color.WHITE);
 		lblDataRecebimento.setBorder(new LineBorder(new Color(0, 0, 0)));
-		painelConfirmar.add(lblDataRecebimento, "cell 2 0,grow");
+		painelConfirmar.add(lblDataRecebimento, "cell 1 0,grow");
 
 		lblClienteRecebimento = new JLabel("");
 		lblClienteRecebimento.setFont(new Font("SansSerif", Font.BOLD, 12));
 		lblClienteRecebimento.setForeground(Color.WHITE);
 		lblClienteRecebimento.setBorder(new LineBorder(new Color(0, 0, 0)));
 
-		painelConfirmar.add(lblClienteRecebimento, "cell 2 1 9 1,grow");
+		painelConfirmar.add(lblClienteRecebimento, "cell 1 1 9 1,grow");
 
 		JLabel lblCliente = new JLabel("Cliente:");
 		lblCliente.setFont(new Font("SansSerif", Font.BOLD, 12));
@@ -588,12 +598,30 @@ public class TelaConfirmarRecebimento extends JDialog {
 				GerenciarBancoContratos gerenciar = new GerenciarBancoContratos();
                 Recebimento recebimento = getRecebimentoSalvar(new CadastroContrato.Recebimento());
 				
+                
+                CadastroContrato.Recebimento duplicado = gerenciar.procurarDuplicataRecebimento(recebimento.getCodigo_romaneio());
+                if(duplicado != null) {
+                	JOptionPane.showMessageDialog(isto,"Já Existe um recebimento associado a este código de romaneio!");
+
+                	if (JOptionPane.showConfirmDialog(isto, 
+				            "Abrir", "Deseja ver o recebimento?", 
+				            JOptionPane.YES_NO_OPTION,
+				            JOptionPane.QUESTION_MESSAGE) == JOptionPane.YES_OPTION){
+						 
+                		CadastroContrato contrato_selecionado = new GerenciarBancoContratos().getContrato(duplicado.getId_contrato_recebimento());
+        				TelaGerenciarContrato gerenciar_contrato = new TelaGerenciarContrato(contrato_selecionado, isto);
+        				gerenciar_contrato.setTelaRecebimentos(duplicado.getId_recebimento());
+
+                		
+                	}
+			   }else {
+                
 				int retorno = gerenciar.inserirRecebimento(contrato_local.getId(),recebimento);
 				if (retorno > 0) {
 					JOptionPane.showMessageDialog(isto, "Recebimento Cadastrado!");
 					//((TelaGerenciarContrato) telaPai).pesquisar_carregamentos();
-					((TelaGerenciarContrato) telaPaiJFrame).pesquisar_recebimentos();
-	            	  ((TelaGerenciarContrato) telaPaiJFrame).pesquisar_carregamentos();
+					((TelaGerenciarContrato) telaPaiJFrame).pesquisar_recebimentos(true);
+	            	  ((TelaGerenciarContrato) telaPaiJFrame).pesquisar_carregamentos(true);
 
 					recebimento.setId_recebimento(retorno);
 				     recebimento_global =recebimento;
@@ -605,10 +633,10 @@ public class TelaConfirmarRecebimento extends JDialog {
 							"Erro ao inserir o recebimento\nConsulte o administrador do sistema!");
 					isto.dispose();
 				}
-
+                }
 			}
 		});
-		painelConfirmar.add(btnSalvar, "cell 10 11,alignx left,growy");
+		painelConfirmar.add(btnSalvar, "cell 9 11,alignx left,growy");
 
 		JLabel lblNewLabel_1 = new JLabel("Contrato:");
 		lblNewLabel_1.setFont(new Font("SansSerif", Font.BOLD, 12));
@@ -620,7 +648,7 @@ public class TelaConfirmarRecebimento extends JDialog {
 		lblContratoRecebimento.setForeground(Color.WHITE);
 		lblContratoRecebimento.setBorder(new LineBorder(new Color(0, 0, 0)));
 
-		painelConfirmar.add(lblContratoRecebimento, "cell 2 3 9 1,grow");
+		painelConfirmar.add(lblContratoRecebimento, "cell 1 3 9 1,grow");
 
 		JLabel lblNewLabel_1_1 = new JLabel("Transportador:");
 		lblNewLabel_1_1.setFont(new Font("SansSerif", Font.BOLD, 12));
@@ -632,18 +660,18 @@ public class TelaConfirmarRecebimento extends JDialog {
 		lblTransportadorRecebimento.setForeground(Color.WHITE);
 		lblTransportadorRecebimento.setBorder(new LineBorder(new Color(0, 0, 0)));
 
-		painelConfirmar.add(lblTransportadorRecebimento, "cell 2 4 3 1,grow");
+		painelConfirmar.add(lblTransportadorRecebimento, "cell 1 4 3 1,grow");
 
 		JLabel lblNewLabel_1_1_1 = new JLabel("Veiculo:");
 		lblNewLabel_1_1_1.setFont(new Font("SansSerif", Font.BOLD, 12));
 		lblNewLabel_1_1_1.setForeground(Color.WHITE);
-		painelConfirmar.add(lblNewLabel_1_1_1, "cell 6 4,alignx right,aligny center");
+		painelConfirmar.add(lblNewLabel_1_1_1, "cell 5 4,alignx right,aligny center");
 
 		lblVeiculoRecebimento = new JLabel("");
 		lblVeiculoRecebimento.setFont(new Font("SansSerif", Font.BOLD, 12));
 		lblVeiculoRecebimento.setForeground(Color.WHITE);
 		lblVeiculoRecebimento.setBorder(new LineBorder(new Color(0, 0, 0)));
-		painelConfirmar.add(lblVeiculoRecebimento, "cell 8 4 3 1,grow");
+		painelConfirmar.add(lblVeiculoRecebimento, "cell 7 4 3 1,grow");
 
 		JLabel lblNewLabel_1_1_1_1 = new JLabel("Código Romaneio:");
 		lblNewLabel_1_1_1_1.setFont(new Font("SansSerif", Font.BOLD, 12));
@@ -654,18 +682,18 @@ public class TelaConfirmarRecebimento extends JDialog {
 		lblCodigoRomaneio.setFont(new Font("SansSerif", Font.BOLD, 12));
 		lblCodigoRomaneio.setForeground(Color.WHITE);
 		lblCodigoRomaneio.setBorder(new LineBorder(new Color(0, 0, 0)));
-		painelConfirmar.add(lblCodigoRomaneio, "cell 2 5,grow");
+		painelConfirmar.add(lblCodigoRomaneio, "cell 1 5,grow");
 
 		JLabel lblNewLabel_1_1_1_1_1 = new JLabel("Peso Romaneio:");
 		lblNewLabel_1_1_1_1_1.setFont(new Font("SansSerif", Font.BOLD, 12));
 		lblNewLabel_1_1_1_1_1.setForeground(Color.WHITE);
-		painelConfirmar.add(lblNewLabel_1_1_1_1_1, "cell 4 5,alignx left,aligny center");
+		painelConfirmar.add(lblNewLabel_1_1_1_1_1, "cell 3 5,alignx left,aligny center");
 
 		lblPesoRomaneio = new JLabel("");
 		lblPesoRomaneio.setFont(new Font("SansSerif", Font.BOLD, 12));
 		lblPesoRomaneio.setForeground(Color.WHITE);
 		lblPesoRomaneio.setBorder(new LineBorder(new Color(0, 0, 0)));
-		painelConfirmar.add(lblPesoRomaneio, "cell 6 5 5 1,grow");
+		painelConfirmar.add(lblPesoRomaneio, "cell 5 5 5 1,grow");
 
 		JLabel lblNewLabel_2 = new JLabel("NF Venda:");
 		lblNewLabel_2.setFont(new Font("SansSerif", Font.BOLD, 12));
@@ -680,12 +708,12 @@ public class TelaConfirmarRecebimento extends JDialog {
 
 		
 		JScrollPane scrollPane = new JScrollPane(lblNotaFiscalVenda);
-		painelConfirmar.add(scrollPane, "cell 2 7 9 1,grow");
+		painelConfirmar.add(scrollPane, "cell 1 7 9 1,grow");
 		
 		 lblCaminhoNFVenda = new JLabel("");
 		 lblCaminhoNFVenda.setForeground(Color.WHITE);
 		 lblCaminhoNFVenda.setBorder(new LineBorder(new Color(0, 0, 0)));
-		painelConfirmar.add(lblCaminhoNFVenda, "cell 2 8 9 1,grow");
+		painelConfirmar.add(lblCaminhoNFVenda, "cell 1 8 9 1,grow");
 		
 		JLabel lblNewLabel_2_1 = new JLabel("NF Remessa:");
 		lblNewLabel_2_1.setFont(new Font("SansSerif", Font.BOLD, 12));
@@ -701,7 +729,7 @@ public class TelaConfirmarRecebimento extends JDialog {
 		lblNotaFiscalRemessa.setBorder(new LineBorder(new Color(0, 0, 0)));
 		
 		JScrollPane scrollPaneNFRemessa = new JScrollPane(lblNotaFiscalRemessa);
-		painelConfirmar.add(scrollPaneNFRemessa, "cell 2 9 9 1,grow");
+		painelConfirmar.add(scrollPaneNFRemessa, "cell 1 9 9 1,grow");
 		
 		JLabel lblVendedor = new JLabel("Vendedor:");
 		lblVendedor.setFont(new Font("SansSerif", Font.BOLD, 12));
@@ -712,12 +740,12 @@ public class TelaConfirmarRecebimento extends JDialog {
 		lblVendedorRecebimento.setFont(new Font("SansSerif", Font.BOLD, 12));
 		lblVendedorRecebimento.setForeground(Color.WHITE);
 		lblVendedorRecebimento.setBorder(new LineBorder(new Color(0, 0, 0)));
-		painelConfirmar.add(lblVendedorRecebimento, "cell 2 2 9 1,grow");
+		painelConfirmar.add(lblVendedorRecebimento, "cell 1 2 9 1,grow");
 		
 		 lblCaminhoNFRemessa = new JLabel("");
 		lblCaminhoNFRemessa.setForeground(Color.WHITE);
 		lblCaminhoNFRemessa.setBorder(new LineBorder(new Color(0, 0, 0)));
-		painelConfirmar.add(lblCaminhoNFRemessa, "cell 2 10 9 1,grow");
+		painelConfirmar.add(lblCaminhoNFRemessa, "cell 1 10 9 1,grow");
 		
 		
 		JButton btnAtualizar = new JButton("Atualizar");
@@ -726,13 +754,33 @@ public class TelaConfirmarRecebimento extends JDialog {
 			public void actionPerformed(ActionEvent e) {
 				
 				GerenciarBancoContratos gerenciar = new GerenciarBancoContratos();
-               boolean atualizou = gerenciar.atualizar_recebimento(getRecebimentoAtualizar(recebimento_global));
+				CadastroContrato.Recebimento recebimento = getRecebimentoAtualizar(recebimento_global);
+              
+				   CadastroContrato.Recebimento duplicado = gerenciar.procurarDuplicataRecebimento(recebimento.getCodigo_romaneio());
+	              
+				   
+				   if(duplicado != null && duplicado.getId_recebimento() != recebimento.getId_recebimento()) {
+	                	JOptionPane.showMessageDialog(isto,"Já Existe um recebimento associado a este código de romaneio!");
+
+	                	if (JOptionPane.showConfirmDialog(isto, 
+					            "Abrir", "Deseja ver o recebimento?", 
+					            JOptionPane.YES_NO_OPTION,
+					            JOptionPane.QUESTION_MESSAGE) == JOptionPane.YES_OPTION){
+							 
+	                		CadastroContrato contrato_selecionado = new GerenciarBancoContratos().getContrato(duplicado.getId_contrato_recebimento());
+	        				TelaGerenciarContrato gerenciar_contrato = new TelaGerenciarContrato(contrato_selecionado, isto);
+	        				gerenciar_contrato.setTelaRecebimentos(duplicado.getId_recebimento());
+	                		
+	                	}
+				   }else {
+				
+				boolean atualizou = gerenciar.atualizar_recebimento(recebimento);
                
                if(atualizou) {
             	   JOptionPane.showMessageDialog(isto, "Recebimento Atualizado");
             	   
-            	   ((TelaGerenciarContrato) telaPaiJFrame).pesquisar_recebimentos();
-            	   ((TelaGerenciarContrato) telaPaiJFrame).pesquisar_carregamentos();
+            	   ((TelaGerenciarContrato) telaPaiJFrame).pesquisar_recebimentos(true);
+            	   ((TelaGerenciarContrato) telaPaiJFrame).pesquisar_carregamentos(true);
 
             	   isto.dispose();
                }else {
@@ -741,15 +789,15 @@ public class TelaConfirmarRecebimento extends JDialog {
 
                }
 				
-				
+				   }
 			}
 		});
-		painelConfirmar.add(btnAtualizar, "cell 6 11 3 1,alignx right,growy");
+		painelConfirmar.add(btnAtualizar, "cell 5 11 3 1,alignx right,growy");
 		
 		lblCaminhoRomaneio  = new JLabel("");
 		lblCaminhoRomaneio.setForeground(Color.WHITE);
 		lblCaminhoRomaneio.setBorder(new LineBorder(new Color(0, 0, 0)));
-		painelConfirmar.add(lblCaminhoRomaneio, "cell 2 6 9 1,grow");
+		painelConfirmar.add(lblCaminhoRomaneio, "cell 1 6 9 1,grow");
 	    //this.setUndecorated(true);
 		
 		
@@ -943,7 +991,8 @@ public class TelaConfirmarRecebimento extends JDialog {
 		}
 		}
 		
-		
+		Locale ptBr = new Locale("pt", "BR");
+
 		NumberFormat z = NumberFormat.getNumberInstance();
 
 		if(romaneio_recebimento != null) {
@@ -988,6 +1037,7 @@ public class TelaConfirmarRecebimento extends JDialog {
 		
 		lblNotaFiscalVenda.setText(texto_revisao_nfs);
 		
+		
 		String caminho_completo = nota_fiscal_venda_recebimento.getCaminho_arquivo();
 		TratarDados tratar = new TratarDados(caminho_completo);
 			String caminho_normalizado = tratar.tratar("E-Contract", "pdf")	;
@@ -996,9 +1046,35 @@ public class TelaConfirmarRecebimento extends JDialog {
 			lblCaminhoNFVenda.setText(caminho_completo_normalizado);
 		
 		}else {
-			if(checkString(entCodigoNFVenda.getText())  && checkString(entPesoNFVenda.getText()))
-			lblNotaFiscalVenda.setText("Código: " + entCodigoNFVenda.getText() + " Peso: " + entPesoNFVenda.getText());
+			String texto = "Código: ";
+			if(checkString(entCodigoNFVenda.getText())) {
+				texto = texto +  entCodigoNFVenda.getText();
+			}else {
+				texto = texto + " ";
+			}
+			 texto = texto + " Peso: ";
+
+			if (checkString(entPesoNFVenda.getText())) {
+				texto = texto + z.format(Double.parseDouble(entPesoNFVenda.getText()));
+			}else {
+				texto = texto + " ";
+
+			}
+			 texto = texto + " Valor: ";
+
+			if(checkString(entValorNFVenda.getText())) {
+				String valor = entValorNFVenda.getText().replaceAll("[^0-9,]", "").replaceAll(",", ".");
+				
+				texto = texto + NumberFormat.getCurrencyInstance(ptBr)
+				.format(new BigDecimal(valor).doubleValue());
 			
+			}else {
+				texto = texto + " ";
+
+			}
+
+			lblNotaFiscalVenda.setText(texto);
+		
 
 		}
 		}else {
@@ -1038,10 +1114,36 @@ public class TelaConfirmarRecebimento extends JDialog {
 				lblCaminhoNFRemessa.setText(caminho_completo_normalizado);
 			
 			}else {
-				if(checkString(entCodigoNFRemessa.getText()))
-					lblNotaFiscalRemessa.setText("Código: " + entCodigoNFRemessa.getText());
-				
+				String texto = "Código: ";
+				if(checkString(entCodigoNFRemessa.getText())) {
+					texto = texto +  entCodigoNFRemessa.getText();
+				}else {
+					texto = texto + " ";
+				}
+				 texto = texto + " Peso: ";
 
+				if (checkString(entPesoNFRemessa.getText())) {
+					texto = texto + z.format(Double.parseDouble(entPesoNFRemessa.getText()));
+				}else {
+					texto = texto + " ";
+
+				}
+				 texto = texto + " Valor: ";
+
+				 if(checkString(entValorNFRemessa.getText())) {
+						String valor = entValorNFRemessa.getText().replaceAll("[^0-9,]", "").replaceAll(",", ".");
+						
+						texto = texto + NumberFormat.getCurrencyInstance(ptBr)
+						.format(new BigDecimal(valor).doubleValue());
+					
+					}else {
+						texto = texto + " ";
+
+					}
+
+
+				lblNotaFiscalRemessa.setText(texto);
+			
 			}
 		}else {
 			lblNotaFiscalRemessa.setText("Não Aplicável");
@@ -1102,11 +1204,14 @@ public class TelaConfirmarRecebimento extends JDialog {
             this.nota_fiscal_venda_recebimento = _nfe;
 			entCodigoNFVenda.setText(_nfe.getNfe());
 				entPesoNFVenda.setText(_nfe.getQuantidade());
+				entValorNFVenda.setText(_nfe.getValor());
 }
 	
 	public void setNotaFiscalRemessa(CadastroNFe _nfe) {
 	this.nota_fiscal_remessa_recebimento = _nfe;
 				entCodigoNFRemessa.setText(_nfe.getNfe());
+				entPesoNFRemessa.setText(_nfe.getQuantidade());
+				entValorNFRemessa.setText(_nfe.getValor());
 }
 	
 	public boolean checkString(String txt) {
@@ -1223,6 +1328,13 @@ public class TelaConfirmarRecebimento extends JDialog {
 				recebimento_a_inserir.setPeso_nf_venda(peso_nota);
 
 				recebimento_a_inserir.setCaminho_nf_venda(url_final);
+				
+				String valor_nota = nota_fiscal_venda_recebimento.getValor().replaceAll("[^0-9,]", "");
+
+				valor_nota = valor_nota.replaceAll(",", ".");
+
+				recebimento_a_inserir.setValor_nf_venda(new BigDecimal(valor_nota));
+				
 				if(pasta_recebimento_contrato1_existe) {
 					//copiar a nota para esta pasta
 					try {
@@ -1247,12 +1359,30 @@ public class TelaConfirmarRecebimento extends JDialog {
 			recebimento_a_inserir.setNf_venda_aplicavel(1);
 
 			recebimento_a_inserir.setCodigo_nf_venda(entCodigoNFVenda.getText());
-			   
+			try {   
 			recebimento_a_inserir.setPeso_nf_venda(Double.parseDouble(entPesoNFVenda.getText()));
+			}catch(Exception u) {
+				recebimento_a_inserir.setPeso_nf_venda(0);
+
+			}
+			try {
+				if(checkString(entValorNFVenda.getText()))   {
+					String valor_nf_venda = entValorNFVenda.getText().replaceAll("[^0-9,]", "").replaceAll(",", ".");
+
+					recebimento_a_inserir.setValor_nf_venda(new BigDecimal(valor_nf_venda));
+
+				}else {
+					recebimento_a_inserir.setValor_nf_venda(BigDecimal.ZERO);
+
+				}
+				}catch(Exception e) {
+					
+				}
 		}
 		}else {
 			recebimento_a_inserir.setNf_venda_aplicavel(0);
 			recebimento_a_inserir.setPeso_nf_venda(0);
+			recebimento_a_inserir.setValor_nf_venda(BigDecimal.ZERO);
 
 		}
 		
@@ -1286,6 +1416,13 @@ public class TelaConfirmarRecebimento extends JDialog {
 				recebimento_a_inserir.setPeso_nf_remessa(peso_nota);
 			   
 				recebimento_a_inserir.setCaminho_nf_remessa(url_final);
+				
+				String valor_nota = nota_fiscal_remessa_recebimento.getValor().replaceAll("[^0-9,]", "");
+
+				valor_nota = valor_nota.replaceAll(",", ".");
+
+				recebimento_a_inserir.setValor_nf_remessa(new BigDecimal(valor_nota));
+				
 				if(pasta_recebimento_contrato1_existe) {
 					//copiar a nota para esta pasta
 					try {
@@ -1310,11 +1447,34 @@ public class TelaConfirmarRecebimento extends JDialog {
 			recebimento_a_inserir.setNf_remessa_aplicavel(1);
 
 			recebimento_a_inserir.setCodigo_nf_remessa(entCodigoNFRemessa.getText());
-			   			
+			
+			try {   
+				recebimento_a_inserir.setPeso_nf_remessa(Double.parseDouble(entPesoNFRemessa.getText()));
+				}catch(Exception u) {
+					recebimento_a_inserir.setPeso_nf_remessa(0);
+
+				}
+			
+			   		
+			try {
+				if(checkString(entValorNFRemessa.getText())) {
+					String valor_nf_remessa = entValorNFRemessa.getText().replaceAll("[^0-9,]", "").replaceAll(",", ".");
+
+					recebimento_a_inserir.setValor_nf_remessa(new BigDecimal(valor_nf_remessa));
+				}				else {
+					recebimento_a_inserir.setValor_nf_remessa(BigDecimal.ZERO);
+
+				}
+				}catch(Exception e) {
+					
+				}
 		
 		}
 		}else {
 			recebimento_a_inserir.setNf_remessa_aplicavel(0);
+			
+
+			recebimento_a_inserir.setValor_nf_remessa(BigDecimal.ZERO);
 
 		}
 		
@@ -1430,6 +1590,9 @@ public class TelaConfirmarRecebimento extends JDialog {
 	        	}else {
 	        		entCodigoNFVenda.setText(recebimento_global.getCodigo_nf_venda());
 					entPesoNFVenda.setText(Double.toString(recebimento_global.getPeso_nf_venda()));
+					String valor_nf_venda = recebimento_global.getValor_nf_venda().toString();
+					valor_nf_venda = valor_nf_venda.replace(".", ",");
+					entValorNFVenda.setText(valor_nf_venda);	
 	        	}
 	        
 	        	
@@ -1438,7 +1601,10 @@ public class TelaConfirmarRecebimento extends JDialog {
 				JOptionPane.showMessageDialog(isto, "Nota Fiscal de venda não Localizado");
 				entCodigoNFVenda.setText(recebimento_global.getCodigo_nf_venda());
 				entPesoNFVenda.setText(Double.toString(recebimento_global.getPeso_nf_venda()));
-			}
+				String valor_nf_venda = recebimento_global.getValor_nf_venda().toString();
+				valor_nf_venda = valor_nf_venda.replace(".", ",");
+				entValorNFVenda.setText(valor_nf_venda);		
+				}
 		}else {
 			desativarNFVenda();
 		}
@@ -1457,7 +1623,10 @@ public class TelaConfirmarRecebimento extends JDialog {
 				        	setNotaFiscalRemessa(nota_fiscal_remessa);
 			        	}else {
 							entCodigoNFRemessa.setText(recebimento_global.getCodigo_nf_remessa());
-
+							entPesoNFRemessa.setText(Double.toString(recebimento_global.getPeso_nf_remessa()));
+							String valor_nf_remessa = recebimento_global.getValor_nf_remessa().toString();
+							valor_nf_remessa = valor_nf_remessa.replace(".", ",");
+							entValorNFRemessa.setText(valor_nf_remessa);
 			        	}
 			        
 			        	
@@ -1465,7 +1634,11 @@ public class TelaConfirmarRecebimento extends JDialog {
 					}catch(Exception e) {
 						//JOptionPane.showMessageDialog(isto, "Nota Fiscal de remessa não Localizado");
 						entCodigoNFRemessa.setText(recebimento_global.getCodigo_nf_remessa());
-					}
+						entPesoNFRemessa.setText(Double.toString(recebimento_global.getPeso_nf_remessa()));
+						String valor_nf_remessa = recebimento_global.getValor_nf_remessa().toString();
+						valor_nf_remessa = valor_nf_remessa.replace(".", ",");
+						entValorNFRemessa.setText(valor_nf_remessa);
+						}
 		}else {
 			desativarNFRemessa();
 
@@ -1484,12 +1657,8 @@ public class TelaConfirmarRecebimento extends JDialog {
 				  login = dados.getLogin();
 				  servidor_unidade = configs_globais.getServidorUnidade();
 				  
-				  //telaRomaneios
-				  telaRomaneio = dados.getTelaRomaneios();
-				  
-				  //telaTodasNotasFicais
-				  telaTodasNotasFiscais = dados.getTelaTodasNotasFiscais();
-		
+			
+				
 	}
 	
 	public void gerarPastasEArquivos() {
@@ -1716,18 +1885,49 @@ public class TelaConfirmarRecebimento extends JDialog {
 			   
 				recebimento_a_inserir.setCaminho_nf_venda(url_final);
 				
+				String valor_nota = nota_fiscal_venda_recebimento.getValor().replaceAll("[^0-9,]", "");
+
+				valor_nota = valor_nota.replaceAll(",", ".");
+
+				recebimento_a_inserir.setValor_nf_venda(new BigDecimal(valor_nota));
+				
 				
 		}else {
 			recebimento_a_inserir.setNf_venda_aplicavel(1);
 
 			recebimento_a_inserir.setCodigo_nf_venda(entCodigoNFVenda.getText());
-			  
+			
+			try {
 			recebimento_a_inserir.setPeso_nf_venda(Double.parseDouble(entPesoNFVenda.getText()));
+			}catch(Exception h) {
+				recebimento_a_inserir.setPeso_nf_venda(0);
+
+			}
+			
+			try {
+				
+				
+				
+				if(checkString(entValorNFVenda.getText()))   {
+					String valor_nf_venda = entValorNFVenda.getText().replace(".", "").replace(",", ".");
+
+					recebimento_a_inserir.setValor_nf_venda(new BigDecimal(valor_nf_venda));
+				}
+				else {
+					recebimento_a_inserir.setValor_nf_venda(BigDecimal.ZERO);
+
+				}
+				}catch(Exception e) {
+					recebimento_a_inserir.setValor_nf_venda(BigDecimal.ZERO);
+
+				}
 			
 		}
 		}else {
 			recebimento_a_inserir.setNf_venda_aplicavel(0);
 			recebimento_a_inserir.setPeso_nf_venda(0);
+			recebimento_a_inserir.setValor_nf_venda(BigDecimal.ZERO);
+
 		}
 		
 		
@@ -1760,16 +1960,45 @@ public class TelaConfirmarRecebimento extends JDialog {
 				recebimento_a_inserir.setPeso_nf_remessa(peso_nota);
 			   
 				recebimento_a_inserir.setCaminho_nf_remessa(url_final);
+				
+				String valor_nota = nota_fiscal_remessa_recebimento.getValor().replaceAll("[^0-9,]", "");
+
+				valor_nota = valor_nota.replaceAll(",", ".");
+
+				recebimento_a_inserir.setValor_nf_remessa(new BigDecimal(valor_nota));
 			
 		}else {
 			recebimento_a_inserir.setNf_remessa_aplicavel(1);
 
 			recebimento_a_inserir.setCodigo_nf_remessa(entCodigoNFRemessa.getText());
+			
+			try {
+			recebimento_a_inserir.setPeso_nf_remessa(Double.parseDouble(entCodigoNFRemessa.getText()));
+			}catch(Exception y) {
+				recebimento_a_inserir.setPeso_nf_remessa(0);
+
+			}
+			try {
+				if(checkString(entValorNFRemessa.getText())) {  
+					String valor_nf_remessa = entValorNFRemessa.getText().replace(".", "").replaceAll(",", ".");
+
+					recebimento_a_inserir.setValor_nf_remessa(new BigDecimal(valor_nf_remessa));
+				}else {
+					recebimento_a_inserir.setValor_nf_remessa(BigDecimal.ZERO);
+
+				}
+				}catch(Exception e) {
+					recebimento_a_inserir.setValor_nf_remessa(BigDecimal.ZERO);
+
+				}
 			   			
 		
 		}
 		}else {
 			recebimento_a_inserir.setNf_remessa_aplicavel(0);
+			recebimento_a_inserir.setPeso_nf_remessa(0);
+			recebimento_a_inserir.setValor_nf_remessa(BigDecimal.ZERO);
+
 
 		}
 		
@@ -1808,6 +2037,10 @@ public class TelaConfirmarRecebimento extends JDialog {
 			entPesoNFVenda.setEnabled(true);
 			entPesoNFVenda.setEditable(true);
 			
+			entValorNFVenda.setEditable(true);
+			entValorNFVenda.setEnabled(true);
+
+			
 			btnSelecionarNFVenda.setEnabled(true);
 	}
 	
@@ -1819,6 +2052,10 @@ public class TelaConfirmarRecebimento extends JDialog {
 			
 			entPesoNFVenda.setEnabled(false);
 			entPesoNFVenda.setEditable(false);
+			
+			entValorNFVenda.setEditable(false);
+			entValorNFVenda.setEnabled(false);
+
 
 			btnSelecionarNFVenda.setEnabled(false);
 	}
@@ -1828,6 +2065,11 @@ public class TelaConfirmarRecebimento extends JDialog {
 		entCodigoNFRemessa.setEnabled(true);
 		entCodigoNFRemessa.setEditable(true);
 		
+		entPesoNFRemessa.setEnabled(true);
+		entPesoNFRemessa.setEditable(true);
+		
+		entValorNFRemessa.setEnabled(true);
+		entValorNFRemessa.setEditable(true);
 	
 		btnSelecionarNFRemessa.setEnabled(true);
 	}
@@ -1838,8 +2080,13 @@ public class TelaConfirmarRecebimento extends JDialog {
 		entCodigoNFRemessa.setEnabled(false);
 		entCodigoNFRemessa.setEditable(false);
 		
+		entPesoNFRemessa.setEnabled(false);
+		entPesoNFRemessa.setEditable(false);
+		
+		entValorNFRemessa.setEnabled(false);
+		entValorNFRemessa.setEditable(false);
+		
 	
 		btnSelecionarNFRemessa.setEnabled(false);
 	}
-	
 }

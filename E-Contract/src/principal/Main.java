@@ -33,7 +33,6 @@ import gui.TelaPlanilhaNFeInternas;
 import gui.TelaPrincipal;
 import manipular.ArquivoConfiguracoes;
 import manipular.ConfiguracoesGlobais;
-import manipular.ConsumidorKafka;
 import manipular.EditarWord;
 import manipular.Email;
 import manipular.ManipularTxt;
@@ -56,6 +55,8 @@ public class Main {
 
  public static void main(String[] args) {
 	
+	
+	 
 	  String start = "";
 	
 	    if(args.length > 0   ) {
@@ -128,44 +129,11 @@ public class Main {
 	
     
 	
-		
-		
-     // TelaPrincipal principal = new TelaPrincipal();
- 	   //TelaNovoContrato contrato = new TelaNovoContrato("C:\\Users\\Aislan\\Documents\\modelo_informal_padrao.xlsx");
-		//TelaContratos tela = new TelaContratos();
-		//TelaCadastroCliente novoCliente = new TelaCadastroCliente(1, null);
-	   //  TelaBaixarNotas notas= new TelaBaixarNotas();
-		//TelaPlanilhaNFe planilha = new TelaPlanilhaNFe();
-		//TelaPlanilhaNFeInternas planilha = new TelaPlanilhaNFeInternas();
-		//TelaCliente tela = new TelaCliente();
-// 	   GetData tempo  = new GetData();
-		/*
-		ManipularTxt anexo = new ManipularTxt();
-		ArrayList<File> anexos = new ArrayList<>();
-		File anexo1 = anexo.criarArquivoRetorno("C:\\ProgramData\\E-Contract\\logs", "teste1", "txt");
-		File anexo2 = anexo.criarArquivoRetorno("C:\\ProgramData\\E-Contract\\logs", "teste1", "txt");
-		File anexo3 = anexo.criarArquivoRetorno("C:\\ProgramData\\E-Contract\\logs", "teste1", "txt");
-
-		anexos.add(anexo1);
-		anexos.add(anexo2);
-		anexos.add(anexo3);
-		
-           Email email = new Email();
-           email.logar("comprasaislan@gmail.com", "titaniwm2014");
-          email.enviarAnexo("comprasaislan@gmail.com", "comprasaislan@gmail.com", "Teste Envio de Anexos", "Olá, tudo bem?\n", "Envio em Anexo os arquivos\n",
-        		        "atenciosamente;\n Aislan Silva Costa\n LD Armazens Gerais", anexos);
-*/
-
-       // }
-	 
-	 
-//}
-	
 	
 	
 	    }
+	   
  }
-	
 		
 }
 

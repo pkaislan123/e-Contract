@@ -15,7 +15,6 @@ import javax.swing.table.AbstractTableModel;
 import javax.swing.table.DefaultTableModel;
 
 import org.codehaus.groovy.runtime.dgmimpl.arrays.BooleanArrayGetAtMetaMethod;
-import org.springframework.util.StringUtils;
 
 import cadastros.CadastroCliente;
 import cadastros.CadastroContrato;
@@ -3566,7 +3565,7 @@ public class TelaElaborarNovoContrato extends JDialog {
 				
 				if(novo_contrato.getSub_contrato() == 1) {
 					DadosGlobais dados = DadosGlobais.getInstance();
-					dados.getTeraGerenciarContratoPai().atualizarContratoLocal();
+					dados.getTeraGerenciarContratoPai().atualizarContratoLocal(true);
 				}
 
 				isto.dispose();
@@ -3592,7 +3591,7 @@ public class TelaElaborarNovoContrato extends JDialog {
 			} else if (result == 5) {
 				JOptionPane.showMessageDialog(isto, "Contrato atualizado e salvo na base de dados");
 				DadosGlobais dados = DadosGlobais.getInstance();
-				 dados.getTeraGerenciarContratoPai().atualizarContratoLocal();
+				 dados.getTeraGerenciarContratoPai().atualizarContratoLocal(true);
 				isto.dispose();
 			}
 		} else {

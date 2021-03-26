@@ -62,7 +62,6 @@ public class TelaCliente extends JDialog {
 	private Log GerenciadorLog;
 	private CadastroLogin login;
 	private ConfiguracoesGlobais configs_globais;
-    private TelaRomaneios telaRomaneio;
      DefaultTableModel modelo_grupos = new DefaultTableModel(){
          public boolean isCellEditable(int linha, int coluna) {  
              return false;
@@ -73,7 +72,6 @@ public class TelaCliente extends JDialog {
     private static ArrayList<CadastroCliente> clientes_pesquisados = new ArrayList<>();
 	private static ArrayList<CadastroCliente> clientes_disponiveis = new ArrayList<>();
 	private static ArrayList<CadastroGrupo> lista_grupos = new ArrayList<>();
-    private TelaTodasNotasFiscais telaTodasNotasFiscais;
 	private CadastroCliente clienteSelecionado;
 	private JTextField entNome;
 	
@@ -340,25 +338,15 @@ public class TelaCliente extends JDialog {
 		panel.add(btnVerNotasFiscais);
 		btnVerNotasFiscais.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
+			
+
+				TelaTodasNotasFiscais telaTodasNotasFiscais = new TelaTodasNotasFiscais(0,1,isto);
+					telaTodasNotasFiscais.setTelaPai(isto);
+					telaTodasNotasFiscais.limpar();
+					telaTodasNotasFiscais.desabilitarBtnSelecionar();
+					telaTodasNotasFiscais.pesquisar_notas();
+					telaTodasNotasFiscais.setVisible(true);
 				
-				if(telaTodasNotasFiscais == null) {
-					telaTodasNotasFiscais = new TelaTodasNotasFiscais(0,1,isto);
-					DadosGlobais dados = DadosGlobais.getInstance();
-
-					dados.setTelaTodasNotasFiscais(telaTodasNotasFiscais);
-					telaTodasNotasFiscais.setTelaPai(isto);
-					telaTodasNotasFiscais.limpar();
-					telaTodasNotasFiscais.desabilitarBtnSelecionar();
-
-					telaTodasNotasFiscais.setVisible(true);
-				}else {
-					//telaRomaneio.pesquisarTodosOsRomaneios(clientes_disponiveis);
-					telaTodasNotasFiscais.setTelaPai(isto);
-					telaTodasNotasFiscais.limpar();
-					telaTodasNotasFiscais.desabilitarBtnSelecionar();
-
-					telaTodasNotasFiscais.setVisible(true);
-				}
 				
 			}
 		});
@@ -368,18 +356,13 @@ public class TelaCliente extends JDialog {
 		btnNewButton_1.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				
-				if(telaRomaneio == null) {
-					telaRomaneio = new TelaRomaneios(0,isto);
-					telaRomaneio.pesquisarTodosOsRomaneios(clientes_disponiveis);
-					DadosGlobais dados = DadosGlobais.getInstance();
+				    TelaRomaneios telaRomaneio;
+ 					telaRomaneio = new TelaRomaneios(1,isto);
+ 					telaRomaneio.setTelaPai(isto);
+ 					telaRomaneio.pesquisarTodosOsRomaneios();
 
-					dados.setTelaRomaneios(telaRomaneio);
-					telaRomaneio.setVisible(true);
-				}else {
-					//telaRomaneio.pesquisarTodosOsRomaneios(clientes_disponiveis);
+ 					telaRomaneio.setVisible(true);
 					
-					telaRomaneio.setVisible(true);
-				}
 				
 			}
 		});
@@ -897,11 +880,7 @@ public class TelaCliente extends JDialog {
 				 //usuario logado
 				  login = dados.getLogin();
 				  
-				  //telaRomaneios
-				  telaRomaneio = dados.getTelaRomaneios();
-				  
-				  //telaTodasNotasFiscais
-				  telaTodasNotasFiscais = dados.getTelaTodasNotasFiscais();
-		
+				
+			
 	}
 }

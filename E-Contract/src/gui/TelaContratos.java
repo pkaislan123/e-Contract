@@ -37,6 +37,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Set;
+import java.util.stream.IntStream;
 import java.awt.event.ActionEvent;
 import javax.swing.JScrollPane;
 import java.awt.Component;
@@ -49,15 +50,21 @@ import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableRowSorter;
 
 import org.apache.poi.hssf.usermodel.HSSFDataFormat;
+import org.apache.poi.hssf.usermodel.HSSFFont;
 import org.apache.poi.hssf.usermodel.HSSFSheet;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
+import org.apache.poi.ss.usermodel.BorderStyle;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellStyle;
+import org.apache.poi.ss.usermodel.HeaderFooter;
 import org.apache.poi.ss.usermodel.HorizontalAlignment;
 import org.apache.poi.ss.usermodel.IndexedColors;
+import org.apache.poi.ss.usermodel.PrintSetup;
 import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.VerticalAlignment;
 import org.apache.poi.ss.util.CellRangeAddress;
+import org.apache.poi.xssf.usermodel.extensions.XSSFHeaderFooter;
 
 import cadastros.CadastroCliente;
 import cadastros.CadastroContrato;
@@ -536,10 +543,18 @@ public class TelaContratos extends JFrame {
 				HSSFWorkbook workbook = new HSSFWorkbook();
 				HSSFSheet sheet = workbook.createSheet("Contratos");
 
+							
 				// Definindo alguns padroes de layout
-				sheet.setDefaultColumnWidth(15);
+				//sheet.setDefaultColumnWidth(10);
 				sheet.setDefaultRowHeight((short) 400);
+				sheet.getPrintSetup().setPaperSize(PrintSetup.A4_PAPERSIZE);
+				sheet.getPrintSetup().setLandscape(false);
+				sheet.setMargin(Sheet.RightMargin, 0);
+				sheet.setMargin(Sheet.LeftMargin, 0);
+				sheet.setMargin(Sheet.TopMargin, 0);
+				sheet.setMargin(Sheet.BottomMargin, 0);
 
+				
 				int rownum = 0;
 				int cellnum = 0;
 				Cell cell;
@@ -553,19 +568,55 @@ public class TelaContratos extends JFrame {
 				// headerStyle.setFillPattern(CellStyle.SOLID_FOREGROUND);
 				headerStyle.setAlignment(HorizontalAlignment.CENTER);
 				headerStyle.setVerticalAlignment(VerticalAlignment.CENTER);
+				headerStyle.setBorderTop(BorderStyle.MEDIUM);
+				headerStyle.setBorderBottom(BorderStyle.MEDIUM);
+				headerStyle.setBorderLeft(BorderStyle.MEDIUM);
+				headerStyle.setBorderRight(BorderStyle.MEDIUM);
+				
+				HSSFFont newFontNegrita = workbook.createFont();
+				newFontNegrita.setBold(true);
+				newFontNegrita.setColor(IndexedColors.BLACK.getIndex());
+				newFontNegrita.setFontName("Arial");
+				newFontNegrita.setItalic(false);
+				newFontNegrita.setFontHeightInPoints((short)10);
+
+
+				headerStyle.setFont(newFontNegrita);
 
 				CellStyle textStyle = workbook.createCellStyle();
 				// textStyle.setAlignment(Alignment.CENTER);
 				textStyle.setVerticalAlignment(VerticalAlignment.CENTER);
+				textStyle.setBorderTop(BorderStyle.MEDIUM);
+				textStyle.setBorderBottom(BorderStyle.MEDIUM);
+				textStyle.setBorderLeft(BorderStyle.MEDIUM);
+				textStyle.setBorderRight(BorderStyle.MEDIUM);
+				
+				HSSFFont newFontNormal = workbook.createFont();
+				newFontNormal.setBold(false);
+				newFontNormal.setColor(IndexedColors.BLACK.getIndex());
+				newFontNormal.setFontName("Arial");
+				newFontNormal.setItalic(false);
+				newFontNormal.setFontHeightInPoints((short)10);
+				textStyle.setFont(newFontNormal);
 
 				CellStyle numberStyle = workbook.createCellStyle();
 				numberStyle.setDataFormat(numberFormat.getFormat("#,##0.00"));
 				numberStyle.setVerticalAlignment(VerticalAlignment.CENTER);
-
+				numberStyle.setFont(newFontNormal);
+				numberStyle.setBorderTop(BorderStyle.MEDIUM);
+				numberStyle.setBorderBottom(BorderStyle.MEDIUM);
+				numberStyle.setBorderLeft(BorderStyle.MEDIUM);
+				numberStyle.setBorderRight(BorderStyle.MEDIUM);
+				
 				CellStyle valorStyle = workbook.createCellStyle();
 				valorStyle.setDataFormat(numberFormat.getFormat("R$ #,##0.00"));
 				valorStyle.setVerticalAlignment(VerticalAlignment.CENTER);
-
+				valorStyle.setFont(newFontNormal);
+				valorStyle.setBorderTop(BorderStyle.MEDIUM);
+				valorStyle.setBorderBottom(BorderStyle.MEDIUM);
+				valorStyle.setBorderLeft(BorderStyle.MEDIUM);
+				valorStyle.setBorderRight(BorderStyle.MEDIUM);
+				
 				// Configurando Header
 				row = sheet.createRow(rownum++);
 				cell = row.createCell(cellnum++);
@@ -586,11 +637,11 @@ public class TelaContratos extends JFrame {
 
 				cell = row.createCell(cellnum++);
 				cell.setCellStyle(headerStyle);
-				cell.setCellValue("Quantidade");
+				cell.setCellValue("Volume");
 
 				cell = row.createCell(cellnum++);
 				cell.setCellStyle(headerStyle);
-				cell.setCellValue("Medida");
+				cell.setCellValue("Uni");
 
 				cell = row.createCell(cellnum++);
 				cell.setCellStyle(headerStyle);
@@ -606,15 +657,15 @@ public class TelaContratos extends JFrame {
 
 				cell = row.createCell(cellnum++);
 				cell.setCellStyle(headerStyle);
-				cell.setCellValue("Valor Produto");
+				cell.setCellValue("Preço");
 
 				cell = row.createCell(cellnum++);
 				cell.setCellStyle(headerStyle);
-				cell.setCellValue("Valor Total");
+				cell.setCellValue("Total");
 
 				cell = row.createCell(cellnum++);
 				cell.setCellStyle(headerStyle);
-				cell.setCellValue("Data Contrato");
+				cell.setCellValue("Data CTR");
 
 				cell = row.createCell(cellnum++);
 				cell.setCellStyle(headerStyle);
@@ -653,11 +704,13 @@ public class TelaContratos extends JFrame {
 
 					cell = row.createCell(cellnum++);
 					cell.setCellStyle(textStyle);
-					cell.setCellValue(cadastro.getNomes_compradores());
+					cell.setCellValue(trimar(cadastro.getNomes_compradores().toUpperCase()));
+
 
 					cell = row.createCell(cellnum++);
 					cell.setCellStyle(textStyle);
-					cell.setCellValue(cadastro.getNomes_vendedores());
+					cell.setCellValue(trimar(cadastro.getNomes_vendedores().toUpperCase()));
+
 
 					cell = row.createCell(cellnum++);
 					cell.setCellStyle(textStyle);
@@ -672,7 +725,7 @@ public class TelaContratos extends JFrame {
 					} else if (status_contrato == 2) {
 						status = "Assinado";
 					} else if (status_contrato == 3) {
-						status = "Cumprindo";
+						status = "CONCLUIDO";
 					}
 
 					cell.setCellValue(status);
@@ -697,20 +750,37 @@ public class TelaContratos extends JFrame {
 
 					cell = row.createCell(cellnum++);
 					cell.setCellStyle(numberStyle);
-					cell.setCellValue(cadastro.getMedida());
+					String medida = "";
+					if(cadastro.getMedida().equalsIgnoreCase("Sacos")) {
+						medida = "SC";
+					}else if(cadastro.getMedida().equalsIgnoreCase("Kg")) {
+						medida = "KG";
+
+					}
+					cell.setCellValue(medida);
 
 					cell = row.createCell(cellnum++);
 					cell.setCellStyle(textStyle);
-					cell.setCellValue(cadastro.getProduto());
+					String produto = "";
+					cell.setCellValue(cadastro.getProduto().replaceAll(" NON-GMO", "").replaceAll("GMO", ""));
 
 					cell = row.createCell(cellnum++);
 					cell.setCellStyle(numberStyle);
-					cell.setCellValue(cadastro.getModelo_safra().getProduto().getTransgenia());
+					String transgenia = "";
+					if(cadastro.getModelo_safra().getProduto().getTransgenia().contains("CONVENCIONAL")) {
+						transgenia = "CONVEN.";
+					}else {
+						transgenia = "TRANSG.";
+
+					}
+					cell.setCellValue(transgenia);
 
 					cell = row.createCell(cellnum++);
 					cell.setCellStyle(numberStyle);
-					cell.setCellValue(cadastro.getModelo_safra().getAno_plantio() + "/"
-							+ cadastro.getModelo_safra().getAno_colheita());
+					String ano_plantio = Integer.toString(cadastro.getModelo_safra().getAno_plantio()).replaceAll("[^0-9]","");
+					String ano_colheita =  Integer.toString(cadastro.getModelo_safra().getAno_colheita()).replaceAll("[^0-9]","");
+
+					cell.setCellValue( ano_plantio.substring(ano_plantio.length() - 2) + "/" + ano_colheita.substring(ano_plantio.length() - 2) );
 					/*
 					 * codigo compradores vendedores status quantidade medida produto transgenia
 					 * safra valor_produto valor_total data_contrato local_retirada
@@ -744,6 +814,7 @@ public class TelaContratos extends JFrame {
 					cell.setCellValue(s_local_retirada);
 
 				}
+
 
 				// registra total de sacos, quilogramas, e valor total
 				// total de contratos
@@ -804,6 +875,13 @@ public class TelaContratos extends JFrame {
 
 				// criar os filtros
 				sheet.setAutoFilter(CellRangeAddress.valueOf("A1:M1"));
+				sheet.setAutobreaks(true);
+				  sheet.setFitToPage(true);
+				  PrintSetup printSetup = sheet.getPrintSetup();
+				  printSetup.setFitHeight((short)0);
+				  printSetup.setFitWidth((short)1);	
+				 
+					IntStream.range(0, cellnum).forEach((columnIndex) -> sheet.autoSizeColumn(columnIndex));
 
 				try {
 
@@ -1032,10 +1110,12 @@ public class TelaContratos extends JFrame {
 
 		} else
 			pesquisar();
+		
 		setContentPane(odin);
 
+		this.setExtendedState(JFrame.MAXIMIZED_BOTH);
 
-		this.pack();
+		//this.pack();
 
 		this.setResizable(true);
 		this.setLocationRelativeTo(janela_pai);
@@ -1079,7 +1159,7 @@ public class TelaContratos extends JFrame {
 					total_contratos_assinar++;
 				} else if (contrato.getStatus_contrato() == 2) {
 					total_contratos_assinado++;
-				} else if (contrato.getStatus_contrato() == 4) {
+				} else if (contrato.getStatus_contrato() == 3) {
 					total_contratos_concluido++;
 				}
 				quantidade_sacos_total += quantidade_sacos;
@@ -1146,7 +1226,7 @@ public class TelaContratos extends JFrame {
 				total_contratos_assinar++;
 			} else if (contrato.getStatus_contrato() == 2) {
 				total_contratos_assinado++;
-			} else if (contrato.getStatus_contrato() == 4) {
+			} else if (contrato.getStatus_contrato() == 3) {
 				total_contratos_concluido++;
 			}
 			quantidade_sacos_total += quantidade_sacos;
@@ -1217,7 +1297,7 @@ public class TelaContratos extends JFrame {
 					total_contratos_assinar++;
 				} else if (contrato.getStatus_contrato() == 2) {
 					total_contratos_assinado++;
-				} else if (contrato.getStatus_contrato() == 4) {
+				} else if (contrato.getStatus_contrato() == 3) {
 					total_contratos_concluido++;
 				}
 				quantidade_sacos_total += quantidade_sacos;
@@ -1365,7 +1445,7 @@ public class TelaContratos extends JFrame {
 				total_contratos_assinar++;
 			} else if (contrato.getStatus_contrato() == 2) {
 				total_contratos_assinado++;
-			} else if (contrato.getStatus_contrato() == 4) {
+			} else if (contrato.getStatus_contrato() == 3) {
 				total_contratos_concluido++;
 			}
 
@@ -1419,7 +1499,7 @@ public class TelaContratos extends JFrame {
 				} else if (dados.equalsIgnoreCase("Assinado")) {
 					renderer.setBackground(new Color(95, 159, 159)); // verde
 
-				} else if (dados.equalsIgnoreCase("Cumprindo")) {
+				} else if (dados.equalsIgnoreCase("CONCLUIDO")) {
 					renderer.setBackground(new Color(0, 100, 0)); // verde
 
 				}
@@ -1551,11 +1631,11 @@ public class TelaContratos extends JFrame {
 				return contrato.getCodigo();
 			case compradores: {
 
-				return contrato.getNomes_compradores().toUpperCase();
+				return trimar(contrato.getNomes_compradores().toUpperCase());
 
 			}
 			case vendedores: {
-				return contrato.getNomes_vendedores().toUpperCase();
+				return trimar(contrato.getNomes_vendedores().toUpperCase());
 			}
 			case status: {
 				int status = contrato.getStatus_contrato();
@@ -1567,7 +1647,7 @@ public class TelaContratos extends JFrame {
 					return "Assinado".toUpperCase();
 
 				} else if (status == 3) {
-					return "Cumprindo".toUpperCase();
+					return "CONCLUIDO".toUpperCase();
 
 				} else if (status == 0) {
 					return "Em Aprovação".toUpperCase();
@@ -1748,4 +1828,46 @@ public class TelaContratos extends JFrame {
 			return dados.get(row);
 		}
 	}
+	
+	
+	public String trimar(String texto) {
+		String aplicar_rtrim = texto.replaceAll("\\s+$", "");
+		String aplicar_ltrim = aplicar_rtrim.replaceAll("^\\s+", "");
+		return aplicar_ltrim;
+
+	}
+
+
+ public String reduzirNome(String texto) {
+		
+		String nome_remetente_completo = texto;
+
+		String nome_remetente_quebrado[] = texto.split(" ");
+		String nome_remetente = null;
+		// rodrigo cesar de moura
+		// [0] rodrigo [1] cesar [2] de [3] moura
+		try {
+			if (nome_remetente_quebrado.length > 1) {
+				if (nome_remetente_quebrado[2].length() > 2) {
+					nome_remetente = nome_remetente_quebrado[0] + " " + nome_remetente_quebrado[2];
+				} else {
+					if (nome_remetente_quebrado[3].length() > 1) {
+						nome_remetente = nome_remetente_quebrado[0] + " " + nome_remetente_quebrado[3];
+
+					} else {
+						nome_remetente = nome_remetente_quebrado[0] + " " + nome_remetente_quebrado[1];
+
+					}
+				}
+			}
+		} catch (Exception y) {
+			nome_remetente = nome_remetente_completo;
+		}
+
+		return nome_remetente;
+
+ }
+
+
+
 }

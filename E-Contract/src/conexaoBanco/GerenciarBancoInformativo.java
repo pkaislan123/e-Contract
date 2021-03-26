@@ -38,12 +38,14 @@ public class GerenciarBancoInformativo {
 	            try {
 	                conn = ConexaoBanco.getConexao();
 	                String sql = "insert into informativo\r\n" + 
-	                		"(id_contrato, id_usuario, mensagem) values ('"
+	                		"(id_contrato, id_usuario, mensagem, hora_completa) values ('"
 	    	    			+ dados.getId_contrato()
 	    	    			+ "','"
 	    	    			+ dados.getId_usuario()
 	    	    			+ "','"
 	    	    			+ dados.getMensagem()
+	    	    			+ "','"
+	    	    			+ dados.getHora_completa()
 	    	    			+ "')";
 	    	       
 	    	        PreparedStatement grava = (PreparedStatement) conn.prepareStatement(sql); 
@@ -82,6 +84,7 @@ public class GerenciarBancoInformativo {
 					informacao.setId_contrato(rs.getInt("id_contrato"));
 					informacao.setId_usuario(rs.getInt("id_usuario"));
 					informacao.setMensagem(rs.getString("mensagem"));
+					informacao.setHora_completa(rs.getString("hora_completa"));
 					
 
 					lista_informativos.add(informacao);
@@ -89,7 +92,7 @@ public class GerenciarBancoInformativo {
 				}
 				ConexaoBanco.fechaConexao(conn, pstm, rs);
 			} catch (Exception e) {
-				JOptionPane.showMessageDialog(null, "Erro ao listar informativos "  );
+				//JOptionPane.showMessageDialog(null, "Erro ao listar informativos "  );
 			}
 			return lista_informativos;
 

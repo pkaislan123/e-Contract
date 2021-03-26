@@ -73,6 +73,7 @@ public class JPanelGraficoPadrao extends JPanel{
 	     	circulo_assinado = 0; 
 	    	
 	    }else {
+	    	try {
 	    	percentualassinados = (carregado * 100)  / total_global;
 	    	percentualnao_assinados = ((total_global - carregado) * 100)  / total_global;
 	    	
@@ -93,6 +94,9 @@ public class JPanelGraficoPadrao extends JPanel{
 	     	 *    percentualUsado = usado * 360 / total; 
 	    percentualDisponivel = disponivel * 360 / total; 
 	     	 */
+	    	}catch(Exception y) {
+	    		
+	    	}
 	    }
 	 
 	   

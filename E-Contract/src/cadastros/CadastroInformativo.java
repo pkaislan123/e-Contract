@@ -4,11 +4,25 @@ public class CadastroInformativo {
 
 	
 	private int id_contrato, id_usuario, id_informativo;
-    private String mensagem;
+    private String mensagem, hora_completa;
 	
 	public int getId_informativo() {
 		return id_informativo;
 	}
+	
+
+
+	public String getHora_completa() {
+		return hora_completa;
+	}
+
+
+
+	public void setHora_completa(String hora_completa) {
+		this.hora_completa = hora_completa;
+	}
+
+
 
 	public void setId_informativo(int id_informativo) {
 		this.id_informativo = id_informativo;

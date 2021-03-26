@@ -165,7 +165,7 @@ public class GerenciarBancoDistratos {
 
 	}
 
-	public boolean atualizarStatusDistrato(int id_distrato, int status) {
+	public boolean atualizarStatusDistrato( int status, int id_distrato) {
 		
 		String sql_update_distrato = "update distrato set status_distrato = ? where id_distrato = ?";
 		Connection conn = null;

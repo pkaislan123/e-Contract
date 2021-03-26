@@ -4,7 +4,9 @@ package conexaoBanco;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 
 import javax.swing.JOptionPane;
 
@@ -32,18 +34,23 @@ public class GerenciarBancoNotasFiscais {
 	 }
 	
 	 public String sql_nf(CadastroNFe nota) {
+		 String data = "";
+         SimpleDateFormat f = new SimpleDateFormat("dd/MM/yyyy");
+
+         data = f.format(nota.getData());
+         
 		    String sql = "insert into nota_fiscal\r\n" + 
  		"(nfe, serie, natureza, protocolo, data_nfe, nome_remetente, inscricao_remetente, nome_destinatario,"
  		+ "inscricao_destinatario, produto, medida, quantidade, valor, caminho_arquivo) values ('"
- 		+ nota.getNfe()
-		+ "','"
+ 			+ nota.getNfe()
+ 			+ "','"
 			+ nota.getSerie()
 			+ "','"
 			+ nota.getNatureza()
 			+ "','"
 			+ nota.getProtocolo()
 			+ "','"
-			+ nota.getData()
+			+ data
 			+ "','"
 			+ nota.getNome_remetente()
 			+ "','"
@@ -110,8 +117,12 @@ public class GerenciarBancoNotasFiscais {
 	              nota.setSerie(rs.getString("serie"));
 	              nota.setNatureza(rs.getString("natureza"));
 	              nota.setProtocolo(rs.getString("protocolo"));
-	              //nota.setData(rs.getString("data_nfe"));
-	                nota.setNome_destinatario(rs.getString("nome_remetente"));
+
+	          	String data = rs.getString("data_nfe");
+            	Date date = new SimpleDateFormat("dd/MM/yyyy").parse(data);
+            	nota.setData(date);
+	              
+	                nota.setNome_remetente(rs.getString("nome_remetente"));
 	                nota.setInscricao_remetente(rs.getString("inscricao_remetente"));
 	                nota.setNome_destinatario(rs.getString("nome_destinatario"));
 	                nota.setInscricao_destinatario(rs.getString("inscricao_destinatario"));
@@ -125,7 +136,54 @@ public class GerenciarBancoNotasFiscais {
 	            }
 	            ConexaoBanco.fechaConexao(conn, pstm, rs);
 	        } catch (Exception e) {
-	          //  JOptionPane.showMessageDialog(null, "Erro ao listar produtos"  );
+	          // JOptionPane.showMessageDialog(null, "Erro ao listar nfs!\nErro: " + e.getMessage() + "\nCausa: " + e.getCause()  );
+	        }
+	        return lista_nfs;
+	  }
+	  
+	  
+	  public ArrayList<CadastroNFe> listarNFsPorCliente(String ie){
+		  Connection conn = null;
+	        PreparedStatement pstm = null;
+	        ResultSet rs = null;
+	        String selectNfs = "select * from nota_fiscal where inscricao_remetente = ? "
+	        		+ "or inscricao_destinatario = ?";
+	        ArrayList<CadastroNFe> lista_nfs = new ArrayList<CadastroNFe>();
+	        try {
+	            conn = ConexaoBanco.getConexao();
+	            pstm = conn.prepareStatement(selectNfs);
+	            pstm.setString(1,  ie);
+	            pstm.setString(2,  ie);
+
+	            rs = pstm.executeQuery();
+	            while (rs.next()) {
+	            	CadastroNFe nota = new CadastroNFe();
+	 
+	              nota.setId(rs.getInt("id_nf"));
+	              nota.setNfe(rs.getString("nfe"));
+	              nota.setSerie(rs.getString("serie"));
+	              nota.setNatureza(rs.getString("natureza"));
+	              nota.setProtocolo(rs.getString("protocolo"));
+
+	          	String data = rs.getString("data_nfe");
+            	Date date = new SimpleDateFormat("dd/MM/yyyy").parse(data);
+            	nota.setData(date);
+	              
+	                nota.setNome_remetente(rs.getString("nome_remetente"));
+	                nota.setInscricao_remetente(rs.getString("inscricao_remetente"));
+	                nota.setNome_destinatario(rs.getString("nome_destinatario"));
+	                nota.setInscricao_destinatario(rs.getString("inscricao_destinatario"));
+	                nota.setProduto(rs.getString("produto"));
+	                nota.setMedida(rs.getString("medida"));
+	                nota.setQuantidade(rs.getString("quantidade"));
+	                nota.setValor(rs.getString("valor"));
+	                nota.setCaminho_arquivo(rs.getString("caminho_arquivo"));
+	          
+	                lista_nfs.add(nota);
+	            }
+	            ConexaoBanco.fechaConexao(conn, pstm, rs);
+	        } catch (Exception e) {
+	          // JOptionPane.showMessageDialog(null, "Erro ao listar nfs!\nErro: " + e.getMessage() + "\nCausa: " + e.getCause()  );
 	        }
 	        return lista_nfs;
 	  }
@@ -150,7 +208,11 @@ public class GerenciarBancoNotasFiscais {
 	              nota.setSerie(rs.getString("serie"));
 	              nota.setNatureza(rs.getString("natureza"));
 	              nota.setProtocolo(rs.getString("protocolo"));
-	              //nota.setData(rs.getString("data_nfe"));
+
+		          	String data = rs.getString("data_nfe");
+	            	Date date = new SimpleDateFormat("dd/MM/yyyy").parse(data);
+	            	nota.setData(date);
+
 	                nota.setNome_destinatario(rs.getString("nome_remetente"));
 	                nota.setInscricao_remetente(rs.getString("inscricao_remetente"));
 	                nota.setNome_destinatario(rs.getString("nome_destinatario"));
@@ -189,7 +251,12 @@ public class GerenciarBancoNotasFiscais {
 	              nota.setSerie(rs.getString("serie"));
 	              nota.setNatureza(rs.getString("natureza"));
 	              nota.setProtocolo(rs.getString("protocolo"));
-	              //nota.setData(rs.getString("data_nfe"));
+
+
+		          	String data = rs.getString("data_nfe");
+	            	Date date = new SimpleDateFormat("dd/MM/yyyy").parse(data);
+	            	nota.setData(date);
+	              
 	                nota.setNome_destinatario(rs.getString("nome_remetente"));
 	                nota.setInscricao_remetente(rs.getString("inscricao_remetente"));
 	                nota.setNome_destinatario(rs.getString("nome_destinatario"));
