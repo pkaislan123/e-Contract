@@ -67,7 +67,6 @@ public class TelaVizualizarPdf extends JDialog {
 		
 		// build a controller
 		SwingController controller = new SwingController();
-		
 		 PropertiesManager propriedades =  new PropertiesManager (System.getProperties (),ResourceBundle.getBundle (PropertiesManager.DEFAULT_MESSAGE_BUNDLE));
 		// Build a SwingViewFactory configured with the controller
 		
@@ -81,8 +80,7 @@ public class TelaVizualizarPdf extends JDialog {
 		 propriedades.setBoolean (PropertiesManager.PROPERTY_SHOW_TOOLBAR_FIT,
 		         Boolean.FALSE);
 
-		 
-		 propriedades.setFloat(PropertiesManager.PROPERTY_DEFAULT_ZOOM_LEVEL, 2.0f );
+		 propriedades.setFloat(PropertiesManager.PROPERTY_DEFAULT_ZOOM_LEVEL, 1.5f );
 
 		 SwingViewBuilder factory = new SwingViewBuilder(controller, propriedades);
 		// Use the factory to build a JPanel that is pre-configured
@@ -101,10 +99,15 @@ public class TelaVizualizarPdf extends JDialog {
 		// add interactive mouse link annotation support via callback
 		
 		//controller.openDocument(arquivo);
-		if(stream != null)
+		if(stream != null) {
 		controller.openDocument(stream , "", "");
-		else
+		}
+		else {
 			controller.openDocument(file);
+			
+		}
+		controller.setPageViewMode(2, true);
+
 		
 		setContentPane(viewerComponentPanel);
 		

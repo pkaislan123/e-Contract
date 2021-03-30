@@ -2896,6 +2896,9 @@ observacao text
 				    	 carga.setValor_nf_venda1( BigDecimal.ZERO);
 				    	 
 				    }
+				    carga.setNome_remetente_nf_venda1(rs.getString("nome_remetente_nf_venda1"));
+				    carga.setNome_destinatario_nf_venda1(rs.getString("nome_destinatario_nf_venda1"));
+
 				    carga.setCaminho_nf_venda1(rs.getString("caminho_nf_venda1"));
 				    
 				    carga.setNf_complemento_aplicavel(rs.getInt("nf_complemento_aplicavel"));
@@ -2909,6 +2912,8 @@ observacao text
 				    	 carga.setValor_nf_complemento( BigDecimal.ZERO);
 
 				    }
+				    carga.setNome_remetente_nf_complemento(rs.getString("nome_remetente_nf_complemento"));
+				    carga.setNome_destinatario_nf_complemento(rs.getString("nome_destinatario_nf_complemento"));
 				    carga.setCaminho_nf_complemento(rs.getString("caminho_nf_complemento"));
 				    
 				    carga.setObservacao(rs.getString("observacao"));
@@ -2969,12 +2974,16 @@ observacao text
 					recebido.setCodigo_nf_venda(rs.getString("codigo_nf_venda"));
 					recebido.setPeso_nf_venda(rs.getDouble("peso_nf_venda"));
 				    recebido.setValor_nf_venda(new BigDecimal(rs.getString("valor_nf_venda")));
+				    recebido.setNome_remetente_nf_venda(rs.getString("nome_remetente_nf_venda"));
+				    recebido.setNome_destinatario_nf_venda(rs.getString("nome_destinatario_nf_venda"));
 					recebido.setCaminho_nf_venda(rs.getString("caminho_nf_venda"));
-					
+
 					recebido.setNf_remessa_aplicavel(rs.getInt("nf_remessa_aplicavel"));
 					recebido.setCodigo_nf_remessa(rs.getString("codigo_nf_remessa"));
 					recebido.setPeso_nf_remessa(rs.getDouble("peso_nf_remessa"));
 					recebido.setValor_nf_remessa(new BigDecimal(rs.getString("valor_nf_remessa")));
+					recebido.setNome_remetente_nf_remessa(rs.getString("nome_remetente_nf_remessa"));
+					recebido.setNome_destinatario_nf_remessa(rs.getString("nome_destinatario_nf_remessa"));
 					recebido.setCaminho_nf_remessa(rs.getString("caminho_nf_remessa"));
 
 
@@ -3091,13 +3100,16 @@ observacao text
 			    carga.setCodigo_nf_venda1(rs.getString("codigo_nf_venda1"));
 			    carga.setPeso_nf_venda1(rs.getDouble("peso_nf_venda1"));
 			    carga.setValor_nf_venda1(new BigDecimal(rs.getString("valor_nf_venda1")));
+			    carga.setNome_remetente_nf_venda1(rs.getString("nome_remetente_nf_venda1"));
+			    carga.setNome_destinatario_nf_venda1(rs.getString("nome_destinatario_nf_venda1"));
 			    carga.setCaminho_nf_venda1(rs.getString("caminho_nf_venda1"));
 			    
 			    carga.setNf_complemento_aplicavel(rs.getInt("nf_complemento_aplicavel"));
 			    carga.setCodigo_nf_complemento(rs.getString("codigo_nf_complemento"));
 			    carga.setPeso_nf_complemento(rs.getDouble("peso_nf_complemento"));
 			    carga.setValor_nf_complemento(new BigDecimal(rs.getString("valor_nf_complemento")));
-
+			    carga.setNome_remetente_nf_complemento(rs.getString("nome_remetente_nf_complemento"));
+			    carga.setNome_destinatario_nf_complemento(rs.getString("nome_destinatario_nf_complemento"));
 			    carga.setCaminho_nf_complemento(rs.getString("caminho_nf_complemento"));
 			    
 			    carga.setObservacao(rs.getString("observacao"));
@@ -3159,11 +3171,15 @@ observacao text
 				    carga.setCodigo_nf_venda1(rs.getString("codigo_nf_venda1"));
 				    carga.setPeso_nf_venda1(rs.getDouble("peso_nf_venda1"));
 				    carga.setValor_nf_venda1(new BigDecimal(rs.getString("valor_nf_venda1")));
+				    carga.setNome_remetente_nf_venda1(rs.getString("nome_remetente_nf_venda1"));
+				    carga.setNome_destinatario_nf_venda1(rs.getString("nome_destinatario_nf_venda1"));
 				    carga.setCaminho_nf_venda1(rs.getString("caminho_nf_venda1"));
 				    
 				    carga.setCodigo_nf_complemento(rs.getString("codigo_nf_complemento"));
 				    carga.setPeso_nf_complemento(rs.getDouble("peso_nf_complemento"));
 				    carga.setValor_nf_complemento(new BigDecimal(rs.getString("valor_nf_complemento")));
+				    carga.setNome_remetente_nf_complemento(rs.getString("nome_remetente_nf_complemento"));
+				    carga.setNome_destinatario_nf_complemento(rs.getString("nome_destinatario_nf_complemento"));
 
 				    carga.setCaminho_nf_complemento(rs.getString("caminho_nf_complemento"));
 				    
@@ -3234,12 +3250,15 @@ observacao text
 				    carga.setCodigo_nf_venda1(rs.getString("codigo_nf_venda1"));
 				    carga.setPeso_nf_venda1(rs.getDouble("peso_nf_venda1"));
 				    carga.setValor_nf_venda1(new BigDecimal(rs.getString("valor_nf_venda1")));
+				    carga.setNome_remetente_nf_venda1(rs.getString("nome_remetente_nf_venda1"));
+				    carga.setNome_destinatario_nf_venda1(rs.getString("nome_destinatario_nf_venda1"));
 				    carga.setCaminho_nf_venda1(rs.getString("caminho_nf_venda1"));
 				    
 				    carga.setCodigo_nf_complemento(rs.getString("codigo_nf_complemento"));
 				    carga.setPeso_nf_complemento(rs.getDouble("peso_nf_complemento"));
 				    carga.setValor_nf_complemento(new BigDecimal(rs.getString("valor_nf_complemento")));
-
+				    carga.setNome_remetente_nf_complemento(rs.getString("nome_remetente_nf_complemento"));
+				    carga.setNome_destinatario_nf_complemento(rs.getString("nome_destinatario_nf_complemento"));
 				    carga.setCaminho_nf_complemento(rs.getString("caminho_nf_complemento"));
 				    
 				    carga.setObservacao(rs.getString("observacao"));
@@ -3336,7 +3355,10 @@ observacao text
 
 				    carga.setNf_complemento_aplicavel(rs.getInt("nf_complemento_aplicavel"));
 
-
+				    carga.setNome_remetente_nf_complemento(rs.getString("nome_remetente_nf_complemento"));
+				    carga.setNome_destinatario_nf_complemento(rs.getString("nome_destinatario_nf_complemento"));
+				    carga.setNome_remetente_nf_venda1(rs.getString("nome_remetente_nf_venda1"));
+				    carga.setNome_destinatario_nf_venda1(rs.getString("nome_destinatario_nf_venda1"));
 					lista_carregamentos.add(carga);
 
 				}
@@ -3437,7 +3459,7 @@ codigo_nf_remessa varchar(40),
 peso_nf_remessa double,
 caminho_nf_remessa text,
 		 */
-		String sql_atualizar_recebimento = "update recebimento set data_recebimento = ?, id_cliente = ?, id_vendedor = ?, id_transportador = ?, id_veiculo = ?, codigo_romaneio = ?, peso_romaneio = ?, caminho_romaneio = ?, nf_venda_aplicavel = ?, codigo_nf_venda = ?, peso_nf_venda = ?, valor_nf_venda = ?, caminho_nf_venda = ?, nf_remessa_aplicavel = ?, codigo_nf_remessa = ?, peso_nf_remessa = ?, valor_nf_remessa = ?, caminho_nf_remessa = ? where id_recebimento = ?";
+		String sql_atualizar_recebimento = "update recebimento set data_recebimento = ?, id_cliente = ?, id_vendedor = ?, id_transportador = ?, id_veiculo = ?, codigo_romaneio = ?, peso_romaneio = ?, caminho_romaneio = ?, nf_venda_aplicavel = ?, codigo_nf_venda = ?, peso_nf_venda = ?, valor_nf_venda = ?, nome_remetente_nf_venda = ?,nome_destinatario_nf_venda = ?, caminho_nf_venda = ?, nf_remessa_aplicavel = ?, codigo_nf_remessa = ?, peso_nf_remessa = ?, valor_nf_remessa = ?,  nome_remetente_nf_remessa = ?,nome_destinatario_nf_remessa = ?,caminho_nf_remessa = ? where id_recebimento = ?";
 				
 		Connection conn = null;
 		ResultSet rs = null;
@@ -3460,17 +3482,22 @@ caminho_nf_remessa text,
 			pstm.setString(10, recebimento.getCodigo_nf_venda());
 			pstm.setDouble(11, recebimento.getPeso_nf_venda());
 			pstm.setString(12, recebimento.getValor_nf_venda().toString());
+			pstm.setString(13, recebimento.getNome_remetente_nf_venda().toString());
+			pstm.setString(14, recebimento.getNome_destinatario_nf_venda().toString());
 
-			pstm.setString(13, recebimento.getCaminho_nf_venda());
+			pstm.setString(15, recebimento.getCaminho_nf_venda());
 			
-			pstm.setInt(14, recebimento.getNf_remessa_aplicavel());
-			pstm.setString(15, recebimento.getCodigo_nf_remessa());
-			pstm.setDouble(16, recebimento.getPeso_nf_remessa());
-			pstm.setString(17, recebimento.getValor_nf_remessa().toString());
+			pstm.setInt(16, recebimento.getNf_remessa_aplicavel());
+			pstm.setString(17, recebimento.getCodigo_nf_remessa());
+			pstm.setDouble(18, recebimento.getPeso_nf_remessa());
+			pstm.setString(19, recebimento.getValor_nf_remessa().toString());
+			pstm.setString(20, recebimento.getNome_remetente_nf_remessa().toString());
+			pstm.setString(21, recebimento.getNome_destinatario_nf_remessa().toString());
 
-			pstm.setString(18, recebimento.getCaminho_nf_remessa());
 			
-			pstm.setInt(19, recebimento.getId_recebimento());
+			pstm.setString(22, recebimento.getCaminho_nf_remessa());
+			
+			pstm.setInt(23, recebimento.getId_recebimento());
 		
 
 
@@ -3509,7 +3536,7 @@ caminho_nf_remessa text,
 		 */
 		String sql_atualizar_carregamento = "update carregamento set data_carregamento = ?, id_cliente = ?, id_vendedor = ?, id_transportador = ?,\n"
 				+ "id_veiculo = ?, codigo_romaneio = ?, peso_romaneio = ?, caminho_romaneio = ?, nf_venda1_aplicavel = ?, codigo_nf_venda1 = ?, peso_nf_venda1 = ?, valor_nf_venda1 = ?,\n"
-				+ "caminho_nf_venda1 = ?, nf_complemento_aplicavel = ?, codigo_nf_complemento = ?, peso_nf_complemento = ?, valor_nf_complemento = ?, caminho_nf_complemento = ?, nf_interna_aplicavel = ?, codigo_nf_interna = ?,\n"
+				+ "nome_remetente_nf_venda1 = ?,nome_destinatario_nf_venda1 = ?,caminho_nf_venda1 = ?, nf_complemento_aplicavel = ?, codigo_nf_complemento = ?, peso_nf_complemento = ?, valor_nf_complemento = ?, nome_remetente_nf_complemento = ? , nome_destinatario_nf_complemento = ?, caminho_nf_complemento = ?, nf_interna_aplicavel = ?, codigo_nf_interna = ?,\n"
 				+ "peso_nf_interna = ?, caminho_nf_interna = ?, observacao = ? where id_carregamento = ?;";
 		Connection conn = null;
 		ResultSet rs = null;
@@ -3531,23 +3558,28 @@ caminho_nf_remessa text,
 			pstm.setString(10, carregamento.getCodigo_nf_venda1());
 			pstm.setDouble(11, carregamento.getPeso_nf_venda1());
 			pstm.setString(12, carregamento.getValor_nf_venda1().toPlainString());
+			pstm.setString(13, carregamento.getNome_remetente_nf_venda1());
+			pstm.setString(14, carregamento.getNome_destinatario_nf_venda1());
+			
 
-			pstm.setString(13, carregamento.getCaminho_nf_venda1());
+			pstm.setString(15, carregamento.getCaminho_nf_venda1());
 			
-			pstm.setInt(14, carregamento.getNf_complemento_aplicavel());
-			pstm.setString(15, carregamento.getCodigo_nf_complemento());
-			pstm.setDouble(16, carregamento.getPeso_nf_complemento());
-			pstm.setString(17, carregamento.getValor_nf_complemento().toPlainString());
-			pstm.setString(18, carregamento.getCaminho_nf_complemento());
+			pstm.setInt(16, carregamento.getNf_complemento_aplicavel());
+			pstm.setString(17, carregamento.getCodigo_nf_complemento());
+			pstm.setDouble(18, carregamento.getPeso_nf_complemento());
+			pstm.setString(19, carregamento.getValor_nf_complemento().toPlainString());
+			pstm.setString(20, carregamento.getNome_remetente_nf_complemento());
+			pstm.setString(21, carregamento.getNome_destinatario_nf_complemento());
+			pstm.setString(22, carregamento.getCaminho_nf_complemento());
 			
-			pstm.setInt(19, carregamento.getNf_interna_aplicavel());
-			pstm.setString(20, carregamento.getCodigo_nf_interna());
-			pstm.setDouble(21, carregamento.getPeso_nf_interna());
-			pstm.setString(22, carregamento.getCaminho_nf_interna());
+			pstm.setInt(23, carregamento.getNf_interna_aplicavel());
+			pstm.setString(24, carregamento.getCodigo_nf_interna());
+			pstm.setDouble(25, carregamento.getPeso_nf_interna());
+			pstm.setString(26, carregamento.getCaminho_nf_interna());
 			
-			pstm.setString(23, carregamento.getObservacao());
+			pstm.setString(27, carregamento.getObservacao());
 
-			pstm.setInt(24, carregamento.getId_carregamento());
+			pstm.setInt(28, carregamento.getId_carregamento());
 		
 
 
@@ -3618,7 +3650,7 @@ caminho_nf_remessa text,
 
 	public String sql_carregamento(CadastroContrato.Carregamento carregamento) {
 
-		String query = "insert into carregamento (data_carregamento, id_contrato_carregamento, id_cliente, id_vendedor , id_transportador, id_veiculo, id_produto, codigo_romaneio , peso_romaneio ,caminho_romaneio , nf_venda1_aplicavel, codigo_nf_venda1 ,peso_nf_venda1 , valor_nf_venda1,caminho_nf_venda1, nf_complemento_aplicavel, codigo_nf_complemento ,peso_nf_complemento, valor_nf_complemento,caminho_nf_complemento , nf_interna_aplicavel,codigo_nf_interna ,peso_nf_interna ,caminho_nf_interna ,observacao ) values ('"
+		String query = "insert into carregamento (data_carregamento, id_contrato_carregamento, id_cliente, id_vendedor , id_transportador, id_veiculo, id_produto, codigo_romaneio , peso_romaneio ,caminho_romaneio , nf_venda1_aplicavel, codigo_nf_venda1 ,peso_nf_venda1 , valor_nf_venda1,nome_remetente_nf_venda1, nome_destinatario_nf_venda1, caminho_nf_venda1, nf_complemento_aplicavel, codigo_nf_complemento ,peso_nf_complemento, valor_nf_complemento,nome_remetente_nf_complemento, nome_destinatario_nf_complemento,caminho_nf_complemento , nf_interna_aplicavel,codigo_nf_interna ,peso_nf_interna ,caminho_nf_interna ,observacao ) values ('"
 				+ carregamento.getData() + "','" 
 				+ carregamento.getId_contrato() + "','" 
 				+ carregamento.getId_cliente()+ "','"
@@ -3633,12 +3665,16 @@ caminho_nf_remessa text,
 	+ carregamento.getCodigo_nf_venda1()+ "','"
 	+ carregamento.getPeso_nf_venda1()+ "','"
 			+ carregamento.getValor_nf_venda1() + "','" 
+			+ carregamento.getNome_remetente_nf_venda1() + "','"
+					+ carregamento.getNome_destinatario_nf_venda1() + "','"
 	+ carregamento.getCaminho_nf_venda1() + "','"
 	
 	+ carregamento.getNf_complemento_aplicavel() + "','"
 + carregamento.getCodigo_nf_complemento()+ "','"
 + carregamento.getPeso_nf_complemento()+ "','"
 		+ carregamento.getValor_nf_complemento() + "','"
+				+ carregamento.getNome_remetente_nf_complemento() + "','"
+				+ carregamento.getNome_destinatario_nf_complemento() + "','"
 + carregamento.getCaminho_nf_complemento() + "','"
 
 	+ carregamento.getNf_interna_aplicavel() + "','"
@@ -3658,7 +3694,7 @@ caminho_nf_remessa text,
 	
 	public String sql_recebimento(Recebimento recebimento) {
 
-		String query = "insert into recebimento (data_recebimento, id_contrato_recebimento, id_cliente, id_vendedor , id_transportador, id_veiculo, codigo_romaneio, peso_romaneio, caminho_romaneio, nf_venda_aplicavel, codigo_nf_venda, peso_nf_venda, valor_nf_venda, caminho_nf_venda, nf_remessa_aplicavel, codigo_nf_remessa ,peso_nf_remessa, valor_nf_remessa,caminho_nf_remessa) values ('"
+		String query = "insert into recebimento (data_recebimento, id_contrato_recebimento, id_cliente, id_vendedor , id_transportador, id_veiculo, codigo_romaneio, peso_romaneio, caminho_romaneio, nf_venda_aplicavel, codigo_nf_venda, peso_nf_venda, valor_nf_venda, nome_remetente_nf_venda, nome_destinatario_nf_venda, caminho_nf_venda, nf_remessa_aplicavel, codigo_nf_remessa ,peso_nf_remessa, valor_nf_remessa,nome_remetente_nf_remessa, nome_destinatario_nf_remessa ,caminho_nf_remessa) values ('"
 				+ recebimento.getData_recebimento() + "','"
 				+ recebimento.getId_contrato_recebimento() + "','" 
 				+ recebimento.getId_cliente()+ "','"
@@ -3673,6 +3709,8 @@ caminho_nf_remessa text,
 				+ recebimento.getCodigo_nf_venda() + "','" 
 				+ recebimento.getPeso_nf_venda() + "','" 
 			    + recebimento.getValor_nf_venda() + "','" 
+			    		  + recebimento.getNome_remetente_nf_venda() + "','" 
+			    				  + recebimento.getNome_destinatario_nf_venda() + "','" 
 				+ recebimento.getCaminho_nf_venda() + "','" 
 				
 				+ recebimento.getNf_remessa_aplicavel() + "','" 
@@ -3680,6 +3718,8 @@ caminho_nf_remessa text,
 				+ recebimento.getCodigo_nf_remessa() + "','" 
 				+ recebimento.getPeso_nf_remessa() + "','" 
 				+ recebimento.getValor_nf_remessa() + "','" 
+						 + recebimento.getNome_remetente_nf_remessa() + "','" 
+	    				  + recebimento.getNome_destinatario_nf_remessa() + "','" 
 
 				+ recebimento.getCaminho_nf_remessa() 
 

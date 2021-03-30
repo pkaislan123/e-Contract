@@ -108,6 +108,10 @@ public class TelaConfirmarRecebimento extends JDialog {
 	private JTextField entValorNFVenda;
 	private JTextField entPesoNFRemessa;
 	private JTextField entValorNFRemessa;
+	private JTextField entRemetenteNFVenda;
+	private JTextField entDestinatarioNFVenda;
+	private JTextField entRemetenteNFRemessa;
+	private JTextField entDestinatarioNFRemessa;
 	public TelaConfirmarRecebimento(int flag_modo_tela, CadastroContrato.Recebimento recebimento_edicao,  CadastroContrato _contrato_local, Window janela_pai) {
 		
 
@@ -142,7 +146,7 @@ public class TelaConfirmarRecebimento extends JDialog {
 		JPanel panel_1 = new JPanel();
 		panel_1.setBackground(new Color(0, 153, 153));
 		panel_1.setLayout(null);
-		panel_1.setBounds(0, 0, 1074, 533);
+		panel_1.setBounds(0, 0, 1074, 616);
 		painelSelecionar.add(panel_1);
 
 		JLabel lblNewLabel_3 = new JLabel("Data:");
@@ -337,12 +341,12 @@ public class TelaConfirmarRecebimento extends JDialog {
 		entCodigoNFRemessa.setBackground(Color.WHITE);
 		entCodigoNFRemessa.setForeground(Color.BLACK);
 		entCodigoNFRemessa.setColumns(10);
-		entCodigoNFRemessa.setBounds(137, 425, 174, 27);
+		entCodigoNFRemessa.setBounds(140, 464, 174, 27);
 		panel_1.add(entCodigoNFRemessa);
 		
 		JLabel lblNewLabel_9_2 = new JLabel("Código NF Remessa:");
 		lblNewLabel_9_2.setForeground(Color.WHITE);
-		lblNewLabel_9_2.setBounds(17, 431, 120, 16);
+		lblNewLabel_9_2.setBounds(20, 470, 120, 16);
 		panel_1.add(lblNewLabel_9_2);
 		
 		JButton btnLerRomaneio = new JButton("Ler Romaneio");
@@ -466,7 +470,7 @@ public class TelaConfirmarRecebimento extends JDialog {
 				
 			}
 		});
-		btnSelecionarNFRemessa.setBounds(911, 425, 123, 28);
+		btnSelecionarNFRemessa.setBounds(914, 464, 123, 28);
 		panel_1.add(btnSelecionarNFRemessa);
 		
 		
@@ -504,7 +508,7 @@ public class TelaConfirmarRecebimento extends JDialog {
 		 	}
 		 });
 		chkBoxNFRemessaNaoAplicavel.setForeground(Color.WHITE);
-		chkBoxNFRemessaNaoAplicavel.setBounds(138, 398, 104, 18);
+		chkBoxNFRemessaNaoAplicavel.setBounds(141, 437, 104, 18);
 		panel_1.add(chkBoxNFRemessaNaoAplicavel);
 		
 		JLabel lblNewLabel_9_1_1_2 = new JLabel("Valor NF Venda:");
@@ -521,27 +525,75 @@ public class TelaConfirmarRecebimento extends JDialog {
 		
 		JLabel lblNewLabel_9_1_1_1_1 = new JLabel("Peso NF Remessa:");
 		lblNewLabel_9_1_1_1_1.setForeground(Color.WHITE);
-		lblNewLabel_9_1_1_1_1.setBounds(325, 431, 109, 16);
+		lblNewLabel_9_1_1_1_1.setBounds(328, 470, 109, 16);
 		panel_1.add(lblNewLabel_9_1_1_1_1);
 		
 		entPesoNFRemessa = new JTextField();
 		entPesoNFRemessa.setForeground(Color.BLACK);
 		entPesoNFRemessa.setColumns(10);
 		entPesoNFRemessa.setBackground(Color.WHITE);
-		entPesoNFRemessa.setBounds(446, 425, 164, 27);
+		entPesoNFRemessa.setBounds(449, 464, 164, 27);
 		panel_1.add(entPesoNFRemessa);
 		
 		JLabel lblNewLabel_9_1_1_2_1 = new JLabel("Valor NF Remessa:");
 		lblNewLabel_9_1_1_2_1.setForeground(Color.WHITE);
-		lblNewLabel_9_1_1_2_1.setBounds(620, 431, 108, 16);
+		lblNewLabel_9_1_1_2_1.setBounds(623, 470, 108, 16);
 		panel_1.add(lblNewLabel_9_1_1_2_1);
 		
 		entValorNFRemessa = new JTextField();
 		entValorNFRemessa.setForeground(Color.BLACK);
 		entValorNFRemessa.setColumns(10);
 		entValorNFRemessa.setBackground(Color.WHITE);
-		entValorNFRemessa.setBounds(733, 425, 168, 27);
+		entValorNFRemessa.setBounds(736, 464, 168, 27);
 		panel_1.add(entValorNFRemessa);
+		
+		JLabel lblNewLabel_9_3 = new JLabel("Remetente:");
+		lblNewLabel_9_3.setForeground(Color.WHITE);
+		lblNewLabel_9_3.setBounds(79, 404, 64, 16);
+		panel_1.add(lblNewLabel_9_3);
+		
+		entRemetenteNFVenda = new JTextField();
+		entRemetenteNFVenda.setForeground(Color.BLACK);
+		entRemetenteNFVenda.setColumns(10);
+		entRemetenteNFVenda.setBackground(Color.WHITE);
+		entRemetenteNFVenda.setBounds(141, 398, 174, 27);
+		panel_1.add(entRemetenteNFVenda);
+		
+		entDestinatarioNFVenda = new JTextField();
+		entDestinatarioNFVenda.setForeground(Color.BLACK);
+		entDestinatarioNFVenda.setColumns(10);
+		entDestinatarioNFVenda.setBackground(Color.WHITE);
+		entDestinatarioNFVenda.setBounds(425, 398, 174, 27);
+		panel_1.add(entDestinatarioNFVenda);
+		
+		JLabel lblNewLabel_9_3_1 = new JLabel("Destinatário:");
+		lblNewLabel_9_3_1.setForeground(Color.WHITE);
+		lblNewLabel_9_3_1.setBounds(343, 404, 70, 16);
+		panel_1.add(lblNewLabel_9_3_1);
+		
+		entRemetenteNFRemessa = new JTextField();
+		entRemetenteNFRemessa.setForeground(Color.BLACK);
+		entRemetenteNFRemessa.setColumns(10);
+		entRemetenteNFRemessa.setBackground(Color.WHITE);
+		entRemetenteNFRemessa.setBounds(144, 503, 174, 27);
+		panel_1.add(entRemetenteNFRemessa);
+		
+		JLabel lblNewLabel_9_3_2 = new JLabel("Remetente:");
+		lblNewLabel_9_3_2.setForeground(Color.WHITE);
+		lblNewLabel_9_3_2.setBounds(82, 509, 64, 16);
+		panel_1.add(lblNewLabel_9_3_2);
+		
+		JLabel lblNewLabel_9_3_1_1 = new JLabel("Destinatário:");
+		lblNewLabel_9_3_1_1.setForeground(Color.WHITE);
+		lblNewLabel_9_3_1_1.setBounds(346, 509, 70, 16);
+		panel_1.add(lblNewLabel_9_3_1_1);
+		
+		entDestinatarioNFRemessa = new JTextField();
+		entDestinatarioNFRemessa.setForeground(Color.BLACK);
+		entDestinatarioNFRemessa.setColumns(10);
+		entDestinatarioNFRemessa.setBackground(Color.WHITE);
+		entDestinatarioNFRemessa.setBounds(428, 503, 174, 27);
+		panel_1.add(entDestinatarioNFRemessa);
 		
 		CadastroCliente vendedores[] = contrato_local.getVendedores();
 		setVendedor(vendedores[0]);
@@ -1072,6 +1124,21 @@ public class TelaConfirmarRecebimento extends JDialog {
 				texto = texto + " ";
 
 			}
+			 texto = texto + " Remetente: ";
+
+			if (checkString(entRemetenteNFVenda.getText())) {
+				texto = texto + entRemetenteNFVenda.getText();
+			}else {
+				texto = texto + " ";
+
+			}
+			 texto = texto + " Destinatário: ";
+			 if (checkString(entDestinatarioNFVenda.getText())) {
+					texto = texto + entDestinatarioNFVenda.getText();
+				}else {
+					texto = texto + " ";
+
+				}
 
 			lblNotaFiscalVenda.setText(texto);
 		
@@ -1140,6 +1207,21 @@ public class TelaConfirmarRecebimento extends JDialog {
 						texto = texto + " ";
 
 					}
+					texto = texto + " Remetente: ";
+
+				 if (checkString(entRemetenteNFRemessa.getText())) {
+						texto = texto + entRemetenteNFRemessa.getText();
+					}else {
+						texto = texto + " ";
+
+					}
+					 texto = texto + " Destinatário: ";
+					 if (checkString(entDestinatarioNFRemessa.getText())) {
+							texto = texto + entDestinatarioNFRemessa.getText();
+						}else {
+							texto = texto + " ";
+
+						}
 
 
 				lblNotaFiscalRemessa.setText(texto);
@@ -1205,6 +1287,8 @@ public class TelaConfirmarRecebimento extends JDialog {
 			entCodigoNFVenda.setText(_nfe.getNfe());
 				entPesoNFVenda.setText(_nfe.getQuantidade());
 				entValorNFVenda.setText(_nfe.getValor());
+				entRemetenteNFVenda.setText(_nfe.getNome_remetente());
+				entDestinatarioNFVenda.setText(_nfe.getNome_destinatario());
 }
 	
 	public void setNotaFiscalRemessa(CadastroNFe _nfe) {
@@ -1212,6 +1296,8 @@ public class TelaConfirmarRecebimento extends JDialog {
 				entCodigoNFRemessa.setText(_nfe.getNfe());
 				entPesoNFRemessa.setText(_nfe.getQuantidade());
 				entValorNFRemessa.setText(_nfe.getValor());
+				entRemetenteNFRemessa.setText(_nfe.getNome_remetente());
+				entDestinatarioNFRemessa.setText(_nfe.getNome_destinatario());
 }
 	
 	public boolean checkString(String txt) {
@@ -1335,6 +1421,10 @@ public class TelaConfirmarRecebimento extends JDialog {
 
 				recebimento_a_inserir.setValor_nf_venda(new BigDecimal(valor_nota));
 				
+				//remetente e destinatario
+				recebimento_a_inserir.setNome_remetente_nf_venda(nota_fiscal_venda_recebimento.getNome_remetente());
+				recebimento_a_inserir.setNome_destinatario_nf_venda(nota_fiscal_venda_recebimento.getNome_destinatario());
+
 				if(pasta_recebimento_contrato1_existe) {
 					//copiar a nota para esta pasta
 					try {
@@ -1378,12 +1468,31 @@ public class TelaConfirmarRecebimento extends JDialog {
 				}catch(Exception e) {
 					
 				}
+			
+			//remetente e destinatario
+			if(checkString(entRemetenteNFVenda.getText()))   {
+
+				recebimento_a_inserir.setNome_remetente_nf_venda(entRemetenteNFVenda.getText());
+
+			}else {
+				recebimento_a_inserir.setNome_remetente_nf_venda("");
+
+			}
+			if(checkString(entDestinatarioNFVenda.getText()))   {
+
+				recebimento_a_inserir.setNome_destinatario_nf_venda(entDestinatarioNFVenda.getText());
+
+			}else {
+				recebimento_a_inserir.setNome_destinatario_nf_venda("");
+
+			}
 		}
 		}else {
 			recebimento_a_inserir.setNf_venda_aplicavel(0);
 			recebimento_a_inserir.setPeso_nf_venda(0);
 			recebimento_a_inserir.setValor_nf_venda(BigDecimal.ZERO);
-
+			recebimento_a_inserir.setNome_remetente_nf_venda("");
+			recebimento_a_inserir.setNome_destinatario_nf_venda("");
 		}
 		
 		if(!chkBoxNFRemessaNaoAplicavel.isSelected()) {
@@ -1422,6 +1531,11 @@ public class TelaConfirmarRecebimento extends JDialog {
 				valor_nota = valor_nota.replaceAll(",", ".");
 
 				recebimento_a_inserir.setValor_nf_remessa(new BigDecimal(valor_nota));
+				
+				//remetente e destinatario
+				recebimento_a_inserir.setNome_remetente_nf_remessa(nota_fiscal_remessa_recebimento.getNome_remetente());
+				recebimento_a_inserir.setNome_destinatario_nf_remessa(nota_fiscal_remessa_recebimento.getNome_destinatario());
+
 				
 				if(pasta_recebimento_contrato1_existe) {
 					//copiar a nota para esta pasta
@@ -1468,13 +1582,32 @@ public class TelaConfirmarRecebimento extends JDialog {
 				}catch(Exception e) {
 					
 				}
+			//remetente e destinatario
+			if(checkString(entRemetenteNFRemessa.getText()))   {
+
+				recebimento_a_inserir.setNome_remetente_nf_remessa(entRemetenteNFRemessa.getText());
+
+			}else {
+				recebimento_a_inserir.setNome_remetente_nf_remessa("");
+			}
+			if(checkString(entDestinatarioNFRemessa.getText()))   {
+
+				recebimento_a_inserir.setNome_destinatario_nf_remessa(entDestinatarioNFRemessa.getText());
+
+			}else {
+				recebimento_a_inserir.setNome_destinatario_nf_remessa("");
+
+			}
 		
 		}
 		}else {
 			recebimento_a_inserir.setNf_remessa_aplicavel(0);
 			
-
+			recebimento_a_inserir.setPeso_nf_remessa(0);
 			recebimento_a_inserir.setValor_nf_remessa(BigDecimal.ZERO);
+			recebimento_a_inserir.setNome_remetente_nf_remessa("");
+
+			recebimento_a_inserir.setNome_destinatario_nf_remessa("");
 
 		}
 		
@@ -1592,7 +1725,9 @@ public class TelaConfirmarRecebimento extends JDialog {
 					entPesoNFVenda.setText(Double.toString(recebimento_global.getPeso_nf_venda()));
 					String valor_nf_venda = recebimento_global.getValor_nf_venda().toString();
 					valor_nf_venda = valor_nf_venda.replace(".", ",");
-					entValorNFVenda.setText(valor_nf_venda);	
+					entValorNFVenda.setText(valor_nf_venda);
+					entRemetenteNFVenda.setText(recebimento_global.getNome_remetente_nf_venda());
+					entDestinatarioNFVenda.setText(recebimento_global.getNome_destinatario_nf_venda());
 	        	}
 	        
 	        	
@@ -1603,7 +1738,9 @@ public class TelaConfirmarRecebimento extends JDialog {
 				entPesoNFVenda.setText(Double.toString(recebimento_global.getPeso_nf_venda()));
 				String valor_nf_venda = recebimento_global.getValor_nf_venda().toString();
 				valor_nf_venda = valor_nf_venda.replace(".", ",");
-				entValorNFVenda.setText(valor_nf_venda);		
+				entValorNFVenda.setText(valor_nf_venda);	
+				entRemetenteNFVenda.setText(recebimento_global.getNome_remetente_nf_venda());
+				entDestinatarioNFVenda.setText(recebimento_global.getNome_destinatario_nf_venda());
 				}
 		}else {
 			desativarNFVenda();
@@ -1627,6 +1764,8 @@ public class TelaConfirmarRecebimento extends JDialog {
 							String valor_nf_remessa = recebimento_global.getValor_nf_remessa().toString();
 							valor_nf_remessa = valor_nf_remessa.replace(".", ",");
 							entValorNFRemessa.setText(valor_nf_remessa);
+							entRemetenteNFRemessa.setText(recebimento_global.getNome_remetente_nf_remessa());
+							entDestinatarioNFRemessa.setText(recebimento_global.getNome_destinatario_nf_remessa());
 			        	}
 			        
 			        	
@@ -1638,6 +1777,8 @@ public class TelaConfirmarRecebimento extends JDialog {
 						String valor_nf_remessa = recebimento_global.getValor_nf_remessa().toString();
 						valor_nf_remessa = valor_nf_remessa.replace(".", ",");
 						entValorNFRemessa.setText(valor_nf_remessa);
+						entRemetenteNFRemessa.setText(recebimento_global.getNome_remetente_nf_remessa());
+						entDestinatarioNFRemessa.setText(recebimento_global.getNome_destinatario_nf_remessa());
 						}
 		}else {
 			desativarNFRemessa();
@@ -1891,6 +2032,10 @@ public class TelaConfirmarRecebimento extends JDialog {
 
 				recebimento_a_inserir.setValor_nf_venda(new BigDecimal(valor_nota));
 				
+				//remetente e destinatario
+				recebimento_a_inserir.setNome_remetente_nf_venda(nota_fiscal_venda_recebimento.getNome_remetente());
+				recebimento_a_inserir.setNome_destinatario_nf_venda(nota_fiscal_venda_recebimento.getNome_destinatario());
+				
 				
 		}else {
 			recebimento_a_inserir.setNf_venda_aplicavel(1);
@@ -1921,13 +2066,25 @@ public class TelaConfirmarRecebimento extends JDialog {
 					recebimento_a_inserir.setValor_nf_venda(BigDecimal.ZERO);
 
 				}
-			
+
+			//remetente e destinatario
+			if(checkString(entRemetenteNFVenda.getText()))   {
+
+				recebimento_a_inserir.setNome_remetente_nf_venda(entRemetenteNFVenda.getText());
+
+			}
+			if(checkString(entDestinatarioNFVenda.getText()))   {
+
+				recebimento_a_inserir.setNome_destinatario_nf_venda(entDestinatarioNFVenda.getText());
+
+			}			
 		}
 		}else {
 			recebimento_a_inserir.setNf_venda_aplicavel(0);
 			recebimento_a_inserir.setPeso_nf_venda(0);
 			recebimento_a_inserir.setValor_nf_venda(BigDecimal.ZERO);
-
+			recebimento_a_inserir.setNome_destinatario_nf_venda("");
+			recebimento_a_inserir.setNome_destinatario_nf_venda("");
 		}
 		
 		
@@ -1966,6 +2123,11 @@ public class TelaConfirmarRecebimento extends JDialog {
 				valor_nota = valor_nota.replaceAll(",", ".");
 
 				recebimento_a_inserir.setValor_nf_remessa(new BigDecimal(valor_nota));
+				
+				//remetente e destinatario
+				recebimento_a_inserir.setNome_remetente_nf_remessa(nota_fiscal_remessa_recebimento.getNome_remetente());
+				recebimento_a_inserir.setNome_destinatario_nf_remessa(nota_fiscal_remessa_recebimento.getNome_destinatario());
+
 			
 		}else {
 			recebimento_a_inserir.setNf_remessa_aplicavel(1);
@@ -1992,12 +2154,25 @@ public class TelaConfirmarRecebimento extends JDialog {
 
 				}
 			   			
+			//remetente e destinatario
+			if(checkString(entRemetenteNFRemessa.getText()))   {
+
+				recebimento_a_inserir.setNome_remetente_nf_remessa(entRemetenteNFRemessa.getText());
+
+			}
+			if(checkString(entDestinatarioNFRemessa.getText()))   {
+
+				recebimento_a_inserir.setNome_destinatario_nf_remessa(entDestinatarioNFRemessa.getText());
+
+			}
 		
 		}
 		}else {
 			recebimento_a_inserir.setNf_remessa_aplicavel(0);
 			recebimento_a_inserir.setPeso_nf_remessa(0);
 			recebimento_a_inserir.setValor_nf_remessa(BigDecimal.ZERO);
+			recebimento_a_inserir.setNome_remetente_nf_remessa("");
+			recebimento_a_inserir.setNome_destinatario_nf_remessa("");
 
 
 		}
@@ -2040,7 +2215,12 @@ public class TelaConfirmarRecebimento extends JDialog {
 			entValorNFVenda.setEditable(true);
 			entValorNFVenda.setEnabled(true);
 
+			entRemetenteNFVenda.setEditable(true);
+			entRemetenteNFVenda.setEnabled(true);
 			
+			entDestinatarioNFVenda.setEditable(true);
+			entDestinatarioNFVenda.setEnabled(true);
+
 			btnSelecionarNFVenda.setEnabled(true);
 	}
 	
@@ -2055,6 +2235,12 @@ public class TelaConfirmarRecebimento extends JDialog {
 			
 			entValorNFVenda.setEditable(false);
 			entValorNFVenda.setEnabled(false);
+			
+			entRemetenteNFVenda.setEditable(false);
+			entRemetenteNFVenda.setEnabled(false);
+			
+			entDestinatarioNFVenda.setEditable(false);
+			entDestinatarioNFVenda.setEnabled(false);
 
 
 			btnSelecionarNFVenda.setEnabled(false);
@@ -2070,7 +2256,12 @@ public class TelaConfirmarRecebimento extends JDialog {
 		
 		entValorNFRemessa.setEnabled(true);
 		entValorNFRemessa.setEditable(true);
-	
+
+		entRemetenteNFRemessa.setEditable(true);
+		entRemetenteNFRemessa.setEnabled(true);
+		
+		entDestinatarioNFRemessa.setEditable(true);
+		entDestinatarioNFRemessa.setEnabled(true);
 		btnSelecionarNFRemessa.setEnabled(true);
 	}
 	
@@ -2086,7 +2277,12 @@ public class TelaConfirmarRecebimento extends JDialog {
 		entValorNFRemessa.setEnabled(false);
 		entValorNFRemessa.setEditable(false);
 		
-	
+		entRemetenteNFRemessa.setEditable(false);
+		entRemetenteNFRemessa.setEnabled(false);
+		
+		entDestinatarioNFRemessa.setEditable(false);
+		entDestinatarioNFRemessa.setEnabled(false);
+		
 		btnSelecionarNFRemessa.setEnabled(false);
 	}
 }

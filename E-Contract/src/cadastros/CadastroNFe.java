@@ -38,6 +38,22 @@ public class CadastroNFe {
 	private String quantidade;
 	private String valor;
 	private String caminho_arquivo;
+	private Double quantidade_double;
+	private CadastroContrato contrato;
+	
+	
+	public CadastroContrato getContrato() {
+		return contrato;
+	}
+	public void setContrato(CadastroContrato contrato) {
+		this.contrato = contrato;
+	}
+	public Double getQuantidade_double() {
+		return quantidade_double;
+	}
+	public void setQuantidade_double(Double quantidade_double) {
+		this.quantidade_double = quantidade_double;
+	}
 	public String getNfe() {
 		return nfe;
 	}

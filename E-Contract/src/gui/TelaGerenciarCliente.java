@@ -216,8 +216,8 @@ public class TelaGerenciarCliente extends JDialog {
 			boolean _carregamento_como_vendedor, int _id_safra, boolean _sub_contratos, boolean _incluir_comissao,
 			boolean _incluir_ganhos_potenciais, boolean _somar_sub_contratos, ArrayList<CadastroCliente> _clientes_globais, CadastroGrupo _grupo_alvo) {*/
 		   		RelatorioContratos relatar = new RelatorioContratos(2, true, false, false,
-		   				false, false, false,
-		   				false, false, false, false, false, false, 0, false,
+		   				false, false, false,false, false,false,
+		   				false, false, false, false, false, false, false,  0, false,
 		   				false, false, false, clientes, null);
 				ByteArrayOutputStream contrato_alterado = relatar.preparar();
 
@@ -363,9 +363,9 @@ public class TelaGerenciarCliente extends JDialog {
 			boolean _carregamento_como_vendedor, int _id_safra, boolean _sub_contratos, boolean _incluir_comissao,
 			boolean _incluir_ganhos_potenciais, boolean _somar_sub_contratos, ArrayList<CadastroCliente> _clientes_globais, CadastroGrupo _grupo_alvo) {*/
 		      		RelatorioContratos relatar = new RelatorioContratos(1, true, false, false,
-		      				false, false, false,
-		      				false, false, false, false, false,false, 0, false,
-		      				false, false, false, clientes, null);
+		      				false, false, false,false, false,false,
+		      				false, false, false, false, false,false, false, 0, false,
+		      				false, false, false,  clientes, null);
 				ByteArrayOutputStream contrato_alterado = relatar.preparar();
 
 				ConverterPdf converter_pdf = new ConverterPdf();

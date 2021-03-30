@@ -224,8 +224,11 @@ public class TelaGerenciarContrato extends JFrame {
 			lblPesoRestanteNFVendaEntrada, lblValorTotalNFVendaEntrada, lblPesoTotalNFRemessaEntrada,
 			lblPesoRestanteNFRemessaEntrada, lblValorTotalNFRemessaEntrada, lblStatusRecebimentoEntrada,
 			lblStatusNFRemessaEntrada, lblStatusNFVendaEntrada;
-	private JLabel lblStatusCarregamentoSaida ,lblStatusNFVendaSaida  ,lblStatusNFRemessaSaida ,lblNumRomaneiosCarregamento,lblTotalSacosKGsRomaneiosSaida ,lblPesoTotalNFInternaSaida ,lblPesoRestanteNFInternaSaida ,lblPesoTotalNFVendaSaida ,lblPesoRestanteNFVendaSaida;
-	
+	private JLabel lblStatusPagamento, lblTotalCobertura, lblStatusCobertura, lblStatusCarregamentoSaida,
+			lblStatusNFVendaSaida, lblStatusNFRemessaSaida, lblNumRomaneiosCarregamento, lblTotalSacosKGsRomaneiosSaida,
+			lblPesoTotalNFInternaSaida, lblPesoRestanteNFInternaSaida, lblPesoTotalNFVendaSaida,
+			lblPesoRestanteNFVendaSaida;
+
 	private FileChooser d;
 	private JPanelGraficoPadrao painelGraficoRecebimento;
 	private JFileChooser fileChooser_global;
@@ -244,7 +247,7 @@ public class TelaGerenciarContrato extends JFrame {
 	private JPanel painelRecebimentoEntrada = new JPanel();
 	private JLabel lblDataContratoRecebimento, lblCorretorRecebimento, lblCompradoresRecebimento,
 			lblVendedoresRecebimento, lblValorUnidadeRecebimento, lblQuantidadeRecebimento, lblValorTotalRecebimento,
-			lblProdutoRecebimento, lblSafraRecebimento,lblValorTotalNFVendaSaida;
+			lblProdutoRecebimento, lblSafraRecebimento, lblValorTotalNFVendaSaida;
 	private JPanel painelVizualizarContrato;
 	private ArrayList<CadastroInformativo> informacoes_atuais = new ArrayList<>();
 	private JPanel painelCarregamento = new JPanel();
@@ -276,7 +279,7 @@ public class TelaGerenciarContrato extends JFrame {
 	private final JLabel lblValorTotalPagamentos, lblTotalTransferenciasRecebidas, lblTotalTransferenciasRetiradas;
 	InputStream stream = null;
 	private final JButton btnEditarContrato = new JButton("Editar");
-	
+
 	private JPanel painel_vizualizar;
 	private final JButton btnEnviarMsg = new JButton("Enviar"), btnCriarAditivo, btnRevogarAssinatura;
 	private final JLabel lblNewLabel = new JLabel("     Modelos de Pagamento");
@@ -442,7 +445,6 @@ public class TelaGerenciarContrato extends JFrame {
 		else
 			setBounds(0, 0, 1371, 735);
 
-
 		painelPrincipal.setBackground(new Color(255, 255, 255));
 		painelPrincipal.setBorder(new EmptyBorder(5, 5, 5, 5));
 
@@ -494,10 +496,10 @@ public class TelaGerenciarContrato extends JFrame {
 
 		modelo_pagamentos_contratuais.addColumn("Id Pagamento");
 		modelo_pagamentos_contratuais.addColumn("Descrição");
-
 		modelo_pagamentos_contratuais.addColumn("Data");
-
-		modelo_pagamentos_contratuais.addColumn("Valor");
+		modelo_pagamentos_contratuais.addColumn("Valor Pagamento");
+		modelo_pagamentos_contratuais.addColumn("Valor por Saco");
+		modelo_pagamentos_contratuais.addColumn("Cobertura");
 		modelo_pagamentos_contratuais.addColumn("Depositante");
 		modelo_pagamentos_contratuais.addColumn("Conta Depositante");
 		modelo_pagamentos_contratuais.addColumn("Favorecido");
@@ -547,7 +549,9 @@ public class TelaGerenciarContrato extends JFrame {
 		panel_5.setBackground(Color.WHITE);
 		// panelPaiRecebimento.add(panel_5);
 		painelRecebimentoEntrada.add(panel_5);
-		panel_5.setLayout(new MigLayout("", "[108px][0px][0px][0.00px][196.00px,grow][-14.00px][282.00px][7.00px][27.00px][12px][90px,grow][10px][90px][12px][143px,grow][][4px][][5px][grow][3px][][22px][5px][177.00px,grow]", "[148px][24px][226.00px,grow][10px][][17px][12px][17px][11px][52.00px][][35px][18px][]"));
+		panel_5.setLayout(new MigLayout("",
+				"[108px][0px][0px][0.00px][196.00px,grow][-14.00px][282.00px][7.00px][27.00px][12px][90px,grow][10px][90px][12px][143px,grow][][4px][][5px][grow][3px][][22px][5px][177.00px,grow]",
+				"[148px][24px][226.00px,grow][10px][][17px][12px][17px][11px][52.00px][][35px][18px][]"));
 
 		JLabel lblNewLabel_4_1 = new JLabel("     Recebimento");
 		panel_5.add(lblNewLabel_4_1, "cell 0 0 5 1,alignx left,aligny top");
@@ -753,727 +757,727 @@ public class TelaGerenciarContrato extends JFrame {
 		lblSafraRecebimento.setForeground(Color.WHITE);
 		lblSafraRecebimento.setFont(new Font("SansSerif", Font.BOLD, 14));
 		lbl_produto_aba_recebimento.add(lblSafraRecebimento, "cell 3 5,alignx center");
-		
-				JPanel panel_9 = new JPanel();
-				panel_9.setBackground(Color.WHITE);
-				panel_5.add(panel_9, "cell 16 4 6 1,alignx center,aligny top");
-				panel_9.setLayout(new MigLayout("", "[][][][][][][][][][][]", "[]"));
-				
-						JButton btnExportarRecebimentos = new JButton("Exportar");
-						panel_9.add(btnExportarRecebimentos, "cell 7 0");
-						btnExportarRecebimentos.addActionListener(new ActionListener() {
-							public void actionPerformed(ActionEvent e) {
-								HSSFWorkbook workbook = new HSSFWorkbook();
-								HSSFSheet sheet = workbook.createSheet("Recebimentos");
-
-								// Definindo alguns padroes de layout
-								sheet.setDefaultColumnWidth(15);
-								sheet.setDefaultRowHeight((short) 400);
-
-								int rownum = 0;
-								int cellnum = 0;
-								Cell cell;
-								Row row;
-
-								// Configurando estilos de células (Cores, alinhamento, formatação, etc..)
-								HSSFDataFormat numberFormat = workbook.createDataFormat();
-
-								CellStyle headerStyle = workbook.createCellStyle();
-								headerStyle.setFillForegroundColor(IndexedColors.GREY_25_PERCENT.getIndex());
-								// headerStyle.setFillPattern(CellStyle.SOLID_FOREGROUND);
-								headerStyle.setAlignment(HorizontalAlignment.CENTER);
-								headerStyle.setVerticalAlignment(VerticalAlignment.CENTER);
-
-								// celula para texto alinhado ao centro
-								CellStyle textStyle = workbook.createCellStyle();
-								textStyle.setAlignment(HorizontalAlignment.CENTER);
-								textStyle.setVerticalAlignment(VerticalAlignment.CENTER);
-
-								// celula para numero alinhado ao centro
-								CellStyle numberStyle = workbook.createCellStyle();
-								numberStyle.setDataFormat(numberFormat.getFormat("#,##0.00"));
-								numberStyle.setAlignment(HorizontalAlignment.CENTER);
-								numberStyle.setVerticalAlignment(VerticalAlignment.CENTER);
-
-								// estilo de celula negrito
-								CellStyle negrito = workbook.createCellStyle();
-								// textStyle.setAlignment(HorizontalAlignment.CENTER);
-								negrito.setFillPattern(FillPatternType.SOLID_FOREGROUND);
-								negrito.setFillForegroundColor(IndexedColors.WHITE.getIndex());
-								negrito.setAlignment(HorizontalAlignment.CENTER);
-								negrito.setVerticalAlignment(VerticalAlignment.CENTER);
-
-								HSSFFont newFontNegrita = workbook.createFont();
-								newFontNegrita.setBold(true);
-								newFontNegrita.setColor(IndexedColors.BLACK.getIndex());
-								newFontNegrita.setFontName("Arial");
-								newFontNegrita.setItalic(true);
-								newFontNegrita.setFontHeight((short) (11 * 20));
-
-								negrito.setFont(newFontNegrita);
-
-								// estilo para celula texto alinhado a esquerda
-								CellStyle negrito_esquerda = workbook.createCellStyle();
-								// textStyle.setAlignment(HorizontalAlignment.CENTER);
-								negrito_esquerda.setFillPattern(FillPatternType.SOLID_FOREGROUND);
-								negrito_esquerda.setFillForegroundColor(IndexedColors.WHITE.getIndex());
-								negrito_esquerda.setAlignment(HorizontalAlignment.LEFT);
-								negrito_esquerda.setVerticalAlignment(VerticalAlignment.CENTER);
-
-								HSSFFont newFontNegritaEsquerda = workbook.createFont();
-								newFontNegritaEsquerda.setBold(true);
-								newFontNegritaEsquerda.setColor(IndexedColors.BLACK.getIndex());
-								newFontNegritaEsquerda.setFontName("Arial");
-								newFontNegritaEsquerda.setItalic(true);
-								newFontNegritaEsquerda.setFontHeight((short) (11 * 20));
-
-								negrito_esquerda.setFont(newFontNegritaEsquerda);
-
-								// estilo para celula do tipo numero alinhado ao centro
-								CellStyle valorStyle = workbook.createCellStyle();
-								valorStyle.setDataFormat(numberFormat.getFormat("R$ #,##0.00"));
-								valorStyle.setAlignment(HorizontalAlignment.CENTER);
-								valorStyle.setVerticalAlignment(VerticalAlignment.CENTER);
-
-								// estilo para cabecalho fundo laranja
-								CellStyle celula_fundo_laranja = workbook.createCellStyle();
-								celula_fundo_laranja.setFillPattern(FillPatternType.SOLID_FOREGROUND);
-								celula_fundo_laranja.setFillForegroundColor(IndexedColors.ORANGE.getIndex());
-								celula_fundo_laranja.setAlignment(HorizontalAlignment.CENTER);
-								celula_fundo_laranja.setVerticalAlignment(VerticalAlignment.CENTER);
-
-								HSSFFont newFont = workbook.createFont();
-								newFont.setBold(true);
-								newFont.setColor(IndexedColors.BLACK.getIndex());
-								newFont.setFontName("Calibri");
-								newFont.setItalic(false);
-								newFont.setFontHeight((short) (11 * 20));
-
-								celula_fundo_laranja.setFont(newFont);
-
-								// celula_number_amarelo_texto_preto
-								// estilo para cabecalho fundo laranja
-								CellStyle celula_number_amarelo_texto_preto = workbook.createCellStyle();
-								celula_number_amarelo_texto_preto.setDataFormat(numberFormat.getFormat("#,##0.00"));
-								celula_number_amarelo_texto_preto.setFillPattern(FillPatternType.SOLID_FOREGROUND);
-								celula_number_amarelo_texto_preto.setFillForegroundColor(IndexedColors.YELLOW.getIndex());
-								celula_number_amarelo_texto_preto.setAlignment(HorizontalAlignment.CENTER);
-								celula_number_amarelo_texto_preto.setVerticalAlignment(VerticalAlignment.CENTER);
-
-								HSSFFont newFont_blabk = workbook.createFont();
-								newFont_blabk.setBold(true);
-								newFont_blabk.setColor(IndexedColors.BLACK.getIndex());
-								newFont_blabk.setFontName("Calibri");
-								newFont_blabk.setItalic(false);
-								newFont_blabk.setFontHeight((short) (11 * 20));
-
-								celula_number_amarelo_texto_preto.setFont(newFont_blabk);
-
-								// estilo para cabecalho fundo laranja
-								CellStyle celula_fundo_laranja_texto_branco = workbook.createCellStyle();
-								celula_fundo_laranja_texto_branco.setFillPattern(FillPatternType.SOLID_FOREGROUND);
-								celula_fundo_laranja_texto_branco.setFillForegroundColor(IndexedColors.ORANGE.getIndex());
-								celula_fundo_laranja_texto_branco.setAlignment(HorizontalAlignment.CENTER);
-								celula_fundo_laranja_texto_branco.setVerticalAlignment(VerticalAlignment.CENTER);
-
-								HSSFFont newFont_branca = workbook.createFont();
-								newFont_branca.setBold(true);
-								newFont_branca.setColor(IndexedColors.WHITE.getIndex());
-								newFont_branca.setFontName("Calibri");
-								newFont_branca.setItalic(false);
-								newFont_branca.setFontHeight((short) (11 * 20));
-
-								celula_fundo_laranja_texto_branco.setFont(newFont_branca);
-
-								// Configurando as informacoes
-								row = sheet.createRow(rownum++);
-
-								CadastroCliente compradores[] = contrato_local.getCompradores();
-								CadastroCliente vendedores[] = contrato_local.getVendedores();
-
-								String nome_compradores;
-								String nome_vendedores;
-								if (compradores[0].getTipo_pessoa() == 0) {
-									nome_compradores = compradores[0].getNome_empresarial();
-								} else {
-									nome_compradores = compradores[0].getNome_fantaia();
-								}
-
-								if (compradores[1] != null) {
-									if (compradores[1].getTipo_pessoa() == 0) {
-										nome_compradores = nome_compradores + ", " + compradores[1].getNome_empresarial();
-									} else {
-										nome_compradores = nome_compradores + ", " + compradores[1].getNome_fantaia();
-									}
-								}
-
-								if (vendedores[0].getTipo_pessoa() == 0) {
-									nome_vendedores = vendedores[0].getNome_empresarial();
-								} else {
-									nome_vendedores = vendedores[0].getNome_fantaia();
-								}
-
-								if (vendedores[1] != null) {
-									if (vendedores[1].getTipo_pessoa() == 0) {
-										nome_vendedores = nome_vendedores + ", " + vendedores[1].getNome_empresarial();
-									} else {
-										nome_vendedores = nome_vendedores + ", " + vendedores[1].getNome_fantaia();
-									}
-								}
-
-								cell = row.createCell(cellnum);
-								cell.setCellStyle(celula_fundo_laranja);
-								cell.setCellValue(nome_compradores.toUpperCase() + " X " + nome_vendedores + " CTR "
-										+ contrato_local.getCodigo() + " IE.: " + vendedores[0].getIe());
-								sheet.addMergedRegion(new CellRangeAddress(0, 0, cellnum, 5));
-
-								// linha quantidade, safra, sacos, etc
-								row = sheet.createRow(rownum++);
-								cellnum = 0;
-
-								cell = row.createCell(cellnum++);
-								cell.setCellStyle(celula_fundo_laranja);
-
-								double quantidade_kg = 0;
-								double quantidade_sacos = 0;
-
-								if (contrato.getMedida().equalsIgnoreCase("KG")) {
-									quantidade_kg = contrato.getQuantidade();
-									quantidade_sacos = quantidade_kg / 60;
-								} else if (contrato.getMedida().equalsIgnoreCase("Sacos")) {
-									quantidade_sacos = contrato.getQuantidade();
-									quantidade_kg = quantidade_sacos * 60;
-								}
-
-								Locale ptBr = new Locale("pt", "BR");
-								cell.setCellValue("Quantidade: " + quantidade_kg + " KGS | " + quantidade_sacos + " Sacos no valor de "
-										+ NumberFormat.getCurrencyInstance(ptBr).format(contrato.getValor_produto()) + " por "
-										+ contrato.getMedida() + " no valor total de: "
-										+ NumberFormat.getCurrencyInstance(ptBr).format(contrato.getValor_a_pagar()));
-								// cell.setCellValue("Quantidade: " + quantidade_kg + " KGS | " +
-								// quantidade_sacos + " Sacos" );
-								sheet.addMergedRegion(new CellRangeAddress(rownum - 1, rownum - 1, cellnum - 1, 5));
-
-								row = sheet.createRow(rownum++);
-								cellnum = 0;
-
-								cell = row.createCell(cellnum++);
-								cell.setCellStyle(celula_fundo_laranja);
-								cell.setCellValue(contrato.getModelo_safra().getProduto().getNome_produto() + " "
-										+ contrato.getModelo_safra().getProduto().getTransgenia() + " "
-										+ contrato.getModelo_safra().getAno_plantio() + "/"
-										+ contrato.getModelo_safra().getAno_colheita());
-								sheet.addMergedRegion(new CellRangeAddress(rownum - 1, rownum - 1, cellnum - 1, 5));
-
-								// Configurando Header
-								row = sheet.createRow(rownum++);
-								cellnum = 0;
-								cell = row.createCell(cellnum++);
-								cell.setCellStyle(celula_fundo_laranja_texto_branco);
-								cell.setCellValue("DATA");
-
-								cell = row.createCell(cellnum++);
-								cell.setCellStyle(celula_fundo_laranja_texto_branco);
-								cell.setCellValue("Romaneio".toUpperCase());
-
-								cell = row.createCell(cellnum++);
-								cell.setCellStyle(celula_fundo_laranja_texto_branco);
-								cell.setCellValue("Peso Romaneio".toUpperCase());
-
-								cell = row.createCell(cellnum++);
-								cell.setCellStyle(celula_fundo_laranja_texto_branco);
-								cell.setCellValue("NF Venda".toUpperCase());
-
-								cell = row.createCell(cellnum++);
-								cell.setCellStyle(celula_fundo_laranja_texto_branco);
-								cell.setCellValue("Peso NF Venda".toUpperCase());
-
-								cell = row.createCell(cellnum++);
-								cell.setCellStyle(celula_fundo_laranja_texto_branco);
-								cell.setCellValue("Valor NF Venda".toUpperCase());
-
-								cell = row.createCell(cellnum++);
-								cell.setCellStyle(celula_fundo_laranja_texto_branco);
-								cell.setCellValue("NF Remessa".toUpperCase());
-
-								cell = row.createCell(cellnum++);
-								cell.setCellStyle(celula_fundo_laranja_texto_branco);
-								cell.setCellValue("Peso NF Remessa".toUpperCase());
-
-								cell = row.createCell(cellnum++);
-								cell.setCellStyle(celula_fundo_laranja_texto_branco);
-								cell.setCellValue("Valor NF Remessa".toUpperCase());
-
-								ArrayList<CadastroContrato.Recebimento> contratos_selecionados = new ArrayList<>();
-								int linhas_selecionadas[] = table_recebimentos.getSelectedRows();// pega o indice da linha na tabela
-
-								for (int i = 0; i < linhas_selecionadas.length; i++) {
-
-									int indice = linhas_selecionadas[i];//
-									CadastroContrato.Recebimento contrato_selecionados = lista_recebimentos.get(indice);
-									contratos_selecionados.add(contrato_selecionados);
-								}
-
-								double quantidade_total_kgs_recebido = 0;
-								double quantidade_total_kgs_nf_venda = 0;
-								double quantidade_total_kgs_nf_remessa = 0;
-
-								BigDecimal valor_total_nf_venda = BigDecimal.ZERO;
-								BigDecimal valor_total_nf_remessa = BigDecimal.ZERO;
-
-								// checkagens
-								boolean nf_remessa_ativo = false;
-								boolean nf_venda_ativo = false;
-
-								// checka se ha no minimo uma nf remessa aplicavel
-								for (CadastroContrato.Recebimento recebimento : lista_recebimentos) {
-									if (recebimento.getNf_remessa_aplicavel() == 1) {
-										nf_remessa_ativo = true;
-										break;
-									}
-
-								}
-
-								// checka se ha no minimo uma nf venda aplicavel
-								for (CadastroContrato.Recebimento recebimento : lista_recebimentos) {
-									if (recebimento.getNf_venda_aplicavel() == 1) {
-										nf_venda_ativo = true;
-										break;
-									}
-
-								}
-
-								for (CadastroContrato.Recebimento cadastro : contratos_selecionados) {
-
-									row = sheet.createRow(rownum++);
-									cellnum = 0;
-									/*
-									 * codigo compradores vendedores status quantidade medida produto transgenia
-									 * safra valor_produto valor_total data_contrato local_retirada
-									 */
-									cell = row.createCell(cellnum++);
-									cell.setCellStyle(textStyle);
-									cell.setCellValue(cadastro.getData_recebimento());
-
-									cell = row.createCell(cellnum++);
-									cell.setCellStyle(textStyle);
-									cell.setCellValue(cadastro.getCodigo_romaneio());
-
-									cell = row.createCell(cellnum++);
-									cell.setCellStyle(numberStyle);
-									cell.setCellValue(cadastro.getPeso_romaneio());
-
-									if (cadastro.getNf_venda_aplicavel() == 1) {
-										cell = row.createCell(cellnum++);
-										cell.setCellStyle(textStyle);
-										cell.setCellValue(cadastro.getCodigo_nf_venda());
-
-										cell = row.createCell(cellnum++);
-										cell.setCellStyle(numberStyle);
-										cell.setCellValue(cadastro.getPeso_nf_venda());
-										quantidade_total_kgs_nf_venda = quantidade_total_kgs_nf_venda + cadastro.getPeso_nf_venda();
-
-										cell = row.createCell(cellnum++);
-										cell.setCellStyle(valorStyle);
-										cell.setCellValue(cadastro.getValor_nf_venda().doubleValue());
-										valor_total_nf_venda = valor_total_nf_venda.add(cadastro.getValor_nf_venda());
-
-									} else {
-										cell = row.createCell(cellnum++);
-										cell.setCellStyle(textStyle);
-										cell.setCellValue("Não Aplicável");
-
-										cell = row.createCell(cellnum++);
-										cell.setCellStyle(textStyle);
-										cell.setCellValue("Não Aplicável");
-
-										cell = row.createCell(cellnum++);
-										cell.setCellStyle(textStyle);
-										cell.setCellValue("Não Aplicável");
-									}
-
-									if (cadastro.getNf_remessa_aplicavel() == 1) {
-										cell = row.createCell(cellnum++);
-										cell.setCellStyle(numberStyle);
-										cell.setCellValue(cadastro.getCodigo_nf_remessa());
-
-										cell = row.createCell(cellnum++);
-										cell.setCellStyle(numberStyle);
-										cell.setCellValue(cadastro.getPeso_nf_remessa());
-										quantidade_total_kgs_nf_remessa = quantidade_total_kgs_nf_remessa
-												+ cadastro.getPeso_nf_remessa();
-
-										cell = row.createCell(cellnum++);
-										cell.setCellStyle(valorStyle);
-										cell.setCellValue(cadastro.getValor_nf_remessa().doubleValue());
-										valor_total_nf_remessa = valor_total_nf_remessa.add(cadastro.getValor_nf_remessa());
-
-									} else {
-										cell = row.createCell(cellnum++);
-										cell.setCellStyle(textStyle);
-										cell.setCellValue("Não Aplicável");
-
-										cell = row.createCell(cellnum++);
-										cell.setCellStyle(textStyle);
-										cell.setCellValue("Não Aplicável");
-
-										cell = row.createCell(cellnum++);
-										cell.setCellStyle(textStyle);
-										cell.setCellValue("Não Aplicável");
-									}
-
-									quantidade_total_kgs_recebido = quantidade_total_kgs_recebido + cadastro.getPeso_romaneio();
-
-								}
-								sheet.setAutoFilter(CellRangeAddress.valueOf("A4:I4"));
-								NumberFormat z = NumberFormat.getNumberInstance();
-
-								// somatorias
-								row = sheet.createRow(rownum++);
-
-								cell = row.createCell(2);
-								cell.setCellStyle(negrito);
-								cell.setCellValue(z.format(quantidade_total_kgs_recebido) + " Kgs");
-
-								cell = row.createCell(4);
-								cell.setCellStyle(negrito);
-								cell.setCellValue(z.format(quantidade_total_kgs_nf_venda) + " Kgs");
-
-								cell = row.createCell(5);
-								cell.setCellStyle(negrito);
-								cell.setCellValue(NumberFormat.getCurrencyInstance(ptBr).format(valor_total_nf_venda.doubleValue()));
-
-								cell = row.createCell(7);
-								cell.setCellStyle(negrito);
-								cell.setCellValue(z.format(quantidade_total_kgs_nf_remessa) + " Kgs");
-
-								cell = row.createCell(8);
-								cell.setCellStyle(negrito);
-								cell.setCellValue(NumberFormat.getCurrencyInstance(ptBr).format(valor_total_nf_remessa.doubleValue()));
-
-								//////////////////////
-								row = sheet.createRow(rownum += 2);
-								cellnum = 0;
-
-								cell = row.createCell(cellnum++);
-								cell.setCellStyle(textStyle);
-								cell.setCellValue("");
-
-								cell = row.createCell(cellnum++);
-								cell.setCellStyle(celula_fundo_laranja_texto_branco);
-								cell.setCellValue("Peso Recebido: ");
-
-								cell = row.createCell(cellnum++);
-								cell.setCellStyle(celula_number_amarelo_texto_preto);
-								cell.setCellValue(quantidade_total_kgs_recebido);
-
-								cell = row.createCell(cellnum++);
-								cell.setCellStyle(celula_fundo_laranja_texto_branco);
-								cell.setCellValue("Peso NF's Venda: ");
-
-								cell = row.createCell(cellnum++);
-								cell.setCellStyle(celula_number_amarelo_texto_preto);
-								if (nf_venda_ativo)
-									cell.setCellValue(quantidade_total_kgs_nf_venda);
-								else
-									cell.setCellValue("Não Aplicável");
-
-								cell = row.createCell(cellnum++);
-								cell.setCellStyle(celula_fundo_laranja_texto_branco);
-								cell.setCellValue("Valor NF's Venda: ");
-
-								cell = row.createCell(cellnum++);
-								cell.setCellStyle(celula_number_amarelo_texto_preto);
-
-								if (nf_venda_ativo)
-									cell.setCellValue(valor_total_nf_venda.doubleValue());
-								else
-									cell.setCellValue("Não Aplicável");
-
-								cell = row.createCell(cellnum++);
-								cell.setCellStyle(celula_fundo_laranja_texto_branco);
-								cell.setCellValue("Peso NF's Remessa: ");
-
-								cell = row.createCell(cellnum++);
-								cell.setCellStyle(celula_number_amarelo_texto_preto);
-								if (nf_remessa_ativo)
-									cell.setCellValue(quantidade_total_kgs_nf_remessa);
-								else
-									cell.setCellValue("Não Aplicável");
-
-								cell = row.createCell(cellnum++);
-								cell.setCellStyle(celula_fundo_laranja_texto_branco);
-								cell.setCellValue("Valor NF's Remessa: ");
-
-								cell = row.createCell(cellnum++);
-								cell.setCellStyle(celula_number_amarelo_texto_preto);
-								if (nf_remessa_ativo)
-									cell.setCellValue(valor_total_nf_remessa.doubleValue());
-								else
-									cell.setCellValue("Não Aplicável");
-
-								row = sheet.createRow(rownum += 2);
-								cellnum = 0;
-
-								cell = row.createCell(cellnum++);
-								cell.setCellStyle(textStyle);
-								cell.setCellValue("");
-
-								cell = row.createCell(cellnum++);
-								cell.setCellStyle(celula_fundo_laranja_texto_branco);
-								cell.setCellValue("Peso a Receber: ");
-
-								cell = row.createCell(cellnum++);
-								cell.setCellStyle(celula_number_amarelo_texto_preto);
-								cell.setCellValue(quantidade_kg - quantidade_total_kgs_recebido);
-
-								cell = row.createCell(cellnum++);
-								cell.setCellStyle(celula_fundo_laranja_texto_branco);
-								cell.setCellValue("Peso a emitir: ");
-
-								cell = row.createCell(cellnum++);
-								cell.setCellStyle(celula_number_amarelo_texto_preto);
-								if (nf_venda_ativo)
-									cell.setCellValue(quantidade_kg - quantidade_total_kgs_nf_venda);
-								else
-									cell.setCellValue("Não Aplicável");
-
-								cell = row.createCell(7);
-								cell.setCellStyle(celula_fundo_laranja_texto_branco);
-								cell.setCellValue("Peso a emitir: ");
-
-								cell = row.createCell(8);
-								cell.setCellStyle(celula_number_amarelo_texto_preto);
-								if (nf_remessa_ativo)
-									cell.setCellValue(quantidade_kg - quantidade_total_kgs_nf_remessa);
-								else
-									cell.setCellValue("Não Aplicável");
-
-								row = sheet.createRow(rownum += 2);
-								cellnum = 0;
-
-								cell = row.createCell(cellnum);
-								cell.setCellStyle(negrito_esquerda);
-								cell.setCellValue("Status gerado de forma automatica: ");
-
-								sheet.addMergedRegion(new CellRangeAddress(rownum, rownum, cellnum, 2));
-
-								row = sheet.createRow(rownum += 1);
-								cellnum = 0;
-
-								cell = row.createCell(cellnum);
-								cell.setCellStyle(negrito_esquerda);
-
-								String texto = "";
-								double diferenca = quantidade_kg - quantidade_total_kgs_recebido;
-								if (diferenca == 0) {
-									texto = texto + "Recebimento Concluído";
-								} else if (diferenca > 0) {
-									texto = texto + "Recebimento Incompleto, falta receber " + z.format(diferenca) + " Kgs";
-
-								} else if (diferenca < 0) {
-									texto = texto + "Recebimento Excedido, excedeu " + z.format(diferenca) + " Kgs";
-
-								}
-
-								cell.setCellValue(texto);
-
-								sheet.addMergedRegion(new CellRangeAddress(rownum, rownum, cellnum, 3));
-
-								// status de nf de venda
-								row = sheet.createRow(rownum += 1);
-								cellnum = 0;
-
-								cell = row.createCell(cellnum);
-								cell.setCellStyle(negrito_esquerda);
-
-								String texto_nf_venda = "";
-								double diferenca_nf_venda = quantidade_kg - quantidade_total_kgs_nf_venda;
-								if (diferenca_nf_venda == 0) {
-									texto_nf_venda = texto_nf_venda + "Emissão de NF's de Venda Concluído";
-								} else if (diferenca_nf_venda > 0) {
-									texto_nf_venda = texto_nf_venda + "Emissão de NF's de Venda Incompleto, falta emitir "
-											+ z.format(diferenca_nf_venda) + " Kgs";
-
-								} else if (diferenca_nf_venda < 0) {
-									texto_nf_venda = texto_nf_venda + "Emissão de NF's Excedido, excedeu "
-											+ z.format(diferenca_nf_venda) + " Kgs";
-
-								}
-
-								if (nf_venda_ativo)
-									cell.setCellValue(texto_nf_venda);
-								else
-									cell.setCellValue("Emissão de NF's Não Aplicável");
-
-								sheet.addMergedRegion(new CellRangeAddress(rownum, rownum, cellnum, 4));
-
-								// status nf remessa
-								row = sheet.createRow(rownum += 1);
-								cellnum = 0;
-
-								cell = row.createCell(cellnum);
-								cell.setCellStyle(negrito_esquerda);
-
-								String texto_nf_remessa = "";
-								double diferenca_nf_remessa = quantidade_kg - quantidade_total_kgs_nf_remessa;
-								if (diferenca_nf_remessa == 0) {
-									texto_nf_remessa = texto_nf_remessa + "Emissão de NF's de Remessa Concluído";
-								} else if (diferenca_nf_remessa > 0) {
-									texto_nf_remessa = texto_nf_remessa + "Emissão de NF's de Remessa Incompleto, falta emitir "
-											+ z.format(diferenca_nf_remessa) + " Kgs";
-
-								} else if (diferenca_nf_remessa < 0) {
-									texto_nf_remessa = texto_nf_remessa + "Emissão de NF's Remessa, excedeu "
-											+ z.format(diferenca_nf_remessa) + " Kgs";
-
-								}
-
-								if (nf_remessa_ativo)
-									cell.setCellValue(texto_nf_remessa);
-								else
-									cell.setCellValue("Emissão de NF's Não Aplicável");
-
-								sheet.addMergedRegion(new CellRangeAddress(rownum, rownum, cellnum, 4));
-
-								try {
-
-									new JFXPanel();
-									Platform.runLater(() -> {
-
-										// pegar ultima pasta
-										ManipularTxt manipular_ultima_pasta = new ManipularTxt();
-										String ultima_pasta = manipular_ultima_pasta
-												.lerArquivo(new File("C:\\ProgramData\\E-Contract\\configs\\ultima_pasta.txt"));
-										if (d == null) {
-											d = new FileChooser();
-										}
-										d.setInitialDirectory(new File(ultima_pasta));
-										d.getExtensionFilters().addAll(
-
-												new FileChooser.ExtensionFilter("Excel", "*.xls"));
-										File file = d.showSaveDialog(new Stage());
-										String caminho_arquivo = "";
-										if (file != null) {
-											caminho_arquivo = file.getAbsolutePath();
-
-											manipular_ultima_pasta.rescreverArquivo(
-													new File("C:\\ProgramData\\E-Contract\\configs\\ultima_pasta.txt"),
-													file.getParent());
-											// Escrevendo o arquivo em disco
-											FileOutputStream out;
-											try {
-												out = new FileOutputStream(file);
-												workbook.write(out);
-												workbook.close();
-												out.close();
-												// workbook.close();
-
-												Runtime.getRuntime().exec("explorer " + file.getAbsolutePath());
-
-												System.out.println("Success!!");
-											} catch (FileNotFoundException e1) {
-												// TODO Auto-generated catch block
-												e1.printStackTrace();
-											} catch (IOException e1) {
-												// TODO Auto-generated catch block
-												e1.printStackTrace();
-											}
-
-										}
-
-									});
-
-								} catch (Exception k) {
-									k.printStackTrace();
-								}
 
+		JPanel panel_9 = new JPanel();
+		panel_9.setBackground(Color.WHITE);
+		panel_5.add(panel_9, "cell 16 4 6 1,alignx center,aligny top");
+		panel_9.setLayout(new MigLayout("", "[][][][][][][][][][][]", "[]"));
+
+		JButton btnExportarRecebimentos = new JButton("Exportar");
+		panel_9.add(btnExportarRecebimentos, "cell 7 0");
+		btnExportarRecebimentos.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				HSSFWorkbook workbook = new HSSFWorkbook();
+				HSSFSheet sheet = workbook.createSheet("Recebimentos");
+
+				// Definindo alguns padroes de layout
+				sheet.setDefaultColumnWidth(15);
+				sheet.setDefaultRowHeight((short) 400);
+
+				int rownum = 0;
+				int cellnum = 0;
+				Cell cell;
+				Row row;
+
+				// Configurando estilos de células (Cores, alinhamento, formatação, etc..)
+				HSSFDataFormat numberFormat = workbook.createDataFormat();
+
+				CellStyle headerStyle = workbook.createCellStyle();
+				headerStyle.setFillForegroundColor(IndexedColors.GREY_25_PERCENT.getIndex());
+				// headerStyle.setFillPattern(CellStyle.SOLID_FOREGROUND);
+				headerStyle.setAlignment(HorizontalAlignment.CENTER);
+				headerStyle.setVerticalAlignment(VerticalAlignment.CENTER);
+
+				// celula para texto alinhado ao centro
+				CellStyle textStyle = workbook.createCellStyle();
+				textStyle.setAlignment(HorizontalAlignment.CENTER);
+				textStyle.setVerticalAlignment(VerticalAlignment.CENTER);
+
+				// celula para numero alinhado ao centro
+				CellStyle numberStyle = workbook.createCellStyle();
+				numberStyle.setDataFormat(numberFormat.getFormat("#,##0.00"));
+				numberStyle.setAlignment(HorizontalAlignment.CENTER);
+				numberStyle.setVerticalAlignment(VerticalAlignment.CENTER);
+
+				// estilo de celula negrito
+				CellStyle negrito = workbook.createCellStyle();
+				// textStyle.setAlignment(HorizontalAlignment.CENTER);
+				negrito.setFillPattern(FillPatternType.SOLID_FOREGROUND);
+				negrito.setFillForegroundColor(IndexedColors.WHITE.getIndex());
+				negrito.setAlignment(HorizontalAlignment.CENTER);
+				negrito.setVerticalAlignment(VerticalAlignment.CENTER);
+
+				HSSFFont newFontNegrita = workbook.createFont();
+				newFontNegrita.setBold(true);
+				newFontNegrita.setColor(IndexedColors.BLACK.getIndex());
+				newFontNegrita.setFontName("Arial");
+				newFontNegrita.setItalic(true);
+				newFontNegrita.setFontHeight((short) (11 * 20));
+
+				negrito.setFont(newFontNegrita);
+
+				// estilo para celula texto alinhado a esquerda
+				CellStyle negrito_esquerda = workbook.createCellStyle();
+				// textStyle.setAlignment(HorizontalAlignment.CENTER);
+				negrito_esquerda.setFillPattern(FillPatternType.SOLID_FOREGROUND);
+				negrito_esquerda.setFillForegroundColor(IndexedColors.WHITE.getIndex());
+				negrito_esquerda.setAlignment(HorizontalAlignment.LEFT);
+				negrito_esquerda.setVerticalAlignment(VerticalAlignment.CENTER);
+
+				HSSFFont newFontNegritaEsquerda = workbook.createFont();
+				newFontNegritaEsquerda.setBold(true);
+				newFontNegritaEsquerda.setColor(IndexedColors.BLACK.getIndex());
+				newFontNegritaEsquerda.setFontName("Arial");
+				newFontNegritaEsquerda.setItalic(true);
+				newFontNegritaEsquerda.setFontHeight((short) (11 * 20));
+
+				negrito_esquerda.setFont(newFontNegritaEsquerda);
+
+				// estilo para celula do tipo numero alinhado ao centro
+				CellStyle valorStyle = workbook.createCellStyle();
+				valorStyle.setDataFormat(numberFormat.getFormat("R$ #,##0.00"));
+				valorStyle.setAlignment(HorizontalAlignment.CENTER);
+				valorStyle.setVerticalAlignment(VerticalAlignment.CENTER);
+
+				// estilo para cabecalho fundo laranja
+				CellStyle celula_fundo_laranja = workbook.createCellStyle();
+				celula_fundo_laranja.setFillPattern(FillPatternType.SOLID_FOREGROUND);
+				celula_fundo_laranja.setFillForegroundColor(IndexedColors.ORANGE.getIndex());
+				celula_fundo_laranja.setAlignment(HorizontalAlignment.CENTER);
+				celula_fundo_laranja.setVerticalAlignment(VerticalAlignment.CENTER);
+
+				HSSFFont newFont = workbook.createFont();
+				newFont.setBold(true);
+				newFont.setColor(IndexedColors.BLACK.getIndex());
+				newFont.setFontName("Calibri");
+				newFont.setItalic(false);
+				newFont.setFontHeight((short) (11 * 20));
+
+				celula_fundo_laranja.setFont(newFont);
+
+				// celula_number_amarelo_texto_preto
+				// estilo para cabecalho fundo laranja
+				CellStyle celula_number_amarelo_texto_preto = workbook.createCellStyle();
+				celula_number_amarelo_texto_preto.setDataFormat(numberFormat.getFormat("#,##0.00"));
+				celula_number_amarelo_texto_preto.setFillPattern(FillPatternType.SOLID_FOREGROUND);
+				celula_number_amarelo_texto_preto.setFillForegroundColor(IndexedColors.YELLOW.getIndex());
+				celula_number_amarelo_texto_preto.setAlignment(HorizontalAlignment.CENTER);
+				celula_number_amarelo_texto_preto.setVerticalAlignment(VerticalAlignment.CENTER);
+
+				HSSFFont newFont_blabk = workbook.createFont();
+				newFont_blabk.setBold(true);
+				newFont_blabk.setColor(IndexedColors.BLACK.getIndex());
+				newFont_blabk.setFontName("Calibri");
+				newFont_blabk.setItalic(false);
+				newFont_blabk.setFontHeight((short) (11 * 20));
+
+				celula_number_amarelo_texto_preto.setFont(newFont_blabk);
+
+				// estilo para cabecalho fundo laranja
+				CellStyle celula_fundo_laranja_texto_branco = workbook.createCellStyle();
+				celula_fundo_laranja_texto_branco.setFillPattern(FillPatternType.SOLID_FOREGROUND);
+				celula_fundo_laranja_texto_branco.setFillForegroundColor(IndexedColors.ORANGE.getIndex());
+				celula_fundo_laranja_texto_branco.setAlignment(HorizontalAlignment.CENTER);
+				celula_fundo_laranja_texto_branco.setVerticalAlignment(VerticalAlignment.CENTER);
+
+				HSSFFont newFont_branca = workbook.createFont();
+				newFont_branca.setBold(true);
+				newFont_branca.setColor(IndexedColors.WHITE.getIndex());
+				newFont_branca.setFontName("Calibri");
+				newFont_branca.setItalic(false);
+				newFont_branca.setFontHeight((short) (11 * 20));
+
+				celula_fundo_laranja_texto_branco.setFont(newFont_branca);
+
+				// Configurando as informacoes
+				row = sheet.createRow(rownum++);
+
+				CadastroCliente compradores[] = contrato_local.getCompradores();
+				CadastroCliente vendedores[] = contrato_local.getVendedores();
+
+				String nome_compradores;
+				String nome_vendedores;
+				if (compradores[0].getTipo_pessoa() == 0) {
+					nome_compradores = compradores[0].getNome_empresarial();
+				} else {
+					nome_compradores = compradores[0].getNome_fantaia();
+				}
+
+				if (compradores[1] != null) {
+					if (compradores[1].getTipo_pessoa() == 0) {
+						nome_compradores = nome_compradores + ", " + compradores[1].getNome_empresarial();
+					} else {
+						nome_compradores = nome_compradores + ", " + compradores[1].getNome_fantaia();
+					}
+				}
+
+				if (vendedores[0].getTipo_pessoa() == 0) {
+					nome_vendedores = vendedores[0].getNome_empresarial();
+				} else {
+					nome_vendedores = vendedores[0].getNome_fantaia();
+				}
+
+				if (vendedores[1] != null) {
+					if (vendedores[1].getTipo_pessoa() == 0) {
+						nome_vendedores = nome_vendedores + ", " + vendedores[1].getNome_empresarial();
+					} else {
+						nome_vendedores = nome_vendedores + ", " + vendedores[1].getNome_fantaia();
+					}
+				}
+
+				cell = row.createCell(cellnum);
+				cell.setCellStyle(celula_fundo_laranja);
+				cell.setCellValue(nome_compradores.toUpperCase() + " X " + nome_vendedores + " CTR "
+						+ contrato_local.getCodigo() + " IE.: " + vendedores[0].getIe());
+				sheet.addMergedRegion(new CellRangeAddress(0, 0, cellnum, 5));
+
+				// linha quantidade, safra, sacos, etc
+				row = sheet.createRow(rownum++);
+				cellnum = 0;
+
+				cell = row.createCell(cellnum++);
+				cell.setCellStyle(celula_fundo_laranja);
+
+				double quantidade_kg = 0;
+				double quantidade_sacos = 0;
+
+				if (contrato.getMedida().equalsIgnoreCase("KG")) {
+					quantidade_kg = contrato.getQuantidade();
+					quantidade_sacos = quantidade_kg / 60;
+				} else if (contrato.getMedida().equalsIgnoreCase("Sacos")) {
+					quantidade_sacos = contrato.getQuantidade();
+					quantidade_kg = quantidade_sacos * 60;
+				}
+
+				Locale ptBr = new Locale("pt", "BR");
+				cell.setCellValue("Quantidade: " + quantidade_kg + " KGS | " + quantidade_sacos + " Sacos no valor de "
+						+ NumberFormat.getCurrencyInstance(ptBr).format(contrato.getValor_produto()) + " por "
+						+ contrato.getMedida() + " no valor total de: "
+						+ NumberFormat.getCurrencyInstance(ptBr).format(contrato.getValor_a_pagar()));
+				// cell.setCellValue("Quantidade: " + quantidade_kg + " KGS | " +
+				// quantidade_sacos + " Sacos" );
+				sheet.addMergedRegion(new CellRangeAddress(rownum - 1, rownum - 1, cellnum - 1, 5));
+
+				row = sheet.createRow(rownum++);
+				cellnum = 0;
+
+				cell = row.createCell(cellnum++);
+				cell.setCellStyle(celula_fundo_laranja);
+				cell.setCellValue(contrato.getModelo_safra().getProduto().getNome_produto() + " "
+						+ contrato.getModelo_safra().getProduto().getTransgenia() + " "
+						+ contrato.getModelo_safra().getAno_plantio() + "/"
+						+ contrato.getModelo_safra().getAno_colheita());
+				sheet.addMergedRegion(new CellRangeAddress(rownum - 1, rownum - 1, cellnum - 1, 5));
+
+				// Configurando Header
+				row = sheet.createRow(rownum++);
+				cellnum = 0;
+				cell = row.createCell(cellnum++);
+				cell.setCellStyle(celula_fundo_laranja_texto_branco);
+				cell.setCellValue("DATA");
+
+				cell = row.createCell(cellnum++);
+				cell.setCellStyle(celula_fundo_laranja_texto_branco);
+				cell.setCellValue("Romaneio".toUpperCase());
+
+				cell = row.createCell(cellnum++);
+				cell.setCellStyle(celula_fundo_laranja_texto_branco);
+				cell.setCellValue("Peso Romaneio".toUpperCase());
+
+				cell = row.createCell(cellnum++);
+				cell.setCellStyle(celula_fundo_laranja_texto_branco);
+				cell.setCellValue("NF Venda".toUpperCase());
+
+				cell = row.createCell(cellnum++);
+				cell.setCellStyle(celula_fundo_laranja_texto_branco);
+				cell.setCellValue("Peso NF Venda".toUpperCase());
+
+				cell = row.createCell(cellnum++);
+				cell.setCellStyle(celula_fundo_laranja_texto_branco);
+				cell.setCellValue("Valor NF Venda".toUpperCase());
+
+				cell = row.createCell(cellnum++);
+				cell.setCellStyle(celula_fundo_laranja_texto_branco);
+				cell.setCellValue("NF Remessa".toUpperCase());
+
+				cell = row.createCell(cellnum++);
+				cell.setCellStyle(celula_fundo_laranja_texto_branco);
+				cell.setCellValue("Peso NF Remessa".toUpperCase());
+
+				cell = row.createCell(cellnum++);
+				cell.setCellStyle(celula_fundo_laranja_texto_branco);
+				cell.setCellValue("Valor NF Remessa".toUpperCase());
+
+				ArrayList<CadastroContrato.Recebimento> contratos_selecionados = new ArrayList<>();
+				int linhas_selecionadas[] = table_recebimentos.getSelectedRows();// pega o indice da linha na tabela
+
+				for (int i = 0; i < linhas_selecionadas.length; i++) {
+
+					int indice = linhas_selecionadas[i];//
+					CadastroContrato.Recebimento contrato_selecionados = lista_recebimentos.get(indice);
+					contratos_selecionados.add(contrato_selecionados);
+				}
+
+				double quantidade_total_kgs_recebido = 0;
+				double quantidade_total_kgs_nf_venda = 0;
+				double quantidade_total_kgs_nf_remessa = 0;
+
+				BigDecimal valor_total_nf_venda = BigDecimal.ZERO;
+				BigDecimal valor_total_nf_remessa = BigDecimal.ZERO;
+
+				// checkagens
+				boolean nf_remessa_ativo = false;
+				boolean nf_venda_ativo = false;
+
+				// checka se ha no minimo uma nf remessa aplicavel
+				for (CadastroContrato.Recebimento recebimento : lista_recebimentos) {
+					if (recebimento.getNf_remessa_aplicavel() == 1) {
+						nf_remessa_ativo = true;
+						break;
+					}
+
+				}
+
+				// checka se ha no minimo uma nf venda aplicavel
+				for (CadastroContrato.Recebimento recebimento : lista_recebimentos) {
+					if (recebimento.getNf_venda_aplicavel() == 1) {
+						nf_venda_ativo = true;
+						break;
+					}
+
+				}
+
+				for (CadastroContrato.Recebimento cadastro : contratos_selecionados) {
+
+					row = sheet.createRow(rownum++);
+					cellnum = 0;
+					/*
+					 * codigo compradores vendedores status quantidade medida produto transgenia
+					 * safra valor_produto valor_total data_contrato local_retirada
+					 */
+					cell = row.createCell(cellnum++);
+					cell.setCellStyle(textStyle);
+					cell.setCellValue(cadastro.getData_recebimento());
+
+					cell = row.createCell(cellnum++);
+					cell.setCellStyle(textStyle);
+					cell.setCellValue(cadastro.getCodigo_romaneio());
+
+					cell = row.createCell(cellnum++);
+					cell.setCellStyle(numberStyle);
+					cell.setCellValue(cadastro.getPeso_romaneio());
+
+					if (cadastro.getNf_venda_aplicavel() == 1) {
+						cell = row.createCell(cellnum++);
+						cell.setCellStyle(textStyle);
+						cell.setCellValue(cadastro.getCodigo_nf_venda());
+
+						cell = row.createCell(cellnum++);
+						cell.setCellStyle(numberStyle);
+						cell.setCellValue(cadastro.getPeso_nf_venda());
+						quantidade_total_kgs_nf_venda = quantidade_total_kgs_nf_venda + cadastro.getPeso_nf_venda();
+
+						cell = row.createCell(cellnum++);
+						cell.setCellStyle(valorStyle);
+						cell.setCellValue(cadastro.getValor_nf_venda().doubleValue());
+						valor_total_nf_venda = valor_total_nf_venda.add(cadastro.getValor_nf_venda());
+
+					} else {
+						cell = row.createCell(cellnum++);
+						cell.setCellStyle(textStyle);
+						cell.setCellValue("Não Aplicável");
+
+						cell = row.createCell(cellnum++);
+						cell.setCellStyle(textStyle);
+						cell.setCellValue("Não Aplicável");
+
+						cell = row.createCell(cellnum++);
+						cell.setCellStyle(textStyle);
+						cell.setCellValue("Não Aplicável");
+					}
+
+					if (cadastro.getNf_remessa_aplicavel() == 1) {
+						cell = row.createCell(cellnum++);
+						cell.setCellStyle(numberStyle);
+						cell.setCellValue(cadastro.getCodigo_nf_remessa());
+
+						cell = row.createCell(cellnum++);
+						cell.setCellStyle(numberStyle);
+						cell.setCellValue(cadastro.getPeso_nf_remessa());
+						quantidade_total_kgs_nf_remessa = quantidade_total_kgs_nf_remessa
+								+ cadastro.getPeso_nf_remessa();
+
+						cell = row.createCell(cellnum++);
+						cell.setCellStyle(valorStyle);
+						cell.setCellValue(cadastro.getValor_nf_remessa().doubleValue());
+						valor_total_nf_remessa = valor_total_nf_remessa.add(cadastro.getValor_nf_remessa());
+
+					} else {
+						cell = row.createCell(cellnum++);
+						cell.setCellStyle(textStyle);
+						cell.setCellValue("Não Aplicável");
+
+						cell = row.createCell(cellnum++);
+						cell.setCellStyle(textStyle);
+						cell.setCellValue("Não Aplicável");
+
+						cell = row.createCell(cellnum++);
+						cell.setCellStyle(textStyle);
+						cell.setCellValue("Não Aplicável");
+					}
+
+					quantidade_total_kgs_recebido = quantidade_total_kgs_recebido + cadastro.getPeso_romaneio();
+
+				}
+				sheet.setAutoFilter(CellRangeAddress.valueOf("A4:I4"));
+				NumberFormat z = NumberFormat.getNumberInstance();
+
+				// somatorias
+				row = sheet.createRow(rownum++);
+
+				cell = row.createCell(2);
+				cell.setCellStyle(negrito);
+				cell.setCellValue(z.format(quantidade_total_kgs_recebido) + " Kgs");
+
+				cell = row.createCell(4);
+				cell.setCellStyle(negrito);
+				cell.setCellValue(z.format(quantidade_total_kgs_nf_venda) + " Kgs");
+
+				cell = row.createCell(5);
+				cell.setCellStyle(negrito);
+				cell.setCellValue(NumberFormat.getCurrencyInstance(ptBr).format(valor_total_nf_venda.doubleValue()));
+
+				cell = row.createCell(7);
+				cell.setCellStyle(negrito);
+				cell.setCellValue(z.format(quantidade_total_kgs_nf_remessa) + " Kgs");
+
+				cell = row.createCell(8);
+				cell.setCellStyle(negrito);
+				cell.setCellValue(NumberFormat.getCurrencyInstance(ptBr).format(valor_total_nf_remessa.doubleValue()));
+
+				//////////////////////
+				row = sheet.createRow(rownum += 2);
+				cellnum = 0;
+
+				cell = row.createCell(cellnum++);
+				cell.setCellStyle(textStyle);
+				cell.setCellValue("");
+
+				cell = row.createCell(cellnum++);
+				cell.setCellStyle(celula_fundo_laranja_texto_branco);
+				cell.setCellValue("Peso Recebido: ");
+
+				cell = row.createCell(cellnum++);
+				cell.setCellStyle(celula_number_amarelo_texto_preto);
+				cell.setCellValue(quantidade_total_kgs_recebido);
+
+				cell = row.createCell(cellnum++);
+				cell.setCellStyle(celula_fundo_laranja_texto_branco);
+				cell.setCellValue("Peso NF's Venda: ");
+
+				cell = row.createCell(cellnum++);
+				cell.setCellStyle(celula_number_amarelo_texto_preto);
+				if (nf_venda_ativo)
+					cell.setCellValue(quantidade_total_kgs_nf_venda);
+				else
+					cell.setCellValue("Não Aplicável");
+
+				cell = row.createCell(cellnum++);
+				cell.setCellStyle(celula_fundo_laranja_texto_branco);
+				cell.setCellValue("Valor NF's Venda: ");
+
+				cell = row.createCell(cellnum++);
+				cell.setCellStyle(celula_number_amarelo_texto_preto);
+
+				if (nf_venda_ativo)
+					cell.setCellValue(valor_total_nf_venda.doubleValue());
+				else
+					cell.setCellValue("Não Aplicável");
+
+				cell = row.createCell(cellnum++);
+				cell.setCellStyle(celula_fundo_laranja_texto_branco);
+				cell.setCellValue("Peso NF's Remessa: ");
+
+				cell = row.createCell(cellnum++);
+				cell.setCellStyle(celula_number_amarelo_texto_preto);
+				if (nf_remessa_ativo)
+					cell.setCellValue(quantidade_total_kgs_nf_remessa);
+				else
+					cell.setCellValue("Não Aplicável");
+
+				cell = row.createCell(cellnum++);
+				cell.setCellStyle(celula_fundo_laranja_texto_branco);
+				cell.setCellValue("Valor NF's Remessa: ");
+
+				cell = row.createCell(cellnum++);
+				cell.setCellStyle(celula_number_amarelo_texto_preto);
+				if (nf_remessa_ativo)
+					cell.setCellValue(valor_total_nf_remessa.doubleValue());
+				else
+					cell.setCellValue("Não Aplicável");
+
+				row = sheet.createRow(rownum += 2);
+				cellnum = 0;
+
+				cell = row.createCell(cellnum++);
+				cell.setCellStyle(textStyle);
+				cell.setCellValue("");
+
+				cell = row.createCell(cellnum++);
+				cell.setCellStyle(celula_fundo_laranja_texto_branco);
+				cell.setCellValue("Peso a Receber: ");
+
+				cell = row.createCell(cellnum++);
+				cell.setCellStyle(celula_number_amarelo_texto_preto);
+				cell.setCellValue(quantidade_kg - quantidade_total_kgs_recebido);
+
+				cell = row.createCell(cellnum++);
+				cell.setCellStyle(celula_fundo_laranja_texto_branco);
+				cell.setCellValue("Peso a emitir: ");
+
+				cell = row.createCell(cellnum++);
+				cell.setCellStyle(celula_number_amarelo_texto_preto);
+				if (nf_venda_ativo)
+					cell.setCellValue(quantidade_kg - quantidade_total_kgs_nf_venda);
+				else
+					cell.setCellValue("Não Aplicável");
+
+				cell = row.createCell(7);
+				cell.setCellStyle(celula_fundo_laranja_texto_branco);
+				cell.setCellValue("Peso a emitir: ");
+
+				cell = row.createCell(8);
+				cell.setCellStyle(celula_number_amarelo_texto_preto);
+				if (nf_remessa_ativo)
+					cell.setCellValue(quantidade_kg - quantidade_total_kgs_nf_remessa);
+				else
+					cell.setCellValue("Não Aplicável");
+
+				row = sheet.createRow(rownum += 2);
+				cellnum = 0;
+
+				cell = row.createCell(cellnum);
+				cell.setCellStyle(negrito_esquerda);
+				cell.setCellValue("Status gerado de forma automatica: ");
+
+				sheet.addMergedRegion(new CellRangeAddress(rownum, rownum, cellnum, 2));
+
+				row = sheet.createRow(rownum += 1);
+				cellnum = 0;
+
+				cell = row.createCell(cellnum);
+				cell.setCellStyle(negrito_esquerda);
+
+				String texto = "";
+				double diferenca = quantidade_kg - quantidade_total_kgs_recebido;
+				if (diferenca == 0) {
+					texto = texto + "Recebimento Concluído";
+				} else if (diferenca > 0) {
+					texto = texto + "Recebimento Incompleto, falta receber " + z.format(diferenca) + " Kgs";
+
+				} else if (diferenca < 0) {
+					texto = texto + "Recebimento Excedido, excedeu " + z.format(diferenca) + " Kgs";
+
+				}
+
+				cell.setCellValue(texto);
+
+				sheet.addMergedRegion(new CellRangeAddress(rownum, rownum, cellnum, 3));
+
+				// status de nf de venda
+				row = sheet.createRow(rownum += 1);
+				cellnum = 0;
+
+				cell = row.createCell(cellnum);
+				cell.setCellStyle(negrito_esquerda);
+
+				String texto_nf_venda = "";
+				double diferenca_nf_venda = quantidade_kg - quantidade_total_kgs_nf_venda;
+				if (diferenca_nf_venda == 0) {
+					texto_nf_venda = texto_nf_venda + "Emissão de NF's de Venda Concluído";
+				} else if (diferenca_nf_venda > 0) {
+					texto_nf_venda = texto_nf_venda + "Emissão de NF's de Venda Incompleto, falta emitir "
+							+ z.format(diferenca_nf_venda) + " Kgs";
+
+				} else if (diferenca_nf_venda < 0) {
+					texto_nf_venda = texto_nf_venda + "Emissão de NF's Excedido, excedeu "
+							+ z.format(diferenca_nf_venda) + " Kgs";
+
+				}
+
+				if (nf_venda_ativo)
+					cell.setCellValue(texto_nf_venda);
+				else
+					cell.setCellValue("Emissão de NF's Não Aplicável");
+
+				sheet.addMergedRegion(new CellRangeAddress(rownum, rownum, cellnum, 4));
+
+				// status nf remessa
+				row = sheet.createRow(rownum += 1);
+				cellnum = 0;
+
+				cell = row.createCell(cellnum);
+				cell.setCellStyle(negrito_esquerda);
+
+				String texto_nf_remessa = "";
+				double diferenca_nf_remessa = quantidade_kg - quantidade_total_kgs_nf_remessa;
+				if (diferenca_nf_remessa == 0) {
+					texto_nf_remessa = texto_nf_remessa + "Emissão de NF's de Remessa Concluído";
+				} else if (diferenca_nf_remessa > 0) {
+					texto_nf_remessa = texto_nf_remessa + "Emissão de NF's de Remessa Incompleto, falta emitir "
+							+ z.format(diferenca_nf_remessa) + " Kgs";
+
+				} else if (diferenca_nf_remessa < 0) {
+					texto_nf_remessa = texto_nf_remessa + "Emissão de NF's Remessa, excedeu "
+							+ z.format(diferenca_nf_remessa) + " Kgs";
+
+				}
+
+				if (nf_remessa_ativo)
+					cell.setCellValue(texto_nf_remessa);
+				else
+					cell.setCellValue("Emissão de NF's Não Aplicável");
+
+				sheet.addMergedRegion(new CellRangeAddress(rownum, rownum, cellnum, 4));
+
+				try {
+
+					new JFXPanel();
+					Platform.runLater(() -> {
+
+						// pegar ultima pasta
+						ManipularTxt manipular_ultima_pasta = new ManipularTxt();
+						String ultima_pasta = manipular_ultima_pasta
+								.lerArquivo(new File("C:\\ProgramData\\E-Contract\\configs\\ultima_pasta.txt"));
+						if (d == null) {
+							d = new FileChooser();
+						}
+						d.setInitialDirectory(new File(ultima_pasta));
+						d.getExtensionFilters().addAll(
+
+								new FileChooser.ExtensionFilter("Excel", "*.xls"));
+						File file = d.showSaveDialog(new Stage());
+						String caminho_arquivo = "";
+						if (file != null) {
+							caminho_arquivo = file.getAbsolutePath();
+
+							manipular_ultima_pasta.rescreverArquivo(
+									new File("C:\\ProgramData\\E-Contract\\configs\\ultima_pasta.txt"),
+									file.getParent());
+							// Escrevendo o arquivo em disco
+							FileOutputStream out;
+							try {
+								out = new FileOutputStream(file);
+								workbook.write(out);
+								workbook.close();
+								out.close();
+								// workbook.close();
+
+								Runtime.getRuntime().exec("explorer " + file.getAbsolutePath());
+
+								System.out.println("Success!!");
+							} catch (FileNotFoundException e1) {
+								// TODO Auto-generated catch block
+								e1.printStackTrace();
+							} catch (IOException e1) {
+								// TODO Auto-generated catch block
+								e1.printStackTrace();
 							}
-						});
-						
-								JButton btnExcluirRecebimento = new JButton("Excluir");
-								panel_9.add(btnExcluirRecebimento, "cell 8 0");
-								btnExcluirRecebimento.addActionListener(new ActionListener() {
-									public void actionPerformed(ActionEvent e) {
 
-										GerenciarBancoContratos gerenciar = new GerenciarBancoContratos();
-										int rowSel = table_recebimentos.getSelectedRow();// pega o indice da linha na tabela
+						}
 
-										CadastroContrato.Recebimento recebimento_excluir = lista_recebimentos.get(rowSel);
+					});
 
-										GerenciarBancoContratos gerenciar_contratos = new GerenciarBancoContratos();
-										boolean excluir = gerenciar_contratos.removerRecebimento(contrato_local.getId(),
-												recebimento_excluir.getId_recebimento());
+				} catch (Exception k) {
+					k.printStackTrace();
+				}
 
-										if (excluir) {
-											// deletar o diretorio do recebimento
-											String diretorio_contrato = servidor_unidade + contrato_local.getCaminho_diretorio_contrato()
-													+ "\\recebimentos";
-											String diretorio_recebimento = diretorio_contrato + "\\recebimento_"
-													+ recebimento_excluir.getId_recebimento();
+			}
+		});
 
-											ManipularTxt manipular = new ManipularTxt();
-											boolean deletar = manipular.limparDiretorio(new File(diretorio_recebimento));
-											if (deletar) {
-												JOptionPane.showMessageDialog(isto, "Recebimento Excluido");
-											} else {
-												JOptionPane.showMessageDialog(isto,
-														"Recebimento Excluido, mas a pasta do recebimento ainda existe\nConsulte o administrador");
+		JButton btnExcluirRecebimento = new JButton("Excluir");
+		panel_9.add(btnExcluirRecebimento, "cell 8 0");
+		btnExcluirRecebimento.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
 
-											}
+				GerenciarBancoContratos gerenciar = new GerenciarBancoContratos();
+				int rowSel = table_recebimentos.getSelectedRow();// pega o indice da linha na tabela
 
-											if (contrato_local.getCaminho_diretorio_contrato2() != null) {
-												// deletar o direotiro do recebimento do contrato 2
-												String diretorio_contrato2 = servidor_unidade + contrato_local.getCaminho_diretorio_contrato2()
-														+ "\\recebimentos";
-												String diretorio_recebimento2 = diretorio_contrato + "\\recebimento_"
-														+ recebimento_excluir.getId_recebimento();
+				CadastroContrato.Recebimento recebimento_excluir = lista_recebimentos.get(rowSel);
 
-												deletar = manipular.limparDiretorio(new File(diretorio_recebimento2));
-												if (deletar) {
-													JOptionPane.showMessageDialog(isto, "Recebimento Excluido");
-												} else {
-													JOptionPane.showMessageDialog(isto,
-															"Recebimento Excluido, mas a pasta do recebimento ainda existe\nConsulte o administrador");
+				GerenciarBancoContratos gerenciar_contratos = new GerenciarBancoContratos();
+				boolean excluir = gerenciar_contratos.removerRecebimento(contrato_local.getId(),
+						recebimento_excluir.getId_recebimento());
 
-												}
-											}
+				if (excluir) {
+					// deletar o diretorio do recebimento
+					String diretorio_contrato = servidor_unidade + contrato_local.getCaminho_diretorio_contrato()
+							+ "\\recebimentos";
+					String diretorio_recebimento = diretorio_contrato + "\\recebimento_"
+							+ recebimento_excluir.getId_recebimento();
 
-											pesquisar_recebimentos(true);
-										} else {
-											JOptionPane.showMessageDialog(isto, "Erro ao excluir recebimentos\nConsulte o administrador");
+					ManipularTxt manipular = new ManipularTxt();
+					boolean deletar = manipular.limparDiretorio(new File(diretorio_recebimento));
+					if (deletar) {
+						JOptionPane.showMessageDialog(isto, "Recebimento Excluido");
+					} else {
+						JOptionPane.showMessageDialog(isto,
+								"Recebimento Excluido, mas a pasta do recebimento ainda existe\nConsulte o administrador");
 
-										}
+					}
 
-									}
-								});
-								botoes.add(btnExcluirRecebimento);
-								
-										JButton btnEditar = new JButton("Editar");
-										panel_9.add(btnEditar, "cell 9 0");
-										btnEditar.addActionListener(new ActionListener() {
-											public void actionPerformed(ActionEvent e) {
-												int rowSel = table_recebimentos.getSelectedRow();// pega o indice da linha na tabela
+					if (contrato_local.getCaminho_diretorio_contrato2() != null) {
+						// deletar o direotiro do recebimento do contrato 2
+						String diretorio_contrato2 = servidor_unidade + contrato_local.getCaminho_diretorio_contrato2()
+								+ "\\recebimentos";
+						String diretorio_recebimento2 = diretorio_contrato + "\\recebimento_"
+								+ recebimento_excluir.getId_recebimento();
 
-												TelaConfirmarRecebimento tela = new TelaConfirmarRecebimento(1, lista_recebimentos.get(rowSel),
-														contrato_local, isto);
-												tela.setTelaPai(isto);
-												tela.setVisible(true);
-											}
-										});
-										botoes.add(btnEditar);
-										
-												JButton btnAdicionarRecebimento = new JButton("Adicionar");
-												panel_9.add(btnAdicionarRecebimento, "cell 10 0");
-												botoes.add(btnAdicionarRecebimento);
-												
-														btnAdicionarRecebimento.addActionListener(new ActionListener() {
-															public void actionPerformed(ActionEvent e) {
-																TelaConfirmarRecebimento tela = new TelaConfirmarRecebimento(0, null, contrato_local, isto);
-																tela.setTelaPai(isto);
-																tela.setVisible(true);
-															}
-														});
+						deletar = manipular.limparDiretorio(new File(diretorio_recebimento2));
+						if (deletar) {
+							JOptionPane.showMessageDialog(isto, "Recebimento Excluido");
+						} else {
+							JOptionPane.showMessageDialog(isto,
+									"Recebimento Excluido, mas a pasta do recebimento ainda existe\nConsulte o administrador");
+
+						}
+					}
+
+					pesquisar_recebimentos(true);
+				} else {
+					JOptionPane.showMessageDialog(isto, "Erro ao excluir recebimentos\nConsulte o administrador");
+
+				}
+
+			}
+		});
+		botoes.add(btnExcluirRecebimento);
+
+		JButton btnEditar = new JButton("Editar");
+		panel_9.add(btnEditar, "cell 9 0");
+		btnEditar.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				int rowSel = table_recebimentos.getSelectedRow();// pega o indice da linha na tabela
+
+				TelaConfirmarRecebimento tela = new TelaConfirmarRecebimento(1, lista_recebimentos.get(rowSel),
+						contrato_local, isto);
+				tela.setTelaPai(isto);
+				tela.setVisible(true);
+			}
+		});
+		botoes.add(btnEditar);
+
+		JButton btnAdicionarRecebimento = new JButton("Adicionar");
+		panel_9.add(btnAdicionarRecebimento, "cell 10 0");
+		botoes.add(btnAdicionarRecebimento);
+
+		btnAdicionarRecebimento.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				TelaConfirmarRecebimento tela = new TelaConfirmarRecebimento(0, null, contrato_local, isto);
+				tela.setTelaPai(isto);
+				tela.setVisible(true);
+			}
+		});
 
 		JPanel panel_8 = new JPanel();
 		panel_8.setBackground(Color.WHITE);
@@ -1843,7 +1847,8 @@ public class TelaGerenciarContrato extends JFrame {
 			}
 		});
 		painel_pai_di.setLayout(new MigLayout("", "[1343px, grow]", "[876px, grow]"));
-		panel_7.setLayout(new MigLayout("", "[79px][210px][90px][74px]", "[62px][79px][21px][26px][21px][26px][80px][21px][28px]"));
+		panel_7.setLayout(new MigLayout("", "[79px][210px][90px][74px]",
+				"[62px][79px][21px][26px][21px][26px][80px][21px][28px]"));
 
 		JLabel lblNewLabel_37_2_1 = new JLabel("Descrição:");
 		lblNewLabel_37_2_1.setForeground(Color.BLACK);
@@ -2242,7 +2247,9 @@ public class TelaGerenciarContrato extends JFrame {
 		gbc_panel.gridx = 0;
 		gbc_panel.gridy = 0;
 		painelCarregamento.add(panel);
-		panel.setLayout(new MigLayout("", "[187px, grow][12px, grow][86px, grow][4px, grow][323px, grow][192px, grow][538px, grow]", "[136px][4px][24px][199px, grow][42px][33px][8px][12px][170px]"));
+		panel.setLayout(new MigLayout("",
+				"[187px, grow][12px, grow][86px, grow][4px, grow][323px, grow][192px, grow][538px, grow]",
+				"[136px][4px][24px][199px, grow][42px][33px][8px][12px][170px]"));
 
 		JLabel lblNewLabel_7 = new JLabel("Carregamentos desse contrato:");
 		lblNewLabel_7.setFont(new Font("SansSerif", Font.BOLD, 18));
@@ -2317,50 +2324,50 @@ public class TelaGerenciarContrato extends JFrame {
 		panel_14.add(lblNewLabel_34_1_3, "cell 1 0,alignx center,aligny center");
 		lblNewLabel_34_1_3.setFont(new Font("SansSerif", Font.BOLD, 12));
 		lblNewLabel_34_1_3.setBorder(new MatteBorder(0, 0, 1, 0, (Color) new Color(0, 0, 0)));
-		
-				JLabel lblNewLabel_33_1 = new JLabel("       ");
-				panel_14.add(lblNewLabel_33_1, "cell 4 0,alignx center,aligny center");
-				lblNewLabel_33_1.setBorder(new LineBorder(new Color(0, 0, 0)));
-				lblNewLabel_33_1.setOpaque(true);
-				lblNewLabel_33_1.setBackground(Color.yellow);
-				
-						JLabel lblNewLabel_34_1 = new JLabel("Falta NF Complemento");
-						panel_14.add(lblNewLabel_34_1, "cell 5 0,alignx center,aligny center");
-						lblNewLabel_34_1.setBorder(new MatteBorder(0, 0, 1, 0, (Color) new Color(0, 0, 0)));
-						lblNewLabel_34_1.setFont(new Font("SansSerif", Font.BOLD, 12));
-		
-				JLabel lblNewLabel_33_1_4 = new JLabel("       ");
-				panel_14.add(lblNewLabel_33_1_4, "cell 0 1,alignx center,aligny center");
-				lblNewLabel_33_1_4.setOpaque(true);
-				lblNewLabel_33_1_4.setBorder(new LineBorder(new Color(0, 0, 0)));
-				lblNewLabel_33_1_4.setBackground(new Color(204, 204, 102));
-				
-						JLabel lblNewLabel_34_1_4 = new JLabel("Falta NF Interna");
-						panel_14.add(lblNewLabel_34_1_4, "cell 1 1,alignx center,aligny center");
-						lblNewLabel_34_1_4.setFont(new Font("SansSerif", Font.BOLD, 12));
-						lblNewLabel_34_1_4.setBorder(new MatteBorder(0, 0, 1, 0, (Color) new Color(0, 0, 0)));
-								
-										JLabel lblNewLabel_33_1_2 = new JLabel("       ");
-										panel_14.add(lblNewLabel_33_1_2, "cell 4 1,alignx center,aligny center");
-										lblNewLabel_33_1_2.setOpaque(true);
-										lblNewLabel_33_1_2.setBorder(new LineBorder(new Color(0, 0, 0)));
-										lblNewLabel_33_1_2.setBackground(new Color(204, 153, 0));
-										
-												JLabel lblNewLabel_34_1_2 = new JLabel("Transferido");
-												panel_14.add(lblNewLabel_34_1_2, "cell 5 1,alignx left,aligny center");
-												lblNewLabel_34_1_2.setFont(new Font("SansSerif", Font.BOLD, 12));
-												lblNewLabel_34_1_2.setBorder(new MatteBorder(0, 0, 1, 0, (Color) new Color(0, 0, 0)));
-								
-										JLabel lblNewLabel_33 = new JLabel("       ");
-										panel_14.add(lblNewLabel_33, "cell 0 2,alignx center,aligny center");
-										lblNewLabel_33.setBorder(new LineBorder(new Color(0, 0, 0)));
-										lblNewLabel_33.setOpaque(true);
-										lblNewLabel_33.setBackground(new Color(0, 100, 0));
-										
-												JLabel lblNewLabel_34 = new JLabel("Concluido");
-												panel_14.add(lblNewLabel_34, "cell 1 2,alignx center,aligny center");
-												lblNewLabel_34.setBorder(new MatteBorder(0, 0, 1, 0, (Color) new Color(0, 0, 0)));
-												lblNewLabel_34.setFont(new Font("SansSerif", Font.BOLD, 12));
+
+		JLabel lblNewLabel_33_1 = new JLabel("       ");
+		panel_14.add(lblNewLabel_33_1, "cell 4 0,alignx center,aligny center");
+		lblNewLabel_33_1.setBorder(new LineBorder(new Color(0, 0, 0)));
+		lblNewLabel_33_1.setOpaque(true);
+		lblNewLabel_33_1.setBackground(Color.yellow);
+
+		JLabel lblNewLabel_34_1 = new JLabel("Falta NF Complemento");
+		panel_14.add(lblNewLabel_34_1, "cell 5 0,alignx center,aligny center");
+		lblNewLabel_34_1.setBorder(new MatteBorder(0, 0, 1, 0, (Color) new Color(0, 0, 0)));
+		lblNewLabel_34_1.setFont(new Font("SansSerif", Font.BOLD, 12));
+
+		JLabel lblNewLabel_33_1_4 = new JLabel("       ");
+		panel_14.add(lblNewLabel_33_1_4, "cell 0 1,alignx center,aligny center");
+		lblNewLabel_33_1_4.setOpaque(true);
+		lblNewLabel_33_1_4.setBorder(new LineBorder(new Color(0, 0, 0)));
+		lblNewLabel_33_1_4.setBackground(new Color(204, 204, 102));
+
+		JLabel lblNewLabel_34_1_4 = new JLabel("Falta NF Interna");
+		panel_14.add(lblNewLabel_34_1_4, "cell 1 1,alignx center,aligny center");
+		lblNewLabel_34_1_4.setFont(new Font("SansSerif", Font.BOLD, 12));
+		lblNewLabel_34_1_4.setBorder(new MatteBorder(0, 0, 1, 0, (Color) new Color(0, 0, 0)));
+
+		JLabel lblNewLabel_33_1_2 = new JLabel("       ");
+		panel_14.add(lblNewLabel_33_1_2, "cell 4 1,alignx center,aligny center");
+		lblNewLabel_33_1_2.setOpaque(true);
+		lblNewLabel_33_1_2.setBorder(new LineBorder(new Color(0, 0, 0)));
+		lblNewLabel_33_1_2.setBackground(new Color(204, 153, 0));
+
+		JLabel lblNewLabel_34_1_2 = new JLabel("Transferido");
+		panel_14.add(lblNewLabel_34_1_2, "cell 5 1,alignx left,aligny center");
+		lblNewLabel_34_1_2.setFont(new Font("SansSerif", Font.BOLD, 12));
+		lblNewLabel_34_1_2.setBorder(new MatteBorder(0, 0, 1, 0, (Color) new Color(0, 0, 0)));
+
+		JLabel lblNewLabel_33 = new JLabel("       ");
+		panel_14.add(lblNewLabel_33, "cell 0 2,alignx center,aligny center");
+		lblNewLabel_33.setBorder(new LineBorder(new Color(0, 0, 0)));
+		lblNewLabel_33.setOpaque(true);
+		lblNewLabel_33.setBackground(new Color(0, 100, 0));
+
+		JLabel lblNewLabel_34 = new JLabel("Concluido");
+		panel_14.add(lblNewLabel_34, "cell 1 2,alignx center,aligny center");
+		lblNewLabel_34.setBorder(new MatteBorder(0, 0, 1, 0, (Color) new Color(0, 0, 0)));
+		lblNewLabel_34.setFont(new Font("SansSerif", Font.BOLD, 12));
 
 		JPanel panel_15 = new JPanel();
 		panel_15.setBackground(Color.WHITE);
@@ -3980,386 +3987,386 @@ public class TelaGerenciarContrato extends JFrame {
 		});
 		botoes.add(btnAdicionarCarregamento);
 		panel_16.add(btnAdicionarCarregamento, "cell 4 0,alignx center,aligny center");
-		
+
 		JPanel panel_17 = new JPanel();
 		panel_17.setBackground(Color.WHITE);
 		panel.add(panel_17, "cell 0 0,grow");
 		panel_17.setLayout(new MigLayout("", "[]", "[][]"));
-				panel_17.add(lblNewLabel_4, "cell 0 0");
-		
-				lblNewLabel_4.setOpaque(true);
-				lblNewLabel_4.setForeground(Color.WHITE);
-				lblNewLabel_4.setFont(new Font("Arial", Font.PLAIN, 18));
-				lblNewLabel_4.setBackground(new Color(0, 51, 0));
-				
-						JLabel lblNewLabel_29 = new JLabel("");
-						panel_17.add(lblNewLabel_29, "cell 0 1");
-						lblNewLabel_29.setIcon(
-								new ImageIcon(TelaGerenciarContrato.class.getResource("/imagens/icone_caminhao_carregado2.png")));
-						
-						JPanel panel_18 = new JPanel();
-						panel_18.setBackground(Color.WHITE);
-						panel.add(panel_18, "cell 6 6 1 3,grow");
-						panel_18.setLayout(new MigLayout("", "[][][]", "[]"));
-						
-						JPanel panel_6_1 = new JPanel();
-						panel_18.add(panel_6_1, "cell 0 0");
-						panel_6_1.setBackground(new Color(102, 153, 102));
-						GridBagLayout gbl_panel_6_1 = new GridBagLayout();
-						gbl_panel_6_1.columnWidths = new int[]{0, 0, 0};
-						gbl_panel_6_1.rowHeights = new int[]{0, 0, 0, 0, 0};
-						gbl_panel_6_1.columnWeights = new double[]{0.0, 0.0, Double.MIN_VALUE};
-						gbl_panel_6_1.rowWeights = new double[]{0.0, 0.0, 0.0, 0.0, Double.MIN_VALUE};
-						panel_6_1.setLayout(gbl_panel_6_1);
-						
-						JLabel lblNewLabel_32_1_1 = new JLabel("Romaneios");
-						lblNewLabel_32_1_1.setForeground(Color.BLACK);
-						lblNewLabel_32_1_1.setFont(new Font("SansSerif", Font.BOLD, 16));
-						GridBagConstraints gbc_lblNewLabel_32_1_1 = new GridBagConstraints();
-						gbc_lblNewLabel_32_1_1.anchor = GridBagConstraints.NORTH;
-						gbc_lblNewLabel_32_1_1.gridwidth = 2;
-						gbc_lblNewLabel_32_1_1.insets = new Insets(0, 0, 5, 0);
-						gbc_lblNewLabel_32_1_1.gridx = 0;
-						gbc_lblNewLabel_32_1_1.gridy = 0;
-						panel_6_1.add(lblNewLabel_32_1_1, gbc_lblNewLabel_32_1_1);
-						
-						JLabel lblNewLabel_32_3 = new JLabel("Num Romaneios:");
-						lblNewLabel_32_3.setForeground(Color.BLACK);
-						lblNewLabel_32_3.setFont(new Font("SansSerif", Font.PLAIN, 16));
-						GridBagConstraints gbc_lblNewLabel_32_3 = new GridBagConstraints();
-						gbc_lblNewLabel_32_3.insets = new Insets(0, 0, 5, 5);
-						gbc_lblNewLabel_32_3.gridx = 0;
-						gbc_lblNewLabel_32_3.gridy = 2;
-						panel_6_1.add(lblNewLabel_32_3, gbc_lblNewLabel_32_3);
-						
-						 lblNumRomaneiosCarregamento = new JLabel("0");
-						 lblNumRomaneiosCarregamento.setForeground(Color.BLACK);
-						 lblNumRomaneiosCarregamento.setFont(new Font("SansSerif", Font.BOLD, 14));
-						 GridBagConstraints gbc_lblNumRomaneiosCarregamento = new GridBagConstraints();
-						 gbc_lblNumRomaneiosCarregamento.insets = new Insets(0, 0, 5, 0);
-						 gbc_lblNumRomaneiosCarregamento.gridx = 1;
-						 gbc_lblNumRomaneiosCarregamento.gridy = 2;
-						 panel_6_1.add(lblNumRomaneiosCarregamento, gbc_lblNumRomaneiosCarregamento);
-						 
-						 JLabel lblNewLabel_32_2_2 = new JLabel("Peso Total:");
-						 lblNewLabel_32_2_2.setForeground(Color.BLACK);
-						 lblNewLabel_32_2_2.setFont(new Font("SansSerif", Font.PLAIN, 16));
-						 GridBagConstraints gbc_lblNewLabel_32_2_2 = new GridBagConstraints();
-						 gbc_lblNewLabel_32_2_2.insets = new Insets(0, 0, 0, 5);
-						 gbc_lblNewLabel_32_2_2.gridx = 0;
-						 gbc_lblNewLabel_32_2_2.gridy = 3;
-						 panel_6_1.add(lblNewLabel_32_2_2, gbc_lblNewLabel_32_2_2);
-						 
-						  lblTotalSacosKGsRomaneiosSaida = new JLabel("0.0");
-						  lblTotalSacosKGsRomaneiosSaida.setForeground(Color.BLACK);
-						  lblTotalSacosKGsRomaneiosSaida.setFont(new Font("SansSerif", Font.BOLD, 14));
-						  GridBagConstraints gbc_lblTotalSacosKGsRomaneiosSaida = new GridBagConstraints();
-						  gbc_lblTotalSacosKGsRomaneiosSaida.gridx = 1;
-						  gbc_lblTotalSacosKGsRomaneiosSaida.gridy = 3;
-						  panel_6_1.add(lblTotalSacosKGsRomaneiosSaida, gbc_lblTotalSacosKGsRomaneiosSaida);
-						  
-						  JPanel panel_12_1 = new JPanel();
-						  panel_18.add(panel_12_1, "cell 1 0");
-						  panel_12_1.setBackground(new Color(204, 153, 153));
-						  GridBagLayout gbl_panel_12_1 = new GridBagLayout();
-						  gbl_panel_12_1.columnWidths = new int[]{0, 0, 0};
-						  gbl_panel_12_1.rowHeights = new int[]{0, 0, 0, 0, 0, 0};
-						  gbl_panel_12_1.columnWeights = new double[]{0.0, 0.0, Double.MIN_VALUE};
-						  gbl_panel_12_1.rowWeights = new double[]{0.0, 0.0, 0.0, 0.0, 0.0, Double.MIN_VALUE};
-						  panel_12_1.setLayout(gbl_panel_12_1);
-						  
-						  JLabel lblNewLabel_41_1 = new JLabel("Notas Fiscais Interna");
-						  lblNewLabel_41_1.setFont(new Font("SansSerif", Font.BOLD, 14));
-						  GridBagConstraints gbc_lblNewLabel_41_1 = new GridBagConstraints();
-						  gbc_lblNewLabel_41_1.gridwidth = 2;
-						  gbc_lblNewLabel_41_1.insets = new Insets(0, 0, 5, 0);
-						  gbc_lblNewLabel_41_1.gridx = 0;
-						  gbc_lblNewLabel_41_1.gridy = 0;
-						  panel_12_1.add(lblNewLabel_41_1, gbc_lblNewLabel_41_1);
-						  
-						  JLabel lblNewLabel_42_2 = new JLabel("Peso Emitido:");
-						  lblNewLabel_42_2.setFont(new Font("SansSerif", Font.PLAIN, 16));
-						  GridBagConstraints gbc_lblNewLabel_42_2 = new GridBagConstraints();
-						  gbc_lblNewLabel_42_2.insets = new Insets(0, 0, 5, 5);
-						  gbc_lblNewLabel_42_2.gridx = 0;
-						  gbc_lblNewLabel_42_2.gridy = 2;
-						  panel_12_1.add(lblNewLabel_42_2, gbc_lblNewLabel_42_2);
-						  
-						   lblPesoTotalNFInternaSaida = new JLabel("0.0");
-						   lblPesoTotalNFInternaSaida.setFont(new Font("SansSerif", Font.BOLD, 14));
-						   GridBagConstraints gbc_lblPesoTotalNFInternaSaida = new GridBagConstraints();
-						   gbc_lblPesoTotalNFInternaSaida.insets = new Insets(0, 0, 5, 0);
-						   gbc_lblPesoTotalNFInternaSaida.gridx = 1;
-						   gbc_lblPesoTotalNFInternaSaida.gridy = 2;
-						   panel_12_1.add(lblPesoTotalNFInternaSaida, gbc_lblPesoTotalNFInternaSaida);
-						   
-						   JLabel lblNewLabel_42_1_2 = new JLabel("Peso a Emitir:");
-						   lblNewLabel_42_1_2.setFont(new Font("SansSerif", Font.PLAIN, 16));
-						   GridBagConstraints gbc_lblNewLabel_42_1_2 = new GridBagConstraints();
-						   gbc_lblNewLabel_42_1_2.insets = new Insets(0, 0, 5, 5);
-						   gbc_lblNewLabel_42_1_2.gridx = 0;
-						   gbc_lblNewLabel_42_1_2.gridy = 3;
-						   panel_12_1.add(lblNewLabel_42_1_2, gbc_lblNewLabel_42_1_2);
-						   
-						    lblPesoRestanteNFInternaSaida = new JLabel("0.0");
-						    lblPesoRestanteNFInternaSaida.setFont(new Font("SansSerif", Font.BOLD, 14));
-						    GridBagConstraints gbc_lblPesoRestanteNFInternaSaida = new GridBagConstraints();
-						    gbc_lblPesoRestanteNFInternaSaida.insets = new Insets(0, 0, 5, 0);
-						    gbc_lblPesoRestanteNFInternaSaida.gridx = 1;
-						    gbc_lblPesoRestanteNFInternaSaida.gridy = 3;
-						    panel_12_1.add(lblPesoRestanteNFInternaSaida, gbc_lblPesoRestanteNFInternaSaida);
-						    
-						    JPanel panel_10_1 = new JPanel();
-						    panel_18.add(panel_10_1, "cell 2 0");
-						    panel_10_1.setBackground(new Color(204, 153, 102));
-						    GridBagLayout gbl_panel_10_1 = new GridBagLayout();
-						    gbl_panel_10_1.columnWidths = new int[]{0, 0, 0};
-						    gbl_panel_10_1.rowHeights = new int[]{0, 0, 0, 0, 0, 0};
-						    gbl_panel_10_1.columnWeights = new double[]{0.0, 0.0, Double.MIN_VALUE};
-						    gbl_panel_10_1.rowWeights = new double[]{0.0, 0.0, 0.0, 0.0, 0.0, Double.MIN_VALUE};
-						    panel_10_1.setLayout(gbl_panel_10_1);
-						    
-						    JLabel lblNewLabel_39_1 = new JLabel("Notas Fiscais Venda");
-						    lblNewLabel_39_1.setFont(new Font("SansSerif", Font.BOLD, 14));
-						    GridBagConstraints gbc_lblNewLabel_39_1 = new GridBagConstraints();
-						    gbc_lblNewLabel_39_1.gridwidth = 2;
-						    gbc_lblNewLabel_39_1.insets = new Insets(0, 0, 5, 0);
-						    gbc_lblNewLabel_39_1.gridx = 0;
-						    gbc_lblNewLabel_39_1.gridy = 0;
-						    panel_10_1.add(lblNewLabel_39_1, gbc_lblNewLabel_39_1);
-						    
-						    JLabel lblNewLabel_32_2_1_2 = new JLabel("Peso Emitido:");
-						    lblNewLabel_32_2_1_2.setForeground(Color.BLACK);
-						    lblNewLabel_32_2_1_2.setFont(new Font("SansSerif", Font.PLAIN, 16));
-						    GridBagConstraints gbc_lblNewLabel_32_2_1_2 = new GridBagConstraints();
-						    gbc_lblNewLabel_32_2_1_2.insets = new Insets(0, 0, 5, 5);
-						    gbc_lblNewLabel_32_2_1_2.gridx = 0;
-						    gbc_lblNewLabel_32_2_1_2.gridy = 2;
-						    panel_10_1.add(lblNewLabel_32_2_1_2, gbc_lblNewLabel_32_2_1_2);
-						    
-						     lblPesoTotalNFVendaSaida = new JLabel("0.0");
-						     lblPesoTotalNFVendaSaida.setForeground(Color.BLACK);
-						     lblPesoTotalNFVendaSaida.setFont(new Font("SansSerif", Font.BOLD, 14));
-						     GridBagConstraints gbc_lblPesoTotalNFVendaSaida = new GridBagConstraints();
-						     gbc_lblPesoTotalNFVendaSaida.insets = new Insets(0, 0, 5, 0);
-						     gbc_lblPesoTotalNFVendaSaida.gridx = 1;
-						     gbc_lblPesoTotalNFVendaSaida.gridy = 2;
-						     panel_10_1.add(lblPesoTotalNFVendaSaida, gbc_lblPesoTotalNFVendaSaida);
-						     
-						     JLabel lblNewLabel_32_2_1_1_1 = new JLabel("Peso a Emitir:");
-						     lblNewLabel_32_2_1_1_1.setForeground(Color.BLACK);
-						     lblNewLabel_32_2_1_1_1.setFont(new Font("SansSerif", Font.PLAIN, 16));
-						     GridBagConstraints gbc_lblNewLabel_32_2_1_1_1 = new GridBagConstraints();
-						     gbc_lblNewLabel_32_2_1_1_1.insets = new Insets(0, 0, 5, 5);
-						     gbc_lblNewLabel_32_2_1_1_1.gridx = 0;
-						     gbc_lblNewLabel_32_2_1_1_1.gridy = 3;
-						     panel_10_1.add(lblNewLabel_32_2_1_1_1, gbc_lblNewLabel_32_2_1_1_1);
-						     
-						      lblPesoRestanteNFVendaSaida = new JLabel("0.0");
-						      lblPesoRestanteNFVendaSaida.setForeground(Color.BLACK);
-						      lblPesoRestanteNFVendaSaida.setFont(new Font("SansSerif", Font.BOLD, 14));
-						      GridBagConstraints gbc_lblPesoRestanteNFVendaSaida = new GridBagConstraints();
-						      gbc_lblPesoRestanteNFVendaSaida.insets = new Insets(0, 0, 5, 0);
-						      gbc_lblPesoRestanteNFVendaSaida.gridx = 1;
-						      gbc_lblPesoRestanteNFVendaSaida.gridy = 3;
-						      panel_10_1.add(lblPesoRestanteNFVendaSaida, gbc_lblPesoRestanteNFVendaSaida);
-						      
-						      JLabel lblNewLabel_38_1 = new JLabel("$ Total:");
-						      lblNewLabel_38_1.setFont(new Font("SansSerif", Font.PLAIN, 16));
-						      GridBagConstraints gbc_lblNewLabel_38_1 = new GridBagConstraints();
-						      gbc_lblNewLabel_38_1.insets = new Insets(0, 0, 0, 5);
-						      gbc_lblNewLabel_38_1.gridx = 0;
-						      gbc_lblNewLabel_38_1.gridy = 4;
-						      panel_10_1.add(lblNewLabel_38_1, gbc_lblNewLabel_38_1);
-						      
-						       lblValorTotalNFVendaSaida = new JLabel("0.0");
-						       lblValorTotalNFVendaSaida.setForeground(Color.BLACK);
-						       lblValorTotalNFVendaSaida.setFont(new Font("SansSerif", Font.BOLD, 14));
-						       GridBagConstraints gbc_lblValorTotalNFVendaSaida = new GridBagConstraints();
-						       gbc_lblValorTotalNFVendaSaida.gridx = 1;
-						       gbc_lblValorTotalNFVendaSaida.gridy = 4;
-						       panel_10_1.add(lblValorTotalNFVendaSaida, gbc_lblValorTotalNFVendaSaida);
-						       
-						       JPanel panel_19 = new JPanel();
-						       panel_19.setBackground(Color.WHITE);
-						       panel.add(panel_19, "cell 2 0 5 3,growx,aligny top");
-						       panel_19.setLayout(new MigLayout("", "[][]", "[]"));
-						       
-						       		JPanel lbl_produto = new JPanel();
-						       		panel_19.add(lbl_produto, "cell 0 0");
-						       		lbl_produto.setForeground(Color.WHITE);
-						       		lbl_produto.setBackground(new Color(0, 102, 102));
-						       		lbl_produto.setLayout(
-						       				new MigLayout("", "[99px][93px][85px][79px][78px][67px]", "[17px][17px][14px][17px][17px][]"));
-						       		
-						       				JLabel lblNewLabel_5 = new JLabel("Data:");
-						       				lblNewLabel_5.setForeground(Color.WHITE);
-						       				lblNewLabel_5.setAlignmentX(Component.RIGHT_ALIGNMENT);
-						       				lblNewLabel_5.setAlignmentY(Component.TOP_ALIGNMENT);
-						       				lblNewLabel_5.setBorder(null);
-						       				lblNewLabel_5.setFont(new Font("Arial", Font.PLAIN, 12));
-						       				lbl_produto.add(lblNewLabel_5, "cell 0 0,alignx right,aligny center");
-						       				
-						       						lblDataContrato = new JLabel("data contrato");
-						       						lblDataContrato.setForeground(Color.WHITE);
-						       						lblDataContrato.setFont(new Font("Arial", Font.BOLD, 14));
-						       						lbl_produto.add(lblDataContrato, "cell 1 0,alignx center,aligny center");
-						       						
-						       								JLabel lblNewLabel_9 = new JLabel("Corretor:");
-						       								lblNewLabel_9.setForeground(Color.WHITE);
-						       								lblNewLabel_9.setFont(new Font("Arial", Font.PLAIN, 12));
-						       								lbl_produto.add(lblNewLabel_9, "cell 0 1,alignx right,growy");
-						       								
-						       										lblCorretor = new JLabel("corretor");
-						       										lblCorretor.setForeground(Color.WHITE);
-						       										lblCorretor.setFont(new Font("Arial", Font.BOLD, 14));
-						       										lbl_produto.add(lblCorretor, "cell 1 1,alignx center,aligny center");
-						       										
-						       												JLabel lblNewLabel_6 = new JLabel("Compradores:");
-						       												lblNewLabel_6.setForeground(Color.WHITE);
-						       												lblNewLabel_6.setFont(new Font("Arial", Font.PLAIN, 12));
-						       												lbl_produto.add(lblNewLabel_6, "cell 0 2,alignx right,growy");
-						       												
-						       														lblCompradores = new JLabel("compradores");
-						       														lblCompradores.setForeground(Color.WHITE);
-						       														lblCompradores.setFont(new Font("Arial", Font.BOLD, 14));
-						       														lbl_produto.add(lblCompradores, "cell 1 2,alignx center,aligny center");
-						       														
-						       																JLabel lblNewLabel_8 = new JLabel("Vendedores:");
-						       																lblNewLabel_8.setForeground(Color.WHITE);
-						       																lblNewLabel_8.setFont(new Font("Arial", Font.PLAIN, 12));
-						       																lbl_produto.add(lblNewLabel_8, "cell 0 3,alignx right,aligny center");
-						       																
-						       																		lblVendedores = new JLabel("vendedores");
-						       																		lblVendedores.setForeground(Color.WHITE);
-						       																		lblVendedores.setFont(new Font("Arial", Font.BOLD, 14));
-						       																		lbl_produto.add(lblVendedores, "cell 1 3,alignx center,aligny center");
-						       																		
-						       																				JLabel lblnewvalorsaco = new JLabel("Valor Unidade:");
-						       																				lblnewvalorsaco.setForeground(Color.WHITE);
-						       																				lblnewvalorsaco.setFont(new Font("Arial", Font.PLAIN, 12));
-						       																				lbl_produto.add(lblnewvalorsaco, "flowy,cell 0 4,alignx right,aligny center");
-						       																				
-						       																						lblValorSaco = new JLabel("valor saco");
-						       																						lblValorSaco.setForeground(Color.WHITE);
-						       																						lblValorSaco.setFont(new Font("Arial", Font.BOLD, 14));
-						       																						lbl_produto.add(lblValorSaco, "cell 1 4,alignx center,aligny center");
-						       																						
-						       																								JLabel lblNewLabel_10 = new JLabel("Quantidade:");
-						       																								lblNewLabel_10.setForeground(Color.WHITE);
-						       																								lblNewLabel_10.setFont(new Font("Arial", Font.PLAIN, 12));
-						       																								lbl_produto.add(lblNewLabel_10, "cell 2 4,alignx right,aligny center");
-						       																								
-						       																										lblQuantidade = new JLabel("quantidade");
-						       																										lblQuantidade.setForeground(Color.WHITE);
-						       																										lblQuantidade.setFont(new Font("Arial", Font.BOLD, 14));
-						       																										lbl_produto.add(lblQuantidade, "cell 3 4,alignx center,aligny center");
-						       																										
-						       																												JLabel lblNewLabel_11 = new JLabel("Valor Total:");
-						       																												lblNewLabel_11.setForeground(Color.WHITE);
-						       																												lblNewLabel_11.setFont(new Font("Arial", Font.PLAIN, 12));
-						       																												lbl_produto.add(lblNewLabel_11, "cell 4 4,alignx right,aligny center");
-						       																												
-						       																														lblValorTotal = new JLabel("valor total do pagamento do contrato longo");
-						       																														lblValorTotal.setForeground(Color.WHITE);
-						       																														lblValorTotal.setFont(new Font("Arial", Font.BOLD, 14));
-						       																														lbl_produto.add(lblValorTotal, "cell 5 4,alignx center,aligny center");
-						       																														
-						       																																JLabel lblProdutonm = new JLabel("Produto:");
-						       																																lblProdutonm.setForeground(Color.WHITE);
-						       																																lblProdutonm.setFont(new Font("Arial", Font.PLAIN, 12));
-						       																																lbl_produto.add(lblProdutonm, "cell 0 5,alignx right");
-						       																																
-						       																																		lblProduto = new JLabel("valor produto");
-						       																																		lblProduto.setForeground(Color.WHITE);
-						       																																		lblProduto.setFont(new Font("Arial", Font.BOLD, 14));
-						       																																		lbl_produto.add(lblProduto, "cell 1 5,alignx center");
-						       																																		
-						       																																				JLabel lblSafran = new JLabel("Safra:");
-						       																																				lblSafran.setForeground(Color.WHITE);
-						       																																				lblSafran.setFont(new Font("Arial", Font.PLAIN, 12));
-						       																																				lbl_produto.add(lblSafran, "cell 2 5,alignx right");
-						       																																				
-						       																																						lblSafra = new JLabel("valor produto");
-						       																																						lblSafra.setForeground(Color.WHITE);
-						       																																						lblSafra.setFont(new Font("Arial", Font.BOLD, 14));
-						       																																						lbl_produto.add(lblSafra, "cell 3 5,alignx center");
-						       																																						
-						       																																						JPanel panel_13_1 = new JPanel();
-						       																																						panel_19.add(panel_13_1, "cell 1 0");
-						       																																						panel_13_1.setBackground(new Color(0, 51, 51));
-						       																																						GridBagLayout gbl_panel_13_1 = new GridBagLayout();
-						       																																						gbl_panel_13_1.columnWidths = new int[]{0, 0, 0, 0, 0};
-						       																																						gbl_panel_13_1.rowHeights = new int[]{0, 0, 0, 0, 0, 0};
-						       																																						gbl_panel_13_1.columnWeights = new double[]{0.0, 0.0, 0.0, 0.0, Double.MIN_VALUE};
-						       																																						gbl_panel_13_1.rowWeights = new double[]{0.0, 0.0, 0.0, 0.0, 0.0, Double.MIN_VALUE};
-						       																																						panel_13_1.setLayout(gbl_panel_13_1);
-						       																																						
-						       																																						JLabel lblNewLabel_43_1 = new JLabel("Status do Carregamento");
-						       																																						lblNewLabel_43_1.setForeground(Color.WHITE);
-						       																																						lblNewLabel_43_1.setFont(new Font("SansSerif", Font.PLAIN, 16));
-						       																																						GridBagConstraints gbc_lblNewLabel_43_1 = new GridBagConstraints();
-						       																																						gbc_lblNewLabel_43_1.insets = new Insets(0, 0, 5, 5);
-						       																																						gbc_lblNewLabel_43_1.gridx = 1;
-						       																																						gbc_lblNewLabel_43_1.gridy = 0;
-						       																																						panel_13_1.add(lblNewLabel_43_1, gbc_lblNewLabel_43_1);
-						       																																						
-						       																																						JLabel lblNewLabel_40_3 = new JLabel("Recebimento:");
-						       																																						lblNewLabel_40_3.setForeground(Color.WHITE);
-						       																																						lblNewLabel_40_3.setFont(new Font("SansSerif", Font.PLAIN, 16));
-						       																																						GridBagConstraints gbc_lblNewLabel_40_3 = new GridBagConstraints();
-						       																																						gbc_lblNewLabel_40_3.insets = new Insets(0, 0, 5, 5);
-						       																																						gbc_lblNewLabel_40_3.gridx = 0;
-						       																																						gbc_lblNewLabel_40_3.gridy = 2;
-						       																																						panel_13_1.add(lblNewLabel_40_3, gbc_lblNewLabel_40_3);
-						       																																						
-						       																																						 lblStatusCarregamentoSaida = new JLabel("Aguardando:");
-						       																																						 lblStatusCarregamentoSaida.setForeground(Color.WHITE);
-						       																																						 lblStatusCarregamentoSaida.setFont(new Font("SansSerif", Font.BOLD, 16));
-						       																																						 GridBagConstraints gbc_lblStatusCarregamentoSaida = new GridBagConstraints();
-						       																																						 gbc_lblStatusCarregamentoSaida.gridwidth = 3;
-						       																																						 gbc_lblStatusCarregamentoSaida.insets = new Insets(0, 0, 5, 0);
-						       																																						 gbc_lblStatusCarregamentoSaida.gridx = 1;
-						       																																						 gbc_lblStatusCarregamentoSaida.gridy = 2;
-						       																																						 panel_13_1.add(lblStatusCarregamentoSaida, gbc_lblStatusCarregamentoSaida);
-						       																																						 
-						       																																						 JLabel lblNewLabel_40_1_1 = new JLabel("NF's Venda:");
-						       																																						 lblNewLabel_40_1_1.setForeground(Color.WHITE);
-						       																																						 lblNewLabel_40_1_1.setFont(new Font("SansSerif", Font.PLAIN, 16));
-						       																																						 GridBagConstraints gbc_lblNewLabel_40_1_1 = new GridBagConstraints();
-						       																																						 gbc_lblNewLabel_40_1_1.insets = new Insets(0, 0, 5, 5);
-						       																																						 gbc_lblNewLabel_40_1_1.gridx = 0;
-						       																																						 gbc_lblNewLabel_40_1_1.gridy = 3;
-						       																																						 panel_13_1.add(lblNewLabel_40_1_1, gbc_lblNewLabel_40_1_1);
-						       																																						 
-						       																																						  lblStatusNFVendaSaida = new JLabel("Aguardando:");
-						       																																						  lblStatusNFVendaSaida.setForeground(Color.WHITE);
-						       																																						  lblStatusNFVendaSaida.setFont(new Font("SansSerif", Font.BOLD, 16));
-						       																																						  GridBagConstraints gbc_lblStatusNFVendaSaida = new GridBagConstraints();
-						       																																						  gbc_lblStatusNFVendaSaida.gridwidth = 3;
-						       																																						  gbc_lblStatusNFVendaSaida.insets = new Insets(0, 0, 5, 0);
-						       																																						  gbc_lblStatusNFVendaSaida.gridx = 1;
-						       																																						  gbc_lblStatusNFVendaSaida.gridy = 3;
-						       																																						  panel_13_1.add(lblStatusNFVendaSaida, gbc_lblStatusNFVendaSaida);
-						       																																						  
-						       																																						  JLabel lblNewLabel_40_2_1 = new JLabel("NF' Interna:");
-						       																																						  lblNewLabel_40_2_1.setForeground(Color.WHITE);
-						       																																						  lblNewLabel_40_2_1.setFont(new Font("SansSerif", Font.PLAIN, 16));
-						       																																						  GridBagConstraints gbc_lblNewLabel_40_2_1 = new GridBagConstraints();
-						       																																						  gbc_lblNewLabel_40_2_1.insets = new Insets(0, 0, 0, 5);
-						       																																						  gbc_lblNewLabel_40_2_1.gridx = 0;
-						       																																						  gbc_lblNewLabel_40_2_1.gridy = 4;
-						       																																						  panel_13_1.add(lblNewLabel_40_2_1, gbc_lblNewLabel_40_2_1);
-						       																																						  
-						       																																						   lblStatusNFRemessaSaida = new JLabel("Aguardando:");
-						       																																						   lblStatusNFRemessaSaida.setForeground(Color.WHITE);
-						       																																						   lblStatusNFRemessaSaida.setFont(new Font("SansSerif", Font.BOLD, 16));
-						       																																						   GridBagConstraints gbc_lblStatusNFRemessaSaida = new GridBagConstraints();
-						       																																						   gbc_lblStatusNFRemessaSaida.insets = new Insets(0, 0, 0, 5);
-						       																																						   gbc_lblStatusNFRemessaSaida.gridwidth = 3;
-						       																																						   gbc_lblStatusNFRemessaSaida.gridx = 1;
-						       																																						   gbc_lblStatusNFRemessaSaida.gridy = 4;
-						       																																						   panel_13_1.add(lblStatusNFRemessaSaida, gbc_lblStatusNFRemessaSaida);
+		panel_17.add(lblNewLabel_4, "cell 0 0");
+
+		lblNewLabel_4.setOpaque(true);
+		lblNewLabel_4.setForeground(Color.WHITE);
+		lblNewLabel_4.setFont(new Font("Arial", Font.PLAIN, 18));
+		lblNewLabel_4.setBackground(new Color(0, 51, 0));
+
+		JLabel lblNewLabel_29 = new JLabel("");
+		panel_17.add(lblNewLabel_29, "cell 0 1");
+		lblNewLabel_29.setIcon(
+				new ImageIcon(TelaGerenciarContrato.class.getResource("/imagens/icone_caminhao_carregado2.png")));
+
+		JPanel panel_18 = new JPanel();
+		panel_18.setBackground(Color.WHITE);
+		panel.add(panel_18, "cell 6 6 1 3,grow");
+		panel_18.setLayout(new MigLayout("", "[][][]", "[]"));
+
+		JPanel panel_6_1 = new JPanel();
+		panel_18.add(panel_6_1, "cell 0 0");
+		panel_6_1.setBackground(new Color(102, 153, 102));
+		GridBagLayout gbl_panel_6_1 = new GridBagLayout();
+		gbl_panel_6_1.columnWidths = new int[] { 0, 0, 0 };
+		gbl_panel_6_1.rowHeights = new int[] { 0, 0, 0, 0, 0 };
+		gbl_panel_6_1.columnWeights = new double[] { 0.0, 0.0, Double.MIN_VALUE };
+		gbl_panel_6_1.rowWeights = new double[] { 0.0, 0.0, 0.0, 0.0, Double.MIN_VALUE };
+		panel_6_1.setLayout(gbl_panel_6_1);
+
+		JLabel lblNewLabel_32_1_1 = new JLabel("Romaneios");
+		lblNewLabel_32_1_1.setForeground(Color.BLACK);
+		lblNewLabel_32_1_1.setFont(new Font("SansSerif", Font.BOLD, 16));
+		GridBagConstraints gbc_lblNewLabel_32_1_1 = new GridBagConstraints();
+		gbc_lblNewLabel_32_1_1.anchor = GridBagConstraints.NORTH;
+		gbc_lblNewLabel_32_1_1.gridwidth = 2;
+		gbc_lblNewLabel_32_1_1.insets = new Insets(0, 0, 5, 0);
+		gbc_lblNewLabel_32_1_1.gridx = 0;
+		gbc_lblNewLabel_32_1_1.gridy = 0;
+		panel_6_1.add(lblNewLabel_32_1_1, gbc_lblNewLabel_32_1_1);
+
+		JLabel lblNewLabel_32_3 = new JLabel("Num Romaneios:");
+		lblNewLabel_32_3.setForeground(Color.BLACK);
+		lblNewLabel_32_3.setFont(new Font("SansSerif", Font.PLAIN, 16));
+		GridBagConstraints gbc_lblNewLabel_32_3 = new GridBagConstraints();
+		gbc_lblNewLabel_32_3.insets = new Insets(0, 0, 5, 5);
+		gbc_lblNewLabel_32_3.gridx = 0;
+		gbc_lblNewLabel_32_3.gridy = 2;
+		panel_6_1.add(lblNewLabel_32_3, gbc_lblNewLabel_32_3);
+
+		lblNumRomaneiosCarregamento = new JLabel("0");
+		lblNumRomaneiosCarregamento.setForeground(Color.BLACK);
+		lblNumRomaneiosCarregamento.setFont(new Font("SansSerif", Font.BOLD, 14));
+		GridBagConstraints gbc_lblNumRomaneiosCarregamento = new GridBagConstraints();
+		gbc_lblNumRomaneiosCarregamento.insets = new Insets(0, 0, 5, 0);
+		gbc_lblNumRomaneiosCarregamento.gridx = 1;
+		gbc_lblNumRomaneiosCarregamento.gridy = 2;
+		panel_6_1.add(lblNumRomaneiosCarregamento, gbc_lblNumRomaneiosCarregamento);
+
+		JLabel lblNewLabel_32_2_2 = new JLabel("Peso Total:");
+		lblNewLabel_32_2_2.setForeground(Color.BLACK);
+		lblNewLabel_32_2_2.setFont(new Font("SansSerif", Font.PLAIN, 16));
+		GridBagConstraints gbc_lblNewLabel_32_2_2 = new GridBagConstraints();
+		gbc_lblNewLabel_32_2_2.insets = new Insets(0, 0, 0, 5);
+		gbc_lblNewLabel_32_2_2.gridx = 0;
+		gbc_lblNewLabel_32_2_2.gridy = 3;
+		panel_6_1.add(lblNewLabel_32_2_2, gbc_lblNewLabel_32_2_2);
+
+		lblTotalSacosKGsRomaneiosSaida = new JLabel("0.0");
+		lblTotalSacosKGsRomaneiosSaida.setForeground(Color.BLACK);
+		lblTotalSacosKGsRomaneiosSaida.setFont(new Font("SansSerif", Font.BOLD, 14));
+		GridBagConstraints gbc_lblTotalSacosKGsRomaneiosSaida = new GridBagConstraints();
+		gbc_lblTotalSacosKGsRomaneiosSaida.gridx = 1;
+		gbc_lblTotalSacosKGsRomaneiosSaida.gridy = 3;
+		panel_6_1.add(lblTotalSacosKGsRomaneiosSaida, gbc_lblTotalSacosKGsRomaneiosSaida);
+
+		JPanel panel_12_1 = new JPanel();
+		panel_18.add(panel_12_1, "cell 1 0");
+		panel_12_1.setBackground(new Color(204, 153, 153));
+		GridBagLayout gbl_panel_12_1 = new GridBagLayout();
+		gbl_panel_12_1.columnWidths = new int[] { 0, 0, 0 };
+		gbl_panel_12_1.rowHeights = new int[] { 0, 0, 0, 0, 0, 0 };
+		gbl_panel_12_1.columnWeights = new double[] { 0.0, 0.0, Double.MIN_VALUE };
+		gbl_panel_12_1.rowWeights = new double[] { 0.0, 0.0, 0.0, 0.0, 0.0, Double.MIN_VALUE };
+		panel_12_1.setLayout(gbl_panel_12_1);
+
+		JLabel lblNewLabel_41_1 = new JLabel("Notas Fiscais Interna");
+		lblNewLabel_41_1.setFont(new Font("SansSerif", Font.BOLD, 14));
+		GridBagConstraints gbc_lblNewLabel_41_1 = new GridBagConstraints();
+		gbc_lblNewLabel_41_1.gridwidth = 2;
+		gbc_lblNewLabel_41_1.insets = new Insets(0, 0, 5, 0);
+		gbc_lblNewLabel_41_1.gridx = 0;
+		gbc_lblNewLabel_41_1.gridy = 0;
+		panel_12_1.add(lblNewLabel_41_1, gbc_lblNewLabel_41_1);
+
+		JLabel lblNewLabel_42_2 = new JLabel("Peso Emitido:");
+		lblNewLabel_42_2.setFont(new Font("SansSerif", Font.PLAIN, 16));
+		GridBagConstraints gbc_lblNewLabel_42_2 = new GridBagConstraints();
+		gbc_lblNewLabel_42_2.insets = new Insets(0, 0, 5, 5);
+		gbc_lblNewLabel_42_2.gridx = 0;
+		gbc_lblNewLabel_42_2.gridy = 2;
+		panel_12_1.add(lblNewLabel_42_2, gbc_lblNewLabel_42_2);
+
+		lblPesoTotalNFInternaSaida = new JLabel("0.0");
+		lblPesoTotalNFInternaSaida.setFont(new Font("SansSerif", Font.BOLD, 14));
+		GridBagConstraints gbc_lblPesoTotalNFInternaSaida = new GridBagConstraints();
+		gbc_lblPesoTotalNFInternaSaida.insets = new Insets(0, 0, 5, 0);
+		gbc_lblPesoTotalNFInternaSaida.gridx = 1;
+		gbc_lblPesoTotalNFInternaSaida.gridy = 2;
+		panel_12_1.add(lblPesoTotalNFInternaSaida, gbc_lblPesoTotalNFInternaSaida);
+
+		JLabel lblNewLabel_42_1_2 = new JLabel("Peso a Emitir:");
+		lblNewLabel_42_1_2.setFont(new Font("SansSerif", Font.PLAIN, 16));
+		GridBagConstraints gbc_lblNewLabel_42_1_2 = new GridBagConstraints();
+		gbc_lblNewLabel_42_1_2.insets = new Insets(0, 0, 5, 5);
+		gbc_lblNewLabel_42_1_2.gridx = 0;
+		gbc_lblNewLabel_42_1_2.gridy = 3;
+		panel_12_1.add(lblNewLabel_42_1_2, gbc_lblNewLabel_42_1_2);
+
+		lblPesoRestanteNFInternaSaida = new JLabel("0.0");
+		lblPesoRestanteNFInternaSaida.setFont(new Font("SansSerif", Font.BOLD, 14));
+		GridBagConstraints gbc_lblPesoRestanteNFInternaSaida = new GridBagConstraints();
+		gbc_lblPesoRestanteNFInternaSaida.insets = new Insets(0, 0, 5, 0);
+		gbc_lblPesoRestanteNFInternaSaida.gridx = 1;
+		gbc_lblPesoRestanteNFInternaSaida.gridy = 3;
+		panel_12_1.add(lblPesoRestanteNFInternaSaida, gbc_lblPesoRestanteNFInternaSaida);
+
+		JPanel panel_10_1 = new JPanel();
+		panel_18.add(panel_10_1, "cell 2 0");
+		panel_10_1.setBackground(new Color(204, 153, 102));
+		GridBagLayout gbl_panel_10_1 = new GridBagLayout();
+		gbl_panel_10_1.columnWidths = new int[] { 0, 0, 0 };
+		gbl_panel_10_1.rowHeights = new int[] { 0, 0, 0, 0, 0, 0 };
+		gbl_panel_10_1.columnWeights = new double[] { 0.0, 0.0, Double.MIN_VALUE };
+		gbl_panel_10_1.rowWeights = new double[] { 0.0, 0.0, 0.0, 0.0, 0.0, Double.MIN_VALUE };
+		panel_10_1.setLayout(gbl_panel_10_1);
+
+		JLabel lblNewLabel_39_1 = new JLabel("Notas Fiscais Venda");
+		lblNewLabel_39_1.setFont(new Font("SansSerif", Font.BOLD, 14));
+		GridBagConstraints gbc_lblNewLabel_39_1 = new GridBagConstraints();
+		gbc_lblNewLabel_39_1.gridwidth = 2;
+		gbc_lblNewLabel_39_1.insets = new Insets(0, 0, 5, 0);
+		gbc_lblNewLabel_39_1.gridx = 0;
+		gbc_lblNewLabel_39_1.gridy = 0;
+		panel_10_1.add(lblNewLabel_39_1, gbc_lblNewLabel_39_1);
+
+		JLabel lblNewLabel_32_2_1_2 = new JLabel("Peso Emitido:");
+		lblNewLabel_32_2_1_2.setForeground(Color.BLACK);
+		lblNewLabel_32_2_1_2.setFont(new Font("SansSerif", Font.PLAIN, 16));
+		GridBagConstraints gbc_lblNewLabel_32_2_1_2 = new GridBagConstraints();
+		gbc_lblNewLabel_32_2_1_2.insets = new Insets(0, 0, 5, 5);
+		gbc_lblNewLabel_32_2_1_2.gridx = 0;
+		gbc_lblNewLabel_32_2_1_2.gridy = 2;
+		panel_10_1.add(lblNewLabel_32_2_1_2, gbc_lblNewLabel_32_2_1_2);
+
+		lblPesoTotalNFVendaSaida = new JLabel("0.0");
+		lblPesoTotalNFVendaSaida.setForeground(Color.BLACK);
+		lblPesoTotalNFVendaSaida.setFont(new Font("SansSerif", Font.BOLD, 14));
+		GridBagConstraints gbc_lblPesoTotalNFVendaSaida = new GridBagConstraints();
+		gbc_lblPesoTotalNFVendaSaida.insets = new Insets(0, 0, 5, 0);
+		gbc_lblPesoTotalNFVendaSaida.gridx = 1;
+		gbc_lblPesoTotalNFVendaSaida.gridy = 2;
+		panel_10_1.add(lblPesoTotalNFVendaSaida, gbc_lblPesoTotalNFVendaSaida);
+
+		JLabel lblNewLabel_32_2_1_1_1 = new JLabel("Peso a Emitir:");
+		lblNewLabel_32_2_1_1_1.setForeground(Color.BLACK);
+		lblNewLabel_32_2_1_1_1.setFont(new Font("SansSerif", Font.PLAIN, 16));
+		GridBagConstraints gbc_lblNewLabel_32_2_1_1_1 = new GridBagConstraints();
+		gbc_lblNewLabel_32_2_1_1_1.insets = new Insets(0, 0, 5, 5);
+		gbc_lblNewLabel_32_2_1_1_1.gridx = 0;
+		gbc_lblNewLabel_32_2_1_1_1.gridy = 3;
+		panel_10_1.add(lblNewLabel_32_2_1_1_1, gbc_lblNewLabel_32_2_1_1_1);
+
+		lblPesoRestanteNFVendaSaida = new JLabel("0.0");
+		lblPesoRestanteNFVendaSaida.setForeground(Color.BLACK);
+		lblPesoRestanteNFVendaSaida.setFont(new Font("SansSerif", Font.BOLD, 14));
+		GridBagConstraints gbc_lblPesoRestanteNFVendaSaida = new GridBagConstraints();
+		gbc_lblPesoRestanteNFVendaSaida.insets = new Insets(0, 0, 5, 0);
+		gbc_lblPesoRestanteNFVendaSaida.gridx = 1;
+		gbc_lblPesoRestanteNFVendaSaida.gridy = 3;
+		panel_10_1.add(lblPesoRestanteNFVendaSaida, gbc_lblPesoRestanteNFVendaSaida);
+
+		JLabel lblNewLabel_38_1 = new JLabel("$ Total:");
+		lblNewLabel_38_1.setFont(new Font("SansSerif", Font.PLAIN, 16));
+		GridBagConstraints gbc_lblNewLabel_38_1 = new GridBagConstraints();
+		gbc_lblNewLabel_38_1.insets = new Insets(0, 0, 0, 5);
+		gbc_lblNewLabel_38_1.gridx = 0;
+		gbc_lblNewLabel_38_1.gridy = 4;
+		panel_10_1.add(lblNewLabel_38_1, gbc_lblNewLabel_38_1);
+
+		lblValorTotalNFVendaSaida = new JLabel("0.0");
+		lblValorTotalNFVendaSaida.setForeground(Color.BLACK);
+		lblValorTotalNFVendaSaida.setFont(new Font("SansSerif", Font.BOLD, 14));
+		GridBagConstraints gbc_lblValorTotalNFVendaSaida = new GridBagConstraints();
+		gbc_lblValorTotalNFVendaSaida.gridx = 1;
+		gbc_lblValorTotalNFVendaSaida.gridy = 4;
+		panel_10_1.add(lblValorTotalNFVendaSaida, gbc_lblValorTotalNFVendaSaida);
+
+		JPanel panel_19 = new JPanel();
+		panel_19.setBackground(Color.WHITE);
+		panel.add(panel_19, "cell 2 0 5 3,growx,aligny top");
+		panel_19.setLayout(new MigLayout("", "[][]", "[]"));
+
+		JPanel lbl_produto = new JPanel();
+		panel_19.add(lbl_produto, "cell 0 0");
+		lbl_produto.setForeground(Color.WHITE);
+		lbl_produto.setBackground(new Color(0, 102, 102));
+		lbl_produto.setLayout(
+				new MigLayout("", "[99px][93px][85px][79px][78px][67px]", "[17px][17px][14px][17px][17px][]"));
+
+		JLabel lblNewLabel_5 = new JLabel("Data:");
+		lblNewLabel_5.setForeground(Color.WHITE);
+		lblNewLabel_5.setAlignmentX(Component.RIGHT_ALIGNMENT);
+		lblNewLabel_5.setAlignmentY(Component.TOP_ALIGNMENT);
+		lblNewLabel_5.setBorder(null);
+		lblNewLabel_5.setFont(new Font("Arial", Font.PLAIN, 12));
+		lbl_produto.add(lblNewLabel_5, "cell 0 0,alignx right,aligny center");
+
+		lblDataContrato = new JLabel("data contrato");
+		lblDataContrato.setForeground(Color.WHITE);
+		lblDataContrato.setFont(new Font("Arial", Font.BOLD, 14));
+		lbl_produto.add(lblDataContrato, "cell 1 0,alignx center,aligny center");
+
+		JLabel lblNewLabel_9 = new JLabel("Corretor:");
+		lblNewLabel_9.setForeground(Color.WHITE);
+		lblNewLabel_9.setFont(new Font("Arial", Font.PLAIN, 12));
+		lbl_produto.add(lblNewLabel_9, "cell 0 1,alignx right,growy");
+
+		lblCorretor = new JLabel("corretor");
+		lblCorretor.setForeground(Color.WHITE);
+		lblCorretor.setFont(new Font("Arial", Font.BOLD, 14));
+		lbl_produto.add(lblCorretor, "cell 1 1,alignx center,aligny center");
+
+		JLabel lblNewLabel_6 = new JLabel("Compradores:");
+		lblNewLabel_6.setForeground(Color.WHITE);
+		lblNewLabel_6.setFont(new Font("Arial", Font.PLAIN, 12));
+		lbl_produto.add(lblNewLabel_6, "cell 0 2,alignx right,growy");
+
+		lblCompradores = new JLabel("compradores");
+		lblCompradores.setForeground(Color.WHITE);
+		lblCompradores.setFont(new Font("Arial", Font.BOLD, 14));
+		lbl_produto.add(lblCompradores, "cell 1 2,alignx center,aligny center");
+
+		JLabel lblNewLabel_8 = new JLabel("Vendedores:");
+		lblNewLabel_8.setForeground(Color.WHITE);
+		lblNewLabel_8.setFont(new Font("Arial", Font.PLAIN, 12));
+		lbl_produto.add(lblNewLabel_8, "cell 0 3,alignx right,aligny center");
+
+		lblVendedores = new JLabel("vendedores");
+		lblVendedores.setForeground(Color.WHITE);
+		lblVendedores.setFont(new Font("Arial", Font.BOLD, 14));
+		lbl_produto.add(lblVendedores, "cell 1 3,alignx center,aligny center");
+
+		JLabel lblnewvalorsaco = new JLabel("Valor Unidade:");
+		lblnewvalorsaco.setForeground(Color.WHITE);
+		lblnewvalorsaco.setFont(new Font("Arial", Font.PLAIN, 12));
+		lbl_produto.add(lblnewvalorsaco, "flowy,cell 0 4,alignx right,aligny center");
+
+		lblValorSaco = new JLabel("valor saco");
+		lblValorSaco.setForeground(Color.WHITE);
+		lblValorSaco.setFont(new Font("Arial", Font.BOLD, 14));
+		lbl_produto.add(lblValorSaco, "cell 1 4,alignx center,aligny center");
+
+		JLabel lblNewLabel_10 = new JLabel("Quantidade:");
+		lblNewLabel_10.setForeground(Color.WHITE);
+		lblNewLabel_10.setFont(new Font("Arial", Font.PLAIN, 12));
+		lbl_produto.add(lblNewLabel_10, "cell 2 4,alignx right,aligny center");
+
+		lblQuantidade = new JLabel("quantidade");
+		lblQuantidade.setForeground(Color.WHITE);
+		lblQuantidade.setFont(new Font("Arial", Font.BOLD, 14));
+		lbl_produto.add(lblQuantidade, "cell 3 4,alignx center,aligny center");
+
+		JLabel lblNewLabel_11 = new JLabel("Valor Total:");
+		lblNewLabel_11.setForeground(Color.WHITE);
+		lblNewLabel_11.setFont(new Font("Arial", Font.PLAIN, 12));
+		lbl_produto.add(lblNewLabel_11, "cell 4 4,alignx right,aligny center");
+
+		lblValorTotal = new JLabel("valor total do pagamento do contrato longo");
+		lblValorTotal.setForeground(Color.WHITE);
+		lblValorTotal.setFont(new Font("Arial", Font.BOLD, 14));
+		lbl_produto.add(lblValorTotal, "cell 5 4,alignx center,aligny center");
+
+		JLabel lblProdutonm = new JLabel("Produto:");
+		lblProdutonm.setForeground(Color.WHITE);
+		lblProdutonm.setFont(new Font("Arial", Font.PLAIN, 12));
+		lbl_produto.add(lblProdutonm, "cell 0 5,alignx right");
+
+		lblProduto = new JLabel("valor produto");
+		lblProduto.setForeground(Color.WHITE);
+		lblProduto.setFont(new Font("Arial", Font.BOLD, 14));
+		lbl_produto.add(lblProduto, "cell 1 5,alignx center");
+
+		JLabel lblSafran = new JLabel("Safra:");
+		lblSafran.setForeground(Color.WHITE);
+		lblSafran.setFont(new Font("Arial", Font.PLAIN, 12));
+		lbl_produto.add(lblSafran, "cell 2 5,alignx right");
+
+		lblSafra = new JLabel("valor produto");
+		lblSafra.setForeground(Color.WHITE);
+		lblSafra.setFont(new Font("Arial", Font.BOLD, 14));
+		lbl_produto.add(lblSafra, "cell 3 5,alignx center");
+
+		JPanel panel_13_1 = new JPanel();
+		panel_19.add(panel_13_1, "cell 1 0");
+		panel_13_1.setBackground(new Color(0, 51, 51));
+		GridBagLayout gbl_panel_13_1 = new GridBagLayout();
+		gbl_panel_13_1.columnWidths = new int[] { 0, 0, 0, 0, 0 };
+		gbl_panel_13_1.rowHeights = new int[] { 0, 0, 0, 0, 0, 0 };
+		gbl_panel_13_1.columnWeights = new double[] { 0.0, 0.0, 0.0, 0.0, Double.MIN_VALUE };
+		gbl_panel_13_1.rowWeights = new double[] { 0.0, 0.0, 0.0, 0.0, 0.0, Double.MIN_VALUE };
+		panel_13_1.setLayout(gbl_panel_13_1);
+
+		JLabel lblNewLabel_43_1 = new JLabel("Status do Carregamento");
+		lblNewLabel_43_1.setForeground(Color.WHITE);
+		lblNewLabel_43_1.setFont(new Font("SansSerif", Font.PLAIN, 16));
+		GridBagConstraints gbc_lblNewLabel_43_1 = new GridBagConstraints();
+		gbc_lblNewLabel_43_1.insets = new Insets(0, 0, 5, 5);
+		gbc_lblNewLabel_43_1.gridx = 1;
+		gbc_lblNewLabel_43_1.gridy = 0;
+		panel_13_1.add(lblNewLabel_43_1, gbc_lblNewLabel_43_1);
+
+		JLabel lblNewLabel_40_3 = new JLabel("Recebimento:");
+		lblNewLabel_40_3.setForeground(Color.WHITE);
+		lblNewLabel_40_3.setFont(new Font("SansSerif", Font.PLAIN, 16));
+		GridBagConstraints gbc_lblNewLabel_40_3 = new GridBagConstraints();
+		gbc_lblNewLabel_40_3.insets = new Insets(0, 0, 5, 5);
+		gbc_lblNewLabel_40_3.gridx = 0;
+		gbc_lblNewLabel_40_3.gridy = 2;
+		panel_13_1.add(lblNewLabel_40_3, gbc_lblNewLabel_40_3);
+
+		lblStatusCarregamentoSaida = new JLabel("Aguardando:");
+		lblStatusCarregamentoSaida.setForeground(Color.WHITE);
+		lblStatusCarregamentoSaida.setFont(new Font("SansSerif", Font.BOLD, 16));
+		GridBagConstraints gbc_lblStatusCarregamentoSaida = new GridBagConstraints();
+		gbc_lblStatusCarregamentoSaida.gridwidth = 3;
+		gbc_lblStatusCarregamentoSaida.insets = new Insets(0, 0, 5, 0);
+		gbc_lblStatusCarregamentoSaida.gridx = 1;
+		gbc_lblStatusCarregamentoSaida.gridy = 2;
+		panel_13_1.add(lblStatusCarregamentoSaida, gbc_lblStatusCarregamentoSaida);
+
+		JLabel lblNewLabel_40_1_1 = new JLabel("NF's Venda:");
+		lblNewLabel_40_1_1.setForeground(Color.WHITE);
+		lblNewLabel_40_1_1.setFont(new Font("SansSerif", Font.PLAIN, 16));
+		GridBagConstraints gbc_lblNewLabel_40_1_1 = new GridBagConstraints();
+		gbc_lblNewLabel_40_1_1.insets = new Insets(0, 0, 5, 5);
+		gbc_lblNewLabel_40_1_1.gridx = 0;
+		gbc_lblNewLabel_40_1_1.gridy = 3;
+		panel_13_1.add(lblNewLabel_40_1_1, gbc_lblNewLabel_40_1_1);
+
+		lblStatusNFVendaSaida = new JLabel("Aguardando:");
+		lblStatusNFVendaSaida.setForeground(Color.WHITE);
+		lblStatusNFVendaSaida.setFont(new Font("SansSerif", Font.BOLD, 16));
+		GridBagConstraints gbc_lblStatusNFVendaSaida = new GridBagConstraints();
+		gbc_lblStatusNFVendaSaida.gridwidth = 3;
+		gbc_lblStatusNFVendaSaida.insets = new Insets(0, 0, 5, 0);
+		gbc_lblStatusNFVendaSaida.gridx = 1;
+		gbc_lblStatusNFVendaSaida.gridy = 3;
+		panel_13_1.add(lblStatusNFVendaSaida, gbc_lblStatusNFVendaSaida);
+
+		JLabel lblNewLabel_40_2_1 = new JLabel("NF' Interna:");
+		lblNewLabel_40_2_1.setForeground(Color.WHITE);
+		lblNewLabel_40_2_1.setFont(new Font("SansSerif", Font.PLAIN, 16));
+		GridBagConstraints gbc_lblNewLabel_40_2_1 = new GridBagConstraints();
+		gbc_lblNewLabel_40_2_1.insets = new Insets(0, 0, 0, 5);
+		gbc_lblNewLabel_40_2_1.gridx = 0;
+		gbc_lblNewLabel_40_2_1.gridy = 4;
+		panel_13_1.add(lblNewLabel_40_2_1, gbc_lblNewLabel_40_2_1);
+
+		lblStatusNFRemessaSaida = new JLabel("Aguardando:");
+		lblStatusNFRemessaSaida.setForeground(Color.WHITE);
+		lblStatusNFRemessaSaida.setFont(new Font("SansSerif", Font.BOLD, 16));
+		GridBagConstraints gbc_lblStatusNFRemessaSaida = new GridBagConstraints();
+		gbc_lblStatusNFRemessaSaida.insets = new Insets(0, 0, 0, 5);
+		gbc_lblStatusNFRemessaSaida.gridwidth = 3;
+		gbc_lblStatusNFRemessaSaida.gridx = 1;
+		gbc_lblStatusNFRemessaSaida.gridy = 4;
+		panel_13_1.add(lblStatusNFRemessaSaida, gbc_lblStatusNFRemessaSaida);
 
 		btnAdicionarCarregamento.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
@@ -4380,71 +4387,17 @@ public class TelaGerenciarContrato extends JFrame {
 		painelPrincipal.setEnabledAt(3, true);
 		painelPagamentos.setLayout(new BorderLayout(0, 0));
 
-		JPanel painelPaiPagamentos = new JPanel();
-		painelPaiPagamentos.setBounds(0, 0, 1355, 882);
-
-		// JScrollPane scrollPagamentos = new JScrollPane(painelPaiPagamentos);
-
-		// painelPagamentos.add(scrollPagamentos);
-
-		painelPagamentos.add(painelPaiPagamentos);
-		GridBagLayout gbl_painelPaiPagamentos = new GridBagLayout();
-		gbl_painelPaiPagamentos.columnWidths = new int[] { 1355, 0 };
-		gbl_painelPaiPagamentos.rowHeights = new int[] { 882, 0 };
-		gbl_painelPaiPagamentos.columnWeights = new double[] { 0.0, Double.MIN_VALUE };
-		gbl_painelPaiPagamentos.rowWeights = new double[] { 0.0, Double.MIN_VALUE };
-		painelPaiPagamentos.setLayout(gbl_painelPaiPagamentos);
-
 		JPanel panel_4 = new JPanel();
 		panel_4.setBackground(new Color(255, 255, 255));
-		panel_4.setLayout(null);
-		GridBagConstraints gbc_panel_4 = new GridBagConstraints();
-		gbc_panel_4.fill = GridBagConstraints.BOTH;
-		gbc_panel_4.gridx = 0;
-		gbc_panel_4.gridy = 0;
-		painelPaiPagamentos.add(panel_4, gbc_panel_4);
+		painelPagamentos.add(panel_4);
+		panel_4.setLayout(new MigLayout("", "[290px, grow][4px, grow][425px, grow][13px, grow][128px, grow][33px, grow][120px, grow][10px, grow][81px, grow][8px, grow][147px, grow][10px, grow][83px, grow]", "[22px][16px][18px][16px][107px][16px][17px][12px][22px][166px, grow][28px][42px][204px]"));
 		JPanel panelInformativoAbaPagamentos = new JPanel();
-		panelInformativoAbaPagamentos.setBounds(887, 57, 445, 200);
-		panel_4.add(panelInformativoAbaPagamentos);
+		panel_4.add(panelInformativoAbaPagamentos, "cell 6 0 7 9,grow");
 		panelInformativoAbaPagamentos.setForeground(Color.WHITE);
 		panelInformativoAbaPagamentos.setBackground(new Color(0, 102, 102));
 		panelInformativoAbaPagamentos.add(painel_informacoes_tab_pagamentos);
 		panelInformativoAbaPagamentos.setLayout(null);
-
-		JLabel lblNewLabel_14_2 = new JLabel("Restante:");
-		lblNewLabel_14_2.setBounds(75, 761, 68, 14);
-		panel_4.add(lblNewLabel_14_2);
-
-		lblTotalPagamentosEfetuados = new JLabel("");
-		lblTotalPagamentosEfetuados.setForeground(Color.BLACK);
-		lblTotalPagamentosEfetuados.setFont(new Font("Arial", Font.BOLD, 12));
-		lblTotalPagamentosEfetuados.setBounds(139, 645, 143, 23);
-		panel_4.add(lblTotalPagamentosEfetuados);
-		lblTotalPagamentosEfetuados.setBorder(new LineBorder(new Color(0, 0, 0)));
-
-		JLabel lblNewLabel_14_1 = new JLabel("Efetuados:");
-		lblNewLabel_14_1.setBounds(65, 651, 68, 14);
-		panel_4.add(lblNewLabel_14_1);
-
-		lblTotalPagamentos = new JLabel("");
-		lblTotalPagamentos.setForeground(Color.BLACK);
-		lblTotalPagamentos.setFont(new Font("Arial", Font.BOLD, 12));
-		lblTotalPagamentos.setBounds(139, 611, 143, 23);
-		panel_4.add(lblTotalPagamentos);
-		lblTotalPagamentos.setBorder(new LineBorder(new Color(0, 0, 0)));
-
-		JLabel lblNewLabel_14 = new JLabel("Total:");
-		lblNewLabel_14.setBounds(88, 620, 45, 14);
-		panel_4.add(lblNewLabel_14);
-
-		lblTotalPagamentosRestantes = new JLabel("");
-		lblTotalPagamentosRestantes.setForeground(Color.BLACK);
-		lblTotalPagamentosRestantes.setFont(new Font("Arial", Font.BOLD, 12));
-		lblTotalPagamentosRestantes.setBounds(139, 752, 143, 23);
-		panel_4.add(lblTotalPagamentosRestantes);
-		lblTotalPagamentosRestantes.setBorder(new LineBorder(new Color(0, 0, 0)));
-		lblNewLabel.setBounds(6, 27, 230, 31);
-		panel_4.add(lblNewLabel);
+		panel_4.add(lblNewLabel, "cell 0 0,alignx left,aligny top");
 
 		lblNewLabel.setForeground(Color.WHITE);
 		lblNewLabel.setBackground(new Color(0, 51, 0));
@@ -4469,27 +4422,23 @@ public class TelaGerenciarContrato extends JFrame {
 		tabela_modelo_pagamentos.getColumnModel().getColumn(8).setPreferredWidth(90);
 
 		JScrollPane scrollPane = new JScrollPane(tabela_modelo_pagamentos);
-		scrollPane.setBounds(19, 90, 841, 132);
-		panel_4.add(scrollPane);
+		panel_4.add(scrollPane, "cell 0 4 5 1,grow");
 		scrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED);
 		scrollPane.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED);
 		scrollPane.setAutoscrolls(true);
 		scrollPane.setBackground(new Color(0, 153, 153));
 		lblNewLabel_1.setFont(new Font("SansSerif", Font.BOLD, 13));
-		lblNewLabel_1.setBounds(389, 64, 471, 23);
-		panel_4.add(lblNewLabel_1);
+		panel_4.add(lblNewLabel_1, "cell 2 2 3 1,alignx right,aligny top");
 		lblNewLabel_1.setForeground(Color.WHITE);
 		lblNewLabel_1.setOpaque(true);
 		lblNewLabel_1.setBackground(new Color(204, 102, 0));
 
 		JLabel lblNewLabel_2 = new JLabel("Valor Total dos pagamentos:");
 		lblNewLabel_2.setFont(new Font("Arial", Font.PLAIN, 14));
-		lblNewLabel_2.setBounds(540, 234, 182, 17);
-		panel_4.add(lblNewLabel_2);
+		panel_4.add(lblNewLabel_2, "cell 2 6,alignx right,aligny top");
 
 		lblValorTotalPagamentos = new JLabel("");
-		lblValorTotalPagamentos.setBounds(725, 226, 135, 31);
-		panel_4.add(lblValorTotalPagamentos);
+		panel_4.add(lblValorTotalPagamentos, "cell 4 6,growx,aligny top");
 		lblValorTotalPagamentos.setFont(new Font("Tahoma", Font.PLAIN, 14));
 
 		table_pagamentos_contratuais = new JTable(modelo_pagamentos_contratuais);
@@ -4511,58 +4460,30 @@ public class TelaGerenciarContrato extends JFrame {
 		JScrollPane scrollPanePagamentos = new JScrollPane(table_pagamentos_contratuais);
 		scrollPanePagamentos.setOpaque(true);
 		scrollPanePagamentos.getViewport().setBackground(Color.white);
-
-		scrollPanePagamentos.setBounds(19, 294, 1313, 305);
-		panel_4.add(scrollPanePagamentos);
+		panel_4.add(scrollPanePagamentos, "cell 0 9 13 1,grow");
 		scrollPanePagamentos.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED);
 		scrollPanePagamentos.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED);
 		scrollPanePagamentos.setAutoscrolls(true);
 		scrollPanePagamentos.setBackground(new Color(0, 153, 153));
 
 		JButton btnExcluirPagamento = new JButton("Excluir");
-		btnExcluirPagamento.setBounds(1243, 611, 64, 28);
-		panel_4.add(btnExcluirPagamento);
+		panel_4.add(btnExcluirPagamento, "cell 12 10,alignx left,aligny top");
 		botoes.add(btnExcluirPagamento);
 
 		JButton btnAdicionarPagamento = new JButton("Novo Pagamento");
-		btnAdicionarPagamento.setBounds(1078, 611, 153, 23);
-		panel_4.add(btnAdicionarPagamento);
+		panel_4.add(btnAdicionarPagamento, "cell 10 10,growx,aligny top");
 		botoes.add(btnAdicionarPagamento);
 
 		painelGraficoPagamentos = new JPanelGraficoPadrao(0, 0, "Pago: ", "a Pagar: ");
-		painelGraficoPagamentos.setBounds(411, 611, 300, 250);
-		panel_4.add(painelGraficoPagamentos);
+		panel_4.add(painelGraficoPagamentos, "cell 2 10 1 3,grow");
 		painelGraficoPagamentos.setLayout(null);
-
-		lblTotalTransferenciasRetiradas = new JLabel("");
-		lblTotalTransferenciasRetiradas.setForeground(Color.BLACK);
-		lblTotalTransferenciasRetiradas.setFont(new Font("Arial", Font.BOLD, 12));
-		lblTotalTransferenciasRetiradas.setBounds(139, 677, 143, 23);
-		panel_4.add(lblTotalTransferenciasRetiradas);
-		lblTotalTransferenciasRetiradas.setBorder(new LineBorder(new Color(0, 0, 0)));
-
-		JLabel lblNewLabel_14_1_1 = new JLabel("Transferencias:(-)");
-		lblNewLabel_14_1_1.setBounds(32, 683, 101, 14);
-		panel_4.add(lblNewLabel_14_1_1);
-
-		lblTotalTransferenciasRecebidas = new JLabel("");
-		lblTotalTransferenciasRecebidas.setForeground(Color.BLACK);
-		lblTotalTransferenciasRecebidas.setFont(new Font("Arial", Font.BOLD, 12));
-		lblTotalTransferenciasRecebidas.setBounds(139, 711, 143, 23);
-		panel_4.add(lblTotalTransferenciasRecebidas);
-		lblTotalTransferenciasRecebidas.setBorder(new LineBorder(new Color(0, 0, 0)));
-
-		JLabel lblNewLabel_14_1_1_1 = new JLabel("Transferencias:(+)");
-		lblNewLabel_14_1_1_1.setBounds(32, 717, 101, 14);
-		panel_4.add(lblNewLabel_14_1_1_1);
 
 		JLabel lblPagamentosDesteContrato = new JLabel("Pagamentos deste Contrato:\r\n");
 		lblPagamentosDesteContrato.setOpaque(true);
 		lblPagamentosDesteContrato.setForeground(Color.WHITE);
 		lblPagamentosDesteContrato.setFont(new Font("Arial", Font.PLAIN, 18));
 		lblPagamentosDesteContrato.setBackground(new Color(0, 51, 0));
-		lblPagamentosDesteContrato.setBounds(6, 251, 230, 31);
-		panel_4.add(lblPagamentosDesteContrato);
+		panel_4.add(lblPagamentosDesteContrato, "cell 0 8,alignx left,aligny top");
 
 		JButton btnTransferir = new JButton("Transferir");
 		btnTransferir.addActionListener(new ActionListener() {
@@ -4572,8 +4493,7 @@ public class TelaGerenciarContrato extends JFrame {
 			}
 		});
 		botoes.add(btnTransferir);
-		btnTransferir.setBounds(985, 606, 81, 28);
-		panel_4.add(btnTransferir);
+		panel_4.add(btnTransferir, "cell 8 10,alignx left,aligny top");
 
 		JButton btnExportarPagamentos = new JButton("Exportar");
 		btnExportarPagamentos.addActionListener(new ActionListener() {
@@ -5309,8 +5229,161 @@ public class TelaGerenciarContrato extends JFrame {
 
 			}
 		});
-		btnExportarPagamentos.setBounds(883, 606, 73, 28);
-		panel_4.add(btnExportarPagamentos);
+		panel_4.add(btnExportarPagamentos, "cell 6 10,alignx right,aligny top");
+
+		JPanel panel_20 = new JPanel();
+		panel_20.setBackground(Color.WHITE);
+		panel_4.add(panel_20, "cell 0 12,alignx right,aligny center");
+		GridBagLayout gbl_panel_20 = new GridBagLayout();
+		gbl_panel_20.columnWidths = new int[] { 30, 0, 0, 0, 0 };
+		gbl_panel_20.rowHeights = new int[] { 16, 0, 0, 0, 0, 0, 0 };
+		gbl_panel_20.columnWeights = new double[] { 0.0, 0.0, 0.0, 0.0, Double.MIN_VALUE };
+		gbl_panel_20.rowWeights = new double[] { 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, Double.MIN_VALUE };
+		panel_20.setLayout(gbl_panel_20);
+
+		JLabel lblNewLabel_14 = new JLabel("Total:");
+		GridBagConstraints gbc_lblNewLabel_14 = new GridBagConstraints();
+		gbc_lblNewLabel_14.insets = new Insets(0, 0, 5, 5);
+		gbc_lblNewLabel_14.anchor = GridBagConstraints.NORTHEAST;
+		gbc_lblNewLabel_14.gridx = 0;
+		gbc_lblNewLabel_14.gridy = 0;
+		panel_20.add(lblNewLabel_14, gbc_lblNewLabel_14);
+
+		lblTotalPagamentos = new JLabel("");
+		GridBagConstraints gbc_lblTotalPagamentos = new GridBagConstraints();
+		gbc_lblTotalPagamentos.gridwidth = 3;
+		gbc_lblTotalPagamentos.insets = new Insets(0, 0, 5, 0);
+		gbc_lblTotalPagamentos.gridx = 1;
+		gbc_lblTotalPagamentos.gridy = 0;
+		panel_20.add(lblTotalPagamentos, gbc_lblTotalPagamentos);
+		lblTotalPagamentos.setForeground(Color.BLACK);
+		lblTotalPagamentos.setFont(new Font("Arial", Font.BOLD, 12));
+		lblTotalPagamentos.setBorder(new LineBorder(new Color(0, 0, 0)));
+
+		JLabel lblNewLabel_14_1 = new JLabel("Efetuados:");
+		GridBagConstraints gbc_lblNewLabel_14_1 = new GridBagConstraints();
+		gbc_lblNewLabel_14_1.anchor = GridBagConstraints.EAST;
+		gbc_lblNewLabel_14_1.insets = new Insets(0, 0, 5, 5);
+		gbc_lblNewLabel_14_1.gridx = 0;
+		gbc_lblNewLabel_14_1.gridy = 1;
+		panel_20.add(lblNewLabel_14_1, gbc_lblNewLabel_14_1);
+
+		lblTotalPagamentosEfetuados = new JLabel("");
+		GridBagConstraints gbc_lblTotalPagamentosEfetuados = new GridBagConstraints();
+		gbc_lblTotalPagamentosEfetuados.gridwidth = 3;
+		gbc_lblTotalPagamentosEfetuados.insets = new Insets(0, 0, 5, 0);
+		gbc_lblTotalPagamentosEfetuados.gridx = 1;
+		gbc_lblTotalPagamentosEfetuados.gridy = 1;
+		panel_20.add(lblTotalPagamentosEfetuados, gbc_lblTotalPagamentosEfetuados);
+		lblTotalPagamentosEfetuados.setForeground(Color.BLACK);
+		lblTotalPagamentosEfetuados.setFont(new Font("Arial", Font.BOLD, 12));
+		lblTotalPagamentosEfetuados.setBorder(new LineBorder(new Color(0, 0, 0)));
+
+		JLabel lblNewLabel_14_1_1 = new JLabel("Transferencias:(-)");
+		GridBagConstraints gbc_lblNewLabel_14_1_1 = new GridBagConstraints();
+		gbc_lblNewLabel_14_1_1.anchor = GridBagConstraints.EAST;
+		gbc_lblNewLabel_14_1_1.insets = new Insets(0, 0, 5, 5);
+		gbc_lblNewLabel_14_1_1.gridx = 0;
+		gbc_lblNewLabel_14_1_1.gridy = 2;
+		panel_20.add(lblNewLabel_14_1_1, gbc_lblNewLabel_14_1_1);
+
+		lblTotalTransferenciasRetiradas = new JLabel("");
+		GridBagConstraints gbc_lblTotalTransferenciasRetiradas = new GridBagConstraints();
+		gbc_lblTotalTransferenciasRetiradas.insets = new Insets(0, 0, 5, 0);
+		gbc_lblTotalTransferenciasRetiradas.gridwidth = 3;
+		gbc_lblTotalTransferenciasRetiradas.gridx = 1;
+		gbc_lblTotalTransferenciasRetiradas.gridy = 2;
+		panel_20.add(lblTotalTransferenciasRetiradas, gbc_lblTotalTransferenciasRetiradas);
+		lblTotalTransferenciasRetiradas.setForeground(Color.BLACK);
+		lblTotalTransferenciasRetiradas.setFont(new Font("Arial", Font.BOLD, 12));
+		lblTotalTransferenciasRetiradas.setBorder(new LineBorder(new Color(0, 0, 0)));
+
+		JLabel lblNewLabel_14_1_1_1 = new JLabel("Transferencias:(+)");
+		GridBagConstraints gbc_lblNewLabel_14_1_1_1 = new GridBagConstraints();
+		gbc_lblNewLabel_14_1_1_1.anchor = GridBagConstraints.EAST;
+		gbc_lblNewLabel_14_1_1_1.insets = new Insets(0, 0, 5, 5);
+		gbc_lblNewLabel_14_1_1_1.gridx = 0;
+		gbc_lblNewLabel_14_1_1_1.gridy = 3;
+		panel_20.add(lblNewLabel_14_1_1_1, gbc_lblNewLabel_14_1_1_1);
+
+		lblTotalTransferenciasRecebidas = new JLabel("");
+		GridBagConstraints gbc_lblTotalTransferenciasRecebidas = new GridBagConstraints();
+		gbc_lblTotalTransferenciasRecebidas.insets = new Insets(0, 0, 5, 0);
+		gbc_lblTotalTransferenciasRecebidas.gridwidth = 3;
+		gbc_lblTotalTransferenciasRecebidas.gridx = 1;
+		gbc_lblTotalTransferenciasRecebidas.gridy = 3;
+		panel_20.add(lblTotalTransferenciasRecebidas, gbc_lblTotalTransferenciasRecebidas);
+		lblTotalTransferenciasRecebidas.setForeground(Color.BLACK);
+		lblTotalTransferenciasRecebidas.setFont(new Font("Arial", Font.BOLD, 12));
+		lblTotalTransferenciasRecebidas.setBorder(new LineBorder(new Color(0, 0, 0)));
+
+		JLabel lblNewLabel_14_2_1 = new JLabel("Cobertura:");
+		GridBagConstraints gbc_lblNewLabel_14_2_1 = new GridBagConstraints();
+		gbc_lblNewLabel_14_2_1.anchor = GridBagConstraints.EAST;
+		gbc_lblNewLabel_14_2_1.insets = new Insets(0, 0, 5, 5);
+		gbc_lblNewLabel_14_2_1.gridx = 0;
+		gbc_lblNewLabel_14_2_1.gridy = 4;
+		panel_20.add(lblNewLabel_14_2_1, gbc_lblNewLabel_14_2_1);
+
+		lblTotalCobertura = new JLabel("");
+		lblTotalCobertura.setForeground(Color.BLACK);
+		lblTotalCobertura.setFont(new Font("Arial", Font.BOLD, 12));
+		lblTotalCobertura.setBorder(new LineBorder(new Color(0, 0, 0)));
+		GridBagConstraints gbc_lblTotalCobertura = new GridBagConstraints();
+		gbc_lblTotalCobertura.gridwidth = 3;
+		gbc_lblTotalCobertura.insets = new Insets(0, 0, 5, 5);
+		gbc_lblTotalCobertura.gridx = 1;
+		gbc_lblTotalCobertura.gridy = 4;
+		panel_20.add(lblTotalCobertura, gbc_lblTotalCobertura);
+
+		JLabel lblNewLabel_14_2 = new JLabel("Restante:");
+		GridBagConstraints gbc_lblNewLabel_14_2 = new GridBagConstraints();
+		gbc_lblNewLabel_14_2.anchor = GridBagConstraints.EAST;
+		gbc_lblNewLabel_14_2.insets = new Insets(0, 0, 0, 5);
+		gbc_lblNewLabel_14_2.gridx = 0;
+		gbc_lblNewLabel_14_2.gridy = 5;
+		panel_20.add(lblNewLabel_14_2, gbc_lblNewLabel_14_2);
+
+		lblTotalPagamentosRestantes = new JLabel("");
+		GridBagConstraints gbc_lblTotalPagamentosRestantes = new GridBagConstraints();
+		gbc_lblTotalPagamentosRestantes.gridwidth = 3;
+		gbc_lblTotalPagamentosRestantes.gridx = 1;
+		gbc_lblTotalPagamentosRestantes.gridy = 5;
+		panel_20.add(lblTotalPagamentosRestantes, gbc_lblTotalPagamentosRestantes);
+		lblTotalPagamentosRestantes.setForeground(Color.BLACK);
+		lblTotalPagamentosRestantes.setFont(new Font("Arial", Font.BOLD, 12));
+		lblTotalPagamentosRestantes.setBorder(new LineBorder(new Color(0, 0, 0)));
+
+		JPanel panel_21 = new JPanel();
+		panel_21.setBackground(new Color(0, 51, 51));
+		panel_21.setForeground(Color.WHITE);
+		panel_4.add(panel_21, "cell 4 12 9 1,alignx center,growy");
+		panel_21.setLayout(new MigLayout("", "[][]", "[][][]"));
+
+		JLabel lblNewLabel_44 = new JLabel("Status do Pagamento");
+		lblNewLabel_44.setForeground(Color.WHITE);
+		lblNewLabel_44.setFont(new Font("SansSerif", Font.PLAIN, 16));
+		panel_21.add(lblNewLabel_44, "cell 0 0 2 1,alignx center,growy");
+
+		JLabel lblNewLabel_45 = new JLabel("Pagamentos:");
+		lblNewLabel_45.setFont(new Font("SansSerif", Font.PLAIN, 16));
+		lblNewLabel_45.setForeground(Color.WHITE);
+		panel_21.add(lblNewLabel_45, "cell 0 1");
+
+		lblStatusPagamento = new JLabel("");
+		lblStatusPagamento.setForeground(Color.WHITE);
+		lblStatusPagamento.setFont(new Font("SansSerif", Font.PLAIN, 16));
+		panel_21.add(lblStatusPagamento, "cell 1 1");
+
+		JLabel lblNewLabel_45_1 = new JLabel("Cobertura:");
+		lblNewLabel_45_1.setForeground(Color.WHITE);
+		lblNewLabel_45_1.setFont(new Font("SansSerif", Font.PLAIN, 16));
+		panel_21.add(lblNewLabel_45_1, "cell 0 2");
+
+		 lblStatusCobertura = new JLabel("");
+		lblStatusCobertura.setForeground(Color.WHITE);
+		lblStatusCobertura.setFont(new Font("SansSerif", Font.PLAIN, 16));
+		panel_21.add(lblStatusCobertura, "cell 1 2");
 		btnAdicionarPagamento.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				TelaConfirmarPagamentoContratual tela_confirmar = new TelaConfirmarPagamentoContratual(contrato_local,
@@ -5644,76 +5717,82 @@ public class TelaGerenciarContrato extends JFrame {
 		/*****************
 		 * chamadas a adicionar
 		 */
-		setarInformacoesPainelPrincipal();
-		setarInformacoesExtrasAbaPrincipal();
-		// recebimentos
-		pesquisar_recebimentos(false);
-		setarInformacoesPainelRecebimentos();
 
-		// carregamentos
-		pesquisar_carregamentos(false);
-		setarInformacoesPainelCarregamentos();
+		boolean iniciar_chamadas = true;
+		if (iniciar_chamadas) {
+			setarInformacoesPainelPrincipal();
+			setarInformacoesExtrasAbaPrincipal();
+			// recebimentos
+			pesquisar_recebimentos(false);
+			setarInformacoesPainelRecebimentos();
 
-		// pagamentos
-		pesquisar_pagamentos(false);
+			// carregamentos
+			pesquisar_carregamentos(false);
+			setarInformacoesPainelCarregamentos();
 
-		// subContratos
-		setSubContratos(contrato_local);
+			// pagamentos
+			pesquisar_pagamentos(false);
 
-		if (contrato_local.getSub_contrato() == 0 || contrato_local.getSub_contrato() == 5)
-			setarPainelGanhosPotenciais();
+			// subContratos
+			setSubContratos(contrato_local);
 
-		setInformacoesDocumentos();
+			if (contrato_local.getSub_contrato() == 0 || contrato_local.getSub_contrato() == 5)
+				setarPainelGanhosPotenciais();
 
-		criarTabelaAditivos();
-		setInformacoesAditivos();
-		criarTabelaDistratos();
-		setInformacoesDistratos();
+			setInformacoesDocumentos();
 
-		travarContratoSemAtualizar();
+			criarTabelaAditivos();
+			setInformacoesAditivos();
+			criarTabelaDistratos();
+			setInformacoesDistratos();
 
-		new Thread() {
+			travarContratoSemAtualizar();
 
-			@Override
-			public void run() {
-				while (isto != null) {
+			new Thread() {
 
-					try {
-						Thread.sleep(5000);
-					} catch (InterruptedException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-					}
+				@Override
+				public void run() {
+					while (isto != null) {
 
-					GerenciarBancoInformativo gerenciar_informativos = new GerenciarBancoInformativo();
-					ArrayList<CadastroInformativo> informativos_novos = gerenciar_informativos.getInformacoes();
+						try {
+							Thread.sleep(5000);
+						} catch (InterruptedException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						}
 
-					if (informativos_novos.equals(informacoes_atuais)) { // nada atualizado
+						GerenciarBancoInformativo gerenciar_informativos = new GerenciarBancoInformativo();
+						ArrayList<CadastroInformativo> informativos_novos = gerenciar_informativos.getInformacoes();
 
-					} else { // atualizou informacoes informacoes_atuais = informativos_novos;
+						if (informativos_novos.equals(informacoes_atuais)) { // nada atualizado
 
-						for (CadastroInformativo informativo : informacoes_atuais) {
-							if (informativo.getId_contrato() == contrato_local.getId()) {
-								if (informativo.getId_usuario() != login.getId()) { // há uma nova mensagem para este
-																					// contrato
-									if (informativo.getMensagem().equals("contrato foi atualizado")) {
-										// atualizar este contrato tambem
-										boolean ja_usado = false; // verifica se a hora desse informativo nao esta
-																	// registrado ja
-										for (String hora : horarios_informativos_ja_executados) {
-											if (hora.equals(informativo.getHora_completa())) {
-												// ja usado
-												ja_usado = true;
-												break;
+						} else { // atualizou informacoes informacoes_atuais = informativos_novos;
 
+							for (CadastroInformativo informativo : informacoes_atuais) {
+								if (informativo.getId_contrato() == contrato_local.getId()) {
+									if (informativo.getId_usuario() != login.getId()) { // há uma nova mensagem para
+																						// este
+																						// contrato
+										if (informativo.getMensagem().equals("contrato foi atualizado")) {
+											// atualizar este contrato tambem
+											boolean ja_usado = false; // verifica se a hora desse informativo nao esta
+																		// registrado ja
+											for (String hora : horarios_informativos_ja_executados) {
+												if (hora.equals(informativo.getHora_completa())) {
+													// ja usado
+													ja_usado = true;
+													break;
+
+												}
+											}
+
+											if (!ja_usado) {
+												atualizarContratoAposInformativo();
+												horarios_informativos_ja_executados.add(informativo.getHora_completa());
 											}
 										}
-
-										if (!ja_usado) {
-											atualizarContratoAposInformativo();
-											horarios_informativos_ja_executados.add(informativo.getHora_completa());
-										}
 									}
+
 								}
 
 							}
@@ -5723,9 +5802,8 @@ public class TelaGerenciarContrato extends JFrame {
 					}
 
 				}
-
-			}
-		}.start();
+			}.start();
+		}
 		this.setResizable(true);
 		this.setExtendedState(JFrame.MAXIMIZED_BOTH);
 
@@ -6329,9 +6407,8 @@ public class TelaGerenciarContrato extends JFrame {
 		peso_total_cargas_nf_venda1 = 0.0;
 		peso_total_cargas_nf_complemento = 0.0;
 		peso_total_cargas_nf_interna = 0.0;
-		
-		BigDecimal valor_total_nf_venda = BigDecimal.ZERO;
 
+		BigDecimal valor_total_nf_venda = BigDecimal.ZERO;
 
 		peso_total_cargas = 0.0;
 
@@ -6403,7 +6480,7 @@ public class TelaGerenciarContrato extends JFrame {
 			peso_total_cargas_nf_interna = peso_total_cargas_nf_interna + carregamento.getPeso_nf_interna();
 			valor_total_nf_venda = valor_total_nf_venda.add(carregamento.getValor_nf_venda1());
 			valor_total_nf_venda = valor_total_nf_venda.add(carregamento.getValor_nf_complemento());
-			
+
 		}
 
 		// transferencias como remetente //
@@ -6529,38 +6606,41 @@ public class TelaGerenciarContrato extends JFrame {
 		double peso_total_nf_kg_restante = peso_total_kg - (peso_total_nf_kg + peso_total_nf_emitidas_kg);
 		double peso_total_nf_sacos_restante = peso_total_sacos - (peso_total_nf_sacos + peso_total_nf_emitidas_sacos);
 
-		
 		registro_carregamento_global.setQuantidade_restante_nf(peso_total_nf_sacos_restante);
 
 		Locale ptBr = new Locale("pt", "BR");
-		 
-		
-		//atualiza os paineis
-		//romaneios
+
+		// atualiza os paineis
+		// romaneios
 		lblNumRomaneiosCarregamento.setText(lista_carregamentos.size() + "");
-		//nfs internas
-		if(nf_interna_ativo) {
-		lblPesoTotalNFInternaSaida.setText(z.format(peso_total_cargas_nf_interna) + " Kgs | "  + z.format(peso_total_cargas_nf_interna/60)  + " sacos");
-		lblPesoRestanteNFInternaSaida.setText(z.format(peso_carregado_kg - peso_total_cargas_nf_interna) + " Kgs | "  + z.format((peso_carregado_kg - peso_total_cargas_nf_interna)/60)  + " sacos");
-		}else {
+		// nfs internas
+		if (nf_interna_ativo) {
+			lblPesoTotalNFInternaSaida.setText(z.format(peso_total_cargas_nf_interna) + " Kgs | "
+					+ z.format(peso_total_cargas_nf_interna / 60) + " sacos");
+			lblPesoRestanteNFInternaSaida.setText(z.format(peso_carregado_kg - peso_total_cargas_nf_interna) + " Kgs | "
+					+ z.format((peso_carregado_kg - peso_total_cargas_nf_interna) / 60) + " sacos");
+		} else {
 			lblPesoTotalNFInternaSaida.setText("Não Aplicável");
 			lblPesoRestanteNFInternaSaida.setText("Não Aplicável");
-			
+
 		}
-		//nfs venda
-		if(nf_venda_ativo || nf_complemento_ativo) {
-		lblPesoTotalNFVendaSaida.setText(z.format(peso_total_nf_kg + peso_total_nf_emitidas_kg) + " Kgs | "  + z.format((peso_total_nf_kg + peso_total_nf_emitidas_kg)/60)  + " sacos");
-		lblPesoRestanteNFVendaSaida.setText(z.format(peso_carregado_kg - (peso_total_nf_kg + peso_total_nf_emitidas_kg)) + " Kgs | "  + z.format((peso_carregado_kg - ((peso_total_nf_kg + peso_total_nf_emitidas_kg)))/60)  + " sacos");
-		lblValorTotalNFVendaSaida.setText(NumberFormat.getCurrencyInstance(ptBr).format(valor_total_nf_venda));
-		}else {
+		// nfs venda
+		if (nf_venda_ativo || nf_complemento_ativo) {
+			lblPesoTotalNFVendaSaida.setText(z.format(peso_total_nf_kg + peso_total_nf_emitidas_kg) + " Kgs | "
+					+ z.format((peso_total_nf_kg + peso_total_nf_emitidas_kg) / 60) + " sacos");
+			lblPesoRestanteNFVendaSaida
+					.setText(z.format(peso_carregado_kg - (peso_total_nf_kg + peso_total_nf_emitidas_kg)) + " Kgs | "
+							+ z.format((peso_carregado_kg - ((peso_total_nf_kg + peso_total_nf_emitidas_kg))) / 60)
+							+ " sacos");
+			lblValorTotalNFVendaSaida.setText(NumberFormat.getCurrencyInstance(ptBr).format(valor_total_nf_venda));
+		} else {
 			lblPesoTotalNFVendaSaida.setText("Não Aplicável");
 			lblPesoRestanteNFVendaSaida.setText("Não Aplicável");
 			lblValorTotalNFVendaSaida.setText("Não Aplicável");
-				
+
 		}
-		
-		
-		//atualizar status
+
+		// atualizar status
 		String texto = "";
 		double diferenca = peso_total_kg - peso_carregado_kg;
 		if (diferenca == 0) {
@@ -6584,8 +6664,8 @@ public class TelaGerenciarContrato extends JFrame {
 					+ z.format(diferenca_nf_remessa) + " Kgs";
 
 		} else if (diferenca_nf_remessa < 0) {
-			texto_nf_remessa = texto_nf_remessa + "Emissão de NF's Interna, excedeu "
-					+ z.format(diferenca_nf_remessa) + " Kgs";
+			texto_nf_remessa = texto_nf_remessa + "Emissão de NF's Interna, excedeu " + z.format(diferenca_nf_remessa)
+					+ " Kgs";
 
 		}
 
@@ -6594,12 +6674,10 @@ public class TelaGerenciarContrato extends JFrame {
 		else
 			lblStatusNFRemessaSaida.setText("Emissão de NF's Interna Não Aplicável");
 
-
 		// status de nf de venda
-		
+
 		String texto_nf_venda = "";
-		double diferenca_nf_venda = peso_carregado_kg
-				- (peso_total_nf_kg + peso_total_nf_emitidas_kg);
+		double diferenca_nf_venda = peso_carregado_kg - (peso_total_nf_kg + peso_total_nf_emitidas_kg);
 		if (diferenca_nf_venda == 0) {
 			texto_nf_venda = texto_nf_venda + "Emissão de NF's de Venda Concluído";
 		} else if (diferenca_nf_venda > 0) {
@@ -6607,8 +6685,8 @@ public class TelaGerenciarContrato extends JFrame {
 					+ z.format(diferenca_nf_venda) + " Kgs";
 
 		} else if (diferenca_nf_venda < 0) {
-			texto_nf_venda = texto_nf_venda + "Emissão de NF's Excedido, excedeu "
-					+ z.format(diferenca_nf_venda) + " Kgs";
+			texto_nf_venda = texto_nf_venda + "Emissão de NF's Excedido, excedeu " + z.format(diferenca_nf_venda)
+					+ " Kgs";
 
 		}
 		if (nf_venda_ativo || nf_complemento_ativo)
@@ -6616,12 +6694,8 @@ public class TelaGerenciarContrato extends JFrame {
 		else
 			lblStatusNFVendaSaida.setText("Emissão de NF's de Venda Não Aplicável");
 
-
-	
-
 		///////////////////////////////////////
-		
-		
+
 		int n1 = (int) peso_total_sacos;
 		int n2 = ((int) peso_carregado_sacos);
 
@@ -6839,6 +6913,8 @@ public class TelaGerenciarContrato extends JFrame {
 	}
 
 	public void pesquisar_pagamentos(boolean informar_atualizacao) {
+		NumberFormat z = NumberFormat.getNumberInstance();
+		Locale ptBr = new Locale("pt", "BR");
 
 		modelo_pagamentos_contratuais.setNumRows(0);
 		registro_pagamento_global = new Registros.RegistroPagamento();
@@ -6847,6 +6923,20 @@ public class TelaGerenciarContrato extends JFrame {
 		double valor_total_transferencias_retiradas = 0;
 		double valor_total_transferencias_recebidas = 0;
 		double valor_total_pagamentos_restantes = 0;
+		double peso_total_cobertura = 0;
+		double quantidade_total_contrato_sacos = 0;
+		double valor_por_saco = 0;
+
+		if (contrato_local.getMedida().equalsIgnoreCase("Kg")) {
+			quantidade_total_contrato_sacos = contrato_local.getQuantidade() / 60;
+			valor_por_saco = contrato_local.getValor_produto() * 60;
+
+		} else if (contrato_local.getMedida().equalsIgnoreCase("Sacos")) {
+			quantidade_total_contrato_sacos = contrato_local.getQuantidade();
+			valor_por_saco = contrato_local.getValor_produto();
+		}
+
+		String valorSaco = NumberFormat.getCurrencyInstance(ptBr).format(contrato_local.getValor_produto());
 
 		if (lista_pagamentos_contratuais != null) {
 			lista_pagamentos_contratuais.clear();
@@ -6908,17 +6998,18 @@ public class TelaGerenciarContrato extends JFrame {
 			// pegar conta do favorecido
 			ContaBancaria conta_favorecido = gerenciar_clientes.getConta(pagamento.getId_conta_favorecido());
 
-			Locale ptBr = new Locale("pt", "BR");
 			String valorString = NumberFormat.getCurrencyInstance(ptBr).format(valor_pagamento);
+			double cobertura = valor_pagamento / valor_por_saco;
+			modelo_pagamentos_contratuais.addRow(new Object[] { pagamento.getId_pagamento(), pagamento.getDescricao(),
+					data, valorString, valorSaco, z.format(cobertura) + " Sacos", nome_depositante,
+					conta_depositante.getNome(), nome_favorecido, conta_favorecido.getNome()
 
-			modelo_pagamentos_contratuais
-					.addRow(new Object[] { pagamento.getId_pagamento(), pagamento.getDescricao(), data, valorString,
-							nome_depositante, conta_depositante.getNome(), nome_favorecido, conta_favorecido.getNome()
-
-					});
+			});
 
 			if (pagamento.getTipo() == 1)
 				valor_total_pagamentos_efetuados += valor_pagamento;
+
+			peso_total_cobertura += cobertura;
 
 		}
 
@@ -6932,21 +7023,23 @@ public class TelaGerenciarContrato extends JFrame {
 
 			// pegar data do pagmento
 			String data = transferencia.getData();
-			BigDecimal valor_pagamento = new BigDecimal(transferencia.getValor());
+			double valor_pagamento = new BigDecimal(transferencia.getValor()).doubleValue();
 
 			// pegar o destinatario
 			CadastroContrato destinatario = gerenciar_contratos
 					.getContrato(transferencia.getId_contrato_destinatario());
 
-			Locale ptBr = new Locale("pt", "BR");
 			String valorString = NumberFormat.getCurrencyInstance(ptBr).format(valor_pagamento);
+			double cobertura = valor_pagamento / valor_por_saco;
 
 			modelo_pagamentos_contratuais.addRow(new Object[] { transferencia.getId_transferencia(), "-Transferencia",
-					data, valorString, contrato_local.getCodigo(), "", destinatario.getCodigo(), ""
+					data, valorString, valorSaco, "-" + z.format(cobertura) + " Sacos", contrato_local.getCodigo(), "",
+					destinatario.getCodigo(), ""
 
 			});
 
-			valor_total_transferencias_retiradas += valor_pagamento.doubleValue();
+			valor_total_transferencias_retiradas += valor_pagamento;
+			peso_total_cobertura -= cobertura;
 			// valor_total_pagamentos_efetuados -= valor_pagamento;
 
 		}
@@ -6963,19 +7056,18 @@ public class TelaGerenciarContrato extends JFrame {
 			// pegar o destinatario
 			CadastroContrato remetente = gerenciar_contratos.getContrato(transferencia.getId_contrato_remetente());
 
-			Locale ptBr = new Locale("pt", "BR");
 			String valorString = NumberFormat.getCurrencyInstance(ptBr).format(valor_pagamento);
+			double cobertura = valor_pagamento / valor_por_saco;
+			modelo_pagamentos_contratuais.addRow(
+					new Object[] { transferencia.getId_transferencia(), "+Transferencia", data, valorString, valorSaco,
+							z.format(cobertura) + " Sacos", remetente.getCodigo(), "", contrato_local.getCodigo(), ""
 
-			modelo_pagamentos_contratuais.addRow(new Object[] { transferencia.getId_transferencia(), "+Transferencia",
-					data, valorString, remetente.getCodigo(), "", contrato_local.getCodigo(), ""
-
-			});
+					});
 			valor_total_transferencias_recebidas += valor_pagamento;
-			// valor_total_pagamentos_efetuados += valor_pagamento;
+			peso_total_cobertura += cobertura;
 
 		}
 
-		Locale ptBr = new Locale("pt", "BR");
 		String valor = NumberFormat.getCurrencyInstance(ptBr).format(valor_total_pagamentos);
 
 		lblTotalPagamentos.setText(valor);
@@ -6998,6 +7090,33 @@ public class TelaGerenciarContrato extends JFrame {
 
 		lblTotalPagamentosRestantes.setText(valor);
 
+		lblTotalCobertura.setText(z.format(peso_total_cobertura) + " sacos");
+
+		double diferenca = (valor_total_pagamentos_efetuados
+				- valor_total_transferencias_retiradas + valor_total_transferencias_recebidas) - valor_total_pagamentos;
+
+		if (diferenca == 0  ) {
+			lblStatusPagamento.setText("Pagamento Concluído");
+		} else if (diferenca > 0) {
+			lblStatusPagamento.setText("Excedeu em " + NumberFormat.getCurrencyInstance(ptBr).format(diferenca));
+
+		} else if (diferenca < 0) {
+			lblStatusPagamento.setText("Incompleto, falta " + NumberFormat.getCurrencyInstance(ptBr).format(diferenca));
+
+		}
+
+		double diferenca_pesos = peso_total_cobertura - quantidade_total_contrato_sacos;
+
+		if (diferenca_pesos == 0 || diferenca_pesos == -0) {
+			lblStatusCobertura.setText("Todos os sacos foram pagos");
+		} else if (diferenca_pesos > 0) {
+			lblStatusCobertura.setText("Excedeu em " + z.format(diferenca_pesos) + " Sacos");
+
+			
+		} else if (diferenca_pesos < 0) {
+			lblStatusCobertura.setText("Incompleto, falta pagar " + z.format(diferenca_pesos) + " Sacos" );
+
+		}
 		int n1 = (int) valor_total_pagamentos;
 		int n2 = n1 - ((int) valor_total_pagamentos_restantes);
 		atualizarGraficoPagamentos(n1, n2);
@@ -8234,7 +8353,6 @@ public class TelaGerenciarContrato extends JFrame {
 
 	}
 
-	
 	public void atualizarGraficoPagamentos(int num_total, int num_ja_pago) {
 
 		new Thread() {
@@ -9486,6 +9604,9 @@ public class TelaGerenciarContrato extends JFrame {
 			((JLabel) renderer).setOpaque(true);
 
 			String descricao = (String) table.getValueAt(row, 1);
+			String codigo_nf_venda_1 = (String) table.getValueAt(row, 13);
+			String codigo_nf_interna = (String) table.getValueAt(row, 11);
+			String codigo_nf_complemento = (String) table.getValueAt(row, 16);
 
 			if (descricao != null && descricao.equalsIgnoreCase("-Transferencia")
 					|| descricao.equalsIgnoreCase("+Transferencia")) {
@@ -9504,89 +9625,37 @@ public class TelaGerenciarContrato extends JFrame {
 
 				} else {
 
-					if (carregamento.getNf_venda1_aplicavel() == 1 && carregamento.getNf_complemento_aplicavel() == 1) {
-						// as duas notas sao exigigidas
-						double peso_nf1, peso_romaneio, peso_complemento;
-						peso_nf1 = (double) table.getValueAt(row, 14);
+					if (carregamento.getNf_complemento_aplicavel() == 1) {
 
-						peso_romaneio = (double) table.getValueAt(row, 10);
-						peso_complemento = (double) table.getValueAt(row, 17);
+						if (checkString(codigo_nf_complemento)) {
+							renderer.setBackground(new Color(0, 100, 0));
 
-						if ((peso_nf1 + peso_complemento) == peso_romaneio) {
-							// verifica se falta nf interna
-							if (carregamento.getNf_interna_aplicavel() == 1) {
-								if (checkString(carregamento.getCodigo_nf_interna())) {
-									// ok
-									renderer.setBackground(new Color(0, 100, 0));
-
-								} else {
-									// falta nf interna
-									renderer.setBackground(new Color(204, 204, 102));
-
-								}
-							} else {
-								// nf interna nao aplicavel
-								// ok
-								renderer.setBackground(new Color(0, 100, 0));
-
-							}
-
-						} else if ((peso_nf1 + peso_complemento) < peso_romaneio) {
-							// falta nf de complemento
+						} else {
 							renderer.setBackground(Color.yellow);
 
 						}
 
-					} else if (carregamento.getNf_venda1_aplicavel() == 1
-							&& carregamento.getNf_complemento_aplicavel() == 0) {
-						// apenas nf de venda esta aplicavel
-						if (checkString(carregamento.getCodigo_nf_venda1())) {
-							// nao falta a nf de venda
-
-							// verifica se falta nf interna
-							if (carregamento.getNf_interna_aplicavel() == 1) {
-								if (checkString(carregamento.getCodigo_nf_interna())) {
-									// ok
-									renderer.setBackground(new Color(0, 100, 0));
-
-								} else {
-									// falta nf interna
-									renderer.setBackground(new Color(204, 204, 102));
-
-								}
-							} else {
-								// nf interna nao aplicavel
-								// ok
-								renderer.setBackground(new Color(0, 100, 0));
-
-							}
-
-						} else {
-							// falta nf de venda
-							renderer.setBackground(Color.orange);
-
-						}
-
-					} else if (carregamento.getNf_venda1_aplicavel() == 0
-							&& carregamento.getNf_complemento_aplicavel() == 0) {
-						// a nf de venda1 e nf de complemento estao nao aplicaveis
-						// verifica se falta nf interna
-						if (carregamento.getNf_interna_aplicavel() == 1) {
-							if (checkString(carregamento.getCodigo_nf_interna())) {
-								// ok
-								renderer.setBackground(new Color(0, 100, 0));
-
-							} else {
-								// falta nf interna
-								renderer.setBackground(new Color(204, 204, 102));
-
-							}
-						} else {
-							// nf interna nao aplicavel
-							// ok
+					} else if (carregamento.getNf_venda1_aplicavel() == 1) {
+						if (checkString(codigo_nf_venda_1)) {
 							renderer.setBackground(new Color(0, 100, 0));
 
+						} else {
+							renderer.setBackground(Color.ORANGE);
+
 						}
+
+					} else if (carregamento.getNf_interna_aplicavel() == 1) {
+						if (checkString(codigo_nf_interna)) {
+							renderer.setBackground(new Color(0, 100, 0));
+
+						} else {
+							renderer.setBackground(new Color(204, 204, 102));
+
+						}
+
+					} else {
+						renderer.setBackground(new Color(0, 100, 0));
+
 					}
 
 				}

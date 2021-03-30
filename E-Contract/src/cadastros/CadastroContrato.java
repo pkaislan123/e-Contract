@@ -890,8 +890,33 @@ local retirada: 24 2
 		int id_carregamento, id_cliente, id_transportador, id_veiculo, id_contrato, id_produto, id_vendedor;
 		int nf_venda1_aplicavel, nf_complemento_aplicavel, nf_interna_aplicavel;
 		String codigo_nota_fiscal, data, caminho_nota_fiscal;
+		String nome_remetente_nf_venda1, nome_destinatario_nf_venda1,nome_remetente_nf_complemento, nome_destinatario_nf_complemento;
 		
 		
+		public String getNome_remetente_nf_venda1() {
+			return nome_remetente_nf_venda1;
+		}
+		public void setNome_remetente_nf_venda1(String nome_remetente_nf_venda1) {
+			this.nome_remetente_nf_venda1 = nome_remetente_nf_venda1;
+		}
+		public String getNome_destinatario_nf_venda1() {
+			return nome_destinatario_nf_venda1;
+		}
+		public void setNome_destinatario_nf_venda1(String nome_destinatario_nf_venda1) {
+			this.nome_destinatario_nf_venda1 = nome_destinatario_nf_venda1;
+		}
+		public String getNome_remetente_nf_complemento() {
+			return nome_remetente_nf_complemento;
+		}
+		public void setNome_remetente_nf_complemento(String nome_remetente_nf_complemento) {
+			this.nome_remetente_nf_complemento = nome_remetente_nf_complemento;
+		}
+		public String getNome_destinatario_nf_complemento() {
+			return nome_destinatario_nf_complemento;
+		}
+		public void setNome_destinatario_nf_complemento(String nome_destinatario_nf_complemento) {
+			this.nome_destinatario_nf_complemento = nome_destinatario_nf_complemento;
+		}
 		public int getNf_venda1_aplicavel() {
 			return nf_venda1_aplicavel;
 		}
@@ -1325,8 +1350,35 @@ caminho_nf_remessa text,
 			this.id_vendedor = id_vendedor;
 		}
 		String data_recebimento, codigo_romaneio, caminho_romaneio, codigo_nf_venda, caminho_nf_venda, codigo_nf_remessa, caminho_nf_remessa;
+		String nome_remetente_nf_remessa, nome_destinatario_nf_remessa;
+		String nome_remetente_nf_venda, nome_destinatario_nf_venda;
+
 		
-        BigDecimal valor_nf_venda, valor_nf_remessa;
+        public String getNome_remetente_nf_remessa() {
+			return nome_remetente_nf_remessa;
+		}
+		public void setNome_remetente_nf_remessa(String nome_remetente_nf_remessa) {
+			this.nome_remetente_nf_remessa = nome_remetente_nf_remessa;
+		}
+		public String getNome_destinatario_nf_remessa() {
+			return nome_destinatario_nf_remessa;
+		}
+		public void setNome_destinatario_nf_remessa(String nome_destinatario_nf_remessa) {
+			this.nome_destinatario_nf_remessa = nome_destinatario_nf_remessa;
+		}
+		public String getNome_remetente_nf_venda() {
+			return nome_remetente_nf_venda;
+		}
+		public void setNome_remetente_nf_venda(String nome_remetente_nf_venda) {
+			this.nome_remetente_nf_venda = nome_remetente_nf_venda;
+		}
+		public String getNome_destinatario_nf_venda() {
+			return nome_destinatario_nf_venda;
+		}
+		public void setNome_destinatario_nf_venda(String nome_destinatario_nf_venda) {
+			this.nome_destinatario_nf_venda = nome_destinatario_nf_venda;
+		}
+		BigDecimal valor_nf_venda, valor_nf_remessa;
         
 
 		public BigDecimal getValor_nf_venda() {

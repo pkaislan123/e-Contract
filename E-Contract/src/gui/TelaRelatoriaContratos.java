@@ -69,7 +69,8 @@ public class TelaRelatoriaContratos extends JDialog {
 	private JComboBox cBAlvo;
 	private JCheckBox chkBoxContratos, chkBoxContratosComoComprador, chkBoxContratosComoVendedor,
 			chckbxIncluirSubContratos, chkBoxContratosComoCorretor, chckbxPagamentos, chkBoxComoDepositante,
-			chkBoxComoFavorecido, chckbxCarregamentos, chckbxCarregamentpComoVendedor, chckbxCarregamentoComoComprador;
+			chkBoxComoFavorecido, chckbxCarregamentos, chckbxControleNfVendaEntrada, chckbxCarregamentpComoVendedor,
+			chckbxCarregamentoComoComprador;
 
 	private static ArrayList<CadastroSafra> safras = new ArrayList<>();
 	private JCheckBox chckbxTodasAsSafras;
@@ -82,9 +83,13 @@ public class TelaRelatoriaContratos extends JDialog {
 	private JPanel painelOpcaosInternas;
 	private JLabel lblNewLabel_5;
 
-private  JCheckBox chckbxRecebimentos, chckbxRecebimentoComoComprador ,chckbxRecebimentoComoVendedor;
-private JCheckBox chckbxUnirRecebimentos;
-
+	private JCheckBox chckbxRecebimentos, chckbxRecebimentoComoComprador, chckbxRecebimentoComoVendedor;
+	private JCheckBox chckbxUnirRecebimentos;
+	private JPanel panel;
+	private JPanel panel_1;
+	private JCheckBox chckbxControleNfVendaSaida;
+	private JCheckBox chckbxUnirCarregamentos,chckbxIncluirTransfrenciasCarregamentos;
+	private JPanel panel_2;
 
 	public static void pesquisarSafras() {
 		GerenciarBancoSafras listaSafras = new GerenciarBancoSafras();
@@ -92,7 +97,7 @@ private JCheckBox chckbxUnirRecebimentos;
 	}
 
 	public TelaRelatoriaContratos(Window janela_pai) {
-		//setModal(true);
+		// setModal(true);
 
 		TelaRelatoriaContratos isto = this;
 
@@ -154,8 +159,12 @@ private JCheckBox chckbxUnirRecebimentos;
 						contrato_como_corretor = false;
 				boolean pagamento = false, pagamento_como_despositante = false, pagamento_como_favorecido = false;
 				boolean carregamento = false, carregamento_como_comprador = false, carregamento_como_vendedor = false;
-				boolean recebimento = false, recebimento_como_comprador = false, recebimento_como_vendedor = false, unir_recebimentos = false;
-
+				boolean recebimento = false, recebimento_como_comprador = false, recebimento_como_vendedor = false,
+						unir_recebimentos = false;
+				boolean unir_carregamentos = false;
+				boolean controle_nf_venda_recebimentos = false;
+				boolean controle_nf_venda_carregamentos = false;
+				boolean incluir_transferencia_carregamentos = false;
 				Date hoje = new Date();
 				SimpleDateFormat df = new SimpleDateFormat("dd/MM/yyyy");
 
@@ -252,9 +261,27 @@ private JCheckBox chckbxUnirRecebimentos;
 					if (chckbxCarregamentpComoVendedor.isSelected()) {
 						carregamento_como_vendedor = true;
 					}
+					
+					if (chckbxControleNfVendaSaida.isSelected()) {
+						controle_nf_venda_carregamentos = true;
+					}
+
+					if (chckbxUnirCarregamentos.isSelected()) {
+						unir_carregamentos = true;
+					} else {
+						unir_carregamentos = false;
+
+					}
+					
+					if(chckbxIncluirTransfrenciasCarregamentos.isSelected()) {
+						incluir_transferencia_carregamentos = true;
+					}else {
+						incluir_transferencia_carregamentos = false;
+
+					}
 
 				}
-				
+
 				if (chckbxRecebimentos.isSelected()) {
 					recebimento = true;
 
@@ -265,16 +292,20 @@ private JCheckBox chckbxUnirRecebimentos;
 					if (chckbxRecebimentoComoVendedor.isSelected()) {
 						recebimento_como_vendedor = true;
 					}
-					
-					if(chckbxUnirRecebimentos.isSelected()) {
+
+					if (chckbxControleNfVendaEntrada.isSelected()) {
+						controle_nf_venda_recebimentos = true;
+					}
+
+					if (chckbxUnirRecebimentos.isSelected()) {
 						unir_recebimentos = true;
-					}else {
+					} else {
 						unir_recebimentos = false;
 
 					}
 
 				}
-				
+
 				ArrayList<CadastroCliente> clientes = new ArrayList<>();
 
 				if (cliente_alvo != null) {
@@ -317,14 +348,14 @@ private JCheckBox chckbxUnirRecebimentos;
 					relatar.setCarregamento(carregamento);
 					relatar.setCarregamento_como_comprador(carregamento_como_comprador);
 					relatar.setCarregamento_como_vendedor(carregamento_como_vendedor);
-                    relatar.setPagamento(pagamento);
-                    relatar.setPagamento_como_depositante(pagamento_como_despositante);
-                    relatar.setPagamento_como_favorecido(pagamento_como_favorecido);
-                    relatar.setRecebimento(recebimento);
-                    relatar.setRecebimento_como_comprador(recebimento_como_comprador);
-                    relatar.setRecebimento_como_vendedor(recebimento_como_vendedor);
-                    relatar.setUnir_recebimentos(unir_recebimentos);
-					
+					relatar.setPagamento(pagamento);
+					relatar.setPagamento_como_depositante(pagamento_como_despositante);
+					relatar.setPagamento_como_favorecido(pagamento_como_favorecido);
+					relatar.setRecebimento(recebimento);
+					relatar.setRecebimento_como_comprador(recebimento_como_comprador);
+					relatar.setRecebimento_como_vendedor(recebimento_como_vendedor);
+					relatar.setUnir_recebimentos(unir_recebimentos);
+
 					ByteArrayOutputStream contrato_alterado = relatar.preparar();
 
 					ConverterPdf converter_pdf = new ConverterPdf();
@@ -334,19 +365,24 @@ private JCheckBox chckbxUnirRecebimentos;
 				} else if (gerar && chkBoxContratosComoVendedor.isSelected()) {
 					RelatorioContratos relatar = new RelatorioContratos(tipo_contrato, contrato, false, pagamento,
 							pagamento_como_despositante, pagamento_como_favorecido, carregamento,
-							carregamento_como_comprador, carregamento_como_vendedor, recebimento, recebimento_como_comprador, recebimento_como_vendedor,unir_recebimentos, id_safra, sub_contratos,
-							incluir_comissao, incluir_ganhos_potencias, somar_sub_contratos, clientes, grupo_alvo);
+							carregamento_como_comprador, carregamento_como_vendedor,unir_carregamentos,controle_nf_venda_carregamentos,incluir_transferencia_carregamentos,
+							recebimento, recebimento_como_comprador, recebimento_como_vendedor, unir_recebimentos,
+							controle_nf_venda_recebimentos, id_safra, sub_contratos, incluir_comissao,
+							incluir_ganhos_potencias, somar_sub_contratos, clientes, grupo_alvo);
 					ByteArrayOutputStream contrato_alterado = relatar.preparar();
 
 					ConverterPdf converter_pdf = new ConverterPdf();
 					String pdf_alterado = converter_pdf.word_pdf_stream(contrato_alterado);
 					TelaVizualizarPdf vizualizar = new TelaVizualizarPdf(null, isto, null, pdf_alterado, null, isto);
-					
-				}else if (gerar && !chkBoxContratosComoVendedor.isSelected() && !chkBoxContratosComoComprador.isSelected()) {
+
+				} else if (gerar && !chkBoxContratosComoVendedor.isSelected()
+						&& !chkBoxContratosComoComprador.isSelected()) {
 					RelatorioContratos relatar = new RelatorioContratos(tipo_contrato, contrato, false, pagamento,
-							pagamento_como_despositante, pagamento_como_favorecido, carregamento,
-							carregamento_como_comprador, carregamento_como_vendedor, recebimento, recebimento_como_comprador, recebimento_como_vendedor,unir_recebimentos, id_safra, sub_contratos,
-							incluir_comissao, incluir_ganhos_potencias, somar_sub_contratos, clientes, grupo_alvo);
+							pagamento_como_despositante, pagamento_como_favorecido,
+							carregamento, carregamento_como_comprador, carregamento_como_vendedor,unir_carregamentos ,controle_nf_venda_carregamentos,incluir_transferencia_carregamentos,
+							recebimento, recebimento_como_comprador, recebimento_como_vendedor, unir_recebimentos,
+							controle_nf_venda_recebimentos, id_safra, sub_contratos, incluir_comissao,
+							incluir_ganhos_potencias, somar_sub_contratos, clientes, grupo_alvo);
 					ByteArrayOutputStream contrato_alterado = relatar.preparar();
 
 					ConverterPdf converter_pdf = new ConverterPdf();
@@ -492,63 +528,6 @@ private JCheckBox chckbxUnirRecebimentos;
 		chkBoxContratosComoCorretor.setBounds(57, 335, 168, 23);
 		painelPrincipal.add(chkBoxContratosComoCorretor);
 
-		chckbxPagamentos = new JCheckBox("Pagamentos");
-		chckbxPagamentos.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-
-				if (chckbxPagamentos.isSelected()) {
-					chckbxPagamentos.setSelected(true);
-					chkBoxComoDepositante.setEnabled(true);
-					chkBoxComoFavorecido.setEnabled(true);
-				} else {
-					chckbxPagamentos.setSelected(false);
-					chkBoxComoDepositante.setEnabled(false);
-					chkBoxComoFavorecido.setEnabled(false);
-				}
-
-			}
-		});
-		chckbxPagamentos.setBounds(280, 172, 110, 23);
-		painelPrincipal.add(chckbxPagamentos);
-
-		chkBoxComoDepositante = new JCheckBox("Alvo como Depositante");
-		chkBoxComoDepositante.setEnabled(false);
-		chkBoxComoDepositante.setBounds(304, 205, 168, 23);
-		painelPrincipal.add(chkBoxComoDepositante);
-
-		chkBoxComoFavorecido = new JCheckBox("Alvo como Favorecido");
-		chkBoxComoFavorecido.setEnabled(false);
-		chkBoxComoFavorecido.setBounds(304, 241, 168, 23);
-		painelPrincipal.add(chkBoxComoFavorecido);
-
-		chckbxCarregamentos = new JCheckBox("Carregamentos");
-		chckbxCarregamentos.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-
-				if (chckbxCarregamentos.isSelected()) {
-					chckbxCarregamentos.setSelected(true);
-					chckbxCarregamentoComoComprador.setEnabled(true);
-					chckbxCarregamentpComoVendedor.setEnabled(true);
-				} else {
-					chckbxCarregamentos.setSelected(false);
-					chckbxCarregamentoComoComprador.setEnabled(false);
-					chckbxCarregamentpComoVendedor.setEnabled(false);
-				}
-			}
-		});
-		chckbxCarregamentos.setBounds(550, 172, 120, 23);
-		painelPrincipal.add(chckbxCarregamentos);
-
-		chckbxCarregamentoComoComprador = new JCheckBox("Alvo como Comprador");
-		chckbxCarregamentoComoComprador.setEnabled(false);
-		chckbxCarregamentoComoComprador.setBounds(574, 205, 168, 23);
-		painelPrincipal.add(chckbxCarregamentoComoComprador);
-
-		chckbxCarregamentpComoVendedor = new JCheckBox("Alvo como Vendedor");
-		chckbxCarregamentpComoVendedor.setEnabled(false);
-		chckbxCarregamentpComoVendedor.setBounds(574, 241, 168, 23);
-		painelPrincipal.add(chckbxCarregamentpComoVendedor);
-
 		chckbxTodasAsSafras = new JCheckBox("Todas as Safras");
 		chckbxTodasAsSafras.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
@@ -618,7 +597,7 @@ private JCheckBox chckbxUnirRecebimentos;
 
 		painelOpcaosInternas = new JPanel();
 		painelOpcaosInternas.setBackground(Color.WHITE);
-		painelOpcaosInternas.setBounds(87, 365, 431, 188);
+		painelOpcaosInternas.setBounds(87, 365, 409, 188);
 		painelPrincipal.add(painelOpcaosInternas);
 		painelOpcaosInternas.setLayout(null);
 
@@ -684,45 +663,11 @@ private JCheckBox chckbxUnirRecebimentos;
 		lblNewLabel_5.setFont(new Font("Tahoma", Font.PLAIN, 14));
 		lblNewLabel_5.setBounds(10, 11, 182, 17);
 		painelOpcaosInternas.add(lblNewLabel_5);
-		
-		 chckbxRecebimentos = new JCheckBox("Recebimentos");
-		chckbxRecebimentos.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				if (chckbxRecebimentos.isSelected()) {
-					chckbxRecebimentos.setSelected(true);
-					chckbxRecebimentoComoComprador .setEnabled(true);
-					chckbxRecebimentoComoVendedor.setEnabled(true);
-					chckbxUnirRecebimentos.setEnabled(true);
-				} else {
-					chckbxRecebimentos.setSelected(false);
-					chckbxRecebimentoComoComprador .setEnabled(false);
-					chckbxRecebimentoComoVendedor.setEnabled(false);
-					chckbxUnirRecebimentos.setEnabled(false);
-				}
-			}
-		});
-		chckbxRecebimentos.setBounds(780, 172, 120, 23);
-		painelPrincipal.add(chckbxRecebimentos);
-		
-		 chckbxRecebimentoComoComprador = new JCheckBox("Alvo como Comprador");
-		chckbxRecebimentoComoComprador.setEnabled(false);
-		chckbxRecebimentoComoComprador.setBounds(804, 205, 168, 23);
-		painelPrincipal.add(chckbxRecebimentoComoComprador);
-		
-		 chckbxRecebimentoComoVendedor = new JCheckBox("Alvo como Vendedor");
-		chckbxRecebimentoComoVendedor.setEnabled(false);
-		chckbxRecebimentoComoVendedor.setBounds(804, 241, 168, 23);
-		painelPrincipal.add(chckbxRecebimentoComoVendedor);
-		
-		chckbxUnirRecebimentos = new JCheckBox("Unir");
-		chckbxUnirRecebimentos.setEnabled(false);
-		chckbxUnirRecebimentos.setBounds(830, 277, 168, 23);
-		painelPrincipal.add(chckbxUnirRecebimentos);
-		
+
 		JButton btnGerarRelatorioSimplificado = new JButton("Gerar Relatorio Simplificado");
 		btnGerarRelatorioSimplificado.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				
+
 				int tipo_contrato = -1;
 				boolean gerar = false;
 				boolean somar_sub_contratos = false;
@@ -733,7 +678,8 @@ private JCheckBox chckbxUnirRecebimentos;
 						contrato_como_corretor = false;
 				boolean pagamento = false, pagamento_como_despositante = false, pagamento_como_favorecido = false;
 				boolean carregamento = false, carregamento_como_comprador = false, carregamento_como_vendedor = false;
-				boolean recebimento = false, recebimento_como_comprador = false, recebimento_como_vendedor = false, unir_recebimentos = false;
+				boolean recebimento = false, recebimento_como_comprador = false, recebimento_como_vendedor = false,
+						unir_recebimentos = false;
 
 				Date hoje = new Date();
 				SimpleDateFormat df = new SimpleDateFormat("dd/MM/yyyy");
@@ -756,8 +702,6 @@ private JCheckBox chckbxUnirRecebimentos;
 
 				}
 
-			
-				
 				if (chckbxRecebimentos.isSelected()) {
 					recebimento = true;
 
@@ -768,16 +712,16 @@ private JCheckBox chckbxUnirRecebimentos;
 					if (chckbxRecebimentoComoVendedor.isSelected()) {
 						recebimento_como_vendedor = true;
 					}
-					
-					if(chckbxUnirRecebimentos.isSelected()) {
+
+					if (chckbxUnirRecebimentos.isSelected()) {
 						unir_recebimentos = true;
-					}else {
+					} else {
 						unir_recebimentos = false;
 
 					}
 
 				}
-				
+
 				ArrayList<CadastroCliente> clientes = new ArrayList<>();
 
 				if (cliente_alvo != null) {
@@ -798,8 +742,7 @@ private JCheckBox chckbxUnirRecebimentos;
 
 				}
 
-			
-				if (gerar ) {
+				if (gerar) {
 					RelatorioContratoSimplificado relatar = new RelatorioContratoSimplificado();
 					relatar.setId_safra(id_safra);
 					relatar.setContrato(contrato);
@@ -813,25 +756,192 @@ private JCheckBox chckbxUnirRecebimentos;
 					relatar.setCarregamento(carregamento);
 					relatar.setCarregamento_como_comprador(carregamento_como_comprador);
 					relatar.setCarregamento_como_vendedor(carregamento_como_vendedor);
-                    relatar.setPagamento(pagamento);
-                    relatar.setPagamento_como_depositante(pagamento_como_despositante);
-                    relatar.setPagamento_como_favorecido(pagamento_como_favorecido);
-                    relatar.setRecebimento(recebimento);
-                    relatar.setRecebimento_como_comprador(recebimento_como_comprador);
-                    relatar.setRecebimento_como_vendedor(recebimento_como_vendedor);
-                    relatar.setUnir_recebimentos(unir_recebimentos);
-					
+					relatar.setPagamento(pagamento);
+					relatar.setPagamento_como_depositante(pagamento_como_despositante);
+					relatar.setPagamento_como_favorecido(pagamento_como_favorecido);
+					relatar.setRecebimento(recebimento);
+					relatar.setRecebimento_como_comprador(recebimento_como_comprador);
+					relatar.setRecebimento_como_vendedor(recebimento_como_vendedor);
+					relatar.setUnir_recebimentos(unir_recebimentos);
+
 					ByteArrayOutputStream contrato_alterado = relatar.preparar();
 
 					ConverterPdf converter_pdf = new ConverterPdf();
 					String pdf_alterado = converter_pdf.word_pdf_stream(contrato_alterado);
 					TelaVizualizarPdf vizualizar = new TelaVizualizarPdf(null, isto, null, pdf_alterado, null, isto);
 
-				} 
+				}
 			}
 		});
-		btnGerarRelatorioSimplificado.setBounds(804, 332, 183, 28);
+		btnGerarRelatorioSimplificado.setBounds(855, 485, 183, 28);
 		painelPrincipal.add(btnGerarRelatorioSimplificado);
+
+		panel = new JPanel();
+		panel.setBackground(new Color(0, 51, 0));
+		panel.setBounds(771, 161, 242, 232);
+		painelPrincipal.add(panel);
+		panel.setLayout(null);
+
+		chckbxRecebimentos = new JCheckBox("Recebimentos");
+		chckbxRecebimentos.setFont(new Font("SansSerif", Font.BOLD, 14));
+		chckbxRecebimentos.setForeground(Color.WHITE);
+		chckbxRecebimentos.setBounds(6, 6, 123, 19);
+		panel.add(chckbxRecebimentos);
+
+		chckbxRecebimentoComoComprador = new JCheckBox("Alvo como Comprador");
+		chckbxRecebimentoComoComprador.setFont(new Font("SansSerif", Font.BOLD, 14));
+		chckbxRecebimentoComoComprador.setForeground(Color.WHITE);
+		chckbxRecebimentoComoComprador.setBounds(30, 39, 177, 19);
+		panel.add(chckbxRecebimentoComoComprador);
+		chckbxRecebimentoComoComprador.setEnabled(false);
+
+		chckbxRecebimentoComoVendedor = new JCheckBox("Alvo como Vendedor");
+		chckbxRecebimentoComoVendedor.setFont(new Font("SansSerif", Font.BOLD, 14));
+		chckbxRecebimentoComoVendedor.setForeground(Color.WHITE);
+		chckbxRecebimentoComoVendedor.setBounds(30, 75, 168, 19);
+		panel.add(chckbxRecebimentoComoVendedor);
+		chckbxRecebimentoComoVendedor.setEnabled(false);
+
+		chckbxUnirRecebimentos = new JCheckBox("Unir");
+		chckbxUnirRecebimentos.setFont(new Font("SansSerif", Font.BOLD, 14));
+		chckbxUnirRecebimentos.setForeground(Color.WHITE);
+		chckbxUnirRecebimentos.setBounds(55, 164, 168, 23);
+		panel.add(chckbxUnirRecebimentos);
+		chckbxUnirRecebimentos.setEnabled(false);
+
+		chckbxControleNfVendaEntrada = new JCheckBox("Controle NF Venda");
+		chckbxControleNfVendaEntrada.setForeground(Color.WHITE);
+		chckbxControleNfVendaEntrada.setFont(new Font("SansSerif", Font.BOLD, 14));
+		chckbxControleNfVendaEntrada.setEnabled(false);
+		chckbxControleNfVendaEntrada.setBounds(55, 118, 168, 23);
+		panel.add(chckbxControleNfVendaEntrada);
+
+		panel_1 = new JPanel();
+		panel_1.setBackground(new Color(0, 0, 102));
+		panel_1.setBounds(508, 161, 251, 232);
+		painelPrincipal.add(panel_1);
+		panel_1.setLayout(null);
+
+		chckbxCarregamentos = new JCheckBox("Carregamentos");
+		chckbxCarregamentos.setFont(new Font("SansSerif", Font.BOLD, 14));
+		chckbxCarregamentos.setForeground(Color.WHITE);
+		chckbxCarregamentos.setBounds(6, 6, 130, 19);
+		panel_1.add(chckbxCarregamentos);
+
+		chckbxCarregamentoComoComprador = new JCheckBox("Alvo como Comprador");
+		chckbxCarregamentoComoComprador.setFont(new Font("SansSerif", Font.BOLD, 14));
+		chckbxCarregamentoComoComprador.setForeground(Color.WHITE);
+		chckbxCarregamentoComoComprador.setBounds(30, 39, 177, 19);
+		panel_1.add(chckbxCarregamentoComoComprador);
+		chckbxCarregamentoComoComprador.setEnabled(false);
+
+		chckbxCarregamentpComoVendedor = new JCheckBox("Alvo como Vendedor");
+		chckbxCarregamentpComoVendedor.setFont(new Font("SansSerif", Font.BOLD, 14));
+		chckbxCarregamentpComoVendedor.setForeground(Color.WHITE);
+		chckbxCarregamentpComoVendedor.setBounds(30, 75, 168, 19);
+		panel_1.add(chckbxCarregamentpComoVendedor);
+		chckbxCarregamentpComoVendedor.setEnabled(false);
+
+		chckbxControleNfVendaSaida = new JCheckBox("Controle NF Venda");
+		chckbxControleNfVendaSaida.setFont(new Font("SansSerif", Font.BOLD, 14));
+		chckbxControleNfVendaSaida.setForeground(Color.WHITE);
+		chckbxControleNfVendaSaida.setEnabled(false);
+		chckbxControleNfVendaSaida.setBounds(66, 119, 154, 19);
+		panel_1.add(chckbxControleNfVendaSaida);
+		
+		chckbxUnirCarregamentos = new JCheckBox("Unir");
+		chckbxUnirCarregamentos.setFont(new Font("SansSerif", Font.BOLD, 14));
+		chckbxUnirCarregamentos.setForeground(Color.WHITE);
+		chckbxUnirCarregamentos.setEnabled(false);
+		chckbxUnirCarregamentos.setBounds(66, 181, 51, 19);
+		panel_1.add(chckbxUnirCarregamentos);
+		
+		 chckbxIncluirTransfrenciasCarregamentos = new JCheckBox("Incluir Transfêrencias");
+		chckbxIncluirTransfrenciasCarregamentos.setForeground(Color.WHITE);
+		chckbxIncluirTransfrenciasCarregamentos.setFont(new Font("SansSerif", Font.BOLD, 14));
+		chckbxIncluirTransfrenciasCarregamentos.setEnabled(false);
+		chckbxIncluirTransfrenciasCarregamentos.setBounds(66, 150, 175, 19);
+		panel_1.add(chckbxIncluirTransfrenciasCarregamentos);
+		
+		panel_2 = new JPanel();
+		panel_2.setBackground(new Color(0, 153, 0));
+		panel_2.setBounds(245, 161, 251, 137);
+		painelPrincipal.add(panel_2);
+		panel_2.setLayout(null);
+		
+				chckbxPagamentos = new JCheckBox("Pagamentos");
+				chckbxPagamentos.setFont(new Font("SansSerif", Font.BOLD, 14));
+				chckbxPagamentos.setForeground(Color.WHITE);
+				chckbxPagamentos.setBounds(19, 22, 108, 19);
+				panel_2.add(chckbxPagamentos);
+				
+						chkBoxComoDepositante = new JCheckBox("Alvo como Comprador");
+						chkBoxComoDepositante.setFont(new Font("SansSerif", Font.BOLD, 14));
+						chkBoxComoDepositante.setForeground(Color.WHITE);
+						chkBoxComoDepositante.setBounds(43, 55, 184, 19);
+						panel_2.add(chkBoxComoDepositante);
+						chkBoxComoDepositante.setEnabled(false);
+						
+								chkBoxComoFavorecido = new JCheckBox("Alvo como Vendedor");
+								chkBoxComoFavorecido.setFont(new Font("SansSerif", Font.BOLD, 14));
+								chkBoxComoFavorecido.setForeground(Color.WHITE);
+								chkBoxComoFavorecido.setBounds(43, 91, 179, 19);
+								panel_2.add(chkBoxComoFavorecido);
+								chkBoxComoFavorecido.setEnabled(false);
+				chckbxPagamentos.addActionListener(new ActionListener() {
+					public void actionPerformed(ActionEvent e) {
+
+						if (chckbxPagamentos.isSelected()) {
+							chckbxPagamentos.setSelected(true);
+							chkBoxComoDepositante.setEnabled(true);
+							chkBoxComoFavorecido.setEnabled(true);
+						} else {
+							chckbxPagamentos.setSelected(false);
+							chkBoxComoDepositante.setEnabled(false);
+							chkBoxComoFavorecido.setEnabled(false);
+						}
+
+					}
+				});
+		chckbxCarregamentos.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+
+				if (chckbxCarregamentos.isSelected()) {
+					chckbxCarregamentos.setSelected(true);
+					chckbxCarregamentoComoComprador.setEnabled(true);
+					chckbxCarregamentpComoVendedor.setEnabled(true);
+					chckbxControleNfVendaSaida.setEnabled(true);
+					chckbxUnirCarregamentos.setEnabled(true);
+					chckbxIncluirTransfrenciasCarregamentos.setEnabled(true);
+					
+				} else {
+					chckbxCarregamentos.setSelected(false);
+					chckbxCarregamentoComoComprador.setEnabled(false);
+					chckbxCarregamentpComoVendedor.setEnabled(false);
+					chckbxControleNfVendaSaida.setEnabled(false);
+					chckbxUnirCarregamentos.setEnabled(false);
+					chckbxIncluirTransfrenciasCarregamentos.setEnabled(false);
+				}
+			}
+		});
+		chckbxRecebimentos.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				if (chckbxRecebimentos.isSelected()) {
+					chckbxRecebimentos.setSelected(true);
+					chckbxRecebimentoComoComprador.setEnabled(true);
+					chckbxRecebimentoComoVendedor.setEnabled(true);
+					chckbxUnirRecebimentos.setEnabled(true);
+
+					chckbxControleNfVendaEntrada.setEnabled(true);
+				} else {
+					chckbxRecebimentos.setSelected(false);
+					chckbxRecebimentoComoComprador.setEnabled(false);
+					chckbxRecebimentoComoVendedor.setEnabled(false);
+					chckbxUnirRecebimentos.setEnabled(false);
+					chckbxControleNfVendaEntrada.setEnabled(false);
+				}
+			}
+		});
 
 		pesquisarSafras();
 
