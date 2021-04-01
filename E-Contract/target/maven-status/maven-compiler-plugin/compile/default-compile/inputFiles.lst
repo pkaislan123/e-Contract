@@ -11,6 +11,7 @@ C:\Users\aisla\git\e-Contract\E-Contract\src\conexaoBanco\GerenciarBancoGrupos.j
 C:\Users\aisla\git\e-Contract\E-Contract\src\outros\GetSintegra.java
 C:\Users\aisla\git\e-Contract\E-Contract\src\cadastros\CadastroBaseArquivos.java
 C:\Users\aisla\git\e-Contract\E-Contract\src\outros\BaixarNotasFiscais.java
+C:\Users\aisla\git\e-Contract\E-Contract\src\cadastros\RegistroRecebimento.java
 C:\Users\aisla\git\e-Contract\E-Contract\src\gui\TelaCadastroGrupo.java
 C:\Users\aisla\git\e-Contract\E-Contract\src\relatoria\RelatorioContratoIndividualExcel.java
 C:\Users\aisla\git\e-Contract\E-Contract\src\gui\TelaEnviarMsgMail.java
@@ -39,6 +40,7 @@ C:\Users\aisla\git\e-Contract\E-Contract\src\classesExtras\CBLocalRetiradaPerson
 C:\Users\aisla\git\e-Contract\E-Contract\src\cadastros\CadastroDocumento.java
 C:\Users\aisla\git\e-Contract\E-Contract\src\conexaoBanco\GerenciarBancoDistratos.java
 C:\Users\aisla\git\e-Contract\E-Contract\src\manipular\ManipularNotasFiscais.java
+C:\Users\aisla\git\e-Contract\E-Contract\src\relatoria\RelatorioContratoSimplificado.java
 C:\Users\aisla\git\e-Contract\E-Contract\src\classesExtras\RenderizadorNotas.java
 C:\Users\aisla\git\e-Contract\E-Contract\src\conexaoBanco\GerenciarBancoProdutos.java
 C:\Users\aisla\git\e-Contract\E-Contract\src\outros\GetDadosTransportador.java
@@ -64,6 +66,7 @@ C:\Users\aisla\git\e-Contract\E-Contract\src\conexoes\TesteConexao.java
 C:\Users\aisla\git\e-Contract\E-Contract\src\manipular\ArquivoConfiguracoes.java
 C:\Users\aisla\git\e-Contract\E-Contract\src\gui\TelaPrincipal.java
 C:\Users\aisla\git\e-Contract\E-Contract\src\graficos\Grafico.java
+C:\Users\aisla\git\e-Contract\E-Contract\src\conexaoBanco\GerenciarBancoRomaneios.java
 C:\Users\aisla\git\e-Contract\E-Contract\src\gui\TelaConfirmarTransferenciaPagamentoContratual.java
 C:\Users\aisla\git\e-Contract\E-Contract\src\cadastros\CadastroNFe.java
 C:\Users\aisla\git\e-Contract\E-Contract\src\gui\TelaArmazem.java
@@ -129,6 +132,7 @@ C:\Users\aisla\git\e-Contract\E-Contract\src\cadastros\CadastroAviso.java
 C:\Users\aisla\git\e-Contract\E-Contract\src\tratamento_proprio\Log.java
 C:\Users\aisla\git\e-Contract\E-Contract\src\gui\TelaDefinirTempo.java
 C:\Users\aisla\git\e-Contract\E-Contract\src\outros\Gerador_Desenho.java
+C:\Users\aisla\git\e-Contract\E-Contract\src\cadastros\RegistroQuantidade.java
 C:\Users\aisla\git\e-Contract\E-Contract\src\outros\JProgressBarPersonalizado.java
 C:\Users\aisla\git\e-Contract\E-Contract\src\gui\TelaConfirmarPagamentoContratual.java
 C:\Users\aisla\git\e-Contract\E-Contract\src\principal\Main.java
