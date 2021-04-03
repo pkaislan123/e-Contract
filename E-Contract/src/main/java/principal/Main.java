@@ -17,6 +17,7 @@ import javax.swing.UIManager;
 import javax.swing.UIManager.LookAndFeelInfo;
 import javax.swing.UnsupportedLookAndFeelException;
 
+import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.autoconfigure.SpringBootApplication; 
 import org.springframework.boot.builder.SpringApplicationBuilder;
@@ -32,11 +33,9 @@ import java.net.URL;
 import javax.swing.*;
 import javax.sound.sampled.*;
 
-
-@SpringBootApplication
 public class Main {
 
- public static void main(String[] args) {
+	public static void main(String[] args) {
 	
 	 
 	  String start = "";

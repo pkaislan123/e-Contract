@@ -509,6 +509,17 @@ public class TelaMain extends JFrame {
 		mntmNewMenuItem_5.setIcon(new ImageIcon(TelaPrincipal.class.getResource("/imagens/icone_menu_tarefas.png")));
 		mntmNewMenuItem_5.setMargin(new Insets(0, 10, 0, 0));
 		mnFerramentas.add(mntmNewMenuItem_5);
+		
+		JMenuItem mntmNewMenuItem_6 = new JMenuItem("Finanças");
+		mntmNewMenuItem_6.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				TelaFinanceiro tela = new TelaFinanceiro(isto);
+				tela.setVisible(true);
+			}
+		});
+		mntmNewMenuItem_6.setIcon(new ImageIcon(TelaMain.class.getResource("/imagens/financa.png")));
+		mntmNewMenuItem_6.setMargin(new Insets(0, 10, 0, 0));
+		mnFerramentas.add(mntmNewMenuItem_6);
 		JMenu mnNewMenu = new JMenu("Configurações");
 		mnNewMenu.setIcon(new ImageIcon(TelaPrincipal.class.getResource("/imagens/preferencias.png")));
 		mnNewMenu.setFont(new Font("Arial", Font.PLAIN, 18));
@@ -1289,7 +1300,7 @@ public class TelaMain extends JFrame {
 						novaNotificacao(
 								"Há " + numerosContratosSemAssinar
 										+ " contratos com carencia de assinatura na base de dados",
-								"/audio/beep_notificacao.wav", 1);
+								"/main/java/audio/beep_notificacao.wav", 1);
 					}
 				}.start();
 				executou = true;
@@ -1419,7 +1430,7 @@ public class TelaMain extends JFrame {
 						while (notificando) {
 						}
 						novaNotificacao("Sem conexão com a internet, algumas funções seram limitadas até a reconexão!",
-								"/audio/beep_erro_net.wav", 2);
+								"/main/java/audio/beep_erro_net.wav", 2);
 						lblnet.setText("Internet: Desconectada");
 						imgInternet.setIcon(
 								new ImageIcon(TelaPrincipal.class.getResource("/imagens/internet_offline.png")));
@@ -1455,7 +1466,7 @@ public class TelaMain extends JFrame {
 						while (notificando) {
 						}
 						novaNotificacao("Sem conexão com a nuvem, algumas funções seram limitadas até a reconexão!",
-								"/audio/beep_erro_net.wav", 2);
+								"/main/java/audio/beep_erro_net.wav", 2);
 						lblNuvem.setText("Nuvem: Desconectada");
 						imgNuvem.setIcon(new ImageIcon(TelaPrincipal.class.getResource("/imagens/nuvem_offline.png")));
 					}
@@ -1495,7 +1506,7 @@ public class TelaMain extends JFrame {
 						while (notificando) {
 						}
 						novaNotificacao("Sem conexão com o Whatsapp, algumas funções seram limitadas até a reconexão!",
-								"/audio/beep_erro_net.wav", 2);
+								"/main/java/audio/beep_erro_net.wav", 2);
 						lblStatusWhatsapp.setText("Status: Desconectado");
 						imgWhatsapp.setIcon(new ImageIcon(TelaPrincipal.class.getResource("/imagens/zap_offline.png")));
 					}
@@ -1833,7 +1844,7 @@ public class TelaMain extends JFrame {
 							while (notificando == true) {
 								//System.out.println("Notificacao em andamento");
 							}
-							novaNotificacao("Você possui tarefas a concluir", "/audio/beep_notificacao.wav", 1);
+							novaNotificacao("Você possui tarefas a concluir", "/main/java/audio/beep_notificacao.wav", 1);
 							num_tarefas_nesta_secao = num_agora;
 						} else {
 							num_tarefas_nesta_secao = 0;
@@ -1849,7 +1860,7 @@ public class TelaMain extends JFrame {
 							e.printStackTrace();
 						}
 						num_tarefas_nesta_secao = num_agora;
-						novaNotificacao("Nova Tarefa Recebida!", "/audio/beep_notificacao.wav", 1);
+						novaNotificacao("Nova Tarefa Recebida!", "/main/java/audio/beep_notificacao.wav", 1);
 					} else if (num_agora > num_tarefas_nesta_secao) {
 						// quantidade de tarefas e a mesma
 						num_tarefas_nesta_secao = num_agora;
