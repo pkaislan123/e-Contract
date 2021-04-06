@@ -26,6 +26,7 @@ import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 
 import main.java.gui.TelaEntrada;
+import main.java.gui.TelaFinanceiro;
 import main.java.manipular.ArquivoConfiguracoes;
 import main.java.manipular.MonitorarRomaneios;
 
@@ -96,7 +97,9 @@ public class Main {
 		//TelaPadrao padrao = new TelaPadrao();
 		
 	   //Abre a tela de login
+	
 		//TelaLogin login = new TelaLogin();
+		
 		TelaEntrada entrada = new TelaEntrada();
 		new Thread() {
 			@Override
@@ -107,8 +110,7 @@ public class Main {
 		}.start();
 		
 		entrada.realizarTeste();
-	
-    
+
 	
 	
 	

@@ -286,7 +286,11 @@ public class TelaCliente extends JDialog {
        				else if (flag_tipo_cliente == 20)
        					((TelaImportarContratoManual) telaPai).setComprador2(clienteSelecionado);
        				else if (flag_tipo_cliente == 25)
-       					((TelaCadastroInstituicaoBancaria) telaPai).setCliente(clienteSelecionado);
+       					((TelaFinanceiroCadastroInstituicaoBancaria) telaPai).setCliente(clienteSelecionado);
+       				else if (flag_tipo_cliente == 26)
+       					((TelaFinanceiroCadastroCentroCusto) telaPai).setCliente(clienteSelecionado);
+       				else if (flag_tipo_cliente == 27)
+       					((TelaFinanceiroCadastroLancamento) janela_pai).setCliente(clienteSelecionado);
 
     				isto.dispose();
 					}
@@ -355,8 +359,11 @@ public class TelaCliente extends JDialog {
        				else if (flag_tipo_cliente == 20)
        					((TelaImportarContratoManual) telaPai).setComprador2(clienteSelecionado);
        				else if (flag_tipo_cliente == 25)
-       					((TelaCadastroInstituicaoBancaria) telaPai).setCliente(clienteSelecionado);
-
+       					((TelaFinanceiroCadastroInstituicaoBancaria) telaPai).setCliente(clienteSelecionado);
+       				else if (flag_tipo_cliente == 26)
+       					((TelaFinanceiroCadastroCentroCusto) telaPai).setCliente(clienteSelecionado);
+       				else if (flag_tipo_cliente == 27)
+       					((TelaFinanceiroCadastroLancamento) janela_pai).setCliente(clienteSelecionado);
 
     				isto.dispose();
                 	}
@@ -519,7 +526,12 @@ public class TelaCliente extends JDialog {
    				else if (flag_tipo_cliente == 20)
    					((TelaImportarContratoManual) telaPai).setComprador2(clienteSelecionado);
    				else if (flag_tipo_cliente == 25)
-   					((TelaCadastroInstituicaoBancaria) telaPai).setCliente(clienteSelecionado);
+   					((TelaFinanceiroCadastroInstituicaoBancaria) telaPai).setCliente(clienteSelecionado);
+   				else if (flag_tipo_cliente == 26)
+   					((TelaFinanceiroCadastroCentroCusto) telaPai).setCliente(clienteSelecionado);
+   				else if (flag_tipo_cliente == 27)
+   					((TelaFinanceiroCadastroLancamento) janela_pai).setCliente(clienteSelecionado);
+   			
 				isto.dispose();
 			}
 		});

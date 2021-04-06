@@ -164,13 +164,13 @@ import javax.swing.JComboBox;
 
 
 
-public class TelaCadastroInstituicaoBancaria extends JDialog {
+public class TelaFinanceiroCadastroInstituicaoBancaria extends JDialog {
 
 	private final JPanel painelPrincipal = new JPanel();
 	private final JPanel painelOdin = new JPanel();
 
     private JLabel lblTotalContratosConcluidos, lblTotalContratos, lblTotalContratosAbertos;
-    private TelaCadastroInstituicaoBancaria isto;
+    private TelaFinanceiroCadastroInstituicaoBancaria isto;
     private JDialog telaPai;
     
     private JTextFieldPersonalizado entNome;
@@ -189,7 +189,7 @@ public class TelaCadastroInstituicaoBancaria extends JDialog {
     private final JLabel lblObservao = new JLabel("Observação:");
     private final JEditorPane entObservacao = new JEditorPane();
     private final JPanel panel = new JPanel();
-    private final JLabel lblNewLabel = new JLabel("Novo Cadastro");
+    private final JLabel lblNewLabel = new JLabel("Cadastro de Instituição Bancária");
     private final JLabel lblCliente = new JLabel("Cliente:");
     private final JPanel panel_1 = new JPanel();
     private final JComboBox cbCliente = new JComboBox();
@@ -205,7 +205,7 @@ public class TelaCadastroInstituicaoBancaria extends JDialog {
 private ComboBoxPersonalizadoContaBancaria modelCC= new ComboBoxPersonalizadoContaBancaria();
 private ComboBoxRenderPersonalizadoContaBancaria renderCC  = new ComboBoxRenderPersonalizadoContaBancaria() ;
     
-	public TelaCadastroInstituicaoBancaria(int modo_operacao,InstituicaoBancaria instituicao_bancaria, Window janela_pai) {
+	public TelaFinanceiroCadastroInstituicaoBancaria(int modo_operacao,InstituicaoBancaria instituicao_bancaria, Window janela_pai) {
 
 		
 		
@@ -255,11 +255,14 @@ private ComboBoxRenderPersonalizadoContaBancaria renderCC  = new ComboBoxRenderP
 		lblCliente.setFont(new Font("Arial", Font.PLAIN, 16));
 		lblCliente.setBackground(Color.ORANGE);
 		panel_2.add(panel_1, "cell 1 1,growx,aligny top");
-		panel_1.setBackground(Color.WHITE);
+		panel_1.setBackground(new Color(0, 51, 102));
 		panel_1.setLayout(new MigLayout("", "[grow]", "[]"));
 		cbCliente.setFont(new Font("SansSerif", Font.PLAIN, 14));
 		
 		panel_1.add(cbCliente, "flowx,cell 0 0,growx");
+		btnSelecionarCliente.setForeground(Color.WHITE);
+		btnSelecionarCliente.setBackground(new Color(0, 0, 102));
+		btnSelecionarCliente.setFont(new Font("Arial", Font.PLAIN, 12));
 		btnSelecionarCliente.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				TelaCliente tela = new TelaCliente(0,25, null);
@@ -277,7 +280,7 @@ private ComboBoxRenderPersonalizadoContaBancaria renderCC  = new ComboBoxRenderP
 		
 		cbContaBancaria.setModel(modelCC);
 		cbContaBancaria.setRenderer(renderCC);
-		cbContaBancaria.setFont(new Font("SansSerif", Font.PLAIN, 14));
+		cbContaBancaria.setFont(new Font("Arial", Font.PLAIN, 18));
 		panel_2.add(cbContaBancaria, "cell 1 2,growx,aligny top");
 		
 	
@@ -336,6 +339,19 @@ private ComboBoxRenderPersonalizadoContaBancaria renderCC  = new ComboBoxRenderP
 		
 		painelPrincipal.add(panel_3, "cell 2 3 3 1,grow");
 		panel_3.setLayout(new MigLayout("", "[][]", "[]"));
+		btnAtualizar.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				 GerenciarBancoInstituicaoBancaria gerenciar = new GerenciarBancoInstituicaoBancaria();
+				 boolean result = gerenciar.atualizarIB(getDadosAtualizar(instituicao_bancaria));
+				 if(result) {
+					 JOptionPane.showMessageDialog(isto, "Cadastro Atualizado");
+					 isto.dispose();
+				 }else {
+					 JOptionPane.showMessageDialog(isto, "Erro ao Atualizar\nConsulte o Administrador");
+
+				 }
+			}
+		});
 		panel_3.add(btnAtualizar, "cell 0 0,growx");
 		btnCadastrar.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
@@ -356,6 +372,13 @@ private ComboBoxRenderPersonalizadoContaBancaria renderCC  = new ComboBoxRenderP
 	
 		if(modo_operacao == 1) {
 			rotinasEdicao(instituicao_bancaria);
+	
+			
+			btnCadastrar.setEnabled(false);
+			btnCadastrar.setVisible(false);
+		}else {
+			btnAtualizar.setEnabled(false);
+			btnAtualizar.setVisible(false);
 		}
 		
 		
@@ -405,8 +428,6 @@ private ComboBoxRenderPersonalizadoContaBancaria renderCC  = new ComboBoxRenderP
 		entTarifaFixaTransacao.setText(s_tarifa_fixa_transacao);
 		entDescricao.setText(descricao);
 		entObservacao.setText(observacao);
-		
-		
 		
 		
 		
@@ -487,7 +508,119 @@ private ComboBoxRenderPersonalizadoContaBancaria renderCC  = new ComboBoxRenderP
 	}
 	
 	
-	
+	public InstituicaoBancaria getDadosAtualizar(InstituicaoBancaria ib_antigo) {
+		
+		InstituicaoBancaria ib = new InstituicaoBancaria();
+		ib.setId_instituicao_bancaria(ib_antigo.getId_instituicao_bancaria());
+		
+		int id_cliente = 0, id_conta = 0;
+		
+		String nome = entNome.getText();
+		
+		
+		if(cliente_selecionado != null) {
+			id_cliente = cliente_selecionado.getId();
+		
+			ContaBancaria cb_selecionada = (ContaBancaria) modelCC.getSelectedItem();	
+
+			if(cb_selecionada != null)
+				id_conta = cb_selecionada.getId_conta();
+			else 
+				id_conta = 0;
+			
+			
+		}else {
+			id_cliente = 0;
+			id_conta = 0;
+			
+		}
+		
+		ib.setNome_instituicao_bancaria(nome);
+		String descricao = entDescricao.getText();
+		String observacao = entObservacao.getText();
+
+		try {
+			String s_saldo_inicial = entSaldoInicial.getText();
+
+			BigDecimal saldo_inicial = BigDecimal.ZERO;
+
+			s_saldo_inicial = s_saldo_inicial.replaceAll("[^0-9,]", "");
+			s_saldo_inicial = s_saldo_inicial.replaceAll(",", ".");
+			saldo_inicial = new BigDecimal(s_saldo_inicial);
+			ib.setSaldo_inicial(saldo_inicial);
+
+		}catch(Exception t) {
+			ib.setSaldo_inicial(BigDecimal.ZERO);
+
+		}
+		
+		try {
+			String s_taxa_intermediacao = entTaxaIntermediacao.getText();
+
+			BigDecimal taxa_intermediacao = BigDecimal.ZERO;
+
+			s_taxa_intermediacao = s_taxa_intermediacao.replace("[^0-9,]", "");
+			s_taxa_intermediacao = s_taxa_intermediacao.replace(",", ".");
+			
+			taxa_intermediacao = new BigDecimal(s_taxa_intermediacao);
+			ib.setTaxa_intermediacao(taxa_intermediacao);
+
+		}catch(Exception v) {
+			ib.setTaxa_intermediacao(BigDecimal.ZERO);
+
+		}
+		
+		try {
+			String s_taxa_parcelamento_mensal = entTaxaParcelamento.getText();
+
+			BigDecimal taxa_parcelamento_mensal = BigDecimal.ZERO;
+
+			s_taxa_parcelamento_mensal = s_taxa_parcelamento_mensal.replace("[^0-9,]", "");
+			s_taxa_parcelamento_mensal = s_taxa_parcelamento_mensal.replace(",", ".");
+			taxa_parcelamento_mensal = new BigDecimal(s_taxa_parcelamento_mensal);
+			ib.setTaxa_parcelamento_mensal(taxa_parcelamento_mensal);
+
+		}catch(Exception i) {
+			ib.setTaxa_parcelamento_mensal(BigDecimal.ZERO);
+
+		}	
+		
+		try {
+			String s_tarifa_fixa_transacao = entTarifaFixaTransacao.getText();
+
+			BigDecimal tarifa_fixa_transacao = BigDecimal.ZERO;
+
+			s_tarifa_fixa_transacao = s_tarifa_fixa_transacao.replace("[^0-9,]", "");
+			s_tarifa_fixa_transacao = s_tarifa_fixa_transacao.replace(",", ".");
+			tarifa_fixa_transacao = new BigDecimal(s_tarifa_fixa_transacao);
+			ib.setTaxa_fixa_transacao(tarifa_fixa_transacao);
+
+		}catch(Exception k) {
+			ib.setTaxa_fixa_transacao(BigDecimal.ZERO);
+
+		}	
+			
+		
+		
+		try {
+		ib.setId_cliente(id_cliente);
+		
+		}catch(Exception y) {
+			ib.setId_cliente(0);
+		}
+		
+		try {
+			ib.setId_conta(id_conta);
+			
+			}catch(Exception q) {
+				ib.setId_conta(0);
+
+			}
+			
+		
+		 
+		return ib;
+	}
 	
 	public InstituicaoBancaria getDadosSalvar() {
 		

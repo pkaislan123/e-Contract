@@ -18,7 +18,7 @@ public class JPasswordFieldPersonalizado extends JPasswordField{
       
         //define a cor do texto, fonte e tamanho da letra
        this.setForeground(Color.WHITE); // altera a cor da fonte
-       this.setFont(new Font("Times New Roman", Font.BOLD, 18));
+       this.setFont(new Font("Times New Roman", Font.PLAIN, 18));
       
     }
     protected void paintComponent(Graphics g) {
@@ -26,6 +26,7 @@ public class JPasswordFieldPersonalizado extends JPasswordField{
          g.fillRoundRect(0, 0, getWidth()-1, getHeight()-1, 15, 15);
          super.paintComponent(g);
     }
+    
     protected void paintBorder(Graphics g) {
          g.setColor(getForeground());
 
@@ -34,6 +35,7 @@ public class JPasswordFieldPersonalizado extends JPasswordField{
          g.drawRoundRect(0, getHeight()-1,getWidth()-1,1, 15, 15);
          
     }
+    
     public boolean contains(int x, int y) {
          if (shape == null || !shape.getBounds().equals(getBounds())) {
              shape = new RoundRectangle2D.Float(0, 0, getWidth()-1, getHeight()-1, 15, 15);
