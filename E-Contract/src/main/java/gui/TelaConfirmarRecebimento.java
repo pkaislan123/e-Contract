@@ -2201,7 +2201,7 @@ public class TelaConfirmarRecebimento extends JDialog {
 			recebimento_a_inserir.setCodigo_nf_remessa(entCodigoNFRemessa.getText());
 			
 			try {
-			recebimento_a_inserir.setPeso_nf_remessa(Double.parseDouble(entCodigoNFRemessa.getText()));
+			recebimento_a_inserir.setPeso_nf_remessa(Double.parseDouble(entPesoNFRemessa.getText()));
 			}catch(Exception y) {
 				recebimento_a_inserir.setPeso_nf_remessa(0);
 

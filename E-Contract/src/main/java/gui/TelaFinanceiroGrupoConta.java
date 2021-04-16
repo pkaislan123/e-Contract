@@ -61,7 +61,7 @@ public class TelaFinanceiroGrupoConta extends JDialog {
 		panel.add(lblNewLabel, "cell 0 0 1 5,growx,aligny center");
 		
 		JPanel panel_1 = new JPanel();
-		painelPrinciapl.add(panel_1, "cell 0 1,grow");
+		painelPrinciapl.add(panel_1, "cell 0 1,alignx right,aligny center");
 		panel_1.setBorder(new LineBorder(new Color(0, 0, 0)));
 		panel_1.setBackground(Color.WHITE);
 		
@@ -95,6 +95,9 @@ public class TelaFinanceiroGrupoConta extends JDialog {
 		panel_3.setBackground(Color.WHITE);
 		
 		JButton btnNewButton_1 = new JButton("Cadastrar");
+		btnNewButton_1.setBackground(new Color(0, 51, 0));
+		btnNewButton_1.setFont(new Font("SansSerif", Font.BOLD, 16));
+		btnNewButton_1.setForeground(Color.WHITE);
 		btnNewButton_1.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				TelaFinanceiroCadastroGrupoConta cadastro = new TelaFinanceiroCadastroGrupoConta(0, null, isto);
@@ -104,6 +107,9 @@ public class TelaFinanceiroGrupoConta extends JDialog {
 		});
 		
 		JButton btnNewButton_4 = new JButton("Excluir");
+		btnNewButton_4.setBackground(new Color(204, 0, 0));
+		btnNewButton_4.setFont(new Font("SansSerif", Font.BOLD, 16));
+		btnNewButton_4.setForeground(Color.WHITE);
 	
 		btnNewButton_4.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
@@ -130,6 +136,9 @@ public class TelaFinanceiroGrupoConta extends JDialog {
 		panel_3.add(btnNewButton_4, "cell 0 0,alignx left,aligny top");
 		
 		JButton btnNewButton_3 = new JButton("Selecionar");
+		btnNewButton_3.setBackground(new Color(0, 0, 51));
+		btnNewButton_3.setFont(new Font("SansSerif", Font.BOLD, 16));
+		btnNewButton_3.setForeground(Color.WHITE);
 		btnNewButton_3.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 			FinanceiroGrupoContas conta_selecionada = getGrupoContasSelecionado();
@@ -144,6 +153,9 @@ public class TelaFinanceiroGrupoConta extends JDialog {
 		panel_3.add(btnNewButton_3, "cell 1 0,alignx left,aligny top");
 		
 		JButton btnNewButton_2 = new JButton("Editar");
+		btnNewButton_2.setBackground(new Color(255, 153, 0));
+		btnNewButton_2.setFont(new Font("SansSerif", Font.BOLD, 16));
+		btnNewButton_2.setForeground(Color.WHITE);
 		btnNewButton_2.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				TelaFinanceiroCadastroGrupoConta tela = new TelaFinanceiroCadastroGrupoConta(1, getGrupoContasSelecionado(), isto);

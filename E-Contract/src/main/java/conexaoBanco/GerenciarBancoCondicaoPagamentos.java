@@ -136,8 +136,8 @@ public class GerenciarBancoCondicaoPagamentos {
 			return dado;
 
 		} catch (Exception e) {
-			JOptionPane.showMessageDialog(null, "Erro ao listar centro de custo id: " + id);// );
-			System.out.println("Erro ao listar centro de custo id: " + id + " erro: " + "\ncausa: ");
+			JOptionPane.showMessageDialog(null, "Erro ao listar a condição de pagamento,  id: " + id);// );
+			System.out.println("Erro ao listar a condição de pagamento id: " + id + " erro: " + "\ncausa: ");
 			return null;
 		}
 

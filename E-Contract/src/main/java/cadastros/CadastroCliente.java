@@ -7,6 +7,21 @@ public class CadastroCliente {
 
 	
 
+	private int modulo_cliente;
+	public int getModulo_cliente() {
+		return modulo_cliente;
+	}
+
+
+
+
+
+	public void setModulo_cliente(int modulo_cliente) {
+		this.modulo_cliente = modulo_cliente;
+	}
+
+
+
 
 	private int id;
 	private int transportador;

@@ -174,7 +174,7 @@ import java.awt.event.FocusEvent;
 import javax.swing.UIManager;
 import javax.swing.border.LineBorder;
 
-public class TelaElaborarNovoContrato extends JDialog {
+public class TelaElaborarNovoContrato extends JFrame {
 	private JTabbedPane painelPrincipal = new JTabbedPane();
 	private JPanel painelDadosIniciais = new JPanel();
 

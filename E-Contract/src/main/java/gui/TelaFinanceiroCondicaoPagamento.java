@@ -190,7 +190,7 @@ public class TelaFinanceiroCondicaoPagamento extends JDialog {
 		painelPrincipal.setBackground(new Color(255, 255, 255));
 		painelPrincipal.setBorder(new EmptyBorder(5, 5, 5, 5));
 		setContentPane(painelPrincipal);
-		painelPrincipal.setLayout(new MigLayout("", "[89px,grow][][][][][][][][][][][][][][][][][][][][][][][][][]", "[23px][][][grow][55.00][][grow][][][][][][][][][][][][][][]"));
+		painelPrincipal.setLayout(new MigLayout("", "[89px,grow][][][][][][][][][][][][][][][][][][][][][][][][][grow]", "[23px][][][grow][55.00][][grow][][][][][][][][][][][][][][grow]"));
 		
 		JPanel panel = new JPanel();
 		panel.setBackground(new Color(0, 102, 255));
@@ -206,8 +206,7 @@ public class TelaFinanceiroCondicaoPagamento extends JDialog {
 		JPanel panel_1 = new JPanel();
 		panel_1.setBorder(new LineBorder(new Color(0, 0, 0)));
 		panel_1.setBackground(Color.WHITE);
-		painelPrincipal.add(panel_1, "cell 0 3 26 2,growx,aligny center");
-		panel_1.setLayout(new MigLayout("", "[][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][]", "[]"));
+		painelPrincipal.add(panel_1, "cell 0 3 26 2,alignx right,aligny center");
 		
 		JButton btnNewButton_1 = new JButton("Refazer Pesquisa");
 		btnNewButton_1.setBackground(new Color(0, 0, 51));
@@ -217,7 +216,8 @@ public class TelaFinanceiroCondicaoPagamento extends JDialog {
 				pesquisar();
 			}
 		});
-		panel_1.add(btnNewButton_1, "cell 30 0,alignx right");
+		panel_1.setLayout(new MigLayout("", "[126px]", "[28px]"));
+		panel_1.add(btnNewButton_1, "cell 0 0,alignx left,aligny top");
 		
 		
 		
@@ -231,33 +231,18 @@ public class TelaFinanceiroCondicaoPagamento extends JDialog {
 		scrollPane.getViewport().setBackground(Color.WHITE);
 		scrollPane.setOpaque(true);
 		scrollPane.setBackground(Color.WHITE);
-		painelPrincipal.add(scrollPane, "cell 0 6 26 11,grow");
+		painelPrincipal.add(scrollPane, "cell 0 6 26 14,grow");
 		
-		JButton btnNewButton = new JButton("Cadastrar");
-		btnNewButton.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-			
-				TelaFinanceiroCadastroCondicaoPagamento tela = new TelaFinanceiroCadastroCondicaoPagamento(0, null, isto);
-				tela.setVisible(true);
-			
-			}
-		});
-		
-		JButton btnEditar = new JButton("Editar");
-		btnEditar.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				
-				
-				TelaFinanceiroCadastroCondicaoPagamento tela = new TelaFinanceiroCadastroCondicaoPagamento(1, getCondicaoPagamentoSelecionado(), isto);
-				tela.setVisible(true);
-
-
-						
-						
-			}
-		});
+		JPanel panel_2 = new JPanel();
+		panel_2.setBackground(Color.WHITE);
+		painelPrincipal.add(panel_2, "cell 21 20 5 1,alignx right,growy");
+		panel_2.setLayout(new MigLayout("", "[][][][][][][]", "[]"));
 		
 		JButton btnExcluir = new JButton("Excluir");
+		btnExcluir.setBackground(new Color(153, 0, 0));
+		btnExcluir.setForeground(Color.WHITE);
+		btnExcluir.setFont(new Font("SansSerif", Font.BOLD, 16));
+		panel_2.add(btnExcluir, "cell 3 0");
 		btnExcluir.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				
@@ -279,22 +264,54 @@ public class TelaFinanceiroCondicaoPagamento extends JDialog {
 				
 			}
 		});
-		painelPrincipal.add(btnExcluir, "cell 17 18");
 		
 		JButton btnSelecionar = new JButton("Selecionar");
+		btnSelecionar.setBackground(new Color(0, 0, 51));
+		btnSelecionar.setForeground(Color.WHITE);
+		btnSelecionar.setFont(new Font("SansSerif", Font.BOLD, 16));
+		panel_2.add(btnSelecionar, "cell 4 0");
 		btnSelecionar.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				if(modo_operacao == 0) {
 					if(tela_retorno == 1) {
-						((TelaFinanceiroCadastroLancamento) janela_pai).setCondicaoPagamento(getCondicaoPagamentoSelecionado());
+						((TelaFinanceiroCadastroPagamento) janela_pai).setCondicaoPagamento(getCondicaoPagamentoSelecionado());
 						isto.dispose();
 					}
 				}
 			}
 		});
-		painelPrincipal.add(btnSelecionar, "cell 19 18");
-		painelPrincipal.add(btnEditar, "cell 21 18");
-		painelPrincipal.add(btnNewButton, "cell 23 18,growx,aligny top");
+		
+		JButton btnEditar = new JButton("Editar");
+		btnEditar.setBackground(new Color(255, 153, 0));
+		btnEditar.setForeground(Color.WHITE);
+		btnEditar.setFont(new Font("SansSerif", Font.BOLD, 16));
+		panel_2.add(btnEditar, "cell 5 0");
+		btnEditar.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				
+				
+				TelaFinanceiroCadastroCondicaoPagamento tela = new TelaFinanceiroCadastroCondicaoPagamento(1, getCondicaoPagamentoSelecionado(), isto);
+				tela.setVisible(true);
+
+
+						
+						
+			}
+		});
+		
+		JButton btnNewButton = new JButton("Cadastrar");
+		btnNewButton.setBackground(new Color(0, 51, 0));
+		btnNewButton.setForeground(Color.WHITE);
+		btnNewButton.setFont(new Font("SansSerif", Font.BOLD, 16));
+		panel_2.add(btnNewButton, "cell 6 0");
+		btnNewButton.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+			
+				TelaFinanceiroCadastroCondicaoPagamento tela = new TelaFinanceiroCadastroCondicaoPagamento(0, null, isto);
+				tela.setVisible(true);
+			
+			}
+		});
 	
 		
 		

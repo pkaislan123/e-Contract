@@ -240,7 +240,10 @@ public class TelaFinanceiroCentroCusto extends JDialog {
 		panel_2.setLayout(new MigLayout("", "[][][][][][][][]", "[]"));
 		
 		JButton btnExcluir = new JButton("Excluir");
-		panel_2.add(btnExcluir, "cell 4 0");
+		btnExcluir.setBackground(new Color(204, 0, 0));
+		btnExcluir.setForeground(Color.WHITE);
+		btnExcluir.setFont(new Font("SansSerif", Font.BOLD, 16));
+		panel_2.add(btnExcluir, "cell 4 0,alignx right");
 		btnExcluir.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				
@@ -264,6 +267,9 @@ public class TelaFinanceiroCentroCusto extends JDialog {
 		});
 		
 		JButton btnSelecionar = new JButton("Selecionar");
+		btnSelecionar.setBackground(new Color(0, 0, 102));
+		btnSelecionar.setForeground(Color.WHITE);
+		btnSelecionar.setFont(new Font("SansSerif", Font.BOLD, 16));
 		btnSelecionar.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				if(modo_operacao == 0) {
@@ -274,9 +280,12 @@ public class TelaFinanceiroCentroCusto extends JDialog {
 				}
 			}
 		});
-		panel_2.add(btnSelecionar, "cell 5 0");
+		panel_2.add(btnSelecionar, "cell 5 0,alignx right");
 		
 		JButton btnEditar = new JButton("Editar");
+		btnEditar.setBackground(new Color(255, 153, 0));
+		btnEditar.setForeground(Color.WHITE);
+		btnEditar.setFont(new Font("SansSerif", Font.BOLD, 16));
 		panel_2.add(btnEditar, "cell 6 0");
 		btnEditar.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
@@ -292,6 +301,9 @@ public class TelaFinanceiroCentroCusto extends JDialog {
 		});
 		
 		JButton btnNewButton = new JButton("Cadastrar");
+		btnNewButton.setBackground(new Color(0, 51, 0));
+		btnNewButton.setForeground(Color.WHITE);
+		btnNewButton.setFont(new Font("SansSerif", Font.BOLD, 16));
 		panel_2.add(btnNewButton, "cell 7 0");
 		btnNewButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {

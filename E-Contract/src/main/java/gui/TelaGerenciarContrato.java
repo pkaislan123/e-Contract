@@ -269,7 +269,6 @@ import java.awt.List;
 import java.awt.Point;
 import java.awt.PopupMenu;
 
-
 import javafx.application.Platform;
 import javafx.embed.swing.JFXPanel;
 import javafx.stage.FileChooser;
@@ -474,24 +473,6 @@ public class TelaGerenciarContrato extends JFrame {
 	}
 
 	public TelaGerenciarContrato(CadastroContrato contrato, Window janela_pai) {
-		addComponentListener(new ComponentAdapter() {
-			@Override
-			public void componentResized(ComponentEvent e) {
-
-				Rectangle currentScreen = getCurrentScreenBounds(isto);
-				int currentScreenWidth = currentScreen.width; // current screen width
-				int currentScreenHeight = currentScreen.height; // current screen height
-				// absolute coordinate of current screen > 0 if left of this screen are further
-				// screens
-				int xOfCurrentScreen = currentScreen.x;
-
-				if (currentScreen.height > 970 || currentScreen.width > 1400)
-					isto.setResizable(true);
-				else
-					isto.setResizable(true);
-
-			}
-		});
 
 		getDadosGlobais();
 		servidor_unidade = configs_globais.getServidorUnidade();
@@ -505,18 +486,23 @@ public class TelaGerenciarContrato extends JFrame {
 		setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 		setarTituloJanela();
 
-		GraphicsConfiguration config = isto.getGraphicsConfiguration();
+		Toolkit tk = Toolkit.getDefaultToolkit();
+		Dimension dim = tk.getScreenSize();
+		System.out.println("Screen width = " + dim.width);
+		System.out.println("Screen height = " + dim.height);
 
-		GraphicsDevice myScreen = config.getDevice();
+		// pega o tamanho da barra de tarefas
+		Dimension scrnSize = Toolkit.getDefaultToolkit().getScreenSize();
+		java.awt.Rectangle winSize = GraphicsEnvironment.getLocalGraphicsEnvironment().getMaximumWindowBounds();
+		int taskBarHeight = scrnSize.height - winSize.height;
+		System.out.printf("Altura: %d\n", taskBarHeight);
 
-		GraphicsEnvironment env = GraphicsEnvironment.getLocalGraphicsEnvironment();
+		DisplayMode display = GraphicsEnvironment.getLocalGraphicsEnvironment().getDefaultScreenDevice()
+				.getDisplayMode();
 
-		DisplayMode dm = myScreen.getDisplayMode();
-
-		if (dm.getHeight() > 800)
-			setBounds(0, 0, 1400, 1000);
-		else
-			setBounds(0, 0, 1371, 735);
+		int display_x = display.getWidth();
+		int display_y = display.getHeight();
+		setBounds(0, 0, dim.width, dim.height - taskBarHeight);
 
 		painelPrincipal.setBackground(new Color(255, 255, 255));
 		painelPrincipal.setBorder(new EmptyBorder(5, 5, 5, 5));
@@ -578,16 +564,8 @@ public class TelaGerenciarContrato extends JFrame {
 		modelo_pagamentos_contratuais.addColumn("Favorecido");
 		modelo_pagamentos_contratuais.addColumn("Conta Favorecido");
 
-		JPanel odin = new JPanel();
-		odin.setBackground(Color.white);
-		// odin.setBounds(0, 0, 1366, 735);
-
-		// getContentPane().add(painelPrincipal, BorderLayout.CENTER);
-
-		setContentPane(odin);
-		odin.setLayout(new BorderLayout(0, 0));
 		painelPrincipal = new JTabbedPane();
-		odin.add(painelPrincipal);
+		painelPrincipal.setBackground(Color.WHITE);
 
 		// contentPanel.setBackground(new Color(255, 255, 255));
 		// contentPanel.setBorder(new EmptyBorder(5, 5, 5, 5));
@@ -618,29 +596,38 @@ public class TelaGerenciarContrato extends JFrame {
 		painelRecebimentoEntrada.setLayout(new BorderLayout(0, 0));
 		// panelPaiRecebimento.setLayout(new BorderLayout(0, 0));
 
+		JPanel painel_pai_recebimentos = new JPanel();
+		painel_pai_recebimentos.setBackground(Color.WHITE);
+		// panelPaiRecebimento.add(panel_5);
+
+		 JScrollPane scroll_painel_pai_recebimentos = new
+		 JScrollPane(painel_pai_recebimentos);
+
+		//painelRecebimentoEntrada.add(painel_pai_recebimentos);
+		 painelRecebimentoEntrada.add(scroll_painel_pai_recebimentos);
+		painel_pai_recebimentos
+				.setLayout(new MigLayout("", "[194px][12px][49px][36px][320px][12px][123px][9px][372px]", "[156px][24px][188px,grow][73px][31px][140px]"));
+
 		JPanel panel_5 = new JPanel();
 		panel_5.setBackground(Color.WHITE);
-		// panelPaiRecebimento.add(panel_5);
-		painelRecebimentoEntrada.add(panel_5);
-		panel_5.setLayout(new MigLayout("",
-				"[108px][0px][0px][0.00px][196.00px,grow][-14.00px][282.00px][7.00px][27.00px][12px][90px,grow][10px][90px][12px][143px,grow][][4px][][5px][grow][3px][][22px][5px][177.00px,grow]",
-				"[148px][24px][226.00px,grow][10px][][17px][12px][17px][11px][52.00px][][35px][18px][]"));
+		painel_pai_recebimentos.add(panel_5, "cell 0 0,alignx left,growy");
+		panel_5.setLayout(new MigLayout("", "[]", "[][]"));
 
 		JLabel lblNewLabel_4_1 = new JLabel("     Recebimento");
-		panel_5.add(lblNewLabel_4_1, "cell 0 0 5 1,alignx left,aligny top");
+		panel_5.add(lblNewLabel_4_1, "cell 0 0");
 		lblNewLabel_4_1.setOpaque(true);
 		lblNewLabel_4_1.setForeground(Color.WHITE);
 		lblNewLabel_4_1.setFont(new Font("Arial", Font.PLAIN, 18));
 		lblNewLabel_4_1.setBackground(new Color(0, 51, 0));
 
 		JLabel lblNewLabel_28 = new JLabel("");
-		panel_5.add(lblNewLabel_28, "cell 0 0 5 1,alignx left,aligny center");
+		panel_5.add(lblNewLabel_28, "cell 0 1");
 		lblNewLabel_28.setIcon(
 				new ImageIcon(TelaGerenciarContrato.class.getResource("/imagens/icone_caminhao_descarregando4.png")));
 
 		JPanel panel_13 = new JPanel();
 		panel_13.setBackground(new Color(0, 51, 51));
-		panel_5.add(panel_13, "cell 19 0 6 1,alignx center,aligny center");
+		painel_pai_recebimentos.add(panel_13, "cell 8 0,alignx left,aligny center");
 		GridBagLayout gbl_panel_13 = new GridBagLayout();
 		gbl_panel_13.columnWidths = new int[] { 0, 0, 0, 0, 0 };
 		gbl_panel_13.rowHeights = new int[] { 0, 0, 0, 0, 0, 0 };
@@ -715,7 +702,7 @@ public class TelaGerenciarContrato extends JFrame {
 		panel_13.add(lblStatusNFRemessaEntrada, gbc_lblStatusNFRemessaEntrada);
 
 		JPanel panel_1 = new JPanel();
-		panel_5.add(panel_1, "cell 0 2 25 1,grow");
+		painel_pai_recebimentos.add(panel_1, "cell 0 2 9 1,grow");
 		panel_1.setBackground(Color.WHITE);
 
 		table_recebimentos = new JTable(modelo_recebimentos);
@@ -723,7 +710,7 @@ public class TelaGerenciarContrato extends JFrame {
 		table_recebimentos.setDefaultRenderer(Object.class, renderer_recebimentos);
 		table_recebimentos.setBackground(new Color(255, 255, 255));
 
-		table_recebimentos.setAutoResizeMode(JTable.AUTO_RESIZE_ALL_COLUMNS);
+		// table_recebimentos.setAutoResizeMode(JTable.AUTO_RESIZE_ALL_COLUMNS);
 		/*
 		 * table_recebimentos.getColumnModel().getColumn(0).setPreferredWidth(150);
 		 * table_recebimentos.getColumnModel().getColumn(1).setPreferredWidth(150);
@@ -746,7 +733,7 @@ public class TelaGerenciarContrato extends JFrame {
 		JPanel lbl_produto_aba_recebimento = new JPanel();
 		lbl_produto_aba_recebimento.setForeground(Color.WHITE);
 		lbl_produto_aba_recebimento.setBackground(new Color(0, 102, 102));
-		panel_5.add(lbl_produto_aba_recebimento, "cell 6 0 13 1,alignx center,aligny center");
+		painel_pai_recebimentos.add(lbl_produto_aba_recebimento, "cell 2 0 5 1,growx,aligny top");
 		lbl_produto_aba_recebimento.setLayout(
 				new MigLayout("", "[99px][93px][85px][79px][78px][67px]", "[17px][17px][14px][17px][17px][]"));
 
@@ -833,7 +820,7 @@ public class TelaGerenciarContrato extends JFrame {
 
 		JPanel panel_9 = new JPanel();
 		panel_9.setBackground(Color.WHITE);
-		panel_5.add(panel_9, "cell 16 4 6 1,alignx center,aligny top");
+		painel_pai_recebimentos.add(panel_9, "cell 8 3,growx,aligny top");
 		panel_9.setLayout(new MigLayout("", "[][][][][][][][][][][]", "[]"));
 
 		JButton btnExportarRecebimentos = new JButton("Exportar");
@@ -1554,7 +1541,7 @@ public class TelaGerenciarContrato extends JFrame {
 
 		JPanel panel_8 = new JPanel();
 		panel_8.setBackground(Color.WHITE);
-		panel_5.add(panel_8, "cell 0 9 5 1,alignx center,aligny center");
+		painel_pai_recebimentos.add(panel_8, "cell 0 3 3 1,alignx left,growy");
 		panel_8.setLayout(new MigLayout("", "[27.00][26.00][31.00][][][][][]", "[][][][][]"));
 
 		JLabel lblNewLabel_33_2 = new JLabel("     ");
@@ -1603,17 +1590,17 @@ public class TelaGerenciarContrato extends JFrame {
 
 		painelGraficoRecebimento = new JPanelGraficoPadrao(0, 0, "Recebido:", "a Receber:");
 		painelGraficoRecebimento.setLayout(null);
-		panel_5.add(painelGraficoRecebimento, "cell 6 3 5 11,grow");
+		painel_pai_recebimentos.add(painelGraficoRecebimento, "cell 4 3 1 3,grow");
 
 		JLabel lblNewLabel_7_1 = new JLabel("Recebimentos desse contrato:");
 		lblNewLabel_7_1.setForeground(new Color(102, 51, 0));
 		lblNewLabel_7_1.setFont(new Font("SansSerif", Font.BOLD, 18));
 		lblNewLabel_7_1.setBackground(new Color(102, 51, 0));
-		panel_5.add(lblNewLabel_7_1, "cell 4 1 3 1,alignx left,aligny top");
+		painel_pai_recebimentos.add(lblNewLabel_7_1, "cell 2 1 3 1,alignx left,aligny top");
 
 		JPanel panel_11 = new JPanel();
 		panel_11.setBackground(Color.WHITE);
-		panel_5.add(panel_11, "cell 4 10,alignx center,aligny center");
+		painel_pai_recebimentos.add(panel_11, "cell 0 5 3 1,alignx right,aligny top");
 		panel_11.setLayout(new MigLayout("", "[][]", "[][][][][]"));
 
 		JLabel lblNewLabel_3_2 = new JLabel("Recebimentos:");
@@ -1643,9 +1630,14 @@ public class TelaGerenciarContrato extends JFrame {
 		lblPesoTotalRestante.setFont(new Font("Tahoma", Font.BOLD, 11));
 		lblPesoTotalRestante.setBorder(new LineBorder(new Color(0, 0, 0)));
 
+		JPanel panel_24 = new JPanel();
+		panel_24.setBackground(Color.WHITE);
+		painel_pai_recebimentos.add(panel_24, "cell 6 3 3 3,growx,aligny center");
+		panel_24.setLayout(new MigLayout("", "[][][]", "[]"));
+
 		JPanel panel_6 = new JPanel();
+		panel_24.add(panel_6, "cell 0 0");
 		panel_6.setBackground(new Color(102, 153, 102));
-		panel_5.add(panel_6, "cell 17 10 1 2,grow");
 		GridBagLayout gbl_panel_6 = new GridBagLayout();
 		gbl_panel_6.columnWidths = new int[] { 0, 0, 0 };
 		gbl_panel_6.rowHeights = new int[] { 0, 0, 0, 0, 0 };
@@ -1699,8 +1691,8 @@ public class TelaGerenciarContrato extends JFrame {
 		lblTotalSacosKGsRomaneios.setFont(new Font("SansSerif", Font.BOLD, 14));
 
 		JPanel panel_10 = new JPanel();
+		panel_24.add(panel_10, "cell 1 0");
 		panel_10.setBackground(new Color(204, 153, 102));
-		panel_5.add(panel_10, "cell 19 10 1 2,alignx center,growy");
 		GridBagLayout gbl_panel_10 = new GridBagLayout();
 		gbl_panel_10.columnWidths = new int[] { 0, 0, 0 };
 		gbl_panel_10.rowHeights = new int[] { 0, 0, 0, 0, 0, 0 };
@@ -1770,8 +1762,8 @@ public class TelaGerenciarContrato extends JFrame {
 		lblValorTotalNFVendaEntrada.setFont(new Font("SansSerif", Font.BOLD, 14));
 
 		JPanel panel_12 = new JPanel();
+		panel_24.add(panel_12, "cell 2 0");
 		panel_12.setBackground(new Color(204, 153, 153));
-		panel_5.add(panel_12, "cell 21 10 1 2,alignx center,growy");
 		GridBagLayout gbl_panel_12 = new GridBagLayout();
 		gbl_panel_12.columnWidths = new int[] { 0, 0, 0 };
 		gbl_panel_12.rowHeights = new int[] { 0, 0, 0, 0, 0, 0 };
@@ -1834,11 +1826,9 @@ public class TelaGerenciarContrato extends JFrame {
 		gbc_lblValorTotalNFRemessaEntrada.gridx = 1;
 		gbc_lblValorTotalNFRemessaEntrada.gridy = 4;
 		panel_12.add(lblValorTotalNFRemessaEntrada, gbc_lblValorTotalNFRemessaEntrada);
-
-		btnCriarDistrato = new JButton("Criar Distrato");
-		btnCriarDistrato.setBounds(665, 317, 101, 28);
-		painelComprovantes.add(btnCriarDistrato);
-		botoes.add(btnCriarDistrato);
+		painelComprovantes.setLayout(new MigLayout("",
+				"[431px,grow][52px,grow][47px,grow][12px,grow][59px,grow][9px,grow][27px,grow][4px,grow][200px,grow][10px,grow][89px,grow][24px,grow][1px,grow][330px,grow]",
+				"[][24px][][][30px][150px][][22px][24px][][][6px][150px][40px][28px][2px][14px][12px][33px][12px][39px][37px][27px][19px][22px][24px][1px][5px][79px][13px][39px][17px][23px][34px][58px]"));
 
 		btnCriarAditivo = new JButton("Criar Aditivo");
 		btnCriarAditivo.addActionListener(new ActionListener() {
@@ -1851,32 +1841,265 @@ public class TelaGerenciarContrato extends JFrame {
 			}
 		});
 
+		btnImportarDeTerceiros = new JButton("Importar de Terceiros");
+		btnImportarDeTerceiros.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				importarAditivo();
+			}
+		});
+
+		JLabel lblNewLabel_30 = new JLabel("Aditivos:");
+		lblNewLabel_30.setForeground(Color.WHITE);
+		lblNewLabel_30.setFont(new Font("SansSerif", Font.BOLD, 18));
+		painelComprovantes.add(lblNewLabel_30, "cell 0 3 1 2,alignx left,aligny top");
+		botoes.add(btnImportarDeTerceiros);
+		painelComprovantes.add(btnImportarDeTerceiros, "cell 4 6,alignx right,aligny top");
+
 		botoes.add(btnCriarAditivo);
-		btnCriarAditivo.setBounds(673, 155, 93, 28);
+		painelComprovantes.add(btnCriarAditivo, "cell 8 6,alignx center,aligny top");
+
+		JLabel lblNewLabel_30_1 = new JLabel("Distratos:");
+		lblNewLabel_30_1.setForeground(Color.WHITE);
+		lblNewLabel_30_1.setFont(new Font("SansSerif", Font.BOLD, 18));
+		painelComprovantes.add(lblNewLabel_30_1, "cell 0 10 1 2,alignx left,aligny top");
+
+		btnCriarDistrato = new JButton("Criar Distrato");
+		painelComprovantes.add(btnCriarDistrato, "cell 8 14,alignx center,aligny top");
+		botoes.add(btnCriarDistrato);
 		painelComprovantes.setBackground(new Color(51, 153, 153));
-		painelComprovantes.add(btnCriarAditivo);
 		painelDadosIniciais.setLayout(new BorderLayout(0, 0));
 
 		JPanel painel_pai_di = new JPanel();
+		JScrollPane scroll_painel_pai = new JScrollPane(painel_pai_di);
 
-		JScrollPane scroolPainelDadosIniciasi = new JScrollPane(painel_pai_di);
-		painelDadosIniciais.add(scroolPainelDadosIniciasi);
-
+		// painelDadosIniciais.add(painel_pai_di);
+		painelDadosIniciais.add(scroll_painel_pai);
 		JPanel panel_2 = new JPanel();
 		panel_2.setBackground(new Color(255, 255, 255));
-		panel_2.setLayout(null);
+		panel_2.setLayout(new MigLayout("", "[734px, grow][558px, grow]", "[827px, grow]"));
+
+		painel_pai_di.setLayout(new MigLayout("", "[1343px, grow]", "[876px, grow]"));
+
+		painel_pai_di.add(panel_2, "cell 0 0,grow");
+
+		JPanel panel_3 = new JPanel();
+		panel_3.setBackground(Color.WHITE);
+		panel_2.add(panel_3, "cell 0 0,grow");
+		panel_3.setLayout(new BorderLayout(0, 0));
+
+		painelVizualizarContrato = new JPanel();
+		painelVizualizarContrato.setBorder(new LineBorder(new Color(0, 0, 0)));
+		painelVizualizarContrato.setBackground(Color.WHITE);
+		panel_3.add(painelVizualizarContrato);
+		painelVizualizarContrato.setLayout(new BorderLayout(0, 0));
 
 		JPanel panel_7 = new JPanel();
-		panel_7.setBounds(806, 603, 476, 311);
-		panel_2.add(panel_7);
-		panel_7.setForeground(Color.BLACK);
 		panel_7.setBackground(Color.WHITE);
+		panel_2.add(panel_7, "cell 1 0,grow");
+		panel_7.setLayout(new MigLayout("", "[grow]", "[][][400px,grow][100px,grow]"));
+		panel_7.add(lblStatusContrato, "cell 0 0,growx");
 
-		JScrollPane scrollPane_2 = new JScrollPane(panel_7);
-		scrollPane_2.setBorder(new LineBorder(new Color(0, 0, 0)));
+		lblStatusContrato.setBackground(new Color(0, 128, 128));
+		lblStatusContrato.setOpaque(true);
+		lblStatusContrato.setForeground(Color.WHITE);
+		lblStatusContrato.setFont(new Font("Arial", Font.PLAIN, 24));
+		panel_7.add(lblTipoContrato, "cell 0 1,growx");
+		lblTipoContrato.setOpaque(true);
+		lblTipoContrato.setForeground(Color.WHITE);
+		lblTipoContrato.setFont(new Font("Arial", Font.PLAIN, 24));
+		lblTipoContrato.setBackground(new Color(102, 0, 102));
+
+		JPanel panelInformativoPrincipal = new JPanel();
+		panel_7.add(panelInformativoPrincipal, "cell 0 2,grow");
+		panelInformativoPrincipal.setBackground(new Color(0, 153, 153));
+		panelInformativoPrincipal.setBorder(new LineBorder(new Color(0, 0, 0)));
+		panelInformativoPrincipal.add(painel_informacoes_tab_principal);
+		// panelInformativoPrincipal.setBounds(0, 0, 200, 200);
+		panelInformativoPrincipal.setLayout(new MigLayout("", "[grow]", "[grow]"));
+
+		JPanel panel_22 = new JPanel();
+		panel_22.setBackground(Color.WHITE);
+		panel_7.add(panel_22, "cell 0 3,grow");
+		panel_22.setLayout(new MigLayout("", "[grow][][][][]", "[][][grow][]"));
+
+		JButton btnNewButton = new JButton("Visão Geral");
+		panel_22.add(btnNewButton, "cell 0 0,alignx center");
+		btnNewButton.setBackground(new Color(0, 51, 51));
+		btnNewButton.setFont(new Font("SansSerif", Font.BOLD, 18));
+		btnNewButton.setForeground(Color.WHITE);
+
+		JButton btnVizualizar = new JButton("Vizualizar");
+		panel_22.add(btnVizualizar, "cell 1 0,alignx center");
+		btnVizualizar.setBackground(new Color(0, 51, 51));
+		btnVizualizar.setFont(new Font("SansSerif", Font.BOLD, 18));
+		btnVizualizar.setForeground(Color.WHITE);
+		panel_22.add(btnEnviarMsg, "cell 2 0,alignx center");
+		btnEnviarMsg.setBackground(new Color(0, 51, 51));
+		btnEnviarMsg.setFont(new Font("SansSerif", Font.BOLD, 18));
+		btnEnviarMsg.setForeground(Color.WHITE);
+		botoes.add(btnEnviarMsg);
+
+		btnAssinarContrato = new JButton("Assinar");
+		panel_22.add(btnAssinarContrato, "cell 3 0,alignx center");
+		btnAssinarContrato.setBackground(new Color(0, 51, 51));
+		btnAssinarContrato.setFont(new Font("SansSerif", Font.BOLD, 18));
+		btnAssinarContrato.setForeground(Color.WHITE);
+		botoes.add(btnAssinarContrato);
+		btnAssinarContrato.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				assinar();
+			}
+		});
+		botoes.add(btnAssinarContrato);
+
+		btnConcluir = new JButton("Concluir");
+		panel_22.add(btnConcluir, "cell 4 0,alignx center");
+		btnConcluir.setBackground(new Color(0, 51, 51));
+		btnConcluir.setFont(new Font("SansSerif", Font.BOLD, 18));
+		btnConcluir.setForeground(Color.WHITE);
+
+		btnAprovar = new JButton("Aprovar");
+		panel_22.add(btnAprovar, "cell 0 1,alignx center");
+		btnAprovar.setBackground(new Color(0, 51, 51));
+		btnAprovar.setFont(new Font("SansSerif", Font.BOLD, 18));
+		btnAprovar.setForeground(Color.WHITE);
+		btnAprovar.setEnabled(false);
+		btnAprovar.setVisible(false);
+		btnAprovar.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				aprovar();
+			}
+		});
+		botoes.add(btnAprovar);
+		panel_22.add(btnExcluirContrato, "cell 1 1,alignx center");
+		btnExcluirContrato.setBackground(new Color(0, 51, 51));
+		btnExcluirContrato.setFont(new Font("SansSerif", Font.BOLD, 18));
+		btnExcluirContrato.setForeground(Color.WHITE);
+		botoes.add(btnExcluirContrato);
+		panel_22.add(btnEditarContrato, "cell 2 1,alignx center");
+		btnEditarContrato.setBackground(new Color(0, 51, 51));
+		btnEditarContrato.setFont(new Font("SansSerif", Font.BOLD, 18));
+		btnEditarContrato.setForeground(Color.WHITE);
+		botoes.add(btnEditarContrato);
+
+		btnReabrir = new JButton("Desbloquear");
+		panel_22.add(btnReabrir, "cell 3 1,alignx center");
+		btnReabrir.setFont(new Font("SansSerif", Font.BOLD, 18));
+		btnReabrir.setForeground(Color.WHITE);
+
+		btnRevogarAssinatura = new JButton("Revogar");
+		panel_22.add(btnRevogarAssinatura, "cell 4 1,alignx center");
+		btnRevogarAssinatura.setBackground(new Color(102, 153, 204));
+		btnRevogarAssinatura.setFont(new Font("SansSerif", Font.BOLD, 18));
+		btnRevogarAssinatura.setForeground(Color.WHITE);
+
+		JPanel panel_23 = new JPanel();
+		panel_23.setBackground(Color.WHITE);
+		panel_22.add(panel_23, "cell 0 2 5 1,grow");
+		panel_23.setLayout(new MigLayout("", "[50px][grow]", "[][200px,grow,fill][][200px,grow,fill][][][][][][][][]"));
+
+		JLabel lblNewLabel_37_2_1 = new JLabel("Descrição:");
+		panel_23.add(lblNewLabel_37_2_1, "cell 0 1,alignx right");
+		lblNewLabel_37_2_1.setForeground(Color.BLACK);
+		lblNewLabel_37_2_1.setFont(new Font("SansSerif", Font.PLAIN, 14));
+
+		textAreaDescricao = new JTextArea();
+		panel_23.add(textAreaDescricao, "cell 1 1,growx");
+		textAreaDescricao.setFont(new Font("Arial", Font.BOLD, 16));
+		textAreaDescricao.setBorder(new LineBorder(new Color(0, 0, 0)));
+		textAreaDescricao.setForeground(Color.BLACK);
+
+		JLabel lblNewLabel_37_2_1_1 = new JLabel("Observações:");
+		panel_23.add(lblNewLabel_37_2_1_1, "cell 0 3,alignx right");
+		lblNewLabel_37_2_1_1.setForeground(Color.BLACK);
+		lblNewLabel_37_2_1_1.setFont(new Font("SansSerif", Font.PLAIN, 14));
+
+		textAreaObservacoes = new JTextArea();
+		panel_23.add(textAreaObservacoes, "cell 1 3,growx");
+		textAreaObservacoes.setFont(new Font("Arial", Font.BOLD, 16));
+		textAreaObservacoes.setBorder(new LineBorder(new Color(0, 0, 0)));
+		textAreaObservacoes.setForeground(Color.BLACK);
+
+		JLabel lblNewLabel_37_2 = new JLabel("Fertilizante:");
+		panel_23.add(lblNewLabel_37_2, "cell 0 4,alignx right");
+		lblNewLabel_37_2.setForeground(Color.BLACK);
+		lblNewLabel_37_2.setFont(new Font("SansSerif", Font.PLAIN, 14));
+
+		entFertilizante = new JTextField();
+		panel_23.add(entFertilizante, "cell 1 4,growx");
+		entFertilizante.setBorder(new LineBorder(new Color(0, 0, 0)));
+		entFertilizante.setForeground(Color.BLACK);
+		entFertilizante.setFont(new Font("Arial", Font.BOLD, 16));
+		entFertilizante.setColumns(10);
+
+		JLabel lblNewLabel_37 = new JLabel("Bruto x Livre:");
+		panel_23.add(lblNewLabel_37, "cell 0 5,alignx right");
+		lblNewLabel_37.setForeground(Color.BLACK);
+		lblNewLabel_37.setFont(new Font("SansSerif", Font.PLAIN, 14));
+
+		cBBrutoLivre = new JComboBox();
+		panel_23.add(cBBrutoLivre, "cell 1 5,growx");
+		cBBrutoLivre.setForeground(Color.BLACK);
+		cBBrutoLivre.setFont(new Font("SansSerif", Font.BOLD, 16));
+		cBBrutoLivre.addItem("Bruto");
+		cBBrutoLivre.addItem("Livre");
+
+		JLabel lblNewLabel_37_1 = new JLabel("Penhor:");
+		panel_23.add(lblNewLabel_37_1, "cell 0 6,alignx right");
+		lblNewLabel_37_1.setForeground(Color.BLACK);
+		lblNewLabel_37_1.setFont(new Font("SansSerif", Font.PLAIN, 14));
+
+		statusPenhor = new JTextField();
+		panel_23.add(statusPenhor, "cell 1 6,growx");
+		statusPenhor.setBorder(new LineBorder(new Color(0, 0, 0)));
+		statusPenhor.setForeground(Color.BLACK);
+		statusPenhor.setFont(new Font("Arial", Font.BOLD, 16));
+		statusPenhor.setColumns(10);
+
+		JLabel lblNewLabel_37_1_1 = new JLabel("Opção Folha:");
+		panel_23.add(lblNewLabel_37_1_1, "cell 0 7,alignx right");
+		lblNewLabel_37_1_1.setForeground(Color.BLACK);
+		lblNewLabel_37_1_1.setFont(new Font("SansSerif", Font.PLAIN, 14));
+
+		cBOptante = new JComboBox();
+		panel_23.add(cBOptante, "cell 1 7,growx");
+		cBOptante.setForeground(Color.BLACK);
+		cBOptante.setFont(new Font("SansSerif", Font.BOLD, 16));
+
+		cBOptante.addItem("Não Optante");
+		cBOptante.addItem("Optante");
+
+		JLabel lblNewLabel_37_1_1_1 = new JLabel("Status:");
+		panel_23.add(lblNewLabel_37_1_1_1, "cell 0 8,alignx right");
+		lblNewLabel_37_1_1_1.setForeground(Color.BLACK);
+		lblNewLabel_37_1_1_1.setFont(new Font("SansSerif", Font.PLAIN, 14));
+
+		textAreaStatusOpcaoFolha = new JTextArea();
+		textAreaStatusOpcaoFolha.setFont(new Font("Arial", Font.BOLD, 16));
+		textAreaStatusOpcaoFolha.setBorder(new LineBorder(new Color(0, 0, 0)));
+
+		JScrollPane scrollPane_1 = new JScrollPane(textAreaStatusOpcaoFolha);
+		panel_23.add(scrollPane_1, "cell 1 8,growx");
+		scrollPane_1.setBorder(new LineBorder(new Color(0, 0, 0)));
+		scrollPane_1.setFont(new Font("SansSerif", Font.BOLD, 12));
+
+		JLabel lblNewLabel_37_1_1_1_1 = new JLabel("Localização:");
+		panel_23.add(lblNewLabel_37_1_1_1_1, "cell 0 9,alignx right");
+		lblNewLabel_37_1_1_1_1.setForeground(Color.BLACK);
+		lblNewLabel_37_1_1_1_1.setFont(new Font("SansSerif", Font.PLAIN, 14));
+
+		entLocalizacao = new JTextField();
+		panel_23.add(entLocalizacao, "cell 1 9,growx");
+		entLocalizacao.setBorder(new LineBorder(new Color(0, 0, 0)));
+		entLocalizacao.setForeground(Color.BLACK);
+		entLocalizacao.setFont(new Font("Arial", Font.BOLD, 16));
+		entLocalizacao.setColumns(10);
 
 		JButton btnAtualizarInfoAuxiliares = new JButton("Atualizar");
-		btnAtualizarInfoAuxiliares.setForeground(Color.BLACK);
+		btnAtualizarInfoAuxiliares.setBackground(new Color(0, 0, 153));
+		btnAtualizarInfoAuxiliares.setFont(new Font("SansSerif", Font.PLAIN, 14));
+		panel_23.add(btnAtualizarInfoAuxiliares, "cell 1 10,alignx right");
+		btnAtualizarInfoAuxiliares.setForeground(Color.WHITE);
 		btnAtualizarInfoAuxiliares.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 
@@ -1919,226 +2142,9 @@ public class TelaGerenciarContrato extends JFrame {
 				}
 			}
 		});
-		painel_pai_di.setLayout(new MigLayout("", "[1343px, grow]", "[876px, grow]"));
-		panel_7.setLayout(new MigLayout("", "[79px][210px][90px][74px]",
-				"[62px][79px][21px][26px][21px][26px][80px][21px][28px]"));
-
-		JLabel lblNewLabel_37_2_1 = new JLabel("Descrição:");
-		lblNewLabel_37_2_1.setForeground(Color.BLACK);
-		lblNewLabel_37_2_1.setFont(new Font("SansSerif", Font.BOLD, 12));
-		panel_7.add(lblNewLabel_37_2_1, "cell 0 0,alignx right,aligny center");
-
-		textAreaDescricao = new JTextArea();
-		textAreaDescricao.setFont(new Font("SansSerif", Font.BOLD, 12));
-		textAreaDescricao.setBorder(new LineBorder(new Color(0, 0, 0)));
-		textAreaDescricao.setForeground(Color.BLACK);
-
-		JScrollPane scrollPane_1_1 = new JScrollPane(textAreaDescricao);
-		panel_7.add(scrollPane_1_1, "cell 1 0 3 1,grow");
-
-		JLabel lblNewLabel_37_2_1_1 = new JLabel("Observações:");
-		lblNewLabel_37_2_1_1.setForeground(Color.BLACK);
-		lblNewLabel_37_2_1_1.setFont(new Font("SansSerif", Font.BOLD, 12));
-		panel_7.add(lblNewLabel_37_2_1_1, "cell 0 1,alignx right,aligny center");
-
-		textAreaObservacoes = new JTextArea();
-		textAreaObservacoes.setFont(new Font("SansSerif", Font.BOLD, 12));
-		textAreaObservacoes.setBorder(new LineBorder(new Color(0, 0, 0)));
-		textAreaObservacoes.setForeground(Color.BLACK);
-
-		JScrollPane scrollPane_1_1_1 = new JScrollPane(textAreaObservacoes);
-		panel_7.add(scrollPane_1_1_1, "cell 1 1 3 1,grow");
-
-		JLabel lblNewLabel_37_2 = new JLabel("Fertilizante:");
-		lblNewLabel_37_2.setForeground(Color.BLACK);
-		lblNewLabel_37_2.setFont(new Font("SansSerif", Font.BOLD, 12));
-		panel_7.add(lblNewLabel_37_2, "cell 0 2,alignx right,aligny center");
-
-		entFertilizante = new JTextField();
-		entFertilizante.setBorder(new LineBorder(new Color(0, 0, 0)));
-		entFertilizante.setForeground(Color.BLACK);
-		entFertilizante.setFont(new Font("SansSerif", Font.BOLD, 14));
-		entFertilizante.setColumns(10);
-		panel_7.add(entFertilizante, "cell 1 2 3 1,grow");
-
-		JLabel lblNewLabel_37 = new JLabel("Bruto x Livre:");
-		lblNewLabel_37.setForeground(Color.BLACK);
-		lblNewLabel_37.setFont(new Font("SansSerif", Font.BOLD, 12));
-		panel_7.add(lblNewLabel_37, "cell 0 3,alignx right,aligny center");
-
-		cBBrutoLivre = new JComboBox();
-		cBBrutoLivre.setForeground(Color.BLACK);
-		cBBrutoLivre.setFont(new Font("SansSerif", Font.BOLD, 12));
-		panel_7.add(cBBrutoLivre, "cell 1 3,growx,aligny center");
-		cBBrutoLivre.addItem("Bruto");
-		cBBrutoLivre.addItem("Livre");
-
-		JLabel lblNewLabel_37_1 = new JLabel("Penhor:");
-		lblNewLabel_37_1.setForeground(Color.BLACK);
-		lblNewLabel_37_1.setFont(new Font("SansSerif", Font.BOLD, 12));
-		panel_7.add(lblNewLabel_37_1, "cell 0 4,alignx right,aligny center");
-
-		statusPenhor = new JTextField();
-		statusPenhor.setBorder(new LineBorder(new Color(0, 0, 0)));
-		statusPenhor.setForeground(Color.BLACK);
-		statusPenhor.setFont(new Font("SansSerif", Font.BOLD, 14));
-		panel_7.add(statusPenhor, "cell 1 4 3 1,growx,aligny center");
-		statusPenhor.setColumns(10);
-
-		JLabel lblNewLabel_37_1_1 = new JLabel("Opção Folha:");
-		lblNewLabel_37_1_1.setForeground(Color.BLACK);
-		lblNewLabel_37_1_1.setFont(new Font("SansSerif", Font.BOLD, 12));
-		panel_7.add(lblNewLabel_37_1_1, "cell 0 5,alignx right,aligny center");
-
-		cBOptante = new JComboBox();
-		cBOptante.setForeground(Color.BLACK);
-		cBOptante.setFont(new Font("SansSerif", Font.BOLD, 12));
-		panel_7.add(cBOptante, "cell 1 5,growx,aligny center");
-
-		cBOptante.addItem("Não Optante");
-		cBOptante.addItem("Optante");
-
-		JLabel lblNewLabel_37_1_1_1 = new JLabel("Status:");
-		lblNewLabel_37_1_1_1.setForeground(Color.BLACK);
-		lblNewLabel_37_1_1_1.setFont(new Font("SansSerif", Font.BOLD, 12));
-		panel_7.add(lblNewLabel_37_1_1_1, "cell 0 6,alignx right,aligny top");
-
-		textAreaStatusOpcaoFolha = new JTextArea();
-		textAreaStatusOpcaoFolha.setFont(new Font("SansSerif", Font.BOLD, 12));
-		textAreaStatusOpcaoFolha.setBorder(new LineBorder(new Color(0, 0, 0)));
-
-		JScrollPane scrollPane_1 = new JScrollPane(textAreaStatusOpcaoFolha);
-		scrollPane_1.setBorder(new LineBorder(new Color(0, 0, 0)));
-		scrollPane_1.setFont(new Font("SansSerif", Font.BOLD, 12));
-		panel_7.add(scrollPane_1, "cell 1 6 3 1,grow");
-
-		JLabel lblNewLabel_37_1_1_1_1 = new JLabel("Localização:");
-		lblNewLabel_37_1_1_1_1.setForeground(Color.BLACK);
-		lblNewLabel_37_1_1_1_1.setFont(new Font("SansSerif", Font.BOLD, 12));
-		panel_7.add(lblNewLabel_37_1_1_1_1, "cell 0 7,alignx right,aligny center");
-
-		entLocalizacao = new JTextField();
-		entLocalizacao.setBorder(new LineBorder(new Color(0, 0, 0)));
-		entLocalizacao.setForeground(Color.BLACK);
-		entLocalizacao.setFont(new Font("SansSerif", Font.BOLD, 14));
-		entLocalizacao.setColumns(10);
-		panel_7.add(entLocalizacao, "cell 1 7 3 1,growx,aligny center");
-		panel_7.add(btnAtualizarInfoAuxiliares, "cell 3 8,growx,aligny top");
-		scrollPane_2.setBounds(806, 569, 476, 301);
-		panel_2.add(scrollPane_2);
-		lblStatusContrato.setBounds(781, 30, 519, 35);
-		panel_2.add(lblStatusContrato);
-		painel_pai_di.add(panel_2, "cell 0 0,grow");
-
-		lblStatusContrato.setBackground(new Color(0, 128, 128));
-		lblStatusContrato.setOpaque(true);
-		lblStatusContrato.setForeground(Color.WHITE);
-		lblStatusContrato.setFont(new Font("Arial", Font.BOLD, 18));
-		btnEditarContrato.setBackground(new Color(0, 51, 51));
-		btnEditarContrato.setFont(new Font("SansSerif", Font.BOLD, 18));
-		btnEditarContrato.setForeground(Color.WHITE);
-		btnEditarContrato.setBounds(1045, 523, 237, 28);
-		panel_2.add(btnEditarContrato);
-		botoes.add(btnEditarContrato);
-		btnEnviarMsg.setBackground(new Color(0, 51, 51));
-		btnEnviarMsg.setFont(new Font("SansSerif", Font.BOLD, 18));
-		btnEnviarMsg.setForeground(Color.WHITE);
-		btnEnviarMsg.setBounds(1130, 444, 150, 28);
-		botoes.add(btnEnviarMsg);
-		panel_2.add(btnEnviarMsg);
-		lblTipoContrato.setBounds(781, 77, 519, 29);
-		panel_2.add(lblTipoContrato);
-		lblTipoContrato.setOpaque(true);
-		lblTipoContrato.setForeground(Color.WHITE);
-		lblTipoContrato.setFont(new Font("Arial", Font.BOLD, 16));
-		lblTipoContrato.setBackground(new Color(102, 0, 102));
-		btnExcluirContrato.setBackground(new Color(0, 51, 51));
-		btnExcluirContrato.setFont(new Font("SansSerif", Font.BOLD, 18));
-		btnExcluirContrato.setForeground(Color.WHITE);
-		btnExcluirContrato.setBounds(806, 523, 231, 28);
-		panel_2.add(btnExcluirContrato);
-		botoes.add(btnExcluirContrato);
-
-		btnAssinarContrato = new JButton("Assinar");
-		btnAssinarContrato.setBackground(new Color(0, 51, 51));
-		btnAssinarContrato.setFont(new Font("SansSerif", Font.BOLD, 18));
-		btnAssinarContrato.setForeground(Color.WHITE);
-		btnAssinarContrato.setBounds(968, 483, 150, 28);
-		panel_2.add(btnAssinarContrato);
-		botoes.add(btnAssinarContrato);
-
-		JButton btnVizualizar = new JButton("Vizualizar");
-		btnVizualizar.setBackground(new Color(0, 51, 51));
-		btnVizualizar.setFont(new Font("SansSerif", Font.BOLD, 18));
-		btnVizualizar.setForeground(Color.WHITE);
-		btnVizualizar.setBounds(968, 444, 150, 28);
-		panel_2.add(btnVizualizar);
-
-		btnRevogarAssinatura = new JButton("Revogar");
-		btnRevogarAssinatura.setBackground(new Color(102, 153, 204));
-		btnRevogarAssinatura.setFont(new Font("SansSerif", Font.BOLD, 18));
-		btnRevogarAssinatura.setForeground(Color.WHITE);
-		btnRevogarAssinatura.setBounds(968, 483, 150, 28);
-		panel_2.add(btnRevogarAssinatura);
-
-		btnConcluir = new JButton("Concluir");
-		btnConcluir.setBackground(new Color(0, 51, 51));
-		btnConcluir.setFont(new Font("SansSerif", Font.BOLD, 18));
-		btnConcluir.setForeground(Color.WHITE);
-		btnConcluir.setBounds(1130, 483, 150, 28);
-		panel_2.add(btnConcluir);
-
-		btnReabrir = new JButton("Desbloquear");
-		btnReabrir.setFont(new Font("SansSerif", Font.BOLD, 18));
-		btnReabrir.setForeground(Color.WHITE);
-		btnReabrir.setBounds(1132, 485, 150, 28);
-		panel_2.add(btnReabrir);
-
-		JButton btnNewButton = new JButton("Visão Geral");
-		btnNewButton.setBackground(new Color(0, 51, 51));
-		btnNewButton.setFont(new Font("SansSerif", Font.BOLD, 18));
-		btnNewButton.setForeground(Color.WHITE);
-		btnNewButton.setBounds(806, 443, 150, 28);
-		panel_2.add(btnNewButton);
-
-		btnAprovar = new JButton("Aprovar");
-		btnAprovar.setBackground(new Color(0, 51, 51));
-		btnAprovar.setFont(new Font("SansSerif", Font.BOLD, 18));
-		btnAprovar.setForeground(Color.WHITE);
-		btnAprovar.setBounds(806, 483, 150, 28);
-		panel_2.add(btnAprovar);
-		btnAprovar.setEnabled(false);
-
-		JPanel panel_3 = new JPanel();
-		panel_3.setBackground(Color.WHITE);
-		panel_3.setBounds(19, 30, 734, 827);
-		panel_2.add(panel_3);
-		panel_3.setLayout(new BorderLayout(0, 0));
-
-		painelVizualizarContrato = new JPanel();
-		painelVizualizarContrato.setBorder(new LineBorder(new Color(0, 0, 0)));
-		painelVizualizarContrato.setBackground(Color.WHITE);
-		panel_3.add(painelVizualizarContrato);
-		painelVizualizarContrato.setLayout(new BorderLayout(0, 0));
-
-		JPanel panelInformativoPrincipal = new JPanel();
-		panelInformativoPrincipal.setBackground(new Color(0, 153, 153));
-		panelInformativoPrincipal.setBorder(new LineBorder(new Color(0, 0, 0)));
-		panelInformativoPrincipal.setBounds(812, 118, 470, 313);
-		panel_2.add(panelInformativoPrincipal);
-		panelInformativoPrincipal.add(painel_informacoes_tab_principal);
-		panelInformativoPrincipal.setLayout(null);
-		btnAprovar.setVisible(false);
-		btnAprovar.addActionListener(new ActionListener() {
+		btnRevogarAssinatura.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				aprovar();
-			}
-		});
-		botoes.add(btnAprovar);
-		btnNewButton.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				TelaVisaoGeralContrato tela = new TelaVisaoGeralContrato(contrato_local, isto);
-				tela.setVisible(true);
+				revogarAssinatura();
 			}
 		});
 		btnReabrir.addActionListener(new ActionListener() {
@@ -2188,28 +2194,30 @@ public class TelaGerenciarContrato extends JFrame {
 
 			}
 		});
-		btnConcluir.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				concluir_contrato();
+		btnEditarContrato.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				// argumentos(CadastroModelo modelo, int tipoContrato, CadastroContrato
+				// contrato_pai, int flag_edicao) {
+				// TelaEscolhaTipoNovoContrato(int tipoContrato, CadastroContrato contrato_pai,
+				// int flag_edicao) {
 
+				fecharDocumento();
+				DadosGlobais dados = DadosGlobais.getInstance();
+				dados.setTeraGerenciarContratoPai(isto);
+				if (contrato.getSub_contrato() == 0) {
+					// e um contrato pai, abre a tela em modo de edicao
+					TelaEscolhaTipoNovoContrato tela = new TelaEscolhaTipoNovoContrato(0, contrato_local, 1, isto);
+				} else if (contrato.getSub_contrato() == 4 || contrato.getSub_contrato() == 5) {
+					TelaImportarContratoManual tela = new TelaImportarContratoManual(contrato.getSub_contrato(),
+							contrato, 1, null, isto);
+					tela.setVisible(true);
+				} else {
+					// e um subcontrato, o tipo do contrato e 1, e entra no modo de edicao
+					TelaEscolhaTipoNovoContrato tela = new TelaEscolhaTipoNovoContrato(1, contrato_local, 1, isto);
+
+				}
 			}
 		});
-		btnRevogarAssinatura.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				revogarAssinatura();
-			}
-		});
-		btnVizualizar.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent arg0) {
-				vizualizarContrato();
-			}
-		});
-		btnAssinarContrato.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent arg0) {
-				assinar();
-			}
-		});
-		botoes.add(btnAssinarContrato);
 		btnExcluirContrato.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 
@@ -2257,34 +2265,27 @@ public class TelaGerenciarContrato extends JFrame {
 
 			}
 		});
+		btnConcluir.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				concluir_contrato();
+
+			}
+		});
 
 		btnEnviarMsg.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				TelaEscolha escolher = new TelaEscolha(1, contrato, null, isto);
 			}
 		});
-		btnEditarContrato.addActionListener(new ActionListener() {
+		btnVizualizar.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
-				// argumentos(CadastroModelo modelo, int tipoContrato, CadastroContrato
-				// contrato_pai, int flag_edicao) {
-				// TelaEscolhaTipoNovoContrato(int tipoContrato, CadastroContrato contrato_pai,
-				// int flag_edicao) {
-
-				fecharDocumento();
-				DadosGlobais dados = DadosGlobais.getInstance();
-				dados.setTeraGerenciarContratoPai(isto);
-				if (contrato.getSub_contrato() == 0) {
-					// e um contrato pai, abre a tela em modo de edicao
-					TelaEscolhaTipoNovoContrato tela = new TelaEscolhaTipoNovoContrato(0, contrato_local, 1, isto);
-				} else if (contrato.getSub_contrato() == 4 || contrato.getSub_contrato() == 5) {
-					TelaImportarContratoManual tela = new TelaImportarContratoManual(contrato.getSub_contrato(),
-							contrato, 1, null, isto);
-					tela.setVisible(true);
-				} else {
-					// e um subcontrato, o tipo do contrato e 1, e entra no modo de edicao
-					TelaEscolhaTipoNovoContrato tela = new TelaEscolhaTipoNovoContrato(1, contrato_local, 1, isto);
-
-				}
+				vizualizarContrato();
+			}
+		});
+		btnNewButton.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				TelaVisaoGeralContrato tela = new TelaVisaoGeralContrato(contrato_local, isto);
+				tela.setVisible(true);
 			}
 		});
 
@@ -2313,29 +2314,30 @@ public class TelaGerenciarContrato extends JFrame {
 		 * panelPaiCarga.setLayout(gbl_panelPaiCarga);
 		 */
 
-		JPanel panel = new JPanel();
-		panel.setBackground(new Color(255, 255, 255));
+		JPanel painel_pai_carregamentos = new JPanel();
+		painel_pai_carregamentos.setBackground(new Color(255, 255, 255));
 		GridBagConstraints gbc_panel = new GridBagConstraints();
 		gbc_panel.fill = GridBagConstraints.BOTH;
 		gbc_panel.gridx = 0;
 		gbc_panel.gridy = 0;
-		painelCarregamento.add(panel);
-		panel.setLayout(new MigLayout("",
-				"[187px, grow][12px, grow][86px, grow][4px, grow][323px, grow][192px, grow][538px, grow]",
-				"[136px][4px][24px][199px, grow][42px][33px][8px][12px][170px]"));
+		painel_pai_carregamentos.setLayout(new MigLayout("", "[187px][12px][86px,grow][4px][323px,grow][10px][538px,grow]", "[136px][4px][24px][199px,grow][42px][33px][8px][12px][170px]"));
 
+		//painelCarregamento.add(painel_pai_carregamentos);
+		JScrollPane scroll_pai_carregamentos = new JScrollPane(painel_pai_carregamentos);
+		
+		painelCarregamento.add(scroll_pai_carregamentos);
 		JLabel lblNewLabel_7 = new JLabel("Carregamentos desse contrato:");
 		lblNewLabel_7.setFont(new Font("SansSerif", Font.BOLD, 18));
 		lblNewLabel_7.setForeground(new Color(102, 51, 0));
 		lblNewLabel_7.setBackground(new Color(102, 51, 0));
-		panel.add(lblNewLabel_7, "cell 0 2 3 1,alignx left,aligny top");
+		painel_pai_carregamentos.add(lblNewLabel_7, "cell 0 2 3 1,alignx left,aligny top");
 
 		table_carregamento = new JTable(modelo_carregamentos);
 		CarregamentoCellRender renderer = new CarregamentoCellRender();
 		table_carregamento.setDefaultRenderer(Object.class, renderer);
 		table_carregamento.setBackground(Color.WHITE);
 
-		table_carregamento.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
+		//table_carregamento.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
 
 		table_carregamento.getColumnModel().getColumn(0).setPreferredWidth(40);
 		table_carregamento.getColumnModel().getColumn(1).setPreferredWidth(150);
@@ -2372,19 +2374,19 @@ public class TelaGerenciarContrato extends JFrame {
 		});
 
 		scrollPaneCarregamento = new JScrollPane(table_carregamento);
-		panel.add(scrollPaneCarregamento, "cell 0 3 7 1,grow");
+		painel_pai_carregamentos.add(scrollPaneCarregamento, "cell 0 3 7 1,grow");
 		scrollPaneCarregamento.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED);
 		scrollPaneCarregamento.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED);
 		scrollPaneCarregamento.setBackground(Color.WHITE);
 		scrollPaneCarregamento.setAutoscrolls(true);
 
 		painelGraficoCarregamento = new JPanelGraficoPadrao(0, 0, "Carregado:", "a Carregar:");
-		panel.add(painelGraficoCarregamento, "cell 4 4 1 5,grow");
+		painel_pai_carregamentos.add(painelGraficoCarregamento, "cell 4 4 1 5,grow");
 		painelGraficoCarregamento.setLayout(null);
 
 		JPanel panel_14 = new JPanel();
 		panel_14.setBackground(Color.WHITE);
-		panel.add(panel_14, "cell 0 4 3 3,alignx center,aligny center");
+		painel_pai_carregamentos.add(panel_14, "cell 0 4 3 3,alignx center,aligny center");
 		panel_14.setLayout(new MigLayout("", "[11px][83px]", "[18px][][]"));
 
 		JLabel lblNewLabel_33_1_3 = new JLabel("       ");
@@ -2444,7 +2446,7 @@ public class TelaGerenciarContrato extends JFrame {
 
 		JPanel panel_15 = new JPanel();
 		panel_15.setBackground(Color.WHITE);
-		panel.add(panel_15, "cell 0 8 3 1,alignx center,aligny center");
+		painel_pai_carregamentos.add(panel_15, "cell 0 8 3 1,alignx center,aligny center");
 		GridBagLayout gbl_panel_15 = new GridBagLayout();
 		gbl_panel_15.columnWidths = new int[] { 0, 0, 0 };
 		gbl_panel_15.rowHeights = new int[] { 0, 0, 0, 0, 0, 0, 0 };
@@ -2542,7 +2544,7 @@ public class TelaGerenciarContrato extends JFrame {
 
 		JPanel panel_16 = new JPanel();
 		panel_16.setBackground(Color.WHITE);
-		panel.add(panel_16, "cell 6 4,alignx right,aligny top");
+		painel_pai_carregamentos.add(panel_16, "cell 6 4,alignx right,aligny top");
 		panel_16.setLayout(new MigLayout("", "[73px][81px][60px][64px][79px]", "[28px]"));
 
 		JButton btnExportarCarregamentos = new JButton("Exportar");
@@ -4063,7 +4065,7 @@ public class TelaGerenciarContrato extends JFrame {
 
 		JPanel panel_17 = new JPanel();
 		panel_17.setBackground(Color.WHITE);
-		panel.add(panel_17, "cell 0 0,grow");
+		painel_pai_carregamentos.add(panel_17, "cell 0 0,grow");
 		panel_17.setLayout(new MigLayout("", "[]", "[][]"));
 		panel_17.add(lblNewLabel_4, "cell 0 0");
 
@@ -4079,7 +4081,7 @@ public class TelaGerenciarContrato extends JFrame {
 
 		JPanel panel_18 = new JPanel();
 		panel_18.setBackground(Color.WHITE);
-		panel.add(panel_18, "cell 6 6 1 3,grow");
+		painel_pai_carregamentos.add(panel_18, "cell 6 6 1 3,grow");
 		panel_18.setLayout(new MigLayout("", "[][][]", "[]"));
 
 		JPanel panel_6_1 = new JPanel();
@@ -4262,7 +4264,7 @@ public class TelaGerenciarContrato extends JFrame {
 
 		JPanel panel_19 = new JPanel();
 		panel_19.setBackground(Color.WHITE);
-		panel.add(panel_19, "cell 2 0 5 3,growx,aligny top");
+		painel_pai_carregamentos.add(panel_19, "cell 2 0 5 3,growx,aligny top");
 		panel_19.setLayout(new MigLayout("", "[][]", "[]"));
 
 		JPanel lbl_produto = new JPanel();
@@ -4463,7 +4465,9 @@ public class TelaGerenciarContrato extends JFrame {
 		JPanel panel_4 = new JPanel();
 		panel_4.setBackground(new Color(255, 255, 255));
 		painelPagamentos.add(panel_4);
-		panel_4.setLayout(new MigLayout("", "[290px, grow][4px, grow][425px, grow][13px, grow][128px, grow][33px, grow][120px, grow][10px, grow][81px, grow][8px, grow][147px, grow][10px, grow][83px, grow]", "[22px][16px][18px][16px][107px][16px][17px][12px][22px][166px, grow][28px][42px][204px]"));
+		panel_4.setLayout(new MigLayout("",
+				"[290px, grow][4px, grow][425px, grow][13px, grow][128px, grow][33px, grow][120px, grow][10px, grow][81px, grow][8px, grow][147px, grow][10px, grow][83px, grow]",
+				"[22px][16px][18px][16px][107px][16px][17px][12px][22px][166px, grow][28px][42px][204px]"));
 		JPanel panelInformativoAbaPagamentos = new JPanel();
 		panel_4.add(panelInformativoAbaPagamentos, "cell 6 0 7 9,grow");
 		panelInformativoAbaPagamentos.setForeground(Color.WHITE);
@@ -5453,7 +5457,7 @@ public class TelaGerenciarContrato extends JFrame {
 		lblNewLabel_45_1.setFont(new Font("SansSerif", Font.PLAIN, 16));
 		panel_21.add(lblNewLabel_45_1, "cell 0 2");
 
-		 lblStatusCobertura = new JLabel("");
+		lblStatusCobertura = new JLabel("");
 		lblStatusCobertura.setForeground(Color.WHITE);
 		lblStatusCobertura.setFont(new Font("SansSerif", Font.PLAIN, 16));
 		panel_21.add(lblStatusCobertura, "cell 1 2");
@@ -5613,7 +5617,6 @@ public class TelaGerenciarContrato extends JFrame {
 		painelListaTarefas.setBackground(new Color(0, 153, 153));
 
 		painelPrincipal.addTab("Lista Tarefas", painelListaTarefas);
-		painelListaTarefas.setLayout(null);
 
 		table_tarefas = new JTable(modelo_tarefas);
 		table_tarefas.setBackground(Color.WHITE);
@@ -5626,17 +5629,28 @@ public class TelaGerenciarContrato extends JFrame {
 		table_tarefas.getColumnModel().getColumn(5).setPreferredWidth(70);
 		table_tarefas.getColumnModel().getColumn(6).setPreferredWidth(70);
 		table_tarefas.getColumnModel().getColumn(7).setPreferredWidth(90);
+		painelListaTarefas.setLayout(new MigLayout("", "[1108px,grow][12px,grow][90px,grow][11px,grow][89px,grow]",
+				"[][351px,grow][28px,grow]"));
+
+		JLabel lblNewLabel_46 = new JLabel("Lista de Tarefas Contratuais:");
+		lblNewLabel_46.setForeground(Color.WHITE);
+		lblNewLabel_46.setFont(new Font("SansSerif", Font.BOLD, 24));
+		painelListaTarefas.add(lblNewLabel_46, "cell 0 0");
 
 		table_tarefas.setRowHeight(30);
-		table_tarefas.setBackground(new Color(0, 153, 102));
 
+		table_tarefas.setBackground(Color.white);
 		JScrollPane scrollPaneTarefas = new JScrollPane(table_tarefas);
+		scrollPaneTarefas.setOpaque(true);
+		scrollPaneTarefas.getViewport().setBackground(Color.white);
+
 		scrollPaneTarefas.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED);
 		scrollPaneTarefas.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED);
 		scrollPaneTarefas.setBackground(Color.WHITE);
 		scrollPaneTarefas.setAutoscrolls(true);
-		scrollPaneTarefas.setBounds(28, 55, 1310, 351);
-		painelListaTarefas.add(scrollPaneTarefas);
+		scrollPaneTarefas.getViewport().setBackground(Color.white);
+
+		painelListaTarefas.add(scrollPaneTarefas, "cell 0 1 5 1,grow");
 
 		JButton btnAdcionarTarefa = new JButton("Adicionar");
 		btnAdcionarTarefa.addActionListener(new ActionListener() {
@@ -5648,8 +5662,7 @@ public class TelaGerenciarContrato extends JFrame {
 			}
 		});
 		botoes.add(btnAdcionarTarefa);
-		btnAdcionarTarefa.setBounds(1249, 430, 79, 28);
-		painelListaTarefas.add(btnAdcionarTarefa);
+		painelListaTarefas.add(btnAdcionarTarefa, "cell 4 2,growx,aligny top");
 
 		JButton btnExcluirTarefa = new JButton("Excluir");
 		btnExcluirTarefa.addActionListener(new ActionListener() {
@@ -5706,8 +5719,7 @@ public class TelaGerenciarContrato extends JFrame {
 			}
 		});
 		botoes.add(btnExcluirTarefa);
-		btnExcluirTarefa.setBounds(1072, 430, 64, 28);
-		painelListaTarefas.add(btnExcluirTarefa);
+		painelListaTarefas.add(btnExcluirTarefa, "cell 0 2,alignx right,aligny top");
 
 		JButton btnResponder = new JButton("Responder");
 		btnResponder.addActionListener(new ActionListener() {
@@ -5740,11 +5752,9 @@ public class TelaGerenciarContrato extends JFrame {
 			}
 		});
 		botoes.add(btnResponder);
-		btnResponder.setBounds(1148, 430, 90, 28);
-		painelListaTarefas.add(btnResponder);
+		painelListaTarefas.add(btnResponder, "cell 2 2,growx,aligny top");
 
 		painelPrincipal.addTab("Documentos, Distratos, Aditivos e Relatórios", painelComprovantes);
-		painelComprovantes.setLayout(null);
 
 		setPagamentos(contrato);
 
@@ -5877,9 +5887,13 @@ public class TelaGerenciarContrato extends JFrame {
 				}
 			}.start();
 		}
-		this.setResizable(true);
+
+		setContentPane(painelPrincipal);
 		this.setExtendedState(JFrame.MAXIMIZED_BOTH);
 
+		// this.pack();
+
+		this.setResizable(true);
 		this.setLocationRelativeTo(janela_pai);
 		this.setVisible(true);
 
@@ -7165,10 +7179,10 @@ public class TelaGerenciarContrato extends JFrame {
 
 		lblTotalCobertura.setText(z.format(peso_total_cobertura) + " sacos");
 
-		double diferenca = (valor_total_pagamentos_efetuados
-				- valor_total_transferencias_retiradas + valor_total_transferencias_recebidas) - valor_total_pagamentos;
+		double diferenca = (valor_total_pagamentos_efetuados - valor_total_transferencias_retiradas
+				+ valor_total_transferencias_recebidas) - valor_total_pagamentos;
 
-		if (diferenca == 0  ) {
+		if (diferenca == 0) {
 			lblStatusPagamento.setText("Pagamento Concluído");
 		} else if (diferenca > 0) {
 			lblStatusPagamento.setText("Excedeu em " + NumberFormat.getCurrencyInstance(ptBr).format(diferenca));
@@ -7185,9 +7199,8 @@ public class TelaGerenciarContrato extends JFrame {
 		} else if (diferenca_pesos > 0) {
 			lblStatusCobertura.setText("Excedeu em " + z.format(diferenca_pesos) + " Sacos");
 
-			
 		} else if (diferenca_pesos < 0) {
-			lblStatusCobertura.setText("Incompleto, falta pagar " + z.format(diferenca_pesos) + " Sacos" );
+			lblStatusCobertura.setText("Incompleto, falta pagar " + z.format(diferenca_pesos) + " Sacos");
 
 		}
 		int n1 = (int) valor_total_pagamentos;
@@ -8121,9 +8134,48 @@ public class TelaGerenciarContrato extends JFrame {
 					caminho_completo_global = caminho_completo;
 					nome_arquivo_global = nome_arquivo;
 
+					if (movido) {
+
+						CadastroDocumento novo_documento = new CadastroDocumento();
+						novo_documento.setDescricao("Comprovante de Pagamento id: " + id_pagamento + "do contrato "
+								+ contrato_local.getCodigo());
+						novo_documento.setNome("comprovante_assinatura");
+
+						novo_documento.setTipo(2);
+						novo_documento.setId_pai(id_pagamento);
+						novo_documento.setNome_arquivo(nome_arquivo_global);
+						novo_documento.setId_contrato_pai(contrato_local.getId());
+
+						GerenciarBancoDocumento gerenciar_doc = new GerenciarBancoDocumento();
+						int cadastrar = gerenciar_doc.inserir_documento_padrao(novo_documento);
+						if (cadastrar > 0) {
+
+							JOptionPane.showMessageDialog(isto, "Arquivo copiado\nOrigem: " + caminho_arquivo
+									+ "\nDestino: " + caminho_completo_global);
+
+							atualizarArvoreDocumentos();
+						} else {
+							JOptionPane.showMessageDialog(isto,
+									"Arquivo copiado, mas não pode ser salvo na base de dados\nConsulte o adiministrador do sistema!");
+							// cancelar operacao e excluir o arquivo
+							if (new ManipularTxt().apagarArquivo(caminho_completo_global)) {
+
+							} else {
+								JOptionPane.showMessageDialog(isto,
+										"Erro ao excluir arquivo!\nConsulte o administrador do sistema");
+							}
+						}
+
+					} else {
+						JOptionPane.showMessageDialog(isto, "Arquivo  não pode ser copiado\nOrigem: " + caminho_arquivo
+								+ "\nDestino: " + caminho_completo_global + "\n Consulte o administrador!");
+
+					}
 				}
 
-				if (caminho_diretorio2 != null) {
+				if (checkString(caminho_diretorio2) && caminho_diretorio2.length() > 10) {
+					// JOptionPane.showMessageDialog(tela, "CAminho do diretorio 2 nao e nulo: " +
+					// caminho_diretorio2);
 
 					// copiar o arquivo para a pasta do contrato
 					ManipularTxt manipular = new ManipularTxt();
@@ -8139,44 +8191,43 @@ public class TelaGerenciarContrato extends JFrame {
 					caminho_completo_global = caminho_completo;
 					nome_arquivo_global = nome_arquivo;
 
-				}
+					if (movido) {
 
-				if (movido) {
+						CadastroDocumento novo_documento = new CadastroDocumento();
+						novo_documento.setDescricao("Comprovante de Pagamento id: " + id_pagamento + "do contrato "
+								+ contrato_local.getCodigo());
+						novo_documento.setNome("comprovante_assinatura");
 
-					CadastroDocumento novo_documento = new CadastroDocumento();
-					novo_documento.setDescricao("Comprovante de Pagamento id: " + id_pagamento + "do contrato "
-							+ contrato_local.getCodigo());
-					novo_documento.setNome("comprovante_assinatura");
+						novo_documento.setTipo(2);
+						novo_documento.setId_pai(id_pagamento);
+						novo_documento.setNome_arquivo(nome_arquivo_global);
+						novo_documento.setId_contrato_pai(contrato_local.getId());
 
-					novo_documento.setTipo(2);
-					novo_documento.setId_pai(id_pagamento);
-					novo_documento.setNome_arquivo(nome_arquivo_global);
-					novo_documento.setId_contrato_pai(contrato_local.getId());
+						GerenciarBancoDocumento gerenciar_doc = new GerenciarBancoDocumento();
+						int cadastrar = gerenciar_doc.inserir_documento_padrao(novo_documento);
+						if (cadastrar > 0) {
 
-					GerenciarBancoDocumento gerenciar_doc = new GerenciarBancoDocumento();
-					int cadastrar = gerenciar_doc.inserir_documento_padrao(novo_documento);
-					if (cadastrar > 0) {
+							JOptionPane.showMessageDialog(isto, "Arquivo copiado\nOrigem: " + caminho_arquivo
+									+ "\nDestino: " + caminho_completo_global);
 
-						JOptionPane.showMessageDialog(isto, "Arquivo copiado\nOrigem: " + caminho_arquivo
-								+ "\nDestino: " + caminho_completo_global);
-
-						atualizarArvoreDocumentos();
-					} else {
-						JOptionPane.showMessageDialog(isto,
-								"Arquivo copiado, mas não pode ser salvo na base de dados\nConsulte o adiministrador do sistema!");
-						// cancelar operacao e excluir o arquivo
-						if (new ManipularTxt().apagarArquivo(caminho_completo_global)) {
-
+							atualizarArvoreDocumentos();
 						} else {
 							JOptionPane.showMessageDialog(isto,
-									"Erro ao excluir arquivo!\nConsulte o administrador do sistema");
+									"Arquivo copiado, mas não pode ser salvo na base de dados\nConsulte o adiministrador do sistema!");
+							// cancelar operacao e excluir o arquivo
+							if (new ManipularTxt().apagarArquivo(caminho_completo_global)) {
+
+							} else {
+								JOptionPane.showMessageDialog(isto,
+										"Erro ao excluir arquivo!\nConsulte o administrador do sistema");
+							}
 						}
+
+					} else {
+						JOptionPane.showMessageDialog(isto, "Arquivo  não pode ser copiado\nOrigem: " + caminho_arquivo
+								+ "\nDestino: " + caminho_completo_global + "\n Consulte o administrador!");
+
 					}
-
-				} else {
-					JOptionPane.showMessageDialog(isto, "Arquivo  não pode ser copiado\nOrigem: " + caminho_arquivo
-							+ "\nDestino: " + caminho_completo_global + "\n Consulte o administrador!");
-
 				}
 
 			} catch (Exception e) {
@@ -8760,9 +8811,8 @@ public class TelaGerenciarContrato extends JFrame {
 				panel.setLayout(new MigLayout("", "[grow]", "[][grow]"));
 
 				JScrollPane scrolldocumentos = new JScrollPane(panel);
-				scrolldocumentos.setBounds(34, 373, 520, 482);
 
-				painelComprovantes.add(scrolldocumentos);
+				painelComprovantes.add(scrolldocumentos, "cell 0 18 3 17,grow");
 
 				JLabel lblNewLabel_18 = new JLabel("Documentos deste contrato:");
 				lblNewLabel_18.setFont(new Font("Tahoma", Font.PLAIN, 14));
@@ -8869,8 +8919,7 @@ public class TelaGerenciarContrato extends JFrame {
 				expandAllNodes(arvore_documentos, 0, arvore_documentos.getRowCount());
 
 				lblNoSelecionado = new JLabel("");
-				lblNoSelecionado.setBounds(24, 347, 431, 14);
-				painelComprovantes.add(lblNoSelecionado);
+				painelComprovantes.add(lblNoSelecionado, "cell 0 16,grow");
 				/*
 				 * JPanel panel_1 = new JPanel(); panel_1.setBounds(24, 36, 752, 121);
 				 * painelComprovantes.add(panel_1); panel_1.setLayout(null);
@@ -8887,26 +8936,24 @@ public class TelaGerenciarContrato extends JFrame {
 				 * scrollPane.setBounds(10, 11, 732, 110); panel_1.add(scrollPane);
 				 */
 
-				JPanel panel_2 = new JPanel();
-				panel_2.setBackground(new Color(0, 255, 153));
-				panel_2.setBorder(new LineBorder(new Color(0, 0, 0)));
-				panel_2.setBounds(1006, 36, 284, 551);
-				painelComprovantes.add(panel_2);
-				panel_2.setLayout(null);
+				JPanel painelRelatoria = new JPanel();
+				painelRelatoria.setBackground(new Color(0, 255, 153));
+				painelRelatoria.setBorder(new LineBorder(new Color(0, 0, 0)));
+				painelComprovantes.add(painelRelatoria, "cell 13 1 1 28,grow");
+				painelRelatoria.setLayout(new MigLayout("",
+						"[32px, grow][72px, grow][12px, grow][79px, grow][7px, grow][59px, grow]",
+						"[14px, grow][19px, grow][162px, grow][18px, grow][18px, grow][18px, grow][18px, grow][18px, grow][28px, grow][18px, grow][28px, grow]"));
 
 				JLabel lblNewLabel_25 = new JLabel("Relatorios");
-				lblNewLabel_25.setBounds(102, 17, 72, 14);
-				panel_2.add(lblNewLabel_25);
+				painelRelatoria.add(lblNewLabel_25, "cell 1 0 5 1,alignx center,growy");
 				lblNewLabel_25.setFont(new Font("Sitka Small", Font.PLAIN, 14));
 
 				JButton btnSimplificado = new JButton("Gerar");
-				btnSimplificado.setBounds(208, 399, 59, 28);
-				panel_2.add(btnSimplificado);
+				painelRelatoria.add(btnSimplificado, "cell 5 8,alignx left,aligny top");
 
 				JLabel lblNewLabel_26 = new JLabel("Tipo:");
 				lblNewLabel_26.setFont(new Font("SansSerif", Font.PLAIN, 14));
-				lblNewLabel_26.setBounds(6, 45, 32, 19);
-				panel_2.add(lblNewLabel_26);
+				painelRelatoria.add(lblNewLabel_26, "cell 0 1,alignx left,aligny top");
 				JCheckBox chckbxExterno = new JCheckBox("Externo");
 				JCheckBox chkbxInterno = new JCheckBox("Interno");
 				JCheckBox chckbxIncluirGanhosPotenciais = new JCheckBox("Incluir Ganhos Potenciais");
@@ -8961,15 +9008,9 @@ public class TelaGerenciarContrato extends JFrame {
 						}
 					}
 				});
-				chkbxInterno.setBounds(50, 46, 60, 18);
-				panel_2.add(chkbxInterno);
-
-				chckbxExterno.setBounds(122, 46, 63, 18);
-				panel_2.add(chckbxExterno);
-
-				painelOpcaoInternas.setBounds(16, 76, 251, 162);
-				panel_2.add(painelOpcaoInternas);
-				painelOpcaoInternas.setLayout(null);
+				painelRelatoria.add(chkbxInterno, "cell 1 1,alignx right,aligny bottom");
+				painelRelatoria.add(chckbxExterno, "cell 3 1,alignx left,aligny bottom");
+				painelRelatoria.add(painelOpcaoInternas, "cell 0 2 6 1,grow");
 
 				JCheckBox chckbxIncluirSubContratos = new JCheckBox("Incluir Sub-Contratos");
 				chckbxIncluirSubContratos.addActionListener(new ActionListener() {
@@ -8985,24 +9026,21 @@ public class TelaGerenciarContrato extends JFrame {
 
 					}
 				});
-				chckbxIncluirSubContratos.setBounds(16, 63, 138, 18);
-				painelOpcaoInternas.add(chckbxIncluirSubContratos);
+				painelOpcaoInternas.setLayout(
+						new MigLayout("", "[191px, grow]", "[16px, grow][18px, grow][18px, grow][18px, grow]"));
+				painelOpcaoInternas.add(chckbxIncluirSubContratos, "cell 0 2,alignx left,aligny top");
 
 				JCheckBox chckbxIncluirComisso = new JCheckBox("Incluir Comissão");
-				chckbxIncluirComisso.setBounds(16, 36, 138, 18);
-				painelOpcaoInternas.add(chckbxIncluirComisso);
+				painelOpcaoInternas.add(chckbxIncluirComisso, "cell 0 1,alignx left,aligny top");
 
 				chckbxIncluirGanhosPotenciais.setEnabled(false);
-				chckbxIncluirGanhosPotenciais.setBounds(44, 93, 163, 18);
-				painelOpcaoInternas.add(chckbxIncluirGanhosPotenciais);
+				painelOpcaoInternas.add(chckbxIncluirGanhosPotenciais, "cell 0 3,alignx right,aligny top");
 
 				JLabel lblNewLabel_27 = new JLabel("Opções relatorio interno:");
-				lblNewLabel_27.setBounds(21, 8, 135, 16);
-				painelOpcaoInternas.add(lblNewLabel_27);
+				painelOpcaoInternas.add(lblNewLabel_27, "cell 0 0,alignx left,aligny top");
 
 				JCheckBox chckbxIncluirCarregamento = new JCheckBox("Incluir Carregamentos");
-				chckbxIncluirCarregamento.setBounds(38, 278, 163, 18);
-				panel_2.add(chckbxIncluirCarregamento);
+				painelRelatoria.add(chckbxIncluirCarregamento, "cell 1 4 3 1,growx,aligny top");
 
 				chckbxIncluirPagamentos.addActionListener(new ActionListener() {
 					public void actionPerformed(ActionEvent e) {
@@ -9029,28 +9067,21 @@ public class TelaGerenciarContrato extends JFrame {
 
 					}
 				});
-				chckbxIncluirPagamentos.setBounds(38, 306, 163, 18);
-				panel_2.add(chckbxIncluirPagamentos);
-
-				chckbxIncluirComprovantesPagamentos.setBounds(82, 336, 139, 18);
-				panel_2.add(chckbxIncluirComprovantesPagamentos);
+				painelRelatoria.add(chckbxIncluirPagamentos, "cell 1 5 3 1,growx,aligny top");
+				painelRelatoria.add(chckbxIncluirComprovantesPagamentos, "cell 1 6 5 1,alignx center,aligny top");
 
 				chckbxIncluirTransferencias.setEnabled(false);
-				chckbxIncluirTransferencias.setBounds(82, 366, 141, 18);
-				panel_2.add(chckbxIncluirTransferencias);
+				painelRelatoria.add(chckbxIncluirTransferencias, "cell 1 7 5 1,alignx center,aligny top");
 
 				chckbxIncluirRecebimentos = new JCheckBox("Incluir Recebimentos");
-				chckbxIncluirRecebimentos.setBounds(38, 250, 163, 18);
-				panel_2.add(chckbxIncluirRecebimentos);
+				painelRelatoria.add(chckbxIncluirRecebimentos, "cell 1 3 3 1,growx,aligny top");
 
 				JLabel lblNewLabel_25_1 = new JLabel("Relatorio Editavel(Excel)");
-				lblNewLabel_25_1.setBounds(50, 439, 178, 18);
-				panel_2.add(lblNewLabel_25_1);
+				painelRelatoria.add(lblNewLabel_25_1, "cell 1 9 5 1,alignx left,aligny top");
 				lblNewLabel_25_1.setFont(new Font("Sitka Small", Font.PLAIN, 14));
 
 				JButton btnEditavel = new JButton("Gerar");
-				btnEditavel.setBounds(208, 469, 59, 28);
-				panel_2.add(btnEditavel);
+				painelRelatoria.add(btnEditavel, "cell 5 10,alignx left,aligny top");
 				btnEditavel.addActionListener(new ActionListener() {
 					public void actionPerformed(ActionEvent e) {
 
@@ -9140,62 +9171,50 @@ public class TelaGerenciarContrato extends JFrame {
 				});
 
 				entNomeDocumento = new JTextField();
-				entNomeDocumento.setBounds(634, 494, 330, 27);
-				painelComprovantes.add(entNomeDocumento);
+				painelComprovantes.add(entNomeDocumento, "cell 6 22 5 1,grow");
 				entNomeDocumento.setColumns(10);
 
 				JLabel lblNewLabel_15 = new JLabel("Nome:");
-				lblNewLabel_15.setBounds(585, 500, 37, 16);
-				painelComprovantes.add(lblNewLabel_15);
+				lblNewLabel_15.setFont(new Font("SansSerif", Font.BOLD, 14));
+				lblNewLabel_15.setForeground(Color.WHITE);
+				painelComprovantes.add(lblNewLabel_15, "cell 4 22,alignx right,aligny center");
 
 				JLabel lblNewLabel_16_1 = new JLabel("Tipo:");
-				lblNewLabel_16_1.setBounds(595, 543, 27, 16);
-				painelComprovantes.add(lblNewLabel_16_1);
+				lblNewLabel_16_1.setFont(new Font("SansSerif", Font.BOLD, 14));
+				lblNewLabel_16_1.setForeground(Color.WHITE);
+				painelComprovantes.add(lblNewLabel_16_1, "cell 4 24,alignx right,aligny center");
 
 				cBTipoDocumento = new JComboBox();
-				cBTipoDocumento.setBounds(634, 540, 330, 22);
-				painelComprovantes.add(cBTipoDocumento);
+				painelComprovantes.add(cBTipoDocumento, "cell 6 24 5 1,grow");
 				cBTipoDocumento.addItem("Assinaturas");
 				cBTipoDocumento.addItem("Pagamentos");
 				cBTipoDocumento.addItem("Carregamentos");
 				cBTipoDocumento.addItem("Outros");
 
 				JLabel lblNewLabel_16 = new JLabel("Descrição:");
-				lblNewLabel_16.setBounds(566, 592, 59, 16);
-				painelComprovantes.add(lblNewLabel_16);
+				lblNewLabel_16.setFont(new Font("SansSerif", Font.BOLD, 14));
+				lblNewLabel_16.setForeground(Color.WHITE);
+				painelComprovantes.add(lblNewLabel_16, "cell 4 28,alignx right,aligny top");
 
 				entDescricaoDocumento = new JTextArea();
-				entDescricaoDocumento.setBounds(634, 586, 330, 85);
-				painelComprovantes.add(entDescricaoDocumento);
+				painelComprovantes.add(entDescricaoDocumento, "cell 6 26 5 3,grow");
 
 				JLabel lblNewLabel_17 = new JLabel("Arquivo:");
-				lblNewLabel_17.setBounds(578, 696, 46, 14);
-				painelComprovantes.add(lblNewLabel_17);
+				lblNewLabel_17.setFont(new Font("SansSerif", Font.BOLD, 14));
+				lblNewLabel_17.setForeground(Color.WHITE);
+				painelComprovantes.add(lblNewLabel_17, "cell 4 30,alignx right,aligny center");
 
 				entCaminhoDocumento = new JTextField();
-				entCaminhoDocumento.setBounds(634, 684, 231, 39);
-				painelComprovantes.add(entCaminhoDocumento);
+				painelComprovantes.add(entCaminhoDocumento, "cell 6 30 3 1,grow");
 				entCaminhoDocumento.setColumns(10);
 
 				btnSelecionarDocumento = new JButton("Selecionar");
-				btnSelecionarDocumento.setBounds(875, 691, 87, 28);
-				painelComprovantes.add(btnSelecionarDocumento);
+				painelComprovantes.add(btnSelecionarDocumento, "cell 10 30,alignx left,aligny center");
 				botoes.add(btnSelecionarDocumento);
 
 				btnAdicionarDocumento = new JButton("Adicionar");
-				btnAdicionarDocumento.setBounds(875, 740, 89, 23);
-				painelComprovantes.add(btnAdicionarDocumento);
+				painelComprovantes.add(btnAdicionarDocumento, "cell 10 32,grow");
 				botoes.add(btnAdicionarDocumento);
-
-				btnImportarDeTerceiros = new JButton("Importar de Terceiros");
-				btnImportarDeTerceiros.addActionListener(new ActionListener() {
-					public void actionPerformed(ActionEvent e) {
-						importarAditivo();
-					}
-				});
-				botoes.add(btnImportarDeTerceiros);
-				btnImportarDeTerceiros.setBounds(515, 155, 146, 28);
-				painelComprovantes.add(btnImportarDeTerceiros);
 
 				btnImportarDeTerceiros_1 = new JButton("Importar de Terceiros");
 				btnImportarDeTerceiros_1.addActionListener(new ActionListener() {
@@ -9203,55 +9222,27 @@ public class TelaGerenciarContrato extends JFrame {
 						importarDistrato();
 					}
 				});
-				btnImportarDeTerceiros_1.setBounds(507, 317, 146, 28);
 				botoes.add(btnImportarDeTerceiros_1);
 
-				painelComprovantes.add(btnImportarDeTerceiros_1);
+				painelComprovantes.add(btnImportarDeTerceiros_1, "cell 4 14,growx,aligny top");
 
 				JLabel lblNewLabel_35 = new JLabel("Inserir Documentos");
 				lblNewLabel_35.setOpaque(true);
 				lblNewLabel_35.setBackground(new Color(0, 51, 0));
 				lblNewLabel_35.setFont(new Font("SansSerif", Font.BOLD, 18));
 				lblNewLabel_35.setForeground(Color.WHITE);
-				lblNewLabel_35.setBounds(585, 418, 192, 39);
-				painelComprovantes.add(lblNewLabel_35);
+				painelComprovantes.add(lblNewLabel_35, "cell 4 20 7 1,grow");
 
-				JSeparator separator = new JSeparator();
-				separator.setOpaque(true);
-				separator.setBackground(new Color(0, 0, 0));
-				separator.setBounds(988, 405, 1, 393);
-				painelComprovantes.add(separator);
-
-				JSeparator separator_1 = new JSeparator();
-				separator_1.setOpaque(true);
-				separator_1.setBackground(Color.BLACK);
-				separator_1.setBounds(553, 405, 1, 393);
-				painelComprovantes.add(separator_1);
-
-				JSeparator separator_2 = new JSeparator();
-				separator_2.setOrientation(SwingConstants.VERTICAL);
-				separator_2.setOpaque(true);
-				separator_2.setBackground(Color.BLACK);
-				separator_2.setBounds(553, 797, 436, 1);
-				painelComprovantes.add(separator_2);
-
-				JSeparator separator_2_1 = new JSeparator();
-				separator_2_1.setOrientation(SwingConstants.VERTICAL);
-				separator_2_1.setOpaque(true);
-				separator_2_1.setBackground(Color.BLACK);
-				separator_2_1.setBounds(553, 405, 436, 1);
-				painelComprovantes.add(separator_2_1);
-
-				JPanel panel_1 = new JPanel();
-				panel_1.setBackground(new Color(153, 153, 51));
-				panel_1.setBounds(1006, 696, 330, 102);
-				painelComprovantes.add(panel_1);
-				GridBagLayout gbl_panel_1 = new GridBagLayout();
-				gbl_panel_1.columnWidths = new int[] { 0, 0, 0, 0, 0, 0, 0, 0, 0 };
-				gbl_panel_1.rowHeights = new int[] { 0, 0, 0, 0 };
-				gbl_panel_1.columnWeights = new double[] { 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, Double.MIN_VALUE };
-				gbl_panel_1.rowWeights = new double[] { 0.0, 0.0, 0.0, Double.MIN_VALUE };
-				panel_1.setLayout(gbl_panel_1);
+				JPanel panel_1_1_1 = new JPanel();
+				panel_1_1_1.setBackground(new Color(153, 153, 51));
+				painelComprovantes.add(panel_1_1_1, "cell 13 30 1 5,growx,aligny top");
+				GridBagLayout gbl_panel_1_1_1 = new GridBagLayout();
+				gbl_panel_1_1_1.columnWidths = new int[] { 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+				gbl_panel_1_1_1.rowHeights = new int[] { 0, 0, 0, 0 };
+				gbl_panel_1_1_1.columnWeights = new double[] { 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,
+						Double.MIN_VALUE };
+				gbl_panel_1_1_1.rowWeights = new double[] { 0.0, 0.0, 0.0, Double.MIN_VALUE };
+				panel_1_1_1.setLayout(gbl_panel_1_1_1);
 
 				JLabel lblNewLabel_36 = new JLabel("Documentos Fisicos");
 				lblNewLabel_36.setOpaque(true);
@@ -9263,14 +9254,14 @@ public class TelaGerenciarContrato extends JFrame {
 				gbc_lblNewLabel_36.insets = new Insets(0, 0, 5, 5);
 				gbc_lblNewLabel_36.gridx = 1;
 				gbc_lblNewLabel_36.gridy = 0;
-				panel_1.add(lblNewLabel_36, gbc_lblNewLabel_36);
+				panel_1_1_1.add(lblNewLabel_36, gbc_lblNewLabel_36);
 
 				JButton btnAbrirPasta = new JButton("Abrir Pasta");
 				GridBagConstraints gbc_btnAbrirPasta = new GridBagConstraints();
 				gbc_btnAbrirPasta.insets = new Insets(0, 0, 0, 5);
 				gbc_btnAbrirPasta.gridx = 3;
 				gbc_btnAbrirPasta.gridy = 2;
-				panel_1.add(btnAbrirPasta, gbc_btnAbrirPasta);
+				panel_1_1_1.add(btnAbrirPasta, gbc_btnAbrirPasta);
 				btnAbrirPasta.addActionListener(new ActionListener() {
 					public void actionPerformed(ActionEvent e) {
 						try {
@@ -9290,7 +9281,7 @@ public class TelaGerenciarContrato extends JFrame {
 				gbc_btnBackup.insets = new Insets(0, 0, 0, 5);
 				gbc_btnBackup.gridx = 5;
 				gbc_btnBackup.gridy = 2;
-				panel_1.add(btnBackup, gbc_btnBackup);
+				panel_1_1_1.add(btnBackup, gbc_btnBackup);
 				btnAdicionarDocumento.addActionListener(new ActionListener() {
 					public void actionPerformed(ActionEvent e) {
 
@@ -11693,11 +11684,9 @@ public class TelaGerenciarContrato extends JFrame {
 	}
 
 	public void criarTabelaAditivos() {
-		JPanel panel_1 = new JPanel();
-		panel_1.setBackground(new Color(0, 153, 153));
-		panel_1.setBounds(24, 36, 752, 121);
-		painelComprovantes.add(panel_1);
-		panel_1.setLayout(null);
+		JPanel panelAditivos = new JPanel();
+		panelAditivos.setBackground(new Color(0, 153, 153));
+		painelComprovantes.add(panelAditivos, "cell 0 5 9 1,grow");
 
 		modelo_aditivos.addColumn("Id");
 		modelo_aditivos.addColumn("Status");
@@ -11709,42 +11698,30 @@ public class TelaGerenciarContrato extends JFrame {
 		table_aditivos.setBackground(new Color(153, 255, 255));
 
 		setMenuAditivos();
+		panelAditivos.setLayout(new BorderLayout(0, 0));
 
 		JScrollPane scrollPane = new JScrollPane(table_aditivos);
 		scrollPane.setBackground(new Color(0, 153, 153));
-		scrollPane.setBounds(10, 11, 732, 110);
-		panel_1.add(scrollPane);
-
-		JLabel lblNewLabel_30 = new JLabel("Aditivos:");
-		lblNewLabel_30.setFont(new Font("SansSerif", Font.BOLD, 18));
-		lblNewLabel_30.setBounds(104, 17, 79, 24);
-		painelComprovantes.add(lblNewLabel_30);
+		panelAditivos.add(scrollPane);
 
 	}
 
 	public void criarTabelaDistratos() {
 
-		JLabel lblNewLabel_30_1 = new JLabel("Distratos:");
-		lblNewLabel_30_1.setFont(new Font("SansSerif", Font.BOLD, 18));
-		lblNewLabel_30_1.setBounds(104, 179, 85, 24);
-		painelComprovantes.add(lblNewLabel_30_1);
-
 		JPanel panelDistratos = new JPanel();
-		panelDistratos.setBounds(34, 209, 732, 107);
-		painelComprovantes.add(panelDistratos);
-		panelDistratos.setLayout(null);
+		painelComprovantes.add(panelDistratos, "cell 0 12 9 1,grow");
 
 		modelo_distratos.addColumn("Id");
 		modelo_distratos.addColumn("Status");
 		modelo_distratos.addColumn("Data");
 		modelo_distratos.addColumn("Texto");
 		modelo_distratos.addColumn("Nome Arquivo");
+		panelDistratos.setLayout(new BorderLayout(0, 0));
 
 		table_distratos = new JTable(modelo_distratos);
 		table_distratos.setBackground(new Color(153, 255, 255));
 
 		JScrollPane scrollPane = new JScrollPane(table_distratos);
-		scrollPane.setBounds(0, 0, 732, 107);
 		panelDistratos.add(scrollPane);
 
 		setMenuDistratos();

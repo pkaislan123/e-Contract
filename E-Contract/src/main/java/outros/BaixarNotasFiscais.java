@@ -190,14 +190,14 @@ public void abrirPagina(String s_dataInicio, String s_dataFim, String natureza) 
   	            	  //login concluido, prosseguir com pesquisa
   	            	  driver.get("https://www2.fazenda.mg.gov.br/sol/ctrl/SOL/NFAE/LISTA_013?ACAO=VISUALIZAR");
   	            	 try {
-   	      	        	Thread.sleep(1000);
+   	      	        	Thread.sleep(2000);
    	      	        } catch (InterruptedException e) {
    	      	        	// TODO Auto-generated catch block
    	      	        	e.printStackTrace();
    	      	        }
  	            	  driver.get("https://www2.fazenda.mg.gov.br/sol/ctrl/SOL/NFAE/LISTA_013?ACAO=VISUALIZAR");
  	            	 try {
-    	      	        	Thread.sleep(1000);
+    	      	        	Thread.sleep(2000);
     	      	        } catch (InterruptedException e) {
     	      	        	// TODO Auto-generated catch block
     	      	        	e.printStackTrace();
@@ -806,10 +806,10 @@ public void abrirPagina(String s_dataInicio, String s_dataFim, String natureza) 
         Select select_situacao = new Select(comboboxSituacao);
         select_situacao.selectByVisibleText("Impressa");
 		
-		 if(natureza.equals("VENDA")) {
+		 if(natureza.equals("AMBOS")) {
 		        WebElement comboboxNatureza = driver.findElement(By.name("tipoNatureza"));
 		        Select select_c = new Select(comboboxNatureza);
-		        select_c.selectByVisibleText("VENDA");
+		        select_c.selectByVisibleText("AMBOS");
 		        }
 		 
         WebElement botaoTipoNFA = driver.findElement(By.xpath("//input[@value='3']"));

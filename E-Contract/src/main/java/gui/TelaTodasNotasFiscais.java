@@ -8,6 +8,7 @@ import java.awt.event.ActionListener;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashSet;
+import java.util.Locale;
 import java.util.Set;
 import java.util.regex.PatternSyntaxException;
 
@@ -46,9 +47,11 @@ import java.io.FileFilter;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.text.NumberFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
@@ -112,7 +115,8 @@ import main.java.classesExtras.CBProdutoPersonalizado;
 import main.java.classesExtras.CBProdutoRenderPersonalizado;
 import main.java.conexaoBanco.GerenciarBancoProdutos;
 import main.java.conexaoBanco.GerenciarBancoSafras;
-public class TelaTodasNotasFiscais extends JDialog {
+import net.miginfocom.swing.MigLayout;
+public class TelaTodasNotasFiscais extends JFrame {
 
 	private Log GerenciadorLog;
 	private CadastroLogin login;
@@ -126,6 +130,9 @@ public class TelaTodasNotasFiscais extends JDialog {
 	private JButton btnSelecionarNota;
 	private JLabel lblStatusAdicionandoNotas;
 	private int contador = 0;
+	Locale ptBr = new Locale("pt", "BR");
+	NumberFormat z = NumberFormat.getNumberInstance();
+
 	private JFileChooser fileChooser_global ;
 	  private ArrayList<String> listadeArquivos = new ArrayList<>();
 
@@ -164,6 +171,15 @@ public class TelaTodasNotasFiscais extends JDialog {
 	private JTextField entIdentificacaoRemetente;
 	private JTextField entIdentificacaoDestinatario;
 	private CadastroCliente cliente_selecionado;
+	private JPanel panel_1;
+	private JPanel panel_2;
+	private JLabel lblNewLabel_3;
+	private JLabel lblNumTotalNfs;
+	private JLabel lblNewLabel_5;
+	private JLabel lblNewLabel_6;
+	private JLabel lblPesoTotalNFs;
+	private JLabel lblValorTotalNfs;
+	private JLabel lblInteficacaoAlvo;
 
 	public TelaTodasNotasFiscais(int flag, int retorno, Window janela_pai) {
 		setIconImage(Toolkit.getDefaultToolkit().getImage(TelaNotasFiscais.class.getResource("/imagens/icone_notas_fiscais.png")));
@@ -185,7 +201,7 @@ public class TelaTodasNotasFiscais extends JDialog {
 
 		JPanel panel = new JPanel();
 		panel.setBackground(Color.WHITE);
-		panel.setBounds(26, 231, 1247, 348);
+		panel.setBounds(26, 209, 1247, 310);
 		painelPrincipal.add(panel);
 
 		table_nfs = new JTable(modelo_nfs);
@@ -212,53 +228,10 @@ public class TelaTodasNotasFiscais extends JDialog {
 		table_nfs.getColumnModel().getColumn(9).setPreferredWidth(100);
 		table_nfs.getColumnModel().getColumn(10).setPreferredWidth(120);
 		table_nfs.getColumnModel().getColumn(11).setPreferredWidth(120);
-
 		panel.setLayout(null);
-		panel.setLayout(null);
+		panel.setLayout(new BorderLayout(0, 0));
 		JScrollPane scrollPaneNFs = new JScrollPane(table_nfs);
-		scrollPaneNFs.setBounds(10, 11, 1227, 326);
 		panel.add(scrollPaneNFs);
-
-		
-		
-		 btnSelecionarNota = new JButton("Selecionar");
-		btnSelecionarNota.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				
-				int rowSel = table_nfs.getSelectedRow();//pega o indice da linha na tabela
-				int indexRowModel = table_nfs.getRowSorter().convertRowIndexToModel(rowSel);//converte pro indice do model
-				if(tela_pai instanceof TelaConfirmarCarregamento) {
-					
-					if(retorno_global == 1) {
-						//retorna a nf interna
-						((TelaConfirmarCarregamento) tela_pai).setNotaFiscalInterna(notas_fiscais_disponivel.get(indexRowModel));
-
-					}else if(retorno_global == 2) {
-						//retorna a nf de venda 1
-						((TelaConfirmarCarregamento) tela_pai).setNotaFiscalVenda1(notas_fiscais_disponivel.get(indexRowModel));
-
-					}else if(retorno_global == 3) {
-						//retorna a nf de complemento
-						((TelaConfirmarCarregamento) tela_pai).setNotaFiscalComplemento(notas_fiscais_disponivel.get(indexRowModel));
-
-					}
-					
-
-				}
-				else if(tela_pai instanceof TelaConfirmarRecebimento) {
-					if(retorno_global == 1)
-					((TelaConfirmarRecebimento) tela_pai).setNotaFiscalVenda(notas_fiscais_disponivel.get(indexRowModel));
-					else if(retorno_global == 2)
-						((TelaConfirmarRecebimento) tela_pai).setNotaFiscalRemessa(notas_fiscais_disponivel.get(indexRowModel));
-
-				}
-				
-				isto.dispose();
-
-			}
-		});
-		btnSelecionarNota.setBounds(1171, 590, 89, 23);
-		painelPrincipal.add(btnSelecionarNota);
 
 
 		entProduto = new JTextField();
@@ -276,53 +249,15 @@ public class TelaTodasNotasFiscais extends JDialog {
 		
 		
 		lblStatusAdicionandoNotas = new JLabel("Adicionando Notas...");
-		lblStatusAdicionandoNotas.setBounds(25, 590, 626, 23);
+		lblStatusAdicionandoNotas.setBounds(853, 590, 420, 23);
 		painelPrincipal.add(lblStatusAdicionandoNotas);
-		
-		btnVizualizarNF = new JButton("Vizualizar");
-		btnVizualizarNF.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				
-				int rowSel = table_nfs.getSelectedRow();//pega o indice da linha na tabela
-				int indexRowModel = table_nfs.getRowSorter().convertRowIndexToModel(rowSel);//converte pro indice do model
-				CadastroNFe nota_vizualizar = notas_fiscais_disponivel.get(indexRowModel);
-				
-				if (Desktop.isDesktopSupported()) {
-					 try {
-					     Desktop desktop = Desktop.getDesktop();
-					     File myFile = new File(servidor_unidade +   nota_vizualizar.getCaminho_arquivo());
-					     desktop.open(myFile);
-					     } catch (IOException ex) {}
-					 }
-			}
-		});
-		btnVizualizarNF.setBounds(1072, 590, 89, 23);
-		painelPrincipal.add(btnVizualizarNF);
-		
-		btnExportar = new JButton("Exportar");
-		btnExportar.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				exportar();
-			}
-		});
-		btnExportar.setBounds(973, 590, 89, 23);
-		painelPrincipal.add(btnExportar);
-		
-		btnImportarNFe = new JButton("Importar");
-		btnImportarNFe.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				
-				
-			}
-		});
-		btnImportarNFe.setBounds(877, 590, 89, 23);
-		painelPrincipal.add(btnImportarNFe);
 		
 		btnFiltrar = new JButton("Filtrar");
 		btnFiltrar.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 			
 					   filtrar();
+					   calcular();
 
 				
 			}
@@ -389,6 +324,7 @@ public class TelaTodasNotasFiscais extends JDialog {
 			public void actionPerformed(ActionEvent e) {
 				
 				    limpar();
+				    calcular();
 			}
 		});
 		btnLimpar.setBounds(1078, 137, 67, 28);
@@ -407,38 +343,11 @@ public class TelaTodasNotasFiscais extends JDialog {
 		lblNewLabel_4.setBounds(48, 48, 61, 22);
 		painelPrincipal.add(lblNewLabel_4);
 		
-		btnNewButton = new JButton("Excluir");
-		btnNewButton.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				
-				if (JOptionPane.showConfirmDialog(isto, 
-			            "Deseja excluir a NF?", "Excluir NF", 
-			            JOptionPane.YES_NO_OPTION,
-			            JOptionPane.QUESTION_MESSAGE) == JOptionPane.YES_OPTION){
-					int rowSel = table_nfs.getSelectedRow();//pega o indice da linha na tabela
-					int indexRowModel = table_nfs.getRowSorter().convertRowIndexToModel(rowSel);//converte pro indice do model
-					ManipularTxt manipular = new ManipularTxt();
-					boolean apagado = manipular.apagarArquivo(notas_fiscais_disponivel.get(indexRowModel).getCaminho_arquivo());
-					if(apagado) {
-						modelo_nfs.onRemove(notas_fiscais_disponivel.get(indexRowModel));
-						JOptionPane.showMessageDialog(isto, "NF Excluida");
-
-					}else {
-						JOptionPane.showMessageDialog(isto, "Erro ao excluir esta NF\nConsulte o administrador");
-					}
-			        }
-				
-				
-				
-			}
-		});
-		btnNewButton.setBounds(803, 587, 64, 28);
-		painelPrincipal.add(btnNewButton);
-		
 		btnReleitura = new JButton("Refazer Pesquisa");
 		btnReleitura.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 			  pesquisar_notas();
+			 
 			}
 		});
 		btnReleitura.setBounds(973, 137, 90, 28);
@@ -490,6 +399,151 @@ public class TelaTodasNotasFiscais extends JDialog {
 		entIdentificacaoDestinatario.setBounds(464, 137, 237, 28);
 		painelPrincipal.add(entIdentificacaoDestinatario);
 		
+		panel_1 = new JPanel();
+		panel_1.setBackground(Color.WHITE);
+		panel_1.setBounds(803, 530, 470, 49);
+		painelPrincipal.add(panel_1);
+		panel_1.setLayout(new MigLayout("", "[][][][][][][][][][][][][][][][][][][][][]", "[][][]"));
+				 
+				 btnNewButton = new JButton("Excluir");
+				 panel_1.add(btnNewButton, "cell 13 0");
+				 btnNewButton.addActionListener(new ActionListener() {
+				 	public void actionPerformed(ActionEvent e) {
+				 		
+				 		if (JOptionPane.showConfirmDialog(isto, 
+				 	            "Deseja excluir a NF?", "Excluir NF", 
+				 	            JOptionPane.YES_NO_OPTION,
+				 	            JOptionPane.QUESTION_MESSAGE) == JOptionPane.YES_OPTION){
+				 			int rowSel = table_nfs.getSelectedRow();//pega o indice da linha na tabela
+				 			int indexRowModel = table_nfs.getRowSorter().convertRowIndexToModel(rowSel);//converte pro indice do model
+				 			ManipularTxt manipular = new ManipularTxt();
+				 			boolean apagado = manipular.apagarArquivo(notas_fiscais_disponivel.get(indexRowModel).getCaminho_arquivo());
+				 			if(apagado) {
+				 				modelo_nfs.onRemove(notas_fiscais_disponivel.get(indexRowModel));
+				 				JOptionPane.showMessageDialog(isto, "NF Excluida");
+
+				 			}else {
+				 				JOptionPane.showMessageDialog(isto, "Erro ao excluir esta NF\nConsulte o administrador");
+				 			}
+				 	        }
+				 		
+				 		
+				 		
+				 	}
+				 });
+				 
+				 btnImportarNFe = new JButton("Importar");
+				 panel_1.add(btnImportarNFe, "cell 15 0");
+				 btnImportarNFe.addActionListener(new ActionListener() {
+				 	public void actionPerformed(ActionEvent e) {
+				 		
+				 		
+				 	}
+				 });
+				 
+				 btnExportar = new JButton("Exportar");
+				 panel_1.add(btnExportar, "cell 17 0");
+				 btnExportar.addActionListener(new ActionListener() {
+				 	public void actionPerformed(ActionEvent e) {
+				 		exportar();
+				 	}
+				 });
+				 
+				 btnVizualizarNF = new JButton("Vizualizar");
+				 panel_1.add(btnVizualizarNF, "cell 19 0");
+				 btnVizualizarNF.addActionListener(new ActionListener() {
+				 	public void actionPerformed(ActionEvent e) {
+				 		
+				 		int rowSel = table_nfs.getSelectedRow();//pega o indice da linha na tabela
+				 		int indexRowModel = table_nfs.getRowSorter().convertRowIndexToModel(rowSel);//converte pro indice do model
+				 		CadastroNFe nota_vizualizar = notas_fiscais_disponivel.get(indexRowModel);
+				 		
+				 		if (Desktop.isDesktopSupported()) {
+				 			 try {
+				 			     Desktop desktop = Desktop.getDesktop();
+				 			     File myFile = new File(servidor_unidade +   nota_vizualizar.getCaminho_arquivo());
+				 			     desktop.open(myFile);
+				 			     } catch (IOException ex) {}
+				 			 }
+				 	}
+				 });
+		
+				
+				
+				 btnSelecionarNota = new JButton("Selecionar");
+				 panel_1.add(btnSelecionarNota, "cell 20 0");
+				 
+				 panel_2 = new JPanel();
+				 panel_2.setBackground(Color.WHITE);
+				 panel_2.setBounds(26, 530, 578, 98);
+				 painelPrincipal.add(panel_2);
+				 panel_2.setLayout(new MigLayout("", "[][]", "[][][]"));
+				 
+				 lblNewLabel_3 = new JLabel("Total NF's:");
+				 lblNewLabel_3.setFont(new Font("SansSerif", Font.PLAIN, 16));
+				 panel_2.add(lblNewLabel_3, "cell 0 0");
+				 
+				 lblNumTotalNfs = new JLabel("000");
+				 lblNumTotalNfs.setFont(new Font("SansSerif", Font.BOLD, 14));
+				 panel_2.add(lblNumTotalNfs, "cell 1 0");
+				 
+				 lblNewLabel_5 = new JLabel("Peso Total NF's:");
+				 lblNewLabel_5.setFont(new Font("SansSerif", Font.PLAIN, 16));
+				 panel_2.add(lblNewLabel_5, "cell 0 1");
+				 
+				 lblPesoTotalNFs = new JLabel("000");
+				 lblPesoTotalNFs.setFont(new Font("SansSerif", Font.BOLD, 14));
+				 panel_2.add(lblPesoTotalNFs, "cell 1 1");
+				 
+				 lblNewLabel_6 = new JLabel("Valor Total NF's:");
+				 lblNewLabel_6.setFont(new Font("SansSerif", Font.PLAIN, 16));
+				 panel_2.add(lblNewLabel_6, "cell 0 2");
+				 
+				 lblValorTotalNfs = new JLabel("000");
+				 lblValorTotalNfs.setFont(new Font("SansSerif", Font.BOLD, 14));
+				 panel_2.add(lblValorTotalNfs, "cell 1 2");
+				 
+				 lblInteficacaoAlvo = new JLabel("   ");
+				 lblInteficacaoAlvo.setVisible(false);
+				 lblInteficacaoAlvo.setFont(new Font("SansSerif", Font.BOLD, 14));
+				 lblInteficacaoAlvo.setBounds(145, 62, 380, 16);
+				 painelPrincipal.add(lblInteficacaoAlvo);
+				 btnSelecionarNota.addActionListener(new ActionListener() {
+				 	public void actionPerformed(ActionEvent e) {
+				 		
+				 		int rowSel = table_nfs.getSelectedRow();//pega o indice da linha na tabela
+				 		int indexRowModel = table_nfs.getRowSorter().convertRowIndexToModel(rowSel);//converte pro indice do model
+				 		if(tela_pai instanceof TelaConfirmarCarregamento) {
+				 			
+				 			if(retorno_global == 1) {
+				 				//retorna a nf interna
+				 				((TelaConfirmarCarregamento) tela_pai).setNotaFiscalInterna(notas_fiscais_disponivel.get(indexRowModel));
+
+				 			}else if(retorno_global == 2) {
+				 				//retorna a nf de venda 1
+				 				((TelaConfirmarCarregamento) tela_pai).setNotaFiscalVenda1(notas_fiscais_disponivel.get(indexRowModel));
+
+				 			}else if(retorno_global == 3) {
+				 				//retorna a nf de complemento
+				 				((TelaConfirmarCarregamento) tela_pai).setNotaFiscalComplemento(notas_fiscais_disponivel.get(indexRowModel));
+
+				 			}
+				 			
+
+				 		}
+				 		else if(tela_pai instanceof TelaConfirmarRecebimento) {
+				 			if(retorno_global == 1)
+				 			((TelaConfirmarRecebimento) tela_pai).setNotaFiscalVenda(notas_fiscais_disponivel.get(indexRowModel));
+				 			else if(retorno_global == 2)
+				 				((TelaConfirmarRecebimento) tela_pai).setNotaFiscalRemessa(notas_fiscais_disponivel.get(indexRowModel));
+
+				 		}
+				 		
+				 		isto.dispose();
+
+				 	}
+				 });
+		
 		
 			
 
@@ -528,8 +582,17 @@ public class TelaTodasNotasFiscais extends JDialog {
 				if(cliente_selecionado == null) {
 					lista_nfs = gerenciar.listarNFs();
 				}else {
+					lblInteficacaoAlvo.setVisible(true);
+					String nome = "";
+					if(cliente_selecionado.getTipo_pessoa() ==0 ) {
+						nome = cliente_selecionado.getNome_empresarial();
+					}else
+						nome = cliente_selecionado.getNome_fantaia();
+					
+					lblInteficacaoAlvo.setText(nome + " I.E:  " + cliente_selecionado.getIe());
+					
 					lista_nfs = gerenciar.listarNFsPorCliente(cliente_selecionado.getIe());
-
+					
 				}
 				
 				for(CadastroNFe nf : lista_nfs) {
@@ -537,7 +600,7 @@ public class TelaTodasNotasFiscais extends JDialog {
 					modelo_nfs.onAdd(nf);
 				}
 				
-
+				 calcular();
 			}
 		}.start();
 				
@@ -1023,6 +1086,7 @@ public class TelaTodasNotasFiscais extends JDialog {
 	
 		
 		filtrar();
+		calcular();
 	}
 	
 
@@ -1044,11 +1108,52 @@ public class TelaTodasNotasFiscais extends JDialog {
 	
 	public void limpar() {
 	    sorter.setRowFilter( RowFilter.regexFilter(""));
-
+	    calcular();
 	}
 	
 	public void setClienteSelecionado(CadastroCliente cliente) {
 		this.cliente_selecionado = cliente;
 	}
 	
+	public void calcular() {
+
+		int num_total_nfs = 0;
+		double quantidade_total = 0;
+		BigDecimal valor_total = BigDecimal.ZERO;
+
+		for (int row = 0; row < table_nfs.getRowCount(); row++) {
+
+			int index = table_nfs.convertRowIndexToModel(row);
+			CadastroNFe nf = modelo_nfs.getValue(index);
+			try {			
+		        if(nf.getQuantidade().contains(",")) { 
+				quantidade_total += Double.parseDouble(nf.getQuantidade().replaceAll("[^0-9,]", "").replaceAll(",", "."));
+		        }else {
+					quantidade_total += Double.parseDouble(nf.getQuantidade());
+
+		        }
+			}catch(Exception e) {
+				
+			}
+				  Number valor = null;
+					try {
+						valor = z.parse(nf.getValor().replaceAll("[^0-9.,]", ""));
+						valor_total = valor_total.add(new BigDecimal(valor.doubleValue()));
+
+					} catch (ParseException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}				
+			
+			num_total_nfs++;
+			
+		}
+		
+		lblNumTotalNfs.setText(num_total_nfs + "");
+		
+		String valorString = NumberFormat.getCurrencyInstance(ptBr).format(valor_total);
+		lblValorTotalNfs.setText(valorString);
+		
+		lblPesoTotalNFs.setText(z.format(quantidade_total) + " Kgs | " + z.format(quantidade_total/60) + " sacos");
+	}
 }

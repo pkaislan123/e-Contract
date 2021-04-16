@@ -14,7 +14,7 @@ import lombok.NoArgsConstructor;
 @Entity
 public class Lancamento {
 
-	int id_lancamento, id_conta, id_condicao_pagamento, id_instituicao_bancaria, id_centro_custo, id_cliente_fornecedor;
-	String data_lancamento , data_vencimento, data_pagamento, status, observacao, descricao;
+	int id_lancamento, intervalo, prioridade, numero_parcelas, gerar_parcelas, tipo_lancamento, id_conta,status, id_instituicao_bancaria, id_centro_custo, id_cliente_fornecedor;
+	String data_lancamento , data_vencimento, observacao, descricao, identificacao, diretorio_lancamento, caminho_arquivo;
 	BigDecimal valor;
 }

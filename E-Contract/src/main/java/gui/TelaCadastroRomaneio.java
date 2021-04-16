@@ -8,6 +8,7 @@ import java.awt.event.ActionListener;
 import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.Locale;
+import java.util.ResourceBundle;
 
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
@@ -19,8 +20,12 @@ import javax.swing.border.EmptyBorder;
 import org.icepdf.ri.common.ComponentKeyBinding;
 import org.icepdf.ri.common.SwingController;
 import org.icepdf.ri.common.SwingViewBuilder;
+import org.icepdf.ri.util.PropertiesManager;
+
 import net.miginfocom.swing.MigLayout;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+
 import java.awt.Font;
 import javax.swing.JTextArea;
 import javax.swing.BoxLayout;
@@ -149,19 +154,29 @@ import javax.swing.border.LineBorder;
 
 
 
-public class TelaPadrao extends JDialog {
+public class TelaCadastroRomaneio extends JDialog {
 
 	private final JPanel painelPrincipal = new JPanel();
     private JLabel lblTotalContratosConcluidos, lblTotalContratos, lblTotalContratosAbertos;
-    private TelaPadrao isto;
+    private TelaCadastroRomaneio isto;
     private JDialog telaPai;
+    private JPanel painel_vizualizar;
+    private SwingController controller = null;
+	private SwingViewBuilder factory;
+	private Log GerenciadorLog;
+	private CadastroLogin login;
+	private ConfiguracoesGlobais configs_globais;
+	private String servidor_unidade;
+	private JPanel painelVizualizarRomaneio;
+	
+	
+	public TelaCadastroRomaneio(CadastroRomaneio romaneio, Window janela_pai) {
 
-	public TelaPadrao(Window janela_pai) {
-
-		 isto = this;
 		
+		 isto = this;
+		 getDadosGlobais();
 		setResizable(true);
-		setTitle("E-Contract - Cadastro Parcela");
+		setTitle("E-Contract - Cadastro Romaneio");
 
 		
 		setBackground(new Color(255, 255, 255));
@@ -170,12 +185,20 @@ public class TelaPadrao extends JDialog {
 		painelPrincipal.setBackground(new Color(255, 255, 255));
 		painelPrincipal.setBorder(new EmptyBorder(5, 5, 5, 5));
 		setContentPane(painelPrincipal);
-		painelPrincipal.setLayout(null);
+		painelPrincipal.setLayout(new MigLayout("", "[grow][grow]", "[grow]"));
+		 painelVizualizarRomaneio = new JPanel();
+		painelPrincipal.add(painelVizualizarRomaneio, "cell 0 0,grow");
+		painelVizualizarRomaneio.setLayout(new BorderLayout(0, 0));
+		
+		JPanel panel = new JPanel();
+		painelPrincipal.add(panel, "cell 1 0,grow");
+		
+		
 	
 		
 		
 		
-
+		carregarDocumento(romaneio.getCaminho_arquivo());
 		this.setLocationRelativeTo(janela_pai);
 
 		
@@ -183,9 +206,89 @@ public class TelaPadrao extends JDialog {
 		
 	}
 	
+	
+	public void carregarDocumento(String url) {
+		// build a controller
+
+		if (controller == null) {
+
+			controller = new SwingController();
+
+			PropertiesManager propriedades = new PropertiesManager(System.getProperties(),
+					ResourceBundle.getBundle(PropertiesManager.DEFAULT_MESSAGE_BUNDLE));
+			// Build a SwingViewFactory configured with the controller
+
+			propriedades.setBoolean(PropertiesManager.PROPERTY_SHOW_TOOLBAR_ANNOTATION, Boolean.FALSE);
+			propriedades.setBoolean(PropertiesManager.PROPERTY_VIEWPREF_HIDEMENUBAR, Boolean.TRUE);
+			propriedades.setBoolean(PropertiesManager.PROPERTY_VIEWPREF_HIDETOOLBAR, Boolean.TRUE);
+			propriedades.setBoolean(PropertiesManager.PROPERTY_SHOW_TOOLBAR_ANNOTATION, Boolean.FALSE);
+			propriedades.setBoolean(PropertiesManager.PROPERTY_SHOW_TOOLBAR_PAGENAV, Boolean.FALSE);
+			propriedades.setBoolean(PropertiesManager.PROPERTY_SHOW_STATUSBAR, Boolean.FALSE);
+			propriedades.setBoolean(PropertiesManager.PROPERTY_SHOW_TOOLBAR_FIT, Boolean.FALSE);
+
+			propriedades.setFloat(PropertiesManager.PROPERTY_DEFAULT_ZOOM_LEVEL, 1.25f);
+
+			factory = new SwingViewBuilder(controller, propriedades);
+			// Use the factory to build a JPanel that is pre-configured
+			// with a complete, active Viewer UI.
+
+			/*
+			 * controller.getDocumentViewController().setAnnotationCallback( new
+			 * org.icepdf.ri.common.MyAnnotationCallback(controller.
+			 * getDocumentViewController()));
+			 */
+		}
+
+		java.awt.EventQueue.invokeLater(new Runnable() {
+			public void run() {
+
+				if (painel_vizualizar == null) {
+
+					painel_vizualizar = new JPanel();
+
+					painel_vizualizar = factory.buildViewerPanel();
+					controller.openDocument(servidor_unidade + url);
+					// viewerComponentPanel.setPreferredSize(new Dimension(400, 370));
+					// viewerComponentPanel.setMaximumSize(new Dimension(400, 370));
+
+					painel_vizualizar.setBounds(0, 0, painel_vizualizar.getWidth(), painel_vizualizar.getHeight());
+					painelVizualizarRomaneio.add(painel_vizualizar);
+				} else {
+					controller.openDocument(servidor_unidade + url);
+					painel_vizualizar.repaint();
+					painel_vizualizar.updateUI();
+					painelVizualizarRomaneio.add(painel_vizualizar);
+
+				}
+
+			}
+		});
+	}
+
+	public void fecharDocumento() {
+
+		if (controller != null) {
+			controller.closeDocument();
+		}
+
+	}
+
+	
 	public void setTelaPai(JDialog _tela_pai) {
 		this.telaPai = _tela_pai;
 	}
 	
+	
+	public void getDadosGlobais() {
+		//gerenciador de log
+				DadosGlobais dados = DadosGlobais.getInstance();
+				 GerenciadorLog = dados.getGerenciadorLog();
+				 configs_globais = dados.getConfigs_globais();
+				 
+				 //usuario logado
+				  login = dados.getLogin();
+				  servidor_unidade = configs_globais.getServidorUnidade();
+		
+	}
 	
 }

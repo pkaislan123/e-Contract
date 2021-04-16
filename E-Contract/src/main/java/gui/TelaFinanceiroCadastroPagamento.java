@@ -66,6 +66,7 @@ import main.java.cadastros.Contato;
 import main.java.cadastros.DadosCarregamento;
 import main.java.cadastros.DadosContratos;
 import main.java.cadastros.DadosRecebimento;
+import main.java.cadastros.FinanceiroPagamento;
 import main.java.cadastros.Parcela;
 import main.java.cadastros.RegistroQuantidade;
 import main.java.cadastros.RegistroRecebimento;
@@ -73,8 +74,10 @@ import main.java.classesExtras.Endereco;
 import main.java.classesExtras.RenderizadorContato;
 import main.java.conexaoBanco.GerenciarBancoAditivos;
 import main.java.conexaoBanco.GerenciarBancoClientes;
+import main.java.conexaoBanco.GerenciarBancoCondicaoPagamentos;
 import main.java.conexaoBanco.GerenciarBancoContratos;
 import main.java.conexaoBanco.GerenciarBancoDocumento;
+import main.java.conexaoBanco.GerenciarBancoFinanceiroPagamento;
 import main.java.conexaoBanco.GerenciarBancoNotasFiscais;
 import main.java.conexaoBanco.GerenciarBancoPadrao;
 import main.java.conexaoBanco.GerenciarBancoParcelas;
@@ -135,6 +138,7 @@ import main.java.cadastros.CadastroLogin;
 import main.java.cadastros.CadastroNuvem;
 import main.java.cadastros.CadastroPontuacao;
 import main.java.cadastros.CadastroZapMessenger;
+import main.java.cadastros.CondicaoPagamento;
 import main.java.outros.DadosGlobais;
 import main.java.cadastros.CadastroCliente;
 import main.java.cadastros.CadastroGrupo;
@@ -163,22 +167,22 @@ import javax.swing.JEditorPane;
 
 
 
-public class TelaCadastroParcela extends JFrame {
+public class TelaFinanceiroCadastroPagamento extends JFrame {
 
 	private final KGradientPanel painelPrincipal = new KGradientPanel();
     private JLabel lblTotalContratosConcluidos, lblTotalContratos, lblTotalContratosAbertos;
-    private TelaCadastroParcela isto;
+    private TelaFinanceiroCadastroPagamento isto;
     private JDialog telaPai;
     private JTextFieldPersonalizado entValor;
     private JTextFieldPersonalizado entDescricao;
     private JTextFieldPersonalizado entDataVencimento;
     private JTextFieldPersonalizado entCaminhoArquivo;
-    private JLabel entStatus;
 	private JTextFieldPersonalizado entIdentificador = new JTextFieldPersonalizado();
 	private JEditorPane entObservacao = new JEditorPane();
+	private CondicaoPagamento condicao_pagamento;
+	private JComboBox cbCondicaoPagamento ;
 
-
-	public TelaCadastroParcela(int modo_operacao, Parcela parcela, int id_lancamento_pai, Window janela_pai) {
+	public TelaFinanceiroCadastroPagamento(int modo_operacao, FinanceiroPagamento pagamento, int id_lancamento_pai, Window janela_pai) {
 
 		 isto = this;
 		
@@ -190,20 +194,20 @@ public class TelaCadastroParcela extends JFrame {
 		
 		setBackground(new Color(255, 255, 255));
 		setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-		setBounds(100, 100, 504, 378);
+		setBounds(100, 100, 571, 416);
 		painelPrincipal.kStartColor = new Color(255, 255, 204);
 		painelPrincipal.kEndColor = new Color(255, 204, 153);
 		painelPrincipal.setBackground(new Color(0, 51, 51));
 		painelPrincipal.setBorder(new EmptyBorder(5, 5, 5, 5));
 		setContentPane(painelPrincipal);
-		painelPrincipal.setLayout(new MigLayout("", "[][grow][]", "[][][][][][][][50px:n,grow][]"));
+		painelPrincipal.setLayout(new MigLayout("", "[][grow][][]", "[][][][][][][][50px:n,grow][]"));
 		
 		JLabel lblIdentificador = new JLabel("Identificador:");
 		lblIdentificador.setFont(new Font("Tahoma", Font.PLAIN, 16));
 		painelPrincipal.add(lblIdentificador, "cell 0 1,alignx trailing");
 		
 		entIdentificador.setForeground(Color.black);
-		painelPrincipal.add(entIdentificador, "cell 1 1 2 1,growx");
+		painelPrincipal.add(entIdentificador, "cell 1 1 3 1,growx");
 		
 		JLabel lblValor = new JLabel("Valor:");
 		lblValor.setFont(new Font("Tahoma", Font.PLAIN, 16));
@@ -211,11 +215,11 @@ public class TelaCadastroParcela extends JFrame {
 		
 		entValor = new JTextFieldPersonalizado();
 		entValor.setFont(new Font("Tahoma", Font.PLAIN, 16));
-		painelPrincipal.add(entValor, "cell 1 2 2 1,growx");
+		painelPrincipal.add(entValor, "cell 1 2 3 1,growx");
 		entValor.setForeground(Color.black);
 		entValor.setColumns(10);
 		
-		JLabel lblDataVencimento = new JLabel("Data Vencimento:");
+		JLabel lblDataVencimento = new JLabel("Data Pagamento:");
 		lblDataVencimento.setFont(new Font("Tahoma", Font.PLAIN, 16));
 		painelPrincipal.add(lblDataVencimento, "cell 0 3,alignx trailing");
 		
@@ -224,7 +228,7 @@ public class TelaCadastroParcela extends JFrame {
 		entDataVencimento.setColumns(10);
 		entDataVencimento.setForeground(Color.black);
 
-		painelPrincipal.add(entDataVencimento, "cell 1 3 2 1,growx");
+		painelPrincipal.add(entDataVencimento, "cell 1 3 3 1,growx");
 		
 		JLabel lblNewLabel = new JLabel("Descrição:");
 		lblNewLabel.setFont(new Font("Tahoma", Font.PLAIN, 16));
@@ -234,22 +238,28 @@ public class TelaCadastroParcela extends JFrame {
 		entDescricao.setFont(new Font("Tahoma", Font.PLAIN, 16));
 		entDescricao.setColumns(10);
 		entDescricao.setForeground(Color.black);
-		painelPrincipal.add(entDescricao, "cell 1 4 2 1,growx");
+		painelPrincipal.add(entDescricao, "cell 1 4 3 1,growx");
 		
-		JLabel lblStatus = new JLabel("Status:");
-		lblStatus.setFont(new Font("Tahoma", Font.PLAIN, 16));
-		painelPrincipal.add(lblStatus, "cell 0 5,alignx trailing");
+		JLabel lblCondioDoPagamento = new JLabel("Condição do Pagamento:");
+		lblCondioDoPagamento.setFont(new Font("Tahoma", Font.PLAIN, 16));
+		painelPrincipal.add(lblCondioDoPagamento, "cell 0 5,alignx trailing");
 		
-		entStatus = new JLabel();
-		entStatus.setBackground(new Color(204, 0, 51));
-		entStatus.setOpaque(true);
-		entStatus.setBorder(new LineBorder(new Color(0, 0, 0), 2));
-		entStatus.setText("<html><center>A PAGAR");
-		entStatus.setFont(new Font("Tahoma", Font.BOLD, 16));
-
-		entStatus.setForeground(Color.WHITE);
-
-		painelPrincipal.add(entStatus, "cell 1 5 2 1,growx");
+		 cbCondicaoPagamento = new JComboBox();
+		cbCondicaoPagamento.setFont(new Font("SansSerif", Font.PLAIN, 16));
+		painelPrincipal.add(cbCondicaoPagamento, "cell 1 5 2 1,growx");
+		
+		JButton btnNewButton_1_1 = new JButton("Selecionar");
+		btnNewButton_1_1.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				
+				TelaFinanceiroCondicaoPagamento tela = new TelaFinanceiroCondicaoPagamento(0,1,isto);
+				tela.setVisible(true);
+			}
+		});
+		btnNewButton_1_1.setForeground(Color.WHITE);
+		btnNewButton_1_1.setFont(new Font("SansSerif", Font.PLAIN, 14));
+		btnNewButton_1_1.setBackground(new Color(0, 51, 0));
+		painelPrincipal.add(btnNewButton_1_1, "cell 3 5");
 		
 		JLabel lblArquivo = new JLabel("Arquivo:");
 		lblArquivo.setFont(new Font("Tahoma", Font.PLAIN, 16));
@@ -260,7 +270,23 @@ public class TelaCadastroParcela extends JFrame {
 		entCaminhoArquivo.setColumns(10);
 		entCaminhoArquivo.setForeground(Color.black);
 
-		painelPrincipal.add(entCaminhoArquivo, "cell 1 6,growx");
+		painelPrincipal.add(entCaminhoArquivo, "cell 1 6 2 1,growx");
+		
+		JButton btnFinalizar = new JButton("Finalizar");
+		btnFinalizar.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				GerenciarBancoFinanceiroPagamento gerenciar = new GerenciarBancoFinanceiroPagamento();
+				int result = gerenciar.inserirFinanceiroPagamento(getDadosSalvar(id_lancamento_pai));
+				if (result > 0) {
+					JOptionPane.showMessageDialog(isto, "Pagamento Inserido");
+					((TelaFinanceiroGerenciarLancamento) janela_pai).atualizar_informacoes();
+					isto.dispose();
+				} else {
+					JOptionPane.showMessageDialog(isto, "Erro ao Salvar\nConsulte o Administrador");
+
+				}
+			}
+		});
 		
 		JButton btnNewButton_1 = new JButton("Selecionar");
 		btnNewButton_1.addActionListener(new ActionListener() {
@@ -271,27 +297,11 @@ public class TelaCadastroParcela extends JFrame {
 		btnNewButton_1.setBackground(new Color(0, 51, 0));
 		btnNewButton_1.setFont(new Font("SansSerif", Font.PLAIN, 14));
 		btnNewButton_1.setForeground(Color.WHITE);
-		painelPrincipal.add(btnNewButton_1, "cell 2 6,alignx left");
-		
-		JButton btnFinalizar = new JButton("Finalizar");
-		btnFinalizar.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				GerenciarBancoParcelas gerenciar = new GerenciarBancoParcelas();
-				int result = gerenciar.inserirParcela(getDadosSalvar(id_lancamento_pai));
-				if (result > 0) {
-					JOptionPane.showMessageDialog(isto, "Parcela Inserida");
-					((TelaFinanceiroGerenciarLancamento) janela_pai).atualizar_informacoes();
-					isto.dispose();
-				} else {
-					JOptionPane.showMessageDialog(isto, "Erro ao Salvar\nConsulte o Administrador");
-
-				}
-			}
-		});
+		painelPrincipal.add(btnNewButton_1, "cell 3 6,alignx left");
 		
 		JLabel lblObservao = new JLabel("Observação:");
 		lblObservao.setFont(new Font("Tahoma", Font.PLAIN, 16));
-		painelPrincipal.add(lblObservao, "cell 0 7");
+		painelPrincipal.add(lblObservao, "cell 0 7,alignx right");
 		
 		 entObservacao = new JEditorPane();
 		painelPrincipal.add(entObservacao, "cell 1 7 2 1,grow");
@@ -303,10 +313,10 @@ public class TelaCadastroParcela extends JFrame {
 		JButton btnAtualizar = new JButton("Atualizar");
 		btnAtualizar.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				GerenciarBancoParcelas gerenciar = new GerenciarBancoParcelas();
-				boolean result = gerenciar.atualizarParcela(getDadosAtualizar(parcela));
+				GerenciarBancoFinanceiroPagamento gerenciar = new GerenciarBancoFinanceiroPagamento();
+				boolean result = gerenciar.atualizarFinanceiroPagamento(getDadosAtualizar(pagamento));
 				if (result) {
-					JOptionPane.showMessageDialog(isto, "Parcela Atualizada");
+					JOptionPane.showMessageDialog(isto, "Pagamento Atualizado");
 					((TelaFinanceiroGerenciarLancamento) janela_pai).atualizar_informacoes();
 					isto.dispose();
 				} else {
@@ -328,7 +338,7 @@ public class TelaCadastroParcela extends JFrame {
 		}else if(modo_operacao == 1) {
 			//edicao
 			
-			rotinasEdicao(parcela);
+			rotinasEdicao(pagamento);
 			
 			btnFinalizar.setEnabled(false);
 			btnFinalizar.setVisible(false);
@@ -342,29 +352,26 @@ public class TelaCadastroParcela extends JFrame {
 		
 	}
 	
-	public void rotinasEdicao(Parcela parcela) {
-   String s_valor, descricao, observacao, identificador, data_vencimento, caminho_arquivo;
+	public void rotinasEdicao(FinanceiroPagamento pagamento) {
+   String s_valor, descricao, observacao, identificador, data_pagamento, caminho_arquivo;
 		int status;
-		identificador = parcela.getIdentificador();
-		observacao = parcela.getObservacao();
-		descricao = parcela.getDescricao();
-		data_vencimento = parcela.getData_vencimento();
-		caminho_arquivo = parcela.getCaminho_arquivo();
-		status = parcela.getStatus();
+		identificador = pagamento.getIdentificador();
+		observacao = pagamento.getObservacao();
+		descricao = pagamento.getDescricao();
+		data_pagamento = pagamento.getData_pagamento();
+		caminho_arquivo = pagamento.getCaminho_arquivo();
 		
 		
-		BigDecimal valor = parcela.getValor();
+		BigDecimal valor = pagamento.getValor();
 		
 		entIdentificador.setText(identificador);
 		entObservacao.setText(observacao);
 		entDescricao.setText(descricao);
-		entDataVencimento.setText(data_vencimento);
+		entDataVencimento.setText(data_pagamento);
 		entCaminhoArquivo.setText(caminho_arquivo);
 		entValor.setText(valor.toString());
-		if(status == 0) {
-			entStatus.setText("A Pagar");
-		}else if(status == 1)
-			entStatus.setText("Pago");
+		
+		setCondicaoPagamento(new GerenciarBancoCondicaoPagamentos().getCondicaoPagamento(pagamento.getId_condicao_pagamento()));
 		
 	}
 	
@@ -386,17 +393,16 @@ public class TelaCadastroParcela extends JFrame {
 		});
 	}
 	
-	public Parcela getDadosSalvar(int id_lancamento_pai) {
-		Parcela parcela = new Parcela();
+	public FinanceiroPagamento getDadosSalvar(int id_lancamento_pai) {
+		FinanceiroPagamento pagamento = new FinanceiroPagamento();
 		
-		String s_valor, descricao, observacao, identificador, data_vencimento, caminho_arquivo, status;
+		String s_valor, descricao, observacao, identificador, data_pagamento, caminho_arquivo;
 		
 		identificador = entIdentificador.getText();
 		observacao = entObservacao.getText();
 		descricao = entDescricao.getText();
-		data_vencimento = entDataVencimento.getText();
+		data_pagamento = entDataVencimento.getText();
 		caminho_arquivo = entCaminhoArquivo.getText();
-		status = entStatus.getText();
 		BigDecimal valor = BigDecimal.ZERO;
 		
 		try {
@@ -404,36 +410,38 @@ public class TelaCadastroParcela extends JFrame {
 			s_valor = s_valor.replace("[^0-9,]", "");
 			s_valor = s_valor.replace(",", ".");
 			valor = new BigDecimal(s_valor);
-			parcela.setValor(valor);
+			pagamento.setValor(valor);
 
 		}catch(Exception e) {
-			parcela.setValor(BigDecimal.ZERO);
+			pagamento.setValor(BigDecimal.ZERO);
 		}
 		
-		parcela.setDescricao(descricao);
-		parcela.setStatus(0);
-		parcela.setData_vencimento(data_vencimento);
-		parcela.setCaminho_arquivo(caminho_arquivo);
-		parcela.setId_lancamento_pai(id_lancamento_pai);
-		parcela.setIdentificador(identificador);
-		parcela.setObservacao(observacao);
+		pagamento.setDescricao(descricao);
+		pagamento.setData_pagamento(data_pagamento);
+		pagamento.setCaminho_arquivo(caminho_arquivo);
+		pagamento.setId_lancamento(id_lancamento_pai);
+		pagamento.setIdentificador(identificador);
+		pagamento.setObservacao(observacao);
+		
+		if(condicao_pagamento != null)
+		 pagamento.setId_condicao_pagamento(condicao_pagamento.getId_condicao_pagamento());
 		
 		
-		return parcela;
+		return pagamento;
 	}
 	
 	
-	public Parcela getDadosAtualizar(Parcela parcela_antiga) {
-		Parcela parcela = new Parcela();
-		parcela.setId_parcela(parcela_antiga.getId_parcela());
-		String s_valor, descricao, observacao, identificador, data_vencimento, caminho_arquivo, status;
+	public FinanceiroPagamento getDadosAtualizar(FinanceiroPagamento pagamento_antigo) {
+FinanceiroPagamento pagamento = new FinanceiroPagamento();
+ 	pagamento.setId_pagamento(pagamento_antigo.getId_pagamento());
+		
+		String s_valor, descricao, observacao, identificador, data_pagamento, caminho_arquivo;
 		
 		identificador = entIdentificador.getText();
 		observacao = entObservacao.getText();
 		descricao = entDescricao.getText();
-		data_vencimento = entDataVencimento.getText();
+		data_pagamento = entDataVencimento.getText();
 		caminho_arquivo = entCaminhoArquivo.getText();
-		status = entStatus.getText();
 		BigDecimal valor = BigDecimal.ZERO;
 		
 		try {
@@ -441,27 +449,35 @@ public class TelaCadastroParcela extends JFrame {
 			s_valor = s_valor.replace("[^0-9,]", "");
 			s_valor = s_valor.replace(",", ".");
 			valor = new BigDecimal(s_valor);
-			parcela.setValor(valor);
+			pagamento.setValor(valor);
 
 		}catch(Exception e) {
-			parcela.setValor(BigDecimal.ZERO);
+			pagamento.setValor(BigDecimal.ZERO);
 		}
 		
-		parcela.setDescricao(descricao);
-		parcela.setStatus(0);
-		parcela.setData_vencimento(data_vencimento);
-		parcela.setCaminho_arquivo(caminho_arquivo);
-		parcela.setId_lancamento_pai(parcela_antiga.getId_lancamento_pai());
-		parcela.setIdentificador(identificador);
-		parcela.setObservacao(observacao);
+		pagamento.setDescricao(descricao);
+		pagamento.setData_pagamento(data_pagamento);
+		pagamento.setCaminho_arquivo(caminho_arquivo);
+		pagamento.setIdentificador(identificador);
+		pagamento.setObservacao(observacao);
+		
+		if(condicao_pagamento != null)
+		 pagamento.setId_condicao_pagamento(condicao_pagamento.getId_condicao_pagamento());
 		
 		
-		return parcela;
+		return pagamento;
 	}
 	
 	
 	public void setTelaPai(JDialog _tela_pai) {
 		this.telaPai = _tela_pai;
+	}
+	
+	public void setCondicaoPagamento(CondicaoPagamento _condicao) {
+		this.condicao_pagamento = _condicao;
+		
+		cbCondicaoPagamento.removeAllItems();
+		cbCondicaoPagamento.addItem(_condicao.getNome_condicao_pagamento());
 	}
 	
 	

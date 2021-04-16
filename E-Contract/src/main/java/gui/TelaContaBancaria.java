@@ -121,7 +121,7 @@ public class TelaContaBancaria extends JDialog {
 	private JTable table_cb;
 	private ContaBancariaTableModel modelo_cb = new ContaBancariaTableModel();
 	private ContaBancaria contaSelecionada;
-	private JDialog telaPai;
+	private Window telaPai;
 	private static ArrayList<ContaBancaria> contas_bancarias = new ArrayList<>();
 	private JButton btnSelecionar;
 	 
@@ -476,7 +476,7 @@ public class TelaContaBancaria extends JDialog {
 	    }
 	 
 	}
-	public void setTelaPai(JDialog _telaPai) {
+	public void setTelaPai(JFrame _telaPai) {
 		this.telaPai = _telaPai;
 	}
 

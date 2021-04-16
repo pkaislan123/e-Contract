@@ -251,44 +251,7 @@ public class TelaContratos extends JFrame {
 
 		DisplayMode dm = myScreen.getDisplayMode();
 		*/
-		addWindowStateListener(new WindowStateListener() {
-			public void windowStateChanged(WindowEvent e) {
-				if ((e.getNewState() & isto.MAXIMIZED_BOTH) == isto.MAXIMIZED_BOTH) {
-					// pega a resolucao da tela
-					Toolkit tk = Toolkit.getDefaultToolkit();
-					Dimension d = tk.getScreenSize();
-					System.out.println("Screen width = " + d.width);
-					System.out.println("Screen height = " + d.height);
-					// pega o tamanho da barra de tarefas
-					Dimension scrnSize = Toolkit.getDefaultToolkit().getScreenSize();
-					java.awt.Rectangle winSize = GraphicsEnvironment.getLocalGraphicsEnvironment()
-							.getMaximumWindowBounds();
-					int taskBarHeight = scrnSize.height - winSize.height;
-					System.out.printf("Altura: %d\n", taskBarHeight);
-				}
-			}
-		});
-		Toolkit tk = Toolkit.getDefaultToolkit();
-		Dimension d = tk.getScreenSize();
-		System.out.println("Screen width = " + d.width);
-		System.out.println("Screen height = " + d.height);
-		
-		// pega o tamanho da barra de tarefas
-		Dimension scrnSize = Toolkit.getDefaultToolkit().getScreenSize();
-		java.awt.Rectangle winSize = GraphicsEnvironment.getLocalGraphicsEnvironment().getMaximumWindowBounds();
-		int taskBarHeight = scrnSize.height - winSize.height;
-		System.out.printf("Altura: %d\n", taskBarHeight);
-		
-		isto = this;
-		setResizable(true);
-		DadosGlobais dados = DadosGlobais.getInstance();
-		
-		DisplayMode display =  GraphicsEnvironment.getLocalGraphicsEnvironment().getDefaultScreenDevice().getDisplayMode();
-		
-		int display_x = display.getWidth();
-		int display_y = display.getHeight();
-
-		setBounds(0, 0, d.width, d.height - taskBarHeight);
+	
 
 		JPanel odin = new JPanel();
 		odin.setBackground(Color.WHITE);

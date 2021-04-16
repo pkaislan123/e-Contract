@@ -990,7 +990,7 @@ public CadastroRomaneio tratar_romaneio (String lines[], File file) {
 		  //JOptionPane.showMessageDialog(null, "umidade em double: " + romaneio.getUmidade());
 		}catch(Exception u) {
 			//JOptionPane.showMessageDialog(null, "Umidade não encontrada, possivel romaneio de transferencia");
-			operacao = "SAÍDA TRANSFERENCIA";
+			operacao = "ENTRADA TRANSFERENCIA";
 	         romaneio.setOperacao(operacao);
 
 		}
@@ -1207,6 +1207,7 @@ public CadastroRomaneio tratar_romaneio (String lines[], File file) {
 	    }else {
 	    	
 		String data = tratamentoDados.tratar("SAÍDA: ", " ");
+		
 		try {
 			
 			
@@ -1214,7 +1215,11 @@ public CadastroRomaneio tratar_romaneio (String lines[], File file) {
 			
 		romaneio.setData(date);
 		}catch(Exception t) {
-			    //JOptionPane.showMessageDialog(null, "Erro ao listar data do romaneio\nErro:  " + t.getMessage() + "\nConsulte o Administrador");
+			    //JOptionPane.showMess quageDialog(null, "Erro ao listar data do romaneio\nErro:  " + t.getMessage() + "\nConsulte o Administrador");
+			
+			romaneio.setData(new SimpleDateFormat("dd/MM/yyyy").parse(new GetData().getData()));
+			operacao = "SAÍDA QUEBRA TECNICA";
+	         romaneio.setOperacao(operacao);
 		}	   
 		
 		   //JOptionPane.showMessageDialog(null, "Data: " + data);

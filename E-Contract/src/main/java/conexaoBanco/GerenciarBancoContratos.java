@@ -1190,6 +1190,88 @@ observacao text
 
 	}
 
+	public CadastroContrato getContratoSimplificado(int id) {
+
+		String selectContrato = "select * from contrato where id = ?";
+		Connection conn = null;
+		PreparedStatement pstm = null;
+		ResultSet rs = null;
+		CadastroContrato contrato = new CadastroContrato();
+
+		try {
+			conn = ConexaoBanco.getConexao();
+			pstm = conn.prepareStatement(selectContrato);
+			pstm.setInt(1, id);
+
+			rs = pstm.executeQuery();
+			rs.next();
+
+			contrato.setId(rs.getInt("id"));
+			contrato.setCodigo(rs.getString("codigo"));
+			contrato.setSub_contrato(rs.getInt("sub_contrato"));
+
+			int id_safra = rs.getInt("id_safra");
+
+			GerenciarBancoSafras gerenciar = new GerenciarBancoSafras();
+			CadastroSafra safra = gerenciar.getSafra(id_safra);
+
+			if (safra != null) {
+
+				contrato.setQuantidade(Double.parseDouble(rs.getString("quantidade")));
+				contrato.setMedida(rs.getString("medida"));
+
+				contrato.setValor_produto(Double.parseDouble(rs.getString("valor_produto")));
+				contrato.setValor_a_pagar(new BigDecimal(rs.getString("valor_a_pagar")));
+
+				contrato.setModelo_safra(safra);
+
+				// produto
+				GerenciarBancoProdutos gerenciar_prod = new GerenciarBancoProdutos();
+				CadastroProduto prod = gerenciar_prod.getProduto(safra.getProduto().getId_produto());
+				contrato.setModelo_produto(prod);
+
+				GerenciarBancoContratos gerenciar_vendedores = new GerenciarBancoContratos();
+				CadastroCliente vendedores[] = gerenciar_vendedores.getVendedores(id);
+				contrato.setVendedores(vendedores);
+
+				GerenciarBancoContratos gerenciar_compradores = new GerenciarBancoContratos();
+				CadastroCliente compradores[] = gerenciar_compradores.getCompradores(id);
+				contrato.setCompradores(compradores);
+
+				contrato.setStatus_contrato(rs.getInt("status_contrato"));
+				contrato.setData_contrato(rs.getString("data_contrato"));
+				contrato.setData_entrega(rs.getString("data_entrega"));
+				
+				contrato.setCaminho_diretorio_contrato(rs.getString("caminho_diretorio"));
+				contrato.setCaminho_arquivo(rs.getString("caminho_arquivo"));
+				contrato.setNome_arquivo(rs.getString("nome_arquivo"));
+				
+				contrato.setCaminho_diretorio_contrato2(rs.getString("caminho_diretorio2"));
+				contrato.setCaminho_arquivo2(rs.getString("caminho_arquivo2"));
+				contrato.setNome_arquivo2(rs.getString("nome_arquivo2"));
+
+
+
+				
+				ConexaoBanco.fechaConexao(conn, pstm, rs);
+				
+			
+
+				return contrato;
+			} else {
+
+				return null;
+			}
+
+		} catch (Exception e) {
+			JOptionPane.showMessageDialog(null, "Erro ao listar contrato id: " + id + " erro: "  );
+			System.out.println(
+					"Erro ao listar contrato id: " + id + " erro: "   + "\ncausa: "  );
+			return null;
+		}
+
+	}
+	
 	public CadastroContrato getContratoPorCodigo(String id_codigo) {
 
 		String selectContrato = "select * from contrato where codigo = ?";

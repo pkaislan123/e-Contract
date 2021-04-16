@@ -4,6 +4,7 @@ import java.awt.event.ActionListener;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashSet;
+import java.util.Locale;
 import java.util.Set;
 import java.util.regex.PatternSyntaxException;
 
@@ -42,9 +43,11 @@ import java.io.FileFilter;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.text.NumberFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
@@ -64,6 +67,7 @@ import main.java.cadastros.CadastroRomaneio;
 import main.java.cadastros.CadastroSafra;
 import main.java.cadastros.ContaBancaria;
 import main.java.cadastros.Contato;
+import main.java.cadastros.Lancamento;
 import main.java.cadastros.RegistroQuantidade;
 import main.java.cadastros.RegistroRecebimento;
 import main.java.classesExtras.Endereco;
@@ -108,7 +112,8 @@ import main.java.classesExtras.CBProdutoPersonalizado;
 import main.java.classesExtras.CBProdutoRenderPersonalizado;
 import main.java.conexaoBanco.GerenciarBancoProdutos;
 import main.java.conexaoBanco.GerenciarBancoSafras;
-public class TelaRomaneios extends JDialog {
+import net.miginfocom.swing.MigLayout;
+public class TelaRomaneios extends JFrame {
 
 	private Log GerenciadorLog;
 	private CadastroLogin login;
@@ -159,6 +164,10 @@ public class TelaRomaneios extends JDialog {
 	private JTextField entCodigo;
 	private JTextField entIdentificacaoDestinatario;
 	private JTextField entIdentificacaoRemetente;
+	private JLabel lblPesoLiquidoTotal;
+	private JLabel lblPesoBrutoTotal, lblPesoTaraTotal;
+	private JLabel lblNewLabel_3_1_2;
+	private JLabel lblNumeroTotalRomaneios;
 
 	public TelaRomaneios( int flag_tipo_tela, Window janela_pai) {
 		setIconImage(Toolkit.getDefaultToolkit().getImage(TelaRomaneios.class.getResource("/imagens/icone_notas_fiscais.png")));
@@ -170,9 +179,32 @@ public class TelaRomaneios extends JDialog {
 		setResizable(true);
 		setTitle("E-Contract - Romaneios");
 
+		
+		Toolkit tk = Toolkit.getDefaultToolkit();
+		Dimension d = tk.getScreenSize();
+		System.out.println("Screen width = " + d.width);
+		System.out.println("Screen height = " + d.height);
+		
+		// pega o tamanho da barra de tarefas
+		Dimension scrnSize = Toolkit.getDefaultToolkit().getScreenSize();
+		java.awt.Rectangle winSize = GraphicsEnvironment.getLocalGraphicsEnvironment().getMaximumWindowBounds();
+		int taskBarHeight = scrnSize.height - winSize.height;
+		System.out.printf("Altura: %d\n", taskBarHeight);
+		
+		isto = this;
+		setResizable(true);
+		DadosGlobais dados = DadosGlobais.getInstance();
+		
+		DisplayMode display =  GraphicsEnvironment.getLocalGraphicsEnvironment().getDefaultScreenDevice().getDisplayMode();
+		
+		int display_x = display.getWidth();
+		int display_y = display.getHeight();
+
+		setBounds(0, 0, d.width, d.height - taskBarHeight);
+		
 		setBackground(new Color(255, 255, 255));
 		setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-		setBounds(100, 100, 1302, 691);
+
 		painelPrincipal.setBackground(Color.WHITE);
 		painelPrincipal.setBorder(new EmptyBorder(5, 5, 5, 5));
 		setContentPane(painelPrincipal);
@@ -235,28 +267,8 @@ public class TelaRomaneios extends JDialog {
 		
 		
 		lblStatusAdicionandoNotas = new JLabel("Lendo Romaneios...");
-		lblStatusAdicionandoNotas.setBounds(26, 618, 626, 23);
+		lblStatusAdicionandoNotas.setBounds(538, 655, 626, 23);
 		painelPrincipal.add(lblStatusAdicionandoNotas);
-		
-		btnVizualizarNF = new JButton("Vizualizar");
-		btnVizualizarNF.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				
-				int rowSel = table_nfs.getSelectedRow();//pega o indice da linha na tabela
-				int indexRowModel = table_nfs.getRowSorter().convertRowIndexToModel(rowSel);//converte pro indice do model
-				CadastroRomaneio nota_vizualizar = lista_romaneios.get(indexRowModel);
-				
-				if (Desktop.isDesktopSupported()) {
-					 try {
-					     Desktop desktop = Desktop.getDesktop();
-					     File myFile = new File(servidor_unidade + nota_vizualizar.getCaminho_arquivo());
-					     desktop.open(myFile);
-					     } catch (IOException ex) {}
-					 }
-			}
-		});
-		btnVizualizarNF.setBounds(1042, 592, 89, 23);
-		painelPrincipal.add(btnVizualizarNF);
 		
 
 		
@@ -338,14 +350,6 @@ public class TelaRomaneios extends JDialog {
 		lblNewLabel_4.setBounds(48, 48, 146, 22);
 		painelPrincipal.add(lblNewLabel_4);
 		
-		btnImportar = new JButton("Importar");
-		btnImportar.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-			}
-		});
-		btnImportar.setBounds(943, 592, 89, 23);
-		painelPrincipal.add(btnImportar);
-		
 		JButton btnFiltrar_1 = new JButton("Filtrar");
 		btnFiltrar_1.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
@@ -355,52 +359,8 @@ public class TelaRomaneios extends JDialog {
 		btnFiltrar_1.setBounds(1138, 142, 67, 28);
 		painelPrincipal.add(btnFiltrar_1);
 		
-		JButton btnNewButton = new JButton("Exportar Arquivos");
-		btnNewButton.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				exportar();
-				
-				
-			}
-		});
-		btnNewButton.setBounds(791, 592, 139, 23);
-		painelPrincipal.add(btnNewButton);
-		
-		btnNewButton_1 = new JButton("Excluir");
-		btnNewButton_1.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				if (JOptionPane.showConfirmDialog(isto, 
-			            "Deseja excluir o Romaneio?", "Excluir Romaneio", 
-			            JOptionPane.YES_NO_OPTION,
-			            JOptionPane.QUESTION_MESSAGE) == JOptionPane.YES_OPTION){
-					int rowSel = table_nfs.getSelectedRow();//pega o indice da linha na tabela
-					int indexRowModel = table_nfs.getRowSorter().convertRowIndexToModel(rowSel);//converte pro indice do model
-					ManipularTxt manipular = new ManipularTxt();
-					boolean apagado = manipular.apagarArquivo(servidor_unidade + lista_romaneios.get(indexRowModel).getCaminho_arquivo());
-					if(apagado) {
-						
-						//remover do banco de dados
-						GerenciarBancoRomaneios gerenciar = new GerenciarBancoRomaneios();
-						boolean excluir = gerenciar.removerRomaneio(lista_romaneios.get(indexRowModel).getId_romaneio());
-						if(excluir) {
-							JOptionPane.showMessageDialog(isto, "Romaneio Excluido");
-							modelo_romaneios.onRemove(lista_romaneios.get(indexRowModel));
-
-						}else {
-							JOptionPane.showMessageDialog(isto, "Erro ao excluir este Romaneio\nConsulte o administrador");
-
-						}
-
-					}else {
-						JOptionPane.showMessageDialog(isto, "Erro ao excluir este Romaneio\nConsulte o administrador");
-					}
-			        }
-			}
-		});
-		btnNewButton_1.setBounds(691, 592, 89, 23);
-		painelPrincipal.add(btnNewButton_1);
-		
 		btnNewButton_2 = new JButton("Excluir Todos os Romaneios");
+		btnNewButton_2.setEnabled(false);
 		btnNewButton_2.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				if (JOptionPane.showConfirmDialog(isto, 
@@ -429,31 +389,14 @@ public class TelaRomaneios extends JDialog {
 			}
 			}
 		});
-		btnNewButton_2.setBounds(36, 582, 188, 23);
+		btnNewButton_2.setBounds(521, 582, 188, 23);
 		painelPrincipal.add(btnNewButton_2);
-		
-		JButton btnSelecionar = new JButton("Selecionar");
-		btnSelecionar.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				int rowSel = table_nfs.getSelectedRow();//pega o indice da linha na tabela
-				int indexRowModel = table_nfs.getRowSorter().convertRowIndexToModel(rowSel);//converte pro indice do model
-				if(telaPai instanceof TelaConfirmarRecebimento) {
-					((TelaConfirmarRecebimento) telaPai).setRomaneio(lista_romaneios.get(indexRowModel));
-				}else if(telaPai instanceof TelaConfirmarCarregamento) {
-					((TelaConfirmarCarregamento) telaPai).setRomaneio(lista_romaneios.get(indexRowModel));
-
-				}
-				isto.dispose();
-
-			}
-		});
-		btnSelecionar.setBounds(1141, 592, 89, 23);
-		painelPrincipal.add(btnSelecionar);
 		
 		btnReleitura = new JButton("Refazer Pesquisar");
 		btnReleitura.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				pesquisarTodosOsRomaneios();
+			  
 			}
 		});
 		btnReleitura.setBounds(1061, 107, 144, 23);
@@ -488,6 +431,149 @@ public class TelaRomaneios extends JDialog {
 		entIdentificacaoRemetente.setColumns(10);
 		entIdentificacaoRemetente.setBounds(540, 107, 241, 28);
 		painelPrincipal.add(entIdentificacaoRemetente);
+		
+		JPanel panel_1 = new JPanel();
+		panel_1.setBounds(709, 582, 567, 46);
+		painelPrincipal.add(panel_1);
+		panel_1.setLayout(new MigLayout("", "[][][][][][][][][][][][][][][][][][][][][]", "[]"));
+		
+		btnNewButton_1 = new JButton("Excluir");
+		panel_1.add(btnNewButton_1, "cell 15 0");
+		btnNewButton_1.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				if (JOptionPane.showConfirmDialog(isto, 
+			            "Deseja excluir o Romaneio?", "Excluir Romaneio", 
+			            JOptionPane.YES_NO_OPTION,
+			            JOptionPane.QUESTION_MESSAGE) == JOptionPane.YES_OPTION){
+					int rowSel = table_nfs.getSelectedRow();//pega o indice da linha na tabela
+					int indexRowModel = table_nfs.getRowSorter().convertRowIndexToModel(rowSel);//converte pro indice do model
+					ManipularTxt manipular = new ManipularTxt();
+					boolean apagado = manipular.apagarArquivo(servidor_unidade + lista_romaneios.get(indexRowModel).getCaminho_arquivo());
+					if(apagado) {
+						
+						//remover do banco de dados
+						GerenciarBancoRomaneios gerenciar = new GerenciarBancoRomaneios();
+						boolean excluir = gerenciar.removerRomaneio(lista_romaneios.get(indexRowModel).getId_romaneio());
+						if(excluir) {
+							JOptionPane.showMessageDialog(isto, "Romaneio Excluido");
+							modelo_romaneios.onRemove(lista_romaneios.get(indexRowModel));
+
+						}else {
+							JOptionPane.showMessageDialog(isto, "Erro ao excluir este Romaneio\nConsulte o administrador");
+
+						}
+
+					}else {
+						JOptionPane.showMessageDialog(isto, "Erro ao excluir este Romaneio\nConsulte o administrador");
+					}
+			        }
+			}
+		});
+		
+		JButton btnNewButton = new JButton("Exportar Arquivos");
+		panel_1.add(btnNewButton, "cell 16 0");
+		btnNewButton.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				exportar();
+				
+				
+			}
+		});
+		
+		btnImportar = new JButton("Importar");
+		panel_1.add(btnImportar, "cell 17 0");
+		btnImportar.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+			}
+		});
+		
+		btnVizualizarNF = new JButton("Vizualizar");
+		panel_1.add(btnVizualizarNF, "cell 18 0");
+		btnVizualizarNF.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				
+				int rowSel = table_nfs.getSelectedRow();//pega o indice da linha na tabela
+				int indexRowModel = table_nfs.getRowSorter().convertRowIndexToModel(rowSel);//converte pro indice do model
+				CadastroRomaneio nota_vizualizar = lista_romaneios.get(indexRowModel);
+				
+				if (Desktop.isDesktopSupported()) {
+					 try {
+					     Desktop desktop = Desktop.getDesktop();
+					     File myFile = new File(servidor_unidade + nota_vizualizar.getCaminho_arquivo());
+					     desktop.open(myFile);
+					     } catch (IOException ex) {}
+					 }
+			}
+		});
+		
+		JButton btnEditarRomaneio = new JButton("Editar");
+		btnEditarRomaneio.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				int rowSel = table_nfs.getSelectedRow();//pega o indice da linha na tabela
+				int indexRowModel = table_nfs.getRowSorter().convertRowIndexToModel(rowSel);
+				
+				TelaCadastroRomaneio tela = new TelaCadastroRomaneio(lista_romaneios.get(indexRowModel),isto);
+				tela.setVisible(true);
+			}
+		});
+		panel_1.add(btnEditarRomaneio, "cell 19 0");
+		
+		JButton btnSelecionar = new JButton("Selecionar");
+		panel_1.add(btnSelecionar, "cell 20 0");
+		
+		JPanel panel_2 = new JPanel();
+		panel_2.setBackground(Color.WHITE);
+		panel_2.setFont(new Font("Tahoma", Font.PLAIN, 11));
+		panel_2.setBounds(26, 582, 374, 96);
+		painelPrincipal.add(panel_2);
+		panel_2.setLayout(new MigLayout("", "[][][][][]", "[][][][]"));
+		
+		lblNewLabel_3_1_2 = new JLabel("Romaneios:");
+		lblNewLabel_3_1_2.setFont(new Font("Tahoma", Font.PLAIN, 16));
+		panel_2.add(lblNewLabel_3_1_2, "cell 0 0,alignx right");
+		
+		lblNumeroTotalRomaneios = new JLabel("0.0000");
+		lblNumeroTotalRomaneios.setFont(new Font("Tahoma", Font.PLAIN, 16));
+		panel_2.add(lblNumeroTotalRomaneios, "cell 1 0");
+		
+		JLabel lblNewLabel_3 = new JLabel("P.B.T:");
+		lblNewLabel_3.setFont(new Font("Tahoma", Font.PLAIN, 16));
+		panel_2.add(lblNewLabel_3, "cell 0 1,alignx right");
+		
+		 lblPesoBrutoTotal = new JLabel("0.0000");
+		lblPesoBrutoTotal.setFont(new Font("Tahoma", Font.PLAIN, 16));
+		panel_2.add(lblPesoBrutoTotal, "cell 1 1");
+		
+		JLabel lblNewLabel_3_1 = new JLabel("P.Tara T:");
+		lblNewLabel_3_1.setFont(new Font("Tahoma", Font.PLAIN, 16));
+		panel_2.add(lblNewLabel_3_1, "cell 0 2,alignx right");
+		
+		 lblPesoTaraTotal = new JLabel("0");
+		lblPesoTaraTotal.setFont(new Font("Tahoma", Font.PLAIN, 16));
+		panel_2.add(lblPesoTaraTotal, "cell 1 2");
+		
+		JLabel lblNewLabel_3_1_1 = new JLabel("P. Liquido T:");
+		lblNewLabel_3_1_1.setFont(new Font("Tahoma", Font.PLAIN, 16));
+		panel_2.add(lblNewLabel_3_1_1, "cell 0 3,alignx right");
+		
+		lblPesoLiquidoTotal = new JLabel("0.0000");
+		lblPesoLiquidoTotal.setFont(new Font("Tahoma", Font.PLAIN, 16));
+		panel_2.add(lblPesoLiquidoTotal, "cell 1 3");
+		
+		btnSelecionar.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				int rowSel = table_nfs.getSelectedRow();//pega o indice da linha na tabela
+				int indexRowModel = table_nfs.getRowSorter().convertRowIndexToModel(rowSel);//converte pro indice do model
+				if(telaPai instanceof TelaConfirmarRecebimento) {
+					((TelaConfirmarRecebimento) telaPai).setRomaneio(lista_romaneios.get(indexRowModel));
+				}else if(telaPai instanceof TelaConfirmarCarregamento) {
+					((TelaConfirmarCarregamento) telaPai).setRomaneio(lista_romaneios.get(indexRowModel));
+
+				}
+				isto.dispose();
+
+			}
+		});
 		
 
 	
@@ -642,6 +728,7 @@ public class TelaRomaneios extends JDialog {
 			 lista_romaneios.add(rom);
 		}
 		
+		calcular();
 			}
 		}.start();
 	}
@@ -1060,6 +1147,7 @@ public void filtrar() {
 				data_maior, 2));
 		filters.add(RowFilter.orFilter(datas_maior));
 	    }
+	    
 	    if(checkString(remetente))
 	    filters.add(RowFilter.regexFilter(remetente, 6));
 	    
@@ -1086,12 +1174,13 @@ public void filtrar() {
 	 
 	    
 	    sorter.setRowFilter( RowFilter.andFilter(filters));
+	    calcular();
 }
 
 
 public void limpar() {
     sorter.setRowFilter( RowFilter.regexFilter(""));
-
+    calcular();
 }
 
 public void setClienteSelecionado(CadastroCliente cliente) {
@@ -1102,4 +1191,36 @@ public void setClienteSelecionado(CadastroCliente cliente) {
 public void setTelaPai(JDialog _telaPai) {
 	this.telaPai = _telaPai;
 }
+
+
+public void calcular() {
+
+	NumberFormat z = NumberFormat.getNumberInstance();
+
+	int numero_romaneios = 0;
+	
+
+	double peso_bruto_total = 0, peso_tara_total = 0, peso_liquido_total = 0;
+	
+	for (int row = 0; row < table_nfs.getRowCount(); row++) {
+
+		int index = table_nfs.convertRowIndexToModel(row);
+		CadastroRomaneio romaneio = modelo_romaneios.getValue(index);
+		
+		peso_bruto_total += romaneio.getPeso_bruto();
+		peso_tara_total += romaneio.getTara();
+		peso_liquido_total += romaneio.getPeso_liquido();
+		numero_romaneios++;
+		
+		
+	}
+	
+	//valores
+
+	lblPesoBrutoTotal.setText(z.format(peso_bruto_total) + " Kgs | " + z.format(peso_bruto_total/60) + " sacos");
+	lblPesoLiquidoTotal.setText(z.format(peso_liquido_total) + " Kgs | " + z.format(peso_liquido_total/60) + " sacos");
+	lblPesoTaraTotal.setText(z.format(peso_tara_total) + " Kgs | " + z.format(peso_tara_total/60) + " sacos");
+	lblNumeroTotalRomaneios.setText(numero_romaneios + " Romaneios");
+}
+
 }

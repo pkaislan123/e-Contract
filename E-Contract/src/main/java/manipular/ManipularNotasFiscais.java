@@ -1,5 +1,6 @@
 package main.java.manipular;
 
+import java.awt.Window;
 import java.io.File;
 import java.io.IOException;
 import java.math.BigDecimal;
@@ -66,7 +67,7 @@ public class ManipularNotasFiscais {
 	private CadastroLogin login;
 	private ConfiguracoesGlobais configs_globais;
 
-	private JDialog tela_pai;
+	private Window tela_pai;
 
 	public ManipularNotasFiscais(String _caminho) {
 		getDadosGlobais();
@@ -980,7 +981,7 @@ public class ManipularNotasFiscais {
 
 	}
 
-	public void setPai(JDialog _pai) {
+	public void setPai(Window _pai) {
 		this.tela_pai = _pai;
 
 	}

@@ -1663,6 +1663,9 @@ public class RelatorioContratos {
 		tableRowOne.getCell(0).removeParagraph(0);
 
 		XWPFParagraph paragraph = tableRowOne.getCell(0).addParagraph();
+		GerenciarBancoContratos gerenciar = new GerenciarBancoContratos();
+		CadastroContrato novo_contrato = new GerenciarBancoContratos()
+				.getContratoSimplificado(recebimentos.get(0).getId_contrato_recebimento());
 
 		//
 		int cabecalho = 0;
@@ -1698,9 +1701,7 @@ public class RelatorioContratos {
 
 		} else {
 
-			CadastroContrato contrato_deste_recebimento = new GerenciarBancoContratos()
-					.getContrato(recebimentos.get(0).getId_contrato_recebimento());
-
+			
 			tableRowOne = table.getRow(cabecalho);
 			tableRowOne.getCell(0).removeParagraph(0);
 			paragraph = tableRowOne.getCell(0).addParagraph();
@@ -1708,30 +1709,30 @@ public class RelatorioContratos {
 			double quantidade_kg = 0;
 			double quantidade_sacos = 0;
 
-			if (contrato_deste_recebimento.getMedida().equalsIgnoreCase("KG")) {
-				quantidade_kg = contrato_deste_recebimento.getQuantidade();
+			if (novo_contrato.getMedida().equalsIgnoreCase("KG")) {
+				quantidade_kg = novo_contrato.getQuantidade();
 				quantidade_sacos = quantidade_kg / 60;
-			} else if (contrato_deste_recebimento.getMedida().equalsIgnoreCase("Sacos")) {
-				quantidade_sacos = contrato_deste_recebimento.getQuantidade();
+			} else if (novo_contrato.getMedida().equalsIgnoreCase("Sacos")) {
+				quantidade_sacos = novo_contrato.getQuantidade();
 				quantidade_kg = quantidade_sacos * 60;
 			}
 
 			// compradores x vendedores
 
 			// safra
-			String safra = contrato_deste_recebimento.getModelo_safra().getProduto().getNome_produto() + " "
-					+ contrato_deste_recebimento.getModelo_safra().getProduto().getTransgenia() + " "
-					+ contrato_deste_recebimento.getModelo_safra().getAno_plantio() + "/"
-					+ contrato_deste_recebimento.getModelo_safra().getAno_colheita();
+			String safra = novo_contrato.getModelo_safra().getProduto().getNome_produto() + " "
+					+ novo_contrato.getModelo_safra().getProduto().getTransgenia() + " "
+					+ novo_contrato.getModelo_safra().getAno_plantio() + "/"
+					+ novo_contrato.getModelo_safra().getAno_colheita();
 
 			criarParagrafoTabela(paragraph,
-					"CTR: " + contrato_deste_recebimento.getCodigo() + " " + safra + " Quantidade Total: "
+					"CTR: " + novo_contrato.getCodigo() + " " + safra + " Quantidade Total: "
 							+ z.format(quantidade_kg) + " kgs | " + z.format(quantidade_sacos) + " sacos "
 							+ NumberFormat.getCurrencyInstance(ptBr)
-									.format(contrato_deste_recebimento.getValor_produto())
-							+ " por " + contrato_deste_recebimento.getMedida() + " totalizando: "
+									.format(novo_contrato.getValor_produto())
+							+ " por " + novo_contrato.getMedida() + " totalizando: "
 							+ NumberFormat.getCurrencyInstance(ptBr)
-									.format(contrato_deste_recebimento.getValor_a_pagar().doubleValue()),
+									.format(novo_contrato.getValor_a_pagar().doubleValue()),
 					true);
 			tableRowOne.getCell(0).getCTTc().addNewTcPr().addNewShd().setFill("FFFFFF");
 			CTHMerge hMerge = CTHMerge.Factory.newInstance();
@@ -1760,8 +1761,8 @@ public class RelatorioContratos {
 			tableRowOne.getCell(0).removeParagraph(0);
 			paragraph = tableRowOne.getCell(0).addParagraph();
 
-			CadastroCliente compradores[] = contrato_deste_recebimento.getCompradores();
-			CadastroCliente vendedores[] = contrato_deste_recebimento.getVendedores();
+			CadastroCliente compradores[] = novo_contrato.getCompradores();
+			CadastroCliente vendedores[] = novo_contrato.getVendedores();
 
 			String nome_vendedores = "";
 			String nome_compradores = "";
@@ -1875,9 +1876,8 @@ public class RelatorioContratos {
 		paragraph = tableRowOne.getCell(9).addParagraph();
 		criarParagrafoTabela(paragraph, "VALOR NF REMESSA", true);
 
-		GerenciarBancoContratos gerenciar = new GerenciarBancoContratos();
 
-		CadastroContrato novo_contrato = gerenciar.getContrato(recebimentos.get(0).getId_contrato_recebimento());
+		//CadastroContrato novo_contrato = gerenciar.getContratoSimplificado(recebimentos.get(0).getId_contrato_recebimento());
 		cabecalho++;
 
 		int i = cabecalho;
@@ -1934,9 +1934,9 @@ public class RelatorioContratos {
 			tableRowOne = table.getRow(i);
 			tableRowOne.getCell(0).removeParagraph(0);
 			paragraph = tableRowOne.getCell(0).addParagraph();
-			criarParagrafoTabela(paragraph, gerenciar.getContrato(recebimento.getId_contrato_recebimento()).getCodigo(),
+			criarParagrafoTabela(paragraph, gerenciar.getContratoSimplificado(recebimento.getId_contrato_recebimento()).getCodigo(),
 					false);
-			tableRowOne.getCell(0).getCTTc().addNewTcPr().addNewShd().setFill(cor);
+			
 
 			tableRowOne = table.getRow(i);
 			tableRowOne.getCell(1).removeParagraph(0);

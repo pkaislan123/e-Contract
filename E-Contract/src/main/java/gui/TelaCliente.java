@@ -129,7 +129,7 @@ import java.awt.Frame;
 
 public class TelaCliente extends JDialog {
 
-	private JDialog telaPai;
+	private Window telaPai;
 	private JPanel contentPane;
 	private Log GerenciadorLog;
 	private CadastroLogin login;
@@ -739,7 +739,7 @@ public class TelaCliente extends JDialog {
 		
 	}
 	
-	public void setTelaPai(JDialog _telapai) {
+	public void setTelaPai(Window _telapai) {
 		this.telaPai = _telapai;
 	}
 	
