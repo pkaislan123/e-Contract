@@ -142,7 +142,7 @@ import main.java.outros.MyFileVisitor;
 import main.java.outros.ReproduzirAudio;
 import main.java.outros.TratarDados;
 import main.java.relatoria.RelatorioContratoComprador;
-import main.java.relatoria.RelatorioContratoSimplificado;
+import main.java.relatoria.RelatorioContratoRecebimentoSimplificado;
 import main.java.relatoria.RelatorioContratos;
 import main.java.tratamento_proprio.Log;
 import main.java.views_personalizadas.TelaEmEspera;
@@ -170,7 +170,7 @@ import main.java.conexaoBanco.GerenciarBancoProdutos;
 import main.java.conexaoBanco.GerenciarBancoSafras;
 
 
-public class RelatorioContratoSimplificado {
+public class RelatorioContratoRecebimentoSimplificado {
 
 	private CadastroModelo modelo;
 	private String path;
@@ -201,8 +201,16 @@ public class RelatorioContratoSimplificado {
 	
 	private String safra_evidencia = "2020/2021";
 	
+	private CadastroCliente contra_parte;
 	
-	
+	public CadastroCliente getContra_parte() {
+		return contra_parte;
+	}
+
+	public void setContra_parte(CadastroCliente contra_parte) {
+		this.contra_parte = contra_parte;
+	}
+
 	public boolean isUnir_recebimentos() {
 		return unir_recebimentos;
 	}
@@ -355,7 +363,7 @@ public class RelatorioContratoSimplificado {
 		this.somar_sub_contratos = somar_sub_contratos;
 	}
 
-	public RelatorioContratoSimplificado() {
+	public RelatorioContratoRecebimentoSimplificado() {
 
 		getDadosGlobais();
 		
@@ -514,8 +522,8 @@ public class RelatorioContratoSimplificado {
 					GerenciarBancoContratos gerenciar = new GerenciarBancoContratos();
 					
 					
-					ArrayList<RegistroQuantidade> quantidades_totais = gerenciar.getQuantidades(id_safra, cliente.getId(),1);
-					ArrayList<RegistroRecebimento> quantidades_recebidas = gerenciar.getRecebidas(id_safra, cliente.getId(),1);
+					ArrayList<RegistroQuantidade> quantidades_totais = gerenciar.getQuantidades(id_safra, cliente.getId(), contra_parte.getId(),1);
+					ArrayList<RegistroRecebimento> quantidades_recebidas = gerenciar.getRecebidas(id_safra, cliente.getId(),contra_parte.getId(), 1);
 					
 					criarTabelaInformacoes(quantidades_totais, quantidades_recebidas);
                   /*
@@ -536,8 +544,8 @@ public class RelatorioContratoSimplificado {
 	GerenciarBancoContratos gerenciar = new GerenciarBancoContratos();
 					
 					
-					ArrayList<RegistroQuantidade> quantidades_totais = gerenciar.getQuantidades(id_safra, cliente.getId(),2);
-					ArrayList<RegistroRecebimento> quantidades_recebidas = gerenciar.getRecebidas(id_safra, cliente.getId(),2);
+					ArrayList<RegistroQuantidade> quantidades_totais = gerenciar.getQuantidades(id_safra, cliente.getId(),contra_parte.getId(), 2);
+					ArrayList<RegistroRecebimento> quantidades_recebidas = gerenciar.getRecebidas(id_safra, cliente.getId(),contra_parte.getId(),2);
 					
 					criarTabelaInformacoes(quantidades_totais, quantidades_recebidas);
                   /*

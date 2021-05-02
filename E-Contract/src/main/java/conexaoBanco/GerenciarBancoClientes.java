@@ -1987,6 +1987,75 @@ public int inserir_cliente(CadastroCliente cliente)
             	return -1;
       
 	   }
+	   
+	   
+	   public ArrayList<CadastroCliente> getTransportadores() {
+			  String selectClientes;
+
+			 
+				 //busca padrao
+				 selectClientes = "select cliente.*,\n"
+				 		+ "(select placas from \n"
+				 		+ "(\n"
+				 		+ "SELECT id_cliente, group_concat(`placa`) as placas\n"
+				 		+ " FROM transportador_veiculos  \n"
+				 		+ "left join veiculo v on v.id_veiculo = transportador_veiculos.id_veiculo\n"
+				 		+ "GROUP BY id_cliente\n"
+				 		+ ") as teste where id_cliente  = cliente.id_cliente\n"
+				 		+ ") as placas\n"
+				 		+ "from cliente where transportador = 1\n"
+				 		+ "";
+
+		        Connection conn = null;
+		        PreparedStatement pstm = null;
+		        ResultSet rs = null;
+		        ArrayList<CadastroCliente> listaClientes = new ArrayList<CadastroCliente>();
+		        try {
+		            conn = ConexaoBanco.getConexao();
+		            pstm = conn.prepareStatement(selectClientes);
+		        
+		            rs = pstm.executeQuery();
+		            while (rs.next()) {
+		                CadastroCliente cliente = new CadastroCliente();
+		                cliente.setTipo_pessoa(rs.getInt("tipo_cliente"));
+		                if(cliente.getTipo_pessoa() == 1)
+		                {
+		                	//cnpj
+		                	cliente.setCnpj(rs.getString("cnpj"));
+		                	
+		                }
+		                else
+		                {
+		                	//cpf
+		                	cliente.setCpf(rs.getString("cpf"));
+		                	
+		                }
+		                cliente.setRntrc(rs.getString("rntrc"));
+		                cliente.setId(rs.getInt("id_cliente"));		           
+		                cliente.setApelido(rs.getString("apelido"));
+		                cliente.setNome(rs.getString("nome"));
+		                cliente.setSobrenome(rs.getString("sobrenome"));
+		                cliente.setRazao_social(rs.getString("razao_social"));
+		                cliente.setNome_fantaia(rs.getString("nome_fantasia"));
+		              
+		                cliente.setNome_empresarial(rs.getString("nome_empresarial"));
+
+		             
+		                cliente.setPlacas(rs.getString("placas"));
+		                
+		                listaClientes.add(cliente);
+		                
+		            }
+		            ConexaoBanco.fechaConexao(conn, pstm, rs);
+		            return listaClientes;
+		        } catch (Exception e) {
+		        	 
+		        	 JOptionPane.showMessageDialog(null, "Erro ao listar clientes");
+		        	 return null;
+		        }
+		
+	}
+		  
 	  
 }
 	

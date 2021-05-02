@@ -58,6 +58,18 @@ public class Nuvem {
 		}
 	}
 	
+	public boolean carregarDoc(String url, String nomearquivo) {
+		try (InputStream in = new FileInputStream(url)) {
+		    FileMetadata metadata = client.files().uploadBuilder("/docs_temps/" + nomearquivo )
+		        .uploadAndFinish(in);
+		    System.out.println("sucesso");
+		    return true;
+		}catch(Exception e) {
+		    System.out.println("erro ao carregar o arquivo: " + e.getMessage());
+            return false;
+		}
+	}
+	
 	public void abrir() {
 		 // Criar cliente Dropbox 
 		// Create Dropbox client
@@ -143,6 +155,18 @@ public class Nuvem {
 	public boolean deletarArquivo(String nome_arquivo) {
 		try {
 		DeleteResult  apagar = client.files().deleteV2("/contratos/" + nome_arquivo);
+		System.out.println("resposta ao apagar o arquivo: " + apagar.toString());
+		
+		return true;
+		}catch(Exception e) {
+			System.out.println("falha ao deleter o arquivo da nuvem, erro: " + e.getMessage());
+			return false;
+		}
+	}
+	
+	public boolean deletarDoc(String nome_arquivo) {
+		try {
+		DeleteResult  apagar = client.files().deleteV2("/docs_temps/" + nome_arquivo);
 		System.out.println("resposta ao apagar o arquivo: " + apagar.toString());
 		
 		return true;

@@ -122,7 +122,7 @@ import main.java.outros.MyFileVisitor;
 import main.java.outros.ReproduzirAudio;
 import main.java.outros.TratarDados;
 import main.java.relatoria.RelatorioContratoComprador;
-import main.java.relatoria.RelatorioContratoSimplificado;
+import main.java.relatoria.RelatorioContratoRecebimentoSimplificado;
 import main.java.relatoria.RelatorioContratos;
 import main.java.tratamento_proprio.Log;
 import main.java.views_personalizadas.TelaEmEspera;
@@ -173,9 +173,9 @@ public class TelaCadastroParcela extends JFrame {
     private JTextFieldPersonalizado entDescricao;
     private JTextFieldPersonalizado entDataVencimento;
     private JTextFieldPersonalizado entCaminhoArquivo;
-    private JLabel entStatus;
 	private JTextFieldPersonalizado entIdentificador = new JTextFieldPersonalizado();
 	private JEditorPane entObservacao = new JEditorPane();
+	private JComboBox cbStatus;
 
 
 	public TelaCadastroParcela(int modo_operacao, Parcela parcela, int id_lancamento_pai, Window janela_pai) {
@@ -240,16 +240,10 @@ public class TelaCadastroParcela extends JFrame {
 		lblStatus.setFont(new Font("Tahoma", Font.PLAIN, 16));
 		painelPrincipal.add(lblStatus, "cell 0 5,alignx trailing");
 		
-		entStatus = new JLabel();
-		entStatus.setBackground(new Color(204, 0, 51));
-		entStatus.setOpaque(true);
-		entStatus.setBorder(new LineBorder(new Color(0, 0, 0), 2));
-		entStatus.setText("<html><center>A PAGAR");
-		entStatus.setFont(new Font("Tahoma", Font.BOLD, 16));
-
-		entStatus.setForeground(Color.WHITE);
-
-		painelPrincipal.add(entStatus, "cell 1 5 2 1,growx");
+		 cbStatus = new JComboBox();
+		 cbStatus.addItem("A Pagar");
+		 cbStatus.addItem("Pago ");
+		painelPrincipal.add(cbStatus, "cell 1 5 2 1,growx");
 		
 		JLabel lblArquivo = new JLabel("Arquivo:");
 		lblArquivo.setFont(new Font("Tahoma", Font.PLAIN, 16));
@@ -361,10 +355,7 @@ public class TelaCadastroParcela extends JFrame {
 		entDataVencimento.setText(data_vencimento);
 		entCaminhoArquivo.setText(caminho_arquivo);
 		entValor.setText(valor.toString());
-		if(status == 0) {
-			entStatus.setText("A Pagar");
-		}else if(status == 1)
-			entStatus.setText("Pago");
+		cbStatus.setSelectedIndex(status);
 		
 	}
 	
@@ -389,14 +380,13 @@ public class TelaCadastroParcela extends JFrame {
 	public Parcela getDadosSalvar(int id_lancamento_pai) {
 		Parcela parcela = new Parcela();
 		
-		String s_valor, descricao, observacao, identificador, data_vencimento, caminho_arquivo, status;
+		String s_valor, descricao, observacao, identificador, data_vencimento, caminho_arquivo;
 		
 		identificador = entIdentificador.getText();
 		observacao = entObservacao.getText();
 		descricao = entDescricao.getText();
 		data_vencimento = entDataVencimento.getText();
 		caminho_arquivo = entCaminhoArquivo.getText();
-		status = entStatus.getText();
 		BigDecimal valor = BigDecimal.ZERO;
 		
 		try {
@@ -426,14 +416,15 @@ public class TelaCadastroParcela extends JFrame {
 	public Parcela getDadosAtualizar(Parcela parcela_antiga) {
 		Parcela parcela = new Parcela();
 		parcela.setId_parcela(parcela_antiga.getId_parcela());
-		String s_valor, descricao, observacao, identificador, data_vencimento, caminho_arquivo, status;
+		String s_valor, descricao, observacao, identificador, data_vencimento, caminho_arquivo;
+		int status;
 		
 		identificador = entIdentificador.getText();
 		observacao = entObservacao.getText();
 		descricao = entDescricao.getText();
 		data_vencimento = entDataVencimento.getText();
 		caminho_arquivo = entCaminhoArquivo.getText();
-		status = entStatus.getText();
+		status = cbStatus.getSelectedIndex();
 		BigDecimal valor = BigDecimal.ZERO;
 		
 		try {
@@ -448,7 +439,7 @@ public class TelaCadastroParcela extends JFrame {
 		}
 		
 		parcela.setDescricao(descricao);
-		parcela.setStatus(0);
+		parcela.setStatus(status);
 		parcela.setData_vencimento(data_vencimento);
 		parcela.setCaminho_arquivo(caminho_arquivo);
 		parcela.setId_lancamento_pai(parcela_antiga.getId_lancamento_pai());

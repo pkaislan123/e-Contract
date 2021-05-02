@@ -208,7 +208,34 @@ public class ConverterPdf {
 
 	}
 	
+	public String excel_pdf_file2(String caminho)
+
+	{
+		
+		
+	  try {
+
+		  
+		  com.spire.xls.Workbook  workbook1 = new com.spire.xls.Workbook();;
+			 workbook1.loadFromFile(caminho + ".xls");
+
+		        //Get the second worksheet
+			 workbook1.getConverterSetting().setSheetFitToPage(true);
+
+		        //Save as PDF document
+			 workbook1.saveToFile(caminho + ".pdf",FileFormat.PDF);
+		        //Save as PDF document
+			
 	
+			 
+	        return caminho + ".pdf";
+	  }catch(Exception t) {
+		  System.out.println("erro ao salvar pdf " + t.getMessage() );
+		  return null;
+	  }
+
+
+	}
 	
 	
 	public boolean word_pdf_file(String caminho)
@@ -236,6 +263,35 @@ public class ConverterPdf {
 	  }catch(Exception t) {
 		  System.out.println("erro ao salvar pdf " + t.getMessage() );
 		  return false;
+	  }
+
+
+	}
+	
+	public String word_pdf_file2(String caminho)
+	{
+		
+		
+	  try {
+		  
+		  IConverter converter = LocalConverter.builder().build();   
+		  caminho = caminho.replaceAll(".docx", "");
+
+		    //salvar a partir de arquivo
+			FileOutputStream saida_arquivo_pdf2 = new FileOutputStream(new File(caminho + ".pdf"));
+
+		    converter.convert(new FileInputStream(new File(caminho + ".docx"))).as(DocumentType.DOCX).to(saida_arquivo_pdf2).as(DocumentType.PDF).execute();
+
+		    
+		    //saida.close();
+		    System.out.println("success");
+		
+		 
+
+	        return caminho + ".pdf";
+	  }catch(Exception t) {
+		  System.out.println("erro ao salvar pdf " + t.getMessage() );
+		  return null;
 	  }
 
 

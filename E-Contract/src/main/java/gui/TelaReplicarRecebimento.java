@@ -1,5 +1,4 @@
 package main.java.gui;
-
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.FlowLayout;
@@ -7,12 +6,11 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
-import java.io.ByteArrayOutputStream;
 import java.text.NumberFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
-import javax.swing.JOptionPane;
+
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JDialog;
@@ -24,23 +22,20 @@ import org.icepdf.ri.common.ComponentKeyBinding;
 import org.icepdf.ri.common.SwingController;
 import org.icepdf.ri.common.SwingViewBuilder;
 import net.miginfocom.swing.MigLayout;
-
-
-
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+
 import java.awt.Font;
 import javax.swing.JTextArea;
 import javax.swing.BoxLayout;
 import java.awt.GridLayout;
 import java.awt.SystemColor;
-import java.awt.Window;
 import java.awt.GridBagLayout;
 import java.awt.GridBagConstraints;
 import com.jgoodies.forms.layout.FormLayout;
 import com.jgoodies.forms.layout.ColumnSpec;
 import com.jgoodies.forms.layout.RowSpec;
 
-import main.java.cadastros.CadastroAditivo;
 import main.java.cadastros.CadastroAviso;
 import main.java.cadastros.CadastroBaseArquivos;
 import main.java.cadastros.CadastroBaseDados;
@@ -63,7 +58,6 @@ import main.java.cadastros.DadosContratos;
 import main.java.cadastros.RegistroQuantidade;
 import main.java.cadastros.RegistroRecebimento;
 import main.java.classesExtras.Endereco;
-import main.java.conexaoBanco.GerenciarBancoAditivos;
 import main.java.conexaoBanco.GerenciarBancoClientes;
 import main.java.conexaoBanco.GerenciarBancoContratos;
 import main.java.conexaoBanco.GerenciarBancoDocumento;
@@ -72,7 +66,7 @@ import main.java.conexaoBanco.GerenciarBancoPadrao;
 import main.java.conexaoBanco.GerenciarBancoProdutos;
 import main.java.conexaoBanco.GerenciarBancoRomaneios;
 import main.java.conexaoBanco.GerenciarBancoSafras;
-import main.java.conexaoBanco.GerenciarBancoTransferencias;
+import main.java.conexaoBanco.GerenciarBancoTransferenciaRecebimento;
 import main.java.conexaoBanco.GerenciarBancoTransferenciasCarga;
 import main.java.conexoes.TesteConexao;
 import main.java.graficos.GraficoLinha;
@@ -84,9 +78,7 @@ import main.java.gui.TelaRomaneios;
 import main.java.manipular.ConfiguracoesGlobais;
 import main.java.manipular.ConverterPdf;
 import main.java.manipular.CopiarArquivo;
-import main.java.manipular.EditarAditivo;
 import main.java.manipular.GetDadosGlobais;
-import main.java.manipular.ManipularArquivoTerceiros;
 import main.java.manipular.ManipularNotasFiscais;
 import main.java.manipular.ManipularRomaneios;
 import main.java.manipular.ManipularTxt;
@@ -131,58 +123,51 @@ import main.java.conexaoBanco.GerenciarBancoProdutos;
 import main.java.conexaoBanco.GerenciarBancoSafras;
 
 import javax.swing.border.LineBorder;
+import javax.swing.JComboBox;
 import javax.swing.JTextField;
 import javax.swing.JCheckBox;
-import javax.swing.JScrollPane;
-import javax.swing.ScrollPaneConstants;
 
 
 
-public class TelaCriarAditivo extends JDialog {
+public class TelaReplicarRecebimento extends JDialog {
 
 	private final JPanel painelPrincipal = new JPanel();
-	private JTextField entData;
-	private JTextArea textAreaTextoFinal;
-	private JDialog telaPai;
-	private JFrame telaPaiJrame;
-	private Log GerenciadorLog;
-	private CadastroLogin login;
-	private ConfiguracoesGlobais configs_globais;
-	private JCheckBox chkBoxDataAtual;
-	private CadastroContrato contrato_local;
-	private TelaCriarAditivo isto;
-	EditarAditivo editarWord ;
-	
-	public TelaCriarAditivo(CadastroContrato contrato, Window janela_pai) {
-		getDadosGlobais();
-		setModal(true);
-		
-		contrato_local = contrato;
+    private TelaReplicarRecebimento isto;
+    private JDialog telaPai;
+    private JTextField entData;
+    private JTextField entQuantidade;
+    private JTextField entContratoRemetente;
+    private JCheckBox chkBoxDataAtual ;
+    private CadastroContrato contrato_destinatario;
+    private JComboBox cBContratoDestinatario ;
+    private JFrame telaPaiJFrame;
+    private CadastroContrato.Carregamento carga_selecionada;
+
+	public TelaReplicarRecebimento(CadastroContrato contrato_remetente, JFrame janela_pai) {
+	//	setModal(true);
 
 		 isto = this;
-		
+	
+		 
+		 GerenciarBancoContratos gerenciar = new GerenciarBancoContratos();
 		setResizable(true);
-		setTitle("E-Contract - Criar Aditivo");
+		setTitle("E-Contract - Transferencia de Volume de Carga");
 
 		
 		setBackground(new Color(255, 255, 255));
 		setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-		setBounds(100, 100, 661, 467);
+		setBounds(100, 100, 468, 297);
 		painelPrincipal.setBackground(new Color(255, 255, 255));
 		painelPrincipal.setBorder(new EmptyBorder(5, 5, 5, 5));
 		setContentPane(painelPrincipal);
-		painelPrincipal.setLayout(null);
+		painelPrincipal.setLayout(new MigLayout("", "[][grow]", "[][][][][grow][]"));
 		
-		JLabel lblNewLabel_2 = new JLabel("Data:");
-		lblNewLabel_2.setFont(new Font("Tahoma", Font.PLAIN, 14));
-		lblNewLabel_2.setBounds(75, 31, 72, 14);
-		painelPrincipal.add(lblNewLabel_2);
+		JLabel lblNewLabel = new JLabel("Data:");
+		lblNewLabel.setFont(new Font("Tahoma", Font.PLAIN, 14));
+		painelPrincipal.add(lblNewLabel, "cell 0 0,alignx trailing");
 		
 		entData = new JTextField();
-		entData.setEditable(false);
-		entData.setFont(new Font("Tahoma", Font.PLAIN, 14));
-		entData.setBounds(157, 30, 185, 25);
-		painelPrincipal.add(entData);
+		painelPrincipal.add(entData, "flowx,cell 1 0,growx");
 		entData.setColumns(10);
 		
 		entData.addKeyListener(new KeyAdapter() {
@@ -215,6 +200,9 @@ public class TelaCriarAditivo extends JDialog {
 		
 		entData.setText(pegarData());
 
+		 chkBoxDataAtual = new JCheckBox("Hoje");
+		chkBoxDataAtual.setSelected(true);
+		painelPrincipal.add(chkBoxDataAtual, "cell 1 0");
 		
 		
 		
@@ -234,55 +222,106 @@ public class TelaCriarAditivo extends JDialog {
 				}
 			}
 		});
-		chkBoxDataAtual.setSelected(true);
-		chkBoxDataAtual.setBounds(350, 29, 97, 23);
-		painelPrincipal.add(chkBoxDataAtual);
 		
-		JButton btnCriarAditivo = new JButton("Salvar");
-		btnCriarAditivo.addActionListener(new ActionListener() {
+		
+		JLabel lblValor = new JLabel("Volume(KGs):");
+		lblValor.setFont(new Font("Tahoma", Font.PLAIN, 14));
+		painelPrincipal.add(lblValor, "cell 0 1,alignx trailing");
+		
+		entQuantidade = new JTextField();
+		entQuantidade.setFont(new Font("Tahoma", Font.PLAIN, 14));
+		
+		Locale ptBr = new Locale("pt", "BR");
+		
+		painelPrincipal.add(entQuantidade, "cell 1 1,growx");
+		entQuantidade.setColumns(10);
+		
+		
+		
+		JLabel lblContratoRemetente = new JLabel("Contrato Remetente:");
+		lblContratoRemetente.setFont(new Font("Tahoma", Font.PLAIN, 14));
+		painelPrincipal.add(lblContratoRemetente, "cell 0 2,alignx trailing");
+		
+		entContratoRemetente = new JTextField();
+		entContratoRemetente.setFont(new Font("Tahoma", Font.PLAIN, 14));
+		entContratoRemetente.setEditable(false);
+		entContratoRemetente.setColumns(10);
+		entContratoRemetente.setText(contrato_remetente.getId() + "-" + contrato_remetente.getCodigo());
+		painelPrincipal.add(entContratoRemetente, "cell 1 2,growx");
+		
+		JLabel lblContratoDestinatario = new JLabel("Contrato Destinatario:");
+		lblContratoDestinatario.setFont(new Font("Tahoma", Font.PLAIN, 14));
+		painelPrincipal.add(lblContratoDestinatario, "cell 0 3,alignx trailing");
+		
+		 cBContratoDestinatario = new JComboBox();
+		cBContratoDestinatario.setFont(new Font("Tahoma", Font.PLAIN, 14));
+		painelPrincipal.add(cBContratoDestinatario, "flowx,cell 1 3,growx");
+		
+		JLabel lblDescrio = new JLabel("Descrição:");
+		lblDescrio.setFont(new Font("Tahoma", Font.PLAIN, 14));
+		painelPrincipal.add(lblDescrio, "cell 0 4,alignx right");
+		
+		JTextArea textAreaDescricaoTransferencia = new JTextArea();
+		textAreaDescricaoTransferencia.setFont(new Font("Monospaced", Font.PLAIN, 14));
+		textAreaDescricaoTransferencia.setLineWrap(true);
+		textAreaDescricaoTransferencia.setWrapStyleWord(true);
+		painelPrincipal.add(textAreaDescricaoTransferencia, "cell 1 4,grow");
+		
+		JButton btnTransferir = new JButton("Concluir");
+		btnTransferir.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				ByteArrayOutputStream contrato_alterado = null;
+				String descricao, data;
+				
+				descricao = textAreaDescricaoTransferencia.getText();
+				data = entData.getText();
+				
+				CadastroContrato.CadastroTransferenciaRecebimento transferencia = new CadastroContrato.CadastroTransferenciaRecebimento();
+				transferencia.setData(data);
+				transferencia.setDescricao(descricao);
+				transferencia.setId_contrato_destinatario(contrato_destinatario.getId());
+				transferencia.setId_contrato_remetente(contrato_remetente.getId());
+				transferencia.setQuantidade(Double.parseDouble(entQuantidade.getText()));
+				
+				
+				GerenciarBancoTransferenciaRecebimento gerenciar = new GerenciarBancoTransferenciaRecebimento();
+				int transferiou = gerenciar.inserirTransferencia(transferencia);
+				if(transferiou > 0) {
+					//((TelaGerenciarContrato) telaPai).pesquisar_pagamentos();
+	            	   ((TelaGerenciarContrato) janela_pai).pesquisar_recebimentos(true);
 
-				System.out.println("Preparando para elaborar novo aditivo");
-				String text = textAreaTextoFinal.getText();
-				 contrato_local.setData_contrato(entData.getText());
-				 editarWord = new EditarAditivo(contrato_local,text );
-				 
-				contrato_alterado = editarWord.preparar();
+					((TelaGerenciarContrato) janela_pai).pesquisar_carregamentos(true);
+					JOptionPane.showMessageDialog(isto, "Transferencia de Recebimento Efetuada");
+					isto.dispose();
+				}else {
+					JOptionPane.showMessageDialog(isto, "Erro ao realizar Transferencia de Recebimento \nConsulte o administrador");
+					isto.dispose();
 
-				ConverterPdf converter_pdf = new ConverterPdf();
-				String pdf_alterado = converter_pdf.word_pdf_stream(contrato_alterado);
-				TelaVizualizarPdf vizualizar = new TelaVizualizarPdf(null, isto, null,
-						pdf_alterado, null, isto);
+				}
+				
+				
+				
 			}
 		});
-		btnCriarAditivo.setBounds(513, 381, 89, 23);
-		painelPrincipal.add(btnCriarAditivo);
+		painelPrincipal.add(btnTransferir, "cell 1 5,alignx right");
 		
-		JLabel lblNewLabel_3 = new JLabel("Texto do Aditivo:");
-		lblNewLabel_3.setFont(new Font("Tahoma", Font.PLAIN, 14));
-		lblNewLabel_3.setBounds(75, 89, 106, 14);
-		painelPrincipal.add(lblNewLabel_3);
-		
-		JPanel panel_1 = new JPanel();
-		panel_1.setBounds(75, 140, 527, 198);
-		painelPrincipal.add(panel_1);
-		panel_1.setLayout(null);
-		
-		JScrollPane scrollPane = new JScrollPane();
-		scrollPane.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
-		scrollPane.setBounds(0, 0, 517, 198);
-		panel_1.add(scrollPane);
-		
-		 textAreaTextoFinal = new JTextArea();
-		 textAreaTextoFinal.setText("Pelo presente instrumento, como (qualificação da parte como consta no contrato originário), e como (qualificação da outra parte como consta no contrato originário), ajustam o seguinte:\r\n\r\n[1.] [Prazo de Entrega]\r\n As partes acima qualificadas firmaram em 02 de julho de 2020 o CONTRATO 0002858-300 no qual ajustaram Prazo de entrega do dia 01/02/2021 a 28/02/2021.\r\n\r\n[2.] [Modalidade de Entrega]\r\n Considerando ter havido interesse recíproco, entre os contratantes, de alterar o prazo de entrega, passa, a partir desta data, a prevalecer o seguinte:\r\nA Mercadoria deverá ser entregue pelo Vendedor ao Comprador na condição posto sobre rodas, no prazo de entrega (retificado) de 01/02/2021 a 20/03/2021.\r\n\r\n[3.] [Final]\r\nFicam ratificadas todas as demais cláusulas e condições do CONTRATO mantem-se inalteradas. E por estarem, assim, justas e contratadas, assinam o presente em 2 vias de igual teor e forma, juntamente com as testemunhas abaixo.\r\n\r\n");
-		 scrollPane.setViewportView(textAreaTextoFinal);
-		 textAreaTextoFinal.setLineWrap(true);
-		 textAreaTextoFinal.setWrapStyleWord(true);
-		 textAreaTextoFinal.setBorder(new LineBorder(new Color(0, 0, 0)));
+		JButton btnSelecionarContratoDestinatario = new JButton("Selecionar");
+		btnSelecionarContratoDestinatario.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				TelaContratos tela = new TelaContratos(6,isto);
+
+				tela.setTelaPai(isto);
+				tela.pesquisar_sub_contratos(contrato_remetente.getId());
+				tela.setVisible(true);
+			}
+		});
+		painelPrincipal.add(btnSelecionarContratoDestinatario, "cell 1 3");
 		
 		
-	
+		
+		
+		
+
+			
 		
 		
 		
@@ -294,86 +333,36 @@ public class TelaCriarAditivo extends JDialog {
 		
 	}
 	
-	public void setTelaPai(JDialog tela_pai) {
-		this.telaPai = tela_pai;
-	}
-	
-	
-	
-	public void getDadosGlobais() {
-		//gerenciador de log
-				DadosGlobais dados = DadosGlobais.getInstance();
-				 GerenciadorLog = dados.getGerenciadorLog();
-				 configs_globais = dados.getConfigs_globais();
-				 
-				 //usuario logado
-				  login = dados.getLogin();
-		
-	}
-	
 	public String pegarData() {
 
 		Date hoje = new Date();
 		SimpleDateFormat df = new SimpleDateFormat("dd/MM/yyyy");
 		return df.format(hoje);
 	}
+
 	
-	public void salvar(String caminho_arquivo_temp) {
-		
-		
-		GetData hj = new GetData();
-		String hora =  hj.getHora().replace(":", " ");
-		
-	     //criar o documento
-		String unidade_base_dados = configs_globais.getServidorUnidade();
-        String nome_arquivo = "aditivo_contrato_" + contrato_local.getCodigo() +  "_" + hora;
-		String caminho_salvar = unidade_base_dados + "\\" + contrato_local.getCaminho_diretorio_contrato();
-		
-		String caminho_completo = caminho_salvar + "\\comprovantes\\" + nome_arquivo;
-		boolean salvar = editarWord.criarArquivo(caminho_completo);
-        ManipularTxt manipular = new ManipularTxt();
+	public void setContratoDestintario(CadastroContrato destinatario) {
 
-		if(salvar) {
+		this.contrato_destinatario = destinatario;
+		java.awt.EventQueue.invokeLater(new Runnable() {
+			public void run() {
+				cBContratoDestinatario.removeAllItems();
+				cBContratoDestinatario.repaint();
+				cBContratoDestinatario.updateUI();
+				cBContratoDestinatario.addItem(destinatario.getId() +"-" + destinatario.getCodigo());
 
-			CadastroAditivo aditivo = new CadastroAditivo();
-			aditivo.setTexto(textAreaTextoFinal.getText());
-			aditivo.setData(contrato_local.getData_contrato());
-			aditivo.setStatus(1);
-			aditivo.setId_contrato_pai(contrato_local.getId());
-			aditivo.setNome_arquivo(nome_arquivo + ".pdf");
-			
-			GerenciarBancoAditivos gerenciar = new GerenciarBancoAditivos();
-			int guardar = gerenciar.inserirAditivo(aditivo);
-			
-			if(guardar > 0) {
-				
-                boolean deletar_arquivo = manipular.apagarArquivo(caminho_completo + ".docx");
-				JOptionPane.showMessageDialog(isto, "Aditivo Criado com sucesso");
-				//((TelaGerenciarContrato) telaPai).setInformacoesAditivos();
-				((TelaGerenciarContrato) telaPaiJrame).setInformacoesAditivos();
-
-				isto.dispose();
-
-			}else {
-				JOptionPane.showMessageDialog(isto, "Erro ao guardar o aditivo na base de dados!\nConsulte o administrador");
-                boolean deletar_arquivo = manipular.apagarArquivo(caminho_completo + ".docx");
-                boolean deletar_pdf = manipular.apagarArquivo(caminho_completo + ".pdf");
+				cBContratoDestinatario.repaint();
+				cBContratoDestinatario.updateUI();
 
 			}
-			
-			
-			
-			
-		}else {
-			JOptionPane.showMessageDialog(isto, "Erro ao salvar o arquivo fisico!\nConsulte o administrador");
-
-		}
-		
-		
+		});
 	}
 	
-	public void setTelaPai(JFrame tela_pai) {
-		this.telaPaiJrame = tela_pai;
-	}	
+	public void setTelaPag(JDialog tela_pai) {
+		this.telaPai = tela_pai;
+	}
 	
+	public void setTelaPag(JFrame tela_pai) {
+		this.telaPaiJFrame = tela_pai;
+	}
 }

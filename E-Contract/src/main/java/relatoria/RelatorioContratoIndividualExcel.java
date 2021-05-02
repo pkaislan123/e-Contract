@@ -63,6 +63,7 @@ import main.java.cadastros.ContaBancaria;
 import main.java.cadastros.Contato;
 import main.java.cadastros.DadosCarregamento;
 import main.java.cadastros.DadosContratos;
+import main.java.cadastros.PagamentoCompleto;
 import main.java.cadastros.RegistroQuantidade;
 import main.java.cadastros.RegistroRecebimento;
 import main.java.classesExtras.Endereco;
@@ -105,7 +106,7 @@ import main.java.outros.MyFileVisitor;
 import main.java.outros.ReproduzirAudio;
 import main.java.outros.TratarDados;
 import main.java.relatoria.RelatorioContratoComprador;
-import main.java.relatoria.RelatorioContratoSimplificado;
+import main.java.relatoria.RelatorioContratoRecebimentoSimplificado;
 import main.java.relatoria.RelatorioContratos;
 import main.java.tratamento_proprio.Log;
 import main.java.views_personalizadas.TelaEmEspera;
@@ -1228,6 +1229,13 @@ public class RelatorioContratoIndividualExcel {
 					+ NumberFormat.getCurrencyInstance(ptBr).format(contrato_local.getValor_a_pagar()));
 			sheet2.addMergedRegion(new CellRangeAddress(rownum - 1, rownum - 1, cellnum - 1, 5));
 
+			
+			GerenciarBancoContratos gerenciar_contratos = new GerenciarBancoContratos();
+
+			double quantidade_kgs_recebidos = gerenciar_contratos.getQuantidadeRecebida(contrato_local.getId());
+			quantidade_kg = quantidade_kgs_recebidos;
+
+			
 			row = sheet2.createRow(rownum++);
 			cellnum = 0;
 
@@ -1972,7 +1980,6 @@ row = sheet2.createRow(rownum++);
 			cell.setCellStyle(numberStyle);
 			cell.setCellValue(quantidade_total_kgs_nf_complemento / 60);
 
-			if (quantidade_total_kgs_carregados < quantidade_kg) {
 				// totais
 				row = sheet2.createRow(rownum += 1);
 				cellnum = 0;
@@ -2073,14 +2080,7 @@ row = sheet2.createRow(rownum++);
 
 				}
 
-				rownum++;
-				row = sheet2.createRow(rownum);
-
-				cell = row.createCell(0);
-				cell.setCellStyle(textStyleAlinhadoEsquerdaAviso);
-				cell.setCellValue("*Pesos restantes calculados a partir do peso total já carregado");
-				sheet2.addMergedRegion(new CellRangeAddress(rownum, rownum, cellnum, 3));
-
+	
 				// status baseado no peso total ja carregado
 
 				rownum += 2;
@@ -2090,9 +2090,9 @@ row = sheet2.createRow(rownum++);
 				cell = row.createCell(cellnum);
 				cell.setCellStyle(textStyleAlinhadoEsquerdaNegrito);
 				cell.setCellValue(
-						"Status parcial gerado de forma automatica calculados a partir do peso total já carregado");
+						"Status parcial gerado de forma automatica calculados a partir do peso total já recebido: " + z.format(quantidade_kg) + " kgs | " + z.format(quantidade_kg/60) + " sacos") ;
 
-				sheet2.addMergedRegion(new CellRangeAddress(rownum, rownum, cellnum, 3));
+				sheet2.addMergedRegion(new CellRangeAddress(rownum, rownum, cellnum, 5));
 
 				rownum++;
 				row = sheet2.createRow(rownum);
@@ -2175,193 +2175,7 @@ row = sheet2.createRow(rownum++);
 
 				sheet2.addMergedRegion(new CellRangeAddress(rownum, rownum, cellnum, 3));
 
-			}
-
-			// pesos baseados no total
-			rownum += 2;
-			row = sheet2.createRow(rownum);
-
-			cell = row.createCell(0);
-			cell.setCellStyle(textStyle);
-			cell.setCellValue("Peso Carregado");
-
-			cell = row.createCell(1);
-			cell.setCellStyle(numberStyle);
-			cell.setCellValue(z.format(quantidade_total_kgs_carregados) + " Kgs");
-
-			cell = row.createCell(2);
-			cell.setCellStyle(textStyle);
-			cell.setCellValue("Peso NF's Interna:");
-
-			cell = row.createCell(3);
-			cell.setCellStyle(numberStyle);
-			if (nf_interna_ativo)
-				cell.setCellValue(z.format(quantidade_total_kgs_nf_interna) + " Kgs");
-			else
-				cell.setCellValue("Não Aplicável");
-
-			cell = row.createCell(4);
-			cell.setCellStyle(textStyle);
-			cell.setCellValue("Peso NF's Venda:");
-
-			cell = row.createCell(5);
-			cell.setCellStyle(numberStyle);
-			if (nf_venda_ativo || nf_complemento_ativo)
-				cell.setCellValue(
-						z.format(quantidade_total_kgs_nf_venda1 + quantidade_total_kgs_nf_complemento) + " Kgs");
-			else
-				cell.setCellValue("Não Aplicável");
-
-			cell = row.createCell(6);
-			cell.setCellStyle(textStyle);
-			cell.setCellValue("Valor NF's Venda:");
-
-			cell = row.createCell(7);
-			cell.setCellStyle(numberStyle);
-
-			BigDecimal soma = valor_total_nf_venda1.add(valor_total_nf_complemento);
-
-			if (nf_venda_ativo || nf_complemento_ativo) {
-				cell.setCellValue(NumberFormat.getCurrencyInstance(ptBr).format(soma.doubleValue()));
-
-			} else {
-				cell.setCellValue("Não Aplicável");
-
-			}
-
-			rownum++;
-			row = sheet2.createRow(rownum);
-
-			cell = row.createCell(0);
-			cell.setCellStyle(textStyle);
-			cell.setCellValue("Peso a Carregar");
-
-			cell = row.createCell(1);
-			cell.setCellStyle(numberStyle);
-			cell.setCellValue(z.format(quantidade_kg - quantidade_total_kgs_carregados) + " Kgs");
-
-			cell = row.createCell(2);
-			cell.setCellStyle(textStyle);
-			cell.setCellValue("Peso a Emitir:");
-
-			cell = row.createCell(3);
-			cell.setCellStyle(numberStyle);
-			if (nf_interna_ativo)
-				cell.setCellValue(z.format(quantidade_kg - quantidade_total_kgs_nf_interna) + " Kgs");
-			else
-				cell.setCellValue("Não Aplicável");
-
-			cell = row.createCell(4);
-			cell.setCellStyle(textStyle);
-			cell.setCellValue("Peso a Emitir:");
-
-			cell = row.createCell(5);
-			cell.setCellStyle(numberStyle);
-			if (nf_venda_ativo || nf_complemento_ativo)
-				cell.setCellValue(z.format(
-						quantidade_kg - (quantidade_total_kgs_nf_venda1 + quantidade_total_kgs_nf_complemento))
-						+ " Kgs");
-			else
-				cell.setCellValue("Não Aplicável");
-
-			rownum++;
-			row = sheet2.createRow(rownum);
-			cell = row.createCell(0);
-			cell.setCellStyle(textStyleAlinhadoEsquerdaAviso);
-			cell.setCellValue("*Pesos restantes calculados a partir do peso total do contrato");
-			sheet2.addMergedRegion(new CellRangeAddress(rownum, rownum, cellnum, 3));
-
-			// status baseado no peso total do contrato
-			rownum += 2;
-
-			row = sheet2.createRow(rownum);
-
-			cell = row.createCell(cellnum);
-			cell.setCellStyle(textStyleAlinhadoEsquerdaNegrito);
-			cell.setCellValue("Status gerado de forma automatica calculados a partir do peso total do contrato");
-
-			sheet2.addMergedRegion(new CellRangeAddress(rownum, rownum, cellnum, 3));
-
-			rownum++;
-			row = sheet2.createRow(rownum);
-			cellnum = 0;
-
-			cell = row.createCell(cellnum);
-			cell.setCellStyle(textStyleAlinhadoEsquerdaNegrito);
-
-			String texto = "";
-			double diferenca = quantidade_kg - quantidade_total_kgs_carregados;
-			if (diferenca == 0) {
-				texto = texto + "Carregamento Concluído";
-			} else if (diferenca > 0) {
-				texto = texto + "Carregamento Incompleto, falta receber " + z.format(diferenca) + " Kgs";
-
-			} else if (diferenca < 0) {
-				texto = texto + "Carregamento Excedido, excedeu " + z.format(diferenca) + " Kgs";
-
-			}
-
-			cell.setCellValue(texto);
-
-			sheet2.addMergedRegion(new CellRangeAddress(rownum, rownum, cellnum, 2));
-
-			// status nf remessa
-			rownum += 1;
-			row = sheet2.createRow(rownum);
-			cellnum = 0;
-
-			cell = row.createCell(cellnum);
-			cell.setCellStyle(textStyleAlinhadoEsquerdaNegrito);
-
-			String texto_nf_remessa = "";
-			double diferenca_nf_remessa = quantidade_kg - quantidade_total_kgs_nf_interna;
-			if (diferenca_nf_remessa == 0) {
-				texto_nf_remessa = texto_nf_remessa + "Emissão de NF's Interna Concluído";
-			} else if (diferenca_nf_remessa > 0) {
-				texto_nf_remessa = texto_nf_remessa + "Emissão de NF's Interna Incompleto, falta emitir "
-						+ z.format(diferenca_nf_remessa) + " Kgs";
-
-			} else if (diferenca_nf_remessa < 0) {
-				texto_nf_remessa = texto_nf_remessa + "Emissão de NF's Interna, excedeu "
-						+ z.format(diferenca_nf_remessa) + " Kgs";
-
-			}
-
-			if (nf_interna_ativo)
-				cell.setCellValue(texto_nf_remessa);
-			else
-				cell.setCellValue("Emissão de NF's Interna Não Aplicável");
-
-			sheet2.addMergedRegion(new CellRangeAddress(rownum, rownum, cellnum, 3));
-
-			// status de nf de venda
-			rownum += 1;
-			row = sheet2.createRow(rownum);
-			cellnum = 0;
-
-			cell = row.createCell(cellnum);
-			cell.setCellStyle(textStyleAlinhadoEsquerdaNegrito);
-
-			String texto_nf_venda = "";
-			double diferenca_nf_venda = quantidade_kg
-					- (quantidade_total_kgs_nf_venda1 + quantidade_total_kgs_nf_complemento);
-			if (diferenca_nf_venda == 0) {
-				texto_nf_venda = texto_nf_venda + "Emissão de NF's de Venda Concluído";
-			} else if (diferenca_nf_venda > 0) {
-				texto_nf_venda = texto_nf_venda + "Emissão de NF's de Venda Incompleto, falta emitir "
-						+ z.format(diferenca_nf_venda) + " Kgs";
-
-			} else if (diferenca_nf_venda < 0) {
-				texto_nf_venda = texto_nf_venda + "Emissão de NF's Excedido, excedeu "
-						+ z.format(diferenca_nf_venda) + " Kgs";
-
-			}
-			if (nf_venda_ativo || nf_complemento_ativo)
-				cell.setCellValue(texto_nf_venda);
-			else
-				cell.setCellValue("Emissão de NF's de Venda Não Aplicável");
-
-			sheet2.addMergedRegion(new CellRangeAddress(rownum, rownum, cellnum, 3));
+			
 			
 		}
 		// incluir_pagamento
@@ -2369,7 +2183,7 @@ row = sheet2.createRow(rownum++);
 			HSSFSheet sheet3 = workbook.createSheet("Pagamentos");
 
 			// Definindo alguns padroes de layout
-			sheet3.setDefaultColumnWidth(25);
+			sheet3.setDefaultColumnWidth(20);
 			sheet3.setDefaultRowHeight((short) 400);
 
 			rownum = 0;
@@ -2421,19 +2235,7 @@ row = sheet2.createRow(rownum++);
 					+ contrato_local.getModelo_safra().getAno_colheita());
 			sheet3.addMergedRegion(new CellRangeAddress(rownum - 1, rownum - 1, cellnum - 1, 5));
 
-			/*
-			 * modelo_pagamentos_contratuais.addColumn("Id Pagamento");
-			 * modelo_pagamentos_contratuais.addColumn("Descrição");
-			 * 
-			 * modelo_pagamentos_contratuais.addColumn("Data");
-			 * 
-			 * modelo_pagamentos_contratuais.addColumn("Valor");
-			 * modelo_pagamentos_contratuais.addColumn("Depositante");
-			 * modelo_pagamentos_contratuais.addColumn("Conta Depositante");
-			 * modelo_pagamentos_contratuais.addColumn("Favorecido");
-			 * modelo_pagamentos_contratuais.addColumn("Conta Favorecido");
-			 * 
-			 */
+			
 			// Configurando Header
 			row = sheet3.createRow(rownum++);
 			cellnum = 0;
@@ -2447,7 +2249,19 @@ row = sheet2.createRow(rownum++);
 
 			cell = row.createCell(cellnum++);
 			cell.setCellStyle(celula_fundo_verde_texto_branco);
-			cell.setCellValue("VALOR".toUpperCase());
+			cell.setCellValue("DESCRIÇÃO".toUpperCase());
+
+			cell = row.createCell(cellnum++);
+			cell.setCellStyle(celula_fundo_verde_texto_branco);
+			cell.setCellValue("VALOR PAGAMENTO".toUpperCase());
+
+			cell = row.createCell(cellnum++);
+			cell.setCellStyle(celula_fundo_verde_texto_branco);
+			cell.setCellValue("VALOR UNIDADE".toUpperCase());
+
+			cell = row.createCell(cellnum++);
+			cell.setCellStyle(celula_fundo_verde_texto_branco);
+			cell.setCellValue("COBERTURA".toUpperCase());
 
 			cell = row.createCell(cellnum++);
 			cell.setCellStyle(celula_fundo_verde_texto_branco);
@@ -2455,8 +2269,24 @@ row = sheet2.createRow(rownum++);
 
 			cell = row.createCell(cellnum++);
 			cell.setCellStyle(celula_fundo_verde_texto_branco);
-			cell.setCellValue("VAFORECIDO".toUpperCase());
+			cell.setCellValue("CONTA DEPOSITANTE".toUpperCase());
 
+			cell = row.createCell(cellnum++);
+			cell.setCellStyle(celula_fundo_verde_texto_branco);
+			cell.setCellValue("FAVORECIDO".toUpperCase());
+
+			cell = row.createCell(cellnum++);
+			cell.setCellStyle(celula_fundo_verde_texto_branco);
+			cell.setCellValue("CONTA FAVORECIDO".toUpperCase());
+			
+			cell = row.createCell(cellnum++);
+			cell.setCellStyle(celula_fundo_verde_texto_branco);
+			cell.setCellValue("CONTRATO REMETENTE".toUpperCase());
+			
+			cell = row.createCell(cellnum++);
+			cell.setCellStyle(celula_fundo_verde_texto_branco);
+			cell.setCellValue("CONTRATO DESTINATARIO".toUpperCase());
+			
 			double soma_total_pagamentos = 0.0;
 			// pega os documentos
 			GerenciarBancoDocumento gerenciar_docs = new GerenciarBancoDocumento();
@@ -2470,264 +2300,465 @@ row = sheet2.createRow(rownum++);
 					num_comprovantes++;
 				}
 			}
+			
+			double valor_total_pagamentos = 0;
+			double valor_total_pagamentos_efetuados = 0;
+			double valor_total_transferencias_retiradas = 0;
+			double valor_total_transferencias_recebidas = 0;
+			double valor_total_pagamentos_restantes = 0;
+			double valor_total_comissao = 0;
+			double peso_total_cobertura = 0;
+			double peso_total_cobertura_efetuados = 0;
+			double peso_total_cobertura_transferencia_negativa = 0;
+			double peso_total_cobertura_transferencia_positiva = 0;
+			double peso_total_cobertura_restante = 0;
+			double peso_total_cobertura_comissao = 0;
 
-			ArrayList<CadastroPagamentoContratual> lista_pagamentos_contratuais = gerenciar
-					.getPagamentosContratuais(contrato_local.getId());
+			double quantidade_total_contrato_sacos = 0;
+			double valor_por_saco = 0;
+			
+	
 
-			for (CadastroContrato.CadastroPagamentoContratual pagamento : lista_pagamentos_contratuais) {
+			if (contrato_local.getMedida().equalsIgnoreCase("Kg")) {
+				quantidade_total_contrato_sacos = contrato_local.getQuantidade() / 60;
+				valor_por_saco = contrato_local.getValor_produto() * 60;
+			} else if (contrato_local.getMedida().equalsIgnoreCase("Sacos")) {
+				quantidade_total_contrato_sacos = contrato_local.getQuantidade();
+				valor_por_saco = contrato_local.getValor_produto();
+			}
 
-				if (pagamento.getTipo() != 2 || pagamento.getTipo() == 2 && interno && incluir_comissao) {
+			GerenciarBancoContratos gerenciar_contratos = new GerenciarBancoContratos();
 
-					// pegar depositante
-					GerenciarBancoClientes gerenciar_clientes = new GerenciarBancoClientes();
-					CadastroCliente depositante = gerenciar_clientes.getCliente(pagamento.getId_depositante());
-					String nome_depositante;
-					if (depositante.getTipo_pessoa() == 0) {
-						// pessoa fisica
-						nome_depositante = depositante.getNome_empresarial();
-					} else {
-						nome_depositante = depositante.getNome_fantaia();
+			//valor total e cobertura com base no total de sacos recebidos
+			double quantidade_kgs_recebidos = gerenciar_contratos.getQuantidadeRecebida(contrato_local.getId());
+			peso_total_cobertura = quantidade_kgs_recebidos/60;
+			valor_total_pagamentos = peso_total_cobertura * valor_por_saco;
+			
+			String valorSaco = NumberFormat.getCurrencyInstance(ptBr).format(valor_por_saco);
+
+			ArrayList<PagamentoCompleto> lista_pagamentos_contratuais = gerenciar
+					.getPagamentosContratuaisParaRelatorio(contrato_local.getId());
+
+			for (PagamentoCompleto pagamento : lista_pagamentos_contratuais) {
+				
+				
+				if(pagamento.getTipo() == 1 || pagamento.getTipo() == 2 && incluir_comissao || pagamento.getTipo() == 3 && incluir_transferencias){
+				row = sheet3.createRow(rownum++);
+				cellnum = 0;
+				/*
+				 * codigo compradores vendedores status quantidade medida produto transgenia
+				 * safra valor_produto valor_total data_contrato local_retirada
+				 */
+				cell = row.createCell(cellnum++);
+				cell.setCellStyle(textStyle);
+				cell.setCellValue(pagamento.getData_pagamento());
+
+				cell = row.createCell(cellnum++);
+				cell.setCellStyle(textStyle);
+				int tipo = pagamento.getTipo();
+				String s_tipo = "";
+				if (pagamento.getTipo() == 1) {
+					s_tipo = "NORMAL";
+				} else if (pagamento.getTipo() == 2) {
+					s_tipo = "COMISSÃO";
+				} else if (pagamento.getTipo() == 3) {
+					// é uma transferencia
+					if (pagamento.getId_contrato_remetente() == contrato_local.getId()) {
+						s_tipo = "-Transferencia";
+					} else if (pagamento.getId_contrato_destinatario() == contrato_local.getId()) {
+						// é uma transferencia positiva
+						s_tipo = "+Transferencia";
 					}
 
-					String nome_depositante_completo = nome_depositante;
+				}
 
-					String nome_depositante_quebrado[] = nome_depositante.split(" ");
-					try {
+				cell.setCellValue(s_tipo);
+				
+				//descricao
+				cell = row.createCell(cellnum++);
+				cell.setCellStyle(valorStyle);
+				cell.setCellValue(pagamento.getDescricao());
 
-						if (nome_depositante_quebrado.length > 3) {
-							if (nome_depositante_quebrado[2].length() > 1) {
-								nome_depositante = nome_depositante_quebrado[0] + " " + nome_depositante_quebrado[2];
-							} else {
-								if (nome_depositante_quebrado[3].length() > 1) {
-									nome_depositante = nome_depositante_quebrado[0] + " "
-											+ nome_depositante_quebrado[3];
+				//valor pagamento
+				double valor_pagamento = pagamento.getValor_pagamento();
 
-								} else {
-									nome_depositante = nome_depositante_quebrado[0] + " "
-											+ nome_depositante_quebrado[1];
+				String valorString = NumberFormat.getCurrencyInstance(ptBr).format(valor_pagamento);
+				double cobertura = valor_pagamento / valor_por_saco;
 
-								}
-							}
-						}
+				if (pagamento.getTipo() == 1) {
+					valor_total_pagamentos_efetuados += valor_pagamento;
+					soma_total_pagamentos += pagamento.getValor_pagamento();
 
-					} catch (Exception v) {
-						nome_depositante = nome_depositante_completo;
-					}
+				} else if(pagamento.getTipo() == 2) {
+					// é uma comissão
+					valor_total_comissao += valor_pagamento;
+					
+				} else if (pagamento.getTipo() == 3) {
+					// é uma transferencia
+					if (pagamento.getId_contrato_remetente() == contrato_local.getId()) {
+						// é uma transferencia negativa
+						valor_total_transferencias_retiradas += valor_pagamento;
+						soma_total_pagamentos -= pagamento.getValor_pagamento();
 
-					// pegar favorecido
-					CadastroCliente favorecido = gerenciar_clientes.getCliente(pagamento.getId_favorecido());
-					String nome_favorecido;
-					if (favorecido.getTipo_pessoa() == 0) {
-						// pessoa fisica
-						nome_favorecido = favorecido.getNome_empresarial();
-					} else {
-						nome_favorecido = favorecido.getNome_fantaia();
-					}
-
-					String nome_favorecido_completo = nome_favorecido;
-
-					String nome_favorecido_quebrado[] = nome_favorecido.split(" ");
-					try {
-
-						if (nome_favorecido_quebrado.length > 3) {
-							if (nome_favorecido_quebrado[2].length() > 1) {
-								nome_favorecido = nome_favorecido_quebrado[0] + " " + nome_favorecido_quebrado[2];
-							} else {
-								if (nome_favorecido_quebrado[3].length() > 1) {
-									nome_favorecido = nome_favorecido_quebrado[0] + " " + nome_favorecido_quebrado[3];
-
-								} else {
-									nome_favorecido = nome_favorecido_quebrado[0] + " " + nome_favorecido_quebrado[1];
-
-								}
-							}
-						}
-
-					} catch (Exception v) {
-						nome_favorecido = nome_favorecido_completo;
-					}
-
-					row = sheet3.createRow(rownum++);
-					cellnum = 0;
-					/*
-					 * codigo compradores vendedores status quantidade medida produto transgenia
-					 * safra valor_produto valor_total data_contrato local_retirada
-					 */
-					cell = row.createCell(cellnum++);
-					cell.setCellStyle(textStyle);
-					cell.setCellValue(pagamento.getData_pagamento());
-
-					cell = row.createCell(cellnum++);
-					cell.setCellStyle(textStyle);
-					int tipo = pagamento.getTipo();
-					String s_tipo = "";
-					if (tipo == 1) {
-						s_tipo = "NORMAL";
-					} else if (tipo == 2) {
-						s_tipo = "COMISSÃO";
-					}
-
-					cell.setCellValue(s_tipo);
-
-					cell = row.createCell(cellnum++);
-					cell.setCellStyle(valorStyle);
-					cell.setCellValue(pagamento.getValor_pagamento());
-
-					cell = row.createCell(cellnum++);
-					cell.setCellStyle(textStyle);
-					cell.setCellValue(nome_depositante);
-
-					cell = row.createCell(cellnum++);
-					cell.setCellStyle(textStyle);
-					cell.setCellValue(nome_favorecido);
-
-					if (pagamento.getTipo() != 2)
+					} else if (pagamento.getId_contrato_destinatario() == contrato_local.getId()) {
+						// é uma transferencia positiva
+						valor_total_transferencias_recebidas += valor_pagamento;
 						soma_total_pagamentos += pagamento.getValor_pagamento();
-				}
 
+					}
+
+				}
+				cell = row.createCell(cellnum++);
+				cell.setCellStyle(valorStyle);
+				cell.setCellValue(pagamento.getValor_pagamento());
+
+				// valor da unidade
+				CadastroContrato ct_remetente = pagamento.getContrato_remetente();
+				CadastroContrato ct_destinatario = pagamento.getContrato_destinatario();
+
+				 valorString = NumberFormat.getCurrencyInstance(ptBr).format(ct_remetente.getValor_produto());
+				if (pagamento.getTipo() == 1) {
+
+				} else if (pagamento.getTipo() == 2) {
+
+				} else if (pagamento.getTipo() == 3) {
+					// é uma transferencia
+					if (pagamento.getId_contrato_remetente() == contrato_local.getId()) {
+
+					} else if (pagamento.getId_contrato_destinatario() == contrato_local.getId()) {
+						// é uma transferencia positiva
+						// pegar o preco da unidade do contrato que recebeu a transferencia
+						valorString = NumberFormat.getCurrencyInstance(ptBr)
+								.format(contrato_local.getValor_produto());
+
+					}
+				}
+				cell = row.createCell(cellnum++);
+				cell.setCellStyle(textStyle);
+				cell.setCellValue(valorString);
+
+				//cobertura
+				 cobertura = pagamento.getValor_pagamento() / ct_remetente.getValor_produto();
+				if(ct_remetente.getMedida().equalsIgnoreCase("KG"))
+					cobertura = cobertura / 60;
+				NumberFormat z = NumberFormat.getNumberInstance();
+
+				String retorno =  z.format(cobertura)  + " sacos";
+				
+				if (pagamento.getTipo() == 1) {
+					peso_total_cobertura_efetuados += cobertura;
+
+				}else if(pagamento.getTipo() == 2) {
+					peso_total_cobertura_comissao += cobertura;
+				}
+				else if(pagamento.getTipo() == 3) {
+					//é uma transferencia
+					if(pagamento.getId_contrato_remetente() == contrato_local.getId()) {
+						retorno = "-" + retorno;
+						peso_total_cobertura_transferencia_negativa += cobertura;
+
+					}else if(pagamento.getId_contrato_destinatario() == contrato_local.getId()) {
+						//é uma transferencia positiva
+						//pegar o preco da unidade do contrato que recebeu a transferencia
+				
+						
+						 cobertura = pagamento.getValor_pagamento() / contrato_local.getValor_produto();
+						
+						 if(contrato_local.getMedida().equalsIgnoreCase("KG"))
+							cobertura = cobertura / 60;
+							peso_total_cobertura_transferencia_positiva += cobertura;
+
+						 retorno =  z.format(cobertura)  + " sacos";
+						retorno = "+" + retorno;
+					}
+					
+				}
+				
+				cell = row.createCell(cellnum++);
+				cell.setCellStyle(textStyle);
+				cell.setCellValue(retorno);
+
+				//depositante
+				cell = row.createCell(cellnum++);
+				cell.setCellStyle(textStyle);
+				cell.setCellValue(pagamento.getDepositante().toUpperCase());
+				
+				//conta depositante
+				cell = row.createCell(cellnum++);
+				cell.setCellStyle(textStyle);
+				cell.setCellValue(pagamento.getConta_bancaria_depositante());
+				
+				//favorecido
+				cell = row.createCell(cellnum++);
+				cell.setCellStyle(textStyle);
+				cell.setCellValue(pagamento.getFavorecido().toUpperCase());
+				
+				//conta favorecido
+				cell = row.createCell(cellnum++);
+				cell.setCellStyle(textStyle);
+				cell.setCellValue(pagamento.getConta_bancaria_favorecido());
+
+				//contrato remetente
+				cell = row.createCell(cellnum++);
+				cell.setCellStyle(textStyle);
+				cell.setCellValue(ct_remetente.getCodigo());
+				
+				
+				//contrato destinatario
+				cell = row.createCell(cellnum++);
+				cell.setCellStyle(textStyle);
+				cell.setCellValue(ct_destinatario.getCodigo());
+
+				}
 			}
 
-			ArrayList<CadastroContrato.CadastroTransferenciaPagamentoContratual> transferencias_remetente = null;
-			ArrayList<CadastroContrato.CadastroTransferenciaPagamentoContratual> transferencias_destinatario = null;
+			sheet3.setAutoFilter(CellRangeAddress.valueOf("A4:L4"));
 
-			if (incluir_transferencias) {
-
-				GerenciarBancoTransferencias gerenciar_trans = new GerenciarBancoTransferencias();
-				transferencias_remetente = gerenciar_trans.getTransferenciasRemetente(contrato_local.getId());
-				transferencias_destinatario = gerenciar_trans.getTransferenciaDestinatario(contrato_local.getId());
-
-				for (CadastroContrato.CadastroTransferenciaPagamentoContratual local : transferencias_remetente) {
-					cellnum = 0;
-
-					row = sheet3.createRow(rownum++);
-					cell = row.createCell(cellnum++);
-					cell.setCellStyle(textStyle);
-					cell.setCellValue(local.getData());
-
-					cell = row.createCell(cellnum++);
-					cell.setCellStyle(textStyle);
-
-					cell.setCellValue("(*)(-)Transferencia");
-
-					String valorString = NumberFormat.getCurrencyInstance(ptBr)
-							.format(Double.parseDouble(local.getValor()));
-
-					cell = row.createCell(cellnum++);
-					cell.setCellStyle(valorStyle);
-					cell.setCellValue(valorString);
-
-					cell = row.createCell(cellnum++);
-					cell.setCellStyle(textStyle);
-					cell.setCellValue("Este contrato " + contrato_local.getCodigo());
-
-					CadastroContrato favorecido = gerenciar.getContrato(local.getId_contrato_destinatario());
-
-					cell = row.createCell(cellnum++);
-					cell.setCellStyle(textStyle);
-					cell.setCellValue(favorecido.getCodigo());
-					soma_total_pagamentos -= Double.parseDouble(local.getValor());
-
-				}
-
-				for (CadastroContrato.CadastroTransferenciaPagamentoContratual local : transferencias_destinatario) {
-
-					cellnum = 0;
-
-					row = sheet3.createRow(rownum++);
-					cell = row.createCell(cellnum++);
-					cell.setCellStyle(textStyle);
-					cell.setCellValue(local.getData());
-
-					cell = row.createCell(cellnum++);
-					cell.setCellStyle(textStyle);
-					cell.setCellValue("(*)(+)Transferencia");
-
-					String valorString = NumberFormat.getCurrencyInstance(ptBr)
-							.format(Double.parseDouble(local.getValor()));
-
-					cell = row.createCell(cellnum++);
-					cell.setCellStyle(valorStyle);
-					cell.setCellValue(valorString);
-
-					CadastroContrato depositante = gerenciar.getContrato(local.getId_contrato_remetente());
-
-					cell = row.createCell(cellnum++);
-					cell.setCellStyle(textStyle);
-					cell.setCellValue(depositante.getCodigo());
-
-					cell = row.createCell(cellnum++);
-					cell.setCellStyle(textStyle);
-					cell.setCellValue("Este contrato " + contrato_local.getCodigo());
-
-					soma_total_pagamentos += Double.parseDouble(local.getValor());
-
-				}
-
-			}
-
-			sheet3.setAutoFilter(CellRangeAddress.valueOf("A4:E4"));
 
 			row = sheet3.createRow(rownum += 1);
 			cellnum = 0;
 
-			cell = row.createCell(1);
-
-			cell.setCellStyle(textStyle);
-			cell.setCellValue("Total:");
 			cell = row.createCell(2);
+			cell.setCellStyle(textStyle);
+			cell.setCellValue("TOTAL CONCLUÍDO:");
+
+			 negrito = workbook.createCellStyle();
+			// textStyle.setAlignment(HorizontalAlignment.CENTER);
+			negrito.setFillPattern(FillPatternType.SOLID_FOREGROUND);
+			negrito.setFillForegroundColor(IndexedColors.WHITE.getIndex());
+			negrito.setAlignment(HorizontalAlignment.CENTER);
+			negrito.setVerticalAlignment(VerticalAlignment.CENTER);
+			negrito.setDataFormat(numberFormat.getFormat("R$ #,##0.00"));
+
+			HSSFFont newFontNegrita = workbook.createFont();
+			newFontNegrita.setBold(true);
+			newFontNegrita.setColor(IndexedColors.BLACK.getIndex());
+			newFontNegrita.setFontName("Arial");
+			newFontNegrita.setItalic(true);
+			newFontNegrita.setFontHeight((short) (11 * 20));
+
+			negrito.setFont(newFontNegrita);
+
+			cell = row.createCell(3);
 			cell.setCellStyle(negrito);
+			//total dos pagamentos
 			cell.setCellValue(soma_total_pagamentos);
 
-			rownum += 1;
+			cell = row.createCell(4);
+			cell.setCellStyle(textStyle);
+			cell.setCellValue("COBERTURA TOTAL:");
+			
+			double peso_total_cobertura_concluida =  peso_total_cobertura_efetuados
+					- peso_total_cobertura_transferencia_negativa + peso_total_cobertura_transferencia_positiva;
+			NumberFormat z = NumberFormat.getNumberInstance();
 
-			if (incluir_transferencias && transferencias_remetente != null || transferencias_destinatario != null) {
-				// legendas de transferencias
-				rownum += 1;
-				cellnum = 0;
+			cell = row.createCell(5);
+			cell.setCellStyle(negrito);
+			cell.setCellValue(z.format(peso_total_cobertura_concluida) + " sacos");
+			
+			row = sheet3.createRow(rownum += 1);
+			cellnum = 0;
+			
+			cell = row.createCell(2);
+			cell.setCellStyle(textStyle);
+			cell.setCellValue("VALOR RESTANTE:");
 
-				if (transferencias_remetente != null) {
-					for (CadastroContrato.CadastroTransferenciaPagamentoContratual transfer : transferencias_remetente) {
+			cell = row.createCell(3);
+			cell.setCellStyle(negrito);
+			//total dos pagamentos restante
+			valor_total_pagamentos_restantes = valor_total_pagamentos - valor_total_pagamentos_efetuados
+					+ valor_total_transferencias_retiradas - valor_total_transferencias_recebidas;
+			String valor = NumberFormat.getCurrencyInstance(ptBr).format(valor_total_pagamentos_restantes);
 
-						String legenda_remetene = incluir_legenda_transferencias_negativas(transfer);
-						row = sheet3.createRow(rownum);
-						cellnum = 0;
+			cell.setCellValue(valor);
+			
+			cell = row.createCell(4);
+			cell.setCellStyle(textStyle);
+			cell.setCellValue("COBERTURA RESTANTE:");
+			
+			peso_total_cobertura_restante = peso_total_cobertura - peso_total_cobertura_efetuados
+					+ peso_total_cobertura_transferencia_negativa - peso_total_cobertura_transferencia_positiva;
+			
+			cell = row.createCell(5);
+			cell.setCellStyle(negrito);
+			cell.setCellValue(z.format(peso_total_cobertura_restante) + " sacos");
+			
+			//adicionais
+			/******************* inicio adicionais ***********************/
+			rownum = rownum +=2;
+			row = sheet3.createRow(rownum);
+			sheet3.addMergedRegion(new CellRangeAddress(rownum, rownum, 0, 2));
 
-						CellStyle alinha_a_esquerada = textStyle;
-						alinha_a_esquerada.setAlignment(HorizontalAlignment.LEFT);
-						cell = row.createCell(cellnum);
-						cell.setCellStyle(alinha_a_esquerada);
-						cell.setCellValue(legenda_remetene);
-						sheet3.addMergedRegion(new CellRangeAddress(rownum, rownum, 0, 10));
-						rownum += 1;
+			
+			String texto_total = "Total do Contrato: "; 
+			valor = NumberFormat.getCurrencyInstance(ptBr).format(valor_total_pagamentos);
+			texto_total += valor;
+			texto_total += " Cobre: ";
+			texto_total += z.format(peso_total_cobertura) + " sacos";
 
-					}
-				}
+			cell = row.createCell(0);
+			cell.setCellStyle(textStyle);
+			cell.setCellValue(texto_total);
+			
+			rownum = rownum += 1;
+			row = sheet3.createRow(rownum);
+			sheet3.addMergedRegion(new CellRangeAddress(rownum, rownum, 0, 2));
 
-				if (transferencias_destinatario != null) {
-					for (CadastroContrato.CadastroTransferenciaPagamentoContratual transfer : transferencias_destinatario) {
-						String legenda_destinatario = incluir_legenda_transferencias_positivas(transfer);
-						row = sheet3.createRow(rownum);
-						cellnum = 0;
-						CellStyle alinha_a_esquerada = textStyle;
-						alinha_a_esquerada.setAlignment(HorizontalAlignment.LEFT);
-						cell = row.createCell(cellnum);
-						cell.setCellStyle(alinha_a_esquerada);
-						cell.setCellValue(legenda_destinatario);
-						sheet3.addMergedRegion(new CellRangeAddress(rownum, rownum, 0, 10));
-						rownum += 1;
-					}
-				}
+			String texto_efetuados = "Efetuados: ";
+			valor = NumberFormat.getCurrencyInstance(ptBr).format(valor_total_pagamentos_efetuados);
+			texto_efetuados += valor;
+			texto_efetuados += " Cobre: ";
+			texto_efetuados += z.format(peso_total_cobertura_efetuados) + " sacos";
+			
+			cell = row.createCell(0);
+			cell.setCellStyle(textStyle);
+			cell.setCellValue(texto_efetuados);
+			
+			//status
+			cell = row.createCell(3);
+			cell.setCellStyle(celula_fundo_verde_texto_branco);
+			cell.setCellValue("Status do Pagamento");
+			sheet3.addMergedRegion(new CellRangeAddress(rownum, rownum, 3, 6));
+
+
+			rownum = rownum += 1;
+			row = sheet3.createRow(rownum);
+			if(incluir_transferencias) {
+			//transferencias negativas
+			
+			sheet3.addMergedRegion(new CellRangeAddress(rownum, rownum, 0, 2));
+			
+			String texto_transferencias_negativas = "Transferencias:(-) ";
+			valor = NumberFormat.getCurrencyInstance(ptBr).format(valor_total_transferencias_retiradas);
+			texto_transferencias_negativas += valor;
+			texto_transferencias_negativas += " Cobre: ";
+			texto_transferencias_negativas += z.format(peso_total_cobertura_transferencia_negativa) + " sacos";
+
+			cell = row.createCell(0);
+			cell.setCellStyle(textStyle);
+			cell.setCellValue(texto_transferencias_negativas);
+			}
+			//status
+			double diferenca = (valor_total_pagamentos_efetuados - valor_total_transferencias_retiradas
+					+ valor_total_transferencias_recebidas) - valor_total_pagamentos;
+			String status_pagamento = "Pagamentos: ";
+			if (diferenca == 0) {
+				status_pagamento += "Pagamento Concluído";
+			} else if (diferenca > 0) {
+				status_pagamento += "Excedeu em " + NumberFormat.getCurrencyInstance(ptBr).format(diferenca);
+
+			} else if (diferenca < 0) {
+				status_pagamento += "Incompleto, falta " + NumberFormat.getCurrencyInstance(ptBr).format(diferenca);
 
 			}
-			if (incluir_comissao) {
-				row = sheet3.createRow(rownum++);
-				cellnum = 0;
-				cell = row.createCell(1);
-				cell.setCellStyle(aviso);
-				cell.setCellValue("*Valores de comissão não são somados ao valor total");
-				sheet3.addMergedRegion(new CellRangeAddress(rownum, rownum, 0, 6));
+			
+			cell = row.createCell(3);
+			cell.setCellStyle(celula_fundo_verde_texto_branco);
+			cell.setCellValue(status_pagamento);
+			sheet3.addMergedRegion(new CellRangeAddress(rownum, rownum, 3, 6));
+			
+			rownum = rownum += 1;
+			row = sheet3.createRow(rownum);
+			
+			if(incluir_transferencias) {
+			//transferencias positivas
+			
+			sheet3.addMergedRegion(new CellRangeAddress(rownum, rownum, 0, 2));				
+
+			String texto_transferencias_positivas = "Transferencias:(+) ";
+			valor = NumberFormat.getCurrencyInstance(ptBr).format(valor_total_transferencias_recebidas);
+			texto_transferencias_positivas += valor;
+			texto_transferencias_positivas += " Cobre: ";
+			texto_transferencias_positivas += z.format(peso_total_cobertura_transferencia_positiva) + " sacos";
+
+			cell = row.createCell(0);
+			cell.setCellStyle(textStyle);
+			cell.setCellValue(texto_transferencias_positivas);
+			}
+			String status_cobertura = "Cobertura: ";
+			double diferenca_pesos = peso_total_cobertura_restante;
+
+			if (diferenca_pesos == 0 || diferenca_pesos == -0) {
+				status_cobertura += "Todos os sacos foram pagos";
+			} else if (diferenca_pesos < 0) {
+				status_cobertura += "Excedeu em " + z.format(diferenca_pesos) + " Sacos";
+
+			} else if (diferenca_pesos > 0) {
+				status_cobertura += "Incompleto, falta pagar " + z.format(diferenca_pesos) + " Sacos";
 
 			}
+			cell = row.createCell(3);
+			cell.setCellStyle(celula_fundo_verde_texto_branco);
+			cell.setCellValue(status_cobertura);
+			sheet3.addMergedRegion(new CellRangeAddress(rownum, rownum, 3, 6));
+			
+			//comissão
+			
+			if(incluir_comissao) {
+			
+			rownum = rownum += 1;
+			row = sheet3.createRow(rownum);
+			sheet3.addMergedRegion(new CellRangeAddress(rownum, rownum, 0, 2));				
+
+			String texto_comissao = "Comissão: ";
+			valor = NumberFormat.getCurrencyInstance(ptBr).format(valor_total_comissao);
+			texto_comissao += valor;
+			texto_comissao += " Cobre: ";
+			texto_comissao += z.format(peso_total_cobertura_comissao) + " sacos";
+
+			cell = row.createCell(0);
+			cell.setCellStyle(textStyle);
+			cell.setCellValue(texto_comissao);
+			}
+		
+			
+			//concluidos
+			
+			rownum = rownum += 1;
+			row = sheet3.createRow(rownum);
+			sheet3.addMergedRegion(new CellRangeAddress(rownum, rownum, 0, 2));				
+
+			String texto_concluida = "Concluída:";
+
+			double valor_total_pagamentos_concluidos = valor_total_pagamentos_efetuados - valor_total_transferencias_retiradas + valor_total_transferencias_recebidas; 
+			valor = NumberFormat.getCurrencyInstance(ptBr).format(valor_total_pagamentos_concluidos);
+			texto_concluida += valor;
+			texto_concluida += " Cobre: ";
+			 peso_total_cobertura_concluida =  peso_total_cobertura_efetuados
+						- peso_total_cobertura_transferencia_negativa + peso_total_cobertura_transferencia_positiva;
+			texto_concluida += z.format(peso_total_cobertura_concluida) + " sacos";
+
+		
+			cell = row.createCell(0);
+			cell.setCellStyle(textStyle);
+			cell.setCellValue(texto_concluida);
+			
+			
+			//restante
+			
+			rownum = rownum += 1;
+			row = sheet3.createRow(rownum);
+			sheet3.addMergedRegion(new CellRangeAddress(rownum, rownum, 0, 2));				
+
+			String texto_restante = " Restante:";
+
+			valor_total_pagamentos_restantes = valor_total_pagamentos - valor_total_pagamentos_efetuados
+					+ valor_total_transferencias_retiradas - valor_total_transferencias_recebidas;
+			valor = NumberFormat.getCurrencyInstance(ptBr).format(valor_total_pagamentos_restantes);
+			texto_restante += valor;
+			texto_restante += " Cobre: ";
+			peso_total_cobertura_restante = peso_total_cobertura - peso_total_cobertura_efetuados
+			+ peso_total_cobertura_transferencia_negativa - peso_total_cobertura_transferencia_positiva;
+			texto_restante += z.format(peso_total_cobertura_restante) + " sacos";
+
+		
+			cell = row.createCell(0);
+			cell.setCellStyle(textStyle);
+			cell.setCellValue(texto_restante);
+			
+			
+			
+			/*************fim adicionai*************************/
 			rownum += 2;
 			int column = 0;
 			int contador_comprovantes = 0;

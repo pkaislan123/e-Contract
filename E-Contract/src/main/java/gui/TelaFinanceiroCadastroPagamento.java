@@ -67,6 +67,8 @@ import main.java.cadastros.DadosCarregamento;
 import main.java.cadastros.DadosContratos;
 import main.java.cadastros.DadosRecebimento;
 import main.java.cadastros.FinanceiroPagamento;
+import main.java.cadastros.InstituicaoBancaria;
+import main.java.cadastros.Lancamento;
 import main.java.cadastros.Parcela;
 import main.java.cadastros.RegistroQuantidade;
 import main.java.cadastros.RegistroRecebimento;
@@ -125,7 +127,7 @@ import main.java.outros.MyFileVisitor;
 import main.java.outros.ReproduzirAudio;
 import main.java.outros.TratarDados;
 import main.java.relatoria.RelatorioContratoComprador;
-import main.java.relatoria.RelatorioContratoSimplificado;
+import main.java.relatoria.RelatorioContratoRecebimentoSimplificado;
 import main.java.relatoria.RelatorioContratos;
 import main.java.tratamento_proprio.Log;
 import main.java.views_personalizadas.TelaEmEspera;
@@ -144,6 +146,7 @@ import main.java.cadastros.CadastroCliente;
 import main.java.cadastros.CadastroGrupo;
 import main.java.conexaoBanco.GerenciarBancoClientes;
 import main.java.conexaoBanco.GerenciarBancoGrupos;
+import main.java.conexaoBanco.GerenciarBancoInstituicaoBancaria;
 import main.java.conexaoBanco.GerenciarBancoLancamento;
 import main.java.conexaoBanco.GerenciarBancoLogin;
 import main.java.conexaoBanco.GerenciarBancoNotas;
@@ -180,9 +183,12 @@ public class TelaFinanceiroCadastroPagamento extends JFrame {
 	private JTextFieldPersonalizado entIdentificador = new JTextFieldPersonalizado();
 	private JEditorPane entObservacao = new JEditorPane();
 	private CondicaoPagamento condicao_pagamento;
-	private JComboBox cbCondicaoPagamento ;
+	private JComboBox cbCondicaoPagamento ,cbStatusCondicaoPagamento;
+	private InstituicaoBancaria pagador_ib;
+	private CadastroCliente pagador_cliente_fornecedor;
+	private JComboBox cbPagador ;
 
-	public TelaFinanceiroCadastroPagamento(int modo_operacao, FinanceiroPagamento pagamento, int id_lancamento_pai, Window janela_pai) {
+	public TelaFinanceiroCadastroPagamento(int modo_operacao, FinanceiroPagamento pagamento, Lancamento lancamento_pai, Window janela_pai) {
 
 		 isto = this;
 		
@@ -194,13 +200,13 @@ public class TelaFinanceiroCadastroPagamento extends JFrame {
 		
 		setBackground(new Color(255, 255, 255));
 		setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-		setBounds(100, 100, 571, 416);
+		setBounds(100, 100, 601, 451);
 		painelPrincipal.kStartColor = new Color(255, 255, 204);
 		painelPrincipal.kEndColor = new Color(255, 204, 153);
 		painelPrincipal.setBackground(new Color(0, 51, 51));
 		painelPrincipal.setBorder(new EmptyBorder(5, 5, 5, 5));
 		setContentPane(painelPrincipal);
-		painelPrincipal.setLayout(new MigLayout("", "[][grow][][]", "[][][][][][][][50px:n,grow][]"));
+		painelPrincipal.setLayout(new MigLayout("", "[][grow][][]", "[][][][][][][][][][50px:n,grow][]"));
 		
 		JLabel lblIdentificador = new JLabel("Identificador:");
 		lblIdentificador.setFont(new Font("Tahoma", Font.PLAIN, 16));
@@ -261,22 +267,62 @@ public class TelaFinanceiroCadastroPagamento extends JFrame {
 		btnNewButton_1_1.setBackground(new Color(0, 51, 0));
 		painelPrincipal.add(btnNewButton_1_1, "cell 3 5");
 		
+		JLabel lblStatus = new JLabel("Status:");
+		lblStatus.setFont(new Font("Tahoma", Font.PLAIN, 16));
+		painelPrincipal.add(lblStatus, "cell 0 6,alignx trailing");
+		
+		 cbStatusCondicaoPagamento = new JComboBox();
+		cbStatusCondicaoPagamento.setFont(new Font("SansSerif", Font.PLAIN, 16));
+		painelPrincipal.add(cbStatusCondicaoPagamento, "cell 1 6 2 1,growx");
+		cbStatusCondicaoPagamento.addItem("A - Compensar|Realizar|Concluir");
+		cbStatusCondicaoPagamento.addItem("Compensado|Realizado|Concluído");
+		
+		JLabel lblPagador = new JLabel("Pagador:");
+		lblPagador.setFont(new Font("Tahoma", Font.PLAIN, 16));
+		painelPrincipal.add(lblPagador, "cell 0 7,alignx trailing");
+		
+		 cbPagador = new JComboBox();
+		cbPagador.setFont(new Font("SansSerif", Font.PLAIN, 16));
+		painelPrincipal.add(cbPagador, "cell 1 7 2 1,growx");
+		
+		JButton btnSelecionarPagador = new JButton("Selecionar");
+		btnSelecionarPagador.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				if(lancamento_pai.getTipo_lancamento() == 0) {
+					//despesa, selecionar I.B
+					TelaFinanceiroInstituicaoBancaria tela =  new  TelaFinanceiroInstituicaoBancaria ( 0 , 1 , isto);
+					tela . setVisible ( true );
+					
+					
+				}else if(lancamento_pai.getTipo_lancamento() == 1) {
+					//receita
+					TelaCliente tela = new TelaCliente(0, 31, isto);
+					tela.setVisible(true);
+				}
+			}
+		});
+		btnSelecionarPagador.setForeground(Color.WHITE);
+		btnSelecionarPagador.setFont(new Font("SansSerif", Font.PLAIN, 14));
+		btnSelecionarPagador.setBackground(new Color(0, 51, 0));
+		painelPrincipal.add(btnSelecionarPagador, "cell 3 7");
+
+		
 		JLabel lblArquivo = new JLabel("Arquivo:");
 		lblArquivo.setFont(new Font("Tahoma", Font.PLAIN, 16));
-		painelPrincipal.add(lblArquivo, "cell 0 6,alignx trailing");
+		painelPrincipal.add(lblArquivo, "cell 0 8,alignx trailing");
 		
 		entCaminhoArquivo = new JTextFieldPersonalizado();
 		entCaminhoArquivo.setFont(new Font("Tahoma", Font.PLAIN, 16));
 		entCaminhoArquivo.setColumns(10);
 		entCaminhoArquivo.setForeground(Color.black);
 
-		painelPrincipal.add(entCaminhoArquivo, "cell 1 6 2 1,growx");
+		painelPrincipal.add(entCaminhoArquivo, "cell 1 8 2 1,growx");
 		
 		JButton btnFinalizar = new JButton("Finalizar");
 		btnFinalizar.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				GerenciarBancoFinanceiroPagamento gerenciar = new GerenciarBancoFinanceiroPagamento();
-				int result = gerenciar.inserirFinanceiroPagamento(getDadosSalvar(id_lancamento_pai));
+				int result = gerenciar.inserirFinanceiroPagamento(getDadosSalvar(lancamento_pai));
 				if (result > 0) {
 					JOptionPane.showMessageDialog(isto, "Pagamento Inserido");
 					((TelaFinanceiroGerenciarLancamento) janela_pai).atualizar_informacoes();
@@ -297,24 +343,24 @@ public class TelaFinanceiroCadastroPagamento extends JFrame {
 		btnNewButton_1.setBackground(new Color(0, 51, 0));
 		btnNewButton_1.setFont(new Font("SansSerif", Font.PLAIN, 14));
 		btnNewButton_1.setForeground(Color.WHITE);
-		painelPrincipal.add(btnNewButton_1, "cell 3 6,alignx left");
+		painelPrincipal.add(btnNewButton_1, "cell 3 8,alignx left");
 		
 		JLabel lblObservao = new JLabel("Observação:");
 		lblObservao.setFont(new Font("Tahoma", Font.PLAIN, 16));
-		painelPrincipal.add(lblObservao, "cell 0 7,alignx right");
+		painelPrincipal.add(lblObservao, "cell 0 9,alignx right");
 		
 		 entObservacao = new JEditorPane();
-		painelPrincipal.add(entObservacao, "cell 1 7 2 1,grow");
+		painelPrincipal.add(entObservacao, "cell 1 9 2 1,grow");
 		btnFinalizar.setBackground(new Color(0, 0, 102));
 		btnFinalizar.setForeground(Color.WHITE);
 		btnFinalizar.setFont(new Font("Tahoma", Font.PLAIN, 16));
-		painelPrincipal.add(btnFinalizar, "cell 1 8,alignx right");
+		painelPrincipal.add(btnFinalizar, "cell 1 10,alignx right");
 		
 		JButton btnAtualizar = new JButton("Atualizar");
 		btnAtualizar.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				GerenciarBancoFinanceiroPagamento gerenciar = new GerenciarBancoFinanceiroPagamento();
-				boolean result = gerenciar.atualizarFinanceiroPagamento(getDadosAtualizar(pagamento));
+				boolean result = gerenciar.atualizarFinanceiroPagamento(getDadosAtualizar(pagamento, lancamento_pai));
 				if (result) {
 					JOptionPane.showMessageDialog(isto, "Pagamento Atualizado");
 					((TelaFinanceiroGerenciarLancamento) janela_pai).atualizar_informacoes();
@@ -328,7 +374,7 @@ public class TelaFinanceiroCadastroPagamento extends JFrame {
 		btnAtualizar.setForeground(Color.WHITE);
 		btnAtualizar.setFont(new Font("Tahoma", Font.PLAIN, 16));
 		btnAtualizar.setBackground(new Color(0, 0, 102));
-		painelPrincipal.add(btnAtualizar, "cell 2 8");
+		painelPrincipal.add(btnAtualizar, "cell 2 10");
 	
 		
 		if(modo_operacao == 0) {
@@ -338,7 +384,7 @@ public class TelaFinanceiroCadastroPagamento extends JFrame {
 		}else if(modo_operacao == 1) {
 			//edicao
 			
-			rotinasEdicao(pagamento);
+			rotinasEdicao(pagamento,lancamento_pai);
 			
 			btnFinalizar.setEnabled(false);
 			btnFinalizar.setVisible(false);
@@ -352,7 +398,7 @@ public class TelaFinanceiroCadastroPagamento extends JFrame {
 		
 	}
 	
-	public void rotinasEdicao(FinanceiroPagamento pagamento) {
+	public void rotinasEdicao(FinanceiroPagamento pagamento,Lancamento lancamento_pai) {
    String s_valor, descricao, observacao, identificador, data_pagamento, caminho_arquivo;
 		int status;
 		identificador = pagamento.getIdentificador();
@@ -362,6 +408,9 @@ public class TelaFinanceiroCadastroPagamento extends JFrame {
 		caminho_arquivo = pagamento.getCaminho_arquivo();
 		
 		
+GerenciarBancoInstituicaoBancaria gerenciar_ibs = new GerenciarBancoInstituicaoBancaria();
+GerenciarBancoClientes gerenciar_clientes = new GerenciarBancoClientes();
+
 		BigDecimal valor = pagamento.getValor();
 		
 		entIdentificador.setText(identificador);
@@ -370,8 +419,25 @@ public class TelaFinanceiroCadastroPagamento extends JFrame {
 		entDataVencimento.setText(data_pagamento);
 		entCaminhoArquivo.setText(caminho_arquivo);
 		entValor.setText(valor.toString());
+		cbStatusCondicaoPagamento.setSelectedIndex(pagamento.getStatus_pagamento());
 		
 		setCondicaoPagamento(new GerenciarBancoCondicaoPagamentos().getCondicaoPagamento(pagamento.getId_condicao_pagamento()));
+		
+		if(lancamento_pai.getTipo_lancamento() == 0) {
+			//é uma despesa, retornar o id da ib
+			if(pagamento.getId_pagador()  > 0) {
+			InstituicaoBancaria ib = gerenciar_ibs.getInstituicaoBancaria(pagamento.getId_pagador());
+			if(ib != null)
+				setInstituicaoBancaria(ib);
+			}
+		}else if(lancamento_pai.getTipo_lancamento() == 1) {
+			//é uma receita, retorna o id do cliente
+			if(pagamento.getId_pagador() > 0) {
+			CadastroCliente cli = gerenciar_clientes.getCliente(pagamento.getId_pagador());
+			if(cli != null)
+				setClienteFornecedor(cli);
+		}
+		}
 		
 	}
 	
@@ -393,7 +459,7 @@ public class TelaFinanceiroCadastroPagamento extends JFrame {
 		});
 	}
 	
-	public FinanceiroPagamento getDadosSalvar(int id_lancamento_pai) {
+	public FinanceiroPagamento getDadosSalvar(Lancamento lancamento_pai) {
 		FinanceiroPagamento pagamento = new FinanceiroPagamento();
 		
 		String s_valor, descricao, observacao, identificador, data_pagamento, caminho_arquivo;
@@ -419,19 +485,34 @@ public class TelaFinanceiroCadastroPagamento extends JFrame {
 		pagamento.setDescricao(descricao);
 		pagamento.setData_pagamento(data_pagamento);
 		pagamento.setCaminho_arquivo(caminho_arquivo);
-		pagamento.setId_lancamento(id_lancamento_pai);
+		pagamento.setId_lancamento(lancamento_pai.getId_lancamento());
+	
 		pagamento.setIdentificador(identificador);
 		pagamento.setObservacao(observacao);
 		
 		if(condicao_pagamento != null)
 		 pagamento.setId_condicao_pagamento(condicao_pagamento.getId_condicao_pagamento());
+		pagamento.setStatus_pagamento(cbStatusCondicaoPagamento.getSelectedIndex());
+		
+		if(lancamento_pai.getTipo_lancamento() == 0) {
+			//despesa
+			if(pagador_ib != null) {
+				pagamento.setId_pagador(pagador_ib.getId_instituicao_bancaria());
+			}
+		}else if(lancamento_pai.getTipo_lancamento() == 1) {
+			//receita
+			if(pagador_cliente_fornecedor != null) {
+				pagamento.setId_pagador(pagador_cliente_fornecedor.getId());
+
+			}
+		}
 		
 		
 		return pagamento;
 	}
 	
 	
-	public FinanceiroPagamento getDadosAtualizar(FinanceiroPagamento pagamento_antigo) {
+	public FinanceiroPagamento getDadosAtualizar(FinanceiroPagamento pagamento_antigo, Lancamento lancamento_pai) {
 FinanceiroPagamento pagamento = new FinanceiroPagamento();
  	pagamento.setId_pagamento(pagamento_antigo.getId_pagamento());
 		
@@ -463,6 +544,20 @@ FinanceiroPagamento pagamento = new FinanceiroPagamento();
 		
 		if(condicao_pagamento != null)
 		 pagamento.setId_condicao_pagamento(condicao_pagamento.getId_condicao_pagamento());
+		pagamento.setStatus_pagamento(cbStatusCondicaoPagamento.getSelectedIndex());
+		
+		if(lancamento_pai.getTipo_lancamento() == 0) {
+			//despesa
+			if(pagador_ib != null) {
+				pagamento.setId_pagador(pagador_ib.getId_instituicao_bancaria());
+			}
+		}else if(lancamento_pai.getTipo_lancamento() == 1) {
+			//receita
+			if(pagador_cliente_fornecedor != null) {
+				pagamento.setId_pagador(pagador_cliente_fornecedor.getId());
+
+			}
+		}
 		
 		
 		return pagamento;
@@ -480,5 +575,26 @@ FinanceiroPagamento pagamento = new FinanceiroPagamento();
 		cbCondicaoPagamento.addItem(_condicao.getNome_condicao_pagamento());
 	}
 	
+	
+	public  void  setInstituicaoBancaria ( InstituicaoBancaria  _instituicao_bancaria ) {
+		pagador_ib = _instituicao_bancaria;
+
+		cbPagador . removeAllItems ();
+		cbPagador . addItem (_instituicao_bancaria . getNome_instituicao_bancaria ());
+	}
+	
+	public void setClienteFornecedor (CadastroCliente _cliente_fornecedor) {
+		pagador_cliente_fornecedor = _cliente_fornecedor;
+		String nome_cliente = "";
+		if(pagador_cliente_fornecedor.getTipo_pessoa() == 0) {
+			nome_cliente = pagador_cliente_fornecedor.getNome_empresarial();
+		}else {
+			nome_cliente = pagador_cliente_fornecedor.getNome_fantaia();
+
+		}
+		cbPagador . removeAllItems ();
+		cbPagador . addItem (nome_cliente);
+		
+	}
 	
 }

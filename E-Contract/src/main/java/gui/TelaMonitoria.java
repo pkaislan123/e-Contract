@@ -1,4 +1,5 @@
 package main.java.gui;
+
 import java.awt.BorderLayout;
 import java.awt.CardLayout;
 import java.awt.Color;
@@ -34,7 +35,6 @@ import org.icepdf.ri.common.SwingController;
 import org.icepdf.ri.common.SwingViewBuilder;
 import net.miginfocom.swing.MigLayout;
 
-
 import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.JOptionPane;
@@ -58,7 +58,6 @@ import java.awt.GridBagConstraints;
 import com.jgoodies.forms.layout.FormLayout;
 import com.jgoodies.forms.layout.ColumnSpec;
 import com.jgoodies.forms.layout.RowSpec;
-
 
 import main.java.cadastros.CadastroAditivo;
 import main.java.cadastros.CadastroAviso;
@@ -138,7 +137,7 @@ import main.java.outros.MyFileVisitor;
 import main.java.outros.ReproduzirAudio;
 import main.java.outros.TratarDados;
 import main.java.relatoria.RelatorioContratoComprador;
-import main.java.relatoria.RelatorioContratoSimplificado;
+import main.java.relatoria.RelatorioContratoRecebimentoSimplificado;
 import main.java.relatoria.RelatorioContratos;
 import main.java.tratamento_proprio.Log;
 import main.java.views_personalizadas.TelaEmEspera;
@@ -220,6 +219,8 @@ public class TelaMonitoria extends JFrame {
 	private double impureza_media_carregamento;
 	private boolean todas_as_safras = true;
 	private boolean todo_periodo = false;
+	private JCheckBox chkbkTransferencias,chkboxQuebraTecnica;
+
 	// variaveis para carregamento
 	private JLabel lblUmidadeMediaCarga, lblNumTotalCargas, lblTotalSacosCarga, lblNumTotalKGCarga,
 			lblNumDescargasAbaRecebimento, lblKgDescargaAbaRecebimento, lblNumSacosDescargaAbaRecebimento;
@@ -251,9 +252,9 @@ public class TelaMonitoria extends JFrame {
 		setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 
 		Toolkit tk = Toolkit.getDefaultToolkit();
-		Dimension d = tk.getScreenSize();
-		System.out.println("Screen width = " + d.width);
-		System.out.println("Screen height = " + d.height);
+		Dimension dim = tk.getScreenSize();
+		System.out.println("Screen width = " + dim.width);
+		System.out.println("Screen height = " + dim.height);
 
 		// pega o tamanho da barra de tarefas
 		Dimension scrnSize = Toolkit.getDefaultToolkit().getScreenSize();
@@ -261,63 +262,69 @@ public class TelaMonitoria extends JFrame {
 		int taskBarHeight = scrnSize.height - winSize.height;
 		System.out.printf("Altura: %d\n", taskBarHeight);
 
+		DisplayMode display = GraphicsEnvironment.getLocalGraphicsEnvironment().getDefaultScreenDevice()
+				.getDisplayMode();
+
+		int display_x = display.getWidth();
+		int display_y = display.getHeight();
+		setBounds(0, 0, dim.width, dim.height - taskBarHeight);
+
 		painelAbas = new JTabbedPane();
 		painelAbas.setBackground(new Color(255, 255, 255));
 		painelAbas.setBorder(new EmptyBorder(5, 5, 5, 5));
 
-		setBounds(100, 100, 1377, 728);
+		modelo_romaneios_entrada.addColumn("Produtor");
+		modelo_romaneios_entrada.addColumn("Safra");
+		modelo_romaneios_entrada.addColumn("Liquido");
+		Date date_hoje = new Date();
+
+		DateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy");
+		String dataFormatada = dateFormat.format(date_hoje);
+		cBSafraPersonalizado = new ComboBoxRenderPersonalizado();
+
+		modelo_romaneios_saida.addColumn("Comprador");
+		modelo_romaneios_saida.addColumn("Safra");
+		modelo_romaneios_saida.addColumn("Liquido");
+
+		/*
+		 * JPanel panel_14 = new JPanel(); panel_14.setLayout(new MigLayout("", "[]",
+		 * "[]"));
+		 */
+
+		/*
+		 * JPanel panel_15 = new JPanel(); panel_15.setBackground(Color.WHITE);
+		 * panel_15.setLayout(new BorderLayout(0, 0));
+		 */
+
 		painelPrincipal.setBackground(new Color(255, 255, 255));
 		painelPrincipal.setBorder(new EmptyBorder(5, 5, 5, 5));
 
 		painelAbas.addTab("Monitor Principal", painelPrincipal);
-		painelPrincipal.setLayout(new MigLayout("", "[grow][382px][5px][63px][5px][321px][5px][118px][5px][382px]",
-				"[44px][182px][387px,grow]"));
-
-		JPanel panel = new JPanel();
-		panel.setBackground(new Color(0, 51, 0));
-		painelPrincipal.add(panel, "cell 1 0,alignx center,growy");
-		panel.setLayout(new MigLayout("", "[]", "[][]"));
-
-		JLabel lblNewLabel_2 = new JLabel("Recebimento");
-		lblNewLabel_2.setForeground(Color.WHITE);
-		lblNewLabel_2.setFont(new Font("SansSerif", Font.BOLD, 20));
-		panel.add(lblNewLabel_2, "cell 0 1,alignx center");
-
-		JPanel panel_1 = new JPanel();
-		panel_1.setBackground(new Color(0, 51, 0));
-		painelPrincipal.add(panel_1, "cell 9 0,alignx center,growy");
-		panel_1.setLayout(new MigLayout("", "[][][]", "[]"));
-
-		JLabel lblNewLabel_3 = new JLabel("Carregamento");
-		lblNewLabel_3.setBackground(new Color(0, 51, 0));
-		lblNewLabel_3.setForeground(Color.WHITE);
-		lblNewLabel_3.setFont(new Font("SansSerif", Font.BOLD, 20));
-		panel_1.add(lblNewLabel_3, "cell 2 0,alignx center");
+		painelPrincipal.setLayout(new MigLayout("", "[grow]", "[217px][391px]"));
 		JPanel panel_10 = new JPanel();
 		panel_10.setBackground(Color.WHITE);
-		painelPrincipal.add(panel_10, "cell 1 1,grow");
-		panel_10.setLayout(new MigLayout("", "[92px][181px][95px]", "[139px][4px][20px]"));
+		painelPrincipal.add(panel_10, "cell 0 0,alignx left,growy");
+		panel_10.setLayout(new MigLayout("", "[92px][181px][grow][grow]", "[][139px,grow][4px][20px]"));
+
+		JLabel lblNewLabel_2 = new JLabel("Recebimento");
+		lblNewLabel_2.setOpaque(true);
+		lblNewLabel_2.setBackground(new Color(0, 51, 0));
+		panel_10.add(lblNewLabel_2, "cell 0 0 4 1,growx");
+		lblNewLabel_2.setForeground(Color.WHITE);
+		lblNewLabel_2.setFont(new Font("SansSerif", Font.BOLD, 20));
 
 		lblNumSacosDescarga = new JLabel("00.000");
-		panel_10.add(lblNumSacosDescarga, "cell 0 0 3 1,alignx center,aligny top");
+		panel_10.add(lblNumSacosDescarga, "cell 0 1 3 1,alignx center,aligny top");
 		lblNumSacosDescarga.setForeground(new Color(0, 102, 51));
 		lblNumSacosDescarga.setFont(new Font("Arial", Font.BOLD, 120));
 
-		lblKgDescarga = new JLabel("0.000.000,00 KG");
-		panel_10.add(lblKgDescarga, "cell 0 2,alignx left,aligny top");
-
-		JLabel lblNewLabel = new JLabel("sacos");
-		panel_10.add(lblNewLabel, "cell 2 0 1 3,alignx left,aligny bottom");
-		lblNewLabel.setFont(new Font("SansSerif", Font.PLAIN, 24));
-
-		JPanel panel_14 = new JPanel();
-		panel_14.setBackground(Color.WHITE);
-		painelPrincipal.add(panel_14, "cell 3 1 5 1,grow");
-		panel_14.setLayout(new MigLayout("", "[382px][39px][108px][23px][120px][12px][248px][385px]",
-				"[78px][12px][96px][352px]"));
+		JPanel panel_17 = new JPanel();
+		panel_17.setBackground(Color.WHITE);
+		panel_10.add(panel_17, "cell 3 1,grow");
+		panel_17.setLayout(new MigLayout("", "[][]", "[][]"));
 
 		JPanel panel_2 = new JPanel();
-		panel_14.add(panel_2, "cell 2 0 3 1,grow");
+		panel_17.add(panel_2, "cell 0 0");
 		panel_2.setBackground(new Color(0, 102, 51));
 		panel_2.setLayout(new MigLayout("", "[103px][142px]", "[35px][3px][26px]"));
 
@@ -337,7 +344,7 @@ public class TelaMonitoria extends JFrame {
 		lblUmidadeMedia.setFont(new Font("SansSerif", Font.PLAIN, 50));
 
 		JPanel panel_3 = new JPanel();
-		panel_14.add(panel_3, "cell 2 2 3 1,growx,aligny top");
+		panel_17.add(panel_3, "cell 0 1,growx");
 		panel_3.setBackground(new Color(0, 0, 153));
 		panel_3.setLayout(new MigLayout("", "[135px][56px]", "[32px][32px]"));
 
@@ -356,28 +363,32 @@ public class TelaMonitoria extends JFrame {
 		panel_3.add(lblNumDescargas, "cell 1 0 1 2,growx,aligny top");
 		lblNumDescargas.setFont(new Font("SansSerif", Font.PLAIN, 50));
 
-		JPanel panel_3_1 = new JPanel();
-		panel_14.add(panel_3_1, "cell 6 2,growx,aligny top");
-		panel_3_1.setBackground(new Color(0, 102, 51));
-		panel_3_1.setLayout(new MigLayout("", "[77px][63px][56px]", "[30px][4px][30px]"));
+		lblKgDescarga = new JLabel("0.000.000,00 KG");
+		panel_10.add(lblKgDescarga, "cell 0 3,alignx left,aligny top");
 
-		JLabel lblNewLabel_4_2_1 = new JLabel("Total");
-		lblNewLabel_4_2_1.setForeground(Color.WHITE);
-		lblNewLabel_4_2_1.setFont(new Font("SansSerif", Font.PLAIN, 20));
-		panel_3_1.add(lblNewLabel_4_2_1, "cell 0 0,growx,aligny bottom");
+		JLabel lblNewLabel = new JLabel("sacos");
+		panel_10.add(lblNewLabel, "cell 2 1 1 3,alignx left,aligny bottom");
+		lblNewLabel.setFont(new Font("SansSerif", Font.PLAIN, 24));
 
-		JLabel lblNewLabel_5_1_1 = new JLabel("de cargas:");
-		lblNewLabel_5_1_1.setForeground(Color.WHITE);
-		lblNewLabel_5_1_1.setFont(new Font("SansSerif", Font.PLAIN, 20));
-		panel_3_1.add(lblNewLabel_5_1_1, "cell 0 2 3 1,alignx center,aligny top");
+		JPanel panel_13 = new JPanel();
+		panel_13.setBackground(Color.WHITE);
+		painelPrincipal.add(panel_13, "cell 0 0,alignx right,growy");
+		panel_13.setLayout(new MigLayout("", "[grow][grow][238px][62px]", "[][139px,grow][5px][20px]"));
 
-		lblNumTotalCargas = new JLabel("0");
-		lblNumTotalCargas.setForeground(new Color(0, 0, 102));
-		lblNumTotalCargas.setFont(new Font("SansSerif", Font.PLAIN, 50));
-		panel_3_1.add(lblNumTotalCargas, "cell 2 0 1 3,growx,aligny top");
+		JLabel lblNewLabel_3 = new JLabel("Carregamento");
+		lblNewLabel_3.setOpaque(true);
+		panel_13.add(lblNewLabel_3, "cell 0 0 4 1,growx");
+		lblNewLabel_3.setBackground(new Color(255, 102, 51));
+		lblNewLabel_3.setForeground(Color.WHITE);
+		lblNewLabel_3.setFont(new Font("SansSerif", Font.BOLD, 20));
+
+		JPanel panel_18 = new JPanel();
+		panel_18.setBackground(Color.WHITE);
+		panel_13.add(panel_18, "cell 0 1,grow");
+		panel_18.setLayout(new MigLayout("", "[]", "[][]"));
 
 		JPanel panel_2_1 = new JPanel();
-		panel_14.add(panel_2_1, "cell 6 0,grow");
+		panel_18.add(panel_2_1, "cell 0 0");
 		panel_2_1.setBackground(new Color(0, 0, 153));
 		panel_2_1.setLayout(new MigLayout("", "[103px][142px]", "[35px][3px][26px]"));
 
@@ -397,39 +408,50 @@ public class TelaMonitoria extends JFrame {
 		lblUmidadeMediaCarga.setFont(new Font("SansSerif", Font.PLAIN, 50));
 		panel_2_1.add(lblUmidadeMediaCarga, "cell 1 0 1 3,alignx left,aligny top");
 
-		JPanel panel_13 = new JPanel();
-		panel_13.setBackground(Color.WHITE);
-		painelPrincipal.add(panel_13, "cell 9 1,grow");
-		panel_13.setLayout(new MigLayout("", "[92px][238px][62px]", "[139px][5px][20px]"));
+		JPanel panel_3_1 = new JPanel();
+		panel_18.add(panel_3_1, "cell 0 1,growx");
+		panel_3_1.setBackground(new Color(0, 102, 51));
+		panel_3_1.setLayout(new MigLayout("", "[77px][63px][56px]", "[30px][4px][30px]"));
+
+		JLabel lblNewLabel_4_2_1 = new JLabel("Total");
+		lblNewLabel_4_2_1.setForeground(Color.WHITE);
+		lblNewLabel_4_2_1.setFont(new Font("SansSerif", Font.PLAIN, 20));
+		panel_3_1.add(lblNewLabel_4_2_1, "cell 0 0,growx,aligny bottom");
+
+		JLabel lblNewLabel_5_1_1 = new JLabel("de cargas:");
+		lblNewLabel_5_1_1.setForeground(Color.WHITE);
+		lblNewLabel_5_1_1.setFont(new Font("SansSerif", Font.PLAIN, 20));
+		panel_3_1.add(lblNewLabel_5_1_1, "cell 0 2 3 1,alignx center,aligny top");
+
+		lblNumTotalCargas = new JLabel("0");
+		lblNumTotalCargas.setForeground(new Color(0, 0, 102));
+		lblNumTotalCargas.setFont(new Font("SansSerif", Font.PLAIN, 50));
+		panel_3_1.add(lblNumTotalCargas, "cell 2 0 1 3,growx,aligny top");
 
 		lblTotalSacosCarga = new JLabel("00.000");
 		lblTotalSacosCarga.setBackground(Color.WHITE);
-		panel_13.add(lblTotalSacosCarga, "cell 0 0 3 1,alignx left,aligny top");
+		panel_13.add(lblTotalSacosCarga, "cell 1 1 3 1,alignx left,aligny top");
 		lblTotalSacosCarga.setForeground(new Color(255, 102, 51));
 		lblTotalSacosCarga.setFont(new Font("Arial", Font.BOLD, 120));
 
 		JLabel lblNewLabel_7 = new JLabel("sacos");
-		panel_13.add(lblNewLabel_7, "cell 2 0 1 3,alignx left,aligny bottom");
+		panel_13.add(lblNewLabel_7, "cell 3 1 1 3,alignx left,aligny bottom");
 		lblNewLabel_7.setFont(new Font("SansSerif", Font.PLAIN, 24));
 
 		lblNumTotalKGCarga = new JLabel("0.000.000,00 KG");
-		panel_13.add(lblNumTotalKGCarga, "cell 0 2,alignx left,aligny top");
+		panel_13.add(lblNumTotalKGCarga, "cell 1 3,alignx left,aligny top");
 
 		JPanel panel_16 = new JPanel();
-		painelPrincipal.add(panel_16, "cell 0 2 10 1,grow");
-		panel_16.setLayout(null);
+		panel_16.setBackground(Color.WHITE);
+		painelPrincipal.add(panel_16, "cell 0 1,grow");
+		panel_16.setLayout(new MigLayout("", "[grow][grow][350px:350px:350px][grow]", "[grow]"));
 		JPanel panel_15 = new JPanel();
-		panel_15.setBounds(7, 7, 468, 377);
-		panel_16.add(panel_15);
+		panel_16.add(panel_15, "cell 0 0 2 1,grow");
 		panel_15.setBackground(new Color(0, 51, 102));
 
 		table_romaeios_entrada = new JTable(modelo_romaneios_entrada);
 		table_romaeios_entrada.setFont(new Font("Arial", Font.PLAIN, 18));
 
-		modelo_romaneios_entrada.addColumn("Produtor");
-		modelo_romaneios_entrada.addColumn("Safra");
-		modelo_romaneios_entrada.addColumn("Liquido");
-		
 		table_romaeios_entrada.getColumnModel().getColumn(0).setPreferredWidth(250);
 		table_romaeios_entrada.getColumnModel().getColumn(1).setPreferredWidth(160);
 		table_romaeios_entrada.getColumnModel().getColumn(2).setPreferredWidth(250);
@@ -438,15 +460,19 @@ public class TelaMonitoria extends JFrame {
 		JScrollPane scrollPane = new JScrollPane(table_romaeios_entrada);
 		panel_15.add(scrollPane);
 
+		JPanel panel = new JPanel();
+		panel.setBackground(Color.WHITE);
+		panel_16.add(panel, "cell 2 0,grow");
+		panel.setLayout(null);
+
 		JPanel panel_7 = new JPanel();
-		panel_7.setBounds(487, 85, 337, 219);
-		panel_16.add(panel_7);
+		panel_7.setBounds(0, 37, 349, 280);
+		panel.add(panel_7);
 		panel_7.setBackground(Color.WHITE);
-		panel_7.setLayout(null);
+		panel_7.setLayout(new MigLayout("", "[][8px][]", "[][][][][][][][]"));
 
 		JCheckBox cBTodoPeriodo = new JCheckBox("Todo o Periodo");
-		cBTodoPeriodo.setBounds(80, 7, 158, 26);
-		panel_7.add(cBTodoPeriodo);
+		panel_7.add(cBTodoPeriodo, "cell 2 0,alignx left,growy");
 		cBTodoPeriodo.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				if (cBTodoPeriodo.isSelected()) {
@@ -474,8 +500,7 @@ public class TelaMonitoria extends JFrame {
 		cBTodoPeriodo.setFont(new Font("SansSerif", Font.PLAIN, 20));
 
 		chckbxHoje = new JCheckBox("Hoje");
-		chckbxHoje.setBounds(175, 37, 61, 26);
-		panel_7.add(chckbxHoje);
+		panel_7.add(chckbxHoje, "cell 2 1,alignx center,growy");
 		chckbxHoje.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 
@@ -516,29 +541,22 @@ public class TelaMonitoria extends JFrame {
 		chckbxHoje.setFont(new Font("SansSerif", Font.PLAIN, 20));
 
 		JLabel lblNewLabel_31 = new JLabel("Data:");
-		lblNewLabel_31.setBounds(7, 79, 57, 28);
-		panel_7.add(lblNewLabel_31);
+		panel_7.add(lblNewLabel_31, "cell 0 2 2 1,alignx left,aligny center");
 		lblNewLabel_31.setFont(new Font("Arial", Font.PLAIN, 24));
 
 		entDataInformada = new JTextField();
-		entDataInformada.setBounds(80, 67, 250, 51);
-		panel_7.add(entDataInformada);
+		panel_7.add(entDataInformada, "cell 2 2,grow");
 		entDataInformada.setEnabled(false);
 		entDataInformada.setFont(new Font("SansSerif", Font.PLAIN, 30));
 		entDataInformada.setText("03/01/2021");
 		entDataInformada.setColumns(10);
-		Date date_hoje = new Date();
-
-		DateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy");
-		String dataFormatada = dateFormat.format(date_hoje);
 
 		entDataInformada.setText(dataFormatada);
 		entDataInformada.setEditable(true);
 		entDataInformada.setEnabled(true);
 
 		JLabel lblNewLabel_6_1 = new JLabel("Todas as Safras", SwingConstants.CENTER);
-		lblNewLabel_6_1.setBounds(7, 122, 323, 39);
-		panel_7.add(lblNewLabel_6_1);
+		panel_7.add(lblNewLabel_6_1, "cell 0 3 3 1,growx,aligny top");
 		lblNewLabel_6_1.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent e) {
@@ -555,8 +573,7 @@ public class TelaMonitoria extends JFrame {
 		lblNewLabel_6_1.setBackground(new Color(0, 206, 209));
 
 		cbCarregamentoPorSafra = new JComboBox();
-		cbCarregamentoPorSafra.setBounds(7, 165, 323, 47);
-		panel_7.add(cbCarregamentoPorSafra);
+		panel_7.add(cbCarregamentoPorSafra, "cell 0 4 3 1,grow");
 		cbCarregamentoPorSafra.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 
@@ -574,24 +591,30 @@ public class TelaMonitoria extends JFrame {
 			}
 		});
 		cbCarregamentoPorSafra.setFont(new Font("Tahoma", Font.BOLD, 30));
-		cBSafraPersonalizado = new ComboBoxRenderPersonalizado();
 
 		cbCarregamentoPorSafra.setModel(modelSafra);
 		cbCarregamentoPorSafra.setRenderer(cBSafraPersonalizado);
+		
+		JLabel lblNewLabel_31_1 = new JLabel("Incluir:");
+		lblNewLabel_31_1.setFont(new Font("Arial", Font.PLAIN, 24));
+		panel_7.add(lblNewLabel_31_1, "cell 0 6");
+		
+		
+		 chkbkTransferencias = new JCheckBox("TRANSFERENCIAS");
+		chkbkTransferencias.setFont(new Font("SansSerif", Font.PLAIN, 14));
+		panel_7.add(chkbkTransferencias, "cell 2 6");
+		
+		 chkboxQuebraTecnica = new JCheckBox("QUEBRA TECNICA");
+		chkboxQuebraTecnica.setFont(new Font("SansSerif", Font.PLAIN, 14));
+		panel_7.add(chkboxQuebraTecnica, "cell 2 7");
 
 		JPanel panel_1_1 = new JPanel();
-		panel_1_1.setBounds(836, 7, 485, 377);
-		panel_16.add(panel_1_1);
+		panel_16.add(panel_1_1, "cell 3 0,grow");
 		panel_1_1.setBackground(new Color(0, 51, 0));
 
 		table_romaneios_saida = new JTable(modelo_romaneios_saida);
 		table_romaneios_saida.setFont(new Font("Arial", Font.PLAIN, 18));
 
-		modelo_romaneios_saida.addColumn("Comprador");
-		modelo_romaneios_saida.addColumn("Safra");
-		modelo_romaneios_saida.addColumn("Liquido");
-
-		
 		table_romaneios_saida.getColumnModel().getColumn(0).setPreferredWidth(250);
 		table_romaneios_saida.getColumnModel().getColumn(1).setPreferredWidth(160);
 		table_romaneios_saida.getColumnModel().getColumn(2).setPreferredWidth(250);
@@ -600,21 +623,6 @@ public class TelaMonitoria extends JFrame {
 		JScrollPane scrollPane_1 = new JScrollPane(table_romaneios_saida);
 		panel_1_1.add(scrollPane_1);
 
-		/*
-		 * JPanel panel_14 = new JPanel(); panel_14.setLayout(new MigLayout("", "[]",
-		 * "[]"));
-		 */
-
-		/*
-		 * JPanel panel_15 = new JPanel(); panel_15.setBackground(Color.WHITE);
-		 * panel_15.setLayout(new BorderLayout(0, 0));
-		 */
-
-		
-
-
-
-	
 		painelRecebimento = new JPanel();
 		painelRecebimento.setBackground(Color.WHITE);
 		painelAbas.addTab("Monitor Recebimento", painelRecebimento);
@@ -975,39 +983,38 @@ public class TelaMonitoria extends JFrame {
 			public void run() {
 				limpar();
 
-					modelo_romaneios_entrada.setNumRows(0);
-					modelo_romaneios_entrada_aba_recebimento.setNumRows(0);
-					modelo_romaneios_saida_aba_carregamentos.setNumRows(0);
-					umidade_media = 0;
-					impureza_media = 0;
-					avariados_media = 0;
-					num_descargas = 0;
-					total_sacos_descarga = 0;
-					total_kg_descarga = 0;
+				modelo_romaneios_entrada.setNumRows(0);
+				modelo_romaneios_entrada_aba_recebimento.setNumRows(0);
+				modelo_romaneios_saida_aba_carregamentos.setNumRows(0);
+				umidade_media = 0;
+				impureza_media = 0;
+				avariados_media = 0;
+				num_descargas = 0;
+				total_sacos_descarga = 0;
+				total_kg_descarga = 0;
 
-					modelo_romaneios_saida.setNumRows(0);
+				modelo_romaneios_saida.setNumRows(0);
 
-					umidade_media_saida = 0;
-					num_cargas = 0;
-					total_sacos_carga = 0;
-					total_kg_carga = 0;
+				umidade_media_saida = 0;
+				num_cargas = 0;
+				total_sacos_carga = 0;
+				total_kg_carga = 0;
 
-					ArrayList<CadastroRomaneio> romaneios = new GerenciarBancoRomaneios().listarRomaneios();
+				ArrayList<CadastroRomaneio> romaneios = new GerenciarBancoRomaneios().listarRomaneiosMaisRapido();
+				romaneios_locais.clear();
 
-					romaneios_locais.clear();
+				for (CadastroRomaneio rom : romaneios) {
 
-					for (CadastroRomaneio rom : romaneios) {
-						
-						boolean ja_esta_na_lista = false;
-						
-						for(CadastroRomaneio rom_na_lista : romaneios_locais) {
-							if(rom_na_lista.getNumero_romaneio() == rom.getNumero_romaneio()) {
-								ja_esta_na_lista = true;
-								break;
-							}
+					boolean ja_esta_na_lista = false;
+
+					for (CadastroRomaneio rom_na_lista : romaneios_locais) {
+						if (rom_na_lista.getNumero_romaneio() == rom.getNumero_romaneio()) {
+							ja_esta_na_lista = true;
+							break;
 						}
-						
-						if(!ja_esta_na_lista) {
+					}
+
+					if (!ja_esta_na_lista) {
 
 						String nome_remetente, safra;
 						double bruto, tara, liquido, umidade;
@@ -1044,14 +1051,19 @@ public class TelaMonitoria extends JFrame {
 						}
 
 						String nome_destinatario = "";
-						if (rom.getDestinatario() != null) {
-							CadastroCliente destinatario = rom.getDestinatario();
-							if (destinatario.getTipo_pessoa() == 0) {
-								nome_destinatario = destinatario.getNome_empresarial().toUpperCase();
-							} else {
-								nome_destinatario = destinatario.getNome_fantaia().toUpperCase();
 
+						try {
+							if (rom.getDestinatario() != null) {
+								CadastroCliente destinatario = rom.getDestinatario();
+								if (destinatario.getTipo_pessoa() == 0) {
+									nome_destinatario = destinatario.getNome_empresarial().toUpperCase();
+								} else {
+									nome_destinatario = destinatario.getNome_fantaia().toUpperCase();
+
+								}
 							}
+						} catch (Exception e) {
+
 						}
 						String nome_destinatario_completo = nome_destinatario;
 
@@ -1101,16 +1113,16 @@ public class TelaMonitoria extends JFrame {
 
 						if (!todo_periodo) {
 							if (rom.getData().equals(date)) {
-								if (rom.getOperacao().equals("ENTRADA")) {
+								if (rom.getOperacao().equals("ENTRADA NORMAL") || (rom.getOperacao().equals("ENTRADA TRANSFERENCIA") && chkbkTransferencias.isSelected())) {
 
 									if (todas_as_safras) {
 										modelo_romaneios_entrada.addRow(new Object[] { nome_remetente, safra,
 												d_peso_liquido + " KG / " + ((int) d_peso_liquido / 60) + " SCs" });
 										modelo_romaneios_entrada_aba_recebimento.addRow(new Object[] {
-												nome_remetente_completo, nome_destinatario_completo, safra, rom.getPeso_bruto() + " KG",
-												rom.getTara() + " KG", d_peso_liquido + " KG", rom.getUmidade() + "%",
-												rom.getInpureza() + "%", rom.getAvariados() + "%",
-												dateFormat.format(rom.getData()) });
+												nome_remetente_completo, nome_destinatario_completo, safra,
+												rom.getPeso_bruto() + " KG", rom.getTara() + " KG",
+												d_peso_liquido + " KG", rom.getUmidade() + "%", rom.getInpureza() + "%",
+												rom.getAvariados() + "%", dateFormat.format(rom.getData()) });
 										num_descargas++;
 
 										umidade_media = umidade_media + rom.getUmidade();
@@ -1124,11 +1136,12 @@ public class TelaMonitoria extends JFrame {
 
 											modelo_romaneios_entrada.addRow(new Object[] { nome_remetente, safra,
 													d_peso_liquido + " KG / " + ((int) d_peso_liquido / 60) + " SCs" });
-											modelo_romaneios_entrada_aba_recebimento.addRow(new Object[] {
-													nome_remetente_completo, nome_destinatario_completo, safra, rom.getPeso_bruto() + " KG",
-													rom.getTara() + " KG", d_peso_liquido + " KG",
-													rom.getUmidade() + "%", rom.getInpureza() + "%",
-													rom.getAvariados() + "%", dateFormat.format(rom.getData()) });
+											modelo_romaneios_entrada_aba_recebimento.addRow(
+													new Object[] { nome_remetente_completo, nome_destinatario_completo,
+															safra, rom.getPeso_bruto() + " KG", rom.getTara() + " KG",
+															d_peso_liquido + " KG", rom.getUmidade() + "%",
+															rom.getInpureza() + "%", rom.getAvariados() + "%",
+															dateFormat.format(rom.getData()) });
 
 											num_descargas++;
 
@@ -1140,7 +1153,7 @@ public class TelaMonitoria extends JFrame {
 										}
 
 									}
-								} else if (rom.getOperacao().equalsIgnoreCase("Saída")) {
+								} else if (rom.getOperacao().equalsIgnoreCase("SAÍDA NORMAL") || rom.getOperacao().equalsIgnoreCase("SAÍDA QUEBRA TECNICA") && chkboxQuebraTecnica.isSelected() ) {
 									if (todas_as_safras) {
 										modelo_romaneios_saida.addRow(
 												new Object[] { nome_remetente_completo, safra, d_peso_liquido });
@@ -1184,16 +1197,16 @@ public class TelaMonitoria extends JFrame {
 								}
 							} // fim do if de data
 						} else {
-							if (rom.getOperacao().equals("ENTRADA")) {
+							if (rom.getOperacao().equals("ENTRADA NORMAL") || (rom.getOperacao().equalsIgnoreCase("ENTRADA TRANSFERENCIA") && chkbkTransferencias.isSelected())) {
 
 								if (todas_as_safras) {
 									modelo_romaneios_entrada.addRow(new Object[] { nome_remetente, safra,
 											d_peso_liquido + " KG / " + ((int) d_peso_liquido / 60) + " SCs" });
-									modelo_romaneios_entrada_aba_recebimento.addRow(
-											new Object[] { nome_remetente_completo, nome_destinatario_completo, safra, rom.getPeso_bruto() + " KG",
-													rom.getTara() + " KG", d_peso_liquido + " KG",
-													rom.getUmidade() + "%", rom.getInpureza() + "%",
-													rom.getAvariados() + "%", dateFormat.format(rom.getData()) });
+									modelo_romaneios_entrada_aba_recebimento.addRow(new Object[] {
+											nome_remetente_completo, nome_destinatario_completo, safra,
+											rom.getPeso_bruto() + " KG", rom.getTara() + " KG", d_peso_liquido + " KG",
+											rom.getUmidade() + "%", rom.getInpureza() + "%", rom.getAvariados() + "%",
+											dateFormat.format(rom.getData()) });
 
 									num_descargas++;
 
@@ -1209,10 +1222,10 @@ public class TelaMonitoria extends JFrame {
 										modelo_romaneios_entrada.addRow(new Object[] { nome_remetente, safra,
 												d_peso_liquido + " KG / " + ((int) d_peso_liquido / 60) + " SCs" });
 										modelo_romaneios_entrada_aba_recebimento.addRow(new Object[] {
-												nome_remetente_completo, nome_destinatario_completo, safra, rom.getPeso_bruto() + " KG",
-												rom.getTara() + " KG", d_peso_liquido + " KG", rom.getUmidade() + "%",
-												rom.getInpureza() + "%", rom.getAvariados() + "%",
-												dateFormat.format(rom.getData()) });
+												nome_remetente_completo, nome_destinatario_completo, safra,
+												rom.getPeso_bruto() + " KG", rom.getTara() + " KG",
+												d_peso_liquido + " KG", rom.getUmidade() + "%", rom.getInpureza() + "%",
+												rom.getAvariados() + "%", dateFormat.format(rom.getData()) });
 
 										num_descargas++;
 
@@ -1224,7 +1237,7 @@ public class TelaMonitoria extends JFrame {
 									}
 
 								}
-							} else if (rom.getOperacao().equalsIgnoreCase("Saída")) {
+							} else if (rom.getOperacao().equalsIgnoreCase("SAÍDA NORMAL") || rom.getOperacao().equalsIgnoreCase("SAÍDA QUEBRA TECNICA") && chkboxQuebraTecnica.isSelected() ) {
 								if (todas_as_safras) {
 									modelo_romaneios_saida
 											.addRow(new Object[] { nome_remetente_completo, safra, d_peso_liquido });
@@ -1269,24 +1282,19 @@ public class TelaMonitoria extends JFrame {
 
 					}
 
-		
+				}
 
+				umidade_media = umidade_media / num_descargas;
+				umidade_media_saida = umidade_media_saida / num_cargas;
 
+				impureza_media = impureza_media / num_descargas;
+				avariados_media = avariados_media / num_descargas;
 
+				avariados_media_carregamento = avariados_media_carregamento / num_cargas;
+				impureza_media_carregamento = impureza_media_carregamento / num_cargas;
 
-					}
-					
-					umidade_media = umidade_media / num_descargas;
-					umidade_media_saida = umidade_media_saida / num_cargas;
-
-					impureza_media = impureza_media / num_descargas;
-					avariados_media = avariados_media / num_descargas;
-
-					avariados_media_carregamento = avariados_media_carregamento / num_cargas;
-					impureza_media_carregamento = impureza_media_carregamento / num_cargas;
-
-					setRomaneiosRecebimento();
-					setRomaneiosCarregamento();
+				setRomaneiosRecebimento();
+				setRomaneiosCarregamento();
 			}
 		}.start();
 
@@ -1397,28 +1405,22 @@ public class TelaMonitoria extends JFrame {
 	}
 
 	public void slide() {
-/*
-		new Thread() {
-			@Override
-			public void run() {
-
-				while (true) {
-
-					for (int i = 0; i < 3; i++) {
-						painelAbas.setSelectedIndex(i);
-						System.out.println("mudando de tela");
-						try {
-							Thread.sleep(60000);
-						} catch (InterruptedException ex) {
-							Thread.currentThread().interrupt();
-						}
-
-					}
-
-				}
-
-			}
-		}.start();
-        */
+		/*
+		 * new Thread() {
+		 * 
+		 * @Override public void run() {
+		 * 
+		 * while (true) {
+		 * 
+		 * for (int i = 0; i < 3; i++) { painelAbas.setSelectedIndex(i);
+		 * System.out.println("mudando de tela"); try { Thread.sleep(60000); } catch
+		 * (InterruptedException ex) { Thread.currentThread().interrupt(); }
+		 * 
+		 * }
+		 * 
+		 * }
+		 * 
+		 * } }.start();
+		 */
 	}
 }

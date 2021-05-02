@@ -30,6 +30,7 @@ import javax.swing.JTextArea;
 import javax.swing.BoxLayout;
 import java.awt.GridLayout;
 import java.awt.SystemColor;
+import java.awt.Window;
 import java.awt.GridBagLayout;
 import java.awt.GridBagConstraints;
 import com.jgoodies.forms.layout.FormLayout;
@@ -47,7 +48,7 @@ public class TelaSalvarEnviarRelatorio extends JDialog {
 
 	private final JPanel painelPrincipal = new JPanel();
 	private TelaSalvarEnviarRelatorio isto;
-    private JDialog telaPai;
+    private Window telaPai;
     private String caminho;
     
 	public TelaSalvarEnviarRelatorio(int flag,CadastroContrato contrato, String file) {
@@ -66,9 +67,11 @@ public class TelaSalvarEnviarRelatorio extends JDialog {
 		painelPrincipal.setBackground(new Color(255, 255, 255));
 		painelPrincipal.setBorder(new EmptyBorder(5, 5, 5, 5));
 		setContentPane(painelPrincipal);
-		painelPrincipal.setLayout(null);
 		
 		JButton btnNewButton = new JButton("Salvar");
+		btnNewButton.setFont(new Font("SansSerif", Font.PLAIN, 16));
+		btnNewButton.setForeground(Color.WHITE);
+		btnNewButton.setBackground(new Color(0, 0, 51));
 		btnNewButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 					
@@ -94,10 +97,13 @@ public class TelaSalvarEnviarRelatorio extends JDialog {
 				    
 			}
 		});
-		btnNewButton.setBounds(10, 30, 111, 23);
-		painelPrincipal.add(btnNewButton);
+		painelPrincipal.setLayout(new MigLayout("", "[111px][118px][140px]", "[grow]"));
+		painelPrincipal.add(btnNewButton, "cell 0 0,growx,aligny center");
 		
 		JButton btnNewButton_1 = new JButton("Enviar via E-mail");
+		btnNewButton_1.setBackground(new Color(0, 51, 0));
+		btnNewButton_1.setFont(new Font("SansSerif", Font.PLAIN, 16));
+		btnNewButton_1.setForeground(Color.WHITE);
 		btnNewButton_1.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				TelaEnviarMsgMail tela = new TelaEnviarMsgMail(flag, contrato,new File(file), null);
@@ -105,16 +111,20 @@ public class TelaSalvarEnviarRelatorio extends JDialog {
 				isto.dispose();
 			}
 		});
-		btnNewButton_1.setBounds(141, 30, 118, 23);
-		painelPrincipal.add(btnNewButton_1);
+		painelPrincipal.add(btnNewButton_1, "cell 1 0,alignx center,aligny center");
 		
-		JButton btnNewButton_1_1 = new JButton("Enviar Whatsapp");
+		JButton btnNewButton_1_1 = new JButton("Enviar Via Whatsapp");
+		btnNewButton_1_1.setBackground(new Color(102, 0, 0));
+		btnNewButton_1_1.setFont(new Font("SansSerif", Font.PLAIN, 16));
+		btnNewButton_1_1.setForeground(Color.WHITE);
 		btnNewButton_1_1.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
+				TelaEnviarMsgWhatsappDocs enviar = new TelaEnviarMsgWhatsappDocs(contrato,new File(file), null);
+                isto.dispose();
+				
 			}
 		});
-		btnNewButton_1_1.setBounds(269, 30, 140, 23);
-		painelPrincipal.add(btnNewButton_1_1);
+		painelPrincipal.add(btnNewButton_1_1, "cell 2 0,growx,aligny center");
 		
 		
 			
@@ -133,7 +143,7 @@ public class TelaSalvarEnviarRelatorio extends JDialog {
 	}
 	
 	
-	public void setTelaPai(JDialog tela_pai) {
+	public void setTelaPai(Window tela_pai) {
 		this.telaPai = tela_pai;
 		
 	}

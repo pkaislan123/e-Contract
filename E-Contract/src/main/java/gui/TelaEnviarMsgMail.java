@@ -93,7 +93,7 @@ import main.java.outros.MyFileVisitor;
 import main.java.outros.ReproduzirAudio;
 import main.java.outros.TratarDados;
 import main.java.relatoria.RelatorioContratoComprador;
-import main.java.relatoria.RelatorioContratoSimplificado;
+import main.java.relatoria.RelatorioContratoRecebimentoSimplificado;
 import main.java.relatoria.RelatorioContratos;
 import main.java.tratamento_proprio.Log;
 import main.java.views_personalizadas.TelaEmEspera;
@@ -618,8 +618,12 @@ public class TelaEnviarMsgMail extends JDialog {
 			if(checkEmail(login.getEmail())) {
 				cBEmailRemetente.addItem(login.getEmail());
 			}
+			try {
 			if(checkEmail(login.getEmail2())) {
 				cBEmailRemetente.addItem(login.getEmail2());
+			}
+			}catch(Exception e) {
+				
 			}
 			
 			pesquisarContatos(compradores[0].getId());
@@ -642,7 +646,7 @@ public class TelaEnviarMsgMail extends JDialog {
 				  mensagem_saudacao = "Olá! Como vai? Espero que bem!\n";
 
 					mensagem_envio_documento = "Anexado a esta mensagem esta o documento como solicitado";
-                    mensagem_envio_relatorio = "Em anexo envio a esta mensagem envio o relatorio referente ao contrato " + contrato_local.getCodigo() + " entre o comprador " + nome_comprador_global + " e o(s) vendedor(es) " + nome_vendedores_global + " na quantidade de " + contrato_local.getQuantidade() + " " 
+                    mensagem_envio_relatorio = "Em anexo a esta mensagem envio o relatorio referente ao contrato " + contrato_local.getCodigo() + " entre o comprador " + nome_comprador_global + " e o(s) vendedor(es) " + nome_vendedores_global + " na quantidade de " + contrato_local.getQuantidade() + " " 
     			    		+ contrato_local.getMedida() + " de " + contrato_local.getModelo_safra().getProduto().getNome_produto() +   " firmado na data de " 
     			    		+ contrato_local.getData_contrato();
     				 

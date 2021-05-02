@@ -43,7 +43,7 @@ import java.io.InputStream;
 
 
 
-public class TelaVizualizarPdf extends JDialog {
+public class TelaVizualizarPdf extends JFrame {
 
 
 	private TelaEmEspera telaInformacoes;
@@ -151,7 +151,7 @@ public class TelaVizualizarPdf extends JDialog {
 						telaInformacoes.fechar();
 						
 					}
-					}else if(pai instanceof TelaGerenciarContrato) {
+					}else if(pai instanceof TelaGerenciarContrato || pai instanceof TelaRelatoriaContratos) {
 						
 						TelaSalvarEnviarRelatorio tela = new TelaSalvarEnviarRelatorio(2, contrato, file);
 						tela.setTelaPai(isto);

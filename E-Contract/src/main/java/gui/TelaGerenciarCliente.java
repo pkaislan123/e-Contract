@@ -144,7 +144,7 @@ import main.java.outros.MyFileVisitor;
 import main.java.outros.ReproduzirAudio;
 import main.java.outros.TratarDados;
 import main.java.relatoria.RelatorioContratoComprador;
-import main.java.relatoria.RelatorioContratoSimplificado;
+import main.java.relatoria.RelatorioContratoRecebimentoSimplificado;
 import main.java.relatoria.RelatorioContratos;
 import main.java.tratamento_proprio.Log;
 import main.java.views_personalizadas.TelaEmEspera;
@@ -301,17 +301,8 @@ public class TelaGerenciarCliente extends JDialog {
 			boolean _pagamento_como_favorecido, boolean _carregamento, boolean _carregamento_como_comprador,
 			boolean _carregamento_como_vendedor, int _id_safra, boolean _sub_contratos, boolean _incluir_comissao,
 			boolean _incluir_ganhos_potenciais, boolean _somar_sub_contratos, ArrayList<CadastroCliente> _clientes_globais, CadastroGrupo _grupo_alvo) {*/
-		   		RelatorioContratos relatar = new RelatorioContratos(2, true, false, false, 
-		   				false,false,false, false,
-		   				false,false, false,false,false,false, false,
-		   				false, false, false, false, false, false,
-		   				0, false, false, false, false, clientes, null);
-				ByteArrayOutputStream contrato_alterado = relatar.preparar();
-
-				ConverterPdf converter_pdf = new ConverterPdf();
-				String pdf_alterado = converter_pdf.word_pdf_stream(contrato_alterado);
-				TelaVizualizarPdf vizualizar = new TelaVizualizarPdf(null, isto, null, pdf_alterado, null, isto);
-		   	}
+		   		
+					}
 		   });
 		   btnVerRelatorioSimplificado.setForeground(new Color(0, 0, 0));
 		   btnVerRelatorioSimplificado.setBackground(SystemColor.activeCaptionBorder);
@@ -449,17 +440,8 @@ public class TelaGerenciarCliente extends JDialog {
 			boolean _pagamento_como_favorecido, boolean _carregamento, boolean _carregamento_como_comprador,
 			boolean _carregamento_como_vendedor, int _id_safra, boolean _sub_contratos, boolean _incluir_comissao,
 			boolean _incluir_ganhos_potenciais, boolean _somar_sub_contratos, ArrayList<CadastroCliente> _clientes_globais, CadastroGrupo _grupo_alvo) {*/
-		      		RelatorioContratos relatar = new RelatorioContratos(1, true, false, false, 
-			   				false,false,false, false,
-			   				false,false, false,false,false,false, false,
-			   				false, false, false, false, false, false,
-			   				0, false, false, false, false, clientes, null);
-				ByteArrayOutputStream contrato_alterado = relatar.preparar();
-
-				ConverterPdf converter_pdf = new ConverterPdf();
-				String pdf_alterado = converter_pdf.word_pdf_stream(contrato_alterado);
-				TelaVizualizarPdf vizualizar = new TelaVizualizarPdf(null, isto, null, pdf_alterado, null, isto);
-		      	}
+		      		
+			}
 		      });
 		painelDeposito.setEnabled(false);
 		painelDeposito.setBounds(198, 153, 864, 358);

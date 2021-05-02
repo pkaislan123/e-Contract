@@ -104,7 +104,7 @@ import main.java.outros.MyFileVisitor;
 import main.java.outros.ReproduzirAudio;
 import main.java.outros.TratarDados;
 import main.java.relatoria.RelatorioContratoComprador;
-import main.java.relatoria.RelatorioContratoSimplificado;
+import main.java.relatoria.RelatorioContratoRecebimentoSimplificado;
 import main.java.relatoria.RelatorioContratos;
 import main.java.tratamento_proprio.Log;
 import main.java.views_personalizadas.TelaEmEspera;
@@ -154,51 +154,41 @@ public class TelaCriarAnotacaoDesktopVirtual extends JFrame {
 
 		
 		setResizable(true);
-		setTitle("E-Contract - Tela Padrao");
+		setTitle("E-Contract -  Nova Anotação");
 
+		Toolkit tk = Toolkit.getDefaultToolkit();
+		Dimension dim = tk.getScreenSize();
+		System.out.println("Screen width = " + dim.width);
+		System.out.println("Screen height = " + dim.height);
+
+		// pega o tamanho da barra de tarefas
+		Dimension scrnSize = Toolkit.getDefaultToolkit().getScreenSize();
+		java.awt.Rectangle winSize = GraphicsEnvironment.getLocalGraphicsEnvironment().getMaximumWindowBounds();
+		int taskBarHeight = scrnSize.height - winSize.height;
+		System.out.printf("Altura: %d\n", taskBarHeight);
+
+		DisplayMode display = GraphicsEnvironment.getLocalGraphicsEnvironment().getDefaultScreenDevice()
+				.getDisplayMode();
+
+		int display_x = display.getWidth();
+		int display_y = display.getHeight();
+		setBounds(0, 0, dim.width, dim.height - taskBarHeight); 
+		
 		isto = this;
 		setBackground(new Color(255, 255, 255));
 		setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-	
-		
-		
-		
-		GridBagLayout gridBagLayout = new GridBagLayout();
-		gridBagLayout.columnWidths = new int[]{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
-		gridBagLayout.rowHeights = new int[]{0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
-		gridBagLayout.columnWeights = new double[]{1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0, Double.MIN_VALUE};
-		gridBagLayout.rowWeights = new double[]{1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0, Double.MIN_VALUE};
-		getContentPane().setLayout(gridBagLayout);
+		getContentPane().setLayout(new MigLayout("", "[grow][16px][grow]", "[grow]"));
 		
 		JDesktopPane desktopPane_1 = new JDesktopPane();
-		GridBagConstraints gbc_desktopPane_1 = new GridBagConstraints();
-		gbc_desktopPane_1.gridheight = 9;
-		gbc_desktopPane_1.gridwidth = 7;
-		gbc_desktopPane_1.insets = new Insets(0, 0, 0, 5);
-		gbc_desktopPane_1.fill = GridBagConstraints.BOTH;
-		gbc_desktopPane_1.gridx = 0;
-		gbc_desktopPane_1.gridy = 0;
-		getContentPane().add(desktopPane_1, gbc_desktopPane_1);
+		getContentPane().add(desktopPane_1, "cell 0 0,grow");
 		
 		JLabel lblNewLabel = new JLabel("||||");
 		lblNewLabel.setOpaque(true);
 		lblNewLabel.setBackground(Color.BLACK);
-		GridBagConstraints gbc_lblNewLabel = new GridBagConstraints();
-		gbc_lblNewLabel.fill = GridBagConstraints.BOTH;
-		gbc_lblNewLabel.gridheight = 9;
-		gbc_lblNewLabel.insets = new Insets(0, 0, 0, 5);
-		gbc_lblNewLabel.gridx = 7;
-		gbc_lblNewLabel.gridy = 0;
-		getContentPane().add(lblNewLabel, gbc_lblNewLabel);
+		getContentPane().add(lblNewLabel, "cell 1 0,grow");
 		
 		JDesktopPane desktopPane = new JDesktopPane();
-		GridBagConstraints gbc_desktopPane = new GridBagConstraints();
-		gbc_desktopPane.gridheight = 9;
-		gbc_desktopPane.gridwidth = 7;
-		gbc_desktopPane.fill = GridBagConstraints.BOTH;
-		gbc_desktopPane.gridx = 8;
-		gbc_desktopPane.gridy = 0;
-		getContentPane().add(desktopPane, gbc_desktopPane);
+		getContentPane().add(desktopPane, "cell 2 0,grow");
 	
 		TelaCriarNota nota = new TelaCriarNota(1,null, janela_anotacoes);
 		nota.setLocation(22, 31);
@@ -215,6 +205,7 @@ public class TelaCriarAnotacaoDesktopVirtual extends JFrame {
 		this.setVisible(true);
 		
 	}
+	
 	
 	
 	

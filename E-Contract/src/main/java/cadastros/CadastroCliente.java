@@ -14,6 +14,22 @@ public class CadastroCliente {
 
 
 
+	private String placas;
+
+	public String getPlacas() {
+		return placas;
+	}
+
+
+
+
+
+	public void setPlacas(String placas) {
+		this.placas = placas;
+	}
+
+
+
 
 
 	public void setModulo_cliente(int modulo_cliente) {

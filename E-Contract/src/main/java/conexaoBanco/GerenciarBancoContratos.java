@@ -23,13 +23,14 @@ import main.java.cadastros.CadastroLogin;
 import main.java.cadastros.CadastroModelo;
 import main.java.cadastros.CadastroProduto;
 import main.java.cadastros.CadastroSafra;
+import main.java.cadastros.CarregamentoCompleto;
 import main.java.cadastros.ContaBancaria;
+import main.java.cadastros.PagamentoCompleto;
+import main.java.cadastros.RecebimentoCompleto;
 import main.java.cadastros.RegistroQuantidade;
 import main.java.cadastros.RegistroRecebimento;
 import main.java.outros.DadosGlobais;
 import main.java.tratamento_proprio.Log;
-
-
 
 public class GerenciarBancoContratos {
 
@@ -65,7 +66,7 @@ public class GerenciarBancoContratos {
 				return 1;
 
 			} catch (Exception e) {
-				JOptionPane.showMessageDialog(null, "Erro ao inserir o modelo no banco de" + "dados "  );
+				JOptionPane.showMessageDialog(null, "Erro ao inserir o modelo no banco de" + "dados ");
 				return 0;
 			}
 		} else {
@@ -99,7 +100,7 @@ public class GerenciarBancoContratos {
 			}
 			ConexaoBanco.fechaConexao(conn, pstm, rs);
 		} catch (Exception e) {
-			JOptionPane.showMessageDialog(null, "Erro ao listar modelos de contratos"  );
+			JOptionPane.showMessageDialog(null, "Erro ao listar modelos de contratos");
 		}
 		return listaModelos;
 	}
@@ -131,12 +132,13 @@ public class GerenciarBancoContratos {
 						if (inserir_contrato_vendedor(contrato, retorno_contrato_inserido)) {
 							if (inserirModelosPagamentos(retorno_contrato_inserido, contrato.getPagamentos())) {
 
-								if (contrato.getSub_contrato() == 0 || contrato.getSub_contrato() == 3 || contrato.getSub_contrato() == 4 || contrato.getSub_contrato() == 5) {
+								if (contrato.getSub_contrato() == 0 || contrato.getSub_contrato() == 3
+										|| contrato.getSub_contrato() == 4 || contrato.getSub_contrato() == 5) {
 									// e um contrato pai, nao fazer mais nada
 									reverter = false;
 									return 1;
 
-								} else{
+								} else {
 									// e um contrato filho, criar relacao;
 									if (inserir_contrato_sub_contrato(contrato_pai.getId(),
 											retorno_contrato_inserido)) {
@@ -363,10 +365,9 @@ public class GerenciarBancoContratos {
 				return result;
 
 			} catch (Exception e) {
-				//JOptionPane.showMessageDialog(null,
-					//	"Erro ao inserir o Contrato no banco de " + "dados "  );
-				GerenciadorLog.registrarLogDiario("falha",
-						"falha ao adicionar novo contrato: "   + " causa: "  );
+				// JOptionPane.showMessageDialog(null,
+				// "Erro ao inserir o Contrato no banco de " + "dados " );
+				GerenciadorLog.registrarLogDiario("falha", "falha ao adicionar novo contrato: " + " causa: ");
 				return -1;
 			}
 		} else {
@@ -375,25 +376,18 @@ public class GerenciarBancoContratos {
 		}
 	}
 
-	
 	public boolean atualizarInfoExtras(CadastroContrato contrato) {
 		Connection conn = null;
 		String atualizar = null;
 		PreparedStatement pstm;
 		/*
-		 * localizacao text 
-bruto_livre text 
-fertilizante text 
-penhor int(3) 
-status_penhor text 
-optante_folha int(3) 
-status_optante_folha text 
-descricao text 
-observacao text
+		 * localizacao text bruto_livre text fertilizante text penhor int(3)
+		 * status_penhor text optante_folha int(3) status_optante_folha text descricao
+		 * text observacao text
 		 */
 		String sql_update_contrato = "update contrato set  localizacao = ?, bruto_livre = ?,"
 				+ "fertilizante = ?, status_penhor = ?, optante_folha = ?, status_optante_folha = ?,"
-				+ "descricao = ?, observacao = ? where id = ?";
+				+ "descricao = ?, observacao = ?, grupo_particular = ? where id = ?";
 
 		try {
 			String texto_clausulas = "";
@@ -406,7 +400,6 @@ observacao text
 			conn = ConexaoBanco.getConexao();
 			pstm = conn.prepareStatement(sql_update_contrato);
 
-			
 			pstm.setString(1, contrato.getLocalizacao());
 			pstm.setString(2, contrato.getBruto_livre());
 			pstm.setString(3, contrato.getFertilizante());
@@ -416,18 +409,18 @@ observacao text
 			pstm.setString(6, contrato.getStatus_optante_folha());
 			pstm.setString(7, contrato.getDescricao());
 			pstm.setString(8, contrato.getObservacao());
-			pstm.setInt(9, contrato.getId());
+			pstm.setInt(9, contrato.getGrupo_particular());
+			pstm.setInt(10, contrato.getId());
 			pstm.execute();
 
 			ConexaoBanco.fechaConexao(conn);
 			return true;
-		}catch(Exception e) {
+		} catch (Exception e) {
 			return false;
 		}
-	
-		
+
 	}
-	
+
 	private boolean inserir_contrato_corretor(CadastroContrato contrato, int id_contrato) {
 
 		boolean retorno = false;
@@ -543,14 +536,15 @@ observacao text
 			PreparedStatement grava = (PreparedStatement) conn.prepareStatement(sql);
 			grava.execute();
 			ConexaoBanco.fechaConexao(conn, grava);
-			//JOptionPane.showMessageDialog(null, "Relação contrato_corretor  cadastrado com sucesso");
+			// JOptionPane.showMessageDialog(null, "Relação contrato_corretor cadastrado com
+			// sucesso");
 			registro_geral_relacao_contrato_corretor.setIdContrato(id_contrato);
 			registro_geral_relacao_contrato_corretor.adicionar_id(corretor.getId());
 			return true;
 
 		} catch (Exception e) {
 			JOptionPane.showMessageDialog(null, "Erro ao inserir a relação cliente_corretor no banco de"
-					+ " dados, corretor: " + corretor.getId() + " contrado: " + id_contrato  );
+					+ " dados, corretor: " + corretor.getId() + " contrado: " + id_contrato);
 			return false;
 		}
 
@@ -566,14 +560,15 @@ observacao text
 			PreparedStatement grava = (PreparedStatement) conn.prepareStatement(sql);
 			grava.execute();
 			ConexaoBanco.fechaConexao(conn, grava);
-			//JOptionPane.showMessageDialog(null, "Relação contrato_comprador  cadastrado com sucesso");
+			// JOptionPane.showMessageDialog(null, "Relação contrato_comprador cadastrado
+			// com sucesso");
 			registro_geral_relacao_contrato_comprador.setIdContrato(id_contrato);
 			registro_geral_relacao_contrato_comprador.adicionar_id(comprador.getId());
 			return true;
 
 		} catch (Exception e) {
 			JOptionPane.showMessageDialog(null, "Erro ao inserir a relação cliente_corretor no banco de"
-					+ " dados, corretor: " + comprador.getId() + " contrado: " + id_contrato  );
+					+ " dados, corretor: " + comprador.getId() + " contrado: " + id_contrato);
 			return false;
 		}
 
@@ -589,14 +584,15 @@ observacao text
 			PreparedStatement grava = (PreparedStatement) conn.prepareStatement(sql);
 			grava.execute();
 			ConexaoBanco.fechaConexao(conn, grava);
-			//JOptionPane.showMessageDialog(null, "Relação contrato_vendedor cadastrado com sucesso");
+			// JOptionPane.showMessageDialog(null, "Relação contrato_vendedor cadastrado com
+			// sucesso");
 			registro_geral_relacao_contrato_vendedor.setIdContrato(id_contrato);
 			registro_geral_relacao_contrato_vendedor.adicionar_id(vendedor.getId());
 			return true;
 
 		} catch (Exception e) {
 			JOptionPane.showMessageDialog(null, "Erro ao inserir a relação cliente_vendedor no banco de"
-					+ " dados, corretor: " + vendedor.getId() + " contrado: " + id_contrato  );
+					+ " dados, corretor: " + vendedor.getId() + " contrado: " + id_contrato);
 			return false;
 		}
 
@@ -651,34 +647,22 @@ observacao text
 
 		String query = "insert into contrato (codigo, sub_contrato,id_safra, id_produto, medida, quantidade, valor_produto, valor_a_pagar,frete, clausula_frete,  armazenagem, clausula_armazenagem,  comissao, clausula_comissao, valor_comissao, clausulas, id_local_retirada, tipo_entrega, data_contrato, data_entrega, status_contrato, caminho_diretorio, caminho_arquivo, nome_arquivo,caminho_diretorio2, caminho_arquivo2, nome_arquivo2 ) values ('"
 				+ contrato.getCodigo() + "','" + contrato.getSub_contrato() + "','"
-				+ contrato.getModelo_safra().getId_safra() + "','" 
-				+ contrato.getModelo_produto().getId_produto() + "','" 
-				+ contrato.getMedida() + "','"
-                + contrato.getQuantidade() + "','" 
-				+ contrato.getValor_produto() + "','"
-                + contrato.getValor_a_pagar() + "','" 
-				+ contrato.getFrete() + "','"
-				+ contrato.getClausula_frete() + "','" 
-				+ contrato.getArmazenagem() + "','"
-				+ contrato.getClausula_armazenagem() + "','"
-				+ contrato.getComissao() + "','"
-				+ contrato.getClausula_comissao() + "','"
-				+ contrato.getValor_comissao() + "','" 
-				+ texto_clausulas + "','"
-				+ contrato.getId_local_retirada() + "','"
-				+ contrato.getTipo_entrega()  + "','"
-				+ contrato.getData_contrato() + "','" 
-				+ contrato.getData_entrega() + "','"
+				+ contrato.getModelo_safra().getId_safra() + "','" + contrato.getModelo_produto().getId_produto()
+				+ "','" + contrato.getMedida() + "','" + contrato.getQuantidade() + "','" + contrato.getValor_produto()
+				+ "','" + contrato.getValor_a_pagar() + "','" + contrato.getFrete() + "','"
+				+ contrato.getClausula_frete() + "','" + contrato.getArmazenagem() + "','"
+				+ contrato.getClausula_armazenagem() + "','" + contrato.getComissao() + "','"
+				+ contrato.getClausula_comissao() + "','" + contrato.getValor_comissao() + "','" + texto_clausulas
+				+ "','" + contrato.getId_local_retirada() + "','" + contrato.getTipo_entrega() + "','"
+				+ contrato.getData_contrato() + "','" + contrato.getData_entrega() + "','"
 				+ contrato.getStatus_contrato() + "','"
 
-				+ contrato.getCaminho_diretorio_contrato() + "','"
-				+ contrato.getCaminho_arquivo() + "','"
-				+ contrato.getNome_arquivo()  + "','"
-				
-	+ contrato.getCaminho_diretorio_contrato2() + "','"
-	+ contrato.getCaminho_arquivo2() + "','"
-	+ contrato.getNome_arquivo2()
-	
+				+ contrato.getCaminho_diretorio_contrato() + "','" + contrato.getCaminho_arquivo() + "','"
+				+ contrato.getNome_arquivo() + "','"
+
+				+ contrato.getCaminho_diretorio_contrato2() + "','" + contrato.getCaminho_arquivo2() + "','"
+				+ contrato.getNome_arquivo2()
+
 				+ "')";
 		return query;
 
@@ -698,7 +682,8 @@ observacao text
 
 			pstm.execute();
 			ConexaoBanco.fechaConexao(conn, pstm);
-			//JOptionPane.showMessageDialog(null, "Relação contrato_corretor excluido, banco normalizado ");
+			// JOptionPane.showMessageDialog(null, "Relação contrato_corretor excluido,
+			// banco normalizado ");
 			return true;
 
 		} catch (Exception f) {
@@ -724,7 +709,8 @@ observacao text
 
 			pstm.execute();
 			ConexaoBanco.fechaConexao(conn, pstm);
-		//	JOptionPane.showMessageDialog(null, "Relação contrato_comprador excluido, banco normalizado ");
+			// JOptionPane.showMessageDialog(null, "Relação contrato_comprador excluido,
+			// banco normalizado ");
 			return true;
 
 		} catch (Exception f) {
@@ -750,7 +736,8 @@ observacao text
 
 			pstm.execute();
 			ConexaoBanco.fechaConexao(conn, pstm);
-		//	JOptionPane.showMessageDialog(null, "Relação contrato_vendedor excluido, banco normalizado ");
+			// JOptionPane.showMessageDialog(null, "Relação contrato_vendedor excluido,
+			// banco normalizado ");
 			return true;
 
 		} catch (Exception f) {
@@ -955,10 +942,8 @@ observacao text
 				return result;
 
 			} catch (Exception e) {
-				JOptionPane.showMessageDialog(null,
-						"Erro ao inserir o pagamento no banco de" + "dados "  );
-				GerenciadorLog.registrarLogDiario("falha",
-						"falha ao adicionar novo pagamento: "   + " causa: "  );
+				JOptionPane.showMessageDialog(null, "Erro ao inserir o pagamento no banco de" + "dados ");
+				GerenciadorLog.registrarLogDiario("falha", "falha ao adicionar novo pagamento: " + " causa: ");
 				return -1;
 			}
 		} else {
@@ -977,14 +962,14 @@ observacao text
 			PreparedStatement grava = (PreparedStatement) conn.prepareStatement(sql);
 			grava.execute();
 			ConexaoBanco.fechaConexao(conn, grava);
-			//JOptionPane.showMessageDialog(null, "Relação contrato_modelo_pagamento  cadastrado com sucesso");
+			// JOptionPane.showMessageDialog(null, "Relação contrato_modelo_pagamento
+			// cadastrado com sucesso");
 			registro_geral_relacao_contrato_modelo_pagamento.setIdContrato(id_contrato);
 			registro_geral_relacao_contrato_modelo_pagamento.adicionar_id(id_pagamento);
 			return true;
 
 		} catch (Exception e) {
-			JOptionPane.showMessageDialog(null,
-					"Erro ao inserir a relação contrato_modelo_pagamento no banco de"  );
+			JOptionPane.showMessageDialog(null, "Erro ao inserir a relação contrato_modelo_pagamento no banco de");
 			return false;
 		}
 
@@ -1058,7 +1043,8 @@ observacao text
 
 			pstm.execute();
 			ConexaoBanco.fechaConexao(conn, pstm);
-			//JOptionPane.showMessageDialog(null, "Relação contrato_modelo_pagamento excluido, banco normalizado ");
+			// JOptionPane.showMessageDialog(null, "Relação contrato_modelo_pagamento
+			// excluido, banco normalizado ");
 			return true;
 
 		} catch (Exception f) {
@@ -1131,11 +1117,11 @@ observacao text
 				contrato.setStatus_contrato(rs.getInt("status_contrato"));
 				contrato.setData_contrato(rs.getString("data_contrato"));
 				contrato.setData_entrega(rs.getString("data_entrega"));
-				
+
 				contrato.setCaminho_diretorio_contrato(rs.getString("caminho_diretorio"));
 				contrato.setCaminho_arquivo(rs.getString("caminho_arquivo"));
 				contrato.setNome_arquivo(rs.getString("nome_arquivo"));
-				
+
 				contrato.setCaminho_diretorio_contrato2(rs.getString("caminho_diretorio2"));
 				contrato.setCaminho_arquivo2(rs.getString("caminho_arquivo2"));
 				contrato.setNome_arquivo2(rs.getString("nome_arquivo2"));
@@ -1153,14 +1139,14 @@ observacao text
 				// dados de armazenagem
 				contrato.setArmazenagem(rs.getString("armazenagem"));
 				contrato.setClausula_armazenagem(rs.getString("clausula_armazenagem"));
-				
-	            //dados de retirada
-				
+
+				// dados de retirada
+
 				contrato.setId_local_retirada(rs.getInt("id_local_retirada"));
 				contrato.setTipo_entrega(rs.getInt("tipo_entrega"));
-				
-				//informacoes extras
-				
+
+				// informacoes extras
+
 				contrato.setLocalizacao(rs.getString("localizacao"));
 				contrato.setBruto_livre(rs.getString("bruto_livre"));
 				contrato.setFertilizante(rs.getString("fertilizante"));
@@ -1169,11 +1155,9 @@ observacao text
 				contrato.setStatus_optante_folha(rs.getString("status_optante_folha"));
 				contrato.setDescricao(rs.getString("descricao"));
 				contrato.setObservacao(rs.getString("observacao"));
+				contrato.setGrupo_particular(rs.getInt("grupo_particular"));
 
-				
 				ConexaoBanco.fechaConexao(conn, pstm, rs);
-				
-			
 
 				return contrato;
 			} else {
@@ -1182,9 +1166,8 @@ observacao text
 			}
 
 		} catch (Exception e) {
-			JOptionPane.showMessageDialog(null, "Erro ao listar contrato id: " + id + " erro: "  );
-			System.out.println(
-					"Erro ao listar contrato id: " + id + " erro: "   + "\ncausa: "  );
+			JOptionPane.showMessageDialog(null, "Erro ao listar contrato id: " + id + " erro: ");
+			System.out.println("Erro ao listar contrato id: " + id + " erro: " + "\ncausa: ");
 			return null;
 		}
 
@@ -1241,21 +1224,16 @@ observacao text
 				contrato.setStatus_contrato(rs.getInt("status_contrato"));
 				contrato.setData_contrato(rs.getString("data_contrato"));
 				contrato.setData_entrega(rs.getString("data_entrega"));
-				
+
 				contrato.setCaminho_diretorio_contrato(rs.getString("caminho_diretorio"));
 				contrato.setCaminho_arquivo(rs.getString("caminho_arquivo"));
 				contrato.setNome_arquivo(rs.getString("nome_arquivo"));
-				
+
 				contrato.setCaminho_diretorio_contrato2(rs.getString("caminho_diretorio2"));
 				contrato.setCaminho_arquivo2(rs.getString("caminho_arquivo2"));
 				contrato.setNome_arquivo2(rs.getString("nome_arquivo2"));
 
-
-
-				
 				ConexaoBanco.fechaConexao(conn, pstm, rs);
-				
-			
 
 				return contrato;
 			} else {
@@ -1264,14 +1242,13 @@ observacao text
 			}
 
 		} catch (Exception e) {
-			JOptionPane.showMessageDialog(null, "Erro ao listar contrato id: " + id + " erro: "  );
-			System.out.println(
-					"Erro ao listar contrato id: " + id + " erro: "   + "\ncausa: "  );
+			JOptionPane.showMessageDialog(null, "Erro ao listar contrato id: " + id + " erro: ");
+			System.out.println("Erro ao listar contrato id: " + id + " erro: " + "\ncausa: ");
 			return null;
 		}
 
 	}
-	
+
 	public CadastroContrato getContratoPorCodigo(String id_codigo) {
 
 		String selectContrato = "select * from contrato where codigo = ?";
@@ -1336,7 +1313,7 @@ observacao text
 				contrato.setCaminho_diretorio_contrato(rs.getString("caminho_diretorio"));
 				contrato.setCaminho_arquivo(rs.getString("caminho_arquivo"));
 				contrato.setNome_arquivo(rs.getString("nome_arquivo"));
-				
+
 				contrato.setCaminho_diretorio_contrato2(rs.getString("caminho_diretorio2"));
 				contrato.setCaminho_arquivo2(rs.getString("caminho_arquivo2"));
 				contrato.setNome_arquivo2(rs.getString("nome_arquivo2"));
@@ -1354,14 +1331,14 @@ observacao text
 				// dados de armazenagem
 				contrato.setArmazenagem(rs.getString("armazenagem"));
 				contrato.setClausula_armazenagem(rs.getString("clausula_armazenagem"));
-				
-	            //dados de retirada
-				
+
+				// dados de retirada
+
 				contrato.setId_local_retirada(rs.getInt("id_local_retirada"));
 				contrato.setTipo_entrega(rs.getInt("tipo_entrega"));
-				
+
 //informacoes extras
-				
+
 				contrato.setLocalizacao(rs.getString("localizacao"));
 				contrato.setBruto_livre(rs.getString("bruto_livre"));
 				contrato.setFertilizante(rs.getString("fertilizante"));
@@ -1370,10 +1347,9 @@ observacao text
 				contrato.setStatus_optante_folha(rs.getString("status_optante_folha"));
 				contrato.setDescricao(rs.getString("descricao"));
 				contrato.setObservacao(rs.getString("observacao"));
-				
+				contrato.setGrupo_particular(rs.getInt("grupo_particular"));
+
 				ConexaoBanco.fechaConexao(conn, pstm, rs);
-				
-			
 
 				return contrato;
 			} else {
@@ -1382,14 +1358,13 @@ observacao text
 			}
 
 		} catch (Exception e) {
-			JOptionPane.showMessageDialog(null, "Erro ao listar contrato codigo: " + id_codigo + " erro: "  );
-			System.out.println(
-					"Erro ao listar contrato codigo: " + id_codigo + " erro: "   + "\ncausa: "  );
+			JOptionPane.showMessageDialog(null, "Erro ao listar contrato codigo: " + id_codigo + " erro: ");
+			System.out.println("Erro ao listar contrato codigo: " + id_codigo + " erro: " + "\ncausa: ");
 			return null;
 		}
 
 	}
-	
+
 	public CadastroContrato getContratoPai(int id_sub_contrato) {
 
 		String selectContrato = "select * from contrato\n"
@@ -1456,7 +1431,7 @@ observacao text
 				contrato.setCaminho_diretorio_contrato(rs.getString("caminho_diretorio"));
 				contrato.setCaminho_arquivo(rs.getString("caminho_arquivo"));
 				contrato.setNome_arquivo(rs.getString("nome_arquivo"));
-				
+
 				contrato.setCaminho_diretorio_contrato2(rs.getString("caminho_diretorio2"));
 				contrato.setCaminho_arquivo2(rs.getString("caminho_arquivo2"));
 				contrato.setNome_arquivo2(rs.getString("nome_arquivo2"));
@@ -1474,15 +1449,14 @@ observacao text
 				// dados de armazenagem
 				contrato.setArmazenagem(rs.getString("armazenagem"));
 				contrato.setClausula_armazenagem(rs.getString("clausula_armazenagem"));
-				
 
-	            //dados de retirada
-				
+				// dados de retirada
+
 				contrato.setId_local_retirada(rs.getInt("id_local_retirada"));
 				contrato.setTipo_entrega(rs.getInt("tipo_entrega"));
-				
+
 //informacoes extras
-				
+
 				contrato.setLocalizacao(rs.getString("localizacao"));
 				contrato.setBruto_livre(rs.getString("bruto_livre"));
 				contrato.setFertilizante(rs.getString("fertilizante"));
@@ -1491,7 +1465,8 @@ observacao text
 				contrato.setStatus_optante_folha(rs.getString("status_optante_folha"));
 				contrato.setDescricao(rs.getString("descricao"));
 				contrato.setObservacao(rs.getString("observacao"));
-				
+				contrato.setGrupo_particular(rs.getInt("grupo_particular"));
+
 				ConexaoBanco.fechaConexao(conn, pstm, rs);
 
 				return contrato;
@@ -1502,9 +1477,9 @@ observacao text
 
 		} catch (Exception e) {
 			JOptionPane.showMessageDialog(null,
-					"Erro ao listar contrato pai do subcontrato id: " + id_sub_contrato + " erro: "  );
-			System.out.println("Erro ao listar contrato pai do subcontrato id: " + id_sub_contrato + " erro: "
-					  + "\ncausa: "  );
+					"Erro ao listar contrato pai do subcontrato id: " + id_sub_contrato + " erro: ");
+			System.out.println(
+					"Erro ao listar contrato pai do subcontrato id: " + id_sub_contrato + " erro: " + "\ncausa: ");
 			return null;
 		}
 
@@ -1550,14 +1525,13 @@ observacao text
 			pstm.setInt(15, contrato.getId_local_retirada());
 			pstm.setInt(16, contrato.getTipo_entrega());
 
-			
 			pstm.setString(17, contrato.getData_contrato());
 			pstm.setString(18, contrato.getData_entrega());
 			pstm.setString(19, Integer.toString(contrato.getStatus_contrato()));
 			pstm.setString(20, contrato.getCaminho_diretorio_contrato());
 			pstm.setString(21, contrato.getCaminho_arquivo());
 			pstm.setString(22, contrato.getNome_arquivo());
-			
+
 			pstm.setString(23, contrato.getCaminho_diretorio_contrato2());
 			pstm.setString(24, contrato.getCaminho_arquivo2());
 			pstm.setString(25, contrato.getNome_arquivo2());
@@ -1639,20 +1613,20 @@ observacao text
 			GerenciarBancoContratos gerenciar = new GerenciarBancoContratos();
 			CadastroContrato contrato_atual = gerenciar.getContrato(contrato.getId());
 
-
 			boolean compradores_atualizados = false;
-			//atualiza os compradores deste contrato
-			//pega os compradores atuais
+			// atualiza os compradores deste contrato
+			// pega os compradores atuais
 			CadastroCliente compradores_atuais[] = contrato_atual.getCompradores();
 
 			// pega os vendedores novos
 			CadastroCliente novos_compradores[] = contrato.getCompradores();
-			
+
 			// exclui os vendedores antigos
 			boolean remover_comprador1 = remover_contrato_comprador(contrato.getId(), compradores_atuais[0].getId());
 
 			if (compradores_atuais[1] != null) {
-				boolean remover_comprador2 = remover_contrato_comprador(contrato.getId(), compradores_atuais[1].getId());
+				boolean remover_comprador2 = remover_contrato_comprador(contrato.getId(),
+						compradores_atuais[1].getId());
 			}
 
 			// inserir novos vendedores
@@ -1661,7 +1635,7 @@ observacao text
 				compradores_atualizados = true;
 
 			/*******************************************************************/
-			
+
 			boolean vendedores_atualizados = false;
 
 			// atualiza os vendedores deste contrato
@@ -1714,7 +1688,8 @@ observacao text
 			}
 
 			ConexaoBanco.fechaConexao(conn);
-			if (pagamentos_apagados && pagamentos_inseridos && vendedores_atualizados && corretores_atualizados && compradores_atualizados) {
+			if (pagamentos_apagados && pagamentos_inseridos && vendedores_atualizados && corretores_atualizados
+					&& compradores_atualizados) {
 				System.out.println(
 						"Pagamentos que tinham foram apagados, e novos adicionados, alem do que os vendedores foram atualizados!");
 
@@ -1726,7 +1701,7 @@ observacao text
 			}
 
 		} catch (Exception e) {
-			JOptionPane.showMessageDialog(null, "Erro ao atualizar contrato no banco de" + "dados "  );
+			JOptionPane.showMessageDialog(null, "Erro ao atualizar contrato no banco de" + "dados ");
 			return -2;
 		}
 
@@ -1758,6 +1733,7 @@ observacao text
 				contrato.setQuantidade(Double.parseDouble(rs.getString("quantidade")));
 				contrato.setMedida(rs.getString("medida"));
 				contrato.setProduto(rs.getString("nome_produto"));
+				safra.setId_safra(rs.getInt("id_safra"));
 				safra.setDescricao_safra(rs.getString("descricao_safra"));
 				safra.setAno_plantio(Integer.parseInt(rs.getString("ano_plantio")));
 				safra.setAno_colheita(Integer.parseInt(rs.getString("ano_colheita")));
@@ -1769,13 +1745,13 @@ observacao text
 				contrato.setNomes_compradores(rs.getString("compradores"));
 				contrato.setNomes_vendedores(rs.getString("vendedores"));
 				contrato.setNomes_corretores(rs.getString("corretores"));
-				
-	
+
+				produto.setId_produto(rs.getInt("id_produto"));
 				produto.setTransgenia(rs.getString("transgenia"));
 				contrato.setId_local_retirada(rs.getInt("id_local_retirada"));
-				
-                //informacoes extras
-				
+
+				// informacoes extras
+
 				contrato.setLocalizacao(rs.getString("localizacao"));
 				contrato.setBruto_livre(rs.getString("bruto_livre"));
 				contrato.setFertilizante(rs.getString("fertilizante"));
@@ -1784,15 +1760,17 @@ observacao text
 				contrato.setStatus_optante_folha(rs.getString("status_optante_folha"));
 				contrato.setDescricao(rs.getString("descricao"));
 				contrato.setObservacao(rs.getString("observacao"));
-				
+
 				safra.setProduto(produto);
 				contrato.setModelo_safra(safra);
+				contrato.setModelo_produto(produto);
 				lsitaContratos.add(contrato);
 
 			}
 			ConexaoBanco.fechaConexao(conn, pstm, rs);
 		} catch (Exception e) {
-			JOptionPane.showMessageDialog(null, "Erro ao listar contratos\nErro: " + e.getMessage() +"\nCausa: " + e.getCause()  );
+			JOptionPane.showMessageDialog(null,
+					"Erro ao listar contratos\nErro: " + e.getMessage() + "\nCausa: " + e.getCause());
 		}
 		return lsitaContratos;
 
@@ -1827,7 +1805,7 @@ observacao text
 				produto.setTransgenia(rs.getString("transgenia"));
 				contrato.setModelo_produto(produto);
 				contrato.setProduto(produto.getNome_produto());
-				
+
 				safra.setDescricao_safra(rs.getString("descricao_safra"));
 				safra.setAno_plantio(Integer.parseInt(rs.getString("ano_plantio")));
 				safra.setAno_colheita(Integer.parseInt(rs.getString("ano_colheita")));
@@ -1839,7 +1817,6 @@ observacao text
 				contrato.setNomes_compradores(rs.getString("compradores"));
 				contrato.setNomes_vendedores(rs.getString("vendedores"));
 				contrato.setNomes_corretores(rs.getString("corretores"));
-			
 
 				safra.setProduto(produto);
 				contrato.setModelo_safra(safra);
@@ -1848,7 +1825,83 @@ observacao text
 			}
 			ConexaoBanco.fechaConexao(conn, pstm, rs);
 		} catch (Exception e) {
-			JOptionPane.showMessageDialog(null, "Erro ao listar contratos"  );
+			JOptionPane.showMessageDialog(null, "Erro ao listar contratos");
+		}
+		return lsitaContratos;
+
+	}
+
+	public ArrayList<CadastroContrato> getInfoSubContratos() {
+		String selectContratos = "select id, sub_contrato, codigo, quantidade, medida, \n"
+				+ "localizacao, bruto_livre, fertilizante, status_penhor,\n"
+				+ "optante_folha, status_optante_folha, ct.descricao, observacao, pd.nome_produto, pd.transgenia,sf.descricao_safra, sf.ano_plantio,\n"
+				+ "sf.ano_colheita, valor_produto, valor_a_pagar, \n" + "\n" + "GROUP_CONCAT(distinct\n" + "case\n"
+				+ "when comprador.tipo_cliente = '0' then comprador.nome_empresarial \n"
+				+ " when comprador.tipo_cliente = '1' then comprador.nome_fantasia\n" + "end\n"
+				+ " separator ',') as compradores,\n" + "GROUP_CONCAT(distinct\n" + "case\n"
+				+ "when vendedor.tipo_cliente = '0' then vendedor.nome_empresarial \n"
+				+ " when vendedor.tipo_cliente = '1' then vendedor.nome_fantasia\n" + "end\n"
+				+ " separator ',') as vendedores,\n" + " \n" + "  GROUP_CONCAT(distinct\n" + "case\n"
+				+ "when corretor.tipo_cliente = '0' then corretor.nome_empresarial \n"
+				+ " when corretor.tipo_cliente = '1' then corretor.nome_fantasia\n" + "end\n"
+				+ " separator ',') as corretores,\n" + " ct.data_contrato, ct.status_contrato\n" + " \n" + " \n"
+				+ "from contrato ct\n" + "LEFT JOIN  safra sf on sf.id_safra = ct.id_safra\n"
+				+ "LEFT JOIN produto pd on pd.id_produto = sf.id_produto\n"
+				+ "LEFT JOIN contrato_comprador on contrato_comprador.id_contrato = ct.id\n"
+				+ "LEFT JOIN cliente comprador on comprador.id_cliente = contrato_comprador.id_cliente\n" + "\n"
+				+ "LEFT JOIN contrato_vendedor on contrato_vendedor.id_contrato = ct.id\n"
+				+ "LEFT JOIN cliente vendedor on vendedor.id_cliente = contrato_vendedor.id_cliente\n" + "\n"
+				+ "LEFT JOIN contrato_corretor on contrato_corretor.id_contrato = ct.id\n"
+				+ "LEFT JOIN cliente corretor on corretor.id_cliente = contrato_corretor.id_cliente\n" + "\n"
+				+ "LEFT JOIN contrato_sub_contrato sub  on sub.id_sub_contrato = ct.id \n" + "group by ct.id  ;";
+		Connection conn = null;
+		PreparedStatement pstm = null;
+		ResultSet rs = null;
+		ArrayList<CadastroContrato> lsitaContratos = new ArrayList<CadastroContrato>();
+		try {
+			conn = ConexaoBanco.getConexao();
+			pstm = conn.prepareStatement(selectContratos);
+
+			rs = pstm.executeQuery();
+			while (rs.next()) {
+				CadastroContrato contrato = new CadastroContrato();
+				CadastroProduto produto = new CadastroProduto();
+				CadastroSafra safra = new CadastroSafra();
+				CadastroCliente compradores[] = null;
+				CadastroCliente vendedores[] = null;
+				CadastroCliente corretores[] = null;
+
+				contrato.setId(rs.getInt("id"));
+				contrato.setCodigo(rs.getString("codigo"));
+				contrato.setSub_contrato(rs.getInt("sub_contrato"));
+				contrato.setQuantidade(Double.parseDouble(rs.getString("quantidade")));
+				contrato.setMedida(rs.getString("medida"));
+				produto.setNome_produto(rs.getString("nome_produto"));
+				produto.setTransgenia(rs.getString("transgenia"));
+				contrato.setModelo_produto(produto);
+				contrato.setProduto(produto.getNome_produto());
+
+				safra.setDescricao_safra(rs.getString("descricao_safra"));
+				safra.setAno_plantio(Integer.parseInt(rs.getString("ano_plantio")));
+				safra.setAno_colheita(Integer.parseInt(rs.getString("ano_colheita")));
+				contrato.setValor_produto(Double.parseDouble(rs.getString("valor_produto")));
+				contrato.setValor_a_pagar(new BigDecimal(rs.getString("valor_a_pagar")));
+				contrato.setStatus_contrato(rs.getInt("status_contrato"));
+				contrato.setData_contrato(rs.getString("data_contrato"));
+
+				contrato.setNomes_compradores(rs.getString("compradores"));
+				contrato.setNomes_vendedores(rs.getString("vendedores"));
+				contrato.setNomes_corretores(rs.getString("corretores"));
+
+				safra.setProduto(produto);
+				contrato.setModelo_safra(safra);
+				lsitaContratos.add(contrato);
+
+			}
+			ConexaoBanco.fechaConexao(conn, pstm, rs);
+		} catch (Exception e) {
+			JOptionPane.showMessageDialog(null,
+					"Erro ao listar contratos\nErro: " + e.getMessage() + "\nCausa:" + e.getCause());
 		}
 		return lsitaContratos;
 
@@ -1952,7 +2005,7 @@ observacao text
 					contrato.setCaminho_diretorio_contrato(rs.getString("caminho_diretorio"));
 					contrato.setCaminho_arquivo(rs.getString("caminho_arquivo"));
 					contrato.setNome_arquivo(rs.getString("nome_arquivo"));
-					
+
 					contrato.setCaminho_diretorio_contrato2(rs.getString("caminho_diretorio2"));
 					contrato.setCaminho_arquivo2(rs.getString("caminho_arquivo2"));
 					contrato.setNome_arquivo2(rs.getString("nome_arquivo2"));
@@ -1970,13 +2023,13 @@ observacao text
 					// dados de armazenagem
 					contrato.setArmazenagem(rs.getString("armazenagem"));
 					contrato.setClausula_armazenagem(rs.getString("clausula_armazenagem"));
-					
-					//dados retirada
+
+					// dados retirada
 					contrato.setId_local_retirada(rs.getInt("id_local_retirada"));
 					contrato.setTipo_entrega(rs.getInt("tipo_entrega"));
-					
-					   //informacoes extras
-					
+
+					// informacoes extras
+
 					contrato.setLocalizacao(rs.getString("localizacao"));
 					contrato.setBruto_livre(rs.getString("bruto_livre"));
 					contrato.setFertilizante(rs.getString("fertilizante"));
@@ -1985,6 +2038,7 @@ observacao text
 					contrato.setStatus_optante_folha(rs.getString("status_optante_folha"));
 					contrato.setDescricao(rs.getString("descricao"));
 					contrato.setObservacao(rs.getString("observacao"));
+					contrato.setGrupo_particular(rs.getInt("grupo_particular"));
 
 					lsitaContratos.add(contrato);
 
@@ -1994,8 +2048,314 @@ observacao text
 			return lsitaContratos;
 
 		} catch (Exception e) {
+			JOptionPane.showMessageDialog(null, "Erro ao listar contratos\nMensagem: " + "\nCausa: ");
+			return null;
+		}
+
+	}
+
+	public ArrayList<CadastroContrato> getContratosPorClienteParaRelatorio(int flag_select, int id_busca_safra,
+			int id_cliente, int id_contra_parte) {
+
+		String selectContratos = "call contratos_para_relatorio(?,?,?)";
+		Connection conn = null;
+		PreparedStatement pstm = null;
+		ResultSet rs = null;
+		ArrayList<CadastroContrato> lsitaContratos = new ArrayList<CadastroContrato>();
+		try {
+			conn = ConexaoBanco.getConexao();
+			pstm = conn.prepareStatement(selectContratos);
+			
+			if(flag_select == 4 || flag_select == 1) {
+				//como comprador
+			if(id_cliente > 0)
+			  pstm.setInt(1, id_cliente);
+			else
+				pstm.setInt(1, 0);
+
+			if (id_contra_parte > 0)
+				pstm.setInt(2, id_contra_parte);
+			else
+				pstm.setInt(2, 0);
+
+			
+			if (id_busca_safra > 0) 
+				pstm.setInt(3, id_busca_safra);
+			else
+				pstm.setInt(3, 0);
+			
+			
+			}else if(flag_select == 5 || flag_select == 2) {
+				//como vendedor
+				if(id_contra_parte > 0)
+					pstm.setInt(1, id_contra_parte);
+					else
+						pstm.setInt(1, 0);
+
+					if (id_cliente > 0)
+						pstm.setInt(2, id_cliente);
+					else
+						pstm.setInt(2, 0);
+
+					
+					if (id_busca_safra > 0) 
+						pstm.setInt(3, id_busca_safra);
+					else
+						pstm.setInt(3, 0);
+				
+			}
+			
+
+			rs = pstm.executeQuery();
+			while (rs.next()) {
+				CadastroContrato contrato_recebimento = new CadastroContrato();
+
+				contrato_recebimento.setId(rs.getInt("id"));
+				contrato_recebimento.setSub_contrato(rs.getInt("sub_contrato"));
+				contrato_recebimento.setCodigo(rs.getString("codigo"));
+				contrato_recebimento.setQuantidade(rs.getDouble("quantidade"));
+				contrato_recebimento.setMedida(rs.getString("medida"));
+				contrato_recebimento.setValor_a_pagar(new BigDecimal(rs.getString("valor_a_pagar")));
+				contrato_recebimento.setValor_produto(rs.getDouble("valor_produto"));
+				contrato_recebimento.setNomes_compradores(rs.getString("compradores"));
+				contrato_recebimento.setNomes_vendedores(rs.getString("vendedores"));
+				contrato_recebimento.setStatus_contrato(rs.getInt("status_contrato"));
+				contrato_recebimento.setGrupo_particular(rs.getInt("grupo_particular"));
+
+				CadastroSafra safra = new CadastroSafra();
+				safra.setId_safra(rs.getInt("id_safra"));
+				safra.setAno_colheita(rs.getInt("ano_colheita"));
+				safra.setAno_plantio(rs.getInt("ano_plantio"));
+
+				CadastroProduto produto = new CadastroProduto();
+				produto.setId_produto(rs.getInt("id_produto"));
+				produto.setNome_produto(rs.getString("nome_produto"));
+				produto.setTransgenia(rs.getString("transgenia"));
+
+				safra.setProduto(produto);
+
+				contrato_recebimento.setModelo_produto(produto);
+				contrato_recebimento.setModelo_safra(safra);
+
+				lsitaContratos.add(contrato_recebimento);
+
+			}
+			ConexaoBanco.fechaConexao(conn, pstm, rs);
+			return lsitaContratos;
+
+		} catch (Exception e) {
 			JOptionPane.showMessageDialog(null,
-					"Erro ao listar contratos\nMensagem: "   + "\nCausa: "  );
+					"Erro ao listar contratos\nMensagem: " + e.getMessage() + "\nCausa: " + e.getCause());
+			return null;
+		}
+
+	}
+
+	public ArrayList<CadastroContrato> getContratosPorClienteParaRelatorioGrupo(int flag_select, int id_busca_safra,
+			int id_cliente) {
+
+		String selectContratos = "";
+
+		if (flag_select == 1) {
+			// modo de busca de contratos que o cliente é o comprador
+			if (id_busca_safra > 0) {
+				selectContratos = "select ct.*,\n" + "GROUP_CONCAT(distinct\n" + "case\n"
+						+ "when comprador.tipo_cliente = '0' then comprador.nome_empresarial \n"
+						+ " when comprador.tipo_cliente = '1' then comprador.nome_fantasia\n" + "end\n"
+						+ " separator ',') as compradores,\n" + "GROUP_CONCAT(distinct\n" + "case\n"
+						+ "when vendedor.tipo_cliente = '0' then vendedor.nome_empresarial \n"
+						+ " when vendedor.tipo_cliente = '1' then vendedor.nome_fantasia\n" + "end\n"
+						+ " separator ',') as vendedores,\n" + " sf.id_safra, sf.ano_colheita, sf.ano_plantio,\n"
+						+ " pd.id_produto, pd.nome_produto, pd.transgenia \n" + " from contrato ct\n"
+						+ "LEFT join safra sf on sf.id_safra = ct.id_safra\n"
+						+ "LEFT join produto pd on pd.id_produto = sf.id_produto\n"
+						+ "LEFT JOIN contrato_comprador on contrato_comprador.id_contrato = ct.id\n"
+						+ "LEFT JOIN cliente comprador on comprador.id_cliente = contrato_comprador.id_cliente\n"
+						+ "LEFT JOIN contrato_vendedor on contrato_vendedor.id_contrato = ct.id\n"
+						+ "LEFT JOIN cliente vendedor on vendedor.id_cliente = contrato_vendedor.id_cliente\n"
+						+ "where contrato_comprador.id_cliente = ? and sf.id_safra = ? and ct.grupo_particular = 0\n"
+						+ "group by ct.id";
+			} else {
+				selectContratos = "select ct.*,\n" + "GROUP_CONCAT(distinct\n" + "case\n"
+						+ "when comprador.tipo_cliente = '0' then comprador.nome_empresarial \n"
+						+ " when comprador.tipo_cliente = '1' then comprador.nome_fantasia\n" + "end\n"
+						+ " separator ',') as compradores,\n" + "GROUP_CONCAT(distinct\n" + "case\n"
+						+ "when vendedor.tipo_cliente = '0' then vendedor.nome_empresarial \n"
+						+ " when vendedor.tipo_cliente = '1' then vendedor.nome_fantasia\n" + "end\n"
+						+ " separator ',') as vendedores,\n" + " sf.id_safra, sf.ano_colheita, sf.ano_plantio,\n"
+						+ " pd.id_produto, pd.nome_produto, pd.transgenia \n" + " from contrato ct\n"
+						+ "LEFT join safra sf on sf.id_safra = ct.id_safra\n"
+						+ "LEFT join produto pd on pd.id_produto = sf.id_produto\n"
+						+ "LEFT JOIN contrato_comprador on contrato_comprador.id_contrato = ct.id\n"
+						+ "LEFT JOIN cliente comprador on comprador.id_cliente = contrato_comprador.id_cliente\n"
+						+ "LEFT JOIN contrato_vendedor on contrato_vendedor.id_contrato = ct.id\n"
+						+ "LEFT JOIN cliente vendedor on vendedor.id_cliente = contrato_vendedor.id_cliente\n"
+						+ "where contrato_comprador.id_cliente = ?  and ct.grupo_particular = 0\n" + "group by ct.id";
+			}
+
+		} else if (flag_select == 2) {
+			if (id_busca_safra > 0) {
+				selectContratos = "select ct.*,\n" + "GROUP_CONCAT(distinct\n" + "case\n"
+						+ "when comprador.tipo_cliente = '0' then comprador.nome_empresarial \n"
+						+ " when comprador.tipo_cliente = '1' then comprador.nome_fantasia\n" + "end\n"
+						+ " separator ',') as compradores,\n" + "GROUP_CONCAT(distinct\n" + "case\n"
+						+ "when vendedor.tipo_cliente = '0' then vendedor.nome_empresarial \n"
+						+ " when vendedor.tipo_cliente = '1' then vendedor.nome_fantasia\n" + "end\n"
+						+ " separator ',') as vendedores,\n" + " sf.id_safra, sf.ano_colheita, sf.ano_plantio,\n"
+						+ " pd.id_produto, pd.nome_produto, pd.transgenia \n" + " from contrato ct\n"
+						+ "LEFT join safra sf on sf.id_safra = ct.id_safra\n"
+						+ "LEFT join produto pd on pd.id_produto = sf.id_produto\n"
+						+ "LEFT JOIN contrato_comprador on contrato_comprador.id_contrato = ct.id\n"
+						+ "LEFT JOIN cliente comprador on comprador.id_cliente = contrato_comprador.id_cliente\n"
+						+ "LEFT JOIN contrato_vendedor on contrato_vendedor.id_contrato = ct.id\n"
+						+ "LEFT JOIN cliente vendedor on vendedor.id_cliente = contrato_vendedor.id_cliente\n"
+						+ "where contrato_vendedor.id_cliente = ? and sf.id_safra = ? and ct.grupo_particular = 0\n"
+						+ "group by ct.id";
+			} else {
+				selectContratos = "select ct.*,\n" + "GROUP_CONCAT(distinct\n" + "case\n"
+						+ "when comprador.tipo_cliente = '0' then comprador.nome_empresarial \n"
+						+ " when comprador.tipo_cliente = '1' then comprador.nome_fantasia\n" + "end\n"
+						+ " separator ',') as compradores,\n" + "GROUP_CONCAT(distinct\n" + "case\n"
+						+ "when vendedor.tipo_cliente = '0' then vendedor.nome_empresarial \n"
+						+ " when vendedor.tipo_cliente = '1' then vendedor.nome_fantasia\n" + "end\n"
+						+ " separator ',') as vendedores,\n" + " sf.id_safra, sf.ano_colheita, sf.ano_plantio,\n"
+						+ " pd.id_produto, pd.nome_produto, pd.transgenia \n" + " from contrato ct\n"
+						+ "LEFT join safra sf on sf.id_safra = ct.id_safra\n"
+						+ "LEFT join produto pd on pd.id_produto = sf.id_produto\n"
+						+ "LEFT JOIN contrato_comprador on contrato_comprador.id_contrato = ct.id\n"
+						+ "LEFT JOIN cliente comprador on comprador.id_cliente = contrato_comprador.id_cliente\n"
+						+ "LEFT JOIN contrato_vendedor on contrato_vendedor.id_contrato = ct.id\n"
+						+ "LEFT JOIN cliente vendedor on vendedor.id_cliente = contrato_vendedor.id_cliente\n"
+						+ "where contrato_vendedor.id_cliente = ? and ct.grupo_particular = 0\n" + "group by ct.id";
+			}
+
+		} else if (flag_select == 4) {
+			if (id_busca_safra > 0) {
+				selectContratos = "select ct.*,\n" + "GROUP_CONCAT(distinct\n" + "case\n"
+						+ "when comprador.tipo_cliente = '0' then comprador.nome_empresarial \n"
+						+ " when comprador.tipo_cliente = '1' then comprador.nome_fantasia\n" + "end\n"
+						+ " separator ',') as compradores,\n" + "GROUP_CONCAT(distinct\n" + "case\n"
+						+ "when vendedor.tipo_cliente = '0' then vendedor.nome_empresarial \n"
+						+ " when vendedor.tipo_cliente = '1' then vendedor.nome_fantasia\n" + "end\n"
+						+ " separator ',') as vendedores,\n" + " sf.id_safra, sf.ano_colheita, sf.ano_plantio,\n"
+						+ " pd.id_produto, pd.nome_produto, pd.transgenia \n" + " from contrato ct\n"
+						+ "LEFT join safra sf on sf.id_safra = ct.id_safra\n"
+						+ "LEFT join produto pd on pd.id_produto = sf.id_produto\n"
+						+ "LEFT JOIN contrato_comprador on contrato_comprador.id_contrato = ct.id\n"
+						+ "LEFT JOIN cliente comprador on comprador.id_cliente = contrato_comprador.id_cliente\n"
+						+ "LEFT JOIN contrato_vendedor on contrato_vendedor.id_contrato = ct.id\n"
+						+ "LEFT JOIN cliente vendedor on vendedor.id_cliente = contrato_vendedor.id_cliente\n"
+						+ "where contrato_comprador.id_cliente = ? and sf.id_safra = ? and (ct.sub_contrato = 0 or ct.sub_contrato = 3 or ct.sub_contrato = 4 or ct.sub_contrato = 5) and ct.grupo_particular = 0\n"
+						+ "group by ct.id";
+			} else {
+				selectContratos = "select ct.*,\n" + "GROUP_CONCAT(distinct\n" + "case\n"
+						+ "when comprador.tipo_cliente = '0' then comprador.nome_empresarial \n"
+						+ " when comprador.tipo_cliente = '1' then comprador.nome_fantasia\n" + "end\n"
+						+ " separator ',') as compradores,\n" + "GROUP_CONCAT(distinct\n" + "case\n"
+						+ "when vendedor.tipo_cliente = '0' then vendedor.nome_empresarial \n"
+						+ " when vendedor.tipo_cliente = '1' then vendedor.nome_fantasia\n" + "end\n"
+						+ " separator ',') as vendedores,\n" + " sf.id_safra, sf.ano_colheita, sf.ano_plantio,\n"
+						+ " pd.id_produto, pd.nome_produto, pd.transgenia \n" + " from contrato ct\n"
+						+ "LEFT join safra sf on sf.id_safra = ct.id_safra\n"
+						+ "LEFT join produto pd on pd.id_produto = sf.id_produto\n"
+						+ "LEFT JOIN contrato_comprador on contrato_comprador.id_contrato = ct.id\n"
+						+ "LEFT JOIN cliente comprador on comprador.id_cliente = contrato_comprador.id_cliente\n"
+						+ "LEFT JOIN contrato_vendedor on contrato_vendedor.id_contrato = ct.id\n"
+						+ "LEFT JOIN cliente vendedor on vendedor.id_cliente = contrato_vendedor.id_cliente\n"
+						+ "where contrato_comprador.id_cliente = ? and (ct.sub_contrato = 0 or ct.sub_contrato = 3 or ct.sub_contrato = 4 or ct.sub_contrato = 5) and ct.grupo_particular = 0\n"
+						+ "group by ct.id";
+			}
+
+		} else if (flag_select == 5) {
+			if (id_busca_safra > 0) {
+				selectContratos = "select ct.*,\n" + "GROUP_CONCAT(distinct\n" + "case\n"
+						+ "when comprador.tipo_cliente = '0' then comprador.nome_empresarial \n"
+						+ " when comprador.tipo_cliente = '1' then comprador.nome_fantasia\n" + "end\n"
+						+ " separator ',') as compradores,\n" + "GROUP_CONCAT(distinct\n" + "case\n"
+						+ "when vendedor.tipo_cliente = '0' then vendedor.nome_empresarial \n"
+						+ " when vendedor.tipo_cliente = '1' then vendedor.nome_fantasia\n" + "end\n"
+						+ " separator ',') as vendedores,\n" + " sf.id_safra, sf.ano_colheita, sf.ano_plantio,\n"
+						+ " pd.id_produto, pd.nome_produto, pd.transgenia \n" + " from contrato ct\n"
+						+ "LEFT join safra sf on sf.id_safra = ct.id_safra\n"
+						+ "LEFT join produto pd on pd.id_produto = sf.id_produto\n"
+						+ "LEFT JOIN contrato_comprador on contrato_comprador.id_contrato = ct.id\n"
+						+ "LEFT JOIN cliente comprador on comprador.id_cliente = contrato_comprador.id_cliente\n"
+						+ "LEFT JOIN contrato_vendedor on contrato_vendedor.id_contrato = ct.id\n"
+						+ "LEFT JOIN cliente vendedor on vendedor.id_cliente = contrato_vendedor.id_cliente\n"
+						+ "where contrato_vendedor.id_cliente = ? and sf.id_safra = ? and (ct.sub_contrato = 0 or ct.sub_contrato = 3 or ct.sub_contrato = 4 or ct.sub_contrato = 5) and ct.grupo_particular = 0\n"
+						+ "group by ct.id";
+			} else {
+				selectContratos = "select ct.*,\n" + "GROUP_CONCAT(distinct\n" + "case\n"
+						+ "when comprador.tipo_cliente = '0' then comprador.nome_empresarial \n"
+						+ " when comprador.tipo_cliente = '1' then comprador.nome_fantasia\n" + "end\n"
+						+ " separator ',') as compradores,\n" + "GROUP_CONCAT(distinct\n" + "case\n"
+						+ "when vendedor.tipo_cliente = '0' then vendedor.nome_empresarial \n"
+						+ " when vendedor.tipo_cliente = '1' then vendedor.nome_fantasia\n" + "end\n"
+						+ " separator ',') as vendedores,\n" + " sf.id_safra, sf.ano_colheita, sf.ano_plantio,\n"
+						+ " pd.id_produto, pd.nome_produto, pd.transgenia \n" + " from contrato ct\n"
+						+ "LEFT join safra sf on sf.id_safra = ct.id_safra\n"
+						+ "LEFT join produto pd on pd.id_produto = sf.id_produto\n"
+						+ "LEFT JOIN contrato_comprador on contrato_comprador.id_contrato = ct.id\n"
+						+ "LEFT JOIN cliente comprador on comprador.id_cliente = contrato_comprador.id_cliente\n"
+						+ "LEFT JOIN contrato_vendedor on contrato_vendedor.id_contrato = ct.id\n"
+						+ "LEFT JOIN cliente vendedor on vendedor.id_cliente = contrato_vendedor.id_cliente\n"
+						+ "where contrato_vendedor.id_cliente = ? and (ct.sub_contrato = 0 or ct.sub_contrato = 3 or ct.sub_contrato = 4 or ct.sub_contrato = 5) and ct.grupo_particular = 0\n"
+						+ "group by ct.id";
+			}
+
+		}
+		Connection conn = null;
+		PreparedStatement pstm = null;
+		ResultSet rs = null;
+		ArrayList<CadastroContrato> lsitaContratos = new ArrayList<CadastroContrato>();
+		try {
+			conn = ConexaoBanco.getConexao();
+			pstm = conn.prepareStatement(selectContratos);
+
+			pstm.setInt(1, id_cliente);
+			if (id_busca_safra > 0)
+				pstm.setInt(2, id_busca_safra);
+
+			rs = pstm.executeQuery();
+			while (rs.next()) {
+				CadastroContrato contrato_recebimento = new CadastroContrato();
+
+				contrato_recebimento.setId(rs.getInt("id"));
+				contrato_recebimento.setSub_contrato(rs.getInt("sub_contrato"));
+				contrato_recebimento.setCodigo(rs.getString("codigo"));
+				contrato_recebimento.setQuantidade(rs.getDouble("quantidade"));
+				contrato_recebimento.setMedida(rs.getString("medida"));
+				contrato_recebimento.setValor_a_pagar(new BigDecimal(rs.getString("valor_a_pagar")));
+				contrato_recebimento.setValor_produto(rs.getDouble("valor_produto"));
+				contrato_recebimento.setNomes_compradores(rs.getString("compradores"));
+				contrato_recebimento.setNomes_vendedores(rs.getString("vendedores"));
+				contrato_recebimento.setGrupo_particular(rs.getInt("grupo_particular"));
+				contrato_recebimento.setStatus_contrato(rs.getInt("status_contrato"));
+
+				CadastroSafra safra = new CadastroSafra();
+				safra.setId_safra(rs.getInt("id_safra"));
+				safra.setAno_colheita(rs.getInt("ano_colheita"));
+				safra.setAno_plantio(rs.getInt("ano_plantio"));
+
+				CadastroProduto produto = new CadastroProduto();
+				produto.setId_produto(rs.getInt("id_produto"));
+				produto.setNome_produto(rs.getString("nome_produto"));
+				produto.setTransgenia(rs.getString("transgenia"));
+
+				safra.setProduto(produto);
+
+				contrato_recebimento.setModelo_produto(produto);
+				contrato_recebimento.setModelo_safra(safra);
+
+				lsitaContratos.add(contrato_recebimento);
+
+			}
+			ConexaoBanco.fechaConexao(conn, pstm, rs);
+			return lsitaContratos;
+
+		} catch (Exception e) {
+			JOptionPane.showMessageDialog(null,
+					"Erro ao listar contratos\nMensagem: " + e.getMessage() + "\nCausa: " + e.getCause());
 			return null;
 		}
 
@@ -2042,8 +2402,8 @@ observacao text
 			ConexaoBanco.fechaConexao(conn, pstm, rs);
 			return lista_corretores;
 		} catch (Exception e) {
-			JOptionPane.showMessageDialog(null, "Erro ao listar os corretores do contrato: " + id_contrato + " erro: "
-					  + "causa: "  );
+			JOptionPane.showMessageDialog(null,
+					"Erro ao listar os corretores do contrato: " + id_contrato + " erro: " + "causa: ");
 			return null;
 		}
 
@@ -2089,8 +2449,8 @@ observacao text
 			ConexaoBanco.fechaConexao(conn, pstm, rs);
 			return lista_compradores;
 		} catch (Exception e) {
-			JOptionPane.showMessageDialog(null, "Erro ao listar os compradores do contrato: " + id_contrato + " erro: "
-					  + "causa: "  );
+			JOptionPane.showMessageDialog(null,
+					"Erro ao listar os compradores do contrato: " + id_contrato + " erro: " + "causa: ");
 			return null;
 		}
 
@@ -2137,8 +2497,8 @@ observacao text
 			ConexaoBanco.fechaConexao(conn, pstm, rs);
 			return lista_vendedores;
 		} catch (Exception e) {
-			JOptionPane.showMessageDialog(null, "Erro ao listar os vendedores do contrato: " + id_contrato + " erro: "
-					  + "causa: "  );
+			JOptionPane.showMessageDialog(null,
+					"Erro ao listar os vendedores do contrato: " + id_contrato + " erro: " + "causa: ");
 			return null;
 		}
 
@@ -2207,8 +2567,8 @@ observacao text
 			ConexaoBanco.fechaConexao(conn, pstm, rs);
 			return lista_pagamentos;
 		} catch (Exception e) {
-			JOptionPane.showMessageDialog(null, "Erro ao listar os pagamentos do contrato: " + id_contrato + " erro: "
-					  + "causa: "  );
+			JOptionPane.showMessageDialog(null,
+					"Erro ao listar os pagamentos do contrato: " + id_contrato + " erro: " + "causa: ");
 			return null;
 		}
 
@@ -2224,14 +2584,15 @@ observacao text
 			PreparedStatement grava = (PreparedStatement) conn.prepareStatement(sql);
 			grava.execute();
 			ConexaoBanco.fechaConexao(conn, grava);
-			//JOptionPane.showMessageDialog(null, "Relação contrato_sub_contrato cadastrado com sucesso");
+			// JOptionPane.showMessageDialog(null, "Relação contrato_sub_contrato cadastrado
+			// com sucesso");
 			registro_geral_relacao_contrato_sub_contrato.setIdContrato(id_contrato_pai);
 			registro_geral_relacao_contrato_sub_contrato.adicionar_id(id_sub_contrato);
 			return true;
 
 		} catch (Exception e) {
 			JOptionPane.showMessageDialog(null,
-					"Erro ao inserir a relação contrato_sub_contrato no banco de" + " dados"  );
+					"Erro ao inserir a relação contrato_sub_contrato no banco de" + " dados");
 			return false;
 		}
 
@@ -2251,7 +2612,8 @@ observacao text
 
 			pstm.execute();
 			ConexaoBanco.fechaConexao(conn, pstm);
-			//JOptionPane.showMessageDialog(null, "Relação contrato_sub_contrato excluido, banco normalizado ");
+			// JOptionPane.showMessageDialog(null, "Relação contrato_sub_contrato excluido,
+			// banco normalizado ");
 			return true;
 
 		} catch (Exception f) {
@@ -2339,7 +2701,7 @@ observacao text
 					contrato.setCaminho_arquivo(rs.getString("caminho_arquivo"));
 					contrato.setNome_arquivo(rs.getString("nome_arquivo"));
 					contrato.setCaminho_diretorio_contrato(rs.getString("caminho_diretorio"));
-					
+
 					contrato.setCaminho_diretorio_contrato2(rs.getString("caminho_diretorio2"));
 					contrato.setCaminho_arquivo2(rs.getString("caminho_arquivo2"));
 					contrato.setNome_arquivo2(rs.getString("nome_arquivo2"));
@@ -2348,14 +2710,14 @@ observacao text
 					contrato.setComissao(rs.getInt("comissao"));
 					contrato.setClausula_comissao(rs.getInt("clausula_comissao"));
 					contrato.setValor_comissao(new BigDecimal(rs.getString("valor_comissao")));
-					
-					//dados de retirada
-					
+
+					// dados de retirada
+
 					contrato.setId_local_retirada(rs.getInt("id_local_retirada"));
 					contrato.setTipo_entrega(rs.getInt("tipo_entrega"));
 
-					   //informacoes extras
-					
+					// informacoes extras
+
 					contrato.setLocalizacao(rs.getString("localizacao"));
 					contrato.setBruto_livre(rs.getString("bruto_livre"));
 					contrato.setFertilizante(rs.getString("fertilizante"));
@@ -2364,7 +2726,7 @@ observacao text
 					contrato.setStatus_optante_folha(rs.getString("status_optante_folha"));
 					contrato.setDescricao(rs.getString("descricao"));
 					contrato.setObservacao(rs.getString("observacao"));
-					
+
 					lsitaContratos.add(contrato);
 
 				}
@@ -2375,7 +2737,88 @@ observacao text
 
 		} catch (Exception e) {
 			JOptionPane.showMessageDialog(null,
-					"Erro ao listar contrato filhos do contrato id: " + id_contrato_pai + " erro: "  );
+					"Erro ao listar contrato filhos do contrato id: " + id_contrato_pai + " erro: ");
+			return null;
+		}
+		return lsitaContratos;
+
+	}
+
+	public ArrayList<CadastroContrato> getSubContratosParaRelatorio(int id_contrato_pai) {
+		// String selectContrato = "select * from contrato_sub_contrato sub_contrato
+		// LEFT JOIN contrato filho on filho.id = sub_contrato.id_sub_contrato where
+		// (filho.sub_contrato = 1 or filho.sub_contrato = 6 or filho.sub_contrato = 7)
+		// and id_contrato_pai = ?";
+		String selectContrato = "select sub_contrato.*,\n" + "filho.*,\n" + "GROUP_CONCAT(distinct\n" + "case\n"
+				+ "when comprador.tipo_cliente = '0' then comprador.nome_empresarial \n"
+				+ " when comprador.tipo_cliente = '1' then comprador.nome_fantasia\n" + "end\n"
+				+ " separator ',') as compradores,\n" + "GROUP_CONCAT(distinct\n" + "case\n"
+				+ "when vendedor.tipo_cliente = '0' then vendedor.nome_empresarial \n"
+				+ " when vendedor.tipo_cliente = '1' then vendedor.nome_fantasia\n" + "end\n"
+				+ " separator ',') as vendedores,\n" + " sf.id_safra, sf.ano_colheita, sf.ano_plantio,\n"
+				+ " pd.id_produto, pd.nome_produto, pd.transgenia \n" + "from contrato_sub_contrato sub_contrato \n"
+				+ "LEFT JOIN contrato filho  on filho.id = sub_contrato.id_sub_contrato \n"
+				+ "LEFT join safra sf on sf.id_safra = filho.id_safra\n"
+				+ "LEFT join produto pd on pd.id_produto = sf.id_produto\n"
+				+ "LEFT JOIN contrato_comprador on contrato_comprador.id_contrato = filho.id\n"
+				+ "LEFT JOIN cliente comprador on comprador.id_cliente = contrato_comprador.id_cliente\n"
+				+ "LEFT JOIN contrato_vendedor on contrato_vendedor.id_contrato = filho.id\n"
+				+ "LEFT JOIN cliente vendedor on vendedor.id_cliente = contrato_vendedor.id_cliente\n"
+				+ "where (filho.sub_contrato = 1 or filho.sub_contrato = 6 or filho.sub_contrato = 7) and id_contrato_pai = ?";
+		Connection conn = null;
+		PreparedStatement pstm = null;
+		ResultSet rs = null;
+		ArrayList<CadastroContrato> lsitaContratos = new ArrayList<CadastroContrato>();
+
+		try {
+			conn = ConexaoBanco.getConexao();
+			pstm = conn.prepareStatement(selectContrato);
+			pstm.setInt(1, id_contrato_pai);
+			GerenciarBancoSafras gerenciar = new GerenciarBancoSafras();
+
+			rs = pstm.executeQuery();
+			while (rs.next()) {
+
+				CadastroContrato contrato_recebimento = new CadastroContrato();
+
+				if (rs.getInt("id") > 0) {
+					contrato_recebimento.setId(rs.getInt("id"));
+
+					contrato_recebimento.setSub_contrato(rs.getInt("sub_contrato"));
+					contrato_recebimento.setCodigo(rs.getString("codigo"));
+					contrato_recebimento.setQuantidade(rs.getDouble("quantidade"));
+					contrato_recebimento.setMedida(rs.getString("medida"));
+					contrato_recebimento.setValor_a_pagar(new BigDecimal(rs.getString("valor_a_pagar")));
+
+					contrato_recebimento.setValor_produto(rs.getDouble("valor_produto"));
+
+					contrato_recebimento.setNomes_compradores(rs.getString("compradores"));
+					contrato_recebimento.setNomes_vendedores(rs.getString("vendedores"));
+
+					CadastroSafra safra = new CadastroSafra();
+					safra.setId_safra(rs.getInt("id_safra"));
+					safra.setAno_colheita(rs.getInt("ano_colheita"));
+					safra.setAno_plantio(rs.getInt("ano_plantio"));
+
+					CadastroProduto produto = new CadastroProduto();
+					produto.setId_produto(rs.getInt("id_produto"));
+					produto.setNome_produto(rs.getString("nome_produto"));
+					produto.setTransgenia(rs.getString("transgenia"));
+
+					safra.setProduto(produto);
+
+					contrato_recebimento.setModelo_produto(produto);
+					contrato_recebimento.setModelo_safra(safra);
+
+					lsitaContratos.add(contrato_recebimento);
+				}
+			}
+
+			ConexaoBanco.fechaConexao(conn, pstm, rs);
+
+		} catch (Exception e) {
+			JOptionPane.showMessageDialog(null, "Erro ao listar contrato filhos do contrato id: " + id_contrato_pai
+					+ " erro: " + e.getMessage() + "\nCausa: " + e.getCause());
 			return null;
 		}
 		return lsitaContratos;
@@ -2446,10 +2889,8 @@ observacao text
 				return result;
 
 			} catch (Exception e) {
-				JOptionPane.showMessageDialog(null,
-						"Erro ao inserir a tarefa no banco de " + "dados "  );
-				GerenciadorLog.registrarLogDiario("falha",
-						"falha ao adicionar tarefa: "   + " causa: "  );
+				JOptionPane.showMessageDialog(null, "Erro ao inserir a tarefa no banco de " + "dados ");
+				GerenciadorLog.registrarLogDiario("falha", "falha ao adicionar tarefa: " + " causa: ");
 				return -1;
 			}
 		} else {
@@ -2481,7 +2922,8 @@ observacao text
 			PreparedStatement grava = (PreparedStatement) conn.prepareStatement(sql);
 			grava.execute();
 			ConexaoBanco.fechaConexao(conn, grava);
-			//JOptionPane.showMessageDialog(null, "Relação contrato_tarefas  cadastrado com sucesso");
+			// JOptionPane.showMessageDialog(null, "Relação contrato_tarefas cadastrado com
+			// sucesso");
 			registro_geral_relacao_contrato_tarefa.setIdContrato(id_contrato);
 			registro_geral_relacao_contrato_tarefa.adicionar_id(id_tarefa);
 
@@ -2493,17 +2935,15 @@ observacao text
 		}
 
 	}
-	
-	
+
 	public int getContratoPorTarefa(int id_tarefa) {
 		System.out.println("Lista tarefas foi chamado!");
 		String selectTarefas = "select id_contrato from contrato_tarefas \n"
-				+ "LEFT JOIN tarefa  on tarefa.id_tarefa = contrato_tarefas.id_tarefa\n"
-				+ "where tarefa.id_tarefa = ?";
+				+ "LEFT JOIN tarefa  on tarefa.id_tarefa = contrato_tarefas.id_tarefa\n" + "where tarefa.id_tarefa = ?";
 		Connection conn = null;
 		PreparedStatement pstm = null;
 		ResultSet rs = null;
-        int id_contrato = -1;
+		int id_contrato = -1;
 		try {
 			conn = ConexaoBanco.getConexao();
 			pstm = conn.prepareStatement(selectTarefas);
@@ -2513,22 +2953,18 @@ observacao text
 			rs.next();
 			id_contrato = rs.getInt("id_contrato");
 
-
-				
-
 			ConexaoBanco.fechaConexao(conn, pstm, rs);
 			return id_contrato;
 		} catch (Exception e) {
-			JOptionPane.showMessageDialog(null, "Erro ao listar contrato por tarefa: " + id_tarefa + " erro: "
-					  + "causa: "  );
+			JOptionPane.showMessageDialog(null,
+					"Erro ao listar contrato por tarefa: " + id_tarefa + " erro: " + "causa: ");
 			return -1;
 		}
 
 	}
 
 	public ArrayList<CadastroContrato.CadastroTarefa> getTarefas(int id_contrato) {
-		
-		
+
 		System.out.println("Lista tarefas foi chamado!");
 		String selectTarefas = "select * from contrato_tarefas \r\n"
 				+ "LEFT JOIN tarefa  on tarefa.id_tarefa = contrato_tarefas.id_tarefa \r\n"
@@ -2587,8 +3023,8 @@ observacao text
 			System.out.println("Tarefas foram listadas com sucesso!");
 			return lista_tarefas;
 		} catch (Exception e) {
-			JOptionPane.showMessageDialog(null, "Erro ao listar as tarefas do contrato: " + id_contrato + " erro: "
-					  + "causa: "  );
+			JOptionPane.showMessageDialog(null,
+					"Erro ao listar as tarefas do contrato: " + id_contrato + " erro: " + "causa: ");
 			return null;
 		}
 
@@ -2651,14 +3087,12 @@ observacao text
 			System.out.println("Tarefas foram listadas com sucesso!");
 			return lista_tarefas;
 		} catch (Exception e) {
-			JOptionPane.showMessageDialog(null, "Erro ao listar todas as tarefas \n erro: "
-					  + "causa: "  );
+			JOptionPane.showMessageDialog(null, "Erro ao listar todas as tarefas \n erro: " + "causa: ");
 			return null;
 		}
 
 	}
 
-	
 	public boolean removerTarefas() {
 		boolean retorno = false;
 
@@ -2742,8 +3176,8 @@ observacao text
 					retorno_inserir_carregamento);
 			if (inserir_relacao_contrato_carregamento) {
 				System.out.println("Carregamento Cadastrado");
-                 return retorno_inserir_carregamento;
-				
+				return retorno_inserir_carregamento;
+
 			} else {
 				System.out.println("Erro ao inserir um novo carregamento!");
 				return -1;
@@ -2756,8 +3190,7 @@ observacao text
 		}
 
 	}
-	
-	
+
 	public int inserirRecebimento(int id_contrato, Recebimento recebimento) {
 
 		// inserir primeiro o recebimento
@@ -2801,7 +3234,7 @@ observacao text
 			return true;
 
 		} catch (Exception e) {
-			JOptionPane.showMessageDialog(null, "Erro ao atualizar tarefa no banco de" + "dados "  );
+			JOptionPane.showMessageDialog(null, "Erro ao atualizar tarefa no banco de" + "dados ");
 			return false;
 		}
 
@@ -2832,9 +3265,9 @@ observacao text
 
 			} catch (Exception e) {
 				JOptionPane.showMessageDialog(null,
-						"Erro ao inserir o carregamento no banco de dados\nErro: " + e.getMessage()  );
+						"Erro ao inserir o carregamento no banco de dados\nErro: " + e.getMessage());
 				GerenciadorLog.registrarLogDiario("falha",
-						"falha ao adicionar carregamento: "   + " causa: "  );
+						"falha ao adicionar carregamento: " + " causa: " + e.getCause());
 				return -1;
 			}
 		} else {
@@ -2868,10 +3301,8 @@ observacao text
 				return result;
 
 			} catch (Exception e) {
-				JOptionPane.showMessageDialog(null,
-						"Erro ao inserir o recebimento no banco de " + "dados "  );
-				GerenciadorLog.registrarLogDiario("falha",
-						"falha ao adicionar carregamento: "   + " causa: "  );
+				JOptionPane.showMessageDialog(null, "Erro ao inserir o recebimento no banco de " + "dados ");
+				GerenciadorLog.registrarLogDiario("falha", "falha ao adicionar carregamento: " + " causa: ");
 				return -1;
 			}
 		} else {
@@ -2880,7 +3311,7 @@ observacao text
 		}
 
 	}
-	
+
 	private boolean inserir_contrato_carregamento(int id_contrato, int id_carregamento) {
 		Connection conn = null;
 		try {
@@ -2891,7 +3322,8 @@ observacao text
 			PreparedStatement grava = (PreparedStatement) conn.prepareStatement(sql);
 			grava.execute();
 			ConexaoBanco.fechaConexao(conn, grava);
-			//JOptionPane.showMessageDialog(null, "Relação contrato_carregamento  cadastrado com sucesso");
+			// JOptionPane.showMessageDialog(null, "Relação contrato_carregamento cadastrado
+			// com sucesso");
 
 			return true;
 
@@ -2901,7 +3333,7 @@ observacao text
 		}
 
 	}
-	
+
 	private boolean inserir_contrato_recebimento(int id_contrato, int id_recebimento) {
 		Connection conn = null;
 		try {
@@ -2912,7 +3344,8 @@ observacao text
 			PreparedStatement grava = (PreparedStatement) conn.prepareStatement(sql);
 			grava.execute();
 			ConexaoBanco.fechaConexao(conn, grava);
-			//JOptionPane.showMessageDialog(null, "Relação contrato_carregamento  cadastrado com sucesso");
+			// JOptionPane.showMessageDialog(null, "Relação contrato_carregamento cadastrado
+			// com sucesso");
 
 			return true;
 
@@ -2923,9 +3356,6 @@ observacao text
 
 	}
 
-	
-	
-	
 	public ArrayList<CadastroContrato.Carregamento> getCarregamentos(int id_contrato) {
 
 		System.out.println("Lista carregamento foi chamado!");
@@ -2959,47 +3389,49 @@ observacao text
 					carga.setId_transportador(rs.getInt("id_transportador"));
 					carga.setId_veiculo(rs.getInt("id_veiculo"));
 					carga.setId_produto(rs.getInt("id_produto"));
-					
-				    carga.setCodigo_romaneio(rs.getString("codigo_romaneio"));
-				    carga.setPeso_romaneio(rs.getDouble("peso_romaneio"));
-				    carga.setCaminho_romaneio(rs.getString("caminho_romaneio"));
-				    
+
+					carga.setCodigo_romaneio(rs.getString("codigo_romaneio"));
+					carga.setPeso_romaneio(rs.getDouble("peso_romaneio"));
+					carga.setCaminho_romaneio(rs.getString("caminho_romaneio"));
+
 					carga.setNf_interna_aplicavel(rs.getInt("nf_interna_aplicavel"));
-				    carga.setCodigo_nf_interna(rs.getString("codigo_nf_interna"));
-				    carga.setPeso_nf_interna(rs.getDouble("peso_nf_interna"));
-				    carga.setCaminho_nf_interna(rs.getString("caminho_nf_interna"));
-					
+					carga.setCodigo_nf_interna(rs.getString("codigo_nf_interna"));
+					carga.setPeso_nf_interna(rs.getDouble("peso_nf_interna"));
+					carga.setCaminho_nf_interna(rs.getString("caminho_nf_interna"));
+
 					carga.setNf_venda1_aplicavel(rs.getInt("nf_venda1_aplicavel"));
-				    carga.setCodigo_nf_venda1(rs.getString("codigo_nf_venda1"));
-				    carga.setPeso_nf_venda1(rs.getDouble("peso_nf_venda1"));
-				    try {
-				    carga.setValor_nf_venda1(new BigDecimal(rs.getString("valor_nf_venda1")));
-				    }catch(Exception e) {
-				    	JOptionPane.showMessageDialog(null,"Erro ao criar bigdecimal do valor de venda1\nErro: " + e.getMessage());
-				    	 carga.setValor_nf_venda1( BigDecimal.ZERO);
-				    	 
-				    }
-				    carga.setNome_remetente_nf_venda1(rs.getString("nome_remetente_nf_venda1"));
-				    carga.setNome_destinatario_nf_venda1(rs.getString("nome_destinatario_nf_venda1"));
+					carga.setCodigo_nf_venda1(rs.getString("codigo_nf_venda1"));
+					carga.setPeso_nf_venda1(rs.getDouble("peso_nf_venda1"));
+					try {
+						carga.setValor_nf_venda1(new BigDecimal(rs.getString("valor_nf_venda1")));
+					} catch (Exception e) {
+						JOptionPane.showMessageDialog(null,
+								"Erro ao criar bigdecimal do valor de venda1\nErro: " + e.getMessage());
+						carga.setValor_nf_venda1(BigDecimal.ZERO);
 
-				    carga.setCaminho_nf_venda1(rs.getString("caminho_nf_venda1"));
-				    
-				    carga.setNf_complemento_aplicavel(rs.getInt("nf_complemento_aplicavel"));
-				    carga.setCodigo_nf_complemento(rs.getString("codigo_nf_complemento"));
-				    carga.setPeso_nf_complemento(rs.getDouble("peso_nf_complemento"));
-				    try {
-				    carga.setValor_nf_complemento(new BigDecimal(rs.getString("valor_nf_complemento")));
-				    }catch(Exception e) {
-				    	JOptionPane.showMessageDialog(null,"Erro ao criar bigdecimal do valor de nf complemento\nErro: " + e.getMessage());
+					}
+					carga.setNome_remetente_nf_venda1(rs.getString("nome_remetente_nf_venda1"));
+					carga.setNome_destinatario_nf_venda1(rs.getString("nome_destinatario_nf_venda1"));
 
-				    	 carga.setValor_nf_complemento( BigDecimal.ZERO);
+					carga.setCaminho_nf_venda1(rs.getString("caminho_nf_venda1"));
 
-				    }
-				    carga.setNome_remetente_nf_complemento(rs.getString("nome_remetente_nf_complemento"));
-				    carga.setNome_destinatario_nf_complemento(rs.getString("nome_destinatario_nf_complemento"));
-				    carga.setCaminho_nf_complemento(rs.getString("caminho_nf_complemento"));
-				    
-				    carga.setObservacao(rs.getString("observacao"));
+					carga.setNf_complemento_aplicavel(rs.getInt("nf_complemento_aplicavel"));
+					carga.setCodigo_nf_complemento(rs.getString("codigo_nf_complemento"));
+					carga.setPeso_nf_complemento(rs.getDouble("peso_nf_complemento"));
+					try {
+						carga.setValor_nf_complemento(new BigDecimal(rs.getString("valor_nf_complemento")));
+					} catch (Exception e) {
+						JOptionPane.showMessageDialog(null,
+								"Erro ao criar bigdecimal do valor de nf complemento\nErro: " + e.getMessage());
+
+						carga.setValor_nf_complemento(BigDecimal.ZERO);
+
+					}
+					carga.setNome_remetente_nf_complemento(rs.getString("nome_remetente_nf_complemento"));
+					carga.setNome_destinatario_nf_complemento(rs.getString("nome_destinatario_nf_complemento"));
+					carga.setCaminho_nf_complemento(rs.getString("caminho_nf_complemento"));
+
+					carga.setObservacao(rs.getString("observacao"));
 
 					lista_carregamentos.add(carga);
 
@@ -3011,12 +3443,104 @@ observacao text
 			return lista_carregamentos;
 		} catch (Exception e) {
 			JOptionPane.showMessageDialog(null, "Erro ao listar os carregamentos do contrato: " + id_contrato
-					+ " erro: " + e.getMessage()  + "causa: "  + e.getCause());
+					+ " erro: " + e.getMessage() + "causa: " + e.getCause());
 			return null;
 		}
 
 	}
-	
+
+	public ArrayList<CadastroContrato.Carregamento> getCarregamentos() {
+
+		System.out.println("Lista carregamento foi chamado!");
+		String selectCarregamentos = "select * from contrato_carregamentos \n"
+				+ "LEFT JOIN carregamento  on carregamento.id_carregamento = contrato_carregamentos.id_carregamento \n"
+				+ "order by carregamento.id_carregamento";
+		Connection conn = null;
+		PreparedStatement pstm = null;
+		ResultSet rs = null;
+		ArrayList<CadastroContrato.Carregamento> lista_carregamentos = new ArrayList<>();
+
+		try {
+			conn = ConexaoBanco.getConexao();
+			pstm = conn.prepareStatement(selectCarregamentos);
+
+			rs = pstm.executeQuery();
+
+			while (rs.next()) {
+
+				if (rs != null) {
+					System.out.print("carregamento não e nulo!");
+
+					CadastroContrato.Carregamento carga = new CadastroContrato.Carregamento();
+
+					carga.setId_carregamento(rs.getInt("id_carregamento"));
+					carga.setData(rs.getString("data_carregamento").toString());
+					carga.setId_contrato(rs.getInt("id_contrato_carregamento"));
+					carga.setId_cliente(rs.getInt("id_cliente"));
+					carga.setId_vendedor(rs.getInt("id_vendedor"));
+					carga.setId_transportador(rs.getInt("id_transportador"));
+					carga.setId_veiculo(rs.getInt("id_veiculo"));
+					carga.setId_produto(rs.getInt("id_produto"));
+
+					carga.setCodigo_romaneio(rs.getString("codigo_romaneio"));
+					carga.setPeso_romaneio(rs.getDouble("peso_romaneio"));
+					carga.setCaminho_romaneio(rs.getString("caminho_romaneio"));
+
+					carga.setNf_interna_aplicavel(rs.getInt("nf_interna_aplicavel"));
+					carga.setCodigo_nf_interna(rs.getString("codigo_nf_interna"));
+					carga.setPeso_nf_interna(rs.getDouble("peso_nf_interna"));
+					carga.setCaminho_nf_interna(rs.getString("caminho_nf_interna"));
+
+					carga.setNf_venda1_aplicavel(rs.getInt("nf_venda1_aplicavel"));
+					carga.setCodigo_nf_venda1(rs.getString("codigo_nf_venda1"));
+					carga.setPeso_nf_venda1(rs.getDouble("peso_nf_venda1"));
+					try {
+						carga.setValor_nf_venda1(new BigDecimal(rs.getString("valor_nf_venda1")));
+					} catch (Exception e) {
+						JOptionPane.showMessageDialog(null,
+								"Erro ao criar bigdecimal do valor de venda1\nErro: " + e.getMessage());
+						carga.setValor_nf_venda1(BigDecimal.ZERO);
+
+					}
+					carga.setNome_remetente_nf_venda1(rs.getString("nome_remetente_nf_venda1"));
+					carga.setNome_destinatario_nf_venda1(rs.getString("nome_destinatario_nf_venda1"));
+
+					carga.setCaminho_nf_venda1(rs.getString("caminho_nf_venda1"));
+
+					carga.setNf_complemento_aplicavel(rs.getInt("nf_complemento_aplicavel"));
+					carga.setCodigo_nf_complemento(rs.getString("codigo_nf_complemento"));
+					carga.setPeso_nf_complemento(rs.getDouble("peso_nf_complemento"));
+					try {
+						carga.setValor_nf_complemento(new BigDecimal(rs.getString("valor_nf_complemento")));
+					} catch (Exception e) {
+						JOptionPane.showMessageDialog(null,
+								"Erro ao criar bigdecimal do valor de nf complemento\nErro: " + e.getMessage());
+
+						carga.setValor_nf_complemento(BigDecimal.ZERO);
+
+					}
+					carga.setNome_remetente_nf_complemento(rs.getString("nome_remetente_nf_complemento"));
+					carga.setNome_destinatario_nf_complemento(rs.getString("nome_destinatario_nf_complemento"));
+					carga.setCaminho_nf_complemento(rs.getString("caminho_nf_complemento"));
+
+					carga.setObservacao(rs.getString("observacao"));
+
+					lista_carregamentos.add(carga);
+
+				}
+			}
+
+			ConexaoBanco.fechaConexao(conn, pstm, rs);
+			System.out.println("Carregamentos foram listadas com sucesso!");
+			return lista_carregamentos;
+		} catch (Exception e) {
+			JOptionPane.showMessageDialog(null, "Erro ao listar os carregamentos do contrato: " + " erro: "
+					+ e.getMessage() + "causa: " + e.getCause());
+			return null;
+		}
+
+	}
+
 	public ArrayList<CadastroContrato.Recebimento> getRecebimentos(int id_contrato) {
 
 		System.out.println("Lista recebimentos foi chamado!");
@@ -3052,13 +3576,13 @@ observacao text
 					recebido.setCodigo_romaneio(rs.getString("codigo_romaneio"));
 					recebido.setPeso_romaneio(rs.getDouble("peso_romaneio"));
 					recebido.setCaminho_romaneio(rs.getString("caminho_romaneio"));
-					
+
 					recebido.setNf_venda_aplicavel(rs.getInt("nf_venda_aplicavel"));
 					recebido.setCodigo_nf_venda(rs.getString("codigo_nf_venda"));
 					recebido.setPeso_nf_venda(rs.getDouble("peso_nf_venda"));
-				    recebido.setValor_nf_venda(new BigDecimal(rs.getString("valor_nf_venda")));
-				    recebido.setNome_remetente_nf_venda(rs.getString("nome_remetente_nf_venda"));
-				    recebido.setNome_destinatario_nf_venda(rs.getString("nome_destinatario_nf_venda"));
+					recebido.setValor_nf_venda(new BigDecimal(rs.getString("valor_nf_venda")));
+					recebido.setNome_remetente_nf_venda(rs.getString("nome_remetente_nf_venda"));
+					recebido.setNome_destinatario_nf_venda(rs.getString("nome_destinatario_nf_venda"));
 					recebido.setCaminho_nf_venda(rs.getString("caminho_nf_venda"));
 
 					recebido.setNf_remessa_aplicavel(rs.getInt("nf_remessa_aplicavel"));
@@ -3069,6 +3593,116 @@ observacao text
 					recebido.setNome_destinatario_nf_remessa(rs.getString("nome_destinatario_nf_remessa"));
 					recebido.setCaminho_nf_remessa(rs.getString("caminho_nf_remessa"));
 
+					lista_recebimentos.add(recebido);
+
+				}
+			}
+
+			ConexaoBanco.fechaConexao(conn, pstm, rs);
+			System.out.println("Recebimentos foram listadas com sucesso!");
+			return lista_recebimentos;
+		} catch (Exception e) {
+			JOptionPane.showMessageDialog(null, "Erro ao listar os recebimentos do contrato: " + id_contrato + " erro: "
+					+ e.getMessage() + "causa: " + e.getCause());
+			return null;
+		}
+
+	}
+
+	public ArrayList<RecebimentoCompleto> getRecebimentosParaRelatorio(int id_contrato) {
+
+		System.out.println("Lista recebimentos foi chamado!");
+		String selectRecebimentos = "select re.*,\n"
+				+ "ct.id as contrato_id, ct.codigo, ct.quantidade, ct.medida, ct.valor_a_pagar, ct.valor_produto,\n"
+				+ "GROUP_CONCAT(distinct\n" + "case\n"
+				+ "when comprador.tipo_cliente = '0' then comprador.nome_empresarial \n"
+				+ " when comprador.tipo_cliente = '1' then comprador.nome_fantasia\n" + "end\n"
+				+ " separator ',') as compradores,\n" + "GROUP_CONCAT(distinct\n" + "case\n"
+				+ "when vendedor.tipo_cliente = '0' then vendedor.nome_empresarial \n"
+				+ " when vendedor.tipo_cliente = '1' then vendedor.nome_fantasia\n" + "end\n"
+				+ " separator ',') as vendedores,\n" + " sf.id_safra, sf.ano_colheita, sf.ano_plantio,\n"
+				+ " pd.id_produto, pd.nome_produto, pd.transgenia \n" + " from contrato_recebimentos cr\n"
+				+ "LEFT JOIN recebimento re  on re.id_recebimento = cr.id_recebimento \n"
+				+ "LEFT JOIN contrato ct on ct.id = cr.id_contrato\n"
+				+ "LEFT join safra sf on sf.id_safra = ct.id_safra\n"
+				+ "LEFT join produto pd on pd.id_produto = sf.id_produto\n"
+				+ "LEFT JOIN contrato_comprador on contrato_comprador.id_contrato = ct.id\n"
+				+ "LEFT JOIN cliente comprador on comprador.id_cliente = contrato_comprador.id_cliente\n"
+				+ "LEFT JOIN contrato_vendedor on contrato_vendedor.id_contrato = ct.id\n"
+				+ "LEFT JOIN cliente vendedor on vendedor.id_cliente = contrato_vendedor.id_cliente\n"
+				+ "where ct.id = ?\n" + "group by re.id_recebimento";
+		Connection conn = null;
+		PreparedStatement pstm = null;
+		ResultSet rs = null;
+		ArrayList<RecebimentoCompleto> lista_recebimentos = new ArrayList<>();
+
+		try {
+			conn = ConexaoBanco.getConexao();
+			pstm = conn.prepareStatement(selectRecebimentos);
+			pstm.setInt(1, id_contrato);
+
+			rs = pstm.executeQuery();
+
+			while (rs.next()) {
+
+				if (rs != null) {
+					System.out.print("recebimento não e nulo!");
+
+					RecebimentoCompleto recebido = new RecebimentoCompleto();
+
+					recebido.setId_recebimento(rs.getInt("id_recebimento"));
+					recebido.setData_recebimento(rs.getString("data_recebimento").toString());
+					recebido.setId_contrato_recebimento(rs.getInt("id_contrato_recebimento"));
+					recebido.setId_cliente(rs.getInt("id_cliente"));
+					recebido.setId_vendedor(rs.getInt("id_vendedor"));
+					recebido.setId_transportador(rs.getInt("id_transportador"));
+					recebido.setId_veiculo(rs.getInt("id_veiculo"));
+					recebido.setCodigo_romaneio(rs.getString("codigo_romaneio"));
+					recebido.setPeso_romaneio(rs.getDouble("peso_romaneio"));
+					recebido.setCaminho_romaneio(rs.getString("caminho_romaneio"));
+
+					recebido.setNf_venda_aplicavel(rs.getInt("nf_venda_aplicavel"));
+					recebido.setCodigo_nf_venda(rs.getString("codigo_nf_venda"));
+					recebido.setPeso_nf_venda(rs.getDouble("peso_nf_venda"));
+					recebido.setValor_nf_venda(new BigDecimal(rs.getString("valor_nf_venda")));
+					recebido.setNome_remetente_nf_venda(rs.getString("nome_remetente_nf_venda"));
+					recebido.setNome_destinatario_nf_venda(rs.getString("nome_destinatario_nf_venda"));
+					recebido.setCaminho_nf_venda(rs.getString("caminho_nf_venda"));
+
+					recebido.setNf_remessa_aplicavel(rs.getInt("nf_remessa_aplicavel"));
+					recebido.setCodigo_nf_remessa(rs.getString("codigo_nf_remessa"));
+					recebido.setPeso_nf_remessa(rs.getDouble("peso_nf_remessa"));
+					recebido.setValor_nf_remessa(new BigDecimal(rs.getString("valor_nf_remessa")));
+					recebido.setNome_remetente_nf_remessa(rs.getString("nome_remetente_nf_remessa"));
+					recebido.setNome_destinatario_nf_remessa(rs.getString("nome_destinatario_nf_remessa"));
+					recebido.setCaminho_nf_remessa(rs.getString("caminho_nf_remessa"));
+
+					CadastroContrato contrato_recebimento = new CadastroContrato();
+					contrato_recebimento.setId(rs.getInt("contrato_id"));
+					contrato_recebimento.setCodigo(rs.getString("codigo"));
+					contrato_recebimento.setQuantidade(rs.getDouble("quantidade"));
+					contrato_recebimento.setMedida(rs.getString("medida"));
+					contrato_recebimento.setValor_a_pagar(new BigDecimal(rs.getString("valor_a_pagar")));
+					contrato_recebimento.setValor_produto(rs.getDouble("valor_produto"));
+					contrato_recebimento.setNomes_compradores(rs.getString("compradores"));
+					contrato_recebimento.setNomes_vendedores(rs.getString("vendedores"));
+
+					CadastroSafra safra = new CadastroSafra();
+					safra.setId_safra(rs.getInt("id_safra"));
+					safra.setAno_colheita(rs.getInt("ano_colheita"));
+					safra.setAno_plantio(rs.getInt("ano_plantio"));
+
+					CadastroProduto produto = new CadastroProduto();
+					produto.setId_produto(rs.getInt("id_produto"));
+					produto.setNome_produto(rs.getString("nome_produto"));
+					produto.setTransgenia(rs.getString("transgenia"));
+
+					safra.setProduto(produto);
+
+					contrato_recebimento.setModelo_produto(produto);
+					contrato_recebimento.setModelo_safra(safra);
+
+					recebido.setContrato(contrato_recebimento);
 
 					lista_recebimentos.add(recebido);
 
@@ -3079,8 +3713,263 @@ observacao text
 			System.out.println("Recebimentos foram listadas com sucesso!");
 			return lista_recebimentos;
 		} catch (Exception e) {
-			JOptionPane.showMessageDialog(null, "Erro ao listar os recebimentos do contrato: " + id_contrato
-					+ " erro: "+ e.getMessage()  + "causa: " + e.getCause()  );
+			JOptionPane.showMessageDialog(null, "Erro ao listar os recebimentos do contrato: " + id_contrato + " erro: "
+					+ e.getMessage() + "causa: " + e.getCause());
+			return null;
+		}
+
+	}
+
+	public ArrayList<CarregamentoCompleto> getCarregamentoParaRelatorio(int id_contrato) {
+
+		System.out.println("Lista carregamentos foi chamado!");
+		String selectCarregamentos = "select re.*,\n"
+				+ "ct.id as contrato_id, ct.codigo, ct.quantidade, ct.medida, ct.valor_a_pagar, ct.valor_produto,\n"
+				+ "GROUP_CONCAT(distinct\n" + "case\n"
+				+ "when comprador.tipo_cliente = '0' then comprador.nome_empresarial \n"
+				+ " when comprador.tipo_cliente = '1' then comprador.nome_fantasia\n" + "end\n"
+				+ " separator ',') as compradores,\n" + "GROUP_CONCAT(distinct\n" + "case\n"
+				+ "when vendedor.tipo_cliente = '0' then vendedor.nome_empresarial \n"
+				+ " when vendedor.tipo_cliente = '1' then vendedor.nome_fantasia\n" + "end\n"
+				+ " separator ',') as vendedores,\n" + " GROUP_CONCAT(distinct\n" + "case\n"
+				+ "when transportador.tipo_cliente = '0' then transportador.nome_empresarial \n"
+				+ " when transportador.tipo_cliente = '1' then transportador.nome_fantasia\n" + "end\n"
+				+ " separator ',') as motorista,\n" + " ve.placa,\n"
+				+ " sf.id_safra, sf.ano_colheita, sf.ano_plantio,\n"
+				+ " pd.id_produto, pd.nome_produto, pd.transgenia,\n" + " GROUP_CONCAT(distinct\n" + "case\n"
+				+ "when cliente_carregamento.tipo_cliente = '0' then cliente_carregamento.nome_empresarial \n"
+				+ " when cliente_carregamento.tipo_cliente = '1' then cliente_carregamento.nome_fantasia\n" + "end\n"
+				+ " separator ',') as cliente_carregamento,\n" + " GROUP_CONCAT(distinct\n" + "case\n"
+				+ "when vendedor_carregamento.tipo_cliente = '0' then vendedor_carregamento.nome_empresarial \n"
+				+ " when vendedor_carregamento.tipo_cliente = '1' then vendedor_carregamento.nome_fantasia\n" + "end\n"
+				+ " separator ',') as vendedor_carregamento\n" + " from contrato_carregamentos cr\n"
+				+ "LEFT JOIN carregamento re  on re.id_carregamento = cr.id_carregamento \n"
+				+ "LEFT JOIN contrato ct on ct.id = cr.id_contrato\n"
+				+ "LEFT join safra sf on sf.id_safra = ct.id_safra\n"
+				+ "LEFT join produto pd on pd.id_produto = sf.id_produto\n"
+				+ "LEFT JOIN contrato_comprador on contrato_comprador.id_contrato = ct.id\n"
+				+ "LEFT JOIN cliente comprador on comprador.id_cliente = contrato_comprador.id_cliente\n"
+				+ "LEFT JOIN cliente cliente_carregamento on cliente_carregamento.id_cliente = re.id_cliente\n"
+				+ "LEFT JOIN cliente vendedor_carregamento on vendedor_carregamento.id_cliente = re.id_vendedor\n"
+				+ "LEFT JOIN contrato_vendedor on contrato_vendedor.id_contrato = ct.id\n"
+				+ "LEFT JOIN cliente vendedor on vendedor.id_cliente = contrato_vendedor.id_cliente\n"
+				+ "left join cliente transportador on re.id_transportador = transportador.id_cliente\n"
+				+ "left join veiculo ve on ve.id_veiculo = re.id_veiculo\n" + "where ct.id = ?\n"
+				+ "group by re.id_carregamento";
+		Connection conn = null;
+		PreparedStatement pstm = null;
+		ResultSet rs = null;
+		ArrayList<CarregamentoCompleto> lista_carregamentos = new ArrayList<>();
+
+		try {
+			conn = ConexaoBanco.getConexao();
+			pstm = conn.prepareStatement(selectCarregamentos);
+			pstm.setInt(1, id_contrato);
+
+			rs = pstm.executeQuery();
+
+			while (rs.next()) {
+
+				if (rs != null) {
+					System.out.print("carregamento não e nulo!");
+
+					CarregamentoCompleto carga = new CarregamentoCompleto();
+
+					carga.setId_carregamento(rs.getInt("id_carregamento"));
+					carga.setData(rs.getString("data_carregamento"));
+					carga.setId_contrato(rs.getInt("id_contrato_carregamento"));
+					carga.setId_cliente(rs.getInt("id_cliente"));
+					carga.setCliente_carregamento(rs.getString("cliente_carregamento"));
+					carga.setVendedor_carregamento(rs.getString("vendedor_carregamento"));
+					carga.setId_vendedor(rs.getInt("id_vendedor"));
+					carga.setId_transportador(rs.getInt("id_transportador"));
+					carga.setId_veiculo(rs.getInt("id_veiculo"));
+					carga.setId_produto(rs.getInt("id_produto"));
+
+					carga.setCodigo_romaneio(rs.getString("codigo_romaneio"));
+					carga.setPeso_romaneio(rs.getDouble("peso_romaneio"));
+					carga.setCaminho_romaneio(rs.getString("caminho_romaneio"));
+
+					carga.setNf_interna_aplicavel(rs.getInt("nf_interna_aplicavel"));
+					carga.setCodigo_nf_interna(rs.getString("codigo_nf_interna"));
+					carga.setPeso_nf_interna(rs.getDouble("peso_nf_interna"));
+					carga.setCaminho_nf_interna(rs.getString("caminho_nf_interna"));
+
+					carga.setNf_venda1_aplicavel(rs.getInt("nf_venda1_aplicavel"));
+					carga.setCodigo_nf_venda1(rs.getString("codigo_nf_venda1"));
+					carga.setPeso_nf_venda1(rs.getDouble("peso_nf_venda1"));
+					carga.setValor_nf_venda1(new BigDecimal(rs.getString("valor_nf_venda1")));
+					carga.setNome_remetente_nf_venda1(rs.getString("nome_remetente_nf_venda1"));
+					carga.setNome_destinatario_nf_venda1(rs.getString("nome_destinatario_nf_venda1"));
+					carga.setCaminho_nf_venda1(rs.getString("caminho_nf_venda1"));
+
+					carga.setNf_complemento_aplicavel(rs.getInt("nf_complemento_aplicavel"));
+					carga.setCodigo_nf_complemento(rs.getString("codigo_nf_complemento"));
+					carga.setPeso_nf_complemento(rs.getDouble("peso_nf_complemento"));
+					carga.setValor_nf_complemento(new BigDecimal(rs.getString("valor_nf_complemento")));
+					carga.setNome_remetente_nf_complemento(rs.getString("nome_remetente_nf_complemento"));
+					carga.setNome_destinatario_nf_complemento(rs.getString("nome_destinatario_nf_complemento"));
+					carga.setCaminho_nf_complemento(rs.getString("caminho_nf_complemento"));
+
+					carga.setObservacao(rs.getString("observacao"));
+
+					CadastroContrato contrato_carregamento = new CadastroContrato();
+					contrato_carregamento.setId(rs.getInt("contrato_id"));
+					contrato_carregamento.setCodigo(rs.getString("codigo"));
+					contrato_carregamento.setQuantidade(rs.getDouble("quantidade"));
+					contrato_carregamento.setMedida(rs.getString("medida"));
+					contrato_carregamento.setValor_a_pagar(new BigDecimal(rs.getString("valor_a_pagar")));
+					contrato_carregamento.setValor_produto(rs.getDouble("valor_produto"));
+					contrato_carregamento.setNomes_compradores(rs.getString("compradores"));
+					contrato_carregamento.setNomes_vendedores(rs.getString("vendedores"));
+
+					CadastroSafra safra = new CadastroSafra();
+					safra.setId_safra(rs.getInt("id_safra"));
+					safra.setAno_colheita(rs.getInt("ano_colheita"));
+					safra.setAno_plantio(rs.getInt("ano_plantio"));
+
+					CadastroProduto produto = new CadastroProduto();
+					produto.setId_produto(rs.getInt("id_produto"));
+					produto.setNome_produto(rs.getString("nome_produto"));
+					produto.setTransgenia(rs.getString("transgenia"));
+
+					carga.setNome_motorista(rs.getString("motorista"));
+					carga.setPlaca(rs.getString("placa"));
+
+					safra.setProduto(produto);
+
+					contrato_carregamento.setModelo_produto(produto);
+					contrato_carregamento.setModelo_safra(safra);
+
+					carga.setContrato(contrato_carregamento);
+
+					lista_carregamentos.add(carga);
+
+				}
+			}
+
+			ConexaoBanco.fechaConexao(conn, pstm, rs);
+			System.out.println("Carregamentos foram listadas com sucesso!");
+			return lista_carregamentos;
+		} catch (Exception e) {
+			JOptionPane.showMessageDialog(null, "Erro ao listar os carregamentos do contrato: " + id_contrato
+					+ " erro: " + e.getMessage() + "causa: " + e.getCause());
+			return null;
+		}
+
+	}
+
+	public ArrayList<RecebimentoCompleto> getRecebimentos() {
+		int id = 0;
+		System.out.println("Lista recebimentos foi chamado!");
+		String selectRecebimentos = "select re.*,\n"
+				+ "ct.id as contrato_id, ct.codigo, ct.quantidade, ct.medida, ct.valor_a_pagar, ct.valor_produto,\n"
+				+ "GROUP_CONCAT(distinct\n" + "case\n"
+				+ "when comprador.tipo_cliente = '0' then comprador.nome_empresarial \n"
+				+ " when comprador.tipo_cliente = '1' then comprador.nome_fantasia\n" + "end\n"
+				+ " separator ',') as compradores,\n" + "GROUP_CONCAT(distinct\n" + "case\n"
+				+ "when vendedor.tipo_cliente = '0' then vendedor.nome_empresarial \n"
+				+ " when vendedor.tipo_cliente = '1' then vendedor.nome_fantasia\n" + "end\n"
+				+ " separator ',') as vendedores,\n" + " sf.id_safra, sf.ano_colheita, sf.ano_plantio,\n"
+				+ " pd.id_produto, pd.nome_produto, pd.transgenia \n" + " from contrato_recebimentos cr\n"
+				+ "LEFT JOIN recebimento re  on re.id_recebimento = cr.id_recebimento \n"
+				+ "LEFT JOIN contrato ct on ct.id = cr.id_contrato\n"
+				+ "LEFT join safra sf on sf.id_safra = ct.id_safra\n"
+				+ "LEFT join produto pd on pd.id_produto = sf.id_produto\n"
+				+ "LEFT JOIN contrato_comprador on contrato_comprador.id_contrato = ct.id\n"
+				+ "LEFT JOIN cliente comprador on comprador.id_cliente = contrato_comprador.id_cliente\n"
+				+ "LEFT JOIN contrato_vendedor on contrato_vendedor.id_contrato = ct.id\n"
+				+ "LEFT JOIN cliente vendedor on vendedor.id_cliente = contrato_vendedor.id_cliente\n"
+				+ "group by re.id_recebimento";
+		Connection conn = null;
+		PreparedStatement pstm = null;
+		ResultSet rs = null;
+		ArrayList<RecebimentoCompleto> lista_recebimentos = new ArrayList<>();
+
+		try {
+			conn = ConexaoBanco.getConexao();
+			pstm = conn.prepareStatement(selectRecebimentos);
+
+			rs = pstm.executeQuery();
+
+			while (rs.next()) {
+
+				if (rs != null) {
+					if (rs.getInt("id_recebimento") > 0) {
+						System.out.print("recebimento não e nulo!");
+
+						RecebimentoCompleto recebido = new RecebimentoCompleto();
+
+						recebido.setId_recebimento(rs.getInt("id_recebimento"));
+
+						recebido.setData_recebimento(rs.getString("data_recebimento").toString());
+
+						recebido.setId_contrato_recebimento(rs.getInt("id_contrato_recebimento"));
+						recebido.setId_cliente(rs.getInt("id_cliente"));
+						recebido.setId_vendedor(rs.getInt("id_vendedor"));
+						recebido.setId_transportador(rs.getInt("id_transportador"));
+						recebido.setId_veiculo(rs.getInt("id_veiculo"));
+
+						recebido.setCodigo_romaneio(rs.getString("codigo_romaneio"));
+						recebido.setPeso_romaneio(rs.getDouble("peso_romaneio"));
+						recebido.setCaminho_romaneio(rs.getString("caminho_romaneio"));
+
+						recebido.setNf_venda_aplicavel(rs.getInt("nf_venda_aplicavel"));
+						recebido.setCodigo_nf_venda(rs.getString("codigo_nf_venda"));
+						recebido.setPeso_nf_venda(rs.getDouble("peso_nf_venda"));
+						recebido.setValor_nf_venda(new BigDecimal(rs.getString("valor_nf_venda")));
+						recebido.setNome_remetente_nf_venda(rs.getString("nome_remetente_nf_venda"));
+						recebido.setNome_destinatario_nf_venda(rs.getString("nome_destinatario_nf_venda"));
+						recebido.setCaminho_nf_venda(rs.getString("caminho_nf_venda"));
+
+						recebido.setNf_remessa_aplicavel(rs.getInt("nf_remessa_aplicavel"));
+						recebido.setCodigo_nf_remessa(rs.getString("codigo_nf_remessa"));
+						recebido.setPeso_nf_remessa(rs.getDouble("peso_nf_remessa"));
+						recebido.setValor_nf_remessa(new BigDecimal(rs.getString("valor_nf_remessa")));
+						recebido.setNome_remetente_nf_remessa(rs.getString("nome_remetente_nf_remessa"));
+						recebido.setNome_destinatario_nf_remessa(rs.getString("nome_destinatario_nf_remessa"));
+						recebido.setCaminho_nf_remessa(rs.getString("caminho_nf_remessa"));
+
+						CadastroContrato contrato_recebimento = new CadastroContrato();
+						contrato_recebimento.setId(rs.getInt("contrato_id"));
+						contrato_recebimento.setCodigo(rs.getString("codigo"));
+						contrato_recebimento.setQuantidade(rs.getDouble("quantidade"));
+						contrato_recebimento.setMedida(rs.getString("medida"));
+						contrato_recebimento.setValor_a_pagar(new BigDecimal(rs.getString("valor_a_pagar")));
+						contrato_recebimento.setValor_produto(rs.getDouble("valor_produto"));
+						contrato_recebimento.setNomes_compradores(rs.getString("compradores"));
+						contrato_recebimento.setNomes_vendedores(rs.getString("vendedores"));
+
+						CadastroSafra safra = new CadastroSafra();
+						safra.setId_safra(rs.getInt("id_safra"));
+						safra.setAno_colheita(rs.getInt("ano_colheita"));
+						safra.setAno_plantio(rs.getInt("ano_plantio"));
+
+						CadastroProduto produto = new CadastroProduto();
+						produto.setId_produto(rs.getInt("id_produto"));
+						produto.setNome_produto(rs.getString("nome_produto"));
+						produto.setTransgenia(rs.getString("transgenia"));
+
+						safra.setProduto(produto);
+
+						contrato_recebimento.setModelo_produto(produto);
+						contrato_recebimento.setModelo_safra(safra);
+
+						recebido.setContrato(contrato_recebimento);
+
+						id = recebido.getId_recebimento();
+
+						lista_recebimentos.add(recebido);
+					}
+				}
+			}
+
+			ConexaoBanco.fechaConexao(conn, pstm, rs);
+			System.out.println("Recebimentos foram listadas com sucesso!");
+			return lista_recebimentos;
+		} catch (Exception e) {
+			JOptionPane.showMessageDialog(null, "Erro ao listar os recebimentos" + " erro: " + e.getMessage()
+					+ " causa: " + e.getCause() + "\n Ultimo id processado: " + id);
 			return null;
 		}
 
@@ -3103,38 +3992,37 @@ observacao text
 
 			rs.next();
 
-					System.out.print("recebimento não e nulo!");
+			System.out.print("recebimento não e nulo!");
 
-					CadastroContrato.Recebimento recebido = new CadastroContrato.Recebimento();
+			CadastroContrato.Recebimento recebido = new CadastroContrato.Recebimento();
 
-					recebido.setId_recebimento(rs.getInt("id_recebimento"));
-					recebido.setData_recebimento(rs.getString("data_recebimento").toString());
-					recebido.setId_contrato_recebimento(rs.getInt("id_contrato_recebimento"));
-					recebido.setId_cliente(rs.getInt("id_cliente"));
-					recebido.setId_vendedor(rs.getInt("id_vendedor"));
-					recebido.setId_transportador(rs.getInt("id_transportador"));
-					recebido.setId_veiculo(rs.getInt("id_veiculo"));
-					recebido.setCodigo_romaneio(rs.getString("codigo_romaneio"));
-					recebido.setPeso_romaneio(rs.getDouble("peso_romaneio"));
-					recebido.setCaminho_romaneio(rs.getString("caminho_romaneio"));
-					
-					recebido.setNf_venda_aplicavel(rs.getInt("nf_venda_aplicavel"));
-					recebido.setCodigo_nf_venda(rs.getString("codigo_nf_venda"));
-					recebido.setPeso_nf_venda(rs.getDouble("peso_nf_venda"));
-					recebido.setCaminho_nf_venda(rs.getString("caminho_nf_venda"));
-					
-					recebido.setNf_remessa_aplicavel(rs.getInt("nf_remessa_aplicavel"));
-					recebido.setCodigo_nf_remessa(rs.getString("codigo_nf_remessa"));
-					recebido.setCaminho_nf_remessa(rs.getString("caminho_nf_remessa"));
+			recebido.setId_recebimento(rs.getInt("id_recebimento"));
+			recebido.setData_recebimento(rs.getString("data_recebimento").toString());
+			recebido.setId_contrato_recebimento(rs.getInt("id_contrato_recebimento"));
+			recebido.setId_cliente(rs.getInt("id_cliente"));
+			recebido.setId_vendedor(rs.getInt("id_vendedor"));
+			recebido.setId_transportador(rs.getInt("id_transportador"));
+			recebido.setId_veiculo(rs.getInt("id_veiculo"));
+			recebido.setCodigo_romaneio(rs.getString("codigo_romaneio"));
+			recebido.setPeso_romaneio(rs.getDouble("peso_romaneio"));
+			recebido.setCaminho_romaneio(rs.getString("caminho_romaneio"));
 
-			
+			recebido.setNf_venda_aplicavel(rs.getInt("nf_venda_aplicavel"));
+			recebido.setCodigo_nf_venda(rs.getString("codigo_nf_venda"));
+			recebido.setPeso_nf_venda(rs.getDouble("peso_nf_venda"));
+			recebido.setCaminho_nf_venda(rs.getString("caminho_nf_venda"));
+
+			recebido.setNf_remessa_aplicavel(rs.getInt("nf_remessa_aplicavel"));
+			recebido.setCodigo_nf_remessa(rs.getString("codigo_nf_remessa"));
+			recebido.setCaminho_nf_remessa(rs.getString("caminho_nf_remessa"));
 
 			ConexaoBanco.fechaConexao(conn, pstm, rs);
 			System.out.println("Recebimentos foram listadas com sucesso!");
 			return recebido;
 		} catch (Exception e) {
-		//	JOptionPane.showMessageDialog(null, "Erro ao listar os recebimentos do contrato: " + id_contrato
-			//		+ " erro: "+ e.getMessage()  + "causa: " + e.getCause()  );
+			// JOptionPane.showMessageDialog(null, "Erro ao listar os recebimentos do
+			// contrato: " + id_contrato
+			// + " erro: "+ e.getMessage() + "causa: " + e.getCause() );
 			return null;
 		}
 
@@ -3169,34 +4057,33 @@ observacao text
 				carga.setId_transportador(rs.getInt("id_transportador"));
 				carga.setId_veiculo(rs.getInt("id_veiculo"));
 				carga.setId_produto(rs.getInt("id_produto"));
-				
-			    carga.setCodigo_romaneio(rs.getString("codigo_romaneio"));
-			    carga.setPeso_romaneio(rs.getDouble("peso_romaneio"));
-			    carga.setCaminho_romaneio(rs.getString("caminho_romaneio"));
-			    
-				carga.setNf_interna_aplicavel(rs.getInt("nf_interna_aplicavel"));
-			    carga.setCodigo_nf_interna(rs.getString("codigo_nf_interna"));
-			    carga.setPeso_nf_interna(rs.getDouble("peso_nf_interna"));
-			    carga.setCaminho_nf_interna(rs.getString("caminho_nf_interna"));
-				
-			    carga.setNf_venda1_aplicavel(rs.getInt("nf_venda1_aplicavel"));
-			    carga.setCodigo_nf_venda1(rs.getString("codigo_nf_venda1"));
-			    carga.setPeso_nf_venda1(rs.getDouble("peso_nf_venda1"));
-			    carga.setValor_nf_venda1(new BigDecimal(rs.getString("valor_nf_venda1")));
-			    carga.setNome_remetente_nf_venda1(rs.getString("nome_remetente_nf_venda1"));
-			    carga.setNome_destinatario_nf_venda1(rs.getString("nome_destinatario_nf_venda1"));
-			    carga.setCaminho_nf_venda1(rs.getString("caminho_nf_venda1"));
-			    
-			    carga.setNf_complemento_aplicavel(rs.getInt("nf_complemento_aplicavel"));
-			    carga.setCodigo_nf_complemento(rs.getString("codigo_nf_complemento"));
-			    carga.setPeso_nf_complemento(rs.getDouble("peso_nf_complemento"));
-			    carga.setValor_nf_complemento(new BigDecimal(rs.getString("valor_nf_complemento")));
-			    carga.setNome_remetente_nf_complemento(rs.getString("nome_remetente_nf_complemento"));
-			    carga.setNome_destinatario_nf_complemento(rs.getString("nome_destinatario_nf_complemento"));
-			    carga.setCaminho_nf_complemento(rs.getString("caminho_nf_complemento"));
-			    
-			    carga.setObservacao(rs.getString("observacao"));
 
+				carga.setCodigo_romaneio(rs.getString("codigo_romaneio"));
+				carga.setPeso_romaneio(rs.getDouble("peso_romaneio"));
+				carga.setCaminho_romaneio(rs.getString("caminho_romaneio"));
+
+				carga.setNf_interna_aplicavel(rs.getInt("nf_interna_aplicavel"));
+				carga.setCodigo_nf_interna(rs.getString("codigo_nf_interna"));
+				carga.setPeso_nf_interna(rs.getDouble("peso_nf_interna"));
+				carga.setCaminho_nf_interna(rs.getString("caminho_nf_interna"));
+
+				carga.setNf_venda1_aplicavel(rs.getInt("nf_venda1_aplicavel"));
+				carga.setCodigo_nf_venda1(rs.getString("codigo_nf_venda1"));
+				carga.setPeso_nf_venda1(rs.getDouble("peso_nf_venda1"));
+				carga.setValor_nf_venda1(new BigDecimal(rs.getString("valor_nf_venda1")));
+				carga.setNome_remetente_nf_venda1(rs.getString("nome_remetente_nf_venda1"));
+				carga.setNome_destinatario_nf_venda1(rs.getString("nome_destinatario_nf_venda1"));
+				carga.setCaminho_nf_venda1(rs.getString("caminho_nf_venda1"));
+
+				carga.setNf_complemento_aplicavel(rs.getInt("nf_complemento_aplicavel"));
+				carga.setCodigo_nf_complemento(rs.getString("codigo_nf_complemento"));
+				carga.setPeso_nf_complemento(rs.getDouble("peso_nf_complemento"));
+				carga.setValor_nf_complemento(new BigDecimal(rs.getString("valor_nf_complemento")));
+				carga.setNome_remetente_nf_complemento(rs.getString("nome_remetente_nf_complemento"));
+				carga.setNome_destinatario_nf_complemento(rs.getString("nome_destinatario_nf_complemento"));
+				carga.setCaminho_nf_complemento(rs.getString("caminho_nf_complemento"));
+
+				carga.setObservacao(rs.getString("observacao"));
 
 			}
 
@@ -3204,8 +4091,8 @@ observacao text
 			System.out.println("Carregamento listado com sucesso!");
 			return carga;
 		} catch (Exception e) {
-			JOptionPane.showMessageDialog(null, "Erro ao listar o carregamento id: " + id_carregamento + " erro: "
-					  + "causa: "  );
+			JOptionPane.showMessageDialog(null,
+					"Erro ao listar o carregamento id: " + id_carregamento + " erro: " + "causa: ");
 			return null;
 		}
 
@@ -3234,7 +4121,7 @@ observacao text
 
 					CadastroContrato.Carregamento carga = new CadastroContrato.Carregamento();
 					carga.setId_carregamento(rs.getInt("id_carregamento"));
-				
+
 					carga.setData(rs.getString("data_carregamento").toString());
 					carga.setId_contrato(rs.getInt("id_contrato_carregamento"));
 					carga.setId_cliente(rs.getInt("id_cliente"));
@@ -3242,37 +4129,37 @@ observacao text
 					carga.setId_transportador(rs.getInt("id_transportador"));
 					carga.setId_veiculo(rs.getInt("id_veiculo"));
 					carga.setId_produto(rs.getInt("id_produto"));
-					
-				    carga.setCodigo_romaneio(rs.getString("codigo_romaneio"));
-				    carga.setPeso_romaneio(rs.getDouble("peso_romaneio"));
-				    carga.setCaminho_romaneio(rs.getString("caminho_romaneio"));
-				    
-				    carga.setCodigo_nf_interna(rs.getString("codigo_nf_interna"));
-				    carga.setPeso_nf_interna(rs.getDouble("peso_nf_interna"));
-				    carga.setCaminho_nf_interna(rs.getString("caminho_nf_interna"));
-					
-				    carga.setCodigo_nf_venda1(rs.getString("codigo_nf_venda1"));
-				    carga.setPeso_nf_venda1(rs.getDouble("peso_nf_venda1"));
-				    carga.setValor_nf_venda1(new BigDecimal(rs.getString("valor_nf_venda1")));
-				    carga.setNome_remetente_nf_venda1(rs.getString("nome_remetente_nf_venda1"));
-				    carga.setNome_destinatario_nf_venda1(rs.getString("nome_destinatario_nf_venda1"));
-				    carga.setCaminho_nf_venda1(rs.getString("caminho_nf_venda1"));
-				    
-				    carga.setCodigo_nf_complemento(rs.getString("codigo_nf_complemento"));
-				    carga.setPeso_nf_complemento(rs.getDouble("peso_nf_complemento"));
-				    carga.setValor_nf_complemento(new BigDecimal(rs.getString("valor_nf_complemento")));
-				    carga.setNome_remetente_nf_complemento(rs.getString("nome_remetente_nf_complemento"));
-				    carga.setNome_destinatario_nf_complemento(rs.getString("nome_destinatario_nf_complemento"));
 
-				    carga.setCaminho_nf_complemento(rs.getString("caminho_nf_complemento"));
-				    
-				    carga.setObservacao(rs.getString("observacao"));
+					carga.setCodigo_romaneio(rs.getString("codigo_romaneio"));
+					carga.setPeso_romaneio(rs.getDouble("peso_romaneio"));
+					carga.setCaminho_romaneio(rs.getString("caminho_romaneio"));
+
+					carga.setCodigo_nf_interna(rs.getString("codigo_nf_interna"));
+					carga.setPeso_nf_interna(rs.getDouble("peso_nf_interna"));
+					carga.setCaminho_nf_interna(rs.getString("caminho_nf_interna"));
+
+					carga.setCodigo_nf_venda1(rs.getString("codigo_nf_venda1"));
+					carga.setPeso_nf_venda1(rs.getDouble("peso_nf_venda1"));
+					carga.setValor_nf_venda1(new BigDecimal(rs.getString("valor_nf_venda1")));
+					carga.setNome_remetente_nf_venda1(rs.getString("nome_remetente_nf_venda1"));
+					carga.setNome_destinatario_nf_venda1(rs.getString("nome_destinatario_nf_venda1"));
+					carga.setCaminho_nf_venda1(rs.getString("caminho_nf_venda1"));
+
+					carga.setCodigo_nf_complemento(rs.getString("codigo_nf_complemento"));
+					carga.setPeso_nf_complemento(rs.getDouble("peso_nf_complemento"));
+					carga.setValor_nf_complemento(new BigDecimal(rs.getString("valor_nf_complemento")));
+					carga.setNome_remetente_nf_complemento(rs.getString("nome_remetente_nf_complemento"));
+					carga.setNome_destinatario_nf_complemento(rs.getString("nome_destinatario_nf_complemento"));
+
+					carga.setCaminho_nf_complemento(rs.getString("caminho_nf_complemento"));
+
+					carga.setObservacao(rs.getString("observacao"));
 
 					carga.setNf_interna_aplicavel(rs.getInt("nf_interna_aplicavel"));
 
 					carga.setNf_venda1_aplicavel(rs.getInt("nf_venda1_aplicavel"));
 
-				    carga.setNf_complemento_aplicavel(rs.getInt("nf_complemento_aplicavel"));
+					carga.setNf_complemento_aplicavel(rs.getInt("nf_complemento_aplicavel"));
 
 					lista_carregamentos.add(carga);
 
@@ -3284,7 +4171,7 @@ observacao text
 			return lista_carregamentos;
 		} catch (Exception e) {
 			JOptionPane.showMessageDialog(null, "Erro ao listar os carregamentos do comprador: " + id_comprador
-					+ " erro: " +e.getMessage()  + "causa: "  + e.getCause());
+					+ " erro: " + e.getMessage() + "causa: " + e.getCause());
 			return null;
 		}
 
@@ -3321,36 +4208,36 @@ observacao text
 					carga.setId_transportador(rs.getInt("id_transportador"));
 					carga.setId_veiculo(rs.getInt("id_veiculo"));
 					carga.setId_produto(rs.getInt("id_produto"));
-					
-				    carga.setCodigo_romaneio(rs.getString("codigo_romaneio"));
-				    carga.setPeso_romaneio(rs.getDouble("peso_romaneio"));
-				    carga.setCaminho_romaneio(rs.getString("caminho_romaneio"));
-				    
-				    carga.setCodigo_nf_interna(rs.getString("codigo_nf_interna"));
-				    carga.setPeso_nf_interna(rs.getDouble("peso_nf_interna"));
-				    carga.setCaminho_nf_interna(rs.getString("caminho_nf_interna"));
-					
-				    carga.setCodigo_nf_venda1(rs.getString("codigo_nf_venda1"));
-				    carga.setPeso_nf_venda1(rs.getDouble("peso_nf_venda1"));
-				    carga.setValor_nf_venda1(new BigDecimal(rs.getString("valor_nf_venda1")));
-				    carga.setNome_remetente_nf_venda1(rs.getString("nome_remetente_nf_venda1"));
-				    carga.setNome_destinatario_nf_venda1(rs.getString("nome_destinatario_nf_venda1"));
-				    carga.setCaminho_nf_venda1(rs.getString("caminho_nf_venda1"));
-				    
-				    carga.setCodigo_nf_complemento(rs.getString("codigo_nf_complemento"));
-				    carga.setPeso_nf_complemento(rs.getDouble("peso_nf_complemento"));
-				    carga.setValor_nf_complemento(new BigDecimal(rs.getString("valor_nf_complemento")));
-				    carga.setNome_remetente_nf_complemento(rs.getString("nome_remetente_nf_complemento"));
-				    carga.setNome_destinatario_nf_complemento(rs.getString("nome_destinatario_nf_complemento"));
-				    carga.setCaminho_nf_complemento(rs.getString("caminho_nf_complemento"));
-				    
-				    carga.setObservacao(rs.getString("observacao"));
+
+					carga.setCodigo_romaneio(rs.getString("codigo_romaneio"));
+					carga.setPeso_romaneio(rs.getDouble("peso_romaneio"));
+					carga.setCaminho_romaneio(rs.getString("caminho_romaneio"));
+
+					carga.setCodigo_nf_interna(rs.getString("codigo_nf_interna"));
+					carga.setPeso_nf_interna(rs.getDouble("peso_nf_interna"));
+					carga.setCaminho_nf_interna(rs.getString("caminho_nf_interna"));
+
+					carga.setCodigo_nf_venda1(rs.getString("codigo_nf_venda1"));
+					carga.setPeso_nf_venda1(rs.getDouble("peso_nf_venda1"));
+					carga.setValor_nf_venda1(new BigDecimal(rs.getString("valor_nf_venda1")));
+					carga.setNome_remetente_nf_venda1(rs.getString("nome_remetente_nf_venda1"));
+					carga.setNome_destinatario_nf_venda1(rs.getString("nome_destinatario_nf_venda1"));
+					carga.setCaminho_nf_venda1(rs.getString("caminho_nf_venda1"));
+
+					carga.setCodigo_nf_complemento(rs.getString("codigo_nf_complemento"));
+					carga.setPeso_nf_complemento(rs.getDouble("peso_nf_complemento"));
+					carga.setValor_nf_complemento(new BigDecimal(rs.getString("valor_nf_complemento")));
+					carga.setNome_remetente_nf_complemento(rs.getString("nome_remetente_nf_complemento"));
+					carga.setNome_destinatario_nf_complemento(rs.getString("nome_destinatario_nf_complemento"));
+					carga.setCaminho_nf_complemento(rs.getString("caminho_nf_complemento"));
+
+					carga.setObservacao(rs.getString("observacao"));
 
 					carga.setNf_interna_aplicavel(rs.getInt("nf_interna_aplicavel"));
 
 					carga.setNf_venda1_aplicavel(rs.getInt("nf_venda1_aplicavel"));
 
-				    carga.setNf_complemento_aplicavel(rs.getInt("nf_complemento_aplicavel"));
+					carga.setNf_complemento_aplicavel(rs.getInt("nf_complemento_aplicavel"));
 
 					lista_carregamentos.add(carga);
 
@@ -3362,20 +4249,21 @@ observacao text
 			return lista_carregamentos;
 		} catch (Exception e) {
 			JOptionPane.showMessageDialog(null, "Erro ao listar os carregamentos do vendedor: " + id_vendedor
-					+ " erro: "  + e.getMessage() + "causa: "  + e.getCause());
+					+ " erro: " + e.getMessage() + "causa: " + e.getCause());
 			return null;
-		}finally{
-			 /*This block should be added to your code
-			  * You need to release the resources like connections
-			  */
-			 if(conn!=null)
+		} finally {
+			/*
+			 * This block should be added to your code You need to release the resources
+			 * like connections
+			 */
+			if (conn != null)
 				try {
 					conn.close();
 				} catch (SQLException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
-			}
+		}
 
 	}
 
@@ -3411,37 +4299,37 @@ observacao text
 					carga.setId_transportador(rs.getInt("id_transportador"));
 					carga.setId_veiculo(rs.getInt("id_veiculo"));
 					carga.setId_produto(rs.getInt("id_produto"));
-					
-				    carga.setCodigo_romaneio(rs.getString("codigo_romaneio"));
-				    carga.setPeso_romaneio(rs.getDouble("peso_romaneio"));
-				    carga.setCaminho_romaneio(rs.getString("caminho_romaneio"));
-				    
-				    carga.setCodigo_nf_interna(rs.getString("codigo_nf_interna"));
-				    carga.setPeso_nf_interna(rs.getDouble("peso_nf_interna"));
-				    carga.setCaminho_nf_interna(rs.getString("caminho_nf_interna"));
-					
-				    carga.setCodigo_nf_venda1(rs.getString("codigo_nf_venda1"));
-				    carga.setPeso_nf_venda1(rs.getDouble("peso_nf_venda1"));
-				    carga.setValor_nf_venda1(new BigDecimal(rs.getString("valor_nf_venda1")));
-				    carga.setCaminho_nf_venda1(rs.getString("caminho_nf_venda1"));
-				    
-				    carga.setCodigo_nf_complemento(rs.getString("codigo_nf_complemento"));
-				    carga.setPeso_nf_complemento(rs.getDouble("peso_nf_complemento"));
-				    carga.setValor_nf_complemento(new BigDecimal(rs.getString("valor_nf_complemento")));
 
-				    carga.setCaminho_nf_complemento(rs.getString("caminho_nf_complemento"));
-				    
-				    carga.setObservacao(rs.getString("observacao"));
+					carga.setCodigo_romaneio(rs.getString("codigo_romaneio"));
+					carga.setPeso_romaneio(rs.getDouble("peso_romaneio"));
+					carga.setCaminho_romaneio(rs.getString("caminho_romaneio"));
+
+					carga.setCodigo_nf_interna(rs.getString("codigo_nf_interna"));
+					carga.setPeso_nf_interna(rs.getDouble("peso_nf_interna"));
+					carga.setCaminho_nf_interna(rs.getString("caminho_nf_interna"));
+
+					carga.setCodigo_nf_venda1(rs.getString("codigo_nf_venda1"));
+					carga.setPeso_nf_venda1(rs.getDouble("peso_nf_venda1"));
+					carga.setValor_nf_venda1(new BigDecimal(rs.getString("valor_nf_venda1")));
+					carga.setCaminho_nf_venda1(rs.getString("caminho_nf_venda1"));
+
+					carga.setCodigo_nf_complemento(rs.getString("codigo_nf_complemento"));
+					carga.setPeso_nf_complemento(rs.getDouble("peso_nf_complemento"));
+					carga.setValor_nf_complemento(new BigDecimal(rs.getString("valor_nf_complemento")));
+
+					carga.setCaminho_nf_complemento(rs.getString("caminho_nf_complemento"));
+
+					carga.setObservacao(rs.getString("observacao"));
 					carga.setNf_interna_aplicavel(rs.getInt("nf_interna_aplicavel"));
 
 					carga.setNf_venda1_aplicavel(rs.getInt("nf_venda1_aplicavel"));
 
-				    carga.setNf_complemento_aplicavel(rs.getInt("nf_complemento_aplicavel"));
+					carga.setNf_complemento_aplicavel(rs.getInt("nf_complemento_aplicavel"));
 
-				    carga.setNome_remetente_nf_complemento(rs.getString("nome_remetente_nf_complemento"));
-				    carga.setNome_destinatario_nf_complemento(rs.getString("nome_destinatario_nf_complemento"));
-				    carga.setNome_remetente_nf_venda1(rs.getString("nome_remetente_nf_venda1"));
-				    carga.setNome_destinatario_nf_venda1(rs.getString("nome_destinatario_nf_venda1"));
+					carga.setNome_remetente_nf_complemento(rs.getString("nome_remetente_nf_complemento"));
+					carga.setNome_destinatario_nf_complemento(rs.getString("nome_destinatario_nf_complemento"));
+					carga.setNome_remetente_nf_venda1(rs.getString("nome_remetente_nf_venda1"));
+					carga.setNome_destinatario_nf_venda1(rs.getString("nome_destinatario_nf_venda1"));
 					lista_carregamentos.add(carga);
 
 				}
@@ -3451,8 +4339,8 @@ observacao text
 			System.out.println("Carregamentos foram listadas com sucesso!");
 			return lista_carregamentos;
 		} catch (Exception e) {
-			JOptionPane.showMessageDialog(null, "Erro ao listar os carregamentos do vendedor: " + id_vendedor
-					+ " erro: "   + "causa: "  );
+			JOptionPane.showMessageDialog(null,
+					"Erro ao listar os carregamentos do vendedor: " + id_vendedor + " erro: " + "causa: ");
 			return null;
 		}
 
@@ -3463,14 +4351,13 @@ observacao text
 		return remover_carregamento(id_carregamento) && remover_contrato_carregamento(id_contrato, id_carregamento);
 
 	}
-	
-	
+
 	public boolean removerRecebimento(int id_contrato, int id_recebimento) {
 
 		return remover_recebimento(id_recebimento) && remover_contrato_recebimento(id_contrato, id_recebimento);
 
 	}
-	
+
 	private boolean remover_recebimento(int id_recebimento) {
 
 		String sql_delete_recebimento = "DELETE FROM recebimento WHERE id_recebimento = ?";
@@ -3485,7 +4372,8 @@ observacao text
 
 			pstm.execute();
 			ConexaoBanco.fechaConexao(conn, pstm);
-			//JOptionPane.showMessageDialog(null, "Recebimento excluido, banco normalizado ");
+			// JOptionPane.showMessageDialog(null, "Recebimento excluido, banco normalizado
+			// ");
 			return true;
 
 		} catch (Exception f) {
@@ -3495,7 +4383,7 @@ observacao text
 		}
 
 	}
-	
+
 	private boolean remover_contrato_recebimento(int id_contrato, int id_recebimento) {
 
 		String sql_delete_contrato_recebimento = "DELETE FROM contrato_recebimentos WHERE id_contrato = ? and id_recebimento = ?";
@@ -3511,7 +4399,8 @@ observacao text
 
 			pstm.execute();
 			ConexaoBanco.fechaConexao(conn, pstm);
-		//	JOptionPane.showMessageDialog(null, "Relacao contrato_recebimento excluida, banco normalizado ");
+			// JOptionPane.showMessageDialog(null, "Relacao contrato_recebimento excluida,
+			// banco normalizado ");
 			return true;
 
 		} catch (Exception f) {
@@ -3521,29 +4410,18 @@ observacao text
 		}
 
 	}
-	
-	
+
 	public boolean atualizar_recebimento(CadastroContrato.Recebimento recebimento) {
 		/*
-		 * id_recebimento int(10) not null auto_increment,
-data_recebimento varchar(40),
-id_contrato_recebimento int(10),
-id_cliente int(10),
-id_vendedor int(10),
-id_transportador int(10),
-id_veiculo int(10),
-codigo_romaneio varchar(100),
-peso_romaneio double,
-caminho_romaneio text,
-codigo_nf_venda varchar (40),
-peso_nf_venda double,
-caminho_nf_venda text,
-codigo_nf_remessa varchar(40),
-peso_nf_remessa double,
-caminho_nf_remessa text,
+		 * id_recebimento int(10) not null auto_increment, data_recebimento varchar(40),
+		 * id_contrato_recebimento int(10), id_cliente int(10), id_vendedor int(10),
+		 * id_transportador int(10), id_veiculo int(10), codigo_romaneio varchar(100),
+		 * peso_romaneio double, caminho_romaneio text, codigo_nf_venda varchar (40),
+		 * peso_nf_venda double, caminho_nf_venda text, codigo_nf_remessa varchar(40),
+		 * peso_nf_remessa double, caminho_nf_remessa text,
 		 */
 		String sql_atualizar_recebimento = "update recebimento set data_recebimento = ?, id_cliente = ?, id_vendedor = ?, id_transportador = ?, id_veiculo = ?, codigo_romaneio = ?, peso_romaneio = ?, caminho_romaneio = ?, nf_venda_aplicavel = ?, codigo_nf_venda = ?, peso_nf_venda = ?, valor_nf_venda = ?, nome_remetente_nf_venda = ?,nome_destinatario_nf_venda = ?, caminho_nf_venda = ?, nf_remessa_aplicavel = ?, codigo_nf_remessa = ?, peso_nf_remessa = ?, valor_nf_remessa = ?,  nome_remetente_nf_remessa = ?,nome_destinatario_nf_remessa = ?,caminho_nf_remessa = ? where id_recebimento = ?";
-				
+
 		Connection conn = null;
 		ResultSet rs = null;
 		try {
@@ -3559,7 +4437,7 @@ caminho_nf_remessa text,
 			pstm.setString(6, recebimento.getCodigo_romaneio());
 			pstm.setDouble(7, recebimento.getPeso_romaneio());
 			pstm.setString(8, recebimento.getCaminho_romaneio());
-			
+
 			pstm.setInt(9, recebimento.getNf_venda_aplicavel());
 
 			pstm.setString(10, recebimento.getCodigo_nf_venda());
@@ -3569,7 +4447,7 @@ caminho_nf_remessa text,
 			pstm.setString(14, recebimento.getNome_destinatario_nf_venda().toString());
 
 			pstm.setString(15, recebimento.getCaminho_nf_venda());
-			
+
 			pstm.setInt(16, recebimento.getNf_remessa_aplicavel());
 			pstm.setString(17, recebimento.getCodigo_nf_remessa());
 			pstm.setDouble(18, recebimento.getPeso_nf_remessa());
@@ -3577,45 +4455,31 @@ caminho_nf_remessa text,
 			pstm.setString(20, recebimento.getNome_remetente_nf_remessa().toString());
 			pstm.setString(21, recebimento.getNome_destinatario_nf_remessa().toString());
 
-			
 			pstm.setString(22, recebimento.getCaminho_nf_remessa());
-			
-			pstm.setInt(23, recebimento.getId_recebimento());
-		
 
+			pstm.setInt(23, recebimento.getId_recebimento());
 
 			pstm.execute();
 			ConexaoBanco.fechaConexao(conn, pstm);
-		//	JOptionPane.showMessageDialog(null, "Recebimento Atualizado");
+			// JOptionPane.showMessageDialog(null, "Recebimento Atualizado");
 			return true;
 
 		} catch (Exception f) {
-			//JOptionPane.showMessageDialog(null,
-				//	"Erro ao atualizar o recebimento no banco de" + "dados " + f.getMessage());
+			// JOptionPane.showMessageDialog(null,
+			// "Erro ao atualizar o recebimento no banco de" + "dados " + f.getMessage());
 			return false;
 		}
-		
+
 	}
 
-	
 	public boolean atualizar_carregamento(CadastroContrato.Carregamento carregamento) {
 		/*
-		 * id_recebimento int(10) not null auto_increment,
-data_recebimento varchar(40),
-id_contrato_recebimento int(10),
-id_cliente int(10),
-id_vendedor int(10),
-id_transportador int(10),
-id_veiculo int(10),
-codigo_romaneio varchar(100),
-peso_romaneio double,
-caminho_romaneio text,
-codigo_nf_venda varchar (40),
-peso_nf_venda double,
-caminho_nf_venda text,
-codigo_nf_remessa varchar(40),
-peso_nf_remessa double,
-caminho_nf_remessa text,
+		 * id_recebimento int(10) not null auto_increment, data_recebimento varchar(40),
+		 * id_contrato_recebimento int(10), id_cliente int(10), id_vendedor int(10),
+		 * id_transportador int(10), id_veiculo int(10), codigo_romaneio varchar(100),
+		 * peso_romaneio double, caminho_romaneio text, codigo_nf_venda varchar (40),
+		 * peso_nf_venda double, caminho_nf_venda text, codigo_nf_remessa varchar(40),
+		 * peso_nf_remessa double, caminho_nf_remessa text,
 		 */
 		String sql_atualizar_carregamento = "update carregamento set data_carregamento = ?, id_cliente = ?, id_vendedor = ?, id_transportador = ?,\n"
 				+ "id_veiculo = ?, codigo_romaneio = ?, peso_romaneio = ?, caminho_romaneio = ?, nf_venda1_aplicavel = ?, codigo_nf_venda1 = ?, peso_nf_venda1 = ?, valor_nf_venda1 = ?,\n"
@@ -3636,17 +4500,16 @@ caminho_nf_remessa text,
 			pstm.setString(6, carregamento.getCodigo_romaneio());
 			pstm.setDouble(7, carregamento.getPeso_romaneio());
 			pstm.setString(8, carregamento.getCaminho_romaneio());
-			
+
 			pstm.setInt(9, carregamento.getNf_venda1_aplicavel());
 			pstm.setString(10, carregamento.getCodigo_nf_venda1());
 			pstm.setDouble(11, carregamento.getPeso_nf_venda1());
 			pstm.setString(12, carregamento.getValor_nf_venda1().toPlainString());
 			pstm.setString(13, carregamento.getNome_remetente_nf_venda1());
 			pstm.setString(14, carregamento.getNome_destinatario_nf_venda1());
-			
 
 			pstm.setString(15, carregamento.getCaminho_nf_venda1());
-			
+
 			pstm.setInt(16, carregamento.getNf_complemento_aplicavel());
 			pstm.setString(17, carregamento.getCodigo_nf_complemento());
 			pstm.setDouble(18, carregamento.getPeso_nf_complemento());
@@ -3654,21 +4517,19 @@ caminho_nf_remessa text,
 			pstm.setString(20, carregamento.getNome_remetente_nf_complemento());
 			pstm.setString(21, carregamento.getNome_destinatario_nf_complemento());
 			pstm.setString(22, carregamento.getCaminho_nf_complemento());
-			
+
 			pstm.setInt(23, carregamento.getNf_interna_aplicavel());
 			pstm.setString(24, carregamento.getCodigo_nf_interna());
 			pstm.setDouble(25, carregamento.getPeso_nf_interna());
 			pstm.setString(26, carregamento.getCaminho_nf_interna());
-			
+
 			pstm.setString(27, carregamento.getObservacao());
 
 			pstm.setInt(28, carregamento.getId_carregamento());
-		
-
 
 			pstm.execute();
 			ConexaoBanco.fechaConexao(conn, pstm);
-		//	JOptionPane.showMessageDialog(null, "Recebimento Atualizado");
+			// JOptionPane.showMessageDialog(null, "Recebimento Atualizado");
 			return true;
 
 		} catch (Exception f) {
@@ -3676,10 +4537,9 @@ caminho_nf_remessa text,
 					"Erro ao atualizar o recebimento no banco de" + "dados " + f.getMessage());
 			return false;
 		}
-		
+
 	}
 
-	
 	private boolean remover_carregamento(int id_carregamento) {
 
 		String sql_delete_carregamento = "DELETE FROM carregamento WHERE id_carregamento = ?";
@@ -3734,77 +4594,53 @@ caminho_nf_remessa text,
 	public String sql_carregamento(CadastroContrato.Carregamento carregamento) {
 
 		String query = "insert into carregamento (data_carregamento, id_contrato_carregamento, id_cliente, id_vendedor , id_transportador, id_veiculo, id_produto, codigo_romaneio , peso_romaneio ,caminho_romaneio , nf_venda1_aplicavel, codigo_nf_venda1 ,peso_nf_venda1 , valor_nf_venda1,nome_remetente_nf_venda1, nome_destinatario_nf_venda1, caminho_nf_venda1, nf_complemento_aplicavel, codigo_nf_complemento ,peso_nf_complemento, valor_nf_complemento,nome_remetente_nf_complemento, nome_destinatario_nf_complemento,caminho_nf_complemento , nf_interna_aplicavel,codigo_nf_interna ,peso_nf_interna ,caminho_nf_interna ,observacao ) values ('"
-				+ carregamento.getData() + "','" 
-				+ carregamento.getId_contrato() + "','" 
-				+ carregamento.getId_cliente()+ "','"
-                + carregamento.getId_vendedor() + "','"
-				+ carregamento.getId_transportador() + "','"
-				+ carregamento.getId_veiculo() + "','"
-				+ carregamento.getId_produto() + "','"
-				+ carregamento.getCodigo_romaneio()+ "','"
-				+ carregamento.getPeso_romaneio()+ "','"
-				+ carregamento.getCaminho_romaneio() + "','"
-						+ carregamento.getNf_venda1_aplicavel() + "','"
-	+ carregamento.getCodigo_nf_venda1()+ "','"
-	+ carregamento.getPeso_nf_venda1()+ "','"
-			+ carregamento.getValor_nf_venda1() + "','" 
-			+ carregamento.getNome_remetente_nf_venda1() + "','"
-					+ carregamento.getNome_destinatario_nf_venda1() + "','"
-	+ carregamento.getCaminho_nf_venda1() + "','"
-	
-	+ carregamento.getNf_complemento_aplicavel() + "','"
-+ carregamento.getCodigo_nf_complemento()+ "','"
-+ carregamento.getPeso_nf_complemento()+ "','"
-		+ carregamento.getValor_nf_complemento() + "','"
+				+ carregamento.getData() + "','" + carregamento.getId_contrato() + "','" + carregamento.getId_cliente()
+				+ "','" + carregamento.getId_vendedor() + "','" + carregamento.getId_transportador() + "','"
+				+ carregamento.getId_veiculo() + "','" + carregamento.getId_produto() + "','"
+				+ carregamento.getCodigo_romaneio() + "','" + carregamento.getPeso_romaneio() + "','"
+				+ carregamento.getCaminho_romaneio() + "','" + carregamento.getNf_venda1_aplicavel() + "','"
+				+ carregamento.getCodigo_nf_venda1() + "','" + carregamento.getPeso_nf_venda1() + "','"
+				+ carregamento.getValor_nf_venda1() + "','" + carregamento.getNome_remetente_nf_venda1() + "','"
+				+ carregamento.getNome_destinatario_nf_venda1() + "','" + carregamento.getCaminho_nf_venda1() + "','"
+
+				+ carregamento.getNf_complemento_aplicavel() + "','" + carregamento.getCodigo_nf_complemento() + "','"
+				+ carregamento.getPeso_nf_complemento() + "','" + carregamento.getValor_nf_complemento() + "','"
 				+ carregamento.getNome_remetente_nf_complemento() + "','"
-				+ carregamento.getNome_destinatario_nf_complemento() + "','"
-+ carregamento.getCaminho_nf_complemento() + "','"
+				+ carregamento.getNome_destinatario_nf_complemento() + "','" + carregamento.getCaminho_nf_complemento()
+				+ "','"
 
-	+ carregamento.getNf_interna_aplicavel() + "','"
+				+ carregamento.getNf_interna_aplicavel() + "','"
 
-+ carregamento.getCodigo_nf_interna()+ "','"
-+ carregamento.getPeso_nf_interna()+ "','"
-+ carregamento.getCaminho_nf_interna() + "','"
+				+ carregamento.getCodigo_nf_interna() + "','" + carregamento.getPeso_nf_interna() + "','"
+				+ carregamento.getCaminho_nf_interna() + "','"
 
-				
 				+ carregamento.getObservacao()
 
 				+ "')";
 		return query;
 
 	}
-	
-	
+
 	public String sql_recebimento(Recebimento recebimento) {
 
 		String query = "insert into recebimento (data_recebimento, id_contrato_recebimento, id_cliente, id_vendedor , id_transportador, id_veiculo, codigo_romaneio, peso_romaneio, caminho_romaneio, nf_venda_aplicavel, codigo_nf_venda, peso_nf_venda, valor_nf_venda, nome_remetente_nf_venda, nome_destinatario_nf_venda, caminho_nf_venda, nf_remessa_aplicavel, codigo_nf_remessa ,peso_nf_remessa, valor_nf_remessa,nome_remetente_nf_remessa, nome_destinatario_nf_remessa ,caminho_nf_remessa) values ('"
-				+ recebimento.getData_recebimento() + "','"
-				+ recebimento.getId_contrato_recebimento() + "','" 
-				+ recebimento.getId_cliente()+ "','"
-				+ recebimento.getId_vendedor() + "','" 
-				+ recebimento.getId_transportador() + "','"
-				+ recebimento.getId_veiculo() + "','" 
-				+ recebimento.getCodigo_romaneio() + "','"
-			    + recebimento.getPeso_romaneio() + "','"
-				+ recebimento.getCaminho_romaneio() + "','"
-						+ recebimento.getNf_venda_aplicavel() + "','" 
+				+ recebimento.getData_recebimento() + "','" + recebimento.getId_contrato_recebimento() + "','"
+				+ recebimento.getId_cliente() + "','" + recebimento.getId_vendedor() + "','"
+				+ recebimento.getId_transportador() + "','" + recebimento.getId_veiculo() + "','"
+				+ recebimento.getCodigo_romaneio() + "','" + recebimento.getPeso_romaneio() + "','"
+				+ recebimento.getCaminho_romaneio() + "','" + recebimento.getNf_venda_aplicavel() + "','"
 
-				+ recebimento.getCodigo_nf_venda() + "','" 
-				+ recebimento.getPeso_nf_venda() + "','" 
-			    + recebimento.getValor_nf_venda() + "','" 
-			    		  + recebimento.getNome_remetente_nf_venda() + "','" 
-			    				  + recebimento.getNome_destinatario_nf_venda() + "','" 
-				+ recebimento.getCaminho_nf_venda() + "','" 
-				
-				+ recebimento.getNf_remessa_aplicavel() + "','" 
+				+ recebimento.getCodigo_nf_venda() + "','" + recebimento.getPeso_nf_venda() + "','"
+				+ recebimento.getValor_nf_venda() + "','" + recebimento.getNome_remetente_nf_venda() + "','"
+				+ recebimento.getNome_destinatario_nf_venda() + "','" + recebimento.getCaminho_nf_venda() + "','"
 
-				+ recebimento.getCodigo_nf_remessa() + "','" 
-				+ recebimento.getPeso_nf_remessa() + "','" 
-				+ recebimento.getValor_nf_remessa() + "','" 
-						 + recebimento.getNome_remetente_nf_remessa() + "','" 
-	    				  + recebimento.getNome_destinatario_nf_remessa() + "','" 
+				+ recebimento.getNf_remessa_aplicavel() + "','"
 
-				+ recebimento.getCaminho_nf_remessa() 
+				+ recebimento.getCodigo_nf_remessa() + "','" + recebimento.getPeso_nf_remessa() + "','"
+				+ recebimento.getValor_nf_remessa() + "','" + recebimento.getNome_remetente_nf_remessa() + "','"
+				+ recebimento.getNome_destinatario_nf_remessa() + "','"
+
+				+ recebimento.getCaminho_nf_remessa()
 
 				+ "')";
 		return query;
@@ -3836,6 +4672,100 @@ caminho_nf_remessa text,
 
 	}
 
+	public boolean atualizarPagamentoContratual(int id_contrato, CadastroContrato.CadastroPagamentoContratual dado) {
+
+		if (dado != null) {
+			try {
+				Connection conn = null;
+				String atualizar = null;
+				PreparedStatement pstm;
+
+				// atualizar = "update financeiro_conta set nome_conta = ?, id_grupo_contas = ?,
+				// tipo_conta = ?, observacao = ?,descricao = ? where id_conta = ? ";
+				atualizar = "update pagamento set data_pagamento = ? , valor = ?, id_depositante = ?, id_conta_depositante = ?,"
+						+ " id_favorecido = ?, id_conta_favorecido = ?,descricao = ?, tipo = ? where id_pagamento = ?";
+
+				conn = ConexaoBanco.getConexao();
+				pstm = conn.prepareStatement(atualizar);
+
+				pstm.setString(1, dado.getData_pagamento());
+				pstm.setDouble(2, dado.getValor_pagamento());
+				pstm.setInt(3, dado.getId_depositante());
+
+				pstm.setInt(4, dado.getId_conta_depositante());
+				pstm.setInt(5, dado.getId_favorecido());
+				pstm.setInt(6, dado.getId_conta_favorecido());
+				pstm.setString(7, dado.getDescricao());
+				pstm.setInt(8, dado.getTipo());
+
+				pstm.setInt(9, dado.getId_pagamento());
+
+				pstm.execute();
+				// JOptionPane.showMessageDialog(null, "Cliente atualizado com sucesso");
+				System.out.println("Pagamento Contratual atualizado com sucesso");
+				ConexaoBanco.fechaConexao(conn);
+				return true;
+			} catch (Exception e) {
+				JOptionPane.showMessageDialog(null, "Erro ao atualizar o Pagamento Contratual no banco de dados\nErro: "
+						+ e.getMessage() + "\nCausa: " + e.getCause());
+				return false;
+			}
+		} else {
+			JOptionPane.showMessageDialog(null, "Os parametros estão vazios");
+			return false;
+		}
+
+	}
+
+	public boolean atualizarTransferenciaContratual(int id_contrato,
+			CadastroContrato.CadastroPagamentoContratual dado) {
+
+		if (dado != null) {
+			try {
+				Connection conn = null;
+				String atualizar = null;
+				PreparedStatement pstm;
+
+				// atualizar = "update financeiro_conta set nome_conta = ?, id_grupo_contas = ?,
+				// tipo_conta = ?, observacao = ?,descricao = ? where id_conta = ? ";
+				atualizar = "update pagamento set data_pagamento = ? , valor = ?, id_depositante = ?, id_conta_depositante = ?,"
+						+ " id_favorecido = ?, id_conta_favorecido = ?,descricao = ?, tipo = ?, id_contrato_destinatario = ?, id_contrato_remetente = ? where id_pagamento = ?";
+
+				conn = ConexaoBanco.getConexao();
+				pstm = conn.prepareStatement(atualizar);
+
+				pstm.setString(1, dado.getData_pagamento());
+				pstm.setDouble(2, dado.getValor_pagamento());
+				pstm.setInt(3, dado.getId_depositante());
+
+				pstm.setInt(4, dado.getId_conta_depositante());
+				pstm.setInt(5, dado.getId_favorecido());
+				pstm.setInt(6, dado.getId_conta_favorecido());
+				pstm.setString(7, dado.getDescricao());
+				pstm.setInt(8, dado.getTipo());
+				pstm.setInt(9, dado.getId_contrato_destinatario());
+				pstm.setInt(10, dado.getId_contrato_remetente());
+
+				pstm.setInt(11, dado.getId_pagamento());
+
+				pstm.execute();
+				// JOptionPane.showMessageDialog(null, "Cliente atualizado com sucesso");
+				System.out.println("Transferencia de Pagamento Contratual atualizado com sucesso");
+				ConexaoBanco.fechaConexao(conn);
+				return true;
+			} catch (Exception e) {
+				JOptionPane.showMessageDialog(null,
+						"Erro ao atualizar a Transferencia de Pagamento Contratual no banco de dados\nErro: "
+								+ e.getMessage() + "\nCausa: " + e.getCause());
+				return false;
+			}
+		} else {
+			JOptionPane.showMessageDialog(null, "Os parametros estão vazios");
+			return false;
+		}
+
+	}
+
 	public int inserir_pagamento_contratual_retorno(CadastroContrato.CadastroPagamentoContratual pagamento) {
 
 		int result = -1;
@@ -3860,10 +4790,8 @@ caminho_nf_remessa text,
 				return result;
 
 			} catch (Exception e) {
-				JOptionPane.showMessageDialog(null,
-						"Erro ao inserir o pagamento no banco de " + "dados "  );
-				GerenciadorLog.registrarLogDiario("falha",
-						"falha ao adicionar pagamento contratual: "   + " causa: "  );
+				JOptionPane.showMessageDialog(null, "Erro ao inserir o pagamento no banco de " + "dados ");
+				GerenciadorLog.registrarLogDiario("falha", "falha ao adicionar pagamento contratual: " + " causa: ");
 				return -1;
 			}
 		} else {
@@ -3883,7 +4811,8 @@ caminho_nf_remessa text,
 			PreparedStatement grava = (PreparedStatement) conn.prepareStatement(sql);
 			grava.execute();
 			ConexaoBanco.fechaConexao(conn, grava);
-			//JOptionPane.showMessageDialog(null, "Relação contrato_pagamentos  cadastrado com sucesso");
+			// JOptionPane.showMessageDialog(null, "Relação contrato_pagamentos cadastrado
+			// com sucesso");
 
 			return true;
 
@@ -3938,8 +4867,256 @@ caminho_nf_remessa text,
 			System.out.println("Pagamentos foram listadas com sucesso!");
 			return lista_pagamentos;
 		} catch (Exception e) {
-			JOptionPane.showMessageDialog(null, "Erro ao listar os pagamentos do contrato: " + id_contrato + " erro: "
-					  + "causa: "  );
+			JOptionPane.showMessageDialog(null,
+					"Erro ao listar os pagamentos do contrato: " + id_contrato + " erro: " + "causa: ");
+			return null;
+		}
+
+	}
+
+	public ArrayList<PagamentoCompleto> getPagamentosContratuaisParaRelatorio() {
+
+		System.out.println("Listar pagamentos foi chamado!");
+		String selectPagamentos = "select ct_pg.id_contrato, ct_pg.id_pagamento,\n"
+				+ "ct.id as contrato_id,ct.codigo, ct.quantidade, ct.medida, ct.valor_a_pagar, ct.valor_produto, ct.grupo_particular,\n"
+				+ "GROUP_CONCAT(distinct\n" + "case\n"
+				+ "when comprador.tipo_cliente = '0' then comprador.nome_empresarial \n"
+				+ " when comprador.tipo_cliente = '1' then comprador.nome_fantasia\n" + "end\n"
+				+ " separator ',') as compradores,\n" + "GROUP_CONCAT(distinct\n" + "case\n"
+				+ "when vendedor.tipo_cliente = '0' then vendedor.nome_empresarial \n"
+				+ " when vendedor.tipo_cliente = '1' then vendedor.nome_fantasia\n" + "end\n"
+				+ " separator ',') as vendedores, \n"
+				+ " pg.id_pagamento, pg.tipo, pg.descricao, pg.data_pagamento, pg.valor,\n"
+				+ " pg.id_conta_depositante,\n" + " (\n" + " SELECT \n" + "  CONCAT(\n" + "    (nome),' Banco: ',\n"
+				+ "    (banco),' Agência: ',\n" + "    (agencia),' Conta: ',\n" + "    (conta)\n"
+				+ "  ) as conta_bancaria\n" + "from conta_bancaria where id_conta = id_conta_depositante\n"
+				+ " ) as conta_bancaria_depositante,\n" + " pg.id_conta_favorecido,\n" + "  (\n" + " SELECT \n"
+				+ "  CONCAT(\n" + "    (nome),' Banco: ',\n" + "    (banco),' Agência: ',\n"
+				+ "    (agencia),' Conta: ',\n" + "    (conta)\n" + "  ) as conta_bancaria\n"
+				+ "from conta_bancaria where id_conta = id_conta_favorecido\n" + " ) as conta_bancaria_favorecido,\n"
+				+ " pg.id_contrato_remetente, pg.id_contrato_destinatario,\n" + " GROUP_CONCAT(distinct\n" + "case\n"
+				+ "when depositante.tipo_cliente = '0' then depositante.nome_empresarial \n"
+				+ " when depositante.tipo_cliente = '1' then depositante.nome_fantasia\n" + "end\n"
+				+ " separator ',') as depositante,\n" + "  GROUP_CONCAT(distinct\n" + "case\n"
+				+ "when favorecido.tipo_cliente = '0' then favorecido.nome_empresarial \n"
+				+ " when favorecido.tipo_cliente = '1' then favorecido.nome_fantasia\n" + "end\n"
+				+ " separator ',') as favorecido,\n" + " ct.codigo as contrato_remetente,\n"
+				+ "ct_destinatario.codigo as contrato_destinatario,\n"
+				+ " sf.id_safra, sf.ano_colheita, sf.ano_plantio,\n"
+				+ " pd.id_produto, pd.nome_produto, pd.transgenia \n" + " from contrato_pagamentos ct_pg\n"
+				+ "left join pagamento pg on pg.id_pagamento = ct_pg.id_pagamento\n"
+				+ "left join contrato ct on ct.id = ct_pg.id_contrato \n"
+				+ "left join contrato ct_destinatario on ct_destinatario.id = pg.id_contrato_destinatario \n"
+				+ "LEFT JOIN contrato_comprador on contrato_comprador.id_contrato = ct.id\n"
+				+ "LEFT JOIN cliente comprador on comprador.id_cliente = contrato_comprador.id_cliente\n"
+				+ "LEFT JOIN contrato_vendedor on contrato_vendedor.id_contrato = ct.id\n"
+				+ "LEFT JOIN cliente vendedor on vendedor.id_cliente = contrato_vendedor.id_cliente\n"
+				+ "LEFT JOIN cliente depositante on depositante.id_cliente = id_depositante\n"
+				+ "LEFT JOIN cliente favorecido on favorecido.id_cliente = id_favorecido\n"
+				+ "LEFT join safra sf on sf.id_safra = ct.id_safra\n"
+				+ "LEFT join produto pd on pd.id_produto = sf.id_produto \n"
+				+ "left join conta_bancaria cb_depositante on cb_depositante.id_conta = id_conta_depositante\n"
+				+ "left join conta_bancaria cb_favorecido on cb_favorecido.id_conta = id_conta_favorecido\n" + "\n"
+				+ "group by  pg.id_pagamento";
+		Connection conn = null;
+		PreparedStatement pstm = null;
+		ResultSet rs = null;
+		ArrayList<PagamentoCompleto> lista_pagamentos = new ArrayList<>();
+
+		try {
+			conn = ConexaoBanco.getConexao();
+			pstm = conn.prepareStatement(selectPagamentos);
+
+			rs = pstm.executeQuery();
+
+			while (rs.next()) {
+
+				if (rs != null) {
+					System.out.print("pagamento não e nulo!");
+
+					PagamentoCompleto pagamento = new PagamentoCompleto();
+
+					pagamento.setTipo(rs.getInt("tipo"));
+					pagamento.setDescricao(rs.getString("descricao"));
+					pagamento.setId_pagamento(rs.getInt("id_pagamento"));
+					pagamento.setData_pagamento(rs.getString("data_pagamento"));
+					pagamento.setValor_pagamento(rs.getDouble("valor"));
+					pagamento.setDepositante(rs.getString("depositante"));
+					pagamento.setId_conta_depositante(rs.getInt("id_conta_depositante"));
+					pagamento.setFavorecido(rs.getString("favorecido"));
+					pagamento.setId_conta_favorecido(rs.getInt("id_conta_favorecido"));
+					pagamento.setId_contrato_destinatario(rs.getInt("id_contrato_destinatario"));
+					pagamento.setId_contrato_remetente(rs.getInt("id_contrato_remetente"));
+					pagamento.setConta_bancaria_depositante(rs.getString("conta_bancaria_depositante"));
+					pagamento.setConta_bancaria_favorecido(rs.getString("conta_bancaria_favorecido"));
+
+					CadastroContrato contrato_recebimento = new CadastroContrato();
+					contrato_recebimento.setId(rs.getInt("contrato_id"));
+					contrato_recebimento.setCodigo(rs.getString("codigo"));
+					contrato_recebimento.setQuantidade(rs.getDouble("quantidade"));
+					contrato_recebimento.setMedida(rs.getString("medida"));
+					contrato_recebimento.setValor_a_pagar(new BigDecimal(rs.getString("valor_a_pagar")));
+					contrato_recebimento.setValor_produto(rs.getDouble("valor_produto"));
+					contrato_recebimento.setNomes_compradores(rs.getString("compradores"));
+					contrato_recebimento.setNomes_vendedores(rs.getString("vendedores"));
+					contrato_recebimento.setMedida(rs.getString("medida"));
+					contrato_recebimento.setGrupo_particular(rs.getInt("grupo_particular"));
+
+					CadastroSafra safra = new CadastroSafra();
+					safra.setId_safra(rs.getInt("id_safra"));
+					safra.setAno_colheita(rs.getInt("ano_colheita"));
+					safra.setAno_plantio(rs.getInt("ano_plantio"));
+
+					CadastroProduto produto = new CadastroProduto();
+					produto.setId_produto(rs.getInt("id_produto"));
+					produto.setNome_produto(rs.getString("nome_produto"));
+					produto.setTransgenia(rs.getString("transgenia"));
+
+					safra.setProduto(produto);
+
+					contrato_recebimento.setModelo_produto(produto);
+					contrato_recebimento.setModelo_safra(safra);
+
+					pagamento.setContrato_remetente(contrato_recebimento);
+
+					CadastroContrato contrato_destinatario = new CadastroContrato();
+					contrato_destinatario.setCodigo(rs.getString("contrato_destinatario"));
+					pagamento.setContrato_destinatario(contrato_destinatario);
+
+					lista_pagamentos.add(pagamento);
+
+				}
+			}
+
+			ConexaoBanco.fechaConexao(conn, pstm, rs);
+			System.out.println("Pagamentos foram listadas com sucesso!");
+			return lista_pagamentos;
+		} catch (Exception e) {
+			JOptionPane.showMessageDialog(null, "Erro ao listar os pagamentos do contrato: \n erro: " + e.getMessage()
+					+ "\ncausa: " + e.getCause());
+			return null;
+		}
+
+	}
+
+	public ArrayList<PagamentoCompleto> getPagamentosContratuaisParaRelatorio(int id_contrato_remetente) {
+
+		System.out.println("Listar pagamentos foi chamado!");
+		String selectPagamentos = "select ct_pg.id_contrato, ct_pg.id_pagamento,\n"
+				+ "ct.id as contrato_id,ct.codigo, ct.quantidade, ct.medida, ct.valor_a_pagar, ct.valor_produto,\n"
+				+ "GROUP_CONCAT(distinct\n" + "case\n"
+				+ "when comprador.tipo_cliente = '0' then comprador.nome_empresarial \n"
+				+ " when comprador.tipo_cliente = '1' then comprador.nome_fantasia\n" + "end\n"
+				+ " separator ',') as compradores,\n" + "GROUP_CONCAT(distinct\n" + "case\n"
+				+ "when vendedor.tipo_cliente = '0' then vendedor.nome_empresarial \n"
+				+ " when vendedor.tipo_cliente = '1' then vendedor.nome_fantasia\n" + "end\n"
+				+ " separator ',') as vendedores, \n"
+				+ " pg.id_pagamento, pg.tipo, pg.descricao, pg.data_pagamento, pg.valor, pg.id_conta_depositante, pg.id_conta_favorecido, pg.id_contrato_remetente, pg.id_contrato_destinatario,\n"
+				+ " GROUP_CONCAT(distinct\n" + "case\n"
+				+ "when depositante.tipo_cliente = '0' then depositante.nome_empresarial \n"
+				+ " when depositante.tipo_cliente = '1' then depositante.nome_fantasia\n" + "end\n"
+				+ " separator ',') as depositante,\n" + "  GROUP_CONCAT(distinct\n" + "case\n"
+				+ "when favorecido.tipo_cliente = '0' then favorecido.nome_empresarial \n"
+				+ " when favorecido.tipo_cliente = '1' then favorecido.nome_fantasia\n" + "end\n"
+				+ " separator ',') as favorecido,\n" + " ct.codigo as contrato_remetente,\n"
+				+ "ct_destinatario.codigo as contrato_destinatario,\n"
+				+ " sf.id_safra, sf.ano_colheita, sf.ano_plantio,\n"
+				+ " pd.id_produto, pd.nome_produto, pd.transgenia,\n" + " (\n" + " SELECT \n" + "  CONCAT(\n"
+				+ "    (nome),' Banco: ',\n" + "    (banco),' Agência: ',\n" + "    (agencia),' Conta: ',\n"
+				+ "    (conta)\n" + "  ) as conta_bancaria\n"
+				+ "from conta_bancaria where id_conta = id_conta_depositante\n" + " ) as conta_bancaria_depositante,\n"
+				+ " pg.id_conta_favorecido,\n" + "  (\n" + " SELECT \n" + "  CONCAT(\n" + "    (nome),' Banco: ',\n"
+				+ "    (banco),' Agência: ',\n" + "    (agencia),' Conta: ',\n" + "    (conta)\n"
+				+ "  ) as conta_bancaria\n" + "from conta_bancaria where id_conta = id_conta_favorecido\n"
+				+ " ) as conta_bancaria_favorecido\n" + " from contrato_pagamentos ct_pg\n"
+				+ "left join pagamento pg on pg.id_pagamento = ct_pg.id_pagamento\n"
+				+ "left join contrato ct on ct.id = ct_pg.id_contrato \n"
+				+ "left join contrato ct_destinatario on ct_destinatario.id = pg.id_contrato_destinatario \n"
+				+ "LEFT JOIN contrato_comprador on contrato_comprador.id_contrato = ct.id\n"
+				+ "LEFT JOIN cliente comprador on comprador.id_cliente = contrato_comprador.id_cliente\n"
+				+ "LEFT JOIN contrato_vendedor on contrato_vendedor.id_contrato = ct.id\n"
+				+ "LEFT JOIN cliente vendedor on vendedor.id_cliente = contrato_vendedor.id_cliente\n"
+				+ "LEFT JOIN cliente depositante on depositante.id_cliente = id_depositante\n"
+				+ "LEFT JOIN cliente favorecido on favorecido.id_cliente = id_favorecido\n"
+				+ "LEFT join safra sf on sf.id_safra = ct.id_safra\n"
+				+ "LEFT join produto pd on pd.id_produto = sf.id_produto where ct.id = ? or ct_destinatario.id = ?\n"
+				+ "group by  pg.id_pagamento";
+		Connection conn = null;
+		PreparedStatement pstm = null;
+		ResultSet rs = null;
+		ArrayList<PagamentoCompleto> lista_pagamentos = new ArrayList<>();
+
+		try {
+			conn = ConexaoBanco.getConexao();
+			pstm = conn.prepareStatement(selectPagamentos);
+			pstm.setInt(1, id_contrato_remetente);
+			pstm.setInt(2, id_contrato_remetente);
+
+			rs = pstm.executeQuery();
+
+			while (rs.next()) {
+
+				if (rs != null) {
+					System.out.print("pagamento não e nulo!");
+
+					PagamentoCompleto pagamento = new PagamentoCompleto();
+
+					pagamento.setTipo(rs.getInt("tipo"));
+					pagamento.setDescricao(rs.getString("descricao"));
+					pagamento.setId_pagamento(rs.getInt("id_pagamento"));
+					pagamento.setData_pagamento(rs.getString("data_pagamento"));
+					pagamento.setValor_pagamento(rs.getDouble("valor"));
+					pagamento.setDepositante(rs.getString("depositante"));
+					pagamento.setId_conta_depositante(rs.getInt("id_conta_depositante"));
+					pagamento.setFavorecido(rs.getString("favorecido"));
+					pagamento.setId_conta_favorecido(rs.getInt("id_conta_favorecido"));
+					pagamento.setId_contrato_remetente(rs.getInt("id_contrato_remetente"));
+					pagamento.setId_contrato_destinatario(rs.getInt("id_contrato_destinatario"));
+					pagamento.setConta_bancaria_depositante(rs.getString("conta_bancaria_depositante"));
+					pagamento.setConta_bancaria_favorecido(rs.getString("conta_bancaria_favorecido"));
+
+					CadastroContrato contrato_recebimento = new CadastroContrato();
+					contrato_recebimento.setId(rs.getInt("contrato_id"));
+					contrato_recebimento.setCodigo(rs.getString("codigo"));
+					contrato_recebimento.setQuantidade(rs.getDouble("quantidade"));
+					contrato_recebimento.setMedida(rs.getString("medida"));
+					contrato_recebimento.setValor_a_pagar(new BigDecimal(rs.getString("valor_a_pagar")));
+					contrato_recebimento.setValor_produto(rs.getDouble("valor_produto"));
+					contrato_recebimento.setNomes_compradores(rs.getString("compradores"));
+					contrato_recebimento.setNomes_vendedores(rs.getString("vendedores"));
+
+					CadastroSafra safra = new CadastroSafra();
+					safra.setId_safra(rs.getInt("id_safra"));
+					safra.setAno_colheita(rs.getInt("ano_colheita"));
+					safra.setAno_plantio(rs.getInt("ano_plantio"));
+
+					CadastroProduto produto = new CadastroProduto();
+					produto.setId_produto(rs.getInt("id_produto"));
+					produto.setNome_produto(rs.getString("nome_produto"));
+					produto.setTransgenia(rs.getString("transgenia"));
+
+					safra.setProduto(produto);
+
+					contrato_recebimento.setModelo_produto(produto);
+					contrato_recebimento.setModelo_safra(safra);
+
+					pagamento.setContrato_remetente(contrato_recebimento);
+
+					CadastroContrato contrato_destinatario = new CadastroContrato();
+					contrato_destinatario.setCodigo(rs.getString("contrato_destinatario"));
+					pagamento.setContrato_destinatario(contrato_destinatario);
+
+					lista_pagamentos.add(pagamento);
+
+				}
+			}
+
+			ConexaoBanco.fechaConexao(conn, pstm, rs);
+			System.out.println("Pagamentos foram listadas com sucesso!");
+			return lista_pagamentos;
+		} catch (Exception e) {
+			JOptionPane.showMessageDialog(null, "Erro ao listar os pagamentos do contrato: \n erro: " + e.getMessage()
+					+ "\ncausa: " + e.getCause());
 			return null;
 		}
 
@@ -3948,7 +5125,15 @@ caminho_nf_remessa text,
 	public ArrayList<CadastroContrato.CadastroPagamentoContratual> getPagamentosContratual(int id_pagamento) {
 
 		System.out.println("Listar pagamentos foi chamado!");
-		String selectPagamentos = "select * from pagamento where id_pagamento = ?";
+		String selectPagamentos = "select pag.*,\n" + "CONCAT(\n" + "    (cb_depositante.nome),' Banco: ',\n"
+				+ "    (cb_depositante.banco),' Agência: ',\n" + "    (cb_depositante.agencia),' Conta: ',\n"
+				+ "    (cb_depositante.conta)\n" + "  ) as conta_bancaria_depositante,\n" + "  CONCAT(\n"
+				+ "    (cb_favorecido.nome),' Banco: ',\n" + "    (cb_favorecido.banco),' Agência: ',\n"
+				+ "    (cb_favorecido.agencia),' Conta: ',\n" + "    (cb_favorecido.conta)\n"
+				+ "  ) as conta_bancaria_favorecido\n" + "from pagamento as pag\n"
+				+ "left join conta_bancaria cb_depositante on cb_depositante.id_conta = pag.id_conta_depositante\n"
+				+ "left join conta_bancaria cb_favorecido on cb_favorecido.id_conta = pag.id_conta_favorecido\n" + "\n"
+				+ "\n" + "";
 		Connection conn = null;
 		PreparedStatement pstm = null;
 		ResultSet rs = null;
@@ -3975,6 +5160,8 @@ caminho_nf_remessa text,
 					pagamento.setId_conta_depositante(rs.getInt("id_conta_depositante"));
 					pagamento.setId_favorecido(rs.getInt("id_favorecido"));
 					pagamento.setId_conta_favorecido(rs.getInt("id_conta_favorecido"));
+					pagamento.setConta_depositante(rs.getString("conta_bancaria_depositante"));
+					pagamento.setConta_favorecido(rs.getString("conta_bancaria_favorecido"));
 
 					lista_pagamentos.add(pagamento);
 
@@ -3985,8 +5172,7 @@ caminho_nf_remessa text,
 			System.out.println("Pagamentos listado com sucesso!");
 			return lista_pagamentos;
 		} catch (Exception e) {
-			JOptionPane.showMessageDialog(null, "Erro ao listar o pagamento: " + id_pagamento + " erro: "
-					  + "causa: "  );
+			JOptionPane.showMessageDialog(null, "Erro ao listar o pagamento: " + id_pagamento + " erro: " + "causa: ");
 			return null;
 		}
 
@@ -4032,8 +5218,8 @@ caminho_nf_remessa text,
 			System.out.println("Pagamentos foram listadas com sucesso!");
 			return lista_pagamentos;
 		} catch (Exception e) {
-			JOptionPane.showMessageDialog(null, "Erro ao listar os pagamentos do depositante: " + id_depositante
-					+ " erro: "   + "causa: "  );
+			JOptionPane.showMessageDialog(null,
+					"Erro ao listar os pagamentos do depositante: " + id_depositante + " erro: " + "causa: ");
 			return null;
 		}
 
@@ -4079,8 +5265,8 @@ caminho_nf_remessa text,
 			System.out.println("Pagamentos foram listadas com sucesso!");
 			return lista_pagamentos;
 		} catch (Exception e) {
-			JOptionPane.showMessageDialog(null, "Erro ao listar os pagamentos do depositante: " + id_favorecido
-					+ " erro: "   + "causa: "  );
+			JOptionPane.showMessageDialog(null,
+					"Erro ao listar os pagamentos do depositante: " + id_favorecido + " erro: " + "causa: ");
 			return null;
 		}
 
@@ -4127,8 +5313,8 @@ caminho_nf_remessa text,
 			System.out.println("Pagamentos foram listadas com sucesso!");
 			return lista_pagamentos;
 		} catch (Exception e) {
-			JOptionPane.showMessageDialog(null, "Erro ao listar os pagamentos do depositante: " + id_favorecido
-					+ " erro: "   + "causa: "  );
+			JOptionPane.showMessageDialog(null,
+					"Erro ao listar os pagamentos do depositante: " + id_favorecido + " erro: " + "causa: ");
 			return null;
 		}
 
@@ -4161,13 +5347,15 @@ caminho_nf_remessa text,
 			pagamento.setId_conta_depositante(rs.getInt("id_conta_depositante"));
 			pagamento.setId_favorecido(rs.getInt("id_favorecido"));
 			pagamento.setId_conta_favorecido(rs.getInt("id_conta_favorecido"));
+			pagamento.setId_contrato_destinatario(rs.getInt("id_contrato_destinatario"));
+			pagamento.setId_contrato_remetente(rs.getInt("id_contrato_remetente"));
 
 			ConexaoBanco.fechaConexao(conn, pstm, rs);
 			System.out.println("Pagamentos foram listadas com sucesso!");
 			return pagamento;
 		} catch (Exception e) {
-			JOptionPane.showMessageDialog(null, "Erro ao listar o pagamento de id: " + id_pagamento + " erro: "
-					  + "causa: "  );
+			JOptionPane.showMessageDialog(null,
+					"Erro ao listar o pagamento de id: " + id_pagamento + " erro: " + "causa: ");
 			return null;
 		}
 
@@ -4206,8 +5394,8 @@ caminho_nf_remessa text,
 			System.out.println("Relações foram listadas com sucesso!");
 			return relacao;
 		} catch (Exception e) {
-			JOptionPane.showMessageDialog(null, "Erro ao listar as relacoes de pagamentos com id: " + id_pag + " erro: "
-					  + "causa: "  );
+			JOptionPane.showMessageDialog(null,
+					"Erro ao listar as relacoes de pagamentos com id: " + id_pag + " erro: " + "causa: ");
 			return null;
 		}
 	}
@@ -4233,11 +5421,13 @@ caminho_nf_remessa text,
 
 			pstm.execute();
 			ConexaoBanco.fechaConexao(conn, pstm);
-			//JOptionPane.showMessageDialog(null, "Pagamento excluido, banco normalizado ");
+			// JOptionPane.showMessageDialog(null, "Pagamento excluido, banco normalizado
+			// ");
 			return true;
 
 		} catch (Exception f) {
-		//	JOptionPane.showMessageDialog(null, "Erro ao excluir o pagamento do banco de" + "dados " + f.getMessage());
+			// JOptionPane.showMessageDialog(null, "Erro ao excluir o pagamento do banco de"
+			// + "dados " + f.getMessage());
 			return false;
 		}
 
@@ -4258,11 +5448,13 @@ caminho_nf_remessa text,
 
 			pstm.execute();
 			ConexaoBanco.fechaConexao(conn, pstm);
-			//JOptionPane.showMessageDialog(null, "Relacao contrato_pagamentos excluida, banco normalizado ");
+			// JOptionPane.showMessageDialog(null, "Relacao contrato_pagamentos excluida,
+			// banco normalizado ");
 			return true;
 
 		} catch (Exception f) {
-			//JOptionPane.showMessageDialog(null, "Erro ao excluir a relacao contrato_pagamentos do banco de" + "dados " + f.getMessage());
+			// JOptionPane.showMessageDialog(null, "Erro ao excluir a relacao
+			// contrato_pagamentos do banco de" + "dados " + f.getMessage());
 			return false;
 		}
 
@@ -4270,11 +5462,12 @@ caminho_nf_remessa text,
 
 	public String sql_pagamento_contratual(CadastroContrato.CadastroPagamentoContratual pagamento) {
 
-		String query = "insert into pagamento (data_pagamento, valor , id_depositante, id_conta_depositante, id_favorecido, id_conta_favorecido, descricao, tipo) values ('"
+		String query = "insert into pagamento (data_pagamento, valor , id_depositante, id_conta_depositante, id_favorecido, id_conta_favorecido, descricao, tipo, id_contrato_remetente, id_contrato_destinatario) values ('"
 				+ pagamento.getData_pagamento() + "','" + pagamento.getValor_pagamento() + "','"
 				+ pagamento.getId_depositante() + "','" + pagamento.getId_conta_depositante() + "','"
 				+ pagamento.getId_favorecido() + "','" + pagamento.getId_conta_favorecido() + "','"
-				+ pagamento.getDescricao() + "','" + pagamento.getTipo() + "')";
+				+ pagamento.getDescricao() + "','" + pagamento.getTipo() + "','" + pagamento.getId_contrato_remetente()
+				+ "','" + pagamento.getId_contrato_destinatario() + "')";
 		return query;
 
 	}
@@ -4294,12 +5487,13 @@ caminho_nf_remessa text,
 
 			pstm.execute();
 			ConexaoBanco.fechaConexao(conn, pstm);
-			//JOptionPane.showMessageDialog(null, "Status do contrato Atualizado");
+			// JOptionPane.showMessageDialog(null, "Status do contrato Atualizado");
 			return true;
 
 		} catch (Exception f) {
-		//	JOptionPane.showMessageDialog(null,
-			//		"Erro ao atualizar o status do contrato no banco de" + "dados " + f.getMessage());
+			// JOptionPane.showMessageDialog(null,
+			// "Erro ao atualizar o status do contrato no banco de" + "dados " +
+			// f.getMessage());
 			return false;
 		}
 	}
@@ -4323,8 +5517,7 @@ caminho_nf_remessa text,
 			return i;
 
 		} catch (Exception e) {
-			JOptionPane.showMessageDialog(null, "Erro ao listar o numero total de contratos!" + " erro: "
-					  + "causa: "  );
+			JOptionPane.showMessageDialog(null, "Erro ao listar o numero total de contratos!" + " erro: " + "causa: ");
 			return -1;
 		}
 
@@ -4350,8 +5543,9 @@ caminho_nf_remessa text,
 			return i;
 
 		} catch (Exception e) {
-			//JOptionPane.showMessageDialog(null, "Erro ao listar o numero de  contratos sem assinaturas: " + " erro: "
-			//		  + "causa: "  );
+			// JOptionPane.showMessageDialog(null, "Erro ao listar o numero de contratos sem
+			// assinaturas: " + " erro: "
+			// + "causa: " );
 			return -1;
 		}
 
@@ -4398,8 +5592,7 @@ caminho_nf_remessa text,
 			return i;
 
 		} catch (Exception e) {
-			JOptionPane.showMessageDialog(null,
-					"Erro ao fazer a consulta de contratos: " + " erro: "   + "causa: "  );
+			JOptionPane.showMessageDialog(null, "Erro ao fazer a consulta de contratos: " + " erro: " + "causa: ");
 			return -1;
 		}
 
@@ -4424,8 +5617,9 @@ caminho_nf_remessa text,
 			return i;
 
 		} catch (Exception e) {
-			//JOptionPane.showMessageDialog(null, "Erro ao listar o numero total de tarefas!" + " erro: "  
-			//		+ "causa: "  );
+			// JOptionPane.showMessageDialog(null, "Erro ao listar o numero total de
+			// tarefas!" + " erro: "
+			// + "causa: " );
 			return -1;
 		}
 	}
@@ -4465,13 +5659,14 @@ caminho_nf_remessa text,
 			return quantidade_total;
 
 		} catch (Exception e) {
-			//	JOptionPane.showMessageDialog(null, "Erro ao listar a quantidade total de sacos" + " erro: "
-		//			  + "causa: "  );
+			// JOptionPane.showMessageDialog(null, "Erro ao listar a quantidade total de
+			// sacos" + " erro: "
+			// + "causa: " );
 			return -1;
 		}
 
 	}
-	
+
 	public double getQuantidadeSacosRecebidos() {
 		String selectGetQuantidadeTotalSacosCarregados = "select sum(peso_romaneio) as quantidade_total_recebida from recebimento\n"
 				+ "left join contrato on contrato.id = recebimento.id_contrato_recebimento\n"
@@ -4493,18 +5688,14 @@ caminho_nf_remessa text,
 			return i / 60;
 
 		} catch (Exception e) {
-			//JOptionPane.showMessageDialog(null, "Erro ao listar a quantidade total de sacos recebidos" + " erro: "
-			//		  + "causa: "  );
+			// JOptionPane.showMessageDialog(null, "Erro ao listar a quantidade total de
+			// sacos recebidos" + " erro: "
+			// + "causa: " );
 			return -1;
 		}
-		
-		
-		
+
 	}
 
-	
-	
-	
 	public double getQuantidadeSacosCarregados() {
 
 		String selectGetQuantidadeTotalSacosCarregados = "select sum(peso_romaneio) as quantidade_total_carregada from carregamento\n"
@@ -4526,8 +5717,9 @@ caminho_nf_remessa text,
 			return i / 60;
 
 		} catch (Exception e) {
-			//JOptionPane.showMessageDialog(null, "Erro ao listar a quantidade total de sacos carregados" + " erro: "
-			//		  + "causa: "  );
+			// JOptionPane.showMessageDialog(null, "Erro ao listar a quantidade total de
+			// sacos carregados" + " erro: "
+			// + "causa: " );
 			return -1;
 		}
 
@@ -4558,12 +5750,12 @@ caminho_nf_remessa text,
 		} catch (Exception e) {
 			JOptionPane.showMessageDialog(null,
 					"Erro ao listar a quantidade total de sacos carregados da safra selecionada" + " erro: "
-							  + "causa: "  );
+							+ "causa: ");
 			return -1;
 		}
 
 	}
-	
+
 	public double getQuantidadeSacosRecebidosPorSafra(int id_safra) {
 
 		String selectGetQuantidadeTotalSacosRecebidos = "select sum(peso_romaneio) as quantidade_total_recebida from recebimento\n"
@@ -4589,7 +5781,7 @@ caminho_nf_remessa text,
 		} catch (Exception e) {
 			JOptionPane.showMessageDialog(null,
 					"Erro ao listar a quantidade total de sacos recebidos da safra selecionada" + " erro: "
-							  + "causa: "  );
+							+ "causa: ");
 			return -1;
 		}
 
@@ -4598,7 +5790,8 @@ caminho_nf_remessa text,
 	public double getQuantidadeSacosPorSafra(int id_safra) {
 
 		String selectGetQuantidadeTotalSacosPorSafra = "select medida, quantidade from contrato\n"
-				+ " where  (sub_contrato = 0 or sub_contrato = 3 or contrato.sub_contrato = 4 or contrato.sub_contrato = 5)and\n" + "contrato.id_safra = ?";
+				+ " where  (sub_contrato = 0 or sub_contrato = 3 or contrato.sub_contrato = 4 or contrato.sub_contrato = 5)and\n"
+				+ "contrato.id_safra = ?";
 		Connection conn = null;
 		PreparedStatement pstm = null;
 		ResultSet rs = null;
@@ -4632,8 +5825,8 @@ caminho_nf_remessa text,
 			return quantidade_total;
 
 		} catch (Exception e) {
-			JOptionPane.showMessageDialog(null, "Erro ao listar a quantidade total de sacos para a safra selecionada"
-					+ " erro: "   + "causa: "  );
+			JOptionPane.showMessageDialog(null,
+					"Erro ao listar a quantidade total de sacos para a safra selecionada" + " erro: " + "causa: ");
 			return -1;
 		}
 
@@ -4686,8 +5879,8 @@ caminho_nf_remessa text,
 			return total_carregados_por_dia;
 
 		} catch (Exception e) {
-			JOptionPane.showMessageDialog(null, "Erro ao listar a quantidade total de sacos para a safra selecionada"
-					+ " erro: "   + "causa: "  );
+			JOptionPane.showMessageDialog(null,
+					"Erro ao listar a quantidade total de sacos para a safra selecionada" + " erro: " + "causa: ");
 			return null;
 		}
 
@@ -4713,376 +5906,417 @@ caminho_nf_remessa text,
 			return id;
 
 		} catch (Exception e) {
-			JOptionPane.showMessageDialog(null, "Erro ao listar o dono do pagamento " + id_pagamento + " erro: "
-					  + "causa: "  );
+			JOptionPane.showMessageDialog(null,
+					"Erro ao listar o dono do pagamento " + id_pagamento + " erro: " + "causa: ");
 			return -1;
 		}
 
 	}
-	
-	public ArrayList<RegistroQuantidade> getQuantidades(int id_safra, int id_cliente, int flag){
-		String selectQuantidadesPorSafraComprador = "select id_cliente, comprador, vendedor, sum(quantidade) as total\n"
-				+ "from\n"
-				+ "(\n"
-				+ "select vendedor.id_cliente,\n"
-				+ "case\n"
+
+	public ArrayList<RegistroQuantidade> getQuantidades(int id_safra, int id_cliente, int id_contra_parte, int flag) {
+		/*String selectQuantidadesPorSafraComprador = "select id_cliente, comprador, vendedor, sum(quantidade) as total\n"
+				+ "from\n" + "(\n" + "select vendedor.id_cliente,\n" + "case\n"
 				+ "when comprador.tipo_cliente = '0' then comprador.nome_empresarial \n"
-				+ " when comprador.tipo_cliente = '1' then  comprador.nome_fantasia\n"
-				+ "end as comprador,\n"
-				+ "case\n"
-				+ "when vendedor.tipo_cliente = '0' then LTRIM( vendedor.nome_empresarial )\n"
-				+ " when vendedor.tipo_cliente = '1' then LTRIM( vendedor.nome_fantasia)\n"
-				+ "end  as vendedor, \n"
-				+ "case\n"
-				+ "when ct.medida = 'Sacos' then quantidade\n"
-				+ " when ct.medida = 'KG' then (quantidade / 60)\n"
-				+ "end  as quantidade\n"
-				+ "from contrato ct\n"
-				+ "\n"
-				+ "LEFT JOIN contrato_comprador on contrato_comprador.id_contrato = ct.id\n"
-				+ "LEFT JOIN cliente comprador on comprador.id_cliente = contrato_comprador.id_cliente\n"
-				+ "\n"
+				+ " when comprador.tipo_cliente = '1' then  comprador.nome_fantasia\n" + "end as comprador,\n"
+				+ "case\n" + "when vendedor.tipo_cliente = '0' then LTRIM( vendedor.nome_empresarial )\n"
+				+ " when vendedor.tipo_cliente = '1' then LTRIM( vendedor.nome_fantasia)\n" + "end  as vendedor, \n"
+				+ "case\n" + "when ct.medida = 'Sacos' then quantidade\n"
+				+ " when ct.medida = 'KG' then (quantidade / 60)\n" + "end  as quantidade\n" + "from contrato ct\n"
+				+ "\n" + "LEFT JOIN contrato_comprador on contrato_comprador.id_contrato = ct.id\n"
+				+ "LEFT JOIN cliente comprador on comprador.id_cliente = contrato_comprador.id_cliente\n" + "\n"
 				+ "LEFT JOIN contrato_vendedor  on contrato_vendedor.id_contrato = ct.id\n"
 				+ "LEFT JOIN cliente vendedor on vendedor.id_cliente = contrato_vendedor.id_cliente\n"
 				+ "where (ct.sub_contrato = 0 or ct.sub_contrato = 3 or ct.sub_contrato = 4 or ct.sub_contrato = 5)\n"
-				+ "and ct.id_safra = ?\n"
-				+ "and comprador.id_cliente = ?\n"
-				+ "\n"
-				+ ")\n"
-				+ "A\n"
-				+ "group by  vendedor\n"
-				+ "order by vendedor\n"
-				+ "\n"
-				+ "";
+				+ "and ct.id_safra = ?\n" + "and comprador.id_cliente = ?\n" + "\n" + ")\n" + "A\n"
+				+ "group by  vendedor\n" + "order by vendedor\n" + "\n" + "";
 		String selectQuantidadesTodasSafrasComprador = "select id_cliente, comprador, vendedor, sum(quantidade) as total\n"
-				+ "from\n"
-				+ "(\n"
-				+ "select vendedor.id_cliente,\n"
-				+ "case\n"
+				+ "from\n" + "(\n" + "select vendedor.id_cliente,\n" + "case\n"
 				+ "when comprador.tipo_cliente = '0' then comprador.nome_empresarial \n"
-				+ " when comprador.tipo_cliente = '1' then  comprador.nome_fantasia\n"
-				+ "end as comprador,\n"
-				+ "case\n"
-				+ "when vendedor.tipo_cliente = '0' then LTRIM( vendedor.nome_empresarial )\n"
-				+ " when vendedor.tipo_cliente = '1' then LTRIM( vendedor.nome_fantasia)\n"
-				+ "end  as vendedor, \n"
-				+ "case\n"
-				+ "when ct.medida = 'Sacos' then quantidade\n"
-				+ " when ct.medida = 'KG' then (quantidade / 60)\n"
-				+ "end  as quantidade\n"
-				+ "from contrato ct\n"
-				+ "\n"
-				+ "LEFT JOIN contrato_comprador on contrato_comprador.id_contrato = ct.id\n"
-				+ "LEFT JOIN cliente comprador on comprador.id_cliente = contrato_comprador.id_cliente\n"
-				+ "\n"
+				+ " when comprador.tipo_cliente = '1' then  comprador.nome_fantasia\n" + "end as comprador,\n"
+				+ "case\n" + "when vendedor.tipo_cliente = '0' then LTRIM( vendedor.nome_empresarial )\n"
+				+ " when vendedor.tipo_cliente = '1' then LTRIM( vendedor.nome_fantasia)\n" + "end  as vendedor, \n"
+				+ "case\n" + "when ct.medida = 'Sacos' then quantidade\n"
+				+ " when ct.medida = 'KG' then (quantidade / 60)\n" + "end  as quantidade\n" + "from contrato ct\n"
+				+ "\n" + "LEFT JOIN contrato_comprador on contrato_comprador.id_contrato = ct.id\n"
+				+ "LEFT JOIN cliente comprador on comprador.id_cliente = contrato_comprador.id_cliente\n" + "\n"
 				+ "LEFT JOIN contrato_vendedor  on contrato_vendedor.id_contrato = ct.id\n"
 				+ "LEFT JOIN cliente vendedor on vendedor.id_cliente = contrato_vendedor.id_cliente\n"
 				+ "where (ct.sub_contrato = 0 or ct.sub_contrato = 3 or ct.sub_contrato = 4 or ct.sub_contrato = 5)\n"
-				+ "and comprador.id_cliente = ?\n"
-				+ "\n"
-				+ ")\n"
-				+ "A\n"
-				+ "group by  vendedor\n"
-				+ "order by vendedor\n"
-				+ "\n"
-				+ "";
-		
+				+ "and comprador.id_cliente = ?\n" + "\n" + ")\n" + "A\n" + "group by  vendedor\n"
+				+ "order by vendedor\n" + "\n" + "";
+
 		String selectQuantidadesPorSafraVendedor = "select id_cliente, comprador, vendedor, sum(quantidade) as total\n"
-				+ "from\n"
-				+ "(\n"
-				+ "select vendedor.id_cliente,\n"
-				+ "case\n"
+				+ "from\n" + "(\n" + "select vendedor.id_cliente,\n" + "case\n"
 				+ "when comprador.tipo_cliente = '0' then comprador.nome_empresarial \n"
-				+ " when comprador.tipo_cliente = '1' then  comprador.nome_fantasia\n"
-				+ "end as comprador,\n"
-				+ "case\n"
-				+ "when vendedor.tipo_cliente = '0' then LTRIM( vendedor.nome_empresarial )\n"
-				+ " when vendedor.tipo_cliente = '1' then LTRIM( vendedor.nome_fantasia)\n"
-				+ "end  as vendedor, \n"
-				+ "case\n"
-				+ "when ct.medida = 'Sacos' then quantidade\n"
-				+ " when ct.medida = 'KG' then (quantidade / 60)\n"
-				+ "end  as quantidade\n"
-				+ "from contrato ct\n"
-				+ "\n"
-				+ "LEFT JOIN contrato_comprador on contrato_comprador.id_contrato = ct.id\n"
-				+ "LEFT JOIN cliente comprador on comprador.id_cliente = contrato_comprador.id_cliente\n"
-				+ "\n"
+				+ " when comprador.tipo_cliente = '1' then  comprador.nome_fantasia\n" + "end as comprador,\n"
+				+ "case\n" + "when vendedor.tipo_cliente = '0' then LTRIM( vendedor.nome_empresarial )\n"
+				+ " when vendedor.tipo_cliente = '1' then LTRIM( vendedor.nome_fantasia)\n" + "end  as vendedor, \n"
+				+ "case\n" + "when ct.medida = 'Sacos' then quantidade\n"
+				+ " when ct.medida = 'KG' then (quantidade / 60)\n" + "end  as quantidade\n" + "from contrato ct\n"
+				+ "\n" + "LEFT JOIN contrato_comprador on contrato_comprador.id_contrato = ct.id\n"
+				+ "LEFT JOIN cliente comprador on comprador.id_cliente = contrato_comprador.id_cliente\n" + "\n"
 				+ "LEFT JOIN contrato_vendedor  on contrato_vendedor.id_contrato = ct.id\n"
 				+ "LEFT JOIN cliente vendedor on vendedor.id_cliente = contrato_vendedor.id_cliente\n"
 				+ "where (ct.sub_contrato = 0 or ct.sub_contrato = 3 or ct.sub_contrato = 4 or ct.sub_contrato = 5)\n"
-				+ "and ct.id_safra = ?\n"
-				+ "and vendedor.id_cliente = ?\n"
-				+ "\n"
-				+ ")\n"
-				+ "A\n"
-				+ "group by  vendedor\n"
-				+ "order by vendedor\n"
-				+ "\n"
-				+ "";
+				+ "and ct.id_safra = ?\n" + "and vendedor.id_cliente = ?\n" + "\n" + ")\n" + "A\n"
+				+ "group by  vendedor\n" + "order by vendedor\n" + "\n" + "";
 		String selectQuantidadesTodasSafrasVendedor = "select id_cliente, comprador, vendedor, sum(quantidade) as total\n"
-				+ "from\n"
-				+ "(\n"
-				+ "select vendedor.id_cliente,\n"
-				+ "case\n"
+				+ "from\n" + "(\n" + "select vendedor.id_cliente,\n" + "case\n"
 				+ "when comprador.tipo_cliente = '0' then comprador.nome_empresarial \n"
-				+ " when comprador.tipo_cliente = '1' then  comprador.nome_fantasia\n"
-				+ "end as comprador,\n"
-				+ "case\n"
-				+ "when vendedor.tipo_cliente = '0' then LTRIM( vendedor.nome_empresarial )\n"
-				+ " when vendedor.tipo_cliente = '1' then LTRIM( vendedor.nome_fantasia)\n"
-				+ "end  as vendedor, \n"
-				+ "case\n"
-				+ "when ct.medida = 'Sacos' then quantidade\n"
-				+ " when ct.medida = 'KG' then (quantidade / 60)\n"
-				+ "end  as quantidade\n"
-				+ "from contrato ct\n"
-				+ "\n"
-				+ "LEFT JOIN contrato_comprador on contrato_comprador.id_contrato = ct.id\n"
-				+ "LEFT JOIN cliente comprador on comprador.id_cliente = contrato_comprador.id_cliente\n"
-				+ "\n"
+				+ " when comprador.tipo_cliente = '1' then  comprador.nome_fantasia\n" + "end as comprador,\n"
+				+ "case\n" + "when vendedor.tipo_cliente = '0' then LTRIM( vendedor.nome_empresarial )\n"
+				+ " when vendedor.tipo_cliente = '1' then LTRIM( vendedor.nome_fantasia)\n" + "end  as vendedor, \n"
+				+ "case\n" + "when ct.medida = 'Sacos' then quantidade\n"
+				+ " when ct.medida = 'KG' then (quantidade / 60)\n" + "end  as quantidade\n" + "from contrato ct\n"
+				+ "\n" + "LEFT JOIN contrato_comprador on contrato_comprador.id_contrato = ct.id\n"
+				+ "LEFT JOIN cliente comprador on comprador.id_cliente = contrato_comprador.id_cliente\n" + "\n"
 				+ "LEFT JOIN contrato_vendedor  on contrato_vendedor.id_contrato = ct.id\n"
 				+ "LEFT JOIN cliente vendedor on vendedor.id_cliente = contrato_vendedor.id_cliente\n"
 				+ "where (ct.sub_contrato = 0 or ct.sub_contrato = 3 or ct.sub_contrato = 4 or ct.sub_contrato = 5)\n"
-				+ "and vendedor.id_cliente = ?\n"
-				+ "\n"
-				+ ")\n"
-				+ "A\n"
-				+ "group by  vendedor\n"
-				+ "order by vendedor\n"
-				+ "\n"
-				+ "";
+				+ "and vendedor.id_cliente = ?\n" + "\n" + ")\n" + "A\n" + "group by  vendedor\n"
+				+ "order by vendedor\n" + "\n" + "";
+				*/
+		
+		String selectQuantidades = "call getQuantidadesContratas(?,?,?)";
+		Connection conn = null;
+		PreparedStatement pstm = null;
+		ResultSet rs = null;
+		ArrayList<RegistroQuantidade> registros = new ArrayList<>();
+		try {
+
+			conn = ConexaoBanco.getConexao();
+
+			pstm = conn.prepareStatement(selectQuantidades);
+			
+			
+			if(flag == 1 ) {
+				//como comprador
+			if(id_cliente > 0)
+			  pstm.setInt(1, id_cliente);
+			else
+				pstm.setInt(1, 0);
+
+			if (id_contra_parte > 0)
+				pstm.setInt(2, id_contra_parte);
+			else
+				pstm.setInt(2, 0);
+
+			
+			if (id_safra > 0) 
+				pstm.setInt(3, id_safra);
+			else
+				pstm.setInt(3, 0);
+			
+			
+			}else if(flag == 2) {
+				//como vendedor
+				if(id_contra_parte > 0)
+					pstm.setInt(1, id_contra_parte);
+					else
+						pstm.setInt(1, 0);
+
+					if (id_cliente > 0)
+						pstm.setInt(2, id_cliente);
+					else
+						pstm.setInt(2, 0);
+
+					
+					if (id_safra > 0) 
+						pstm.setInt(3, id_safra);
+					else
+						pstm.setInt(3, 0);
+				
+			}
+			
+			rs = pstm.executeQuery();
+			while (rs.next()) {
+				RegistroQuantidade registro = new RegistroQuantidade();
+
+				registro.setId_cliente(rs.getInt("id_cliente"));
+				registro.setComprador(rs.getString("comprador"));
+				registro.setVendedor(rs.getString("vendedor"));
+				registro.setTotal(rs.getDouble("total"));
+
+				registros.add(registro);
+
+			}
+
+			ConexaoBanco.fechaConexao(conn, pstm, rs);
+			return registros;
+
+		} catch (Exception e) {
+			JOptionPane.showMessageDialog(null, "Erro ao listar os registros de quantidade total" + " erro: "
+					+ e.getMessage() + "causa: " + e.getCause());
+			return null;
+		}
+
+	}
+
+	public ArrayList<RegistroQuantidade> getQuantidadesCarregadas(int id_safra, int id_cliente, int id_contra_parte, int flag) {
+	    
+		String selectCarregadas = "call getQuantidadesCarregadas(?,?,?)";
 		
 		Connection conn = null;
 		PreparedStatement pstm = null;
 		ResultSet rs = null;
 		ArrayList<RegistroQuantidade> registros = new ArrayList<>();
 		try {
-			
+
 			conn = ConexaoBanco.getConexao();
+			pstm = conn.prepareStatement(selectCarregadas);
+
+			if(flag == 1 ) {
+				//como comprador
+			if(id_cliente > 0)
+			  pstm.setInt(1, id_cliente);
+			else
+				pstm.setInt(1, 0);
+
+			if (id_contra_parte > 0)
+				pstm.setInt(2, id_contra_parte);
+			else
+				pstm.setInt(2, 0);
+
 			
-			if(id_safra > 0) {
+			if (id_safra > 0) 
+				pstm.setInt(3, id_safra);
+			else
+				pstm.setInt(3, 0);
 			
-		    if(flag == 1)
-			pstm = conn.prepareStatement(selectQuantidadesPorSafraComprador);
-		    else if(flag == 2)
-				pstm = conn.prepareStatement(selectQuantidadesPorSafraVendedor);
+			
+			}else if(flag == 2) {
+				//como vendedor
+				if(id_contra_parte > 0)
+					pstm.setInt(1, id_contra_parte);
+					else
+						pstm.setInt(1, 0);
 
-			pstm.setInt(1, id_safra);
-			pstm.setInt(2, id_cliente);
-		    }else {
-		    	  if(flag == 1)
-		    	pstm = conn.prepareStatement(selectQuantidadesTodasSafrasComprador);
-		    	  else if(flag == 2)
-				    	pstm = conn.prepareStatement(selectQuantidadesTodasSafrasVendedor);
+					if (id_cliente > 0)
+						pstm.setInt(2, id_cliente);
+					else
+						pstm.setInt(2, 0);
 
-				pstm.setInt(1, id_cliente);
-		    }
-
+					
+					if (id_safra > 0) 
+						pstm.setInt(3, id_safra);
+					else
+						pstm.setInt(3, 0);
+				
+			}
+			
 			rs = pstm.executeQuery();
 			while (rs.next()) {
 				RegistroQuantidade registro = new RegistroQuantidade();
-				
+
 				registro.setId_cliente(rs.getInt("id_cliente"));
 				registro.setComprador(rs.getString("comprador"));
 				registro.setVendedor(rs.getString("vendedor"));
-				registro.setTotal(rs.getDouble("total"));
-				
+				registro.setTotal(rs.getDouble("quantidade_carregada"));
+
 				registros.add(registro);
-				
+
 			}
 
 			ConexaoBanco.fechaConexao(conn, pstm, rs);
 			return registros;
 
 		} catch (Exception e) {
-			JOptionPane.showMessageDialog(null, "Erro ao listar os registros de quantidade total"
-					+ " erro: " +e.getMessage()  + "causa: "  + e.getCause());
+			JOptionPane.showMessageDialog(null, "Erro ao listar os registros de quantidade recebida" + " erro: "
+					+ e.getMessage() + "causa: " + e.getCause());
 			return null;
 		}
 
 	}
-	
-	public ArrayList<RegistroRecebimento> getRecebidas(int id_safra, int id_cliente, int flag){
-		String selectRecebidasPorSafraComprador = "select id_cliente, comprador, vendedor, sum(quantidade_recebida) as quantidade_recebida\n"
-				+ "from\n"
-				+ "(\n"
-				+ "select vendedor.id_cliente,\n"
-				+ "case\n"
+
+	public double getQuantidadeRecebida(int id_contrato) {
+		// String selectGetQuantidadeTotalSacos = "select sum(peso_romaneio) as
+		// quantidade_recebida from recebimento where id_contrato_recebimento = ?";
+		String selectGetQuantidadeTotalSacos = "select sum(quantidade_recebida) as quantidade_recebida from\n" + "(\n"
+				+ "select sum(peso_romaneio) as quantidade_recebida from recebimento where id_contrato_recebimento = ?\n"
+				+ "union\n"
+				+ "select sum(quantidade) as quantidade_recebida from transferencia_recebimento where id_contrato_destinatario = ?\n"
+				+ ")as quantidade_recebida";
+		Connection conn = null;
+		PreparedStatement pstm = null;
+		ResultSet rs = null;
+		double quantidade_total = 0;
+
+		try {
+			conn = ConexaoBanco.getConexao();
+			pstm = conn.prepareStatement(selectGetQuantidadeTotalSacos);
+			pstm.setInt(1, id_contrato);
+			pstm.setInt(2, id_contrato);
+
+			rs = pstm.executeQuery();
+
+			rs.next();
+
+			if (rs != null) {
+
+				double quantidade_kgs = rs.getDouble("quantidade_recebida");
+				return quantidade_kgs;
+
+			}
+
+			ConexaoBanco.fechaConexao(conn, pstm, rs);
+			return quantidade_total;
+
+		} catch (Exception e) {
+			// JOptionPane.showMessageDialog(null, "Erro ao listar a quantidade total de
+			// sacos" + " erro: "
+			// + "causa: " );
+			return -1;
+		}
+
+	}
+
+	public ArrayList<RegistroRecebimento> getRecebidas(int id_safra, int id_cliente, int id_contra_parte, int flag) {
+		/*String selectRecebidasPorSafraComprador = "select id_cliente, comprador, vendedor, sum(quantidade_recebida) as quantidade_recebida\n"
+				+ "from\n" + "(\n" + "select vendedor.id_cliente,\n" + "case\n"
 				+ "when comprador.tipo_cliente = '0' then comprador.nome_empresarial \n"
-				+ " when comprador.tipo_cliente = '1' then comprador.nome_fantasia\n"
-				+ "end as comprador,\n"
-				+ "case\n"
+				+ " when comprador.tipo_cliente = '1' then comprador.nome_fantasia\n" + "end as comprador,\n" + "case\n"
 				+ "when vendedor.tipo_cliente = '0' then LTRIM(vendedor.nome_empresarial )\n"
-				+ " when vendedor.tipo_cliente = '1' then LTRIM( vendedor.nome_fantasia)\n"
-				+ "end  as vendedor, \n"
+				+ " when vendedor.tipo_cliente = '1' then LTRIM( vendedor.nome_fantasia)\n" + "end  as vendedor, \n"
 				+ "ct.id as id_contrato,\n"
 				+ "recebido.id_recebimento,( recebido.peso_romaneio / 60 ) as quantidade_recebida\n"
-				+ "from contrato ct\n"
-				+ "\n"
+				+ "from contrato ct\n" + "\n"
 				+ "LEFT JOIN contrato_comprador on contrato_comprador.id_contrato = ct.id\n"
-				+ "LEFT JOIN cliente comprador on comprador.id_cliente = contrato_comprador.id_cliente\n"
-				+ "\n"
+				+ "LEFT JOIN cliente comprador on comprador.id_cliente = contrato_comprador.id_cliente\n" + "\n"
 				+ "LEFT JOIN contrato_vendedor  on contrato_vendedor.id_contrato = ct.id\n"
-				+ "LEFT JOIN cliente vendedor on vendedor.id_cliente = contrato_vendedor.id_cliente\n"
-				+ "\n"
+				+ "LEFT JOIN cliente vendedor on vendedor.id_cliente = contrato_vendedor.id_cliente\n" + "\n"
 				+ "LEFT JOIN contrato_recebimentos  on contrato_recebimentos.id_contrato = ct.id\n"
 				+ "LEFT JOIN recebimento recebido on recebido.id_recebimento = contrato_recebimentos.id_recebimento\n"
 				+ "where (ct.sub_contrato = 0 or ct.sub_contrato = 3 or ct.sub_contrato = 4 or ct.sub_contrato = 5)\n"
-				+ "and ct.id_safra = ?\n"
-				+ "and comprador.id_cliente = ?\n"
-				+ ")\n"
-				+ "A \n"
-				+ "group by vendedor\n"
-				+ "order by vendedor\n"
-				+ "";
+				+ "and ct.id_safra = ?\n" + "and comprador.id_cliente = ?\n" + ")\n" + "A \n" + "group by vendedor\n"
+				+ "order by vendedor\n" + "";
 		String selectRecebidasTodasSafrasComprador = "select id_cliente, comprador, vendedor, sum(quantidade_recebida) as quantidade_recebida\n"
-				+ "from\n"
-				+ "(\n"
-				+ "select vendedor.id_cliente,\n"
-				+ "case\n"
+				+ "from\n" + "(\n" + "select vendedor.id_cliente,\n" + "case\n"
 				+ "when comprador.tipo_cliente = '0' then comprador.nome_empresarial \n"
-				+ " when comprador.tipo_cliente = '1' then comprador.nome_fantasia\n"
-				+ "end as comprador,\n"
-				+ "case\n"
+				+ " when comprador.tipo_cliente = '1' then comprador.nome_fantasia\n" + "end as comprador,\n" + "case\n"
 				+ "when vendedor.tipo_cliente = '0' then LTRIM(vendedor.nome_empresarial )\n"
-				+ " when vendedor.tipo_cliente = '1' then LTRIM( vendedor.nome_fantasia)\n"
-				+ "end  as vendedor, \n"
+				+ " when vendedor.tipo_cliente = '1' then LTRIM( vendedor.nome_fantasia)\n" + "end  as vendedor, \n"
 				+ "ct.id as id_contrato,\n"
 				+ "recebido.id_recebimento,( recebido.peso_romaneio / 60 ) as quantidade_recebida\n"
-				+ "from contrato ct\n"
-				+ "\n"
+				+ "from contrato ct\n" + "\n"
 				+ "LEFT JOIN contrato_comprador on contrato_comprador.id_contrato = ct.id\n"
-				+ "LEFT JOIN cliente comprador on comprador.id_cliente = contrato_comprador.id_cliente\n"
-				+ "\n"
+				+ "LEFT JOIN cliente comprador on comprador.id_cliente = contrato_comprador.id_cliente\n" + "\n"
 				+ "LEFT JOIN contrato_vendedor  on contrato_vendedor.id_contrato = ct.id\n"
-				+ "LEFT JOIN cliente vendedor on vendedor.id_cliente = contrato_vendedor.id_cliente\n"
-				+ "\n"
+				+ "LEFT JOIN cliente vendedor on vendedor.id_cliente = contrato_vendedor.id_cliente\n" + "\n"
 				+ "LEFT JOIN contrato_recebimentos  on contrato_recebimentos.id_contrato = ct.id\n"
 				+ "LEFT JOIN recebimento recebido on recebido.id_recebimento = contrato_recebimentos.id_recebimento\n"
 				+ "where (ct.sub_contrato = 0 or ct.sub_contrato = 3 or ct.sub_contrato = 4 or ct.sub_contrato = 5)\n"
-				+ "and comprador.id_cliente = ?\n"
-				+ ")\n"
-				+ "A \n"
-				+ "group by vendedor\n"
-				+ "order by vendedor\n"
+				+ "and comprador.id_cliente = ?\n" + ")\n" + "A \n" + "group by vendedor\n" + "order by vendedor\n"
 				+ "";
-		
+
 		String selectRecebidasPorSafraVendedor = "select id_cliente, comprador, vendedor, sum(quantidade_recebida) as quantidade_recebida\n"
-				+ "from\n"
-				+ "(\n"
-				+ "select vendedor.id_cliente,\n"
-				+ "case\n"
+				+ "from\n" + "(\n" + "select vendedor.id_cliente,\n" + "case\n"
 				+ "when comprador.tipo_cliente = '0' then comprador.nome_empresarial \n"
-				+ " when comprador.tipo_cliente = '1' then comprador.nome_fantasia\n"
-				+ "end as comprador,\n"
-				+ "case\n"
+				+ " when comprador.tipo_cliente = '1' then comprador.nome_fantasia\n" + "end as comprador,\n" + "case\n"
 				+ "when vendedor.tipo_cliente = '0' then LTRIM(vendedor.nome_empresarial )\n"
-				+ " when vendedor.tipo_cliente = '1' then LTRIM( vendedor.nome_fantasia)\n"
-				+ "end  as vendedor, \n"
+				+ " when vendedor.tipo_cliente = '1' then LTRIM( vendedor.nome_fantasia)\n" + "end  as vendedor, \n"
 				+ "ct.id as id_contrato,\n"
 				+ "recebido.id_recebimento,( recebido.peso_romaneio / 60 ) as quantidade_recebida\n"
-				+ "from contrato ct\n"
-				+ "\n"
+				+ "from contrato ct\n" + "\n"
 				+ "LEFT JOIN contrato_comprador on contrato_comprador.id_contrato = ct.id\n"
-				+ "LEFT JOIN cliente comprador on comprador.id_cliente = contrato_comprador.id_cliente\n"
-				+ "\n"
+				+ "LEFT JOIN cliente comprador on comprador.id_cliente = contrato_comprador.id_cliente\n" + "\n"
 				+ "LEFT JOIN contrato_vendedor  on contrato_vendedor.id_contrato = ct.id\n"
-				+ "LEFT JOIN cliente vendedor on vendedor.id_cliente = contrato_vendedor.id_cliente\n"
-				+ "\n"
+				+ "LEFT JOIN cliente vendedor on vendedor.id_cliente = contrato_vendedor.id_cliente\n" + "\n"
 				+ "LEFT JOIN contrato_recebimentos  on contrato_recebimentos.id_contrato = ct.id\n"
 				+ "LEFT JOIN recebimento recebido on recebido.id_recebimento = contrato_recebimentos.id_recebimento\n"
 				+ "where (ct.sub_contrato = 0 or ct.sub_contrato = 3 or ct.sub_contrato = 4 or ct.sub_contrato = 5)\n"
-				+ "and ct.id_safra = ?\n"
-				+ "and vendedor.id_cliente = ?\n"
-				+ ")\n"
-				+ "A \n"
-				+ "group by vendedor\n"
-				+ "order by vendedor\n"
-				+ "";
+				+ "and ct.id_safra = ?\n" + "and vendedor.id_cliente = ?\n" + ")\n" + "A \n" + "group by vendedor\n"
+				+ "order by vendedor\n" + "";
 		String selectRecebidasTodasSafrasVendedor = "select id_cliente, comprador, vendedor, sum(quantidade_recebida) as quantidade_recebida\n"
-				+ "from\n"
-				+ "(\n"
-				+ "select vendedor.id_cliente,\n"
-				+ "case\n"
+				+ "from\n" + "(\n" + "select vendedor.id_cliente,\n" + "case\n"
 				+ "when comprador.tipo_cliente = '0' then comprador.nome_empresarial \n"
-				+ " when comprador.tipo_cliente = '1' then comprador.nome_fantasia\n"
-				+ "end as comprador,\n"
-				+ "case\n"
+				+ " when comprador.tipo_cliente = '1' then comprador.nome_fantasia\n" + "end as comprador,\n" + "case\n"
 				+ "when vendedor.tipo_cliente = '0' then LTRIM(vendedor.nome_empresarial )\n"
-				+ " when vendedor.tipo_cliente = '1' then LTRIM( vendedor.nome_fantasia)\n"
-				+ "end  as vendedor, \n"
+				+ " when vendedor.tipo_cliente = '1' then LTRIM( vendedor.nome_fantasia)\n" + "end  as vendedor, \n"
 				+ "ct.id as id_contrato,\n"
 				+ "recebido.id_recebimento,( recebido.peso_romaneio / 60 ) as quantidade_recebida\n"
-				+ "from contrato ct\n"
-				+ "\n"
+				+ "from contrato ct\n" + "\n"
 				+ "LEFT JOIN contrato_comprador on contrato_comprador.id_contrato = ct.id\n"
-				+ "LEFT JOIN cliente comprador on comprador.id_cliente = contrato_comprador.id_cliente\n"
-				+ "\n"
+				+ "LEFT JOIN cliente comprador on comprador.id_cliente = contrato_comprador.id_cliente\n" + "\n"
 				+ "LEFT JOIN contrato_vendedor  on contrato_vendedor.id_contrato = ct.id\n"
-				+ "LEFT JOIN cliente vendedor on vendedor.id_cliente = contrato_vendedor.id_cliente\n"
-				+ "\n"
+				+ "LEFT JOIN cliente vendedor on vendedor.id_cliente = contrato_vendedor.id_cliente\n" + "\n"
 				+ "LEFT JOIN contrato_recebimentos  on contrato_recebimentos.id_contrato = ct.id\n"
 				+ "LEFT JOIN recebimento recebido on recebido.id_recebimento = contrato_recebimentos.id_recebimento\n"
 				+ "where (ct.sub_contrato = 0 or ct.sub_contrato = 3 or ct.sub_contrato = 4 or ct.sub_contrato = 5)\n"
-				+ "and vendedor.id_cliente = ?\n"
-				+ ")\n"
-				+ "A \n"
-				+ "group by vendedor\n"
-				+ "order by vendedor\n"
-				+ "";
+				+ "and vendedor.id_cliente = ?\n" + ")\n" + "A \n" + "group by vendedor\n" + "order by vendedor\n" + "";
+
+*/
 		
+		String selectRecebidas = "call getQuantidadesRecebidas(?,?,?)";
 		Connection conn = null;
 		PreparedStatement pstm = null;
 		ResultSet rs = null;
 		ArrayList<RegistroRecebimento> registros = new ArrayList<>();
 		try {
-			
+
 			conn = ConexaoBanco.getConexao();
-			
-			if(id_safra > 0) {
-			
-				if(flag == 1)
-			pstm = conn.prepareStatement(selectRecebidasPorSafraComprador);
-				else if(flag == 2)
-					pstm = conn.prepareStatement(selectRecebidasPorSafraVendedor);
+			pstm = conn.prepareStatement(selectRecebidas);
 
-			pstm.setInt(1, id_safra);
-			pstm.setInt(2, id_cliente);
-		    }else {
-				if(flag == 1)
-		    	pstm = conn.prepareStatement(selectRecebidasTodasSafrasComprador);
-				else if(flag == 2)
-			    	pstm = conn.prepareStatement(selectRecebidasTodasSafrasVendedor);
+			if(flag == 1 ) {
+				//como comprador
+			if(id_cliente > 0)
+			  pstm.setInt(1, id_cliente);
+			else
+				pstm.setInt(1, 0);
 
-				pstm.setInt(1, id_cliente);
-		    }
+			if (id_contra_parte > 0)
+				pstm.setInt(2, id_contra_parte);
+			else
+				pstm.setInt(2, 0);
+
+			
+			if (id_safra > 0) 
+				pstm.setInt(3, id_safra);
+			else
+				pstm.setInt(3, 0);
+			
+			
+			}else if(flag == 2) {
+				//como vendedor
+				if(id_contra_parte > 0)
+					pstm.setInt(1, id_contra_parte);
+					else
+						pstm.setInt(1, 0);
+
+					if (id_cliente > 0)
+						pstm.setInt(2, id_cliente);
+					else
+						pstm.setInt(2, 0);
+
+					
+					if (id_safra > 0) 
+						pstm.setInt(3, id_safra);
+					else
+						pstm.setInt(3, 0);
+				
+			}
 
 			rs = pstm.executeQuery();
 			while (rs.next()) {
 				RegistroRecebimento registro = new RegistroRecebimento();
-				
+
 				registro.setId_cliente(rs.getInt("id_cliente"));
 				registro.setComprador(rs.getString("comprador"));
 				registro.setVendedor(rs.getString("vendedor"));
 				registro.setQuantidade_recebida(rs.getDouble("quantidade_recebida"));
-				
+
 				registros.add(registro);
-				
+
 			}
 
 			ConexaoBanco.fechaConexao(conn, pstm, rs);
 			return registros;
 
 		} catch (Exception e) {
-			JOptionPane.showMessageDialog(null, "Erro ao listar os registros de quantidade recebida"
-					+ " erro: " +e.getMessage()  + "causa: "  + e.getCause());
+			JOptionPane.showMessageDialog(null, "Erro ao listar os registros de quantidade recebida" + " erro: "
+					+ e.getMessage() + "causa: " + e.getCause());
 			return null;
 		}
 
 	}
-	
-	
-	
 
 }

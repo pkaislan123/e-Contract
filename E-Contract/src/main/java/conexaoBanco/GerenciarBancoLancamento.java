@@ -6,6 +6,8 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.Statement;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 import javax.swing.JOptionPane;
 
@@ -37,13 +39,12 @@ public class GerenciarBancoLancamento {
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8
 		 */
 		return "insert into lancamento (tipo_lancamento, prioridade, data_lancamento,"
-				+ " id_conta, id_instituicao_bancaria, id_centro_custo,id_cliente_fornecedor, identificacao,"
+				+ " id_conta, id_centro_custo,id_cliente_fornecedor, identificacao,"
 				+ "valor_total, numero_parcelas, data_primeiro_vencimento, intervalo, gerar_parcelas, status,observacao,descricao, caminho_arquivo, diretorio_lancamento) values ('"
 				+ dado.getTipo_lancamento() + "','"
 				+ dado.getPrioridade() + "','"
 				+ dado.getData_lancamento() + "','" 
 				+ dado.getId_conta() + "','" 
-			    + dado.getId_instituicao_bancaria() + "','" 
 			    + dado.getId_centro_custo() + "','" 
 			    + dado.getId_cliente_fornecedor() + "','" 
 			    + dado.getIdentificacao() + "','"
@@ -114,7 +115,6 @@ public class GerenciarBancoLancamento {
 				dado.setTipo_lancamento(rs.getInt("tipo_lancamento"));
 				dado.setData_lancamento(rs.getString("data_lancamento"));
 				dado.setId_conta(rs.getInt("id_conta"));
-				dado.setId_instituicao_bancaria(rs.getInt("id_instituicao_bancaria"));
 				dado.setId_centro_custo(rs.getInt("id_centro_custo"));
 				dado.setId_cliente_fornecedor(rs.getInt("id_cliente_fornecedor"));
 				dado.setGerar_parcelas(rs.getInt("gerar_parcelas"));
@@ -146,7 +146,238 @@ public class GerenciarBancoLancamento {
 		return lista;
 
 	}
+	
+	
+	
 
+	public ArrayList<Lancamento> buscaLancamentosCompletos() {
+		
+		String select = "select id_lancamento, tipo_lancamento, la.identificacao, la.descricao,prioridade, data_lancamento, valor_total,\r\n"
+				+ "(select sum(valor) from financeiro_pagamento where id_lancamento_pai = la.id_lancamento\r\n"
+				+ "group by id_lancamento_pai\r\n"
+				+ "order by id_lancamento_pai) as valor_ja_pago,\r\n"
+				+ "(select data_vencimento from parcela where parcela.id_lancamento_pai = la.id_lancamento and status = 0 limit 1)\r\n"
+				+ "as data_proximo_vencimento,\r\n"
+				+ "(select DATE_FORMAT(\r\n"
+				+ "(select str_to_date(data_pagamento, '%d/%m/%Y') as data\r\n"
+				+ "from financeiro_pagamento\r\n"
+				+ "where data_pagamento != '' and financeiro_pagamento.id_lancamento_pai = la.id_lancamento\r\n"
+				+ "order by data DESC\r\n"
+				+ "limit 1), '%d/%m/%Y') as maior_data_pagamento ) as data_ultimo_pagamento,\r\n"
+				+ "(\r\n"
+				+ "select ids_condicao_pagamento from\r\n"
+				+ "(\r\n"
+				+ "SELECT id_lancamento_pai, group_concat(`id_forma_pagamento`) as ids_condicao_pagamento\r\n"
+				+ "FROM financeiro_pagamento  \r\n"
+				+ "GROUP BY id_lancamento_pai\r\n"
+				+ ") as teste where id_lancamento_pai = la.id_lancamento\r\n"
+				+ ") as ids_condicao_pagamento,\r\n"
+				+ "(\r\n"
+				+ "select status_condicao_pagamento from\r\n"
+				+ "(\r\n"
+				+ "SELECT id_lancamento_pai, group_concat(`status_condicao_pagamento`) as status_condicao_pagamento\r\n"
+				+ "FROM financeiro_pagamento  \r\n"
+				+ "GROUP BY id_lancamento_pai\r\n"
+				+ ") as teste where id_lancamento_pai = la.id_lancamento\r\n"
+				+ ") as status_condicao_pagamento,\r\n"
+				+ "la.status,\r\n"
+				+ "fc.nome_conta,\r\n"
+				+ "fgc.nome_grupo_contas,\r\n"
+				+ "cc.nome_centro_custo,\r\n"
+				+ "case\r\n"
+				+ "when cliente_fornecedor.tipo_cliente = '0' then cliente_fornecedor.nome_empresarial \r\n"
+				+ "when cliente_fornecedor.tipo_cliente = '1' then cliente_fornecedor.nome_fantasia\r\n"
+				+ "end as cliente_fornecedor\r\n"
+				+ "from lancamento la\r\n"
+				+ "LEFT JOIN financeiro_conta fc on fc.id_conta = la.id_conta\r\n"
+				+ "LEFT JOIN financeiro_grupo_contas fgc on fgc.id_grupo_contas = fc.id_grupo_contas\r\n"
+				+ "LEFT JOIN centro_custo cc on cc.id_centro_custo = la.id_centro_custo\r\n"
+				+ "LEFT JOIN cliente cliente_fornecedor on cliente_fornecedor.id_cliente = la.id_cliente_fornecedor\r\n"
+				+ "\r\n"
+				+ "order by id_lancamento";
+		Connection conn = null;
+		PreparedStatement pstm = null;
+		ResultSet rs = null;
+		ArrayList<Lancamento> lista = new ArrayList<>();
+		try {
+			conn = ConexaoBanco.getConexao();
+			pstm = conn.prepareStatement(select);
+
+			rs = pstm.executeQuery();
+			while (rs.next()) {
+				Lancamento dado = new Lancamento();
+				
+				dado.setId_lancamento(rs.getInt("id_lancamento"));
+				dado.setPrioridade(rs.getInt("prioridade"));
+				dado.setTipo_lancamento(rs.getInt("tipo_lancamento"));
+				dado.setData_lancamento(rs.getString("data_lancamento"));
+				dado.setNome_conta(rs.getString("nome_conta"));
+				dado.setNome_grupo_contas(rs.getString("nome_grupo_contas"));
+				dado.setNome_centro_custo(rs.getString("nome_centro_custo"));
+				dado.setNome_cliente_fornecedor(rs.getString("cliente_fornecedor"));
+				dado.setIds_forma_pagamento(rs.getString("ids_condicao_pagamento"));
+				dado.setStatus_forma_pagamento(rs.getString("status_condicao_pagamento"));
+
+				try{
+					dado.setValor(new BigDecimal(rs.getDouble("valor_total")));
+				}catch(Exception e) {
+					dado.setValor(BigDecimal.ZERO);
+				}
+				
+				try{
+					dado.setValor_ja_pago(new BigDecimal(rs.getDouble("valor_ja_pago")));
+				}catch(Exception e) {
+					dado.setValor_ja_pago(BigDecimal.ZERO);
+				}
+				
+				dado.setData_vencimento(rs.getString("data_proximo_vencimento"));
+				dado.setData_pagamento(rs.getString("data_ultimo_pagamento"));
+				dado.setStatus(rs.getInt("status"));
+				dado.setIdentificacao(rs.getString("identificacao"));
+				dado.setDescricao(rs.getString("descricao"));
+			
+
+				lista.add(dado);
+
+			}
+			ConexaoBanco.fechaConexao(conn, pstm, rs);
+		} catch (Exception e) {
+			JOptionPane.showMessageDialog(null, "Erro ao listar o lançamento\nErro: " + e.getMessage() + "\nCausa: " + e.getCause());// );
+		}
+		return lista;
+
+	}
+	
+	
+	public ArrayList<Lancamento> buscaLancamentos() {/*
+		String select = "select id_lancamento, tipo_lancamento, la.identificacao, la.descricao,prioridade, data_lancamento, valor_total, data_primeiro_vencimento,la.status,\r\n"
+				+ "fc.nome_conta,\r\n"
+				+ "fgc.nome_grupo_contas,\r\n"
+				+ "ib.nome_instituicao_bancaria,\r\n"
+				+ "cc.nome_centro_custo,\r\n"
+				+ "case\r\n"
+				+ "when cliente_fornecedor.tipo_cliente = '0' then cliente_fornecedor.nome_empresarial \r\n"
+				+ " when cliente_fornecedor.tipo_cliente = '1' then cliente_fornecedor.nome_fantasia\r\n"
+				+ "end as cliente_fornecedor\r\n"
+				+ "from lancamento la\r\n"
+				+ "LEFT JOIN financeiro_conta fc on fc.id_conta = la.id_conta\r\n"
+				+ "LEFT JOIN financeiro_grupo_contas fgc on fgc.id_grupo_contas = fc.id_grupo_contas\r\n"
+				+ "LEFT JOIN instituicao_bancaria ib on ib.id_instituicao_bancaria = la.id_instituicao_bancaria\r\n"
+				+ "LEFT JOIN centro_custo cc on cc.id_centro_custo = la.id_centro_custo\r\n"
+				+ "LEFT JOIN cliente cliente_fornecedor on cliente_fornecedor.id_cliente = la.id_cliente_fornecedor\r\n"
+				+ "";*/
+		/*ultimo funcional
+		String select = "\r\n"
+				+ "select id_lancamento, tipo_lancamento, la.identificacao, la.descricao,prioridade, data_lancamento, valor_total,\r\n"
+				+ "(select sum(valor) from financeiro_pagamento where id_lancamento = la.id_lancamento\r\n"
+				+ "group by id_lancamento\r\n"
+				+ "order by id_lancamento) as valor_ja_pago,\r\n"
+				+ "(select data_vencimento from parcela where parcela.id_lancamento_pai = la.id_lancamento and status = 0 limit 1)\r\n"
+				+ "as data_proximo_vencimento,\r\n"
+				+ "la.status,\r\n"
+				+ "fc.nome_conta,\r\n"
+				+ "fgc.nome_grupo_contas,\r\n"
+				+ "ib.nome_instituicao_bancaria,\r\n"
+				+ "cc.nome_centro_custo,\r\n"
+				+ "case\r\n"
+				+ "when cliente_fornecedor.tipo_cliente = '0' then cliente_fornecedor.nome_empresarial \r\n"
+				+ " when cliente_fornecedor.tipo_cliente = '1' then cliente_fornecedor.nome_fantasia\r\n"
+				+ "end as cliente_fornecedor\r\n"
+				+ "\r\n"
+				+ "from lancamento la\r\n"
+				+ "\r\n"
+				+ "LEFT JOIN financeiro_conta fc on fc.id_conta = la.id_conta\r\n"
+				+ "LEFT JOIN financeiro_grupo_contas fgc on fgc.id_grupo_contas = fc.id_grupo_contas\r\n"
+				+ "LEFT JOIN instituicao_bancaria ib on ib.id_instituicao_bancaria = la.id_instituicao_bancaria\r\n"
+				+ "LEFT JOIN centro_custo cc on cc.id_centro_custo = la.id_centro_custo\r\n"
+				+ "LEFT JOIN cliente cliente_fornecedor on cliente_fornecedor.id_cliente = la.id_cliente_fornecedor\r\n"
+				+ "\r\n"
+				+ "order by id_lancamento;\r\n"
+				+ "";
+				*/
+		String select = "\r\n"
+				+ "select id_lancamento, tipo_lancamento, la.identificacao, la.descricao,prioridade, data_lancamento, valor_total,\r\n"
+				+ "(select sum(valor) from financeiro_pagamento where id_lancamento_pai = la.id_lancamento\r\n"
+				+ "group by id_lancamento\r\n"
+				+ "order by id_lancamento) as valor_ja_pago,\r\n"
+				+ "(select data_vencimento from parcela where parcela.id_lancamento_pai = la.id_lancamento and status = 0 limit 1)\r\n"
+				+ "as data_proximo_vencimento,\r\n"
+				+ "(select DATE_FORMAT(\r\n"
+				+ "(select str_to_date(data_pagamento, '%d/%m/%Y') as data\r\n"
+				+ "from financeiro_pagamento\r\n"
+				+ "where data_pagamento != '' and financeiro_pagamento.id_lancamento_pai = la.id_lancamento\r\n"
+				+ "order by data DESC\r\n"
+				+ "limit 1), '%d/%m/%Y') as maior_data_pagamento ) as data_ultimo_pagamento,\r\n"
+				+ "la.status,\r\n"
+				+ "fc.nome_conta,\r\n"
+				+ "fgc.nome_grupo_contas,\r\n"
+				+ "cc.nome_centro_custo,\r\n"
+				+ "case\r\n"
+				+ "when cliente_fornecedor.tipo_cliente = '0' then cliente_fornecedor.nome_empresarial \r\n"
+				+ " when cliente_fornecedor.tipo_cliente = '1' then cliente_fornecedor.nome_fantasia\r\n"
+				+ "end as cliente_fornecedor\r\n"
+				+ "\r\n"
+				+ "from lancamento la\r\n"
+				+ "\r\n"
+				+ "LEFT JOIN financeiro_conta fc on fc.id_conta = la.id_conta\r\n"
+				+ "LEFT JOIN financeiro_grupo_contas fgc on fgc.id_grupo_contas = fc.id_grupo_contas\r\n"
+				+ "LEFT JOIN centro_custo cc on cc.id_centro_custo = la.id_centro_custo\r\n"
+				+ "LEFT JOIN cliente cliente_fornecedor on cliente_fornecedor.id_cliente = la.id_cliente_fornecedor\r\n"
+				+ "\r\n"
+				+ "order by id_lancamento;\r\n"
+				+ "";
+		Connection conn = null;
+		PreparedStatement pstm = null;
+		ResultSet rs = null;
+		ArrayList<Lancamento> lista = new ArrayList<>();
+		try {
+			conn = ConexaoBanco.getConexao();
+			pstm = conn.prepareStatement(select);
+
+			rs = pstm.executeQuery();
+			while (rs.next()) {
+				Lancamento dado = new Lancamento();
+				
+				dado.setId_lancamento(rs.getInt("id_lancamento"));
+				dado.setPrioridade(rs.getInt("prioridade"));
+				dado.setTipo_lancamento(rs.getInt("tipo_lancamento"));
+				dado.setData_lancamento(rs.getString("data_lancamento"));
+				dado.setNome_conta(rs.getString("nome_conta"));
+				dado.setNome_grupo_contas(rs.getString("nome_grupo_contas"));
+				dado.setNome_centro_custo(rs.getString("nome_centro_custo"));
+				dado.setNome_cliente_fornecedor(rs.getString("cliente_fornecedor"));
+
+				
+				try{
+					dado.setValor(new BigDecimal(rs.getDouble("valor_total")));
+				}catch(Exception e) {
+					dado.setValor(BigDecimal.ZERO);
+				}
+				
+				try{
+					dado.setValor_ja_pago(new BigDecimal(rs.getDouble("valor_ja_pago")));
+				}catch(Exception e) {
+					dado.setValor_ja_pago(BigDecimal.ZERO);
+				}
+				
+				dado.setData_vencimento(rs.getString("data_proximo_vencimento"));
+				dado.setData_pagamento(rs.getString("data_ultimo_pagamento"));
+				dado.setStatus(rs.getInt("status"));
+				dado.setIdentificacao(rs.getString("identificacao"));
+				dado.setDescricao(rs.getString("descricao"));
+			
+
+				lista.add(dado);
+
+			}
+			ConexaoBanco.fechaConexao(conn, pstm, rs);
+		} catch (Exception e) {
+			JOptionPane.showMessageDialog(null, "Erro ao listar o lançamento\nErro: " + e.getMessage() + "\nCausa: " + e.getCause());// );
+		}
+		return lista;
+
+	}
+	
 	public Lancamento getLancamento(int id) {
 
 		String select = "select * from lancamento where id_lancamento = ?";
@@ -169,7 +400,6 @@ public class GerenciarBancoLancamento {
 			dado.setTipo_lancamento(rs.getInt("tipo_lancamento"));
 			dado.setData_lancamento(rs.getString("data_lancamento"));
 			dado.setId_conta(rs.getInt("id_conta"));
-			dado.setId_instituicao_bancaria(rs.getInt("id_instituicao_bancaria"));
 			dado.setId_centro_custo(rs.getInt("id_centro_custo"));
 			dado.setId_cliente_fornecedor(rs.getInt("id_cliente_fornecedor"));
 			dado.setGerar_parcelas(rs.getInt("gerar_parcelas"));
@@ -263,27 +493,33 @@ public class GerenciarBancoLancamento {
 				PreparedStatement pstm;
 
 				//atualizar = "update financeiro_conta set nome_conta = ?, id_grupo_contas = ?,  tipo_conta = ?, observacao = ?,descricao = ? where id_conta = ? ";
-				atualizar = "update lancamento set tipo_lancamento = ? , data_lancamento = ?, id_conta = ?, id_condicao_pagamento = ?,"
-						+ " id_instituicao_bancaria = ?, id_centro_custo = ?,id_cliente_fornecedor = ?,"
-						+ "valor = ?,data_vencimento = ?,data_pagamento = ?,"
-						+ "status = ?,observacao = ?,descricao = ? where id_lancamento = ?";
+				atualizar = "update lancamento set tipo_lancamento = ? , prioridade = ?, data_lancamento = ?, id_conta = ?,"
+						+ "id_centro_custo = ?,id_cliente_fornecedor = ?, identificacao = ?,"
+						+ "valor_total = ?, numero_parcelas = ?,data_primeiro_vencimento = ?,"
+						+ "intervalo = ?, status = ?,observacao = ?,descricao = ? where id_lancamento = ?";
 				
 				conn = ConexaoBanco.getConexao();
 				pstm = conn.prepareStatement(atualizar);
 
 				pstm.setInt(1, dado.getTipo_lancamento());
-				pstm.setString(2, dado.getData_lancamento());
-				pstm.setInt(3, dado.getId_conta());
-				pstm.setInt(5, dado.getId_instituicao_bancaria());
-				pstm.setInt(6, dado.getId_centro_custo());
-				pstm.setInt(7, dado.getId_cliente_fornecedor());
+				pstm.setInt(2, dado.getPrioridade());
+				pstm.setString(3, dado.getData_lancamento());
+
+				pstm.setInt(4, dado.getId_conta());
+				pstm.setInt(5, dado.getId_centro_custo());
+				pstm.setInt(6, dado.getId_cliente_fornecedor());
+				pstm.setString(7, dado.getIdentificacao());
+
 				pstm.setString(8, dado.getValor().toString());
-				pstm.setString(9, dado.getData_vencimento());
-				pstm.setInt(11, dado.getStatus());
-				pstm.setString(12, dado.getObservacao());
-				pstm.setString(13, dado.getDescricao());
+				pstm.setInt(9, dado.getNumero_parcelas());
+				pstm.setString(10, dado.getData_vencimento());
+				pstm.setInt(11, dado.getIntervalo());
+
+				pstm.setInt(12, dado.getStatus());
+				pstm.setString(13, dado.getObservacao());
+				pstm.setString(14, dado.getDescricao());
 				
-				pstm.setInt(14, dado.getId_lancamento());
+				pstm.setInt(15, dado.getId_lancamento());
 
 				pstm.execute();
 				// JOptionPane.showMessageDialog(null, "Cliente atualizado com sucesso");
@@ -300,5 +536,83 @@ public class GerenciarBancoLancamento {
 		}
 	}
 
+	public  Map<String,String> pegarDatas() {
+
+		String select = "select \r\n"
+				+ " DATE_FORMAT(\r\n"
+				+ "(select str_to_date(data_lancamento, '%d/%m/%Y') as data\r\n"
+				+ "from lancamento\r\n"
+				+ "where data_lancamento != ''\r\n"
+				+ "order by data \r\n"
+				+ "limit 1), '%d/%m/%Y') as menor_data_lancamento \r\n"
+				+ ",\r\n"
+				+ " DATE_FORMAT(\r\n"
+				+ "(select str_to_date(data_lancamento, '%d/%m/%Y') as data\r\n"
+				+ "from lancamento\r\n"
+				+ "where data_lancamento != ''\r\n"
+				+ "order by data DESC\r\n"
+				+ "limit 1), '%d/%m/%Y') as maior_data_lancamento \r\n"
+				+ ",\r\n"
+				+ "DATE_FORMAT(\r\n"
+				+ "(select str_to_date(data_primeiro_vencimento, '%d/%m/%Y') as data\r\n"
+				+ "from lancamento\r\n"
+				+ "where data_primeiro_vencimento != ''\r\n"
+				+ "order by data\r\n"
+				+ "limit 1), '%d/%m/%Y') as menor_data_vencimento \r\n"
+				+ ",\r\n"
+				+ "DATE_FORMAT(\r\n"
+				+ "(select str_to_date(data_primeiro_vencimento, '%d/%m/%Y') as data\r\n"
+				+ "from lancamento\r\n"
+				+ "where data_primeiro_vencimento != ''\r\n"
+				+ "order by data DESC\r\n"
+				+ "limit 1), '%d/%m/%Y') as maior_data_vencimento \r\n"
+				+ ",\r\n"
+				+ "DATE_FORMAT(\r\n"
+				+ "(select str_to_date(data_pagamento, '%d/%m/%Y') as data\r\n"
+				+ "from financeiro_pagamento\r\n"
+				+ "where data_pagamento != ''\r\n"
+				+ "order by data\r\n"
+				+ "limit 1), '%d/%m/%Y') as menor_data_pagamento \r\n"
+				+ ",\r\n"
+				+ "DATE_FORMAT(\r\n"
+				+ "(select str_to_date(data_pagamento, '%d/%m/%Y') as data\r\n"
+				+ "from financeiro_pagamento\r\n"
+				+ "where data_pagamento != ''\r\n"
+				+ "order by data DESC\r\n"
+				+ "limit 1), '%d/%m/%Y') as maior_data_pagamento \r\n"
+				+ "\r\n"
+				+ "\r\n"
+				+ "\r\n"
+				+ "\r\n"
+				+ "\r\n"
+				+ "";
+		Connection conn = null;
+		PreparedStatement pstm = null;
+		ResultSet rs = null;
+		Lancamento dado = new Lancamento();
+
+		try {
+			conn = ConexaoBanco.getConexao();
+			pstm = conn.prepareStatement(select);
+			
+			rs = pstm.executeQuery();
+			rs.next();
+			 Map<String,String> example = new HashMap<String,String>();
+			  example.put( "menor_data_lancamento", new String(rs.getString("menor_data_lancamento")));
+			  example.put( "maior_data_lancamento", new String(rs.getString("maior_data_lancamento")));
+			  example.put( "menor_data_vencimento", new String(rs.getString("menor_data_vencimento")));
+			  example.put( "maior_data_vencimento", new String(rs.getString("maior_data_vencimento")));
+			  example.put( "menor_data_pagamento", new String(rs.getString("menor_data_pagamento")));
+			  example.put( "maior_data_pagamento", new String(rs.getString("maior_data_pagamento")));
+
+			
+			return example;
+
+		} catch (Exception e) {
+			//JOptionPane.showMessageDialog(null, "Erro ao listar a Conta id: " + id);// );
+			JOptionPane.showMessageDialog(null, "Erro ao listar a maior data de vencimento do banco de dados" );
+			return null;
+		}
+	}
 	
 }

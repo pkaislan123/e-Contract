@@ -123,7 +123,7 @@ import main.java.outros.JTextFieldPersonalizado;
 import main.java.outros.MyFileVisitor;
 import main.java.outros.TratarDados;
 import main.java.relatoria.RelatorioContratoComprador;
-import main.java.relatoria.RelatorioContratoSimplificado;
+import main.java.relatoria.RelatorioContratoRecebimentoSimplificado;
 import main.java.relatoria.RelatorioContratos;
 import main.java.tratamento_proprio.Log;
 import main.java.views_personalizadas.TelaEmEspera;
@@ -201,23 +201,24 @@ public class TelaRecortarImagem2 extends JDialog{
 
 		setBackground(new Color(255, 255, 255));
 		setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-		setBounds(100, 100, 654, 635);
+		setBounds(100, 100, 1029, 701);
 		painelPrincipal.setBackground(new Color(255, 255, 255));
 		painelPrincipal.setBorder(new EmptyBorder(5, 5, 5, 5));
 		setContentPane(painelPrincipal);
-		painelPrincipal.setLayout(null);
+		 painelPrincipal.setLayout(new MigLayout("", "[][][][][grow][21px][grow][14px][grow]", "[][grow][]"));
 		
 		
 		
 		
 		 lblCtrlPressionado = new JLabel("CTRL Solto");
-		lblCtrlPressionado.setBounds(241, 0, 156, 22);
-		painelPrincipal.add(lblCtrlPressionado);
+		 lblCtrlPressionado.setFont(new Font("Tahoma", Font.BOLD, 14));
+		painelPrincipal.add(lblCtrlPressionado, "cell 4 0,grow");
 		
 		JButton btnNewButton = new JButton("Concluir");
-		
-		btnNewButton.setBounds(549, 554, 71, 23);
-		painelPrincipal.add(btnNewButton);
+		btnNewButton.setBackground(new Color(0, 51, 0));
+		btnNewButton.setFont(new Font("Tahoma", Font.BOLD, 14));
+		btnNewButton.setForeground(Color.WHITE);
+		painelPrincipal.add(btnNewButton, "cell 8 2,growx,aligny top");
 	 
 		
 		
@@ -228,34 +229,37 @@ public class TelaRecortarImagem2 extends JDialog{
 		JScrollPane scrollPane = new JScrollPane(panel);
 		scrollPane.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
 		scrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_ALWAYS);
-		scrollPane.setBounds(0, 30, 638, 504);
-		painelPrincipal.add(scrollPane);
+		painelPrincipal.add(scrollPane, "cell 0 1 9 1,grow");
 		
 		JLabel lblNewLabel = new JLabel("Porcentagem");
-		lblNewLabel.setBounds(10, 4, 78, 14);
-		painelPrincipal.add(lblNewLabel);
+		lblNewLabel.setFont(new Font("Tahoma", Font.PLAIN, 14));
+		painelPrincipal.add(lblNewLabel, "cell 0 0,growx,aligny center");
 		
 		 lblPorcentagem = new JLabel("100%");
-		lblPorcentagem.setBounds(98, 4, 89, 14);
-		painelPrincipal.add(lblPorcentagem);
+		 lblPorcentagem.setFont(new Font("Tahoma", Font.BOLD, 16));
+		painelPrincipal.add(lblPorcentagem, "cell 2 0,growx,aligny center");
 		
 		JButton btnNewButton_1 = new JButton("Cortar");
+		btnNewButton_1.setBackground(new Color(204, 51, 0));
+		btnNewButton_1.setFont(new Font("Tahoma", Font.BOLD, 14));
+		btnNewButton_1.setForeground(Color.WHITE);
 		btnNewButton_1.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				panel.recortar();
 			}
 		});
-		btnNewButton_1.setBounds(446, 554, 89, 23);
-		painelPrincipal.add(btnNewButton_1);
+		painelPrincipal.add(btnNewButton_1, "cell 6 2,growx,aligny top");
 		
-		JButton btnNewButton_2 = new JButton("Desfazer");
+		JButton btnNewButton_2 = new JButton("Desfazer Última alteração");
+		btnNewButton_2.setBackground(new Color(204, 102, 0));
+		btnNewButton_2.setFont(new Font("Tahoma", Font.BOLD, 14));
+		btnNewButton_2.setForeground(Color.WHITE);
 		btnNewButton_2.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				panel.desfazer();
 			}
 		});
-		btnNewButton_2.setBounds(336, 554, 89, 23);
-		painelPrincipal.add(btnNewButton_2);
+		painelPrincipal.add(btnNewButton_2, "cell 4 2,growx,aligny top");
 
 		btnNewButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {

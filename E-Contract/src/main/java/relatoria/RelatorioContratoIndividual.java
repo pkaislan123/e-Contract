@@ -96,6 +96,7 @@ import main.java.cadastros.ContaBancaria;
 import main.java.cadastros.Contato;
 import main.java.cadastros.DadosCarregamento;
 import main.java.cadastros.DadosContratos;
+import main.java.cadastros.PagamentoCompleto;
 import main.java.cadastros.RegistroQuantidade;
 import main.java.cadastros.RegistroRecebimento;
 import main.java.classesExtras.Endereco;
@@ -138,7 +139,7 @@ import main.java.outros.MyFileVisitor;
 import main.java.outros.ReproduzirAudio;
 import main.java.outros.TratarDados;
 import main.java.relatoria.RelatorioContratoComprador;
-import main.java.relatoria.RelatorioContratoSimplificado;
+import main.java.relatoria.RelatorioContratoRecebimentoSimplificado;
 import main.java.relatoria.RelatorioContratos;
 import main.java.tratamento_proprio.Log;
 import main.java.views_personalizadas.TelaEmEspera;
@@ -172,34 +173,28 @@ public class RelatorioContratoIndividual {
 
 	CadastroContrato novo_contrato;
 	private TelaEmEspera telaInformacoes;
-    private int contador_comprovantes;
+	private int contador_comprovantes;
 	private Log GerenciadorLog;
 	private CadastroLogin login;
 	private ConfiguracoesGlobais configs_globais;
 	private String servidor_unidade;
 	private XWPFDocument document_global;
 	private XWPFParagraph paragrafo_atual;
-    private int posicao_global;
+	private int posicao_global;
 	private boolean interno, externo, incluir_carregamento, incluir_pagamento, incluir_comissao, incluir_sub_contratos,
 			incluir_ganhos_potenciais, incluir_comprovantes_pagamentos, incluir_transferencias, incluir_recebimentos;
 
 	public boolean isIncluir_transferencias() {
 		return incluir_transferencias;
 	}
-	
-	
 
 	public boolean isIncluir_recebimentos() {
 		return incluir_recebimentos;
 	}
 
-
-
 	public void setIncluir_recebimentos(boolean incluir_recebimentos) {
 		this.incluir_recebimentos = incluir_recebimentos;
 	}
-
-
 
 	public void setIncluir_transferencias(boolean incluir_transferencias) {
 		this.incluir_transferencias = incluir_transferencias;
@@ -292,12 +287,12 @@ public class RelatorioContratoIndividual {
 		CTBody body = document.getBody();
 
 		if (!body.isSetSectPr()) {
-		     body.addNewSectPr();
+			body.addNewSectPr();
 		}
 		CTSectPr section = body.getSectPr();
 
-		if(!section.isSetPgSz()) {
-		    section.addNewPgSz();
+		if (!section.isSetPgSz()) {
+			section.addNewPgSz();
 		}
 		CTPageSz pageSize = section.getPgSz();
 
@@ -305,10 +300,6 @@ public class RelatorioContratoIndividual {
 		pageSize.setW(BigInteger.valueOf(15840));
 		pageSize.setH(BigInteger.valueOf(12240));
 		document_global.createStyles();
-		
-		
-
-	
 
 	}
 
@@ -372,13 +363,13 @@ public class RelatorioContratoIndividual {
 
 			}
 		}
-		
+
 		if (compradores[1] != null) {
 			if (compradores[1].getTipo_pessoa() == 0) {
 				// pessoa fisica
-				nome_compradores = nome_compradores + ", " +  compradores[1].getNome_empresarial();
+				nome_compradores = nome_compradores + ", " + compradores[1].getNome_empresarial();
 			} else {
-				nome_compradores = nome_compradores + ", " +   compradores[0].getNome_fantaia();
+				nome_compradores = nome_compradores + ", " + compradores[0].getNome_fantaia();
 
 			}
 		}
@@ -451,38 +442,34 @@ public class RelatorioContratoIndividual {
 
 		}
 
-		if (incluir_pagamento) {
-			// pagamentos
-			GerenciarBancoContratos gerenciar_pags = new GerenciarBancoContratos();
-			ArrayList<CadastroContrato.CadastroPagamentoContratual> pagamentos_contratuais = gerenciar_pags
-					.getPagamentosContratuais(novo_contrato.getId());
-			GerenciarBancoTransferencias gerenciar_trans = new GerenciarBancoTransferencias();
-			ArrayList<CadastroContrato.CadastroTransferenciaPagamentoContratual> transferencias_remetente = gerenciar_trans
-					.getTransferenciasRemetente(novo_contrato.getId());
-			ArrayList<CadastroContrato.CadastroTransferenciaPagamentoContratual> transferencias_destinatario = gerenciar_trans
-					.getTransferenciaDestinatario(novo_contrato.getId());
+		
+		
+		if (incluir_recebimentos) {
+			// recebimentos
+			GerenciarBancoContratos gerenciar_recebimentos = new GerenciarBancoContratos();
 
-			if (pagamentos_contratuais.size() > 0 || transferencias_remetente.size() > 0
-					|| transferencias_destinatario.size() > 0) {
+			ArrayList<CadastroContrato.Recebimento> recebimentos = gerenciar_recebimentos
+					.getRecebimentos(novo_contrato.getId());
+
+			if (recebimentos.size() > 0) {
 
 				adicionarTraco(true, 0);
-				XWPFParagraph titulo_sub_pagamentos = document_global.createParagraph();
-				titulo_sub_pagamentos.setAlignment(ParagraphAlignment.CENTER);
 
-				XWPFRun titulo_sub_pagamentostitleRun = titulo_sub_pagamentos.createRun();
-				titulo_sub_pagamentostitleRun.setText("Pagamentos");
-				titulo_sub_pagamentostitleRun.setColor("000000");
-				titulo_sub_pagamentostitleRun.setBold(true);
-				titulo_sub_pagamentostitleRun.setFontFamily("Arial");
-				titulo_sub_pagamentostitleRun.setFontSize(9);
-				criarTabelaPagamentos(pagamentos_contratuais, transferencias_remetente, transferencias_destinatario);
+				XWPFParagraph titulo_recebimentos = document_global.createParagraph();
+				titulo_recebimentos.setAlignment(ParagraphAlignment.CENTER);
 
-				// adiciona comprovante de pagamentos
-				if(incluir_comprovantes_pagamentos)
-				 adicionarComprovantesPagamentos(pagamentos_contratuais);
+				XWPFRun titulo_recebimentosRun = titulo_recebimentos.createRun();
+				titulo_recebimentosRun.setText("Recebimentos");
+				titulo_recebimentosRun.setColor("000000");
+				titulo_recebimentosRun.setBold(true);
+				titulo_recebimentosRun.setFontFamily("Arial");
+				titulo_recebimentosRun.setFontSize(9);
+
+				criarTabelaRecebimentos(recebimentos, 0);
 
 			}
 		}
+
 
 		if (incluir_carregamento) {
 			// carregamentos
@@ -509,34 +496,34 @@ public class RelatorioContratoIndividual {
 
 			}
 		}
-		
-		if (incluir_recebimentos) {
-			// recebimentos
-			GerenciarBancoContratos gerenciar_recebimentos = new GerenciarBancoContratos();
 
-			ArrayList<CadastroContrato.Recebimento> recebimentos = gerenciar_recebimentos
-					.getRecebimentos(novo_contrato.getId());
+		if (incluir_pagamento) {
+			// pagamentos
+			GerenciarBancoContratos gerenciar_pags = new GerenciarBancoContratos();
+			ArrayList<PagamentoCompleto> pagamentos_contratuais = gerenciar_pags
+					.getPagamentosContratuaisParaRelatorio(novo_contrato.getId());
 
-			if (recebimentos.size() > 0) {
+			if (pagamentos_contratuais.size() > 0) {
 
 				adicionarTraco(true, 0);
+				XWPFParagraph titulo_sub_pagamentos = document_global.createParagraph();
+				titulo_sub_pagamentos.setAlignment(ParagraphAlignment.CENTER);
 
-				XWPFParagraph titulo_recebimentos = document_global.createParagraph();
-				titulo_recebimentos.setAlignment(ParagraphAlignment.CENTER);
+				XWPFRun titulo_sub_pagamentostitleRun = titulo_sub_pagamentos.createRun();
+				titulo_sub_pagamentostitleRun.setText("Pagamentos");
+				titulo_sub_pagamentostitleRun.setColor("000000");
+				titulo_sub_pagamentostitleRun.setBold(true);
+				titulo_sub_pagamentostitleRun.setFontFamily("Arial");
+				titulo_sub_pagamentostitleRun.setFontSize(9);
+				criarTabelaPagamentos(pagamentos_contratuais);
 
-				XWPFRun titulo_recebimentosRun = titulo_recebimentos.createRun();
-				titulo_recebimentosRun.setText("Recebimentos");
-				titulo_recebimentosRun.setColor("000000");
-				titulo_recebimentosRun.setBold(true);
-				titulo_recebimentosRun.setFontFamily("Arial");
-				titulo_recebimentosRun.setFontSize(9);
-
-				criarTabelaRecebimentos(recebimentos,0);
+				// adiciona comprovante de pagamentos
+				if (incluir_comprovantes_pagamentos)
+					adicionarComprovantesPagamentos(pagamentos_contratuais);
 
 			}
 		}
-
-
+	
 		// cabecalho e rodape
 
 		try {
@@ -582,8 +569,9 @@ public class RelatorioContratoIndividual {
 					Units.toEMU(30), Units.toEMU(30));
 
 		} catch (Exception e) {
-			//JOptionPane.showMessageDialog(null,
-				//	"Erro ao criar cabecalho e rodape do contrato!\nConsulte o administrador do sistema!");
+			// JOptionPane.showMessageDialog(null,
+			// "Erro ao criar cabecalho e rodape do contrato!\nConsulte o administrador do
+			// sistema!");
 			e.printStackTrace();
 		}
 
@@ -642,7 +630,7 @@ public class RelatorioContratoIndividual {
 
 	}
 
-	public void adicionarComprovantesPagamentos(ArrayList<CadastroContrato.CadastroPagamentoContratual> pagamentos) {
+	public void adicionarComprovantesPagamentos(ArrayList<PagamentoCompleto> pagamentos) {
 
 		XWPFParagraph par = document_global.createParagraph();
 
@@ -658,10 +646,9 @@ public class RelatorioContratoIndividual {
 				num_comprovantes++;
 			}
 		}
-		
-		//define o numero de linhas
-		int num_linhas = (num_comprovantes / 4 )+ 1;
-		
+
+		// define o numero de linhas
+		int num_linhas = (num_comprovantes / 4) + 1;
 
 		XWPFTable table = document_global.createTable(num_linhas, 4);
 
@@ -671,10 +658,10 @@ public class RelatorioContratoIndividual {
 
 		XWPFParagraph paragraph = tableRowOne.getCell(0).addParagraph();
 
-		int linha_comprovante  = -1;
+		int linha_comprovante = -1;
 		int coluna_comprovante = 0;
 
-		for (CadastroContrato.CadastroPagamentoContratual pag : pagamentos) {
+		for (PagamentoCompleto pag : pagamentos) {
 			// verifica se há algum documento do tipo 2(comprovante de pagamento) para este
 			// id de pagamento
 
@@ -722,44 +709,36 @@ public class RelatorioContratoIndividual {
 					FileInputStream in;
 					try {
 
-					   if(contador_comprovantes <= 3) {
+						if (contador_comprovantes <= 3) {
 							linha_comprovante = 0;
-						}else if(contador_comprovantes <= 7) {
+						} else if (contador_comprovantes <= 7) {
 							linha_comprovante = 1;
 
-						}else if(contador_comprovantes <= 11) {
+						} else if (contador_comprovantes <= 11) {
 							linha_comprovante = 2;
 
-						}
-						else if(contador_comprovantes <= 15) {
+						} else if (contador_comprovantes <= 15) {
 							linha_comprovante = 3;
 
-						}
-						else if(contador_comprovantes <= 19) {
+						} else if (contador_comprovantes <= 19) {
 							linha_comprovante = 4;
 
-						}
-						else if(contador_comprovantes <= 23) {
+						} else if (contador_comprovantes <= 23) {
 							linha_comprovante = 5;
 
-						}
-						else if(contador_comprovantes <= 27) {
+						} else if (contador_comprovantes <= 27) {
 							linha_comprovante = 6;
 
-						}
-						else if(contador_comprovantes <= 31) {
+						} else if (contador_comprovantes <= 31) {
 							linha_comprovante = 7;
 
 						}
-					
-						
-						
-					
+
 						tableRowOne = table.getRow(linha_comprovante);
 						tableRowOne.getCell(coluna_comprovante).removeParagraph(0);
 						paragraph = tableRowOne.getCell(coluna_comprovante).addParagraph();
 						paragraph.setAlignment(ParagraphAlignment.CENTER);
-						
+
 						XWPFRun run = paragraph.createRun();
 
 						in = new FileInputStream(caminho_completo);
@@ -768,8 +747,8 @@ public class RelatorioContratoIndividual {
 						in.close();
 						contador_comprovantes++;
 						coluna_comprovante++;
-						
-						if(coluna_comprovante >= 4) {
+
+						if (coluna_comprovante >= 4) {
 							coluna_comprovante = 0;
 						}
 					} catch (FileNotFoundException e) {
@@ -831,7 +810,7 @@ public class RelatorioContratoIndividual {
 		}
 
 	}
-	
+
 	public void substituirTexto(int alinhamento, String text_amostra) {
 
 		// criarParagrafo(2);
@@ -1192,10 +1171,9 @@ public class RelatorioContratoIndividual {
 			tableRowOne = table.getRow(i);
 			tableRowOne.getCell(1).removeParagraph(0);
 			paragraph = tableRowOne.getCell(1).addParagraph();
-			
-			
+
 			int status = local.getStatus_contrato();
-		    String text_status = "";
+			String text_status = "";
 			if (status == 1) {
 				text_status = "Assinar";
 
@@ -1253,7 +1231,7 @@ public class RelatorioContratoIndividual {
 				} else {
 					comissao = "Não";
 				}
-				
+
 				String comissao_por_saco = "";
 				if (local.getComissao() == 1) {
 					BigDecimal valor_total_com = local.getValor_comissao();
@@ -1285,9 +1263,7 @@ public class RelatorioContratoIndividual {
 
 	}
 
-	public void criarTabelaPagamentos(ArrayList<CadastroContrato.CadastroPagamentoContratual> pagamentos,
-			ArrayList<CadastroContrato.CadastroTransferenciaPagamentoContratual> transferencias_remetente,
-			ArrayList<CadastroContrato.CadastroTransferenciaPagamentoContratual> transferencias_destinatario) {
+	public void criarTabelaPagamentos(ArrayList<PagamentoCompleto> pagamentos) {
 
 		NumberFormat z = NumberFormat.getNumberInstance();
 
@@ -1295,35 +1271,31 @@ public class RelatorioContratoIndividual {
 
 		// criarParagrafo(1);
 		// linhas x colunas
-		int num_linhas_pagamentos = 0;
-		
-		int num_total_pags = pagamentos.size();
-		int num_total_pags_comissao = 0;
-		for(CadastroContrato.CadastroPagamentoContratual pag : pagamentos) {
-			if(pag.getTipo() == 2) {
-				num_total_pags_comissao++;
+		int num_total_linhas = 0;
+		int num_linhas_comissao = 0;
+		int num_linhas_trans = 0;
+		int num_linhas_pag_normal = 0;
+
+		for (PagamentoCompleto pag : pagamentos) {
+			if (pag.getTipo() == 1) {
+				num_linhas_pag_normal++;
+			} else if (pag.getTipo() == 2) {
+				num_linhas_comissao++;
+			} else if (pag.getTipo() == 3) {
+				num_linhas_trans++;
 			}
 		}
-		
-		if(incluir_comissao) {
-			num_linhas_pagamentos = num_total_pags;
-		}else {
-			num_linhas_pagamentos = num_total_pags - num_total_pags_comissao;
-		}
-		
-		int num_linhas_trans_remetente = 0;
-		int num_linhas_trans_destinatario = 0;
-		
-		if(incluir_transferencias) {
-			 num_linhas_trans_remetente = transferencias_remetente.size();
-			 num_linhas_trans_destinatario = transferencias_destinatario.size();
-			
-		}
-		
-		
-		int num_total_linhas = num_linhas_pagamentos + num_linhas_trans_remetente + num_linhas_trans_destinatario + 1 + 1;
 
-		XWPFTable table = document_global.createTable(num_total_linhas, 5);
+		if (incluir_comissao) {
+			num_total_linhas += num_linhas_comissao;
+		}
+		if (incluir_transferencias) {
+			num_total_linhas += num_linhas_trans;
+		}
+
+		num_total_linhas += num_linhas_pag_normal;
+
+		XWPFTable table = document_global.createTable(num_total_linhas + 3, 12);
 
 		setTableAlign(table, ParagraphAlignment.CENTER);
 		XWPFTableRow tableRowOne = table.getRow(0);
@@ -1336,301 +1308,542 @@ public class RelatorioContratoIndividual {
 		tableRowOne = table.getRow(0);
 		tableRowOne.getCell(1).removeParagraph(0);
 		paragraph = tableRowOne.getCell(1).addParagraph();
-		criarParagrafoTabela(paragraph, "Descrição", false);
+		criarParagrafoTabela(paragraph, "Tipo", false);
 
 		tableRowOne = table.getRow(0);
 		tableRowOne.getCell(2).removeParagraph(0);
 		paragraph = tableRowOne.getCell(2).addParagraph();
-		criarParagrafoTabela(paragraph, "Valor: ", false);
+		criarParagrafoTabela(paragraph, "Descrição", false);
 
 		tableRowOne = table.getRow(0);
 		tableRowOne.getCell(3).removeParagraph(0);
 		paragraph = tableRowOne.getCell(3).addParagraph();
-		criarParagrafoTabela(paragraph, "Depositante: ", false);
+		criarParagrafoTabela(paragraph, "Valor Pagamento", false);
 
 		tableRowOne = table.getRow(0);
 		tableRowOne.getCell(4).removeParagraph(0);
 		paragraph = tableRowOne.getCell(4).addParagraph();
+		criarParagrafoTabela(paragraph, "Valor Unidade: ", false);
+
+		tableRowOne = table.getRow(0);
+		tableRowOne.getCell(5).removeParagraph(0);
+		paragraph = tableRowOne.getCell(5).addParagraph();
+		criarParagrafoTabela(paragraph, "Cobertura: ", false);
+
+		tableRowOne = table.getRow(0);
+		tableRowOne.getCell(6).removeParagraph(0);
+		paragraph = tableRowOne.getCell(6).addParagraph();
+		criarParagrafoTabela(paragraph, "Depositante", false);
+
+		tableRowOne = table.getRow(0);
+		tableRowOne.getCell(7).removeParagraph(0);
+		paragraph = tableRowOne.getCell(7).addParagraph();
+		criarParagrafoTabela(paragraph, "Conta Depositante", false);
+
+		tableRowOne = table.getRow(0);
+		tableRowOne.getCell(8).removeParagraph(0);
+		paragraph = tableRowOne.getCell(8).addParagraph();
 		criarParagrafoTabela(paragraph, "Favorecido", false);
 
-		int i_global = 1;
+		tableRowOne = table.getRow(0);
+		tableRowOne.getCell(9).removeParagraph(0);
+		paragraph = tableRowOne.getCell(9).addParagraph();
+		criarParagrafoTabela(paragraph, "Conta Favorecido", false);
 
-		double soma_total = 0;
+		tableRowOne = table.getRow(0);
+		tableRowOne.getCell(10).removeParagraph(0);
+		paragraph = tableRowOne.getCell(10).addParagraph();
+		criarParagrafoTabela(paragraph, "Contrato Remetente", false);
+
+		tableRowOne = table.getRow(0);
+		tableRowOne.getCell(11).removeParagraph(0);
+		paragraph = tableRowOne.getCell(11).addParagraph();
+		criarParagrafoTabela(paragraph, "Contrato Destinatario", false);
+
+		double valor_total_pagamentos = 0;
+		double valor_total_pagamentos_efetuados = 0;
+		double valor_total_transferencias_retiradas = 0;
+		double valor_total_transferencias_recebidas = 0;
+		double valor_total_pagamentos_restantes = 0;
+		double valor_total_comissao = 0;
+		double peso_total_cobertura = 0;
+		double peso_total_cobertura_efetuados = 0;
+		double peso_total_cobertura_transferencia_negativa = 0;
+		double peso_total_cobertura_transferencia_positiva = 0;
+		double peso_total_cobertura_restante = 0;
+		double peso_total_cobertura_comissao = 0;
+		double soma_total_pagamentos = 0.0;
+
+		double quantidade_total_contrato_sacos = 0;
+		double valor_por_saco = 0;
+
+		if (novo_contrato.getMedida().equalsIgnoreCase("Kg")) {
+			quantidade_total_contrato_sacos = novo_contrato.getQuantidade() / 60;
+			valor_por_saco = novo_contrato.getValor_produto() * 60;
+		} else if (novo_contrato.getMedida().equalsIgnoreCase("Sacos")) {
+			quantidade_total_contrato_sacos = novo_contrato.getQuantidade();
+			valor_por_saco = novo_contrato.getValor_produto();
+		}
+		GerenciarBancoContratos gerenciar_contratos = new GerenciarBancoContratos();
+
+		//valor total e cobertura com base no total de sacos recebidos
+		double quantidade_kgs_recebidos = gerenciar_contratos.getQuantidadeRecebida(novo_contrato.getId());
+		peso_total_cobertura = quantidade_kgs_recebidos/60;
+		valor_total_pagamentos = peso_total_cobertura * valor_por_saco;
 		
-		for (CadastroContrato.CadastroPagamentoContratual local : pagamentos) {
-			
-			if(local.getTipo() == 1 || local.getTipo() == 2 && incluir_comissao) {
+		String valorSaco = NumberFormat.getCurrencyInstance(ptBr).format(valor_por_saco);
+				int i_global = 1;
+		for (PagamentoCompleto pagamento : pagamentos) {
 
-			// CadastroContrato.CadastroPagamentoContratual local = pagamentos.get(indice);
+			if (pagamento.getTipo() == 1 || pagamento.getTipo() == 2 && incluir_comissao
+					|| pagamento.getTipo() == 3 && incluir_transferencias) {
 
-			// celula data
-			tableRowOne = table.getRow(i_global);
-			tableRowOne.getCell(0).removeParagraph(0);
-			paragraph = tableRowOne.getCell(0).addParagraph();
-			criarParagrafoTabela(paragraph, local.getData_pagamento(), false);
+				// celula data
+				tableRowOne = table.getRow(i_global);
+				tableRowOne.getCell(0).removeParagraph(0);
+				paragraph = tableRowOne.getCell(0).addParagraph();
+				criarParagrafoTabela(paragraph, pagamento.getData_pagamento(), false);
 
-			// celula descricao
-			tableRowOne = table.getRow(i_global);
-			tableRowOne.getCell(1).removeParagraph(0);
-			paragraph = tableRowOne.getCell(1).addParagraph();
-			if(local.getTipo() == 1)
-			criarParagrafoTabela(paragraph, "Pagamento", false);
-			else if(local.getTipo() == 2)
-				criarParagrafoTabela(paragraph, "Comissão", false);
+				// celula tipo
+				int tipo = pagamento.getTipo();
+				String s_tipo = "";
+				if (pagamento.getTipo() == 1) {
+					s_tipo = "NORMAL";
+				} else if (pagamento.getTipo() == 2) {
+					s_tipo = "COMISSÃO";
+				} else if (pagamento.getTipo() == 3) {
+					// é uma transferencia
+					if (pagamento.getId_contrato_remetente() == novo_contrato.getId()) {
+						s_tipo = "-TRANSFERENCIA";
+					} else if (pagamento.getId_contrato_destinatario() == novo_contrato.getId()) {
+						// é uma transferencia positiva
+						s_tipo = "+TRANSFERENCIA";
+					}
 
-			// celula valor
-			String valorString = NumberFormat.getCurrencyInstance(ptBr).format(local.getValor_pagamento());
-			tableRowOne = table.getRow(i_global);
-			tableRowOne.getCell(2).removeParagraph(0);
-			paragraph = tableRowOne.getCell(2).addParagraph();
-			criarParagrafoTabela(paragraph, valorString, false);
-			if(local.getTipo() == 1)
-			 soma_total += local.getValor_pagamento();
+				}
 
-			// celula depositante
+				// celula tipo
+				tableRowOne = table.getRow(i_global);
+				tableRowOne.getCell(1).removeParagraph(0);
+				paragraph = tableRowOne.getCell(1).addParagraph();
+				criarParagrafoTabela(paragraph, s_tipo, false);
 
-			GerenciarBancoClientes cliente = new GerenciarBancoClientes();
-			CadastroCliente depositante = cliente.getCliente(local.getId_depositante());
-			CadastroCliente favorecido = cliente.getCliente(local.getId_favorecido());
+				// celula descricao
+				tableRowOne = table.getRow(i_global);
+				tableRowOne.getCell(2).removeParagraph(0);
+				paragraph = tableRowOne.getCell(2).addParagraph();
+				criarParagrafoTabela(paragraph, pagamento.getDescricao(), false);
 
-			String nome_depositante = "", nome_favorecido = "";
+				// valor pagamento
+				double valor_pagamento = pagamento.getValor_pagamento();
 
-			if (depositante.getTipo_pessoa() == 0)
-				nome_depositante = depositante.getNome_empresarial();
-			else
-				nome_depositante = depositante.getNome_fantaia();
+				String valorString = NumberFormat.getCurrencyInstance(ptBr).format(valor_pagamento);
+				double cobertura = valor_pagamento / valor_por_saco;
 
-			if (favorecido.getTipo_pessoa() == 0)
-				nome_favorecido = favorecido.getNome_empresarial();
-			else
-				nome_favorecido = favorecido.getNome_fantaia();
+				if (pagamento.getTipo() == 1) {
+					valor_total_pagamentos_efetuados += valor_pagamento;
+					soma_total_pagamentos += pagamento.getValor_pagamento();
 
-			tableRowOne = table.getRow(i_global);
-			tableRowOne.getCell(3).removeParagraph(0);
-			paragraph = tableRowOne.getCell(3).addParagraph();
-			criarParagrafoTabela(paragraph, nome_depositante, false);
+				} else if (pagamento.getTipo() == 2) {
+					// é uma comissão
+					valor_total_comissao += valor_pagamento;
 
-			// celula favorecido
+				} else if (pagamento.getTipo() == 3) {
+					// é uma transferencia
+					if (pagamento.getId_contrato_remetente() == novo_contrato.getId()) {
+						// é uma transferencia negativa
+						valor_total_transferencias_retiradas += valor_pagamento;
+						soma_total_pagamentos -= pagamento.getValor_pagamento();
 
-			tableRowOne = table.getRow(i_global);
-			tableRowOne.getCell(4).removeParagraph(0);
-			paragraph = tableRowOne.getCell(4).addParagraph();
-			criarParagrafoTabela(paragraph, nome_favorecido, false);
+					} else if (pagamento.getId_contrato_destinatario() == novo_contrato.getId()) {
+						// é uma transferencia positiva
+						valor_total_transferencias_recebidas += valor_pagamento;
+						soma_total_pagamentos += pagamento.getValor_pagamento();
 
-			i_global++;
+					}
+
+				}
+				valorString = NumberFormat.getCurrencyInstance(ptBr).format(pagamento.getValor_pagamento());
+
+				// celula pagamento
+				tableRowOne = table.getRow(i_global);
+				tableRowOne.getCell(3).removeParagraph(0);
+				paragraph = tableRowOne.getCell(3).addParagraph();
+				criarParagrafoTabela(paragraph, valorString, false);
+
+				// valor da unidade
+				CadastroContrato ct_remetente = pagamento.getContrato_remetente();
+				CadastroContrato ct_destinatario = pagamento.getContrato_destinatario();
+
+				valorString = NumberFormat.getCurrencyInstance(ptBr).format(ct_remetente.getValor_produto());
+				if (pagamento.getTipo() == 1) {
+
+				} else if (pagamento.getTipo() == 2) {
+
+				} else if (pagamento.getTipo() == 3) {
+					// é uma transferencia
+					if (pagamento.getId_contrato_remetente() == novo_contrato.getId()) {
+
+					} else if (pagamento.getId_contrato_destinatario() == novo_contrato.getId()) {
+						// é uma transferencia positiva
+						// pegar o preco da unidade do contrato que recebeu a transferencia
+						valorString = NumberFormat.getCurrencyInstance(ptBr).format(novo_contrato.getValor_produto());
+
+					}
+				}
+				// celula valor unidade
+				tableRowOne = table.getRow(i_global);
+				tableRowOne.getCell(4).removeParagraph(0);
+				paragraph = tableRowOne.getCell(4).addParagraph();
+				criarParagrafoTabela(paragraph, valorString, false);
+
+				// cobertura
+				cobertura = pagamento.getValor_pagamento() / ct_remetente.getValor_produto();
+				if (ct_remetente.getMedida().equalsIgnoreCase("KG"))
+					cobertura = cobertura / 60;
+
+				String retorno = z.format(cobertura) + " sacos";
+
+				if (pagamento.getTipo() == 1) {
+					peso_total_cobertura_efetuados += cobertura;
+
+				} else if (pagamento.getTipo() == 2) {
+					peso_total_cobertura_comissao += cobertura;
+				} else if (pagamento.getTipo() == 3) {
+					// é uma transferencia
+					if (pagamento.getId_contrato_remetente() == novo_contrato.getId()) {
+						retorno = "-" + retorno;
+						peso_total_cobertura_transferencia_negativa += cobertura;
+
+					} else if (pagamento.getId_contrato_destinatario() == novo_contrato.getId()) {
+						// é uma transferencia positiva
+						// pegar o preco da unidade do contrato que recebeu a transferencia
+
+						cobertura = pagamento.getValor_pagamento() / novo_contrato.getValor_produto();
+
+						if (novo_contrato.getMedida().equalsIgnoreCase("KG"))
+							cobertura = cobertura / 60;
+						peso_total_cobertura_transferencia_positiva += cobertura;
+
+						retorno = z.format(cobertura) + " sacos";
+						retorno = "+" + retorno;
+					}
+
+				}
+
+				// celula cobertura
+				tableRowOne = table.getRow(i_global);
+				tableRowOne.getCell(5).removeParagraph(0);
+				paragraph = tableRowOne.getCell(5).addParagraph();
+				criarParagrafoTabela(paragraph, retorno, false);
+
+				// celula depositante
+				tableRowOne = table.getRow(i_global);
+				tableRowOne.getCell(6).removeParagraph(0);
+				paragraph = tableRowOne.getCell(6).addParagraph();
+				criarParagrafoTabela(paragraph, pagamento.getDepositante().toUpperCase(), false);
+
+				// celula conta depositante
+				tableRowOne = table.getRow(i_global);
+				tableRowOne.getCell(7).removeParagraph(0);
+				paragraph = tableRowOne.getCell(7).addParagraph();
+				criarParagrafoTabela(paragraph, pagamento.getConta_bancaria_depositante().toUpperCase(), false);
+
+				// celula favorecido
+				tableRowOne = table.getRow(i_global);
+				tableRowOne.getCell(8).removeParagraph(0);
+				paragraph = tableRowOne.getCell(8).addParagraph();
+				criarParagrafoTabela(paragraph, pagamento.getFavorecido().toUpperCase(), false);
+
+				// celula conta favorecido
+				tableRowOne = table.getRow(i_global);
+				tableRowOne.getCell(9).removeParagraph(0);
+				paragraph = tableRowOne.getCell(9).addParagraph();
+				criarParagrafoTabela(paragraph, pagamento.getConta_bancaria_favorecido().toUpperCase(), false);
+
+				// celula contrato remetente
+				tableRowOne = table.getRow(i_global);
+				tableRowOne.getCell(10).removeParagraph(0);
+				paragraph = tableRowOne.getCell(10).addParagraph();
+				criarParagrafoTabela(paragraph, ct_remetente.getCodigo(), false);
+
+				// celula contrato destinataio
+				tableRowOne = table.getRow(i_global);
+				tableRowOne.getCell(11).removeParagraph(0);
+				paragraph = tableRowOne.getCell(11).addParagraph();
+				criarParagrafoTabela(paragraph, ct_destinatario.getCodigo(), false);
+
+				i_global++;
 			}
 
 		}
 
-		if(incluir_transferencias) {
-			
-		for (CadastroContrato.CadastroTransferenciaPagamentoContratual local : transferencias_remetente) {
-
-			// CadastroContrato.CadastroTransferenciaPagamentoContratual local =
-			// transferencias_remetente.get(indice);
-
-			// celula data
-			tableRowOne = table.getRow(i_global);
-			tableRowOne.getCell(0).removeParagraph(0);
-			paragraph = tableRowOne.getCell(0).addParagraph();
-			criarParagrafoTabela(paragraph, local.getData(), false);
-
-			// celula descricao
-			tableRowOne = table.getRow(i_global);
-			tableRowOne.getCell(1).removeParagraph(0);
-			paragraph = tableRowOne.getCell(1).addParagraph();
-			criarParagrafoTabela(paragraph, "(*)(-)Transferencia", false);
-
-			
-            GerenciarBancoContratos gerenciar_contratos = new GerenciarBancoContratos();
-			// celula valor
-			String valorString = NumberFormat.getCurrencyInstance(ptBr).format(Double.parseDouble(local.getValor()));
-			tableRowOne = table.getRow(i_global);
-			tableRowOne.getCell(2).removeParagraph(0);
-			paragraph = tableRowOne.getCell(2).addParagraph();
-			criarParagrafoTabela(paragraph, valorString, false);
-			soma_total -= Double.parseDouble(local.getValor());
-
-			// celula depositante
-			// pegar codigo dos contratos
-			CadastroContrato favorecido = gerenciar_contratos.getContrato(local.getId_contrato_destinatario());
-
-			tableRowOne = table.getRow(i_global);
-			tableRowOne.getCell(3).removeParagraph(0);
-			paragraph = tableRowOne.getCell(3).addParagraph();
-			criarParagrafoTabela(paragraph, "Este contrato " + novo_contrato.getCodigo(), false);
-
-			// celula favorecido
-
-			tableRowOne = table.getRow(i_global);
-			tableRowOne.getCell(4).removeParagraph(0);
-			paragraph = tableRowOne.getCell(4).addParagraph();
-			criarParagrafoTabela(paragraph, favorecido.getCodigo(), false);
-
-			i_global++;
-		}
-
-		for (CadastroContrato.CadastroTransferenciaPagamentoContratual local : transferencias_destinatario) {
-
-			// CadastroContrato.CadastroTransferenciaPagamentoContratual local =
-			// transferencias_remetente.get(indice);
-
-			// celula data
-			tableRowOne = table.getRow(i_global);
-			tableRowOne.getCell(0).removeParagraph(0);
-			paragraph = tableRowOne.getCell(0).addParagraph();
-			criarParagrafoTabela(paragraph, local.getData(), false);
-
-			// celula descricao
-			tableRowOne = table.getRow(i_global);
-			tableRowOne.getCell(1).removeParagraph(0);
-			paragraph = tableRowOne.getCell(1).addParagraph();
-			criarParagrafoTabela(paragraph, "(*)(+)Transferencia", false);
-
-			// pega o pagamento
-			GerenciarBancoContratos gerenciar_contratos = new GerenciarBancoContratos();
-		
-
-			// celula valor
-			String valorString = NumberFormat.getCurrencyInstance(ptBr).format(Double.parseDouble(local.getValor()));
-			tableRowOne = table.getRow(i_global);
-			tableRowOne.getCell(2).removeParagraph(0);
-			paragraph = tableRowOne.getCell(2).addParagraph();
-			criarParagrafoTabela(paragraph, valorString, false);
-			soma_total += Double.parseDouble(local.getValor());
-
-			// celula depositante
-			// pegar codigo dos contratos
-			CadastroContrato depositante = gerenciar_contratos.getContrato(local.getId_contrato_remetente());
-
-			tableRowOne = table.getRow(i_global);
-			tableRowOne.getCell(3).removeParagraph(0);
-			paragraph = tableRowOne.getCell(3).addParagraph();
-			criarParagrafoTabela(paragraph, depositante.getCodigo(), false);
-
-			// celula favorecido
-
-			tableRowOne = table.getRow(i_global);
-			tableRowOne.getCell(4).removeParagraph(0);
-			paragraph = tableRowOne.getCell(4).addParagraph();
-			criarParagrafoTabela(paragraph, "Este contrato " + novo_contrato.getCodigo(), true);
-
-			i_global++;
-
-		}
-		}
-		
-		// celula descricao
-		tableRowOne = table.getRow(i_global);
-		tableRowOne.getCell(1).removeParagraph(0);
-		paragraph = tableRowOne.getCell(1).addParagraph();
-		criarParagrafoTabela(paragraph, "Total: ", false);
-
-
-		// celula valor
-		String valorString = NumberFormat.getCurrencyInstance(ptBr).format(soma_total);
+		// somatorias
 		tableRowOne = table.getRow(i_global);
 		tableRowOne.getCell(2).removeParagraph(0);
 		paragraph = tableRowOne.getCell(2).addParagraph();
-		criarParagrafoTabela(paragraph, valorString, false);
+		criarParagrafoTabela(paragraph, "TOTAL CONCLUÍDO:", false);
+
+		tableRowOne = table.getRow(i_global);
+		tableRowOne.getCell(3).removeParagraph(0);
+		paragraph = tableRowOne.getCell(3).addParagraph();
+		String valor = NumberFormat.getCurrencyInstance(ptBr).format(soma_total_pagamentos);
+
+		criarParagrafoTabela(paragraph, valor, false);
+
+		// somatorias
+		tableRowOne = table.getRow(i_global);
+		tableRowOne.getCell(4).removeParagraph(0);
+		paragraph = tableRowOne.getCell(4).addParagraph();
+		criarParagrafoTabela(paragraph, "COBERTURA TOTAL:", false);
+
+		double peso_total_cobertura_concluida = peso_total_cobertura_efetuados
+				- peso_total_cobertura_transferencia_negativa + peso_total_cobertura_transferencia_positiva;
+		tableRowOne = table.getRow(i_global);
+		tableRowOne.getCell(5).removeParagraph(0);
+		paragraph = tableRowOne.getCell(5).addParagraph();
+		criarParagrafoTabela(paragraph, z.format(peso_total_cobertura_concluida) + " sacos", false);
+
+		i_global++;
 		
+		// somatorias
+		tableRowOne = table.getRow(i_global);
+		tableRowOne.getCell(2).removeParagraph(0);
+		paragraph = tableRowOne.getCell(2).addParagraph();
+		criarParagrafoTabela(paragraph, "VALOR RESTANTE:", false);
+
+		valor_total_pagamentos_restantes = valor_total_pagamentos - valor_total_pagamentos_efetuados
+				+ valor_total_transferencias_retiradas - valor_total_transferencias_recebidas;
+		 valor = NumberFormat.getCurrencyInstance(ptBr).format(valor_total_pagamentos_restantes);
+			tableRowOne = table.getRow(i_global);
+			tableRowOne.getCell(3).removeParagraph(0);
+			paragraph = tableRowOne.getCell(3).addParagraph();
+			criarParagrafoTabela(paragraph, valor, false);
 		
-		if(incluir_comissao) {
+			tableRowOne = table.getRow(i_global);
+			tableRowOne.getCell(4).removeParagraph(0);
+			paragraph = tableRowOne.getCell(4).addParagraph();
+			criarParagrafoTabela(paragraph, "COBERTURA RESTANTE:", false);
+			
+			peso_total_cobertura_restante = peso_total_cobertura - peso_total_cobertura_efetuados
+					+ peso_total_cobertura_transferencia_negativa - peso_total_cobertura_transferencia_positiva;
+			tableRowOne = table.getRow(i_global);
+			tableRowOne.getCell(5).removeParagraph(0);
+			paragraph = tableRowOne.getCell(5).addParagraph();
+			criarParagrafoTabela(paragraph, z.format(peso_total_cobertura_restante) + " sacos", false);
+			
+			
+		if (incluir_comissao) {
 			XWPFParagraph paragrafo = document_global.createParagraph();
 			XWPFRun run = paragrafo.createRun();
 			run.setText("*Valor de comissão não é somado ao valor total");
 			run.setColor("ff0000");
 			run.setFontFamily("Times New Roman");
 			run.setFontSize(8);
-			
+
+		}
+
+		//adicionar valores
+		
+		//adicionais
+		/******************* inicio adicionais ***********************/
+	
+		String texto_total = "\nTotal do Contrato: "; 
+		valor = NumberFormat.getCurrencyInstance(ptBr).format(valor_total_pagamentos);
+		texto_total += valor;
+		texto_total += " Cobre: ";
+		texto_total += z.format(peso_total_cobertura) + " sacos";
+
+		String texto_efetuados = "Efetuados: ";
+		valor = NumberFormat.getCurrencyInstance(ptBr).format(valor_total_pagamentos_efetuados);
+		texto_efetuados += valor;
+		texto_efetuados += " Cobre: ";
+		texto_efetuados += z.format(peso_total_cobertura_efetuados) + " sacos";
+		
+		
+		//status
+		String texto_transferencias_negativas = "";
+		if(incluir_transferencias) {
+		//transferencias negativas
+		texto_transferencias_negativas = "Transferencias:(-) ";
+		valor = NumberFormat.getCurrencyInstance(ptBr).format(valor_total_transferencias_retiradas);
+		texto_transferencias_negativas += valor;
+		texto_transferencias_negativas += " Cobre: ";
+		texto_transferencias_negativas += z.format(peso_total_cobertura_transferencia_negativa) + " sacos";
+
+		}
+		//status
+		double diferenca = (valor_total_pagamentos_efetuados - valor_total_transferencias_retiradas
+				+ valor_total_transferencias_recebidas) - valor_total_pagamentos;
+		String status_pagamento = "[Pagamentos:] ";
+		if (diferenca == 0) {
+			status_pagamento += "[Pagamento Concluído]";
+		} else if (diferenca > 0) {
+			status_pagamento += "[Excedeu] [em] [" + NumberFormat.getCurrencyInstance(ptBr).format(diferenca) + "]";
+
+		} else if (diferenca < 0) {
+			status_pagamento += "[Incompleto], [falta] [" + NumberFormat.getCurrencyInstance(ptBr).format(diferenca) + "]";
+
 		}
 		
+		String texto_transferencias_positivas = "";
+		if(incluir_transferencias) {
+		//transferencias positivas
+	    texto_transferencias_positivas = "Transferencias:(+) ";
+		valor = NumberFormat.getCurrencyInstance(ptBr).format(valor_total_transferencias_recebidas);
+		texto_transferencias_positivas += valor;
+		texto_transferencias_positivas += " Cobre: ";
+		texto_transferencias_positivas += z.format(peso_total_cobertura_transferencia_positiva) + " sacos";
+
+		
+		}
+		String status_cobertura = "[Cobertura:] ";
+		double diferenca_pesos = peso_total_cobertura_restante;
+
+		if (diferenca_pesos == 0 || diferenca_pesos == -0) {
+			status_cobertura += "[Todos] [os] [sacos] [foram] [pagos]";
+		} else if (diferenca_pesos < 0) {
+			status_cobertura += "[Excedeu] [em] [" + z.format(diferenca_pesos) + "] [Sacos]";
+
+		} else if (diferenca_pesos > 0) {
+			status_cobertura += "[Incompleto], [falta] [pagar] [" + z.format(diferenca_pesos) + "] [Sacos]";
+
+		}
+
+		
+		//comissão
+		String texto_comissao = "";
+		if(incluir_comissao) {
+		 texto_comissao = "Comissão: ";
+		valor = NumberFormat.getCurrencyInstance(ptBr).format(valor_total_comissao);
+		texto_comissao += valor;
+		texto_comissao += " Cobre: ";
+		texto_comissao += z.format(peso_total_cobertura_comissao) + " sacos";
+
+	
+		}
+	
+		
+		//concluidos			
+
+		String texto_concluida = "Concluída:";
+
+		double valor_total_pagamentos_concluidos = valor_total_pagamentos_efetuados - valor_total_transferencias_retiradas + valor_total_transferencias_recebidas; 
+		valor = NumberFormat.getCurrencyInstance(ptBr).format(valor_total_pagamentos_concluidos);
+		texto_concluida += valor;
+		texto_concluida += " Cobre: ";
+		 peso_total_cobertura_concluida =  peso_total_cobertura_efetuados
+					- peso_total_cobertura_transferencia_negativa + peso_total_cobertura_transferencia_positiva;
+		texto_concluida += z.format(peso_total_cobertura_concluida) + " sacos";
+		
+		//restante
+		
+		String texto_restante = " Restante:";
+
+		valor_total_pagamentos_restantes = valor_total_pagamentos - valor_total_pagamentos_efetuados
+				+ valor_total_transferencias_retiradas - valor_total_transferencias_recebidas;
+		valor = NumberFormat.getCurrencyInstance(ptBr).format(valor_total_pagamentos_restantes);
+		texto_restante += valor;
+		texto_restante += " Cobre: ";
+		peso_total_cobertura_restante = peso_total_cobertura - peso_total_cobertura_efetuados
+		+ peso_total_cobertura_transferencia_negativa - peso_total_cobertura_transferencia_positiva;
+		texto_restante += z.format(peso_total_cobertura_restante) + " sacos";
+
+		
+		String texto_final = texto_total + "\n";
 		
 		if(incluir_transferencias) {
-			incluir_legenda_transferencias_negativas(transferencias_remetente);
-			incluir_legenda_transferencias_positivas(transferencias_destinatario);
-
+			texto_final = texto_final + texto_transferencias_negativas + "\n" + texto_transferencias_positivas + "\n";
 		}
-
+		if(incluir_comissao) {
+			texto_final = texto_final + texto_comissao + "\n";
+		}
+		
+		texto_final = texto_final + texto_concluida + "\n" + texto_restante;
+		texto_final = texto_final + "\n\n [Status] [do] [Pagamento]:\n";
+		texto_final = texto_final + status_pagamento + "\n" + status_cobertura;
+		
+		substituirTexto(texto_final);
+		
+		/*************fim adicionai*************************/
+		
+		
 	}
-	
-	
-	public void incluir_legenda_transferencias_negativas(ArrayList<CadastroContrato.CadastroTransferenciaPagamentoContratual> transferencias) {
-		
-		
-		
+
+	public void incluir_legenda_transferencias_negativas(
+			ArrayList<CadastroContrato.CadastroTransferenciaPagamentoContratual> transferencias) {
+
 		GerenciarBancoContratos gerenciar = new GerenciarBancoContratos();
-		for(CadastroContrato.CadastroTransferenciaPagamentoContratual transferencia : transferencias) {
+		for (CadastroContrato.CadastroTransferenciaPagamentoContratual transferencia : transferencias) {
 			CadastroContrato contrato = gerenciar.getContrato(transferencia.getId_contrato_destinatario());
 
 			String texto = "";
-			CadastroCliente compradores [] = contrato.getCompradores();
-		
+			CadastroCliente compradores[] = contrato.getCompradores();
+
 			String nome_comprador = "";
-			if(compradores[0].getTipo_pessoa() == 0)
+			if (compradores[0].getTipo_pessoa() == 0)
 				nome_comprador = compradores[0].getNome_empresarial().toUpperCase();
 			else
 				nome_comprador = compradores[0].getNome_fantaia().toUpperCase();
-			
-			CadastroCliente vendedores [] = contrato.getVendedores();
-			
+
+			CadastroCliente vendedores[] = contrato.getVendedores();
+
 			String nome_vendedor = "";
-			if(vendedores[0].getTipo_pessoa() == 0)
+			if (vendedores[0].getTipo_pessoa() == 0)
 				nome_vendedor = vendedores[0].getNome_empresarial().toUpperCase();
 			else
 				nome_vendedor = vendedores[0].getNome_fantaia().toUpperCase();
-			
-			texto = "(*) Valor transferido para o contrato " + contrato.getCodigo()
-			+ " entre " + nome_comprador + " x " + nome_vendedor
-			+ " " + contrato.getQuantidade() + " " + contrato.getMedida() + " de "
-			+ contrato.getModelo_produto().getNome_produto() + " da safra " + contrato.getModelo_safra().getAno_plantio() + "/" + contrato.getModelo_safra().getAno_colheita()
-			
+
+			texto = "(*) Valor transferido para o contrato " + contrato.getCodigo() + " entre " + nome_comprador + " x "
+					+ nome_vendedor + " " + contrato.getQuantidade() + " " + contrato.getMedida() + " de "
+					+ contrato.getModelo_produto().getNome_produto() + " da safra "
+					+ contrato.getModelo_safra().getAno_plantio() + "/" + contrato.getModelo_safra().getAno_colheita()
+
 			;
-			
+
 			substituirTexto(texto);
 		}
-		
+
 	}
-	
-public void incluir_legenda_transferencias_positivas(ArrayList<CadastroContrato.CadastroTransferenciaPagamentoContratual> transferencias) {
-		
-	
-		
+
+	public void incluir_legenda_transferencias_positivas(
+			ArrayList<CadastroContrato.CadastroTransferenciaPagamentoContratual> transferencias) {
+
 		GerenciarBancoContratos gerenciar = new GerenciarBancoContratos();
-		for(CadastroContrato.CadastroTransferenciaPagamentoContratual transferencia : transferencias) {
+		for (CadastroContrato.CadastroTransferenciaPagamentoContratual transferencia : transferencias) {
 			CadastroContrato contrato = gerenciar.getContrato(transferencia.getId_contrato_remetente());
 
 			String texto = "";
-			CadastroCliente compradores [] = contrato.getCompradores();
-		
+			CadastroCliente compradores[] = contrato.getCompradores();
+
 			String nome_comprador = "";
-			if(compradores[0].getTipo_pessoa() == 0)
+			if (compradores[0].getTipo_pessoa() == 0)
 				nome_comprador = compradores[0].getNome_empresarial().toUpperCase();
 			else
 				nome_comprador = compradores[0].getNome_fantaia().toUpperCase();
-			
-			CadastroCliente vendedores [] = contrato.getVendedores();
-			
+
+			CadastroCliente vendedores[] = contrato.getVendedores();
+
 			String nome_vendedor = "";
-			if(vendedores[0].getTipo_pessoa() == 0)
+			if (vendedores[0].getTipo_pessoa() == 0)
 				nome_vendedor = vendedores[0].getNome_empresarial().toUpperCase();
 			else
 				nome_vendedor = vendedores[0].getNome_fantaia().toUpperCase();
-			
-			texto = "(*) Valor recebido do contrato " + contrato.getCodigo()
-			+ " entre " + nome_comprador + " x " + nome_vendedor
-			+ " " + contrato.getQuantidade() + " " + contrato.getMedida() + " de "
-			+ contrato.getModelo_produto().getNome_produto() + " da safra " + contrato.getModelo_safra().getAno_plantio() + "/" + contrato.getModelo_safra().getAno_colheita()
-			
+
+			texto = "(*) Valor recebido do contrato " + contrato.getCodigo() + " entre " + nome_comprador + " x "
+					+ nome_vendedor + " " + contrato.getQuantidade() + " " + contrato.getMedida() + " de "
+					+ contrato.getModelo_produto().getNome_produto() + " da safra "
+					+ contrato.getModelo_safra().getAno_plantio() + "/" + contrato.getModelo_safra().getAno_colheita()
+
 			;
-			
+
 			substituirTexto(texto);
 		}
-		
+
 	}
 
 	public void criarTabelaCarregamentos(ArrayList<CadastroContrato.Carregamento> carregamentos) {
-		//XWPFParagraph par = document_global.createParagraph();
+		// XWPFParagraph par = document_global.createParagraph();
 
 		NumberFormat z = NumberFormat.getNumberInstance();
 
@@ -1638,25 +1851,31 @@ public void incluir_legenda_transferencias_positivas(ArrayList<CadastroContrato.
 
 		// criarParagrafo(1);
 		// linhas x colunas
-		
+
 		GerenciarBancoTransferenciasCarga gerenciar_trans = new GerenciarBancoTransferenciasCarga();
 		ArrayList<CadastroContrato.CadastroTransferenciaCarga> transferencias_remetentes = gerenciar_trans
 				.getTransferenciasRemetente(novo_contrato.getId());
 		ArrayList<CadastroContrato.CadastroTransferenciaCarga> transferencias_destinatarios = gerenciar_trans
 				.getTransferenciaDestinatario(novo_contrato.getId());
-		
-		int num_linhas_carregamentos = carregamentos.size() + transferencias_remetentes.size() + transferencias_destinatarios.size() + 1 + 1;
+
+		int num_linhas_carregamentos = carregamentos.size() + transferencias_remetentes.size()
+				+ transferencias_destinatarios.size() + 1 + 1;
 		double soma_total_carga_real = 0;
 		double soma_total_carga_nfa = 0;
 		double quantidade_kg = 0;
-		
-		if(novo_contrato.getMedida().equalsIgnoreCase("KG")) {
-			quantidade_kg =  novo_contrato.getQuantidade();;
-		}else if(novo_contrato.getMedida().equalsIgnoreCase("Sacos")) {
-			quantidade_kg =  novo_contrato.getQuantidade() * 60;
+
+		if (novo_contrato.getMedida().equalsIgnoreCase("KG")) {
+			quantidade_kg = novo_contrato.getQuantidade();
+			;
+		} else if (novo_contrato.getMedida().equalsIgnoreCase("Sacos")) {
+			quantidade_kg = novo_contrato.getQuantidade() * 60;
 
 		}
 		
+		GerenciarBancoContratos gerenciar_contratos = new GerenciarBancoContratos();
+
+		double quantidade_kgs_recebidos = gerenciar_contratos.getQuantidadeRecebida(novo_contrato.getId());
+		quantidade_kg = quantidade_kgs_recebidos;
 
 		XWPFTable table = document_global.createTable(num_linhas_carregamentos, 16);
 
@@ -1707,50 +1926,46 @@ public void incluir_legenda_transferencias_positivas(ArrayList<CadastroContrato.
 		tableRowOne.getCell(8).removeParagraph(0);
 		paragraph = tableRowOne.getCell(8).addParagraph();
 		criarParagrafoTabela(paragraph, "PESO ROM", true);
-		
-		
+
 		tableRowOne = table.getRow(0);
 		tableRowOne.getCell(9).removeParagraph(0);
 		paragraph = tableRowOne.getCell(9).addParagraph();
 		criarParagrafoTabela(paragraph, "NF 1", true);
-		
+
 		tableRowOne = table.getRow(0);
 		tableRowOne.getCell(10).removeParagraph(0);
 		paragraph = tableRowOne.getCell(10).addParagraph();
 		criarParagrafoTabela(paragraph, "PESO NF 1", true);
-		
+
 		tableRowOne = table.getRow(0);
 		tableRowOne.getCell(11).removeParagraph(0);
 		paragraph = tableRowOne.getCell(11).addParagraph();
 		criarParagrafoTabela(paragraph, "VALOR NF 1", true);
-		
+
 		tableRowOne = table.getRow(0);
 		tableRowOne.getCell(12).removeParagraph(0);
 		paragraph = tableRowOne.getCell(12).addParagraph();
 		criarParagrafoTabela(paragraph, "NF 2", true);
-		
+
 		tableRowOne = table.getRow(0);
 		tableRowOne.getCell(13).removeParagraph(0);
 		paragraph = tableRowOne.getCell(13).addParagraph();
 		criarParagrafoTabela(paragraph, "PESO NF 2", true);
-		
+
 		tableRowOne = table.getRow(0);
 		tableRowOne.getCell(14).removeParagraph(0);
 		paragraph = tableRowOne.getCell(14).addParagraph();
 		criarParagrafoTabela(paragraph, "VALOR NF 2", true);
-		
+
 		tableRowOne = table.getRow(0);
 		tableRowOne.getCell(15).removeParagraph(0);
 		paragraph = tableRowOne.getCell(15).addParagraph();
 		criarParagrafoTabela(paragraph, "DIFERENÇA", true);
-		
-		
-	
 
 		int i = 1;
-		
-		double peso_total_romaneios= 0.0 ;
-		double peso_total_nf_interna = 0.0 ;
+
+		double peso_total_romaneios = 0.0;
+		double peso_total_nf_interna = 0.0;
 
 		double peso_total_nf_venda1 = 0.0;
 		double peso_total_nf_complemento = 0.0;
@@ -1758,8 +1973,8 @@ public void incluir_legenda_transferencias_positivas(ArrayList<CadastroContrato.
 
 		BigDecimal valor_total_nf_venda1 = BigDecimal.ZERO;
 		BigDecimal valor_total_nf_complemento = BigDecimal.ZERO;
-		
-		//fazer checkagens
+
+		// fazer checkagens
 
 		boolean nf_interna_ativo = false;
 		boolean nf_venda_ativo = false;
@@ -1791,7 +2006,7 @@ public void incluir_legenda_transferencias_positivas(ArrayList<CadastroContrato.
 			}
 
 		}
-		
+
 		for (CadastroContrato.Carregamento carregamento : carregamentos) {
 
 			GerenciarBancoContratos gerenciar = new GerenciarBancoContratos();
@@ -1808,31 +2023,29 @@ public void incluir_legenda_transferencias_positivas(ArrayList<CadastroContrato.
 			} else {
 				nome_cliente = cliente_carregamento.getNome_fantaia();
 			}
-			
+
 			String nome_cliente_completo = nome_cliente;
 
-         	String nome_cliente_quebrado[] = nome_cliente.split(" ");
+			String nome_cliente_quebrado[] = nome_cliente.split(" ");
 			try {
-		
-			
-			if(nome_cliente_quebrado.length > 2) {
-			    if(nome_cliente_quebrado[2].length() > 1) {
-			    	nome_cliente = nome_cliente_quebrado[0] + " " + nome_cliente_quebrado[2];
-			    }else {
-			    	if(nome_cliente_quebrado[3].length() > 1) {
-			    		nome_cliente = nome_cliente_quebrado[0] + " "+ nome_cliente_quebrado[3];
 
-			    	}else {
-			    		nome_cliente = nome_cliente_quebrado[0] + " "+ nome_cliente_quebrado[1];
+				if (nome_cliente_quebrado.length > 2) {
+					if (nome_cliente_quebrado[2].length() > 1) {
+						nome_cliente = nome_cliente_quebrado[0] + " " + nome_cliente_quebrado[2];
+					} else {
+						if (nome_cliente_quebrado[3].length() > 1) {
+							nome_cliente = nome_cliente_quebrado[0] + " " + nome_cliente_quebrado[3];
 
-			    	}
-			    }
-			}
-			
-			}catch(Exception v) {
+						} else {
+							nome_cliente = nome_cliente_quebrado[0] + " " + nome_cliente_quebrado[1];
+
+						}
+					}
+				}
+
+			} catch (Exception v) {
 				nome_cliente = nome_cliente_completo;
 			}
-			
 
 			// pegar vendedor
 			CadastroCliente vendedor_carregamento = gerenciar_clientes.getCliente(carregamento.getId_vendedor());
@@ -1844,71 +2057,69 @@ public void incluir_legenda_transferencias_positivas(ArrayList<CadastroContrato.
 				nome_vendedor = vendedor_carregamento.getNome_fantaia();
 			}
 
-
 			String nome_vendedor_completo = nome_vendedor;
 
-         	String nome_vendedor_quebrado[] = nome_vendedor.split(" ");
+			String nome_vendedor_quebrado[] = nome_vendedor.split(" ");
 			try {
-		
-			
-			if(nome_vendedor_quebrado.length > 2) {
-			    if(nome_vendedor_quebrado[2].length() > 1) {
-			    	nome_vendedor = nome_vendedor_quebrado[0] + " " + nome_vendedor_quebrado[2];
-			    }else {
-			    	if(nome_vendedor_quebrado[3].length() > 1) {
-			    		nome_vendedor = nome_vendedor_quebrado[0] + " "+ nome_vendedor_quebrado[3];
 
-			    	}else {
-			    		nome_vendedor = nome_vendedor_quebrado[0] + " "+ nome_vendedor_quebrado[1];
+				if (nome_vendedor_quebrado.length > 2) {
+					if (nome_vendedor_quebrado[2].length() > 1) {
+						nome_vendedor = nome_vendedor_quebrado[0] + " " + nome_vendedor_quebrado[2];
+					} else {
+						if (nome_vendedor_quebrado[3].length() > 1) {
+							nome_vendedor = nome_vendedor_quebrado[0] + " " + nome_vendedor_quebrado[3];
 
-			    	}
-			    }
-			}
-			
-			}catch(Exception v) {
+						} else {
+							nome_vendedor = nome_vendedor_quebrado[0] + " " + nome_vendedor_quebrado[1];
+
+						}
+					}
+				}
+
+			} catch (Exception v) {
 				nome_vendedor = nome_vendedor_completo;
 			}
-			
+
 			String nome_transportador = "";
 			String placa_trator = "";
-			if(carregamento.getId_transportador() > 0 ) {
-			// pegar transportador e veiculo
-			CadastroCliente transportador_carregamento = gerenciar_clientes
-					.getCliente(carregamento.getId_transportador());
-			
-			 if(transportador_carregamento != null) {
-				 if(transportador_carregamento.getTipo_pessoa() == 0) {
-					 nome_transportador = transportador_carregamento.getNome_empresarial();
-				 }else {
-					 nome_transportador = transportador_carregamento.getNome_fantaia();
+			if (carregamento.getId_transportador() > 0) {
+				// pegar transportador e veiculo
+				CadastroCliente transportador_carregamento = gerenciar_clientes
+						.getCliente(carregamento.getId_transportador());
 
-				 }
-			 }
-			 CadastroCliente.Veiculo veiculo_carregamento = null ;
-			 if(carregamento.getId_veiculo() > 0) {
-			for (CadastroCliente.Veiculo veiculo : transportador_carregamento.getVeiculos()) {
-				if (veiculo.getId_veiculo() == carregamento.getId_veiculo()) {
-					 veiculo_carregamento = veiculo;
-					break;
+				if (transportador_carregamento != null) {
+					if (transportador_carregamento.getTipo_pessoa() == 0) {
+						nome_transportador = transportador_carregamento.getNome_empresarial();
+					} else {
+						nome_transportador = transportador_carregamento.getNome_fantaia();
+
+					}
 				}
-			}
-			
-			if(veiculo_carregamento != null) {
-				placa_trator = veiculo_carregamento.getPlaca_trator();
-			}
-			 }
+				CadastroCliente.Veiculo veiculo_carregamento = null;
+				if (carregamento.getId_veiculo() > 0) {
+					for (CadastroCliente.Veiculo veiculo : transportador_carregamento.getVeiculos()) {
+						if (veiculo.getId_veiculo() == carregamento.getId_veiculo()) {
+							veiculo_carregamento = veiculo;
+							break;
+						}
+					}
+
+					if (veiculo_carregamento != null) {
+						placa_trator = veiculo_carregamento.getPlaca_trator();
+					}
+				}
 
 			}
 			// pegar o produto
 			GerenciarBancoProdutos gerenciar_produtos = new GerenciarBancoProdutos();
 			CadastroProduto produto_carregamento = gerenciar_produtos.getProduto(carregamento.getId_produto());
 
-			//codigos
+			// codigos
 			String codigo_romaneio = "";
 			String codigo_nf_venda1 = "", codigo_nf_complemento = "";
 			String codigo_nf_interna = "";
-			//pesos
-			
+			// pesos
+
 			double peso_romaneio = 0.0;
 			double peso_nf_venda1 = 0.0;
 			double peso_nf_interna = 0.0;
@@ -1917,145 +2128,129 @@ public void incluir_legenda_transferencias_positivas(ArrayList<CadastroContrato.
 			double peso_nf_complemento = 0.0;
 			BigDecimal valor_nf_complemento = BigDecimal.ZERO;
 
-			
-			
-			
-			
 			try {
-			    if(checkString(carregamento.getCodigo_romaneio())){
-			    	//procurar por romaneio
-			    	if(checkString(carregamento.getCaminho_romaneio())){
-			    		ManipularRomaneios manipular = new ManipularRomaneios("");
+				if (checkString(carregamento.getCodigo_romaneio())) {
+					// procurar por romaneio
+					if (checkString(carregamento.getCaminho_romaneio())) {
+						ManipularRomaneios manipular = new ManipularRomaneios("");
 
-			        	CadastroRomaneio romaneio = manipular.filtrar(new File(servidor_unidade + carregamento.getCaminho_romaneio()));
-			        	codigo_romaneio = Integer.toString(romaneio.getNumero_romaneio());
-			        	peso_romaneio = romaneio.getPeso_liquido();
-			        	
-			    	}else {
-			    		codigo_romaneio = carregamento.getCodigo_romaneio();
-			    		peso_romaneio = carregamento.getPeso_romaneio();
-			    	}
-			    
-			    }
-				}catch(Exception e) {
-					//JOptionPane.showMessageDialog(isto, "Romaneio não Localizado");
-					codigo_romaneio = carregamento.getCodigo_romaneio();
-		    		peso_romaneio = carregamento.getPeso_romaneio();
-				}
-				
-			//nf venda interna
-			try {
-		        if(checkString(carregamento.getCodigo_nf_interna())){
-		        	if(carregamento.getCaminho_nf_interna().length() > 10) {
-		        		//procurar por nf venda
-			        	ManipularNotasFiscais manipular = new ManipularNotasFiscais("");
-			        	CadastroNFe nota_fiscal_interna = manipular.filtrar(new File(servidor_unidade + carregamento.getCodigo_nf_venda1()));
-                        codigo_nf_interna = nota_fiscal_interna.getNfe();
-                        peso_nf_interna = Double.parseDouble(nota_fiscal_interna.getQuantidade());
-                       
-			        	
-		        	}else {
-		        		 codigo_nf_interna = carregamento.getCodigo_nf_interna();
-                            peso_nf_interna = carregamento.getPeso_nf_interna();
-				        	
+						CadastroRomaneio romaneio = manipular
+								.filtrar(new File(servidor_unidade + carregamento.getCaminho_romaneio()));
+						codigo_romaneio = Integer.toString(romaneio.getNumero_romaneio());
+						peso_romaneio = romaneio.getPeso_liquido();
 
-		        	}
-		        
-		        	
-		        }
-				}catch(Exception e) {
-					//JOptionPane.showMessageDialog(isto, "Nota Fiscal de venda não Localizado");
-					 codigo_nf_venda1 = carregamento.getCodigo_nf_venda1();
-                     peso_nf_venda1 = carregamento.getPeso_nf_venda1();
-                     valor_nf_venda1 = carregamento.getValor_nf_venda1();
+					} else {
+						codigo_romaneio = carregamento.getCodigo_romaneio();
+						peso_romaneio = carregamento.getPeso_romaneio();
+					}
 
 				}
-			
-			
-				
-				
-				//nf venda 1
-				try {
-			        if(checkString(carregamento.getCodigo_nf_venda1())){
-			        	if(carregamento.getCaminho_nf_venda1().length() > 10) {
-			        		//procurar por nf venda
-				        	ManipularNotasFiscais manipular = new ManipularNotasFiscais("");
-				        	CadastroNFe nota_fiscal_venda = manipular.filtrar(new File(servidor_unidade + carregamento.getCodigo_nf_venda1()));
-                            codigo_nf_venda1 = nota_fiscal_venda.getNfe();
-                            peso_nf_venda1 = Double.parseDouble(nota_fiscal_venda.getQuantidade());
-                            try {
-                            valor_nf_venda1 = new BigDecimal(nota_fiscal_venda.getValor());
-                            }catch(Exception e) {
-                            	valor_nf_venda1 = BigDecimal.ZERO;
-                            }
-				        	
-			        	}else {
-			        		 codigo_nf_venda1 = carregamento.getCodigo_nf_venda1();
-	                            peso_nf_venda1 = carregamento.getPeso_nf_venda1();
-	                            valor_nf_venda1 = carregamento.getValor_nf_venda1();
-					        	
+			} catch (Exception e) {
+				// JOptionPane.showMessageDialog(isto, "Romaneio não Localizado");
+				codigo_romaneio = carregamento.getCodigo_romaneio();
+				peso_romaneio = carregamento.getPeso_romaneio();
+			}
 
-			        	}
-			        
-			        	
-			        }
-					}catch(Exception e) {
-						//JOptionPane.showMessageDialog(isto, "Nota Fiscal de venda não Localizado");
-						 codigo_nf_venda1 = carregamento.getCodigo_nf_venda1();
-                         peso_nf_venda1 = carregamento.getPeso_nf_venda1();
-                         valor_nf_venda1 = carregamento.getValor_nf_venda1();
+			// nf venda interna
+			try {
+				if (checkString(carregamento.getCodigo_nf_interna())) {
+					if (carregamento.getCaminho_nf_interna().length() > 10) {
+						// procurar por nf venda
+						ManipularNotasFiscais manipular = new ManipularNotasFiscais("");
+						CadastroNFe nota_fiscal_interna = manipular
+								.filtrar(new File(servidor_unidade + carregamento.getCodigo_nf_venda1()));
+						codigo_nf_interna = nota_fiscal_interna.getNfe();
+						peso_nf_interna = Double.parseDouble(nota_fiscal_interna.getQuantidade());
+
+					} else {
+						codigo_nf_interna = carregamento.getCodigo_nf_interna();
+						peso_nf_interna = carregamento.getPeso_nf_interna();
 
 					}
-				
-				
-				
-				
-						//nf complemento
+
+				}
+			} catch (Exception e) {
+				// JOptionPane.showMessageDialog(isto, "Nota Fiscal de venda não Localizado");
+				codigo_nf_venda1 = carregamento.getCodigo_nf_venda1();
+				peso_nf_venda1 = carregamento.getPeso_nf_venda1();
+				valor_nf_venda1 = carregamento.getValor_nf_venda1();
+
+			}
+
+			// nf venda 1
+			try {
+				if (checkString(carregamento.getCodigo_nf_venda1())) {
+					if (carregamento.getCaminho_nf_venda1().length() > 10) {
+						// procurar por nf venda
+						ManipularNotasFiscais manipular = new ManipularNotasFiscais("");
+						CadastroNFe nota_fiscal_venda = manipular
+								.filtrar(new File(servidor_unidade + carregamento.getCodigo_nf_venda1()));
+						codigo_nf_venda1 = nota_fiscal_venda.getNfe();
+						peso_nf_venda1 = Double.parseDouble(nota_fiscal_venda.getQuantidade());
 						try {
-					        if(checkString(carregamento.getCodigo_nf_complemento())){
-					        	if(carregamento.getCaminho_nf_complemento().length() > 10) {
-					        		//procurar por nf remessa
-						        	ManipularNotasFiscais manipular = new ManipularNotasFiscais("");
-						        	CadastroNFe nota_fiscal_complemento = manipular.filtrar(new File(servidor_unidade + carregamento.getCaminho_nf_complemento()));
-						        	 codigo_nf_complemento = nota_fiscal_complemento.getNfe();
-			                            peso_nf_complemento= Double.parseDouble(nota_fiscal_complemento.getQuantidade());
-			                            try {
-			                                valor_nf_complemento = new BigDecimal(nota_fiscal_complemento.getValor());
-			                                }catch(Exception e) {
-			                                	valor_nf_complemento = BigDecimal.ZERO;
-			                                }
-			                            
-					        	}else {
-					        		codigo_nf_complemento = carregamento.getCodigo_nf_complemento();
-		                            peso_nf_complemento= carregamento.getPeso_nf_complemento();
-		                            valor_nf_complemento = carregamento.getValor_nf_complemento();
+							valor_nf_venda1 = new BigDecimal(nota_fiscal_venda.getValor());
+						} catch (Exception e) {
+							valor_nf_venda1 = BigDecimal.ZERO;
+						}
 
-					        	}
-					        
-					        
-					        	
-					        }
-							}catch(Exception e) {
-								//JOptionPane.showMessageDialog(isto, "Nota Fiscal de remessa não Localizado");
+					} else {
+						codigo_nf_venda1 = carregamento.getCodigo_nf_venda1();
+						peso_nf_venda1 = carregamento.getPeso_nf_venda1();
+						valor_nf_venda1 = carregamento.getValor_nf_venda1();
 
-								codigo_nf_complemento = carregamento.getCodigo_nf_complemento();
-	                            peso_nf_complemento= carregamento.getPeso_nf_complemento();
-	                            valor_nf_complemento = carregamento.getValor_nf_complemento();
+					}
 
-							}
-				
-				
+				}
+			} catch (Exception e) {
+				// JOptionPane.showMessageDialog(isto, "Nota Fiscal de venda não Localizado");
+				codigo_nf_venda1 = carregamento.getCodigo_nf_venda1();
+				peso_nf_venda1 = carregamento.getPeso_nf_venda1();
+				valor_nf_venda1 = carregamento.getValor_nf_venda1();
 
+			}
 
-            String cor = "000000";
-            
-            if((peso_nf_venda1 + peso_nf_complemento) >= peso_romaneio) {
-            	//ok
-            	cor = "FFFFFF";
-            }else if((peso_nf_venda1 + peso_nf_complemento) < peso_romaneio) {
-            	cor = "FFFF00";
-            }
-		
+			// nf complemento
+			try {
+				if (checkString(carregamento.getCodigo_nf_complemento())) {
+					if (carregamento.getCaminho_nf_complemento().length() > 10) {
+						// procurar por nf remessa
+						ManipularNotasFiscais manipular = new ManipularNotasFiscais("");
+						CadastroNFe nota_fiscal_complemento = manipular
+								.filtrar(new File(servidor_unidade + carregamento.getCaminho_nf_complemento()));
+						codigo_nf_complemento = nota_fiscal_complemento.getNfe();
+						peso_nf_complemento = Double.parseDouble(nota_fiscal_complemento.getQuantidade());
+						try {
+							valor_nf_complemento = new BigDecimal(nota_fiscal_complemento.getValor());
+						} catch (Exception e) {
+							valor_nf_complemento = BigDecimal.ZERO;
+						}
+
+					} else {
+						codigo_nf_complemento = carregamento.getCodigo_nf_complemento();
+						peso_nf_complemento = carregamento.getPeso_nf_complemento();
+						valor_nf_complemento = carregamento.getValor_nf_complemento();
+
+					}
+
+				}
+			} catch (Exception e) {
+				// JOptionPane.showMessageDialog(isto, "Nota Fiscal de remessa não Localizado");
+
+				codigo_nf_complemento = carregamento.getCodigo_nf_complemento();
+				peso_nf_complemento = carregamento.getPeso_nf_complemento();
+				valor_nf_complemento = carregamento.getValor_nf_complemento();
+
+			}
+
+			String cor = "000000";
+
+			if ((peso_nf_venda1 + peso_nf_complemento) >= peso_romaneio) {
+				// ok
+				cor = "FFFFFF";
+			} else if ((peso_nf_venda1 + peso_nf_complemento) < peso_romaneio) {
+				cor = "FFFF00";
+			}
+
 			tableRowOne = table.getRow(i);
 			tableRowOne.getCell(0).removeParagraph(0);
 			paragraph = tableRowOne.getCell(0).addParagraph();
@@ -2070,18 +2265,16 @@ public void incluir_legenda_transferencias_positivas(ArrayList<CadastroContrato.
 			tableRowOne.getCell(2).removeParagraph(0);
 			paragraph = tableRowOne.getCell(2).addParagraph();
 			criarParagrafoTabela(paragraph, nome_cliente, false);
-			
+
 			tableRowOne = table.getRow(i);
 			tableRowOne.getCell(3).removeParagraph(0);
 			paragraph = tableRowOne.getCell(3).addParagraph();
 			criarParagrafoTabela(paragraph, nome_vendedor, false);
 
-
 			tableRowOne = table.getRow(i);
 			tableRowOne.getCell(4).removeParagraph(0);
 			paragraph = tableRowOne.getCell(4).addParagraph();
-			criarParagrafoTabela(paragraph,
-					nome_transportador, false);
+			criarParagrafoTabela(paragraph, nome_transportador, false);
 
 			tableRowOne = table.getRow(i);
 			tableRowOne.getCell(5).removeParagraph(0);
@@ -2097,8 +2290,7 @@ public void incluir_legenda_transferencias_positivas(ArrayList<CadastroContrato.
 			tableRowOne.getCell(7).removeParagraph(0);
 			paragraph = tableRowOne.getCell(7).addParagraph();
 			criarParagrafoTabela(paragraph, carregamento.getCodigo_romaneio(), false);
-			
-			
+
 			tableRowOne = table.getRow(i);
 			tableRowOne.getCell(8).removeParagraph(0);
 			paragraph = tableRowOne.getCell(8).addParagraph();
@@ -2108,102 +2300,96 @@ public void incluir_legenda_transferencias_positivas(ArrayList<CadastroContrato.
 			tableRowOne = table.getRow(i);
 			tableRowOne.getCell(9).removeParagraph(0);
 			paragraph = tableRowOne.getCell(9).addParagraph();
-			if(carregamento.getNf_venda1_aplicavel() == 1)
-			criarParagrafoTabela(paragraph, codigo_nf_venda1, false);
+			if (carregamento.getNf_venda1_aplicavel() == 1)
+				criarParagrafoTabela(paragraph, codigo_nf_venda1, false);
 			else
 				criarParagrafoTabela(paragraph, "Não Aplicável", false);
 
-				
 			tableRowOne = table.getRow(i);
 			tableRowOne.getCell(10).removeParagraph(0);
 			paragraph = tableRowOne.getCell(10).addParagraph();
-			if(carregamento.getNf_venda1_aplicavel() == 1) {
-			criarParagrafoTabela(paragraph, z.format(peso_nf_venda1) + " Kgs", false);
-			tableRowOne.getCell(10).getCTTc().addNewTcPr().addNewShd().setFill(cor);
-			}else {
+			if (carregamento.getNf_venda1_aplicavel() == 1) {
+				criarParagrafoTabela(paragraph, z.format(peso_nf_venda1) + " Kgs", false);
+				tableRowOne.getCell(10).getCTTc().addNewTcPr().addNewShd().setFill(cor);
+			} else {
 				criarParagrafoTabela(paragraph, "Não Aplicável", false);
 			}
 
 			tableRowOne = table.getRow(i);
 			tableRowOne.getCell(11).removeParagraph(0);
 			paragraph = tableRowOne.getCell(11).addParagraph();
-			if(carregamento.getNf_venda1_aplicavel() == 1) {
-			criarParagrafoTabela(paragraph, NumberFormat.getCurrencyInstance(ptBr)
-					.format(valor_nf_venda1), false);
-			}else {
-				criarParagrafoTabela(paragraph, "Não Aplicável", false);	
+			if (carregamento.getNf_venda1_aplicavel() == 1) {
+				criarParagrafoTabela(paragraph, NumberFormat.getCurrencyInstance(ptBr).format(valor_nf_venda1), false);
+			} else {
+				criarParagrafoTabela(paragraph, "Não Aplicável", false);
 			}
-			
+
 			tableRowOne = table.getRow(i);
 			tableRowOne.getCell(12).removeParagraph(0);
 			paragraph = tableRowOne.getCell(12).addParagraph();
-			if(carregamento.getNf_complemento_aplicavel() ==  1)
-			criarParagrafoTabela(paragraph, codigo_nf_complemento, false);
+			if (carregamento.getNf_complemento_aplicavel() == 1)
+				criarParagrafoTabela(paragraph, codigo_nf_complemento, false);
 			else
 				criarParagrafoTabela(paragraph, "Não Aplicável", false);
 
 			tableRowOne = table.getRow(i);
 			tableRowOne.getCell(13).removeParagraph(0);
 			paragraph = tableRowOne.getCell(13).addParagraph();
-			if(carregamento.getNf_complemento_aplicavel() == 1) {
-			criarParagrafoTabela(paragraph, z.format(peso_nf_complemento) + " Kgs", false);
-			tableRowOne.getCell(13).getCTTc().addNewTcPr().addNewShd().setFill(cor);
-			}else {
+			if (carregamento.getNf_complemento_aplicavel() == 1) {
+				criarParagrafoTabela(paragraph, z.format(peso_nf_complemento) + " Kgs", false);
+				tableRowOne.getCell(13).getCTTc().addNewTcPr().addNewShd().setFill(cor);
+			} else {
 				criarParagrafoTabela(paragraph, "Não Aplicável", false);
 
 			}
 			tableRowOne = table.getRow(i);
 			tableRowOne.getCell(14).removeParagraph(0);
 			paragraph = tableRowOne.getCell(14).addParagraph();
-			if(carregamento.getNf_complemento_aplicavel() == 1)
-			criarParagrafoTabela(paragraph, NumberFormat.getCurrencyInstance(ptBr)
-					.format(valor_nf_complemento), false);
+			if (carregamento.getNf_complemento_aplicavel() == 1)
+				criarParagrafoTabela(paragraph, NumberFormat.getCurrencyInstance(ptBr).format(valor_nf_complemento),
+						false);
 			else {
-				criarParagrafoTabela(paragraph,"Não Aplicável", false);
+				criarParagrafoTabela(paragraph, "Não Aplicável", false);
 			}
-			
 
 			tableRowOne = table.getRow(i);
 			tableRowOne.getCell(15).removeParagraph(0);
 			paragraph = tableRowOne.getCell(15).addParagraph();
-			if(carregamento.getNf_venda1_aplicavel() == 1 && carregamento.getNf_complemento_aplicavel() == 1) {
-			criarParagrafoTabela(paragraph,z.format(peso_romaneio - (peso_nf_complemento + peso_nf_venda1)  ) + " Kgs", false);
-			tableRowOne.getCell(15).getCTTc().addNewTcPr().addNewShd().setFill(cor);
-			}else {
-				criarParagrafoTabela(paragraph,"Não Aplicável", false);
+			if (carregamento.getNf_venda1_aplicavel() == 1 && carregamento.getNf_complemento_aplicavel() == 1) {
+				criarParagrafoTabela(paragraph,
+						z.format(peso_romaneio - (peso_nf_complemento + peso_nf_venda1)) + " Kgs", false);
+				tableRowOne.getCell(15).getCTTc().addNewTcPr().addNewShd().setFill(cor);
+			} else {
+				criarParagrafoTabela(paragraph, "Não Aplicável", false);
 
 			}
 
-			
 			peso_total_romaneios += peso_romaneio;
 			peso_total_nf_interna += peso_nf_interna;
 			peso_total_nf_venda1 += peso_nf_venda1;
 			peso_total_nf_complemento += peso_nf_complemento;
 			peso_total_diferenca += (peso_romaneio - (peso_nf_complemento + peso_nf_venda1));
-			
+
 			valor_total_nf_venda1 = valor_total_nf_venda1.add(valor_nf_venda1);
 			valor_total_nf_complemento = valor_total_nf_complemento.add(valor_nf_complemento);
-			
+
 			i++;
 		}
-		//transferencias negativas
-		/***************************transferencias negativas*****************///////////
-		
+		// transferencias negativas
+		/*************************** transferencias negativas *****************///////////
+
 		for (CadastroContrato.CadastroTransferenciaCarga transferencia : transferencias_remetentes) {
 
-		
 			/*
 			 * codigo compradores vendedores status quantidade medida produto transgenia
 			 * safra valor_produto valor_total data_contrato local_retirada
 			 */
-		
 
 			String texto_detalhado = "";
 
 			GerenciarBancoContratos gerencia_contratos = new GerenciarBancoContratos();
 			CadastroContrato remetente = gerencia_contratos.getContrato(transferencia.getId_contrato_remetente());
-			CadastroContrato destinatario = gerencia_contratos
-					.getContrato(transferencia.getId_contrato_destinatario());
+			CadastroContrato destinatario = gerencia_contratos.getContrato(transferencia.getId_contrato_destinatario());
 			CadastroContrato.Carregamento carga = gerencia_contratos
 					.getCarregamento(transferencia.getId_carregamento_remetente());
 
@@ -2249,18 +2435,16 @@ public void incluir_legenda_transferencias_positivas(ArrayList<CadastroContrato.
 
 			double quantidade = Double.parseDouble(transferencia.getQuantidade());
 
-
-			texto_detalhado = "Transferência Negativa: Transferência do volume de " + z.format(quantidade)
-					+ " kgs | " + z.format(quantidade / 60) + " sacos deste contrato para o contrato ";
+			texto_detalhado = "Transferência Negativa: Transferência do volume de " + z.format(quantidade) + " kgs | "
+					+ z.format(quantidade / 60) + " sacos deste contrato para o contrato ";
 			texto_detalhado = texto_detalhado + destinatario.getCodigo() + "\n" + nome_compradores + " X "
-					+ nome_vendedores + " " + z.format(destinatario.getQuantidade()) + " "
-					+ destinatario.getMedida() + " de "
-					+ destinatario.getModelo_safra().getProduto().getNome_produto() + " "
+					+ nome_vendedores + " " + z.format(destinatario.getQuantidade()) + " " + destinatario.getMedida()
+					+ " de " + destinatario.getModelo_safra().getProduto().getNome_produto() + " "
 					+ destinatario.getModelo_safra().getProduto().getTransgenia() + " da safra "
 					+ destinatario.getModelo_safra().getAno_plantio() + "/"
 					+ destinatario.getModelo_safra().getAno_colheita();
 			texto_detalhado = texto_detalhado + "";
-			
+
 			tableRowOne = table.getRow(i);
 			tableRowOne.getCell(0).removeParagraph(0);
 			paragraph = tableRowOne.getCell(0).addParagraph();
@@ -2274,44 +2458,42 @@ public void incluir_legenda_transferencias_positivas(ArrayList<CadastroContrato.
 			CTHMerge hMerge = CTHMerge.Factory.newInstance();
 			hMerge.setVal(STMerge.RESTART);
 			if (table.getRow(i).getCell(1).getCTTc().getTcPr() == null) {
-				 table.getRow(i).getCell(1).getCTTc().addNewTcPr();
-				 table.getRow(i).getCell(1).getCTTc().getTcPr().setHMerge(hMerge);
+				table.getRow(i).getCell(1).getCTTc().addNewTcPr();
+				table.getRow(i).getCell(1).getCTTc().getTcPr().setHMerge(hMerge);
 
-			}else
-			 table.getRow(i).getCell(1).getCTTc().getTcPr().setHMerge(hMerge);
-			
-			for(int celula = 2; celula <= 15; celula++) {
+			} else
+				table.getRow(i).getCell(1).getCTTc().getTcPr().setHMerge(hMerge);
+
+			for (int celula = 2; celula <= 15; celula++) {
 				tableRowOne = table.getRow(i);
 				tableRowOne.getCell(celula).removeParagraph(0);
 				paragraph = tableRowOne.getCell(celula).addParagraph();
-				
-				criarParagrafoTabela(paragraph,"", true);
+
+				criarParagrafoTabela(paragraph, "", true);
 				tableRowOne.getCell(celula).getCTTc().addNewTcPr().addNewShd().setFill("FFFFFF");
-				
+
 				CTHMerge hMerge1 = CTHMerge.Factory.newInstance();
 				hMerge1.setVal(STMerge.CONTINUE);
 				table.getRow(i).getCell(celula).getCTTc().getTcPr().setHMerge(hMerge1);
-				
+
 			}
-			
-			peso_total_romaneios -= quantidade;			
-			
+
+			peso_total_romaneios -= quantidade;
+
 			i++;
 
 		}
-		/***************************transferencias negativas*****************///////////
+		/*************************** transferencias negativas *****************///////////
 
-		//transfereicas positivas
-		/***************************transferencias positivas*****************///////////
+		// transfereicas positivas
+		/*************************** transferencias positivas *****************///////////
 		for (CadastroContrato.CadastroTransferenciaCarga transferencia : transferencias_destinatarios) {
-		
 
 			String texto_detalhado = "";
 
 			GerenciarBancoContratos gerencia_contratos = new GerenciarBancoContratos();
 			CadastroContrato remetente = gerencia_contratos.getContrato(transferencia.getId_contrato_remetente());
-			CadastroContrato destinatario = gerencia_contratos
-					.getContrato(transferencia.getId_contrato_destinatario());
+			CadastroContrato destinatario = gerencia_contratos.getContrato(transferencia.getId_contrato_destinatario());
 			CadastroContrato.Carregamento carga = gerencia_contratos
 					.getCarregamento(transferencia.getId_carregamento_remetente());
 
@@ -2357,20 +2539,16 @@ public void incluir_legenda_transferencias_positivas(ArrayList<CadastroContrato.
 
 			double quantidade = Double.parseDouble(transferencia.getQuantidade());
 
-
-			
 			texto_detalhado = "Transferência Positiva: Recebimento de volume de " + z.format(quantidade) + " kgs | "
 					+ z.format(quantidade / 60) + " sacos recebidos do contrato ";
 			texto_detalhado = texto_detalhado + destinatario.getCodigo() + " " + nome_compradores + " X "
-					+ nome_vendedores + " " + z.format(destinatario.getQuantidade()) + " "
-					+ destinatario.getMedida() + " de "
-					+ destinatario.getModelo_safra().getProduto().getNome_produto() + " "
+					+ nome_vendedores + " " + z.format(destinatario.getQuantidade()) + " " + destinatario.getMedida()
+					+ " de " + destinatario.getModelo_safra().getProduto().getNome_produto() + " "
 					+ destinatario.getModelo_safra().getProduto().getTransgenia() + " da safra "
 					+ destinatario.getModelo_safra().getAno_plantio() + "/"
 					+ destinatario.getModelo_safra().getAno_colheita();
 			texto_detalhado = texto_detalhado + "";
-			
-			
+
 			tableRowOne = table.getRow(i);
 			tableRowOne.getCell(0).removeParagraph(0);
 			paragraph = tableRowOne.getCell(0).addParagraph();
@@ -2384,389 +2562,209 @@ public void incluir_legenda_transferencias_positivas(ArrayList<CadastroContrato.
 			CTHMerge hMerge = CTHMerge.Factory.newInstance();
 			hMerge.setVal(STMerge.RESTART);
 			if (table.getRow(i).getCell(1).getCTTc().getTcPr() == null) {
-				 table.getRow(i).getCell(1).getCTTc().addNewTcPr();
-				 table.getRow(i).getCell(1).getCTTc().getTcPr().setHMerge(hMerge);
+				table.getRow(i).getCell(1).getCTTc().addNewTcPr();
+				table.getRow(i).getCell(1).getCTTc().getTcPr().setHMerge(hMerge);
 
-			}else
-			 table.getRow(i).getCell(1).getCTTc().getTcPr().setHMerge(hMerge);
-			
-			for(int celula = 2; celula <= 15; celula++) {
+			} else
+				table.getRow(i).getCell(1).getCTTc().getTcPr().setHMerge(hMerge);
+
+			for (int celula = 2; celula <= 15; celula++) {
 				tableRowOne = table.getRow(i);
 				tableRowOne.getCell(celula).removeParagraph(0);
 				paragraph = tableRowOne.getCell(celula).addParagraph();
-				
-				criarParagrafoTabela(paragraph,"", true);
+
+				criarParagrafoTabela(paragraph, "", true);
 				tableRowOne.getCell(celula).getCTTc().addNewTcPr().addNewShd().setFill("FFFFFF");
-				
+
 				CTHMerge hMerge1 = CTHMerge.Factory.newInstance();
 				hMerge1.setVal(STMerge.CONTINUE);
 				table.getRow(i).getCell(celula).getCTTc().getTcPr().setHMerge(hMerge1);
-				
+
 			}
-			
-			
-			peso_total_romaneios += quantidade;			
-			
+
+			peso_total_romaneios += quantidade;
+
 			i++;
 
 		}
-		
-		/***************************transferencias positivas*****************///////////
 
-		//informacoes de total na tabela
-		//somatoria dos romaneios
-		
-		//peso total romaneios
+		/*************************** transferencias positivas *****************///////////
+
+		// informacoes de total na tabela
+		// somatoria dos romaneios
+
+		// peso total romaneios
 		tableRowOne = table.getRow(i);
 		tableRowOne.getCell(8).removeParagraph(0);
 		paragraph = tableRowOne.getCell(8).addParagraph();
 		criarParagrafoTabela(paragraph, z.format(peso_total_romaneios) + " Kgs", true);
-		
-		//peso total nf venda 1
+
+		// peso total nf venda 1
 		tableRowOne = table.getRow(i);
 		tableRowOne.getCell(10).removeParagraph(0);
 		paragraph = tableRowOne.getCell(10).addParagraph();
 		criarParagrafoTabela(paragraph, z.format(peso_total_nf_venda1) + " Kgs", true);
-		
-		//valor total nf venda 1
+
+		// valor total nf venda 1
 		tableRowOne = table.getRow(i);
 		tableRowOne.getCell(11).removeParagraph(0);
 		paragraph = tableRowOne.getCell(11).addParagraph();
-		criarParagrafoTabela(paragraph,NumberFormat.getCurrencyInstance(ptBr)
-				.format(valor_total_nf_venda1) , true);
-			
-				//peso total nf complemento
-				tableRowOne = table.getRow(i);
-				tableRowOne.getCell(13).removeParagraph(0);
-				paragraph = tableRowOne.getCell(13).addParagraph();
-				criarParagrafoTabela(paragraph, z.format(peso_total_nf_complemento) + " Kgs", true);
-				
-				tableRowOne = table.getRow(i);
-				tableRowOne.getCell(14).removeParagraph(0);
-				paragraph = tableRowOne.getCell(14).addParagraph();
-				criarParagrafoTabela(paragraph,NumberFormat.getCurrencyInstance(ptBr)
-						.format(valor_total_nf_complemento) , true);
-				
-				//diferenca
+		criarParagrafoTabela(paragraph, NumberFormat.getCurrencyInstance(ptBr).format(valor_total_nf_venda1), true);
 
-				tableRowOne = table.getRow(i);
-				tableRowOne.getCell(15).removeParagraph(0);
-				paragraph = tableRowOne.getCell(15).addParagraph();
-				criarParagrafoTabela(paragraph, z.format(peso_total_diferenca) + " Kgs", true);
-				
-		
-          //informacoes de total
-			    String texto = "";
+		// peso total nf complemento
+		tableRowOne = table.getRow(i);
+		tableRowOne.getCell(13).removeParagraph(0);
+		paragraph = tableRowOne.getCell(13).addParagraph();
+		criarParagrafoTabela(paragraph, z.format(peso_total_nf_complemento) + " Kgs", true);
+
+		tableRowOne = table.getRow(i);
+		tableRowOne.getCell(14).removeParagraph(0);
+		paragraph = tableRowOne.getCell(14).addParagraph();
+		criarParagrafoTabela(paragraph, NumberFormat.getCurrencyInstance(ptBr).format(valor_total_nf_complemento),
+				true);
+
+		// diferenca
+
+		tableRowOne = table.getRow(i);
+		tableRowOne.getCell(15).removeParagraph(0);
+		paragraph = tableRowOne.getCell(15).addParagraph();
+		criarParagrafoTabela(paragraph, z.format(peso_total_diferenca) + " Kgs", true);
+
+		// informacoes de total
+		String texto = "";
 
 		/////////////////////////////////////////////////////////////////
-				if (peso_total_romaneios < quantidade_kg) {
-					// totais
-					texto = texto + "\nPeso Carregado: [";
-					texto = texto + z.format(peso_total_romaneios) + " Kgs]";
-
-					texto = texto + " Peso NF's Interna: [";
-					if (nf_interna_ativo) {
-
-						texto = texto + z.format(peso_total_nf_interna) + " Kgs]";
-					} else {
-						texto = texto + " Não Aplicável";
-
-					}
-
-					texto = texto + " Peso NF's Venda: [";
-
-				
-					if (nf_venda_ativo || nf_complemento_ativo) {
-						texto = texto + (z.format(peso_total_nf_venda1 + peso_total_nf_complemento)
-								+ " Kgs]");
-
-					} else {
-						texto = texto + " Não Aplicável";
-
-					}
-					texto = texto + " Valor NF's Venda: [";
-
-
-					BigDecimal soma = valor_total_nf_venda1.add(valor_total_nf_complemento);
-
-					if (nf_venda_ativo || nf_complemento_ativo) {
-						texto = texto + NumberFormat.getCurrencyInstance(ptBr).format(soma.doubleValue()) + "]";
-
-					} else {
-						texto = texto + " Não Aplicável";
-
-					}
-					texto = texto + "\n";
-
-							
-					texto = texto + "Peso a Carregar: [";
-
-					texto = texto + z.format(quantidade_kg - peso_total_romaneios) + " Kgs]";
-
-					texto = texto + " Peso NF' Interna a Emitir: [";
-
-				
-					if (nf_interna_ativo) {
-						texto = texto + z.format(peso_total_romaneios - peso_total_nf_interna) + " Kgs]";
-					} else {
-						texto = texto + " Não Aplicável";
-
-					}
-
-					texto = texto + " Peso NF's Venda a Emitir: [";
-
-
-				
-					if (nf_venda_ativo || nf_complemento_ativo) {
-						texto = texto + z
-								.format(peso_total_romaneios
-										- (peso_total_nf_venda1 + peso_total_nf_complemento))
-								+ " Kgs]";
-
-					} else {
-						texto = texto + " Não Aplicável";
-
-					}
-					texto = texto + "\n";
-
-					texto = texto + "*Pesos restantes calculados a partir do peso total já carregado";
-
-					// status baseado no peso total ja carregado
-
-					texto = texto + "\n\n";
-
-					
-					texto = texto +	"Status parcial gerado de forma automatica calculados a partir do peso total já carregado";
-
-					texto = texto + "\n";
-
-					
-					double diferenca = quantidade_kg - peso_total_romaneios;
-					if (diferenca == 0) {
-						texto = texto + "Carregamento Concluído";
-					} else if (diferenca > 0) {
-						texto = texto + "Carregamento Incompleto, [falta carregar " + z.format(diferenca) + " Kgs]";
-
-					} else if (diferenca < 0) {
-						texto = texto + "Carregamento Excedido, [excedeu " + z.format(diferenca) + " Kgs]";
-
-					}
-
-					texto = texto + "\n";
-
-					String texto_nf_remessa = "";
-					double diferenca_nf_remessa = peso_total_romaneios - peso_total_nf_interna;
-					if (diferenca_nf_remessa == 0) {
-						texto_nf_remessa = texto_nf_remessa + "[Emissão de NF's Interna Concluído]";
-					} else if (diferenca_nf_remessa > 0) {
-						texto_nf_remessa = texto_nf_remessa + "Emissão de NF's Interna Incompleto, [falta emitir "
-								+ z.format(diferenca_nf_remessa) + " Kgs]";
-
-					} else if (diferenca_nf_remessa < 0) {
-						texto_nf_remessa = texto_nf_remessa + "Emissão de NF's Interna, [excedeu "
-								+ z.format(diferenca_nf_remessa) + " Kgs]";
-
-					}
-
-					if (nf_interna_ativo)
-						texto = texto + (texto_nf_remessa);
-					else
-						texto = texto + "Emissão de NF's Interna Não Aplicável";
-
-					texto = texto + "\n";
-
-					// status de nf de venda
-					
-					String texto_nf_venda = "";
-					double diferenca_nf_venda = peso_total_romaneios
-							- (peso_total_nf_venda1 + peso_total_nf_complemento);
-					if (diferenca_nf_venda == 0) {
-						texto_nf_venda = texto_nf_venda + "[Emissão de NF's de Venda Concluído]";
-					} else if (diferenca_nf_venda > 0) {
-						texto_nf_venda = texto_nf_venda + "Emissão de NF's de Venda Incompleto, [falta emitir "
-								+ z.format(diferenca_nf_venda) + " Kgs]";
-
-					} else if (diferenca_nf_venda < 0) {
-						texto_nf_venda = texto_nf_venda + "Emissão de NF's Excedido, excedeu "
-								+ z.format(diferenca_nf_venda) + " Kgs";
-
-					}
-					if (nf_venda_ativo || nf_complemento_ativo)
-						texto = texto + (texto_nf_venda);
-					else
-						texto = texto + "Emissão de NF's de Venda Não Aplicável";
-
-				}
-
-				// pesos baseados no total
-				texto = texto + "\n\n";
-				// totais
-				texto = texto + "Peso Carregado: [";
-				texto = texto + z.format(peso_total_romaneios) + " Kgs]";
-
-				texto = texto + " Peso NF's Interna: [";
-				if (nf_interna_ativo) {
-
-					texto = texto + z.format(peso_total_nf_interna) + " Kgs]";
-				} else {
-					texto = texto + " [Não Aplicável]";
-
-				}
-
-				texto = texto + " Peso NF's Venda: [";
-
-			
-				if (nf_venda_ativo || nf_complemento_ativo) {
-					texto = texto + (z.format(peso_total_nf_venda1 + peso_total_nf_complemento)
-							+ " Kgs]");
-
-				} else {
-					texto = texto + " [Não Aplicável]";
-
-				}
-				texto = texto + " Valor NF's Venda: [";
-
-
-				BigDecimal soma = valor_total_nf_venda1.add(valor_total_nf_complemento);
-
-				if (nf_venda_ativo || nf_complemento_ativo) {
-					texto = texto + NumberFormat.getCurrencyInstance(ptBr).format(soma.doubleValue()) + "]";
-
-				} else {
-					texto = texto + " [Não Aplicável]";
-
-				}
-				texto = texto + "\n";
-
-						
-				texto = texto + "Peso a Carregar: [";
-
-				texto = texto + z.format(quantidade_kg - peso_total_romaneios) + " Kgs]";
-
-				texto = texto + " Peso NF's Interna a Emitir: [";
-
-			
-				if (nf_interna_ativo) {
-					texto = texto + z.format(quantidade_kg - peso_total_nf_interna) + " Kgs]";
-				} else {
-					texto = texto + " [Não Aplicável]";
-
-				}
-
-				texto = texto + " Peso NF's Venda a Emitir: [";
-
-
-			
-				if (nf_venda_ativo || nf_complemento_ativo) {
-					texto = texto + z
-							.format(quantidade_kg
-									- (peso_total_nf_venda1 + peso_total_nf_complemento))
-							+ " Kgs]";
-
-				} else {
-					texto = texto + " [Não Aplicável]";
-
-				}
-				texto = texto + "\n";
-
-				texto = texto + "*Pesos restantes calculados a partir do peso total";
-
-				// status baseado no peso total ja carregado
-
-				texto = texto + "\n\n";
-
-				
-				texto = texto +	"[Status parcial gerado de forma automatica calculados a partir do peso total:]";
-
-				texto = texto + "\n";
-
-				
-				double diferenca = quantidade_kg - peso_total_romaneios;
-				if (diferenca == 0) {
-					texto = texto + "[Carregamento Concluído]";
-				} else if (diferenca > 0) {
-					texto = texto + "Carregamento Incompleto, [falta carregar " + z.format(diferenca) + " Kgs]";
-
-				} else if (diferenca < 0) {
-					texto = texto + "Carregamento Excedido, [excedeu " + z.format(diferenca) + " Kgs]";
-
-				}
-
-				texto = texto + "\n";
-
-				String texto_nf_remessa = "";
-				double diferenca_nf_remessa = quantidade_kg - peso_total_nf_interna;
-				if (diferenca_nf_remessa == 0) {
-					texto_nf_remessa = texto_nf_remessa + "[Emissão de NF's Interna Concluído]";
-				} else if (diferenca_nf_remessa > 0) {
-					texto_nf_remessa = texto_nf_remessa + "Emissão de NF's Interna Incompleto, [falta emitir "
-							+ z.format(diferenca_nf_remessa) + " Kgs]";
-
-				} else if (diferenca_nf_remessa < 0) {
-					texto_nf_remessa = texto_nf_remessa + "Emissão de NF's Interna, [excedeu "
-							+ z.format(diferenca_nf_remessa) + " Kgs]";
-
-				}
-
-				if (nf_interna_ativo)
-					texto = texto + (texto_nf_remessa);
-				else
-					texto = texto + "Emissão de NF's Interna Não Aplicável";
-
-			    texto = texto + "\n";
-				// status de nf de venda
-				
-				String texto_nf_venda = "";
-				double diferenca_nf_venda = quantidade_kg
-						- (peso_total_nf_venda1 + peso_total_nf_complemento);
-				if (diferenca_nf_venda == 0) {
-					texto_nf_venda = texto_nf_venda + "[Emissão de NF's de Venda Concluído]";
-				} else if (diferenca_nf_venda > 0) {
-					texto_nf_venda = texto_nf_venda + "Emissão de NF's de Venda Incompleto, [falta emitir "
-							+ z.format(diferenca_nf_venda) + " Kgs]";
-
-				} else if (diferenca_nf_venda < 0) {
-					texto_nf_venda = texto_nf_venda + "Emissão de NF's Excedido, [excedeu "
-							+ z.format(diferenca_nf_venda) + " Kgs]";
-
-				}
-				if (nf_venda_ativo || nf_complemento_ativo)
-					texto = texto + (texto_nf_venda);
-				else
-					texto = texto + "Emissão de NF's de Venda Não Aplicável";
-
-			
-
-		////////////////////////////////////////////////////////////////////////////////		
-		substituirTexto(-1,texto);
-
-		 texto = "";
-
-		texto = "Peso Total Romaneios: [" + z.format(peso_total_romaneios) + " kgs ] | [" + z.format(peso_total_romaneios/60) + " sacos ]\n\n";
-		if(nf_venda_ativo || nf_complemento_ativo) {
-		texto = texto + "Peso Total NF's Venda 1: [" + z.format(peso_total_nf_venda1) + " kgs ] | [" + z.format(peso_total_nf_venda1/60) + " sacos ]\n";
-		texto = texto + "Peso Total NF's Complemento: [" + z.format(peso_total_nf_complemento) + " kgs ] | [" + z.format(peso_total_nf_complemento/60) + " sacos ]\n";
-		texto = texto + "Peso Total NF's: [" + z.format(peso_total_nf_complemento + peso_total_nf_venda1)+ " kgs ] | [" + z.format((peso_total_nf_complemento + peso_total_nf_venda1)/60) + " sacos ]\n";
-		texto = texto + "Diferença Total: [" + z.format(peso_total_romaneios - (peso_total_nf_complemento + peso_total_nf_venda1)) + " kgs ] | [" + z.format((peso_total_romaneios - (peso_total_nf_complemento + peso_total_nf_venda1))/60) + " sacos ]\n";
-		texto = texto + "Valor Total NF's Venda 1: [" +  NumberFormat.getCurrencyInstance(ptBr)
-		.format(valor_total_nf_venda1) + "]\n";
-		texto = texto + "Valor Total NF's Complemento: [" +  NumberFormat.getCurrencyInstance(ptBr)
-		.format(valor_total_nf_complemento) + "]\n";
-		texto = texto + "Valor Total NF's: [" +  NumberFormat.getCurrencyInstance(ptBr)
-		.format(valor_total_nf_complemento.add(valor_total_nf_venda1)) + "]\n";
-		}else {
-			texto = texto + "NF's Venda Não Aplicável";
-		}
 		
-		substituirTexto(1,texto);
+			// totais
+			texto = texto + "\nPeso Carregado: [";
+			texto = texto + z.format(peso_total_romaneios) + " Kgs]";
+
+			texto = texto + " Peso NF's Interna: [";
+			if (nf_interna_ativo) {
+
+				texto = texto + z.format(peso_total_nf_interna) + " Kgs]";
+			} else {
+				texto = texto + " Não Aplicável";
+
+			}
+
+			texto = texto + " Peso NF's Venda: [";
+
+			if (nf_venda_ativo || nf_complemento_ativo) {
+				texto = texto + (z.format(peso_total_nf_venda1 + peso_total_nf_complemento) + " Kgs]");
+
+			} else {
+				texto = texto + " Não Aplicável";
+
+			}
+			texto = texto + " Valor NF's Venda: [";
+
+			BigDecimal soma = valor_total_nf_venda1.add(valor_total_nf_complemento);
+
+			if (nf_venda_ativo || nf_complemento_ativo) {
+				texto = texto + NumberFormat.getCurrencyInstance(ptBr).format(soma.doubleValue()) + "]";
+
+			} else {
+				texto = texto + " Não Aplicável";
+
+			}
+			texto = texto + "\n";
+
+			texto = texto + "Peso a Carregar: [";
+
+			texto = texto + z.format(quantidade_kg - peso_total_romaneios) + " Kgs]";
+
+			texto = texto + " Peso NF' Interna a Emitir: [";
+
+			if (nf_interna_ativo) {
+				texto = texto + z.format(peso_total_romaneios - peso_total_nf_interna) + " Kgs]";
+			} else {
+				texto = texto + " Não Aplicável";
+
+			}
+
+			texto = texto + " Peso NF's Venda a Emitir: [";
+
+			if (nf_venda_ativo || nf_complemento_ativo) {
+				texto = texto + z.format(peso_total_romaneios - (peso_total_nf_venda1 + peso_total_nf_complemento))
+						+ " Kgs]";
+
+			} else {
+				texto = texto + " Não Aplicável";
+
+			}
+			texto = texto + "\n";
+
+			texto = texto + "\n";
+
+			texto = texto + "[Status parcial gerado de forma automatica calculados a partir do peso total já recebido:] [" + z.format(quantidade_kg) + "] [kgs] [|] [" + z.format(quantidade_kg/60) + "] [sacos]";
+
+			texto = texto + "\n";
+
+			double diferenca = quantidade_kg - peso_total_romaneios;
+			if (diferenca == 0) {
+				texto = texto + "Carregamento Concluído";
+			} else if (diferenca > 0) {
+				texto = texto + "Carregamento Incompleto, [falta carregar " + z.format(diferenca) + " Kgs]";
+
+			} else if (diferenca < 0) {
+				texto = texto + "Carregamento Excedido, [excedeu " + z.format(diferenca) + " Kgs]";
+
+			}
+
+			texto = texto + "\n";
+
+			String texto_nf_remessa = "";
+			double diferenca_nf_remessa = peso_total_romaneios - peso_total_nf_interna;
+			if (diferenca_nf_remessa == 0) {
+				texto_nf_remessa = texto_nf_remessa + "[Emissão de NF's Interna Concluído]";
+			} else if (diferenca_nf_remessa > 0) {
+				texto_nf_remessa = texto_nf_remessa + "Emissão de NF's Interna Incompleto, [falta emitir "
+						+ z.format(diferenca_nf_remessa) + " Kgs]";
+
+			} else if (diferenca_nf_remessa < 0) {
+				texto_nf_remessa = texto_nf_remessa + "Emissão de NF's Interna, [excedeu "
+						+ z.format(diferenca_nf_remessa) + " Kgs]";
+
+			}
+
+			if (nf_interna_ativo)
+				texto = texto + (texto_nf_remessa);
+			else
+				texto = texto + "Emissão de NF's Interna Não Aplicável";
+
+			texto = texto + "\n";
+
+			// status de nf de venda
+
+			String texto_nf_venda = "";
+			double diferenca_nf_venda = peso_total_romaneios - (peso_total_nf_venda1 + peso_total_nf_complemento);
+			if (diferenca_nf_venda == 0) {
+				texto_nf_venda = texto_nf_venda + "[Emissão de NF's de Venda Concluído]";
+			} else if (diferenca_nf_venda > 0) {
+				texto_nf_venda = texto_nf_venda + "Emissão de NF's de Venda Incompleto, [falta emitir "
+						+ z.format(diferenca_nf_venda) + " Kgs]";
+
+			} else if (diferenca_nf_venda < 0) {
+				texto_nf_venda = texto_nf_venda + "Emissão de NF's Excedido, excedeu " + z.format(diferenca_nf_venda)
+						+ " Kgs";
+
+			}
+			if (nf_venda_ativo || nf_complemento_ativo)
+				texto = texto + (texto_nf_venda);
+			else
+				texto = texto + "Emissão de NF's de Venda Não Aplicável";
 
 		
+
+		substituirTexto(-1, texto);
+
 		
+
 	}
 
-	
-	
-	public void criarTabelaRecebimentos(ArrayList<CadastroContrato.Recebimento> recebimentos, double soma_total_quantidade_contratos) {
+	public void criarTabelaRecebimentos(ArrayList<CadastroContrato.Recebimento> recebimentos,
+			double soma_total_quantidade_contratos) {
 		// XWPFParagraph par = document_global.createParagraph();
 
 		NumberFormat z = NumberFormat.getNumberInstance();
@@ -2775,23 +2773,22 @@ public void incluir_legenda_transferencias_positivas(ArrayList<CadastroContrato.
 
 		// criarParagrafo(1);
 		// linhas x colunas
-		
+
 		int num_linhas_recebimentos = -1;
-		
-		if(soma_total_quantidade_contratos == 0) {
-			
-		 num_linhas_recebimentos = recebimentos.size() + 1 + 1 + 1 + 1 + 1 + 1;
-		}else {
-			 num_linhas_recebimentos = recebimentos.size() + 1 + 1 + 1 + 1 + 1;
+
+		if (soma_total_quantidade_contratos == 0) {
+
+			num_linhas_recebimentos = recebimentos.size() + 1 + 1 + 1 + 1 + 1 + 1;
+		} else {
+			num_linhas_recebimentos = recebimentos.size() + 1 + 1 + 1 + 1 + 1;
 
 		}
 		double soma_total_romaneio = 0;
 		double soma_total_nf_venda = 0;
 		double soma_total_nf_remessa = 0;
 
-
-		BigDecimal valor_total_nf_venda =  BigDecimal.ZERO;
-		BigDecimal valor_total_nf_remessa =  BigDecimal.ZERO;
+		BigDecimal valor_total_nf_venda = BigDecimal.ZERO;
+		BigDecimal valor_total_nf_remessa = BigDecimal.ZERO;
 
 		XWPFTable table = document_global.createTable(num_linhas_recebimentos, 10);
 
@@ -2800,108 +2797,105 @@ public void incluir_legenda_transferencias_positivas(ArrayList<CadastroContrato.
 		tableRowOne.getCell(0).removeParagraph(0);
 
 		XWPFParagraph paragraph = tableRowOne.getCell(0).addParagraph();
-		
+
 		//
 		int cabecalho = 0;
-		
-		if(soma_total_quantidade_contratos != 0) {
-			
+
+		if (soma_total_quantidade_contratos != 0) {
+
 			tableRowOne = table.getRow(cabecalho);
 			tableRowOne.getCell(0).removeParagraph(0);
 			paragraph = tableRowOne.getCell(0).addParagraph();
-			
-			criarParagrafoTabela(paragraph,"Quantidade Total: " + z.format(soma_total_quantidade_contratos) + " kgs | " + z.format(soma_total_quantidade_contratos/60) + " sacos", true);
+
+			criarParagrafoTabela(paragraph, "Quantidade Total: " + z.format(soma_total_quantidade_contratos) + " kgs | "
+					+ z.format(soma_total_quantidade_contratos / 60) + " sacos", true);
 			tableRowOne.getCell(0).getCTTc().addNewTcPr().addNewShd().setFill("FFFFFF");
-			
+
 			CTHMerge hMerge = CTHMerge.Factory.newInstance();
 			hMerge.setVal(STMerge.RESTART);
 			table.getRow(cabecalho).getCell(0).getCTTc().getTcPr().setHMerge(hMerge);
-			
-			for(int celula = 1; celula <= 6; celula++) {
+
+			for (int celula = 1; celula <= 6; celula++) {
 				tableRowOne = table.getRow(cabecalho);
 				tableRowOne.getCell(celula).removeParagraph(0);
 				paragraph = tableRowOne.getCell(celula).addParagraph();
-				
-				criarParagrafoTabela(paragraph,"", true);
+
+				criarParagrafoTabela(paragraph, "", true);
 				tableRowOne.getCell(celula).getCTTc().addNewTcPr().addNewShd().setFill("FFFFFF");
-				
+
 				CTHMerge hMerge1 = CTHMerge.Factory.newInstance();
 				hMerge1.setVal(STMerge.CONTINUE);
 				table.getRow(cabecalho).getCell(celula).getCTTc().getTcPr().setHMerge(hMerge1);
-				
+
 			}
-			
-		
+
 			cabecalho++;
-			
-			
-			
-		}else {
-			
-			CadastroContrato contrato_deste_recebimento = new GerenciarBancoContratos().getContrato(recebimentos.get(0).getId_contrato_recebimento());
-			
+
+		} else {
+
+			CadastroContrato contrato_deste_recebimento = new GerenciarBancoContratos()
+					.getContrato(recebimentos.get(0).getId_contrato_recebimento());
+
 			tableRowOne = table.getRow(cabecalho);
 			tableRowOne.getCell(0).removeParagraph(0);
 			paragraph = tableRowOne.getCell(0).addParagraph();
-			
-			
+
 			double quantidade_kg = 0;
 			double quantidade_sacos = 0;
-			
-			if(contrato_deste_recebimento.getMedida().equalsIgnoreCase("KG")) {
+
+			if (contrato_deste_recebimento.getMedida().equalsIgnoreCase("KG")) {
 				quantidade_kg = contrato_deste_recebimento.getQuantidade();
 				quantidade_sacos = quantidade_kg / 60;
-			}else if(contrato_deste_recebimento.getMedida().equalsIgnoreCase("Sacos")) {
+			} else if (contrato_deste_recebimento.getMedida().equalsIgnoreCase("Sacos")) {
 				quantidade_sacos = contrato_deste_recebimento.getQuantidade();
 				quantidade_kg = quantidade_sacos * 60;
 			}
 			
-			//compradores x vendedores
 			
-			
+
+			// compradores x vendedores
+
 			// safra
-			String safra = contrato_deste_recebimento.getModelo_safra().getProduto().getNome_produto() + " " + contrato_deste_recebimento.getModelo_safra().getProduto().getTransgenia() +
-					" " + contrato_deste_recebimento.getModelo_safra().getAno_plantio() + "/" + contrato_deste_recebimento.getModelo_safra().getAno_colheita();
-			
-			criarParagrafoTabela(paragraph,"CTR: " + contrato_deste_recebimento.getCodigo() + " " + safra + " Quantidade Total: " + z.format(quantidade_kg) + " kgs | " + z.format(quantidade_sacos) + " sacos", true);
+			String safra = contrato_deste_recebimento.getModelo_safra().getProduto().getNome_produto() + " "
+					+ contrato_deste_recebimento.getModelo_safra().getProduto().getTransgenia() + " "
+					+ contrato_deste_recebimento.getModelo_safra().getAno_plantio() + "/"
+					+ contrato_deste_recebimento.getModelo_safra().getAno_colheita();
+
+			criarParagrafoTabela(paragraph,
+					"CTR: " + contrato_deste_recebimento.getCodigo() + " " + safra + " Quantidade Total: "
+							+ z.format(quantidade_kg) + " kgs | " + z.format(quantidade_sacos) + " sacos",
+					true);
 			tableRowOne.getCell(0).getCTTc().addNewTcPr().addNewShd().setFill("FFFFFF");
 			CTHMerge hMerge = CTHMerge.Factory.newInstance();
 			hMerge.setVal(STMerge.RESTART);
 			table.getRow(cabecalho).getCell(0).getCTTc().getTcPr().setHMerge(hMerge);
-			
-			for(int celula = 1; celula <= 6; celula++) {
+
+			for (int celula = 1; celula <= 6; celula++) {
 				tableRowOne = table.getRow(cabecalho);
 				tableRowOne.getCell(celula).removeParagraph(0);
 				paragraph = tableRowOne.getCell(celula).addParagraph();
-				
-				criarParagrafoTabela(paragraph,"", true);
+
+				criarParagrafoTabela(paragraph, "", true);
 				tableRowOne.getCell(celula).getCTTc().addNewTcPr().addNewShd().setFill("FFFFFF");
-				
+
 				CTHMerge hMerge1 = CTHMerge.Factory.newInstance();
 				hMerge1.setVal(STMerge.CONTINUE);
 				table.getRow(cabecalho).getCell(celula).getCTTc().getTcPr().setHMerge(hMerge1);
-				
+
 			}
-			
-			
-			//linha com nome compradores x vendedores
-			
+
+			// linha com nome compradores x vendedores
+
 			tableRowOne = table.getRow(cabecalho);
 			tableRowOne.getCell(0).removeParagraph(0);
 			paragraph = tableRowOne.getCell(0).addParagraph();
-			
 
 			CadastroCliente compradores[] = contrato_deste_recebimento.getCompradores();
 			CadastroCliente vendedores[] = contrato_deste_recebimento.getVendedores();
 
-
-			
-
 			String nome_vendedores = "";
-			String nome_compradores= "";
+			String nome_compradores = "";
 
-
-			
 			if (compradores[0] != null) {
 				if (compradores[0].getTipo_pessoa() == 0) {
 					// pessoa fisica
@@ -2920,54 +2914,51 @@ public void incluir_legenda_transferencias_positivas(ArrayList<CadastroContrato.
 
 				}
 			}
-			if(vendedores[0] != null) {
-			if(vendedores[0].getTipo_pessoa() == 0) {
-				nome_vendedores = vendedores[0].getNome_empresarial();
-			}else {
-				nome_vendedores = vendedores[0].getNome_fantaia();
+			if (vendedores[0] != null) {
+				if (vendedores[0].getTipo_pessoa() == 0) {
+					nome_vendedores = vendedores[0].getNome_empresarial();
+				} else {
+					nome_vendedores = vendedores[0].getNome_fantaia();
+				}
 			}
-			}
-			
-			if(vendedores[1] != null) {
-				if(vendedores[1].getTipo_pessoa() == 0) {
+
+			if (vendedores[1] != null) {
+				if (vendedores[1].getTipo_pessoa() == 0) {
 					nome_vendedores = nome_vendedores + ", " + vendedores[1].getNome_empresarial();
-				}else {
+				} else {
 					nome_vendedores = nome_vendedores + ", " + vendedores[1].getNome_fantaia();
 				}
 			}
-			
-			
-			
-			criarParagrafoTabela(paragraph,nome_compradores + " X "+ nome_vendedores, true);
+
+			criarParagrafoTabela(paragraph, nome_compradores + " X " + nome_vendedores, true);
 			tableRowOne.getCell(0).getCTTc().addNewTcPr().addNewShd().setFill("FFFFFF");
-			 hMerge = CTHMerge.Factory.newInstance();
+			hMerge = CTHMerge.Factory.newInstance();
 			hMerge.setVal(STMerge.RESTART);
 			table.getRow(cabecalho).getCell(0).getCTTc().getTcPr().setHMerge(hMerge);
-			
-			for(int celula = 1; celula <= 6; celula++) {
+
+			for (int celula = 1; celula <= 6; celula++) {
 				tableRowOne = table.getRow(cabecalho);
 				tableRowOne.getCell(celula).removeParagraph(0);
 				paragraph = tableRowOne.getCell(celula).addParagraph();
-				
-				criarParagrafoTabela(paragraph,"", true);
+
+				criarParagrafoTabela(paragraph, "", true);
 				tableRowOne.getCell(celula).getCTTc().addNewTcPr().addNewShd().setFill("FFFFFF");
-				
+
 				CTHMerge hMerge1 = CTHMerge.Factory.newInstance();
 				hMerge1.setVal(STMerge.CONTINUE);
 				table.getRow(cabecalho).getCell(celula).getCTTc().getTcPr().setHMerge(hMerge1);
-				
-			}
-			
-			cabecalho++;
-			
-		}
 
+			}
+
+			cabecalho++;
+
+		}
 
 		tableRowOne = table.getRow(cabecalho);
 		tableRowOne.getCell(0).removeParagraph(0);
 		paragraph = tableRowOne.getCell(0).addParagraph();
 		criarParagrafoTabela(paragraph, "CONTRATO", true);
-		
+
 		tableRowOne = table.getRow(cabecalho);
 		tableRowOne.getCell(1).removeParagraph(0);
 		paragraph = tableRowOne.getCell(1).addParagraph();
@@ -2986,101 +2977,97 @@ public void incluir_legenda_transferencias_positivas(ArrayList<CadastroContrato.
 		tableRowOne = table.getRow(cabecalho);
 		tableRowOne.getCell(4).removeParagraph(0);
 		paragraph = tableRowOne.getCell(4).addParagraph();
-		
-		
-		
+
 		criarParagrafoTabela(paragraph, "NF VENDA", true);
 
 		tableRowOne = table.getRow(cabecalho);
 		tableRowOne.getCell(5).removeParagraph(0);
 		paragraph = tableRowOne.getCell(5).addParagraph();
 		criarParagrafoTabela(paragraph, "PESO NF VENDA", true);
-		
+
 		tableRowOne = table.getRow(cabecalho);
 		tableRowOne.getCell(6).removeParagraph(0);
 		paragraph = tableRowOne.getCell(6).addParagraph();
 		criarParagrafoTabela(paragraph, "VALOR NF VENDA", true);
-		
+
 		tableRowOne = table.getRow(cabecalho);
 		tableRowOne.getCell(7).removeParagraph(0);
 		paragraph = tableRowOne.getCell(7).addParagraph();
 		criarParagrafoTabela(paragraph, "NF REMESSA", true);
-		
+
 		tableRowOne = table.getRow(cabecalho);
 		tableRowOne.getCell(8).removeParagraph(0);
 		paragraph = tableRowOne.getCell(8).addParagraph();
 		criarParagrafoTabela(paragraph, "PESO NF REMESSA", true);
-		
+
 		tableRowOne = table.getRow(cabecalho);
 		tableRowOne.getCell(9).removeParagraph(0);
 		paragraph = tableRowOne.getCell(9).addParagraph();
 		criarParagrafoTabela(paragraph, "VALOR NF REMESSA", true);
-		
-		
-		
+
 		GerenciarBancoContratos gerenciar = new GerenciarBancoContratos();
 
 		CadastroContrato novo_contrato = gerenciar.getContrato(recebimentos.get(0).getId_contrato_recebimento());
 		cabecalho++;
 
 		int i = cabecalho;
-		
-		//checkgens
+
+		// checkgens
 		boolean nf_remessa_ativo = false;
 		boolean nf_venda_ativo = false;
 
-		//checka se ha no minimo uma nf remessa aplicavel
-		for(CadastroContrato.Recebimento recebimento : recebimentos ) {
-			if(recebimento.getNf_remessa_aplicavel() == 1) {
+		// checka se ha no minimo uma nf remessa aplicavel
+		for (CadastroContrato.Recebimento recebimento : recebimentos) {
+			if (recebimento.getNf_remessa_aplicavel() == 1) {
 				nf_remessa_ativo = true;
 				break;
 			}
-			
+
 		}
-		
-		//checka se ha no minimo uma nf venda aplicavel
-		for(CadastroContrato.Recebimento recebimento : recebimentos ) {
-			if(recebimento.getNf_venda_aplicavel() == 1) {
+
+		// checka se ha no minimo uma nf venda aplicavel
+		for (CadastroContrato.Recebimento recebimento : recebimentos) {
+			if (recebimento.getNf_venda_aplicavel() == 1) {
 				nf_venda_ativo = true;
 				break;
 			}
-			
+
 		}
 		for (CadastroContrato.Recebimento recebimento : recebimentos) {
 
 			String cor = "000000";
-			
-			if(checkString(recebimento.getCodigo_nf_venda()) && checkString(recebimento.getCodigo_nf_remessa())) {
-				//ok
+
+			if (checkString(recebimento.getCodigo_nf_venda()) && checkString(recebimento.getCodigo_nf_remessa())) {
+				// ok
 				cor = "FFFFFF";
 
 			}
-				
-			else if( !(checkString(recebimento.getCodigo_nf_venda())) && !(checkString(recebimento.getCodigo_nf_remessa())) )	{
-				//falta duas notas
+
+			else if (!(checkString(recebimento.getCodigo_nf_venda()))
+					&& !(checkString(recebimento.getCodigo_nf_remessa()))) {
+				// falta duas notas
 				cor = "B0C4DE";
 
-			}
-			else if(!(checkString(recebimento.getCodigo_nf_venda())) && checkString(recebimento.getCodigo_nf_remessa()) ){
-            	//falta apenas nf de venda
+			} else if (!(checkString(recebimento.getCodigo_nf_venda()))
+					&& checkString(recebimento.getCodigo_nf_remessa())) {
+				// falta apenas nf de venda
 				cor = "FFFF00";
 
-            }else if(!(checkString(recebimento.getCodigo_nf_remessa())) && checkString(recebimento.getCodigo_nf_venda()) ) {
-            	//falta apenas nf remessa
-				cor =  "FFD700"	;
+			} else if (!(checkString(recebimento.getCodigo_nf_remessa()))
+					&& checkString(recebimento.getCodigo_nf_venda())) {
+				// falta apenas nf remessa
+				cor = "FFD700";
 
-            }
-			
-			
-			
+			}
+
 			// contrato ao qual esse recebimento pertence
 			tableRowOne = table.getRow(i);
 			tableRowOne.getCell(0).removeParagraph(0);
 			paragraph = tableRowOne.getCell(0).addParagraph();
-			criarParagrafoTabela(paragraph, gerenciar.getContrato(recebimento.getId_contrato_recebimento()).getCodigo(), false);
+			criarParagrafoTabela(paragraph, gerenciar.getContrato(recebimento.getId_contrato_recebimento()).getCodigo(),
+					false);
 			tableRowOne.getCell(0).getCTTc().addNewTcPr().addNewShd().setFill(cor);
 
-			
 			tableRowOne = table.getRow(i);
 			tableRowOne.getCell(1).removeParagraph(0);
 			paragraph = tableRowOne.getCell(1).addParagraph();
@@ -3094,33 +3081,34 @@ public void incluir_legenda_transferencias_positivas(ArrayList<CadastroContrato.
 			tableRowOne = table.getRow(i);
 			tableRowOne.getCell(3).removeParagraph(0);
 			paragraph = tableRowOne.getCell(3).addParagraph();
-			criarParagrafoTabela(paragraph, z.format(recebimento.getPeso_romaneio())  + " Kgs", false);
+			criarParagrafoTabela(paragraph, z.format(recebimento.getPeso_romaneio()) + " Kgs", false);
 			soma_total_romaneio += recebimento.getPeso_romaneio();
 
 			if (recebimento.getNf_venda_aplicavel() == 1) {
-			 
-			tableRowOne = table.getRow(i);
-			tableRowOne.getCell(4).removeParagraph(0);
-			paragraph = tableRowOne.getCell(4).addParagraph();
-			criarParagrafoTabela(paragraph, recebimento.getCodigo_nf_venda(), false);
-			tableRowOne.getCell(4).getCTTc().addNewTcPr().addNewShd().setFill(cor);
 
-			tableRowOne = table.getRow(i);
-			tableRowOne.getCell(5).removeParagraph(0);
-			paragraph = tableRowOne.getCell(5).addParagraph();
-			criarParagrafoTabela(paragraph, z.format(recebimento.getPeso_nf_venda())  + " Kgs", false);
-			soma_total_nf_venda += recebimento.getPeso_nf_venda();
-			tableRowOne.getCell(5).getCTTc().addNewTcPr().addNewShd().setFill(cor);
-			
-			tableRowOne = table.getRow(i);
-			tableRowOne.getCell(6).removeParagraph(0);
-			paragraph = tableRowOne.getCell(6).addParagraph();
-			criarParagrafoTabela(paragraph, NumberFormat.getCurrencyInstance(ptBr)
-					.format((recebimento.getValor_nf_venda().doubleValue())), false);
-			valor_total_nf_venda  = valor_total_nf_venda.add(recebimento.getValor_nf_venda());
-			tableRowOne.getCell(6).getCTTc().addNewTcPr().addNewShd().setFill(cor);
-			
-			}else {
+				tableRowOne = table.getRow(i);
+				tableRowOne.getCell(4).removeParagraph(0);
+				paragraph = tableRowOne.getCell(4).addParagraph();
+				criarParagrafoTabela(paragraph, recebimento.getCodigo_nf_venda(), false);
+				tableRowOne.getCell(4).getCTTc().addNewTcPr().addNewShd().setFill(cor);
+
+				tableRowOne = table.getRow(i);
+				tableRowOne.getCell(5).removeParagraph(0);
+				paragraph = tableRowOne.getCell(5).addParagraph();
+				criarParagrafoTabela(paragraph, z.format(recebimento.getPeso_nf_venda()) + " Kgs", false);
+				soma_total_nf_venda += recebimento.getPeso_nf_venda();
+				tableRowOne.getCell(5).getCTTc().addNewTcPr().addNewShd().setFill(cor);
+
+				tableRowOne = table.getRow(i);
+				tableRowOne.getCell(6).removeParagraph(0);
+				paragraph = tableRowOne.getCell(6).addParagraph();
+				criarParagrafoTabela(paragraph,
+						NumberFormat.getCurrencyInstance(ptBr).format((recebimento.getValor_nf_venda().doubleValue())),
+						false);
+				valor_total_nf_venda = valor_total_nf_venda.add(recebimento.getValor_nf_venda());
+				tableRowOne.getCell(6).getCTTc().addNewTcPr().addNewShd().setFill(cor);
+
+			} else {
 				tableRowOne = table.getRow(i);
 				tableRowOne.getCell(4).removeParagraph(0);
 				paragraph = tableRowOne.getCell(4).addParagraph();
@@ -3129,17 +3117,17 @@ public void incluir_legenda_transferencias_positivas(ArrayList<CadastroContrato.
 				tableRowOne = table.getRow(i);
 				tableRowOne.getCell(5).removeParagraph(0);
 				paragraph = tableRowOne.getCell(5).addParagraph();
-				criarParagrafoTabela(paragraph,"Não Aplicável", false);
-				
+				criarParagrafoTabela(paragraph, "Não Aplicável", false);
+
 				tableRowOne = table.getRow(i);
 				tableRowOne.getCell(6).removeParagraph(0);
 				paragraph = tableRowOne.getCell(6).addParagraph();
-				criarParagrafoTabela(paragraph,"Não Aplicável", false);
-				
+				criarParagrafoTabela(paragraph, "Não Aplicável", false);
+
 			}
 
 			if (recebimento.getNf_remessa_aplicavel() == 1) {
-				 
+
 				tableRowOne = table.getRow(i);
 				tableRowOne.getCell(7).removeParagraph(0);
 				paragraph = tableRowOne.getCell(7).addParagraph();
@@ -3149,10 +3137,10 @@ public void incluir_legenda_transferencias_positivas(ArrayList<CadastroContrato.
 				tableRowOne = table.getRow(i);
 				tableRowOne.getCell(8).removeParagraph(0);
 				paragraph = tableRowOne.getCell(8).addParagraph();
-				criarParagrafoTabela(paragraph, z.format(recebimento.getPeso_nf_remessa())  + " Kgs", false);
+				criarParagrafoTabela(paragraph, z.format(recebimento.getPeso_nf_remessa()) + " Kgs", false);
 				soma_total_nf_remessa += recebimento.getPeso_nf_remessa();
 				tableRowOne.getCell(8).getCTTc().addNewTcPr().addNewShd().setFill(cor);
-				
+
 				tableRowOne = table.getRow(i);
 				tableRowOne.getCell(9).removeParagraph(0);
 				paragraph = tableRowOne.getCell(9).addParagraph();
@@ -3160,33 +3148,31 @@ public void incluir_legenda_transferencias_positivas(ArrayList<CadastroContrato.
 						.format((recebimento.getValor_nf_remessa().doubleValue())), false);
 				valor_total_nf_remessa = valor_total_nf_remessa.add(recebimento.getValor_nf_remessa());
 				tableRowOne.getCell(9).getCTTc().addNewTcPr().addNewShd().setFill(cor);
-				
-				}else {
-					tableRowOne = table.getRow(i);
-					tableRowOne.getCell(7).removeParagraph(0);
-					paragraph = tableRowOne.getCell(7).addParagraph();
-					criarParagrafoTabela(paragraph, "Não Aplicável", false);
 
-					tableRowOne = table.getRow(i);
-					tableRowOne.getCell(8).removeParagraph(0);
-					paragraph = tableRowOne.getCell(8).addParagraph();
-					criarParagrafoTabela(paragraph,"Não Aplicável", false);
-					
-					tableRowOne = table.getRow(i);
-					tableRowOne.getCell(9).removeParagraph(0);
-					paragraph = tableRowOne.getCell(9).addParagraph();
-					criarParagrafoTabela(paragraph,"Não Aplicável", false);
-					
-				}
+			} else {
+				tableRowOne = table.getRow(i);
+				tableRowOne.getCell(7).removeParagraph(0);
+				paragraph = tableRowOne.getCell(7).addParagraph();
+				criarParagrafoTabela(paragraph, "Não Aplicável", false);
+
+				tableRowOne = table.getRow(i);
+				tableRowOne.getCell(8).removeParagraph(0);
+				paragraph = tableRowOne.getCell(8).addParagraph();
+				criarParagrafoTabela(paragraph, "Não Aplicável", false);
+
+				tableRowOne = table.getRow(i);
+				tableRowOne.getCell(9).removeParagraph(0);
+				paragraph = tableRowOne.getCell(9).addParagraph();
+				criarParagrafoTabela(paragraph, "Não Aplicável", false);
+
+			}
 
 			i++;
-			
-			
-			
+
 		}
-		//somatorias
-		//peso de romaneios
-		
+		// somatorias
+		// peso de romaneios
+
 		tableRowOne = table.getRow(i);
 		tableRowOne.getCell(3).removeParagraph(0);
 		paragraph = tableRowOne.getCell(3).addParagraph();
@@ -3195,8 +3181,7 @@ public void incluir_legenda_transferencias_positivas(ArrayList<CadastroContrato.
 				true);
 		// pesos de nf venda
 
-
-	tableRowOne = table.getRow(i);
+		tableRowOne = table.getRow(i);
 		tableRowOne.getCell(5).removeParagraph(0);
 		paragraph = tableRowOne.getCell(5).addParagraph();
 		criarParagrafoTabela(paragraph,
@@ -3205,38 +3190,33 @@ public void incluir_legenda_transferencias_positivas(ArrayList<CadastroContrato.
 
 //valor nf venda
 
-tableRowOne = table.getRow(i);
+		tableRowOne = table.getRow(i);
 		tableRowOne.getCell(6).removeParagraph(0);
 		paragraph = tableRowOne.getCell(6).addParagraph();
-		criarParagrafoTabela(paragraph, NumberFormat.getCurrencyInstance(ptBr)
-				.format(valor_total_nf_venda),true);
+		criarParagrafoTabela(paragraph, NumberFormat.getCurrencyInstance(ptBr).format(valor_total_nf_venda), true);
 
 //peso nf remessa
 
-tableRowOne = table.getRow(i);
+		tableRowOne = table.getRow(i);
 		tableRowOne.getCell(8).removeParagraph(0);
 		paragraph = tableRowOne.getCell(8).addParagraph();
-		criarParagrafoTabela(paragraph,
-				" " + z.format(soma_total_nf_remessa) + " kgs / " + (z.format((soma_total_nf_remessa / 60))) + " sacos ",
-				true);
+		criarParagrafoTabela(paragraph, " " + z.format(soma_total_nf_remessa) + " kgs / "
+				+ (z.format((soma_total_nf_remessa / 60))) + " sacos ", true);
 
 //valor nf remessa
 
-tableRowOne = table.getRow(i);
+		tableRowOne = table.getRow(i);
 		tableRowOne.getCell(9).removeParagraph(0);
 		paragraph = tableRowOne.getCell(9).addParagraph();
-		criarParagrafoTabela(paragraph, NumberFormat.getCurrencyInstance(ptBr)
-				.format(valor_total_nf_remessa),true);
-		
-		
+		criarParagrafoTabela(paragraph, NumberFormat.getCurrencyInstance(ptBr).format(valor_total_nf_remessa), true);
+
 		// informacoes de total
-i+=2;
+		i += 2;
 		// peso real
 		tableRowOne = table.getRow(i);
 		tableRowOne.getCell(0).removeParagraph(0);
 		paragraph = tableRowOne.getCell(0).addParagraph();
 		criarParagrafoTabela(paragraph, "Peso Total Romaneios:", false);
-
 
 		tableRowOne = table.getRow(i);
 		tableRowOne.getCell(1).removeParagraph(0);
@@ -3254,16 +3234,15 @@ i+=2;
 		tableRowOne = table.getRow(i);
 		tableRowOne.getCell(3).removeParagraph(0);
 		paragraph = tableRowOne.getCell(3).addParagraph();
-		if(nf_venda_ativo) {
-		criarParagrafoTabela(paragraph,
-				" " + z.format(soma_total_nf_venda) + " kgs / " + (z.format((soma_total_nf_venda / 60))) + " sacos ",
-				true);
-		}else {
-			criarParagrafoTabela(paragraph,"Não Aplicável",true);
+		if (nf_venda_ativo) {
+			criarParagrafoTabela(paragraph, " " + z.format(soma_total_nf_venda) + " kgs / "
+					+ (z.format((soma_total_nf_venda / 60))) + " sacos ", true);
+		} else {
+			criarParagrafoTabela(paragraph, "Não Aplicável", true);
 		}
 
-		//valor nf venda
-		
+		// valor nf venda
+
 		tableRowOne = table.getRow(i);
 		tableRowOne.getCell(4).removeParagraph(0);
 		paragraph = tableRowOne.getCell(4).addParagraph();
@@ -3272,13 +3251,12 @@ i+=2;
 		tableRowOne = table.getRow(i);
 		tableRowOne.getCell(5).removeParagraph(0);
 		paragraph = tableRowOne.getCell(5).addParagraph();
-		if(nf_venda_ativo) {
-		criarParagrafoTabela(paragraph, NumberFormat.getCurrencyInstance(ptBr)
-				.format(valor_total_nf_venda),true);
-		}else {
-			criarParagrafoTabela(paragraph, "Não Aplicável",true);
+		if (nf_venda_ativo) {
+			criarParagrafoTabela(paragraph, NumberFormat.getCurrencyInstance(ptBr).format(valor_total_nf_venda), true);
+		} else {
+			criarParagrafoTabela(paragraph, "Não Aplicável", true);
 		}
-		//peso nf remessa
+		// peso nf remessa
 		tableRowOne = table.getRow(i);
 		tableRowOne.getCell(6).removeParagraph(0);
 		paragraph = tableRowOne.getCell(6).addParagraph();
@@ -3287,16 +3265,14 @@ i+=2;
 		tableRowOne = table.getRow(i);
 		tableRowOne.getCell(7).removeParagraph(0);
 		paragraph = tableRowOne.getCell(7).addParagraph();
-		if(nf_remessa_ativo) {
-		criarParagrafoTabela(paragraph,
-				" " + z.format(soma_total_nf_remessa) + " kgs / " + (z.format((soma_total_nf_remessa / 60))) + " sacos ",
-				true);
-		}else {
-			criarParagrafoTabela(paragraph,"Não Aplicável", true);	
+		if (nf_remessa_ativo) {
+			criarParagrafoTabela(paragraph, " " + z.format(soma_total_nf_remessa) + " kgs / "
+					+ (z.format((soma_total_nf_remessa / 60))) + " sacos ", true);
+		} else {
+			criarParagrafoTabela(paragraph, "Não Aplicável", true);
 		}
-		
-		//valor nf remessa
-		
+
+		// valor nf remessa
 
 		tableRowOne = table.getRow(i);
 		tableRowOne.getCell(8).removeParagraph(0);
@@ -3306,11 +3282,11 @@ i+=2;
 		tableRowOne = table.getRow(i);
 		tableRowOne.getCell(9).removeParagraph(0);
 		paragraph = tableRowOne.getCell(9).addParagraph();
-		if(nf_remessa_ativo) {
-		criarParagrafoTabela(paragraph, NumberFormat.getCurrencyInstance(ptBr)
-				.format(valor_total_nf_remessa),true);
-		}else {
-			criarParagrafoTabela(paragraph,"Não Aplicável",true);
+		if (nf_remessa_ativo) {
+			criarParagrafoTabela(paragraph, NumberFormat.getCurrencyInstance(ptBr).format(valor_total_nf_remessa),
+					true);
+		} else {
+			criarParagrafoTabela(paragraph, "Não Aplicável", true);
 		}
 		i++;
 
@@ -3335,14 +3311,16 @@ i+=2;
 		tableRowOne = table.getRow(i);
 		tableRowOne.getCell(1).removeParagraph(0);
 		paragraph = tableRowOne.getCell(1).addParagraph();
-		if(soma_total_quantidade_contratos != 0) {
-		criarParagrafoTabela(paragraph, " " + z.format(soma_total_quantidade_contratos - soma_total_romaneio) + " kgs / "
-				+ (z.format(((soma_total_quantidade_contratos - soma_total_romaneio) / 60))) + " sacos ", true);
-		}else {
+		if (soma_total_quantidade_contratos != 0) {
+			criarParagrafoTabela(paragraph,
+					" " + z.format(soma_total_quantidade_contratos - soma_total_romaneio) + " kgs / "
+							+ (z.format(((soma_total_quantidade_contratos - soma_total_romaneio) / 60))) + " sacos ",
+					true);
+		} else {
 			criarParagrafoTabela(paragraph, " " + z.format(quantidade_total_kgs - soma_total_romaneio) + " kgs / "
 					+ (z.format(((quantidade_total_kgs - soma_total_romaneio) / 60))) + " sacos ", true);
 		}
- 
+
 		// pesos de nf
 		tableRowOne = table.getRow(i);
 		tableRowOne.getCell(2).removeParagraph(0);
@@ -3352,17 +3330,20 @@ i+=2;
 		tableRowOne = table.getRow(i);
 		tableRowOne.getCell(3).removeParagraph(0);
 		paragraph = tableRowOne.getCell(3).addParagraph();
-		if(nf_venda_ativo) {
-		if(soma_total_quantidade_contratos != 0 ) {
-			criarParagrafoTabela(paragraph, " " + z.format(soma_total_quantidade_contratos - soma_total_nf_venda) + " kgs / "
-					+ (z.format(((soma_total_quantidade_contratos - soma_total_nf_venda) / 60))) + " sacos ", true);
-		}else {
-		criarParagrafoTabela(paragraph, " " + z.format(quantidade_total_kgs - soma_total_nf_venda) + " kgs / "
-				+ (z.format(((quantidade_total_kgs - soma_total_nf_venda) / 60))) + " sacos ", true);
-		}
-		}else {
-			criarParagrafoTabela(paragraph,"Não Aplicável", true);
-			
+		if (nf_venda_ativo) {
+			if (soma_total_quantidade_contratos != 0) {
+				criarParagrafoTabela(paragraph,
+						" " + z.format(soma_total_quantidade_contratos - soma_total_nf_venda) + " kgs / "
+								+ (z.format(((soma_total_quantidade_contratos - soma_total_nf_venda) / 60)))
+								+ " sacos ",
+						true);
+			} else {
+				criarParagrafoTabela(paragraph, " " + z.format(quantidade_total_kgs - soma_total_nf_venda) + " kgs / "
+						+ (z.format(((quantidade_total_kgs - soma_total_nf_venda) / 60))) + " sacos ", true);
+			}
+		} else {
+			criarParagrafoTabela(paragraph, "Não Aplicável", true);
+
 		}
 
 		// pesos de nf remessa
@@ -3374,76 +3355,77 @@ i+=2;
 		tableRowOne = table.getRow(i);
 		tableRowOne.getCell(7).removeParagraph(0);
 		paragraph = tableRowOne.getCell(7).addParagraph();
-		if(nf_remessa_ativo) {
-		if(soma_total_quantidade_contratos != 0 ) {
-			criarParagrafoTabela(paragraph, " " + z.format(soma_total_quantidade_contratos - soma_total_nf_remessa) + " kgs / "
-					+ (z.format(((soma_total_quantidade_contratos - soma_total_nf_remessa) / 60))) + " sacos ", true);
-		}else {
-		criarParagrafoTabela(paragraph, " " + z.format(quantidade_total_kgs - soma_total_nf_remessa) + " kgs / "
-				+ (z.format(((quantidade_total_kgs - soma_total_nf_remessa) / 60))) + " sacos ", true);
-		}
-		}else {
+		if (nf_remessa_ativo) {
+			if (soma_total_quantidade_contratos != 0) {
+				criarParagrafoTabela(paragraph,
+						" " + z.format(soma_total_quantidade_contratos - soma_total_nf_remessa) + " kgs / "
+								+ (z.format(((soma_total_quantidade_contratos - soma_total_nf_remessa) / 60)))
+								+ " sacos ",
+						true);
+			} else {
+				criarParagrafoTabela(paragraph, " " + z.format(quantidade_total_kgs - soma_total_nf_remessa) + " kgs / "
+						+ (z.format(((quantidade_total_kgs - soma_total_nf_remessa) / 60))) + " sacos ", true);
+			}
+		} else {
 			criarParagrafoTabela(paragraph, "Não Aplicável", true);
-			
+
 		}
 		i++;
-		
-		//texto do status
 
-		
+		// texto do status
+
 		String texto = "Status Gerado automaticamente: \n";
 		double diferenca = quantidade_total_kgs - soma_total_romaneio;
-		if(diferenca == 0) {
+		if (diferenca == 0) {
 			texto = texto + "Recebimento Concluído\n";
-		}else if(diferenca > 0) {
+		} else if (diferenca > 0) {
 			texto = texto + "Recebimento Incompleto, falta receber " + z.format(diferenca) + " Kgs\n";
 
-		}else if(diferenca < 0) {
+		} else if (diferenca < 0) {
 			texto = texto + "Recebimento Excedido, excedeu " + z.format(diferenca) + " Kgs\n";
 
 		}
-		
 
 		String texto_nf_venda = "";
-		if(nf_venda_ativo) {
-		double diferenca_nf_venda = quantidade_total_kgs - soma_total_nf_venda;
-		if(diferenca_nf_venda == 0) {
-			texto_nf_venda = texto_nf_venda + "Emissão de NF's de Venda Concluído\n";
-		}else if(diferenca_nf_venda > 0) {
-			texto_nf_venda = texto_nf_venda + "Emissão de NF's de Venda Incompleto, falta emitir " + z.format(diferenca_nf_venda) + " Kgs\n";
+		if (nf_venda_ativo) {
+			double diferenca_nf_venda = quantidade_total_kgs - soma_total_nf_venda;
+			if (diferenca_nf_venda == 0) {
+				texto_nf_venda = texto_nf_venda + "Emissão de NF's de Venda Concluído\n";
+			} else if (diferenca_nf_venda > 0) {
+				texto_nf_venda = texto_nf_venda + "Emissão de NF's de Venda Incompleto, falta emitir "
+						+ z.format(diferenca_nf_venda) + " Kgs\n";
 
-		}else if(diferenca_nf_venda < 0) {
-			texto_nf_venda = texto_nf_venda + "Emissão de NF's Venda Excedido, excedeu " + z.format(diferenca_nf_venda) + " Kgs\n";
+			} else if (diferenca_nf_venda < 0) {
+				texto_nf_venda = texto_nf_venda + "Emissão de NF's Venda Excedido, excedeu "
+						+ z.format(diferenca_nf_venda) + " Kgs\n";
 
-		}
-		}else {
+			}
+		} else {
 			texto_nf_venda = "Emissão de NF's Venda Não Aplicável";
 		}
-		
-		
+
 		String texto_nf_remessa = "";
-		if(nf_remessa_ativo) {
-		double diferenca_nf_remessa = quantidade_total_kgs - soma_total_nf_remessa;
-		if(diferenca_nf_remessa == 0) {
-			texto_nf_remessa = texto_nf_remessa + "Emissão de NF's de Remessa Concluído\n";
-		}else if(diferenca_nf_remessa > 0) {
-			texto_nf_remessa = texto_nf_remessa + "Emissão de NF's de Remessa Incompleto, falta emitir " + z.format(diferenca_nf_remessa) + " Kgs\n";
+		if (nf_remessa_ativo) {
+			double diferenca_nf_remessa = quantidade_total_kgs - soma_total_nf_remessa;
+			if (diferenca_nf_remessa == 0) {
+				texto_nf_remessa = texto_nf_remessa + "Emissão de NF's de Remessa Concluído\n";
+			} else if (diferenca_nf_remessa > 0) {
+				texto_nf_remessa = texto_nf_remessa + "Emissão de NF's de Remessa Incompleto, falta emitir "
+						+ z.format(diferenca_nf_remessa) + " Kgs\n";
 
-		}else if(diferenca_nf_remessa < 0) {
-			texto_nf_remessa = texto_nf_remessa + "Emissão de NF's Remessa Excedido, excedeu " + z.format(diferenca_nf_remessa) + " Kgs\n";
+			} else if (diferenca_nf_remessa < 0) {
+				texto_nf_remessa = texto_nf_remessa + "Emissão de NF's Remessa Excedido, excedeu "
+						+ z.format(diferenca_nf_remessa) + " Kgs\n";
 
-		}
-		}else {
+			}
+		} else {
 			texto_nf_remessa = "Emissão de NF's Remessa Não Aplicável";
 		}
 
-         substituirTexto(texto + texto_nf_venda + texto_nf_remessa);
-		
-		
+		substituirTexto(texto + texto_nf_venda + texto_nf_remessa);
 
 	}
 
-	
 	public void setTableAlign(XWPFTable table, ParagraphAlignment align) {
 		CTTblPr tblPr = table.getCTTbl().getTblPr();
 		CTJc jc = (tblPr.isSetJc() ? tblPr.getJc() : tblPr.addNewJc());
@@ -3553,8 +3535,6 @@ i+=2;
 		}
 	}
 
-	
-	
 	public boolean checkString(String txt) {
 		return txt != null && !txt.equals("") && !txt.equals(" ") && !txt.equals("  ") && txt.length() > 0;
 	}

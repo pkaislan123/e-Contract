@@ -16,6 +16,7 @@ import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
+import javax.swing.JInternalFrame;
 import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
 
@@ -104,7 +105,7 @@ import main.java.outros.MyFileVisitor;
 import main.java.outros.ReproduzirAudio;
 import main.java.outros.TratarDados;
 import main.java.relatoria.RelatorioContratoComprador;
-import main.java.relatoria.RelatorioContratoSimplificado;
+import main.java.relatoria.RelatorioContratoRecebimentoSimplificado;
 import main.java.relatoria.RelatorioContratos;
 import main.java.tratamento_proprio.Log;
 import main.java.views_personalizadas.TelaEmEspera;
@@ -139,8 +140,9 @@ public class TelaDefinirTempo extends JDialog {
 
 	private final JPanel painelPrincipal = new JPanel();
     private TelaDefinirTempo isto;
-    private JDialog telaPai;
+    private JInternalFrame telaPai;
     private JLabel lblDataSelecionada;
+    private Calendar data_selecionada;
 
 	public TelaDefinirTempo(Window janela_pai, Calendar tempo) {
 		 setModal(true);
@@ -202,7 +204,8 @@ public class TelaDefinirTempo extends JDialog {
 			JButton btnNewButton = new JButton("Ok");
 			btnNewButton.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent e) {
-					
+					((TelaCriarNota) telaPai).setData(data_selecionada);
+					isto.dispose();
 				}
 			});
 			btnNewButton.setBounds(466, 355, 89, 23);
@@ -237,7 +240,7 @@ public class TelaDefinirTempo extends JDialog {
 			Calendar c = e.getSelectedDate();
 			if (c != null) {
 				System.out.println(c.getTime());
-				
+				data_selecionada = c;
 				String strDateLembrete = "";
 				
 				DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
@@ -254,7 +257,7 @@ public class TelaDefinirTempo extends JDialog {
 		
 		
 	}
-	public void setTelaPai(JDialog _tela_pai) {
+	public void setTelaPai(JInternalFrame _tela_pai) {
 		this.telaPai = _tela_pai;
 	}
 	

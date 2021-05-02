@@ -35,7 +35,9 @@ import main.java.cadastros.CentroCusto;
 import main.java.cadastros.CondicaoPagamento;
 import main.java.cadastros.FinanceiroConta;
 import main.java.cadastros.Lancamento;
+import main.java.cadastros.Parcela;
 import main.java.cadastros.FinanceiroGrupoContas;
+import main.java.cadastros.FinanceiroPagamento;
 import main.java.cadastros.InstituicaoBancaria;
 import main.java.cadastros.Lancamento;
 import main.java.cadastros.Lancamento;
@@ -44,8 +46,10 @@ import main.java.conexaoBanco.GerenciarBancoClientes;
 import main.java.conexaoBanco.GerenciarBancoCondicaoPagamentos;
 import main.java.conexaoBanco.GerenciarBancoFinanceiroConta;
 import main.java.conexaoBanco.GerenciarBancoLancamento;
+import main.java.conexaoBanco.GerenciarBancoParcelas;
 import main.java.gui.TelaContratos.EvenOddRenderer;
 import main.java.conexaoBanco.GerenciarBancoFinanceiroGrupoContas;
+import main.java.conexaoBanco.GerenciarBancoFinanceiroPagamento;
 import main.java.conexaoBanco.GerenciarBancoInstituicaoBancaria;
 import main.java.conexaoBanco.GerenciarBancoLancamento;
 import main.java.outros.DadosGlobais;
@@ -62,13 +66,16 @@ import java.text.NumberFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
+import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.Set;
 import java.awt.event.ActionEvent;
 import javax.swing.JTextField;
@@ -88,20 +95,21 @@ public class TelaFinanceiroLancamento extends JFrame {
 	 private ArrayList<Lancamento> lista_lancamentos = new ArrayList<>();
 	 private LancamentoTableModel modelo_lancamentos = new LancamentoTableModel();
 	 private JDialog telaPai;
-	  private JLabel lblValorAPagar, lblValorPago, lblValorDespesas;
+	  private JLabel lblValorPago, lblValorTotalDespesas;
 	 private TableRowSorter<LancamentoTableModel> sorter;
-	 private JComboBox cbStatusLancamento;
+	 private JComboBox cbStatusLancamento, cbStatusCondicaoPagamento;
 	 private JComboBox cbGrupoConta,cbCondicaoPagamento,cbTipoLancamento;
 	 private JComboBox cbConta ,cbCentroCusto,cbInstituicaoBancaria;
-	 private JTextField entClienteServidor;
+	 private JTextField entClienteFornecedor;
 	 private JLabel lblDespesasAPagar, lblDespesasPago,	lblTotalDespesas, lblReceitasRecebido, lblTotalReceitas, lblReceitasAReceber;
-	 private JTextField entPeriodoLancamentoInicial;
-	 private JTextField entPeriodoLancamentoFinal;
-	 private JTextField entPeriodoVencimentoInicial;
-	 private JTextField entPeriodoVencimentoFinal;
-	 private JTextField entPeriodoPagamentoInicial;
-	 private JTextField entPeriodoPagamentoFinal;
-	 private JLabel lblValorAReceber, lblValorRecebido, lblValorReceitas;
+	 private JTextField menorDataLancamento;
+	 private JTextField maiorDataLancamento;
+	 private JTextField menorDataVencimento;
+	 private JTextField maiorDataVencimento;
+	 private JTextField menorDataPagamento;
+	 private JTextField maiorDataPagamento;
+	 private JLabel lblValorAReceber, lblValorRestanteAPagar,lblValorRecebido, lblValorReceitas ;
+	 private JComboBox cbPrioridade,cbSituacao ;
 	 
 	public TelaFinanceiroLancamento(int flag_modo_operacao, int flag_retorno, Window janela_pai) {
 		
@@ -145,7 +153,7 @@ public class TelaFinanceiroLancamento extends JFrame {
 		painelPrinciapl.add(panel_1, "cell 0 1 3 1,growx,aligny top");
 		panel_1.setBorder(new LineBorder(new Color(0, 0, 0)));
 		panel_1.setBackground(Color.WHITE);
-		panel_1.setLayout(new MigLayout("", "[grow][grow][123px,grow][465px,grow][grow][grow][grow][grow][grow]", "[31px,grow][47px,grow][31px,grow][grow][]"));
+		panel_1.setLayout(new MigLayout("", "[grow][grow][123px,grow][465px,grow][grow][grow][grow][][grow][grow]", "[31px,grow][][47px,grow][][31px,grow][grow][grow][grow][]"));
 		
 		JLabel lblNewLabel_1_1_2 = new JLabel("Centro de Custo:");
 		lblNewLabel_1_1_2.setFont(new Font("SansSerif", Font.PLAIN, 12));
@@ -164,28 +172,132 @@ public class TelaFinanceiroLancamento extends JFrame {
 		cbTipoLancamento.addItem("TODOS");
 		cbTipoLancamento.addItem("DESPESAS");
 		cbTipoLancamento.addItem("RECEITAS");
+		 
+		 JLabel lblNewLabel_1_1_2_1 = new JLabel("Instituição Bancária:");
+		 lblNewLabel_1_1_2_1.setFont(new Font("SansSerif", Font.PLAIN, 12));
+		 panel_1.add(lblNewLabel_1_1_2_1, "cell 4 0,alignx trailing");
 		
-		JLabel lblNewLabel_1_1_3 = new JLabel("Condição do Pagamento:");
-		lblNewLabel_1_1_3.setFont(new Font("SansSerif", Font.PLAIN, 12));
-		panel_1.add(lblNewLabel_1_1_3, "cell 4 0,alignx trailing");
+		 cbInstituicaoBancaria = new JComboBox();
+		 panel_1.add(cbInstituicaoBancaria, "cell 5 0,growx");
+		
+		JLabel lblNewLabel_1_1_3_1 = new JLabel("Situação:");
+		lblNewLabel_1_1_3_1.setFont(new Font("SansSerif", Font.PLAIN, 12));
+		panel_1.add(lblNewLabel_1_1_3_1, "cell 6 0,alignx trailing");
+		
+		 cbSituacao = new JComboBox();
+		cbSituacao.setFont(new Font("SansSerif", Font.PLAIN, 12));
+		panel_1.add(cbSituacao, "cell 7 0 3 1,growx");
+		cbSituacao.addItem("TODOS");
+		cbSituacao.addItem("Atrazado");
+		cbSituacao.addItem("Em dias");
+		cbSituacao.addItem("Datas Invalidas");
+		
+		JLabel lblNewLabel_1_1_2_1_1 = new JLabel("Cliente/Fornecedor:");
+		lblNewLabel_1_1_2_1_1.setFont(new Font("SansSerif", Font.PLAIN, 12));
+		panel_1.add(lblNewLabel_1_1_2_1_1, "cell 0 1,alignx trailing");
+		
+		entClienteFornecedor = new JTextField();
+		panel_1.add(entClienteFornecedor, "cell 1 1,growx");
+		entClienteFornecedor.setColumns(10);
+		
+		JLabel lblNewLabel_1_1_4 = new JLabel("Status:");
+		lblNewLabel_1_1_4.setFont(new Font("SansSerif", Font.PLAIN, 12));
+		panel_1.add(lblNewLabel_1_1_4, "cell 2 1,alignx right");
+		
+		 cbStatusLancamento = new JComboBox();
+		 cbStatusLancamento.setFont(new Font("SansSerif", Font.PLAIN, 12));
+		 panel_1.add(cbStatusLancamento, "cell 3 1,growx,aligny top");
+		 cbStatusLancamento.addItem("TODOS");
+		 cbStatusLancamento.addItem("DESPESAS A PAGAR");
+		 cbStatusLancamento.addItem("DESPESAS PAGAS");
+		 cbStatusLancamento.addItem("RECEITAS A RECEBER");
+		 cbStatusLancamento.addItem("RECEITAS RECEBIDAS");
+		 
+		 JLabel lblNewLabel_1_1_3 = new JLabel("Condição do Pagamento:");
+		 lblNewLabel_1_1_3.setFont(new Font("SansSerif", Font.PLAIN, 12));
+		 panel_1.add(lblNewLabel_1_1_3, "cell 4 1,alignx trailing");
 		
 		 cbCondicaoPagamento = new JComboBox();
-		cbCondicaoPagamento.setFont(new Font("SansSerif", Font.PLAIN, 12));
-		panel_1.add(cbCondicaoPagamento, "cell 5 0,growx");
+		 cbCondicaoPagamento.setFont(new Font("SansSerif", Font.PLAIN, 12));
+		 panel_1.add(cbCondicaoPagamento, "cell 5 1,growx");
 		
-		JButton btnLimpar = new JButton("Limpar");
-		panel_1.add(btnLimpar, "cell 6 0,alignx right");
-		btnLimpar.addActionListener(new ActionListener() {
+		JLabel lblNewLabel_1_1_1 = new JLabel("Grupo de Contas:");
+		lblNewLabel_1_1_1.setFont(new Font("SansSerif", Font.PLAIN, 12));
+		panel_1.add(lblNewLabel_1_1_1, "cell 2 2,alignx right,aligny center");
+		
+		 cbGrupoConta = new JComboBox();
+		cbGrupoConta.setFont(new Font("SansSerif", Font.PLAIN, 12));
+		panel_1.add(cbGrupoConta, "cell 3 2,grow");
+		
+		JLabel lblNewLabel_1_1_4_2_1 = new JLabel("Status Pagamento:");
+		lblNewLabel_1_1_4_2_1.setFont(new Font("SansSerif", Font.PLAIN, 12));
+		panel_1.add(lblNewLabel_1_1_4_2_1, "cell 4 2,alignx trailing");
+		
+		 cbStatusCondicaoPagamento = new JComboBox();
+		 cbStatusCondicaoPagamento.setFont(new Font("SansSerif", Font.PLAIN, 12));
+		 panel_1.add(cbStatusCondicaoPagamento, "cell 5 2,growx");
+		 cbStatusCondicaoPagamento.addItem("TODOS");
+		 cbStatusCondicaoPagamento.addItem("A - Compensar|Realizar|Concluir");
+		 cbStatusCondicaoPagamento.addItem("Compensado|Realizado|Concluído");
+		
+		JButton btnLimparBusca = new JButton("Limpar Busca");
+		panel_1.add(btnLimparBusca, "cell 6 2 3 1,growx");
+		btnLimparBusca.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				limpar();
 			}
 		});
-		btnLimpar.setBackground(new Color(0, 0, 102));
-		btnLimpar.setForeground(Color.WHITE);
-		btnLimpar.setHorizontalAlignment(SwingConstants.RIGHT);
+		btnLimparBusca.setBackground(new Color(0, 0, 102));
+		btnLimparBusca.setForeground(Color.WHITE);
+		btnLimparBusca.setHorizontalAlignment(SwingConstants.RIGHT);
+		
+		JButton btnLimparCampos = new JButton("Limpar Campos");
+		btnLimparCampos.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				sorter.setRowFilter(RowFilter.regexFilter(""));
+				cbPrioridade.setSelectedIndex(0);
+				cbSituacao.setSelectedIndex(0);
+				cbStatusLancamento.setSelectedIndex(0);
+				cbCondicaoPagamento.setSelectedIndex(0);
+				cbCentroCusto.setSelectedIndex(0);
+				cbGrupoConta.setSelectedIndex(0);
+				cbConta.setSelectedIndex(0);
+				cbInstituicaoBancaria.setSelectedIndex(0);
+				cbTipoLancamento.setSelectedIndex(0);
+				entClienteFornecedor.setText("");
+				pegarDatas();
+
+
+				calcular();
+			}
+		});
+		btnLimparCampos.setHorizontalAlignment(SwingConstants.RIGHT);
+		btnLimparCampos.setForeground(Color.WHITE);
+		btnLimparCampos.setBackground(new Color(0, 0, 102));
+		panel_1.add(btnLimparCampos, "cell 9 2,growx");
+		
+		JLabel lblNewLabel_1_1_1_1 = new JLabel("Conta:");
+		lblNewLabel_1_1_1_1.setFont(new Font("SansSerif", Font.PLAIN, 12));
+		panel_1.add(lblNewLabel_1_1_1_1, "cell 2 4,alignx right,aligny center");
+		
+		 cbConta = new JComboBox();
+		cbConta.setFont(new Font("SansSerif", Font.PLAIN, 12));
+		panel_1.add(cbConta, "cell 3 4,growx,aligny center");
+		 
+		 JLabel lblNewLabel_1_1_4_2 = new JLabel("Prioridade:");
+		 lblNewLabel_1_1_4_2.setFont(new Font("SansSerif", Font.PLAIN, 12));
+		 panel_1.add(lblNewLabel_1_1_4_2, "cell 4 4,alignx trailing");
+		
+		 cbPrioridade = new JComboBox();
+		 cbPrioridade.addItem("TODOS");
+		cbPrioridade.addItem("Alta Prioridade - Ainda esta semana");
+		cbPrioridade.addItem("Média Prioridade - Em menos de 15 dias");
+		cbPrioridade.addItem("Prioridade Leve - Ainda este mês");
+		cbPrioridade.addItem("Baixa Prioridade - Ainda este ano");
+		panel_1.add(cbPrioridade, "cell 5 4,growx");
 		
 		JButton btnFiltar = new JButton("Filtrar");
-		panel_1.add(btnFiltar, "cell 7 0");
+		panel_1.add(btnFiltar, "cell 6 4 3 1,growx");
 		btnFiltar.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				filtrar();
@@ -195,7 +307,7 @@ public class TelaFinanceiroLancamento extends JFrame {
 		btnFiltar.setForeground(Color.WHITE);
 		
 		JButton btnNewButton = new JButton("pesquisar");
-		panel_1.add(btnNewButton, "cell 8 0");
+		panel_1.add(btnNewButton, "cell 9 4,growx");
 		btnNewButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				pesquisar();
@@ -204,54 +316,15 @@ public class TelaFinanceiroLancamento extends JFrame {
 		btnNewButton.setForeground(Color.WHITE);
 		btnNewButton.setBackground(new Color(0, 0, 102));
 		
-		JLabel lblNewLabel_1_1_2_1 = new JLabel("Instituição Bancária:");
-		lblNewLabel_1_1_2_1.setFont(new Font("SansSerif", Font.PLAIN, 12));
-		panel_1.add(lblNewLabel_1_1_2_1, "cell 0 1,alignx trailing");
-		
-		 cbInstituicaoBancaria = new JComboBox();
-		panel_1.add(cbInstituicaoBancaria, "cell 1 1,growx");
-		
-		JLabel lblNewLabel_1_1_1 = new JLabel("Grupo de Contas:");
-		lblNewLabel_1_1_1.setFont(new Font("SansSerif", Font.PLAIN, 12));
-		panel_1.add(lblNewLabel_1_1_1, "cell 2 1,alignx right,aligny center");
-		
-		 cbGrupoConta = new JComboBox();
-		cbGrupoConta.setFont(new Font("SansSerif", Font.PLAIN, 12));
-		panel_1.add(cbGrupoConta, "cell 3 1,grow");
-		
-		JLabel lblNewLabel_1_1_4 = new JLabel("Status:");
-		lblNewLabel_1_1_4.setFont(new Font("SansSerif", Font.PLAIN, 12));
-		panel_1.add(lblNewLabel_1_1_4, "cell 4 1,alignx right");
-		
-		 cbStatusLancamento = new JComboBox();
-		 cbStatusLancamento.setFont(new Font("SansSerif", Font.PLAIN, 12));
-		 panel_1.add(cbStatusLancamento, "cell 5 1,growx,aligny top");
-		 cbStatusLancamento.addItem("TODOS");
-		 cbStatusLancamento.addItem("DESPESAS A PAGAR");
-		 cbStatusLancamento.addItem("DESPESAS PAGAS");
-		 cbStatusLancamento.addItem("RECEITAS A RECEBER");
-		 cbStatusLancamento.addItem("RECEITAS RECEBIDAS");
-		
-		JLabel lblNewLabel_1_1_2_1_1 = new JLabel("Cliente/Fornecedor:");
-		lblNewLabel_1_1_2_1_1.setFont(new Font("SansSerif", Font.PLAIN, 12));
-		panel_1.add(lblNewLabel_1_1_2_1_1, "cell 0 2,alignx trailing");
-		
-		entClienteServidor = new JTextField();
-		panel_1.add(entClienteServidor, "cell 1 2,growx");
-		entClienteServidor.setColumns(10);
-		
-		JLabel lblNewLabel_1_1_1_1 = new JLabel("Conta:");
-		lblNewLabel_1_1_1_1.setFont(new Font("SansSerif", Font.PLAIN, 12));
-		panel_1.add(lblNewLabel_1_1_1_1, "cell 2 2,alignx right,aligny center");
-		
-		 cbConta = new JComboBox();
-		cbConta.setFont(new Font("SansSerif", Font.PLAIN, 12));
-		panel_1.add(cbConta, "cell 3 2,growx,aligny center");
+		JPanel panel_2 = new JPanel();
+		panel_2.setBackground(Color.WHITE);
+		panel_1.add(panel_2, "cell 0 5 10 1,grow");
+		panel_2.setLayout(new MigLayout("", "[grow][grow][grow]", "[grow][]"));
 		
 		JPanel panel_4 = new JPanel();
+		panel_2.add(panel_4, "cell 0 0,grow");
 		panel_4.setBackground(Color.WHITE);
-		panel_1.add(panel_4, "cell 0 3 3 1,alignx left,growy");
-		panel_4.setLayout(new MigLayout("", "[][][][][][][][]", "[]"));
+		panel_4.setLayout(new MigLayout("", "[][][][][grow][][][grow]", "[]"));
 		
 		JLabel lblNewLabel_1_1_4_1 = new JLabel("Período Lançamento:");
 		panel_4.add(lblNewLabel_1_1_4_1, "cell 0 0");
@@ -261,23 +334,23 @@ public class TelaFinanceiroLancamento extends JFrame {
 		lblNewLabel_8.setFont(new Font("SansSerif", Font.BOLD, 14));
 		panel_4.add(lblNewLabel_8, "cell 1 0,alignx trailing");
 		
-		entPeriodoLancamentoInicial = new JTextField();
-		panel_4.add(entPeriodoLancamentoInicial, "cell 2 0 3 1,growx");
-		entPeriodoLancamentoInicial.setColumns(10);
-		entPeriodoLancamentoInicial.setText(pegarDataMenos(1));
+		menorDataLancamento = new JTextField();
+		panel_4.add(menorDataLancamento, "cell 2 0 3 1,growx");
+		menorDataLancamento.setColumns(10);
+		menorDataLancamento.setText(pegarDataMenos(1));
 		
 		JLabel lblNewLabel_6 = new JLabel("a");
 		lblNewLabel_6.setFont(new Font("SansSerif", Font.BOLD, 14));
 		panel_4.add(lblNewLabel_6, "cell 5 0,alignx trailing");
 		
-		entPeriodoLancamentoFinal = new JTextField();
-		panel_4.add(entPeriodoLancamentoFinal, "cell 6 0 2 1,growx");
-		entPeriodoLancamentoFinal.setColumns(10);
-		entPeriodoLancamentoFinal.setText(pegarDataMais(1));
+		maiorDataLancamento = new JTextField();
+		panel_4.add(maiorDataLancamento, "cell 6 0 2 1,growx");
+		maiorDataLancamento.setColumns(10);
+		maiorDataLancamento.setText(pegarDataMais(1));
 		
 		JPanel panel_4_1 = new JPanel();
+		panel_2.add(panel_4_1, "cell 1 0,grow");
 		panel_4_1.setBackground(Color.WHITE);
-		panel_1.add(panel_4_1, "cell 3 3,grow");
 		panel_4_1.setLayout(new MigLayout("", "[][][grow][][grow]", "[][]"));
 		
 		JLabel lblNewLabel_1_1_4_1_1 = new JLabel("Período Vencimento:");
@@ -288,26 +361,26 @@ public class TelaFinanceiroLancamento extends JFrame {
 		lblNewLabel_8_1.setFont(new Font("SansSerif", Font.BOLD, 14));
 		panel_4_1.add(lblNewLabel_8_1, "cell 1 0,alignx trailing");
 		
-		entPeriodoVencimentoInicial = new JTextField();
-		entPeriodoVencimentoInicial.setText((String) null);
-		entPeriodoVencimentoInicial.setColumns(10);
-		entPeriodoVencimentoInicial.setText(pegarDataMenos(1));
+		menorDataVencimento = new JTextField();
+		menorDataVencimento.setText((String) null);
+		menorDataVencimento.setColumns(10);
+		menorDataVencimento.setText(pegarDataMenos(1));
 
-		panel_4_1.add(entPeriodoVencimentoInicial, "cell 2 0,growx");
+		panel_4_1.add(menorDataVencimento, "cell 2 0,growx");
 		
 		JLabel lblNewLabel_6_1 = new JLabel("a");
 		lblNewLabel_6_1.setFont(new Font("SansSerif", Font.BOLD, 14));
 		panel_4_1.add(lblNewLabel_6_1, "cell 3 0,alignx trailing");
 		
-		entPeriodoVencimentoFinal = new JTextField();
-		entPeriodoVencimentoFinal.setText((String) null);
-		entPeriodoVencimentoFinal.setColumns(10);
-		entPeriodoVencimentoFinal.setText(pegarDataMais(1));
-		panel_4_1.add(entPeriodoVencimentoFinal, "cell 4 0,growx");
+		maiorDataVencimento = new JTextField();
+		maiorDataVencimento.setText((String) null);
+		maiorDataVencimento.setColumns(10);
+		maiorDataVencimento.setText(pegarDataMais(1));
+		panel_4_1.add(maiorDataVencimento, "cell 4 0,growx");
 		
 		JPanel panel_4_1_1 = new JPanel();
+		panel_2.add(panel_4_1_1, "cell 2 0,grow");
 		panel_4_1_1.setBackground(Color.WHITE);
-		panel_1.add(panel_4_1_1, "cell 4 3 5 1,grow");
 		panel_4_1_1.setLayout(new MigLayout("", "[][][grow][][grow]", "[]"));
 		
 		JLabel lblNewLabel_1_1_4_1_1_1 = new JLabel("Período Pagamento:");
@@ -318,25 +391,227 @@ public class TelaFinanceiroLancamento extends JFrame {
 		lblNewLabel_8_1_1.setFont(new Font("SansSerif", Font.BOLD, 14));
 		panel_4_1_1.add(lblNewLabel_8_1_1, "cell 1 0,alignx trailing");
 		
-		entPeriodoPagamentoInicial = new JTextField();
-		entPeriodoPagamentoInicial.setText((String) null);
-		entPeriodoPagamentoInicial.setColumns(10);
-		entPeriodoPagamentoInicial.setText(pegarDataMenos(1));
-		panel_4_1_1.add(entPeriodoPagamentoInicial, "cell 2 0,growx");
+		menorDataPagamento = new JTextField();
+		menorDataPagamento.setText((String) null);
+		menorDataPagamento.setColumns(10);
+		menorDataPagamento.setText(pegarDataMenos(1));
+		panel_4_1_1.add(menorDataPagamento, "cell 2 0,growx");
 		
 		JLabel lblNewLabel_6_1_1 = new JLabel("a");
 		lblNewLabel_6_1_1.setFont(new Font("SansSerif", Font.BOLD, 14));
 		panel_4_1_1.add(lblNewLabel_6_1_1, "cell 3 0,alignx trailing");
 		
-		entPeriodoPagamentoFinal = new JTextField();
-		entPeriodoPagamentoFinal.setText((String) null);
-		entPeriodoPagamentoFinal.setColumns(10);
-		entPeriodoPagamentoFinal.setText(pegarDataMais(1));
+		maiorDataPagamento = new JTextField();
+		maiorDataPagamento.setText((String) null);
+		maiorDataPagamento.setColumns(10);
+		maiorDataPagamento.setText(pegarDataMais(1));
+		
+				panel_4_1_1.add(maiorDataPagamento, "cell 4 0,growx");
+				
+				JPanel panel_6 = new JPanel();
+				panel_6.setBackground(new Color(255, 255, 204));
+				panel_1.add(panel_6, "cell 0 6 10 1,grow");
+				panel_6.setLayout(new MigLayout("", "[][][][][][][][][][]", "[][][]"));
+				
+				JLabel lblNewLabel_1_1_4_1_2 = new JLabel("Filtros Rápidos:");
+				lblNewLabel_1_1_4_1_2.setFont(new Font("SansSerif", Font.BOLD | Font.ITALIC, 14));
+				panel_6.add(lblNewLabel_1_1_4_1_2, "cell 0 0 1 2");
+				
+				JButton btnNewButton_5 = new JButton("Atrazados a uma semana");
+				btnNewButton_5.setBackground(new Color(255, 153, 0));
+				btnNewButton_5.setForeground(Color.WHITE);
+				btnNewButton_5.setFont(new Font("SansSerif", Font.BOLD | Font.ITALIC, 12));
+				btnNewButton_5.addActionListener(new ActionListener() {
+					public void actionPerformed(ActionEvent e) {
+						
+						filtroRapidoDespesaAtrazo(7);
+						
+					}
+				});
+				
+				JLabel lblNewLabel_2 = new JLabel("Despesas:");
+				panel_6.add(lblNewLabel_2, "cell 1 0");
+				panel_6.add(btnNewButton_5, "cell 2 0");
+				
+				JButton btnNewButton_5_1 = new JButton("Atrazados a 15 dias");
+				btnNewButton_5_1.setBackground(new Color(255, 51, 0));
+				btnNewButton_5_1.setForeground(Color.WHITE);
+				btnNewButton_5_1.setFont(new Font("SansSerif", Font.BOLD | Font.ITALIC, 12));
+				btnNewButton_5_1.addActionListener(new ActionListener() {
+					public void actionPerformed(ActionEvent e) {
+						filtroRapidoDespesaAtrazo(15);
+
+					}
+				});
+				panel_6.add(btnNewButton_5_1, "cell 3 0");
+				
+				JButton btnNewButton_5_1_1 = new JButton("Atrazados a 1 Mês");
+				btnNewButton_5_1_1.setBackground(new Color(204, 0, 0));
+				btnNewButton_5_1_1.setForeground(Color.WHITE);
+				btnNewButton_5_1_1.setFont(new Font("SansSerif", Font.BOLD | Font.ITALIC, 12));
+				btnNewButton_5_1_1.addActionListener(new ActionListener() {
+					public void actionPerformed(ActionEvent e) {
+						filtroRapidoDespesaAtrazo(30);
+
+					}
+				});
+				panel_6.add(btnNewButton_5_1_1, "cell 4 0");
+				
+				JButton btnNewButton_5_1_1_1 = new JButton("Atrazados > 1 mês");
+				btnNewButton_5_1_1_1.setBackground(new Color(102, 0, 0));
+				btnNewButton_5_1_1_1.setForeground(Color.WHITE);
+				btnNewButton_5_1_1_1.setFont(new Font("SansSerif", Font.BOLD | Font.ITALIC, 12));
+				btnNewButton_5_1_1_1.addActionListener(new ActionListener() {
+					public void actionPerformed(ActionEvent e) {
+						filtroRapidoDespesaAtrazo(600);
+
+					}
+				});
+				panel_6.add(btnNewButton_5_1_1_1, "cell 5 0");
+				
+				JButton btnNewButton_5_1_1_1_1 = new JButton("Vencem essa semana");
+				btnNewButton_5_1_1_1_1.setBackground(new Color(255, 51, 0));
+				btnNewButton_5_1_1_1_1.setForeground(Color.WHITE);
+				btnNewButton_5_1_1_1_1.setFont(new Font("SansSerif", Font.BOLD | Font.ITALIC, 12));
+				btnNewButton_5_1_1_1_1.addActionListener(new ActionListener() {
+					public void actionPerformed(ActionEvent e) {
+						filtroRapidoDespesaEmDias(7);
+					}
+				});
+				panel_6.add(btnNewButton_5_1_1_1_1, "cell 6 0");
+				
+				JButton btnNewButton_5_1_1_1_1_1 = new JButton("Vencem em 15 dias");
+				btnNewButton_5_1_1_1_1_1.setBackground(new Color(255, 51, 0));
+				btnNewButton_5_1_1_1_1_1.setForeground(Color.WHITE);
+				btnNewButton_5_1_1_1_1_1.setFont(new Font("SansSerif", Font.BOLD | Font.ITALIC, 12));
+				btnNewButton_5_1_1_1_1_1.addActionListener(new ActionListener() {
+					public void actionPerformed(ActionEvent e) {
+						filtroRapidoDespesaEmDias(15);
+
+					}
+				});
+				panel_6.add(btnNewButton_5_1_1_1_1_1, "cell 7 0");
+				
+				JButton btnNewButton_5_1_1_1_1_1_1 = new JButton("Vencem em 1 mês");
+				btnNewButton_5_1_1_1_1_1_1.setBackground(new Color(255, 51, 0));
+				btnNewButton_5_1_1_1_1_1_1.setForeground(Color.WHITE);
+				btnNewButton_5_1_1_1_1_1_1.setFont(new Font("SansSerif", Font.BOLD | Font.ITALIC, 12));
+				btnNewButton_5_1_1_1_1_1_1.addActionListener(new ActionListener() {
+					public void actionPerformed(ActionEvent e) {
+						filtroRapidoDespesaEmDias(30);
+
+					}
+				});
+				panel_6.add(btnNewButton_5_1_1_1_1_1_1, "cell 8 0");
+				
+				JButton btnNewButton_5_1_1_1_1_1_1_1 = new JButton("Vence em > 1 Mês");
+				btnNewButton_5_1_1_1_1_1_1_1.setBackground(new Color(255, 51, 0));
+				btnNewButton_5_1_1_1_1_1_1_1.setForeground(Color.WHITE);
+				btnNewButton_5_1_1_1_1_1_1_1.setFont(new Font("SansSerif", Font.BOLD | Font.ITALIC, 12));
+				btnNewButton_5_1_1_1_1_1_1_1.addActionListener(new ActionListener() {
+					public void actionPerformed(ActionEvent e) {
+						filtroRapidoDespesaEmDias(365);
+
+					}
+				});
+				panel_6.add(btnNewButton_5_1_1_1_1_1_1_1, "cell 9 0");
+				
+				JButton btnNewButton_5_2 = new JButton("Vencem essa semana");
+				btnNewButton_5_2.setBackground(new Color(0, 153, 0));
+				btnNewButton_5_2.setForeground(Color.WHITE);
+				btnNewButton_5_2.setFont(new Font("SansSerif", Font.BOLD | Font.ITALIC, 12));
+				btnNewButton_5_2.addActionListener(new ActionListener() {
+					public void actionPerformed(ActionEvent e) {
+						filtroRapidoReceitaEmDias(7);
+					}
+				});
+				
+				JButton btnNewButton_5_3 = new JButton("Atrazados a uma semana");
+				btnNewButton_5_3.setBackground(new Color(51, 255, 153));
+				btnNewButton_5_3.setForeground(new Color(0, 0, 0));
+				btnNewButton_5_3.setFont(new Font("SansSerif", Font.BOLD | Font.ITALIC, 12));
+				btnNewButton_5_3.addActionListener(new ActionListener() {
+					public void actionPerformed(ActionEvent e) {
+						filtroRapidoReceitaAtrazo(7);
+					}
+				});
+				
+				JLabel lblNewLabel_2_1 = new JLabel("Receitas:");
+				panel_6.add(lblNewLabel_2_1, "cell 1 1,alignx right");
+				panel_6.add(btnNewButton_5_3, "cell 2 1");
+				
+				JButton btnNewButton_5_3_1 = new JButton("Atrazados a 15 dias");
+				btnNewButton_5_3_1.addActionListener(new ActionListener() {
+					public void actionPerformed(ActionEvent e) {
+						filtroRapidoReceitaAtrazo(15);
+					}
+				});
+				btnNewButton_5_3_1.setForeground(Color.WHITE);
+				btnNewButton_5_3_1.setFont(new Font("SansSerif", Font.BOLD | Font.ITALIC, 12));
+				btnNewButton_5_3_1.setBackground(new Color(0, 153, 153));
+				panel_6.add(btnNewButton_5_3_1, "cell 3 1");
+				
+				JButton btnNewButton_5_3_1_1 = new JButton("Atrazados a 1 Mês");
+				btnNewButton_5_3_1_1.addActionListener(new ActionListener() {
+					public void actionPerformed(ActionEvent e) {
+						filtroRapidoReceitaAtrazo(30);
+					}
+				});
+				btnNewButton_5_3_1_1.setForeground(Color.WHITE);
+				btnNewButton_5_3_1_1.setFont(new Font("SansSerif", Font.BOLD | Font.ITALIC, 12));
+				btnNewButton_5_3_1_1.setBackground(new Color(0, 153, 102));
+				panel_6.add(btnNewButton_5_3_1_1, "cell 4 1");
+				
+				JButton btnNewButton_5_3_1_1_1 = new JButton("Atrazados > 1 Mês");
+				btnNewButton_5_3_1_1_1.addActionListener(new ActionListener() {
+					public void actionPerformed(ActionEvent e) {
+						filtroRapidoReceitaAtrazo(365);
+					}
+				});
+				btnNewButton_5_3_1_1_1.setForeground(Color.WHITE);
+				btnNewButton_5_3_1_1_1.setFont(new Font("SansSerif", Font.BOLD | Font.ITALIC, 12));
+				btnNewButton_5_3_1_1_1.setBackground(new Color(0, 51, 51));
+				panel_6.add(btnNewButton_5_3_1_1_1, "cell 5 1");
+				panel_6.add(btnNewButton_5_2, "cell 6 1,growx");
+				
+				JButton btnNewButton_5_3_1_1_1_1 = new JButton("Vencem em 15 dias");
+				btnNewButton_5_3_1_1_1_1.addActionListener(new ActionListener() {
+					public void actionPerformed(ActionEvent e) {
+						filtroRapidoReceitaEmDias(15);
+
+					}
+				});
+				btnNewButton_5_3_1_1_1_1.setForeground(Color.WHITE);
+				btnNewButton_5_3_1_1_1_1.setFont(new Font("SansSerif", Font.BOLD | Font.ITALIC, 12));
+				btnNewButton_5_3_1_1_1_1.setBackground(new Color(51, 51, 0));
+				panel_6.add(btnNewButton_5_3_1_1_1_1, "cell 7 1");
+				
+				JButton btnNewButton_5_3_1_1_1_1_1 = new JButton("Vencem em 1 mês");
+				btnNewButton_5_3_1_1_1_1_1.addActionListener(new ActionListener() {
+					public void actionPerformed(ActionEvent e) {
+						filtroRapidoReceitaEmDias(30);
+
+					}
+				});
+				btnNewButton_5_3_1_1_1_1_1.setForeground(Color.WHITE);
+				btnNewButton_5_3_1_1_1_1_1.setFont(new Font("SansSerif", Font.BOLD | Font.ITALIC, 12));
+				btnNewButton_5_3_1_1_1_1_1.setBackground(new Color(0, 51, 102));
+				panel_6.add(btnNewButton_5_3_1_1_1_1_1, "cell 8 1");
+				
+				JButton btnNewButton_5_1_1_1_1_1_1_1_1 = new JButton("Vence em > 1 mês");
+				btnNewButton_5_1_1_1_1_1_1_1_1.addActionListener(new ActionListener() {
+					public void actionPerformed(ActionEvent e) {
+						filtroRapidoReceitaEmDias(30);
+
+					}
+				});
+				btnNewButton_5_1_1_1_1_1_1_1_1.setForeground(Color.WHITE);
+				btnNewButton_5_1_1_1_1_1_1_1_1.setFont(new Font("SansSerif", Font.BOLD | Font.ITALIC, 12));
+				btnNewButton_5_1_1_1_1_1_1_1_1.setBackground(new Color(0, 51, 0));
+				panel_6.add(btnNewButton_5_1_1_1_1_1_1_1_1, "cell 9 1");
 		
 		
 		LancamentosRender renderer = new LancamentosRender();
-
-		panel_4_1_1.add(entPeriodoPagamentoFinal, "cell 4 0,growx");
 		
 		tabela_lancamentos = new JTable(modelo_lancamentos);
 		tabela_lancamentos.setDefaultRenderer(Object.class, renderer);
@@ -360,146 +635,146 @@ public class TelaFinanceiroLancamento extends JFrame {
 		painelDespesas.setBorder(new LineBorder(new Color(0, 0, 0), 2));
 		painelDespesas.setBackground(Color.WHITE);
 		panel_5.add(painelDespesas, "cell 0 0,grow");
-		painelDespesas.setLayout(new MigLayout("", "[][][][][]", "[][][][]"));
+				 painelDespesas.setLayout(new MigLayout("", "[62px][109px][8px][91px][51px]", "[16px][20px][20px][20px]"));
+				 
+				 JLabel lblNewLabel_1 = new JLabel("Despesas:");
+				 lblNewLabel_1.setFont(new Font("SansSerif", Font.BOLD | Font.ITALIC, 12));
+				 painelDespesas.add(lblNewLabel_1, "cell 0 0,alignx left,aligny top");
+				 
+				 JLabel lblNewLabel_3_1 = new JLabel("N.º de Despesas:");
+				 lblNewLabel_3_1.setFont(new Font("SansSerif", Font.PLAIN, 14));
+				 painelDespesas.add(lblNewLabel_3_1, "cell 1 1,alignx left,aligny bottom");
 		
-		JLabel lblNewLabel_1 = new JLabel("Despesas:");
-		painelDespesas.add(lblNewLabel_1, "cell 0 0");
+				 lblTotalDespesas = new JLabel("0");
+				 painelDespesas.add(lblTotalDespesas, "cell 2 1,alignx left,aligny top");
+				 lblTotalDespesas.setFont(new Font("SansSerif", Font.BOLD, 15));
 		
-		JLabel lblNewLabel_5 = new JLabel("        ");
-		painelDespesas.add(lblNewLabel_5, "cell 0 1,alignx right");
-		lblNewLabel_5.setOpaque(true);
-		lblNewLabel_5.setBackground(Color.RED);
-		lblNewLabel_5.setForeground(Color.BLACK);
+		JLabel lblValorDespesaslbl = new JLabel("Valor Total:");
+		lblValorDespesaslbl.setFont(new Font("SansSerif", Font.PLAIN, 14));
+		painelDespesas.add(lblValorDespesaslbl, "cell 3 1,alignx right,aligny bottom");
 		
-		JLabel lblNewLabel_3 = new JLabel("A Pagar:");
-		painelDespesas.add(lblNewLabel_3, "cell 1 1");
-		lblNewLabel_3.setFont(new Font("SansSerif", Font.PLAIN, 14));
-		
-		 lblDespesasAPagar = new JLabel("0");
-		 painelDespesas.add(lblDespesasAPagar, "flowx,cell 2 1");
-		 lblDespesasAPagar.setFont(new Font("SansSerif", Font.BOLD, 15));
-		 
-		 JLabel lblValorAPagarlbl = new JLabel("Valor a Pagar:");
-		 lblValorAPagarlbl.setFont(new Font("SansSerif", Font.PLAIN, 14));
-		 painelDespesas.add(lblValorAPagarlbl, "cell 3 1,alignx right");
-		 
-		 
-		 
-		  lblValorAPagar = new JLabel("0");
-		 lblValorAPagar.setFont(new Font("SansSerif", Font.BOLD, 15));
-		 painelDespesas.add(lblValorAPagar, "cell 4 1");
+		 lblValorTotalDespesas = new JLabel("0");
+		 lblValorTotalDespesas.setFont(new Font("SansSerif", Font.BOLD, 15));
+		 painelDespesas.add(lblValorTotalDespesas, "cell 4 1,alignx left,aligny top");
 		 
 		 JLabel lblNewLabel_5_1 = new JLabel("        ");
-		 painelDespesas.add(lblNewLabel_5_1, "cell 0 2,alignx right");
+		 painelDespesas.add(lblNewLabel_5_1, "cell 0 2,alignx right,aligny center");
 		 lblNewLabel_5_1.setOpaque(true);
 		 lblNewLabel_5_1.setForeground(Color.BLACK);
 		 lblNewLabel_5_1.setBackground(Color.ORANGE);
 		 
 		 JLabel lblNewLabel_4 = new JLabel("Pago:");
-		 painelDespesas.add(lblNewLabel_4, "cell 1 2");
+		 painelDespesas.add(lblNewLabel_4, "cell 1 2,alignx left,aligny bottom");
 		 lblNewLabel_4.setFont(new Font("SansSerif", Font.PLAIN, 14));
 		 
 		  lblDespesasPago = new JLabel("0");
-		  painelDespesas.add(lblDespesasPago, "flowx,cell 2 2");
+		  painelDespesas.add(lblDespesasPago, "cell 2 2,alignx left,aligny top");
 		  lblDespesasPago.setFont(new Font("SansSerif", Font.BOLD, 15));
-		  
-		  JLabel lblValorPagolbl = new JLabel("Valor Pago:");
-		  lblValorPagolbl.setFont(new Font("SansSerif", Font.PLAIN, 14));
-		  painelDespesas.add(lblValorPagolbl, "cell 3 2,alignx right");
+		   
+		   JLabel lblValorPagolbl = new JLabel("Valor Pago:");
+		   lblValorPagolbl.setFont(new Font("SansSerif", Font.PLAIN, 14));
+		   painelDespesas.add(lblValorPagolbl, "cell 3 2,alignx right,aligny bottom");
 		  
 		   lblValorPago = new JLabel("0");
-		  lblValorPago.setFont(new Font("SansSerif", Font.BOLD, 15));
-		  painelDespesas.add(lblValorPago, "cell 4 2");
-		  
-		  JLabel lblNewLabel_7 = new JLabel("Despesas:");
-		  painelDespesas.add(lblNewLabel_7, "cell 1 3");
-		  lblNewLabel_7.setFont(new Font("SansSerif", Font.PLAIN, 14));
-		  
-		  		 lblTotalDespesas = new JLabel("0");
-		  		 painelDespesas.add(lblTotalDespesas, "flowx,cell 2 3");
-		  		 lblTotalDespesas.setFont(new Font("SansSerif", Font.BOLD, 15));
-		  		 
-		  		 JLabel lblValorDespesaslbl = new JLabel("Valor Despesas:");
-		  		 lblValorDespesaslbl.setFont(new Font("SansSerif", Font.PLAIN, 14));
-		  		 painelDespesas.add(lblValorDespesaslbl, "cell 3 3,alignx right");
-		  		 
-		  		  lblValorDespesas = new JLabel("0");
-		  		 lblValorDespesas.setFont(new Font("SansSerif", Font.BOLD, 15));
-		  		 painelDespesas.add(lblValorDespesas, "cell 4 3");
+		   lblValorPago.setFont(new Font("SansSerif", Font.BOLD, 15));
+		   painelDespesas.add(lblValorPago, "cell 4 2,alignx left,aligny top");
+		   
+		   JLabel lblNewLabel_5 = new JLabel("        ");
+		   painelDespesas.add(lblNewLabel_5, "cell 0 3,alignx right,aligny center");
+		   lblNewLabel_5.setOpaque(true);
+		   lblNewLabel_5.setBackground(Color.RED);
+		   lblNewLabel_5.setForeground(Color.BLACK);
+		   
+		   JLabel lblNewLabel_3 = new JLabel("A Pagar:");
+		   painelDespesas.add(lblNewLabel_3, "cell 1 3,alignx left,aligny bottom");
+		   lblNewLabel_3.setFont(new Font("SansSerif", Font.PLAIN, 14));
+		   
+		    lblDespesasAPagar = new JLabel("0");
+		    painelDespesas.add(lblDespesasAPagar, "cell 2 3,alignx left,aligny top");
+		    lblDespesasAPagar.setFont(new Font("SansSerif", Font.BOLD, 15));
+		    
+		    JLabel lblValorAPagar_1_1 = new JLabel("Valor a Pagar:");
+		    lblValorAPagar_1_1.setFont(new Font("SansSerif", Font.PLAIN, 14));
+		    painelDespesas.add(lblValorAPagar_1_1, "cell 3 3,alignx left,aligny bottom");
+		    
+		     lblValorRestanteAPagar = new JLabel("0");
+		     lblValorRestanteAPagar.setFont(new Font("SansSerif", Font.BOLD, 15));
+		     painelDespesas.add(lblValorRestanteAPagar, "cell 4 3,alignx left,aligny top");
 		  		 
 		  		 JPanel panel_7 = new JPanel();
 		  		 panel_7.setBorder(new LineBorder(new Color(0, 0, 0), 2));
 		  		 panel_7.setBackground(Color.WHITE);
 		  		 panel_5.add(panel_7, "cell 1 0,grow");
-		  		 panel_7.setLayout(new MigLayout("", "[][][][][]", "[][][][]"));
+		  		 panel_7.setLayout(new MigLayout("", "[52px][81px][24px][107px][51px]", "[][20px][20px][20px]"));
 		  		 
 		  		 JLabel lblNewLabel_1_2 = new JLabel("Receitas:");
-		  		 panel_7.add(lblNewLabel_1_2, "cell 0 0");
+		  		 lblNewLabel_1_2.setFont(new Font("SansSerif", Font.BOLD | Font.ITALIC, 14));
+		  		 panel_7.add(lblNewLabel_1_2, "cell 0 0,alignx left,aligny center");
+		  		 
+		  		 JLabel lblNewLabel_7_1 = new JLabel("N.º Receitas:");
+		  		 panel_7.add(lblNewLabel_7_1, "cell 1 1,alignx left,aligny bottom");
+		  		 lblNewLabel_7_1.setFont(new Font("SansSerif", Font.PLAIN, 14));
+		  		 
+		  		 
+		  		  lblTotalReceitas = new JLabel("0");
+		  		  panel_7.add(lblTotalReceitas, "cell 2 1,alignx left,aligny top");
+		  		  lblTotalReceitas.setFont(new Font("SansSerif", Font.BOLD, 15));
+		  		 
+		  		 JLabel lblValorReceitaslbl = new JLabel("Valor Total:");
+		  		 lblValorReceitaslbl.setFont(new Font("SansSerif", Font.PLAIN, 14));
+		  		 panel_7.add(lblValorReceitaslbl, "cell 3 1,alignx right,aligny bottom");
+		  		 
+		  		  lblValorReceitas = new JLabel("R$ 0,00");
+		  		  lblValorReceitas.setFont(new Font("SansSerif", Font.BOLD, 15));
+		  		  panel_7.add(lblValorReceitas, "cell 4 1,alignx left,aligny top");
+		  		 
+		  		 JLabel lblNewLabel_5_2_1 = new JLabel("        ");
+		  		 panel_7.add(lblNewLabel_5_2_1, "cell 0 2,alignx right,aligny center");
+		  		 lblNewLabel_5_2_1.setOpaque(true);
+		  		 lblNewLabel_5_2_1.setForeground(Color.BLACK);
+		  		 lblNewLabel_5_2_1.setBackground(new Color(0, 51, 0));
+		  		 
+		  		 JLabel lblNewLabel_4_1_1 = new JLabel("Recebido:");
+		  		 panel_7.add(lblNewLabel_4_1_1, "cell 1 2,alignx left,aligny bottom");
+		  		 lblNewLabel_4_1_1.setFont(new Font("SansSerif", Font.PLAIN, 14));
+		  		 
+		  		  lblReceitasRecebido = new JLabel("0");
+		  		  panel_7.add(lblReceitasRecebido, "cell 2 2,alignx left,aligny top");
+		  		  lblReceitasRecebido.setFont(new Font("SansSerif", Font.BOLD, 15));
+		  		 
+		  		 JLabel lblValorRecebidolbl = new JLabel("Valor Recebido:");
+		  		 lblValorRecebidolbl.setFont(new Font("SansSerif", Font.PLAIN, 14));
+		  		 panel_7.add(lblValorRecebidolbl, "cell 3 2,alignx right,aligny bottom");
+		  		 
+		  		  lblValorRecebido = new JLabel("R$ 0,00");
+		  		  lblValorRecebido.setFont(new Font("SansSerif", Font.BOLD, 15));
+		  		  panel_7.add(lblValorRecebido, "cell 4 2,alignx left,aligny top");
 		  		 
 		  		 JLabel lblNewLabel_5_2 = new JLabel("        ");
-		  		 panel_7.add(lblNewLabel_5_2, "cell 0 1,alignx right");
+		  		 panel_7.add(lblNewLabel_5_2, "cell 0 3,alignx right,aligny center");
 		  		 lblNewLabel_5_2.setOpaque(true);
 		  		 lblNewLabel_5_2.setForeground(Color.BLACK);
 		  		 lblNewLabel_5_2.setBackground(Color.YELLOW);
 		  		 
 		  		 JLabel lblNewLabel_4_1 = new JLabel("A Receber:");
-		  		 panel_7.add(lblNewLabel_4_1, "cell 1 1");
+		  		 panel_7.add(lblNewLabel_4_1, "cell 1 3,alignx left,aligny bottom");
 		  		 lblNewLabel_4_1.setFont(new Font("SansSerif", Font.PLAIN, 14));
 		  		 
 
 		  		 
 		  		  lblReceitasAReceber = new JLabel("0");
-		  		  panel_7.add(lblReceitasAReceber, "cell 2 1");
+		  		  panel_7.add(lblReceitasAReceber, "cell 2 3,alignx left,aligny top");
 		  		  lblReceitasAReceber.setFont(new Font("SansSerif", Font.BOLD, 15));
 		  		  
 		  		  JLabel lblValorAReceberlbl = new JLabel("Valor a Receber:");
 		  		  lblValorAReceberlbl.setFont(new Font("SansSerif", Font.PLAIN, 14));
-		  		  panel_7.add(lblValorAReceberlbl, "cell 3 1,alignx right");
+		  		  panel_7.add(lblValorAReceberlbl, "cell 3 3,alignx left,aligny bottom");
 		  		  
 		  		 
 		  		  
 		  		   lblValorAReceber = new JLabel("R$ 0,00");
 		  		  lblValorAReceber.setFont(new Font("SansSerif", Font.BOLD, 15));
-		  		  panel_7.add(lblValorAReceber, "cell 4 1");
-		  		  
-		  		  JLabel lblNewLabel_5_2_1 = new JLabel("        ");
-		  		  panel_7.add(lblNewLabel_5_2_1, "cell 0 2,alignx right");
-		  		  lblNewLabel_5_2_1.setOpaque(true);
-		  		  lblNewLabel_5_2_1.setForeground(Color.BLACK);
-		  		  lblNewLabel_5_2_1.setBackground(new Color(0, 51, 0));
-		  		  
-		  		  JLabel lblNewLabel_4_1_1 = new JLabel("Recebido:");
-		  		  panel_7.add(lblNewLabel_4_1_1, "cell 1 2");
-		  		  lblNewLabel_4_1_1.setFont(new Font("SansSerif", Font.PLAIN, 14));
-		  		  
-		  		   lblReceitasRecebido = new JLabel("0");
-		  		   panel_7.add(lblReceitasRecebido, "cell 2 2");
-		  		   lblReceitasRecebido.setFont(new Font("SansSerif", Font.BOLD, 15));
-		  		   
-		  		   JLabel lblValorRecebidolbl = new JLabel("Valor Recebido:");
-		  		   lblValorRecebidolbl.setFont(new Font("SansSerif", Font.PLAIN, 14));
-		  		   panel_7.add(lblValorRecebidolbl, "cell 3 2,alignx right");
-		  		   
-		  		    lblValorRecebido = new JLabel("R$ 0,00");
-		  		   lblValorRecebido.setFont(new Font("SansSerif", Font.BOLD, 15));
-		  		   panel_7.add(lblValorRecebido, "cell 4 2");
-		  		   
-		  		   JLabel lblNewLabel_7_1 = new JLabel("Receitas:");
-		  		   panel_7.add(lblNewLabel_7_1, "cell 1 3");
-		  		   lblNewLabel_7_1.setFont(new Font("SansSerif", Font.PLAIN, 14));
-		  		   
-		  		   
-		  		    lblTotalReceitas = new JLabel("0");
-		  		    panel_7.add(lblTotalReceitas, "cell 2 3");
-		  		    lblTotalReceitas.setFont(new Font("SansSerif", Font.BOLD, 15));
-		  		    
-		  		    JLabel lblValorReceitaslbl = new JLabel("Valor Receitas:");
-		  		    lblValorReceitaslbl.setFont(new Font("SansSerif", Font.PLAIN, 14));
-		  		    panel_7.add(lblValorReceitaslbl, "cell 3 3,alignx right");
-		  		    
-		  		     lblValorReceitas = new JLabel("R$ 0,00");
-		  		    lblValorReceitas.setFont(new Font("SansSerif", Font.BOLD, 15));
-		  		    panel_7.add(lblValorReceitas, "cell 4 3");
+		  		  panel_7.add(lblValorAReceber, "cell 4 3,alignx left,aligny top");
 		
 		JPanel panel_3 = new JPanel();
 		painelPrinciapl.add(panel_3, "cell 2 3,alignx right,aligny top");
@@ -529,12 +804,35 @@ public class TelaFinanceiroLancamento extends JFrame {
 			            JOptionPane.YES_NO_OPTION,
 			            JOptionPane.QUESTION_MESSAGE) == JOptionPane.YES_OPTION){
 					
+						ArrayList<FinanceiroPagamento> lista_pagamentos = new GerenciarBancoFinanceiroPagamento().getFinanceiroPagamentosPorLancamento(getLancamentoSelecionado().getId_lancamento());
+					
+						if(lista_pagamentos.size() > 0) {
+							JOptionPane.showMessageDialog(isto, "O lançamento selecionado possui pagamentos, exclua os primeiro");
+
+						}else {
+							boolean prosseguir = true;
+						//excluir primeiro as parcelas
+							GerenciarBancoParcelas gerenciar =  new GerenciarBancoParcelas();
+							ArrayList<Parcela> lista_parcelas = gerenciar.getParcelasPorLancamento(getLancamentoSelecionado().getId_lancamento());
+							for(Parcela parcela : lista_parcelas) {
+								boolean remover_parcela = gerenciar.removerParcela(parcela.getId_parcela());
+								if(!remover_parcela) {
+									prosseguir = false;
+									JOptionPane.showMessageDialog(isto, "Erro ao excluir parcela do lançamento\nBanco de dados Corrompido\nConsulte o administrador");
+
+									break;
+								}
+							}
+						if(prosseguir) {	
+							
 						boolean exclusao = new GerenciarBancoLancamento().removerLancamento(getLancamentoSelecionado().getId_lancamento());
 						if(exclusao) {
 							JOptionPane.showMessageDialog(isto, "Cadastro Excluído");
 						}else {
 							JOptionPane.showMessageDialog(isto, "Erro ao excluir\nConsulte o administrador");
 
+						}
+						}
 						}
 
 						 pesquisar();
@@ -575,7 +873,12 @@ public class TelaFinanceiroLancamento extends JFrame {
 		popular_contas();
 		popular_condicao_pagamento();
 		
+		
 		pesquisar();
+		boolean pegar_datas = true;
+		if(pegar_datas) {
+		pegarDatas();
+		}
 		calcular();
 		
 		this.setExtendedState(JFrame.MAXIMIZED_BOTH);
@@ -589,15 +892,36 @@ public class TelaFinanceiroLancamento extends JFrame {
 		calcular();
 	}
 	
+	public void pegarDatas() {
+		GerenciarBancoLancamento gerenciar = new GerenciarBancoLancamento();
+
+		Map<String,String> datas = new HashMap<String,String>();
+		 datas = gerenciar.pegarDatas();
+         
+		 menorDataLancamento.setText(datas.get("menor_data_lancamento"));
+          maiorDataLancamento.setText(datas.get("maior_data_lancamento"));
+         
+          menorDataVencimento.setText(datas.get("menor_data_vencimento"));
+          maiorDataVencimento.setText(datas.get("maior_data_vencimento"));
+          
+          menorDataPagamento.setText(datas.get("menor_data_pagamento"));
+          maiorDataPagamento.setText(datas.get("maior_data_pagamento"));
+	}
+	
 	public void pesquisar() {
 		GerenciarBancoLancamento gerenciar = new GerenciarBancoLancamento();
 		lista_lancamentos.clear();
 		modelo_lancamentos.onRemoveAll();
 		
-		lista_lancamentos = gerenciar.getLancamentos();
+
+
+		 
+		lista_lancamentos = gerenciar.buscaLancamentosCompletos();
 		for(Lancamento cc : lista_lancamentos) {
 			modelo_lancamentos.onAdd(cc);
 		}
+		
+		calcular();
 	}
 	
 public void filtrar() {
@@ -606,19 +930,19 @@ public void filtrar() {
 /*private final int id = 0;
 		private final int data = 1;
 		private final int tipo_lancamento = 2;
-		private final int centro_custo = 3;
-		private final int instituicao_bancaria = 4;
-		private final int cliente_fornecedor = 5;
-		private final int grupo_conta = 6;
-		private final int conta = 7;
-		private final int condicao_pagamento = 8;
-		private final int valor = 9;
-		private final int data_vencimento = 10;
-		private final int data_pagamento =11;
+		private final int prioridade = 3;
+		private final int centro_custo = 4;
+		private final int instituicao_bancaria = 6;
+		private final int cliente_fornecedor = 7;
+		private final int grupo_conta = 8;
+		private final int conta = 9;
+		private final int valor = 10;
+		private final int data_vencimento = 11;
 		private final int status = 12;
 		*/
-		  String data_inicial_filtrar_data_lancamento = entPeriodoLancamentoInicial.getText().replace(" ", "");
-		    String data_final_filtrar_data_lancamento = entPeriodoLancamentoFinal.getText().replace(" ", "");
+		
+		  String data_inicial_filtrar_data_lancamento = menorDataLancamento.getText().replace(" ", "");
+		    String data_final_filtrar_data_lancamento = maiorDataLancamento.getText().replace(" ", "");
 		    
 		    if(checkString(data_inicial_filtrar_data_lancamento) && checkString(data_final_filtrar_data_lancamento) ) {
 			Date data_menor = null;
@@ -653,8 +977,8 @@ public void filtrar() {
 		 
 		 }
 		    
-		    String data_inicial_filtrar_data_vencimento = entPeriodoVencimentoInicial.getText().replace(" ", "");
-		    String data_final_filtrar_data_vencimento = entPeriodoVencimentoFinal.getText().replace(" ", "");
+		    String data_inicial_filtrar_data_vencimento = menorDataVencimento.getText().replace(" ", "");
+		    String data_final_filtrar_data_vencimento = maiorDataVencimento.getText().replace(" ", "");
 		    
 		    if(checkString(data_inicial_filtrar_data_vencimento) && checkString(data_final_filtrar_data_vencimento) ) {
 			Date data_menor = null;
@@ -670,9 +994,9 @@ public void filtrar() {
 			
 			Set<RowFilter<Object, Object>> datas = new HashSet<>();
 			datas.add(RowFilter.dateFilter(RowFilter.ComparisonType.AFTER,
-					data_menor, 10));
+					data_menor, 11));
 			datas.add(RowFilter.dateFilter(RowFilter.ComparisonType.EQUAL,
-					data_menor, 10));
+					data_menor, 11));
 			filters.add(RowFilter.orFilter(datas));
 	     
 		  //  filters.add( RowFilter.dateFilter(ComparisonType.AFTER, data_menor, 5) );
@@ -682,12 +1006,14 @@ public void filtrar() {
 		   // filters.add( RowFilter.dateFilter(ComparisonType.EQUAL, data_maior, 5) );
 			Set<RowFilter<Object, Object>> datas_maior = new HashSet<>();
 			datas_maior.add(RowFilter.dateFilter(RowFilter.ComparisonType.BEFORE,
-					data_maior, 10));
+					data_maior, 11));
 			datas_maior.add(RowFilter.dateFilter(RowFilter.ComparisonType.EQUAL,
-					data_maior, 10));
+					data_maior, 11));
 			filters.add(RowFilter.orFilter(datas_maior));
 		 
 		 }
+		    
+		    /*
 		
 		    String data_inicial_filtrar_data_pagamento = entPeriodoPagamentoInicial.getText().replace(" ", "");
 		    String data_final_filtrar_data_pagamento = entPeriodoPagamentoFinal.getText().replace(" ", "");
@@ -724,15 +1050,18 @@ public void filtrar() {
 			filters.add(RowFilter.orFilter(datas_maior));
 		 
 		 }
+		    
+		    */
 		
-		String s_centro_custo = "";
+		
 		
 		try {
+			String s_centro_custo = "";
 		if(checkString(cbCentroCusto.getSelectedItem().toString())) {
 			
 			s_centro_custo = cbCentroCusto.getSelectedItem().toString();
 			if(!(s_centro_custo.equalsIgnoreCase("TODOS")))
-			filters.add(RowFilter.regexFilter(s_centro_custo, 3));
+			 filters.add(RowFilter.regexFilter(s_centro_custo, 4));
 
 		}
 		}catch(Exception t) {
@@ -743,21 +1072,34 @@ public void filtrar() {
 			String s_tipo_lancamento = "";
 			if(checkString(cbTipoLancamento.getSelectedItem().toString())) {
 				s_tipo_lancamento = cbTipoLancamento.getSelectedItem().toString();
-				if(!(s_tipo_lancamento.equalsIgnoreCase("TODOS")))
+				if(!(s_tipo_lancamento.equalsIgnoreCase("TODOS"))) {
 				filters.add(RowFilter.regexFilter(s_tipo_lancamento, 2));
+				}
+			}
+			}
+		
+		
+		if(cbPrioridade.getSelectedItem().toString() != null) {
+			String s_prioridade = "";
+			if(checkString(cbPrioridade.getSelectedItem().toString())) {
+				s_prioridade = cbPrioridade.getSelectedItem().toString();
+				if(!(s_prioridade.equalsIgnoreCase("TODOS"))) {
+				filters.add(RowFilter.regexFilter(s_prioridade, 3));
+				}
 
 			}
 			}
 		
-		if(entClienteServidor.getText() != null) {
+	
+		if(entClienteFornecedor.getText() != null) {
 			String s_cliente_servidor = "";
-			if(checkString(entClienteServidor.getText())) {
-				s_cliente_servidor = entClienteServidor.getText().toUpperCase();
+			if(checkString(entClienteFornecedor.getText())) {
+				s_cliente_servidor = entClienteFornecedor.getText().toUpperCase();
 				if(!(s_cliente_servidor.equalsIgnoreCase("TODOS")))
 				filters.add(RowFilter.regexFilter(s_cliente_servidor, 5));
 			}
 		}
-		
+	
 		
 		if(cbGrupoConta.getSelectedItem().toString() != null) {
 		String s_grupo_contas = "";
@@ -769,57 +1111,70 @@ public void filtrar() {
 		}
 		}
 		
+		
 		if( cbConta.getSelectedItem().toString() != null) {
 		String s_contas = "";
 		if(checkString(cbConta.getSelectedItem().toString())) {
 			s_contas = cbConta.getSelectedItem().toString();
-			if(!(s_contas.equalsIgnoreCase("TODOS")))
+			if(!(s_contas.equalsIgnoreCase("TODOS"))) {
 			filters.add(RowFilter.regexFilter(s_contas, 7));
-
-		}
-		}
-		
-		
-
-		if( cbInstituicaoBancaria.getSelectedItem().toString() != null) {
-		String s_ibs = "";
-		if(checkString(cbInstituicaoBancaria.getSelectedItem().toString())) {
-			s_ibs = cbInstituicaoBancaria.getSelectedItem().toString();
-			if(!(s_ibs.equalsIgnoreCase("TODOS")))
-			filters.add(RowFilter.regexFilter(s_ibs, 4));
-
-		}
-		}
-		
-		
-		if( cbCondicaoPagamento.getSelectedItem().toString() != null) {
-			String s_cP = "";
-			if(checkString(cbCondicaoPagamento.getSelectedItem().toString())) {
-				s_cP = cbCondicaoPagamento.getSelectedItem().toString();
-				if(!(s_cP.equalsIgnoreCase("TODOS")))
-				filters.add(RowFilter.regexFilter(s_cP, 8));
-
 			}
-			}
+		}
+		}
+		
+		
+		
 		
 		String s_tipo_conta = "";
 		if(cbStatusLancamento.getSelectedIndex() == 1) {
 			s_tipo_conta = "A Pagar";
 			if (checkString(s_tipo_conta))
-				filters.add(RowFilter.regexFilter(s_tipo_conta, 12));
+				filters.add(RowFilter.regexFilter(s_tipo_conta, 13));
 		}else if(cbStatusLancamento.getSelectedIndex() == 2) {
 			s_tipo_conta = "Pago";
 			if (checkString(s_tipo_conta))
-				filters.add(RowFilter.regexFilter(s_tipo_conta, 12));
+				filters.add(RowFilter.regexFilter(s_tipo_conta, 13));
 		}else if(cbStatusLancamento.getSelectedIndex() == 3) {
 			s_tipo_conta = "A Receber";
 			if (checkString(s_tipo_conta))
-				filters.add(RowFilter.regexFilter(s_tipo_conta, 12));
+				filters.add(RowFilter.regexFilter(s_tipo_conta, 13));
 		}else if(cbStatusLancamento.getSelectedIndex() == 4) {
 			s_tipo_conta = "Recebido";
 			if (checkString(s_tipo_conta))
-				filters.add(RowFilter.regexFilter(s_tipo_conta, 12));
+				filters.add(RowFilter.regexFilter(s_tipo_conta, 13));
+		
 		}
+		
+		if( cbSituacao.getSelectedItem().toString() != null) {
+			String s_situacao = "";
+			if(checkString(cbSituacao.getSelectedItem().toString())) {
+				s_situacao = cbSituacao.getSelectedItem().toString();
+				if(!(s_situacao.equalsIgnoreCase("TODOS"))) {
+				filters.add(RowFilter.regexFilter(s_situacao, 14));
+				}
+			}
+			}
+		
+		if( cbCondicaoPagamento.getSelectedItem().toString() != null) {
+			String s_condicao = "";
+			if(checkString(cbCondicaoPagamento.getSelectedItem().toString())) {
+				s_condicao = cbCondicaoPagamento.getSelectedItem().toString();
+				if(!(s_condicao.equalsIgnoreCase("TODOS"))) {
+				filters.add(RowFilter.regexFilter(s_condicao, 15));
+				}
+			}
+			}
+		
+		if( cbStatusCondicaoPagamento.getSelectedItem().toString() != null) {
+			String s_status_condicao = "";
+			if(checkString(cbStatusCondicaoPagamento.getSelectedItem().toString())) {
+				s_status_condicao = cbStatusCondicaoPagamento.getSelectedItem().toString();
+				if(!(s_status_condicao.equalsIgnoreCase("TODOS"))) {
+				filters.add(RowFilter.regexFilter(s_status_condicao, 16));
+				}
+			}
+			}
+		
 		
 		sorter.setRowFilter(RowFilter.andFilter(filters));
 		calcular();
@@ -838,8 +1193,16 @@ public void calcular() {
 	int numero_receitas_a_receber = 0;
 	int numero_receitas_recebido = 0;
 	
-	BigDecimal valor_a_pagar = BigDecimal.ZERO,valor_pago = BigDecimal.ZERO;
-	BigDecimal valor_a_receber = BigDecimal.ZERO,valor_recebido = BigDecimal.ZERO;
+	
+	//despesas
+	BigDecimal valor_total_despesas = BigDecimal.ZERO;
+	BigDecimal valor_a_pagar = BigDecimal.ZERO;
+	BigDecimal	valor_pago = BigDecimal.ZERO;
+	
+	//receitas
+	BigDecimal valor_total_receitas = BigDecimal.ZERO;
+	BigDecimal valor_a_receber = BigDecimal.ZERO;
+	BigDecimal	valor_recebido = BigDecimal.ZERO;
 
 	for (int row = 0; row < tabela_lancamentos.getRowCount(); row++) {
 
@@ -847,16 +1210,35 @@ public void calcular() {
 		Lancamento lancamento = modelo_lancamentos.getValue(index);
 		
 		if(lancamento.getStatus() == 0) {
-			valor_a_pagar = valor_a_pagar.add(lancamento.getValor());
+			//despesas a pagar
+			valor_total_despesas = valor_total_despesas.add(lancamento.getValor());
+			valor_a_pagar = valor_a_pagar.add(lancamento.getValor().subtract(lancamento.getValor_ja_pago()));
+			
+			valor_pago = valor_pago.add(lancamento.getValor_ja_pago());
 			numero_despesas_a_pagar++;
+			
+			
+		
 		}else if(lancamento.getStatus() == 1) {
+			//despesas ja paga
+			valor_total_despesas = valor_total_despesas.add(lancamento.getValor());
 			valor_pago = valor_pago.add(lancamento.getValor());
+	
+			
 			numero_despesas_pago++;
 		}else if(lancamento.getStatus() == 2) {
-			valor_a_receber = valor_a_receber.add(lancamento.getValor());
+			//receitas a receber
+			valor_total_receitas = valor_total_receitas.add(lancamento.getValor());
+			valor_a_receber = valor_a_receber.add(lancamento.getValor().subtract(lancamento.getValor_ja_pago()));
+			
+			valor_recebido = valor_recebido.add(lancamento.getValor_ja_pago());
+
 			numero_receitas_a_receber++;
 		}else if(lancamento.getStatus() == 3) {
+			//receitas recebidas
+			valor_total_receitas = valor_total_receitas.add(lancamento.getValor());
 			valor_recebido = valor_recebido.add(lancamento.getValor());
+	
 			numero_receitas_recebido++;
 		}
 		
@@ -872,15 +1254,15 @@ public void calcular() {
 	
 	//valores
 	Locale ptBr = new Locale("pt", "BR");
-	//despesas
-	lblValorAPagar.setText(NumberFormat.getCurrencyInstance(ptBr).format(valor_a_pagar));
-	lblValorPago.setText(NumberFormat.getCurrencyInstance(ptBr).format(valor_pago));
-	lblValorDespesas.setText(NumberFormat.getCurrencyInstance(ptBr).format(valor_pago.add(valor_a_pagar)));
-
+	lblValorRestanteAPagar.setText(NumberFormat.getCurrencyInstance(ptBr).format(valor_a_pagar));
+	 lblValorPago.setText(NumberFormat.getCurrencyInstance(ptBr).format(valor_pago));
+	 lblValorTotalDespesas.setText(NumberFormat.getCurrencyInstance(ptBr).format(valor_total_despesas));
+	
+	
 	//receitas
 	lblValorAReceber.setText(NumberFormat.getCurrencyInstance(ptBr).format(valor_a_receber));
 	lblValorRecebido.setText(NumberFormat.getCurrencyInstance(ptBr).format(valor_recebido));
-	lblValorReceitas.setText(NumberFormat.getCurrencyInstance(ptBr).format(valor_a_receber.add(valor_recebido)));
+	lblValorReceitas.setText(NumberFormat.getCurrencyInstance(ptBr).format(valor_total_receitas));
 
 	
 	
@@ -897,23 +1279,33 @@ public boolean checkString(String txt) {
 		private final int id = 0;
 		private final int data = 1;
 		private final int tipo_lancamento = 2;
-		private final int centro_custo = 3;
-		private final int instituicao_bancaria = 4;
+		private final int prioridade = 3;
+		private final int centro_custo = 4;
 		private final int cliente_fornecedor = 5;
 		private final int grupo_conta = 6;
 		private final int conta = 7;
 		private final int valor = 8;
-		private final int data_vencimento = 9;
-		private final int status = 10;
+		private final int valor_pago = 9;
+		private final int valor_a_pagar = 10;
+		private final int data_vencimento = 11;
+		private final int data_pagamento = 12;
+		private final int status = 13;
+		private final int situacao = 14;
+		private final int condicao_pagamento = 15;
+		private final int status_condicao_pagamento = 16;
 
 		List<Color> rowColours = Arrays.asList(Color.RED, Color.GREEN, Color.CYAN);
 
-		private final String colunas[] = { "ID","Data Lançamento", "Tipo", "Centro de Custo", "Instituição Bancária",
-				"Cliente/Fornecedor", "Grupo de Contas", "Conta", "Valor", "Data Vencimento", "Status" };
+		private final String colunas[] = { "ID","Data Lançamento", "Tipo", "Prioridade", "Centro de Custo",
+				"Cliente/Fornecedor", "Grupo de Contas", "Conta", "Valor Total", "Valor Pago/Recebido", "Valor a Pagar/Receber", "Data Próximo Vencimento", "Data Último Pagamento","Status" , "Situação", "Condições de Pagamento", "Status Condição de Pagamento"};
 		private final ArrayList<Lancamento> dados = new ArrayList<>();// usamos como dados uma lista genérica de
 																			// nfs
-
+		private GerenciarBancoCondicaoPagamentos gerenciar  = null;
+		private ArrayList<CondicaoPagamento> lista_condicoes = null;
 		public LancamentoTableModel() {
+			
+			 gerenciar = new GerenciarBancoCondicaoPagamentos();
+			 lista_condicoes = gerenciar.getCondicaoPagamentos();
 
 		}
 
@@ -937,23 +1329,36 @@ public boolean checkString(String txt) {
 				return Integer.class;
 			case data:
 				return Date.class;
+			case tipo_lancamento:
+				return String.class;
+			case prioridade:
+				return String.class;
 			case centro_custo:
 				return String.class;
-			case instituicao_bancaria:
-				return String.class;
+		
 			case cliente_fornecedor:
-				return String.class;
-			case conta:
 				return String.class;
 			case grupo_conta:
 				return String.class;
-			case tipo_lancamento:
+			case conta:
 				return String.class;
 			case valor:
 				return String.class;
+			case valor_pago:
+				return String.class;
+			case valor_a_pagar:
+				return String.class;
 			case data_vencimento:
 				return Date.class;
+			case data_pagamento:
+				return Date.class;
 			case status:
+				return String.class;
+			case situacao:
+				return String.class;
+			case condicao_pagamento:
+				return String.class;
+			case status_condicao_pagamento:
 				return String.class;
 	
 			default:
@@ -969,29 +1374,32 @@ public boolean checkString(String txt) {
 		@Override
 		public Object getValueAt(int rowIndex, int columnIndex) {
 			 Lancamento dado = dados.get(rowIndex);
-			
-			 FinanceiroConta financeiro_conta = null;
-			 if(dado.getId_conta() > 0) {
-				 financeiro_conta = new GerenciarBancoFinanceiroConta().getFinanceiroConta(dado.getId_conta());
-			 }
-			
+			 
 			
 			switch (columnIndex) {
 			case id:
 				return dado.getId_lancamento();
 			case tipo_lancamento:{
-				/*if(financeiro_conta != null) {
-					if(financeiro_conta.getTipo_conta() == 0) {
-						return "DESPESAS";
-					}else if(financeiro_conta.getTipo_conta() == 1) {
-						return "RECEITAS";
-					}
-				}*/
 				if(dado.getTipo_lancamento() == 0) {
 					return "DESPESAS";
 				}else if(dado.getTipo_lancamento() == 1) {
 					return "RECEITAS";
 				}
+			}
+			case prioridade:{
+				int i_prioridade = dado.getPrioridade();
+				if(i_prioridade == 0) {
+					return "Alta Prioridade - Ainda esta semana";
+				}else if(i_prioridade == 1) {
+					return "Média Prioridade - Em menos de 15 dias";
+				}
+				else if(i_prioridade == 2) {
+					return "Prioridade Leve - Ainda este mês";
+				}
+				else if(i_prioridade == 3) {
+					return "Baixa Prioridade - Ainda este ano";
+				}
+				
 			}
 			case data:{
 				Date data_menor;
@@ -1007,68 +1415,34 @@ public boolean checkString(String txt) {
 				
 			}
 			case centro_custo:{
-				CentroCusto cc = null;
-				if(dado.getId_centro_custo() > 0) {
-				cc = new GerenciarBancoCentroCustos().getCentroCusto(dado.getId_centro_custo());
-				 if(cc != null) {
-					 return cc.getNome_centro_custo();
-				 }
-				
-				
-				}else {
-					return "";
-				}
-			}
-			case instituicao_bancaria:{
-				InstituicaoBancaria ib = null;
-				if(dado.getId_instituicao_bancaria() > 0) {
-					ib = new GerenciarBancoInstituicaoBancaria().getInstituicaoBancaria(dado.getId_instituicao_bancaria());
-				 if(ib != null) {
-					 return ib.getNome_instituicao_bancaria();
-				 }
-				
-				
-				}else {
-					return "";
-				}
-			}
-			case cliente_fornecedor:{
-				CadastroCliente c = null;
-				if(dado.getId_cliente_fornecedor() > 0) {
-					c = new GerenciarBancoClientes().getCliente(dado.getId_cliente_fornecedor());
-				 if(c != null) {
-					 if(c.getTipo_pessoa() == 0) {
-						 return c.getNome_empresarial().toUpperCase();
-					 }else {
-						 return c.getNome_fantaia().toUpperCase();
-					 }
-				 }
-				
-				
-				}else {
-					return "";
-				}
-			}
-			case grupo_conta:{
-				if(financeiro_conta != null) {
-					FinanceiroGrupoContas grupo = null;
-					grupo = new GerenciarBancoFinanceiroGrupoContas().getFinanceiroGrupoContas(financeiro_conta.getId_grupo_contas());
-					if(grupo != null)
-						return grupo.getNome();
-						
-					
-				}
-			}
-			case conta:{
-				if(financeiro_conta != null) {
-					return financeiro_conta.getNome();
-				}
+					return dado.getNome_centro_custo();
 			}
 		
+			case cliente_fornecedor:{
+				return dado.getNome_cliente_fornecedor();
+			}
+			case grupo_conta:{
+				return dado.getNome_grupo_contas();
+			}
+			case conta:{
+				return dado.getNome_conta();
+			}
 		
 			case valor:{
 				Locale ptBr = new Locale("pt", "BR");
 				String valorString = NumberFormat.getCurrencyInstance(ptBr).format(dado.getValor());
+				return valorString;
+				
+			}
+			case valor_pago:{
+				Locale ptBr = new Locale("pt", "BR");
+				String valorString = NumberFormat.getCurrencyInstance(ptBr).format(dado.getValor_ja_pago());
+				return valorString;
+				
+			}
+			case valor_a_pagar:{
+				Locale ptBr = new Locale("pt", "BR");
+				String valorString = NumberFormat.getCurrencyInstance(ptBr).format(dado.getValor().subtract(dado.getValor_ja_pago()));
 				return valorString;
 				
 			}
@@ -1079,7 +1453,20 @@ public boolean checkString(String txt) {
 					data_menor = formato.parse(dado.getData_vencimento());
 					return data_menor;
 
-				} catch (ParseException e) {
+				} catch (Exception e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}				
+				
+			}
+			case data_pagamento:{
+				Date data_menor;
+				try {
+					SimpleDateFormat formato = new SimpleDateFormat("dd/MM/yyyy"); 
+					data_menor = formato.parse(dado.getData_pagamento());
+					return data_menor;
+
+				} catch (Exception e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}				
@@ -1101,7 +1488,88 @@ public boolean checkString(String txt) {
 
 				}
 			}
-			
+			case situacao:{
+
+				//data hoje
+				LocalDate hoje = LocalDate.now();
+				
+				
+				//data vencimento
+				Date data_vencimento = null;
+				try {
+					SimpleDateFormat formato = new SimpleDateFormat("dd/MM/yyyy"); 
+					data_vencimento = formato.parse(dado.getData_vencimento());
+
+				} catch (Exception e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}					
+				try {
+				LocalDate ld_data_vencimento = data_vencimento.toInstant().atZone( ZoneId.systemDefault() ).toLocalDate();
+				
+				if(ld_data_vencimento.isAfter(hoje)) {
+					return "Em dias";
+				}else {
+					return "Atrazado";
+					
+				}
+				}catch(Exception e) {
+					return "Datas Invalidas";
+				}
+			}
+			case condicao_pagamento:{
+				try {
+					String condicoes = "";
+				String array_condicoes_pagamento = dado.getIds_forma_pagamento();
+				String ids [] = array_condicoes_pagamento.split(",");
+				for(String id : ids) {
+					int id_condicao_pagamento = Integer.parseInt(id);
+					if(id_condicao_pagamento > 0) {
+						
+						CondicaoPagamento condicao = null;
+						for(CondicaoPagamento cond : lista_condicoes) {
+							if(cond.getId_condicao_pagamento() == id_condicao_pagamento) {
+								condicao = cond;
+								break;
+							}
+						}
+
+						if(condicao != null);
+						condicoes += (condicao.getNome_condicao_pagamento() + "|");
+					}
+					
+				}
+				return condicoes;
+				
+				}catch(Exception e) {
+					return "";
+				}
+				
+			}
+			case status_condicao_pagamento:{
+				try {
+					String retorno = "";
+				String array_status = dado.getStatus_forma_pagamento();
+				String status [] = array_status.split(",");
+				for(String id : status) {
+					int id_status = Integer.parseInt(id);
+					if(id_status == 0) {
+						//cbStatusCondicaoPagamento.addItem("A - Compensar|Realizar|Concluir");
+						//cbStatusCondicaoPagamento.addItem("Compensado|Realizado|Concluído");
+						retorno += ("A - Compensar|Realizar|Concluir;");
+					}else if(id_status == 1) {
+						retorno += ("Compensado|Realizado|Concluído;");
+
+					}
+					
+				}
+				return retorno;
+				
+				}catch(Exception e) {
+					return "";
+				}
+				
+			}
 			default:
 				throw new IndexOutOfBoundsException("Coluna Inválida!!!");
 			}
@@ -1313,7 +1781,7 @@ public boolean checkString(String txt) {
 	        }
 
 			int status = -1;
-			String s_status = (String) table.getValueAt(row, 10);
+			String s_status = (String) table.getValueAt(row, 13);
 			if(s_status.equalsIgnoreCase("A Pagar")) {
 				status = 0;
 			}else if(s_status.equalsIgnoreCase("Pago")) {
@@ -1333,13 +1801,13 @@ public boolean checkString(String txt) {
 				if(status == 0) {
 					//return ("A Pagar");
 					renderer.setBackground(Color.red);
-					renderer.setForeground(Color.black);
+					renderer.setForeground(Color.white);
 					renderer.setFont(new Font("Tahoma", Font.BOLD, 12));
 
 				}else if(status == 1) {
 					//return ("Pago");
 					renderer.setBackground(Color.orange);
-					renderer.setForeground(Color.white);
+					renderer.setForeground(Color.black);
 					renderer.setFont(new Font("Tahoma", Font.BOLD, 12));
 				}else if(status == 2) {
 					//return ("A Receber");
@@ -1381,6 +1849,70 @@ public boolean checkString(String txt) {
 		LocalDate hoje = LocalDate.now().minusYears(1);
 		String df = hoje.format(DateTimeFormatter.ofPattern("dd/MM/yyyy"));
 		return df.replace(" ", "");
+	}
+	
+	public void filtroRapidoDespesaAtrazo(int dias) {
+		cbStatusLancamento.setSelectedIndex(1);//setdespesa
+		cbSituacao.setSelectedIndex(1);//set atrazados
+		
+		LocalDate hoje = LocalDate.now();
+		String s_hoje  = hoje.format(DateTimeFormatter.ofPattern("dd/MM/yyyy"));
+
+		maiorDataVencimento.setText(s_hoje);
+		
+		LocalDate menor_data  = hoje.minusDays(dias);
+		String s_menor_data = menor_data.format(DateTimeFormatter.ofPattern("dd/MM/yyyy"));
+		menorDataVencimento.setText(s_menor_data);
+		
+		filtrar();
+	}
+	
+	public void filtroRapidoDespesaEmDias(int dias) {
+		cbStatusLancamento.setSelectedIndex(1);//setdespesa
+		cbSituacao.setSelectedIndex(2);//set atrazados
+		
+		LocalDate hoje = LocalDate.now();
+		String s_hoje  = hoje.format(DateTimeFormatter.ofPattern("dd/MM/yyyy"));
+
+		menorDataVencimento.setText(s_hoje);
+		
+		LocalDate menor_data  = hoje.plusDays(dias);
+		String s_menor_data = menor_data.format(DateTimeFormatter.ofPattern("dd/MM/yyyy"));
+		maiorDataVencimento.setText(s_menor_data);
+		
+		filtrar();
+	}
+	
+	public void filtroRapidoReceitaAtrazo(int dias) {
+		cbStatusLancamento.setSelectedIndex(3);//setdespesa
+		cbSituacao.setSelectedIndex(1);//set atrazados
+		
+		LocalDate hoje = LocalDate.now();
+		String s_hoje  = hoje.format(DateTimeFormatter.ofPattern("dd/MM/yyyy"));
+
+		maiorDataVencimento.setText(s_hoje);
+		
+		LocalDate menor_data  = hoje.minusDays(dias);
+		String s_menor_data = menor_data.format(DateTimeFormatter.ofPattern("dd/MM/yyyy"));
+		menorDataVencimento.setText(s_menor_data);
+		
+		filtrar();
+	}
+	
+	public void filtroRapidoReceitaEmDias(int dias) {
+		cbStatusLancamento.setSelectedIndex(3);//setdespesa
+		cbSituacao.setSelectedIndex(2);//set atrazados
+		
+		LocalDate hoje = LocalDate.now();
+		String s_hoje  = hoje.format(DateTimeFormatter.ofPattern("dd/MM/yyyy"));
+
+		menorDataVencimento.setText(s_hoje);
+		
+		LocalDate menor_data  = hoje.plusDays(dias);
+		String s_menor_data = menor_data.format(DateTimeFormatter.ofPattern("dd/MM/yyyy"));
+		maiorDataVencimento.setText(s_menor_data);
+		
+		filtrar();
 	}
 	
 }

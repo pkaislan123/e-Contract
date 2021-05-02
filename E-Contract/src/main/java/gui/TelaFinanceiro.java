@@ -44,7 +44,6 @@ public class TelaFinanceiro extends JFrame {
 
 	private JPanel painelPrincipal;
 	private TelaFinanceiro isto;
-	private TelaTarefas tela_tarefas;
 	private JLabel lblUser, lblDireitos,lblNumeroTarefas;
 	private Log GerenciadorLog;
 	private CadastroLogin login;
@@ -217,13 +216,11 @@ public class TelaFinanceiro extends JFrame {
 			public void actionPerformed(ActionEvent e) {
 
 				
-				if (tela_tarefas == null) {
-					tela_tarefas = new TelaTarefas(isto);
+
+					TelaTarefas tela_tarefas = new TelaTarefas(isto);
 					tela_tarefas.getTarefas();
 					tela_tarefas.setVisible(true);
-				} else {
-					tela_tarefas.setVisible(true);
-				}
+			
 			}
 		});
 		mntmNewMenuItem_5.setIcon(new ImageIcon(TelaPrincipal.class.getResource("/imagens/icone_menu_tarefas.png")));
@@ -259,13 +256,11 @@ public class TelaFinanceiro extends JFrame {
 		lblNewLabel_1.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent e) {
-				if (tela_tarefas == null) {
-					tela_tarefas = new TelaTarefas(isto);
+				
+				TelaTarefas tela_tarefas = new TelaTarefas(isto);
 					tela_tarefas.getTarefas();
 					tela_tarefas.setVisible(true);
-				} else {
-					tela_tarefas.setVisible(true);
-				}
+				
 			}
 		});
 		panel_1.add(lblNewLabel_1, "cell 1 0");

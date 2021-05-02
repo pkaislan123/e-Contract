@@ -109,6 +109,20 @@ status_optante_folha text
 		return optante_folha;
 	}
 
+	private int grupo_particular;
+
+	
+	
+	public int getGrupo_particular() {
+		return grupo_particular;
+	}
+
+
+
+	public void setGrupo_particular(int grupo_particular) {
+		this.grupo_particular = grupo_particular;
+	}
+
 
 
 	public void setOptante_folha(int optante_folha) {
@@ -1133,9 +1147,36 @@ local retirada: 24 2
 		public void setTipo(int tipo) {
 			this.tipo = tipo;
 		}
-		String data_pagamento, descricao;
+		String data_pagamento, descricao, conta_depositante, conta_favorecido;
 		double valor_pagamento;
-		int tipo,id_pagamento, id_depositante, id_conta_depositante, id_favorecido, id_conta_favorecido;
+		int tipo,id_pagamento, id_depositante, id_contrato_destinatario, id_contrato_remetente, id_conta_depositante, id_favorecido, id_conta_favorecido;
+		
+		
+	
+		public String getConta_depositante() {
+			return conta_depositante;
+		}
+		public void setConta_depositante(String conta_depositante) {
+			this.conta_depositante = conta_depositante;
+		}
+		public String getConta_favorecido() {
+			return conta_favorecido;
+		}
+		public void setConta_favorecido(String conta_favorecido) {
+			this.conta_favorecido = conta_favorecido;
+		}
+		public int getId_contrato_destinatario() {
+			return id_contrato_destinatario;
+		}
+		public void setId_contrato_destinatario(int id_contrato_destinatario) {
+			this.id_contrato_destinatario = id_contrato_destinatario;
+		}
+		public int getId_contrato_remetente() {
+			return id_contrato_remetente;
+		}
+		public void setId_contrato_remetente(int id_contrato_remetente) {
+			this.id_contrato_remetente = id_contrato_remetente;
+		}
 		public String getData_pagamento() {
 			return data_pagamento;
 		}
@@ -1311,6 +1352,53 @@ local retirada: 24 2
 		
 	}
 	
+	
+	public static class CadastroTransferenciaRecebimento{
+	    int id_transferencia, id_contrato_remetente, id_contrato_destinatario;
+		
+		String data, descricao;
+		double quantidade;
+		public int getId_transferencia() {
+			return id_transferencia;
+		}
+		public void setId_transferencia(int id_transferencia) {
+			this.id_transferencia = id_transferencia;
+		}
+		public int getId_contrato_remetente() {
+			return id_contrato_remetente;
+		}
+		public void setId_contrato_remetente(int id_contrato_remetente) {
+			this.id_contrato_remetente = id_contrato_remetente;
+		}
+		public int getId_contrato_destinatario() {
+			return id_contrato_destinatario;
+		}
+		public void setId_contrato_destinatario(int id_contrato_destinatario) {
+			this.id_contrato_destinatario = id_contrato_destinatario;
+		}
+		public String getData() {
+			return data;
+		}
+		public void setData(String data) {
+			this.data = data;
+		}
+		public String getDescricao() {
+			return descricao;
+		}
+		public void setDescricao(String descricao) {
+			this.descricao = descricao;
+		}
+		public double getQuantidade() {
+			return quantidade;
+		}
+		public void setQuantidade(double quantidade) {
+			this.quantidade = quantidade;
+		}
+
+	
+		
+		
+	}
 	
 	public static class Recebimento{
 		/*

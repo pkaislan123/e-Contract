@@ -1,4 +1,5 @@
 package main.java.gui;
+
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
@@ -16,25 +17,25 @@ import java.awt.*;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.RowFilter.ComparisonType;
 import org.apache.poi.hssf.usermodel.HSSFDataFormat;
+import org.apache.poi.hssf.usermodel.HSSFFont;
 import org.apache.poi.hssf.usermodel.HSSFSheet;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellStyle;
+import org.apache.poi.ss.usermodel.FillPatternType;
 import org.apache.poi.ss.usermodel.HorizontalAlignment;
 import org.apache.poi.ss.usermodel.IndexedColors;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.VerticalAlignment;
+import org.apache.poi.ss.util.CellRangeAddress;
 import org.icepdf.ri.common.ComponentKeyBinding;
 import org.icepdf.ri.common.SwingController;
 import org.icepdf.ri.common.SwingViewBuilder;
-
-
 
 import javafx.application.Platform;
 import javafx.embed.swing.JFXPanel;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
-
 
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
@@ -94,6 +95,7 @@ import main.java.outros.MyFileVisitor;
 import main.java.outros.TratarDados;
 import main.java.tratamento_proprio.Log;
 import main.java.views_personalizadas.TelaEmEspera;
+import main.java.views_personalizadas.TelaEscolhaRelatorioRomaneios;
 import main.java.views_personalizadas.TelaNotificacaoSuperiorModoBusca;
 import outros.ValidaCNPJ;
 import main.java.cadastros.CadastroLogin;
@@ -113,7 +115,9 @@ import main.java.classesExtras.CBProdutoRenderPersonalizado;
 import main.java.conexaoBanco.GerenciarBancoProdutos;
 import main.java.conexaoBanco.GerenciarBancoSafras;
 import net.miginfocom.swing.MigLayout;
+
 public class TelaRomaneios extends JFrame {
+	private FileChooser file_chooser;
 
 	private Log GerenciadorLog;
 	private CadastroLogin login;
@@ -126,8 +130,7 @@ public class TelaRomaneios extends JFrame {
 	private TelaRomaneios isto;
 	private JButton btnSelecionarNota;
 	private JDialog telaPai;
-    private CadastroCliente cliente_selecionado ;
-	private JLabel lblStatusAdicionandoNotas;
+	private CadastroCliente cliente_selecionado;
 	private int contador = 0;
 	private JFileChooser fileChooser_global;
 	private ArrayList<String> listadeArquivos = new ArrayList<>();
@@ -168,62 +171,87 @@ public class TelaRomaneios extends JFrame {
 	private JLabel lblPesoBrutoTotal, lblPesoTaraTotal;
 	private JLabel lblNewLabel_3_1_2;
 	private JLabel lblNumeroTotalRomaneios;
+	private JPanel panel_4;
+	private JLabel lblNomeMotorista;
+	private JTextField entNomeMotorista;
+	private JLabel lblCpf;
+	private JTextField entCpfMotorista;
+	private JLabel lblPlaca;
+	private JTextField entPlaca;
+	private JPanel panel_5;
+	private JLabel lblDocEntrada;
+	private JTextField entDocEntrada;
+	private JLabel lblAmostra;
+	private JTextField entAmostra;
+	private JLabel lblSilo;
+	private JTextField entSilo;
+	private JLabel lblTransgenia;
+	private JTextField entTransgeniaDefinida;
+	private JLabel lblClassificador;
+	private JTextField entClassificador;
+	private JLabel lblNewLabel_3_1_3;
+	private JLabel lblPesoTotalDesconto;
+	private JLabel lblNewLabel_3_1_4;
+	private JLabel lblPesoLiquidoTotalSemDesconto;
+	private JLabel lblNewLabel_5;
+	private JLabel lblDescontoTotalUmidade;
+	private JLabel lblNewLabel_6;
+	private JLabel lblNewLabel_7;
+	private JLabel lblDescontoTotalAvariado;
+	private JLabel lblDescontoTotalImpureza;
+	private JButton btnExportarPlanilha;
 
-	public TelaRomaneios( int flag_tipo_tela, Window janela_pai) {
-		setIconImage(Toolkit.getDefaultToolkit().getImage(TelaRomaneios.class.getResource("/imagens/icone_notas_fiscais.png")));
-		//setAlwaysOnTop(true);
+	public TelaRomaneios(int flag_tipo_tela, Window janela_pai) {
+		setIconImage(Toolkit.getDefaultToolkit()
+				.getImage(TelaRomaneios.class.getResource("/imagens/icone_notas_fiscais.png")));
+		// setAlwaysOnTop(true);
 
-		//setModal(true);
+		// setModal(true);
 		isto = this;
 		getDadosGlobais();
 		setResizable(true);
 		setTitle("E-Contract - Romaneios");
 
-		
 		Toolkit tk = Toolkit.getDefaultToolkit();
 		Dimension d = tk.getScreenSize();
 		System.out.println("Screen width = " + d.width);
 		System.out.println("Screen height = " + d.height);
-		
+
 		// pega o tamanho da barra de tarefas
 		Dimension scrnSize = Toolkit.getDefaultToolkit().getScreenSize();
 		java.awt.Rectangle winSize = GraphicsEnvironment.getLocalGraphicsEnvironment().getMaximumWindowBounds();
 		int taskBarHeight = scrnSize.height - winSize.height;
 		System.out.printf("Altura: %d\n", taskBarHeight);
-		
+
 		isto = this;
-		setResizable(true);
 		DadosGlobais dados = DadosGlobais.getInstance();
-		
-		DisplayMode display =  GraphicsEnvironment.getLocalGraphicsEnvironment().getDefaultScreenDevice().getDisplayMode();
-		
+
+		DisplayMode display = GraphicsEnvironment.getLocalGraphicsEnvironment().getDefaultScreenDevice()
+				.getDisplayMode();
+
 		int display_x = display.getWidth();
 		int display_y = display.getHeight();
 
 		setBounds(0, 0, d.width, d.height - taskBarHeight);
-		
+
 		setBackground(new Color(255, 255, 255));
 		setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 
 		painelPrincipal.setBackground(Color.WHITE);
 		painelPrincipal.setBorder(new EmptyBorder(5, 5, 5, 5));
 		setContentPane(painelPrincipal);
-		painelPrincipal.setLayout(null);
+		painelPrincipal.setLayout(new MigLayout("", "[grow][10px][grow]", "[][][grow][]"));
 
 		JPanel panel = new JPanel();
 		panel.setBackground(Color.WHITE);
-		panel.setBounds(26, 231, 1250, 340);
-		painelPrincipal.add(panel);
+		painelPrincipal.add(panel, "cell 0 2 3 1,grow");
 
 		table_nfs = new JTable(modelo_romaneios);
-		 sorter = new TableRowSorter<RomaneioTableModel>(modelo_romaneios);
-        
-		
+		sorter = new TableRowSorter<RomaneioTableModel>(modelo_romaneios);
+
 		table_nfs.setRowSorter(sorter);
 
 		table_nfs.setBackground(new Color(255, 255, 255));
-		
-	
 
 		table_nfs.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
 
@@ -239,334 +267,474 @@ public class TelaRomaneios extends JFrame {
 		table_nfs.getColumnModel().getColumn(9).setPreferredWidth(100);
 		table_nfs.getColumnModel().getColumn(10).setPreferredWidth(120);
 		table_nfs.getColumnModel().getColumn(11).setPreferredWidth(120);
-		table_nfs.setRowHeight (30); 
-
+		table_nfs.setRowHeight(30);
 		panel.setLayout(null);
-		panel.setLayout(null);
+		panel.setLayout(new BorderLayout(0, 0));
 		JScrollPane scrollPaneNFs = new JScrollPane(table_nfs);
-		scrollPaneNFs.setBounds(10, 11, 1230, 329);
 		panel.add(scrollPaneNFs);
 
-		
-		
-		
-	
-
-		entProduto = new JTextField();
-		
-		entProduto.setBounds(186, 185, 265, 28);
-		painelPrincipal.add(entProduto);
-		entProduto.setColumns(10);
-		
-		entChavePesquisa = new JTextField();
-		
-		entChavePesquisa.setBounds(184, 146, 268, 28);
-		painelPrincipal.add(entChavePesquisa);
-		entChavePesquisa.setColumns(10);
-
-		
-		
-		lblStatusAdicionandoNotas = new JLabel("Lendo Romaneios...");
-		lblStatusAdicionandoNotas.setBounds(538, 655, 626, 23);
-		painelPrincipal.add(lblStatusAdicionandoNotas);
-		
-
-		
-		
-		lblNewLabel = new JLabel("Destinatario:");
-		lblNewLabel.setFont(new Font("Tahoma", Font.PLAIN, 14));
-		lblNewLabel.setBounds(102, 150, 77, 17);
-		painelPrincipal.add(lblNewLabel);
-		
-		lblRemetente = new JLabel("Depositante:");
-		lblRemetente.setFont(new Font("Tahoma", Font.PLAIN, 14));
-		lblRemetente.setBounds(102, 111, 78, 17);
-		painelPrincipal.add(lblRemetente);
-		
-		entRemetente = new JTextField();
-		entRemetente.setColumns(10);
-		entRemetente.setBounds(185, 107, 268, 28);
-		painelPrincipal.add(entRemetente);
-		
-		lblNatureza = new JLabel("Operação:");
-		lblNatureza.setFont(new Font("Tahoma", Font.PLAIN, 14));
-		lblNatureza.setBounds(464, 189, 64, 17);
-		painelPrincipal.add(lblNatureza);
-		
-		entNatureza = new JTextField();
-		entNatureza.setColumns(10);
-		entNatureza.setBounds(538, 185, 242, 28);
-		painelPrincipal.add(entNatureza);
-		
-		lblProduto = new JLabel("Produto:");
-		lblProduto.setFont(new Font("Tahoma", Font.PLAIN, 14));
-		lblProduto.setBounds(126, 190, 55, 17);
-		painelPrincipal.add(lblProduto);
-		
-		lblNewLabel_1 = new JLabel("Periodo");
-		lblNewLabel_1.setBounds(920, 83, 43, 16);
-		painelPrincipal.add(lblNewLabel_1);
-		
-		lblD = new JLabel("Dé:");
-		lblD.setFont(new Font("Tahoma", Font.PLAIN, 14));
-		lblD.setBounds(830, 118, 22, 17);
-		painelPrincipal.add(lblD);
-		
-		lblAt = new JLabel("Até:");
-		lblAt.setFont(new Font("Tahoma", Font.PLAIN, 14));
-		lblAt.setBounds(827, 146, 25, 17);
-		painelPrincipal.add(lblAt);
-		
-		entMenorData = new JTextField();
-		entMenorData.setColumns(10);
-		entMenorData.setBounds(866, 105, 169, 28);
-		painelPrincipal.add(entMenorData);
-		
-		entMaiorData = new JTextField();
-		entMaiorData.setColumns(10);
-		entMaiorData.setBounds(866, 144, 169, 28);
-		painelPrincipal.add(entMaiorData);
-		
-		JButton btnLimpar = new JButton("Limpar");
-		btnLimpar.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				
-				    limpar();
-			}
-		});
-		btnLimpar.setBounds(1061, 144, 67, 28);
-		painelPrincipal.add(btnLimpar);
-		
 		lblNewLabel_2 = new JLabel("");
 		lblNewLabel_2.setIcon(new ImageIcon(TelaRomaneios.class.getResource("/imagens/icone_notas_fiscais.png")));
-		lblNewLabel_2.setBounds(0, 6, 64, 64);
-		painelPrincipal.add(lblNewLabel_2);
-		
+		painelPrincipal.add(lblNewLabel_2, "cell 0 0,alignx left,aligny top");
+
 		lblNewLabel_4 = new JLabel("     Romaneios");
 		lblNewLabel_4.setOpaque(true);
 		lblNewLabel_4.setForeground(Color.WHITE);
 		lblNewLabel_4.setFont(new Font("Arial", Font.PLAIN, 18));
 		lblNewLabel_4.setBackground(new Color(0, 51, 0));
-		lblNewLabel_4.setBounds(48, 48, 146, 22);
-		painelPrincipal.add(lblNewLabel_4);
-		
-		JButton btnFiltrar_1 = new JButton("Filtrar");
-		btnFiltrar_1.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				 filtrar();
-			}
-		});
-		btnFiltrar_1.setBounds(1138, 142, 67, 28);
-		painelPrincipal.add(btnFiltrar_1);
-		
-		btnNewButton_2 = new JButton("Excluir Todos os Romaneios");
-		btnNewButton_2.setEnabled(false);
-		btnNewButton_2.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				if (JOptionPane.showConfirmDialog(isto, 
-			            "Deseja excluir todos os Romaneios?", "Excluir Romaneios", 
-			            JOptionPane.YES_NO_OPTION,
-			            JOptionPane.QUESTION_MESSAGE) == JOptionPane.YES_OPTION){
+		painelPrincipal.add(lblNewLabel_4, "cell 0 0,alignx left,aligny bottom");
 
-                   try {
-                	   for(CadastroRomaneio rom : lista_romaneios) {
-					ManipularTxt manipular = new ManipularTxt();
-					boolean apagado = manipular.apagarArquivo(rom.getCaminho_arquivo());
-					if(apagado) {
-						modelo_romaneios.onRemove(rom);
-
-					}else {
-						JOptionPane.showMessageDialog(isto, "Erro ao excluir este Romaneio\nConsulte o administrador");
-					}
-			        }
-						JOptionPane.showMessageDialog(isto, "Romaneios Excluidos");
-
-				}
-				catch(Exception i) {
-					JOptionPane.showMessageDialog(isto, "Erro ao excluir este Romaneio\nConsulte o administrador");
-
-				}
-			}
-			}
-		});
-		btnNewButton_2.setBounds(521, 582, 188, 23);
-		painelPrincipal.add(btnNewButton_2);
-		
-		btnReleitura = new JButton("Refazer Pesquisar");
-		btnReleitura.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				pesquisarTodosOsRomaneios();
-			  
-			}
-		});
-		btnReleitura.setBounds(1061, 107, 144, 23);
-		painelPrincipal.add(btnReleitura);
-		
-		JLabel lblCdigo = new JLabel("Código:");
-		lblCdigo.setFont(new Font("Tahoma", Font.PLAIN, 14));
-		lblCdigo.setBounds(804, 189, 48, 17);
-		painelPrincipal.add(lblCdigo);
-		
-		entCodigo = new JTextField();
-		entCodigo.setColumns(10);
-		entCodigo.setBounds(866, 183, 169, 28);
-		painelPrincipal.add(entCodigo);
-		
-		JLabel lblCpfcnpj = new JLabel("CPF/CNPJ:");
-		lblCpfcnpj.setFont(new Font("Tahoma", Font.PLAIN, 14));
-		lblCpfcnpj.setBounds(462, 150, 77, 17);
-		painelPrincipal.add(lblCpfcnpj);
-		
-		entIdentificacaoDestinatario = new JTextField();
-		entIdentificacaoDestinatario.setColumns(10);
-		entIdentificacaoDestinatario.setBounds(539, 146, 241, 28);
-		painelPrincipal.add(entIdentificacaoDestinatario);
-		
-		JLabel lblCpfcnpj_1 = new JLabel("CPF/CNPJ:");
-		lblCpfcnpj_1.setFont(new Font("Tahoma", Font.PLAIN, 14));
-		lblCpfcnpj_1.setBounds(463, 112, 77, 17);
-		painelPrincipal.add(lblCpfcnpj_1);
-		
-		entIdentificacaoRemetente = new JTextField();
-		entIdentificacaoRemetente.setColumns(10);
-		entIdentificacaoRemetente.setBounds(540, 107, 241, 28);
-		painelPrincipal.add(entIdentificacaoRemetente);
-		
 		JPanel panel_1 = new JPanel();
-		panel_1.setBounds(709, 582, 567, 46);
-		painelPrincipal.add(panel_1);
-		panel_1.setLayout(new MigLayout("", "[][][][][][][][][][][][][][][][][][][][][]", "[]"));
-		
+		panel_1.setBackground(Color.WHITE);
+		painelPrincipal.add(panel_1, "cell 2 3,alignx left,aligny top");
+		panel_1.setLayout(new MigLayout("", "[248px][81px][167px][][][][4px][]", "[33px][21px][33px][]"));
+
 		btnNewButton_1 = new JButton("Excluir");
-		panel_1.add(btnNewButton_1, "cell 15 0");
+		btnNewButton_1.setBackground(new Color(255, 0, 0));
+		btnNewButton_1.setForeground(Color.WHITE);
+		btnNewButton_1.setFont(new Font("SansSerif", Font.BOLD, 16));
+		panel_1.add(btnNewButton_1, "cell 3 0,alignx left,aligny top");
 		btnNewButton_1.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				if (JOptionPane.showConfirmDialog(isto, 
-			            "Deseja excluir o Romaneio?", "Excluir Romaneio", 
-			            JOptionPane.YES_NO_OPTION,
-			            JOptionPane.QUESTION_MESSAGE) == JOptionPane.YES_OPTION){
-					int rowSel = table_nfs.getSelectedRow();//pega o indice da linha na tabela
-					int indexRowModel = table_nfs.getRowSorter().convertRowIndexToModel(rowSel);//converte pro indice do model
+				if (JOptionPane.showConfirmDialog(isto, "Deseja excluir o Romaneio?", "Excluir Romaneio",
+						JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE) == JOptionPane.YES_OPTION) {
+					int rowSel = table_nfs.getSelectedRow();// pega o indice da linha na tabela
+					int indexRowModel = table_nfs.getRowSorter().convertRowIndexToModel(rowSel);// converte pro indice
+																								// do model
 					ManipularTxt manipular = new ManipularTxt();
-					boolean apagado = manipular.apagarArquivo(servidor_unidade + lista_romaneios.get(indexRowModel).getCaminho_arquivo());
-					if(apagado) {
-						
-						//remover do banco de dados
+					boolean apagado = manipular
+							.apagarArquivo(servidor_unidade + lista_romaneios.get(indexRowModel).getCaminho_arquivo());
+					if (apagado) {
+
+						// remover do banco de dados
 						GerenciarBancoRomaneios gerenciar = new GerenciarBancoRomaneios();
-						boolean excluir = gerenciar.removerRomaneio(lista_romaneios.get(indexRowModel).getId_romaneio());
-						if(excluir) {
+						boolean excluir = gerenciar
+								.removerRomaneio(lista_romaneios.get(indexRowModel).getId_romaneio());
+						if (excluir) {
 							JOptionPane.showMessageDialog(isto, "Romaneio Excluido");
 							modelo_romaneios.onRemove(lista_romaneios.get(indexRowModel));
 
-						}else {
-							JOptionPane.showMessageDialog(isto, "Erro ao excluir este Romaneio\nConsulte o administrador");
+						} else {
+							JOptionPane.showMessageDialog(isto,
+									"Erro ao excluir este Romaneio\nConsulte o administrador");
 
 						}
 
-					}else {
+					} else {
 						JOptionPane.showMessageDialog(isto, "Erro ao excluir este Romaneio\nConsulte o administrador");
 					}
-			        }
+				}
 			}
 		});
-		
+
+		btnVizualizarNF = new JButton("Vizualizar");
+		btnVizualizarNF.setBackground(new Color(0, 0, 51));
+		btnVizualizarNF.setForeground(Color.WHITE);
+		btnVizualizarNF.setFont(new Font("SansSerif", Font.BOLD, 16));
+		panel_1.add(btnVizualizarNF, "cell 4 0,alignx left,aligny top");
+		btnVizualizarNF.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+
+				int rowSel = table_nfs.getSelectedRow();// pega o indice da linha na tabela
+				int indexRowModel = table_nfs.getRowSorter().convertRowIndexToModel(rowSel);// converte pro indice do
+																							// model
+				CadastroRomaneio nota_vizualizar = lista_romaneios.get(indexRowModel);
+
+				if (Desktop.isDesktopSupported()) {
+					try {
+						Desktop desktop = Desktop.getDesktop();
+						File myFile = new File(servidor_unidade + nota_vizualizar.getCaminho_arquivo());
+						desktop.open(myFile);
+					} catch (IOException ex) {
+					}
+				}
+			}
+		});
+
+		JButton btnEditarRomaneio = new JButton("Editar");
+		btnEditarRomaneio.setBackground(new Color(0, 51, 102));
+		btnEditarRomaneio.setForeground(Color.WHITE);
+		btnEditarRomaneio.setFont(new Font("SansSerif", Font.BOLD, 16));
+		btnEditarRomaneio.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				int rowSel = table_nfs.getSelectedRow();// pega o indice da linha na tabela
+				int indexRowModel = table_nfs.getRowSorter().convertRowIndexToModel(rowSel);
+
+				TelaCadastroRomaneio tela = new TelaCadastroRomaneio(lista_romaneios.get(indexRowModel), isto);
+				tela.setVisible(true);
+			}
+		});
+		panel_1.add(btnEditarRomaneio, "cell 5 0,alignx left,aligny top");
+
+		JButton btnSelecionar = new JButton("Selecionar");
+		btnSelecionar.setBackground(new Color(0, 51, 0));
+		btnSelecionar.setForeground(Color.WHITE);
+		btnSelecionar.setFont(new Font("SansSerif", Font.BOLD, 16));
+		panel_1.add(btnSelecionar, "cell 7 0,alignx left,aligny top");
+
+		btnExportarPlanilha = new JButton("Exportar Dados");
+		btnExportarPlanilha.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				
+				ArrayList<CadastroRomaneio> romaneios_selecionados = new ArrayList<>();
+				int linhas_selecionadas[] = table_nfs.getSelectedRows();// pega o indice da linha na tabela
+
+				for (int i = 0; i < linhas_selecionadas.length; i++) {
+
+					int indice = linhas_selecionadas[i];//
+					int indexRowModel = table_nfs.getRowSorter().convertRowIndexToModel(indice);
+
+					CadastroRomaneio rom = lista_romaneios.get(indexRowModel);
+					romaneios_selecionados.add(rom);
+				}
+
+				
+				TelaEscolhaRelatorioRomaneios escolha_opcoes = new TelaEscolhaRelatorioRomaneios(romaneios_selecionados,isto);
+				escolha_opcoes.setVisible(true);
+			
+			
+
+			}
+				
+			
+		});
+		btnExportarPlanilha.setForeground(Color.WHITE);
+		btnExportarPlanilha.setFont(new Font("SansSerif", Font.BOLD, 16));
+		btnExportarPlanilha.setBackground(new Color(102, 102, 0));
+		panel_1.add(btnExportarPlanilha, "cell 3 1");
+
 		JButton btnNewButton = new JButton("Exportar Arquivos");
-		panel_1.add(btnNewButton, "cell 16 0");
+		btnNewButton.setBackground(new Color(102, 51, 204));
+		btnNewButton.setForeground(Color.WHITE);
+		btnNewButton.setFont(new Font("SansSerif", Font.BOLD, 16));
+		panel_1.add(btnNewButton, "cell 4 1 2 1,alignx right,aligny top");
 		btnNewButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				exportar();
-				
-				
+
 			}
 		});
-		
+
 		btnImportar = new JButton("Importar");
-		panel_1.add(btnImportar, "cell 17 0");
+		btnImportar.setBackground(new Color(0, 102, 102));
+		btnImportar.setForeground(Color.WHITE);
+		btnImportar.setFont(new Font("SansSerif", Font.BOLD, 16));
+		panel_1.add(btnImportar, "cell 7 1,alignx center,aligny top");
 		btnImportar.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 			}
 		});
-		
-		btnVizualizarNF = new JButton("Vizualizar");
-		panel_1.add(btnVizualizarNF, "cell 18 0");
-		btnVizualizarNF.addActionListener(new ActionListener() {
+
+		btnNewButton_2 = new JButton("Excluir Todos os Romaneios");
+		btnNewButton_2.setBackground(new Color(255, 102, 0));
+		btnNewButton_2.setForeground(Color.WHITE);
+		btnNewButton_2.setFont(new Font("SansSerif", Font.BOLD, 16));
+		panel_1.add(btnNewButton_2, "cell 3 2 5 1,alignx center,aligny top");
+		btnNewButton_2.setEnabled(false);
+		btnNewButton_2.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				
-				int rowSel = table_nfs.getSelectedRow();//pega o indice da linha na tabela
-				int indexRowModel = table_nfs.getRowSorter().convertRowIndexToModel(rowSel);//converte pro indice do model
-				CadastroRomaneio nota_vizualizar = lista_romaneios.get(indexRowModel);
-				
-				if (Desktop.isDesktopSupported()) {
-					 try {
-					     Desktop desktop = Desktop.getDesktop();
-					     File myFile = new File(servidor_unidade + nota_vizualizar.getCaminho_arquivo());
-					     desktop.open(myFile);
-					     } catch (IOException ex) {}
-					 }
+				if (JOptionPane.showConfirmDialog(isto, "Deseja excluir todos os Romaneios?", "Excluir Romaneios",
+						JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE) == JOptionPane.YES_OPTION) {
+
+					try {
+						for (CadastroRomaneio rom : lista_romaneios) {
+							ManipularTxt manipular = new ManipularTxt();
+							boolean apagado = manipular.apagarArquivo(rom.getCaminho_arquivo());
+							if (apagado) {
+								modelo_romaneios.onRemove(rom);
+
+							} else {
+								JOptionPane.showMessageDialog(isto,
+										"Erro ao excluir este Romaneio\nConsulte o administrador");
+							}
+						}
+						JOptionPane.showMessageDialog(isto, "Romaneios Excluidos");
+
+					} catch (Exception i) {
+						JOptionPane.showMessageDialog(isto, "Erro ao excluir este Romaneio\nConsulte o administrador");
+
+					}
+				}
 			}
 		});
-		
-		JButton btnEditarRomaneio = new JButton("Editar");
-		btnEditarRomaneio.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				int rowSel = table_nfs.getSelectedRow();//pega o indice da linha na tabela
-				int indexRowModel = table_nfs.getRowSorter().convertRowIndexToModel(rowSel);
-				
-				TelaCadastroRomaneio tela = new TelaCadastroRomaneio(lista_romaneios.get(indexRowModel),isto);
-				tela.setVisible(true);
-			}
-		});
-		panel_1.add(btnEditarRomaneio, "cell 19 0");
-		
-		JButton btnSelecionar = new JButton("Selecionar");
-		panel_1.add(btnSelecionar, "cell 20 0");
-		
+
 		JPanel panel_2 = new JPanel();
 		panel_2.setBackground(Color.WHITE);
 		panel_2.setFont(new Font("Tahoma", Font.PLAIN, 11));
-		panel_2.setBounds(26, 582, 374, 96);
-		painelPrincipal.add(panel_2);
-		panel_2.setLayout(new MigLayout("", "[][][][][]", "[][][][]"));
-		
+		painelPrincipal.add(panel_2, "cell 0 3,grow");
+		panel_2.setLayout(new MigLayout("", "[][][][][][][]", "[][][][][][]"));
+
 		lblNewLabel_3_1_2 = new JLabel("Romaneios:");
 		lblNewLabel_3_1_2.setFont(new Font("Tahoma", Font.PLAIN, 16));
 		panel_2.add(lblNewLabel_3_1_2, "cell 0 0,alignx right");
-		
+
 		lblNumeroTotalRomaneios = new JLabel("0.0000");
 		lblNumeroTotalRomaneios.setFont(new Font("Tahoma", Font.PLAIN, 16));
 		panel_2.add(lblNumeroTotalRomaneios, "cell 1 0");
-		
+
 		JLabel lblNewLabel_3 = new JLabel("P.B.T:");
 		lblNewLabel_3.setFont(new Font("Tahoma", Font.PLAIN, 16));
 		panel_2.add(lblNewLabel_3, "cell 0 1,alignx right");
-		
-		 lblPesoBrutoTotal = new JLabel("0.0000");
+
+		lblPesoBrutoTotal = new JLabel("0.0000");
 		lblPesoBrutoTotal.setFont(new Font("Tahoma", Font.PLAIN, 16));
 		panel_2.add(lblPesoBrutoTotal, "cell 1 1");
-		
-		JLabel lblNewLabel_3_1 = new JLabel("P.Tara T:");
+
+		lblNewLabel_5 = new JLabel("Desc Umi:");
+		lblNewLabel_5.setFont(new Font("Tahoma", Font.PLAIN, 16));
+		panel_2.add(lblNewLabel_5, "cell 3 1");
+
+		lblDescontoTotalUmidade = new JLabel("0.0000");
+		lblDescontoTotalUmidade.setFont(new Font("Tahoma", Font.PLAIN, 16));
+		panel_2.add(lblDescontoTotalUmidade, "cell 4 1");
+
+		JLabel lblNewLabel_3_1 = new JLabel("P. Tara:");
 		lblNewLabel_3_1.setFont(new Font("Tahoma", Font.PLAIN, 16));
 		panel_2.add(lblNewLabel_3_1, "cell 0 2,alignx right");
-		
-		 lblPesoTaraTotal = new JLabel("0");
+
+		lblPesoTaraTotal = new JLabel("0.0000");
 		lblPesoTaraTotal.setFont(new Font("Tahoma", Font.PLAIN, 16));
 		panel_2.add(lblPesoTaraTotal, "cell 1 2");
-		
-		JLabel lblNewLabel_3_1_1 = new JLabel("P. Liquido T:");
+
+		lblNewLabel_6 = new JLabel("Desc Imp:");
+		lblNewLabel_6.setFont(new Font("Tahoma", Font.PLAIN, 16));
+		panel_2.add(lblNewLabel_6, "cell 3 2");
+
+		lblDescontoTotalImpureza = new JLabel("0.0000");
+		lblDescontoTotalImpureza.setFont(new Font("Tahoma", Font.PLAIN, 16));
+		panel_2.add(lblDescontoTotalImpureza, "cell 4 2");
+
+		lblNewLabel_3_1_4 = new JLabel("P. Liquido S/ Desc");
+		lblNewLabel_3_1_4.setFont(new Font("Tahoma", Font.PLAIN, 16));
+		panel_2.add(lblNewLabel_3_1_4, "cell 0 3");
+
+		lblPesoLiquidoTotalSemDesconto = new JLabel("0.0000");
+		lblPesoLiquidoTotalSemDesconto.setFont(new Font("Tahoma", Font.PLAIN, 16));
+		panel_2.add(lblPesoLiquidoTotalSemDesconto, "cell 1 3");
+
+		lblNewLabel_7 = new JLabel("Desc Avr:");
+		lblNewLabel_7.setFont(new Font("Tahoma", Font.PLAIN, 16));
+		panel_2.add(lblNewLabel_7, "cell 3 3");
+
+		lblDescontoTotalAvariado = new JLabel("0.0000");
+		lblDescontoTotalAvariado.setFont(new Font("Tahoma", Font.PLAIN, 16));
+		panel_2.add(lblDescontoTotalAvariado, "cell 4 3");
+
+		lblNewLabel_3_1_3 = new JLabel("Desc Total:");
+		lblNewLabel_3_1_3.setFont(new Font("Tahoma", Font.PLAIN, 16));
+		panel_2.add(lblNewLabel_3_1_3, "cell 3 4,alignx right");
+
+		lblPesoTotalDesconto = new JLabel("0.0000");
+		lblPesoTotalDesconto.setFont(new Font("Tahoma", Font.PLAIN, 16));
+		panel_2.add(lblPesoTotalDesconto, "cell 4 4");
+
+		JLabel lblNewLabel_3_1_1 = new JLabel("P. Liquido Final:");
 		lblNewLabel_3_1_1.setFont(new Font("Tahoma", Font.PLAIN, 16));
-		panel_2.add(lblNewLabel_3_1_1, "cell 0 3,alignx right");
-		
+		panel_2.add(lblNewLabel_3_1_1, "cell 0 5,alignx right");
+
 		lblPesoLiquidoTotal = new JLabel("0.0000");
 		lblPesoLiquidoTotal.setFont(new Font("Tahoma", Font.PLAIN, 16));
-		panel_2.add(lblPesoLiquidoTotal, "cell 1 3");
-		
+		panel_2.add(lblPesoLiquidoTotal, "cell 1 5");
+
+		JPanel panel_3 = new JPanel();
+		panel_3.setBackground(Color.WHITE);
+		painelPrincipal.add(panel_3, "cell 0 1 3 1,growx,aligny top");
+		panel_3.setLayout(new MigLayout("", "[][][grow][66px][grow][48px][][61px][4px][63px]",
+				"[20px][20px][23px][23px,grow][grow]"));
+
+		lblRemetente = new JLabel("Depositante:");
+		panel_3.add(lblRemetente, "cell 0 0,alignx left,aligny top");
+		lblRemetente.setFont(new Font("Tahoma", Font.PLAIN, 14));
+
+		entRemetente = new JTextField();
+		panel_3.add(entRemetente, "cell 1 0 2 1,growx,aligny top");
+		entRemetente.setColumns(10);
+
+		JLabel lblCpfcnpj_1 = new JLabel("CPF/CNPJ:");
+		panel_3.add(lblCpfcnpj_1, "cell 3 0,alignx left,aligny top");
+		lblCpfcnpj_1.setFont(new Font("Tahoma", Font.PLAIN, 14));
+
+		entIdentificacaoRemetente = new JTextField();
+		panel_3.add(entIdentificacaoRemetente, "cell 4 0,growx,aligny top");
+		entIdentificacaoRemetente.setColumns(10);
+
+		lblNewLabel_1 = new JLabel("Periodo");
+		lblNewLabel_1.setFont(new Font("SansSerif", Font.PLAIN, 16));
+		panel_3.add(lblNewLabel_1, "cell 6 0,alignx center,aligny center");
+
+		lblNewLabel = new JLabel("Destinatario:");
+		panel_3.add(lblNewLabel, "cell 0 1,alignx left,aligny top");
+		lblNewLabel.setFont(new Font("Tahoma", Font.PLAIN, 14));
+
+		entChavePesquisa = new JTextField();
+		panel_3.add(entChavePesquisa, "cell 1 1 2 1,growx,aligny top");
+		entChavePesquisa.setColumns(10);
+
+		JLabel lblCpfcnpj = new JLabel("CPF/CNPJ:");
+		panel_3.add(lblCpfcnpj, "cell 3 1,alignx left,aligny top");
+		lblCpfcnpj.setFont(new Font("Tahoma", Font.PLAIN, 14));
+
+		entIdentificacaoDestinatario = new JTextField();
+		panel_3.add(entIdentificacaoDestinatario, "cell 4 1,growx,aligny top");
+		entIdentificacaoDestinatario.setColumns(10);
+
+		lblD = new JLabel("De:");
+		panel_3.add(lblD, "cell 5 1,alignx right,aligny top");
+		lblD.setFont(new Font("Tahoma", Font.PLAIN, 14));
+
+		entMenorData = new JTextField();
+		panel_3.add(entMenorData, "cell 6 1,growx,aligny top");
+		entMenorData.setColumns(10);
+
+		lblProduto = new JLabel("Produto:");
+		panel_3.add(lblProduto, "cell 0 2,alignx right,aligny center");
+		lblProduto.setFont(new Font("Tahoma", Font.PLAIN, 14));
+
+		entProduto = new JTextField();
+		panel_3.add(entProduto, "cell 1 2 2 1,growx,aligny center");
+		entProduto.setColumns(10);
+
+		lblNatureza = new JLabel("Operação:");
+		panel_3.add(lblNatureza, "cell 3 2,alignx left,aligny center");
+		lblNatureza.setFont(new Font("Tahoma", Font.PLAIN, 14));
+
+		entNatureza = new JTextField();
+		panel_3.add(entNatureza, "cell 4 2,growx,aligny center");
+		entNatureza.setColumns(10);
+
+		lblAt = new JLabel("Até:");
+		panel_3.add(lblAt, "cell 5 2,alignx right,aligny top");
+		lblAt.setFont(new Font("Tahoma", Font.PLAIN, 14));
+
+		entMaiorData = new JTextField();
+		panel_3.add(entMaiorData, "cell 6 2,growx,aligny center");
+		entMaiorData.setColumns(10);
+
+		btnReleitura = new JButton("Refazer Pesquisar");
+		btnReleitura.setBackground(new Color(0, 51, 0));
+		btnReleitura.setForeground(Color.WHITE);
+		btnReleitura.setFont(new Font("Arial", Font.BOLD, 16));
+		panel_3.add(btnReleitura, "cell 7 2 3 1,growx,aligny top");
+		btnReleitura.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				pesquisarTodosOsRomaneios();
+
+			}
+		});
+
+		panel_4 = new JPanel();
+		panel_4.setBackground(Color.WHITE);
+		panel_3.add(panel_4, "cell 0 3 5 1,grow");
+		panel_4.setLayout(new MigLayout("", "[][grow][][grow][][grow]", "[]"));
+
+		lblNomeMotorista = new JLabel("Nome Motorista:");
+		lblNomeMotorista.setFont(new Font("Tahoma", Font.PLAIN, 14));
+		panel_4.add(lblNomeMotorista, "cell 0 0,alignx trailing");
+
+		entNomeMotorista = new JTextField();
+		entNomeMotorista.setColumns(10);
+		panel_4.add(entNomeMotorista, "cell 1 0,growx");
+
+		lblCpf = new JLabel("CPF:");
+		lblCpf.setFont(new Font("Tahoma", Font.PLAIN, 14));
+		panel_4.add(lblCpf, "cell 2 0,alignx trailing");
+
+		entCpfMotorista = new JTextField();
+		entCpfMotorista.setColumns(10);
+		panel_4.add(entCpfMotorista, "cell 3 0,growx");
+
+		lblPlaca = new JLabel("Placa:");
+		lblPlaca.setFont(new Font("Tahoma", Font.PLAIN, 14));
+		panel_4.add(lblPlaca, "cell 4 0,alignx trailing");
+
+		entPlaca = new JTextField();
+		entPlaca.setColumns(10);
+		panel_4.add(entPlaca, "cell 5 0,growx");
+
+		JLabel lblCdigo = new JLabel("Código:");
+		panel_3.add(lblCdigo, "cell 5 3,alignx right,aligny center");
+		lblCdigo.setFont(new Font("Tahoma", Font.PLAIN, 14));
+
+		entCodigo = new JTextField();
+		panel_3.add(entCodigo, "cell 6 3,growx,aligny center");
+		entCodigo.setColumns(10);
+
+		JButton btnFiltrar_1 = new JButton("Filtrar");
+		btnFiltrar_1.setBackground(new Color(51, 0, 0));
+		btnFiltrar_1.setForeground(Color.WHITE);
+		btnFiltrar_1.setFont(new Font("Arial", Font.BOLD, 16));
+		panel_3.add(btnFiltrar_1, "cell 7 3,alignx center,aligny center");
+		btnFiltrar_1.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				filtrar();
+			}
+		});
+
+		JButton btnLimpar = new JButton("Limpar");
+		btnLimpar.setBackground(new Color(204, 0, 0));
+		btnLimpar.setForeground(Color.WHITE);
+		btnLimpar.setFont(new Font("Arial", Font.BOLD, 16));
+		panel_3.add(btnLimpar, "cell 9 3,alignx center,aligny center");
+
+		panel_5 = new JPanel();
+		panel_5.setBackground(Color.WHITE);
+		panel_3.add(panel_5, "cell 0 4 10 1,grow");
+		panel_5.setLayout(new MigLayout("", "[][grow][][grow][][grow][][grow][][grow]", "[][]"));
+
+		lblDocEntrada = new JLabel("Doc Entrada:");
+		lblDocEntrada.setFont(new Font("Tahoma", Font.PLAIN, 14));
+		panel_5.add(lblDocEntrada, "cell 0 0,alignx trailing");
+
+		entDocEntrada = new JTextField();
+		entDocEntrada.setColumns(10);
+		panel_5.add(entDocEntrada, "cell 1 0,growx");
+
+		lblAmostra = new JLabel("Amostra:");
+		lblAmostra.setFont(new Font("Tahoma", Font.PLAIN, 14));
+		panel_5.add(lblAmostra, "cell 2 0,alignx trailing");
+
+		entAmostra = new JTextField();
+		entAmostra.setColumns(10);
+		panel_5.add(entAmostra, "cell 3 0,growx");
+
+		lblSilo = new JLabel("Silo:");
+		lblSilo.setFont(new Font("Tahoma", Font.PLAIN, 14));
+		panel_5.add(lblSilo, "cell 4 0,alignx trailing");
+
+		entSilo = new JTextField();
+		entSilo.setColumns(10);
+		panel_5.add(entSilo, "cell 5 0,growx");
+
+		lblTransgenia = new JLabel("Transgenia:");
+		lblTransgenia.setFont(new Font("Tahoma", Font.PLAIN, 14));
+		panel_5.add(lblTransgenia, "cell 6 0,alignx trailing");
+
+		entTransgeniaDefinida = new JTextField();
+		entTransgeniaDefinida.setColumns(10);
+		panel_5.add(entTransgeniaDefinida, "cell 7 0,growx");
+
+		lblClassificador = new JLabel("Classificador:");
+		lblClassificador.setFont(new Font("Tahoma", Font.PLAIN, 14));
+		panel_5.add(lblClassificador, "cell 8 0,alignx trailing");
+
+		entClassificador = new JTextField();
+		entClassificador.setColumns(10);
+		panel_5.add(entClassificador, "cell 9 0,growx");
+		btnLimpar.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+
+				limpar();
+			}
+		});
+
 		btnSelecionar.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				int rowSel = table_nfs.getSelectedRow();//pega o indice da linha na tabela
-				int indexRowModel = table_nfs.getRowSorter().convertRowIndexToModel(rowSel);//converte pro indice do model
-				if(telaPai instanceof TelaConfirmarRecebimento) {
+				int rowSel = table_nfs.getSelectedRow();// pega o indice da linha na tabela
+				int indexRowModel = table_nfs.getRowSorter().convertRowIndexToModel(rowSel);// converte pro indice do
+																							// model
+				if (telaPai instanceof TelaConfirmarRecebimento) {
 					((TelaConfirmarRecebimento) telaPai).setRomaneio(lista_romaneios.get(indexRowModel));
-				}else if(telaPai instanceof TelaConfirmarCarregamento) {
+				} else if (telaPai instanceof TelaConfirmarCarregamento) {
 					((TelaConfirmarCarregamento) telaPai).setRomaneio(lista_romaneios.get(indexRowModel));
 
 				}
@@ -574,15 +742,12 @@ public class TelaRomaneios extends JFrame {
 
 			}
 		});
-		
 
-	
-		if(flag_tipo_tela == 1) {
+		if (flag_tipo_tela == 1) {
 			btnSelecionar.setVisible(false);
 			btnSelecionar.setEnabled(false);
 		}
-		
-	
+
 		this.setLocationRelativeTo(janela_pai);
 
 	}
@@ -687,17 +852,13 @@ public class TelaRomaneios extends JFrame {
 
 	}
 
-	
-
-	
-
 	public void getDadosGlobais() {
 		// gerenciador de log
 		DadosGlobais dados = DadosGlobais.getInstance();
 		GerenciadorLog = dados.getGerenciadorLog();
 		configs_globais = dados.getConfigs_globais();
 
-		 servidor_unidade = configs_globais.getServidorUnidade();
+		servidor_unidade = configs_globais.getServidorUnidade();
 		// usuario logado
 		login = dados.getLogin();
 
@@ -711,29 +872,28 @@ public class TelaRomaneios extends JFrame {
 		new Thread() {
 			@Override
 			public void run() {
-		GerenciarBancoRomaneios gerenciar = new GerenciarBancoRomaneios();
-		lista_romaneios.clear();
-		modelo_romaneios.onRemoveAll();
-	    
-		ArrayList<CadastroRomaneio> romaneios;
-		
-		if(cliente_selecionado == null) {
-			romaneios =  gerenciar.listarRomaneiosMaisRapido();
-		}else {
-			 romaneios =  gerenciar.listarRomaneiosPorCliente(cliente_selecionado.getId());
+				GerenciarBancoRomaneios gerenciar = new GerenciarBancoRomaneios();
+				lista_romaneios.clear();
+				modelo_romaneios.onRemoveAll();
 
-		}
-		for (CadastroRomaneio rom : romaneios) {
-			 modelo_romaneios.onAdd(rom);
-			 lista_romaneios.add(rom);
-		}
-		
-		calcular();
+				ArrayList<CadastroRomaneio> romaneios;
+
+				if (cliente_selecionado == null) {
+					romaneios = gerenciar.listarRomaneiosMaisRapido();
+				} else {
+					romaneios = gerenciar.listarRomaneiosPorCliente(cliente_selecionado.getId());
+
+				}
+				for (CadastroRomaneio rom : romaneios) {
+					modelo_romaneios.onAdd(rom);
+					lista_romaneios.add(rom);
+				}
+
+				calcular();
 			}
 		}.start();
 	}
-	
-	
+
 	public static class RomaneioTableModel extends AbstractTableModel {
 
 		// constantes p/identificar colunas
@@ -751,20 +911,34 @@ public class TelaRomaneios extends JFrame {
 		private final int id_destinatario = 9;
 		private final int peso_bruto = 10;
 		private final int tara = 11;
-		private final int peso_liquido = 12;
-		private final int umidade = 13;
-		private final int impureza = 14;
-		private final int ardidos = 15;
-		private final int avariados = 16;
-		private final int cfop = 17;
-		private final int descricao = 18;
+		private final int peso_liquido_sem_desconto = 12;
+		private final int peso_desconto_umidade = 13;
+		private final int peso_desconto_impureza = 14;
+		private final int peso_desconto_avariado = 15;
+		private final int peso_desconto_total = 16;
+		private final int peso_liquido = 17;
+		private final int peso_recepcao = 18;
+		private final int umidade = 19;
+		private final int impureza = 20;
+		private final int ardidos = 21;
+		private final int avariados = 22;
+		private final int cfop = 23;
+		private final int descricao = 24;
 
-		private final int motorista = 19;
-		private final int placa = 20;
+		private final int motorista = 25;
+		private final int cpf_motorista = 26;
+		private final int placa = 27;
+		private final int doc_entrada = 28;
+		private final int amostra = 29;
+		private final int silo = 30;
+		private final int transgenese = 31;
 
 		private final String colunas[] = { "Número", "Operação", "Data:", "Produto:", "Transgenia:", "Safra:",
-				"Depositante:", "CPF/CNPJ Depositante", "Rementente/Destinatario", "CPF/CNPJ Rementente/Destinatario", "Peso Bruto:", "Tara:", "Peso Liquido:", "Umidade:", "Impureza:",
-				"Ardidos", "Avariados", "CFOP", "Descrição", "Motorista", "Placa" };
+				"Depositante:", "CPF/CNPJ Depositante", "Rementente/Destinatario", "CPF/CNPJ Rementente/Destinatario",
+				"Peso Bruto:", "Tara:", "Peso Sem Desconto", "Desconto Umidade", "Desconto Impureza",
+				"Desconto Avariados", "Desconto Total", "Peso Final:", "Recepção", "Umidade:", "Impureza:", "Ardidos",
+				"Avariados", "CFOP", "Descrição", "Motorista", "CPF MOTORISTA", "Placa", "Doc Entrada", "Amostra",
+				"Silo", "Transgenese" };
 		private final ArrayList<CadastroRomaneio> dados = new ArrayList<>();// usamos como dados uma lista genérica de
 																			// nfs
 
@@ -813,7 +987,19 @@ public class TelaRomaneios extends JFrame {
 				return Double.class;
 			case tara:
 				return Double.class;
+			case peso_liquido_sem_desconto:
+				return Double.class;
+			case peso_desconto_umidade:
+				return Double.class;
+			case peso_desconto_impureza:
+				return Double.class;
+			case peso_desconto_avariado:
+				return Double.class;
+			case peso_desconto_total:
+				return Double.class;
 			case peso_liquido:
+				return Double.class;
+			case peso_recepcao:
 				return Double.class;
 			case umidade:
 				return Double.class;
@@ -829,7 +1015,17 @@ public class TelaRomaneios extends JFrame {
 				return String.class;
 			case motorista:
 				return String.class;
+			case cpf_motorista:
+				return String.class;
 			case placa:
+				return String.class;
+			case doc_entrada:
+				return String.class;
+			case amostra:
+				return String.class;
+			case silo:
+				return String.class;
+			case transgenese:
 				return String.class;
 
 			default:
@@ -861,10 +1057,11 @@ public class TelaRomaneios extends JFrame {
 				return romaneio.getData();
 			case produto: {
 				try {
-				CadastroProduto prod = romaneio.getProduto();
-				return prod.getNome_produto();
-				}catch(Exception h) {
-				//	JOptionPane.showMessageDialog(null, "O romaneio codigo: " + romaneio.getNumero_romaneio() + " possui erro no produto");
+					CadastroProduto prod = romaneio.getProduto();
+					return prod.getNome_produto();
+				} catch (Exception h) {
+					// JOptionPane.showMessageDialog(null, "O romaneio codigo: " +
+					// romaneio.getNumero_romaneio() + " possui erro no produto");
 				}
 			}
 			case transgenia:
@@ -876,51 +1073,51 @@ public class TelaRomaneios extends JFrame {
 			}
 			case nome_remetente: {
 				try {
-				String nome_cliente = "";
-              
-				if(remetente != null) {
-				if (remetente.getTipo_pessoa() == 0) {
-					nome_cliente = remetente.getNome_empresarial().toUpperCase();
-				} else
-					nome_cliente = remetente.getNome_fantaia().toUpperCase();
-				}
-				return nome_cliente;
-				}catch(Exception e) {
+					String nome_cliente = "";
+
+					if (remetente != null) {
+						if (remetente.getTipo_pessoa() == 0) {
+							nome_cliente = remetente.getNome_empresarial().toUpperCase();
+						} else
+							nome_cliente = remetente.getNome_fantaia().toUpperCase();
+					}
+					return nome_cliente;
+				} catch (Exception e) {
 					return "";
 				}
 			}
-			case id_remetente:{
+			case id_remetente: {
 				try {
-				if(remetente.getTipo_pessoa() == 0)
-					return remetente.getCpf();
-				else
-					return remetente.getCnpj();
-				}catch(Exception e) {
+					if (remetente.getTipo_pessoa() == 0)
+						return remetente.getCpf();
+					else
+						return remetente.getCnpj();
+				} catch (Exception e) {
 					return "";
 				}
 			}
 			case nome_destinatario: {
 				try {
-				String nome_cliente = "";
+					String nome_cliente = "";
 
-				if(destinatario != null) {
-				if (destinatario.getTipo_pessoa() == 0) {
-					nome_cliente = destinatario.getNome_empresarial().toUpperCase();
-				} else
-					nome_cliente = destinatario.getNome_fantaia().toUpperCase();
-				}
-				return nome_cliente;
-				}catch (Exception e) {
+					if (destinatario != null) {
+						if (destinatario.getTipo_pessoa() == 0) {
+							nome_cliente = destinatario.getNome_empresarial().toUpperCase();
+						} else
+							nome_cliente = destinatario.getNome_fantaia().toUpperCase();
+					}
+					return nome_cliente;
+				} catch (Exception e) {
 					return "";
 				}
 			}
-			case id_destinatario:{
+			case id_destinatario: {
 				try {
-				if(destinatario.getTipo_pessoa() == 0)
-					return destinatario.getCpf();
-				else
-					return destinatario.getCnpj();
-				}catch(Exception e) {
+					if (destinatario.getTipo_pessoa() == 0)
+						return destinatario.getCpf();
+					else
+						return destinatario.getCnpj();
+				} catch (Exception e) {
 					return "";
 				}
 			}
@@ -928,8 +1125,20 @@ public class TelaRomaneios extends JFrame {
 				return romaneio.getPeso_bruto();
 			case tara:
 				return romaneio.getTara();
+			case peso_liquido_sem_desconto:
+				return romaneio.getPeso_liquido_sem_descontos();
+			case peso_desconto_umidade:
+				return romaneio.getPeso_desconto_umidade();
+			case peso_desconto_impureza:
+				return romaneio.getPeso_desconto_impureza();
+			case peso_desconto_avariado:
+				return romaneio.getPeso_desconto_avariados();
+			case peso_desconto_total:
+				return romaneio.getPeso_desconto_total();
 			case peso_liquido:
 				return romaneio.getPeso_liquido();
+			case peso_recepcao:
+				return romaneio.getDespesa_recepcao();
 			case umidade:
 				return romaneio.getUmidade();
 			case impureza:
@@ -938,55 +1147,49 @@ public class TelaRomaneios extends JFrame {
 				return romaneio.getArdidos();
 			case avariados:
 				return romaneio.getAvariados();
-			case cfop:{
+			case cfop: {
 				try {
-				if( romaneio.getCfop() != null) {
-					return romaneio.getCfop();
+					if (romaneio.getCfop() != null) {
+						return romaneio.getCfop();
 
-				}else {
+					} else {
 						return "";
-				}
-			}catch(Exception e) {
-				return "";
+					}
+				} catch (Exception e) {
+					return "";
 
+				}
 			}
-			}
-			case descricao:{
+			case descricao: {
 				try {
-				if(romaneio.getDescricao_cfop().toUpperCase() != null) {
-					return romaneio.getDescricao_cfop().toUpperCase();
-				}else {
-					return "";
+					if (romaneio.getDescricao_cfop().toUpperCase() != null) {
+						return romaneio.getDescricao_cfop().toUpperCase();
+					} else {
+						return "";
 
-				}
-				}catch(Exception e) {
+					}
+				} catch (Exception e) {
 					return "";
 
 				}
 			}
-			case motorista:{
-				try {
-				if(romaneio.getMotorista() != null) {
-					return romaneio.getMotorista().getNome_empresarial().toUpperCase();
-
-				}else 
-					return "";
-				}catch(Exception e) {
-					return "";
-				}
+			case motorista: {
+				return romaneio.getNome_motorista();
+			}
+			case cpf_motorista: {
+				return romaneio.getCpf_motorista();
 			}
 			case placa: {
-				try {
-				if(romaneio.getMotorista() != null) {
-				ArrayList<CadastroCliente.Veiculo> veiculos = romaneio.getMotorista().getVeiculos();
-				return veiculos.get(0).getPlaca_trator().toUpperCase();
-				}else 
-					return "";
-				}catch(Exception y) {
-					return "";
-				}
+				return romaneio.getPlaca();
 			}
-
+			case doc_entrada:
+				return romaneio.getDoc_entrada();
+			case amostra:
+				return romaneio.getAmostra();
+			case silo:
+				return romaneio.getSilo();
+			case transgenese:
+				return romaneio.getTransgenia();
 			default:
 				throw new IndexOutOfBoundsException("Coluna Inválida!!!");
 			}
@@ -1081,146 +1284,189 @@ public class TelaRomaneios extends JFrame {
 
 	}
 
-
 	public boolean checkString(String txt) {
 		return txt != null && !txt.equals("") && !txt.equals(" ") && !txt.equals("  ");
 	}
-	
-	
-public void setDadosPesquisa(String destinatario, String remetente, String natureza, String produto, String codigo) {
-		
-    sorter.setRowFilter( RowFilter.regexFilter(""));
+
+	public void setDadosPesquisa(String destinatario, String remetente, String natureza, String produto,
+			String codigo) {
+
+		sorter.setRowFilter(RowFilter.regexFilter(""));
 
 		entChavePesquisa.setText(destinatario);
 		entRemetente.setText(remetente);
 		entNatureza.setText(natureza);
 		entProduto.setText(produto);
 		entCodigo.setText(codigo);
-	
-		
+
 		filtrar();
 	}
 
+	public void filtrar() {
+		ArrayList<RowFilter<Object, Object>> filters = new ArrayList<RowFilter<Object, Object>>(2);
 
-public void filtrar() {
-	 ArrayList<RowFilter<Object,Object>> filters = new ArrayList<RowFilter<Object,Object>>(2);
+		String produto = entProduto.getText().toUpperCase();
+		String destinatario = entChavePesquisa.getText().toUpperCase();
+		String remetente = entRemetente.getText().toUpperCase();
+		String natureza = entNatureza.getText().toUpperCase();
+		String codigo = entCodigo.getText().toUpperCase();
+		String identificacaoRemetente = entIdentificacaoRemetente.getText().toUpperCase();
+		String identificacaoDestinatario = entIdentificacaoDestinatario.getText().toUpperCase();
+		String nome_motorista = entNomeMotorista.getText().toUpperCase();
+		String cpf_motorista = entCpfMotorista.getText().toUpperCase();
+		String placa = entPlaca.getText().toUpperCase();
+		String amostra = entAmostra.getText().toUpperCase();
+		String silo = entSilo.getText().toUpperCase();
+		String classificador = entSilo.getText().toUpperCase();
+		String doc_entrada = entDocEntrada.getText().toUpperCase();
+		String transgenese = entTransgeniaDefinida.getText().toUpperCase();
 
-	    String produto = entProduto.getText().toUpperCase();
-	    String destinatario =  entChavePesquisa.getText().toUpperCase();
-	    String remetente = entRemetente.getText().toUpperCase();
-	    String natureza = entNatureza.getText().toUpperCase();
-	    String codigo = entCodigo.getText().toUpperCase();
-	    String identificacaoRemetente = entIdentificacaoRemetente.getText().toUpperCase();
-	    String identificacaoDestinatario = entIdentificacaoDestinatario.getText().toUpperCase();
+		String menor = entMenorData.getText();
+		String maior = entMaiorData.getText();
 
-	    String menor = entMenorData.getText();
-	    String maior = entMaiorData.getText();
-	    
-	    if(checkString(menor) && checkString(maior) ) {
-		Date data_menor = null;
-		Date data_maior = null ;
-		try {
-			data_menor = new SimpleDateFormat("dd/MM/yyyy").parse(menor);
-			data_maior = new SimpleDateFormat("dd/MM/yyyy").parse(maior);
+		if (checkString(menor) && checkString(maior)) {
+			Date data_menor = null;
+			Date data_maior = null;
+			try {
+				data_menor = new SimpleDateFormat("dd/MM/yyyy").parse(menor);
+				data_maior = new SimpleDateFormat("dd/MM/yyyy").parse(maior);
 
-		} catch (ParseException i) {
-			// TODO Auto-generated catch block
-			i.printStackTrace();
+			} catch (ParseException i) {
+				// TODO Auto-generated catch block
+				i.printStackTrace();
+			}
+
+			Set<RowFilter<Object, Object>> datas = new HashSet<>();
+			datas.add(RowFilter.dateFilter(RowFilter.ComparisonType.AFTER, data_menor, 2));
+			datas.add(RowFilter.dateFilter(RowFilter.ComparisonType.EQUAL, data_menor, 2));
+			filters.add(RowFilter.orFilter(datas));
+
+			// filters.add( RowFilter.dateFilter(ComparisonType.AFTER, data_menor, 5) );
+			// filters.add( RowFilter.dateFilter(ComparisonType.EQUAL, data_menor, 5) );
+
+			// filters.add( RowFilter.dateFilter(ComparisonType.BEFORE, data_maior, 5) );
+			// filters.add( RowFilter.dateFilter(ComparisonType.EQUAL, data_maior, 5) );
+			Set<RowFilter<Object, Object>> datas_maior = new HashSet<>();
+			datas_maior.add(RowFilter.dateFilter(RowFilter.ComparisonType.BEFORE, data_maior, 2));
+			datas_maior.add(RowFilter.dateFilter(RowFilter.ComparisonType.EQUAL, data_maior, 2));
+			filters.add(RowFilter.orFilter(datas_maior));
 		}
-		
-		Set<RowFilter<Object, Object>> datas = new HashSet<>();
-		datas.add(RowFilter.dateFilter(RowFilter.ComparisonType.AFTER,
-				data_menor, 2));
-		datas.add(RowFilter.dateFilter(RowFilter.ComparisonType.EQUAL,
-				data_menor, 2));
-		filters.add(RowFilter.orFilter(datas));
-     
-	  //  filters.add( RowFilter.dateFilter(ComparisonType.AFTER, data_menor, 5) );
-	   // filters.add( RowFilter.dateFilter(ComparisonType.EQUAL, data_menor, 5) );
 
-	   // filters.add( RowFilter.dateFilter(ComparisonType.BEFORE, data_maior, 5) );
-	   // filters.add( RowFilter.dateFilter(ComparisonType.EQUAL, data_maior, 5) );
-		Set<RowFilter<Object, Object>> datas_maior = new HashSet<>();
-		datas_maior.add(RowFilter.dateFilter(RowFilter.ComparisonType.BEFORE,
-				data_maior, 2));
-		datas_maior.add(RowFilter.dateFilter(RowFilter.ComparisonType.EQUAL,
-				data_maior, 2));
-		filters.add(RowFilter.orFilter(datas_maior));
-	    }
-	    
-	    if(checkString(remetente))
-	    filters.add(RowFilter.regexFilter(remetente, 6));
-	    
-	    if(checkString(natureza))
-	    filters.add(RowFilter.regexFilter(natureza, 1));
+		if (checkString(remetente))
+			filters.add(RowFilter.regexFilter(remetente, 6));
 
-	    if(checkString(destinatario))
-	    filters.add(RowFilter.regexFilter(destinatario, 8));
-	    
-	    if(checkString(produto))
-	    filters.add(RowFilter.regexFilter(produto, 3));
-	    
-	    
-	    if(checkString(codigo))
-	    filters.add(RowFilter.regexFilter(codigo, 0));
-	    
-	    if(checkString(identificacaoRemetente))
-		    filters.add(RowFilter.regexFilter(identificacaoRemetente, 7));
-		    
-	    
-	    if(checkString(identificacaoDestinatario))
-		    filters.add(RowFilter.regexFilter(identificacaoDestinatario, 9));
-		    
-	 
-	    
-	    sorter.setRowFilter( RowFilter.andFilter(filters));
-	    calcular();
-}
+		if (checkString(natureza))
+			filters.add(RowFilter.regexFilter(natureza, 1));
 
+		if (checkString(destinatario))
+			filters.add(RowFilter.regexFilter(destinatario, 8));
 
-public void limpar() {
-    sorter.setRowFilter( RowFilter.regexFilter(""));
-    calcular();
-}
+		if (checkString(produto))
+			filters.add(RowFilter.regexFilter(produto, 3));
 
-public void setClienteSelecionado(CadastroCliente cliente) {
-	this.cliente_selecionado = cliente;
-}
+		if (checkString(codigo))
+			filters.add(RowFilter.regexFilter(codigo, 0));
 
+		if (checkString(identificacaoRemetente))
+			filters.add(RowFilter.regexFilter(identificacaoRemetente, 7));
 
-public void setTelaPai(JDialog _telaPai) {
-	this.telaPai = _telaPai;
-}
+		if (checkString(identificacaoDestinatario))
+			filters.add(RowFilter.regexFilter(identificacaoDestinatario, 9));
 
+		if (checkString(nome_motorista))
+			filters.add(RowFilter.regexFilter(nome_motorista, 25));
 
-public void calcular() {
+		if (checkString(cpf_motorista))
+			filters.add(RowFilter.regexFilter(cpf_motorista, 26));
 
-	NumberFormat z = NumberFormat.getNumberInstance();
+		if (checkString(placa))
+			filters.add(RowFilter.regexFilter(placa, 27));
 
-	int numero_romaneios = 0;
-	
+		if (checkString(amostra))
+			filters.add(RowFilter.regexFilter(amostra, 29));
 
-	double peso_bruto_total = 0, peso_tara_total = 0, peso_liquido_total = 0;
-	
-	for (int row = 0; row < table_nfs.getRowCount(); row++) {
+		if (checkString(silo))
+			filters.add(RowFilter.regexFilter(silo, 30));
 
-		int index = table_nfs.convertRowIndexToModel(row);
-		CadastroRomaneio romaneio = modelo_romaneios.getValue(index);
-		
-		peso_bruto_total += romaneio.getPeso_bruto();
-		peso_tara_total += romaneio.getTara();
-		peso_liquido_total += romaneio.getPeso_liquido();
-		numero_romaneios++;
-		
-		
+		if (checkString(doc_entrada))
+			filters.add(RowFilter.regexFilter(doc_entrada, 28));
+
+		if (checkString(transgenese))
+			filters.add(RowFilter.regexFilter(transgenese, 31));
+
+		sorter.setRowFilter(RowFilter.andFilter(filters));
+		calcular();
+	}
+
+	public void limpar() {
+		sorter.setRowFilter(RowFilter.regexFilter(""));
+		calcular();
+	}
+
+	public void setClienteSelecionado(CadastroCliente cliente) {
+		this.cliente_selecionado = cliente;
+	}
+
+	public void setTelaPai(JDialog _telaPai) {
+		this.telaPai = _telaPai;
+	}
+
+	public void calcular() {
+
+		NumberFormat z = NumberFormat.getNumberInstance();
+
+		int numero_romaneios = 0;
+
+		double peso_bruto_total = 0, peso_tara_total = 0, peso_liquido_total_sem_desconto = 0, peso_liquido_total = 0;
+		double peso_desconto_umidade = 0;
+		double peso_desconto_impureza = 0;
+		double peso_desconto_avariado = 0;
+		double peso_desconto_total = 0;
+		double peso_recepcao = 0;
+
+		for (int row = 0; row < table_nfs.getRowCount(); row++) {
+
+			int index = table_nfs.convertRowIndexToModel(row);
+			CadastroRomaneio romaneio = modelo_romaneios.getValue(index);
+
+			peso_bruto_total += romaneio.getPeso_bruto();
+			peso_tara_total += romaneio.getTara();
+			peso_liquido_total += romaneio.getPeso_liquido();
+			peso_liquido_total_sem_desconto += romaneio.getPeso_liquido_sem_descontos();
+
+			peso_desconto_umidade += romaneio.getPeso_desconto_umidade();
+			peso_desconto_impureza += romaneio.getPeso_desconto_impureza();
+			peso_desconto_avariado += romaneio.getPeso_desconto_avariados();
+			peso_desconto_total += romaneio.getPeso_desconto_total();
+			peso_recepcao += romaneio.getDespesa_recepcao();
+
+			numero_romaneios++;
+
+		}
+
+		// valores
+
+		lblPesoBrutoTotal.setText(z.format(peso_bruto_total) + " Kgs | " + z.format(peso_bruto_total / 60) + " sacos");
+		lblPesoLiquidoTotal
+				.setText(z.format(peso_liquido_total) + " Kgs | " + z.format(peso_liquido_total / 60) + " sacos");
+		lblPesoLiquidoTotalSemDesconto.setText(z.format(peso_liquido_total_sem_desconto) + " Kgs | "
+				+ z.format(peso_liquido_total_sem_desconto / 60) + " sacos");
+
+		lblDescontoTotalUmidade
+				.setText(z.format(peso_desconto_umidade) + " Kgs | " + z.format(peso_desconto_umidade / 60) + " sacos");
+		lblDescontoTotalImpureza.setText(
+				z.format(peso_desconto_impureza) + " Kgs | " + z.format(peso_desconto_impureza / 60) + " sacos");
+		lblDescontoTotalAvariado.setText(
+				z.format(peso_desconto_avariado) + " Kgs | " + z.format(peso_desconto_avariado / 60) + " sacos");
+		lblPesoTotalDesconto
+				.setText(z.format(peso_desconto_total) + " Kgs | " + z.format(peso_desconto_total / 60) + " sacos");
+
+		lblPesoTaraTotal.setText(z.format(peso_tara_total) + " Kgs | " + z.format(peso_tara_total / 60) + " sacos");
+		lblNumeroTotalRomaneios.setText(numero_romaneios + " Romaneios");
+
 	}
 	
-	//valores
+	
 
-	lblPesoBrutoTotal.setText(z.format(peso_bruto_total) + " Kgs | " + z.format(peso_bruto_total/60) + " sacos");
-	lblPesoLiquidoTotal.setText(z.format(peso_liquido_total) + " Kgs | " + z.format(peso_liquido_total/60) + " sacos");
-	lblPesoTaraTotal.setText(z.format(peso_tara_total) + " Kgs | " + z.format(peso_tara_total/60) + " sacos");
-	lblNumeroTotalRomaneios.setText(numero_romaneios + " Romaneios");
-}
-
+	
 }

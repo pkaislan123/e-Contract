@@ -145,7 +145,7 @@ import main.java.outros.MyFileVisitor;
 import main.java.outros.ReproduzirAudio;
 import main.java.outros.TratarDados;
 import main.java.relatoria.RelatorioContratoComprador;
-import main.java.relatoria.RelatorioContratoSimplificado;
+import main.java.relatoria.RelatorioContratoRecebimentoSimplificado;
 import main.java.relatoria.RelatorioContratos;
 import main.java.tratamento_proprio.Log;
 import main.java.views_personalizadas.TelaEmEspera;
@@ -222,9 +222,7 @@ public class TelaFinanceiroCadastroLancamento extends JDialog {
 
 	private final JTabbedPane abas = new JTabbedPane(JTabbedPane.TOP);
 	private final JLabel lblNewLabel_1 = new JLabel("Centro de Custo:");
-	private final JLabel lblNewLabel_2 = new JLabel("Instituição Bancária:");
 	private final JComboBox cbCentroCusto = new JComboBox();
-	private final JComboBox cbInstituicaoBancaria = new JComboBox();
 	private final JLabel lblNewLabel_3 = new JLabel("Devedor:");
 	private final JLabel lblNewLabel_4 = new JLabel("Recebedor:");
 	private final JLabel lblNewLabel_1_1 = new JLabel("Cliente/Fornecedor:");
@@ -242,7 +240,7 @@ public class TelaFinanceiroCadastroLancamento extends JDialog {
 	private final JTextFieldPersonalizado entValor = new JTextFieldPersonalizado();
 	private final JTextFieldPersonalizado entDataVencimento = new JTextFieldPersonalizado();
 	private final JLabel lblNewLabel_4_1_2 = new JLabel("Concluir:");
-	private final JLabel lblNewLabel_1_2_2 = new JLabel("Status Inicial:");
+	private final JLabel lblNewLabel_1_2_2 = new JLabel("Status:");
 	private final JLabel lblNewLabel_1_2_2_1 = new JLabel("Observação:");
 	private final JLabel lblNewLabel_1_2_2_1_1 = new JLabel("Descrição:");
 	private final JButton btnSelecionarInstituicaoBancaria = new JButton("Selecionar");
@@ -267,16 +265,10 @@ public class TelaFinanceiroCadastroLancamento extends JDialog {
 	private final JComboBox cbStatusInicial = new JComboBox();
 	private final JLabel lblNewLabel_6_1 = new JLabel("Prioridade:");
 	private final JComboBox cbPrioridade = new JComboBox();
-	private final JLabel lblNewLabel_1_2_1 = new JLabel("Identificador:");
+	private final JLabel lblNewLabel_1_2_1 = new JLabel("Identificador Geral:");
 	private final JTextFieldPersonalizado entIdentificador = new JTextFieldPersonalizado();
-	private final JLabel lblNewLabel_1_2_1_2 = new JLabel("Arquivo:");
-	private final JTextFieldPersonalizado entCaminhoArquivo = new JTextFieldPersonalizado();
-	private final JButton btnSelecionarArquivo = new JButton("Selecionar");
 	private final JLabel lblNewLabel_1_2_1_1_2 = new JLabel("Número de Parcelas:");
-	private final JLabel lblNewLabel_1_2_1_1_2_1 = new JLabel("Gerar Parcelas?:");
 	private final JPanel panel_2 = new JPanel();
-	private final JCheckBox chkboxGerarParcelas = new JCheckBox("Sim");
-	private final JCheckBox chkboxNaoGerarParcelas = new JCheckBox("Não");
 	private final JLabel lblNewLabel_1_2_1_1_1_1 = new JLabel("Intervalo:");
 	private final JTextFieldPersonalizado entIntervalo = new JTextFieldPersonalizado();
 	private final JTextFieldPersonalizado entNumeroParcelas = new JTextFieldPersonalizado();
@@ -308,7 +300,7 @@ public class TelaFinanceiroCadastroLancamento extends JDialog {
 		setContentPane(painelOdin);
 		setBackground(new Color(255, 255, 255));
 		setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-		setBounds(100, 100, 710, 639);
+		setBounds(100, 100, 772, 709);
 		painelOdin.setLayout(new BorderLayout(0, 0));
 		painelOdin.add(painelPrincipal);
 
@@ -400,10 +392,6 @@ public class TelaFinanceiroCadastroLancamento extends JDialog {
 		});
 		btnSelecionarCentroCusto.setForeground(Color.WHITE);
 		btnSelecionarCentroCusto.setBackground(new Color(0, 0, 153));
-		painelDespesa.add(lblNewLabel_2, "cell 0 4,alignx right");
-		lblNewLabel_2.setFont(new Font("SansSerif", Font.PLAIN, 16));
-		painelDespesa.add(cbInstituicaoBancaria, "cell 1 4,growx");
-		cbInstituicaoBancaria.setFont(new Font("SansSerif", Font.PLAIN, 16));
 		painelDespesa.add(btnSelecionarInstituicaoBancaria, "cell 2 4");
 		btnSelecionarInstituicaoBancaria.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
@@ -486,21 +474,6 @@ public class TelaFinanceiroCadastroLancamento extends JDialog {
 
 		painelConta.add(entIdentificador, "cell 1 4,growx");
 		entIdentificador.setForeground(Color.black);
-		lblNewLabel_1_2_1_2.setFont(new Font("SansSerif", Font.PLAIN, 16));
-
-		painelConta.add(lblNewLabel_1_2_1_2, "cell 0 5,alignx trailing,aligny bottom");
-
-		painelConta.add(entCaminhoArquivo, "cell 1 5,growx");
-		entCaminhoArquivo.setForeground(Color.black);
-		btnSelecionarArquivo.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				selecionarArquivo();
-			}
-		});
-		btnSelecionarArquivo.setBackground(new Color(0, 0, 153));
-		btnSelecionarArquivo.setForeground(Color.WHITE);
-
-		painelConta.add(btnSelecionarArquivo, "cell 2 5,aligny bottom");
 		lblNewLabel_5_2_1_1.setFont(new Font("SansSerif", Font.PLAIN, 18));
 
 		painelConta.add(lblNewLabel_5_2_1_1, "cell 0 6");
@@ -538,31 +511,10 @@ public class TelaFinanceiroCadastroLancamento extends JDialog {
 
 		painelConta.add(entIntervalo, "cell 1 14 2 1,growx");
 		entIntervalo.setForeground(Color.black);
-		lblNewLabel_1_2_1_1_2_1.setFont(new Font("SansSerif", Font.PLAIN, 16));
-
-		painelConta.add(lblNewLabel_1_2_1_1_2_1, "cell 0 15,alignx right");
 		panel_2.setBackground(Color.WHITE);
 
 		painelConta.add(panel_2, "cell 1 15,grow");
 		panel_2.setLayout(new MigLayout("", "[104px][]", "[18px]"));
-		chkboxGerarParcelas.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-
-				chkboxGerarParcelas.setSelected(true);
-				chkboxNaoGerarParcelas.setSelected(false);
-
-			}
-		});
-
-		panel_2.add(chkboxGerarParcelas, "cell 0 0,alignx left,aligny top");
-		chkboxNaoGerarParcelas.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				chkboxGerarParcelas.setSelected(false);
-				chkboxNaoGerarParcelas.setSelected(true);
-			}
-		});
-
-		panel_2.add(chkboxNaoGerarParcelas, "cell 1 0");
 		painelConcluir.setBackground(Color.WHITE);
 		abas.addTab("Concluir", painelConcluir);
 		painelConcluir.setLayout(new MigLayout("", "[][grow]", "[][][][][grow][grow]"));
@@ -607,13 +559,19 @@ public class TelaFinanceiroCadastroLancamento extends JDialog {
 
 		painelPrincipal.add(painelBotoes, "cell 5 4,alignx right,growy");
 		painelBotoes.setLayout(new MigLayout("", "[][]", "[]"));
+		btnAtualizar.setBackground(new Color(0, 0, 102));
+		btnAtualizar.setForeground(Color.WHITE);
+		btnAtualizar.setFont(new Font("SansSerif", Font.BOLD, 14));
 		btnAtualizar.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				GerenciarBancoLancamento gerenciar = new GerenciarBancoLancamento();
 				boolean result = gerenciar.atualizarLancamento(getDadosAtualizar(lancamento));
 				if (result) {
-					JOptionPane.showMessageDialog(isto, "Cadastro Atualizado");
-					isto.dispose();
+
+						JOptionPane.showMessageDialog(isto, "Atualizado");
+						((TelaFinanceiroGerenciarLancamento) janela_pai).atualizarRotinas();;
+						isto.dispose();
+					
 				} else {
 					JOptionPane.showMessageDialog(isto, "Erro ao Atualizar\nConsulte o Administrador");
 
@@ -621,6 +579,9 @@ public class TelaFinanceiroCadastroLancamento extends JDialog {
 			}
 		});
 		painelBotoes.add(btnAtualizar, "cell 0 0,growx");
+		btnCadastrar.setForeground(Color.WHITE);
+		btnCadastrar.setFont(new Font("SansSerif", Font.BOLD, 14));
+		btnCadastrar.setBackground(new Color(0, 0, 102));
 		btnCadastrar.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 
@@ -668,43 +629,10 @@ public class TelaFinanceiroCadastroLancamento extends JDialog {
 
 						boolean atualizar_diretorio = gerenciar.atualizarLancamento("", caminho_diretorio_bd, result);
 						if (atualizar_diretorio) {
-
-							if (lancamento.getCaminho_arquivo() != null) {
-								try {
-								if (lancamento.getCaminho_arquivo().length() > 10) {
-									String caminho_arquivo = servidor_unidade + caminho_diretorio + "\\\\lancamento_"
-											+ lancamento.getIdentificacao() + ".pdf";
-									String caminho_arquivo_bd = caminho_diretorio + "\\\\lancamento_"
-											+ lancamento.getIdentificacao() + ".pdf";
-									try {
-										boolean copiar = manipular.copiarNFe(lancamento.getCaminho_arquivo(),
-												caminho_arquivo);
-										if (copiar) {
-
-											boolean atualizar_diretorio2 = gerenciar.atualizarLancamento(
-													caminho_arquivo_bd, caminho_diretorio_bd, result);
-											if (atualizar_diretorio2) {
-											
-												JOptionPane.showMessageDialog(isto, "Cadastro Concluído");
-												((TelaFinanceiroLancamento) janela_pai).pesquisar();
-												isto.dispose();
-											}
-										}
-									} catch (IOException e1) {
-										// TODO Auto-generated catch block
-										e1.printStackTrace();
-									}
-								}
-								}catch(Exception te) {
-									JOptionPane.showMessageDialog(isto, "Cadastro Concluído");
-									((TelaFinanceiroLancamento) janela_pai).pesquisar();
-									isto.dispose();
-								}
-							}else {
-								JOptionPane.showMessageDialog(isto, "Cadastro Concluído");
+                                JOptionPane.showMessageDialog(isto, "Cadastro Concluído");
 								((TelaFinanceiroLancamento) janela_pai).pesquisar();
 								isto.dispose();
-							}
+							
 
 						}
 
@@ -750,16 +678,16 @@ public class TelaFinanceiroCadastroLancamento extends JDialog {
 			rdbtnDespesa.setSelected(false);
 			setPainelReceita();
 		}
+		
+		int prioridade = lancamento.getPrioridade();
+		cbPrioridade.setSelectedIndex(prioridade);
+		
 
 		// as partes
 		if (lancamento.getId_centro_custo() > 0) {
 			setCentroCusto(new GerenciarBancoCentroCustos().getCentroCusto(lancamento.getId_centro_custo()));
 		}
 
-		if (lancamento.getId_instituicao_bancaria() > 0) {
-			setInstituicaoBancaria(new GerenciarBancoInstituicaoBancaria()
-					.getInstituicaoBancaria(lancamento.getId_instituicao_bancaria()));
-		}
 
 		if (lancamento.getId_cliente_fornecedor() > 0) {
 			setCliente(new GerenciarBancoClientes().getCliente(lancamento.getId_cliente_fornecedor()));
@@ -771,8 +699,12 @@ public class TelaFinanceiroCadastroLancamento extends JDialog {
 			setConta(new GerenciarBancoFinanceiroConta().getFinanceiroConta(lancamento.getId_conta()));
 		}
 
-		entValor.setText(lancamento.getValor().toString().replaceAll("[^0-9.,]", ""));
+		entIdentificador.setText(lancamento.getIdentificacao());
+		
+		entValor.setText(lancamento.getValor().toString());
+		entNumeroParcelas.setText(lancamento.getNumero_parcelas() + "");
 		entDataVencimento.setText(lancamento.getData_vencimento());
+		entIntervalo.setText(lancamento.getIntervalo() + "");
 
 		// tela concluir
 		entDataLancamento.setText(lancamento.getData_lancamento());
@@ -794,6 +726,8 @@ public class TelaFinanceiroCadastroLancamento extends JDialog {
 
 		entObservacao.setText(lancamento.getObservacao());
 		entDescricao.setText(lancamento.getDescricao());
+
+		
 
 	}
 
@@ -853,12 +787,7 @@ public class TelaFinanceiroCadastroLancamento extends JDialog {
 		cbCentroCusto.addItem(_centro_custo.getNome_centro_custo());
 	}
 
-	public void setInstituicaoBancaria(InstituicaoBancaria _instituicao_bancaria) {
-		instituicao_bancaria = _instituicao_bancaria;
-
-		cbInstituicaoBancaria.removeAllItems();
-		cbInstituicaoBancaria.addItem(_instituicao_bancaria.getNome_instituicao_bancaria());
-	}
+	
 
 	public void setConta(FinanceiroConta _financeiro_conta) {
 		financeiro_conta = _financeiro_conta;
@@ -872,8 +801,8 @@ public class TelaFinanceiroCadastroLancamento extends JDialog {
 		Lancamento lancamento = new Lancamento();
 		lancamento.setId_lancamento(lancamento_antigo.getId_lancamento());
 
-		String observacao, descricao, data_lancamento, data_vencimento, data_pagamento, s_valor = null;
-		int status;
+		int status, prioridade, intervalo;
+		String identificacao, observacao, descricao, data_lancamento, data_vencimento, data_pagamento, s_valor = null;
 		BigDecimal valor = BigDecimal.ZERO;
 		// tela as partes
 		if (centro_custo != null) {
@@ -917,6 +846,7 @@ public class TelaFinanceiroCadastroLancamento extends JDialog {
 		lancamento.setObservacao(observacao);
 		lancamento.setDescricao(descricao);
 		lancamento.setData_lancamento(data_lancamento);
+
 		if (rdbtnDespesa.isSelected()) {
 			lancamento.setTipo_lancamento(0);
 
@@ -935,6 +865,15 @@ public class TelaFinanceiroCadastroLancamento extends JDialog {
 				lancamento.setStatus(3);
 			}
 		}
+
+		lancamento.setPrioridade(cbPrioridade.getSelectedIndex());
+
+		lancamento.setIntervalo(Integer.parseInt(entIntervalo.getText()));
+		lancamento.setNumero_parcelas(Integer.parseInt(entNumeroParcelas.getText()));
+
+		lancamento.setGerar_parcelas(0);
+
+		lancamento.setIdentificacao(entIdentificador.getText());
 
 		return lancamento;
 	}
@@ -1012,13 +951,9 @@ public class TelaFinanceiroCadastroLancamento extends JDialog {
 		lancamento.setIntervalo(Integer.parseInt(entIntervalo.getText()));
 		lancamento.setNumero_parcelas(Integer.parseInt(entNumeroParcelas.getText()));
 
-		if (chkboxGerarParcelas.isSelected())
 			lancamento.setGerar_parcelas(1);
-		else if (chkboxNaoGerarParcelas.isSelected())
-			lancamento.setGerar_parcelas(0);
 
 		lancamento.setIdentificacao(entIdentificador.getText());
-		lancamento.setCaminho_arquivo(entCaminhoArquivo.getText());
 
 		return lancamento;
 	}
@@ -1046,10 +981,6 @@ public class TelaFinanceiroCadastroLancamento extends JDialog {
 
 		btnSelecionarCentroCusto.setForeground(Color.WHITE);
 		btnSelecionarCentroCusto.setBackground(new Color(0, 0, 153));
-		painelDespesa.add(lblNewLabel_2, "cell 0 4,alignx right");
-		lblNewLabel_2.setFont(new Font("SansSerif", Font.PLAIN, 16));
-		painelDespesa.add(cbInstituicaoBancaria, "cell 1 4,growx");
-		cbInstituicaoBancaria.setFont(new Font("SansSerif", Font.PLAIN, 16));
 		painelDespesa.add(btnSelecionarInstituicaoBancaria, "cell 2 4");
 
 		btnSelecionarInstituicaoBancaria.setForeground(Color.WHITE);
@@ -1132,10 +1063,6 @@ public class TelaFinanceiroCadastroLancamento extends JDialog {
 
 		btnSelecionarCentroCusto.setForeground(Color.WHITE);
 		btnSelecionarCentroCusto.setBackground(new Color(0, 0, 153));
-		painelDespesa.add(lblNewLabel_2, "cell 0 10,alignx right");
-		lblNewLabel_2.setFont(new Font("SansSerif", Font.PLAIN, 16));
-		painelDespesa.add(cbInstituicaoBancaria, "cell 1 10,growx");
-		cbInstituicaoBancaria.setFont(new Font("SansSerif", Font.PLAIN, 16));
 		painelDespesa.add(btnSelecionarInstituicaoBancaria, "cell 2 10");
 
 		btnSelecionarInstituicaoBancaria.setForeground(Color.WHITE);
@@ -1145,24 +1072,6 @@ public class TelaFinanceiroCadastroLancamento extends JDialog {
 		cbStatusInicial.removeAllItems();
 		cbStatusInicial.addItem("A Receber");
 		cbStatusInicial.addItem("Recebido");
-	}
-
-	public void selecionarArquivo() {
-
-		JOptionPane.showMessageDialog(isto, "Na próxima tela, importe o arquivo comprovante!");
-
-		new JFXPanel();
-		Platform.runLater(() -> {
-			FileChooser d = new FileChooser();
-			File file = d.showOpenDialog(null);
-			String caminho_arquivo = "";
-			if (file != null) {
-				caminho_arquivo = file.getAbsolutePath();
-				entCaminhoArquivo.setText(caminho_arquivo);
-				// JOptionPane.showMessageDialog(isto, "CAminho do arquivo selecionado: " +
-				// file.getAbsolutePath());
-			}
-		});
 	}
 
 	public boolean converterPdfESalvar(String caminho_arquivo) {

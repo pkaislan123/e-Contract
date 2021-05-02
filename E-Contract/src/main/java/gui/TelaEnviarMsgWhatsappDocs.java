@@ -1,3 +1,5 @@
+
+
 package main.java.gui;
 
 import java.awt.BorderLayout;
@@ -146,11 +148,13 @@ import javax.swing.JCheckBox;
 import javax.swing.JTextField;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
+import java.io.File;
+
 import javax.swing.JRadioButton;
 
 
 
-public class TelaEnviarMsgWhatsapp extends JDialog {
+public class TelaEnviarMsgWhatsappDocs extends JDialog {
 
 	JPanel painelPrincipal = new JPanel();
 	JPanelBackground rodape = new JPanelBackground();
@@ -158,14 +162,13 @@ public class TelaEnviarMsgWhatsapp extends JDialog {
 	private CadastroLogin login;
 	private ConfiguracoesGlobais configs_globais;
 	private JTextField etNumero;
-	private JCheckBox chkOutroContato, chkAnexarContrato;
+	private JCheckBox chkOutroContato;
 	private JComboBox cBContato;
 	private JLabel lblNaoinclua;
-	private String mensagem_notificacao_global, mensagem_anexo_global, nome_comprador_global, mensagem_anexo_comprador, mensagem_notificacao_comprador, mensagem_anexo_vendedor1, mensagem_notificacao_vendedor1,mensagem_anexo_vendedor2, mensagem_notificacao_vendedor2, nome_vendedor1_global,nome_vendedor2_global;
-	private JRadioButton rdLivre, rdAnexo, rdNot;
+	private String mensagem_notificacao_global, mensagem_anexo_global, mensagem_anexo_comprador, mensagem_notificacao_comprador, mensagem_anexo_vendedor1, mensagem_notificacao_vendedor1,mensagem_anexo_vendedor2, mensagem_notificacao_vendedor2, nome_vendedores_global,nome_compradores_global;
 	private CadastroContrato contrato_local;
 	private JTextArea textArea ;
-	private TelaEnviarMsgWhatsapp isto;
+	private TelaEnviarMsgWhatsappDocs isto;
 	private JLabel lblNaoAcentue;
 	private ArrayList<Contato> todos_contatos_comprador = new ArrayList<>();
 	private ArrayList<Contato> todos_contatos_vendedor1 = new ArrayList<>();
@@ -176,7 +179,8 @@ public class TelaEnviarMsgWhatsapp extends JDialog {
 	private ComboBoxContato modelContato = new ComboBoxContato();
 	private RenderizadorContato renderContato ;
 	
-	
+	String mensagem_envio_documento = "";
+	String mensagem_envio_relatorio = "";
 	public void pesquisarContatos(int flag, int id_cliente) {
 		GerenciarBancoClientes gerenciar = new GerenciarBancoClientes();
 		ArrayList<Contato> lista_contatos =  gerenciar.getContatos(id_cliente);
@@ -205,56 +209,73 @@ public class TelaEnviarMsgWhatsapp extends JDialog {
 		}
 		
 	}
-
-
-	public TelaEnviarMsgWhatsapp(CadastroContrato contrato, Window janela_pai) {
+	 CadastroCliente compradores[] = null;
+     CadastroCliente vendedores[] = null;
+		
+		
+		
+		
+	
+	public TelaEnviarMsgWhatsappDocs(CadastroContrato contrato, File doc, Window janela_pai) {
 		//setAlwaysOnTop(true);
 
 		
 		contrato_local = contrato;
-        CadastroCliente compradores[] = contrato.getCompradores();
-        CadastroCliente vendedores[] = contrato.getVendedores();
+		
+		 if(contrato_local != null) {
+			
+			 compradores = contrato_local.getCompradores();
+			 vendedores = contrato_local.getVendedores();
+				System.out.println("Nome do comprador: " + compradores[0].getNome_empresarial() + "outro nome: " + compradores[0].getNome_fantaia());
+				
+				
+				if(compradores[0].getTipo_pessoa() == 0) {
+					//pessoa fisica
+					nome_compradores_global = compradores[0].getNome_empresarial();
 
-		
-		System.out.println("Nome do comprador: " + compradores[0].getNome_empresarial() + "outro nome: " + compradores[0].getNome_fantaia());
-		
-		
-		if(compradores[0].getTipo_pessoa() == 0) {
-			//pessoa fisica
-			nome_comprador_global = compradores[0].getNome_empresarial();
+				}else {
+					//pessoa juridica
+					nome_compradores_global = compradores[0].getNome_fantaia();
 
-		}else {
-			//pessoa juridica
-			nome_comprador_global = compradores[0].getNome_fantaia();
+				}
+				
+				if(compradores[1] != null) {
+				if(compradores[1].getTipo_pessoa() == 0) {
+					//pessoa fisica
+					nome_compradores_global = compradores[0].getNome_empresarial();
 
-		}
-		
-		if(vendedores[0].getTipo_pessoa() == 0) {
-			//pessoa fisica
-			nome_vendedor1_global = vendedores[0].getNome_empresarial();
+				}else {
+					//pessoa juridica
+					nome_compradores_global = compradores[0].getNome_fantaia();
 
-		}else {
-			//pessoa juridica
-			nome_vendedor1_global = vendedores[0].getNome_fantaia();
+				}
+				}
+				
+				if(vendedores[0].getTipo_pessoa() == 0) {
+					//pessoa fisica
+					nome_vendedores_global = vendedores[0].getNome_empresarial();
 
-		}
-		
-		if(vendedores[1] != null) {
+				}else {
+					//pessoa juridica
+					nome_vendedores_global = vendedores[0].getNome_fantaia();
 
-		if(vendedores[1].getTipo_pessoa() == 0) {
-			//pessoa fisica
-			nome_vendedor2_global = vendedores[1].getNome_empresarial();
+				}
+		 		
+				
+				if(vendedores[1] != null) {
 
-		}else {
-			//pessoa juridica
-			nome_vendedor2_global = vendedores[1].getNome_fantaia();
+				if(vendedores[1].getTipo_pessoa() == 0) {
+					//pessoa fisica
+					nome_vendedores_global = vendedores[1].getNome_empresarial();
 
-		}
-		
-		}
-		
-		
-		
+				}else {
+					//pessoa juridica
+					nome_vendedores_global = vendedores[1].getNome_fantaia();
+
+				}
+				}
+		 }
+					        
 		getDadosGlobais();
 		 isto = this;
 		
@@ -306,30 +327,11 @@ public class TelaEnviarMsgWhatsapp extends JDialog {
 				if(chckbxContatosComprador.isSelected()) {
 					//comprador selecionado
 					
-					if(rdNot.isSelected()) {
-						//mensagem de notificacao ao comprador
-						set_msg_notificacao(1);
-					}else if(rdAnexo.isSelected()) {
-						//mensagem de anexo ao comprador
-						set_msg_anexo(1);
-					}
 					
 				}else if(chckbxContatosVendedor1.isSelected()) {
-					if(rdNot.isSelected()) {
-						//mensagem de notificacao ao comprador
-						set_msg_notificacao(2);
-					}else if(rdAnexo.isSelected()) {
-						//mensagem de anexo ao comprador
-						set_msg_anexo(2);
-					}
+					
 				}else if(chckbxContatosVendedor2.isSelected()) {
-					if(rdNot.isSelected()) {
-						//mensagem de notificacao ao comprador
-						set_msg_notificacao(3);
-					}else if(rdAnexo.isSelected()) {
-						//mensagem de anexo ao comprador
-						set_msg_anexo(3);
-					}
+					
 				}
 				
 			}
@@ -339,7 +341,7 @@ public class TelaEnviarMsgWhatsapp extends JDialog {
 				cBContato.setBounds(119, 93, 297, 23);
 		painelPrincipal.add(cBContato);
 		
-		JLabel lblNewLabel_1 = new JLabel("       Enviar contrato via whatsapp");
+		JLabel lblNewLabel_1 = new JLabel("       Enviar documento via whatsapp");
 		lblNewLabel_1.setFont(new Font("Tahoma", Font.BOLD, 14));
 		lblNewLabel_1.setBackground(new Color(51, 0, 153));
 		lblNewLabel_1.setForeground(Color.WHITE);
@@ -348,24 +350,23 @@ public class TelaEnviarMsgWhatsapp extends JDialog {
 		painelPrincipal.add(lblNewLabel_1);
 		
 		JPanel panel = new JPanel();
-		panel.setBounds(87, 640, 393, 37);
+		panel.setForeground(Color.WHITE);
+		panel.setBounds(87, 626, 341, 37);
 		panel.setBackground(new Color(51, 0, 153));
 		painelPrincipal.add(panel);
-		panel.setLayout(null);
 		
 		JButton btnNewButton = new JButton("Cancelar");
+		btnNewButton.setForeground(Color.WHITE);
+		btnNewButton.setFont(new Font("SansSerif", Font.PLAIN, 16));
 		btnNewButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
 				isto.dispose();
 			}
 		});
-		btnNewButton.setBounds(284, 4, 54, 30);
-		panel.add(btnNewButton);
-		btnNewButton.setBorder(new EmptyBorder(0, 0, 0, 0));
-		btnNewButton.setOpaque(false);
-		btnNewButton.setBackground(new Color(51, 0, 102));
 		
 		JButton btnNewButton_1 = new JButton("Enviar");
+		btnNewButton_1.setForeground(Color.WHITE);
+		btnNewButton_1.setFont(new Font("SansSerif", Font.PLAIN, 16));
 		btnNewButton_1.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 
@@ -373,7 +374,7 @@ public class TelaEnviarMsgWhatsapp extends JDialog {
 			            "Enviar?", "Deseja enviar a mensagem?", 
 			            JOptionPane.YES_NO_OPTION,
 			            JOptionPane.QUESTION_MESSAGE) == JOptionPane.YES_OPTION){
-					enviar_Mensagem();
+					enviar_Mensagem(doc.getAbsolutePath());
 
 			        }
 				else
@@ -389,10 +390,14 @@ public class TelaEnviarMsgWhatsapp extends JDialog {
 			
 			}
 		});
-		btnNewButton_1.setBounds(212, 4, 60, 30);
-		panel.add(btnNewButton_1);
+		panel.setLayout(new MigLayout("", "[grow][grow]", "[23px]"));
+		panel.add(btnNewButton_1, "cell 0 0,grow");
 		btnNewButton_1.setBorder(new EmptyBorder(0, 0, 0, 0));
 		btnNewButton_1.setBackground(new Color(0, 102, 102));
+		panel.add(btnNewButton, "cell 1 0,grow");
+		btnNewButton.setBorder(new EmptyBorder(0, 0, 0, 0));
+		btnNewButton.setOpaque(false);
+		btnNewButton.setBackground(new Color(51, 0, 102));
 		
 		 chkOutroContato = new JCheckBox("Outro Contato:");
 		chkOutroContato.addActionListener(new ActionListener() {
@@ -458,128 +463,12 @@ public class TelaEnviarMsgWhatsapp extends JDialog {
 		lblNaoinclua.setForeground(Color.ORANGE);
 		lblNaoinclua.setBounds(173, 171, 243, 14);
 		painelPrincipal.add(lblNaoinclua);
-		
-		
-		
-		
-		  
-			
-			 chkAnexarContrato = new JCheckBox("Anexar Contrato na Mensagem?");
-			 chkAnexarContrato.setFont(new Font("Arial", Font.PLAIN, 14));
-			 chkAnexarContrato.setVisible(false);
-			 chkAnexarContrato.setOpaque(false);
-			 chkAnexarContrato.setBackground(new Color(0,0,0,0));
-			chkAnexarContrato.setForeground(Color.MAGENTA);
-			chkAnexarContrato.setBounds(119, 599, 297, 23);
-			painelPrincipal.add(chkAnexarContrato);
-			
-
-			 rdNot = new JRadioButton("Notificação");
-			rdNot.addActionListener(new ActionListener() {
-				public void actionPerformed(ActionEvent arg0) {
-					
-					
-						rdNot.setSelected(true);	
-						rdAnexo.setSelected(false);
-						rdLivre.setSelected(false);
-						
-						chkAnexarContrato.setVisible(false);
-						
-						
-						if(chckbxContatosComprador.isSelected()) {
-							set_msg_notificacao(1);
-
-						}else if(chckbxContatosVendedor1.isSelected()) {
-							set_msg_notificacao(2);
-						}else if(chckbxContatosVendedor2.isSelected()) {
-							set_msg_notificacao(3);
-
-						}else {
-							chamar_outro_contato();
-							chkOutroContato.setEnabled(false);
-						}
-						
-						
-						
-				
-					
-				}
-			});
-			rdNot.setSelected(true);
-			rdNot.setForeground(Color.WHITE);
-			rdNot.setBackground(new Color(0,0,0,0));
-			rdNot.setOpaque(false);
-			rdNot.setFont(new Font("Arial", Font.PLAIN, 14));
-			rdNot.setBounds(119, 203, 98, 23);
-			painelPrincipal.add(rdNot);
 			
 			JLabel lblTipo = new JLabel("Tipo:");
 			lblTipo.setForeground(Color.WHITE);
 			lblTipo.setFont(new Font("Arial", Font.BOLD, 14));
 			lblTipo.setBounds(74, 195, 44, 37);
 			painelPrincipal.add(lblTipo);
-			
-
-			 rdAnexo = new JRadioButton("Anexo");
-			 rdAnexo.addActionListener(new ActionListener() {
-			 	public void actionPerformed(ActionEvent e) {
-						
-
-						rdNot.setSelected(false);	
-						rdAnexo.setSelected(true);
-						rdLivre.setSelected(false);
-						
-						chkAnexarContrato.setVisible(false);
-						
-						if(chckbxContatosComprador.isSelected()) {
-							set_msg_anexo(1);
-
-						}else if(chckbxContatosVendedor1.isSelected()) {
-							set_msg_anexo(2);
-						}else if(chckbxContatosVendedor2.isSelected()) {
-							set_msg_anexo(3);
-
-						}
-						
-						
-				
-			 	}
-			 });
-			rdAnexo.setOpaque(false);
-			rdAnexo.setForeground(Color.WHITE);
-			rdAnexo.setFont(new Font("Arial", Font.PLAIN, 14));
-			rdAnexo.setBackground(new Color(0, 0, 0, 0));
-			rdAnexo.setBounds(219, 203, 72, 23);
-			painelPrincipal.add(rdAnexo);
-			
-			
-			 rdLivre = new JRadioButton("Personalizada");
-			 rdLivre.addActionListener(new ActionListener() {
-			 	public void actionPerformed(ActionEvent e) {
-                        if(rdLivre.isSelected()) {
-						
-
-						rdNot.setSelected(false);	
-						rdAnexo.setSelected(false);
-						rdLivre.setSelected(true);
-						
-						chkAnexarContrato.setVisible(true);
-						set_msg_livre();
-						
-						
-						
-					}else {
-						rdLivre.setSelected(true);	
-
-					}
-			 	}
-			 });
-			rdLivre.setOpaque(false);
-			rdLivre.setForeground(Color.WHITE);
-			rdLivre.setFont(new Font("Arial", Font.PLAIN, 14));
-			rdLivre.setBackground(new Color(0, 0, 0, 0));
-			rdLivre.setBounds(293, 203, 123, 23);
-			painelPrincipal.add(rdLivre);
 			
 			lblNaoAcentue = new JLabel("Não acentue as palavras.");
 			lblNaoAcentue.setForeground(Color.ORANGE);
@@ -589,9 +478,11 @@ public class TelaEnviarMsgWhatsapp extends JDialog {
 			 chckbxContatosComprador = new JCheckBox("Comprador");
 			 chckbxContatosComprador.addActionListener(new ActionListener() {
 			 	public void actionPerformed(ActionEvent e) {
-			 		
+			 		if(vendedores != null)
 			 	 pesquisar_comprador(vendedores);
+			 		 
 			 	}
+			 	
 			 });
 			chckbxContatosComprador.setBounds(119, 63, 97, 23);
 			
@@ -602,7 +493,7 @@ public class TelaEnviarMsgWhatsapp extends JDialog {
 			 chckbxContatosVendedor1 = new JCheckBox("Vendedor1");
 			 chckbxContatosVendedor1.addActionListener(new ActionListener() {
 			 	public void actionPerformed(ActionEvent e) {
-			 		
+			 		if(vendedores != null)
 			 		pesquisar_vendedor1(vendedores);
 			 	}
 			 });
@@ -625,14 +516,42 @@ public class TelaEnviarMsgWhatsapp extends JDialog {
 			lblDestinatrio.setBounds(20, 65, 98, 17);
 			painelPrincipal.add(lblDestinatrio);
 			
+			JButton btnNewButton_2 = new JButton("Msg1");
+			btnNewButton_2.setBackground(new Color(0, 0, 0));
+			btnNewButton_2.setForeground(Color.WHITE);
+			btnNewButton_2.setFont(new Font("SansSerif", Font.PLAIN, 16));
+			btnNewButton_2.addActionListener(new ActionListener() {
+				public void actionPerformed(ActionEvent e) {
+					textArea.setText(mensagem_envio_relatorio);
+				}
+			});
+			btnNewButton_2.setBounds(119, 199, 89, 23);
+			painelPrincipal.add(btnNewButton_2);
+			
+			JButton btnNewButton_2_1 = new JButton("Msg2");
+			btnNewButton_2_1.addActionListener(new ActionListener() {
+				public void actionPerformed(ActionEvent e) {
+					textArea.setText(mensagem_envio_relatorio);
+
+				}
+			});
+			btnNewButton_2_1.setForeground(Color.WHITE);
+			btnNewButton_2_1.setFont(new Font("SansSerif", Font.PLAIN, 16));
+			btnNewButton_2_1.setBackground(Color.BLACK);
+			btnNewButton_2_1.setBounds(228, 198, 89, 23);
+			painelPrincipal.add(btnNewButton_2_1);
 			
 			
+			if(compradores != null)
 			pesquisarContatos(1, compradores[0].getId());
+			if(vendedores != null)
 			pesquisarContatos(2, vendedores[0].getId());
 
+			if(vendedores != null) {
 			if(vendedores[1] != null) {
 				pesquisarContatos(3, vendedores[1].getId());
 
+			}
 			}
 			
 				
@@ -662,11 +581,17 @@ public class TelaEnviarMsgWhatsapp extends JDialog {
 				}
                   
 				  
-				  
+				mensagem_envio_documento = "Anexado a esta mensagem esta o documento como solicitado";
+               
+				if(vendedores != null && compradores != null) {
+				mensagem_envio_relatorio = "Em anexo a esta mensagem envio o relatorio referente ao contrato " + contrato_local.getCodigo() + " entre o comprador " + nome_compradores_global + " e o(s) vendedor(es) " + nome_vendedores_global + " na quantidade de " + contrato_local.getQuantidade() + " " 
+			    		+ contrato_local.getMedida() + " de " + contrato_local.getModelo_safra().getProduto().getNome_produto() +   " firmado na data de " 
+			    		+ contrato_local.getData_contrato();  
+				}
 				  
 		this.setLocationRelativeTo(janela_pai);
 		this.setUndecorated(true);
-
+		if(vendedores != null) {
 		if(vendedores[1] != null) {
 			chckbxContatosVendedor2.setEnabled(true);
 			chckbxContatosVendedor2.setVisible(true);
@@ -675,6 +600,7 @@ public class TelaEnviarMsgWhatsapp extends JDialog {
 			chckbxContatosVendedor2.setEnabled(false);
 			chckbxContatosVendedor2.setVisible(false);
 
+		}
 		}
 		this.setVisible(true);
 		
@@ -689,7 +615,7 @@ public class TelaEnviarMsgWhatsapp extends JDialog {
 		if(flag_cliente == 1) {
 			mensagem = "Ola! \\n \\nSou " + login.getNome() + " " + login.getSobrenome() +","
 			    		+ "  represento a LD Armazens de Guarda-Mor/MG. \\n\\nEste  numero esta cadastrado em nossa base de dados para entrar em contato com o produtor rural "
-			    		+ nome_comprador_global + " , assim sendo, envio essa mensagem para notifica-lo que o contrato de " + contrato_local.getQuantidade() + " " 
+			    		+ nome_compradores_global + " , assim sendo, envio essa mensagem para notifica-lo que o contrato de " + contrato_local.getQuantidade() + " " 
 			    		+ contrato_local.getMedida() + " de " + contrato_local.getModelo_safra().getProduto().getNome_produto() +   " firmado na data de " 
 			    		+ contrato_local.getData_contrato()+ " ainda encontra na nossa base de dados com a carencia de assinatura" + ".\\n \\n \\nQualquer duvida entrar em contato  conosco! \\natenciosamente; \\n" + login.getNome() + " " 
 			            + login.getSobrenome() + "\\nE-mail: " + login.getEmail() + "\\n\\n LD Armazens Gerais!";				
@@ -698,7 +624,7 @@ public class TelaEnviarMsgWhatsapp extends JDialog {
 			//mensagem ao vendedor1
 			mensagem = "Ola! \\n \\nSou " + login.getNome() + " " + login.getSobrenome() +","
 		    		+ "  represento a LD Armazens de Guarda-Mor/MG. \\n\\nEste  numero esta cadastrado em nossa base de dados para entrar em contato com o produtor rural "
-		    		+ nome_vendedor1_global + " , assim sendo, envio essa mensagem para notifica-lo que o contrato de " + contrato_local.getQuantidade() + " " 
+		    		+ nome_vendedores_global + " , assim sendo, envio essa mensagem para notifica-lo que o contrato de " + contrato_local.getQuantidade() + " " 
 		    		+ contrato_local.getMedida() + " de " + contrato_local.getModelo_safra().getProduto().getNome_produto() +   " firmado na data de " 
 		    		+ contrato_local.getData_contrato()+ " ainda encontra na nossa base de dados com a carencia de assinatura" + ".\\n \\n \\nQualquer duvida entrar em contato  conosco! \\natenciosamente; \\n" + login.getNome() + " " 
 		            + login.getSobrenome() + "\\nE-mail: " + login.getEmail() + "\\n\\n LD Armazens Gerais!";				
@@ -707,7 +633,7 @@ public class TelaEnviarMsgWhatsapp extends JDialog {
 			//mensagem ao vendedor2
 			mensagem = "Ola! \\n \\nSou " + login.getNome() + " " + login.getSobrenome() +","
 		    		+ "  represento a LD Armazens de Guarda-Mor/MG. \\n\\nEste  numero esta cadastrado em nossa base de dados para entrar em contato com o produtor rural "
-		    		+ nome_vendedor2_global + " , assim sendo, envio essa mensagem para notifica-lo que o contrato de " + contrato_local.getQuantidade() + " " 
+		    		+ nome_vendedores_global + " , assim sendo, envio essa mensagem para notifica-lo que o contrato de " + contrato_local.getQuantidade() + " " 
 		    		+ contrato_local.getMedida() + " de " + contrato_local.getModelo_safra().getProduto().getNome_produto() +   " firmado na data de " 
 		    		+ contrato_local.getData_contrato()+ " ainda encontra na nossa base de dados com a carencia de assinatura" + ".\\n \\n \\nQualquer duvida entrar em contato  conosco! \\natenciosamente; \\n" + login.getNome() + " " 
 		            + login.getSobrenome() + "\\nE-mail: " + login.getEmail() + "\\n\\n LD Armazens Gerais!";				
@@ -733,7 +659,7 @@ public class TelaEnviarMsgWhatsapp extends JDialog {
 			 
 			mensagem = "Ola! \\n \\nSou " + login.getNome() + " " + login.getSobrenome() +","
 		    		+ "  represento a LD Armazens de Guarda-Mor/MG. \\n\\nEste  numero esta cadastrado em nossa base de dados para entrar em contato com o produtor rural "
-		    		+ nome_comprador_global + " , assim sendo, envio essa mensagem   para notifica-lo que o contrato de " + contrato_local.getQuantidade() + " " 
+		    		+ nome_compradores_global + " , assim sendo, envio essa mensagem   para notifica-lo que o contrato de " + contrato_local.getQuantidade() + " " 
 		    		+ contrato_local.getMedida() + " de " + contrato_local.getModelo_safra().getProduto().getNome_produto() +   " firmado na data de " 
 		    		+ contrato_local.getData_contrato() + " ainda encontra na nossa base de dados com a carencia de assinatura"+ ".\\n \\n \\nQualquer duvida entrar em contato  conosco! \\natenciosamente; \\n" + login.getNome() + " " 
 		            + login.getSobrenome() + "\\nE-mail: " + login.getEmail() + "\\n\\n LD Armazens Gerais!";
@@ -746,7 +672,7 @@ public class TelaEnviarMsgWhatsapp extends JDialog {
 			
 			mensagem = "Ola! \\n \\nSou " + login.getNome() + " " + login.getSobrenome() +","
 			    		+ "  represento a LD Armazens de Guarda-Mor/MG. \\n\\nEste  numero esta cadastrado em nossa base de dados para entrar em contato com o produtor rural "
-			    		+ nome_vendedor1_global + " , assim sendo, envio essa mensagem   para notifica-lo que o contrato de " + contrato_local.getQuantidade() + " " 
+			    		+ nome_vendedores_global + " , assim sendo, envio essa mensagem   para notifica-lo que o contrato de " + contrato_local.getQuantidade() + " " 
 			    		+ contrato_local.getMedida() + " de " + contrato_local.getModelo_safra().getProduto().getNome_produto() +   " firmado na data de " 
 			    		+ contrato_local.getData_contrato() + " ainda encontra na nossa base de dados com a carencia de assinatura"+ ".\\n \\n \\nQualquer duvida entrar em contato  conosco! \\natenciosamente; \\n" + login.getNome() + " " 
 			            + login.getSobrenome() + "\\nE-mail: " + login.getEmail() + "\\n\\n LD Armazens Gerais!";
@@ -756,7 +682,7 @@ public class TelaEnviarMsgWhatsapp extends JDialog {
 			//mensagem ao vendedor2
 			mensagem = "Ola! \\n \\nSou " + login.getNome() + " " + login.getSobrenome() +","
 			    		+ "  represento a LD Armazens de Guarda-Mor/MG. \\n\\nEste  numero esta cadastrado em nossa base de dados para entrar em contato com o produtor rural "
-			    		+ nome_vendedor2_global + " , assim sendo, envio essa mensagem   para notifica-lo que o contrato de " + contrato_local.getQuantidade() + " " 
+			    		+ nome_vendedores_global + " , assim sendo, envio essa mensagem   para notifica-lo que o contrato de " + contrato_local.getQuantidade() + " " 
 			    		+ contrato_local.getMedida() + " de " + contrato_local.getModelo_safra().getProduto().getNome_produto() +   " firmado na data de " 
 			    		+ contrato_local.getData_contrato() + " ainda encontra na nossa base de dados com a carencia de assinatura"+ ".\\n \\n \\nQualquer duvida entrar em contato  conosco! \\natenciosamente; \\n" + login.getNome() + " " 
 			            + login.getSobrenome() + "\\nE-mail: " + login.getEmail() + "\\n\\n LD Armazens Gerais!";
@@ -776,8 +702,7 @@ public class TelaEnviarMsgWhatsapp extends JDialog {
 	public void set_msg_livre() {
 		textArea.setText("");
 		textArea.setEditable(true);
-		chkAnexarContrato.setVisible(true);
-		chkAnexarContrato.setSelected(false);
+	
 		lblNaoAcentue.setVisible(true);
 
 	}
@@ -793,7 +718,7 @@ public class TelaEnviarMsgWhatsapp extends JDialog {
 		
 	}
 	
-	public void enviar_Mensagem() {
+	public void enviar_Mensagem(String url_arquivo) {
 
         //ZapMessenger zap = new ZapMessenger();
         //zap.logar();
@@ -804,27 +729,24 @@ public class TelaEnviarMsgWhatsapp extends JDialog {
 		nuvem.abrir();
 		nuvem.testar();
 		nuvem.listar();
-		String url = nuvem.getUrlArquivo("/contratos/" + contrato_local.getNome_arquivo());
+		nuvem.deletarDoc("doc_relatorio_temporario.pdf");
+
+		boolean carregar_arquivo = nuvem.carregarDoc(url_arquivo, "doc_relatorio_temporario.pdf");
+		if(carregar_arquivo) {
+		
+		String url = nuvem.getUrlArquivo("/docs_temps/" + "doc_relatorio_temporario.pdf");
 		System.out.println("link do arquivo para enviar via zap: " + url);
 		 String mensagem_enviar = "";
-		 
-		  if(rdNot.isSelected()) {
-			  mensagem_enviar = mensagem_notificacao_global;
-		  }else if(rdAnexo.isSelected()) {
-			  mensagem_enviar =  mensagem_anexo_global;
-		  }else if(rdLivre.isSelected()){
-			  
-			  mensagem_enviar = textArea.getText().toString();
-			  mensagem_enviar= Normalizer.normalize(mensagem_enviar, Normalizer.Form.NFD).replaceAll("[^\\p{ASCII}]", "");
-			  
-			  String mensagem_enviar_quebrada[] = mensagem_enviar.split("\n");
-			  String mensagem_enviar_final  = "";
-			  for(int i = 0; i < mensagem_enviar_quebrada.length; i++) {
-				  mensagem_enviar_final = mensagem_enviar_final + mensagem_enviar_quebrada[i] + "\\n";
-			  }
-			  mensagem_enviar = mensagem_enviar_final;
-		  }		
-		
+		  mensagem_enviar = textArea.getText().toString();
+		  mensagem_enviar= Normalizer.normalize(mensagem_enviar, Normalizer.Form.NFD).replaceAll("[^\\p{ASCII}]", "");
+		  
+		  String mensagem_enviar_quebrada[] = mensagem_enviar.split("\n");
+		  String mensagem_enviar_final  = "";
+		  for(int i = 0; i < mensagem_enviar_quebrada.length; i++) {
+			  mensagem_enviar_final = mensagem_enviar_final + mensagem_enviar_quebrada[i] + "\\n";
+		  }
+		  mensagem_enviar = mensagem_enviar_final;
+	
 		if(chkOutroContato.isSelected()) {
 			//checkBox esta selecionado
 			String celular = etNumero.getText();
@@ -833,57 +755,20 @@ public class TelaEnviarMsgWhatsapp extends JDialog {
 			if(celular_reformado.length() == 11) {
 				//celular aceito
 				 celular_reformado =  celular_reformado;
-					
-			      if(rdLivre.isSelected() && chkAnexarContrato.isSelected()) {
-			    	  boolean retorno = zap.enviarArquivo( contrato_local.getCodigo() + ".pdf", celular, url);
-			    	  boolean retorno2 = zap.enviarMensagem(celular_reformado, mensagem_enviar);
+				
+				 boolean retorno = zap.enviarArquivo( "relatorio.pdf", celular, url);
+		    	  boolean retorno2 = zap.enviarMensagem(celular, mensagem_enviar);
 
-						//String retorno = enviar.enviarMensagem(mensagem, "38999280886");
+					//String retorno = enviar.enviarMensagem(mensagem, "38999280886");
 
-						if(retorno && retorno2) {
-							JOptionPane.showMessageDialog(null, "Contrato enviado!" );
-							isto.dispose();
-						}else {
-							JOptionPane.showMessageDialog(null, "Erro, Contrato não enviado!" );
-		                      
-						}
-			      }else if(rdLivre.isSelected() && !chkAnexarContrato.isSelected()){
-			    	  //envia somente a mensagem
-			    	  boolean retorno = zap.enviarMensagem(celular_reformado, mensagem_enviar);
-						//String retorno = enviar.enviarMensagem(mensagem, "38999280886");
-
-						if(retorno) {
-							JOptionPane.showMessageDialog(null, "Contrato enviado!" );
-							isto.dispose();
-						}else {
-							JOptionPane.showMessageDialog(null, "Erro, Contrato não enviado!" );
-		                      
-						}
-			      }else if(rdNot.isSelected()) {
-			    	//envia somente a mensagem
-			    	  boolean retorno = zap.enviarMensagem(celular_reformado, mensagem_enviar);
-						//String retorno = enviar.enviarMensagem(mensagem, "38999280886");
-
-						if(retorno) {
-							JOptionPane.showMessageDialog(null, "Contrato enviado!" );
-							isto.dispose();
-						}else {
-							JOptionPane.showMessageDialog(null, "Erro, Contrato não enviado!" );
-		                      
-						}
-			      }else if(rdAnexo.isSelected()) {
-			    	//envia somente a mensagem
-			    	  boolean retorno = zap.enviarArquivo( contrato_local.getCodigo() + ".pdf", celular_reformado, url);
-			    	  boolean retorno2 = zap.enviarMensagem(celular_reformado, mensagem_enviar);
-
-						if(retorno && retorno2) {
-							JOptionPane.showMessageDialog(null, "Contrato enviado!" );
-							isto.dispose();
-						}else {
-							JOptionPane.showMessageDialog(null, "Erro, Contrato não enviado!" );
-		                      
-						}
-			      }
+					if(retorno && retorno2) {
+						JOptionPane.showMessageDialog(null, "Mensagem Enviada!" );
+						isto.dispose();
+					}else {
+						JOptionPane.showMessageDialog(null, "Erro, mensagem não enviada!" );
+	                      
+					}
+			    
 				
 			}else {
 				JOptionPane.showMessageDialog(null, "Número de celular incorreto!");
@@ -899,72 +784,31 @@ public class TelaEnviarMsgWhatsapp extends JDialog {
 				//celular aceito
 				celular =  celular;
 					
-			      if(rdLivre.isSelected() && chkAnexarContrato.isSelected()) {
-			    	  boolean retorno = zap.enviarArquivo( contrato_local.getCodigo() + ".pdf", celular, url);
-			    	  boolean retorno2 = zap.enviarMensagem(celular, mensagem_enviar);
+				 boolean retorno = zap.enviarArquivo( "relatorio.pdf", celular, url);
+		    	  boolean retorno2 = zap.enviarMensagem(celular, mensagem_enviar);
 
-						//String retorno = enviar.enviarMensagem(mensagem, "38999280886");
+					//String retorno = enviar.enviarMensagem(mensagem, "38999280886");
 
-						if(retorno && retorno2) {
-							JOptionPane.showMessageDialog(null, "Contrato enviado!" );
-							isto.dispose();
-						}else {
-							JOptionPane.showMessageDialog(null, "Erro, Contrato não enviado!" );
-		                      
-						}
-			      }else if(rdLivre.isSelected() && !chkAnexarContrato.isSelected()){
-			    	  //envia somente a mensagem
-			    	  boolean retorno = zap.enviarMensagem(celular, mensagem_enviar);
-			    	  boolean retorno2 = zap.enviarMensagem(celular, mensagem_enviar);
-
-						//String retorno = enviar.enviarMensagem(mensagem, "38999280886");
-
-						if(retorno && retorno2) {
-							JOptionPane.showMessageDialog(null, "Contrato enviado!" );
-							isto.dispose();
-						}else {
-							JOptionPane.showMessageDialog(null, "Erro, Contrato não enviado!" );
-		                      
-						}
-			      }else if(rdNot.isSelected()) {
-			    	//envia somente a mensagem
-			    	  boolean retorno = zap.enviarMensagem(celular, mensagem_enviar);
-						//String retorno = enviar.enviarMensagem(mensagem, "38999280886");
-
-						if(retorno) {
-							JOptionPane.showMessageDialog(null, "Contrato enviado!" );
-							isto.dispose();
-						}else {
-							JOptionPane.showMessageDialog(null, "Erro, Contrato não enviado!" );
-		                      
-						}
-			      }else if(rdAnexo.isSelected()) {
-			    	//envia somente a mensagem
-			    	  boolean retorno = zap.enviarArquivo( contrato_local.getCodigo() + ".pdf", celular, url);
-			    	  boolean retorno2 = zap.enviarMensagem(celular, mensagem_enviar);
-
-						//String retorno = enviar.enviarMensagem(mensagem, "38999280886");
-
-						if(retorno && retorno2) {
-							JOptionPane.showMessageDialog(null, "Contrato enviado!" );
-							isto.dispose();
-						}else {
-							JOptionPane.showMessageDialog(null, "Erro, Contrato não enviado!" );
-		                      
-						}
-			      }
+					if(retorno && retorno2) {
+						JOptionPane.showMessageDialog(null, "Mensagem Enviada!" );
+						isto.dispose();
+					}else {
+						JOptionPane.showMessageDialog(null, "Erro, mensagem não enviada!" );
+	                      
+					}
+			    
 		
 		}
-		
-		
+		nuvem.deletarDoc("doc_relatorio_temporario.pdf");
+		}else {
+			JOptionPane.showMessageDialog(null, "Erro ao fazer upload do arquivo!\nConsulte o administrador!");
+
+		}
 	}
 	
 	public void pesquisar_vendedor2(CadastroCliente [] vendedores) {
 		if(chkOutroContato.isSelected()) {
-			if(rdNot.isSelected())
-	 			set_msg_notificacao(3);
-	 			else if(rdAnexo.isSelected())
-	 				set_msg_anexo(3);
+			
 		}else {
 		if(vendedores[1] != null) {
 			chckbxContatosVendedor1.setSelected(false);
@@ -992,10 +836,7 @@ public class TelaEnviarMsgWhatsapp extends JDialog {
 	public void pesquisar_vendedor1(CadastroCliente [] vendedores) {
 
  		if(chkOutroContato.isSelected()) {
- 			if(rdNot.isSelected())
- 			set_msg_notificacao(2);
- 			else if(rdAnexo.isSelected())
- 				set_msg_anexo(2);
+ 			
  		}else {
  		
  			chckbxContatosVendedor1.setSelected(true);
@@ -1023,10 +864,6 @@ public class TelaEnviarMsgWhatsapp extends JDialog {
 	public void pesquisar_comprador(CadastroCliente [] vendedores) {
 		if(chkOutroContato.isSelected()) {
  			//nao atualiza contatos, apenas troca a mensagem
- 			if(rdNot.isSelected())
-	 			set_msg_notificacao(1);
-	 			else if(rdAnexo.isSelected())
-	 				set_msg_anexo(1);
  			
  			
  		}else {

@@ -13,6 +13,7 @@ import java.awt.event.WindowEvent;
 import java.awt.event.WindowStateListener;
 import java.io.File;
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.net.URL;
 import java.net.URLConnection;
 import java.text.NumberFormat;
@@ -83,6 +84,7 @@ import main.java.cadastros.Contato;
 import main.java.cadastros.DadosCarregamento;
 import main.java.cadastros.DadosContratos;
 import main.java.cadastros.DadosRecebimento;
+import main.java.cadastros.FinanceiroPagamentoCompleto;
 import main.java.cadastros.RegistroQuantidade;
 import main.java.cadastros.RegistroRecebimento;
 import main.java.classesExtras.Endereco;
@@ -91,6 +93,7 @@ import main.java.conexaoBanco.GerenciarBancoAditivos;
 import main.java.conexaoBanco.GerenciarBancoClientes;
 import main.java.conexaoBanco.GerenciarBancoContratos;
 import main.java.conexaoBanco.GerenciarBancoDocumento;
+import main.java.conexaoBanco.GerenciarBancoFinanceiroPagamento;
 import main.java.conexaoBanco.GerenciarBancoNotasFiscais;
 import main.java.conexaoBanco.GerenciarBancoPadrao;
 import main.java.conexaoBanco.GerenciarBancoPontuacao;
@@ -137,7 +140,7 @@ import main.java.outros.MyFileVisitor;
 import main.java.outros.ReproduzirAudio;
 import main.java.outros.TratarDados;
 import main.java.relatoria.RelatorioContratoComprador;
-import main.java.relatoria.RelatorioContratoSimplificado;
+import main.java.relatoria.RelatorioContratoRecebimentoSimplificado;
 import main.java.relatoria.RelatorioContratos;
 import main.java.tratamento_proprio.Log;
 import main.java.views_personalizadas.TelaEmEspera;
@@ -220,7 +223,6 @@ public class TelaMain extends JFrame {
 	private GraficoLinha linha = null;
 	TelaPost telaPost;
 	private TelaTodasNotasFiscais telaTodasNotasFiscais ;
-	TelaTarefas tela_tarefas;
 	private JLabel lblStatusWhatsapp,imgWhatsapp;
 	private JLabel lblTotalSacosRecebidos, lblTotalSacosGraficoRecebimento, lblTotalSacosAReceber;
 	private JComboBox cbRecebimentosPorSafra;
@@ -401,7 +403,7 @@ public class TelaMain extends JFrame {
 		mntmContratos.setFont(new Font("Segoe UI", Font.PLAIN, 16));
 		mntmContratos.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
-				TelaContratos2 telaContratos2 = null;
+				TelaContratos telaContratos = null;
 				
 				if(telaContratos == null) {
 				 telaContratos = new TelaContratos(0, isto);
@@ -433,6 +435,28 @@ public class TelaMain extends JFrame {
 				TelaRelatoriaContratos tela = new TelaRelatoriaContratos(isto);
 			}
 		});
+		
+		JMenuItem mntmNewMenuItem_7 = new JMenuItem("Recebimentos");
+		mntmNewMenuItem_7.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				TelaRecebimentos tela = new TelaRecebimentos(isto);
+				tela.setVisible(true);
+			}
+		});
+		mntmNewMenuItem_7.setMargin(new Insets(0, 10, 0, 0));
+		mntmNewMenuItem_7.setFont(new Font("Segoe UI", Font.PLAIN, 16));
+		mnContratos.add(mntmNewMenuItem_7);
+		
+		JMenuItem mntmNewMenuItem_8 = new JMenuItem("Pagamentos");
+		mntmNewMenuItem_8.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				TelaPagamentos tela = new TelaPagamentos(isto);
+				tela.setVisible(true);
+			}
+		});
+		mntmNewMenuItem_8.setMargin(new Insets(0, 10, 0, 0));
+		mntmNewMenuItem_8.setFont(new Font("Segoe UI", Font.PLAIN, 16));
+		mnContratos.add(mntmNewMenuItem_8);
 		mnContratos.add(mntmNewMenuItem_1);
 		JMenu mnFerramentas = new JMenu("Ferramentas");
 		mnFerramentas.setIcon(new ImageIcon(TelaPrincipal.class.getResource("/imagens/ferramentas-de-reparacao.png")));
@@ -469,7 +493,6 @@ public class TelaMain extends JFrame {
 			public void actionPerformed(ActionEvent e) {
 				TelaMonitoria monitor = new TelaMonitoria(isto);
 				monitor.setVisible(true);
-				monitor.vigilante_todos_os_romaneios();
 			}
 		});
 		mnFerramentas.add(mntmNewMenuItem_2);
@@ -495,15 +518,13 @@ public class TelaMain extends JFrame {
 		JMenuItem mntmNewMenuItem_5 = new JMenuItem("Tarefas");
 		mntmNewMenuItem_5.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
+				
 
-
-				if (tela_tarefas == null) {
-					tela_tarefas = new TelaTarefas(isto);
+				
+				TelaTarefas tela_tarefas = new TelaTarefas(isto);
 					tela_tarefas.getTarefas();
 					tela_tarefas.setVisible(true);
-				} else {
-					tela_tarefas.setVisible(true);
-				}
+				
 			}
 		});
 		mntmNewMenuItem_5.setIcon(new ImageIcon(TelaPrincipal.class.getResource("/imagens/icone_menu_tarefas.png")));
@@ -564,13 +585,11 @@ public class TelaMain extends JFrame {
 		lblNewLabel_1.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent e) {
-				if (tela_tarefas == null) {
-					tela_tarefas = new TelaTarefas(isto);
+				
+				TelaTarefas	tela_tarefas = new TelaTarefas(isto);
 					tela_tarefas.getTarefas();
 					tela_tarefas.setVisible(true);
-				} else {
-					tela_tarefas.setVisible(true);
-				}
+				
 			}
 		});
 		panel_1.add(lblNewLabel_1, "cell 1 0");
@@ -867,7 +886,7 @@ public class TelaMain extends JFrame {
 		gbc_panel_7.gridx = 1;
 		gbc_panel_7.gridy = 1;
 		panel_3.add(panel_7, gbc_panel_7);
-		panel_7.setLayout(new MigLayout("", "[grow]", "[][][][][][][]"));
+		panel_7.setLayout(new MigLayout("", "[grow]", "[][][][][][][][][]"));
 		
 		JLabel lblTodasAsSafrasRecebimento = new JLabel("Todas as Safras", SwingConstants.CENTER);
 		lblTodasAsSafrasRecebimento.addMouseListener(new MouseAdapter() {
@@ -1254,6 +1273,7 @@ public class TelaMain extends JFrame {
 		
 		
 		vigiarRomaneios();
+		
 
 		this.setLocationRelativeTo(null);
 		this.setExtendedState(JFrame.MAXIMIZED_BOTH);
@@ -2437,4 +2457,58 @@ public class TelaMain extends JFrame {
 		
 		
 	}
+	
+	
+	public double getQuantidadeFinalCarregada(CadastroContrato contrato_local) {
+		GerenciarBancoContratos gerenciar_contratos = new GerenciarBancoContratos();
+		GerenciarBancoRomaneios gerenciar_romaneios = new GerenciarBancoRomaneios();
+		
+	
+		
+		ArrayList<CadastroContrato.Carregamento> lista_carregamentos_deste_contrato = gerenciar_contratos.getCarregamentos(contrato_local.getId());
+		double quantidade_total_carregada = 0;
+		for(CadastroContrato.Carregamento carregamento : lista_carregamentos_deste_contrato) {
+			quantidade_total_carregada +=  carregamento.getPeso_romaneio();
+		}
+		
+		GerenciarBancoTransferenciasCarga gerenciar_transferencias = new GerenciarBancoTransferenciasCarga();
+		ArrayList<CadastroContrato.CadastroTransferenciaCarga> lista_transferencias_carga_remetente = gerenciar_transferencias
+				.getTransferenciasRemetente(contrato_local.getId());
+		ArrayList<CadastroContrato.CadastroTransferenciaCarga> lista_transferencias_carga_destinatario = gerenciar_transferencias
+				.getTransferenciaDestinatario(contrato_local.getId());
+		
+		double quantidade_total_transferida_retirada = 0;
+		for(CadastroContrato.CadastroTransferenciaCarga transferencia_retirada : lista_transferencias_carga_remetente) {
+			quantidade_total_transferida_retirada += Double.parseDouble(transferencia_retirada.getQuantidade());
+		}
+		
+		double quantidade_total_transferencia_recebida = 0;
+		for(CadastroContrato.CadastroTransferenciaCarga transferencia_recebida : lista_transferencias_carga_destinatario) {
+			quantidade_total_transferencia_recebida += Double.parseDouble(transferencia_recebida.getQuantidade());
+		}
+		
+		
+		double quantidade_final = (quantidade_total_carregada + quantidade_total_transferencia_recebida) - quantidade_total_transferida_retirada;
+		return quantidade_final;
+	}
+
+	/*
+	public void rebasear() {
+		GerenciarBancoFinanceiroPagamento gerenciar = new GerenciarBancoFinanceiroPagamento();
+		ArrayList<FinanceiroPagamentoCompleto> lista_pagamentos = gerenciar.getFinanceiroPagamentosLancamentos();
+		
+		
+		
+		for(FinanceiroPagamentoCompleto fpl : lista_pagamentos) {
+			boolean atualizou = gerenciar.atualizarTeste(fpl.getFpag(), fpl.getLancamento().getId_instituicao_bancaria());
+			if(atualizou) {
+				System.out.println("ok");
+			}else {
+				System.out.println("erro, id_pagamento: " + fpl.getFpag().getId_pagamento() + "\n id_ib: " + fpl.getLancamento().getId_instituicao_bancaria());
+			}
+		}
+		
+		
+	}*/
+	
 }
