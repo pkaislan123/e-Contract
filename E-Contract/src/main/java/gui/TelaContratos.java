@@ -163,7 +163,7 @@ import main.java.views_personalizadas.TelaEmEspera;
 import main.java.views_personalizadas.TelaNotificacao;
 import main.java.views_personalizadas.TelaNotificacaoSuperior;
 import main.java.views_personalizadas.TelaNotificacaoSuperiorModoBusca;
-import outros.ValidaCNPJ;
+import outros.ValidaCNPj;
 import main.java.cadastros.CadastroLogin;
 import main.java.cadastros.CadastroNuvem;
 import main.java.cadastros.CadastroZapMessenger;
@@ -285,6 +285,12 @@ public class TelaContratos extends JFrame {
 		lblNewLabel.setFont(new Font("Tahoma", Font.PLAIN, 14));
 
 		entNomeComprador = new JTextField();
+		entNomeComprador.addKeyListener(new KeyAdapter() {
+			@Override
+			public void keyTyped(KeyEvent e) {
+				filtrar();
+			}
+		});
 		panel_5.add(entNomeComprador, "cell 1 0,growx,aligny top");
 		entNomeComprador.setColumns(10);
 
@@ -293,6 +299,12 @@ public class TelaContratos extends JFrame {
 		lblCdigo.setFont(new Font("Tahoma", Font.PLAIN, 14));
 
 		entCodigo = new JTextField();
+		entCodigo.addKeyListener(new KeyAdapter() {
+			@Override
+			public void keyTyped(KeyEvent e) {
+				filtrar();
+			}
+		});
 		panel_5.add(entCodigo, "cell 3 0,growx,aligny top");
 		entCodigo.setColumns(10);
 
@@ -301,6 +313,12 @@ public class TelaContratos extends JFrame {
 		lblLocalRetirada.setFont(new Font("Tahoma", Font.PLAIN, 14));
 
 		entLocalRetirada = new JTextField();
+		entLocalRetirada.addKeyListener(new KeyAdapter() {
+			@Override
+			public void keyTyped(KeyEvent e) {
+				filtrar();
+			}
+		});
 		panel_5.add(entLocalRetirada, "cell 5 0,growx,aligny top");
 		entLocalRetirada.setColumns(10);
 		
@@ -334,6 +352,12 @@ public class TelaContratos extends JFrame {
 		lblVendedor.setFont(new Font("Tahoma", Font.PLAIN, 14));
 
 		entNomeVendedor = new JTextField();
+		entNomeVendedor.addKeyListener(new KeyAdapter() {
+			@Override
+			public void keyTyped(KeyEvent e) {
+				filtrar();
+			}
+		});
 		panel_5.add(entNomeVendedor, "cell 1 1,growx,aligny top");
 		entNomeVendedor.setColumns(10);
 
@@ -342,10 +366,19 @@ public class TelaContratos extends JFrame {
 		lblStatus.setFont(new Font("Tahoma", Font.PLAIN, 14));
 
 		entStatus = new JTextField();
+		entStatus.addKeyListener(new KeyAdapter() {
+			@Override
+			public void keyTyped(KeyEvent e) {
+				filtrar();
+			}
+		});
 		panel_5.add(entStatus, "cell 3 1,growx,aligny top");
 		entStatus.setColumns(10);
 
 		JButton btnRefazerPesquisa = new JButton("Refazer Pesquisa");
+		btnRefazerPesquisa.setBackground(new Color(0, 51, 0));
+		btnRefazerPesquisa.setForeground(Color.WHITE);
+		btnRefazerPesquisa.setFont(new Font("SansSerif", Font.BOLD, 14));
 		panel_5.add(btnRefazerPesquisa, "cell 7 1,alignx left,aligny top");
 		btnRefazerPesquisa.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
@@ -367,6 +400,12 @@ public class TelaContratos extends JFrame {
 		lblProduto.setFont(new Font("Tahoma", Font.PLAIN, 14));
 
 		entProduto = new JTextField();
+		entProduto.addKeyListener(new KeyAdapter() {
+			@Override
+			public void keyTyped(KeyEvent e) {
+				filtrar();
+			}
+		});
 		panel_5.add(entProduto, "cell 1 2,growx,aligny top");
 		entProduto.setColumns(10);
 
@@ -375,6 +414,13 @@ public class TelaContratos extends JFrame {
 		lblSafra.setFont(new Font("Tahoma", Font.PLAIN, 14));
 
 		entSafra = new JTextField();
+		entSafra.addKeyListener(new KeyAdapter() {
+			@Override
+			public void keyTyped(KeyEvent e) {
+				
+				filtrar();
+			}
+		});
 		panel_5.add(entSafra, "cell 3 2,growx,aligny top");
 		entSafra.setColumns(10);
 
@@ -383,10 +429,19 @@ public class TelaContratos extends JFrame {
 		lblTransgnese.setFont(new Font("Tahoma", Font.PLAIN, 14));
 
 		entTransgenia = new JTextField();
+		entTransgenia.addKeyListener(new KeyAdapter() {
+			@Override
+			public void keyTyped(KeyEvent e) {
+				filtrar();
+			}
+		});
 		panel_5.add(entTransgenia, "cell 5 2,growx,aligny top");
 		entTransgenia.setColumns(10);
 
-		JButton btnLimparFiltros = new JButton("Limpar");
+		JButton btnLimparFiltros = new JButton("Limpar Pesquisa");
+		btnLimparFiltros.setBackground(new Color(255, 51, 51));
+		btnLimparFiltros.setForeground(Color.WHITE);
+		btnLimparFiltros.setFont(new Font("SansSerif", Font.BOLD, 14));
 		panel_5.add(btnLimparFiltros, "cell 6 2,alignx left,aligny top");
 		btnLimparFiltros.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
@@ -458,8 +513,30 @@ public class TelaContratos extends JFrame {
 
 			}
 		});
+		
+		JButton btnLimparCampos = new JButton("Limpar Campos");
+		btnLimparCampos.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				entCodigo.setText("");
+				entNomeComprador.setText("");
+				entNomeVendedor.setText("");
+				entLocalRetirada.setText("");
+				entTransgenia.setText("");
+				entSafra.setText("");
+				entProduto.setText("");
+				entStatus.setText("");
+				
+			}
+		});
+		btnLimparCampos.setForeground(Color.WHITE);
+		btnLimparCampos.setFont(new Font("SansSerif", Font.BOLD, 14));
+		btnLimparCampos.setBackground(new Color(204, 0, 0));
+		panel_5.add(btnLimparCampos, "cell 7 2,growx");
 
 		JButton btnFiltrar = new JButton("Filtrar");
+		btnFiltrar.setBackground(new Color(0, 51, 255));
+		btnFiltrar.setForeground(Color.WHITE);
+		btnFiltrar.setFont(new Font("SansSerif", Font.BOLD, 14));
 		panel_5.add(btnFiltrar, "cell 8 2,growx,aligny top");
 		btnFiltrar.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
@@ -611,7 +688,10 @@ public class TelaContratos extends JFrame {
 		panel_3.add(panel_4, "cell 0 1 3 1,grow");
 		panel_4.setLayout(new MigLayout("", "[73px][152px][74px][87px][81px][106px]", "[36px]"));
 
-		JButton btnExportar = new JButton("Exportar");
+		JButton btnExportar = new JButton("Exportar Dados");
+		btnExportar.setBackground(new Color(51, 0, 51));
+		btnExportar.setForeground(Color.WHITE);
+		btnExportar.setFont(new Font("SansSerif", Font.BOLD, 14));
 		panel_4.add(btnExportar, "cell 0 0,alignx left,aligny center");
 		btnExportar.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
@@ -1014,6 +1094,9 @@ public class TelaContratos extends JFrame {
 		});
 
 		JButton btnImportarManualmente = new JButton("Importar Manualmente");
+		btnImportarManualmente.setBackground(new Color(102, 51, 0));
+		btnImportarManualmente.setForeground(Color.WHITE);
+		btnImportarManualmente.setFont(new Font("SansSerif", Font.BOLD, 14));
 		panel_4.add(btnImportarManualmente, "cell 1 0,alignx left,aligny center");
 		btnImportarManualmente.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
@@ -1049,6 +1132,9 @@ public class TelaContratos extends JFrame {
 		});
 
 		JButton btnImportarTerceiros = new JButton("Importar");
+		btnImportarTerceiros.setBackground(new Color(51, 153, 102));
+		btnImportarTerceiros.setForeground(Color.WHITE);
+		btnImportarTerceiros.setFont(new Font("SansSerif", Font.BOLD, 14));
 		panel_4.add(btnImportarTerceiros, "cell 2 0,alignx left,aligny center");
 		btnImportarTerceiros.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
@@ -1058,6 +1144,9 @@ public class TelaContratos extends JFrame {
 		});
 
 		JButton btnSelecionar = new JButton("Selecionar");
+		btnSelecionar.setBackground(new Color(51, 0, 102));
+		btnSelecionar.setForeground(Color.WHITE);
+		btnSelecionar.setFont(new Font("SansSerif", Font.BOLD, 14));
 		panel_4.add(btnSelecionar, "cell 3 0,alignx left,aligny center");
 		btnSelecionar.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
@@ -1132,6 +1221,9 @@ public class TelaContratos extends JFrame {
 		});
 
 		JButton btnAbrir = new JButton("Abrir");
+		btnAbrir.setBackground(new Color(0, 51, 255));
+		btnAbrir.setForeground(Color.WHITE);
+		btnAbrir.setFont(new Font("SansSerif", Font.BOLD, 14));
 		panel_4.add(btnAbrir, "cell 4 0,alignx left,aligny top");
 		btnAbrir.setIcon(new ImageIcon(TelaCliente.class.getResource("/imagens/lista.png")));
 		btnAbrir.addActionListener(new ActionListener() {
@@ -1149,6 +1241,9 @@ public class TelaContratos extends JFrame {
 		});
 
 		JButton btnContrato = new JButton("Novo Contrato");
+		btnContrato.setBackground(new Color(0, 51, 0));
+		btnContrato.setForeground(Color.WHITE);
+		btnContrato.setFont(new Font("SansSerif", Font.BOLD, 14));
 		panel_4.add(btnContrato, "cell 5 0,alignx left,aligny center");
 		btnContrato.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {

@@ -13,6 +13,6 @@ import lombok.NoArgsConstructor;
 public class FinanceiroConta {
 
 	private int id, id_grupo_contas, tipo_conta;
-	private String nome, descricao, observacao;
+	private String nome, descricao, observacao, nome_grupo_contas;
 	
 }

@@ -109,8 +109,8 @@ public class GerenciarBancoFinanceiroGrupoContas {
 			return dado;
 
 		} catch (Exception e) {
-			JOptionPane.showMessageDialog(null, "Erro ao listar Grupo de Contas id: " + id);// );
-			System.out.println("Erro ao listar Grupo de Contas id: " + id + " erro: " + "\ncausa: ");
+			JOptionPane.showMessageDialog(null, "Erro ao listar Grupo de Contas id: " + id
+					+"\nErro: " + e.getMessage() + "\nCausa:" + e.getCause());// );
 			return null;
 		}
 

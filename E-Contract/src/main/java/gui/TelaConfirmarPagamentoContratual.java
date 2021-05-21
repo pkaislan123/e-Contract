@@ -85,7 +85,7 @@ import main.java.views_personalizadas.TelaEmEspera;
 import main.java.views_personalizadas.TelaNotificacao;
 import main.java.views_personalizadas.TelaNotificacaoSuperior;
 import main.java.views_personalizadas.TelaNotificacaoSuperiorModoBusca;
-import outros.ValidaCNPJ;
+import outros.ValidaCNPj;
 import main.java.cadastros.CadastroLogin;
 import main.java.cadastros.CadastroNuvem;
 import main.java.cadastros.CadastroZapMessenger;
@@ -146,12 +146,26 @@ public class TelaConfirmarPagamentoContratual extends JDialog {
 
 	private JTextArea lblContaDepositantePagamento, lblContaFavorecidoPagamento, lblDescricaoPagamento;
 	private JLabel lblTipoPagamento;
-
+	private Log GerenciadorLog;
+	private CadastroLogin login;
+	private ConfiguracoesGlobais configs_globais;
+	
+	public void getDadosGlobais() {
+		//gerenciador de log
+				DadosGlobais dados = DadosGlobais.getInstance();
+				 GerenciadorLog = dados.getGerenciadorLog();
+				 configs_globais = dados.getConfigs_globais();
+				 
+				 //usuario logado
+				  login = dados.getLogin();
+		
+	}
 	public TelaConfirmarPagamentoContratual(int modo_operacao, CadastroContrato.CadastroPagamentoContratual pagamento,
 			CadastroContrato _contrato_local, JFrame janela_pai) {
 		// setAlwaysOnTop(true);
 
 		// setModal(true);
+		 getDadosGlobais();
 
 		isto = this;
 		this.contrato_local = _contrato_local;
@@ -352,6 +366,11 @@ public class TelaConfirmarPagamentoContratual extends JDialog {
 				if (retorno) {
 					JOptionPane.showMessageDialog(isto, "Pagamento Cadastrado!");
 					// ((TelaGerenciarContrato) telaPai).pesquisar_pagamentos();
+					/*//criar tarefa de pagamento cadastrado
+					ArrayList<CadastroContrato.CadastroTarefa> lista_tarefas = new ArrayList<>();
+					lista_tarefas.add(criarTarefa("Inserção de Pagamento Contratual", "Pagamento contratual inserido", ""));
+					boolean criouTarefa = gerenciar.inserirTarefas(contrato_local.getId(), lista_tarefas);
+					*/
 					((TelaGerenciarContrato) telaPaiJFrame).pesquisar_pagamentos(true);
 
 					isto.dispose();
@@ -735,4 +754,35 @@ public class TelaConfirmarPagamentoContratual extends JDialog {
 	public void setTelaPai(JFrame dialog) {
 		this.telaPaiJFrame = dialog;
 	}
+	
+	public CadastroContrato.CadastroTarefa criarTarefa(String nome_tarefa, String descricao, String msg) {
+
+		CadastroContrato.CadastroTarefa tarefa = new CadastroContrato.CadastroTarefa();
+
+		
+			tarefa.setNome_tarefa(nome_tarefa);
+		
+		// cria a tarefa de insercao de contrato
+		tarefa.setId_tarefa(0);
+		tarefa.setDescricao_tarefa(descricao);
+
+		tarefa.setStatus_tarefa(1);
+		tarefa.setMensagem(msg);
+
+		GetData data = new GetData();
+		tarefa.setHora(data.getHora());
+		tarefa.setData(data.getData());
+		tarefa.setHora_agendada(data.getHora());
+		tarefa.setData_agendada(data.getData());
+
+		tarefa.setCriador(login);
+		tarefa.setExecutor(login);
+
+		tarefa.setPrioridade(1);
+
+		return tarefa;
+
+	}
+
+	
 }

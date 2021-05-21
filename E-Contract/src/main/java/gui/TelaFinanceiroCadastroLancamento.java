@@ -20,6 +20,8 @@ import java.text.NumberFormat;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
+import java.time.format.ResolverStyle;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.Locale;
@@ -31,6 +33,7 @@ import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
 
+import org.apache.commons.io.FilenameUtils;
 import org.icepdf.ri.common.ComponentKeyBinding;
 import org.icepdf.ri.common.SwingController;
 import org.icepdf.ri.common.SwingViewBuilder;
@@ -153,7 +156,7 @@ import main.java.views_personalizadas.TelaNotificacao;
 import main.java.views_personalizadas.TelaNotificacaoSuperior;
 import main.java.views_personalizadas.TelaNotificacaoSuperiorModoBusca;
 import net.miginfocom.swing.MigLayout;
-import outros.ValidaCNPJ;
+import outros.ValidaCNPj;
 import main.java.cadastros.CadastroLogin;
 import main.java.cadastros.CadastroNuvem;
 import main.java.cadastros.CadastroPontuacao;
@@ -243,7 +246,6 @@ public class TelaFinanceiroCadastroLancamento extends JDialog {
 	private final JLabel lblNewLabel_1_2_2 = new JLabel("Status:");
 	private final JLabel lblNewLabel_1_2_2_1 = new JLabel("Observação:");
 	private final JLabel lblNewLabel_1_2_2_1_1 = new JLabel("Descrição:");
-	private final JButton btnSelecionarInstituicaoBancaria = new JButton("Selecionar");
 	private final JLabel lblNewLabel_5 = new JLabel("New label");
 	private final JLabel lblNewLabel_5_1 = new JLabel("New label");
 	private final JLabel lblNewLabel_5_2 = new JLabel("New label");
@@ -277,6 +279,9 @@ public class TelaFinanceiroCadastroLancamento extends JDialog {
 	private Log GerenciadorLog;
 	private CadastroLogin login;
 	private ConfiguracoesGlobais configs_globais;
+	private final JLabel lblNewLabel_1_2_2_2 = new JLabel("Arquivo:");
+	private final JTextFieldPersonalizado entCaminhoArquivo = new JTextFieldPersonalizado();
+	private final JButton btnSelecionarConta_1 = new JButton("Selecionar");
 
 	public void getDadosGlobais() {
 		// gerenciador de log
@@ -392,15 +397,6 @@ public class TelaFinanceiroCadastroLancamento extends JDialog {
 		});
 		btnSelecionarCentroCusto.setForeground(Color.WHITE);
 		btnSelecionarCentroCusto.setBackground(new Color(0, 0, 153));
-		painelDespesa.add(btnSelecionarInstituicaoBancaria, "cell 2 4");
-		btnSelecionarInstituicaoBancaria.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				TelaFinanceiroInstituicaoBancaria tela = new TelaFinanceiroInstituicaoBancaria(0, 1, isto);
-				tela.setVisible(true);
-			}
-		});
-		btnSelecionarInstituicaoBancaria.setForeground(Color.WHITE);
-		btnSelecionarInstituicaoBancaria.setBackground(new Color(0, 0, 153));
 		painelDespesa.add(lblNewLabel_5_4, "cell 0 5");
 		lblNewLabel_5_4.setVisible(false);
 		lblNewLabel_5_4.setFont(new Font("SansSerif", Font.PLAIN, 18));
@@ -517,7 +513,7 @@ public class TelaFinanceiroCadastroLancamento extends JDialog {
 		panel_2.setLayout(new MigLayout("", "[104px][]", "[18px]"));
 		painelConcluir.setBackground(Color.WHITE);
 		abas.addTab("Concluir", painelConcluir);
-		painelConcluir.setLayout(new MigLayout("", "[][grow]", "[][][][][grow][grow]"));
+		painelConcluir.setLayout(new MigLayout("", "[][grow][]", "[][][][][][grow][grow]"));
 		lblNewLabel_5_2.setVisible(false);
 		lblNewLabel_5_2.setFont(new Font("SansSerif", Font.PLAIN, 18));
 
@@ -527,12 +523,12 @@ public class TelaFinanceiroCadastroLancamento extends JDialog {
 		lblNewLabel_4_1_2.setFont(new Font("SansSerif", Font.BOLD, 18));
 		lblNewLabel_4_1_2.setBackground(new Color(51, 0, 255));
 
-		painelConcluir.add(lblNewLabel_4_1_2, "cell 0 1 2 1,growx");
+		painelConcluir.add(lblNewLabel_4_1_2, "cell 0 1 3 1,growx");
 		lblNewLabel_5_2_1.setFont(new Font("SansSerif", Font.PLAIN, 16));
 
 		painelConcluir.add(lblNewLabel_5_2_1, "cell 0 2,alignx trailing");
 
-		painelConcluir.add(entDataLancamento, "cell 1 2,growx");
+		painelConcluir.add(entDataLancamento, "cell 1 2 2 1,growx");
 		entDataLancamento.setText(df.format(hoje));
 		entDataLancamento.setForeground(Color.black);
 		lblNewLabel_1_2_2.setFont(new Font("SansSerif", Font.PLAIN, 16));
@@ -540,21 +536,37 @@ public class TelaFinanceiroCadastroLancamento extends JDialog {
 		painelConcluir.add(lblNewLabel_1_2_2, "cell 0 3,alignx trailing");
 		cbStatusInicial.setFont(new Font("SansSerif", Font.PLAIN, 16));
 
-		painelConcluir.add(cbStatusInicial, "cell 1 3,growx");
+		painelConcluir.add(cbStatusInicial, "cell 1 3 2 1,growx");
+		lblNewLabel_1_2_2_2.setFont(new Font("SansSerif", Font.PLAIN, 16));
+
+		painelConcluir.add(lblNewLabel_1_2_2_2, "cell 0 4,alignx trailing");
+
+		painelConcluir.add(entCaminhoArquivo, "cell 1 4,growx");
+		entCaminhoArquivo.setForeground(Color.black);
+		btnSelecionarConta_1.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				selecionarArquivo();
+
+			}
+		});
+		btnSelecionarConta_1.setForeground(Color.WHITE);
+		btnSelecionarConta_1.setBackground(new Color(0, 0, 204));
+
+		painelConcluir.add(btnSelecionarConta_1, "cell 2 4");
 		lblNewLabel_1_2_2_1.setFont(new Font("SansSerif", Font.PLAIN, 16));
 
-		painelConcluir.add(lblNewLabel_1_2_2_1, "cell 0 4,alignx trailing,aligny top");
+		painelConcluir.add(lblNewLabel_1_2_2_1, "cell 0 5,alignx trailing,aligny top");
 		entObservacao.setBorder(new LineBorder(new Color(0, 0, 0)));
 		entObservacao.setFont(new Font("SansSerif", Font.BOLD, 14));
 
-		painelConcluir.add(entObservacao, "cell 1 4,grow");
+		painelConcluir.add(entObservacao, "cell 1 5 2 1,grow");
 		lblNewLabel_1_2_2_1_1.setFont(new Font("SansSerif", Font.PLAIN, 16));
 
-		painelConcluir.add(lblNewLabel_1_2_2_1_1, "cell 0 5,alignx trailing,aligny top");
+		painelConcluir.add(lblNewLabel_1_2_2_1_1, "cell 0 6,alignx trailing,aligny top");
 		entDescricao.setFont(new Font("SansSerif", Font.BOLD, 14));
 		entDescricao.setBorder(new LineBorder(new Color(0, 0, 0)));
 
-		painelConcluir.add(entDescricao, "cell 1 5,grow");
+		painelConcluir.add(entDescricao, "cell 1 6 2 1,grow");
 		painelBotoes.setBackground(Color.WHITE);
 
 		painelPrincipal.add(painelBotoes, "cell 5 4,alignx right,growy");
@@ -565,16 +577,21 @@ public class TelaFinanceiroCadastroLancamento extends JDialog {
 		btnAtualizar.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				GerenciarBancoLancamento gerenciar = new GerenciarBancoLancamento();
-				boolean result = gerenciar.atualizarLancamento(getDadosAtualizar(lancamento));
-				if (result) {
+				Lancamento lancamento_atualizar = getDadosAtualizar(lancamento);
+				if (lancamento_atualizar != null) {
+					boolean result = gerenciar.atualizarLancamento(getDadosAtualizar(lancamento));
+					if (result) {
+					
 
 						JOptionPane.showMessageDialog(isto, "Atualizado");
-						((TelaFinanceiroGerenciarLancamento) janela_pai).atualizarRotinas();;
+						((TelaFinanceiroGerenciarLancamento) janela_pai).atualizarRotinas();
+						;
 						isto.dispose();
-					
-				} else {
-					JOptionPane.showMessageDialog(isto, "Erro ao Atualizar\nConsulte o Administrador");
 
+					} else {
+						JOptionPane.showMessageDialog(isto, "Erro ao Atualizar\nConsulte o Administrador");
+
+					}
 				}
 			}
 		});
@@ -587,66 +604,105 @@ public class TelaFinanceiroCadastroLancamento extends JDialog {
 
 				GerenciarBancoLancamento gerenciar = new GerenciarBancoLancamento();
 				Lancamento lancamento = getDadosSalvar();
-				int result = gerenciar.inserirLancamento(lancamento);
-				if (result > 0) {
-					
-					// adicionar parcelas
-					if(lancamento.getGerar_parcelas() == 1) {
-					int numero_parcelas = lancamento.getNumero_parcelas();
-					BigDecimal valor_por_parcela = lancamento.getValor().divide(new BigDecimal((double) numero_parcelas));
-					LocalDate primeiro_vencimento = LocalDate.parse(lancamento.getData_vencimento(), DateTimeFormatter.ofPattern("dd/MM/yyyy"));
-					int intervalo = lancamento.getIntervalo();
-					LocalDate datas = primeiro_vencimento;
+				if (lancamento != null) {
+					int result = gerenciar.inserirLancamento(lancamento);
+					if (result > 0) {
 
-					GerenciarBancoParcelas gerenciar_parcelas = new GerenciarBancoParcelas();
-					
-					for (int i = 1; i <= lancamento.getNumero_parcelas(); i++) {
-						Parcela parcela = new Parcela();
-						parcela.setValor(valor_por_parcela);
-						parcela.setDescricao("Parcela Número " + i + " gerada automaticamente");
-						parcela.setIdentificador(i + "");
-						parcela.setObservacao("Um número aleatorio foi criado para o identificador desta parcela, troque o se necessário: " + i);
-						String data_desta_parcela_formatada = datas.format(DateTimeFormatter.ofPattern("dd/MM/yyyy"));
-						parcela.setData_vencimento(data_desta_parcela_formatada);
-						
-						parcela.setId_lancamento_pai(result);
-						
-						gerenciar_parcelas.inserirParcela(parcela);
-						
-						datas = datas.plusDays(intervalo);
-						
-					}
-					}
+						// adicionar parcelas
+						if (lancamento.getGerar_parcelas() == 1) {
+							int numero_parcelas = lancamento.getNumero_parcelas();
+							BigDecimal valor_por_parcela = lancamento.getValor()
+									.divide(new BigDecimal((double) numero_parcelas));
+							LocalDate primeiro_vencimento = LocalDate.parse(lancamento.getData_vencimento(),
+									DateTimeFormatter.ofPattern("dd/MM/yyyy"));
+							int intervalo = lancamento.getIntervalo();
+							LocalDate datas = primeiro_vencimento;
 
+							GerenciarBancoParcelas gerenciar_parcelas = new GerenciarBancoParcelas();
 
-					// criar pasta, mover arquivo
-					ManipularTxt manipular = new ManipularTxt();
-					String caminho_diretorio = "\\E-Contract\\arquivos\\financas\\lancamentos\\lancamento_" + result;
-					String caminho_diretorio_bd = "\\\\E-Contract\\\\arquivos\\\\financas\\\\lancamentos\\\\lancamento_"
-							+ result;
-					boolean criar_diretorio = manipular.criarDiretorio(servidor_unidade + caminho_diretorio);
-					if (criar_diretorio) {
+							for (int i = 1; i <= lancamento.getNumero_parcelas(); i++) {
+								Parcela parcela = new Parcela();
+								parcela.setValor(valor_por_parcela);
+								parcela.setDescricao("Parcela Número " + i + " gerada automaticamente");
+								parcela.setIdentificador(i + "");
+								parcela.setObservacao(
+										"Um número aleatorio foi criado para o identificador desta parcela, troque o se necessário: "
+												+ i);
+								String data_desta_parcela_formatada = datas
+										.format(DateTimeFormatter.ofPattern("dd/MM/yyyy"));
+								parcela.setData_vencimento(data_desta_parcela_formatada);
 
-						boolean atualizar_diretorio = gerenciar.atualizarLancamento("", caminho_diretorio_bd, result);
-						if (atualizar_diretorio) {
-                                JOptionPane.showMessageDialog(isto, "Cadastro Concluído");
+								parcela.setId_lancamento_pai(result);
+
+								gerenciar_parcelas.inserirParcela(parcela);
+
+								datas = datas.plusDays(intervalo);
+
+							}
+						}
+
+						// criar pasta, mover arquivo
+						ManipularTxt manipular = new ManipularTxt();
+						String caminho_diretorio = "\\E-Contract\\arquivos\\financas\\lancamentos\\lancamento_"
+								+ result;
+						String caminho_diretorio_bd = "\\\\E-Contract\\\\arquivos\\\\financas\\\\lancamentos\\\\lancamento_"
+								+ result;
+						boolean criar_diretorio = manipular.criarDiretorio(servidor_unidade + caminho_diretorio);
+						if (criar_diretorio) {
+
+							boolean atualizar_diretorio = gerenciar.atualizarDiretorioLancamento(caminho_diretorio_bd,
+									result);
+							if (atualizar_diretorio) {
+
+								// copiar o arquivo selecionado
+
+								if (lancamento.getCaminho_arquivo() != null
+										&& lancamento.getCaminho_arquivo().length() > 20) {
+									boolean copiar_arquivo = false;
+									String extensaoDoArquivo = FilenameUtils
+											.getExtension(lancamento.getCaminho_arquivo());
+
+									String arquivo_doc_documento_final = servidor_unidade + caminho_diretorio
+											+ "\\doc_lancamento_" + result + "." + extensaoDoArquivo;
+									try {
+										copiar_arquivo = manipular.copiarNFe(lancamento.getCaminho_arquivo(),
+												arquivo_doc_documento_final);
+									} catch (IOException e1) {
+										// TODO Auto-generated catch block
+										e1.printStackTrace();
+									}
+									if (copiar_arquivo) {
+										// atualiza parcela no banco de dados
+										boolean atualizar = gerenciar.atualizarCaminhoLancamento(
+												"doc_lancamento_" + result + "." + extensaoDoArquivo, result);
+										if (!atualizar)
+											JOptionPane.showMessageDialog(isto,
+													"Arquivo Copiado, Mas não atualizado no Banco de dados\nConsulte o administrador");
+
+									} else {
+										JOptionPane.showMessageDialog(isto,
+												"Arquivo não copiado, consulte o administrador");
+
+									}
+								}
+
+								JOptionPane.showMessageDialog(isto, "Cadastro Concluído");
 								((TelaFinanceiroLancamento) janela_pai).pesquisar();
 								isto.dispose();
-							
+
+							}
+
+						} else {
+							JOptionPane.showMessageDialog(isto,
+									"Cadastro Conluido, mas houve erro ao criar o diretorio\nConsulte o Administrador");
 
 						}
 
 					} else {
-						JOptionPane.showMessageDialog(isto,
-								"Cadastro Conluido, mas houve erro ao criar o diretorio\nConsulte o Administrador");
+						JOptionPane.showMessageDialog(isto, "Erro ao Salvar\nConsulte o Administrador");
 
 					}
-
-				} else {
-					JOptionPane.showMessageDialog(isto, "Erro ao Salvar\nConsulte o Administrador");
-
 				}
-
 			}
 		});
 		painelBotoes.add(btnCadastrar, "cell 1 0,growx");
@@ -667,6 +723,24 @@ public class TelaFinanceiroCadastroLancamento extends JDialog {
 
 	}
 
+	public void selecionarArquivo() {
+
+		JOptionPane.showMessageDialog(isto, "Na próxima tela, importe o arquivo referente a este lançamento!");
+
+		new JFXPanel();
+		Platform.runLater(() -> {
+			FileChooser d = new FileChooser();
+			File file = d.showOpenDialog(null);
+			String caminho_arquivo = "";
+			if (file != null) {
+				caminho_arquivo = file.getAbsolutePath();
+				entCaminhoArquivo.setText(caminho_arquivo);
+				// JOptionPane.showMessageDialog(isto, "CAminho do arquivo selecionado: " +
+				// file.getAbsolutePath());
+			}
+		});
+	}
+
 	public void rotinasEdicao(Lancamento lancamento) {
 
 		if (lancamento.getTipo_lancamento() == 0) {
@@ -678,16 +752,14 @@ public class TelaFinanceiroCadastroLancamento extends JDialog {
 			rdbtnDespesa.setSelected(false);
 			setPainelReceita();
 		}
-		
+
 		int prioridade = lancamento.getPrioridade();
 		cbPrioridade.setSelectedIndex(prioridade);
-		
 
 		// as partes
 		if (lancamento.getId_centro_custo() > 0) {
 			setCentroCusto(new GerenciarBancoCentroCustos().getCentroCusto(lancamento.getId_centro_custo()));
 		}
-
 
 		if (lancamento.getId_cliente_fornecedor() > 0) {
 			setCliente(new GerenciarBancoClientes().getCliente(lancamento.getId_cliente_fornecedor()));
@@ -700,7 +772,7 @@ public class TelaFinanceiroCadastroLancamento extends JDialog {
 		}
 
 		entIdentificador.setText(lancamento.getIdentificacao());
-		
+
 		entValor.setText(lancamento.getValor().toString());
 		entNumeroParcelas.setText(lancamento.getNumero_parcelas() + "");
 		entDataVencimento.setText(lancamento.getData_vencimento());
@@ -726,8 +798,7 @@ public class TelaFinanceiroCadastroLancamento extends JDialog {
 
 		entObservacao.setText(lancamento.getObservacao());
 		entDescricao.setText(lancamento.getDescricao());
-
-		
+		entCaminhoArquivo.setText(lancamento.getCaminho_arquivo());
 
 	}
 
@@ -787,8 +858,6 @@ public class TelaFinanceiroCadastroLancamento extends JDialog {
 		cbCentroCusto.addItem(_centro_custo.getNome_centro_custo());
 	}
 
-	
-
 	public void setConta(FinanceiroConta _financeiro_conta) {
 		financeiro_conta = _financeiro_conta;
 
@@ -802,24 +871,33 @@ public class TelaFinanceiroCadastroLancamento extends JDialog {
 		lancamento.setId_lancamento(lancamento_antigo.getId_lancamento());
 
 		int status, prioridade, intervalo;
-		String identificacao, observacao, descricao, data_lancamento, data_vencimento, data_pagamento, s_valor = null;
+		String identificacao, observacao, descricao, caminho_arquivo, data_lancamento, data_vencimento, data_pagamento,
+				s_valor = null;
 		BigDecimal valor = BigDecimal.ZERO;
 		// tela as partes
 		if (centro_custo != null) {
 			lancamento.setId_centro_custo(centro_custo.getId_centro_custo());
+		}else {
+			JOptionPane.showMessageDialog(isto, "Selecione o Centro de Custo");
+			return null;
 		}
 
-		if (instituicao_bancaria != null) {
-			lancamento.setId_instituicao_bancaria(instituicao_bancaria.getId_instituicao_bancaria());
-		}
 
+		
 		if (cliente_selecionado != null) {
 			lancamento.setId_cliente_fornecedor(cliente_selecionado.getId());
+		}else {
+			JOptionPane.showMessageDialog(isto, "Selecione o Cliente");
+			return null;
 		}
+
 
 		// tela pagamento
 		if (financeiro_conta != null) {
 			lancamento.setId_conta(financeiro_conta.getId());
+		}else {
+			JOptionPane.showMessageDialog(isto, "Selecione a Conta");
+			return null;
 		}
 
 		try {
@@ -833,19 +911,13 @@ public class TelaFinanceiroCadastroLancamento extends JDialog {
 			lancamento.setValor(BigDecimal.ZERO);
 		}
 
-		data_vencimento = entDataVencimento.getText();
-
-		lancamento.setData_vencimento(data_vencimento);
-
 		// tela concluir
-		data_lancamento = entDataLancamento.getText();
 		status = cbStatusInicial.getSelectedIndex();
 		observacao = entObservacao.getText();
 		descricao = entDescricao.getText();
 
 		lancamento.setObservacao(observacao);
 		lancamento.setDescricao(descricao);
-		lancamento.setData_lancamento(data_lancamento);
 
 		if (rdbtnDespesa.isSelected()) {
 			lancamento.setTipo_lancamento(0);
@@ -867,39 +939,85 @@ public class TelaFinanceiroCadastroLancamento extends JDialog {
 		}
 
 		lancamento.setPrioridade(cbPrioridade.getSelectedIndex());
-
+		
+		try {
 		lancamento.setIntervalo(Integer.parseInt(entIntervalo.getText()));
-		lancamento.setNumero_parcelas(Integer.parseInt(entNumeroParcelas.getText()));
+		}catch(Exception e) {
+			JOptionPane.showMessageDialog(isto, "Defina o intervalo");
 
+			return null;
+		}
+		
+		try {
+		lancamento.setNumero_parcelas(Integer.parseInt(entNumeroParcelas.getText()));
+		}catch(Exception e) {
+			JOptionPane.showMessageDialog(isto, "Defina o número de parcelas");
+
+			return null;
+		}
+		
 		lancamento.setGerar_parcelas(0);
 
 		lancamento.setIdentificacao(entIdentificador.getText());
 
-		return lancamento;
+		data_vencimento = entDataVencimento.getText();
+		data_lancamento = entDataLancamento.getText();
+
+		try {
+
+			if (!isDateValid(data_vencimento)) {
+				JOptionPane.showMessageDialog(isto, "Data do Vencimento Inválida");
+
+				return null;
+			} else {
+				lancamento.setData_vencimento(data_vencimento);
+				if (!isDateValid(data_lancamento)) {
+					JOptionPane.showMessageDialog(isto, "Data do lançamento Inválida");
+					return null;
+				} else {
+					lancamento.setData_lancamento(data_lancamento);
+					return lancamento;
+
+				}
+			}
+
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			JOptionPane.showMessageDialog(isto, "Datas Inválidas");
+			return null;
+		}
 	}
 
 	public Lancamento getDadosSalvar() {
 
 		Lancamento lancamento = new Lancamento();
 		int status, prioridade, gerar_parcelas, intervalo;
-		String identificacao, observacao, descricao, data_lancamento, data_vencimento, data_pagamento, s_valor = null;
+		String identificacao, observacao, descricao, caminho_arquivo, data_lancamento, data_vencimento, data_pagamento,
+				s_valor = null;
 		BigDecimal valor = BigDecimal.ZERO;
 		// tela as partes
 		if (centro_custo != null) {
 			lancamento.setId_centro_custo(centro_custo.getId_centro_custo());
+		}else {
+			JOptionPane.showMessageDialog(isto, "Selecione o Centro de Custo");
+			return null;
 		}
 
-		if (instituicao_bancaria != null) {
-			lancamento.setId_instituicao_bancaria(instituicao_bancaria.getId_instituicao_bancaria());
-		}
+		
 
 		if (cliente_selecionado != null) {
 			lancamento.setId_cliente_fornecedor(cliente_selecionado.getId());
+		}else {
+			JOptionPane.showMessageDialog(isto, "Selecione o Cliente");
+			return null;
 		}
 
 		// tela pagamento
 		if (financeiro_conta != null) {
 			lancamento.setId_conta(financeiro_conta.getId());
+		}else {
+			JOptionPane.showMessageDialog(isto, "Selecione a Conta");
+			return null;
 		}
 
 		try {
@@ -913,19 +1031,15 @@ public class TelaFinanceiroCadastroLancamento extends JDialog {
 			lancamento.setValor(BigDecimal.ZERO);
 		}
 
-		data_vencimento = entDataVencimento.getText();
-
-		lancamento.setData_vencimento(data_vencimento);
-
 		// tela concluir
-		data_lancamento = entDataLancamento.getText();
 		status = cbStatusInicial.getSelectedIndex();
 		observacao = entObservacao.getText();
 		descricao = entDescricao.getText();
+		caminho_arquivo = entCaminhoArquivo.getText();
 
+		lancamento.setCaminho_arquivo(caminho_arquivo);
 		lancamento.setObservacao(observacao);
 		lancamento.setDescricao(descricao);
-		lancamento.setData_lancamento(data_lancamento);
 
 		if (rdbtnDespesa.isSelected()) {
 			lancamento.setTipo_lancamento(0);
@@ -947,15 +1061,62 @@ public class TelaFinanceiroCadastroLancamento extends JDialog {
 		}
 
 		lancamento.setPrioridade(cbPrioridade.getSelectedIndex());
-
+		try {
 		lancamento.setIntervalo(Integer.parseInt(entIntervalo.getText()));
+		}catch(Exception e) {
+			JOptionPane.showMessageDialog(isto, "Defina o Intervalo");
+			return null;
+		}
+		try {
 		lancamento.setNumero_parcelas(Integer.parseInt(entNumeroParcelas.getText()));
-
-			lancamento.setGerar_parcelas(1);
+		}catch(Exception e) {
+			JOptionPane.showMessageDialog(isto, "Defina o número de parcelas");
+			return null;
+		}
+		lancamento.setGerar_parcelas(1);
 
 		lancamento.setIdentificacao(entIdentificador.getText());
 
-		return lancamento;
+		data_vencimento = entDataVencimento.getText();
+		data_lancamento = entDataLancamento.getText();
+
+		try {
+
+			if (!isDateValid(data_vencimento)) {
+				JOptionPane.showMessageDialog(isto, "Data do Vencimento Inválida");
+
+				return null;
+			} else {
+				lancamento.setData_vencimento(data_vencimento);
+				if (!isDateValid(data_lancamento)) {
+					JOptionPane.showMessageDialog(isto, "Data do lançamento Inválida");
+					return null;
+				} else {
+					lancamento.setData_lancamento(data_lancamento);
+					return lancamento;
+
+				}
+			}
+
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			JOptionPane.showMessageDialog(isto, "Datas Inválidas");
+			return null;
+		}
+
+	}
+
+	public static boolean isDateValid(String strDate) {
+		String dateFormat = "dd/MM/uuuu";
+
+		DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern(dateFormat)
+				.withResolverStyle(ResolverStyle.STRICT);
+		try {
+			LocalDate date = LocalDate.parse(strDate, dateTimeFormatter);
+			return true;
+		} catch (DateTimeParseException e) {
+			return false;
+		}
 	}
 
 	public void setPainelDespesa() {
@@ -981,10 +1142,7 @@ public class TelaFinanceiroCadastroLancamento extends JDialog {
 
 		btnSelecionarCentroCusto.setForeground(Color.WHITE);
 		btnSelecionarCentroCusto.setBackground(new Color(0, 0, 153));
-		painelDespesa.add(btnSelecionarInstituicaoBancaria, "cell 2 4");
 
-		btnSelecionarInstituicaoBancaria.setForeground(Color.WHITE);
-		btnSelecionarInstituicaoBancaria.setBackground(new Color(0, 0, 153));
 		painelDespesa.add(lblNewLabel_5_4, "cell 0 5");
 		lblNewLabel_5_4.setVisible(false);
 		lblNewLabel_5_4.setFont(new Font("SansSerif", Font.PLAIN, 18));
@@ -1063,10 +1221,6 @@ public class TelaFinanceiroCadastroLancamento extends JDialog {
 
 		btnSelecionarCentroCusto.setForeground(Color.WHITE);
 		btnSelecionarCentroCusto.setBackground(new Color(0, 0, 153));
-		painelDespesa.add(btnSelecionarInstituicaoBancaria, "cell 2 10");
-
-		btnSelecionarInstituicaoBancaria.setForeground(Color.WHITE);
-		btnSelecionarInstituicaoBancaria.setBackground(new Color(0, 0, 153));
 
 		painelDespesa.setVisible(true);
 		cbStatusInicial.removeAllItems();
@@ -1099,4 +1253,8 @@ public class TelaFinanceiroCadastroLancamento extends JDialog {
 		}
 	}
 
+	
+
+	
+	
 }

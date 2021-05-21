@@ -148,7 +148,6 @@ import main.java.views_personalizadas.TelaNotificacao;
 import main.java.views_personalizadas.TelaNotificacaoSuperior;
 import main.java.views_personalizadas.TelaNotificacaoSuperiorModoBusca;
 import net.miginfocom.swing.MigLayout;
-import outros.ValidaCNPJ;
 import main.java.cadastros.CadastroLogin;
 import main.java.cadastros.CadastroNuvem;
 import main.java.cadastros.CadastroPontuacao;
@@ -535,12 +534,23 @@ public class TelaMain extends JFrame {
 		mntmNewMenuItem_6.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				TelaFinanceiro tela = new TelaFinanceiro(isto);
+				
 				tela.setVisible(true);
+				tela.atualizarGrafico();
 			}
 		});
 		mntmNewMenuItem_6.setIcon(new ImageIcon(TelaMain.class.getResource("/imagens/financa.png")));
 		mntmNewMenuItem_6.setMargin(new Insets(0, 10, 0, 0));
 		mnFerramentas.add(mntmNewMenuItem_6);
+		
+		JMenuItem mntmNewMenuItem_6_1 = new JMenuItem("Recursos Humanos");
+		mntmNewMenuItem_6_1.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				JOptionPane.showMessageDialog(isto, "Em Construção!");
+			}
+		});
+		mntmNewMenuItem_6_1.setMargin(new Insets(0, 10, 0, 0));
+		mnFerramentas.add(mntmNewMenuItem_6_1);
 		JMenu mnNewMenu = new JMenu("Configurações");
 		mnNewMenu.setIcon(new ImageIcon(TelaPrincipal.class.getResource("/imagens/preferencias.png")));
 		mnNewMenu.setFont(new Font("Arial", Font.PLAIN, 18));
@@ -1910,7 +1920,7 @@ public class TelaMain extends JFrame {
 		}
 		linha = new GraficoLinha();
 		linha.setDataset(dataset);
-		chartPanel = linha.getGraficoLinha(400, 200, "Últimos 7 dias");
+		chartPanel = linha.getGraficoLinha(400, 200, "Últimos 7 dias", "Romaneios", "Quantidade de Sacos");
 		panelGraficoLinha.add(chartPanel);
 	}
 
@@ -1927,7 +1937,7 @@ public class TelaMain extends JFrame {
 		}
 		linha = new GraficoLinha();
 		linha.setDataset(dataset);
-		chartPanel = linha.getGraficoLinha(200, 200, "Últimos 7 dias");
+		chartPanel = linha.getGraficoLinha(200, 200, "Últimos 7 dias", "Romaneios", "Quantidade de Sacos");
 		panelGraficoLinha.add(chartPanel);
 	}
 
@@ -2491,24 +2501,4 @@ public class TelaMain extends JFrame {
 		double quantidade_final = (quantidade_total_carregada + quantidade_total_transferencia_recebida) - quantidade_total_transferida_retirada;
 		return quantidade_final;
 	}
-
-	/*
-	public void rebasear() {
-		GerenciarBancoFinanceiroPagamento gerenciar = new GerenciarBancoFinanceiroPagamento();
-		ArrayList<FinanceiroPagamentoCompleto> lista_pagamentos = gerenciar.getFinanceiroPagamentosLancamentos();
-		
-		
-		
-		for(FinanceiroPagamentoCompleto fpl : lista_pagamentos) {
-			boolean atualizou = gerenciar.atualizarTeste(fpl.getFpag(), fpl.getLancamento().getId_instituicao_bancaria());
-			if(atualizou) {
-				System.out.println("ok");
-			}else {
-				System.out.println("erro, id_pagamento: " + fpl.getFpag().getId_pagamento() + "\n id_ib: " + fpl.getLancamento().getId_instituicao_bancaria());
-			}
-		}
-		
-		
-	}*/
-	
 }

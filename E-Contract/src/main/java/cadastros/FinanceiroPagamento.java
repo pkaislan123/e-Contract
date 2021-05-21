@@ -27,7 +27,7 @@ public class FinanceiroPagamento {
   PRIMARY KEY (`id_pagamento`)
 ) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8
 	 */
-	int id_pagamento, id_condicao_pagamento, id_lancamento, status_pagamento, id_pagador;
+	int id_pagamento, fluxo_caixa, tipo_pagador, id_condicao_pagamento, id_lancamento, status_pagamento, id_pagador, id_recebedor;
 	String identificador, data_pagamento, observacao, descricao, caminho_arquivo;
 	BigDecimal valor;
 	

@@ -225,7 +225,11 @@ public class TelaFinanceiroConta extends JDialog {
 			public void actionPerformed(ActionEvent e) {
 				if(modo_operacao == 0) {
 					if(retorno_tela == 1) {
+						if(janela_pai instanceof TelaFinanceiroCadastroLancamento)
 						((TelaFinanceiroCadastroLancamento) janela_pai).setConta(getContasSelecionado());
+						else if(janela_pai instanceof TelaFinanceiroCadastroEmprestimo)
+							((TelaFinanceiroCadastroEmprestimo) janela_pai).setConta(getContasSelecionado());
+
 						isto.dispose();
 					}
 				}
@@ -358,10 +362,7 @@ public boolean checkString(String txt) {
 		@Override
 		public Object getValueAt(int rowIndex, int columnIndex) {
 			 FinanceiroConta dado = dados.get(rowIndex);
-			 FinanceiroGrupoContas grupoContas = null;
-			 if(dado.getId_grupo_contas() > 0) {
-				 grupoContas = new GerenciarBancoFinanceiroGrupoContas().getFinanceiroGrupoContas(dado.getId_grupo_contas());
-			 }
+		
 			
 			switch (columnIndex) {
 			case id:
@@ -379,9 +380,7 @@ public boolean checkString(String txt) {
 			 }
 			}
 			case grupo_contas:{
-				if(grupoContas != null) {
-					return grupoContas.getNome();
-				}
+				 return dado.getNome_grupo_contas();
 			}
 			
 			default:

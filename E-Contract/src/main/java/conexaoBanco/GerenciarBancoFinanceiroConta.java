@@ -57,7 +57,8 @@ public class GerenciarBancoFinanceiroConta {
 	}
 
 	public ArrayList<FinanceiroConta> getFinanceiroContas() {
-		String select = "select * from financeiro_conta";
+		String select = "select fc.*, fgc.nome_grupo_contas  from financeiro_conta fc\r\n"
+				+ "left join financeiro_grupo_contas fgc on fgc.id_grupo_contas = fc.id_grupo_contas;";
 		Connection conn = null;
 		PreparedStatement pstm = null;
 		ResultSet rs = null;
@@ -76,6 +77,7 @@ public class GerenciarBancoFinanceiroConta {
 				dado.setTipo_conta(rs.getInt("tipo_conta"));
 				dado.setObservacao(rs.getString("observacao"));
 				dado.setDescricao(rs.getString("descricao"));
+				dado.setNome_grupo_contas(rs.getString("nome_grupo_contas"));
 				
 			
 

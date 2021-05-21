@@ -146,7 +146,7 @@ import main.java.views_personalizadas.TelaEmEspera;
 import main.java.views_personalizadas.TelaNotificacao;
 import main.java.views_personalizadas.TelaNotificacaoSuperior;
 import main.java.views_personalizadas.TelaNotificacaoSuperiorModoBusca;
-import outros.ValidaCNPJ;
+import outros.ValidaCNPj;
 import main.java.cadastros.CadastroLogin;
 import main.java.cadastros.CadastroNuvem;
 import main.java.cadastros.CadastroZapMessenger;
@@ -648,9 +648,9 @@ public class RelatorioContratoIndividual {
 		}
 
 		// define o numero de linhas
-		int num_linhas = (num_comprovantes / 4) + 1;
+		int num_linhas = (num_comprovantes / 3) + 1;
 
-		XWPFTable table = document_global.createTable(num_linhas, 4);
+		XWPFTable table = document_global.createTable(num_linhas, 3);
 
 		setTableAlign(table, ParagraphAlignment.CENTER);
 		XWPFTableRow tableRowOne = table.getRow(0);
@@ -709,27 +709,27 @@ public class RelatorioContratoIndividual {
 					FileInputStream in;
 					try {
 
-						if (contador_comprovantes <= 3) {
+						if (contador_comprovantes <= 2) {
 							linha_comprovante = 0;
-						} else if (contador_comprovantes <= 7) {
+						} else if (contador_comprovantes <= 6) {
 							linha_comprovante = 1;
 
-						} else if (contador_comprovantes <= 11) {
+						} else if (contador_comprovantes <= 10) {
 							linha_comprovante = 2;
 
-						} else if (contador_comprovantes <= 15) {
+						} else if (contador_comprovantes <= 14) {
 							linha_comprovante = 3;
 
-						} else if (contador_comprovantes <= 19) {
+						} else if (contador_comprovantes <= 18) {
 							linha_comprovante = 4;
 
-						} else if (contador_comprovantes <= 23) {
+						} else if (contador_comprovantes <= 22) {
 							linha_comprovante = 5;
 
-						} else if (contador_comprovantes <= 27) {
+						} else if (contador_comprovantes <= 26) {
 							linha_comprovante = 6;
 
-						} else if (contador_comprovantes <= 31) {
+						} else if (contador_comprovantes <= 30) {
 							linha_comprovante = 7;
 
 						}
@@ -743,12 +743,12 @@ public class RelatorioContratoIndividual {
 
 						in = new FileInputStream(caminho_completo);
 						run.addPicture(in, Document.PICTURE_TYPE_JPEG, comprovante.getNome_arquivo(),
-								Units.toEMU(x / 2), Units.toEMU(y / 2));
+								Units.toEMU(x/2 ), Units.toEMU(y /2));
 						in.close();
 						contador_comprovantes++;
 						coluna_comprovante++;
 
-						if (coluna_comprovante >= 4) {
+						if (coluna_comprovante >= 3) {
 							coluna_comprovante = 0;
 						}
 					} catch (FileNotFoundException e) {
@@ -935,7 +935,7 @@ public class RelatorioContratoIndividual {
 		String string_valor_total_sub_contratos = NumberFormat.getCurrencyInstance(ptBr)
 				.format(valor_total_sub_contratos);
 
-		double valor_total_diferenca_contratos = valor_total_contrato_original - valor_total_sub_contratos;
+		double valor_total_diferenca_contratos = valor_total_sub_contratos-  valor_total_contrato_original ;
 
 		String string_valor_total_diferenca_contratos = NumberFormat.getCurrencyInstance(ptBr)
 				.format(valor_total_diferenca_contratos);

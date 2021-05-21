@@ -801,7 +801,22 @@ local retirada: 24 2
 		private String nome_tarefa;
 		private CadastroLogin criador;
 		private String resposta;
+		private String nome_criador, nome_executor;
 		
+		
+		
+		public String getNome_criador() {
+			return nome_criador;
+		}
+		public void setNome_criador(String nome_criador) {
+			this.nome_criador = nome_criador;
+		}
+		public String getNome_executor() {
+			return nome_executor;
+		}
+		public void setNome_executor(String nome_executor) {
+			this.nome_executor = nome_executor;
+		}
 		public String getResposta() {
 			return resposta;
 		}

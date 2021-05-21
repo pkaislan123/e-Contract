@@ -40,7 +40,7 @@ public class GerenciarBancoLancamento {
 		 */
 		return "insert into lancamento (tipo_lancamento, prioridade, data_lancamento,"
 				+ " id_conta, id_centro_custo,id_cliente_fornecedor, identificacao,"
-				+ "valor_total, numero_parcelas, data_primeiro_vencimento, intervalo, gerar_parcelas, status,observacao,descricao, caminho_arquivo, diretorio_lancamento) values ('"
+				+ "valor_total, numero_parcelas, data_primeiro_vencimento, intervalo, gerar_parcelas, status,observacao,descricao, caminho_arquivo, diretorio_lancamento, contador) values ('"
 				+ dado.getTipo_lancamento() + "','"
 				+ dado.getPrioridade() + "','"
 				+ dado.getData_lancamento() + "','" 
@@ -57,7 +57,8 @@ public class GerenciarBancoLancamento {
 				+ dado.getObservacao() + "','"
 				+ dado.getDescricao()  + "','"
 			    + dado.getDiretorio_lancamento()  + "','"
-				+ dado.getCaminho_arquivo() + "')";
+			     + dado.getCaminho_arquivo()  + "','"
+				+ 0 + "')";
 	}
 	
 
@@ -120,7 +121,8 @@ public class GerenciarBancoLancamento {
 				dado.setGerar_parcelas(rs.getInt("gerar_parcelas"));
 				dado.setIntervalo(rs.getInt("intervalo"));
 				dado.setNumero_parcelas(rs.getInt("numero_parcelas"));
-				
+				dado.setContador(rs.getInt("contador"));
+				dado.setId_detinatario_nf(rs.getInt("id_destinatario_nf"));
 				try{
 					dado.setValor(new BigDecimal(rs.getString("valor_total")));
 				}catch(Exception e) {
@@ -152,49 +154,7 @@ public class GerenciarBancoLancamento {
 
 	public ArrayList<Lancamento> buscaLancamentosCompletos() {
 		
-		String select = "select id_lancamento, tipo_lancamento, la.identificacao, la.descricao,prioridade, data_lancamento, valor_total,\r\n"
-				+ "(select sum(valor) from financeiro_pagamento where id_lancamento_pai = la.id_lancamento\r\n"
-				+ "group by id_lancamento_pai\r\n"
-				+ "order by id_lancamento_pai) as valor_ja_pago,\r\n"
-				+ "(select data_vencimento from parcela where parcela.id_lancamento_pai = la.id_lancamento and status = 0 limit 1)\r\n"
-				+ "as data_proximo_vencimento,\r\n"
-				+ "(select DATE_FORMAT(\r\n"
-				+ "(select str_to_date(data_pagamento, '%d/%m/%Y') as data\r\n"
-				+ "from financeiro_pagamento\r\n"
-				+ "where data_pagamento != '' and financeiro_pagamento.id_lancamento_pai = la.id_lancamento\r\n"
-				+ "order by data DESC\r\n"
-				+ "limit 1), '%d/%m/%Y') as maior_data_pagamento ) as data_ultimo_pagamento,\r\n"
-				+ "(\r\n"
-				+ "select ids_condicao_pagamento from\r\n"
-				+ "(\r\n"
-				+ "SELECT id_lancamento_pai, group_concat(`id_forma_pagamento`) as ids_condicao_pagamento\r\n"
-				+ "FROM financeiro_pagamento  \r\n"
-				+ "GROUP BY id_lancamento_pai\r\n"
-				+ ") as teste where id_lancamento_pai = la.id_lancamento\r\n"
-				+ ") as ids_condicao_pagamento,\r\n"
-				+ "(\r\n"
-				+ "select status_condicao_pagamento from\r\n"
-				+ "(\r\n"
-				+ "SELECT id_lancamento_pai, group_concat(`status_condicao_pagamento`) as status_condicao_pagamento\r\n"
-				+ "FROM financeiro_pagamento  \r\n"
-				+ "GROUP BY id_lancamento_pai\r\n"
-				+ ") as teste where id_lancamento_pai = la.id_lancamento\r\n"
-				+ ") as status_condicao_pagamento,\r\n"
-				+ "la.status,\r\n"
-				+ "fc.nome_conta,\r\n"
-				+ "fgc.nome_grupo_contas,\r\n"
-				+ "cc.nome_centro_custo,\r\n"
-				+ "case\r\n"
-				+ "when cliente_fornecedor.tipo_cliente = '0' then cliente_fornecedor.nome_empresarial \r\n"
-				+ "when cliente_fornecedor.tipo_cliente = '1' then cliente_fornecedor.nome_fantasia\r\n"
-				+ "end as cliente_fornecedor\r\n"
-				+ "from lancamento la\r\n"
-				+ "LEFT JOIN financeiro_conta fc on fc.id_conta = la.id_conta\r\n"
-				+ "LEFT JOIN financeiro_grupo_contas fgc on fgc.id_grupo_contas = fc.id_grupo_contas\r\n"
-				+ "LEFT JOIN centro_custo cc on cc.id_centro_custo = la.id_centro_custo\r\n"
-				+ "LEFT JOIN cliente cliente_fornecedor on cliente_fornecedor.id_cliente = la.id_cliente_fornecedor\r\n"
-				+ "\r\n"
-				+ "order by id_lancamento";
+		String select = "call busca_lancamentos()";
 		Connection conn = null;
 		PreparedStatement pstm = null;
 		ResultSet rs = null;
@@ -217,6 +177,80 @@ public class GerenciarBancoLancamento {
 				dado.setNome_cliente_fornecedor(rs.getString("cliente_fornecedor"));
 				dado.setIds_forma_pagamento(rs.getString("ids_condicao_pagamento"));
 				dado.setStatus_forma_pagamento(rs.getString("status_condicao_pagamento"));
+				dado.setContador(rs.getInt("contador"));
+				dado.setId_detinatario_nf(rs.getInt("id_destinatario_nf"));
+				dado.setNome_destinatario_nf(rs.getString("nome_destinatario_nf"));
+
+				
+				try{
+					dado.setValor(new BigDecimal(rs.getDouble("valor_total")));
+				}catch(Exception e) {
+					dado.setValor(BigDecimal.ZERO);
+				}
+				
+				try{
+					dado.setValor_ja_pago(new BigDecimal(rs.getDouble("valor_ja_pago")));
+				}catch(Exception e) {
+					dado.setValor_ja_pago(BigDecimal.ZERO);
+				}
+				
+				try{
+					dado.setValor_proximo_pagamento_a_vencer(new BigDecimal(rs.getDouble("valor_proximo_pagamento_a_vencer")));
+				}catch(Exception e) {
+					dado.setValor_proximo_pagamento_a_vencer(BigDecimal.ZERO);
+				}
+				
+				dado.setData_vencimento(rs.getString("data_proximo_vencimento"));
+				dado.setData_pagamento(rs.getString("data_ultimo_pagamento"));
+				dado.setStatus(rs.getInt("status"));
+				dado.setIdentificacao(rs.getString("identificacao"));
+				dado.setDescricao(rs.getString("descricao"));
+			
+
+				lista.add(dado);
+
+			}
+			ConexaoBanco.fechaConexao(conn, pstm, rs);
+		} catch (Exception e) {
+			JOptionPane.showMessageDialog(null, "Erro ao listar o lançamento\nErro: " + e.getMessage() + "\nCausa: " + e.getCause());// );
+		}
+		return lista;
+
+	}
+	
+	
+
+	public ArrayList<Lancamento> buscaLancamentosCompletosGrafico( int flag_despesa_receita, int flag_conta_grupo_contas, int flag_status) {
+		
+		String select = "call busca_lancamentos_grafico(?,?,?)";
+		Connection conn = null;
+		PreparedStatement pstm = null;
+		ResultSet rs = null;
+		ArrayList<Lancamento> lista = new ArrayList<>();
+		try {
+			conn = ConexaoBanco.getConexao();
+			pstm = conn.prepareStatement(select);
+			pstm.setInt(1, flag_despesa_receita);
+			pstm.setInt(2, flag_conta_grupo_contas);
+			pstm.setInt(3, flag_status);
+
+
+			rs = pstm.executeQuery();
+			while (rs.next()) {
+				Lancamento dado = new Lancamento();
+				
+				dado.setId_lancamento(rs.getInt("id_lancamento"));
+				dado.setPrioridade(rs.getInt("prioridade"));
+				dado.setTipo_lancamento(rs.getInt("tipo_lancamento"));
+				dado.setData_lancamento(rs.getString("data_lancamento"));
+				dado.setNome_conta(rs.getString("nome_conta"));
+				dado.setNome_grupo_contas(rs.getString("nome_grupo_contas"));
+				dado.setNome_centro_custo(rs.getString("nome_centro_custo"));
+				dado.setNome_cliente_fornecedor(rs.getString("cliente_fornecedor"));
+				dado.setIds_forma_pagamento(rs.getString("ids_condicao_pagamento"));
+				dado.setStatus_forma_pagamento(rs.getString("status_condicao_pagamento"));
+				dado.setContador(rs.getInt("contador"));
+				dado.setId_detinatario_nf(rs.getInt("id_destinatario_nf"));
 
 				try{
 					dado.setValor(new BigDecimal(rs.getDouble("valor_total")));
@@ -247,7 +281,6 @@ public class GerenciarBancoLancamento {
 		return lista;
 
 	}
-	
 	
 	public ArrayList<Lancamento> buscaLancamentos() {/*
 		String select = "select id_lancamento, tipo_lancamento, la.identificacao, la.descricao,prioridade, data_lancamento, valor_total, data_primeiro_vencimento,la.status,\r\n"
@@ -296,7 +329,7 @@ public class GerenciarBancoLancamento {
 				+ "";
 				*/
 		String select = "\r\n"
-				+ "select id_lancamento, tipo_lancamento, la.identificacao, la.descricao,prioridade, data_lancamento, valor_total,\r\n"
+				+ "select id_lancamento, tipo_lancamento, la.contador, la.id_destinatario_nf, la.identificacao, la.descricao,prioridade, data_lancamento, valor_total,\r\n"
 				+ "(select sum(valor) from financeiro_pagamento where id_lancamento_pai = la.id_lancamento\r\n"
 				+ "group by id_lancamento\r\n"
 				+ "order by id_lancamento) as valor_ja_pago,\r\n"
@@ -347,7 +380,9 @@ public class GerenciarBancoLancamento {
 				dado.setNome_centro_custo(rs.getString("nome_centro_custo"));
 				dado.setNome_cliente_fornecedor(rs.getString("cliente_fornecedor"));
 
-				
+				dado.setContador(rs.getInt("contador"));
+				dado.setId_detinatario_nf(rs.getInt("id_destinatario_nf"));
+
 				try{
 					dado.setValor(new BigDecimal(rs.getDouble("valor_total")));
 				}catch(Exception e) {
@@ -405,7 +440,9 @@ public class GerenciarBancoLancamento {
 			dado.setGerar_parcelas(rs.getInt("gerar_parcelas"));
 			dado.setIntervalo(rs.getInt("intervalo"));
 			dado.setNumero_parcelas(rs.getInt("numero_parcelas"));
-			
+			dado.setContador(rs.getInt("contador"));
+			dado.setId_detinatario_nf(rs.getInt("id_destinatario_nf"));
+
 			try{
 				dado.setValor(new BigDecimal(rs.getString("valor_total")));
 			}catch(Exception e) {
@@ -456,22 +493,21 @@ public class GerenciarBancoLancamento {
 
 	}
 	
-	public boolean atualizarLancamento(String caminho_arquivo, String diretorio_lancamento, int id_lancamento) {
+	public boolean atualizarCaminhoLancamento(String caminho_arquivo, int id_lancamento) {
 			try {
 				Connection conn = null;
 				String atualizar = null;
 				PreparedStatement pstm;
 
 				//atualizar = "update financeiro_conta set nome_conta = ?, id_grupo_contas = ?,  tipo_conta = ?, observacao = ?,descricao = ? where id_conta = ? ";
-				atualizar = "update lancamento set caminho_arquivo = ?, diretorio_lancamento = ? where id_lancamento = ?";
+				atualizar = "update lancamento set caminho_arquivo = ? where id_lancamento = ?";
 				
 				conn = ConexaoBanco.getConexao();
 				pstm = conn.prepareStatement(atualizar);
 
 				pstm.setString(1, caminho_arquivo);
-				pstm.setString(2, diretorio_lancamento);
+				pstm.setInt(2, id_lancamento);
 
-				pstm.setInt(3, id_lancamento);
 				
 			
 				pstm.execute();
@@ -484,6 +520,35 @@ public class GerenciarBancoLancamento {
 			}
 		
 	}
+	
+	public boolean atualizarDiretorioLancamento(String diretorio_lancamento, int id_lancamento) {
+		try {
+			Connection conn = null;
+			String atualizar = null;
+			PreparedStatement pstm;
+
+			//atualizar = "update financeiro_conta set nome_conta = ?, id_grupo_contas = ?,  tipo_conta = ?, observacao = ?,descricao = ? where id_conta = ? ";
+			atualizar = "update lancamento set diretorio_lancamento = ? where id_lancamento = ?";
+			
+			conn = ConexaoBanco.getConexao();
+			pstm = conn.prepareStatement(atualizar);
+
+			pstm.setString(1, diretorio_lancamento);
+			pstm.setInt(2, id_lancamento);
+
+			
+		
+			pstm.execute();
+			// JOptionPane.showMessageDialog(null, "Cliente atualizado com sucesso");
+			ConexaoBanco.fechaConexao(conn);
+			return true;
+		} catch (Exception e) {
+			JOptionPane.showMessageDialog(null, "Erro ao atualizar o lançamento no banco de dados\nErro: " + e.getMessage() + "\nCausa: " + e.getCause());
+			return false;
+		}
+	
+}
+
 
 	public boolean atualizarLancamento(Lancamento dado) {
 		if (dado != null) {
@@ -496,7 +561,7 @@ public class GerenciarBancoLancamento {
 				atualizar = "update lancamento set tipo_lancamento = ? , prioridade = ?, data_lancamento = ?, id_conta = ?,"
 						+ "id_centro_custo = ?,id_cliente_fornecedor = ?, identificacao = ?,"
 						+ "valor_total = ?, numero_parcelas = ?,data_primeiro_vencimento = ?,"
-						+ "intervalo = ?, status = ?,observacao = ?,descricao = ? where id_lancamento = ?";
+						+ "intervalo = ?, status = ?,observacao = ?,descricao = ?  where id_lancamento = ?";
 				
 				conn = ConexaoBanco.getConexao();
 				pstm = conn.prepareStatement(atualizar);
@@ -518,7 +583,8 @@ public class GerenciarBancoLancamento {
 				pstm.setInt(12, dado.getStatus());
 				pstm.setString(13, dado.getObservacao());
 				pstm.setString(14, dado.getDescricao());
-				
+
+
 				pstm.setInt(15, dado.getId_lancamento());
 
 				pstm.execute();
@@ -535,7 +601,98 @@ public class GerenciarBancoLancamento {
 			return false;
 		}
 	}
+	
+	
+	public boolean atualizarContadorLancamento(int status_contador, int id_destinatario_nf, int id_lancamento) {
+		
+			try {
+				Connection conn = null;
+				String atualizar = null;
+				PreparedStatement pstm;
 
+				//atualizar = "update financeiro_conta set nome_conta = ?, id_grupo_contas = ?,  tipo_conta = ?, observacao = ?,descricao = ? where id_conta = ? ";
+				atualizar = "update lancamento set contador = ?, id_destinatario_nf = ?  where id_lancamento = ?";
+				
+				conn = ConexaoBanco.getConexao();
+				pstm = conn.prepareStatement(atualizar);
+
+				pstm.setInt(1, status_contador);
+				pstm.setInt(2, id_destinatario_nf);
+
+				pstm.setInt(3, id_lancamento);
+				
+
+				pstm.execute();
+				// JOptionPane.showMessageDialog(null, "Cliente atualizado com sucesso");
+				System.out.println("Lançamento Atualizada com sucesso");
+				ConexaoBanco.fechaConexao(conn);
+				return true;
+			} catch (Exception e) {
+				JOptionPane.showMessageDialog(null, "Erro ao atualizar o lançamento no banco de dados\nErro: " + e.getMessage() + "\nCausa: " + e.getCause());
+				return false;
+			}
+		
+	}
+	
+	
+	public boolean atualizarValorLancamento(String valor, int id_lancamento) {
+	
+			try {
+				Connection conn = null;
+				String atualizar = null;
+				PreparedStatement pstm;
+
+				//atualizar = "update financeiro_conta set nome_conta = ?, id_grupo_contas = ?,  tipo_conta = ?, observacao = ?,descricao = ? where id_conta = ? ";
+				atualizar = "update lancamento set valor_total = ? where id_lancamento = ?";
+				
+				conn = ConexaoBanco.getConexao();
+				pstm = conn.prepareStatement(atualizar);
+
+				pstm.setString(1, valor);
+				pstm.setInt(2, id_lancamento);
+	
+
+				pstm.execute();
+				// JOptionPane.showMessageDialog(null, "Cliente atualizado com sucesso");
+				System.out.println("Valor total do Lançamento!");
+				ConexaoBanco.fechaConexao(conn);
+				return true;
+			} catch (Exception e) {
+				JOptionPane.showMessageDialog(null, "Erro ao atualizar o lançamento no banco de dados\nErro: " + e.getMessage() + "\nCausa: " + e.getCause());
+				return false;
+			}
+		
+	}
+
+	public boolean atualizarStatusLancamento(int status , int id_lancamento) {
+		
+		try {
+			Connection conn = null;
+			String atualizar = null;
+			PreparedStatement pstm;
+
+			//atualizar = "update financeiro_conta set nome_conta = ?, id_grupo_contas = ?,  tipo_conta = ?, observacao = ?,descricao = ? where id_conta = ? ";
+			atualizar = "update lancamento set status = ? where id_lancamento = ?";
+			
+			conn = ConexaoBanco.getConexao();
+			pstm = conn.prepareStatement(atualizar);
+
+			pstm.setInt(1, status);
+			pstm.setInt(2, id_lancamento);
+
+
+			pstm.execute();
+			// JOptionPane.showMessageDialog(null, "Cliente atualizado com sucesso");
+			System.out.println("Valor total do Lançamento!");
+			ConexaoBanco.fechaConexao(conn);
+			return true;
+		} catch (Exception e) {
+			JOptionPane.showMessageDialog(null, "Erro ao atualizar o lançamento no banco de dados\nErro: " + e.getMessage() + "\nCausa: " + e.getCause());
+			return false;
+		}
+	
+}
+	
 	public  Map<String,String> pegarDatas() {
 
 		String select = "select \r\n"
@@ -614,5 +771,44 @@ public class GerenciarBancoLancamento {
 			return null;
 		}
 	}
+	
+	
+	public  Map<Integer,Double> busca_lancamentos_grafico_linha(int flag_despesa_receita, int status) {
+
+		String select = "call busca_lancamentos_grafico_linha(?,?)";
+		Connection conn = null;
+		PreparedStatement pstm = null;
+		ResultSet rs = null;
+		 Map<Integer,Double> lista = new HashMap<Integer,Double>();
+
+		try {
+			conn = ConexaoBanco.getConexao();
+			pstm = conn.prepareStatement(select);
+			pstm.setInt(1, flag_despesa_receita);
+			pstm.setInt(2, status);
+
+			rs = pstm.executeQuery();
+			while (rs.next()) {
+				
+			 String mes_lancamento = rs.getString("data_proximo_vencimento");
+			 try {
+				lista.put(Integer.parseInt(mes_lancamento), rs.getDouble("valor_total"));
+			 }catch(Exception e) {
+				 
+			 }
+					
+				
+				
+			}
+
+			return lista;
+		} catch (Exception e) {
+			//JOptionPane.showMessageDialog(null, "Erro ao listar a Conta id: " + id);// );
+			JOptionPane.showMessageDialog(null, "Erro ao listar a maior data de vencimento do banco de dados" );
+			return null;
+		}
+	}
+	
+	
 	
 }

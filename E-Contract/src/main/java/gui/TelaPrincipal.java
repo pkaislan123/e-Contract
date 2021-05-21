@@ -111,7 +111,7 @@ import main.java.views_personalizadas.TelaEmEspera;
 import main.java.views_personalizadas.TelaNotificacao;
 import main.java.views_personalizadas.TelaNotificacaoSuperior;
 import main.java.views_personalizadas.TelaNotificacaoSuperiorModoBusca;
-import outros.ValidaCNPJ;
+import outros.ValidaCNPj;
 import main.java.cadastros.CadastroLogin;
 import main.java.cadastros.CadastroNuvem;
 import main.java.cadastros.CadastroZapMessenger;
@@ -1301,7 +1301,7 @@ public class TelaPrincipal extends JFrame implements GetDadosGlobais {
 		}
 		linha = new GraficoLinha();
 		linha.setDataset(dataset);
-		chartPanel = linha.getGraficoLinha(200, 200, "Últimos 7 dias");
+		chartPanel = linha.getGraficoLinha(200, 200, "Últimos 7 dias", "Romaneios", "Quantidade de Sacos");
 		panelGraficoLinha.add(chartPanel);
 	}
 
@@ -1318,7 +1318,7 @@ public class TelaPrincipal extends JFrame implements GetDadosGlobais {
 		}
 		linha = new GraficoLinha();
 		linha.setDataset(dataset);
-		chartPanel = linha.getGraficoLinha(200, 200, "Últimos 7 dias");
+		chartPanel = linha.getGraficoLinha(200, 200, "Últimos 7 dias", "Romaneios", "Quantidade de Sacos");
 		panelGraficoLinha.add(chartPanel);
 	}
 

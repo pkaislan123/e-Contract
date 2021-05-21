@@ -745,8 +745,8 @@ public int inserir_cliente(CadastroCliente cliente)
 	                	cliente.setStatus_cadastro(rs.getString("status_rntrc"));
 	                	
 	                	//capturar veiculos
-	                	GerenciarBancoClientes gerenciar_veiculos = new GerenciarBancoClientes();
-	                	cliente.setVeiculos(gerenciar_veiculos.getVeiculos(cliente.getId()));
+	                	//GerenciarBancoClientes gerenciar_veiculos = new GerenciarBancoClientes();
+	                	//cliente.setVeiculos(gerenciar_veiculos.getVeiculos(cliente.getId()));
 	                }
 	            
 	               

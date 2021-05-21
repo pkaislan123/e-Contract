@@ -30,15 +30,18 @@ public class GerenciarBancoFinanceiroPagamento {
 	  PRIMARY KEY (`id_pagamento`)
 	) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8
 		 */
-		return "insert into financeiro_pagamento (id_lancamento_pai, identificador,id_pagador, id_forma_pagamento, status_condicao_pagamento, valor, data_pagamento,"
+		return "insert into financeiro_pagamento (id_lancamento_pai, identificador,tipo_pagador, id_pagador, id_recebedor, id_forma_pagamento, status_condicao_pagamento, valor, data_pagamento,fluxo_caixa,"
 				+ "observacao, descricao,caminho_arquivo ) values ('"
 				+ dado.getId_lancamento() + "','"
 				+ dado.getIdentificador() + "','"
+			    + dado.getTipo_pagador() + "','"
 				+ dado.getId_pagador() + "','"
+				+ dado.getId_recebedor() + "','"
 				+ dado.getId_condicao_pagamento() + "','"
 				+ dado.getStatus_pagamento() + "','"
 				+ dado.getValor() + "','"
 				+ dado.getData_pagamento() + "','" 
+				+ dado.getFluxo_caixa() + "','" 
 			    + dado.getObservacao() + "','" 
 			    + dado.getDescricao() + "','" 
 			    
@@ -100,6 +103,9 @@ public class GerenciarBancoFinanceiroPagamento {
 				dado.setIdentificador(rs.getString("identificador"));
 				dado.setId_condicao_pagamento(rs.getInt("id_forma_pagamento"));
 				dado.setStatus_pagamento(rs.getInt("status_condicao_pagamento"));
+				dado.setId_recebedor(rs.getInt("id_recebedor"));
+				dado.setTipo_pagador(rs.getInt("tipo_pagador"));
+				dado.setFluxo_caixa(rs.getInt("fluxo_caixa"));
 				dado.setId_pagador(rs.getInt("id_pagador"));
 				try{
 					dado.setValor(new BigDecimal(rs.getString("valor")));
@@ -143,7 +149,10 @@ public class GerenciarBancoFinanceiroPagamento {
 				dado.setIdentificador(rs.getString("identificador"));
 				dado.setId_condicao_pagamento(rs.getInt("id_forma_pagamento"));
 				dado.setStatus_pagamento(rs.getInt("status_condicao_pagamento"));
+				dado.setTipo_pagador(rs.getInt("tipo_pagador"));
+				dado.setFluxo_caixa(rs.getInt("fluxo_caixa"));
 				dado.setId_pagador(rs.getInt("id_pagador"));
+				dado.setId_recebedor(rs.getInt("id_recebedor"));
 
 				try{
 					dado.setValor(new BigDecimal(rs.getString("valor")));
@@ -190,7 +199,10 @@ public class GerenciarBancoFinanceiroPagamento {
 			dado.setIdentificador(rs.getString("identificador"));
 			dado.setId_condicao_pagamento(rs.getInt("id_forma_pagamento"));
 			dado.setStatus_pagamento(rs.getInt("status_condicao_pagamento"));
+			dado.setTipo_pagador(rs.getInt("tipo_pagador"));
+			dado.setFluxo_caixa(rs.getInt("fluxo_caixa"));
 			dado.setId_pagador(rs.getInt("id_pagador"));
+			dado.setId_recebedor(rs.getInt("id_recebedor"));
 
 			try{
 				dado.setValor(new BigDecimal(rs.getString("valor")));
@@ -246,23 +258,28 @@ public class GerenciarBancoFinanceiroPagamento {
 				PreparedStatement pstm;
 
 				//atualizar = "update financeiro_conta set nome_conta = ?, id_grupo_contas = ?,  tipo_conta = ?, observacao = ?,descricao = ? where id_conta = ? ";
-				atualizar = "update financeiro_pagamento set identificador = ? , id_pagador = ?, id_forma_pagamento = ?, status_condicao_pagamento = ?, "
-						+ "valor = ?, data_pagamento = ?,"
-						+ " observacao = ?, descricao = ?,caminho_arquivo = ?  where id_pagamento =?";				
+				atualizar = "update financeiro_pagamento set identificador = ? , tipo_pagador = ?, id_pagador = ?, id_recebedor = ?, id_forma_pagamento = ?, status_condicao_pagamento = ?, "
+						+ "valor = ?, data_pagamento = ?, fluxo_caixa = ?,"
+						+ " observacao = ?, descricao = ? where id_pagamento =?";				
 				conn = ConexaoBanco.getConexao();
 				pstm = conn.prepareStatement(atualizar);
 				
 				pstm.setString(1, dado.getIdentificador());
-				pstm.setInt(2, dado.getId_pagador());
-				pstm.setInt(3, dado.getId_condicao_pagamento());
-				pstm.setInt(4, dado.getStatus_pagamento());
+				pstm.setInt(2, dado.getTipo_pagador());
 
-				pstm.setString(5, dado.getValor().toString());
-				pstm.setString(6, dado.getData_pagamento());
-				pstm.setString(7, dado.getObservacao());
-				pstm.setString(8, dado.getDescricao());
-				pstm.setString(9, dado.getCaminho_arquivo());
-				pstm.setInt(10, dado.getId_pagamento());
+				pstm.setInt(3, dado.getId_pagador());
+				pstm.setInt(4, dado.getId_recebedor());
+
+				pstm.setInt(5, dado.getId_condicao_pagamento());
+				pstm.setInt(6, dado.getStatus_pagamento());
+
+				pstm.setString(7, dado.getValor().toString());
+				pstm.setString(8, dado.getData_pagamento());
+				pstm.setInt(9, dado.getFluxo_caixa());
+
+				pstm.setString(10, dado.getObservacao());
+				pstm.setString(11, dado.getDescricao());
+				pstm.setInt(12, dado.getId_pagamento());
 
 			
 
@@ -305,7 +322,10 @@ public class GerenciarBancoFinanceiroPagamento {
 				dado.setIdentificador(rs.getString("identificador"));
 				dado.setId_condicao_pagamento(rs.getInt("id_forma_pagamento"));
 				dado.setStatus_pagamento(rs.getInt("status_condicao_pagamento"));
+				dado.setFluxo_caixa(rs.getInt("fluxo_caixa"));
+				dado.setTipo_pagador(rs.getInt("tipo_pagador"));
 				dado.setId_pagador(rs.getInt("id_pagador"));
+				dado.setId_recebedor(rs.getInt("id_recebedor"));
 				try{
 					dado.setValor(new BigDecimal(rs.getString("valor")));
 				}catch(Exception e) {
@@ -378,4 +398,36 @@ public class GerenciarBancoFinanceiroPagamento {
 			return false;
 		}
 	}
+	
+	
+	public boolean atualizarArquivoDoPagamento(String caminho_arquivo, int id_pagamento) {
+
+		try {
+			Connection conn = null;
+			String atualizar = null;
+			PreparedStatement pstm;
+
+			//atualizar = "update financeiro_conta set nome_conta = ?, id_grupo_contas = ?,  tipo_conta = ?, observacao = ?,descricao = ? where id_conta = ? ";
+			atualizar = "update financeiro_pagamento set caminho_arquivo = ?  where id_pagamento = ?";
+			
+			conn = ConexaoBanco.getConexao();
+			pstm = conn.prepareStatement(atualizar);
+			pstm.setString(1, caminho_arquivo);
+			pstm.setInt(2, id_pagamento);
+
+		
+
+			pstm.execute();
+			// JOptionPane.showMessageDialog(null, "Cliente atualizado com sucesso");
+			JOptionPane.showMessageDialog(null,"Arquivo do Pagamento Atualizado");
+			ConexaoBanco.fechaConexao(conn);
+			return true;
+		} catch (Exception e) {
+			JOptionPane.showMessageDialog(null, "Erro ao atualizar o pagamento no banco de dados\nErro: " + e.getMessage() + "\nCausa: " + e.getCause());
+			return false;
+		}
+	
+}
+
+	
 }

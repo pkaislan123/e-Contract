@@ -20,6 +20,7 @@ import main.java.cadastros.CadastroModelo;
 import main.java.cadastros.CadastroProduto;
 import main.java.cadastros.CadastroRomaneio;
 import main.java.cadastros.CadastroSafra;
+import main.java.cadastros.Parcela;
 import main.java.cadastros.RegistroQuantidade;
 import main.java.cadastros.RegistroRecebimento;
 import main.java.outros.DadosGlobais;
@@ -201,7 +202,7 @@ public class GerenciarBancoRomaneios {
 		  
 	        PreparedStatement pstm = null;
 	        ResultSet rs = null;
-	        String selectRoms = "select * from romaneio";
+	        String selectRoms = "select * from romaneio order by data_romaneio";
 	        ArrayList<CadastroRomaneio> lista_roms = new ArrayList<CadastroRomaneio>();
 	        GerenciarBancoClientes gerenciar = new GerenciarBancoClientes();
 	        ArrayList<CadastroCliente> clientes = gerenciar.getClientes(-1, -1, "");
@@ -218,6 +219,7 @@ public class GerenciarBancoRomaneios {
 	            	rom.setOperacao(rs.getString("operacao"));
 	            	rom.setCfop(rs.getString("cfop"));
 	            	rom.setDescricao_cfop(rs.getString("descricao_cfop"));
+	           
 	            	//rom.setData(rs.getString("descricao_cfop"));
 	            	
 	            	int id_produto = rs.getInt("id_produto");
@@ -250,6 +252,9 @@ public class GerenciarBancoRomaneios {
 	        		
 	            	rom.setUmidade(rs.getDouble("umidade"));
 	            	rom.setInpureza(rs.getDouble("impureza"));
+	            	rom.setUmidade2(rs.getDouble("umidade2"));
+	            	rom.setImpureza2(rs.getDouble("impureza2"));
+	            	rom.setClassificador(rs.getString("classificador"));
 	            	rom.setArdidos(rs.getDouble("ardidos"));
 	            	rom.setAvariados(rs.getDouble("avariados"));
 	            	rom.setPeso_bruto(rs.getDouble("peso_bruto"));
@@ -298,12 +303,10 @@ public class GerenciarBancoRomaneios {
 	        		+ "LEFT JOIN  safra sf on sf.id_safra = romaneio.id_safra\r\n"
 	        		+ "LEFT JOIN  produto pd on pd.id_produto = romaneio.id_produto\r\n"
 	        		+ "LEFT JOIN cliente remetente on remetente.id_cliente = romaneio.id_remetente\r\n"
-	        		+ "LEFT JOIN cliente destinatario on destinatario.id_cliente = romaneio.id_destinatario\r\n"
+	        		+ "LEFT JOIN cliente destinatario on destinatario.id_cliente = romaneio.id_destinatario order by data_romaneio\r\n"
 	        		+ "\r\n"
 	        		+ "";
 	        ArrayList<CadastroRomaneio> lista_roms = new ArrayList<CadastroRomaneio>();
-	        GerenciarBancoClientes gerenciar = new GerenciarBancoClientes();
-	        ArrayList<CadastroCliente> clientes = gerenciar.getClientes(-1, -1, "");
 	        
 	        try {
 	            conn = ConexaoBanco.getConexao();
@@ -356,6 +359,11 @@ public class GerenciarBancoRomaneios {
 	        		
 	            	rom.setUmidade(rs.getDouble("umidade"));
 	            	rom.setInpureza(rs.getDouble("impureza"));
+	            	
+	            	rom.setUmidade2(rs.getDouble("umidade2"));
+	            	rom.setImpureza2(rs.getDouble("impureza2"));
+	            	rom.setClassificador(rs.getString("classificador"));
+	            	
 	            	rom.setArdidos(rs.getDouble("ardidos"));
 	            	rom.setAvariados(rs.getDouble("avariados"));
 	            	rom.setPeso_bruto(rs.getDouble("peso_bruto"));
@@ -404,7 +412,7 @@ public class GerenciarBancoRomaneios {
 	        		+ "LEFT JOIN  produto pd on pd.id_produto = romaneio.id_produto\r\n"
 	        		+ "LEFT JOIN cliente remetente on remetente.id_cliente = romaneio.id_remetente\r\n"
 	        		+ "LEFT JOIN cliente destinatario on destinatario.id_cliente = romaneio.id_destinatario\r\n"
-	        		+ "where romaneio.id_remetente = ? or romaneio.id_destinatario = ?";
+	        		+ "where romaneio.id_remetente = ? or romaneio.id_destinatario = ? order by data_romaneio";
 	        
 	        ArrayList<CadastroRomaneio> lista_roms = new ArrayList<CadastroRomaneio>();
 	        GerenciarBancoClientes gerenciar = new GerenciarBancoClientes();
@@ -463,6 +471,12 @@ public class GerenciarBancoRomaneios {
 	        		
 	            	rom.setUmidade(rs.getDouble("umidade"));
 	            	rom.setInpureza(rs.getDouble("impureza"));
+	            	
+	            	rom.setUmidade2(rs.getDouble("umidade2"));
+	            	rom.setImpureza2(rs.getDouble("impureza2"));
+	            	
+	            	rom.setClassificador(rs.getString("classificador"));
+	            	
 	            	rom.setArdidos(rs.getDouble("ardidos"));
 	            	rom.setAvariados(rs.getDouble("avariados"));
 	            	rom.setPeso_bruto(rs.getDouble("peso_bruto"));
@@ -551,6 +565,43 @@ public class GerenciarBancoRomaneios {
 	  }
 	  
 
+	  public boolean atualizarRomaneio(CadastroRomaneio dado) {
+			if (dado != null) {
+				try {
+					Connection conn = null;
+					String atualizar = null;
+					PreparedStatement pstm;
+
+					//atualizar = "update financeiro_conta set nome_conta = ?, id_grupo_contas = ?,  tipo_conta = ?, observacao = ?,descricao = ? where id_conta = ? ";
+					atualizar = "update romaneio set umidade2 = ? , impureza2 = ?, "
+							+ "classificador = ?, silo = ?, transgenese = ? where id_romaneio = ?";
+					conn = ConexaoBanco.getConexao();
+					pstm = conn.prepareStatement(atualizar);
+					
+					pstm.setDouble(1, dado.getUmidade2());
+					pstm.setDouble(2, dado.getImpureza2());
+					pstm.setString(3, dado.getClassificador());
+					pstm.setString(4, dado.getSilo());
+
+					pstm.setString(5, dado.getTransgenia());
+					pstm.setInt(6, dado.getId_romaneio());
+
+				
+
+					pstm.execute();
+					// JOptionPane.showMessageDialog(null, "Cliente atualizado com sucesso");
+					System.out.println("Romaneio Atualizada com sucesso");
+					ConexaoBanco.fechaConexao(conn);
+					return true;
+				} catch (Exception e) {
+					JOptionPane.showMessageDialog(null, "Erro ao atualizar o romaneio no banco de dados\nErro: " + e.getMessage() + "\nCausa: " + e.getCause());
+					return false;
+				}
+			} else {
+				JOptionPane.showMessageDialog(null, "Os parametros estão vazios");
+				return false;
+			}
+		}
 	  
 	  
 }

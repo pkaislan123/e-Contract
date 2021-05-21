@@ -166,7 +166,6 @@ import main.java.views_personalizadas.TelaEmEspera;
 import main.java.views_personalizadas.TelaNotificacao;
 import main.java.views_personalizadas.TelaNotificacaoSuperior;
 import main.java.views_personalizadas.TelaNotificacaoSuperiorModoBusca;
-import outros.ValidaCNPJ;
 import main.java.cadastros.CadastroLogin;
 import main.java.cadastros.CadastroNuvem;
 import main.java.cadastros.CadastroZapMessenger;
@@ -492,13 +491,27 @@ public class TelaPagamentos extends JFrame {
 		JButton btnAbrir = new JButton("Abrir");
 		btnAbrir.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				int indiceDaLinha = tabela.getSelectedRow();
+			/*	
+				int rowSel = -1;
+				int indiceDaLinha = -1;
+				
+				 rowSel = tabela.getSelectedRow();//pega o indice da linha na tabela
+				 indiceDaLinha = tabela.getRowSorter().convertRowIndexToModel(rowSel);//converte pro indice do model				
+				
 
 				int id_contrato_selecionado = Integer.parseInt(tabela.getValueAt(indiceDaLinha, 10).toString());
 				GerenciarBancoContratos gerenciar_cont = new GerenciarBancoContratos();
 				CadastroContrato contrato_selecionado = gerenciar_cont.getContrato(id_contrato_selecionado);
 				TelaGerenciarContrato gerenciar_contrato = new TelaGerenciarContrato(contrato_selecionado, isto);
+*/
+				int indiceDaLinha = tabela.getSelectedRow();
 
+				int id_contrato_selecionado = Integer.parseInt(tabela.getValueAt(indiceDaLinha, 13).toString());
+				GerenciarBancoContratos gerenciar_cont = new GerenciarBancoContratos();
+				CadastroContrato contrato_selecionado = gerenciar_cont.getContrato(id_contrato_selecionado);
+
+				new TelaGerenciarContrato(contrato_selecionado, null);
+				
 				//isto.dispose();
 			}
 		});

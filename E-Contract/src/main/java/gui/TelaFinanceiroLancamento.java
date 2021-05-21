@@ -31,6 +31,7 @@ import javax.swing.table.TableRowSorter;
 
 import main.java.cadastros.CadastroCliente;
 import main.java.cadastros.CadastroContrato;
+import main.java.cadastros.CadastroRomaneio;
 import main.java.cadastros.CentroCusto;
 import main.java.cadastros.CondicaoPagamento;
 import main.java.cadastros.FinanceiroConta;
@@ -54,6 +55,8 @@ import main.java.conexaoBanco.GerenciarBancoInstituicaoBancaria;
 import main.java.conexaoBanco.GerenciarBancoLancamento;
 import main.java.outros.DadosGlobais;
 import main.java.outros.JTextFieldPersonalizado;
+import main.java.views_personalizadas.TelaEscolhaRelatorioLancamentos;
+import main.java.views_personalizadas.TelaEscolhaRelatorioRomaneios;
 import main.java.conexaoBanco.GerenciarBancoLancamento;
 
 import javax.swing.JScrollPane;
@@ -86,6 +89,8 @@ import javax.swing.ImageIcon;
 import java.awt.GridBagLayout;
 import java.awt.GridBagConstraints;
 import java.awt.Insets;
+import java.awt.event.ItemListener;
+import java.awt.event.ItemEvent;
 
 public class TelaFinanceiroLancamento extends JFrame {
 
@@ -97,7 +102,7 @@ public class TelaFinanceiroLancamento extends JFrame {
 	 private JDialog telaPai;
 	  private JLabel lblValorPago, lblValorTotalDespesas;
 	 private TableRowSorter<LancamentoTableModel> sorter;
-	 private JComboBox cbStatusLancamento, cbStatusCondicaoPagamento;
+	 private JComboBox cbStatusLancamento, cbStatusCondicaoPagamento,cbStatusAoContador;
 	 private JComboBox cbGrupoConta,cbCondicaoPagamento,cbTipoLancamento;
 	 private JComboBox cbConta ,cbCentroCusto,cbInstituicaoBancaria;
 	 private JTextField entClienteFornecedor;
@@ -110,6 +115,8 @@ public class TelaFinanceiroLancamento extends JFrame {
 	 private JTextField maiorDataPagamento;
 	 private JLabel lblValorAReceber, lblValorRestanteAPagar,lblValorRecebido, lblValorReceitas ;
 	 private JComboBox cbPrioridade,cbSituacao ;
+	 private JTextField entIdentificadorGeral;
+	 private JTextField entDestinatarioNF;
 	 
 	public TelaFinanceiroLancamento(int flag_modo_operacao, int flag_retorno, Window janela_pai) {
 		
@@ -153,13 +160,14 @@ public class TelaFinanceiroLancamento extends JFrame {
 		painelPrinciapl.add(panel_1, "cell 0 1 3 1,growx,aligny top");
 		panel_1.setBorder(new LineBorder(new Color(0, 0, 0)));
 		panel_1.setBackground(Color.WHITE);
-		panel_1.setLayout(new MigLayout("", "[grow][grow][123px,grow][465px,grow][grow][grow][grow][][grow][grow]", "[31px,grow][][47px,grow][][31px,grow][grow][grow][grow][]"));
+		panel_1.setLayout(new MigLayout("", "[grow][grow][123px,grow][465px,grow][grow][grow][grow][][grow][grow]", "[31px,grow][][47px,grow][][][31px,grow][grow][grow][grow][]"));
 		
 		JLabel lblNewLabel_1_1_2 = new JLabel("Centro de Custo:");
 		lblNewLabel_1_1_2.setFont(new Font("SansSerif", Font.PLAIN, 12));
 		panel_1.add(lblNewLabel_1_1_2, "cell 0 0,alignx trailing");
 		
 		 cbCentroCusto = new JComboBox();
+		
 		panel_1.add(cbCentroCusto, "cell 1 0,growx");
 		
 		JLabel lblNewLabel_1_1 = new JLabel("Tipo de Lançamento:");
@@ -172,6 +180,8 @@ public class TelaFinanceiroLancamento extends JFrame {
 		cbTipoLancamento.addItem("TODOS");
 		cbTipoLancamento.addItem("DESPESAS");
 		cbTipoLancamento.addItem("RECEITAS");
+		cbTipoLancamento.addItem("EMPRESTIMOS");
+
 		 
 		 JLabel lblNewLabel_1_1_2_1 = new JLabel("Instituição Bancária:");
 		 lblNewLabel_1_1_2_1.setFont(new Font("SansSerif", Font.PLAIN, 12));
@@ -220,6 +230,14 @@ public class TelaFinanceiroLancamento extends JFrame {
 		 cbCondicaoPagamento = new JComboBox();
 		 cbCondicaoPagamento.setFont(new Font("SansSerif", Font.PLAIN, 12));
 		 panel_1.add(cbCondicaoPagamento, "cell 5 1,growx");
+		
+		JLabel lblNewLabel_1_1_2_1_1_2 = new JLabel("Identificador Geral:");
+		lblNewLabel_1_1_2_1_1_2.setFont(new Font("SansSerif", Font.PLAIN, 12));
+		panel_1.add(lblNewLabel_1_1_2_1_1_2, "cell 0 2,alignx trailing");
+		
+		entIdentificadorGeral = new JTextField();
+		entIdentificadorGeral.setColumns(10);
+		panel_1.add(entIdentificadorGeral, "cell 1 2,growx");
 		
 		JLabel lblNewLabel_1_1_1 = new JLabel("Grupo de Contas:");
 		lblNewLabel_1_1_1.setFont(new Font("SansSerif", Font.PLAIN, 12));
@@ -275,50 +293,69 @@ public class TelaFinanceiroLancamento extends JFrame {
 		btnLimparCampos.setForeground(Color.WHITE);
 		btnLimparCampos.setBackground(new Color(0, 0, 102));
 		panel_1.add(btnLimparCampos, "cell 9 2,growx");
-		
-		JLabel lblNewLabel_1_1_1_1 = new JLabel("Conta:");
-		lblNewLabel_1_1_1_1.setFont(new Font("SansSerif", Font.PLAIN, 12));
-		panel_1.add(lblNewLabel_1_1_1_1, "cell 2 4,alignx right,aligny center");
-		
-		 cbConta = new JComboBox();
-		cbConta.setFont(new Font("SansSerif", Font.PLAIN, 12));
-		panel_1.add(cbConta, "cell 3 4,growx,aligny center");
+		 
+		 JLabel lblNewLabel_1_1_2_1_1_2_1 = new JLabel("Destinatário NF:");
+		 lblNewLabel_1_1_2_1_1_2_1.setFont(new Font("SansSerif", Font.PLAIN, 12));
+		 panel_1.add(lblNewLabel_1_1_2_1_1_2_1, "cell 0 3,alignx trailing");
+		 
+		 entDestinatarioNF = new JTextField();
+		 entDestinatarioNF.setColumns(10);
+		 panel_1.add(entDestinatarioNF, "cell 1 3,growx");
+		 
+		 JLabel lblNewLabel_1_1_1_1 = new JLabel("Conta:");
+		 lblNewLabel_1_1_1_1.setFont(new Font("SansSerif", Font.PLAIN, 12));
+		 panel_1.add(lblNewLabel_1_1_1_1, "cell 2 3,alignx right,aligny center");
+		 
+		  cbConta = new JComboBox();
+		  cbConta.setFont(new Font("SansSerif", Font.PLAIN, 12));
+		  panel_1.add(cbConta, "cell 3 3,growx,aligny center");
 		 
 		 JLabel lblNewLabel_1_1_4_2 = new JLabel("Prioridade:");
 		 lblNewLabel_1_1_4_2.setFont(new Font("SansSerif", Font.PLAIN, 12));
-		 panel_1.add(lblNewLabel_1_1_4_2, "cell 4 4,alignx trailing");
+		 panel_1.add(lblNewLabel_1_1_4_2, "cell 4 3,alignx trailing");
+		 
+		  cbPrioridade = new JComboBox();
+		  cbPrioridade.addItem("TODOS");
+		  cbPrioridade.addItem("Alta Prioridade - Ainda esta semana");
+		  cbPrioridade.addItem("Média Prioridade - Em menos de 15 dias");
+		  cbPrioridade.addItem("Prioridade Leve - Ainda este mês");
+		  cbPrioridade.addItem("Baixa Prioridade - Ainda este ano");
+		  panel_1.add(cbPrioridade, "cell 5 3,growx");
+		 
+		 JButton btnFiltar = new JButton("Filtrar");
+		 panel_1.add(btnFiltar, "cell 6 3 3 1,growx");
+		 btnFiltar.addActionListener(new ActionListener() {
+		 	public void actionPerformed(ActionEvent e) {
+		 		filtrar();
+		 	}
+		 });
+		 btnFiltar.setBackground(new Color(0, 0, 102));
+		 btnFiltar.setForeground(Color.WHITE);
+		 
+		 JButton btnNewButton = new JButton("pesquisar");
+		 panel_1.add(btnNewButton, "cell 9 3,growx");
+		 btnNewButton.addActionListener(new ActionListener() {
+		 	public void actionPerformed(ActionEvent e) {
+		 		pesquisar();
+		 	}
+		 });
+		 btnNewButton.setForeground(Color.WHITE);
+		 btnNewButton.setBackground(new Color(0, 0, 102));
+		 
+		 JLabel lblNewLabel_1_1_2_1_1_1 = new JLabel("Contador:");
+		 lblNewLabel_1_1_2_1_1_1.setFont(new Font("SansSerif", Font.PLAIN, 12));
+		 panel_1.add(lblNewLabel_1_1_2_1_1_1, "cell 0 5,alignx trailing");
 		
-		 cbPrioridade = new JComboBox();
-		 cbPrioridade.addItem("TODOS");
-		cbPrioridade.addItem("Alta Prioridade - Ainda esta semana");
-		cbPrioridade.addItem("Média Prioridade - Em menos de 15 dias");
-		cbPrioridade.addItem("Prioridade Leve - Ainda este mês");
-		cbPrioridade.addItem("Baixa Prioridade - Ainda este ano");
-		panel_1.add(cbPrioridade, "cell 5 4,growx");
-		
-		JButton btnFiltar = new JButton("Filtrar");
-		panel_1.add(btnFiltar, "cell 6 4 3 1,growx");
-		btnFiltar.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				filtrar();
-			}
-		});
-		btnFiltar.setBackground(new Color(0, 0, 102));
-		btnFiltar.setForeground(Color.WHITE);
-		
-		JButton btnNewButton = new JButton("pesquisar");
-		panel_1.add(btnNewButton, "cell 9 4,growx");
-		btnNewButton.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				pesquisar();
-			}
-		});
-		btnNewButton.setForeground(Color.WHITE);
-		btnNewButton.setBackground(new Color(0, 0, 102));
+		 cbStatusAoContador = new JComboBox();
+		 panel_1.add(cbStatusAoContador, "cell 1 5,growx");
+		 cbStatusAoContador.addItem("TODOS");
+		 cbStatusAoContador.addItem("Não se aplica".toUpperCase());
+		 cbStatusAoContador.addItem("Não Enviado ao contador".toUpperCase());
+		 cbStatusAoContador.addItem("Enviado ao contador".toUpperCase());
 		
 		JPanel panel_2 = new JPanel();
 		panel_2.setBackground(Color.WHITE);
-		panel_1.add(panel_2, "cell 0 5 10 1,grow");
+		panel_1.add(panel_2, "cell 0 6 10 1,grow");
 		panel_2.setLayout(new MigLayout("", "[grow][grow][grow]", "[grow][]"));
 		
 		JPanel panel_4 = new JPanel();
@@ -410,7 +447,7 @@ public class TelaFinanceiroLancamento extends JFrame {
 				
 				JPanel panel_6 = new JPanel();
 				panel_6.setBackground(new Color(255, 255, 204));
-				panel_1.add(panel_6, "cell 0 6 10 1,grow");
+				panel_1.add(panel_6, "cell 0 7 10 1,grow");
 				panel_6.setLayout(new MigLayout("", "[][][][][][][][][][]", "[][][]"));
 				
 				JLabel lblNewLabel_1_1_4_1_2 = new JLabel("Filtros Rápidos:");
@@ -780,7 +817,7 @@ public class TelaFinanceiroLancamento extends JFrame {
 		painelPrinciapl.add(panel_3, "cell 2 3,alignx right,aligny top");
 		panel_3.setBackground(Color.WHITE);
 		
-		JButton btnNewButton_1 = new JButton("Cadastrar");
+		JButton btnNewButton_1 = new JButton("Novo Lançamento");
 		btnNewButton_1.setBackground(new Color(0, 51, 0));
 		btnNewButton_1.setFont(new Font("SansSerif", Font.BOLD, 16));
 		btnNewButton_1.setForeground(Color.WHITE);
@@ -804,7 +841,13 @@ public class TelaFinanceiroLancamento extends JFrame {
 			            JOptionPane.YES_NO_OPTION,
 			            JOptionPane.QUESTION_MESSAGE) == JOptionPane.YES_OPTION){
 					
-						ArrayList<FinanceiroPagamento> lista_pagamentos = new GerenciarBancoFinanceiroPagamento().getFinanceiroPagamentosPorLancamento(getLancamentoSelecionado().getId_lancamento());
+					    ArrayList<Lancamento> lancamentos_selecionados = getLancamentosSelecionado();
+						
+					    if(lancamentos_selecionados.size() == 1) {
+					    
+					    	Lancamento lancamento_excluir = lancamentos_selecionados.get(0);
+					    	
+					    ArrayList<FinanceiroPagamento> lista_pagamentos = new GerenciarBancoFinanceiroPagamento().getFinanceiroPagamentosPorLancamento(lancamento_excluir.getId_lancamento());
 					
 						if(lista_pagamentos.size() > 0) {
 							JOptionPane.showMessageDialog(isto, "O lançamento selecionado possui pagamentos, exclua os primeiro");
@@ -813,7 +856,7 @@ public class TelaFinanceiroLancamento extends JFrame {
 							boolean prosseguir = true;
 						//excluir primeiro as parcelas
 							GerenciarBancoParcelas gerenciar =  new GerenciarBancoParcelas();
-							ArrayList<Parcela> lista_parcelas = gerenciar.getParcelasPorLancamento(getLancamentoSelecionado().getId_lancamento());
+							ArrayList<Parcela> lista_parcelas = gerenciar.getParcelasPorLancamento(lancamento_excluir.getId_lancamento());
 							for(Parcela parcela : lista_parcelas) {
 								boolean remover_parcela = gerenciar.removerParcela(parcela.getId_parcela());
 								if(!remover_parcela) {
@@ -825,7 +868,7 @@ public class TelaFinanceiroLancamento extends JFrame {
 							}
 						if(prosseguir) {	
 							
-						boolean exclusao = new GerenciarBancoLancamento().removerLancamento(getLancamentoSelecionado().getId_lancamento());
+						boolean exclusao = new GerenciarBancoLancamento().removerLancamento(lancamento_excluir.getId_lancamento());
 						if(exclusao) {
 							JOptionPane.showMessageDialog(isto, "Cadastro Excluído");
 						}else {
@@ -836,11 +879,17 @@ public class TelaFinanceiroLancamento extends JFrame {
 						}
 
 						 pesquisar();
-			        }
-				
+						 
+						 
+			        }else {
+						JOptionPane.showMessageDialog(isto, "Para exclusão, selecione somente um lançamento por vez");
+
+					}
+					
+				}
 			}
 		});
-		panel_3.setLayout(new MigLayout("", "[63px][81px][61px][81px]", "[23px]"));
+		panel_3.setLayout(new MigLayout("", "[63px][81px][61px][81px]", "[23px][][]"));
 		panel_3.add(btnNewButton_4, "cell 0 0,alignx left,aligny top");
 		
 		JButton btnNewButton_3 = new JButton("Selecionar");
@@ -860,12 +909,80 @@ public class TelaFinanceiroLancamento extends JFrame {
 		btnNewButton_2.setForeground(Color.WHITE);
 		btnNewButton_2.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				TelaFinanceiroGerenciarLancamento tela = new TelaFinanceiroGerenciarLancamento(getLancamentoSelecionado(), isto);
+				
+			    ArrayList<Lancamento> lancamentos_selecionados = getLancamentosSelecionado();
+				
+			    if(lancamentos_selecionados.size() == 1) {
+			    	Lancamento lancamento_gerenciar = lancamentos_selecionados.get(0);
+				TelaFinanceiroGerenciarLancamento tela = new TelaFinanceiroGerenciarLancamento(lancamento_gerenciar, isto);
 				tela.setVisible(true);
+			    }else if (lancamentos_selecionados.size() > 1) {
+			    	boolean prosseguir = true;
+			    	for(Lancamento lancamento : lancamentos_selecionados) {
+			    		if(lancamento.getTipo_lancamento() != 0) {
+			    			prosseguir = false;
+			    			break;
+			    		}
+			    	}
+			    	
+			    	if(prosseguir) {
+			    		TelaFinanceiroGerenciarLancamentoMultiplo tela = new TelaFinanceiroGerenciarLancamentoMultiplo(lancamentos_selecionados, isto);
+						tela.setVisible(true);
+			    	}else {
+				    	JOptionPane.showMessageDialog(null, "Para gerenciar multiplos lançamentos,\ntodos devem ser do tipo 'Despesa' ");
+
+			    	}
+			    }
+			    
 			}
 		});
 		panel_3.add(btnNewButton_2, "cell 2 0,alignx left,aligny top");
 		panel_3.add(btnNewButton_1, "cell 3 0,alignx left,aligny top");
+		
+		JButton btnNewButton_1_1 = new JButton("Novo Empréstimo");
+		btnNewButton_1_1.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				TelaFinanceiroCadastroEmprestimo tela = new TelaFinanceiroCadastroEmprestimo(-1, null, isto);
+				tela.setVisible(true);
+			}
+		});
+		
+		JButton btnNewButton_3_1 = new JButton("Exportar");
+		btnNewButton_3_1.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				
+				ArrayList<Lancamento> lancamentos_selecionados = new ArrayList<>();
+				int linhas_selecionadas[] = tabela_lancamentos.getSelectedRows();// pega o indice da linha na tabela
+
+				for (int i = 0; i < linhas_selecionadas.length; i++) {
+
+					int indice = linhas_selecionadas[i];//
+					int indexRowModel = tabela_lancamentos.getRowSorter().convertRowIndexToModel(indice);
+
+					Lancamento lancamento = lista_lancamentos.get(indexRowModel);
+					lancamentos_selecionados.add(lancamento);
+				}
+
+				TelaEscolhaRelatorioLancamentos escolha_opcoes = new TelaEscolhaRelatorioLancamentos(lancamentos_selecionados,
+						isto);
+				escolha_opcoes.setVisible(true);
+
+			}
+		});
+		btnNewButton_3_1.setForeground(Color.WHITE);
+		btnNewButton_3_1.setFont(new Font("SansSerif", Font.BOLD, 16));
+		btnNewButton_3_1.setBackground(new Color(51, 0, 51));
+		panel_3.add(btnNewButton_3_1, "cell 1 1,growx");
+		btnNewButton_1_1.setForeground(Color.WHITE);
+		btnNewButton_1_1.setFont(new Font("SansSerif", Font.BOLD, 16));
+		btnNewButton_1_1.setBackground(new Color(0, 0, 102));
+		panel_3.add(btnNewButton_1_1, "cell 3 1");
+		
+		JButton btnNewButton_1_1_1 = new JButton("Nova Transferência");
+		btnNewButton_1_1_1.setForeground(Color.WHITE);
+		btnNewButton_1_1_1.setFont(new Font("SansSerif", Font.BOLD, 16));
+		btnNewButton_1_1_1.setBackground(new Color(204, 153, 0));
+		panel_3.add(btnNewButton_1_1_1, "cell 3 2");
 		
 		popular_centros_custo();
 		popular_instituicao_bancaria();
@@ -880,6 +997,13 @@ public class TelaFinanceiroLancamento extends JFrame {
 		pegarDatas();
 		}
 		calcular();
+		
+		
+		 cbCentroCusto.addItemListener(new ItemListener() {
+			 	public void itemStateChanged(ItemEvent e) {
+			 		filtrar();
+			 	}
+			 });
 		
 		this.setExtendedState(JFrame.MAXIMIZED_BOTH);
 		this.setResizable(true);
@@ -927,18 +1051,31 @@ public class TelaFinanceiroLancamento extends JFrame {
 public void filtrar() {
 		
 		ArrayList<RowFilter<Object, Object>> filters = new ArrayList<RowFilter<Object, Object>>(2);
-/*private final int id = 0;
+/*
+private final int id = 0;
 		private final int data = 1;
 		private final int tipo_lancamento = 2;
 		private final int prioridade = 3;
+	
 		private final int centro_custo = 4;
-		private final int instituicao_bancaria = 6;
+		private final int identificador_geral = 5;
+		private final int destinatario_nf = 6;
 		private final int cliente_fornecedor = 7;
 		private final int grupo_conta = 8;
 		private final int conta = 9;
 		private final int valor = 10;
-		private final int data_vencimento = 11;
-		private final int status = 12;
+		private final int valor_pago = 11;
+		private final int valor_a_pagar = 12;
+		private final int valor_proxima_parcela_a_vencer = 13;
+
+		private final int data_vencimento = 14;
+		private final int data_pagamento = 15;
+		private final int status = 16;
+		private final int situacao = 17;
+		private final int condicao_pagamento = 18;
+		private final int status_condicao_pagamento = 19;
+		private final int status_contador = 20;
+
 		*/
 		
 		  String data_inicial_filtrar_data_lancamento = menorDataLancamento.getText().replace(" ", "");
@@ -994,9 +1131,9 @@ public void filtrar() {
 			
 			Set<RowFilter<Object, Object>> datas = new HashSet<>();
 			datas.add(RowFilter.dateFilter(RowFilter.ComparisonType.AFTER,
-					data_menor, 11));
+					data_menor, 14));
 			datas.add(RowFilter.dateFilter(RowFilter.ComparisonType.EQUAL,
-					data_menor, 11));
+					data_menor, 14));
 			filters.add(RowFilter.orFilter(datas));
 	     
 		  //  filters.add( RowFilter.dateFilter(ComparisonType.AFTER, data_menor, 5) );
@@ -1006,9 +1143,9 @@ public void filtrar() {
 		   // filters.add( RowFilter.dateFilter(ComparisonType.EQUAL, data_maior, 5) );
 			Set<RowFilter<Object, Object>> datas_maior = new HashSet<>();
 			datas_maior.add(RowFilter.dateFilter(RowFilter.ComparisonType.BEFORE,
-					data_maior, 11));
+					data_maior, 14));
 			datas_maior.add(RowFilter.dateFilter(RowFilter.ComparisonType.EQUAL,
-					data_maior, 11));
+					data_maior, 14));
 			filters.add(RowFilter.orFilter(datas_maior));
 		 
 		 }
@@ -1096,7 +1233,28 @@ public void filtrar() {
 			if(checkString(entClienteFornecedor.getText())) {
 				s_cliente_servidor = entClienteFornecedor.getText().toUpperCase();
 				if(!(s_cliente_servidor.equalsIgnoreCase("TODOS")))
-				filters.add(RowFilter.regexFilter(s_cliente_servidor, 5));
+				filters.add(RowFilter.regexFilter(s_cliente_servidor, 7));
+			}
+		}
+		
+		
+
+		if(entIdentificadorGeral.getText() != null) {
+			String s_id_geral = "";
+			if(checkString(entIdentificadorGeral.getText())) {
+				s_id_geral = entIdentificadorGeral.getText().toUpperCase();
+				
+				filters.add(RowFilter.regexFilter(s_id_geral, 5));
+			}
+		}
+	
+		
+		if(entDestinatarioNF.getText() != null) {
+			String s_dest_nf = "";
+			if(checkString(entDestinatarioNF.getText())) {
+				s_dest_nf = entDestinatarioNF.getText().toUpperCase();
+				
+				filters.add(RowFilter.regexFilter(s_dest_nf, 6));
 			}
 		}
 	
@@ -1106,7 +1264,7 @@ public void filtrar() {
 		if(checkString(cbGrupoConta.getSelectedItem().toString())) {
 			s_grupo_contas = cbGrupoConta.getSelectedItem().toString();
 			if(!(s_grupo_contas.equalsIgnoreCase("TODOS")))
-			filters.add(RowFilter.regexFilter(s_grupo_contas, 6));
+			filters.add(RowFilter.regexFilter(s_grupo_contas, 8));
 
 		}
 		}
@@ -1117,7 +1275,7 @@ public void filtrar() {
 		if(checkString(cbConta.getSelectedItem().toString())) {
 			s_contas = cbConta.getSelectedItem().toString();
 			if(!(s_contas.equalsIgnoreCase("TODOS"))) {
-			filters.add(RowFilter.regexFilter(s_contas, 7));
+			filters.add(RowFilter.regexFilter(s_contas, 9));
 			}
 		}
 		}
@@ -1129,19 +1287,19 @@ public void filtrar() {
 		if(cbStatusLancamento.getSelectedIndex() == 1) {
 			s_tipo_conta = "A Pagar";
 			if (checkString(s_tipo_conta))
-				filters.add(RowFilter.regexFilter(s_tipo_conta, 13));
+				filters.add(RowFilter.regexFilter(s_tipo_conta, 16));
 		}else if(cbStatusLancamento.getSelectedIndex() == 2) {
 			s_tipo_conta = "Pago";
 			if (checkString(s_tipo_conta))
-				filters.add(RowFilter.regexFilter(s_tipo_conta, 13));
+				filters.add(RowFilter.regexFilter(s_tipo_conta, 16));
 		}else if(cbStatusLancamento.getSelectedIndex() == 3) {
 			s_tipo_conta = "A Receber";
 			if (checkString(s_tipo_conta))
-				filters.add(RowFilter.regexFilter(s_tipo_conta, 13));
+				filters.add(RowFilter.regexFilter(s_tipo_conta, 16));
 		}else if(cbStatusLancamento.getSelectedIndex() == 4) {
 			s_tipo_conta = "Recebido";
 			if (checkString(s_tipo_conta))
-				filters.add(RowFilter.regexFilter(s_tipo_conta, 13));
+				filters.add(RowFilter.regexFilter(s_tipo_conta, 16));
 		
 		}
 		
@@ -1150,7 +1308,7 @@ public void filtrar() {
 			if(checkString(cbSituacao.getSelectedItem().toString())) {
 				s_situacao = cbSituacao.getSelectedItem().toString();
 				if(!(s_situacao.equalsIgnoreCase("TODOS"))) {
-				filters.add(RowFilter.regexFilter(s_situacao, 14));
+				filters.add(RowFilter.regexFilter(s_situacao, 17));
 				}
 			}
 			}
@@ -1160,7 +1318,7 @@ public void filtrar() {
 			if(checkString(cbCondicaoPagamento.getSelectedItem().toString())) {
 				s_condicao = cbCondicaoPagamento.getSelectedItem().toString();
 				if(!(s_condicao.equalsIgnoreCase("TODOS"))) {
-				filters.add(RowFilter.regexFilter(s_condicao, 15));
+				filters.add(RowFilter.regexFilter(s_condicao, 18));
 				}
 			}
 			}
@@ -1170,9 +1328,22 @@ public void filtrar() {
 			if(checkString(cbStatusCondicaoPagamento.getSelectedItem().toString())) {
 				s_status_condicao = cbStatusCondicaoPagamento.getSelectedItem().toString();
 				if(!(s_status_condicao.equalsIgnoreCase("TODOS"))) {
-				filters.add(RowFilter.regexFilter(s_status_condicao, 16));
+				filters.add(RowFilter.regexFilter(s_status_condicao, 19));
 				}
 			}
+			
+			}
+		
+		
+		if( cbStatusAoContador.getSelectedItem().toString() != null) {
+			String s_status_contador = "";
+			if(checkString(cbStatusAoContador.getSelectedItem().toString())) {
+				s_status_contador = cbStatusAoContador.getSelectedItem().toString();
+				if(!(s_status_contador.equalsIgnoreCase("TODOS"))) {
+				filters.add(RowFilter.regexFilter(s_status_contador, 20));
+				}
+			}
+			
 			}
 		
 		
@@ -1280,31 +1451,40 @@ public boolean checkString(String txt) {
 		private final int data = 1;
 		private final int tipo_lancamento = 2;
 		private final int prioridade = 3;
+	
 		private final int centro_custo = 4;
-		private final int cliente_fornecedor = 5;
-		private final int grupo_conta = 6;
-		private final int conta = 7;
-		private final int valor = 8;
-		private final int valor_pago = 9;
-		private final int valor_a_pagar = 10;
-		private final int data_vencimento = 11;
-		private final int data_pagamento = 12;
-		private final int status = 13;
-		private final int situacao = 14;
-		private final int condicao_pagamento = 15;
-		private final int status_condicao_pagamento = 16;
+		private final int identificador_geral = 5;
+		private final int destinatario_nf = 6;
+		private final int cliente_fornecedor = 7;
+		private final int grupo_conta = 8;
+		private final int conta = 9;
+		private final int valor = 10;
+		private final int valor_pago = 11;
+		private final int valor_a_pagar = 12;
+		private final int valor_proxima_parcela_a_vencer = 13;
+
+		private final int data_vencimento = 14;
+		private final int data_pagamento = 15;
+		private final int status = 16;
+		private final int situacao = 17;
+		private final int condicao_pagamento = 18;
+		private final int status_condicao_pagamento = 19;
+		private final int status_contador = 20;
 
 		List<Color> rowColours = Arrays.asList(Color.RED, Color.GREEN, Color.CYAN);
 
-		private final String colunas[] = { "ID","Data Lançamento", "Tipo", "Prioridade", "Centro de Custo",
-				"Cliente/Fornecedor", "Grupo de Contas", "Conta", "Valor Total", "Valor Pago/Recebido", "Valor a Pagar/Receber", "Data Próximo Vencimento", "Data Último Pagamento","Status" , "Situação", "Condições de Pagamento", "Status Condição de Pagamento"};
+		private final String colunas[] = { "ID","Data Lançamento", "Tipo", "Prioridade", "Centro de Custo","Identificador Geral", "Destinatário da NF",
+				"Cliente/Fornecedor", "Grupo de Contas", "Conta", "Valor Total", "Valor Pago/Recebido", "Valor a Pagar/Receber","Valor a Vencer", "Data Próximo Vencimento", "Data Último Pagamento","Status" , "Situação", "Condições de Pagamento", "Status Condição de Pagamento","Status Contador"};
 		private final ArrayList<Lancamento> dados = new ArrayList<>();// usamos como dados uma lista genérica de
 																			// nfs
 		private GerenciarBancoCondicaoPagamentos gerenciar  = null;
-		private ArrayList<CondicaoPagamento> lista_condicoes = null;
+		private ArrayList<CondicaoPagamento> lista_condicoes = null;			
+		Locale ptBr = new Locale("pt", "BR");
+
 		public LancamentoTableModel() {
 			
 			 gerenciar = new GerenciarBancoCondicaoPagamentos();
+			 
 			 lista_condicoes = gerenciar.getCondicaoPagamentos();
 
 		}
@@ -1335,7 +1515,10 @@ public boolean checkString(String txt) {
 				return String.class;
 			case centro_custo:
 				return String.class;
-		
+			case identificador_geral:
+				return String.class;
+			case destinatario_nf:
+				return String.class;
 			case cliente_fornecedor:
 				return String.class;
 			case grupo_conta:
@@ -1348,6 +1531,8 @@ public boolean checkString(String txt) {
 				return String.class;
 			case valor_a_pagar:
 				return String.class;
+			case valor_proxima_parcela_a_vencer:
+				return String.class;
 			case data_vencimento:
 				return Date.class;
 			case data_pagamento:
@@ -1359,6 +1544,8 @@ public boolean checkString(String txt) {
 			case condicao_pagamento:
 				return String.class;
 			case status_condicao_pagamento:
+				return String.class;
+			case status_contador:
 				return String.class;
 	
 			default:
@@ -1384,6 +1571,9 @@ public boolean checkString(String txt) {
 					return "DESPESAS";
 				}else if(dado.getTipo_lancamento() == 1) {
 					return "RECEITAS";
+				}else if(dado.getTipo_lancamento() == 3) {
+					return "EMPRESTIMOS";
+
 				}
 			}
 			case prioridade:{
@@ -1415,11 +1605,26 @@ public boolean checkString(String txt) {
 				
 			}
 			case centro_custo:{
+				if(dado.getNome_centro_custo() != null)
 					return dado.getNome_centro_custo();
+				else
+					return "INDEFINIDO";
+			}
+			
+			case identificador_geral:{
+				return (dado.getIdentificacao() != null) ? dado.getIdentificacao().toUpperCase() : "";
+
+			}
+			case destinatario_nf:{
+				return (dado.getNome_destinatario_nf() != null) ? dado.getNome_destinatario_nf().toUpperCase() : "";
+				
 			}
 		
 			case cliente_fornecedor:{
-				return dado.getNome_cliente_fornecedor();
+				if(dado.getNome_cliente_fornecedor() != null)
+				return dado.getNome_cliente_fornecedor().toUpperCase();
+				else
+					return "INDEFINIDO";
 			}
 			case grupo_conta:{
 				return dado.getNome_grupo_contas();
@@ -1429,22 +1634,31 @@ public boolean checkString(String txt) {
 			}
 		
 			case valor:{
-				Locale ptBr = new Locale("pt", "BR");
 				String valorString = NumberFormat.getCurrencyInstance(ptBr).format(dado.getValor());
 				return valorString;
 				
 			}
 			case valor_pago:{
-				Locale ptBr = new Locale("pt", "BR");
 				String valorString = NumberFormat.getCurrencyInstance(ptBr).format(dado.getValor_ja_pago());
 				return valorString;
 				
 			}
 			case valor_a_pagar:{
-				Locale ptBr = new Locale("pt", "BR");
 				String valorString = NumberFormat.getCurrencyInstance(ptBr).format(dado.getValor().subtract(dado.getValor_ja_pago()));
 				return valorString;
 				
+			}
+			case valor_proxima_parcela_a_vencer:{
+				
+				
+				BigDecimal valor_a_pagar = dado.getValor().subtract(dado.getValor_ja_pago()); 
+				if(dado.getValor_proximo_pagamento_a_vencer().compareTo(valor_a_pagar) > 0) {
+					String valorString = NumberFormat.getCurrencyInstance(ptBr).format(dado.getValor().subtract(dado.getValor_ja_pago()));
+					return valorString;
+				}else {
+				String valorString = NumberFormat.getCurrencyInstance(ptBr).format(dado.getValor_proximo_pagamento_a_vencer());
+				return valorString;
+				}
 			}
 			case data_vencimento:{
 				Date data_menor;
@@ -1489,7 +1703,7 @@ public boolean checkString(String txt) {
 				}
 			}
 			case situacao:{
-
+				try {
 				//data hoje
 				LocalDate hoje = LocalDate.now();
 				
@@ -1500,21 +1714,30 @@ public boolean checkString(String txt) {
 					SimpleDateFormat formato = new SimpleDateFormat("dd/MM/yyyy"); 
 					data_vencimento = formato.parse(dado.getData_vencimento());
 
-				} catch (Exception e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}					
-				try {
-				LocalDate ld_data_vencimento = data_vencimento.toInstant().atZone( ZoneId.systemDefault() ).toLocalDate();
-				
-				if(ld_data_vencimento.isAfter(hoje)) {
-					return "Em dias";
-				}else {
-					return "Atrazado";
+					try {
+						LocalDate ld_data_vencimento = data_vencimento.toInstant().atZone( ZoneId.systemDefault() ).toLocalDate();
+						
+						if(ld_data_vencimento.isAfter(hoje)) {
+							return "Em dias";
+						}else {
+							return "Atrazado";
+							
+						}
+						}catch(Exception e) {
+							return "Datas Invalidas";
+						}
 					
-				}
+				} catch (NullPointerException e ) {
+					return "Datas Invalidas";
+
+				}	catch (Exception e ) {
+					return "Datas Invalidas";
+
+				}					
+				
 				}catch(Exception e) {
 					return "Datas Invalidas";
+
 				}
 			}
 			case condicao_pagamento:{
@@ -1569,6 +1792,19 @@ public boolean checkString(String txt) {
 					return "";
 				}
 				
+			}
+			case status_contador:{
+				int status = dado.getContador();
+			
+				if(status == 0) {
+					return "Não se aplica".toUpperCase();
+				}else if(status == 1) {
+					return "Não Enviado ao contador".toUpperCase();
+
+				}else if(status == 2) {
+					return "Enviado ao contador".toUpperCase();
+				}
+
 			}
 			default:
 				throw new IndexOutOfBoundsException("Coluna Inválida!!!");
@@ -1667,13 +1903,22 @@ public boolean checkString(String txt) {
 		}
 	}
 	
-	public Lancamento getLancamentoSelecionado() {
-		int indiceDaLinha = tabela_lancamentos.getSelectedRow();
-
-		int id_selecionado = Integer.parseInt(tabela_lancamentos.getValueAt(indiceDaLinha, 0).toString());
-		GerenciarBancoLancamento gerenciar_cont = new GerenciarBancoLancamento();
-		return gerenciar_cont.getLancamento(id_selecionado);
+	public ArrayList<Lancamento> getLancamentosSelecionado() {
 		
+		
+		
+		ArrayList<Lancamento> lancamentos_selecionados = new ArrayList<>();
+			int linhas_selecionadas[] = tabela_lancamentos.getSelectedRows();//pega o indice da linha na tabela
+			
+			for(int i = 0; i < linhas_selecionadas.length; i++) {
+				
+				int indice = tabela_lancamentos.getRowSorter().convertRowIndexToModel(linhas_selecionadas[i]);//converte pro indice do model				
+					Lancamento lancamento_selecionado = lista_lancamentos.get(indice);
+					lancamentos_selecionados.add(lancamento_selecionado);
+			}
+			
+			
+		return lancamentos_selecionados;
 	}
 	
 	public void setTelaPai(JDialog _telaPai) {
@@ -1781,7 +2026,8 @@ public boolean checkString(String txt) {
 	        }
 
 			int status = -1;
-			String s_status = (String) table.getValueAt(row, 13);
+			
+			String s_status = (String) table.getValueAt(row, 16);
 			if(s_status.equalsIgnoreCase("A Pagar")) {
 				status = 0;
 			}else if(s_status.equalsIgnoreCase("Pago")) {

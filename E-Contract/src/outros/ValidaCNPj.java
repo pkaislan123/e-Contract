@@ -2,7 +2,7 @@ package outros;
 
 import java.util.InputMismatchException;
 
-public class ValidaCNPJ {
+public class ValidaCNPj {
  
   public static boolean isCNPJ(String CNPJ) {
 // considera-se erro CNPJ's formados por uma sequencia de numeros iguais

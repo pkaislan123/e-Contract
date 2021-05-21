@@ -4,6 +4,7 @@ package main.java.principal;
 import java.applet.Applet;
 import java.applet.AudioClip;
 import java.awt.Font;
+import java.awt.HeadlessException;
 import java.awt.event.WindowEvent;
 import java.io.File;
 import java.io.IOException;
@@ -11,11 +12,14 @@ import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.text.ParseException;
 import java.util.ArrayList;
 
 import javax.swing.UIManager;
 import javax.swing.UIManager.LookAndFeelInfo;
+
 import javax.swing.UnsupportedLookAndFeelException;
+import javax.swing.text.MaskFormatter;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
@@ -36,12 +40,8 @@ import javax.sound.sampled.*;
 
 public class Main {
 
-	
-	
-	
 	public static void main(String[] args) {
 	
-	 
 		
 		
 	  String start = "";

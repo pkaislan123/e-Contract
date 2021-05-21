@@ -2,10 +2,14 @@ package main.java.graficos;
 import org.jfree.chart.ChartPanel;
 
 import java.awt.Color;
+import java.text.DecimalFormat;
 
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.JFreeChart;
+import org.jfree.chart.labels.StandardCategoryItemLabelGenerator;
+import org.jfree.chart.labels.StandardPieSectionLabelGenerator;
 import org.jfree.chart.plot.CategoryPlot;
+import org.jfree.chart.plot.PiePlot;
 import org.jfree.chart.plot.PlotOrientation;
 import org.jfree.chart.renderer.category.LineAndShapeRenderer;
 import org.jfree.chart.ui.ApplicationFrame;
@@ -18,21 +22,36 @@ public class GraficoLinha {
 
 	}
 
-	public ChartPanel getGraficoLinha(int x, int y, String periodo) {
+	public ChartPanel getGraficoLinha(int x, int y, String periodo, String titulo, String legenda_vertical) {
 
 		
-		JFreeChart lineChart = ChartFactory.createLineChart("", periodo, "Quantidade de Sacos", dataSetGlobal,
-				PlotOrientation.VERTICAL, true, true, false);
+		JFreeChart lineChart = ChartFactory.createLineChart(titulo, periodo, legenda_vertical, dataSetGlobal,
+				PlotOrientation.VERTICAL, true, true, true);
 
 		ChartPanel chartPanel = new ChartPanel(lineChart);
 	
 		CategoryPlot plot = lineChart.getCategoryPlot();
-		LineAndShapeRenderer renderer = new LineAndShapeRenderer();
+        LineAndShapeRenderer renderer = (LineAndShapeRenderer) plot.getRenderer();
+       
+        DecimalFormat decimalformat1 = new DecimalFormat("##");
+        renderer.setDefaultItemLabelGenerator(new StandardCategoryItemLabelGenerator("{2}", decimalformat1));
+
+        renderer.setDefaultItemLabelsVisible(true);
+        renderer.setDefaultSeriesVisible(true);
+
 		plot.setRenderer(renderer);
+		plot.setBackgroundPaint(Color.white);
+
+		 
+		//Define the format to the value to the draw
+	
+		        
 		chartPanel.setPreferredSize(new java.awt.Dimension(x, y));
 		chartPanel.setBackground(Color.white);
 		chartPanel.setBounds(0, 0, x+100, y+100);
-
+		
+		
+		
 		return chartPanel;
 	}
 	
@@ -42,20 +61,6 @@ public class GraficoLinha {
 		
 	}
 
-	private DefaultCategoryDataset createDataset() {
-		DefaultCategoryDataset dataset = new DefaultCategoryDataset();
-		
-		
-		
-		
-		dataset.addValue(15, "schools", "1970");
-		dataset.addValue(30, "schools", "1980");
-		dataset.addValue(60, "schools", "1990");
-		dataset.addValue(120, "schools", "2000");
-		dataset.addValue(240, "schools", "2010");
-		dataset.addValue(300, "schools", "2014");
-		return dataset;
-	}
 	
 	
 	

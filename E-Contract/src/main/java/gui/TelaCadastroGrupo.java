@@ -225,7 +225,7 @@ public class TelaCadastroGrupo extends JDialog {
 		 		}
 		 		}
 		 		
-		 		((TelaCliente) telaPai).atualizarTabelaGrupos();
+		 		((TelaCliente) janela_pai).atualizarTabelaGrupos();
 		 		isto.dispose();
 
 

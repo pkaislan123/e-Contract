@@ -125,7 +125,7 @@ import main.java.views_personalizadas.TelaNotificacao;
 import main.java.views_personalizadas.TelaNotificacaoSuperior;
 import main.java.views_personalizadas.TelaNotificacaoSuperiorModoBusca;
 import net.miginfocom.swing.MigLayout;
-import outros.ValidaCNPJ;
+import outros.ValidaCNPj;
 import main.java.cadastros.CadastroLogin;
 import main.java.cadastros.CadastroNuvem;
 import main.java.cadastros.CadastroPontuacao;
@@ -268,6 +268,15 @@ public class TelaFinanceiroInstituicaoBancaria extends JDialog {
 				if(modo_operacao == 0) {
 					if(retorno_tela == 1) {
 						((TelaFinanceiroCadastroPagamento) janela_pai).setInstituicaoBancaria(getIBSelecionado());
+						isto.dispose();
+					}else if(retorno_tela == 2) {
+						if(janela_pai instanceof TelaFinanceiroCadastroPagamento) {
+							((TelaFinanceiroCadastroPagamento) janela_pai).setInstituicaoBancariaRecebedora(getIBSelecionado());
+
+						}else if(janela_pai instanceof TelaFinanceiroCadastroPagamentoEmprestimo) {
+							((TelaFinanceiroCadastroPagamentoEmprestimo) janela_pai).setInstituicaoBancariaRecebedora(getIBSelecionado());
+
+						}
 						isto.dispose();
 					}
 				}

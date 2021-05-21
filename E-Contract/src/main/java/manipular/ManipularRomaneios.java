@@ -931,7 +931,13 @@ public class ManipularRomaneios {
 			} catch (Exception u) {
 				// JOptionPane.showMessageDialog(null, "Umidade não encontrada, possivel
 				// romaneio de transferencia");
-				operacao = "ENTRADA TRANSFERENCIA";
+				if(romaneio.getOperacao().equalsIgnoreCase("ENTRADA NORMAL")) {
+					operacao = "ENTRADA TRANSFERENCIA";
+
+				}else if(romaneio.getOperacao().equalsIgnoreCase("SAÍDA NORMAL")) {
+					operacao = "SAÍDA TRANSFERENCIA";
+					
+				}
 				romaneio.setOperacao(operacao);
 				desconto_umidade = 0;
 				romaneio.setPeso_desconto_umidade(desconto_umidade);

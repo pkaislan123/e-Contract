@@ -145,7 +145,6 @@ import main.java.views_personalizadas.TelaNotificacao;
 import main.java.views_personalizadas.TelaNotificacaoSuperior;
 import main.java.views_personalizadas.TelaNotificacaoSuperiorModoBusca;
 import net.miginfocom.swing.MigLayout;
-import outros.ValidaCNPJ;
 import main.java.cadastros.CadastroLogin;
 import main.java.cadastros.CadastroNuvem;
 import main.java.cadastros.CadastroPontuacao;
@@ -1125,12 +1124,16 @@ public class TelaMonitoria extends JFrame {
 												rom.getAvariados() + "%", dateFormat.format(rom.getData()) });
 										num_descargas++;
 
+										total_sacos_descarga = total_sacos_descarga + (d_peso_liquido / 60);
+										total_kg_descarga = total_kg_descarga + d_peso_liquido;
+								
+										if(rom.getUmidade() > 0 && rom.getInpureza() > 0 ) {
+
 										umidade_media = umidade_media + rom.getUmidade();
 										avariados_media = avariados_media + rom.getAvariados();
 										impureza_media = impureza_media + rom.getInpureza();
-										total_sacos_descarga = total_sacos_descarga + (d_peso_liquido / 60);
-										total_kg_descarga = total_kg_descarga + d_peso_liquido;
-									} else {
+										}
+										} else {
 
 										if (rom.getSafra().getId_safra() == safra_selecionada.getId_safra()) {
 
@@ -1145,12 +1148,16 @@ public class TelaMonitoria extends JFrame {
 
 											num_descargas++;
 
+											total_sacos_descarga = total_sacos_descarga + (d_peso_liquido / 60);
+											total_kg_descarga = total_kg_descarga + d_peso_liquido;
+									
+											if(rom.getUmidade() > 0 && rom.getInpureza() > 0 ) {
+
 											umidade_media = umidade_media + rom.getUmidade();
 											avariados_media = avariados_media + rom.getAvariados();
 											impureza_media = impureza_media + rom.getInpureza();
-											total_sacos_descarga = total_sacos_descarga + (d_peso_liquido / 60);
-											total_kg_descarga = total_kg_descarga + d_peso_liquido;
-										}
+											}	
+											}
 
 									}
 								} else if (rom.getOperacao().equalsIgnoreCase("SAÍDA NORMAL") || rom.getOperacao().equalsIgnoreCase("SAÍDA QUEBRA TECNICA") && chkboxQuebraTecnica.isSelected() ) {
@@ -1165,14 +1172,17 @@ public class TelaMonitoria extends JFrame {
 												rom.getInpureza() + "%", rom.getAvariados() + "%",
 												dateFormat.format(rom.getData()) });
 
+										total_sacos_carga = total_sacos_carga + (d_peso_liquido / 60);
+										total_kg_carga = total_kg_carga + d_peso_liquido;
+								
+										if(rom.getUmidade() > 0 && rom.getInpureza() > 0 ) {
+
 										umidade_media_saida = umidade_media_saida + rom.getUmidade();
 										avariados_media_carregamento = avariados_media_carregamento
 												+ rom.getAvariados();
 										impureza_media_carregamento = impureza_media_carregamento + rom.getInpureza();
-
-										total_sacos_carga = total_sacos_carga + (d_peso_liquido / 60);
-										total_kg_carga = total_kg_carga + d_peso_liquido;
-									} else {
+										}
+										} else {
 										if (rom.getSafra().getId_safra() == safra_selecionada.getId_safra()) {
 											modelo_romaneios_saida.addRow(
 													new Object[] { nome_remetente_completo, safra, d_peso_liquido });
@@ -1183,14 +1193,18 @@ public class TelaMonitoria extends JFrame {
 													rom.getUmidade() + "%", rom.getInpureza() + "%",
 													rom.getAvariados() + "%", dateFormat.format(rom.getData()) });
 
-											umidade_media_saida = umidade_media_saida + rom.getUmidade();
-
 											total_sacos_carga = total_sacos_carga + (d_peso_liquido / 60);
 											total_kg_carga = total_kg_carga + d_peso_liquido;
+											
+											if(rom.getUmidade() > 0 && rom.getInpureza() > 0 ) {
+
+											umidade_media_saida = umidade_media_saida + rom.getUmidade();
+
 											avariados_media_carregamento = avariados_media_carregamento
 													+ rom.getAvariados();
 											impureza_media_carregamento = impureza_media_carregamento
 													+ rom.getInpureza();
+											}
 										}
 
 									}
@@ -1210,12 +1224,16 @@ public class TelaMonitoria extends JFrame {
 
 									num_descargas++;
 
+									total_sacos_descarga = total_sacos_descarga + (d_peso_liquido / 60);
+									total_kg_descarga = total_kg_descarga + d_peso_liquido;
+							
+									if(rom.getUmidade() > 0 && rom.getInpureza() > 0 ) {
+
 									umidade_media = umidade_media + rom.getUmidade();
 									avariados_media = avariados_media + rom.getAvariados();
 									impureza_media = impureza_media + rom.getInpureza();
-									total_sacos_descarga = total_sacos_descarga + (d_peso_liquido / 60);
-									total_kg_descarga = total_kg_descarga + d_peso_liquido;
-								} else {
+									}
+									} else {
 
 									if (rom.getSafra().getId_safra() == safra_selecionada.getId_safra()) {
 
@@ -1228,12 +1246,15 @@ public class TelaMonitoria extends JFrame {
 												rom.getAvariados() + "%", dateFormat.format(rom.getData()) });
 
 										num_descargas++;
+										total_sacos_descarga = total_sacos_descarga + (d_peso_liquido / 60);
+										total_kg_descarga = total_kg_descarga + d_peso_liquido;
+									
+										if(rom.getUmidade() > 0 && rom.getInpureza() > 0 ) {
 
 										umidade_media = umidade_media + rom.getUmidade();
 										avariados_media = avariados_media + rom.getAvariados();
 										impureza_media = impureza_media + rom.getInpureza();
-										total_sacos_descarga = total_sacos_descarga + (d_peso_liquido / 60);
-										total_kg_descarga = total_kg_descarga + d_peso_liquido;
+									}	
 									}
 
 								}
@@ -1249,12 +1270,17 @@ public class TelaMonitoria extends JFrame {
 
 									num_cargas++;
 
-									umidade_media_saida = umidade_media_saida + rom.getUmidade();
 									total_sacos_carga = total_sacos_carga + (d_peso_liquido / 60);
 									total_kg_carga = total_kg_carga + d_peso_liquido;
+									if(rom.getUmidade() > 0 && rom.getInpureza() > 0 ) {
+
+									umidade_media_saida = umidade_media_saida + rom.getUmidade();
+
 									avariados_media_carregamento = avariados_media_carregamento + rom.getAvariados();
+									
 									impureza_media_carregamento = impureza_media_carregamento + rom.getInpureza();
-								} else {
+									}
+									} else {
 									if (rom.getSafra().getId_safra() == safra_selecionada.getId_safra()) {
 										modelo_romaneios_saida.addRow(
 												new Object[] { nome_remetente_completo, safra, d_peso_liquido });
@@ -1266,18 +1292,28 @@ public class TelaMonitoria extends JFrame {
 
 										num_cargas++;
 
-										umidade_media_saida = umidade_media_saida + rom.getUmidade();
+										
+										
 										total_sacos_carga = total_sacos_carga + (d_peso_liquido / 60);
 										total_kg_carga = total_kg_carga + d_peso_liquido;
+
+										if(rom.getUmidade() > 0 && rom.getInpureza() > 0 ) {
+											
+										
+										umidade_media_saida = umidade_media_saida + rom.getUmidade();
+
 										avariados_media_carregamento = avariados_media_carregamento
 												+ rom.getAvariados();
 										impureza_media_carregamento = impureza_media_carregamento + rom.getInpureza();
-									}
+										}
+										}
 
 								}
 							}
 
 						}
+						
+						
 						romaneios_locais.add(rom);
 
 					}

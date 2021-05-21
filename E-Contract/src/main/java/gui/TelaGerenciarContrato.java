@@ -194,7 +194,7 @@ import main.java.views_personalizadas.TelaNotificacao;
 import main.java.views_personalizadas.TelaNotificacaoSuperior;
 import main.java.views_personalizadas.TelaNotificacaoSuperiorModoBusca;
 import net.miginfocom.swing.MigLayout;
-import outros.ValidaCNPJ;
+import outros.ValidaCNPj;
 import main.java.cadastros.CadastroLogin;
 import main.java.cadastros.CadastroNuvem;
 import main.java.cadastros.CadastroPontuacao;
@@ -1539,7 +1539,7 @@ public class TelaGerenciarContrato extends JFrame {
 
 				String descricao = table_recebimentos.getValueAt(rowSel, 2).toString();
 				int tipo = contrato_local.getSub_contrato();
-				if(descricao.equalsIgnoreCase("Replica") && tipo != 0 || tipo != 3 || tipo != 4 || tipo != 5) {
+				if(descricao.equalsIgnoreCase("Replica") && (tipo != 0 || tipo != 3 || tipo != 5 ||  tipo != 4)) {
 					JOptionPane.showMessageDialog(null, "Edite a replica no contrato de origem");
 				}else {
 				
@@ -10292,7 +10292,7 @@ public class TelaGerenciarContrato extends JFrame {
 			valor_total_diferenca_contratos = 0;
 
 		} else {
-			valor_total_diferenca_contratos = valor_total_contrato_original - valor_total_sub_contratos;
+			valor_total_diferenca_contratos = valor_total_sub_contratos  - valor_total_contrato_original;
 
 		}
 
@@ -10751,72 +10751,7 @@ public class TelaGerenciarContrato extends JFrame {
 		jPopupMenuTabelPagamentos.add(jMenuItemReplicarPagamento);
 	}
 
-	/*
-	 * public void setMenuCarregamento() { jPopupMenuTabelCarregamento = new
-	 * JPopupMenu(); JMenuItem jMenuItemInserirComprovante = new JMenuItem();
-	 * JMenuItem jMenuItemVizualizarNFAe = new JMenuItem(); //JMenuItem
-	 * jMenuItemReplicarCarregamento = new JMenuItem();
-	 * 
-	 * 
-	 * jMenuItemInserirComprovante.setText("Inserir Comprovante");
-	 * jMenuItemVizualizarNFAe.setText("Vizualizar NFA-e");
-	 * //jMenuItemReplicarCarregamento.setText("Replicar");
-	 * 
-	 * jMenuItemInserirComprovante.addActionListener(new
-	 * java.awt.event.ActionListener() { // Importe a classe
-	 * java.awt.event.ActionEvent public void actionPerformed(ActionEvent e) { int
-	 * index = table_carregamento.getSelectedRow(); String id =
-	 * table_carregamento.getValueAt(index, 0).toString();
-	 * 
-	 * importarComprovanteCarregamento(Integer.parseInt(id)); } });
-	 * 
-	 * jMenuItemReplicarCarregamento.addActionListener(new
-	 * java.awt.event.ActionListener() { // Importe a classe
-	 * java.awt.event.ActionEvent public void actionPerformed(ActionEvent e) {
-	 * 
-	 * if (contrato_local.getSub_contrato() != 1) { int index =
-	 * table_carregamento.getSelectedRow(); String id =
-	 * table_carregamento.getValueAt(index, 0).toString();
-	 * 
-	 * GerenciarBancoContratos gerenciar = new GerenciarBancoContratos();
-	 * CadastroContrato.Carregamento carregamento =
-	 * gerenciar.getCarregamento(Integer.parseInt(id));
-	 * 
-	 * if (carregamento != null) { TelaReplicarCarregamento replicar = new
-	 * TelaReplicarCarregamento(contrato_local, carregamento, isto);
-	 * replicar.setTelaPai(isto); replicar.setVisible(true);
-	 * 
-	 * } else { JOptionPane.showMessageDialog(isto,
-	 * "Erro ao consultar este carregamento!\nConsulte o administrador do sistema!"
-	 * ); }
-	 * 
-	 * } else { JOptionPane.showMessageDialog(isto,
-	 * "Não é possivel replicar um carregamento apartir de um sub-contrato");
-	 * 
-	 * } } });
-	 * 
-	 * 
-	 * jMenuItemVizualizarNFAe.addActionListener(new java.awt.event.ActionListener()
-	 * { // Importe a classe java.awt.event.ActionEvent public void
-	 * actionPerformed(ActionEvent e) { int index =
-	 * table_carregamento.getSelectedRow(); String id =
-	 * table_carregamento.getValueAt(index, 0).toString(); String caminho_nota =
-	 * table_carregamento.getValueAt(index, 12).toString(); String
-	 * unidade_base_dados = configs_globais.getServidorUnidade(); String
-	 * caminho_abrir = unidade_base_dados + "\\" + caminho_nota;
-	 * 
-	 * if (Desktop.isDesktopSupported()) { try { Desktop desktop =
-	 * Desktop.getDesktop(); File myFile = new File(caminho_abrir);
-	 * desktop.open(myFile); } catch (IOException ex) { } }
-	 * 
-	 * } });
-	 * 
-	 * jPopupMenuTabelCarregamento.add(jMenuItemInserirComprovante);
-	 * jPopupMenuTabelCarregamento.add(jMenuItemVizualizarNFAe);
-	 * //jPopupMenuTabelCarregamento.add(jMenuItemReplicarCarregamento);
-	 * 
-	 * }
-	 */
+	
 
 	public void setMenuCarregamento() {
 		jPopupMenuTabelCarregamento = new JPopupMenu();
@@ -12686,4 +12621,5 @@ public class TelaGerenciarContrato extends JFrame {
 
 	}
 
+	
 }

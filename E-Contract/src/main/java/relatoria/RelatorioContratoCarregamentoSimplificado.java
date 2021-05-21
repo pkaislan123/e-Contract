@@ -149,7 +149,7 @@ import main.java.views_personalizadas.TelaEmEspera;
 import main.java.views_personalizadas.TelaNotificacao;
 import main.java.views_personalizadas.TelaNotificacaoSuperior;
 import main.java.views_personalizadas.TelaNotificacaoSuperiorModoBusca;
-import outros.ValidaCNPJ;
+import outros.ValidaCNPj;
 import main.java.cadastros.CadastroLogin;
 import main.java.cadastros.CadastroNuvem;
 import main.java.cadastros.CadastroZapMessenger;
@@ -530,8 +530,10 @@ public class RelatorioContratoCarregamentoSimplificado {
 					
 					ArrayList<RegistroQuantidade> quantidades_carregadas = gerenciar.getQuantidadesCarregadas(id_safra, cliente.getId(), contra_parte.getId(),1);
 					ArrayList<RegistroRecebimento> quantidades_recebidas = gerenciar.getRecebidas(id_safra, cliente.getId(),contra_parte.getId(),1);
-					
-					criarTabelaInformacoes(quantidades_recebidas, quantidades_carregadas);
+					ArrayList<RegistroQuantidade> quantidades_trans_negativa = gerenciar.getQuantidadesTransNegativa(id_safra, cliente.getId(), contra_parte.getId(),1);
+					ArrayList<RegistroQuantidade> quantidades_trans_positiva = gerenciar.getQuantidadesTransPositiva(id_safra, cliente.getId(), contra_parte.getId(),1);
+
+					criarTabelaInformacoes(quantidades_recebidas, quantidades_carregadas,quantidades_trans_negativa,quantidades_trans_positiva);
                   /*
 					for(int i = 0; i < quantidades_totais.size(); i++) {ades_totais.get(i).getComprador() + " "+
 								"Vendedor: " + quantidades_totais
@@ -550,10 +552,12 @@ public class RelatorioContratoCarregamentoSimplificado {
 	GerenciarBancoContratos gerenciar = new GerenciarBancoContratos();
 					
 					
-					ArrayList<RegistroQuantidade> quantidades_carregadas = gerenciar.getQuantidades(id_safra, cliente.getId(),contra_parte.getId(),2);
-					ArrayList<RegistroRecebimento> quantidades_recebidas = gerenciar.getRecebidas(id_safra, cliente.getId(),contra_parte.getId(),2);
-					
-					criarTabelaInformacoes(quantidades_recebidas, quantidades_carregadas );
+	ArrayList<RegistroQuantidade> quantidades_carregadas = gerenciar.getQuantidadesCarregadas(id_safra, cliente.getId(), contra_parte.getId(),1);
+	ArrayList<RegistroRecebimento> quantidades_recebidas = gerenciar.getRecebidas(id_safra, cliente.getId(),contra_parte.getId(),1);
+	ArrayList<RegistroQuantidade> quantidades_trans_negativa = gerenciar.getQuantidadesTransNegativa(id_safra, cliente.getId(), contra_parte.getId(),1);
+	ArrayList<RegistroQuantidade> quantidades_trans_positiva = gerenciar.getQuantidadesTransPositiva(id_safra, cliente.getId(), contra_parte.getId(),1);
+
+	criarTabelaInformacoes(quantidades_recebidas, quantidades_carregadas,quantidades_trans_negativa,quantidades_trans_positiva);
                   /*
 					for(int i = 0; i < quantidades_totais.size(); i++) {
 						
@@ -659,7 +663,7 @@ public class RelatorioContratoCarregamentoSimplificado {
 		spacing.setLine(BigInteger.valueOf(240));
 	}
 
-	public void criarTabelaInformacoes( ArrayList<RegistroRecebimento> quantidades_recebidas, ArrayList<RegistroQuantidade> quantidades_totais ) {
+	public void criarTabelaInformacoes( ArrayList<RegistroRecebimento> quantidades_recebidas, ArrayList<RegistroQuantidade> quantidades_totais , ArrayList<RegistroQuantidade> quantidades_trans_negativa, ArrayList<RegistroQuantidade> quantidades_trans_positiva) {
 	
 
 		NumberFormat z = NumberFormat.getNumberInstance();
@@ -723,7 +727,11 @@ public class RelatorioContratoCarregamentoSimplificado {
 			String vendedor = quantidades_totais.get(J).getVendedor();
 			double quantidade_carregada =  quantidades_totais.get(J).getTotal() ;
 			double quantidade_recebida =  quantidades_recebidas.get(J).getQuantidade_recebida();
-			double restante = quantidade_carregada - quantidade_recebida;
+			double quantidade_trans_negativa = quantidades_trans_negativa.get(J).getTotal();
+			double quantidade_trans_positiva = quantidades_trans_positiva.get(J).getTotal();
+			double quantidade_final = quantidade_carregada - quantidade_trans_negativa + quantidade_trans_positiva;
+
+			double restante = quantidade_recebida - quantidade_final ;
 			
 			tableRowOne = table.getRow(i);
 			tableRowOne.getCell(0).removeParagraph(0);
@@ -745,8 +753,8 @@ public class RelatorioContratoCarregamentoSimplificado {
 			tableRowOne = table.getRow(i);
 			tableRowOne.getCell(3).removeParagraph(0);
 			paragraph = tableRowOne.getCell(3).addParagraph();
-			criarParagrafoTabela(paragraph,  z.format(quantidade_carregada)  + " sacos", false);
-			somatoria_quantidade_total += quantidade_carregada;
+			criarParagrafoTabela(paragraph,  z.format(quantidade_final)  + " sacos", false);
+			somatoria_quantidade_total += quantidade_final;
 
 
 			tableRowOne = table.getRow(i);
@@ -761,17 +769,17 @@ public class RelatorioContratoCarregamentoSimplificado {
 			tableRowOne.getCell(5).removeParagraph(0);
 			paragraph = tableRowOne.getCell(5).addParagraph();
 			
-			if(restante == 0 || restante == -0 || ((int) restante) == 0 || ((int) quantidade_carregada ) >= ((int) quantidade_recebida)) {
+			if(restante == 0 || restante == -0 || ((int) restante) == 0 || ((int) quantidade_final ) >= ((int) quantidade_recebida)) {
 				criarParagrafoTabela(paragraph, "FINALIZADO", false);
 				tableRowOne.getCell(5).getCTTc().addNewTcPr().addNewShd().setFill("2F4F4F");
 
 				quantidade_clientes_finalizado++;
 			}
-			else if(quantidade_carregada == 0) {
+			else if(quantidade_final == 0) {
 				criarParagrafoTabela(paragraph,"PENDENTE", false);
 				tableRowOne.getCell(5).getCTTc().addNewTcPr().addNewShd().setFill("A0522D");
 				quantidade_clientes_pendente++;
-			}else if(quantidade_carregada > 0 && quantidade_carregada  < quantidade_recebida) {
+			}else if(quantidade_final > 0 && quantidade_final  < quantidade_recebida) {
 				criarParagrafoTabela(paragraph, "ENTREGANDO", false);
 				tableRowOne.getCell(5).getCTTc().addNewTcPr().addNewShd().setFill("ADFF2F");
 

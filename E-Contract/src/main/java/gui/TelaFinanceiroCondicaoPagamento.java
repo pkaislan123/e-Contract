@@ -129,7 +129,6 @@ import main.java.views_personalizadas.TelaNotificacao;
 import main.java.views_personalizadas.TelaNotificacaoSuperior;
 import main.java.views_personalizadas.TelaNotificacaoSuperiorModoBusca;
 import net.miginfocom.swing.MigLayout;
-import outros.ValidaCNPJ;
 import main.java.cadastros.CadastroLogin;
 import main.java.cadastros.CadastroNuvem;
 import main.java.cadastros.CadastroPontuacao;
@@ -274,8 +273,15 @@ public class TelaFinanceiroCondicaoPagamento extends JDialog {
 			public void actionPerformed(ActionEvent e) {
 				if(modo_operacao == 0) {
 					if(tela_retorno == 1) {
-						((TelaFinanceiroCadastroPagamento) janela_pai).setCondicaoPagamento(getCondicaoPagamentoSelecionado());
+						if(janela_pai instanceof TelaFinanceiroCadastroPagamento) {
+							((TelaFinanceiroCadastroPagamento) janela_pai).setCondicaoPagamento(getCondicaoPagamentoSelecionado());
+						}else if(janela_pai instanceof TelaFinanceiroCadastroPagamentoEmprestimo) {
+							((TelaFinanceiroCadastroPagamentoEmprestimo) janela_pai).setCondicaoPagamento(getCondicaoPagamentoSelecionado());
+
+						}
 						isto.dispose();
+
+						
 					}
 				}
 			}

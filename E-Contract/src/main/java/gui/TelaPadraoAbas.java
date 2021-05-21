@@ -44,6 +44,7 @@ public class TelaPadraoAbas extends JDialog {
 		painelPrincipal.addTab("Dados Iniciais", painelDadosIniciais);
 		painelDadosIniciais.setLayout(null);
 		painelPrincipal.addTab("Empresa", painelEmpresa);
+		
 		painelEmpresa.setLayout(null);
 		
 		getContentPane().add(painelPrincipal, BorderLayout.CENTER);

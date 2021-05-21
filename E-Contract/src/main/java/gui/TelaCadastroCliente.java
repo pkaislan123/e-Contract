@@ -82,7 +82,7 @@ import main.java.outros.TratarDados;
 import main.java.tratamento_proprio.Log;
 import main.java.views_personalizadas.TelaEmEspera;
 import main.java.views_personalizadas.TelaNotificacaoSuperiorModoBusca;
-import outros.ValidaCNPJ;
+import outros.ValidaCNPj;
 import main.java.cadastros.CadastroLogin;
 import main.java.cadastros.CadastroNuvem;
 import main.java.cadastros.CadastroZapMessenger;
@@ -97,7 +97,7 @@ import java.awt.event.FocusEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 
-public class TelaCadastroCliente extends JDialog {
+public class TelaCadastroCliente extends JFrame {
 
 	private Log GerenciadorLog;
 	private CadastroLogin login;
@@ -635,14 +635,14 @@ public class TelaCadastroCliente extends JDialog {
 			public void actionPerformed(ActionEvent e) {
 				if (salvar(flag_tipo_tela) == true) {
 
-					if (telaPai != null) {
+					if (janela_pai != null) {
 						if (flag_tipo_tela == 1 || flag_tipo_tela == 0) {
 							// salvar novo cliente comun
-							if(telaPai != null)
-							((TelaCliente) telaPai).atualizaTabela();
+							if(janela_pai != null)
+							((TelaCliente) janela_pai).atualizaTabela();
 
 						} else if (flag_tipo_tela == 5 || flag_tipo_tela == 6) {
-							((TelaArmazem) telaPai).atualizaTabela();
+							((TelaArmazem) janela_pai).atualizaTabela();
 
 						}
 					}
@@ -677,17 +677,17 @@ public class TelaCadastroCliente extends JDialog {
 
 				if (atualizar(flag_tipo_tela) == true) {
 					if (flag_tipo_tela == 0 || flag_tipo_tela == 1) {
-						if(telaPai != null)
-							if(telaPai instanceof TelaCliente) {
-								((TelaCliente) telaPai).atualizaTabela();
+						if(janela_pai != null)
+							if(janela_pai instanceof TelaCliente) {
+								((TelaCliente) janela_pai).atualizaTabela();
 
-							}else if(telaPai instanceof TelaGerenciarCliente) {
-								((TelaGerenciarCliente) telaPai).atualizarInfo();
+							}else if(janela_pai instanceof TelaGerenciarCliente) {
+								((TelaGerenciarCliente) janela_pai).atualizarInfo();
 
 							}
 							
 					} else if (flag_tipo_tela == 5 || flag_tipo_tela == 6) {
-						((TelaArmazem) telaPai).atualizaTabela();
+						((TelaArmazem) janela_pai).atualizaTabela();
 
 					}
 					gerarPastasAtualizar();
@@ -2056,7 +2056,7 @@ public class TelaCadastroCliente extends JDialog {
 		boolean retorno = false;
 		String cnpj = entCNPJ.getText();
 		cnpj = cnpj.replaceAll("[^0-9]+", "");
-		ValidaCNPJ valida = new ValidaCNPJ();
+		ValidaCNPj valida = new ValidaCNPj();
 
 		if (cnpj.length() != 14) {
 			JOptionPane.showMessageDialog(isto, "CNPJ Invalido!");
@@ -2454,7 +2454,7 @@ public class TelaCadastroCliente extends JDialog {
 	public void pesquisarCNPJ(String cnpj) {
 
 		cnpj = cnpj.replaceAll("[^0-9]+", "");
-		ValidaCNPJ valida = new ValidaCNPJ();
+		ValidaCNPj valida = new ValidaCNPj();
 
 		if (cnpj.length() != 14) {
 			JOptionPane.showMessageDialog(isto, "CNPJ Invalido!");

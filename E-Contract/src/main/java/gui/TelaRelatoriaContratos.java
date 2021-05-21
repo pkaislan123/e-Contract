@@ -86,7 +86,7 @@ import main.java.tratamento_proprio.Log;
 import main.java.views_personalizadas.TelaEmEspera;
 import main.java.views_personalizadas.TelaEmEsperaRelatoria;
 import main.java.views_personalizadas.TelaNotificacaoSuperiorModoBusca;
-import outros.ValidaCNPJ;
+import outros.ValidaCNPj;
 import main.java.cadastros.CadastroLogin;
 import main.java.cadastros.CadastroNuvem;
 import main.java.cadastros.CadastroZapMessenger;
@@ -110,8 +110,10 @@ import javax.swing.border.LineBorder;
 import javax.swing.JComboBox;
 import javax.swing.JCheckBox;
 import javax.swing.border.BevelBorder;
+import java.awt.event.ItemListener;
+import java.awt.event.ItemEvent;
 
-public class TelaRelatoriaContratos extends JDialog {
+public class TelaRelatoriaContratos extends JFrame {
 
 	protected static final AbstractButton chkboxValorComissao = null;
 	private final JPanel painelPrincipal = new JPanel();
@@ -121,6 +123,8 @@ public class TelaRelatoriaContratos extends JDialog {
 	private CadastroGrupo grupo_alvo;
 	private CadastroCliente cliente_alvo;
 	private CadastroCliente cliente_alvo2;
+
+	private CadastroCliente contra_parte1;
 
 	private JComboBox cBAlvo;
 	private JCheckBox chkBoxContratos, chkBoxContratosComoComprador, chkBoxContratosComoVendedor,
@@ -134,7 +138,7 @@ public class TelaRelatoriaContratos extends JDialog {
 	private JCheckBox chckbxIncluirValorComissao;
 	private JCheckBox chckbxIncluirGanhosPotenciais;
 	private JLabel lblNewLabel_3;
-	private JCheckBox chckbxInterno, chckbxExterno;
+	private JCheckBox chckbxInterno, chckbxExternoComprador;
 	private JCheckBox chckbxSomarSubContratos;
 	private JLabel lblNewLabel_4;
 	private JPanel painelOpcaosInternas;
@@ -150,8 +154,14 @@ public class TelaRelatoriaContratos extends JDialog {
 	private JPanel panel_2;
 	private JCheckBox chkbxIxibirContratosSemCarregamentos;
 	private JCheckBox chkbxIxibirContratosSemRecebimentos;
-	private JComboBox cBAlvo2;
+	private JComboBox cBContraParte1;
 	private JButton btnGerarRelatorioCarregamento;
+	private JCheckBox chckbxExternoVendedor;
+	private JLabel lblNewLabel_6;
+	private JComboBox cBAlvo2;
+	private JButton btnNewButton_2;
+	private JLabel lblNewLabel_1_2;
+	private JComboBox cBParticipacao;
 
 	public static void pesquisarSafras() {
 		GerenciarBancoSafras listaSafras = new GerenciarBancoSafras();
@@ -168,13 +178,13 @@ public class TelaRelatoriaContratos extends JDialog {
 
 		setBackground(new Color(255, 255, 255));
 		setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-		setBounds(100, 100, 1247, 684);
+		setBounds(100, 100, 1346, 684);
 		painelPrincipal.setBackground(new Color(255, 255, 255));
 		painelPrincipal.setBorder(new EmptyBorder(5, 5, 5, 5));
 		setContentPane(painelPrincipal);
 
 		cBSafraPersonalizado = new ComboBoxRenderPersonalizado();
-		painelPrincipal.setLayout(new MigLayout("", "[362px][38px][242px][30px][251px][12px][284px]", "[69px][grow][][213px][36px]"));
+		painelPrincipal.setLayout(new MigLayout("", "[][::5px][][::5px][][::5px][]", "[69px][grow][][213px][36px]"));
 		
 				JButton btnGerarRelatorioSimplificado = new JButton("Gerar Relatorio Recebimento Simplificado");
 				btnGerarRelatorioSimplificado.setForeground(Color.WHITE);
@@ -245,8 +255,8 @@ public class TelaRelatoriaContratos extends JDialog {
 						if (cliente_alvo != null) {
 							// um clinete apneas adicionado
 							clientes.add(cliente_alvo);
-							if(cliente_alvo2 != null) {
-								contra_parte = cliente_alvo2;
+							if(contra_parte1 != null) {
+								contra_parte = contra_parte1;
 							}
 							
 						} else {
@@ -363,8 +373,8 @@ public class TelaRelatoriaContratos extends JDialog {
 				if (cliente_alvo != null) {
 					// um clinete apneas adicionado
 					clientes.add(cliente_alvo);
-					if(cliente_alvo2 != null) {
-						contra_parte = cliente_alvo2;
+					if(contra_parte1 != null) {
+						contra_parte = contra_parte1;
 					}
 					
 				} else {
@@ -632,33 +642,60 @@ public class TelaRelatoriaContratos extends JDialog {
 		JPanel panel_3 = new JPanel();
 		panel_3.setBackground(new Color(51, 51, 0));
 		painelPrincipal.add(panel_3, "cell 0 1 1 2,grow");
-		panel_3.setLayout(new MigLayout("", "[grow][grow][grow]", "[23px][19px][19px][23px][19px][19px][19px][18px][]"));
+		panel_3.setLayout(new MigLayout("", "[grow][][grow][grow]", "[23px][19px][19px][23px][19px][19px][19px][18px][]"));
 
 		lblNewLabel_3 = new JLabel("Tipo:");
 		lblNewLabel_3.setForeground(Color.WHITE);
-		panel_3.add(lblNewLabel_3, "cell 0 0 3 1,alignx left,growy");
+		panel_3.add(lblNewLabel_3, "cell 0 0 4 1,alignx left,growy");
 		lblNewLabel_3.setFont(new Font("SansSerif", Font.BOLD, 16));
 
-		chckbxInterno = new JCheckBox("Interno");
+		chckbxInterno = new JCheckBox("Interno(Análise)");
 		chckbxInterno.setFont(new Font("SansSerif", Font.BOLD, 14));
 		chckbxInterno.setForeground(Color.WHITE);
-		panel_3.add(chckbxInterno, "cell 0 1,alignx right,aligny top");
+		panel_3.add(chckbxInterno, "cell 0 1 4 1,alignx center,aligny top");
 		chckbxInterno.setSelected(true);
+		
+		chckbxExternoVendedor = new JCheckBox("Externo(Vendedor)");
+		chckbxExternoVendedor.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
 
-		chckbxExterno = new JCheckBox("Externo");
-		chckbxExterno.setFont(new Font("SansSerif", Font.BOLD, 14));
-		chckbxExterno.setForeground(Color.WHITE);
-		panel_3.add(chckbxExterno, "cell 2 1,alignx left,aligny top");
+				chckbxExternoComprador.setSelected(false);
+				chckbxInterno.setSelected(false);
+				chckbxExternoVendedor.setSelected(true);
+				painelOpcaosInternas.setEnabled(false);
+				painelOpcaosInternas.setVisible(false);
+			}
+			
+		});
+		chckbxExternoVendedor.setForeground(Color.WHITE);
+		chckbxExternoVendedor.setFont(new Font("SansSerif", Font.BOLD, 14));
+		panel_3.add(chckbxExternoVendedor, "cell 0 2");
+		
+				chckbxExternoComprador = new JCheckBox("Externo(Comprador)");
+				chckbxExternoComprador.setFont(new Font("SansSerif", Font.BOLD, 14));
+				chckbxExternoComprador.setForeground(Color.WHITE);
+				panel_3.add(chckbxExternoComprador, "cell 3 2,alignx left,aligny top");
+				chckbxExternoComprador.addActionListener(new ActionListener() {
+					public void actionPerformed(ActionEvent e) {
+						
+							chckbxExternoComprador.setSelected(true);
+							chckbxInterno.setSelected(false);
+							chckbxExternoVendedor.setSelected(false);
+							painelOpcaosInternas.setEnabled(false);
+							painelOpcaosInternas.setVisible(false);
+
+					}
+				});
 
 		chkBoxContratos = new JCheckBox("Contratos");
 		chkBoxContratos.setFont(new Font("SansSerif", Font.BOLD, 14));
 		chkBoxContratos.setForeground(Color.WHITE);
-		panel_3.add(chkBoxContratos, "cell 0 3 3 1,alignx left,growy");
+		panel_3.add(chkBoxContratos, "cell 0 3 4 1,alignx left,growy");
 
 		chkBoxContratosComoComprador = new JCheckBox("Alvo como Comprador");
 		chkBoxContratosComoComprador.setFont(new Font("SansSerif", Font.BOLD, 14));
 		chkBoxContratosComoComprador.setForeground(Color.WHITE);
-		panel_3.add(chkBoxContratosComoComprador, "cell 0 4 3 1,alignx center,aligny top");
+		panel_3.add(chkBoxContratosComoComprador, "cell 0 4 4 1,alignx center,aligny top");
 		chkBoxContratosComoComprador.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 
@@ -689,7 +726,7 @@ public class TelaRelatoriaContratos extends JDialog {
 		chkBoxContratosComoVendedor = new JCheckBox("Alvo como Vendedor");
 		chkBoxContratosComoVendedor.setFont(new Font("SansSerif", Font.BOLD, 14));
 		chkBoxContratosComoVendedor.setForeground(Color.WHITE);
-		panel_3.add(chkBoxContratosComoVendedor, "cell 0 5 3 1,alignx center,aligny top");
+		panel_3.add(chkBoxContratosComoVendedor, "cell 0 5 4 1,alignx center,aligny top");
 		chkBoxContratosComoVendedor.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 
@@ -721,7 +758,7 @@ public class TelaRelatoriaContratos extends JDialog {
 		chkBoxContratosComoCorretor.setVisible(false);
 		chkBoxContratosComoCorretor.setFont(new Font("SansSerif", Font.BOLD, 14));
 		chkBoxContratosComoCorretor.setForeground(Color.WHITE);
-		panel_3.add(chkBoxContratosComoCorretor, "cell 0 6 3 1,alignx center,aligny top");
+		panel_3.add(chkBoxContratosComoCorretor, "cell 0 6 4 1,alignx center,aligny top");
 		chkBoxContratosComoCorretor.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 
@@ -755,13 +792,13 @@ public class TelaRelatoriaContratos extends JDialog {
 				chkBoxUnirContratos.setEnabled(false);
 				chkBoxUnirContratos.setForeground(Color.WHITE);
 				chkBoxUnirContratos.setFont(new Font("SansSerif", Font.BOLD, 14));
-				panel_3.add(chkBoxUnirContratos, "cell 0 8 3 1,alignx center,aligny center");
+				panel_3.add(chkBoxUnirContratos, "cell 0 8 4 1,alignx center,aligny center");
 
 		JPanel panel_4 = new JPanel();
 		panel_4.setBorder(new LineBorder(new Color(0, 0, 0)));
 		panel_4.setBackground(Color.WHITE);
 		painelPrincipal.add(panel_4, "cell 0 0 7 1,grow");
-		panel_4.setLayout(new MigLayout("", "[][400px,grow][]", "[][][][]"));
+		panel_4.setLayout(new MigLayout("", "[][400px,grow][]", "[][][][][][]"));
 
 		JLabel lblNewLabel = new JLabel("Safra:");
 		panel_4.add(lblNewLabel, "cell 0 0,alignx right");
@@ -790,22 +827,82 @@ public class TelaRelatoriaContratos extends JDialog {
 		});
 		chckbxTodasAsSafras.setSelected(true);
 
-		JLabel lblNewLabel_1 = new JLabel("Alvo:");
+		JLabel lblNewLabel_1 = new JLabel("Alvo 1:");
 		panel_4.add(lblNewLabel_1, "cell 0 1,alignx right");
 		lblNewLabel_1.setFont(new Font("Tahoma", Font.PLAIN, 16));
 
 		cBAlvo = new JComboBox();
+		cBAlvo.addItemListener(new ItemListener() {
+			public void itemStateChanged(ItemEvent evt) {
+				if (evt.getStateChange() == java.awt.event.ItemEvent.SELECTED) {
+					if (evt.getItem().equals("TODOS")) {
+
+						
+						setClienteAlvo(null);
+					
+						cBAlvo.removeAllItems();
+					}
+			}
+			}
+		});
 		panel_4.add(cBAlvo, "cell 1 1,growx");
 
 		JButton btnNewButton_1 = new JButton("Selecionar");
 		panel_4.add(btnNewButton_1, "cell 2 1,growx");
 		
+		lblNewLabel_6 = new JLabel("Alvo 2:");
+		lblNewLabel_6.setFont(new Font("Tahoma", Font.PLAIN, 16));
+		panel_4.add(lblNewLabel_6, "cell 0 2,alignx trailing");
+		
+		cBAlvo2 = new JComboBox();
+		cBAlvo2.addItemListener(new ItemListener() {
+			public void itemStateChanged(ItemEvent evt) {
+				if (evt.getStateChange() == java.awt.event.ItemEvent.SELECTED) {
+					if (evt.getItem().equals("TODOS")) {
+
+						
+						setClienteAlvo2(null);
+					
+						cBAlvo2.removeAllItems();
+					}
+			}
+			}
+		});
+		panel_4.add(cBAlvo2, "cell 1 2,growx");
+		
+		btnNewButton_2 = new JButton("Selecionar");
+		
+		btnNewButton_2.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				
+
+				TelaCliente cliente = new TelaCliente(0, 32, null);
+				cliente.setTelaPai(isto);
+				cliente.setVisible(true);
+			}
+		});
+		panel_4.add(btnNewButton_2, "cell 2 2,growx");
+		
 		JLabel lblNewLabel_1_1 = new JLabel("Contra Parte:");
 		lblNewLabel_1_1.setFont(new Font("Tahoma", Font.PLAIN, 16));
-		panel_4.add(lblNewLabel_1_1, "cell 0 2,alignx right");
+		panel_4.add(lblNewLabel_1_1, "cell 0 3,alignx right");
 		
-		 cBAlvo2 = new JComboBox();
-		panel_4.add(cBAlvo2, "cell 1 2,growx");
+		 cBContraParte1 = new JComboBox();
+		 cBContraParte1.addItemListener(new ItemListener() {
+		 	public void itemStateChanged(ItemEvent evt) {
+		 		if (evt.getStateChange() == java.awt.event.ItemEvent.SELECTED) {
+					if (evt.getItem().equals("TODOS")) {
+
+						
+						setClienteContraParte1(null);
+					
+						cBContraParte1.removeAllItems();
+					}
+			}
+			}
+		 	
+		 });
+		panel_4.add(cBContraParte1, "cell 1 3,growx");
 		
 		JButton btnNewButton_1_1 = new JButton("Selecionar");
 		btnNewButton_1_1.addActionListener(new ActionListener() {
@@ -816,7 +913,18 @@ public class TelaRelatoriaContratos extends JDialog {
 
 			}
 		});
-		panel_4.add(btnNewButton_1_1, "cell 2 2,growx");
+		panel_4.add(btnNewButton_1_1, "cell 2 3,growx");
+		
+		lblNewLabel_1_2 = new JLabel("Participação:");
+		lblNewLabel_1_2.setFont(new Font("Tahoma", Font.PLAIN, 16));
+		panel_4.add(lblNewLabel_1_2, "cell 0 4,alignx trailing");
+		
+		cBParticipacao = new JComboBox();
+		panel_4.add(cBParticipacao, "cell 1 4,growx");
+		cBParticipacao.addItem("TODOS");
+		cBParticipacao.addItem("GRUPO");
+		cBParticipacao.addItem("PARTICULAR");
+
 
 		JPanel panel_5 = new JPanel();
 		panel_5.setBackground(Color.WHITE);
@@ -850,6 +958,7 @@ public class TelaRelatoriaContratos extends JDialog {
 				boolean incluir_transferencia_pagamentos = false;
 				boolean unir_pagamentos = false;
 				boolean incluir_comissao_pagamento = false;
+				int participacao = -1;
 				Date hoje = new Date();
 				SimpleDateFormat df = new SimpleDateFormat("dd/MM/yyyy");
 
@@ -886,6 +995,8 @@ public class TelaRelatoriaContratos extends JDialog {
 						if (chckbxInterno.isSelected()) {
 							if (chckbxIncluirSubContratos.isSelected())
 								sub_contratos = true;
+						}else if(chckbxExternoVendedor.isSelected()) {
+								sub_contratos = false;
 						}
 					}
 
@@ -895,6 +1006,8 @@ public class TelaRelatoriaContratos extends JDialog {
 							if (chckbxIncluirValorComissao.isSelected()) {
 								incluir_comissao = true;
 							}
+						}else if(chckbxExternoVendedor.isSelected()) {
+							incluir_comissao = false;
 						}
 					}
 
@@ -906,6 +1019,9 @@ public class TelaRelatoriaContratos extends JDialog {
 									incluir_ganhos_potencias = true;
 								}
 							}
+						}else if(chckbxExternoVendedor.isSelected()) {
+							incluir_ganhos_potencias = false;
+
 						}
 					}
 
@@ -916,6 +1032,8 @@ public class TelaRelatoriaContratos extends JDialog {
 								somar_sub_contratos = true;
 
 							}
+						}else if(chckbxExternoVendedor.isSelected()) {
+							somar_sub_contratos = false;
 						}
 					}
 
@@ -1041,12 +1159,23 @@ public class TelaRelatoriaContratos extends JDialog {
 
 				ArrayList<CadastroCliente> clientes = new ArrayList<>();
 				CadastroCliente contra_parte = new CadastroCliente();
+				CadastroCliente cliente_alvo2_relatorio = new CadastroCliente();
 
-				if (cliente_alvo != null) {
+				if (cliente_alvo != null || grupo_alvo == null ) {
 					// um clinete apneas adicionado
-					clientes.add(cliente_alvo);
-					if(cliente_alvo2 != null) {
-						contra_parte = cliente_alvo2;
+					if(cliente_alvo != null) {
+						clientes.add(cliente_alvo);
+
+					}
+					
+					if(cliente_alvo2 != null && cliente_alvo == null) {
+						//cliente_alvo2_relatorio = cliente_alvo2;
+						clientes.add(cliente_alvo2);
+					}else if(cliente_alvo2 != null && cliente_alvo != null) {
+						cliente_alvo2_relatorio = cliente_alvo2;
+					}
+					if(contra_parte1 != null) {
+						contra_parte = contra_parte1;
 					}
 					
 				} else {
@@ -1064,13 +1193,17 @@ public class TelaRelatoriaContratos extends JDialog {
 					grupo_alvo.setClientes(clientes);
 
 				}
+				//participacao
+				participacao = cBParticipacao.getSelectedIndex() - 1;
 
 				if (chckbxInterno.isSelected()) {
 					tipo_contrato = 1;
-				} else if (chckbxExterno.isSelected()) {
+				} else if (chckbxExternoComprador.isSelected()) {
 					tipo_contrato = 2;
 				}
-
+				else if (chckbxExternoVendedor.isSelected()) {
+					tipo_contrato = 1;
+				}
 				if (gerar && chkBoxContratosComoComprador.isSelected()) {
 					telaEmEsperaRelatoria = new TelaEmEsperaRelatoria(isto);
 
@@ -1084,7 +1217,7 @@ public class TelaRelatoriaContratos extends JDialog {
 							pagamento, pagamento_como_despositante, pagamento_como_favorecido, incluir_sem_pagamentos,incluir_transferencia_pagamentos,unir_pagamentos,incluir_comissao_pagamento,
 							carregamento, carregamento_como_comprador, carregamento_como_vendedor, unir_carregamentos,controle_nf_venda_carregamentos, incluir_transferencia_carregamentos,incluir_sem_carregamentos,
 							recebimento, recebimento_como_comprador, recebimento_como_vendedor, unir_recebimentos, controle_nf_venda_recebimentos,incluir_sem_recebimentos,
-							id_safra, sub_contratos, incluir_comissao,incluir_ganhos_potencias, somar_sub_contratos, clientes, contra_parte, grupo_alvo);
+							id_safra, sub_contratos, incluir_comissao,incluir_ganhos_potencias, somar_sub_contratos, clientes, contra_parte, cliente_alvo2_relatorio, grupo_alvo,participacao);
 
 					new Thread() {
 						@Override
@@ -1114,7 +1247,7 @@ public class TelaRelatoriaContratos extends JDialog {
 							incluir_sem_carregamentos, recebimento, recebimento_como_comprador,
 							recebimento_como_vendedor, unir_recebimentos, controle_nf_venda_recebimentos,
 							incluir_sem_recebimentos, id_safra, sub_contratos, incluir_comissao,
-							incluir_ganhos_potencias, somar_sub_contratos, clientes, contra_parte,grupo_alvo);
+							incluir_ganhos_potencias, somar_sub_contratos, clientes, contra_parte,cliente_alvo2_relatorio,grupo_alvo,participacao);
 
 					new Thread() {
 						@Override
@@ -1146,7 +1279,7 @@ public class TelaRelatoriaContratos extends JDialog {
 							incluir_sem_carregamentos, recebimento, recebimento_como_comprador,
 							recebimento_como_vendedor, unir_recebimentos, controle_nf_venda_recebimentos,
 							incluir_sem_recebimentos, id_safra, sub_contratos, incluir_comissao,
-							incluir_ganhos_potencias, somar_sub_contratos, clientes, contra_parte,grupo_alvo);
+							incluir_ganhos_potencias, somar_sub_contratos, clientes, contra_parte,cliente_alvo2_relatorio,grupo_alvo,participacao);
 
 					new Thread() {
 						@Override
@@ -1207,38 +1340,17 @@ public class TelaRelatoriaContratos extends JDialog {
 
 			}
 		});
-		chckbxExterno.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				if (chckbxExterno.isSelected()) {
-					chckbxExterno.setSelected(true);
-					chckbxInterno.setSelected(false);
-					painelOpcaosInternas.setEnabled(false);
-					painelOpcaosInternas.setVisible(false);
-
-				} else {
-					chckbxInterno.setSelected(false);
-					chckbxExterno.setSelected(true);
-					painelOpcaosInternas.setEnabled(true);
-					painelOpcaosInternas.setVisible(true);
-				}
-
-			}
-		});
 		chckbxInterno.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 
-				if (chckbxInterno.isSelected()) {
+				
 					chckbxInterno.setSelected(true);
-					chckbxExterno.setSelected(false);
+					chckbxExternoComprador.setSelected(false);
+					chckbxExternoVendedor.setSelected(false);
+
 					painelOpcaosInternas.setEnabled(true);
 					painelOpcaosInternas.setVisible(true);
 
-				} else {
-					chckbxInterno.setSelected(false);
-					chckbxExterno.setSelected(true);
-					painelOpcaosInternas.setEnabled(false);
-					painelOpcaosInternas.setVisible(false);
-				}
 
 			}
 		});
@@ -1361,8 +1473,12 @@ public class TelaRelatoriaContratos extends JDialog {
 				}
 
 				cBAlvo.addItem(cliente_alvo.getId() + " " + nome);
+				cBAlvo.addItem("TODOS");
+
 				cBAlvo.updateUI();
 				cBAlvo.repaint();
+				
+				grupo_alvo = null;
 
 			}
 		});
@@ -1388,8 +1504,38 @@ public class TelaRelatoriaContratos extends JDialog {
 				}
 
 				cBAlvo2.addItem(cliente_alvo2.getId() + " " + nome);
+				cBAlvo2.addItem("TODOS");
 				cBAlvo2.updateUI();
 				cBAlvo2.repaint();
+
+			}
+		});
+	}
+	
+	
+	public void setClienteContraParte1(CadastroCliente cliente2) {
+		this.contra_parte1 = cliente2;
+
+		java.awt.EventQueue.invokeLater(new Runnable() {
+			public void run() {
+
+				cBContraParte1.removeAllItems();
+				cBContraParte1.updateUI();
+				cBContraParte1.repaint();
+
+				String nome = "";
+
+				if (contra_parte1.getTipo_pessoa() == 0) {
+					nome = contra_parte1.getNome_empresarial();
+				} else {
+					nome = contra_parte1.getNome_fantaia();
+
+				}
+
+				cBContraParte1.addItem(contra_parte1.getId() + " " + nome);
+				cBContraParte1.addItem("TODOS");
+				cBContraParte1.updateUI();
+				cBContraParte1.repaint();
 
 			}
 		});

@@ -28,12 +28,13 @@ public class GerenciarBancoParcelas {
   PRIMARY KEY (`id_parcela`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8
 		 */
-		return "insert into parcela (id_lancamento_pai, identificador, valor, data_vencimento,"
+		return "insert into parcela (id_lancamento_pai, identificador, valor, data_vencimento,fluxo_caixa,"
 				+ " status, observacao, descricao,caminho_arquivo ) values ('"
 				+ dado.getId_lancamento_pai() + "','"
 				+ dado.getIdentificador() + "','"
 				+ dado.getValor() + "','"
 				+ dado.getData_vencimento() + "','" 
+				+ dado.getFluxo_caixa() + "','" 
 				+ dado.getStatus() + "','" 
 			    + dado.getObservacao() + "','" 
 			    + dado.getDescricao() + "','" 
@@ -93,6 +94,7 @@ public class GerenciarBancoParcelas {
 				dado.setId_parcela(rs.getInt("id_parcela"));
 				dado.setId_lancamento_pai(rs.getInt("id_lancamento_pai"));
 				dado.setIdentificador(rs.getString("identificador"));
+				dado.setFluxo_caixa(rs.getInt("fluxo_caixa"));
 				try{
 					dado.setValor(new BigDecimal(rs.getString("valor")));
 				}catch(Exception e) {
@@ -102,7 +104,7 @@ public class GerenciarBancoParcelas {
 				dado.setData_vencimento(rs.getString("data_vencimento"));
 				dado.setDescricao(rs.getString("descricao"));
 				dado.setObservacao(rs.getString("observacao"));
-				dado.setArquivo(rs.getString("caminho_arquivo"));
+				dado.setCaminho_arquivo(rs.getString("caminho_arquivo"));
 			
 
 				lista.add(dado);
@@ -134,6 +136,8 @@ public class GerenciarBancoParcelas {
 				dado.setId_parcela(rs.getInt("id_parcela"));
 				dado.setId_lancamento_pai(rs.getInt("id_lancamento_pai"));
 				dado.setIdentificador(rs.getString("identificador"));
+				dado.setFluxo_caixa(rs.getInt("fluxo_caixa"));
+
 				try{
 					dado.setValor(new BigDecimal(rs.getString("valor")));
 				}catch(Exception e) {
@@ -143,7 +147,7 @@ public class GerenciarBancoParcelas {
 				dado.setData_vencimento(rs.getString("data_vencimento"));
 				dado.setDescricao(rs.getString("descricao"));
 				dado.setObservacao(rs.getString("observacao"));
-				dado.setArquivo(rs.getString("caminho_arquivo"));
+				dado.setCaminho_arquivo(rs.getString("caminho_arquivo"));
 			
 
 				lista.add(dado);
@@ -177,6 +181,8 @@ public class GerenciarBancoParcelas {
 			dado.setId_parcela(rs.getInt("id_parcela"));
 			dado.setId_lancamento_pai(rs.getInt("id_lancamento_pai"));
 			dado.setIdentificador(rs.getString("identificador"));
+			dado.setFluxo_caixa(rs.getInt("fluxo_caixa"));
+
 
 			try{
 				dado.setValor(new BigDecimal(rs.getString("valor")));
@@ -234,18 +240,19 @@ public class GerenciarBancoParcelas {
 
 				//atualizar = "update financeiro_conta set nome_conta = ?, id_grupo_contas = ?,  tipo_conta = ?, observacao = ?,descricao = ? where id_conta = ? ";
 				atualizar = "update parcela set identificador = ? , valor = ?, "
-						+ "data_vencimento = ?, status = ?,"
-						+ " observacao = ?, descricao = ?,caminho_arquivo = ?  where id_parcela = ?";
+						+ "data_vencimento = ?, fluxo_caixa = ?, status = ?,"
+						+ " observacao = ?, descricao = ?  where id_parcela = ?";
 				
 				conn = ConexaoBanco.getConexao();
 				pstm = conn.prepareStatement(atualizar);
 				pstm.setString(1, dado.getIdentificador());
 				pstm.setString(2, dado.getValor().toString());
 				pstm.setString(3, dado.getData_vencimento());
-				pstm.setInt(4, dado.getStatus());
-				pstm.setString(5, dado.getObservacao());
-				pstm.setString(6, dado.getDescricao());
-				pstm.setString(7, dado.getCaminho_arquivo());
+				pstm.setInt(4, dado.getFluxo_caixa());
+
+				pstm.setInt(5, dado.getStatus());
+				pstm.setString(6, dado.getObservacao());
+				pstm.setString(7, dado.getDescricao());
 				pstm.setInt(8, dado.getId_parcela());
 
 			
@@ -265,5 +272,62 @@ public class GerenciarBancoParcelas {
 		}
 	}
 
+	public boolean atualizarArquivoDaParcela(String caminho_arquivo, int id_parcela) {
+
+			try {
+				Connection conn = null;
+				String atualizar = null;
+				PreparedStatement pstm;
+
+				//atualizar = "update financeiro_conta set nome_conta = ?, id_grupo_contas = ?,  tipo_conta = ?, observacao = ?,descricao = ? where id_conta = ? ";
+				atualizar = "update parcela set caminho_arquivo = ?  where id_parcela = ?";
+				
+				conn = ConexaoBanco.getConexao();
+				pstm = conn.prepareStatement(atualizar);
+				pstm.setString(1, caminho_arquivo);
+				pstm.setInt(2, id_parcela);
+
+			
+
+				pstm.execute();
+				// JOptionPane.showMessageDialog(null, "Cliente atualizado com sucesso");
+				ConexaoBanco.fechaConexao(conn);
+				return true;
+			} catch (Exception e) {
+				JOptionPane.showMessageDialog(null, "Erro ao atualizar a parcela no banco de dados\nErro: " + e.getMessage() + "\nCausa: " + e.getCause());
+				return false;
+			}
+		
+	}
+	
+	public boolean atualizarStatusParcela(int status, int id_parcela) {
+		
+			try {
+				Connection conn = null;
+				String atualizar = null;
+				PreparedStatement pstm;
+
+				//atualizar = "update financeiro_conta set nome_conta = ?, id_grupo_contas = ?,  tipo_conta = ?, observacao = ?,descricao = ? where id_conta = ? ";
+				atualizar = "update parcela set status = ?  where id_parcela = ?";
+				
+				conn = ConexaoBanco.getConexao();
+				pstm = conn.prepareStatement(atualizar);
+				pstm.setInt(1, status);
+				pstm.setInt(2, id_parcela);
+
+			
+
+				pstm.execute();
+				// JOptionPane.showMessageDialog(null, "Cliente atualizado com sucesso");
+				System.out.println("Parcela Atualizada com sucesso");
+				ConexaoBanco.fechaConexao(conn);
+				return true;
+			} catch (Exception e) {
+				JOptionPane.showMessageDialog(null, "Erro ao atualizar a parcela no banco de dados\nErro: " + e.getMessage() + "\nCausa: " + e.getCause());
+				return false;
+			}
+		
+	}
+	
 	
 }

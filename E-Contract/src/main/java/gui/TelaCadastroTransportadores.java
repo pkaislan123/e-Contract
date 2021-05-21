@@ -88,7 +88,7 @@ import main.java.outros.TratarDados;
 import main.java.tratamento_proprio.Log;
 import main.java.views_personalizadas.TelaEmEspera;
 import main.java.views_personalizadas.TelaNotificacaoSuperiorModoBusca;
-import outros.ValidaCNPJ;
+import outros.ValidaCNPj;
 import main.java.cadastros.CadastroLogin;
 import main.java.cadastros.CadastroNuvem;
 import main.java.cadastros.CadastroZapMessenger;
@@ -1280,7 +1280,7 @@ public class TelaCadastroTransportadores extends JDialog {
 					public void actionPerformed(ActionEvent arg0) {
 						String cnpj = entCNPJ.getText();
 						cnpj = cnpj.replaceAll("[^0-9]+", "");
-						ValidaCNPJ valida = new ValidaCNPJ();
+						ValidaCNPj valida = new ValidaCNPj();
 						
 						if(cnpj.length() != 14)
 						{
@@ -2917,7 +2917,7 @@ public class TelaCadastroTransportadores extends JDialog {
 		boolean retorno = false;
 		String cnpj = entCNPJ.getText();
 		cnpj = cnpj.replaceAll("[^0-9]+", "");
-		ValidaCNPJ valida = new ValidaCNPJ();
+		ValidaCNPj valida = new ValidaCNPj();
 		
 		if(cnpj.length() != 14)
 		{

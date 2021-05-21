@@ -152,7 +152,7 @@ import main.java.views_personalizadas.TelaNotificacao;
 import main.java.views_personalizadas.TelaNotificacaoSuperior;
 import main.java.views_personalizadas.TelaNotificacaoSuperiorModoBusca;
 import net.miginfocom.swing.MigLayout;
-import outros.ValidaCNPJ;
+import outros.ValidaCNPj;
 import main.java.cadastros.CadastroLogin;
 import main.java.cadastros.CadastroNuvem;
 import main.java.cadastros.CadastroPontuacao;
@@ -235,6 +235,113 @@ public class TelaGerenciarCliente extends JDialog {
 		
 		JPanel painelContratos = new JPanel();
 		painelContratos.setVisible(false);
+		
+		JPanel painelDadosIniciais = new JPanel();
+		painelDadosIniciais.setBackground(new Color(0, 128, 128));
+		painelDadosIniciais.setBounds(198, 153, 864, 358);
+		painelPrincipal.add(painelDadosIniciais);
+		painelDadosIniciais.setLayout(null);
+		
+		JButton btnEditar = new JButton("Editar");
+		btnEditar.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				TelaCadastroCliente telaEdicao = new TelaCadastroCliente(0, cliente_selecionado, isto);
+				telaEdicao.setTelaPai(isto);
+				telaEdicao.setVisible(true);
+			}
+		});
+		btnEditar.setBounds(629, 297, 89, 23);
+		painelDadosIniciais.add(btnEditar);
+		
+		JPanel painelInfo = new JPanel();
+		painelInfo.setBackground(new Color(0, 128, 128));
+		painelInfo.setBounds(22, 11, 696, 275);
+		painelDadosIniciais.add(painelInfo);
+		painelInfo.setLayout(new MigLayout("", "[][]", "[][][][][][][]"));
+		
+		JLabel lblNewLabel = new JLabel("TIpo Pessoa:");
+		lblNewLabel.setForeground(Color.WHITE);
+		lblNewLabel.setFont(new Font("Tahoma", Font.BOLD, 14));
+		painelInfo.add(lblNewLabel, "cell 0 0");
+		
+		
+		
+		 lblTipoPessoa = new JLabel("Juridica");
+		 lblTipoPessoa.setForeground(Color.WHITE);
+		 lblTipoPessoa.setFont(new Font("Tahoma", Font.BOLD, 16));
+		 painelInfo.add(lblTipoPessoa, "cell 1 0");
+		 
+		  lblTipoIdentificacao = new JLabel("CPF/CNPJ:");
+		  lblTipoIdentificacao.setForeground(Color.WHITE);
+		  lblTipoIdentificacao.setFont(new Font("Tahoma", Font.BOLD, 14));
+		  painelInfo.add(lblTipoIdentificacao, "cell 0 1,alignx right");
+		  
+		   lblIdentificacao = new JLabel("");
+		   lblIdentificacao.setForeground(Color.WHITE);
+		   lblIdentificacao.setFont(new Font("Tahoma", Font.BOLD, 16));
+		   painelInfo.add(lblIdentificacao, "cell 1 1");
+		   
+		    lblIe = new JLabel("IE:");
+		    lblIe.setForeground(Color.WHITE);
+		    lblIe.setFont(new Font("Tahoma", Font.BOLD, 14));
+		    painelInfo.add(lblIe, "cell 0 3,alignx right");
+		    
+		    lblIE = new JLabel("120.927.986-00");
+		    lblIE.setForeground(Color.WHITE);
+		    lblIE.setFont(new Font("Tahoma", Font.BOLD, 16));
+		    painelInfo.add(lblIE, "cell 1 3,alignx left");
+		    
+		    JLabel lblnasdad = new JLabel("Status:");
+		    lblnasdad.setForeground(Color.WHITE);
+		    lblnasdad.setFont(new Font("Tahoma", Font.BOLD, 14));
+		    painelInfo.add(lblnasdad, "cell 0 4,alignx right");
+		    
+		     lblStatus = new JLabel("");
+		     lblStatus.setForeground(Color.WHITE);
+		     lblStatus.setFont(new Font("Tahoma", Font.BOLD, 16));
+		     painelInfo.add(lblStatus, "cell 1 4,alignx left");
+		     
+		     JLabel lblEndereo = new JLabel("Endereço:");
+		     lblEndereo.setForeground(Color.WHITE);
+		     lblEndereo.setFont(new Font("Tahoma", Font.BOLD, 14));
+		     painelInfo.add(lblEndereo, "cell 0 6,alignx right");
+		     
+		      lblEndereco = new JLabel("Rodovia MG 188, km 242, Zona Rural, Guarda-Mor/MG 38570-000");
+		      lblEndereco.setForeground(Color.WHITE);
+		      lblEndereco.setFont(new Font("Tahoma", Font.BOLD, 16));
+		      painelInfo.add(lblEndereco, "cell 1 6");
+		      lblNewLabel.setFont(new Font("Tahoma", Font.PLAIN, 16));
+		      lblNewLabel.setBounds(45, 67, 115, 20);
+		      
+		      JButton btnNewButton = new JButton("Baixar Notas");
+		      btnNewButton.addActionListener(new ActionListener() {
+		      	public void actionPerformed(ActionEvent e) {
+		      		
+		      	  TelaEscolherDataBaixarNotas tela = new TelaEscolherDataBaixarNotas(cliente_local, isto);
+		      	  tela.setVisible(true);
+		      	}
+		      });
+		      btnNewButton.setBounds(527, 294, 98, 28);
+		      painelDadosIniciais.add(btnNewButton);
+		      
+		      JButton btnAcessarNfs = new JButton("Ver NF's");
+		      btnAcessarNfs.addActionListener(new ActionListener() {
+		      	public void actionPerformed(ActionEvent e) {
+
+
+					TelaTodasNotasFiscais telaTodasNotasFiscais = new TelaTodasNotasFiscais(0,1,isto);
+						telaTodasNotasFiscais.setTelaPai(isto);
+						telaTodasNotasFiscais.limpar();
+						telaTodasNotasFiscais.desabilitarBtnSelecionar();
+						telaTodasNotasFiscais.setClienteSelecionado(cliente_selecionado);
+						telaTodasNotasFiscais.pesquisar_notas();
+						telaTodasNotasFiscais.setVisible(true);
+					 
+					
+		      	}
+		      });
+		      btnAcessarNfs.setBounds(425, 294, 90, 28);
+		      painelDadosIniciais.add(btnAcessarNfs);
 		painelContratos.setBackground(Color.WHITE);
 		painelContratos.setForeground(Color.WHITE);
 		painelContratos.setBounds(198, 154, 864, 356);
@@ -464,108 +571,6 @@ public class TelaGerenciarCliente extends JDialog {
 		});
 		btnNewButton_2.setBounds(437, 290, 93, 28);
 		painelDeposito.add(btnNewButton_2);
-		
-		JPanel painelDadosIniciais = new JPanel();
-		painelDadosIniciais.setBackground(new Color(0, 128, 128));
-		painelDadosIniciais.setBounds(198, 153, 864, 358);
-		painelPrincipal.add(painelDadosIniciais);
-		painelDadosIniciais.setLayout(null);
-		
-		JButton btnEditar = new JButton("Editar");
-		btnEditar.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				TelaCadastroCliente telaEdicao = new TelaCadastroCliente(0, cliente_selecionado, isto);
-				telaEdicao.setTelaPai(isto);
-				telaEdicao.setVisible(true);
-			}
-		});
-		btnEditar.setBounds(629, 297, 89, 23);
-		painelDadosIniciais.add(btnEditar);
-		
-		JPanel painelInfo = new JPanel();
-		painelInfo.setBackground(new Color(0, 128, 128));
-		painelInfo.setBounds(22, 11, 696, 275);
-		painelDadosIniciais.add(painelInfo);
-		painelInfo.setLayout(new MigLayout("", "[][]", "[][][][][][][]"));
-		
-		JLabel lblNewLabel = new JLabel("TIpo Pessoa:");
-		lblNewLabel.setFont(new Font("Tahoma", Font.PLAIN, 14));
-		painelInfo.add(lblNewLabel, "cell 0 0");
-		
-		
-		
-		 lblTipoPessoa = new JLabel("Juridica");
-		 lblTipoPessoa.setForeground(Color.WHITE);
-		 lblTipoPessoa.setFont(new Font("Tahoma", Font.PLAIN, 16));
-		 painelInfo.add(lblTipoPessoa, "cell 1 0");
-		 
-		  lblTipoIdentificacao = new JLabel("CPF/CNPJ:");
-		  lblTipoIdentificacao.setFont(new Font("Tahoma", Font.PLAIN, 14));
-		  painelInfo.add(lblTipoIdentificacao, "cell 0 1,alignx right");
-		  
-		   lblIdentificacao = new JLabel("120.927.986-00");
-		   lblIdentificacao.setForeground(Color.WHITE);
-		   lblIdentificacao.setFont(new Font("Tahoma", Font.PLAIN, 16));
-		   painelInfo.add(lblIdentificacao, "cell 1 1");
-		   
-		    lblIe = new JLabel("IE:");
-		    lblIe.setFont(new Font("Tahoma", Font.PLAIN, 14));
-		    painelInfo.add(lblIe, "cell 0 3,alignx right");
-		    
-		    lblIE = new JLabel("120.927.986-00");
-		    lblIE.setForeground(Color.WHITE);
-		    lblIE.setFont(new Font("Tahoma", Font.PLAIN, 16));
-		    painelInfo.add(lblIE, "cell 1 3,alignx left");
-		    
-		    JLabel lblnasdad = new JLabel("Status:");
-		    lblnasdad.setFont(new Font("Tahoma", Font.PLAIN, 14));
-		    painelInfo.add(lblnasdad, "cell 0 4,alignx right");
-		    
-		     lblStatus = new JLabel("120.927.986-00");
-		     lblStatus.setForeground(Color.WHITE);
-		     lblStatus.setFont(new Font("Tahoma", Font.PLAIN, 16));
-		     painelInfo.add(lblStatus, "cell 1 4,alignx left");
-		     
-		     JLabel lblEndereo = new JLabel("Endereço:");
-		     lblEndereo.setFont(new Font("Tahoma", Font.PLAIN, 14));
-		     painelInfo.add(lblEndereo, "cell 0 6,alignx right");
-		     
-		      lblEndereco = new JLabel("Rodovia MG 188, km 242, Zona Rural, Guarda-Mor/MG 38570-000");
-		      lblEndereco.setForeground(Color.WHITE);
-		      lblEndereco.setFont(new Font("Tahoma", Font.PLAIN, 16));
-		      painelInfo.add(lblEndereco, "cell 1 6");
-		      lblNewLabel.setFont(new Font("Tahoma", Font.PLAIN, 16));
-		      lblNewLabel.setBounds(45, 67, 115, 20);
-		      
-		      JButton btnNewButton = new JButton("Baixar Notas");
-		      btnNewButton.addActionListener(new ActionListener() {
-		      	public void actionPerformed(ActionEvent e) {
-		      		
-		      	  TelaEscolherDataBaixarNotas tela = new TelaEscolherDataBaixarNotas(cliente_local, isto);
-		      	  tela.setVisible(true);
-		      	}
-		      });
-		      btnNewButton.setBounds(527, 294, 98, 28);
-		      painelDadosIniciais.add(btnNewButton);
-		      
-		      JButton btnAcessarNfs = new JButton("Ver NF's");
-		      btnAcessarNfs.addActionListener(new ActionListener() {
-		      	public void actionPerformed(ActionEvent e) {
-
-
-					TelaTodasNotasFiscais telaTodasNotasFiscais = new TelaTodasNotasFiscais(0,1,isto);
-						telaTodasNotasFiscais.setTelaPai(isto);
-						telaTodasNotasFiscais.limpar();
-						telaTodasNotasFiscais.desabilitarBtnSelecionar();
-						telaTodasNotasFiscais.setClienteSelecionado(cliente_selecionado);
-						telaTodasNotasFiscais.pesquisar_notas();
-						telaTodasNotasFiscais.setVisible(true);
-					 
-					
-		      	}
-		      });
-		      btnAcessarNfs.setBounds(425, 294, 90, 28);
-		      painelDadosIniciais.add(btnAcessarNfs);
 		
 		
 			
@@ -936,8 +941,8 @@ public class TelaGerenciarCliente extends JDialog {
 	
 		   setInformacoesDocumentos();
 	     setInfo();
-	     setInfoContratosComoVendedor();
-	     setInfoContratosComoComprador();
+	    // setInfoContratosComoVendedor();
+	    // setInfoContratosComoComprador();
 
 	     setInfoPontuacao();
 	     

@@ -126,7 +126,6 @@ import main.java.views_personalizadas.TelaNotificacao;
 import main.java.views_personalizadas.TelaNotificacaoSuperior;
 import main.java.views_personalizadas.TelaNotificacaoSuperiorModoBusca;
 import net.miginfocom.swing.MigLayout;
-import outros.ValidaCNPJ;
 import main.java.cadastros.CadastroLogin;
 import main.java.cadastros.CadastroNuvem;
 import main.java.cadastros.CadastroPontuacao;
@@ -274,7 +273,11 @@ public class TelaFinanceiroCentroCusto extends JDialog {
 			public void actionPerformed(ActionEvent e) {
 				if(modo_operacao == 0) {
 					if(tela_retorno == 1) {
+						if(janela_pai instanceof TelaFinanceiroCadastroLancamento)
 						((TelaFinanceiroCadastroLancamento) janela_pai).setCentroCusto(getCentroCustoSelecionado());
+						else if(janela_pai instanceof TelaFinanceiroCadastroEmprestimo)
+							((TelaFinanceiroCadastroEmprestimo) janela_pai).setCentroCusto(getCentroCustoSelecionado());
+
 						isto.dispose();
 					}
 				}
