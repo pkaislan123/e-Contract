@@ -123,6 +123,7 @@ public class GerenciarBancoLancamento {
 				dado.setNumero_parcelas(rs.getInt("numero_parcelas"));
 				dado.setContador(rs.getInt("contador"));
 				dado.setId_detinatario_nf(rs.getInt("id_destinatario_nf"));
+				dado.setId_documento(rs.getInt("id_documento"));
 				try{
 					dado.setValor(new BigDecimal(rs.getString("valor_total")));
 				}catch(Exception e) {
@@ -442,6 +443,7 @@ public class GerenciarBancoLancamento {
 			dado.setNumero_parcelas(rs.getInt("numero_parcelas"));
 			dado.setContador(rs.getInt("contador"));
 			dado.setId_detinatario_nf(rs.getInt("id_destinatario_nf"));
+			dado.setId_documento(rs.getInt("id_documento"));
 
 			try{
 				dado.setValor(new BigDecimal(rs.getString("valor_total")));
@@ -520,6 +522,34 @@ public class GerenciarBancoLancamento {
 			}
 		
 	}
+	
+	public boolean atualizarIdDocuemnto(int id_documento, int id_lancamento) {
+		try {
+			Connection conn = null;
+			String atualizar = null;
+			PreparedStatement pstm;
+
+			//atualizar = "update financeiro_conta set nome_conta = ?, id_grupo_contas = ?,  tipo_conta = ?, observacao = ?,descricao = ? where id_conta = ? ";
+			atualizar = "update lancamento set id_documento = ? where id_lancamento = ?";
+			
+			conn = ConexaoBanco.getConexao();
+			pstm = conn.prepareStatement(atualizar);
+
+			pstm.setInt(1, id_documento);
+			pstm.setInt(2, id_lancamento);
+
+			
+		
+			pstm.execute();
+			// JOptionPane.showMessageDialog(null, "Cliente atualizado com sucesso");
+			ConexaoBanco.fechaConexao(conn);
+			return true;
+		} catch (Exception e) {
+			JOptionPane.showMessageDialog(null, "Erro ao atualizar o lançamento no banco de dados\nErro: " + e.getMessage() + "\nCausa: " + e.getCause());
+			return false;
+		}
+	
+}
 	
 	public boolean atualizarDiretorioLancamento(String diretorio_lancamento, int id_lancamento) {
 		try {

@@ -2054,7 +2054,7 @@ public class GerenciarBancoContratos {
 
 	}
 
-	public ArrayList<CadastroContrato> getContratosPorClienteParaRelatorio(int flag_select, int id_busca_safra,
+	public ArrayList<CadastroContrato> getContratosPorClienteParaRelatorio(int id_busca_safra,
 			int id_cliente, int id_cliente2, int id_contra_parte, int participacao) {
 
 		/*JOptionPane.showMessageDialog(null, 

@@ -185,7 +185,6 @@ public class TelaFinanceiroCadastroParcela extends JFrame {
     private JTextFieldPersonalizado entValor;
     private JTextFieldPersonalizado entDescricao;
     private JTextFieldPersonalizado entDataVencimento;
-    private JTextFieldPersonalizado entCaminhoArquivo;
 	private JTextFieldPersonalizado entIdentificador = new JTextFieldPersonalizado();
 	private JEditorPane entObservacao = new JEditorPane();
 	private JComboBox cbStatus;
@@ -298,28 +297,6 @@ public class TelaFinanceiroCadastroParcela extends JFrame {
 		 cbStatus.addItem("Pago ");
 		painelPrincipal.add(cbStatus, "cell 1 5 2 1,growx");
 		
-		JLabel lblArquivo = new JLabel("Arquivo:");
-		lblArquivo.setFont(new Font("Tahoma", Font.PLAIN, 16));
-		painelPrincipal.add(lblArquivo, "cell 0 6,alignx trailing");
-		
-		entCaminhoArquivo = new JTextFieldPersonalizado();
-		entCaminhoArquivo.setFont(new Font("Tahoma", Font.PLAIN, 16));
-		entCaminhoArquivo.setColumns(10);
-		entCaminhoArquivo.setForeground(Color.black);
-
-		painelPrincipal.add(entCaminhoArquivo, "cell 1 6,growx");
-		
-		JButton btnSelecionarArquivo = new JButton("Selecionar");
-		btnSelecionarArquivo.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				selecionarArquivo();
-			}
-		});
-		btnSelecionarArquivo.setBackground(new Color(0, 51, 0));
-		btnSelecionarArquivo.setFont(new Font("SansSerif", Font.PLAIN, 14));
-		btnSelecionarArquivo.setForeground(Color.WHITE);
-		painelPrincipal.add(btnSelecionarArquivo, "cell 2 6,alignx left");
-		
 		JButton btnFinalizar = new JButton("Finalizar");
 		btnFinalizar.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
@@ -415,11 +392,7 @@ public class TelaFinanceiroCadastroParcela extends JFrame {
 			btnAtualizar.setVisible(false);
 		}else if(modo_operacao == 1) {
 			//edicao
-			lblArquivo.setVisible(false);
-			entCaminhoArquivo.setVisible(false);
-			entCaminhoArquivo.setEnabled(false);
-			btnSelecionarArquivo.setEnabled(false);
-			btnSelecionarArquivo.setVisible(false);
+			
 			btnFinalizar.setEnabled(false);
 			btnFinalizar.setVisible(false);
 			rotinasEdicao(parcela);
@@ -461,28 +434,9 @@ public class TelaFinanceiroCadastroParcela extends JFrame {
 		entDescricao.setText(descricao);
 		entDataVencimento.setText(data_vencimento);
 
-		entCaminhoArquivo.setText(caminho_arquivo);
 		entValor.setText(valor.toString());
 		cbStatus.setSelectedIndex(status);
 		
-	}
-	
-	public void selecionarArquivo() {
-
-		JOptionPane.showMessageDialog(isto, "Na próxima tela, importe o arquivo referente a sua parcela!");
-
-		new JFXPanel();
-		Platform.runLater(() -> {
-			FileChooser d = new FileChooser();
-			File file = d.showOpenDialog(null);
-			String caminho_arquivo = "";
-			if (file != null) {
-				caminho_arquivo = file.getAbsolutePath();
-				entCaminhoArquivo.setText(caminho_arquivo);
-				// JOptionPane.showMessageDialog(isto, "CAminho do arquivo selecionado: " +
-				// file.getAbsolutePath());		
-			}
-		});
 	}
 	
 	public Parcela getDadosSalvar(int id_lancamento_pai) {
@@ -494,7 +448,6 @@ public class TelaFinanceiroCadastroParcela extends JFrame {
 		observacao = entObservacao.getText();
 		descricao = entDescricao.getText();
 		data_vencimento = entDataVencimento.getText();
-		caminho_arquivo = entCaminhoArquivo.getText();
 		BigDecimal valor = BigDecimal.ZERO;
 		
 		if(rdbtnFluxoDeCaixaSim.isSelected()) {
@@ -517,7 +470,6 @@ public class TelaFinanceiroCadastroParcela extends JFrame {
 		
 		parcela.setDescricao(descricao);
 		parcela.setStatus(0);
-		parcela.setCaminho_arquivo(caminho_arquivo);
 		parcela.setId_lancamento_pai(id_lancamento_pai);
 		parcela.setIdentificador(identificador);
 		parcela.setObservacao(observacao);

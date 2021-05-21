@@ -16,6 +16,7 @@ import main.java.cadastros.CadastroLogin;
 import main.java.cadastros.CadastroModelo;
 import main.java.cadastros.CadastroProduto;
 import main.java.cadastros.CadastroSafra;
+import main.java.cadastros.CadastroTarefaGeral;
 import main.java.cadastros.RegistroQuantidade;
 import main.java.cadastros.RegistroRecebimento;
 import main.java.outros.DadosGlobais;
@@ -92,6 +93,50 @@ public class GerenciarBancoDocumento {
 			}
 			rs.close();
 			stmt.close();
+			return result;
+		} catch (Exception e) {
+			JOptionPane.showMessageDialog(null,
+					"Erro ao inserir o documento no banco de" + "dados\n Erro: "  );
+			return -1;
+		}
+
+	}
+	
+
+	
+	public int inserirDocumentoLancamento(CadastroDocumento doc) {
+		System.out.println("Inserir Documento foi chamado!");
+		int result = -1;
+		int id_cliente = -1;
+
+		String sql_cadastro_documento = "insert into documento (nome, descricao, tipo, id_pai, nome_arquivo, id_lancamento) values ('"
+
+				+ doc.getNome() + "','" + 
+				doc.getDescricao() + "','" +
+				doc.getTipo() + "','" +
+				doc.getId_pai() + "','" +
+				doc.getNome_arquivo() + "','"
+				+ doc.getId_lancamento()
+				
+				+ "')";
+
+		// cria os strings para cadastro o cliente
+
+		try {
+			Connection conn = ConexaoBanco.getConexao();
+			Statement stmt = (Statement) conn.createStatement();
+			int numero = stmt.executeUpdate(sql_cadastro_documento, Statement.RETURN_GENERATED_KEYS);
+
+			ResultSet rs = stmt.getGeneratedKeys();
+			if (rs.next()) {
+				result = rs.getInt(1);
+			}
+			//rs.close();
+			//stmt.close();
+			
+			
+			
+			
 			return result;
 		} catch (Exception e) {
 			JOptionPane.showMessageDialog(null,
@@ -209,6 +254,41 @@ public class GerenciarBancoDocumento {
         return listaDocs;
 	}
 	
+	public ArrayList<CadastroDocumento> getDocumentosLancamento(int id_cliente){
+		Connection conn = null;
+        PreparedStatement pstm = null;
+        ResultSet rs = null;
+  	    String select_documentos = "select * from documento where id_lancamento = ?";
+
+        ArrayList<CadastroDocumento> listaDocs = new ArrayList<CadastroDocumento>();
+        try {
+            conn = ConexaoBanco.getConexao();
+            pstm = conn.prepareStatement(select_documentos);
+            pstm.setInt(1,  id_cliente);
+            rs = pstm.executeQuery();
+            while (rs.next()) {
+            	CadastroDocumento doc = new CadastroDocumento();
+            
+            	doc.setId_documento(rs.getInt("id_documento"));
+
+            	doc.setNome(rs.getString("nome"));
+
+            	doc.setDescricao(rs.getString("descricao"));
+            	doc.setTipo(rs.getInt("tipo"));
+            	doc.setId_pai(rs.getInt("id_pai"));
+            	doc.setNome_arquivo(rs.getString("nome_arquivo"));
+            	doc.setId_lancamento(rs.getInt("id_lancamento"));
+
+                
+          
+            	listaDocs.add(doc);
+            }
+            ConexaoBanco.fechaConexao(conn, pstm, rs);
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(null, "Erro ao listar documentos"  );
+        }
+        return listaDocs;
+	}
 	
 	public boolean removerDocumento(int id_documento)
 	{

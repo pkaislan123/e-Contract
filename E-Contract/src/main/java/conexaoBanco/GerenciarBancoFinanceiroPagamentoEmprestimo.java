@@ -120,6 +120,7 @@ public class GerenciarBancoFinanceiroPagamentoEmprestimo {
 				dado.setEspecie(rs.getString("especie"));
 				dado.setQuantidade(rs.getDouble("quantidade"));
 				dado.setUnidade_medida(rs.getString("unidade_medida"));
+				dado.setId_documento(rs.getInt("id_documento"));
 
 				try{
 					dado.setValor_unitario(new BigDecimal(rs.getString("valor_unitario")));
@@ -191,7 +192,8 @@ public class GerenciarBancoFinanceiroPagamentoEmprestimo {
 				dado.setDescricao(rs.getString("descricao"));
 				dado.setObservacao(rs.getString("observacao"));
 				dado.setCaminho_arquivo(rs.getString("caminho_arquivo"));
-			
+				dado.setId_documento(rs.getInt("id_documento"));
+
 			
 
 				lista.add(dado);
@@ -251,7 +253,8 @@ public class GerenciarBancoFinanceiroPagamentoEmprestimo {
 			dado.setObservacao(rs.getString("observacao"));
 			dado.setCaminho_arquivo(rs.getString("caminho_arquivo"));
 		
-			
+			dado.setId_documento(rs.getInt("id_documento"));
+
 			return dado;
 
 		} catch (Exception e) {
@@ -435,6 +438,36 @@ public class GerenciarBancoFinanceiroPagamentoEmprestimo {
 			conn = ConexaoBanco.getConexao();
 			pstm = conn.prepareStatement(atualizar);
 			pstm.setString(1, caminho_arquivo);
+			pstm.setInt(2, id_pagamento);
+
+		
+
+			pstm.execute();
+			// JOptionPane.showMessageDialog(null, "Cliente atualizado com sucesso");
+			JOptionPane.showMessageDialog(null,"Arquivo do Pagamento Atualizado");
+			ConexaoBanco.fechaConexao(conn);
+			return true;
+		} catch (Exception e) {
+			JOptionPane.showMessageDialog(null, "Erro ao atualizar o pagamento no banco de dados\nErro: " + e.getMessage() + "\nCausa: " + e.getCause());
+			return false;
+		}
+	
+}
+	
+	
+	public boolean atualizarIdDocumento(int id_documento, int id_pagamento) {
+
+		try {
+			Connection conn = null;
+			String atualizar = null;
+			PreparedStatement pstm;
+
+			//atualizar = "update financeiro_conta set nome_conta = ?, id_grupo_contas = ?,  tipo_conta = ?, observacao = ?,descricao = ? where id_conta = ? ";
+			atualizar = "update financeiro_pagamento_emprestimo set id_documento = ?  where id_pagamento = ?";
+			
+			conn = ConexaoBanco.getConexao();
+			pstm = conn.prepareStatement(atualizar);
+			pstm.setInt(1, id_documento);
 			pstm.setInt(2, id_pagamento);
 
 		

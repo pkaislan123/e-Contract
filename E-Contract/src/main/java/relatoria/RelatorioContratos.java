@@ -527,7 +527,7 @@ public class RelatorioContratos {
 					//	lista_contratos = procura_contratos_grupo.getContratosPorClienteParaRelatorioGrupo(4, id_safra,
 						//		cliente.getId());
 					lista_contratos = procura_contratos_grupo.getContratosPorClienteParaRelatorio(
-							5, id_safra,cliente.getId() ,cliente_alvo2_global.getId(),contra_parte_global.getId() , participacao_global);
+							 id_safra,cliente.getId() ,cliente_alvo2_global.getId(),contra_parte_global.getId() , participacao_global);
 
 					
 				} else {
@@ -539,7 +539,7 @@ public class RelatorioContratos {
 								cliente.getId());
 					*/
 					lista_contratos = procura_contratos_grupo.getContratosPorClienteParaRelatorio(
-							5, id_safra, contra_parte_global.getId() ,cliente_alvo2_global.getId(),cliente.getId() , participacao_global);
+							 id_safra, contra_parte_global.getId() ,cliente_alvo2_global.getId(),cliente.getId() , participacao_global);
 
 				}
 
@@ -579,8 +579,6 @@ public class RelatorioContratos {
 
 			String text = "";
 			text = text + "Grupo: " + grupo_alvo_global.getNome_grupo().toUpperCase();
-			text = text + "\nQuantidade de Contratos: " + num_total_contratos;
-			text = text + "\nTotal de Sacos: " + z.format(quantidade_total_sacos);
 
 			// adicionar integrantes
 			text = text + "\nIntegrantes: ";
@@ -594,14 +592,12 @@ public class RelatorioContratos {
 				text = text + " , ";
 			}
 
-			String valorTotalString = NumberFormat.getCurrencyInstance(ptBr).format(valor_total_pagamentos);
-			text = text + "\nValor Total: " + valorTotalString;
 			substituirTexto(text, -1);
 
 			substituirTexto("", -1);
 
 				if(num_total_contratos > 0) {
-			criarTabelaInfoGrupo(num_total_contratos, quantidade_total_sacos, valor_total_pagamentos);
+			criarTabelaInfoGrupo();
 			substituirTexto("", -1);
 				}else {
 					
@@ -666,7 +662,6 @@ public class RelatorioContratos {
 				// relatorio externo
 				this.incluir_comissao = false;
 				this.somar_sub_contratos = false;
-				this.contrato_irmao = false;
 				
 					
 				if(lista_global.size() > 0) {
@@ -1056,28 +1051,19 @@ public class RelatorioContratos {
 				ArrayList<CadastroContrato> lista_inicial;
 
 				ArrayList<CadastroContrato> contratos_deste_cliente = new ArrayList<>();
-				// contratos por comprador
-				if (grupo_alvo_global != null) {
-					/*lista_inicial = gerenciar_recebimentos
-							.getContratosPorClienteParaRelatorioGrupo(1, id_safra, cliente_alvo_global.getId());
-					*/
-					lista_inicial = gerenciar_recebimentos.getContratosPorClienteParaRelatorio(1,
-							id_safra, cliente_alvo_global.getId(), cliente_alvo2_global.getId(),contra_parte_global.getId(),participacao_global);
-				
-				
-				}else {
+			
 					
 					if(contrato_como_comprador) {
-						lista_inicial = gerenciar_recebimentos.getContratosPorClienteParaRelatorio(1,
+						lista_inicial = gerenciar_recebimentos.getContratosPorClienteParaRelatorio(
 								id_safra, cliente_alvo_global.getId(), cliente_alvo2_global.getId(),contra_parte_global.getId(),participacao_global);
 					
 					}else {
-						lista_inicial = gerenciar_recebimentos.getContratosPorClienteParaRelatorio(1,
+						lista_inicial = gerenciar_recebimentos.getContratosPorClienteParaRelatorio(
 								id_safra, contra_parte_global.getId(), cliente_alvo2_global.getId(), cliente_alvo_global.getId() ,participacao_global);
 					
 					}
 					
-				}
+				
 
 				if(tipo_contrato == 1) {
 						contratos_deste_cliente = lista_inicial;
@@ -6455,13 +6441,16 @@ public class RelatorioContratos {
 
 	}
 
-	public void criarTabelaInfoGrupo(int numero_total_contratos, double volume_total_sacos,
-			BigDecimal soma_total_pagamentos) {
+	public void criarTabelaInfoGrupo() {
 
 		NumberFormat z = NumberFormat.getNumberInstance();
 
 		Locale ptBr = new Locale("pt", "BR");
-
+		double quantidade_total_sacos = 0;
+		BigDecimal valor_total_pagamentos = BigDecimal.ZERO;
+		int numero_total_contratos = 0;
+		
+		
 		// criarParagrafo(1);
 		// linhas x colunas
 		int num_linhas_carregamentos = grupo_alvo_global.getClientes().size() + 1 + 1;
@@ -6515,34 +6504,24 @@ public class RelatorioContratos {
 			}
 
 			// numero de contratos desde clinete
-			ArrayList<CadastroContrato> lista_contratos_como_comprador = new ArrayList<>();
-			ArrayList<CadastroContrato> lista_final = new ArrayList<>();
+			ArrayList<CadastroContrato> lista_contratos_encontrados = new ArrayList<>();
+			ArrayList<CadastroContrato> lista_local = new ArrayList<>();
 
 			if (contrato_como_comprador) {
-				// //JOptionPane.showMessageDialog(null, "Tipo do contrato: " + tipo_contrato);
 				
-/*
-					lista_contratos_como_comprador = procura_contratos_grupo.getContratosPorClienteParaRelatorioGrupo(4,
-							id_safra, cliente.getId());
-							*/
-					lista_contratos_como_comprador = procura_contratos_grupo.getContratosPorClienteParaRelatorio(
-							5, id_safra,cliente.getId() ,cliente_alvo2_global.getId(),contra_parte_global.getId() , participacao_global);
+				lista_contratos_encontrados = procura_contratos_grupo.getContratosPorClienteParaRelatorio(
+							id_safra,cliente.getId() ,cliente_alvo2_global.getId(),contra_parte_global.getId() , participacao_global);
 			
 			} else {
-				// //JOptionPane.showMessageDialog(null, "Pesquisa como vendedor");
-
-				// //JOptionPane.showMessageDialog(null, "Tipo do contrato: " + tipo_contrato);
-				/*	lista_contratos_como_comprador = procura_contratos_grupo.getContratosPorClienteParaRelatorioGrupo(5,
-							id_safra, cliente.getId());
-					*/
-					lista_contratos_como_comprador = procura_contratos_grupo.getContratosPorClienteParaRelatorio(
-							5, id_safra,contra_parte_global.getId(),cliente_alvo2_global.getId(), cliente.getId()   , participacao_global);
+				
+				lista_contratos_encontrados = procura_contratos_grupo.getContratosPorClienteParaRelatorio(
+							 id_safra,contra_parte_global.getId(),cliente_alvo2_global.getId(), cliente.getId()   , participacao_global);
 			
 
 			}
 
-			if (lista_contratos_como_comprador.size() > 0) {
-				for(CadastroContrato contrato_buscado : lista_contratos_como_comprador) {
+			if (lista_contratos_encontrados.size() > 0) {
+				for(CadastroContrato contrato_buscado : lista_contratos_encontrados) {
 
 					boolean ja_incluso = false;
 					for(CadastroContrato contratos_na_lista_final : lista_global) {
@@ -6555,20 +6534,60 @@ public class RelatorioContratos {
 					
 					if(!ja_incluso) {
 						lista_global.add(contrato_buscado);
-						lista_final.add(contrato_buscado);	
+						lista_local.add(contrato_buscado);	
 					}
 				}
-				//lista_final.addAll(lista_contratos);
 
 			}
-			
+			ArrayList<CadastroContrato> lista_final = new ArrayList<>();
+
+			for(CadastroContrato contrato_lista_global : lista_local)	{
+				if (tipo_contrato == 1) {
+						lista_final.add(contrato_lista_global);
+						
+				} else {
+					// relatorio externo ao comprador
+					this.incluir_comissao = false;
+					this.somar_sub_contratos = false;
+					
+						
+					if(lista_local.size() > 0) {
+						// verifica pelos subcontratos de cada contrato retornado
+
+							ArrayList<CadastroContrato> sub_contratos = procura_contratos_grupo
+									.getSubContratosParaRelatorio(contrato_lista_global.getId());
+							telaEmEsperaRelatoria
+									.setInfo("Lista de sub-contratos do alvo como comprador criada", 30);
 
 
-			double quantidade_total_sacos = 0;
-			BigDecimal valor_total_pagamentos = BigDecimal.ZERO;
+							if (sub_contratos.size() > 0) {
+								// existem subcontratos nesse contrato
+								for (CadastroContrato sub : sub_contratos) {
+									
+
+									lista_final.add(sub);
+								}
+
+								
+
+							}else {
+								
+								lista_final.add(contrato_lista_global);
+
+							}
+
+						
+					}
+					
+				}
+
+			}
+
+		
 
 			// quantidade total de sacas
 			for (CadastroContrato contrato : lista_final) {
+				numero_total_contratos++;
 				quantidade_total_sacos += contrato.getQuantidade();
 				valor_total_pagamentos = valor_total_pagamentos.add(contrato.getValor_a_pagar());
 			}
@@ -6597,7 +6616,7 @@ public class RelatorioContratos {
 			tableRowOne = table.getRow(i);
 			tableRowOne.getCell(4).removeParagraph(0);
 			paragraph = tableRowOne.getCell(4).addParagraph();
-			criarParagrafoTabela(paragraph, ((int) (100 * quantidade_total_sacos / volume_total_sacos)) + " %", false);
+			criarParagrafoTabela(paragraph, ((int) (100 * quantidade_total_sacos / quantidade_total_sacos)) + " %", false);
 
 			tableRowOne = table.getRow(i);
 			tableRowOne.getCell(5).removeParagraph(0);
@@ -6620,7 +6639,7 @@ public class RelatorioContratos {
 		tableRowOne = table.getRow(i);
 		tableRowOne.getCell(3).removeParagraph(0);
 		paragraph = tableRowOne.getCell(3).addParagraph();
-		criarParagrafoTabela(paragraph, z.format(volume_total_sacos) + " sacos", false);
+		criarParagrafoTabela(paragraph, z.format(quantidade_total_sacos) + " sacos", false);
 
 		tableRowOne = table.getRow(i);
 		tableRowOne.getCell(4).removeParagraph(0);
@@ -6630,7 +6649,7 @@ public class RelatorioContratos {
 		tableRowOne = table.getRow(i);
 		tableRowOne.getCell(5).removeParagraph(0);
 		paragraph = tableRowOne.getCell(5).addParagraph();
-		String valorString = NumberFormat.getCurrencyInstance(ptBr).format(soma_total_pagamentos.doubleValue());
+		String valorString = NumberFormat.getCurrencyInstance(ptBr).format(valor_total_pagamentos);
 
 		criarParagrafoTabela(paragraph, valorString, false);
 

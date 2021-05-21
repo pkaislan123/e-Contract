@@ -115,6 +115,7 @@ public class GerenciarBancoParcelasEmprestimo {
 				dado.setEspecie(rs.getString("especie"));
 				dado.setQuantidade(rs.getDouble("quantidade"));
 				dado.setUnidade_medida(rs.getString("unidade_medida"));
+				dado.setId_documento(rs.getInt("id_documento"));
 
 				try{
 					dado.setValor_unitario(new BigDecimal(rs.getString("valor_unitario")));
@@ -168,6 +169,7 @@ dado.setFluxo_caixa(rs.getInt("fluxo_caixa"));
 dado.setObjeto(rs.getInt("objeto"));
 dado.setEspecie(rs.getString("especie"));
 dado.setUnidade_medida(rs.getString("unidade_medida"));
+dado.setId_documento(rs.getInt("id_documento"));
 
 dado.setQuantidade(rs.getDouble("quantidade"));
 try{
@@ -220,6 +222,7 @@ dado.setCaminho_arquivo(rs.getString("caminho_arquivo"));
 			dado.setIdentificador(rs.getString("identificador"));
 			dado.setData_vencimento(rs.getString("data_vencimento"));
 			dado.setFluxo_caixa(rs.getInt("fluxo_caixa"));
+			dado.setId_documento(rs.getInt("id_documento"));
 
 			dado.setObjeto(rs.getInt("objeto"));
 			dado.setEspecie(rs.getString("especie"));
@@ -380,6 +383,35 @@ dado.setCaminho_arquivo(rs.getString("caminho_arquivo"));
 			conn = ConexaoBanco.getConexao();
 			pstm = conn.prepareStatement(atualizar);
 			pstm.setInt(1, status);
+			pstm.setInt(2, id_parcela);
+
+		
+
+			pstm.execute();
+			// JOptionPane.showMessageDialog(null, "Cliente atualizado com sucesso");
+			System.out.println("Parcela Atualizada com sucesso");
+			ConexaoBanco.fechaConexao(conn);
+			return true;
+		} catch (Exception e) {
+			JOptionPane.showMessageDialog(null, "Erro ao atualizar a parcela no banco de dados\nErro: " + e.getMessage() + "\nCausa: " + e.getCause());
+			return false;
+		}
+	
+}
+	
+public boolean atualizarIdDocumento(int id_documento, int id_parcela) {
+		
+		try {
+			Connection conn = null;
+			String atualizar = null;
+			PreparedStatement pstm;
+
+			//atualizar = "update financeiro_conta set nome_conta = ?, id_grupo_contas = ?,  tipo_conta = ?, observacao = ?,descricao = ? where id_conta = ? ";
+			atualizar = "update parcela_emprestimo set id_documento = ?  where id_parcela = ?";
+			
+			conn = ConexaoBanco.getConexao();
+			pstm = conn.prepareStatement(atualizar);
+			pstm.setInt(1, id_documento);
 			pstm.setInt(2, id_parcela);
 
 		

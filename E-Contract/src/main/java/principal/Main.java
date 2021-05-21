@@ -29,6 +29,8 @@ import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 
+import com.formdev.flatlaf.FlatLightLaf;
+
 import main.java.gui.TelaEntrada;
 import main.java.gui.TelaFinanceiro;
 import main.java.manipular.ArquivoConfiguracoes;
@@ -83,6 +85,8 @@ public class Main {
 	    }
 	    else {
 		try {
+			
+			
 			for ( LookAndFeelInfo info : UIManager.getInstalledLookAndFeels() ) {
 			if ( "Nimbus".equals( info.getName() ) ) {
 			UIManager.setLookAndFeel( info.getClassName() );
@@ -99,6 +103,7 @@ public class Main {
 			exc.printStackTrace();
 			}
 		
+
 		//TelaPadrao padrao = new TelaPadrao();
 		
 	   //Abre a tela de login

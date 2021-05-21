@@ -513,6 +513,8 @@ public class RelatorioLancamento {
 
 		NumberFormat z = NumberFormat.getNumberInstance();
 		BigDecimal valor_total_parcelas = BigDecimal.ZERO;
+		BigDecimal valor_total_pagamentos = BigDecimal.ZERO;
+
 		Locale ptBr = new Locale("pt", "BR");
 
 		// criarParagrafo(1);
@@ -538,7 +540,7 @@ public class RelatorioLancamento {
 		tableRowOne = table.getRow(cabecalho);
 		tableRowOne.getCell(0).removeParagraph(0);
 		paragraph = tableRowOne.getCell(0).addParagraph();
-		criarParagrafoTabela(paragraph,"PARCELAS",true);
+		criarParagrafoTabela(paragraph,"PARCELAS",true, "000000", 0);
 		tableRowOne.getCell(0).getCTTc().addNewTcPr().addNewShd().setFill("FFFFFF");
 		CTHMerge hMerge = CTHMerge.Factory.newInstance();
 		hMerge.setVal(STMerge.RESTART);
@@ -558,17 +560,24 @@ public class RelatorioLancamento {
 
 		}
 
+		
+		tableRowOne = table.getRow(cabecalho);
+		tableRowOne.getCell(5).removeParagraph(0);
+		paragraph = tableRowOne.getCell(5).addParagraph();
+		criarParagrafoTabela(paragraph, "-----------", true);
+		tableRowOne.getCell(5).getCTTc().addNewTcPr().addNewShd().setFill("2F4F4F");
+
+		
 		tableRowOne = table.getRow(cabecalho);
 		tableRowOne.getCell(6).removeParagraph(0);
 		paragraph = tableRowOne.getCell(6).addParagraph();
-		criarParagrafoTabela(paragraph,"PAGAMENTOS",true);
+		criarParagrafoTabela(paragraph,"PAGAMENTOS",true, "000000", 0);
 		tableRowOne.getCell(6).getCTTc().addNewTcPr().addNewShd().setFill("FFFFFF");
 		CTHMerge hMerge2 = CTHMerge.Factory.newInstance();
-
 		hMerge2.setVal(STMerge.RESTART);
 		table.getRow(cabecalho).getCell(6).getCTTc().getTcPr().setHMerge(hMerge2);
 
-		for (int celula = 6; celula <= 13; celula++) {
+		for (int celula = 7; celula <= 13; celula++) {
 			tableRowOne = table.getRow(cabecalho);
 			tableRowOne.getCell(celula).removeParagraph(0);
 			paragraph = tableRowOne.getCell(celula).addParagraph();
@@ -581,6 +590,8 @@ public class RelatorioLancamento {
 			table.getRow(cabecalho).getCell(celula).getCTTc().getTcPr().setHMerge(hMerge1);
 
 		}
+		
+		
 		
 		cabecalho++;
 
@@ -613,6 +624,8 @@ public class RelatorioLancamento {
 		tableRowOne.getCell(5).removeParagraph(0);
 		paragraph = tableRowOne.getCell(5).addParagraph();
 		criarParagrafoTabela(paragraph, "-----------", true);
+		tableRowOne.getCell(5).getCTTc().addNewTcPr().addNewShd().setFill("2F4F4F");
+
 		
 		tableRowOne = table.getRow(cabecalho);
 		tableRowOne.getCell(6).removeParagraph(0);
@@ -708,7 +721,7 @@ public class RelatorioLancamento {
 			
 			
 			}
-			
+			try {
 			FinanceiroPagamento pagamento = pagamentos.get(contador_linhas);
 			if(pagamento != null) {
 				tableRowOne = table.getRow(i);
@@ -804,7 +817,7 @@ public class RelatorioLancamento {
 				tableRowOne.getCell(10).removeParagraph(0);
 				paragraph = tableRowOne.getCell(10).addParagraph();
 				criarParagrafoTabela(paragraph,NumberFormat.getCurrencyInstance(ptBr).format(pagamento.getValor()), false);
-				
+				valor_total_pagamentos = valor_total_pagamentos.add(pagamento.getValor());
 				tableRowOne = table.getRow(i);
 				tableRowOne.getCell(11).removeParagraph(0);
 				paragraph = tableRowOne.getCell(11).addParagraph();
@@ -837,6 +850,16 @@ public class RelatorioLancamento {
 
 				
 			}
+			}catch(Exception e) {
+				
+			}
+			
+			tableRowOne = table.getRow(i);
+			tableRowOne.getCell(5).removeParagraph(0);
+			paragraph = tableRowOne.getCell(5).addParagraph();
+			criarParagrafoTabela(paragraph, "-----------", true);
+			tableRowOne.getCell(5).getCTTc().addNewTcPr().addNewShd().setFill("2F4F4F");
+
 			
 			i++;
 			contador_linhas++;
@@ -852,8 +875,66 @@ public class RelatorioLancamento {
 		paragraph = tableRowOne.getCell(3).addParagraph();
 		criarParagrafoTabela(paragraph,  NumberFormat.getCurrencyInstance(ptBr).format(valor_total_parcelas), true);
 
+		tableRowOne = table.getRow(i);
+		tableRowOne.getCell(5).removeParagraph(0);
+		paragraph = tableRowOne.getCell(5).addParagraph();
+		criarParagrafoTabela(paragraph, "-----------", true);
+		tableRowOne.getCell(5).getCTTc().addNewTcPr().addNewShd().setFill("2F4F4F");
+
+		
+		tableRowOne = table.getRow(i);
+		tableRowOne.getCell(9).removeParagraph(0);
+		paragraph = tableRowOne.getCell(9).addParagraph();
+		criarParagrafoTabela(paragraph, "Total: ", false);
+		
+		tableRowOne = table.getRow(i);
+		tableRowOne.getCell(10).removeParagraph(0);
+		paragraph = tableRowOne.getCell(10).addParagraph();
+		criarParagrafoTabela(paragraph,  NumberFormat.getCurrencyInstance(ptBr).format(valor_total_pagamentos), true);
+
+		//status
+				double diferenca = valor_total_pagamentos.doubleValue() - valor_total_parcelas.doubleValue();
+				String status_pagamento = "[Pagamentos:] ";
+				if (diferenca == 0) {
+					status_pagamento += "[Pagamento Concluído]";
+				} else if (diferenca > 0) {
+					status_pagamento += "[Excedeu] [em] [" + NumberFormat.getCurrencyInstance(ptBr).format(diferenca) + "]";
+
+				} else if (diferenca < 0) {
+					status_pagamento += "[Incompleto], [falta] [" + NumberFormat.getCurrencyInstance(ptBr).format(diferenca) + "]";
+
+				}
+				substituirTexto("",0);
+				substituirTexto(status_pagamento,0);
+				
 	}
 	
+	public void substituirTexto(String text_amostra, int alinhamento) {
+
+		// criarParagrafo(2);
+
+		// pegar os paragrafos
+		String separador_paragrafo[] = text_amostra.split("\n");
+		for (String paragrafo : separador_paragrafo) {
+			criarParagrafo(alinhamento);
+
+			paragrafo = paragrafo.replaceAll(" ", "&");
+
+			String separador_palabras[] = paragrafo.split("&");
+			for (String palavra : separador_palabras) {
+				if (palavra.contains("[") || palavra.contains("]")) {
+					adicionarTextoParagrafoAtual(palavra.replaceAll("[\\[\\]]", "") + " ", true);
+
+				} else {
+
+					adicionarTextoParagrafoAtual(palavra + " ", false);
+
+				}
+
+			}
+		}
+
+	}
 
 	public void setTableAlign(XWPFTable table, ParagraphAlignment align) {
 		CTTblPr tblPr = table.getCTTbl().getTblPr();

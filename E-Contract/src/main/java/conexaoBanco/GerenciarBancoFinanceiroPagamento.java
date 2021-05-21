@@ -107,6 +107,8 @@ public class GerenciarBancoFinanceiroPagamento {
 				dado.setTipo_pagador(rs.getInt("tipo_pagador"));
 				dado.setFluxo_caixa(rs.getInt("fluxo_caixa"));
 				dado.setId_pagador(rs.getInt("id_pagador"));
+				dado.setId_documento(rs.getInt("id_documento"));
+
 				try{
 					dado.setValor(new BigDecimal(rs.getString("valor")));
 				}catch(Exception e) {
@@ -153,6 +155,7 @@ public class GerenciarBancoFinanceiroPagamento {
 				dado.setFluxo_caixa(rs.getInt("fluxo_caixa"));
 				dado.setId_pagador(rs.getInt("id_pagador"));
 				dado.setId_recebedor(rs.getInt("id_recebedor"));
+				dado.setId_documento(rs.getInt("id_documento"));
 
 				try{
 					dado.setValor(new BigDecimal(rs.getString("valor")));
@@ -203,6 +206,7 @@ public class GerenciarBancoFinanceiroPagamento {
 			dado.setFluxo_caixa(rs.getInt("fluxo_caixa"));
 			dado.setId_pagador(rs.getInt("id_pagador"));
 			dado.setId_recebedor(rs.getInt("id_recebedor"));
+			dado.setId_documento(rs.getInt("id_documento"));
 
 			try{
 				dado.setValor(new BigDecimal(rs.getString("valor")));
@@ -429,5 +433,33 @@ public class GerenciarBancoFinanceiroPagamento {
 	
 }
 
+	public boolean atualizarIdDoDocumento(int id_documento, int id_pagamento) {
+
+		try {
+			Connection conn = null;
+			String atualizar = null;
+			PreparedStatement pstm;
+
+			//atualizar = "update financeiro_conta set nome_conta = ?, id_grupo_contas = ?,  tipo_conta = ?, observacao = ?,descricao = ? where id_conta = ? ";
+			atualizar = "update financeiro_pagamento set id_documento = ?  where id_pagamento = ?";
+			
+			conn = ConexaoBanco.getConexao();
+			pstm = conn.prepareStatement(atualizar);
+			pstm.setInt(1, id_documento);
+			pstm.setInt(2, id_pagamento);
+
+		
+
+			pstm.execute();
+			// JOptionPane.showMessageDialog(null, "Cliente atualizado com sucesso");
+			JOptionPane.showMessageDialog(null,"Arquivo do Pagamento Atualizado");
+			ConexaoBanco.fechaConexao(conn);
+			return true;
+		} catch (Exception e) {
+			JOptionPane.showMessageDialog(null, "Erro ao atualizar o pagamento no banco de dados\nErro: " + e.getMessage() + "\nCausa: " + e.getCause());
+			return false;
+		}
+	
+}
 	
 }

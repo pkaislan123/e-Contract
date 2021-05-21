@@ -27,7 +27,7 @@ public class Parcela {
   PRIMARY KEY (`id_parcela`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8
 	 */
-	int id_parcela, id_lancamento_pai, status, fluxo_caixa;
+	int id_parcela, id_lancamento_pai, id_documento, status, fluxo_caixa;
 	String identificador,data_vencimento, descricao, observacao, caminho_arquivo;
 	BigDecimal valor;
 	

@@ -125,7 +125,7 @@ C:\Users\aisla\git\e-Contract\E-Contract\src\main\java\manipular\EditarExcel.jav
 C:\Users\aisla\git\e-Contract\E-Contract\src\main\java\gui\TelaCalendario.java
 C:\Users\aisla\git\e-Contract\E-Contract\src\main\java\cadastros\Registros.java
 C:\Users\aisla\git\e-Contract\E-Contract\src\main\java\gui\TelaVizualizarGrafico.java
-C:\Users\aisla\git\e-Contract\E-Contract\src\outros\ValidaCNPJ.java
+C:\Users\aisla\git\e-Contract\E-Contract\src\outros\ValidaCNPj.java
 C:\Users\aisla\git\e-Contract\E-Contract\src\main\java\conexaoBanco\GerenciarBancoGrupos.java
 C:\Users\aisla\git\e-Contract\E-Contract\src\main\java\gui\TelaFinanceiroLancamento.java
 C:\Users\aisla\git\e-Contract\E-Contract\src\main\java\conexaoBanco\ConexaoBanco.java
@@ -192,6 +192,7 @@ C:\Users\aisla\git\e-Contract\E-Contract\src\main\java\graficos\GraficoLinha.jav
 C:\Users\aisla\git\e-Contract\E-Contract\src\main\java\views_personalizadas\TelaEscolhaRelatorioRomaneios.java
 C:\Users\aisla\git\e-Contract\E-Contract\src\main\java\gui\TelaCriarNota.java
 C:\Users\aisla\git\e-Contract\E-Contract\src\main\java\gui\TelaPagamentos.java
+C:\Users\aisla\git\e-Contract\E-Contract\src\main\java\graficos\GraficoLinhaDupla.java
 C:\Users\aisla\git\e-Contract\E-Contract\src\main\java\graficos\JPanelGraficoPadrao.java
 C:\Users\aisla\git\e-Contract\E-Contract\src\main\java\gui\TelaCliente.java
 C:\Users\aisla\git\e-Contract\E-Contract\src\main\java\gui\TelaFinanceiroGerenciarLancamento.java

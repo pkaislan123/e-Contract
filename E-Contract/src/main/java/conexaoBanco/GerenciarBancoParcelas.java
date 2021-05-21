@@ -106,6 +106,7 @@ public class GerenciarBancoParcelas {
 				dado.setObservacao(rs.getString("observacao"));
 				dado.setCaminho_arquivo(rs.getString("caminho_arquivo"));
 			
+				dado.setId_documento(rs.getInt("id_documento"));
 
 				lista.add(dado);
 
@@ -148,7 +149,8 @@ public class GerenciarBancoParcelas {
 				dado.setDescricao(rs.getString("descricao"));
 				dado.setObservacao(rs.getString("observacao"));
 				dado.setCaminho_arquivo(rs.getString("caminho_arquivo"));
-			
+				dado.setId_documento(rs.getInt("id_documento"));
+
 
 				lista.add(dado);
 
@@ -182,6 +184,7 @@ public class GerenciarBancoParcelas {
 			dado.setId_lancamento_pai(rs.getInt("id_lancamento_pai"));
 			dado.setIdentificador(rs.getString("identificador"));
 			dado.setFluxo_caixa(rs.getInt("fluxo_caixa"));
+			dado.setId_documento(rs.getInt("id_documento"));
 
 
 			try{
@@ -330,4 +333,34 @@ public class GerenciarBancoParcelas {
 	}
 	
 	
+	public boolean atualizarIdDocumento(int id_documento, int id_parcela) {
+		
+		try {
+			Connection conn = null;
+			String atualizar = null;
+			PreparedStatement pstm;
+
+			//atualizar = "update financeiro_conta set nome_conta = ?, id_grupo_contas = ?,  tipo_conta = ?, observacao = ?,descricao = ? where id_conta = ? ";
+			atualizar = "update parcela set id_documento = ?  where id_parcela = ?";
+			
+			conn = ConexaoBanco.getConexao();
+			pstm = conn.prepareStatement(atualizar);
+			pstm.setInt(1, id_documento);
+			pstm.setInt(2, id_parcela);
+
+		
+
+			pstm.execute();
+			// JOptionPane.showMessageDialog(null, "Cliente atualizado com sucesso");
+			System.out.println("Parcela Atualizada com sucesso");
+			ConexaoBanco.fechaConexao(conn);
+			return true;
+		} catch (Exception e) {
+			JOptionPane.showMessageDialog(null, "Erro ao atualizar a parcela no banco de dados\nErro: " + e.getMessage() + "\nCausa: " + e.getCause());
+			return false;
+		}
+	
+}
+
+
 }

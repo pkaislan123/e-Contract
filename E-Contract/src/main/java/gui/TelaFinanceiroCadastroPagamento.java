@@ -186,7 +186,6 @@ public class TelaFinanceiroCadastroPagamento extends JFrame {
     private JTextFieldPersonalizado entValor;
     private JTextFieldPersonalizado entDescricao;
     private JTextFieldPersonalizado entDataVencimento;
-    private JTextFieldPersonalizado entCaminhoArquivo;
 	private JTextFieldPersonalizado entIdentificador = new JTextFieldPersonalizado();
 	private JEditorPane entObservacao = new JEditorPane();
 	private CondicaoPagamento condicao_pagamento;
@@ -412,18 +411,6 @@ public class TelaFinanceiroCadastroPagamento extends JFrame {
 		btnSelecionarRecebedor.setFont(new Font("SansSerif", Font.PLAIN, 14));
 		btnSelecionarRecebedor.setBackground(new Color(0, 51, 0));
 		painelPrincipal.add(btnSelecionarRecebedor, "cell 3 10");
-
-		
-		JLabel lblArquivo = new JLabel("Arquivo:");
-		lblArquivo.setFont(new Font("Tahoma", Font.PLAIN, 16));
-		painelPrincipal.add(lblArquivo, "cell 0 11,alignx trailing");
-		
-		entCaminhoArquivo = new JTextFieldPersonalizado();
-		entCaminhoArquivo.setFont(new Font("Tahoma", Font.PLAIN, 16));
-		entCaminhoArquivo.setColumns(10);
-		entCaminhoArquivo.setForeground(Color.black);
-
-		painelPrincipal.add(entCaminhoArquivo, "cell 1 11 2 1,growx");
 		
 		JButton btnFinalizar = new JButton("Finalizar");
 		btnFinalizar.addActionListener(new ActionListener() {
@@ -481,17 +468,6 @@ public class TelaFinanceiroCadastroPagamento extends JFrame {
 			}
 		});
 		
-		JButton btnSelecionarArquivo = new JButton("Selecionar");
-		btnSelecionarArquivo.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				selecionarArquivo();
-			}
-		});
-		btnSelecionarArquivo.setBackground(new Color(0, 51, 0));
-		btnSelecionarArquivo.setFont(new Font("SansSerif", Font.PLAIN, 14));
-		btnSelecionarArquivo.setForeground(Color.WHITE);
-		painelPrincipal.add(btnSelecionarArquivo, "cell 3 11,alignx left");
-		
 		JLabel lblObservao = new JLabel("Observação:");
 		lblObservao.setFont(new Font("Tahoma", Font.PLAIN, 16));
 		painelPrincipal.add(lblObservao, "cell 0 12,alignx right");
@@ -537,11 +513,7 @@ public class TelaFinanceiroCadastroPagamento extends JFrame {
 			btnAtualizar.setVisible(false);
 		}else if(modo_operacao == 1) {
 			//edicao
-			lblArquivo.setVisible(false);
-			entCaminhoArquivo.setVisible(false);
-			entCaminhoArquivo.setEnabled(false);
-			btnSelecionarArquivo.setEnabled(false);
-			btnSelecionarArquivo.setVisible(false);
+		
 			btnFinalizar.setEnabled(false);
 			btnFinalizar.setVisible(false);
 			rotinasEdicao(pagamento,lancamento_pai);
@@ -648,24 +620,6 @@ GerenciarBancoClientes gerenciar_clientes = new GerenciarBancoClientes();
 		
 	}
 	
-	public void selecionarArquivo() {
-
-		JOptionPane.showMessageDialog(isto, "Na próxima tela, importe o arquivo referente a sua parcela!");
-
-		new JFXPanel();
-		Platform.runLater(() -> {
-			FileChooser d = new FileChooser();
-			File file = d.showOpenDialog(null);
-			String caminho_arquivo = "";
-			if (file != null) {
-				caminho_arquivo = file.getAbsolutePath();
-				entCaminhoArquivo.setText(caminho_arquivo);
-				// JOptionPane.showMessageDialog(isto, "CAminho do arquivo selecionado: " +
-				// file.getAbsolutePath());		
-			}
-		});
-	}
-	
 	public FinanceiroPagamento getDadosSalvar(Lancamento lancamento_pai) {
 		FinanceiroPagamento pagamento = new FinanceiroPagamento();
 		
@@ -675,7 +629,6 @@ GerenciarBancoClientes gerenciar_clientes = new GerenciarBancoClientes();
 		observacao = entObservacao.getText();
 		descricao = entDescricao.getText();
 		data_pagamento = entDataVencimento.getText();
-		caminho_arquivo = entCaminhoArquivo.getText();
 		BigDecimal valor = BigDecimal.ZERO;
 		
 		try {
@@ -690,7 +643,6 @@ GerenciarBancoClientes gerenciar_clientes = new GerenciarBancoClientes();
 		}
 		
 		pagamento.setDescricao(descricao);
-		pagamento.setCaminho_arquivo(caminho_arquivo);
 		pagamento.setId_lancamento(lancamento_pai.getId_lancamento());
 	
 		pagamento.setIdentificador(identificador);

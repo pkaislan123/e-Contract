@@ -1191,6 +1191,12 @@ public class TelaRelatoriaContratos extends JFrame {
 
 					}
 					grupo_alvo.setClientes(clientes);
+					if(cliente_alvo2 != null) {
+						cliente_alvo2_relatorio = cliente_alvo2;
+					}
+					if(contra_parte1 != null) {
+						contra_parte = contra_parte1;
+					}
 
 				}
 				//participacao

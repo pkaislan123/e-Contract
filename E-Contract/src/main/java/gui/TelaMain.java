@@ -392,6 +392,14 @@ public class TelaMain extends JFrame {
 			}
 		});
 		Dados.add(mntmNewMenuItem);
+		
+		JMenuItem mntmSilos = new JMenuItem("Silos");
+		mntmSilos.setMargin(new Insets(0, 10, 0, 0));
+		Dados.add(mntmSilos);
+		
+		JMenuItem mntmClassificadores = new JMenuItem("Classificadores");
+		mntmClassificadores.setMargin(new Insets(0, 10, 0, 0));
+		Dados.add(mntmClassificadores);
 		JMenu mnContratos = new JMenu("Contratos");
 		mnContratos.setIcon(new ImageIcon(TelaPrincipal.class.getResource("/imagens/icone_contrato_menu.png")));
 		mnContratos.setFont(new Font("Arial", Font.PLAIN, 18));

@@ -279,9 +279,6 @@ public class TelaFinanceiroCadastroLancamento extends JDialog {
 	private Log GerenciadorLog;
 	private CadastroLogin login;
 	private ConfiguracoesGlobais configs_globais;
-	private final JLabel lblNewLabel_1_2_2_2 = new JLabel("Arquivo:");
-	private final JTextFieldPersonalizado entCaminhoArquivo = new JTextFieldPersonalizado();
-	private final JButton btnSelecionarConta_1 = new JButton("Selecionar");
 
 	public void getDadosGlobais() {
 		// gerenciador de log
@@ -537,22 +534,6 @@ public class TelaFinanceiroCadastroLancamento extends JDialog {
 		cbStatusInicial.setFont(new Font("SansSerif", Font.PLAIN, 16));
 
 		painelConcluir.add(cbStatusInicial, "cell 1 3 2 1,growx");
-		lblNewLabel_1_2_2_2.setFont(new Font("SansSerif", Font.PLAIN, 16));
-
-		painelConcluir.add(lblNewLabel_1_2_2_2, "cell 0 4,alignx trailing");
-
-		painelConcluir.add(entCaminhoArquivo, "cell 1 4,growx");
-		entCaminhoArquivo.setForeground(Color.black);
-		btnSelecionarConta_1.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				selecionarArquivo();
-
-			}
-		});
-		btnSelecionarConta_1.setForeground(Color.WHITE);
-		btnSelecionarConta_1.setBackground(new Color(0, 0, 204));
-
-		painelConcluir.add(btnSelecionarConta_1, "cell 2 4");
 		lblNewLabel_1_2_2_1.setFont(new Font("SansSerif", Font.PLAIN, 16));
 
 		painelConcluir.add(lblNewLabel_1_2_2_1, "cell 0 5,alignx trailing,aligny top");
@@ -723,24 +704,6 @@ public class TelaFinanceiroCadastroLancamento extends JDialog {
 
 	}
 
-	public void selecionarArquivo() {
-
-		JOptionPane.showMessageDialog(isto, "Na próxima tela, importe o arquivo referente a este lançamento!");
-
-		new JFXPanel();
-		Platform.runLater(() -> {
-			FileChooser d = new FileChooser();
-			File file = d.showOpenDialog(null);
-			String caminho_arquivo = "";
-			if (file != null) {
-				caminho_arquivo = file.getAbsolutePath();
-				entCaminhoArquivo.setText(caminho_arquivo);
-				// JOptionPane.showMessageDialog(isto, "CAminho do arquivo selecionado: " +
-				// file.getAbsolutePath());
-			}
-		});
-	}
-
 	public void rotinasEdicao(Lancamento lancamento) {
 
 		if (lancamento.getTipo_lancamento() == 0) {
@@ -798,7 +761,6 @@ public class TelaFinanceiroCadastroLancamento extends JDialog {
 
 		entObservacao.setText(lancamento.getObservacao());
 		entDescricao.setText(lancamento.getDescricao());
-		entCaminhoArquivo.setText(lancamento.getCaminho_arquivo());
 
 	}
 
@@ -1035,9 +997,7 @@ public class TelaFinanceiroCadastroLancamento extends JDialog {
 		status = cbStatusInicial.getSelectedIndex();
 		observacao = entObservacao.getText();
 		descricao = entDescricao.getText();
-		caminho_arquivo = entCaminhoArquivo.getText();
 
-		lancamento.setCaminho_arquivo(caminho_arquivo);
 		lancamento.setObservacao(observacao);
 		lancamento.setDescricao(descricao);
 
