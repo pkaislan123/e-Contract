@@ -22,6 +22,8 @@ import javax.swing.table.DefaultTableModel;
 
 import main.java.cadastros.CadastroCliente;
 import main.java.conexaoBanco.GerenciarBancoClientes;
+import net.miginfocom.swing.MigLayout;
+import java.awt.Font;
 
 
 public class TelaArmazem extends JDialog {
@@ -76,7 +78,7 @@ public class TelaArmazem extends JDialog {
     }
 		
 	}
-	public TelaArmazem(Window janela_pai) {
+	public TelaArmazem(int flag_retorno, Window janela_pai) {
 
 		//setModal(true);
 
@@ -92,25 +94,12 @@ public class TelaArmazem extends JDialog {
 		painelPrincipal.setBackground(new Color(255, 255, 255));
 		painelPrincipal.setBorder(new EmptyBorder(5, 5, 5, 5));
 		setContentPane(painelPrincipal);
-		painelPrincipal.setLayout(null);
-		
-		JButton btnarmazm = new JButton("+Armazém");
-		btnarmazm.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-			
-			TelaCadastroCliente tela = new TelaCadastroCliente(5,  null, isto);
-			tela.setTelaPai(isto);
-			tela.setVisible(true);
-			}
-		});
-		btnarmazm.setBounds(519, 68, 89, 23);
-		painelPrincipal.add(btnarmazm);
+		painelPrincipal.setLayout(new MigLayout("", "[653px][][][]", "[23px][grow][23px]"));
 		
 		
 		
 		JPanel panel = new JPanel();
-		panel.setBounds(10, 106, 653, 266);
-		painelPrincipal.add(panel);
+		painelPrincipal.add(panel, "cell 0 1 4 1,grow");
 		//panel.setLayout(null);
 	
 		
@@ -129,7 +118,6 @@ public class TelaArmazem extends JDialog {
         .setPreferredWidth(120);
        
         pesquisar(modelo);
-        panel.setLayout(null);
 	
 		
         JScrollPane scrollPane = new JScrollPane(tabela);
@@ -140,12 +128,15 @@ public class TelaArmazem extends JDialog {
 
         	}
         });
-        scrollPane.setBounds(10, 11, 633, 244);
+        panel.setLayout(new BorderLayout(0, 0));
         scrollPane.setAutoscrolls(true);
         scrollPane.setBackground(new Color(255, 255, 255));
 		panel.add(scrollPane);
 		
 		JButton btnEditar = new JButton("Editar");
+		btnEditar.setBackground(new Color(0, 0, 255));
+		btnEditar.setForeground(Color.WHITE);
+		btnEditar.setFont(new Font("SansSerif", Font.BOLD, 16));
 		btnEditar.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
 				int indiceDaLinha = tabela.getSelectedRow();
@@ -156,8 +147,38 @@ public class TelaArmazem extends JDialog {
 
 			}
 		});
-		btnEditar.setBounds(574, 400, 89, 23);
-		painelPrincipal.add(btnEditar);
+		painelPrincipal.add(btnEditar, "cell 0 2,alignx right,aligny top");
+		
+		JButton btnSelecionar = new JButton("Selecionar");
+		btnSelecionar.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				
+				if(flag_retorno == 1) {
+					int indice = tabela.getSelectedRow();
+					((TelaSiloCadastroSilo) janela_pai).setArmazem(armazens_disponiveis.get(indice));
+					isto.dispose();
+				}
+				
+			}
+		});
+		btnSelecionar.setForeground(Color.WHITE);
+		btnSelecionar.setFont(new Font("SansSerif", Font.BOLD, 16));
+		btnSelecionar.setBackground(new Color(51, 51, 0));
+		painelPrincipal.add(btnSelecionar, "cell 2 2");
+		
+		JButton btnarmazm = new JButton("+Armazém");
+		btnarmazm.setBackground(new Color(0, 51, 51));
+		btnarmazm.setForeground(Color.WHITE);
+		btnarmazm.setFont(new Font("SansSerif", Font.BOLD, 16));
+		btnarmazm.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+			
+			TelaCadastroCliente tela = new TelaCadastroCliente(5,  null, isto);
+			tela.setTelaPai(isto);
+			tela.setVisible(true);
+			}
+		});
+		painelPrincipal.add(btnarmazm, "cell 3 2,alignx right,aligny top");
 		
 		this.setLocationRelativeTo(janela_pai);
 

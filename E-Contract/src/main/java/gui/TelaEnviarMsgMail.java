@@ -756,12 +756,10 @@ public void set_msg_livre() {
 			 Email mail = new Email();
 			   String remetente = "";
 		        if(cBEmailRemetente.getSelectedItem().toString().equals(login.getEmail())) {
-		        	JOptionPane.showMessageDialog(isto, "Email 1: " + login.getEmail() +" rementente: " + login.getEmail());
 			        mail.logar( login.getEmail(), login.getSenhaEmail().trim());
 		        	remetente = login.getEmail();
 
 		        }else if(cBEmailRemetente.getSelectedItem().toString().equals(login.getEmail2())) {
-		        	JOptionPane.showMessageDialog(isto, "Email 2: " + login.getEmail2() +" rementente: " + login.getEmail2());
 		        	remetente = login.getEmail2();
 		        	mail.logar( login.getEmail2(), login.getSenhaEmail2().trim());
 

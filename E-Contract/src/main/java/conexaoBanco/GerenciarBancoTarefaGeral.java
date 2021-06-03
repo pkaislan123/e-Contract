@@ -47,7 +47,6 @@ public class GerenciarBancoTarefaGeral {
 				ResultSet rs = stmt.getGeneratedKeys();
 				if (rs.next()) {
 					result = rs.getInt(1);
-					System.out.println("Id tarefa inserida: " + result);
 				}
 				rs.close();
 				stmt.close();
@@ -55,7 +54,7 @@ public class GerenciarBancoTarefaGeral {
 				return true;
 
 			} catch (Exception e) {
-				JOptionPane.showMessageDialog(null, "Erro ao inserir a tarefa no banco de " + "dados ");
+				JOptionPane.showMessageDialog(null, "Erro ao inserir a tarefa no banco de dados\nErro: " + e.getMessage() + "\n" + e.getCause());
 				return false;
 			}
 		} else {
@@ -168,7 +167,7 @@ public class GerenciarBancoTarefaGeral {
 					tarefa.setData_agendada(rs.getString("data_agendada"));
 					tarefa.setPrioridade(rs.getInt("prioridade"));
 					tarefa.setTipo(rs.getInt("tipo"));
-
+					tarefa.setId_lancamento_pai(rs.getInt("id_lancamento_pai"));
 
 					lista_tarefas.add(tarefa);
 

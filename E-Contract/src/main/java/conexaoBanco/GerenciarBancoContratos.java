@@ -365,9 +365,9 @@ public class GerenciarBancoContratos {
 				return result;
 
 			} catch (Exception e) {
-				// JOptionPane.showMessageDialog(null,
-				// "Erro ao inserir o Contrato no banco de " + "dados " );
-				GerenciadorLog.registrarLogDiario("falha", "falha ao adicionar novo contrato: " + " causa: ");
+				JOptionPane.showMessageDialog(null,
+				"Erro ao inserir o Contrato no banco de dados, Erro: " + e.getMessage() + "\nCausa: " + e.getCause() );
+				GerenciadorLog.registrarLogDiario("falha", "falha ao adicionar novo contrato: \nErro: " + e.getMessage() + "\nCausa: " + e.getCause());
 				return -1;
 			}
 		} else {

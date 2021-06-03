@@ -33,7 +33,7 @@ public class Email
      props = new Properties();
      
      if(email_local.contains("gmail")) {
-    	 JOptionPane.showMessageDialog(null, "Email gmail");
+
     /** Parâmetros de conexão com servidor Gmail */
     props.put("mail.smtp.host", "smtp.gmail.com");
     props.put("mail.smtp.socketFactory.port", "465");
@@ -42,7 +42,7 @@ public class Email
     props.put("mail.smtp.auth", "true");
     props.put("mail.smtp.port", "465");
      }else if(email_local.contains("hotmail") || email_local.contains("live")) {
-    	 JOptionPane.showMessageDialog(null, "Email hotmail.com");
+
 
            /** Parâmetros de conexão com servidor Hotmail */
            props.put("mail.transport.protocol", "smtp");

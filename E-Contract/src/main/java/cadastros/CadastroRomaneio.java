@@ -8,6 +8,57 @@ public class CadastroRomaneio {
 	double umidade, impureza, ardidos, avariados;
 	double umidade2, impureza2, ardidos2, avariados2;
 
+	int id_classificador, id_transgenese, id_silo, status_monsanto, royalties;
+	public int getRoyalties() {
+		return royalties;
+	}
+
+	public void setRoyalties(int royalties) {
+		this.royalties = royalties;
+	}
+
+	String observacao;
+	
+	public int getStatus_monsanto() {
+		return status_monsanto;
+	}
+
+	public void setStatus_monsanto(int status_monsanto) {
+		this.status_monsanto = status_monsanto;
+	}
+
+	public String getObservacao() {
+		return observacao;
+	}
+
+	public void setObservacao(String observacao) {
+		this.observacao = observacao;
+	}
+
+	public int getId_classificador() {
+		return id_classificador;
+	}
+
+	public void setId_classificador(int id_classificador) {
+		this.id_classificador = id_classificador;
+	}
+
+	public int getId_transgenese() {
+		return id_transgenese;
+	}
+
+	public void setId_transgenese(int id_transgenese) {
+		this.id_transgenese = id_transgenese;
+	}
+
+	public int getId_silo() {
+		return id_silo;
+	}
+
+	public void setId_silo(int id_silo) {
+		this.id_silo = id_silo;
+	}
+
 	String classificador;
 	
 	public double getUmidade2() {

@@ -32,6 +32,7 @@ import org.icepdf.ri.util.PropertiesManager;
 
 import main.java.cadastros.CadastroContrato;
 import main.java.views_personalizadas.TelaEmEspera;
+import main.java.views_personalizadas.TelaEscolha;
 
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
@@ -159,6 +160,25 @@ public class TelaVizualizarPdf extends JFrame {
 						
 						//cria tela para salvar, imprimir ou enviar o documento
 						
+						
+					}else if(pai instanceof TelaCriarRecibo ) {
+						if (JOptionPane.showConfirmDialog(isto, 
+					            "Deseja Salvar o Recibo?", "Salvar Recibo", 
+					            JOptionPane.YES_NO_OPTION,
+					            JOptionPane.QUESTION_MESSAGE) == JOptionPane.YES_OPTION){
+							
+							    ((TelaCriarRecibo) pai).salvar(file);	
+							    isto.dispose();
+					        }
+						else
+						{
+							isto.dispose();
+							
+						}
+					}else if(pai instanceof TelaFinanceiroGerenciarLancamento) {
+						TelaEscolha tela = new TelaEscolha(0, file,(TelaFinanceiroGerenciarLancamento) pai);
+						//public TelaEscolha(int flag, CadastroContrato contrato, File documento, Window janela_pai) {
+						tela.setVisible(true);
 						
 					}
 				}

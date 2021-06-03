@@ -33,6 +33,7 @@ import com.jgoodies.forms.layout.FormLayout;
 import com.jgoodies.forms.layout.ColumnSpec;
 import com.jgoodies.forms.layout.RowSpec;
 
+import keeptoo.KGradientPanel;
 import main.java.cadastros.CadastroAditivo;
 import main.java.cadastros.CadastroAviso;
 import main.java.cadastros.CadastroBaseArquivos;
@@ -57,6 +58,8 @@ import main.java.cadastros.Contato;
 import main.java.cadastros.DadosCarregamento;
 import main.java.cadastros.DadosContratos;
 import main.java.cadastros.DadosRecebimento;
+import main.java.cadastros.FinanceiroPagamentoCompleto;
+import main.java.cadastros.Lancamento;
 import main.java.cadastros.RegistroQuantidade;
 import main.java.cadastros.RegistroRecebimento;
 import main.java.classesExtras.Endereco;
@@ -145,46 +148,104 @@ import main.java.conexaoBanco.GerenciarBancoProdutos;
 import main.java.conexaoBanco.GerenciarBancoSafras;
 
 import javax.swing.border.LineBorder;
-
-
+import javax.swing.border.MatteBorder;
 
 public class TelaPadrao extends JDialog {
 
-	private final JPanel painelPrincipal = new JPanel();
-    private JLabel lblTotalContratosConcluidos, lblTotalContratos, lblTotalContratosAbertos;
-    private TelaPadrao isto;
-    private JDialog telaPai;
+	private TelaPadrao isto;
+	private JDialog telaPai;
 
 	public TelaPadrao(Window janela_pai) {
 
-		 isto = this;
-		
+		isto = this;
+
 		setResizable(true);
 		setTitle("E-Contract - Cadastro Parcela");
+		FinanceiroPagamentoCompleto pag_completo = new FinanceiroPagamentoCompleto();
 
-		
 		setBackground(new Color(255, 255, 255));
 		setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-		setBounds(100, 100, 1087, 620);
-		painelPrincipal.setBackground(new Color(255, 255, 255));
-		painelPrincipal.setBorder(new EmptyBorder(5, 5, 5, 5));
+		setBounds(100, 100, 675, 232);
+
+		KGradientPanel painelPrincipal = new KGradientPanel();
+		painelPrincipal.kEndColor = Color.WHITE;
+		painelPrincipal.kStartColor = new Color(255, 255, 255);
+		painelPrincipal.setBackground(new Color(153, 153, 102));
+		painelPrincipal.setLayout(new MigLayout("", "[:400px:400px][][grow]", "[][][][][][][grow][:50px:50px][][]"));
+		painelPrincipal.setBorder(new MatteBorder(0, 0, 2, 0, (Color) new Color(0, 0, 0)));
+
 		setContentPane(painelPrincipal);
-		painelPrincipal.setLayout(null);
-	
+
+		JLabel lblTipoLancamento = new JLabel("");
+		lblTipoLancamento.setOpaque(true);
+		lblTipoLancamento.setBackground(new Color(0, 51, 0));
+		lblTipoLancamento.setForeground(Color.WHITE);
+		lblTipoLancamento.setFont(new Font("Tahoma", Font.BOLD, 20));
+		painelPrincipal.add(lblTipoLancamento, "cell 0 0 3 1,growx");
+
+		Lancamento lan = new Lancamento();
+		lan.setTipo_lancamento(0);
+		pag_completo.setLancamento(lan);
+		if (pag_completo.getLancamento().getTipo_lancamento() == 0) {
+			// despesa
+			lblTipoLancamento.setBackground(new Color(204, 0, 0));
+			lblTipoLancamento.setText("DESPESA");
+		} else if (pag_completo.getLancamento().getTipo_lancamento() == 1) {
+			lblTipoLancamento.setBackground(Color.green);
+			lblTipoLancamento.setText("RECEITA");
+
+		}
+
+		JLabel lblIdentificador = new JLabel("Identificador");
+		lblIdentificador.setFont(new Font("Tahoma", Font.PLAIN, 14));
+		painelPrincipal.add(lblIdentificador, "cell 0 1");
+
+		JLabel lblData = new JLabel("");
+		lblData.setFont(new Font("Tahoma", Font.PLAIN, 16));
+		painelPrincipal.add(lblData, "flowx,cell 0 2");
+		lblData.setText("00/00/000");
+
+		JLabel lblNewLabel_2 = new JLabel("Valor:");
+		lblNewLabel_2.setFont(new Font("Tahoma", Font.PLAIN, 14));
+		painelPrincipal.add(lblNewLabel_2, "cell 1 2,alignx left");
+
+		JLabel lblValor = new JLabel("");
+		lblValor.setBorder(new MatteBorder(0, 0, 2, 0, (Color) new Color(0, 0, 0)));
+		lblValor.setFont(new Font("Tahoma", Font.BOLD, 16));
+		painelPrincipal.add(lblValor, "cell 2 2,alignx left");
+		lblValor.setText(pag_completo.getFpag().getValor().toString());
 		
+		JLabel lblFormaPagamento = new JLabel("Forma Pagamento");
+		lblFormaPagamento.setFont(new Font("Tahoma", Font.PLAIN, 16));
+		painelPrincipal.add(lblFormaPagamento, "cell 0 3");
 		
-		
+		JLabel lblStatus = new JLabel("Status");
+		lblStatus.setFont(new Font("Tahoma", Font.PLAIN, 16));
+		painelPrincipal.add(lblStatus, "cell 0 4");
+
+		JTextArea textAreaDescricao = new JTextArea();
+		textAreaDescricao.setOpaque(false);
+		textAreaDescricao.setBackground(Color.WHITE);
+		textAreaDescricao.setBorder(null);
+		textAreaDescricao.setLineWrap(true);
+		textAreaDescricao.setWrapStyleWord(true);
+		painelPrincipal.add(textAreaDescricao, "cell 0 5 1 3,grow");
+
+		JLabel lblNewLabel_4 = new JLabel("Saldo:");
+		lblNewLabel_4.setFont(new Font("Tahoma", Font.PLAIN, 14));
+		painelPrincipal.add(lblNewLabel_4, "cell 1 9,alignx left");
+
+		JLabel lblSaldo = new JLabel("R$ 100.000.000,00");
+		lblSaldo.setForeground(Color.BLACK);
+		lblSaldo.setFont(new Font("Tahoma", Font.BOLD, 16));
+		painelPrincipal.add(lblSaldo, "cell 2 9,alignx left");
 
 		this.setLocationRelativeTo(janela_pai);
 
-		
-		
-		
 	}
-	
+
 	public void setTelaPai(JDialog _tela_pai) {
 		this.telaPai = _tela_pai;
 	}
-	
-	
+
 }

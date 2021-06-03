@@ -674,6 +674,7 @@ public class RelatorioLancamento {
 
 		int contador_linhas = 0;
 		while (contador_linhas < num_linhas_tabela) {
+			try {
 			Parcela parcela = parcelas.get(contador_linhas);
 			
 			if(parcela != null) {
@@ -717,10 +718,13 @@ public class RelatorioLancamento {
 
 			}
 			criarParagrafoTabela(paragraph, status_lancamento, false);
-
-			
-			
 			}
+			}catch(Exception t) {
+				
+			}
+			
+			
+			
 			try {
 			FinanceiroPagamento pagamento = pagamentos.get(contador_linhas);
 			if(pagamento != null) {
@@ -732,27 +736,8 @@ public class RelatorioLancamento {
 				tableRowOne = table.getRow(i);
 				tableRowOne.getCell(7).removeParagraph(0);
 				paragraph = tableRowOne.getCell(7).addParagraph();
-				
-				if(lancamento_global.getTipo_lancamento() == 0) {
-					//despesa, o pagador é um cliente/fornecedor
-					if(pagamento.getId_pagador() > 0 ) {
-						String nome_cliente = "";
-						CadastroCliente pagador = new GerenciarBancoClientes().getCliente(pagamento.getId_pagador());
-						if(pagador.getTipo_pessoa() == 0) {
-							nome_cliente = pagador.getNome_empresarial();
-						}else {
-							nome_cliente = pagador.getNome_fantaia();
-
-						}
-					criarParagrafoTabela(paragraph,nome_cliente, false);
-					}else {
-						criarParagrafoTabela(paragraph,"Indefinido", false);
-
-					}
-
-				}else if(lancamento_global.getTipo_lancamento() == 1) {
-					//é uma receita
-					if(pagamento.getTipo_pagador() == 1) {
+			
+				if(pagamento.getTipo_pagador() == 1) {
 						//cliente fornecedor
 						if(pagamento.getId_pagador() > 0 ) {
 							String nome_cliente = "";
@@ -781,32 +766,41 @@ public class RelatorioLancamento {
 						}
 					}
 					
-				}
+				
 				
 				//recebedor
 				tableRowOne = table.getRow(i);
 				tableRowOne.getCell(8).removeParagraph(0);
 				paragraph = tableRowOne.getCell(8).addParagraph();
 				
-				//no lancamento de despesa o recebedor e o recebdor do lancamento
-				if(lancamento_global.getTipo_lancamento() == 0) {
-					//despesa
-					criarParagrafoTabela(paragraph,cliente_fornecedor, false);
+				if(pagamento.getTipo_recebedor() == 1) {
+					//cliente fornecedor
+					if(pagamento.getTipo_recebedor() > 0 ) {
+						String nome_cliente = "";
+						CadastroCliente recebedor = new GerenciarBancoClientes().getCliente(pagamento.getId_recebedor());
+						if(recebedor.getTipo_pessoa() == 0) {
+							nome_cliente = recebedor.getNome_empresarial();
+						}else {
+							nome_cliente = recebedor.getNome_fantaia();
 
-					
-				}else if(lancamento_global.getTipo_lancamento() == 1) {
-					//receita o recebedor e uma caixa ou banco
+						}
+					criarParagrafoTabela(paragraph,nome_cliente, false);
+					}else {
+						criarParagrafoTabela(paragraph,"Indefinido", false);
+
+					}
+				}else if(pagamento.getTipo_pagador() == 0) {
 					//caixa ou banco
 					if(pagamento.getId_recebedor() > 0 ) {
 						String nome_banco = "";
-						InstituicaoBancaria pagador = new GerenciarBancoInstituicaoBancaria().getInstituicaoBancaria(pagamento.getId_recebedor());
-							nome_banco = pagador.getNome_instituicao_bancaria();
+						InstituicaoBancaria recebedor = new GerenciarBancoInstituicaoBancaria().getInstituicaoBancaria(pagamento.getId_recebedor());
+							nome_banco = recebedor.getNome_instituicao_bancaria();
 					criarParagrafoTabela(paragraph,nome_banco, false);
 					}else {
 						criarParagrafoTabela(paragraph,"Indefinido", false);
 
 					}
-				}
+				}			
 				
 				tableRowOne = table.getRow(i);
 				tableRowOne.getCell(9).removeParagraph(0);

@@ -100,6 +100,7 @@ public class TelaFinanceiroLancamento extends JFrame {
 	 private ArrayList<Lancamento> lista_lancamentos = new ArrayList<>();
 	 private LancamentoTableModel modelo_lancamentos = new LancamentoTableModel();
 	 private JDialog telaPai;
+	 private JLabel lblValorTotalJurosRecebido, lblValorTotalJurosPago,lblValorVencerAPagar,lblValorVencerAReceber;
 	  private JLabel lblValorPago, lblValorTotalDespesas;
 	 private TableRowSorter<LancamentoTableModel> sorter;
 	 private JComboBox cbStatusLancamento, cbStatusCondicaoPagamento,cbStatusAoContador;
@@ -672,7 +673,7 @@ public class TelaFinanceiroLancamento extends JFrame {
 		painelDespesas.setBorder(new LineBorder(new Color(0, 0, 0), 2));
 		painelDespesas.setBackground(Color.WHITE);
 		panel_5.add(painelDespesas, "cell 0 0,grow");
-				 painelDespesas.setLayout(new MigLayout("", "[62px][109px][8px][91px][51px]", "[16px][20px][20px][20px]"));
+				 painelDespesas.setLayout(new MigLayout("", "[62px][109px][8px][91px][51px]", "[16px][20px][20px][][20px][]"));
 				 
 				 JLabel lblNewLabel_1 = new JLabel("Despesas:");
 				 lblNewLabel_1.setFont(new Font("SansSerif", Font.BOLD | Font.ITALIC, 12));
@@ -716,33 +717,49 @@ public class TelaFinanceiroLancamento extends JFrame {
 		   lblValorPago.setFont(new Font("SansSerif", Font.BOLD, 15));
 		   painelDespesas.add(lblValorPago, "cell 4 2,alignx left,aligny top");
 		   
+		   JLabel lblValorJurosPago = new JLabel("Valor Juros Pago:");
+		   lblValorJurosPago.setFont(new Font("SansSerif", Font.PLAIN, 14));
+		   painelDespesas.add(lblValorJurosPago, "cell 3 3,alignx right");
+		   
+		    lblValorTotalJurosPago = new JLabel("R$ 0,00");
+		   lblValorTotalJurosPago.setFont(new Font("SansSerif", Font.BOLD, 15));
+		   painelDespesas.add(lblValorTotalJurosPago, "cell 4 3");
+		   
 		   JLabel lblNewLabel_5 = new JLabel("        ");
-		   painelDespesas.add(lblNewLabel_5, "cell 0 3,alignx right,aligny center");
+		   painelDespesas.add(lblNewLabel_5, "cell 0 4,alignx right,aligny center");
 		   lblNewLabel_5.setOpaque(true);
 		   lblNewLabel_5.setBackground(Color.RED);
 		   lblNewLabel_5.setForeground(Color.BLACK);
 		   
 		   JLabel lblNewLabel_3 = new JLabel("A Pagar:");
-		   painelDespesas.add(lblNewLabel_3, "cell 1 3,alignx left,aligny bottom");
+		   painelDespesas.add(lblNewLabel_3, "cell 1 4,alignx left,aligny bottom");
 		   lblNewLabel_3.setFont(new Font("SansSerif", Font.PLAIN, 14));
 		   
 		    lblDespesasAPagar = new JLabel("0");
-		    painelDespesas.add(lblDespesasAPagar, "cell 2 3,alignx left,aligny top");
+		    painelDespesas.add(lblDespesasAPagar, "cell 2 4,alignx left,aligny top");
 		    lblDespesasAPagar.setFont(new Font("SansSerif", Font.BOLD, 15));
 		    
 		    JLabel lblValorAPagar_1_1 = new JLabel("Valor a Pagar:");
 		    lblValorAPagar_1_1.setFont(new Font("SansSerif", Font.PLAIN, 14));
-		    painelDespesas.add(lblValorAPagar_1_1, "cell 3 3,alignx left,aligny bottom");
+		    painelDespesas.add(lblValorAPagar_1_1, "cell 3 4,alignx right,aligny bottom");
 		    
 		     lblValorRestanteAPagar = new JLabel("0");
 		     lblValorRestanteAPagar.setFont(new Font("SansSerif", Font.BOLD, 15));
-		     painelDespesas.add(lblValorRestanteAPagar, "cell 4 3,alignx left,aligny top");
+		     painelDespesas.add(lblValorRestanteAPagar, "cell 4 4,alignx left,aligny top");
+		     
+		     JLabel lblValorAPagar_1_1_1 = new JLabel("Valor a Vencer:");
+		     lblValorAPagar_1_1_1.setFont(new Font("SansSerif", Font.PLAIN, 14));
+		     painelDespesas.add(lblValorAPagar_1_1_1, "cell 3 5,alignx right");
+		     
+		      lblValorVencerAPagar = new JLabel("R$ 0,00");
+		     lblValorVencerAPagar.setFont(new Font("SansSerif", Font.BOLD, 15));
+		     painelDespesas.add(lblValorVencerAPagar, "cell 4 5");
 		  		 
 		  		 JPanel panel_7 = new JPanel();
 		  		 panel_7.setBorder(new LineBorder(new Color(0, 0, 0), 2));
 		  		 panel_7.setBackground(Color.WHITE);
 		  		 panel_5.add(panel_7, "cell 1 0,grow");
-		  		 panel_7.setLayout(new MigLayout("", "[52px][81px][24px][107px][51px]", "[][20px][20px][20px]"));
+		  		 panel_7.setLayout(new MigLayout("", "[52px][81px][24px][107px][51px]", "[][20px][20px][][20px][]"));
 		  		 
 		  		 JLabel lblNewLabel_1_2 = new JLabel("Receitas:");
 		  		 lblNewLabel_1_2.setFont(new Font("SansSerif", Font.BOLD | Font.ITALIC, 14));
@@ -787,31 +804,47 @@ public class TelaFinanceiroLancamento extends JFrame {
 		  		  lblValorRecebido.setFont(new Font("SansSerif", Font.BOLD, 15));
 		  		  panel_7.add(lblValorRecebido, "cell 4 2,alignx left,aligny top");
 		  		 
+		  		 JLabel lblValorJurosRecebido = new JLabel("Valor Juros Recebido:");
+		  		 lblValorJurosRecebido.setFont(new Font("SansSerif", Font.PLAIN, 14));
+		  		 panel_7.add(lblValorJurosRecebido, "cell 3 3,alignx right");
+		  		 
+		  		  lblValorTotalJurosRecebido = new JLabel("R$ 0,00");
+		  		 lblValorTotalJurosRecebido.setFont(new Font("SansSerif", Font.BOLD, 15));
+		  		 panel_7.add(lblValorTotalJurosRecebido, "cell 4 3");
+		  		 
 		  		 JLabel lblNewLabel_5_2 = new JLabel("        ");
-		  		 panel_7.add(lblNewLabel_5_2, "cell 0 3,alignx right,aligny center");
+		  		 panel_7.add(lblNewLabel_5_2, "cell 0 4,alignx right,aligny center");
 		  		 lblNewLabel_5_2.setOpaque(true);
 		  		 lblNewLabel_5_2.setForeground(Color.BLACK);
 		  		 lblNewLabel_5_2.setBackground(Color.YELLOW);
 		  		 
 		  		 JLabel lblNewLabel_4_1 = new JLabel("A Receber:");
-		  		 panel_7.add(lblNewLabel_4_1, "cell 1 3,alignx left,aligny bottom");
+		  		 panel_7.add(lblNewLabel_4_1, "cell 1 4,alignx left,aligny bottom");
 		  		 lblNewLabel_4_1.setFont(new Font("SansSerif", Font.PLAIN, 14));
 		  		 
 
 		  		 
 		  		  lblReceitasAReceber = new JLabel("0");
-		  		  panel_7.add(lblReceitasAReceber, "cell 2 3,alignx left,aligny top");
+		  		  panel_7.add(lblReceitasAReceber, "cell 2 4,alignx left,aligny top");
 		  		  lblReceitasAReceber.setFont(new Font("SansSerif", Font.BOLD, 15));
 		  		  
 		  		  JLabel lblValorAReceberlbl = new JLabel("Valor a Receber:");
 		  		  lblValorAReceberlbl.setFont(new Font("SansSerif", Font.PLAIN, 14));
-		  		  panel_7.add(lblValorAReceberlbl, "cell 3 3,alignx left,aligny bottom");
+		  		  panel_7.add(lblValorAReceberlbl, "cell 3 4,alignx right,aligny bottom");
 		  		  
 		  		 
 		  		  
 		  		   lblValorAReceber = new JLabel("R$ 0,00");
 		  		  lblValorAReceber.setFont(new Font("SansSerif", Font.BOLD, 15));
-		  		  panel_7.add(lblValorAReceber, "cell 4 3,alignx left,aligny top");
+		  		  panel_7.add(lblValorAReceber, "cell 4 4,alignx left,aligny top");
+		  		  
+		  		  JLabel lblValorAPagar_1_1_1_1 = new JLabel("Valor a Vencer:");
+		  		  lblValorAPagar_1_1_1_1.setFont(new Font("SansSerif", Font.PLAIN, 14));
+		  		  panel_7.add(lblValorAPagar_1_1_1_1, "cell 3 5,alignx right");
+		  		  
+		  		   lblValorVencerAReceber = new JLabel("R$ 0,00");
+		  		  lblValorVencerAReceber.setFont(new Font("SansSerif", Font.BOLD, 15));
+		  		  panel_7.add(lblValorVencerAReceber, "cell 4 5");
 		
 		JPanel panel_3 = new JPanel();
 		painelPrinciapl.add(panel_3, "cell 2 3,alignx right,aligny top");
@@ -1131,9 +1164,9 @@ private final int id = 0;
 			
 			Set<RowFilter<Object, Object>> datas = new HashSet<>();
 			datas.add(RowFilter.dateFilter(RowFilter.ComparisonType.AFTER,
-					data_menor, 14));
+					data_menor, 15));
 			datas.add(RowFilter.dateFilter(RowFilter.ComparisonType.EQUAL,
-					data_menor, 14));
+					data_menor, 15));
 			filters.add(RowFilter.orFilter(datas));
 	     
 		  //  filters.add( RowFilter.dateFilter(ComparisonType.AFTER, data_menor, 5) );
@@ -1143,9 +1176,9 @@ private final int id = 0;
 		   // filters.add( RowFilter.dateFilter(ComparisonType.EQUAL, data_maior, 5) );
 			Set<RowFilter<Object, Object>> datas_maior = new HashSet<>();
 			datas_maior.add(RowFilter.dateFilter(RowFilter.ComparisonType.BEFORE,
-					data_maior, 14));
+					data_maior, 15));
 			datas_maior.add(RowFilter.dateFilter(RowFilter.ComparisonType.EQUAL,
-					data_maior, 14));
+					data_maior, 15));
 			filters.add(RowFilter.orFilter(datas_maior));
 		 
 		 }
@@ -1287,19 +1320,19 @@ private final int id = 0;
 		if(cbStatusLancamento.getSelectedIndex() == 1) {
 			s_tipo_conta = "A Pagar";
 			if (checkString(s_tipo_conta))
-				filters.add(RowFilter.regexFilter(s_tipo_conta, 16));
+				filters.add(RowFilter.regexFilter(s_tipo_conta, 17));
 		}else if(cbStatusLancamento.getSelectedIndex() == 2) {
 			s_tipo_conta = "Pago";
 			if (checkString(s_tipo_conta))
-				filters.add(RowFilter.regexFilter(s_tipo_conta, 16));
+				filters.add(RowFilter.regexFilter(s_tipo_conta, 17));
 		}else if(cbStatusLancamento.getSelectedIndex() == 3) {
 			s_tipo_conta = "A Receber";
 			if (checkString(s_tipo_conta))
-				filters.add(RowFilter.regexFilter(s_tipo_conta, 16));
+				filters.add(RowFilter.regexFilter(s_tipo_conta, 17));
 		}else if(cbStatusLancamento.getSelectedIndex() == 4) {
 			s_tipo_conta = "Recebido";
 			if (checkString(s_tipo_conta))
-				filters.add(RowFilter.regexFilter(s_tipo_conta, 16));
+				filters.add(RowFilter.regexFilter(s_tipo_conta, 17));
 		
 		}
 		
@@ -1308,7 +1341,7 @@ private final int id = 0;
 			if(checkString(cbSituacao.getSelectedItem().toString())) {
 				s_situacao = cbSituacao.getSelectedItem().toString();
 				if(!(s_situacao.equalsIgnoreCase("TODOS"))) {
-				filters.add(RowFilter.regexFilter(s_situacao, 17));
+				filters.add(RowFilter.regexFilter(s_situacao, 18));
 				}
 			}
 			}
@@ -1318,7 +1351,7 @@ private final int id = 0;
 			if(checkString(cbCondicaoPagamento.getSelectedItem().toString())) {
 				s_condicao = cbCondicaoPagamento.getSelectedItem().toString();
 				if(!(s_condicao.equalsIgnoreCase("TODOS"))) {
-				filters.add(RowFilter.regexFilter(s_condicao, 18));
+				filters.add(RowFilter.regexFilter(s_condicao, 19));
 				}
 			}
 			}
@@ -1328,7 +1361,7 @@ private final int id = 0;
 			if(checkString(cbStatusCondicaoPagamento.getSelectedItem().toString())) {
 				s_status_condicao = cbStatusCondicaoPagamento.getSelectedItem().toString();
 				if(!(s_status_condicao.equalsIgnoreCase("TODOS"))) {
-				filters.add(RowFilter.regexFilter(s_status_condicao, 19));
+				filters.add(RowFilter.regexFilter(s_status_condicao, 20));
 				}
 			}
 			
@@ -1340,7 +1373,7 @@ private final int id = 0;
 			if(checkString(cbStatusAoContador.getSelectedItem().toString())) {
 				s_status_contador = cbStatusAoContador.getSelectedItem().toString();
 				if(!(s_status_contador.equalsIgnoreCase("TODOS"))) {
-				filters.add(RowFilter.regexFilter(s_status_contador, 20));
+				filters.add(RowFilter.regexFilter(s_status_contador, 21));
 				}
 			}
 			
@@ -1369,11 +1402,16 @@ public void calcular() {
 	BigDecimal valor_total_despesas = BigDecimal.ZERO;
 	BigDecimal valor_a_pagar = BigDecimal.ZERO;
 	BigDecimal	valor_pago = BigDecimal.ZERO;
+	BigDecimal	valor_total_juros_pago = BigDecimal.ZERO;
+	BigDecimal valor_total_vencer_pagar =  BigDecimal.ZERO;
 	
 	//receitas
 	BigDecimal valor_total_receitas = BigDecimal.ZERO;
 	BigDecimal valor_a_receber = BigDecimal.ZERO;
 	BigDecimal	valor_recebido = BigDecimal.ZERO;
+	BigDecimal	valor_total_juros_recebido = BigDecimal.ZERO;
+	BigDecimal valor_total_vencer_receber =  BigDecimal.ZERO;
+
 
 	for (int row = 0; row < tabela_lancamentos.getRowCount(); row++) {
 
@@ -1387,14 +1425,35 @@ public void calcular() {
 			
 			valor_pago = valor_pago.add(lancamento.getValor_ja_pago());
 			numero_despesas_a_pagar++;
+	
+			BigDecimal valor_total = lancamento.getValor();
+			BigDecimal valor__ja_pago = lancamento.getValor_ja_pago();
 			
+			BigDecimal valor_restante = valor__ja_pago.subtract(valor_total);
 			
+			if(valor__ja_pago.compareTo(valor_total) > 0) 
+				valor_total_juros_pago = valor_total_juros_pago.add(valor__ja_pago.subtract(valor_total));
+			else 
+			 valor_total_vencer_pagar = valor_total_vencer_pagar.add(lancamento.getValor_proximo_pagamento_a_vencer());
+					
 		
 		}else if(lancamento.getStatus() == 1) {
 			//despesas ja paga
 			valor_total_despesas = valor_total_despesas.add(lancamento.getValor());
 			valor_pago = valor_pago.add(lancamento.getValor());
 	
+
+			BigDecimal valor_total = lancamento.getValor();
+			BigDecimal valor__ja_pago = lancamento.getValor_ja_pago();
+			
+			BigDecimal valor_restante = valor__ja_pago.subtract(valor_total);
+			
+			if(valor__ja_pago.compareTo(valor_total) > 0) 
+				valor_total_juros_pago = valor_total_juros_pago.add(valor__ja_pago.subtract(valor_total));
+			else 
+			 valor_total_vencer_pagar = valor_total_vencer_pagar.add(lancamento.getValor_proximo_pagamento_a_vencer());
+					
+
 			
 			numero_despesas_pago++;
 		}else if(lancamento.getStatus() == 2) {
@@ -1404,12 +1463,38 @@ public void calcular() {
 			
 			valor_recebido = valor_recebido.add(lancamento.getValor_ja_pago());
 
+			BigDecimal valor_total_a_receber = lancamento.getValor();
+			BigDecimal valor__ja_recebido = lancamento.getValor_ja_pago();
+			
+			BigDecimal valor_restante = valor__ja_recebido.subtract(valor_total_a_receber);
+			
+			if(valor__ja_recebido.compareTo(valor_total_a_receber) > 0) 
+				valor_total_juros_recebido = valor_total_juros_recebido.add(valor__ja_recebido.subtract(valor_total_a_receber));
+			 else 
+			    valor_total_vencer_receber = valor_total_vencer_receber.add(lancamento.getValor_proximo_pagamento_a_vencer());
+				
+			
 			numero_receitas_a_receber++;
 		}else if(lancamento.getStatus() == 3) {
 			//receitas recebidas
 			valor_total_receitas = valor_total_receitas.add(lancamento.getValor());
 			valor_recebido = valor_recebido.add(lancamento.getValor());
 	
+			
+			BigDecimal valor_total_a_receber = lancamento.getValor();
+			BigDecimal valor__ja_recebido = lancamento.getValor_ja_pago();
+			
+			BigDecimal valor_restante = valor__ja_recebido.subtract(valor_total_a_receber);
+			
+			if(valor__ja_recebido.compareTo(valor_total_a_receber) > 0) 
+				valor_total_juros_recebido = valor_total_juros_recebido.add(valor__ja_recebido.subtract(valor_total_a_receber));
+			 else 
+			    valor_total_vencer_receber = valor_total_vencer_receber.add(lancamento.getValor_proximo_pagamento_a_vencer());
+				
+			
+			
+			
+			
 			numero_receitas_recebido++;
 		}
 		
@@ -1428,12 +1513,15 @@ public void calcular() {
 	lblValorRestanteAPagar.setText(NumberFormat.getCurrencyInstance(ptBr).format(valor_a_pagar));
 	 lblValorPago.setText(NumberFormat.getCurrencyInstance(ptBr).format(valor_pago));
 	 lblValorTotalDespesas.setText(NumberFormat.getCurrencyInstance(ptBr).format(valor_total_despesas));
-	
+	 lblValorTotalJurosPago.setText(NumberFormat.getCurrencyInstance(ptBr).format(valor_total_juros_pago));
+	 lblValorVencerAPagar.setText(NumberFormat.getCurrencyInstance(ptBr).format(valor_total_vencer_pagar));
 	
 	//receitas
 	lblValorAReceber.setText(NumberFormat.getCurrencyInstance(ptBr).format(valor_a_receber));
 	lblValorRecebido.setText(NumberFormat.getCurrencyInstance(ptBr).format(valor_recebido));
 	lblValorReceitas.setText(NumberFormat.getCurrencyInstance(ptBr).format(valor_total_receitas));
+	 lblValorTotalJurosRecebido.setText(NumberFormat.getCurrencyInstance(ptBr).format(valor_total_juros_recebido));
+	 lblValorVencerAReceber.setText(NumberFormat.getCurrencyInstance(ptBr).format(valor_total_vencer_receber));
 
 	
 	
@@ -1462,19 +1550,20 @@ public boolean checkString(String txt) {
 		private final int valor_pago = 11;
 		private final int valor_a_pagar = 12;
 		private final int valor_proxima_parcela_a_vencer = 13;
+		private final int juros = 14;
 
-		private final int data_vencimento = 14;
-		private final int data_pagamento = 15;
-		private final int status = 16;
-		private final int situacao = 17;
-		private final int condicao_pagamento = 18;
-		private final int status_condicao_pagamento = 19;
-		private final int status_contador = 20;
+		private final int data_vencimento = 15;
+		private final int data_pagamento = 16;
+		private final int status = 17;
+		private final int situacao = 18;
+		private final int condicao_pagamento = 19;
+		private final int status_condicao_pagamento = 20;
+		private final int status_contador = 21;
 
 		List<Color> rowColours = Arrays.asList(Color.RED, Color.GREEN, Color.CYAN);
 
 		private final String colunas[] = { "ID","Data Lançamento", "Tipo", "Prioridade", "Centro de Custo","Identificador Geral", "Destinatário da NF",
-				"Cliente/Fornecedor", "Grupo de Contas", "Conta", "Valor Total", "Valor Pago/Recebido", "Valor a Pagar/Receber","Valor a Vencer", "Data Próximo Vencimento", "Data Último Pagamento","Status" , "Situação", "Condições de Pagamento", "Status Condição de Pagamento","Status Contador"};
+				"Cliente/Fornecedor", "Grupo de Contas", "Conta", "Valor Total", "Valor Pago/Recebido", "Valor a Pagar/Receber","Valor a Vencer", "Juros","Data Próximo Vencimento", "Data Último Pagamento","Status" , "Situação", "Condições de Pagamento", "Status Condição de Pagamento","Status Contador"};
 		private final ArrayList<Lancamento> dados = new ArrayList<>();// usamos como dados uma lista genérica de
 																			// nfs
 		private GerenciarBancoCondicaoPagamentos gerenciar  = null;
@@ -1532,6 +1621,8 @@ public boolean checkString(String txt) {
 			case valor_a_pagar:
 				return String.class;
 			case valor_proxima_parcela_a_vencer:
+				return String.class;
+			case juros:
 				return String.class;
 			case data_vencimento:
 				return Date.class;
@@ -1644,20 +1735,53 @@ public boolean checkString(String txt) {
 				
 			}
 			case valor_a_pagar:{
-				String valorString = NumberFormat.getCurrencyInstance(ptBr).format(dado.getValor().subtract(dado.getValor_ja_pago()));
-				return valorString;
+				BigDecimal valor_total = dado.getValor();
+				BigDecimal valor_pago = dado.getValor_ja_pago();
+				
+				
+				if(valor_pago.compareTo(valor_total) >= 0) {
+					//esta quitado
+					return ("R$ 0.00");
+				}else {
+					String valorString = NumberFormat.getCurrencyInstance(ptBr).format(dado.getValor().subtract(dado.getValor_ja_pago()));
+					return valorString;
+				}
+				
+			
 				
 			}
 			case valor_proxima_parcela_a_vencer:{
 				
+				BigDecimal valor_total = dado.getValor();
+				BigDecimal valor_pago = dado.getValor_ja_pago();
 				
-				BigDecimal valor_a_pagar = dado.getValor().subtract(dado.getValor_ja_pago()); 
-				if(dado.getValor_proximo_pagamento_a_vencer().compareTo(valor_a_pagar) > 0) {
-					String valorString = NumberFormat.getCurrencyInstance(ptBr).format(dado.getValor().subtract(dado.getValor_ja_pago()));
-					return valorString;
+				BigDecimal valor_a_pagar = valor_total.subtract(valor_pago); 
+				if(valor_pago.compareTo(valor_total) >= 0) {
+					//divida quitada
+					
+					return ("R$ 0.00");
+				
+				
+				
 				}else {
-				String valorString = NumberFormat.getCurrencyInstance(ptBr).format(dado.getValor_proximo_pagamento_a_vencer());
-				return valorString;
+					
+					String valorString = NumberFormat.getCurrencyInstance(ptBr).format(dado.getValor_proximo_pagamento_a_vencer());
+					return valorString;
+				}
+				
+				
+			}
+			case juros:{
+				BigDecimal valor_total = dado.getValor();
+				BigDecimal valor_pago = dado.getValor_ja_pago();
+				
+				BigDecimal valor_restante = valor_pago.subtract(valor_total);
+				
+				if(valor_pago.compareTo(valor_total) > 0) {
+					
+					return NumberFormat.getCurrencyInstance(ptBr).format(valor_total.subtract(valor_pago));
+				}else {
+					return ("R$ 0.00");
 				}
 			}
 			case data_vencimento:{
@@ -2027,7 +2151,7 @@ public boolean checkString(String txt) {
 
 			int status = -1;
 			
-			String s_status = (String) table.getValueAt(row, 16);
+			String s_status = (String) table.getValueAt(row, 17);
 			if(s_status.equalsIgnoreCase("A Pagar")) {
 				status = 0;
 			}else if(s_status.equalsIgnoreCase("Pago")) {

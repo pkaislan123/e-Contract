@@ -292,7 +292,7 @@ public class TelaPrincipal extends JFrame implements GetDadosGlobais {
 		mntmArmazns.setFont(new Font("Segoe UI", Font.PLAIN, 16));
 		mntmArmazns.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
-				TelaArmazem tela = new TelaArmazem(isto);
+				TelaArmazem tela = new TelaArmazem(0,isto);
 			}
 		});
 		Dados.add(mntmArmazns);

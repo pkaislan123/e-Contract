@@ -15,6 +15,7 @@ import javax.swing.border.EmptyBorder;
 
 import main.java.cadastros.CadastroLogin;
 import main.java.conexaoBanco.GerenciarBancoLogin;
+import main.java.manipular.Email2;
 import main.java.manipular.GetDadosGlobais;
 import main.java.outros.DadosGlobais;
 import main.java.outros.JPanelTransparent;
@@ -44,7 +45,7 @@ import javax.swing.JCheckBox;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 
-public class TelaCadastroUsuario extends JDialog implements GetDadosGlobais {
+public class TelaCadastroUsuario extends JFrame implements GetDadosGlobais {
 
 	// private JTabbedPane painelPrincipal = new JTabbedPane();
 	private final JPanel painelPrincipal = new JPanel();
@@ -272,6 +273,50 @@ public class TelaCadastroUsuario extends JDialog implements GetDadosGlobais {
 		entEmail2.setForeground(Color.BLACK);
 		entEmail2.setFont(new Font("Arial", Font.BOLD, 20));
 		painelEmpresa.add(entEmail2);
+		
+		JButton btnNewButton = new JButton("Testar");
+		btnNewButton.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				
+				
+				String email1= entEmail1.getText();
+				String senha1 = entSenhaEmail1.getText();
+				
+				Email2 email = new Email2();
+				email.logar(email1, senha1);
+				boolean teste = email.abrirEmail();
+				if(teste) {
+					JOptionPane.showMessageDialog(isto, "Logado com sucesso");
+				}else {
+					JOptionPane.showMessageDialog(isto, "Erro ao logar no e-mail informado!\nVerifique email e senha e tente novamente\nSe o erro persistir, consulte o administrador do sistema");
+				}
+				
+			}
+		});
+		btnNewButton.setBounds(156, 384, 89, 23);
+		painelEmpresa.add(btnNewButton);
+		
+		JButton btnNewButton_1 = new JButton("Testar");
+		btnNewButton_1.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				
+				
+				String email1= entEmail2.getText();
+				String senha1 = entSenhaEmail2.getText();
+				
+				Email2 email = new Email2();
+				email.logar(email1, senha1);
+				boolean teste = email.abrirEmail();
+				if(teste) {
+					JOptionPane.showMessageDialog(isto, "Logado com sucesso");
+				}else {
+					JOptionPane.showMessageDialog(isto, "Erro ao logar no e-mail informado!\nVerifique email e senha e tente novamente\nSe o erro persistir, consulte o administrador do sistema");
+				}
+				
+			}
+		});
+		btnNewButton_1.setBounds(506, 384, 63, 23);
+		painelEmpresa.add(btnNewButton_1);
 
 		painelDadosIniciais.setBounds(200, 55, 746, 424);
 		painelDadosIniciais.setBackground(new Color(255, 255, 255));

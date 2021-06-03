@@ -107,7 +107,7 @@ public class GerenciarBancoRomaneios {
  		"(codigo, operacao, cfop, descricao_cfop, data_romaneio, id_produto, id_safra, id_remetente,"
  		+ "id_destinatario, nome_motorista, cpf_motorista, placa, umidade, impureza, ardidos, avariados, peso_bruto, tara, "
  		+ "peso_liquido, peso_liquido_sem_desconto, peso_desconto_umidade, peso_desconto_impureza,"
- 		+ "peso_desconto_avariado, peso_desconto_total,peso_recepcao, caminho_arquivo, doc_entrada, amostra, silo, transgenese) values ('"
+ 		+ "peso_desconto_avariado, peso_desconto_total,peso_recepcao, caminho_arquivo, doc_entrada, amostra) values ('"
  		+ numero_romaneio
 		+ "','"
  		+ operacao
@@ -163,10 +163,6 @@ public class GerenciarBancoRomaneios {
 			+ doc_entrada
 			+ "','"
 			+ amostra
-			+ "','"
-			+ silo
-			+ "','"
-			+ transgenese
 			+ "')";
 		    
 		    return sql;
@@ -254,7 +250,6 @@ public class GerenciarBancoRomaneios {
 	            	rom.setInpureza(rs.getDouble("impureza"));
 	            	rom.setUmidade2(rs.getDouble("umidade2"));
 	            	rom.setImpureza2(rs.getDouble("impureza2"));
-	            	rom.setClassificador(rs.getString("classificador"));
 	            	rom.setArdidos(rs.getDouble("ardidos"));
 	            	rom.setAvariados(rs.getDouble("avariados"));
 	            	rom.setPeso_bruto(rs.getDouble("peso_bruto"));
@@ -276,8 +271,11 @@ public class GerenciarBancoRomaneios {
 	            	rom.setCaminho_arquivo(rs.getString("caminho_arquivo"));
 	            	rom.setDoc_entrada(rs.getString("doc_entrada"));
 	            	rom.setAmostra(rs.getString("amostra"));
-	            	rom.setSilo(rs.getString("silo"));
-	            	rom.setTransgenia(rs.getString("transgenese"));
+	            	rom.setId_silo(rs.getInt("id_silo"));
+	            	rom.setId_transgenese(rs.getInt("id_transgenia"));
+	            	rom.setId_classificador(rs.getInt("id_classificador"));
+	            	rom.setStatus_monsanto(rs.getInt("status_monsanto"));
+	            	rom.setObservacao(rs.getString("observacao"));
 
 	            	lista_roms.add(rom);
 	            }
@@ -294,18 +292,7 @@ public class GerenciarBancoRomaneios {
 		  
 	        PreparedStatement pstm = null;
 	        ResultSet rs = null;
-	        String selectRoms = "select romaneio.*, \r\n"
-	        		+ "remetente.tipo_cliente as tipo_remetente, remetente.cpf as cpf_remetente, remetente.cnpj as cnpj_remetente, remetente.nome_empresarial as remetente_nome_empresarial, remetente.nome_fantasia as remetente_nome_fantasia,\r\n"
-	        		+ "destinatario.tipo_cliente as tipo_destinatario,  destinatario.cpf as cpf_destinatario, destinatario.cnpj as cnpj_destinatario, destinatario.nome_empresarial as destinatario_nome_empresarial, destinatario.nome_fantasia as destinatario_nome_fantasia,\r\n"
-	        		+ "pd.nome_produto as nome_produto, pd.transgenia as transgenia,\r\n"
-	        		+ "sf.id_safra, sf.ano_plantio as ano_plantio, sf.ano_colheita as ano_colheita\r\n"
-	        		+ " from romaneio\r\n"
-	        		+ "LEFT JOIN  safra sf on sf.id_safra = romaneio.id_safra\r\n"
-	        		+ "LEFT JOIN  produto pd on pd.id_produto = romaneio.id_produto\r\n"
-	        		+ "LEFT JOIN cliente remetente on remetente.id_cliente = romaneio.id_remetente\r\n"
-	        		+ "LEFT JOIN cliente destinatario on destinatario.id_cliente = romaneio.id_destinatario order by data_romaneio\r\n"
-	        		+ "\r\n"
-	        		+ "";
+	        String selectRoms = "call busca_romaneios_mais_rapido()";
 	        ArrayList<CadastroRomaneio> lista_roms = new ArrayList<CadastroRomaneio>();
 	        
 	        try {
@@ -362,7 +349,6 @@ public class GerenciarBancoRomaneios {
 	            	
 	            	rom.setUmidade2(rs.getDouble("umidade2"));
 	            	rom.setImpureza2(rs.getDouble("impureza2"));
-	            	rom.setClassificador(rs.getString("classificador"));
 	            	
 	            	rom.setArdidos(rs.getDouble("ardidos"));
 	            	rom.setAvariados(rs.getDouble("avariados"));
@@ -384,8 +370,15 @@ public class GerenciarBancoRomaneios {
 	            	rom.setCaminho_arquivo(rs.getString("caminho_arquivo"));
 	            	rom.setDoc_entrada(rs.getString("doc_entrada"));
 	            	rom.setAmostra(rs.getString("amostra"));
-	            	rom.setSilo(rs.getString("silo"));
-	            	rom.setTransgenia(rs.getString("transgenese"));
+	            	rom.setSilo(rs.getString("nome_silo"));
+	            	rom.setId_silo(rs.getInt("id_silo"));
+	            	rom.setId_transgenese(rs.getInt("id_transgenia"));
+	            	rom.setTransgenia(rs.getString("nome_transgenia"));
+	            	rom.setClassificador(rs.getString("nome_classificador"));
+	            	rom.setId_classificador(rs.getInt("id_classificador"));
+	            	rom.setStatus_monsanto(rs.getInt("status_monsanto"));
+	            	rom.setObservacao(rs.getString("observacao"));
+	            	rom.setRoyalties(rs.getInt("royalties"));
 	            	
 	            	lista_roms.add(rom);
 	            }
@@ -402,17 +395,7 @@ public class GerenciarBancoRomaneios {
 		  
 	        PreparedStatement pstm = null;
 	        ResultSet rs = null;
-	        String selectRoms = "select romaneio.*, \r\n"
-	        		+ "remetente.tipo_cliente as tipo_remetente, remetente.cpf as cpf_remetente, remetente.cnpj as cnpj_remetente, remetente.nome_empresarial as remetente_nome_empresarial, remetente.nome_fantasia as remetente_nome_fantasia,\r\n"
-	        		+ "destinatario.tipo_cliente as tipo_destinatario,  destinatario.cpf as cpf_destinatario, destinatario.cnpj as cnpj_destinatario, destinatario.nome_empresarial as destinatario_nome_empresarial, destinatario.nome_fantasia as destinatario_nome_fantasia,\r\n"
-	        		+ "pd.nome_produto as nome_produto, pd.transgenia as transgenia,\r\n"
-	        		+ "sf.ano_plantio as ano_plantio, sf.ano_colheita as ano_colheita\r\n"
-	        		+ " from romaneio\r\n"
-	        		+ "LEFT JOIN  safra sf on sf.id_safra = romaneio.id_safra\r\n"
-	        		+ "LEFT JOIN  produto pd on pd.id_produto = romaneio.id_produto\r\n"
-	        		+ "LEFT JOIN cliente remetente on remetente.id_cliente = romaneio.id_remetente\r\n"
-	        		+ "LEFT JOIN cliente destinatario on destinatario.id_cliente = romaneio.id_destinatario\r\n"
-	        		+ "where romaneio.id_remetente = ? or romaneio.id_destinatario = ? order by data_romaneio";
+	        String selectRoms = "call busca_romaneios_mais_rapido_por_cliente(?)";
 	        
 	        ArrayList<CadastroRomaneio> lista_roms = new ArrayList<CadastroRomaneio>();
 	        GerenciarBancoClientes gerenciar = new GerenciarBancoClientes();
@@ -422,7 +405,6 @@ public class GerenciarBancoRomaneios {
 	            conn = ConexaoBanco.getConexao();
 	            pstm = conn.prepareStatement(selectRoms);
 	            pstm.setInt(1, id_cliente);
-	            pstm.setInt(2, id_cliente);
 
 	            rs = pstm.executeQuery();
 	            while (rs.next()) {
@@ -475,7 +457,6 @@ public class GerenciarBancoRomaneios {
 	            	rom.setUmidade2(rs.getDouble("umidade2"));
 	            	rom.setImpureza2(rs.getDouble("impureza2"));
 	            	
-	            	rom.setClassificador(rs.getString("classificador"));
 	            	
 	            	rom.setArdidos(rs.getDouble("ardidos"));
 	            	rom.setAvariados(rs.getDouble("avariados"));
@@ -497,8 +478,16 @@ public class GerenciarBancoRomaneios {
 	            	rom.setCaminho_arquivo(rs.getString("caminho_arquivo"));
 	            	rom.setDoc_entrada(rs.getString("doc_entrada"));
 	            	rom.setAmostra(rs.getString("amostra"));
-	            	rom.setSilo(rs.getString("silo"));
-	            	rom.setTransgenia(rs.getString("transgenese"));
+	            	rom.setSilo(rs.getString("nome_silo"));
+	            	rom.setId_silo(rs.getInt("id_silo"));
+	            	rom.setId_transgenese(rs.getInt("id_transgenia"));
+	            	rom.setTransgenia(rs.getString("nome_transgenia"));
+	            	rom.setClassificador(rs.getString("nome_classificador"));
+	            	rom.setId_classificador(rs.getInt("id_classificador"));
+	            	rom.setStatus_monsanto(rs.getInt("status_monsanto"));
+	            	rom.setObservacao(rs.getString("observacao"));
+	            	rom.setRoyalties(rs.getInt("royalties"));
+
 	            	
 	            	lista_roms.add(rom);
 	            }
@@ -574,17 +563,20 @@ public class GerenciarBancoRomaneios {
 
 					//atualizar = "update financeiro_conta set nome_conta = ?, id_grupo_contas = ?,  tipo_conta = ?, observacao = ?,descricao = ? where id_conta = ? ";
 					atualizar = "update romaneio set umidade2 = ? , impureza2 = ?, "
-							+ "classificador = ?, silo = ?, transgenese = ? where id_romaneio = ?";
+							+ "id_classificador = ?, id_silo = ?, id_transgenese = ?, status_monsanto = ?,"
+							+ "observacao = ? where id_romaneio = ?";
 					conn = ConexaoBanco.getConexao();
 					pstm = conn.prepareStatement(atualizar);
 					
 					pstm.setDouble(1, dado.getUmidade2());
 					pstm.setDouble(2, dado.getImpureza2());
-					pstm.setString(3, dado.getClassificador());
-					pstm.setString(4, dado.getSilo());
+					pstm.setInt(3, dado.getId_classificador());
+					pstm.setInt(4, dado.getId_silo());
 
-					pstm.setString(5, dado.getTransgenia());
-					pstm.setInt(6, dado.getId_romaneio());
+					pstm.setInt(5, dado.getId_transgenese());
+					pstm.setInt(6, dado.getStatus_monsanto());
+					pstm.setString(7, dado.getObservacao());
+					pstm.setInt(8, dado.getId_romaneio());
 
 				
 

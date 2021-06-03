@@ -53,6 +53,9 @@ import com.jgoodies.forms.layout.FormLayout;
 import com.jgoodies.forms.layout.ColumnSpec;
 import com.jgoodies.forms.layout.RowSpec;
 
+import javafx.application.Platform;
+import javafx.embed.swing.JFXPanel;
+import javafx.stage.FileChooser;
 import keeptoo.KGradientPanel;
 
 import javax.swing.border.LineBorder;
@@ -1194,21 +1197,25 @@ public class TelaGerenciarCliente extends JDialog {
 	        expandAllNodes(tree, rowCount, tree.getRowCount());
 	    }
 	}
+
 	
 	public void selecionarDocumento() {
 
-		JFileChooser fileChooser = new JFileChooser();
-		fileChooser.setPreferredSize(new Dimension(800, 600));
-		fileChooser.setMultiSelectionEnabled(true);
+		JOptionPane.showMessageDialog(null, "Na próxima tela, importe o documento a anexar!");
 
-		FileNameExtensionFilter filter = new FileNameExtensionFilter("Arquivo .PDF", "pdf");
-		fileChooser.addChoosableFileFilter(filter);
+		new JFXPanel();
+		Platform.runLater(() -> {
+			FileChooser d = new FileChooser();
+			File file = d.showOpenDialog(null);
+			String caminho_arquivo = "";
+			if (file != null) {
+				caminho_arquivo = file.getAbsolutePath();
 
-		int result = fileChooser.showOpenDialog(isto);
-
-		String caminho_arquivo = fileChooser.getSelectedFile().toString();
-		entCaminhoDocumento.setText(caminho_arquivo);
-
+				entCaminhoDocumento.setText(caminho_arquivo);
+				// JOptionPane.showMessageDialog(isto, "CAminho do arquivo selecionado: " +
+				// file.getAbsolutePath());
+			}
+		});
 	}
 	
 	

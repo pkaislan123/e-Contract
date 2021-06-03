@@ -340,12 +340,12 @@ public class TelaMain extends JFrame {
 		Dados.add(mntmClientes);
 		JMenuItem mntmArmazns = new JMenuItem("Armazéns");
 		mntmArmazns.setMargin(new Insets(0, 10, 0, 0));
-		mntmArmazns.setIcon(new ImageIcon(TelaPrincipal.class.getResource("/imagens/silo(1).png")));
+		mntmArmazns.setIcon(new ImageIcon(TelaMain.class.getResource("/imagens/armazem.png")));
 		mntmArmazns.setBackground(Color.WHITE);
 		mntmArmazns.setFont(new Font("Segoe UI", Font.PLAIN, 16));
 		mntmArmazns.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
-				TelaArmazem tela = new TelaArmazem(isto);
+				TelaArmazem tela = new TelaArmazem(0,isto);
 			}
 		});
 		Dados.add(mntmArmazns);
@@ -373,6 +373,7 @@ public class TelaMain extends JFrame {
 		});
 		Dados.add(mntmProdutos);
 		JMenuItem mntmUsurios = new JMenuItem("Usuários");
+		mntmUsurios.setFont(new Font("SansSerif", Font.PLAIN, 16));
 		mntmUsurios.setMargin(new Insets(0, 10, 0, 0));
 		mntmUsurios.setIcon(new ImageIcon(TelaPrincipal.class.getResource("/imagens/usuarios.png")));
 		mntmUsurios.addActionListener(new ActionListener() {
@@ -383,6 +384,7 @@ public class TelaMain extends JFrame {
 		});
 		Dados.add(mntmUsurios);
 		JMenuItem mntmNewMenuItem = new JMenuItem("Transportadores");
+		mntmNewMenuItem.setFont(new Font("SansSerif", Font.PLAIN, 16));
 		mntmNewMenuItem.setMargin(new Insets(0, 10, 0, 0));
 		mntmNewMenuItem.setIcon(new ImageIcon(TelaPrincipal.class.getResource("/imagens/caminhao.png")));
 		mntmNewMenuItem.addActionListener(new ActionListener() {
@@ -394,12 +396,44 @@ public class TelaMain extends JFrame {
 		Dados.add(mntmNewMenuItem);
 		
 		JMenuItem mntmSilos = new JMenuItem("Silos");
+		mntmSilos.setFont(new Font("SansSerif", Font.PLAIN, 16));
+		mntmSilos.setIcon(new ImageIcon(TelaMain.class.getResource("/imagens/silos.png")));
+		mntmSilos.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				TelaSilos tela = new TelaSilos(0, isto);
+				tela.setVisible(true);
+			}
+		});
 		mntmSilos.setMargin(new Insets(0, 10, 0, 0));
 		Dados.add(mntmSilos);
 		
 		JMenuItem mntmClassificadores = new JMenuItem("Classificadores");
+		mntmClassificadores.setIcon(new ImageIcon(TelaMain.class.getResource("/imagens/genetica.png")));
+		mntmClassificadores.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				
+				TelaClassificadores tela = new TelaClassificadores(0,isto);
+				tela.setVisible(true);
+				
+			}
+		});
+		mntmClassificadores.setFont(new Font("SansSerif", Font.PLAIN, 16));
 		mntmClassificadores.setMargin(new Insets(0, 10, 0, 0));
 		Dados.add(mntmClassificadores);
+		
+		JMenuItem mntmTransgnese = new JMenuItem("Transgênese");
+		mntmTransgnese.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				
+				TelaTransgenias tela = new TelaTransgenias(0, isto);
+				tela.setVisible(true);
+				
+			}
+		});
+		mntmTransgnese.setIcon(new ImageIcon(TelaMain.class.getResource("/imagens/gmo.png")));
+		mntmTransgnese.setMargin(new Insets(0, 10, 0, 0));
+		mntmTransgnese.setFont(new Font("SansSerif", Font.PLAIN, 16));
+		Dados.add(mntmTransgnese);
 		JMenu mnContratos = new JMenu("Contratos");
 		mnContratos.setIcon(new ImageIcon(TelaPrincipal.class.getResource("/imagens/icone_contrato_menu.png")));
 		mnContratos.setFont(new Font("Arial", Font.PLAIN, 18));
@@ -552,9 +586,13 @@ public class TelaMain extends JFrame {
 		mnFerramentas.add(mntmNewMenuItem_6);
 		
 		JMenuItem mntmNewMenuItem_6_1 = new JMenuItem("Recursos Humanos");
+		mntmNewMenuItem_6_1.setIcon(new ImageIcon(TelaMain.class.getResource("/imagens/recursos-humanos.png")));
 		mntmNewMenuItem_6_1.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				JOptionPane.showMessageDialog(isto, "Em Construção!");
+
+				TelaRecursosHumanos tela = new TelaRecursosHumanos(isto);
+				tela.setVisible(true);
+				
 			}
 		});
 		mntmNewMenuItem_6_1.setMargin(new Insets(0, 10, 0, 0));

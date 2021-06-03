@@ -258,85 +258,7 @@ public class TelaCliente extends JFrame {
 			public void keyPressed(KeyEvent arg0) {
 				if(arg0.getKeyCode() == KeyEvent.VK_ENTER)
 				{
-					if(flag_tipo_tela == 0) {
-					System.out.println("Valor do Enter: " + arg0.getKeyCode());
-					int rowSel = tabela.getSelectedRow();//pega o indice da linha na tabela
-					int indiceDaLinha = tabela.getRowSorter().convertRowIndexToModel(rowSel);//converte pro indice do model
-    				clienteSelecionado = clientes_disponiveis.get(indiceDaLinha);
-    				if(flag_tipo_cliente == 1)
-    					((TelaElaborarNovoContrato) telaPai).setComprador1(clienteSelecionado);
-       				else if (flag_tipo_cliente == 2)
-       					((TelaElaborarNovoContrato) telaPai).setVendedor1(clienteSelecionado);
-       				else if (flag_tipo_cliente == 3)
-       					((TelaElaborarNovoContrato) telaPai).setVendedor2(clienteSelecionado);
-       				else if (flag_tipo_cliente == 4)
-       					((TelaElaborarNovoContrato) telaPai).setCorretor(clienteSelecionado);
-       				else if (flag_tipo_cliente == 5)
-       					((TelaConfirmarCarregamento) telaPai).setClienteCarregamento(clienteSelecionado);
-       				else if (flag_tipo_cliente == 6)
-       					((TelaConfirmarCarregamento) telaPai).setVendedor(clienteSelecionado);
-       				else if (flag_tipo_cliente == 8)
-       					((TelaConfirmarPagamentoContratual) telaPai).setDepositante(clienteSelecionado);
-       				else if (flag_tipo_cliente == 9)
-       					((TelaConfirmarPagamentoContratual) telaPai).setFavorecido(clienteSelecionado);
-       				else if (flag_tipo_cliente == 10)
-       					((TelaCadastroGrupo) telaPai).adicionarIntegrante(clienteSelecionado);
-       				else if (flag_tipo_cliente == 11)
-       					((TelaRelatoriaContratos) telaPai).setClienteAlvo(clienteSelecionado);
-       				else if (flag_tipo_cliente == 12)
-       					((TelaImportarContratoManual) telaPai).setCorretor(clienteSelecionado);
-       				else if (flag_tipo_cliente == 13)
-       					((TelaImportarContratoManual) telaPai).setComprador1(clienteSelecionado);
-       				else if (flag_tipo_cliente == 14)
-       					((TelaImportarContratoManual) telaPai).setVendedor1(clienteSelecionado);
-       				else if (flag_tipo_cliente == 15)
-       					((TelaImportarContratoManual) telaPai).setVendedor2(clienteSelecionado);
-       				else if (flag_tipo_cliente == 16)
-       					((TelaConfirmarRecebimento) telaPai).setClienteRecebimento(clienteSelecionado);
-       				else if (flag_tipo_cliente == 17)
-       					((TelaConfirmarRecebimento) telaPai).setVendedor(clienteSelecionado);
-       				else if (flag_tipo_cliente == 18)
-       					((TelaElaborarNovoContrato) telaPai).setComprador2(clienteSelecionado);
-       				else if (flag_tipo_cliente == 20)
-       					((TelaImportarContratoManual) telaPai).setComprador2(clienteSelecionado);
-       				else if (flag_tipo_cliente == 25)
-       					((TelaFinanceiroCadastroInstituicaoBancaria) telaPai).setCliente(clienteSelecionado);
-       				else if (flag_tipo_cliente == 26)
-       					((TelaFinanceiroCadastroCentroCusto) telaPai).setCliente(clienteSelecionado);
-       				else if (flag_tipo_cliente == 27) {
-       				
-       					if(janela_pai instanceof TelaFinanceiroCadastroLancamento)
-       					((TelaFinanceiroCadastroLancamento) janela_pai).setCliente(clienteSelecionado);
-       					else if(janela_pai instanceof TelaFinanceiroCadastroEmprestimo)
-           					((TelaFinanceiroCadastroEmprestimo) janela_pai).setCliente(clienteSelecionado);
-
-       				}
-       				else if (flag_tipo_cliente == 28)
-       					((TelaConfirmarTransferenciaPagamentoContratual) janela_pai).setDepositante(clienteSelecionado);
-       				else if (flag_tipo_cliente == 29)
-       					((TelaConfirmarTransferenciaPagamentoContratual) janela_pai).setFavorecido(clienteSelecionado);
-       				else if (flag_tipo_cliente == 30)
-       					((TelaRelatoriaContratos) telaPai).setClienteContraParte1(clienteSelecionado);
-       				else if (flag_tipo_cliente == 31)
-       					((TelaFinanceiroCadastroPagamento) janela_pai).setClienteFornecedor(clienteSelecionado);
-    				
-    				else if (flag_tipo_cliente == 32)
-       					((TelaRelatoriaContratos) telaPai).setClienteAlvo2(clienteSelecionado);
-    				else if (flag_tipo_cliente == 35)
-       					((TelaFinanceiroGerenciarLancamento) janela_pai).setDestinatarioNF(clienteSelecionado);
-       				
-    				isto.dispose();
-					
-					}
-					else {
-						int indiceDaLinha = 0;
-						indiceDaLinha = tabela.getSelectedRow();
-						System.out.println("Indice da linha selecionado: " + indiceDaLinha);
-						//TelaCadastroCliente telaEdicao = new TelaCadastroCliente(0, clientes_disponiveis.get(indiceDaLinha));
-						editarCliente(indiceDaLinha);
-
-						
-					}
+					processarSelecao(flag_tipo_tela, flag_tipo_cliente, tabela,janela_pai);
 				}
 			}
 		});
@@ -352,82 +274,8 @@ public class TelaCliente extends JFrame {
         tabela.addMouseListener(new MouseAdapter(){
             public void mouseClicked(MouseEvent e){
                 if(e.getClickCount() == 2){
-                	if(flag_tipo_tela == 0) {
-                		int rowSel = tabela.getSelectedRow();//pega o indice da linha na tabela
-    					int indiceDaLinha = tabela.getRowSorter().convertRowIndexToModel(rowSel);//converte pro indice do model    
-    					clienteSelecionado = clientes_disponiveis.get(indiceDaLinha);
-    				if(flag_tipo_cliente == 1)
-    					((TelaElaborarNovoContrato) telaPai).setComprador1(clienteSelecionado);
-       				else if (flag_tipo_cliente == 2)
-       					((TelaElaborarNovoContrato) telaPai).setVendedor1(clienteSelecionado);
-       				else if (flag_tipo_cliente == 3)
-       					((TelaElaborarNovoContrato) telaPai).setVendedor2(clienteSelecionado);
-       				else if (flag_tipo_cliente == 4)
-       					((TelaElaborarNovoContrato) telaPai).setCorretor(clienteSelecionado);
-       				else if (flag_tipo_cliente == 5)
-       					((TelaConfirmarCarregamento) telaPai).setClienteCarregamento(clienteSelecionado);
-       				else if (flag_tipo_cliente == 6)
-       					((TelaConfirmarCarregamento) telaPai).setVendedor(clienteSelecionado);
-       				else if (flag_tipo_cliente == 8)
-       					((TelaConfirmarPagamentoContratual) telaPai).setDepositante(clienteSelecionado);
-       				else if (flag_tipo_cliente == 9)
-       					((TelaConfirmarPagamentoContratual) telaPai).setFavorecido(clienteSelecionado);
-       				else if (flag_tipo_cliente == 10)
-       					((TelaCadastroGrupo) telaPai).adicionarIntegrante(clienteSelecionado);
-       				else if (flag_tipo_cliente == 11)
-       					((TelaRelatoriaContratos) telaPai).setClienteAlvo(clienteSelecionado);
-       				else if (flag_tipo_cliente == 12)
-       					((TelaImportarContratoManual) telaPai).setCorretor(clienteSelecionado);
-       				else if (flag_tipo_cliente == 13)
-       					((TelaImportarContratoManual) telaPai).setComprador1(clienteSelecionado);
-       				else if (flag_tipo_cliente == 14)
-       					((TelaImportarContratoManual) telaPai).setVendedor1(clienteSelecionado);
-       				else if (flag_tipo_cliente == 15)
-       					((TelaImportarContratoManual) telaPai).setVendedor2(clienteSelecionado);
-       				else if (flag_tipo_cliente == 16)
-       					((TelaConfirmarRecebimento) telaPai).setClienteRecebimento(clienteSelecionado);
-       				else if (flag_tipo_cliente == 17)
-       					((TelaConfirmarRecebimento) telaPai).setVendedor(clienteSelecionado);
-       				else if (flag_tipo_cliente == 18)
-       					((TelaElaborarNovoContrato) telaPai).setComprador2(clienteSelecionado);
-       				else if (flag_tipo_cliente == 20)
-       					((TelaImportarContratoManual) telaPai).setComprador2(clienteSelecionado);
-       				else if (flag_tipo_cliente == 25)
-       					((TelaFinanceiroCadastroInstituicaoBancaria) telaPai).setCliente(clienteSelecionado);
-       				else if (flag_tipo_cliente == 26)
-       					((TelaFinanceiroCadastroCentroCusto) telaPai).setCliente(clienteSelecionado);
-       				else if (flag_tipo_cliente == 27) {
-           				
-       					if(janela_pai instanceof TelaFinanceiroCadastroLancamento)
-       					((TelaFinanceiroCadastroLancamento) janela_pai).setCliente(clienteSelecionado);
-       					else if(janela_pai instanceof TelaFinanceiroCadastroEmprestimo)
-           					((TelaFinanceiroCadastroEmprestimo) janela_pai).setCliente(clienteSelecionado);
+					processarSelecao(flag_tipo_tela, flag_tipo_cliente, tabela,janela_pai);
 
-       				}else if (flag_tipo_cliente == 28)
-       					((TelaConfirmarTransferenciaPagamentoContratual) janela_pai).setDepositante(clienteSelecionado);
-       				else if (flag_tipo_cliente == 29)
-       					((TelaConfirmarTransferenciaPagamentoContratual) janela_pai).setFavorecido(clienteSelecionado);
-       				else if (flag_tipo_cliente == 30)
-       					((TelaRelatoriaContratos) telaPai).setClienteContraParte1(clienteSelecionado);
-       				else if (flag_tipo_cliente == 31)
-       					((TelaFinanceiroCadastroPagamento) janela_pai).setClienteFornecedor(clienteSelecionado);
-       				else if (flag_tipo_cliente == 32)
-       					((TelaRelatoriaContratos) telaPai).setClienteAlvo2(clienteSelecionado);
-       				else if (flag_tipo_cliente == 35)
-       					((TelaFinanceiroGerenciarLancamento) janela_pai).setDestinatarioNF(clienteSelecionado);
-       				
-    				isto.dispose();
-                	}
-                	else {
-    					int indiceDaLinha = 0;
-    					indiceDaLinha = tabela.getSelectedRow();
-    					
-    					//TelaCadastroCliente telaEdicao = new TelaCadastroCliente(0, clientes_disponiveis.get(indiceDaLinha));
-    					editarCliente(indiceDaLinha);
-
-    					
-    				
-                    }
                 }
 				
               }
@@ -509,102 +357,8 @@ public class TelaCliente extends JFrame {
 		});
 		btnSelecionar.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				int rowSel = -1;
-				int indiceDaLinha = -1;
-				
-				if(flag_tipo_cliente == 10) {
-					
-				}else {
-					 rowSel = tabela.getSelectedRow();//pega o indice da linha na tabela
-					 indiceDaLinha = tabela.getRowSorter().convertRowIndexToModel(rowSel);//converte pro indice do model				
-					clienteSelecionado = clientes_disponiveis.get(indiceDaLinha);
-				}
-			
-				if(flag_tipo_cliente == 1)
-					((TelaElaborarNovoContrato) telaPai).setComprador1(clienteSelecionado);
-   				else if (flag_tipo_cliente == 2)
-   					((TelaElaborarNovoContrato) telaPai).setVendedor1(clienteSelecionado);
-   				else if (flag_tipo_cliente == 3)
-   					((TelaElaborarNovoContrato) telaPai).setVendedor2(clienteSelecionado);
-   				else if (flag_tipo_cliente == 4)
-   					((TelaElaborarNovoContrato) telaPai).setCorretor(clienteSelecionado);
-   				else if (flag_tipo_cliente == 5)
-   					((TelaConfirmarCarregamento) telaPai).setClienteCarregamento(clienteSelecionado);
-   				else if (flag_tipo_cliente == 6)
-   					((TelaConfirmarCarregamento) telaPai).setVendedor(clienteSelecionado);
-   				else if (flag_tipo_cliente == 8)
-   					((TelaConfirmarPagamentoContratual) telaPai).setDepositante(clienteSelecionado);
-   				else if (flag_tipo_cliente == 9)
-   					((TelaConfirmarPagamentoContratual) telaPai).setFavorecido(clienteSelecionado);
-   				else if (flag_tipo_cliente == 10) {
-   					
-   					ArrayList<CadastroCliente> integrantes_selecionados = new ArrayList<>();
-   					int linhas_selecionadas[] = tabela.getSelectedRows();//pega o indice da linha na tabela
-   					
-   					for(int i = 0; i < linhas_selecionadas.length; i++) {
-   						
-   						int indice = tabela.getRowSorter().convertRowIndexToModel(linhas_selecionadas[i]);//converte pro indice do model				
-   	   					clienteSelecionado = clientes_disponiveis.get(indice);
-   	   				    integrantes_selecionados.add(clienteSelecionado);
-   					}
-   					
-   					
-   					((TelaCadastroGrupo) telaPai).adicionarIntegrantes(integrantes_selecionados);
-   					
-   				}
-   				else if (flag_tipo_cliente == 11)
-   					((TelaRelatoriaContratos) telaPai).setClienteAlvo(clienteSelecionado);
-   				else if (flag_tipo_cliente == 12)
-   					((TelaImportarContratoManual) telaPai).setCorretor(clienteSelecionado);
-   				else if (flag_tipo_cliente == 13)
-   					((TelaImportarContratoManual) telaPai).setComprador1(clienteSelecionado);
-   				else if (flag_tipo_cliente == 14)
-   					((TelaImportarContratoManual) telaPai).setVendedor1(clienteSelecionado);
-   				else if (flag_tipo_cliente == 15)
-   					((TelaImportarContratoManual) telaPai).setVendedor2(clienteSelecionado);
-   				else if (flag_tipo_cliente == 16)
-   					((TelaConfirmarRecebimento) telaPai).setClienteRecebimento(clienteSelecionado);
-   				else if (flag_tipo_cliente == 17)
-   					((TelaConfirmarRecebimento) telaPai).setVendedor(clienteSelecionado);
-   				else if (flag_tipo_cliente == 18)
-   					((TelaElaborarNovoContrato) telaPai).setComprador2(clienteSelecionado);
-   				else if (flag_tipo_cliente == 20)
-   					((TelaImportarContratoManual) telaPai).setComprador2(clienteSelecionado);
-   				else if (flag_tipo_cliente == 25)
-   					((TelaFinanceiroCadastroInstituicaoBancaria) telaPai).setCliente(clienteSelecionado);
-   				else if (flag_tipo_cliente == 26)
-   					((TelaFinanceiroCadastroCentroCusto) telaPai).setCliente(clienteSelecionado);
-   				else if (flag_tipo_cliente == 27) {
-       				
-   					if(janela_pai instanceof TelaFinanceiroCadastroLancamento)
-   					((TelaFinanceiroCadastroLancamento) janela_pai).setCliente(clienteSelecionado);
-   					else if(janela_pai instanceof TelaFinanceiroCadastroEmprestimo)
-       					((TelaFinanceiroCadastroEmprestimo) janela_pai).setCliente(clienteSelecionado);
+				processarSelecao(flag_tipo_tela, flag_tipo_cliente, tabela,janela_pai);
 
-   				}else if (flag_tipo_cliente == 28)
-   					((TelaConfirmarTransferenciaPagamentoContratual) janela_pai).setDepositante(clienteSelecionado);
-   				else if (flag_tipo_cliente == 29)
-   					((TelaConfirmarTransferenciaPagamentoContratual) janela_pai).setFavorecido(clienteSelecionado);
-   				else if (flag_tipo_cliente == 30)
-   					((TelaRelatoriaContratos) telaPai).setClienteContraParte1(clienteSelecionado);
-   				else if (flag_tipo_cliente == 31) {
-   					
-   					if(janela_pai instanceof TelaFinanceiroCadastroPagamento) {
-   	   					((TelaFinanceiroCadastroPagamento) janela_pai).setClienteFornecedor(clienteSelecionado);
-
-   					}else if(janela_pai instanceof TelaFinanceiroCadastroPagamentoEmprestimo) {
-   	   					((TelaFinanceiroCadastroPagamentoEmprestimo) janela_pai).setClienteFornecedor(clienteSelecionado);
-
-   					}
-   					
-				
-   				}else if (flag_tipo_cliente == 32)
-   					((TelaRelatoriaContratos) telaPai).setClienteAlvo2(clienteSelecionado);
-   				else if (flag_tipo_cliente == 35)
-   					((TelaFinanceiroGerenciarLancamento) janela_pai).setDestinatarioNF(clienteSelecionado);
-   				
-   				
-   					isto.dispose();
 			}
 		});
 		btnUsurio.addActionListener(new ActionListener() {
@@ -1065,5 +819,104 @@ public class TelaCliente extends JFrame {
 				  
 				
 			
+	}
+	
+	public void processarSelecao(int flag_tipo_tela, int flag_tipo_cliente, JTable tabela, Window janela_pai) {
+		if(flag_tipo_tela == 0) {
+			int rowSel = tabela.getSelectedRow();//pega o indice da linha na tabela
+			int indiceDaLinha = tabela.getRowSorter().convertRowIndexToModel(rowSel);//converte pro indice do model
+			clienteSelecionado = clientes_disponiveis.get(indiceDaLinha);
+			if(flag_tipo_cliente == 1)
+				((TelaElaborarNovoContrato) telaPai).setComprador1(clienteSelecionado);
+				else if (flag_tipo_cliente == 2)
+					((TelaElaborarNovoContrato) telaPai).setVendedor1(clienteSelecionado);
+				else if (flag_tipo_cliente == 3)
+					((TelaElaborarNovoContrato) telaPai).setVendedor2(clienteSelecionado);
+				else if (flag_tipo_cliente == 4)
+					((TelaElaborarNovoContrato) telaPai).setCorretor(clienteSelecionado);
+				else if (flag_tipo_cliente == 5)
+					((TelaConfirmarCarregamento) telaPai).setClienteCarregamento(clienteSelecionado);
+				else if (flag_tipo_cliente == 6)
+					((TelaConfirmarCarregamento) telaPai).setVendedor(clienteSelecionado);
+				else if (flag_tipo_cliente == 8)
+					((TelaConfirmarPagamentoContratual) telaPai).setDepositante(clienteSelecionado);
+				else if (flag_tipo_cliente == 9)
+					((TelaConfirmarPagamentoContratual) telaPai).setFavorecido(clienteSelecionado);
+				else if (flag_tipo_cliente == 10)
+					((TelaCadastroGrupo) telaPai).adicionarIntegrante(clienteSelecionado);
+				else if (flag_tipo_cliente == 11)
+					((TelaRelatoriaContratos) telaPai).setClienteAlvo(clienteSelecionado);
+				else if (flag_tipo_cliente == 12)
+					((TelaImportarContratoManual) telaPai).setCorretor(clienteSelecionado);
+				else if (flag_tipo_cliente == 13)
+					((TelaImportarContratoManual) telaPai).setComprador1(clienteSelecionado);
+				else if (flag_tipo_cliente == 14)
+					((TelaImportarContratoManual) telaPai).setVendedor1(clienteSelecionado);
+				else if (flag_tipo_cliente == 15)
+					((TelaImportarContratoManual) telaPai).setVendedor2(clienteSelecionado);
+				else if (flag_tipo_cliente == 16)
+					((TelaConfirmarRecebimento) telaPai).setClienteRecebimento(clienteSelecionado);
+				else if (flag_tipo_cliente == 17)
+					((TelaConfirmarRecebimento) telaPai).setVendedor(clienteSelecionado);
+				else if (flag_tipo_cliente == 18)
+					((TelaElaborarNovoContrato) telaPai).setComprador2(clienteSelecionado);
+				else if (flag_tipo_cliente == 20)
+					((TelaImportarContratoManual) telaPai).setComprador2(clienteSelecionado);
+				else if (flag_tipo_cliente == 25)
+					((TelaFinanceiroCadastroInstituicaoBancaria) telaPai).setCliente(clienteSelecionado);
+				else if (flag_tipo_cliente == 26)
+					((TelaFinanceiroCadastroCentroCusto) telaPai).setCliente(clienteSelecionado);
+				else if (flag_tipo_cliente == 27) {
+				
+					if(janela_pai instanceof TelaFinanceiroCadastroLancamento)
+					((TelaFinanceiroCadastroLancamento) janela_pai).setCliente(clienteSelecionado);
+					else if(janela_pai instanceof TelaFinanceiroCadastroEmprestimo)
+   					((TelaFinanceiroCadastroEmprestimo) janela_pai).setCliente(clienteSelecionado);
+
+				}
+				else if (flag_tipo_cliente == 28)
+					((TelaConfirmarTransferenciaPagamentoContratual) janela_pai).setDepositante(clienteSelecionado);
+				else if (flag_tipo_cliente == 29)
+					((TelaConfirmarTransferenciaPagamentoContratual) janela_pai).setFavorecido(clienteSelecionado);
+				else if (flag_tipo_cliente == 30)
+					((TelaRelatoriaContratos) telaPai).setClienteContraParte1(clienteSelecionado);
+				else if (flag_tipo_cliente == 31) {
+					if(janela_pai instanceof TelaFinanceiroCadastroPagamento)
+					((TelaFinanceiroCadastroPagamento) janela_pai).setPagadorClienteFornecedor(clienteSelecionado);
+					else if(janela_pai instanceof TelaFinanceiroCadastroPagamentoEmprestimo)
+   					((TelaFinanceiroCadastroPagamentoEmprestimo) janela_pai).setPagadorClienteFornecedor(clienteSelecionado);
+
+				}
+			else if (flag_tipo_cliente == 32)
+					((TelaRelatoriaContratos) telaPai).setClienteAlvo2(clienteSelecionado);
+			else if (flag_tipo_cliente == 35)
+					((TelaFinanceiroGerenciarLancamento) janela_pai).setDestinatarioNF(clienteSelecionado);
+			else if (flag_tipo_cliente == 36) {
+				if(janela_pai instanceof TelaFinanceiroCadastroPagamento)
+					((TelaFinanceiroCadastroPagamento) janela_pai).setRecebedorClienteFornecedor(clienteSelecionado);
+					else if(janela_pai instanceof TelaFinanceiroCadastroPagamentoEmprestimo)
+   					((TelaFinanceiroCadastroPagamentoEmprestimo) janela_pai).setRecebedorClienteFornecedor(clienteSelecionado);
+
+			}
+			else if (flag_tipo_cliente == 37) {
+				if(janela_pai instanceof TelaEnviarMsgEmailDocsGeral)
+   					((TelaEnviarMsgEmailDocsGeral) janela_pai).setCliente(clienteSelecionado);
+				else if(janela_pai instanceof TelaEnviarAoContador)
+   					((TelaEnviarAoContador) janela_pai).setCliente(clienteSelecionado);
+
+			}
+			
+			isto.dispose();
+			
+			}
+			else {
+				int indiceDaLinha = 0;
+				indiceDaLinha = tabela.getSelectedRow();
+				System.out.println("Indice da linha selecionado: " + indiceDaLinha);
+				//TelaCadastroCliente telaEdicao = new TelaCadastroCliente(0, clientes_disponiveis.get(indiceDaLinha));
+				editarCliente(indiceDaLinha);
+
+				
+			}
 	}
 }

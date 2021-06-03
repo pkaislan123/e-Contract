@@ -31,6 +31,9 @@ public class RenderizadorChat implements ListCellRenderer<CadastroLogin.Mensagem
 	}
 	
 	
+	/**
+	 * @wbp.parser.entryPoint
+	 */
 	@Override
 	public Component getListCellRendererComponent(JList<? extends Mensagem> arg0, Mensagem msg, int arg2, boolean arg3,
 			boolean arg4) {

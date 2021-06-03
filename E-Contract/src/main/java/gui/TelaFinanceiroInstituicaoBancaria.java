@@ -160,7 +160,7 @@ import javax.swing.JTable;
 
 
 
-public class TelaFinanceiroInstituicaoBancaria extends JDialog {
+public class TelaFinanceiroInstituicaoBancaria extends JFrame {
 
 	private final JPanel painelPrincipal = new JPanel();
     private JLabel lblTotalContratosConcluidos, lblTotalContratos, lblTotalContratosAbertos;
@@ -267,23 +267,30 @@ public class TelaFinanceiroInstituicaoBancaria extends JDialog {
 			public void actionPerformed(ActionEvent e) {
 				if(modo_operacao == 0) {
 					if(retorno_tela == 1) {
-						((TelaFinanceiroCadastroPagamento) janela_pai).setInstituicaoBancaria(getIBSelecionado());
-						isto.dispose();
-					}else if(retorno_tela == 2) {
 						if(janela_pai instanceof TelaFinanceiroCadastroPagamento) {
-							((TelaFinanceiroCadastroPagamento) janela_pai).setInstituicaoBancariaRecebedora(getIBSelecionado());
+							((TelaFinanceiroCadastroPagamento) janela_pai).setPagadorInstituicaoBancaria(getIBSelecionado());
 
 						}else if(janela_pai instanceof TelaFinanceiroCadastroPagamentoEmprestimo) {
-							((TelaFinanceiroCadastroPagamentoEmprestimo) janela_pai).setInstituicaoBancariaRecebedora(getIBSelecionado());
+							((TelaFinanceiroCadastroPagamentoEmprestimo) janela_pai).setPagadorInstituicaoBancaria(getIBSelecionado());
 
 						}
-						isto.dispose();
+					
+					}else if(retorno_tela == 2) {
+						if(janela_pai instanceof TelaFinanceiroCadastroPagamento) {
+							((TelaFinanceiroCadastroPagamento) janela_pai).setRecebedorInstituicaoBancaria(getIBSelecionado());
+
+						}else if(janela_pai instanceof TelaFinanceiroCadastroPagamentoEmprestimo) {
+							((TelaFinanceiroCadastroPagamentoEmprestimo) janela_pai).setRecebedorInstituicaoBancaria(getIBSelecionado());
+
+						}
 					}
+					isto.dispose();
+
 				}
 			}
 		});
 		
-		JButton btnEditar = new JButton("Editar");
+		JButton btnEditar = new JButton("Gerenciar");
 		btnEditar.setBackground(new Color(255, 153, 0));
 		btnEditar.setForeground(Color.WHITE);
 		btnEditar.setFont(new Font("SansSerif", Font.BOLD, 16));
@@ -292,11 +299,9 @@ public class TelaFinanceiroInstituicaoBancaria extends JDialog {
 			public void actionPerformed(ActionEvent e) {
 				
 				
-				TelaFinanceiroCadastroInstituicaoBancaria tela = new TelaFinanceiroCadastroInstituicaoBancaria(1, getIBSelecionado(), isto);
+				TelaGerenciarInstituicaoBancaria tela = new TelaGerenciarInstituicaoBancaria(getIBSelecionado(), isto);
 				tela.setVisible(true);
-
-
-						
+	
 						
 			}
 		});

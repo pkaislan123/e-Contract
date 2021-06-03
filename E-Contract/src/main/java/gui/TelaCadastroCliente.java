@@ -96,6 +96,7 @@ import java.awt.event.FocusAdapter;
 import java.awt.event.FocusEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import net.miginfocom.swing.MigLayout;
 
 public class TelaCadastroCliente extends JFrame {
 
@@ -251,7 +252,6 @@ public class TelaCadastroCliente extends JFrame {
 
 		// painel de dados bancarios
 		painelDadosBancarios.setBackground(new Color(255, 255, 255));
-		painelDadosBancarios.setLayout(null);
 
 		// painel finalizar
 		painelFinalizar.setBackground(new Color(255, 255, 255));
@@ -259,7 +259,6 @@ public class TelaCadastroCliente extends JFrame {
 
 		// painel de contatos
 		painelContato.setBackground(new Color(255, 255, 255));
-		painelContato.setLayout(null);
 
 		// adiciona o painel filho1 no painel principal
 		painelPrincipal.addTab("Dados Iniciais", painelDadosIniciais);
@@ -272,84 +271,75 @@ public class TelaCadastroCliente extends JFrame {
 
 		// painel Siare
 		painelSefaz.setBackground(new Color(255, 255, 255));
-		painelSefaz.setLayout(null);
 
 		// adiciona o painel siare no painel principal
 		painelPrincipal.addTab("Dados Sefaz", painelSefaz);
-
-		JLabel lblCpfResponsavel = new JLabel("CPF Responsavel:");
-		lblCpfResponsavel.setHorizontalAlignment(SwingConstants.TRAILING);
-		lblCpfResponsavel.setForeground(Color.BLACK);
-		lblCpfResponsavel.setFont(new Font("Arial Black", Font.PLAIN, 14));
-		lblCpfResponsavel.setBackground(Color.ORANGE);
-		lblCpfResponsavel.setBounds(196, 274, 137, 33);
-		painelSefaz.add(lblCpfResponsavel);
-
-		entCpfResponsavel = new JTextFieldPersonalizado();
-		entCpfResponsavel.setForeground(Color.BLACK);
-		entCpfResponsavel.setColumns(10);
-		entCpfResponsavel.setBounds(343, 276, 220, 33);
-		painelSefaz.add(entCpfResponsavel);
-
-		JLabel lblIdentificao = new JLabel("Identificação:");
-		lblIdentificao.setHorizontalAlignment(SwingConstants.TRAILING);
-		lblIdentificao.setForeground(Color.BLACK);
-		lblIdentificao.setFont(new Font("Arial Black", Font.PLAIN, 14));
-		lblIdentificao.setBackground(Color.ORANGE);
-		lblIdentificao.setBounds(197, 232, 137, 33);
-		painelSefaz.add(lblIdentificao);
-
-		entIdentificacaoSiare = new JTextFieldPersonalizado();
-		entIdentificacaoSiare.setForeground(Color.BLACK);
-		entIdentificacaoSiare.setColumns(10);
-		entIdentificacaoSiare.setBounds(343, 232, 220, 33);
-		painelSefaz.add(entIdentificacaoSiare);
-
-		JLabel lblSenh = new JLabel("Senha:");
-		lblSenh.setHorizontalAlignment(SwingConstants.TRAILING);
-		lblSenh.setForeground(Color.BLACK);
-		lblSenh.setFont(new Font("Arial Black", Font.PLAIN, 14));
-		lblSenh.setBackground(Color.ORANGE);
-		lblSenh.setBounds(197, 323, 137, 33);
-		painelSefaz.add(lblSenh);
-
-		entSenhaSiare = new JTextFieldPersonalizado();
-		entSenhaSiare.setForeground(Color.BLACK);
-		entSenhaSiare.setColumns(10);
-		entSenhaSiare.setBounds(343, 325, 220, 33);
-		painelSefaz.add(entSenhaSiare);
-
-		JLabel lblTipoIdentificao = new JLabel("Tipo Identificação:");
-		lblTipoIdentificao.setHorizontalAlignment(SwingConstants.TRAILING);
-		lblTipoIdentificao.setForeground(Color.BLACK);
-		lblTipoIdentificao.setFont(new Font("Arial Black", Font.PLAIN, 14));
-		lblTipoIdentificao.setBackground(Color.ORANGE);
-		lblTipoIdentificao.setBounds(185, 191, 150, 33);
-		painelSefaz.add(lblTipoIdentificao);
-
-		cBTipoIdentificacao = new JComboBox();
-		cBTipoIdentificacao.setBounds(343, 188, 220, 33);
-		cBTipoIdentificacao.addItem("Produtor Rural");
-		cBTipoIdentificacao.addItem("Inscrição Estadual");
-		cBTipoIdentificacao.addItem("Protocolo");
-		cBTipoIdentificacao.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent arg0) {
-				tipoIdentificacao = cBTipoIdentificacao.getSelectedItem().toString();
-
-			}
-		});
-
-		painelSefaz.add(cBTipoIdentificacao);
+		painelSefaz.setLayout(new MigLayout("", "[][335px][]", "[33px][36px][33px][35px][35px][][][][][][][][]"));
 
 		JLabel lblCadastroCliente = new JLabel(" ----- Cadastro / Dados Sefaz");
 		lblCadastroCliente.setHorizontalAlignment(SwingConstants.TRAILING);
 		lblCadastroCliente.setForeground(Color.BLACK);
-		lblCadastroCliente.setFont(new Font("Arial", Font.PLAIN, 14));
+		lblCadastroCliente.setFont(new Font("Arial", Font.BOLD, 14));
 		lblCadastroCliente.setBackground(Color.ORANGE);
-		lblCadastroCliente.setBounds(0, 0, 200, 33);
 		lblCadastroCliente.setHorizontalAlignment(JLabel.LEFT);
 
-		painelSefaz.add(lblCadastroCliente);
+		painelSefaz.add(lblCadastroCliente, "cell 0 0 2 1,alignx left,growy");
+												
+														JLabel lblTipoIdentificao = new JLabel("Tipo Identificação:");
+														lblTipoIdentificao.setHorizontalAlignment(SwingConstants.TRAILING);
+														lblTipoIdentificao.setForeground(Color.BLACK);
+														lblTipoIdentificao.setFont(new Font("Arial", Font.PLAIN, 16));
+														lblTipoIdentificao.setBackground(Color.ORANGE);
+														painelSefaz.add(lblTipoIdentificao, "cell 0 4,alignx right,growy");
+										
+												cBTipoIdentificacao = new JComboBox();
+												cBTipoIdentificacao.addItem("Produtor Rural");
+												cBTipoIdentificacao.addItem("Inscrição Estadual");
+												cBTipoIdentificacao.addItem("Protocolo");
+												cBTipoIdentificacao.addActionListener(new ActionListener() {
+													public void actionPerformed(ActionEvent arg0) {
+														tipoIdentificacao = cBTipoIdentificacao.getSelectedItem().toString();
+
+													}
+												});
+												
+														painelSefaz.add(cBTipoIdentificacao, "cell 1 4 2 1,alignx left,growy");
+								
+										JLabel lblIdentificao = new JLabel("Identificação:");
+										lblIdentificao.setHorizontalAlignment(SwingConstants.TRAILING);
+										lblIdentificao.setForeground(Color.BLACK);
+										lblIdentificao.setFont(new Font("Arial", Font.PLAIN, 16));
+										lblIdentificao.setBackground(Color.ORANGE);
+										painelSefaz.add(lblIdentificao, "cell 0 5,alignx right,growy");
+										
+												entIdentificacaoSiare = new JTextFieldPersonalizado();
+												entIdentificacaoSiare.setForeground(Color.BLACK);
+												entIdentificacaoSiare.setColumns(10);
+												painelSefaz.add(entIdentificacaoSiare, "cell 1 5,growx,aligny top");
+								
+										JLabel lblCpfResponsavel = new JLabel("CPF Responsavel:");
+										lblCpfResponsavel.setHorizontalAlignment(SwingConstants.TRAILING);
+										lblCpfResponsavel.setForeground(Color.BLACK);
+										lblCpfResponsavel.setFont(new Font("Arial", Font.PLAIN, 16));
+										lblCpfResponsavel.setBackground(Color.ORANGE);
+										painelSefaz.add(lblCpfResponsavel, "cell 0 6,alignx right,growy");
+										
+												entCpfResponsavel = new JTextFieldPersonalizado();
+												entCpfResponsavel.setForeground(Color.BLACK);
+												entCpfResponsavel.setColumns(10);
+												painelSefaz.add(entCpfResponsavel, "cell 1 6,growx,aligny bottom");
+								
+										JLabel lblSenh = new JLabel("Senha:");
+										lblSenh.setHorizontalAlignment(SwingConstants.TRAILING);
+										lblSenh.setForeground(Color.BLACK);
+										lblSenh.setFont(new Font("Arial", Font.PLAIN, 16));
+										lblSenh.setBackground(Color.ORANGE);
+										painelSefaz.add(lblSenh, "cell 0 7,alignx right,growy");
+						
+								entSenhaSiare = new JTextFieldPersonalizado();
+								entSenhaSiare.setForeground(Color.BLACK);
+								entSenhaSiare.setColumns(10);
+								painelSefaz.add(entSenhaSiare, "cell 1 7,growx,aligny bottom");
 		// adiciona o painel de dados ao painel principal
 		painelPrincipal.addTab("Dados Bancarios", painelDadosBancarios);
 
@@ -357,6 +347,9 @@ public class TelaCadastroCliente extends JFrame {
 		painelPrincipal.addTab("Dados Contato", painelContato);
 
 		JButton btnExcluirContato = new JButton("Excluir");
+		btnExcluirContato.setForeground(Color.WHITE);
+		btnExcluirContato.setFont(new Font("SansSerif", Font.BOLD, 14));
+		btnExcluirContato.setBackground(new Color(204, 0, 0));
 		btnExcluirContato.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				int indiceDaLinha = table.getSelectedRow();
@@ -382,13 +375,12 @@ public class TelaCadastroCliente extends JFrame {
 				}
 			}
 		});
+		painelContato.setLayout(new MigLayout("", "[113px][3px][131px][85px][4px][9px][94px][5px][220px][9px][89px]", "[33px][138px][54px][4px][33px][44px][33px][11px][3px][17px][33px][]"));
 		btnExcluirContato.setHorizontalAlignment(SwingConstants.LEADING);
-		btnExcluirContato.setBounds(699, 214, 63, 23);
-		painelContato.add(btnExcluirContato);
+		painelContato.add(btnExcluirContato, "cell 10 2,alignx right,aligny top");
 
 		JPanel panel = new JPanel();
-		panel.setBounds(38, 65, 724, 138);
-		painelContato.add(panel);
+		painelContato.add(panel, "cell 0 1 11 1,grow");
 
 		modelo.addColumn("id");
 		modelo.addColumn("Nome");
@@ -410,10 +402,10 @@ public class TelaCadastroCliente extends JFrame {
 		table.getColumnModel().getColumn(3).setPreferredWidth(30);
 		table.getColumnModel().getColumn(4).setPreferredWidth(30);
 		table.getColumnModel().getColumn(5).setPreferredWidth(100);
-
-		panel.setLayout(null);
+		table.setRowHeight(30);
 		JScrollPane scrollPane = new JScrollPane(table);
-		scrollPane.setBounds(10, 5, 704, 122);
+		scrollPane.getViewport().setBackground(Color.white);
+		panel.setLayout(new BorderLayout(0, 0));
 		scrollPane.setAutoscrolls(true);
 		scrollPane.setBackground(new Color(255, 255, 255));
 		panel.add(scrollPane);
@@ -423,8 +415,7 @@ public class TelaCadastroCliente extends JFrame {
 		lblCelular.setForeground(Color.BLACK);
 		lblCelular.setFont(new Font("Arial Black", Font.PLAIN, 14));
 		lblCelular.setBackground(Color.ORANGE);
-		lblCelular.setBounds(13, 307, 93, 33);
-		painelContato.add(lblCelular);
+		painelContato.add(lblCelular, "cell 0 5,grow");
 
 		entCelularContato = new JTextFieldPersonalizado();
 		entCelularContato.addKeyListener(new KeyAdapter() {
@@ -463,130 +454,118 @@ public class TelaCadastroCliente extends JFrame {
 
 		entCelularContato.setForeground(Color.BLACK);
 		entCelularContato.setColumns(10);
-		entCelularContato.setBounds(116, 309, 220, 33);
-		painelContato.add(entCelularContato);
+		painelContato.add(entCelularContato, "cell 2 5 3 1,growx,aligny top");
 
 		JLabel lblNome_1 = new JLabel("Nome:");
 		lblNome_1.setHorizontalAlignment(SwingConstants.TRAILING);
 		lblNome_1.setForeground(Color.BLACK);
 		lblNome_1.setFont(new Font("Arial Black", Font.PLAIN, 14));
 		lblNome_1.setBackground(Color.ORANGE);
-		lblNome_1.setBounds(20, 233, 93, 33);
-		painelContato.add(lblNome_1);
+		painelContato.add(lblNome_1, "cell 0 2,growx,aligny bottom");
 
 		JLabel lblCargo = new JLabel("Cargo:");
 		lblCargo.setHorizontalAlignment(SwingConstants.TRAILING);
 		lblCargo.setForeground(Color.BLACK);
 		lblCargo.setFont(new Font("Arial Black", Font.PLAIN, 14));
 		lblCargo.setBackground(Color.ORANGE);
-		lblCargo.setBounds(13, 272, 93, 33);
-		painelContato.add(lblCargo);
+		painelContato.add(lblCargo, "cell 0 4,grow");
 
 		entNomeContato = new JTextFieldPersonalizado();
 		entNomeContato.setForeground(Color.BLACK);
 		entNomeContato.setColumns(10);
-		entNomeContato.setBounds(116, 235, 220, 33);
-		painelContato.add(entNomeContato);
+		painelContato.add(entNomeContato, "cell 2 2 3 1,growx,aligny bottom");
 
 		JComboBox cBCargo = new JComboBox();
-		cBCargo.setBounds(116, 274, 220, 31);
 		cBCargo.addItem("Secretaria");
 		cBCargo.addItem("Auxiliar de Escritorio");
 		cBCargo.addItem("Contato Particular");
-		painelContato.add(cBCargo);
+		painelContato.add(cBCargo, "cell 2 4 3 1,grow");
 
 		JLabel lblFixo = new JLabel("Fixo:");
 		lblFixo.setHorizontalAlignment(SwingConstants.TRAILING);
 		lblFixo.setForeground(Color.BLACK);
 		lblFixo.setFont(new Font("Arial Black", Font.PLAIN, 14));
 		lblFixo.setBackground(Color.ORANGE);
-		lblFixo.setBounds(13, 351, 93, 33);
-		painelContato.add(lblFixo);
+		painelContato.add(lblFixo, "cell 0 6,grow");
 
 		entFixoContato = new JTextFieldPersonalizado();
 		entFixoContato.setForeground(Color.BLACK);
 		entFixoContato.setColumns(10);
-		entFixoContato.setBounds(116, 351, 220, 33);
-		painelContato.add(entFixoContato);
+		painelContato.add(entFixoContato, "cell 2 6 3 1,growx,aligny top");
 
 		JLabel lblEmail = new JLabel("E-mail:");
 		lblEmail.setHorizontalAlignment(SwingConstants.TRAILING);
 		lblEmail.setForeground(Color.BLACK);
 		lblEmail.setFont(new Font("Arial Black", Font.PLAIN, 14));
 		lblEmail.setBackground(Color.ORANGE);
-		lblEmail.setBounds(13, 395, 93, 33);
-		painelContato.add(lblEmail);
+		painelContato.add(lblEmail, "cell 0 8 1 3,growx,aligny top");
 
 		entEmailContato = new JTextFieldPersonalizado();
 		entEmailContato.setForeground(Color.BLACK);
 		entEmailContato.setColumns(10);
-		entEmailContato.setBounds(116, 395, 220, 33);
-		painelContato.add(entEmailContato);
-	
-		JButton btnAdicionarNovoContato = new JButton("Adicionar");
-		btnAdicionarNovoContato.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent arg0) {
-				String nome, cargo, celular, fixo, email, observacao, descricao, id;
-
-				id = "0000";
-				nome = entNomeContato.getText().toString();
-				cargo = cBCargo.getSelectedItem().toString();
-				celular = entCelularContato.getText().toString();
-				fixo = entFixoContato.getText().toString();
-				email = entEmailContato.getText().toString();
-				observacao = entObservacaoContato.getText().toString();
-				descricao = entDescricaoContato.getText().toString();
-
-				celular = celular.replace("(", "").replace(")", "").replace(" ", "").replace("-", "");
-				if (celular.length() != 11) {
-					JOptionPane.showMessageDialog(isto, "Contato com número de celular incorreto");
-				} else {
-
-					modelo.addRow(new Object[] { id, nome, cargo, celular, fixo, email, descricao, observacao });
-				}
-
-			}
-		});
-		btnAdicionarNovoContato.setBounds(673, 415, 89, 33);
-		painelContato.add(btnAdicionarNovoContato);
+		painelContato.add(entEmailContato, "cell 2 8 3 2,growx,aligny top");
 
 		JLabel lblNome_1_1 = new JLabel("Descrição:");
 		lblNome_1_1.setHorizontalAlignment(SwingConstants.TRAILING);
 		lblNome_1_1.setForeground(Color.BLACK);
 		lblNome_1_1.setFont(new Font("Arial Black", Font.PLAIN, 14));
 		lblNome_1_1.setBackground(Color.ORANGE);
-		lblNome_1_1.setBounds(345, 233, 93, 33);
-		painelContato.add(lblNome_1_1);
+		painelContato.add(lblNome_1_1, "cell 6 2,growx,aligny bottom");
 
 		entDescricaoContato = new JTextFieldPersonalizado();
 		entDescricaoContato.setForeground(Color.BLACK);
 		entDescricaoContato.setColumns(10);
-		entDescricaoContato.setBounds(444, 233, 220, 72);
-		painelContato.add(entDescricaoContato);
+		painelContato.add(entDescricaoContato, "cell 8 2 1 3,grow");
 
 		JLabel lblNome_1_1_1 = new JLabel("Observação:");
 		lblNome_1_1_1.setHorizontalAlignment(SwingConstants.TRAILING);
 		lblNome_1_1_1.setForeground(Color.BLACK);
 		lblNome_1_1_1.setFont(new Font("Arial Black", Font.PLAIN, 14));
 		lblNome_1_1_1.setBackground(Color.ORANGE);
-		lblNome_1_1_1.setBounds(332, 318, 107, 33);
-		painelContato.add(lblNome_1_1_1);
+		painelContato.add(lblNome_1_1_1, "cell 4 5 3 1,grow");
 
 		entObservacaoContato = new JTextFieldPersonalizado();
 		entObservacaoContato.setForeground(Color.BLACK);
 		entObservacaoContato.setColumns(10);
-		entObservacaoContato.setBounds(444, 326, 220, 72);
-		painelContato.add(entObservacaoContato);
+		painelContato.add(entObservacaoContato, "cell 8 5 1 4,grow");
 
 		JLabel lblCadastro_1 = new JLabel(" ----- Cadastro / Dados de Contatos");
 		lblCadastro_1.setHorizontalAlignment(SwingConstants.TRAILING);
 		lblCadastro_1.setForeground(Color.BLACK);
-		lblCadastro_1.setFont(new Font("Arial", Font.PLAIN, 14));
+		lblCadastro_1.setFont(new Font("Arial", Font.BOLD, 14));
 		lblCadastro_1.setBackground(Color.ORANGE);
-		lblCadastro_1.setBounds(0, 0, 247, 33);
 		lblCadastro_1.setHorizontalAlignment(JLabel.LEFT);
 
-		painelContato.add(lblCadastro_1);
+		painelContato.add(lblCadastro_1, "cell 0 0 3 1,grow");
+		
+			JButton btnAdicionarNovoContato = new JButton("Adicionar");
+			btnAdicionarNovoContato.setBackground(new Color(0, 51, 0));
+			btnAdicionarNovoContato.setForeground(Color.WHITE);
+			btnAdicionarNovoContato.setFont(new Font("SansSerif", Font.BOLD, 14));
+			btnAdicionarNovoContato.addActionListener(new ActionListener() {
+				public void actionPerformed(ActionEvent arg0) {
+					String nome, cargo, celular, fixo, email, observacao, descricao, id;
+
+					id = "0000";
+					nome = entNomeContato.getText().toString();
+					cargo = cBCargo.getSelectedItem().toString();
+					celular = entCelularContato.getText().toString();
+					fixo = entFixoContato.getText().toString();
+					email = entEmailContato.getText().toString();
+					observacao = entObservacaoContato.getText().toString();
+					descricao = entDescricaoContato.getText().toString();
+
+					celular = celular.replace("(", "").replace(")", "").replace(" ", "").replace("-", "");
+					if (celular.length() != 11) {
+						JOptionPane.showMessageDialog(isto, "Contato com número de celular incorreto");
+					} else {
+
+						modelo.addRow(new Object[] { id, nome, cargo, celular, fixo, email, descricao, observacao });
+					}
+
+				}
+			});
+			painelContato.add(btnAdicionarNovoContato, "cell 8 11,grow");
 
 		// adiciona o painel finalizar no painel principal
 		painelPrincipal.addTab("Finalizar Cadastro", painelFinalizar);
@@ -601,6 +580,7 @@ public class TelaCadastroCliente extends JFrame {
 
 		JLabel lblNewLabel = new JLabel(
 				"Revise os dados nas telas anteriores, quando tiver tudo pronto, clique em 'Salvar' para realizar o cadastro no Banco de Dados");
+		lblNewLabel.setFont(new Font("SansSerif", Font.BOLD, 12));
 		lblNewLabel.setBounds(22, 11, 753, 32);
 		painelFinalizar.add(lblNewLabel);
 
@@ -1151,7 +1131,7 @@ public class TelaCadastroCliente extends JFrame {
 		JLabel lblCadastro_2 = new JLabel(" ----- Cadastro / Dados de Pessoa");
 		lblCadastro_2.setHorizontalAlignment(SwingConstants.TRAILING);
 		lblCadastro_2.setForeground(Color.BLACK);
-		lblCadastro_2.setFont(new Font("Arial", Font.PLAIN, 14));
+		lblCadastro_2.setFont(new Font("Arial", Font.BOLD, 14));
 		lblCadastro_2.setBackground(Color.ORANGE);
 		lblCadastro_2.setHorizontalAlignment(JLabel.LEFT);
 
@@ -1364,7 +1344,7 @@ public class TelaCadastroCliente extends JFrame {
 		JLabel lblCadastro_2_1 = new JLabel(" ----- Cadastro / Dados da Empresa");
 		lblCadastro_2_1.setHorizontalAlignment(SwingConstants.TRAILING);
 		lblCadastro_2_1.setForeground(Color.BLACK);
-		lblCadastro_2_1.setFont(new Font("Arial", Font.PLAIN, 14));
+		lblCadastro_2_1.setFont(new Font("Arial", Font.BOLD, 14));
 		lblCadastro_2_1.setBackground(Color.ORANGE);
 		lblCadastro_2_1.setBounds(0, 0, 250, 33);
 		lblCadastro_2_1.setHorizontalAlignment(JLabel.LEFT);
@@ -1418,6 +1398,7 @@ public class TelaCadastroCliente extends JFrame {
 		btnLocalizarPorUfcidaderua.setToolTipText("Buscar CEP por informação de UF/Cidade/Rua");
 		btnLocalizarPorUfcidaderua.setBounds(642, 325, 161, 21);
 		painelEmpresa.add(btnLocalizarPorUfcidaderua);
+		painelDadosBancarios.setLayout(new MigLayout("", "[124px][4px][220px][21px][89px][232px][89px]", "[33px][138px][53px][37px][35px][35px][35px][35px][]"));
 
 		// configura os widgets no painel de dados Bancarios
 
@@ -1426,74 +1407,62 @@ public class TelaCadastroCliente extends JFrame {
 		lblBanco.setForeground(Color.BLACK);
 		lblBanco.setFont(new Font("Arial Black", Font.PLAIN, 14));
 		lblBanco.setBackground(Color.ORANGE);
-		lblBanco.setBounds(54, 323, 64, 33);
-		painelDadosBancarios.add(lblBanco);
+		painelDadosBancarios.add(lblBanco, "cell 0 4,alignx right,growy");
 
 		entBanco = new JTextFieldPersonalizado();
 		entBanco.setForeground(Color.BLACK);
 		entBanco.setColumns(10);
-		entBanco.setBounds(128, 325, 220, 33);
-		painelDadosBancarios.add(entBanco);
+		painelDadosBancarios.add(entBanco, "cell 2 4 3 1,growx,aligny bottom");
 
 		JLabel lblCdigo = new JLabel("Código:");
 		lblCdigo.setHorizontalAlignment(SwingConstants.TRAILING);
 		lblCdigo.setForeground(Color.BLACK);
 		lblCdigo.setFont(new Font("Arial Black", Font.PLAIN, 14));
 		lblCdigo.setBackground(Color.ORANGE);
-		lblCdigo.setBounds(54, 367, 64, 33);
-		painelDadosBancarios.add(lblCdigo);
+		painelDadosBancarios.add(lblCdigo, "cell 0 5,alignx right,growy");
 
 		JLabel lblConta = new JLabel("Conta:");
 		lblConta.setHorizontalAlignment(SwingConstants.TRAILING);
 		lblConta.setForeground(Color.BLACK);
 		lblConta.setFont(new Font("Arial Black", Font.PLAIN, 14));
 		lblConta.setBackground(Color.ORANGE);
-		lblConta.setBounds(54, 455, 64, 33);
-		painelDadosBancarios.add(lblConta);
+		painelDadosBancarios.add(lblConta, "cell 0 7,alignx right,growy");
 
 		JLabel lblAgncia = new JLabel("Agência:");
 		lblAgncia.setHorizontalAlignment(SwingConstants.TRAILING);
 		lblAgncia.setForeground(Color.BLACK);
 		lblAgncia.setFont(new Font("Arial Black", Font.PLAIN, 14));
 		lblAgncia.setBackground(Color.ORANGE);
-		lblAgncia.setBounds(44, 411, 80, 33);
-		painelDadosBancarios.add(lblAgncia);
+		painelDadosBancarios.add(lblAgncia, "cell 0 6,alignx right,growy");
 
 		entCodBanco = new JTextFieldPersonalizado();
 		entCodBanco.setForeground(Color.BLACK);
 		entCodBanco.setColumns(10);
-		entCodBanco.setBounds(128, 369, 220, 33);
-		painelDadosBancarios.add(entCodBanco);
+		painelDadosBancarios.add(entCodBanco, "cell 2 5 3 1,growx,aligny bottom");
 
 		entConta = new JTextFieldPersonalizado();
 		entConta.setForeground(Color.BLACK);
 		entConta.setColumns(10);
-		entConta.setBounds(128, 457, 220, 33);
-		painelDadosBancarios.add(entConta);
+		painelDadosBancarios.add(entConta, "cell 2 7 3 1,growx,aligny bottom");
 
 		entAgencia = new JTextFieldPersonalizado();
 		entAgencia.setForeground(Color.BLACK);
 		entAgencia.setColumns(10);
-		entAgencia.setBounds(128, 413, 220, 33);
-		painelDadosBancarios.add(entAgencia);
+		painelDadosBancarios.add(entAgencia, "cell 2 6 3 1,growx,aligny bottom");
 
 		JLabel lblCpfTitular = new JLabel("CPF Titular:");
 		lblCpfTitular.setHorizontalAlignment(SwingConstants.TRAILING);
 		lblCpfTitular.setForeground(Color.BLACK);
 		lblCpfTitular.setFont(new Font("Arial Black", Font.PLAIN, 14));
 		lblCpfTitular.setBackground(Color.ORANGE);
-		lblCpfTitular.setBounds(31, 229, 90, 33);
-		painelDadosBancarios.add(lblCpfTitular);
+		painelDadosBancarios.add(lblCpfTitular, "cell 0 2,alignx right,aligny bottom");
 
 		entCpfTitular = new JTextFieldPersonalizado();
 		entCpfTitular.setForeground(Color.BLACK);
 		entCpfTitular.setColumns(10);
-		entCpfTitular.setBounds(128, 231, 220, 33);
-		painelDadosBancarios.add(entCpfTitular);
+		painelDadosBancarios.add(entCpfTitular, "cell 2 2 3 1,growx,aligny bottom");
 
 		painel_table_cb = new JPanel();
-		// painel_table_cb.setBounds(10, 48, 769, 162);
-		painel_table_cb.setBounds(38, 65, 724, 138);
 
 		table_cb = new JTable(modelo_cb);
 		table_cb.setBackground(new Color(255, 255, 255));
@@ -1516,38 +1485,22 @@ public class TelaCadastroCliente extends JFrame {
 		table_cb.getColumnModel().getColumn(4).setPreferredWidth(30);
 		table_cb.getColumnModel().getColumn(5).setPreferredWidth(30);
 		table_cb.getColumnModel().getColumn(6).setPreferredWidth(100);
-
-		painel_table_cb.setLayout(null);
+		table_cb.setRowHeight(30);
+		
 		modelo_cb.setNumRows(0);
+		painel_table_cb.setLayout(new BorderLayout(0, 0));
 		JScrollPane scrollPaneCB = new JScrollPane(table_cb);
-		scrollPaneCB.setBounds(10, 5, 704, 122);
 		scrollPaneCB.setAutoscrolls(true);
+		scrollPaneCB.getViewport().setBackground(Color.white);
 		scrollPaneCB.setBackground(new Color(255, 255, 255));
 		painel_table_cb.add(scrollPaneCB);
 
-		painelDadosBancarios.add(painel_table_cb);
-
-		JButton btnAdicionarCB = new JButton("Adicionar");
-		btnAdicionarCB.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent arg0) {
-				String cpf, banco, codigo, agencia, conta, id, nome;
-
-				id = "0000";
-				cpf = entCpfTitular.getText().toString();
-				banco = entBanco.getText().toString();
-				nome = entNomeContaBancaria.getText().toString();
-				codigo = entCodBanco.getText().toString();
-				agencia = entAgencia.getText().toString();
-				conta = entConta.getText().toString();
-
-				modelo_cb.addRow(new Object[] { id, cpf, nome, banco, codigo, agencia, conta });
-
-			}
-		});
-		btnAdicionarCB.setBounds(369, 462, 89, 23);
-		painelDadosBancarios.add(btnAdicionarCB);
+		painelDadosBancarios.add(painel_table_cb, "cell 0 1 7 1,grow");
 
 		JButton btnExcluirCB = new JButton("Excluir");
+		btnExcluirCB.setBackground(Color.RED);
+		btnExcluirCB.setForeground(Color.WHITE);
+		btnExcluirCB.setFont(new Font("SansSerif", Font.BOLD, 12));
 		btnExcluirCB.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 
@@ -1576,32 +1529,50 @@ public class TelaCadastroCliente extends JFrame {
 
 			}
 		});
-		btnExcluirCB.setBounds(690, 211, 89, 23);
-		painelDadosBancarios.add(btnExcluirCB);
+		painelDadosBancarios.add(btnExcluirCB, "cell 6 2,growx,aligny top");
 
 		JLabel lblNomeTitular = new JLabel("Nome Titular:");
 		lblNomeTitular.setHorizontalAlignment(SwingConstants.TRAILING);
 		lblNomeTitular.setForeground(Color.BLACK);
 		lblNomeTitular.setFont(new Font("Arial Black", Font.PLAIN, 14));
 		lblNomeTitular.setBackground(Color.ORANGE);
-		lblNomeTitular.setBounds(20, 279, 104, 33);
-		painelDadosBancarios.add(lblNomeTitular);
+		painelDadosBancarios.add(lblNomeTitular, "cell 0 3,alignx right,growy");
 
 		entNomeContaBancaria = new JTextFieldPersonalizado();
 		entNomeContaBancaria.setForeground(Color.BLACK);
 		entNomeContaBancaria.setColumns(10);
-		entNomeContaBancaria.setBounds(128, 275, 220, 33);
-		painelDadosBancarios.add(entNomeContaBancaria);
+		painelDadosBancarios.add(entNomeContaBancaria, "cell 2 3 3 1,growx,aligny top");
 
 		JLabel lblCadastro = new JLabel(" ----- Cadastro / Dados Bancários");
 		lblCadastro.setHorizontalAlignment(SwingConstants.TRAILING);
 		lblCadastro.setForeground(Color.BLACK);
-		lblCadastro.setFont(new Font("Arial", Font.PLAIN, 14));
+		lblCadastro.setFont(new Font("Arial", Font.BOLD, 14));
 		lblCadastro.setBackground(Color.ORANGE);
-		lblCadastro.setBounds(0, 0, 246, 33);
 		lblCadastro.setHorizontalAlignment(JLabel.LEFT);
 
-		painelDadosBancarios.add(lblCadastro);
+		painelDadosBancarios.add(lblCadastro, "cell 0 0 3 1,alignx left,growy");
+		
+				JButton btnAdicionarCB = new JButton("Adicionar");
+				btnAdicionarCB.setBackground(new Color(0, 51, 0));
+				btnAdicionarCB.setForeground(Color.WHITE);
+				btnAdicionarCB.setFont(new Font("SansSerif", Font.BOLD, 14));
+				btnAdicionarCB.addActionListener(new ActionListener() {
+					public void actionPerformed(ActionEvent arg0) {
+						String cpf, banco, codigo, agencia, conta, id, nome;
+
+						id = "0000";
+						cpf = entCpfTitular.getText().toString();
+						banco = entBanco.getText().toString();
+						nome = entNomeContaBancaria.getText().toString();
+						codigo = entCodBanco.getText().toString();
+						agencia = entAgencia.getText().toString();
+						conta = entConta.getText().toString();
+
+						modelo_cb.addRow(new Object[] { id, cpf, nome, banco, codigo, agencia, conta });
+
+					}
+				});
+				painelDadosBancarios.add(btnAdicionarCB, "cell 2 8 3 1,alignx right,aligny center");
 
 		uf = cBUF.getSelectedItem().toString();
 		getContentPane().setLayout(null);
@@ -1868,7 +1839,7 @@ public class TelaCadastroCliente extends JFrame {
 			getDadosBancarios(cliente_atualizar);
 
 		}
-		// dados de apelido e finalizar contrato
+		// dados de apelidoa e finalizar contrato
 
 		permitir_cadastro = getDadosFinais(cliente_atualizar);
 		System.out.println("Dados finais foram adicionados para atualizar? - " + permitir_cadastro);

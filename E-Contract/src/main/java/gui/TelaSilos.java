@@ -5,6 +5,7 @@ import java.awt.FlowLayout;
 
 import javax.swing.JButton;
 import javax.swing.JDialog;
+import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
 import net.miginfocom.swing.MigLayout;
@@ -23,16 +24,16 @@ import javax.swing.table.AbstractTableModel;
 import javax.swing.table.TableRowSorter;
 
 import main.java.cadastros.CadastroCliente;
-import main.java.cadastros.FinanceiroConta;
+import main.java.cadastros.CadastroSilo;
+import main.java.cadastros.CadastroSilo;
 import main.java.cadastros.FinanceiroGrupoContas;
-import main.java.cadastros.FinanceiroConta;
-import main.java.cadastros.FinanceiroConta;
+import main.java.cadastros.CadastroSilo;
+import main.java.cadastros.CadastroSilo;
 import main.java.conexaoBanco.GerenciarBancoCentroCustos;
 import main.java.conexaoBanco.GerenciarBancoClientes;
-import main.java.conexaoBanco.GerenciarBancoFinanceiroConta;
 import main.java.conexaoBanco.GerenciarBancoFinanceiroGrupoContas;
+import main.java.conexaoBanco.GerenciarBancoSilo;
 import main.java.outros.JTextFieldPersonalizado;
-import main.java.conexaoBanco.GerenciarBancoFinanceiroConta;
 
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
@@ -49,22 +50,20 @@ import javax.swing.SwingConstants;
 import javax.swing.JComboBox;
 import javax.swing.ImageIcon;
 
-public class TelaSilos extends JDialog {
+public class TelaSilos extends JFrame {
 
 	private final JPanel painelPrinciapl = new JPanel();
 	private TelaSilos isto;
 	 private JTable tabela_contas;
-	 private ArrayList<FinanceiroConta> lista_contas = new ArrayList<>();
-	 private ContasTableModel modelo_contas = new ContasTableModel();
+	 private ArrayList<CadastroSilo> lista_contas = new ArrayList<>();
+	 private SilosTableModel modelo_contas = new SilosTableModel();
 	 private JDialog telaPai;
 	 private JTextFieldPersonalizado entNome;
-	 private TableRowSorter<ContasTableModel> sorter;
-	 private JTextFieldPersonalizado entGrupoContas;
-	 private JComboBox cbTipoConta;
+	 private TableRowSorter<SilosTableModel> sorter;
 	 
 	 
 	 
-	public TelaSilos(int modo_operacao, int retorno_tela, Window janela_pai) {
+	public TelaSilos(int retorno_tela, Window janela_pai) {
 		
 		isto = this;
 		setBounds(100, 100, 1018, 708);
@@ -96,24 +95,6 @@ public class TelaSilos extends JDialog {
 		panel_1.add(entNome, "cell 1 1,growx");
 		entNome.setColumns(10);
 		entNome.setForeground(Color.black);
-		
-		JLabel lblNewLabel_1_1_1 = new JLabel("Grupo de Contas:");
-		lblNewLabel_1_1_1.setFont(new Font("SansSerif", Font.PLAIN, 16));
-		panel_1.add(lblNewLabel_1_1_1, "cell 2 1,alignx trailing");
-		
-		 entGrupoContas = new JTextFieldPersonalizado();
-		entGrupoContas.setForeground(Color.black);
-		panel_1.add(entGrupoContas, "cell 3 1,growx");
-		
-		JLabel lblNewLabel_1_1 = new JLabel("Tipo de Conta:");
-		lblNewLabel_1_1.setFont(new Font("SansSerif", Font.PLAIN, 16));
-		panel_1.add(lblNewLabel_1_1, "cell 0 2,alignx trailing");
-		
-		 cbTipoConta = new JComboBox();
-		cbTipoConta.setFont(new Font("SansSerif", Font.PLAIN, 16));
-		panel_1.add(cbTipoConta, "cell 1 2,growx");
-		cbTipoConta.addItem("DESPESAS");
-		cbTipoConta.addItem("RECEITAS");
 		
 		JPanel panel_4 = new JPanel();
 		panel_4.setBackground(new Color(0, 153, 153));
@@ -160,7 +141,7 @@ public class TelaSilos extends JDialog {
 		
 		tabela_contas = new JTable(modelo_contas);
 		//instancia o sorter
-		sorter = new TableRowSorter<ContasTableModel>(modelo_contas);
+		sorter = new TableRowSorter<SilosTableModel>(modelo_contas);
 
 		//define o sorter na tablea
 		tabela_contas.setRowSorter(sorter);
@@ -179,8 +160,9 @@ public class TelaSilos extends JDialog {
 		btnNewButton_1.setForeground(Color.WHITE);
 		btnNewButton_1.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				TelaFinanceiroCadastroConta cadastro = new TelaFinanceiroCadastroConta(0, null, isto);
-				cadastro.setVisible(true);
+
+				TelaSiloCadastroSilo tela = new TelaSiloCadastroSilo(0, null, isto);
+				tela.setVisible(true);
 				
 			}
 		});
@@ -193,13 +175,13 @@ public class TelaSilos extends JDialog {
 			public void actionPerformed(ActionEvent e) {
 				
 				if (JOptionPane.showConfirmDialog(isto, 
-			            "Deseja excluir a Conta selecionada?", "Excluir", 
+			            "Deseja excluir o silo selecionado?", "Excluir", 
 			            JOptionPane.YES_NO_OPTION,
 			            JOptionPane.QUESTION_MESSAGE) == JOptionPane.YES_OPTION){
 					
-						boolean exclusao = new GerenciarBancoFinanceiroConta().removerFinanceiroConta(getContasSelecionado().getId());
+						boolean exclusao = new GerenciarBancoSilo().removerSilo(getSiloSelecionado().getId_silo());
 						if(exclusao) {
-							JOptionPane.showMessageDialog(isto, "Cadastro Excluído");
+							JOptionPane.showMessageDialog(isto, "Silo Excluído");
 						}else {
 							JOptionPane.showMessageDialog(isto, "Erro ao excluir\nConsulte o administrador");
 
@@ -219,17 +201,13 @@ public class TelaSilos extends JDialog {
 		btnNewButton_3.setForeground(Color.WHITE);
 		btnNewButton_3.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				if(modo_operacao == 0) {
+			
 					if(retorno_tela == 1) {
-						if(janela_pai instanceof TelaFinanceiroCadastroLancamento)
-						((TelaFinanceiroCadastroLancamento) janela_pai).setConta(getContasSelecionado());
-						else if(janela_pai instanceof TelaFinanceiroCadastroEmprestimo)
-							((TelaFinanceiroCadastroEmprestimo) janela_pai).setConta(getContasSelecionado());
-
+						
 						isto.dispose();
 					}
 				}
-			}
+			
 		});
 		panel_3.add(btnNewButton_3, "cell 1 0,alignx left,aligny top");
 		
@@ -239,7 +217,10 @@ public class TelaSilos extends JDialog {
 		btnNewButton_2.setForeground(Color.WHITE);
 		btnNewButton_2.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				TelaFinanceiroCadastroConta tela = new TelaFinanceiroCadastroConta(1, getContasSelecionado(), isto);
+				
+				
+				
+				TelaSiloCadastroSilo tela = new TelaSiloCadastroSilo(1, getSiloSelecionado(), isto);
 				tela.setVisible(true);
 			}
 		});
@@ -257,12 +238,12 @@ public class TelaSilos extends JDialog {
 	}
 	
 	public void pesquisar() {
-		GerenciarBancoFinanceiroConta gerenciar = new GerenciarBancoFinanceiroConta();
+		GerenciarBancoSilo gerenciar = new GerenciarBancoSilo();
 		lista_contas.clear();
 		modelo_contas.onRemoveAll();
 		
-		lista_contas = gerenciar.getFinanceiroContas();
-		for(FinanceiroConta cc : lista_contas) {
+		lista_contas = gerenciar.busca_silos();
+		for(CadastroSilo cc : lista_contas) {
 			modelo_contas.onAdd(cc);
 		}
 	}
@@ -272,23 +253,7 @@ public void filtrar() {
 		ArrayList<RowFilter<Object, Object>> filters = new ArrayList<RowFilter<Object, Object>>(2);
 
 		String nome = entNome.getText().toUpperCase();
-		String grupo_contas = entGrupoContas.getText().toUpperCase();
-		String s_tipo_conta = "";
-		if(cbTipoConta.getSelectedIndex() == 0) {
-			s_tipo_conta = "DESPESAS";
-		}else if(cbTipoConta.getSelectedIndex() == 1) {
-			s_tipo_conta = "RECEITAS";
-		}
-		
-		if (checkString(nome))
-			filters.add(RowFilter.regexFilter(nome, 1));
-
-		if (checkString(s_tipo_conta))
-			filters.add(RowFilter.regexFilter(s_tipo_conta, 2));
-		
-		if (checkString(grupo_contas))
-			filters.add(RowFilter.regexFilter(grupo_contas, 3));
-
+	
 		
 
 		sorter.setRowFilter(RowFilter.andFilter(filters));
@@ -300,23 +265,25 @@ public boolean checkString(String txt) {
 }
 
 	
-	public class ContasTableModel extends AbstractTableModel {
+	public class SilosTableModel extends AbstractTableModel {
 
 		// constantes p/identificar colunas
 		private final int id = 0;
-		private final int nome = 1;
-		private final int tipo_conta = 2;
-		private final int grupo_contas = 3;
-	
+		private final int armazem = 1;
+		private final int nome = 2;
+		private final int identificador = 3;
+		private final int capacidade = 4;
+		private final int descricao = 5;
+
 
 
 		List<Color> rowColours = Arrays.asList(Color.RED, Color.GREEN, Color.CYAN);
 
-		private final String colunas[] = { "ID", "Nome", "Tipo", "Grupo de Contas"};
-		private final ArrayList<FinanceiroConta> dados = new ArrayList<>();// usamos como dados uma lista genérica de
+		private final String colunas[] = { "ID", "Armazém", "Nome", "Identificador", "Capacidade", "Descrição"};
+		private final ArrayList<CadastroSilo> dados = new ArrayList<>();// usamos como dados uma lista genérica de
 																			// nfs
 
-		public ContasTableModel() {
+		public SilosTableModel() {
 
 		}
 
@@ -338,11 +305,15 @@ public boolean checkString(String txt) {
 			switch (columnIndex) {
 			case id:
 				return Integer.class;
+			case armazem:
+				return String.class;
 			case nome:
 				return String.class;
-			case tipo_conta:
+			case identificador:
 				return String.class;
-			case grupo_contas:
+			case capacidade:
+				return String.class;
+			case descricao:
 				return String.class;
 	
 			default:
@@ -357,27 +328,22 @@ public boolean checkString(String txt) {
 
 		@Override
 		public Object getValueAt(int rowIndex, int columnIndex) {
-			 FinanceiroConta dado = dados.get(rowIndex);
+			 CadastroSilo dado = dados.get(rowIndex);
 		
 			
 			switch (columnIndex) {
 			case id:
-				return dado.getId();
-			case nome: {
-				return dado.getNome();
-
-			}
-			case tipo_conta:{
-			 if(dado.getTipo_conta() == 0) {
-				 return "DESPESAS";
-				 
-			 }else if(dado.getTipo_conta() == 1) {
-				 return "RECEITAS";
-			 }
-			}
-			case grupo_contas:{
-				 return dado.getNome_grupo_contas();
-			}
+				return dado.getId_silo();
+			case armazem:
+				return dado.getNome_armazem();
+			case nome:
+				return dado.getNome_silo();
+			case identificador:
+				return dado.getIdentificador();
+			case capacidade:
+				return dado.getCapacidade() + " sacos";
+			case descricao:
+				return dado.getDescricao();
 			
 			default:
 				throw new IndexOutOfBoundsException("Coluna Inválida!!!");
@@ -396,7 +362,7 @@ public boolean checkString(String txt) {
 
 		@Override
 		public void setValueAt(Object aValue, int rowIndex, int columnIndex) {
-			FinanceiroConta ib = dados.get(rowIndex);
+			CadastroSilo ib = dados.get(rowIndex);
 
 		}
 
@@ -408,7 +374,7 @@ public boolean checkString(String txt) {
 		 * @param rowIndex
 		 * @return
 		 */
-		public FinanceiroConta getValue(int rowIndex) {
+		public CadastroSilo getValue(int rowIndex) {
 			return dados.get(rowIndex);
 		}
 
@@ -418,7 +384,7 @@ public boolean checkString(String txt) {
 		 * @param empregado
 		 * @return
 		 */
-		public int indexOf(FinanceiroConta dado) {
+		public int indexOf(CadastroSilo dado) {
 			return dados.indexOf(dado);
 		}
 
@@ -427,7 +393,7 @@ public boolean checkString(String txt) {
 		 * 
 		 * @param empregado
 		 */
-		public void onAdd(FinanceiroConta dado) {
+		public void onAdd(CadastroSilo dado) {
 			dados.add(dado);
 			fireTableRowsInserted(indexOf(dado), indexOf(dado));
 		}
@@ -437,7 +403,7 @@ public boolean checkString(String txt) {
 		 * 
 		 * @param dadosIn
 		 */
-		public void onAddAll(ArrayList<FinanceiroConta> dadosIn) {
+		public void onAddAll(ArrayList<CadastroSilo> dadosIn) {
 			dados.addAll(dadosIn);
 			fireTableDataChanged();
 		}
@@ -457,7 +423,7 @@ public boolean checkString(String txt) {
 		 * 
 		 * @param empregado
 		 */
-		public void onRemove(FinanceiroConta dado) {
+		public void onRemove(CadastroSilo dado) {
 			int indexBefore = indexOf(dado);// pega o indice antes de apagar
 			dados.remove(dado);
 			fireTableRowsDeleted(indexBefore, indexBefore);
@@ -471,17 +437,17 @@ public boolean checkString(String txt) {
 			fireTableDataChanged();
 		}
 
-		public FinanceiroConta onGet(int row) {
+		public CadastroSilo onGet(int row) {
 			return dados.get(row);
 		}
 	}
 	
-	public FinanceiroConta getContasSelecionado() {
+	public CadastroSilo getSiloSelecionado() {
 		int indiceDaLinha = tabela_contas.getSelectedRow();
 
 		int id_selecionado = Integer.parseInt(tabela_contas.getValueAt(indiceDaLinha, 0).toString());
-		GerenciarBancoFinanceiroConta gerenciar_cont = new GerenciarBancoFinanceiroConta();
-		return gerenciar_cont.getFinanceiroConta(id_selecionado);
+		GerenciarBancoSilo gerenciar_cont = new GerenciarBancoSilo();
+		return gerenciar_cont.getSilo(id_selecionado);
 		
 	}
 	

@@ -31,7 +31,7 @@ public class GerenciarBancoFinanceiroPagamentoEmprestimo {
 	  PRIMARY KEY (`id_pagamento`)
 	) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8
 		 */
-		return "insert into financeiro_pagamento_emprestimo (id_lancamento_pai, identificador,tipo_pagador, id_pagador, id_recebedor, id_forma_pagamento, "
+		return "insert into financeiro_pagamento_emprestimo (id_lancamento_pai, identificador,tipo_pagador, id_pagador,tipo_recebedor, id_recebedor, id_forma_pagamento, "
 				+ "status_condicao_pagamento, "
 				+ " objeto, especie, quantidade, unidade_medida, valor_unitario,"
 				+ "valor_total, data_pagamento,fluxo_caixa,"
@@ -40,6 +40,8 @@ public class GerenciarBancoFinanceiroPagamentoEmprestimo {
 				+ dado.getIdentificador() + "','"
 			    + dado.getTipo_pagador() + "','"
 				+ dado.getId_pagador() + "','"
+					    + dado.getTipo_recebedor() + "','"
+
 				+ dado.getId_recebedor() + "','"
 				+ dado.getId_condicao_pagamento() + "','"
 				+ dado.getStatus_pagamento() + "','"
@@ -121,7 +123,7 @@ public class GerenciarBancoFinanceiroPagamentoEmprestimo {
 				dado.setQuantidade(rs.getDouble("quantidade"));
 				dado.setUnidade_medida(rs.getString("unidade_medida"));
 				dado.setId_documento(rs.getInt("id_documento"));
-
+				dado.setTipo_recebedor(rs.getInt("tipo_recebedor"));
 				try{
 					dado.setValor_unitario(new BigDecimal(rs.getString("valor_unitario")));
 				}catch(Exception e) {
@@ -172,6 +174,8 @@ public class GerenciarBancoFinanceiroPagamentoEmprestimo {
 				dado.setFluxo_caixa(rs.getInt("fluxo_caixa"));
 				dado.setTipo_pagador(rs.getInt("tipo_pagador"));
 				dado.setId_pagador(rs.getInt("id_pagador"));
+				dado.setTipo_recebedor(rs.getInt("tipo_recebedor"));
+
 				dado.setId_recebedor(rs.getInt("id_recebedor"));
 				dado.setObjeto(rs.getInt("objeto"));
 				dado.setEspecie(rs.getString("especie"));
@@ -232,6 +236,8 @@ public class GerenciarBancoFinanceiroPagamentoEmprestimo {
 			dado.setFluxo_caixa(rs.getInt("fluxo_caixa"));
 			dado.setTipo_pagador(rs.getInt("tipo_pagador"));
 			dado.setId_pagador(rs.getInt("id_pagador"));
+			dado.setTipo_recebedor(rs.getInt("tipo_recebedor"));
+
 			dado.setId_recebedor(rs.getInt("id_recebedor"));
 			dado.setObjeto(rs.getInt("objeto"));
 			dado.setEspecie(rs.getString("especie"));
@@ -298,7 +304,7 @@ public class GerenciarBancoFinanceiroPagamentoEmprestimo {
 				PreparedStatement pstm;
 
 				//atualizar = "update financeiro_conta set nome_conta = ?, id_grupo_contas = ?,  tipo_conta = ?, observacao = ?,descricao = ? where id_conta = ? ";
-				atualizar = "update financeiro_pagamento_emprestimo set identificador = ? ,tipo_pagador = ?, id_pagador = ?, id_recebedor = ?, id_forma_pagamento = ?, "
+				atualizar = "update financeiro_pagamento_emprestimo set identificador = ? ,tipo_pagador = ?, id_pagador = ?, tipo_recebedor = ?, id_recebedor = ?, id_forma_pagamento = ?, "
 						+ "status_condicao_pagamento = ?, "
 						+ "objeto = ?,"
 						+ "especie = ?,"
@@ -314,32 +320,34 @@ public class GerenciarBancoFinanceiroPagamentoEmprestimo {
 				pstm.setInt(2, dado.getTipo_pagador());
 
 				pstm.setInt(3, dado.getId_pagador());
-				pstm.setInt(4, dado.getId_recebedor());
+				pstm.setInt(4, dado.getTipo_recebedor());
 
-				pstm.setInt(5, dado.getId_condicao_pagamento());
-				pstm.setInt(6, dado.getStatus_pagamento());
+				pstm.setInt(5, dado.getId_recebedor());
+
+				pstm.setInt(6, dado.getId_condicao_pagamento());
+				pstm.setInt(7, dado.getStatus_pagamento());
 				
-				pstm.setInt(7, dado.getObjeto());
+				pstm.setInt(8, dado.getObjeto());
 
-				pstm.setString(8, dado.getEspecie());
+				pstm.setString(9, dado.getEspecie());
 
-				pstm.setDouble(9, dado.getQuantidade());
+				pstm.setDouble(10, dado.getQuantidade());
 
-				pstm.setString(10, dado.getUnidade_medida());
+				pstm.setString(11, dado.getUnidade_medida());
 				try {
-				pstm.setString(11, dado.getValor_unitario().toString());
+				pstm.setString(12, dado.getValor_unitario().toString());
 				}catch(Exception e) {
-					pstm.setString(11, "0");
+					pstm.setString(12, "0");
 
 				}
-				pstm.setString(12, dado.getValor().toString());
+				pstm.setString(13, dado.getValor().toString());
 
-				pstm.setString(13, dado.getData_pagamento());
-				pstm.setInt(14, dado.getFluxo_caixa());
+				pstm.setString(14, dado.getData_pagamento());
+				pstm.setInt(15, dado.getFluxo_caixa());
 
-				pstm.setString(15, dado.getObservacao());
-				pstm.setString(16, dado.getDescricao());
-				pstm.setInt(17, dado.getId_pagamento());
+				pstm.setString(16, dado.getObservacao());
+				pstm.setString(17, dado.getDescricao());
+				pstm.setInt(18, dado.getId_pagamento());
 
 			
 
@@ -385,6 +393,8 @@ public class GerenciarBancoFinanceiroPagamentoEmprestimo {
 				dado.setFluxo_caixa(rs.getInt("fluxo_caixa"));
 				dado.setTipo_pagador(rs.getInt("tipo_pagador"));
 				dado.setId_pagador(rs.getInt("id_pagador"));
+				dado.setTipo_recebedor(rs.getInt("tipo_recebedor"));
+
 				dado.setId_recebedor(rs.getInt("id_recebedor"));
 				try{
 					dado.setValor(new BigDecimal(rs.getString("valor")));

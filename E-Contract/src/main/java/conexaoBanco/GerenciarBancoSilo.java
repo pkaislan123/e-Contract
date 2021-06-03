@@ -9,6 +9,7 @@ import javax.swing.JOptionPane;
 
 import main.java.cadastros.CadastroProduto;
 import main.java.cadastros.CadastroSilo;
+import main.java.cadastros.FinanceiroConta;
 import main.java.cadastros.CadastroSilo;
 
 
@@ -130,7 +131,7 @@ public class GerenciarBancoSilo {
 		    }
 		  
 		  
-		  public CadastroSilo getSafra(int id) {
+		  public CadastroSilo getSilo(int id) {
 				 String selectSilo = "select * from silo where id_silo = ?";
 
 			   Connection conn = null;
@@ -162,9 +163,67 @@ public class GerenciarBancoSilo {
 			  
 		  }
 
+	
+	
+public boolean atualizarSilo(CadastroSilo silo) {
+	if (silo != null) {
+		try {
+			Connection conn = null;
+			String atualizar = null;
+			PreparedStatement pstm;
+
+			atualizar = "update silo set id_armazem = ?, nome_silo = ?, identificador = ?,  capacidade = ?, descricao = ? where id_silo = ? ";
+			conn = ConexaoBanco.getConexao();
+			pstm = conn.prepareStatement(atualizar);
+
+			pstm.setInt(1, silo.getId_armazem());
+			pstm.setString(2, silo.getNome_silo());
+			pstm.setString(3, silo.getIdentificador());
+			pstm.setDouble(4, silo.getCapacidade());
+			pstm.setString(5, silo.getDescricao());
+			
+			pstm.setInt(6, silo.getId_silo());
+
+			pstm.execute();
+			// JOptionPane.showMessageDialog(null, "Cliente atualizado com sucesso");
+			System.out.println("Silo Atualizada com sucesso");
+			ConexaoBanco.fechaConexao(conn);
+			return true;
+		} catch (Exception e) {
+			JOptionPane.showMessageDialog(null, "Erro ao atualizaro Silo no banco de dados\nErro: " + e.getMessage() + "\nCausa: " + e.getCause());
+			return false;
+		}
+	} else {
+		JOptionPane.showMessageDialog(null, "Os parametros estão vazios");
+		return false;
+	}
+}
+
+public boolean removerSilo(int id) {
+	String delete = "DELETE FROM silo WHERE id_silo = ?";
+	Connection conn = null;
+	ResultSet rs = null;
+	try {
+		conn = ConexaoBanco.getConexao();
+		PreparedStatement pstm;
+		pstm = conn.prepareStatement(delete);
+
+		pstm.setInt(1, id);
+
+		pstm.execute();
+		ConexaoBanco.fechaConexao(conn, pstm);
+		JOptionPane.showMessageDialog(null, "Silo Excluído, banco normalizado ");
+		return true;
+
+	} catch (Exception f) {
+		JOptionPane.showMessageDialog(null,
+				"Erro ao excluir o silo do banco de dados\nBanco de dados corrompido!\nConsulte o administrador do sistema"
+						+ "dados " + f.getMessage());
+		return false;
 	}
 
-	
-	
+}
+
+}
 
 

@@ -16,5 +16,6 @@ public class FinanceiroPagamentoCompleto  {
 
 	FinanceiroPagamento fpag = new FinanceiroPagamento();
 	Lancamento lancamento = new Lancamento();
-	
+	BigDecimal saldo_atual = BigDecimal.ZERO;
+	String nome_forma_pagamento;
 }

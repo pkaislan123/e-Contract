@@ -393,6 +393,46 @@ public int inserir_cliente(CadastroCliente cliente)
 		}
 
 	  
+	  public ArrayList<Contato> getContatosContadores()
+	  {
+		  String selectContatos = "select co.* from cliente \n"
+		  		+ "left join cliente_contato cc on cc.id_cliente = cliente.id_cliente\n"
+		  		+ "left join contato co on co.id_contato = cc.id_contato\n"
+		  		+ "where co.descricao_contato like '%contador%'";
+	        ArrayList<Contato> contatos = new ArrayList<>();
+
+		  Connection conn = null;
+	        PreparedStatement pstm = null;
+	        ResultSet rs = null;
+	    
+
+          try {
+	            conn = ConexaoBanco.getConexao();
+	            pstm = conn.prepareStatement(selectContatos);
+	            rs = pstm.executeQuery();
+          while (rs.next()) {
+                 Contato contato = new Contato();
+                     
+                contato.setId(rs.getInt("id_contato"));
+                contato.setCargo(rs.getString("cargo_contato"));
+                contato.setNome(rs.getString("nome_contato"));
+                contato.setCelular(rs.getString("celular_contato"));
+                contato.setFixo(rs.getString("fixo_contato"));
+                contato.setE_mail(rs.getString("e_mail_contato"));
+                contato.setDescricao(rs.getString("descricao_contato"));
+                contato.setObservacao(rs.getString("observacao_contato"));
+
+                
+                contatos.add(contato);
+          }
+          }   catch (Exception e) {
+	            JOptionPane.showMessageDialog(null, "Erro ao listar contatos ");
+	        }
+
+          
+            return contatos;
+		}
+
 	  
 	  public ArrayList<ContaBancaria> getContas(int id_cliente)
 	  {

@@ -840,5 +840,35 @@ public class GerenciarBancoLancamento {
 	}
 	
 	
+	public boolean atualizarStatusContadorLancamento(int status_contador, int id_lancamento) {
+		
+		try {
+			Connection conn = null;
+			String atualizar = null;
+			PreparedStatement pstm;
+
+			//atualizar = "update financeiro_conta set nome_conta = ?, id_grupo_contas = ?,  tipo_conta = ?, observacao = ?,descricao = ? where id_conta = ? ";
+			atualizar = "update lancamento set contador = ? where id_lancamento = ?";
+			
+			conn = ConexaoBanco.getConexao();
+			pstm = conn.prepareStatement(atualizar);
+
+			pstm.setInt(1, status_contador);
+
+			pstm.setInt(2, id_lancamento);
+			
+
+			pstm.execute();
+			// JOptionPane.showMessageDialog(null, "Cliente atualizado com sucesso");
+			System.out.println("Lançamento Atualizada com sucesso");
+			ConexaoBanco.fechaConexao(conn);
+			return true;
+		} catch (Exception e) {
+			JOptionPane.showMessageDialog(null, "Erro ao atualizar o lançamento no banco de dados\nErro: " + e.getMessage() + "\nCausa: " + e.getCause());
+			return false;
+		}
+	
+}
+
 	
 }

@@ -106,9 +106,11 @@ public class TelaSalvarEnviarRelatorio extends JDialog {
 		btnNewButton_1.setForeground(Color.WHITE);
 		btnNewButton_1.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
+				
 				TelaEnviarMsgMail tela = new TelaEnviarMsgMail(flag, contrato,new File(file), null);
 				tela.setVisible(true);
 				isto.dispose();
+			
 			}
 		});
 		painelPrincipal.add(btnNewButton_1, "cell 1 0,alignx center,aligny center");

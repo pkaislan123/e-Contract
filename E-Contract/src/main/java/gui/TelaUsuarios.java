@@ -86,7 +86,7 @@ import main.java.classesExtras.CBProdutoPersonalizado;
 import main.java.classesExtras.CBProdutoRenderPersonalizado;
 import main.java.conexaoBanco.GerenciarBancoProdutos;
 import main.java.conexaoBanco.GerenciarBancoSafras;
-public class TelaUsuarios extends JDialog {
+public class TelaUsuarios extends JFrame {
 
 	private final JPanel contentPanel ;
     private static ArrayList<CadastroLogin> usuarios_pesquisados = new ArrayList<>();

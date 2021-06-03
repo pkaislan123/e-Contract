@@ -42,6 +42,7 @@ import main.java.cadastros.CadastroAditivo;
 import main.java.cadastros.CadastroAviso;
 import main.java.cadastros.CadastroBaseArquivos;
 import main.java.cadastros.CadastroBaseDados;
+import main.java.cadastros.CadastroClassificador;
 import main.java.cadastros.CadastroCliente;
 import main.java.cadastros.CadastroContrato;
 import main.java.cadastros.CadastroContrato.CadastroPagamento;
@@ -49,6 +50,7 @@ import main.java.cadastros.CadastroContrato.CadastroPagamentoContratual;
 import main.java.cadastros.CadastroContrato.CadastroTarefa;
 import main.java.cadastros.CadastroContrato.Recebimento;
 import main.java.cadastros.CadastroDocumento;
+import main.java.cadastros.CadastroFuncionarioAdmissao;
 import main.java.cadastros.CadastroLogin;
 import main.java.cadastros.CadastroLogin.Mensagem;
 import main.java.cadastros.CadastroModelo;
@@ -57,7 +59,9 @@ import main.java.cadastros.CadastroNota;
 import main.java.cadastros.CadastroProduto;
 import main.java.cadastros.CadastroRomaneio;
 import main.java.cadastros.CadastroSafra;
+import main.java.cadastros.CadastroSilo;
 import main.java.cadastros.CadastroTarefaGeral;
+import main.java.cadastros.CadastroTransgenia;
 import main.java.cadastros.ContaBancaria;
 import main.java.cadastros.Contato;
 import main.java.cadastros.DadosCarregamento;
@@ -68,18 +72,22 @@ import main.java.cadastros.RegistroRecebimento;
 import main.java.classesExtras.Endereco;
 import main.java.classesExtras.RenderizadorContato;
 import main.java.conexaoBanco.GerenciarBancoAditivos;
+import main.java.conexaoBanco.GerenciarBancoClassificadores;
 import main.java.conexaoBanco.GerenciarBancoClientes;
 import main.java.conexaoBanco.GerenciarBancoContratos;
 import main.java.conexaoBanco.GerenciarBancoDocumento;
+import main.java.conexaoBanco.GerenciarBancoFuncionariosContratoTrabalho;
 import main.java.conexaoBanco.GerenciarBancoNotasFiscais;
 import main.java.conexaoBanco.GerenciarBancoPadrao;
 import main.java.conexaoBanco.GerenciarBancoPontuacao;
 import main.java.conexaoBanco.GerenciarBancoProdutos;
 import main.java.conexaoBanco.GerenciarBancoRomaneios;
 import main.java.conexaoBanco.GerenciarBancoSafras;
+import main.java.conexaoBanco.GerenciarBancoSilo;
 import main.java.conexaoBanco.GerenciarBancoTarefaGeral;
 import main.java.conexaoBanco.GerenciarBancoTransferencias;
 import main.java.conexaoBanco.GerenciarBancoTransferenciasCarga;
+import main.java.conexaoBanco.GerenciarBancoTransgenia;
 import main.java.conexoes.TesteConexao;
 import main.java.graficos.GraficoLinha;
 import main.java.graficos.JPanelGrafico;
@@ -146,14 +154,23 @@ import main.java.classesExtras.CBLocalRetiradaPersonalizado;
 import main.java.classesExtras.CBLocalRetiradaRenderPersonalizado;
 import main.java.classesExtras.CBProdutoPersonalizado;
 import main.java.classesExtras.CBProdutoRenderPersonalizado;
+import main.java.classesExtras.CombBoxRenderPersonalizadoContratoTrabalho;
 import main.java.classesExtras.ComboBoxContato;
 import main.java.classesExtras.ComboBoxPersonalizado;
+import main.java.classesExtras.ComboBoxPersonalizadoClassificador;
+import main.java.classesExtras.ComboBoxPersonalizadoContratoTrabalho;
+import main.java.classesExtras.ComboBoxPersonalizadoSilo;
+import main.java.classesExtras.ComboBoxPersonalizadoTransgenia;
 import main.java.classesExtras.ComboBoxRenderPersonalizado;
+import main.java.classesExtras.ComboBoxRenderPersonalizadoClassificador;
+import main.java.classesExtras.ComboBoxRenderPersonalizadoSilo;
+import main.java.classesExtras.ComboBoxRenderPersonalizadoTransgenia;
 import main.java.conexaoBanco.GerenciarBancoProdutos;
 import main.java.conexaoBanco.GerenciarBancoSafras;
 
 import javax.swing.border.LineBorder;
 import javax.swing.JTextField;
+import javax.swing.JComboBox;
 
 
 
@@ -176,20 +193,30 @@ public class TelaCadastroRomaneio extends JFrame {
 	private final JLabel lblSilo = new JLabel("Umidade 2:");
 	private final JLabel lblNewLabel_1 = new JLabel("Classificação 2:");
 	private final JLabel lblImpureza = new JLabel("Impureza 2:");
-	private final JTextField entClassificador = new JTextField();
 	private final JTextField entUmidade2 = new JTextField();
 	private final JTextField entImpureza = new JTextField();
 	private final JLabel ad = new JLabel("Depósito");
-	private final JLabel lblSilo_1 = new JLabel("Silo:");
+	private final JLabel lblSilo_1 = new JLabel("Local:");
 	private final JLabel lblSilo_1_1 = new JLabel("Transgenia:");
-	private final JTextField entTransgenia = new JTextField();
-	private final JTextField entSilo = new JTextField();
 	private final JButton btnAtualizar = new JButton("Atualizar");
+	private final JLabel lblStatusMonsanto = new JLabel("Status Monsanto:");
+	private final JComboBox cBStatusMonsanto = new JComboBox();
+	private final JComboBox cBClassificador = new JComboBox();
 	
+	private ComboBoxPersonalizadoClassificador modelClassificadores = new ComboBoxPersonalizadoClassificador();
+	private ComboBoxPersonalizadoSilo modelSilos = new ComboBoxPersonalizadoSilo();
+	private ComboBoxPersonalizadoTransgenia modelTransgenias = new ComboBoxPersonalizadoTransgenia();
+
+	private ComboBoxRenderPersonalizadoClassificador cbClassificadoresPersonalizados = new ComboBoxRenderPersonalizadoClassificador();
+	private ComboBoxRenderPersonalizadoSilo cbSilosPersonalizados = new ComboBoxRenderPersonalizadoSilo();
+	private ComboBoxRenderPersonalizadoTransgenia cbTransgeniasPersonalizados = new ComboBoxRenderPersonalizadoTransgenia();
+	private final JComboBox cBTransgenia = new JComboBox();
+	private final JComboBox cBLocal = new JComboBox();
+	private final JLabel lblObservaes = new JLabel("Observações:");
+	private final JTextArea entObservacao = new JTextArea();
+
 	
 	public TelaCadastroRomaneio(CadastroRomaneio romaneio, Window janela_pai) {
-		entClassificador.setFont(new Font("Tahoma", Font.BOLD, 14));
-		entClassificador.setColumns(10);
 
 		
 		 isto = this;
@@ -221,21 +248,37 @@ public class TelaCadastroRomaneio extends JFrame {
 		
 		panel.add(lblNewLabel, "cell 0 1,alignx trailing");
 		
-		panel.add(entClassificador, "cell 1 1,growx");
-		lblSilo_1.setFont(new Font("Tahoma", Font.PLAIN, 14));
+		panel.add(cBClassificador, "cell 1 1,growx");
+		cBClassificador.setModel(modelClassificadores);
+		cBClassificador.setRenderer(cbClassificadoresPersonalizados);
+		lblStatusMonsanto.setFont(new Font("Tahoma", Font.PLAIN, 14));
 		
-		panel.add(lblSilo_1, "cell 2 1,alignx trailing");
-		entSilo.setFont(new Font("Tahoma", Font.BOLD, 14));
-		entSilo.setColumns(10);
+		panel.add(lblStatusMonsanto, "cell 2 1,alignx trailing");
+		cBStatusMonsanto.setFont(new Font("SansSerif", Font.PLAIN, 14));
+		cBStatusMonsanto.addItem("FALTA ITS");
+		cBStatusMonsanto.addItem("OK ITS");
+		cBStatusMonsanto.addItem("PARTICIPANTE");
+		cBStatusMonsanto.addItem("NÃO APLICÁVEL");
+
 		
-		panel.add(entSilo, "cell 3 1,growx");
+
+		panel.add(cBStatusMonsanto, "cell 3 1,growx");
 		lblSilo_1_1.setFont(new Font("Tahoma", Font.PLAIN, 14));
 		
 		panel.add(lblSilo_1_1, "cell 0 2,alignx trailing");
-		entTransgenia.setFont(new Font("Tahoma", Font.BOLD, 14));
-		entTransgenia.setColumns(10);
 		
-		panel.add(entTransgenia, "cell 1 2,growx");
+		panel.add(cBTransgenia, "cell 1 2,growx");
+		cBTransgenia.setModel(modelTransgenias);
+		cBTransgenia.setRenderer(cbTransgeniasPersonalizados);
+		lblObservaes.setFont(new Font("Tahoma", Font.PLAIN, 14));
+		
+		panel.add(lblObservaes, "cell 2 2");
+		entObservacao.setBorder(new LineBorder(new Color(0, 0, 0)));
+		entObservacao.setWrapStyleWord(true);
+		entObservacao.setLineWrap(true);
+		entObservacao.setFont(new Font("SansSerif", Font.BOLD, 14));
+		
+		panel.add(entObservacao, "cell 3 2 1 3,grow");
 		lblSilo.setFont(new Font("Tahoma", Font.PLAIN, 14));
 		
 		panel.add(lblSilo, "cell 0 3,alignx trailing");
@@ -263,11 +306,31 @@ public class TelaCadastroRomaneio extends JFrame {
 						GerenciarBancoTarefaGeral gerenciar_tarefa = new GerenciarBancoTarefaGeral();
 						CadastroTarefaGeral tarefa = new CadastroTarefaGeral();
 						
+						CadastroTransgenia transgenia = (CadastroTransgenia) modelTransgenias.getSelectedItem();
+						CadastroSilo silo = (CadastroSilo) modelSilos.getSelectedItem();
+						CadastroClassificador clas = (CadastroClassificador) modelClassificadores.getSelectedItem();
+						
+						String status_monsanto = "";
+						String observacao = rom.getObservacao();
+						
+						if(rom.getStatus_monsanto() == 0)
+							status_monsanto = "Indefinido";
+						else if(rom.getStatus_monsanto() == 1)
+							status_monsanto = "OK ITS";
+						else if(rom.getStatus_monsanto() == 2)
+							status_monsanto = "PARTICIPANTE";
+						else if(rom.getStatus_monsanto() == 3)
+							status_monsanto = "NÃO APLICÁVEL";
+						
+						
 						tarefa.setNome_tarefa("edição de romaneio");
 						tarefa.setDescricao_tarefa("Edição de dados no romaneio codigo: " + romaneio.getNumero_romaneio() );
 						tarefa.setMensagem("ROMANEIO: " + romaneio.getNumero_romaneio() 
-						+ " UMIDADE 2: " + rom.getUmidade2() + " IMPUREZA 2: " + rom.getImpureza2() + " classificador: " + rom.getClassificador() +
-						" SILO: " + rom.getSilo() + " TRANSGENIA: " + rom.getTransgenia());
+						+ "| UMIDADE 2: " + rom.getUmidade2() + "| IMPUREZA 2: " + rom.getImpureza2() 
+						+ "| Classificador: id: " + clas.getId() + " - "+ clas.getNome_colaborador()  +
+						" SILO: id: " + silo.getId_silo() + " - " + silo.getNome_silo() + " - " + silo.getIdentificador() 
+						+ " | TRANSGENIA: id" + transgenia.getId_transgenia() + " - " + transgenia.getNome() + " - " + transgenia.getDescricao()
+						+ " | Status Monsanto: " + status_monsanto + "| Obs: " + observacao);
 						tarefa.setCriador(login);
 						tarefa.setExecutor(login);
 						tarefa.setStatus_tarefa(1);
@@ -302,6 +365,13 @@ public class TelaCadastroRomaneio extends JFrame {
 				
 			}
 		});
+		lblSilo_1.setFont(new Font("Tahoma", Font.PLAIN, 14));
+		
+		panel.add(lblSilo_1, "cell 0 5,alignx trailing");
+		
+		panel.add(cBLocal, "cell 1 5,growx");
+		cBLocal.setModel(modelSilos);
+		cBLocal.setRenderer(cbSilosPersonalizados);
 		btnAtualizar.setBackground(new Color(0, 0, 255));
 		btnAtualizar.setForeground(Color.WHITE);
 		btnAtualizar.setFont(new Font("Tahoma", Font.PLAIN, 16));
@@ -312,9 +382,14 @@ public class TelaCadastroRomaneio extends JFrame {
 	
 		
 		
-		rotinasEdicao(romaneio);
 		carregarDocumento(romaneio.getCaminho_arquivo());
 		
+		pesquisar_classificadores();
+		pesquisar_transgenias();
+		pesquisar_silos();
+		
+		rotinasEdicao(romaneio);
+
 		this.setExtendedState(JFrame.MAXIMIZED_BOTH);
 		this.setResizable(true);
 		this.setLocationRelativeTo(janela_pai);
@@ -325,9 +400,6 @@ public class TelaCadastroRomaneio extends JFrame {
 	}
 	
 	public void rotinasEdicao(CadastroRomaneio romaneio) {
-		
-		entClassificador.setText(romaneio.getClassificador());
-		entSilo.setText(romaneio.getSilo());
 		
 		try {
 		entImpureza.setText(Double.toString(romaneio.getImpureza2()));
@@ -340,8 +412,43 @@ public class TelaCadastroRomaneio extends JFrame {
 		}catch(Exception e) {
 			entUmidade2.setText("0.0");
 		}
-		entTransgenia.setText(romaneio.getTransgenia());
 
+		
+		entObservacao.setText(romaneio.getObservacao());
+		cBStatusMonsanto.setSelectedIndex(romaneio.getStatus_monsanto());
+		
+
+		GerenciarBancoClassificadores gerenciar_cl = new GerenciarBancoClassificadores();
+		int id_classificador = romaneio.getId_classificador();
+		if(id_classificador > 0) {
+		CadastroClassificador clas = gerenciar_cl.getClassificador(id_classificador);
+		if(clas != null) {
+			modelClassificadores.setSelectedItem(clas);
+		}
+		
+		}
+		
+		GerenciarBancoTransgenia gerenciar_tg = new GerenciarBancoTransgenia();
+		int id_transgenia = romaneio.getId_transgenese();
+		if(id_transgenia > 0) {
+			CadastroTransgenia trans = gerenciar_tg.gettransgenia(id_transgenia);
+			if(trans != null) {
+				modelTransgenias.setSelectedItem(trans);
+			}
+		}
+		
+		GerenciarBancoSilo gerenciar_sl = new GerenciarBancoSilo();
+		int id_silo = romaneio.getId_silo();
+		if(id_silo > 0 ) {
+			CadastroSilo sl = gerenciar_sl.getSilo(id_silo);
+			if(sl != null) {
+				modelSilos.setSelectedItem(sl);
+			}
+		}
+		
+		
+		
+		
 	}
 	
 	public void carregarDocumento(String url) {
@@ -420,10 +527,42 @@ public class TelaCadastroRomaneio extends JFrame {
 		CadastroRomaneio romaneio = new CadastroRomaneio();
 		romaneio.setId_romaneio(antigo.getId_romaneio());
 	
-		romaneio.setClassificador(entClassificador.getText());
-		romaneio.setTransgenia(entTransgenia.getText());
-		romaneio.setSilo(entSilo.getText());
+		try {
+		CadastroClassificador classificador = (CadastroClassificador) modelClassificadores.getSelectedItem();
+		romaneio.setId_classificador(classificador.getId());
+		
+		}catch(Exception y) {
+			JOptionPane.showMessageDialog(isto, "Selecione o Classificador");
 
+			return null;
+		}
+		
+		try {
+		CadastroTransgenia transgenia = (CadastroTransgenia) modelTransgenias.getSelectedItem();
+		romaneio.setId_transgenese(transgenia.getId_transgenia());
+		}
+		catch(Exception y) {
+			JOptionPane.showMessageDialog(isto, "Selecione a Transgenia");
+
+			return null;
+		}
+		
+		try {
+		CadastroSilo silo = (CadastroSilo) modelSilos.getSelectedItem();
+		romaneio.setId_silo(silo.getId_silo());
+		}
+		catch(Exception y) {
+			JOptionPane.showMessageDialog(isto, "Selecione o Silo");
+
+			return null;
+		}
+		
+		
+		int status_monsanto = cBStatusMonsanto.getSelectedIndex();
+		romaneio.setStatus_monsanto(status_monsanto);
+		
+		romaneio.setObservacao(entObservacao.getText());
+		
 		try {
 			double impureza2 = Double.parseDouble(entImpureza.getText());
 			romaneio.setImpureza2(impureza2);
@@ -458,4 +597,43 @@ public class TelaCadastroRomaneio extends JFrame {
 		
 	}
 	
+	
+	public void pesquisar_classificadores() {
+
+		GerenciarBancoClassificadores gerenciar = new GerenciarBancoClassificadores();
+		modelClassificadores.resetar();
+		
+		ArrayList<CadastroClassificador> lista_classificadores = gerenciar.busca_classificadores();
+		for(CadastroClassificador cc : lista_classificadores) {
+			modelClassificadores.addCC(cc);
+		}
+		
+
+	}
+	
+	public void pesquisar_transgenias() {
+
+		GerenciarBancoTransgenia gerenciar = new GerenciarBancoTransgenia();
+		modelTransgenias.resetar();
+		
+		ArrayList<CadastroTransgenia> lista_transgenias = gerenciar.gettransgenia();
+		for(CadastroTransgenia cc : lista_transgenias) {
+			modelTransgenias.addCC(cc);
+		}
+
+	}
+	
+	public void pesquisar_silos() {
+
+		GerenciarBancoSilo gerenciar = new GerenciarBancoSilo();
+		modelSilos.resetar();
+
+		ArrayList<CadastroSilo> lista_silos = gerenciar
+				.getSilos();
+
+		for (CadastroSilo cad : lista_silos) {
+			modelSilos.addCC(cad);
+		}
+
+	}
 }

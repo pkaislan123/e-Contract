@@ -59,6 +59,7 @@ import main.java.cadastros.CadastroNota;
 import main.java.cadastros.CadastroProduto;
 import main.java.cadastros.CadastroRomaneio;
 import main.java.cadastros.CadastroSafra;
+import main.java.cadastros.CadastroSilo;
 import main.java.cadastros.ContaBancaria;
 import main.java.cadastros.Contato;
 import main.java.cadastros.DadosCarregamento;
@@ -81,6 +82,7 @@ import main.java.conexaoBanco.GerenciarBancoPontuacao;
 import main.java.conexaoBanco.GerenciarBancoProdutos;
 import main.java.conexaoBanco.GerenciarBancoRomaneios;
 import main.java.conexaoBanco.GerenciarBancoSafras;
+import main.java.conexaoBanco.GerenciarBancoSilo;
 import main.java.conexaoBanco.GerenciarBancoTransferencias;
 import main.java.conexaoBanco.GerenciarBancoTransferenciasCarga;
 import main.java.conexoes.TesteConexao;
@@ -167,7 +169,7 @@ import javax.swing.JComboBox;
 
 
 
-public class TelaSiloCadastroSilo extends JDialog {
+public class TelaSiloCadastroSilo extends JFrame {
 
 	private final JPanel painelPrincipal = new JPanel();
 	private final JPanel painelOdin = new JPanel();
@@ -175,7 +177,7 @@ public class TelaSiloCadastroSilo extends JDialog {
     private JLabel lblTotalContratosConcluidos, lblTotalContratos, lblTotalContratosAbertos;
     private TelaSiloCadastroSilo isto;
     private JDialog telaPai;
-    
+    private CadastroCliente armazem;
     private JTextFieldPersonalizado entNome;
     private final JButton btnCadastrar = new JButton("Cadastrar");
     private final JButton btnAtualizar = new JButton("Atualizar");
@@ -195,10 +197,11 @@ public class TelaSiloCadastroSilo extends JDialog {
     private final JTextFieldPersonalizado entCapacidade = new JTextFieldPersonalizado();
     private final JTextFieldPersonalizado entIdentificador = new JTextFieldPersonalizado();
     private final JButton btnSelecionarArmazem = new JButton("Selecionar");
+    private final JLabel lblNewLabel_1 = new JLabel("sacos");
 
 
     
-	public TelaSiloCadastroSilo(int modo_operacao,FinanceiroConta financeiro_conta, Window janela_pai) {
+	public TelaSiloCadastroSilo(int modo_operacao,CadastroSilo silo, Window janela_pai) {
 
 		
 		
@@ -229,22 +232,29 @@ public class TelaSiloCadastroSilo extends JDialog {
 		panel_2.setBackground(Color.WHITE);
 		
 		painelPrincipal.add(panel_2, "cell 0 2 5 1,grow");
-		 panel_2.setLayout(new MigLayout("", "[grow][grow]", "[][33px,grow][43px,grow][29px,grow][33px,grow][33px,grow][33px,grow][33px,grow][30px,grow][30px,grow]"));
+		 panel_2.setLayout(new MigLayout("", "[grow][grow][]", "[][33px,grow][43px,grow][29px,grow][33px,grow][33px,grow][33px,grow][33px,grow][30px,grow][30px,grow]"));
 		 lblTipoDeConta.setHorizontalAlignment(SwingConstants.TRAILING);
 		 lblTipoDeConta.setForeground(Color.BLACK);
 		 lblTipoDeConta.setFont(new Font("Arial", Font.PLAIN, 16));
 		 lblTipoDeConta.setBackground(Color.ORANGE);
 		 
 		 panel_2.add(lblTipoDeConta, "cell 0 0,alignx right");
-		 panel_1_1.setBackground(new Color(0, 51, 102));
+		 panel_1_1.setBackground(Color.WHITE);
 		 
-		 panel_2.add(panel_1_1, "cell 1 0,grow");
+		 panel_2.add(panel_1_1, "cell 1 0 2 1,grow");
 		 panel_1_1.setLayout(new MigLayout("", "[grow][]", "[]"));
 		 cbArmazem.setFont(new Font("SansSerif", Font.PLAIN, 14));
-		 cbArmazem.addItem("DESPESAS");
-		 cbArmazem.addItem("RECEITAS");
+	
 		 
 		 panel_1_1.add(cbArmazem, "cell 0 0,grow");
+		 btnSelecionarArmazem.addActionListener(new ActionListener() {
+		 	public void actionPerformed(ActionEvent e) {
+		 		
+		 		TelaArmazem tela= new TelaArmazem(1, isto);
+		 		tela.setVisible(true);
+		 		
+		 	}
+		 });
 		 btnSelecionarArmazem.setBackground(new Color(0, 0, 102));
 		 btnSelecionarArmazem.setForeground(Color.WHITE);
 		 
@@ -258,7 +268,7 @@ public class TelaSiloCadastroSilo extends JDialog {
 		 lblNome.setBackground(Color.ORANGE);
 		
 		 entNome = new JTextFieldPersonalizado();
-		 panel_2.add(entNome, "cell 1 1,growx,aligny top");
+		 panel_2.add(entNome, "cell 1 1 2 1,growx,aligny top");
 		 entNome.setText("");
 		 entNome.setForeground(Color.BLACK);
 		lblIdentificador.setHorizontalAlignment(SwingConstants.TRAILING);
@@ -268,7 +278,7 @@ public class TelaSiloCadastroSilo extends JDialog {
 		
 		panel_2.add(lblIdentificador, "cell 0 2,alignx trailing");
 		entIdentificador.setForeground(Color.black);
-		panel_2.add(entIdentificador, "cell 1 2,growx");
+		panel_2.add(entIdentificador, "cell 1 2 2 1,growx");
 		panel_2.add(lblCliente, "cell 0 3,alignx trailing,aligny center");
 		lblCliente.setHorizontalAlignment(SwingConstants.TRAILING);
 		lblCliente.setForeground(Color.BLACK);
@@ -277,13 +287,16 @@ public class TelaSiloCadastroSilo extends JDialog {
 		
 		entCapacidade.setForeground(Color.BLACK);
 		panel_2.add(entCapacidade, "cell 1 3,growx");
+		lblNewLabel_1.setFont(new Font("SansSerif", Font.BOLD, 18));
+		
+		panel_2.add(lblNewLabel_1, "cell 2 3");
 		panel_2.add(lblDescrio, "cell 0 4,growx,aligny top");
 		lblDescrio.setHorizontalAlignment(SwingConstants.TRAILING);
 		lblDescrio.setForeground(Color.BLACK);
 		lblDescrio.setFont(new Font("Arial", Font.PLAIN, 16));
 		lblDescrio.setBackground(Color.ORANGE);
 		entDescricao.setFont(new Font("SansSerif", Font.BOLD, 16));
-		panel_2.add(entDescricao, "cell 1 4 1 2,grow");
+		panel_2.add(entDescricao, "cell 1 4 2 2,grow");
 		entDescricao.setBorder(new LineBorder(new Color(0, 0, 0)));
 		panel_4.setBackground(new Color(0, 51, 0));
 		
@@ -292,25 +305,31 @@ public class TelaSiloCadastroSilo extends JDialog {
 		
 		painelPrincipal.add(panel_3, "cell 2 3 3 1,grow");
 		panel_3.setLayout(new MigLayout("", "[][]", "[]"));
+		btnAtualizar.setBackground(new Color(0, 51, 153));
+		btnAtualizar.setFont(new Font("SansSerif", Font.PLAIN, 14));
+		btnAtualizar.setForeground(Color.WHITE);
 		btnAtualizar.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				 GerenciarBancoFinanceiroConta gerenciar = new GerenciarBancoFinanceiroConta();
-				 boolean result = gerenciar.atualizarFinanceiroConta(getDadosAtualizar(financeiro_conta));
+				GerenciarBancoSilo gerenciar = new GerenciarBancoSilo();
+				 boolean result = gerenciar.atualizarSilo(getDadosAtualizar(silo));
 				 if(result) {
 					 JOptionPane.showMessageDialog(isto, "Cadastro Atualizado");
 					 isto.dispose();
 				 }else {
-					 JOptionPane.showMessageDialog(isto, "Erro ao Atualizar\nConsulte o Administrador");
+					 JOptionPane.showMessageDialog(isto, "Erro ao atualizar\nConsulte o Administrador");
 
 				 }
 			}
 		});
 		panel_3.add(btnAtualizar, "cell 0 0,growx");
+		btnCadastrar.setBackground(new Color(0, 51, 0));
+		btnCadastrar.setFont(new Font("SansSerif", Font.PLAIN, 14));
+		btnCadastrar.setForeground(Color.WHITE);
 		btnCadastrar.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				
-			 GerenciarBancoFinanceiroConta gerenciar = new GerenciarBancoFinanceiroConta();
-			 int result = gerenciar.inserirFinanceiroConta(getDadosSalvar());
+				GerenciarBancoSilo gerenciar = new GerenciarBancoSilo();
+			 int result = gerenciar.inserir_silo(getDadosSalvar());
 			 if(result > 0) {
 				 JOptionPane.showMessageDialog(isto, "Cadastro Concluído");
 				 isto.dispose();
@@ -324,7 +343,7 @@ public class TelaSiloCadastroSilo extends JDialog {
 		panel_3.add(btnCadastrar, "cell 1 0,growx");
 	
 		if(modo_operacao == 1) {
-			rotinasEdicao(financeiro_conta);
+			rotinasEdicao(silo);
 	
 			
 			btnCadastrar.setEnabled(false);
@@ -342,16 +361,18 @@ public class TelaSiloCadastroSilo extends JDialog {
 		
 	}
 	
-	public void rotinasEdicao(FinanceiroConta financeiro_conta) {
+	public void rotinasEdicao(CadastroSilo silo) {
 	
 		
 			
 		
 		
-		entNome.setText(financeiro_conta.getNome());
-		entDescricao.setText(financeiro_conta.getDescricao());
-		cbArmazem.setSelectedIndex(financeiro_conta.getTipo_conta());	
-		
+		entNome.setText(silo.getNome_silo());
+		entDescricao.setText(silo.getDescricao());
+		entIdentificador.setText(silo.getIdentificador());
+		entCapacidade.setText(Double.toString(silo.getCapacidade()));
+
+		setArmazem(new GerenciarBancoClientes().getCliente(silo.getId_armazem()));
 		
 		
 		
@@ -397,58 +418,139 @@ public class TelaSiloCadastroSilo extends JDialog {
 	
 	
 	
-	public FinanceiroConta getDadosAtualizar(FinanceiroConta financeiro_conta_antigo) {
+	public CadastroSilo getDadosAtualizar(CadastroSilo silo_antigo) {
 		
-		FinanceiroConta conta = new FinanceiroConta();
-		conta.setId(financeiro_conta_antigo.getId());
+
+		CadastroSilo silo = new CadastroSilo();
+		silo.setId_silo(silo_antigo.getId_silo());
 		
-		String nome,descricao, observacao;
-		int id_grupo_contas = 0;
+		String nome_silo, identificador, descricao;
 		
-		nome = entNome.getText();
+		
+		nome_silo = entNome.getText().toString();
+		identificador = entIdentificador.getText().toString();
 		descricao = entDescricao.getText();
 		
-		if(financeiro_grupo_contas != null) {
-			if(financeiro_grupo_contas.getId_grupo_contas() > 0) {
-				id_grupo_contas = financeiro_grupo_contas.getId_grupo_contas();
+		if(armazem != null) {
+			
+			if(armazem.getId() > 0) {
+				silo.setId_armazem(armazem.getId());
+			}else {
+				JOptionPane.showMessageDialog(null, "Selecione o armazém no qual o silo esta localizado!");
+				return null;
+			
 			}
+			
+			
 		}
 		
-		conta.setNome(nome);
-		conta.setDescricao(descricao);
-		conta.setId_grupo_contas(id_grupo_contas);
-		conta.setTipo_conta(cbArmazem.getSelectedIndex());
 		
-	
+		try {
+			double capacidade = Double.parseDouble(entCapacidade.getText());
+			silo.setCapacidade(capacidade);
+			
+		}catch(Exception e) {
+			JOptionPane.showMessageDialog(null, "Valor da capacidade incorreto!");
+
+			return null;
+		}
 		
-		 
-		return conta;
+		if(checkString(nome_silo)) {
+			silo.setNome_silo(nome_silo);
+		}else {
+			JOptionPane.showMessageDialog(null, "Nome Incorreto!");
+
+			return null;
+		}
+			
+		if(checkString(identificador)) {
+			silo.setIdentificador(identificador);
+		}else {
+			JOptionPane.showMessageDialog(null, "Identificador Incorreto");
+
+			return null;
+		}
+			
+		
+		
+		silo.setDescricao(descricao);
+
+		
+		return silo;
 	}
 	
-	public FinanceiroConta getDadosSalvar() {
+	public CadastroSilo getDadosSalvar() {
 		
-		FinanceiroConta conta = new FinanceiroConta();
+		CadastroSilo silo = new CadastroSilo();
 		
-		String nome,descricao, observacao;
-		int id_grupo_contas = 0;
+		String nome_silo, identificador, descricao;
 		
-		nome = entNome.getText();
+		
+		nome_silo = entNome.getText().toString();
+		identificador = entIdentificador.getText().toString();
 		descricao = entDescricao.getText();
 		
-		if(financeiro_grupo_contas != null) {
-			if(financeiro_grupo_contas.getId_grupo_contas() > 0) {
-				id_grupo_contas = financeiro_grupo_contas.getId_grupo_contas();
+		if(armazem != null) {
+			
+			if(armazem.getId() > 0) {
+				silo.setId_armazem(armazem.getId());
+			}else {
+				JOptionPane.showMessageDialog(null, "Selecione o armazém no qual o silo esta localizado!");
+				return null;
+			
 			}
+			
+			
 		}
 		
-		conta.setNome(nome);
-		conta.setDescricao(descricao);
-		conta.setId_grupo_contas(id_grupo_contas);
-		conta.setTipo_conta(cbArmazem.getSelectedIndex());
-	
 		
-		 
-		return conta;
+		try {
+			double capacidade = Double.parseDouble(entCapacidade.getText());
+			silo.setCapacidade(capacidade);
+			
+		}catch(Exception e) {
+			JOptionPane.showMessageDialog(null, "Valor da capacidade incorreto!");
+
+			return null;
+		}
+		
+		if(checkString(nome_silo)) {
+			silo.setNome_silo(nome_silo);
+		}else {
+			JOptionPane.showMessageDialog(null, "Nome Incorreto!");
+
+			return null;
+		}
+			
+		if(checkString(identificador)) {
+			silo.setIdentificador(identificador);
+		}else {
+			JOptionPane.showMessageDialog(null, "Identificador Incorreto");
+
+			return null;
+		}
+			
+		
+		silo.setDescricao(descricao);
+		
+		
+		return silo;
+	}
+	
+	
+	public boolean checkString(String txt) {
+		return txt != null && !txt.equals("") && !txt.equals(" ") && !txt.equals("  ") && txt.length() > 0;
+	}
+	
+	
+	
+	public void setArmazem(CadastroCliente _armazem) {
+		this.armazem = _armazem;
+		
+		cbArmazem.removeAllItems();
+		
+		cbArmazem.addItem(_armazem.getNome_fantaia());
+		
 	}
 	
 }

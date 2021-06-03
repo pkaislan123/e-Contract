@@ -263,14 +263,10 @@ public class TelaFinanceiroCadastroParcelaEmprestimo extends JFrame {
 		
 		JLabel lblIdentificador = new JLabel("Identificador:");
 		lblIdentificador.setFont(new Font("Tahoma", Font.PLAIN, 16));
-		painelPrincipal.add(lblIdentificador, "cell 1 1,alignx trailing");
+		painelPrincipal.add(lblIdentificador, "cell 0 1,alignx trailing");
 		
 		entIdentificador.setForeground(Color.black);
-		painelPrincipal.add(entIdentificador, "cell 2 1 2 1,growx");
-		
-		JLabel lblObjeto = new JLabel("Objeto:");
-		lblObjeto.setFont(new Font("Tahoma", Font.PLAIN, 16));
-		painelPrincipal.add(lblObjeto, "cell 1 2,alignx trailing");
+		painelPrincipal.add(entIdentificador, "cell 1 1 3 1,growx");
 		 cbObjeto = new JComboBox();
 		 cbObjeto.addItem("Moeda");
 			cbObjeto.addItem("Produto");
@@ -289,7 +285,11 @@ public class TelaFinanceiroCadastroParcelaEmprestimo extends JFrame {
 			}
 
 		 });
-		painelPrincipal.add(cbObjeto, "cell 2 2 2 1,growx");
+		
+		JLabel lblObjeto = new JLabel("Objeto:");
+		lblObjeto.setFont(new Font("Tahoma", Font.PLAIN, 16));
+		painelPrincipal.add(lblObjeto, "cell 0 2,alignx trailing");
+		painelPrincipal.add(cbObjeto, "cell 1 2 3 1,growx");
 		
 		
 		 painelPaiProduto = new JPanel();
@@ -301,51 +301,51 @@ public class TelaFinanceiroCadastroParcelaEmprestimo extends JFrame {
 		
 		
 		JLabel lblValor = new JLabel("Valor Total:");
-		painelPrincipal.add(lblValor, "cell 1 4,alignx trailing");
+		painelPrincipal.add(lblValor, "cell 0 4,alignx trailing");
 		lblValor.setFont(new Font("Tahoma", Font.PLAIN, 16));
 		
 		entValorTotal = new JTextFieldPersonalizado();
 		entValorTotal.setFont(new Font("Tahoma", Font.PLAIN, 16));
-		painelPrincipal.add(entValorTotal, "cell 2 4 2 1,growx");
+		painelPrincipal.add(entValorTotal, "cell 1 4 3 1,growx");
 		entValorTotal.setForeground(Color.black);
 		entValorTotal.setColumns(10);
 		
 		JLabel lblDataVencimento = new JLabel("Data Vencimento:");
 		lblDataVencimento.setFont(new Font("Tahoma", Font.PLAIN, 16));
-		painelPrincipal.add(lblDataVencimento, "cell 1 5,alignx trailing");
+		painelPrincipal.add(lblDataVencimento, "cell 0 5,alignx trailing");
 		
 		entDataVencimento = new JTextFieldPersonalizado();
 		entDataVencimento.setFont(new Font("Tahoma", Font.PLAIN, 16));
 		entDataVencimento.setColumns(10);
 		entDataVencimento.setForeground(Color.black);
 		
-				painelPrincipal.add(entDataVencimento, "cell 2 5 2 1,growx");
+				painelPrincipal.add(entDataVencimento, "cell 1 5 3 1,growx");
 		
 		JLabel lblNewLabel = new JLabel("Descrição:");
 		lblNewLabel.setFont(new Font("Tahoma", Font.PLAIN, 16));
-		painelPrincipal.add(lblNewLabel, "cell 1 6,alignx right");
+		painelPrincipal.add(lblNewLabel, "cell 0 6,alignx right");
 		
 		entDescricao = new JTextFieldPersonalizado();
 		entDescricao.setFont(new Font("Tahoma", Font.PLAIN, 16));
 		entDescricao.setColumns(10);
 		entDescricao.setForeground(Color.black);
-		painelPrincipal.add(entDescricao, "cell 2 6 2 1,growx");
-		
-		JLabel lblStatus = new JLabel("Status:");
-		lblStatus.setFont(new Font("Tahoma", Font.PLAIN, 16));
-		painelPrincipal.add(lblStatus, "cell 1 7,alignx trailing");
+		painelPrincipal.add(entDescricao, "cell 1 6 3 1,growx");
+		 
+		 JLabel lblStatus = new JLabel("Status:");
+		 lblStatus.setFont(new Font("Tahoma", Font.PLAIN, 16));
+		 painelPrincipal.add(lblStatus, "cell 0 7,alignx trailing");
 		
 		 cbStatus = new JComboBox();
 		 cbStatus.addItem("A Pagar");
 		 cbStatus.addItem("Pago ");
-		 painelPrincipal.add(cbStatus, "cell 2 7 2 1,growx");
-		
-		JLabel lblObservao = new JLabel("Observação:");
-		lblObservao.setFont(new Font("Tahoma", Font.PLAIN, 16));
-		painelPrincipal.add(lblObservao, "cell 1 9");
+		 painelPrincipal.add(cbStatus, "cell 1 7 3 1,growx");
+		 
+		 JLabel lblObservao = new JLabel("Observação:");
+		 lblObservao.setFont(new Font("Tahoma", Font.PLAIN, 16));
+		 painelPrincipal.add(lblObservao, "cell 0 9,alignx right");
 		
 		 entObservacao = new JEditorPane();
-		 painelPrincipal.add(entObservacao, "cell 2 9 2 3,grow");
+		 painelPrincipal.add(entObservacao, "cell 1 9 3 3,grow");
 		
 		JButton btnFinalizar = new JButton("Finalizar");
 		btnFinalizar.addActionListener(new ActionListener() {
