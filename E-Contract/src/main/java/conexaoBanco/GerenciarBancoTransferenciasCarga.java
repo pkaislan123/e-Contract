@@ -74,7 +74,17 @@ public class GerenciarBancoTransferenciasCarga {
 	
 	
 	public ArrayList<CadastroContrato.CadastroTransferenciaCarga> getTransferenciasRemetente(int id_contrato_remetente) {
-		String selectTransferenciasRemetente = "select * from transferencia_carga where id_contrato_remetente  = ? order by id_transferencia ";
+	//	String selectTransferenciasRemetente = "select * from transferencia_carga where id_contrato_remetente  = ? order by id_transferencia ";
+		String selectTransferenciasRemetente = "select tc.*,\r\n"
+				+ "ct_remetente.codigo as codigo_remetente,\r\n"
+				+ "ct_destinatario.codigo as codigo_destinatario\r\n"
+				+ "\r\n"
+				+ " from transferencia_carga tc\r\n"
+				+ "left join contrato ct_remetente on ct_remetente.id = tc.id_contrato_remetente\r\n"
+				+ "left join contrato ct_destinatario on ct_destinatario.id = tc.id_contrato_destinatario\r\n"
+				+ "\r\n"
+				+ " where tc.id_contrato_remetente  = ? order by id_transferencia";
+		
 		Connection conn = null;
 		PreparedStatement pstm = null;
 		ResultSet rs = null;
@@ -93,6 +103,8 @@ public class GerenciarBancoTransferenciasCarga {
 				transferencia.setId_contrato_remetente(rs.getInt("id_contrato_remetente"));
 				transferencia.setId_contrato_destinatario(rs.getInt("id_contrato_destinatario"));
 				transferencia.setId_carregamento_remetente(rs.getInt("id_carregamento_remetente"));
+				transferencia.setCodigo_remetente(rs.getString("codigo_remetente"));
+				transferencia.setCodigo_destinatario(rs.getString("codigo_destinatario"));
 
 				transferencia.setQuantidade(rs.getString("quantidade"));
 				transferencia.setData(rs.getString("data_transferencia"));
@@ -111,7 +123,16 @@ public class GerenciarBancoTransferenciasCarga {
 	
 	
 	public ArrayList<CadastroContrato.CadastroTransferenciaCarga> getTransferenciaDestinatario(int id_contrato_destinatario) {
-		String selectTransferenciasRemetente = "select * from transferencia_carga where id_contrato_destinatario  = ? order by id_transferencia";
+		//String selectTransferenciasRemetente = "select * from transferencia_carga where id_contrato_destinatario  = ? order by id_transferencia";
+		String  selectTransferenciasRemetente = "select tc.*,\r\n"
+				+ "ct_remetente.codigo as codigo_remetente,\r\n"
+				+ "ct_destinatario.codigo as codigo_destinatario\r\n"
+				+ "\r\n"
+				+ " from transferencia_carga tc\r\n"
+				+ "left join contrato ct_remetente on ct_remetente.id = tc.id_contrato_remetente\r\n"
+				+ "left join contrato ct_destinatario on ct_destinatario.id = tc.id_contrato_destinatario\r\n"
+				+ "\r\n"
+				+ " where tc.id_contrato_destinatario  = ? order by id_transferencia";
 		Connection conn = null;
 		PreparedStatement pstm = null;
 		ResultSet rs = null;
@@ -130,7 +151,8 @@ public class GerenciarBancoTransferenciasCarga {
 				transferencia.setId_contrato_remetente(rs.getInt("id_contrato_remetente"));
 				transferencia.setId_contrato_destinatario(rs.getInt("id_contrato_destinatario"));
 				transferencia.setId_carregamento_remetente(rs.getInt("id_carregamento_remetente"));
-
+				transferencia.setCodigo_remetente(rs.getString("codigo_remetente"));
+				transferencia.setCodigo_destinatario(rs.getString("codigo_destinatario"));
 				transferencia.setQuantidade(rs.getString("quantidade"));
 				transferencia.setData(rs.getString("data_transferencia"));
 				transferencia.setDescricao(rs.getString("descricao"));

@@ -454,16 +454,7 @@ public class TelaMain extends JFrame {
 				else
 				 telaContratos.setVisible(true);
 				 
-				
-				/*
-				if(telaContratos2 == null) {
-					 telaContratos2 = new TelaContratos2(0, isto);
-					 telaContratos2.setVisible(true);
-
-					}
-					else
-					 telaContratos2.setVisible(true);
-					 */
+			
 			}
 		});
 		mnContratos.add(mntmContratos);

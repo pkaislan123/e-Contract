@@ -2831,7 +2831,7 @@ public class TelaElaborarNovoContrato extends JFrame {
 							ArrayList<String> clausulas_locais = new ArrayList<>();
 
 							
-						
+							novo_contrato.setGrupo_particular(0);
 
 							clausulas_locais.add(entClausula1.getText().toString());
 							clausulas_locais.add(entClausula2.getText().toString());

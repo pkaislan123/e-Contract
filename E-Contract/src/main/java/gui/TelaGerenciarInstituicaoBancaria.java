@@ -1,6 +1,7 @@
 
 package main.java.gui;
 
+import java.util.Map;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
@@ -8,17 +9,23 @@ import java.awt.Desktop;
 import java.awt.Dimension;
 import java.awt.DisplayMode;
 import java.awt.FlowLayout;
+import java.util.HashMap;
+
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.net.URL;
 import java.text.NumberFormat;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.Locale;
@@ -53,6 +60,7 @@ import javax.swing.BoxLayout;
 import javax.swing.DefaultListModel;
 
 import java.awt.GridLayout;
+import java.awt.Point;
 import java.awt.SystemColor;
 import java.awt.Toolkit;
 import java.awt.Window;
@@ -106,6 +114,7 @@ import main.java.cadastros.DadosContratos;
 import main.java.cadastros.FinanceiroConta;
 import main.java.cadastros.FinanceiroPagamentoCompleto;
 import main.java.cadastros.InstituicaoBancaria;
+import main.java.cadastros.Lancamento;
 import main.java.cadastros.RegistroQuantidade;
 import main.java.cadastros.RegistroRecebimento;
 import main.java.cadastros.SaldoInstituicaoBancaria;
@@ -115,6 +124,7 @@ import main.java.classesExtras.RenderizadorExtrato;
 import main.java.classesExtras.RenderizadorNotas;
 import main.java.conexaoBanco.GerenciarBancoAditivos;
 import main.java.conexaoBanco.GerenciarBancoClientes;
+import main.java.conexaoBanco.GerenciarBancoCondicaoPagamentos;
 import main.java.conexaoBanco.GerenciarBancoContratos;
 import main.java.conexaoBanco.GerenciarBancoDocumento;
 import main.java.conexaoBanco.GerenciarBancoFinanceiroPagamento;
@@ -175,11 +185,13 @@ import main.java.cadastros.CadastroLogin;
 import main.java.cadastros.CadastroNuvem;
 import main.java.cadastros.CadastroPontuacao;
 import main.java.cadastros.CadastroZapMessenger;
+import main.java.cadastros.CondicaoPagamento;
 import main.java.outros.DadosGlobais;
 import main.java.cadastros.CadastroCliente;
 import main.java.cadastros.CadastroGrupo;
 import main.java.conexaoBanco.GerenciarBancoClientes;
 import main.java.conexaoBanco.GerenciarBancoGrupos;
+import main.java.conexaoBanco.GerenciarBancoLancamento;
 import main.java.conexaoBanco.GerenciarBancoLogin;
 import main.java.conexaoBanco.GerenciarBancoNotas;
 import main.java.cadastros.CadastroProduto;
@@ -195,6 +207,10 @@ import main.java.classesExtras.ComboBoxPersonalizado;
 import main.java.classesExtras.ComboBoxRenderPersonalizado;
 import main.java.conexaoBanco.GerenciarBancoProdutos;
 import main.java.conexaoBanco.GerenciarBancoSafras;
+import java.util.Arrays;
+import java.util.List;
+import java.util.function.Predicate;
+import java.util.stream.Collectors;
 
 public class TelaGerenciarInstituicaoBancaria extends JFrame {
 
@@ -205,8 +221,8 @@ public class TelaGerenciarInstituicaoBancaria extends JFrame {
 	private JTree arvore_documentos;
 	private InstituicaoBancaria caixa_local;
 	ArrayList<FinanceiroPagamentoCompleto> lista_extrato = new ArrayList<FinanceiroPagamentoCompleto>();
-	private  DefaultListModel<FinanceiroPagamentoCompleto> listModelGlobal;
-
+	private DefaultListModel<FinanceiroPagamentoCompleto> listModelGlobal;
+	private JComboBox cbStatusCondicaoPagamento, cbTipoLancamento;
 	DefaultMutableTreeNode no_comprovantes;
 	DefaultMutableTreeNode no_docs_pessoais;
 	DefaultMutableTreeNode no_outros;
@@ -223,6 +239,11 @@ public class TelaGerenciarInstituicaoBancaria extends JFrame {
 	private JLabel lblDadosBanco, lblSaldo, lblDadosConta, lblDadosTitular;
 	private JLabel lblSaldoInicial, lblValorTotalDespesas, lblValorTotalReceitas, lblSaldoAtual;
 	private RenderizadorExtrato render;
+	private JComboBox cbCondicaoPagamento;
+	private JTextField entNomePagador;
+	private JTextField entNomeRecebedor;
+	private JTextField entMenorData;
+	private JTextField entMaiorData;
 
 	public TelaGerenciarInstituicaoBancaria(InstituicaoBancaria caixa, Window janela_pai) {
 		// setModal(true);
@@ -252,8 +273,7 @@ public class TelaGerenciarInstituicaoBancaria extends JFrame {
 		int display_x = display.getWidth();
 		int display_y = display.getHeight();
 		setBounds(0, 0, dim.width, dim.height - taskBarHeight);
-		
-		
+
 		painelPrincipal.setForeground(Color.BLACK);
 		painelPrincipal.setBackground(Color.WHITE);
 		painelPrincipal.setBorder(new EmptyBorder(5, 5, 5, 5));
@@ -309,22 +329,148 @@ public class TelaGerenciarInstituicaoBancaria extends JFrame {
 		JPanel painelAreaTransferencia = new JPanel();
 		painelAreaTransferencia.setBackground(Color.WHITE);
 		panel_1.add(painelAreaTransferencia, "cell 0 1,grow");
-		painelAreaTransferencia.setLayout(new MigLayout("", "[][]", "[grow]"));
+		painelAreaTransferencia.setLayout(new MigLayout("", "[][]", "[grow][]"));
 
 		JPanel painelExtratos = new JPanel();
 		painelExtratos.setAlignmentY(Component.TOP_ALIGNMENT);
 		painelExtratos.setAlignmentX(Component.LEFT_ALIGNMENT);
 		painelExtratos.setOpaque(false);
 		painelExtratos.setBorder(null);
-		// panel_1.add(painelExtratos, "cell 1 1,grow");
 		painelExtratos.setVisible(false);
 		painelExtratos.setBackground(Color.WHITE);
 		painelExtratos.setForeground(Color.WHITE);
-		painelExtratos.setLayout(new MigLayout("", "[][648.00]", "[][grow]"));
+		painelExtratos.setLayout(new MigLayout("", "[][648.00]", "[][][grow]"));
+
+		JPanel panel_3 = new JPanel();
+		painelExtratos.add(panel_3, "cell 0 0");
+		panel_3.setBorder(new LineBorder(new Color(0, 0, 0)));
+		panel_3.setBackground(Color.WHITE);
+		panel_3.setLayout(new MigLayout("", "[][][grow]", "[][][][][][][][][]"));
+
+		JLabel lblNewLabel_2 = new JLabel("Filtros");
+		lblNewLabel_2.setFont(new Font("Arial", Font.PLAIN, 18));
+		panel_3.add(lblNewLabel_2, "cell 0 0");
+
+		JLabel lblNewLabel_1_2_1_1_1 = new JLabel("Tipo Lançamento:");
+		lblNewLabel_1_2_1_1_1.setForeground(Color.BLACK);
+		lblNewLabel_1_2_1_1_1.setFont(new Font("Arial", Font.PLAIN, 18));
+		panel_3.add(lblNewLabel_1_2_1_1_1, "cell 0 2,alignx right");
+
+		cbTipoLancamento = new JComboBox();
+		cbTipoLancamento.setFont(new Font("SansSerif", Font.PLAIN, 18));
+		panel_3.add(cbTipoLancamento, "cell 1 2 2 1,growx");
+		cbTipoLancamento.addItem("TODOS");
+		cbTipoLancamento.addItem("DESPESAS");
+		cbTipoLancamento.addItem("RECEITAS");
+		cbTipoLancamento.addItem("EMPRESTIMOS");
+
+		JLabel lblNewLabel_1_2_1_1_1_1 = new JLabel("Condição do Pagamento:");
+		lblNewLabel_1_2_1_1_1_1.setForeground(Color.BLACK);
+		lblNewLabel_1_2_1_1_1_1.setFont(new Font("Arial", Font.PLAIN, 18));
+		panel_3.add(lblNewLabel_1_2_1_1_1_1, "cell 0 3,alignx trailing");
+
+		cbCondicaoPagamento = new JComboBox();
+		cbCondicaoPagamento.setFont(new Font("SansSerif", Font.PLAIN, 18));
+		panel_3.add(cbCondicaoPagamento, "cell 1 3 2 1,growx");
+
+		JLabel lblNewLabel_1_2_1_1_1_1_1 = new JLabel("Status Pagamento:");
+		lblNewLabel_1_2_1_1_1_1_1.setForeground(Color.BLACK);
+		lblNewLabel_1_2_1_1_1_1_1.setFont(new Font("Arial", Font.PLAIN, 18));
+		panel_3.add(lblNewLabel_1_2_1_1_1_1_1, "cell 0 4,alignx trailing");
+
+		cbStatusCondicaoPagamento = new JComboBox();
+		cbStatusCondicaoPagamento.setFont(new Font("SansSerif", Font.PLAIN, 18));
+		cbStatusCondicaoPagamento.addItem("TODOS");
+		cbStatusCondicaoPagamento.addItem("A - Compensar|Realizar|Concluir");
+		cbStatusCondicaoPagamento.addItem("Compensado|Realizado|Concluído");
+
+		panel_3.add(cbStatusCondicaoPagamento, "cell 1 4 2 1,growx");
+
+		JLabel lblNewLabel_1_2_1_1_1_1_1_1 = new JLabel("Pagador:");
+		lblNewLabel_1_2_1_1_1_1_1_1.setForeground(Color.BLACK);
+		lblNewLabel_1_2_1_1_1_1_1_1.setFont(new Font("Arial", Font.PLAIN, 18));
+		panel_3.add(lblNewLabel_1_2_1_1_1_1_1_1, "cell 0 5,alignx trailing");
+
+		entNomePagador = new JTextField();
+		entNomePagador.setFont(new Font("SansSerif", Font.PLAIN, 18));
+		panel_3.add(entNomePagador, "cell 1 5 2 1,growx");
+		entNomePagador.setColumns(10);
+
+		JLabel lblNewLabel_1_2_1_1_1_1_1_1_1 = new JLabel("Recebedor:");
+		lblNewLabel_1_2_1_1_1_1_1_1_1.setForeground(Color.BLACK);
+		lblNewLabel_1_2_1_1_1_1_1_1_1.setFont(new Font("Arial", Font.PLAIN, 18));
+		panel_3.add(lblNewLabel_1_2_1_1_1_1_1_1_1, "cell 0 6,alignx trailing");
+
+		entNomeRecebedor = new JTextField();
+		entNomeRecebedor.setFont(new Font("SansSerif", Font.PLAIN, 18));
+		entNomeRecebedor.setColumns(10);
+		panel_3.add(entNomeRecebedor, "cell 1 6 2 1,growx");
+		
+		JLabel lblNewLabel_1_2_1_1_1_1_1_1_1_1 = new JLabel("Período:");
+		lblNewLabel_1_2_1_1_1_1_1_1_1_1.setForeground(Color.BLACK);
+		lblNewLabel_1_2_1_1_1_1_1_1_1_1.setFont(new Font("Arial", Font.PLAIN, 18));
+		panel_3.add(lblNewLabel_1_2_1_1_1_1_1_1_1_1, "cell 0 7,alignx trailing");
+		
+		JLabel lblNewLabel_3 = new JLabel("de ");
+		panel_3.add(lblNewLabel_3, "cell 1 7,alignx trailing");
+		
+		entMenorData = new JTextField();
+		entMenorData.setFont(new Font("SansSerif", Font.PLAIN, 18));
+		entMenorData.setColumns(10);
+		panel_3.add(entMenorData, "flowx,cell 2 7,growx");
+
+		JButton btnLimparCampos = new JButton("Limpar Campos");
+		btnLimparCampos.setForeground(Color.WHITE);
+		btnLimparCampos.setFont(new Font("SansSerif", Font.BOLD, 16));
+		btnLimparCampos.setBackground(new Color(204, 0, 0));
+		panel_3.add(btnLimparCampos, "flowx,cell 2 8,alignx right");
+
+		btnLimparCampos.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+
+				limparCampos();
+
+			}
+		});
+
+		JButton btnLimpar = new JButton("Limpar");
+		btnLimpar.setForeground(Color.WHITE);
+		btnLimpar.setFont(new Font("SansSerif", Font.BOLD, 16));
+		btnLimpar.setBackground(new Color(153, 51, 0));
+		panel_3.add(btnLimpar, "cell 2 8,alignx right");
+
+		btnLimpar.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+
+				limpar();
+
+			}
+		});
+
+		JButton btnFiltrar = new JButton("Filtrar");
+		btnFiltrar.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+
+				filtrar();
+
+			}
+		});
+		btnFiltrar.setBackground(new Color(0, 51, 51));
+		btnFiltrar.setForeground(Color.WHITE);
+		btnFiltrar.setFont(new Font("SansSerif", Font.BOLD, 16));
+		panel_3.add(btnFiltrar, "cell 2 8,alignx right");
+		
+		JLabel lblNewLabel_3_1 = new JLabel("até");
+		panel_3.add(lblNewLabel_3_1, "cell 2 7");
+		
+		entMaiorData = new JTextField();
+		entMaiorData.setFont(new Font("SansSerif", Font.PLAIN, 18));
+		entMaiorData.setColumns(10);
+		panel_3.add(entMaiorData, "cell 2 7");
 
 		JPanel panel_2 = new JPanel();
 		panel_2.setOpaque(false);
-		painelExtratos.add(panel_2, "cell 0 0 1 2,grow");
+		painelExtratos.add(panel_2, "cell 0 1 1 2,grow");
 		panel_2.setBackground(Color.WHITE);
 		panel_2.setLayout(new MigLayout("", "[grow][]", "[][][][][][:20px:20px,grow][grow]"));
 
@@ -367,71 +513,46 @@ public class TelaGerenciarInstituicaoBancaria extends JFrame {
 		lblSaldoAtual.setForeground(Color.BLACK);
 		lblSaldoAtual.setFont(new Font("Arial", Font.BOLD, 24));
 		panel_2.add(lblSaldoAtual, "cell 1 4");
-		
-		JPanel panel_3 = new JPanel();
-		panel_3.setBorder(new LineBorder(new Color(0, 0, 0)));
-		panel_3.setBackground(Color.WHITE);
-		panel_2.add(panel_3, "cell 0 6 2 1,grow");
-		panel_3.setLayout(new MigLayout("", "[][grow]", "[][][][][]"));
-		
-		JLabel lblNewLabel_2 = new JLabel("Filtros");
-		lblNewLabel_2.setFont(new Font("Arial", Font.PLAIN, 18));
-		panel_3.add(lblNewLabel_2, "cell 0 0");
-		
-		JLabel lblNewLabel_1_2_1_1_1 = new JLabel("Tipo Lançamento:");
-		lblNewLabel_1_2_1_1_1.setForeground(Color.BLACK);
-		lblNewLabel_1_2_1_1_1.setFont(new Font("Arial", Font.PLAIN, 18));
-		panel_3.add(lblNewLabel_1_2_1_1_1, "cell 0 2,alignx right");
-		
-		JComboBox cbTipoLancamento = new JComboBox();
-		cbTipoLancamento.setFont(new Font("SansSerif", Font.PLAIN, 18));
-		panel_3.add(cbTipoLancamento, "cell 1 2,growx");
-		
-		JLabel lblNewLabel_1_2_1_1_1_1 = new JLabel("Condição do Pagamento:");
-		lblNewLabel_1_2_1_1_1_1.setForeground(Color.BLACK);
-		lblNewLabel_1_2_1_1_1_1.setFont(new Font("Arial", Font.PLAIN, 18));
-		panel_3.add(lblNewLabel_1_2_1_1_1_1, "cell 0 3,alignx trailing");
-		
-		JComboBox cBCondicaoPagamento = new JComboBox();
-		cBCondicaoPagamento.setFont(new Font("SansSerif", Font.PLAIN, 18));
-		panel_3.add(cBCondicaoPagamento, "cell 1 3,growx");
-		
-		JLabel lblNewLabel_1_2_1_1_1_1_1 = new JLabel("Status Pagamento:");
-		lblNewLabel_1_2_1_1_1_1_1.setForeground(Color.BLACK);
-		lblNewLabel_1_2_1_1_1_1_1.setFont(new Font("Arial", Font.PLAIN, 18));
-		panel_3.add(lblNewLabel_1_2_1_1_1_1_1, "cell 0 4,alignx trailing");
-		
-		JComboBox cBStatusPagamento = new JComboBox();
-		cBStatusPagamento.setFont(new Font("SansSerif", Font.PLAIN, 18));
-		panel_3.add(cBStatusPagamento, "cell 1 4,growx");
 
 		JList lista = new JList<>();
 		lista.setOpaque(false);
 		lista.setBackground(Color.WHITE);
+		
+		MouseListener mouseListener = new MouseAdapter() {
+		    public void mouseClicked(MouseEvent e) {
+		        if (e.getClickCount() == 1) {
+
+
+		           FinanceiroPagamentoCompleto selectedItem = (FinanceiroPagamentoCompleto) lista.getSelectedValue();
+		          
+		           Lancamento lancamento_selecionado = selectedItem.getLancamento();
+		       	TelaFinanceiroGerenciarLancamento tela = new TelaFinanceiroGerenciarLancamento(lancamento_selecionado, isto);
+				tela.setVisible(true);		           
+
+		         }
+		    }
+		};
+	
+		lista.addMouseListener(mouseListener);
 
 		JScrollPane scrollPaneListaExtrato = new JScrollPane(lista);
 		/*
-		scrollPaneListaExtrato.getVerticalScrollBar().setBackground(Color.WHITE);
-		scrollPaneListaExtrato.getHorizontalScrollBar().setBackground(Color.WHITE);
-		scrollPaneListaExtrato.getVerticalScrollBar().setUI(new BasicScrollBarUI() {
-		    @Override
-		    protected void configureScrollBarColors() {
-		        this.thumbColor = Color.BLUE;
-		    }
-		});
-		*/
-		painelExtratos.add(scrollPaneListaExtrato, "cell 1 1,grow");
+		 scrollPaneListaExtrato.getVerticalScrollBar().setBackground(Color.WHITE);
+		 scrollPaneListaExtrato.getHorizontalScrollBar().setBackground(Color.WHITE);
+		 scrollPaneListaExtrato.getVerticalScrollBar().setUI(new BasicScrollBarUI() {
+		 
+		  @Override protected void configureScrollBarColors() { this.thumbColor =
+		  Color.BLUE; } });
+		 */
+		painelExtratos.add(scrollPaneListaExtrato, "cell 1 0 1 3,grow");
 		scrollPaneListaExtrato.getViewport().setBackground(Color.white);
 		scrollPaneListaExtrato.getViewport().setOpaque(false);
 		listModelGlobal = new DefaultListModel<FinanceiroPagamentoCompleto>();
 
 		render = new RenderizadorExtrato();
 
-		pesquisarExtrato();
 		lista.setModel(listModelGlobal);
 		lista.setCellRenderer(render);
-
-		// painelPrincipal.add(painelDadosIniciais, "flowx,cell 3 0 3 1,grow");
 
 		JButton btnEditar = new JButton("Editar");
 		btnEditar.setBackground(new Color(0, 0, 153));
@@ -468,127 +589,87 @@ public class TelaGerenciarInstituicaoBancaria extends JFrame {
 		btnDocumentos.setBackground(new Color(0, 0, 0, 100));
 		panel.add(btnDocumentos, "cell 0 3,growx,aligny top");
 
-		JLabel btnDeposito = new JLabel("Lançamentos Futuros");
-		btnDeposito.setForeground(Color.WHITE);
-		btnDeposito.setFont(new Font("Tahoma", Font.PLAIN, 16));
-		btnDeposito.setBackground(new Color(0, 0, 0, 100));
-		panel.add(btnDeposito, "cell 0 2,growx,aligny top");
-
-		JPanel painelDeposito = new JPanel();
-		painelDeposito.setBackground(Color.WHITE);
-		painelDeposito.setVisible(false);
-		painelDeposito.setEnabled(false);
-		painelDeposito.setLayout(null);
+	
 
 		panel_docs = new JPanel();
-		panel_docs.setBackground(Color.WHITE);
-		panel_docs.setBounds(43, 11, 315, 336);
+		panel_docs.setBackground(new Color(255, 255, 204));
 
 		JPanel painelDocumentos = new JPanel();
+		painelDocumentos.setBackground(new Color(0, 51, 0));
 		painelDocumentos.setVisible(false);
 		painelDocumentos.setEnabled(false);
-		// painelPrincipal.add(painelDocumentos, "cell 3 0 3 1,grow");
-		painelDocumentos.setLayout(null);
+		painelDocumentos.setLayout(new MigLayout("", "[600px:n,grow][431px]", "[grow]"));
 
-		painelDocumentos.add(panel_docs);
+		painelDocumentos.add(panel_docs, "cell 0 0,grow");
 
 		JPanel painelInserirDocumento = new JPanel();
-		painelInserirDocumento.setLayout(null);
-		painelInserirDocumento.setBounds(381, 35, 431, 288);
-		painelDocumentos.add(painelInserirDocumento);
+		painelInserirDocumento.setBackground(new Color(0, 51, 0));
+		painelDocumentos.add(painelInserirDocumento, "cell 1 0,growx,aligny center");
+		painelInserirDocumento.setLayout(new MigLayout("", "[46px][10px][231px][10px][89px]", "[27px][22px][85px][39px][23px]"));
 
 		JLabel lblNewLabel_15 = new JLabel("Nome:");
-		lblNewLabel_15.setBounds(34, 11, 46, 14);
-		painelInserirDocumento.add(lblNewLabel_15);
+		lblNewLabel_15.setForeground(Color.WHITE);
+		lblNewLabel_15.setFont(new Font("SansSerif", Font.BOLD, 16));
+		painelInserirDocumento.add(lblNewLabel_15, "cell 0 0 2 1,alignx right,aligny top");
 
 		JLabel lblNewLabel_16 = new JLabel("Descrição:");
-		lblNewLabel_16.setBounds(19, 105, 70, 14);
-		painelInserirDocumento.add(lblNewLabel_16);
+		lblNewLabel_16.setForeground(Color.WHITE);
+		lblNewLabel_16.setFont(new Font("SansSerif", Font.BOLD, 16));
+		painelInserirDocumento.add(lblNewLabel_16, "cell 0 2 2 1,alignx right,aligny top");
 
 		entDescricaoDocumento = new JTextArea();
-		entDescricaoDocumento.setBounds(75, 100, 330, 85);
-		painelInserirDocumento.add(entDescricaoDocumento);
+		entDescricaoDocumento.setFont(new Font("Arial", Font.BOLD, 18));
+		painelInserirDocumento.add(entDescricaoDocumento, "cell 2 2 3 1,grow");
 
 		JLabel lblNewLabel_17 = new JLabel("Arquivo:");
-		lblNewLabel_17.setBounds(19, 210, 46, 14);
-		painelInserirDocumento.add(lblNewLabel_17);
+		lblNewLabel_17.setForeground(Color.WHITE);
+		lblNewLabel_17.setFont(new Font("SansSerif", Font.BOLD, 16));
+		painelInserirDocumento.add(lblNewLabel_17, "cell 0 3 2 1,alignx right,aligny center");
 
 		entCaminhoDocumento = new JTextField();
+		entCaminhoDocumento.setFont(new Font("Arial", Font.BOLD, 18));
 		entCaminhoDocumento.setColumns(10);
-		entCaminhoDocumento.setBounds(75, 198, 231, 39);
-		painelInserirDocumento.add(entCaminhoDocumento);
+		painelInserirDocumento.add(entCaminhoDocumento, "cell 2 3,grow");
 
 		entNomeDocumento = new JTextField();
+		entNomeDocumento.setFont(new Font("Arial", Font.BOLD, 18));
 		entNomeDocumento.setColumns(10);
-		entNomeDocumento.setBounds(75, 8, 330, 27);
-		painelInserirDocumento.add(entNomeDocumento);
+		painelInserirDocumento.add(entNomeDocumento, "cell 2 0 3 1,grow");
 
 		JButton btnSelecionarDocumento = new JButton("Selecionar");
+		btnSelecionarDocumento.setBackground(new Color(0, 0, 153));
+		btnSelecionarDocumento.setForeground(Color.WHITE);
+		btnSelecionarDocumento.setFont(new Font("Arial", Font.BOLD, 18));
 		btnSelecionarDocumento.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 
 				selecionarDocumento();
 			}
 		});
-		btnSelecionarDocumento.setBounds(316, 205, 89, 24);
-		painelInserirDocumento.add(btnSelecionarDocumento);
+		painelInserirDocumento.add(btnSelecionarDocumento, "cell 4 3,growx,aligny center");
 
 		JButton btnAdicionarDocumento = new JButton("Adicionar");
+		btnAdicionarDocumento.setBackground(new Color(102, 0, 153));
+		btnAdicionarDocumento.setForeground(Color.WHITE);
+		btnAdicionarDocumento.setFont(new Font("Arial", Font.BOLD, 18));
 		btnAdicionarDocumento.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				adicionarNovoDocumento();
 			}
 		});
-		btnAdicionarDocumento.setBounds(316, 254, 89, 23);
-		painelInserirDocumento.add(btnAdicionarDocumento);
+		painelInserirDocumento.add(btnAdicionarDocumento, "cell 4 4,grow");
 
 		JLabel lblNewLabel_16_1 = new JLabel("Tipo:");
-		lblNewLabel_16_1.setBounds(19, 58, 70, 14);
-		painelInserirDocumento.add(lblNewLabel_16_1);
+		lblNewLabel_16_1.setForeground(Color.WHITE);
+		lblNewLabel_16_1.setFont(new Font("SansSerif", Font.BOLD, 16));
+		painelInserirDocumento.add(lblNewLabel_16_1, "cell 0 1 2 1,alignx right,aligny center");
 
 		cBTipoDocumento = new JComboBox();
-		cBTipoDocumento.setBounds(75, 54, 330, 22);
-		painelInserirDocumento.add(cBTipoDocumento);
+		cBTipoDocumento.setFont(new Font("Arial", Font.BOLD, 18));
+		painelInserirDocumento.add(cBTipoDocumento, "cell 2 1 3 1,grow");
 		cBTipoDocumento.addItem("Documento Pessoal");
 		cBTipoDocumento.addItem("Comprovantes");
 		cBTipoDocumento.addItem("Outros");
-
-		btnDeposito.addMouseListener(new MouseAdapter() {
-			@Override
-			public void mouseClicked(MouseEvent e) {
-				painelDocumentos.setEnabled(false);
-				painelDocumentos.setVisible(false);
-
-				painelExtratos.setEnabled(false);
-				painelExtratos.setVisible(false);
-
-				painelDeposito.setEnabled(true);
-				painelDeposito.setVisible(true);
-
-				btnDeposito.setOpaque(true);
-				btnDeposito.setBackground(new Color(0, 0, 0, 100));
-
-				btnDeposito.repaint();
-				btnDeposito.updateUI();
-
-				btnDocumentos.setOpaque(false);
-				btnDocumentos.setBackground(new Color(0, 0, 0, 100));
-
-				btnDocumentos.repaint();
-				btnDocumentos.updateUI();
-
-				btnContratos.setOpaque(false);
-				btnContratos.setBackground(new Color(0, 0, 0, 100));
-
-				btnContratos.repaint();
-				btnContratos.updateUI();
-
-				painelAreaTransferencia.removeAll();
-				painelAreaTransferencia.add(painelDeposito);
-				painelAreaTransferencia.repaint();
-				painelAreaTransferencia.updateUI();
-			}
-		});
 
 		btnContratos.addMouseListener(new MouseAdapter() {
 			@Override
@@ -600,8 +681,7 @@ public class TelaGerenciarInstituicaoBancaria extends JFrame {
 				painelDocumentos.setEnabled(false);
 				painelDocumentos.setVisible(false);
 
-				painelDeposito.setEnabled(false);
-				painelDeposito.setVisible(false);
+			
 
 				btnContratos.setOpaque(true);
 				btnContratos.setBackground(new Color(0, 0, 0, 100));
@@ -609,12 +689,7 @@ public class TelaGerenciarInstituicaoBancaria extends JFrame {
 				btnContratos.repaint();
 				btnContratos.updateUI();
 
-				btnDeposito.setOpaque(false);
-				btnDeposito.setBackground(new Color(0, 0, 0, 100));
-
-				btnDeposito.repaint();
-				btnDeposito.updateUI();
-
+			
 				btnDocumentos.setOpaque(false);
 				btnDocumentos.setBackground(new Color(0, 0, 0, 100));
 
@@ -635,8 +710,7 @@ public class TelaGerenciarInstituicaoBancaria extends JFrame {
 				painelDocumentos.setEnabled(true);
 				painelDocumentos.setVisible(true);
 
-				painelDeposito.setEnabled(false);
-				painelDeposito.setVisible(false);
+			
 
 				painelExtratos.setEnabled(false);
 				painelExtratos.setVisible(false);
@@ -647,11 +721,7 @@ public class TelaGerenciarInstituicaoBancaria extends JFrame {
 				btnDocumentos.repaint();
 				btnDocumentos.updateUI();
 
-				btnDeposito.setOpaque(false);
-				btnDeposito.setBackground(new Color(0, 0, 0, 100));
-
-				btnDeposito.repaint();
-				btnDeposito.updateUI();
+			
 
 				btnContratos.setOpaque(false);
 				btnContratos.setBackground(new Color(0, 0, 0, 100));
@@ -660,7 +730,7 @@ public class TelaGerenciarInstituicaoBancaria extends JFrame {
 				btnContratos.updateUI();
 
 				painelAreaTransferencia.removeAll();
-				painelAreaTransferencia.add(painelDocumentos);
+				painelAreaTransferencia.add(painelDocumentos, "cell 0 0 2 2,grow");
 				painelAreaTransferencia.repaint();
 				painelAreaTransferencia.updateUI();
 			}
@@ -672,21 +742,32 @@ public class TelaGerenciarInstituicaoBancaria extends JFrame {
 			getDadosGlobais();
 			setInformacoesDocumentos();
 			pesquisar_saldo(caixa);
+			GerenciarBancoFinanceiroPagamento gerenciar = new GerenciarBancoFinanceiroPagamento();
+			lista_extrato = gerenciar
+					.getFinanceiroPagamentosLancamentosPorCaixa(caixa_local.getId_instituicao_bancaria());
+			popular_condicao_pagamento();
+			pesquisarExtrato(lista_extrato, caixa_local.getSaldo_inicial());
 
 		}
-		painelAreaTransferencia.add(painelExtratos, "alignx center,growy");
+		
+		GerenciarBancoFinanceiroPagamento gerenciar = new GerenciarBancoFinanceiroPagamento();
+		
+		 Map<String,String> datas = gerenciar.pegarDatasPagamento(caixa_local.getId_instituicao_bancaria());
 
+			entMenorData.setText(datas.get("menor_data_pagamento"));
+			entMaiorData.setText(datas.get("maior_data_pagamento"));
+		          
+	
 		this.setExtendedState(JFrame.MAXIMIZED_BOTH);
 
 		this.setLocationRelativeTo(janela_pai);
 
 	}
 
-	public void pesquisarExtrato() {
-		GerenciarBancoFinanceiroPagamento gerenciar = new GerenciarBancoFinanceiroPagamento();
-		lista_extrato = gerenciar.getFinanceiroPagamentosLancamentosPorCaixa(caixa_local.getId_instituicao_bancaria());
+	public void pesquisarExtrato(ArrayList<FinanceiroPagamentoCompleto> lista_extrato, BigDecimal saldo_inicial) {
 
-		BigDecimal saldo_inicial = caixa_local.getSaldo_inicial();
+
+		listModelGlobal.clear();
 
 		for (FinanceiroPagamentoCompleto not : lista_extrato) {
 			int tipo_lancamento = not.getLancamento().getTipo_lancamento();
@@ -712,21 +793,12 @@ public class TelaGerenciarInstituicaoBancaria extends JFrame {
 
 		// pega a lista de documentos
 		GerenciarBancoDocumento gerenciar_doc = new GerenciarBancoDocumento();
-		ArrayList<CadastroDocumento> lista_docs = gerenciar_doc.getDocumentosCliente(caixa_local.getId_conta());
+		ArrayList<CadastroDocumento> lista_docs = gerenciar_doc.getDocumentosPorIb(caixa_local.getId_instituicao_bancaria());
 		java.awt.EventQueue.invokeLater(new Runnable() {
 			public void run() {
-				panel_docs.setLayout(null);
 
-				JPanel panel = new JPanel();
-				panel.setBackground(Color.WHITE);
-				panel.setBounds(10, 5, 295, 320);
-				panel_docs.add(panel);
-				panel.setLayout(new MigLayout("", "[grow]", "[][grow]"));
-
-				JLabel lblNewLabel_18 = new JLabel("Documentos desta Instituição Bancária:");
-				lblNewLabel_18.setFont(new Font("Tahoma", Font.PLAIN, 14));
-				panel.add(lblNewLabel_18, "cell 0 0");
-
+				
+			
 				// create the root node
 				DefaultMutableTreeNode root = new DefaultMutableTreeNode("Raíz");
 				// create the child nodes
@@ -885,7 +957,7 @@ public class TelaGerenciarInstituicaoBancaria extends JFrame {
 
 				arvore_documentos.setShowsRootHandles(true);
 				arvore_documentos.setRootVisible(false);
-				panel.add(arvore_documentos, "cell 0 1,grow");
+				panel_docs.add(arvore_documentos);
 
 				if (lista_docs != null && lista_docs.size() > 0) {
 					for (CadastroDocumento doc : lista_docs) {
@@ -967,7 +1039,7 @@ public class TelaGerenciarInstituicaoBancaria extends JFrame {
 			// pegar nome da pasta
 			String nome_pasta = nome_pasta = caixa_local.getNome_instituicao_bancaria();
 
-			String caminho_salvar = unidade_base_dados + "\\" + "E-Contract\\arquivos\\financas\\ibs\\" + nome_pasta
+			String caminho_salvar = unidade_base_dados + "\\E-Contract\\arquivos\\financas\\ibs\\" + nome_pasta
 					+ "\\documentos";
 			manipular.criarDiretorio(caminho_salvar);
 
@@ -1005,10 +1077,10 @@ public class TelaGerenciarInstituicaoBancaria extends JFrame {
 						novo_documento.setTipo(tipo_documento);
 						novo_documento.setId_pai(0);
 						novo_documento.setNome_arquivo(nome_arquivo);
-						novo_documento.setId_cliente(caixa_local.getId_conta());
+						novo_documento.setId_ib(caixa_local.getId_instituicao_bancaria());
 
 						GerenciarBancoDocumento gerenciar_doc = new GerenciarBancoDocumento();
-						int cadastrar = gerenciar_doc.inserir_documento_padrao_cliente(novo_documento);
+						int cadastrar = gerenciar_doc.inserir_documento_padrao_ib(novo_documento);
 						if (cadastrar > 0) {
 							JOptionPane.showMessageDialog(isto, "Arquivo copiado e salvo na base de dados\nOrigem: "
 									+ caminho_arquivo + "\nDestino: " + caminho_completo);
@@ -1071,8 +1143,7 @@ public class TelaGerenciarInstituicaoBancaria extends JFrame {
 			@Override
 			public void run() {
 				GerenciarBancoDocumento gerenciar_doc = new GerenciarBancoDocumento();
-				ArrayList<CadastroDocumento> lista_docs = gerenciar_doc.getDocumentosCliente(caixa_local.getId_conta());
-
+				ArrayList<CadastroDocumento> lista_docs = gerenciar_doc.getDocumentosPorIb(caixa_local.getId_instituicao_bancaria());
 				java.awt.EventQueue.invokeLater(new Runnable() {
 					public void run() {
 
@@ -1167,4 +1238,194 @@ public class TelaGerenciarInstituicaoBancaria extends JFrame {
 
 	}
 
+	public void popular_condicao_pagamento() {
+		ArrayList<CondicaoPagamento> lista_condicao_pagamentos = new GerenciarBancoCondicaoPagamentos()
+				.getCondicaoPagamentos();
+		cbCondicaoPagamento.removeAllItems();
+		cbCondicaoPagamento.addItem("TODOS");
+		for (CondicaoPagamento cp : lista_condicao_pagamentos) {
+			cbCondicaoPagamento.addItem(cp.getId_condicao_pagamento() + "-" + cp.getNome_condicao_pagamento());
+		}
+
+	}
+
+	public void filtrar() {
+		GerenciarBancoFinanceiroPagamento gerenciar = new GerenciarBancoFinanceiroPagamento();
+		lista_extrato = gerenciar.getFinanceiroPagamentosLancamentosPorCaixa(caixa_local.getId_instituicao_bancaria());
+
+		List<FinanceiroPagamentoCompleto> lista_filtrada = lista_extrato;
+
+		int tipo_lancamento_procurado = cbTipoLancamento.getSelectedIndex();
+
+		if (tipo_lancamento_procurado != 0) {
+
+			lista_filtrada = lista_extrato.stream()
+					.filter(p -> p.getLancamento().getTipo_lancamento() == tipo_lancamento_procurado - 1)
+					.collect(Collectors.toList());
+
+			lista_extrato = (ArrayList<FinanceiroPagamentoCompleto>) lista_filtrada;
+
+		}
+
+		int status_condicao_pagamento = cbStatusCondicaoPagamento.getSelectedIndex();
+
+		if (status_condicao_pagamento != 0) {
+			lista_filtrada = lista_extrato.stream()
+					.filter(p -> p.getFpag().getStatus_pagamento() == status_condicao_pagamento - 1)
+					.collect(Collectors.toList());
+			lista_extrato = (ArrayList<FinanceiroPagamentoCompleto>) lista_filtrada;
+
+		}
+
+		int condicao_pagamento = cbCondicaoPagamento.getSelectedIndex();
+
+		if (condicao_pagamento != 0) {
+
+			String condicao_completa = cbCondicaoPagamento.getSelectedItem().toString();
+			String split[] = condicao_completa.split("-");
+			int id_condicao = Integer.parseInt(split[0]);
+
+			lista_filtrada = lista_extrato.stream().filter(p -> p.getFpag().getId_condicao_pagamento() == id_condicao)
+					.collect(Collectors.toList());
+			lista_extrato = (ArrayList<FinanceiroPagamentoCompleto>) lista_filtrada;
+
+		}
+
+		String nome_pagador = entNomePagador.getText();
+		if (checkString(nome_pagador)) {
+			lista_filtrada = lista_extrato.stream()
+					.filter(p -> p.getNome_pagador().toUpperCase().contains(nome_pagador.toUpperCase()))
+					.collect(Collectors.toList());
+			lista_extrato = (ArrayList<FinanceiroPagamentoCompleto>) lista_filtrada;
+
+		}
+
+		String nome_recebedor = entNomeRecebedor.getText();
+		if (checkString(nome_recebedor)) {
+			lista_filtrada = lista_extrato.stream()
+					.filter(p -> p.getNome_recebedor().toUpperCase().contains(nome_recebedor.toUpperCase()))
+					.collect(Collectors.toList());
+			lista_extrato = (ArrayList<FinanceiroPagamentoCompleto>) lista_filtrada;
+
+		}
+
+
+		String s_data_menor = entMenorData.getText();
+		String s_data_maior = entMaiorData.getText();
+		
+		try {
+
+
+		 LocalDate data_menor = LocalDate.parse(s_data_menor, DateTimeFormatter.ofPattern("dd/MM/yyyy"));
+		 LocalDate data_maior = LocalDate.parse(s_data_maior, DateTimeFormatter.ofPattern("dd/MM/yyyy"));
+
+		
+		lista_filtrada = lista_extrato.stream()
+				.filter(p ->  LocalDate.parse(p.getFpag().getData_pagamento(), DateTimeFormatter.ofPattern("dd/MM/yyyy")).compareTo(data_menor) >= 0
+						 &&  
+						 LocalDate.parse(p.getFpag().getData_pagamento(), DateTimeFormatter.ofPattern("dd/MM/yyyy")).compareTo(data_maior) <= 0
+						 
+						)
+				.collect(Collectors.toList());
+		
+	
+		
+		
+		}catch(Exception f) {
+			JOptionPane.showMessageDialog(isto, "Datas Inválidas");
+		}
+		
+		pesquisarExtrato((ArrayList) lista_filtrada, getSaldo(s_data_menor));
+		calcular((ArrayList) lista_filtrada, s_data_menor);
+
+	}
+
+	public boolean checkString(String txt) {
+		return txt != null && !txt.equals("") && !txt.equals(" ") && !txt.equals("  ");
+	}
+
+	public void limpar() {
+
+		GerenciarBancoFinanceiroPagamento gerenciar = new GerenciarBancoFinanceiroPagamento();
+		lista_extrato = gerenciar.getFinanceiroPagamentosLancamentosPorCaixa(caixa_local.getId_instituicao_bancaria());
+		pesquisarExtrato(lista_extrato, getSaldo("01/01/2010"));
+		calcular(lista_extrato, "01/01/2010");
+	}
+	
+	
+	
+	
+	
+
+	public void limparCampos() {
+		
+		
+		GerenciarBancoFinanceiroPagamento gerenciar = new GerenciarBancoFinanceiroPagamento();
+		
+		 Map<String,String> datas = gerenciar.pegarDatasPagamento(caixa_local.getId_instituicao_bancaria());
+
+			entMenorData.setText(datas.get("menor_data_pagamento"));
+			entMaiorData.setText(datas.get("maior_data_pagamento"));
+		         
+		  
+		cbCondicaoPagamento.setSelectedIndex(0);
+		cbTipoLancamento.setSelectedIndex(0);
+		cbStatusCondicaoPagamento.setSelectedIndex(0);
+		entNomePagador.setText("");
+		entNomeRecebedor.setText("");
+		
+		   
+
+		limpar();
+	}
+
+	public BigDecimal getSaldo(String data) {
+		GerenciarBancoFinanceiroPagamento gerenciar_fin = new GerenciarBancoFinanceiroPagamento();
+		SaldoInstituicaoBancaria saldo = gerenciar_fin.getSaldoPorPeriodo(caixa_local.getId_instituicao_bancaria(),data);
+
+		Locale ptBr = new Locale("pt", "BR");
+
+		double saldo_inicial = caixa_local.getSaldo_inicial().doubleValue() + saldo.getTotal_receita()
+				- saldo.getTotal_despesa();
+		
+		return new BigDecimal(saldo_inicial);
+	}
+	
+	public void calcular(ArrayList<FinanceiroPagamentoCompleto> lista_extrato,String data) {
+
+		
+		Locale ptBr = new Locale("pt", "BR");
+
+
+		BigDecimal saldo_inicial = getSaldo(data);
+		BigDecimal valor_total_despesas = BigDecimal.ZERO;
+		BigDecimal valor_total_receitas = BigDecimal.ZERO;
+		BigDecimal saldo_atual = BigDecimal.ZERO;
+
+		for (FinanceiroPagamentoCompleto pag_completo : lista_extrato) {
+			if (pag_completo.getLancamento().getTipo_lancamento() == 0) {
+				// despesa
+				valor_total_despesas = valor_total_despesas.add(pag_completo.getFpag().getValor());
+			} else if (pag_completo.getLancamento().getTipo_lancamento() == 1) {
+				// receita
+
+				valor_total_receitas = valor_total_receitas.add(pag_completo.getFpag().getValor());
+
+			} else if (pag_completo.getLancamento().getTipo_lancamento() == 3) {
+				// emprestimo
+				valor_total_receitas = valor_total_despesas.add(pag_completo.getFpag().getValor());
+
+			}
+		}
+
+		saldo_atual = saldo_inicial.add(valor_total_receitas).subtract(valor_total_despesas);
+		
+		lblSaldoInicial.setText(NumberFormat.getCurrencyInstance(ptBr).format(saldo_inicial));
+		lblValorTotalDespesas.setText(NumberFormat.getCurrencyInstance(ptBr).format(valor_total_despesas));
+		lblValorTotalReceitas.setText(NumberFormat.getCurrencyInstance(ptBr).format(valor_total_receitas));
+		lblSaldoAtual.setText(NumberFormat.getCurrencyInstance(ptBr).format(saldo_atual));
+	}
+
+	
+	
 }

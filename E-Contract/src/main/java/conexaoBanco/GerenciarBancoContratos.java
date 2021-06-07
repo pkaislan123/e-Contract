@@ -645,7 +645,7 @@ public class GerenciarBancoContratos {
 			texto_clausulas += (clausula_local + ";");
 		}
 
-		String query = "insert into contrato (codigo, sub_contrato,id_safra, id_produto, medida, quantidade, valor_produto, valor_a_pagar,frete, clausula_frete,  armazenagem, clausula_armazenagem,  comissao, clausula_comissao, valor_comissao, clausulas, id_local_retirada, tipo_entrega, data_contrato, data_entrega, status_contrato, caminho_diretorio, caminho_arquivo, nome_arquivo,caminho_diretorio2, caminho_arquivo2, nome_arquivo2 ) values ('"
+		String query = "insert into contrato (codigo, sub_contrato,id_safra, id_produto, medida, quantidade, valor_produto, valor_a_pagar,frete, clausula_frete,  armazenagem, clausula_armazenagem,  comissao, clausula_comissao, valor_comissao, clausulas, id_local_retirada, tipo_entrega, data_contrato, data_entrega, status_contrato, caminho_diretorio, caminho_arquivo, nome_arquivo,caminho_diretorio2, caminho_arquivo2, nome_arquivo2, grupo_particular ) values ('"
 				+ contrato.getCodigo() + "','" + contrato.getSub_contrato() + "','"
 				+ contrato.getModelo_safra().getId_safra() + "','" + contrato.getModelo_produto().getId_produto()
 				+ "','" + contrato.getMedida() + "','" + contrato.getQuantidade() + "','" + contrato.getValor_produto()
@@ -661,7 +661,7 @@ public class GerenciarBancoContratos {
 				+ contrato.getNome_arquivo() + "','"
 
 				+ contrato.getCaminho_diretorio_contrato2() + "','" + contrato.getCaminho_arquivo2() + "','"
-				+ contrato.getNome_arquivo2()
+				+ contrato.getNome_arquivo2()  + "','" + contrato.getGrupo_particular()
 
 				+ "')";
 		return query;
@@ -1764,7 +1764,14 @@ public class GerenciarBancoContratos {
 				safra.setProduto(produto);
 				contrato.setModelo_safra(safra);
 				contrato.setModelo_produto(produto);
+				
+				contrato.setQuantidade_carregada(rs.getDouble("total_carregado"));
+				contrato.setQuantidade_recebida(rs.getDouble("quantidade_recebida"));
+
+				
 				lsitaContratos.add(contrato);
+				
+				
 
 			}
 			ConexaoBanco.fechaConexao(conn, pstm, rs);
@@ -3470,8 +3477,61 @@ public class GerenciarBancoContratos {
 	public ArrayList<CadastroContrato.Carregamento> getCarregamentos(int id_contrato) {
 
 		System.out.println("Lista carregamento foi chamado!");
-		String selectCarregamentos = "select * from contrato_carregamentos \n"
+		/*String selectCarregamentos = "select * from contrato_carregamentos \n"
 				+ "LEFT JOIN carregamento  on carregamento.id_carregamento = contrato_carregamentos.id_carregamento \n"
+				+ "where contrato_carregamentos.id_contrato = ? order by carregamento.id_carregamento";
+*/
+		/*
+		 select carregamento.*,
+(case
+when transportador.tipo_cliente = '0' then transportador.nome_empresarial 
+ when transportador.tipo_cliente = '1' then transportador.nome_fantasia
+end) as nome_transportador,
+(case
+when comprador.tipo_cliente = '0' then comprador.nome_empresarial 
+ when comprador.tipo_cliente = '1' then comprador.nome_fantasia
+end) as nome_comprador,
+(case
+when vendedor.tipo_cliente = '0' then vendedor.nome_empresarial 
+ when vendedor.tipo_cliente = '1' then vendedor.nome_fantasia
+end) as nome_vendedor,
+ct.codigo as codigo_contrato,
+veiculo.placa, pd.nome_produto
+ from contrato_carregamentos
+ 
+LEFT JOIN carregamento  on carregamento.id_carregamento = contrato_carregamentos.id_carregamento 
+left join cliente transportador on transportador.id_cliente  = carregamento.id_transportador 
+left join cliente comprador on comprador.id_cliente  = carregamento.id_cliente 
+left join cliente vendedor on vendedor.id_cliente  = carregamento.id_vendedor 
+left join veiculo on veiculo.id_veiculo = carregamento.id_veiculo
+left join contrato ct on ct.id = carregamento.id_contrato_carregamento
+left join produto pd on pd.id_produto = ct.id_produto
+where contrato_carregamentos.id_contrato = ? order by carregamento.id_carregamento
+		 */
+		String selectCarregamentos = "select carregamento.*,\n"
+				+ "(case\n"
+				+ "when transportador.tipo_cliente = '0' then transportador.nome_empresarial \n"
+				+ " when transportador.tipo_cliente = '1' then transportador.nome_fantasia\n"
+				+ "end) as nome_transportador,\n"
+				+ "(case\n"
+				+ "when comprador.tipo_cliente = '0' then comprador.nome_empresarial \n"
+				+ " when comprador.tipo_cliente = '1' then comprador.nome_fantasia\n"
+				+ "end) as nome_comprador,\n"
+				+ "(case\n"
+				+ "when vendedor.tipo_cliente = '0' then vendedor.nome_empresarial \n"
+				+ " when vendedor.tipo_cliente = '1' then vendedor.nome_fantasia\n"
+				+ "end) as nome_vendedor,\n"
+				+ "ct.codigo as codigo_contrato,\n"
+				+ "veiculo.placa, pd.nome_produto \n"
+				+ " from contrato_carregamentos\n"
+				+ " \n"
+				+ "LEFT JOIN carregamento  on carregamento.id_carregamento = contrato_carregamentos.id_carregamento \n"
+				+ "left join cliente transportador on transportador.id_cliente  = carregamento.id_transportador \n"
+				+ "left join cliente comprador on comprador.id_cliente  = carregamento.id_cliente \n"
+				+ "left join cliente vendedor on vendedor.id_cliente  = carregamento.id_vendedor \n"
+				+ "left join veiculo on veiculo.id_veiculo = carregamento.id_veiculo\n"
+				+ "left join contrato ct on ct.id = carregamento.id_contrato_carregamento\n"
+				+ "left join produto pd on pd.id_produto = ct.id_produto\n"
 				+ "where contrato_carregamentos.id_contrato = ? order by carregamento.id_carregamento";
 		Connection conn = null;
 		PreparedStatement pstm = null;
@@ -3492,6 +3552,14 @@ public class GerenciarBancoContratos {
 
 					CadastroContrato.Carregamento carga = new CadastroContrato.Carregamento();
 
+					carga.setCodigo_contrato(rs.getString("codigo_contrato"));
+					carga.setNome_comprador(rs.getString("nome_comprador"));
+					carga.setNome_vendedor(rs.getString("nome_vendedor"));
+					carga.setNome_transportador(rs.getString("nome_transportador"));
+					carga.setNome_produto(rs.getString("nome_produto"));
+					carga.setPlaca_veiculo(rs.getString("placa"));
+
+					
 					carga.setId_carregamento(rs.getInt("id_carregamento"));
 					carga.setData(rs.getString("data_carregamento").toString());
 					carga.setId_contrato(rs.getInt("id_contrato_carregamento"));

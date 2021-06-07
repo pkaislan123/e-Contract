@@ -284,6 +284,14 @@ public class TelaFinanceiroInstituicaoBancaria extends JFrame {
 
 						}
 					}
+					else if(retorno_tela == 10) {
+							((TelaFinanceiroCadastroTransferencia) janela_pai).setRemetente(getIBSelecionado());
+
+					}
+					else if(retorno_tela == 11) {
+						((TelaFinanceiroCadastroTransferencia) janela_pai).setDestinatario(getIBSelecionado());
+
+				}
 					isto.dispose();
 
 				}

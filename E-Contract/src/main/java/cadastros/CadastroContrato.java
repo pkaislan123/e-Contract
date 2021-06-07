@@ -153,9 +153,33 @@ status_optante_folha text
     private int id_local_retirada;
     
     
+    private double quantidade_recebida, quantidade_carregada;
     
     
-    
+	public double getQuantidade_recebida() {
+		return quantidade_recebida;
+	}
+
+
+
+	public void setQuantidade_recebida(double quantidade_recebida) {
+		this.quantidade_recebida = quantidade_recebida;
+	}
+
+
+
+	public double getQuantidade_carregada() {
+		return quantidade_carregada;
+	}
+
+
+
+	public void setQuantidade_carregada(double quantidade_carregada) {
+		this.quantidade_carregada = quantidade_carregada;
+	}
+
+
+
 	public int getId_local_retirada() {
 		return id_local_retirada;
 	}
@@ -921,7 +945,46 @@ local retirada: 24 2
 		String codigo_nota_fiscal, data, caminho_nota_fiscal;
 		String nome_remetente_nf_venda1, nome_destinatario_nf_venda1,nome_remetente_nf_complemento, nome_destinatario_nf_complemento;
 		
+		String nome_transportador, nome_comprador, nome_vendedor, nome_produto, placa_veiculo, codigo_contrato;
 		
+		
+		
+		public String getCodigo_contrato() {
+			return codigo_contrato;
+		}
+		public void setCodigo_contrato(String codigo_contrato) {
+			this.codigo_contrato = codigo_contrato;
+		}
+		public String getNome_transportador() {
+			return nome_transportador;
+		}
+		public void setNome_transportador(String nome_transportador) {
+			this.nome_transportador = nome_transportador;
+		}
+		public String getNome_comprador() {
+			return nome_comprador;
+		}
+		public void setNome_comprador(String nome_comprador) {
+			this.nome_comprador = nome_comprador;
+		}
+		public String getNome_vendedor() {
+			return nome_vendedor;
+		}
+		public void setNome_vendedor(String nome_vendedor) {
+			this.nome_vendedor = nome_vendedor;
+		}
+		public String getNome_produto() {
+			return nome_produto;
+		}
+		public void setNome_produto(String nome_produto) {
+			this.nome_produto = nome_produto;
+		}
+		public String getPlaca_veiculo() {
+			return placa_veiculo;
+		}
+		public void setPlaca_veiculo(String placa_veiculo) {
+			this.placa_veiculo = placa_veiculo;
+		}
 		public String getNome_remetente_nf_venda1() {
 			return nome_remetente_nf_venda1;
 		}
@@ -1305,7 +1368,25 @@ local retirada: 24 2
 	public static class CadastroTransferenciaCarga{
 	    int id_transferencia, id_contrato_remetente, id_contrato_destinatario, id_carregamento_remetente;
 		
-		String data, descricao, quantidade;
+	    
+		String data, descricao, quantidade, codigo_remetente, codigo_destinatario;
+		
+
+		public String getCodigo_remetente() {
+			return codigo_remetente;
+		}
+
+		public void setCodigo_remetente(String codigo_remetente) {
+			this.codigo_remetente = codigo_remetente;
+		}
+
+		public String getCodigo_destinatario() {
+			return codigo_destinatario;
+		}
+
+		public void setCodigo_destinatario(String codigo_destinatario) {
+			this.codigo_destinatario = codigo_destinatario;
+		}
 
 		public int getId_transferencia() {
 			return id_transferencia;

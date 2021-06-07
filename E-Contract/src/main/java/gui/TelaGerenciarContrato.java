@@ -2501,8 +2501,9 @@ public class TelaGerenciarContrato extends JFrame {
 		gbc_lblNewLabel_3.gridy = 0;
 		panel_15.add(lblNewLabel_3, gbc_lblNewLabel_3);
 
-		JLabel lblNewLabel_12 = new JLabel("Total:");
+		JLabel lblNewLabel_12 = new JLabel("Total Recebido:");
 		GridBagConstraints gbc_lblNewLabel_12 = new GridBagConstraints();
+		gbc_lblNewLabel_12.anchor = GridBagConstraints.EAST;
 		gbc_lblNewLabel_12.insets = new Insets(0, 0, 5, 5);
 		gbc_lblNewLabel_12.gridx = 0;
 		gbc_lblNewLabel_12.gridy = 1;
@@ -2553,6 +2554,7 @@ public class TelaGerenciarContrato extends JFrame {
 
 		JLabel lblNewLabel_13 = new JLabel("Total Carregado:");
 		GridBagConstraints gbc_lblNewLabel_13 = new GridBagConstraints();
+		gbc_lblNewLabel_13.anchor = GridBagConstraints.EAST;
 		gbc_lblNewLabel_13.insets = new Insets(0, 0, 5, 5);
 		gbc_lblNewLabel_13.gridx = 0;
 		gbc_lblNewLabel_13.gridy = 4;
@@ -6698,20 +6700,21 @@ public class TelaGerenciarContrato extends JFrame {
 			double quantidade = Double.parseDouble(transferencia.getQuantidade());
 
 			// pegar o destinatario
-			CadastroContrato destinatario = gerenciar_contratos
-					.getContrato(transferencia.getId_contrato_destinatario());
+			//CadastroContrato destinatario = gerenciar_contratos
+				//	.getContrato(transferencia.getId_contrato_destinatario());
 
 			CadastroContrato.Carregamento carga_transferencia = new CadastroContrato.Carregamento();
 			carga_transferencia.setId_carregamento(transferencia.getId_transferencia());
 			String texto_obs = "Transferencia negativa de " + z.format(quantidade) + " kgs enviados ao contrato "
-					+ destinatario.getCodigo();
+					+ transferencia.getCodigo_destinatario();
 			carga_transferencia.setObservacao(texto_obs);
+			carga_transferencia.setCodigo_contrato(transferencia.getCodigo_destinatario());
 			carga_transferencia.setDescricao("-Transferencia");
 			carga_transferencia.setPeso_real_carga(quantidade);
 			carga_transferencia.setId_contrato(transferencia.getId_contrato_destinatario());
 			carga_transferencia.setData(data);
 			carga_transferencia.setPeso_romaneio(quantidade);
-			carga_transferencia.setId_produto(destinatario.getModelo_produto().getId_produto());
+			//carga_transferencia.setId_produto(destinatario.getModelo_produto().getId_produto());
 			carga_transferencia.setPeso_nf_venda1(0);
 			carga_transferencia.setValor_nf_venda1(BigDecimal.ZERO);
 			carga_transferencia.setPeso_nf_interna(0);
@@ -6735,23 +6738,20 @@ public class TelaGerenciarContrato extends JFrame {
 			String data = transferencia.getData();
 			double quantidade = Double.parseDouble(transferencia.getQuantidade());
 
-			// pegar o destinatario
-			CadastroContrato remetente = gerenciar_contratos.getContrato(transferencia.getId_contrato_remetente());
-			// pegar o destinatario
-			CadastroContrato destinatario = gerenciar_contratos
-					.getContrato(transferencia.getId_contrato_destinatario());
-
+		
 			CadastroContrato.Carregamento carga_transferencia = new CadastroContrato.Carregamento();
 			carga_transferencia.setId_carregamento(transferencia.getId_transferencia());
 			String texto_obs = "Transferencia positiva de " + z.format(quantidade) + " kgs oriundas do contrato "
-					+ remetente.getCodigo();
+					+ transferencia.getCodigo_remetente();
 			carga_transferencia.setObservacao(texto_obs);
+			carga_transferencia.setCodigo_contrato(transferencia.getCodigo_remetente());
+
 			carga_transferencia.setDescricao("+Transferencia");
 			carga_transferencia.setPeso_real_carga(quantidade);
 			carga_transferencia.setId_contrato(transferencia.getId_contrato_remetente());
 			carga_transferencia.setData(data);
 			carga_transferencia.setPeso_romaneio(quantidade);
-			carga_transferencia.setId_produto(destinatario.getModelo_produto().getId_produto());
+			//carga_transferencia.setId_produto(destinatario.getModelo_produto().getId_produto());
 			carga_transferencia.setPeso_nf_venda1(0);
 			carga_transferencia.setValor_nf_venda1(BigDecimal.ZERO);
 			carga_transferencia.setPeso_nf_interna(0);
@@ -11313,85 +11313,23 @@ public class TelaGerenciarContrato extends JFrame {
 			case data:
 				return carregamento.getData();
 			case contrato:
-				return new GerenciarBancoContratos().getContrato(carregamento.getId_contrato()).getCodigo();
+				return carregamento.getCodigo_contrato();
 			case comprador: {
-				String nome_comprador = "";
-				if (carregamento.getId_cliente() > 0) {
-					GerenciarBancoClientes gerenciar = new GerenciarBancoClientes();
-					CadastroCliente comprador = gerenciar.getCliente(carregamento.getId_cliente());
-
-					if (comprador != null) {
-						if (comprador.getTipo_pessoa() == 0) {
-							nome_comprador = comprador.getNome_empresarial();
-						} else {
-							nome_comprador = comprador.getNome_fantaia();
-						}
-					}
-				}
-				return nome_comprador;
-
+				return carregamento.getNome_comprador();
 			}
 			case vendedor: {
-				String nome_vendedor = "";
-
-				if (carregamento.getId_vendedor() > 0) {
-					GerenciarBancoClientes gerenciar = new GerenciarBancoClientes();
-					CadastroCliente vendedor = gerenciar.getCliente(carregamento.getId_vendedor());
-
-					if (vendedor != null) {
-						if (vendedor.getTipo_pessoa() == 0) {
-							nome_vendedor = vendedor.getNome_empresarial();
-						} else {
-							nome_vendedor = vendedor.getNome_fantaia();
-						}
-					}
-				}
-
-				return nome_vendedor;
+				return carregamento.getNome_vendedor();
 			}
 			case transportador: {
-				{
-					String nome_transportador = "";
-
-					if (carregamento.getId_transportador() > 0) {
-						GerenciarBancoClientes gerenciar = new GerenciarBancoClientes();
-						CadastroCliente transportador = gerenciar.getCliente(carregamento.getId_transportador());
-
-						if (transportador != null) {
-							if (transportador.getTipo_pessoa() == 0) {
-								nome_transportador = transportador.getNome_empresarial();
-							} else {
-								nome_transportador = transportador.getNome_fantaia();
-							}
-						}
-					}
-
-					return nome_transportador;
-				}
+				
+					return carregamento.getNome_transportador();
 			}
 			case veiculo: {
-				{
-					String placa_veiculo = "";
-
-					if (carregamento.getId_transportador() > 0 && carregamento.getId_veiculo() > 0) {
-						GerenciarBancoClientes gerenciar = new GerenciarBancoClientes();
-						CadastroCliente transportador = gerenciar.getCliente(carregamento.getId_transportador());
-
-						if (transportador != null) {
-							// pega os veiculos
-							CadastroCliente.Veiculo veiculo = gerenciar.getVeiculo(carregamento.getId_veiculo());
-							if (veiculo != null) {
-								placa_veiculo = veiculo.getPlaca_trator();
-							}
-
-						}
-					}
-
-					return placa_veiculo;
-				}
+				
+					return carregamento.getPlaca_veiculo();
 			}
 			case produto:
-				return new GerenciarBancoProdutos().getProduto(carregamento.getId_produto()).getNome_produto();
+				return carregamento.getNome_produto();
 			case romaneio: {
 				return carregamento.getCodigo_romaneio();
 			}

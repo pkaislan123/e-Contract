@@ -225,6 +225,8 @@ public class TelaFinanceiro extends JFrame {
 		menuBar.add(mnNewMenu_1);
 
 		JMenuItem lancamentos = new JMenuItem("Lançamentos");
+		lancamentos.setIcon(new ImageIcon(TelaFinanceiro.class.getResource("/imagens/caixa-registradora.png")));
+		lancamentos.setMargin(new Insets(0, 10, 0, 0));
 		lancamentos.setFont(new Font("Segoe UI", Font.PLAIN, 16));
 		lancamentos.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
@@ -233,6 +235,21 @@ public class TelaFinanceiro extends JFrame {
 			}
 		});
 		mnNewMenu_1.add(lancamentos);
+		
+		JMenuItem mntmPagamentos = new JMenuItem("Pagamentos");
+		mntmPagamentos.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+			
+				TelaFinanceiroPagamento tela = new TelaFinanceiroPagamento(-1, -1, isto);
+				tela.setVisible(true);
+				
+			}
+			
+		});
+		mntmPagamentos.setIcon(new ImageIcon(TelaFinanceiro.class.getResource("/imagens/pagamento.png")));
+		mntmPagamentos.setMargin(new Insets(0, 10, 0, 0));
+		mntmPagamentos.setFont(new Font("Segoe UI", Font.PLAIN, 16));
+		mnNewMenu_1.add(mntmPagamentos);
 		painelPrincipal = new JPanel();
 		painelPrincipal.setBackground(Color.WHITE);
 		painelPrincipal.setBorder(new EmptyBorder(5, 5, 5, 5));

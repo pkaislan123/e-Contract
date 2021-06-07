@@ -528,7 +528,6 @@ public class RelatorioContratos {
 						//		cliente.getId());
 					lista_contratos = procura_contratos_grupo.getContratosPorClienteParaRelatorio(
 							 id_safra,cliente.getId() ,cliente_alvo2_global.getId(),contra_parte_global.getId() , participacao_global);
-
 					
 				} else {
 					// //JOptionPane.showMessageDialog(null, "Pesquisa como vendedor");
@@ -573,7 +572,16 @@ public class RelatorioContratos {
 			num_total_contratos = lista_global.size();
 			
 			for (CadastroContrato contrato : lista_global) {
-				quantidade_total_sacos += contrato.getQuantidade();
+				
+				
+				
+				if (contrato.getMedida().equalsIgnoreCase("KG")) {
+					quantidade_total_sacos += (contrato.getQuantidade() / 60);
+				} else if (contrato.getMedida().equalsIgnoreCase("Sacos")) {
+					quantidade_total_sacos += contrato.getQuantidade();
+				}
+				
+				
 				valor_total_pagamentos = valor_total_pagamentos.add(contrato.getValor_a_pagar());
 			}
 
@@ -716,317 +724,6 @@ public class RelatorioContratos {
 
 		}
 		
-			/*
-			ArrayList<CadastroContrato> contratos_unidos = new ArrayList<>();
-			int numero_clientes = clientes_globais.size();
-			int contador_clientes = 0;
-
-			for (CadastroCliente cliente_alvo_global : clientes_globais) {
-				String nome_cliente;
-
-				if (unir_contratos && grupo_alvo_global != null) {
-					nome_cliente = grupo_alvo_global.getNome_grupo();
-				} else {
-					if (cliente_alvo_global.getTipo_pessoa() == 0) {
-						// pessoa fisica
-						nome_cliente = cliente_alvo_global.getNome_empresarial();
-					} else {
-						nome_cliente = cliente_alvo_global.getNome_fantaia();
-					}
-				}
-
-				/************************
-				 * inicio contratos como vendedor
-				 ***********************************/
-				/*
-				if (contrato && !contrato_como_comprador) {
-					// obter contratos desde cliente
-					GerenciarBancoContratos gerenciar = new GerenciarBancoContratos();
-
-					// //JOptionPane.showMessageDialog(null, "Pesquisa como vendedor");
-
-					// //JOptionPane.showMessageDialog(null, "Tipo do contrato: " + tipo_contrato);
-
-					ArrayList<CadastroContrato> lista_final = new ArrayList<>();
-
-					if (tipo_contrato == 1) {
-						if (sub_contratos) {
-
-							ArrayList<CadastroContrato> lista_contratos_como_vendedor = new ArrayList<>();
-							lista_contratos_como_vendedor = procura_contratos_grupo.getContratosPorClienteParaRelatorio(
-									5, id_safra,contra_parte_global.getId() ,cliente_alvo2_global.getId(),cliente_alvo_global.getId() , participacao_global);
-
-							if (lista_contratos_como_vendedor.size() > 0) {
-
-								// verifica pelos subcontratos de cada contrato retornado
-								for (CadastroContrato contrato_encontrato_na_busca : lista_contratos_como_vendedor) {
-									lista_final.add(contrato_encontrato_na_busca);
-
-									ArrayList<CadastroContrato> sub_contratos = procura_contratos_grupo
-											.getSubContratosParaRelatorio(contrato_encontrato_na_busca.getId());
-
-									BigDecimal somatoria_valor_sub_contrato = BigDecimal.ZERO;
-
-									if (sub_contratos.size() > 0) {
-										// existem subcontratos nesse contrato
-										for (CadastroContrato sub : sub_contratos) {
-											somatoria_valor_sub_contrato = somatoria_valor_sub_contrato
-													.add(sub.getValor_a_pagar());
-
-											lista_final.add(sub);
-										}
-
-										if (incluir_ganhos_potencias) {
-											CadastroContrato linha_ganho_potencial = new CadastroContrato();
-											linha_ganho_potencial
-													.setValor_a_pagar(contrato_encontrato_na_busca.getValor_a_pagar());
-											linha_ganho_potencial.setCodigo(contrato_encontrato_na_busca.getCodigo());
-											linha_ganho_potencial.setValor_comissao(somatoria_valor_sub_contrato);
-											linha_ganho_potencial.setSub_contrato(8);
-
-											// seta o valor da comisao
-											if (contrato_encontrato_na_busca.getValor_comissao() != null) {
-
-												linha_ganho_potencial.setValor_produto(
-														contrato_encontrato_na_busca.getValor_comissao().doubleValue());
-											} else {
-												linha_ganho_potencial.setValor_produto(0);
-											}
-
-											lista_final.add(linha_ganho_potencial);
-
-										}
-
-									}
-
-								}
-							}
-						} else {
-							// relatorio interno sem subcontratos
-							ArrayList<CadastroContrato> lista_contratos_como_vendedor = new ArrayList<>();
-							lista_contratos_como_vendedor = procura_contratos_grupo.getContratosPorClienteParaRelatorio(
-									5, id_safra,contra_parte_global.getId() , cliente_alvo2_global.getId(),cliente_alvo_global.getId() ,participacao_global);
-							lista_final = lista_contratos_como_vendedor;
-						}
-
-					} else {
-						// relatorio externo
-						this.incluir_comissao = false;
-						this.somar_sub_contratos = false;
-						this.contrato_irmao = false;
-						ArrayList<CadastroContrato> lista_contratos_como_vendedor = new ArrayList<>();
-						lista_contratos_como_vendedor = procura_contratos_grupo.getContratosPorClienteParaRelatorio(5,
-								id_safra,contra_parte_global.getId() , cliente_alvo2_global.getId(),cliente_alvo_global.getId() ,participacao_global);
-						// contrato externo
-						// JOptionPane.showMessageDialog(null, "Relatorio Externo");
-						// verifica se este contrato e um subcontrato
-						lista_final = lista_contratos_como_vendedor;
-					}
-
-					if (!unir_contratos) {
-						if (lista_final.size() > 0) {
-
-							XWPFParagraph titulo_contratos = document_global.createParagraph();
-							titulo_contratos.setAlignment(ParagraphAlignment.CENTER);
-
-							XWPFRun titulo_contratosRun = titulo_contratos.createRun();
-							titulo_contratosRun.setText("\nContratos");
-							titulo_contratosRun.setColor("000000");
-							titulo_contratosRun.setBold(true);
-							titulo_contratosRun.setFontFamily("Arial");
-							titulo_contratosRun.setFontSize(10);
-
-							substituirTexto("\nCliente: " + nome_cliente.toUpperCase() + "\n\n", 0);
-
-							criarTabelaContrato(lista_final);
-
-						}
-					} else {
-						contratos_unidos.addAll(lista_final);
-					}
-
-					
-
-				} else if (contrato && contrato_como_comprador) {
-					// obter contratos desde cliente como comprador
-					GerenciarBancoContratos gerenciar = new GerenciarBancoContratos();
-					telaEmEsperaRelatoria.setInfo("Reunindo informações de contratos!", 20);
-					// JOptionPane.showMessageDialog(null, "Pesquisa como comprador");
-
-					// JOptionPane.showMessageDialog(null, "Tipo do contrato: " + tipo_contrato);
-
-
-					if (tipo_contrato == 1) {
-						if (sub_contratos) {
-
-							ArrayList<CadastroContrato> lista_contratos_como_comprador = new ArrayList<>();
-							
-								lista_contratos_como_comprador = procura_contratos_grupo
-										.getContratosPorClienteParaRelatorio(4, id_safra, cliente_alvo_global.getId(),
-											cliente_alvo2_global.getId(),contra_parte_global.getId(),participacao_global);
-							
-								telaEmEsperaRelatoria.setInfo("Lista de contratos do alvo como comprador criada", 30);
-								ArrayList<CadastroContrato> lista_local = new ArrayList<>();
-
-							
-							if (lista_contratos_como_comprador.size() > 0) {
-							
-							
-																
-
-								// verifica pelos subcontratos de cada contrato retornado
-								for (CadastroContrato contrato_encontrato_na_busca : lista_local) {
-									lista_final.add(contrato_encontrato_na_busca);
-
-									ArrayList<CadastroContrato> sub_contratos = procura_contratos_grupo
-											.getSubContratosParaRelatorio(contrato_encontrato_na_busca.getId());
-									telaEmEsperaRelatoria
-											.setInfo("Lista de sub-contratos do alvo como comprador criada", 30);
-
-									BigDecimal somatoria_valor_sub_contrato = BigDecimal.ZERO;
-
-									if (sub_contratos.size() > 0) {
-										// existem subcontratos nesse contrato
-										for (CadastroContrato sub : sub_contratos) {
-											somatoria_valor_sub_contrato = somatoria_valor_sub_contrato
-													.add(sub.getValor_a_pagar());
-
-											lista_final.add(sub);
-										}
-
-										if (incluir_ganhos_potencias) {
-											CadastroContrato linha_ganho_potencial = new CadastroContrato();
-											linha_ganho_potencial
-													.setValor_a_pagar(contrato_encontrato_na_busca.getValor_a_pagar());
-											linha_ganho_potencial.setCodigo(contrato_encontrato_na_busca.getCodigo());
-											linha_ganho_potencial.setValor_comissao(somatoria_valor_sub_contrato);
-											linha_ganho_potencial.setSub_contrato(8);
-
-											// seta o valor da comisao
-											if (contrato_encontrato_na_busca.getValor_comissao() != null) {
-
-												linha_ganho_potencial.setValor_produto(
-														contrato_encontrato_na_busca.getValor_comissao().doubleValue());
-											} else {
-												linha_ganho_potencial.setValor_produto(0);
-											}
-
-											lista_final.add(linha_ganho_potencial);
-
-										}
-
-									}
-
-								}
-							}
-						} else {
-							// relatorio externo sem subcontratos
-							ArrayList<CadastroContrato> lista_contratos_como_comprador = new ArrayList<>();
-							
-								lista_contratos_como_comprador = procura_contratos_grupo
-										.getContratosPorClienteParaRelatorio(4, id_safra, cliente_alvo_global.getId(),cliente_alvo2_global.getId(),
-												contra_parte_global.getId(),participacao_global);
-							
-							lista_final = lista_contratos_como_comprador;
-						}
-					} else {
-						// relatorio externo
-						this.incluir_comissao = false;
-						this.somar_sub_contratos = false;
-						this.contrato_irmao = false;
-						ArrayList<CadastroContrato> lista_contratos_como_comprador = new ArrayList<>();
-						if (grupo_alvo_global != null) {
-						lista_contratos_como_comprador = procura_contratos_grupo
-								.getContratosPorClienteParaRelatorio(4, id_safra, cliente_alvo_global.getId(),cliente_alvo2_global.getId(),
-										contra_parte_global.getId(),participacao_global);
-						
-						}else {
-							lista_contratos_como_comprador = procura_contratos_grupo
-									.getContratosPorClienteParaRelatorio(4, id_safra, cliente_alvo_global.getId(),cliente_alvo2_global.getId(),
-											contra_parte_global.getId(),participacao_global);
-						}
-							
-						if(lista_contratos_como_comprador.size() > 0) {
-							// verifica pelos subcontratos de cada contrato retornado
-							for (CadastroContrato contrato_encontrato_na_busca : lista_contratos_como_comprador) {
-
-								ArrayList<CadastroContrato> sub_contratos = procura_contratos_grupo
-										.getSubContratosParaRelatorio(contrato_encontrato_na_busca.getId());
-								telaEmEsperaRelatoria
-										.setInfo("Lista de sub-contratos do alvo como comprador criada", 30);
-
-								BigDecimal somatoria_valor_sub_contrato = BigDecimal.ZERO;
-
-								if (sub_contratos.size() > 0) {
-									// existem subcontratos nesse contrato
-									for (CadastroContrato sub : sub_contratos) {
-										somatoria_valor_sub_contrato = somatoria_valor_sub_contrato
-												.add(sub.getValor_a_pagar());
-
-										lista_final.add(sub);
-									}
-
-									
-
-								}else {
-									somatoria_valor_sub_contrato = somatoria_valor_sub_contrato
-											.add(contrato_encontrato_na_busca.getValor_a_pagar());
-									lista_final.add(contrato_encontrato_na_busca);
-
-								}
-
-							}
-						}
-							// contrato externo
-						// JOptionPane.showMessageDialog(null, "Relatorio Externo");
-						// verifica se este contrato e um subcontrato
-					}
-
-					if (!unir_contratos) {
-						if (lista_final.size() > 0) {
-
-							XWPFParagraph titulo_contratos = document_global.createParagraph();
-							titulo_contratos.setAlignment(ParagraphAlignment.CENTER);
-
-							XWPFRun titulo_contratosRun = titulo_contratos.createRun();
-							titulo_contratosRun.setText("\nContratos");
-							titulo_contratosRun.setColor("000000");
-							titulo_contratosRun.setBold(true);
-							titulo_contratosRun.setFontFamily("Arial");
-							titulo_contratosRun.setFontSize(10);
-
-							substituirTexto("\nCliente: " + nome_cliente.toUpperCase() + "\n\n", 0);
-
-							criarTabelaContrato(lista_final);
-
-						}
-					} else {
-						contratos_unidos.addAll(lista_final);
-					}
-				}
-			}//fim de busca de contratos
-
-				
-				
-			if (unir_contratos && contrato) {
-				if (contratos_unidos.size() > 0) {
-
-					XWPFParagraph titulo_contratos = document_global.createParagraph();
-					titulo_contratos.setAlignment(ParagraphAlignment.CENTER);
-
-					XWPFRun titulo_contratosRun = titulo_contratos.createRun();
-					titulo_contratosRun.setText("\nContratos");
-					titulo_contratosRun.setColor("000000");
-					titulo_contratosRun.setBold(true);
-					titulo_contratosRun.setFontFamily("Arial");
-					titulo_contratosRun.setFontSize(10);
-
-					substituirTexto("\nCliente: " + grupo_alvo_global.getNome_grupo().toUpperCase() + "\n\n", 0);
-
-					criarTabelaContrato(contratos_unidos);
-
-				}
-			}*/
 
 			for (CadastroCliente cliente_alvo_global : clientes_pesquisa) {
 				String nome_cliente;
@@ -1052,58 +749,13 @@ public class RelatorioContratos {
 
 				ArrayList<CadastroContrato> contratos_deste_cliente = new ArrayList<>();
 			
-					
-					if(contrato_como_comprador) {
-						lista_inicial = gerenciar_recebimentos.getContratosPorClienteParaRelatorio(
-								id_safra, cliente_alvo_global.getId(), cliente_alvo2_global.getId(),contra_parte_global.getId(),participacao_global);
-					
-					}else {
-						lista_inicial = gerenciar_recebimentos.getContratosPorClienteParaRelatorio(
-								id_safra, contra_parte_global.getId(), cliente_alvo2_global.getId(), cliente_alvo_global.getId() ,participacao_global);
-					
-					}
-					
-				
-
-				if(tipo_contrato == 1) {
-						contratos_deste_cliente = lista_inicial;
-
-					
-				}else {
-					
-					if(lista_inicial.size() > 0) {
-						// verifica pelos subcontratos de cada contrato retornado
-						for (CadastroContrato contrato_encontrato_na_busca : lista_inicial) {
-
-							ArrayList<CadastroContrato> sub_contratos = procura_contratos_grupo
-									.getSubContratosParaRelatorio(contrato_encontrato_na_busca.getId());
-							telaEmEsperaRelatoria
-									.setInfo("Lista de sub-contratos do alvo como comprador criada", 30);
-
-
-							if (sub_contratos.size() > 0) {
-								// existem subcontratos nesse contrato
-								for (CadastroContrato sub : sub_contratos) {
-									//JOptionPane.showMessageDialog(null, "Codigo: " + sub.getCodigo());
-
-									contratos_deste_cliente.add(sub);
-								}
-
-								
-
-							}else {
-								contratos_deste_cliente.add(contrato_encontrato_na_busca);
-							}
-
-						}
-					
-					}
-				}
-				
 				
 				if (recebimento_como_comprador || carregamento_como_comprador || pagamento_como_comprador) {
+					contratos_deste_cliente = getContratos(cliente_alvo_global.getId(),true);
 
 					for (CadastroContrato contrato_cliente : contratos_deste_cliente) {
+						
+						
 						if (!recebimentos_unidos_como_comprador && recebimento)
 							adicionarTraco(true, 0);
 
@@ -1212,6 +864,105 @@ public class RelatorioContratos {
 
 						}
 
+						if (carregamento && carregamento_como_comprador && !unir_carregamentos) {
+
+							ArrayList<CarregamentoCompleto> carregamentos = gerenciar_carregamentos
+									.getCarregamentoParaRelatorio(contrato_cliente.getId());
+
+							if (carregamentos.size() > 0) {
+
+								XWPFParagraph titulo_recebimentos = document_global.createParagraph();
+								titulo_recebimentos.setAlignment(ParagraphAlignment.CENTER);
+
+								XWPFRun titulo_recebimentosRun = titulo_recebimentos.createRun();
+								titulo_recebimentosRun.setText("Carregamentos");
+								titulo_recebimentosRun.setColor("000000");
+								titulo_recebimentosRun.setBold(true);
+								titulo_recebimentosRun.setFontFamily("Arial");
+								titulo_recebimentosRun.setFontSize(9);
+
+								ArrayList<CadastroContrato.CadastroTransferenciaCarga> transferencias_remetente_local = gerenciar_transferencias_carga
+										.getTransferenciasRemetente(contrato_cliente.getId());
+
+								ArrayList<CadastroContrato.CadastroTransferenciaCarga> transferencias_destinatario_local = gerenciar_transferencias_carga
+										.getTransferenciaDestinatario(contrato_cliente.getId());
+
+								double quantidade_kgs_recebidos = gerenciar
+										.getQuantidadeRecebida(contrato_cliente.getId());
+
+								criarTabelaCarregamentos(carregamentos, 0, transferencias_remetente_local,
+										transferencias_destinatario_local, quantidade_kgs_recebidos);
+								inserirControleNFVendaSaida(carregamentos);
+
+							} else {
+								// sem carregamentos
+								if (incluir_sem_carregamentos)
+									semCarregamentos(carregamentos, contrato_cliente);
+							}
+						} else if (carregamento && carregamento_como_comprador && unir_carregamentos) {
+							if (unir_carregamentos) {
+								if (!carregamentos_unidos_como_comprador) {
+									double soma_total_quantidade_contratos_kgs = 0;
+									ArrayList<CarregamentoCompleto> carregamentos_totais = new ArrayList<>();
+									ArrayList<CadastroTransferenciaCarga> transferencias_remetente_totais = new ArrayList<>();
+									ArrayList<CadastroTransferenciaCarga> transferencias_destinatario_totais = new ArrayList<>();
+									double quantidade__total_kgs_recebidos = 0;
+
+									for (CadastroContrato contrato : contratos_deste_cliente) {
+										ArrayList<CarregamentoCompleto> carregamentos_locais = gerenciar_carregamentos
+												.getCarregamentoParaRelatorio(contrato.getId());
+										carregamentos_totais.addAll(carregamentos_locais);
+										ArrayList<CadastroContrato.CadastroTransferenciaCarga> transferencias_remetente_local = gerenciar_transferencias_carga
+												.getTransferenciasRemetente(contrato.getId());
+										transferencias_remetente_totais.addAll(transferencias_remetente_local);
+
+										ArrayList<CadastroContrato.CadastroTransferenciaCarga> transferencias_destinatario_local = gerenciar_transferencias_carga
+												.getTransferenciaDestinatario(contrato.getId());
+										transferencias_destinatario_totais.addAll(transferencias_destinatario_local);
+
+										double quantidade_kgs_recebidos = gerenciar
+												.getQuantidadeRecebida(contrato.getId());
+
+										double local_quantidade_kgs = 0;
+
+										if (contrato.getMedida().equalsIgnoreCase("KG")) {
+											local_quantidade_kgs = contrato.getQuantidade();
+										} else if (contrato.getMedida().equalsIgnoreCase("Sacos")) {
+											local_quantidade_kgs = contrato.getQuantidade() * 60;
+										}
+
+										soma_total_quantidade_contratos_kgs += local_quantidade_kgs;
+										quantidade__total_kgs_recebidos += quantidade_kgs_recebidos;
+									}
+
+									// faz a soma das quantidades dos contratos
+
+									if (carregamentos_totais.size() > 0) {
+
+										adicionarTraco(true, 0);
+
+										XWPFParagraph titulo_recebimentos = document_global.createParagraph();
+										titulo_recebimentos.setAlignment(ParagraphAlignment.CENTER);
+
+										XWPFRun titulo_recebimentosRun = titulo_recebimentos.createRun();
+										titulo_recebimentosRun.setText("Carregamentos");
+										titulo_recebimentosRun.setColor("000000");
+										titulo_recebimentosRun.setBold(true);
+										titulo_recebimentosRun.setFontFamily("Arial");
+										titulo_recebimentosRun.setFontSize(9);
+
+										criarTabelaCarregamentos(carregamentos_totais,
+												soma_total_quantidade_contratos_kgs, transferencias_remetente_totais,
+												transferencias_destinatario_totais, quantidade__total_kgs_recebidos);
+										inserirControleNFVendaSaida(carregamentos_totais);
+
+									}
+									carregamentos_unidos_como_comprador = true;
+								}
+							}
+						}
+						/*
+						
 						////////////////// carregamentos
 						if (carregamento && carregamento_como_comprador && !unir_carregamentos) {
 
@@ -1320,7 +1071,7 @@ public class RelatorioContratos {
 								} // fim da verificacao por contrato original
 
 							}
-						}
+						}*/
 
 						// pagamentos
 						if (pagamento && pagamento_como_comprador && !unir_pagamentos) {
@@ -1399,6 +1150,8 @@ public class RelatorioContratos {
 				}
 
 				if (recebimento_como_vendedor || carregamento_como_vendedor || pagamento_como_vendedor) {
+					contratos_deste_cliente = getContratos(cliente_alvo_global.getId(),false);
+
 					for (CadastroContrato contrato_cliente : contratos_deste_cliente) {
 						if (!recebimentos_unidos_como_vendedor)
 							adicionarTraco(true, 0);
@@ -6588,7 +6341,13 @@ public class RelatorioContratos {
 			// quantidade total de sacas
 			for (CadastroContrato contrato : lista_final) {
 				numero_total_contratos++;
-				quantidade_total_sacos += contrato.getQuantidade();
+				
+				if (contrato.getMedida().equalsIgnoreCase("KG")) {
+					quantidade_total_sacos += (contrato.getQuantidade() / 60);
+				} else if (contrato.getMedida().equalsIgnoreCase("Sacos")) {
+					quantidade_total_sacos += contrato.getQuantidade();
+				}
+				
 				valor_total_pagamentos = valor_total_pagamentos.add(contrato.getValor_a_pagar());
 			}
 
@@ -6804,4 +6563,63 @@ public class RelatorioContratos {
 		this.telaEmEsperaRelatoria = _tela;
 	}
 
+	public ArrayList<CadastroContrato> getContratos(int id_cliente_alvo_global, boolean contrato_como_comprador){
+
+		GerenciarBancoContratos gerenciar_recebimentos = new GerenciarBancoContratos();
+		GerenciarBancoContratos procura_contratos_grupo = new GerenciarBancoContratos();
+
+		ArrayList<CadastroContrato> lista_inicial;
+		ArrayList<CadastroContrato> contratos_deste_cliente = new ArrayList<>();
+		if(contrato_como_comprador) {
+			lista_inicial = gerenciar_recebimentos.getContratosPorClienteParaRelatorio(
+					id_safra, id_cliente_alvo_global, cliente_alvo2_global.getId(),contra_parte_global.getId(),participacao_global);
+		
+		}else {
+			lista_inicial = gerenciar_recebimentos.getContratosPorClienteParaRelatorio(
+					id_safra, contra_parte_global.getId(), cliente_alvo2_global.getId(), id_cliente_alvo_global ,participacao_global);
+
+		}
+		
+	
+
+	if(tipo_contrato == 1) {
+			contratos_deste_cliente = lista_inicial;
+
+		
+	}else {
+		
+		if(lista_inicial.size() > 0) {
+			// verifica pelos subcontratos de cada contrato retornado
+			for (CadastroContrato contrato_encontrato_na_busca : lista_inicial) {
+
+				ArrayList<CadastroContrato> sub_contratos = procura_contratos_grupo
+						.getSubContratosParaRelatorio(contrato_encontrato_na_busca.getId());
+				telaEmEsperaRelatoria
+						.setInfo("Lista de sub-contratos do alvo como comprador criada", 30);
+
+
+				if (sub_contratos.size() > 0) {
+					// existem subcontratos nesse contrato
+					for (CadastroContrato sub : sub_contratos) {
+						//JOptionPane.showMessageDialog(null, "Codigo: " + sub.getCodigo());
+
+						contratos_deste_cliente.add(sub);
+					}
+
+					
+
+				}else {
+					contratos_deste_cliente.add(contrato_encontrato_na_busca);
+				}
+
+			}
+		
+		}
+	}
+	
+	return contratos_deste_cliente;
+	
+	}
+
+	
 }

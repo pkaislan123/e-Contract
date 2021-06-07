@@ -302,13 +302,13 @@ public class TelaFinanceiroGerenciarLancamento extends JFrame {
 		setBounds(0, 0, d.width, d.height - taskBarHeight);
 
 		if (lancamento.getTipo_lancamento() == 0) {
-			setTitle("E-Contract - Gerenciar Lançamento - DESPESA");
+			setTitle("E-Contract - Gerenciar Lançamento ID: " + lancamento.getId_lancamento() +" - DESPESA");
 
 		} else if (lancamento.getTipo_lancamento() == 1) {
-			setTitle("E-Contract - Gerenciar Lançamento - RECEITA");
+			setTitle("E-Contract - Gerenciar Lançamento ID: " + lancamento.getId_lancamento() + " - RECEITA");
 
 		} else if (lancamento.getTipo_lancamento() == 3) {
-			setTitle("E-Contract - Gerenciar EMPRÉSTIMO");
+			setTitle("E-Contract - Gerenciar EMPRÉSTIMO ID: " + lancamento.getId_lancamento());
 
 		}
 		painelPrincipal = new JTabbedPane();

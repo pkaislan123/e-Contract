@@ -23,6 +23,7 @@ import main.java.cadastros.CondicaoPagamento;
 import main.java.cadastros.CadastroLogin.Mensagem;
 import main.java.conexaoBanco.GerenciarBancoCondicaoPagamentos;
 import main.java.cadastros.FinanceiroPagamentoCompleto;
+import main.java.cadastros.Lancamento;
 import main.java.outros.TratarDados;
 import net.miginfocom.swing.MigLayout;
 
@@ -43,24 +44,26 @@ public class RenderizadorExtrato implements ListCellRenderer<FinanceiroPagamento
 			boolean arg4) {
 		
 		String chara = "";
+	
+
 		
+		
+
 		KGradientPanel painelPrincipal = new KGradientPanel();
 		painelPrincipal.kEndColor = Color.WHITE;
 		painelPrincipal.kStartColor = new Color(255, 255, 255);
 		painelPrincipal.setBackground(new Color(153, 153, 102));
-		painelPrincipal.setLayout(new MigLayout("", "[:400px:400px][][grow]", "[][][][][][][grow][:50px:50px][][]"));
-
+		painelPrincipal.setLayout(new MigLayout("", "[:400px:400px][][grow]", "[][][][][][][][grow][:50px:50px][][][]"));
 		painelPrincipal.setBorder(new MatteBorder(0, 0, 2, 0, (Color) new Color(0, 0, 0)));
+
 
 		JLabel lblTipoLancamento = new JLabel("");
 		lblTipoLancamento.setOpaque(true);
-		lblTipoLancamento.setBackground(new Color(204, 0, 0));
+		lblTipoLancamento.setBackground(new Color(0, 51, 0));
 		lblTipoLancamento.setForeground(Color.WHITE);
-		lblTipoLancamento.setFont(new Font("Tahoma", Font.BOLD, 14));
+		lblTipoLancamento.setFont(new Font("Tahoma", Font.BOLD, 20));
 		painelPrincipal.add(lblTipoLancamento, "cell 0 0 3 1,growx");
-
-		
-		
+	
 		if(pag_completo.getLancamento().getTipo_lancamento() == 0) {
 			//despesa
 			lblTipoLancamento.setBackground(new Color(204, 0, 0));
@@ -80,29 +83,45 @@ public class RenderizadorExtrato implements ListCellRenderer<FinanceiroPagamento
 
 		}
 		
-
+		JLabel lblPagamentoId = new JLabel("");
+		lblPagamentoId.setFont(new Font("Tahoma", Font.PLAIN, 14));
+		painelPrincipal.add(lblPagamentoId, "cell 0 1");
+		lblPagamentoId.setText("Pagamento ID: " + pag_completo.getFpag().getId_pagamento());
 
 		JLabel lblIdentificador = new JLabel("Identificador");
 		lblIdentificador.setFont(new Font("Tahoma", Font.PLAIN, 14));
 		painelPrincipal.add(lblIdentificador, "cell 0 1");
 		lblIdentificador.setText("Identificador: " + pag_completo.getFpag().getIdentificador());
 
-		
 		JLabel lblData = new JLabel("");
 		lblData.setFont(new Font("Tahoma", Font.PLAIN, 16));
 		painelPrincipal.add(lblData, "flowx,cell 0 2");
-		lblData.setText("");
+		lblData.setText("00/00/000");
 		lblData.setText("Data: " + pag_completo.getFpag().getData_pagamento());
 
+		JLabel lblNewLabel_2 = new JLabel("Valor:");
+		lblNewLabel_2.setFont(new Font("Tahoma", Font.PLAIN, 14));
+		painelPrincipal.add(lblNewLabel_2, "cell 1 2,alignx left");
+
+		JLabel lblValor = new JLabel("");
+		lblValor.setBorder(new MatteBorder(0, 0, 2, 0, (Color) new Color(0, 0, 0)));
+		lblValor.setFont(new Font("Tahoma", Font.BOLD, 16));
+		painelPrincipal.add(lblValor, "cell 2 2,alignx left");		
+		Locale ptBr = new Locale("pt", "BR");
+		String valorString = NumberFormat.getCurrencyInstance(ptBr).format(pag_completo.getFpag().getValor());
+		lblValor.setText(chara + valorString);
+		
+		
+		
+		
 		JLabel lblFormaPagamento = new JLabel("Forma Pagamento");
 		lblFormaPagamento.setFont(new Font("Tahoma", Font.PLAIN, 16));
 		painelPrincipal.add(lblFormaPagamento, "cell 0 3");
 		lblFormaPagamento.setText(pag_completo.getNome_forma_pagamento());
-		
-		JLabel lblStatus = new JLabel("");
+
+		JLabel lblStatus = new JLabel("Status");
 		lblStatus.setFont(new Font("Tahoma", Font.PLAIN, 16));
 		painelPrincipal.add(lblStatus, "cell 0 4");
-		
 		int id_status = pag_completo.getFpag().getStatus_pagamento();
 		String status = "";
 		if(id_status == 0) {
@@ -115,43 +134,50 @@ public class RenderizadorExtrato implements ListCellRenderer<FinanceiroPagamento
 		}
 		lblStatus.setText(status);
 		
-		JLabel lblNewLabel_2 = new JLabel("Valor:");
-		lblNewLabel_2.setFont(new Font("Tahoma", Font.PLAIN, 14));
-		painelPrincipal.add(lblNewLabel_2, "cell 1 2,alignx left");
-		
-		JLabel lblValor = new JLabel("");
-		lblValor.setBorder(new MatteBorder(0, 0, 2, 0, (Color) new Color(0, 0, 0)));
-		lblValor.setFont(new Font("Tahoma", Font.BOLD, 16));
-		painelPrincipal.add(lblValor, "cell 2 2,alignx left");
-		Locale ptBr = new Locale("pt", "BR");
-		String valorString = NumberFormat.getCurrencyInstance(ptBr).format(pag_completo.getFpag().getValor());
-		lblValor.setText(chara + valorString);
-		
-		
-		
 		JTextArea textAreaDescricao = new JTextArea();
 		textAreaDescricao.setOpaque(false);
 		textAreaDescricao.setBackground(Color.WHITE);
 		textAreaDescricao.setBorder(null);
 		textAreaDescricao.setLineWrap(true);
 		textAreaDescricao.setWrapStyleWord(true);
-		textAreaDescricao.setForeground(Color.black);
-		painelPrincipal.add(textAreaDescricao, "cell 0 3 1 3,grow");
+		painelPrincipal.add(textAreaDescricao, "cell 0 5 1 3,grow");
 		textAreaDescricao.setText(pag_completo.getFpag().getDescricao());
+
+		
+		JLabel lblPagador = new JLabel("Pagador:");
+		lblPagador.setFont(new Font("Tahoma", Font.PLAIN, 16));
+		painelPrincipal.add(lblPagador, "cell 0 8");
+		if(pag_completo.getLancamento().getTipo_lancamento() == 0) {
+			//despesa
+			lblPagador.setText("Quem recebeu: " + pag_completo.getNome_recebedor());
+
+		}else if(pag_completo.getLancamento().getTipo_lancamento() == 1) {
+			//receita
+			lblPagador.setText("Quem pagou: " + pag_completo.getNome_pagador());
+
+			
+		}else if(pag_completo.getLancamento().getTipo_lancamento() == 3) {
+			//emprestimo
+			lblPagador.setText("Quem pagou: " + pag_completo.getNome_pagador());
+
+		}
 		
 
+		JButton btnAbrirLancamento = new JButton("Abrir Lançamento");
+		btnAbrirLancamento.setForeground(Color.WHITE);
+		btnAbrirLancamento.setBackground(new Color(0, 51, 0));
+		painelPrincipal.add(btnAbrirLancamento, "cell 0 11,alignx center");
+		
 		JLabel lblNewLabel_4 = new JLabel("Saldo:");
 		lblNewLabel_4.setFont(new Font("Tahoma", Font.PLAIN, 14));
-		painelPrincipal.add(lblNewLabel_4, "cell 1 7,alignx right");
+		painelPrincipal.add(lblNewLabel_4, "cell 1 10,alignx left");
 
-		JLabel lblSaldo = new JLabel("");
+		JLabel lblSaldo = new JLabel("R$ 100.000.000,00");
 		lblSaldo.setForeground(Color.BLACK);
 		lblSaldo.setFont(new Font("Tahoma", Font.BOLD, 16));
-		painelPrincipal.add(lblSaldo, "cell 2 7,alignx left");
+		painelPrincipal.add(lblSaldo, "cell 2 10,alignx left");
 		lblSaldo.setText(NumberFormat.getCurrencyInstance(ptBr).format(pag_completo.getSaldo_atual()));
-	
 
-	
 		
 		return painelPrincipal;
 

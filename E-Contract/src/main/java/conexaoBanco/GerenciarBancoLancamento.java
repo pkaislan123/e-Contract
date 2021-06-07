@@ -725,7 +725,7 @@ public class GerenciarBancoLancamento {
 	
 	public  Map<String,String> pegarDatas() {
 
-		String select = "select \r\n"
+		/*String select = "select \r\n"
 				+ " DATE_FORMAT(\r\n"
 				+ "(select str_to_date(data_lancamento, '%d/%m/%Y') as data\r\n"
 				+ "from lancamento\r\n"
@@ -773,6 +773,8 @@ public class GerenciarBancoLancamento {
 				+ "\r\n"
 				+ "\r\n"
 				+ "";
+				*/
+		String select = "call getDatas()";
 		Connection conn = null;
 		PreparedStatement pstm = null;
 		ResultSet rs = null;

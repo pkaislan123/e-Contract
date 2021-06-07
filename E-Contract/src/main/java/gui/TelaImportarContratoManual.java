@@ -5755,7 +5755,7 @@ public class TelaImportarContratoManual extends JFrame {
 			tarefas.add(tarefa);
 
 			novo_contrato.setLista_tarefas(tarefas);
-
+			novo_contrato.setGrupo_particular(0);
 			// copiar o arquivo para a pasta do comprador
 			CadastroCliente corretores[] = novo_contrato.getCorretores();
 

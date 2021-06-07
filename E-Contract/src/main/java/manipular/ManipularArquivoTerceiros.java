@@ -1063,7 +1063,8 @@ public class ManipularArquivoTerceiros {
 				
 				contrato_local.setLista_tarefas(tarefas);
                 contrato_local.setStatus_contrato(1);
-				
+                contrato_local.setGrupo_particular(0);
+
 			
 				
 					//copiar o arquivo para a pasta do comprador
@@ -2084,7 +2085,8 @@ public class ManipularArquivoTerceiros {
 				
 				contrato_local.setLista_tarefas(tarefas);
                 contrato_local.setStatus_contrato(1);
-				
+                contrato_local.setGrupo_particular(0);
+
 			
 				
 					//copiar o arquivo para a pasta do comprador
@@ -3223,7 +3225,8 @@ public class ManipularArquivoTerceiros {
 				
 				contrato_local.setLista_tarefas(tarefas);
                 contrato_local.setStatus_contrato(1);
-				
+                contrato_local.setGrupo_particular(0);
+
 			
 				
 					//copiar o arquivo para a pasta do comprador
@@ -4177,6 +4180,7 @@ public class ManipularArquivoTerceiros {
 				
 				contrato_local.setLista_tarefas(tarefas);
                 contrato_local.setStatus_contrato(1);
+                contrato_local.setGrupo_particular(0);
 				
 			
 				

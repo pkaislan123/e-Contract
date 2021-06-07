@@ -165,13 +165,13 @@ public class TelaPadrao extends JDialog {
 
 		setBackground(new Color(255, 255, 255));
 		setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-		setBounds(100, 100, 675, 232);
+		setBounds(100, 100, 675, 261);
 
 		KGradientPanel painelPrincipal = new KGradientPanel();
 		painelPrincipal.kEndColor = Color.WHITE;
 		painelPrincipal.kStartColor = new Color(255, 255, 255);
 		painelPrincipal.setBackground(new Color(153, 153, 102));
-		painelPrincipal.setLayout(new MigLayout("", "[:400px:400px][][grow]", "[][][][][][][grow][:50px:50px][][]"));
+		painelPrincipal.setLayout(new MigLayout("", "[:400px:400px][][grow]", "[][][][][][][][grow][:50px:50px][][][]"));
 		painelPrincipal.setBorder(new MatteBorder(0, 0, 2, 0, (Color) new Color(0, 0, 0)));
 
 		setContentPane(painelPrincipal);
@@ -195,33 +195,37 @@ public class TelaPadrao extends JDialog {
 			lblTipoLancamento.setText("RECEITA");
 
 		}
+		
+		JLabel lblPagamentoId = new JLabel("Pagamento ID:");
+		lblPagamentoId.setFont(new Font("Tahoma", Font.PLAIN, 14));
+		painelPrincipal.add(lblPagamentoId, "cell 0 1");
 
 		JLabel lblIdentificador = new JLabel("Identificador");
 		lblIdentificador.setFont(new Font("Tahoma", Font.PLAIN, 14));
-		painelPrincipal.add(lblIdentificador, "cell 0 1");
+		painelPrincipal.add(lblIdentificador, "cell 0 2");
 
 		JLabel lblData = new JLabel("");
 		lblData.setFont(new Font("Tahoma", Font.PLAIN, 16));
-		painelPrincipal.add(lblData, "flowx,cell 0 2");
+		painelPrincipal.add(lblData, "flowx,cell 0 3");
 		lblData.setText("00/00/000");
 
 		JLabel lblNewLabel_2 = new JLabel("Valor:");
 		lblNewLabel_2.setFont(new Font("Tahoma", Font.PLAIN, 14));
-		painelPrincipal.add(lblNewLabel_2, "cell 1 2,alignx left");
+		painelPrincipal.add(lblNewLabel_2, "cell 1 3,alignx left");
 
 		JLabel lblValor = new JLabel("");
 		lblValor.setBorder(new MatteBorder(0, 0, 2, 0, (Color) new Color(0, 0, 0)));
 		lblValor.setFont(new Font("Tahoma", Font.BOLD, 16));
-		painelPrincipal.add(lblValor, "cell 2 2,alignx left");
+		painelPrincipal.add(lblValor, "cell 2 3,alignx left");
 		lblValor.setText(pag_completo.getFpag().getValor().toString());
 		
 		JLabel lblFormaPagamento = new JLabel("Forma Pagamento");
 		lblFormaPagamento.setFont(new Font("Tahoma", Font.PLAIN, 16));
-		painelPrincipal.add(lblFormaPagamento, "cell 0 3");
+		painelPrincipal.add(lblFormaPagamento, "cell 0 4");
 		
 		JLabel lblStatus = new JLabel("Status");
 		lblStatus.setFont(new Font("Tahoma", Font.PLAIN, 16));
-		painelPrincipal.add(lblStatus, "cell 0 4");
+		painelPrincipal.add(lblStatus, "cell 0 5");
 
 		JTextArea textAreaDescricao = new JTextArea();
 		textAreaDescricao.setOpaque(false);
@@ -229,16 +233,25 @@ public class TelaPadrao extends JDialog {
 		textAreaDescricao.setBorder(null);
 		textAreaDescricao.setLineWrap(true);
 		textAreaDescricao.setWrapStyleWord(true);
-		painelPrincipal.add(textAreaDescricao, "cell 0 5 1 3,grow");
+		painelPrincipal.add(textAreaDescricao, "cell 0 6 1 3,grow");
+		
+		JLabel lblPagador = new JLabel("Pagador:");
+		lblPagador.setFont(new Font("Tahoma", Font.PLAIN, 16));
+		painelPrincipal.add(lblPagador, "cell 0 9");
+		
+		JButton btnAbrirLancamento = new JButton("Abrir Lançamento");
+		btnAbrirLancamento.setForeground(Color.WHITE);
+		btnAbrirLancamento.setBackground(new Color(0, 51, 0));
+		painelPrincipal.add(btnAbrirLancamento, "cell 0 11,alignx center");
 
 		JLabel lblNewLabel_4 = new JLabel("Saldo:");
 		lblNewLabel_4.setFont(new Font("Tahoma", Font.PLAIN, 14));
-		painelPrincipal.add(lblNewLabel_4, "cell 1 9,alignx left");
+		painelPrincipal.add(lblNewLabel_4, "cell 1 11,alignx left");
 
 		JLabel lblSaldo = new JLabel("R$ 100.000.000,00");
 		lblSaldo.setForeground(Color.BLACK);
 		lblSaldo.setFont(new Font("Tahoma", Font.BOLD, 16));
-		painelPrincipal.add(lblSaldo, "cell 2 9,alignx left");
+		painelPrincipal.add(lblSaldo, "cell 2 11,alignx left");
 
 		this.setLocationRelativeTo(janela_pai);
 

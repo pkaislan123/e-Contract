@@ -223,9 +223,10 @@ public class TelaRecebimentos extends JFrame {
 	private int flag_retorno_global;
 	private JTextField entTransgenia;
 	private FileChooser d;
-	private JLabel lblTotalRecebimentos,lblTotalRecebimentosOk,lblTotalRecebimentosNFVenda,
-	lblTotalRecebimentosNFRemessaVenda, lblFaltaNFRemessa;
-	
+	private JLabel lblTotalRecebimentos, lblTotalRecebimentosOk, lblTotalRecebimentosNFVenda,
+			lblTotalRecebimentosNFRemessaVenda, lblFaltaNFRemessa;
+	private JLabel lblPesoTotalRomaneios, lblPesoTotalNFVenda, lblPesoTotalNFRemessa;
+
 	public Rectangle getCurrentScreenBounds(Component component) {
 		return component.getGraphicsConfiguration().getBounds();
 	}
@@ -236,7 +237,7 @@ public class TelaRecebimentos extends JFrame {
 		// setAlwaysOnTop(true);
 
 		isto = this;
-		// setResizable(false);
+		setResizable(true);
 		setTitle("E-Contract - Recebimentos");
 
 		setBackground(new Color(255, 255, 255));
@@ -276,51 +277,56 @@ public class TelaRecebimentos extends JFrame {
 
 		painelPrincipal.setBackground(new Color(255, 255, 255));
 		painelPrincipal.setBorder(new EmptyBorder(5, 5, 5, 5));
-		painelPrincipal.setLayout(new MigLayout("", "[grow][grow][grow]", "[88px][grow][grow]"));
+		painelPrincipal.setLayout(new MigLayout("", "[][660px][grow][grow]", "[133px][grow][31px][1px][12px][]"));
 
 		JPanel panel_5 = new JPanel();
 		panel_5.setBackground(Color.WHITE);
-		painelPrincipal.add(panel_5, "cell 0 0 3 1,alignx center,growy");
+		painelPrincipal.add(panel_5, "cell 0 0 4 1,grow");
 		panel_5.setLayout(new MigLayout("", "[58px][274px][48px][306px][90px][199px,grow][67px][126px][59px]",
 				"[28px][28px][28px]"));
 
 		JLabel lblNewLabel = new JLabel("Comprador:");
-		panel_5.add(lblNewLabel, "cell 0 0,alignx left,aligny center");
+		panel_5.add(lblNewLabel, "cell 0 0,alignx right,aligny center");
 		lblNewLabel.setFont(new Font("Tahoma", Font.PLAIN, 14));
 
 		entNomeComprador = new JTextField();
+		entNomeComprador.setFont(new Font("SansSerif", Font.PLAIN, 16));
 		panel_5.add(entNomeComprador, "cell 1 0,growx,aligny top");
 		entNomeComprador.setColumns(10);
 
 		JLabel lblCdigo = new JLabel("Código:");
-		panel_5.add(lblCdigo, "cell 2 0,alignx left,aligny center");
+		panel_5.add(lblCdigo, "cell 2 0,alignx right,aligny center");
 		lblCdigo.setFont(new Font("Tahoma", Font.PLAIN, 14));
 
 		entCodigo = new JTextField();
+		entCodigo.setFont(new Font("SansSerif", Font.PLAIN, 16));
 		panel_5.add(entCodigo, "cell 3 0,growx,aligny top");
 		entCodigo.setColumns(10);
 
 		JLabel lblVendedor = new JLabel("Vendedor:");
-		panel_5.add(lblVendedor, "cell 0 1,alignx left,aligny center");
+		panel_5.add(lblVendedor, "cell 0 1,alignx right,aligny center");
 		lblVendedor.setFont(new Font("Tahoma", Font.PLAIN, 14));
 
 		entNomeVendedor = new JTextField();
+		entNomeVendedor.setFont(new Font("SansSerif", Font.PLAIN, 16));
 		panel_5.add(entNomeVendedor, "cell 1 1,growx,aligny top");
 		entNomeVendedor.setColumns(10);
 
 		JLabel lblStatus = new JLabel("Status:");
-		panel_5.add(lblStatus, "cell 2 1,alignx left,aligny center");
+		panel_5.add(lblStatus, "cell 2 1,alignx right,aligny center");
 		lblStatus.setFont(new Font("Tahoma", Font.PLAIN, 14));
 
 		entStatus = new JTextField();
+		entStatus.setFont(new Font("SansSerif", Font.PLAIN, 16));
 		panel_5.add(entStatus, "cell 3 1,growx,aligny top");
 		entStatus.setColumns(10);
 
 		JLabel lblStatus_1 = new JLabel("Status:");
 		lblStatus_1.setFont(new Font("Tahoma", Font.PLAIN, 14));
-		panel_5.add(lblStatus_1, "cell 4 1,alignx trailing");
+		panel_5.add(lblStatus_1, "cell 4 1,alignx right");
 
 		cbStatus = new JComboBox();
+		cbStatus.setFont(new Font("SansSerif", Font.PLAIN, 16));
 		cbStatus.addItem("TODOS");
 		cbStatus.addItem("OK");
 		cbStatus.addItem("FALTA NF VENDA");
@@ -329,39 +335,37 @@ public class TelaRecebimentos extends JFrame {
 
 		panel_5.add(cbStatus, "cell 5 1,growx");
 
-		JButton btnRefazerPesquisa = new JButton("Refazer Pesquisa");
-		panel_5.add(btnRefazerPesquisa, "cell 7 1,alignx left,aligny top");
-		btnRefazerPesquisa.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-
-			}
-		});
-
 		JLabel lblProduto = new JLabel("Produto:");
-		panel_5.add(lblProduto, "cell 0 2,alignx left,aligny center");
+		panel_5.add(lblProduto, "cell 0 2,alignx right,aligny center");
 		lblProduto.setFont(new Font("Tahoma", Font.PLAIN, 14));
 
 		entProduto = new JTextField();
+		entProduto.setFont(new Font("SansSerif", Font.PLAIN, 16));
 		panel_5.add(entProduto, "cell 1 2,growx,aligny top");
 		entProduto.setColumns(10);
 
 		JLabel lblSafra = new JLabel("Safra:");
-		panel_5.add(lblSafra, "cell 2 2,alignx left,aligny center");
+		panel_5.add(lblSafra, "cell 2 2,alignx right,aligny center");
 		lblSafra.setFont(new Font("Tahoma", Font.PLAIN, 14));
 
 		entSafra = new JTextField();
+		entSafra.setFont(new Font("SansSerif", Font.PLAIN, 16));
 		panel_5.add(entSafra, "cell 3 2,growx,aligny top");
 		entSafra.setColumns(10);
 
 		JLabel lblTransgnese = new JLabel("Transgênese:");
-		panel_5.add(lblTransgnese, "cell 4 2,alignx left,aligny center");
+		panel_5.add(lblTransgnese, "cell 4 2,alignx right,aligny center");
 		lblTransgnese.setFont(new Font("Tahoma", Font.PLAIN, 14));
 
 		entTransgenia = new JTextField();
+		entTransgenia.setFont(new Font("SansSerif", Font.PLAIN, 16));
 		panel_5.add(entTransgenia, "cell 5 2,growx,aligny top");
 		entTransgenia.setColumns(10);
 
 		JButton btnLimparFiltros = new JButton("Limpar");
+		btnLimparFiltros.setBackground(new Color(204, 51, 0));
+		btnLimparFiltros.setForeground(Color.WHITE);
+		btnLimparFiltros.setFont(new Font("SansSerif", Font.BOLD, 16));
 		panel_5.add(btnLimparFiltros, "cell 6 2,alignx left,aligny top");
 		btnLimparFiltros.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
@@ -371,19 +375,30 @@ public class TelaRecebimentos extends JFrame {
 		});
 
 		JButton btnFiltrar = new JButton("Filtrar");
-		panel_5.add(btnFiltrar, "cell 8 2,growx,aligny top");
+		btnFiltrar.setBackground(new Color(0, 0, 153));
+		btnFiltrar.setForeground(Color.WHITE);
+		btnFiltrar.setFont(new Font("SansSerif", Font.BOLD, 16));
+		panel_5.add(btnFiltrar, "cell 7 2,growx,aligny top");
+
+		JButton btnRefazerPesquisa = new JButton("Refazer Pesquisa");
+		btnRefazerPesquisa.setBackground(new Color(0, 51, 0));
+		btnRefazerPesquisa.setForeground(Color.WHITE);
+		btnRefazerPesquisa.setFont(new Font("SansSerif", Font.BOLD, 16));
+		panel_5.add(btnRefazerPesquisa, "cell 8 2,alignx left,aligny top");
+		btnRefazerPesquisa.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+
+			}
+		});
 		btnFiltrar.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				filtrar();
 				calcular();
 			}
 		});
-
-		JPanel panel = new JPanel();
-		painelPrincipal.add(panel, "cell 0 1 3 1,grow");
+		RecebimentoCellRender renderer_recebimentos = new RecebimentoCellRender();
 
 		tabela = new JTable(modelo_recebimentos);
-		RecebimentoCellRender renderer_recebimentos = new RecebimentoCellRender();
 		tabela.setDefaultRenderer(Object.class, renderer_recebimentos);
 
 		tabela.setRowSorter(sorter);
@@ -394,61 +409,28 @@ public class TelaRecebimentos extends JFrame {
 		tabela.setRowHeight(30);
 
 		JScrollPane scrollPane = new JScrollPane(tabela);
+		painelPrincipal.add(scrollPane, "cell 0 1 4 4,grow");
 		scrollPane.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent arg0) {
 				// pesquisar();
 			}
 		});
-		panel.setLayout(new BorderLayout(0, 0));
 		scrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED);
 		scrollPane.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED);
 		scrollPane.setBackground(Color.WHITE);
 		scrollPane.setAutoscrolls(true);
 
-		panel.add(scrollPane);
-
-		JPanel panel_1 = new JPanel();
-		panel_1.setBackground(Color.WHITE);
-		painelPrincipal.add(panel_1, "cell 0 2,grow");
-
-		JPanel panel_3 = new JPanel();
-		panel_3.setBackground(Color.WHITE);
-		painelPrincipal.add(panel_3, "cell 2 2,alignx right,growy");
-		panel_3.setLayout(new MigLayout("", "[97px]", "[50px]"));
-
-		JPanel panel_4 = new JPanel();
-		panel_4.setBackground(Color.WHITE);
-		panel_3.add(panel_4, "cell 0 0,alignx right,growy");
-		panel_4.setLayout(new MigLayout("", "[83px]", "[33px]"));
-
-		JButton btnAbrir = new JButton("Abrir");
-		btnAbrir.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				int indiceDaLinha = tabela.getSelectedRow();
-
-				int id_contrato_selecionado = Integer.parseInt(tabela.getValueAt(indiceDaLinha, 0).toString());
-				GerenciarBancoContratos gerenciar_cont = new GerenciarBancoContratos();
-				CadastroContrato contrato_selecionado = gerenciar_cont.getContrato(id_contrato_selecionado);
-				TelaGerenciarContrato gerenciar_contrato = new TelaGerenciarContrato(contrato_selecionado, isto);
-
-				//isto.dispose();
-			}
-		});
-		panel_4.add(btnAbrir, "cell 0 0,alignx left,aligny top");
-		btnAbrir.setIcon(new ImageIcon(TelaCliente.class.getResource("/imagens/lista.png")));
-		panel_1.setLayout(new MigLayout("", "[433px]", "[][139px]"));
-
 		JPanel panel_8 = new JPanel();
+		painelPrincipal.add(panel_8, "cell 1 5,grow");
 		panel_8.setBackground(Color.WHITE);
-		panel_1.add(panel_8, "cell 0 1,alignx left,aligny top");
 		panel_8.setLayout(new MigLayout("", "[27.00][26.00][][31.00][][][][][]", "[][][][][][][][]"));
 
 		JLabel ads = new JLabel("Total Recebimentos:");
 		ads.setFont(new Font("SansSerif", Font.BOLD, 16));
 		panel_8.add(ads, "cell 1 0");
 
-		 lblTotalRecebimentos = new JLabel("0000");
+		lblTotalRecebimentos = new JLabel("0000");
 		lblTotalRecebimentos.setFont(new Font("SansSerif", Font.BOLD, 16));
 		panel_8.add(lblTotalRecebimentos, "cell 2 0");
 
@@ -463,9 +445,20 @@ public class TelaRecebimentos extends JFrame {
 		lblNewLabel_34_2.setFont(new Font("SansSerif", Font.BOLD, 16));
 		lblNewLabel_34_2.setBorder(new MatteBorder(0, 0, 1, 0, (Color) new Color(0, 0, 0)));
 
-		 lblTotalRecebimentosOk = new JLabel("0000");
+		lblTotalRecebimentosOk = new JLabel("0000");
 		lblTotalRecebimentosOk.setFont(new Font("SansSerif", Font.BOLD, 16));
 		panel_8.add(lblTotalRecebimentosOk, "cell 2 1");
+
+		JLabel lblPesoTotalRomaneios12 = new JLabel("Peso Total Romaneios:");
+		lblPesoTotalRomaneios12.setFont(new Font("Tahoma", Font.PLAIN, 14));
+		panel_8.add(lblPesoTotalRomaneios12, "cell 4 1");
+
+		
+		
+		 lblPesoTotalRomaneios = new JLabel("000.000.000.000,00/000.000,00");
+		lblPesoTotalRomaneios.setFont(new Font("SansSerif", Font.BOLD, 16));
+		lblPesoTotalRomaneios.setBorder(new MatteBorder(0, 0, 1, 0, (Color) new Color(0, 0, 0)));
+		panel_8.add(lblPesoTotalRomaneios, "cell 5 1 4 1");
 
 		JLabel lblNewLabel_33_2_1 = new JLabel("     ");
 		panel_8.add(lblNewLabel_33_2_1, "cell 0 2,growx");
@@ -478,9 +471,18 @@ public class TelaRecebimentos extends JFrame {
 		lblNewLabel_34_2_1.setFont(new Font("SansSerif", Font.BOLD, 16));
 		lblNewLabel_34_2_1.setBorder(new MatteBorder(0, 0, 1, 0, (Color) new Color(0, 0, 0)));
 
-		 lblTotalRecebimentosNFVenda = new JLabel("0000");
+		lblTotalRecebimentosNFVenda = new JLabel("0000");
 		lblTotalRecebimentosNFVenda.setFont(new Font("SansSerif", Font.BOLD, 16));
 		panel_8.add(lblTotalRecebimentosNFVenda, "cell 2 2");
+
+		JLabel lblPesoTotalNf1 = new JLabel("Peso Total NF Venda:");
+		lblPesoTotalNf1.setFont(new Font("Tahoma", Font.PLAIN, 14));
+		panel_8.add(lblPesoTotalNf1, "cell 4 2");
+
+		 lblPesoTotalNFVenda = new JLabel("000.000.000.000,00/000.000,00");
+		lblPesoTotalNFVenda.setFont(new Font("SansSerif", Font.BOLD, 16));
+		lblPesoTotalNFVenda.setBorder(new MatteBorder(0, 0, 1, 0, (Color) new Color(0, 0, 0)));
+		panel_8.add(lblPesoTotalNFVenda, "cell 5 2");
 
 		JLabel lblNewLabel_33_1_1 = new JLabel("     ");
 		panel_8.add(lblNewLabel_33_1_1, "cell 0 3,growx");
@@ -493,12 +495,18 @@ public class TelaRecebimentos extends JFrame {
 		lblNewLabel_34_1_1.setFont(new Font("SansSerif", Font.BOLD, 16));
 		lblNewLabel_34_1_1.setBorder(new MatteBorder(0, 0, 1, 0, (Color) new Color(0, 0, 0)));
 
-		
-
-		
-		 lblTotalRecebimentosNFRemessaVenda = new JLabel("0000");
+		lblTotalRecebimentosNFRemessaVenda = new JLabel("0000");
 		lblTotalRecebimentosNFRemessaVenda.setFont(new Font("SansSerif", Font.BOLD, 16));
 		panel_8.add(lblTotalRecebimentosNFRemessaVenda, "cell 2 3");
+
+		JLabel lblPesoTotalNf_2 = new JLabel("Peso Total NF Remessa:");
+		lblPesoTotalNf_2.setFont(new Font("Tahoma", Font.PLAIN, 14));
+		panel_8.add(lblPesoTotalNf_2, "cell 4 3");
+
+		 lblPesoTotalNFRemessa = new JLabel("000.000.000.000,00/000.000,00");
+		lblPesoTotalNFRemessa.setFont(new Font("SansSerif", Font.BOLD, 16));
+		lblPesoTotalNFRemessa.setBorder(new MatteBorder(0, 0, 1, 0, (Color) new Color(0, 0, 0)));
+		panel_8.add(lblPesoTotalNFRemessa, "cell 5 3");
 
 		JLabel lblNewLabel_33_1_1_1 = new JLabel("     ");
 		panel_8.add(lblNewLabel_33_1_1_1, "cell 0 4,growx");
@@ -511,9 +519,28 @@ public class TelaRecebimentos extends JFrame {
 		lblNewLabel_34_1_1_1.setFont(new Font("SansSerif", Font.BOLD, 16));
 		lblNewLabel_34_1_1_1.setBorder(new MatteBorder(0, 0, 1, 0, (Color) new Color(0, 0, 0)));
 
-		 lblFaltaNFRemessa = new JLabel("0000");
+		lblFaltaNFRemessa = new JLabel("0000");
 		lblFaltaNFRemessa.setFont(new Font("SansSerif", Font.BOLD, 16));
 		panel_8.add(lblFaltaNFRemessa, "cell 2 4");
+
+		JButton btnAbrir = new JButton("Abrir");
+		painelPrincipal.add(btnAbrir, "cell 3 5,alignx right,aligny top");
+		btnAbrir.setForeground(Color.WHITE);
+		btnAbrir.setBackground(new Color(0, 0, 153));
+		btnAbrir.setFont(new Font("SansSerif", Font.BOLD, 16));
+		btnAbrir.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				int indiceDaLinha = tabela.getSelectedRow();
+
+				int id_contrato_selecionado = Integer.parseInt(tabela.getValueAt(indiceDaLinha, 0).toString());
+				GerenciarBancoContratos gerenciar_cont = new GerenciarBancoContratos();
+				CadastroContrato contrato_selecionado = gerenciar_cont.getContrato(id_contrato_selecionado);
+				TelaGerenciarContrato gerenciar_contrato = new TelaGerenciarContrato(contrato_selecionado, isto);
+
+				// isto.dispose();
+			}
+		});
+		btnAbrir.setIcon(new ImageIcon(TelaCliente.class.getResource("/imagens/lista.png")));
 
 		pesquisar();
 		calcular();
@@ -543,12 +570,16 @@ public class TelaRecebimentos extends JFrame {
 	}
 
 	public void calcular() {
+		
+		
+		
+		double peso_total_romaneios = 0, peso_total_nf_venda = 0, peso_total_nf_remessa = 0;
+		
 		int numero_recebimentos = 0;
 		int recebimentos_ok = 0;
 		int recebimentos_falta_nf_venda = 0;
 		int recebimentos_falta_nf_remessa = 0;
 		int recebimentos_falta_nf_venda_remessa = 0;
-
 
 		for (int row = 0; row < tabela.getRowCount(); row++) {
 
@@ -558,6 +589,11 @@ public class TelaRecebimentos extends JFrame {
 			String codigo_nf_venda = recebimento.getCodigo_nf_venda();
 			String codigo_nf_remessa = recebimento.getCodigo_nf_remessa();
 
+			peso_total_romaneios += recebimento.getPeso_romaneio();
+			peso_total_nf_venda += recebimento.getPeso_nf_venda();
+			peso_total_nf_remessa += recebimento.getPeso_nf_remessa();
+
+			
 			if (recebimento.getNf_venda_aplicavel() == 1 && recebimento.getNf_remessa_aplicavel() == 1) {
 
 				if (checkString(codigo_nf_venda) && checkString(codigo_nf_remessa)) {
@@ -611,6 +647,14 @@ public class TelaRecebimentos extends JFrame {
 		lblTotalRecebimentosNFVenda.setText(recebimentos_falta_nf_venda + "");
 		lblTotalRecebimentosNFRemessaVenda.setText(recebimentos_falta_nf_venda_remessa + "");
 		lblFaltaNFRemessa.setText(recebimentos_falta_nf_remessa + "");
+		
+		
+		NumberFormat z = NumberFormat.getNumberInstance();
+
+		lblPesoTotalRomaneios.setText(z.format(peso_total_romaneios) + " Kgs | " + z.format(peso_total_romaneios/60) + " Sacos" );
+		lblPesoTotalNFVenda.setText(z.format(peso_total_nf_venda) + " Kgs | " + z.format(peso_total_nf_venda/60) + " Sacos" );
+		lblPesoTotalNFRemessa.setText(z.format(peso_total_nf_remessa) + " Kgs | " + z.format(peso_total_nf_remessa/60) + " Sacos" );
+
 		
 	}
 

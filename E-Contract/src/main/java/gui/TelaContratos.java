@@ -22,6 +22,7 @@ import java.io.FileOutputStream;
 
 import javax.swing.table.TableCellRenderer;
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.net.URL;
 import java.net.URLConnection;
 import java.nio.file.Files;
@@ -66,14 +67,10 @@ import org.apache.poi.ss.usermodel.VerticalAlignment;
 import org.apache.poi.ss.util.CellRangeAddress;
 import org.apache.poi.xssf.usermodel.extensions.XSSFHeaderFooter;
 
-
-
 import javafx.application.Platform;
 import javafx.embed.swing.JFXPanel;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
-
-
 
 import javax.swing.ScrollPaneConstants;
 import java.awt.event.MouseAdapter;
@@ -115,6 +112,7 @@ import main.java.cadastros.ContaBancaria;
 import main.java.cadastros.Contato;
 import main.java.cadastros.DadosCarregamento;
 import main.java.cadastros.DadosContratos;
+import main.java.cadastros.Lancamento;
 import main.java.cadastros.RegistroQuantidade;
 import main.java.cadastros.RegistroRecebimento;
 import main.java.classesExtras.Endereco;
@@ -200,8 +198,8 @@ public class TelaContratos extends JFrame {
 	private boolean nulo = false;
 	private File file_selecionado;
 	private final JPanel painelPrincipal = new JPanel();
-	private JRadioButton rdContratos,rdSubContratos;
-	private ArrayList<TelaGerenciarContrato>  lista_telas_contratos = new ArrayList<>(); 
+	private JRadioButton rdContratos, rdSubContratos;
+	private ArrayList<TelaGerenciarContrato> lista_telas_contratos = new ArrayList<>();
 	DefaultTableModel modelo = new DefaultTableModel() {
 		public boolean isCellEditable(int linha, int coluna) {
 			return false;
@@ -227,6 +225,10 @@ public class TelaContratos extends JFrame {
 	private JTextField entTransgenia;
 	private FileChooser d;
 	private JTextField entLocalRetirada;
+	private JTextField entStatusRecebimento;
+	private JTextField entStatusCarregamento;
+	private JTextField entStatusPagamento;
+	private JLabel lblTotalContratado, lblTotalRecebido, lblTotalCarregado, lblTotalPago;
 
 	public Rectangle getCurrentScreenBounds(Component component) {
 		return component.getGraphicsConfiguration().getBounds();
@@ -262,28 +264,61 @@ public class TelaContratos extends JFrame {
 		int display_x = display.getWidth();
 		int display_y = display.getHeight();
 		setBounds(0, 0, dim.width, dim.height - taskBarHeight);
-		
+
 		setContentPane(painelPrincipal);
 
 		EvenOddRenderer renderer = new EvenOddRenderer();
 		sorter = new TableRowSorter<ContratoTableModel>(modelo_contratos);
 
-		
-
 		painelPrincipal.setBackground(new Color(255, 255, 255));
 		painelPrincipal.setBorder(new EmptyBorder(5, 5, 5, 5));
-		painelPrincipal.setLayout(new MigLayout("", "[grow][632px][grow]", "[153.00px][grow][165.00px]"));
+		painelPrincipal.setLayout(new MigLayout("", "[grow][632px,grow][grow]", "[][grow][][]"));
 
 		JPanel panel_5 = new JPanel();
 		panel_5.setBackground(Color.WHITE);
 		painelPrincipal.add(panel_5, "cell 0 0 3 1,alignx center,aligny center");
 		panel_5.setLayout(
-				new MigLayout("", "[58px][274px][48px][306px][90px][199px][67px,grow][126px][59px]", "[28px,grow][28px][28px]"));
+				new MigLayout("", "[58px][274px][48px][306px,grow][90px][199px,grow][67px,grow][grow][126px][59px]",
+						"[28px,grow][28px][28px][]"));
 
 		JLabel lblNewLabel = new JLabel("Comprador:");
-		panel_5.add(lblNewLabel, "cell 0 0,alignx left,aligny center");
+		panel_5.add(lblNewLabel, "cell 0 0,alignx right,aligny center");
 		lblNewLabel.setFont(new Font("Tahoma", Font.PLAIN, 14));
 
+		
+		
+		JPanel panel_4 = new JPanel();
+		painelPrincipal.add(panel_4, "cell 0 2 3 1,alignx right");
+		panel_4.setBackground(Color.WHITE);
+		panel_4.setLayout(new MigLayout("", "[73px][152px][74px][87px][81px][106px]", "[36px]"));
+
+
+		JButton btnAbrir = new JButton("Abrir");
+		btnAbrir.setBackground(new Color(0, 51, 255));
+		btnAbrir.setForeground(Color.WHITE);
+		btnAbrir.setFont(new Font("SansSerif", Font.BOLD, 14));
+		panel_4.add(btnAbrir, "cell 4 0,alignx left,aligny top");
+		btnAbrir.setIcon(new ImageIcon(TelaCliente.class.getResource("/imagens/lista.png")));
+		btnAbrir.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				int indiceDaLinha = tabela.getSelectedRow();
+
+				int id_contrato_selecionado = Integer.parseInt(tabela.getValueAt(indiceDaLinha, 0).toString());
+				GerenciarBancoContratos gerenciar_cont = new GerenciarBancoContratos();
+				CadastroContrato contrato_selecionado = gerenciar_cont.getContrato(id_contrato_selecionado);
+
+				lista_telas_contratos.add(new TelaGerenciarContrato(contrato_selecionado, null));
+
+			}
+		});
+
+		JButton btnSelecionar = new JButton("Selecionar");
+		btnSelecionar.setBackground(new Color(51, 0, 102));
+		btnSelecionar.setForeground(Color.WHITE);
+		btnSelecionar.setFont(new Font("SansSerif", Font.BOLD, 14));
+		
+		
+		
 		entNomeComprador = new JTextField();
 		entNomeComprador.addKeyListener(new KeyAdapter() {
 			@Override
@@ -294,22 +329,22 @@ public class TelaContratos extends JFrame {
 		panel_5.add(entNomeComprador, "cell 1 0,growx,aligny top");
 		entNomeComprador.setColumns(10);
 
-		JLabel lblCdigo = new JLabel("Código:");
-		panel_5.add(lblCdigo, "cell 2 0,alignx left,aligny center");
-		lblCdigo.setFont(new Font("Tahoma", Font.PLAIN, 14));
-
-		entCodigo = new JTextField();
-		entCodigo.addKeyListener(new KeyAdapter() {
+		entNomeVendedor = new JTextField();
+		entNomeVendedor.addKeyListener(new KeyAdapter() {
 			@Override
 			public void keyTyped(KeyEvent e) {
 				filtrar();
 			}
 		});
-		panel_5.add(entCodigo, "cell 3 0,growx,aligny top");
-		entCodigo.setColumns(10);
+
+		JLabel lblVendedor = new JLabel("Vendedor:");
+		panel_5.add(lblVendedor, "cell 2 0,alignx right,aligny center");
+		lblVendedor.setFont(new Font("Tahoma", Font.PLAIN, 14));
+		panel_5.add(entNomeVendedor, "cell 3 0,growx,aligny top");
+		entNomeVendedor.setColumns(10);
 
 		JLabel lblLocalRetirada = new JLabel("Local Retirada:");
-		panel_5.add(lblLocalRetirada, "cell 4 0,alignx left,aligny center");
+		panel_5.add(lblLocalRetirada, "cell 4 0,alignx right,aligny center");
 		lblLocalRetirada.setFont(new Font("Tahoma", Font.PLAIN, 14));
 
 		entLocalRetirada = new JTextField();
@@ -317,18 +352,33 @@ public class TelaContratos extends JFrame {
 			@Override
 			public void keyTyped(KeyEvent e) {
 				filtrar();
+
 			}
 		});
 		panel_5.add(entLocalRetirada, "cell 5 0,growx,aligny top");
 		entLocalRetirada.setColumns(10);
-		
+
+		JLabel lblCdigo = new JLabel("Código:");
+		panel_5.add(lblCdigo, "cell 6 0,alignx right,aligny center");
+		lblCdigo.setFont(new Font("Tahoma", Font.PLAIN, 14));
+
+		entCodigo = new JTextField();
+		entCodigo.addKeyListener(new KeyAdapter() {
+			@Override
+			public void keyTyped(KeyEvent e) {
+				filtrar();
+
+			}
+		});
+		panel_5.add(entCodigo, "cell 7 0,growx,aligny top");
+		entCodigo.setColumns(10);
+
 		JPanel panel_6 = new JPanel();
 		panel_6.setBackground(Color.WHITE);
-		panel_5.add(panel_6, "cell 6 0 3 1,alignx center,growy");
+		panel_5.add(panel_6, "cell 8 0 2 1,alignx center,growy");
 		panel_6.setLayout(new MigLayout("", "[76px][102px]", "[18px]"));
-		
-		
-		 rdContratos = new JRadioButton("Contratos");
+
+		rdContratos = new JRadioButton("Contratos");
 		rdContratos.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				rdContratos.setSelected(true);
@@ -337,32 +387,18 @@ public class TelaContratos extends JFrame {
 		});
 		rdContratos.setSelected(true);
 		panel_6.add(rdContratos, "cell 0 0,alignx left,aligny top");
-		
-		 rdSubContratos = new JRadioButton("Sub-Contratos");
-		 rdSubContratos.addActionListener(new ActionListener() {
-		 	public void actionPerformed(ActionEvent e) {
-		 		rdContratos.setSelected(false);
+
+		rdSubContratos = new JRadioButton("Sub-Contratos");
+		rdSubContratos.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				rdContratos.setSelected(false);
 				rdSubContratos.setSelected(true);
-		 	}
-		 });
-		panel_6.add(rdSubContratos, "cell 1 0,alignx left,aligny top");
-
-		JLabel lblVendedor = new JLabel("Vendedor:");
-		panel_5.add(lblVendedor, "cell 0 1,alignx left,aligny center");
-		lblVendedor.setFont(new Font("Tahoma", Font.PLAIN, 14));
-
-		entNomeVendedor = new JTextField();
-		entNomeVendedor.addKeyListener(new KeyAdapter() {
-			@Override
-			public void keyTyped(KeyEvent e) {
-				filtrar();
 			}
 		});
-		panel_5.add(entNomeVendedor, "cell 1 1,growx,aligny top");
-		entNomeVendedor.setColumns(10);
+		panel_6.add(rdSubContratos, "cell 1 0,alignx left,aligny top");
 
 		JLabel lblStatus = new JLabel("Status:");
-		panel_5.add(lblStatus, "cell 2 1,alignx left,aligny center");
+		panel_5.add(lblStatus, "cell 0 1,alignx right,aligny center");
 		lblStatus.setFont(new Font("Tahoma", Font.PLAIN, 14));
 
 		entStatus = new JTextField();
@@ -370,33 +406,38 @@ public class TelaContratos extends JFrame {
 			@Override
 			public void keyTyped(KeyEvent e) {
 				filtrar();
+
 			}
 		});
-		panel_5.add(entStatus, "cell 3 1,growx,aligny top");
+		panel_5.add(entStatus, "cell 1 1,growx,aligny top");
 		entStatus.setColumns(10);
 
-		JButton btnRefazerPesquisa = new JButton("Refazer Pesquisa");
-		btnRefazerPesquisa.setBackground(new Color(0, 51, 0));
-		btnRefazerPesquisa.setForeground(Color.WHITE);
-		btnRefazerPesquisa.setFont(new Font("SansSerif", Font.BOLD, 14));
-		panel_5.add(btnRefazerPesquisa, "cell 7 1,alignx left,aligny top");
-		btnRefazerPesquisa.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
+		JLabel lblStatusRecebimento = new JLabel("Status Recebimento:");
+		lblStatusRecebimento.setFont(new Font("Tahoma", Font.PLAIN, 14));
+		panel_5.add(lblStatusRecebimento, "cell 2 1,alignx trailing");
 
-				if (flag_retorno == 3 || flag_retorno == 4 ) {
-					pesquisar_sub_contratos(id_contrato_pai_para_replica_global);
+		entStatusRecebimento = new JTextField();
+		entStatusRecebimento.setColumns(10);
+		panel_5.add(entStatusRecebimento, "cell 3 1,growx");
 
-				} else if(rdSubContratos.isSelected()){
-					pesquisar_sub_contratos();
-				}else {
-					pesquisar();
+		JLabel lblStatusCarregamento = new JLabel("Status Carregamento:");
+		lblStatusCarregamento.setFont(new Font("Tahoma", Font.PLAIN, 14));
+		panel_5.add(lblStatusCarregamento, "cell 4 1,alignx trailing");
 
-				}
-			}
-		});
+		entStatusCarregamento = new JTextField();
+		entStatusCarregamento.setColumns(10);
+		panel_5.add(entStatusCarregamento, "cell 5 1,growx");
+
+		JLabel lblStatusPagamento = new JLabel("Status Pagamento:");
+		lblStatusPagamento.setFont(new Font("Tahoma", Font.PLAIN, 14));
+		panel_5.add(lblStatusPagamento, "cell 6 1,alignx trailing");
+
+		entStatusPagamento = new JTextField();
+		entStatusPagamento.setColumns(10);
+		panel_5.add(entStatusPagamento, "cell 7 1,growx");
 
 		JLabel lblProduto = new JLabel("Produto:");
-		panel_5.add(lblProduto, "cell 0 2,alignx left,aligny center");
+		panel_5.add(lblProduto, "cell 0 2,alignx right,aligny center");
 		lblProduto.setFont(new Font("Tahoma", Font.PLAIN, 14));
 
 		entProduto = new JTextField();
@@ -404,28 +445,30 @@ public class TelaContratos extends JFrame {
 			@Override
 			public void keyTyped(KeyEvent e) {
 				filtrar();
+
 			}
 		});
 		panel_5.add(entProduto, "cell 1 2,growx,aligny top");
 		entProduto.setColumns(10);
 
 		JLabel lblSafra = new JLabel("Safra:");
-		panel_5.add(lblSafra, "cell 2 2,alignx left,aligny center");
+		panel_5.add(lblSafra, "cell 2 2,alignx right,aligny center");
 		lblSafra.setFont(new Font("Tahoma", Font.PLAIN, 14));
 
 		entSafra = new JTextField();
 		entSafra.addKeyListener(new KeyAdapter() {
 			@Override
 			public void keyTyped(KeyEvent e) {
-				
+
 				filtrar();
+
 			}
 		});
 		panel_5.add(entSafra, "cell 3 2,growx,aligny top");
 		entSafra.setColumns(10);
 
 		JLabel lblTransgnese = new JLabel("Transgênese:");
-		panel_5.add(lblTransgnese, "cell 4 2,alignx left,aligny center");
+		panel_5.add(lblTransgnese, "cell 4 2,alignx right,aligny center");
 		lblTransgnese.setFont(new Font("Tahoma", Font.PLAIN, 14));
 
 		entTransgenia = new JTextField();
@@ -433,87 +476,12 @@ public class TelaContratos extends JFrame {
 			@Override
 			public void keyTyped(KeyEvent e) {
 				filtrar();
+
 			}
 		});
 		panel_5.add(entTransgenia, "cell 5 2,growx,aligny top");
 		entTransgenia.setColumns(10);
 
-		JButton btnLimparFiltros = new JButton("Limpar Pesquisa");
-		btnLimparFiltros.setBackground(new Color(255, 51, 51));
-		btnLimparFiltros.setForeground(Color.WHITE);
-		btnLimparFiltros.setFont(new Font("SansSerif", Font.BOLD, 14));
-		panel_5.add(btnLimparFiltros, "cell 6 2,alignx left,aligny top");
-		btnLimparFiltros.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				sorter.setRowFilter(RowFilter.regexFilter(""));
-
-				NumberFormat z = NumberFormat.getNumberInstance();
-
-				double quantidade_sacos_total = 0;
-				double quantidade_kg_total = 0;
-
-				int total_contratos_em_analise = 0;
-				int total_contratos_assinar = 0;
-				int total_contratos_assinado = 0;
-				int total_contratos_concluido = 0;
-				for (int row = 0; row < tabela.getRowCount(); row++) {
-
-					int index = tabela.convertRowIndexToModel(row);
-					CadastroContrato contrato = modelo_contratos.getValue(index);
-					double quantidade_sacos = 0;
-					double quantidade_kg = 0;
-
-					if (contrato.getMedida().equalsIgnoreCase("SACOS")) {
-						quantidade_sacos = contrato.getQuantidade();
-						quantidade_kg = contrato.getQuantidade() * 60;
-
-					} else if (contrato.getMedida().equalsIgnoreCase("KG")) {
-						quantidade_kg = contrato.getQuantidade();
-						quantidade_sacos = quantidade_kg / 60;
-					}
-
-					quantidade_sacos_total += quantidade_sacos;
-					quantidade_kg_total += quantidade_kg;
-
-					if (contrato.getStatus_contrato() == 0) {
-						total_contratos_em_analise++;
-					} else if (contrato.getStatus_contrato() == 1) {
-						total_contratos_assinar++;
-					} else if (contrato.getStatus_contrato() == 2) {
-						total_contratos_assinado++;
-					} else if (contrato.getStatus_contrato() == 4) {
-						total_contratos_concluido++;
-					}
-
-				}
-				lblNumContratos.setText(tabela.getRowCount() + "");
-				lblTotalSacosKGs
-						.setText(z.format(quantidade_sacos_total) + " Scs | " + z.format(quantidade_kg_total) + " Kgs");
-				/*
-				 * lblTotalContratosEmAnalise.setText(total_contratos_em_analise + "");
-				 * lblTotalContratosAssinar.setText(total_contratos_assinar+ "");
-				 * lblTotalContratosConcluidos.setText(total_contratos_assinado+ "");
-				 * lblTotalContratosAssinados.setText(total_contratos_concluido + "");
-				 */
-
-				lblTotalContratosEmAnalise.setText(total_contratos_em_analise + " - "
-						+ ((int) (((double) ((double) total_contratos_em_analise / (double) tabela.getRowCount())
-								* 100)))
-						+ "%");
-				lblTotalContratosAssinar.setText(total_contratos_assinar + " - "
-						+ ((int) (((double) ((double) total_contratos_assinar / (double) tabela.getRowCount()) * 100)))
-						+ "%");
-				lblTotalContratosConcluidos.setText(total_contratos_concluido + " - "
-						+ ((int) (((double) ((double) total_contratos_concluido / (double) tabela.getRowCount()))
-								* 100))
-						+ "%");
-				lblTotalContratosAssinados.setText(total_contratos_assinado + " - "
-						+ ((int) (((double) ((double) total_contratos_assinado / (double) tabela.getRowCount()) * 100)))
-						+ "%");
-
-			}
-		});
-		
 		JButton btnLimparCampos = new JButton("Limpar Campos");
 		btnLimparCampos.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
@@ -525,19 +493,53 @@ public class TelaContratos extends JFrame {
 				entSafra.setText("");
 				entProduto.setText("");
 				entStatus.setText("");
-				
+
+			}
+		});
+
+		JButton btnRefazerPesquisa = new JButton("Refazer Pesquisa");
+		btnRefazerPesquisa.setBackground(new Color(0, 51, 0));
+		btnRefazerPesquisa.setForeground(Color.WHITE);
+		btnRefazerPesquisa.setFont(new Font("SansSerif", Font.BOLD, 14));
+		panel_5.add(btnRefazerPesquisa, "cell 9 2,alignx left,aligny top");
+		btnRefazerPesquisa.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+
+				if (flag_retorno == 3 || flag_retorno == 4) {
+					pesquisar_sub_contratos(id_contrato_pai_para_replica_global);
+
+				} else if (rdSubContratos.isSelected()) {
+					pesquisar_sub_contratos();
+				} else {
+					pesquisar();
+
+				}
+			}
+		});
+
+		JButton btnLimparFiltros = new JButton("Limpar Pesquisa");
+		btnLimparFiltros.setBackground(new Color(255, 51, 51));
+		btnLimparFiltros.setForeground(Color.WHITE);
+		btnLimparFiltros.setFont(new Font("SansSerif", Font.BOLD, 14));
+		panel_5.add(btnLimparFiltros, "cell 6 3,alignx left,aligny top");
+		btnLimparFiltros.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				sorter.setRowFilter(RowFilter.regexFilter(""));
+
+				calcular();
+
 			}
 		});
 		btnLimparCampos.setForeground(Color.WHITE);
 		btnLimparCampos.setFont(new Font("SansSerif", Font.BOLD, 14));
 		btnLimparCampos.setBackground(new Color(204, 0, 0));
-		panel_5.add(btnLimparCampos, "cell 7 2,growx");
+		panel_5.add(btnLimparCampos, "cell 7 3,growx");
 
 		JButton btnFiltrar = new JButton("Filtrar");
 		btnFiltrar.setBackground(new Color(0, 51, 255));
 		btnFiltrar.setForeground(Color.WHITE);
 		btnFiltrar.setFont(new Font("SansSerif", Font.BOLD, 14));
-		panel_5.add(btnFiltrar, "cell 8 2,growx,aligny top");
+		panel_5.add(btnFiltrar, "cell 9 3,growx,aligny top");
 		btnFiltrar.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 
@@ -545,149 +547,9 @@ public class TelaContratos extends JFrame {
 			}
 		});
 
-		JPanel panel = new JPanel();
-		painelPrincipal.add(panel, "cell 0 1 3 1,grow");
+	
 
-		tabela = new JTable(modelo_contratos);
-		tabela.setDefaultRenderer(Object.class, renderer);
-
-		tabela.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
-
-		tabela.getColumnModel().getColumn(0).setPreferredWidth(40);
-		tabela.getColumnModel().getColumn(1).setPreferredWidth(90);
-		tabela.getColumnModel().getColumn(2).setPreferredWidth(300);
-		tabela.getColumnModel().getColumn(3).setPreferredWidth(300);
-		tabela.getColumnModel().getColumn(4).setPreferredWidth(180);
-		tabela.getColumnModel().getColumn(5).setPreferredWidth(70);
-		tabela.getColumnModel().getColumn(6).setPreferredWidth(50);
-		tabela.getColumnModel().getColumn(7).setPreferredWidth(70);
-		tabela.getColumnModel().getColumn(8).setPreferredWidth(120);
-		tabela.getColumnModel().getColumn(9).setPreferredWidth(100);
-		tabela.getColumnModel().getColumn(10).setPreferredWidth(120);
-		tabela.getColumnModel().getColumn(11).setPreferredWidth(120);
-		tabela.getColumnModel().getColumn(12).setPreferredWidth(120);
-
-		tabela.setRowSorter(sorter);
-
-		tabela.setBackground(new Color(255, 255, 255));
-		// tabela.setPreferredSize(new Dimension(0, 200));
-		tabela.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
-
-		tabela.setRowHeight(30);
-
-		JScrollPane scrollPane = new JScrollPane(tabela);
-		scrollPane.addMouseListener(new MouseAdapter() {
-			@Override
-			public void mouseClicked(MouseEvent arg0) {
-				// pesquisar();
-			}
-		});
-		panel.setLayout(new BorderLayout(0, 0));
-		scrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED);
-		scrollPane.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED);
-		scrollPane.setBackground(Color.WHITE);
-		scrollPane.setAutoscrolls(true);
-
-		panel.add(scrollPane);
-
-		JPanel panel_2 = new JPanel();
-		panel_2.setBackground(Color.WHITE);
-		painelPrincipal.add(panel_2, "cell 0 2,alignx center,aligny center");
-		panel_2.setLayout(new MigLayout("", "[48px][115px][24px]", "[19px][19px][19px][19px]"));
-
-		JLabel lblNewLabel_4 = new JLabel("");
-		panel_2.add(lblNewLabel_4, "cell 0 0,grow");
-		lblNewLabel_4.setOpaque(true);
-		lblNewLabel_4.setBackground(new Color(255, 69, 0));
-
-		JLabel lblNewLabel_5 = new JLabel("Contrato em Análise:");
-		panel_2.add(lblNewLabel_5, "cell 1 0,alignx center,aligny center");
-
-		lblTotalContratosEmAnalise = new JLabel("999");
-		panel_2.add(lblTotalContratosEmAnalise, "cell 2 0,alignx left,aligny center");
-		lblTotalContratosEmAnalise.setFont(new Font("SansSerif", Font.BOLD, 14));
-
-		JLabel lblNewLabel_4_1 = new JLabel("");
-		panel_2.add(lblNewLabel_4_1, "cell 0 1,grow");
-		lblNewLabel_4_1.setOpaque(true);
-		lblNewLabel_4_1.setBackground(Color.yellow);
-
-		JLabel lblNewLabel_5_1 = new JLabel("Recolher Assinatura:");
-		panel_2.add(lblNewLabel_5_1, "cell 1 1,alignx center,aligny center");
-
-		lblTotalContratosAssinar = new JLabel("999");
-		panel_2.add(lblTotalContratosAssinar, "cell 2 1,alignx left,aligny center");
-		lblTotalContratosAssinar.setFont(new Font("SansSerif", Font.BOLD, 14));
-
-		JLabel lblNewLabel_4_2 = new JLabel("");
-		panel_2.add(lblNewLabel_4_2, "cell 0 2,grow");
-		lblNewLabel_4_2.setOpaque(true);
-		lblNewLabel_4_2.setBackground(new Color(95, 159, 159));
-
-		JLabel lblNewLabel_5_2 = new JLabel("Assinado:");
-		panel_2.add(lblNewLabel_5_2, "cell 1 2,alignx right,aligny center");
-
-		lblTotalContratosAssinados = new JLabel("999");
-		panel_2.add(lblTotalContratosAssinados, "cell 2 2,alignx left,aligny center");
-		lblTotalContratosAssinados.setFont(new Font("SansSerif", Font.BOLD, 14));
-
-		JLabel lblNewLabel_4_3 = new JLabel("");
-		panel_2.add(lblNewLabel_4_3, "cell 0 3,grow");
-		lblNewLabel_4_3.setOpaque(true);
-		lblNewLabel_4_3.setBackground(new Color(0, 100, 0));
-
-		JLabel lblNewLabel_5_3 = new JLabel("Concluido:");
-		panel_2.add(lblNewLabel_5_3, "cell 1 3,alignx right,aligny center");
-
-		lblTotalContratosConcluidos = new JLabel("999");
-		panel_2.add(lblTotalContratosConcluidos, "cell 2 3,alignx left,aligny center");
-		lblTotalContratosConcluidos.setFont(new Font("SansSerif", Font.BOLD, 14));
-
-		JPanel panel_3 = new JPanel();
-		panel_3.setBackground(Color.WHITE);
-		painelPrincipal.add(panel_3, "cell 2 2,alignx center,aligny center");
-		panel_3.setLayout(new MigLayout("", "[239px][152px][333px]", "[39.00px][50px]"));
-
-		JPanel panel_1 = new JPanel();
-		panel_3.add(panel_1, "cell 0 0,alignx left,growy");
-		panel_1.setBackground(new Color(0, 153, 51));
-		panel_1.setLayout(new MigLayout("", "[][]", "[]"));
-
-		JLabel lblNewLabel_1 = new JLabel("Número de Contratos:");
-		lblNewLabel_1.setFont(new Font("SansSerif", Font.PLAIN, 14));
-		lblNewLabel_1.setForeground(Color.WHITE);
-		panel_1.add(lblNewLabel_1, "cell 0 0");
-
-		lblNumContratos = new JLabel("999");
-		lblNumContratos.setForeground(Color.WHITE);
-		lblNumContratos.setFont(new Font("SansSerif", Font.BOLD, 14));
-		panel_1.add(lblNumContratos, "flowx,cell 1 0");
-
-		JLabel lblNewLabel_3 = new JLabel("Contratos");
-		lblNewLabel_3.setForeground(Color.WHITE);
-		lblNewLabel_3.setFont(new Font("SansSerif", Font.PLAIN, 12));
-		panel_1.add(lblNewLabel_3, "cell 1 0");
-
-		JPanel panel_1_1 = new JPanel();
-		panel_3.add(panel_1_1, "cell 2 0,alignx left,aligny top");
-		panel_1_1.setBackground(new Color(51, 153, 102));
-		panel_1_1.setLayout(new MigLayout("", "[][]", "[]"));
-
-		JLabel lblNewLabel_2 = new JLabel("Total Sacos:");
-		lblNewLabel_2.setFont(new Font("SansSerif", Font.PLAIN, 14));
-		lblNewLabel_2.setForeground(Color.WHITE);
-		panel_1_1.add(lblNewLabel_2, "cell 0 0");
-
-		lblTotalSacosKGs = new JLabel("99.999,66 SCs / 999999999999 KGs");
-		lblTotalSacosKGs.setForeground(Color.WHITE);
-		lblTotalSacosKGs.setFont(new Font("SansSerif", Font.BOLD, 14));
-		panel_1_1.add(lblTotalSacosKGs, "cell 1 0");
-
-		JPanel panel_4 = new JPanel();
-		panel_4.setBackground(Color.WHITE);
-		panel_3.add(panel_4, "cell 0 1 3 1,grow");
-		panel_4.setLayout(new MigLayout("", "[73px][152px][74px][87px][81px][106px]", "[36px]"));
-
+	
 		JButton btnExportar = new JButton("Exportar Dados");
 		btnExportar.setBackground(new Color(51, 0, 51));
 		btnExportar.setForeground(Color.WHITE);
@@ -698,9 +560,8 @@ public class TelaContratos extends JFrame {
 				HSSFWorkbook workbook = new HSSFWorkbook();
 				HSSFSheet sheet = workbook.createSheet("Contratos");
 
-							
 				// Definindo alguns padroes de layout
-				//sheet.setDefaultColumnWidth(10);
+				// sheet.setDefaultColumnWidth(10);
 				sheet.setDefaultRowHeight((short) 400);
 				sheet.getPrintSetup().setPaperSize(PrintSetup.A4_PAPERSIZE);
 				sheet.getPrintSetup().setLandscape(false);
@@ -709,7 +570,6 @@ public class TelaContratos extends JFrame {
 				sheet.setMargin(Sheet.TopMargin, 0);
 				sheet.setMargin(Sheet.BottomMargin, 0);
 
-				
 				int rownum = 0;
 				int cellnum = 0;
 				Cell cell;
@@ -727,14 +587,13 @@ public class TelaContratos extends JFrame {
 				headerStyle.setBorderBottom(BorderStyle.MEDIUM);
 				headerStyle.setBorderLeft(BorderStyle.MEDIUM);
 				headerStyle.setBorderRight(BorderStyle.MEDIUM);
-				
+
 				HSSFFont newFontNegrita = workbook.createFont();
 				newFontNegrita.setBold(true);
 				newFontNegrita.setColor(IndexedColors.BLACK.getIndex());
 				newFontNegrita.setFontName("Arial");
 				newFontNegrita.setItalic(false);
-				newFontNegrita.setFontHeightInPoints((short)10);
-
+				newFontNegrita.setFontHeightInPoints((short) 10);
 
 				headerStyle.setFont(newFontNegrita);
 
@@ -745,13 +604,13 @@ public class TelaContratos extends JFrame {
 				textStyle.setBorderBottom(BorderStyle.MEDIUM);
 				textStyle.setBorderLeft(BorderStyle.MEDIUM);
 				textStyle.setBorderRight(BorderStyle.MEDIUM);
-				
+
 				HSSFFont newFontNormal = workbook.createFont();
 				newFontNormal.setBold(false);
 				newFontNormal.setColor(IndexedColors.BLACK.getIndex());
 				newFontNormal.setFontName("Arial");
 				newFontNormal.setItalic(false);
-				newFontNormal.setFontHeightInPoints((short)10);
+				newFontNormal.setFontHeightInPoints((short) 10);
 				textStyle.setFont(newFontNormal);
 
 				CellStyle numberStyle = workbook.createCellStyle();
@@ -762,7 +621,7 @@ public class TelaContratos extends JFrame {
 				numberStyle.setBorderBottom(BorderStyle.MEDIUM);
 				numberStyle.setBorderLeft(BorderStyle.MEDIUM);
 				numberStyle.setBorderRight(BorderStyle.MEDIUM);
-				
+
 				CellStyle valorStyle = workbook.createCellStyle();
 				valorStyle.setDataFormat(numberFormat.getFormat("R$ #,##0.00"));
 				valorStyle.setVerticalAlignment(VerticalAlignment.CENTER);
@@ -771,7 +630,7 @@ public class TelaContratos extends JFrame {
 				valorStyle.setBorderBottom(BorderStyle.MEDIUM);
 				valorStyle.setBorderLeft(BorderStyle.MEDIUM);
 				valorStyle.setBorderRight(BorderStyle.MEDIUM);
-				
+
 				// Configurando Header
 				row = sheet.createRow(rownum++);
 				cell = row.createCell(cellnum++);
@@ -861,11 +720,9 @@ public class TelaContratos extends JFrame {
 					cell.setCellStyle(textStyle);
 					cell.setCellValue(trimar(cadastro.getNomes_compradores().toUpperCase()));
 
-
 					cell = row.createCell(cellnum++);
 					cell.setCellStyle(textStyle);
 					cell.setCellValue(trimar(cadastro.getNomes_vendedores().toUpperCase()));
-
 
 					cell = row.createCell(cellnum++);
 					cell.setCellStyle(textStyle);
@@ -906,9 +763,9 @@ public class TelaContratos extends JFrame {
 					cell = row.createCell(cellnum++);
 					cell.setCellStyle(numberStyle);
 					String medida = "";
-					if(cadastro.getMedida().equalsIgnoreCase("Sacos")) {
+					if (cadastro.getMedida().equalsIgnoreCase("Sacos")) {
 						medida = "SC";
-					}else if(cadastro.getMedida().equalsIgnoreCase("Kg")) {
+					} else if (cadastro.getMedida().equalsIgnoreCase("Kg")) {
 						medida = "KG";
 
 					}
@@ -922,9 +779,9 @@ public class TelaContratos extends JFrame {
 					cell = row.createCell(cellnum++);
 					cell.setCellStyle(numberStyle);
 					String transgenia = "";
-					if(cadastro.getModelo_safra().getProduto().getTransgenia().contains("CONVENCIONAL")) {
+					if (cadastro.getModelo_safra().getProduto().getTransgenia().contains("CONVENCIONAL")) {
 						transgenia = "CONVEN.";
-					}else {
+					} else {
 						transgenia = "TRANSG.";
 
 					}
@@ -932,10 +789,13 @@ public class TelaContratos extends JFrame {
 
 					cell = row.createCell(cellnum++);
 					cell.setCellStyle(numberStyle);
-					String ano_plantio = Integer.toString(cadastro.getModelo_safra().getAno_plantio()).replaceAll("[^0-9]","");
-					String ano_colheita =  Integer.toString(cadastro.getModelo_safra().getAno_colheita()).replaceAll("[^0-9]","");
+					String ano_plantio = Integer.toString(cadastro.getModelo_safra().getAno_plantio())
+							.replaceAll("[^0-9]", "");
+					String ano_colheita = Integer.toString(cadastro.getModelo_safra().getAno_colheita())
+							.replaceAll("[^0-9]", "");
 
-					cell.setCellValue( ano_plantio.substring(ano_plantio.length() - 2) + "/" + ano_colheita.substring(ano_plantio.length() - 2) );
+					cell.setCellValue(ano_plantio.substring(ano_plantio.length() - 2) + "/"
+							+ ano_colheita.substring(ano_plantio.length() - 2));
 					/*
 					 * codigo compradores vendedores status quantidade medida produto transgenia
 					 * safra valor_produto valor_total data_contrato local_retirada
@@ -969,7 +829,6 @@ public class TelaContratos extends JFrame {
 					cell.setCellValue(s_local_retirada);
 
 				}
-
 
 				// registra total de sacos, quilogramas, e valor total
 				// total de contratos
@@ -1031,12 +890,12 @@ public class TelaContratos extends JFrame {
 				// criar os filtros
 				sheet.setAutoFilter(CellRangeAddress.valueOf("A1:M1"));
 				sheet.setAutobreaks(true);
-				  sheet.setFitToPage(true);
-				  PrintSetup printSetup = sheet.getPrintSetup();
-				  printSetup.setFitHeight((short)0);
-				  printSetup.setFitWidth((short)1);	
-				 
-					IntStream.range(0, cellnum).forEach((columnIndex) -> sheet.autoSizeColumn(columnIndex));
+				sheet.setFitToPage(true);
+				PrintSetup printSetup = sheet.getPrintSetup();
+				printSetup.setFitHeight((short) 0);
+				printSetup.setFitWidth((short) 1);
+
+				IntStream.range(0, cellnum).forEach((columnIndex) -> sheet.autoSizeColumn(columnIndex));
 
 				try {
 
@@ -1143,10 +1002,7 @@ public class TelaContratos extends JFrame {
 			}
 		});
 
-		JButton btnSelecionar = new JButton("Selecionar");
-		btnSelecionar.setBackground(new Color(51, 0, 102));
-		btnSelecionar.setForeground(Color.WHITE);
-		btnSelecionar.setFont(new Font("SansSerif", Font.BOLD, 14));
+	
 		panel_4.add(btnSelecionar, "cell 3 0,alignx left,aligny center");
 		btnSelecionar.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
@@ -1192,7 +1048,7 @@ public class TelaContratos extends JFrame {
 								"Não é possivel replicar um pagamento para um contrato finalizado");
 					}
 
-				}else if (flag_retorno == 5) {
+				} else if (flag_retorno == 5) {
 
 					if (contrato_selecionado.getStatus_contrato() != 3) {
 
@@ -1203,43 +1059,23 @@ public class TelaContratos extends JFrame {
 								"Não é possivel transferir volume para um contrato finalizado");
 					}
 
-				}
-				 else if (flag_retorno == 6) {
+				} else if (flag_retorno == 6) {
 
-						if (contrato_selecionado.getStatus_contrato() != 3) {
+					if (contrato_selecionado.getStatus_contrato() != 3) {
 
-							((TelaReplicarRecebimento) telaPai).setContratoDestintario(contrato_selecionado);
-							isto.dispose();
-						} else {
-							JOptionPane.showMessageDialog(isto,
-									"Não é possivel replicar um pagamento para um contrato finalizado");
-						}
-
+						((TelaReplicarRecebimento) telaPai).setContratoDestintario(contrato_selecionado);
+						isto.dispose();
+					} else {
+						JOptionPane.showMessageDialog(isto,
+								"Não é possivel replicar um pagamento para um contrato finalizado");
 					}
+
+				}
 				isto.dispose();
 			}
 		});
 
-		JButton btnAbrir = new JButton("Abrir");
-		btnAbrir.setBackground(new Color(0, 51, 255));
-		btnAbrir.setForeground(Color.WHITE);
-		btnAbrir.setFont(new Font("SansSerif", Font.BOLD, 14));
-		panel_4.add(btnAbrir, "cell 4 0,alignx left,aligny top");
-		btnAbrir.setIcon(new ImageIcon(TelaCliente.class.getResource("/imagens/lista.png")));
-		btnAbrir.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				int indiceDaLinha = tabela.getSelectedRow();
-
-				int id_contrato_selecionado = Integer.parseInt(tabela.getValueAt(indiceDaLinha, 0).toString());
-				GerenciarBancoContratos gerenciar_cont = new GerenciarBancoContratos();
-				CadastroContrato contrato_selecionado = gerenciar_cont.getContrato(id_contrato_selecionado);
-
-				lista_telas_contratos.add(new TelaGerenciarContrato(contrato_selecionado, null));
-				
-				
-			}
-		});
-
+		
 		JButton btnContrato = new JButton("Novo Contrato");
 		btnContrato.setBackground(new Color(0, 51, 0));
 		btnContrato.setForeground(Color.WHITE);
@@ -1255,7 +1091,182 @@ public class TelaContratos extends JFrame {
 		// ImageIcon(TelaContratos.class.getResource("/imagens/add_contrato.png")));
 		btnContrato.setToolTipText("Adicionar Novo Contrato");
 
-		if (flag_retorno == 1 || flag_retorno == 2 || flag_retorno == 3 || flag_retorno == 4 ||  flag_retorno == 5  ||  flag_retorno == 6) {
+		JPanel panel_2 = new JPanel();
+		panel_2.setBackground(Color.WHITE);
+		painelPrincipal.add(panel_2, "cell 0 3,alignx center,aligny center");
+		panel_2.setLayout(new MigLayout("", "[48px][115px][24px]", "[19px][19px][19px][19px]"));
+
+		JLabel lblNewLabel_4 = new JLabel("");
+		panel_2.add(lblNewLabel_4, "cell 0 0,grow");
+		lblNewLabel_4.setOpaque(true);
+		lblNewLabel_4.setBackground(new Color(255, 69, 0));
+
+		JLabel lblNewLabel_5 = new JLabel("Contrato em Análise:");
+		panel_2.add(lblNewLabel_5, "cell 1 0,alignx center,aligny center");
+
+		lblTotalContratosEmAnalise = new JLabel("999");
+		panel_2.add(lblTotalContratosEmAnalise, "cell 2 0,alignx left,aligny center");
+		lblTotalContratosEmAnalise.setFont(new Font("SansSerif", Font.BOLD, 14));
+
+		JLabel lblNewLabel_4_1 = new JLabel("");
+		panel_2.add(lblNewLabel_4_1, "cell 0 1,grow");
+		lblNewLabel_4_1.setOpaque(true);
+		lblNewLabel_4_1.setBackground(Color.yellow);
+
+		JLabel lblNewLabel_5_1 = new JLabel("Recolher Assinatura:");
+		panel_2.add(lblNewLabel_5_1, "cell 1 1,alignx center,aligny center");
+
+		lblTotalContratosAssinar = new JLabel("999");
+		panel_2.add(lblTotalContratosAssinar, "cell 2 1,alignx left,aligny center");
+		lblTotalContratosAssinar.setFont(new Font("SansSerif", Font.BOLD, 14));
+
+		JLabel lblNewLabel_4_2 = new JLabel("");
+		panel_2.add(lblNewLabel_4_2, "cell 0 2,grow");
+		lblNewLabel_4_2.setOpaque(true);
+		lblNewLabel_4_2.setBackground(new Color(95, 159, 159));
+
+		JLabel lblNewLabel_5_2 = new JLabel("Assinado:");
+		panel_2.add(lblNewLabel_5_2, "cell 1 2,alignx right,aligny center");
+
+		lblTotalContratosAssinados = new JLabel("999");
+		panel_2.add(lblTotalContratosAssinados, "cell 2 2,alignx left,aligny center");
+		lblTotalContratosAssinados.setFont(new Font("SansSerif", Font.BOLD, 14));
+
+		JLabel lblNewLabel_4_3 = new JLabel("");
+		panel_2.add(lblNewLabel_4_3, "cell 0 3,grow");
+		lblNewLabel_4_3.setOpaque(true);
+		lblNewLabel_4_3.setBackground(new Color(0, 100, 0));
+
+		JLabel lblNewLabel_5_3 = new JLabel("Concluido:");
+		panel_2.add(lblNewLabel_5_3, "cell 1 3,alignx right,aligny center");
+
+		lblTotalContratosConcluidos = new JLabel("999");
+		panel_2.add(lblTotalContratosConcluidos, "cell 2 3,alignx left,aligny center");
+		lblTotalContratosConcluidos.setFont(new Font("SansSerif", Font.BOLD, 14));
+
+		JPanel panel_7 = new JPanel();
+		panel_7.setBackground(Color.WHITE);
+		painelPrincipal.add(panel_7, "cell 1 3,grow");
+		panel_7.setLayout(new MigLayout("", "[][]", "[][][][]"));
+
+		JLabel lblNewLabel_6_2 = new JLabel("Total Contratado:");
+		lblNewLabel_6_2.setFont(new Font("SansSerif", Font.PLAIN, 14));
+		panel_7.add(lblNewLabel_6_2, "cell 0 0,alignx right");
+
+		lblTotalContratado = new JLabel("99.999,66 SCs / 999999999999 KGs");
+		lblTotalContratado.setForeground(Color.BLACK);
+		lblTotalContratado.setFont(new Font("SansSerif", Font.BOLD, 14));
+		panel_7.add(lblTotalContratado, "cell 1 0");
+
+		JLabel lblNewLabel_6 = new JLabel("Total Recebido:");
+		lblNewLabel_6.setFont(new Font("SansSerif", Font.PLAIN, 14));
+		panel_7.add(lblNewLabel_6, "cell 0 1,alignx right");
+
+		lblTotalRecebido = new JLabel("99.999,66 SCs / 999999999999 KGs");
+		lblTotalRecebido.setForeground(Color.BLACK);
+		lblTotalRecebido.setFont(new Font("SansSerif", Font.BOLD, 14));
+		panel_7.add(lblTotalRecebido, "cell 1 1");
+
+		JLabel lblNewLabel_6_1 = new JLabel("Total Carregado:");
+		lblNewLabel_6_1.setFont(new Font("SansSerif", Font.PLAIN, 14));
+		panel_7.add(lblNewLabel_6_1, "cell 0 2,alignx right");
+
+		lblTotalCarregado = new JLabel("99.999,66 SCs / 999999999999 KGs");
+		lblTotalCarregado.setForeground(Color.BLACK);
+		lblTotalCarregado.setFont(new Font("SansSerif", Font.BOLD, 14));
+		panel_7.add(lblTotalCarregado, "cell 1 2");
+
+		JLabel lblNewLabel_6_1_1 = new JLabel("Total Pago:");
+		lblNewLabel_6_1_1.setFont(new Font("SansSerif", Font.PLAIN, 14));
+		panel_7.add(lblNewLabel_6_1_1, "cell 0 3,alignx right");
+
+		lblTotalPago = new JLabel("R$ 999.999.999,00");
+		lblTotalPago.setForeground(Color.BLACK);
+		lblTotalPago.setFont(new Font("SansSerif", Font.BOLD, 14));
+		panel_7.add(lblTotalPago, "cell 1 3");
+
+		JPanel panel_3 = new JPanel();
+		panel_3.setBackground(Color.WHITE);
+		painelPrincipal.add(panel_3, "cell 2 3,alignx center,aligny center");
+		panel_3.setLayout(new MigLayout("", "[239px][152px][333px]", "[39.00px][50px]"));
+
+		JPanel panel_1 = new JPanel();
+		panel_3.add(panel_1, "cell 0 0,alignx left,growy");
+		panel_1.setBackground(new Color(0, 153, 51));
+		panel_1.setLayout(new MigLayout("", "[][]", "[]"));
+
+		JLabel lblNewLabel_1 = new JLabel("Número de Contratos:");
+		lblNewLabel_1.setFont(new Font("SansSerif", Font.PLAIN, 14));
+		lblNewLabel_1.setForeground(Color.WHITE);
+		panel_1.add(lblNewLabel_1, "cell 0 0");
+
+		lblNumContratos = new JLabel("999");
+		lblNumContratos.setForeground(Color.WHITE);
+		lblNumContratos.setFont(new Font("SansSerif", Font.BOLD, 14));
+		panel_1.add(lblNumContratos, "flowx,cell 1 0");
+
+		JLabel lblNewLabel_3 = new JLabel("Contratos");
+		lblNewLabel_3.setForeground(Color.WHITE);
+		lblNewLabel_3.setFont(new Font("SansSerif", Font.PLAIN, 12));
+		panel_1.add(lblNewLabel_3, "cell 1 0");
+
+		JPanel panel_1_1 = new JPanel();
+		panel_3.add(panel_1_1, "cell 2 0,alignx left,aligny top");
+		panel_1_1.setBackground(new Color(51, 153, 102));
+		panel_1_1.setLayout(new MigLayout("", "[][]", "[]"));
+
+		JLabel lblNewLabel_2 = new JLabel("Total Sacos:");
+		lblNewLabel_2.setFont(new Font("SansSerif", Font.PLAIN, 14));
+		lblNewLabel_2.setForeground(Color.WHITE);
+		panel_1_1.add(lblNewLabel_2, "cell 0 0");
+
+		lblTotalSacosKGs = new JLabel("99.999,66 SCs / 999999999999 KGs");
+		lblTotalSacosKGs.setForeground(Color.WHITE);
+		lblTotalSacosKGs.setFont(new Font("SansSerif", Font.BOLD, 14));
+		panel_1_1.add(lblTotalSacosKGs, "cell 1 0");
+		
+		JPanel panel = new JPanel();
+		painelPrincipal.add(panel, "cell 0 1 3 1,grow");
+
+		tabela = new JTable(modelo_contratos);
+		tabela.setDefaultRenderer(Object.class, renderer);
+
+		tabela.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
+
+		tabela.getColumnModel().getColumn(0).setPreferredWidth(40);
+		tabela.getColumnModel().getColumn(1).setPreferredWidth(90);
+		tabela.getColumnModel().getColumn(2).setPreferredWidth(300);
+		tabela.getColumnModel().getColumn(3).setPreferredWidth(300);
+		tabela.getColumnModel().getColumn(4).setPreferredWidth(180);
+		tabela.getColumnModel().getColumn(5).setPreferredWidth(70);
+		tabela.getColumnModel().getColumn(6).setPreferredWidth(50);
+		tabela.getColumnModel().getColumn(7).setPreferredWidth(70);
+		tabela.getColumnModel().getColumn(8).setPreferredWidth(120);
+		tabela.getColumnModel().getColumn(9).setPreferredWidth(100);
+		tabela.getColumnModel().getColumn(10).setPreferredWidth(120);
+		tabela.getColumnModel().getColumn(11).setPreferredWidth(120);
+		tabela.getColumnModel().getColumn(12).setPreferredWidth(120);
+
+		tabela.setRowSorter(sorter);
+
+		tabela.setBackground(new Color(255, 255, 255));
+		// tabela.setPreferredSize(new Dimension(0, 200));
+		tabela.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
+
+		tabela.setRowHeight(30);
+
+		JScrollPane scrollPane = new JScrollPane(tabela);
+		
+		panel.setLayout(new BorderLayout(0, 0));
+		scrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+		scrollPane.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED);
+		scrollPane.setBackground(Color.WHITE);
+		scrollPane.setAutoscrolls(true);
+
+		panel.add(scrollPane);
+
+		if (flag_retorno == 1 || flag_retorno == 2 || flag_retorno == 3 || flag_retorno == 4 || flag_retorno == 5
+				|| flag_retorno == 6) {
 			// selecionar contrato para carregamento
 			btnAbrir.setEnabled(false);
 			btnAbrir.setVisible(false);
@@ -1269,36 +1280,41 @@ public class TelaContratos extends JFrame {
 
 		} else
 			pesquisar();
-		
 
+		
 		this.setExtendedState(JFrame.MAXIMIZED_BOTH);
 
-		//this.pack();
+		// this.pack();
 
 		this.setResizable(true);
 		this.setLocationRelativeTo(janela_pai);
 
 	}
 
-	public void pesquisar() {
-		GerenciarBancoContratos gerenciar = new GerenciarBancoContratos();
-		lista_contratos.clear();
-		modelo_contratos.onRemoveAll();
+	public void calcular() {
+		
 		double quantidade_sacos_total = 0;
 		double quantidade_kg_total = 0;
+		
+		
+		double total_carregado = 0, total_recebido = 0, total_contratado = 0;
+		BigDecimal total_pago = BigDecimal.ZERO;
+		
 		int total_contratos_em_analise = 0;
 		int total_contratos_assinar = 0;
 		int total_contratos_assinado = 0;
 		int total_contratos_concluido = 0;
-
+		
 		NumberFormat z = NumberFormat.getNumberInstance();
 
-		for (CadastroContrato contrato : gerenciar.getContratos()) {
+		for (int row = 0; row < tabela.getRowCount(); row++) {
+
+			int index = tabela.convertRowIndexToModel(row);
+			CadastroContrato contrato = modelo_contratos.getValue(index);
 
 			if (contrato.getSub_contrato() == 0 || contrato.getSub_contrato() == 3 || contrato.getSub_contrato() == 4
 					|| contrato.getSub_contrato() == 5) {
 
-				modelo_contratos.onAdd(contrato);
 				double quantidade_sacos = 0;
 				double quantidade_kg = 0;
 
@@ -1322,21 +1338,25 @@ public class TelaContratos extends JFrame {
 				}
 				quantidade_sacos_total += quantidade_sacos;
 				quantidade_kg_total += quantidade_kg;
-				lista_contratos.add(contrato);
+				
+				
+				total_contratado += quantidade_kg;
+				
+				total_recebido += contrato.getQuantidade_recebida();
+				
+				total_carregado += contrato.getQuantidade_carregada();
+				
+					
 			}
 
 		}
-
-		lblNumContratos.setText(lista_contratos.size() + "");
+		
+		
+		
+		lblNumContratos.setText(tabela.getRowCount() + "");
 		lblTotalSacosKGs.setText(z.format(quantidade_sacos_total) + " Scs | " + z.format(quantidade_kg_total) + " Kgs");
 
-		/*
-		 * lblTotalContratosEmAnalise.setText(total_contratos_em_analise + "");
-		 * lblTotalContratosAssinar.setText(total_contratos_assinar+ "");
-		 * lblTotalContratosConcluidos.setText(total_contratos_concluido + "");
-		 * lblTotalContratosAssinados.setText(total_contratos_assinado + "");
-		 */
-
+	
 		lblTotalContratosEmAnalise.setText(total_contratos_em_analise + " - "
 				+ ((int) (((double) ((double) total_contratos_em_analise / (double) tabela.getRowCount()) * 100)))
 				+ "%");
@@ -1348,6 +1368,35 @@ public class TelaContratos extends JFrame {
 		lblTotalContratosAssinados.setText(total_contratos_assinado + " - "
 				+ ((int) (((double) ((double) total_contratos_assinado / (double) tabela.getRowCount()) * 100))) + "%");
 
+	
+	
+		lblTotalContratado.setText(z.format(total_contratado) + " Kgs | " + z.format(total_contratado/60) + " Sacos");
+		lblTotalRecebido.setText(z.format(total_recebido*60) + " Kgs | " + z.format(total_recebido) + " Sacos");
+		lblTotalCarregado.setText(z.format(total_carregado*60) + " Kgs | " + z.format(total_carregado) + " Sacos");
+		lblTotalPago.setText("");
+
+	}
+	
+	public void pesquisar() {
+		GerenciarBancoContratos gerenciar = new GerenciarBancoContratos();
+		lista_contratos.clear();
+		modelo_contratos.onRemoveAll();
+	
+		lista_contratos = gerenciar.getContratos();
+
+		for (CadastroContrato contrato : lista_contratos) {
+
+			if (contrato.getSub_contrato() == 0 || contrato.getSub_contrato() == 3 || contrato.getSub_contrato() == 4
+					|| contrato.getSub_contrato() == 5) {
+
+				modelo_contratos.onAdd(contrato);
+				
+			}
+
+		}
+
+	    calcular();
+		
 	}
 
 	public void pesquisar_contratos_e_sub_contratos() {
@@ -1396,13 +1445,7 @@ public class TelaContratos extends JFrame {
 		lblNumContratos.setText(lista_contratos.size() + "");
 		lblTotalSacosKGs.setText(z.format(quantidade_sacos_total) + " Scs | " + z.format(quantidade_kg_total) + " Kgs");
 
-		/*
-		 * lblTotalContratosEmAnalise.setText(total_contratos_em_analise + "");
-		 * lblTotalContratosAssinar.setText(total_contratos_assinar+ "");
-		 * lblTotalContratosConcluidos.setText(total_contratos_concluido + "");
-		 * lblTotalContratosAssinados.setText(total_contratos_assinado + "");
-		 */
-
+	
 		lblTotalContratosEmAnalise.setText(total_contratos_em_analise + " - "
 				+ ((int) (((double) ((double) total_contratos_em_analise / (double) tabela.getRowCount()) * 100)))
 				+ "%");
@@ -1468,7 +1511,6 @@ public class TelaContratos extends JFrame {
 		lblNumContratos.setText(lista_contratos.size() + "");
 		lblTotalSacosKGs.setText(z.format(quantidade_sacos_total) + " Scs | " + z.format(quantidade_kg_total) + " Kgs");
 
-		
 		lblTotalContratosEmAnalise.setText(total_contratos_em_analise + " - "
 				+ ((int) (((double) ((double) total_contratos_em_analise / (double) tabela.getRowCount()) * 100)))
 				+ "%");
@@ -1482,7 +1524,6 @@ public class TelaContratos extends JFrame {
 
 	}
 
-	
 	public void pesquisar_sub_contratos() {
 
 		GerenciarBancoContratos gerenciar = new GerenciarBancoContratos();
@@ -1533,8 +1574,6 @@ public class TelaContratos extends JFrame {
 		lblNumContratos.setText(lista_contratos.size() + "");
 		lblTotalSacosKGs.setText(z.format(quantidade_sacos_total) + " Scs | " + z.format(quantidade_kg_total) + " Kgs");
 
-		
-		
 		lblTotalContratosEmAnalise.setText(total_contratos_em_analise + " - "
 				+ ((int) (((double) ((double) total_contratos_em_analise / (double) tabela.getRowCount()) * 100)))
 				+ "%");
@@ -1548,7 +1587,6 @@ public class TelaContratos extends JFrame {
 
 	}
 
-	
 	public boolean testeConexao() {
 		try {
 			Thread.sleep(10000);
@@ -1606,6 +1644,8 @@ public class TelaContratos extends JFrame {
 	}
 
 	public void filtrar() {
+
+		
 		NumberFormat z = NumberFormat.getNumberInstance();
 
 		double quantidade_sacos_total = 0;
@@ -1639,64 +1679,21 @@ public class TelaContratos extends JFrame {
 			filters.add(RowFilter.regexFilter(status, 4));
 
 		if (checkString(produto))
-			filters.add(RowFilter.regexFilter(produto, 7));
+			filters.add(RowFilter.regexFilter(produto, 10));
 
 		if (checkString(transgenese))
-			filters.add(RowFilter.regexFilter(transgenese, 8));
+			filters.add(RowFilter.regexFilter(transgenese, 11));
 
 		if (checkString(safra))
-			filters.add(RowFilter.regexFilter(safra, 8));
+			filters.add(RowFilter.regexFilter(safra, 12));
 
 		if (checkString(local_retirada))
-			filters.add(RowFilter.regexFilter(local_retirada, 14));
+			filters.add(RowFilter.regexFilter(local_retirada, 17));
 
 		sorter.setRowFilter(RowFilter.andFilter(filters));
 
-		for (int row = 0; row < tabela.getRowCount(); row++) {
-
-			int index = tabela.convertRowIndexToModel(row);
-			CadastroContrato contrato = modelo_contratos.getValue(index);
-			double quantidade_sacos = 0;
-			double quantidade_kg = 0;
-
-			if (contrato.getMedida().equalsIgnoreCase("SACOS")) {
-				quantidade_sacos = contrato.getQuantidade();
-				quantidade_kg = contrato.getQuantidade() * 60;
-
-			} else if (contrato.getMedida().equalsIgnoreCase("KG")) {
-				quantidade_kg = contrato.getQuantidade();
-				quantidade_sacos = quantidade_kg / 60;
-			}
-
-			if (contrato.getStatus_contrato() == 0) {
-				total_contratos_em_analise++;
-			} else if (contrato.getStatus_contrato() == 1) {
-				total_contratos_assinar++;
-			} else if (contrato.getStatus_contrato() == 2) {
-				total_contratos_assinado++;
-			} else if (contrato.getStatus_contrato() == 3) {
-				total_contratos_concluido++;
-			}
-
-			quantidade_sacos_total += quantidade_sacos;
-			quantidade_kg_total += quantidade_kg;
-
-			total_contratos++;
-
-		}
-		lblNumContratos.setText(tabela.getRowCount() + "");
-		lblTotalSacosKGs.setText(z.format(quantidade_sacos_total) + " Scs | " + z.format(quantidade_kg_total) + " Kgs");
-
-		lblTotalContratosEmAnalise.setText(total_contratos_em_analise + " - "
-				+ ((int) (((double) ((double) total_contratos_em_analise / (double) tabela.getRowCount()) * 100)))
-				+ "%");
-		lblTotalContratosAssinar.setText(total_contratos_assinar + " - "
-				+ ((int) (((double) ((double) total_contratos_assinar / (double) tabela.getRowCount()) * 100))) + "%");
-		lblTotalContratosConcluidos.setText(total_contratos_concluido + " - "
-				+ ((int) (((double) ((double) total_contratos_concluido / (double) tabela.getRowCount())) * 100))
-				+ "%");
-		lblTotalContratosAssinados.setText(total_contratos_assinado + " - "
-				+ ((int) (((double) ((double) total_contratos_assinado / (double) tabela.getRowCount()) * 100))) + "%");
+		calcular();
+		
 	}
 
 	public boolean checkString(String txt) {
@@ -1747,28 +1744,32 @@ public class TelaContratos extends JFrame {
 		private final int compradores = 2;
 		private final int vendedores = 3;
 		private final int status = 4;
-		private final int quantidade = 5;
-		private final int medida = 6;
-		private final int produto = 7;
-		private final int transgenia = 8;
-		private final int safra = 9;
-		private final int valor_produto = 10;
-		private final int valor_total = 11;
-		private final int corretores = 12;
-		private final int data_contrato = 13;
-		private final int local_retirada = 14;
-		private final int bruto_livre = 15;
-		private final int penhor = 16;
-		private final int optante_folha = 17;
-		private final int localizacao = 18;
-		private final int fertilizante = 19;
+		private final int status_recebimento = 5;
+		private final int status_carregamento = 6;
+		private final int status_pagamento = 7;
+
+		private final int quantidade = 8;
+		private final int medida = 9;
+		private final int produto = 10;
+		private final int transgenia = 11;
+		private final int safra = 12;
+		private final int valor_produto = 13;
+		private final int valor_total = 14;
+		private final int corretores = 15;
+		private final int data_contrato = 16;
+		private final int local_retirada = 17;
+		private final int bruto_livre = 18;
+		private final int penhor = 19;
+		private final int optante_folha = 20;
+		private final int localizacao = 21;
+		private final int fertilizante = 22;
 
 		List<Color> rowColours = Arrays.asList(Color.RED, Color.GREEN, Color.CYAN);
 
-		private final String colunas[] = { "ID", "Código", "Compradores:", "Vendedores:", "Status:", "Quantidade:",
-				"Medida:", "Produto:", "Transgênese", "Safra:", "Valor Produto:", "Valor Total:", "Corretores:",
-				"Data Contrato", "Local Retirada", "BrutoXLivre", "Penhor", "Optante Folha", "Localização",
-				"Fertilizante" };
+		private final String colunas[] = { "ID", "Código", "Compradores:", "Vendedores:", "Status:",
+				"Status Recebimento:", "Status Carregamento", "Status Pagamento", "Quantidade:", "Medida:", "Produto:",
+				"Transgênese", "Safra:", "Valor Produto:", "Valor Total:", "Corretores:", "Data Contrato",
+				"Local Retirada", "BrutoXLivre", "Penhor", "Optante Folha", "Localização", "Fertilizante" };
 		private final ArrayList<CadastroContrato> dados = new ArrayList<>();// usamos como dados uma lista genérica de
 																			// nfs
 
@@ -1801,6 +1802,12 @@ public class TelaContratos extends JFrame {
 			case vendedores:
 				return String.class;
 			case status:
+				return String.class;
+			case status_recebimento:
+				return String.class;
+			case status_carregamento:
+				return String.class;
+			case status_pagamento:
 				return String.class;
 			case quantidade:
 				return String.class;
@@ -1882,6 +1889,73 @@ public class TelaContratos extends JFrame {
 					return "Em Aprovação".toUpperCase();
 
 				}
+			}
+			case status_recebimento: {
+				double quantidade_recebida = contrato.getQuantidade_recebida();
+				double quantidade_sacos_sub = 0;
+				double quantidade_quilogramas_sub = 0;
+
+				if (contrato.getMedida().equalsIgnoreCase("Sacos")) {
+					quantidade_sacos_sub = contrato.getQuantidade();
+					quantidade_quilogramas_sub = contrato.getQuantidade() * 60;
+				} else if (contrato.getMedida().equalsIgnoreCase("KG")) {
+					quantidade_quilogramas_sub = contrato.getQuantidade();
+					quantidade_sacos_sub = contrato.getQuantidade() / 60;
+
+				}
+
+				if (quantidade_recebida >= (quantidade_sacos_sub - 0.5)) {
+					return "Recebimento Concluído";
+				} else if (quantidade_recebida < quantidade_sacos_sub && quantidade_recebida > 0) {
+					return "Em Recebimento";
+
+				} else if (quantidade_recebida == 0) {
+					return "Recebimento Não Iniciado";
+
+				}
+			}
+			case status_carregamento: {
+				double quantidade_recebida = contrato.getQuantidade_recebida();
+				double quantidade_carregada = contrato.getQuantidade_carregada();
+
+				double quantidade_sacos_sub = 0;
+				double quantidade_quilogramas_sub = 0;
+
+				if (contrato.getMedida().equalsIgnoreCase("Sacos")) {
+					quantidade_sacos_sub = contrato.getQuantidade();
+					quantidade_quilogramas_sub = contrato.getQuantidade() * 60;
+				} else if (contrato.getMedida().equalsIgnoreCase("KG")) {
+					quantidade_quilogramas_sub = contrato.getQuantidade();
+					quantidade_sacos_sub = contrato.getQuantidade() / 60;
+
+				}
+
+				if (quantidade_recebida >= (quantidade_sacos_sub - 0.5)) {
+					// recebimento concluido
+					if (quantidade_carregada >= (quantidade_recebida - 0.5)) {
+						return "Carregamento Concluído";
+					} else if (quantidade_carregada < quantidade_recebida && quantidade_carregada > 0) {
+						return "Em Carregamento";
+
+					} else if (quantidade_carregada == 0)
+						return "Carregamento Não Iniciado";
+
+				} else if (quantidade_recebida < quantidade_sacos_sub && quantidade_recebida > 0) {
+					if (quantidade_carregada >= (quantidade_recebida - 0.5)) {
+						return "Carregamento Parcialmente Concluído";
+					} else if (quantidade_carregada < quantidade_recebida
+							&& quantidade_carregada > (quantidade_recebida / 2)) {
+						return "Em Carregamento";
+
+					} else if (quantidade_carregada == 0) {
+						return "Carregamento Não Iniciado";
+
+					}
+				}
+
+			}
+			case status_pagamento: {
+				return "";
 			}
 			case quantidade: {
 				/*
@@ -2057,8 +2131,7 @@ public class TelaContratos extends JFrame {
 			return dados.get(row);
 		}
 	}
-	
-	
+
 	public String trimar(String texto) {
 		String aplicar_rtrim = texto.replaceAll("\\s+$", "");
 		String aplicar_ltrim = aplicar_rtrim.replaceAll("^\\s+", "");
@@ -2066,9 +2139,8 @@ public class TelaContratos extends JFrame {
 
 	}
 
+	public String reduzirNome(String texto) {
 
- public String reduzirNome(String texto) {
-		
 		String nome_remetente_completo = texto;
 
 		String nome_remetente_quebrado[] = texto.split(" ");
@@ -2095,8 +2167,6 @@ public class TelaContratos extends JFrame {
 
 		return nome_remetente;
 
- }
-
-
+	}
 
 }

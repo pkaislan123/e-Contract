@@ -6,6 +6,8 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.Statement;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 import javax.swing.JOptionPane;
 
@@ -393,12 +395,14 @@ public class GerenciarBancoFinanceiroPagamento {
 				+ " where  (tipo_pagador = 0 and id_pagador = ?) or (tipo_recebedor = 0 and id_recebedor = ? )\r\n"
 				+ " order BY STR_TO_DATE(data_pg, '%d/%m/%Y') ASC";
 		*/
-		String select  = "select lancamento.*,fpag.*,cp.*\r\n"
+		/*String select  = "select lancamento.*,fpag.*,cp.*\r\n"
 				+ " from lancamento\r\n"
 				+ "left join financeiro_pagamento fpag on fpag.id_lancamento_pai = lancamento.id_lancamento \r\n"
 				+ "left join condicao_pagamento cp on cp.id_condicao_pagamento = fpag.id_forma_pagamento\r\n"
 				+ " where  (tipo_pagador = 0 and id_pagador = ?) or (tipo_recebedor = 0 and id_recebedor = ? )\r\n"
 				+ " order BY STR_TO_DATE(fpag.data_pagamento, '%d/%m/%Y') ASC";
+		*/
+		String select = "call consulta_extrato_por_caixa(?)";
 		Connection conn = null;
 		PreparedStatement pstm = null;
 		ResultSet rs = null;
@@ -407,7 +411,6 @@ public class GerenciarBancoFinanceiroPagamento {
 			conn = ConexaoBanco.getConexao();
 			pstm = conn.prepareStatement(select);
 			pstm.setInt(1, id_instituicao_bancaria);
-			pstm.setInt(2, id_instituicao_bancaria );
 
 			rs = pstm.executeQuery();
 			while (rs.next()) {
@@ -453,7 +456,12 @@ public class GerenciarBancoFinanceiroPagamento {
 				financeiro_pagamento_lancamento.setLancamento(lancamento);
 				financeiro_pagamento_lancamento.setFpag(dado);
 				financeiro_pagamento_lancamento.setNome_forma_pagamento(rs.getString("nome_condicao_pagamento"));
+				financeiro_pagamento_lancamento.setNome_pagador(rs.getString("nome_pagador"));
+				financeiro_pagamento_lancamento.setNome_recebedor(rs.getString("nome_recebedor"));
+
 				lista.add(financeiro_pagamento_lancamento);
+				
+				
 				}
 
 			}
@@ -464,6 +472,78 @@ public class GerenciarBancoFinanceiroPagamento {
 		return lista;
 
 	}
+	
+	public ArrayList<FinanceiroPagamentoCompleto> getTodosFinanceiroPagamentos() {
+		
+			String select = "call consulta_extrato_todos_caixa()";
+			Connection conn = null;
+			PreparedStatement pstm = null;
+			ResultSet rs = null;
+			ArrayList<FinanceiroPagamentoCompleto> lista = new ArrayList<>();
+			try {
+				conn = ConexaoBanco.getConexao();
+				pstm = conn.prepareStatement(select);
+
+				rs = pstm.executeQuery();
+				while (rs.next()) {
+					
+					if(rs.getInt("id_lancamento") > 0) {
+					
+					FinanceiroPagamento dado = new FinanceiroPagamento();
+					
+					dado.setId_pagamento(rs.getInt("id_pagamento"));
+					dado.setId_lancamento(rs.getInt("id_lancamento_pai"));
+					dado.setIdentificador(rs.getString("identificador"));
+					dado.setId_condicao_pagamento(rs.getInt("id_forma_pagamento"));
+					dado.setStatus_pagamento(rs.getInt("status_condicao_pagamento"));
+					dado.setFluxo_caixa(rs.getInt("fluxo_caixa"));
+					dado.setTipo_pagador(rs.getInt("tipo_pagador"));
+					dado.setId_pagador(rs.getInt("id_pagador"));
+					dado.setTipo_recebedor(rs.getInt("tipo_recebedor"));
+					dado.setId_recebedor(rs.getInt("id_recebedor"));
+					try{
+						dado.setValor(new BigDecimal(rs.getString("valor")));
+					}catch(Exception e) {
+						dado.setValor(BigDecimal.ZERO);
+					}
+					dado.setData_pagamento(rs.getString("data_pagamento"));
+					dado.setDescricao(rs.getString("descricao"));
+					dado.setObservacao(rs.getString("observacao"));
+					dado.setCaminho_arquivo(rs.getString("caminho_arquivo"));
+				
+					Lancamento lancamento = new Lancamento();
+					lancamento.setId_lancamento(rs.getInt("id_lancamento"));
+					lancamento.setPrioridade(rs.getInt("prioridade"));
+					lancamento.setTipo_lancamento(rs.getInt("tipo_lancamento"));
+					lancamento.setData_lancamento(rs.getString("data_lancamento"));
+					lancamento.setId_instituicao_bancaria(rs.getInt("id_instituicao_bancaria"));
+					lancamento.setId_conta(rs.getInt("id_conta"));
+					lancamento.setId_centro_custo(rs.getInt("id_centro_custo"));
+					lancamento.setId_cliente_fornecedor(rs.getInt("id_cliente_fornecedor"));
+					lancamento.setGerar_parcelas(rs.getInt("gerar_parcelas"));
+					lancamento.setIntervalo(rs.getInt("intervalo"));
+					lancamento.setNumero_parcelas(rs.getInt("numero_parcelas"));
+					
+					FinanceiroPagamentoCompleto financeiro_pagamento_lancamento = new FinanceiroPagamentoCompleto();
+					financeiro_pagamento_lancamento.setLancamento(lancamento);
+					financeiro_pagamento_lancamento.setFpag(dado);
+					financeiro_pagamento_lancamento.setNome_forma_pagamento(rs.getString("nome_condicao_pagamento"));
+					financeiro_pagamento_lancamento.setNome_pagador(rs.getString("nome_pagador"));
+					financeiro_pagamento_lancamento.setNome_recebedor(rs.getString("nome_recebedor"));
+
+					lista.add(financeiro_pagamento_lancamento);
+					
+					
+					}
+
+				}
+				ConexaoBanco.fechaConexao(conn, pstm, rs);
+			} catch (Exception e) {
+				JOptionPane.showMessageDialog(null, "Erro ao listar a Financeiro Pagamento \nErro: " + e.getMessage() + "\nCausa: " + e.getCause());// );
+			}
+			return lista;
+
+		}
 	
 	public boolean atualizarTeste(FinanceiroPagamento dado, int id_instituicao_bancaria) {
 		if (dado != null) {
@@ -557,6 +637,93 @@ public class GerenciarBancoFinanceiroPagamento {
 		}
 	
 }
+	
+
+	
+
+	public SaldoInstituicaoBancaria getSaldoPorPeriodo(int id_instituicao_bancaria, String data) {
+		String select = "call busca_saldo_periodo(?, ?)";
+		Connection conn = null;
+		PreparedStatement pstm = null;
+		SaldoInstituicaoBancaria saldo = new SaldoInstituicaoBancaria();
+		ResultSet rs = null;
+		try {
+			conn = ConexaoBanco.getConexao();
+			pstm = conn.prepareStatement(select);
+			pstm.setInt(1, id_instituicao_bancaria);
+			pstm.setString(2, data);
+
+			rs = pstm.executeQuery();
+		   rs.next();
+		   saldo.setTotal_despesa(rs.getDouble("total_despesa"));
+		   saldo.setTotal_receita(rs.getDouble("total_receita"));
+
+		   
+			ConexaoBanco.fechaConexao(conn, pstm, rs);
+			return saldo;
+		} catch (Exception e) {
+			JOptionPane.showMessageDialog(null, "Erro ao listar o Saldo!\nErro: " + e.getMessage() + "\nCausa: " + e.getCause());// );
+			return null;
+
+		}
+
+	}
+	
+	
+	public  Map<String,String> pegarDatasPagamento(int id_caixa) {
+       
+		String select = "call busca_datas_pagamento_por_ib (?)";
+		Connection conn = null;
+		PreparedStatement pstm = null;
+		ResultSet rs = null;
+		Lancamento dado = new Lancamento();
+
+		try {
+			conn = ConexaoBanco.getConexao();
+			pstm = conn.prepareStatement(select);
+			pstm.setInt(1, id_caixa);
+			rs = pstm.executeQuery();
+			rs.next();
+			 Map<String,String> example = new HashMap<String,String>();
+			 example.put( "menor_data_pagamento", new String(rs.getString("menor_data_pagamento")));
+			  example.put( "maior_data_pagamento", new String(rs.getString("maior_data_pagamento")));
+
+			
+			return example;
+
+		} catch (Exception e) {
+			//JOptionPane.showMessageDialog(null, "Erro ao listar a Conta id: " + id);// );
+			JOptionPane.showMessageDialog(null, "Erro ao listar a maior data de vencimento do banco de dados" );
+			return null;
+		}
+	}
+	
+	public  Map<String,String> pegarDatasPagamento() {
+	       
+		String select = "call busca_datas_pagamento()";
+		Connection conn = null;
+		PreparedStatement pstm = null;
+		ResultSet rs = null;
+		Lancamento dado = new Lancamento();
+
+		try {
+			conn = ConexaoBanco.getConexao();
+			pstm = conn.prepareStatement(select);
+			rs = pstm.executeQuery();
+			rs.next();
+			 Map<String,String> example = new HashMap<String,String>();
+			 example.put( "menor_data_pagamento", new String(rs.getString("menor_data_pagamento")));
+			  example.put( "maior_data_pagamento", new String(rs.getString("maior_data_pagamento")));
+
+			
+			return example;
+
+		} catch (Exception e) {
+			//JOptionPane.showMessageDialog(null, "Erro ao listar a Conta id: " + id);// );
+			JOptionPane.showMessageDialog(null, "Erro ao listar a maior data de pagamento do banco de dados" );
+			return null;
+		}
+	}
 	
 	public SaldoInstituicaoBancaria getTotalPagamentosDespesa(int id_instituicao_bancaria) {
 		String select = "select\r\n"
