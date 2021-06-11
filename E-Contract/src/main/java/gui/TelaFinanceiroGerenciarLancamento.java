@@ -481,9 +481,19 @@ public class TelaFinanceiroGerenciarLancamento extends JFrame {
 		panel_9.add(btnNewButton, "cell 0 0,alignx left,aligny top");
 		btnNewButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
+				
+				if(lancamento_global.getTipo_lancamento() == 0 || lancamento_global.getTipo_lancamento() == 1) {
 				TelaFinanceiroCadastroLancamento tela = new TelaFinanceiroCadastroLancamento(1, lancamento_global,
 						isto);
 				tela.setVisible(true);
+				}else if(lancamento_global.getTipo_lancamento() == 2){
+					TelaFinanceiroCadastroTransferencia tela = new TelaFinanceiroCadastroTransferencia(1, lancamento_global, isto);
+					tela.setVisible(true);
+				}
+				else if(lancamento_global.getTipo_lancamento() == 3){
+					TelaFinanceiroCadastroEmprestimo tela = new TelaFinanceiroCadastroEmprestimo(1, lancamento_global, isto);
+					tela.setVisible(true);
+				}
 			}
 		});
 		btnNewButton.setBackground(new Color(255, 153, 0));
@@ -772,7 +782,7 @@ public class TelaFinanceiroGerenciarLancamento extends JFrame {
 						JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE) == JOptionPane.YES_OPTION) {
 					int rowSel = tabela_parcelas.getSelectedRow();// pega o indice da linha na tabela
 
-					if (lancamento_global.getTipo_lancamento() == 0 || lancamento_global.getTipo_lancamento() == 1) {
+					if (lancamento_global.getTipo_lancamento() == 0 || lancamento_global.getTipo_lancamento() == 1 || lancamento_global.getTipo_lancamento() == 2) {
 						boolean exclusao = new GerenciarBancoParcelas()
 								.removerParcela(modelo_parcelas.getValue(rowSel).getId_parcela());
 						if (exclusao) {
@@ -806,7 +816,7 @@ public class TelaFinanceiroGerenciarLancamento extends JFrame {
 		btnNewButton_4.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				int rowSel = tabela_parcelas.getSelectedRow();// pega o indice da linha na tabela
-				if (lancamento_global.getTipo_lancamento() == 0 || lancamento_global.getTipo_lancamento() == 1) {
+				if (lancamento_global.getTipo_lancamento() == 0 || lancamento_global.getTipo_lancamento() == 1 || lancamento_global.getTipo_lancamento() == 2) {
 					Parcela parcela = new GerenciarBancoParcelas()
 							.getParcela(modelo_parcelas.getValue(rowSel).getId_parcela());
 					if (parcela.getCaminho_arquivo() != null && parcela.getCaminho_arquivo().length() > 10) {
@@ -873,7 +883,7 @@ public class TelaFinanceiroGerenciarLancamento extends JFrame {
 		btnEditar.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 
-				if (lancamento_global.getTipo_lancamento() == 0 || lancamento.getTipo_lancamento() == 1) {
+				if (lancamento_global.getTipo_lancamento() == 0 || lancamento.getTipo_lancamento() == 1 || lancamento.getTipo_lancamento() == 2) {
 					int rowSel = tabela_parcelas.getSelectedRow();// pega o indice da linha na tabela
 
 					TelaFinanceiroCadastroParcela tela = new TelaFinanceiroCadastroParcela(1,
@@ -926,7 +936,7 @@ public class TelaFinanceiroGerenciarLancamento extends JFrame {
 		tabela_pagamentos = new JTable();
 		tabela_pagamentos.setRowHeight(30);
 
-		if (lancamento_global.getTipo_lancamento() == 0 || lancamento_global.getTipo_lancamento() == 1)
+		if (lancamento_global.getTipo_lancamento() == 0 || lancamento_global.getTipo_lancamento() == 1 || lancamento_global.getTipo_lancamento() == 2)
 			tabela_pagamentos.setModel(modelo_pagamentos);
 		else if (lancamento_global.getTipo_lancamento() == 3)
 			tabela_pagamentos.setModel(modelo_pagamentos_emprestimo);
@@ -940,7 +950,7 @@ public class TelaFinanceiroGerenciarLancamento extends JFrame {
 				ListSelectionModel lsm = (ListSelectionModel) e.getSource();
 
 				if (!lsm.isSelectionEmpty()) {
-					if (lancamento_global.getTipo_lancamento() == 0 || lancamento_global.getTipo_lancamento() == 1) {
+					if (lancamento_global.getTipo_lancamento() == 0 || lancamento_global.getTipo_lancamento() == 1 || lancamento_global.getTipo_lancamento() == 2) {
 						int rowSel = tabela_pagamentos.getSelectedRow();// pega o indice da linha na tabela
 						FinanceiroPagamento pagamento = modelo_pagamentos.getValue(rowSel);
 						entObservacaoPagamento.setText(pagamento.getObservacao());
@@ -1006,7 +1016,7 @@ public class TelaFinanceiroGerenciarLancamento extends JFrame {
 				if (JOptionPane.showConfirmDialog(isto, "Deseja excluir o Pagamento?", "Excluir",
 						JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE) == JOptionPane.YES_OPTION) {
 
-					if (lancamento_global.getTipo_lancamento() == 0 || lancamento_global.getTipo_lancamento() == 1) {
+					if (lancamento_global.getTipo_lancamento() == 0 || lancamento_global.getTipo_lancamento() == 1 || lancamento_global.getTipo_lancamento() == 2) {
 						int rowSel = tabela_pagamentos.getSelectedRow();// pega o indice da linha na tabela
 
 						boolean exclusao = new GerenciarBancoFinanceiroPagamento()
@@ -1045,7 +1055,7 @@ public class TelaFinanceiroGerenciarLancamento extends JFrame {
 		btnNewButton_2.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 
-				if (lancamento.getTipo_lancamento() == 0 || lancamento_global.getTipo_lancamento() == 1) {
+				if (lancamento.getTipo_lancamento() == 0 || lancamento_global.getTipo_lancamento() == 1 || lancamento_global.getTipo_lancamento() == 2) {
 					int rowSel = tabela_pagamentos.getSelectedRow();// pega o indice da linha na tabela
 					TelaFinanceiroCadastroPagamento tela = new TelaFinanceiroCadastroPagamento(1,
 							modelo_pagamentos.getValue(rowSel), lancamento_global, isto);
@@ -1062,7 +1072,7 @@ public class TelaFinanceiroGerenciarLancamento extends JFrame {
 			public void actionPerformed(ActionEvent e) {
 				int rowSel = tabela_pagamentos.getSelectedRow();// pega o indice da linha na tabela
 
-				if (lancamento_global.getTipo_lancamento() == 0 || lancamento_global.getTipo_lancamento() == 1) {
+				if (lancamento_global.getTipo_lancamento() == 0 || lancamento_global.getTipo_lancamento() == 1 || lancamento_global.getTipo_lancamento() == 2) {
 					FinanceiroPagamento pag = new GerenciarBancoFinanceiroPagamento()
 							.getFinanceiroPagamento(modelo_pagamentos.getValue(rowSel).getId_pagamento());
 					if (pag.getCaminho_arquivo() != null && pag.getCaminho_arquivo().length() > 10) {
@@ -1124,7 +1134,7 @@ public class TelaFinanceiroGerenciarLancamento extends JFrame {
 		btnNewButton_6.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				
-				if (lancamento.getTipo_lancamento() == 0 || lancamento_global.getTipo_lancamento() == 1) {
+				if (lancamento.getTipo_lancamento() == 0 || lancamento_global.getTipo_lancamento() == 1 || lancamento_global.getTipo_lancamento() == 2) {
 					int rowSel = tabela_pagamentos.getSelectedRow();// pega o indice da linha na tabela
 
 					FinanceiroPagamento pag =  modelo_pagamentos.getValue(rowSel);
@@ -1155,7 +1165,7 @@ public class TelaFinanceiroGerenciarLancamento extends JFrame {
 		btnNewButton_1.setBackground(new Color(0, 51, 0));
 		btnNewButton_1.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				if (lancamento_global.getTipo_lancamento() == 0 || lancamento_global.getTipo_lancamento() == 1) {
+				if (lancamento_global.getTipo_lancamento() == 0 || lancamento_global.getTipo_lancamento() == 1 || lancamento_global.getTipo_lancamento() == 2) {
 					TelaFinanceiroCadastroPagamento tela = new TelaFinanceiroCadastroPagamento(0, null,
 							lancamento_global, isto);
 					tela.setVisible(true);
@@ -1373,9 +1383,14 @@ public class TelaFinanceiroGerenciarLancamento extends JFrame {
 			setPainelAsPartesDespesa();
 		} else if (lancamento_global.getTipo_lancamento() == 1) {
 			entTipoLancamento.setText("Receita");
-			setPainelAsPartesReceita();
+			setPainelAsPartesDespesa();
 
-		} else if (lancamento_global.getTipo_lancamento() == 3) {
+		} 
+		else if (lancamento_global.getTipo_lancamento() == 2) {
+			entTipoLancamento.setText("Transferência");
+			setPainelAsPartesDespesa();
+		}
+		else if (lancamento_global.getTipo_lancamento() == 3) {
 			entTipoLancamento.setText("Empréstimo");
 			setPainelAsPartesReceita();
 		}
@@ -1396,20 +1411,28 @@ public class TelaFinanceiroGerenciarLancamento extends JFrame {
 
 		}
 
-		cc = new GerenciarBancoCentroCustos().getCentroCusto(lancamento_global.getId_centro_custo());
-		entCentroCusto.setText(cc.getNome_centro_custo());
-
-		try {
-			cliente = new GerenciarBancoClientes().getCliente(lancamento_global.getId_cliente_fornecedor());
+		if(lancamento_global.getTipo_lancamento() != 2) {
 			String nome_cliente = "";
-			if (cliente.getTipo_pessoa() == 0) {
-				nome_cliente = cliente.getNome_empresarial();
-			} else
-				nome_cliente = cliente.getNome_fantaia();
-			entClienteFornecedor.setText(nome_cliente);
-		} catch (Exception e) {
 
-		}
+			cc = new GerenciarBancoCentroCustos().getCentroCusto(lancamento_global.getId_centro_custo());
+			
+			try {
+				cliente = new GerenciarBancoClientes().getCliente(lancamento_global.getId_cliente_fornecedor());
+				if (cliente.getTipo_pessoa() == 0) {
+					nome_cliente = cliente.getNome_empresarial();
+				} else
+					nome_cliente = cliente.getNome_fantaia();
+			} catch (Exception e) {
+
+			}
+
+		
+
+		entCentroCusto.setText(cc.getNome_centro_custo());
+		entClienteFornecedor.setText(nome_cliente);
+
+		
+		
 
 		fc = new GerenciarBancoFinanceiroConta().getFinanceiroConta(lancamento_global.getId_conta());
 		entConta.setText(fc.getNome());
@@ -1417,12 +1440,37 @@ public class TelaFinanceiroGerenciarLancamento extends JFrame {
 		fgc = new GerenciarBancoFinanceiroGrupoContas().getFinanceiroGrupoContas(fc.getId_grupo_contas());
 		entGrupoContas.setText(fgc.getNome());
 
-		entIdentificadorGeral.setText(lancamento_global.getIdentificacao());
-		entValor.setText(NumberFormat.getCurrencyInstance(ptBr).format(lancamento_global.getValor()));
+		
 		entDataVencimento.setText(lancamento_global.getData_vencimento());
 		entNumeroParcelas.setText(lancamento_global.getNumero_parcelas() + "");
 		entIntervalo.setText(lancamento_global.getIntervalo() + "");
+		
+		int id_destinatario_nf = lancamento_global.getId_detinatario_nf();
+		if (id_destinatario_nf > 0) {
+			destinatario_nf = new GerenciarBancoClientes().getCliente(id_destinatario_nf);
+			setDestinatarioNF(destinatario_nf);
+		} else {
+			cBDestinatarioDaNF.addItem("Indefinido");
+		}
+		
+		
+		}else {
+			//transferencia
+			
+			InstituicaoBancaria pagador = new GerenciarBancoInstituicaoBancaria().getInstituicaoBancaria(lancamento_global.getId_centro_custo());
+			entCentroCusto.setText(pagador.getNome_instituicao_bancaria());
 
+		
+			InstituicaoBancaria recebedor = new GerenciarBancoInstituicaoBancaria().getInstituicaoBancaria(lancamento_global.getId_cliente_fornecedor());
+			entClienteFornecedor.setText(recebedor.getNome_instituicao_bancaria());
+		
+
+		}
+		
+		
+		entIdentificadorGeral.setText(lancamento_global.getIdentificacao());
+		entValor.setText(NumberFormat.getCurrencyInstance(ptBr).format(lancamento_global.getValor()));
+		
 		int prioridade = lancamento_global.getPrioridade();
 		/*
 		 * cbPrioridade.addItem("Alta Prioridade - Ainda esta semana");
@@ -1457,13 +1505,7 @@ public class TelaFinanceiroGerenciarLancamento extends JFrame {
 
 		cbStatusAoContador.setSelectedIndex(lancamento_global.getContador());
 
-		int id_destinatario_nf = lancamento_global.getId_detinatario_nf();
-		if (id_destinatario_nf > 0) {
-			destinatario_nf = new GerenciarBancoClientes().getCliente(id_destinatario_nf);
-			setDestinatarioNF(destinatario_nf);
-		} else {
-			cBDestinatarioDaNF.addItem("Indefinido");
-		}
+		
 
 		pesquisar_parcelas();
 		pesquisar_pagamentos();
@@ -1989,7 +2031,7 @@ public class TelaFinanceiroGerenciarLancamento extends JFrame {
 	}
 
 	public void pesquisar_parcelas() {
-		if (lancamento_global.getTipo_lancamento() == 0 || lancamento_global.getTipo_lancamento() == 1) {
+		if (lancamento_global.getTipo_lancamento() == 0 || lancamento_global.getTipo_lancamento() == 1 || lancamento_global.getTipo_lancamento() == 2) {
 			GerenciarBancoParcelas gerenciar = new GerenciarBancoParcelas();
 			lista_parcelas.clear();
 			modelo_parcelas.onRemoveAll();
@@ -2027,7 +2069,7 @@ public class TelaFinanceiroGerenciarLancamento extends JFrame {
 	}
 
 	public void pesquisar_pagamentos() {
-		if (lancamento_global.getTipo_lancamento() == 0 || lancamento_global.getTipo_lancamento() == 1) {
+		if (lancamento_global.getTipo_lancamento() == 0 || lancamento_global.getTipo_lancamento() == 1 || lancamento_global.getTipo_lancamento() == 2) {
 			GerenciarBancoFinanceiroPagamento gerenciar = new GerenciarBancoFinanceiroPagamento();
 			lista_pagamentos.clear();
 			modelo_pagamentos.onRemoveAll();
@@ -2164,6 +2206,12 @@ public class TelaFinanceiroGerenciarLancamento extends JFrame {
 		entCentroCusto.setForeground(Color.WHITE);
 		entCentroCusto.setFont(new Font("Tahoma", Font.PLAIN, 18));
 
+		if(lancamento_global.getTipo_lancamento() == 3) {
+			//emprestimo
+			lblNewLabel_3_2.setText("Tomador:");
+			lblNewLabel_3_2_1.setText("Mutuante");
+		}
+	
 		painelAsPartes.add(panel_8);
 	}
 
@@ -2244,8 +2292,10 @@ public class TelaFinanceiroGerenciarLancamento extends JFrame {
 			FinanceiroPagamento dado = dados.get(rowIndex);
 
 			switch (columnIndex) {
-			case id_pagamento:
+			case id_pagamento:{
 				return dado.getId_pagamento();
+				
+			}
 			case identificador:
 				return dado.getIdentificador();
 			case pagador: {
@@ -2295,7 +2345,10 @@ public class TelaFinanceiroGerenciarLancamento extends JFrame {
 				}
 			}
 			case descricao: {
+				if(dado.getDescricao() != null)
 				return dado.getDescricao();
+				else
+				 return "";	
 			}
 			case forma_pagamento: {
 				GerenciarBancoCondicaoPagamentos gerenciar = new GerenciarBancoCondicaoPagamentos();
@@ -2866,7 +2919,7 @@ public class TelaFinanceiroGerenciarLancamento extends JFrame {
 			if (file != null) {
 				caminho_arquivo = file.getAbsolutePath();
 
-				if (lancamento_global.getTipo_lancamento() == 0 || lancamento_global.getTipo_lancamento() == 1)
+				if (lancamento_global.getTipo_lancamento() == 0 || lancamento_global.getTipo_lancamento() == 1 || lancamento_global.getTipo_lancamento() == 2)
 					substituirDocumentoParcela(caminho_arquivo);
 				else if (lancamento_global.getTipo_lancamento() == 3)
 					substituirDocumentoParcelaEmprestimo(caminho_arquivo);
@@ -3083,7 +3136,7 @@ public class TelaFinanceiroGerenciarLancamento extends JFrame {
 			if (file != null) {
 				caminho_arquivo = file.getAbsolutePath();
 
-				if (lancamento_global.getTipo_lancamento() == 0 || lancamento_global.getTipo_lancamento() == 1)
+				if (lancamento_global.getTipo_lancamento() == 0 || lancamento_global.getTipo_lancamento() == 1 || lancamento_global.getTipo_lancamento() == 2)
 					substituirDocumentoPagamento(caminho_arquivo);
 				else if (lancamento_global.getTipo_lancamento() == 3)
 					substituirDocumentoPagamentoEmprestimo(caminho_arquivo);

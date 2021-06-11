@@ -191,7 +191,7 @@ public class TelaFinanceiroCadastroPagamentoEmprestimo extends JFrame {
 	private JDialog telaPai;
 	private JTextFieldPersonalizado entValorTotal;
 	private JTextFieldPersonalizado entDescricao;
-	private JTextFieldPersonalizado entDataVencimento;
+	private JTextFieldPersonalizado entDataPagamento;
 	private JTextFieldPersonalizado entIdentificador = new JTextFieldPersonalizado();
 	private JEditorPane entObservacao = new JEditorPane();
 	private CondicaoPagamento condicao_pagamento;
@@ -318,12 +318,12 @@ public class TelaFinanceiroCadastroPagamentoEmprestimo extends JFrame {
 		lblDataVencimento.setFont(new Font("Tahoma", Font.PLAIN, 16));
 		painelPrincipal.add(lblDataVencimento, "cell 0 5,alignx trailing");
 
-		entDataVencimento = new JTextFieldPersonalizado();
-		entDataVencimento.setFont(new Font("Tahoma", Font.PLAIN, 16));
-		entDataVencimento.setColumns(10);
-		entDataVencimento.setForeground(Color.black);
+		entDataPagamento = new JTextFieldPersonalizado();
+		entDataPagamento.setFont(new Font("Tahoma", Font.PLAIN, 16));
+		entDataPagamento.setColumns(10);
+		entDataPagamento.setForeground(Color.black);
 
-		painelPrincipal.add(entDataVencimento, "cell 1 5 3 1,growx");
+		painelPrincipal.add(entDataPagamento, "cell 1 5 3 1,growx");
 
 		JLabel lblNewLabel = new JLabel("Descrição:");
 		lblNewLabel.setFont(new Font("Tahoma", Font.PLAIN, 16));
@@ -608,7 +608,7 @@ public class TelaFinanceiroCadastroPagamentoEmprestimo extends JFrame {
 
 	}
 
-	public void rotinasEdicao(FinanceiroPagamento pagamento, Lancamento lancamento_pai) {
+	public void rotinasEdicao(FinanceiroPagamentoEmprestimo pagamento, Lancamento lancamento_pai) {
 		String s_valor, descricao, observacao, identificador, data_pagamento;
 		int status;
 		identificador = pagamento.getIdentificador();
@@ -624,7 +624,7 @@ public class TelaFinanceiroCadastroPagamentoEmprestimo extends JFrame {
 		entIdentificador.setText(identificador);
 		entObservacao.setText(observacao);
 		entDescricao.setText(descricao);
-		entDataVencimento.setText(data_pagamento);
+		entDataPagamento.setText(data_pagamento);
 		entValorTotal.setText(valor.toString());
 		cbStatusCondicaoPagamento.setSelectedIndex(pagamento.getStatus_pagamento());
 
@@ -686,6 +686,43 @@ public class TelaFinanceiroCadastroPagamentoEmprestimo extends JFrame {
 
 			}
 		
+			int objeto = pagamento.getObjeto();
+			
+			if(objeto == 1) {
+				//produto
+				
+				cbObjeto.setSelectedIndex(1);
+				
+				 removerPainel();
+				setPainelProduto();
+				
+				String especie = pagamento.getEspecie();
+				String unidade = pagamento.getUnidade_medida();
+				double quantidade = pagamento.getQuantidade();
+				BigDecimal valor_unitario = pagamento.getValor_unitario();
+				
+				
+				entEspecie.setText(especie);
+				if(unidade.equalsIgnoreCase("KG"))
+				{
+					rdbtnSacos.setSelected(false);
+					rdbtnKgs.setSelected(true);
+				}else if(unidade.equalsIgnoreCase("Saco")) {
+					rdbtnSacos.setSelected(true);
+					rdbtnKgs.setSelected(false);
+				}
+				
+				entQuantidade.setText(Double.toString(quantidade));
+				
+				try {
+					entValorUnitario.setText(valor_unitario.toString());
+
+				}catch(Exception e) {
+					
+				}
+				
+				
+			}
 
 	}
 
@@ -699,7 +736,7 @@ public class TelaFinanceiroCadastroPagamentoEmprestimo extends JFrame {
 		identificador = entIdentificador.getText();
 		observacao = entObservacao.getText();
 		descricao = entDescricao.getText();
-		data_pagamento = entDataVencimento.getText();
+		data_pagamento = entDataPagamento.getText();
 
 		objeto = cbObjeto.getSelectedIndex();
 
@@ -857,7 +894,7 @@ public class TelaFinanceiroCadastroPagamentoEmprestimo extends JFrame {
 		identificador = entIdentificador.getText();
 		observacao = entObservacao.getText();
 		descricao = entDescricao.getText();
-		data_pagamento = entDataVencimento.getText();
+		data_pagamento = entDataPagamento.getText();
 
 		objeto = cbObjeto.getSelectedIndex();
 

@@ -306,7 +306,7 @@ public class TelaMain extends JFrame {
 		
 		JPanel panel = new JPanel();
 		GridBagConstraints gbc_panel = new GridBagConstraints();
-		gbc_panel.gridwidth = 22;
+		gbc_panel.gridwidth = 31;
 		gbc_panel.insets = new Insets(0, 0, 5, 5);
 		gbc_panel.fill = GridBagConstraints.BOTH;
 		gbc_panel.gridx = 0;
@@ -490,6 +490,55 @@ public class TelaMain extends JFrame {
 		mntmNewMenuItem_8.setFont(new Font("Segoe UI", Font.PLAIN, 16));
 		mnContratos.add(mntmNewMenuItem_8);
 		mnContratos.add(mntmNewMenuItem_1);
+		
+		JMenu mnNewMenu_1 = new JMenu("Finançeiro");
+		mnNewMenu_1.setIcon(new ImageIcon(TelaMain.class.getResource("/imagens/financa.png")));
+		mnNewMenu_1.setFont(new Font("Arial", Font.PLAIN, 18));
+		menuBar.add(mnNewMenu_1);
+		
+		JMenuItem mntmNewMenuItem_6 = new JMenuItem("Finanças");
+		mnNewMenu_1.add(mntmNewMenuItem_6);
+		mntmNewMenuItem_6.setFont(new Font("Arial", Font.PLAIN, 16));
+		mntmNewMenuItem_6.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				
+				
+				if(login != null) {
+					if(login.getConfigs_privilegios().getNivel_privilegios() <= 2) {
+						TelaFinanceiro tela = new TelaFinanceiro(isto);
+						
+						tela.setVisible(true);
+						tela.atualizarGrafico();
+					}else {
+						JOptionPane.showMessageDialog(isto, "Requer Elevação de Direitos");
+					}
+					
+				}
+				
+				
+			}
+		});
+		mntmNewMenuItem_6.setIcon(new ImageIcon(TelaMain.class.getResource("/imagens/financa.png")));
+		mntmNewMenuItem_6.setMargin(new Insets(0, 10, 0, 0));
+		
+		JMenu mnNewMenu_2 = new JMenu("RH");
+		mnNewMenu_2.setIcon(new ImageIcon(TelaMain.class.getResource("/imagens/recursos-humanos.png")));
+		mnNewMenu_2.setFont(new Font("Arial", Font.PLAIN, 18));
+		menuBar.add(mnNewMenu_2);
+		
+		JMenuItem mntmNewMenuItem_6_1 = new JMenuItem("Recursos Humanos");
+		mnNewMenu_2.add(mntmNewMenuItem_6_1);
+		mntmNewMenuItem_6_1.setFont(new Font("Arial", Font.PLAIN, 16));
+		mntmNewMenuItem_6_1.setIcon(new ImageIcon(TelaMain.class.getResource("/imagens/recursos-humanos.png")));
+		mntmNewMenuItem_6_1.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+
+				TelaRecursosHumanos tela = new TelaRecursosHumanos(isto);
+				tela.setVisible(true);
+				
+			}
+		});
+		mntmNewMenuItem_6_1.setMargin(new Insets(0, 10, 0, 0));
 		JMenu mnFerramentas = new JMenu("Ferramentas");
 		mnFerramentas.setIcon(new ImageIcon(TelaPrincipal.class.getResource("/imagens/ferramentas-de-reparacao.png")));
 		mnFerramentas.setMargin(new Insets(0, 10, 0, 0));
@@ -562,32 +611,6 @@ public class TelaMain extends JFrame {
 		mntmNewMenuItem_5.setIcon(new ImageIcon(TelaPrincipal.class.getResource("/imagens/icone_menu_tarefas.png")));
 		mntmNewMenuItem_5.setMargin(new Insets(0, 10, 0, 0));
 		mnFerramentas.add(mntmNewMenuItem_5);
-		
-		JMenuItem mntmNewMenuItem_6 = new JMenuItem("Finanças");
-		mntmNewMenuItem_6.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				TelaFinanceiro tela = new TelaFinanceiro(isto);
-				
-				tela.setVisible(true);
-				tela.atualizarGrafico();
-			}
-		});
-		mntmNewMenuItem_6.setIcon(new ImageIcon(TelaMain.class.getResource("/imagens/financa.png")));
-		mntmNewMenuItem_6.setMargin(new Insets(0, 10, 0, 0));
-		mnFerramentas.add(mntmNewMenuItem_6);
-		
-		JMenuItem mntmNewMenuItem_6_1 = new JMenuItem("Recursos Humanos");
-		mntmNewMenuItem_6_1.setIcon(new ImageIcon(TelaMain.class.getResource("/imagens/recursos-humanos.png")));
-		mntmNewMenuItem_6_1.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-
-				TelaRecursosHumanos tela = new TelaRecursosHumanos(isto);
-				tela.setVisible(true);
-				
-			}
-		});
-		mntmNewMenuItem_6_1.setMargin(new Insets(0, 10, 0, 0));
-		mnFerramentas.add(mntmNewMenuItem_6_1);
 		JMenu mnNewMenu = new JMenu("Configurações");
 		mnNewMenu.setIcon(new ImageIcon(TelaPrincipal.class.getResource("/imagens/preferencias.png")));
 		mnNewMenu.setFont(new Font("Arial", Font.PLAIN, 18));
@@ -606,10 +629,10 @@ public class TelaMain extends JFrame {
 		JPanel panel_1 = new JPanel();
 		panel_1.setBackground(new Color(0, 153, 51));
 		GridBagConstraints gbc_panel_1 = new GridBagConstraints();
-		gbc_panel_1.gridwidth = 13;
+		gbc_panel_1.gridwidth = 7;
 		gbc_panel_1.insets = new Insets(0, 0, 5, 5);
 		gbc_panel_1.fill = GridBagConstraints.BOTH;
-		gbc_panel_1.gridx = 24;
+		gbc_panel_1.gridx = 31;
 		gbc_panel_1.gridy = 0;
 		painelPrincipal.add(panel_1, gbc_panel_1);
 		panel_1.setLayout(new MigLayout("", "[][][][][][][]", "[][-18.00][]"));
@@ -655,6 +678,7 @@ public class TelaMain extends JFrame {
 		JPanel panel_2 = new JPanel();
 		panel_2.setBackground(new Color(51, 153, 255));
 		GridBagConstraints gbc_panel_2 = new GridBagConstraints();
+		gbc_panel_2.gridwidth = 3;
 		gbc_panel_2.insets = new Insets(0, 0, 5, 5);
 		gbc_panel_2.fill = GridBagConstraints.BOTH;
 		gbc_panel_2.gridx = 38;

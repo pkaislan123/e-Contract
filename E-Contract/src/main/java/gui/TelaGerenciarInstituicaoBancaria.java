@@ -128,6 +128,7 @@ import main.java.conexaoBanco.GerenciarBancoCondicaoPagamentos;
 import main.java.conexaoBanco.GerenciarBancoContratos;
 import main.java.conexaoBanco.GerenciarBancoDocumento;
 import main.java.conexaoBanco.GerenciarBancoFinanceiroPagamento;
+import main.java.conexaoBanco.GerenciarBancoFinanceiroPagamentoEmprestimo;
 import main.java.conexaoBanco.GerenciarBancoNotasFiscais;
 import main.java.conexaoBanco.GerenciarBancoPadrao;
 import main.java.conexaoBanco.GerenciarBancoPontuacao;
@@ -208,6 +209,8 @@ import main.java.classesExtras.ComboBoxRenderPersonalizado;
 import main.java.conexaoBanco.GerenciarBancoProdutos;
 import main.java.conexaoBanco.GerenciarBancoSafras;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
@@ -221,6 +224,8 @@ public class TelaGerenciarInstituicaoBancaria extends JFrame {
 	private JTree arvore_documentos;
 	private InstituicaoBancaria caixa_local;
 	ArrayList<FinanceiroPagamentoCompleto> lista_extrato = new ArrayList<FinanceiroPagamentoCompleto>();
+	ArrayList<FinanceiroPagamentoCompleto> lista_extrato_emprestimo = new ArrayList<FinanceiroPagamentoCompleto>();
+
 	private DefaultListModel<FinanceiroPagamentoCompleto> listModelGlobal;
 	private JComboBox cbStatusCondicaoPagamento, cbTipoLancamento;
 	DefaultMutableTreeNode no_comprovantes;
@@ -362,7 +367,9 @@ public class TelaGerenciarInstituicaoBancaria extends JFrame {
 		cbTipoLancamento.addItem("TODOS");
 		cbTipoLancamento.addItem("DESPESAS");
 		cbTipoLancamento.addItem("RECEITAS");
+		cbTipoLancamento.addItem("TRANSFERENCIAS");
 		cbTipoLancamento.addItem("EMPRESTIMOS");
+
 
 		JLabel lblNewLabel_1_2_1_1_1_1 = new JLabel("Condição do Pagamento:");
 		lblNewLabel_1_2_1_1_1_1.setForeground(Color.BLACK);
@@ -742,11 +749,36 @@ public class TelaGerenciarInstituicaoBancaria extends JFrame {
 			getDadosGlobais();
 			setInformacoesDocumentos();
 			pesquisar_saldo(caixa);
+			popular_condicao_pagamento();
+
+			/*
 			GerenciarBancoFinanceiroPagamento gerenciar = new GerenciarBancoFinanceiroPagamento();
+			GerenciarBancoFinanceiroPagamentoEmprestimo gerenciar_emprestimo = new GerenciarBancoFinanceiroPagamentoEmprestimo();
+
 			lista_extrato = gerenciar
 					.getFinanceiroPagamentosLancamentosPorCaixa(caixa_local.getId_instituicao_bancaria());
-			popular_condicao_pagamento();
+			lista_extrato_emprestimo = gerenciar_emprestimo
+					.getFinanceiroPagamentosLancamentosPorCaixa(caixa_local.getId_instituicao_bancaria());
+			
+			
+			lista_extrato.addAll(lista_extrato_emprestimo);
+			
+			//ordernar lista por data
+			Collections.sort(lista_extrato, new Comparator<FinanceiroPagamentoCompleto>() {
+				  public int compare(FinanceiroPagamentoCompleto o1, FinanceiroPagamentoCompleto o2) {
+				      if (o1.getFpag().getData_pagamento() == null || o2.getFpag().getData_pagamento() == null)
+				        return 0;
+				      LocalDate data_menor = LocalDate.parse(o1.getFpag().getData_pagamento(), DateTimeFormatter.ofPattern("dd/MM/yyyy"));
+						 LocalDate data_maior = LocalDate.parse( o2.getFpag().getData_pagamento(), DateTimeFormatter.ofPattern("dd/MM/yyyy"));
+
+				      return data_menor.compareTo(data_maior);
+				  }
+				});
+			
+			
 			pesquisarExtrato(lista_extrato, caixa_local.getSaldo_inicial());
+			*/
+			filtrar();
 
 		}
 		
@@ -778,12 +810,28 @@ public class TelaGerenciarInstituicaoBancaria extends JFrame {
 				// receita
 				saldo_inicial = saldo_inicial.add(not.getFpag().getValor());
 
-			} else if (tipo_lancamento == 3) {
+			}
+			 else if (tipo_lancamento == 2) {
+					// transferencias
+				 
+				 if(not.getFpag().getId_pagador() == caixa_local.getId_instituicao_bancaria()) {
+					 //pagador, subtrai
+						saldo_inicial = saldo_inicial.subtract(not.getFpag().getValor());
+
+				 }else if(not.getFpag().getId_pagador() != caixa_local.getId_instituicao_bancaria()) {
+					//recebedor	
+					 saldo_inicial = saldo_inicial.add(not.getFpag().getValor());
+
+				 }
+
+				}
+			else if (tipo_lancamento == 3) {
 				// emprestimo
 				saldo_inicial = saldo_inicial.add(not.getFpag().getValor());
 
 			}
 			not.setSaldo_atual(saldo_inicial);
+			not.setId_caixa(caixa_local.getId_instituicao_bancaria());
 			listModelGlobal.addElement(not);
 		}
 
@@ -1210,6 +1258,7 @@ public class TelaGerenciarInstituicaoBancaria extends JFrame {
 		GerenciarBancoClientes gerenciar = new GerenciarBancoClientes();
 		ContaBancaria conta = gerenciar.getConta(id_conta);
 
+		
 		String texto_banco = "Banco: " + conta.getBanco() + " Código: " + conta.getCodigo();
 		lblDadosBanco.setText(texto_banco);
 		String texto_conta = "Agência: " + conta.getAgencia() + " Conta: " + conta.getConta();
@@ -1226,7 +1275,7 @@ public class TelaGerenciarInstituicaoBancaria extends JFrame {
 		Locale ptBr = new Locale("pt", "BR");
 
 		double saldo_final = caixa.getSaldo_inicial().doubleValue() + saldo.getTotal_receita()
-				- saldo.getTotal_despesa();
+				- saldo.getTotal_despesa() + saldo.getTotal_emprestimos() + saldo.getTotal_receita_transferencia() - saldo.getTotal_despesa_transferencia();
 		String valorString = NumberFormat.getCurrencyInstance(ptBr).format(saldo_final);
 
 		lblSaldo.setText(valorString);
@@ -1237,7 +1286,9 @@ public class TelaGerenciarInstituicaoBancaria extends JFrame {
 		lblSaldoAtual.setText(valorString);
 
 	}
-
+	
+	
+	
 	public void popular_condicao_pagamento() {
 		ArrayList<CondicaoPagamento> lista_condicao_pagamentos = new GerenciarBancoCondicaoPagamentos()
 				.getCondicaoPagamentos();
@@ -1251,8 +1302,25 @@ public class TelaGerenciarInstituicaoBancaria extends JFrame {
 
 	public void filtrar() {
 		GerenciarBancoFinanceiroPagamento gerenciar = new GerenciarBancoFinanceiroPagamento();
-		lista_extrato = gerenciar.getFinanceiroPagamentosLancamentosPorCaixa(caixa_local.getId_instituicao_bancaria());
+		GerenciarBancoFinanceiroPagamentoEmprestimo gerenciar_emprestimo = new GerenciarBancoFinanceiroPagamentoEmprestimo();
 
+		
+		lista_extrato = gerenciar.getFinanceiroPagamentosLancamentosPorCaixa(caixa_local.getId_instituicao_bancaria());
+		lista_extrato_emprestimo = gerenciar_emprestimo.getFinanceiroPagamentosLancamentosPorCaixa(caixa_local.getId_instituicao_bancaria());
+		
+		lista_extrato.addAll(lista_extrato_emprestimo);
+		
+		//ordernar lista por data
+		Collections.sort(lista_extrato, new Comparator<FinanceiroPagamentoCompleto>() {
+			  public int compare(FinanceiroPagamentoCompleto o1, FinanceiroPagamentoCompleto o2) {
+			      if (o1.getFpag().getData_pagamento() == null || o2.getFpag().getData_pagamento() == null)
+			        return 0;
+			      LocalDate data_menor = LocalDate.parse(o1.getFpag().getData_pagamento(), DateTimeFormatter.ofPattern("dd/MM/yyyy"));
+					 LocalDate data_maior = LocalDate.parse( o2.getFpag().getData_pagamento(), DateTimeFormatter.ofPattern("dd/MM/yyyy"));
+
+			      return data_menor.compareTo(data_maior);
+			  }
+			});
 		List<FinanceiroPagamentoCompleto> lista_filtrada = lista_extrato;
 
 		int tipo_lancamento_procurado = cbTipoLancamento.getSelectedIndex();
@@ -1332,8 +1400,10 @@ public class TelaGerenciarInstituicaoBancaria extends JFrame {
 		
 		
 		}catch(Exception f) {
-			JOptionPane.showMessageDialog(isto, "Datas Inválidas");
+			//JOptionPane.showMessageDialog(isto, "Datas Inválidas");
 		}
+		
+	
 		
 		pesquisarExtrato((ArrayList) lista_filtrada, getSaldo(s_data_menor));
 		calcular((ArrayList) lista_filtrada, s_data_menor);
@@ -1348,6 +1418,25 @@ public class TelaGerenciarInstituicaoBancaria extends JFrame {
 
 		GerenciarBancoFinanceiroPagamento gerenciar = new GerenciarBancoFinanceiroPagamento();
 		lista_extrato = gerenciar.getFinanceiroPagamentosLancamentosPorCaixa(caixa_local.getId_instituicao_bancaria());
+		
+		GerenciarBancoFinanceiroPagamentoEmprestimo gerenciar_emprestimos = new GerenciarBancoFinanceiroPagamentoEmprestimo();
+		lista_extrato_emprestimo = gerenciar_emprestimos.getFinanceiroPagamentosLancamentosPorCaixa(caixa_local.getId_instituicao_bancaria());
+		
+		lista_extrato.addAll(lista_extrato_emprestimo);
+		
+		//ordernar lista por data
+		Collections.sort(lista_extrato, new Comparator<FinanceiroPagamentoCompleto>() {
+			  public int compare(FinanceiroPagamentoCompleto o1, FinanceiroPagamentoCompleto o2) {
+			      if (o1.getFpag().getData_pagamento() == null || o2.getFpag().getData_pagamento() == null)
+			        return 0;
+			      LocalDate data_menor = LocalDate.parse(o1.getFpag().getData_pagamento(), DateTimeFormatter.ofPattern("dd/MM/yyyy"));
+					 LocalDate data_maior = LocalDate.parse( o2.getFpag().getData_pagamento(), DateTimeFormatter.ofPattern("dd/MM/yyyy"));
+
+			      return data_menor.compareTo(data_maior);
+			  }
+			});
+		
+		
 		pesquisarExtrato(lista_extrato, getSaldo("01/01/2010"));
 		calcular(lista_extrato, "01/01/2010");
 	}
@@ -1386,7 +1475,7 @@ public class TelaGerenciarInstituicaoBancaria extends JFrame {
 		Locale ptBr = new Locale("pt", "BR");
 
 		double saldo_inicial = caixa_local.getSaldo_inicial().doubleValue() + saldo.getTotal_receita()
-				- saldo.getTotal_despesa();
+				- saldo.getTotal_despesa() + saldo.getTotal_emprestimos() + saldo.getTotal_receita_transferencia() - saldo.getTotal_despesa_transferencia();
 		
 		return new BigDecimal(saldo_inicial);
 	}
@@ -1411,9 +1500,21 @@ public class TelaGerenciarInstituicaoBancaria extends JFrame {
 
 				valor_total_receitas = valor_total_receitas.add(pag_completo.getFpag().getValor());
 
-			} else if (pag_completo.getLancamento().getTipo_lancamento() == 3) {
+			}
+			 else if (pag_completo.getLancamento().getTipo_lancamento() == 2) {
+					// receita
+				 	if(pag_completo.getFpag().getId_pagador() == caixa_local.getId_instituicao_bancaria()) {
+						valor_total_despesas = valor_total_despesas.add(pag_completo.getFpag().getValor());
+
+				 	}else {
+						valor_total_receitas = valor_total_receitas.add(pag_completo.getFpag().getValor());
+
+				 	}
+
+				} 
+			else if (pag_completo.getLancamento().getTipo_lancamento() == 3) {
 				// emprestimo
-				valor_total_receitas = valor_total_despesas.add(pag_completo.getFpag().getValor());
+				valor_total_receitas = valor_total_receitas.add(pag_completo.getFpag().getValor());
 
 			}
 		}

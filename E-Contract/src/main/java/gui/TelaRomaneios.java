@@ -260,6 +260,56 @@ public class TelaRomaneios extends JFrame {
 	private JLabel lblNewLabel_18;
 	private JLabel lblPesoTotalDeclarado;
 	private JLabel lblPesoTotalADeclarar;
+	private JLabel lblNewLabel_19;
+	private JLabel lblPesoTotalOutrosParticular;
+	private JLabel lblPesoTotalOutrosParticipante;
+	private JLabel lblNewLabel_20;
+	private JPanel panel_5;
+	private JPanel panel_7;
+	private JLabel lblNewLabel_21;
+	private JLabel lblNewLabel_22;
+	private JLabel lblNewLabel_23;
+	private JLabel lblNewLabel_24;
+	private JLabel lblPesoTaraTotalTara;
+	private JLabel lblPesoLiquidoTotalSemDescontoExtrato;
+	private JLabel lblNewLabel_25;
+	private JLabel lblNewLabel_26;
+	private JLabel lblNewLabel_27;
+	private JLabel lblNewLabel_28;
+	private JLabel lblDescontoTotalImpurezaExtrato;
+	private JLabel lblDescontoTotalUmidadeExtrato;
+	private JLabel lblDescontoTotalAvariadoExtrato, lblPesoBrutoTotalExtrato, lblTotalEntradaGeral;
+	private JLabel lblPesoTotalDescontoExtrato;
+	private JLabel lblNewLabel_3_1_5;
+	private JLabel lblNewLabel_3_1_6;
+	private JLabel lblPesoFisicoFinal;
+	private JLabel lblNewLabel_29;
+	private JLabel lblTranferenciaEntrada;
+	private JLabel lblNewLabel_3_1_7;
+	private JLabel lblNewLabel_30;
+	private JLabel lblNewLabel_31;
+	private JLabel lblNewLabel_32;
+	private JLabel lblTransferenciaSaida;
+	private JLabel lblQuebraTecnica;
+	private JLabel lblNewLabel_3_1_8;
+	private JLabel lblTotalSaida;
+	private JLabel lblNewLabel_33;
+	private JLabel lblNewLabel_34;
+	private JLabel lblNewLabel_35;
+	private JLabel lblIntacta;
+	private JLabel lblArmazenagem;
+	private JLabel lblNewLabel_3_1_9;
+	private JLabel lblSaldoFinal;
+	private JLabel lblNewLabel_36;
+	private JLabel lblSaida;
+	private JPanel panel_8;
+	private JPanel panel_9;
+	private JPanel panel_10;
+	private JLabel lblNewLabel_37;
+	private JPanel panel_11;
+	private JPanel panel_12;
+	private JLabel lblNewLabel_38;
+	private JLabel lblRecepcao;
 
 	public TelaRomaneios(int flag_tipo_tela, Window janela_pai) {
 		setIconImage(Toolkit.getDefaultToolkit()
@@ -308,6 +358,211 @@ public class TelaRomaneios extends JFrame {
 		painelDashBoard.setBackground(new Color(255, 255, 255));
 
 		painelAbas.addTab("Romaneios", painelPrincipal);
+
+		panel_5 = new JPanel();
+		panel_5.setBackground(Color.WHITE);
+		painelAbas.addTab("Extrato", null, panel_5, null);
+		panel_5.setLayout(new MigLayout("", "[grow]", "[grow]"));
+
+		panel_7 = new JPanel();
+		panel_7.setBackground(Color.WHITE);
+		panel_5.add(panel_7, "cell 0 0,alignx left,growy");
+		panel_7.setLayout(new MigLayout("", "[][][][grow]",
+				"[grow][grow][][][grow][][][][][grow][][][grow][][][][][][][][][][][][][][][][][][][][][][][][][][]"));
+
+		panel_9 = new JPanel();
+		panel_9.setBorder(new LineBorder(new Color(0, 0, 0)));
+		panel_9.setBackground(Color.WHITE);
+		panel_7.add(panel_9, "cell 0 0 3 1,grow");
+		panel_9.setLayout(new MigLayout("", "[][]", "[][][][][]"));
+
+		lblNewLabel_21 = new JLabel("Entradas(+)");
+		panel_9.add(lblNewLabel_21, "cell 0 0");
+		lblNewLabel_21.setFont(new Font("SansSerif", Font.BOLD, 14));
+
+		lblNewLabel_22 = new JLabel("Peso Bruto:");
+		panel_9.add(lblNewLabel_22, "cell 0 1,alignx right");
+		lblNewLabel_22.setFont(new Font("SansSerif", Font.PLAIN, 14));
+
+		lblPesoBrutoTotalExtrato = new JLabel("0.0000");
+		panel_9.add(lblPesoBrutoTotalExtrato, "cell 1 1");
+		lblPesoBrutoTotalExtrato.setFont(new Font("Tahoma", Font.PLAIN, 16));
+
+		lblNewLabel_23 = new JLabel("Tara:");
+		panel_9.add(lblNewLabel_23, "cell 0 2,alignx right");
+		lblNewLabel_23.setFont(new Font("SansSerif", Font.PLAIN, 14));
+
+		lblPesoTaraTotalTara = new JLabel("0.0000");
+		panel_9.add(lblPesoTaraTotalTara, "cell 1 2");
+		lblPesoTaraTotalTara.setFont(new Font("Tahoma", Font.PLAIN, 16));
+
+		lblNewLabel_24 = new JLabel("Liq. Pesagem:");
+		panel_9.add(lblNewLabel_24, "cell 0 3,alignx right");
+		lblNewLabel_24.setFont(new Font("SansSerif", Font.PLAIN, 14));
+
+		lblPesoLiquidoTotalSemDescontoExtrato = new JLabel("0.0000");
+		panel_9.add(lblPesoLiquidoTotalSemDescontoExtrato, "cell 1 3");
+		lblPesoLiquidoTotalSemDescontoExtrato.setFont(new Font("Tahoma", Font.BOLD, 16));
+
+		panel_8 = new JPanel();
+		panel_8.setBorder(new LineBorder(new Color(0, 0, 0)));
+		panel_8.setBackground(Color.WHITE);
+		panel_7.add(panel_8, "cell 3 0,grow");
+		panel_8.setLayout(new MigLayout("", "[][]", "[][][][][]"));
+
+		lblNewLabel_25 = new JLabel("Descontos(-)");
+		panel_8.add(lblNewLabel_25, "cell 0 0");
+		lblNewLabel_25.setFont(new Font("SansSerif", Font.BOLD, 14));
+
+		lblNewLabel_26 = new JLabel("Impureza:");
+		panel_8.add(lblNewLabel_26, "cell 0 1,alignx right");
+		lblNewLabel_26.setFont(new Font("SansSerif", Font.PLAIN, 14));
+
+		lblDescontoTotalImpurezaExtrato = new JLabel("0.0000");
+		panel_8.add(lblDescontoTotalImpurezaExtrato, "cell 1 1");
+		lblDescontoTotalImpurezaExtrato.setFont(new Font("Tahoma", Font.PLAIN, 16));
+
+		lblNewLabel_27 = new JLabel("Umidade:");
+		panel_8.add(lblNewLabel_27, "cell 0 2,alignx right");
+		lblNewLabel_27.setFont(new Font("SansSerif", Font.PLAIN, 14));
+
+		lblDescontoTotalUmidadeExtrato = new JLabel("0.000");
+		panel_8.add(lblDescontoTotalUmidadeExtrato, "cell 1 2");
+		lblDescontoTotalUmidadeExtrato.setFont(new Font("Tahoma", Font.PLAIN, 16));
+
+		lblNewLabel_28 = new JLabel("Avariados:");
+		panel_8.add(lblNewLabel_28, "cell 0 3,alignx right");
+		lblNewLabel_28.setFont(new Font("SansSerif", Font.PLAIN, 14));
+
+		lblDescontoTotalAvariadoExtrato = new JLabel("0.0000");
+		panel_8.add(lblDescontoTotalAvariadoExtrato, "cell 1 3");
+		lblDescontoTotalAvariadoExtrato.setFont(new Font("Tahoma", Font.PLAIN, 16));
+
+		lblNewLabel_3_1_5 = new JLabel("Desc Total:");
+		panel_8.add(lblNewLabel_3_1_5, "cell 0 4,alignx right");
+		lblNewLabel_3_1_5.setFont(new Font("Tahoma", Font.PLAIN, 16));
+
+		lblPesoTotalDescontoExtrato = new JLabel("0.0000");
+		panel_8.add(lblPesoTotalDescontoExtrato, "cell 1 4");
+		lblPesoTotalDescontoExtrato.setFont(new Font("Tahoma", Font.BOLD, 16));
+
+		lblNewLabel_3_1_6 = new JLabel("Total Entrada Fisico:");
+		lblNewLabel_3_1_6.setFont(new Font("Tahoma", Font.BOLD, 16));
+		panel_7.add(lblNewLabel_3_1_6, "cell 1 2");
+
+		lblPesoFisicoFinal = new JLabel("0.0000");
+		lblPesoFisicoFinal.setFont(new Font("Tahoma", Font.BOLD, 16));
+		panel_7.add(lblPesoFisicoFinal, "cell 2 2");
+
+		panel_10 = new JPanel();
+		panel_10.setBorder(new LineBorder(new Color(0, 0, 0)));
+		panel_10.setBackground(Color.WHITE);
+		panel_7.add(panel_10, "cell 0 4 3 1,grow");
+		panel_10.setLayout(new MigLayout("", "[][]", "[][][]"));
+
+		lblNewLabel_37 = new JLabel("Transferências(+)");
+		lblNewLabel_37.setFont(new Font("SansSerif", Font.BOLD, 14));
+		panel_10.add(lblNewLabel_37, "cell 0 0");
+
+		lblNewLabel_29 = new JLabel("Transf. Entrada:");
+		panel_10.add(lblNewLabel_29, "cell 0 1,alignx right");
+		lblNewLabel_29.setFont(new Font("SansSerif", Font.PLAIN, 14));
+
+		lblTranferenciaEntrada = new JLabel("0.0000");
+		panel_10.add(lblTranferenciaEntrada, "cell 1 1");
+		lblTranferenciaEntrada.setFont(new Font("Tahoma", Font.PLAIN, 16));
+
+		lblNewLabel_3_1_7 = new JLabel("Total Entrada Geral:");
+		lblNewLabel_3_1_7.setFont(new Font("Tahoma", Font.BOLD, 16));
+		panel_7.add(lblNewLabel_3_1_7, "cell 1 6");
+
+		lblTotalEntradaGeral = new JLabel("0.0000");
+		lblTotalEntradaGeral.setFont(new Font("Tahoma", Font.BOLD, 16));
+		panel_7.add(lblTotalEntradaGeral, "cell 2 6");
+
+		panel_11 = new JPanel();
+		panel_11.setBorder(new LineBorder(new Color(0, 0, 0)));
+		panel_11.setBackground(Color.WHITE);
+		panel_7.add(panel_11, "cell 0 8 3 1,grow");
+		panel_11.setLayout(new MigLayout("", "[][]", "[][][][][]"));
+
+		lblNewLabel_30 = new JLabel("Saídas(-)");
+		panel_11.add(lblNewLabel_30, "cell 0 0");
+		lblNewLabel_30.setFont(new Font("SansSerif", Font.BOLD, 14));
+
+		lblNewLabel_36 = new JLabel("Saída Normal:");
+		panel_11.add(lblNewLabel_36, "cell 0 1,alignx right");
+		lblNewLabel_36.setFont(new Font("SansSerif", Font.PLAIN, 14));
+
+		lblSaida = new JLabel("0.0000");
+		panel_11.add(lblSaida, "cell 1 1");
+		lblSaida.setFont(new Font("Tahoma", Font.PLAIN, 16));
+
+		lblNewLabel_31 = new JLabel("Transf. Saída:");
+		panel_11.add(lblNewLabel_31, "cell 0 2,alignx right");
+		lblNewLabel_31.setFont(new Font("SansSerif", Font.PLAIN, 14));
+
+		lblTransferenciaSaida = new JLabel("0.0000");
+		panel_11.add(lblTransferenciaSaida, "cell 1 2");
+		lblTransferenciaSaida.setFont(new Font("Tahoma", Font.PLAIN, 16));
+
+		lblNewLabel_32 = new JLabel("Quebra Técnica:");
+		panel_11.add(lblNewLabel_32, "cell 0 3");
+		lblNewLabel_32.setFont(new Font("SansSerif", Font.PLAIN, 14));
+
+		lblQuebraTecnica = new JLabel("0.0000");
+		panel_11.add(lblQuebraTecnica, "cell 1 3");
+		lblQuebraTecnica.setFont(new Font("Tahoma", Font.PLAIN, 16));
+
+		lblNewLabel_3_1_8 = new JLabel("Saída Total:");
+		lblNewLabel_3_1_8.setFont(new Font("Tahoma", Font.BOLD, 16));
+		panel_7.add(lblNewLabel_3_1_8, "cell 1 10,alignx right");
+
+		lblTotalSaida = new JLabel("0.0000");
+		lblTotalSaida.setFont(new Font("Tahoma", Font.BOLD, 16));
+		panel_7.add(lblTotalSaida, "cell 2 10");
+
+		panel_12 = new JPanel();
+		panel_12.setBorder(new LineBorder(new Color(0, 0, 0)));
+		panel_12.setBackground(Color.WHITE);
+		panel_7.add(panel_12, "cell 0 12 3 1,grow");
+		panel_12.setLayout(new MigLayout("", "[][]", "[][][][][]"));
+
+		lblNewLabel_33 = new JLabel("Outros(-)");
+		panel_12.add(lblNewLabel_33, "cell 0 0");
+		lblNewLabel_33.setFont(new Font("SansSerif", Font.BOLD, 14));
+
+		lblNewLabel_34 = new JLabel("Intacta 7.5%:");
+		panel_12.add(lblNewLabel_34, "cell 0 1,alignx right");
+		lblNewLabel_34.setFont(new Font("SansSerif", Font.PLAIN, 14));
+
+		lblIntacta = new JLabel("0.0000");
+		panel_12.add(lblIntacta, "cell 1 1");
+		lblIntacta.setFont(new Font("Tahoma", Font.PLAIN, 16));
+
+		lblNewLabel_35 = new JLabel("Armazenagem:");
+		panel_12.add(lblNewLabel_35, "cell 0 2");
+		lblNewLabel_35.setFont(new Font("SansSerif", Font.PLAIN, 14));
+
+		lblArmazenagem = new JLabel("0.0000");
+		panel_12.add(lblArmazenagem, "cell 1 2");
+		lblArmazenagem.setFont(new Font("Tahoma", Font.PLAIN, 16));
+
+		lblNewLabel_38 = new JLabel("Recepção:");
+		lblNewLabel_38.setFont(new Font("SansSerif", Font.PLAIN, 14));
+		panel_12.add(lblNewLabel_38, "cell 0 3,alignx right");
+
+		lblRecepcao = new JLabel("0.0000");
+		lblRecepcao.setFont(new Font("Tahoma", Font.PLAIN, 16));
+		panel_12.add(lblRecepcao, "cell 1 3");
+
+		lblNewLabel_3_1_9 = new JLabel("Saldo Final:");
+		lblNewLabel_3_1_9.setFont(new Font("Tahoma", Font.BOLD, 16));
+		panel_7.add(lblNewLabel_3_1_9, "cell 1 14,alignx right");
+
+		lblSaldoFinal = new JLabel("0.0000");
+		lblSaldoFinal.setFont(new Font("Tahoma", Font.BOLD, 16));
+		panel_7.add(lblSaldoFinal, "cell 2 14");
 		painelAbas.addTab("DashBoard", painelDashBoard);
 		painelDashBoard.setLayout(new MigLayout("", "[grow]", "[grow][grow]"));
 
@@ -390,7 +645,7 @@ public class TelaRomaneios extends JFrame {
 		panel_1.setLayout(new MigLayout("", "[167px][148px][81px][103px][104px][73px][170px]", "[33px]"));
 
 		JButton btnNewButton = new JButton("Exportar Arquivos");
-		btnNewButton.setBackground(new Color(102, 51, 204));
+		btnNewButton.setBackground(new Color(51, 153, 255));
 		btnNewButton.setForeground(Color.WHITE);
 		btnNewButton.setFont(new Font("SansSerif", Font.BOLD, 16));
 		panel_1.add(btnNewButton, "cell 0 0,alignx left,aligny top");
@@ -514,21 +769,17 @@ public class TelaRomaneios extends JFrame {
 			}
 		});
 
-		
-		
-
 		JPanel panel_2 = new JPanel();
 		panel_2.setBackground(Color.WHITE);
 		panel_2.setFont(new Font("Tahoma", Font.PLAIN, 11));
-		panel_2.setLayout(new MigLayout("", "[][][][][][][][][][][][][][][]", "[][][][][][]"));
+		panel_2.setLayout(new MigLayout("", "[][][][][][][][][][][][][][][]", "[][][][][][][][][][][][][]"));
 
 		scrollPane = new JScrollPane(panel_2);
 		scrollPane.getViewport().setBackground(Color.white);
 		painelPrincipal.add(scrollPane, "cell 0 4 5 2,grow");
-		
-		
+
 		lblNewLabel_3_1_2 = new JLabel("Romaneios:");
-		lblNewLabel_3_1_2.setFont(new Font("Tahoma", Font.PLAIN, 16));
+		lblNewLabel_3_1_2.setFont(new Font("Tahoma", Font.BOLD, 16));
 		panel_2.add(lblNewLabel_3_1_2, "cell 0 0,alignx right");
 
 		lblNumeroTotalRomaneios = new JLabel("0.0000");
@@ -555,7 +806,7 @@ public class TelaRomaneios extends JFrame {
 		lblNewLabel_3.setFont(new Font("Tahoma", Font.PLAIN, 16));
 		panel_2.add(lblNewLabel_3, "cell 0 1,alignx right");
 
-		lblPesoBrutoTotal = new JLabel("000.000.000.000.000/000.000");
+		lblPesoBrutoTotal = new JLabel("0.0000");
 		lblPesoBrutoTotal.setFont(new Font("Tahoma", Font.PLAIN, 16));
 		panel_2.add(lblPesoBrutoTotal, "cell 1 1");
 
@@ -563,7 +814,7 @@ public class TelaRomaneios extends JFrame {
 		lblNewLabel_5.setFont(new Font("Tahoma", Font.PLAIN, 16));
 		panel_2.add(lblNewLabel_5, "cell 3 1");
 
-		lblDescontoTotalUmidade = new JLabel("000.000.000.000/000.000.000");
+		lblDescontoTotalUmidade = new JLabel("0.000");
 		lblDescontoTotalUmidade.setFont(new Font("Tahoma", Font.PLAIN, 16));
 		panel_2.add(lblDescontoTotalUmidade, "cell 4 1");
 
@@ -579,17 +830,17 @@ public class TelaRomaneios extends JFrame {
 		lblNewLabel_14.setFont(new Font("Tahoma", Font.PLAIN, 16));
 		panel_2.add(lblNewLabel_14, "cell 10 1");
 
-		lblTotalRecepcao = new JLabel("");
+		lblTotalRecepcao = new JLabel("0.0");
 		lblTotalRecepcao.setFont(new Font("Tahoma", Font.PLAIN, 16));
 		panel_2.add(lblTotalRecepcao, "cell 11 1");
 
-		lblNewLabel_1 = new JLabel("Total:");
-		lblNewLabel_1.setFont(new Font("Tahoma", Font.PLAIN, 16));
-		panel_2.add(lblNewLabel_1, "cell 13 1,alignx right");
+		lblNewLabel_2 = new JLabel("Total Royalties Participante:");
+		lblNewLabel_2.setFont(new Font("Tahoma", Font.PLAIN, 16));
+		panel_2.add(lblNewLabel_2, "cell 13 1,alignx right");
 
-		lblPesoTotalRoyalt = new JLabel("000.000.000.000/000.000.000");
-		lblPesoTotalRoyalt.setFont(new Font("Tahoma", Font.PLAIN, 16));
-		panel_2.add(lblPesoTotalRoyalt, "cell 14 1");
+		lblPesoTotalParticipante = new JLabel("000.000.000.000/000.000.000");
+		lblPesoTotalParticipante.setFont(new Font("Tahoma", Font.PLAIN, 16));
+		panel_2.add(lblPesoTotalParticipante, "cell 14 1");
 
 		JLabel lblNewLabel_3_1 = new JLabel("P. Tara:");
 		lblNewLabel_3_1.setFont(new Font("Tahoma", Font.PLAIN, 16));
@@ -615,13 +866,13 @@ public class TelaRomaneios extends JFrame {
 		lblImpurezaMedia.setFont(new Font("Tahoma", Font.PLAIN, 16));
 		panel_2.add(lblImpurezaMedia, "cell 7 2");
 
-		lblNewLabel_2 = new JLabel("Total Participante:");
-		lblNewLabel_2.setFont(new Font("Tahoma", Font.PLAIN, 16));
-		panel_2.add(lblNewLabel_2, "cell 13 2");
+		lblNewLabel_4 = new JLabel("Total Royalties Particular:");
+		lblNewLabel_4.setFont(new Font("Tahoma", Font.PLAIN, 16));
+		panel_2.add(lblNewLabel_4, "cell 13 2,alignx right");
 
-		lblPesoTotalParticipante = new JLabel("000.000.000.000/000.000.000");
-		lblPesoTotalParticipante.setFont(new Font("Tahoma", Font.PLAIN, 16));
-		panel_2.add(lblPesoTotalParticipante, "cell 14 2");
+		lblPesoTotalParticular = new JLabel("000.000.000.000/000.000.000");
+		lblPesoTotalParticular.setFont(new Font("Tahoma", Font.PLAIN, 16));
+		panel_2.add(lblPesoTotalParticular, "cell 14 2");
 
 		lblNewLabel_3_1_4 = new JLabel("P. Liquido S/ Desc");
 		lblNewLabel_3_1_4.setFont(new Font("Tahoma", Font.PLAIN, 16));
@@ -647,45 +898,61 @@ public class TelaRomaneios extends JFrame {
 		lblAvariadosMedia.setFont(new Font("Tahoma", Font.PLAIN, 16));
 		panel_2.add(lblAvariadosMedia, "cell 7 3");
 
-		lblNewLabel_4 = new JLabel("Total Particular:");
-		lblNewLabel_4.setFont(new Font("Tahoma", Font.PLAIN, 16));
-		panel_2.add(lblNewLabel_4, "cell 13 3,alignx right");
+		lblNewLabel_1 = new JLabel("Total Royalties:");
+		lblNewLabel_1.setFont(new Font("Tahoma", Font.PLAIN, 16));
+		panel_2.add(lblNewLabel_1, "cell 13 3,alignx right");
 
-		lblPesoTotalParticular = new JLabel("000.000.000.000/000.000.000");
-		lblPesoTotalParticular.setFont(new Font("Tahoma", Font.PLAIN, 16));
-		panel_2.add(lblPesoTotalParticular, "cell 14 3");
+		lblPesoTotalRoyalt = new JLabel("000.000.000.000/000.000.000");
+		lblPesoTotalRoyalt.setFont(new Font("Tahoma", Font.PLAIN, 16));
+		panel_2.add(lblPesoTotalRoyalt, "cell 14 3");
 
 		lblNewLabel_3_1_3 = new JLabel("Desc Total:");
 		lblNewLabel_3_1_3.setFont(new Font("Tahoma", Font.PLAIN, 16));
 		panel_2.add(lblNewLabel_3_1_3, "cell 3 4,alignx right");
 
 		lblPesoTotalDesconto = new JLabel("0.0000");
-		lblPesoTotalDesconto.setFont(new Font("Tahoma", Font.PLAIN, 16));
+		lblPesoTotalDesconto.setFont(new Font("Tahoma", Font.BOLD, 16));
 		panel_2.add(lblPesoTotalDesconto, "cell 4 4");
-		
-		lblNewLabel_17 = new JLabel("Total Declarado:");
-		lblNewLabel_17.setFont(new Font("Tahoma", Font.PLAIN, 16));
-		panel_2.add(lblNewLabel_17, "cell 13 4,alignx right");
-		
-		lblPesoTotalDeclarado = new JLabel("000.000.000.000/000.000.000");
-		lblPesoTotalDeclarado.setFont(new Font("Tahoma", Font.PLAIN, 16));
-		panel_2.add(lblPesoTotalDeclarado, "cell 14 4");
 
 		JLabel lblNewLabel_3_1_1 = new JLabel("P. Liquido Final:");
 		lblNewLabel_3_1_1.setFont(new Font("Tahoma", Font.PLAIN, 16));
 		panel_2.add(lblNewLabel_3_1_1, "cell 0 5,alignx right");
 
 		lblPesoLiquidoTotal = new JLabel("0.0000");
-		lblPesoLiquidoTotal.setFont(new Font("Tahoma", Font.PLAIN, 16));
+		lblPesoLiquidoTotal.setFont(new Font("Tahoma", Font.BOLD, 16));
 		panel_2.add(lblPesoLiquidoTotal, "cell 1 5");
-		
-		lblNewLabel_18 = new JLabel("Total a Declarar:");
+
+		lblNewLabel_17 = new JLabel("Total ITS Baixado:");
+		lblNewLabel_17.setFont(new Font("Tahoma", Font.PLAIN, 16));
+		panel_2.add(lblNewLabel_17, "cell 13 5,alignx right");
+
+		lblPesoTotalDeclarado = new JLabel("000.000.000.000/000.000.000");
+		lblPesoTotalDeclarado.setFont(new Font("Tahoma", Font.PLAIN, 16));
+		panel_2.add(lblPesoTotalDeclarado, "cell 14 5");
+
+		lblNewLabel_18 = new JLabel("Total ITS a Baixar:");
 		lblNewLabel_18.setFont(new Font("Tahoma", Font.PLAIN, 16));
-		panel_2.add(lblNewLabel_18, "cell 13 5,alignx right");
-		
+		panel_2.add(lblNewLabel_18, "cell 13 6,alignx right");
+
 		lblPesoTotalADeclarar = new JLabel("000.000.000.000/000.000.000");
 		lblPesoTotalADeclarar.setFont(new Font("Tahoma", Font.PLAIN, 16));
-		panel_2.add(lblPesoTotalADeclarar, "cell 14 5");
+		panel_2.add(lblPesoTotalADeclarar, "cell 14 6");
+
+		lblNewLabel_20 = new JLabel("Total Outros Participantes:");
+		lblNewLabel_20.setFont(new Font("Tahoma", Font.PLAIN, 16));
+		panel_2.add(lblNewLabel_20, "cell 13 8,alignx right");
+
+		lblPesoTotalOutrosParticipante = new JLabel("000.000.000.000/000.000.000");
+		lblPesoTotalOutrosParticipante.setFont(new Font("Tahoma", Font.PLAIN, 16));
+		panel_2.add(lblPesoTotalOutrosParticipante, "cell 14 8");
+
+		lblNewLabel_19 = new JLabel("Total Outros Particular:");
+		lblNewLabel_19.setFont(new Font("Tahoma", Font.PLAIN, 16));
+		panel_2.add(lblNewLabel_19, "cell 13 9,alignx right");
+
+		lblPesoTotalOutrosParticular = new JLabel("000.000.000.000/000.000.000");
+		lblPesoTotalOutrosParticular.setFont(new Font("Tahoma", Font.PLAIN, 16));
+		panel_2.add(lblPesoTotalOutrosParticular, "cell 14 9");
 		scrollPane.getViewport().setBackground(Color.white);
 
 		JPanel panel_3 = new JPanel();
@@ -699,6 +966,12 @@ public class TelaRomaneios extends JFrame {
 		lblRemetente.setFont(new Font("Tahoma", Font.BOLD, 12));
 
 		entRemetente = new JTextField();
+		entRemetente.addKeyListener(new KeyAdapter() {
+			@Override
+			public void keyTyped(KeyEvent e) {
+				filtrar();
+			}
+		});
 		panel_3.add(entRemetente, "cell 1 0,growx,aligny top");
 		entRemetente.setColumns(10);
 
@@ -707,6 +980,12 @@ public class TelaRomaneios extends JFrame {
 		lblCpfcnpj_1.setFont(new Font("Tahoma", Font.BOLD, 12));
 
 		entIdentificacaoRemetente = new JTextField();
+		entIdentificacaoRemetente.addKeyListener(new KeyAdapter() {
+			@Override
+			public void keyTyped(KeyEvent e) {
+				filtrar();
+			}
+		});
 		panel_3.add(entIdentificacaoRemetente, "cell 3 0 2 1,grow");
 		entIdentificacaoRemetente.setColumns(10);
 
@@ -715,6 +994,12 @@ public class TelaRomaneios extends JFrame {
 		lblNewLabel.setFont(new Font("Tahoma", Font.BOLD, 12));
 
 		entChavePesquisa = new JTextField();
+		entChavePesquisa.addKeyListener(new KeyAdapter() {
+			@Override
+			public void keyTyped(KeyEvent e) {
+				filtrar();
+			}
+		});
 		panel_3.add(entChavePesquisa, "cell 6 0,growx,aligny top");
 		entChavePesquisa.setColumns(10);
 
@@ -723,6 +1008,12 @@ public class TelaRomaneios extends JFrame {
 		lblCpfcnpj.setFont(new Font("Tahoma", Font.BOLD, 12));
 
 		entIdentificacaoDestinatario = new JTextField();
+		entIdentificacaoDestinatario.addKeyListener(new KeyAdapter() {
+			@Override
+			public void keyTyped(KeyEvent e) {
+				filtrar();
+			}
+		});
 		panel_3.add(entIdentificacaoDestinatario, "cell 8 0,growx,aligny top");
 		entIdentificacaoDestinatario.setColumns(10);
 
@@ -731,6 +1022,12 @@ public class TelaRomaneios extends JFrame {
 		lblDocEntrada.setFont(new Font("Tahoma", Font.BOLD, 12));
 
 		entDocEntrada = new JTextField();
+		entDocEntrada.addKeyListener(new KeyAdapter() {
+			@Override
+			public void keyTyped(KeyEvent e) {
+				filtrar();
+			}
+		});
 		panel_3.add(entDocEntrada, "cell 10 0");
 		entDocEntrada.setColumns(10);
 
@@ -739,6 +1036,12 @@ public class TelaRomaneios extends JFrame {
 		lblCdigo.setFont(new Font("Tahoma", Font.BOLD, 12));
 
 		entCodigo = new JTextField();
+		entCodigo.addKeyListener(new KeyAdapter() {
+			@Override
+			public void keyTyped(KeyEvent e) {
+				filtrar();
+			}
+		});
 		panel_3.add(entCodigo, "cell 13 0,growx,aligny center");
 		entCodigo.setColumns(10);
 
@@ -747,6 +1050,14 @@ public class TelaRomaneios extends JFrame {
 		lblProduto.setFont(new Font("Tahoma", Font.BOLD, 12));
 
 		entProduto = new JTextField();
+		entProduto.addKeyListener(new KeyAdapter() {
+			@Override
+			public void keyTyped(KeyEvent e) {
+
+				filtrar();
+
+			}
+		});
 		panel_3.add(entProduto, "cell 1 1,growx,aligny center");
 		entProduto.setColumns(10);
 
@@ -755,6 +1066,12 @@ public class TelaRomaneios extends JFrame {
 		lblNatureza.setFont(new Font("Tahoma", Font.BOLD, 12));
 
 		entNatureza = new JTextField();
+		entNatureza.addKeyListener(new KeyAdapter() {
+			@Override
+			public void keyTyped(KeyEvent e) {
+				filtrar();
+			}
+		});
 		panel_3.add(entNatureza, "cell 3 1 2 1,growx,aligny center");
 		entNatureza.setColumns(10);
 
@@ -763,6 +1080,12 @@ public class TelaRomaneios extends JFrame {
 		lblAmostra.setFont(new Font("Tahoma", Font.BOLD, 12));
 
 		entAmostra = new JTextField();
+		entAmostra.addKeyListener(new KeyAdapter() {
+			@Override
+			public void keyTyped(KeyEvent e) {
+				filtrar();
+			}
+		});
 		panel_3.add(entAmostra, "cell 6 1,growx");
 		entAmostra.setColumns(10);
 
@@ -771,6 +1094,12 @@ public class TelaRomaneios extends JFrame {
 		lblTransgenia.setFont(new Font("Tahoma", Font.BOLD, 12));
 
 		entTransgeniaDefinida = new JTextField();
+		entTransgeniaDefinida.addKeyListener(new KeyAdapter() {
+			@Override
+			public void keyTyped(KeyEvent e) {
+				filtrar();
+			}
+		});
 		panel_3.add(entTransgeniaDefinida, "cell 8 1");
 		entTransgeniaDefinida.setColumns(10);
 
@@ -779,6 +1108,12 @@ public class TelaRomaneios extends JFrame {
 		lblClassificador.setFont(new Font("Tahoma", Font.BOLD, 12));
 
 		entClassificador = new JTextField();
+		entClassificador.addKeyListener(new KeyAdapter() {
+			@Override
+			public void keyTyped(KeyEvent e) {
+				filtrar();
+			}
+		});
 		panel_3.add(entClassificador, "cell 10 1");
 		entClassificador.setColumns(10);
 
@@ -787,6 +1122,12 @@ public class TelaRomaneios extends JFrame {
 		lblMonsanto.setFont(new Font("Tahoma", Font.BOLD, 12));
 
 		entStatusMonsanto = new JTextField();
+		entStatusMonsanto.addKeyListener(new KeyAdapter() {
+			@Override
+			public void keyTyped(KeyEvent e) {
+				filtrar();
+			}
+		});
 		panel_3.add(entStatusMonsanto, "cell 13 1");
 		entStatusMonsanto.setColumns(10);
 
@@ -795,6 +1136,12 @@ public class TelaRomaneios extends JFrame {
 		lblNomeMotorista.setFont(new Font("Tahoma", Font.BOLD, 12));
 
 		entNomeMotorista = new JTextField();
+		entNomeMotorista.addKeyListener(new KeyAdapter() {
+			@Override
+			public void keyTyped(KeyEvent e) {
+				filtrar();
+			}
+		});
 		panel_3.add(entNomeMotorista, "cell 1 2");
 		entNomeMotorista.setColumns(10);
 
@@ -803,6 +1150,12 @@ public class TelaRomaneios extends JFrame {
 		lblCpf.setFont(new Font("Tahoma", Font.BOLD, 12));
 
 		entCpfMotorista = new JTextField();
+		entCpfMotorista.addKeyListener(new KeyAdapter() {
+			@Override
+			public void keyTyped(KeyEvent e) {
+				filtrar();
+			}
+		});
 		panel_3.add(entCpfMotorista, "cell 3 2 2 1,growx");
 		entCpfMotorista.setColumns(10);
 
@@ -811,6 +1164,13 @@ public class TelaRomaneios extends JFrame {
 		lblPlaca.setFont(new Font("Tahoma", Font.BOLD, 12));
 
 		entPlaca = new JTextField();
+		entPlaca.addKeyListener(new KeyAdapter() {
+
+			@Override
+			public void keyTyped(KeyEvent e) {
+				filtrar();
+			}
+		});
 		panel_3.add(entPlaca, "cell 6 2,growx");
 		entPlaca.setColumns(10);
 
@@ -819,6 +1179,12 @@ public class TelaRomaneios extends JFrame {
 		lblSilo.setFont(new Font("Tahoma", Font.BOLD, 12));
 
 		entSilo = new JTextField();
+		entSilo.addKeyListener(new KeyAdapter() {
+			@Override
+			public void keyTyped(KeyEvent e) {
+				filtrar();
+			}
+		});
 		panel_3.add(entSilo, "cell 8 2");
 		entSilo.setColumns(10);
 
@@ -837,6 +1203,12 @@ public class TelaRomaneios extends JFrame {
 		lblD.setFont(new Font("Tahoma", Font.PLAIN, 14));
 
 		entMenorData = new JTextField();
+		entMenorData.addKeyListener(new KeyAdapter() {
+			@Override
+			public void keyTyped(KeyEvent e) {
+				filtrar();
+			}
+		});
 		panel_4.add(entMenorData, "cell 2 0");
 		entMenorData.setColumns(10);
 
@@ -845,6 +1217,12 @@ public class TelaRomaneios extends JFrame {
 		lblAt.setFont(new Font("Tahoma", Font.PLAIN, 14));
 
 		entMaiorData = new JTextField();
+		entMaiorData.addKeyListener(new KeyAdapter() {
+			@Override
+			public void keyTyped(KeyEvent e) {
+				filtrar();
+			}
+		});
 		panel_4.add(entMaiorData, "cell 4 0");
 		entMaiorData.setColumns(10);
 
@@ -1139,14 +1517,13 @@ public class TelaRomaneios extends JFrame {
 		private final int impureza2 = 34;
 		private final int status_monsanto = 35;
 		private final int royalties = 36;
-		
 
 		private final String colunas[] = { "Número", "Operação", "Data:", "Produto:", "Transgenia:", "Safra:",
 				"Depositante:", "CPF/CNPJ Depositante", "Rementente/Destinatario", "CPF/CNPJ Rementente/Destinatario",
 				"Peso Bruto:", "Tara:", "Peso Sem Desconto", "Desconto Umidade", "Desconto Impureza",
 				"Desconto Avariados", "Desconto Total", "Peso Final:", "Recepção", "Umidade:", "Impureza:", "Ardidos",
 				"Avariados", "CFOP", "Descrição", "Motorista", "CPF MOTORISTA", "Placa", "Doc Entrada", "Amostra",
-				"Silo", "Transgenese", "Classificador", "Umidade 2", "Impureza 2", "STATUS MONSANTO" , "ROYALTIES"};
+				"Silo", "Transgenese", "Classificador", "Umidade 2", "Impureza 2", "STATUS MONSANTO", "ROYALTIES" };
 		private final ArrayList<CadastroRomaneio> dados = new ArrayList<>();// usamos como dados uma lista genérica de
 																			// nfs
 
@@ -1171,7 +1548,7 @@ public class TelaRomaneios extends JFrame {
 			// retorna o tipo de dado, para cada coluna
 			switch (columnIndex) {
 			case numero_romaneio:
-				return int.class;
+				return String.class;
 			case operacao:
 				return String.class;
 			case data:
@@ -1407,7 +1784,7 @@ public class TelaRomaneios extends JFrame {
 				return romaneio.getSilo();
 			case transgenese:
 				return romaneio.getTransgenia();
-			
+
 			case classificador:
 				return romaneio.getClassificador();
 			case umidade2:
@@ -1422,13 +1799,13 @@ public class TelaRomaneios extends JFrame {
 					return "OK ITS";
 				else if (sts_monsanto == 2)
 					return "PARTICIPANTE";
-				else if(sts_monsanto == 4)
-					return  "NÃO APLICÁVEL";
+				else if (sts_monsanto == 3)
+					return "NÃO APLICÁVEL";
 			}
-			case royalties:{
-				if(romaneio.getRoyalties() == 0) {
+			case royalties: {
+				if (romaneio.getRoyalties() == 0) {
 					return "NÃO";
-				}else {
+				} else {
 					return "SIM";
 				}
 			}
@@ -1676,18 +2053,19 @@ public class TelaRomaneios extends JFrame {
 		int numero_romaneios = 0;
 		int numero_romaneios_maior_0 = 0;
 
-		
 		double peso_bruto_total = 0, peso_tara_total = 0, peso_liquido_total_sem_desconto = 0, peso_liquido_total = 0;
 		double peso_desconto_umidade = 0;
 		double peso_desconto_impureza = 0;
 		double peso_desconto_avariado = 0;
 		double peso_desconto_total = 0;
 		double peso_recepcao = 0;
-		
+
 		double peso_total_royalties = 0;
 		double peso_total_participante = 0;
 		double peso_total_paticular = 0;
-		
+		double peso_total_outros_particular = 0;
+		double peso_total_outros_participante = 0;
+
 		double peso_total_its_declarado = 0;
 		double peso_total__its_a_declarar = 0;
 
@@ -1722,35 +2100,42 @@ public class TelaRomaneios extends JFrame {
 
 			}
 
-			//monsanto
-			if(romaneio.getRoyalties() == 1) {
-				//e monsanto
+			// monsanto
+			if (romaneio.getRoyalties() == 1) {
+				// e monsanto
 				peso_total_royalties += romaneio.getPeso_liquido();
-				
-				//particular
-				if(romaneio.getStatus_monsanto() == 0 || romaneio.getStatus_monsanto() == 1) {
-					peso_total_paticular +=  romaneio.getPeso_liquido();
-					
-				if(romaneio.getStatus_monsanto() == 0) {
-					//falta its
-					peso_total__its_a_declarar += romaneio.getPeso_liquido();
-					
-				}else if(romaneio.getStatus_monsanto() == 1) {
-					//ok its
-					peso_total_its_declarado += romaneio.getPeso_liquido();
-				
+
+				// particular
+				if (romaneio.getStatus_monsanto() == 0 || romaneio.getStatus_monsanto() == 1) {
+					peso_total_paticular += romaneio.getPeso_liquido();
+
+					if (romaneio.getStatus_monsanto() == 0) {
+						// falta its
+						peso_total__its_a_declarar += romaneio.getPeso_liquido();
+
+					} else if (romaneio.getStatus_monsanto() == 1) {
+						// ok its
+						peso_total_its_declarado += romaneio.getPeso_liquido();
+
+					}
+
 				}
-				
-				}
-				 if(romaneio.getStatus_monsanto() == 2) {
-					//participante cj
+				if (romaneio.getStatus_monsanto() == 2) {
+					// participante cj
 					peso_total_participante += romaneio.getPeso_liquido();
-				}else if (romaneio.getStatus_monsanto() == 3) {
-					//não aplicavel
+				} else if (romaneio.getStatus_monsanto() == 3) {
+					// não aplicavel
 				}
-				
+
+			} else {
+				if (romaneio.getStatus_monsanto() == 2) {
+					// participante cj
+					peso_total_outros_participante += romaneio.getPeso_liquido();
+				} else {
+					peso_total_outros_particular += romaneio.getPeso_liquido();
+				}
 			}
-			
+
 			numero_romaneios++;
 
 		}
@@ -1787,14 +2172,25 @@ public class TelaRomaneios extends JFrame {
 		lblAvariadosMedia.setText(deci.format(avariados_media) + " %");
 		lblImpurezaMedia.setText(deci.format(impureza_media) + " %");
 
-		//monsanto
-		lblPesoTotalRoyalt.setText(z.format(peso_total_royalties) + " Kgs | " + z.format(peso_total_royalties / 60) + " sacos");
-		lblPesoTotalParticipante.setText(z.format(peso_total_participante) + " Kgs | " + z.format(peso_total_participante / 60) + " sacos");
-		lblPesoTotalParticular.setText(z.format(peso_total_paticular) + " Kgs | " + z.format(peso_total_paticular / 60) + " sacos");
-		lblPesoTotalDeclarado.setText(z.format(peso_total_its_declarado) + " Kgs | " + z.format(peso_total_its_declarado / 60) + " sacos");
-		lblPesoTotalADeclarar.setText(z.format(peso_total__its_a_declarar) + " Kgs | " + z.format(peso_total__its_a_declarar / 60) + " sacos");
-		
-		
+		// monsanto
+		lblPesoTotalRoyalt
+				.setText(z.format(peso_total_royalties) + " Kgs | " + z.format(peso_total_royalties / 60) + " sacos");
+		lblPesoTotalParticipante.setText(
+				z.format(peso_total_participante) + " Kgs | " + z.format(peso_total_participante / 60) + " sacos");
+		lblPesoTotalParticular
+				.setText(z.format(peso_total_paticular) + " Kgs | " + z.format(peso_total_paticular / 60) + " sacos");
+		lblPesoTotalDeclarado.setText(
+				z.format(peso_total_its_declarado) + " Kgs | " + z.format(peso_total_its_declarado / 60) + " sacos");
+		lblPesoTotalADeclarar.setText(z.format(peso_total__its_a_declarar) + " Kgs | "
+				+ z.format(peso_total__its_a_declarar / 60) + " sacos");
+
+		lblPesoTotalOutrosParticular.setText(z.format(peso_total_outros_particular) + " Kgs | "
+				+ z.format(peso_total_outros_particular / 60) + " sacos");
+		lblPesoTotalOutrosParticipante.setText(z.format(peso_total_outros_participante) + " Kgs | "
+				+ z.format(peso_total_outros_participante / 60) + " sacos");
+
+		calcularExtrato();
+
 		filtrados.sort(new Comparator<CadastroRomaneio>() {
 
 			@Override
@@ -1811,6 +2207,168 @@ public class TelaRomaneios extends JFrame {
 		somaPorData = filtrados.stream().collect(Collectors.groupingBy(CadastroRomaneio::getData,
 				Collectors.summingDouble(CadastroRomaneio::getUmidade)));
 		atualizarGraficoClassificacao(somaPorData);
+
+	}
+
+	public void calcularExtrato() {
+
+		NumberFormat z = NumberFormat.getNumberInstance();
+		ArrayList<CadastroRomaneio> filtrados = new ArrayList<>();
+		int numero_romaneios = 0;
+		int numero_romaneios_maior_0 = 0;
+
+		double peso_bruto_total = 0, peso_tara_total = 0, peso_liquido_total_sem_desconto = 0, peso_liquido_total = 0;
+		double peso_desconto_umidade = 0;
+		double peso_desconto_impureza = 0;
+		double peso_desconto_avariado = 0;
+		double peso_desconto_total = 0;
+		double peso_recepcao = 0;
+
+		double peso_transferencia_entrada = 0;
+
+		double peso_transferencia_saida = 0;
+		double peso_quebra_tecnica = 0;
+
+		double peso_saida_normal = 0;
+
+		double peso_intacta = 0;
+
+		double peso_total_royalties = 0;
+		double peso_total_participante = 0;
+		double peso_total_paticular = 0;
+		double peso_total_outros_particular = 0;
+		double peso_total_outros_participante = 0;
+
+		double peso_total_its_declarado = 0;
+		double peso_total__its_a_declarar = 0;
+
+		for (int row = 0; row < table_nfs.getRowCount(); row++) {
+
+			int index = table_nfs.convertRowIndexToModel(row);
+			CadastroRomaneio romaneio = modelo_romaneios.getValue(index);
+			filtrados.add(romaneio);
+
+			if (romaneio.getOperacao().equalsIgnoreCase("ENTRADA NORMAL")) {
+
+				peso_bruto_total += romaneio.getPeso_bruto();
+				peso_tara_total += romaneio.getTara();
+				peso_liquido_total += romaneio.getPeso_liquido();
+				peso_liquido_total_sem_desconto += romaneio.getPeso_liquido_sem_descontos();
+
+				peso_desconto_umidade += romaneio.getPeso_desconto_umidade();
+				peso_desconto_impureza += romaneio.getPeso_desconto_impureza();
+				peso_desconto_avariado += romaneio.getPeso_desconto_avariados();
+				peso_desconto_total += romaneio.getPeso_desconto_total();
+				peso_recepcao += romaneio.getDespesa_recepcao();
+
+				// monsanto
+				if (romaneio.getRoyalties() == 1) {
+					// e monsanto
+					peso_total_royalties += romaneio.getPeso_liquido();
+
+					// particular
+					if (romaneio.getStatus_monsanto() == 0 || romaneio.getStatus_monsanto() == 1) {
+						peso_total_paticular += romaneio.getPeso_liquido();
+
+						if (romaneio.getStatus_monsanto() == 0) {
+							// falta its
+							peso_total__its_a_declarar += romaneio.getPeso_liquido();
+
+						} else if (romaneio.getStatus_monsanto() == 1) {
+							// ok its
+							peso_total_its_declarado += romaneio.getPeso_liquido();
+							peso_intacta += (romaneio.getPeso_liquido() * 0.075);
+
+						}
+
+					}
+					if (romaneio.getStatus_monsanto() == 2) {
+						// participante cj
+						peso_total_participante += romaneio.getPeso_liquido();
+					} else if (romaneio.getStatus_monsanto() == 3) {
+						// não aplicavel
+					}
+
+				} else {
+					if (romaneio.getStatus_monsanto() == 2) {
+						// participante cj
+						peso_total_outros_participante += romaneio.getPeso_liquido();
+					} else {
+						peso_total_outros_particular += romaneio.getPeso_liquido();
+					}
+				}
+
+				numero_romaneios++;
+
+			} else if (romaneio.getOperacao().equalsIgnoreCase("ENTRADA TRANSFERENCIA")) {
+				peso_transferencia_entrada += romaneio.getPeso_liquido();
+			} else if (romaneio.getOperacao().equalsIgnoreCase("SAÍDA TRANSFERENCIA")) {
+				peso_transferencia_saida += romaneio.getPeso_liquido();
+			} else if (romaneio.getOperacao().equalsIgnoreCase("SAÍDA NORMAL")) {
+				peso_saida_normal += romaneio.getPeso_liquido();
+
+			} else if (romaneio.getOperacao().equalsIgnoreCase("SAÍDA QUEBRA TECNICA")) {
+				peso_quebra_tecnica += romaneio.getPeso_liquido();
+
+			}
+
+		}
+
+		lblPesoBrutoTotalExtrato
+				.setText(z.format(peso_bruto_total) + " Kgs | " + z.format(peso_bruto_total / 60) + " sacos");
+		lblPesoTaraTotalTara.setText(z.format(peso_tara_total) + " Kgs | " + z.format(peso_tara_total / 60) + " sacos");
+		lblPesoLiquidoTotalSemDescontoExtrato.setText(z.format(peso_liquido_total_sem_desconto) + " Kgs | "
+				+ z.format(peso_liquido_total_sem_desconto / 60) + " sacos");
+
+		// descontos
+		lblDescontoTotalImpurezaExtrato.setText(
+				z.format(peso_desconto_impureza) + " Kgs | " + z.format(peso_desconto_impureza / 60) + " sacos");
+		lblDescontoTotalUmidadeExtrato
+				.setText(z.format(peso_desconto_umidade) + " Kgs | " + z.format(peso_desconto_umidade / 60) + " sacos");
+		lblDescontoTotalAvariadoExtrato.setText(
+				z.format(peso_desconto_avariado) + " Kgs | " + z.format(peso_desconto_avariado / 60) + " sacos");
+
+		lblPesoTotalDescontoExtrato
+				.setText(z.format(peso_desconto_total) + " Kgs | " + z.format(peso_desconto_total / 60) + " sacos");
+
+		lblPesoFisicoFinal
+				.setText(z.format(peso_liquido_total) + " Kgs | " + z.format(peso_liquido_total / 60) + " sacos");
+
+		// transferencia de entrada
+		lblTranferenciaEntrada.setText(z.format(peso_transferencia_entrada) + " Kgs | "
+				+ z.format(peso_transferencia_entrada / 60) + " sacos");
+
+		double total_entrada_geral = peso_liquido_total + peso_transferencia_entrada;
+		// total entrada geral
+		lblTotalEntradaGeral
+				.setText(z.format(total_entrada_geral) + " Kgs | " + z.format(total_entrada_geral / 60) + " sacos");
+
+		// transferencia de saida
+		lblQuebraTecnica
+				.setText(z.format(peso_quebra_tecnica) + " Kgs | " + z.format(peso_quebra_tecnica / 60) + " sacos");
+
+		// quebra tecnica
+		lblTransferenciaSaida.setText(
+				z.format(peso_transferencia_saida) + " Kgs | " + z.format(peso_transferencia_saida / 60) + " sacos");
+
+		// saida normal
+		lblSaida.setText(z.format(peso_saida_normal) + " Kgs | " + z.format(peso_saida_normal / 60) + " sacos");
+
+		double saida_total = peso_saida_normal + peso_transferencia_saida + peso_quebra_tecnica;
+		// total saida
+		lblTotalSaida.setText(z.format(saida_total) + " Kgs | " + z.format(saida_total / 60) + " sacos");
+
+		// intacta
+		lblIntacta.setText(z.format(peso_intacta) + " Kgs | " + z.format(peso_intacta / 60) + " sacos");
+
+		
+		lblRecepcao.setText(z.format(peso_recepcao) + " Kgs | " + z.format(peso_recepcao / 60) + " sacos");
+		
+		double saida_outros = peso_intacta + peso_recepcao;
+
+		double saldo_final = total_entrada_geral - saida_total - saida_outros;
+		// saldo final
+		lblSaldoFinal.setText(z.format(saldo_final) + " Kgs | " + z.format(saldo_final / 60) + " sacos");
 
 	}
 

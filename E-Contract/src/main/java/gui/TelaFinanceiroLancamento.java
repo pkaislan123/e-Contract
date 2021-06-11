@@ -978,15 +978,10 @@ public class TelaFinanceiroLancamento extends JFrame {
 				if (lancamentos_selecionados.size() == 1) {
 					
 					Lancamento lancamento_gerenciar = lancamentos_selecionados.get(0);
-					if(lancamento_gerenciar.getTipo_lancamento() != 2) {
 					TelaFinanceiroGerenciarLancamento tela = new TelaFinanceiroGerenciarLancamento(lancamento_gerenciar,
 							isto);
 					tela.setVisible(true);
-					}else if(lancamento_gerenciar.getTipo_lancamento() == 2) {
-						TelaFinanceiroCadastroTransferencia tela = new TelaFinanceiroCadastroTransferencia(1, new GerenciarBancoLancamento().getLancamento(lancamento_gerenciar.getId_lancamento()), isto);
-
-						tela.setVisible(true);
-					}
+					
 				
 				
 				} else if (lancamentos_selecionados.size() > 1) {

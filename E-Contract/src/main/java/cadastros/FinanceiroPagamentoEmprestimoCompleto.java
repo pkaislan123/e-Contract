@@ -12,13 +12,15 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
-public class FinanceiroPagamentoCompleto  {
+public class FinanceiroPagamentoEmprestimoCompleto{
 
-	FinanceiroPagamento fpag = new FinanceiroPagamento();
+	
+	FinanceiroPagamentoEmprestimo fpag = new FinanceiroPagamentoEmprestimo();
 	Lancamento lancamento = new Lancamento();
 	BigDecimal saldo_atual = BigDecimal.ZERO;
 	String nome_forma_pagamento;
 	String nome_pagador;
 	String nome_recebedor;
 	int id_caixa;
+	
 }

@@ -189,9 +189,29 @@ public class TelaCadastroSafra extends JDialog {
 		
 		cBAnoPlantio.addItem("2020");
 		cBAnoPlantio.addItem("2021");
+		cBAnoPlantio.addItem("2022");
+		cBAnoPlantio.addItem("2023");
+		cBAnoPlantio.addItem("2024");
+		cBAnoPlantio.addItem("2025");
+		cBAnoPlantio.addItem("2026");
+		cBAnoPlantio.addItem("2027");
+		cBAnoPlantio.addItem("2028");
+		cBAnoPlantio.addItem("2029");
+		cBAnoPlantio.addItem("2030");
+	
 		
+	
 		cBAnoColheita.addItem("2020");
 		cBAnoColheita.addItem("2021");
+		cBAnoColheita.addItem("2022");
+		cBAnoColheita.addItem("2023");
+		cBAnoColheita.addItem("2024");
+		cBAnoColheita.addItem("2025");
+		cBAnoColheita.addItem("2026");
+		cBAnoColheita.addItem("2027");
+		cBAnoColheita.addItem("2028");
+		cBAnoColheita.addItem("2029");
+		cBAnoColheita.addItem("2030");
 		
 		JLabel lblCodigo = new JLabel("Codigo:");
 		lblCodigo.setFont(new Font("Tahoma", Font.BOLD, 20));

@@ -466,7 +466,7 @@ public class TelaFinanceiroCadastroTransferencia extends JDialog {
 					if (result) {
 
 						JOptionPane.showMessageDialog(isto, "Atualizado");
-						((TelaFinanceiroLancamento) janela_pai).pesquisar();
+						((TelaFinanceiroGerenciarLancamento) janela_pai).atualizarRotinas();
 						isto.dispose();
 
 					} else {
@@ -503,6 +503,7 @@ public class TelaFinanceiroCadastroTransferencia extends JDialog {
 						parcela.setData_vencimento(data_desta_parcela_formatada);
 						parcela.setFluxo_caixa(1);
 						parcela.setId_lancamento_pai(result);
+						parcela.setStatus(1);
 
 						gerenciar_parcelas.inserirParcela(parcela);
 
@@ -513,16 +514,16 @@ public class TelaFinanceiroCadastroTransferencia extends JDialog {
 						pagamento.setValor(lancamento.getValor());
 
 						pagamento.setDescricao("Pagamento referente a transferência");
-						pagamento.setId_lancamento(lancamento.getId_lancamento());
+						pagamento.setId_lancamento(result);
 
 						pagamento.setIdentificador("");
 						pagamento.setObservacao("");
 
 						pagamento.setFluxo_caixa(1);
 
-						pagamento.setId_condicao_pagamento(condicao_pagamento.getId_condicao_pagamento());
+						pagamento.setId_condicao_pagamento(2);
 
-						pagamento.setStatus_pagamento(0);
+						pagamento.setStatus_pagamento(1);
 
 						// pagador
 						pagamento.setTipo_pagador(0);
@@ -533,7 +534,7 @@ public class TelaFinanceiroCadastroTransferencia extends JDialog {
 						pagamento.setTipo_recebedor(0);
 						pagamento.setId_recebedor(lancamento.getId_cliente_fornecedor());
 
-						pagamento.setData_pagamento(lancamento.getData_pagamento());
+						pagamento.setData_pagamento(data_desta_parcela_formatada);
 
 						int insercao = gerenciar_pags.inserirFinanceiroPagamento(pagamento);
 						if (insercao > 0) {

@@ -8,6 +8,7 @@ import java.awt.Font;
 import java.awt.Window;
 import java.net.URL;
 import java.text.NumberFormat;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.time.ZoneId;
@@ -75,44 +76,32 @@ public class TelaEscolhaRelatorioLancamentos extends JDialog {
 	private JRadioButton rdbtnCompleto, rdbtnSimples, rdbtnPdf, rdbtnExcel;
 
 	public TelaEscolhaRelatorioLancamentos(ArrayList<Lancamento> lancamentos, Window janela_pai) {
-		getContentPane().setBackground(new Color(0, 102, 102));
+		getContentPane().setBackground(Color.WHITE);
 
 		setBounds(100, 100, 331, 239);
 		isto = this;
-
-		JButton btnNewButton = new JButton("X");
-		btnNewButton.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				isto.dispose();
-			}
-		});
 		getContentPane().setLayout(new MigLayout("", "[grow][]", "[grow][][grow][][grow][][]"));
 
-		JButton btnRelatrioDelancamentos = new JButton("Relatório de lancamentos");
-		btnRelatrioDelancamentos.setForeground(Color.WHITE);
+		JLabel btnRelatrioDelancamentos = new JLabel("Relatório de lancamentos");
+		btnRelatrioDelancamentos.setForeground(Color.BLACK);
 		btnRelatrioDelancamentos.setFont(new Font("Tahoma", Font.BOLD, 16));
 		btnRelatrioDelancamentos.setBorder(null);
-		btnRelatrioDelancamentos.setBackground(Color.BLACK);
-		getContentPane().add(btnRelatrioDelancamentos, "cell 0 0,growx");
-		btnNewButton.setBorder(null);
-		btnNewButton.setBackground(Color.BLACK);
-		btnNewButton.setFont(new Font("Tahoma", Font.BOLD, 16));
-		btnNewButton.setForeground(Color.WHITE);
-		getContentPane().add(btnNewButton, "cell 1 0,alignx right,growy");
+		btnRelatrioDelancamentos.setBackground(new Color(0, 51, 0));
+		getContentPane().add(btnRelatrioDelancamentos, "cell 0 0 2 1,alignx center");
 
 		JLabel lblNewLabel = new JLabel("Tipo:");
-		lblNewLabel.setForeground(Color.WHITE);
+		lblNewLabel.setForeground(Color.BLACK);
 		lblNewLabel.setFont(new Font("Tahoma", Font.PLAIN, 18));
 		getContentPane().add(lblNewLabel, "cell 0 1,alignx left");
 
 		JPanel panel = new JPanel();
-		panel.setBackground(new Color(0, 102, 102));
-		getContentPane().add(panel, "cell 0 2,grow");
+		panel.setBackground(Color.WHITE);
+		getContentPane().add(panel, "cell 0 2 2 1,alignx left,growy");
 		panel.setLayout(new MigLayout("", "[][][]", "[]"));
 
 		rdbtnCompleto = new JRadioButton("Completo");
-		rdbtnCompleto.setBackground(new Color(0, 102, 102));
-		rdbtnCompleto.setForeground(Color.WHITE);
+		rdbtnCompleto.setBackground(Color.WHITE);
+		rdbtnCompleto.setForeground(Color.BLACK);
 		rdbtnCompleto.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				rdbtnCompleto.setSelected(true);
@@ -121,8 +110,8 @@ public class TelaEscolhaRelatorioLancamentos extends JDialog {
 		});
 
 		rdbtnSimples = new JRadioButton("Simples");
-		rdbtnSimples.setForeground(Color.WHITE);
-		rdbtnSimples.setBackground(new Color(0, 102, 102));
+		rdbtnSimples.setForeground(Color.BLACK);
+		rdbtnSimples.setBackground(Color.WHITE);
 		rdbtnSimples.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				rdbtnSimples.setSelected(true);
@@ -135,28 +124,18 @@ public class TelaEscolhaRelatorioLancamentos extends JDialog {
 		panel.add(rdbtnCompleto, "cell 2 0");
 
 		JLabel lblSada = new JLabel("Saída:");
-		lblSada.setForeground(Color.WHITE);
+		lblSada.setForeground(Color.BLACK);
 		lblSada.setFont(new Font("Tahoma", Font.PLAIN, 18));
 		getContentPane().add(lblSada, "cell 0 3,alignx left");
 
 		JPanel panel_1 = new JPanel();
-		panel_1.setBackground(new Color(0, 102, 102));
-		getContentPane().add(panel_1, "cell 0 4,grow");
+		panel_1.setBackground(Color.WHITE);
+		getContentPane().add(panel_1, "cell 0 4 2 1,alignx left,growy");
 		panel_1.setLayout(new MigLayout("", "[53px][43px][]", "[23px]"));
 
-		rdbtnPdf = new JRadioButton("Pdf");
-		rdbtnPdf.setBackground(new Color(0, 102, 102));
-		rdbtnPdf.setForeground(Color.WHITE);
-		rdbtnPdf.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				rdbtnExcel.setSelected(false);
-				rdbtnPdf.setSelected(true);
-			}
-		});
-
 		rdbtnExcel = new JRadioButton("Excel");
-		rdbtnExcel.setBackground(new Color(0, 102, 102));
-		rdbtnExcel.setForeground(Color.WHITE);
+		rdbtnExcel.setBackground(Color.WHITE);
+		rdbtnExcel.setForeground(Color.BLACK);
 		rdbtnExcel.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				rdbtnExcel.setSelected(true);
@@ -165,9 +144,19 @@ public class TelaEscolhaRelatorioLancamentos extends JDialog {
 			}
 		});
 		rdbtnExcel.setFont(new Font("Tahoma", Font.BOLD, 14));
-		panel_1.add(rdbtnExcel, "cell 1 0,alignx left,aligny top");
-		rdbtnPdf.setFont(new Font("Tahoma", Font.BOLD, 14));
-		panel_1.add(rdbtnPdf, "cell 2 0,alignx left,aligny top");
+		panel_1.add(rdbtnExcel, "cell 0 0,alignx left,aligny top");
+		
+				rdbtnPdf = new JRadioButton("Pdf");
+				rdbtnPdf.setBackground(Color.WHITE);
+				rdbtnPdf.setForeground(Color.BLACK);
+				rdbtnPdf.addActionListener(new ActionListener() {
+					public void actionPerformed(ActionEvent e) {
+						rdbtnExcel.setSelected(false);
+						rdbtnPdf.setSelected(true);
+					}
+				});
+				rdbtnPdf.setFont(new Font("Tahoma", Font.BOLD, 14));
+				panel_1.add(rdbtnPdf, "cell 1 0,alignx left,aligny top");
 
 		JButton btnNewButton_1 = new JButton("Gerar");
 		btnNewButton_1.addActionListener(new ActionListener() {
@@ -195,7 +184,7 @@ public class TelaEscolhaRelatorioLancamentos extends JDialog {
 
 			}
 		});
-		btnNewButton_1.setFont(new Font("Arial", Font.PLAIN, 14));
+		btnNewButton_1.setFont(new Font("Arial", Font.PLAIN, 16));
 		btnNewButton_1.setForeground(Color.WHITE);
 		btnNewButton_1.setBackground(new Color(0, 0, 51));
 		getContentPane().add(btnNewButton_1, "cell 0 5,alignx right");
@@ -405,13 +394,46 @@ public class TelaEscolhaRelatorioLancamentos extends JDialog {
 		newFont_branca.setFontName("Calibri");
 		newFont_branca.setItalic(false);
 		newFont_branca.setFontHeight((short) (11 * 20));
+		Locale ptBr = new Locale("pt", "BR");
 
 		celula_fundo_laranja_texto_branco.setFont(newFont_branca);
 
-		// Configurando as informacoes
-		row = sheet.createRow(rownum);
+		HSSFFont newFont_titulo = workbook.createFont();
+		newFont_titulo.setBold(true);
+		newFont_titulo.setColor(IndexedColors.BLACK.getIndex());
+		newFont_titulo.setFontName("Calibri");
+		newFont_titulo.setItalic(true);
+		newFont_titulo.setFontHeight((short) (11 * 32));
 
-		Locale ptBr = new Locale("pt", "BR");
+		// estilo para cabecalho
+		CellStyle celula_titulo = workbook.createCellStyle();
+		celula_titulo.setFillPattern(FillPatternType.SOLID_FOREGROUND);
+		celula_titulo.setFillForegroundColor(IndexedColors.WHITE.getIndex());
+		celula_titulo.setAlignment(HorizontalAlignment.CENTER);
+		celula_titulo.setVerticalAlignment(VerticalAlignment.CENTER);
+		celula_titulo.setFont(newFont_titulo);
+
+		// Configurando as informacoes
+
+		// Configurando as informacoes
+				row = sheet.createRow(rownum++);
+
+				// Configurando titulo
+				cell = row.createCell(cellnum++);
+				cell.setCellStyle(celula_titulo);
+				cell.setCellValue("Relatório de Lançamentos");
+				// criar celula de 1 a 5
+				for (int i = 1; i < 6; i++) {
+					cell = row.createCell(cellnum++);
+					cell.setCellStyle(celula_titulo);
+					cell.setCellValue("");
+
+				}
+				sheet.addMergedRegion(new CellRangeAddress(0, 0, 0, 5));
+
+
+			
+				cellnum = 0;
 
 		// Configurando Header
 		row = sheet.createRow(rownum++);
@@ -481,6 +503,9 @@ public class TelaEscolhaRelatorioLancamentos extends JDialog {
 		BigDecimal valor_pago = BigDecimal.ZERO;
 		BigDecimal valor_total_vencer_pagar = BigDecimal.ZERO;
 		BigDecimal valor_total_juros_pago = BigDecimal.ZERO;
+		
+		BigDecimal valor_juros = BigDecimal.ZERO;
+
 
 		// receitas
 		BigDecimal valor_total_receitas = BigDecimal.ZERO;
@@ -489,8 +514,9 @@ public class TelaEscolhaRelatorioLancamentos extends JDialog {
 		BigDecimal valor_total_vencer_receber = BigDecimal.ZERO;
 		BigDecimal valor_total_juros_recebido = BigDecimal.ZERO;
 
-		for (Lancamento lancamento : lancamentos_selecionados) {
 
+		for (Lancamento lancamento : lancamentos_selecionados) {
+			valor_juros = BigDecimal.ZERO;
 			if(lancamento.getStatus() == 0) {
 				//despesas a pagar
 				valor_total_despesas = valor_total_despesas.add(lancamento.getValor());
@@ -504,8 +530,12 @@ public class TelaEscolhaRelatorioLancamentos extends JDialog {
 				
 				BigDecimal valor_restante = valor__ja_pago.subtract(valor_total);
 				
-				if(valor__ja_pago.compareTo(valor_total) > 0) 
-					valor_total_juros_pago = valor_total_juros_pago.add(valor__ja_pago.subtract(valor_total));
+				if(valor__ja_pago.compareTo(valor_total) > 0) {
+				
+					valor_juros = valor__ja_pago.subtract(valor_total);
+					valor_total_juros_pago = valor_total_juros_pago.add(valor_juros);
+					
+				}
 				else 
 				 valor_total_vencer_pagar = valor_total_vencer_pagar.add(lancamento.getValor_proximo_pagamento_a_vencer());
 						
@@ -521,8 +551,11 @@ public class TelaEscolhaRelatorioLancamentos extends JDialog {
 				
 				BigDecimal valor_restante = valor__ja_pago.subtract(valor_total);
 				
-				if(valor__ja_pago.compareTo(valor_total) > 0) 
-					valor_total_juros_pago = valor_total_juros_pago.add(valor__ja_pago.subtract(valor_total));
+				if(valor__ja_pago.compareTo(valor_total) > 0) {
+					valor_juros = valor__ja_pago.subtract(valor_total);
+					valor_total_juros_pago = valor_total_juros_pago.add(valor_juros);
+					
+				}
 				else 
 				 valor_total_vencer_pagar = valor_total_vencer_pagar.add(lancamento.getValor_proximo_pagamento_a_vencer());
 						
@@ -541,9 +574,11 @@ public class TelaEscolhaRelatorioLancamentos extends JDialog {
 				
 				BigDecimal valor_restante = valor__ja_recebido.subtract(valor_total_a_receber);
 				
-				if(valor__ja_recebido.compareTo(valor_total_a_receber) > 0) 
-					valor_total_juros_recebido = valor_total_juros_recebido.add(valor__ja_recebido.subtract(valor_total_a_receber));
-				 else 
+				if(valor__ja_recebido.compareTo(valor_total_a_receber) > 0) {
+					valor_juros = valor__ja_recebido.subtract(valor_total_a_receber);
+					valor_total_juros_recebido = valor_total_juros_recebido.add(valor_juros);
+				
+				}else 
 				    valor_total_vencer_receber = valor_total_vencer_receber.add(lancamento.getValor_proximo_pagamento_a_vencer());
 					
 				
@@ -559,9 +594,11 @@ public class TelaEscolhaRelatorioLancamentos extends JDialog {
 				
 				BigDecimal valor_restante = valor__ja_recebido.subtract(valor_total_a_receber);
 				
-				if(valor__ja_recebido.compareTo(valor_total_a_receber) > 0) 
-					valor_total_juros_recebido = valor_total_juros_recebido.add(valor__ja_recebido.subtract(valor_total_a_receber));
-				 else 
+				if(valor__ja_recebido.compareTo(valor_total_a_receber) > 0) {
+					valor_juros = valor__ja_recebido.subtract(valor_total_a_receber);
+					valor_total_juros_recebido = valor_total_juros_recebido.add(valor_juros);
+				
+				} else 
 				    valor_total_vencer_receber = valor_total_vencer_receber.add(lancamento.getValor_proximo_pagamento_a_vencer());
 					
 				
@@ -610,32 +647,21 @@ public class TelaEscolhaRelatorioLancamentos extends JDialog {
 				cell.setCellStyle(textStyle);
 				cell.setCellValue(NumberFormat.getCurrencyInstance(ptBr).format(valor_a_pagar_lancamento));
 
-				if (lancamento.getTipo_lancamento() == 0) {
-					// despesa
-					valor_total_vencer_pagar = valor_total_vencer_pagar.add(valor_a_pagar_lancamento);
-
-				} else if (lancamento.getTipo_lancamento() == 1) {
-					valor_total_vencer_receber = valor_total_vencer_receber.add(valor_a_pagar_lancamento);
-
-				}
-
+			
 			} else {
 				cell = row.createCell(cellnum++);
 				cell.setCellStyle(textStyle);
 				cell.setCellValue(NumberFormat.getCurrencyInstance(ptBr)
 						.format(lancamento.getValor_proximo_pagamento_a_vencer()));
-				if (lancamento.getTipo_lancamento() == 0) {
-					valor_total_vencer_pagar = valor_total_vencer_pagar
-							.add(lancamento.getValor_proximo_pagamento_a_vencer());
-
-				} else if (lancamento.getTipo_lancamento() == 1) {
-					valor_total_vencer_receber = valor_total_vencer_receber
-							.add(lancamento.getValor_proximo_pagamento_a_vencer());
-
-				}
-
+			
 			}
-
+			
+			
+			cell = row.createCell(cellnum++);
+			cell.setCellStyle(textStyle);
+			cell.setCellValue(NumberFormat.getCurrencyInstance(ptBr)
+					.format(valor_juros));
+			
 			cell = row.createCell(cellnum++);
 			cell.setCellStyle(textStyle);
 			cell.setCellValue(lancamento.getData_vencimento());
@@ -748,7 +774,11 @@ public class TelaEscolhaRelatorioLancamentos extends JDialog {
 			cell.setCellValue(status_contador);
 
 		}
-		sheet.setAutoFilter(CellRangeAddress.valueOf("A1:AF1"));
+		sheet.setAutoFilter(CellRangeAddress.valueOf("A2:AF2"));
+		for (int i = 0; i < 13; i++) {
+			sheet.autoSizeColumn(i);
+
+		}
 
 		row = sheet.createRow(rownum += 2);
 		cellnum = 0;

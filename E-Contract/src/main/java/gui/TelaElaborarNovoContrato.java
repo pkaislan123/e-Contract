@@ -429,7 +429,7 @@ public class TelaElaborarNovoContrato extends JFrame {
 		// contentPanel.setLayout(null);
 
 		painelDadosIniciais.setBackground(new Color(255, 255, 255));
-		painelDadosProdutos.setBackground(new Color(255, 255, 255));
+		painelDadosProdutos.setBackground(new Color(153, 204, 0));
 		painelDadosAdicionais.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseEntered(MouseEvent arg0) {
@@ -1985,7 +1985,7 @@ public class TelaElaborarNovoContrato extends JFrame {
 		entComissao.setEditable(false);
 		entComissao.setEnabled(false);
 
-		JLabel lblValorTotal_1_1 = new JLabel("VAlor Comissão:");
+		JLabel lblValorTotal_1_1 = new JLabel("Valor Comissão:");
 		lblValorTotal_1_1.setFont(new Font("Arial Black", Font.PLAIN, 14));
 		lblValorTotal_1_1.setBounds(620, 433, 140, 42);
 		painelDadosProdutos.add(lblValorTotal_1_1);
