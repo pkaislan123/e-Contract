@@ -1,5 +1,5 @@
-package main.java.principal;
 
+package main.java.principal;
 
 import java.applet.Applet;
 import java.applet.AudioClip;
@@ -28,13 +28,12 @@ import javax.swing.text.MaskFormatter;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
-import org.springframework.boot.autoconfigure.SpringBootApplication; 
+import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 
-import com.formdev.flatlaf.FlatLightLaf;
 
 import main.java.cadastros.CadastroFuncionariosHorarios;
 import main.java.gui.TelaEntrada;
@@ -50,98 +49,82 @@ import javax.sound.sampled.*;
 public class Main {
 
 	public static void main(String[] args) {
-	
 
-		
-	
-		
+		String start = "";
 
-		
-	  String start = "";
-	
-	    if(args.length > 0   ) {
-	    	if(args[0].equalsIgnoreCase("busca")) {
-	    		ArquivoConfiguracoes ler = new ArquivoConfiguracoes();
+		if (args.length > 0) {
+			if (args[0].equalsIgnoreCase("busca")) {
+				ArquivoConfiguracoes ler = new ArquivoConfiguracoes();
 
-		        boolean leitura = false;
-				
+				boolean leitura = false;
+
 				leitura = ler.testeConfiguragoes();
-				
-				if(leitura) {
+
+				if (leitura) {
 
 					MonitorarRomaneios monitorar = new MonitorarRomaneios();
-		        	monitorar.vigiarRomaneios();
+					monitorar.vigiarRomaneios();
 
-				}else {
-					
+				} else {
+
 				}
-	        }
-	    	
-	    }else if(start.equals("busca")) {
-	    	ArquivoConfiguracoes ler = new ArquivoConfiguracoes();
+			}
 
-	        boolean leitura = false;
-			
+		} else if (start.equals("busca")) {
+			ArquivoConfiguracoes ler = new ArquivoConfiguracoes();
+
+			boolean leitura = false;
+
 			leitura = ler.testeConfiguragoes();
-			
-			if(leitura) {
+
+			if (leitura) {
 
 				MonitorarRomaneios monitorar = new MonitorarRomaneios();
-	        	monitorar.vigiarRomaneios();
+				monitorar.vigiarRomaneios();
 
-			}else {
-				
-			}
-	    	
-	    }
-	    else {
-		try {
-			
-			
-			for ( LookAndFeelInfo info : UIManager.getInstalledLookAndFeels() ) {
-			if ( "Nimbus".equals( info.getName() ) ) {
-			UIManager.setLookAndFeel( info.getClassName() );
-			break;
-			}
-			}
-			} catch ( UnsupportedLookAndFeelException exc ) {
-			exc.printStackTrace();
-			} catch ( ClassNotFoundException exc ) {
-			exc.printStackTrace();
-			} catch ( InstantiationException exc ) {
-			exc.printStackTrace();
-			} catch ( IllegalAccessException exc ) {
-			exc.printStackTrace();
-			}
-		
-
-		//TelaPadrao padrao = new TelaPadrao();
-		
-	   //Abre a tela de login
-	
-		//TelaLogin login = new TelaLogin();
-		
-		TelaEntrada entrada = new TelaEntrada();
-		new Thread() {
-			@Override
-			public void run() {
-				entrada.setVisible(true);
+			} else {
 
 			}
-		}.start();
-		
-		entrada.realizarTeste();
 
-	
-	
-	
-	    }
-	   
- }
-		
+		} else {
+
+			try {
+
+				for (LookAndFeelInfo info : UIManager.getInstalledLookAndFeels()) {
+					if ("Nimbus".equals(info.getName())) {
+						UIManager.setLookAndFeel(info.getClassName());
+						break;
+					}
+				}
+			} catch (UnsupportedLookAndFeelException exc) {
+				exc.printStackTrace();
+			} catch (ClassNotFoundException exc) {
+				exc.printStackTrace();
+			} catch (InstantiationException exc) {
+				exc.printStackTrace();
+			} catch (IllegalAccessException exc) {
+				exc.printStackTrace();
+			}
+
+			// TelaPadrao padrao = new TelaPadrao();
+
+			// Abre a tela de login
+
+			// TelaLogin login = new TelaLogin();
+
+			TelaEntrada entrada = new TelaEntrada();
+			new Thread() {
+				@Override
+				public void run() {
+					entrada.setVisible(true);
+
+				}
+			}.start();
+
+			entrada.realizarTeste();
+
+		}
+
+	}
+
 }
-
- 
-
-
-

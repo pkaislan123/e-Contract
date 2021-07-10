@@ -741,7 +741,9 @@ public class TelaConfirmarPagamentoContratual extends JDialog {
 		pagamento_a_inserir.setId_conta_depositante(conta_depositante.getId_conta());
 		pagamento_a_inserir.setId_favorecido(favorecido.getId());
 		pagamento_a_inserir.setId_conta_favorecido(conta_favorecido.getId_conta());
-
+		pagamento_a_inserir.setId_contrato_destinatario(contrato_local.getId());
+		pagamento_a_inserir.setId_contrato_remetente(contrato_local.getId());
+			
 		return pagamento_a_inserir;
 
 	}

@@ -52,7 +52,6 @@ import org.apache.poi.xwpf.usermodel.Document;
 import org.apache.poi.xwpf.usermodel.IBodyElement;
 import org.apache.poi.xwpf.usermodel.ParagraphAlignment;
 import org.apache.poi.xwpf.usermodel.UnderlinePatterns;
-import org.apache.poi.xwpf.usermodel.XWPFChart;
 import org.apache.poi.xwpf.usermodel.XWPFDocument;
 import org.apache.poi.xwpf.usermodel.XWPFHeader;
 import org.apache.poi.xwpf.usermodel.XWPFParagraph;
@@ -262,7 +261,7 @@ public class RelatorioContratos {
 		getDadosGlobais();
 		this.participacao_global = _participacao;
 		this.modelo = modelo;
-		contra_parte_global = contra_parte;
+		this.contra_parte_global = contra_parte;
 		this.cliente_alvo2_global = cliente_alvo2_relatorio;
 		servidor_unidade = configs_globais.getServidorUnidade();
 		this.id_safra = _id_safra;
@@ -384,10 +383,9 @@ public class RelatorioContratos {
 
 		}
 
-		texto_pesquisa = texto_pesquisa + "\n";
 
 		if (contrato) {
-			texto_pesquisa = texto_pesquisa + "\n*Contratos";
+			texto_pesquisa = texto_pesquisa + "*Contratos";
 			if (contrato_como_comprador) {
 				texto_pesquisa = texto_pesquisa + " como Comprador\n";
 
@@ -408,7 +406,7 @@ public class RelatorioContratos {
 				texto_pesquisa = texto_pesquisa + " |Incluir Linhas e Tabela de Ganho Potencial| ";
 
 		}
-		texto_pesquisa = texto_pesquisa + "\n\n";
+		texto_pesquisa = texto_pesquisa + "\n";
 
 		if (recebimento) {
 			texto_pesquisa = texto_pesquisa + "*Recebimentos";
@@ -424,7 +422,7 @@ public class RelatorioContratos {
 			}
 
 			// parametros
-			texto_pesquisa = texto_pesquisa + "\n   ->Filtros: ";
+			texto_pesquisa = texto_pesquisa + "   ->Filtros: ";
 
 			if (unir_recebimentos)
 				texto_pesquisa = texto_pesquisa + " |Unir Recebimentos| ";
@@ -434,7 +432,7 @@ public class RelatorioContratos {
 				texto_pesquisa = texto_pesquisa + " |Incluir Tabela Controle NF Venda(Entrada)| ";
 
 		}
-		texto_pesquisa = texto_pesquisa + "\n\n";
+		texto_pesquisa = texto_pesquisa + "\n";
 
 		if (carregamento) {
 			texto_pesquisa = texto_pesquisa + "*Carregamentos";
@@ -450,7 +448,7 @@ public class RelatorioContratos {
 			}
 
 			// parametros
-			texto_pesquisa = texto_pesquisa + "\n   ->Filtros: ";
+			texto_pesquisa = texto_pesquisa + "   ->Filtros: ";
 
 			if (unir_carregamentos)
 				texto_pesquisa = texto_pesquisa + " |Unir Carregamentos| ";
@@ -462,7 +460,7 @@ public class RelatorioContratos {
 				texto_pesquisa = texto_pesquisa + " |Incluir Transferencias de Carregamento entre Contratos| ";
 
 		}
-		texto_pesquisa = texto_pesquisa + "\n\n";
+		texto_pesquisa = texto_pesquisa + "\n";
 
 		if (pagamento) {
 			texto_pesquisa = texto_pesquisa + "*Pagamentos";
@@ -476,7 +474,7 @@ public class RelatorioContratos {
 			} else {
 
 			}
-			texto_pesquisa = texto_pesquisa + "\n   ->Filtros: ";
+			texto_pesquisa = texto_pesquisa + "   ->Filtros: ";
 
 			if (unir_pagamentos)
 				texto_pesquisa = texto_pesquisa + " |Unir Pagamentos| ";
@@ -486,7 +484,7 @@ public class RelatorioContratos {
 				texto_pesquisa = texto_pesquisa + " |Incluir Transferencias de Pagamentos entre Contratos| ";
 
 		}
-		texto_pesquisa = texto_pesquisa + "\n\n";
+		texto_pesquisa = texto_pesquisa + "\n";
 
 		dadosPesquisaRun.setText("Filtros da pesquisa: \n");
 		dadosPesquisaRun.setColor("000000");
@@ -591,6 +589,10 @@ public class RelatorioContratos {
 			// adicionar integrantes
 			text = text + "\nIntegrantes: ";
 			for (CadastroCliente cliente : grupo_alvo_global.getClientes()) {
+				if(cliente.getId() == 0) {
+					text = text + "TODOS";
+
+				}else {
 				if (cliente.getTipo_pessoa() == 0) {
 					text = text + cliente.getNome_empresarial().toUpperCase();
 				} else {
@@ -598,6 +600,7 @@ public class RelatorioContratos {
 
 				}
 				text = text + " , ";
+				}
 			}
 
 			substituirTexto(text, -1);
@@ -751,7 +754,7 @@ public class RelatorioContratos {
 			
 				
 				if (recebimento_como_comprador || carregamento_como_comprador || pagamento_como_comprador) {
-					contratos_deste_cliente = getContratos(cliente_alvo_global.getId(),true);
+			 	contratos_deste_cliente = getContratos(cliente_alvo_global.getId(),true);
 
 					for (CadastroContrato contrato_cliente : contratos_deste_cliente) {
 						

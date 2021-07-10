@@ -18,4 +18,6 @@ public class FinanceiroPagamentoEmprestimo extends FinanceiroPagamento {
 	String especie, unidade_medida;
 	double quantidade;
 	BigDecimal valor_unitario;
+	
+	
 }

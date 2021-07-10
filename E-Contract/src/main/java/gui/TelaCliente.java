@@ -149,7 +149,7 @@ public class TelaCliente extends JFrame {
 	private JTextField entNome;
 	
 	private TelaCliente isto;
-	private JTable table;
+	private JTable table, table_grupos;
 	private JTextField entApelido;
 	private JTextField entCpfCnpj;
 	private JTextField entIe;
@@ -247,34 +247,34 @@ public class TelaCliente extends JFrame {
 		
 		
 		
-		JTable tabela = new JTable(modelo_cliente);
+		 table = new JTable(modelo_cliente);
 		
 		 sorter = new TableRowSorter<ClienteTableModel>(modelo_cliente);
 
 			
-		 tabela.setRowSorter(sorter);
-		tabela.addKeyListener(new KeyAdapter() {
+		 table.setRowSorter(sorter);
+		 table.addKeyListener(new KeyAdapter() {
 			@Override
 			public void keyPressed(KeyEvent arg0) {
 				if(arg0.getKeyCode() == KeyEvent.VK_ENTER)
 				{
-					processarSelecao(flag_tipo_tela, flag_tipo_cliente, tabela,janela_pai);
+					processarSelecao(flag_tipo_tela, flag_tipo_cliente, table,janela_pai);
 				}
 			}
 		});
-		tabela.setBackground(new Color(255, 255, 255));
+		 table.setBackground(new Color(255, 255, 255));
 	
        
-        tabela.getColumnModel().getColumn(0)
+		 table.getColumnModel().getColumn(0)
         .setPreferredWidth(20);
-        tabela.getColumnModel().getColumn(1)
+        table.getColumnModel().getColumn(1)
         .setPreferredWidth(100);
-        tabela.getColumnModel().getColumn(4)
+        table.getColumnModel().getColumn(4)
         .setPreferredWidth(120);
-        tabela.addMouseListener(new MouseAdapter(){
+        table.addMouseListener(new MouseAdapter(){
             public void mouseClicked(MouseEvent e){
                 if(e.getClickCount() == 2){
-					processarSelecao(flag_tipo_tela, flag_tipo_cliente, tabela,janela_pai);
+					processarSelecao(flag_tipo_tela, flag_tipo_cliente, table,janela_pai);
 
                 }
 				
@@ -284,7 +284,7 @@ public class TelaCliente extends JFrame {
         pesquisar();
 	
 		
-        JScrollPane scrollPane = new JScrollPane(tabela);
+        JScrollPane scrollPane = new JScrollPane(table);
         scrollPane.addMouseListener(new MouseAdapter() {
         	@Override
         	public void mouseClicked(MouseEvent arg0) {
@@ -346,8 +346,8 @@ public class TelaCliente extends JFrame {
 		btnEditar.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
 			
-				int rowSel = tabela.getSelectedRow();//pega o indice da linha na tabela
-				int indexRowModel = tabela.getRowSorter().convertRowIndexToModel(rowSel);//converte pro indice do model
+				int rowSel = table.getSelectedRow();//pega o indice da linha na table
+				int indexRowModel = table.getRowSorter().convertRowIndexToModel(rowSel);//converte pro indice do model
 				TelaGerenciarCliente telagerenciar  = new TelaGerenciarCliente(clientes_disponiveis.get(indexRowModel), isto);
 				telagerenciar.setVisible(true);
 				//TelaCadastroCliente telaEdicao = new TelaCadastroCliente(0, clientes_disponiveis.get(indiceDaLinha));
@@ -357,7 +357,7 @@ public class TelaCliente extends JFrame {
 		});
 		btnSelecionar.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				processarSelecao(flag_tipo_tela, flag_tipo_cliente, tabela,janela_pai);
+				processarSelecao(flag_tipo_tela, flag_tipo_cliente, table,janela_pai);
 
 			}
 		});
@@ -482,9 +482,9 @@ public class TelaCliente extends JFrame {
 			modelo_grupos.addColumn("Nome");
 			modelo_grupos.addColumn("Descrição");
 			
-			table= new JTable(modelo_grupos);
+			 table_grupos = new JTable(modelo_grupos);
 			
-			JScrollPane scrollPaneGrupos = new JScrollPane(table);
+			JScrollPane scrollPaneGrupos = new JScrollPane(table_grupos);
 			scrollPaneGrupos.setBounds(0, 0, 690, 275);
 			panel_1.add(scrollPaneGrupos);
 			
@@ -520,7 +520,7 @@ public class TelaCliente extends JFrame {
 			btnSelecionarGrupo.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent e) {
 					if(flag_tipo_tela == 0) {
-						int indiceDaLinha = table.getSelectedRow();
+						int indiceDaLinha = table_grupos.getSelectedRow();
 	    				CadastroGrupo grupo_selecionado = lista_grupos.get(indiceDaLinha);
 	    				((TelaRelatoriaContratos) telaPai).setGrupoAlvo(grupo_selecionado);
 	    				isto.dispose();
@@ -632,7 +632,7 @@ public class TelaCliente extends JFrame {
 	 
 	    @Override
 	    public int getRowCount() {
-	        //retorna o total de linhas na tabela
+	        //retorna o total de linhas na table
 	        return dados.size();
 	    }
 	 
@@ -779,6 +779,8 @@ public class TelaCliente extends JFrame {
 	    }
 	 
 	}
+	
+	
 	public void filtrar() {
 		 ArrayList<RowFilter<Object,Object>> filters = new ArrayList<RowFilter<Object,Object>>(2);
 
@@ -821,10 +823,10 @@ public class TelaCliente extends JFrame {
 			
 	}
 	
-	public void processarSelecao(int flag_tipo_tela, int flag_tipo_cliente, JTable tabela, Window janela_pai) {
+	public void processarSelecao(int flag_tipo_tela, int flag_tipo_cliente, JTable table, Window janela_pai) {
 		if(flag_tipo_tela == 0) {
-			int rowSel = tabela.getSelectedRow();//pega o indice da linha na tabela
-			int indiceDaLinha = tabela.getRowSorter().convertRowIndexToModel(rowSel);//converte pro indice do model
+			int rowSel = table.getSelectedRow();//pega o indice da linha na table
+			int indiceDaLinha = table.getRowSorter().convertRowIndexToModel(rowSel);//converte pro indice do model
 			clienteSelecionado = clientes_disponiveis.get(indiceDaLinha);
 			if(flag_tipo_cliente == 1)
 				((TelaElaborarNovoContrato) telaPai).setComprador1(clienteSelecionado);
@@ -842,8 +844,12 @@ public class TelaCliente extends JFrame {
 					((TelaConfirmarPagamentoContratual) telaPai).setDepositante(clienteSelecionado);
 				else if (flag_tipo_cliente == 9)
 					((TelaConfirmarPagamentoContratual) telaPai).setFavorecido(clienteSelecionado);
-				else if (flag_tipo_cliente == 10)
-					((TelaCadastroGrupo) telaPai).adicionarIntegrante(clienteSelecionado);
+				else if (flag_tipo_cliente == 10) {
+					ArrayList<CadastroCliente> lista = new ArrayList<>();
+					lista = getClientesSelecionados();
+					((TelaCadastroGrupo) telaPai).adicionarIntegrantes(lista);
+					
+				}
 				else if (flag_tipo_cliente == 11)
 					((TelaRelatoriaContratos) telaPai).setClienteAlvo(clienteSelecionado);
 				else if (flag_tipo_cliente == 12)
@@ -905,18 +911,47 @@ public class TelaCliente extends JFrame {
    					((TelaEnviarAoContador) janela_pai).setCliente(clienteSelecionado);
 
 			}
+			else if (flag_tipo_cliente == 50) {
+   					((TelaFinanceiroCadastroParcelaEmprestimo) janela_pai).setRecebedor(clienteSelecionado);
+				
+			}else if (flag_tipo_cliente == 60) {
+					((TelaCriarRecibo) janela_pai).addRecebedorIntermediario(clienteSelecionado);
+					
+		}else if (flag_tipo_cliente == 61) {
+			((TelaFuncionariosAssosiacaoFuncionarioCliente) janela_pai).setCliente(clienteSelecionado);
+			
+}
+
+		
 			
 			isto.dispose();
 			
 			}
 			else {
 				int indiceDaLinha = 0;
-				indiceDaLinha = tabela.getSelectedRow();
+				indiceDaLinha = table.getSelectedRow();
 				System.out.println("Indice da linha selecionado: " + indiceDaLinha);
 				//TelaCadastroCliente telaEdicao = new TelaCadastroCliente(0, clientes_disponiveis.get(indiceDaLinha));
 				editarCliente(indiceDaLinha);
 
 				
 			}
+	}
+	
+
+	
+	public ArrayList<CadastroCliente>  getClientesSelecionados() {
+		ArrayList<CadastroCliente> clientes_selecionados = new ArrayList<>();
+		int linhas_selecionadas[] = table.getSelectedRows();// pega o indice da linha na table
+
+		for (int i = 0; i < linhas_selecionadas.length; i++) {
+
+			int indice = table.getRowSorter().convertRowIndexToModel(linhas_selecionadas[i]);// converte pro
+																								// indice do
+																								// model
+			clientes_selecionados.add(modelo_cliente.getValue(indice));
+		}
+		
+		return  clientes_selecionados;
 	}
 }

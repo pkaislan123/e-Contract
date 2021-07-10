@@ -61,12 +61,12 @@ import main.java.cadastros.CadastroRomaneio;
 import main.java.cadastros.CadastroSafra;
 import main.java.cadastros.ContaBancaria;
 import main.java.cadastros.Contato;
-import main.java.cadastros.CadastroFuncionarioDescontos;
+import main.java.cadastros.CadastroFuncionarioCalculo;
 import main.java.cadastros.RegistroQuantidade;
 import main.java.cadastros.RegistroRecebimento;
 import main.java.classesExtras.Endereco;
 import main.java.conexaoBanco.GerenciarBancoFuncionarios;
-import main.java.conexaoBanco.GerenciarBancoFuncionariosDescontos;
+import main.java.conexaoBanco.GerenciarBancoFuncionariosCalculos;
 import main.java.conexaoBanco.GerenciarBancoClientes;
 import main.java.conexaoBanco.GerenciarBancoContratos;
 import main.java.conexaoBanco.GerenciarBancoFuncionarios;
@@ -113,6 +113,8 @@ import com.jgoodies.forms.layout.FormSpecs;
 import com.jgoodies.forms.layout.RowSpec;
 import javax.swing.JTextArea;
 import javax.swing.border.MatteBorder;
+import javax.swing.JRadioButton;
+import javax.swing.JTextPane;
 
 public class TelaFuncionariosCadastroDesconto extends JFrame {
 
@@ -124,10 +126,10 @@ public class TelaFuncionariosCadastroDesconto extends JFrame {
 
 	private String logradouro, bairro, cidade, estado;
 	private int num, cep;
-	private JTextFieldPersonalizado entReferencia, entPorcentagem, entValor;
-
+	private JTextFieldPersonalizado entQuantidade, entValor;
+	private JTextPane entDescricao;
 	private String uf;
-	private JTextFieldPersonalizado entDescricao;
+	private JTextFieldPersonalizado entNome;
 	private String tipoIdentificacao;
 
 	private DefaultTableModel modelo = new DefaultTableModel();
@@ -140,12 +142,14 @@ public class TelaFuncionariosCadastroDesconto extends JFrame {
 	CadastroFuncionario funcionario_atualizar = new CadastroFuncionario();
 	private JDialog telaPai;
 	private TelaFuncionariosCadastroDesconto isto;
+	private JTextFieldPersonalizado entTotal;
+	private JComboBox cbReferenciaCalculo;
+	private JLabel lblRefernciaValor;
+	private JComboBox cbReferenciaValor;
 
-	
-	
-	public TelaFuncionariosCadastroDesconto(int flag_tipo_tela, CadastroFuncionarioDescontos desconto, Window janela_pai) {
-		
-		
+	public TelaFuncionariosCadastroDesconto(int flag_tipo_tela, CadastroFuncionarioCalculo desconto,
+			Window janela_pai) {
+
 		getContentPane().setBackground(Color.WHITE);
 		getContentPane().setFont(new Font("Arial", Font.BOLD, 18));
 		getContentPane().setForeground(Color.WHITE);
@@ -161,17 +165,30 @@ public class TelaFuncionariosCadastroDesconto extends JFrame {
 		setResizable(false);
 
 		setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-		
-		setBounds(100, 100, 405, 260);
-				getContentPane().setLayout(new MigLayout("", "[80px][176px,grow][]", "[30px][19px][][][][]"));
-		
-				JLabel lblCpf = new JLabel("Descrição:");
-				getContentPane().add(lblCpf, "cell 0 0,alignx right,aligny center");
-				lblCpf.setHorizontalAlignment(SwingConstants.TRAILING);
-				lblCpf.setForeground(Color.BLACK);
-				lblCpf.setFont(new Font("Arial", Font.PLAIN, 16));
-				lblCpf.setBackground(Color.ORANGE);
-				lblCpf.setHorizontalAlignment(JLabel.RIGHT);
+
+		setBounds(100, 100, 578, 368);
+		getContentPane().setLayout(new MigLayout("", "[80px][176px,grow][][]", "[][50px,grow][19px][][][][][][]"));
+
+		JLabel lblNome = new JLabel("Nome:");
+		lblNome.setHorizontalAlignment(SwingConstants.TRAILING);
+		lblNome.setForeground(Color.BLACK);
+		lblNome.setFont(new Font("Arial", Font.PLAIN, 16));
+		lblNome.setBackground(Color.ORANGE);
+		getContentPane().add(lblNome, "cell 0 0,alignx right");
+
+		entNome = new JTextFieldPersonalizado();
+		getContentPane().add(entNome, "cell 1 0,growx,aligny top");
+		entNome.setForeground(Color.BLACK);
+		entNome.setFont(new Font("Arial", Font.BOLD, 20));
+		entNome.setColumns(10);
+
+		JLabel lblCpf = new JLabel("Descrição:");
+		getContentPane().add(lblCpf, "cell 0 1,alignx right,aligny center");
+		lblCpf.setHorizontalAlignment(SwingConstants.TRAILING);
+		lblCpf.setForeground(Color.BLACK);
+		lblCpf.setFont(new Font("Arial", Font.PLAIN, 16));
+		lblCpf.setBackground(Color.ORANGE);
+		lblCpf.setHorizontalAlignment(JLabel.RIGHT);
 
 		JLabel lblCadastro_2_1 = new JLabel(" ----- Cadastro / Dados da Empresa");
 		lblCadastro_2_1.setHorizontalAlignment(SwingConstants.TRAILING);
@@ -181,211 +198,223 @@ public class TelaFuncionariosCadastroDesconto extends JFrame {
 		lblCadastro_2_1.setBounds(0, 0, 250, 33);
 		lblCadastro_2_1.setHorizontalAlignment(JLabel.LEFT);
 
-		modelo.addColumn("id");
-		modelo.addColumn("Nome");
-		modelo.addColumn("Cargo");
-		modelo.addColumn("Celular");
-		modelo.addColumn("Fixo");
-		modelo.addColumn("E-mail");
-		modelo.addColumn("Descrição");
-		modelo.addColumn("Observação");
-		modelo.setNumRows(0);
+
+		entDescricao = new JTextPane();
+		entDescricao.setFont(new Font("SansSerif", Font.BOLD, 14));
+		entDescricao.setBorder(new LineBorder(new Color(0, 0, 0)));
+		getContentPane().add(entDescricao, "cell 1 1,grow");
+
+		JLabel lblReferncia = new JLabel("Referência Cálculo:");
+		lblReferncia.setHorizontalAlignment(SwingConstants.TRAILING);
+		lblReferncia.setForeground(Color.BLACK);
+		lblReferncia.setFont(new Font("Arial", Font.PLAIN, 16));
+		lblReferncia.setBackground(Color.ORANGE);
+		getContentPane().add(lblReferncia, "cell 0 2,alignx right,aligny center");
+
 		
-				entDescricao = new JTextFieldPersonalizado();
-				getContentPane().add(entDescricao, "cell 1 0 2 1,growx,aligny top");
-				entDescricao.setForeground(Color.BLACK);
-				entDescricao.setFont(new Font("Arial", Font.BOLD, 20));
-				entDescricao.setToolTipText("Data de Nascimento, somente números");
-				entDescricao.setColumns(10);
-				
-				JLabel lblReferncia = new JLabel("Referência:");
-				lblReferncia.setHorizontalAlignment(SwingConstants.TRAILING);
-				lblReferncia.setForeground(Color.BLACK);
-				lblReferncia.setFont(new Font("Arial", Font.PLAIN, 16));
-				lblReferncia.setBackground(Color.ORANGE);
-				getContentPane().add(lblReferncia, "cell 0 1,growx,aligny center");
-				
-				
-				
-				 entReferencia = new JTextFieldPersonalizado();
-				entReferencia.setForeground(Color.black);
-				getContentPane().add(entReferencia, "cell 1 1,growx");
-				
-				JLabel lblPorcentagem = new JLabel("Porcentagem:");
-				lblPorcentagem.setHorizontalAlignment(SwingConstants.TRAILING);
-				lblPorcentagem.setForeground(Color.BLACK);
-				lblPorcentagem.setFont(new Font("Arial", Font.PLAIN, 16));
-				lblPorcentagem.setBackground(Color.ORANGE);
-				getContentPane().add(lblPorcentagem, "cell 0 2,alignx trailing");
-				
-				 entPorcentagem = new JTextFieldPersonalizado();
-				 entPorcentagem.setText("0");
-				entPorcentagem.setForeground(Color.black);
-				getContentPane().add(entPorcentagem, "cell 1 2,growx");
-				
-				JLabel lblValor = new JLabel("Valor:");
-				lblValor.setHorizontalAlignment(SwingConstants.TRAILING);
-				lblValor.setForeground(Color.BLACK);
-				lblValor.setFont(new Font("Arial", Font.PLAIN, 16));
-				lblValor.setBackground(Color.ORANGE);
-				getContentPane().add(lblValor, "cell 0 3,alignx trailing");
-				
-				 entValor = new JTextFieldPersonalizado();
-				entValor.setForeground(Color.black);
-				entValor.setText("0");
+		
+		cbReferenciaCalculo = new JComboBox();
+		cbReferenciaCalculo.setFont(new Font("SansSerif", Font.BOLD, 14));
+		getContentPane().add(cbReferenciaCalculo, "cell 1 2,growx");
+		cbReferenciaCalculo.addItem("Sálario Base");
+		cbReferenciaCalculo.addItem("Sálario Líquido");
+		cbReferenciaCalculo.addItem("Sálario Bruto");
+		cbReferenciaCalculo.addItem("Valor Hora Trabalhada");
+		cbReferenciaCalculo.addItem("Nenhuma");
 
-				getContentPane().add(entValor, "cell 1 3,growx");
-				
-				JButton btnAtualizar = new JButton("Atualizar");
-				btnAtualizar.addActionListener(new ActionListener() {
-					public void actionPerformed(ActionEvent e) {
-						
-						
-						CadastroFuncionarioDescontos desconto_atualizar = new CadastroFuncionarioDescontos();
-						desconto_atualizar = getDadosAtualizar(desconto);
-						if(desconto_atualizar != null) {
-							GerenciarBancoFuncionariosDescontos gerenciar = new GerenciarBancoFuncionariosDescontos();
-							boolean atualizou = gerenciar.atualizarDesconto(desconto_atualizar);
-							if(atualizou) {
-								JOptionPane.showMessageDialog(isto, "Desconto Atualizado!");
-								((TelaFuncionariosDescontos) janela_pai).pesquisar();
-								isto.dispose();
-							}else {
-								JOptionPane.showMessageDialog(isto, "Erro ao atualizar o Desconto\nConsulte o administrador!");
-							}
-							
-						}
-						
-						
+
+		JLabel lblPorcentagem = new JLabel("Quantidade:");
+		lblPorcentagem.setHorizontalAlignment(SwingConstants.TRAILING);
+		lblPorcentagem.setForeground(Color.BLACK);
+		lblPorcentagem.setFont(new Font("Arial", Font.PLAIN, 16));
+		lblPorcentagem.setBackground(Color.ORANGE);
+		getContentPane().add(lblPorcentagem, "cell 0 4,alignx right");
+
+		entQuantidade = new JTextFieldPersonalizado();
+		entQuantidade.setText("0");
+		entQuantidade.setForeground(Color.black);
+		getContentPane().add(entQuantidade, "cell 1 4,growx");
+		
+		lblRefernciaValor = new JLabel("Referência Valor:");
+		lblRefernciaValor.setHorizontalAlignment(SwingConstants.TRAILING);
+		lblRefernciaValor.setForeground(Color.BLACK);
+		lblRefernciaValor.setFont(new Font("Arial", Font.PLAIN, 16));
+		lblRefernciaValor.setBackground(Color.ORANGE);
+		getContentPane().add(lblRefernciaValor, "cell 0 5,alignx trailing");
+		
+		cbReferenciaValor = new JComboBox();
+		cbReferenciaValor.setFont(new Font("SansSerif", Font.BOLD, 14));
+		getContentPane().add(cbReferenciaValor, "cell 1 5,growx");
+		cbReferenciaValor.addItem("Porcentagem");
+		cbReferenciaValor.addItem("Fixo");
+
+		JLabel lblValor = new JLabel("Valor:");
+		lblValor.setHorizontalAlignment(SwingConstants.TRAILING);
+		lblValor.setForeground(Color.BLACK);
+		lblValor.setFont(new Font("Arial", Font.PLAIN, 16));
+		lblValor.setBackground(Color.ORANGE);
+		getContentPane().add(lblValor, "cell 0 6,alignx trailing");
+
+		entValor = new JTextFieldPersonalizado();
+		entValor.setForeground(Color.black);
+		entValor.setText("0");
+
+		getContentPane().add(entValor, "cell 1 6,growx");
+
+		JButton btnAtualizar = new JButton("Atualizar");
+		btnAtualizar.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+
+				CadastroFuncionarioCalculo desconto_atualizar = new CadastroFuncionarioCalculo();
+				desconto_atualizar = getDadosAtualizar(desconto);
+				if (desconto_atualizar != null) {
+					GerenciarBancoFuncionariosCalculos gerenciar = new GerenciarBancoFuncionariosCalculos();
+					boolean atualizou = gerenciar.atualizarDesconto(desconto_atualizar);
+					if (atualizou) {
+						JOptionPane.showMessageDialog(isto, "Acréscimo Atualizado!");
+						((TelaFuncionariosAcrescimos) janela_pai).pesquisar();
+						isto.dispose();
+					} else {
+						JOptionPane.showMessageDialog(isto, "Erro ao atualizar o Acréscimos\nConsulte o administrador!");
 					}
-				});
-				btnAtualizar.setBackground(new Color(0, 0, 102));
-				btnAtualizar.setForeground(Color.WHITE);
-				btnAtualizar.setFont(new Font("Dialog", Font.BOLD, 16));
-				getContentPane().add(btnAtualizar, "cell 1 5,alignx right");
-				
-				JButton btnSalvar = new JButton("Salvar");
-				btnSalvar.addActionListener(new ActionListener() {
-					public void actionPerformed(ActionEvent e) {
-						
-						CadastroFuncionarioDescontos desconto = new CadastroFuncionarioDescontos();
-						desconto = getDadosSalvar();
-						if(desconto != null) {
-							GerenciarBancoFuncionariosDescontos gerenciar = new GerenciarBancoFuncionariosDescontos();
-							int cadastrou = gerenciar.inserirdesconto(desconto);
-							if(cadastrou > 0) {
-								JOptionPane.showMessageDialog(isto, "Desconto Inserido!");
-								((TelaFuncionariosDescontos) janela_pai).pesquisar();
-								isto.dispose();
-							}else {
-								JOptionPane.showMessageDialog(isto, "Erro ao inserir Desconto\nConsulte o administrador!");
-							}
-							
-						}
-						
-					}
-				});
-				btnSalvar.setBackground(new Color(0, 51, 0));
-				btnSalvar.setForeground(Color.WHITE);
-				btnSalvar.setFont(new Font("Dialog", Font.BOLD, 16));
-				getContentPane().add(btnSalvar, "cell 2 5");
 
-				if (flag_tipo_tela == 0) {
-					setTitle("E-Contract - Inserção de Desconto");
-
-					
-					btnAtualizar.setEnabled(false);
-					btnAtualizar.setVisible(false);
-					
-				}
-				else if (flag_tipo_tela == 1) {
-					setTitle("E-Contract - Edição de Desconto");
-					
-					btnSalvar.setEnabled(false);
-					btnSalvar.setVisible(false);
-					rotinasEdicao(desconto);
-					
 				}
 
-	
+			}
+		});
+
+		JLabel lblTotal = new JLabel("Total:");
+		lblTotal.setHorizontalAlignment(SwingConstants.TRAILING);
+		lblTotal.setForeground(Color.BLACK);
+		lblTotal.setFont(new Font("Arial", Font.PLAIN, 16));
+		lblTotal.setBackground(Color.ORANGE);
+		getContentPane().add(lblTotal, "cell 0 7,alignx trailing");
+
+		entTotal = new JTextFieldPersonalizado();
+		getContentPane().add(entTotal, "cell 1 7,growx");
+		entTotal.setText("0");
+		entTotal.setForeground(Color.black);
+		btnAtualizar.setBackground(new Color(0, 0, 102));
+		btnAtualizar.setForeground(Color.WHITE);
+		btnAtualizar.setFont(new Font("Dialog", Font.BOLD, 16));
+		getContentPane().add(btnAtualizar, "flowx,cell 1 8,alignx right");
+
+		JButton btnSalvar = new JButton("Salvar");
+		btnSalvar.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+
+				CadastroFuncionarioCalculo desconto = new CadastroFuncionarioCalculo();
+				desconto = getDadosSalvar();
+				if (desconto != null) {
+					//GerenciarBancoFuncionariosCalculos gerenciar = new GerenciarBancoFuncionariosCalculos();
+					//int cadastrou = gerenciar.inserircalculo(desconto);
+					//if (cadastrou > 0) {
+						JOptionPane.showMessageDialog(isto, "Desconto Inserido!");
+						((TelaFuncionariosCadastroSalario) janela_pai).adicionarDesconto(desconto);
+						isto.dispose();
+					
+
+				}
+			else {
+				JOptionPane.showMessageDialog(isto, "Erro ao inserir Desconto\nConsulte o administrador!");
+			}
+
+			}
+		});btnSalvar.setBackground(new Color(0,51,0));btnSalvar.setForeground(Color.WHITE);btnSalvar.setFont(new Font("Dialog",Font.BOLD,16));
+
+	getContentPane().add(btnSalvar, "cell 1 8");
+
+		if (flag_tipo_tela == 0) {
+			setTitle("E-Contract - Inserção de Desconto");
+
+			btnAtualizar.setEnabled(false);
+			btnAtualizar.setVisible(false);
+
+		} else if (flag_tipo_tela == 1) {
+			setTitle("E-Contract - Edição de Desconto");
+
+			btnSalvar.setEnabled(false);
+			btnSalvar.setVisible(false);
+			rotinasEdicao(desconto);
+
+		}
+
 		adicionarFocus(isto.getComponents());
 
 		this.setLocationRelativeTo(janela_pai);
 
 	}
 
-	
-	private CadastroFuncionarioDescontos getDadosSalvar() {
-		CadastroFuncionarioDescontos cad = new CadastroFuncionarioDescontos();
-		
-		String descricao, referencia;
-		double porcentagem, valor;
-		
-		
+	private CadastroFuncionarioCalculo getDadosSalvar() {
+		CadastroFuncionarioCalculo cad = new CadastroFuncionarioCalculo();
+
+		cad.setTipo_calculo(0);
+		String nome, descricao;
+		int referencia_calculo, referencia_valor;
+		double valor, total;
+
+		nome = entNome.getText();
 		descricao = entDescricao.getText();
-		referencia  = entReferencia.getText();
-		
+
+		referencia_calculo =  cbReferenciaCalculo.getSelectedIndex();
+		referencia_valor = cbReferenciaValor.getSelectedIndex();
 		
 		cad.setDescricao(descricao);
-		cad.setReferencia(referencia);
-		
+		cad.setNome(nome);
+		cad.setReferencia_calculo(referencia_calculo);
+		cad.setReferencia_valor(referencia_valor);
+
 		try {
-			
-			porcentagem = Double.parseDouble(entPorcentagem.getText());
-			cad.setPorcentagem(porcentagem);
-			
-		
-			
+
 			valor = Double.parseDouble(entValor.getText());
 			cad.setValor(valor);
 			
+			total = Double.parseDouble(entTotal.getText());
+			cad.setTotal(total);
+
 			return cad;
-			
-		}catch (Exception e) {
+
+		} catch (Exception e) {
 			return null;
 		}
-		
-		
-		
+
 	}
 
-	
-	private CadastroFuncionarioDescontos getDadosAtualizar(CadastroFuncionarioDescontos desconto_antigo) {
-		CadastroFuncionarioDescontos cad = new CadastroFuncionarioDescontos();
-		cad.setId_desconto(desconto_antigo.getId_desconto());
-		
-		String descricao, referencia;
-		double porcentagem, valor;
-		
-		
+	private CadastroFuncionarioCalculo getDadosAtualizar(CadastroFuncionarioCalculo desconto_antigo) {
+		CadastroFuncionarioCalculo cad = new CadastroFuncionarioCalculo();
+		cad.setId_calculo(desconto_antigo.getId_calculo());
+		cad.setTipo_calculo(0);
+
+		String nome, descricao;
+		int referencia_calculo, referencia_valor;
+		double valor, total;
+
+		nome = entNome.getText();
 		descricao = entDescricao.getText();
-		referencia  = entReferencia.getText();
-		
+
+		referencia_calculo =  cbReferenciaCalculo.getSelectedIndex();
+		referencia_valor = cbReferenciaValor.getSelectedIndex();
 		
 		cad.setDescricao(descricao);
-		cad.setReferencia(referencia);
-		
+		cad.setNome(nome);
+		cad.setReferencia_calculo(referencia_calculo);
+		cad.setReferencia_valor(referencia_valor);
+
 		try {
-			
-			porcentagem = Double.parseDouble(entPorcentagem.getText());
-			cad.setPorcentagem(porcentagem);
-			
-		
-			
+
 			valor = Double.parseDouble(entValor.getText());
 			cad.setValor(valor);
 			
+			total = Double.parseDouble(entTotal.getText());
+			cad.setTotal(total);
+
 			return cad;
-			
-		}catch (Exception e) {
+
+		} catch (Exception e) {
 			return null;
 		}
-		
-		
-		
 	}
 
-	
 	public void adicionarFocus(Component[] components) {
 		for (Component c : components) {
 			if (c instanceof JTextFieldPersonalizado) {
@@ -417,7 +446,6 @@ public class TelaFuncionariosCadastroDesconto extends JFrame {
 		}
 	}
 
-	
 	public void getDadosGlobais() {
 		// gerenciador de log
 		DadosGlobais dados = DadosGlobais.getInstance();
@@ -432,17 +460,16 @@ public class TelaFuncionariosCadastroDesconto extends JFrame {
 	public void setTelaPai(JDialog tela_pai) {
 		this.telaPai = tela_pai;
 	}
-	
-	public void rotinasEdicao(CadastroFuncionarioDescontos cad) {
-		
+
+	public void rotinasEdicao(CadastroFuncionarioCalculo cad) {
+
+		entNome.setText(cad.getNome());
 		entDescricao.setText(cad.getDescricao());
-		entReferencia.setText(cad.getReferencia());
-		
-		entValor.setText(Double.toString(cad.getValor()));
-		entPorcentagem.setText(Double.toString(cad.getPorcentagem()));
-		
-		
+		entValor.setText(Double.toString(cad.getValor())  );
+		entTotal.setText(Double.toString(cad.getTotal()));
+		cbReferenciaCalculo.setSelectedIndex(cad.getReferencia_calculo());
+		cbReferenciaValor.setSelectedIndex(cad.getReferencia_valor());
+
 	}
-	
 
 }

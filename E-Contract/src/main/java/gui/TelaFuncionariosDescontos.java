@@ -24,7 +24,7 @@ import javax.swing.table.AbstractTableModel;
 import javax.swing.table.TableRowSorter;
 
 import main.java.cadastros.CadastroCliente;
-import main.java.cadastros.CadastroFuncionarioDescontos;
+import main.java.cadastros.CadastroFuncionarioCalculo;
 import main.java.cadastros.FinanceiroConta;
 import main.java.cadastros.FinanceiroGrupoContas;
 import main.java.cadastros.FinanceiroConta;
@@ -33,7 +33,7 @@ import main.java.conexaoBanco.GerenciarBancoCentroCustos;
 import main.java.conexaoBanco.GerenciarBancoClientes;
 import main.java.conexaoBanco.GerenciarBancoFinanceiroConta;
 import main.java.conexaoBanco.GerenciarBancoFinanceiroGrupoContas;
-import main.java.conexaoBanco.GerenciarBancoFuncionariosDescontos;
+import main.java.conexaoBanco.GerenciarBancoFuncionariosCalculos;
 import main.java.outros.JTextFieldPersonalizado;
 import main.java.conexaoBanco.GerenciarBancoFinanceiroConta;
 
@@ -59,7 +59,7 @@ public class TelaFuncionariosDescontos extends JDialog {
 	private final JPanel painelPrinciapl = new JPanel();
 	private TelaFuncionariosDescontos isto;
 	 private JTable tabela_descontos;
-	 private ArrayList<CadastroFuncionarioDescontos> lista_descontos = new ArrayList<>();
+	 private ArrayList<CadastroFuncionarioCalculo> lista_descontos = new ArrayList<>();
 	 private JDialog telaPai;
 	 private DescontoTableModel modelo_descontos = new DescontoTableModel();
 	 private TableRowSorter<DescontoTableModel> sorter;
@@ -136,7 +136,7 @@ public class TelaFuncionariosDescontos extends JDialog {
 			            JOptionPane.YES_NO_OPTION,
 			            JOptionPane.QUESTION_MESSAGE) == JOptionPane.YES_OPTION){
 					
-						boolean exclusao = new GerenciarBancoFuncionariosDescontos().removerdesconto(getDescontoSelecionado().getId_desconto());
+						boolean exclusao = new GerenciarBancoFuncionariosCalculos().removercalculo(getDescontoSelecionado().getId_calculo());
 						if(exclusao) {
 							JOptionPane.showMessageDialog(isto, "Cadastro Excluído");
 						}else {
@@ -160,10 +160,10 @@ public class TelaFuncionariosDescontos extends JDialog {
 			public void actionPerformed(ActionEvent e) {
 				
 				if(flag_retorno == 1) {
-					((TelaAplicarContratoDesconto) janela_pai).setDesconto(getDescontoSelecionado());
+					((TelaFuncionariosCadastroSalario) janela_pai).adicionarDesconto(getDescontoSelecionado());
 					isto.dispose();
-				}
 				
+				}
 			}
 		});
 		panel_3.add(btnNewButton_3, "cell 1 0,alignx left,aligny top");
@@ -187,12 +187,12 @@ public class TelaFuncionariosDescontos extends JDialog {
 	}
 	
 	public void pesquisar() {
-		GerenciarBancoFuncionariosDescontos gerenciar = new GerenciarBancoFuncionariosDescontos();
+		GerenciarBancoFuncionariosCalculos gerenciar = new GerenciarBancoFuncionariosCalculos();
 		lista_descontos.clear();
 		modelo_descontos.onRemoveAll();
 		
-		lista_descontos = gerenciar.getdescontos();
-		for(CadastroFuncionarioDescontos cc : lista_descontos) {
+		lista_descontos = gerenciar.getCalculosDesconto();
+		for(CadastroFuncionarioCalculo cc : lista_descontos) {
 			modelo_descontos.onAdd(cc);
 		}
 	}
@@ -378,12 +378,12 @@ public boolean checkString(String txt) {
 		}
 	}
 	
-	public CadastroFuncionarioDescontos getDescontoSelecionado() {
+	public CadastroFuncionarioCalculo getDescontoSelecionado() {
 		int indiceDaLinha = tabela_descontos.getSelectedRow();
 
 		int id_selecionado = Integer.parseInt(tabela_descontos.getValueAt(indiceDaLinha, 0).toString());
-		GerenciarBancoFuncionariosDescontos gerenciar_cont = new GerenciarBancoFuncionariosDescontos();
-		return gerenciar_cont.getdesconto(id_selecionado);
+		GerenciarBancoFuncionariosCalculos gerenciar_cont = new GerenciarBancoFuncionariosCalculos();
+		return gerenciar_cont.getcalculo(id_selecionado);
 		
 	}
 	
@@ -429,19 +429,27 @@ public boolean checkString(String txt) {
 
 		// constantes p/identificar colunas
 		private final int id = 0;
-		private final int descricao = 1;
-		private final int referencia = 2;
-		private final int porcentagem = 3;
-		private final int valor_fixo = 4;
-		
+		private final int nome = 1;
+		private final int descricao = 2;
+		private final int referencia_calculo = 3;
+		private final int quantidade = 4;
+		private final int referencia_valor = 5;
+		private final int valor = 6;
+		private final int total = 7;
+
 	
-		private final String colunas[] = { "ID", "Descrição","Referência",  "Porcentagem", "Valor Fixo"};
+		private final String colunas[] = { "ID", "Nome", "Descrição","Referência Cálculo", "Quantidade","Referência Valor", "Valor", "Total"};
 		 Locale ptBr = new Locale("pt", "BR");
 
-		private final ArrayList<CadastroFuncionarioDescontos> dados = new ArrayList<>();// usamos como dados uma lista
+		private final ArrayList<CadastroFuncionarioCalculo> dados = new ArrayList<>();// usamos como dados uma lista
 																				// genérica de
 		// nfs
-
+		
+		private String [] ref_cal = {"Sálario Base","Sálario Líquido" ,"Sálario Bruto",
+				"Valor Hora Trabalhada", "Nenhuma"};
+		
+		
+		private String [] ref_valor = {"Porcentagem", "Fixo"};
 		public DescontoTableModel() {
 
 		}
@@ -465,16 +473,20 @@ public boolean checkString(String txt) {
 	
 			case id:
 				return String.class;
+			case nome:
+				return String.class;
 			case descricao:
 				return String.class;
-			case referencia:
+			case referencia_calculo:
 				return String.class;
-			case porcentagem:
+			case quantidade:
 				return String.class;
-			case valor_fixo:
+			case referencia_valor:
 				return String.class;
-		
-
+			case valor:
+				return String.class;
+			case total:
+				return String.class;
 			default:
 				throw new IndexOutOfBoundsException("Coluna Inválida!!!");
 			}
@@ -491,21 +503,33 @@ public boolean checkString(String txt) {
 			NumberFormat z = NumberFormat.getNumberInstance();
 
 			// pega o dados corrente da linha
-			CadastroFuncionarioDescontos desconto = dados.get(rowIndex);
+			CadastroFuncionarioCalculo desconto = dados.get(rowIndex);
 
 			// retorna o valor da coluna
 			switch (columnIndex) {
 
 			case id:
-				return desconto.getId_desconto();
+				return desconto.getId_calculo();
+			case nome:
+				return desconto.getNome();
 			case descricao:
 				return desconto.getDescricao();
-			case referencia:
-				return desconto.getReferencia();
-			case porcentagem:
-				return desconto.getPorcentagem();
-			case valor_fixo:
+			case referencia_calculo:{
+				int referencia_calculo = desconto.getReferencia_calculo();
+				return ref_cal[referencia_calculo];
+
+			}
+			case quantidade:{
+				return desconto.getQuantidade();
+			}
+			case referencia_valor:{
+				int ref_val = desconto.getReferencia_valor();
+				return ref_valor[ref_val];
+			}
+			case valor:
 				return desconto.getValor();
+			case total:
+				return desconto.getTotal();
 			
 			default:
 				throw new IndexOutOfBoundsException("Coluna Inválida!!!");
@@ -524,7 +548,7 @@ public boolean checkString(String txt) {
 
 		@Override
 		public void setValueAt(Object aValue, int rowIndex, int columnIndex) {
-			CadastroFuncionarioDescontos recebimento = dados.get(rowIndex);
+			CadastroFuncionarioCalculo recebimento = dados.get(rowIndex);
 
 		}
 
@@ -536,7 +560,7 @@ public boolean checkString(String txt) {
 		 * @param rowIndex
 		 * @return
 		 */
-		public CadastroFuncionarioDescontos getValue(int rowIndex) {
+		public CadastroFuncionarioCalculo getValue(int rowIndex) {
 			return dados.get(rowIndex);
 		}
 
@@ -546,7 +570,7 @@ public boolean checkString(String txt) {
 		 * @param empregado
 		 * @return
 		 */
-		public int indexOf(CadastroFuncionarioDescontos nota) {
+		public int indexOf(CadastroFuncionarioCalculo nota) {
 			return dados.indexOf(nota);
 		}
 
@@ -555,7 +579,7 @@ public boolean checkString(String txt) {
 		 * 
 		 * @param empregado
 		 */
-		public void onAdd(CadastroFuncionarioDescontos nota) {
+		public void onAdd(CadastroFuncionarioCalculo nota) {
 			dados.add(nota);
 			fireTableRowsInserted(indexOf(nota), indexOf(nota));
 		}
@@ -565,7 +589,7 @@ public boolean checkString(String txt) {
 		 * 
 		 * @param dadosIn
 		 */
-		public void onAddAll(ArrayList<CadastroFuncionarioDescontos> dadosIn) {
+		public void onAddAll(ArrayList<CadastroFuncionarioCalculo> dadosIn) {
 			dados.addAll(dadosIn);
 			fireTableDataChanged();
 		}
@@ -585,7 +609,7 @@ public boolean checkString(String txt) {
 		 * 
 		 * @param empregado
 		 */
-		public void onRemove(CadastroFuncionarioDescontos nota) {
+		public void onRemove(CadastroFuncionarioCalculo nota) {
 			int indexBefore = indexOf(nota);// pega o indice antes de apagar
 			dados.remove(nota);
 			fireTableRowsDeleted(indexBefore, indexBefore);

@@ -73,7 +73,9 @@ import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Calendar;
 import java.util.Date;
+import java.util.GregorianCalendar;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -123,6 +125,9 @@ public class TelaFinanceiroLancamento extends JFrame {
 	private JTextField entDestinatarioNF;
 	private JTextField entIdLancamento;
 
+	private GerenciarBancoCondicaoPagamentos gerenciar_condicoes = null;
+	private ArrayList<CondicaoPagamento> lista_condicoes = null;
+
 	public TelaFinanceiroLancamento(int flag_modo_operacao, int flag_retorno, Window janela_pai) {
 
 		Toolkit tk = Toolkit.getDefaultToolkit();
@@ -166,8 +171,7 @@ public class TelaFinanceiroLancamento extends JFrame {
 		painelPrinciapl.add(panel_1, "cell 0 1 3 1,growx,aligny top");
 		panel_1.setBorder(new LineBorder(new Color(0, 0, 0)));
 		panel_1.setBackground(Color.WHITE);
-		panel_1.setLayout(new MigLayout("", "[grow][grow][123px,grow][465px,grow][grow][grow][grow][][grow][grow]",
-				"[31px,grow][][47px,grow][][][31px,grow][grow][grow][grow][]"));
+		panel_1.setLayout(new MigLayout("", "[grow][grow][123px,grow][465px,grow][grow][grow][grow][][grow][grow]", "[31px,grow][][47px,grow][][][31px,grow][grow][grow][grow][]"));
 
 		JLabel lblNewLabel_1_1_2_2 = new JLabel("ID Lançamento:");
 		lblNewLabel_1_1_2_2.setFont(new Font("SansSerif", Font.PLAIN, 12));
@@ -202,7 +206,6 @@ public class TelaFinanceiroLancamento extends JFrame {
 		cbTipoLancamento.addItem("EMPRESTIMOS");
 		cbTipoLancamento.addItem("TRANSFERENCIAS");
 
-
 		JLabel lblNewLabel_1_1_2_1 = new JLabel("Instituição Bancária:");
 		lblNewLabel_1_1_2_1.setFont(new Font("SansSerif", Font.PLAIN, 12));
 		panel_1.add(lblNewLabel_1_1_2_1, "cell 4 0,alignx trailing");
@@ -229,17 +232,13 @@ public class TelaFinanceiroLancamento extends JFrame {
 		cbCentroCusto = new JComboBox();
 
 		panel_1.add(cbCentroCusto, "cell 1 1,growx");
-
-		cbCentroCusto.addItemListener(new ItemListener() {
-			public void itemStateChanged(ItemEvent e) {
-				try {
-					filtrar();
-				} catch (NullPointerException t) {
-
-				}
-			}
-		});
-
+		/*
+		 * cbCentroCusto.addItemListener(new ItemListener() { public void
+		 * itemStateChanged(ItemEvent e) { try { filtrar(); } catch
+		 * (NullPointerException t) {
+		 * 
+		 * } } });
+		 */
 		JLabel lblNewLabel_1_1_4 = new JLabel("Status:");
 		lblNewLabel_1_1_4.setFont(new Font("SansSerif", Font.PLAIN, 12));
 		panel_1.add(lblNewLabel_1_1_4, "cell 2 1,alignx right");
@@ -313,7 +312,7 @@ public class TelaFinanceiroLancamento extends JFrame {
 				cbInstituicaoBancaria.setSelectedIndex(0);
 				cbTipoLancamento.setSelectedIndex(0);
 				entClienteFornecedor.setText("");
-				pegarDatas();
+				pegarDatas(0);
 
 				calcular();
 			}
@@ -351,17 +350,19 @@ public class TelaFinanceiroLancamento extends JFrame {
 		cbPrioridade.addItem("Baixa Prioridade - Ainda este ano");
 		panel_1.add(cbPrioridade, "cell 5 3,growx");
 
-		JButton btnFiltar = new JButton("Filtrar");
+		JButton btnFiltar = new JButton("filtrar");
+		btnFiltar.setEnabled(false);
 		panel_1.add(btnFiltar, "cell 6 3 3 1,growx");
 		btnFiltar.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				filtrar();
+				filtrarBasico();
 			}
 		});
 		btnFiltar.setBackground(new Color(0, 0, 102));
 		btnFiltar.setForeground(Color.WHITE);
 
 		JButton btnNewButton = new JButton("pesquisar");
+		btnNewButton.setEnabled(false);
 		panel_1.add(btnNewButton, "cell 9 3,growx");
 		btnNewButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
@@ -389,6 +390,28 @@ public class TelaFinanceiroLancamento extends JFrame {
 		cbStatusAoContador.addItem("Não se aplica".toUpperCase());
 		cbStatusAoContador.addItem("Não Enviado ao contador".toUpperCase());
 		cbStatusAoContador.addItem("Enviado ao contador".toUpperCase());
+
+		JButton btnPesquisaAvanada = new JButton("pesquisa avançada");
+		btnPesquisaAvanada.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+
+				pesquisar_avancado();
+
+			}
+		});
+		
+		JButton btnFiltrarAvanado = new JButton("filtrar avançado");
+		btnFiltrarAvanado.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				filtrarAvancado();
+			}
+		});
+		btnFiltrarAvanado.setForeground(Color.WHITE);
+		btnFiltrarAvanado.setBackground(new Color(0, 0, 102));
+		panel_1.add(btnFiltrarAvanado, "cell 6 5 3 1");
+		btnPesquisaAvanada.setForeground(Color.WHITE);
+		btnPesquisaAvanada.setBackground(new Color(0, 0, 102));
+		panel_1.add(btnPesquisaAvanada, "cell 9 5");
 
 		JPanel panel_2 = new JPanel();
 		panel_2.setBackground(Color.WHITE);
@@ -976,14 +999,12 @@ public class TelaFinanceiroLancamento extends JFrame {
 				ArrayList<Lancamento> lancamentos_selecionados = getLancamentosSelecionado();
 
 				if (lancamentos_selecionados.size() == 1) {
-					
+
 					Lancamento lancamento_gerenciar = lancamentos_selecionados.get(0);
 					TelaFinanceiroGerenciarLancamento tela = new TelaFinanceiroGerenciarLancamento(lancamento_gerenciar,
 							isto);
 					tela.setVisible(true);
-					
-				
-				
+
 				} else if (lancamentos_selecionados.size() > 1) {
 					boolean prosseguir = true;
 					for (Lancamento lancamento : lancamentos_selecionados) {
@@ -1061,18 +1082,72 @@ public class TelaFinanceiroLancamento extends JFrame {
 		btnNewButton_1_1_1.setBackground(new Color(204, 153, 0));
 		panel_3.add(btnNewButton_1_1_1, "cell 3 2");
 
-		popular_centros_custo();
-		popular_instituicao_bancaria();
-		popular_grupo_contas();
-		popular_contas();
-		popular_condicao_pagamento();
+		new Thread() {
 
-		pesquisar();
+			@Override
+			public void run() {
+				popular_centros_custo();
+
+			}
+		}.start();
+
+		new Thread() {
+
+			@Override
+			public void run() {
+				popular_instituicao_bancaria();
+
+			}
+		}.start();
+
+		new Thread() {
+
+			@Override
+			public void run() {
+				popular_grupo_contas();
+
+			}
+		}.start();
+
+		new Thread() {
+
+			@Override
+			public void run() {
+				popular_contas();
+
+			}
+		}.start();
+
+		new Thread() {
+
+			@Override
+			public void run() {
+				popular_condicao_pagamento();
+
+			}
+		}.start();
+
+		new Thread() {
+
+			@Override
+			public void run() {
+				gerenciar_condicoes = new GerenciarBancoCondicaoPagamentos();
+
+				lista_condicoes = gerenciar_condicoes.getCondicaoPagamentos();
+
+				
+				pesquisar();
+
+			}
+		}.start();
+		
 		boolean pegar_datas = true;
 		if (pegar_datas) {
-			pegarDatas();
+			pegarDatas(flag_modo_operacao);
 		}
-		calcular();
+		
+		if(flag_modo_operacao == 3)
+			filtrarPersonalizado();
 
 		this.setExtendedState(JFrame.MAXIMIZED_BOTH);
 		this.setResizable(true);
@@ -1085,12 +1160,13 @@ public class TelaFinanceiroLancamento extends JFrame {
 		calcular();
 	}
 
-	public void pegarDatas() {
+	public void pegarDatas(int flag) {
 		GerenciarBancoLancamento gerenciar = new GerenciarBancoLancamento();
 
 		Map<String, String> datas = new HashMap<String, String>();
 		datas = gerenciar.pegarDatas();
 
+		if(flag != 3)
 		menorDataLancamento.setText(datas.get("menor_data_lancamento"));
 		maiorDataLancamento.setText(datas.get("maior_data_lancamento"));
 
@@ -1101,6 +1177,22 @@ public class TelaFinanceiroLancamento extends JFrame {
 		maiorDataPagamento.setText(datas.get("maior_data_pagamento"));
 	}
 
+	/*public void pesquisar() {
+		GerenciarBancoLancamento gerenciar = new GerenciarBancoLancamento();
+		lista_lancamentos.clear();
+		modelo_lancamentos.onRemoveAll();
+
+		lista_lancamentos = gerenciar.buscaLancamentosSimples();
+		for (Lancamento cc : lista_lancamentos) {
+			modelo_lancamentos.onAdd(cc);
+		}
+
+	    calcular();
+	}
+
+ */
+	
+	
 	public void pesquisar() {
 		GerenciarBancoLancamento gerenciar = new GerenciarBancoLancamento();
 		lista_lancamentos.clear();
@@ -1112,9 +1204,21 @@ public class TelaFinanceiroLancamento extends JFrame {
 		}
 
 		calcular();
-	}
+	}	
+	public void pesquisar_avancado() {
+		GerenciarBancoLancamento gerenciar = new GerenciarBancoLancamento();
+		lista_lancamentos.clear();
+		modelo_lancamentos.onRemoveAll();
 
-	public void filtrar() {
+		lista_lancamentos = gerenciar.buscaLancamentosCompletos();
+		for (Lancamento cc : lista_lancamentos) {
+			modelo_lancamentos.onAdd(cc);
+		}
+
+		calcular();
+	}
+	
+	public void filtrarAvancado() {
 
 		ArrayList<RowFilter<Object, Object>> filters = new ArrayList<RowFilter<Object, Object>>(2);
 		/*
@@ -1395,6 +1499,583 @@ public class TelaFinanceiroLancamento extends JFrame {
 
 	}
 
+
+	public void filtrarPersonalizado() {
+
+		ArrayList<RowFilter<Object, Object>> filters = new ArrayList<RowFilter<Object, Object>>(2);
+		
+		String data_inicial_filtrar_data_lancamento = menorDataLancamento.getText().replace(" ", "");
+		String data_final_filtrar_data_lancamento = maiorDataLancamento.getText().replace(" ", "");
+
+		if (checkString(data_inicial_filtrar_data_lancamento) && checkString(data_final_filtrar_data_lancamento)) {
+			Date data_menor = null;
+			Date data_maior = null;
+			try {
+				data_menor = new SimpleDateFormat("dd/MM/yyyy").parse(data_inicial_filtrar_data_lancamento);
+				data_maior = new SimpleDateFormat("dd/MM/yyyy").parse(data_final_filtrar_data_lancamento);
+
+			} catch (ParseException i) {
+				// TODO Auto-generated catch block
+				i.printStackTrace();
+			}
+
+			Set<RowFilter<Object, Object>> datas = new HashSet<>();
+			datas.add(RowFilter.dateFilter(RowFilter.ComparisonType.AFTER, data_menor, 1));
+			datas.add(RowFilter.dateFilter(RowFilter.ComparisonType.EQUAL, data_menor, 1));
+			filters.add(RowFilter.orFilter(datas));
+
+			// filters.add( RowFilter.dateFilter(ComparisonType.AFTER, data_menor, 5) );
+			// filters.add( RowFilter.dateFilter(ComparisonType.EQUAL, data_menor, 5) );
+
+			// filters.add( RowFilter.dateFilter(ComparisonType.BEFORE, data_maior, 5) );
+			// filters.add( RowFilter.dateFilter(ComparisonType.EQUAL, data_maior, 5) );
+			Set<RowFilter<Object, Object>> datas_maior = new HashSet<>();
+			datas_maior.add(RowFilter.dateFilter(RowFilter.ComparisonType.BEFORE, data_maior, 1));
+			datas_maior.add(RowFilter.dateFilter(RowFilter.ComparisonType.EQUAL, data_maior, 1));
+			filters.add(RowFilter.orFilter(datas_maior));
+
+		}
+
+		
+
+		
+		if (entClienteFornecedor.getText() != null) {
+			String s_cliente_servidor = "";
+			if (checkString(entClienteFornecedor.getText())) {
+				s_cliente_servidor = entClienteFornecedor.getText().toUpperCase();
+				if (!(s_cliente_servidor.equalsIgnoreCase("TODOS")))
+					filters.add(RowFilter.regexFilter(s_cliente_servidor, 7));
+			}
+		}
+
+		
+		sorter.setRowFilter(RowFilter.andFilter(filters));
+		calcular();
+
+	}
+	
+	public void filtrarAvancado2() {
+
+		ArrayList<RowFilter<Object, Object>> filters = new ArrayList<RowFilter<Object, Object>>(2);
+
+		try {
+			String data_inicial_filtrar_data_lancamento = menorDataLancamento.getText().replace(" ", "");
+			String data_final_filtrar_data_lancamento = maiorDataLancamento.getText().replace(" ", "");
+
+			if (checkString(data_inicial_filtrar_data_lancamento) && checkString(data_final_filtrar_data_lancamento)) {
+				Date data_menor = null;
+				Date data_maior = null;
+				try {
+					data_menor = new SimpleDateFormat("dd/MM/yyyy").parse(data_inicial_filtrar_data_lancamento);
+					data_maior = new SimpleDateFormat("dd/MM/yyyy").parse(data_final_filtrar_data_lancamento);
+
+				} catch (ParseException i) {
+					// TODO Auto-generated catch block
+					i.printStackTrace();
+				}
+
+				Set<RowFilter<Object, Object>> datas = new HashSet<>();
+				datas.add(RowFilter.dateFilter(RowFilter.ComparisonType.AFTER, data_menor, 1));
+				datas.add(RowFilter.dateFilter(RowFilter.ComparisonType.EQUAL, data_menor, 1));
+				filters.add(RowFilter.orFilter(datas));
+
+				// filters.add( RowFilter.dateFilter(ComparisonType.AFTER, data_menor, 5) );
+				// filters.add( RowFilter.dateFilter(ComparisonType.EQUAL, data_menor, 5) );
+
+				// filters.add( RowFilter.dateFilter(ComparisonType.BEFORE, data_maior, 5) );
+				// filters.add( RowFilter.dateFilter(ComparisonType.EQUAL, data_maior, 5) );
+				Set<RowFilter<Object, Object>> datas_maior = new HashSet<>();
+				datas_maior.add(RowFilter.dateFilter(RowFilter.ComparisonType.BEFORE, data_maior, 1));
+				datas_maior.add(RowFilter.dateFilter(RowFilter.ComparisonType.EQUAL, data_maior, 1));
+				filters.add(RowFilter.orFilter(datas_maior));
+
+			}
+		} catch (Exception m) {
+
+		}
+
+		try {
+			String data_inicial_filtrar_data_vencimento = menorDataVencimento.getText().replace(" ", "");
+			String data_final_filtrar_data_vencimento = maiorDataVencimento.getText().replace(" ", "");
+
+			if (checkString(data_inicial_filtrar_data_vencimento) && checkString(data_final_filtrar_data_vencimento)) {
+				Date data_menor = null;
+				Date data_maior = null;
+				try {
+					data_menor = new SimpleDateFormat("dd/MM/yyyy").parse(data_inicial_filtrar_data_vencimento);
+					data_maior = new SimpleDateFormat("dd/MM/yyyy").parse(data_final_filtrar_data_vencimento);
+
+				} catch (ParseException i) {
+					// TODO Auto-generated catch block
+					i.printStackTrace();
+				}
+
+				Set<RowFilter<Object, Object>> datas = new HashSet<>();
+				datas.add(RowFilter.dateFilter(RowFilter.ComparisonType.AFTER, data_menor, 15));
+				datas.add(RowFilter.dateFilter(RowFilter.ComparisonType.EQUAL, data_menor, 15));
+				filters.add(RowFilter.orFilter(datas));
+
+				// filters.add( RowFilter.dateFilter(ComparisonType.AFTER, data_menor, 5) );
+				// filters.add( RowFilter.dateFilter(ComparisonType.EQUAL, data_menor, 5) );
+
+				// filters.add( RowFilter.dateFilter(ComparisonType.BEFORE, data_maior, 5) );
+				// filters.add( RowFilter.dateFilter(ComparisonType.EQUAL, data_maior, 5) );
+				Set<RowFilter<Object, Object>> datas_maior = new HashSet<>();
+				datas_maior.add(RowFilter.dateFilter(RowFilter.ComparisonType.BEFORE, data_maior, 15));
+				datas_maior.add(RowFilter.dateFilter(RowFilter.ComparisonType.EQUAL, data_maior, 15));
+				filters.add(RowFilter.orFilter(datas_maior));
+
+			}
+		} catch (Exception r) {
+
+		}
+
+		try {
+			String s_centro_custo = "";
+			if (checkString(cbCentroCusto.getSelectedItem().toString())) {
+
+				s_centro_custo = cbCentroCusto.getSelectedItem().toString();
+				if (!(s_centro_custo.equalsIgnoreCase("TODOS")))
+					filters.add(RowFilter.regexFilter(s_centro_custo, 4));
+
+			}
+		} catch (Exception t) {
+
+		}
+
+		try {
+			if (cbTipoLancamento.getSelectedItem().toString() != null) {
+				String s_tipo_lancamento = "";
+				if (checkString(cbTipoLancamento.getSelectedItem().toString())) {
+					s_tipo_lancamento = cbTipoLancamento.getSelectedItem().toString().toUpperCase();
+					if (!(s_tipo_lancamento.equalsIgnoreCase("TODOS"))) {
+						filters.add(RowFilter.regexFilter(s_tipo_lancamento, 2));
+					}
+				}
+			}
+		} catch (Exception h) {
+
+		}
+
+		try {
+			if (cbPrioridade.getSelectedItem().toString() != null) {
+				String s_prioridade = "";
+				if (checkString(cbPrioridade.getSelectedItem().toString())) {
+					s_prioridade = cbPrioridade.getSelectedItem().toString();
+					if (!(s_prioridade.equalsIgnoreCase("TODOS"))) {
+						filters.add(RowFilter.regexFilter(s_prioridade, 3));
+					}
+
+				}
+			}
+		} catch (Exception y) {
+
+		}
+
+		try {
+
+			if (entClienteFornecedor.getText() != null) {
+				String s_cliente_servidor = "";
+				if (checkString(entClienteFornecedor.getText())) {
+					s_cliente_servidor = entClienteFornecedor.getText().toUpperCase();
+					if (!(s_cliente_servidor.equalsIgnoreCase("TODOS")))
+						filters.add(RowFilter.regexFilter(s_cliente_servidor, 7));
+				}
+			}
+		} catch (Exception o) {
+
+		}
+
+		try {
+			if (entIdentificadorGeral.getText() != null) {
+				String s_id_geral = "";
+				if (checkString(entIdentificadorGeral.getText())) {
+					s_id_geral = entIdentificadorGeral.getText().toUpperCase();
+
+					filters.add(RowFilter.regexFilter(s_id_geral, 5));
+				}
+			}
+		} catch (Exception p) {
+
+		}
+
+		try {
+			if (entDestinatarioNF.getText() != null) {
+				String s_dest_nf = "";
+				if (checkString(entDestinatarioNF.getText())) {
+					s_dest_nf = entDestinatarioNF.getText().toUpperCase();
+
+					filters.add(RowFilter.regexFilter(s_dest_nf, 6));
+				}
+			}
+		} catch (Exception j) {
+
+		}
+
+		try {
+
+			if (cbGrupoConta.getSelectedItem().toString() != null) {
+				String s_grupo_contas = "";
+				if (checkString(cbGrupoConta.getSelectedItem().toString())) {
+					s_grupo_contas = cbGrupoConta.getSelectedItem().toString();
+					if (!(s_grupo_contas.equalsIgnoreCase("TODOS")))
+						filters.add(RowFilter.regexFilter(s_grupo_contas, 8));
+
+				}
+			}
+		} catch (Exception a) {
+
+		}
+
+		try {
+			if (cbConta.getSelectedItem().toString() != null) {
+				String s_contas = "";
+				if (checkString(cbConta.getSelectedItem().toString())) {
+					s_contas = cbConta.getSelectedItem().toString();
+					if (!(s_contas.equalsIgnoreCase("TODOS"))) {
+						filters.add(RowFilter.regexFilter(s_contas, 9));
+					}
+				}
+			}
+		} catch (Exception b) {
+
+		}
+
+		try {
+
+			String s_tipo_conta = "";
+			if (cbStatusLancamento.getSelectedIndex() == 1) {
+				s_tipo_conta = "A Pagar";
+				if (checkString(s_tipo_conta))
+					filters.add(RowFilter.regexFilter(s_tipo_conta, 17));
+			} else if (cbStatusLancamento.getSelectedIndex() == 2) {
+				s_tipo_conta = "Pago";
+				if (checkString(s_tipo_conta))
+					filters.add(RowFilter.regexFilter(s_tipo_conta, 17));
+			} else if (cbStatusLancamento.getSelectedIndex() == 3) {
+				s_tipo_conta = "A Receber";
+				if (checkString(s_tipo_conta))
+					filters.add(RowFilter.regexFilter(s_tipo_conta, 17));
+			} else if (cbStatusLancamento.getSelectedIndex() == 4) {
+				s_tipo_conta = "Recebido";
+				if (checkString(s_tipo_conta))
+					filters.add(RowFilter.regexFilter(s_tipo_conta, 17));
+
+			}
+		} catch (Exception g) {
+
+		}
+
+		try {
+			if (cbSituacao.getSelectedItem().toString() != null) {
+				String s_situacao = "";
+				if (checkString(cbSituacao.getSelectedItem().toString())) {
+					s_situacao = cbSituacao.getSelectedItem().toString();
+					if (!(s_situacao.equalsIgnoreCase("TODOS"))) {
+						filters.add(RowFilter.regexFilter(s_situacao, 18));
+					}
+				}
+			}
+		} catch (Exception n) {
+
+		}
+
+		try {
+			if (cbCondicaoPagamento.getSelectedItem().toString() != null) {
+				String s_condicao = "";
+				if (checkString(cbCondicaoPagamento.getSelectedItem().toString())) {
+					s_condicao = cbCondicaoPagamento.getSelectedItem().toString();
+					if (!(s_condicao.equalsIgnoreCase("TODOS"))) {
+						filters.add(RowFilter.regexFilter(s_condicao, 19));
+					}
+				}
+			}
+		} catch (Exception c) {
+
+		}
+
+		try {
+
+			if (cbStatusCondicaoPagamento.getSelectedItem().toString() != null) {
+				String s_status_condicao = "";
+				if (checkString(cbStatusCondicaoPagamento.getSelectedItem().toString())) {
+					s_status_condicao = cbStatusCondicaoPagamento.getSelectedItem().toString();
+					if (!(s_status_condicao.equalsIgnoreCase("TODOS"))) {
+						filters.add(RowFilter.regexFilter(s_status_condicao, 20));
+					}
+				}
+
+			}
+		} catch (Exception z) {
+
+		}
+
+		try {
+			if (cbStatusAoContador.getSelectedItem().toString() != null) {
+				String s_status_contador = "";
+				if (checkString(cbStatusAoContador.getSelectedItem().toString())) {
+					s_status_contador = cbStatusAoContador.getSelectedItem().toString();
+					if (!(s_status_contador.equalsIgnoreCase("TODOS"))) {
+						filters.add(RowFilter.regexFilter(s_status_contador, 21));
+					}
+				}
+
+			}
+		} catch (Exception l) {
+
+		}
+
+		try {
+
+			if (entIdLancamento.getText() != null) {
+				String id_lanc = "";
+				if (checkString(entIdLancamento.getText())) {
+					id_lanc = entIdLancamento.getText();
+					if (Integer.parseInt(id_lanc) > 0) {
+						filters.add(RowFilter.regexFilter(id_lanc, 0));
+					}
+				}
+
+			}
+		} catch (Exception f) {
+
+		}
+
+		sorter.setRowFilter(RowFilter.andFilter(filters));
+		calcular();
+
+	}
+
+	public void filtrarBasico() {
+
+		ArrayList<RowFilter<Object, Object>> filters = new ArrayList<RowFilter<Object, Object>>(2);
+
+		try {
+			String data_inicial_filtrar_data_lancamento = menorDataLancamento.getText().replace(" ", "");
+			String data_final_filtrar_data_lancamento = maiorDataLancamento.getText().replace(" ", "");
+
+			if (checkString(data_inicial_filtrar_data_lancamento) && checkString(data_final_filtrar_data_lancamento)) {
+				Date data_menor = null;
+				Date data_maior = null;
+				try {
+					data_menor = new SimpleDateFormat("dd/MM/yyyy").parse(data_inicial_filtrar_data_lancamento);
+					data_maior = new SimpleDateFormat("dd/MM/yyyy").parse(data_final_filtrar_data_lancamento);
+
+				} catch (ParseException i) {
+					// TODO Auto-generated catch block
+					i.printStackTrace();
+				}
+
+				Set<RowFilter<Object, Object>> datas = new HashSet<>();
+				datas.add(RowFilter.dateFilter(RowFilter.ComparisonType.AFTER, data_menor, 1));
+				datas.add(RowFilter.dateFilter(RowFilter.ComparisonType.EQUAL, data_menor, 1));
+				filters.add(RowFilter.orFilter(datas));
+
+				// filters.add( RowFilter.dateFilter(ComparisonType.AFTER, data_menor, 5) );
+				// filters.add( RowFilter.dateFilter(ComparisonType.EQUAL, data_menor, 5) );
+
+				// filters.add( RowFilter.dateFilter(ComparisonType.BEFORE, data_maior, 5) );
+				// filters.add( RowFilter.dateFilter(ComparisonType.EQUAL, data_maior, 5) );
+				Set<RowFilter<Object, Object>> datas_maior = new HashSet<>();
+				datas_maior.add(RowFilter.dateFilter(RowFilter.ComparisonType.BEFORE, data_maior, 1));
+				datas_maior.add(RowFilter.dateFilter(RowFilter.ComparisonType.EQUAL, data_maior, 1));
+				filters.add(RowFilter.orFilter(datas_maior));
+
+			}
+		} catch (Exception m) {
+
+		}
+
+		
+		try {
+			String s_centro_custo = "";
+			if (checkString(cbCentroCusto.getSelectedItem().toString())) {
+
+				s_centro_custo = cbCentroCusto.getSelectedItem().toString();
+				if (!(s_centro_custo.equalsIgnoreCase("TODOS")))
+					filters.add(RowFilter.regexFilter(s_centro_custo, 4));
+
+			}
+		} catch (Exception t) {
+
+		}
+
+		try {
+			if (cbTipoLancamento.getSelectedItem().toString() != null) {
+				String s_tipo_lancamento = "";
+				if (checkString(cbTipoLancamento.getSelectedItem().toString())) {
+					s_tipo_lancamento = cbTipoLancamento.getSelectedItem().toString().toUpperCase();
+					if (!(s_tipo_lancamento.equalsIgnoreCase("TODOS"))) {
+						filters.add(RowFilter.regexFilter(s_tipo_lancamento, 2));
+					}
+				}
+			}
+		} catch (Exception h) {
+
+		}
+
+		try {
+			if (cbPrioridade.getSelectedItem().toString() != null) {
+				String s_prioridade = "";
+				if (checkString(cbPrioridade.getSelectedItem().toString())) {
+					s_prioridade = cbPrioridade.getSelectedItem().toString();
+					if (!(s_prioridade.equalsIgnoreCase("TODOS"))) {
+						filters.add(RowFilter.regexFilter(s_prioridade, 3));
+					}
+
+				}
+			}
+		} catch (Exception y) {
+
+		}
+
+		try {
+
+			if (entClienteFornecedor.getText() != null) {
+				String s_cliente_servidor = "";
+				if (checkString(entClienteFornecedor.getText())) {
+					s_cliente_servidor = entClienteFornecedor.getText().toUpperCase();
+					if (!(s_cliente_servidor.equalsIgnoreCase("TODOS")))
+						filters.add(RowFilter.regexFilter(s_cliente_servidor, 7));
+				}
+			}
+		} catch (Exception o) {
+
+		}
+
+		try {
+			if (entIdentificadorGeral.getText() != null) {
+				String s_id_geral = "";
+				if (checkString(entIdentificadorGeral.getText())) {
+					s_id_geral = entIdentificadorGeral.getText().toUpperCase();
+
+					filters.add(RowFilter.regexFilter(s_id_geral, 5));
+				}
+			}
+		} catch (Exception p) {
+
+		}
+
+		try {
+			if (entDestinatarioNF.getText() != null) {
+				String s_dest_nf = "";
+				if (checkString(entDestinatarioNF.getText())) {
+					s_dest_nf = entDestinatarioNF.getText().toUpperCase();
+
+					filters.add(RowFilter.regexFilter(s_dest_nf, 6));
+				}
+			}
+		} catch (Exception j) {
+
+		}
+
+		try {
+
+			if (cbGrupoConta.getSelectedItem().toString() != null) {
+				String s_grupo_contas = "";
+				if (checkString(cbGrupoConta.getSelectedItem().toString())) {
+					s_grupo_contas = cbGrupoConta.getSelectedItem().toString();
+					if (!(s_grupo_contas.equalsIgnoreCase("TODOS")))
+						filters.add(RowFilter.regexFilter(s_grupo_contas, 8));
+
+				}
+			}
+		} catch (Exception a) {
+
+		}
+
+		try {
+			if (cbConta.getSelectedItem().toString() != null) {
+				String s_contas = "";
+				if (checkString(cbConta.getSelectedItem().toString())) {
+					s_contas = cbConta.getSelectedItem().toString();
+					if (!(s_contas.equalsIgnoreCase("TODOS"))) {
+						filters.add(RowFilter.regexFilter(s_contas, 9));
+					}
+				}
+			}
+		} catch (Exception b) {
+
+		}
+
+		try {
+
+			String s_tipo_conta = "";
+			if (cbStatusLancamento.getSelectedIndex() == 1) {
+				s_tipo_conta = "A Pagar";
+				if (checkString(s_tipo_conta))
+					filters.add(RowFilter.regexFilter(s_tipo_conta, 17));
+			} else if (cbStatusLancamento.getSelectedIndex() == 2) {
+				s_tipo_conta = "Pago";
+				if (checkString(s_tipo_conta))
+					filters.add(RowFilter.regexFilter(s_tipo_conta, 17));
+			} else if (cbStatusLancamento.getSelectedIndex() == 3) {
+				s_tipo_conta = "A Receber";
+				if (checkString(s_tipo_conta))
+					filters.add(RowFilter.regexFilter(s_tipo_conta, 17));
+			} else if (cbStatusLancamento.getSelectedIndex() == 4) {
+				s_tipo_conta = "Recebido";
+				if (checkString(s_tipo_conta))
+					filters.add(RowFilter.regexFilter(s_tipo_conta, 17));
+
+			}
+		} catch (Exception g) {
+
+		}
+
+		try {
+			if (cbSituacao.getSelectedItem().toString() != null) {
+				String s_situacao = "";
+				if (checkString(cbSituacao.getSelectedItem().toString())) {
+					s_situacao = cbSituacao.getSelectedItem().toString();
+					if (!(s_situacao.equalsIgnoreCase("TODOS"))) {
+						filters.add(RowFilter.regexFilter(s_situacao, 18));
+					}
+				}
+			}
+		} catch (Exception n) {
+
+		}
+
+		
+
+		try {
+			if (cbStatusAoContador.getSelectedItem().toString() != null) {
+				String s_status_contador = "";
+				if (checkString(cbStatusAoContador.getSelectedItem().toString())) {
+					s_status_contador = cbStatusAoContador.getSelectedItem().toString();
+					if (!(s_status_contador.equalsIgnoreCase("TODOS"))) {
+						filters.add(RowFilter.regexFilter(s_status_contador, 21));
+					}
+				}
+
+			}
+		} catch (Exception l) {
+
+		}
+
+		try {
+
+			if (entIdLancamento.getText() != null) {
+				String id_lanc = "";
+				if (checkString(entIdLancamento.getText())) {
+					id_lanc = entIdLancamento.getText();
+					if (Integer.parseInt(id_lanc) > 0) {
+						filters.add(RowFilter.regexFilter(id_lanc, 0));
+					}
+				}
+
+			}
+		} catch (Exception f) {
+
+		}
+
+		sorter.setRowFilter(RowFilter.andFilter(filters));
+		calcular();
+
+	}
+
+	
 	public void calcular() {
 
 		int numero_lancamentos = 0;
@@ -1529,7 +2210,7 @@ public class TelaFinanceiroLancamento extends JFrame {
 	public boolean checkString(String txt) {
 		return txt != null && !txt.equals("") && !txt.equals(" ") && !txt.equals("  ");
 	}
-
+	
 	public class LancamentoTableModel extends AbstractTableModel {
 
 		// constantes p/identificar colunas
@@ -2035,6 +2716,9 @@ public class TelaFinanceiroLancamento extends JFrame {
 		}
 	}
 
+
+	
+
 	public ArrayList<Lancamento> getLancamentosSelecionado() {
 
 		ArrayList<Lancamento> lancamentos_selecionados = new ArrayList<>();
@@ -2156,50 +2840,50 @@ public class TelaFinanceiroLancamento extends JFrame {
 			int status = -1;
 
 			String tipo_lancamento = (String) table.getValueAt(row, 2);
-			
-			if(!tipo_lancamento.equalsIgnoreCase("TRANSFERENCIAS")) {
-			String s_status = (String) table.getValueAt(row, 17);
-			if (s_status.equalsIgnoreCase("A Pagar")) {
-				status = 0;
-			} else if (s_status.equalsIgnoreCase("Pago")) {
-				status = 1;
-			} else if (s_status.equalsIgnoreCase("A Receber")) {
-				status = 2;
-			} else if (s_status.equalsIgnoreCase("Recebido")) {
-				status = 3;
-			}
 
-			if (isSelected) {
-				renderer.setBackground(new Color(139, 69, 19)); // marrom
-
-			} else {
-				if (status == 0) {
-					// return ("A Pagar");
-					renderer.setBackground(Color.red);
-					renderer.setForeground(Color.white);
-					renderer.setFont(new Font("Tahoma", Font.BOLD, 12));
-
-				} else if (status == 1) {
-					// return ("Pago");
-					renderer.setBackground(Color.orange);
-					renderer.setForeground(Color.black);
-					renderer.setFont(new Font("Tahoma", Font.BOLD, 12));
-				} else if (status == 2) {
-					// return ("A Receber");
-					renderer.setBackground(Color.yellow);
-					renderer.setForeground(Color.black);
-					renderer.setFont(new Font("Tahoma", Font.BOLD, 12));
-				} else if (status == 3) {
-					// return ("Recebido");
-					renderer.setBackground(new Color(0, 51, 0));
-					renderer.setForeground(Color.white);
-					renderer.setFont(new Font("Tahoma", Font.BOLD, 12));
+			if (!tipo_lancamento.equalsIgnoreCase("TRANSFERENCIAS")) {
+				String s_status = (String) table.getValueAt(row, 17);
+				if (s_status.equalsIgnoreCase("A Pagar")) {
+					status = 0;
+				} else if (s_status.equalsIgnoreCase("Pago")) {
+					status = 1;
+				} else if (s_status.equalsIgnoreCase("A Receber")) {
+					status = 2;
+				} else if (s_status.equalsIgnoreCase("Recebido")) {
+					status = 3;
 				}
 
-			}
+				if (isSelected) {
+					renderer.setBackground(new Color(139, 69, 19)); // marrom
 
-			}else {
-				//e uma transferencia
+				} else {
+					if (status == 0) {
+						// return ("A Pagar");
+						renderer.setBackground(Color.red);
+						renderer.setForeground(Color.white);
+						renderer.setFont(new Font("Tahoma", Font.BOLD, 12));
+
+					} else if (status == 1) {
+						// return ("Pago");
+						renderer.setBackground(Color.orange);
+						renderer.setForeground(Color.black);
+						renderer.setFont(new Font("Tahoma", Font.BOLD, 12));
+					} else if (status == 2) {
+						// return ("A Receber");
+						renderer.setBackground(Color.yellow);
+						renderer.setForeground(Color.black);
+						renderer.setFont(new Font("Tahoma", Font.BOLD, 12));
+					} else if (status == 3) {
+						// return ("Recebido");
+						renderer.setBackground(new Color(0, 51, 0));
+						renderer.setForeground(Color.white);
+						renderer.setFont(new Font("Tahoma", Font.BOLD, 12));
+					}
+
+				}
+
+			} else {
+				// e uma transferencia
 				renderer.setBackground(new Color(51, 0, 255));
 				renderer.setForeground(Color.white);
 				renderer.setFont(new Font("Tahoma", Font.BOLD, 12));
@@ -2243,7 +2927,7 @@ public class TelaFinanceiroLancamento extends JFrame {
 		String s_menor_data = menor_data.format(DateTimeFormatter.ofPattern("dd/MM/yyyy"));
 		menorDataVencimento.setText(s_menor_data);
 
-		filtrar();
+		filtrarAvancado();
 	}
 
 	public void filtroRapidoDespesaEmDias(int dias) {
@@ -2259,7 +2943,7 @@ public class TelaFinanceiroLancamento extends JFrame {
 		String s_menor_data = menor_data.format(DateTimeFormatter.ofPattern("dd/MM/yyyy"));
 		maiorDataVencimento.setText(s_menor_data);
 
-		filtrar();
+		filtrarAvancado();
 	}
 
 	public void filtroRapidoReceitaAtrazo(int dias) {
@@ -2274,8 +2958,7 @@ public class TelaFinanceiroLancamento extends JFrame {
 		LocalDate menor_data = hoje.minusDays(dias);
 		String s_menor_data = menor_data.format(DateTimeFormatter.ofPattern("dd/MM/yyyy"));
 		menorDataVencimento.setText(s_menor_data);
-
-		filtrar();
+		filtrarAvancado();
 	}
 
 	public void filtroRapidoReceitaEmDias(int dias) {
@@ -2291,7 +2974,33 @@ public class TelaFinanceiroLancamento extends JFrame {
 		String s_menor_data = menor_data.format(DateTimeFormatter.ofPattern("dd/MM/yyyy"));
 		maiorDataVencimento.setText(s_menor_data);
 
-		filtrar();
+		filtrarAvancado();
 	}
 
+	public void setPesquisaPersonalizada(String cliente, int mes, int ano) {
+		
+		
+		Calendar datas = new GregorianCalendar();
+		datas.set(Calendar.MONTH, mes - 1);// 2
+		int ultimo_dia = datas.getActualMaximum(Calendar.DAY_OF_MONTH);
+
+		String s_mes = "";
+		if(mes <= 9)
+			s_mes  = "0"+mes;
+		else
+			s_mes = mes + "";
+		
+		String menor_data = "01/" + s_mes + "/" + ano;
+		String maior_data = ultimo_dia + "/" + s_mes + "/" + ano;
+		
+		menorDataLancamento.setText(menor_data);
+		maiorDataLancamento.setText(maior_data);
+		
+		
+		
+		entClienteFornecedor.setText(cliente);
+		
+
+	}
+	
 }

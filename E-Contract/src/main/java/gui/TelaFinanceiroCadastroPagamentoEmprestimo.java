@@ -182,10 +182,16 @@ import main.java.conexaoBanco.GerenciarBancoSafras;
 import javax.swing.border.LineBorder;
 import javax.swing.JComboBox;
 import javax.swing.JEditorPane;
+import javax.swing.JScrollPane;
 
 public class TelaFinanceiroCadastroPagamentoEmprestimo extends JFrame {
 
 	private final KGradientPanel painelPrincipal = new KGradientPanel();
+	
+	
+	private final KGradientPanel painelOdin = new KGradientPanel();
+
+	
 	private JLabel lblTotalContratosConcluidos, lblTotalContratos, lblTotalContratosAbertos;
 	private TelaFinanceiroCadastroPagamentoEmprestimo isto;
 	private JDialog telaPai;
@@ -198,6 +204,7 @@ public class TelaFinanceiroCadastroPagamentoEmprestimo extends JFrame {
 	private JComboBox cbCondicaoPagamento, cbStatusCondicaoPagamento;
 	private InstituicaoBancaria pagador_ib;
 	private InstituicaoBancaria recebedor_ib;
+	private JRadioButton rdbtnExtratoSim, rdbtnExtratoNao;
 
 	private CadastroCliente pagador_cliente_fornecedor;
 	private JComboBox cbPagador, cbRecebedor;
@@ -227,24 +234,43 @@ public class TelaFinanceiroCadastroPagamentoEmprestimo extends JFrame {
 
 		setBackground(new Color(255, 255, 255));
 		setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-		setBounds(100, 100, 809, 700);
+		setBounds(100, 100, 999, 726);
+		
+		
+		
+		painelOdin.kStartColor = new Color(255, 255, 204);
+		painelOdin.kEndColor = Color.WHITE;
+		painelOdin.setBackground(new Color(0, 51, 51));
+		painelOdin.setBorder(new EmptyBorder(5, 5, 5, 5));
+		setContentPane(painelOdin);
+		painelOdin.setLayout(new MigLayout("", "[grow]", "[grow]"));
+		
+		
+
+		
 		painelPrincipal.kStartColor = new Color(255, 255, 204);
-		painelPrincipal.kEndColor = new Color(255, 204, 153);
+		painelPrincipal.kEndColor = Color.WHITE;
 		painelPrincipal.setBackground(new Color(0, 51, 51));
 		painelPrincipal.setBorder(new EmptyBorder(5, 5, 5, 5));
-		setContentPane(painelPrincipal);
 		painelPrincipal
-				.setLayout(new MigLayout("", "[grow][grow][][]", "[][][][1px][][][][][][][][][][50px:n,grow][]"));
+				.setLayout(new MigLayout("", "[grow][grow][][]", "[][][grow][][][][][][1px][][][][][][][][][][50px:n,grow][]"));
+
+		JScrollPane scrollPane = new JScrollPane(painelPrincipal);
+		painelOdin.add(scrollPane, "cell 0 0,grow");
+		
+		JLabel lblOpesRelatoria = new JLabel("Opções Relatoria:");
+		lblOpesRelatoria.setFont(new Font("Tahoma", Font.BOLD, 16));
+		painelPrincipal.add(lblOpesRelatoria, "cell 0 0");
 
 		JLabel lblFluxoDeCaixa = new JLabel("Fluxo de Caixa?:");
 		lblFluxoDeCaixa.setFont(new Font("Tahoma", Font.PLAIN, 16));
-		painelPrincipal.add(lblFluxoDeCaixa, "cell 0 0,alignx right");
+		painelPrincipal.add(lblFluxoDeCaixa, "cell 0 1,alignx right");
 
 		JPanel panel_1 = new JPanel();
 		panel_1.setOpaque(false);
 		panel_1.setBorder(null);
 		panel_1.setBackground(Color.BLACK);
-		painelPrincipal.add(panel_1, "cell 1 0 2 1,grow");
+		painelPrincipal.add(panel_1, "cell 1 1 2 1,grow");
 		panel_1.setLayout(new MigLayout("", "[][]", "[]"));
 
 		rdbtnFluxoDeCaixaSim = new JRadioButton("Sim");
@@ -267,17 +293,58 @@ public class TelaFinanceiroCadastroPagamentoEmprestimo extends JFrame {
 		});
 		rdbtnFluxoDeCaixaNao.setFont(new Font("SansSerif", Font.PLAIN, 14));
 		panel_1.add(rdbtnFluxoDeCaixaNao, "cell 1 0");
+		
+		JLabel lblExtrato_1 = new JLabel("Extrato:");
+		lblExtrato_1.setFont(new Font("Tahoma", Font.PLAIN, 16));
+		painelPrincipal.add(lblExtrato_1, "cell 0 2,alignx right");
+		
+		JPanel panel_1_1 = new JPanel();
+		panel_1_1.setOpaque(false);
+		panel_1_1.setBorder(null);
+		panel_1_1.setBackground(Color.BLACK);
+		painelPrincipal.add(panel_1_1, "cell 1 2,grow");
+		panel_1_1.setLayout(new MigLayout("", "[][]", "[]"));
+		
+		
+		 rdbtnExtratoSim = new JRadioButton("Sim");
+		rdbtnExtratoSim.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				
+				rdbtnExtratoSim.setSelected(true);
+				rdbtnExtratoNao.setSelected(false);
+				
+			}
+		});
+		rdbtnExtratoSim.setSelected(true);
+		rdbtnExtratoSim.setFont(new Font("SansSerif", Font.PLAIN, 14));
+		panel_1_1.add(rdbtnExtratoSim, "cell 0 0");
+		
+		 rdbtnExtratoNao = new JRadioButton("Não");
+		 rdbtnExtratoNao.addActionListener(new ActionListener() {
+				public void actionPerformed(ActionEvent e) {
+					
+					rdbtnExtratoSim.setSelected(false);
+					rdbtnExtratoNao.setSelected(true);
+					
+				}
+			});
+		rdbtnExtratoNao.setFont(new Font("SansSerif", Font.PLAIN, 14));
+		panel_1_1.add(rdbtnExtratoNao, "cell 1 0");
+		
+		JLabel lblInformaesDoPagamento = new JLabel("Informações do Pagamento:");
+		lblInformaesDoPagamento.setFont(new Font("Tahoma", Font.BOLD, 16));
+		painelPrincipal.add(lblInformaesDoPagamento, "cell 0 4 1 2");
 
 		JLabel lblIdentificador = new JLabel("Identificador:");
 		lblIdentificador.setFont(new Font("Tahoma", Font.PLAIN, 16));
-		painelPrincipal.add(lblIdentificador, "cell 0 1,alignx trailing");
+		painelPrincipal.add(lblIdentificador, "cell 0 6,alignx trailing");
 
 		entIdentificador.setForeground(Color.black);
-		painelPrincipal.add(entIdentificador, "cell 1 1 3 1,growx");
+		painelPrincipal.add(entIdentificador, "cell 1 6 3 1,growx");
 
 		JLabel lblObjeto = new JLabel("Objeto:");
 		lblObjeto.setFont(new Font("Tahoma", Font.PLAIN, 16));
-		painelPrincipal.add(lblObjeto, "cell 0 2,alignx trailing");
+		painelPrincipal.add(lblObjeto, "cell 0 7,alignx trailing");
 		cbObjeto = new JComboBox();
 		cbObjeto = new JComboBox();
 		cbObjeto.addItem("Moeda");
@@ -297,51 +364,51 @@ public class TelaFinanceiroCadastroPagamentoEmprestimo extends JFrame {
 
 		});
 
-		painelPrincipal.add(cbObjeto, "cell 1 2 3 1,growx");
+		painelPrincipal.add(cbObjeto, "cell 1 7 3 1,growx");
 		painelPaiProduto = new JPanel();
 		painelPaiProduto.setOpaque(false);
 		painelPaiProduto.setBackground(Color.BLACK);
-		painelPrincipal.add(painelPaiProduto, "cell 0 3 4 1,alignx center,growy");
+		painelPrincipal.add(painelPaiProduto, "cell 0 8 4 1,alignx center,growy");
 		painelPaiProduto.setLayout(new MigLayout("", "[]", "[]"));
 
 		JLabel lblValor = new JLabel("Valor:");
 		lblValor.setFont(new Font("Tahoma", Font.PLAIN, 16));
-		painelPrincipal.add(lblValor, "cell 0 4,alignx trailing");
+		painelPrincipal.add(lblValor, "cell 0 9,alignx trailing");
 
 		entValorTotal = new JTextFieldPersonalizado();
 		entValorTotal.setFont(new Font("Tahoma", Font.PLAIN, 16));
-		painelPrincipal.add(entValorTotal, "cell 1 4 3 1,growx");
+		painelPrincipal.add(entValorTotal, "cell 1 9 3 1,growx");
 		entValorTotal.setForeground(Color.black);
 		entValorTotal.setColumns(10);
 
 		JLabel lblDataVencimento = new JLabel("Data Pagamento:");
 		lblDataVencimento.setFont(new Font("Tahoma", Font.PLAIN, 16));
-		painelPrincipal.add(lblDataVencimento, "cell 0 5,alignx trailing");
+		painelPrincipal.add(lblDataVencimento, "cell 0 10,alignx trailing");
 
 		entDataPagamento = new JTextFieldPersonalizado();
 		entDataPagamento.setFont(new Font("Tahoma", Font.PLAIN, 16));
 		entDataPagamento.setColumns(10);
 		entDataPagamento.setForeground(Color.black);
 
-		painelPrincipal.add(entDataPagamento, "cell 1 5 3 1,growx");
+		painelPrincipal.add(entDataPagamento, "cell 1 10 3 1,growx");
 
 		JLabel lblNewLabel = new JLabel("Descrição:");
 		lblNewLabel.setFont(new Font("Tahoma", Font.PLAIN, 16));
-		painelPrincipal.add(lblNewLabel, "cell 0 6,alignx right");
+		painelPrincipal.add(lblNewLabel, "cell 0 11,alignx right");
 
 		entDescricao = new JTextFieldPersonalizado();
 		entDescricao.setFont(new Font("Tahoma", Font.PLAIN, 16));
 		entDescricao.setColumns(10);
 		entDescricao.setForeground(Color.black);
-		painelPrincipal.add(entDescricao, "cell 1 6 3 1,growx");
+		painelPrincipal.add(entDescricao, "cell 1 11 3 1,growx");
 
 		JLabel lblCondioDoPagamento = new JLabel("Condição do Pagamento:");
 		lblCondioDoPagamento.setFont(new Font("Tahoma", Font.PLAIN, 16));
-		painelPrincipal.add(lblCondioDoPagamento, "cell 0 7,alignx trailing");
+		painelPrincipal.add(lblCondioDoPagamento, "cell 0 12,alignx trailing");
 
 		cbCondicaoPagamento = new JComboBox();
 		cbCondicaoPagamento.setFont(new Font("SansSerif", Font.PLAIN, 16));
-		painelPrincipal.add(cbCondicaoPagamento, "cell 1 7 2 1,growx");
+		painelPrincipal.add(cbCondicaoPagamento, "cell 1 12 2 1,growx");
 
 		JButton btnNewButton_1_1 = new JButton("Selecionar");
 		btnNewButton_1_1.addActionListener(new ActionListener() {
@@ -354,15 +421,15 @@ public class TelaFinanceiroCadastroPagamentoEmprestimo extends JFrame {
 		btnNewButton_1_1.setForeground(Color.WHITE);
 		btnNewButton_1_1.setFont(new Font("SansSerif", Font.PLAIN, 14));
 		btnNewButton_1_1.setBackground(new Color(0, 51, 0));
-		painelPrincipal.add(btnNewButton_1_1, "cell 3 7");
+		painelPrincipal.add(btnNewButton_1_1, "cell 3 12");
 
 		JLabel lblStatus = new JLabel("Status:");
 		lblStatus.setFont(new Font("Tahoma", Font.PLAIN, 16));
-		painelPrincipal.add(lblStatus, "cell 0 8,alignx trailing");
+		painelPrincipal.add(lblStatus, "cell 0 13,alignx trailing");
 
 		cbStatusCondicaoPagamento = new JComboBox();
 		cbStatusCondicaoPagamento.setFont(new Font("SansSerif", Font.PLAIN, 16));
-		painelPrincipal.add(cbStatusCondicaoPagamento, "cell 1 8 2 1,growx");
+		painelPrincipal.add(cbStatusCondicaoPagamento, "cell 1 13 2 1,growx");
 		cbStatusCondicaoPagamento.addItem("A - Compensar|Realizar|Concluir");
 		cbStatusCondicaoPagamento.addItem("Compensado|Realizado|Concluído");
 
@@ -370,7 +437,7 @@ public class TelaFinanceiroCadastroPagamentoEmprestimo extends JFrame {
 		panel.setOpaque(false);
 		panel.setBorder(null);
 		panel.setBackground(Color.BLACK);
-		painelPrincipal.add(panel, "cell 1 9,grow");
+		painelPrincipal.add(panel, "cell 1 14,grow");
 		panel.setLayout(new MigLayout("", "[][]", "[]"));
 
 		rdbtnPagadorIB = new JRadioButton("Uma Instituição Bancaria?");
@@ -396,11 +463,11 @@ public class TelaFinanceiroCadastroPagamentoEmprestimo extends JFrame {
 
 		JLabel lblPagador = new JLabel("Pagador:");
 		lblPagador.setFont(new Font("Tahoma", Font.PLAIN, 16));
-		painelPrincipal.add(lblPagador, "cell 0 10,alignx trailing");
+		painelPrincipal.add(lblPagador, "cell 0 15,alignx trailing");
 
 		cbPagador = new JComboBox();
 		cbPagador.setFont(new Font("SansSerif", Font.PLAIN, 16));
-		painelPrincipal.add(cbPagador, "cell 1 10 2 1,growx");
+		painelPrincipal.add(cbPagador, "cell 1 15 2 1,growx");
 
 		JButton btnSelecionarPagador = new JButton("Selecionar");
 		btnSelecionarPagador.addActionListener(new ActionListener() {
@@ -424,12 +491,12 @@ public class TelaFinanceiroCadastroPagamentoEmprestimo extends JFrame {
 		btnSelecionarPagador.setForeground(Color.WHITE);
 		btnSelecionarPagador.setFont(new Font("SansSerif", Font.PLAIN, 14));
 		btnSelecionarPagador.setBackground(new Color(0, 51, 0));
-		painelPrincipal.add(btnSelecionarPagador, "cell 3 10");
+		painelPrincipal.add(btnSelecionarPagador, "cell 3 15");
 
 		JPanel panel_2 = new JPanel();
 		panel_2.setOpaque(false);
 		panel_2.setBackground(Color.BLACK);
-		painelPrincipal.add(panel_2, "cell 1 11,grow");
+		painelPrincipal.add(panel_2, "cell 1 16,grow");
 		panel_2.setLayout(new MigLayout("", "[][]", "[]"));
 
 		 rdbtnRecebedorIB = new JRadioButton("Uma Instituição Bancaria?");
@@ -516,11 +583,11 @@ public class TelaFinanceiroCadastroPagamentoEmprestimo extends JFrame {
 
 		JLabel lblRecebedor = new JLabel("Recebedor:");
 		lblRecebedor.setFont(new Font("Tahoma", Font.PLAIN, 16));
-		painelPrincipal.add(lblRecebedor, "cell 0 12,alignx trailing");
+		painelPrincipal.add(lblRecebedor, "cell 0 17,alignx trailing");
 
 		cbRecebedor = new JComboBox();
 		cbRecebedor.setFont(new Font("SansSerif", Font.PLAIN, 16));
-		painelPrincipal.add(cbRecebedor, "cell 1 12 2 1,growx");
+		painelPrincipal.add(cbRecebedor, "cell 1 17 2 1,growx");
 
 		JButton btnSelecionarRecebedor = new JButton("Selecionar");
 		btnSelecionarRecebedor.addActionListener(new ActionListener() {
@@ -540,18 +607,19 @@ public class TelaFinanceiroCadastroPagamentoEmprestimo extends JFrame {
 		btnSelecionarRecebedor.setForeground(Color.WHITE);
 		btnSelecionarRecebedor.setFont(new Font("SansSerif", Font.PLAIN, 14));
 		btnSelecionarRecebedor.setBackground(new Color(0, 51, 0));
-		painelPrincipal.add(btnSelecionarRecebedor, "cell 3 12");
+		painelPrincipal.add(btnSelecionarRecebedor, "cell 3 17");
 
 		JLabel lblObservao = new JLabel("Observação:");
 		lblObservao.setFont(new Font("Tahoma", Font.PLAIN, 16));
-		painelPrincipal.add(lblObservao, "cell 0 13,alignx right");
+		painelPrincipal.add(lblObservao, "cell 0 18,alignx right");
 
 		entObservacao = new JEditorPane();
-		painelPrincipal.add(entObservacao, "cell 1 13 2 1,grow");
+		entObservacao.setBorder(new LineBorder(new Color(0, 0, 0)));
+		painelPrincipal.add(entObservacao, "cell 1 18 2 1,grow");
 		btnFinalizar.setBackground(new Color(0, 0, 102));
 		btnFinalizar.setForeground(Color.WHITE);
 		btnFinalizar.setFont(new Font("Tahoma", Font.PLAIN, 16));
-		painelPrincipal.add(btnFinalizar, "cell 1 14,alignx right");
+		painelPrincipal.add(btnFinalizar, "cell 1 19,alignx right");
 
 		JButton btnAtualizar = new JButton("Atualizar");
 		btnAtualizar.addActionListener(new ActionListener() {
@@ -575,7 +643,7 @@ public class TelaFinanceiroCadastroPagamentoEmprestimo extends JFrame {
 		btnAtualizar.setForeground(Color.WHITE);
 		btnAtualizar.setFont(new Font("Tahoma", Font.PLAIN, 16));
 		btnAtualizar.setBackground(new Color(0, 0, 102));
-		painelPrincipal.add(btnAtualizar, "cell 2 14");
+		painelPrincipal.add(btnAtualizar, "cell 2 19");
 
 		if (modo_operacao == 0) {
 			// novo cadastro
@@ -723,6 +791,17 @@ public class TelaFinanceiroCadastroPagamentoEmprestimo extends JFrame {
 				
 				
 			}
+			
+			if(pagamento.getExtrato() == 0) {
+				rdbtnExtratoNao.setSelected(true);
+				rdbtnExtratoSim.setSelected(false);
+
+			}else if(pagamento.getExtrato() == 1) {
+				rdbtnExtratoNao.setSelected(false);
+				rdbtnExtratoSim.setSelected(true);
+
+			}
+
 
 	}
 
@@ -791,6 +870,13 @@ public class TelaFinanceiroCadastroPagamentoEmprestimo extends JFrame {
 		pagamento.setDescricao(descricao);
 		pagamento.setId_lancamento(lancamento_pai.getId_lancamento());
 
+
+		if(rdbtnExtratoNao.isSelected()) {
+			pagamento.setExtrato(0);
+		}else if(rdbtnExtratoSim.isSelected()) {
+			pagamento.setExtrato(1);
+		}
+		
 		pagamento.setIdentificador(identificador);
 		pagamento.setObservacao(observacao);
 
@@ -952,6 +1038,13 @@ public class TelaFinanceiroCadastroPagamentoEmprestimo extends JFrame {
 		pagamento.setIdentificador(identificador);
 		pagamento.setObservacao(observacao);
 
+
+		if(rdbtnExtratoNao.isSelected()) {
+			pagamento.setExtrato(0);
+		}else if(rdbtnExtratoSim.isSelected()) {
+			pagamento.setExtrato(1);
+		}
+		
 		if (rdbtnFluxoDeCaixaSim.isSelected()) {
 			pagamento.setFluxo_caixa(1);
 		} else if (rdbtnFluxoDeCaixaNao.isSelected()) {

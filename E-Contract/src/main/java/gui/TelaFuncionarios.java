@@ -13,6 +13,7 @@ import javax.swing.table.AbstractTableModel;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableRowSorter;
 
+import main.java.cadastros.CadastroAcessoTemporario;
 import main.java.cadastros.CadastroAviso;
 import main.java.cadastros.CadastroBaseArquivos;
 import main.java.cadastros.CadastroBaseDados;
@@ -37,6 +38,7 @@ import main.java.cadastros.DadosContratos;
 import main.java.cadastros.RegistroQuantidade;
 import main.java.cadastros.RegistroRecebimento;
 import main.java.classesExtras.Endereco;
+import main.java.conexaoBanco.GerenciarBancoAcessoTemporario;
 import main.java.conexaoBanco.GerenciarBancoClientes;
 import main.java.conexaoBanco.GerenciarBancoContratos;
 import main.java.conexaoBanco.GerenciarBancoDocumento;
@@ -110,6 +112,8 @@ import java.awt.event.MouseEvent;
 import java.net.URL;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashSet;
@@ -124,6 +128,7 @@ import javax.swing.JComboBox;
 import javax.swing.JTextField;
 import javax.swing.RowFilter;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JTabbedPane;
 import java.awt.Toolkit;
 import java.awt.Window;
@@ -259,13 +264,64 @@ public class TelaFuncionarios extends JFrame {
 		btnEditar.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
 
-				int rowSel = tabela.getSelectedRow();//pega o indice da linha na tabela
-				int indexRowModel = tabela.getRowSorter().convertRowIndexToModel(rowSel);//converte pro indice do model
-				TelaGerenciarFuncionario telagerenciar  = new TelaGerenciarFuncionario(lista_funcionarios.get(indexRowModel), isto);
-				telagerenciar.setVisible(true);
-				//TelaCadastroCliente telaEdicao = new TelaCadastroCliente(0, clientes_disponiveis.get(indiceDaLinha));
-				//editarCliente(indiceDaLinha);
 				
+				if(login != null) {
+					if(login.getConfigs_privilegios().getNivel_privilegios() <= 2) {
+
+						int rowSel = tabela.getSelectedRow();//pega o indice da linha na tabela
+						int indexRowModel = tabela.getRowSorter().convertRowIndexToModel(rowSel);//converte pro indice do model
+						TelaGerenciarFuncionario telagerenciar  = new TelaGerenciarFuncionario(new GerenciarBancoFuncionarios().getfuncionario(lista_funcionarios.get(indexRowModel).getId_funcionario()), isto);
+						telagerenciar.setVisible(true);
+						//TelaCadastroCliente telaEdicao = new TelaCadastroCliente(0, clientes_disponiveis.get(indiceDaLinha));
+						//editarCliente(indiceDaLinha);
+						
+					}else {
+						//verifica se tem acesso temporario
+						GerenciarBancoAcessoTemporario gerenciar = new GerenciarBancoAcessoTemporario();
+						ArrayList<CadastroAcessoTemporario> acessos = gerenciar.getAcessosTemporariosPorExecutor(login.getId());
+						
+						boolean tem_acesso = false;
+						
+						for(CadastroAcessoTemporario acesso : acessos) {
+
+							int modulo = acesso.getModulo();
+							if(modulo == 0) {
+								//modulo e recursos humanos
+								LocalDateTime inicio = LocalDateTime.parse(acesso.getData_inicial() + " " + acesso.getHora_inicial(),
+										DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm"));
+								LocalDateTime fim = LocalDateTime.parse(acesso.getData_final() + " " + acesso.getHora_final(),
+										DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm"));
+								
+								LocalDateTime agora = LocalDateTime.now();
+
+					
+								
+								if(agora.isAfter(inicio) && agora.isBefore(fim)) {
+									tem_acesso = true;
+									break;
+								}
+								
+								
+								
+							}
+							
+						}
+						
+							if(!tem_acesso) 
+						JOptionPane.showMessageDialog(isto, "Requer Elevação de Direitos");
+						else {
+							int rowSel = tabela.getSelectedRow();//pega o indice da linha na tabela
+							int indexRowModel = tabela.getRowSorter().convertRowIndexToModel(rowSel);//converte pro indice do model
+							TelaGerenciarFuncionario telagerenciar  = new TelaGerenciarFuncionario(new GerenciarBancoFuncionarios().getfuncionario(lista_funcionarios.get(indexRowModel).getId_funcionario()), isto);
+							telagerenciar.setVisible(true);
+							//TelaCadastroCliente telaEdicao = new TelaCadastroCliente(0, clientes_disponiveis.get(indiceDaLinha));
+							//editarCliente(indiceDaLinha);
+						}
+					}
+					
+				}
+				
+			
 				
 			}
 		});

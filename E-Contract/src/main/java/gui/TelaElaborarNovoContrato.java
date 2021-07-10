@@ -317,7 +317,7 @@ public class TelaElaborarNovoContrato extends JFrame {
 	private ConfiguracoesGlobais configs_globais = new ConfiguracoesGlobais();
 	private CadastroContrato contrato_pai_local;
 
-	private JCheckBox chkBoxAntecipadoSim, chkBoxAntecipadoNao, chkBoxClausulaArmazenagem,chkBoxClausulaFrete;
+	private JCheckBox chkBoxAntecipadoSim, chkBoxClausulaFundoRural, chkBoxAntecipadoNao, chkBoxClausulaArmazenagem,chkBoxClausulaFrete;
 
 	public static void pesquisarArmazens() {
 		GerenciarBancoClientes listaArmazens = new GerenciarBancoClientes();
@@ -365,6 +365,11 @@ public class TelaElaborarNovoContrato extends JFrame {
 	private JLabel lblIe_4;
 	private JLabel lblNewLabel_1_4;
 	private JLabel lblComprador2Info;
+	private JLabel lblNewLabel_6;
+	private JTextField entClausulaFundoRural;
+	private JComboBox cBFundoRural;
+	private JLabel lblNewLabel_1_1_1_1_1_1_1_1_4;
+	private JLabel lblFundoRuralInfo;
 
 	public TelaElaborarNovoContrato(CadastroModelo modelo, int tipoContrato, CadastroContrato contrato_pai,
 			int flag_edicao, Window janela_pai) {
@@ -417,7 +422,7 @@ public class TelaElaborarNovoContrato extends JFrame {
 
 		setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 
-		setBounds(100, 100, 993, 669);
+		setBounds(100, 100, 1369, 744);
 		painelPrincipal.setBackground(new Color(255, 255, 255));
 		painelPrincipal.setBorder(new EmptyBorder(5, 5, 5, 5));
 		painelPrincipal = new JTabbedPane();
@@ -429,7 +434,7 @@ public class TelaElaborarNovoContrato extends JFrame {
 		// contentPanel.setLayout(null);
 
 		painelDadosIniciais.setBackground(new Color(255, 255, 255));
-		painelDadosProdutos.setBackground(new Color(153, 204, 0));
+		painelDadosProdutos.setBackground(Color.WHITE);
 		painelDadosAdicionais.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseEntered(MouseEvent arg0) {
@@ -457,53 +462,47 @@ public class TelaElaborarNovoContrato extends JFrame {
 
 		// adiciona o painel de informacoes adicionais nas abas
 		painelPrincipal.addTab("Adicionais", painelDadosAdicionais);
-		painelDadosAdicionais.setLayout(null);
+		painelDadosAdicionais.setLayout(new MigLayout("", "[grow]", "[][grow]"));
 
 		JLabel lblClusulasAdicionais = new JLabel("Cláusulas Adicionais:");
-		lblClusulasAdicionais.setBounds(130, 80, 128, 38);
-		painelDadosAdicionais.add(lblClusulasAdicionais);
+		lblClusulasAdicionais.setFont(new Font("SansSerif", Font.BOLD, 20));
+		painelDadosAdicionais.add(lblClusulasAdicionais, "cell 0 0,alignx left,growy");
 
 		panel = new JPanel();
 
 		panel.setBorder(UIManager.getBorder("TitledBorder.border"));
 		panel.setBackground(Color.WHITE);
-		panel.setBounds(19, 130, 1256, 456);
-		painelDadosAdicionais.add(panel);
-		panel.setLayout(null);
+		painelDadosAdicionais.add(panel, "cell 0 1,growx,aligny center");
+		panel.setLayout(new MigLayout("", "[143px][48px][grow][]", "[28px][28px][28px][28px][18px][12px][1px][2px][28px][29px][31px][33px]"));
 
 		chBoxClausula1 = new JCheckBox("");
-		chBoxClausula1.setBounds(226, 69, 48, 18);
-		panel.add(chBoxClausula1);
+		panel.add(chBoxClausula1, "cell 1 0,alignx center,aligny center");
 		chBoxClausula1.setSelected(true);
-		chBoxClausula1.setFont(new Font("SansSerif", Font.PLAIN, 14));
+		chBoxClausula1.setFont(new Font("Arial", Font.BOLD, 16));
 		chBoxClausula1.setEnabled(false);
 
 		entClausula1 = new JTextField();
-		entClausula1.setBounds(280, 62, 681, 28);
-		panel.add(entClausula1);
+		panel.add(entClausula1, "cell 2 0,grow");
 		entClausula1.setText("A quantidade de quilogramas que exceder será negociado com o preço do dia.");
-		entClausula1.setFont(new Font("SansSerif", Font.PLAIN, 14));
+		entClausula1.setFont(new Font("Arial", Font.BOLD, 16));
 		entClausula1.setColumns(10);
 
 		entClausula2 = new JTextField();
-		entClausula2.setBounds(280, 95, 681, 28);
-		panel.add(entClausula2);
+		panel.add(entClausula2, "cell 2 1,grow");
 		entClausula2.setText("Produto acima de 14% de umidade será cobrado uma taxa de despesas para a secagem\r\n");
-		entClausula2.setFont(new Font("SansSerif", Font.PLAIN, 14));
+		entClausula2.setFont(new Font("Arial", Font.BOLD, 16));
 		entClausula2.setColumns(10);
 
 		chBoxClausula2 = new JCheckBox("");
-		chBoxClausula2.setBounds(226, 99, 48, 18);
-		panel.add(chBoxClausula2);
+		panel.add(chBoxClausula2, "cell 1 1,alignx center,aligny center");
 		chBoxClausula2.setSelected(true);
-		chBoxClausula2.setFont(new Font("SansSerif", Font.PLAIN, 14));
+		chBoxClausula2.setFont(new Font("Arial", Font.BOLD, 16));
 		chBoxClausula2.setSelected(true);
 		chBoxClausula2.setEnabled(false);
 
 		chBoxClausula3 = new JCheckBox("");
 		chBoxClausula3.setEnabled(false);
-		chBoxClausula3.setBounds(226, 129, 48, 18);
-		panel.add(chBoxClausula3);
+		panel.add(chBoxClausula3, "cell 1 2,alignx center,aligny center");
 		chBoxClausula3.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 
@@ -519,7 +518,7 @@ public class TelaElaborarNovoContrato extends JFrame {
 
 			}
 		});
-		chBoxClausula3.setFont(new Font("SansSerif", Font.PLAIN, 14));
+		chBoxClausula3.setFont(new Font("Arial", Font.BOLD, 16));
 
 		entClausula3 = new JTextField();
 		entClausula3.setEditable(false);
@@ -534,9 +533,8 @@ public class TelaElaborarNovoContrato extends JFrame {
 				} 
 			}
 		});
-		entClausula3.setBounds(280, 125, 681, 28);
-		panel.add(entClausula3);
-		entClausula3.setFont(new Font("SansSerif", Font.PLAIN, 14));
+		panel.add(entClausula3, "cell 2 2,grow");
+		entClausula3.setFont(new Font("Arial", Font.BOLD, 16));
 		entClausula3.setColumns(10);
 
 		entClausula4 = new JTextField();
@@ -551,15 +549,13 @@ public class TelaElaborarNovoContrato extends JFrame {
 				} 
 			}
 		});
-		entClausula4.setBounds(280, 159, 681, 28);
-		panel.add(entClausula4);
+		panel.add(entClausula4, "cell 2 3,grow");
 		entClausula4.setEditable(false);
-		entClausula4.setFont(new Font("SansSerif", Font.PLAIN, 14));
+		entClausula4.setFont(new Font("Arial", Font.BOLD, 16));
 		entClausula4.setColumns(10);
 
 		chBoxClausula4 = new JCheckBox("");
-		chBoxClausula4.setBounds(226, 159, 48, 18);
-		panel.add(chBoxClausula4);
+		panel.add(chBoxClausula4, "cell 1 3,alignx center,aligny top");
 		chBoxClausula4.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 
@@ -575,17 +571,15 @@ public class TelaElaborarNovoContrato extends JFrame {
 
 			}
 		});
-		chBoxClausula4.setFont(new Font("SansSerif", Font.PLAIN, 14));
+		chBoxClausula4.setFont(new Font("Arial", Font.BOLD, 16));
 
 		chBoxClausula5 = new JCheckBox("");
-		chBoxClausula5.setBounds(226, 189, 48, 18);
-		panel.add(chBoxClausula5);
-		chBoxClausula5.setFont(new Font("SansSerif", Font.PLAIN, 14));
+		panel.add(chBoxClausula5, "cell 1 4,alignx center,aligny top");
+		chBoxClausula5.setFont(new Font("Arial", Font.BOLD, 16));
 
 		chBoxClausula6 = new JCheckBox("");
-		chBoxClausula6.setBounds(226, 219, 48, 18);
-		panel.add(chBoxClausula6);
-		chBoxClausula6.setFont(new Font("SansSerif", Font.PLAIN, 14));
+		panel.add(chBoxClausula6, "cell 1 6 1 3,alignx center,aligny top");
+		chBoxClausula6.setFont(new Font("Arial", Font.BOLD, 16));
 
 		entClausula5 = new JTextField();
 		entClausula5.addKeyListener(new KeyAdapter() {
@@ -599,10 +593,9 @@ public class TelaElaborarNovoContrato extends JFrame {
 				} 
 			}
 		});
-		entClausula5.setBounds(280, 192, 681, 28);
-		panel.add(entClausula5);
+		panel.add(entClausula5, "cell 2 4 1 3,growx,aligny top");
 		entClausula5.setEditable(false);
-		entClausula5.setFont(new Font("SansSerif", Font.PLAIN, 14));
+		entClausula5.setFont(new Font("Arial", Font.BOLD, 16));
 		entClausula5.setColumns(10);
 
 		entClausula6 = new JTextField();
@@ -617,34 +610,40 @@ public class TelaElaborarNovoContrato extends JFrame {
 				} 
 			}
 		});
-		entClausula6.setBounds(280, 222, 681, 28);
-		panel.add(entClausula6);
+		panel.add(entClausula6, "cell 2 8,grow");
 		entClausula6.setEditable(false);
-		entClausula6.setFont(new Font("SansSerif", Font.PLAIN, 14));
+		entClausula6.setFont(new Font("Arial", Font.BOLD, 16));
 		entClausula6.setColumns(10);
 		
+		cBFundoRural = new JComboBox();
+		cBFundoRural.setFont(new Font("Arial", Font.BOLD, 16));
+		cBFundoRural.setEnabled(false);
+		panel.add(cBFundoRural, "cell 3 9,growx");
+		cBFundoRural.addItem("Comprador");
+		cBFundoRural.addItem("Vendedor");
+
 		JLabel lblNewLabel_3 = new JLabel("Clausula Frete:");
-		lblNewLabel_3.setBounds(122, 286, 85, 18);
-		panel.add(lblNewLabel_3);
+		lblNewLabel_3.setFont(new Font("Arial", Font.BOLD, 16));
+		panel.add(lblNewLabel_3, "cell 0 10,alignx right,aligny center");
 		
 		JLabel lblNewLabel_3_1 = new JLabel("Clausula Armazenagem:");
-		lblNewLabel_3_1.setBounds(73, 310, 143, 18);
-		panel.add(lblNewLabel_3_1);
+		lblNewLabel_3_1.setFont(new Font("Arial", Font.BOLD, 16));
+		panel.add(lblNewLabel_3_1, "cell 0 11,alignx right,aligny top");
 		
 		cBFrete = new JComboBox();
+		cBFrete.setFont(new Font("Arial", Font.BOLD, 16));
 		cBFrete.setEnabled(false);
-		cBFrete.setBounds(971, 282, 150, 26);
 		cBFrete.addItem("Comprador");
 		cBFrete.addItem("Vendedor");
 
-		panel.add(cBFrete);
+		panel.add(cBFrete, "cell 3 10,growx,aligny top");
 		
 		 cBArmazenagem = new JComboBox();
+		 cBArmazenagem.setFont(new Font("Arial", Font.BOLD, 16));
 		cBArmazenagem.setEnabled(false);
-		cBArmazenagem.setBounds(971, 315, 150, 26);
 		cBArmazenagem.addItem("Comprador");
 		cBArmazenagem.addItem("Vendedor");
-		panel.add(cBArmazenagem);
+		panel.add(cBArmazenagem, "cell 3 11,growx,aligny top");
 		
 		 chkBoxClausulaFrete = new JCheckBox("");
 		chkBoxClausulaFrete.addActionListener(new ActionListener() {
@@ -668,9 +667,8 @@ public class TelaElaborarNovoContrato extends JFrame {
 				
 			}
 		});
-		chkBoxClausulaFrete.setFont(new Font("SansSerif", Font.PLAIN, 14));
-		chkBoxClausulaFrete.setBounds(226, 286, 48, 18);
-		panel.add(chkBoxClausulaFrete);
+		chkBoxClausulaFrete.setFont(new Font("Arial", Font.BOLD, 16));
+		panel.add(chkBoxClausulaFrete, "cell 1 10,alignx center,aligny center");
 		
 		chkBoxClausulaArmazenagem = new JCheckBox("");
 		chkBoxClausulaArmazenagem.addActionListener(new ActionListener() {
@@ -692,9 +690,8 @@ public class TelaElaborarNovoContrato extends JFrame {
 				}
 			}
 		});
-		chkBoxClausulaArmazenagem.setFont(new Font("SansSerif", Font.PLAIN, 14));
-		chkBoxClausulaArmazenagem.setBounds(226, 319, 48, 18);
-		panel.add(chkBoxClausulaArmazenagem);
+		chkBoxClausulaArmazenagem.setFont(new Font("Arial", Font.BOLD, 16));
+		panel.add(chkBoxClausulaArmazenagem, "cell 1 11,alignx center,aligny center");
 		
 		entClausulaFrete = new JTextField();
 		entClausulaFrete.addKeyListener(new KeyAdapter() {
@@ -710,11 +707,10 @@ public class TelaElaborarNovoContrato extends JFrame {
 		});
 		entClausulaFrete.setText("Frete por conta do");
 		entClausulaFrete.setEnabled(false);
-		entClausulaFrete.setFont(new Font("SansSerif", Font.PLAIN, 14));
+		entClausulaFrete.setFont(new Font("Arial", Font.BOLD, 16));
 		entClausulaFrete.setEditable(false);
 		entClausulaFrete.setColumns(10);
-		entClausulaFrete.setBounds(280, 285, 681, 28);
-		panel.add(entClausulaFrete);
+		panel.add(entClausulaFrete, "cell 2 10,growx,aligny top");
 		
 		entClausulaArmazenagem = new JTextField();
 		entClausulaArmazenagem.addKeyListener(new KeyAdapter() {
@@ -730,11 +726,45 @@ public class TelaElaborarNovoContrato extends JFrame {
 		});
 		entClausulaArmazenagem.setText("Armazenagem por conta do");
 		entClausulaArmazenagem.setEnabled(false);
-		entClausulaArmazenagem.setFont(new Font("SansSerif", Font.PLAIN, 14));
+		entClausulaArmazenagem.setFont(new Font("Arial", Font.BOLD, 16));
 		entClausulaArmazenagem.setEditable(false);
 		entClausulaArmazenagem.setColumns(10);
-		entClausulaArmazenagem.setBounds(280, 319, 681, 28);
-		panel.add(entClausulaArmazenagem);
+		panel.add(entClausulaArmazenagem, "cell 2 11,growx,aligny bottom");
+		
+		lblNewLabel_6 = new JLabel("Clausula Fundo Rural:");
+		lblNewLabel_6.setFont(new Font("Arial", Font.BOLD, 16));
+		panel.add(lblNewLabel_6, "cell 0 9,alignx right,aligny bottom");
+		
+		 chkBoxClausulaFundoRural = new JCheckBox("");
+		 chkBoxClausulaFundoRural.addActionListener(new ActionListener() {
+		 	public void actionPerformed(ActionEvent e) {
+               if(chkBoxClausulaFundoRural.isSelected()) {
+					
+            	   chkBoxClausulaFundoRural.setSelected(true);
+					entClausulaFundoRural.setEnabled(true);
+					entClausulaFundoRural.setEditable(true);
+					cBFundoRural.setEnabled(true);
+					
+					
+				}else {
+					chkBoxClausulaFundoRural.setSelected(false);
+					entClausulaFundoRural.setEnabled(false);
+					entClausulaFundoRural.setEditable(false);
+					cBFundoRural.setEnabled(false);
+
+				}
+		 	}
+		 });
+		chkBoxClausulaFundoRural.setFont(new Font("Arial", Font.BOLD, 16));
+		panel.add(chkBoxClausulaFundoRural, "cell 1 9,alignx center,aligny center");
+		
+		entClausulaFundoRural = new JTextField();
+		entClausulaFundoRural.setText("O Fundo Rural será descontado");
+		entClausulaFundoRural.setFont(new Font("Arial", Font.BOLD, 16));
+		entClausulaFundoRural.setEnabled(false);
+		entClausulaFundoRural.setEditable(false);
+		entClausulaFundoRural.setColumns(10);
+		panel.add(entClausulaFundoRural, "cell 2 9,grow");
 		chBoxClausula6.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 
@@ -783,7 +813,8 @@ public class TelaElaborarNovoContrato extends JFrame {
 		painelDadosProdutos.add(lblLocalRetirada);
 
 		cBLocalRetirada = new JComboBox();
-		cBLocalRetirada.setBounds(585, 269, 174, 36);
+		cBLocalRetirada.setFont(new Font("SansSerif", Font.BOLD, 16));
+		cBLocalRetirada.setBounds(585, 269, 319, 36);
 		cBLocalRetirada.setModel(modelLocalRetirada);
 		cBLocalRetirada.setRenderer(new CBLocalRetiradaRenderPersonalizado());
 		painelDadosProdutos.add(cBLocalRetirada);
@@ -802,6 +833,7 @@ public class TelaElaborarNovoContrato extends JFrame {
 		painelDadosProdutos.add(lblDataEntrega);
 
 		entDataEntrega = new JTextField();
+		entDataEntrega.setFont(new Font("SansSerif", Font.BOLD, 16));
 		entDataEntrega.addKeyListener(new KeyAdapter() {
 			@Override
 			public void keyTyped(KeyEvent pp) {
@@ -837,6 +869,7 @@ public class TelaElaborarNovoContrato extends JFrame {
 		painelDadosProdutos.add(lblQuantidade);
 
 		entQuantidade = new JTextField();
+		entQuantidade.setFont(new Font("SansSerif", Font.BOLD, 16));
 		entQuantidade.addKeyListener(new KeyAdapter() {
 			@Override
 			public void keyTyped(KeyEvent o) {
@@ -919,6 +952,7 @@ public class TelaElaborarNovoContrato extends JFrame {
 		painelDadosProdutos.add(lblPreo);
 
 		entPreco = new JTextField();
+		entPreco.setFont(new Font("SansSerif", Font.BOLD, 16));
 		entPreco.addKeyListener(new KeyAdapter() {
 			@Override
 			public void keyTyped(KeyEvent p) {
@@ -1032,6 +1066,8 @@ public class TelaElaborarNovoContrato extends JFrame {
 		painelDadosProdutos.add(rQuanS);
 
 		rQuanT = new JRadioButton("TON");
+		rQuanT.setVisible(false);
+		rQuanT.setEnabled(false);
 		rQuanT.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				rQuanKG.setSelected(false);
@@ -1051,26 +1087,23 @@ public class TelaElaborarNovoContrato extends JFrame {
 		painelDadosProdutos.add(rQuanT);
 
 		lblQuant = new JLabel("Quilos");
-		lblQuant.setEnabled(false);
 		lblQuant.setFont(new Font("Tahoma", Font.BOLD, 14));
 		lblQuant.setBounds(502, 428, 70, 28);
 		painelDadosProdutos.add(lblQuant);
 
 		lblPreco = new JLabel("Quilo");
-		lblPreco.setEnabled(false);
 		lblPreco.setFont(new Font("Tahoma", Font.BOLD, 14));
 		lblPreco.setBounds(500, 475, 133, 28);
 		painelDadosProdutos.add(lblPreco);
 
 		JLabel lblvalortotal = new JLabel("Valor Total:");
 		lblvalortotal.setFont(new Font("Arial Black", Font.PLAIN, 14));
-		lblvalortotal.setBounds(215, 521, 96, 42);
+		lblvalortotal.setBounds(209, 533, 96, 42);
 		painelDadosProdutos.add(lblvalortotal);
 
 		lblValorTotal = new JLabel("");
-		lblValorTotal.setEnabled(false);
 		lblValorTotal.setFont(new Font("Tahoma", Font.BOLD, 14));
-		lblValorTotal.setBounds(199, 374, 174, 28);
+		lblValorTotal.setBounds(315, 535, 174, 28);
 		painelDadosProdutos.add(lblValorTotal);
 
 		JSeparator separator_2 = new JSeparator();
@@ -1313,6 +1346,7 @@ public class TelaElaborarNovoContrato extends JFrame {
 		lbltext.setFont(new Font("Arial Black", Font.PLAIN, 14));
 
 		lblCodigoContrato = new JLabel("");
+		lblCodigoContrato.setText(new GetData().getAnoAtual() + "");
 		lblCodigoContrato.setFont(new Font("Arial", Font.BOLD, 18));
 		lblCodigoContrato.setBorder(new EmptyBorder(0, 0, 0, 0));
 		lblCodigoContrato.setBounds(116, 15, 57, 42);
@@ -1338,7 +1372,7 @@ public class TelaElaborarNovoContrato extends JFrame {
 
 		if (flag_edicao == 0)
 			lblCodigoContratoAleatorio.setText(Integer.toString(configs_globais.getCodigoSequencial()));
-		else
+		else 
 			lblCodigoContratoAleatorio.setText(new String(quebrarCodigo()));
 
 		lblCodigoSubContrato = new JLabel("");
@@ -1448,10 +1482,14 @@ public class TelaElaborarNovoContrato extends JFrame {
 		});
 
 		 btnPesquisarComprador = new JButton("Pesquisar Comprador 1");
+		 btnPesquisarComprador.setBackground(new Color(51, 51, 0));
+		 btnPesquisarComprador.setForeground(Color.WHITE);
 		btnPesquisarComprador.setBounds(396, 60, 220, 33);
 		painelDefinirPartes.add(btnPesquisarComprador);
 
 		 btnPesquisarVendedor1 = new JButton("Pesquisar Vendedor 1");
+		 btnPesquisarVendedor1.setBackground(new Color(153, 51, 0));
+		 btnPesquisarVendedor1.setForeground(Color.WHITE);
 		btnPesquisarVendedor1.setBounds(398, 143, 218, 33);
 		painelDefinirPartes.add(btnPesquisarVendedor1);
 
@@ -1538,6 +1576,8 @@ public class TelaElaborarNovoContrato extends JFrame {
 
 		});
 		 btnPesquisarVendedor2 = new JButton("Pesquisar Vendedor 2");
+		 btnPesquisarVendedor2.setBackground(new Color(153, 102, 51));
+		 btnPesquisarVendedor2.setForeground(Color.WHITE);
 		btnPesquisarVendedor2.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
 				TelaCliente clientes = new TelaCliente(0, 3,null);
@@ -1550,6 +1590,8 @@ public class TelaElaborarNovoContrato extends JFrame {
 		painelDefinirPartes.add(btnPesquisarVendedor2);
 
 		btnPesquisarCorretor = new JButton("Pesquisar Corretor");
+		btnPesquisarCorretor.setBackground(new Color(0, 153, 51));
+		btnPesquisarCorretor.setForeground(Color.WHITE);
 		btnPesquisarCorretor.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				TelaCliente clientes = new TelaCliente(0, 4,null);
@@ -1604,6 +1646,8 @@ public class TelaElaborarNovoContrato extends JFrame {
 		painelDefinirPartes.add(cBComprador2);
 		
 		JButton btnPesquisarComprador_2 = new JButton("Pesquisar Comprador 2");
+		btnPesquisarComprador_2.setBackground(new Color(0, 0, 102));
+		btnPesquisarComprador_2.setForeground(Color.WHITE);
 		btnPesquisarComprador_2.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				TelaCliente clientes = new TelaCliente(0, 18,null);
@@ -1899,6 +1943,7 @@ public class TelaElaborarNovoContrato extends JFrame {
 		painelDadosProdutos.add(rBComissaoNao);
 
 		entComissao = new JTextField();
+		entComissao.setFont(new Font("SansSerif", Font.BOLD, 16));
 		entComissao.addKeyListener(new KeyAdapter() {
 			@Override
 			public void keyTyped(KeyEvent p) {
@@ -1978,7 +2023,6 @@ public class TelaElaborarNovoContrato extends JFrame {
 
 		lblValorTotalComisao1 = new JLabel("");
 		lblValorTotalComisao1.setFont(new Font("Tahoma", Font.BOLD, 14));
-		lblValorTotalComisao1.setEnabled(false);
 		lblValorTotalComisao1.setBounds(754, 486, 174, 28);
 		painelDadosProdutos.add(lblValorTotalComisao1);
 
@@ -1995,17 +2039,18 @@ public class TelaElaborarNovoContrato extends JFrame {
 
 		cBSafraPersonalizado = new ComboBoxRenderPersonalizado();
 		cBSafra = new JComboBox();
+		cBSafra.setFont(new Font("SansSerif", Font.BOLD, 16));
 		cBSafra.setModel(modelSafra);
 		cBSafra.setRenderer(cBSafraPersonalizado);
-		cBSafra.setBounds(586, 224, 342, 33);
+		cBSafra.setBounds(586, 224, 593, 33);
 		painelDadosProdutos.add(cBSafra);
 
 		cBSafra.addActionListener(new ActionListener() {
 
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				CadastroSafra produto = (CadastroSafra) modelSafra.getSelectedItem();
-				lblCodigoContrato.setText(Integer.toString(produto.getCodigo()));
+				//CadastroSafra produto = (CadastroSafra) modelSafra.getSelectedItem();
+				//lblCodigoContrato.setText(Integer.toString(produto.getCodigo()));
 
 			}
 
@@ -2119,6 +2164,9 @@ public class TelaElaborarNovoContrato extends JFrame {
 		painelEmpresa.add(cBContaBancaria);
 
 		JButton btnPesquisarCB = new JButton("Pesquisar");
+		btnPesquisarCB.setBackground(new Color(51, 51, 0));
+		btnPesquisarCB.setForeground(Color.WHITE);
+		btnPesquisarCB.setFont(new Font("SansSerif", Font.BOLD, 16));
 		btnPesquisarCB.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
 				TelaContaBancaria tela = new TelaContaBancaria(null);
@@ -2126,7 +2174,7 @@ public class TelaElaborarNovoContrato extends JFrame {
 				tela.setVisible(true);
 			}
 		});
-		btnPesquisarCB.setBounds(393, 351, 89, 23);
+		btnPesquisarCB.setBounds(393, 351, 105, 33);
 		painelEmpresa.add(btnPesquisarCB);
 
 		JLabel lblDataPagamento = new JLabel("Data Pagamento:");
@@ -2219,6 +2267,9 @@ public class TelaElaborarNovoContrato extends JFrame {
 		painelEmpresa.add(entValorPagamento);
 
 		JButton btnAdicionarPag = new JButton("Adicionar");
+		btnAdicionarPag.setBackground(new Color(0, 0, 102));
+		btnAdicionarPag.setForeground(Color.WHITE);
+		btnAdicionarPag.setFont(new Font("SansSerif", Font.BOLD, 16));
 		btnAdicionarPag.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 
@@ -2382,10 +2433,13 @@ public class TelaElaborarNovoContrato extends JFrame {
 				
 			}
 		});
-		btnAdicionarPag.setBounds(278, 619, 89, 23);
+		btnAdicionarPag.setBounds(278, 619, 101, 33);
 		painelEmpresa.add(btnAdicionarPag);
 
 		JButton btnExcluirPag = new JButton("Excluir");
+		btnExcluirPag.setBackground(new Color(255, 0, 0));
+		btnExcluirPag.setForeground(Color.WHITE);
+		btnExcluirPag.setFont(new Font("SansSerif", Font.BOLD, 16));
 		btnExcluirPag.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
 				int indiceDaLinha = table_cb.getSelectedRow();
@@ -2467,7 +2521,7 @@ public class TelaElaborarNovoContrato extends JFrame {
 
 			}
 		});
-		btnExcluirPag.setBounds(1122, 256, 89, 23);
+		btnExcluirPag.setBounds(1106, 256, 105, 28);
 		painelEmpresa.add(btnExcluirPag);
 
 		lblValorRestante = new JLabel("");
@@ -2686,7 +2740,7 @@ public class TelaElaborarNovoContrato extends JFrame {
 		 	}
 		 });
 		rBPostoSobreRodas.setSelected(true);
-		rBPostoSobreRodas.setBounds(765, 280, 132, 18);
+		rBPostoSobreRodas.setBounds(927, 281, 132, 18);
 		painelDadosProdutos.add(rBPostoSobreRodas);
 		
 		 rBJaDepositada = new JRadioButton("\"Já Depositada\"");
@@ -2703,7 +2757,7 @@ public class TelaElaborarNovoContrato extends JFrame {
 			 		}
 		 	}
 		 });
-		rBJaDepositada.setBounds(907, 281, 110, 18);
+		rBJaDepositada.setBounds(1069, 282, 110, 18);
 		painelDadosProdutos.add(rBJaDepositada);
 		painelFinalizar.setBackground(Color.WHITE);
 		painelFinalizar.addMouseListener(new MouseAdapter() {
@@ -2719,6 +2773,9 @@ public class TelaElaborarNovoContrato extends JFrame {
 		painelFinalizar.setLayout(null);
 
 		JButton btnTeste = new JButton("Salvar");
+		btnTeste.setForeground(Color.WHITE);
+		btnTeste.setFont(new Font("SansSerif", Font.BOLD, 16));
+		btnTeste.setBackground(new Color(0, 51, 0));
 		btnTeste.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				
@@ -2877,6 +2934,18 @@ public class TelaElaborarNovoContrato extends JFrame {
 								novo_contrato.setArmazenagem("");
 							}
 	                        
+	                        //clausula fundo rural
+	                        
+	                        if(chkBoxClausulaFundoRural.isSelected()) {
+								
+	                        	novo_contrato.setFundo_rural(cBFundoRural.getSelectedItem().toString());
+	                        	novo_contrato.setClausula_fundo_rural(entClausulaFundoRural.getText());
+								
+							}else {
+								novo_contrato.setFundo_rural("");
+							}
+							
+	                        
 							esperar.setMsg("Elaborando Contrato");
 
 							// editar.abrir();
@@ -2933,7 +3002,7 @@ public class TelaElaborarNovoContrato extends JFrame {
 
 			}
 		});
-		btnTeste.setBounds(823, 615, 89, 23);
+		btnTeste.setBounds(823, 602, 94, 36);
 		painelFinalizar.add(btnTeste);
 
 		
@@ -3001,222 +3070,232 @@ public class TelaElaborarNovoContrato extends JFrame {
 		panel_1.setBackground(new Color(0, 153, 153));
 		panel_1.setBounds(143, 11, 489, 580);
 		painelFinalizar.add(panel_1);
-		panel_1.setLayout(new MigLayout("", "[][][][][]", "[][][][][][][][][][][][][][][][][][][][][][][]"));
+		panel_1.setLayout(new MigLayout("", "[][][][][]", "[][][][][][][][][][][][][][][][][][][][][][][][]"));
 		
 		JLabel lblNewLabel_1_2_1 = new JLabel("Informações Contratuais");
 		lblNewLabel_1_2_1.setForeground(Color.WHITE);
-		lblNewLabel_1_2_1.setFont(new Font("Tahoma", Font.PLAIN, 20));
+		lblNewLabel_1_2_1.setFont(new Font("Arial", Font.BOLD, 20));
 		panel_1.add(lblNewLabel_1_2_1, "cell 1 0");
 		
 		JLabel lblNewLabel_1_2 = new JLabel("Código:");
 		lblNewLabel_1_2.setForeground(Color.WHITE);
-		lblNewLabel_1_2.setFont(new Font("Tahoma", Font.PLAIN, 14));
+		lblNewLabel_1_2.setFont(new Font("Tahoma", Font.PLAIN, 16));
 		panel_1.add(lblNewLabel_1_2, "cell 0 1,alignx right");
 		
 		lblCodigoContratoInfo = new JLabel("");
 		lblCodigoContratoInfo.setForeground(Color.WHITE);
-		lblCodigoContratoInfo.setFont(new Font("Tahoma", Font.BOLD, 14));
+		lblCodigoContratoInfo.setFont(new Font("Arial", Font.BOLD, 16));
 		panel_1.add(lblCodigoContratoInfo, "cell 1 1 4 1");
 		
 		lblNewLabel_1_3 = new JLabel("Data:");
 		lblNewLabel_1_3.setForeground(Color.WHITE);
-		lblNewLabel_1_3.setFont(new Font("Tahoma", Font.PLAIN, 14));
+		lblNewLabel_1_3.setFont(new Font("Tahoma", Font.PLAIN, 16));
 		panel_1.add(lblNewLabel_1_3, "cell 0 2,alignx right");
 		
 		lblDataInfo = new JLabel("");
 		lblDataInfo.setForeground(Color.WHITE);
-		lblDataInfo.setFont(new Font("Tahoma", Font.BOLD, 14));
+		lblDataInfo.setFont(new Font("Arial", Font.BOLD, 16));
 		panel_1.add(lblDataInfo, "cell 1 2 3 1");
 		
 		JLabel lblNewLabel_1 = new JLabel("Corretor:");
 		lblNewLabel_1.setForeground(Color.WHITE);
-		lblNewLabel_1.setFont(new Font("Tahoma", Font.PLAIN, 14));
+		lblNewLabel_1.setFont(new Font("Tahoma", Font.PLAIN, 16));
 		panel_1.add(lblNewLabel_1, "cell 0 3,alignx right");
 		
 		lblCorretorInfo = new JLabel("");
 		lblCorretorInfo.setForeground(Color.WHITE);
-		lblCorretorInfo.setFont(new Font("Tahoma", Font.BOLD, 14));
+		lblCorretorInfo.setFont(new Font("Arial", Font.BOLD, 16));
 		panel_1.add(lblCorretorInfo, "cell 1 3");
 		
 		JLabel lblNewLabel_1_1 = new JLabel("Comprador 1:");
 		lblNewLabel_1_1.setForeground(Color.WHITE);
-		lblNewLabel_1_1.setFont(new Font("Tahoma", Font.PLAIN, 14));
+		lblNewLabel_1_1.setFont(new Font("Tahoma", Font.PLAIN, 16));
 		panel_1.add(lblNewLabel_1_1, "cell 0 4,alignx right");
 		
 		lblCompradorInfo = new JLabel("");
 		lblCompradorInfo.setForeground(Color.WHITE);
-		lblCompradorInfo.setFont(new Font("Tahoma", Font.BOLD, 14));
+		lblCompradorInfo.setFont(new Font("Arial", Font.BOLD, 16));
 		panel_1.add(lblCompradorInfo, "cell 1 4");
 		
 		lblNewLabel_1_4 = new JLabel("Comprador 2:");
 		lblNewLabel_1_4.setForeground(Color.WHITE);
-		lblNewLabel_1_4.setFont(new Font("Tahoma", Font.PLAIN, 14));
+		lblNewLabel_1_4.setFont(new Font("Tahoma", Font.PLAIN, 16));
 		panel_1.add(lblNewLabel_1_4, "cell 0 5,alignx right");
 		
 		lblComprador2Info = new JLabel("");
 		lblComprador2Info.setForeground(Color.WHITE);
-		lblComprador2Info.setFont(new Font("Tahoma", Font.BOLD, 14));
+		lblComprador2Info.setFont(new Font("Arial", Font.BOLD, 16));
 		panel_1.add(lblComprador2Info, "cell 1 5");
 		
 		JLabel lblNewLabel_1_1_1 = new JLabel("Vendedor1:");
 		lblNewLabel_1_1_1.setForeground(Color.WHITE);
-		lblNewLabel_1_1_1.setFont(new Font("Tahoma", Font.PLAIN, 14));
+		lblNewLabel_1_1_1.setFont(new Font("Tahoma", Font.PLAIN, 16));
 		panel_1.add(lblNewLabel_1_1_1, "cell 0 6,alignx right");
 		
 		lblVendedor1Info = new JLabel("");
 		lblVendedor1Info.setForeground(Color.WHITE);
-		lblVendedor1Info.setFont(new Font("Tahoma", Font.BOLD, 14));
+		lblVendedor1Info.setFont(new Font("Arial", Font.BOLD, 16));
 		panel_1.add(lblVendedor1Info, "cell 1 6 4 1");
 		
 		JLabel lblNewLabel_1_1_1_1 = new JLabel("Vendedor2:");
 		lblNewLabel_1_1_1_1.setForeground(Color.WHITE);
-		lblNewLabel_1_1_1_1.setFont(new Font("Tahoma", Font.PLAIN, 14));
+		lblNewLabel_1_1_1_1.setFont(new Font("Tahoma", Font.PLAIN, 16));
 		panel_1.add(lblNewLabel_1_1_1_1, "cell 0 7,alignx right");
 		
 		lblVendedor2Info = new JLabel("");
 		lblVendedor2Info.setForeground(Color.WHITE);
-		lblVendedor2Info.setFont(new Font("Tahoma", Font.BOLD, 14));
+		lblVendedor2Info.setFont(new Font("Arial", Font.BOLD, 16));
 		panel_1.add(lblVendedor2Info, "cell 1 7 4 1");
 		
 		JLabel lblNewLabel_1_1_1_1_1 = new JLabel("Produto:");
 		lblNewLabel_1_1_1_1_1.setForeground(Color.WHITE);
-		lblNewLabel_1_1_1_1_1.setFont(new Font("Tahoma", Font.PLAIN, 14));
+		lblNewLabel_1_1_1_1_1.setFont(new Font("Tahoma", Font.PLAIN, 16));
 		panel_1.add(lblNewLabel_1_1_1_1_1, "cell 0 9,alignx right");
 		
 		lblProdutoInfo = new JLabel("");
 		lblProdutoInfo.setForeground(Color.WHITE);
-		lblProdutoInfo.setFont(new Font("Tahoma", Font.BOLD, 14));
+		lblProdutoInfo.setFont(new Font("Arial", Font.BOLD, 16));
 		panel_1.add(lblProdutoInfo, "cell 1 9 4 1");
 		
 		JLabel lblNewLabel_1_1_1_1_1_1 = new JLabel("Transgenia:");
 		lblNewLabel_1_1_1_1_1_1.setForeground(Color.WHITE);
-		lblNewLabel_1_1_1_1_1_1.setFont(new Font("Tahoma", Font.PLAIN, 14));
+		lblNewLabel_1_1_1_1_1_1.setFont(new Font("Tahoma", Font.PLAIN, 16));
 		panel_1.add(lblNewLabel_1_1_1_1_1_1, "cell 0 10,alignx right");
 		
 		lblTransgeniaInfo = new JLabel("");
 		lblTransgeniaInfo.setForeground(Color.WHITE);
-		lblTransgeniaInfo.setFont(new Font("Tahoma", Font.BOLD, 14));
+		lblTransgeniaInfo.setFont(new Font("Arial", Font.BOLD, 16));
 		panel_1.add(lblTransgeniaInfo, "cell 1 10 4 1");
 		
 		JLabel lblNewLabel_1_1_1_1_1_1_1 = new JLabel("Safra:");
 		lblNewLabel_1_1_1_1_1_1_1.setForeground(Color.WHITE);
-		lblNewLabel_1_1_1_1_1_1_1.setFont(new Font("Tahoma", Font.PLAIN, 14));
+		lblNewLabel_1_1_1_1_1_1_1.setFont(new Font("Tahoma", Font.PLAIN, 16));
 		panel_1.add(lblNewLabel_1_1_1_1_1_1_1, "cell 0 11,alignx right");
 		
 		lblSafraInfo = new JLabel("");
 		lblSafraInfo.setForeground(Color.WHITE);
-		lblSafraInfo.setFont(new Font("Tahoma", Font.BOLD, 14));
+		lblSafraInfo.setFont(new Font("Arial", Font.BOLD, 16));
 		panel_1.add(lblSafraInfo, "cell 1 11 4 1");
 		
 		lblNewLabel_1_1_1_1_1_1_2 = new JLabel("Data Entrega:");
 		lblNewLabel_1_1_1_1_1_1_2.setForeground(Color.WHITE);
-		lblNewLabel_1_1_1_1_1_1_2.setFont(new Font("Tahoma", Font.PLAIN, 14));
+		lblNewLabel_1_1_1_1_1_1_2.setFont(new Font("Tahoma", Font.PLAIN, 16));
 		panel_1.add(lblNewLabel_1_1_1_1_1_1_2, "cell 0 12,alignx right");
 		
 		lblDataEntregaInfo = new JLabel("");
 		lblDataEntregaInfo.setForeground(Color.WHITE);
-		lblDataEntregaInfo.setFont(new Font("Tahoma", Font.BOLD, 14));
+		lblDataEntregaInfo.setFont(new Font("Arial", Font.BOLD, 16));
 		panel_1.add(lblDataEntregaInfo, "cell 1 12");
 		
 		JLabel lblNewLabel_1_1_1_1_1_1_1_1_2 = new JLabel("Quantidade:");
 		lblNewLabel_1_1_1_1_1_1_1_1_2.setForeground(Color.WHITE);
-		lblNewLabel_1_1_1_1_1_1_1_1_2.setFont(new Font("Tahoma", Font.PLAIN, 14));
+		lblNewLabel_1_1_1_1_1_1_1_1_2.setFont(new Font("Tahoma", Font.PLAIN, 16));
 		panel_1.add(lblNewLabel_1_1_1_1_1_1_1_1_2, "cell 0 13,alignx right");
 		
 		lblQuantidadeInfo = new JLabel("");
 		lblQuantidadeInfo.setForeground(Color.WHITE);
-		lblQuantidadeInfo.setFont(new Font("Tahoma", Font.BOLD, 14));
+		lblQuantidadeInfo.setFont(new Font("Arial", Font.BOLD, 16));
 		panel_1.add(lblQuantidadeInfo, "cell 1 13 4 1");
 		
 		JLabel lblNewLabel_1_1_1_1_1_1_1_1_2_1_2 = new JLabel("Unidade:");
 		lblNewLabel_1_1_1_1_1_1_1_1_2_1_2.setForeground(Color.WHITE);
-		lblNewLabel_1_1_1_1_1_1_1_1_2_1_2.setFont(new Font("Tahoma", Font.PLAIN, 14));
+		lblNewLabel_1_1_1_1_1_1_1_1_2_1_2.setFont(new Font("Tahoma", Font.PLAIN, 16));
 		panel_1.add(lblNewLabel_1_1_1_1_1_1_1_1_2_1_2, "cell 0 14,alignx right");
 		
 		lblUnidadeInfo = new JLabel("");
 		lblUnidadeInfo.setForeground(Color.WHITE);
-		lblUnidadeInfo.setFont(new Font("Tahoma", Font.BOLD, 14));
+		lblUnidadeInfo.setFont(new Font("Arial", Font.BOLD, 16));
 		panel_1.add(lblUnidadeInfo, "cell 1 14 4 1");
 		
 		JLabel lblNewLabel_1_1_1_1_1_1_1_1_2_1 = new JLabel("Valor Unidade:");
 		lblNewLabel_1_1_1_1_1_1_1_1_2_1.setForeground(Color.WHITE);
-		lblNewLabel_1_1_1_1_1_1_1_1_2_1.setFont(new Font("Tahoma", Font.PLAIN, 14));
+		lblNewLabel_1_1_1_1_1_1_1_1_2_1.setFont(new Font("Tahoma", Font.PLAIN, 16));
 		panel_1.add(lblNewLabel_1_1_1_1_1_1_1_1_2_1, "cell 0 15,alignx right");
 		
 		lblValorUnidadeInfo = new JLabel("");
 		lblValorUnidadeInfo.setForeground(Color.WHITE);
-		lblValorUnidadeInfo.setFont(new Font("Tahoma", Font.BOLD, 14));
+		lblValorUnidadeInfo.setFont(new Font("Arial", Font.BOLD, 16));
 		panel_1.add(lblValorUnidadeInfo, "cell 1 15 4 1");
 		
 		JLabel lblNewLabel_1_1_1_1_1_1_1_1_2_1_1 = new JLabel("Valor Total:");
 		lblNewLabel_1_1_1_1_1_1_1_1_2_1_1.setForeground(Color.WHITE);
-		lblNewLabel_1_1_1_1_1_1_1_1_2_1_1.setFont(new Font("Tahoma", Font.PLAIN, 14));
+		lblNewLabel_1_1_1_1_1_1_1_1_2_1_1.setFont(new Font("Tahoma", Font.PLAIN, 16));
 		panel_1.add(lblNewLabel_1_1_1_1_1_1_1_1_2_1_1, "cell 0 16,alignx right");
 		
 		lblValorTotalInfo = new JLabel("");
 		lblValorTotalInfo.setForeground(Color.WHITE);
-		lblValorTotalInfo.setFont(new Font("Tahoma", Font.BOLD, 14));
+		lblValorTotalInfo.setFont(new Font("Arial", Font.BOLD, 16));
 		panel_1.add(lblValorTotalInfo, "cell 1 16 4 1");
 		
 		JLabel lblNewLabel_1_1_1_1_1_1_1_1_3 = new JLabel("Comissão:");
 		lblNewLabel_1_1_1_1_1_1_1_1_3.setForeground(Color.WHITE);
-		lblNewLabel_1_1_1_1_1_1_1_1_3.setFont(new Font("Tahoma", Font.PLAIN, 14));
+		lblNewLabel_1_1_1_1_1_1_1_1_3.setFont(new Font("Tahoma", Font.PLAIN, 16));
 		panel_1.add(lblNewLabel_1_1_1_1_1_1_1_1_3, "cell 0 17,alignx right");
 		
 		lblComissaoInfo = new JLabel("");
 		lblComissaoInfo.setForeground(Color.WHITE);
-		lblComissaoInfo.setFont(new Font("Tahoma", Font.BOLD, 14));
+		lblComissaoInfo.setFont(new Font("Arial", Font.BOLD, 16));
 		panel_1.add(lblComissaoInfo, "cell 1 17 4 1");
 		
 		JLabel lblNewLabel_1_1_1_1_1_1_1_1_3_1 = new JLabel("Valor Total Comissão:");
 		lblNewLabel_1_1_1_1_1_1_1_1_3_1.setForeground(Color.WHITE);
-		lblNewLabel_1_1_1_1_1_1_1_1_3_1.setFont(new Font("Tahoma", Font.PLAIN, 14));
+		lblNewLabel_1_1_1_1_1_1_1_1_3_1.setFont(new Font("Tahoma", Font.PLAIN, 16));
 		panel_1.add(lblNewLabel_1_1_1_1_1_1_1_1_3_1, "cell 0 18");
 		
 		lblValorTotalComissaoInfo = new JLabel("");
 		lblValorTotalComissaoInfo.setForeground(Color.WHITE);
-		lblValorTotalComissaoInfo.setFont(new Font("Tahoma", Font.BOLD, 14));
+		lblValorTotalComissaoInfo.setFont(new Font("Arial", Font.BOLD, 16));
 		panel_1.add(lblValorTotalComissaoInfo, "cell 1 18 4 1");
 		
 		lblNewLabel_1_1_1_1_1_1_1_1_3_2 = new JLabel("Local Retirada:");
 		lblNewLabel_1_1_1_1_1_1_1_1_3_2.setForeground(Color.WHITE);
-		lblNewLabel_1_1_1_1_1_1_1_1_3_2.setFont(new Font("Tahoma", Font.PLAIN, 14));
+		lblNewLabel_1_1_1_1_1_1_1_1_3_2.setFont(new Font("Tahoma", Font.PLAIN, 16));
 		panel_1.add(lblNewLabel_1_1_1_1_1_1_1_1_3_2, "cell 0 19,alignx right");
 		
 		lblLocalRetiradaInfo = new JLabel("");
 		lblLocalRetiradaInfo.setForeground(Color.WHITE);
-		lblLocalRetiradaInfo.setFont(new Font("Tahoma", Font.BOLD, 14));
+		lblLocalRetiradaInfo.setFont(new Font("Arial", Font.BOLD, 16));
 		panel_1.add(lblLocalRetiradaInfo, "cell 1 19");
 		
 		lblNewLabel_1_1_1_1_1_1_1_1_3_3 = new JLabel("Recebimento:");
 		lblNewLabel_1_1_1_1_1_1_1_1_3_3.setForeground(Color.WHITE);
-		lblNewLabel_1_1_1_1_1_1_1_1_3_3.setFont(new Font("Tahoma", Font.PLAIN, 14));
+		lblNewLabel_1_1_1_1_1_1_1_1_3_3.setFont(new Font("Tahoma", Font.PLAIN, 16));
 		panel_1.add(lblNewLabel_1_1_1_1_1_1_1_1_3_3, "cell 0 20,alignx right");
 		
 		lblRecebimentoInfo = new JLabel("");
 		lblRecebimentoInfo.setForeground(Color.WHITE);
-		lblRecebimentoInfo.setFont(new Font("Tahoma", Font.BOLD, 14));
+		lblRecebimentoInfo.setFont(new Font("Arial", Font.BOLD, 16));
 		panel_1.add(lblRecebimentoInfo, "cell 1 20");
 		
 		JLabel lblNewLabel_1_1_1_1_1_1_1_1 = new JLabel("Frete:");
 		lblNewLabel_1_1_1_1_1_1_1_1.setForeground(Color.WHITE);
-		lblNewLabel_1_1_1_1_1_1_1_1.setFont(new Font("Tahoma", Font.PLAIN, 14));
+		lblNewLabel_1_1_1_1_1_1_1_1.setFont(new Font("Tahoma", Font.PLAIN, 16));
 		panel_1.add(lblNewLabel_1_1_1_1_1_1_1_1, "cell 0 21,alignx right");
 		
 		lblFreteInfo = new JLabel("");
 		lblFreteInfo.setForeground(Color.WHITE);
-		lblFreteInfo.setFont(new Font("Tahoma", Font.BOLD, 14));
+		lblFreteInfo.setFont(new Font("Arial", Font.BOLD, 16));
 		panel_1.add(lblFreteInfo, "cell 1 21 4 1");
 		
 		JLabel lblNewLabel_1_1_1_1_1_1_1_1_1 = new JLabel("Armazenagem:");
 		lblNewLabel_1_1_1_1_1_1_1_1_1.setForeground(Color.WHITE);
-		lblNewLabel_1_1_1_1_1_1_1_1_1.setFont(new Font("Tahoma", Font.PLAIN, 14));
+		lblNewLabel_1_1_1_1_1_1_1_1_1.setFont(new Font("Tahoma", Font.PLAIN, 16));
 		panel_1.add(lblNewLabel_1_1_1_1_1_1_1_1_1, "cell 0 22,alignx right");
 		
 		lblArmazenagemInfo = new JLabel("");
 		lblArmazenagemInfo.setForeground(Color.WHITE);
-		lblArmazenagemInfo.setFont(new Font("Tahoma", Font.BOLD, 14));
+		lblArmazenagemInfo.setFont(new Font("Arial", Font.BOLD, 16));
 		panel_1.add(lblArmazenagemInfo, "cell 1 22 4 1");
+		
+		lblNewLabel_1_1_1_1_1_1_1_1_4 = new JLabel("Fundo Rural:");
+		lblNewLabel_1_1_1_1_1_1_1_1_4.setForeground(Color.WHITE);
+		lblNewLabel_1_1_1_1_1_1_1_1_4.setFont(new Font("Tahoma", Font.PLAIN, 16));
+		panel_1.add(lblNewLabel_1_1_1_1_1_1_1_1_4, "cell 0 23,alignx right");
+		
+		lblFundoRuralInfo = new JLabel("");
+		lblFundoRuralInfo.setForeground(Color.WHITE);
+		lblFundoRuralInfo.setFont(new Font("Arial", Font.BOLD, 16));
+		panel_1.add(lblFundoRuralInfo, "cell 1 23 4 1");
 		
 		JPanel panel_2 = new JPanel();
 		panel_2.setBackground(new Color(0, 153, 0));
@@ -3302,7 +3381,7 @@ public class TelaElaborarNovoContrato extends JFrame {
 			retirarClausulasAdicionaisContratoFormal();
 		} 
 		this.setResizable(false);
-		this.setBounds(GraphicsEnvironment.getLocalGraphicsEnvironment().getMaximumWindowBounds());
+		//this.setBounds(GraphicsEnvironment.getLocalGraphicsEnvironment().getMaximumWindowBounds());
 		
 		this.setLocationRelativeTo(janela_pai);
 
@@ -3312,7 +3391,7 @@ public class TelaElaborarNovoContrato extends JFrame {
 
 	public void setComprador1(CadastroCliente comprador) {
 		novo_contrato.adicionarComprador(0, comprador);
-		lblCodigoContratoComprador.setText(Integer.toString(comprador.getId()));
+		//lblCodigoContratoComprador.setText(Integer.toString(comprador.getId()));
 
 		cBComprador.removeAllItems();
 
@@ -3403,7 +3482,7 @@ public class TelaElaborarNovoContrato extends JFrame {
 
 	public void setVendedor1(CadastroCliente vendedor) {
 		novo_contrato.adicionarVendedor(0, vendedor);
-		lblCodigoContratoVendedor.setText(Integer.toString(vendedor.getId()));
+		//lblCodigoContratoVendedor.setText(Integer.toString(vendedor.getId()));
 
 		cBVendedor1.removeAllItems();
 
@@ -3472,7 +3551,7 @@ public class TelaElaborarNovoContrato extends JFrame {
 
 	public void setVendedor2(CadastroCliente vendedor) {
 		novo_contrato.adicionarVendedor(1, vendedor);
-		lblCodigoContratoVendedor.setText(Integer.toString(vendedor.getId()));
+		//lblCodigoContratoVendedor.setText(Integer.toString(vendedor.getId()));
 
 		cBVendedor2.removeAllItems();
 
@@ -3687,7 +3766,7 @@ public class TelaElaborarNovoContrato extends JFrame {
 
 	}
 
-	public String getCodigoContrato() {
+	/*public String getCodigoContrato() {
 		String cod_safra = lblCodigoContrato.getText();
 		String cod_comprador = lblCodigoContratoComprador.getText();
 		String cod_vendedor = lblCodigoContratoVendedor.getText();
@@ -3712,6 +3791,13 @@ public class TelaElaborarNovoContrato extends JFrame {
 		}
 
 		return retorno;
+
+	}*/
+	public String getCodigoContrato() {
+		String cod = lblCodigoContrato.getText();
+		String cod_sequencial = lblCodigoContratoAleatorio.getText();
+
+		return cod + "-" + cod_sequencial;
 
 	}
 
@@ -3801,16 +3887,18 @@ public class TelaElaborarNovoContrato extends JFrame {
 	}
 
 	public String quebrarCodigo() {
-		String texto = contrato_pai_local.getCodigo().replaceAll("[^0-9]+", ";");
+		String texto = contrato_pai_local.getCodigo();
 
 		System.out.println("codigo para edicao: " + texto);
-		String[] textoSeparado = texto.split(";");
+		String[] textoSeparado = texto.split("-");
 
-		String safra = textoSeparado[0];
+		String ano = textoSeparado[0];
 
-		String comprador = textoSeparado[1];
-		String vendedor = textoSeparado[2];
-		String sequenciaAleatoria = textoSeparado[3];
+		String codigo_aleatorio = textoSeparado[1];
+		String sequenciaAleatoria = codigo_aleatorio;
+		
+		
+		
 		return sequenciaAleatoria;
 
 	}
@@ -3873,7 +3961,7 @@ public class TelaElaborarNovoContrato extends JFrame {
 		// safra
 		CadastroSafra safra_contrato_pai_local = contrato_pai_local.getModelo_safra();
 		modelSafra.setSelectedItem(safra_contrato_pai_local);
-		lblCodigoContrato.setText(Integer.toString(safra_contrato_pai_local.getCodigo()));
+		//lblCodigoContrato.setText(Integer.toString(safra_contrato_pai_local.getCodigo()));
 		setClausula2(safra_contrato_pai_local.getProduto().getNome_produto());
 
 		// quantidades e preços
@@ -4049,6 +4137,25 @@ public class TelaElaborarNovoContrato extends JFrame {
 				entClausulaArmazenagem.setText(contrato_pai_local.getClausula_armazenagem());
 			}
 		}
+		
+		
+		if(contrato_pai_local.getFundo_rural() != null) {
+			if(!contrato_pai_local.getFundo_rural().equals("") && !contrato_pai_local.getFundo_rural().equals(" ") && contrato_pai_local.getFundo_rural().length() > 4) {
+				if(contrato_pai_local.getFundo_rural().equalsIgnoreCase("Comprador")) {
+					cBFundoRural.setSelectedItem("Comprador");
+
+				}else {
+					cBFundoRural.setSelectedItem("Vendedor");
+
+				}
+
+				chkBoxClausulaFundoRural.setSelected(true);
+				entClausulaFundoRural.setEnabled(true);
+				entClausulaFundoRural.setEditable(true);
+				cBFundoRural.setEnabled(true);
+				entClausulaFundoRural.setText(contrato_pai_local.getClausula_fundo_rural());
+			}
+		}
 
 		if (contrato_pai_local.getTexto_clausulas() != null) {
 			int num_clausulas = 1;
@@ -4143,7 +4250,7 @@ public class TelaElaborarNovoContrato extends JFrame {
 		// safra
 		CadastroSafra safra_contrato_pai_local = contrato_pai_local.getModelo_safra();
 		modelSafra.setSelectedItem(safra_contrato_pai_local);
-		lblCodigoContrato.setText(Integer.toString(safra_contrato_pai_local.getCodigo()));
+		//lblCodigoContrato.setText(Integer.toString(safra_contrato_pai_local.getCodigo()));
 		setClausula2(safra_contrato_pai_local.getProduto().getNome_produto());
 
 		// data de entrega
@@ -4847,6 +4954,19 @@ public class TelaElaborarNovoContrato extends JFrame {
 					}else {
 						novo_contrato.setArmazenagem("");
 						lblArmazenagemInfo.setText("Não Especificado");
+					}
+                    
+                    
+                    //clausula fundo rural
+					
+                    if(chkBoxClausulaFundoRural.isSelected()) {
+						novo_contrato.setFundo_rural(cBFundoRural.getSelectedItem().toString());
+						novo_contrato.setClausula_fundo_rural(entClausulaFundoRural.getText());
+						lblFundoRuralInfo.setText(cBFundoRural.getSelectedItem().toString());
+
+					}else {
+						novo_contrato.setFundo_rural("");
+						lblFundoRuralInfo.setText("Não Especificado");
 					}
                     
                     //pagamentos

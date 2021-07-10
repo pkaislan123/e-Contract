@@ -174,29 +174,41 @@ public class TelaEscolhaTipoNovoContrato extends JDialog {
 	
 		setBackground(new Color(255, 255, 255));
 		setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-		setBounds(100, 100, 459, 209);
+		setBounds(100, 100, 379, 150);
 		painelPrincipal.setBackground(new Color(255, 255, 255));
 		painelPrincipal.setBorder(new EmptyBorder(5, 5, 5, 5));
 		setContentPane(painelPrincipal);
-		painelPrincipal.setLayout(null);
+		painelPrincipal.setLayout(new MigLayout("", "[64px][156px][][][21px][][]", "[][center][]"));
 		
 		JLabel lblTipo = new JLabel("Tipo:");
 		lblTipo.setHorizontalAlignment(SwingConstants.TRAILING);
 		lblTipo.setForeground(Color.BLACK);
-		lblTipo.setFont(new Font("Arial Black", Font.PLAIN, 14));
+		lblTipo.setFont(new Font("Arial", Font.PLAIN, 14));
 		lblTipo.setBackground(Color.ORANGE);
-		lblTipo.setBounds(51, 50, 64, 33);
-		painelPrincipal.add(lblTipo);
+		painelPrincipal.add(lblTipo, "cell 0 0,grow");
 		
 		JComboBox comboBox = new JComboBox();
-		comboBox.setBounds(153, 52, 266, 33);
+		comboBox.setFont(new Font("SansSerif", Font.BOLD, 14));
 		
 		comboBox.addItem("Padrão - Formal");
 		comboBox.addItem("Padrão - Informal");
 
-		painelPrincipal.add(comboBox);
+		painelPrincipal.add(comboBox, "cell 1 0 6 1,grow");
+		
+		JButton btnCancelarCriarContrato = new JButton("Cancelar");
+		btnCancelarCriarContrato.setForeground(Color.WHITE);
+		btnCancelarCriarContrato.setBackground(new Color(255, 51, 0));
+		btnCancelarCriarContrato.setFont(new Font("SansSerif", Font.BOLD, 16));
+		btnCancelarCriarContrato.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				isto.dispose();
+			}
+		});
 		
 		JButton btnCriarContrato = new JButton("OK");
+		btnCriarContrato.setForeground(Color.WHITE);
+		btnCriarContrato.setBackground(new Color(0, 51, 0));
+		btnCriarContrato.setFont(new Font("SansSerif", Font.BOLD, 16));
 		btnCriarContrato.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
                    String opcao = comboBox.getSelectedItem().toString();
@@ -219,17 +231,8 @@ public class TelaEscolhaTipoNovoContrato extends JDialog {
                    
 			}
 		});
-		btnCriarContrato.setBounds(220, 123, 89, 23);
-		painelPrincipal.add(btnCriarContrato);
-		
-		JButton btnCancelarCriarContrato = new JButton("Cancelar");
-		btnCancelarCriarContrato.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				isto.dispose();
-			}
-		});
-		btnCancelarCriarContrato.setBounds(330, 123, 89, 23);
-		painelPrincipal.add(btnCancelarCriarContrato);
+		painelPrincipal.add(btnCriarContrato, "cell 5 2,alignx right,growy");
+		painelPrincipal.add(btnCancelarCriarContrato, "cell 6 2,grow");
 		
 		pesquisarModelos();
 		this.setLocationRelativeTo(janela_pai);

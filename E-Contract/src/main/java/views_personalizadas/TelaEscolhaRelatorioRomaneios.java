@@ -18,22 +18,10 @@ import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JDialog;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
 
-import org.apache.poi.hssf.usermodel.HSSFDataFormat;
-import org.apache.poi.hssf.usermodel.HSSFFont;
-import org.apache.poi.hssf.usermodel.HSSFPalette;
-import org.apache.poi.hssf.usermodel.HSSFSheet;
-import org.apache.poi.hssf.usermodel.HSSFWorkbook;
-import org.apache.poi.ss.usermodel.Cell;
-import org.apache.poi.ss.usermodel.CellStyle;
-import org.apache.poi.ss.usermodel.FillPatternType;
-import org.apache.poi.ss.usermodel.HorizontalAlignment;
-import org.apache.poi.ss.usermodel.IndexedColors;
-import org.apache.poi.ss.usermodel.Row;
-import org.apache.poi.ss.usermodel.VerticalAlignment;
-import org.apache.poi.ss.util.CellRangeAddress;
 
 import javafx.application.Platform;
 import javafx.embed.swing.JFXPanel;
@@ -68,6 +56,24 @@ import net.miginfocom.swing.MigLayout;
 import javax.swing.JRadioButton;
 import javax.swing.border.LineBorder;
 import javax.swing.text.MaskFormatter;
+
+import org.apache.poi.hssf.usermodel.HSSFDataFormat;
+import org.apache.poi.hssf.usermodel.HSSFFont;
+import org.apache.poi.hssf.usermodel.HSSFFormulaEvaluator;
+import org.apache.poi.hssf.usermodel.HSSFSheet;
+import org.apache.poi.hssf.usermodel.HSSFWorkbook;
+import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.CellStyle;
+import org.apache.poi.ss.usermodel.CellType;
+import org.apache.poi.ss.usermodel.FillPatternType;
+import org.apache.poi.ss.usermodel.FormulaEvaluator;
+import org.apache.poi.ss.usermodel.HorizontalAlignment;
+import org.apache.poi.ss.usermodel.IndexedColors;
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.VerticalAlignment;
+import org.apache.poi.ss.util.CellRangeAddress;
+import org.apache.poi.xssf.usermodel.XSSFFormulaEvaluator;
+
 import javax.swing.JComboBox;
 
 public class TelaEscolhaRelatorioRomaneios extends JDialog {
@@ -83,31 +89,34 @@ public class TelaEscolhaRelatorioRomaneios extends JDialog {
 	public TelaEscolhaRelatorioRomaneios(ArrayList<CadastroRomaneio> romaneios, Window janela_pai) {
 		getContentPane().setBackground(Color.WHITE);
 
-		setBounds(100, 100, 490, 276);
+		setBounds(100, 100, 490, 294);
 		isto = this;
-		getContentPane().setLayout(new MigLayout("", "[grow][]", "[grow][][][grow][][grow][][]"));
+		getContentPane().setLayout(new MigLayout("", "[grow][]", "[grow][grow][][][grow][][grow][][]"));
 
-		JButton btnRelatrioDeRomaneios = new JButton("Relatório de Romaneios");
-		btnRelatrioDeRomaneios.setForeground(Color.WHITE);
-		btnRelatrioDeRomaneios.setFont(new Font("Tahoma", Font.BOLD, 16));
-		btnRelatrioDeRomaneios.setBorder(null);
-		btnRelatrioDeRomaneios.setBackground(new Color(0, 51, 0));
-		getContentPane().add(btnRelatrioDeRomaneios, "cell 0 0 2 1,grow");
+		JPanel panel_2 = new JPanel();
+		panel_2.setBackground(new Color(0, 51, 0));
+		getContentPane().add(panel_2, "cell 0 0 2 1,grow");
+		panel_2.setLayout(new FlowLayout(FlowLayout.CENTER, 5, 5));
+
+		JLabel lblNewLabel_1 = new JLabel("Relatório de Romaneios");
+		lblNewLabel_1.setForeground(Color.WHITE);
+		lblNewLabel_1.setFont(new Font("SansSerif", Font.BOLD, 18));
+		panel_2.add(lblNewLabel_1);
 
 		JLabel lblArmazm = new JLabel("Armazém:");
 		lblArmazm.setForeground(Color.BLACK);
 		lblArmazm.setFont(new Font("Tahoma", Font.PLAIN, 18));
-		getContentPane().add(lblArmazm, "flowx,cell 0 1");
+		getContentPane().add(lblArmazm, "flowx,cell 0 2");
 
 		JLabel lblNewLabel = new JLabel("Tipo:");
 		lblNewLabel.setForeground(Color.BLACK);
 		lblNewLabel.setFont(new Font("Tahoma", Font.PLAIN, 18));
-		getContentPane().add(lblNewLabel, "flowx,cell 0 2,alignx left");
+		getContentPane().add(lblNewLabel, "flowx,cell 0 3,alignx left");
 
 		JPanel panel = new JPanel();
 		panel.setBorder(new LineBorder(new Color(0, 0, 0)));
 		panel.setBackground(Color.WHITE);
-		getContentPane().add(panel, "cell 0 3 2 1,grow");
+		getContentPane().add(panel, "cell 0 4 2 1,grow");
 		panel.setLayout(new MigLayout("", "[][][][][]", "[]"));
 
 		rdbtnCompleto = new JRadioButton("Completo");
@@ -138,12 +147,12 @@ public class TelaEscolhaRelatorioRomaneios extends JDialog {
 		JLabel lblSada = new JLabel("Saída:");
 		lblSada.setForeground(Color.BLACK);
 		lblSada.setFont(new Font("Tahoma", Font.PLAIN, 18));
-		getContentPane().add(lblSada, "cell 0 4,alignx left");
+		getContentPane().add(lblSada, "cell 0 5,alignx left");
 
 		JPanel panel_1 = new JPanel();
 		panel_1.setBorder(new LineBorder(new Color(0, 0, 0)));
 		panel_1.setBackground(Color.WHITE);
-		getContentPane().add(panel_1, "cell 0 5 2 1,alignx center,growy");
+		getContentPane().add(panel_1, "cell 0 6 2 1,alignx center,growy");
 		panel_1.setLayout(new MigLayout("", "[53px][43px][]", "[23px]"));
 
 		rdbtnPdf = new JRadioButton("Pdf");
@@ -208,10 +217,10 @@ public class TelaEscolhaRelatorioRomaneios extends JDialog {
 		btnNewButton_1.setFont(new Font("Arial", Font.PLAIN, 14));
 		btnNewButton_1.setForeground(Color.WHITE);
 		btnNewButton_1.setBackground(new Color(0, 0, 51));
-		getContentPane().add(btnNewButton_1, "cell 1 7,alignx right");
+		getContentPane().add(btnNewButton_1, "cell 1 8,alignx right");
 
 		cbArmazem = new JComboBox();
-		getContentPane().add(cbArmazem, "cell 0 1 2 1,growx");
+		getContentPane().add(cbArmazem, "cell 0 2,growx");
 		cbArmazem.setBounds(585, 269, 174, 36);
 		cbArmazem.setModel(modelLocalRetirada);
 		cbArmazem.setRenderer(new CBLocalRetiradaRenderPersonalizado());
@@ -1062,6 +1071,13 @@ public class TelaEscolhaRelatorioRomaneios extends JDialog {
 		numberStyle.setAlignment(HorizontalAlignment.CENTER);
 		numberStyle.setVerticalAlignment(VerticalAlignment.CENTER);
 
+		// estilo para cabecalho fundo laranja
+		CellStyle celula_fundo_laranja_texto_branco = workbook.createCellStyle();
+		celula_fundo_laranja_texto_branco.setFillPattern(FillPatternType.SOLID_FOREGROUND);
+		celula_fundo_laranja_texto_branco.setFillForegroundColor(IndexedColors.GREEN.getIndex());
+		celula_fundo_laranja_texto_branco.setAlignment(HorizontalAlignment.CENTER);
+		celula_fundo_laranja_texto_branco.setVerticalAlignment(VerticalAlignment.CENTER);
+
 		// estilo de celula negrito
 		CellStyle negrito = workbook.createCellStyle();
 		// textStyle.setAlignment(HorizontalAlignment.CENTER);
@@ -1095,6 +1111,23 @@ public class TelaEscolhaRelatorioRomaneios extends JDialog {
 		newFontNegritaEsquerda.setFontHeight((short) (11 * 20));
 
 		negrito_esquerda.setFont(newFontNegritaEsquerda);
+
+		// estilo para celula texto alinhado a esquerda
+		CellStyle negrito_direita = workbook.createCellStyle();
+		// textStyle.setAlignment(HorizontalAlignment.CENTER);
+		negrito_direita.setFillPattern(FillPatternType.SOLID_FOREGROUND);
+		negrito_direita.setFillForegroundColor(IndexedColors.WHITE.getIndex());
+		negrito_direita.setAlignment(HorizontalAlignment.RIGHT);
+		negrito_direita.setVerticalAlignment(VerticalAlignment.CENTER);
+
+		HSSFFont newFontNegritaDireita = workbook.createFont();
+		newFontNegritaDireita.setBold(true);
+		newFontNegritaDireita.setColor(IndexedColors.BLACK.getIndex());
+		newFontNegritaDireita.setFontName("Arial");
+		newFontNegritaDireita.setItalic(true);
+		newFontNegritaDireita.setFontHeight((short) (11 * 20));
+
+		negrito_direita.setFont(newFontNegritaDireita);
 
 		// estilo para celula do tipo numero alinhado ao centro
 		CellStyle valorStyle = workbook.createCellStyle();
@@ -1174,17 +1207,10 @@ public class TelaEscolhaRelatorioRomaneios extends JDialog {
 		// estilo para cabecalho
 		CellStyle celula_titulo = workbook.createCellStyle();
 		celula_titulo.setFillPattern(FillPatternType.SOLID_FOREGROUND);
-		celula_titulo.setFillForegroundColor(IndexedColors.WHITE.getIndex());
+		celula_titulo.setFillForegroundColor(IndexedColors.BROWN.getIndex());
 		celula_titulo.setAlignment(HorizontalAlignment.CENTER);
 		celula_titulo.setVerticalAlignment(VerticalAlignment.CENTER);
 		celula_titulo.setFont(newFont_titulo);
-
-		// estilo para cabecalho fundo laranja
-		CellStyle celula_fundo_laranja_texto_branco = workbook.createCellStyle();
-		celula_fundo_laranja_texto_branco.setFillPattern(FillPatternType.SOLID_FOREGROUND);
-		celula_fundo_laranja_texto_branco.setFillForegroundColor(IndexedColors.GREEN.getIndex());
-		celula_fundo_laranja_texto_branco.setAlignment(HorizontalAlignment.CENTER);
-		celula_fundo_laranja_texto_branco.setVerticalAlignment(VerticalAlignment.CENTER);
 
 		HSSFFont newFont_branca = workbook.createFont();
 		newFont_branca.setBold(true);
@@ -1194,6 +1220,31 @@ public class TelaEscolhaRelatorioRomaneios extends JDialog {
 		newFont_branca.setFontHeight((short) (11 * 24));
 
 		celula_fundo_laranja_texto_branco.setFont(newFont_branca);
+
+		CellStyle numberStyleFundoVerde = workbook.createCellStyle();
+		numberStyleFundoVerde.setFillPattern(FillPatternType.SOLID_FOREGROUND);
+		numberStyleFundoVerde.setFillForegroundColor(IndexedColors.GREEN.getIndex());
+		numberStyleFundoVerde.setDataFormat(numberFormat.getFormat("#,##0.00"));
+		numberStyleFundoVerde.setAlignment(HorizontalAlignment.CENTER);
+		numberStyleFundoVerde.setVerticalAlignment(VerticalAlignment.CENTER);
+		numberStyleFundoVerde.setFont(newFont_branca);
+		
+		CellStyle numberStyleFundoVerdeEsquerda = workbook.createCellStyle();
+		numberStyleFundoVerdeEsquerda.setFillPattern(FillPatternType.SOLID_FOREGROUND);
+		numberStyleFundoVerdeEsquerda.setFillForegroundColor(IndexedColors.GREEN.getIndex());
+		numberStyleFundoVerdeEsquerda.setDataFormat(numberFormat.getFormat("#,##0.00"));
+		numberStyleFundoVerdeEsquerda.setAlignment(HorizontalAlignment.LEFT);
+		numberStyleFundoVerdeEsquerda.setVerticalAlignment(VerticalAlignment.CENTER);
+		numberStyleFundoVerdeEsquerda.setFont(newFont_branca);
+
+		CellStyle numberStyleFundoVerdeDireita = workbook.createCellStyle();
+		numberStyleFundoVerdeDireita.setFillPattern(FillPatternType.SOLID_FOREGROUND);
+		numberStyleFundoVerdeDireita.setFillForegroundColor(IndexedColors.GREEN.getIndex());
+		numberStyleFundoVerdeDireita.setDataFormat(numberFormat.getFormat("#,##0.00"));
+		numberStyleFundoVerdeDireita.setAlignment(HorizontalAlignment.RIGHT);
+		numberStyleFundoVerdeDireita.setVerticalAlignment(VerticalAlignment.CENTER);
+		numberStyleFundoVerdeDireita.setFont(newFont_branca);
+		
 		Locale ptBr = new Locale("pt", "BR");
 		MaskFormatter formater_cnpj = null;
 		try {
@@ -1245,7 +1296,7 @@ public class TelaEscolhaRelatorioRomaneios extends JDialog {
 		try {
 			cell.setCellValue("Cnpj Unidade: " + formater_cnpj.valueToString(localRetirada.getCnpj()));
 		} catch (ParseException e) {
-			cell.setCellValue("Cnpj Unidade: " );
+			cell.setCellValue("Cnpj Unidade: ");
 
 		}
 		// criar celula de 1 a 5
@@ -1271,7 +1322,7 @@ public class TelaEscolhaRelatorioRomaneios extends JDialog {
 
 		cell = row.createCell(cellnum++);
 		cell.setCellStyle(celula_cabecalho);
-		cell.setCellValue("PLACA".toUpperCase());
+		cell.setCellValue("       PLACA      ".toUpperCase());
 
 		cell = row.createCell(cellnum++);
 		cell.setCellStyle(celula_cabecalho);
@@ -1291,11 +1342,21 @@ public class TelaEscolhaRelatorioRomaneios extends JDialog {
 
 		cell = row.createCell(cellnum++);
 		cell.setCellStyle(celula_cabecalho);
+		cell.setCellValue("DECLARADO/TESTADO".toUpperCase());
+
+		cell = row.createCell(cellnum++);
+		cell.setCellStyle(celula_cabecalho);
+		cell.setCellValue("RESULTADO".toUpperCase());
+
+		cell = row.createCell(cellnum++);
+		cell.setCellStyle(celula_cabecalho);
 		cell.setCellValue("ROYALTIES".toUpperCase());
 
 		cell = row.createCell(cellnum++);
 		cell.setCellStyle(celula_cabecalho);
 		cell.setCellValue("STATUS MONSANTO".toUpperCase());
+
+	
 		NumberFormat z = NumberFormat.getNumberInstance();
 
 		int numero_romaneios = 0;
@@ -1306,20 +1367,22 @@ public class TelaEscolhaRelatorioRomaneios extends JDialog {
 		double peso_desconto_avariado = 0;
 		double peso_desconto_total = 0;
 		double peso_recepcao = 0;
-		
+
 		double peso_total_royalties = 0;
 		double peso_total_participante = 0;
 		double peso_total_paticular = 0;
 		double peso_total_outros_particular = 0;
 		double peso_total_outros_participante = 0;
 
-		
 		double peso_total_its_declarado = 0;
 		double peso_total__its_a_declarar = 0;
-
+		int ultima_linha = 5;
 
 		for (CadastroRomaneio romaneio : romaneios_selecionados) {
 
+			
+			if(!romaneio.getPlaca().equalsIgnoreCase("XXX-0000")) {
+			
 			peso_bruto_total += romaneio.getPeso_bruto();
 			peso_tara_total += romaneio.getTara();
 			peso_liquido_total += romaneio.getPeso_liquido();
@@ -1330,41 +1393,41 @@ public class TelaEscolhaRelatorioRomaneios extends JDialog {
 			peso_desconto_avariado += romaneio.getPeso_desconto_avariados();
 			peso_desconto_total += romaneio.getPeso_desconto_total();
 			peso_recepcao += romaneio.getDespesa_recepcao();
-			
-			//monsanto
-			if(romaneio.getRoyalties() == 1) {
-				//e monsanto
+
+			// monsanto
+			if (romaneio.getRoyalties() == 1) {
+				// e monsanto
 				peso_total_royalties += romaneio.getPeso_liquido();
-				
-				//particular
-				if(romaneio.getStatus_monsanto() == 0 || romaneio.getStatus_monsanto() == 1) {
-					peso_total_paticular +=  romaneio.getPeso_liquido();
-					
-				if(romaneio.getStatus_monsanto() == 0) {
-					//falta its
-					peso_total__its_a_declarar += romaneio.getPeso_liquido();
-					
-				}else if(romaneio.getStatus_monsanto() == 1) {
-					//ok its
-					peso_total_its_declarado += romaneio.getPeso_liquido();
-				
-				}
-				
-				}
-				 if(romaneio.getStatus_monsanto() == 2) {
-					//participante cj
-					peso_total_participante += romaneio.getPeso_liquido();
-				}else if (romaneio.getStatus_monsanto() == 3) {
-					//não aplicavel
-				}
-				
-			}else {
-				 if(romaneio.getStatus_monsanto() == 2) {
-						//participante cj
-					 peso_total_outros_participante += romaneio.getPeso_liquido();
-					}else {
-						peso_total_outros_particular += romaneio.getPeso_liquido();
+
+				// particular
+				if (romaneio.getStatus_monsanto() == 0 || romaneio.getStatus_monsanto() == 1) {
+					peso_total_paticular += romaneio.getPeso_liquido();
+
+					if (romaneio.getStatus_monsanto() == 0) {
+						// falta its
+						peso_total__its_a_declarar += romaneio.getPeso_liquido();
+
+					} else if (romaneio.getStatus_monsanto() == 1) {
+						// ok its
+						peso_total_its_declarado += romaneio.getPeso_liquido();
+
 					}
+
+				}
+				if (romaneio.getStatus_monsanto() == 2) {
+					// participante cj
+					peso_total_participante += romaneio.getPeso_liquido();
+				} else if (romaneio.getStatus_monsanto() == 3) {
+					// não aplicavel
+				}
+
+			} else {
+				if (romaneio.getStatus_monsanto() == 2) {
+					// participante cj
+					peso_total_outros_participante += romaneio.getPeso_liquido();
+				} else {
+					peso_total_outros_particular += romaneio.getPeso_liquido();
+				}
 			}
 
 			numero_romaneios++;
@@ -1373,7 +1436,7 @@ public class TelaEscolhaRelatorioRomaneios extends JDialog {
 
 			row = sheet.createRow(rownum++);
 			cellnum = 0;
-			SimpleDateFormat f = new SimpleDateFormat("dd/MM/yyyy");
+			SimpleDateFormat f = new SimpleDateFormat("dd/MMMM/yyyy");
 			Date data = romaneio.getData();
 			String data_formatada = "";
 			if (data instanceof Date) {
@@ -1397,8 +1460,8 @@ public class TelaEscolhaRelatorioRomaneios extends JDialog {
 
 			// peso liquido final
 			cell = row.createCell(cellnum++);
-			cell.setCellStyle(textStyle);
-			cell.setCellValue(z.format(romaneio.getPeso_liquido()));
+			cell.setCellStyle(numberStyle);
+			cell.setCellValue(romaneio.getPeso_liquido());
 
 			// nome remetente
 			String nome_cliente = "";
@@ -1412,6 +1475,15 @@ public class TelaEscolhaRelatorioRomaneios extends JDialog {
 						if (destinatario.getTipo_pessoa() == 0) {
 							if (destinatario.getNome_empresarial() != null) {
 								nome_cliente = destinatario.getNome_empresarial().toUpperCase();
+								if (nome_cliente == null || nome_cliente.equals("") || nome_cliente.length() <= 3) {
+									nome_cliente = destinatario.getNome().toUpperCase() + " "
+											+ destinatario.getSobrenome().toUpperCase();
+								}
+
+							} else {
+								nome_cliente = destinatario.getNome().toUpperCase() + " "
+										+ destinatario.getSobrenome().toUpperCase();
+
 							}
 						} else {
 							if (destinatario.getNome_fantaia() != null) {
@@ -1454,7 +1526,18 @@ public class TelaEscolhaRelatorioRomaneios extends JDialog {
 
 					if (remetente != null) {
 						if (remetente.getTipo_pessoa() == 0) {
-							nome_cliente = remetente.getNome_empresarial().toUpperCase();
+							if (remetente.getNome_empresarial() != null) {
+								nome_cliente = remetente.getNome_empresarial().toUpperCase();
+								if (nome_cliente == null || nome_cliente.equals("") || nome_cliente.length() <= 3) {
+									nome_cliente = remetente.getNome().toUpperCase() + " "
+											+ remetente.getSobrenome().toUpperCase();
+								}
+
+							} else {
+								nome_cliente = remetente.getNome().toUpperCase() + " "
+										+ remetente.getSobrenome().toUpperCase();
+
+							}
 						} else
 							nome_cliente = remetente.getNome_fantaia().toUpperCase();
 					}
@@ -1502,6 +1585,28 @@ public class TelaEscolhaRelatorioRomaneios extends JDialog {
 			cell.setCellStyle(textStyle);
 			cell.setCellValue(romaneio.getTransgenia());
 
+			// teste/declarado
+			cell = row.createCell(cellnum++);
+			cell.setCellStyle(textStyle);
+			int teste = romaneio.getTeste();
+			if (teste == 0)
+				cell.setCellValue("DECLARADO");
+			else if (teste == 1)
+				cell.setCellValue("TESTADO");
+
+			// RESULTADO TESTE
+			cell = row.createCell(cellnum++);
+			cell.setCellStyle(textStyle);
+			int resultado = romaneio.getResultado();
+			if(teste == 1) {
+			if (resultado == 0)
+				cell.setCellValue("NEGATIVO");
+			else if (resultado == 1)
+				cell.setCellValue("POSITIVO");
+			}else {
+				cell.setCellValue("DECLARADO");
+
+			}
 			// royalties
 			cell = row.createCell(cellnum++);
 			cell.setCellStyle(textStyle);
@@ -1538,6 +1643,8 @@ public class TelaEscolhaRelatorioRomaneios extends JDialog {
 
 			}
 
+			ultima_linha = rownum;
+			}
 		}
 		sheet.setAutoFilter(CellRangeAddress.valueOf("A4:AF4"));
 		for (int i = 1; i < 9; i++) {
@@ -1545,180 +1652,220 @@ public class TelaEscolhaRelatorioRomaneios extends JDialog {
 
 		}
 
-		// somatorias
-		/*
-		 * // valores
-		 * 
-		 * lblPesoBrutoTotal.setText(z.format(peso_bruto_total) + " Kgs | " +
-		 * z.format(peso_bruto_total / 60) + " sacos"); lblPesoLiquidoTotal
-		 * .setText(z.format(peso_liquido_total) + " Kgs | " +
-		 * z.format(peso_liquido_total / 60) + " sacos");
-		 * lblPesoLiquidoTotalSemDesconto.setText(z.format(
-		 * peso_liquido_total_sem_desconto) + " Kgs | " +
-		 * z.format(peso_liquido_total_sem_desconto / 60) + " sacos");
-		 * 
-		 * lblDescontoTotalUmidade .setText(z.format(peso_desconto_umidade) + " Kgs | "
-		 * + z.format(peso_desconto_umidade / 60) + " sacos");
-		 * lblDescontoTotalImpureza.setText( z.format(peso_desconto_impureza) +
-		 * " Kgs | " + z.format(peso_desconto_impureza / 60) + " sacos");
-		 * lblDescontoTotalAvariado.setText( z.format(peso_desconto_avariado) +
-		 * " Kgs | " + z.format(peso_desconto_avariado / 60) + " sacos");
-		 * lblPesoTotalDesconto .setText(z.format(peso_desconto_total) + " Kgs | " +
-		 * z.format(peso_desconto_total / 60) + " sacos");
-		 * 
-		 * lblPesoTaraTotal.setText(z.format(peso_tara_total) + " Kgs | " +
-		 * z.format(peso_tara_total / 60) + " sacos");
-		 * lblNumeroTotalRomaneios.setText(numero_romaneios + " Romaneios");
-		 */
+		FormulaEvaluator evaluator = workbook.getCreationHelper().createFormulaEvaluator();     
+
 		row = sheet.createRow(rownum += 2);
 		cellnum = 0;
 
 		cell = row.createCell(cellnum++);
-		cell.setCellStyle(textStyle);
-		cell.setCellValue("ROMANEIO");
-		sheet.addMergedRegion(new CellRangeAddress(rownum, rownum, cellnum, 3));
+		cell.setCellStyle(negrito_direita);
+		cell.setCellValue("ROMANEIOS:");
 
 		cell = row.createCell(cellnum++);
-		cell.setCellStyle(celula_fundo_laranja_texto_branco);
-		cell.setCellValue(numero_romaneios + " Romaneios");
+		cell.setCellStyle(numberStyleFundoVerde);
+		cell.setCellType(CellType.FORMULA);
+		String formula = "SUBTOTAL(3,B5:B" + (ultima_linha) + ")";
+		cell.setCellFormula(formula);
 
-		
-		cell = row.createCell(5);
-		cell.setCellStyle(textStyle);
-		cell.setCellValue("Total Royalties:");
-		sheet.addMergedRegion(new CellRangeAddress(rownum, rownum, 6, 8));
+		cell = row.createCell(cellnum++);
+		cell.setCellStyle(negrito_direita);
+		cell.setCellValue("P. LIQ. FINAL:");
 
-		cell = row.createCell(6);
-		cell.setCellStyle(celula_fundo_laranja_texto_branco);
-		cell.setCellValue(z.format(peso_total_royalties ) + " Kgs | " + z.format(peso_total_royalties  / 60) + " sacos");
+		// celula
+		cell = row.createCell(cellnum++);
+		cell.setCellStyle(numberStyleFundoVerde);
+		cell.setCellType(CellType.FORMULA);
+		formula = "SUBTOTAL(9,D5:D" + (ultima_linha) + ")";
+		cell.setCellFormula(formula);
 
+		cell = row.createCell(cellnum++);
+		cell.setCellStyle(negrito_esquerda);
+		cell.setCellValue("kgs");
+
+		row = sheet.createRow(rownum += 1);
+		cellnum = 0;
+
+		// celula
+		cell = row.createCell(3);
+		cell.setCellStyle(numberStyleFundoVerde);
+		cell.setCellType(CellType.FORMULA);
+		formula = "SUBTOTAL(9,D5:D" + (ultima_linha) + ")/60";
+		cell.setCellFormula(formula);
+
+		cell = row.createCell(4);
+		cell.setCellStyle(negrito_esquerda);
+		cell.setCellValue("sacos");
 		
-		
-		
-		
-		// LINHA PESO BRUTO TOTAL
+		row = sheet.createRow(rownum += 2);
+		cellnum = 0;
+
+		cell = row.createCell(cellnum++);
+		cell.setCellStyle(negrito_esquerda);
+		cell.setCellValue("MONSANTO:");
+
 		row = sheet.createRow(rownum += 1);
 		cellnum = 0;
 
 		cell = row.createCell(cellnum++);
-		cell.setCellStyle(textStyle);
-		cell.setCellValue("P.B.Total:");
-		sheet.addMergedRegion(new CellRangeAddress(rownum, rownum, cellnum, 3));
+		cell.setCellStyle(negrito_direita);
+		cell.setCellValue("TOTAL ROYALTIES PARTICIPANTE:");
+		sheet.addMergedRegion(new CellRangeAddress(rownum, rownum, 0, 1));
 
-		cell = row.createCell(cellnum++);
-		cell.setCellStyle(celula_fundo_laranja_texto_branco);
-		cell.setCellValue(z.format(peso_bruto_total) + " Kgs | " + z.format(peso_bruto_total / 60) + " sacos");
+		cell = row.createCell(2);
+		cell.setCellStyle(numberStyleFundoVerde);
+		cell.setCellType(CellType.FORMULA);
+		formula = "SUMPRODUCT(SUBTOTAL(9,OFFSET(D5:D" + ultima_linha + ",ROW(D5:D" + ultima_linha + ")-ROW(D5),0,1,1)),-(J5:J" + ultima_linha + "=\"SIM\"),-(I5:I" + ultima_linha + "=\"POSITIVO\"),-(K5:K" + ultima_linha + "=\"PARTICIPANTE\"))*-1";
+		cell.setCellFormula(formula);
+		
+		cell = row.createCell(3);
+		cell.setCellStyle(negrito_esquerda);
+		cell.setCellValue("kgs");
 
-		cell = row.createCell(5);
-		cell.setCellStyle(textStyle);
-		cell.setCellValue("Royalties Participante:");
-		sheet.addMergedRegion(new CellRangeAddress(rownum, rownum, 6, 8));
+	
+		//valor em sacos
+		row = sheet.createRow(rownum += 1);
+		cellnum = 0;
+		cell = row.createCell(2);
+		cell.setCellStyle(numberStyleFundoVerdeDireita);
+		cell.setCellType(CellType.FORMULA);
+		formula = "SUMPRODUCT(SUBTOTAL(9,OFFSET(D5:D" + ultima_linha + ",ROW(D5:D" + ultima_linha + ")-ROW(D5),0,1,1)),-(J5:J" + ultima_linha + "=\"SIM\"),-(I5:I" + ultima_linha + "=\"POSITIVO\"),-(K5:K" + ultima_linha + "=\"PARTICIPANTE\"))*-1/60";
+		cell.setCellFormula(formula);
 
-		cell = row.createCell(6);
-		cell.setCellStyle(celula_fundo_laranja_texto_branco);
-		cell.setCellValue(z.format(peso_total_participante ) + " Kgs | " + z.format(peso_total_participante  / 60) + " sacos");
+		cell = row.createCell(3);
+		cell.setCellStyle(negrito_esquerda);
+		cell.setCellValue("sacos");
 
 		
 		
-		// LINHA peso tara
 		row = sheet.createRow(rownum += 1);
 		cellnum = 0;
 
 		cell = row.createCell(cellnum++);
-		cell.setCellStyle(textStyle);
-		cell.setCellValue("P.B.Tara:");
-		sheet.addMergedRegion(new CellRangeAddress(rownum, rownum, cellnum, 3));
+		cell.setCellStyle(negrito_direita);
+		cell.setCellValue("TOTAL ROYALTIES PARTICULAR:");
+		sheet.addMergedRegion(new CellRangeAddress(rownum, rownum, 0, 1));
 
-		cell = row.createCell(cellnum++);
-		cell.setCellStyle(celula_fundo_laranja_texto_branco);
-		cell.setCellValue(z.format(peso_tara_total) + " Kgs | " + z.format(peso_tara_total / 60) + " sacos");
-
-		cell = row.createCell(5);
-		cell.setCellStyle(textStyle);
-		cell.setCellValue("Royalties Particular:");
-		sheet.addMergedRegion(new CellRangeAddress(rownum, rownum, 6, 8));
-
-		cell = row.createCell(6);
-		cell.setCellStyle(celula_fundo_laranja_texto_branco);
-		cell.setCellValue(z.format(peso_total_paticular  ) + " Kgs | " + z.format(peso_total_paticular   / 60) + " sacos");
+		cell = row.createCell(2);
+		cell.setCellStyle(numberStyleFundoVerde);
+		formula = "SUMPRODUCT(SUBTOTAL(9,OFFSET(D5:D" + ultima_linha + ",ROW(D5:D" + ultima_linha + ")-ROW(D5),0,1,1)),-(J5:J"+ ultima_linha +"=\"SIM\"),-(I5:I"+ ultima_linha +"=\"POSITIVO\"),-((K5:K"+ ultima_linha +"=\"OK ITS\")+(K5:K" + ultima_linha +"=\"FALTA ITS\"))) *-1";
+		cell.setCellFormula(formula);
 
 		
-		// LINHA peso liq sem desconto
+		cell = row.createCell(3);
+		cell.setCellStyle(negrito_esquerda);
+		cell.setCellValue("kgs");
+
+		row = sheet.createRow(rownum += 1);
+		cellnum = 0;
+		cell = row.createCell(2);
+		cell.setCellStyle(numberStyleFundoVerdeDireita);
+		formula = "SUMPRODUCT(SUBTOTAL(9,OFFSET(D5:D" + ultima_linha + ",ROW(D5:D" + ultima_linha + ")-ROW(D5),0,1,1)),-(J5:J"+ ultima_linha +"=\"SIM\"),-(I5:I"+ ultima_linha +"=\"POSITIVO\"),-((K5:K"+ ultima_linha +"=\"OK ITS\")+(K5:K" + ultima_linha +"=\"FALTA ITS\"))) *-1 / 60";
+		cell.setCellFormula(formula);
+
+		cell = row.createCell(3);
+		cell.setCellStyle(negrito_esquerda);
+		cell.setCellValue("sacos");
+
+		
+		
+		
 		row = sheet.createRow(rownum += 1);
 		cellnum = 0;
 
 		cell = row.createCell(cellnum++);
-		cell.setCellStyle(textStyle);
-		cell.setCellValue("P. LIQ. FINAL S/ DESC:");
-		sheet.addMergedRegion(new CellRangeAddress(rownum, rownum, cellnum, 3));
+		cell.setCellStyle(negrito_direita);
+		cell.setCellValue("TOTAL ROYALTIES:");
+		sheet.addMergedRegion(new CellRangeAddress(rownum, rownum, 0, 1));
 
-		cell = row.createCell(cellnum++);
-		cell.setCellStyle(celula_fundo_laranja_texto_branco);
-		cell.setCellValue(z.format(peso_liquido_total_sem_desconto) + " Kgs | "
-				+ z.format(peso_liquido_total_sem_desconto / 60) + " sacos");
+		cell = row.createCell(2);
+		cell.setCellStyle(numberStyleFundoVerde);
+		formula = "SUMPRODUCT(SUBTOTAL(9,OFFSET(D5:D" + ultima_linha + ",ROW(D5:D" + ultima_linha + ")-ROW(D5),0,1,1)),-(J5:J" + ultima_linha + "=\"SIM\")) * -1";
+		cell.setCellFormula(formula);
+		
+		cell = row.createCell(3);
+		cell.setCellStyle(negrito_esquerda);
+		cell.setCellValue("kgs");
+		
+		
+		row = sheet.createRow(rownum += 1);
+		cellnum = 0;
+		cell = row.createCell(2);
+		cell.setCellStyle(numberStyleFundoVerdeDireita);
+		formula = "SUMPRODUCT(SUBTOTAL(9,OFFSET(D5:D" + ultima_linha + ",ROW(D5:D" + ultima_linha + ")-ROW(D5),0,1,1)),-(J5:J" + ultima_linha + "=\"SIM\")) * -1 / 60";
+		cell.setCellFormula(formula);
 
-		cell = row.createCell(5);
-		cell.setCellStyle(textStyle);
-		cell.setCellValue("Outros Participante:");
-		sheet.addMergedRegion(new CellRangeAddress(rownum, rownum, 6, 8));
-
-		cell = row.createCell(6);
-		cell.setCellStyle(celula_fundo_laranja_texto_branco);
-		cell.setCellValue(z.format(peso_total_outros_participante   ) + " Kgs | " + z.format(peso_total_outros_participante     / 60) + " sacos");
+		cell = row.createCell(3);
+		cell.setCellStyle(negrito_esquerda);
+		cell.setCellValue("sacos");
 
 		
-		// LINHA peso liq final
+		
+		row = sheet.createRow(rownum += 2);
+		cellnum = 0;
+
+		cell = row.createCell(cellnum++);
+		cell.setCellStyle(negrito_direita);
+		cell.setCellValue("TOTAL ITS BAIXADO:");
+		sheet.addMergedRegion(new CellRangeAddress(rownum, rownum, 0, 1));
+
+		
+		cell = row.createCell(2);
+		cell.setCellStyle(numberStyleFundoVerde);
+		formula = "SUMPRODUCT(SUBTOTAL(9,OFFSET(D5:D"+ ultima_linha +",ROW(D5:D"+ ultima_linha +")-ROW(D5),0,1,1)),-(J5:J"+ ultima_linha +"=\"SIM\"),-(I5:I"+ ultima_linha +"=\"POSITIVO\"),-(K5:K"+ ultima_linha +"=\"OK ITS\")) * -1";
+		cell.setCellFormula(formula);
+
+
+		cell = row.createCell(3);
+		cell.setCellStyle(negrito_esquerda);
+		cell.setCellValue("kgs");
+		
+		row = sheet.createRow(rownum += 1);
+		cellnum = 0;
+		cell = row.createCell(2);
+		cell.setCellStyle(numberStyleFundoVerdeDireita);
+		formula = "SUMPRODUCT(SUBTOTAL(9,OFFSET(D5:D"+ ultima_linha +",ROW(D5:D"+ ultima_linha +")-ROW(D5),0,1,1)),-(J5:J"+ ultima_linha +"=\"SIM\"),-(I5:I"+ ultima_linha +"=\"POSITIVO\"),-(K5:K"+ ultima_linha +"=\"OK ITS\")) * -1/60";
+		cell.setCellFormula(formula);
+
+		cell = row.createCell(3);
+		cell.setCellStyle(negrito_esquerda);
+		cell.setCellValue("sacos");
+
+		
 		row = sheet.createRow(rownum += 1);
 		cellnum = 0;
 
 		cell = row.createCell(cellnum++);
-		cell.setCellStyle(textStyle);
-		cell.setCellValue("P. LIQ. FINAL");
-		sheet.addMergedRegion(new CellRangeAddress(rownum, rownum, cellnum, 3));
+		cell.setCellStyle(negrito_direita);
+		cell.setCellValue("TOTAL ITS  A BAIXAR:");
+		sheet.addMergedRegion(new CellRangeAddress(rownum, rownum, 0, 1));
 
-		cell = row.createCell(cellnum++);
-		cell.setCellStyle(celula_fundo_laranja_texto_branco);
-		cell.setCellValue(z.format(peso_liquido_total) + " Kgs | " + z.format(peso_liquido_total / 60) + " sacos");
+		cell = row.createCell(2);
+		cell.setCellStyle(numberStyleFundoVerde);
+		formula = "SUMPRODUCT(SUBTOTAL(9,OFFSET(D5:D"+ ultima_linha +",ROW(D5:D"+ ultima_linha +")-ROW(D5),0,1,1)),-(J5:J"+ ultima_linha +"=\"SIM\"),-(I5:I"+ ultima_linha +"=\"POSITIVO\"),-(K5:K"+ ultima_linha +"=\"FALTA ITS\")) * -1";
+		cell.setCellFormula(formula);
 
-		cell = row.createCell(5);
-		cell.setCellStyle(textStyle);
-		cell.setCellValue("Outros Particular:");
-		sheet.addMergedRegion(new CellRangeAddress(rownum, rownum, 6, 8));
-
-		cell = row.createCell(6);
-		cell.setCellStyle(celula_fundo_laranja_texto_branco);
-		cell.setCellValue(z.format(peso_total_outros_particular  ) + " Kgs | " + z.format(peso_total_outros_particular    / 60) + " sacos");
-
+		cell = row.createCell(3);
+		cell.setCellStyle(negrito_esquerda);
+		cell.setCellValue("kgs");
 		
-		//linha total its baixado
 		row = sheet.createRow(rownum += 1);
+		cellnum = 0;
+		cell = row.createCell(2);
+		cell.setCellStyle(numberStyleFundoVerdeDireita);
+		formula = "SUMPRODUCT(SUBTOTAL(9,OFFSET(D5:D"+ ultima_linha +",ROW(D5:D"+ ultima_linha +")-ROW(D5),0,1,1)),-(J5:J"+ ultima_linha +"=\"SIM\"),-(I5:I"+ ultima_linha +"=\"POSITIVO\"),-(K5:K"+ ultima_linha +"=\"FALTA ITS\")) * -1 / 60";
+		cell.setCellFormula(formula);
 
-		cell = row.createCell(5);
-		cell.setCellStyle(textStyle);
-		cell.setCellValue("Total ITS Baixado:");
-		sheet.addMergedRegion(new CellRangeAddress(rownum, rownum, 6, 8));
-
-		cell = row.createCell(6);
-		cell.setCellStyle(celula_fundo_laranja_texto_branco);
-		cell.setCellValue(z.format(peso_total_its_declarado ) + " Kgs | " + z.format(peso_total_its_declarado  / 60) + " sacos");
-
+		cell = row.createCell(3);
+		cell.setCellStyle(negrito_esquerda);
+		cell.setCellValue("sacos");
 		
-		//linha total its a declarar
-		row = sheet.createRow(rownum += 1);
+	
 
-		cell = row.createCell(5);
-		cell.setCellStyle(textStyle);
-		cell.setCellValue("Total ITS a Baixar:");
-		sheet.addMergedRegion(new CellRangeAddress(rownum, rownum, 6, 8));
-
-		cell = row.createCell(6);
-		cell.setCellStyle(celula_fundo_laranja_texto_branco);
-		cell.setCellValue(z.format(peso_total__its_a_declarar  ) + " Kgs | " + z.format(peso_total__its_a_declarar   / 60) + " sacos");
-
-		
 		return workbook;
 	}
 
+	
+	
 	public void fechar() {
 		isto.dispose();
 	}

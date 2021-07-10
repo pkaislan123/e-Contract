@@ -7,6 +7,8 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.Properties;
 
+import javax.swing.JOptionPane;
+
 import main.java.cadastros.CadastroBaseArquivos;
 import main.java.cadastros.CadastroBaseDados;
 import main.java.cadastros.CadastroCliente;
@@ -194,6 +196,37 @@ public class ArquivoConfiguracoes {
 		
 	}
 	
+	public String getPastaRomaneios() {
+		String  pasta_romaneio = "";
+		Properties prop;
+		try {
+			pasta_romaneio = propriedades_local.getProperty("prop.romaneios.pasta_romaneios");
+			System.out.println("App key nuvem: " + pasta_romaneio);
+			
+			return pasta_romaneio;
+
+		}catch(Exception e ) {
+			return null;
+		}
+		
+	}
+	
+	
+	public String getIpRelogio() {
+		String  ip_relogio = "";
+		Properties prop;
+		try {
+			ip_relogio = propriedades_local.getProperty("prop.relogio.ip");
+			System.out.println("Ip do relogio: " + ip_relogio);
+			
+			return ip_relogio;
+
+		}catch(Exception e ) {
+			return null;
+		}
+		
+	}
+	
 	public int getCodigoSequencial() {
 		int cod ;
 		Properties prop;
@@ -338,6 +371,8 @@ public class ArquivoConfiguracoes {
 		CadastroBaseArquivos config_pasta_raiz = getPastaRaiz();
 		CadastroZapMessenger zap_zap = getConfigsZapMessenger();
 		CadastroNuvem nuvem = getConfigsNuvem();
+		String pasta_romaneio = getPastaRomaneios();
+		String ip_relogio = getIpRelogio();
 		
 		boolean retorno_positivo = false;
 		
@@ -360,9 +395,23 @@ public class ArquivoConfiguracoes {
                     			configs_globais.setBaseDados(cad);
                                 DadosGlobais dados = DadosGlobais.getInstance();
 
-                   			 dados.setConfigs_globais(configs_globais);	 
-                   			retorno_positivo = true;
-                    		}
+                                if(pasta_romaneio != null) {
+                                	configs_globais.setPasta_romaneios(pasta_romaneio);
+                                	
+                                	dados.setConfigs_globais(configs_globais);	 
+                                	
+                                	if(ip_relogio != null) {
+                                    	configs_globais.setIp_relogio(ip_relogio);
+
+                                    	dados.setConfigs_globais(configs_globais);	 
+                               			retorno_positivo = true;
+
+                                	}
+                                }else
+                        			return false;
+                   			 
+                    		}else
+                    			return false;
                     	}
                     	
                     

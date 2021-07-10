@@ -5,6 +5,7 @@ import java.awt.Color;
 import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.File;
 import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.Locale;
@@ -379,10 +380,13 @@ public class TelaCadastroRomaneio extends JFrame {
 		panel.add(btnAtualizar, "cell 3 5,alignx right");
 		
 		
-	
+		if(romaneio.getCaminho_arquivo() != null) {
+
+		File file = new File(servidor_unidade + romaneio.getCaminho_arquivo());
+		if(file.exists())
+		 carregarDocumento(file.getAbsolutePath());
 		
-		
-		carregarDocumento(romaneio.getCaminho_arquivo());
+		}
 		
 		pesquisar_classificadores();
 		pesquisar_transgenias();
@@ -491,14 +495,14 @@ public class TelaCadastroRomaneio extends JFrame {
 					painel_vizualizar = new JPanel();
 
 					painel_vizualizar = factory.buildViewerPanel();
-					controller.openDocument(servidor_unidade + url);
+					controller.openDocument(url);
 					// viewerComponentPanel.setPreferredSize(new Dimension(400, 370));
 					// viewerComponentPanel.setMaximumSize(new Dimension(400, 370));
 
 					painel_vizualizar.setBounds(0, 0, 450, 650);
 					painelVizualizarRomaneio.add(painel_vizualizar);
 				} else {
-					controller.openDocument(servidor_unidade + url);
+					controller.openDocument(url);
 					painel_vizualizar.repaint();
 					painel_vizualizar.updateUI();
 					painelVizualizarRomaneio.add(painel_vizualizar);

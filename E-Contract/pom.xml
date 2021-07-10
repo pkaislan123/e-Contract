@@ -164,11 +164,7 @@
 			<artifactId>spring-boot-starter-web</artifactId>
 		</dependency>
 		
-		<dependency>
-  <groupId>com.formdev</groupId>
-  <artifactId>flatlaf</artifactId>
-  <version>1.2</version>
-</dependency>
+		
 
 
 <!-- https://mvnrepository.com/artifact/org.apache.commons/commons-email -->
@@ -177,6 +173,7 @@
     <artifactId>commons-email</artifactId>
     <version>1.5</version>
 </dependency>
+
 
 
 		

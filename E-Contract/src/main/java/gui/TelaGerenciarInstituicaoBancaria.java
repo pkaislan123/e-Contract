@@ -113,6 +113,7 @@ import main.java.cadastros.DadosCarregamento;
 import main.java.cadastros.DadosContratos;
 import main.java.cadastros.FinanceiroConta;
 import main.java.cadastros.FinanceiroPagamentoCompleto;
+import main.java.cadastros.FinanceiroPagamentoEmprestimoCompleto;
 import main.java.cadastros.InstituicaoBancaria;
 import main.java.cadastros.Lancamento;
 import main.java.cadastros.RegistroQuantidade;
@@ -599,7 +600,7 @@ public class TelaGerenciarInstituicaoBancaria extends JFrame {
 	
 
 		panel_docs = new JPanel();
-		panel_docs.setBackground(new Color(255, 255, 204));
+		panel_docs.setBackground(Color.WHITE);
 
 		JPanel painelDocumentos = new JPanel();
 		painelDocumentos.setBackground(new Color(0, 51, 0));
@@ -781,6 +782,7 @@ public class TelaGerenciarInstituicaoBancaria extends JFrame {
 			filtrar();
 
 		}
+
 		
 		GerenciarBancoFinanceiroPagamento gerenciar = new GerenciarBancoFinanceiroPagamento();
 		
@@ -790,6 +792,11 @@ public class TelaGerenciarInstituicaoBancaria extends JFrame {
 			entMaiorData.setText(datas.get("maior_data_pagamento"));
 		          
 	
+
+
+		
+
+			
 		this.setExtendedState(JFrame.MAXIMIZED_BOTH);
 
 		this.setLocationRelativeTo(janela_pai);
@@ -827,12 +834,20 @@ public class TelaGerenciarInstituicaoBancaria extends JFrame {
 				}
 			else if (tipo_lancamento == 3) {
 				// emprestimo
-				saldo_inicial = saldo_inicial.add(not.getFpag().getValor());
+				
+				if(not.getFpag().getTipo_pagamento() == 1) {
+					saldo_inicial = saldo_inicial.subtract(not.getFpag().getValor());
+
+				}else {
+					saldo_inicial = saldo_inicial.add(not.getFpag().getValor());
+
+				}
 
 			}
 			not.setSaldo_atual(saldo_inicial);
 			not.setId_caixa(caixa_local.getId_instituicao_bancaria());
 			listModelGlobal.addElement(not);
+		
 		}
 
 	}
@@ -908,49 +923,51 @@ public class TelaGerenciarInstituicaoBancaria extends JFrame {
 				jMenuItemExcluir.addActionListener(new java.awt.event.ActionListener() {
 					// Importe a classe java.awt.event.ActionEvent
 					public void actionPerformed(ActionEvent e) {
-						/*
-						 * if (JOptionPane.showConfirmDialog(isto, "Deseja Excluir este comprovante",
-						 * "Exclusão", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE) ==
-						 * JOptionPane.YES_OPTION){
-						 * 
-						 * String nome_arquivo = no_selecionado.getUserObject().toString(); String
-						 * quebra [] = nome_arquivo.split("@"); String id = quebra[0]; int i_id =
-						 * Integer.parseInt(id);
-						 * 
-						 * String nome_official = ""; for(int i = 1; i < quebra.length ; i++) {
-						 * nome_official += quebra[i]; } String unidade_base_dados =
-						 * configs_globais.getServidorUnidade(); String caminho_completo =
-						 * unidade_base_dados +
-						 * "\\" + contrato_local.getCaminho_diretorio_contrato() + "\\" + "comprovantes\
-						 * \" + nome_official;
-						 * 
-						 * boolean excluido = new ManipularTxt().apagarArquivo(caminho_completo);
-						 * if(excluido) {
-						 * 
-						 * 
-						 * 
-						 * GerenciarBancoDocumento gerenciar_docs = new GerenciarBancoDocumento();
-						 * boolean excluir_documento = gerenciar_docs.removerDocumento(i_id);
-						 * 
-						 * if(excluir_documento) { JOptionPane.showMessageDialog(null,
-						 * "Comprovante Excluido!");
-						 * 
-						 * }else { JOptionPane.showMessageDialog(null,
-						 * "Arquivo fisico apagado, mas as informações\ndeste comprovante ainda estão no \nConsulte o administrador"
-						 * );
-						 * 
-						 * }
-						 * 
-						 * atualizarArvoreDocumentos();
-						 * 
-						 * }else { JOptionPane.showMessageDialog(null,
-						 * "Erro ao excluir o comprovante\nConsulte o administrador!"); }
-						 * 
-						 * } else {
-						 * 
-						 * 
-						 * }
-						 */
+						if (JOptionPane.showConfirmDialog(isto, 
+					            "Deseja Excluir este Documento", "Exclusão", 
+					            JOptionPane.YES_NO_OPTION,
+					            JOptionPane.QUESTION_MESSAGE) == JOptionPane.YES_OPTION){
+							     
+							
+						String nome_arquivo = no_selecionado.getUserObject().toString();
+
+						String quebra[] = nome_arquivo.split("@");
+
+						String nome_official = "";
+						for (int i = 1; i < quebra.length; i++) {
+							nome_official += quebra[i];
+						}
+
+						String nome_pasta = caixa_local.getNome_instituicao_bancaria();
+
+						String unidade_base_dados = configs_globais.getServidorUnidade();
+						String caminho_completo = unidade_base_dados + "\\" + "E-Contract\\arquivos\\financas\\ibs\\"
+								+ nome_pasta + "\\documentos\\" + nome_official;
+						
+						boolean excluido = new ManipularTxt().apagarArquivo(caminho_completo);
+						if(excluido) {
+							
+						
+							
+							GerenciarBancoDocumento gerenciar_docs = new GerenciarBancoDocumento();
+							boolean excluir_documento = gerenciar_docs.removerDocumento(Integer.parseInt(quebra[0])  );
+							
+							if(excluir_documento) {
+								JOptionPane.showMessageDialog(null, "Documento Excluido!");
+
+							}else {
+								JOptionPane.showMessageDialog(null, "Arquivo fisico apagado, mas as informações\ndeste documento ainda estão no banco de dados\nConsulte o administrador");
+
+							}
+							
+                            atualizarArvoreDocumentos();
+							
+						}else {
+							JOptionPane.showMessageDialog(null, "Erro ao excluir o documento\nConsulte o administrador!");
+						}
+						
+					}
+
 					}
 
 				});
@@ -968,6 +985,9 @@ public class TelaGerenciarInstituicaoBancaria extends JFrame {
 						}
 					}
 				});
+				
+				
+				panel_docs.setLayout(new MigLayout("", "[grow]", "[grow]"));
 
 				arvore_documentos.setCellRenderer(new DefaultTreeCellRenderer() {
 					ImageIcon icone_docs_pessoais = new ImageIcon(
@@ -1005,7 +1025,7 @@ public class TelaGerenciarInstituicaoBancaria extends JFrame {
 
 				arvore_documentos.setShowsRootHandles(true);
 				arvore_documentos.setRootVisible(false);
-				panel_docs.add(arvore_documentos);
+				panel_docs.add(arvore_documentos, "cell 0 0,grow");
 
 				if (lista_docs != null && lista_docs.size() > 0) {
 					for (CadastroDocumento doc : lista_docs) {
@@ -1275,7 +1295,7 @@ public class TelaGerenciarInstituicaoBancaria extends JFrame {
 		Locale ptBr = new Locale("pt", "BR");
 
 		double saldo_final = caixa.getSaldo_inicial().doubleValue() + saldo.getTotal_receita()
-				- saldo.getTotal_despesa() + saldo.getTotal_emprestimos() + saldo.getTotal_receita_transferencia() - saldo.getTotal_despesa_transferencia();
+				- saldo.getTotal_despesa() + saldo.getTotal_emprestimos() + saldo.getTotal_receita_transferencia() - saldo.getTotal_despesa_transferencia() -saldo.getTotal_despesa_emprestimo();
 		String valorString = NumberFormat.getCurrencyInstance(ptBr).format(saldo_final);
 
 		lblSaldo.setText(valorString);
@@ -1475,7 +1495,7 @@ public class TelaGerenciarInstituicaoBancaria extends JFrame {
 		Locale ptBr = new Locale("pt", "BR");
 
 		double saldo_inicial = caixa_local.getSaldo_inicial().doubleValue() + saldo.getTotal_receita()
-				- saldo.getTotal_despesa() + saldo.getTotal_emprestimos() + saldo.getTotal_receita_transferencia() - saldo.getTotal_despesa_transferencia();
+				- saldo.getTotal_despesa() + saldo.getTotal_emprestimos() + saldo.getTotal_receita_transferencia() - saldo.getTotal_despesa_transferencia() - saldo.getTotal_despesa_emprestimo();
 		
 		return new BigDecimal(saldo_inicial);
 	}
@@ -1514,7 +1534,14 @@ public class TelaGerenciarInstituicaoBancaria extends JFrame {
 				} 
 			else if (pag_completo.getLancamento().getTipo_lancamento() == 3) {
 				// emprestimo
-				valor_total_receitas = valor_total_receitas.add(pag_completo.getFpag().getValor());
+				
+				if(pag_completo.getFpag().getTipo_pagamento() == 1) {
+					valor_total_despesas = valor_total_despesas.add(pag_completo.getFpag().getValor());
+
+				}else {
+					valor_total_receitas = valor_total_receitas.add(pag_completo.getFpag().getValor());
+
+				}
 
 			}
 		}

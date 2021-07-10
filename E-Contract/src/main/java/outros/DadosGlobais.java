@@ -17,7 +17,32 @@ public class DadosGlobais {
 	private  ConfiguracoesGlobais configs_globais;
 	private TelaGerenciarContrato teraGerenciarContratoPai;
 	private TelaRomaneios telaRomaneios;
+	private String pasta_romaneios;
 	
+	private int status_relogio ;
+	
+	
+	
+	
+	
+	
+	public int getStatus_relogio() {
+		return status_relogio;
+	}
+
+	public void setStatus_relogio(int status_relogio) {
+		this.status_relogio = status_relogio;
+	}
+
+	public String getPasta_romaneios() {
+		return pasta_romaneios;
+	}
+
+	public void setPasta_romaneios(String pasta_romaneios) {
+		this.pasta_romaneios = pasta_romaneios;
+	}
+
+
 	private TelaTodasNotasFiscais telaTodasNotasFiscais;
 	
 	

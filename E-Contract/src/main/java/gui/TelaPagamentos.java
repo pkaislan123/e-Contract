@@ -10,9 +10,12 @@ import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JPopupMenu;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.LineBorder;
 import javax.swing.border.MatteBorder;
+import javax.swing.event.PopupMenuEvent;
+import javax.swing.event.PopupMenuListener;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.ImageIcon;
 import java.awt.event.ActionListener;
@@ -44,6 +47,7 @@ import java.util.stream.IntStream;
 import java.awt.event.ActionEvent;
 import javax.swing.JScrollPane;
 import java.awt.Component;
+import java.awt.Desktop;
 import java.awt.Dimension;
 import java.awt.DisplayMode;
 
@@ -75,6 +79,8 @@ import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 
 import javax.swing.ScrollPaneConstants;
+import javax.swing.SwingUtilities;
+
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.WindowEvent;
@@ -86,6 +92,8 @@ import javax.swing.RowFilter;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import javax.swing.JLabel;
+import javax.swing.JMenuItem;
+
 import java.awt.Font;
 import java.awt.GraphicsConfiguration;
 import java.awt.GraphicsDevice;
@@ -190,6 +198,7 @@ import java.awt.event.FocusEvent;
 import java.awt.GridBagLayout;
 import java.awt.GridBagConstraints;
 import java.awt.Insets;
+import java.awt.Point;
 import java.awt.GridLayout;
 import javax.swing.JComboBox;
 
@@ -198,6 +207,9 @@ public class TelaPagamentos extends JFrame {
 	private static ArrayList<PagamentoCompleto> lista_pagamentos = new ArrayList<>();
 	private JDialog telaPai;
 	NumberFormat z = NumberFormat.getNumberInstance();
+	private Log GerenciadorLog;
+	private CadastroLogin login;
+	private ConfiguracoesGlobais configs_globais;
 
 	private boolean finalizado = false;
 	private JTable tabela;
@@ -241,7 +253,7 @@ public class TelaPagamentos extends JFrame {
 
 		// setModal(true);
 		// setAlwaysOnTop(true);
-
+		getDadosGlobais();
 		isto = this;
 		// setResizable(false);
 		setTitle("E-Contract - Pagamentos");
@@ -459,6 +471,45 @@ public class TelaPagamentos extends JFrame {
 
 		tabela.setRowHeight(30);
 
+		
+		JPopupMenu jPopupMenu = new JPopupMenu();
+		JMenuItem jMenuItemVizualizar = new JMenuItem();
+
+		jMenuItemVizualizar.setText("Vizualizar");
+
+		jMenuItemVizualizar.addActionListener(new java.awt.event.ActionListener() {
+			// Importe a classe java.awt.event.ActionEvent
+			public void actionPerformed(ActionEvent e) {
+			
+				
+
+            	int indiceDaLinha = tabela.getSelectedRow();
+            	PagamentoCompleto pag = (PagamentoCompleto) modelo_pagamentos.getValue(indiceDaLinha);
+
+            	String unidade_base_dados = configs_globais.getServidorUnidade();
+				String caminho_completo = unidade_base_dados + "\\" + pag.getContrato_remetente().getCaminho_diretorio_contrato()
+						+ "\\" + "comprovantes\\" + pag.getNome_comprovante();
+				if (Desktop.isDesktopSupported()) {
+					try {
+						Desktop desktop = Desktop.getDesktop();
+						File myFile = new File(caminho_completo);
+						desktop.open(myFile);
+					} catch (IOException ex) {
+					}
+				}
+            	
+			
+			}
+		});
+
+		
+
+		jPopupMenu.add(jMenuItemVizualizar);
+
+		tabela.setComponentPopupMenu(jPopupMenu);
+
+		
+		
 		JScrollPane scrollPane = new JScrollPane(tabela);
 		scrollPane.addMouseListener(new MouseAdapter() {
 			@Override
@@ -1113,7 +1164,15 @@ public class TelaPagamentos extends JFrame {
 	}
 
 	
-	 
+	public void getDadosGlobais() {
+		// gerenciador de log
+		DadosGlobais dados = DadosGlobais.getInstance();
+		GerenciadorLog = dados.getGerenciadorLog();
+		configs_globais = dados.getConfigs_globais();
+		// usuario logado
+		login = dados.getLogin();
+		
+	}
 	
 
 }

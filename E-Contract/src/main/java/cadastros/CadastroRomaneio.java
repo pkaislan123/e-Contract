@@ -8,7 +8,28 @@ public class CadastroRomaneio {
 	double umidade, impureza, ardidos, avariados;
 	double umidade2, impureza2, ardidos2, avariados2;
 
-	int id_classificador, id_transgenese, id_silo, status_monsanto, royalties;
+	int id_classificador, id_transgenese, id_silo, status_monsanto, royalties, teste, resultado;
+	
+	
+	
+	
+	
+	public int getTeste() {
+		return teste;
+	}
+
+	public void setTeste(int teste) {
+		this.teste = teste;
+	}
+
+	public int getResultado() {
+		return resultado;
+	}
+
+	public void setResultado(int resultado) {
+		this.resultado = resultado;
+	}
+
 	public int getRoyalties() {
 		return royalties;
 	}

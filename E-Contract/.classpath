@@ -8,6 +8,7 @@
 	</classpathentry>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-14">
 		<attributes>
+			<attribute name="module" value="true"/>
 			<attribute name="maven.pomderived" value="true"/>
 		</attributes>
 	</classpathentry>
@@ -32,8 +33,6 @@
 	<classpathentry kind="lib" path="dependencias/mysql-connector-java-8.0.18.jar"/>
 	<classpathentry kind="lib" path="dependencias/okhttp-3.10.0.jar"/>
 	<classpathentry kind="lib" path="dependencias/okio-1.14.0.jar"/>
-	<classpathentry kind="lib" path="dependencias/poi-3.17.jar"/>
-	<classpathentry kind="lib" path="dependencias/poi-ooxml-3.17.jar"/>
 	<classpathentry kind="lib" path="dependencias/xmlbeans-3.0.1.jar"/>
 	<classpathentry kind="lib" path="miglayout15-swing.jar" sourcepath="miglayout-src.zip"/>
 	<classpathentry kind="lib" path="dependencias/commons-io-2.6.jar"/>
@@ -57,6 +56,7 @@
 	<classpathentry kind="lib" path="C:/Program Files/Java/javafx-sdk-11.0.2/lib/javafx.swing.jar"/>
 	<classpathentry kind="lib" path="C:/Program Files/Java/javafx-sdk-11.0.2/lib/javafx.web.jar"/>
 	<classpathentry kind="lib" path="C:/Program Files/Java/javafx-sdk-11.0.2/lib/javafx-swt.jar"/>
-	<classpathentry kind="lib" path="dependencias/POI3.14.jar"/>
+	<classpathentry kind="lib" path="dependencias/poi-3.17.jar"/>
+	<classpathentry kind="lib" path="dependencias/poi-ooxml-3.17.jar"/>
 	<classpathentry kind="output" path="target/classes"/>
 </classpath>

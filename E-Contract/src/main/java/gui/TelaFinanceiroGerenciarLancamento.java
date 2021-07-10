@@ -62,6 +62,7 @@ import main.java.conexaoBanco.GerenciarBancoTarefaGeral;
 import main.java.gui.TelaRomaneios.TarefaTableModel;
 import main.java.manipular.ConfiguracoesGlobais;
 import main.java.manipular.ConverterPdf;
+import main.java.manipular.EditarContratoEmprestimo;
 import main.java.manipular.ManipularTxt;
 import main.java.outros.DadosGlobais;
 import main.java.outros.GetData;
@@ -122,12 +123,12 @@ public class TelaFinanceiroGerenciarLancamento extends JFrame {
 	private JTable table_tarefas;
 	private JComboBox cBTipoDocumento;
 	private JTree arvore_documentos;
-
+	private EditarContratoEmprestimo editar_word;
 	private JPanel panel_docs;
 	DefaultMutableTreeNode no_comprovantes;
 	DefaultMutableTreeNode no_docs_pessoais;
 	DefaultMutableTreeNode no_docs_originais;
-
+	private JButton btnEmitirContrato;
 	DefaultMutableTreeNode no_outros;
 	private DefaultMutableTreeNode no_selecionado;
 	private JScrollPane scrollPaneTarefas;
@@ -342,7 +343,7 @@ public class TelaFinanceiroGerenciarLancamento extends JFrame {
 		// adiciona novos paines e suas abas
 		painelPrincipal.addTab("Dados Iniciais", painelDadosIniciais);
 		painelDadosIniciais.setLayout(new MigLayout("", "[grow]", "[grow]"));
-		panel.setBackground(new Color(0, 51, 0));
+		panel.setBackground(Color.WHITE);
 
 		painelDadosIniciais.add(panel, "cell 0 0,grow");
 		panel.setLayout(new MigLayout("", "[3px][][grow]", "[grow][8px][]"));
@@ -508,7 +509,7 @@ public class TelaFinanceiroGerenciarLancamento extends JFrame {
 		panel_19.setBackground(Color.WHITE);
 
 		panel_18.add(panel_19, "cell 0 1,alignx right,aligny top");
-		panel_19.setLayout(new MigLayout("", "[][][][][][][][][][][][][][][][][][][][][][][][][][][][]", "[]"));
+		panel_19.setLayout(new MigLayout("", "[][][][][][][][][][][][][][][][][][][][][][][][][][][][][]", "[]"));
 		btnEnviarDiretoAo.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				
@@ -530,11 +531,39 @@ public class TelaFinanceiroGerenciarLancamento extends JFrame {
 				}
 			}
 		});
+		
+		
+		if(lancamento.getTipo_lancamento() == 3) 
+		{
+			btnEmitirContrato = new JButton("Emitir Contrato");
+		btnEmitirContrato.setForeground(Color.WHITE);
+		btnEmitirContrato.setFont(new Font("SansSerif", Font.BOLD, 16));
+		btnEmitirContrato.setBackground(new Color(0, 51, 0));
+		
+		btnEmitirContrato.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				
+				 editar_word = new EditarContratoEmprestimo(lancamento_global);
+				String doc_relatorio = editar_word.preparar();
+				ConverterPdf converter_pdf = new ConverterPdf();
+				String pdf_alterado = converter_pdf.word_pdf_file2(doc_relatorio);
+
+				TelaVizualizarPdf vizualizar = new TelaVizualizarPdf(null, isto, null, pdf_alterado, null, isto);
+				vizualizar.setContrato_emprestimo(true);
+
+			}
+		});
+		panel_19.add(btnEmitirContrato, "cell 22 0");
+
+		
+		}
+		
+		
 		btnEnviarDiretoAo.setForeground(Color.WHITE);
 		btnEnviarDiretoAo.setFont(new Font("SansSerif", Font.BOLD, 16));
 		btnEnviarDiretoAo.setBackground(new Color(102, 0, 0));
 
-		panel_19.add(btnEnviarDiretoAo, "cell 22 0");
+		panel_19.add(btnEnviarDiretoAo, "cell 23 0");
 		btnRelatrio.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 
@@ -551,8 +580,8 @@ public class TelaFinanceiroGerenciarLancamento extends JFrame {
 		btnRelatrio.setFont(new Font("SansSerif", Font.BOLD, 16));
 		btnRelatrio.setBackground(new Color(102, 51, 0));
 
-		panel_19.add(btnRelatrio, "cell 25 0");
-		panel_19.add(btnMudarArquivo, "cell 26 0");
+		panel_19.add(btnRelatrio, "cell 26 0");
+		panel_19.add(btnMudarArquivo, "cell 27 0");
 		btnMudarArquivo.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 
@@ -563,7 +592,7 @@ public class TelaFinanceiroGerenciarLancamento extends JFrame {
 		btnMudarArquivo.setForeground(Color.WHITE);
 		btnMudarArquivo.setFont(new Font("SansSerif", Font.BOLD, 16));
 		btnMudarArquivo.setBackground(new Color(0, 0, 153));
-		panel_19.add(btnVizualizar, "cell 27 0,alignx right");
+		panel_19.add(btnVizualizar, "cell 28 0,alignx right");
 		btnVizualizar.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				if (lancamento_global.getCaminho_arquivo() != null
@@ -1138,13 +1167,13 @@ public class TelaFinanceiroGerenciarLancamento extends JFrame {
 					int rowSel = tabela_pagamentos.getSelectedRow();// pega o indice da linha na tabela
 
 					FinanceiroPagamento pag =  modelo_pagamentos.getValue(rowSel);
-					TelaCriarRecibo tela = new TelaCriarRecibo(pag,isto);
+					TelaCriarRecibo tela = new TelaCriarRecibo(pag,lancamento_global, isto);
 					tela.setVisible(true);
 					
 				} else if (lancamento.getTipo_lancamento() == 3) {
 					int rowSel = tabela_pagamentos.getSelectedRow();// pega o indice da linha na tabela
 					FinanceiroPagamentoEmprestimo pag =  modelo_pagamentos_emprestimo.getValue(rowSel);
-					TelaCriarRecibo tela = new TelaCriarRecibo(pag,isto);
+					TelaCriarRecibo tela = new TelaCriarRecibo(pag, lancamento_global, isto);
 					tela.setVisible(true);
 				}
 				
@@ -2077,7 +2106,7 @@ public class TelaFinanceiroGerenciarLancamento extends JFrame {
 			BigDecimal valor_total_pagamentos = BigDecimal.ZERO;
 
 			for (FinanceiroPagamento pagamento : gerenciar
-					.getFinanceiroPagamentosPorLancamento(lancamento_global.getId_lancamento())) {
+					.getFinanceiroPagamentosPorLancamentoMaisRapido(lancamento_global.getId_lancamento())) {
 
 				modelo_pagamentos.onAdd(pagamento);
 				valor_total_pagamentos = valor_total_pagamentos.add(pagamento.getValor());
@@ -2107,7 +2136,7 @@ public class TelaFinanceiroGerenciarLancamento extends JFrame {
 			BigDecimal valor_total_pagamentos = BigDecimal.ZERO;
 
 			for (FinanceiroPagamentoEmprestimo pagamento : gerenciar
-					.getFinanceiroPagamentosPorLancamento(lancamento_global.getId_lancamento())) {
+					.getFinanceiroPagamentosPorLancamentoMaisRapido(lancamento_global.getId_lancamento())) {
 
 				modelo_pagamentos_emprestimo.onAdd(pagamento);
 				valor_total_pagamentos = valor_total_pagamentos.add(pagamento.getValor());
@@ -2235,8 +2264,6 @@ public class TelaFinanceiroGerenciarLancamento extends JFrame {
 		private final ArrayList<FinanceiroPagamento> dados = new ArrayList<>();// usamos como dados uma lista genérica
 																				// de
 																				// nfs
-		GerenciarBancoInstituicaoBancaria gerenciar_ibs = new GerenciarBancoInstituicaoBancaria();
-		GerenciarBancoClientes gerenciar_clientes = new GerenciarBancoClientes();
 
 		public PagamentoTableModel() {
 
@@ -2300,49 +2327,12 @@ public class TelaFinanceiroGerenciarLancamento extends JFrame {
 				return dado.getIdentificador();
 			case pagador: {
 
-					if (dado.getTipo_pagador() == 0) {
-						// é uma despesa, retornar o id da ib
-						if (dado.getId_pagador() > 0) {
-							InstituicaoBancaria ib = gerenciar_ibs.getInstituicaoBancaria(dado.getId_pagador());
-							return ib.getNome_instituicao_bancaria();
-						} else {
-							return "INDEFINIDO";
-
-						}
-					} else if (dado.getTipo_pagador() == 1) {
-						if (dado.getId_pagador() > 0) {
-							CadastroCliente cli = gerenciar_clientes.getCliente(dado.getId_pagador());
-							if (cli.getTipo_pessoa() == 0)
-								return cli.getNome_empresarial();
-							else
-								return cli.getNome_fantaia();
-						} else {
-							return "INDEFINIDO";
-						}
-					}
+				return dado.getNome_pagador();
 				
 			}
 			case recebedor: {
-				if (dado.getTipo_recebedor() == 0) {
-					// é uma despesa, retornar o id da ib
-					if (dado.getId_recebedor() > 0) {
-						InstituicaoBancaria ib = gerenciar_ibs.getInstituicaoBancaria(dado.getId_recebedor());
-						return ib.getNome_instituicao_bancaria();
-					} else {
-						return "INDEFINIDO";
 
-					}
-				} else if (dado.getTipo_recebedor() == 1) {
-					if (dado.getId_recebedor() > 0) {
-						CadastroCliente cli = gerenciar_clientes.getCliente(dado.getId_recebedor());
-						if (cli.getTipo_pessoa() == 0)
-							return cli.getNome_empresarial();
-						else
-							return cli.getNome_fantaia();
-					} else {
-						return "INDEFINIDO";
-					}
-				}
+				return dado.getNome_recebedor();
 			}
 			case descricao: {
 				if(dado.getDescricao() != null)
@@ -2351,13 +2341,8 @@ public class TelaFinanceiroGerenciarLancamento extends JFrame {
 				 return "";	
 			}
 			case forma_pagamento: {
-				GerenciarBancoCondicaoPagamentos gerenciar = new GerenciarBancoCondicaoPagamentos();
-				if (dado.getId_condicao_pagamento() > 0) {
-					CondicaoPagamento condicao = gerenciar.getCondicaoPagamento(dado.getId_condicao_pagamento());
+				return dado.getNome_forma_pagamento();
 
-					if (condicao != null)
-						return condicao.getNome_condicao_pagamento();
-				}
 
 			}
 			case status: {
@@ -2518,9 +2503,7 @@ public class TelaFinanceiroGerenciarLancamento extends JFrame {
 		private final ArrayList<FinanceiroPagamentoEmprestimo> dados = new ArrayList<>();// usamos como dados uma lista
 																							// genérica de
 		// nfs
-		GerenciarBancoInstituicaoBancaria gerenciar_ibs = new GerenciarBancoInstituicaoBancaria();
-		GerenciarBancoClientes gerenciar_clientes = new GerenciarBancoClientes();
-
+	
 		public PagamentoEmprestimoTableModel() {
 
 		}
@@ -2588,63 +2571,20 @@ public class TelaFinanceiroGerenciarLancamento extends JFrame {
 			case identificador:
 				return dado.getIdentificador();
 			case pagador: {
-				if (lancamento_global.getTipo_lancamento() == 3) {
-
-					if (dado.getId_pagador() > 0) {
-						
-						if(dado.getTipo_pagador() == 0) {
-							InstituicaoBancaria ib = gerenciar_ibs.getInstituicaoBancaria(dado.getId_pagador());
-							return ib.getNome_instituicao_bancaria();
-						}else if(dado.getTipo_pagador() == 1) {
-							CadastroCliente cli = gerenciar_clientes.getCliente(dado.getId_pagador());
-							if (cli.getTipo_pessoa() == 0)
-								return cli.getNome_empresarial();
-							else
-								return cli.getNome_fantaia();
-						}
-						
-						
-					} else {
-						return "INDEFINIDO";
-					}
-
-				}
+				return dado.getNome_pagador();
+				
 			}
 			case recebedor: {
-				if (lancamento_global.getTipo_lancamento() == 3) {
+				return dado.getNome_recebedor();
 
-					if (dado.getId_recebedor() > 0) {
-						
-						if(dado.getTipo_recebedor() == 0) {
-							InstituicaoBancaria ib = gerenciar_ibs.getInstituicaoBancaria(dado.getId_recebedor());
-							return ib.getNome_instituicao_bancaria();
-						}else if(dado.getTipo_recebedor() == 1) {
-							CadastroCliente cli = gerenciar_clientes.getCliente(dado.getId_recebedor());
-							if (cli.getTipo_pessoa() == 0)
-								return cli.getNome_empresarial();
-							else
-								return cli.getNome_fantaia();
-						}
-						
-						
-					} else {
-						return "INDEFINIDO";
-					}
-					
-				}
 
 			}
 			case descricao: {
 				return dado.getDescricao();
 			}
 			case forma_pagamento: {
-				GerenciarBancoCondicaoPagamentos gerenciar = new GerenciarBancoCondicaoPagamentos();
-				if (dado.getId_condicao_pagamento() > 0) {
-					CondicaoPagamento condicao = gerenciar.getCondicaoPagamento(dado.getId_condicao_pagamento());
+				return dado.getNome_forma_pagamento();
 
-					if (condicao != null)
-						return condicao.getNome_condicao_pagamento();
-				}
 
 			}
 			case status: {
@@ -4446,6 +4386,88 @@ public class TelaFinanceiroGerenciarLancamento extends JFrame {
 		int indiceDaLinha = table_recibos.getSelectedRow();
 		CadastroRecibo recibo = modelo_recibos.onGet(indiceDaLinha);
 		return recibo;
+		
+	}
+	
+public void salvar(String caminho_arquivo_temp) {
+		
+		
+		GetData hj = new GetData();
+		String hora =  hj.getHora().replace(":", " ");
+		
+	     //criar o documento
+		String unidade_base_dados = configs_globais.getServidorUnidade();
+        String nome_arquivo = "doc_contrato_emprestimo_" + hj.getAnoAtual() +"_"+ lancamento_global.getId_lancamento() +  "_" + hora;
+		//criar pasta documentos
+        ManipularTxt manipular = new ManipularTxt();
+        
+        
+        String caminho_salvar = unidade_base_dados + "E-Contract\\arquivos\\financas\\lancamentos\\lancamento_"
+        + lancamento_global.getId_lancamento() + "\\documentos\\";
+		manipular.criarDiretorio(caminho_salvar);
+        
+        String caminho_completo = caminho_salvar  + nome_arquivo;
+		boolean salvar = editar_word.criarArquivo(caminho_completo);
+
+		if(salvar) {
+
+			CadastroRecibo recibo = new CadastroRecibo();
+			recibo.setData_recibo(new GetData().getData());
+			recibo.setStatus_recibo(0);
+			recibo.setId_pai( lancamento_global.getId_lancamento());
+			recibo.setId_lancamento_pai( lancamento_global.getId_lancamento());
+
+			recibo.setNome_arquivo(nome_arquivo + ".pdf");
+			
+			GerenciarBancoRecibos gerenciar = new GerenciarBancoRecibos();
+			int guardar = gerenciar.inserirrecibo(recibo);
+			
+			if(guardar > 0) {
+				
+                boolean deletar_arquivo = manipular.apagarArquivo(caminho_completo + ".docx");
+				JOptionPane.showMessageDialog(isto, "Recibo Criado com sucesso");
+				//((TelaGerenciarContrato) telaPai).setInformacoesrecibos();
+				//salvar documento
+				GerenciarBancoDocumento gerenciar_doc = new GerenciarBancoDocumento();
+		
+		
+				CadastroDocumento novo_documento = new CadastroDocumento();
+				novo_documento.setDescricao("Arquivo de Contrato de Empréstimo");
+				novo_documento.setNome("doc_contrato_emprestimo_" +  lancamento_global.getId_lancamento());
+
+				novo_documento.setTipo(5);
+				novo_documento.setId_pai(lancamento_global.getId_lancamento());
+				novo_documento.setNome_arquivo(nome_arquivo +   ".pdf");
+				novo_documento.setId_lancamento(lancamento_global.getId_lancamento());
+
+				int cadastrar = gerenciar_doc.inserirDocumentoLancamento(novo_documento);
+				if (cadastrar > 0 ) {
+					atualizarArvoreDocumentos();
+					
+
+				} else {
+					JOptionPane.showMessageDialog(isto, "Documento não inserido no banco de dados");
+
+				}
+				pesquisar_recibos();
+
+				isto.dispose();
+
+			}else {
+				JOptionPane.showMessageDialog(isto, "Erro ao guardar o recibo na base de dados!\nConsulte o administrador");
+                boolean deletar_arquivo = manipular.apagarArquivo(caminho_completo + ".docx");
+                boolean deletar_pdf = manipular.apagarArquivo(caminho_completo + ".pdf");
+
+			}
+			
+			
+			
+			
+		}else {
+			JOptionPane.showMessageDialog(isto, "Erro ao salvar o arquivo fisico!\nConsulte o administrador");
+
+		}
+		
 		
 	}
 }

@@ -33,6 +33,7 @@ import com.jgoodies.forms.layout.ColumnSpec;
 import com.jgoodies.forms.layout.RowSpec;
 
 import main.java.cadastros.CadastroCliente;
+import main.java.cadastros.CadastroContrato;
 import main.java.cadastros.CadastroGrupo;
 import main.java.conexaoBanco.GerenciarBancoClientes;
 import main.java.conexaoBanco.GerenciarBancoGrupos;
@@ -268,52 +269,16 @@ public class TelaCadastroGrupo extends JDialog {
 		
 	}
 	
-	public void adicionarIntegrante(CadastroCliente _cliente) {
-		integrantes.add(_cliente);
-		
-		modelo.setNumRows(0);
-	   
-	    /*
-	     * modelo.addColumn("Id");
-	        modelo.addColumn("IE");
-	        modelo.addColumn("Apelido");
-	        modelo.addColumn("CPF/CNPJ");
-	        modelo.addColumn("Nome");
-	       
-	     */
-	    for (CadastroCliente cliente : integrantes) {
-	    	String cpf, cnpj, nome;
-	     	
-	    if(cliente.getArmazem() == 1 || cliente.getTransportador() == 1)	
-	    {
-	    	
-	    }else {
-	    	if(cliente.getTipo_pessoa() == 1)
-	    	{	//cnpj
-	    	    cnpj = cliente.getCnpj();
-	    	    nome = cliente.getRazao_social();
-	            modelo.addRow(new Object[]{cliente.getId(),cliente.getIe(), cliente.getApelido(), cnpj, nome});
-
-	    	}
-	    	else
-	    	{
-	    		cpf = cliente.getCpf();
-	    		nome = cliente.getNome() + " " + cliente.getSobrenome();
-	            modelo.addRow(new Object[]{cliente.getId(),cliente.getIe(), cliente.getApelido(), cpf, nome});
-
-	    	}
-	    }
-	    }
-	}
 	
 	
 	public void adicionarIntegrantes(ArrayList<CadastroCliente> lista_clientes) {
 		modelo.setNumRows(0);
 		integrantes.addAll(lista_clientes);
 		
-	    for (CadastroCliente cliente : integrantes) {
+	    for (CadastroCliente cliente : lista_clientes) {
 	    	String cpf, cnpj, nome;
 	     	
+	    	
 	    if(cliente.getArmazem() == 1 || cliente.getTransportador() == 1)	
 	    {
 	    	
@@ -387,5 +352,7 @@ public class TelaCadastroGrupo extends JDialog {
 	public void setTelaPai(JDialog tela_pai) {
 		this.telaPai = tela_pai;
 	}
+	
+
 	
 }

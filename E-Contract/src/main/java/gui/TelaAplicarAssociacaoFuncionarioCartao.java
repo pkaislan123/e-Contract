@@ -62,8 +62,7 @@ import main.java.cadastros.CadastroRomaneio;
 import main.java.cadastros.CadastroSafra;
 import main.java.cadastros.ContaBancaria;
 import main.java.cadastros.Contato;
-import main.java.cadastros.DescontoCompleto;
-import main.java.cadastros.CadastroFuncionarioDescontos;
+import main.java.cadastros.CalculoCompleto;
 import main.java.cadastros.RegistroQuantidade;
 import main.java.cadastros.RegistroRecebimento;
 import main.java.classesExtras.CombBoxRenderPersonalizadoContratoTrabalho;
@@ -73,7 +72,7 @@ import main.java.classesExtras.ComboBoxRenderPersonalizado;
 import main.java.classesExtras.Endereco;
 import main.java.conexaoBanco.GerenciarBancoFuncionarios;
 import main.java.conexaoBanco.GerenciarBancoFuncionariosContratoTrabalho;
-import main.java.conexaoBanco.GerenciarBancoFuncionariosDescontos;
+import main.java.conexaoBanco.GerenciarBancoFuncionariosCalculos;
 import main.java.conexaoBanco.GerenciarBancoCartaoPonto;
 import main.java.conexaoBanco.GerenciarBancoClientes;
 import main.java.conexaoBanco.GerenciarBancoContratos;
@@ -153,7 +152,6 @@ public class TelaAplicarAssociacaoFuncionarioCartao extends JFrame {
 	private JPanel painelCentral = new JPanel();
 	private TelaAplicarAssociacaoFuncionarioCartao isto;
 	private JComboBox cBCartao;
-	private CadastroFuncionarioDescontos desconto_selecinado;
 	
 	private CombBoxRenderPersonalizadoContratoTrabalho cbContratosPersonalizados;
 	private CadastroFuncionario funcionario_local;

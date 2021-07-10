@@ -14,6 +14,7 @@ import java.awt.event.WindowStateListener;
 import java.io.File;
 import java.io.IOException;
 import java.math.BigDecimal;
+import java.net.InetAddress;
 import java.net.URL;
 import java.net.URLConnection;
 import java.text.NumberFormat;
@@ -60,6 +61,7 @@ import com.jgoodies.forms.layout.FormLayout;
 import com.jgoodies.forms.layout.ColumnSpec;
 import com.jgoodies.forms.layout.RowSpec;
 
+import main.java.cadastros.CadastroAcessoTemporario;
 import main.java.cadastros.CadastroAditivo;
 import main.java.cadastros.CadastroAviso;
 import main.java.cadastros.CadastroBaseArquivos;
@@ -89,11 +91,13 @@ import main.java.cadastros.RegistroQuantidade;
 import main.java.cadastros.RegistroRecebimento;
 import main.java.classesExtras.Endereco;
 import main.java.classesExtras.RenderizadorContato;
+import main.java.conexaoBanco.GerenciarBancoAcessoTemporario;
 import main.java.conexaoBanco.GerenciarBancoAditivos;
 import main.java.conexaoBanco.GerenciarBancoClientes;
 import main.java.conexaoBanco.GerenciarBancoContratos;
 import main.java.conexaoBanco.GerenciarBancoDocumento;
 import main.java.conexaoBanco.GerenciarBancoFinanceiroPagamento;
+import main.java.conexaoBanco.GerenciarBancoFuncionarios;
 import main.java.conexaoBanco.GerenciarBancoNotasFiscais;
 import main.java.conexaoBanco.GerenciarBancoPadrao;
 import main.java.conexaoBanco.GerenciarBancoPontuacao;
@@ -202,6 +206,7 @@ public class TelaMain extends JFrame {
 	private TelaContratos telaContratos ;
 	private JPanelGraficoCarregamento painelGraficoCarregamentos;
 	private JPanel panelGraficoLinha;
+	private TelaMonitoria monitor = null;
 	private JLabel lblTotalContratosAssinar, lblTotalContratosAssinados;
 	private boolean executou = false;
 	private DadosContratos dados_contratos = new DadosContratos();
@@ -247,11 +252,12 @@ public class TelaMain extends JFrame {
 	private  JPanelGraficoRecebimento painelGraficoRecebimento;
 	private JTable tabela_avisos;
 	private AvisoTableModel modelo_aviso = new AvisoTableModel();
-	
+	private JLabel lblStatusRelogioPonto ,imgRelogioPonto;
+
 	public TelaMain(Window janela_pai) {
 
 		getDadosGlobais();
-		setIconImage(Toolkit.getDefaultToolkit().getImage(TelaPrincipal.class.getResource("/imagens/logo_icone4.png")));
+		setIconImage(Toolkit.getDefaultToolkit().getImage(TelaMain.class.getResource("/imagens/logo_icone4.png")));
 		addWindowStateListener(new WindowStateListener() {
 			public void windowStateChanged(WindowEvent e) {
 				if ((e.getNewState() & isto.MAXIMIZED_BOTH) == isto.MAXIMIZED_BOTH) {
@@ -322,14 +328,14 @@ public class TelaMain extends JFrame {
 		
 		
 		JMenu Dados = new JMenu("Cadastros");
-		Dados.setIcon(new ImageIcon(TelaPrincipal.class.getResource("/imagens/icone_cadastro_menu.png")));
+		Dados.setIcon(new ImageIcon(TelaMain.class.getResource("/imagens/icone_cadastro_menu.png")));
 		Dados.setBackground(Color.WHITE);
 		Dados.setFont(new Font("Arial", Font.PLAIN, 18));
 		menuBar.add(Dados);
 		JMenuItem mntmClientes = new JMenuItem("Clientes");
 		mntmClientes.setMargin(new Insets(0, 10, 0, 0));
 		mntmClientes.setBackground(Color.WHITE);
-		mntmClientes.setIcon(new ImageIcon(TelaPrincipal.class.getResource("/imagens/equipe.png")));
+		mntmClientes.setIcon(new ImageIcon(TelaMain.class.getResource("/imagens/equipe.png")));
 		mntmClientes.setFont(new Font("Segoe UI", Font.PLAIN, 16));
 		mntmClientes.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
@@ -350,7 +356,7 @@ public class TelaMain extends JFrame {
 		});
 		Dados.add(mntmArmazns);
 		JMenuItem mntmSafra = new JMenuItem("Safra");
-		mntmSafra.setIcon(new ImageIcon(TelaPrincipal.class.getResource("/imagens/cultivo.png")));
+		mntmSafra.setIcon(new ImageIcon(TelaMain.class.getResource("/imagens/cultivo.png")));
 		mntmSafra.setMargin(new Insets(0, 10, 0, 0));
 		mntmSafra.setBackground(Color.WHITE);
 		mntmSafra.setFont(new Font("Segoe UI", Font.PLAIN, 16));
@@ -361,7 +367,7 @@ public class TelaMain extends JFrame {
 		});
 		Dados.add(mntmSafra);
 		JMenuItem mntmProdutos = new JMenuItem("Produtos");
-		mntmProdutos.setIcon(new ImageIcon(TelaPrincipal.class.getResource("/imagens/comida.png")));
+		mntmProdutos.setIcon(new ImageIcon(TelaMain.class.getResource("/imagens/comida.png")));
 		mntmProdutos.setMargin(new Insets(0, 10, 0, 0));
 		mntmProdutos.setBackground(Color.WHITE);
 		mntmProdutos.setFont(new Font("Segoe UI", Font.PLAIN, 16));
@@ -375,7 +381,7 @@ public class TelaMain extends JFrame {
 		JMenuItem mntmUsurios = new JMenuItem("Usuários");
 		mntmUsurios.setFont(new Font("SansSerif", Font.PLAIN, 16));
 		mntmUsurios.setMargin(new Insets(0, 10, 0, 0));
-		mntmUsurios.setIcon(new ImageIcon(TelaPrincipal.class.getResource("/imagens/usuarios.png")));
+		mntmUsurios.setIcon(new ImageIcon(TelaMain.class.getResource("/imagens/usuarios.png")));
 		mntmUsurios.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
 				TelaUsuarios usuarios = new TelaUsuarios(0, isto);
@@ -386,7 +392,7 @@ public class TelaMain extends JFrame {
 		JMenuItem mntmNewMenuItem = new JMenuItem("Transportadores");
 		mntmNewMenuItem.setFont(new Font("SansSerif", Font.PLAIN, 16));
 		mntmNewMenuItem.setMargin(new Insets(0, 10, 0, 0));
-		mntmNewMenuItem.setIcon(new ImageIcon(TelaPrincipal.class.getResource("/imagens/caminhao.png")));
+		mntmNewMenuItem.setIcon(new ImageIcon(TelaMain.class.getResource("/imagens/caminhao.png")));
 		mntmNewMenuItem.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				TelaTransportadores tela = new TelaTransportadores(0, null);
@@ -435,11 +441,11 @@ public class TelaMain extends JFrame {
 		mntmTransgnese.setFont(new Font("SansSerif", Font.PLAIN, 16));
 		Dados.add(mntmTransgnese);
 		JMenu mnContratos = new JMenu("Contratos");
-		mnContratos.setIcon(new ImageIcon(TelaPrincipal.class.getResource("/imagens/icone_contrato_menu.png")));
+		mnContratos.setIcon(new ImageIcon(TelaMain.class.getResource("/imagens/icone_contrato_menu.png")));
 		mnContratos.setFont(new Font("Arial", Font.PLAIN, 18));
 		menuBar.add(mnContratos);
 		JMenuItem mntmContratos = new JMenuItem("Contratos");
-		mntmContratos.setIcon(new ImageIcon(TelaPrincipal.class.getResource("/imagens/contrato.png")));
+		mntmContratos.setIcon(new ImageIcon(TelaMain.class.getResource("/imagens/contrato.png")));
 		mntmContratos.setMargin(new Insets(0, 10, 0, 0));
 		mntmContratos.setFont(new Font("Segoe UI", Font.PLAIN, 16));
 		mntmContratos.addActionListener(new ActionListener() {
@@ -459,7 +465,7 @@ public class TelaMain extends JFrame {
 		});
 		mnContratos.add(mntmContratos);
 		JMenuItem mntmNewMenuItem_1 = new JMenuItem("Relatoria");
-		mntmNewMenuItem_1.setIcon(new ImageIcon(TelaPrincipal.class.getResource("/imagens/grafico.png")));
+		mntmNewMenuItem_1.setIcon(new ImageIcon(TelaMain.class.getResource("/imagens/grafico.png")));
 		mntmNewMenuItem_1.setMargin(new Insets(0, 10, 0, 0));
 		mntmNewMenuItem_1.setFont(new Font("Segoe UI", Font.PLAIN, 16));
 		mntmNewMenuItem_1.addActionListener(new ActionListener() {
@@ -469,29 +475,70 @@ public class TelaMain extends JFrame {
 		});
 		
 		JMenuItem mntmNewMenuItem_7 = new JMenuItem("Recebimentos");
+		mntmNewMenuItem_7.setIcon(new ImageIcon(TelaMain.class.getResource("/imagens/cacamba_descarga.jpg")));
 		mntmNewMenuItem_7.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				TelaRecebimentos tela = new TelaRecebimentos(isto);
 				tela.setVisible(true);
 			}
 		});
+		
+		JMenuItem mntmNewMenuItem_7_1_1 = new JMenuItem("Aditivos");
+		mntmNewMenuItem_7_1_1.setIcon(new ImageIcon(TelaMain.class.getResource("/imagens/aditivos.png")));
+		mntmNewMenuItem_7_1_1.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				TelaAditivos tela = new TelaAditivos(isto);
+				tela.setVisible(true);
+			}
+		});
+		mntmNewMenuItem_7_1_1.setMargin(new Insets(0, 10, 0, 0));
+		mntmNewMenuItem_7_1_1.setFont(new Font("Segoe UI", Font.PLAIN, 16));
+		mnContratos.add(mntmNewMenuItem_7_1_1);
+		
+		JMenuItem mntmNewMenuItem_7_1_1_2 = new JMenuItem("Distratos");
+		mntmNewMenuItem_7_1_1_2.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				
+				TelaDistratos tela = new TelaDistratos(isto);
+				tela.setVisible(true);
+				
+			}
+		});
+		mntmNewMenuItem_7_1_1_2.setIcon(new ImageIcon(TelaMain.class.getResource("/imagens/distrato.jpg")));
+		mntmNewMenuItem_7_1_1_2.setMargin(new Insets(0, 10, 0, 0));
+		mntmNewMenuItem_7_1_1_2.setFont(new Font("Segoe UI", Font.PLAIN, 16));
+		mnContratos.add(mntmNewMenuItem_7_1_1_2);
 		mntmNewMenuItem_7.setMargin(new Insets(0, 10, 0, 0));
 		mntmNewMenuItem_7.setFont(new Font("Segoe UI", Font.PLAIN, 16));
 		mnContratos.add(mntmNewMenuItem_7);
 		
 		JMenuItem mntmNewMenuItem_8 = new JMenuItem("Pagamentos");
+		mntmNewMenuItem_8.setIcon(new ImageIcon(TelaMain.class.getResource("/imagens/pagamento.png")));
 		mntmNewMenuItem_8.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				TelaPagamentos tela = new TelaPagamentos(isto);
 				tela.setVisible(true);
 			}
 		});
+		
+		JMenuItem mntmNewMenuItem_7_1_1_1 = new JMenuItem("Carregamentos");
+		mntmNewMenuItem_7_1_1_1.setIcon(new ImageIcon(TelaMain.class.getResource("/imagens/cacamba.png")));
+		mntmNewMenuItem_7_1_1_1.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				
+				TelaCarregamentos tela = new TelaCarregamentos(isto);
+				tela.setVisible(true);
+			}
+		});
+		mntmNewMenuItem_7_1_1_1.setMargin(new Insets(0, 10, 0, 0));
+		mntmNewMenuItem_7_1_1_1.setFont(new Font("Segoe UI", Font.PLAIN, 16));
+		mnContratos.add(mntmNewMenuItem_7_1_1_1);
 		mntmNewMenuItem_8.setMargin(new Insets(0, 10, 0, 0));
 		mntmNewMenuItem_8.setFont(new Font("Segoe UI", Font.PLAIN, 16));
 		mnContratos.add(mntmNewMenuItem_8);
 		mnContratos.add(mntmNewMenuItem_1);
 		
-		JMenu mnNewMenu_1 = new JMenu("Finançeiro");
+		JMenu mnNewMenu_1 = new JMenu("Financeiro");
 		mnNewMenu_1.setIcon(new ImageIcon(TelaMain.class.getResource("/imagens/financa.png")));
 		mnNewMenu_1.setFont(new Font("Arial", Font.PLAIN, 18));
 		menuBar.add(mnNewMenu_1);
@@ -510,10 +557,53 @@ public class TelaMain extends JFrame {
 						tela.setVisible(true);
 						tela.atualizarGrafico();
 					}else {
+						
+						//verifica se tem acesso temporario
+						GerenciarBancoAcessoTemporario gerenciar = new GerenciarBancoAcessoTemporario();
+						ArrayList<CadastroAcessoTemporario> acessos = gerenciar.getAcessosTemporariosPorExecutor(login.getId());
+						
+						boolean tem_acesso = false;
+						
+						for(CadastroAcessoTemporario acesso : acessos) {
+
+							int modulo = acesso.getModulo();
+							if(modulo == 1) {
+								//modulo e recursos humanos
+								LocalDateTime inicio = LocalDateTime.parse(acesso.getData_inicial() + " " + acesso.getHora_inicial(),
+										DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm"));
+								LocalDateTime fim = LocalDateTime.parse(acesso.getData_final() + " " + acesso.getHora_final(),
+										DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm"));
+								
+								LocalDateTime agora = LocalDateTime.now();
+
+					
+								
+								if(agora.isAfter(inicio) && agora.isBefore(fim)) {
+									tem_acesso = true;
+									break;
+								}
+								
+								
+								
+							}
+							
+						}
+						
+							if(!tem_acesso) 
 						JOptionPane.showMessageDialog(isto, "Requer Elevação de Direitos");
+						else {
+							TelaFinanceiro tela = new TelaFinanceiro(isto);
+							
+							tela.setVisible(true);
+							tela.atualizarGrafico();
+						}
+					}
+						
+						
+						
 					}
 					
-				}
+				
 				
 				
 			}
@@ -540,13 +630,13 @@ public class TelaMain extends JFrame {
 		});
 		mntmNewMenuItem_6_1.setMargin(new Insets(0, 10, 0, 0));
 		JMenu mnFerramentas = new JMenu("Ferramentas");
-		mnFerramentas.setIcon(new ImageIcon(TelaPrincipal.class.getResource("/imagens/ferramentas-de-reparacao.png")));
+		mnFerramentas.setIcon(new ImageIcon(TelaMain.class.getResource("/imagens/ferramentas-de-reparacao.png")));
 		mnFerramentas.setMargin(new Insets(0, 10, 0, 0));
 		mnFerramentas.setFont(new Font("Arial", Font.PLAIN, 18));
 		menuBar.add(mnFerramentas);
 		JMenu mnPlanilhasDeControle = new JMenu("Planilhas de Controle");
 		mnPlanilhasDeControle
-				.setIcon(new ImageIcon(TelaPrincipal.class.getResource("/imagens/aplicativo-de-planilha.png")));
+				.setIcon(new ImageIcon(TelaMain.class.getResource("/imagens/aplicativo-de-planilha.png")));
 		mnPlanilhasDeControle.setFont(new Font("Segoe UI", Font.PLAIN, 16));
 		mnPlanilhasDeControle.setMargin(new Insets(0, 10, 0, 0));
 		mnFerramentas.add(mnPlanilhasDeControle);
@@ -567,17 +657,29 @@ public class TelaMain extends JFrame {
 		});
 		mnPlanilhasDeControle.add(mntmAPartirDe_1);
 		JMenuItem mntmNewMenuItem_2 = new JMenuItem("Monitoria");
+		mntmNewMenuItem_2.setFont(new Font("SansSerif", Font.PLAIN, 16));
 		mntmNewMenuItem_2.setMargin(new Insets(0, 10, 2, 0));
 		mntmNewMenuItem_2
-				.setIcon(new ImageIcon(TelaPrincipal.class.getResource("/imagens/aplicativo-de-monitoria.png")));
+				.setIcon(new ImageIcon(TelaMain.class.getResource("/imagens/aplicativo-de-monitoria.png")));
 		mntmNewMenuItem_2.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				TelaMonitoria monitor = new TelaMonitoria(isto);
+				
+				
+				if(monitor == null) {
+				 monitor = new TelaMonitoria(isto);
 				monitor.setVisible(true);
+				}else {
+					try {
+					monitor.setVisible(true);
+					}catch(Exception t) {
+						JOptionPane.showMessageDialog(isto, "Erro ao abrir a tela de monitoria");
+					}
+				}
 			}
 		});
 		mnFerramentas.add(mntmNewMenuItem_2);
 		JMenuItem mntmNewMenuItem_3 = new JMenuItem("Anotações");
+		mntmNewMenuItem_3.setFont(new Font("SansSerif", Font.PLAIN, 16));
 		mntmNewMenuItem_3.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				TelaNotas notas;
@@ -590,33 +692,65 @@ public class TelaMain extends JFrame {
 			}
 		});
 		mntmNewMenuItem_3.setMargin(new Insets(0, 10, 0, 0));
-		mntmNewMenuItem_3.setIcon(new ImageIcon(TelaPrincipal.class.getResource("/imagens/icone_menu_notas.png")));
+		mntmNewMenuItem_3.setIcon(new ImageIcon(TelaMain.class.getResource("/imagens/icone_menu_notas.png")));
 		mnFerramentas.add(mntmNewMenuItem_3);
 		JMenuItem mntmNewMenuItem_4 = new JMenuItem("Calendário");
-		mntmNewMenuItem_4.setIcon(new ImageIcon(TelaPrincipal.class.getResource("/imagens/icone_menu_calendario.png")));
+		mntmNewMenuItem_4.setFont(new Font("SansSerif", Font.PLAIN, 16));
+		mntmNewMenuItem_4.setIcon(new ImageIcon(TelaMain.class.getResource("/imagens/icone_menu_calendario.png")));
 		mntmNewMenuItem_4.setMargin(new Insets(0, 10, 0, 0));
 		mnFerramentas.add(mntmNewMenuItem_4);
 		JMenuItem mntmNewMenuItem_5 = new JMenuItem("Tarefas");
+		mntmNewMenuItem_5.setFont(new Font("SansSerif", Font.PLAIN, 16));
 		mntmNewMenuItem_5.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				
 
 				
 				TelaTarefas tela_tarefas = new TelaTarefas(isto);
-					tela_tarefas.getTarefas();
 					tela_tarefas.setVisible(true);
 				
 			}
 		});
-		mntmNewMenuItem_5.setIcon(new ImageIcon(TelaPrincipal.class.getResource("/imagens/icone_menu_tarefas.png")));
+		mntmNewMenuItem_5.setIcon(new ImageIcon(TelaMain.class.getResource("/imagens/icone_menu_tarefas.png")));
 		mntmNewMenuItem_5.setMargin(new Insets(0, 10, 0, 0));
 		mnFerramentas.add(mntmNewMenuItem_5);
+		
+		JMenu mnNewMenu_3 = new JMenu("Segurança");
+		mnNewMenu_3.setIcon(new ImageIcon(TelaMain.class.getResource("/imagens/seguranca.png")));
+		mnNewMenu_3.setMargin(new Insets(0, 10, 0, 0));
+		mnNewMenu_3.setFont(new Font("SansSerif", Font.PLAIN, 16));
+		mnFerramentas.add(mnNewMenu_3);
+		
+		JMenuItem mntmNewMenuItem_5_1 = new JMenuItem("Acesso Temporário");
+		mntmNewMenuItem_5_1.setIcon(new ImageIcon(TelaMain.class.getResource("/imagens/seguranca_acesso_temporario.png")));
+		mntmNewMenuItem_5_1.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				
+				
+				
+				if(login != null) {
+					if(login.getConfigs_privilegios().getNivel_privilegios() <= 2) {
+						TelaSeguranca tela = new TelaSeguranca(isto);
+						tela.setVisible(true);
+					}else {
+						JOptionPane.showMessageDialog(isto, "Requer Elevação de Direitos");
+					}
+					
+				}
+				
+			
+				
+			}
+		});
+		mnNewMenu_3.add(mntmNewMenuItem_5_1);
+		mntmNewMenuItem_5_1.setFont(new Font("SansSerif", Font.PLAIN, 16));
+		mntmNewMenuItem_5_1.setMargin(new Insets(0, 10, 0, 0));
 		JMenu mnNewMenu = new JMenu("Configurações");
-		mnNewMenu.setIcon(new ImageIcon(TelaPrincipal.class.getResource("/imagens/preferencias.png")));
+		mnNewMenu.setIcon(new ImageIcon(TelaMain.class.getResource("/imagens/preferencias.png")));
 		mnNewMenu.setFont(new Font("Arial", Font.PLAIN, 18));
 		menuBar.add(mnNewMenu);
 		JMenuItem mntmPastas = new JMenuItem("Preferências");
-		mntmPastas.setIcon(new ImageIcon(TelaPrincipal.class.getResource("/imagens/definicoes.png")));
+		mntmPastas.setIcon(new ImageIcon(TelaMain.class.getResource("/imagens/definicoes.png")));
 		mntmPastas.setMargin(new Insets(0, 10, 0, 0));
 		mntmPastas.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
@@ -706,7 +840,7 @@ public class TelaMain extends JFrame {
 		JScrollPane scrollPane = new JScrollPane(panel_3);
 		GridBagLayout gbl_panel_3 = new GridBagLayout();
 		gbl_panel_3.columnWidths = new int[]{500, -27, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 57, 68, 0, 0, 0, 0, 0, 0, 0, 0, 0};
-		gbl_panel_3.rowHeights = new int[]{286, 309, 223, 19, 1, 0};
+		gbl_panel_3.rowHeights = new int[]{350, 309, 223, 19, 1, 0};
 		gbl_panel_3.columnWeights = new double[]{1.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0, Double.MIN_VALUE};
 		gbl_panel_3.rowWeights = new double[]{0.0, 0.0, 1.0, 1.0, 0.0, Double.MIN_VALUE};
 		panel_3.setLayout(gbl_panel_3);
@@ -905,6 +1039,23 @@ public class TelaMain extends JFrame {
 		 imgWhatsapp = new JLabel("New label");
 		imgWhatsapp.setBounds(21, 245, 32, 32);
 		painelInfoConexao.add(imgWhatsapp);
+		
+		
+		JLabel lblRelgioDePonto = new JLabel("Relógio de Ponto:");
+		lblRelgioDePonto.setForeground(Color.WHITE);
+		lblRelgioDePonto.setFont(new Font("SansSerif", Font.BOLD, 14));
+		lblRelgioDePonto.setBounds(63, 302, 264, 14);
+		painelInfoConexao.add(lblRelgioDePonto);
+		
+		 lblStatusRelogioPonto = new JLabel("Status:");
+		lblStatusRelogioPonto.setForeground(Color.WHITE);
+		lblStatusRelogioPonto.setFont(new Font("SansSerif", Font.BOLD, 14));
+		lblStatusRelogioPonto.setBounds(63, 320, 280, 19);
+		painelInfoConexao.add(lblStatusRelogioPonto);
+		
+		 imgRelogioPonto = new JLabel("New label");
+		imgRelogioPonto.setBounds(21, 302, 32, 32);
+		painelInfoConexao.add(imgRelogioPonto);
 		
 		 painelGraficoRecebimento = new JPanelGraficoRecebimento(0, 0);
 		painelGraficoRecebimento.setLayout(null);
@@ -1260,25 +1411,32 @@ public class TelaMain extends JFrame {
 			}
 		});
 		
-		atualizarNumTarefas();
-		getDadosCarregamento();
-		getDadosRecebimento();
-		atualizarGraficoCarregamentos();
-		atualizarGraficoRecebimentos();
-		getDadosContratos();
-		atualizarGraficoContratos();
-		getCarregamentoPorPeriodo();
-		buscarConexao();
-		buscaConexaoBanco();
-		buscarConexaoWhatsapp();
+		
+		//normal
+		//getDadosCarregamento();
+		//getDadosRecebimento();
+		//atualizarGraficoCarregamentos();
+		//atualizarGraficoRecebimentos();
+		//getDadosContratos();
+		//atualizarGraficoContratos();
+		//getCarregamentoPorPeriodo();
 
-		buscaConexaoServidorArquivos();
-		buscarConexaoNuvem();
+		
+		//threads
+	/*	atualizarNumTarefas();
+
+	
 		ThreadGetDadosContratos();
 		ThreadGetDadosCarregamento();
 		ThreadGetDadosRecebimento();
-
 		
+		buscarConexaoPontoRelogio();
+		buscarConexaoWhatsapp();
+		buscaConexaoBanco();
+		buscarConexao();
+		buscarConexaoNuvem();
+		buscaConexaoServidorArquivos();
+*/
 
 		if (telaChat == null) {
 			telaChat = new TelaChat(isto);
@@ -1286,14 +1444,14 @@ public class TelaMain extends JFrame {
 
 		} 
 		
-	
+	/*
 		new Thread() {
 			
 			
 			@Override
 			public void run() {
 				try {
-					Thread.sleep(10000);
+					Thread.sleep(20000);
 				} catch (InterruptedException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
@@ -1307,42 +1465,8 @@ public class TelaMain extends JFrame {
 				}
 			}
 		}.start();
-		
-/*
-		new Thread() {
-		
-			@Override
-			public void run() {
-			if(telaRomaneio == null) {
-				telaRomaneio = new TelaRomaneios(0,isto);
-				telaRomaneio.pesquisarTodosOsRomaneios(new GerenciarBancoClientes().getClientes(-1, -1, ""));
-				DadosGlobais dados = DadosGlobais.getInstance();
-
-				dados.setTelaRomaneios(telaRomaneio);
-
-			}else {
-				//telaRomaneio.pesquisarTodosOsRomaneios(clientes_disponiveis);
-
-			}
-			
-		
-			if(telaTodasNotasFiscais == null) {
-				telaTodasNotasFiscais = new TelaTodasNotasFiscais(0, 0,isto);
-				
-				DadosGlobais dados = DadosGlobais.getInstance();
-
-				dados.setTelaTodasNotasFiscais(telaTodasNotasFiscais);
-
-			}else {
-				//telaRomaneio.pesquisarTodosOsRomaneios(clientes_disponiveis);
-
-			}
-			}
-			
-		}.start();
-			*/
-		
-		
+		*/
+		 ThreadGlobal();
 		vigiarRomaneios();
 		
 
@@ -1431,7 +1555,7 @@ public class TelaMain extends JFrame {
 			public void run() {
 				while (true) {
 					try {
-						Thread.sleep(40000);
+						Thread.sleep(120000);
 					} catch (InterruptedException e) {
 						// TODO Auto-generated catch block
 						e.printStackTrace();
@@ -1440,7 +1564,7 @@ public class TelaMain extends JFrame {
 					atualizarGraficoCarregamentos();
 					getCarregamentoPorPeriodo();
 					try {
-						Thread.sleep(40000);
+						Thread.sleep(120000);
 					} catch (InterruptedException e) {
 						// TODO Auto-generated catch block
 						e.printStackTrace();
@@ -1457,7 +1581,7 @@ public class TelaMain extends JFrame {
 			public void run() {
 				while (true) {
 					try {
-						Thread.sleep(40000);
+						Thread.sleep(60000);
 					} catch (InterruptedException e) {
 						// TODO Auto-generated catch block
 						e.printStackTrace();
@@ -1466,7 +1590,7 @@ public class TelaMain extends JFrame {
 					atualizarGraficoRecebimentos();
 					getCarregamentoPorPeriodo();
 					try {
-						Thread.sleep(40000);
+						Thread.sleep(60000);
 					} catch (InterruptedException e) {
 						// TODO Auto-generated catch block
 						e.printStackTrace();
@@ -1482,7 +1606,7 @@ public class TelaMain extends JFrame {
 			@Override
 			public void run() {
 				try {
-					Thread.sleep(40000);
+					Thread.sleep(60000);
 				} catch (InterruptedException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
@@ -1490,7 +1614,7 @@ public class TelaMain extends JFrame {
 				while (true) {
 					atualizarGraficoContratos();
 					try {
-						Thread.sleep(40000);
+						Thread.sleep(60000);
 					} catch (InterruptedException e) {
 						// TODO Auto-generated catch block
 						e.printStackTrace();
@@ -1514,7 +1638,7 @@ public class TelaMain extends JFrame {
 						connection.connect();
 						lblnet.setText("Internet: Conectada");
 						imgInternet.setIcon(
-								new ImageIcon(TelaPrincipal.class.getResource("/imagens/internet_online.png")));
+								new ImageIcon(TelaMain.class.getResource("/imagens/internet_online.png")));
 					} catch (IOException f) {
 						f.printStackTrace();
 						System.out.println("erro ao se conectar a internet!");
@@ -1524,14 +1648,99 @@ public class TelaMain extends JFrame {
 								"/main/java/audio/beep_erro_net.wav", 2);
 						lblnet.setText("Internet: Desconectada");
 						imgInternet.setIcon(
-								new ImageIcon(TelaPrincipal.class.getResource("/imagens/internet_offline.png")));
+								new ImageIcon(TelaMain.class.getResource("/imagens/internet_offline.png")));
 					}
 					try {
+						Thread.sleep(60000);
+					} catch (InterruptedException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+				}
+			}
+		}.start();
+	}
+	
+	
+	public void buscarConexaoPontoRelogio() {
+		new Thread() {
+
+			@Override
+			public void run() {
+				
+				
+				 try {
 						Thread.sleep(5000);
 					} catch (InterruptedException e) {
 						// TODO Auto-generated catch block
 						e.printStackTrace();
 					}
+				
+	            System.out.println("Buscando conexao ao relogio");
+
+				while (true) {
+					
+					
+					 try{
+				            InetAddress address = InetAddress.getByName(configs_globais.getIp_relogio());
+				            boolean reachable = address.isReachable(5000);
+				            if(reachable) {
+				        		DadosGlobais.getInstance().setStatus_relogio(1);
+
+				            	lblStatusRelogioPonto.setText("Relógio Conectado!");
+								imgRelogioPonto.setIcon(
+										new ImageIcon(TelaMain.class.getResource("/imagens/rfid_online.png")));
+							
+				            }else {
+				        		DadosGlobais.getInstance().setStatus_relogio(0);
+
+					            System.out.println("erro ao se conectar ao relogio");
+					            lblStatusRelogioPonto.setText("Relógio Desconectado!");
+								imgRelogioPonto.setIcon(
+										new ImageIcon(TelaMain.class.getResource("/imagens/rfid_offline.png")));
+							
+				            	while (notificando) {
+				            		Thread.sleep(1000);
+								}
+								novaNotificacao("Sem conexão com o relógio de ponto, aguardando reconexão!",
+										"/main/java/audio/beep_erro_net.wav", 2);
+								
+				            }
+
+				        } catch (Exception e){
+				            e.printStackTrace();
+				            System.out.println("erro ao se conectar ao relogio");
+							while (notificando) {
+			            		try {
+									Thread.sleep(1000);
+								} catch (InterruptedException e1) {
+									// TODO Auto-generated catch block
+									e1.printStackTrace();
+								}
+
+							}
+			        		DadosGlobais.getInstance().setStatus_relogio(0);
+
+							lblStatusRelogioPonto.setText("Relógio Desconectado!");
+							imgRelogioPonto.setIcon(
+									new ImageIcon(TelaMain.class.getResource("/imagens/rfid_offline.png")));
+						
+							novaNotificacao("Sem conexão com o relógio de ponto, aguardando reconexão!",
+									"/main/java/audio/beep_erro_net.wav", 2);
+							
+				        }
+					
+				
+					
+					 try {
+							Thread.sleep(20000);
+						} catch (InterruptedException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						}
+					
+				
+					
 				}
 			}
 		}.start();
@@ -1545,12 +1754,12 @@ public class TelaMain extends JFrame {
 			public void run() {
 				while (true) {
 					try {
-						url = new URL("https://www.dropbox.com/");
+						url = new URL("www.dropbox.com");
 						System.out.println("Tentando conexao nuvem!");
 						URLConnection connection = url.openConnection();
 						connection.connect();
 						lblNuvem.setText("Nuvem: Conectada");
-						imgNuvem.setIcon(new ImageIcon(TelaPrincipal.class.getResource("/imagens/nuvem_online.png")));
+						imgNuvem.setIcon(new ImageIcon(TelaMain.class.getResource("/imagens/nuvem_online.png")));
 					} catch (IOException f) {
 						f.printStackTrace();
 						System.out.println("erro ao se conectar ao dropbpx!");
@@ -1559,10 +1768,10 @@ public class TelaMain extends JFrame {
 						novaNotificacao("Sem conexão com a nuvem, algumas funções seram limitadas até a reconexão!",
 								"/main/java/audio/beep_erro_net.wav", 2);
 						lblNuvem.setText("Nuvem: Desconectada");
-						imgNuvem.setIcon(new ImageIcon(TelaPrincipal.class.getResource("/imagens/nuvem_offline.png")));
+						imgNuvem.setIcon(new ImageIcon(TelaMain.class.getResource("/imagens/nuvem_offline.png")));
 					}
 					try {
-						Thread.sleep(5000);
+						Thread.sleep(60000);
 					} catch (InterruptedException e) {
 						// TODO Auto-generated catch block
 						e.printStackTrace();
@@ -1584,11 +1793,11 @@ public class TelaMain extends JFrame {
 						if(zap.status().contains("OK")) {
 							//conectado
 							lblStatusWhatsapp.setText("Status: Conectado");
-							imgWhatsapp.setIcon(new ImageIcon(TelaPrincipal.class.getResource("/imagens/zap_online.png")));
+							imgWhatsapp.setIcon(new ImageIcon(TelaMain.class.getResource("/imagens/zap_online.png")));
 						}else {
 							//nao conectado
 							lblStatusWhatsapp.setText("Status: Desconectado");
-							imgWhatsapp.setIcon(new ImageIcon(TelaPrincipal.class.getResource("/imagens/zap_offline.png")));
+							imgWhatsapp.setIcon(new ImageIcon(TelaMain.class.getResource("/imagens/zap_offline.png")));
 						}
 						
 					} catch (Exception f) {
@@ -1599,7 +1808,7 @@ public class TelaMain extends JFrame {
 						novaNotificacao("Sem conexão com o Whatsapp, algumas funções seram limitadas até a reconexão!",
 								"/main/java/audio/beep_erro_net.wav", 2);
 						lblStatusWhatsapp.setText("Status: Desconectado");
-						imgWhatsapp.setIcon(new ImageIcon(TelaPrincipal.class.getResource("/imagens/zap_offline.png")));
+						imgWhatsapp.setIcon(new ImageIcon(TelaMain.class.getResource("/imagens/zap_offline.png")));
 					}
 					try {
 						Thread.sleep(30000);
@@ -1616,7 +1825,7 @@ public class TelaMain extends JFrame {
 		try {
 			notificando = true;
 			Thread.sleep(1000);
-			URL url = TelaPrincipal.class.getResource(song);
+			URL url = TelaMain.class.getResource(song);
 			TelaNotificacao tela = new TelaNotificacao();
 			new Thread() {
 				@Override
@@ -1654,12 +1863,12 @@ public class TelaMain extends JFrame {
 						System.out.println("Banco de Dados OnLine!");
 						lblBD.setText("Banco de Dados: Conectada");
 						imgBaseDados.setIcon(
-								new ImageIcon(TelaPrincipal.class.getResource("/imagens/base_dados_online.png")));
+								new ImageIcon(TelaMain.class.getResource("/imagens/base_dados_online.png")));
 					} else {
 						System.out.println("Banco de Dados Offline!");
 						lblBD.setText("Banco de Dados: Desconectada");
 						imgBaseDados.setIcon(
-								new ImageIcon(TelaPrincipal.class.getResource("/imagens/base_dados_offline.png")));
+								new ImageIcon(TelaMain.class.getResource("/imagens/base_dados_offline.png")));
 					}
 					try {
 						Thread.sleep(5000);
@@ -1684,15 +1893,15 @@ public class TelaMain extends JFrame {
 					if (gerenciar.doPing(host)) {
 						System.out.println("Banco de Arquivos OnLine!");
 						imgBaseArquivos.setIcon(
-								new ImageIcon(TelaPrincipal.class.getResource("/imagens/base_arquivos_online.png")));
+								new ImageIcon(TelaMain.class.getResource("/imagens/base_arquivos_online.png")));
 					} else {
 						lblBaseDeArquivos.setText("Base de Arquivos: Desconectada");
 						System.out.println("Banco de Arquivos Offline!");
 						imgBaseArquivos.setIcon(
-								new ImageIcon(TelaPrincipal.class.getResource("/imagens/base_arquivos_offline.png")));
+								new ImageIcon(TelaMain.class.getResource("/imagens/base_arquivos_offline.png")));
 					}
 					try {
-						Thread.sleep(5000);
+						Thread.sleep(60000);
 					} catch (InterruptedException e) {
 						// TODO Auto-generated catch block
 						e.printStackTrace();
@@ -1701,6 +1910,233 @@ public class TelaMain extends JFrame {
 			}
 		}.start();
 	}
+	
+	public void ThreadGlobal() {
+		new Thread() {
+			public void run() {
+				while (true) {
+					
+					//dados de contrato
+				   	//getDadosContratos();
+					atualizarGraficoContratos();
+					//dados de recebimento
+					getDadosRecebimento();
+					atualizarGraficoRecebimentos();
+					getCarregamentoPorPeriodo();
+					
+					//dados de carregamento
+					getDadosCarregamento();
+					atualizarGraficoCarregamentos();
+					getCarregamentoPorPeriodo();
+				
+					
+					//busca conexao com o servidor
+					CadastroBaseArquivos base = configs_globais.getServidor_arquivos();
+					String host = base.getServidor();
+					urlBaseArquivos.setText(host);
+					lblBaseDeArquivos.setText("Base de Arquivos: Conectada");
+					TesteConexao gerenciar = new TesteConexao();
+					if (gerenciar.doPing(host)) {
+						System.out.println("Banco de Arquivos OnLine!");
+						imgBaseArquivos.setIcon(
+								new ImageIcon(TelaMain.class.getResource("/imagens/base_arquivos_online.png")));
+					} else {
+						lblBaseDeArquivos.setText("Base de Arquivos: Desconectada");
+						System.out.println("Banco de Arquivos Offline!");
+						imgBaseArquivos.setIcon(
+								new ImageIcon(TelaMain.class.getResource("/imagens/base_arquivos_offline.png")));
+					}
+
+               /*************************************************/
+					//busca conexao com o banco
+					CadastroBaseDados bd;
+					bd = configs_globais.getBaseDados();
+					String url = "jdbc:mysql://" + bd.getHost() + ":" + bd.getPorta() + "/" + bd.getNome_banco()
+							+ "?useTimezone=true&serverTimezone=UTC";
+					urlBancoDados.setText(url);
+					if (gerenciarBancoPadrao == null)
+						gerenciarBancoPadrao = new GerenciarBancoPadrao();
+					if (gerenciarBancoPadrao.getConexao()) {
+						System.out.println("Banco de Dados OnLine!");
+						lblBD.setText("Banco de Dados: Conectada");
+						imgBaseDados.setIcon(
+								new ImageIcon(TelaMain.class.getResource("/imagens/base_dados_online.png")));
+					} else {
+						System.out.println("Banco de Dados Offline!");
+						lblBD.setText("Banco de Dados: Desconectada");
+						imgBaseDados.setIcon(
+								new ImageIcon(TelaMain.class.getResource("/imagens/base_dados_offline.png")));
+					}
+					
+					/**************************************************************/
+					//busca conexao whatsapp
+					try {
+						 Whatsapp zap = new Whatsapp();
+						 
+						if(zap.status().contains("OK")) {
+							//conectado
+							lblStatusWhatsapp.setText("Status: Conectado");
+							imgWhatsapp.setIcon(new ImageIcon(TelaMain.class.getResource("/imagens/zap_online.png")));
+						}else {
+							//nao conectado
+							lblStatusWhatsapp.setText("Status: Desconectado");
+							imgWhatsapp.setIcon(new ImageIcon(TelaMain.class.getResource("/imagens/zap_offline.png")));
+						}
+						
+					} catch (Exception f) {
+						f.printStackTrace();
+						System.out.println("erro ao se conectar ao whatsapp!");
+						while (notificando) {
+						}
+						novaNotificacao("Sem conexão com o Whatsapp, algumas funções seram limitadas até a reconexão!",
+								"/main/java/audio/beep_erro_net.wav", 2);
+						lblStatusWhatsapp.setText("Status: Desconectado");
+						imgWhatsapp.setIcon(new ImageIcon(TelaMain.class.getResource("/imagens/zap_offline.png")));
+					}
+					
+					/*****************************************************/
+
+				
+					//conexao com  a internet
+					try {
+						URL url3 = new URL("http://www.google.com.br");
+						System.out.println("Tentando conexao!");
+						URLConnection connection = url3.openConnection();
+						connection.connect();
+						lblnet.setText("Internet: Conectada");
+						imgInternet.setIcon(
+								new ImageIcon(TelaMain.class.getResource("/imagens/internet_online.png")));
+					} catch (IOException f) {
+						f.printStackTrace();
+						System.out.println("erro ao se conectar a internet!");
+						while (notificando) {
+						}
+						novaNotificacao("Sem conexão com a internet, algumas funções seram limitadas até a reconexão!",
+								"/main/java/audio/beep_erro_net.wav", 2);
+						lblnet.setText("Internet: Desconectada");
+						imgInternet.setIcon(
+								new ImageIcon(TelaMain.class.getResource("/imagens/internet_offline.png")));
+					}
+					/*****************************************************************/
+					//busca conexao com o relogio de ponto
+					 try{
+				            InetAddress address = InetAddress.getByName(configs_globais.getIp_relogio());
+				            boolean reachable = address.isReachable(5000);
+				            if(reachable) {
+				        		DadosGlobais.getInstance().setStatus_relogio(1);
+
+				            	lblStatusRelogioPonto.setText("Relógio Conectado!");
+								imgRelogioPonto.setIcon(
+										new ImageIcon(TelaMain.class.getResource("/imagens/rfid_online.png")));
+							
+				            }else {
+				        		DadosGlobais.getInstance().setStatus_relogio(0);
+
+					            System.out.println("erro ao se conectar ao relogio");
+					            lblStatusRelogioPonto.setText("Relógio Desconectado!");
+								imgRelogioPonto.setIcon(
+										new ImageIcon(TelaMain.class.getResource("/imagens/rfid_offline.png")));
+							
+				            	while (notificando) {
+				            		Thread.sleep(1000);
+								}
+								novaNotificacao("Sem conexão com o relógio de ponto, aguardando reconexão!",
+										"/main/java/audio/beep_erro_net.wav", 2);
+								
+				            }
+
+				        } catch (Exception e){
+				            e.printStackTrace();
+				            System.out.println("erro ao se conectar ao relogio");
+							while (notificando) {
+			            		try {
+									Thread.sleep(1000);
+								} catch (InterruptedException e1) {
+									// TODO Auto-generated catch block
+									e1.printStackTrace();
+								}
+
+							}
+			        		DadosGlobais.getInstance().setStatus_relogio(0);
+
+							lblStatusRelogioPonto.setText("Relógio Desconectado!");
+							imgRelogioPonto.setIcon(
+									new ImageIcon(TelaMain.class.getResource("/imagens/rfid_offline.png")));
+						
+							novaNotificacao("Sem conexão com o relógio de ponto, aguardando reconexão!",
+									"/main/java/audio/beep_erro_net.wav", 2);
+							
+				        }
+					
+				/**********************************************************************/
+					 //busca conexao com a nuvem
+						try {
+							 URL url2 = new URL("http://www.dropbox.com");
+							System.out.println("Tentando conexao nuvem!");
+							URLConnection connection = url2.openConnection();
+							connection.connect();
+							lblNuvem.setText("Nuvem: Conectada");
+							imgNuvem.setIcon(new ImageIcon(TelaMain.class.getResource("/imagens/nuvem_online.png")));
+						} catch (IOException f) {
+							f.printStackTrace();
+							System.out.println("erro ao se conectar ao dropbpx!");
+							while (notificando) {
+							}
+							novaNotificacao("Sem conexão com a nuvem, algumas funções seram limitadas até a reconexão!",
+									"/main/java/audio/beep_erro_net.wav", 2);
+							lblNuvem.setText("Nuvem: Desconectada");
+							imgNuvem.setIcon(new ImageIcon(TelaMain.class.getResource("/imagens/nuvem_offline.png")));
+						}
+						/***********************************************************/
+					 //busca tarefas
+						try {
+						if (gerenciarAtualizarTarefas == null)
+							gerenciarAtualizarTarefas = new GerenciarBancoContratos();
+						int num_agora = gerenciarAtualizarTarefas.getNumTarefas(login.getId());
+						lblNumeroTarefas.setText(num_agora + "");
+						if (num_tarefas_nesta_secao == -1) {
+							if (num_agora > 0) {
+								while (notificando == true) {
+									//System.out.println("Notificacao em andamento");
+								}
+								novaNotificacao("Você possui tarefas a concluir", "/main/java/audio/beep_notificacao.wav", 1);
+								num_tarefas_nesta_secao = num_agora;
+							} else {
+								num_tarefas_nesta_secao = 0;
+							}
+						} else if (num_agora > num_tarefas_nesta_secao) {
+							// nova tarefa recebida, notificar
+							while (notificando) {
+							}
+							try {
+								Thread.sleep(1000);
+							} catch (InterruptedException e) {
+								// TODO Auto-generated catch block
+								e.printStackTrace();
+							}
+							num_tarefas_nesta_secao = num_agora;
+							novaNotificacao("Nova Tarefa Recebida!", "/main/java/audio/beep_notificacao.wav", 1);
+						} else if (num_agora > num_tarefas_nesta_secao) {
+							// quantidade de tarefas e a mesma
+							num_tarefas_nesta_secao = num_agora;
+						}
+						}catch (Exception e) {
+							
+						}
+						/***********************************************************************/
+						
+						try {
+						Thread.sleep(60000);
+					} catch (InterruptedException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+					 
+				}
+			}
+		}.start();
+	}
+	
 
 	public void atualizarGraficoContratos() {
 		getDadosContratos();
@@ -1877,7 +2313,7 @@ public class TelaMain extends JFrame {
 		java.awt.EventQueue.invokeLater(new Runnable() {
 			public void run() {
 				lblNovaMensagem.setIcon(
-						new ImageIcon(TelaPrincipal.class.getResource("/imagens/icone_mensagem_nao_lida.png")));
+						new ImageIcon(TelaMain.class.getResource("/imagens/icone_mensagem_nao_lida.png")));
 				lblNovaMensagem.repaint();
 				lblNovaMensagem.updateUI();
 			}
@@ -1957,7 +2393,7 @@ public class TelaMain extends JFrame {
 						num_tarefas_nesta_secao = num_agora;
 					}
 					try {
-						Thread.sleep(5000);
+						Thread.sleep(30000);
 					} catch (InterruptedException e) {
 						JOptionPane.showMessageDialog(null, "Erro ao buscar tarefas!");
 						e.printStackTrace();

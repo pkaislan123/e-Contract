@@ -99,13 +99,15 @@ public class EditarRecibo {
 	private XWPFParagraph paragrafo_atual ;
 	private String texto;
 	private String data_recibo;
+	private ArrayList<CadastroCliente> recebedores_intermediarios;
 
-	public EditarRecibo(FinanceiroPagamento _pagamento, String _texto, String _data_recibo) {
+	public EditarRecibo(FinanceiroPagamento _pagamento, String _texto, String _data_recibo, ArrayList<CadastroCliente> clientes) {
 		getDadosGlobais();
 		servidor_unidade = configs_globais.getServidorUnidade();
 		this.pagamento = _pagamento;
 		this.data_recibo = _data_recibo;
 		this.texto = _texto;
+		this.recebedores_intermediarios = clientes;
 		criarDocumento();		
 		
 		
@@ -157,6 +159,7 @@ public class EditarRecibo {
 		String assinatura_recebedor= "";
 		CadastroCliente recebedor = null ;
 		CadastroCliente devedor ;
+		adicionarTraco(true, 2);
 
 		//recebedor
 		if(pagamento.getTipo_recebedor() == 0) {
@@ -167,9 +170,10 @@ public class EditarRecibo {
 					if(ib.getId_cliente() > 0) {
 						CadastroCliente cli = new GerenciarBancoClientes().getCliente(ib.getId_cliente());
 						if(cli != null) {
+
 							adicionarParte(0,cli);
 							recebedor = cli;
-							
+
 
 						}
 					
@@ -184,7 +188,7 @@ public class EditarRecibo {
 				CadastroCliente cli = new GerenciarBancoClientes().getCliente(pagamento.getId_recebedor());
 				if(cli != null) {
 					
-					
+
 					adicionarParte(0,cli);
 					recebedor = cli;
 
@@ -192,6 +196,7 @@ public class EditarRecibo {
 				}
 			}
 		}
+		adicionarTraco(true, 2);
 
 		String assinatura_pagador= "";
 		String nome_pagador = "";
@@ -204,6 +209,7 @@ public class EditarRecibo {
 					assinatura_pagador = ib.getNome_instituicao_bancaria();
 					CadastroCliente cli = new GerenciarBancoClientes().getCliente(ib.getId_cliente());
 					if(cli != null) {
+
 						adicionarParte(1,cli);
 						devedor = cli;
 
@@ -216,7 +222,7 @@ public class EditarRecibo {
 				CadastroCliente cli = new GerenciarBancoClientes().getCliente(pagamento.getId_pagador());
 				if(cli != null) {
 					
-					
+
 					adicionarParte(1,cli);
 					devedor = cli;
 
@@ -224,7 +230,8 @@ public class EditarRecibo {
 				}
 			}
 		}
-		
+		adicionarTraco(true, 2);
+
 		String forma_pagamento = "";
 		GerenciarBancoCondicaoPagamentos gerenciar = new GerenciarBancoCondicaoPagamentos();
 		if (pagamento.getId_condicao_pagamento() > 0) {
@@ -237,6 +244,42 @@ public class EditarRecibo {
 
 		texto = texto.replace("[data_pagamento]", pagamento.getData_pagamento());
 		texto = texto.replace("[descricao_pagamento]", pagamento.getDescricao());
+		
+		
+		
+		
+		
+		
+		if(recebedores_intermediarios != null) {
+			if(recebedores_intermediarios.size() > 0) {
+			if(recebedores_intermediarios.size() == 1) {
+				
+				texto = texto + "\nA importância desse recibo foi paga ao [RECEBEDOR] através de um [RECEBEDOR INTERMEDIÁRIO], descrito a seguir:\n";
+				texto += "[_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ __ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _]\n";
+
+				for(CadastroCliente recebedor_inter : recebedores_intermediarios) {
+					texto = texto + adicionarRecebedorIntermediario(recebedor_inter);
+					
+				}
+				texto += "[_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ __ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _]\n";
+
+			}
+			if(recebedores_intermediarios.size() > 1) {
+				
+				texto = texto + "A importância desse recibo foi paga ao [RECEBEDOR] através de [RECEBEDORES INTERMEDIÁRIOS], descritos a seguir:\n";
+				texto += "[_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ __ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _]\n";
+
+				for(CadastroCliente recebedor_inter : recebedores_intermediarios) {
+					texto = texto + adicionarRecebedorIntermediario(recebedor_inter) + "\n";
+					texto += "[_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ __ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _]\n";
+
+
+				}
+				
+			}
+			
+			}
+		}
 
         substituirTexto(texto);
 	
@@ -253,6 +296,23 @@ public class EditarRecibo {
 			adicionarCamposAssinaturas(recebedor.getNome_fantaia(),1, recebedor.getCnpj());
 
 		}
+		
+		if(recebedores_intermediarios != null) {
+			if(recebedores_intermediarios.size() > 0) {
+				
+				for(CadastroCliente recebedor_inter : recebedores_intermediarios) {
+					if(recebedor_inter.getTipo_pessoa() == 0) {
+						adicionarCamposAssinaturas(recebedor_inter.getNome_empresarial(), 0, recebedor_inter.getCpf());
+						}else if(recebedor_inter.getTipo_pessoa() == 1) {
+							adicionarCamposAssinaturas(recebedor_inter.getNome_fantaia(),1, recebedor_inter.getCnpj());
+
+						}					
+				}
+				
+			}
+		}
+		
+		
 		//cabecalho e rodape
 
 		try {
@@ -477,7 +537,7 @@ public class EditarRecibo {
 					e.printStackTrace();
 				}
 				
-				substituirTexto("Por ser verdade, firma-se o presente.");
+				substituirTexto("\n\nPor ser verdade, firma-se o presente.");
 
 				substituirTexto("Guarda-Mor MG " + data_extenso);
 	}
@@ -523,7 +583,6 @@ public class EditarRecibo {
 				substituirTexto("[_______________________________________________________________]                                                                                         "
 						+ "["  + nome_assinatura_negrito.toUpperCase() + "]\nCNPJ: [" + cnpj + "]");
 			}
-			criarParagrafo(0);
 
 
 	}
@@ -571,7 +630,7 @@ public class EditarRecibo {
 	
 
 	public void adicionarParte(int flag, CadastroCliente cliente) {
-		
+
 		XWPFParagraph parte = document_global.createParagraph();
 		parte.setAlignment(ParagraphAlignment.LEFT);
 
@@ -610,18 +669,40 @@ public class EditarRecibo {
 		adicional1run.setColor("000000");
 		adicional1run.setFontFamily("Times New Roman");
 		adicional1run.setFontSize(10);
-		adicional1run.setBold(false);
+		adicional1run.setBold(true);
+		
 	try {
-		adicional1run.setText(", " + cliente.getOcupacao().toUpperCase().trim() + " , residente e domiciliado no endereço ");
-	}catch(Exception e) {
-		adicional1run.setText(" , residente e domiciliado no endereço ");
-	}
+			
+			String ie = "";
+	           MaskFormatter formater_ie = new MaskFormatter("#########.##-##");
+	           formater_ie.setValueContainsLiteralCharacters(false);
+	           ie = formater_ie.valueToString(cliente.getIe());
+			
+	           adicional1run.setText(", Inscrição Estadual: " + ie + " ");
+		}catch(Exception e) {
+		}
+		
+	
+	XWPFRun ocupacaoRun = parte.createRun();
+	ocupacaoRun.setColor("000000");
+	ocupacaoRun.setFontFamily("Times New Roman");
+	ocupacaoRun.setFontSize(10);
+	ocupacaoRun.setBold(false);
+	
+	
+		try {
+			ocupacaoRun.setText (", " + cliente.getOcupacao().toUpperCase().trim() );
+		}catch(Exception e) {
+		}
+		
+
+	
 		XWPFRun enderecoCorretorrun = parte.createRun();
 		enderecoCorretorrun.setColor("000000");
 		enderecoCorretorrun.setFontFamily("Times New Roman");
 		enderecoCorretorrun.setFontSize(10);
 		enderecoCorretorrun.setBold(true);
-		enderecoCorretorrun.setText(cliente.getRua().toUpperCase().trim() + ", nº " + cliente.getNumero() +  ", Bairro: " + cliente.getBairro().toUpperCase().trim());
+		enderecoCorretorrun.setText(" , residente no endereço " + cliente.getRua().toUpperCase().trim() + ", nº " + cliente.getNumero() +  ", Bairro: " + cliente.getBairro().toUpperCase().trim());
 
 		XWPFRun adicional2run = parte.createRun();
 		adicional2run.setColor("000000");
@@ -734,8 +815,109 @@ public class EditarRecibo {
 		else if(flag == 1)
 			finalRun.setText(".  A pessoa supra indicada será doravante denominada “DEVEDOR”.");
 
-		
+
 
 	}
+	
+	
+
+public String adicionarRecebedorIntermediario(CadastroCliente cliente) {
+		
+		
+		
+		String texto = "[";
+		if(cliente.getTipo_pessoa() == 0) {
+			//pessoa fisica
+			texto = cliente.getNome_empresarial().toUpperCase().trim() + "]";
+		}else {
+			texto = cliente.getNome_fantaia().toUpperCase().trim() + "]";
+
+		}
+		
+		try {
+			
+			String ie = "";
+	           MaskFormatter formater_ie = new MaskFormatter("#########.##-##");
+	           formater_ie.setValueContainsLiteralCharacters(false);
+	           ie = formater_ie.valueToString(cliente.getIe());
+			
+			texto += (", Inscrição Estadual: [" + ie + "] ");
+		}catch(Exception e) {
+		}
+		
+		
+	try {
+		texto += (", " + cliente.getOcupacao().toUpperCase().trim() );
+	}catch(Exception e) {
+	}
+
+
+		texto += " , residente no endereço [" + cliente.getRua().toUpperCase().trim() + "], nº [" + cliente.getNumero() +  "], Bairro: [" + cliente.getBairro().toUpperCase().trim();
+
+		texto +=  ("], na Cidade de [");
+
+		texto +=  cliente.getCidade().toUpperCase().trim() + "]";
+		
+		texto +=  (" - Estado de [");
+		
+		texto +=  (cliente.getUf().toUpperCase()) + "]";
+
+		texto +=  (" CEP: [");
+
+		
+		
+		 String cep = ""; 
+	       try{
+
+	           MaskFormatter formater_cep = new MaskFormatter("#####-###");
+	           formater_cep.setValueContainsLiteralCharacters(false);
+	           cep = formater_cep.valueToString(cliente.getCep().replaceAll("[^0-9]", ""));
+
+
+	        }catch (Exception e){}
+		
+	       texto +=  (cep) + "]";
+
+		
+		
+		
+		if(cliente.getTipo_pessoa() == 0) {
+			texto += (", inscrito no CPF sob nº [");
+			 String cpf = ""; 
+		       try{
+
+		           MaskFormatter formater_cpf = new MaskFormatter("###.###.###-##");
+		           formater_cpf.setValueContainsLiteralCharacters(false);
+		           cpf = formater_cpf.valueToString(cliente.getCpf());
+
+
+		        }catch (Exception e){}
+		       texto += (cpf) + "]";
+
+		}else {
+			texto += (", inscrito no CNPJ sob nº [");
+			String cnpj = ""; 
+		       try{
+
+		    	   
+		           MaskFormatter formater_cnpj = new MaskFormatter("##.###.###/####-##");
+		           formater_cnpj.setValueContainsLiteralCharacters(false);
+		           cnpj = formater_cnpj.valueToString(cliente.getCnpj());
+
+
+		        }catch (Exception e){}
+		       texto += (cnpj) + "]";
+
+		}
+		
+	
+		
+	
+		return texto;
+
+	}
+
+
+
 
 }

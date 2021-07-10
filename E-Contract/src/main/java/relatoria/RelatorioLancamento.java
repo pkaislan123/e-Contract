@@ -1060,6 +1060,8 @@ public class RelatorioLancamento {
 		paragraph = tableRowOne.getCell(7).addParagraph();
 		criarParagrafoTabela(paragraph,  NumberFormat.getCurrencyInstance(ptBr).format(valor_total_parcelas), true);
 
+		substituirTexto(1, "");
+		
 		return valor_total_parcelas;
 				
 	}

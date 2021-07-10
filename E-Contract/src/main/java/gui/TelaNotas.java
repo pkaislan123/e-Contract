@@ -168,7 +168,7 @@ import javax.swing.JScrollPane;
 
 
 
-public class TelaNotas extends JDialog {
+public class TelaNotas extends JFrame {
 
 	private Log GerenciadorLog;
 	private CadastroLogin login;
@@ -197,9 +197,9 @@ public class TelaNotas extends JDialog {
 		
 		setBackground(new Color(255, 255, 255));
 		setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-		setBounds(100, 100, 1087, 620);
-		painelPrincipal.kStartColor = new Color(0, 102, 255);
-		painelPrincipal.kEndColor = new Color(0, 153, 204);
+		setBounds(100, 100, 1299, 698);
+		painelPrincipal.kStartColor = new Color(0, 102, 153);
+		painelPrincipal.kEndColor = new Color(51, 102, 102);
 		painelPrincipal.setBackground(new Color(255, 255, 255));
 		painelPrincipal.setBorder(new EmptyBorder(5, 5, 5, 5));
 		setContentPane(painelPrincipal);
@@ -208,7 +208,7 @@ public class TelaNotas extends JDialog {
 		KGradientPanel panel = new KGradientPanel();
 		panel.kStartColor = new Color(102, 0, 204);
 		panel.kEndColor = new Color(0, 102, 102);
-		panel.setBounds(0, 0, 1071, 150);
+		panel.setBounds(0, 0, 1283, 150);
 		painelPrincipal.add(panel);
 		panel.setLayout(null);
 		
@@ -226,9 +226,8 @@ public class TelaNotas extends JDialog {
 		JPanel panel_1 = new JPanel();
 		panel_1.setBackground(new Color(255, 255, 224));
 		panel_1.setBorder(new LineBorder(new Color(0, 0, 0), 2, true));
-		panel_1.setBounds(22, 177, 301, 357);
+		panel_1.setBounds(22, 177, 414, 357);
 		painelPrincipal.add(panel_1);
-		panel_1.setLayout(null);
 		
 		
 		  listModelGlobal = new DefaultListModel<CadastroNota>();
@@ -258,27 +257,30 @@ public class TelaNotas extends JDialog {
 			        clickButtonAt(event.getPoint());
 			      }
 			    });
+		panel_1.setLayout(new BorderLayout(0, 0));
 
 			
 
 		
 		JScrollPane scrollPane_1 = new JScrollPane(lista_notas);
-		scrollPane_1.setBounds(0, 0, 301, 357);
 		panel_1.add(scrollPane_1);
 		
 		JButton btnNewButton = new JButton("+Anotação");
+		btnNewButton.setBackground(new Color(0, 51, 0));
+		btnNewButton.setForeground(Color.WHITE);
+		btnNewButton.setFont(new Font("SansSerif", Font.BOLD, 16));
 		btnNewButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				TelaCriarAnotacaoDesktopVirtual tela = new TelaCriarAnotacaoDesktopVirtual(0, isto);
 				tela.setVisible(true);
 			}
 		});
-		btnNewButton.setBounds(233, 546, 90, 28);
+		btnNewButton.setBounds(304, 546, 110, 33);
 		painelPrincipal.add(btnNewButton);
 		
 		JPanel panel_2 = new JPanel();
 		panel_2.setBackground(new Color(0, 102, 204));
-		panel_2.setBounds(335, 177, 699, 42);
+		panel_2.setBounds(448, 177, 829, 42);
 		painelPrincipal.add(panel_2);
 		panel_2.setLayout(new MigLayout("", "[]", "[]"));
 		
@@ -289,17 +291,19 @@ public class TelaNotas extends JDialog {
 		lblNomeNota.setFont(new Font("Arial", Font.PLAIN, 24));
 		
 		JButton btnEditar = new JButton("Editar");
+		btnEditar.setForeground(Color.WHITE);
+		btnEditar.setBackground(new Color(0, 0, 102));
+		btnEditar.setFont(new Font("SansSerif", Font.BOLD, 16));
 		btnEditar.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				
 			    CadastroNota item = (CadastroNota) lista_notas.getModel().getElementAt(indice_nota_selecionada);
                 TelaCriarNota telaeditar = new TelaCriarNota(2, item, isto);
-                telaeditar.setTelaPai(isto);
                 telaeditar.setVisible(true);
 			    
 			}
 		});
-		btnEditar.setBounds(734, 506, 90, 28);
+		btnEditar.setBounds(939, 508, 73, 33);
 		painelPrincipal.add(btnEditar);
 		
 		
@@ -310,13 +314,13 @@ public class TelaNotas extends JDialog {
 
 		
 		JScrollPane scrollPane3 = new JScrollPane(textAreaTexto);
-		scrollPane3.setBounds(335, 231, 489, 265);
+		scrollPane3.setBounds(448, 231, 564, 265);
 		painelPrincipal.add(scrollPane3);
 		
 		JPanel panel_3 = new JPanel();
 		panel_3.setForeground(new Color(153, 204, 0));
 		panel_3.setBackground(new Color(153, 204, 0));
-		panel_3.setBounds(836, 231, 198, 265);
+		panel_3.setBounds(1024, 231, 253, 265);
 		painelPrincipal.add(panel_3);
 		panel_3.setLayout(null);
 		
@@ -359,6 +363,9 @@ public class TelaNotas extends JDialog {
 		panel_3.add(lblLembrarMeHora);
 		
 		JButton btnExcluirNota = new JButton("Excluir");
+		btnExcluirNota.setBackground(new Color(255, 51, 0));
+		btnExcluirNota.setForeground(Color.WHITE);
+		btnExcluirNota.setFont(new Font("SansSerif", Font.BOLD, 16));
 		btnExcluirNota.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				if (JOptionPane.showConfirmDialog(isto, 
@@ -389,7 +396,7 @@ public class TelaNotas extends JDialog {
 				}
 			}
 		});
-		btnExcluirNota.setBounds(131, 546, 90, 28);
+		btnExcluirNota.setBounds(211, 546, 81, 33);
 		painelPrincipal.add(btnExcluirNota);
 		
 	

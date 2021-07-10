@@ -99,6 +99,41 @@ public class GerenciarBancoAditivos {
 	}
 	
 	
+	public ArrayList<CadastroAditivo> getAditivos() {
+		String selectAdivitos = "select * from aditivo";
+		Connection conn = null;
+		PreparedStatement pstm = null;
+		ResultSet rs = null;
+		ArrayList<CadastroAditivo> lista_aditivos = new ArrayList<CadastroAditivo>();
+		try {
+			conn = ConexaoBanco.getConexao();
+			pstm = conn.prepareStatement(selectAdivitos);
+			// pstm.setString(1, chave);
+
+			rs = pstm.executeQuery();
+			while (rs.next()) {
+				CadastroAditivo aditivo = new CadastroAditivo();
+			
+				
+				aditivo.setId_aditivo(rs.getInt("id_aditivo"));
+				aditivo.setData(rs.getString("data_aditivo"));
+				aditivo.setNome_arquivo(rs.getString("nome_arquivo"));
+				aditivo.setStatus(rs.getInt("status_aditivo"));
+				aditivo.setId_contrato_pai(rs.getInt("id_contrato_pai"));
+				aditivo.setTexto(rs.getString("texto"));
+				
+				lista_aditivos.add(aditivo);
+
+			}
+			ConexaoBanco.fechaConexao(conn, pstm, rs);
+		} catch (Exception e) {
+			JOptionPane.showMessageDialog(null, "Erro ao listar aditivos");//  );
+		}
+		return lista_aditivos;
+
+	}
+	
+	
 	public CadastroAditivo getAditivo(int id) {
 
 		String selectAditivo = "select * from aditivo where id_aditivo = ?";

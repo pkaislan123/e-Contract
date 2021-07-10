@@ -107,6 +107,42 @@ public class GerenciarBancoDistratos {
 	}
 	
 	
+	
+	public ArrayList<CadastroDistrato> getDistratos( ) {
+		String selectAdivitos = "select * from distrato ";
+		Connection conn = null;
+		PreparedStatement pstm = null;
+		ResultSet rs = null;
+		ArrayList<CadastroDistrato> lista_distratos = new ArrayList<CadastroDistrato>();
+		try {
+			conn = ConexaoBanco.getConexao();
+			pstm = conn.prepareStatement(selectAdivitos);
+			// pstm.setString(1, chave);
+
+			rs = pstm.executeQuery();
+			while (rs.next()) {
+				CadastroDistrato distrato = new CadastroDistrato();
+			
+				
+				distrato.setId_distrato(rs.getInt("id_distrato"));
+				distrato.setData(rs.getString("data_distrato"));
+				distrato.setNome_arquivo(rs.getString("nome_arquivo"));
+				distrato.setStatus(rs.getInt("status_distrato"));
+				distrato.setId_contrato_pai(rs.getInt("id_contrato_pai"));
+				distrato.setTexto(rs.getString("texto"));
+				
+				lista_distratos.add(distrato);
+
+			}
+			ConexaoBanco.fechaConexao(conn, pstm, rs);
+		} catch (Exception e) {
+			JOptionPane.showMessageDialog(null, "Erro ao listar distratos"  );
+		}
+		return lista_distratos;
+
+	}
+	
+	
 	public CadastroDistrato getDistrato(int id) {
 
 		String selectDistrato = "select * from distrato where id_distrato = ?";

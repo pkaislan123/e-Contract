@@ -411,7 +411,7 @@ public class RelatorioContratoCarregamentoSimplificado {
 
 	}
 
-	public ByteArrayOutputStream preparar() {
+	public String preparar() {
 
 		Locale ptBr = new Locale("pt", "BR");
 
@@ -552,10 +552,10 @@ public class RelatorioContratoCarregamentoSimplificado {
 	GerenciarBancoContratos gerenciar = new GerenciarBancoContratos();
 					
 					
-	ArrayList<RegistroQuantidade> quantidades_carregadas = gerenciar.getQuantidadesCarregadas(id_safra, cliente.getId(), contra_parte.getId(),1);
-	ArrayList<RegistroRecebimento> quantidades_recebidas = gerenciar.getRecebidas(id_safra, cliente.getId(),contra_parte.getId(),1);
-	ArrayList<RegistroQuantidade> quantidades_trans_negativa = gerenciar.getQuantidadesTransNegativa(id_safra, cliente.getId(), contra_parte.getId(),1);
-	ArrayList<RegistroQuantidade> quantidades_trans_positiva = gerenciar.getQuantidadesTransPositiva(id_safra, cliente.getId(), contra_parte.getId(),1);
+	ArrayList<RegistroQuantidade> quantidades_carregadas = gerenciar.getQuantidadesCarregadas(id_safra, cliente.getId(), contra_parte.getId(),2);
+	ArrayList<RegistroRecebimento> quantidades_recebidas = gerenciar.getRecebidas(id_safra, cliente.getId(),contra_parte.getId(),2);
+	ArrayList<RegistroQuantidade> quantidades_trans_negativa = gerenciar.getQuantidadesTransNegativa(id_safra, cliente.getId(), contra_parte.getId(),2);
+	ArrayList<RegistroQuantidade> quantidades_trans_positiva = gerenciar.getQuantidadesTransPositiva(id_safra, cliente.getId(), contra_parte.getId(),2);
 
 	criarTabelaInformacoes(quantidades_recebidas, quantidades_carregadas,quantidades_trans_negativa,quantidades_trans_positiva);
                   /*
@@ -631,24 +631,25 @@ public class RelatorioContratoCarregamentoSimplificado {
 			e.printStackTrace();
 		}
 
-		ByteArrayOutputStream saida_apos_edicao = new ByteArrayOutputStream();
+		//ByteArrayOutputStream saida_apos_edicao = new ByteArrayOutputStream();
 
-		/*
-		 * try { document_global.write(new FileOutputStream("c:\\arquivoteste.docx"));
-		 * document_global.write(saida_apos_edicao);
-		 * 
-		 * } catch (IOException e) { // TODO Auto-generated catch block
-		 * e.printStackTrace(); }
-		 */
-
+		
+	
+		 try {
+			 document_global.write(new FileOutputStream("c:\\temp\\arquivoteste.docx"));
+		 
+		 } catch (IOException e) { // TODO Auto-generated catch block
+		 e.printStackTrace(); }
+		
+/*
 		try {
 			document_global.write(saida_apos_edicao);
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-
-		return saida_apos_edicao;
+*/
+		return "c:\\temp\\arquivoteste.docx";
 
 	}
 
@@ -754,9 +755,11 @@ public class RelatorioContratoCarregamentoSimplificado {
 			tableRowOne.getCell(3).removeParagraph(0);
 			paragraph = tableRowOne.getCell(3).addParagraph();
 			criarParagrafoTabela(paragraph,  z.format(quantidade_final)  + " sacos", false);
-			somatoria_quantidade_total += quantidade_final;
+			//somatoria_quantidade_total += quantidade_final;
+			somatoria_quantidade_total += quantidade_carregada;
 
 
+			
 			tableRowOne = table.getRow(i);
 			tableRowOne.getCell(4).removeParagraph(0);
 			paragraph = tableRowOne.getCell(4).addParagraph();

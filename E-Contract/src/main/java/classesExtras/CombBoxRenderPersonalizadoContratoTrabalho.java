@@ -6,7 +6,6 @@ import javax.swing.DefaultListCellRenderer;
 import javax.swing.JList;
 
 import main.java.cadastros.CadastroFuncionarioAdmissao;
-import main.java.cadastros.CadastroFuncionarioDescontos;
 import main.java.cadastros.ContaBancaria;
 
 public class CombBoxRenderPersonalizadoContratoTrabalho extends DefaultListCellRenderer{

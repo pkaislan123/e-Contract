@@ -24,7 +24,7 @@ import javax.swing.table.AbstractTableModel;
 import javax.swing.table.TableRowSorter;
 
 import main.java.cadastros.CadastroCliente;
-import main.java.cadastros.CadastroFuncionarioAcrescimos;
+import main.java.cadastros.CadastroFuncionarioCalculo;
 import main.java.cadastros.FinanceiroConta;
 import main.java.cadastros.FinanceiroGrupoContas;
 import main.java.cadastros.FinanceiroConta;
@@ -33,7 +33,7 @@ import main.java.conexaoBanco.GerenciarBancoCentroCustos;
 import main.java.conexaoBanco.GerenciarBancoClientes;
 import main.java.conexaoBanco.GerenciarBancoFinanceiroConta;
 import main.java.conexaoBanco.GerenciarBancoFinanceiroGrupoContas;
-import main.java.conexaoBanco.GerenciarBancoFuncionariosAcrescimos;
+import main.java.conexaoBanco.GerenciarBancoFuncionariosCalculos;
 import main.java.outros.JTextFieldPersonalizado;
 import main.java.conexaoBanco.GerenciarBancoFinanceiroConta;
 
@@ -59,17 +59,17 @@ public class TelaFuncionariosAcrescimos extends JDialog {
 	private final JPanel painelPrinciapl = new JPanel();
 	private TelaFuncionariosAcrescimos isto;
 	 private JTable tabela_acrescimos;
-	 private ArrayList<CadastroFuncionarioAcrescimos> lista_acrescimos = new ArrayList<>();
+	 private ArrayList<CadastroFuncionarioCalculo> lista_acrescimos = new ArrayList<>();
 	 private JDialog telaPai;
 	 private AcrescimoTableModel modelo_acrescimos = new AcrescimoTableModel();
 	 private TableRowSorter<AcrescimoTableModel> sorter;
 	 
 	 
 	 
-	public TelaFuncionariosAcrescimos( Window janela_pai) {
+	public TelaFuncionariosAcrescimos(int flag_retorno, Window janela_pai) {
 		
 		isto = this;
-		setBounds(100, 100, 1018, 708);
+		setBounds(100, 100, 1307, 708);
 		painelPrinciapl.setBackground(Color.WHITE);
 		this.setContentPane(painelPrinciapl);
 		painelPrinciapl.setLayout(new MigLayout("", "[grow]", "[grow][grow][][]"));
@@ -77,9 +77,9 @@ public class TelaFuncionariosAcrescimos extends JDialog {
 		JPanel panel = new JPanel();
 		panel.setBackground(new Color(0, 102, 255));
 		painelPrinciapl.add(panel, "cell 0 0,grow");
-		panel.setLayout(new MigLayout("", "[100px][128px][][][][]", "[128px]"));
+		panel.setLayout(new MigLayout("", "[100px][128px][][][][]", "[]"));
 		
-		JLabel lblNewLabel = new JLabel("Acréscimos(Benefícios)");
+		JLabel lblNewLabel = new JLabel("Benefícios/Acréscimos ");
 		lblNewLabel.setForeground(Color.WHITE);
 		lblNewLabel.setFont(new Font("Tahoma", Font.BOLD, 40));
 		panel.add(lblNewLabel, "cell 0 0,growx,aligny bottom");
@@ -132,11 +132,11 @@ public class TelaFuncionariosAcrescimos extends JDialog {
 			public void actionPerformed(ActionEvent e) {
 				
 				if (JOptionPane.showConfirmDialog(isto, 
-			            "Deseja excluir o acrescimo selecionado?", "Excluir", 
+			            "Deseja excluir o Desconto selecionado?", "Excluir", 
 			            JOptionPane.YES_NO_OPTION,
 			            JOptionPane.QUESTION_MESSAGE) == JOptionPane.YES_OPTION){
 					
-						boolean exclusao = new GerenciarBancoFuncionariosAcrescimos().removerAcrescimo(getacrescimoSelecionado().getId_acrescimo());
+						boolean exclusao = new GerenciarBancoFuncionariosCalculos().removercalculo(getAcrescimoSelecionado().getId_calculo());
 						if(exclusao) {
 							JOptionPane.showMessageDialog(isto, "Cadastro Excluído");
 						}else {
@@ -159,6 +159,12 @@ public class TelaFuncionariosAcrescimos extends JDialog {
 		btnNewButton_3.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				
+				if(flag_retorno == 1) {
+					((TelaFuncionariosCadastroSalario) janela_pai).adicionarAcrescimo(getAcrescimoSelecionado());
+					isto.dispose();
+				
+				}
+				
 			}
 		});
 		panel_3.add(btnNewButton_3, "cell 1 0,alignx left,aligny top");
@@ -169,7 +175,7 @@ public class TelaFuncionariosAcrescimos extends JDialog {
 		btnNewButton_2.setForeground(Color.WHITE);
 		btnNewButton_2.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				TelaFuncionariosCadastroAcrescimo tela = new TelaFuncionariosCadastroAcrescimo(1, getacrescimoSelecionado(), isto);
+				TelaFuncionariosCadastroDesconto tela = new TelaFuncionariosCadastroDesconto(1, getAcrescimoSelecionado(), isto);
 				tela.setVisible(true);
 			}
 		});
@@ -182,12 +188,12 @@ public class TelaFuncionariosAcrescimos extends JDialog {
 	}
 	
 	public void pesquisar() {
-		GerenciarBancoFuncionariosAcrescimos gerenciar = new GerenciarBancoFuncionariosAcrescimos();
+		GerenciarBancoFuncionariosCalculos gerenciar = new GerenciarBancoFuncionariosCalculos();
 		lista_acrescimos.clear();
 		modelo_acrescimos.onRemoveAll();
 		
-		lista_acrescimos = gerenciar.getAcrescimos();
-		for(CadastroFuncionarioAcrescimos cc : lista_acrescimos) {
+		lista_acrescimos = gerenciar.getCalculosAcrescimo();
+		for(CadastroFuncionarioCalculo cc : lista_acrescimos) {
 			modelo_acrescimos.onAdd(cc);
 		}
 	}
@@ -198,12 +204,12 @@ public boolean checkString(String txt) {
 
 	
 	
-	public CadastroFuncionarioAcrescimos getacrescimoSelecionado() {
+	public CadastroFuncionarioCalculo getAcrescimoSelecionado() {
 		int indiceDaLinha = tabela_acrescimos.getSelectedRow();
 
 		int id_selecionado = Integer.parseInt(tabela_acrescimos.getValueAt(indiceDaLinha, 0).toString());
-		GerenciarBancoFuncionariosAcrescimos gerenciar_cont = new GerenciarBancoFuncionariosAcrescimos();
-		return gerenciar_cont.getAcrescimo(id_selecionado);
+		GerenciarBancoFuncionariosCalculos gerenciar_cont = new GerenciarBancoFuncionariosCalculos();
+		return gerenciar_cont.getcalculo(id_selecionado);
 		
 	}
 	
@@ -249,19 +255,27 @@ public boolean checkString(String txt) {
 
 		// constantes p/identificar colunas
 		private final int id = 0;
-		private final int descricao = 1;
-		private final int referencia = 2;
-		private final int porcentagem = 3;
-		private final int valor_fixo = 4;
-		
+		private final int nome = 1;
+		private final int descricao = 2;
+		private final int referencia_calculo = 3;
+		private final int quantidade = 4;
+		private final int referencia_valor = 5;
+		private final int valor = 6;
+		private final int total = 7;
+
 	
-		private final String colunas[] = { "ID", "Descrição","Referência",  "Porcentagem", "Valor Fixo"};
+		private final String colunas[] = { "ID", "Nome", "Descrição","Referência Cálculo", "Quantidade","Referência Valor", "Valor", "Total"};
 		 Locale ptBr = new Locale("pt", "BR");
 
-		private final ArrayList<CadastroFuncionarioAcrescimos> dados = new ArrayList<>();// usamos como dados uma lista
+		private final ArrayList<CadastroFuncionarioCalculo> dados = new ArrayList<>();// usamos como dados uma lista
 																				// genérica de
 		// nfs
-
+		
+		private String [] ref_cal = {"Sálario Base","Sálario Líquido" ,"Sálario Bruto",
+				"Valor Hora Trabalhada", "Nenhuma"};
+		
+		
+		private String [] ref_valor = {"Porcentagem", "Fixo"};
 		public AcrescimoTableModel() {
 
 		}
@@ -285,16 +299,20 @@ public boolean checkString(String txt) {
 	
 			case id:
 				return String.class;
+			case nome:
+				return String.class;
 			case descricao:
 				return String.class;
-			case referencia:
+			case referencia_calculo:
 				return String.class;
-			case porcentagem:
+			case quantidade:
 				return String.class;
-			case valor_fixo:
+			case referencia_valor:
 				return String.class;
-		
-
+			case valor:
+				return String.class;
+			case total:
+				return String.class;
 			default:
 				throw new IndexOutOfBoundsException("Coluna Inválida!!!");
 			}
@@ -311,21 +329,33 @@ public boolean checkString(String txt) {
 			NumberFormat z = NumberFormat.getNumberInstance();
 
 			// pega o dados corrente da linha
-			CadastroFuncionarioAcrescimos acrescimo = dados.get(rowIndex);
+			CadastroFuncionarioCalculo desconto = dados.get(rowIndex);
 
 			// retorna o valor da coluna
 			switch (columnIndex) {
 
 			case id:
-				return acrescimo.getId_acrescimo();
+				return desconto.getId_calculo();
+			case nome:
+				return desconto.getNome();
 			case descricao:
-				return acrescimo.getDescricao();
-			case referencia:
-				return acrescimo.getReferencia();
-			case porcentagem:
-				return acrescimo.getPorcentagem();
-			case valor_fixo:
-				return acrescimo.getValor();
+				return desconto.getDescricao();
+			case referencia_calculo:{
+				int referencia_calculo = desconto.getReferencia_calculo();
+				return ref_cal[referencia_calculo];
+
+			}
+			case quantidade:{
+				return desconto.getQuantidade();
+			}
+			case referencia_valor:{
+				int ref_val = desconto.getReferencia_valor();
+				return ref_valor[ref_val];
+			}
+			case valor:
+				return desconto.getValor();
+			case total:
+				return desconto.getTotal();
 			
 			default:
 				throw new IndexOutOfBoundsException("Coluna Inválida!!!");
@@ -344,7 +374,7 @@ public boolean checkString(String txt) {
 
 		@Override
 		public void setValueAt(Object aValue, int rowIndex, int columnIndex) {
-			CadastroFuncionarioAcrescimos recebimento = dados.get(rowIndex);
+			CadastroFuncionarioCalculo recebimento = dados.get(rowIndex);
 
 		}
 
@@ -356,7 +386,7 @@ public boolean checkString(String txt) {
 		 * @param rowIndex
 		 * @return
 		 */
-		public CadastroFuncionarioAcrescimos getValue(int rowIndex) {
+		public CadastroFuncionarioCalculo getValue(int rowIndex) {
 			return dados.get(rowIndex);
 		}
 
@@ -366,7 +396,7 @@ public boolean checkString(String txt) {
 		 * @param empregado
 		 * @return
 		 */
-		public int indexOf(CadastroFuncionarioAcrescimos nota) {
+		public int indexOf(CadastroFuncionarioCalculo nota) {
 			return dados.indexOf(nota);
 		}
 
@@ -375,7 +405,7 @@ public boolean checkString(String txt) {
 		 * 
 		 * @param empregado
 		 */
-		public void onAdd(CadastroFuncionarioAcrescimos nota) {
+		public void onAdd(CadastroFuncionarioCalculo nota) {
 			dados.add(nota);
 			fireTableRowsInserted(indexOf(nota), indexOf(nota));
 		}
@@ -385,7 +415,7 @@ public boolean checkString(String txt) {
 		 * 
 		 * @param dadosIn
 		 */
-		public void onAddAll(ArrayList<CadastroFuncionarioAcrescimos> dadosIn) {
+		public void onAddAll(ArrayList<CadastroFuncionarioCalculo> dadosIn) {
 			dados.addAll(dadosIn);
 			fireTableDataChanged();
 		}
@@ -405,7 +435,7 @@ public boolean checkString(String txt) {
 		 * 
 		 * @param empregado
 		 */
-		public void onRemove(CadastroFuncionarioAcrescimos nota) {
+		public void onRemove(CadastroFuncionarioCalculo nota) {
 			int indexBefore = indexOf(nota);// pega o indice antes de apagar
 			dados.remove(nota);
 			fireTableRowsDeleted(indexBefore, indexBefore);

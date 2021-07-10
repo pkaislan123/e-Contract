@@ -13,7 +13,7 @@ import javax.swing.JOptionPane;
 import main.java.cadastros.CadastroFuncionario;
 import main.java.cadastros.CartaoPonto;
 import main.java.cadastros.CartaoPontoCompleto;
-import main.java.cadastros.DescontoCompleto;
+import main.java.cadastros.CalculoCompleto;
 
 
 public class GerenciarBancoCartaoPonto {
@@ -202,21 +202,21 @@ public class GerenciarBancoCartaoPonto {
 		}
 		
 		
-		public boolean removerRelacaoFuncionarioCartaoPonto(CartaoPontoCompleto cartao) {
-			String sql_delete_desconto = "DELETE FROM funcionario_cartao_ponto WHERE id_funcionario = ? and id_cartao = ?";
+		public boolean removerRelacaoFuncionarioCartaoPonto(int id_func, int id_cartao) {
+			String sql_delete= "DELETE FROM funcionario_cartao_ponto WHERE id_funcionario = ? and id_cartao = ?";
 			Connection conn = null;
 			ResultSet rs = null;
 			try {
 				conn = ConexaoBanco.getConexao();
 				PreparedStatement pstm;
-				pstm = conn.prepareStatement(sql_delete_desconto);
+				pstm = conn.prepareStatement(sql_delete);
 
-				pstm.setInt(1, cartao.getId_funcionario());
-				pstm.setInt(2, cartao.getId_cartao());
+				pstm.setInt(1, id_func);
+				pstm.setInt(2, id_cartao);
 
 				pstm.execute();
 				ConexaoBanco.fechaConexao(conn, pstm);
-				JOptionPane.showMessageDialog(null, "Relação Funcionario Cartao excluída, banco normalizado ");
+				JOptionPane.showMessageDialog(null, "Relação Colaborador Cartão de Ponto excluída!");
 				return true;
 
 			} catch (Exception f) {
@@ -307,6 +307,7 @@ public class GerenciarBancoCartaoPonto {
 			}
 			
 		}
-		
+
+	
 
 }

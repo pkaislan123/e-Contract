@@ -62,8 +62,7 @@ import main.java.cadastros.CadastroRomaneio;
 import main.java.cadastros.CadastroSafra;
 import main.java.cadastros.ContaBancaria;
 import main.java.cadastros.Contato;
-import main.java.cadastros.DescontoCompleto;
-import main.java.cadastros.CadastroFuncionarioDescontos;
+import main.java.cadastros.CalculoCompleto;
 import main.java.cadastros.RegistroQuantidade;
 import main.java.cadastros.RegistroRecebimento;
 import main.java.classesExtras.CombBoxRenderPersonalizadoContratoTrabalho;
@@ -151,7 +150,6 @@ public class TelaFuncionariosCadastroCartaoPonto extends JFrame {
 
 	private JPanel painelCentral = new JPanel();
 	private TelaFuncionariosCadastroCartaoPonto isto;
-	private CadastroFuncionarioDescontos desconto_selecinado;
 	
 	private CombBoxRenderPersonalizadoContratoTrabalho cbContratosPersonalizados;
 	private CadastroFuncionario funcionario_local;

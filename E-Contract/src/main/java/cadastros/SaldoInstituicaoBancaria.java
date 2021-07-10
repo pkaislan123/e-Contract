@@ -14,6 +14,6 @@ import lombok.NoArgsConstructor;
 @Entity
 public class SaldoInstituicaoBancaria {
 
-	double total_receita, total_despesa, total_emprestimos, total_receita_transferencia, total_despesa_transferencia;
+	double total_receita, total_despesa, total_emprestimos, total_receita_transferencia, total_despesa_transferencia, total_despesa_emprestimo;
 	
 }

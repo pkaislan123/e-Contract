@@ -138,7 +138,7 @@ import javax.swing.ScrollPaneConstants;
 
 
 
-public class TelaCriarAditivo extends JDialog {
+public class TelaCriarAditivo extends JFrame {
 
 	private final JPanel painelPrincipal = new JPanel();
 	private JTextField entData;
@@ -152,10 +152,10 @@ public class TelaCriarAditivo extends JDialog {
 	private CadastroContrato contrato_local;
 	private TelaCriarAditivo isto;
 	EditarAditivo editarWord ;
+	private  JTextArea textAreaDadosContrato;
 	
 	public TelaCriarAditivo(CadastroContrato contrato, Window janela_pai) {
 		getDadosGlobais();
-		setModal(true);
 		
 		contrato_local = contrato;
 
@@ -167,21 +167,21 @@ public class TelaCriarAditivo extends JDialog {
 		
 		setBackground(new Color(255, 255, 255));
 		setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-		setBounds(100, 100, 661, 467);
+		setBounds(100, 100, 1003, 705);
 		painelPrincipal.setBackground(new Color(255, 255, 255));
 		painelPrincipal.setBorder(new EmptyBorder(5, 5, 5, 5));
 		setContentPane(painelPrincipal);
 		painelPrincipal.setLayout(null);
 		
 		JLabel lblNewLabel_2 = new JLabel("Data:");
+		lblNewLabel_2.setBounds(12, 12, 72, 17);
 		lblNewLabel_2.setFont(new Font("Tahoma", Font.PLAIN, 14));
-		lblNewLabel_2.setBounds(75, 31, 72, 14);
 		painelPrincipal.add(lblNewLabel_2);
 		
 		entData = new JTextField();
+		entData.setBounds(102, 12, 185, 29);
 		entData.setEditable(false);
 		entData.setFont(new Font("Tahoma", Font.PLAIN, 14));
-		entData.setBounds(157, 30, 185, 25);
 		painelPrincipal.add(entData);
 		entData.setColumns(10);
 		
@@ -219,6 +219,7 @@ public class TelaCriarAditivo extends JDialog {
 		
 		
 		 chkBoxDataAtual = new JCheckBox("Data Atual");
+		 chkBoxDataAtual.setBounds(303, 12, 97, 18);
 		chkBoxDataAtual.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				
@@ -235,10 +236,13 @@ public class TelaCriarAditivo extends JDialog {
 			}
 		});
 		chkBoxDataAtual.setSelected(true);
-		chkBoxDataAtual.setBounds(350, 29, 97, 23);
 		painelPrincipal.add(chkBoxDataAtual);
 		
-		JButton btnCriarAditivo = new JButton("Salvar");
+		JButton btnCriarAditivo = new JButton("Gerar");
+		btnCriarAditivo.setBounds(892, 627, 89, 33);
+		btnCriarAditivo.setBackground(new Color(0, 51, 51));
+		btnCriarAditivo.setForeground(Color.WHITE);
+		btnCriarAditivo.setFont(new Font("SansSerif", Font.BOLD, 16));
 		btnCriarAditivo.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				ByteArrayOutputStream contrato_alterado = null;
@@ -256,36 +260,45 @@ public class TelaCriarAditivo extends JDialog {
 						pdf_alterado, null, isto);
 			}
 		});
-		btnCriarAditivo.setBounds(513, 381, 89, 23);
 		painelPrincipal.add(btnCriarAditivo);
 		
 		JLabel lblNewLabel_3 = new JLabel("Texto do Aditivo:");
-		lblNewLabel_3.setFont(new Font("Tahoma", Font.PLAIN, 14));
-		lblNewLabel_3.setBounds(75, 89, 106, 14);
+		lblNewLabel_3.setBounds(12, 169, 173, 17);
+		lblNewLabel_3.setFont(new Font("Tahoma", Font.BOLD, 14));
 		painelPrincipal.add(lblNewLabel_3);
 		
 		JPanel panel_1 = new JPanel();
-		panel_1.setBounds(75, 140, 527, 198);
+		panel_1.setBounds(12, 200, 969, 415);
 		painelPrincipal.add(panel_1);
-		panel_1.setLayout(null);
+		panel_1.setLayout(new BorderLayout(0, 0));
 		
 		JScrollPane scrollPane = new JScrollPane();
 		scrollPane.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
-		scrollPane.setBounds(0, 0, 517, 198);
 		panel_1.add(scrollPane);
 		
 		 textAreaTextoFinal = new JTextArea();
+		 textAreaTextoFinal.setFont(new Font("SansSerif", Font.PLAIN, 14));
 		 textAreaTextoFinal.setText("Pelo presente instrumento, como (qualificação da parte como consta no contrato originário), e como (qualificação da outra parte como consta no contrato originário), ajustam o seguinte:\r\n\r\n[1.] [Prazo de Entrega]\r\n As partes acima qualificadas firmaram em 02 de julho de 2020 o CONTRATO 0002858-300 no qual ajustaram Prazo de entrega do dia 01/02/2021 a 28/02/2021.\r\n\r\n[2.] [Modalidade de Entrega]\r\n Considerando ter havido interesse recíproco, entre os contratantes, de alterar o prazo de entrega, passa, a partir desta data, a prevalecer o seguinte:\r\nA Mercadoria deverá ser entregue pelo Vendedor ao Comprador na condição posto sobre rodas, no prazo de entrega (retificado) de 01/02/2021 a 20/03/2021.\r\n\r\n[3.] [Final]\r\nFicam ratificadas todas as demais cláusulas e condições do CONTRATO mantem-se inalteradas. E por estarem, assim, justas e contratadas, assinam o presente em 2 vias de igual teor e forma, juntamente com as testemunhas abaixo.\r\n\r\n");
 		 scrollPane.setViewportView(textAreaTextoFinal);
 		 textAreaTextoFinal.setLineWrap(true);
 		 textAreaTextoFinal.setWrapStyleWord(true);
 		 textAreaTextoFinal.setBorder(new LineBorder(new Color(0, 0, 0)));
+		 
+		 JPanel painelDadosDoContrato = new JPanel();
+		 painelDadosDoContrato.setBorder(new LineBorder(new Color(0, 0, 0)));
+		 painelDadosDoContrato.setBackground(Color.WHITE);
+		 painelDadosDoContrato.setBounds(12, 62, 969, 102);
+		 painelPrincipal.add(painelDadosDoContrato);
+		 painelDadosDoContrato.setLayout(new MigLayout("", "[grow]", "[grow]"));
+		 
+		  textAreaDadosContrato = new JTextArea();
+		 painelDadosDoContrato.add(textAreaDadosContrato, "cell 0 0,grow");
 		
 		
 	
 		
 		
-		
+		 setInfoContrato(contrato);
 
 		this.setLocationRelativeTo(janela_pai);
 
@@ -319,7 +332,8 @@ public class TelaCriarAditivo extends JDialog {
 	}
 	
 	public void salvar(String caminho_arquivo_temp) {
-		
+        ManipularTxt manipular = new ManipularTxt();
+
 		
 		GetData hj = new GetData();
 		String hora =  hj.getHora().replace(":", " ");
@@ -329,9 +343,9 @@ public class TelaCriarAditivo extends JDialog {
         String nome_arquivo = "aditivo_contrato_" + contrato_local.getCodigo() +  "_" + hora;
 		String caminho_salvar = unidade_base_dados + "\\" + contrato_local.getCaminho_diretorio_contrato();
 		
-		String caminho_completo = caminho_salvar + "\\comprovantes\\" + nome_arquivo;
+		manipular.criarDiretorio(caminho_salvar + "\\documentos\\"  );
+        String caminho_completo = caminho_salvar + "\\documentos\\" + nome_arquivo;
 		boolean salvar = editarWord.criarArquivo(caminho_completo);
-        ManipularTxt manipular = new ManipularTxt();
 
 		if(salvar) {
 
@@ -372,8 +386,31 @@ public class TelaCriarAditivo extends JDialog {
 		
 	}
 	
+	public void setInfoContrato(CadastroContrato contrato) {
+		
+		String dados = "";
+		Locale ptBr = new Locale("pt", "BR");
+		NumberFormat z = NumberFormat.getNumberInstance();
+
+		String quantidade = z.format( contrato.getQuantidade());
+		String valor_total = NumberFormat.getCurrencyInstance(ptBr).format(contrato.getValor_a_pagar());
+		String valor_por_unidade = NumberFormat.getCurrencyInstance(ptBr).format(contrato.getValor_produto());
+		//String valor_comissao = NumberFormat.getCurrencyInstance(ptBr).format(contrato.getValor_comissao());
+		String unidade = contrato.getMedida();
+
+
+		dados = quantidade + " " + unidade + " de " + contrato.getModelo_safra().getProduto().getNome_produto() +
+				" da " + " safra " + contrato.getModelo_safra().getAno_plantio() + "/" + contrato.getModelo_safra().getAno_colheita() + ", sendo " +
+				valor_por_unidade + " por " + unidade + " perfazendo um total de " + valor_total;
+		
+		
+		textAreaDadosContrato.setText(dados);
+		
+		
+	}
+	
+	
 	public void setTelaPai(JFrame tela_pai) {
 		this.telaPaiJrame = tela_pai;
 	}	
-	
 }

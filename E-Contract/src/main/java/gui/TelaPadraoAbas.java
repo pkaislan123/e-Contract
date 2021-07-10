@@ -32,10 +32,6 @@ public class TelaPadraoAbas extends JDialog {
 		painelPrincipal.setBackground(new Color(255, 255, 255));
 		painelPrincipal.setBorder(new EmptyBorder(5, 5, 5, 5));
 		painelPrincipal = new JTabbedPane();
-		//contentPanel.setBackground(new Color(255, 255, 255));
-		//contentPanel.setBorder(new EmptyBorder(5, 5, 5, 5));
-		//setContentPane(contentPanel);
-		//contentPanel.setLayout(null);
 		
 		painelDadosIniciais.setBackground(new Color(255, 255, 255));
 		painelEmpresa.setBackground(new Color(255, 255, 255));

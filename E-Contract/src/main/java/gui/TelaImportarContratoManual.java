@@ -169,6 +169,8 @@ import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
@@ -506,57 +508,51 @@ public class TelaImportarContratoManual extends JFrame {
 		painelDadosProdutosPai.add(painelDadosProdutos, "cell 1 1,grow");
 		// adiciona o painel de informacoes adicionais nas abas
 		painelPrincipal.addTab("Adicionais", painelDadosAdicionais);
-		painelDadosAdicionais.setLayout(null);
-
-		JLabel lblClusulasAdicionais = new JLabel("Cláusulas Adicionais:");
-		lblClusulasAdicionais.setBounds(130, 80, 128, 38);
-		painelDadosAdicionais.add(lblClusulasAdicionais);
+		painelDadosAdicionais.setLayout(new MigLayout("", "[grow]", "[38px][grow]"));
 
 		panel = new JPanel();
 
 		panel.setBorder(UIManager.getBorder("TitledBorder.border"));
 		panel.setBackground(Color.WHITE);
-		panel.setBounds(19, 130, 1256, 456);
-		painelDadosAdicionais.add(panel);
-		panel.setLayout(null);
+		painelDadosAdicionais.add(panel, "cell 0 1,growx,aligny center");
+		panel.setLayout(new MigLayout("", "[143px][48px][681px][150px]", "[][28px][28px][28px][28px][18px][12px][1px][2px][28px][26px][2px][3px][2px][32px]"));
+		
+				JLabel lblClusulasAdicionais = new JLabel("Cláusulas Adicionais:");
+				panel.add(lblClusulasAdicionais, "cell 0 0");
+				lblClusulasAdicionais.setFont(new Font("SansSerif", Font.BOLD, 16));
 
 		chBoxClausula1 = new JCheckBox("");
-		chBoxClausula1.setBounds(226, 69, 48, 18);
-		panel.add(chBoxClausula1);
+		panel.add(chBoxClausula1, "cell 1 1,alignx center,aligny center");
 		chBoxClausula1.setSelected(true);
-		chBoxClausula1.setFont(new Font("SansSerif", Font.PLAIN, 14));
+		chBoxClausula1.setFont(new Font("SansSerif", Font.BOLD, 14));
 		chBoxClausula1.setEnabled(false);
 
 		entClausula1 = new JTextField();
 		entClausula1.setEnabled(false);
-		entClausula1.setBounds(280, 62, 681, 28);
-		panel.add(entClausula1);
+		panel.add(entClausula1, "cell 2 1,grow");
 		entClausula1.setEditable(false);
 		entClausula1.setText("A quantidade de quilogramas que exceder será negociado com o preço do dia.");
-		entClausula1.setFont(new Font("SansSerif", Font.PLAIN, 14));
+		entClausula1.setFont(new Font("SansSerif", Font.BOLD, 14));
 		entClausula1.setColumns(10);
 
 		entClausula2 = new JTextField();
 		entClausula2.setEnabled(false);
-		entClausula2.setBounds(280, 95, 681, 28);
-		panel.add(entClausula2);
+		panel.add(entClausula2, "cell 2 2,grow");
 		entClausula2.setEditable(false);
 		entClausula2.setText("Produto acima de 14% de umidade será cobrado uma taxa de despesas para a secagem\r\n");
-		entClausula2.setFont(new Font("SansSerif", Font.PLAIN, 14));
+		entClausula2.setFont(new Font("SansSerif", Font.BOLD, 14));
 		entClausula2.setColumns(10);
 
 		chBoxClausula2 = new JCheckBox("");
-		chBoxClausula2.setBounds(226, 99, 48, 18);
-		panel.add(chBoxClausula2);
+		panel.add(chBoxClausula2, "cell 1 2,alignx center,aligny center");
 		chBoxClausula2.setSelected(true);
-		chBoxClausula2.setFont(new Font("SansSerif", Font.PLAIN, 14));
+		chBoxClausula2.setFont(new Font("SansSerif", Font.BOLD, 14));
 		chBoxClausula2.setSelected(true);
 		chBoxClausula2.setEnabled(false);
 
 		chBoxClausula3 = new JCheckBox("");
 		chBoxClausula3.setEnabled(false);
-		chBoxClausula3.setBounds(226, 129, 48, 18);
-		panel.add(chBoxClausula3);
+		panel.add(chBoxClausula3, "cell 1 3,alignx center,aligny center");
 		chBoxClausula3.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 
@@ -572,24 +568,21 @@ public class TelaImportarContratoManual extends JFrame {
 
 			}
 		});
-		chBoxClausula3.setFont(new Font("SansSerif", Font.PLAIN, 14));
+		chBoxClausula3.setFont(new Font("SansSerif", Font.BOLD, 14));
 
 		entClausula3 = new JTextField();
-		entClausula3.setBounds(280, 125, 681, 28);
-		panel.add(entClausula3);
-		entClausula3.setFont(new Font("SansSerif", Font.PLAIN, 14));
+		panel.add(entClausula3, "cell 2 3,grow");
+		entClausula3.setFont(new Font("SansSerif", Font.BOLD, 14));
 		entClausula3.setColumns(10);
 
 		entClausula4 = new JTextField();
-		entClausula4.setBounds(280, 159, 681, 28);
-		panel.add(entClausula4);
+		panel.add(entClausula4, "cell 2 4,grow");
 		entClausula4.setEditable(false);
-		entClausula4.setFont(new Font("SansSerif", Font.PLAIN, 14));
+		entClausula4.setFont(new Font("SansSerif", Font.BOLD, 14));
 		entClausula4.setColumns(10);
 
 		chBoxClausula4 = new JCheckBox("");
-		chBoxClausula4.setBounds(226, 159, 48, 18);
-		panel.add(chBoxClausula4);
+		panel.add(chBoxClausula4, "cell 1 4,alignx center,aligny top");
 		chBoxClausula4.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 
@@ -605,54 +598,48 @@ public class TelaImportarContratoManual extends JFrame {
 
 			}
 		});
-		chBoxClausula4.setFont(new Font("SansSerif", Font.PLAIN, 14));
+		chBoxClausula4.setFont(new Font("SansSerif", Font.BOLD, 14));
 
 		chBoxClausula5 = new JCheckBox("");
-		chBoxClausula5.setBounds(226, 189, 48, 18);
-		panel.add(chBoxClausula5);
-		chBoxClausula5.setFont(new Font("SansSerif", Font.PLAIN, 14));
+		panel.add(chBoxClausula5, "cell 1 5,alignx center,aligny top");
+		chBoxClausula5.setFont(new Font("SansSerif", Font.BOLD, 14));
 
 		chBoxClausula6 = new JCheckBox("");
-		chBoxClausula6.setBounds(226, 219, 48, 18);
-		panel.add(chBoxClausula6);
-		chBoxClausula6.setFont(new Font("SansSerif", Font.PLAIN, 14));
+		panel.add(chBoxClausula6, "cell 1 7 1 3,alignx center,aligny top");
+		chBoxClausula6.setFont(new Font("SansSerif", Font.BOLD, 14));
 
 		entClausula5 = new JTextField();
-		entClausula5.setBounds(280, 192, 681, 28);
-		panel.add(entClausula5);
+		panel.add(entClausula5, "cell 2 5 1 3,growx,aligny top");
 		entClausula5.setEditable(false);
-		entClausula5.setFont(new Font("SansSerif", Font.PLAIN, 14));
+		entClausula5.setFont(new Font("SansSerif", Font.BOLD, 14));
 		entClausula5.setColumns(10);
 
 		entClausula6 = new JTextField();
-		entClausula6.setBounds(280, 222, 681, 28);
-		panel.add(entClausula6);
+		panel.add(entClausula6, "cell 2 9,grow");
 		entClausula6.setEditable(false);
-		entClausula6.setFont(new Font("SansSerif", Font.PLAIN, 14));
+		entClausula6.setFont(new Font("SansSerif", Font.BOLD, 14));
 		entClausula6.setColumns(10);
 
 		JLabel lblNewLabel_3 = new JLabel("Clausula Frete:");
-		lblNewLabel_3.setBounds(122, 286, 85, 18);
-		panel.add(lblNewLabel_3);
+		lblNewLabel_3.setFont(new Font("SansSerif", Font.BOLD, 16));
+		panel.add(lblNewLabel_3, "cell 0 10,alignx right,aligny center");
 
 		JLabel lblNewLabel_3_1 = new JLabel("Clausula Armazenagem:");
-		lblNewLabel_3_1.setBounds(73, 310, 143, 18);
-		panel.add(lblNewLabel_3_1);
+		lblNewLabel_3_1.setFont(new Font("SansSerif", Font.BOLD, 16));
+		panel.add(lblNewLabel_3_1, "cell 0 12 1 3,alignx right,aligny top");
 
 		cBFrete = new JComboBox();
 		cBFrete.setEnabled(false);
-		cBFrete.setBounds(971, 282, 150, 26);
 		cBFrete.addItem("Comprador");
 		cBFrete.addItem("Vendedor");
 
-		panel.add(cBFrete);
+		panel.add(cBFrete, "cell 3 10,growx,aligny top");
 
 		cBArmazenagem = new JComboBox();
 		cBArmazenagem.setEnabled(false);
-		cBArmazenagem.setBounds(971, 315, 150, 26);
 		cBArmazenagem.addItem("Comprador");
 		cBArmazenagem.addItem("Vendedor");
-		panel.add(cBArmazenagem);
+		panel.add(cBArmazenagem, "cell 3 14,growx,aligny top");
 
 		chkBoxClausulaFrete = new JCheckBox("");
 		chkBoxClausulaFrete.addActionListener(new ActionListener() {
@@ -675,9 +662,8 @@ public class TelaImportarContratoManual extends JFrame {
 
 			}
 		});
-		chkBoxClausulaFrete.setFont(new Font("SansSerif", Font.PLAIN, 14));
-		chkBoxClausulaFrete.setBounds(226, 286, 48, 18);
-		panel.add(chkBoxClausulaFrete);
+		chkBoxClausulaFrete.setFont(new Font("SansSerif", Font.BOLD, 14));
+		panel.add(chkBoxClausulaFrete, "cell 1 10,alignx center,aligny center");
 
 		chkBoxClausulaArmazenagem = new JCheckBox("");
 		chkBoxClausulaArmazenagem.addActionListener(new ActionListener() {
@@ -698,25 +684,22 @@ public class TelaImportarContratoManual extends JFrame {
 				}
 			}
 		});
-		chkBoxClausulaArmazenagem.setFont(new Font("SansSerif", Font.PLAIN, 14));
-		chkBoxClausulaArmazenagem.setBounds(226, 319, 48, 18);
-		panel.add(chkBoxClausulaArmazenagem);
+		chkBoxClausulaArmazenagem.setFont(new Font("SansSerif", Font.BOLD, 14));
+		panel.add(chkBoxClausulaArmazenagem, "cell 1 14,alignx center,aligny center");
 
 		entClausulaFrete = new JTextField();
 		entClausulaFrete.setEnabled(false);
-		entClausulaFrete.setFont(new Font("SansSerif", Font.PLAIN, 14));
+		entClausulaFrete.setFont(new Font("SansSerif", Font.BOLD, 14));
 		entClausulaFrete.setEditable(false);
 		entClausulaFrete.setColumns(10);
-		entClausulaFrete.setBounds(280, 285, 681, 28);
-		panel.add(entClausulaFrete);
+		panel.add(entClausulaFrete, "cell 2 10 1 3,growx,aligny top");
 
 		entClausulaArmazenagem = new JTextField();
 		entClausulaArmazenagem.setEnabled(false);
-		entClausulaArmazenagem.setFont(new Font("SansSerif", Font.PLAIN, 14));
+		entClausulaArmazenagem.setFont(new Font("SansSerif", Font.BOLD, 14));
 		entClausulaArmazenagem.setEditable(false);
 		entClausulaArmazenagem.setColumns(10);
-		entClausulaArmazenagem.setBounds(280, 319, 681, 28);
-		panel.add(entClausulaArmazenagem);
+		panel.add(entClausulaArmazenagem, "cell 2 14,growx,aligny bottom");
 		chBoxClausula6.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 
@@ -783,6 +766,8 @@ public class TelaImportarContratoManual extends JFrame {
 			}
 
 		}
+		
+
 
 		JLabel lblDataEntrega = new JLabel("Data Entrega:");
 		lblDataEntrega.setBounds(321, 159, 103, 42);
@@ -2026,6 +2011,7 @@ public class TelaImportarContratoManual extends JFrame {
 			modelSafra.addSafra(safra);
 
 		}
+		
 
 		JLabel lblOutro = new JLabel("Valor Total:");
 		lblOutro.setFont(new Font("Arial Black", Font.PLAIN, 14));
@@ -2090,6 +2076,9 @@ public class TelaImportarContratoManual extends JFrame {
 		painelEmpresa.add(cBContaBancaria);
 
 		JButton btnPesquisarCB = new JButton("Pesquisar");
+		btnPesquisarCB.setBackground(new Color(0, 0, 51));
+		btnPesquisarCB.setForeground(Color.WHITE);
+		btnPesquisarCB.setFont(new Font("SansSerif", Font.BOLD, 16));
 		btnPesquisarCB.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
 				TelaContaBancaria tela = new TelaContaBancaria(isto);
@@ -2097,7 +2086,7 @@ public class TelaImportarContratoManual extends JFrame {
 				tela.setVisible(true);
 			}
 		});
-		btnPesquisarCB.setBounds(393, 351, 89, 23);
+		btnPesquisarCB.setBounds(395, 343, 105, 33);
 		painelEmpresa.add(btnPesquisarCB);
 
 		JLabel lblDataPagamento = new JLabel("Data Pagamento:");
@@ -2190,6 +2179,9 @@ public class TelaImportarContratoManual extends JFrame {
 		painelEmpresa.add(entValorPagamento);
 
 		JButton btnAdicionarPag = new JButton("Adicionar");
+		btnAdicionarPag.setBackground(new Color(0, 51, 51));
+		btnAdicionarPag.setForeground(Color.WHITE);
+		btnAdicionarPag.setFont(new Font("SansSerif", Font.BOLD, 16));
 		btnAdicionarPag.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 
@@ -2343,10 +2335,13 @@ public class TelaImportarContratoManual extends JFrame {
 
 			}
 		});
-		btnAdicionarPag.setBounds(278, 619, 89, 23);
+		btnAdicionarPag.setBounds(278, 619, 118, 34);
 		painelEmpresa.add(btnAdicionarPag);
 
 		JButton btnExcluirPag = new JButton("Excluir");
+		btnExcluirPag.setBackground(new Color(102, 0, 0));
+		btnExcluirPag.setForeground(Color.WHITE);
+		btnExcluirPag.setFont(new Font("SansSerif", Font.BOLD, 16));
 		btnExcluirPag.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
 				int indiceDaLinha = table_cb.getSelectedRow();
@@ -2426,7 +2421,7 @@ public class TelaImportarContratoManual extends JFrame {
 
 			}
 		});
-		btnExcluirPag.setBounds(1122, 256, 89, 23);
+		btnExcluirPag.setBounds(1115, 256, 96, 28);
 		painelEmpresa.add(btnExcluirPag);
 
 		lblValorRestante = new JLabel("");
@@ -2687,148 +2682,13 @@ public class TelaImportarContratoManual extends JFrame {
 		painelFinalizar.setLayout(null);
 
 		JButton btnSalvar = new JButton("Salvar");
+		btnSalvar.setBackground(new Color(0, 51, 0));
+		btnSalvar.setForeground(Color.WHITE);
+		btnSalvar.setFont(new Font("SansSerif", Font.BOLD, 16));
 		btnSalvar.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 
-				CadastroCliente compradores[] = novo_contrato.getCompradores();
-				CadastroCliente vendedores[] = novo_contrato.getVendedores();
-
-				if (compradores[0] == null || vendedores[0] == null) {
-					JOptionPane.showMessageDialog(isto, "Comprador 1 e Vendedor 1 não podem ser nulos");
-				} else {
-
-					String produto, medida, quantidade, preco, local_retirada, data_contrato, data_entrega, codigo;
-
-					codigo = entCodigoContrato.getText();
-
-					data_entrega = entDataEntrega.getText();
-					novo_contrato.setData_entrega(data_entrega);
-					int i_tipo_contrato = cBTipoContrato.getSelectedIndex();
-
-					if(tipoContrato_global == 4) {
-					// definicoes de contrato
-					if (i_tipo_contrato == 0) {
-						// contrato pai de terceiros
-						novo_contrato.setSub_contrato(4);
-					} else {
-						// contrato pai proprietario
-						novo_contrato.setSub_contrato(5);
-
-					}}else if(tipoContrato_global == 5) {
-						//sub contratos
-						if (i_tipo_contrato == 0) {
-							// sub contrato  de terceiros
-							novo_contrato.setSub_contrato(6);
-						} else {
-							// sub contrato pai proprietario
-							novo_contrato.setSub_contrato(7);
-					}
-					}
-
-					data_contrato = entDataContrato.getText();
-					novo_contrato.setData_contrato(data_contrato);
-
-					novo_contrato.setStatus_contrato(1); // aprovado
-					lblStatusInicial.setText("Status Inicial: Recolher Assinatura");
-
-					novo_contrato.setCodigo(codigo);
-					if (rQuanKG.isSelected())
-						medida = "KG";
-					else if (rQuanS.isSelected())
-						medida = "Sacos";
-					else
-						medida = "TON";
-					novo_contrato.setMedida(medida);
-
-					CadastroSafra safra = (CadastroSafra) modelSafra.getSelectedItem();
-					novo_contrato.setModelo_safra(safra);
-					novo_contrato.setModelo_produto(safra.getProduto());
-
-					novo_contrato.setSafra(safra.getAno_plantio() + "/" + safra.getAno_colheita());
-
-					produto = safra.getProduto().getNome_produto();
-					novo_contrato.setProduto(produto);
-
-					CadastroCliente localRetirada = (CadastroCliente) modelLocalRetirada.getSelectedItem();
-					novo_contrato.setLocal_retirada(localRetirada.getNome_fantaia());
-
-					novo_contrato.setCliente_retirada(localRetirada);
-					novo_contrato.setId_local_retirada(novo_contrato.getCliente_retirada().getId());
-					int tipo_entrega = -1;
-
-					if (rBJaDepositada.isSelected()) {
-						tipo_entrega = 2;
-					} else if (rBPostoSobreRodas.isSelected()) {
-						tipo_entrega = 1;
-					}
-
-					novo_contrato.setTipo_entrega(tipo_entrega);
-
-					novo_contrato.setQuantidade(Double.parseDouble(entQuantidade.getText()));
-					novo_contrato.setValor_produto(Double.parseDouble(entPreco.getText()));
-					novo_contrato.setValor_a_pagar(valor_total);
-					novo_contrato.setValor_comissao(valor_total_comissao);
-
-					// pagamentos
-					novo_contrato.setPagamentos(pagamentos);
-
-					// adicionais
-					ArrayList<String> clausulas_locais = new ArrayList<>();
-
-					clausulas_locais.add(entClausula1.getText().toString());
-					clausulas_locais.add(entClausula2.getText().toString());
-
-					if (chBoxClausulaComissao.isSelected()) {
-						clausulas_locais.add(entClausula3.getText().toString());
-					}
-
-					if (chBoxClausula4.isSelected()) {
-						clausulas_locais.add(entClausula4.getText().toString());
-
-					}
-					if (chBoxClausula5.isSelected()) {
-						clausulas_locais.add(entClausula5.getText().toString());
-
-					}
-					if (chBoxClausula6.isSelected()) {
-						clausulas_locais.add(entClausula6.getText().toString());
-
-					}
-
-					novo_contrato.setClausulas(clausulas_locais);
-
-					// clausula frete
-
-					if (chkBoxClausulaFrete.isSelected()) {
-
-						novo_contrato.setFrete(cBFrete.getSelectedItem().toString());
-						novo_contrato.setClausula_frete(entClausulaFrete.getText());
-
-					} else {
-						novo_contrato.setFrete("");
-					}
-
-					// clausula armazenagem
-
-					if (chkBoxClausulaArmazenagem.isSelected()) {
-						novo_contrato.setArmazenagem(cBArmazenagem.getSelectedItem().toString());
-						novo_contrato.setClausula_armazenagem(entClausulaArmazenagem.getText());
-
-					} else {
-						novo_contrato.setArmazenagem("");
-					}
-
-					try {
-
-					} catch (Exception i) {
-						System.out.println("erro ao elaborar contrato, erro: " + i.getMessage());
-						JOptionPane.showMessageDialog(null,
-								"Erro fatal, consulte o administrador do sistema\nErro: " + i.getMessage());
-						isto.dispose();
-						DadosGlobais dados = DadosGlobais.getInstance();
-						dados.atualizarGraficosTelaPrincipal();
-
-					}
+				if(getDadosSalvar() != null) {
 
 					// perguntar se quer salvar
 					if (JOptionPane.showConfirmDialog(isto, "Confirmar Informações e Importar o Contrato?",
@@ -2847,7 +2707,7 @@ public class TelaImportarContratoManual extends JFrame {
 			}
 
 		});
-		btnSalvar.setBounds(593, 619, 89, 23);
+		btnSalvar.setBounds(593, 619, 76, 33);
 		painelFinalizar.add(btnSalvar);
 
 		lblStatusInicial = new JLabel("Status Inicial: ");
@@ -3157,6 +3017,9 @@ public class TelaImportarContratoManual extends JFrame {
 		painelFinalizar.add(lblTipoContrato);
 
 		JButton btnAtualizar = new JButton("Atualizar");
+		btnAtualizar.setBackground(new Color(0, 0, 51));
+		btnAtualizar.setForeground(Color.WHITE);
+		btnAtualizar.setFont(new Font("SansSerif", Font.BOLD, 16));
 		btnAtualizar.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				atualizar();
@@ -3165,7 +3028,7 @@ public class TelaImportarContratoManual extends JFrame {
 
 			}
 		});
-		btnAtualizar.setBounds(694, 619, 89, 23);
+		btnAtualizar.setBounds(694, 619, 95, 33);
 		painelFinalizar.add(btnAtualizar);
 
 		chBoxClausulaComissao.setVisible(false);
@@ -6157,5 +6020,208 @@ public class TelaImportarContratoManual extends JFrame {
 
 		}
 		return retorno_global;
+	}
+	
+	
+	public CadastroContrato getDadosSalvar() {
+		CadastroCliente compradores[] = novo_contrato.getCompradores();
+		CadastroCliente vendedores[] = novo_contrato.getVendedores();
+
+		if (compradores[0] == null || vendedores[0] == null) {
+			JOptionPane.showMessageDialog(isto, "Comprador 1 e Vendedor 1 não podem ser nulos");
+			return null;
+		} else {
+
+			String produto, medida, quantidade, preco, local_retirada, data_contrato, data_entrega, codigo;
+
+			try {
+			codigo = entCodigoContrato.getText();
+			
+			if(codigo != null && codigo.length() > 8) {
+				
+			}else {
+				JOptionPane.showMessageDialog(isto, "Código do contrato com formato inválido, use (ANO-CODIGO)");
+				return null;
+			}
+			
+			}catch(Exception e) {
+				JOptionPane.showMessageDialog(isto, "Código do contrato Inválido!");
+				return null;
+			}
+			
+			
+			data_entrega = entDataEntrega.getText();
+			
+			try {
+				LocalDate data_ctr = LocalDate.parse(data_entrega, DateTimeFormatter.ofPattern("dd/MM/yyyy"));
+				
+				}catch(Exception e) {
+					JOptionPane.showMessageDialog(isto, "Data da Entrega Inválida!");
+					return null;
+				}
+			
+			
+			
+			novo_contrato.setData_entrega(data_entrega);
+			int i_tipo_contrato = cBTipoContrato.getSelectedIndex();
+
+			if(tipoContrato_global == 4) {
+			// definicoes de contrato
+			if (i_tipo_contrato == 0) {
+				// contrato pai de terceiros
+				novo_contrato.setSub_contrato(4);
+			} else {
+				// contrato pai proprietario
+				novo_contrato.setSub_contrato(5);
+
+			}}else if(tipoContrato_global == 5) {
+				//sub contratos
+				if (i_tipo_contrato == 0) {
+					// sub contrato  de terceiros
+					novo_contrato.setSub_contrato(6);
+				} else {
+					// sub contrato pai proprietario
+					novo_contrato.setSub_contrato(7);
+			}
+			}
+
+			data_contrato = entDataContrato.getText();
+
+			try {
+			LocalDate data_ctr = LocalDate.parse(data_contrato, DateTimeFormatter.ofPattern("dd/MM/yyyy"));
+			
+			}catch(Exception e) {
+				JOptionPane.showMessageDialog(isto, "Data do contrato Inválida!");
+				return null;
+			}
+			
+			novo_contrato.setData_contrato(data_contrato);
+
+			novo_contrato.setStatus_contrato(1); // aprovado
+			lblStatusInicial.setText("Status Inicial: Recolher Assinatura");
+
+			novo_contrato.setCodigo(codigo);
+			if (rQuanKG.isSelected())
+				medida = "KG";
+			else if (rQuanS.isSelected())
+				medida = "Sacos";
+			else
+				medida = "TON";
+			novo_contrato.setMedida(medida);
+
+			try {
+			CadastroSafra safra = (CadastroSafra) modelSafra.getSelectedItem();
+			novo_contrato.setModelo_safra(safra);
+			novo_contrato.setModelo_produto(safra.getProduto());
+
+			novo_contrato.setSafra(safra.getAno_plantio() + "/" + safra.getAno_colheita());
+
+			produto = safra.getProduto().getNome_produto();
+			novo_contrato.setProduto(produto);
+			
+			}catch(Exception e) {
+				JOptionPane.showMessageDialog(isto, "Safra inválida");
+				return null;
+			}
+			
+
+			CadastroCliente localRetirada = (CadastroCliente) modelLocalRetirada.getSelectedItem();
+			novo_contrato.setLocal_retirada(localRetirada.getNome_fantaia());
+
+			novo_contrato.setCliente_retirada(localRetirada);
+			novo_contrato.setId_local_retirada(novo_contrato.getCliente_retirada().getId());
+			int tipo_entrega = -1;
+
+			if (rBJaDepositada.isSelected()) {
+				tipo_entrega = 2;
+			} else if (rBPostoSobreRodas.isSelected()) {
+				tipo_entrega = 1;
+			}
+
+			novo_contrato.setTipo_entrega(tipo_entrega);
+
+			try {
+			novo_contrato.setQuantidade(Double.parseDouble(entQuantidade.getText()));
+			}catch(Exception e) {
+				JOptionPane.showMessageDialog(isto, "Quantidade inválida!");
+				return null;
+			}
+			
+			try {
+			novo_contrato.setValor_produto(Double.parseDouble(entPreco.getText()));
+			}catch(Exception e) {
+				JOptionPane.showMessageDialog(isto, "Preço inválido!");
+				return null;
+			}
+			
+			
+			novo_contrato.setValor_a_pagar(valor_total);
+			
+			
+			novo_contrato.setValor_comissao(valor_total_comissao);
+
+			// pagamentos
+			novo_contrato.setPagamentos(pagamentos);
+
+			// adicionais
+			ArrayList<String> clausulas_locais = new ArrayList<>();
+
+			clausulas_locais.add(entClausula1.getText().toString());
+			clausulas_locais.add(entClausula2.getText().toString());
+
+			if (chBoxClausulaComissao.isSelected()) {
+				clausulas_locais.add(entClausula3.getText().toString());
+			}
+
+			if (chBoxClausula4.isSelected()) {
+				clausulas_locais.add(entClausula4.getText().toString());
+
+			}
+			if (chBoxClausula5.isSelected()) {
+				clausulas_locais.add(entClausula5.getText().toString());
+
+			}
+			if (chBoxClausula6.isSelected()) {
+				clausulas_locais.add(entClausula6.getText().toString());
+
+			}
+
+			novo_contrato.setClausulas(clausulas_locais);
+
+			// clausula frete
+
+			if (chkBoxClausulaFrete.isSelected()) {
+
+				novo_contrato.setFrete(cBFrete.getSelectedItem().toString());
+				novo_contrato.setClausula_frete(entClausulaFrete.getText());
+
+			} else {
+				novo_contrato.setFrete("");
+			}
+
+			// clausula armazenagem
+
+			if (chkBoxClausulaArmazenagem.isSelected()) {
+				novo_contrato.setArmazenagem(cBArmazenagem.getSelectedItem().toString());
+				novo_contrato.setClausula_armazenagem(entClausulaArmazenagem.getText());
+
+			} else {
+				novo_contrato.setArmazenagem("");
+			}
+
+			try {
+
+			} catch (Exception i) {
+				System.out.println("erro ao elaborar contrato, erro: " + i.getMessage());
+				JOptionPane.showMessageDialog(null,
+						"Erro fatal, consulte o administrador do sistema\nErro: " + i.getMessage());
+				isto.dispose();
+				DadosGlobais dados = DadosGlobais.getInstance();
+				dados.atualizarGraficosTelaPrincipal();
+
+			}
+			
+			return novo_contrato;
+		}
 	}
 }

@@ -112,6 +112,55 @@ public class GerenciarBancoInstituicaoBancaria {
 
 	}
 
+	
+
+	public ArrayList<InstituicaoBancaria> getInstituicoesBancariasMaisRapido() {
+		String selectIb = "select \r\n"
+				+ "ib.id_instituicao_bancaria, nome_instituicao_bancaria, \r\n"
+				+ "cc.banco, cc.codigo, cc.agencia, cc.conta,\r\n"
+				+ "(\r\n"
+				+ "case\r\n"
+				+ "when cl.tipo_cliente = '0' then cl.nome_empresarial \r\n"
+				+ " when cl.tipo_cliente = '1' then cl.nome_fantasia\r\n"
+				+ "end\r\n"
+				+ "\r\n"
+				+ ") as nome_cliente\r\n"
+				+ "\r\n"
+				+ " from instituicao_bancaria ib\r\n"
+				+ "left join cliente cl on cl.id_cliente = ib.id_cliente\r\n"
+				+ "left join conta_bancaria cc on cc.id_conta = ib.id_conta";
+		Connection conn = null;
+		PreparedStatement pstm = null;
+		ResultSet rs = null;
+		ArrayList<InstituicaoBancaria> lista_instituicoes_bancarias = new ArrayList<>();
+		try {
+			conn = ConexaoBanco.getConexao();
+			pstm = conn.prepareStatement(selectIb);
+
+			rs = pstm.executeQuery();
+			while (rs.next()) {
+				InstituicaoBancaria ib = new InstituicaoBancaria();
+
+				ib.setId_instituicao_bancaria(rs.getInt("id_instituicao_bancaria"));
+				ib.setNome_instituicao_bancaria(rs.getString("nome_instituicao_bancaria"));
+				ib.setNome_cliente(rs.getString("nome_cliente"));
+
+				ib.setCc_banco(rs.getString("banco"));
+				ib.setCc_codigo(rs.getString("codigo"));
+				ib.setCc_agencia(rs.getString("agencia"));
+				ib.setCc_conta(rs.getString("conta"));
+				
+				
+				lista_instituicoes_bancarias.add(ib);
+
+			}
+			ConexaoBanco.fechaConexao(conn, pstm, rs);
+		} catch (Exception e) {
+			JOptionPane.showMessageDialog(null, "Erro ao listar instituicoes bancarias");// );
+		}
+		return lista_instituicoes_bancarias;
+
+	}
 	public InstituicaoBancaria getInstituicaoBancaria(int id) {
 
 		String select_instituicao_bancaria = "select * from instituicao_bancaria where id_instituicao_bancaria = ?";

@@ -520,7 +520,7 @@ public class TelaFinanceiroCadastroTransferencia extends JDialog {
 						pagamento.setObservacao("");
 
 						pagamento.setFluxo_caixa(1);
-
+						pagamento.setExtrato(1);
 						pagamento.setId_condicao_pagamento(2);
 
 						pagamento.setStatus_pagamento(1);

@@ -88,7 +88,7 @@ public class TelaFinanceiro extends JFrame {
 	private TelaFinanceiro isto;
 	private TableRowSorter<LancamentoTableModel> sorter;
 
-	private JLabel lblUser, lblDireitos, lblNumeroTarefas;
+	private JLabel lblUser, lblDireitos;
 	private Log GerenciadorLog;
 	private CadastroLogin login;
 	private ConfiguracoesGlobais configs_globais;
@@ -100,7 +100,7 @@ public class TelaFinanceiro extends JFrame {
 	private ArrayList<Lancamento> lista_lancamentos = new ArrayList<>();
 	private LancamentoTableModel modelo_lancamentos = new LancamentoTableModel();
 	private JLabel lblSomatoriaValorTotalDespesasAPagar, lblSomatoriaValorTotalReceitasAReceber;
-	private 	JPanel painelGraficoLinha ;
+	private JPanel painelGraficoLinha;
 	private DefaultCategoryDataset dataset;
 	private GraficoLinhaDupla linha = null;
 
@@ -235,26 +235,78 @@ public class TelaFinanceiro extends JFrame {
 			}
 		});
 		mnNewMenu_1.add(lancamentos);
-		
+
 		JMenuItem mntmPagamentos = new JMenuItem("Pagamentos");
 		mntmPagamentos.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-			
+
 				TelaFinanceiroPagamento tela = new TelaFinanceiroPagamento(-1, -1, isto);
 				tela.setVisible(true);
-				
+
 			}
-			
+
 		});
+
+		JMenuItem mntmParcelas = new JMenuItem("Parcelas");
+		mntmParcelas.setIcon(new ImageIcon(TelaFinanceiro.class.getResource("/imagens/parcela.png")));
+		mntmParcelas.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				TelaFinanceiroParcelas tela = new TelaFinanceiroParcelas(-1, -1, isto);
+				tela.setVisible(true);
+
+			}
+		});
+		mntmParcelas.setMargin(new Insets(0, 10, 0, 0));
+		mntmParcelas.setFont(new Font("Segoe UI", Font.PLAIN, 16));
+		mnNewMenu_1.add(mntmParcelas);
 		mntmPagamentos.setIcon(new ImageIcon(TelaFinanceiro.class.getResource("/imagens/pagamento.png")));
 		mntmPagamentos.setMargin(new Insets(0, 10, 0, 0));
 		mntmPagamentos.setFont(new Font("Segoe UI", Font.PLAIN, 16));
 		mnNewMenu_1.add(mntmPagamentos);
+
+		JMenuItem mntmRelatoria = new JMenuItem("Relatoria");
+		mntmRelatoria.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+
+				TelaFinanceiroRelatorios tela = new TelaFinanceiroRelatorios(isto);
+				tela.setVisible(true);
+
+			}
+		});
+		mntmRelatoria.setIcon(new ImageIcon(TelaFinanceiro.class.getResource("/imagens/relatorio.png")));
+		mntmRelatoria.setMargin(new Insets(0, 10, 0, 0));
+		mntmRelatoria.setFont(new Font("Segoe UI", Font.PLAIN, 16));
+		mnNewMenu_1.add(mntmRelatoria);
+
+		JMenuItem mntmRecibosEEmprstimos = new JMenuItem("Recibos e Empréstimos");
+		mntmRecibosEEmprstimos.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				JOptionPane.showMessageDialog(isto, "Construindo...");
+
+			}
+		});
+		mntmRecibosEEmprstimos.setIcon(new ImageIcon(TelaFinanceiro.class.getResource("/imagens/emprestimo.png")));
+		mntmRecibosEEmprstimos.setMargin(new Insets(0, 10, 0, 0));
+		mntmRecibosEEmprstimos.setFont(new Font("Segoe UI", Font.PLAIN, 16));
+		mnNewMenu_1.add(mntmRecibosEEmprstimos);
+
+		JMenuItem mntmComprovantes = new JMenuItem("Comprovantes");
+		mntmComprovantes.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				JOptionPane.showMessageDialog(isto, "Construindo...");
+
+			}
+		});
+		mntmComprovantes.setIcon(new ImageIcon(TelaFinanceiro.class.getResource("/imagens/comprovante.png")));
+		mntmComprovantes.setMargin(new Insets(0, 10, 0, 0));
+		mntmComprovantes.setFont(new Font("Segoe UI", Font.PLAIN, 16));
+		mnNewMenu_1.add(mntmComprovantes);
 		painelPrincipal = new JPanel();
 		painelPrincipal.setBackground(Color.WHITE);
 		painelPrincipal.setBorder(new EmptyBorder(5, 5, 5, 5));
 		setContentPane(painelPrincipal);
-		painelPrincipal.setLayout(new MigLayout("", "[grow][grow][242px,grow][grow][grow][grow][grow][][][]", "[78px][][400px:n,grow]"));
+		painelPrincipal.setLayout(
+				new MigLayout("", "[grow][grow][242px,grow][grow][grow][grow][grow][][][]", "[78px][][400px:n,grow]"));
 
 		painelPrincipal.add(menuBar, "cell 0 0 3 1,alignx left,aligny center");
 
@@ -295,55 +347,12 @@ public class TelaFinanceiro extends JFrame {
 		mntmNewMenuItem_5.setIcon(new ImageIcon(TelaPrincipal.class.getResource("/imagens/icone_menu_tarefas.png")));
 		mntmNewMenuItem_5.setMargin(new Insets(0, 10, 0, 0));
 		mnFerramentas.add(mntmNewMenuItem_5);
-
-		JPanel panel_1 = new JPanel();
-		panel_1.setBackground(new Color(0, 153, 51));
 		GridBagConstraints gbc_panel_1 = new GridBagConstraints();
 		gbc_panel_1.gridwidth = 13;
 		gbc_panel_1.insets = new Insets(0, 0, 5, 5);
 		gbc_panel_1.fill = GridBagConstraints.BOTH;
 		gbc_panel_1.gridx = 24;
 		gbc_panel_1.gridy = 0;
-		painelPrincipal.add(panel_1, "cell 3 0,grow");
-		panel_1.setLayout(new MigLayout("", "[][][][][][][]", "[][-18.00][]"));
-
-		JLabel lblNewLabel_8 = new JLabel("");
-		lblNewLabel_8.addMouseListener(new MouseAdapter() {
-			@Override
-			public void mouseClicked(MouseEvent e) {
-				if (telaPost == null) {
-					telaPost = new TelaPost(isto);
-				} else {
-					telaPost.setVisible(true);
-				}
-			}
-		});
-		panel_1.add(lblNewLabel_8, "cell 0 0");
-		lblNewLabel_8.setIcon(new ImageIcon(TelaMain.class.getResource("/imagens/icone_anotacoes_tela_principal.png")));
-
-		JLabel lblNewLabel_1 = new JLabel("");
-		lblNewLabel_1.addMouseListener(new MouseAdapter() {
-			@Override
-			public void mouseClicked(MouseEvent e) {
-
-				TelaTarefas tela_tarefas = new TelaTarefas(isto);
-				tela_tarefas.getTarefas();
-				tela_tarefas.setVisible(true);
-
-			}
-		});
-		panel_1.add(lblNewLabel_1, "cell 1 0");
-		lblNewLabel_1.setIcon(new ImageIcon(TelaMain.class.getResource("/imagens/icone_tarefa.png")));
-
-		JLabel lblNewLabel_2 = new JLabel("Você tem:");
-		panel_1.add(lblNewLabel_2, "cell 2 0");
-
-		lblNumeroTarefas = new JLabel("0");
-		panel_1.add(lblNumeroTarefas, "cell 3 0");
-		lblNumeroTarefas.setFont(new Font("Tahoma", Font.BOLD, 18));
-
-		JLabel lblNewLabel_4 = new JLabel("tarefas");
-		panel_1.add(lblNewLabel_4, "cell 4 0");
 
 		JPanel panel_2 = new JPanel();
 		panel_2.setBackground(new Color(51, 153, 255));
@@ -394,66 +403,66 @@ public class TelaFinanceiro extends JFrame {
 		JLabel lblNewLabel = new JLabel("Opções de Dados:");
 		lblNewLabel.setFont(new Font("Tahoma", Font.BOLD, 16));
 		panel.add(lblNewLabel, "cell 0 0,alignx center");
-						
-								JButton btnAgruparPorCon = new JButton("Conta");
-								btnAgruparPorCon.addActionListener(new ActionListener() {
-									public void actionPerformed(ActionEvent e) {
-										java.awt.EventQueue.invokeLater(new Runnable() {
-											public void run() {
-												grafico_despesas.removeAll();
-												grafico_despesas.add(criarGrafico1(0, 0, 0));
-												grafico_despesas.repaint();
-												grafico_despesas.updateUI();
-											}
-										});
 
-									}
-								});
-								
-										JButton btnNewButton = new JButton("Grupo");
-										btnNewButton.setForeground(Color.WHITE);
-										btnNewButton.setBackground(new Color(0, 0, 102));
-										btnNewButton.setFont(new Font("Tahoma", Font.PLAIN, 16));
-										btnNewButton.addActionListener(new ActionListener() {
-											public void actionPerformed(ActionEvent e) {
-												java.awt.EventQueue.invokeLater(new Runnable() {
-													public void run() {
-														grafico_despesas.removeAll();
-														grafico_despesas.add(criarGrafico1(0, 1, 0));
-														grafico_despesas.repaint();
-														grafico_despesas.updateUI();
-													}
-												});
+		JButton btnAgruparPorCon = new JButton("Conta");
+		btnAgruparPorCon.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				java.awt.EventQueue.invokeLater(new Runnable() {
+					public void run() {
+						grafico_despesas.removeAll();
+						grafico_despesas.add(criarGrafico1(0, 0, 0));
+						grafico_despesas.repaint();
+						grafico_despesas.updateUI();
+					}
+				});
 
-											}
-										});
-										
-										JLabel lblAgruparPor = new JLabel("Agrupar por:");
-										lblAgruparPor.setFont(new Font("Tahoma", Font.BOLD, 16));
-										panel.add(lblAgruparPor, "cell 0 2");
-										panel.add(btnNewButton, "cell 0 3,alignx center");
-								btnAgruparPorCon.setForeground(Color.WHITE);
-								btnAgruparPorCon.setBackground(new Color(0, 0, 153));
-								btnAgruparPorCon.setFont(new Font("Tahoma", Font.PLAIN, 16));
-								panel.add(btnAgruparPorCon, "cell 0 4,alignx center");
-				
-						JLabel lblSomatorias = new JLabel("Somatória ");
-						lblSomatorias.setFont(new Font("Tahoma", Font.BOLD, 16));
-						panel.add(lblSomatorias, "cell 0 5");
-		
-				JPanel panel_3 = new JPanel();
-				panel_3.setBackground(Color.WHITE);
-				panel.add(panel_3, "cell 0 6,grow");
-				panel_3.setLayout(new MigLayout("", "[][]", "[]"));
-				
-						JLabel lblValorTotal = new JLabel("Valor Total:");
-						panel_3.add(lblValorTotal, "cell 0 0");
-						lblValorTotal.setFont(new Font("Tahoma", Font.BOLD, 16));
-						
-								lblSomatoriaValorTotalDespesasAPagar = new JLabel("R$ 000.000.000,00");
-								lblSomatoriaValorTotalDespesasAPagar.setForeground(Color.RED);
-								panel_3.add(lblSomatoriaValorTotalDespesasAPagar, "cell 1 0");
-								lblSomatoriaValorTotalDespesasAPagar.setFont(new Font("Tahoma", Font.BOLD, 16));
+			}
+		});
+
+		JButton btnNewButton = new JButton("Grupo");
+		btnNewButton.setForeground(Color.WHITE);
+		btnNewButton.setBackground(new Color(0, 0, 102));
+		btnNewButton.setFont(new Font("Tahoma", Font.PLAIN, 16));
+		btnNewButton.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				java.awt.EventQueue.invokeLater(new Runnable() {
+					public void run() {
+						grafico_despesas.removeAll();
+						grafico_despesas.add(criarGrafico1(0, 1, 0));
+						grafico_despesas.repaint();
+						grafico_despesas.updateUI();
+					}
+				});
+
+			}
+		});
+
+		JLabel lblAgruparPor = new JLabel("Agrupar por:");
+		lblAgruparPor.setFont(new Font("Tahoma", Font.BOLD, 16));
+		panel.add(lblAgruparPor, "cell 0 2");
+		panel.add(btnNewButton, "cell 0 3,alignx center");
+		btnAgruparPorCon.setForeground(Color.WHITE);
+		btnAgruparPorCon.setBackground(new Color(0, 0, 153));
+		btnAgruparPorCon.setFont(new Font("Tahoma", Font.PLAIN, 16));
+		panel.add(btnAgruparPorCon, "cell 0 4,alignx center");
+
+		JLabel lblSomatorias = new JLabel("Somatória ");
+		lblSomatorias.setFont(new Font("Tahoma", Font.BOLD, 16));
+		panel.add(lblSomatorias, "cell 0 5");
+
+		JPanel panel_3 = new JPanel();
+		panel_3.setBackground(Color.WHITE);
+		panel.add(panel_3, "cell 0 6,grow");
+		panel_3.setLayout(new MigLayout("", "[][]", "[]"));
+
+		JLabel lblValorTotal = new JLabel("Valor Total:");
+		panel_3.add(lblValorTotal, "cell 0 0");
+		lblValorTotal.setFont(new Font("Tahoma", Font.BOLD, 16));
+
+		lblSomatoriaValorTotalDespesasAPagar = new JLabel("R$ 000.000.000,00");
+		lblSomatoriaValorTotalDespesasAPagar.setForeground(Color.RED);
+		panel_3.add(lblSomatoriaValorTotalDespesasAPagar, "cell 1 0");
+		lblSomatoriaValorTotalDespesasAPagar.setFont(new Font("Tahoma", Font.BOLD, 16));
 
 		JPanel painelPaiReceitas = new JPanel();
 		panel_5.add(painelPaiReceitas, "cell 1 0");
@@ -474,54 +483,54 @@ public class TelaFinanceiro extends JFrame {
 		JLabel lblNewLabel_3 = new JLabel("Opções de Dados:");
 		lblNewLabel_3.setFont(new Font("Tahoma", Font.BOLD, 16));
 		panel_4.add(lblNewLabel_3, "cell 0 0");
-				
-						JButton btnAgruparPorCon_1 = new JButton("Conta");
-						btnAgruparPorCon_1.addActionListener(new ActionListener() {
-							public void actionPerformed(ActionEvent e) {
-								java.awt.EventQueue.invokeLater(new Runnable() {
 
-									public void run() {
-										grafico_receitas.removeAll();
-										grafico_receitas.add(criarGrafico2(1, 0, 2));
-										grafico_receitas.repaint();
-										grafico_receitas.updateUI();
-									}
-								});
-							}
+		JButton btnAgruparPorCon_1 = new JButton("Conta");
+		btnAgruparPorCon_1.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				java.awt.EventQueue.invokeLater(new Runnable() {
 
-						});
-						
-								JButton btnNewButton_1 = new JButton("Grupo");
-								btnNewButton_1.addActionListener(new ActionListener() {
-									public void actionPerformed(ActionEvent e) {
-										java.awt.EventQueue.invokeLater(new Runnable() {
-											public void run() {
-												grafico_receitas.removeAll();
-												grafico_receitas.add(criarGrafico2(1, 1, 2));
-												grafico_receitas.repaint();
-												grafico_receitas.updateUI();
-											}
-										});
+					public void run() {
+						grafico_receitas.removeAll();
+						grafico_receitas.add(criarGrafico2(1, 0, 2));
+						grafico_receitas.repaint();
+						grafico_receitas.updateUI();
+					}
+				});
+			}
 
-									}
+		});
 
-								});
-								
-								JLabel lblNewLabel_3_1 = new JLabel("Agrupar por:");
-								lblNewLabel_3_1.setFont(new Font("Tahoma", Font.BOLD, 16));
-								panel_4.add(lblNewLabel_3_1, "cell 0 2");
-								btnNewButton_1.setForeground(Color.WHITE);
-								btnNewButton_1.setFont(new Font("Tahoma", Font.PLAIN, 16));
-								btnNewButton_1.setBackground(new Color(0, 0, 102));
-								panel_4.add(btnNewButton_1, "cell 0 3,alignx center");
-						btnAgruparPorCon_1.setForeground(Color.WHITE);
-						btnAgruparPorCon_1.setFont(new Font("Tahoma", Font.PLAIN, 16));
-						btnAgruparPorCon_1.setBackground(new Color(0, 0, 153));
-						panel_4.add(btnAgruparPorCon_1, "cell 0 4,alignx center");
-		
-				JLabel lblSomatorias_1 = new JLabel("Somatória ");
-				lblSomatorias_1.setFont(new Font("Tahoma", Font.BOLD, 16));
-				panel_4.add(lblSomatorias_1, "cell 0 5");
+		JButton btnNewButton_1 = new JButton("Grupo");
+		btnNewButton_1.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				java.awt.EventQueue.invokeLater(new Runnable() {
+					public void run() {
+						grafico_receitas.removeAll();
+						grafico_receitas.add(criarGrafico2(1, 1, 2));
+						grafico_receitas.repaint();
+						grafico_receitas.updateUI();
+					}
+				});
+
+			}
+
+		});
+
+		JLabel lblNewLabel_3_1 = new JLabel("Agrupar por:");
+		lblNewLabel_3_1.setFont(new Font("Tahoma", Font.BOLD, 16));
+		panel_4.add(lblNewLabel_3_1, "cell 0 2");
+		btnNewButton_1.setForeground(Color.WHITE);
+		btnNewButton_1.setFont(new Font("Tahoma", Font.PLAIN, 16));
+		btnNewButton_1.setBackground(new Color(0, 0, 102));
+		panel_4.add(btnNewButton_1, "cell 0 3,alignx center");
+		btnAgruparPorCon_1.setForeground(Color.WHITE);
+		btnAgruparPorCon_1.setFont(new Font("Tahoma", Font.PLAIN, 16));
+		btnAgruparPorCon_1.setBackground(new Color(0, 0, 153));
+		panel_4.add(btnAgruparPorCon_1, "cell 0 4,alignx center");
+
+		JLabel lblSomatorias_1 = new JLabel("Somatória ");
+		lblSomatorias_1.setFont(new Font("Tahoma", Font.BOLD, 16));
+		panel_4.add(lblSomatorias_1, "cell 0 5");
 
 		JPanel panel_3_1 = new JPanel();
 		panel_3_1.setBackground(Color.WHITE);
@@ -537,28 +546,26 @@ public class TelaFinanceiro extends JFrame {
 		lblSomatoriaValorTotalReceitasAReceber.setFont(new Font("Tahoma", Font.BOLD, 16));
 		panel_3_1.add(lblSomatoriaValorTotalReceitasAReceber, "cell 1 0");
 
-		tratamentoAvisos();
-		 painelGraficoLinha = new JPanel();
-		 painelGraficoLinha.setBackground(Color.WHITE);
+	//	tratamentoAvisos();
+		painelGraficoLinha = new JPanel();
+		painelGraficoLinha.setBackground(Color.WHITE);
 		painelPrincipal.add(painelGraficoLinha, "cell 0 2 5 1,grow");
 		painelGraficoLinha.setLayout(new MigLayout("", "[grow]", "[grow]"));
-
-		
 
 		grafico_despesas.add(criarGrafico1(0, 1, 0));
 
 		grafico_receitas.add(criarGrafico2(1, 1, 2));
-		
+
 		JPanel panel_6 = new JPanel();
 		panel_6.setBackground(Color.WHITE);
 		painelPrincipal.add(panel_6, "cell 5 2 5 1,grow");
 		panel_6.setLayout(new MigLayout("", "[]", "[]"));
-		
-		//atualizarGrafico();
 
-	
+		// atualizarGrafico();
+
 		this.setExtendedState(JFrame.MAXIMIZED_BOTH);
-		atualizarNumTarefas();
+
+
 		this.setLocationRelativeTo(window);
 	}
 
@@ -591,101 +598,8 @@ public class TelaFinanceiro extends JFrame {
 		login = dados.getLogin();
 	}
 
-	public void setNovaNotificacaoMensagem(String mensagem) {
-		// if(!telaChat.isVisible())
-		try {
-			notificando = true;
-			TelaNotificacaoSuperior tela = new TelaNotificacaoSuperior();
-			tela.setMensagem(mensagem);
-			tela.setVisible(true);
-			Thread.sleep(5000);
-			tela.fechar();
-			notificando = false;
-		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-	}
-
-	public void atualizarNumTarefas() {
-		new Thread() {
-			public void run() {
-				try {
-					Thread.sleep(5000);
-				} catch (InterruptedException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-				while (true) {
-					if (gerenciarAtualizarTarefas == null)
-						gerenciarAtualizarTarefas = new GerenciarBancoContratos();
-					int num_agora = gerenciarAtualizarTarefas.getNumTarefas(login.getId());
-					lblNumeroTarefas.setText(num_agora + "");
-					if (num_tarefas_nesta_secao == -1) {
-						if (num_agora > 0) {
-							while (notificando == true) {
-								// System.out.println("Notificacao em andamento");
-							}
-							novaNotificacao("Você possui tarefas a concluir", "/main/java/audio/beep_notificacao.wav",
-									1);
-							num_tarefas_nesta_secao = num_agora;
-						} else {
-							num_tarefas_nesta_secao = 0;
-						}
-					} else if (num_agora > num_tarefas_nesta_secao) {
-						// nova tarefa recebida, notificar
-						while (notificando) {
-						}
-						try {
-							Thread.sleep(1000);
-						} catch (InterruptedException e) {
-							// TODO Auto-generated catch block
-							e.printStackTrace();
-						}
-						num_tarefas_nesta_secao = num_agora;
-						novaNotificacao("Nova Tarefa Recebida!", "/main/java/audio/beep_notificacao.wav", 1);
-					} else if (num_agora > num_tarefas_nesta_secao) {
-						// quantidade de tarefas e a mesma
-						num_tarefas_nesta_secao = num_agora;
-					}
-					try {
-						Thread.sleep(5000);
-					} catch (InterruptedException e) {
-						JOptionPane.showMessageDialog(null, "Erro ao buscar tarefas!");
-						e.printStackTrace();
-					}
-				}
-			}
-		}.start();
-	}
-
-	public void novaNotificacao(String texto, String song, int repeticao) {
-		try {
-			notificando = true;
-			Thread.sleep(1000);
-			URL url = TelaPrincipal.class.getResource(song);
-			TelaNotificacao tela = new TelaNotificacao();
-			new Thread() {
-				@Override
-				public void run() {
-					ReproduzirAudio player = new ReproduzirAudio();
-					for (int i = 0; i < repeticao; i++) {
-						player.play(url);
-					}
-				}
-			}.start();
-			Thread.sleep(2000);
-			tela.setVisible(true);
-			tela.setMensagem(texto);
-			Thread.sleep(5000);
-			tela.fechar();
-			notificando = false;
-		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-	}
-
+	
+	
 	public ChartPanel criarGrafico1(int flag_despesa_receita, int flag_conta_grupo_contas, int flag_status) {
 
 		DefaultPieDataset pizza = new DefaultPieDataset();
@@ -697,16 +611,15 @@ public class TelaFinanceiro extends JFrame {
 
 			if (flag_conta_grupo_contas == 0) {
 				if (lancamento.getNome_conta() != null) {
-					 valor_parcial =  lancamento.getValor().subtract(lancamento.getValor_ja_pago());
-					pizza.setValue(lancamento.getNome_conta(),
-							valor_parcial);
+					valor_parcial = lancamento.getValor().subtract(lancamento.getValor_ja_pago());
+					pizza.setValue(lancamento.getNome_conta(), valor_parcial);
 				}
 
 			} else if (flag_conta_grupo_contas == 1) {
 				if (lancamento.getNome_grupo_contas() != null) {
-					 valor_parcial =  lancamento.getValor().subtract(lancamento.getValor_ja_pago());
+					valor_parcial = lancamento.getValor().subtract(lancamento.getValor_ja_pago());
 
-					pizza.setValue(lancamento.getNome_grupo_contas(),valor_parcial);
+					pizza.setValue(lancamento.getNome_grupo_contas(), valor_parcial);
 				}
 			}
 			valor_total = valor_total.add(valor_parcial);
@@ -753,9 +666,8 @@ public class TelaFinanceiro extends JFrame {
 			if (flag_conta_grupo_contas == 0) {
 				if (lancamento.getNome_conta() != null) {
 					valor_parcial = lancamento.getValor().subtract(lancamento.getValor_ja_pago());
-					pizza.setValue(lancamento.getNome_conta(),
-							valor_parcial);
-					
+					pizza.setValue(lancamento.getNome_conta(), valor_parcial);
+
 				}
 			} else if (flag_conta_grupo_contas == 1) {
 				if (lancamento.getNome_grupo_contas() != null) {
@@ -1042,149 +954,8 @@ public class TelaFinanceiro extends JFrame {
 		}
 	}
 
-	public void filtroRapidoDespesaAtrazo(int dias) {
-
-		LocalDate hoje = LocalDate.now();
-		String s_hoje = hoje.format(DateTimeFormatter.ofPattern("dd/MM/yyyy"));
-
-		LocalDate menor_data = hoje.minusDays(dias);
-		String s_menor_data = menor_data.format(DateTimeFormatter.ofPattern("dd/MM/yyyy"));
-
-		filtrar(null, null, s_menor_data, s_hoje, "Despesa", "Alta Prioridade - Ainda esta semana", 0, "Atrazado");
-	}
-
-	public void filtrar(String menor_data_lancamento, String maiorDataLancamento, String menor_data_vencimento,
-			String maior_data_vencimento, String cbTipoLancamento, String cbPrioridade, int cbStatusLancamento,
-			String cbSituacao) {
-
-		ArrayList<RowFilter<Object, Object>> filters = new ArrayList<RowFilter<Object, Object>>(2);
-		/*
-		 * private final int id = 0; private final int data = 1; private final int
-		 * tipo_lancamento = 2; private final int prioridade = 3; private final int
-		 * centro_custo = 4; private final int instituicao_bancaria = 6; private final
-		 * int cliente_fornecedor = 7; private final int grupo_conta = 8; private final
-		 * int conta = 9; private final int valor = 10; private final int
-		 * data_vencimento = 11; private final int status = 12;
-		 */
-
-		String data_inicial_filtrar_data_lancamento = menor_data_lancamento;
-		String data_final_filtrar_data_lancamento = maiorDataLancamento;
-
-		if (checkString(data_inicial_filtrar_data_lancamento) && checkString(data_final_filtrar_data_lancamento)) {
-			Date data_menor = null;
-			Date data_maior = null;
-			try {
-				data_menor = new SimpleDateFormat("dd/MM/yyyy").parse(data_inicial_filtrar_data_lancamento);
-				data_maior = new SimpleDateFormat("dd/MM/yyyy").parse(data_final_filtrar_data_lancamento);
-
-			} catch (ParseException i) {
-				// TODO Auto-generated catch block
-				i.printStackTrace();
-			}
-
-			Set<RowFilter<Object, Object>> datas = new HashSet<>();
-			datas.add(RowFilter.dateFilter(RowFilter.ComparisonType.AFTER, data_menor, 1));
-			datas.add(RowFilter.dateFilter(RowFilter.ComparisonType.EQUAL, data_menor, 1));
-			filters.add(RowFilter.orFilter(datas));
-
-			// filters.add( RowFilter.dateFilter(ComparisonType.AFTER, data_menor, 5) );
-			// filters.add( RowFilter.dateFilter(ComparisonType.EQUAL, data_menor, 5) );
-
-			// filters.add( RowFilter.dateFilter(ComparisonType.BEFORE, data_maior, 5) );
-			// filters.add( RowFilter.dateFilter(ComparisonType.EQUAL, data_maior, 5) );
-			Set<RowFilter<Object, Object>> datas_maior = new HashSet<>();
-			datas_maior.add(RowFilter.dateFilter(RowFilter.ComparisonType.BEFORE, data_maior, 1));
-			datas_maior.add(RowFilter.dateFilter(RowFilter.ComparisonType.EQUAL, data_maior, 1));
-			filters.add(RowFilter.orFilter(datas_maior));
-
-		}
-
-		String data_inicial_filtrar_data_vencimento = menor_data_vencimento;
-		String data_final_filtrar_data_vencimento = maior_data_vencimento;
-
-		if (checkString(data_inicial_filtrar_data_vencimento) && checkString(data_final_filtrar_data_vencimento)) {
-			Date data_menor = null;
-			Date data_maior = null;
-			try {
-				data_menor = new SimpleDateFormat("dd/MM/yyyy").parse(data_inicial_filtrar_data_vencimento);
-				data_maior = new SimpleDateFormat("dd/MM/yyyy").parse(data_final_filtrar_data_vencimento);
-
-			} catch (ParseException i) {
-				// TODO Auto-generated catch block
-				i.printStackTrace();
-			}
-
-			Set<RowFilter<Object, Object>> datas = new HashSet<>();
-			datas.add(RowFilter.dateFilter(RowFilter.ComparisonType.AFTER, data_menor, 11));
-			datas.add(RowFilter.dateFilter(RowFilter.ComparisonType.EQUAL, data_menor, 11));
-			filters.add(RowFilter.orFilter(datas));
-
-			// filters.add( RowFilter.dateFilter(ComparisonType.AFTER, data_menor, 5) );
-			// filters.add( RowFilter.dateFilter(ComparisonType.EQUAL, data_menor, 5) );
-
-			// filters.add( RowFilter.dateFilter(ComparisonType.BEFORE, data_maior, 5) );
-			// filters.add( RowFilter.dateFilter(ComparisonType.EQUAL, data_maior, 5) );
-			Set<RowFilter<Object, Object>> datas_maior = new HashSet<>();
-			datas_maior.add(RowFilter.dateFilter(RowFilter.ComparisonType.BEFORE, data_maior, 11));
-			datas_maior.add(RowFilter.dateFilter(RowFilter.ComparisonType.EQUAL, data_maior, 11));
-			filters.add(RowFilter.orFilter(datas_maior));
-
-		}
-
-		if (cbTipoLancamento != null) {
-			String s_tipo_lancamento = "";
-			if (checkString(cbTipoLancamento)) {
-				s_tipo_lancamento = cbTipoLancamento;
-				if (!(s_tipo_lancamento.equalsIgnoreCase("TODOS"))) {
-					filters.add(RowFilter.regexFilter(s_tipo_lancamento, 2));
-				}
-			}
-		}
-
-		if (cbPrioridade != null) {
-			String s_prioridade = "";
-			if (checkString(cbPrioridade)) {
-				s_prioridade = cbPrioridade;
-				if (!(s_prioridade.equalsIgnoreCase("TODOS"))) {
-					filters.add(RowFilter.regexFilter(s_prioridade, 3));
-				}
-
-			}
-		}
-
-		String s_tipo_conta = "";
-		if (cbStatusLancamento == 1) {
-			s_tipo_conta = "A Pagar";
-			if (checkString(s_tipo_conta))
-				filters.add(RowFilter.regexFilter(s_tipo_conta, 13));
-		} else if (cbStatusLancamento == 2) {
-			s_tipo_conta = "Pago";
-			if (checkString(s_tipo_conta))
-				filters.add(RowFilter.regexFilter(s_tipo_conta, 13));
-		} else if (cbStatusLancamento == 3) {
-			s_tipo_conta = "A Receber";
-			if (checkString(s_tipo_conta))
-				filters.add(RowFilter.regexFilter(s_tipo_conta, 13));
-		} else if (cbStatusLancamento == 4) {
-			s_tipo_conta = "Recebido";
-			if (checkString(s_tipo_conta))
-				filters.add(RowFilter.regexFilter(s_tipo_conta, 13));
-
-		}
-
-		if (cbSituacao != null) {
-			String s_situacao = "";
-			if (checkString(cbSituacao)) {
-				s_situacao = cbSituacao;
-				if (!(s_situacao.equalsIgnoreCase("TODOS"))) {
-					filters.add(RowFilter.regexFilter(s_situacao, 14));
-				}
-			}
-		}
-
-		sorter.setRowFilter(RowFilter.andFilter(filters));
-
-	}
+	
+	
 
 	public boolean checkString(String txt) {
 		return txt != null && !txt.equals("") && !txt.equals(" ") && !txt.equals("  ");
@@ -1249,8 +1020,6 @@ public class TelaFinanceiro extends JFrame {
 		}
 	}
 
-	
-	
 	public void atualizarGrafico() {
 
 		painelGraficoLinha.removeAll();
@@ -1260,32 +1029,25 @@ public class TelaFinanceiro extends JFrame {
 		dataset = new DefaultCategoryDataset();
 		for (Map.Entry<Integer, Double> pair : lista_lancamentos.entrySet()) {
 
-			dataset.addValue(pair.getValue(), "",NomeDoMes( pair.getKey(),0));
-	       
-		}
-		
-		
-		/*DefaultCategoryDataset dataset2 = new DefaultCategoryDataset();
-		Map<String, Double> lista_lancamentos_receitas = new GerenciarBancoLancamento().busca_lancamentos_grafico_linha(1, 2);
-		for ( Map.Entry<String, Double>  pair2 : lista_lancamentos_receitas.entrySet()) {
+			dataset.addValue(pair.getValue(), "", NomeDoMes(pair.getKey(), 0));
 
-			dataset2.addValue(pair2.getValue(), "", pair2.getKey());
-	       
-		}*/
+		}
+
 		
 		linha = new GraficoLinhaDupla();
 		linha.setDataset(dataset);
-		chartPanel = linha.getGraficoLinha(painelGraficoLinha.getWidth(), painelGraficoLinha.getHeight(), "Mês", "Despesas x Receitas", "Valor em Reais");
+		chartPanel = linha.getGraficoLinha(painelGraficoLinha.getWidth(), painelGraficoLinha.getHeight(), "Mês",
+				"Despesas x Receitas", "Valor em Reais");
 		chartPanel.setBackground(Color.white);
 		painelGraficoLinha.add(chartPanel);
 	}
-	
-	 public static String NomeDoMes(int i, int tipo) {
-		    String mes[] = {"janeiro", "fevereiro", "março", "abril",
-		      "maio", "junho", "julho", "agosto", "setembro", "outubro",
-		      "novembro", "dezembro"};
-		    if (tipo == 0)
-		       return(mes[i-1]); 
-		    else return(mes[i-1].substring(0, 3)); 
-		  }
+
+	public static String NomeDoMes(int i, int tipo) {
+		String mes[] = { "janeiro", "fevereiro", "março", "abril", "maio", "junho", "julho", "agosto", "setembro",
+				"outubro", "novembro", "dezembro" };
+		if (tipo == 0)
+			return (mes[i - 1]);
+		else
+			return (mes[i - 1].substring(0, 3));
+	}
 }

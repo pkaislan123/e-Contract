@@ -88,9 +88,19 @@ public class RenderizadorExtrato implements ListCellRenderer<FinanceiroPagamento
 			}
 
 		} else if (pag_completo.getLancamento().getTipo_lancamento() == 3) {
-			lblTipoLancamento.setBackground(new Color(0, 51, 0));
-			lblTipoLancamento.setText("RECEITA DE EMPRÉSTIMO id: " + pag_completo.getLancamento().getId_lancamento());
-			chara = "+";
+			
+			
+			if(pag_completo.getFpag().getTipo_pagamento() == 1) {
+				lblTipoLancamento.setBackground(new Color(204, 0, 0));
+				lblTipoLancamento.setText("DESPESA DE EMPRÉSTIMO id: " + pag_completo.getLancamento().getId_lancamento());
+				chara = "-";
+			}else {
+				lblTipoLancamento.setBackground(new Color(0, 51, 0));
+				lblTipoLancamento.setText("RECEITA DE EMPRÉSTIMO id: " + pag_completo.getLancamento().getId_lancamento());
+				chara = "+";
+			}
+			
+		
 
 		}
 
@@ -178,7 +188,16 @@ public class RenderizadorExtrato implements ListCellRenderer<FinanceiroPagamento
 
 		} else if (pag_completo.getLancamento().getTipo_lancamento() == 3) {
 			// emprestimo
-			lblPagador.setText("Quem pagou: " + pag_completo.getNome_pagador());
+			
+			if(pag_completo.getFpag().getTipo_pagamento() == 1) {
+				//pag de parcela de emprestimo
+				lblPagador.setText("Quem Recebeu: " + pag_completo.getNome_recebedor());
+
+			}else {
+				lblPagador.setText("Quem pagou: " + pag_completo.getNome_pagador());
+
+			}
+			
 
 		}
 

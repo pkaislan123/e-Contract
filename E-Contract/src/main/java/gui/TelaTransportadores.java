@@ -98,12 +98,12 @@ public class TelaTransportadores extends JDialog {
 				TelaCadastroTransportadores tela = new TelaCadastroTransportadores(0,  null, null, isto);
 			}
 		});
-		painelPrincipal.setLayout(new MigLayout("", "[630px,grow][10px][89px][10px][113px]", "[grow][grow][28px]"));
+		painelPrincipal.setLayout(new MigLayout("", "[630px,grow][10px][89px][][10px][113px]", "[grow][grow][28px]"));
 		
 		JPanel panel_1 = new JPanel();
 		panel_1.setBorder(new LineBorder(new Color(0, 0, 0)));
 		panel_1.setBackground(Color.WHITE);
-		painelPrincipal.add(panel_1, "cell 0 0 5 1,grow");
+		painelPrincipal.add(panel_1, "cell 0 0 6 1,grow");
 		panel_1.setLayout(new MigLayout("", "[][grow][][grow][][grow][][][]", "[][]"));
 		
 		JButton btnRefazerPesquisar = new JButton("Refazer Pesquisa");
@@ -165,12 +165,19 @@ public class TelaTransportadores extends JDialog {
 		btnFiltrar.setForeground(Color.WHITE);
 		btnFiltrar.setFont(new Font("SansSerif", Font.BOLD, 14));
 		panel_1.add(btnFiltrar, "cell 7 1 2 1,growx");
-		painelPrincipal.add(btnarmazm, "cell 4 2,grow");
+		
+		JButton btnGerenciar = new JButton("Gerenciar");
+		
+		btnGerenciar.setForeground(Color.WHITE);
+		btnGerenciar.setFont(new Font("Tahoma", Font.BOLD, 16));
+		btnGerenciar.setBackground(new Color(255, 102, 51));
+		painelPrincipal.add(btnGerenciar, "cell 3 2");
+		painelPrincipal.add(btnarmazm, "cell 5 2,grow");
 		
 		
 		
 		JPanel panel = new JPanel();
-		painelPrincipal.add(panel, "cell 0 1 5 1,grow");
+		painelPrincipal.add(panel, "cell 0 1 6 1,grow");
 		//panel.setLayout(null);
 	
 		
@@ -183,7 +190,16 @@ public class TelaTransportadores extends JDialog {
 		tabela.setRowHeight(30);
 
     
-	
+		btnGerenciar.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				
+				int rowSel = tabela.getSelectedRow();
+				int indiceDaLinha = tabela.getRowSorter().convertRowIndexToModel(rowSel);//converte pro indice do model				
+
+				TelaGerenciarTransportador tela = new TelaGerenciarTransportador( new GerenciarBancoClientes().getCliente(transportadores.get(indiceDaLinha).getId()), isto);
+				tela.setVisible(true);
+			}
+		});
 		
         JScrollPane scrollPane = new JScrollPane(tabela);
         panel.setLayout(new BorderLayout(0, 0));
@@ -191,20 +207,7 @@ public class TelaTransportadores extends JDialog {
         scrollPane.setBackground(new Color(255, 255, 255));
 		panel.add(scrollPane);
 		
-		JButton btnEditar = new JButton("Editar");
-		btnEditar.setBackground(new Color(0, 0, 102));
-		btnEditar.setForeground(Color.WHITE);
-		btnEditar.setFont(new Font("Tahoma", Font.BOLD, 16));
-		btnEditar.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent arg0) {
-				int rowSel = tabela.getSelectedRow();
-				int indiceDaLinha = tabela.getRowSorter().convertRowIndexToModel(rowSel);//converte pro indice do model				
-
-				TelaCadastroTransportadores telaEdicao = new TelaCadastroTransportadores(1, new GerenciarBancoClientes().getCliente(transportadores.get(indiceDaLinha).getId()), null, isto);
-
-			}
-		});
-		painelPrincipal.add(btnEditar, "cell 2 2,growx,aligny top");
+	
 		
 		JButton btnSelecionarTransportador = new JButton("Selecionar");
 		btnSelecionarTransportador.setBackground(new Color(0, 0, 0));

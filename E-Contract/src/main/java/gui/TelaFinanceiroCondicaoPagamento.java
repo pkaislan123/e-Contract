@@ -279,10 +279,14 @@ public class TelaFinanceiroCondicaoPagamento extends JDialog {
 							((TelaFinanceiroCadastroPagamentoEmprestimo) janela_pai).setCondicaoPagamento(getCondicaoPagamentoSelecionado());
 
 						}
-						isto.dispose();
 
 						
+					}else if(tela_retorno == 5) {
+						((TelaFinanceiroCadastroParcelaEmprestimo) janela_pai).setCondicaoPagamento(getCondicaoPagamentoSelecionado());
+
 					}
+					isto.dispose();
+
 				}
 			}
 		});

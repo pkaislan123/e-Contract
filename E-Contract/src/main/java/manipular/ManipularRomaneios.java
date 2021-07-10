@@ -66,11 +66,12 @@ public class ManipularRomaneios {
 	private CadastroLogin login;
 	private ConfiguracoesGlobais configs_globais;
 	private ArrayList<CadastroRomaneio> lista_global;
+	private String pasta_romaneios ;
 
 	public ManipularRomaneios(String _caminho) {
 		getDadosGlobais();
 		caminho = _caminho;
-
+		this.pasta_romaneios = configs_globais.getPasta_romaneios();
 	}
 
 	public ManipularRomaneios(int i) {
@@ -80,11 +81,24 @@ public class ManipularRomaneios {
 	public ArrayList<CadastroRomaneio> tratar() {
 
 		MyFileVisitor arquivos = new MyFileVisitor();
+		MyFileVisitor arquivos2 = new MyFileVisitor();
+
 		Path source = Paths.get(caminho);
+		Path source2 = Paths.get(configs_globais.getPasta_romaneios());
+		
 		try {
 
 			Files.walkFileTree(source, arquivos);
 			listadeArquivos = arquivos.getArquivos();
+
+		} catch (IOException ex) {
+			// ex.printStackTrace();
+		}
+		
+		try {
+
+			Files.walkFileTree(source2, arquivos2);
+			listadeArquivos.addAll( arquivos2.getArquivos());
 
 		} catch (IOException ex) {
 			// ex.printStackTrace();
@@ -166,10 +180,24 @@ public class ManipularRomaneios {
 	public ArrayList<CadastroRomaneio> tratarMaisRapido() {
 
 		MyFileVisitor arquivos = new MyFileVisitor();
+		MyFileVisitor arquivos2 = new MyFileVisitor();
+
 		Path source = Paths.get(caminho);
+		Path source2 = Paths.get(configs_globais.getPasta_romaneios());
+		
 		try {
+
 			Files.walkFileTree(source, arquivos);
 			listadeArquivos = arquivos.getArquivos();
+
+		} catch (IOException ex) {
+			// ex.printStackTrace();
+		}
+		
+		try {
+
+			Files.walkFileTree(source2, arquivos2);
+			listadeArquivos.addAll( arquivos2.getArquivos());
 
 		} catch (IOException ex) {
 			// ex.printStackTrace();

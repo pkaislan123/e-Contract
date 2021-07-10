@@ -405,7 +405,7 @@ public class RelatorioContratoRecebimentoSimplificado {
 
 	}
 
-	public ByteArrayOutputStream preparar() {
+	public String preparar() {
 
 		Locale ptBr = new Locale("pt", "BR");
 
@@ -621,24 +621,20 @@ public class RelatorioContratoRecebimentoSimplificado {
 			e.printStackTrace();
 		}
 
-		ByteArrayOutputStream saida_apos_edicao = new ByteArrayOutputStream();
+		//ByteArrayOutputStream saida_apos_edicao = new ByteArrayOutputStream();
 
-		/*
-		 * try { document_global.write(new FileOutputStream("c:\\arquivoteste.docx"));
-		 * document_global.write(saida_apos_edicao);
-		 * 
-		 * } catch (IOException e) { // TODO Auto-generated catch block
-		 * e.printStackTrace(); }
-		 */
+		
+		  try {
+			  document_global.write(new FileOutputStream("c:\\temp\\arquivoteste.docx"));
+		 
+		  //document_global.write(saida_apos_edicao);
+		  
+		  } catch (IOException e) { // TODO Auto-generated catch block
+		  e.printStackTrace(); }
+		 
 
-		try {
-			document_global.write(saida_apos_edicao);
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-
-		return saida_apos_edicao;
+		
+		return"c:\\temp\\arquivoteste.docx";
 
 	}
 

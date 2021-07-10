@@ -35,6 +35,31 @@ status_optante_folha text
 		return observacao;
 	}
 
+	private double total_pago, total_comissao;
+
+
+	public double getTotal_pago() {
+		return total_pago;
+	}
+
+
+
+	public void setTotal_pago(double total_pago) {
+		this.total_pago = total_pago;
+	}
+
+
+
+	public double getTotal_comissao() {
+		return total_comissao;
+	}
+
+
+
+	public void setTotal_comissao(double total_comissao) {
+		this.total_comissao = total_comissao;
+	}
+
 
 
 	public void setObservacao(String observacao) {
@@ -43,7 +68,36 @@ status_optante_folha text
 	private String localizacao, bruto_livre, fertilizante, status_penhor, status_optante_folha;
 	private int optante_folha;
 	
+	private String fundo_rural;
+	private String clausula_fundo_rural;
 	
+	
+
+
+	public String getFundo_rural() {
+		return fundo_rural;
+	}
+
+
+
+	public void setFundo_rural(String fundo_rural) {
+		this.fundo_rural = fundo_rural;
+	}
+
+
+
+	public String getClausula_fundo_rural() {
+		return clausula_fundo_rural;
+	}
+
+
+
+	public void setClausula_fundo_rural(String clausula_fundo_rural) {
+		this.clausula_fundo_rural = clausula_fundo_rural;
+	}
+
+
+
 	public String getLocalizacao() {
 		return localizacao;
 	}

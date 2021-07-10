@@ -14,7 +14,8 @@ import lombok.NoArgsConstructor;
 @Entity
 public class ParcelaEmprestimo extends Parcela{
 	
-	int objeto, fluxo_caixa;
+	
+	int objeto, fluxo_caixa, criar_pagamento, id_pagamento;
 	String especie, unidade_medida;
 	double quantidade;
 	BigDecimal valor_unitario;

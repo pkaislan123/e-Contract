@@ -29,6 +29,7 @@ public class InstituicaoBancaria {
 	private BigDecimal taxa_parcelamento_mensal;
 	private BigDecimal taxa_fixa_transacao;
 	
-	
+	private String nome_cliente;
+	private String cc_banco, cc_agencia, cc_codigo, cc_conta;
 	
 }

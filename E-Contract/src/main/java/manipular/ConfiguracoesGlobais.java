@@ -13,9 +13,46 @@ public class ConfiguracoesGlobais {
 	private CadastroBaseDados baseDados;
 	private CadastroZapMessenger zap_zap;
 	private CadastroNuvem nuvem;
+	private String pasta_romaneios;
+	private String ip_relogio;
 	
 	
 	
+	
+	
+	
+	public String getIp_relogio() {
+		return ip_relogio;
+	}
+
+
+
+
+
+	public void setIp_relogio(String ip_relogio) {
+		this.ip_relogio = ip_relogio;
+	}
+
+
+
+
+
+	public String getPasta_romaneios() {
+		return pasta_romaneios;
+	}
+
+
+
+
+
+	public void setPasta_romaneios(String pasta_romaneios) {
+		this.pasta_romaneios = pasta_romaneios;
+	}
+
+
+
+
+
 	public CadastroNuvem getNuvem() {
 		return nuvem;
 	}

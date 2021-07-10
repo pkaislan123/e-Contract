@@ -181,6 +181,8 @@ import java.awt.Component;
 import java.awt.Insets;
 
 public class TelaMonitoria extends JFrame {
+	private final JPanel painelOdin = new JPanel();
+
 	private final JPanel painelPrincipal = new JPanel();
 	private final JPanel painelRecebimento;
 	private final JPanel painelCarregamento;
@@ -218,7 +220,7 @@ public class TelaMonitoria extends JFrame {
 	private double impureza_media_carregamento;
 	private boolean todas_as_safras = true;
 	private boolean todo_periodo = false;
-	private JCheckBox chkbkTransferencias,chkboxQuebraTecnica;
+	private JCheckBox chkbkTransferencias, chkboxQuebraTecnica;
 
 	// variaveis para carregamento
 	private JLabel lblUmidadeMediaCarga, lblNumTotalCargas, lblTotalSacosCarga, lblNumTotalKGCarga,
@@ -229,7 +231,7 @@ public class TelaMonitoria extends JFrame {
 	private double total_kg_carga;
 	private double umidade_media_saida = 0;
 	private static ArrayList<CadastroSafra> safras = new ArrayList<>();
-
+	private boolean thread_online = false;
 	private NumberFormat z = NumberFormat.getNumberInstance();
 	private JTable table;
 	private JTable table_1;
@@ -248,7 +250,7 @@ public class TelaMonitoria extends JFrame {
 		setTitle("E-Contract - Monitoria");
 
 		setBackground(new Color(255, 255, 255));
-		setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+		setDefaultCloseOperation(JFrame.HIDE_ON_CLOSE);
 
 		Toolkit tk = Toolkit.getDefaultToolkit();
 		Dimension dim = tk.getScreenSize();
@@ -285,25 +287,29 @@ public class TelaMonitoria extends JFrame {
 		modelo_romaneios_saida.addColumn("Safra");
 		modelo_romaneios_saida.addColumn("Liquido");
 
-		/*
-		 * JPanel panel_14 = new JPanel(); panel_14.setLayout(new MigLayout("", "[]",
-		 * "[]"));
-		 */
-
-		/*
-		 * JPanel panel_15 = new JPanel(); panel_15.setBackground(Color.WHITE);
-		 * panel_15.setLayout(new BorderLayout(0, 0));
-		 */
-
 		painelPrincipal.setBackground(new Color(255, 255, 255));
 		painelPrincipal.setBorder(new EmptyBorder(5, 5, 5, 5));
+		painelOdin.setBackground(Color.WHITE);
 
-		painelAbas.addTab("Monitor Principal", painelPrincipal);
-		painelPrincipal.setLayout(new MigLayout("", "[grow]", "[217px][391px]"));
+		painelAbas.addTab("Monitor Principal", painelOdin);
+		painelPrincipal.setLayout(new MigLayout("", "[576.00,grow][::300px][][grow]", "[][][grow]"));
+		
+		JLabel lblNewLabel_6 = new JLabel("Atualizado a Cada 1 Minuto");
+		lblNewLabel_6.setOpaque(true);
+		lblNewLabel_6.setBackground(new Color(51, 0, 51));
+		lblNewLabel_6.setForeground(Color.WHITE);
+		lblNewLabel_6.setFont(new Font("SansSerif", Font.BOLD, 16));
+		painelPrincipal.add(lblNewLabel_6, "cell 0 0 4 1,growx");
 		JPanel panel_10 = new JPanel();
 		panel_10.setBackground(Color.WHITE);
-		painelPrincipal.add(panel_10, "cell 0 0,alignx left,growy");
-		panel_10.setLayout(new MigLayout("", "[92px][181px][grow][grow]", "[][139px,grow][4px][20px]"));
+		painelPrincipal.add(panel_10, "cell 0 1,grow");
+		panel_10.setLayout(new MigLayout("", "[][][][]", "[][][4px][]"));
+
+		JScrollPane scroll_pane_principal = new JScrollPane(painelPrincipal);
+		scroll_pane_principal.getViewport().setBackground(Color.white);
+		painelOdin.setLayout(new BorderLayout(0, 0));
+		
+		painelOdin.add(scroll_pane_principal);
 
 		JLabel lblNewLabel_2 = new JLabel("Recebimento");
 		lblNewLabel_2.setOpaque(true);
@@ -312,7 +318,7 @@ public class TelaMonitoria extends JFrame {
 		lblNewLabel_2.setForeground(Color.WHITE);
 		lblNewLabel_2.setFont(new Font("SansSerif", Font.BOLD, 20));
 
-		lblNumSacosDescarga = new JLabel("00.000");
+		lblNumSacosDescarga = new JLabel("0.00");
 		panel_10.add(lblNumSacosDescarga, "cell 0 1 3 1,alignx center,aligny top");
 		lblNumSacosDescarga.setForeground(new Color(0, 102, 51));
 		lblNumSacosDescarga.setFont(new Font("Arial", Font.BOLD, 120));
@@ -369,106 +375,10 @@ public class TelaMonitoria extends JFrame {
 		panel_10.add(lblNewLabel, "cell 2 1 1 3,alignx left,aligny bottom");
 		lblNewLabel.setFont(new Font("SansSerif", Font.PLAIN, 24));
 
-		JPanel panel_13 = new JPanel();
-		panel_13.setBackground(Color.WHITE);
-		painelPrincipal.add(panel_13, "cell 0 0,alignx right,growy");
-		panel_13.setLayout(new MigLayout("", "[grow][grow][238px][62px]", "[][139px,grow][5px][20px]"));
-
-		JLabel lblNewLabel_3 = new JLabel("Carregamento");
-		lblNewLabel_3.setOpaque(true);
-		panel_13.add(lblNewLabel_3, "cell 0 0 4 1,growx");
-		lblNewLabel_3.setBackground(new Color(255, 102, 51));
-		lblNewLabel_3.setForeground(Color.WHITE);
-		lblNewLabel_3.setFont(new Font("SansSerif", Font.BOLD, 20));
-
-		JPanel panel_18 = new JPanel();
-		panel_18.setBackground(Color.WHITE);
-		panel_13.add(panel_18, "cell 0 1,grow");
-		panel_18.setLayout(new MigLayout("", "[]", "[][]"));
-
-		JPanel panel_2_1 = new JPanel();
-		panel_18.add(panel_2_1, "cell 0 0");
-		panel_2_1.setBackground(new Color(0, 0, 153));
-		panel_2_1.setLayout(new MigLayout("", "[103px][142px]", "[35px][3px][26px]"));
-
-		JLabel lblNewLabel_4_3 = new JLabel("Umidade");
-		lblNewLabel_4_3.setForeground(Color.WHITE);
-		lblNewLabel_4_3.setFont(new Font("SansSerif", Font.PLAIN, 20));
-		panel_2_1.add(lblNewLabel_4_3, "cell 0 0,alignx left,aligny bottom");
-
-		JLabel lblNewLabel_5_2 = new JLabel("média:");
-		lblNewLabel_5_2.setForeground(Color.WHITE);
-		lblNewLabel_5_2.setFont(new Font("SansSerif", Font.PLAIN, 20));
-		panel_2_1.add(lblNewLabel_5_2, "cell 0 2,alignx right,aligny top");
-
-		lblUmidadeMediaCarga = new JLabel("00,0%");
-		lblUmidadeMediaCarga.setBackground(Color.WHITE);
-		lblUmidadeMediaCarga.setForeground(Color.RED);
-		lblUmidadeMediaCarga.setFont(new Font("SansSerif", Font.PLAIN, 50));
-		panel_2_1.add(lblUmidadeMediaCarga, "cell 1 0 1 3,alignx left,aligny top");
-
-		JPanel panel_3_1 = new JPanel();
-		panel_18.add(panel_3_1, "cell 0 1,growx");
-		panel_3_1.setBackground(new Color(0, 102, 51));
-		panel_3_1.setLayout(new MigLayout("", "[77px][63px][56px]", "[30px][4px][30px]"));
-
-		JLabel lblNewLabel_4_2_1 = new JLabel("Total");
-		lblNewLabel_4_2_1.setForeground(Color.WHITE);
-		lblNewLabel_4_2_1.setFont(new Font("SansSerif", Font.PLAIN, 20));
-		panel_3_1.add(lblNewLabel_4_2_1, "cell 0 0,growx,aligny bottom");
-
-		JLabel lblNewLabel_5_1_1 = new JLabel("de cargas:");
-		lblNewLabel_5_1_1.setForeground(Color.WHITE);
-		lblNewLabel_5_1_1.setFont(new Font("SansSerif", Font.PLAIN, 20));
-		panel_3_1.add(lblNewLabel_5_1_1, "cell 0 2 3 1,alignx center,aligny top");
-
-		lblNumTotalCargas = new JLabel("0");
-		lblNumTotalCargas.setForeground(new Color(0, 0, 102));
-		lblNumTotalCargas.setFont(new Font("SansSerif", Font.PLAIN, 50));
-		panel_3_1.add(lblNumTotalCargas, "cell 2 0 1 3,growx,aligny top");
-
-		lblTotalSacosCarga = new JLabel("00.000");
-		lblTotalSacosCarga.setBackground(Color.WHITE);
-		panel_13.add(lblTotalSacosCarga, "cell 1 1 3 1,alignx left,aligny top");
-		lblTotalSacosCarga.setForeground(new Color(255, 102, 51));
-		lblTotalSacosCarga.setFont(new Font("Arial", Font.BOLD, 120));
-
-		JLabel lblNewLabel_7 = new JLabel("sacos");
-		panel_13.add(lblNewLabel_7, "cell 3 1 1 3,alignx left,aligny bottom");
-		lblNewLabel_7.setFont(new Font("SansSerif", Font.PLAIN, 24));
-
-		lblNumTotalKGCarga = new JLabel("0.000.000,00 KG");
-		panel_13.add(lblNumTotalKGCarga, "cell 1 3,alignx left,aligny top");
-
-		JPanel panel_16 = new JPanel();
-		panel_16.setBackground(Color.WHITE);
-		painelPrincipal.add(panel_16, "cell 0 1,grow");
-		panel_16.setLayout(new MigLayout("", "[grow][grow][350px:350px:350px][grow]", "[grow]"));
-		JPanel panel_15 = new JPanel();
-		panel_16.add(panel_15, "cell 0 0 2 1,grow");
-		panel_15.setBackground(new Color(0, 51, 102));
-
-		table_romaeios_entrada = new JTable(modelo_romaneios_entrada);
-		table_romaeios_entrada.setFont(new Font("Arial", Font.PLAIN, 18));
-
-		table_romaeios_entrada.getColumnModel().getColumn(0).setPreferredWidth(250);
-		table_romaeios_entrada.getColumnModel().getColumn(1).setPreferredWidth(160);
-		table_romaeios_entrada.getColumnModel().getColumn(2).setPreferredWidth(250);
-		panel_15.setLayout(new BorderLayout(0, 0));
-
-		JScrollPane scrollPane = new JScrollPane(table_romaeios_entrada);
-		panel_15.add(scrollPane);
-
-		JPanel panel = new JPanel();
-		panel.setBackground(Color.WHITE);
-		panel_16.add(panel, "cell 2 0,grow");
-		panel.setLayout(null);
-
 		JPanel panel_7 = new JPanel();
-		panel_7.setBounds(0, 37, 349, 280);
-		panel.add(panel_7);
+		painelPrincipal.add(panel_7, "cell 1 1 1 2,alignx center,aligny center");
 		panel_7.setBackground(Color.WHITE);
-		panel_7.setLayout(new MigLayout("", "[][8px][]", "[][][][][][][][]"));
+		panel_7.setLayout(new MigLayout("", "[::150px][8px][::150px]", "[][][][][][][][]"));
 
 		JCheckBox cBTodoPeriodo = new JCheckBox("Todo o Periodo");
 		panel_7.add(cBTodoPeriodo, "cell 2 0,alignx left,growy");
@@ -546,7 +456,7 @@ public class TelaMonitoria extends JFrame {
 		entDataInformada = new JTextField();
 		panel_7.add(entDataInformada, "cell 2 2,grow");
 		entDataInformada.setEnabled(false);
-		entDataInformada.setFont(new Font("SansSerif", Font.PLAIN, 30));
+		entDataInformada.setFont(new Font("SansSerif", Font.PLAIN, 26));
 		entDataInformada.setText("03/01/2021");
 		entDataInformada.setColumns(10);
 
@@ -579,36 +489,117 @@ public class TelaMonitoria extends JFrame {
 				try {
 					safra_selecionada = (CadastroSafra) modelSafra.getSelectedItem();
 
-					// procura no banco os contratos de acordo com a safra selecionada
-
-					// atualizar o grafico
-					todas_as_safras = false;
-					vigilante_todos_os_romaneios();
+					forcar_atualizacao();
+				
 				} catch (Exception t) {
 
 				}
 			}
 		});
-		cbCarregamentoPorSafra.setFont(new Font("Tahoma", Font.BOLD, 30));
+		cbCarregamentoPorSafra.setFont(new Font("Tahoma", Font.PLAIN, 12));
 
 		cbCarregamentoPorSafra.setModel(modelSafra);
 		cbCarregamentoPorSafra.setRenderer(cBSafraPersonalizado);
-		
+
 		JLabel lblNewLabel_31_1 = new JLabel("Incluir:");
 		lblNewLabel_31_1.setFont(new Font("Arial", Font.PLAIN, 24));
 		panel_7.add(lblNewLabel_31_1, "cell 0 6");
-		
-		
-		 chkbkTransferencias = new JCheckBox("TRANSFERENCIAS");
+
+		chkbkTransferencias = new JCheckBox("TRANSFERENCIAS");
 		chkbkTransferencias.setFont(new Font("SansSerif", Font.PLAIN, 14));
 		panel_7.add(chkbkTransferencias, "cell 2 6");
-		
-		 chkboxQuebraTecnica = new JCheckBox("QUEBRA TECNICA");
+
+		chkboxQuebraTecnica = new JCheckBox("QUEBRA TECNICA");
 		chkboxQuebraTecnica.setFont(new Font("SansSerif", Font.PLAIN, 14));
 		panel_7.add(chkboxQuebraTecnica, "cell 2 7");
 
+		JPanel panel_13 = new JPanel();
+		panel_13.setBackground(Color.WHITE);
+		painelPrincipal.add(panel_13, "cell 2 1 2 1,grow");
+		panel_13.setLayout(new MigLayout("", "[][][][]", "[][][5px][]"));
+
+		JLabel lblNewLabel_3 = new JLabel("Carregamento");
+		lblNewLabel_3.setOpaque(true);
+		panel_13.add(lblNewLabel_3, "cell 0 0 4 1,growx");
+		lblNewLabel_3.setBackground(new Color(255, 102, 51));
+		lblNewLabel_3.setForeground(Color.WHITE);
+		lblNewLabel_3.setFont(new Font("SansSerif", Font.BOLD, 20));
+
+		JPanel panel_18 = new JPanel();
+		panel_18.setBackground(Color.WHITE);
+		panel_13.add(panel_18, "cell 0 1,grow");
+		panel_18.setLayout(new MigLayout("", "[]", "[][]"));
+
+		JPanel panel_2_1 = new JPanel();
+		panel_18.add(panel_2_1, "cell 0 0");
+		panel_2_1.setBackground(new Color(0, 0, 153));
+		panel_2_1.setLayout(new MigLayout("", "[103px][142px]", "[35px][3px][26px]"));
+
+		JLabel lblNewLabel_4_3 = new JLabel("Umidade");
+		lblNewLabel_4_3.setForeground(Color.WHITE);
+		lblNewLabel_4_3.setFont(new Font("SansSerif", Font.PLAIN, 20));
+		panel_2_1.add(lblNewLabel_4_3, "cell 0 0,alignx left,aligny bottom");
+
+		JLabel lblNewLabel_5_2 = new JLabel("média:");
+		lblNewLabel_5_2.setForeground(Color.WHITE);
+		lblNewLabel_5_2.setFont(new Font("SansSerif", Font.PLAIN, 20));
+		panel_2_1.add(lblNewLabel_5_2, "cell 0 2,alignx right,aligny top");
+
+		lblUmidadeMediaCarga = new JLabel("00,0%");
+		lblUmidadeMediaCarga.setBackground(Color.WHITE);
+		lblUmidadeMediaCarga.setForeground(Color.RED);
+		lblUmidadeMediaCarga.setFont(new Font("SansSerif", Font.PLAIN, 50));
+		panel_2_1.add(lblUmidadeMediaCarga, "cell 1 0 1 3,alignx left,aligny top");
+
+		JPanel panel_3_1 = new JPanel();
+		panel_18.add(panel_3_1, "cell 0 1,growx");
+		panel_3_1.setBackground(new Color(0, 102, 51));
+		panel_3_1.setLayout(new MigLayout("", "[77px][63px][56px]", "[30px][4px][30px]"));
+
+		JLabel lblNewLabel_4_2_1 = new JLabel("Total");
+		lblNewLabel_4_2_1.setForeground(Color.WHITE);
+		lblNewLabel_4_2_1.setFont(new Font("SansSerif", Font.PLAIN, 20));
+		panel_3_1.add(lblNewLabel_4_2_1, "cell 0 0,growx,aligny bottom");
+
+		JLabel lblNewLabel_5_1_1 = new JLabel("de cargas:");
+		lblNewLabel_5_1_1.setForeground(Color.WHITE);
+		lblNewLabel_5_1_1.setFont(new Font("SansSerif", Font.PLAIN, 20));
+		panel_3_1.add(lblNewLabel_5_1_1, "cell 0 2 3 1,alignx center,aligny top");
+
+		lblNumTotalCargas = new JLabel("0");
+		lblNumTotalCargas.setForeground(new Color(0, 0, 102));
+		lblNumTotalCargas.setFont(new Font("SansSerif", Font.PLAIN, 50));
+		panel_3_1.add(lblNumTotalCargas, "cell 2 0 1 3,growx,aligny top");
+
+		lblTotalSacosCarga = new JLabel("0.00");
+		lblTotalSacosCarga.setBackground(Color.WHITE);
+		panel_13.add(lblTotalSacosCarga, "cell 1 1 3 1,alignx left,aligny top");
+		lblTotalSacosCarga.setForeground(new Color(255, 102, 51));
+		lblTotalSacosCarga.setFont(new Font("Arial", Font.BOLD, 120));
+
+		JLabel lblNewLabel_7 = new JLabel("sacos");
+		panel_13.add(lblNewLabel_7, "cell 3 1 1 3,alignx left,aligny bottom");
+		lblNewLabel_7.setFont(new Font("SansSerif", Font.PLAIN, 24));
+
+		lblNumTotalKGCarga = new JLabel("0.000.000,00 KG");
+		panel_13.add(lblNumTotalKGCarga, "cell 1 3,alignx left,aligny top");
+		JPanel panel_15 = new JPanel();
+		painelPrincipal.add(panel_15, "cell 0 2,grow");
+		panel_15.setBackground(new Color(0, 51, 102));
+
+		table_romaeios_entrada = new JTable(modelo_romaneios_entrada);
+		table_romaeios_entrada.setFont(new Font("Arial", Font.PLAIN, 18));
+
+		table_romaeios_entrada.getColumnModel().getColumn(0).setPreferredWidth(250);
+		table_romaeios_entrada.getColumnModel().getColumn(1).setPreferredWidth(160);
+		table_romaeios_entrada.getColumnModel().getColumn(2).setPreferredWidth(250);
+		panel_15.setLayout(new BorderLayout(0, 0));
+
+		JScrollPane scrollPane = new JScrollPane(table_romaeios_entrada);
+		panel_15.add(scrollPane);
+
 		JPanel panel_1_1 = new JPanel();
-		panel_16.add(panel_1_1, "cell 3 0,grow");
+		painelPrincipal.add(panel_1_1, "cell 2 2 2 1,grow");
 		panel_1_1.setBackground(new Color(0, 51, 0));
 
 		table_romaneios_saida = new JTable(modelo_romaneios_saida);
@@ -625,8 +616,7 @@ public class TelaMonitoria extends JFrame {
 		painelRecebimento = new JPanel();
 		painelRecebimento.setBackground(Color.WHITE);
 		painelAbas.addTab("Monitor Recebimento", painelRecebimento);
-		painelRecebimento.setLayout(new MigLayout("", "[516.00px,grow][632px][696.00px,grow]",
-				"[][153.00px,grow][641.00px,grow][165.00px]"));
+		painelRecebimento.setLayout(new MigLayout("", "[516.00px,grow][632px][696.00px,grow]", "[][][][grow][grow]"));
 
 		/*
 		 * JPanel panel_11 = new JPanel(); painelRecebimento.add(panel_11,
@@ -637,17 +627,24 @@ public class TelaMonitoria extends JFrame {
 		 * JPanel panel_12 = new JPanel(); panel_12.setLayout(new MigLayout("", "[]",
 		 * "[]"));
 		 */
+		
+		JLabel lblNewLabel_6_2 = new JLabel("Atualizado a Cada 1 Minuto");
+		lblNewLabel_6_2.setOpaque(true);
+		lblNewLabel_6_2.setForeground(Color.WHITE);
+		lblNewLabel_6_2.setFont(new Font("SansSerif", Font.BOLD, 16));
+		lblNewLabel_6_2.setBackground(new Color(51, 0, 51));
+		painelRecebimento.add(lblNewLabel_6_2, "cell 0 0 3 1,growx");
 
 		JLabel lblNewLabel_4_1_2 = new JLabel("     Recebimento");
 		lblNewLabel_4_1_2.setOpaque(true);
 		lblNewLabel_4_1_2.setForeground(Color.WHITE);
 		lblNewLabel_4_1_2.setFont(new Font("Arial", Font.PLAIN, 36));
 		lblNewLabel_4_1_2.setBackground(new Color(0, 51, 0));
-		painelRecebimento.add(lblNewLabel_4_1_2, "cell 1 0 2 1,alignx center");
+		painelRecebimento.add(lblNewLabel_4_1_2, "cell 0 1 3 1,alignx center");
 		JPanel panel_12 = new JPanel();
 		panel_12.setBackground(Color.WHITE);
 		panel_12.setBounds(108, 107, 448, 189);
-		painelRecebimento.add(panel_12, "cell 0 1 2 1,alignx center,aligny center");
+		painelRecebimento.add(panel_12, "cell 0 2 2 1,alignx center,aligny center");
 		panel_12.setLayout(new MigLayout("", "[368px][62px]", "[139px][32px]"));
 
 		JLabel lblNewLabel_1 = new JLabel("sacos");
@@ -665,7 +662,7 @@ public class TelaMonitoria extends JFrame {
 		JPanel panel_11 = new JPanel();
 		panel_11.setBackground(Color.WHITE);
 		panel_11.setBounds(694, 54, 506, 184);
-		painelRecebimento.add(panel_11, "cell 2 1,grow");
+		painelRecebimento.add(panel_11, "cell 2 2,grow");
 		panel_11.setLayout(new MigLayout("", "[][]", "[][]"));
 
 		JPanel panel_2_2 = new JPanel();
@@ -754,7 +751,7 @@ public class TelaMonitoria extends JFrame {
 		JPanel panel_4 = new JPanel();
 		panel_4.setBounds(7, 307, 1332, 320);
 		panel_4.setBackground(Color.WHITE);
-		painelRecebimento.add(panel_4, "cell 0 2 3 1,grow");
+		painelRecebimento.add(panel_4, "cell 0 3 3 2,grow");
 
 		modelo_romaneios_entrada_aba_recebimento.addColumn("Depositante");
 		modelo_romaneios_entrada_aba_recebimento.addColumn("Remetente");
@@ -789,29 +786,35 @@ public class TelaMonitoria extends JFrame {
 		painelCarregamento = new JPanel();
 		painelCarregamento.setBackground(Color.WHITE);
 		painelAbas.addTab("Monitor Carregamento", painelCarregamento);
-		painelCarregamento.setLayout(new MigLayout("", "[516.00px,grow][632px,grow][696.00px]",
-				"[][206.00px,grow][20.00,grow][641.00px,grow,fill][165.00px]"));
+		painelCarregamento.setLayout(new MigLayout("", "[516.00px,grow][632px,grow][696.00px]", "[][][206.00px,grow][20.00,grow][641.00px,grow,fill][165.00px]"));
 
 		/*
 		 * JPanel panel_6 = new JPanel(); panel_6.setBackground(Color.WHITE);
 		 * panel_6.setLayout(new MigLayout("", "[]", "[]"));
 		 */
+		
+		JLabel lblNewLabel_6_3 = new JLabel("Atualizado a Cada 1 Minuto");
+		lblNewLabel_6_3.setOpaque(true);
+		lblNewLabel_6_3.setForeground(Color.WHITE);
+		lblNewLabel_6_3.setFont(new Font("SansSerif", Font.BOLD, 16));
+		lblNewLabel_6_3.setBackground(new Color(51, 0, 51));
+		painelCarregamento.add(lblNewLabel_6_3, "cell 0 0 3 1,growx");
 
 		JLabel lblNewLabel_4_1_1_1 = new JLabel("  Carregamento");
 		lblNewLabel_4_1_1_1.setOpaque(true);
 		lblNewLabel_4_1_1_1.setForeground(Color.WHITE);
 		lblNewLabel_4_1_1_1.setFont(new Font("Arial", Font.PLAIN, 36));
 		lblNewLabel_4_1_1_1.setBackground(new Color(0, 51, 0));
-		painelCarregamento.add(lblNewLabel_4_1_1_1, "cell 0 0 2 1,alignx center");
+		painelCarregamento.add(lblNewLabel_4_1_1_1, "cell 0 1 2 1,alignx center");
 
 		JPanel panel_8 = new JPanel();
 		panel_8.setBackground(Color.WHITE);
-		painelCarregamento.add(panel_8, "cell 0 2,grow");
+		painelCarregamento.add(panel_8, "cell 0 3,grow");
 		panel_8.setLayout(new BorderLayout(0, 0));
 
 		JPanel panel_6 = new JPanel();
 		panel_6.setBackground(Color.WHITE);
-		painelCarregamento.add(panel_6, "cell 0 1,grow");
+		painelCarregamento.add(panel_6, "cell 0 2,grow");
 		panel_6.setLayout(new MigLayout("", "[][]", "[][]"));
 
 		JPanel panel_2_1_1 = new JPanel();
@@ -902,7 +905,7 @@ public class TelaMonitoria extends JFrame {
 
 		JPanel panel_5 = new JPanel();
 		panel_5.setBackground(Color.WHITE);
-		painelCarregamento.add(panel_5, "cell 1 1 2 1,alignx center,aligny center");
+		painelCarregamento.add(panel_5, "cell 1 2 2 1,alignx center,aligny center");
 		panel_5.setLayout(new MigLayout("", "[92px][79px][197px]", "[139px][4px][20px]"));
 
 		lblTotalSacosCargaAbaRecebimento = new JLabel("00.000.000");
@@ -932,7 +935,7 @@ public class TelaMonitoria extends JFrame {
 		 * painelCarregamento.add(panel_9, "cell 0 3 3 2,grow"); panel_9.setLayout(new
 		 * BorderLayout(0, 0));
 		 */JPanel panel_9 = new JPanel();
-		painelCarregamento.add(panel_9, "cell 0 3 3 2,growx,aligny center");
+		painelCarregamento.add(panel_9, "cell 0 4 3 2,growx,aligny center");
 
 		table_carga_aba_carregamentos = new JTable(modelo_romaneios_saida_aba_carregamentos);
 		table_carga_aba_carregamentos.setFont(new Font("SansSerif", Font.PLAIN, 20));
@@ -966,12 +969,379 @@ public class TelaMonitoria extends JFrame {
 		todo_periodo = false;
 
 		slide();
+		
+		todas_as_safras = false;
+		vigilante_todos_os_romaneios();
+		
 		this.setLocationRelativeTo(janela_pai);
 
 	}
 
 	public void setTelaPai(JDialog _tela_pai) {
 		this.telaPai = _tela_pai;
+	}
+	
+	
+	
+	
+	public void forcar_atualizacao() {
+		modelo_romaneios_entrada.setNumRows(0);
+		modelo_romaneios_entrada_aba_recebimento.setNumRows(0);
+		modelo_romaneios_saida_aba_carregamentos.setNumRows(0);
+		umidade_media = 0;
+		impureza_media = 0;
+		avariados_media = 0;
+		num_descargas = 0;
+		total_sacos_descarga = 0;
+		total_kg_descarga = 0;
+
+		modelo_romaneios_saida.setNumRows(0);
+
+		umidade_media_saida = 0;
+		num_cargas = 0;
+		total_sacos_carga = 0;
+		total_kg_carga = 0;
+
+		ArrayList<CadastroRomaneio> romaneios = new GerenciarBancoRomaneios().listarRomaneiosMaisRapido();
+		romaneios_locais.clear();
+
+		for (CadastroRomaneio rom : romaneios) {
+
+			boolean ja_esta_na_lista = false;
+
+			for (CadastroRomaneio rom_na_lista : romaneios_locais) {
+				if (rom_na_lista.getNumero_romaneio() == rom.getNumero_romaneio()) {
+					ja_esta_na_lista = true;
+					break;
+				}
+			}
+
+			if (!ja_esta_na_lista) {
+
+				String nome_remetente, safra;
+				double bruto, tara, liquido, umidade;
+
+				CadastroCliente remetente = rom.getRemetente();
+				if (remetente.getTipo_pessoa() == 0) {
+					nome_remetente = remetente.getNome_empresarial().toUpperCase();
+				} else {
+					nome_remetente = remetente.getNome_fantaia().toUpperCase();
+
+				}
+
+				String nome_remetente_completo = nome_remetente;
+
+				String nome_remetente_quebrado[] = nome_remetente.split(" ");
+				// rodrigo cesar de moura
+				// [0] rodrigo [1] cesar [2] de [3] moura
+				try {
+					if (nome_remetente_quebrado.length > 1) {
+						if (nome_remetente_quebrado[2].length() > 2) {
+							nome_remetente = nome_remetente_quebrado[0] + " " + nome_remetente_quebrado[2];
+						} else {
+							if (nome_remetente_quebrado[3].length() > 1) {
+								nome_remetente = nome_remetente_quebrado[0] + " " + nome_remetente_quebrado[3];
+
+							} else {
+								nome_remetente = nome_remetente_quebrado[0] + " " + nome_remetente_quebrado[1];
+
+							}
+						}
+					}
+				} catch (Exception y) {
+					nome_remetente = nome_remetente_completo;
+				}
+
+				String nome_destinatario = "";
+
+				try {
+					if (rom.getDestinatario() != null) {
+						CadastroCliente destinatario = rom.getDestinatario();
+						if (destinatario.getTipo_pessoa() == 0) {
+							nome_destinatario = destinatario.getNome_empresarial().toUpperCase();
+						} else {
+							nome_destinatario = destinatario.getNome_fantaia().toUpperCase();
+
+						}
+					}
+				} catch (Exception e) {
+
+				}
+				String nome_destinatario_completo = nome_destinatario;
+
+				String nome_destinatario_quebrado[] = nome_remetente.split(" ");
+				try {
+
+					if (nome_destinatario_quebrado.length > 2) {
+						if (nome_destinatario_quebrado[2].length() > 1) {
+							nome_destinatario = nome_destinatario_quebrado[0] + " "
+									+ nome_destinatario_quebrado[2];
+						} else {
+							if (nome_destinatario_quebrado[3].length() > 1) {
+								nome_destinatario = nome_destinatario_quebrado[0] + " "
+										+ nome_destinatario_quebrado[3];
+
+							} else {
+								nome_destinatario = nome_destinatario_quebrado[0] + " "
+										+ nome_destinatario_quebrado[1];
+
+							}
+						}
+					}
+
+				} catch (Exception v) {
+					nome_destinatario = nome_destinatario_completo;
+				}
+
+				String ano_plantio = Integer.toString(rom.getSafra().getAno_plantio());
+				ano_plantio = ano_plantio.substring(2, 4);
+
+				String ano_colheita = Integer.toString(rom.getSafra().getAno_colheita());
+				ano_colheita = ano_colheita.substring(2, 4);
+
+				safra = rom.getProduto().getNome_produto().toUpperCase() + " - " + ano_plantio + "/"
+						+ ano_colheita;
+
+				double d_peso_liquido = rom.getPeso_liquido();
+				String data_informada = entDataInformada.getText();
+				Date date = null;
+				try {
+					date = new SimpleDateFormat("dd/MM/yyyy").parse(data_informada);
+				} catch (ParseException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+				DateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy");
+
+				if (!todo_periodo) {
+					if (rom.getData().equals(date)) {
+						if (rom.getOperacao().equals("ENTRADA NORMAL")
+								|| (rom.getOperacao().equals("ENTRADA TRANSFERENCIA")
+										&& chkbkTransferencias.isSelected())) {
+
+							if (todas_as_safras) {
+								modelo_romaneios_entrada.addRow(new Object[] { nome_remetente, safra,
+										d_peso_liquido + " KG / " + ((int) d_peso_liquido / 60) + " SCs" });
+								modelo_romaneios_entrada_aba_recebimento.addRow(new Object[] {
+										nome_remetente_completo, nome_destinatario_completo, safra,
+										rom.getPeso_bruto() + " KG", rom.getTara() + " KG",
+										d_peso_liquido + " KG", rom.getUmidade() + "%", rom.getInpureza() + "%",
+										rom.getAvariados() + "%", dateFormat.format(rom.getData()) });
+								num_descargas++;
+
+								total_sacos_descarga = total_sacos_descarga + (d_peso_liquido / 60);
+								total_kg_descarga = total_kg_descarga + d_peso_liquido;
+
+								if (rom.getUmidade() > 0 && rom.getInpureza() > 0) {
+
+									umidade_media = umidade_media + rom.getUmidade();
+									avariados_media = avariados_media + rom.getAvariados();
+									impureza_media = impureza_media + rom.getInpureza();
+								}
+							} else {
+
+								if (rom.getSafra().getId_safra() == safra_selecionada.getId_safra()) {
+
+									modelo_romaneios_entrada.addRow(new Object[] { nome_remetente, safra,
+											d_peso_liquido + " KG / " + ((int) d_peso_liquido / 60) + " SCs" });
+									modelo_romaneios_entrada_aba_recebimento.addRow(
+											new Object[] { nome_remetente_completo, nome_destinatario_completo,
+													safra, rom.getPeso_bruto() + " KG", rom.getTara() + " KG",
+													d_peso_liquido + " KG", rom.getUmidade() + "%",
+													rom.getInpureza() + "%", rom.getAvariados() + "%",
+													dateFormat.format(rom.getData()) });
+
+									num_descargas++;
+
+									total_sacos_descarga = total_sacos_descarga + (d_peso_liquido / 60);
+									total_kg_descarga = total_kg_descarga + d_peso_liquido;
+
+									if (rom.getUmidade() > 0 && rom.getInpureza() > 0) {
+
+										umidade_media = umidade_media + rom.getUmidade();
+										avariados_media = avariados_media + rom.getAvariados();
+										impureza_media = impureza_media + rom.getInpureza();
+									}
+								}
+
+							}
+						} else if (rom.getOperacao().equalsIgnoreCase("SAÍDA NORMAL")
+								|| rom.getOperacao().equalsIgnoreCase("SAÍDA QUEBRA TECNICA")
+										&& chkboxQuebraTecnica.isSelected()) {
+							if (todas_as_safras) {
+								modelo_romaneios_saida.addRow(
+										new Object[] { nome_remetente_completo, safra, d_peso_liquido });
+								num_cargas++;
+
+								modelo_romaneios_saida_aba_carregamentos.addRow(new Object[] {
+										nome_remetente_completo, safra, rom.getPeso_bruto() + " KG",
+										rom.getTara() + " KG", d_peso_liquido + " KG", rom.getUmidade() + "%",
+										rom.getInpureza() + "%", rom.getAvariados() + "%",
+										dateFormat.format(rom.getData()) });
+
+								total_sacos_carga = total_sacos_carga + (d_peso_liquido / 60);
+								total_kg_carga = total_kg_carga + d_peso_liquido;
+
+								if (rom.getUmidade() > 0 && rom.getInpureza() > 0) {
+
+									umidade_media_saida = umidade_media_saida + rom.getUmidade();
+									avariados_media_carregamento = avariados_media_carregamento
+											+ rom.getAvariados();
+									impureza_media_carregamento = impureza_media_carregamento
+											+ rom.getInpureza();
+								}
+							} else {
+								if (rom.getSafra().getId_safra() == safra_selecionada.getId_safra()) {
+									modelo_romaneios_saida.addRow(
+											new Object[] { nome_remetente_completo, safra, d_peso_liquido });
+									num_cargas++;
+									modelo_romaneios_saida_aba_carregamentos.addRow(new Object[] {
+											nome_remetente_completo, safra, rom.getPeso_bruto() + " KG",
+											rom.getTara() + " KG", d_peso_liquido + " KG",
+											rom.getUmidade() + "%", rom.getInpureza() + "%",
+											rom.getAvariados() + "%", dateFormat.format(rom.getData()) });
+
+									total_sacos_carga = total_sacos_carga + (d_peso_liquido / 60);
+									total_kg_carga = total_kg_carga + d_peso_liquido;
+
+									if (rom.getUmidade() > 0 && rom.getInpureza() > 0) {
+
+										umidade_media_saida = umidade_media_saida + rom.getUmidade();
+
+										avariados_media_carregamento = avariados_media_carregamento
+												+ rom.getAvariados();
+										impureza_media_carregamento = impureza_media_carregamento
+												+ rom.getInpureza();
+									}
+								}
+
+							}
+						}
+					} // fim do if de data
+				} else {
+					if (rom.getOperacao().equals("ENTRADA NORMAL")
+							|| (rom.getOperacao().equalsIgnoreCase("ENTRADA TRANSFERENCIA")
+									&& chkbkTransferencias.isSelected())) {
+
+						if (todas_as_safras) {
+							modelo_romaneios_entrada.addRow(new Object[] { nome_remetente, safra,
+									d_peso_liquido + " KG / " + ((int) d_peso_liquido / 60) + " SCs" });
+							modelo_romaneios_entrada_aba_recebimento.addRow(new Object[] {
+									nome_remetente_completo, nome_destinatario_completo, safra,
+									rom.getPeso_bruto() + " KG", rom.getTara() + " KG", d_peso_liquido + " KG",
+									rom.getUmidade() + "%", rom.getInpureza() + "%", rom.getAvariados() + "%",
+									dateFormat.format(rom.getData()) });
+
+							num_descargas++;
+
+							total_sacos_descarga = total_sacos_descarga + (d_peso_liquido / 60);
+							total_kg_descarga = total_kg_descarga + d_peso_liquido;
+
+							if (rom.getUmidade() > 0 && rom.getInpureza() > 0) {
+
+								umidade_media = umidade_media + rom.getUmidade();
+								avariados_media = avariados_media + rom.getAvariados();
+								impureza_media = impureza_media + rom.getInpureza();
+							}
+						} else {
+
+							if (rom.getSafra().getId_safra() == safra_selecionada.getId_safra()) {
+
+								modelo_romaneios_entrada.addRow(new Object[] { nome_remetente, safra,
+										d_peso_liquido + " KG / " + ((int) d_peso_liquido / 60) + " SCs" });
+								modelo_romaneios_entrada_aba_recebimento.addRow(new Object[] {
+										nome_remetente_completo, nome_destinatario_completo, safra,
+										rom.getPeso_bruto() + " KG", rom.getTara() + " KG",
+										d_peso_liquido + " KG", rom.getUmidade() + "%", rom.getInpureza() + "%",
+										rom.getAvariados() + "%", dateFormat.format(rom.getData()) });
+
+								num_descargas++;
+								total_sacos_descarga = total_sacos_descarga + (d_peso_liquido / 60);
+								total_kg_descarga = total_kg_descarga + d_peso_liquido;
+
+								if (rom.getUmidade() > 0 && rom.getInpureza() > 0) {
+
+									umidade_media = umidade_media + rom.getUmidade();
+									avariados_media = avariados_media + rom.getAvariados();
+									impureza_media = impureza_media + rom.getInpureza();
+								}
+							}
+
+						}
+					} else if (rom.getOperacao().equalsIgnoreCase("SAÍDA NORMAL")
+							|| rom.getOperacao().equalsIgnoreCase("SAÍDA QUEBRA TECNICA")
+									&& chkboxQuebraTecnica.isSelected()) {
+						if (todas_as_safras) {
+							modelo_romaneios_saida
+									.addRow(new Object[] { nome_remetente_completo, safra, d_peso_liquido });
+							modelo_romaneios_saida_aba_carregamentos.addRow(
+									new Object[] { nome_remetente_completo, safra, rom.getPeso_bruto() + " KG",
+											rom.getTara() + " KG", d_peso_liquido + " KG",
+											rom.getUmidade() + "%", rom.getInpureza() + "%",
+											rom.getAvariados() + "%", dateFormat.format(rom.getData()) });
+
+							num_cargas++;
+
+							total_sacos_carga = total_sacos_carga + (d_peso_liquido / 60);
+							total_kg_carga = total_kg_carga + d_peso_liquido;
+							if (rom.getUmidade() > 0 && rom.getInpureza() > 0) {
+
+								umidade_media_saida = umidade_media_saida + rom.getUmidade();
+
+								avariados_media_carregamento = avariados_media_carregamento
+										+ rom.getAvariados();
+
+								impureza_media_carregamento = impureza_media_carregamento + rom.getInpureza();
+							}
+						} else {
+							if (rom.getSafra().getId_safra() == safra_selecionada.getId_safra()) {
+								modelo_romaneios_saida.addRow(
+										new Object[] { nome_remetente_completo, safra, d_peso_liquido });
+								modelo_romaneios_saida_aba_carregamentos.addRow(new Object[] {
+										nome_remetente_completo, safra, rom.getPeso_bruto() + " KG",
+										rom.getTara() + " KG", d_peso_liquido + " KG", rom.getUmidade() + "%",
+										rom.getInpureza() + "%", rom.getAvariados() + "%",
+										dateFormat.format(rom.getData()) });
+
+								num_cargas++;
+
+								total_sacos_carga = total_sacos_carga + (d_peso_liquido / 60);
+								total_kg_carga = total_kg_carga + d_peso_liquido;
+
+								if (rom.getUmidade() > 0 && rom.getInpureza() > 0) {
+
+									umidade_media_saida = umidade_media_saida + rom.getUmidade();
+
+									avariados_media_carregamento = avariados_media_carregamento
+											+ rom.getAvariados();
+									impureza_media_carregamento = impureza_media_carregamento
+											+ rom.getInpureza();
+								}
+							}
+
+						}
+					}
+
+				}
+
+				romaneios_locais.add(rom);
+
+			}
+
+		}
+
+		umidade_media = umidade_media / num_descargas;
+		umidade_media_saida = umidade_media_saida / num_cargas;
+
+		impureza_media = impureza_media / num_descargas;
+		avariados_media = avariados_media / num_descargas;
+
+		avariados_media_carregamento = avariados_media_carregamento / num_cargas;
+		impureza_media_carregamento = impureza_media_carregamento / num_cargas;
+
+		setRomaneiosRecebimento();
+		setRomaneiosCarregamento();
+		
 	}
 
 	public void vigilante_todos_os_romaneios() {
@@ -981,6 +1351,9 @@ public class TelaMonitoria extends JFrame {
 			@Override
 			public void run() {
 				limpar();
+				
+				
+				while(true) {
 
 				modelo_romaneios_entrada.setNumRows(0);
 				modelo_romaneios_entrada_aba_recebimento.setNumRows(0);
@@ -1112,7 +1485,9 @@ public class TelaMonitoria extends JFrame {
 
 						if (!todo_periodo) {
 							if (rom.getData().equals(date)) {
-								if (rom.getOperacao().equals("ENTRADA NORMAL") || (rom.getOperacao().equals("ENTRADA TRANSFERENCIA") && chkbkTransferencias.isSelected())) {
+								if (rom.getOperacao().equals("ENTRADA NORMAL")
+										|| (rom.getOperacao().equals("ENTRADA TRANSFERENCIA")
+												&& chkbkTransferencias.isSelected())) {
 
 									if (todas_as_safras) {
 										modelo_romaneios_entrada.addRow(new Object[] { nome_remetente, safra,
@@ -1126,14 +1501,14 @@ public class TelaMonitoria extends JFrame {
 
 										total_sacos_descarga = total_sacos_descarga + (d_peso_liquido / 60);
 										total_kg_descarga = total_kg_descarga + d_peso_liquido;
-								
-										if(rom.getUmidade() > 0 && rom.getInpureza() > 0 ) {
 
-										umidade_media = umidade_media + rom.getUmidade();
-										avariados_media = avariados_media + rom.getAvariados();
-										impureza_media = impureza_media + rom.getInpureza();
+										if (rom.getUmidade() > 0 && rom.getInpureza() > 0) {
+
+											umidade_media = umidade_media + rom.getUmidade();
+											avariados_media = avariados_media + rom.getAvariados();
+											impureza_media = impureza_media + rom.getInpureza();
 										}
-										} else {
+									} else {
 
 										if (rom.getSafra().getId_safra() == safra_selecionada.getId_safra()) {
 
@@ -1150,17 +1525,19 @@ public class TelaMonitoria extends JFrame {
 
 											total_sacos_descarga = total_sacos_descarga + (d_peso_liquido / 60);
 											total_kg_descarga = total_kg_descarga + d_peso_liquido;
-									
-											if(rom.getUmidade() > 0 && rom.getInpureza() > 0 ) {
 
-											umidade_media = umidade_media + rom.getUmidade();
-											avariados_media = avariados_media + rom.getAvariados();
-											impureza_media = impureza_media + rom.getInpureza();
-											}	
+											if (rom.getUmidade() > 0 && rom.getInpureza() > 0) {
+
+												umidade_media = umidade_media + rom.getUmidade();
+												avariados_media = avariados_media + rom.getAvariados();
+												impureza_media = impureza_media + rom.getInpureza();
 											}
+										}
 
 									}
-								} else if (rom.getOperacao().equalsIgnoreCase("SAÍDA NORMAL") || rom.getOperacao().equalsIgnoreCase("SAÍDA QUEBRA TECNICA") && chkboxQuebraTecnica.isSelected() ) {
+								} else if (rom.getOperacao().equalsIgnoreCase("SAÍDA NORMAL")
+										|| rom.getOperacao().equalsIgnoreCase("SAÍDA QUEBRA TECNICA")
+												&& chkboxQuebraTecnica.isSelected()) {
 									if (todas_as_safras) {
 										modelo_romaneios_saida.addRow(
 												new Object[] { nome_remetente_completo, safra, d_peso_liquido });
@@ -1174,15 +1551,16 @@ public class TelaMonitoria extends JFrame {
 
 										total_sacos_carga = total_sacos_carga + (d_peso_liquido / 60);
 										total_kg_carga = total_kg_carga + d_peso_liquido;
-								
-										if(rom.getUmidade() > 0 && rom.getInpureza() > 0 ) {
 
-										umidade_media_saida = umidade_media_saida + rom.getUmidade();
-										avariados_media_carregamento = avariados_media_carregamento
-												+ rom.getAvariados();
-										impureza_media_carregamento = impureza_media_carregamento + rom.getInpureza();
+										if (rom.getUmidade() > 0 && rom.getInpureza() > 0) {
+
+											umidade_media_saida = umidade_media_saida + rom.getUmidade();
+											avariados_media_carregamento = avariados_media_carregamento
+													+ rom.getAvariados();
+											impureza_media_carregamento = impureza_media_carregamento
+													+ rom.getInpureza();
 										}
-										} else {
+									} else {
 										if (rom.getSafra().getId_safra() == safra_selecionada.getId_safra()) {
 											modelo_romaneios_saida.addRow(
 													new Object[] { nome_remetente_completo, safra, d_peso_liquido });
@@ -1195,15 +1573,15 @@ public class TelaMonitoria extends JFrame {
 
 											total_sacos_carga = total_sacos_carga + (d_peso_liquido / 60);
 											total_kg_carga = total_kg_carga + d_peso_liquido;
-											
-											if(rom.getUmidade() > 0 && rom.getInpureza() > 0 ) {
 
-											umidade_media_saida = umidade_media_saida + rom.getUmidade();
+											if (rom.getUmidade() > 0 && rom.getInpureza() > 0) {
 
-											avariados_media_carregamento = avariados_media_carregamento
-													+ rom.getAvariados();
-											impureza_media_carregamento = impureza_media_carregamento
-													+ rom.getInpureza();
+												umidade_media_saida = umidade_media_saida + rom.getUmidade();
+
+												avariados_media_carregamento = avariados_media_carregamento
+														+ rom.getAvariados();
+												impureza_media_carregamento = impureza_media_carregamento
+														+ rom.getInpureza();
 											}
 										}
 
@@ -1211,7 +1589,9 @@ public class TelaMonitoria extends JFrame {
 								}
 							} // fim do if de data
 						} else {
-							if (rom.getOperacao().equals("ENTRADA NORMAL") || (rom.getOperacao().equalsIgnoreCase("ENTRADA TRANSFERENCIA") && chkbkTransferencias.isSelected())) {
+							if (rom.getOperacao().equals("ENTRADA NORMAL")
+									|| (rom.getOperacao().equalsIgnoreCase("ENTRADA TRANSFERENCIA")
+											&& chkbkTransferencias.isSelected())) {
 
 								if (todas_as_safras) {
 									modelo_romaneios_entrada.addRow(new Object[] { nome_remetente, safra,
@@ -1226,14 +1606,14 @@ public class TelaMonitoria extends JFrame {
 
 									total_sacos_descarga = total_sacos_descarga + (d_peso_liquido / 60);
 									total_kg_descarga = total_kg_descarga + d_peso_liquido;
-							
-									if(rom.getUmidade() > 0 && rom.getInpureza() > 0 ) {
 
-									umidade_media = umidade_media + rom.getUmidade();
-									avariados_media = avariados_media + rom.getAvariados();
-									impureza_media = impureza_media + rom.getInpureza();
+									if (rom.getUmidade() > 0 && rom.getInpureza() > 0) {
+
+										umidade_media = umidade_media + rom.getUmidade();
+										avariados_media = avariados_media + rom.getAvariados();
+										impureza_media = impureza_media + rom.getInpureza();
 									}
-									} else {
+								} else {
 
 									if (rom.getSafra().getId_safra() == safra_selecionada.getId_safra()) {
 
@@ -1248,17 +1628,19 @@ public class TelaMonitoria extends JFrame {
 										num_descargas++;
 										total_sacos_descarga = total_sacos_descarga + (d_peso_liquido / 60);
 										total_kg_descarga = total_kg_descarga + d_peso_liquido;
-									
-										if(rom.getUmidade() > 0 && rom.getInpureza() > 0 ) {
 
-										umidade_media = umidade_media + rom.getUmidade();
-										avariados_media = avariados_media + rom.getAvariados();
-										impureza_media = impureza_media + rom.getInpureza();
-									}	
+										if (rom.getUmidade() > 0 && rom.getInpureza() > 0) {
+
+											umidade_media = umidade_media + rom.getUmidade();
+											avariados_media = avariados_media + rom.getAvariados();
+											impureza_media = impureza_media + rom.getInpureza();
+										}
 									}
 
 								}
-							} else if (rom.getOperacao().equalsIgnoreCase("SAÍDA NORMAL") || rom.getOperacao().equalsIgnoreCase("SAÍDA QUEBRA TECNICA") && chkboxQuebraTecnica.isSelected() ) {
+							} else if (rom.getOperacao().equalsIgnoreCase("SAÍDA NORMAL")
+									|| rom.getOperacao().equalsIgnoreCase("SAÍDA QUEBRA TECNICA")
+											&& chkboxQuebraTecnica.isSelected()) {
 								if (todas_as_safras) {
 									modelo_romaneios_saida
 											.addRow(new Object[] { nome_remetente_completo, safra, d_peso_liquido });
@@ -1272,15 +1654,16 @@ public class TelaMonitoria extends JFrame {
 
 									total_sacos_carga = total_sacos_carga + (d_peso_liquido / 60);
 									total_kg_carga = total_kg_carga + d_peso_liquido;
-									if(rom.getUmidade() > 0 && rom.getInpureza() > 0 ) {
+									if (rom.getUmidade() > 0 && rom.getInpureza() > 0) {
 
-									umidade_media_saida = umidade_media_saida + rom.getUmidade();
+										umidade_media_saida = umidade_media_saida + rom.getUmidade();
 
-									avariados_media_carregamento = avariados_media_carregamento + rom.getAvariados();
-									
-									impureza_media_carregamento = impureza_media_carregamento + rom.getInpureza();
+										avariados_media_carregamento = avariados_media_carregamento
+												+ rom.getAvariados();
+
+										impureza_media_carregamento = impureza_media_carregamento + rom.getInpureza();
 									}
-									} else {
+								} else {
 									if (rom.getSafra().getId_safra() == safra_selecionada.getId_safra()) {
 										modelo_romaneios_saida.addRow(
 												new Object[] { nome_remetente_completo, safra, d_peso_liquido });
@@ -1292,28 +1675,25 @@ public class TelaMonitoria extends JFrame {
 
 										num_cargas++;
 
-										
-										
 										total_sacos_carga = total_sacos_carga + (d_peso_liquido / 60);
 										total_kg_carga = total_kg_carga + d_peso_liquido;
 
-										if(rom.getUmidade() > 0 && rom.getInpureza() > 0 ) {
-											
-										
-										umidade_media_saida = umidade_media_saida + rom.getUmidade();
+										if (rom.getUmidade() > 0 && rom.getInpureza() > 0) {
 
-										avariados_media_carregamento = avariados_media_carregamento
-												+ rom.getAvariados();
-										impureza_media_carregamento = impureza_media_carregamento + rom.getInpureza();
+											umidade_media_saida = umidade_media_saida + rom.getUmidade();
+
+											avariados_media_carregamento = avariados_media_carregamento
+													+ rom.getAvariados();
+											impureza_media_carregamento = impureza_media_carregamento
+													+ rom.getInpureza();
 										}
-										}
+									}
 
 								}
 							}
 
 						}
-						
-						
+
 						romaneios_locais.add(rom);
 
 					}
@@ -1331,6 +1711,17 @@ public class TelaMonitoria extends JFrame {
 
 				setRomaneiosRecebimento();
 				setRomaneiosCarregamento();
+				
+				
+					try {
+						Thread.sleep(60000);
+					} catch (InterruptedException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+				
+				
+			}
 			}
 		}.start();
 

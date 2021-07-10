@@ -51,6 +51,7 @@ import main.java.cadastros.Lancamento;
 import main.java.gui.TelaEnviarMsgMail;
 import main.java.gui.TelaEnviarMsgWhatsapp;
 import main.java.gui.TelaVizualizarPdf;
+import main.java.gui_internal.TelaFinanceiroLancamentoInternal;
 import main.java.manipular.ConverterPdf;
 import main.java.manipular.ManipularTxt;
 
@@ -68,6 +69,7 @@ import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
 import net.miginfocom.swing.MigLayout;
 import javax.swing.JRadioButton;
+import javax.swing.border.LineBorder;
 
 public class TelaEscolhaRelatorioLancamentos extends JDialog {
 
@@ -78,25 +80,31 @@ public class TelaEscolhaRelatorioLancamentos extends JDialog {
 	public TelaEscolhaRelatorioLancamentos(ArrayList<Lancamento> lancamentos, Window janela_pai) {
 		getContentPane().setBackground(Color.WHITE);
 
-		setBounds(100, 100, 331, 239);
+		setBounds(100, 100, 331, 259);
 		isto = this;
-		getContentPane().setLayout(new MigLayout("", "[grow][]", "[grow][][grow][][grow][][]"));
-
-		JLabel btnRelatrioDelancamentos = new JLabel("Relatório de lancamentos");
-		btnRelatrioDelancamentos.setForeground(Color.BLACK);
-		btnRelatrioDelancamentos.setFont(new Font("Tahoma", Font.BOLD, 16));
-		btnRelatrioDelancamentos.setBorder(null);
-		btnRelatrioDelancamentos.setBackground(new Color(0, 51, 0));
-		getContentPane().add(btnRelatrioDelancamentos, "cell 0 0 2 1,alignx center");
+		getContentPane().setLayout(new MigLayout("", "[grow][]", "[grow][][grow][][grow][][grow][][][]"));
+		
+		JPanel panel_2 = new JPanel();
+		panel_2.setBackground(new Color(0, 51, 0));
+		getContentPane().add(panel_2, "cell 0 0 2 1,grow");
+		
+				JLabel btnRelatrioDelancamentos = new JLabel("Relatório de lancamentos");
+				panel_2.add(btnRelatrioDelancamentos);
+				btnRelatrioDelancamentos.setOpaque(true);
+				btnRelatrioDelancamentos.setForeground(Color.WHITE);
+				btnRelatrioDelancamentos.setFont(new Font("Tahoma", Font.BOLD, 16));
+				btnRelatrioDelancamentos.setBorder(null);
+				btnRelatrioDelancamentos.setBackground(new Color(0, 51, 0));
 
 		JLabel lblNewLabel = new JLabel("Tipo:");
 		lblNewLabel.setForeground(Color.BLACK);
 		lblNewLabel.setFont(new Font("Tahoma", Font.PLAIN, 18));
-		getContentPane().add(lblNewLabel, "cell 0 1,alignx left");
+		getContentPane().add(lblNewLabel, "cell 0 3,alignx left");
 
 		JPanel panel = new JPanel();
+		panel.setBorder(new LineBorder(new Color(0, 0, 0)));
 		panel.setBackground(Color.WHITE);
-		getContentPane().add(panel, "cell 0 2 2 1,alignx left,growy");
+		getContentPane().add(panel, "cell 0 4 2 1,alignx center,growy");
 		panel.setLayout(new MigLayout("", "[][][]", "[]"));
 
 		rdbtnCompleto = new JRadioButton("Completo");
@@ -126,11 +134,12 @@ public class TelaEscolhaRelatorioLancamentos extends JDialog {
 		JLabel lblSada = new JLabel("Saída:");
 		lblSada.setForeground(Color.BLACK);
 		lblSada.setFont(new Font("Tahoma", Font.PLAIN, 18));
-		getContentPane().add(lblSada, "cell 0 3,alignx left");
+		getContentPane().add(lblSada, "cell 0 5,alignx left");
 
 		JPanel panel_1 = new JPanel();
+		panel_1.setBorder(new LineBorder(new Color(0, 0, 0)));
 		panel_1.setBackground(Color.WHITE);
-		getContentPane().add(panel_1, "cell 0 4 2 1,alignx left,growy");
+		getContentPane().add(panel_1, "cell 0 6 2 1,alignx center,growy");
 		panel_1.setLayout(new MigLayout("", "[53px][43px][]", "[23px]"));
 
 		rdbtnExcel = new JRadioButton("Excel");
@@ -157,37 +166,168 @@ public class TelaEscolhaRelatorioLancamentos extends JDialog {
 				});
 				rdbtnPdf.setFont(new Font("Tahoma", Font.BOLD, 14));
 				panel_1.add(rdbtnPdf, "cell 1 0,alignx left,aligny top");
+				
+						JButton btnNewButton_1 = new JButton("Gerar");
+						btnNewButton_1.addActionListener(new ActionListener() {
+							public void actionPerformed(ActionEvent e) {
+								// gerar
 
-		JButton btnNewButton_1 = new JButton("Gerar");
-		btnNewButton_1.addActionListener(new ActionListener() {
+								if (rdbtnCompleto.isSelected()) {
+									// relatorio completo
+									if (rdbtnExcel.isSelected()) {
+										gerarExcel(preparar(lancamentos, 1));
+									} else if (rdbtnPdf.isSelected()) {
+										gerarPdf(preparar(lancamentos, 1));
+
+									}
+
+								} else if (rdbtnSimples.isSelected()) {
+									// relatorio simples
+									if (rdbtnExcel.isSelected()) {
+										gerarExcel(preparar(lancamentos, 0));
+									} else if (rdbtnPdf.isSelected()) {
+										gerarPdf(preparar(lancamentos, 0));
+
+									}
+								}
+
+							}
+						});
+						btnNewButton_1.setFont(new Font("Arial", Font.PLAIN, 16));
+						btnNewButton_1.setForeground(Color.WHITE);
+						btnNewButton_1.setBackground(new Color(0, 0, 51));
+						getContentPane().add(btnNewButton_1, "cell 1 8,alignx right");
+		URL url2 = getClass().getResource("/imagens/infinite.gif");
+		ImageIcon img2 = new ImageIcon(url2);
+
+		setLocationRelativeTo(janela_pai);
+		setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
+
+		setResizable(false);
+		setVisible(true);
+	}
+	
+	
+	public TelaEscolhaRelatorioLancamentos(ArrayList<Lancamento> lancamentos, TelaFinanceiroLancamentoInternal janela_pai) {
+		getContentPane().setBackground(Color.WHITE);
+
+		setBounds(100, 100, 331, 259);
+		isto = this;
+		getContentPane().setLayout(new MigLayout("", "[grow][]", "[grow][][grow][][grow][][grow][][][]"));
+		
+		JPanel panel_2 = new JPanel();
+		panel_2.setBackground(new Color(0, 51, 0));
+		getContentPane().add(panel_2, "cell 0 0 2 1,grow");
+		
+				JLabel btnRelatrioDelancamentos = new JLabel("Relatório de lancamentos");
+				panel_2.add(btnRelatrioDelancamentos);
+				btnRelatrioDelancamentos.setOpaque(true);
+				btnRelatrioDelancamentos.setForeground(Color.WHITE);
+				btnRelatrioDelancamentos.setFont(new Font("Tahoma", Font.BOLD, 16));
+				btnRelatrioDelancamentos.setBorder(null);
+				btnRelatrioDelancamentos.setBackground(new Color(0, 51, 0));
+
+		JLabel lblNewLabel = new JLabel("Tipo:");
+		lblNewLabel.setForeground(Color.BLACK);
+		lblNewLabel.setFont(new Font("Tahoma", Font.PLAIN, 18));
+		getContentPane().add(lblNewLabel, "cell 0 3,alignx left");
+
+		JPanel panel = new JPanel();
+		panel.setBorder(new LineBorder(new Color(0, 0, 0)));
+		panel.setBackground(Color.WHITE);
+		getContentPane().add(panel, "cell 0 4 2 1,alignx center,growy");
+		panel.setLayout(new MigLayout("", "[][][]", "[]"));
+
+		rdbtnCompleto = new JRadioButton("Completo");
+		rdbtnCompleto.setBackground(Color.WHITE);
+		rdbtnCompleto.setForeground(Color.BLACK);
+		rdbtnCompleto.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				// gerar
+				rdbtnCompleto.setSelected(true);
+				rdbtnSimples.setSelected(false);
+			}
+		});
 
-				if (rdbtnCompleto.isSelected()) {
-					// relatorio completo
-					if (rdbtnExcel.isSelected()) {
-						gerarExcel(preparar(lancamentos, 1));
-					} else if (rdbtnPdf.isSelected()) {
-						gerarPdf(preparar(lancamentos, 1));
+		rdbtnSimples = new JRadioButton("Simples");
+		rdbtnSimples.setForeground(Color.BLACK);
+		rdbtnSimples.setBackground(Color.WHITE);
+		rdbtnSimples.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				rdbtnSimples.setSelected(true);
+				rdbtnCompleto.setSelected(false);
+			}
+		});
+		rdbtnSimples.setFont(new Font("Tahoma", Font.BOLD, 14));
+		panel.add(rdbtnSimples, "cell 1 0");
+		rdbtnCompleto.setFont(new Font("Tahoma", Font.BOLD, 14));
+		panel.add(rdbtnCompleto, "cell 2 0");
 
-					}
+		JLabel lblSada = new JLabel("Saída:");
+		lblSada.setForeground(Color.BLACK);
+		lblSada.setFont(new Font("Tahoma", Font.PLAIN, 18));
+		getContentPane().add(lblSada, "cell 0 5,alignx left");
 
-				} else if (rdbtnSimples.isSelected()) {
-					// relatorio simples
-					if (rdbtnExcel.isSelected()) {
-						gerarExcel(preparar(lancamentos, 0));
-					} else if (rdbtnPdf.isSelected()) {
-						gerarPdf(preparar(lancamentos, 0));
+		JPanel panel_1 = new JPanel();
+		panel_1.setBorder(new LineBorder(new Color(0, 0, 0)));
+		panel_1.setBackground(Color.WHITE);
+		getContentPane().add(panel_1, "cell 0 6 2 1,alignx center,growy");
+		panel_1.setLayout(new MigLayout("", "[53px][43px][]", "[23px]"));
 
-					}
-				}
+		rdbtnExcel = new JRadioButton("Excel");
+		rdbtnExcel.setBackground(Color.WHITE);
+		rdbtnExcel.setForeground(Color.BLACK);
+		rdbtnExcel.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				rdbtnExcel.setSelected(true);
+				rdbtnPdf.setSelected(false);
 
 			}
 		});
-		btnNewButton_1.setFont(new Font("Arial", Font.PLAIN, 16));
-		btnNewButton_1.setForeground(Color.WHITE);
-		btnNewButton_1.setBackground(new Color(0, 0, 51));
-		getContentPane().add(btnNewButton_1, "cell 0 5,alignx right");
+		rdbtnExcel.setFont(new Font("Tahoma", Font.BOLD, 14));
+		panel_1.add(rdbtnExcel, "cell 0 0,alignx left,aligny top");
+		
+				rdbtnPdf = new JRadioButton("Pdf");
+				rdbtnPdf.setBackground(Color.WHITE);
+				rdbtnPdf.setForeground(Color.BLACK);
+				rdbtnPdf.addActionListener(new ActionListener() {
+					public void actionPerformed(ActionEvent e) {
+						rdbtnExcel.setSelected(false);
+						rdbtnPdf.setSelected(true);
+					}
+				});
+				rdbtnPdf.setFont(new Font("Tahoma", Font.BOLD, 14));
+				panel_1.add(rdbtnPdf, "cell 1 0,alignx left,aligny top");
+				
+						JButton btnNewButton_1 = new JButton("Gerar");
+						btnNewButton_1.addActionListener(new ActionListener() {
+							public void actionPerformed(ActionEvent e) {
+								// gerar
+
+								if (rdbtnCompleto.isSelected()) {
+									// relatorio completo
+									if (rdbtnExcel.isSelected()) {
+										gerarExcel(preparar(lancamentos, 1));
+									} else if (rdbtnPdf.isSelected()) {
+										gerarPdf(preparar(lancamentos, 1));
+
+									}
+
+								} else if (rdbtnSimples.isSelected()) {
+									// relatorio simples
+									if (rdbtnExcel.isSelected()) {
+										gerarExcel(preparar(lancamentos, 0));
+									} else if (rdbtnPdf.isSelected()) {
+										gerarPdf(preparar(lancamentos, 0));
+
+									}
+								}
+
+							}
+						});
+						btnNewButton_1.setFont(new Font("Arial", Font.PLAIN, 16));
+						btnNewButton_1.setForeground(Color.WHITE);
+						btnNewButton_1.setBackground(new Color(0, 0, 51));
+						getContentPane().add(btnNewButton_1, "cell 1 8,alignx right");
 		URL url2 = getClass().getResource("/imagens/infinite.gif");
 		ImageIcon img2 = new ImageIcon(url2);
 

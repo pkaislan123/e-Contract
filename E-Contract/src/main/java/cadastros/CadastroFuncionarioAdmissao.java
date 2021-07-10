@@ -17,4 +17,8 @@ public class CadastroFuncionarioAdmissao {
 	String data_admissao, tipo_contrato, cargo, funcao;
 	double salario;
 	
+	
+	String data_encerramento_contrato;
+	double ultimo_salario;
+	
 }

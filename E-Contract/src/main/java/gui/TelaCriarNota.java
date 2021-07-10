@@ -162,7 +162,6 @@ public class TelaCriarNota extends JInternalFrame {
 	private final KGradientPanel painelPrincipal = new KGradientPanel();
 	private JLabel lblTotalContratosConcluidos, lblTotalContratos, lblTotalContratosAbertos;
 	private TelaCriarNota isto;
-	private JDialog telaPai;
 	private JTextField entNome;
 	private JTextField entDescricao;
 	private JTextField entTempoNotificacao;
@@ -180,7 +179,7 @@ public class TelaCriarNota extends JInternalFrame {
 	private CadastroNota nota_global;
 	private JTextArea textAreaAnotacao;
 
-	public TelaCriarNota(int flag_modo_operacao, CadastroNota nota, Window janela_anotacoes) {
+	public TelaCriarNota(int flag_modo_operacao, CadastroNota nota, Window janela_pai) {
 		// setModal(true);
 		getDadosGlobais();
 		isto = this;
@@ -637,11 +636,11 @@ public class TelaCriarNota extends JInternalFrame {
 				boolean atualizou = gerenciar.atualizarStatusnota(nota_global);
 				if (atualizou) {
 					JOptionPane.showMessageDialog(null, "Anotação atualizada");
-					((TelaNotas) telaPai).atualizarLista();
+					((TelaNotas) janela_pai).atualizarLista();
 
 				} else {
 					JOptionPane.showMessageDialog(null, "Erro ao atualizar a anotação\nConsulte o administrado!");
-					((TelaNotas) janela_anotacoes).atualizarLista();
+					((TelaNotas) janela_pai).atualizarLista();
 
 				}
 
@@ -717,7 +716,7 @@ public class TelaCriarNota extends JInternalFrame {
 				int salvou = gerenciar.inserirnota(nota);
 				if (salvou > 0) {
 					JOptionPane.showMessageDialog(isto, "Anotação criada com sucesso!");
-					((TelaNotas) janela_anotacoes).atualizarLista();
+					((TelaNotas) janela_pai).atualizarLista();
 				} else {
 					JOptionPane.showMessageDialog(isto, "Erro ao salvar anotação\nConsulte o administrador!");
 				}
@@ -841,9 +840,7 @@ public class TelaCriarNota extends JInternalFrame {
 		data_selecionada = date;
 	}
 
-	public void setTelaPai(JDialog _tela_pai) {
-		this.telaPai = _tela_pai;
-	}
+	
 
 	public void setChkBoxSimLembrarSelecionado() {
 		if (chkBoxSim.isSelected()) {

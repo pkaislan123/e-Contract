@@ -347,14 +347,15 @@ public class EditarWord {
          //adicionar clausula de frete
 		boolean tem_clausula_frete = false;
 		boolean tem_clausula_armazenagem = false;
+		boolean tem_clausula_fundo_rural = false;
 		
 		  if(novo_contrato.getFrete() != null) {
 	  	    	 if(!novo_contrato.getFrete().equals("") && novo_contrato.getFrete().length() > 5) {
 	  	    		 
 	  		  	   	if(novo_contrato.getTipo_entrega() == 1)
-	  	    		 substituirTexto("[6.3.] " +  novo_contrato.getClausula_frete());
+	  	    		 substituirTexto("[6.3.] [DO ] [FRETE]: \n" +  novo_contrato.getClausula_frete());
 	  		  	   	else
-		  	    		 substituirTexto("[5.3.] " +  novo_contrato.getClausula_frete());
+		  	    		 substituirTexto("[5.3.] [DO ] [FRETE]: \n" +  novo_contrato.getClausula_frete());
 
 	  	    		 tem_clausula_frete = true;
 
@@ -367,20 +368,58 @@ public class EditarWord {
 	  	    		
 	  	    		 if(tem_clausula_frete) {
 	  	    			 if(novo_contrato.getTipo_entrega() == 1)
-		  		  	   	 substituirTexto("[6.4.] " +  novo_contrato.getClausula_armazenagem());
+		  		  	   	 substituirTexto("[6.4.] [DA] [ARMAZENAGEM]: \n" +  novo_contrato.getClausula_armazenagem());
 	  	    			 else
-			  		  	   	 substituirTexto("[5.4.] " +  novo_contrato.getClausula_armazenagem());
+			  		  	   	 substituirTexto("[5.4.] [DA] [ARMAZENAGEM]: \n" +  novo_contrato.getClausula_armazenagem());
 
 	  	    		 }
 	  	    		 else{
 	  	    			 if(novo_contrato.getTipo_entrega() == 1)
-	  	    			 substituirTexto("[6.3.] " +  novo_contrato.getClausula_armazenagem());
+	  	    			 substituirTexto("[6.3.] [DA] [ARMAZENAGEM]: \n" +  novo_contrato.getClausula_armazenagem());
 	  	    			 else
-		  	    			 substituirTexto("[5.3.] " +  novo_contrato.getClausula_armazenagem());
+		  	    			 substituirTexto("[5.3.] [DA] [ARMAZENAGEM]: \n" +  novo_contrato.getClausula_armazenagem());
 
 	  	    		 }
 
 		  		  	 tem_clausula_armazenagem = true;
+
+	  	    	 }
+	  	     }
+	  		  	 
+	  	     
+	  	   //adicionar clausula fundo rural
+	  	     if(novo_contrato.getFundo_rural() != null) {
+	  	    	 if(!novo_contrato.getFundo_rural().equals("") && novo_contrato.getFundo_rural().length() > 5) {
+	  	    		
+	  	    	
+	  	    		  if(!tem_clausula_frete && !tem_clausula_armazenagem) {
+	  	    			if(novo_contrato.getTipo_entrega() == 1)
+	  		  	    		 substituirTexto("[6.3.] [DO] [FUNDO] [RURAL]: \n" +  novo_contrato.getClausula_fundo_rural());
+	  		  		  	   	else
+	  			  	    		 substituirTexto("[5.3.] [DO] [FUNDO] [RURAL]:\n" +  novo_contrato.getClausula_fundo_rural());
+
+	  	    		 }else if(tem_clausula_frete && !tem_clausula_armazenagem) {
+	  	    			 if(novo_contrato.getTipo_entrega() == 1)
+			  		  	   	 substituirTexto("[6.4.] [DO] [FUNDO] [RURAL]:\n" +  novo_contrato.getClausula_fundo_rural());
+		  	    			 else
+				  		  	   	 substituirTexto("[5.4.] [DO] [FUNDO] [RURAL]:\n" +  novo_contrato.getClausula_fundo_rural());
+
+	  	    		 }else if(!tem_clausula_frete && tem_clausula_armazenagem) {
+	  	    			 if(novo_contrato.getTipo_entrega() == 1)
+			  		  	   	 substituirTexto("[6.4.] [DO] [FUNDO] [RURAL]:\n" +  novo_contrato.getClausula_fundo_rural());
+		  	    			 else
+				  		  	   	 substituirTexto("[5.4.] [DO] [FUNDO] [RURAL]:\n" +  novo_contrato.getClausula_fundo_rural());
+
+	  	    		 }else if(tem_clausula_frete && tem_clausula_armazenagem) {
+	  	    			 if(novo_contrato.getTipo_entrega() == 1)
+			  		  	   	 substituirTexto("[6.5.] [DO] [FUNDO] [RURAL]:\n" +  novo_contrato.getClausula_fundo_rural());
+		  	    			 else
+				  		  	   	 substituirTexto("[5.5.] [DO] [FUNDO] [RURAL]:\n" +  novo_contrato.getClausula_fundo_rural());
+
+	  	    		 }
+	  	    		
+
+	  	    		tem_clausula_fundo_rural = true;
 
 	  	    	 }
 	  	     }
@@ -397,31 +436,62 @@ public class EditarWord {
 	  	    		 String clausula_comissao = clausulas_locais.get(2);
 	  	    		
 	  	    		  	  	    		 
-	  	    	 if(tem_clausula_frete &&  tem_clausula_armazenagem) {
+	  	    	 if(tem_clausula_frete &&  tem_clausula_armazenagem && tem_clausula_fundo_rural) {
 	  	    		 if(novo_contrato.getTipo_entrega() == 1)
-  	    			 substituirTexto("[6.5.] " +  clausula_comissao);
+  	    			 substituirTexto("[6.6.] [DA] [COMISSÃO]:\n" +  clausula_comissao);
 	  	    		 else
-	  	    			 substituirTexto("[5.5.] " +  clausula_comissao);
+	  	    			 substituirTexto("[5.6.] [DA] [COMISSÃO]:\n" +  clausula_comissao);
 
 
-	  	    	 }else if(tem_clausula_frete &&  !tem_clausula_armazenagem){
+	  	    	 }else if(tem_clausula_frete &&  !tem_clausula_armazenagem && !tem_clausula_fundo_rural){
 	  	    		 if(novo_contrato.getTipo_entrega() == 1)
-  	    			 substituirTexto("[6.4.] " +  clausula_comissao);
+  	    			 substituirTexto("[6.4.] [DA] [COMISSÃO]:\n:" +  clausula_comissao);
 	  	    		 else
-	  	    			 substituirTexto("[5.4.] " +  clausula_comissao);
+	  	    			 substituirTexto("[5.4.] [DA] [COMISSÃO]:\n" +  clausula_comissao);
 
-	  	    	 }else if(!tem_clausula_frete &&  tem_clausula_armazenagem){
+	  	    	 }else if(tem_clausula_frete &&  tem_clausula_armazenagem && !tem_clausula_fundo_rural){
 	  	    		 if(novo_contrato.getTipo_entrega() == 1)
-  	    			 substituirTexto("[6.4.] " +  clausula_comissao);
+  	    			 substituirTexto("[6.5.] [DA] [COMISSÃO]:\n" +  clausula_comissao);
 	  	    		 else
-	  	    			 substituirTexto("[5.4.] " +  clausula_comissao);
+	  	    			 substituirTexto("[5.5.] [DA] [COMISSÃO]:\n" +  clausula_comissao);
+
+	  	    	 }else if(tem_clausula_frete &&  !tem_clausula_armazenagem && tem_clausula_fundo_rural) {
+	  	    		 if(novo_contrato.getTipo_entrega() == 1)
+	  	    			 substituirTexto("[6.5.] [DA] [COMISSÃO]:\n" +  clausula_comissao);
+		  	    		 else
+		  	    			 substituirTexto("[5.5.] [DA] [COMISSÃO]:\n" +  clausula_comissao);
 
 	  	    	 }
-	  	    	 else if(!tem_clausula_frete &&  !tem_clausula_armazenagem){
+	  	    	 
+	  	    	 //clasulas armazenagem
+	  	    	 else if(tem_clausula_armazenagem &&  !tem_clausula_frete && !tem_clausula_fundo_rural ) {
 	  	    		 if(novo_contrato.getTipo_entrega() == 1)
-  	    			 substituirTexto("[6.3.] " +  clausula_comissao);
+	  	    			 substituirTexto("[6.4.] [DA] [COMISSÃO]:\n" +  clausula_comissao);
+		  	    		 else
+		  	    			 substituirTexto("[5.4.] [DA] [COMISSÃO]:\n" +  clausula_comissao);
+
+	  	    	 }else if(tem_clausula_armazenagem &&  !tem_clausula_frete && tem_clausula_fundo_rural) {
+	  	    		 if(novo_contrato.getTipo_entrega() == 1)
+	  	    			 substituirTexto("[6.5.] [DA] [COMISSÃO]:\n" +  clausula_comissao);
+		  	    		 else
+		  	    			 substituirTexto("[5.5.] [DA] [COMISSÃO]:\n" +  clausula_comissao);
+
+	  	    	 }
+	  	    	 
+	  	    	 //clausulas fundo rural
+	  	    	 else if(tem_clausula_fundo_rural && !tem_clausula_frete && !tem_clausula_armazenagem) {
+	  	    		 if(novo_contrato.getTipo_entrega() == 1)
+	  	    			 substituirTexto("[6.4.] [DA] [COMISSÃO]:\n" +  clausula_comissao);
+		  	    		 else
+		  	    			 substituirTexto("[5.4.] [DA] [COMISSÃO]:\n" +  clausula_comissao);
+
+	  	    	 }
+	  	    	 
+	  	    	 else if(!tem_clausula_frete &&  !tem_clausula_armazenagem &&  !tem_clausula_fundo_rural){
+	  	    		 if(novo_contrato.getTipo_entrega() == 1)
+  	    			 substituirTexto("[6.3.] [DA] [COMISSÃO]:\n" +  clausula_comissao);
 	  	    		 else
-	  	    			 substituirTexto("[5.3.] " +  clausula_comissao);
+	  	    			 substituirTexto("[5.3.] [DA] [COMISSÃO]: \n" +  clausula_comissao);
 
 	  	    	 }
 	  	    	 }
@@ -1171,7 +1241,34 @@ public class EditarWord {
 		adicional1run.setFontFamily("Times New Roman");
 		adicional1run.setFontSize(10);
 		adicional1run.setBold(false);
-		adicional1run.setText(", Produtor Rural, residente e domiciliado no endereço ");
+		adicional1run.setText(", Produtor Rural, IE: ");
+		
+		String ie = "";
+		try {
+
+			
+			MaskFormatter formater_ie = new MaskFormatter("#########.##-##");
+			formater_ie.setValueContainsLiteralCharacters(false);
+			ie = formater_ie.valueToString(cliente.getIe());
+
+		} catch (Exception e) {
+		}
+
+		XWPFRun adicionalIErun = parte.createRun();
+		adicionalIErun.setColor("000000");
+		adicionalIErun.setFontFamily("Times New Roman");
+		adicionalIErun.setFontSize(10);
+		adicionalIErun.setBold(true);
+		adicionalIErun.setText(ie);
+		
+		XWPFRun enderecoCorretorruntext = parte.createRun();
+		enderecoCorretorruntext.setColor("000000");
+		enderecoCorretorruntext.setFontFamily("Times New Roman");
+		enderecoCorretorruntext.setFontSize(10);
+		enderecoCorretorruntext.setBold(false);
+		enderecoCorretorruntext.setText(" residente e domiciliado no endereço ");
+		
+		
 
 		XWPFRun enderecoCorretorrun = parte.createRun();
 		enderecoCorretorrun.setColor("000000");

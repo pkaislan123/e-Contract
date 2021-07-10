@@ -23,6 +23,7 @@ import net.miginfocom.swing.MigLayout;
 import javax.swing.JLabel;
 import java.awt.Font;
 import javax.swing.JTextArea;
+import javax.swing.SwingConstants;
 import javax.swing.BoxLayout;
 import java.awt.GridLayout;
 import java.awt.SystemColor;
@@ -165,93 +166,75 @@ public class TelaPadrao extends JDialog {
 
 		setBackground(new Color(255, 255, 255));
 		setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-		setBounds(100, 100, 675, 261);
+		setBounds(100, 100, 1200, 81);
 
 		KGradientPanel painelPrincipal = new KGradientPanel();
 		painelPrincipal.kEndColor = Color.WHITE;
 		painelPrincipal.kStartColor = new Color(255, 255, 255);
 		painelPrincipal.setBackground(new Color(153, 153, 102));
-		painelPrincipal.setLayout(new MigLayout("", "[:400px:400px][][grow]", "[][][][][][][][grow][:50px:50px][][][]"));
-		painelPrincipal.setBorder(new MatteBorder(0, 0, 2, 0, (Color) new Color(0, 0, 0)));
 
 		setContentPane(painelPrincipal);
-
-		JLabel lblTipoLancamento = new JLabel("");
-		lblTipoLancamento.setOpaque(true);
-		lblTipoLancamento.setBackground(new Color(0, 51, 0));
-		lblTipoLancamento.setForeground(Color.WHITE);
-		lblTipoLancamento.setFont(new Font("Tahoma", Font.BOLD, 20));
-		painelPrincipal.add(lblTipoLancamento, "cell 0 0 3 1,growx");
-
-		Lancamento lan = new Lancamento();
-		lan.setTipo_lancamento(0);
-		pag_completo.setLancamento(lan);
-		if (pag_completo.getLancamento().getTipo_lancamento() == 0) {
-			// despesa
-			lblTipoLancamento.setBackground(new Color(204, 0, 0));
-			lblTipoLancamento.setText("DESPESA");
-		} else if (pag_completo.getLancamento().getTipo_lancamento() == 1) {
-			lblTipoLancamento.setBackground(Color.green);
-			lblTipoLancamento.setText("RECEITA");
-
-		}
+		painelPrincipal.setLayout(new MigLayout("", "[:200px:200px][:200px:200px][:200px:200px][:200px:200px][:200px:200px][:200px:200px][:200px:200px]", "[:24px:24px]"));
 		
-		JLabel lblPagamentoId = new JLabel("Pagamento ID:");
-		lblPagamentoId.setFont(new Font("Tahoma", Font.PLAIN, 14));
-		painelPrincipal.add(lblPagamentoId, "cell 0 1");
-
-		JLabel lblIdentificador = new JLabel("Identificador");
-		lblIdentificador.setFont(new Font("Tahoma", Font.PLAIN, 14));
-		painelPrincipal.add(lblIdentificador, "cell 0 2");
-
-		JLabel lblData = new JLabel("");
-		lblData.setFont(new Font("Tahoma", Font.PLAIN, 16));
-		painelPrincipal.add(lblData, "flowx,cell 0 3");
-		lblData.setText("00/00/000");
-
-		JLabel lblNewLabel_2 = new JLabel("Valor:");
-		lblNewLabel_2.setFont(new Font("Tahoma", Font.PLAIN, 14));
-		painelPrincipal.add(lblNewLabel_2, "cell 1 3,alignx left");
-
-		JLabel lblValor = new JLabel("");
-		lblValor.setBorder(new MatteBorder(0, 0, 2, 0, (Color) new Color(0, 0, 0)));
-		lblValor.setFont(new Font("Tahoma", Font.BOLD, 16));
-		painelPrincipal.add(lblValor, "cell 2 3,alignx left");
-		lblValor.setText(pag_completo.getFpag().getValor().toString());
+		JLabel lblMes = new JLabel("     FEVEREIRO     ",SwingConstants.CENTER);
+		lblMes.setBorder(null);
+		lblMes.setOpaque(true);
+		lblMes.setBackground(new Color(0, 102, 153));
+		lblMes.setForeground(Color.WHITE);
+		lblMes.setFont(new Font("Arial", Font.BOLD, 18));
+		painelPrincipal.add(lblMes, "cell 0 0,grow");
 		
-		JLabel lblFormaPagamento = new JLabel("Forma Pagamento");
-		lblFormaPagamento.setFont(new Font("Tahoma", Font.PLAIN, 16));
-		painelPrincipal.add(lblFormaPagamento, "cell 0 4");
+		JLabel lblSaldoInicial = new JLabel("R$ 99.999.999,00", SwingConstants.CENTER);
+		lblSaldoInicial.setBorder(null);
+		lblSaldoInicial.setOpaque(true);
+		lblSaldoInicial.setForeground(Color.BLACK);
+		lblSaldoInicial.setFont(new Font("Arial", Font.BOLD, 18));
+		lblSaldoInicial.setBackground(Color.WHITE);
+		painelPrincipal.add(lblSaldoInicial, "cell 1 0,grow");
 		
-		JLabel lblStatus = new JLabel("Status");
-		lblStatus.setFont(new Font("Tahoma", Font.PLAIN, 16));
-		painelPrincipal.add(lblStatus, "cell 0 5");
-
-		JTextArea textAreaDescricao = new JTextArea();
-		textAreaDescricao.setOpaque(false);
-		textAreaDescricao.setBackground(Color.WHITE);
-		textAreaDescricao.setBorder(null);
-		textAreaDescricao.setLineWrap(true);
-		textAreaDescricao.setWrapStyleWord(true);
-		painelPrincipal.add(textAreaDescricao, "cell 0 6 1 3,grow");
+		JLabel lblReceitas = new JLabel("R$ 99.999.999,00", SwingConstants.CENTER);
+		lblReceitas.setBorder(null);
+		lblReceitas.setOpaque(true);
+		lblReceitas.setForeground(Color.BLACK);
+		lblReceitas.setFont(new Font("Arial", Font.BOLD, 18));
+		lblReceitas.setBackground(new Color(204, 255, 153));
+		painelPrincipal.add(lblReceitas, "cell 2 0,grow");
 		
-		JLabel lblPagador = new JLabel("Pagador:");
-		lblPagador.setFont(new Font("Tahoma", Font.PLAIN, 16));
-		painelPrincipal.add(lblPagador, "cell 0 9");
+		JLabel lblDespesas = new JLabel("R$ 99.999.999,00", SwingConstants.CENTER);
+		lblDespesas.setBorder(null);
+		lblDespesas.setOpaque(true);
+		lblDespesas.setForeground(Color.BLACK);
+		lblDespesas.setFont(new Font("Arial", Font.BOLD, 18));
+		lblDespesas.setBackground(new Color(255, 102, 102));
+		painelPrincipal.add(lblDespesas, "cell 3 0,grow");
 		
-		JButton btnAbrirLancamento = new JButton("Abrir Lançamento");
-		btnAbrirLancamento.setForeground(Color.WHITE);
-		btnAbrirLancamento.setBackground(new Color(0, 51, 0));
-		painelPrincipal.add(btnAbrirLancamento, "cell 0 11,alignx center");
+		JLabel lblTotal = new JLabel("R$ 99.999.999,00", SwingConstants.CENTER);
+		lblTotal.setBorder(null);
+		lblTotal.setOpaque(true);
+		lblTotal.setForeground(Color.BLACK);
+		lblTotal.setFont(new Font("Arial", Font.BOLD, 18));
+		lblTotal.setBackground(Color.WHITE);
+		painelPrincipal.add(lblTotal, "cell 4 0,grow");
+		
+		JLabel lblLucro = new JLabel("R$ 99.999.999,00", SwingConstants.CENTER);
+		lblLucro.setBorder(null);
+		lblLucro.setOpaque(true);
+		lblLucro.setForeground(Color.BLACK);
+		lblLucro.setFont(new Font("Arial", Font.BOLD, 18));
+		lblLucro.setBackground(Color.WHITE);
+		painelPrincipal.add(lblLucro, "cell 5 0,grow");
+		
+		JLabel lblLucratividade = new JLabel("R$ 99.999.999,00", SwingConstants.CENTER);
+		lblLucratividade.setBorder(null);
+		lblLucratividade.setOpaque(true);
+		lblLucratividade.setForeground(Color.BLACK);
+		lblLucratividade.setFont(new Font("Arial", Font.BOLD, 18));
+		lblLucratividade.setBackground(Color.WHITE);
+		painelPrincipal.add(lblLucratividade, "cell 6 0,grow");
 
-		JLabel lblNewLabel_4 = new JLabel("Saldo:");
-		lblNewLabel_4.setFont(new Font("Tahoma", Font.PLAIN, 14));
-		painelPrincipal.add(lblNewLabel_4, "cell 1 11,alignx left");
 
-		JLabel lblSaldo = new JLabel("R$ 100.000.000,00");
-		lblSaldo.setForeground(Color.BLACK);
-		lblSaldo.setFont(new Font("Tahoma", Font.BOLD, 16));
-		painelPrincipal.add(lblSaldo, "cell 2 11,alignx left");
+
+		
 
 		this.setLocationRelativeTo(janela_pai);
 

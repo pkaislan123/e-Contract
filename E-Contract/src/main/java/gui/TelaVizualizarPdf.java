@@ -33,6 +33,7 @@ import org.icepdf.ri.util.PropertiesManager;
 import main.java.cadastros.CadastroContrato;
 import main.java.views_personalizadas.TelaEmEspera;
 import main.java.views_personalizadas.TelaEscolha;
+import main.java.views_personalizadas.TelaEscolhaRelatorioContratos;
 
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
@@ -47,7 +48,16 @@ import java.io.InputStream;
 public class TelaVizualizarPdf extends JFrame {
 
 
+	public boolean isContrato_emprestimo() {
+		return contrato_emprestimo;
+	}
+
+	public void setContrato_emprestimo(boolean contrato_emprestimo) {
+		this.contrato_emprestimo = contrato_emprestimo;
+	}
+
 	private TelaEmEspera telaInformacoes;
+	private boolean contrato_emprestimo = false;
 	private TelaVizualizarPdf isto; 
 	//public TelaVizualizarPdf(String arquivo) {
 	public TelaVizualizarPdf(InputStream stream, Component pai, TelaEmEspera telaBack, String file, CadastroContrato contrato, Window janela_pai) {
@@ -152,7 +162,24 @@ public class TelaVizualizarPdf extends JFrame {
 						telaInformacoes.fechar();
 						
 					}
-					}else if(pai instanceof TelaGerenciarContrato || pai instanceof TelaRelatoriaContratos) {
+					}else if(pai instanceof TelaCriarDistrato) {
+						if (JOptionPane.showConfirmDialog(isto, 
+					            "Deseja Salvar o Distrato?", "Salvar Distrato", 
+					            JOptionPane.YES_NO_OPTION,
+					            JOptionPane.QUESTION_MESSAGE) == JOptionPane.YES_OPTION){
+							
+							    ((TelaCriarDistrato) pai).salvar(file);	
+							    isto.dispose();
+					        }
+						else
+						{
+							isto.dispose();
+							telaInformacoes.fechar();
+							
+						}
+					
+					
+					}else if(pai instanceof TelaGerenciarContrato || pai instanceof TelaRelatoriaContratos  ) {
 						
 						TelaSalvarEnviarRelatorio tela = new TelaSalvarEnviarRelatorio(2, contrato, file);
 						tela.setTelaPai(isto);
@@ -176,9 +203,43 @@ public class TelaVizualizarPdf extends JFrame {
 							
 						}
 					}else if(pai instanceof TelaFinanceiroGerenciarLancamento) {
+						
+						if(!contrato_emprestimo) {
 						TelaEscolha tela = new TelaEscolha(0, file,(TelaFinanceiroGerenciarLancamento) pai);
 						//public TelaEscolha(int flag, CadastroContrato contrato, File documento, Window janela_pai) {
 						tela.setVisible(true);
+						}else {
+							if (JOptionPane.showConfirmDialog(isto, 
+						            "Deseja Salvar o Contrato de Empréstimo?", "Salvar Empréstimo", 
+						            JOptionPane.YES_NO_OPTION,
+						            JOptionPane.QUESTION_MESSAGE) == JOptionPane.YES_OPTION){
+								
+								    ((TelaFinanceiroGerenciarLancamento) pai).salvar(file);	
+								    isto.dispose();
+						        }
+							else
+							{
+								isto.dispose();
+								
+							}
+						}
+						
+					}else if(pai instanceof TelaFuncionariosCadastroSalario) {
+						
+						if (JOptionPane.showConfirmDialog(isto, 
+					            "Deseja Salvar e Cadastrar o Salário?", "Salvar Sálario", 
+					            JOptionPane.YES_NO_OPTION,
+					            JOptionPane.QUESTION_MESSAGE) == JOptionPane.YES_OPTION){
+							
+							((TelaFuncionariosCadastroSalario) pai).salvar(file);
+							    isto.dispose();
+					        }
+						else
+						{
+							isto.dispose();
+							
+						}
+						
 						
 					}
 				}

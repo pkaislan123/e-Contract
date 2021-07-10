@@ -20,5 +20,5 @@ public class PagamentoCompleto extends CadastroContrato.CadastroPagamentoContrat
 	CadastroContrato contrato_destinatario = new CadastroContrato();
 	
 	String conta_bancaria_depositante, conta_bancaria_favorecido;
-	String depositante, favorecido;
+	String depositante, favorecido, nome_comprovante;
 }

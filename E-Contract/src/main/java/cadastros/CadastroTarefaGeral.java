@@ -15,9 +15,16 @@ public class CadastroTarefaGeral {
 		private CadastroLogin criador;
 		private String resposta;
 		private String nome_criador, nome_executor;
+		private int id_funcionario_pai;
 		
 		
 		
+		public int getId_funcionario_pai() {
+			return id_funcionario_pai;
+		}
+		public void setId_funcionario_pai(int id_funcionario_pai) {
+			this.id_funcionario_pai = id_funcionario_pai;
+		}
 		public int getId_lancamento_pai() {
 			return id_lancamento_pai;
 		}

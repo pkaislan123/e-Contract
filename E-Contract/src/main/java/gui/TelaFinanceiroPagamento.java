@@ -109,6 +109,7 @@ public class TelaFinanceiroPagamento extends JFrame {
 	private JTextField maiorDataPagamento;
 	private JTextField entIdentificadorGeral;
 	private JTextField entNomeRecebedor;
+	private 	JLabel lblNumTotalPagamentos ;
 	private JLabel entValorTotalPagamentoDespesas, entValorTotalPagamentoReceitas, entBalanco;
 
 	public TelaFinanceiroPagamento(int flag_modo_operacao, int flag_retorno, Window janela_pai) {
@@ -306,7 +307,7 @@ public class TelaFinanceiroPagamento extends JFrame {
 		panel_5.setBackground(Color.WHITE);
 		painelPrinciapl.add(panel_5, "cell 0 3 3 2,grow");
 		panel_5.setLayout(
-				new MigLayout("", "[189px][39px][189px][][87.00px][][][][][][][][][][][][][][][][][][]", "[][18px]"));
+				new MigLayout("", "[189px][39px][189px][][87.00px][][][][][][][][][][][][][][][][][][]", "[][][18px]"));
 
 		JButton btnAbrirLancamento = new JButton("Abrir");
 		btnAbrirLancamento.addActionListener(new ActionListener() {
@@ -323,34 +324,42 @@ public class TelaFinanceiroPagamento extends JFrame {
 
 			}
 		});
+		
+		JLabel lblNewLabel_1_3 = new JLabel("Núm Total Pagamentos:");
+		lblNewLabel_1_3.setFont(new Font("SansSerif", Font.PLAIN, 16));
+		panel_5.add(lblNewLabel_1_3, "cell 0 0,alignx right");
+		
+		 lblNumTotalPagamentos = new JLabel("");
+		lblNumTotalPagamentos.setFont(new Font("SansSerif", Font.BOLD, 18));
+		panel_5.add(lblNumTotalPagamentos, "cell 1 0");
 		btnAbrirLancamento.setForeground(Color.WHITE);
 		btnAbrirLancamento.setFont(new Font("SansSerif", Font.BOLD, 16));
 		btnAbrirLancamento.setBackground(new Color(0, 0, 153));
-		panel_5.add(btnAbrirLancamento, "cell 22 0");
+		panel_5.add(btnAbrirLancamento, "cell 22 1");
 
 		JLabel lblNewLabel_1 = new JLabel("Valor Total Pagamento Despesas:");
 		lblNewLabel_1.setFont(new Font("SansSerif", Font.PLAIN, 16));
-		panel_5.add(lblNewLabel_1, "cell 0 1,grow");
+		panel_5.add(lblNewLabel_1, "cell 0 2,grow");
 
 		entValorTotalPagamentoDespesas = new JLabel("R$ 100.000.000,00");
 		entValorTotalPagamentoDespesas.setFont(new Font("SansSerif", Font.BOLD, 18));
-		panel_5.add(entValorTotalPagamentoDespesas, "cell 1 1,alignx center,aligny bottom");
+		panel_5.add(entValorTotalPagamentoDespesas, "cell 1 2,alignx center,aligny bottom");
 
 		JLabel lblNewLabel_1_2 = new JLabel("   Valor Total Pagamento Receitas:");
 		lblNewLabel_1_2.setFont(new Font("SansSerif", Font.PLAIN, 16));
-		panel_5.add(lblNewLabel_1_2, "cell 2 1,grow");
+		panel_5.add(lblNewLabel_1_2, "cell 2 2,grow");
 
 		entValorTotalPagamentoReceitas = new JLabel("R$ 100.000.000,00");
 		entValorTotalPagamentoReceitas.setFont(new Font("SansSerif", Font.BOLD, 18));
-		panel_5.add(entValorTotalPagamentoReceitas, "cell 3 1");
+		panel_5.add(entValorTotalPagamentoReceitas, "cell 3 2");
 
 		JLabel lblNewLabel_1_2_1 = new JLabel("Balanço:");
 		lblNewLabel_1_2_1.setFont(new Font("SansSerif", Font.PLAIN, 16));
-		panel_5.add(lblNewLabel_1_2_1, "cell 4 1,alignx right,growy");
+		panel_5.add(lblNewLabel_1_2_1, "cell 4 2,alignx right,growy");
 
 		entBalanco = new JLabel("R$ 100.000.000,00");
 		entBalanco.setFont(new Font("SansSerif", Font.BOLD, 18));
-		panel_5.add(entBalanco, "cell 5 1");
+		panel_5.add(entBalanco, "cell 5 2");
 
 		popular_condicao_pagamento();
 
@@ -517,12 +526,13 @@ public class TelaFinanceiroPagamento extends JFrame {
 		BigDecimal valor_total_despesas = BigDecimal.ZERO;
 		BigDecimal valor_total_receitas = BigDecimal.ZERO;
 		BigDecimal balanco = BigDecimal.ZERO;
+		int num_total_pagamentos = 0;
 
 		for (int row = 0; row < tabela_pagamento.getRowCount(); row++) {
 
 			int index = tabela_pagamento.convertRowIndexToModel(row);
 			FinanceiroPagamentoCompleto pag = modelo_pagamento.getValue(index);
-
+			num_total_pagamentos++;
 			if (pag.getLancamento().getTipo_lancamento() == 0) {
 				// despesas a pagar
 				valor_total_despesas = valor_total_despesas.add(pag.getFpag().getValor());
@@ -532,8 +542,12 @@ public class TelaFinanceiroPagamento extends JFrame {
 
 			} else if (pag.getLancamento().getTipo_lancamento() == 3) {
 				// emprestimo
-				valor_total_receitas = valor_total_receitas.add(pag.getFpag().getValor());
+				if(pag.getFpag().getTipo_pagamento() == 1) {
+					valor_total_despesas = valor_total_despesas.add(pag.getFpag().getValor());
 
+				}else {
+				valor_total_receitas = valor_total_receitas.add(pag.getFpag().getValor());
+				}
 			}
 
 		}
@@ -545,7 +559,7 @@ public class TelaFinanceiroPagamento extends JFrame {
 		entValorTotalPagamentoDespesas.setText(NumberFormat.getCurrencyInstance(ptBr).format(valor_total_despesas));
 		entValorTotalPagamentoReceitas.setText(NumberFormat.getCurrencyInstance(ptBr).format(valor_total_receitas));
 		entBalanco.setText(NumberFormat.getCurrencyInstance(ptBr).format(balanco));
-
+		lblNumTotalPagamentos.setText(num_total_pagamentos + "");
 	}
 
 	public boolean checkString(String txt) {
@@ -668,6 +682,9 @@ public class TelaFinanceiroPagamento extends JFrame {
 				}
 			}
 			case data_pagamento: {
+				
+				if(dado.getFpag().getData_pagamento() != null && !dado.getFpag().getData_pagamento().equalsIgnoreCase("") ) {
+				
 				Date data_pag;
 				try {
 					SimpleDateFormat formato = new SimpleDateFormat("dd/MM/yyyy");
@@ -677,6 +694,7 @@ public class TelaFinanceiroPagamento extends JFrame {
 				} catch (ParseException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
+				}
 				}
 			}
 			case valor:

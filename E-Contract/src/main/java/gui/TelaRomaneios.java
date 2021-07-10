@@ -673,8 +673,13 @@ public class TelaRomaneios extends JFrame {
 					int indexRowModel = table_nfs.getRowSorter().convertRowIndexToModel(rowSel);// converte pro indice
 																								// do model
 					ManipularTxt manipular = new ManipularTxt();
+					String caminho_completo = servidor_unidade + lista_romaneios.get(indexRowModel).getCaminho_arquivo();
+					File arquivo = new File(caminho_completo);
+					
+					if(arquivo.exists()) {
+						
 					boolean apagado = manipular
-							.apagarArquivo(servidor_unidade + lista_romaneios.get(indexRowModel).getCaminho_arquivo());
+							.apagarArquivo(caminho_completo);
 					if (apagado) {
 
 						// remover do banco de dados
@@ -692,9 +697,25 @@ public class TelaRomaneios extends JFrame {
 						}
 
 					} else {
-						JOptionPane.showMessageDialog(isto, "Erro ao excluir este Romaneio\nConsulte o administrador");
+						JOptionPane.showMessageDialog(isto, "Erro ao excluir este Romaneio\nO arquivo fisico não pode ser apagado");
 					}
 				}
+				else {
+					// remover do banco de dados
+					GerenciarBancoRomaneios gerenciar = new GerenciarBancoRomaneios();
+					boolean excluir = gerenciar
+							.removerRomaneio(lista_romaneios.get(indexRowModel).getId_romaneio());
+					if (excluir) {
+						JOptionPane.showMessageDialog(isto, "Romaneio Excluido");
+						modelo_romaneios.onRemove(lista_romaneios.get(indexRowModel));
+
+					} else {
+						JOptionPane.showMessageDialog(isto,
+								"Erro ao excluir este Romaneio\nConsulte o administrador");
+
+					}
+				}
+			}
 			}
 		});
 
@@ -1203,12 +1224,7 @@ public class TelaRomaneios extends JFrame {
 		lblD.setFont(new Font("Tahoma", Font.PLAIN, 14));
 
 		entMenorData = new JTextField();
-		entMenorData.addKeyListener(new KeyAdapter() {
-			@Override
-			public void keyTyped(KeyEvent e) {
-				filtrar();
-			}
-		});
+		
 		panel_4.add(entMenorData, "cell 2 0");
 		entMenorData.setColumns(10);
 
@@ -1217,12 +1233,7 @@ public class TelaRomaneios extends JFrame {
 		lblAt.setFont(new Font("Tahoma", Font.PLAIN, 14));
 
 		entMaiorData = new JTextField();
-		entMaiorData.addKeyListener(new KeyAdapter() {
-			@Override
-			public void keyTyped(KeyEvent e) {
-				filtrar();
-			}
-		});
+		
 		panel_4.add(entMaiorData, "cell 4 0");
 		entMaiorData.setColumns(10);
 
@@ -1548,7 +1559,7 @@ public class TelaRomaneios extends JFrame {
 			// retorna o tipo de dado, para cada coluna
 			switch (columnIndex) {
 			case numero_romaneio:
-				return String.class;
+				return Integer.class;
 			case operacao:
 				return String.class;
 			case data:
@@ -1652,7 +1663,7 @@ public class TelaRomaneios extends JFrame {
 			case produto: {
 				try {
 					CadastroProduto prod = romaneio.getProduto();
-					return prod.getNome_produto();
+					return prod.getNome_produto().toUpperCase();
 				} catch (Exception h) {
 					// JOptionPane.showMessageDialog(null, "O romaneio codigo: " +
 					// romaneio.getNumero_romaneio() + " possui erro no produto");
@@ -1671,9 +1682,24 @@ public class TelaRomaneios extends JFrame {
 
 					if (remetente != null) {
 						if (remetente.getTipo_pessoa() == 0) {
+							if(remetente.getNome_empresarial() == null || remetente.getNome_empresarial().equals("") || remetente.getNome_empresarial().equals(" ")  || remetente.getNome_empresarial().length() <= 3) {
+								nome_cliente = remetente.getNome().toUpperCase() + " " + remetente.getSobrenome().toUpperCase();
+
+							}else {
+							
 							nome_cliente = remetente.getNome_empresarial().toUpperCase();
-						} else
+							if(nome_cliente == null || nome_cliente.equals("") || nome_cliente.length() <= 3) {
+								nome_cliente = remetente.getNome().toUpperCase() + " " + remetente.getSobrenome().toUpperCase();
+							}
+							}
+						} else {
 							nome_cliente = remetente.getNome_fantaia().toUpperCase();
+							if(nome_cliente == null || nome_cliente.equals("") || nome_cliente.length() <= 3) {
+								nome_cliente = remetente.getNome().toUpperCase() + " " + remetente.getSobrenome().toUpperCase();
+							}
+						}
+					}else {
+						nome_cliente = "";
 					}
 					return nome_cliente;
 				} catch (Exception e) {
@@ -1696,9 +1722,24 @@ public class TelaRomaneios extends JFrame {
 
 					if (destinatario != null) {
 						if (destinatario.getTipo_pessoa() == 0) {
+							
+							if(destinatario.getNome_empresarial() == null || destinatario.getNome_empresarial().equals("") || destinatario.getNome_empresarial().equals(" ")  || destinatario.getNome_empresarial().length() <= 3) {
+								nome_cliente = destinatario.getNome().toUpperCase() + " " + destinatario.getSobrenome().toUpperCase();
+
+							}else {
+							
 							nome_cliente = destinatario.getNome_empresarial().toUpperCase();
+							if(nome_cliente == null || nome_cliente.equals("") || nome_cliente.length() <= 3) {
+								nome_cliente = destinatario.getNome().toUpperCase() + " " + destinatario.getSobrenome().toUpperCase();
+							}
+							}
 						} else
 							nome_cliente = destinatario.getNome_fantaia().toUpperCase();
+						if(nome_cliente == null || nome_cliente.equals("") || nome_cliente.length() <= 3) {
+							nome_cliente = destinatario.getNome().toUpperCase() + " " + destinatario.getSobrenome().toUpperCase();
+						}
+					}else {
+						nome_cliente = "";
 					}
 					return nome_cliente;
 				} catch (Exception e) {
@@ -1784,7 +1825,6 @@ public class TelaRomaneios extends JFrame {
 				return romaneio.getSilo();
 			case transgenese:
 				return romaneio.getTransgenia();
-
 			case classificador:
 				return romaneio.getClassificador();
 			case umidade2:
@@ -2273,11 +2313,11 @@ public class TelaRomaneios extends JFrame {
 						if (romaneio.getStatus_monsanto() == 0) {
 							// falta its
 							peso_total__its_a_declarar += romaneio.getPeso_liquido();
+							peso_intacta += (romaneio.getPeso_liquido() * 0.075);
 
 						} else if (romaneio.getStatus_monsanto() == 1) {
 							// ok its
 							peso_total_its_declarado += romaneio.getPeso_liquido();
-							peso_intacta += (romaneio.getPeso_liquido() * 0.075);
 
 						}
 
@@ -2700,6 +2740,33 @@ public class TelaRomaneios extends JFrame {
 				painelGraficoClassificacao.getHeight(), "Data", "Classificação", "Umidade");
 		chartPanel.setBackground(Color.white);
 		painelGraficoClassificacao.add(chartPanel);
+	}
+	
+	
+	public void pesquisarTodosOsRomaneiosTransportador() {
+		new Thread() {
+			@Override
+			public void run() {
+				GerenciarBancoRomaneios gerenciar = new GerenciarBancoRomaneios();
+				lista_romaneios.clear();
+				modelo_romaneios.onRemoveAll();
+
+				ArrayList<CadastroRomaneio> romaneios;
+
+				if (cliente_selecionado == null) {
+					romaneios = gerenciar.listarRomaneiosMaisRapido();
+				} else {
+					romaneios = gerenciar.listarRomaneiosPorTransportador(cliente_selecionado.getCpf());
+
+				}
+				for (CadastroRomaneio rom : romaneios) {
+					modelo_romaneios.onAdd(rom);
+					lista_romaneios.add(rom);
+				}
+
+				calcular();
+			}
+		}.start();
 	}
 
 }

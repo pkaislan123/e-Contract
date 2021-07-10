@@ -61,7 +61,6 @@ import main.java.cadastros.CadastroRomaneio;
 import main.java.cadastros.CadastroSafra;
 import main.java.cadastros.ContaBancaria;
 import main.java.cadastros.Contato;
-import main.java.cadastros.CadastroFuncionarioDescontos;
 import main.java.cadastros.RegistroQuantidade;
 import main.java.cadastros.RegistroRecebimento;
 import main.java.classesExtras.Endereco;
@@ -74,6 +73,7 @@ import main.java.conexaoBanco.GerenciarBancoNotasFiscais;
 import main.java.conexaoBanco.GerenciarBancoProdutos;
 import main.java.conexaoBanco.GerenciarBancoRomaneios;
 import main.java.conexaoBanco.GerenciarBancoSafras;
+import main.java.conexaoBanco.GerenciarBancoSalarioMinimo;
 import main.java.gui.TelaMain;
 import main.java.gui.TelaRomaneios;
 import main.java.manipular.ConfiguracoesGlobais;
@@ -123,6 +123,7 @@ public class TelaFuncionariosCadastroContratoTrabalho extends JFrame {
 	private Log GerenciadorLog;
 	private CadastroLogin login;
 	private ConfiguracoesGlobais configs_globais;
+	private double salario_minimo = 0;
 
 	private final JPanelBackground contentPanel = new JPanelBackground();
 
@@ -131,6 +132,7 @@ public class TelaFuncionariosCadastroContratoTrabalho extends JFrame {
 	// painel filho1JPanelTransparent
 	private JPanelBackground painelDadosIniciais = new JPanelBackground();
 
+	
 
 	private JTextFieldPersonalizado entCargo, entFuncao,entSalario;
 
@@ -145,11 +147,13 @@ public class TelaFuncionariosCadastroContratoTrabalho extends JFrame {
 	private TelaFuncionariosCadastroContratoTrabalho isto;
 	private JComboBox cBTipoContratoTrabalho;
 	private JTextFieldPersonalizado entDataAdmissao ;
-	
+	 Locale ptBr = new Locale("pt", "BR");
+
 	
 	public TelaFuncionariosCadastroContratoTrabalho(int flag_tipo_tela,CadastroFuncionario funcionario, CadastroFuncionarioAdmissao contrato, Window janela_pai) {
 	
-		
+		String data_atual = new GetData().getData();
+		salario_minimo = new GerenciarBancoSalarioMinimo().getSalarioMinimoVigente(data_atual);
 	
 		this.setContentPane(painelDadosIniciais);
 		
@@ -293,7 +297,9 @@ public class TelaFuncionariosCadastroContratoTrabalho extends JFrame {
 		JLabel lblNewLabel = new JLabel("Valor Sálario Minimo:");
 		panel.add(lblNewLabel, "cell 0 0");
 
-		JLabel lblValorSalarioMinimo = new JLabel("R$ 1100.00");
+		JLabel lblValorSalarioMinimo = new JLabel();
+		String valor_salaro_minimo = NumberFormat.getCurrencyInstance(ptBr).format(salario_minimo);
+		lblValorSalarioMinimo.setText(valor_salaro_minimo);
 		lblValorSalarioMinimo.setFont(new Font("SansSerif", Font.BOLD, 12));
 		lblValorSalarioMinimo.setForeground(Color.BLACK);
 		panel.add(lblValorSalarioMinimo, "cell 1 0");

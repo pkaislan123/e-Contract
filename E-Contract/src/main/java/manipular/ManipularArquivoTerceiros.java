@@ -276,41 +276,56 @@ public class ManipularArquivoTerceiros {
 		}
 		
 	
-		
+		int ano_plantio = new GetData().getAnoAtual();
+		int ano_colheita = new GetData().getAnoAtual();
 		//safra
 		String safra =  "";
 		int linha_safra = -1;
 		for(int i = 0; i < lines.length; i++) {
 			if(lines[i].contains("2020/2021")) {
-               safra = "2020/2021";  
+               safra = "2020/2021"; 
+               ano_plantio = 2020;
+               ano_colheita = 2021;
                linha_safra = i;
                break;
 			}else if(lines[i].contains("2021/2021")) {
-                safra = "2021/2021";  
+                safra = "2021/2021"; 
+                ano_plantio =2021;
+                ano_colheita = 2021;
                 linha_safra = i;
                 break;
 			}else if(lines[i].contains("2021/2022")) {
                 safra = "2021/2022"; 
+                ano_plantio = 2021;
+                ano_colheita = 2022;
                 linha_safra = i;
                 break;
 
 			}else if(lines[i].contains("2022/2022")) {
                 safra = "2022/2022"; 
+                ano_plantio =2022;
+                ano_colheita = 2022;
                 linha_safra = i;
                 break;
 
 			}else if(lines[i].contains("2022/2023")) {
-                safra = "2022/2023";   
+                safra = "2022/2023";  
+                ano_plantio = 2022;
+                ano_colheita = 2023;
                 linha_safra = i;
                 break;
 
 			}else if(lines[i].contains("2023/2023")) {
-                safra = "2023/2023";      				 	
+                safra = "2023/2023";  
+                ano_plantio = 2023;
+                ano_colheita = 2023;
 
                 linha_safra = i;
                 break;
 			}else if(lines[i].contains("2023/2024")) {
-                safra = "2023/2024";   
+                safra = "2023/2024";  
+                ano_plantio = 2023;
+                ano_colheita = 2024;
                 linha_safra = i;
                 break;
 
@@ -367,6 +382,54 @@ public class ManipularArquivoTerceiros {
 			
 		}
            
+		
+		inscricao_contrato.replaceAll(".", "");
+
+
+		   vendedor_cadastrado = false;
+			for(CadastroCliente cliente : clientes) {
+				
+				if(tipo_vendedor == 0) {
+					if(cliente.getTipo_pessoa() == 0) {
+						if(cliente.getCpf().equals(identificacao_vendedor) && cliente.getIe().equals(inscricao_contrato)) {
+							vendedor_contrato = cliente;
+							vendedor_cadastrado  = true;
+						break;
+						}
+					}
+					
+				}else {
+					if(cliente.getTipo_pessoa() == 1) {
+						if(cliente.getCnpj().equals(identificacao_vendedor) && cliente.getIe().equals(inscricao_contrato)) {
+							vendedor_contrato = cliente;
+							vendedor_cadastrado  = true;
+
+						break;
+						}
+					}
+				}
+				
+			}
+			
+		
+			
+			//seta os vendedores do contrato
+			
+			if(vendedor_cadastrado) {
+				
+				if(vendedor_contrato.getTipo_pessoa() == 0) {
+					//pessoa fisica
+					nome_vendedor = vendedor_contrato.getNome_empresarial();
+				}else {
+					nome_vendedor = vendedor_contrato.getNome_fantaia();
+
+				}
+				
+				
+				
+			}
+		
+		
 		//dados do produto
 		 String produto = "";
 		String transgenia_proxima =  "";
@@ -410,11 +473,13 @@ public class ManipularArquivoTerceiros {
 		ArrayList<CadastroSafra> safras = gerenciar_safra.getSafras();
 		for(CadastroSafra saf : safras) {
 			if(saf.getProduto().getId_produto() == contrato_local.getModelo_produto().getId_produto()) {
+				if(saf.getAno_plantio() == ano_plantio && saf.getAno_colheita() == ano_colheita) {
 				//encontrado a safra que possui o produto deste contrato
 				contrato_local.setModelo_safra(saf);
 				//JOptionPane.showMessageDialog(null, "safra cadastrada");
 
 				break;
+				}
 				
 			}
 				
@@ -624,6 +689,7 @@ public class ManipularArquivoTerceiros {
 		if(vendedor_cadastrado) {
 			
 			//o vendedor esta cadastrador, agora verifica se a instricao estadual do contrato e a mesma do cadastro
+			
 			if(vendedor_contrato.getIe().equals(inscricao_contrato)) {
 				
 				// o vendedor tem a mesma inscricao estadual, verifica se tem a conta bancaria
@@ -755,7 +821,7 @@ public class ManipularArquivoTerceiros {
 				
 				
 				if (JOptionPane.showConfirmDialog(null, 
-			            "Apesar do Vendedor do Contrato já possur um cadastro"
+			            "Apesar do Vendedor do Contrato já possuir um cadastro"
 			            + " sua I.E não é a mesma do contrato."
 			            + "\nDeseja cadastrar o vendedor do contrato com  a nova Inscrição Estadual?", "Cadastrar Vendedor Com Nova IE", 
 			            JOptionPane.YES_NO_OPTION,
@@ -1344,32 +1410,48 @@ public class ManipularArquivoTerceiros {
 	
 		
 		//safra
+		int ano_plantio = new GetData().getAnoAtual();
+		int ano_colheita = new GetData().getAnoAtual();
 		String safra = "";
 		for(int i = 0; i < lines.length; i++) {
 			if(lines[i].contains("2020/2021")) {
-               safra = "2020/2021";  
+               safra = "2020/2021";
+               ano_plantio = 2020;
+               ano_colheita = 2021;
                break;
 			}else if(lines[i].contains("2021/2021")) {
                 safra = "2021/2021";  
+                ano_plantio = 2021;
+                ano_colheita = 2021;
                 break;
 			}else if(lines[i].contains("2021/2022")) {
                 safra = "2021/2022"; 
+                ano_plantio = 2021;
+                ano_colheita = 2022;
                 break;
 
 			}else if(lines[i].contains("2022/2022")) {
                 safra = "2022/2022"; 
+                ano_plantio = 2022;
+                ano_colheita = 2022;
                 break;
 
 			}else if(lines[i].contains("2022/2023")) {
-                safra = "2022/2023";   
+                safra = "2022/2023";
+                ano_plantio = 2022;
+                ano_colheita = 2023;
                 break;
 
 			}else if(lines[i].contains("2023/2023")) {
-                safra = "2023/2023";      				 	
+                safra = "2023/2023"; 
+                ano_plantio = 2023;
+                ano_colheita = 2023;
 
                 break;
 			}else if(lines[i].contains("2023/2024")) {
-                safra = "2023/2024";   
+                safra = "2023/2024";  
+                ano_plantio = 2023;
+                ano_colheita = 2024;
                 break;
 
 			}
@@ -1448,8 +1530,10 @@ public class ManipularArquivoTerceiros {
 		for(CadastroSafra saf : safras) {
 			if(saf.getProduto().getId_produto() == contrato_local.getModelo_produto().getId_produto()) {
 				//encontrado a safra que possui o produto deste contrato
+				if(saf.getAno_plantio() == ano_plantio && saf.getAno_colheita() == ano_colheita) {
 				contrato_local.setModelo_safra(saf);
 				break;
+				}
 				
 			}
 				
@@ -2397,32 +2481,49 @@ public class ManipularArquivoTerceiros {
 		
 		
 		//safra
+		int ano_plantio = new GetData().getAnoAtual();
+		int ano_colheita = new GetData().getAnoAtual();
+
 		String safra = "";
 		for(int i = 0; i < lines.length; i++) {
 			if(lines[i].contains("2020")) {
                safra = "2019/2020";  
+               ano_plantio = 2019;
+               ano_colheita = 2020;
                break;
 			}else if(lines[i].contains("2021")) {
                 safra = "2020/2021";  
+                ano_plantio = 2020;
+                ano_colheita = 2021;
                 break;
 			}else if(lines[i].contains("2022")) {
                 safra = "2021/2022"; 
+                ano_plantio = 2021;
+                ano_colheita = 2022;
                 break;
 
 			}else if(lines[i].contains("2023")) {
                 safra = "2022/2023"; 
+                ano_plantio = 2022;
+                ano_colheita = 2023;
                 break;
 
 			}else if(lines[i].contains("2024")) {
                 safra = "2023/2024";   
+                ano_plantio = 2023;
+                ano_colheita = 2024;
                 break;
 
 			}else if(lines[i].contains("2023/2023")) {
                 safra = "2023/2023";      				 	
-
+                ano_plantio = 2023;
+                ano_colheita = 2023;
                 break;
 			}else if(lines[i].contains("2023/2024")) {
-                safra = "2023/2024";   
+                safra = "2023/2024";  
+                ano_plantio = 2023;
+                ano_colheita = 2024;
+
                 break;
 
 			}
@@ -2558,8 +2659,10 @@ public class ManipularArquivoTerceiros {
 		for(CadastroSafra saf : safras) {
 			if(saf.getProduto().getId_produto() == contrato_local.getModelo_produto().getId_produto()) {
 				//encontrado a safra que possui o produto deste contrato
+				if(saf.getAno_plantio() == ano_plantio && saf.getAno_colheita() == ano_colheita) {
 				contrato_local.setModelo_safra(saf);
 				break;
+				}
 				
 			}
 				
@@ -3535,8 +3638,10 @@ public class ManipularArquivoTerceiros {
 		for(CadastroSafra saf : safras) {
 			if(saf.getProduto().getId_produto() == contrato_local.getModelo_produto().getId_produto()) {
 				//encontrado a safra que possui o produto deste contrato
+				if(saf.getAno_plantio() == ano_plantio_safra && saf.getAno_colheita() == ano_colheita_safra) {
 				contrato_local.setModelo_safra(saf);
 				break;
+				}
 				
 			}
 				

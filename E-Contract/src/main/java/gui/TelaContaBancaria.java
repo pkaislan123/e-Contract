@@ -111,13 +111,15 @@ import javax.swing.RowFilter;
 import javax.swing.JLabel;
 import java.awt.Font;
 import java.awt.Window;
+import net.miginfocom.swing.MigLayout;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
 
 
 
 public class TelaContaBancaria extends JDialog {
 
 	private final JPanel painelPrincipal = new JPanel();
-	private JPanel painel_table_cb;
 	private JTable table_cb;
 	private ContaBancariaTableModel modelo_cb = new ContaBancariaTableModel();
 	private ContaBancaria contaSelecionada;
@@ -171,37 +173,13 @@ public class TelaContaBancaria extends JDialog {
 		painelPrincipal.setBackground(new Color(255, 255, 255));
 		painelPrincipal.setBorder(new EmptyBorder(5, 5, 5, 5));
 		setContentPane(painelPrincipal);
-		painelPrincipal.setLayout(null);
-		
-		
-		 painel_table_cb = new JPanel();
-		 painel_table_cb.setBounds(38, 213, 841, 255);
-		 
-		 table_cb = new JTable(modelo_cb);
 		 sorter = new TableRowSorter<ContaBancariaTableModel>(modelo_cb);
-		 table_cb.setRowSorter(sorter);
-
-		 table_cb.setBackground(new Color(255, 255, 255));
-		 
-		 table_cb.getColumnModel().getColumn(2)
-	        .setPreferredWidth(150);
-		 table_cb.getColumnModel().getColumn(3)
-	        .setPreferredWidth(120);
-		 
-	        table_cb.setRowHeight(30);
-	     
-	    
-	        painel_table_cb.setLayout(null);
-	        JScrollPane scrollPaneCB = new JScrollPane(table_cb);
-	        scrollPaneCB.setBounds(10, 11, 821, 237);
-	        scrollPaneCB.setAutoscrolls(true);
-	        scrollPaneCB.setBackground(new Color(255, 255, 255));
-	        painel_table_cb.add(scrollPaneCB);
-			
-		
-	        painelPrincipal.add(painel_table_cb);
+	        painelPrincipal.setLayout(new MigLayout("", "[][][50px][10px][278px][49px][71px][14px][103px][12px][89px][10px][155px]", "[33px][33px][28px][grow][]"));
 	        
 	        btnSelecionar = new JButton("Selecionar");
+	        btnSelecionar.setForeground(Color.WHITE);
+	        btnSelecionar.setBackground(new Color(0, 51, 51));
+	        btnSelecionar.setFont(new Font("SansSerif", Font.BOLD, 16));
 	        btnSelecionar.addActionListener(new ActionListener() {
 	        	public void actionPerformed(ActionEvent e) {
 	        		
@@ -224,77 +202,121 @@ public class TelaContaBancaria extends JDialog {
 					isto.dispose();
 	        	}
 	        });
-	        btnSelecionar.setBounds(680, 502, 89, 23);
-	        painelPrincipal.add(btnSelecionar);
+	        
+	        table_cb = new JTable(modelo_cb);
+	        table_cb.setRowSorter(sorter);
+	        
+	        		 table_cb.setBackground(new Color(255, 255, 255));
+	        		 
+	        		 table_cb.getColumnModel().getColumn(2)
+	        .setPreferredWidth(150);
+	        		 table_cb.getColumnModel().getColumn(3)
+	        .setPreferredWidth(120);
+	         		 
+	        table_cb.setRowHeight(30);
+	        JScrollPane scrollPaneCB = new JScrollPane(table_cb);
+	        painelPrincipal.add(scrollPaneCB, "cell 0 3 13 1,grow");
+	        scrollPaneCB.setAutoscrolls(true);
+	        scrollPaneCB.setBackground(new Color(255, 255, 255));
+	        painelPrincipal.add(btnSelecionar, "cell 10 4 3 1,alignx center,aligny top");
 	        
 	        entNome = new JTextField();
+	        entNome.addKeyListener(new KeyAdapter() {
+	        	@Override
+	        	public void keyTyped(KeyEvent e) {
+	        		filtrar();
+	        	}
+	        });
+	        entNome.setFont(new Font("SansSerif", Font.BOLD, 16));
 	        entNome.setColumns(10);
-	        entNome.setBounds(98, 71, 278, 33);
-	        painelPrincipal.add(entNome);
+	        painelPrincipal.add(entNome, "cell 4 0,grow");
 	        
 	        lblNewLabel = new JLabel("Nome:");
 	        lblNewLabel.setFont(new Font("Times New Roman", Font.PLAIN, 14));
-	        lblNewLabel.setBounds(51, 78, 37, 17);
-	        painelPrincipal.add(lblNewLabel);
+	        painelPrincipal.add(lblNewLabel, "cell 2 0 2 1,alignx right,aligny center");
 	        
 	        lblCpfcnpj = new JLabel("CPF/CNPJ:");
 	        lblCpfcnpj.setFont(new Font("Times New Roman", Font.PLAIN, 14));
-	        lblCpfcnpj.setBounds(425, 80, 71, 17);
-	        painelPrincipal.add(lblCpfcnpj);
+	        painelPrincipal.add(lblCpfcnpj, "cell 6 0 2 1,alignx right,aligny center");
 	        
 	        lblBanco = new JLabel("Banco:");
 	        lblBanco.setFont(new Font("Times New Roman", Font.PLAIN, 14));
-	        lblBanco.setBounds(50, 122, 38, 17);
-	        painelPrincipal.add(lblBanco);
+	        painelPrincipal.add(lblBanco, "cell 2 1 2 1,alignx right,aligny center");
 	        
 	        entBanco = new JTextField();
+	        entBanco.addKeyListener(new KeyAdapter() {
+	        	@Override
+	        	public void keyTyped(KeyEvent e) {
+	        		filtrar();
+
+	        	}
+	        });
+	        entBanco.setFont(new Font("SansSerif", Font.BOLD, 16));
 	        entBanco.setColumns(10);
-	        entBanco.setBounds(99, 115, 277, 33);
-	        painelPrincipal.add(entBanco);
+	        painelPrincipal.add(entBanco, "cell 4 1,grow");
 	        
 	        entId = new JTextField();
+	        entId.addKeyListener(new KeyAdapter() {
+	        	@Override
+	        	public void keyTyped(KeyEvent e) {
+	        		filtrar();
+
+	        	}
+	        });
+	        entId.setFont(new Font("SansSerif", Font.BOLD, 16));
 	        entId.setColumns(10);
-	        entId.setBounds(510, 71, 277, 33);
-	        painelPrincipal.add(entId);
+	        painelPrincipal.add(entId, "cell 8 0 5 1,grow");
 	        
 	        btnRefazerPesquisa = new JButton("Refazer Pesquisa");
+	        btnRefazerPesquisa.setBackground(new Color(0, 51, 153));
+	        btnRefazerPesquisa.setForeground(Color.WHITE);
+	        btnRefazerPesquisa.setFont(new Font("Tahoma", Font.BOLD, 16));
 	        btnRefazerPesquisa.addActionListener(new ActionListener() {
 	        	public void actionPerformed(ActionEvent e) {
 	        		
 	    	        pesquisar_contas(modelo_cb);
 	        	}
 	        });
-	        btnRefazerPesquisa.setBounds(487, 170, 126, 28);
-	        painelPrincipal.add(btnRefazerPesquisa);
+	        painelPrincipal.add(btnRefazerPesquisa, "cell 6 2 3 1,alignx right,growy");
 	        
 	        btnLimpar = new JButton("Limpar");
+	        btnLimpar.setBackground(Color.ORANGE);
+	        btnLimpar.setForeground(Color.WHITE);
+	        btnLimpar.setFont(new Font("Tahoma", Font.BOLD, 16));
 	        btnLimpar.addActionListener(new ActionListener() {
 	        	public void actionPerformed(ActionEvent e) {
 				    sorter.setRowFilter( RowFilter.regexFilter(""));
 
 	        	}
 	        });
-	        btnLimpar.setBounds(625, 172, 89, 23);
-	        painelPrincipal.add(btnLimpar);
+	        painelPrincipal.add(btnLimpar, "cell 10 2,growx,aligny center");
 	        
 	        btnFiltrar = new JButton("Filtrar");
+	        btnFiltrar.setBackground(new Color(0, 51, 0));
+	        btnFiltrar.setForeground(Color.WHITE);
+	        btnFiltrar.setFont(new Font("Tahoma", Font.BOLD, 16));
 	        btnFiltrar.addActionListener(new ActionListener() {
 	        	public void actionPerformed(ActionEvent e) {
 	        	 filtrar();
 	        	}
 	        });
-	        btnFiltrar.setBounds(724, 170, 89, 23);
-	        painelPrincipal.add(btnFiltrar);
+	        painelPrincipal.add(btnFiltrar, "cell 12 2,alignx left,aligny top");
 	        
 	        entAgencia = new JTextField();
+	        entAgencia.addKeyListener(new KeyAdapter() {
+	        	@Override
+	        	public void keyTyped(KeyEvent e) {
+	        		filtrar();
+
+	        	}
+	        });
+	        entAgencia.setFont(new Font("SansSerif", Font.BOLD, 16));
 	        entAgencia.setColumns(10);
-	        entAgencia.setBounds(510, 115, 277, 33);
-	        painelPrincipal.add(entAgencia);
+	        painelPrincipal.add(entAgencia, "cell 8 1 5 1,grow");
 	        
 	        lblAgncia = new JLabel("Agência:");
 	        lblAgncia.setFont(new Font("Times New Roman", Font.PLAIN, 14));
-	        lblAgncia.setBounds(442, 122, 48, 17);
-	        painelPrincipal.add(lblAgncia);
+	        painelPrincipal.add(lblAgncia, "cell 6 1 2 1,alignx right,aligny center");
 		
 	        
 	        pesquisar_contas(modelo_cb);

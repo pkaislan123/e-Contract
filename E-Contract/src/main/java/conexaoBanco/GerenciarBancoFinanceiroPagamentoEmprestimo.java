@@ -36,7 +36,7 @@ public class GerenciarBancoFinanceiroPagamentoEmprestimo {
 				+ "status_condicao_pagamento, "
 				+ " objeto, especie, quantidade, unidade_medida, valor_unitario,"
 				+ "valor_total, data_pagamento,fluxo_caixa,"
-				+ "observacao, descricao,caminho_arquivo ) values ('"
+				+ "observacao, descricao,caminho_arquivo, extrato_bancario ) values ('"
 				+ dado.getId_lancamento() + "','"
 				+ dado.getIdentificador() + "','"
 			    + dado.getTipo_pagador() + "','"
@@ -56,8 +56,8 @@ public class GerenciarBancoFinanceiroPagamentoEmprestimo {
 				  + dado.getFluxo_caixa() + "','"
 			    + dado.getObservacao() + "','" 
 			    + dado.getDescricao() + "','" 
-			    
-			    + dado.getCaminho_arquivo() + "')";
+			    +  dado.getCaminho_arquivo()  + "','" 
+			    + dado.getExtrato() + "')";
 	}
 	
 
@@ -125,6 +125,7 @@ public class GerenciarBancoFinanceiroPagamentoEmprestimo {
 				dado.setUnidade_medida(rs.getString("unidade_medida"));
 				dado.setId_documento(rs.getInt("id_documento"));
 				dado.setTipo_recebedor(rs.getInt("tipo_recebedor"));
+				dado.setExtrato(rs.getInt("extrato_bancario"));
 				try{
 					dado.setValor_unitario(new BigDecimal(rs.getString("valor_unitario")));
 				}catch(Exception e) {
@@ -182,6 +183,106 @@ public class GerenciarBancoFinanceiroPagamentoEmprestimo {
 				dado.setEspecie(rs.getString("especie"));
 				dado.setQuantidade(rs.getDouble("quantidade"));
 				dado.setUnidade_medida(rs.getString("unidade_medida"));
+				dado.setExtrato(rs.getInt("extrato_bancario"));
+
+				try{
+					dado.setValor_unitario(new BigDecimal(rs.getString("valor_unitario")));
+				}catch(Exception e) {
+					dado.setValor_unitario(BigDecimal.ZERO);
+				}
+				try{
+					dado.setValor(new BigDecimal(rs.getString("valor_total")));
+				}catch(Exception e) {
+					dado.setValor(BigDecimal.ZERO);
+				}
+				dado.setData_pagamento(rs.getString("data_pagamento"));
+				dado.setDescricao(rs.getString("descricao"));
+				dado.setObservacao(rs.getString("observacao"));
+				dado.setCaminho_arquivo(rs.getString("caminho_arquivo"));
+				dado.setId_documento(rs.getInt("id_documento"));
+
+			
+
+				lista.add(dado);
+
+			}
+			ConexaoBanco.fechaConexao(conn, pstm, rs);
+		} catch (Exception e) {
+			JOptionPane.showMessageDialog(null, "Erro ao listar o Financeiro Pagamento \nErro: " + e.getMessage() + "\nCausa: " + e.getCause());// );
+		}
+		return lista;
+
+	}
+	
+	
+	public ArrayList<FinanceiroPagamentoEmprestimo> getFinanceiroPagamentosPorLancamentoMaisRapido(int id_lancamento) {
+		String select = "select fpag.*,\r\n"
+				+ "(case\r\n"
+				+ "when fpag.tipo_pagador = 0\r\n"
+				+ "then\r\n"
+				+ "ib_pag.nome_instituicao_bancaria\r\n"
+				+ "when fpag.tipo_pagador = 1\r\n"
+				+ "then\r\n"
+				+ "(\r\n"
+				+ "case\r\n"
+				+ "when cli_pag.tipo_cliente = '0' then cli_pag.nome_empresarial \r\n"
+				+ " when cli_pag.tipo_cliente = '1' then cli_pag.nome_fantasia\r\n"
+				+ "end\r\n"
+				+ ")\r\n"
+				+ "end) as nome_pagador,\r\n"
+				+ "(\r\n"
+				+ "case\r\n"
+				+ "when fpag.tipo_recebedor = 0\r\n"
+				+ "then\r\n"
+				+ "ib_rec.nome_instituicao_bancaria\r\n"
+				+ "when fpag.tipo_recebedor = 1\r\n"
+				+ "then\r\n"
+				+ "(\r\n"
+				+ "case\r\n"
+				+ "when cli_rec.tipo_cliente = '0' then cli_rec.nome_empresarial \r\n"
+				+ " when cli_rec.tipo_cliente = '1' then cli_rec.nome_fantasia\r\n"
+				+ "end\r\n"
+				+ ")\r\n"
+				+ "end) as nome_recebedor,\r\n"
+				+ "cp.nome_condicao_pagamento\r\n"
+				+ "from financeiro_pagamento_emprestimo fpag\r\n"
+				+ "left join condicao_pagamento cp on cp.id_condicao_pagamento = fpag.id_forma_pagamento\r\n"
+				+ "left join cliente cli_pag on cli_pag.id_cliente = fpag.id_pagador\r\n"
+				+ "left join instituicao_bancaria ib_pag on ib_pag.id_instituicao_bancaria = fpag.id_pagador\r\n"
+				+ "left join cliente cli_rec on cli_rec.id_cliente = fpag.id_recebedor\r\n"
+				+ "left join instituicao_bancaria ib_rec on ib_rec.id_instituicao_bancaria = fpag.id_recebedor\r\n"
+				+ "where id_lancamento_pai = ?";
+		Connection conn = null;
+		PreparedStatement pstm = null;
+		ResultSet rs = null;
+		ArrayList<FinanceiroPagamentoEmprestimo> lista = new ArrayList<>();
+		try {
+			conn = ConexaoBanco.getConexao();
+			pstm = conn.prepareStatement(select);
+			pstm.setInt(1, id_lancamento);
+
+			rs = pstm.executeQuery();
+			while (rs.next()) {
+				FinanceiroPagamentoEmprestimo dado = new FinanceiroPagamentoEmprestimo();
+				
+				dado.setId_pagamento(rs.getInt("id_pagamento"));
+				dado.setId_lancamento(rs.getInt("id_lancamento_pai"));
+				dado.setIdentificador(rs.getString("identificador"));
+				dado.setId_condicao_pagamento(rs.getInt("id_forma_pagamento"));
+				dado.setStatus_pagamento(rs.getInt("status_condicao_pagamento"));
+				dado.setFluxo_caixa(rs.getInt("fluxo_caixa"));
+				dado.setTipo_pagador(rs.getInt("tipo_pagador"));
+				dado.setId_pagador(rs.getInt("id_pagador"));
+				dado.setTipo_recebedor(rs.getInt("tipo_recebedor"));
+				dado.setNome_pagador(rs.getString("nome_pagador"));
+				dado.setNome_recebedor(rs.getString("nome_recebedor"));
+				dado.setNome_forma_pagamento(rs.getString("nome_condicao_pagamento"));
+				dado.setId_recebedor(rs.getInt("id_recebedor"));
+				dado.setObjeto(rs.getInt("objeto"));
+				dado.setEspecie(rs.getString("especie"));
+				dado.setQuantidade(rs.getDouble("quantidade"));
+				dado.setUnidade_medida(rs.getString("unidade_medida"));
+				dado.setExtrato(rs.getInt("extrato_bancario"));
 
 				try{
 					dado.setValor_unitario(new BigDecimal(rs.getString("valor_unitario")));
@@ -314,6 +415,7 @@ left join instituicao_bancaria ib_rec on ib_rec.id_instituicao_bancaria = fpag.i
 				dado.setTipo_pagador(rs.getInt("tipo_pagador"));
 				dado.setId_pagador(rs.getInt("id_pagador"));
 				dado.setTipo_recebedor(rs.getInt("tipo_recebedor"));
+				dado.setExtrato(rs.getInt("extrato_bancario"));
 
 				dado.setId_recebedor(rs.getInt("id_recebedor"));
 				dado.setObjeto(rs.getInt("objeto"));
@@ -380,6 +482,7 @@ left join instituicao_bancaria ib_rec on ib_rec.id_instituicao_bancaria = fpag.i
 			dado.setTipo_pagador(rs.getInt("tipo_pagador"));
 			dado.setId_pagador(rs.getInt("id_pagador"));
 			dado.setTipo_recebedor(rs.getInt("tipo_recebedor"));
+			dado.setExtrato(rs.getInt("extrato_bancario"));
 
 			dado.setId_recebedor(rs.getInt("id_recebedor"));
 			dado.setObjeto(rs.getInt("objeto"));
@@ -455,7 +558,7 @@ left join instituicao_bancaria ib_rec on ib_rec.id_instituicao_bancaria = fpag.i
 						+ "unidade_medida = ?,"
 						+ "valor_unitario = ?,"
 						+ "valor_total = ?, data_pagamento = ?, fluxo_caixa = ?,"
-						+ " observacao = ?, descricao = ? where id_pagamento =?";				
+						+ " observacao = ?, descricao = ? , extrato_bancario = ? where id_pagamento =?";				
 				conn = ConexaoBanco.getConexao();
 				pstm = conn.prepareStatement(atualizar);
 				
@@ -490,7 +593,9 @@ left join instituicao_bancaria ib_rec on ib_rec.id_instituicao_bancaria = fpag.i
 
 				pstm.setString(16, dado.getObservacao());
 				pstm.setString(17, dado.getDescricao());
-				pstm.setInt(18, dado.getId_pagamento());
+				pstm.setInt(18, dado.getExtrato());
+
+				pstm.setInt(19, dado.getId_pagamento());
 
 			
 
@@ -537,6 +642,7 @@ left join instituicao_bancaria ib_rec on ib_rec.id_instituicao_bancaria = fpag.i
 				dado.setTipo_pagador(rs.getInt("tipo_pagador"));
 				dado.setId_pagador(rs.getInt("id_pagador"));
 				dado.setTipo_recebedor(rs.getInt("tipo_recebedor"));
+				dado.setExtrato(rs.getInt("extrato_bancario"));
 
 				dado.setId_recebedor(rs.getInt("id_recebedor"));
 				try{
@@ -639,7 +745,7 @@ left join instituicao_bancaria ib_rec on ib_rec.id_instituicao_bancaria = fpag.i
 
 	public ArrayList<FinanceiroPagamentoCompleto> getTodosFinanceiroPagamentosEmprestimos() {
 		
-		String select = "call consulta_extrato_todos_caixa_emprestimo()";
+		String select = "call consulta_extrato_todos_caixa_emprestimo_todos_pagamentos()";
 		Connection conn = null;
 		PreparedStatement pstm = null;
 		ResultSet rs = null;
@@ -665,6 +771,8 @@ left join instituicao_bancaria ib_rec on ib_rec.id_instituicao_bancaria = fpag.i
 				dado.setId_pagador(rs.getInt("id_pagador"));
 				dado.setTipo_recebedor(rs.getInt("tipo_recebedor"));
 				dado.setId_recebedor(rs.getInt("id_recebedor"));
+				dado.setExtrato(rs.getInt("extrato_bancario"));
+
 				try{
 					dado.setValor(new BigDecimal(rs.getString("valor_total")));
 				}catch(Exception e) {
@@ -710,6 +818,85 @@ left join instituicao_bancaria ib_rec on ib_rec.id_instituicao_bancaria = fpag.i
 		return lista;
 	}
 		
+		
+public ArrayList<FinanceiroPagamentoCompleto> getTodosFinanceiroPagamentosEmprestimosFiltratos(int cc, int mes, int ano, int tipo) {
+		
+		String select = "call consulta_emprestimo_todos_pagamentos_filtrados(?,?,?,?)";
+		Connection conn = null;
+		PreparedStatement pstm = null;
+		ResultSet rs = null;
+		ArrayList<FinanceiroPagamentoCompleto> lista = new ArrayList<>();
+		try {
+			conn = ConexaoBanco.getConexao();
+			pstm = conn.prepareStatement(select);
+			pstm.setInt(1, cc);
+			pstm.setInt(2, mes);
+
+			pstm.setInt(3, ano);
+			pstm.setInt(4, tipo);
+			rs = pstm.executeQuery();
+			while (rs.next()) {
+				
+				if(rs.getInt("id_lancamento") > 0) {
+				
+				FinanceiroPagamentoEmprestimo dado = new FinanceiroPagamentoEmprestimo();
+				
+				dado.setId_pagamento(rs.getInt("id_pagamento"));
+				dado.setId_lancamento(rs.getInt("id_lancamento_pai"));
+				dado.setIdentificador(rs.getString("identificador"));
+				dado.setId_condicao_pagamento(rs.getInt("id_forma_pagamento"));
+				dado.setStatus_pagamento(rs.getInt("status_condicao_pagamento"));
+				dado.setFluxo_caixa(rs.getInt("fluxo_caixa"));
+				dado.setTipo_pagador(rs.getInt("tipo_pagador"));
+				dado.setId_pagador(rs.getInt("id_pagador"));
+				dado.setTipo_recebedor(rs.getInt("tipo_recebedor"));
+				dado.setId_recebedor(rs.getInt("id_recebedor"));
+				dado.setExtrato(rs.getInt("extrato_bancario"));
+
+				try{
+					dado.setValor(new BigDecimal(rs.getString("valor_total")));
+				}catch(Exception e) {
+					dado.setValor(BigDecimal.ZERO);
+				}
+				dado.setData_pagamento(rs.getString("data_pagamento"));
+				dado.setDescricao(rs.getString("descricao"));
+				dado.setObservacao(rs.getString("observacao"));
+				dado.setCaminho_arquivo(rs.getString("caminho_arquivo"));
+			
+				Lancamento lancamento = new Lancamento();
+				lancamento.setId_lancamento(rs.getInt("id_lancamento"));
+				lancamento.setPrioridade(rs.getInt("prioridade"));
+				lancamento.setTipo_lancamento(rs.getInt("tipo_lancamento"));
+				lancamento.setData_lancamento(rs.getString("data_lancamento"));
+				lancamento.setId_instituicao_bancaria(rs.getInt("id_instituicao_bancaria"));
+				lancamento.setId_conta(rs.getInt("id_conta"));
+				lancamento.setId_centro_custo(rs.getInt("id_centro_custo"));
+				lancamento.setId_cliente_fornecedor(rs.getInt("id_cliente_fornecedor"));
+				lancamento.setGerar_parcelas(rs.getInt("gerar_parcelas"));
+				lancamento.setIntervalo(rs.getInt("intervalo"));
+				lancamento.setNumero_parcelas(rs.getInt("numero_parcelas"));
+				
+				
+				
+				FinanceiroPagamentoCompleto financeiro_pagamento_lancamento = new FinanceiroPagamentoCompleto();
+				financeiro_pagamento_lancamento.setLancamento(lancamento);
+				financeiro_pagamento_lancamento.setFpag(dado);
+				financeiro_pagamento_lancamento.setNome_forma_pagamento(rs.getString("nome_condicao_pagamento"));
+				financeiro_pagamento_lancamento.setNome_pagador(rs.getString("nome_pagador"));
+				financeiro_pagamento_lancamento.setNome_recebedor(rs.getString("nome_recebedor"));
+
+				lista.add(financeiro_pagamento_lancamento);
+				
+				
+				}
+
+			}
+			ConexaoBanco.fechaConexao(conn, pstm, rs);
+		} catch (Exception e) {
+			JOptionPane.showMessageDialog(null, "Erro ao listar a Financeiro Pagamento \nErro: " + e.getMessage() + "\nCausa: " + e.getCause());// );
+		}
+		return lista;
+	}
 		
 		
 		
@@ -761,6 +948,9 @@ left join instituicao_bancaria ib_rec on ib_rec.id_instituicao_bancaria = fpag.i
 						dado.setId_pagador(rs.getInt("id_pagador"));
 						dado.setTipo_recebedor(rs.getInt("tipo_recebedor"));
 						dado.setId_recebedor(rs.getInt("id_recebedor"));
+						dado.setExtrato(rs.getInt("extrato_bancario"));
+						
+
 						try{
 							dado.setValor(new BigDecimal(rs.getString("valor_total_emprestimo")));
 						}catch(Exception e) {

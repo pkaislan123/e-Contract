@@ -3,9 +3,13 @@ package main.java.outros;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.time.Instant;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 import java.util.Date;
 
 import org.apache.commons.net.ntp.NTPUDPClient;
@@ -69,16 +73,27 @@ public class GetData {
 	}
 	
 	public String getData() {
-		LocalDateTime date = LocalDateTime.now();
+		LocalDate localDate      = LocalDate.now();
 
-	    return date.getDayOfMonth() + "/" + date.getMonthValue() + "/" + date.getYear();
-	
+		
+		
+		    String data   = LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd/MM/yyyy"));
+		    return data;
+
+	    
 	}
 	
 	public String getDataLog() {
 		LocalDateTime date = LocalDateTime.now();
 
 	    return date.getDayOfMonth() + "-" + date.getMonthValue() + "-" + date.getYear();
+	
+	}
+	
+	public int getMes() {
+		LocalDateTime date = LocalDateTime.now();
+
+	    return date.getMonthValue();
 	
 	}
 	

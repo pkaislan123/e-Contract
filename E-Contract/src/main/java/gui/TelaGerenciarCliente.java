@@ -1034,7 +1034,8 @@ public class TelaGerenciarCliente extends JDialog {
 									nome_pasta = cliente_local.getNome_fantaia();
 								
 
-						    	
+						    	nome_pasta = trimar(nome_pasta);
+						    
 								String unidade_base_dados = configs_globais.getServidorUnidade();
 								String caminho_salvar = unidade_base_dados + "\\" + "E-Contract\\arquivos\\clientes\\" + nome_pasta + "\\DADOS PESSOAS\\"  + nome_official;
 
@@ -1053,22 +1054,31 @@ public class TelaGerenciarCliente extends JDialog {
 						  new java.awt.event.ActionListener() {
 						    // Importe a classe java.awt.event.ActionEvent
 						    public void actionPerformed(ActionEvent e) { 
-						    	/*if (JOptionPane.showConfirmDialog(isto, 
-							            "Deseja Excluir este comprovante", "Exclusão", 
+						    	if (JOptionPane.showConfirmDialog(isto, 
+							            "Deseja Excluir este Documento", "Exclusão", 
 							            JOptionPane.YES_NO_OPTION,
 							            JOptionPane.QUESTION_MESSAGE) == JOptionPane.YES_OPTION){
 									     
 						    		String nome_arquivo = no_selecionado.getUserObject().toString();
-						    		String quebra [] = nome_arquivo.split("@");
-									String id = quebra[0];
-									int i_id = Integer.parseInt(id);
+								    
+							    	String quebra [] = nome_arquivo.split("@");
 									
 									String nome_official = "";
 									for(int i = 1; i < quebra.length ; i++) {
 										nome_official += quebra[i];
 									}
-							    	String unidade_base_dados = configs_globais.getServidorUnidade();
-									String caminho_completo = unidade_base_dados + "\\" + contrato_local.getCaminho_diretorio_contrato() + "\\" + "comprovantes\\" + nome_official;
+									
+									String nome_pasta = "";
+									if(cliente_local.getTipo_pessoa() == 0)
+										nome_pasta = cliente_local.getNome_empresarial();
+									else
+										nome_pasta = cliente_local.getNome_fantaia();
+									
+
+							    	nome_pasta = trimar(nome_pasta);
+							    
+									String unidade_base_dados = configs_globais.getServidorUnidade();
+									String caminho_completo = unidade_base_dados + "\\" + "E-Contract\\arquivos\\clientes\\" + nome_pasta + "\\DADOS PESSOAS\\"  + nome_official;
 
 									boolean excluido = new ManipularTxt().apagarArquivo(caminho_completo);
 									if(excluido) {
@@ -1076,20 +1086,20 @@ public class TelaGerenciarCliente extends JDialog {
 									
 										
 										GerenciarBancoDocumento gerenciar_docs = new GerenciarBancoDocumento();
-										boolean excluir_documento = gerenciar_docs.removerDocumento(i_id);
+										boolean excluir_documento = gerenciar_docs.removerDocumento(Integer.parseInt(quebra[0])  );
 										
 										if(excluir_documento) {
-											JOptionPane.showMessageDialog(null, "Comprovante Excluido!");
+											JOptionPane.showMessageDialog(null, "Documento Excluido!");
 
 										}else {
-											JOptionPane.showMessageDialog(null, "Arquivo fisico apagado, mas as informações\ndeste comprovante ainda estão no \nConsulte o administrador");
+											JOptionPane.showMessageDialog(null, "Arquivo fisico apagado, mas as informações\ndeste documento ainda estão no banco de dados\nConsulte o administrador");
 
 										}
 										
                                         atualizarArvoreDocumentos();
 										
 									}else {
-										JOptionPane.showMessageDialog(null, "Erro ao excluir o comprovante\nConsulte o administrador!");
+										JOptionPane.showMessageDialog(null, "Erro ao excluir o documento\nConsulte o administrador!");
 									}
 									
 							        }
@@ -1098,7 +1108,7 @@ public class TelaGerenciarCliente extends JDialog {
 									
 									
 								}
-						 */		
+						 	
 						    } 
 						  
 						  });
@@ -1246,7 +1256,7 @@ public class TelaGerenciarCliente extends JDialog {
 			else
 				nome_pasta = cliente_local.getNome_fantaia();
 			
-
+			nome_pasta = trimar(nome_pasta);
 			String caminho_salvar = unidade_base_dados + "\\" + "E-Contract\\arquivos\\clientes\\" + nome_pasta + "\\DADOS PESSOAS";
 			manipular.criarDiretorio(caminho_salvar);
 
@@ -1617,4 +1627,14 @@ public void atualizarArvoreDocumentos() {
 	   
 	   
    }
+   
+  
+   
+   public String trimar(String texto) {
+		String aplicar_rtrim = texto.replaceAll("\\s+$", "");
+		String aplicar_ltrim = aplicar_rtrim.replaceAll("^\\s+", "");
+		return aplicar_ltrim;
+
+	}
+
 }

@@ -329,12 +329,17 @@ public class GerenciarBancoRomaneios {
 	        		
 
 	        		remetente.setTipo_pessoa(rs.getInt("tipo_remetente"));
+	        		remetente.setNome(rs.getString("nome_remetente"));
+	        		remetente.setSobrenome(rs.getString("sobrenome_remetente"));
 	        		remetente.setCpf(rs.getString("cpf_remetente"));
 	        		remetente.setCnpj(rs.getString("cnpj_remetente"));
 	        		remetente.setNome_empresarial(rs.getString("remetente_nome_empresarial"));
 	        		remetente.setNome_fantaia(rs.getString("remetente_nome_fantasia"));
 
 	        		destinatario.setTipo_pessoa(rs.getInt("tipo_destinatario"));
+	        		destinatario.setNome(rs.getString("nome_destinatario"));
+	        		destinatario.setSobrenome(rs.getString("sobrenome_destinatario"));
+	        		
 	        		destinatario.setCpf(rs.getString("cpf_destinatario"));
 	        		destinatario.setCnpj(rs.getString("cnpj_destinatario"));
 	        		destinatario.setNome_empresarial(rs.getString("destinatario_nome_empresarial"));
@@ -379,6 +384,8 @@ public class GerenciarBancoRomaneios {
 	            	rom.setStatus_monsanto(rs.getInt("status_monsanto"));
 	            	rom.setObservacao(rs.getString("observacao"));
 	            	rom.setRoyalties(rs.getInt("royalties"));
+	            	rom.setTeste(rs.getInt("teste"));
+	            	rom.setResultado(rs.getInt("resultado"));
 	            	
 	            	lista_roms.add(rom);
 	            }
@@ -436,12 +443,18 @@ public class GerenciarBancoRomaneios {
 	        		CadastroCliente destinatario = new CadastroCliente();
 
 	        		remetente.setTipo_pessoa(rs.getInt("tipo_remetente"));
+	        		
+	        		remetente.setNome(rs.getString("nome_remetente"));
+	        		remetente.setSobrenome(rs.getString("sobrenome_remetente"));
 	        		remetente.setCpf(rs.getString("cpf_remetente"));
 	        		remetente.setCnpj(rs.getString("cnpj_remetente"));
 	        		remetente.setNome_empresarial(rs.getString("remetente_nome_empresarial"));
 	        		remetente.setNome_fantaia(rs.getString("remetente_nome_fantasia"));
 
 	        		destinatario.setTipo_pessoa(rs.getInt("tipo_destinatario"));
+	        		destinatario.setNome(rs.getString("nome_destinatario"));
+	        		destinatario.setSobrenome(rs.getString("sobrenome_destinatario"));
+	        		
 	        		destinatario.setCpf(rs.getString("cpf_destinatario"));
 	        		destinatario.setCnpj(rs.getString("cnpj_destinatario"));
 	        		destinatario.setNome_empresarial(rs.getString("destinatario_nome_empresarial"));
@@ -487,7 +500,124 @@ public class GerenciarBancoRomaneios {
 	            	rom.setStatus_monsanto(rs.getInt("status_monsanto"));
 	            	rom.setObservacao(rs.getString("observacao"));
 	            	rom.setRoyalties(rs.getInt("royalties"));
+	            	rom.setTeste(rs.getInt("teste"));
+	            	rom.setResultado(rs.getInt("resultado"));
+	            	
+	            	lista_roms.add(rom);
+	            }
+	            ConexaoBanco.fechaConexao(conn, pstm, rs);
+	            return lista_roms;
+	        } catch (Exception e) {
+	           JOptionPane.showMessageDialog(null, "Erro ao listar romaneios\nErro: " + e.getMessage() + "\nCausa: " + e.getCause()   );
+	        	return null;
+	        }
+	  }
+	  
+	  
+	  public ArrayList<CadastroRomaneio> listarRomaneiosPorTransportador(String cpf){
+		  Connection conn = null;
+		  
+	        PreparedStatement pstm = null;
+	        ResultSet rs = null;
+	        String selectRoms = "call busca_romaneios_mais_rapido_por_cpf_motorista(?)";
+	        
+	        ArrayList<CadastroRomaneio> lista_roms = new ArrayList<CadastroRomaneio>();
+	        GerenciarBancoClientes gerenciar = new GerenciarBancoClientes();
+	        ArrayList<CadastroCliente> clientes = gerenciar.getClientes(-1, -1, "");
+	        
+	        try {
+	            conn = ConexaoBanco.getConexao();
+	            pstm = conn.prepareStatement(selectRoms);
+	            pstm.setString(1, cpf);
 
+	            rs = pstm.executeQuery();
+	            while (rs.next()) {
+	            	CadastroRomaneio rom = new CadastroRomaneio();
+	 
+	            	rom.setId_romaneio(rs.getInt("id_romaneio"));
+	            	rom.setNumero_romaneio(rs.getInt("codigo"));
+	            	rom.setOperacao(rs.getString("operacao"));
+	            	rom.setCfop(rs.getString("cfop"));
+	            	rom.setDescricao_cfop(rs.getString("descricao_cfop"));
+	            	CadastroProduto prod = new CadastroProduto();
+	            	prod.setNome_produto(rs.getString("nome_produto"));
+	            	prod.setTransgenia(rs.getString("transgenia"));
+	            	rom.setProduto(prod);
+	            	CadastroSafra safra = new CadastroSafra();
+	            	safra.setAno_plantio(rs.getInt("ano_plantio"));
+	            	safra.setAno_colheita(rs.getInt("ano_colheita"));
+
+	            	rom.setSafra(safra);
+	            	
+	            	String data = rs.getString("data_romaneio");
+	            	Date date = new SimpleDateFormat("dd/MM/yyyy").parse(data);
+	        		rom.setData(date);
+	        		
+	        		
+	        		
+
+	        		CadastroCliente	remetente = new CadastroCliente();
+	        		CadastroCliente destinatario = new CadastroCliente();
+
+	        		remetente.setTipo_pessoa(rs.getInt("tipo_remetente"));
+	        		remetente.setCpf(rs.getString("cpf_remetente"));
+	        		remetente.setCnpj(rs.getString("cnpj_remetente"));
+	        		remetente.setNome_empresarial(rs.getString("remetente_nome_empresarial"));
+	        		remetente.setNome_fantaia(rs.getString("remetente_nome_fantasia"));
+	        		remetente.setNome(rs.getString("nome_remetente"));
+	        		remetente.setSobrenome(rs.getString("sobrenome_remetente"));
+	        	
+	        		destinatario.setTipo_pessoa(rs.getInt("tipo_destinatario"));
+	        		destinatario.setNome(rs.getString("nome_destinatario"));
+	        		destinatario.setSobrenome(rs.getString("sobrenome_destinatario"));
+	        		
+	        		destinatario.setCpf(rs.getString("cpf_destinatario"));
+	        		destinatario.setCnpj(rs.getString("cnpj_destinatario"));
+	        		destinatario.setNome_empresarial(rs.getString("destinatario_nome_empresarial"));
+	        		destinatario.setNome_fantaia(rs.getString("destinatario_nome_fantasia"));
+ 
+	        		rom.setRemetente(remetente);
+	        		rom.setDestinatario(destinatario);
+	            	
+	        		
+	            	rom.setUmidade(rs.getDouble("umidade"));
+	            	rom.setInpureza(rs.getDouble("impureza"));
+	            	
+	            	rom.setUmidade2(rs.getDouble("umidade2"));
+	            	rom.setImpureza2(rs.getDouble("impureza2"));
+	            	
+	            	
+	            	rom.setArdidos(rs.getDouble("ardidos"));
+	            	rom.setAvariados(rs.getDouble("avariados"));
+	            	rom.setPeso_bruto(rs.getDouble("peso_bruto"));
+	            	rom.setTara(rs.getDouble("tara"));
+	            	rom.setPeso_liquido(rs.getDouble("peso_liquido"));
+	            	
+	            	rom.setPeso_liquido_sem_descontos(rs.getDouble("peso_liquido_sem_desconto"));
+	            	rom.setPeso_desconto_umidade(rs.getDouble("peso_desconto_umidade"));
+	            	rom.setPeso_desconto_impureza(rs.getDouble("peso_desconto_impureza"));
+	            	rom.setPeso_desconto_avariados(rs.getDouble("peso_desconto_avariado"));
+	            	rom.setPeso_desconto_total(rs.getDouble("peso_desconto_total"));
+	            	rom.setDespesa_recepcao(rs.getDouble("peso_recepcao"));
+	            	
+	            	rom.setNome_motorista(rs.getString("nome_motorista"));
+	            	rom.setCpf_motorista(rs.getString("cpf_motorista"));
+	            	rom.setPlaca(rs.getString("placa"));
+
+	            	rom.setCaminho_arquivo(rs.getString("caminho_arquivo"));
+	            	rom.setDoc_entrada(rs.getString("doc_entrada"));
+	            	rom.setAmostra(rs.getString("amostra"));
+	            	rom.setSilo(rs.getString("nome_silo"));
+	            	rom.setId_silo(rs.getInt("id_silo"));
+	            	rom.setId_transgenese(rs.getInt("id_transgenia"));
+	            	rom.setTransgenia(rs.getString("nome_transgenia"));
+	            	rom.setClassificador(rs.getString("nome_classificador"));
+	            	rom.setId_classificador(rs.getInt("id_classificador"));
+	            	rom.setStatus_monsanto(rs.getInt("status_monsanto"));
+	            	rom.setObservacao(rs.getString("observacao"));
+	            	rom.setRoyalties(rs.getInt("royalties"));
+	            	rom.setTeste(rs.getInt("teste"));
+	            	rom.setResultado(rs.getInt("resultado"));
 	            	
 	            	lista_roms.add(rom);
 	            }
@@ -547,7 +677,7 @@ public class GerenciarBancoRomaneios {
 			} catch (Exception f) {
 				JOptionPane.showMessageDialog(null,
 						"Erro ao excluir o romaneio do banco de dados\nBanco de dados corrompido!\nConsulte o administrador do sistema"
-								+ "dados " + f.getMessage());
+								+ "dados " + f.getMessage() + "\nCausa: " + f.getCause());
 				return false;
 			}
 

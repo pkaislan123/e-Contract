@@ -424,7 +424,7 @@ public class TelaConfirmarCarregamento extends JDialog {
 				 TelaRomaneios telaRomaneio;
                  telaRomaneio = new TelaRomaneios(0,isto);
 				 telaRomaneio.limpar();
-				 telaRomaneio.setDadosPesquisa("", "", "", produto, entRomaneio.getText());
+				 telaRomaneio.setDadosPesquisa("", destinatario, "saída normal", produto, entRomaneio.getText());
 				 telaRomaneio.setTelaPai(isto);
 				 telaRomaneio.pesquisarTodosOsRomaneios();
 
@@ -757,6 +757,24 @@ public class TelaConfirmarCarregamento extends JDialog {
 				CadastroContrato.Carregamento carregamento_a_inserir= getCarregamentoSalvar(new Carregamento());
 
 				
+				CadastroContrato.Carregamento duplicado = gerenciar.procurarDuplicataCarregamento(carregamento_a_inserir.getCodigo_romaneio());
+                if(duplicado != null) {
+                	JOptionPane.showMessageDialog(isto,"Já Existe um carregamento associado a este código de romaneio!");
+
+                	if (JOptionPane.showConfirmDialog(isto, 
+				            "Abrir", "Deseja ver o carregamento?", 
+				            JOptionPane.YES_NO_OPTION,
+				            JOptionPane.QUESTION_MESSAGE) == JOptionPane.YES_OPTION){
+						 
+                		CadastroContrato contrato_selecionado = new GerenciarBancoContratos().getContrato(duplicado.getId_contrato());
+        				TelaGerenciarContrato gerenciar_contrato = new TelaGerenciarContrato(contrato_selecionado, isto);
+        				gerenciar_contrato.setTelaRecebimentos(duplicado.getId_contrato());
+
+                		
+                	}
+			   }else {
+				
+				
 				int retorno = gerenciar.inserirCarregamento(contrato_local.getId(),
 						carregamento_a_inserir);
 				if (retorno > 0) {
@@ -778,6 +796,7 @@ public class TelaConfirmarCarregamento extends JDialog {
 					isto.dispose();
 				}
 
+			   }
 			}
 		});
 		painelConfirmar.add(btnSalvar, "cell 18 12,alignx left,growy");
@@ -936,7 +955,25 @@ public class TelaConfirmarCarregamento extends JDialog {
 		btnAtualizar.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				GerenciarBancoContratos gerenciar = new GerenciarBancoContratos();
-	               boolean atualizou = gerenciar.atualizar_carregamento(getCarregamentoAtualizar(carregamento_global));
+	              CadastroContrato.Carregamento carregamento_a_atualizar = getCarregamentoAtualizar(carregamento_global);
+				CadastroContrato.Carregamento duplicado = gerenciar.procurarDuplicataCarregamento(carregamento_a_atualizar.getCodigo_romaneio());
+                if(duplicado != null) {
+                	JOptionPane.showMessageDialog(isto,"Já Existe um carregamento associado a este código de romaneio!");
+
+                	if (JOptionPane.showConfirmDialog(isto, 
+				            "Abrir", "Deseja ver o carregamento?", 
+				            JOptionPane.YES_NO_OPTION,
+				            JOptionPane.QUESTION_MESSAGE) == JOptionPane.YES_OPTION){
+						 
+                		CadastroContrato contrato_selecionado = new GerenciarBancoContratos().getContrato(duplicado.getId_contrato());
+        				TelaGerenciarContrato gerenciar_contrato = new TelaGerenciarContrato(contrato_selecionado, isto);
+        				gerenciar_contrato.setTelaRecebimentos(duplicado.getId_contrato());
+
+                		
+                	}
+			   }else {
+				
+				boolean atualizou = gerenciar.atualizar_carregamento(carregamento_a_atualizar);
 	               
 	               if(atualizou) {
 	            	   JOptionPane.showMessageDialog(isto, "Carregamento Atualizado");
@@ -950,6 +987,8 @@ public class TelaConfirmarCarregamento extends JDialog {
 	            	   isto.dispose();
 
 	               }
+	               
+			   }
 			}
 		});
 		painelConfirmar.add(btnAtualizar, "cell 14 12 3 1,grow");

@@ -592,13 +592,13 @@ ultima_linha 1 Local da Retirada
          ultima_linha++;
 		
          atualizarCelula(formatar(false, 'T', false, false, true, false), ultima_linha,1, "Banco:");
-         atualizarCelula(formatar(true, 'T', false, false, false, false), ultima_linha,2, pagamento.getConta().getBanco().toUpperCase() );
+         atualizarCelula(formatar(true, 'T', false, false, false, false), ultima_linha,2, pagamento.getConta().getBanco().toUpperCase() + "-" + pagamento.getConta().getCodigo());
          
          atualizarCelula(formatar(false, 'T', false, false, false, false), ultima_linha,4, "Agência:");
          atualizarCelula(formatar(true, 'T', false, false, false, false), ultima_linha,5, pagamento.getConta().getAgencia().toUpperCase());
          
          atualizarCelula(formatar(false, 'T', false, false, false, false), ultima_linha,6, "Conta/Corre.:");
-         atualizarCelula(formatar(true, 'T', false, false, false, false), ultima_linha,7, pagamento.getConta().getAgencia().toUpperCase());
+         atualizarCelula(formatar(true, 'T', false, false, false, false), ultima_linha,7, pagamento.getConta().getConta().toUpperCase());
          atualizarCelula(formatar(true, 'T', false, false, false, true), ultima_linha,9, "");
          ultima_linha++;
          
@@ -700,6 +700,17 @@ ultima_linha 1 Local da Retirada
   	          	 ultima_linha++;
   	    	 }
   	     }
+  	     
+  	   if(novo_contrato.getFundo_rural()!= null) {
+	    	 if(!novo_contrato.getFundo_rural().equals("") && novo_contrato.getFundo_rural().length() > 5) {
+	    		atualizarCelula(formatar(true, 'T', false, false, true, false), ultima_linha,1, "");
+
+	    		atualizarCelula(formatar(true, 'T', false, false, false, false), ultima_linha,2, novo_contrato.getClausula_fundo_rural());
+	    		atualizarCelula(formatar(true, 'T', false, false, false, true), ultima_linha,9, "");
+	          	 ultima_linha++;
+	    	 }
+	     }
+
 
     	
 		ultima_linha++;

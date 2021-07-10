@@ -49,6 +49,7 @@ import main.java.cadastros.CadastroAviso;
 import main.java.cadastros.CadastroCliente;
 import main.java.cadastros.CadastroFuncionario;
 import main.java.cadastros.CadastroFuncionarioAdmissao;
+import main.java.cadastros.CadastroFuncionarioRotinaTrabalho;
 import main.java.cadastros.CadastroContrato;
 import main.java.cadastros.CadastroContrato.CadastroPagamento;
 import main.java.cadastros.CadastroContrato.CadastroPagamentoContratual;
@@ -62,7 +63,7 @@ import main.java.cadastros.CadastroRomaneio;
 import main.java.cadastros.CadastroSafra;
 import main.java.cadastros.ContaBancaria;
 import main.java.cadastros.Contato;
-import main.java.cadastros.DescontoCompleto;
+import main.java.cadastros.CalculoCompleto;
 import main.java.cadastros.CadastroFuncionariosHorarios;
 import main.java.cadastros.RegistroQuantidade;
 import main.java.cadastros.RegistroRecebimento;
@@ -73,13 +74,14 @@ import main.java.classesExtras.ComboBoxRenderPersonalizado;
 import main.java.classesExtras.Endereco;
 import main.java.conexaoBanco.GerenciarBancoFuncionarios;
 import main.java.conexaoBanco.GerenciarBancoFuncionariosContratoTrabalho;
-import main.java.conexaoBanco.GerenciarBancoFuncionariosDescontos;
+import main.java.conexaoBanco.GerenciarBancoFuncionariosCalculos;
 import main.java.conexaoBanco.GerenciarBancoClientes;
 import main.java.conexaoBanco.GerenciarBancoContratos;
 import main.java.conexaoBanco.GerenciarBancoFuncionarios;
 import main.java.conexaoBanco.GerenciarBancoNotasFiscais;
 import main.java.conexaoBanco.GerenciarBancoProdutos;
 import main.java.conexaoBanco.GerenciarBancoRomaneios;
+import main.java.conexaoBanco.GerenciarBancoRotina;
 import main.java.conexaoBanco.GerenciarBancoSafras;
 import main.java.gui.TelaMain;
 import main.java.gui.TelaRomaneios;
@@ -139,11 +141,10 @@ public class TelaFuncionariosCadastroJornadaTrabalho extends JFrame {
 	private ComboBoxPersonalizadoContratoTrabalho modelContratos = new ComboBoxPersonalizadoContratoTrabalho();
 
 	private HorariosTableModel modelHorarios = new HorariosTableModel();
-	private ArrayList<CadastroFuncionariosHorarios> listaHorarios = new ArrayList<>();
+	private ArrayList<CadastroFuncionarioRotinaTrabalho> listaHorarios = new ArrayList<>();
 	private Log GerenciadorLog;
 	private CadastroLogin login;
 	private ConfiguracoesGlobais configs_globais;
-
 	private final JPanelBackground contentPanel = new JPanelBackground();
 
 	// painel pai
@@ -171,11 +172,16 @@ public class TelaFuncionariosCadastroJornadaTrabalho extends JFrame {
 	private JTextField entHoraSaida;
 	private JTextField entHoraIntervalo;
 	private JTextField entTempoIntervaloIntrajornada;
-	private JLabel lblQuantidadeHorasSemanais;
 	JLabel lblTipoRevezamento;
 	JComboBox cbTipoRevezamento;
 	private JTextField entDataInicialDeTrabalho;
 	private JPanel painelFolgas;
+	private JTextField entHoraEntradaSexta;
+	private JTextField entHoraSaidaSexta;
+	private JTextField entHoraEntradaSabado;
+	private JTextField entHoraSaidaSabado;
+	private JTextField entHoraEntrada2Sabado;
+	private JTextField entHoraSaida1Sabado;
 
 	public TelaFuncionariosCadastroJornadaTrabalho(CadastroFuncionario funcionario, Window janela_pai) {
 
@@ -191,11 +197,11 @@ public class TelaFuncionariosCadastroJornadaTrabalho extends JFrame {
 		// setModal(true);
 		isto = this;
 
-		setResizable(false);
+		setResizable(true);
 
 		setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 
-		setBounds(100, 100, 980, 704);
+		setBounds(100, 100, 1181, 704);
 
 		// configuracao de paineis
 		// painel pai
@@ -216,47 +222,51 @@ public class TelaFuncionariosCadastroJornadaTrabalho extends JFrame {
 		JPanel panel_3 = new JPanel();
 		painelDadosIniciais.add(panel_3);
 		panel_3.setBackground(Color.WHITE);
-		panel_3.setLayout(new MigLayout("", "[159px,grow][][][][12px][752px,grow]",
-				"[27px][][27px][][][65px,grow][33px][grow][][][][][236px][][][][]"));
+		panel_3.setLayout(new MigLayout("", "[grow][][159px,grow][][][][12px][][grow]", "[grow][][][][][grow][][grow][][][][][grow][][][][]"));
+
+		JPanel panel_2 = new JPanel();
+		panel_2.setBackground(Color.WHITE);
+		panel_3.add(panel_2, "cell 0 0 1 5,grow");
+		panel_2.setLayout(new MigLayout("", "[][][]", "[][][]"));
 
 		JLabel lblCpf = new JLabel("Contrato de Trabalho:");
-		panel_3.add(lblCpf, "cell 0 0,alignx right,aligny center");
+		panel_2.add(lblCpf, "cell 0 0,alignx right");
 		lblCpf.setHorizontalAlignment(SwingConstants.TRAILING);
 		lblCpf.setForeground(Color.BLACK);
 		lblCpf.setFont(new Font("Arial", Font.PLAIN, 16));
 		lblCpf.setBackground(Color.ORANGE);
 		lblCpf.setHorizontalAlignment(JLabel.RIGHT);
 
+		cbContratoTrabalho = new JComboBox();
+		panel_2.add(cbContratoTrabalho, "cell 1 0,growx");
 		cbContratosPersonalizados = new CombBoxRenderPersonalizadoContratoTrabalho();
 
-		cbContratoTrabalho = new JComboBox();
 		cbContratoTrabalho.setModel(modelContratos);
 		cbContratoTrabalho.setRenderer(cbContratosPersonalizados);
-
-		panel_3.add(cbContratoTrabalho, "cell 1 0 5 1,growx,aligny top");
 		cbContratoTrabalho.setFont(new Font("Arial", Font.BOLD, 14));
 
 		JLabel lblDataInicialDe = new JLabel("Data Inicial de Trabalho:");
+		panel_2.add(lblDataInicialDe, "cell 0 1,alignx right");
 		lblDataInicialDe.setHorizontalAlignment(SwingConstants.TRAILING);
 		lblDataInicialDe.setForeground(Color.BLACK);
 		lblDataInicialDe.setFont(new Font("Arial", Font.PLAIN, 16));
 		lblDataInicialDe.setBackground(Color.ORANGE);
-		panel_3.add(lblDataInicialDe, "cell 0 1");
 
 		entDataInicialDeTrabalho = new JTextField();
+		panel_2.add(entDataInicialDeTrabalho, "cell 1 1,growx");
 		entDataInicialDeTrabalho.setText("1");
 		entDataInicialDeTrabalho.setFont(new Font("SansSerif", Font.BOLD, 14));
 		entDataInicialDeTrabalho.setColumns(10);
-		panel_3.add(entDataInicialDeTrabalho, "cell 2 1 4 1,growx");
 
 		JLabel lblCargo = new JLabel("Tipo de Jornada:");
+		panel_2.add(lblCargo, "cell 0 2,alignx right");
 		lblCargo.setHorizontalAlignment(SwingConstants.TRAILING);
 		lblCargo.setForeground(Color.BLACK);
 		lblCargo.setFont(new Font("Arial", Font.PLAIN, 16));
 		lblCargo.setBackground(Color.ORANGE);
-		panel_3.add(lblCargo, "cell 0 2,alignx right,aligny center");
 
 		cBTipoJornadaTrabalho = new JComboBox();
+		panel_2.add(cBTipoJornadaTrabalho, "cell 1 2,growx");
 		cBTipoJornadaTrabalho.addItem("Turno Fixo");
 		cBTipoJornadaTrabalho.addItem("Turno Revezamento");
 		cBTipoJornadaTrabalho.addItemListener(new ItemListener() {
@@ -282,7 +292,7 @@ public class TelaFuncionariosCadastroJornadaTrabalho extends JFrame {
 
 					painelFolgas.setEnabled(false);
 					painelFolgas.setVisible(false);
-
+					
 				} else if (cBTipoJornadaTrabalho.getSelectedIndex() == 0) {
 					try {
 						panel_3.remove(lblTipoRevezamento);
@@ -299,12 +309,13 @@ public class TelaFuncionariosCadastroJornadaTrabalho extends JFrame {
 					cbTipoRevezamento = null;
 					painelFolgas.setEnabled(true);
 					painelFolgas.setVisible(true);
+					setPainelFds();
 				}
 
 			}
 		});
 		cBTipoJornadaTrabalho.setFont(new Font("Arial", Font.BOLD, 14));
-		panel_3.add(cBTipoJornadaTrabalho, "cell 1 2 5 1,growx,aligny top");
+
 
 		tabela_horarios = new JTable(modelHorarios);
 		tabela_horarios.setRowHeight(30);
@@ -315,41 +326,57 @@ public class TelaFuncionariosCadastroJornadaTrabalho extends JFrame {
 		JPanel panel = new JPanel();
 		panel.setBorder(null);
 		panel.setBackground(Color.WHITE);
-		panel_3.add(panel, "cell 0 5 6 1,alignx center,growy");
+		panel_3.add(panel, "cell 0 5 9 1,alignx center,growy");
 		panel.setLayout(new MigLayout("", "[grow][grow][grow][grow]", "[grow]"));
 
 		JPanel panel_1 = new JPanel();
 		panel_1.setBorder(new LineBorder(Color.BLACK));
 		panel_1.setBackground(Color.WHITE);
-		panel.add(panel_1, "cell 0 0,grow");
-		panel_1.setLayout(new MigLayout("", "[][grow][grow][][]", "[]"));
+		panel.add(panel_1, "cell 0 0 4 1,grow");
+		panel_1.setLayout(new MigLayout("", "[][grow][grow][][][][][]", "[][][][][][]"));
 
 		JLabel lblNewLabel = new JLabel("Hora da Entrada:");
 		lblNewLabel.setFont(new Font("SansSerif", Font.PLAIN, 16));
-		panel_1.add(lblNewLabel, "cell 0 0,alignx trailing");
+		panel_1.add(lblNewLabel, "cell 0 0,alignx right");
 
 		entHoraEntrada = new JTextField();
 		entHoraEntrada.setText("07:00");
-		panel_1.add(entHoraEntrada, "cell 1 0,growx");
+		panel_1.add(entHoraEntrada, "cell 1 0,alignx left");
 		entHoraEntrada.setColumns(10);
 
-		JPanel panel_1_1 = new JPanel();
-		panel_1_1.setBorder(new LineBorder(new Color(0, 0, 0)));
-		panel_1_1.setBackground(Color.WHITE);
-		panel.add(panel_1_1, "cell 1 0,grow");
-		panel_1_1.setLayout(new MigLayout("", "[][grow][][grow]", "[]"));
-
 		JLabel lblSada = new JLabel("Hora da Saída:");
+		panel_1.add(lblSada, "cell 2 0,alignx right");
 		lblSada.setFont(new Font("SansSerif", Font.PLAIN, 16));
-		panel_1_1.add(lblSada, "cell 0 0,alignx trailing");
 
 		entHoraSaida = new JTextField();
+		panel_1.add(entHoraSaida, "cell 3 0,alignx left");
 		entHoraSaida.setText("17:00");
 		entHoraSaida.setColumns(10);
-		panel_1_1.add(entHoraSaida, "cell 1 0,growx");
+
+		JLabel lblNewLabel_3 = new JLabel("Sexta:");
+		panel_1.add(lblNewLabel_3, "cell 0 1");
+		lblNewLabel_3.setFont(new Font("SansSerif", Font.BOLD, 14));
+
+		JLabel lblNewLabel_4 = new JLabel("Hora da Entrada:");
+		panel_1.add(lblNewLabel_4, "cell 0 2,alignx right");
+		lblNewLabel_4.setFont(new Font("SansSerif", Font.PLAIN, 16));
+
+		entHoraEntradaSexta = new JTextField();
+		panel_1.add(entHoraEntradaSexta, "cell 1 2,alignx left");
+		entHoraEntradaSexta.setText("07:00");
+		entHoraEntradaSexta.setColumns(10);
+
+		JLabel lblSada_2 = new JLabel("Hora da Saída:");
+		panel_1.add(lblSada_2, "cell 2 2,alignx right");
+		lblSada_2.setFont(new Font("SansSerif", Font.PLAIN, 16));
+
+		entHoraSaidaSexta = new JTextField();
+		panel_1.add(entHoraSaidaSexta, "cell 3 2,alignx left");
+		entHoraSaidaSexta.setText("17:00");
+		entHoraSaidaSexta.setColumns(10);
 
 		JPanel panel_1_1_1_1 = new JPanel();
-		panel_3.add(panel_1_1_1_1, "cell 0 6 6 1,alignx center");
+		panel_1.add(panel_1_1_1_1, "cell 0 3 4 1");
 		panel_1_1_1_1.setBorder(new LineBorder(new Color(0, 0, 0)));
 		panel_1_1_1_1.setBackground(Color.WHITE);
 		panel_1_1_1_1.setLayout(new MigLayout("", "[][grow][grow][][grow][]", "[][][]"));
@@ -360,13 +387,9 @@ public class TelaFuncionariosCadastroJornadaTrabalho extends JFrame {
 
 		entTempoIntervaloIntrajornada = new JTextField();
 		entTempoIntervaloIntrajornada.setFont(new Font("SansSerif", Font.BOLD, 14));
-		entTempoIntervaloIntrajornada.setText("1");
-		panel_1_1_1_1.add(entTempoIntervaloIntrajornada, "cell 1 0,growx");
+		entTempoIntervaloIntrajornada.setText("60");
+		panel_1_1_1_1.add(entTempoIntervaloIntrajornada, "flowx,cell 1 0,growx");
 		entTempoIntervaloIntrajornada.setColumns(10);
-
-		JLabel lblNewLabel_2 = new JLabel("Mínimo de 1 hora previsto por lei ");
-		panel_1_1_1_1.add(lblNewLabel_2, "cell 1 1");
-		lblNewLabel_2.setForeground(Color.RED);
 
 		JLabel lblSada_1 = new JLabel("Hora Saída para Intevalo:");
 		lblSada_1.setFont(new Font("SansSerif", Font.PLAIN, 16));
@@ -377,20 +400,57 @@ public class TelaFuncionariosCadastroJornadaTrabalho extends JFrame {
 		entHoraIntervalo.setColumns(10);
 		panel_1_1_1_1.add(entHoraIntervalo, "cell 2 2,growx");
 
-		JButton btnGerarEscala = new JButton("Gerar Escala");
-		btnGerarEscala.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
+		JLabel lblNewLabel_2_1 = new JLabel("minutos");
+		lblNewLabel_2_1.setFont(new Font("SansSerif", Font.BOLD, 16));
+		lblNewLabel_2_1.setForeground(Color.BLACK);
+		panel_1_1_1_1.add(lblNewLabel_2_1, "cell 1 0");
 
-				preencher_horarios();
-			}
-		});
+		JLabel lblNewLabel_3_1 = new JLabel("Sábado:");
+		panel_1.add(lblNewLabel_3_1, "cell 0 4");
+		lblNewLabel_3_1.setFont(new Font("SansSerif", Font.BOLD, 14));
+
+		JLabel lblNewLabel_4_1 = new JLabel("Hora da Entrada 1:");
+		panel_1.add(lblNewLabel_4_1, "cell 0 5,alignx right");
+		lblNewLabel_4_1.setFont(new Font("SansSerif", Font.PLAIN, 16));
+
+		entHoraEntradaSabado = new JTextField();
+		panel_1.add(entHoraEntradaSabado, "cell 1 5");
+		entHoraEntradaSabado.setText("DS");
+		entHoraEntradaSabado.setColumns(10);
+
+		JLabel lblNewLabel_4_1_1 = new JLabel("Hora da Saída 1:");
+		panel_1.add(lblNewLabel_4_1_1, "cell 2 5,alignx right");
+		lblNewLabel_4_1_1.setFont(new Font("SansSerif", Font.PLAIN, 16));
+
+		entHoraSaida1Sabado = new JTextField();
+		panel_1.add(entHoraSaida1Sabado, "cell 3 5");
+		entHoraSaida1Sabado.setText("DS");
+		entHoraSaida1Sabado.setColumns(10);
+
+		JLabel lblNewLabel_4_1_1_1 = new JLabel("Hora da Entrada 2:");
+		panel_1.add(lblNewLabel_4_1_1_1, "cell 4 5,alignx right");
+		lblNewLabel_4_1_1_1.setFont(new Font("SansSerif", Font.PLAIN, 16));
+
+		entHoraEntrada2Sabado = new JTextField();
+		panel_1.add(entHoraEntrada2Sabado, "cell 5 5");
+		entHoraEntrada2Sabado.setText("DS");
+		entHoraEntrada2Sabado.setColumns(10);
+
+		JLabel lblSada_2_1 = new JLabel("Hora da Saída 2:");
+		panel_1.add(lblSada_2_1, "cell 6 5,alignx right");
+		lblSada_2_1.setFont(new Font("SansSerif", Font.PLAIN, 16));
+
+		entHoraSaidaSabado = new JTextField();
+		panel_1.add(entHoraSaidaSabado, "cell 7 5");
+		entHoraSaidaSabado.setText("DS");
+		entHoraSaidaSabado.setColumns(10);
 
 		painelFolgas = new JPanel();
 		painelFolgas.setBackground(Color.WHITE);
-		panel_3.add(painelFolgas, "cell 0 7 6 1,alignx center,growy");
+		panel_3.add(painelFolgas, "cell 0 7 9 1,alignx center,growy");
 		painelFolgas.setLayout(new MigLayout("", "[][][][][][][][]", "[][]"));
 
-		JLabel lblNewLabel_1 = new JLabel("Folgas:");
+		JLabel lblNewLabel_1 = new JLabel("Descanso Semanal:");
 		lblNewLabel_1.setFont(new Font("SansSerif", Font.PLAIN, 16));
 		painelFolgas.add(lblNewLabel_1, "cell 0 0");
 
@@ -424,38 +484,69 @@ public class TelaFuncionariosCadastroJornadaTrabalho extends JFrame {
 		chkFolga[6].setFont(new Font("SansSerif", Font.PLAIN, 14));
 		painelFolgas.add(chkFolga[6], "cell 7 0");
 
-		JLabel lblAviso = new JLabel("Configure para que a jornada de trabalho não ultrapasse 44 horas semanais");
-		lblAviso.setForeground(Color.BLACK);
-		panel_3.add(lblAviso, "cell 5 10,alignx right");
+		JButton btnGerarEscala = new JButton("Gerar Escala");
+		btnGerarEscala.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+
+				preencher_horarios();
+			}
+		});
 
 		btnGerarEscala.setForeground(Color.WHITE);
 		btnGerarEscala.setFont(new Font("SansSerif", Font.BOLD, 16));
 		btnGerarEscala.setBackground(new Color(0, 0, 153));
-		panel_3.add(btnGerarEscala, "cell 5 11,alignx right,aligny top");
+		panel_3.add(btnGerarEscala, "cell 8 11,alignx right,aligny top");
 
-		panel_3.add(scrollPane, "cell 0 12 6 4,grow");
+		panel_3.add(scrollPane, "cell 0 12 9 4,grow");
 
 		JButton btnSalvar = new JButton("Salvar");
 		btnSalvar.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 
+				ArrayList<CadastroFuncionarioRotinaTrabalho> rotinas = modelHorarios.getList();
+				CadastroFuncionarioAdmissao ct = (CadastroFuncionarioAdmissao) modelContratos.getSelectedItem();
+				
+				for(CadastroFuncionarioRotinaTrabalho rotina : rotinas) {
+					rotina.setId_funcionario(funcionario.getId_funcionario());
+					rotina.setId_ct_trabalho(ct.getId_contrato());
+					rotina.setTipo_rotina(cBTipoJornadaTrabalho.getSelectedIndex());
+				}
+				
+				GerenciarBancoRotina gerenciar = new GerenciarBancoRotina();
+
+				boolean prosseguir = true;
+				for (CadastroFuncionarioRotinaTrabalho diaria : rotinas) {
+					if (prosseguir) {
+						diaria.setId_funcionario(funcionario.getId_funcionario());
+						int inseriu = gerenciar.inserir_rotina_trabalho(diaria);
+						if (inseriu > 0) {
+							prosseguir = true;
+						} else {
+							prosseguir = false;
+							break;
+						}
+					}
+				}
+
+				if (!prosseguir) {
+					JOptionPane.showMessageDialog(isto, "Erro ao Cadastrar Rotina\nConsulte o Administrador");
+				} else {
+					JOptionPane.showMessageDialog(isto, "Jornada de Trabalho Inserida");
+					((TelaGerenciarFuncionario) janela_pai).pesquisarRotinaTrabalho();
+					isto.dispose();
+
+				}
+
 			}
 		});
-
-		JLabel lblNewLabel_1_1 = new JLabel("Total Horas Semanais:");
-		lblNewLabel_1_1.setFont(new Font("SansSerif", Font.PLAIN, 16));
-		panel_3.add(lblNewLabel_1_1, "cell 0 16,alignx right");
-
-		lblQuantidadeHorasSemanais = new JLabel("0");
-		lblQuantidadeHorasSemanais.setFont(new Font("SansSerif", Font.BOLD, 16));
-		panel_3.add(lblQuantidadeHorasSemanais, "cell 1 16 4 1");
 
 		btnSalvar.setForeground(Color.WHITE);
 		btnSalvar.setBackground(new Color(0, 51, 0));
 		btnSalvar.setFont(new Font("SansSerif", Font.BOLD, 16));
-		panel_3.add(btnSalvar, "cell 5 16,alignx right,aligny top");
+		panel_3.add(btnSalvar, "cell 7 16 2 1,alignx right,aligny top");
 		painelCentral.setLayout(new BorderLayout(0, 0));
 
+		setPainelFds();
 		// configura widgets no painel finalizar
 		pesquisar_contratos();
 		adicionarFocus(isto.getComponents());
@@ -549,50 +640,126 @@ public class TelaFuncionariosCadastroJornadaTrabalho extends JFrame {
 				LocalDate data_inicial = LocalDate.parse(entDataInicialDeTrabalho.getText(),
 						DateTimeFormatter.ofPattern("dd/MM/yyyy"));
 
-				for (int i = 0; i <= 365; i++) {
+				for (int i = 0; i <= 6; i++) {
 
-					CadastroFuncionariosHorarios dia_da_semana = new CadastroFuncionariosHorarios();
+					CadastroFuncionarioRotinaTrabalho dia_da_semana = new CadastroFuncionarioRotinaTrabalho();
 
 					String strLocalDate2 = data_inicial.format(DateTimeFormatter.ofPattern("dd/MM/yyyy"));
 
-					dia_da_semana.setData_inicial_trabalho(strLocalDate2);
-					dia_da_semana.setDia_semana(data_inicial.getDayOfWeek().getValue());
+					dia_da_semana.setDia_da_semana(data_inicial.getDayOfWeek().getValue());
 					dia_da_semana.setHora_entrada1(hora_entrada1.toString());
 					dia_da_semana.setHora_saida1(hora_saida1.toString());
-
+					dia_da_semana.setData(strLocalDate2);
 					dia_da_semana.setHora_entrada2(hora_entrada2.toString());
 
 					dia_da_semana.setHora_saida2(hora_saida2.toString());
 
-					dia_da_semana.setTempo_intervalo(minutos_tempo_intervalo);
+					if (data_inicial.getDayOfWeek().getValue() == 1) {
+						if (chkFolga[0].isSelected()) {
+							dia_da_semana.setFolga(1);
+							dia_da_semana.setHora_entrada1("DESCANSO SEMANAL");
+							dia_da_semana.setHora_saida1("DESCANSO SEMANAL");
+							dia_da_semana.setHora_entrada2("DESCANSO SEMANAL");
+							dia_da_semana.setHora_saida2("DESCANSO SEMANAL");
 
-					if (data_inicial.getDayOfWeek().getValue() == 1 && chkFolga[0].isSelected()) {
-						dia_da_semana.setFolga(true);
+						}
 
-					} else if (data_inicial.getDayOfWeek().getValue() == 2 && chkFolga[1].isSelected()) {
+					} else if (data_inicial.getDayOfWeek().getValue() == 2) {
 
-						dia_da_semana.setFolga(true);
+						if (chkFolga[1].isSelected()) {
+							dia_da_semana.setFolga(1);
+							dia_da_semana.setHora_entrada1("DESCANSO SEMANAL");
+							dia_da_semana.setHora_saida1("DESCANSO SEMANAL");
+							dia_da_semana.setHora_entrada2("DESCANSO SEMANAL");
+							dia_da_semana.setHora_saida2("DESCANSO SEMANAL");
+						}
+					} else if (data_inicial.getDayOfWeek().getValue() == 3) {
 
-					} else if (data_inicial.getDayOfWeek().getValue() == 3 && chkFolga[2].isSelected()) {
+						if (chkFolga[2].isSelected()) {
+							dia_da_semana.setFolga(1);
+							dia_da_semana.setHora_entrada1("DESCANSO SEMANAL");
+							dia_da_semana.setHora_saida1("DESCANSO SEMANAL");
+							dia_da_semana.setHora_entrada2("DESCANSO SEMANAL");
+							dia_da_semana.setHora_saida2("DESCANSO SEMANAL");
+						}
+					} else if (data_inicial.getDayOfWeek().getValue() == 4) {
 
-						dia_da_semana.setFolga(true);
+						if (chkFolga[3].isSelected()) {
+							dia_da_semana.setFolga(1);
+							dia_da_semana.setHora_entrada1("DESCANSO SEMANAL");
+							dia_da_semana.setHora_saida1("DESCANSO SEMANAL");
+							dia_da_semana.setHora_entrada2("DESCANSO SEMANAL");
+							dia_da_semana.setHora_saida2("DESCANSO SEMANAL");
+						}
+					} else if (data_inicial.getDayOfWeek().getValue() == 5) {
+						// sexta
 
-					} else if (data_inicial.getDayOfWeek().getValue() == 4 && chkFolga[3].isSelected()) {
+						if (chkFolga[4].isSelected()) {
+							dia_da_semana.setFolga(1);
+							dia_da_semana.setHora_entrada1("DESCANSO SEMANAL");
+							dia_da_semana.setHora_saida1("DESCANSO SEMANAL");
+							dia_da_semana.setHora_entrada2("DESCANSO SEMANAL");
+							dia_da_semana.setHora_saida2("DESCANSO SEMANAL");
+						} else {
 
-						dia_da_semana.setFolga(true);
+							dia_da_semana.setHora_entrada1(entHoraEntradaSexta.getText());
+							dia_da_semana.setHora_saida2(entHoraSaidaSexta.getText());
 
-					} else if (data_inicial.getDayOfWeek().getValue() == 5 && chkFolga[4].isSelected()) {
+						}
+					} else if (data_inicial.getDayOfWeek().getValue() == 6) {
+						// sabado
 
-						dia_da_semana.setFolga(true);
+						if (chkFolga[5].isSelected() && (entHoraEntradaSabado.getText().equalsIgnoreCase("DS")
+								|| entHoraSaida1Sabado.getText().equalsIgnoreCase("DS"))) {
+							dia_da_semana.setFolga(1);
+							dia_da_semana.setHora_entrada1("DESCANSO SEMANAL");
+							dia_da_semana.setHora_saida1("DESCANSO SEMANAL");
+							dia_da_semana.setHora_entrada2("DESCANSO SEMANAL");
+							dia_da_semana.setHora_saida2("DESCANSO SEMANAL");
+						} else {
+							if (!entHoraEntradaSabado.getText().equalsIgnoreCase("DS")) {
+								dia_da_semana.setHora_entrada1(entHoraEntradaSabado.getText());
 
-					} else if (data_inicial.getDayOfWeek().getValue() == 6 && chkFolga[5].isSelected()) {
+							} else {
+								dia_da_semana.setHora_entrada1("DESCANSO SEMANAL");
 
-						dia_da_semana.setFolga(true);
+							}
 
-					} else if (data_inicial.getDayOfWeek().getValue() == 7 && chkFolga[6].isSelected()) {
+							if (!entHoraSaida1Sabado.getText().equalsIgnoreCase("DS")) {
+								dia_da_semana.setHora_saida1(entHoraSaida1Sabado.getText());
 
-						dia_da_semana.setFolga(true);
+							} else {
+								dia_da_semana.setHora_saida1("DESCANSO SEMANAL");
 
+							}
+
+							if (!entHoraEntrada2Sabado.getText().equalsIgnoreCase("DS")) {
+								dia_da_semana.setHora_entrada2(entHoraEntradaSexta.getText());
+
+							} else {
+								dia_da_semana.setHora_entrada2("DESCANSO SEMANAL");
+
+							}
+
+							if (!entHoraSaidaSabado.getText().equalsIgnoreCase("DS")) {
+								dia_da_semana.setHora_saida2(entHoraSaidaSabado.getText());
+
+							} else {
+								dia_da_semana.setHora_saida2("DESCANSO SEMANAL");
+
+							}
+							;
+
+						}
+					} else if (data_inicial.getDayOfWeek().getValue() == 7) {
+
+						if (chkFolga[6].isSelected()) {
+							dia_da_semana.setFolga(1);
+							dia_da_semana.setHora_entrada1("DESCANSO SEMANAL");
+							dia_da_semana.setHora_saida1("DESCANSO SEMANAL");
+							dia_da_semana.setHora_entrada2("DESCANSO SEMANAL");
+							dia_da_semana.setHora_saida2("DESCANSO SEMANAL");
+						}
 					} else {
 
 						try {
@@ -650,8 +817,6 @@ public class TelaFuncionariosCadastroJornadaTrabalho extends JFrame {
 
 			}
 
-			lblQuantidadeHorasSemanais.setText(Long.toString(quantidade_horas / 60));
-
 		} else if (cBTipoJornadaTrabalho.getSelectedIndex() == 1) {
 			long quantidade_horas = 0;
 			// turno normal
@@ -681,22 +846,21 @@ public class TelaFuncionariosCadastroJornadaTrabalho extends JFrame {
 				for (int j = 0; j <= 10; j++) {
 					for (int i = 0; i <= 6; i++) {
 
-						CadastroFuncionariosHorarios dia_da_semana = new CadastroFuncionariosHorarios();
+						CadastroFuncionarioRotinaTrabalho dia_da_semana = new CadastroFuncionarioRotinaTrabalho();
 
 						String strLocalDate2 = data_inicial.format(DateTimeFormatter.ofPattern("dd/MM/yyyy"));
 
-						dia_da_semana.setData_inicial_trabalho(strLocalDate2);
-						dia_da_semana.setDia_semana(data_inicial.getDayOfWeek().getValue());
+						dia_da_semana.setDia_da_semana(data_inicial.getDayOfWeek().getValue());
 						dia_da_semana.setHora_entrada1(hora_entrada1.toString());
 						dia_da_semana.setHora_saida1(hora_saida1.toString());
+						dia_da_semana.setData(strLocalDate2);
 
 						dia_da_semana.setHora_entrada2(hora_entrada2.toString());
 
 						dia_da_semana.setHora_saida2(hora_saida2.toString());
 
-						dia_da_semana.setTempo_intervalo(minutos_tempo_intervalo);
 						if (i == 5 || i == 6) {
-							dia_da_semana.setFolga(true);
+							dia_da_semana.setFolga(1);
 
 						} else {
 
@@ -756,8 +920,6 @@ public class TelaFuncionariosCadastroJornadaTrabalho extends JFrame {
 
 			}
 
-			lblQuantidadeHorasSemanais.setText(Long.toString(quantidade_horas / 60));
-
 		}
 
 	}
@@ -767,22 +929,26 @@ public class TelaFuncionariosCadastroJornadaTrabalho extends JFrame {
 		// constantes p/identificar colunas
 		private final int data = 0;
 
-		private final int movimentacao = 1;
+		private final int dia_semana = 1;
 
 		private final int hora1 = 2;
 		private final int hora2 = 3;
 		private final int hora3 = 4;
 		private final int hora4 = 5;
 
-		private final int coluna_hora = 0;
 
 		private final String colunas[] = { "DATA", "DIA DA SEMANA", "HORA ENTRADA 1", "HORA SAÍDA 1", "HORA ENTRADA 2",
 				"HORA SAÍDA 2" };
 		Locale ptBr = new Locale("pt", "BR");
 
-		private final ArrayList<CadastroFuncionariosHorarios> dados = new ArrayList<>();// usamos como dados uma lista
+		private final ArrayList<CadastroFuncionarioRotinaTrabalho> dados = new ArrayList<>();// usamos como dados uma
+																								// lista
 		// genérica de
 		// nfs
+
+		public ArrayList<CadastroFuncionarioRotinaTrabalho> getList() {
+			return dados;
+		}
 
 		public HorariosTableModel() {
 
@@ -806,7 +972,7 @@ public class TelaFuncionariosCadastroJornadaTrabalho extends JFrame {
 			switch (columnIndex) {
 			case data:
 				return String.class;
-			case movimentacao:
+			case dia_semana:
 				return String.class;
 			case hora1:
 				return String.class;
@@ -833,15 +999,15 @@ public class TelaFuncionariosCadastroJornadaTrabalho extends JFrame {
 			NumberFormat z = NumberFormat.getNumberInstance();
 
 			// pega o dados corrente da linha
-			CadastroFuncionariosHorarios dado = dados.get(rowIndex);
-
+			CadastroFuncionarioRotinaTrabalho dado = dados.get(rowIndex);
+			int folga = dado.getFolga();
 			// retorna o valor da coluna
 			switch (columnIndex) {
 			case data:
-				return dado.getData_inicial_trabalho();
-			case movimentacao: {
+				return dado.getData();
+			case dia_semana: {
 
-				int dia_semana = dado.getDia_semana();
+				int dia_semana = dado.getDia_da_semana();
 
 				if (dia_semana == 1) {
 					return "SEGUNDA-FEIRA";
@@ -865,38 +1031,38 @@ public class TelaFuncionariosCadastroJornadaTrabalho extends JFrame {
 
 			}
 			case hora1: {
-				if (!dado.isFolga())
+				if (folga == 0)
 					return dado.getHora_entrada1();
 				else {
-					return "FOLGA";
+					return "DESCANSO SEMANAL";
 				}
 
 			}
 			case hora2: {
-				if (!dado.isFolga())
+				if (folga == 0)
 
 					return dado.getHora_saida1();
 
 				else {
-					return "FOLGA";
+					return "DESCANSO SEMANAL";
 				}
 			}
 			case hora3: {
-				if (!dado.isFolga()) {
+				if (folga == 0) {
 
 					return dado.getHora_entrada2();
 				} else {
-					return "FOLGA";
+					return "DESCANSO SEMANAL";
 				}
 			}
 			case hora4: {
 
-				if (!dado.isFolga())
+				if (folga == 0)
 
 					return dado.getHora_saida2();
 
 				else {
-					return "FOLGA";
+					return "DESCANSO SEMANAL";
 				}
 
 			}
@@ -925,17 +1091,17 @@ public class TelaFuncionariosCadastroJornadaTrabalho extends JFrame {
 
 		@Override
 		public void setValueAt(Object aValue, int rowIndex, int columnIndex) {
-			CadastroFuncionariosHorarios recebimento = dados.get(rowIndex);
+			CadastroFuncionarioRotinaTrabalho recebimento = dados.get(rowIndex);
 
 			if (columnIndex == 1) {
-				if (String.valueOf(aValue).equalsIgnoreCase("FOLGA")) {
+				if (String.valueOf(aValue).equalsIgnoreCase("DS")) {
 					recebimento.setHora_entrada1(String.valueOf(aValue));
 					recebimento.setHora_saida1(String.valueOf(aValue));
 				} else
 					recebimento.setHora_entrada1(String.valueOf(aValue));
 
 			} else if (columnIndex == 2) {
-				if (String.valueOf(aValue).equalsIgnoreCase("FOLGA")) {
+				if (String.valueOf(aValue).equalsIgnoreCase("DS")) {
 
 					recebimento.setHora_saida1(String.valueOf(aValue));
 					recebimento.setHora_entrada1(String.valueOf(aValue));
@@ -944,7 +1110,7 @@ public class TelaFuncionariosCadastroJornadaTrabalho extends JFrame {
 
 			} else if (columnIndex == 3) {
 
-				if (String.valueOf(aValue).equalsIgnoreCase("FOLGA")) {
+				if (String.valueOf(aValue).equalsIgnoreCase("DS")) {
 
 					recebimento.setHora_entrada2(String.valueOf(aValue));
 					recebimento.setHora_saida2(String.valueOf(aValue));
@@ -954,7 +1120,7 @@ public class TelaFuncionariosCadastroJornadaTrabalho extends JFrame {
 
 			} else if (columnIndex == 4) {
 
-				if (String.valueOf(aValue).equalsIgnoreCase("FOLGA")) {
+				if (String.valueOf(aValue).equalsIgnoreCase("DS")) {
 
 					recebimento.setHora_saida2(String.valueOf(aValue));
 					recebimento.setHora_entrada2(String.valueOf(aValue));
@@ -976,7 +1142,7 @@ public class TelaFuncionariosCadastroJornadaTrabalho extends JFrame {
 		 * @param rowIndex
 		 * @return
 		 */
-		public CadastroFuncionariosHorarios getValue(int rowIndex) {
+		public CadastroFuncionarioRotinaTrabalho getValue(int rowIndex) {
 			return dados.get(rowIndex);
 		}
 
@@ -986,7 +1152,7 @@ public class TelaFuncionariosCadastroJornadaTrabalho extends JFrame {
 		 * @param empregado
 		 * @return
 		 */
-		public int indexOf(CadastroFuncionariosHorarios nota) {
+		public int indexOf(CadastroFuncionarioRotinaTrabalho nota) {
 			return dados.indexOf(nota);
 		}
 
@@ -995,7 +1161,7 @@ public class TelaFuncionariosCadastroJornadaTrabalho extends JFrame {
 		 * 
 		 * @param empregado
 		 */
-		public void onAdd(CadastroFuncionariosHorarios nota) {
+		public void onAdd(CadastroFuncionarioRotinaTrabalho nota) {
 			dados.add(nota);
 			fireTableRowsInserted(indexOf(nota), indexOf(nota));
 		}
@@ -1005,7 +1171,7 @@ public class TelaFuncionariosCadastroJornadaTrabalho extends JFrame {
 		 * 
 		 * @param dadosIn
 		 */
-		public void onAddAll(ArrayList<CadastroFuncionariosHorarios> dadosIn) {
+		public void onAddAll(ArrayList<CadastroFuncionarioRotinaTrabalho> dadosIn) {
 			dados.addAll(dadosIn);
 			fireTableDataChanged();
 		}
@@ -1025,7 +1191,7 @@ public class TelaFuncionariosCadastroJornadaTrabalho extends JFrame {
 		 * 
 		 * @param empregado
 		 */
-		public void onRemove(CadastroFuncionariosHorarios nota) {
+		public void onRemove(CadastroFuncionarioRotinaTrabalho nota) {
 			int indexBefore = indexOf(nota);// pega o indice antes de apagar
 			dados.remove(nota);
 			fireTableRowsDeleted(indexBefore, indexBefore);
@@ -1043,11 +1209,11 @@ public class TelaFuncionariosCadastroJornadaTrabalho extends JFrame {
 
 	public void re_preencher_horarios() {
 
-		ArrayList<CadastroFuncionariosHorarios> horarios = new ArrayList<>();
+		ArrayList<CadastroFuncionarioRotinaTrabalho> horarios = new ArrayList<>();
 
 		for (int i = 0; i < modelHorarios.getRowCount(); i++) {
 
-			CadastroFuncionariosHorarios horario = modelHorarios.getValue(i);
+			CadastroFuncionarioRotinaTrabalho horario = modelHorarios.getValue(i);
 
 			horarios.add(horario);
 
@@ -1057,11 +1223,11 @@ public class TelaFuncionariosCadastroJornadaTrabalho extends JFrame {
 
 			long quantidade_horas = 0;
 
-			for (CadastroFuncionariosHorarios horario : horarios) {
+			for (CadastroFuncionarioRotinaTrabalho horario : horarios) {
 
-				int tempo_intervalo = horario.getTempo_intervalo();
+				int tempo_intervalo = Integer.parseInt(entHoraIntervalo.getText());
 				LocalTime hora_entrada1, hora_saida1, hora_entrada2, hora_saida2;
-				boolean folga = horario.isFolga();
+				int folga = horario.getFolga();
 
 				try {
 
@@ -1070,7 +1236,7 @@ public class TelaFuncionariosCadastroJornadaTrabalho extends JFrame {
 					hora_entrada2 = LocalTime.parse(horario.getHora_entrada2(), DateTimeFormatter.ofPattern("HH:mm"));
 					hora_saida2 = LocalTime.parse(horario.getHora_saida2(), DateTimeFormatter.ofPattern("HH:mm"));
 
-					if (!folga) {
+					if (folga == 0) {
 						SimpleDateFormat format = new SimpleDateFormat("HH:mm");
 
 						Date date1 = format.parse(hora_entrada1.toString());
@@ -1153,9 +1319,11 @@ public class TelaFuncionariosCadastroJornadaTrabalho extends JFrame {
 
 			}
 
-			lblQuantidadeHorasSemanais.setText(Long.toString(quantidade_horas / 60));
-
 		}
+
+	}
+
+	public void setPainelFds() {
 
 	}
 

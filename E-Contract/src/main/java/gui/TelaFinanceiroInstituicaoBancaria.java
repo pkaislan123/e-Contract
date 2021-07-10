@@ -291,7 +291,9 @@ public class TelaFinanceiroInstituicaoBancaria extends JFrame {
 					else if(retorno_tela == 11) {
 						((TelaFinanceiroCadastroTransferencia) janela_pai).setDestinatario(getIBSelecionado());
 
-				}
+					}else if(retorno_tela == 5) {
+						((TelaFinanceiroCadastroParcelaEmprestimo) janela_pai).setPagador(getIBSelecionado());
+					}
 					isto.dispose();
 
 				}
@@ -346,7 +348,7 @@ public class TelaFinanceiroInstituicaoBancaria extends JFrame {
 		lista_ibs.clear();
 		modelo_ibs.onRemoveAll();
 		
-		lista_ibs = gerenciar.getInstituicoesBancarias();
+		lista_ibs = gerenciar.getInstituicoesBancariasMaisRapido();
 		for(InstituicaoBancaria ib : lista_ibs) {
 			modelo_ibs.onAdd(ib);
 		}
@@ -412,22 +414,9 @@ public class TelaFinanceiroInstituicaoBancaria extends JFrame {
 			// retorna o valor conforme a coluna e linha
 			Locale ptBr = new Locale("pt", "BR");
 			NumberFormat z = NumberFormat.getNumberInstance();
-			CadastroCliente cliente_selecionado = null;
-			 ContaBancaria cc = null;
 			// pega o dados corrente da linha
 			InstituicaoBancaria ib = dados.get(rowIndex);
-			if(ib.getId_cliente() > 0) {
-				cliente_selecionado = new GerenciarBancoClientes().getCliente(ib.getId_cliente());
-				if(cliente_selecionado != null) {
-					
-					
-				if(ib.getId_conta() > 0) {
-					    cc =  new GerenciarBancoClientes().getConta(ib.getId_conta());
-				 	
-					
-				}
-			  }
-			}
+			
 
 			// retorna o valor da coluna
 			switch (columnIndex) {
@@ -438,17 +427,12 @@ public class TelaFinanceiroInstituicaoBancaria extends JFrame {
 
 			}
 			case cliente: {
-				if(cliente_selecionado != null) {
-				if (cliente_selecionado.getTipo_pessoa() == 0) // pessoa fisica
-				 return cliente_selecionado.getNome_empresarial();
-				else
-					return cliente_selecionado.getNome_fantaia();
-				}
+				 return ib.getNome_cliente();
 			}
 			case conta: {
-				 if(cc != null) {
-					return "Banco: " + cc.getBanco() + " Ag: " + cc.getAgencia() + " CC: " + cc.getConta();
-				 }
+				
+				return "Banco: " + ib.getCc_banco() + " Ag: " + ib.getCc_agencia() + " CC: " + ib.getCc_conta();
+				 
 
 			}
 			
