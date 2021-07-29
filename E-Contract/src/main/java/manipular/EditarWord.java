@@ -427,13 +427,10 @@ public class EditarWord {
 	  	     
 	  	     //adicionar clausula de comissão
 	  	     
-	  	     if(novo_contrato.getComissao() == 1) {
 	  	    	 //tem comissao
-	  	    	 if(novo_contrato.getClausula_comissao() == 1) {
+	  	    	 if(novo_contrato.getCriar_clausula_comissao() == 1) {
 	  	    		 
-	  	    		 //pega a 3 clausula, sendo ela a clausula de comissao
-	  	    		 ArrayList<String> clausulas_locais = novo_contrato.getClausulas();
-	  	    		 String clausula_comissao = clausulas_locais.get(2);
+	  	    		 String clausula_comissao = novo_contrato.getClausula_comissao();
 	  	    		
 	  	    		  	  	    		 
 	  	    	 if(tem_clausula_frete &&  tem_clausula_armazenagem && tem_clausula_fundo_rural) {
@@ -494,11 +491,13 @@ public class EditarWord {
 	  	    			 substituirTexto("[5.3.] [DA] [COMISSÃO]: \n" +  clausula_comissao);
 
 	  	    	 }
+	  	    	 
 	  	    	 }
-	  	     }
+	  	     
+	  	   
 	  	     
 	  	  if(novo_contrato.getTipo_entrega() == 1)   
-		substituirTextoLongo();
+		  substituirTextoLongo();
 	  	  else
 	  		substituirTextoLongoTipoEntrega2();
 
@@ -1246,12 +1245,29 @@ public class EditarWord {
 		String ie = "";
 		try {
 
+			if(cliente.getIe().length() > 9){
 			
 			MaskFormatter formater_ie = new MaskFormatter("#########.##-##");
 			formater_ie.setValueContainsLiteralCharacters(false);
 			ie = formater_ie.valueToString(cliente.getIe());
+			}else {
+				MaskFormatter formater_ie_go;
+				try {
+					formater_ie_go = new MaskFormatter("##.###.###-#");
+					formater_ie_go.setValueContainsLiteralCharacters(false);
+					ie = formater_ie_go.valueToString(cliente.getIe());
+				} catch (ParseException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				}
+			
 
+			}
 		} catch (Exception e) {
+			
+		
+			
+			
 		}
 
 		XWPFRun adicionalIErun = parte.createRun();
@@ -1478,50 +1494,58 @@ public class EditarWord {
 	
 	
 	public void substituirTextoLongo() {
-		substituirTexto("[7.] [Disposições] [Gerais.]\r\n"
+		
+		  int i = 7;
+	  	    for(String clausula : novo_contrato.getClausulas()) {
+	  	    	substituirTexto("[" + i + ".] " + clausula);
+	  	    	i++;
+	  	    	
+	  	    }
+
+		substituirTexto("[" + i + ".] [Disposições] [Gerais.]\r\n"
 				+ "O [Vendedor] é responsável pela manutenção e conservação do [Produto], bem como pela sua adequação às [Especificações], até sua entrega ao Comprador nos termos deste [Contrato], e responderá civil e criminalmente por eventual desvio, correndo por sua conta exclusiva todos os custos e riscos inerentes à sua produção, inclusive o risco do [Produto] não vir a existir em razão de pragas, intempéries, caso fortuito ou motivo de força maior.\r\n"
 				+ 
-				 "[7.1.] Se o [Vendedor], por qualquer motivo, deixar de colher, carregar ou transportar o [Produto] no tempo e condições previstas neste [Contrato], fica facultado ao [Comprador] realizar estes serviços, por si ou por terceiros, suprindo assim a omissão do [[Vendedor]]. Nessa hipótese, o [Vendedor] deverá pagar ao Comprador todos os valores por ela ([Compradora]) incorridos com estas atividades, acrescidos de 20% (vinte por cento) a título de taxa de administração, atualização monetária pelo IGPM-FGV e juros de 1% (um por cento) ao mês, calculados “pro rata die” desde a data de sua inocorrência pelo [Comprador] até o seu efetivo reembolso pelo [Vendedor], o que constituirá crédito líquido, certo e exigível do [Comprador] contra o [Vendedor].\r\n"
+				 "[" + i + ".1.] Se o [Vendedor], por qualquer motivo, deixar de colher, carregar ou transportar o [Produto] no tempo e condições previstas neste [Contrato], fica facultado ao [Comprador] realizar estes serviços, por si ou por terceiros, suprindo assim a omissão do [[Vendedor]]. Nessa hipótese, o [Vendedor] deverá pagar ao Comprador todos os valores por ela ([Compradora]) incorridos com estas atividades, acrescidos de 20% (vinte por cento) a título de taxa de administração, atualização monetária pelo IGPM-FGV e juros de 1% (um por cento) ao mês, calculados “pro rata die” desde a data de sua inocorrência pelo [Comprador] até o seu efetivo reembolso pelo [Vendedor], o que constituirá crédito líquido, certo e exigível do [Comprador] contra o [Vendedor].\r\n"
 				+ 
-				 "[7.2.] Os seguintes eventos acarretarão o vencimento antecipado de todas as obrigações atribuídas ao [Vendedor] no presente [Contrato], de forma automática e independentemente de qualquer formalidade ou notificação: \r\n"
+				 "[" + i + ".2.] Os seguintes eventos acarretarão o vencimento antecipado de todas as obrigações atribuídas ao [Vendedor] no presente [Contrato], de forma automática e independentemente de qualquer formalidade ou notificação: \r\n"
 				+ "[(i)] o descumprimento, pelo [Vendedor], de qualquer das obrigações estabelecidas neste [Contrato] ou em quaisquer outros contratos firmados entre o [Comprador] e o [Vendedor]; (ii) a verificação, pelo [Comprador], de que o [Vendedor] não realizou o plantio ou não adotou os corretos e adequados tratos das lavouras cuja produção deveria ser entregue em regular cumprimento às suas obrigações no presente[ Contrato]; ou ([iii]) a constatação, pelo [Comprador], de que o [Vendedor] realizou o desvio e/ou a entrega a terceiros de qualquer quantidade do [Produto].\r\n"
 				+ 
-				 "[7.3.] A instituição prévia, concomitante ou posterior à celebração deste [Contrato] de ônus, gravames ou constrições sobre o [Produto] sobrestará o vencimento da obrigação de pagamento do [Preço] até a apresentação, pelo [Vendedor] ao [Comprador], de prova definitiva da respectiva desoneração.\r\n"
+				 "[" + i + ".3.] A instituição prévia, concomitante ou posterior à celebração deste [Contrato] de ônus, gravames ou constrições sobre o [Produto] sobrestará o vencimento da obrigação de pagamento do [Preço] até a apresentação, pelo [Vendedor] ao [Comprador], de prova definitiva da respectiva desoneração.\r\n"
 				+ 
-				 "[7.3.1.] Caso não haja a eliminação dos ônus, gravames ou constrições existentes sobre o [Produto] no prazo de 5 (cinco) dias contado a partir da [Data] [de] [Entrega], restará caracterizado o inadimplemento contratual do [Vendedor], hipótese em que o [Comprador] poderá rescindir este [Contrato] total ou parcialmente, sujeitando-se o [Vendedor] às multas e penalidades previstas na cláusula [08].\r\n"
+				 "[" + i + ".3.1.] Caso não haja a eliminação dos ônus, gravames ou constrições existentes sobre o [Produto] no prazo de 5 (cinco) dias contado a partir da [Data] [de] [Entrega], restará caracterizado o inadimplemento contratual do [Vendedor], hipótese em que o [Comprador] poderá rescindir este [Contrato] total ou parcialmente, sujeitando-se o [Vendedor] às multas e penalidades previstas na cláusula [08].\r\n"
 				+ 
-				 "[7.4.] As [Partes] declaram e aceitam, em caráter irrevogável e irretratável, que a ocorrência de grandes aumentos ou reduções das cotações e preços do [Produto] no mercado interno ou externo, assim como a incidência de pragas, doenças, intempéries ou variações climáticas nas lavouras onde será produzido o [Produto], são fatos absolutamente previsíveis, ordinários e inerentes à atividade agropecuária e ao agronegócio, e em nenhuma hipótese motivarão a resolução do presente [Contrato] ou a revisão de qualquer das obrigações aqui atribuídas às [Partes].\r\n"
+				 "[" + i + ".4.] As [Partes] declaram e aceitam, em caráter irrevogável e irretratável, que a ocorrência de grandes aumentos ou reduções das cotações e preços do [Produto] no mercado interno ou externo, assim como a incidência de pragas, doenças, intempéries ou variações climáticas nas lavouras onde será produzido o [Produto], são fatos absolutamente previsíveis, ordinários e inerentes à atividade agropecuária e ao agronegócio, e em nenhuma hipótese motivarão a resolução do presente [Contrato] ou a revisão de qualquer das obrigações aqui atribuídas às [Partes].\r\n"
 				+ 
-				 "[08.] [Multas] [e] [Penalidades].\r\n"
+				 "[" + (i + 1) +".] [Multas] [e] [Penalidades].\r\n"
 				+ 
-				 "[08.1.] No caso de infração de quaisquer cláusulas deste [Contrato], ficará facultado à parte prejudicada o direito de, cumulativamente:\r\n"
+				 "No caso de infração de quaisquer cláusulas deste [Contrato], ficará facultado à parte prejudicada o direito de, cumulativamente:\r\n"
 				+ "[(i)] exigir da parte inadimplente a restituição dos valores pagos antecipadamente, acrescidos de atualização monetária e juros, na forma da cláusula [08.1.1];\r\n"
 				+ "[(ii)] considerar o presente [Contrato] rescindido de pleno direito, total ou parcialmente, independentemente de notificação ou interpelação;\r\n"
 				+ "[(iii)] exigir da parte inadimplente o pagamento de multa não compensatória de 15% (quinze por cento) do valor total deste [Contrato], calculado pela multiplicação da [Quantidade] pelo [Preço];\r\n"
 				+ "(iv) exigir da parte inadimplente indenização das perdas e danos efetivamente incorridos, respeitados os valores mínimos estabelecidos na cláusula [08.1.2].\r\n"
 				+ 
-				 "[09.1.1.] Em se tratando de inadimplência de obrigações de pagamento, ficará ainda sujeita a parte inadimplente ao pagamento de juros de mora de 1% ao mês e atualizações monetárias pela variação do IGPM-FGV (Índice Geral de Preços de Mercado – Fundação Getúlio Vargas) calculados “pro rata die” entre a data do vencimento da obrigação e a data do efetivo pagamento. Considerar-se-á, também, rescindido de pleno direito o presente [Contrato], no caso de impetração, requerimento ou decretação de falência, insolvência, recuperação ou liquidação judicial ou extrajudicial do [Vendedor]. Na hipótese de extinção do IGPM-FGV aplicar-se-á o seu substituto na forma da lei e, se não existir substituto, será aplicado o índice Geral de Preços ao Consumidor (IPC) editado pela Fundação Instituto de Pesquisa Econômica (FIPE).\r\n"
+				 "[" + (i + 1) + ".1.1.] Em se tratando de inadimplência de obrigações de pagamento, ficará ainda sujeita a parte inadimplente ao pagamento de juros de mora de 1% ao mês e atualizações monetárias pela variação do IGPM-FGV (Índice Geral de Preços de Mercado – Fundação Getúlio Vargas) calculados “pro rata die” entre a data do vencimento da obrigação e a data do efetivo pagamento. Considerar-se-á, também, rescindido de pleno direito o presente [Contrato], no caso de impetração, requerimento ou decretação de falência, insolvência, recuperação ou liquidação judicial ou extrajudicial do [Vendedor]. Na hipótese de extinção do IGPM-FGV aplicar-se-á o seu substituto na forma da lei e, se não existir substituto, será aplicado o índice Geral de Preços ao Consumidor (IPC) editado pela Fundação Instituto de Pesquisa Econômica (FIPE).\r\n"
 				+ 
-				"[08.1.2.] Fica convencionado entre as [Partes], em caráter irrevogável e irretratável, que o valor mínimo da indenização por perdas e danos devida pela [Parte] inadimplente à [Parte] inocente, nos termos do disposto no item [(iv)] da cláusula [08.1], nunca será inferior ao maior valor dentre os seguintes:\r\n"
+				"[" + (i + 1) + ".1.2.] Fica convencionado entre as [Partes], em caráter irrevogável e irretratável, que o valor mínimo da indenização por perdas e danos devida pela [Parte] inadimplente à [Parte] inocente, nos termos do disposto no item [(iv)] da cláusula [08.1], nunca será inferior ao maior valor dentre os seguintes:\r\n"
 				+ "[(i)] 20% (vinte por cento) [Preço] da quantidade de [Produto] não entregue pelo [Vendedor] ao [Comprador] nos termos deste [Contrato]; ou\r\n"
 				+ "[(ii)] O valor correspondente à diferença entre o preço de mercado do [Produto] não entregue e o [Preço] estabelecido na forma do presente [Contrato]. O preço de mercado da quantidade de [Produto] não entregue será equivalente à média dos preços de compra do [Produto] que estiverem sendo praticados, no [Local] [de] [Entrega], na [Data] [de] [Entrega], pelo [Comprador] e pelas seguintes empresas, desde que operem no [Local] [de] [Entrega]: Cargill, Bunge, ADM e Cocari.\r\n"
 				+ 
-				 "[08.2.] Na hipótese de uma das [Partes] ver-se obrigada a recorrer aos meios judiciais para fazer valer o presente [Contrato], além da multa penal, das perdas e danos e da restituição das importâncias eventualmente antecipadas, acrescidas dos juros e correção monetária previstos na cláusula [08.1.1], a [Parte] inadimplente ficará sujeito ao pagamento das custas e despesas judiciais incorridas pela outra [Parte], bem como honorários advocatícios desde já fixados em 20% do montante devido.\r\n"
+				 "[" + (i + 1) + ".2.] Na hipótese de uma das [Partes] ver-se obrigada a recorrer aos meios judiciais para fazer valer o presente [Contrato], além da multa penal, das perdas e danos e da restituição das importâncias eventualmente antecipadas, acrescidas dos juros e correção monetária previstos na cláusula [08.1.1], a [Parte] inadimplente ficará sujeito ao pagamento das custas e despesas judiciais incorridas pela outra [Parte], bem como honorários advocatícios desde já fixados em 20% do montante devido.\r\n"
 				+ 
-				 "[08.3.] Não constituirão inadimplência deste [Contrato]: [(i)] eventuais atrasos bancários alheios à vontade do [Comprador]; [(ii)] o não pagamento do [Preço] em decorrência do descumprimento, pelo [Vendedor], de quaisquer das obrigações a ele atribuídas no presente [Contrato].\r\n"
+				 "[" + (i + 1) + ".3.] Não constituirão inadimplência deste [Contrato]: [(i)] eventuais atrasos bancários alheios à vontade do [Comprador]; [(ii)] o não pagamento do [Preço] em decorrência do descumprimento, pelo [Vendedor], de quaisquer das obrigações a ele atribuídas no presente [Contrato].\r\n"
 				+ 
-				 "[09.] [Disposições] [Finais].\r\n"
+				 "[" + (i + 2) + ".] [Disposições] [Finais].\r\n"
 				+ "O presente [Contrato] constitui título executivo nos termos do artigo 585, inciso II, do Código de Processo Civil, considerando-se líquidos, certos e exigíveis todos os valores dele decorrentes, inclusive e em especial os montantes que venham a ser devidos pelo [Vendedor] nos termos das cláusulas [08.1] a [08.2] retro, desistindo desde já este último, em caráter irrevogável e irretratável, de qualquer processo especial de verificação de ditos montantes, bastando para sua comprovação os comprovantes dos pagamentos efetuados pelo [Comprador] ou um demonstrativo sintético da composição da dívida.\r\n"
 				+ 
-				"[09.1.] É vedado ao [Vendedor] ceder, dar em garantia, securitizar, transferir a terceiros ou emitir ou sacar títulos representativos de quaisquer créditos que detenha contra o [Comprador] e que sejam relacionados ao presente Contrato, sem a prévia e expressa autorização escrita do [Comprador]. Qualquer cessão realizada em descumprimento desta obrigação será considerada nula de pleno direito, sendo considerados regularmente realizados e liberatórios da obrigação de pagamento do [Comprador] todos os pagamentos feitos pelo [Comprador] diretamente ao [Vendedor] nos termos deste [Contrato]. O [Comprador] fica desde já autorizado pelo Vendedor a ceder ou transferir os direitos ou obrigações decorrentes deste [Contrato] a quaisquer terceiros, mediante simples comunicação escrita ao [Vendedor].\r\n"
+				"[" + (i + 2) + ".1.] É vedado ao [Vendedor] ceder, dar em garantia, securitizar, transferir a terceiros ou emitir ou sacar títulos representativos de quaisquer créditos que detenha contra o [Comprador] e que sejam relacionados ao presente Contrato, sem a prévia e expressa autorização escrita do [Comprador]. Qualquer cessão realizada em descumprimento desta obrigação será considerada nula de pleno direito, sendo considerados regularmente realizados e liberatórios da obrigação de pagamento do [Comprador] todos os pagamentos feitos pelo [Comprador] diretamente ao [Vendedor] nos termos deste [Contrato]. O [Comprador] fica desde já autorizado pelo Vendedor a ceder ou transferir os direitos ou obrigações decorrentes deste [Contrato] a quaisquer terceiros, mediante simples comunicação escrita ao [Vendedor].\r\n"
 				+ 
-				 "[09.2.] A tolerância, por qualquer das [Partes], em relação ao descumprimento de quaisquer dos compromissos recíprocos aqui avençados, constituirá mera liberalidade e não poderá de forma alguma ser caracterizada como novação ou precedente invocável pela outra parte.\r\n"
+				 "[" + (i + 2) + ".2.] A tolerância, por qualquer das [Partes], em relação ao descumprimento de quaisquer dos compromissos recíprocos aqui avençados, constituirá mera liberalidade e não poderá de forma alguma ser caracterizada como novação ou precedente invocável pela outra parte.\r\n"
 				+ 
-				"[09.3.] O presente [Contrato] é celebrado em caráter irrevogável e irretratável, perfeito e acabado, o qual obriga não só as [Partes] ora contratantes, como também seus herdeiros e/ou sucessores a qualquer título.\r\n"
+				 "[" + (i + 2) + ".3.] O presente [Contrato] é celebrado em caráter irrevogável e irretratável, perfeito e acabado, o qual obriga não só as [Partes] ora contratantes, como também seus herdeiros e/ou sucessores a qualquer título.\r\n"
 				+ 
-				"[09.4.] Todas as obrigações atribuídas ao [Comprador] ao abrigo do presente [Contrato] poderão ser adimplidas por meio de compensação, independentemente de prestação de contas e nos termos dos artigos 368 e seguintes do Código Civil. \r\n"
+				 "[" + (i + 2) + ".4.] Todas as obrigações atribuídas ao [Comprador] ao abrigo do presente [Contrato] poderão ser adimplidas por meio de compensação, independentemente de prestação de contas e nos termos dos artigos 368 e seguintes do Código Civil. \r\n"
 				+ 
-				 "[09.5.] Para dirimir quaisquer questões decorrentes deste [Contrato], as [Partes] elegem o foro da Comarca de Vazante, Estado de Minas Gerais, renunciando qualquer outro, por mais privilegiado que seja. \r\n"
+				 "[" + (i + 2) +  ".5.] Para dirimir quaisquer questões decorrentes deste [Contrato], as [Partes] elegem o foro da Comarca de Vazante, Estado de Minas Gerais, renunciando qualquer outro, por mais privilegiado que seja. \r\n"
 				+ 
 				"E por estarem assim justas e contratadas, firmam as [Partes] o presente instrumento em 2 (duas) vias de igual teor e forma, na presença de 2 (duas) testemunha.\r\n"
 				);
@@ -1529,50 +1553,59 @@ public class EditarWord {
 	
 	
 	public void substituirTextoLongoTipoEntrega2() {
-		substituirTexto("[6.] [Disposições] [Gerais.]\r\n"
+		
+		 
+		  int i = 6;
+	  	    for(String clausula : novo_contrato.getClausulas()) {
+	  	    	substituirTexto("[" + i + ".] " + clausula);
+	  	    	i++;
+	  	    	
+	  	    }
+		
+		substituirTexto("[" + i + ".] [Disposições] [Gerais.]\r\n"
 				+ "O [Vendedor] é responsável pela manutenção e conservação do [Produto], bem como pela sua adequação às [Especificações], até sua entrega ao Comprador nos termos deste [Contrato], e responderá civil e criminalmente por eventual desvio, correndo por sua conta exclusiva todos os custos e riscos inerentes à sua produção, inclusive o risco do [Produto] não vir a existir em razão de pragas, intempéries, caso fortuito ou motivo de força maior.\r\n"
 				+ 
-				 "[6.1.] Se o [Vendedor], por qualquer motivo, deixar de colher, carregar ou transportar o [Produto] no tempo e condições previstas neste [Contrato], fica facultado ao [Comprador] realizar estes serviços, por si ou por terceiros, suprindo assim a omissão do [[Vendedor]]. Nessa hipótese, o [Vendedor] deverá pagar ao Comprador todos os valores por ela ([Compradora]) incorridos com estas atividades, acrescidos de 20% (vinte por cento) a título de taxa de administração, atualização monetária pelo IGPM-FGV e juros de 1% (um por cento) ao mês, calculados “pro rata die” desde a data de sua inocorrência pelo [Comprador] até o seu efetivo reembolso pelo [Vendedor], o que constituirá crédito líquido, certo e exigível do [Comprador] contra o [Vendedor].\r\n"
+				 "[" + i + ".1.] Se o [Vendedor], por qualquer motivo, deixar de colher, carregar ou transportar o [Produto] no tempo e condições previstas neste [Contrato], fica facultado ao [Comprador] realizar estes serviços, por si ou por terceiros, suprindo assim a omissão do [[Vendedor]]. Nessa hipótese, o [Vendedor] deverá pagar ao Comprador todos os valores por ela ([Compradora]) incorridos com estas atividades, acrescidos de 20% (vinte por cento) a título de taxa de administração, atualização monetária pelo IGPM-FGV e juros de 1% (um por cento) ao mês, calculados “pro rata die” desde a data de sua inocorrência pelo [Comprador] até o seu efetivo reembolso pelo [Vendedor], o que constituirá crédito líquido, certo e exigível do [Comprador] contra o [Vendedor].\r\n"
 				+ 
-				 "[6.2.] Os seguintes eventos acarretarão o vencimento antecipado de todas as obrigações atribuídas ao [Vendedor] no presente [Contrato], de forma automática e independentemente de qualquer formalidade ou notificação: \r\n"
+				 "[" + i +".2.] Os seguintes eventos acarretarão o vencimento antecipado de todas as obrigações atribuídas ao [Vendedor] no presente [Contrato], de forma automática e independentemente de qualquer formalidade ou notificação: \r\n"
 				+ "[(i)] o descumprimento, pelo [Vendedor], de qualquer das obrigações estabelecidas neste [Contrato] ou em quaisquer outros contratos firmados entre o [Comprador] e o [Vendedor]; (ii) a verificação, pelo [Comprador], de que o [Vendedor] não realizou o plantio ou não adotou os corretos e adequados tratos das lavouras cuja produção deveria ser entregue em regular cumprimento às suas obrigações no presente[ Contrato]; ou ([iii]) a constatação, pelo [Comprador], de que o [Vendedor] realizou o desvio e/ou a entrega a terceiros de qualquer quantidade do [Produto].\r\n"
 				+ 
-				 "[6.3.] A instituição prévia, concomitante ou posterior à celebração deste [Contrato] de ônus, gravames ou constrições sobre o [Produto] sobrestará o vencimento da obrigação de pagamento do [Preço] até a apresentação, pelo [Vendedor] ao [Comprador], de prova definitiva da respectiva desoneração.\r\n"
+				 "[" + i + ".3.] A instituição prévia, concomitante ou posterior à celebração deste [Contrato] de ônus, gravames ou constrições sobre o [Produto] sobrestará o vencimento da obrigação de pagamento do [Preço] até a apresentação, pelo [Vendedor] ao [Comprador], de prova definitiva da respectiva desoneração.\r\n"
 				+ 
-				 "[6.3.1.] Caso não haja a eliminação dos ônus, gravames ou constrições existentes sobre o [Produto] no prazo de 5 (cinco) dias contado a partir da [Data] [de] [Entrega], restará caracterizado o inadimplemento contratual do [Vendedor], hipótese em que o [Comprador] poderá rescindir este [Contrato] total ou parcialmente, sujeitando-se o [Vendedor] às multas e penalidades previstas na cláusula [08].\r\n"
+				 "[" + i +".3.1.] Caso não haja a eliminação dos ônus, gravames ou constrições existentes sobre o [Produto] no prazo de 5 (cinco) dias contado a partir da [Data] [de] [Entrega], restará caracterizado o inadimplemento contratual do [Vendedor], hipótese em que o [Comprador] poderá rescindir este [Contrato] total ou parcialmente, sujeitando-se o [Vendedor] às multas e penalidades previstas na cláusula [08].\r\n"
 				+ 
-				 "[6.4.] As [Partes] declaram e aceitam, em caráter irrevogável e irretratável, que a ocorrência de grandes aumentos ou reduções das cotações e preços do [Produto] no mercado interno ou externo, assim como a incidência de pragas, doenças, intempéries ou variações climáticas nas lavouras onde será produzido o [Produto], são fatos absolutamente previsíveis, ordinários e inerentes à atividade agropecuária e ao agronegócio, e em nenhuma hipótese motivarão a resolução do presente [Contrato] ou a revisão de qualquer das obrigações aqui atribuídas às [Partes].\r\n"
+				 "[" + i + ".4.] As [Partes] declaram e aceitam, em caráter irrevogável e irretratável, que a ocorrência de grandes aumentos ou reduções das cotações e preços do [Produto] no mercado interno ou externo, assim como a incidência de pragas, doenças, intempéries ou variações climáticas nas lavouras onde será produzido o [Produto], são fatos absolutamente previsíveis, ordinários e inerentes à atividade agropecuária e ao agronegócio, e em nenhuma hipótese motivarão a resolução do presente [Contrato] ou a revisão de qualquer das obrigações aqui atribuídas às [Partes].\r\n"
 				+ 
-				 "[7.] [Multas] [e] [Penalidades].\r\n"
+				 "[" + (i + 1) + ".] [Multas] [e] [Penalidades].\r\n"
 				+ 
-				 "[7.1.] No caso de infração de quaisquer cláusulas deste [Contrato], ficará facultado à parte prejudicada o direito de, cumulativamente:\r\n"
+				 "[" + (i + 1) + ".1.] No caso de infração de quaisquer cláusulas deste [Contrato], ficará facultado à parte prejudicada o direito de, cumulativamente:\r\n"
 				+ "[(i)] exigir da parte inadimplente a restituição dos valores pagos antecipadamente, acrescidos de atualização monetária e juros, na forma da cláusula [08.1.1];\r\n"
 				+ "[(ii)] considerar o presente [Contrato] rescindido de pleno direito, total ou parcialmente, independentemente de notificação ou interpelação;\r\n"
 				+ "[(iii)] exigir da parte inadimplente o pagamento de multa não compensatória de 15% (quinze por cento) do valor total deste [Contrato], calculado pela multiplicação da [Quantidade] pelo [Preço];\r\n"
 				+ "(iv) exigir da parte inadimplente indenização das perdas e danos efetivamente incorridos, respeitados os valores mínimos estabelecidos na cláusula [08.1.2].\r\n"
+				+
+                "[" + (i + 1) + ".1.1.] Em se tratando de inadimplência de obrigações de pagamento, ficará ainda sujeita a parte inadimplente ao pagamento de juros de mora de 1% ao mês e atualizações monetárias pela variação do IGPM-FGV (Índice Geral de Preços de Mercado – Fundação Getúlio Vargas) calculados “pro rata die” entre a data do vencimento da obrigação e a data do efetivo pagamento. Considerar-se-á, também, rescindido de pleno direito o presente [Contrato], no caso de impetração, requerimento ou decretação de falência, insolvência, recuperação ou liquidação judicial ou extrajudicial do [Vendedor]. Na hipótese de extinção do IGPM-FGV aplicar-se-á o seu substituto na forma da lei e, se não existir substituto, será aplicado o índice Geral de Preços ao Consumidor (IPC) editado pela Fundação Instituto de Pesquisa Econômica (FIPE).\r\n"
 				+ 
-				 "[7.1.1.] Em se tratando de inadimplência de obrigações de pagamento, ficará ainda sujeita a parte inadimplente ao pagamento de juros de mora de 1% ao mês e atualizações monetárias pela variação do IGPM-FGV (Índice Geral de Preços de Mercado – Fundação Getúlio Vargas) calculados “pro rata die” entre a data do vencimento da obrigação e a data do efetivo pagamento. Considerar-se-á, também, rescindido de pleno direito o presente [Contrato], no caso de impetração, requerimento ou decretação de falência, insolvência, recuperação ou liquidação judicial ou extrajudicial do [Vendedor]. Na hipótese de extinção do IGPM-FGV aplicar-se-á o seu substituto na forma da lei e, se não existir substituto, será aplicado o índice Geral de Preços ao Consumidor (IPC) editado pela Fundação Instituto de Pesquisa Econômica (FIPE).\r\n"
-				+ 
-				"[7.1.2.] Fica convencionado entre as [Partes], em caráter irrevogável e irretratável, que o valor mínimo da indenização por perdas e danos devida pela [Parte] inadimplente à [Parte] inocente, nos termos do disposto no item [(iv)] da cláusula [08.1], nunca será inferior ao maior valor dentre os seguintes:\r\n"
+				 "[" + (i + 1) + ".1.2.] Fica convencionado entre as [Partes], em caráter irrevogável e irretratável, que o valor mínimo da indenização por perdas e danos devida pela [Parte] inadimplente à [Parte] inocente, nos termos do disposto no item [(iv)] da cláusula [08.1], nunca será inferior ao maior valor dentre os seguintes:\r\n"
 				+ "[(i)] 20% (vinte por cento) [Preço] da quantidade de [Produto] não entregue pelo [Vendedor] ao [Comprador] nos termos deste [Contrato]; ou\r\n"
 				+ "[(ii)] O valor correspondente à diferença entre o preço de mercado do [Produto] não entregue e o [Preço] estabelecido na forma do presente [Contrato]. O preço de mercado da quantidade de [Produto] não entregue será equivalente à média dos preços de compra do [Produto] que estiverem sendo praticados, no [Local] [de] [Entrega], na [Data] [de] [Entrega], pelo [Comprador] e pelas seguintes empresas, desde que operem no [Local] [de] [Entrega]: Cargill, Bunge, ADM e Cocari.\r\n"
 				+ 
-				 "[7.2.] Na hipótese de uma das [Partes] ver-se obrigada a recorrer aos meios judiciais para fazer valer o presente [Contrato], além da multa penal, das perdas e danos e da restituição das importâncias eventualmente antecipadas, acrescidas dos juros e correção monetária previstos na cláusula [08.1.1], a [Parte] inadimplente ficará sujeito ao pagamento das custas e despesas judiciais incorridas pela outra [Parte], bem como honorários advocatícios desde já fixados em 20% do montante devido.\r\n"
+				 "[" + (i + 1) + ".2.] Na hipótese de uma das [Partes] ver-se obrigada a recorrer aos meios judiciais para fazer valer o presente [Contrato], além da multa penal, das perdas e danos e da restituição das importâncias eventualmente antecipadas, acrescidas dos juros e correção monetária previstos na cláusula [08.1.1], a [Parte] inadimplente ficará sujeito ao pagamento das custas e despesas judiciais incorridas pela outra [Parte], bem como honorários advocatícios desde já fixados em 20% do montante devido.\r\n"
 				+ 
-				 "[7.3.] Não constituirão inadimplência deste [Contrato]: [(i)] eventuais atrasos bancários alheios à vontade do [Comprador]; [(ii)] o não pagamento do [Preço] em decorrência do descumprimento, pelo [Vendedor], de quaisquer das obrigações a ele atribuídas no presente [Contrato].\r\n"
+				 "[" + (i + 1) +  ".3.] Não constituirão inadimplência deste [Contrato]: [(i)] eventuais atrasos bancários alheios à vontade do [Comprador]; [(ii)] o não pagamento do [Preço] em decorrência do descumprimento, pelo [Vendedor], de quaisquer das obrigações a ele atribuídas no presente [Contrato].\r\n"
 				+ 
-				 "[8.] [Disposições] [Finais].\r\n"
+				 "[" + (i + 2) + ".] [Disposições] [Finais].\r\n"
 				+ "O presente [Contrato] constitui título executivo nos termos do artigo 585, inciso II, do Código de Processo Civil, considerando-se líquidos, certos e exigíveis todos os valores dele decorrentes, inclusive e em especial os montantes que venham a ser devidos pelo [Vendedor] nos termos das cláusulas [08.1] a [08.2] retro, desistindo desde já este último, em caráter irrevogável e irretratável, de qualquer processo especial de verificação de ditos montantes, bastando para sua comprovação os comprovantes dos pagamentos efetuados pelo [Comprador] ou um demonstrativo sintético da composição da dívida.\r\n"
 				+ 
-				"[8.1.] É vedado ao [Vendedor] ceder, dar em garantia, securitizar, transferir a terceiros ou emitir ou sacar títulos representativos de quaisquer créditos que detenha contra o [Comprador] e que sejam relacionados ao presente Contrato, sem a prévia e expressa autorização escrita do [Comprador]. Qualquer cessão realizada em descumprimento desta obrigação será considerada nula de pleno direito, sendo considerados regularmente realizados e liberatórios da obrigação de pagamento do [Comprador] todos os pagamentos feitos pelo [Comprador] diretamente ao [Vendedor] nos termos deste [Contrato]. O [Comprador] fica desde já autorizado pelo Vendedor a ceder ou transferir os direitos ou obrigações decorrentes deste [Contrato] a quaisquer terceiros, mediante simples comunicação escrita ao [Vendedor].\r\n"
+				 "[" + (i + 2) + ".1.] É vedado ao [Vendedor] ceder, dar em garantia, securitizar, transferir a terceiros ou emitir ou sacar títulos representativos de quaisquer créditos que detenha contra o [Comprador] e que sejam relacionados ao presente Contrato, sem a prévia e expressa autorização escrita do [Comprador]. Qualquer cessão realizada em descumprimento desta obrigação será considerada nula de pleno direito, sendo considerados regularmente realizados e liberatórios da obrigação de pagamento do [Comprador] todos os pagamentos feitos pelo [Comprador] diretamente ao [Vendedor] nos termos deste [Contrato]. O [Comprador] fica desde já autorizado pelo Vendedor a ceder ou transferir os direitos ou obrigações decorrentes deste [Contrato] a quaisquer terceiros, mediante simples comunicação escrita ao [Vendedor].\r\n"
 				+ 
-				 "[8.2.] A tolerância, por qualquer das [Partes], em relação ao descumprimento de quaisquer dos compromissos recíprocos aqui avençados, constituirá mera liberalidade e não poderá de forma alguma ser caracterizada como novação ou precedente invocável pela outra parte.\r\n"
+				 "[" + (i + 2) +  ".2.] A tolerância, por qualquer das [Partes], em relação ao descumprimento de quaisquer dos compromissos recíprocos aqui avençados, constituirá mera liberalidade e não poderá de forma alguma ser caracterizada como novação ou precedente invocável pela outra parte.\r\n"
 				+ 
-				"[8.3.] O presente [Contrato] é celebrado em caráter irrevogável e irretratável, perfeito e acabado, o qual obriga não só as [Partes] ora contratantes, como também seus herdeiros e/ou sucessores a qualquer título.\r\n"
+				 "[" + (i + 2) + ".3.] O presente [Contrato] é celebrado em caráter irrevogável e irretratável, perfeito e acabado, o qual obriga não só as [Partes] ora contratantes, como também seus herdeiros e/ou sucessores a qualquer título.\r\n"
 				+ 
-				"[8.4.] Todas as obrigações atribuídas ao [Comprador] ao abrigo do presente [Contrato] poderão ser adimplidas por meio de compensação, independentemente de prestação de contas e nos termos dos artigos 368 e seguintes do Código Civil. \r\n"
+				 "[" + (i + 2) + ".4.] Todas as obrigações atribuídas ao [Comprador] ao abrigo do presente [Contrato] poderão ser adimplidas por meio de compensação, independentemente de prestação de contas e nos termos dos artigos 368 e seguintes do Código Civil. \r\n"
 				+ 
-				 "[8.5.] Para dirimir quaisquer questões decorrentes deste [Contrato], as [Partes] elegem o foro da Comarca de Vazante, Estado de Minas Gerais, renunciando qualquer outro, por mais privilegiado que seja. \r\n"
+				 "[" + (i + 2) +  ".5.] Para dirimir quaisquer questões decorrentes deste [Contrato], as [Partes] elegem o foro da Comarca de Vazante, Estado de Minas Gerais, renunciando qualquer outro, por mais privilegiado que seja. \r\n"
 				+ 
 				"E por estarem assim justas e contratadas, firmam as [Partes] o presente instrumento em 2 (duas) vias de igual teor e forma, na presença de 2 (duas) testemunha.\r\n"
 				);

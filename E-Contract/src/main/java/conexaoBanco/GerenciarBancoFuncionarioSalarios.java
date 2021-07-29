@@ -84,7 +84,13 @@ CREATE TABLE `funcionario_salario` (
 	
 	
 	public ArrayList<CadastroFuncionarioSalario> getsalarios() {
-		String selectAdivitos = "select * from funcionario_salario";
+		String selectAdivitos = "select fs.*, \r\n"
+				+ "dep.nome as nome_departamento,\r\n"
+				+ "CONCAT (func.nome, \" \", func.sobrenome) as nome_funcionario\r\n"
+				+ "from funcionario_salario fs\r\n"
+				+ "left join funcionario func on func.id_funcionario = fs.id_funcionario\r\n"
+				+ "left join funcionario_contrato_trabalho fct on fct.id_contrato = fs.id_ct_trabalho\r\n"
+				+ "left join departamento dep on dep.id_departamento = fct.id_departamento";
 		Connection conn = null;
 		PreparedStatement pstm = null;
 		ResultSet rs = null;
@@ -107,7 +113,8 @@ CREATE TABLE `funcionario_salario` (
 				salario.setTotal_descontos(rs.getDouble("total_descontos"));
 				salario.setTotal_acrescimos(rs.getDouble("total_acrescimos"));
 				salario.setTotal_hora_extras(rs.getDouble("total_hora_extras"));
-
+				salario.setNome_funcionario(rs.getString("nome_funcionario"));
+				salario.setNome_departamento(rs.getString("nome_departamento"));
 				lista_salarios.add(salario);
 
 			}

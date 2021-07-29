@@ -48,6 +48,8 @@ import javax.swing.RowFilter;
 import javax.swing.SwingConstants;
 import javax.swing.JComboBox;
 import javax.swing.ImageIcon;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
 
 public class TelaFinanceiroConta extends JDialog {
 
@@ -97,6 +99,15 @@ public class TelaFinanceiroConta extends JDialog {
 		panel_1.add(lblNewLabel_1, "cell 0 1,alignx trailing");
 		
 		entNome = new JTextFieldPersonalizado();
+		entNome.addKeyListener(new KeyAdapter() {
+			@Override
+			public void keyTyped(KeyEvent e) {
+				
+			 		filtrar();
+			 	
+				
+			}
+		});
 		panel_1.add(entNome, "cell 1 1,growx");
 		entNome.setColumns(10);
 		entNome.setForeground(Color.black);
@@ -106,6 +117,12 @@ public class TelaFinanceiroConta extends JDialog {
 		panel_1.add(lblNewLabel_1_1_1, "cell 2 1,alignx trailing");
 		
 		 entGrupoContas = new JTextFieldPersonalizado();
+		 entGrupoContas.addKeyListener(new KeyAdapter() {
+		 	@Override
+		 	public void keyTyped(KeyEvent e) {
+		 		filtrar();
+		 	}
+		 });
 		entGrupoContas.setForeground(Color.black);
 		panel_1.add(entGrupoContas, "cell 3 1,growx");
 		
@@ -116,6 +133,7 @@ public class TelaFinanceiroConta extends JDialog {
 		 cbTipoConta = new JComboBox();
 		cbTipoConta.setFont(new Font("SansSerif", Font.PLAIN, 16));
 		panel_1.add(cbTipoConta, "cell 1 2,growx");
+		cbTipoConta.addItem("TODAS");
 		cbTipoConta.addItem("DESPESAS");
 		cbTipoConta.addItem("RECEITAS");
 		
@@ -277,18 +295,23 @@ public void filtrar() {
 
 		String nome = entNome.getText().toUpperCase();
 		String grupo_contas = entGrupoContas.getText().toUpperCase();
+		
+		
 		String s_tipo_conta = "";
-		if(cbTipoConta.getSelectedIndex() == 0) {
+		if(cbTipoConta.getSelectedIndex() == 1) {
 			s_tipo_conta = "DESPESAS";
-		}else if(cbTipoConta.getSelectedIndex() == 1) {
+			if (checkString(s_tipo_conta))
+				filters.add(RowFilter.regexFilter(s_tipo_conta, 2));
+		}else if(cbTipoConta.getSelectedIndex() == 2) {
 			s_tipo_conta = "RECEITAS";
+			if (checkString(s_tipo_conta))
+				filters.add(RowFilter.regexFilter(s_tipo_conta, 2));
 		}
 		
 		if (checkString(nome))
 			filters.add(RowFilter.regexFilter(nome, 1));
 
-		if (checkString(s_tipo_conta))
-			filters.add(RowFilter.regexFilter(s_tipo_conta, 2));
+		
 		
 		if (checkString(grupo_contas))
 			filters.add(RowFilter.regexFilter(grupo_contas, 3));

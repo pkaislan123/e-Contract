@@ -11,6 +11,7 @@ import java.util.Map;
 
 import javax.swing.JOptionPane;
 
+import main.java.cadastros.DreAgrupado;
 import main.java.cadastros.DreSimples;
 import main.java.cadastros.Lancamento;
 
@@ -1466,7 +1467,267 @@ public class GerenciarBancoLancamento {
 		}
 
 	}
+	
+	
+	public ArrayList<DreAgrupado> getDreAgrupadoCCRegimeLancamentoReceitas(int ano, int id_centro_custo) {
 
+		String select = "call consulta_dre_agrupado_por_cc_receitas(?, ?)";
+		Connection conn = null;
+		PreparedStatement pstm = null;
+		ResultSet rs = null;
+		ArrayList<DreAgrupado> list = new ArrayList<>();
+
+		try {
+			conn = ConexaoBanco.getConexao();
+			pstm = conn.prepareStatement(select);
+			pstm.setInt(1, ano);
+			pstm.setInt(2, id_centro_custo);
+
+			rs = pstm.executeQuery();
+			while (rs.next()) {
+
+				DreAgrupado dre = new DreAgrupado();
+				dre.setFlag(1);
+				dre.setNome_conta(rs.getString("nome_conta"));
+				dre.setNome_grupo_contas(rs.getString("nome_grupo_contas"));
+
+				dre.setValor_receitas_janeiro(rs.getDouble("valor_receita_janeiro"));
+				
+				dre.setValor_receitas_fevereiro(rs.getDouble("valor_receita_fevereiro"));
+				
+				dre.setValor_receitas_marco(rs.getDouble("valor_receita_marco"));
+				
+				dre.setValor_receitas_abril(rs.getDouble("valor_receita_abril"));
+				
+				dre.setValor_receitas_maio(rs.getDouble("valor_receita_maio"));
+				
+				
+				dre.setValor_receitas_junho(rs.getDouble("valor_receita_junho"));
+				
+				dre.setValor_receitas_julho(rs.getDouble("valor_receita_julho"));
+				
+				dre.setValor_receitas_agosto(rs.getDouble("valor_receita_agosto"));
+				
+				dre.setValor_receitas_setembro(rs.getDouble("valor_receita_setembro"));
+				
+				dre.setValor_receitas_outubro(rs.getDouble("valor_receita_outubro"));
+				
+				dre.setValor_receitas_novembro(rs.getDouble("valor_receita_novembro"));
+				
+				dre.setValor_receitas_dezembro(rs.getDouble("valor_receita_dezembro"));
+				
+				
+				list.add(dre);
+
+			}
+			ConexaoBanco.fechaConexao(conn);
+
+			return list;
+
+		} catch (Exception e) {
+			// JOptionPane.showMessageDialog(null, "Erro ao listar a Conta id: " + id);// );
+			JOptionPane.showMessageDialog(null,
+					"Erro ao listar DRE Agrupado Receitas Regime de Lançamento, erro: " + e.getMessage() + "\nCausa: " + e.getCause());
+			return null;
+		}
+
+	}
+	
+	
+	public ArrayList<DreAgrupado> getDreAgrupadoCCRegimeLancamentoDespesas(int ano, int id_centro_custo) {
+
+		String select = "call consulta_dre_agrupado_por_cc_despesas(?, ?)";
+		Connection conn = null;
+		PreparedStatement pstm = null;
+		ResultSet rs = null;
+		ArrayList<DreAgrupado> list = new ArrayList<>();
+
+		try {
+			conn = ConexaoBanco.getConexao();
+			pstm = conn.prepareStatement(select);
+			pstm.setInt(1, ano);
+			pstm.setInt(2, id_centro_custo);
+
+			rs = pstm.executeQuery();
+			while (rs.next()) {
+
+				DreAgrupado dre = new DreAgrupado();
+				dre.setFlag(0);
+				dre.setNome_conta(rs.getString("nome_conta"));
+				dre.setNome_grupo_contas(rs.getString("nome_grupo_contas"));
+
+				dre.setValor_despesas_janeiro(rs.getDouble("valor_despesa_janeiro"));
+				
+				dre.setValor_despesas_fevereiro(rs.getDouble("valor_despesa_fevereiro"));
+				
+				dre.setValor_despesas_marco(rs.getDouble("valor_despesa_marco"));
+				
+				dre.setValor_despesas_abril(rs.getDouble("valor_despesa_abril"));
+				
+				dre.setValor_despesas_maio(rs.getDouble("valor_despesa_maio"));
+				
+				
+				dre.setValor_despesas_junho(rs.getDouble("valor_despesa_junho"));
+				
+				dre.setValor_despesas_julho(rs.getDouble("valor_despesa_julho"));
+				
+				dre.setValor_despesas_agosto(rs.getDouble("valor_despesa_agosto"));
+				
+				dre.setValor_despesas_setembro(rs.getDouble("valor_despesa_setembro"));
+				
+				dre.setValor_despesas_outubro(rs.getDouble("valor_despesa_outubro"));
+				
+				dre.setValor_despesas_novembro(rs.getDouble("valor_despesa_novembro"));
+				
+				dre.setValor_despesas_dezembro(rs.getDouble("valor_despesa_dezembro"));
+				
+				
+				list.add(dre);
+
+			}
+			ConexaoBanco.fechaConexao(conn);
+
+			return list;
+
+		} catch (Exception e) {
+			// JOptionPane.showMessageDialog(null, "Erro ao listar a Conta id: " + id);// );
+			JOptionPane.showMessageDialog(null,
+					"Erro ao listar DRE Agrupado Despesas Regime de Lançamento, erro: " + e.getMessage() + "\nCausa: " + e.getCause());
+			return null;
+		}
+
+	}
+
+	
+	public ArrayList<DreAgrupado> getDreAgrupadoCCRegimeParcelaReceitas(int ano, int id_centro_custo) {
+
+		String select = "call consulta_dre_agrupado_por_cc_receitas_regime_parcela(?, ?)";
+		Connection conn = null;
+		PreparedStatement pstm = null;
+		ResultSet rs = null;
+		ArrayList<DreAgrupado> list = new ArrayList<>();
+
+		try {
+			conn = ConexaoBanco.getConexao();
+			pstm = conn.prepareStatement(select);
+			pstm.setInt(1, ano);
+			pstm.setInt(2, id_centro_custo);
+
+			rs = pstm.executeQuery();
+			while (rs.next()) {
+
+				DreAgrupado dre = new DreAgrupado();
+				dre.setFlag(1);
+				dre.setNome_conta(rs.getString("nome_conta"));
+				dre.setNome_grupo_contas(rs.getString("nome_grupo_contas"));
+
+				dre.setValor_receitas_janeiro(rs.getDouble("valor_receita_janeiro"));
+				
+				dre.setValor_receitas_fevereiro(rs.getDouble("valor_receita_fevereiro"));
+				
+				dre.setValor_receitas_marco(rs.getDouble("valor_receita_marco"));
+				
+				dre.setValor_receitas_abril(rs.getDouble("valor_receita_abril"));
+				
+				dre.setValor_receitas_maio(rs.getDouble("valor_receita_maio"));
+				
+				
+				dre.setValor_receitas_junho(rs.getDouble("valor_receita_junho"));
+				
+				dre.setValor_receitas_julho(rs.getDouble("valor_receita_julho"));
+				
+				dre.setValor_receitas_agosto(rs.getDouble("valor_receita_agosto"));
+				
+				dre.setValor_receitas_setembro(rs.getDouble("valor_receita_setembro"));
+				
+				dre.setValor_receitas_outubro(rs.getDouble("valor_receita_outubro"));
+				
+				dre.setValor_receitas_novembro(rs.getDouble("valor_receita_novembro"));
+				
+				dre.setValor_receitas_dezembro(rs.getDouble("valor_receita_dezembro"));
+				
+				
+				list.add(dre);
+
+			}
+			ConexaoBanco.fechaConexao(conn);
+
+			return list;
+
+		} catch (Exception e) {
+			// JOptionPane.showMessageDialog(null, "Erro ao listar a Conta id: " + id);// );
+			JOptionPane.showMessageDialog(null,
+					"Erro ao listar DRE Agrupado Receitas Regime de Parcela, erro: " + e.getMessage() + "\nCausa: " + e.getCause());
+			return null;
+		}
+
+	}
+	
+	public ArrayList<DreAgrupado> getDreAgrupadoCCRegimeParcelaDespesas(int ano, int id_centro_custo) {
+
+		String select = "call consulta_dre_agrupado_por_cc_despesas_regime_parcela(?, ?)";
+		Connection conn = null;
+		PreparedStatement pstm = null;
+		ResultSet rs = null;
+		ArrayList<DreAgrupado> list = new ArrayList<>();
+
+		try {
+			conn = ConexaoBanco.getConexao();
+			pstm = conn.prepareStatement(select);
+			pstm.setInt(1, ano);
+			pstm.setInt(2, id_centro_custo);
+
+			rs = pstm.executeQuery();
+			while (rs.next()) {
+
+				DreAgrupado dre = new DreAgrupado();
+				dre.setFlag(0);
+				dre.setNome_conta(rs.getString("nome_conta"));
+				dre.setNome_grupo_contas(rs.getString("nome_grupo_contas"));
+
+				dre.setValor_despesas_janeiro(rs.getDouble("valor_despesa_janeiro"));
+				
+				dre.setValor_despesas_fevereiro(rs.getDouble("valor_despesa_fevereiro"));
+				
+				dre.setValor_despesas_marco(rs.getDouble("valor_despesa_marco"));
+				
+				dre.setValor_despesas_abril(rs.getDouble("valor_despesa_abril"));
+				
+				dre.setValor_despesas_maio(rs.getDouble("valor_despesa_maio"));
+				
+				
+				dre.setValor_despesas_junho(rs.getDouble("valor_despesa_junho"));
+				
+				dre.setValor_despesas_julho(rs.getDouble("valor_despesa_julho"));
+				
+				dre.setValor_despesas_agosto(rs.getDouble("valor_despesa_agosto"));
+				
+				dre.setValor_despesas_setembro(rs.getDouble("valor_despesa_setembro"));
+				
+				dre.setValor_despesas_outubro(rs.getDouble("valor_despesa_outubro"));
+				
+				dre.setValor_despesas_novembro(rs.getDouble("valor_despesa_novembro"));
+				
+				dre.setValor_despesas_dezembro(rs.getDouble("valor_despesa_dezembro"));
+				
+				
+				list.add(dre);
+
+			}
+			ConexaoBanco.fechaConexao(conn);
+
+			return list;
+
+		} catch (Exception e) {
+			// JOptionPane.showMessageDialog(null, "Erro ao listar a Conta id: " + id);// );
+			JOptionPane.showMessageDialog(null,
+					"Erro ao listar DRE Agrupado Despesas Regime de Parcela, erro: " + e.getMessage() + "\nCausa: " + e.getCause());
+			return null;
+		}
+
+	}
+
+	
 	public int getNumLancamentos() {
 
 		String select = "select id_lancamento from lancamento order by id_lancamento desc limit 1";

@@ -743,7 +743,7 @@ public class RelatorioContratoIndividual {
 
 						in = new FileInputStream(caminho_completo);
 						run.addPicture(in, Document.PICTURE_TYPE_JPEG, comprovante.getNome_arquivo(),
-								Units.toEMU(x/2 ), Units.toEMU(y /2));
+								Units.toEMU(x/1.5 ), Units.toEMU(y /1.5));
 						in.close();
 						contador_comprovantes++;
 						coluna_comprovante++;

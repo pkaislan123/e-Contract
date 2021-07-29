@@ -57,6 +57,8 @@ import main.java.conexaoBanco.GerenciarBancoFuncionariosContratoTrabalho;
 import main.java.conexaoBanco.GerenciarBancoFuncionariosEventos;
 import main.java.conexaoBanco.GerenciarBancoRegistroPonto;
 import main.java.conexaoBanco.GerenciarBancoRotina;
+import main.java.gui.TelaFuncionariosCadastroSalario.RegistroHoraLocal;
+import main.java.gui.TelaFuncionariosCadastroSalario.Semana;
 import main.java.gui.TelaRecursosHumanos.CellRenderRPDiario;
 import main.java.outros.GetData;
 import main.java.outros.JTextFieldPersonalizado;
@@ -93,6 +95,7 @@ import javax.swing.RowFilter;
 import javax.swing.SwingConstants;
 import javax.swing.JComboBox;
 import javax.swing.ImageIcon;
+import javax.swing.JTextArea;
 
 public class TelaFuncionarioDemonstrativoDePonto extends JFrame {
 
@@ -111,9 +114,12 @@ public class TelaFuncionarioDemonstrativoDePonto extends JFrame {
 	JLabel lblJornadaSegunda, lblJornadaTerca, lblJornadaQuarta, lblJornadaQuinta, lblJornadaSexta, lblJornadaSabado,
 			lblJornadaDomingo;
 	private JComboBox cBMes;
-	private JLabel lblTotalHorasMensal, lblTotalHoras100, lblTotalHoras50, lblTotalHoras60;
-
-
+	private JLabel lblTotalHorasMensal, lblTotalHorasNoturnas,lblTotalHoras100, lblTotalHoras50, lblTotalHoras60;
+	private JTextArea textAreaDescricaoAtrasos;
+	private CadastroFuncionarioAdmissao ct_global;
+	private ArrayList<String> texto_atrazo;
+	
+	
 	public TelaFuncionarioDemonstrativoDePonto(Window janela_pai) {
 		setTitle("Demonstrativo de Registro de Ponto");
 
@@ -385,7 +391,7 @@ public class TelaFuncionarioDemonstrativoDePonto extends JFrame {
 		painelCalculos.setBorder(new LineBorder(new Color(0, 0, 0)));
 		painelCalculos.setBackground(Color.WHITE);
 		painelPrinciapl.add(painelCalculos, "flowx,cell 0 7,alignx left,growy");
-		painelCalculos.setLayout(new MigLayout("", "[152px][42px]", "[21px][21px][21px][21px]"));
+		painelCalculos.setLayout(new MigLayout("", "[152px][42px]", "[21px][21px][21px][21px][]"));
 		
 		JLabel lblNewLabel_1_2_2 = new JLabel("Total Horas Mensal:");
 		lblNewLabel_1_2_2.setFont(new Font("Tahoma", Font.PLAIN, 16));
@@ -423,10 +429,19 @@ public class TelaFuncionarioDemonstrativoDePonto extends JFrame {
 		lblTotalHorasAtrazo.setFont(new Font("SansSerif", Font.BOLD, 16));
 		painelCalculos.add(lblTotalHorasAtrazo, "cell 1 3,alignx left,aligny top");
 		
+		JLabel lblNewLabel_1_2_1_1_1 = new JLabel("Total Horas Noturnas:");
+		lblNewLabel_1_2_1_1_1.setFont(new Font("Tahoma", Font.PLAIN, 16));
+		painelCalculos.add(lblNewLabel_1_2_1_1_1, "cell 0 4,alignx right");
+		
+		 lblTotalHorasNoturnas = new JLabel("00:00");
+		lblTotalHorasNoturnas.setForeground(new Color(102, 51, 0));
+		lblTotalHorasNoturnas.setFont(new Font("SansSerif", Font.BOLD, 16));
+		painelCalculos.add(lblTotalHorasNoturnas, "cell 1 4");
+		
 		JPanel panel_5 = new JPanel();
 		panel_5.setBackground(new Color(204, 255, 255));
 		painelPrinciapl.add(panel_5, "cell 0 7,grow");
-		panel_5.setLayout(new MigLayout("", "[][][][][][][][][][][][][][][][][][][][][][][][][][][]", "[][][][]"));
+		panel_5.setLayout(new MigLayout("", "[][][][][grow][][][][][][][][][][][][][][][][][][][][][][]", "[grow][][][]"));
 		
 		JLabel lblNewLabel_1_2_1_2_1 = new JLabel("Total Horas Extras:");
 		lblNewLabel_1_2_1_2_1.setForeground(new Color(204, 255, 255));
@@ -436,6 +451,17 @@ public class TelaFuncionarioDemonstrativoDePonto extends JFrame {
 		JLabel lblNewLabel_1_2_1_2 = new JLabel("Horas Extras");
 		lblNewLabel_1_2_1_2.setFont(new Font("Tahoma", Font.BOLD, 16));
 		panel_5.add(lblNewLabel_1_2_1_2, "cell 1 0 2 1,alignx center");
+		
+		JLabel lblNewLabel_1_2_1_2_2 = new JLabel("Descrição de Atraso");
+		lblNewLabel_1_2_1_2_2.setFont(new Font("Tahoma", Font.BOLD, 16));
+		panel_5.add(lblNewLabel_1_2_1_2_2, "cell 4 0 22 1,alignx center");
+		
+		 textAreaDescricaoAtrasos = new JTextArea();
+		textAreaDescricaoAtrasos.setBackground(new Color(204, 255, 255));
+		textAreaDescricaoAtrasos.setFont(new Font("SansSerif", Font.BOLD, 16));
+		textAreaDescricaoAtrasos.setLineWrap(true);
+		textAreaDescricaoAtrasos.setWrapStyleWord(true);
+		panel_5.add(textAreaDescricaoAtrasos, "cell 4 1 22 3,grow");
 		
 		JLabel lblNewLabel_1_2_1_3 = new JLabel("Total Horas 50%:");
 		lblNewLabel_1_2_1_3.setFont(new Font("Tahoma", Font.PLAIN, 16));
@@ -460,9 +486,16 @@ public class TelaFuncionarioDemonstrativoDePonto extends JFrame {
 					RegistroPontoMensalCompleto rp = modeloRegistroPonto.getValue(indice);
 					registros_selecionados.add(rp);
 				}
+				
+				int ano = Integer.parseInt(entAno.getText());
+				
+				int mes = cBMes.getSelectedIndex();
+				CadastroFuncionario func = (CadastroFuncionario) modelFuncionarios.getSelectedItem();
 
-				TelaEscolhaRelatorioRegistroPonto escolha_opcoes = new TelaEscolhaRelatorioRegistroPonto(
-						registros_selecionados, isto);
+				
+				
+				TelaEscolhaRelatorioRegistroPonto escolha_opcoes = new TelaEscolhaRelatorioRegistroPonto(func, ct_global, cBMes.getItemAt(mes).toString(), ano,
+						texto_atrazo, registros_selecionados, isto);
 				escolha_opcoes.setVisible(true);
 			}
 		});
@@ -570,10 +603,11 @@ public class TelaFuncionarioDemonstrativoDePonto extends JFrame {
 		private final int horas_trabalhadas = 9;
 		private final int horas_extras = 10;
 		private final int horas_atrazo = 11;
+		private final int horas_noturnas = 12;
 
 		private final String colunas[] = { "DATA", "DIA DA SEMANA", "HORA ENTRADA 1", "HORA SAIDA 1", "HORA ENTRADA 2",
 				"HORA SAIDA 2", "HORA ENTRADA 3", "HORA SAIDA 3", "ROTINA DIARIA", "HORAS TRABALHADAS", "HORAS EXTRAS",
-				"HORAS ATRAZO" };
+				"HORAS ATRAZO", "HORAS NOTURNAS" };
 		Locale ptBr = new Locale("pt", "BR");
 
 		private final ArrayList<RegistroPontoMensalCompleto> dados = new ArrayList<>();// usamos como dados uma lista
@@ -627,6 +661,10 @@ public class TelaFuncionarioDemonstrativoDePonto extends JFrame {
 			case horas_atrazo:
 				return String.class;
 
+			case horas_noturnas:
+				return String.class;
+
+				
 			default:
 				throw new IndexOutOfBoundsException("Coluna Inválida!!!");
 			}
@@ -756,6 +794,16 @@ public class TelaFuncionarioDemonstrativoDePonto extends JFrame {
 					return "";
 
 			}
+			case horas_noturnas: {
+				if(rp.getHora_noturna() != null) {
+				if (!rp.getHora_noturna().equals("00:00"))
+					return rp.getHora_noturna();
+				else
+					return "";
+				}else
+					return "";
+
+			}
 			default:
 				throw new IndexOutOfBoundsException("Coluna Inválida!!!");
 			}
@@ -863,8 +911,9 @@ public class TelaFuncionarioDemonstrativoDePonto extends JFrame {
 		CadastroFuncionario func = (CadastroFuncionario) modelFuncionarios.getSelectedItem();
 		int dia = 1;
 
-		
-		long total_duracao = 0, total_horas_normais_trabalhadas = 0, total_horas_extras = 0, total_horas_atrazo = 0, total_horas_100 = 0, total_horas_50 = 0, total_horas_60 = 0;
+		ArrayList<RegistroHoraLocal> registros_locais = new ArrayList<>();
+		long total_duracao = 0, total_horas_normais_trabalhadas = 0, total_horas_extras = 0, total_horas_atrazo = 0,
+				total_horas_100 = 0, total_horas_50 = 0, total_horas_60 = 0, total_horas_adicional_noturno = 0, total_extra_noturno;
 		
 		long duracao_rotina = 0;
 
@@ -883,7 +932,12 @@ public class TelaFuncionarioDemonstrativoDePonto extends JFrame {
 		LocalDate dia_de_hoje  = LocalDate.now();
 
 		for (RegistroPontoDiario rp : listRpDiario) {
+			
+			CadastroFuncionarioEvento evt_global = null;
+			
 			// verifique a rotina desse dia
+			RegistroHoraLocal registro_local = new RegistroHoraLocal();
+
 			RegistroPontoMensalCompleto rpCompleto = new RegistroPontoMensalCompleto();
 
 			RegistroPontoDiario original = rp;
@@ -923,17 +977,15 @@ public class TelaFuncionarioDemonstrativoDePonto extends JFrame {
 				return;
 			}
 
+			registro_local.setDia_da_semana(dia_da_semana);
+
 			boolean tem_rotina = false;
 
 			rotina_deste_dia = gerenciar_rotina.getRotinaDiaSemana(func.getId_funcionario(), dia_da_semana);
 
 			if (rotina_deste_dia != null)
 				tem_rotina = true;
-			/*
-			 * for (CadastroFuncionarioRotinaTrabalho rtb : rotinas) { if
-			 * (rtb.getDia_da_semana() == dia_da_semana) { rotina_deste_dia = rtb;
-			 * tem_rotina = true; break; } }
-			 */
+			
 
 			// verificar por evento de folga ou ferias
 			GerenciarBancoFuncionariosEventos gerenciar_eventos = new GerenciarBancoFuncionariosEventos();
@@ -949,6 +1001,7 @@ public class TelaFuncionarioDemonstrativoDePonto extends JFrame {
 			boolean tem_licenca = false;
 			boolean tem_descanso = false;
 			boolean tem_feriado = false;
+			boolean tem_saida_especial = false;
 
 			for (CadastroFuncionarioEvento evt : eventos) {
 
@@ -1020,6 +1073,20 @@ public class TelaFuncionarioDemonstrativoDePonto extends JFrame {
 						tem_licenca = true;
 						break;
 					}
+				}else if(evt.getTipo_evento() == 6) {
+					//evento de saida especial
+					LocalDate hoje = LocalDate.parse(data_rp, DateTimeFormatter.ofPattern("dd/MM/yyyy"));
+
+					String data_saida = evt.getData_saida();
+					
+					LocalDate date_saida = LocalDate.parse(data_saida,
+							DateTimeFormatter.ofPattern("dd/MM/yyyy"));
+					
+					if(date_saida.isEqual(hoje)) {
+						tem_saida_especial = true;
+						evt_global = evt;
+					}
+					
 				}
 
 			}
@@ -1086,20 +1153,66 @@ public class TelaFuncionarioDemonstrativoDePonto extends JFrame {
 			// calculo de horas trabalhadas
 
 			if (rp.getEntrada1() == null || rp.getEntrada1().equals("")) {
-				rp.setEntrada1("00:00");
+			
+					rp.setEntrada1("00:00");
+				
 			}
 
 			if (rp.getSaida1() == null || rp.getSaida1().equals("")) {
-				rp.setSaida1("00:00");
+
+				if(tem_saida_especial) {
+					if((evt_global.getMovimentacao() + 1) == 2){
+						if(rp.getData().equals(evt_global.getData_saida())) {
+							
+							rp.setSaida1(evt_global.getHora_saida());
+
+						}else {
+							rp.setSaida1("00:00");
+
+						}
+					}else {
+						rp.setSaida1("00:00");
+
+					}
+					
+				
+				}else {
+					rp.setSaida1("00:00");
+				}
+			
+				
 			}
 
 			if (rp.getEntrada2() == null || rp.getEntrada2().equals("")) {
 				rp.setEntrada2("00:00");
 			}
 
+			
 			if (rp.getSaida2() == null || rp.getSaida2().equals("")) {
-				rp.setSaida2("00:00");
+
+				if(tem_saida_especial) {
+					if((evt_global.getMovimentacao() + 1) == 4){
+						if(rp.getData().equals(evt_global.getData_saida())) {
+							
+							rp.setSaida2(evt_global.getHora_saida());
+
+						}else {
+							rp.setSaida2("00:00");
+
+						}
+					}else {
+						rp.setSaida2("00:00");
+
+					}
+					
+				
+				}else {
+					rp.setSaida2("00:00");
+				}
+			
+				
 			}
+
 
 			if (rp.getEntrada3() == null || rp.getEntrada3().equals("")) {
 				rp.setEntrada3("00:00");
@@ -1109,20 +1222,75 @@ public class TelaFuncionarioDemonstrativoDePonto extends JFrame {
 				rp.setSaida3("00:00");
 			}
 
-			LocalDateTime entrada1 = LocalDateTime.parse(data_rp + " " + rp.getEntrada1(),
+			LocalDateTime entrada1,entrada2,  entrada3, saida3;
+			
+			
+			 entrada1 = LocalDateTime.parse(data_rp + " " + rp.getEntrada1(),
 					DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm"));
-			LocalDateTime saida1 = LocalDateTime.parse(data_rp + " " + rp.getSaida1(),
-					DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm"));
-			LocalDateTime entrada2 = LocalDateTime.parse(data_rp + " " + rp.getEntrada2(),
-					DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm"));
-			LocalDateTime saida2 = LocalDateTime.parse(data_rp + " " + rp.getSaida2(),
-					DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm"));
-			LocalDateTime entrada3 = LocalDateTime.parse(data_rp + " " + rp.getEntrada3(),
-					DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm"));
-			LocalDateTime saida3 = LocalDateTime.parse(data_rp + " " + rp.getSaida3(),
-					DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm"));
+			 
+			 LocalDateTime saida1 = LocalDateTime.parse(data_rp + " " + rp.getSaida1(),
+						DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm"));
+			 
+			 if(tem_saida_especial) {
+				 if((evt_global.getMovimentacao() + 1) == 2){
+			    LocalDate hoje = LocalDate.parse(data_rp, DateTimeFormatter.ofPattern("dd/MM/yyyy"));
 
-			long periodAsMinutes1 = ChronoUnit.MINUTES.between(entrada1, saida1);
+				 LocalDate dia_seguinte =  hoje.plusDays(1);
+				 String nova_data   = dia_seguinte.format(DateTimeFormatter.ofPattern("dd/MM/yyyy"));
+
+				 saida1 = LocalDateTime.parse(nova_data + " " + rp.getSaida1(),
+							DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm"));
+				 
+					//verifica por hora noturna
+				    long minutos_adicional_noturno  = calculateWorkingHours(data_rp + " " + rp.getEntrada1(), nova_data + " " + rp.getSaida1());
+					String tempo_total = LocalTime.MIN.plus(Duration.ofMinutes(minutos_adicional_noturno)).toString();
+
+					rpCompleto.setHora_noturna(tempo_total);
+					total_horas_adicional_noturno += minutos_adicional_noturno;
+				 }
+			 }else {
+				 saida1 = LocalDateTime.parse(data_rp + " " + rp.getSaida1(),
+							DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm"));
+			 }
+			 
+			 
+			
+			 entrada2 = LocalDateTime.parse(data_rp + " " + rp.getEntrada2(),
+					DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm"));
+			
+			 LocalDateTime saida2 = LocalDateTime.parse(data_rp + " " + rp.getSaida2(),
+						DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm"));
+			 
+			 if(tem_saida_especial) {
+				 if((evt_global.getMovimentacao() + 1) == 4){
+			    LocalDate hoje = LocalDate.parse(data_rp, DateTimeFormatter.ofPattern("dd/MM/yyyy"));
+
+				 LocalDate dia_seguinte =  hoje.plusDays(1);
+				 String nova_data   = dia_seguinte.format(DateTimeFormatter.ofPattern("dd/MM/yyyy"));
+
+				 saida2 = LocalDateTime.parse(nova_data + " " + rp.getSaida2(),
+							DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm"));
+				 
+					//verifica por hora noturna
+				    long minutos_adicional_noturno  = calculateWorkingHours(data_rp + " " + rp.getEntrada1(), nova_data + " " + rp.getSaida2());
+					String tempo_total = LocalTime.MIN.plus(Duration.ofMinutes(minutos_adicional_noturno)).toString();
+
+					rpCompleto.setHora_noturna(tempo_total);
+					total_horas_adicional_noturno += minutos_adicional_noturno;
+				 }
+			 }else {
+				 saida2 = LocalDateTime.parse(data_rp + " " + rp.getSaida2(),
+							DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm"));
+			 }
+			 
+			 entrada3 = LocalDateTime.parse(data_rp + " " + rp.getEntrada3(),
+						DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm"));
+			 saida3 = LocalDateTime.parse(data_rp + " " + rp.getSaida3(),
+						DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm"));
+			
+			
+			 
+			 long periodAsMinutes1 = ChronoUnit.MINUTES.between(entrada1, saida1);
 			long periodAsMinutes2 = ChronoUnit.MINUTES.between(entrada2, saida2);
 			long periodAsMinutes3 = ChronoUnit.MINUTES.between(entrada3, saida3);
 
@@ -1133,38 +1301,7 @@ public class TelaFuncionarioDemonstrativoDePonto extends JFrame {
 			
 			String tempo_total = LocalTime.MIN.plus(Duration.ofMinutes(duracao_trabalho)).toString();
 			rpCompleto.setHora_trabalhada(tempo_total);
-			/*
-			 * 
-			 * //calculo de hora extra if(duracao_rotina <= 0) { //nao houve rotina nesse
-			 * dia if(duracao_trabalho > 0) { //trabalho esse dia, 100% hora extra String
-			 * tempo_extra = LocalTime.MIN.plus( Duration.ofMinutes( duracao_trabalho )
-			 * ).toString(); rpCompleto.setHora_extra(tempo_extra);
-			 * rpCompleto.setHora_atrazo("00:00");
-			 * 
-			 * }else { //folgou rpCompleto.setHora_extra("00:00");
-			 * rpCompleto.setHora_atrazo("00:00");
-			 * 
-			 * 
-			 * }
-			 * 
-			 * }else { //houve rotina nesse dia
-			 * 
-			 * 
-			 * 
-			 * if(duracao_trabalho >= duracao_rotina) { long hora_extra = duracao_trabalho -
-			 * duracao_rotina;
-			 * 
-			 * String tempo_extra = LocalTime.MIN.plus( Duration.ofMinutes( hora_extra )
-			 * ).toString(); rpCompleto.setHora_extra(tempo_extra);
-			 * rpCompleto.setHora_atrazo("00:00");
-			 * 
-			 * } else { long hora_atrazo = duracao_rotina - duracao_trabalho; String
-			 * tempo_atrazo= LocalTime.MIN.plus( Duration.ofMinutes( hora_atrazo )
-			 * ).toString(); rpCompleto.setHora_atrazo(tempo_atrazo);
-			 * rpCompleto.setHora_extra("00:00");
-			 * 
-			 * } }
-			 */
+			
 
 			if (!tem_folga && !tem_ferias && !tem_isencao && !tem_licenca && !tem_feriado && !tem_descanso
 					&& duracao_trabalho <= 0 && duracao_rotina > 0) {
@@ -1181,6 +1318,10 @@ public class TelaFuncionarioDemonstrativoDePonto extends JFrame {
 					String tempo_atrazo = LocalTime.MIN.plus(Duration.ofMinutes(hora_atrazo)).toString();
 					rpCompleto.setHora_atrazo(tempo_atrazo);
 					rpCompleto.setHora_extra("00:00");
+					
+					registro_local.setHoras_atrazos(hora_atrazo);
+					registro_local.setHoras_extras(0);
+					
 				}else {
 					rp.setEntrada1("00:00");
 					rp.setSaida1("00:00");
@@ -1190,6 +1331,9 @@ public class TelaFuncionarioDemonstrativoDePonto extends JFrame {
 					
 					rpCompleto.setHora_atrazo("00:00");
 					rpCompleto.setHora_extra("00:00");
+					
+					registro_local.setHoras_atrazos(0);
+					registro_local.setHoras_extras(0);
 				}
 				
 
@@ -1206,6 +1350,10 @@ public class TelaFuncionarioDemonstrativoDePonto extends JFrame {
 				String tempo_atrazo = LocalTime.MIN.plus(Duration.ofMinutes(hora_atrazo)).toString();
 				rpCompleto.setHora_atrazo(tempo_atrazo);
 				rpCompleto.setHora_extra("00:00");
+				
+				
+				registro_local.setHoras_atrazos(hora_atrazo);
+				registro_local.setHoras_extras(0);
 
 			} else if (!tem_feriado && !tem_folga && tem_ferias) {
 				// tem ferias
@@ -1218,6 +1366,9 @@ public class TelaFuncionarioDemonstrativoDePonto extends JFrame {
 				String tempo_atrazo = LocalTime.MIN.plus(Duration.ofMinutes(hora_atrazo)).toString();
 				rpCompleto.setHora_atrazo("00:00");
 				rpCompleto.setHora_extra("00:00");
+				
+				registro_local.setHoras_atrazos(0);
+				registro_local.setHoras_extras(0);
 
 			} else if (tem_isencao) {
 				// tem isencao
@@ -1230,6 +1381,9 @@ public class TelaFuncionarioDemonstrativoDePonto extends JFrame {
 				String tempo_atrazo = LocalTime.MIN.plus(Duration.ofMinutes(hora_atrazo)).toString();
 				rpCompleto.setHora_atrazo("00:00");
 				rpCompleto.setHora_extra("00:00");
+				
+				registro_local.setHoras_atrazos(0);
+				registro_local.setHoras_extras(0);
 
 			} else if (tem_licenca) {
 				// tem licenca
@@ -1242,6 +1396,9 @@ public class TelaFuncionarioDemonstrativoDePonto extends JFrame {
 				String tempo_atrazo = LocalTime.MIN.plus(Duration.ofMinutes(hora_atrazo)).toString();
 				rpCompleto.setHora_atrazo("00:00");
 				rpCompleto.setHora_extra("00:00");
+				
+				registro_local.setHoras_atrazos(0);
+				registro_local.setHoras_extras(0);
 
 			} else if (tem_feriado) {
 
@@ -1274,12 +1431,17 @@ public class TelaFuncionarioDemonstrativoDePonto extends JFrame {
 					String tempo_extra = LocalTime.MIN.plus(Duration.ofMinutes(duracao_trabalho)).toString();
 					rpCompleto.setHora_extra(tempo_extra);
 					rpCompleto.setHora_atrazo("00:00");
+					
+					registro_local.setHoras_atrazos(0);
+					registro_local.setHoras_extras(duracao_trabalho);
 
 				} else {
 					// folgou
 					rpCompleto.setHora_extra("00:00");
 					rpCompleto.setHora_atrazo("00:00");
 
+					registro_local.setHoras_atrazos(0);
+					registro_local.setHoras_extras(0);
 				}
 
 			} else if (tem_descanso) {
@@ -1329,6 +1491,10 @@ public class TelaFuncionarioDemonstrativoDePonto extends JFrame {
 						String tempo_extra = LocalTime.MIN.plus(Duration.ofMinutes(duracao_trabalho)).toString();
 						rpCompleto.setHora_extra(tempo_extra);
 						rpCompleto.setHora_atrazo("00:00");
+						
+						
+						registro_local.setHoras_atrazos(0);
+						registro_local.setHoras_extras(duracao_trabalho);
 
 					} else {
 						// folgou
@@ -1360,6 +1526,9 @@ public class TelaFuncionarioDemonstrativoDePonto extends JFrame {
 						String tempo_extra = LocalTime.MIN.plus(Duration.ofMinutes(hora_extra)).toString();
 						rpCompleto.setHora_extra(tempo_extra);
 						rpCompleto.setHora_atrazo("00:00");
+						
+						registro_local.setHoras_atrazos(0);
+						registro_local.setHoras_extras(hora_extra);
 
 					} else {
 						long hora_atrazo = duracao_rotina - duracao_trabalho;
@@ -1369,6 +1538,8 @@ public class TelaFuncionarioDemonstrativoDePonto extends JFrame {
 						rpCompleto.setHora_atrazo(tempo_atrazo);
 						rpCompleto.setHora_extra("00:00");
 
+						registro_local.setHoras_atrazos(hora_atrazo);
+						registro_local.setHoras_extras(0);
 					}
 
 				}
@@ -1398,12 +1569,17 @@ public class TelaFuncionarioDemonstrativoDePonto extends JFrame {
 						String tempo_extra = LocalTime.MIN.plus(Duration.ofMinutes(duracao_trabalho)).toString();
 						rpCompleto.setHora_extra(tempo_extra);
 						rpCompleto.setHora_atrazo("00:00");
+						
+						registro_local.setHoras_atrazos(0);
+						registro_local.setHoras_extras(duracao_trabalho);
 
 					} else {
 						// folgou
 						rpCompleto.setHora_extra("00:00");
 						rpCompleto.setHora_atrazo("00:00");
-
+						
+						registro_local.setHoras_atrazos(0);
+						registro_local.setHoras_extras(0);
 					}
 
 				} else {
@@ -1425,10 +1601,13 @@ public class TelaFuncionarioDemonstrativoDePonto extends JFrame {
 							total_horas_50 += hora_extra;
 						}
 						
-						
+												
 						String tempo_extra = LocalTime.MIN.plus(Duration.ofMinutes(hora_extra)).toString();
 						rpCompleto.setHora_extra(tempo_extra);
 						rpCompleto.setHora_atrazo("00:00");
+						
+						registro_local.setHoras_atrazos(0);
+						registro_local.setHoras_extras(hora_extra);
 
 					} else {
 						long hora_atrazo = duracao_rotina - duracao_trabalho;
@@ -1436,6 +1615,9 @@ public class TelaFuncionarioDemonstrativoDePonto extends JFrame {
 						String tempo_atrazo = LocalTime.MIN.plus(Duration.ofMinutes(hora_atrazo)).toString();
 						rpCompleto.setHora_atrazo(tempo_atrazo);
 						rpCompleto.setHora_extra("00:00");
+
+						registro_local.setHoras_atrazos(hora_atrazo);
+						registro_local.setHoras_extras(0);
 
 					}
 				}
@@ -1445,6 +1627,10 @@ public class TelaFuncionarioDemonstrativoDePonto extends JFrame {
 
 			modeloRegistroPonto.onAdd(rpCompleto);
 			dia++;
+			
+			registro_local.setData(data_rp);
+			registros_locais.add(registro_local);
+			
 		
 			
 			
@@ -1454,6 +1640,7 @@ public class TelaFuncionarioDemonstrativoDePonto extends JFrame {
 		String s_total_h_normais =  formatHora(total_horas_normais_trabalhadas);
 		String s_total_h_atraz =  formatHora(total_horas_atrazo);
 		String s_total_h_mensal =  formatHora(total_duracao);
+		String s_total_h_noturnas =  formatHora(total_horas_adicional_noturno);
 
 		
 		RegistroPontoMensalCompleto rpCompletoTotal = new RegistroPontoMensalCompleto();
@@ -1481,6 +1668,9 @@ public class TelaFuncionarioDemonstrativoDePonto extends JFrame {
 		lblTotalHorasExtras.setText( s_total_h_ex );
 		lblTotalHorasAtrazo.setText(s_total_h_atraz );
 		lblTotalHorasNormais.setText(s_total_h_normais);
+		lblTotalHorasNoturnas.setText(s_total_h_noturnas);
+
+		
 		
 		//JOptionPane.showMessageDialog(null, "Total horas normais: " + total_horas_normais_trabalhadas/60 +
 			//	"\nTotal horas extas: " + total_horas_extras/60 + "\nTotal atrazo: " + total_horas_atrazo/60);
@@ -1491,9 +1681,147 @@ public class TelaFuncionarioDemonstrativoDePonto extends JFrame {
 		 lblTotalHoras100.setText(  formatHora(total_horas_100) );
 		 lblTotalHoras50.setText(  formatHora(total_horas_50) );
 		 lblTotalHoras60.setText(  formatHora(total_horas_60) );
+		 calcularAtrazos(registros_locais,ultimo_dia);
+	}
+	
+	public void calcularAtrazos(ArrayList<RegistroHoraLocal> registros, int ultimo_dia) {
+
+		int posicao = 0;
+		ArrayList<Semana> semanas = new ArrayList<>();
+		
+		while(posicao < ultimo_dia) {
+		RegistroHoraLocal registro = registros.get(posicao);
+		Semana semana = new Semana();
+		
+			int dia_da_semana = registro.getDia_da_semana();
+			semana.setData_inicial(registro.getData());
+			if(dia_da_semana < 6) {
+				//dia de semana normal
+				long acumulador = 0;
+				int contador = dia_da_semana;
+				while(contador <= 7) {
+					
+					if(!(posicao < ultimo_dia))
+						break;
+					else {
+					long atrazo = registros.get(posicao).getHoras_atrazos();
+					acumulador += atrazo;
+					
+					posicao++;
+					}
+					
+					contador++;
+				}
+				semana.setData_final(registros.get(posicao-1).getData());
+				semana.setQuantidade_minutos(acumulador);
+				semanas.add(semana);
+				
+				
+			}
+			
+			
+		}
+		
+		
+		String texto = "";
+		int count_semana = 1;
+		texto_atrazo = new ArrayList<>();
+		long total_atrazo = 0;
+		for(Semana semana : semanas) {
+			total_atrazo += semana.getQuantidade_minutos();
+			
+			String texto_semana = "";
+			if(semana.getQuantidade_minutos() >= 480) {
+			 texto_semana = "Semana " + count_semana + ": De " + semana.getData_inicial() + " até " + semana.getData_final() + 
+					" -> Total de Atrasos: " + formatHora(semana.getQuantidade_minutos()) + " | SUJEITO AO DESCONTO DO DOMINGO";
+			
+			 texto += ("Semana " + count_semana + ": De " + semana.getData_inicial() + " até " + semana.getData_final() + 
+						" -> Total de Atrasos: " + formatHora(semana.getQuantidade_minutos()) + " | SUJEITO AO DESCONTO DO DOMINGO\n");
+						count_semana++;
+			
+			}else {
+				 texto_semana = "Semana " + count_semana + ": De " + semana.getData_inicial() + " até " + semana.getData_final() + 
+							" -> Total de Atrasos: " + formatHora(semana.getQuantidade_minutos());
+				 
+					texto += ("Semana " + count_semana + ": De " + semana.getData_inicial() + " até " + semana.getData_final() + 
+							" -> Total de Atrasos: " + formatHora(semana.getQuantidade_minutos()) + "\n");
+							count_semana++;
+			}
+			texto_atrazo.add(texto_semana);		
+
+			
+		
+		}
+		
+		texto_atrazo.add("Total de Atrazos: " + formatHora(total_atrazo));
+		texto += ("Total de Atrazos: " + formatHora(total_atrazo));
+		textAreaDescricaoAtrasos.setText(texto);
+		//JOptionPane.showMessageDialog(isto, texto);
 
 	}
 	
+	class Semana{
+		
+		String data_inicial, data_final;
+		long quantidade_minutos;
+		public String getData_inicial() {
+			return data_inicial;
+		}
+		public void setData_inicial(String data_inicial) {
+			this.data_inicial = data_inicial;
+		}
+		public String getData_final() {
+			return data_final;
+		}
+		public void setData_final(String data_final) {
+			this.data_final = data_final;
+		}
+		public long getQuantidade_minutos() {
+			return quantidade_minutos;
+		}
+		public void setQuantidade_minutos(long quantidade_minutos) {
+			this.quantidade_minutos = quantidade_minutos;
+		}
+		
+		
+		
+		
+	}
+	
+	class RegistroHoraLocal {
+		
+		String data;
+		
+		int dia_da_semana;
+		long horas_extras,  horas_atrazos;
+		public int getDia_da_semana() {
+			return dia_da_semana;
+		}
+		public String getData() {
+			return data;
+		}
+		public void setData(String data) {
+			this.data = data;
+		}
+		public void setDia_da_semana(int dia_da_semana) {
+			this.dia_da_semana = dia_da_semana;
+		}
+		public long getHoras_extras() {
+			return horas_extras;
+		}
+		public void setHoras_extras(long horas_extras) {
+			this.horas_extras = horas_extras;
+		}
+		public long getHoras_atrazos() {
+			return horas_atrazos;
+		}
+		public void setHoras_atrazos(long horas_atrazos) {
+			this.horas_atrazos = horas_atrazos;
+		}
+		
+		
+	}
+
 	
 	public String formatHora(long minutos) {
 		Duration duracao_total_horas_normais = Duration.ofMinutes(minutos);
@@ -1516,7 +1844,7 @@ public class TelaFuncionarioDemonstrativoDePonto extends JFrame {
 
 			if (column >= 2 && column <= 7)
 				this.setBackground(new Color(255, 255, 204));
-			else if (column >= 8 && column <= 11) {
+			else if (column >= 8 && column <= 12) {
 				this.setBackground(new Color(153, 204, 255));
 
 				if (column == 8) {
@@ -1531,6 +1859,8 @@ public class TelaFuncionarioDemonstrativoDePonto extends JFrame {
 					this.setForeground(Color.BLUE);
 				else if (column == 11)
 					this.setForeground(Color.red);
+				else if (column == 12)
+					this.setForeground(new Color(102,51,1));
 				else
 					this.setForeground(Color.black);
 
@@ -1561,6 +1891,7 @@ public class TelaFuncionarioDemonstrativoDePonto extends JFrame {
 		CadastroFuncionarioAdmissao ct = gerenciar.getcontratoAtivoPorFuncionario(func.getId_funcionario());
 		if(ct != null) {
 		
+		ct_global = ct;	
 		lblCargo.setText(ct.getCargo());
 		lblFuncao.setText(ct.getFuncao());
 		lblDataAdmissao.setText(ct.getData_admissao());
@@ -1606,4 +1937,80 @@ public class TelaFuncionarioDemonstrativoDePonto extends JFrame {
 
 	}
 
+	
+	public  long calculateWorkingHours(String workStartString, String workEndString) {
+		 DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
+
+		
+		 LocalDateTime workStart
+	            = LocalDateTime.parse(workStartString, formatter);
+		 LocalDateTime workEnd
+	            = LocalDateTime.parse(workEndString, formatter);
+
+	    if (workEnd.isBefore(workStart)) {
+	        throw new IllegalArgumentException("Work end must not be before work start");
+	    }
+
+	    LocalDate workStartDate = workStart.toLocalDate();
+	    LocalDate workEndDate = workEnd.toLocalDate();
+
+	    Duration workedDaytime = Duration.ZERO;
+	    // first calculate work at nighttime before the start date, that is, work before 06:00
+	    Duration workedNighttime 
+	            = calculateNightTime(workStartDate.minusDays(1), workStart, workEnd);
+
+	    for (LocalDate d = workStartDate; ! d.isAfter(workEndDate); d = d.plusDays(1)) {
+	        workedDaytime = workedDaytime.plus(calculateDayTime(d, workStart, workEnd));
+	        workedNighttime = workedNighttime.plus(calculateNightTime(d, workStart, workEnd));
+	    }
+
+	  //  double dayHours = workedDaytime.toMinutes() / (double) TimeUnit.HOURS.toMinutes(1);
+	    long nightHours = workedNighttime.toMinutes();
+
+	    return nightHours;
+
+	}
+
+	
+	private  Duration calculateDayTime(LocalDate d, LocalDateTime workStart, LocalDateTime workEnd) {
+		LocalDateTime dayStartToday = d.atTime(dayStart);
+		LocalDateTime dayEndToday = d.atTime(dayEnd);
+	    if (workStart.isAfter(dayEndToday) || workEnd.isBefore(dayStartToday)) {
+	        return Duration.ZERO;
+	    }
+
+	    // restrict calculation to daytime on d
+	    if (workStart.isBefore(dayStartToday)) {
+	        workStart = dayStartToday;
+	    }
+	    if (workEnd.isAfter(dayEndToday)) {
+	        workEnd = dayEndToday;
+	    }
+
+	    return Duration.between(workStart, workEnd);
+	}
+
+	 LocalTime dayStart = LocalTime.of(5, 0);
+	 LocalTime dayEnd = LocalTime.of(22, 0);
+	private  Duration calculateNightTime(LocalDate d, LocalDateTime workStart, LocalDateTime workEnd) {
+	    assert ! workEnd.isBefore(workStart);
+
+	    LocalDateTime nightStart = d.atTime(dayEnd);
+	    LocalDateTime nightEnd = d.plusDays(1).atTime(dayStart);
+
+	    if (workEnd.isBefore(nightStart) || workStart.isAfter(nightEnd)) {
+	        return Duration.ZERO;
+	    }
+
+	    // restrict calculation to the night after d
+	    if (workStart.isBefore(nightStart)) {
+	        workStart = nightStart;
+	    }
+	    if (workEnd.isAfter(nightEnd)) {
+	        workEnd = nightEnd;
+	    }
+
+	    return Duration.between(workStart, workEnd);
+	}
+	
 }

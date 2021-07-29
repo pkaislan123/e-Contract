@@ -9,6 +9,7 @@ import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
 import javax.swing.JTable;
+import javax.swing.JTextArea;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.TitledBorder;
 import javax.swing.table.AbstractTableModel;
@@ -262,7 +263,7 @@ public class TelaElaborarNovoContrato extends JFrame {
 
 	private JPanel painelDadosAdicionais = new JPanel();
 	private CadastroSafra safra_selecionada;
-	private JCheckBox chBoxClausula1, chBoxClausula2, chBoxClausula3, chBoxClausula4, chBoxClausula5, chBoxClausula6;
+	private JCheckBox chBoxClausula1, chBoxClausula2, chBoxClausula3, chBoxClausula4, chBoxClausula5, chBoxClausulaComissao;
 
 	private JRadioButton rdbtnSobreRodas, rdbtnAgendado, rdbtnAtoCarregamento, rdbtnAVista, rdbtnInfoFavorSim,
 			rdbtnInfoFavorNao;
@@ -276,7 +277,7 @@ public class TelaElaborarNovoContrato extends JFrame {
 	private JLabel lblData;
 	private JTextField entDataContrato;
 
-	private JCheckBox chbxDataAtual, chBoxClausulaComissao;
+	private JCheckBox chbxDataAtual, chBoxCriarClausulaComissao;
 	private JLabel lbltext;
 
 	private EditarExcel editar;
@@ -307,10 +308,10 @@ public class TelaElaborarNovoContrato extends JFrame {
 			lblEnderecoCorretor, lblMunicipioCorretor;
 	private JTextField entClausula1;
 	private JTextField entClausula2;
-	private JTextField entClausula3;
-	private JTextField entClausula6;
-	private JTextField entClausula5;
-	private JTextField entClausula4;
+	private JTextArea entClausula3;
+	private JTextField entClausulaComissao;
+	private JTextArea entClausula5;
+	private JTextArea entClausula4;
 	private JPanel panel;
 	private Log GerenciadorLog;
 	private CadastroLogin login;
@@ -370,6 +371,7 @@ public class TelaElaborarNovoContrato extends JFrame {
 	private JComboBox cBFundoRural;
 	private JLabel lblNewLabel_1_1_1_1_1_1_1_1_4;
 	private JLabel lblFundoRuralInfo;
+	private JLabel lblNewLabel_7;
 
 	public TelaElaborarNovoContrato(CadastroModelo modelo, int tipoContrato, CadastroContrato contrato_pai,
 			int flag_edicao, Window janela_pai) {
@@ -472,8 +474,8 @@ public class TelaElaborarNovoContrato extends JFrame {
 
 		panel.setBorder(UIManager.getBorder("TitledBorder.border"));
 		panel.setBackground(Color.WHITE);
-		painelDadosAdicionais.add(panel, "cell 0 1,growx,aligny center");
-		panel.setLayout(new MigLayout("", "[143px][48px][grow][]", "[28px][28px][28px][28px][18px][12px][1px][2px][28px][29px][31px][33px]"));
+		painelDadosAdicionais.add(panel, "cell 0 1,grow");
+		panel.setLayout(new MigLayout("", "[143px][48px][grow][]", "[28px][28px][100px:n][100px:n][100px:n][12px][1px][2px][28px][29px][31px][33px]"));
 
 		chBoxClausula1 = new JCheckBox("");
 		panel.add(chBoxClausula1, "cell 1 0,alignx center,aligny center");
@@ -501,7 +503,6 @@ public class TelaElaborarNovoContrato extends JFrame {
 		chBoxClausula2.setEnabled(false);
 
 		chBoxClausula3 = new JCheckBox("");
-		chBoxClausula3.setEnabled(false);
 		panel.add(chBoxClausula3, "cell 1 2,alignx center,aligny center");
 		chBoxClausula3.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
@@ -520,7 +521,9 @@ public class TelaElaborarNovoContrato extends JFrame {
 		});
 		chBoxClausula3.setFont(new Font("Arial", Font.BOLD, 16));
 
-		entClausula3 = new JTextField();
+		entClausula3 = new JTextArea();
+		entClausula3.setWrapStyleWord(true);
+		entClausula3.setLineWrap(true);
 		entClausula3.setEditable(false);
 		entClausula3.addKeyListener(new KeyAdapter() {
 			@Override
@@ -537,7 +540,9 @@ public class TelaElaborarNovoContrato extends JFrame {
 		entClausula3.setFont(new Font("Arial", Font.BOLD, 16));
 		entClausula3.setColumns(10);
 
-		entClausula4 = new JTextField();
+		entClausula4 = new JTextArea();
+		entClausula4.setWrapStyleWord(true);
+		entClausula4.setLineWrap(true);
 		entClausula4.addKeyListener(new KeyAdapter() {
 			@Override
 			public void keyTyped(KeyEvent e) {
@@ -574,14 +579,16 @@ public class TelaElaborarNovoContrato extends JFrame {
 		chBoxClausula4.setFont(new Font("Arial", Font.BOLD, 16));
 
 		chBoxClausula5 = new JCheckBox("");
-		panel.add(chBoxClausula5, "cell 1 4,alignx center,aligny top");
+		panel.add(chBoxClausula5, "cell 1 4 1 2,alignx center,aligny top");
 		chBoxClausula5.setFont(new Font("Arial", Font.BOLD, 16));
 
-		chBoxClausula6 = new JCheckBox("");
-		panel.add(chBoxClausula6, "cell 1 6 1 3,alignx center,aligny top");
-		chBoxClausula6.setFont(new Font("Arial", Font.BOLD, 16));
+		chBoxClausulaComissao = new JCheckBox("");
+		panel.add(chBoxClausulaComissao, "cell 1 7 1 2,alignx center,aligny center");
+		chBoxClausulaComissao.setFont(new Font("Arial", Font.BOLD, 16));
 
-		entClausula5 = new JTextField();
+		entClausula5 = new JTextArea();
+		entClausula5.setLineWrap(true);
+		entClausula5.setWrapStyleWord(true);
 		entClausula5.addKeyListener(new KeyAdapter() {
 			@Override
 			public void keyTyped(KeyEvent e) {
@@ -593,27 +600,31 @@ public class TelaElaborarNovoContrato extends JFrame {
 				} 
 			}
 		});
-		panel.add(entClausula5, "cell 2 4 1 3,growx,aligny top");
+		panel.add(entClausula5, "cell 2 4 1 3,grow");
 		entClausula5.setEditable(false);
 		entClausula5.setFont(new Font("Arial", Font.BOLD, 16));
 		entClausula5.setColumns(10);
 
-		entClausula6 = new JTextField();
-		entClausula6.addKeyListener(new KeyAdapter() {
+		entClausulaComissao = new JTextField();
+		entClausulaComissao.addKeyListener(new KeyAdapter() {
 			@Override
 			public void keyTyped(KeyEvent e) {
 				if (modelo_global.getNome_modelo().equals("informal")) {
-					if(entClausula6.getText().length() > 80) {
+					if(entClausulaComissao.getText().length() > 80) {
 						e.consume();
-						entClausula6.setText(entClausula6.getText().substring(0,  80));
+						entClausulaComissao.setText(entClausulaComissao.getText().substring(0,  80));
 					}
 				} 
 			}
 		});
-		panel.add(entClausula6, "cell 2 8,grow");
-		entClausula6.setEditable(false);
-		entClausula6.setFont(new Font("Arial", Font.BOLD, 16));
-		entClausula6.setColumns(10);
+		panel.add(entClausulaComissao, "cell 2 7 1 2,grow");
+		entClausulaComissao.setEditable(false);
+		entClausulaComissao.setFont(new Font("Arial", Font.BOLD, 16));
+		entClausulaComissao.setColumns(10);
+		
+		lblNewLabel_7 = new JLabel("Clausula Comissão:");
+		lblNewLabel_7.setFont(new Font("Arial", Font.BOLD, 16));
+		panel.add(lblNewLabel_7, "cell 0 8,alignx right");
 		
 		cBFundoRural = new JComboBox();
 		cBFundoRural.setFont(new Font("Arial", Font.BOLD, 16));
@@ -765,17 +776,17 @@ public class TelaElaborarNovoContrato extends JFrame {
 		entClausulaFundoRural.setEditable(false);
 		entClausulaFundoRural.setColumns(10);
 		panel.add(entClausulaFundoRural, "cell 2 9,grow");
-		chBoxClausula6.addActionListener(new ActionListener() {
+		chBoxClausulaComissao.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 
-				if (chBoxClausula6.isSelected()) {
-					chBoxClausula6.setSelected(true);
-					entClausula6.setEditable(true);
+				if (chBoxClausulaComissao.isSelected()) {
+					chBoxClausulaComissao.setSelected(true);
+					entClausulaComissao.setEditable(true);
 
 				} else {
-					chBoxClausula6.setSelected(false);
-					entClausula6.setEditable(false);
-					entClausula6.setText("");
+					chBoxClausulaComissao.setSelected(false);
+					entClausulaComissao.setEditable(false);
+					entClausulaComissao.setText("");
 
 				}
 
@@ -2056,27 +2067,27 @@ public class TelaElaborarNovoContrato extends JFrame {
 
 		});
 
-		chBoxClausulaComissao = new JCheckBox("Criar clausula contratual para comissão");
-		chBoxClausulaComissao.addActionListener(new ActionListener() {
+		chBoxCriarClausulaComissao = new JCheckBox("Criar clausula contratual para comissão");
+		chBoxCriarClausulaComissao.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 
-				if (!chBoxClausulaComissao.isSelected()) {
-					chBoxClausulaComissao.setSelected(false);
+				if (!chBoxCriarClausulaComissao.isSelected()) {
+					chBoxCriarClausulaComissao.setSelected(false);
 					try {
-						entClausula3.setText("");
-						entClausula3.setEditable(false);
-						chBoxClausula3.setSelected(false);
-						novo_contrato.setClausula_comissao(0);
+						entClausulaComissao.setText("");
+						entClausulaComissao.setEditable(false);
+						chBoxClausulaComissao.setSelected(false);
+						novo_contrato.setCriar_clausula_comissao(1);
 					} catch (Exception re) {
 
 					}
 				} else {
-					chBoxClausulaComissao.setSelected(true);
+					chBoxCriarClausulaComissao.setSelected(true);
 					try {
 						setClausulaComissao(entComissao.getText().toString().replace(".", ","));
-						chBoxClausula3.setSelected(true);
-						novo_contrato.setClausula_comissao(1);
-						entClausula3.setEditable(true);
+						chBoxClausulaComissao.setSelected(true);
+						novo_contrato.setCriar_clausula_comissao(0);
+						entClausulaComissao.setEditable(true);
 
 
 					} catch (Exception re) {
@@ -2087,8 +2098,8 @@ public class TelaElaborarNovoContrato extends JFrame {
 
 			}
 		});
-		chBoxClausulaComissao.setBounds(937, 449, 242, 18);
-		painelDadosProdutos.add(chBoxClausulaComissao);
+		chBoxCriarClausulaComissao.setBounds(937, 449, 242, 18);
+		painelDadosProdutos.add(chBoxCriarClausulaComissao);
 
 		pesquisarSafras();
 
@@ -2722,7 +2733,7 @@ public class TelaElaborarNovoContrato extends JFrame {
 		mostrar_soma_atual_restante.setBounds(745, 311, 165, 42);
 		painelEmpresa.add(mostrar_soma_atual_restante);
 
-		chBoxClausulaComissao.setEnabled(false);
+		chBoxCriarClausulaComissao.setEnabled(false);
 		
 		
 		 rBPostoSobreRodas = new JRadioButton("\"Posto sobre rodas\"");
@@ -2883,20 +2894,19 @@ public class TelaElaborarNovoContrato extends JFrame {
 
 							// pagamentos
 							novo_contrato.setPagamentos(pagamentos);
+							novo_contrato.setGrupo_particular(0);
 
 							// adicionais
 							ArrayList<String> clausulas_locais = new ArrayList<>();
 
-							
-							novo_contrato.setGrupo_particular(0);
-
 							clausulas_locais.add(entClausula1.getText().toString());
 							clausulas_locais.add(entClausula2.getText().toString());
 
-							if (chBoxClausulaComissao.isSelected()) {
-								clausulas_locais.add(entClausula3.getText().toString());
-							}
 							
+							if (chBoxClausula3.isSelected()) {
+								clausulas_locais.add(entClausula3.getText().toString());
+
+							}
 							if (chBoxClausula4.isSelected()) {
 								clausulas_locais.add(entClausula4.getText().toString());
 
@@ -2905,13 +2915,17 @@ public class TelaElaborarNovoContrato extends JFrame {
 								clausulas_locais.add(entClausula5.getText().toString());
 
 							}
-							if (chBoxClausula6.isSelected()) {
-								clausulas_locais.add(entClausula6.getText().toString());
-
-							}
 							
 							novo_contrato.setClausulas(clausulas_locais);
 
+							 //clausula comissao
+							if (chBoxCriarClausulaComissao.isSelected()) {
+								novo_contrato.setCriar_clausula_comissao(1);
+								novo_contrato.setClausula_comissao(entClausulaComissao.getText().toString());
+							}else {
+								novo_contrato.setCriar_clausula_comissao(0);
+
+							}
 							
 							//clausula frete
 
@@ -3013,7 +3027,7 @@ public class TelaElaborarNovoContrato extends JFrame {
 		lblStatusInicial.setFont(new Font("Arial Black", Font.PLAIN, 14));
 		lblStatusInicial.setBounds(659, 46, 564, 42);
 		painelFinalizar.add(lblStatusInicial);
-		chBoxClausulaComissao.setVisible(false);
+		chBoxCriarClausulaComissao.setVisible(false);
 
 		if (tipoContrato == 1) {
 			// e um subcontrato
@@ -3377,9 +3391,6 @@ public class TelaElaborarNovoContrato extends JFrame {
 		painelFinalizar.add(lblTipoContrato);
 		
 
-		if (modelo_global.getNome_modelo().equals("formal")) {
-			retirarClausulasAdicionaisContratoFormal();
-		} 
 		this.setResizable(false);
 		//this.setBounds(GraphicsEnvironment.getLocalGraphicsEnvironment().getMaximumWindowBounds());
 		
@@ -3713,8 +3724,8 @@ public class TelaElaborarNovoContrato extends JFrame {
 				arquivo.salvarNovasConfiguragoes();
 				
 				if(novo_contrato.getSub_contrato() == 1) {
-					DadosGlobais dados = DadosGlobais.getInstance();
-					dados.getTeraGerenciarContratoPai().atualizarContratoLocal(true);
+				//	DadosGlobais dados = DadosGlobais.getInstance();
+					//dados.getTeraGerenciarContratoPai().atualizarContratoLocal(true);
 				}
 
 				isto.dispose();
@@ -3739,8 +3750,8 @@ public class TelaElaborarNovoContrato extends JFrame {
 				isto.dispose();
 			} else if (result == 5) {
 				JOptionPane.showMessageDialog(isto, "Contrato atualizado e salvo na base de dados");
-				DadosGlobais dados = DadosGlobais.getInstance();
-				 dados.getTeraGerenciarContratoPai().atualizarContratoLocal(true);
+			//	DadosGlobais dados = DadosGlobais.getInstance();
+				// dados.getTeraGerenciarContratoPai().atualizarContratoLocal(true);
 				isto.dispose();
 			}
 		} else {
@@ -3813,13 +3824,13 @@ public class TelaElaborarNovoContrato extends JFrame {
 		lblValorTotalComisao1.setText("");
 
 		valor_total_comissao = new BigDecimal("0");
-		chBoxClausulaComissao.setVisible(false);
-		chBoxClausulaComissao.setEnabled(false);
-		chBoxClausula3.setSelected(false);
-		entClausula3.setText("");
-		entClausula3.setEditable(false);
-
+		chBoxCriarClausulaComissao.setVisible(false);
+		chBoxCriarClausulaComissao.setEnabled(false);
 		chBoxClausulaComissao.setSelected(false);
+		entClausulaComissao.setText("");
+		entClausulaComissao.setEditable(false);
+
+		chBoxCriarClausulaComissao.setSelected(false);
 		novo_contrato.setComissao(0);
 
 	}
@@ -3831,8 +3842,8 @@ public class TelaElaborarNovoContrato extends JFrame {
 		entComissao.setEnabled(true);
 
 		entComissao.setEditable(true);
-		chBoxClausulaComissao.setVisible(true);
-		chBoxClausulaComissao.setEnabled(true);
+		chBoxCriarClausulaComissao.setVisible(true);
+		chBoxCriarClausulaComissao.setEnabled(true);
 		novo_contrato.setComissao(1);
 
 	}
@@ -3844,7 +3855,7 @@ public class TelaElaborarNovoContrato extends JFrame {
 
 	public void setClausulaComissao(String valor) {
 		try {
-		if (chBoxClausulaComissao.isSelected()) {
+		if (chBoxCriarClausulaComissao.isSelected()) {
 		  
 			String valor_texto = new PorExtenso(Double.parseDouble(valor.replace(",", "."))).toString();
 			double _valor = Double.parseDouble(valor.replace(",", "."));
@@ -3860,10 +3871,10 @@ public class TelaElaborarNovoContrato extends JFrame {
 			
 			String valor_total_extenso = new PorExtenso(valor_total).toString();
             if(modelo_global.getNome_modelo().equals("informal")) {
-            	entClausula3.setText("Comissão de R$ " + valorString + " ( " + valor_texto.toLowerCase() + " ) por " + unidadeGlobal + 
+            	entClausulaComissao.setText("Comissão de R$ " + valorString + " ( " + valor_texto.toLowerCase() + " ) por " + unidadeGlobal + 
     					" pagas ao CORRETOR.");
             }else {
-            	entClausula3.setText("Comissão de R$ " + valorString + " ( " + valor_texto.toLowerCase() + " ) por " + unidadeGlobal + 
+            	entClausulaComissao.setText("Comissão de R$ " + valorString + " ( " + valor_texto.toLowerCase() + " ) por " + unidadeGlobal + 
     					" pagas ao CORRETOR do CONTRATO, no valor total de R$ " + valor_total + " ("
     					+ valor_total_extenso.toLowerCase() + " ).");
             }
@@ -3984,9 +3995,9 @@ public class TelaElaborarNovoContrato extends JFrame {
 		// comissao
 		if (contrato_pai_local.getComissao() == 1) {
 			setComissao();
-			if (contrato_pai_local.getClausula_comissao() == 1) {
+			if (contrato_pai_local.getCriar_clausula_comissao() == 1) {
 
-				chBoxClausulaComissao.setSelected(true);
+				chBoxCriarClausulaComissao.setSelected(true);
 
 				System.out.println("Quatidade: " + quantidade + "valor total da comissao: " + valor_tot_comissao);
 				String valor_por_unidade = (valor_tot_comissao.divide(quantidade)).toPlainString();
@@ -4157,6 +4168,14 @@ public class TelaElaborarNovoContrato extends JFrame {
 			}
 		}
 
+		if(contrato_pai_local.getCriar_clausula_comissao() == 1) {
+			 //clausula comissao
+			 chBoxCriarClausulaComissao.setSelected(true);
+			 chBoxClausulaComissao.setSelected(true);
+			 entClausulaComissao.setText(novo_contrato.getClausula_comissao());
+			
+		}
+		
 		if (contrato_pai_local.getTexto_clausulas() != null) {
 			int num_clausulas = 1;
 			// clausulas
@@ -4188,18 +4207,11 @@ public class TelaElaborarNovoContrato extends JFrame {
 
 					} else if (num_clausulas == 3) {
 
-						if (contrato_pai_local.getClausula_comissao() == 1) {
 							entClausula3.setText(termo);
 							chBoxClausula3.setSelected(true);
-						} else {
-							entClausula4.setText(termo);
-							chBoxClausula4.setSelected(true);
-							entClausula4.setEditable(true);
-							entClausula4.setEnabled(true);
+						
 
-						}
-
-						num_clausulas = num_clausulas + 2;
+						num_clausulas++;
 
 					} else if (num_clausulas == 4) {
 						entClausula4.setText(termo);
@@ -4217,29 +4229,7 @@ public class TelaElaborarNovoContrato extends JFrame {
 
 						num_clausulas++;
 
-					} else if (num_clausulas == 6) {
-						entClausula6.setText(termo);
-						chBoxClausula6.setSelected(true);
-						entClausula6.setEditable(true);
-						entClausula6.setEnabled(true);
-
-						num_clausulas++;
-
 					} 
-					//set clausula de armazenagem
-					else if(num_clausulas == contrato_pai_local.getClausulas().size() - 1){
-                          //verifica a ultima clausula
-						if(contrato_pai_local.getFrete() != null ) {
-							if(contrato_pai_local.getFrete().equalsIgnoreCase("Comprador") ) {
-								cBFrete.setSelectedItem("Comprador");
-								entClausulaFrete.setText(termo);
-							}else {
-								cBFrete.setSelectedItem("Vendedor");
-								entClausulaFrete.setText(termo);
-
-							}
-						}
-					}
 
 				}
 			} // fim do for
@@ -4911,7 +4901,7 @@ public class TelaElaborarNovoContrato extends JFrame {
 					clausulas_locais.add(entClausula1.getText().toString());
 					clausulas_locais.add(entClausula2.getText().toString());
 
-					if (chBoxClausulaComissao.isSelected()) {
+					if (chBoxClausula3.isSelected()) {
 						clausulas_locais.add(entClausula3.getText().toString());
 					}
 					
@@ -4923,13 +4913,17 @@ public class TelaElaborarNovoContrato extends JFrame {
 						clausulas_locais.add(entClausula5.getText().toString());
 
 					}
-					if (chBoxClausula6.isSelected()) {
-						clausulas_locais.add(entClausula6.getText().toString());
-
-					}
-					
+										
 					novo_contrato.setClausulas(clausulas_locais);
 
+					 //clausula comissao
+					if (chBoxCriarClausulaComissao.isSelected()) {
+						novo_contrato.setCriar_clausula_comissao(1);
+						novo_contrato.setClausula_comissao(entClausulaComissao.getText().toString());
+					}else {
+						novo_contrato.setCriar_clausula_comissao(0);
+
+					}
 					
 					//clausula frete
 
@@ -5091,38 +5085,5 @@ public void atualizarPainelSalvar() {
 	
 }
 	
-	public void retirarClausulasAdicionaisContratoFormal() {
-		chBoxClausula4.setEnabled(false);
-		chBoxClausula4.setVisible(false);
-		
-		chBoxClausula5.setEnabled(false);
-		chBoxClausula5.setVisible(false);
-		
-		chBoxClausula6.setEnabled(false);
-		chBoxClausula6.setVisible(false);
-		
-		entClausula4.setEnabled(false);
-		entClausula4.setVisible(false);
-		
-		entClausula5.setEnabled(false);
-		entClausula5.setVisible(false);
-		
-		entClausula6.setEnabled(false);
-		entClausula6.setVisible(false);
-		
-		entClausula1.setEnabled(false);
-		entClausula1.setVisible(false);
-		
-		entClausula2.setEnabled(false);
-		entClausula2.setVisible(false);
-		
-		chBoxClausula1.setEnabled(false);
-		chBoxClausula1.setVisible(false);
-		
-		chBoxClausula2.setEnabled(false);
-		chBoxClausula2.setVisible(false);
-		
-		
 	
-	}
 }

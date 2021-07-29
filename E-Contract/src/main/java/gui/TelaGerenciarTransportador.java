@@ -1003,11 +1003,7 @@ public class TelaGerenciarTransportador extends JDialog {
 				 //usuario logado
 				  login = dados.getLogin();
 		
-				  //telaRomaneios
-				  telaRomaneio = dados.getTelaRomaneios();
-				  
-				  //telaTodasNotasFiscais
-				  telaTodasNotasFiscais = dados.getTelaTodasNotasFiscais();
+				
 	}
 	
 	

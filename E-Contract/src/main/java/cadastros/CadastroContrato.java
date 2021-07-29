@@ -6,18 +6,19 @@ import java.util.ArrayList;
 
 public class CadastroContrato {
 
-	/*
-	 * 
-	 * localizacao text 
-bruto_livre text 
-fertilizante text 
-penhor int(3) 
-status_penhor text 
-optante_folha int(3) 
-status_optante_folha text
-	 * 
-	 */
+
+	private int filho;
 	
+	public int getFilho() {
+		return filho;
+	}
+
+
+
+	public void setFilho(int filho) {
+		this.filho = filho;
+	}
+
 	private String descricao, observacao;
 	public String getDescricao() {
 		return descricao;
@@ -70,8 +71,49 @@ status_optante_folha text
 	
 	private String fundo_rural;
 	private String clausula_fundo_rural;
+	private  String clausula_comissao;
+	private int criar_clausula_comissao;
+	
+	private int comissao;
 	
 	
+	
+
+
+	public int getComissao() {
+		return comissao;
+	}
+
+
+
+	public void setComissao(int comissao) {
+		this.comissao = comissao;
+	}
+
+
+
+	public int getCriar_clausula_comissao() {
+		return criar_clausula_comissao;
+	}
+
+
+
+	public void setCriar_clausula_comissao(int criar_clausula_comissao) {
+		this.criar_clausula_comissao = criar_clausula_comissao;
+	}
+
+
+
+	public String getClausula_comissao() {
+		return clausula_comissao;
+	}
+
+
+
+	public void setClausula_comissao(String clausula_comissao) {
+		this.clausula_comissao = clausula_comissao;
+	}
+
 
 
 	public String getFundo_rural() {
@@ -480,35 +522,9 @@ status_optante_folha text
 
 
 
-	public int getComissao() {
-		return comissao;
-	}
-
-
-
-
-
-
-
-	public int getClausula_comissao() {
-		return clausula_comissao;
-	}
-
-
-
-	public void setClausula_comissao(int clausula_comissao) {
-		this.clausula_comissao = clausula_comissao;
-	}
-
-
-
-	public void setComissao(int comissao) {
-		this.comissao = comissao;
-	}
 	private double quantidade, valor_produto;
 	private String produto, data_contrato, codigo, data_entrega, ctc, ctv, safra, medida, caminho_arquivo, nome_arquivo;
 	private int sub_contrato;
-	private int comissao, clausula_comissao;
 	
 	
 	public int getSub_contrato() {
@@ -1003,6 +1019,30 @@ local retirada: 24 2
 		
 		
 		
+		@Override
+		public String toString() {
+			return "Carregamento [id_carregamento=" + id_carregamento + ", id_cliente=" + id_cliente
+					+ ", id_transportador=" + id_transportador + ", id_veiculo=" + id_veiculo + ", id_contrato="
+					+ id_contrato + ", id_produto=" + id_produto + ", id_vendedor=" + id_vendedor
+					+ ", nf_venda1_aplicavel=" + nf_venda1_aplicavel + ", nf_complemento_aplicavel="
+					+ nf_complemento_aplicavel + ", nf_interna_aplicavel=" + nf_interna_aplicavel
+					+ ", codigo_nota_fiscal=" + codigo_nota_fiscal + ", data=" + data + ", caminho_nota_fiscal="
+					+ caminho_nota_fiscal + ", nome_remetente_nf_venda1=" + nome_remetente_nf_venda1
+					+ ", nome_destinatario_nf_venda1=" + nome_destinatario_nf_venda1
+					+ ", nome_remetente_nf_complemento=" + nome_remetente_nf_complemento
+					+ ", nome_destinatario_nf_complemento=" + nome_destinatario_nf_complemento + ", nome_transportador="
+					+ nome_transportador + ", nome_comprador=" + nome_comprador + ", nome_vendedor=" + nome_vendedor
+					+ ", nome_produto=" + nome_produto + ", placa_veiculo=" + placa_veiculo + ", codigo_contrato="
+					+ codigo_contrato + ", descricao=" + descricao + ", codigo_romaneio=" + codigo_romaneio
+					+ ", caminho_romaneio=" + caminho_romaneio + ", codigo_nf_venda1=" + codigo_nf_venda1
+					+ ", caminho_nf_venda1=" + caminho_nf_venda1 + ", codigo_nf_complemento=" + codigo_nf_complemento
+					+ ", caminho_nf_complemento=" + caminho_nf_complemento + ", codigo_nf_interna=" + codigo_nf_interna
+					+ ", caminho_nf_interna=" + caminho_nf_interna + ", observacao=" + observacao + ", peso_romaneio="
+					+ peso_romaneio + ", peso_nf_venda1=" + peso_nf_venda1 + ", peso_nf_complemento="
+					+ peso_nf_complemento + ", peso_nf_interna=" + peso_nf_interna + ", valor_nf_venda1="
+					+ valor_nf_venda1 + ", valor_nf_complemento=" + valor_nf_complemento + ", peso_real_carga="
+					+ peso_real_carga + "]";
+		}
 		public String getCodigo_contrato() {
 			return codigo_contrato;
 		}

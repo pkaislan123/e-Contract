@@ -192,6 +192,17 @@ public class TelaEmEsperaRelatoria extends JDialog {
 		 barra.setBounds(10, 91, 379, 14);
 		 barra.setBorder(null);
 		 contentPane.add(barra);
+		 
+		 JButton btnNewButton = new JButton("cancelar");
+		 btnNewButton.addActionListener(new ActionListener() {
+		 	public void actionPerformed(ActionEvent e) {
+		 		isto.dispose();
+		 	}
+		 });
+		 btnNewButton.setBackground(new Color(153, 0, 0));
+		 btnNewButton.setForeground(Color.WHITE);
+		 btnNewButton.setBounds(300, 116, 89, 23);
+		 contentPane.add(btnNewButton);
 		
 		
 	
@@ -209,6 +220,4 @@ public class TelaEmEsperaRelatoria extends JDialog {
         barra.setValue(value);		
         lblStatus.setText(text);
 	}
-
-	
 }

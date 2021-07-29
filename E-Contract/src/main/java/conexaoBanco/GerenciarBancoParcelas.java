@@ -434,5 +434,80 @@ public class GerenciarBancoParcelas {
 		return lista;
 
 	}
+	
+	
+public ArrayList<FinanceiroParcelaCompleto> getTodasParcelasFiltrados(int cc, int mes, int ano, int tipo) {
+		
+		String select = "call busca_extrato_todos_caixa_parcela_filtrados(?,?,?,?)";
+		Connection conn = null;
+		PreparedStatement pstm = null;
+		ResultSet rs = null;
+		ArrayList<FinanceiroParcelaCompleto> lista = new ArrayList<>();
+		try {
+			conn = ConexaoBanco.getConexao();
+			pstm = conn.prepareStatement(select);
+			pstm.setInt(1, cc);
+			pstm.setInt(2, mes);
+
+			pstm.setInt(3, ano);
+			pstm.setInt(4, tipo);
+			
+			rs = pstm.executeQuery();
+			while (rs.next()) {
+				
+				if(rs.getInt("id_lancamento") > 0) {
+				
+				Parcela dado = new Parcela();
+				
+				dado.setId_parcela(rs.getInt("id_parcela"));
+				dado.setId_lancamento_pai(rs.getInt("id_lancamento_pai"));
+				dado.setIdentificador(rs.getString("identificador"));
+				dado.setFluxo_caixa(rs.getInt("fluxo_caixa"));
+				dado.setStatus(rs.getInt("status"));
+
+				try{
+					dado.setValor(new BigDecimal(rs.getString("valor")));
+				}catch(Exception e) {
+					dado.setValor(BigDecimal.ZERO);
+				}
+				dado.setData_vencimento(rs.getString("data_vencimento"));
+				dado.setDescricao(rs.getString("descricao"));
+				dado.setObservacao(rs.getString("observacao"));
+				dado.setCaminho_arquivo(rs.getString("caminho_arquivo"));
+			
+				Lancamento lancamento = new Lancamento();
+				lancamento.setId_lancamento(rs.getInt("id_lancamento"));
+				lancamento.setPrioridade(rs.getInt("prioridade"));
+				lancamento.setTipo_lancamento(rs.getInt("tipo_lancamento"));
+				lancamento.setData_lancamento(rs.getString("data_lancamento"));
+				lancamento.setId_instituicao_bancaria(rs.getInt("id_instituicao_bancaria"));
+				lancamento.setId_conta(rs.getInt("id_conta"));
+				lancamento.setId_centro_custo(rs.getInt("id_centro_custo"));
+				lancamento.setId_cliente_fornecedor(rs.getInt("id_cliente_fornecedor"));
+				lancamento.setGerar_parcelas(rs.getInt("gerar_parcelas"));
+				lancamento.setIntervalo(rs.getInt("intervalo"));
+				lancamento.setNumero_parcelas(rs.getInt("numero_parcelas"));
+				lancamento.setNome_conta(rs.getString("nome_conta"));
+				lancamento.setNome_grupo_contas(rs.getString("nome_grupo_contas"));
+				lancamento.setNome_centro_custo(rs.getString("nome_centro_custo"));
+				lancamento.setNome_cliente_fornecedor(rs.getString("cliente_fornecedor"));
+				
+						FinanceiroParcelaCompleto financeiro_pagamento_lancamento = new FinanceiroParcelaCompleto();
+				financeiro_pagamento_lancamento.setLancamento(lancamento);
+				financeiro_pagamento_lancamento.setFpc(dado);
+				
+				lista.add(financeiro_pagamento_lancamento);
+				
+				
+				}
+
+			}
+			ConexaoBanco.fechaConexao(conn, pstm, rs);
+		} catch (Exception e) {
+			JOptionPane.showMessageDialog(null, "Erro ao listar a Parcela \nErro: " + e.getMessage() + "\nCausa: " + e.getCause());// );
+		}
+		return lista;
+
+	}
 
 }

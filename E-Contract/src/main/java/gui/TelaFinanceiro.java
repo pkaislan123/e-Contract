@@ -278,29 +278,17 @@ public class TelaFinanceiro extends JFrame {
 		mntmRelatoria.setFont(new Font("Segoe UI", Font.PLAIN, 16));
 		mnNewMenu_1.add(mntmRelatoria);
 
-		JMenuItem mntmRecibosEEmprstimos = new JMenuItem("Recibos e Empréstimos");
+		JMenuItem mntmRecibosEEmprstimos = new JMenuItem("Recibos");
 		mntmRecibosEEmprstimos.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				JOptionPane.showMessageDialog(isto, "Construindo...");
-
+				TelaFinanceiroRecibos tela = new TelaFinanceiroRecibos(isto);
+				tela.setVisible(true);
 			}
 		});
 		mntmRecibosEEmprstimos.setIcon(new ImageIcon(TelaFinanceiro.class.getResource("/imagens/emprestimo.png")));
 		mntmRecibosEEmprstimos.setMargin(new Insets(0, 10, 0, 0));
 		mntmRecibosEEmprstimos.setFont(new Font("Segoe UI", Font.PLAIN, 16));
 		mnNewMenu_1.add(mntmRecibosEEmprstimos);
-
-		JMenuItem mntmComprovantes = new JMenuItem("Comprovantes");
-		mntmComprovantes.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				JOptionPane.showMessageDialog(isto, "Construindo...");
-
-			}
-		});
-		mntmComprovantes.setIcon(new ImageIcon(TelaFinanceiro.class.getResource("/imagens/comprovante.png")));
-		mntmComprovantes.setMargin(new Insets(0, 10, 0, 0));
-		mntmComprovantes.setFont(new Font("Segoe UI", Font.PLAIN, 16));
-		mnNewMenu_1.add(mntmComprovantes);
 		painelPrincipal = new JPanel();
 		painelPrincipal.setBackground(Color.WHITE);
 		painelPrincipal.setBorder(new EmptyBorder(5, 5, 5, 5));

@@ -37,7 +37,7 @@ CREATE TABLE `funcionario_evento` (
 	
 
 	public String sql_ContratodeTrabalho(CadastroFuncionarioEvento evento) {
-		return "insert into funcionario_evento (id_colaborador, id_contrato, tipo_evento, data_evento,data_folga,data_ferias_ida,data_ferias_volta, novo_valor_salarial, motivo_demissao) values ('"
+		return "insert into funcionario_evento (id_colaborador, id_contrato, tipo_evento, data_evento,data_folga,data_ferias_ida,data_ferias_volta, novo_valor_salarial, motivo_demissao, data_saida, hora_saida, movimentacao) values ('"
 				+ evento.getId_colaborador() + "','"
 				+ evento.getId_contrato() + "','"
 				+ evento.getTipo_evento() + "','"
@@ -47,8 +47,10 @@ CREATE TABLE `funcionario_evento` (
                         + evento.getData_ferias_volta() + "','"
 
                 + evento.getNovo_valor_salarial() + "','"
-
-                + evento.getMotivo_demissao() + "')";
+                		+ evento.getMotivo_demissao() + "','"
+                				+ evento.getData_saida() + "','"
+                						+ evento.getHora_saida() + "','"
+                + evento.getMovimentacao() + "')";
 	}
 	
 	public int inserirevento(CadastroFuncionarioEvento evento) {
@@ -111,7 +113,9 @@ CREATE TABLE `funcionario_evento` (
 				evento.setData_ferias_ida(rs.getString("data_ferias_ida"));
 				evento.setData_ferias_volta(rs.getString("data_ferias_volta"));
 				evento.setNovo_valor_salarial(rs.getDouble("novo_valor_salarial"));
-
+				evento.setData_saida(rs.getString("data_saida"));
+				evento.setHora_saida(rs.getString("hora_saida"));
+				evento.setMovimentacao(rs.getInt("movimentacao"));
 				evento.setMotivo_demissao(rs.getInt("motivo_demissao"));
 
 
@@ -155,7 +159,9 @@ CREATE TABLE `funcionario_evento` (
 				evento.setNovo_valor_salarial(rs.getDouble("novo_valor_salarial"));
 
 				evento.setMotivo_demissao(rs.getInt("motivo_demissao"));
-
+				evento.setData_saida(rs.getString("data_saida"));
+				evento.setHora_saida(rs.getString("hora_saida"));
+				evento.setMovimentacao(rs.getInt("movimentacao"));
 
 
 
@@ -236,7 +242,9 @@ ORDER BY  id_evento DESC LIMIT 1;
 			evento.setNovo_valor_salarial(rs.getDouble("novo_valor_salarial"));
 
 			evento.setMotivo_demissao(rs.getInt("motivo_demissao"));
-
+			evento.setData_saida(rs.getString("data_saida"));
+			evento.setHora_saida(rs.getString("hora_saida"));
+			evento.setMovimentacao(rs.getInt("movimentacao"));
 
 
 			

@@ -405,8 +405,6 @@ public class GerenciarBancoRomaneios {
 	        String selectRoms = "call busca_romaneios_mais_rapido_por_cliente(?)";
 	        
 	        ArrayList<CadastroRomaneio> lista_roms = new ArrayList<CadastroRomaneio>();
-	        GerenciarBancoClientes gerenciar = new GerenciarBancoClientes();
-	        ArrayList<CadastroCliente> clientes = gerenciar.getClientes(-1, -1, "");
 	        
 	        try {
 	            conn = ConexaoBanco.getConexao();
@@ -496,7 +494,6 @@ public class GerenciarBancoRomaneios {
 	            	rom.setId_transgenese(rs.getInt("id_transgenia"));
 	            	rom.setTransgenia(rs.getString("nome_transgenia"));
 	            	rom.setClassificador(rs.getString("nome_classificador"));
-	            	rom.setId_classificador(rs.getInt("id_classificador"));
 	            	rom.setStatus_monsanto(rs.getInt("status_monsanto"));
 	            	rom.setObservacao(rs.getString("observacao"));
 	            	rom.setRoyalties(rs.getInt("royalties"));

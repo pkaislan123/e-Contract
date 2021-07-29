@@ -13,5 +13,6 @@ import lombok.NoArgsConstructor;
 public class RegistroPontoDiarioCompleto extends RegistroPontoDiario {
 
 	private String nome_colaborador;
+	private String nome_departamento;
 	private String hora_diaria;
 }

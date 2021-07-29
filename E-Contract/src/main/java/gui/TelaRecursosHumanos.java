@@ -207,6 +207,20 @@ public class TelaRecursosHumanos extends JFrame {
 		mntmNewMenuItem_1_2.setMargin(new Insets(0, 14, 0, 0));
 		mntmNewMenuItem_1_2.setFont(new Font("Segoe UI", Font.PLAIN, 16));
 		mnNewMenu_1.add(mntmNewMenuItem_1_2);
+		
+		JMenuItem mntmNewMenuItem_1_2_1_1 = new JMenuItem("Departamentos");
+		mntmNewMenuItem_1_2_1_1.setIcon(new ImageIcon(TelaRecursosHumanos.class.getResource("/imagens/departamentos.png")));
+		mntmNewMenuItem_1_2_1_1.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				
+				TelaFuncionariosDepartamentos tela = new TelaFuncionariosDepartamentos(0,isto);
+				tela.setVisible(true);
+				
+			}
+		});
+		mntmNewMenuItem_1_2_1_1.setMargin(new Insets(0, 14, 0, 0));
+		mntmNewMenuItem_1_2_1_1.setFont(new Font("Segoe UI", Font.PLAIN, 16));
+		mnNewMenu_1.add(mntmNewMenuItem_1_2_1_1);
 		painelPrincipal = new JPanel();
 		painelPrincipal.setBackground(Color.WHITE);
 		painelPrincipal.setBorder(new EmptyBorder(5, 5, 5, 5));
@@ -261,6 +275,29 @@ public class TelaRecursosHumanos extends JFrame {
 		mntmNewMenuItem_5.setIcon(new ImageIcon(TelaPrincipal.class.getResource("/imagens/icone_menu_tarefas.png")));
 		mntmNewMenuItem_5.setMargin(new Insets(0, 10, 0, 0));
 		mnFerramentas.add(mntmNewMenuItem_5);
+		
+		JMenuItem mntmNewMenuItem_5_1 = new JMenuItem("Análise");
+		mntmNewMenuItem_5_1.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				
+				
+				if(login != null) {
+					if(login.getConfigs_privilegios().getNivel_privilegios() <= 2) {
+						TelaFuncionariosAnalise tela = new TelaFuncionariosAnalise(isto);
+								tela.setVisible(true);
+					}
+				}else {
+					JOptionPane.showMessageDialog(isto, "Requer Elevação de Direitos");
+
+				}
+				
+				
+				
+			}
+		});
+		mntmNewMenuItem_5_1.setIcon(new ImageIcon(TelaRecursosHumanos.class.getResource("/imagens/analise.png")));
+		mntmNewMenuItem_5_1.setMargin(new Insets(0, 10, 0, 0));
+		mnFerramentas.add(mntmNewMenuItem_5_1);
 		GridBagConstraints gbc_panel_1 = new GridBagConstraints();
 		gbc_panel_1.gridwidth = 13;
 		gbc_panel_1.insets = new Insets(0, 0, 5, 5);
@@ -543,14 +580,16 @@ public class TelaRecursosHumanos extends JFrame {
 		private final int data = 0;
 		private final int dia_semana = 1;
 		private final int colaborador = 2;
-		private final int entrada1 = 3;
-		private final int saida1 = 4;
-		private final int entrada2 = 5;
-		private final int saida2 = 6;
-		private final int entrada3 = 7;
-		private final int saida3 = 8;
+		private final int departamento = 3;
 
-		private final String colunas[] = { "DATA", "DIA DA SEMANA", "COLABORADOR", "ENTRADA 1", "SAÍDA 1", "ENTRADA 2",
+		private final int entrada1 = 4;
+		private final int saida1 = 5;
+		private final int entrada2 = 6;
+		private final int saida2 = 7;
+		private final int entrada3 = 8;
+		private final int saida3 = 9;
+
+		private final String colunas[] = { "DATA", "DIA DA SEMANA", "COLABORADOR", "DEPARTAMENTO","ENTRADA 1", "SAÍDA 1", "ENTRADA 2",
 				"SAÍDA 2", "ENTRADA 3", "SAÍDA 3" };
 
 		private final ArrayList<RegistroPontoDiarioCompleto> dados = new ArrayList<>();// usamos como dados uma lista
@@ -583,6 +622,8 @@ public class TelaRecursosHumanos extends JFrame {
 			case dia_semana:
 				return String.class;
 			case colaborador:
+				return String.class;
+			case departamento:
 				return String.class;
 			case entrada1:
 				return String.class;
@@ -631,6 +672,8 @@ public class TelaRecursosHumanos extends JFrame {
 			}
 			case colaborador:
 				return rp.getNome_colaborador();
+			case departamento:
+				return rp.getNome_departamento();
 			case entrada1: {
 				return rp.getEntrada1();
 			}
@@ -750,10 +793,10 @@ public class TelaRecursosHumanos extends JFrame {
 				int row, int column) {
 			this.setHorizontalAlignment(CENTER);
 
-			String entrada1 = (String) tabela_rps.getValueAt(row, 3);
-			String saida1 = (String) tabela_rps.getValueAt(row, 4);
-			String entrada2 = (String) tabela_rps.getValueAt(row, 5);
-			String saida2 = (String) tabela_rps.getValueAt(row, 6);
+			String entrada1 = (String) tabela_rps.getValueAt(row, 4);
+			String saida1 = (String) tabela_rps.getValueAt(row, 5);
+			String entrada2 = (String) tabela_rps.getValueAt(row, 6);
+			String saida2 = (String) tabela_rps.getValueAt(row, 7);
 
 			if (entrada1 != null && !entrada1.equalsIgnoreCase("FALTA") && !entrada1.equalsIgnoreCase("FOLGA")
 					&& !entrada1.equalsIgnoreCase("FÉRIAS") && !entrada1.equalsIgnoreCase("ISENÇÃO DE PONTO")
@@ -851,6 +894,7 @@ public class TelaRecursosHumanos extends JFrame {
 					total_incompleto++;
 				}
 
+				rp.setNome_departamento(ct.getNome_departamento());
 				modeloRps.onAdd(rp);
 
 			}
@@ -966,6 +1010,8 @@ public class TelaRecursosHumanos extends JFrame {
 					avulso.setEntrada2("ISENÇÃO DE PONTO");
 					avulso.setSaida2("ISENÇÃO DE PONTO");
 					total_isencao++;
+					avulso.setNome_departamento(ct.getNome_departamento());
+
 					modeloRps.onAdd(avulso);
 
 				}else {
@@ -1090,6 +1136,8 @@ public class TelaRecursosHumanos extends JFrame {
 					avulso.setSaida2("FERIADO");
 					total_feriado++;
 				}
+				avulso.setNome_departamento(ct.getNome_departamento());
+
 				modeloRps.onAdd(avulso);
 				}
 			}

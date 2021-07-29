@@ -13,11 +13,12 @@ import lombok.NoArgsConstructor;
 public class CadastroFuncionarioAdmissao {
 
 	
-	int id_contrato, id_colaborador, status;
+	int id_contrato, id_departamento, id_colaborador, status;
 	String data_admissao, tipo_contrato, cargo, funcao;
 	double salario;
 	
 	
+	String nome_departamento;
 	String data_encerramento_contrato;
 	double ultimo_salario;
 	

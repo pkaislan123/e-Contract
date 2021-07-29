@@ -199,9 +199,23 @@ public class TelaRecortarImagem2 extends JDialog{
 		setTitle("E-Contract - Importar Imagem");
 
 
-		setBackground(new Color(255, 255, 255));
-		setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-		setBounds(100, 100, 1029, 701);
+		Toolkit tk = Toolkit.getDefaultToolkit();
+		Dimension dim = tk.getScreenSize();
+		System.out.println("Screen width = " + dim.width);
+		System.out.println("Screen height = " + dim.height);
+
+		// pega o tamanho da barra de tarefas
+		Dimension scrnSize = Toolkit.getDefaultToolkit().getScreenSize();
+		java.awt.Rectangle winSize = GraphicsEnvironment.getLocalGraphicsEnvironment().getMaximumWindowBounds();
+		int taskBarHeight = scrnSize.height - winSize.height;
+		System.out.printf("Altura: %d\n", taskBarHeight);
+
+		DisplayMode display = GraphicsEnvironment.getLocalGraphicsEnvironment().getDefaultScreenDevice()
+				.getDisplayMode();
+
+		int display_x = display.getWidth();
+		int display_y = display.getHeight();
+		setBounds(0, 0, dim.width, dim.height - taskBarHeight);
 		painelPrincipal.setBackground(new Color(255, 255, 255));
 		painelPrincipal.setBorder(new EmptyBorder(5, 5, 5, 5));
 		setContentPane(painelPrincipal);

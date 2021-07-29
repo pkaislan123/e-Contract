@@ -772,6 +772,7 @@ left join instituicao_bancaria ib_rec on ib_rec.id_instituicao_bancaria = fpag.i
 				dado.setTipo_recebedor(rs.getInt("tipo_recebedor"));
 				dado.setId_recebedor(rs.getInt("id_recebedor"));
 				dado.setExtrato(rs.getInt("extrato_bancario"));
+				dado.setCaminho_arquivo(rs.getString("caminho_arquivo"));
 
 				try{
 					dado.setValor(new BigDecimal(rs.getString("valor_total")));

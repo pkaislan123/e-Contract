@@ -166,73 +166,135 @@ public class TelaPadrao extends JDialog {
 
 		setBackground(new Color(255, 255, 255));
 		setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-		setBounds(100, 100, 1200, 81);
+		setBounds(100, 100, 4000, 81);
 
-		KGradientPanel painelPrincipal = new KGradientPanel();
-		painelPrincipal.kEndColor = Color.WHITE;
-		painelPrincipal.kStartColor = new Color(255, 255, 255);
-		painelPrincipal.setBackground(new Color(153, 153, 102));
+		JPanel painelPrincipal = new JPanel();
+		painelPrincipal.setBackground(Color.WHITE);
+
+		painelPrincipal.setLayout(new MigLayout("", "[200px:200px:200px][250px:250px:250px][100px:100px:100px][100px:100px:100px][100px:100px:100px][100px:100px:100px][100px:100px:100px][100px:100px:100px][100px:100px:100px][100px:100px:100px][100px:100px:100px][100px:100px:100px][100px:100px:100px][100px:100px:100px][100px:100px:100px]", "[]"));
+		
+		JLabel lblGrupoContas = new JLabel("Grupo de Contas",SwingConstants.CENTER);
+		lblGrupoContas.setOpaque(true);
+		lblGrupoContas.setBorder(null);
+		lblGrupoContas.setBackground(new Color(0, 51, 204));
+		lblGrupoContas.setForeground(Color.WHITE);
+		lblGrupoContas.setFont(new Font("Arial", Font.BOLD, 16));
+		painelPrincipal.add(lblGrupoContas, "cell 0 0,grow");
+		
+		JLabel lblConta = new JLabel("Conta", SwingConstants.CENTER);
+		lblConta.setOpaque(true);
+		lblConta.setBorder(null);
+		lblConta.setForeground(Color.WHITE);
+		lblConta.setFont(new Font("Arial", Font.BOLD, 16));
+		lblConta.setBackground(new Color(0, 51, 204));
+		painelPrincipal.add(lblConta, "cell 1 0,grow");
+		
+		JLabel lblJaneiro = new JLabel("Janeiro", SwingConstants.CENTER);
+		lblJaneiro.setOpaque(true);
+		lblJaneiro.setBorder(null);
+		lblJaneiro.setForeground(Color.WHITE);
+		lblJaneiro.setFont(new Font("Arial", Font.BOLD, 16));
+		lblJaneiro.setBackground(new Color(0, 51, 204));
+		painelPrincipal.add(lblJaneiro, "cell 2 0,grow");
+		
+		JLabel lblFevereiro = new JLabel("Fevereiro", SwingConstants.CENTER);
+		lblFevereiro.setOpaque(true);
+		lblFevereiro.setBorder(null);
+		lblFevereiro.setForeground(Color.WHITE);
+		lblFevereiro.setFont(new Font("Arial", Font.BOLD, 16));
+		lblFevereiro.setBackground(new Color(0, 51, 204));
+		painelPrincipal.add(lblFevereiro, "cell 3 0,grow");
+		
+		JLabel lblMarco = new JLabel("Marco", SwingConstants.CENTER);
+		lblMarco.setOpaque(true);
+		lblMarco.setBorder(null);
+		lblMarco.setForeground(Color.WHITE);
+		lblMarco.setFont(new Font("Arial", Font.BOLD, 16));
+		lblMarco.setBackground(new Color(0, 51, 204));
+		painelPrincipal.add(lblMarco, "cell 4 0,grow");
+		
+		JLabel lblAbril = new JLabel("Abril", SwingConstants.CENTER);
+		lblAbril.setOpaque(true);
+		lblAbril.setBorder(null);
+		lblAbril.setForeground(Color.WHITE);
+		lblAbril.setFont(new Font("Arial", Font.BOLD, 16));
+		lblAbril.setBackground(new Color(0, 51, 204));
+		painelPrincipal.add(lblAbril, "cell 5 0,grow");
+		
+		JLabel lblMaio = new JLabel("Maio", SwingConstants.CENTER);
+		lblMaio.setOpaque(true);
+		lblMaio.setBorder(null);
+		lblMaio.setForeground(Color.WHITE);
+		lblMaio.setFont(new Font("Arial", Font.BOLD, 16));
+		lblMaio.setBackground(new Color(0, 51, 204));
+		painelPrincipal.add(lblMaio, "cell 6 0,grow");
+		
+		JLabel lblJunho = new JLabel("Junho", SwingConstants.CENTER);
+		lblJunho.setOpaque(true);
+		lblJunho.setForeground(Color.WHITE);
+		lblJunho.setFont(new Font("Arial", Font.BOLD, 16));
+		lblJunho.setBorder(null);
+		lblJunho.setBackground(new Color(0, 51, 204));
+		painelPrincipal.add(lblJunho, "cell 7 0,grow");
+		
+		JLabel lblJulho = new JLabel("Julho", SwingConstants.CENTER);
+		lblJulho.setOpaque(true);
+		lblJulho.setForeground(Color.WHITE);
+		lblJulho.setFont(new Font("Arial", Font.BOLD, 16));
+		lblJulho.setBorder(null);
+		lblJulho.setBackground(new Color(0, 51, 204));
+		painelPrincipal.add(lblJulho, "cell 8 0,grow");
+		
+		JLabel lblAgosto = new JLabel("Agosto", SwingConstants.CENTER);
+		lblAgosto.setOpaque(true);
+		lblAgosto.setForeground(Color.WHITE);
+		lblAgosto.setFont(new Font("Arial", Font.BOLD, 16));
+		lblAgosto.setBorder(null);
+		lblAgosto.setBackground(new Color(0, 51, 204));
+		painelPrincipal.add(lblAgosto, "cell 9 0,grow");
+		
+		JLabel lblSetembro = new JLabel("Setembro", SwingConstants.CENTER);
+		lblSetembro.setOpaque(true);
+		lblSetembro.setForeground(Color.WHITE);
+		lblSetembro.setFont(new Font("Arial", Font.BOLD, 16));
+		lblSetembro.setBorder(null);
+		lblSetembro.setBackground(new Color(0, 51, 204));
+		painelPrincipal.add(lblSetembro, "cell 10 0,grow");
+		
+		JLabel lblOutubro = new JLabel("Outubro", SwingConstants.CENTER);
+		lblOutubro.setOpaque(true);
+		lblOutubro.setForeground(Color.WHITE);
+		lblOutubro.setFont(new Font("Arial", Font.BOLD, 16));
+		lblOutubro.setBorder(null);
+		lblOutubro.setBackground(new Color(0, 51, 204));
+		painelPrincipal.add(lblOutubro, "cell 11 0,grow");
+		
+		JLabel lblNovembro = new JLabel("Novembro", SwingConstants.CENTER);
+		lblNovembro.setOpaque(true);
+		lblNovembro.setForeground(Color.WHITE);
+		lblNovembro.setFont(new Font("Arial", Font.BOLD, 16));
+		lblNovembro.setBorder(null);
+		lblNovembro.setBackground(new Color(0, 51, 204));
+		painelPrincipal.add(lblNovembro, "cell 12 0,grow");
+		
+		JLabel lblDezembro = new JLabel("Dezembro", SwingConstants.CENTER);
+		lblDezembro.setOpaque(true);
+		lblDezembro.setForeground(Color.WHITE);
+		lblDezembro.setFont(new Font("Arial", Font.BOLD, 16));
+		lblDezembro.setBorder(null);
+		lblDezembro.setBackground(new Color(0, 51, 204));
+		painelPrincipal.add(lblDezembro, "cell 13 0,grow");
+
 
 		setContentPane(painelPrincipal);
-		painelPrincipal.setLayout(new MigLayout("", "[:200px:200px][:200px:200px][:200px:200px][:200px:200px][:200px:200px][:200px:200px][:200px:200px]", "[:24px:24px]"));
 		
-		JLabel lblMes = new JLabel("     FEVEREIRO     ",SwingConstants.CENTER);
-		lblMes.setBorder(null);
-		lblMes.setOpaque(true);
-		lblMes.setBackground(new Color(0, 102, 153));
-		lblMes.setForeground(Color.WHITE);
-		lblMes.setFont(new Font("Arial", Font.BOLD, 18));
-		painelPrincipal.add(lblMes, "cell 0 0,grow");
-		
-		JLabel lblSaldoInicial = new JLabel("R$ 99.999.999,00", SwingConstants.CENTER);
-		lblSaldoInicial.setBorder(null);
-		lblSaldoInicial.setOpaque(true);
-		lblSaldoInicial.setForeground(Color.BLACK);
-		lblSaldoInicial.setFont(new Font("Arial", Font.BOLD, 18));
-		lblSaldoInicial.setBackground(Color.WHITE);
-		painelPrincipal.add(lblSaldoInicial, "cell 1 0,grow");
-		
-		JLabel lblReceitas = new JLabel("R$ 99.999.999,00", SwingConstants.CENTER);
-		lblReceitas.setBorder(null);
-		lblReceitas.setOpaque(true);
-		lblReceitas.setForeground(Color.BLACK);
-		lblReceitas.setFont(new Font("Arial", Font.BOLD, 18));
-		lblReceitas.setBackground(new Color(204, 255, 153));
-		painelPrincipal.add(lblReceitas, "cell 2 0,grow");
-		
-		JLabel lblDespesas = new JLabel("R$ 99.999.999,00", SwingConstants.CENTER);
-		lblDespesas.setBorder(null);
-		lblDespesas.setOpaque(true);
-		lblDespesas.setForeground(Color.BLACK);
-		lblDespesas.setFont(new Font("Arial", Font.BOLD, 18));
-		lblDespesas.setBackground(new Color(255, 102, 102));
-		painelPrincipal.add(lblDespesas, "cell 3 0,grow");
-		
-		JLabel lblTotal = new JLabel("R$ 99.999.999,00", SwingConstants.CENTER);
-		lblTotal.setBorder(null);
+		JLabel lblTotal = new JLabel("Total", SwingConstants.CENTER);
 		lblTotal.setOpaque(true);
-		lblTotal.setForeground(Color.BLACK);
-		lblTotal.setFont(new Font("Arial", Font.BOLD, 18));
-		lblTotal.setBackground(Color.WHITE);
-		painelPrincipal.add(lblTotal, "cell 4 0,grow");
-		
-		JLabel lblLucro = new JLabel("R$ 99.999.999,00", SwingConstants.CENTER);
-		lblLucro.setBorder(null);
-		lblLucro.setOpaque(true);
-		lblLucro.setForeground(Color.BLACK);
-		lblLucro.setFont(new Font("Arial", Font.BOLD, 18));
-		lblLucro.setBackground(Color.WHITE);
-		painelPrincipal.add(lblLucro, "cell 5 0,grow");
-		
-		JLabel lblLucratividade = new JLabel("R$ 99.999.999,00", SwingConstants.CENTER);
-		lblLucratividade.setBorder(null);
-		lblLucratividade.setOpaque(true);
-		lblLucratividade.setForeground(Color.BLACK);
-		lblLucratividade.setFont(new Font("Arial", Font.BOLD, 18));
-		lblLucratividade.setBackground(Color.WHITE);
-		painelPrincipal.add(lblLucratividade, "cell 6 0,grow");
-
-
+		lblTotal.setForeground(Color.WHITE);
+		lblTotal.setFont(new Font("Arial", Font.BOLD, 16));
+		lblTotal.setBorder(null);
+		lblTotal.setBackground(new Color(0, 51, 204));
+		painelPrincipal.add(lblTotal, "cell 14 0,grow");
 
 		
 

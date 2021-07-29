@@ -464,13 +464,12 @@ public class TelaRelatoriaContratos extends JFrame {
 		painelOpcaosInternas = new JPanel();
 		painelOpcaosInternas.setBackground(new Color(51, 0, 0));
 		painelPrincipal.add(painelOpcaosInternas, "cell 0 3 5 1,grow");
-		painelOpcaosInternas.setLayout(null);
+		painelOpcaosInternas.setLayout(new MigLayout("", "[652px]", "[19px][19px][19px][23px][19px][19px]"));
 
 		chckbxSomarSubContratos = new JCheckBox("Somar Sub-Contratos");
 		chckbxSomarSubContratos.setFont(new Font("SansSerif", Font.BOLD, 14));
 		chckbxSomarSubContratos.setForeground(Color.WHITE);
-		chckbxSomarSubContratos.setBounds(6, 35, 171, 19);
-		painelOpcaosInternas.add(chckbxSomarSubContratos);
+		painelOpcaosInternas.add(chckbxSomarSubContratos, "cell 0 1,alignx left,aligny top");
 		chckbxSomarSubContratos.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				if (chckbxSomarSubContratos.isSelected()) {
@@ -485,23 +484,20 @@ public class TelaRelatoriaContratos extends JFrame {
 
 		lblNewLabel_4 = new JLabel(
 				"*Opção para gerar relatorio aonde o alvo possuir contratos e sub-contratos como comprador");
-		lblNewLabel_4.setBounds(7, 65, 651, 19);
-		painelOpcaosInternas.add(lblNewLabel_4);
+		painelOpcaosInternas.add(lblNewLabel_4, "cell 0 2,alignx right,aligny top");
 		lblNewLabel_4.setForeground(Color.RED);
 		lblNewLabel_4.setFont(new Font("SansSerif", Font.BOLD, 14));
 
 		chckbxIncluirValorComissao = new JCheckBox("Incluir Comissão");
 		chckbxIncluirValorComissao.setFont(new Font("SansSerif", Font.BOLD, 14));
 		chckbxIncluirValorComissao.setForeground(Color.WHITE);
-		chckbxIncluirValorComissao.setBounds(7, 86, 168, 23);
-		painelOpcaosInternas.add(chckbxIncluirValorComissao);
+		painelOpcaosInternas.add(chckbxIncluirValorComissao, "cell 0 3,alignx left,growy");
 		chckbxIncluirValorComissao.setEnabled(false);
 
 		chckbxIncluirSubContratos = new JCheckBox("Incluir Sub-Contratos");
 		chckbxIncluirSubContratos.setFont(new Font("SansSerif", Font.BOLD, 14));
 		chckbxIncluirSubContratos.setForeground(Color.WHITE);
-		chckbxIncluirSubContratos.setBounds(7, 112, 171, 19);
-		painelOpcaosInternas.add(chckbxIncluirSubContratos);
+		painelOpcaosInternas.add(chckbxIncluirSubContratos, "cell 0 4,alignx left,aligny top");
 		chckbxIncluirSubContratos.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				if (chckbxIncluirSubContratos.isSelected()) {
@@ -528,15 +524,13 @@ public class TelaRelatoriaContratos extends JFrame {
 		chckbxIncluirGanhosPotenciais = new JCheckBox("Incluir Ganhos Potenciais");
 		chckbxIncluirGanhosPotenciais.setFont(new Font("SansSerif", Font.BOLD, 14));
 		chckbxIncluirGanhosPotenciais.setForeground(Color.WHITE);
-		chckbxIncluirGanhosPotenciais.setBounds(39, 141, 201, 19);
-		painelOpcaosInternas.add(chckbxIncluirGanhosPotenciais);
+		painelOpcaosInternas.add(chckbxIncluirGanhosPotenciais, "cell 0 5,alignx left,aligny top");
 		chckbxIncluirGanhosPotenciais.setEnabled(false);
 
 		lblNewLabel_5 = new JLabel("Opções para relatorio interno:");
 		lblNewLabel_5.setForeground(Color.WHITE);
 		lblNewLabel_5.setFont(new Font("SansSerif", Font.BOLD, 14));
-		lblNewLabel_5.setBounds(10, 11, 212, 19);
-		painelOpcaosInternas.add(lblNewLabel_5);
+		painelOpcaosInternas.add(lblNewLabel_5, "cell 0 0,alignx left,aligny top");
 
 		panel = new JPanel();
 		panel.setBackground(new Color(0, 51, 0));

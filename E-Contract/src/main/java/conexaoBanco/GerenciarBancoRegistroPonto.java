@@ -377,7 +377,6 @@ public RegistroPontoDiarioCompleto getDemonstrativoFuncionarioData(int id_func, 
 
         	registro_ponto.setEntrada2(rs.getString("entrada2"));
         	registro_ponto.setSaida2(rs.getString("saida2"));
-        	
         	registro_ponto.setEntrada3(rs.getString("entrada3"));
         	registro_ponto.setSaida3(rs.getString("saida3"));
         	registro_ponto.setNome_colaborador(rs.getString("nome"));

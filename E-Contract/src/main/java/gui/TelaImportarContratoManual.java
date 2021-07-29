@@ -1980,7 +1980,7 @@ public class TelaImportarContratoManual extends JFrame {
 					try {
 						entClausula3.setText("");
 						chBoxClausula3.setSelected(false);
-						novo_contrato.setClausula_comissao(0);
+						novo_contrato.setComissao(1);
 					} catch (Exception re) {
 
 					}
@@ -1989,7 +1989,7 @@ public class TelaImportarContratoManual extends JFrame {
 					try {
 						setClausulaComissao(entComissao.getText().toString().replace(".", ","));
 						chBoxClausula3.setSelected(true);
-						novo_contrato.setClausula_comissao(1);
+						novo_contrato.setComissao(0);
 
 					} catch (Exception re) {
 
@@ -3428,7 +3428,7 @@ public class TelaImportarContratoManual extends JFrame {
 		// comissao
 		if (contrato_pai_local.getComissao() == 1) {
 			setComissao();
-			if (contrato_pai_local.getClausula_comissao() == 1) {
+			if (contrato_pai_local.getCriar_clausula_comissao() == 1) {
 
 				chBoxClausulaComissao.setSelected(true);
 
@@ -3607,18 +3607,10 @@ public class TelaImportarContratoManual extends JFrame {
 
 					} else if (num_clausulas == 3) {
 
-						if (contrato_pai_local.getClausula_comissao() == 1) {
 							entClausula3.setText(termo);
 							chBoxClausula3.setSelected(true);
-						} else {
-							entClausula4.setText(termo);
-							chBoxClausula4.setSelected(true);
-							entClausula4.setEditable(true);
-							entClausula4.setEnabled(true);
-
-						}
-
-						num_clausulas = num_clausulas + 2;
+					
+						num_clausulas++;
 
 					} else if (num_clausulas == 4) {
 						entClausula4.setText(termo);
@@ -5254,8 +5246,8 @@ public class TelaImportarContratoManual extends JFrame {
 				}
 				
 				
-				DadosGlobais dados = DadosGlobais.getInstance();
-				 dados.getTeraGerenciarContratoPai().atualizarContratoLocal(true);
+			//	DadosGlobais dados = DadosGlobais.getInstance();
+				// dados.getTeraGerenciarContratoPai().atualizarContratoLocal(true);
 				isto.dispose();
 				
 				

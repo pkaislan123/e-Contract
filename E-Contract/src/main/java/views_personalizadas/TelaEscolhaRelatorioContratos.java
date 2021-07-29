@@ -605,6 +605,11 @@ public class TelaEscolhaRelatorioContratos extends JDialog {
 		double quantidade_total_kgs = 0;
 
 		for (CadastroContrato cadastro : contratos) {
+			
+			int status_contrato = cadastro.getStatus_contrato();
+
+			if(status_contrato != 4) {
+			
 			row = sheet.createRow(rownum++);
 			cellnum = 0;
 			/*
@@ -629,7 +634,6 @@ public class TelaEscolhaRelatorioContratos extends JDialog {
 			cell.setCellStyle(textStyle);
 
 			String status = "";
-			int status_contrato = cadastro.getStatus_contrato();
 
 			if (status_contrato == 1) {
 				status = "ASSINAR";
@@ -646,6 +650,10 @@ public class TelaEscolhaRelatorioContratos extends JDialog {
 			} else if (status_contrato == 3) {
 				status = "CONCLUIDO";
 				cell.setCellStyle(celula_fundo_verde);
+
+			} else if (status_contrato == 4) {
+				status = "CANCELADO";
+				cell.setCellStyle(celula_fundo_vermelho);
 
 			}
 
@@ -735,7 +743,7 @@ public class TelaEscolhaRelatorioContratos extends JDialog {
 				}
 			}
 			cell.setCellValue(s_local_retirada);
-
+			}
 		}
 		sheet.setAutoFilter(CellRangeAddress.valueOf("A5:M5"));
 
@@ -1161,6 +1169,9 @@ public class TelaEscolhaRelatorioContratos extends JDialog {
 
 
 		for (CadastroContrato cadastro : contratos) {
+			
+			int status_contrato = cadastro.getStatus_contrato();
+			if(status_contrato != 4) {
 			row = sheet.createRow(rownum++);
 			cellnum = 0;
 			/*
@@ -1185,7 +1196,6 @@ public class TelaEscolhaRelatorioContratos extends JDialog {
 			cell.setCellStyle(textStyle);
 
 			String status = "";
-			int status_contrato = cadastro.getStatus_contrato();
 
 			if (status_contrato == 1) {
 				status = "ASSINAR";
@@ -1429,7 +1439,7 @@ public class TelaEscolhaRelatorioContratos extends JDialog {
 			
 			total_pago += cadastro.getTotal_pago();
 			
-			
+			}
 		}
 		sheet.setAutoFilter(CellRangeAddress.valueOf("A5:P5"));
 

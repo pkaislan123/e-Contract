@@ -1368,11 +1368,6 @@ public class MonitorarRomaneios {
 		// usuario logado
 		login = dados.getLogin();
 
-		// telaprincipal
-		telaPrincipal = dados.getTelaPrincipal();
-
-		// telaRomaneio
-		telaRomaneio = dados.getTelaRomaneios();
 	}
 
 	public void cadastrarRomaneio(CadastroRomaneio roms, String caminho_completo_nf) {

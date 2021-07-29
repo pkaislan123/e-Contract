@@ -190,6 +190,7 @@ import java.awt.GridBagConstraints;
 import java.awt.Insets;
 import java.awt.GridLayout;
 import javax.swing.JComboBox;
+import javax.swing.JRadioButton;
 
 public class TelaRecebimentos extends JFrame {
 
@@ -230,6 +231,7 @@ public class TelaRecebimentos extends JFrame {
 	public Rectangle getCurrentScreenBounds(Component component) {
 		return component.getGraphicsConfiguration().getBounds();
 	}
+	private JRadioButton rdbtnContratos,rdbtnSubcontratos;
 
 	public TelaRecebimentos(Window janela_pai) {
 
@@ -302,6 +304,20 @@ public class TelaRecebimentos extends JFrame {
 		entCodigo.setFont(new Font("SansSerif", Font.PLAIN, 16));
 		panel_5.add(entCodigo, "cell 3 0,growx,aligny top");
 		entCodigo.setColumns(10);
+		
+		
+		rdbtnContratos = new JRadioButton("Contratos");
+		rdbtnContratos.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				
+				rdbtnContratos.setSelected(true);
+				rdbtnSubcontratos.setSelected(false);
+				
+			}
+		});
+		rdbtnContratos.setFont(new Font("SansSerif", Font.PLAIN, 16));
+		rdbtnContratos.setSelected(true);
+		panel_5.add(rdbtnContratos, "flowx,cell 5 0");
 
 		JLabel lblVendedor = new JLabel("Vendedor:");
 		panel_5.add(lblVendedor, "cell 0 1,alignx right,aligny center");
@@ -385,9 +401,21 @@ public class TelaRecebimentos extends JFrame {
 		btnRefazerPesquisa.setForeground(Color.WHITE);
 		btnRefazerPesquisa.setFont(new Font("SansSerif", Font.BOLD, 16));
 		panel_5.add(btnRefazerPesquisa, "cell 8 2,alignx left,aligny top");
+		
+		 rdbtnSubcontratos = new JRadioButton("Sub-Contratos");
+		 rdbtnSubcontratos.addActionListener(new ActionListener() {
+		 	public void actionPerformed(ActionEvent e) {
+		 		rdbtnContratos.setSelected(false);
+				rdbtnSubcontratos.setSelected(true);
+		 	}
+		 });
+		rdbtnSubcontratos.setFont(new Font("SansSerif", Font.PLAIN, 16));
+		panel_5.add(rdbtnSubcontratos, "cell 5 0");
 		btnRefazerPesquisa.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-
+				pesquisar();
+				filtrar();
+				calcular();
 			}
 		});
 		btnFiltrar.addActionListener(new ActionListener() {
@@ -562,8 +590,25 @@ public class TelaRecebimentos extends JFrame {
 		NumberFormat z = NumberFormat.getNumberInstance();
 
 		for (RecebimentoCompleto recebimento : gerenciar.getRecebimentos()) {
-			modelo_recebimentos.onAdd(recebimento);
-			lista_recebimentos.add(recebimento);
+			CadastroContrato contrato = recebimento.getContrato();
+
+			if(rdbtnContratos.isSelected()) {
+			if (contrato.getSub_contrato() == 0 || contrato.getSub_contrato() == 3 || contrato.getSub_contrato() == 4
+					|| contrato.getSub_contrato() == 5) {
+				modelo_recebimentos.onAdd(recebimento);
+				lista_recebimentos.add(recebimento);
+				
+			}
+			}else if(rdbtnSubcontratos.isSelected()) {
+				if (contrato.getSub_contrato() == 1 || contrato.getSub_contrato() == 2 || contrato.getSub_contrato() == 6
+						|| contrato.getSub_contrato() == 7 || contrato.getSub_contrato() == 8) {
+					modelo_recebimentos.onAdd(recebimento);
+					lista_recebimentos.add(recebimento);
+					
+				}
+			}
+			
+			
 
 		}
 
@@ -910,16 +955,16 @@ public class TelaRecebimentos extends JFrame {
 				return contrato.getCodigo();
 			}
 			case compradores: {
-				return contrato.getNomes_compradores();
+				return contrato.getNomes_compradores().toUpperCase();
 			}
 			case vendedores: {
-				return contrato.getNomes_vendedores();
+				return contrato.getNomes_vendedores().toUpperCase();
 			}
 			case produto: {
-				return contrato.getModelo_produto().getNome_produto();
+				return contrato.getModelo_produto().getNome_produto().toUpperCase();
 			}
 			case transgenia: {
-				return contrato.getModelo_produto().getTransgenia();
+				return contrato.getModelo_produto().getTransgenia().toUpperCase();
 			}
 			case safra: {
 				return contrato.getModelo_safra().getAno_plantio() + "/" + contrato.getModelo_safra().getAno_colheita();

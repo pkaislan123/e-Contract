@@ -128,6 +128,34 @@ public class TelaFinanceiroLancamento extends JFrame {
 	private GerenciarBancoCondicaoPagamentos gerenciar_condicoes = null;
 	private ArrayList<CondicaoPagamento> lista_condicoes = null;
 
+	
+	
+	
+	
+	
+	private String id_filtro ;
+	private int CC_filtro ;
+	private String cliente_fornecedor_filtro ;
+	private String entidentificadorGeral_filtro ;
+	private String entdestinatarioNF_filtro;
+	private int cbtipoLancamento_filtro;
+	private int cbstatusLancamento_filtro ;
+	private int cbgrupoConta_filtro;
+	private int cbconta_filtro;
+	private int cbstatusAoContador_filtro;
+	private int cbinstituicaoBancaria_filtro;
+	private int cbcondicaoPagamento_filtro;
+	private int cbstatusCondicaoPagamento_filtro;
+	private int cbprioridade_filtro;
+	private int cbsituacao_filtro;
+	private String menordataLancamento_filtro ;
+	private String maiordataLancamento_filtro;
+	private String menordataVencimento_filtro;
+	private String maiordataVencimento_filtro;
+	private String menordataPagamento_filtro;
+	private String maiordataPagamento_filtro;
+	
+	
 	public TelaFinanceiroLancamento(int flag_modo_operacao, int flag_retorno, Window janela_pai) {
 
 		Toolkit tk = Toolkit.getDefaultToolkit();
@@ -301,20 +329,9 @@ public class TelaFinanceiroLancamento extends JFrame {
 		JButton btnLimparCampos = new JButton("Limpar Campos");
 		btnLimparCampos.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				sorter.setRowFilter(RowFilter.regexFilter(""));
-				cbPrioridade.setSelectedIndex(0);
-				cbSituacao.setSelectedIndex(0);
-				cbStatusLancamento.setSelectedIndex(0);
-				cbCondicaoPagamento.setSelectedIndex(0);
-				cbCentroCusto.setSelectedIndex(0);
-				cbGrupoConta.setSelectedIndex(0);
-				cbConta.setSelectedIndex(0);
-				cbInstituicaoBancaria.setSelectedIndex(0);
-				cbTipoLancamento.setSelectedIndex(0);
-				entClienteFornecedor.setText("");
-				pegarDatas(0);
-
-				calcular();
+				
+				limpar_campos();
+				
 			}
 		});
 		btnLimparCampos.setHorizontalAlignment(SwingConstants.RIGHT);
@@ -350,28 +367,6 @@ public class TelaFinanceiroLancamento extends JFrame {
 		cbPrioridade.addItem("Baixa Prioridade - Ainda este ano");
 		panel_1.add(cbPrioridade, "cell 5 3,growx");
 
-		JButton btnFiltar = new JButton("filtrar");
-		btnFiltar.setEnabled(false);
-		panel_1.add(btnFiltar, "cell 6 3 3 1,growx");
-		btnFiltar.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				filtrarBasico();
-			}
-		});
-		btnFiltar.setBackground(new Color(0, 0, 102));
-		btnFiltar.setForeground(Color.WHITE);
-
-		JButton btnNewButton = new JButton("pesquisar");
-		btnNewButton.setEnabled(false);
-		panel_1.add(btnNewButton, "cell 9 3,growx");
-		btnNewButton.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				pesquisar();
-			}
-		});
-		btnNewButton.setForeground(Color.WHITE);
-		btnNewButton.setBackground(new Color(0, 0, 102));
-
 		JLabel lblNewLabel_1_1_2_1_1_2_1 = new JLabel("Destinatário NF:");
 		lblNewLabel_1_1_2_1_1_2_1.setFont(new Font("SansSerif", Font.PLAIN, 12));
 		panel_1.add(lblNewLabel_1_1_2_1_1_2_1, "cell 0 5,alignx trailing");
@@ -395,7 +390,7 @@ public class TelaFinanceiroLancamento extends JFrame {
 		btnPesquisaAvanada.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 
-				pesquisar_avancado();
+				pesquisar();
 
 			}
 		});
@@ -408,10 +403,10 @@ public class TelaFinanceiroLancamento extends JFrame {
 		});
 		btnFiltrarAvanado.setForeground(Color.WHITE);
 		btnFiltrarAvanado.setBackground(new Color(0, 0, 102));
-		panel_1.add(btnFiltrarAvanado, "cell 6 5 3 1");
+		panel_1.add(btnFiltrarAvanado, "cell 6 3 3 3");
 		btnPesquisaAvanada.setForeground(Color.WHITE);
 		btnPesquisaAvanada.setBackground(new Color(0, 0, 102));
-		panel_1.add(btnPesquisaAvanada, "cell 9 5");
+		panel_1.add(btnPesquisaAvanada, "cell 9 3 1 3");
 
 		JPanel panel_2 = new JPanel();
 		panel_2.setBackground(Color.WHITE);
@@ -907,7 +902,7 @@ public class TelaFinanceiroLancamento extends JFrame {
 		btnNewButton_1.setForeground(Color.WHITE);
 		btnNewButton_1.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				TelaFinanceiroCadastroLancamento tela = new TelaFinanceiroCadastroLancamento(-1, null, isto);
+				TelaFinanceiroCadastroLancamento tela = new TelaFinanceiroCadastroLancamento(0, null, isto);
 				tela.setVisible(true);
 
 			}
@@ -1127,6 +1122,16 @@ public class TelaFinanceiroLancamento extends JFrame {
 			}
 		}.start();
 
+	
+		
+		boolean pegar_datas = true;
+		if (pegar_datas) {
+			pegarDatas(flag_modo_operacao);
+		}
+		
+		if(flag_modo_operacao == 3)
+			filtrarPersonalizado();
+		
 		new Thread() {
 
 			@Override
@@ -1140,14 +1145,6 @@ public class TelaFinanceiroLancamento extends JFrame {
 
 			}
 		}.start();
-		
-		boolean pegar_datas = true;
-		if (pegar_datas) {
-			pegarDatas(flag_modo_operacao);
-		}
-		
-		if(flag_modo_operacao == 3)
-			filtrarPersonalizado();
 
 		this.setExtendedState(JFrame.MAXIMIZED_BOTH);
 		this.setResizable(true);
@@ -1177,23 +1174,65 @@ public class TelaFinanceiroLancamento extends JFrame {
 		maiorDataPagamento.setText(datas.get("maior_data_pagamento"));
 	}
 
-	/*public void pesquisar() {
-		GerenciarBancoLancamento gerenciar = new GerenciarBancoLancamento();
-		lista_lancamentos.clear();
-		modelo_lancamentos.onRemoveAll();
 
-		lista_lancamentos = gerenciar.buscaLancamentosSimples();
-		for (Lancamento cc : lista_lancamentos) {
-			modelo_lancamentos.onAdd(cc);
-		}
-
-	    calcular();
-	}
-
- */
 	
+	public void salvarEstadoFiltros() {
+		
+		 id_filtro = entIdLancamento.getText();
+		 CC_filtro = cbCentroCusto.getSelectedIndex();
+		 cliente_fornecedor_filtro = entClienteFornecedor.getText();
+		 entidentificadorGeral_filtro = entIdentificadorGeral.getText();
+		 entdestinatarioNF_filtro = entDestinatarioNF.getText();
+		 cbtipoLancamento_filtro = cbTipoLancamento.getSelectedIndex();
+		 cbstatusLancamento_filtro = cbStatusLancamento.getSelectedIndex();
+		 cbgrupoConta_filtro = cbGrupoConta.getSelectedIndex();
+		 cbconta_filtro = cbConta.getSelectedIndex();
+		 cbstatusAoContador_filtro = cbStatusAoContador.getSelectedIndex();
+		 cbinstituicaoBancaria_filtro = cbInstituicaoBancaria.getSelectedIndex();
+		 cbcondicaoPagamento_filtro = cbCondicaoPagamento.getSelectedIndex();
+		 cbstatusCondicaoPagamento_filtro = cbStatusCondicaoPagamento.getSelectedIndex();
+		 cbprioridade_filtro = cbPrioridade.getSelectedIndex();
+		 cbsituacao_filtro = cbSituacao.getSelectedIndex();
+		 menordataLancamento_filtro = menorDataLancamento.getText();
+		 maiordataLancamento_filtro = maiorDataLancamento.getText();
+		 menordataVencimento_filtro = menorDataVencimento.getText();
+		 maiordataVencimento_filtro = maiorDataVencimento.getText();
+		 menordataPagamento_filtro = menorDataPagamento.getText();
+		 maiordataPagamento_filtro = maiorDataPagamento.getText();
+		
+	}
+	
+	public void recolherEstadoFiltros() {
+		
+		 entIdLancamento.setText(id_filtro);
+		 cbCentroCusto.setSelectedIndex(CC_filtro);
+		 entClienteFornecedor.setText(cliente_fornecedor_filtro);
+		 entIdentificadorGeral.setText(entidentificadorGeral_filtro);
+		 entDestinatarioNF.setText(entdestinatarioNF_filtro);
+		cbTipoLancamento.setSelectedIndex(cbtipoLancamento_filtro);
+		 cbStatusLancamento.setSelectedIndex(cbstatusLancamento_filtro);
+		 cbGrupoConta.setSelectedIndex(cbgrupoConta_filtro);
+		 cbConta.setSelectedIndex(cbconta_filtro);
+		  cbStatusAoContador.setSelectedIndex(cbstatusAoContador_filtro);
+		 cbInstituicaoBancaria.setSelectedIndex(cbinstituicaoBancaria_filtro);
+		 cbCondicaoPagamento.setSelectedIndex(cbcondicaoPagamento_filtro);
+		 cbStatusCondicaoPagamento.setSelectedIndex(cbstatusCondicaoPagamento_filtro);
+		 cbPrioridade.setSelectedIndex(cbprioridade_filtro);
+		cbSituacao.setSelectedIndex(cbsituacao_filtro);
+		  menorDataLancamento.setText(menordataLancamento_filtro);
+		maiorDataLancamento.setText(maiordataLancamento_filtro);
+		  menorDataVencimento.setText(menordataVencimento_filtro);
+		maiorDataVencimento.setText(maiordataVencimento_filtro);
+		menorDataPagamento.setText(menordataPagamento_filtro);
+		 maiorDataPagamento.setText(maiordataPagamento_filtro);
+	}
 	
 	public void pesquisar() {
+		
+		salvarEstadoFiltros();
+		limpar_campos();
+		
+		
 		GerenciarBancoLancamento gerenciar = new GerenciarBancoLancamento();
 		lista_lancamentos.clear();
 		modelo_lancamentos.onRemoveAll();
@@ -1203,20 +1242,13 @@ public class TelaFinanceiroLancamento extends JFrame {
 			modelo_lancamentos.onAdd(cc);
 		}
 
+		
+		recolherEstadoFiltros();
+		filtrarAvancado();
 		calcular();
 	}	
-	public void pesquisar_avancado() {
-		GerenciarBancoLancamento gerenciar = new GerenciarBancoLancamento();
-		lista_lancamentos.clear();
-		modelo_lancamentos.onRemoveAll();
-
-		lista_lancamentos = gerenciar.buscaLancamentosCompletos();
-		for (Lancamento cc : lista_lancamentos) {
-			modelo_lancamentos.onAdd(cc);
-		}
-
-		calcular();
-	}
+	
+	
 	
 	public void filtrarAvancado() {
 
@@ -1554,6 +1586,8 @@ public class TelaFinanceiroLancamento extends JFrame {
 
 	}
 	
+	/*
+	
 	public void filtrarAvancado2() {
 
 		ArrayList<RowFilter<Object, Object>> filters = new ArrayList<RowFilter<Object, Object>>(2);
@@ -1844,236 +1878,7 @@ public class TelaFinanceiroLancamento extends JFrame {
 		sorter.setRowFilter(RowFilter.andFilter(filters));
 		calcular();
 
-	}
-
-	public void filtrarBasico() {
-
-		ArrayList<RowFilter<Object, Object>> filters = new ArrayList<RowFilter<Object, Object>>(2);
-
-		try {
-			String data_inicial_filtrar_data_lancamento = menorDataLancamento.getText().replace(" ", "");
-			String data_final_filtrar_data_lancamento = maiorDataLancamento.getText().replace(" ", "");
-
-			if (checkString(data_inicial_filtrar_data_lancamento) && checkString(data_final_filtrar_data_lancamento)) {
-				Date data_menor = null;
-				Date data_maior = null;
-				try {
-					data_menor = new SimpleDateFormat("dd/MM/yyyy").parse(data_inicial_filtrar_data_lancamento);
-					data_maior = new SimpleDateFormat("dd/MM/yyyy").parse(data_final_filtrar_data_lancamento);
-
-				} catch (ParseException i) {
-					// TODO Auto-generated catch block
-					i.printStackTrace();
-				}
-
-				Set<RowFilter<Object, Object>> datas = new HashSet<>();
-				datas.add(RowFilter.dateFilter(RowFilter.ComparisonType.AFTER, data_menor, 1));
-				datas.add(RowFilter.dateFilter(RowFilter.ComparisonType.EQUAL, data_menor, 1));
-				filters.add(RowFilter.orFilter(datas));
-
-				// filters.add( RowFilter.dateFilter(ComparisonType.AFTER, data_menor, 5) );
-				// filters.add( RowFilter.dateFilter(ComparisonType.EQUAL, data_menor, 5) );
-
-				// filters.add( RowFilter.dateFilter(ComparisonType.BEFORE, data_maior, 5) );
-				// filters.add( RowFilter.dateFilter(ComparisonType.EQUAL, data_maior, 5) );
-				Set<RowFilter<Object, Object>> datas_maior = new HashSet<>();
-				datas_maior.add(RowFilter.dateFilter(RowFilter.ComparisonType.BEFORE, data_maior, 1));
-				datas_maior.add(RowFilter.dateFilter(RowFilter.ComparisonType.EQUAL, data_maior, 1));
-				filters.add(RowFilter.orFilter(datas_maior));
-
-			}
-		} catch (Exception m) {
-
-		}
-
-		
-		try {
-			String s_centro_custo = "";
-			if (checkString(cbCentroCusto.getSelectedItem().toString())) {
-
-				s_centro_custo = cbCentroCusto.getSelectedItem().toString();
-				if (!(s_centro_custo.equalsIgnoreCase("TODOS")))
-					filters.add(RowFilter.regexFilter(s_centro_custo, 4));
-
-			}
-		} catch (Exception t) {
-
-		}
-
-		try {
-			if (cbTipoLancamento.getSelectedItem().toString() != null) {
-				String s_tipo_lancamento = "";
-				if (checkString(cbTipoLancamento.getSelectedItem().toString())) {
-					s_tipo_lancamento = cbTipoLancamento.getSelectedItem().toString().toUpperCase();
-					if (!(s_tipo_lancamento.equalsIgnoreCase("TODOS"))) {
-						filters.add(RowFilter.regexFilter(s_tipo_lancamento, 2));
-					}
-				}
-			}
-		} catch (Exception h) {
-
-		}
-
-		try {
-			if (cbPrioridade.getSelectedItem().toString() != null) {
-				String s_prioridade = "";
-				if (checkString(cbPrioridade.getSelectedItem().toString())) {
-					s_prioridade = cbPrioridade.getSelectedItem().toString();
-					if (!(s_prioridade.equalsIgnoreCase("TODOS"))) {
-						filters.add(RowFilter.regexFilter(s_prioridade, 3));
-					}
-
-				}
-			}
-		} catch (Exception y) {
-
-		}
-
-		try {
-
-			if (entClienteFornecedor.getText() != null) {
-				String s_cliente_servidor = "";
-				if (checkString(entClienteFornecedor.getText())) {
-					s_cliente_servidor = entClienteFornecedor.getText().toUpperCase();
-					if (!(s_cliente_servidor.equalsIgnoreCase("TODOS")))
-						filters.add(RowFilter.regexFilter(s_cliente_servidor, 7));
-				}
-			}
-		} catch (Exception o) {
-
-		}
-
-		try {
-			if (entIdentificadorGeral.getText() != null) {
-				String s_id_geral = "";
-				if (checkString(entIdentificadorGeral.getText())) {
-					s_id_geral = entIdentificadorGeral.getText().toUpperCase();
-
-					filters.add(RowFilter.regexFilter(s_id_geral, 5));
-				}
-			}
-		} catch (Exception p) {
-
-		}
-
-		try {
-			if (entDestinatarioNF.getText() != null) {
-				String s_dest_nf = "";
-				if (checkString(entDestinatarioNF.getText())) {
-					s_dest_nf = entDestinatarioNF.getText().toUpperCase();
-
-					filters.add(RowFilter.regexFilter(s_dest_nf, 6));
-				}
-			}
-		} catch (Exception j) {
-
-		}
-
-		try {
-
-			if (cbGrupoConta.getSelectedItem().toString() != null) {
-				String s_grupo_contas = "";
-				if (checkString(cbGrupoConta.getSelectedItem().toString())) {
-					s_grupo_contas = cbGrupoConta.getSelectedItem().toString();
-					if (!(s_grupo_contas.equalsIgnoreCase("TODOS")))
-						filters.add(RowFilter.regexFilter(s_grupo_contas, 8));
-
-				}
-			}
-		} catch (Exception a) {
-
-		}
-
-		try {
-			if (cbConta.getSelectedItem().toString() != null) {
-				String s_contas = "";
-				if (checkString(cbConta.getSelectedItem().toString())) {
-					s_contas = cbConta.getSelectedItem().toString();
-					if (!(s_contas.equalsIgnoreCase("TODOS"))) {
-						filters.add(RowFilter.regexFilter(s_contas, 9));
-					}
-				}
-			}
-		} catch (Exception b) {
-
-		}
-
-		try {
-
-			String s_tipo_conta = "";
-			if (cbStatusLancamento.getSelectedIndex() == 1) {
-				s_tipo_conta = "A Pagar";
-				if (checkString(s_tipo_conta))
-					filters.add(RowFilter.regexFilter(s_tipo_conta, 17));
-			} else if (cbStatusLancamento.getSelectedIndex() == 2) {
-				s_tipo_conta = "Pago";
-				if (checkString(s_tipo_conta))
-					filters.add(RowFilter.regexFilter(s_tipo_conta, 17));
-			} else if (cbStatusLancamento.getSelectedIndex() == 3) {
-				s_tipo_conta = "A Receber";
-				if (checkString(s_tipo_conta))
-					filters.add(RowFilter.regexFilter(s_tipo_conta, 17));
-			} else if (cbStatusLancamento.getSelectedIndex() == 4) {
-				s_tipo_conta = "Recebido";
-				if (checkString(s_tipo_conta))
-					filters.add(RowFilter.regexFilter(s_tipo_conta, 17));
-
-			}
-		} catch (Exception g) {
-
-		}
-
-		try {
-			if (cbSituacao.getSelectedItem().toString() != null) {
-				String s_situacao = "";
-				if (checkString(cbSituacao.getSelectedItem().toString())) {
-					s_situacao = cbSituacao.getSelectedItem().toString();
-					if (!(s_situacao.equalsIgnoreCase("TODOS"))) {
-						filters.add(RowFilter.regexFilter(s_situacao, 18));
-					}
-				}
-			}
-		} catch (Exception n) {
-
-		}
-
-		
-
-		try {
-			if (cbStatusAoContador.getSelectedItem().toString() != null) {
-				String s_status_contador = "";
-				if (checkString(cbStatusAoContador.getSelectedItem().toString())) {
-					s_status_contador = cbStatusAoContador.getSelectedItem().toString();
-					if (!(s_status_contador.equalsIgnoreCase("TODOS"))) {
-						filters.add(RowFilter.regexFilter(s_status_contador, 21));
-					}
-				}
-
-			}
-		} catch (Exception l) {
-
-		}
-
-		try {
-
-			if (entIdLancamento.getText() != null) {
-				String id_lanc = "";
-				if (checkString(entIdLancamento.getText())) {
-					id_lanc = entIdLancamento.getText();
-					if (Integer.parseInt(id_lanc) > 0) {
-						filters.add(RowFilter.regexFilter(id_lanc, 0));
-					}
-				}
-
-			}
-		} catch (Exception f) {
-
-		}
-
-		sorter.setRowFilter(RowFilter.andFilter(filters));
-		calcular();
-
-	}
+	}*/
 
 	
 	public void calcular() {
@@ -2471,6 +2276,9 @@ public class TelaFinanceiroLancamento extends JFrame {
 			}
 			case data_vencimento: {
 				Date data_menor;
+			
+					
+				
 				try {
 					SimpleDateFormat formato = new SimpleDateFormat("dd/MM/yyyy");
 					data_menor = formato.parse(dado.getData_vencimento());
@@ -2478,21 +2286,27 @@ public class TelaFinanceiroLancamento extends JFrame {
 
 				} catch (Exception e) {
 					// TODO Auto-generated catch block
-					e.printStackTrace();
+					//e.printStackTrace();
 				}
-
+				 	
+				
 			}
 			case data_pagamento: {
 				Date data_menor;
-				try {
-					SimpleDateFormat formato = new SimpleDateFormat("dd/MM/yyyy");
-					data_menor = formato.parse(dado.getData_pagamento());
-					return data_menor;
+				
+				
+				
+						try {
+							SimpleDateFormat formato = new SimpleDateFormat("dd/MM/yyyy");
+							data_menor = formato.parse(dado.getData_pagamento());
+							return data_menor;
 
-				} catch (Exception e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
+						} catch (Exception e) {
+							// TODO Auto-generated catch block
+							//e.printStackTrace();
+						}
+					
+				
 
 			}
 			case status: {
@@ -3002,5 +2816,21 @@ public class TelaFinanceiroLancamento extends JFrame {
 		
 
 	}
-	
+
+	public void limpar_campos()
+	{
+		sorter.setRowFilter(RowFilter.regexFilter(""));
+		cbPrioridade.setSelectedIndex(0);
+		cbSituacao.setSelectedIndex(0);
+		cbStatusLancamento.setSelectedIndex(0);
+		cbCondicaoPagamento.setSelectedIndex(0);
+		cbCentroCusto.setSelectedIndex(0);
+		cbGrupoConta.setSelectedIndex(0);
+		cbConta.setSelectedIndex(0);
+		cbInstituicaoBancaria.setSelectedIndex(0);
+		cbTipoLancamento.setSelectedIndex(0);
+		entClienteFornecedor.setText("");
+		pegarDatas(0);
+
+	}
 }

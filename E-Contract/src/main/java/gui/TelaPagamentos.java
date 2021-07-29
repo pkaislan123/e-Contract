@@ -122,6 +122,7 @@ import main.java.cadastros.ContaBancaria;
 import main.java.cadastros.Contato;
 import main.java.cadastros.DadosCarregamento;
 import main.java.cadastros.DadosContratos;
+import main.java.cadastros.FinanceiroPagamento;
 import main.java.cadastros.Lancamento;
 import main.java.cadastros.PagamentoCompleto;
 import main.java.cadastros.RecebimentoCompleto;
@@ -171,6 +172,8 @@ import main.java.relatoria.RelatorioContratoRecebimentoSimplificado;
 import main.java.relatoria.RelatorioContratos;
 import main.java.tratamento_proprio.Log;
 import main.java.views_personalizadas.TelaEmEspera;
+import main.java.views_personalizadas.TelaEscolhaRelatorioLancamentos;
+import main.java.views_personalizadas.TelaEscolhaRelatorioPagamentos;
 import main.java.views_personalizadas.TelaNotificacao;
 import main.java.views_personalizadas.TelaNotificacaoSuperior;
 import main.java.views_personalizadas.TelaNotificacaoSuperiorModoBusca;
@@ -201,6 +204,7 @@ import java.awt.Insets;
 import java.awt.Point;
 import java.awt.GridLayout;
 import javax.swing.JComboBox;
+import javax.swing.JRadioButton;
 
 public class TelaPagamentos extends JFrame {
 
@@ -248,6 +252,9 @@ public class TelaPagamentos extends JFrame {
 	public Rectangle getCurrentScreenBounds(Component component) {
 		return component.getGraphicsConfiguration().getBounds();
 	}
+	
+	private JRadioButton rdbtnContratos,rdbtnSubcontratos;
+
 
 	public TelaPagamentos(Window janela_pai) {
 
@@ -330,6 +337,18 @@ public class TelaPagamentos extends JFrame {
 		entFavorecido.setColumns(10);
 		panel_5.add(entFavorecido, "cell 1 3,growx");
 		
+		 rdbtnContratos = new JRadioButton("Contratos");
+		 rdbtnContratos.addActionListener(new ActionListener() {
+		 	public void actionPerformed(ActionEvent e) {
+		 		
+		 		rdbtnContratos.setSelected(true);
+				rdbtnSubcontratos.setSelected(false);
+		 	}
+		 });
+		rdbtnContratos.setSelected(true);
+		rdbtnContratos.setFont(new Font("SansSerif", Font.PLAIN, 16));
+		panel_5.add(rdbtnContratos, "flowx,cell 3 3");
+		
 		JLabel lblNewLabel_1 = new JLabel("Filtros relacionados a contrato");
 		lblNewLabel_1.setFont(new Font("Tahoma", Font.BOLD | Font.ITALIC, 14));
 		panel_5.add(lblNewLabel_1, "cell 0 4 9 1");
@@ -384,6 +403,7 @@ public class TelaPagamentos extends JFrame {
 		btnRefazerPesquisa.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				pesquisar();
+				filtrar();
 				calcular();
 			}
 		});
@@ -429,6 +449,19 @@ public class TelaPagamentos extends JFrame {
 		btnFiltrar.setForeground(Color.WHITE);
 		btnFiltrar.setFont(new Font("Tahoma", Font.BOLD, 14));
 		panel_5.add(btnFiltrar, "cell 8 7,growx,aligny top");
+		
+		rdbtnSubcontratos = new JRadioButton("Sub-Contratos");
+		rdbtnSubcontratos.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				rdbtnContratos.setSelected(false);
+				rdbtnSubcontratos.setSelected(true);
+			}
+		});
+		rdbtnSubcontratos.setFont(new Font("SansSerif", Font.PLAIN, 16));
+		panel_5.add(rdbtnSubcontratos, "cell 3 3");
+		
+		
+		
 		btnFiltrar.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				filtrar();
@@ -528,10 +561,22 @@ public class TelaPagamentos extends JFrame {
 		JPanel panel_1 = new JPanel();
 		panel_1.setBackground(Color.WHITE);
 		painelPrincipal.add(panel_1, "cell 0 2,grow");
+		
+		JButton btnNewButton = new JButton("Exportar");
+		btnNewButton.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				
+			
+			}
+		});
+		btnNewButton.setForeground(Color.WHITE);
+		btnNewButton.setBackground(new Color(0, 0, 102));
+		btnNewButton.setFont(new Font("SansSerif", Font.BOLD, 16));
+		painelPrincipal.add(btnNewButton, "cell 1 2,alignx right,aligny center");
 
 		JPanel panel_3 = new JPanel();
 		panel_3.setBackground(Color.WHITE);
-		painelPrincipal.add(panel_3, "cell 2 2,alignx right,growy");
+		painelPrincipal.add(panel_3, "cell 2 2,alignx right,aligny center");
 		panel_3.setLayout(new MigLayout("", "[97px]", "[50px]"));
 
 		JPanel panel_4 = new JPanel();
@@ -621,11 +666,36 @@ public class TelaPagamentos extends JFrame {
 		NumberFormat z = NumberFormat.getNumberInstance();
 
 		for (PagamentoCompleto pag : gerenciar.getPagamentosContratuaisParaRelatorio()) {
+			CadastroContrato contrato = pag.getContrato_remetente();
+			CadastroContrato contrato_desti = pag.getContrato_destinatario();
+
 			modelo_pagamentos.onAdd(pag);
 			lista_pagamentos.add(pag);
 
+			if(rdbtnContratos.isSelected()) {
+				if (contrato.getSub_contrato() == 0 || contrato.getSub_contrato() == 3 || contrato.getSub_contrato() == 4
+						|| contrato.getSub_contrato() == 5) {
+					
+					if (contrato_desti.getSub_contrato() == 0 || contrato_desti.getSub_contrato() == 3 || contrato_desti.getSub_contrato() == 4
+							|| contrato_desti.getSub_contrato() == 5) {
+						modelo_pagamentos.onAdd(pag);
+						lista_pagamentos.add(pag);
+					
+					}
+				
+					
+				}
+			}else if(rdbtnSubcontratos.isSelected()) {
+					if (contrato.getSub_contrato() == 1 || contrato.getSub_contrato() == 2 || contrato.getSub_contrato() == 6
+							|| contrato.getSub_contrato() == 7 || contrato.getSub_contrato() == 8) {
+						modelo_pagamentos.onAdd(pag);
+						lista_pagamentos.add(pag);
+						
+					}
+				}
+				
+			
 		}
-
 	}
 
 	public void calcular() {

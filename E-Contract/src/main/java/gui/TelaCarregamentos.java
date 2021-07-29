@@ -11,6 +11,7 @@ import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JRadioButton;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.LineBorder;
 import javax.swing.border.MatteBorder;
@@ -115,6 +116,7 @@ import main.java.cadastros.Contato;
 import main.java.cadastros.DadosCarregamento;
 import main.java.cadastros.DadosContratos;
 import main.java.cadastros.Lancamento;
+import main.java.cadastros.RecebimentoCompleto;
 import main.java.cadastros.CarregamentoCompleto;
 import main.java.cadastros.RegistroQuantidade;
 import main.java.cadastros.RegistroRecebimento;
@@ -224,13 +226,15 @@ public class TelaCarregamentos extends JFrame {
 	private int flag_retorno_global;
 	private JTextField entTransgenia;
 	private FileChooser d;
-	private JLabel lblTotalCarregamentos, lblTotalCarregamentosOk, lblTotalCarregamentosNFVenda,
-			lblTotalCarregamentosNFRemessaVenda, lblFaltaNFRemessa;
-	private JLabel lblPesoTotalRomaneios, lblPesoTotalNFVenda, lblPesoTotalNFRemessa;
+	private JLabel lblTotalCarregamentos, lblTotalCarregamentosOk, lblTotalCarregamentosNFVenda1,
+			lblTotalCarregamentosNFComplemento, lblFaltaNFInterna;
+	private JLabel lblPesoTotalRomaneios, lblPesoTotalNFVenda1, lblPesoTotalNFInterna, lblPesoTotalNFComplemento;
 
 	public Rectangle getCurrentScreenBounds(Component component) {
 		return component.getGraphicsConfiguration().getBounds();
 	}
+	private JRadioButton rdbtnContratos,rdbtnSubcontratos;
+
 
 	public TelaCarregamentos(Window janela_pai) {
 
@@ -321,6 +325,31 @@ public class TelaCarregamentos extends JFrame {
 		panel_5.add(entStatus, "cell 3 1,growx,aligny top");
 		entStatus.setColumns(10);
 
+		
+		
+		rdbtnContratos = new JRadioButton("Contratos");
+		rdbtnContratos.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				
+				rdbtnContratos.setSelected(true);
+				rdbtnSubcontratos.setSelected(false);
+				
+			}
+		});
+		rdbtnContratos.setFont(new Font("SansSerif", Font.PLAIN, 16));
+		rdbtnContratos.setSelected(true);
+		panel_5.add(rdbtnContratos, "flowx,cell 5 0");
+		
+		 rdbtnSubcontratos = new JRadioButton("Sub-Contratos");
+		 rdbtnSubcontratos.addActionListener(new ActionListener() {
+		 	public void actionPerformed(ActionEvent e) {
+		 		rdbtnContratos.setSelected(false);
+				rdbtnSubcontratos.setSelected(true);
+		 	}
+		 });
+		rdbtnSubcontratos.setFont(new Font("SansSerif", Font.PLAIN, 16));
+		panel_5.add(rdbtnSubcontratos, "cell 5 0");
+		
 		JLabel lblStatus_1 = new JLabel("Status:");
 		lblStatus_1.setFont(new Font("Tahoma", Font.PLAIN, 14));
 		panel_5.add(lblStatus_1, "cell 4 1,alignx right");
@@ -329,9 +358,14 @@ public class TelaCarregamentos extends JFrame {
 		cbStatus.setFont(new Font("SansSerif", Font.PLAIN, 16));
 		cbStatus.addItem("TODOS");
 		cbStatus.addItem("OK");
+		cbStatus.addItem("FALTA NF COMPLEMENTO");
+		cbStatus.addItem("FALTA NF INTERNA");
+		cbStatus.addItem("FALTA NF INTERNA E COMPLEMENTO");
 		cbStatus.addItem("FALTA NF VENDA");
-		cbStatus.addItem("FALTA NF REMESSA E VENDA");
-		cbStatus.addItem("FALTA NF REMESSA");
+		cbStatus.addItem("FALTA NF COMPLEMENTO E VENDA");
+		cbStatus.addItem("FALTA NF INTERNA E VENDA");
+		cbStatus.addItem("FALTA NF INTERNA E COMPLEMENTO");
+		cbStatus.addItem("FALTA NF INTERNA, COMPLEMENTO E VENDA");
 
 		panel_5.add(cbStatus, "cell 5 1,growx");
 
@@ -387,7 +421,9 @@ public class TelaCarregamentos extends JFrame {
 		panel_5.add(btnRefazerPesquisa, "cell 8 2,alignx left,aligny top");
 		btnRefazerPesquisa.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-
+				pesquisar();
+				filtrar();
+				calcular();
 			}
 		});
 		btnFiltrar.addActionListener(new ActionListener() {
@@ -449,11 +485,9 @@ public class TelaCarregamentos extends JFrame {
 
 		JLabel lblPesoTotalRomaneios12 = new JLabel("Peso Total Romaneios:");
 		lblPesoTotalRomaneios12.setFont(new Font("Tahoma", Font.PLAIN, 14));
-		panel_8.add(lblPesoTotalRomaneios12, "cell 4 1");
+		panel_8.add(lblPesoTotalRomaneios12, "cell 4 1,alignx right");
 
-		
-		
-		 lblPesoTotalRomaneios = new JLabel("000.000.000.000,00/000.000,00");
+		lblPesoTotalRomaneios = new JLabel("000.000.000.000,00/000.000,00");
 		lblPesoTotalRomaneios.setFont(new Font("SansSerif", Font.BOLD, 16));
 		lblPesoTotalRomaneios.setBorder(new MatteBorder(0, 0, 1, 0, (Color) new Color(0, 0, 0)));
 		panel_8.add(lblPesoTotalRomaneios, "cell 5 1 4 1");
@@ -464,23 +498,23 @@ public class TelaCarregamentos extends JFrame {
 		lblNewLabel_33_2_1.setBorder(new LineBorder(new Color(0, 0, 0)));
 		lblNewLabel_33_2_1.setBackground(Color.ORANGE);
 
-		JLabel lblNewLabel_34_2_1 = new JLabel("Falta NF Venda ");
+		JLabel lblNewLabel_34_2_1 = new JLabel("Falta NF Venda 1 ");
 		panel_8.add(lblNewLabel_34_2_1, "cell 1 2,alignx left");
 		lblNewLabel_34_2_1.setFont(new Font("SansSerif", Font.BOLD, 16));
 		lblNewLabel_34_2_1.setBorder(new MatteBorder(0, 0, 1, 0, (Color) new Color(0, 0, 0)));
 
-		lblTotalCarregamentosNFVenda = new JLabel("0000");
-		lblTotalCarregamentosNFVenda.setFont(new Font("SansSerif", Font.BOLD, 16));
-		panel_8.add(lblTotalCarregamentosNFVenda, "cell 2 2");
+		lblTotalCarregamentosNFVenda1 = new JLabel("0000");
+		lblTotalCarregamentosNFVenda1.setFont(new Font("SansSerif", Font.BOLD, 16));
+		panel_8.add(lblTotalCarregamentosNFVenda1, "cell 2 2");
 
-		JLabel lblPesoTotalNf1 = new JLabel("Peso Total NF Venda:");
+		JLabel lblPesoTotalNf1 = new JLabel("Peso Total NF Venda 1:");
 		lblPesoTotalNf1.setFont(new Font("Tahoma", Font.PLAIN, 14));
-		panel_8.add(lblPesoTotalNf1, "cell 4 2");
+		panel_8.add(lblPesoTotalNf1, "cell 4 2,alignx right");
 
-		 lblPesoTotalNFVenda = new JLabel("000.000.000.000,00/000.000,00");
-		lblPesoTotalNFVenda.setFont(new Font("SansSerif", Font.BOLD, 16));
-		lblPesoTotalNFVenda.setBorder(new MatteBorder(0, 0, 1, 0, (Color) new Color(0, 0, 0)));
-		panel_8.add(lblPesoTotalNFVenda, "cell 5 2");
+		lblPesoTotalNFVenda1 = new JLabel("000.000.000.000,00/000.000,00");
+		lblPesoTotalNFVenda1.setFont(new Font("SansSerif", Font.BOLD, 16));
+		lblPesoTotalNFVenda1.setBorder(new MatteBorder(0, 0, 1, 0, (Color) new Color(0, 0, 0)));
+		panel_8.add(lblPesoTotalNFVenda1, "cell 5 2");
 
 		JLabel lblNewLabel_33_1_1 = new JLabel("     ");
 		panel_8.add(lblNewLabel_33_1_1, "cell 0 3,growx");
@@ -488,23 +522,23 @@ public class TelaCarregamentos extends JFrame {
 		lblNewLabel_33_1_1.setBorder(new LineBorder(new Color(0, 0, 0)));
 		lblNewLabel_33_1_1.setBackground(Color.gray);
 
-		JLabel lblNewLabel_34_1_1 = new JLabel("Falta NF Remessa e Venda");
+		JLabel lblNewLabel_34_1_1 = new JLabel("Falta NF Complemento");
 		panel_8.add(lblNewLabel_34_1_1, "cell 1 3,alignx left");
 		lblNewLabel_34_1_1.setFont(new Font("SansSerif", Font.BOLD, 16));
 		lblNewLabel_34_1_1.setBorder(new MatteBorder(0, 0, 1, 0, (Color) new Color(0, 0, 0)));
 
-		lblTotalCarregamentosNFRemessaVenda = new JLabel("0000");
-		lblTotalCarregamentosNFRemessaVenda.setFont(new Font("SansSerif", Font.BOLD, 16));
-		panel_8.add(lblTotalCarregamentosNFRemessaVenda, "cell 2 3");
+		lblTotalCarregamentosNFComplemento = new JLabel("0000");
+		lblTotalCarregamentosNFComplemento.setFont(new Font("SansSerif", Font.BOLD, 16));
+		panel_8.add(lblTotalCarregamentosNFComplemento, "cell 2 3");
 
-		JLabel lblPesoTotalNf_2 = new JLabel("Peso Total NF Remessa:");
+		JLabel lblPesoTotalNf_2 = new JLabel("Peso Total NF Complemento:");
 		lblPesoTotalNf_2.setFont(new Font("Tahoma", Font.PLAIN, 14));
-		panel_8.add(lblPesoTotalNf_2, "cell 4 3");
+		panel_8.add(lblPesoTotalNf_2, "cell 4 3,alignx right");
 
-		 lblPesoTotalNFRemessa = new JLabel("000.000.000.000,00/000.000,00");
-		lblPesoTotalNFRemessa.setFont(new Font("SansSerif", Font.BOLD, 16));
-		lblPesoTotalNFRemessa.setBorder(new MatteBorder(0, 0, 1, 0, (Color) new Color(0, 0, 0)));
-		panel_8.add(lblPesoTotalNFRemessa, "cell 5 3");
+		lblPesoTotalNFComplemento = new JLabel("000.000.000.000,00/000.000,00");
+		lblPesoTotalNFComplemento.setFont(new Font("SansSerif", Font.BOLD, 16));
+		lblPesoTotalNFComplemento.setBorder(new MatteBorder(0, 0, 1, 0, (Color) new Color(0, 0, 0)));
+		panel_8.add(lblPesoTotalNFComplemento, "cell 5 3");
 
 		JLabel lblNewLabel_33_1_1_1 = new JLabel("     ");
 		panel_8.add(lblNewLabel_33_1_1_1, "cell 0 4,growx");
@@ -512,14 +546,23 @@ public class TelaCarregamentos extends JFrame {
 		lblNewLabel_33_1_1_1.setBorder(new LineBorder(new Color(0, 0, 0)));
 		lblNewLabel_33_1_1_1.setBackground(Color.YELLOW);
 
-		JLabel lblNewLabel_34_1_1_1 = new JLabel("Falta NF Remessa");
+		JLabel lblNewLabel_34_1_1_1 = new JLabel("Falta NF Interna");
 		panel_8.add(lblNewLabel_34_1_1_1, "cell 1 4,alignx left");
 		lblNewLabel_34_1_1_1.setFont(new Font("SansSerif", Font.BOLD, 16));
 		lblNewLabel_34_1_1_1.setBorder(new MatteBorder(0, 0, 1, 0, (Color) new Color(0, 0, 0)));
 
-		lblFaltaNFRemessa = new JLabel("0000");
-		lblFaltaNFRemessa.setFont(new Font("SansSerif", Font.BOLD, 16));
-		panel_8.add(lblFaltaNFRemessa, "cell 2 4");
+		lblFaltaNFInterna = new JLabel("0000");
+		lblFaltaNFInterna.setFont(new Font("SansSerif", Font.BOLD, 16));
+		panel_8.add(lblFaltaNFInterna, "cell 2 4");
+
+		JLabel lblPesoTotalNfInterna = new JLabel("Peso Total NF Interna:");
+		lblPesoTotalNfInterna.setFont(new Font("Tahoma", Font.PLAIN, 14));
+		panel_8.add(lblPesoTotalNfInterna, "cell 4 4,alignx right");
+
+		lblPesoTotalNFInterna = new JLabel("000.000.000.000,00/000.000,00");
+		lblPesoTotalNFInterna.setFont(new Font("SansSerif", Font.BOLD, 16));
+		lblPesoTotalNFInterna.setBorder(new MatteBorder(0, 0, 1, 0, (Color) new Color(0, 0, 0)));
+		panel_8.add(lblPesoTotalNFInterna, "cell 5 4");
 
 		JButton btnAbrir = new JButton("Abrir");
 		painelPrincipal.add(btnAbrir, "cell 3 5,alignx right,aligny top");
@@ -560,18 +603,135 @@ public class TelaCarregamentos extends JFrame {
 		NumberFormat z = NumberFormat.getNumberInstance();
 
 		for (CarregamentoCompleto carga : gerenciar.getCarregamentos()) {
-			modelo_carregamentos.onAdd(carga);
-			lista_carregamentos.add(carga);
+			CadastroContrato contrato = carga.getContrato();
 
+
+			if(rdbtnContratos.isSelected()) {
+				if (contrato.getSub_contrato() == 0 || contrato.getSub_contrato() == 3 || contrato.getSub_contrato() == 4
+						|| contrato.getSub_contrato() == 5) {
+					modelo_carregamentos.onAdd(carga);
+					lista_carregamentos.add(carga);;
+					
+				}
+				}else if(rdbtnSubcontratos.isSelected()) {
+					if (contrato.getSub_contrato() == 1 || contrato.getSub_contrato() == 2 || contrato.getSub_contrato() == 6
+							|| contrato.getSub_contrato() == 7 || contrato.getSub_contrato() == 8) {
+						modelo_carregamentos.onAdd(carga);
+						lista_carregamentos.add(carga);
+						
+					}
+				}
+				
+			
 		}
 
 	}
 
 	public void calcular() {
-		
-		
-		
-		
+
+		double peso_total_romaneios = 0, peso_total_nf_venda1 = 0, peso_total_nf_interna = 0,
+				peso_total_nf_complemento = 0;
+
+		int numero_carregamentos = 0;
+		int carregamentos_ok = 0;
+		int carregamentos_falta_nf_venda1 = 0;
+		int carregamentos_falta_nf_complemento = 0;
+		int carregamentos_falta_nf_interna = 0;
+
+		for (int row = 0; row < tabela.getRowCount(); row++) {
+
+			int index = tabela.convertRowIndexToModel(row);
+			CarregamentoCompleto carregamento = modelo_carregamentos.getValue(index);
+
+			String codigo_nf_venda = carregamento.getCodigo_nf_venda1();
+			String codigo_nf_complemento = carregamento.getCodigo_nf_complemento();
+			String codigo_nf_interna = carregamento.getCodigo_nf_interna();
+
+			peso_total_romaneios += carregamento.getPeso_romaneio();
+			peso_total_nf_venda1 += carregamento.getPeso_nf_venda1();
+			peso_total_nf_complemento += carregamento.getPeso_nf_complemento();
+			peso_total_nf_interna += carregamento.getPeso_nf_interna();
+
+			if (carregamento.getNf_venda1_aplicavel() == 1 && carregamento.getNf_complemento_aplicavel() == 1
+					&& carregamento.getNf_interna_aplicavel() == 1) {
+
+				if (checkString(codigo_nf_venda) && checkString(codigo_nf_complemento)
+						&& checkString(codigo_nf_interna)) {
+					// ok
+					carregamentos_ok++;
+
+				} else {
+
+					if (!checkString(codigo_nf_venda))
+						carregamentos_falta_nf_venda1++;
+
+					if (!checkString(codigo_nf_complemento))
+						carregamentos_falta_nf_complemento++;
+
+					if (!checkString(codigo_nf_interna))
+						carregamentos_falta_nf_interna++;
+
+				}
+
+			} else if (carregamento.getNf_venda1_aplicavel() == 1 && carregamento.getNf_complemento_aplicavel() == 0
+					&& carregamento.getNf_interna_aplicavel() == 0) {
+				// nf de venda 1 aplicavel
+				if (!checkString(codigo_nf_venda))
+					carregamentos_falta_nf_venda1++;
+
+			} else if (carregamento.getNf_venda1_aplicavel() == 1 && carregamento.getNf_complemento_aplicavel() == 1
+					&& carregamento.getNf_interna_aplicavel() == 0) {
+				if (!checkString(codigo_nf_venda))
+					carregamentos_falta_nf_venda1++;
+
+				if (!checkString(codigo_nf_complemento))
+					carregamentos_falta_nf_complemento++;
+
+			} else if (carregamento.getNf_venda1_aplicavel() == 0 && carregamento.getNf_complemento_aplicavel() == 1
+					&& carregamento.getNf_interna_aplicavel() == 0) {
+				if (!checkString(codigo_nf_complemento))
+					carregamentos_falta_nf_complemento++;
+
+			} else if (carregamento.getNf_venda1_aplicavel() == 0 && carregamento.getNf_complemento_aplicavel() == 0
+					&& carregamento.getNf_interna_aplicavel() == 1) {
+				if (!checkString(codigo_nf_interna))
+					carregamentos_falta_nf_interna++;
+
+			} else if (carregamento.getNf_venda1_aplicavel() == 0 && carregamento.getNf_complemento_aplicavel() == 1
+					&& carregamento.getNf_interna_aplicavel() == 1) {
+				if (!checkString(codigo_nf_interna))
+					carregamentos_falta_nf_interna++;
+				if (!checkString(codigo_nf_complemento))
+					carregamentos_falta_nf_complemento++;
+
+			}
+
+			else if (carregamento.getNf_venda1_aplicavel() == 0 && carregamento.getNf_complemento_aplicavel() == 0
+					&& carregamento.getNf_interna_aplicavel() == 0) {
+				// nenhum aplicavel
+				carregamentos_ok++;
+
+			}
+
+		}
+
+		lblTotalCarregamentos.setText(lista_carregamentos.size() + "");
+		lblTotalCarregamentosOk.setText(carregamentos_ok + "");
+		lblFaltaNFInterna.setText(carregamentos_falta_nf_interna + "");
+		lblTotalCarregamentosNFComplemento.setText(carregamentos_falta_nf_complemento + "");
+		lblTotalCarregamentosNFVenda1.setText(carregamentos_falta_nf_venda1 + "");
+
+		NumberFormat z = NumberFormat.getNumberInstance();
+
+		lblPesoTotalRomaneios
+				.setText(z.format(peso_total_romaneios) + " Kgs | " + z.format(peso_total_romaneios / 60) + " Sacos");
+		lblPesoTotalNFVenda1
+				.setText(z.format(peso_total_nf_venda1) + " Kgs | " + z.format(peso_total_nf_venda1 / 60) + " Sacos");
+		lblPesoTotalNFComplemento.setText(
+				z.format(peso_total_nf_complemento) + " Kgs | " + z.format(peso_total_nf_complemento / 60) + " Sacos");
+		lblPesoTotalNFInterna
+				.setText(z.format(peso_total_nf_interna) + " Kgs | " + z.format(peso_total_nf_interna / 60) + " Sacos");
+
 	}
 
 	public static boolean checkString(String txt) {
@@ -627,8 +787,6 @@ public class TelaCarregamentos extends JFrame {
 		sorter.setRowFilter(RowFilter.andFilter(filters));
 	}
 
-	
-
 	public String trimar(String texto) {
 		String aplicar_rtrim = texto.replaceAll("\\s+$", "");
 		String aplicar_ltrim = aplicar_rtrim.replaceAll("^\\s+", "");
@@ -681,23 +839,23 @@ public class TelaCarregamentos extends JFrame {
 		private final int codigo_romaneio = 9;
 
 		private final int peso_romaneio = 10;
-		
+
 		private final int codigo_nf_venda1 = 11;
 		private final int peso_nf_venda1 = 12;
 		private final int valor_nf_venda1 = 13;
 
 		private final int codigo_nf_compl = 14;
-		private final int peso_nf_compl  = 15;
-		private final int valor_nf_compl  = 16;
-		
+		private final int peso_nf_compl = 15;
+		private final int valor_nf_compl = 16;
+
 		private final int codigo_nf_interna = 17;
-		private final int peso_nf_interna  = 18;
+		private final int peso_nf_interna = 18;
 		private final int status = 19;
 
 		private final String colunas[] = { "ID Contrato", "Codigo", "Compradores", "Vendedores", "Produto",
 				"Transgenia", "Safra", "ID:", "Data:", "Código Romaneio:", "Peso Romaneio:", "Código NF Venda 1:",
-				"Peso NF Venda 1:", "Valor NF Venda 1:", "Código NF Venda Compl.:", "Peso NF Compl.:", "Valor NF Compl.:",
-				 "Código NF Interna.:", "Peso NF Interna.:", "Status" };
+				"Peso NF Venda 1:", "Valor NF Venda 1:", "Código NF Venda Compl.:", "Peso NF Compl.:",
+				"Valor NF Compl.:", "Código NF Interna.:", "Peso NF Interna.:", "Status" };
 		private final ArrayList<CarregamentoCompleto> dados = new ArrayList<>();// usamos como dados uma lista
 																				// genérica de
 		// nfs
@@ -759,19 +917,19 @@ public class TelaCarregamentos extends JFrame {
 				return String.class;
 			case valor_nf_venda1:
 				return String.class;
-				
+
 			case codigo_nf_compl:
 				return String.class;
 			case peso_nf_compl:
 				return String.class;
 			case valor_nf_compl:
 				return String.class;
-				
+
 			case codigo_nf_interna:
 				return String.class;
 			case peso_nf_interna:
 				return String.class;
-		
+
 			case status:
 				return String.class;
 
@@ -803,16 +961,16 @@ public class TelaCarregamentos extends JFrame {
 				return contrato.getCodigo();
 			}
 			case compradores: {
-				return contrato.getNomes_compradores();
+				return contrato.getNomes_compradores().toUpperCase();
 			}
 			case vendedores: {
-				return contrato.getNomes_vendedores();
+				return contrato.getNomes_vendedores().toUpperCase();
 			}
 			case produto: {
-				return contrato.getModelo_produto().getNome_produto();
+				return contrato.getModelo_produto().getNome_produto().toUpperCase();
 			}
 			case transgenia: {
-				return contrato.getModelo_produto().getTransgenia();
+				return contrato.getModelo_produto().getTransgenia().toUpperCase();
 			}
 			case safra: {
 				return contrato.getModelo_safra().getAno_plantio() + "/" + contrato.getModelo_safra().getAno_colheita();
@@ -847,7 +1005,8 @@ public class TelaCarregamentos extends JFrame {
 			case valor_nf_venda1: {
 				if (carregamento.getNf_venda1_aplicavel() == 1) {
 					Locale ptBr = new Locale("pt", "BR");
-					String valorString = NumberFormat.getCurrencyInstance(ptBr).format(carregamento.getValor_nf_venda1());
+					String valorString = NumberFormat.getCurrencyInstance(ptBr)
+							.format(carregamento.getValor_nf_venda1());
 					return valorString;
 
 				} else {
@@ -882,8 +1041,7 @@ public class TelaCarregamentos extends JFrame {
 					return "Não Aplicável";
 				}
 			}
-			
-			
+
 			case codigo_nf_interna: {
 				if (carregamento.getNf_interna_aplicavel() == 1) {
 					return carregamento.getCodigo_nf_interna();
@@ -901,11 +1059,112 @@ public class TelaCarregamentos extends JFrame {
 					return "Não Aplicável";
 				}
 			}
-			
-			
+
 			case status: {
-				
-				return "";
+				String codigo_nf_venda = carregamento.getCodigo_nf_venda1();
+				String codigo_nf_complemento = carregamento.getCodigo_nf_complemento();
+				String codigo_nf_interna = carregamento.getCodigo_nf_interna();
+
+				if (carregamento.getNf_venda1_aplicavel() == 1 && carregamento.getNf_complemento_aplicavel() == 1
+						&& carregamento.getNf_interna_aplicavel() == 1) {
+					if (!checkString(codigo_nf_interna) && !checkString(codigo_nf_complemento)
+							&& !checkString(codigo_nf_venda)) {
+						return "FALTA NF INTERNA, COMPLEMENTO E VENDA";
+					} else if (!checkString(codigo_nf_interna) && !checkString(codigo_nf_complemento)
+							&& checkString(codigo_nf_venda)) {
+						return "FALTA NF INTERNA E COMPLEMENTO";
+
+					} else if (checkString(codigo_nf_interna) && checkString(codigo_nf_complemento)
+							&& !checkString(codigo_nf_venda)) {
+						return "FALTA NF VENDA";
+
+					} else if (!checkString(codigo_nf_interna) && checkString(codigo_nf_complemento)
+							&& !checkString(codigo_nf_venda)) {
+						return "FALTA NF INTERNA E VENDA";
+
+					} else if (checkString(codigo_nf_interna) && checkString(codigo_nf_complemento)
+							&& !checkString(codigo_nf_venda)) {
+						return "FALTA NF COMPLEMENTO E VENDA";
+
+					} else if (!checkString(codigo_nf_interna) && checkString(codigo_nf_complemento)
+							&& checkString(codigo_nf_venda)) {
+						return "FALTA NF INTERNA";
+
+					} else if (checkString(codigo_nf_interna) && !checkString(codigo_nf_complemento)
+							&& checkString(codigo_nf_venda)) {
+						return "FALTA NF COMPLEMENTO";
+
+					} else if (checkString(codigo_nf_interna) && checkString(codigo_nf_complemento)
+							&& checkString(codigo_nf_venda)) {
+						return "OK";
+
+					}
+
+				} else if (carregamento.getNf_venda1_aplicavel() == 1 && carregamento.getNf_complemento_aplicavel() == 0
+						&& carregamento.getNf_interna_aplicavel() == 0) {
+					if (checkString(codigo_nf_venda)) {
+						return "OK";
+
+					} else {
+						return "FALTA NF VENDA";
+					}
+
+				} else if (carregamento.getNf_venda1_aplicavel() == 1 && carregamento.getNf_complemento_aplicavel() == 1
+						&& carregamento.getNf_interna_aplicavel() == 0) {
+					if (!checkString(codigo_nf_complemento) && !checkString(codigo_nf_venda)) {
+						return "FALTA NF COMPLEMENTO E VENDA";
+					} else if (checkString(codigo_nf_complemento) && !checkString(codigo_nf_venda)) {
+						return "FALTA NF VENDA";
+
+					} else if (!checkString(codigo_nf_complemento) && checkString(codigo_nf_venda)) {
+						return "FALTA NF COMPLEMENTO";
+
+					} else if (checkString(codigo_nf_complemento) && checkString(codigo_nf_venda)) {
+						return "OK";
+
+					}
+
+				} else if (carregamento.getNf_venda1_aplicavel() == 0 && carregamento.getNf_complemento_aplicavel() == 1
+						&& carregamento.getNf_interna_aplicavel() == 0) {
+					if (checkString(codigo_nf_complemento)) {
+						return "OK";
+
+					} else {
+						return "FALTA NF COMPLEMENTO";
+					}
+
+				} else if (carregamento.getNf_venda1_aplicavel() == 0 && carregamento.getNf_complemento_aplicavel() == 0
+						&& carregamento.getNf_interna_aplicavel() == 1) {
+					if (checkString(codigo_nf_interna)) {
+						return "OK";
+
+					} else {
+						return "FALTA NF INTERNA";
+					}
+
+				} else if (carregamento.getNf_venda1_aplicavel() == 0 && carregamento.getNf_complemento_aplicavel() == 1
+						&& carregamento.getNf_interna_aplicavel() == 1) {
+					if (!checkString(codigo_nf_interna) && !checkString(codigo_nf_complemento)) {
+						return "FALTA NF INTERNA E COMPLEMENTO";
+					} else if (checkString(codigo_nf_interna) && !checkString(codigo_nf_complemento)) {
+						return "FALTA NF COMPLEMENTO";
+
+					} else if (!checkString(codigo_nf_interna) && checkString(codigo_nf_complemento)) {
+						return "FALTA NF INTERNA";
+
+					} else if (checkString(codigo_nf_interna) && checkString(codigo_nf_complemento)) {
+						return "OK";
+
+					}
+
+				}
+
+				else if (carregamento.getNf_venda1_aplicavel() == 0 && carregamento.getNf_complemento_aplicavel() == 0
+						&& carregamento.getNf_interna_aplicavel() == 0) {
+					// nenhum aplicavel
+					return "OK";
+
+				}
 			}
 
 			default:
@@ -1001,7 +1260,5 @@ public class TelaCarregamentos extends JFrame {
 		}
 
 	}
-
-
 
 }

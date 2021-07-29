@@ -96,6 +96,42 @@ public class GerenciarBancoRecibos {
 
 	}
 	
+	public ArrayList<CadastroRecibo> getRecibos() {
+		String selectAdivitos = "select * from recibo";
+		Connection conn = null;
+		PreparedStatement pstm = null;
+		ResultSet rs = null;
+		ArrayList<CadastroRecibo> lista_recibos = new ArrayList<CadastroRecibo>();
+		try {
+			conn = ConexaoBanco.getConexao();
+			pstm = conn.prepareStatement(selectAdivitos);
+			// pstm.setString(1, chave);
+
+			rs = pstm.executeQuery();
+			while (rs.next()) {
+				CadastroRecibo recibo = new CadastroRecibo();
+			
+				
+				recibo.setId_recibo(rs.getInt("id_recibo"));
+				recibo.setTipo_recibo(rs.getInt("tipo_recibo"));
+				recibo.setData_recibo(rs.getString("data_recibo"));
+				recibo.setNome_arquivo(rs.getString("nome_arquivo"));
+				recibo.setStatus_recibo(rs.getInt("status_recibo"));
+				recibo.setId_pai(rs.getInt("id_pai"));
+				recibo.setId_lancamento_pai(rs.getInt("id_lancamento_pai"));
+
+				lista_recibos.add(recibo);
+
+			}
+			ConexaoBanco.fechaConexao(conn, pstm, rs);
+		} catch (Exception e) {
+			JOptionPane.showMessageDialog(null, "Erro ao listar recibos");//  );
+		}
+		return lista_recibos;
+
+	}
+	
+	
 	
 	public CadastroRecibo getrecibo(int id) {
 

@@ -1,4 +1,5 @@
 package main.java.gui;
+
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.FlowLayout;
@@ -110,10 +111,10 @@ public class TelaReplicarPagamento extends JDialog {
 	private JDialog telaPai;
 	private JComboBox cBSubContratoSelecionado;
 	private TelaReplicarPagamento isto;
-    private JFrame telaPaiJFrame;
-    
-	public TelaReplicarPagamento(CadastroContrato contrato_pai,
-			CadastroContrato.CadastroPagamentoContratual pagamento, Window janela_pai) {
+	private JFrame telaPaiJFrame;
+
+	public TelaReplicarPagamento(CadastroContrato contrato_pai, CadastroContrato.CadastroPagamentoContratual pagamento,
+			Window janela_pai) {
 
 		this.contrato_pai_local = contrato_pai;
 		this.pagamento_local = pagamento;
@@ -125,42 +126,48 @@ public class TelaReplicarPagamento extends JDialog {
 
 		setBackground(new Color(255, 255, 255));
 		setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-		setBounds(100, 100, 378, 190);
+		setBounds(100, 100, 431, 235);
 		painelPrincipal.setBackground(new Color(255, 255, 255));
 		painelPrincipal.setBorder(new EmptyBorder(5, 5, 5, 5));
 		setContentPane(painelPrincipal);
 		painelPrincipal.setLayout(null);
 
-		JLabel lblNewLabel = new JLabel("Selecione o sub-contrato ");
-		lblNewLabel.setFont(new Font("Tahoma", Font.PLAIN, 14));
-		lblNewLabel.setBounds(10, 22, 156, 17);
+		JLabel lblNewLabel = new JLabel("Selecione o sub-contrato: ");
+		lblNewLabel.setFont(new Font("Tahoma", Font.PLAIN, 18));
+		lblNewLabel.setBounds(10, 22, 230, 22);
 		painelPrincipal.add(lblNewLabel);
 
 		JButton btnNewButton = new JButton("Concluir");
+		btnNewButton.setBackground(new Color(0, 51, 0));
+		btnNewButton.setForeground(Color.WHITE);
+		btnNewButton.setFont(new Font("SansSerif", Font.BOLD, 16));
 		btnNewButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				concluir();
 			}
 		});
-		btnNewButton.setBounds(270, 117, 74, 28);
+		btnNewButton.setBounds(310, 150, 93, 33);
 		painelPrincipal.add(btnNewButton);
 
 		cBSubContratoSelecionado = new JComboBox();
 		cBSubContratoSelecionado.setFont(new Font("SansSerif", Font.PLAIN, 16));
-		cBSubContratoSelecionado.setBounds(26, 68, 216, 31);
+		cBSubContratoSelecionado.setBounds(10, 68, 273, 31);
 		painelPrincipal.add(cBSubContratoSelecionado);
 
 		JButton btnNewButton_1 = new JButton("Selecionar");
+		btnNewButton_1.setBackground(new Color(0, 0, 102));
+		btnNewButton_1.setForeground(Color.WHITE);
+		btnNewButton_1.setFont(new Font("SansSerif", Font.BOLD, 16));
 		btnNewButton_1.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				TelaContratos tela = new TelaContratos(4,isto);
+				TelaContratos tela = new TelaContratos(4, isto);
 
 				tela.setTelaPai(isto);
 				tela.pesquisar_sub_contratos(contrato_pai_local.getId());
 				tela.setVisible(true);
 			}
 		});
-		btnNewButton_1.setBounds(254, 67, 90, 28);
+		btnNewButton_1.setBounds(294, 67, 109, 33);
 		painelPrincipal.add(btnNewButton_1);
 
 		this.setLocationRelativeTo(janela_pai);
@@ -189,72 +196,74 @@ public class TelaReplicarPagamento extends JDialog {
 	}
 
 	public void concluir() {
+
 		GerenciarBancoContratos gerenciar = new GerenciarBancoContratos();
 
 		// verificar se esse pagamento tem comprovantes anexados
 		GerenciarBancoDocumento gerenciar_docs = new GerenciarBancoDocumento();
 		ArrayList<CadastroDocumento> documentos_anexados = gerenciar_docs
-				.getDocumentosPorPai(pagamento_local.getId_pagamento());
-		if(documentos_anexados.size() > 0) {
-		for (CadastroDocumento doc : documentos_anexados) {
+				.getDocumentosPorPai(pagamento_local.getId_pagamento(), contrato_pai_local.getId());
 
-			CopiarArquivo copiar = new CopiarArquivo(doc, pagamento_local.getId_pagamento(), sub_contrato);
+		if (documentos_anexados != null && documentos_anexados.size() > 0) {
 
-			String nome_arquivo = copiar.copiar_pagamento();
+				for (CadastroDocumento doc : documentos_anexados) {
 
-			if (nome_arquivo != null) {
-				doc.setNome_arquivo(nome_arquivo);
-				doc.setNome("comprovante de pagamento replicado");
-				doc.setDescricao("comprovante de pagamento replicado do contrato pai deste sub_contrato");
-				doc.setId_contrato_pai(sub_contrato.getId());
+					CopiarArquivo copiar = new CopiarArquivo(doc, pagamento_local.getId_pagamento(), sub_contrato);
 
-				boolean retorno = gerenciar.inserir_contrato_pagamento_contratual(sub_contrato.getId(),
-						pagamento_local.getId_pagamento());
-				if (retorno) {
-					JOptionPane.showMessageDialog(isto, "Pagamento Replicado!");
+					String nome_arquivo = copiar.copiar_pagamento();
 
-					int anexo_replicado = gerenciar_docs.inserir_documento_padrao(doc);
-					if (anexo_replicado > 1) {
-						JOptionPane.showMessageDialog(isto, "Comprovante deste pagamento também foi replicado");
+					if (nome_arquivo != null) {
+						doc.setNome_arquivo(nome_arquivo);
+						doc.setNome("comprovante de pagamento replicado");
+						doc.setDescricao("comprovante de pagamento replicado do contrato pai deste sub_contrato");
+						doc.setId_contrato_pai(sub_contrato.getId());
 
+						boolean retorno = gerenciar.inserir_contrato_pagamento_contratual(sub_contrato.getId(),
+								pagamento_local.getId_pagamento());
+						if (retorno) {
+							JOptionPane.showMessageDialog(isto, "Pagamento Replicado!");
+
+							int anexo_replicado = gerenciar_docs.inserir_documento_padrao(doc);
+							if (anexo_replicado > 1) {
+								JOptionPane.showMessageDialog(isto, "Comprovante deste pagamento também foi replicado");
+
+							} else {
+								JOptionPane.showMessageDialog(isto,
+										"Erro ao replicar anexo!\nConsulte o administrador!");
+
+							}
+
+						} else {
+							JOptionPane.showMessageDialog(isto,
+									"Erro ao Replicar o Pagamento\nNão ha erros no banco de dados\nTente Novamente!");
+							isto.dispose();
+						}
 					} else {
-						JOptionPane.showMessageDialog(isto, "Erro ao replicar anexo!\nConsulte o administrador!");
+						JOptionPane.showMessageDialog(isto,
+								"O arquivo fisico não foi copiado! Replica cancelada!\nTente Novamente, se o erro persistir, consulte o administrador");
 
 					}
 
-				} else {
-					JOptionPane.showMessageDialog(isto,
-							"Erro ao Replicar o Pagamento\nNão ha erros no banco de dados\nTente Novamente!");
-					isto.dispose();
 				}
-			} else {
-				JOptionPane.showMessageDialog(isto,
-						"O arquivo fisico não foi copiado! Replica cancelada!\nTente Novamente, se o erro persistir, consulte o administrador");
-
-			}
-
-		}
-		}else {
+			
+		} else {
 			boolean retorno = gerenciar.inserir_contrato_pagamento_contratual(sub_contrato.getId(),
 					pagamento_local.getId_pagamento());
 			if (retorno) {
 				JOptionPane.showMessageDialog(isto, "Pagamento Replicado!");
 
-				
 			} else {
 				JOptionPane.showMessageDialog(isto,
 						"Erro ao Replicar o Pagamento\nNão ha erros no banco de dados\nTente Novamente!");
-				isto.dispose();
 			}
 		}
 
 		isto.dispose();
 
 	}
-	
 
-public void setTelaPai(JFrame tela_pai) {
+	public void setTelaPai(JFrame tela_pai) {
 		this.telaPaiJFrame = tela_pai;
-	}	
-       
+	}
+
 }

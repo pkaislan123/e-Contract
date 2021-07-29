@@ -30,6 +30,8 @@ import javax.swing.border.EmptyBorder;
 import org.apache.poi.hssf.usermodel.HSSFClientAnchor;
 import org.apache.poi.hssf.usermodel.HSSFDataFormat;
 import org.apache.poi.hssf.usermodel.HSSFFont;
+import org.apache.poi.hssf.usermodel.HSSFPatriarch;
+import org.apache.poi.hssf.usermodel.HSSFPicture;
 import org.apache.poi.hssf.usermodel.HSSFSheet;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.Cell;
@@ -117,10 +119,11 @@ public class RelatorioSalario extends JDialog {
 	private CadastroFuncionarioAdmissao ct_global;
 	private CadastroFuncionario funcionario;
 	private RegistroAuxiliarHoras registro_global;
+	private ArrayList<String> texto_atrazo;
 
 	public RelatorioSalario(ArrayList<RegistroPontoMensalCompleto> registros_pontos,
 			ArrayList<CadastroFuncionarioCalculo> acrescimos, ArrayList<CadastroFuncionarioCalculo> descontos,
-			CadastroFuncionario funcionario, CadastroFuncionarioAdmissao ct_trabalho, String mes, int ano,
+			CadastroFuncionario funcionario, CadastroFuncionarioAdmissao ct_trabalho, String mes, int ano, ArrayList<String> textos,
 			double ultimo_salario, RegistroAuxiliarHoras registro_horas, Window janela_pai) {
 
 		this.funcionario = funcionario;
@@ -130,14 +133,12 @@ public class RelatorioSalario extends JDialog {
 		this.mes = mes;
 		this.registro_global = registro_horas;
 		this.isto = janela_pai;
+		this.texto_atrazo = textos;
 
 		gerarPdf(prepararOlerite(descontos, acrescimos, registros_pontos, 0));
 
 	}
 
-	
-	
-	
 	public void gerarExcel(HSSFWorkbook workbook) {
 		try {
 
@@ -214,18 +215,28 @@ public class RelatorioSalario extends JDialog {
 
 	}
 
-	public HSSFWorkbook prepararRegistroPonto(ArrayList<RegistroPontoMensalCompleto> registros_selecionados, int flag) {
+	public HSSFWorkbook prepararOlerite(ArrayList<CadastroFuncionarioCalculo> descontos,
+			ArrayList<CadastroFuncionarioCalculo> acrescimos, ArrayList<RegistroPontoMensalCompleto> registros_pontos,
+			int flag) {
 		HSSFWorkbook workbook = new HSSFWorkbook();
-		HSSFSheet sheet = workbook.createSheet("Exportação de Dados de Registro de Ponto");
+		HSSFSheet sheet = workbook.createSheet("Exportação de Dados de Folha de Pagamento");
 
-		// Definindo alguns padroes de layout
-		sheet.setDefaultColumnWidth(25);
-		sheet.setDefaultRowHeight((short) 400);
+		URL url = getClass().getResource("/imagens/logo_para_relatorio.png");
+		String imgFile = url.getFile();
 
-		int rownum = 0;
-		int cellnum = 0;
-		Cell cell;
-		Row row;
+		FileInputStream stream = null;
+		try {
+			stream = new FileInputStream(imgFile);
+			byte[] bytes = new byte[(int) stream.getChannel().size()];
+			stream.read(bytes);// Read image to binary array
+			int pictureIdx = workbook.addPicture(bytes, HSSFWorkbook.PICTURE_TYPE_JPEG);
+			HSSFPatriarch patriarch = sheet.createDrawingPatriarch();
+			HSSFClientAnchor anchor = new HSSFClientAnchor(0, 0, 0, 0, (short) 0, 0, (short) 1, 3);
+			HSSFPicture pict = patriarch.createPicture(anchor, pictureIdx);
+		} catch (IOException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
 
 		// Configurando estilos de células (Cores, alinhamento, formatação, etc..)
 		HSSFDataFormat numberFormat = workbook.createDataFormat();
@@ -236,10 +247,19 @@ public class RelatorioSalario extends JDialog {
 		headerStyle.setAlignment(HorizontalAlignment.CENTER);
 		headerStyle.setVerticalAlignment(VerticalAlignment.CENTER);
 
+		HSSFFont newFontNegritaPontos = workbook.createFont();
+		newFontNegritaPontos.setBold(false);
+		newFontNegritaPontos.setColor(IndexedColors.BLACK.getIndex());
+		newFontNegritaPontos.setFontName("Arial");
+		newFontNegritaPontos.setItalic(true);
+		newFontNegritaPontos.setFontHeight((short) (11 * 30));
+
+		
 		// celula para texto alinhado ao centro
 		CellStyle textStyle = workbook.createCellStyle();
 		textStyle.setAlignment(HorizontalAlignment.CENTER);
 		textStyle.setVerticalAlignment(VerticalAlignment.CENTER);
+		textStyle.setFont(newFontNegritaPontos);
 
 		// celula para numero alinhado ao centro
 		CellStyle numberStyle = workbook.createCellStyle();
@@ -260,7 +280,7 @@ public class RelatorioSalario extends JDialog {
 		newFontNegrita.setColor(IndexedColors.BLACK.getIndex());
 		newFontNegrita.setFontName("Arial");
 		newFontNegrita.setItalic(true);
-		newFontNegrita.setFontHeight((short) (11 * 20));
+		newFontNegrita.setFontHeight((short) (11 * 30));
 
 		negrito.setFont(newFontNegrita);
 
@@ -277,7 +297,7 @@ public class RelatorioSalario extends JDialog {
 		newFontNegritaEsquerda.setColor(IndexedColors.BLACK.getIndex());
 		newFontNegritaEsquerda.setFontName("Arial");
 		newFontNegritaEsquerda.setItalic(true);
-		newFontNegritaEsquerda.setFontHeight((short) (11 * 20));
+		newFontNegritaEsquerda.setFontHeight((short) (11 * 30));
 
 		negrito_esquerda.setFont(newFontNegritaEsquerda);
 
@@ -299,7 +319,7 @@ public class RelatorioSalario extends JDialog {
 		newFont.setColor(IndexedColors.BLACK.getIndex());
 		newFont.setFontName("Calibri");
 		newFont.setItalic(false);
-		newFont.setFontHeight((short) (11 * 25));
+		newFont.setFontHeight((short) (11 * 30));
 
 		celula_fundo_laranja.setFont(newFont);
 
@@ -317,7 +337,7 @@ public class RelatorioSalario extends JDialog {
 		newFont_blabk.setColor(IndexedColors.BLACK.getIndex());
 		newFont_blabk.setFontName("Calibri");
 		newFont_blabk.setItalic(false);
-		newFont_blabk.setFontHeight((short) (11 * 20));
+		newFont_blabk.setFontHeight((short) (11 * 30));
 
 		celula_number_amarelo_texto_preto.setFont(newFont_blabk);
 
@@ -333,7 +353,7 @@ public class RelatorioSalario extends JDialog {
 		newFont_branca.setColor(IndexedColors.WHITE.getIndex());
 		newFont_branca.setFontName("Calibri");
 		newFont_branca.setItalic(false);
-		newFont_branca.setFontHeight((short) (11 * 20));
+		newFont_branca.setFontHeight((short) (11 * 30));
 		Locale ptBr = new Locale("pt", "BR");
 
 		celula_fundo_laranja_texto_branco.setFont(newFont_branca);
@@ -353,425 +373,188 @@ public class RelatorioSalario extends JDialog {
 		celula_titulo.setVerticalAlignment(VerticalAlignment.CENTER);
 		celula_titulo.setFont(newFont_titulo);
 
-		// Configurando as informacoes
+		HSSFFont newFont_cabecalho = workbook.createFont();
+		newFont_cabecalho.setBold(true);
+		newFont_cabecalho.setColor(IndexedColors.GREEN.getIndex());
+		newFont_cabecalho.setFontName("Calibri");
+		newFont_cabecalho.setItalic(true);
+		newFont_cabecalho.setFontHeight((short) (11 * 60));
 
-		// Configurando as informacoes
-		row = sheet.createRow(rownum++);
+		// estilo para cabecalho
+		CellStyle celula_cabecalho = workbook.createCellStyle();
+		celula_cabecalho.setFillPattern(FillPatternType.SOLID_FOREGROUND);
+		celula_cabecalho.setFillForegroundColor(IndexedColors.WHITE.getIndex());
+		celula_cabecalho.setAlignment(HorizontalAlignment.LEFT);
+		celula_cabecalho.setVerticalAlignment(VerticalAlignment.CENTER);
+		celula_cabecalho.setFont(newFont_cabecalho);
 
+
+		HSSFFont newFontNegritaPontosComum = workbook.createFont();
+		newFontNegritaPontosComum.setBold(false);
+		newFontNegritaPontosComum.setColor(IndexedColors.BLACK.getIndex());
+		newFontNegritaPontosComum.setFontName("Arial");
+		newFontNegritaPontosComum.setItalic(true);
+		newFontNegritaPontosComum.setFontHeight((short) (11 * 40));
+
+		HSSFFont newFontNegritaPontosAzul = workbook.createFont();
+		newFontNegritaPontosAzul.setBold(true);
+		newFontNegritaPontosAzul.setColor(IndexedColors.BLUE.getIndex());
+		newFontNegritaPontosAzul.setFontName("Arial");
+		newFontNegritaPontosAzul.setItalic(true);
+		newFontNegritaPontosAzul.setFontHeight((short) (11 * 40));
+
+		HSSFFont newFontNegritaPontosVermelho = workbook.createFont();
+		newFontNegritaPontosVermelho.setBold(true);
+		newFontNegritaPontosVermelho.setColor(IndexedColors.RED.getIndex());
+		newFontNegritaPontosVermelho.setFontName("Arial");
+		newFontNegritaPontosVermelho.setItalic(true);
+		newFontNegritaPontosVermelho.setFontHeight((short) (11 * 40));
+
+
+		// celula para texto alinhado ao centro
+		CellStyle textStyleComum = workbook.createCellStyle();
+		textStyleComum.setAlignment(HorizontalAlignment.CENTER);
+		textStyleComum.setVerticalAlignment(VerticalAlignment.CENTER);
+		textStyleComum.setFont(newFontNegritaPontosComum);
+
+		// celula para texto alinhado ao centro
+		CellStyle textStyleAzul = workbook.createCellStyle();
+		textStyleAzul.setAlignment(HorizontalAlignment.CENTER);
+		textStyleAzul.setVerticalAlignment(VerticalAlignment.CENTER);
+		textStyleAzul.setFont(newFontNegritaPontosAzul);
+
+		// celula para texto alinhado ao centro
+		CellStyle textStyleVermelho = workbook.createCellStyle();
+		textStyleVermelho.setAlignment(HorizontalAlignment.CENTER);
+		textStyleVermelho.setVerticalAlignment(VerticalAlignment.CENTER);
+		textStyleVermelho.setFont(newFontNegritaPontosVermelho);
+		
+		// Definindo alguns padroes de layout
+		sheet.setDefaultColumnWidth(25);
+		sheet.setDefaultRowHeight((short) 400);
+
+		int rownum = 0;
+		int cellnum = 0;
+		Cell cell;
+		Row row;
+
+		/******************************************************/
+		// Configurando o cabecalho
+		row = sheet.createRow(0);
+		int cellnumperson = 1;
 		// Configurando titulo
-		cell = row.createCell(cellnum++);
-		cell.setCellStyle(celula_titulo);
-		cell.setCellValue("Relatório de Registro de Ponto");
+		cell = row.createCell(cellnumperson++);
+		cell.setCellStyle(celula_cabecalho);
+		cell.setCellValue("LD ARMAZÉNS GERAIS");
 		// criar celula de 1 a 5
 		for (int i = 1; i < 6; i++) {
+			cell = row.createCell(cellnumperson++);
+			cell.setCellStyle(celula_cabecalho);
+			cell.setCellValue("");
+
+		}
+		sheet.addMergedRegion(new CellRangeAddress(0, 1, 1, 2));
+
+		/******************************************************/
+
+		// Configurando titulo
+		row = sheet.createRow(2);
+		cell = row.createCell(1);
+		cell.setCellStyle(celula_titulo);
+		cell.setCellValue("Relatório de Sálario");
+		// criar celula de 1 a 5
+		for (int i = 2; i < 3; i++) {
 			cell = row.createCell(cellnum++);
 			cell.setCellStyle(celula_titulo);
 			cell.setCellValue("");
 
 		}
-		sheet.addMergedRegion(new CellRangeAddress(0, 0, 0, 5));
+		sheet.addMergedRegion(new CellRangeAddress(2, 2, 1, 2));
 
-		cellnum = 0;
-
-		// Configurando Header
-		row = sheet.createRow(rownum++);
-		cell = row.createCell(cellnum++);
-		cell.setCellStyle(celula_fundo_laranja_texto_branco);
-		cell.setCellValue("DATA");
-
-		cell = row.createCell(cellnum++);
-		cell.setCellStyle(celula_fundo_laranja_texto_branco);
-		cell.setCellValue("DIA DA SEMANA");
-
-		cell = row.createCell(cellnum++);
-		cell.setCellStyle(celula_fundo_laranja_texto_branco);
-		cell.setCellValue("HORA ENTRADA 1".toUpperCase());
-
-		cell = row.createCell(cellnum++);
-		cell.setCellStyle(celula_fundo_laranja_texto_branco);
-		cell.setCellValue("HORA SAIDA 1".toUpperCase());
-
-		cell = row.createCell(cellnum++);
-		cell.setCellStyle(celula_fundo_laranja_texto_branco);
-		cell.setCellValue("HORA ENTRADA 2".toUpperCase());
-
-		cell = row.createCell(cellnum++);
-		cell.setCellStyle(celula_fundo_laranja_texto_branco);
-		cell.setCellValue("HORA SAIDA 2".toUpperCase());
-
-		cell = row.createCell(cellnum++);
-		cell.setCellStyle(celula_fundo_laranja_texto_branco);
-		cell.setCellValue("HORA ENTRADA 3".toUpperCase());
-
-		cell = row.createCell(cellnum++);
-		cell.setCellStyle(celula_fundo_laranja_texto_branco);
-		cell.setCellValue("HORA SAIDA 3".toUpperCase());
-
-		cell = row.createCell(cellnum++);
-		cell.setCellStyle(celula_fundo_laranja_texto_branco);
-		cell.setCellValue("ROTINA DIARIA".toUpperCase());
-
-		cell = row.createCell(cellnum++);
-		cell.setCellStyle(celula_fundo_laranja_texto_branco);
-		cell.setCellValue("HORAS TRABALHADAS".toUpperCase());
-
-		cell = row.createCell(cellnum++);
-		cell.setCellStyle(celula_fundo_laranja_texto_branco);
-		cell.setCellValue("HORAS EXTRAS".toUpperCase());
-
-		cell = row.createCell(cellnum++);
-		cell.setCellStyle(celula_fundo_laranja_texto_branco);
-		cell.setCellValue("HORAS ATRAZO".toUpperCase());
-
-		for (RegistroPontoMensalCompleto rp : registros_selecionados) {
-			row = sheet.createRow(rownum++);
-			cellnum = 0;
-
-			// data
-			cell = row.createCell(cellnum++);
-			cell.setCellStyle(textStyle);
-			cell.setCellValue(rp.getRp().getData());
-
-			// dia da semana
-			String dia_da_semana = "";
-			cell = row.createCell(cellnum++);
-			cell.setCellStyle(textStyle);
-
-			if (rp.getRp().getData() != null && !rp.getRp().getData().equals("")
-					&& !rp.getRp().getData().equalsIgnoreCase("TOTAIS")) {
-				try {
-					DateTimeFormatter formatter = new DateTimeFormatterBuilder().toFormatter(new Locale("pt", "BR"));
-
-					LocalDate data = LocalDate.parse(rp.getRp().getData(), formatter.ofPattern("dd/MM/yyyy"));
-					DayOfWeek dia_s = data.getDayOfWeek();
-					cell.setCellValue(dia_s.getDisplayName(TextStyle.FULL, new Locale("pt", "BR")).toUpperCase());
-				} catch (Exception e) {
-					cell.setCellValue("");
-				}
-			} else {
-				cell.setCellValue("");
-			}
-
-			// hora entrada1
-			cell = row.createCell(cellnum++);
-			cell.setCellStyle(textStyle);
-			if (!rp.getRp().getEntrada1().equals("00:00"))
-				cell.setCellValue(rp.getRp().getEntrada1());
-			else
-				cell.setCellValue("-");
-
-			// hora saida1
-			cell = row.createCell(cellnum++);
-			cell.setCellStyle(textStyle);
-			if (!rp.getRp().getSaida1().equals("00:00"))
-				cell.setCellValue(rp.getRp().getSaida1());
-			else
-				cell.setCellValue("-");
-
-			// hora entrada 2
-			cell = row.createCell(cellnum++);
-			cell.setCellStyle(textStyle);
-			if (!rp.getRp().getEntrada2().equals("00:00"))
-				cell.setCellValue(rp.getRp().getEntrada2());
-			else
-				cell.setCellValue("-");
-
-			// hora saida2
-			cell = row.createCell(cellnum++);
-			cell.setCellStyle(textStyle);
-			if (!rp.getRp().getSaida2().equals("00:00"))
-				cell.setCellValue(rp.getRp().getSaida2());
-			else
-				cell.setCellValue("-");
-
-			// hora entrada 3
-			cell = row.createCell(cellnum++);
-			cell.setCellStyle(textStyle);
-			if (!rp.getRp().getEntrada3().equals("00:00"))
-				cell.setCellValue(rp.getRp().getEntrada3());
-			else
-				cell.setCellValue("-");
-
-			// hora saida 3
-			cell = row.createCell(cellnum++);
-			cell.setCellStyle(textStyle);
-			if (!rp.getRp().getSaida3().equals("00:00"))
-				cell.setCellValue(rp.getRp().getSaida3());
-			else
-				cell.setCellValue("-");
-
-			// rotina diaria
-			cell = row.createCell(cellnum++);
-			cell.setCellStyle(textStyle);
-			if (!rp.getHora_diaria().equals("00:00"))
-				cell.setCellValue(rp.getHora_diaria());
-			else
-				cell.setCellValue("DESCANSO SEMANAL");
-
-			// horas trabalhadas
-			cell = row.createCell(cellnum++);
-			cell.setCellStyle(textStyle);
-			if (!rp.getHora_trabalhada().equals("00:00"))
-				cell.setCellValue(rp.getHora_trabalhada());
-			else
-				cell.setCellValue("");
-
-			// horas extras
-			cell = row.createCell(cellnum++);
-			cell.setCellStyle(textStyle);
-			if (!rp.getHora_extra().equals("00:00"))
-				cell.setCellValue(rp.getHora_extra());
-			else
-				cell.setCellValue("");
-
-			// horas atrazo
-			cell = row.createCell(cellnum++);
-			cell.setCellStyle(textStyle);
-			if (!rp.getHora_atrazo().equals("00:00"))
-				cell.setCellValue(rp.getHora_atrazo());
-			else
-				cell.setCellValue("");
-		}
-		sheet.setAutoFilter(CellRangeAddress.valueOf("A2:AF2"));
-		for (int i = 0; i < 13; i++) {
-			sheet.autoSizeColumn(i);
-
-		}
-
-		return workbook;
-	}
-
-	public HSSFWorkbook prepararOlerite(ArrayList<CadastroFuncionarioCalculo> descontos,
-			ArrayList<CadastroFuncionarioCalculo> acrescimos, 
-			ArrayList<RegistroPontoMensalCompleto> registros_selecionados,
-			int flag) {
-		HSSFWorkbook workbook = new HSSFWorkbook();
-		HSSFSheet sheet = workbook.createSheet("Exportação de Dados de Folha de Pagamento");
-
-
-		// Definindo alguns padroes de layout
-		sheet.setDefaultColumnWidth(25);
-		sheet.setDefaultRowHeight((short) 400);
-
-		int rownum = 0;
-		int cellnum = 0;
-		Cell cell;
-		Row row;
-
-		// Configurando estilos de células (Cores, alinhamento, formatação, etc..)
-		HSSFDataFormat numberFormat = workbook.createDataFormat();
-
-		CellStyle headerStyle = workbook.createCellStyle();
-		headerStyle.setFillForegroundColor(IndexedColors.GREY_25_PERCENT.getIndex());
-		// headerStyle.setFillPattern(CellStyle.SOLID_FOREGROUND);
-		headerStyle.setAlignment(HorizontalAlignment.CENTER);
-		headerStyle.setVerticalAlignment(VerticalAlignment.CENTER);
-
-		// celula para texto alinhado ao centro
-		CellStyle textStyle = workbook.createCellStyle();
-		textStyle.setAlignment(HorizontalAlignment.CENTER);
-		textStyle.setVerticalAlignment(VerticalAlignment.CENTER);
-
-		// celula para numero alinhado ao centro
-		CellStyle numberStyle = workbook.createCellStyle();
-		numberStyle.setDataFormat(numberFormat.getFormat("#,##0.00"));
-		numberStyle.setAlignment(HorizontalAlignment.CENTER);
-		numberStyle.setVerticalAlignment(VerticalAlignment.CENTER);
-
-		// estilo de celula negrito
-		CellStyle negrito = workbook.createCellStyle();
-		// textStyle.setAlignment(HorizontalAlignment.CENTER);
-		negrito.setFillPattern(FillPatternType.SOLID_FOREGROUND);
-		negrito.setFillForegroundColor(IndexedColors.WHITE.getIndex());
-		negrito.setAlignment(HorizontalAlignment.CENTER);
-		negrito.setVerticalAlignment(VerticalAlignment.CENTER);
-
-		HSSFFont newFontNegrita = workbook.createFont();
-		newFontNegrita.setBold(true);
-		newFontNegrita.setColor(IndexedColors.BLACK.getIndex());
-		newFontNegrita.setFontName("Arial");
-		newFontNegrita.setItalic(true);
-		newFontNegrita.setFontHeight((short) (11 * 20));
-
-		negrito.setFont(newFontNegrita);
-
-		// estilo para celula texto alinhado a esquerda
-		CellStyle negrito_esquerda = workbook.createCellStyle();
-		// textStyle.setAlignment(HorizontalAlignment.CENTER);
-		negrito_esquerda.setFillPattern(FillPatternType.SOLID_FOREGROUND);
-		negrito_esquerda.setFillForegroundColor(IndexedColors.WHITE.getIndex());
-		negrito_esquerda.setAlignment(HorizontalAlignment.LEFT);
-		negrito_esquerda.setVerticalAlignment(VerticalAlignment.CENTER);
-
-		HSSFFont newFontNegritaEsquerda = workbook.createFont();
-		newFontNegritaEsquerda.setBold(true);
-		newFontNegritaEsquerda.setColor(IndexedColors.BLACK.getIndex());
-		newFontNegritaEsquerda.setFontName("Arial");
-		newFontNegritaEsquerda.setItalic(true);
-		newFontNegritaEsquerda.setFontHeight((short) (11 * 20));
-
-		negrito_esquerda.setFont(newFontNegritaEsquerda);
-
-		// estilo para celula do tipo numero alinhado ao centro
-		CellStyle valorStyle = workbook.createCellStyle();
-		valorStyle.setDataFormat(numberFormat.getFormat("R$ #,##0.00"));
-		valorStyle.setAlignment(HorizontalAlignment.CENTER);
-		valorStyle.setVerticalAlignment(VerticalAlignment.CENTER);
-
-		// estilo para cabecalho fundo laranja
-		CellStyle celula_fundo_laranja = workbook.createCellStyle();
-		celula_fundo_laranja.setFillPattern(FillPatternType.SOLID_FOREGROUND);
-		celula_fundo_laranja.setFillForegroundColor(IndexedColors.GREEN.getIndex());
-		celula_fundo_laranja.setAlignment(HorizontalAlignment.CENTER);
-		celula_fundo_laranja.setVerticalAlignment(VerticalAlignment.CENTER);
-
-		HSSFFont newFont = workbook.createFont();
-		newFont.setBold(true);
-		newFont.setColor(IndexedColors.BLACK.getIndex());
-		newFont.setFontName("Calibri");
-		newFont.setItalic(false);
-		newFont.setFontHeight((short) (11 * 25));
-
-		celula_fundo_laranja.setFont(newFont);
-
-		// celula_number_amarelo_texto_preto
-		// estilo para cabecalho fundo laranja
-		CellStyle celula_number_amarelo_texto_preto = workbook.createCellStyle();
-		celula_number_amarelo_texto_preto.setDataFormat(numberFormat.getFormat("#,##0.00"));
-		celula_number_amarelo_texto_preto.setFillPattern(FillPatternType.SOLID_FOREGROUND);
-		celula_number_amarelo_texto_preto.setFillForegroundColor(IndexedColors.YELLOW.getIndex());
-		celula_number_amarelo_texto_preto.setAlignment(HorizontalAlignment.CENTER);
-		celula_number_amarelo_texto_preto.setVerticalAlignment(VerticalAlignment.CENTER);
-
-		HSSFFont newFont_blabk = workbook.createFont();
-		newFont_blabk.setBold(true);
-		newFont_blabk.setColor(IndexedColors.BLACK.getIndex());
-		newFont_blabk.setFontName("Calibri");
-		newFont_blabk.setItalic(false);
-		newFont_blabk.setFontHeight((short) (11 * 20));
-
-		celula_number_amarelo_texto_preto.setFont(newFont_blabk);
-
-		// estilo para cabecalho fundo laranja
-		CellStyle celula_fundo_laranja_texto_branco = workbook.createCellStyle();
-		celula_fundo_laranja_texto_branco.setFillPattern(FillPatternType.SOLID_FOREGROUND);
-		celula_fundo_laranja_texto_branco.setFillForegroundColor(IndexedColors.GREEN.getIndex());
-		celula_fundo_laranja_texto_branco.setAlignment(HorizontalAlignment.CENTER);
-		celula_fundo_laranja_texto_branco.setVerticalAlignment(VerticalAlignment.CENTER);
-
-		HSSFFont newFont_branca = workbook.createFont();
-		newFont_branca.setBold(true);
-		newFont_branca.setColor(IndexedColors.WHITE.getIndex());
-		newFont_branca.setFontName("Calibri");
-		newFont_branca.setItalic(false);
-		newFont_branca.setFontHeight((short) (11 * 20));
-		Locale ptBr = new Locale("pt", "BR");
-
-		celula_fundo_laranja_texto_branco.setFont(newFont_branca);
-
-		HSSFFont newFont_titulo = workbook.createFont();
-		newFont_titulo.setBold(true);
-		newFont_titulo.setColor(IndexedColors.BLACK.getIndex());
-		newFont_titulo.setFontName("Calibri");
-		newFont_titulo.setItalic(true);
-		newFont_titulo.setFontHeight((short) (11 * 32));
-
-		// estilo para cabecalho
-		CellStyle celula_titulo = workbook.createCellStyle();
-		celula_titulo.setFillPattern(FillPatternType.SOLID_FOREGROUND);
-		celula_titulo.setFillForegroundColor(IndexedColors.WHITE.getIndex());
-		celula_titulo.setAlignment(HorizontalAlignment.CENTER);
-		celula_titulo.setVerticalAlignment(VerticalAlignment.CENTER);
-		celula_titulo.setFont(newFont_titulo);
-
+		
 		// Configurando as informacoes
+		rownum = 4;
+		cellnum = 0;
 		row = sheet.createRow(rownum++);
 
 		// Configurando cabecalho com informacoes do funcionario
-		cell = row.createCell(cellnum++);
-		cell.setCellStyle(textStyle);
-		cell.setCellValue("Colaborador:");
+				cell = row.createCell(cellnum++);
+				cell.setCellStyle(textStyleComum);
+				cell.setCellValue("Colaborador:");
 
-		cell = row.createCell(cellnum++);
-		cell.setCellStyle(negrito_esquerda);
-		cell.setCellValue(funcionario.getNome() + " " + funcionario.getSobrenome());
+				cell = row.createCell(cellnum++);
+				cell.setCellStyle(negrito_esquerda);
+				cell.setCellValue(funcionario.getNome() + " " + funcionario.getSobrenome());
 
-		cell = row.createCell(cellnum++);
-		cell.setCellStyle(textStyle);
-		cell.setCellValue("Data Admissão:");
+				cell = row.createCell(cellnum++);
+				cell.setCellStyle(textStyleComum);
+				cell.setCellValue("Data Admissão:");
 
-		cell = row.createCell(cellnum++);
-		cell.setCellStyle(negrito_esquerda);
-		cell.setCellValue(ct_global.getData_admissao());
+				cell = row.createCell(cellnum++);
+				cell.setCellStyle(negrito_esquerda);
+				cell.setCellValue(ct_global.getData_admissao());
 
-		cell = row.createCell(cellnum++);
-		cell.setCellStyle(textStyle);
-		cell.setCellValue("Sálario Base:");
+				row = sheet.createRow(rownum++);
+				cellnum = 0;
+				cell = row.createCell(cellnum++);
+				cell.setCellStyle(textStyleComum);
+				cell.setCellValue("Mês Refêrencia:");
 
-		cell = row.createCell(cellnum++);
-		cell.setCellStyle(negrito_esquerda);
-		cell.setCellValue(formatarValor(salario));
+				cell = row.createCell(cellnum++);
+				cell.setCellStyle(negrito_esquerda);
+				cell.setCellValue(mes);
 
-		row = sheet.createRow(rownum++);
-		cellnum = 0;
-		cell = row.createCell(cellnum++);
-		cell.setCellStyle(textStyle);
-		cell.setCellValue("Mês Refêrencia:");
+				cell = row.createCell(cellnum++);
+				cell.setCellStyle(textStyleComum);
+				cell.setCellValue("Ano Refêrencia:");
 
-		cell = row.createCell(cellnum++);
-		cell.setCellStyle(negrito_esquerda);
-		cell.setCellValue(mes);
+				cell = row.createCell(cellnum++);
+				cell.setCellStyle(negrito_esquerda);
+				cell.setCellValue(ano + "");
 
-		cell = row.createCell(cellnum++);
-		cell.setCellStyle(textStyle);
-		cell.setCellValue("Ano Refêrencia:");
+				row = sheet.createRow(rownum++);
+				
+				cellnum = 0;
+				cell = row.createCell(cellnum++);
+				cell.setCellStyle(textStyleComum);
+				cell.setCellValue("Cargo:");
 
-		cell = row.createCell(cellnum++);
-		cell.setCellStyle(negrito_esquerda);
-		cell.setCellValue(ano + "");
+				cell = row.createCell(cellnum++);
+				cell.setCellStyle(negrito_esquerda);
+				cell.setCellValue(ct_global.getCargo());
 
-		row = sheet.createRow(rownum++);
-		cellnum = 0;
-		cell = row.createCell(cellnum++);
-		cell.setCellStyle(textStyle);
-		cell.setCellValue("Cargo:");
+				cell = row.createCell(cellnum++);
+				cell.setCellStyle(textStyleComum);
+				cell.setCellValue("Função:");
 
-		cell = row.createCell(cellnum++);
-		cell.setCellStyle(negrito_esquerda);
-		cell.setCellValue(ct_global.getCargo());
+				cell = row.createCell(cellnum++);
+				cell.setCellStyle(negrito_esquerda);
+				cell.setCellValue(ct_global.getFuncao());
 
-		cell = row.createCell(cellnum++);
-		cell.setCellStyle(textStyle);
-		cell.setCellValue("Função:");
+				row = sheet.createRow(rownum++);
+				cellnum = 0;
+				cell = row.createCell(cellnum++);
+				cell.setCellStyle(textStyleComum);
+				cell.setCellValue("Tipo Contrato:");
 
-		cell = row.createCell(cellnum++);
-		cell.setCellStyle(negrito_esquerda);
-		cell.setCellValue(ct_global.getFuncao());
+				cell = row.createCell(cellnum++);
+				cell.setCellStyle(negrito_esquerda);
+				cell.setCellValue(ct_global.getTipo_contrato());
+				sheet.addMergedRegion(new CellRangeAddress(rownum, rownum, 0, 1));
 
-		row = sheet.createRow(rownum++);
-		cellnum = 0;
-		cell = row.createCell(cellnum++);
-		cell.setCellStyle(textStyle);
-		cell.setCellValue("Tipo Contrato:");
+				cell = row.createCell(2);
+				cell.setCellStyle(textStyleComum);
+				cell.setCellValue("Status:");
 
-		cell = row.createCell(cellnum++);
-		cell.setCellStyle(negrito_esquerda);
-		cell.setCellValue(ct_global.getTipo_contrato());
+				cell = row.createCell(3);
+				cell.setCellStyle(negrito_esquerda);
+				if (ct_global.getData_encerramento_contrato() != null) {
+					cell.setCellValue("CT ENC em " + ct_global.getData_encerramento_contrato());
 
-		cell = row.createCell(cellnum++);
-		cell.setCellStyle(textStyle);
-		cell.setCellValue("Status:");
+				} else {
+					cell.setCellValue("ATIVO");
 
-		cell = row.createCell(cellnum++);
-		cell.setCellStyle(negrito_esquerda);
-		if (ct_global.getData_encerramento_contrato() != null) {
-			cell.setCellValue("CT ENC em " + ct_global.getData_encerramento_contrato());
-
-		} else {
-			cell.setCellValue("ATIVO");
-
-		}
-
+				}
 		// vencimentos e horas extras
 
 		// Configurando as informacoes
@@ -838,77 +621,77 @@ public class RelatorioSalario extends JDialog {
 		cell.setCellStyle(textStyle);
 		cell.setCellValue(formatarValor(salario));
 
-		if(registro_global.getOpcao_banco() != 1) {
-		
-		// linha hora 50%
-		row = sheet.createRow(rownum++);
-		cellnum = 0;
-		cell = row.createCell(cellnum++);
-		cell.setCellStyle(textStyle);
-		cell.setCellValue("HORA EXTRAS");
+		if (registro_global.getOpcao_banco() != 1) {
 
-		cell = row.createCell(cellnum++);
-		cell.setCellStyle(textStyle);
-		cell.setCellValue("HORA 50%");
+			// linha hora 50%
+			row = sheet.createRow(rownum++);
+			cellnum = 0;
+			cell = row.createCell(cellnum++);
+			cell.setCellStyle(textStyle);
+			cell.setCellValue("HORA EXTRAS");
 
-		cell = row.createCell(cellnum++);
-		cell.setCellStyle(textStyle);
-		cell.setCellValue(formatarValor(registro_global.getValor_hora50()));
+			cell = row.createCell(cellnum++);
+			cell.setCellStyle(textStyle);
+			cell.setCellValue("HORA 50%");
 
-		cell = row.createCell(cellnum++);
-		cell.setCellStyle(textStyle);
-		cell.setCellValue(formatHora(registro_global.getTH50()));
+			cell = row.createCell(cellnum++);
+			cell.setCellStyle(textStyle);
+			cell.setCellValue(formatarValor(registro_global.getValor_hora50()));
 
-		cell = row.createCell(cellnum++);
-		cell.setCellStyle(textStyle);
-		cell.setCellValue(formatarValor(registro_global.getValor_total_hora50()));
+			cell = row.createCell(cellnum++);
+			cell.setCellStyle(textStyle);
+			cell.setCellValue(formatHora(registro_global.getTH50()));
 
-		// linha hora 60%
-		row = sheet.createRow(rownum++);
-		cellnum = 0;
-		cell = row.createCell(cellnum++);
-		cell.setCellStyle(textStyle);
-		cell.setCellValue("HORA EXTRAS");
+			cell = row.createCell(cellnum++);
+			cell.setCellStyle(textStyle);
+			cell.setCellValue(formatarValor(registro_global.getValor_total_hora50()));
 
-		cell = row.createCell(cellnum++);
-		cell.setCellStyle(textStyle);
-		cell.setCellValue("HORA 60%");
+			// linha hora 60%
+			row = sheet.createRow(rownum++);
+			cellnum = 0;
+			cell = row.createCell(cellnum++);
+			cell.setCellStyle(textStyle);
+			cell.setCellValue("HORA EXTRAS");
 
-		cell = row.createCell(cellnum++);
-		cell.setCellStyle(textStyle);
-		cell.setCellValue(formatarValor(registro_global.getValor_hora60()));
+			cell = row.createCell(cellnum++);
+			cell.setCellStyle(textStyle);
+			cell.setCellValue("HORA 60%");
 
-		cell = row.createCell(cellnum++);
-		cell.setCellStyle(textStyle);
-		cell.setCellValue(formatHora(registro_global.getTH60()));
+			cell = row.createCell(cellnum++);
+			cell.setCellStyle(textStyle);
+			cell.setCellValue(formatarValor(registro_global.getValor_hora60()));
 
-		cell = row.createCell(cellnum++);
-		cell.setCellStyle(textStyle);
-		cell.setCellValue(formatarValor(registro_global.getValor_total_hora60()));
+			cell = row.createCell(cellnum++);
+			cell.setCellStyle(textStyle);
+			cell.setCellValue(formatHora(registro_global.getTH60()));
 
-		// linha hora 100%
-		row = sheet.createRow(rownum++);
-		cellnum = 0;
-		cell = row.createCell(cellnum++);
-		cell.setCellStyle(textStyle);
-		cell.setCellValue("HORA EXTRAS");
+			cell = row.createCell(cellnum++);
+			cell.setCellStyle(textStyle);
+			cell.setCellValue(formatarValor(registro_global.getValor_total_hora60()));
 
-		cell = row.createCell(cellnum++);
-		cell.setCellStyle(textStyle);
-		cell.setCellValue("HORA 100%");
+			// linha hora 100%
+			row = sheet.createRow(rownum++);
+			cellnum = 0;
+			cell = row.createCell(cellnum++);
+			cell.setCellStyle(textStyle);
+			cell.setCellValue("HORA EXTRAS");
 
-		cell = row.createCell(cellnum++);
-		cell.setCellStyle(textStyle);
-		cell.setCellValue(formatarValor(registro_global.getValor_hora100()));
+			cell = row.createCell(cellnum++);
+			cell.setCellStyle(textStyle);
+			cell.setCellValue("HORA 100%");
 
-		cell = row.createCell(cellnum++);
-		cell.setCellStyle(textStyle);
-		cell.setCellValue(formatHora(registro_global.getTH100()));
+			cell = row.createCell(cellnum++);
+			cell.setCellStyle(textStyle);
+			cell.setCellValue(formatarValor(registro_global.getValor_hora100()));
 
-		cell = row.createCell(cellnum++);
-		cell.setCellStyle(textStyle);
-		cell.setCellValue(formatarValor(registro_global.getValor_total_hora100()));
-		
+			cell = row.createCell(cellnum++);
+			cell.setCellStyle(textStyle);
+			cell.setCellValue(formatHora(registro_global.getTH100()));
+
+			cell = row.createCell(cellnum++);
+			cell.setCellStyle(textStyle);
+			cell.setCellValue(formatarValor(registro_global.getValor_total_hora100()));
+
 		}
 
 		/****************************************************************************************/
@@ -1014,17 +797,17 @@ public class RelatorioSalario extends JDialog {
 				sheet.autoSizeColumn(i);
 
 			}
-			
+
 			row = sheet.createRow(rownum++);
 			cellnum = 0;
 			cell = row.createCell(cellnum++);
 			cell.setCellStyle(textStyle);
 			cell.setCellValue("Total Acréscimos: ");
-			
+
 			cell = row.createCell(cellnum++);
 			cell.setCellStyle(negrito_esquerda);
 			cell.setCellValue(formatarValor(total_acrescimos));
-			
+
 		}
 
 		if (descontos.size() > 0) {
@@ -1051,11 +834,16 @@ public class RelatorioSalario extends JDialog {
 			cell = row.createCell(cellnum++);
 			cell.setCellStyle(celula_fundo_laranja_texto_branco);
 			cell.setCellValue("NOME");
+			
+			sheet.addMergedRegion(new CellRangeAddress(rownum, rownum, cellnum, 2));
+
 
 			cell = row.createCell(cellnum++);
 			cell.setCellStyle(celula_fundo_laranja_texto_branco);
 			cell.setCellValue("DESCRIÇÃO");
+			sheet.addMergedRegion(new CellRangeAddress(rownum, rownum, 3, 5));
 
+			
 			cell = row.createCell(cellnum++);
 			cell.setCellStyle(celula_fundo_laranja_texto_branco);
 			cell.setCellValue("REFERÊNCIA CÁLCULO".toUpperCase());
@@ -1123,21 +911,21 @@ public class RelatorioSalario extends JDialog {
 				sheet.autoSizeColumn(i);
 
 			}
-			
+
 			row = sheet.createRow(rownum++);
 			cellnum = 0;
 			cell = row.createCell(cellnum++);
 			cell.setCellStyle(textStyle);
 			cell.setCellValue("TOTAL DESCONTOS: ");
-			
+
 			cell = row.createCell(cellnum++);
 			cell.setCellStyle(negrito_esquerda);
 			cell.setCellValue(formatarValor(total_descontos));
 		}
-		
-		//totais
+
+		// totais
 		double bruto = salario + registro_global.getValor_total_hora_extras() + total_acrescimos;
-		double liquido = bruto -  total_descontos;
+		double liquido = bruto - total_descontos;
 
 		row = sheet.createRow(rownum++);
 		row = sheet.createRow(rownum++);
@@ -1145,19 +933,36 @@ public class RelatorioSalario extends JDialog {
 		cell = row.createCell(cellnum++);
 		cell.setCellStyle(negrito_esquerda);
 		cell.setCellValue("TOTAIS: ");
-		//sheet.addMergedRegion(new CellRangeAddress(rownum-1, rownum-1, 0, 2));
+		// sheet.addMergedRegion(new CellRangeAddress(rownum-1, rownum-1, 0, 2));
 
 		row = sheet.createRow(rownum++);
 		cellnum = 0;
 		cell = row.createCell(cellnum++);
 		cell.setCellStyle(textStyle);
 		cell.setCellValue("TOTAL VENCIMENTOS:");
-	
+
+		row = sheet.createRow(rownum++);
+		cellnum = 0;
+		
+		cell = row.createCell(cellnum++);
+		cell.setCellStyle(textStyle);
+		cell.setCellValue("Salário:");
+		
 		cell = row.createCell(cellnum++);
 		cell.setCellStyle(negrito_esquerda);
-		cell.setCellValue(formatarValor(bruto));
-
+		cell.setCellValue(formatarValor(salario));
 		
+		row = sheet.createRow(rownum++);
+		cellnum = 0;
+		
+		cell = row.createCell(cellnum++);
+		cell.setCellStyle(textStyle);
+		cell.setCellValue("Horas Extras:");
+		
+		cell = row.createCell(cellnum++);
+		cell.setCellStyle(negrito_esquerda);
+		cell.setCellValue(formatarValor( registro_global.getValor_total_hora_extras()));
+
 		row = sheet.createRow(rownum++);
 		cellnum = 0;
 		cell = row.createCell(cellnum++);
@@ -1167,8 +972,7 @@ public class RelatorioSalario extends JDialog {
 		cell = row.createCell(cellnum++);
 		cell.setCellStyle(negrito_esquerda);
 		cell.setCellValue(formatarValor(total_descontos));
-		
-		
+
 		row = sheet.createRow(rownum++);
 		cellnum = 0;
 		cell = row.createCell(cellnum++);
@@ -1178,9 +982,8 @@ public class RelatorioSalario extends JDialog {
 		cell = row.createCell(cellnum++);
 		cell.setCellStyle(negrito_esquerda);
 		cell.setCellValue(formatarValor(liquido));
-		
-		
-		if(registro_global.getOpcao_banco() == 1) {
+
+		if (registro_global.getOpcao_banco() == 1) {
 			row = sheet.createRow(rownum++);
 			cellnum = 0;
 			cell = row.createCell(cellnum++);
@@ -1190,36 +993,539 @@ public class RelatorioSalario extends JDialog {
 			cell = row.createCell(cellnum++);
 			cell.setCellStyle(negrito_esquerda);
 			String s_tipo = "";
-			if(registro_global.getTipo_banco() == 0)
+			if (registro_global.getTipo_banco() == 0)
 				s_tipo = "NEGATIVO";
 			else
 				s_tipo = "POSITIVO";
-			
-			cell.setCellValue("BANCO DE HORAS para " + registro_global.getMes() + " " + s_tipo + " em " + formatHora(registro_global.getQuantidade())  + " horas");
+
+			cell.setCellValue("BANCO DE HORAS para " + registro_global.getMes() + " " + s_tipo + " em "
+					+ formatHora(registro_global.getQuantidade()) + " horas");
+		}
+		
+		
+		cellnum = 0;
+		// Configurando Header
+		rownum++;
+		row = sheet.createRow(rownum++);
+		cell = row.createCell(cellnum++);
+		cell.setCellStyle(celula_fundo_laranja_texto_branco);
+		cell.setCellValue("DATA");
+
+		cell = row.createCell(cellnum++);
+		cell.setCellStyle(celula_fundo_laranja_texto_branco);
+		cell.setCellValue("DIA DA SEMANA");
+
+		cell = row.createCell(cellnum++);
+		cell.setCellStyle(celula_fundo_laranja_texto_branco);
+		cell.setCellValue("HORA ENTRADA 1".toUpperCase());
+
+		cell = row.createCell(cellnum++);
+		cell.setCellStyle(celula_fundo_laranja_texto_branco);
+		cell.setCellValue("HORA SAIDA 1".toUpperCase());
+
+		cell = row.createCell(cellnum++);
+		cell.setCellStyle(celula_fundo_laranja_texto_branco);
+		cell.setCellValue("HORA ENTRADA 2".toUpperCase());
+
+		cell = row.createCell(cellnum++);
+		cell.setCellStyle(celula_fundo_laranja_texto_branco);
+		cell.setCellValue("HORA SAIDA 2".toUpperCase());
+
+		cell = row.createCell(cellnum++);
+		cell.setCellStyle(celula_fundo_laranja_texto_branco);
+		cell.setCellValue("HORA ENTRADA 3".toUpperCase());
+
+		cell = row.createCell(cellnum++);
+		cell.setCellStyle(celula_fundo_laranja_texto_branco);
+		cell.setCellValue("HORA SAIDA 3".toUpperCase());
+
+		cell = row.createCell(cellnum++);
+		cell.setCellStyle(celula_fundo_laranja_texto_branco);
+		cell.setCellValue("ROTINA DIARIA".toUpperCase());
+
+		cell = row.createCell(cellnum++);
+		cell.setCellStyle(celula_fundo_laranja_texto_branco);
+		cell.setCellValue("HORAS TRABALHADAS".toUpperCase());
+
+		cell = row.createCell(cellnum++);
+		cell.setCellStyle(celula_fundo_laranja_texto_branco);
+		cell.setCellValue("HORAS EXTRAS".toUpperCase());
+
+		cell = row.createCell(cellnum++);
+		cell.setCellStyle(celula_fundo_laranja_texto_branco);
+		cell.setCellValue("HORAS ATRAZO".toUpperCase());
+
+		for (RegistroPontoMensalCompleto rp : registros_pontos) {
+			row = sheet.createRow(rownum++);
+			cellnum = 0;
+
+			// data
+			cell = row.createCell(cellnum++);
+			cell.setCellStyle(textStyle);
+			cell.setCellValue(rp.getRp().getData());
+
+			// dia da semana
+			String dia_da_semana = "";
+			cell = row.createCell(cellnum++);
+			cell.setCellStyle(textStyle);
+
+			if (rp.getRp().getData() != null && !rp.getRp().getData().equals("")
+					&& !rp.getRp().getData().equalsIgnoreCase("TOTAIS")) {
+				try {
+					DateTimeFormatter formatter = new DateTimeFormatterBuilder().toFormatter(new Locale("pt", "BR"));
+
+					LocalDate data = LocalDate.parse(rp.getRp().getData(), formatter.ofPattern("dd/MM/yyyy"));
+					DayOfWeek dia_s = data.getDayOfWeek();
+					cell.setCellValue(dia_s.getDisplayName(TextStyle.FULL, new Locale("pt", "BR")).toUpperCase());
+				} catch (Exception e) {
+					cell.setCellValue("");
+				}
+			} else {
+				cell.setCellValue("");
+			}
+
+			// hora entrada1
+			cell = row.createCell(cellnum++);
+			cell.setCellStyle(textStyle);
+			if (!rp.getRp().getEntrada1().equals("00:00"))
+				cell.setCellValue(rp.getRp().getEntrada1());
+			else
+				cell.setCellValue("-");
+
+			// hora saida1
+			cell = row.createCell(cellnum++);
+			cell.setCellStyle(textStyle);
+			if (!rp.getRp().getSaida1().equals("00:00"))
+				cell.setCellValue(rp.getRp().getSaida1());
+			else
+				cell.setCellValue("-");
+
+			// hora entrada 2
+			cell = row.createCell(cellnum++);
+			cell.setCellStyle(textStyle);
+			if (!rp.getRp().getEntrada2().equals("00:00"))
+				cell.setCellValue(rp.getRp().getEntrada2());
+			else
+				cell.setCellValue("-");
+
+			// hora saida2
+			cell = row.createCell(cellnum++);
+			cell.setCellStyle(textStyle);
+			if (!rp.getRp().getSaida2().equals("00:00"))
+				cell.setCellValue(rp.getRp().getSaida2());
+			else
+				cell.setCellValue("-");
+
+			// hora entrada 3
+			cell = row.createCell(cellnum++);
+			cell.setCellStyle(textStyle);
+			if (!rp.getRp().getEntrada3().equals("00:00"))
+				cell.setCellValue(rp.getRp().getEntrada3());
+			else
+				cell.setCellValue("-");
+
+			// hora saida 3
+			cell = row.createCell(cellnum++);
+			cell.setCellStyle(textStyle);
+			if (!rp.getRp().getSaida3().equals("00:00"))
+				cell.setCellValue(rp.getRp().getSaida3());
+			else
+				cell.setCellValue("-");
+
+			// rotina diaria
+			cell = row.createCell(cellnum++);
+			cell.setCellStyle(textStyle);
+			if (!rp.getHora_diaria().equals("00:00"))
+				cell.setCellValue(rp.getHora_diaria());
+			else
+				cell.setCellValue("DESCANSO SEMANAL");
+
+			// horas trabalhadas
+			cell = row.createCell(cellnum++);
+			cell.setCellStyle(textStyle);
+			if (!rp.getHora_trabalhada().equals("00:00"))
+				cell.setCellValue(rp.getHora_trabalhada());
+			else
+				cell.setCellValue("");
+
+			// horas extras
+			cell = row.createCell(cellnum++);
+			cell.setCellStyle(textStyleAzul);
+			if (!rp.getHora_extra().equals("00:00"))
+				cell.setCellValue(rp.getHora_extra());
+			else
+				cell.setCellValue("");
+
+			// horas atrazo
+			cell = row.createCell(cellnum++);
+			cell.setCellStyle(textStyleVermelho);
+			if (!rp.getHora_atrazo().equals("00:00"))
+				cell.setCellValue(rp.getHora_atrazo());
+			else
+				cell.setCellValue("");
 		}
 
-		/*************************************************************************************/
-		//registro de ponto
+		for (int i = 0; i < 13; i++) {
+			sheet.autoSizeColumn(i);
+
+		}
+
 		
-		// Configurando as informacoes
-		row = sheet.createRow(rownum++);
+		 rownum = rownum + 1;
+		 
+		for (String texto : texto_atrazo) {
+			rownum = rownum + 1;
+			row = sheet.createRow(rownum);
+			cellnum = 0;
+
+			cell = row.createCell(cellnum++);
+			cell.setCellStyle(textStyle);
+			cell.setCellValue(texto);
+
+			sheet.addMergedRegion(new CellRangeAddress(rownum, rownum, 0, 8));
+		}
+	
+
+		return workbook;
+	}
+
+	public HSSFWorkbook prepararRegistroPonto(ArrayList<RegistroPontoMensalCompleto> registros_selecionados, int flag) {
+		HSSFWorkbook workbook = new HSSFWorkbook();
+		HSSFSheet sheet = workbook.createSheet("Exportação de Dados de Registro de Ponto");
+
+		URL url = getClass().getResource("/imagens/logo_para_relatorio.png");
+		String imgFile = url.getFile();
+
+		FileInputStream stream = null;
+		try {
+			stream = new FileInputStream(imgFile);
+			byte[] bytes = new byte[(int) stream.getChannel().size()];
+			stream.read(bytes);// Read image to binary array
+			int pictureIdx = workbook.addPicture(bytes, HSSFWorkbook.PICTURE_TYPE_JPEG);
+			HSSFPatriarch patriarch = sheet.createDrawingPatriarch();
+			HSSFClientAnchor anchor = new HSSFClientAnchor(0, 0, 0, 0, (short) 0, 0, (short) 1, 3);
+			HSSFPicture pict = patriarch.createPicture(anchor, pictureIdx);
+		} catch (IOException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
+
+		// Configurando estilos de células (Cores, alinhamento, formatação, etc..)
+		HSSFDataFormat numberFormat = workbook.createDataFormat();
+
+		CellStyle headerStyle = workbook.createCellStyle();
+		headerStyle.setFillForegroundColor(IndexedColors.GREY_25_PERCENT.getIndex());
+		// headerStyle.setFillPattern(CellStyle.SOLID_FOREGROUND);
+		headerStyle.setAlignment(HorizontalAlignment.CENTER);
+		headerStyle.setVerticalAlignment(VerticalAlignment.CENTER);
+
+		HSSFFont newFontNegritaPontos = workbook.createFont();
+		newFontNegritaPontos.setBold(false);
+		newFontNegritaPontos.setColor(IndexedColors.BLACK.getIndex());
+		newFontNegritaPontos.setFontName("Arial");
+		newFontNegritaPontos.setItalic(true);
+		newFontNegritaPontos.setFontHeight((short) (11 * 40));
+
+		HSSFFont newFontNegritaPontosComum = workbook.createFont();
+		newFontNegritaPontosComum.setBold(false);
+		newFontNegritaPontosComum.setColor(IndexedColors.BLACK.getIndex());
+		newFontNegritaPontosComum.setFontName("Arial");
+		newFontNegritaPontosComum.setItalic(true);
+		newFontNegritaPontosComum.setFontHeight((short) (11 * 40));
+
+		HSSFFont newFontNegritaPontosAzul = workbook.createFont();
+		newFontNegritaPontosAzul.setBold(true);
+		newFontNegritaPontosAzul.setColor(IndexedColors.BLUE.getIndex());
+		newFontNegritaPontosAzul.setFontName("Arial");
+		newFontNegritaPontosAzul.setItalic(true);
+		newFontNegritaPontosAzul.setFontHeight((short) (11 * 40));
+
+		HSSFFont newFontNegritaPontosVermelho = workbook.createFont();
+		newFontNegritaPontosVermelho.setBold(true);
+		newFontNegritaPontosVermelho.setColor(IndexedColors.RED.getIndex());
+		newFontNegritaPontosVermelho.setFontName("Arial");
+		newFontNegritaPontosVermelho.setItalic(true);
+		newFontNegritaPontosVermelho.setFontHeight((short) (11 * 40));
+
+		// celula para texto alinhado ao centro
+		CellStyle textStyle = workbook.createCellStyle();
+		textStyle.setAlignment(HorizontalAlignment.CENTER);
+		textStyle.setVerticalAlignment(VerticalAlignment.CENTER);
+		textStyle.setFont(newFontNegritaPontos);
+
+		// celula para texto alinhado ao centro
+		CellStyle textStyleComum = workbook.createCellStyle();
+		textStyleComum.setAlignment(HorizontalAlignment.CENTER);
+		textStyleComum.setVerticalAlignment(VerticalAlignment.CENTER);
+		textStyleComum.setFont(newFontNegritaPontosComum);
+
+		// celula para texto alinhado ao centro
+		CellStyle textStyleAzul = workbook.createCellStyle();
+		textStyleAzul.setAlignment(HorizontalAlignment.CENTER);
+		textStyleAzul.setVerticalAlignment(VerticalAlignment.CENTER);
+		textStyleAzul.setFont(newFontNegritaPontosAzul);
+
+		// celula para texto alinhado ao centro
+		CellStyle textStyleVermelho = workbook.createCellStyle();
+		textStyleVermelho.setAlignment(HorizontalAlignment.CENTER);
+		textStyleVermelho.setVerticalAlignment(VerticalAlignment.CENTER);
+		textStyleVermelho.setFont(newFontNegritaPontosVermelho);
+
+		// celula para numero alinhado ao centro
+		CellStyle numberStyle = workbook.createCellStyle();
+		numberStyle.setDataFormat(numberFormat.getFormat("#,##0.00"));
+		numberStyle.setAlignment(HorizontalAlignment.CENTER);
+		numberStyle.setVerticalAlignment(VerticalAlignment.CENTER);
+
+		// estilo de celula negrito
+		CellStyle negrito = workbook.createCellStyle();
+		// textStyle.setAlignment(HorizontalAlignment.CENTER);
+		negrito.setFillPattern(FillPatternType.SOLID_FOREGROUND);
+		negrito.setFillForegroundColor(IndexedColors.WHITE.getIndex());
+		negrito.setAlignment(HorizontalAlignment.CENTER);
+		negrito.setVerticalAlignment(VerticalAlignment.CENTER);
+
+		HSSFFont newFontNegrita = workbook.createFont();
+		newFontNegrita.setBold(true);
+		newFontNegrita.setColor(IndexedColors.BLACK.getIndex());
+		newFontNegrita.setFontName("Arial");
+		newFontNegrita.setItalic(true);
+		newFontNegrita.setFontHeight((short) (11 * 40));
+
+		negrito.setFont(newFontNegrita);
+
+		// estilo para celula texto alinhado a esquerda
+		CellStyle negrito_esquerda = workbook.createCellStyle();
+		// textStyle.setAlignment(HorizontalAlignment.CENTER);
+		negrito_esquerda.setFillPattern(FillPatternType.SOLID_FOREGROUND);
+		negrito_esquerda.setFillForegroundColor(IndexedColors.WHITE.getIndex());
+		negrito_esquerda.setAlignment(HorizontalAlignment.LEFT);
+		negrito_esquerda.setVerticalAlignment(VerticalAlignment.CENTER);
+
+		HSSFFont newFontNegritaEsquerda = workbook.createFont();
+		newFontNegritaEsquerda.setBold(true);
+		newFontNegritaEsquerda.setColor(IndexedColors.BLACK.getIndex());
+		newFontNegritaEsquerda.setFontName("Arial");
+		newFontNegritaEsquerda.setItalic(true);
+		newFontNegritaEsquerda.setFontHeight((short) (11 * 40));
+
+		negrito_esquerda.setFont(newFontNegritaEsquerda);
+
+		// estilo para celula do tipo numero alinhado ao centro
+		CellStyle valorStyle = workbook.createCellStyle();
+		valorStyle.setDataFormat(numberFormat.getFormat("R$ #,##0.00"));
+		valorStyle.setAlignment(HorizontalAlignment.CENTER);
+		valorStyle.setVerticalAlignment(VerticalAlignment.CENTER);
+
+		// estilo para cabecalho fundo laranja
+		CellStyle celula_fundo_laranja = workbook.createCellStyle();
+		celula_fundo_laranja.setFillPattern(FillPatternType.SOLID_FOREGROUND);
+		celula_fundo_laranja.setFillForegroundColor(IndexedColors.GREEN.getIndex());
+		celula_fundo_laranja.setAlignment(HorizontalAlignment.CENTER);
+		celula_fundo_laranja.setVerticalAlignment(VerticalAlignment.CENTER);
+
+		HSSFFont newFont = workbook.createFont();
+		newFont.setBold(true);
+		newFont.setColor(IndexedColors.BLACK.getIndex());
+		newFont.setFontName("Calibri");
+		newFont.setItalic(false);
+		newFont.setFontHeight((short) (11 * 40));
+
+		celula_fundo_laranja.setFont(newFont);
+
+		// celula_number_amarelo_texto_preto
+		// estilo para cabecalho fundo laranja
+		CellStyle celula_number_amarelo_texto_preto = workbook.createCellStyle();
+		celula_number_amarelo_texto_preto.setDataFormat(numberFormat.getFormat("#,##0.00"));
+		celula_number_amarelo_texto_preto.setFillPattern(FillPatternType.SOLID_FOREGROUND);
+		celula_number_amarelo_texto_preto.setFillForegroundColor(IndexedColors.YELLOW.getIndex());
+		celula_number_amarelo_texto_preto.setAlignment(HorizontalAlignment.CENTER);
+		celula_number_amarelo_texto_preto.setVerticalAlignment(VerticalAlignment.CENTER);
+
+		HSSFFont newFont_blabk = workbook.createFont();
+		newFont_blabk.setBold(true);
+		newFont_blabk.setColor(IndexedColors.BLACK.getIndex());
+		newFont_blabk.setFontName("Calibri");
+		newFont_blabk.setItalic(false);
+		newFont_blabk.setFontHeight((short) (11 * 40));
+
+		celula_number_amarelo_texto_preto.setFont(newFont_blabk);
+
+		// estilo para cabecalho fundo laranja
+		CellStyle celula_fundo_laranja_texto_branco = workbook.createCellStyle();
+		celula_fundo_laranja_texto_branco.setFillPattern(FillPatternType.SOLID_FOREGROUND);
+		celula_fundo_laranja_texto_branco.setFillForegroundColor(IndexedColors.GREEN.getIndex());
+		celula_fundo_laranja_texto_branco.setAlignment(HorizontalAlignment.CENTER);
+		celula_fundo_laranja_texto_branco.setVerticalAlignment(VerticalAlignment.CENTER);
+
+		HSSFFont newFont_branca = workbook.createFont();
+		newFont_branca.setBold(true);
+		newFont_branca.setColor(IndexedColors.WHITE.getIndex());
+		newFont_branca.setFontName("Calibri");
+		newFont_branca.setItalic(false);
+		newFont_branca.setFontHeight((short) (11 * 40));
+		Locale ptBr = new Locale("pt", "BR");
+
+		celula_fundo_laranja_texto_branco.setFont(newFont_branca);
+
+		HSSFFont newFont_titulo = workbook.createFont();
+		newFont_titulo.setBold(true);
+		newFont_titulo.setColor(IndexedColors.BLACK.getIndex());
+		newFont_titulo.setFontName("Calibri");
+		newFont_titulo.setItalic(true);
+		newFont_titulo.setFontHeight((short) (11 * 40));
+
+		// estilo para cabecalho
+		CellStyle celula_titulo = workbook.createCellStyle();
+		celula_titulo.setFillPattern(FillPatternType.SOLID_FOREGROUND);
+		celula_titulo.setFillForegroundColor(IndexedColors.WHITE.getIndex());
+		celula_titulo.setAlignment(HorizontalAlignment.RIGHT);
+		celula_titulo.setVerticalAlignment(VerticalAlignment.CENTER);
+		celula_titulo.setFont(newFont_titulo);
+
+		HSSFFont newFont_cabecalho = workbook.createFont();
+		newFont_cabecalho.setBold(true);
+		newFont_cabecalho.setColor(IndexedColors.GREEN.getIndex());
+		newFont_cabecalho.setFontName("Calibri");
+		newFont_cabecalho.setItalic(true);
+		newFont_cabecalho.setFontHeight((short) (11 * 60));
+
+		// estilo para cabecalho
+		CellStyle celula_cabecalho = workbook.createCellStyle();
+		celula_cabecalho.setFillPattern(FillPatternType.SOLID_FOREGROUND);
+		celula_cabecalho.setFillForegroundColor(IndexedColors.WHITE.getIndex());
+		celula_cabecalho.setAlignment(HorizontalAlignment.LEFT);
+		celula_cabecalho.setVerticalAlignment(VerticalAlignment.CENTER);
+		celula_cabecalho.setFont(newFont_cabecalho);
+
+		// Definindo alguns padroes de layout
+		sheet.setDefaultColumnWidth(25);
+		sheet.setDefaultRowHeight((short) 400);
+
+		int rownum = 0;
+		int cellnum = 0;
+		Cell cell;
+		Row row;
+
+		/******************************************************/
+		// Configurando o cabecalho
+		row = sheet.createRow(0);
+		int cellnumperson = 1;
+		// Configurando titulo
+		cell = row.createCell(cellnumperson++);
+		cell.setCellStyle(celula_cabecalho);
+		cell.setCellValue("LD ARMAZÉNS GERAIS");
+		// criar celula de 1 a 5
+		for (int i = 1; i < 6; i++) {
+			cell = row.createCell(cellnumperson++);
+			cell.setCellStyle(celula_cabecalho);
+			cell.setCellValue("");
+
+		}
+		sheet.addMergedRegion(new CellRangeAddress(0, 1, 1, 2));
+
+		/******************************************************/
 
 		// Configurando titulo
-		cell = row.createCell(cellnum++);
+		row = sheet.createRow(2);
+		cell = row.createCell(1);
 		cell.setCellStyle(celula_titulo);
 		cell.setCellValue("Relatório de Registro de Ponto");
 		// criar celula de 1 a 5
-		for (int i = 1; i < 6; i++) {
+		for (int i = 2; i < 3; i++) {
 			cell = row.createCell(cellnum++);
 			cell.setCellStyle(celula_titulo);
 			cell.setCellValue("");
 
 		}
-		//sheet.addMergedRegion(new CellRangeAddress(0, 0, 0, 5));
+		sheet.addMergedRegion(new CellRangeAddress(2, 2, 1, 2));
 
+		rownum = 4;
 		cellnum = 0;
 
+		// Configurando as informacoes
+		row = sheet.createRow(rownum++);
+
+		// Configurando cabecalho com informacoes do funcionario
+		cell = row.createCell(cellnum++);
+		cell.setCellStyle(textStyleComum);
+		cell.setCellValue("Colaborador:");
+
+		cell = row.createCell(cellnum++);
+		cell.setCellStyle(negrito_esquerda);
+		cell.setCellValue(funcionario.getNome() + " " + funcionario.getSobrenome());
+
+		cell = row.createCell(cellnum++);
+		cell.setCellStyle(textStyleComum);
+		cell.setCellValue("Data Admissão:");
+
+		cell = row.createCell(cellnum++);
+		cell.setCellStyle(negrito_esquerda);
+		cell.setCellValue(ct_global.getData_admissao());
+
+		row = sheet.createRow(rownum++);
+		cellnum = 0;
+		cell = row.createCell(cellnum++);
+		cell.setCellStyle(textStyleComum);
+		cell.setCellValue("Mês Refêrencia:");
+
+		cell = row.createCell(cellnum++);
+		cell.setCellStyle(negrito_esquerda);
+		cell.setCellValue(mes);
+
+		cell = row.createCell(cellnum++);
+		cell.setCellStyle(textStyleComum);
+		cell.setCellValue("Ano Refêrencia:");
+
+		cell = row.createCell(cellnum++);
+		cell.setCellStyle(negrito_esquerda);
+		cell.setCellValue(ano + "");
+
+		row = sheet.createRow(rownum++);
+
+		cellnum = 0;
+		cell = row.createCell(cellnum++);
+		cell.setCellStyle(textStyleComum);
+		cell.setCellValue("Cargo:");
+
+		cell = row.createCell(cellnum++);
+		cell.setCellStyle(negrito_esquerda);
+		cell.setCellValue(ct_global.getCargo());
+
+		cell = row.createCell(cellnum++);
+		cell.setCellStyle(textStyleComum);
+		cell.setCellValue("Função:");
+
+		cell = row.createCell(cellnum++);
+		cell.setCellStyle(negrito_esquerda);
+		cell.setCellValue(ct_global.getFuncao());
+
+		row = sheet.createRow(rownum++);
+		cellnum = 0;
+		cell = row.createCell(cellnum++);
+		cell.setCellStyle(textStyleComum);
+		cell.setCellValue("Tipo Contrato:");
+
+		cell = row.createCell(cellnum++);
+		cell.setCellStyle(negrito_esquerda);
+		cell.setCellValue(ct_global.getTipo_contrato());
+
+		cell = row.createCell(cellnum++);
+		cell.setCellStyle(textStyleComum);
+		cell.setCellValue("Status:");
+
+		cell = row.createCell(cellnum++);
+		cell.setCellStyle(negrito_esquerda);
+		if (ct_global.getData_encerramento_contrato() != null) {
+			cell.setCellValue("CT ENC em " + ct_global.getData_encerramento_contrato());
+
+		} else {
+			cell.setCellValue("ATIVO");
+
+		}
+		cellnum = 0;
 		// Configurando Header
+		rownum++;
 		row = sheet.createRow(rownum++);
 		cell = row.createCell(cellnum++);
 		cell.setCellStyle(celula_fundo_laranja_texto_branco);
@@ -1364,7 +1670,7 @@ public class RelatorioSalario extends JDialog {
 
 			// horas extras
 			cell = row.createCell(cellnum++);
-			cell.setCellStyle(textStyle);
+			cell.setCellStyle(textStyleAzul);
 			if (!rp.getHora_extra().equals("00:00"))
 				cell.setCellValue(rp.getHora_extra());
 			else
@@ -1372,24 +1678,31 @@ public class RelatorioSalario extends JDialog {
 
 			// horas atrazo
 			cell = row.createCell(cellnum++);
-			cell.setCellStyle(textStyle);
+			cell.setCellStyle(textStyleVermelho);
 			if (!rp.getHora_atrazo().equals("00:00"))
 				cell.setCellValue(rp.getHora_atrazo());
 			else
 				cell.setCellValue("");
 		}
-		sheet.setAutoFilter(CellRangeAddress.valueOf("A2:AF2"));
+
 		for (int i = 0; i < 13; i++) {
 			sheet.autoSizeColumn(i);
 
 		}
 
-		
-		
-		return workbook;
-	}
+		/*
+		 * rownum = rownum + 1; for (String texto : texto_atrazo) { rownum = rownum + 1;
+		 * row = sheet.createRow(rownum); cellnum = 0;
+		 * 
+		 * cell = row.createCell(cellnum++); cell.setCellStyle(textStyle);
+		 * cell.setCellValue(texto);
+		 * 
+		 * sheet.addMergedRegion(new CellRangeAddress(rownum, rownum, 0, 8)); }
+		 */
 
-	
+		return workbook;
+
+	}
 
 	public String formatarValor(double valor) {
 		return NumberFormat.getCurrencyInstance(ptBr).format(valor);

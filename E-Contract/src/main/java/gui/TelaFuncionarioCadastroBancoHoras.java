@@ -340,7 +340,7 @@ public class TelaFuncionarioCadastroBancoHoras extends JFrame {
 		CadastroFuncionarioBancoHoras banco = new CadastroFuncionarioBancoHoras();
 
 		banco.setId_funcionario(funcionario_local.getId_funcionario());
-		banco.setMes_referencia(cbMes.getSelectedIndex() );
+		banco.setMes_referencia(cbMes.getSelectedIndex() + 1);
 		
 		if(rdbtnHorasNegativas.isSelected()) {
 			banco.setTipo_banco(0);
@@ -373,7 +373,7 @@ public class TelaFuncionarioCadastroBancoHoras extends JFrame {
 		banco.setId_banco(banco_antigo.getId_banco());
 		
 		banco.setId_funcionario(funcionario_local.getId_funcionario());
-		banco.setMes_referencia(cbMes.getSelectedIndex() );
+		banco.setMes_referencia(cbMes.getSelectedIndex() + 1 );
 		
 		if(rdbtnHorasNegativas.isSelected()) {
 			banco.setTipo_banco(0);
@@ -408,7 +408,7 @@ public class TelaFuncionarioCadastroBancoHoras extends JFrame {
 		entQuantidadeHoras.setText(duracao_total.toHours() + "");
 		entQuantidadeMinutos.setText(duracao_total.toMinutesPart() + "");
 
-		cbMes.setSelectedIndex(dado.getMes_referencia() );
+		cbMes.setSelectedIndex(dado.getMes_referencia() - 1 );
 		
 		
 		if(dado.getTipo_banco() == 0) {

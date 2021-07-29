@@ -289,46 +289,7 @@ public class GerenciarBancoFinanceiroPagamento {
 	
 	
 	public ArrayList<FinanceiroPagamentoCompleto> getFinanceiroPagamentosPorLancamentoParaRelatorio(int id_lancamento) {
-		/*
-		 select fpag.*,
-(
-case
-when fpag.tipo_pagador = 0
-then
-ib_pag.nome_instituicao_bancaria
-when fpag.tipo_pagador = 1
-then
-(
-case
-when cli_pag.tipo_cliente = '0' then cli_pag.nome_empresarial 
- when cli_pag.tipo_cliente = '1' then cli_pag.nome_fantasia
-end
-)
-end) as nome_pagador,
-
-(
-case
-when fpag.tipo_recebedor = 0
-then
-ib_rec.nome_instituicao_bancaria
-when fpag.tipo_recebedor = 1
-then
-(
-case
-when cli_rec.tipo_cliente = '0' then cli_rec.nome_empresarial 
- when cli_rec.tipo_cliente = '1' then cli_rec.nome_fantasia
-end
-)
-end) as nome_recebedor,
-cp.nome_condicao_pagamento
- from financeiro_pagamento fpag
-left join condicao_pagamento cp on cp.id_condicao_pagamento = fpag.id_forma_pagamento
-left join cliente cli_pag on cli_pag.id_cliente = fpag.id_pagador
-left join instituicao_bancaria ib_pag on ib_pag.id_instituicao_bancaria = fpag.id_pagador
-left join cliente cli_rec on cli_rec.id_cliente = fpag.id_recebedor
-left join instituicao_bancaria ib_rec on ib_rec.id_instituicao_bancaria = fpag.id_recebedor
- where id_lancamento_pai = 45
-		 */
+		
 		String select = "select fpag.*,\r\n"
 				+ "(\r\n"
 				+ "case\r\n"
@@ -375,6 +336,68 @@ left join instituicao_bancaria ib_rec on ib_rec.id_instituicao_bancaria = fpag.i
 			conn = ConexaoBanco.getConexao();
 			pstm = conn.prepareStatement(select);
 			pstm.setInt(1, id_lancamento);
+
+			rs = pstm.executeQuery();
+			while (rs.next()) {
+				FinanceiroPagamento dado = new FinanceiroPagamento();
+				
+				dado.setId_pagamento(rs.getInt("id_pagamento"));
+				dado.setId_lancamento(rs.getInt("id_lancamento_pai"));
+				dado.setIdentificador(rs.getString("identificador"));
+				dado.setId_condicao_pagamento(rs.getInt("id_forma_pagamento"));
+				dado.setStatus_pagamento(rs.getInt("status_condicao_pagamento"));
+				dado.setTipo_pagador(rs.getInt("tipo_pagador"));
+				dado.setFluxo_caixa(rs.getInt("fluxo_caixa"));
+				dado.setId_pagador(rs.getInt("id_pagador"));
+				dado.setTipo_recebedor(rs.getInt("tipo_recebedor"));
+
+				dado.setId_recebedor(rs.getInt("id_recebedor"));
+				dado.setId_documento(rs.getInt("id_documento"));
+				dado.setExtrato(rs.getInt("extrato_bancario"));
+
+				dado.setTipo_pagamento(rs.getInt("tipo_pagamento"));
+
+				try{
+					dado.setValor(new BigDecimal(rs.getString("valor")));
+				}catch(Exception e) {
+					dado.setValor(BigDecimal.ZERO);
+				}
+				dado.setData_pagamento(rs.getString("data_pagamento"));
+				dado.setDescricao(rs.getString("descricao"));
+				dado.setObservacao(rs.getString("observacao"));
+				dado.setCaminho_arquivo(rs.getString("caminho_arquivo"));
+			
+				FinanceiroPagamentoCompleto fpag = new FinanceiroPagamentoCompleto();
+				fpag.setNome_pagador(rs.getString("nome_pagador"));
+				fpag.setNome_recebedor(rs.getString("nome_recebedor"));
+				fpag.setNome_forma_pagamento(rs.getString("nome_condicao_pagamento"));
+				fpag.setFpag(dado);
+				
+				lista.add(fpag);
+
+			}
+			ConexaoBanco.fechaConexao(conn, pstm, rs);
+		} catch (Exception e) {
+			JOptionPane.showMessageDialog(null, "Erro ao listar o Financeiro Pagamento \nErro: " + e.getMessage() + "\nCausa: " + e.getCause());// );
+		}
+		return lista;
+
+	}
+
+	
+public ArrayList<FinanceiroPagamentoCompleto> getFinanceiroPagamentosPorCliente(int id_cliente, int mes, int ano) {
+		
+		String select = "call buscar_pagamentos_cliente (?,?,?)";
+		Connection conn = null;
+		PreparedStatement pstm = null;
+		ResultSet rs = null;
+		ArrayList<FinanceiroPagamentoCompleto> lista = new ArrayList<>();
+		try {
+			conn = ConexaoBanco.getConexao();
+			pstm = conn.prepareStatement(select);
+			pstm.setInt(1, id_cliente);
+			pstm.setInt(2, mes);
+			pstm.setInt(3, ano);
 
 			rs = pstm.executeQuery();
 			while (rs.next()) {
@@ -753,6 +776,7 @@ left join instituicao_bancaria ib_rec on ib_rec.id_instituicao_bancaria = fpag.i
 					dado.setId_recebedor(rs.getInt("id_recebedor"));
 					dado.setExtrato(rs.getInt("extrato_bancario"));
 					dado.setTipo_pagamento(rs.getInt("tipo_pagamento"));
+					dado.setCaminho_arquivo(rs.getString("caminho_arquivo"));
 
 					try{
 						dado.setValor(new BigDecimal(rs.getString("valor")));

@@ -272,7 +272,6 @@ public class TelaCadastroGrupo extends JDialog {
 	
 	
 	public void adicionarIntegrantes(ArrayList<CadastroCliente> lista_clientes) {
-		modelo.setNumRows(0);
 		integrantes.addAll(lista_clientes);
 		
 	    for (CadastroCliente cliente : lista_clientes) {

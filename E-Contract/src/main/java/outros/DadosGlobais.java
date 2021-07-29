@@ -15,8 +15,6 @@ public class DadosGlobais {
 	private TelaMain telaPrincipal;
 	private Log gerenciador_logs;
 	private  ConfiguracoesGlobais configs_globais;
-	private TelaGerenciarContrato teraGerenciarContratoPai;
-	private TelaRomaneios telaRomaneios;
 	private String pasta_romaneios;
 	
 	private int status_relogio ;
@@ -58,21 +56,8 @@ public class DadosGlobais {
 		this.telaTodasNotasFiscais = telaTodasNotasFiscais;
 	}
 
-	public TelaRomaneios getTelaRomaneios() {
-		return telaRomaneios;
-	}
+	
 
-	public void setTelaRomaneios(TelaRomaneios telaRomaneios) {
-		this.telaRomaneios = telaRomaneios;
-	}
-
-	public TelaGerenciarContrato getTeraGerenciarContratoPai() {
-		return teraGerenciarContratoPai;
-	}
-
-	public void setTeraGerenciarContratoPai(TelaGerenciarContrato teraGerenciarContratoPai) {
-		this.teraGerenciarContratoPai = teraGerenciarContratoPai;
-	}
 
 	public ConfiguracoesGlobais getConfigs_globais() {
 		return configs_globais;

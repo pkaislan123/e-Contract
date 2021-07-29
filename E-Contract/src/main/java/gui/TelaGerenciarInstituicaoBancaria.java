@@ -543,7 +543,10 @@ public class TelaGerenciarInstituicaoBancaria extends JFrame {
 	
 		lista.addMouseListener(mouseListener);
 
-		JScrollPane scrollPaneListaExtrato = new JScrollPane(lista);
+		JScrollPane scrollPaneListaExtrato = new JScrollPane(lista);		
+		scrollPaneListaExtrato.getVerticalScrollBar().setValue(scrollPaneListaExtrato.getVerticalScrollBar().getMaximum());
+
+
 		/*
 		 scrollPaneListaExtrato.getVerticalScrollBar().setBackground(Color.WHITE);
 		 scrollPaneListaExtrato.getHorizontalScrollBar().setBackground(Color.WHITE);
@@ -778,22 +781,25 @@ public class TelaGerenciarInstituicaoBancaria extends JFrame {
 			
 			
 			pesquisarExtrato(lista_extrato, caixa_local.getSaldo_inicial());
+			
 			*/
+			
+			GerenciarBancoFinanceiroPagamento gerenciar = new GerenciarBancoFinanceiroPagamento();
+			
+			 Map<String,String> datas = gerenciar.pegarDatasPagamento(caixa_local.getId_instituicao_bancaria());
+
+				entMenorData.setText(datas.get("menor_data_pagamento"));
+				entMaiorData.setText(datas.get("maior_data_pagamento"));
+			          
+		
+
+
 			filtrar();
 
 		}
 
 		
-		GerenciarBancoFinanceiroPagamento gerenciar = new GerenciarBancoFinanceiroPagamento();
-		
-		 Map<String,String> datas = gerenciar.pegarDatasPagamento(caixa_local.getId_instituicao_bancaria());
-
-			entMenorData.setText(datas.get("menor_data_pagamento"));
-			entMaiorData.setText(datas.get("maior_data_pagamento"));
-		          
 	
-
-
 		
 
 			
@@ -1198,11 +1204,7 @@ public class TelaGerenciarInstituicaoBancaria extends JFrame {
 		// usuario logado
 		login = dados.getLogin();
 
-		// telaRomaneios
-		telaRomaneio = dados.getTelaRomaneios();
-
-		// telaTodasNotasFiscais
-		telaTodasNotasFiscais = dados.getTelaTodasNotasFiscais();
+		
 	}
 
 	public void atualizarArvoreDocumentos() {
@@ -1289,13 +1291,16 @@ public class TelaGerenciarInstituicaoBancaria extends JFrame {
 	}
 
 	public void pesquisar_saldo(InstituicaoBancaria caixa) {
+		
 		GerenciarBancoFinanceiroPagamento gerenciar_fin = new GerenciarBancoFinanceiroPagamento();
 		SaldoInstituicaoBancaria saldo = gerenciar_fin.getTotalPagamentosDespesa(caixa.getId_instituicao_bancaria());
 
 		Locale ptBr = new Locale("pt", "BR");
 
-		double saldo_final = caixa.getSaldo_inicial().doubleValue() + saldo.getTotal_receita()
-				- saldo.getTotal_despesa() + saldo.getTotal_emprestimos() + saldo.getTotal_receita_transferencia() - saldo.getTotal_despesa_transferencia() -saldo.getTotal_despesa_emprestimo();
+		double positivo =  caixa.getSaldo_inicial().doubleValue() + saldo.getTotal_receita()  + saldo.getTotal_receita_transferencia() + saldo.getTotal_emprestimos() ;
+		double negativo = saldo.getTotal_despesa() +  saldo.getTotal_despesa_transferencia() + saldo.getTotal_despesa_emprestimo();
+		double saldo_final = positivo - negativo;
+		
 		String valorString = NumberFormat.getCurrencyInstance(ptBr).format(saldo_final);
 
 		lblSaldo.setText(valorString);

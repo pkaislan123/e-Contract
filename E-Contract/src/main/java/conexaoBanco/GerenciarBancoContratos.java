@@ -25,6 +25,7 @@ import main.java.cadastros.CadastroProduto;
 import main.java.cadastros.CadastroSafra;
 import main.java.cadastros.CarregamentoCompleto;
 import main.java.cadastros.ContaBancaria;
+import main.java.cadastros.Lancamento;
 import main.java.cadastros.PagamentoCompleto;
 import main.java.cadastros.RecebimentoCompleto;
 import main.java.cadastros.RegistroQuantidade;
@@ -645,7 +646,7 @@ public class GerenciarBancoContratos {
 			texto_clausulas += (clausula_local + ";");
 		}
 
-		String query = "insert into contrato (codigo, sub_contrato,id_safra, id_produto, medida, quantidade, valor_produto, valor_a_pagar,frete, clausula_frete,  armazenagem, clausula_armazenagem, fundo_rural, clausula_fundo_rural, comissao, clausula_comissao, valor_comissao, clausulas, id_local_retirada, tipo_entrega, data_contrato, data_entrega, status_contrato, caminho_diretorio, caminho_arquivo, nome_arquivo,caminho_diretorio2, caminho_arquivo2, nome_arquivo2, grupo_particular ) values ('"
+		String query = "insert into contrato (codigo, sub_contrato,id_safra, id_produto, medida, quantidade, valor_produto, valor_a_pagar,frete, clausula_frete,  armazenagem, clausula_armazenagem, fundo_rural, clausula_fundo_rural, comissao, criar_clausula_comissao, clausula_comissao, valor_comissao, clausulas, id_local_retirada, tipo_entrega, data_contrato, data_entrega, status_contrato, caminho_diretorio, caminho_arquivo, nome_arquivo,caminho_diretorio2, caminho_arquivo2, nome_arquivo2, grupo_particular ) values ('"
 				+ contrato.getCodigo() + "','" + contrato.getSub_contrato() + "','"
 				+ contrato.getModelo_safra().getId_safra() + "','" + contrato.getModelo_produto().getId_produto()
 				+ "','" + contrato.getMedida() + "','" + contrato.getQuantidade() + "','" + contrato.getValor_produto()
@@ -654,7 +655,7 @@ public class GerenciarBancoContratos {
 				+ contrato.getClausula_armazenagem() + "','"
 						+ contrato.getFundo_rural() + "','"
 								+ contrato.getClausula_fundo_rural() + "','"
-				+ contrato.getComissao() + "','"
+				+ contrato.getComissao() + "','" + contrato.getCriar_clausula_comissao() + "','"
 				+ contrato.getClausula_comissao() + "','" + contrato.getValor_comissao() + "','" + texto_clausulas
 				+ "','" + contrato.getId_local_retirada() + "','" + contrato.getTipo_entrega() + "','"
 				+ contrato.getData_contrato() + "','" + contrato.getData_entrega() + "','"
@@ -1132,7 +1133,8 @@ public class GerenciarBancoContratos {
 				// dados de comissao
 				contrato.setComissao(rs.getInt("comissao"));
 				if (contrato.getComissao() == 1) {
-					contrato.setClausula_comissao(rs.getInt("clausula_comissao"));
+					contrato.setCriar_clausula_comissao(rs.getInt("criar_clausula_comissao"));
+					contrato.setClausula_comissao(rs.getString("clausula_comissao"));
 					contrato.setValor_comissao(new BigDecimal(rs.getString("valor_comissao")));
 				}
 
@@ -1174,8 +1176,7 @@ public class GerenciarBancoContratos {
 			}
 
 		} catch (Exception e) {
-			JOptionPane.showMessageDialog(null, "Erro ao listar contrato id: " + id + " erro: ");
-			System.out.println("Erro ao listar contrato id: " + id + " erro: " + "\ncausa: ");
+			JOptionPane.showMessageDialog(null, "Erro ao listar contrato completo, id: " + id + "\nErro: " + e.getMessage() + "\nCausa: " + e.getCause());
 			return null;
 		}
 
@@ -1250,8 +1251,7 @@ public class GerenciarBancoContratos {
 			}
 
 		} catch (Exception e) {
-			JOptionPane.showMessageDialog(null, "Erro ao listar contrato id: " + id + " erro: ");
-			System.out.println("Erro ao listar contrato id: " + id + " erro: " + "\ncausa: ");
+			JOptionPane.showMessageDialog(null, "Erro ao listar contrato simplificado, id: " + id + "\nErro: " + e.getMessage() + "\nCausa: " + e.getCause());
 			return null;
 		}
 
@@ -1329,7 +1329,8 @@ public class GerenciarBancoContratos {
 				// dados de comissao
 				contrato.setComissao(rs.getInt("comissao"));
 				if (contrato.getComissao() == 1) {
-					contrato.setClausula_comissao(rs.getInt("clausula_comissao"));
+					contrato.setCriar_clausula_comissao(rs.getInt("criar_clausula_comissao"));
+					contrato.setClausula_comissao(rs.getString("clausula_comissao"));
 					contrato.setValor_comissao(new BigDecimal(rs.getString("valor_comissao")));
 				}
 
@@ -1452,7 +1453,8 @@ public class GerenciarBancoContratos {
 				// dados de comissao
 				contrato.setComissao(rs.getInt("comissao"));
 				if (contrato.getComissao() == 1) {
-					contrato.setClausula_comissao(rs.getInt("clausula_comissao"));
+					contrato.setCriar_clausula_comissao(rs.getInt("criar_clausula_comissao"));
+					contrato.setClausula_comissao(rs.getString("clausula_comissao"));
 					contrato.setValor_comissao(new BigDecimal(rs.getString("valor_comissao")));
 				}
 
@@ -1508,9 +1510,9 @@ public class GerenciarBancoContratos {
 		String atualizar = null;
 		PreparedStatement pstm;
 		String sql_update_contrato = "update contrato set  id_safra = ?, id_produto = ?, medida = ?, quantidade = ?,\r\n"
-				+ "valor_produto = ?, valor_a_pagar = ?, frete = ?, clausula_frete = ?,  armazenagem = ?, clausula_armazenagem = ?, comissao = ?, clausula_comissao = ?, valor_comissao = ?, clausulas = ?, id_local_retirada = ?, tipo_entrega = ?,\r\n"
+				+ "valor_produto = ?, valor_a_pagar = ?, frete = ?, clausula_frete = ?,  armazenagem = ?, clausula_armazenagem = ?, comissao = ?, criar_clausula_comissao = ?, clausula_comissao = ?, valor_comissao = ?, clausulas = ?, id_local_retirada = ?, tipo_entrega = ?,\r\n"
 				+ "data_contrato = ?, data_entrega = ?, status_contrato = ?, caminho_diretorio = ?, caminho_arquivo = ?,\r\n"
-				+ "nome_arquivo = ?, caminho_diretorio2 = ?, caminho_arquivo2 = ?, nome_arquivo2 = ?, codigo = ?, sub_contrato = ? where id = ?;";
+				+ "nome_arquivo = ?, caminho_diretorio2 = ?, caminho_arquivo2 = ?, nome_arquivo2 = ?, codigo = ?, sub_contrato = ? , fundo_rural = ?, clausula_fundo_rural = ? where id = ?;";
 
 		try {
 			String texto_clausulas = "";
@@ -1535,29 +1537,33 @@ public class GerenciarBancoContratos {
 			pstm.setString(9, contrato.getArmazenagem());
 			pstm.setString(10, contrato.getClausula_armazenagem());
 
-			pstm.setString(11, Integer.toString(contrato.getComissao()));
-			pstm.setString(12, Integer.toString(contrato.getClausula_comissao()));
-			pstm.setString(13, contrato.getValor_comissao().toPlainString());
-			pstm.setString(14, texto_clausulas);
+			pstm.setInt(11, contrato.getComissao());
+			pstm.setInt(12, contrato.getCriar_clausula_comissao());
 
-			pstm.setInt(15, contrato.getId_local_retirada());
-			pstm.setInt(16, contrato.getTipo_entrega());
+			pstm.setString(13, contrato.getClausula_comissao());
+			pstm.setString(14, contrato.getValor_comissao().toPlainString());
+			pstm.setString(15, texto_clausulas);
 
-			pstm.setString(17, contrato.getData_contrato());
-			pstm.setString(18, contrato.getData_entrega());
-			pstm.setString(19, Integer.toString(contrato.getStatus_contrato()));
-			pstm.setString(20, contrato.getCaminho_diretorio_contrato());
-			pstm.setString(21, contrato.getCaminho_arquivo());
-			pstm.setString(22, contrato.getNome_arquivo());
+			pstm.setInt(16, contrato.getId_local_retirada());
+			pstm.setInt(17, contrato.getTipo_entrega());
 
-			pstm.setString(23, contrato.getCaminho_diretorio_contrato2());
-			pstm.setString(24, contrato.getCaminho_arquivo2());
-			pstm.setString(25, contrato.getNome_arquivo2());
+			pstm.setString(18, contrato.getData_contrato());
+			pstm.setString(19, contrato.getData_entrega());
+			pstm.setString(20, Integer.toString(contrato.getStatus_contrato()));
+			pstm.setString(21, contrato.getCaminho_diretorio_contrato());
+			pstm.setString(22, contrato.getCaminho_arquivo());
+			pstm.setString(23, contrato.getNome_arquivo());
 
-			pstm.setString(26, contrato.getCodigo());
-			pstm.setInt(27, contrato.getSub_contrato());
+			pstm.setString(24, contrato.getCaminho_diretorio_contrato2());
+			pstm.setString(25, contrato.getCaminho_arquivo2());
+			pstm.setString(26, contrato.getNome_arquivo2());
 
-			pstm.setInt(28, contrato.getId());
+			pstm.setString(27, contrato.getCodigo());
+			pstm.setInt(28, contrato.getSub_contrato());
+			pstm.setString(29, contrato.getFundo_rural());
+			pstm.setString(30, contrato.getClausula_fundo_rural());
+
+			pstm.setInt(31, contrato.getId());
 			pstm.execute();
 			// JOptionPane.showMessageDialog(null, "Cliente atualizado com sucesso");
 			// System.out.println("Contrato Atualizado com sucesso");
@@ -1817,7 +1823,7 @@ public class GerenciarBancoContratos {
 				contrato.setModelo_produto(produto);
 				
 				contrato.setQuantidade_carregada(rs.getDouble("total_carregado"));
-				contrato.setQuantidade_recebida(rs.getDouble("quantidade_recebida"));
+				contrato.setQuantidade_recebida(rs.getDouble("total_recebido"));
 
 				contrato.setTotal_pago(rs.getDouble("total_pago"));
 				contrato.setTotal_comissao(rs.getDouble("quantidade_comissao_paga"));
@@ -2073,10 +2079,10 @@ public class GerenciarBancoContratos {
 					// dados de comissao
 					contrato.setComissao(rs.getInt("comissao"));
 					if (contrato.getComissao() == 1) {
-						contrato.setClausula_comissao(rs.getInt("clausula_comissao"));
+						contrato.setCriar_clausula_comissao(rs.getInt("criar_clausula_comissao"));
+						contrato.setClausula_comissao(rs.getString("clausula_comissao"));
 						contrato.setValor_comissao(new BigDecimal(rs.getString("valor_comissao")));
 					}
-
 					// dados de frete
 					contrato.setFrete(rs.getString("frete"));
 					contrato.setClausula_frete(rs.getString("clausula_frete"));
@@ -2132,6 +2138,126 @@ public class GerenciarBancoContratos {
 		);*/
 		
 		String selectContratos = "call contratos_para_relatorio(?,?,?,?, ?)";
+		Connection conn = null;
+		PreparedStatement pstm = null;
+		ResultSet rs = null;
+		ArrayList<CadastroContrato> lsitaContratos = new ArrayList<CadastroContrato>();
+		try {
+			conn = ConexaoBanco.getConexao();
+			pstm = conn.prepareStatement(selectContratos);
+			
+			
+				//como comprador
+			if(id_cliente > 0)
+			  pstm.setInt(1, id_cliente);
+			else
+				pstm.setInt(1, 0);
+
+
+			if (id_cliente2 > 0)
+				pstm.setInt(2, id_cliente2);
+			else
+				pstm.setInt(2, 0);
+			
+			if (id_contra_parte > 0)
+				pstm.setInt(3, id_contra_parte);
+			else
+				pstm.setInt(3, 0);
+
+			
+			if (id_busca_safra > 0) 
+				pstm.setInt(4, id_busca_safra);
+			else
+				pstm.setInt(4, 0);
+			
+			pstm.setInt(5, participacao);
+
+			
+			
+			/*}else if(flag_select == 5 || flag_select == 2) {
+				//como vendedor
+				if(id_contra_parte > 0)
+					pstm.setInt(1, id_contra_parte);
+					else
+						pstm.setInt(1, 0);
+
+					if (id_cliente > 0)
+						pstm.setInt(2, id_cliente2);
+					else
+						pstm.setInt(2, 0);
+					
+					if (id_cliente > 0)
+						pstm.setInt(3, id_cliente);
+					else
+						pstm.setInt(3, 0);
+
+					
+					if (id_busca_safra > 0) 
+						pstm.setInt(4, id_busca_safra);
+					else
+						pstm.setInt(4, 0);
+				
+			}*/
+			
+
+			rs = pstm.executeQuery();
+			while (rs.next()) {
+				CadastroContrato contrato_recebimento = new CadastroContrato();
+
+				contrato_recebimento.setId(rs.getInt("id"));
+				contrato_recebimento.setSub_contrato(rs.getInt("sub_contrato"));
+				contrato_recebimento.setCodigo(rs.getString("codigo"));
+				contrato_recebimento.setQuantidade(rs.getDouble("quantidade"));
+				contrato_recebimento.setMedida(rs.getString("medida"));
+				contrato_recebimento.setValor_a_pagar(new BigDecimal(rs.getString("valor_a_pagar")));
+				contrato_recebimento.setValor_produto(rs.getDouble("valor_produto"));
+				contrato_recebimento.setNomes_compradores(rs.getString("compradores"));
+				contrato_recebimento.setNomes_vendedores(rs.getString("vendedores"));
+				contrato_recebimento.setStatus_contrato(rs.getInt("status_contrato"));
+				contrato_recebimento.setGrupo_particular(rs.getInt("grupo_particular"));
+
+				CadastroSafra safra = new CadastroSafra();
+				safra.setId_safra(rs.getInt("id_safra"));
+				safra.setAno_colheita(rs.getInt("ano_colheita"));
+				safra.setAno_plantio(rs.getInt("ano_plantio"));
+
+				CadastroProduto produto = new CadastroProduto();
+				produto.setId_produto(rs.getInt("id_produto"));
+				produto.setNome_produto(rs.getString("nome_produto"));
+				produto.setTransgenia(rs.getString("transgenia"));
+
+				safra.setProduto(produto);
+
+				contrato_recebimento.setModelo_produto(produto);
+				contrato_recebimento.setModelo_safra(safra);
+
+				lsitaContratos.add(contrato_recebimento);
+
+			}
+			ConexaoBanco.fechaConexao(conn, pstm, rs);
+			return lsitaContratos;
+
+		} catch (Exception e) {
+			JOptionPane.showMessageDialog(null,
+					"Erro ao listar contratos\nMensagem: " + e.getMessage() + "\nCausa: " + e.getCause());
+			return null;
+		}
+
+	}
+	
+	public ArrayList<CadastroContrato> getSubContratosPorClienteParaRelatorio(int id_busca_safra,
+			int id_cliente, int id_cliente2, int id_contra_parte, int participacao) {
+
+		/*JOptionPane.showMessageDialog(null, 
+		"A consulta sera: " +
+				"call contratos_para_relatorio(" +id_cliente + ", "
+				+ id_cliente2 + ", " + id_contra_parte + " , " + id_busca_safra
+				
+				
+				
+		);*/
+		
+		String selectContratos = "call sub_contratos_para_relatorio(?,?,?,?, ?)";
 		Connection conn = null;
 		PreparedStatement pstm = null;
 		ResultSet rs = null;
@@ -2796,9 +2922,11 @@ public class GerenciarBancoContratos {
 
 					// dados de comissao
 					contrato.setComissao(rs.getInt("comissao"));
-					contrato.setClausula_comissao(rs.getInt("clausula_comissao"));
-					contrato.setValor_comissao(new BigDecimal(rs.getString("valor_comissao")));
-
+					if (contrato.getComissao() == 1) {
+						contrato.setCriar_clausula_comissao(rs.getInt("criar_clausula_comissao"));
+						contrato.setClausula_comissao(rs.getString("clausula_comissao"));
+						contrato.setValor_comissao(new BigDecimal(rs.getString("valor_comissao")));
+					}
 					// dados de fundo rural
 					contrato.setFundo_rural(rs.getString("fundo_rural"));
 					contrato.setClausula_fundo_rural(rs.getString("clausula_fundo_rural"));
@@ -2921,27 +3049,7 @@ public class GerenciarBancoContratos {
 	}*/
 	
 	public ArrayList<CadastroContrato> getSubContratosParaRelatorio(int id_contrato_pai) {
-		// String selectContrato = "select * from contrato_sub_contrato sub_contrato
-		// LEFT JOIN contrato filho on filho.id = sub_contrato.id_sub_contrato where
-		// (filho.sub_contrato = 1 or filho.sub_contrato = 6 or filho.sub_contrato = 7)
-		// and id_contrato_pai = ?";
-	/*	String selectContrato = "select sub_contrato.*,\n" + "filho.*,\n" + "GROUP_CONCAT(distinct\n" + "case\n"
-				+ "when comprador.tipo_cliente = '0' then comprador.nome_empresarial \n"
-				+ " when comprador.tipo_cliente = '1' then comprador.nome_fantasia\n" + "end\n"
-				+ " separator ',') as compradores,\n" + "GROUP_CONCAT(distinct\n" + "case\n"
-				+ "when vendedor.tipo_cliente = '0' then vendedor.nome_empresarial \n"
-				+ " when vendedor.tipo_cliente = '1' then vendedor.nome_fantasia\n" + "end\n"
-				+ " separator ',') as vendedores,\n" + " sf.id_safra, sf.ano_colheita, sf.ano_plantio,\n"
-				+ " pd.id_produto, pd.nome_produto, pd.transgenia \n" + "from contrato_sub_contrato sub_contrato \n"
-				+ "LEFT JOIN contrato filho  on filho.id = sub_contrato.id_sub_contrato \n"
-				+ "LEFT join safra sf on sf.id_safra = filho.id_safra\n"
-				+ "LEFT join produto pd on pd.id_produto = sf.id_produto\n"
-				+ "LEFT JOIN contrato_comprador on contrato_comprador.id_contrato = filho.id\n"
-				+ "LEFT JOIN cliente comprador on comprador.id_cliente = contrato_comprador.id_cliente\n"
-				+ "LEFT JOIN contrato_vendedor on contrato_vendedor.id_contrato = filho.id\n"
-				+ "LEFT JOIN cliente vendedor on vendedor.id_cliente = contrato_vendedor.id_cliente\n"
-				+ "where (filho.sub_contrato = 1 or filho.sub_contrato = 6 or filho.sub_contrato = 7) and id_contrato_pai = ?";
-		*/
+		
 		String selectContrato = "call consulta_sub_contratos(?)";
 		Connection conn = null;
 		PreparedStatement pstm = null;
@@ -2967,9 +3075,9 @@ public class GerenciarBancoContratos {
 					contrato_recebimento.setQuantidade(rs.getDouble("quantidade"));
 					contrato_recebimento.setMedida(rs.getString("medida"));
 					contrato_recebimento.setValor_a_pagar(new BigDecimal(rs.getString("valor_a_pagar")));
-
+					contrato_recebimento.setGrupo_particular(rs.getInt("grupo_particular"));
 					contrato_recebimento.setValor_produto(rs.getDouble("valor_produto"));
-
+					contrato_recebimento.setFilho(rs.getInt("filho"));
 					contrato_recebimento.setNomes_compradores(rs.getString("compradores"));
 					contrato_recebimento.setNomes_vendedores(rs.getString("vendedores"));
 
@@ -3582,7 +3690,7 @@ public class GerenciarBancoContratos {
 
 			} catch (Exception e) {
 				JOptionPane.showMessageDialog(null,
-						"Erro ao inserir o carregamento no banco de dados\nErro: " + e.getMessage());
+						"Erro ao inserir o carregamento no banco de dados\nErro: " + e.getMessage() + "\nCausa: " + e.getCause());
 				GerenciadorLog.registrarLogDiario("falha",
 						"falha ao adicionar carregamento: " + " causa: " + e.getCause());
 				return -1;
@@ -3629,7 +3737,7 @@ public class GerenciarBancoContratos {
 
 	}
 
-	private boolean inserir_contrato_carregamento(int id_contrato, int id_carregamento) {
+	public boolean inserir_contrato_carregamento(int id_contrato, int id_carregamento) {
 		Connection conn = null;
 		try {
 			conn = ConexaoBanco.getConexao();
@@ -3987,6 +4095,69 @@ where contrato_carregamentos.id_contrato = ? order by carregamento.id_carregamen
 
 	}
 
+	public CadastroContrato.Recebimento getRecebimento(int id_recebimento) {
+
+		System.out.println("Lista recebimentos foi chamado!");
+		String selectRecebimentos = "select * from recebimento where id_recebimento = ?";
+		Connection conn = null;
+		PreparedStatement pstm = null;
+		ResultSet rs = null;
+		CadastroContrato.Recebimento recebido = new CadastroContrato.Recebimento();
+
+		try {
+			conn = ConexaoBanco.getConexao();
+			pstm = conn.prepareStatement(selectRecebimentos);
+			pstm.setInt(1, id_recebimento);
+
+			rs = pstm.executeQuery();
+
+			if (rs.next()) {
+
+				if (rs != null) {
+					System.out.print("recebimento não e nulo!");
+
+
+					recebido.setId_recebimento(rs.getInt("id_recebimento"));
+					recebido.setData_recebimento(rs.getString("data_recebimento").toString());
+					recebido.setId_contrato_recebimento(rs.getInt("id_contrato_recebimento"));
+					recebido.setId_cliente(rs.getInt("id_cliente"));
+					recebido.setId_vendedor(rs.getInt("id_vendedor"));
+					recebido.setId_transportador(rs.getInt("id_transportador"));
+					recebido.setId_veiculo(rs.getInt("id_veiculo"));
+					recebido.setCodigo_romaneio(rs.getString("codigo_romaneio"));
+					recebido.setPeso_romaneio(rs.getDouble("peso_romaneio"));
+					recebido.setCaminho_romaneio(rs.getString("caminho_romaneio"));
+
+					recebido.setNf_venda_aplicavel(rs.getInt("nf_venda_aplicavel"));
+					recebido.setCodigo_nf_venda(rs.getString("codigo_nf_venda"));
+					recebido.setPeso_nf_venda(rs.getDouble("peso_nf_venda"));
+					recebido.setValor_nf_venda(new BigDecimal(rs.getString("valor_nf_venda")));
+					recebido.setNome_remetente_nf_venda(rs.getString("nome_remetente_nf_venda"));
+					recebido.setNome_destinatario_nf_venda(rs.getString("nome_destinatario_nf_venda"));
+					recebido.setCaminho_nf_venda(rs.getString("caminho_nf_venda"));
+
+					recebido.setNf_remessa_aplicavel(rs.getInt("nf_remessa_aplicavel"));
+					recebido.setCodigo_nf_remessa(rs.getString("codigo_nf_remessa"));
+					recebido.setPeso_nf_remessa(rs.getDouble("peso_nf_remessa"));
+					recebido.setValor_nf_remessa(new BigDecimal(rs.getString("valor_nf_remessa")));
+					recebido.setNome_remetente_nf_remessa(rs.getString("nome_remetente_nf_remessa"));
+					recebido.setNome_destinatario_nf_remessa(rs.getString("nome_destinatario_nf_remessa"));
+					recebido.setCaminho_nf_remessa(rs.getString("caminho_nf_remessa"));
+
+
+				}
+			}
+
+			ConexaoBanco.fechaConexao(conn, pstm, rs);
+			return recebido;
+		} catch (Exception e) {
+			JOptionPane.showMessageDialog(null, "Erro ao listar os recebimentos id: " + id_recebimento + " erro: "
+					+ e.getMessage() + "causa: " + e.getCause());
+			return null;
+		}
+
+	}
+	
 	public ArrayList<RecebimentoCompleto> getRecebimentosParaRelatorio(int id_contrato) {
 
 		System.out.println("Lista recebimentos foi chamado!");
@@ -4241,7 +4412,7 @@ where contrato_carregamentos.id_contrato = ? order by carregamento.id_carregamen
 		int id = 0;
 		System.out.println("Lista recebimentos foi chamado!");
 		String selectRecebimentos = "select re.*,\n"
-				+ "ct.id as contrato_id, ct.codigo, ct.quantidade, ct.medida, ct.valor_a_pagar, ct.valor_produto,\n"
+				+ "ct.id as contrato_id, ct.codigo, ct.sub_contrato, ct.quantidade, ct.medida, ct.valor_a_pagar, ct.valor_produto,\n"
 				+ "GROUP_CONCAT(distinct\n" + "case\n"
 				+ "when comprador.tipo_cliente = '0' then comprador.nome_empresarial \n"
 				+ " when comprador.tipo_cliente = '1' then comprador.nome_fantasia\n" + "end\n"
@@ -4287,6 +4458,7 @@ where contrato_carregamentos.id_contrato = ? order by carregamento.id_carregamen
 						recebido.setId_vendedor(rs.getInt("id_vendedor"));
 						recebido.setId_transportador(rs.getInt("id_transportador"));
 						recebido.setId_veiculo(rs.getInt("id_veiculo"));
+						
 
 						recebido.setCodigo_romaneio(rs.getString("codigo_romaneio"));
 						recebido.setPeso_romaneio(rs.getDouble("peso_romaneio"));
@@ -4317,7 +4489,8 @@ where contrato_carregamentos.id_contrato = ? order by carregamento.id_carregamen
 						contrato_recebimento.setValor_produto(rs.getDouble("valor_produto"));
 						contrato_recebimento.setNomes_compradores(rs.getString("compradores"));
 						contrato_recebimento.setNomes_vendedores(rs.getString("vendedores"));
-
+						contrato_recebimento.setSub_contrato(rs.getInt("sub_contrato"));
+						
 						CadastroSafra safra = new CadastroSafra();
 						safra.setId_safra(rs.getInt("id_safra"));
 						safra.setAno_colheita(rs.getInt("ano_colheita"));
@@ -4357,7 +4530,7 @@ where contrato_carregamentos.id_contrato = ? order by carregamento.id_carregamen
 	public ArrayList<CarregamentoCompleto> getCarregamentos() {
 		int id = 0;
 		String selectCarregamentos = "select ca.*,\n"
-				+ "ct.id as contrato_id, ct.codigo, ct.quantidade, ct.medida, ct.valor_a_pagar, ct.valor_produto,\n"
+				+ "ct.id as contrato_id, ct.codigo, ct.quantidade,ct.sub_contrato, ct.medida, ct.valor_a_pagar, ct.valor_produto,\n"
 				+ "GROUP_CONCAT(distinct case\n"
 				+ "when comprador.tipo_cliente = '0' then comprador.nome_empresarial \n"
 				+ " when comprador.tipo_cliente = '1' then comprador.nome_fantasia end\n"
@@ -4440,7 +4613,7 @@ where contrato_carregamentos.id_contrato = ? order by carregamento.id_carregamen
 						contrato_recebimento.setValor_produto(rs.getDouble("valor_produto"));
 						contrato_recebimento.setNomes_compradores(rs.getString("compradores"));
 						contrato_recebimento.setNomes_vendedores(rs.getString("vendedores"));
-
+						contrato_recebimento.setSub_contrato(rs.getInt("sub_contrato"));
 						CadastroSafra safra = new CadastroSafra();
 						safra.setId_safra(rs.getInt("id_safra"));
 						safra.setAno_colheita(rs.getInt("ano_colheita"));
@@ -4552,7 +4725,7 @@ where contrato_carregamentos.id_contrato = ? order by carregamento.id_carregamen
 
 			carregamento.setId_carregamento(rs.getInt("id_carregamento"));
 			carregamento.setData(rs.getString("data_carregamento").toString());
-			carregamento.setId_carregamento(rs.getInt("id_contrato_carregamento"));
+			carregamento.setId_contrato(rs.getInt("id_contrato_carregamento"));
 			carregamento.setId_cliente(rs.getInt("id_cliente"));
 			carregamento.setId_vendedor(rs.getInt("id_vendedor"));
 			carregamento.setId_transportador(rs.getInt("id_transportador"));
@@ -4596,7 +4769,7 @@ where contrato_carregamentos.id_contrato = ? order by carregamento.id_carregamen
 				System.out.print("carregamento não e nulo!");
 
 				carga.setId_carregamento(rs.getInt("id_carregamento"));
-				carga.setData(rs.getDate("data_carregamento").toString());
+				carga.setData(rs.getString("data_carregamento"));
 				carga.setId_contrato(rs.getInt("id_contrato_carregamento"));
 				carga.setId_cliente(rs.getInt("id_cliente"));
 				carga.setId_vendedor(rs.getInt("id_vendedor"));
@@ -4637,8 +4810,8 @@ where contrato_carregamentos.id_contrato = ? order by carregamento.id_carregamen
 			System.out.println("Carregamento listado com sucesso!");
 			return carga;
 		} catch (Exception e) {
-		//	JOptionPane.showMessageDialog(null,
-			//		"Erro ao listar o carregamento id: " + id_carregamento + " erro: " + "causa: ");
+		JOptionPane.showMessageDialog(null,
+					"Erro ao listar o carregamento id: " + id_carregamento + " erro: " + e.getMessage() + "\nCausa: " + e.getCause());
 			return null;
 		}
 
@@ -5139,25 +5312,39 @@ where contrato_carregamentos.id_contrato = ? order by carregamento.id_carregamen
 
 	public String sql_carregamento(CadastroContrato.Carregamento carregamento) {
 
+		
+		
 		String query = "insert into carregamento (data_carregamento, id_contrato_carregamento, id_cliente, id_vendedor , id_transportador, id_veiculo, id_produto, codigo_romaneio , peso_romaneio ,caminho_romaneio , nf_venda1_aplicavel, codigo_nf_venda1 ,peso_nf_venda1 , valor_nf_venda1,nome_remetente_nf_venda1, nome_destinatario_nf_venda1, caminho_nf_venda1, nf_complemento_aplicavel, codigo_nf_complemento ,peso_nf_complemento, valor_nf_complemento,nome_remetente_nf_complemento, nome_destinatario_nf_complemento,caminho_nf_complemento , nf_interna_aplicavel,codigo_nf_interna ,peso_nf_interna ,caminho_nf_interna ,observacao ) values ('"
-				+ carregamento.getData() + "','" + carregamento.getId_contrato() + "','" + carregamento.getId_cliente()
-				+ "','" + carregamento.getId_vendedor() + "','" + carregamento.getId_transportador() + "','"
-				+ carregamento.getId_veiculo() + "','" + carregamento.getId_produto() + "','"
-				+ carregamento.getCodigo_romaneio() + "','" + carregamento.getPeso_romaneio() + "','"
-				+ carregamento.getCaminho_romaneio() + "','" + carregamento.getNf_venda1_aplicavel() + "','"
-				+ carregamento.getCodigo_nf_venda1() + "','" + carregamento.getPeso_nf_venda1() + "','"
-				+ carregamento.getValor_nf_venda1() + "','" + carregamento.getNome_remetente_nf_venda1() + "','"
-				+ carregamento.getNome_destinatario_nf_venda1() + "','" + carregamento.getCaminho_nf_venda1() + "','"
+				+ carregamento.getData() + "','" 
+				+ carregamento.getId_contrato() + "','" 
+				+ carregamento.getId_cliente() + "','"
+				+ carregamento.getId_vendedor() + "','" 
+				+ carregamento.getId_transportador() + "','"
+				+ carregamento.getId_veiculo() + "','"
+				+ carregamento.getId_produto() + "','"
+				+ carregamento.getCodigo_romaneio() + "','" 
+				+ carregamento.getPeso_romaneio() + "','"
+				+ carregamento.getCaminho_romaneio() + "','" 
+				+ carregamento.getNf_venda1_aplicavel() + "','"
+				+ carregamento.getCodigo_nf_venda1() + "','" 
+				+ carregamento.getPeso_nf_venda1() + "','"
+				+ carregamento.getValor_nf_venda1() + "','"
+				+ carregamento.getNome_remetente_nf_venda1() + "','"
+				+ carregamento.getNome_destinatario_nf_venda1() + "','" 
+				+ carregamento.getCaminho_nf_venda1() + "','"
 
-				+ carregamento.getNf_complemento_aplicavel() + "','" + carregamento.getCodigo_nf_complemento() + "','"
-				+ carregamento.getPeso_nf_complemento() + "','" + carregamento.getValor_nf_complemento() + "','"
+				+ carregamento.getNf_complemento_aplicavel() + "','" 
+				+ carregamento.getCodigo_nf_complemento() + "','"
+				+ carregamento.getPeso_nf_complemento() + "','"
+				+ carregamento.getValor_nf_complemento() + "','"
 				+ carregamento.getNome_remetente_nf_complemento() + "','"
-				+ carregamento.getNome_destinatario_nf_complemento() + "','" + carregamento.getCaminho_nf_complemento()
-				+ "','"
+				+ carregamento.getNome_destinatario_nf_complemento() + "','" 
+				+ carregamento.getCaminho_nf_complemento() + "','"
 
 				+ carregamento.getNf_interna_aplicavel() + "','"
 
-				+ carregamento.getCodigo_nf_interna() + "','" + carregamento.getPeso_nf_interna() + "','"
+				+ carregamento.getCodigo_nf_interna() + "','" 
+				+ carregamento.getPeso_nf_interna() + "','"
 				+ carregamento.getCaminho_nf_interna() + "','"
 
 				+ carregamento.getObservacao()
@@ -5511,6 +5698,7 @@ where contrato_carregamentos.id_contrato = ? order by carregamento.id_carregamen
 					contrato_recebimento.setMedida(rs.getString("medida"));
 					contrato_recebimento.setGrupo_particular(rs.getInt("grupo_particular"));
 					contrato_recebimento.setCaminho_diretorio_contrato(rs.getString("caminho_diretorio"));
+					contrato_recebimento.setSub_contrato(rs.getInt("sub_contrato"));
 
 					CadastroSafra safra = new CadastroSafra();
 					safra.setId_safra(rs.getInt("id_safra"));
@@ -5531,6 +5719,7 @@ where contrato_carregamentos.id_contrato = ? order by carregamento.id_carregamen
 
 					CadastroContrato contrato_destinatario = new CadastroContrato();
 					contrato_destinatario.setCodigo(rs.getString("contrato_destinatario"));
+					contrato_destinatario.setSub_contrato(rs.getInt("ct_destinatario_sub_contrato"));
 					pagamento.setContrato_destinatario(contrato_destinatario);
 
 					lista_pagamentos.add(pagamento);
@@ -7018,6 +7207,40 @@ public ArrayList<RegistroQuantidade> getQuantidadesTransNegativa(int id_safra, i
 			return null;
 		}
 
+	}
+	
+	
+	
+	public Map<String, Integer> getNumContratos(int id_cliente) {
+
+		
+		String select = "call busca_num_contratos(?)";
+		Connection conn = null;
+		PreparedStatement pstm = null;
+		ResultSet rs = null;
+		Lancamento dado = new Lancamento();
+
+		try {
+			conn = ConexaoBanco.getConexao();
+			pstm = conn.prepareStatement(select);
+			pstm.setInt(1, id_cliente);
+			rs = pstm.executeQuery();
+			rs.next();
+			Map<String, Integer> example = new HashMap<String, Integer>();
+			example.put("num_contratos_vendedor",rs.getInt("num_contratos_vendedor"));
+			example.put("num_contratos_vendedor_concluido", rs.getInt("num_contratos_vendedor_concluido"));
+			example.put("num_contratos_vendedor_cancelado", rs.getInt("num_contratos_vendedor_cancelado"));
+			example.put("num_contratos_comprador",rs.getInt("num_contratos_comprador"));
+			example.put("num_contratos_comprador_concluido", rs.getInt("num_contratos_comprador_concluido"));
+			example.put("num_contratos_comprador_cancelado", rs.getInt("num_contratos_comprador_cancelado"));
+
+			return example;
+
+		} catch (Exception e) {
+			// JOptionPane.showMessageDialog(null, "Erro ao listar a Conta id: " + id);// );
+			JOptionPane.showMessageDialog(null, "Erro ao listar números de contratos do banco de dados");
+			return null;
+		}
 	}
 
 }

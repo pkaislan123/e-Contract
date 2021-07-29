@@ -279,6 +279,7 @@ public class TelaFinanceiroCadastroLancamento extends JDialog {
 	private Log GerenciadorLog;
 	private CadastroLogin login;
 	private ConfiguracoesGlobais configs_globais;
+	private int modo_operacao_global = -1;
 
 	public void getDadosGlobais() {
 		// gerenciador de log
@@ -296,9 +297,13 @@ public class TelaFinanceiroCadastroLancamento extends JDialog {
 		getDadosGlobais();
 		if (modo_operacao == 0)
 			setTitle("E-Contract - Cadastro Lançamento");
-		else
+		else if(modo_operacao == 2)
+			setTitle("E-Contract - Edição de Lançamento");
+		else if(modo_operacao == 1)
 			setTitle("E-Contract - Edição de Lançamento");
 
+		modo_operacao_global = modo_operacao;
+		
 		setContentPane(painelOdin);
 		setBackground(new Color(255, 255, 255));
 		setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
@@ -563,11 +568,16 @@ public class TelaFinanceiroCadastroLancamento extends JDialog {
 					boolean result = gerenciar.atualizarLancamento(getDadosAtualizar(lancamento));
 					if (result) {
 					
-
+						if(modo_operacao_global != 2) {
 						JOptionPane.showMessageDialog(isto, "Atualizado");
 						((TelaFinanceiroGerenciarLancamento) janela_pai).atualizarRotinas();
-						;
+						
 						isto.dispose();
+						}else {
+							((TelaGerenciarFuncionario) janela_pai).pesquisar_contas_associadas();
+							
+							isto.dispose();	
+						}
 
 					} else {
 						JOptionPane.showMessageDialog(isto, "Erro ao Atualizar\nConsulte o Administrador");
@@ -668,8 +678,13 @@ public class TelaFinanceiroCadastroLancamento extends JDialog {
 								}
 
 								JOptionPane.showMessageDialog(isto, "Cadastro Concluído");
+								if(modo_operacao_global != 2) {
 								((TelaFinanceiroLancamento) janela_pai).pesquisar();
 								isto.dispose();
+								}else {
+									((TelaGerenciarFuncionario) janela_pai).pesquisar_contas_associadas();
+									isto.dispose();
+								}
 
 							}
 

@@ -8,15 +8,18 @@ import javax.swing.JButton;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
+import javax.swing.JPopupMenu;
 import javax.swing.border.EmptyBorder;
 import net.miginfocom.swing.MigLayout;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Container;
+import java.awt.Desktop;
 import java.awt.Dimension;
 import java.awt.DisplayMode;
 
 import javax.swing.JLabel;
+import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 
 import java.awt.Font;
@@ -32,6 +35,7 @@ import javax.swing.table.TableRowSorter;
 
 import main.java.cadastros.CadastroCliente;
 import main.java.cadastros.CadastroContrato;
+import main.java.cadastros.CadastroLogin;
 import main.java.cadastros.CadastroRomaneio;
 import main.java.cadastros.CentroCusto;
 import main.java.cadastros.CondicaoPagamento;
@@ -40,6 +44,7 @@ import main.java.cadastros.FinanceiroPagamentoCompleto;
 import main.java.cadastros.FinanceiroPagamentoEmprestimoCompleto;
 import main.java.cadastros.FinanceiroParcelaCompleto;
 import main.java.cadastros.Parcela;
+import main.java.cadastros.ParcelaEmprestimo;
 import main.java.cadastros.FinanceiroGrupoContas;
 import main.java.cadastros.FinanceiroPagamento;
 import main.java.cadastros.InstituicaoBancaria;
@@ -51,7 +56,9 @@ import main.java.conexaoBanco.GerenciarBancoClientes;
 import main.java.conexaoBanco.GerenciarBancoCondicaoPagamentos;
 import main.java.conexaoBanco.GerenciarBancoFinanceiroConta;
 import main.java.conexaoBanco.GerenciarBancoParcelas;
+import main.java.conexaoBanco.GerenciarBancoParcelasEmprestimo;
 import main.java.gui.TelaContratos.EvenOddRenderer;
+import main.java.manipular.ConfiguracoesGlobais;
 import main.java.conexaoBanco.GerenciarBancoFinanceiroGrupoContas;
 import main.java.conexaoBanco.GerenciarBancoFinanceiroPagamento;
 import main.java.conexaoBanco.GerenciarBancoFinanceiroPagamentoEmprestimo;
@@ -59,6 +66,9 @@ import main.java.conexaoBanco.GerenciarBancoInstituicaoBancaria;
 import main.java.conexaoBanco.GerenciarBancoLancamento;
 import main.java.outros.DadosGlobais;
 import main.java.outros.JTextFieldPersonalizado;
+import main.java.tratamento_proprio.Log;
+import main.java.views_personalizadas.TelaEscolhaRelatorioPagamentos;
+import main.java.views_personalizadas.TelaEscolhaRelatorioParcelas;
 import main.java.views_personalizadas.TelaEscolhaRelatorioRomaneios;
 
 import javax.swing.JScrollPane;
@@ -92,6 +102,8 @@ import java.awt.GridBagLayout;
 import java.awt.GridBagConstraints;
 import java.awt.Insets;
 import java.awt.event.ItemListener;
+import java.io.File;
+import java.io.IOException;
 import java.awt.event.ItemEvent;
 
 public class TelaFinanceiroParcelas extends JFrame {
@@ -104,7 +116,7 @@ public class TelaFinanceiroParcelas extends JFrame {
 	private ParcelaTableModel modelo_parcela = new ParcelaTableModel();
 	private JDialog telaPai;
 	private TableRowSorter<ParcelaTableModel> sorter;
-	private JComboBox cbStatus;
+	private JComboBox cbStatus, cbFluxoCaixa;
 	private JComboBox cbTipoFinanceiroParcelaCompleto;
 	private JTextField menorDataPagamento;
 	private JTextField maiorDataPagamento;
@@ -113,8 +125,13 @@ public class TelaFinanceiroParcelas extends JFrame {
 	private JLabel entValorTotalPagamentoDespesas, entValorTotalPagamentoReceitas, entBalanco;
 	private JComboBox cbCentroCusto;
 	private JTextField entClienteFornecedor;
+	private Log GerenciadorLog;
+	private CadastroLogin login;
+	private ConfiguracoesGlobais configs_globais;
+	private JLabel entValorTotalPagamentoTransferencia, entValorTotalPagamentoEmprestimoDespesas;
 
 	public TelaFinanceiroParcelas(int flag_modo_operacao, int flag_retorno, Window janela_pai) {
+		getDadosGlobais();
 
 		Toolkit tk = Toolkit.getDefaultToolkit();
 		Dimension d = tk.getScreenSize();
@@ -162,11 +179,11 @@ public class TelaFinanceiroParcelas extends JFrame {
 						"[28px][33px][33px]"));
 
 		JLabel lblNewLabel_1_1 = new JLabel("Tipo de Lançamento:");
-		lblNewLabel_1_1.setFont(new Font("SansSerif", Font.PLAIN, 12));
+		lblNewLabel_1_1.setFont(new Font("SansSerif", Font.PLAIN, 15));
 		panel_1.add(lblNewLabel_1_1, "cell 0 0,alignx left,aligny center");
 
 		cbTipoFinanceiroParcelaCompleto = new JComboBox();
-		cbTipoFinanceiroParcelaCompleto.setFont(new Font("SansSerif", Font.PLAIN, 12));
+		cbTipoFinanceiroParcelaCompleto.setFont(new Font("Arial", Font.BOLD, 16));
 		panel_1.add(cbTipoFinanceiroParcelaCompleto, "cell 1 0,alignx left,aligny center");
 		cbTipoFinanceiroParcelaCompleto.addItem("TODOS");
 		cbTipoFinanceiroParcelaCompleto.addItem("DESPESAS");
@@ -175,33 +192,35 @@ public class TelaFinanceiroParcelas extends JFrame {
 		cbTipoFinanceiroParcelaCompleto.addItem("TRANSFERENCIAS");
 
 		JLabel lblNewLabel_1_1_4_2_1 = new JLabel("Status Parcela:");
-		lblNewLabel_1_1_4_2_1.setFont(new Font("SansSerif", Font.PLAIN, 12));
+		lblNewLabel_1_1_4_2_1.setFont(new Font("SansSerif", Font.PLAIN, 15));
 		panel_1.add(lblNewLabel_1_1_4_2_1, "cell 2 0,alignx right,aligny center");
 
 		cbStatus = new JComboBox();
-		cbStatus.setFont(new Font("SansSerif", Font.PLAIN, 12));
+		cbStatus.setFont(new Font("Arial", Font.BOLD, 16));
 		panel_1.add(cbStatus, "cell 3 0,growx,aligny center");
 		cbStatus.addItem("TODOS");
 		cbStatus.addItem("PAGO");
 		cbStatus.addItem("A PAGAR");
 
 		JLabel lblNewLabel_1_1_2_1_1_2 = new JLabel("Identificador Geral:");
-		lblNewLabel_1_1_2_1_1_2.setFont(new Font("SansSerif", Font.PLAIN, 12));
+		lblNewLabel_1_1_2_1_1_2.setFont(new Font("SansSerif", Font.PLAIN, 15));
 		panel_1.add(lblNewLabel_1_1_2_1_1_2, "cell 4 0,alignx right,aligny center");
 
 		entIdentificadorGeral = new JTextField();
+		entIdentificadorGeral.setFont(new Font("Arial", Font.BOLD, 16));
 		entIdentificadorGeral.setColumns(10);
 		panel_1.add(entIdentificadorGeral, "cell 5 0,growx,aligny bottom");
 
 		JLabel lblNewLabel_1_1_4_1_1_1 = new JLabel("Período Vencimento");
 		panel_1.add(lblNewLabel_1_1_4_1_1_1, "cell 6 0,alignx left,aligny center");
-		lblNewLabel_1_1_4_1_1_1.setFont(new Font("SansSerif", Font.PLAIN, 12));
+		lblNewLabel_1_1_4_1_1_1.setFont(new Font("SansSerif", Font.PLAIN, 15));
 
 		JLabel lblNewLabel_8_1_1 = new JLabel("De");
 		panel_1.add(lblNewLabel_8_1_1, "cell 7 0,alignx left,aligny center");
 		lblNewLabel_8_1_1.setFont(new Font("SansSerif", Font.BOLD, 14));
 
 		menorDataPagamento = new JTextField();
+		menorDataPagamento.setFont(new Font("Arial", Font.BOLD, 16));
 		panel_1.add(menorDataPagamento, "cell 8 0,alignx left,aligny top");
 		menorDataPagamento.setText((String) null);
 		menorDataPagamento.setColumns(10);
@@ -212,16 +231,18 @@ public class TelaFinanceiroParcelas extends JFrame {
 		lblNewLabel_6_1_1.setFont(new Font("SansSerif", Font.BOLD, 14));
 
 		maiorDataPagamento = new JTextField();
+		maiorDataPagamento.setFont(new Font("Arial", Font.BOLD, 16));
 		panel_1.add(maiorDataPagamento, "cell 10 0,alignx left,aligny top");
 		maiorDataPagamento.setText((String) null);
 		maiorDataPagamento.setColumns(10);
 		maiorDataPagamento.setText(pegarDataMais(1));
 
 		JLabel lblNewLabel_1_1_1 = new JLabel("Centro de Custo:");
-		lblNewLabel_1_1_1.setFont(new Font("SansSerif", Font.PLAIN, 12));
+		lblNewLabel_1_1_1.setFont(new Font("SansSerif", Font.PLAIN, 15));
 		panel_1.add(lblNewLabel_1_1_1, "cell 0 1,alignx trailing");
 
 		cbCentroCusto = new JComboBox();
+		cbCentroCusto.setFont(new Font("Arial", Font.BOLD, 16));
 		panel_1.add(cbCentroCusto, "cell 1 1,growx");
 
 		cbCentroCusto.addItemListener(new ItemListener() {
@@ -235,25 +256,28 @@ public class TelaFinanceiroParcelas extends JFrame {
 		});
 
 		JLabel lblNewLabel_1_1_1_1 = new JLabel("Cliente/Fornecedor:");
-		lblNewLabel_1_1_1_1.setFont(new Font("SansSerif", Font.PLAIN, 12));
+		lblNewLabel_1_1_1_1.setFont(new Font("SansSerif", Font.PLAIN, 15));
 		panel_1.add(lblNewLabel_1_1_1_1, "cell 2 1,alignx trailing");
 
 		entClienteFornecedor = new JTextField();
+		entClienteFornecedor.setFont(new Font("Arial", Font.BOLD, 16));
 		panel_1.add(entClienteFornecedor, "cell 3 1,growx");
 		entClienteFornecedor.setColumns(10);
 
 		JLabel lblNewLabel_1_1_1_2 = new JLabel("Grupo Contas:");
-		lblNewLabel_1_1_1_2.setFont(new Font("SansSerif", Font.PLAIN, 12));
+		lblNewLabel_1_1_1_2.setFont(new Font("SansSerif", Font.PLAIN, 15));
 		panel_1.add(lblNewLabel_1_1_1_2, "cell 4 1,alignx trailing");
 
 		cbGrupoConta = new JComboBox();
+		cbGrupoConta.setFont(new Font("Arial", Font.BOLD, 16));
 		panel_1.add(cbGrupoConta, "cell 5 1,growx");
 
 		JLabel lblNewLabel_1_1_1_2_1 = new JLabel("Conta:");
-		lblNewLabel_1_1_1_2_1.setFont(new Font("SansSerif", Font.PLAIN, 12));
+		lblNewLabel_1_1_1_2_1.setFont(new Font("SansSerif", Font.PLAIN, 15));
 		panel_1.add(lblNewLabel_1_1_1_2_1, "cell 6 1,alignx trailing");
 
 		cbConta = new JComboBox();
+		cbConta.setFont(new Font("Arial", Font.BOLD, 16));
 		panel_1.add(cbConta, "cell 7 1,growx");
 
 		JButton btnFiltar = new JButton("Filtrar");
@@ -278,6 +302,18 @@ public class TelaFinanceiroParcelas extends JFrame {
 		btnNewButton.setForeground(Color.WHITE);
 		btnNewButton.setBackground(new Color(0, 0, 102));
 
+		JLabel lblNewLabel_1_1_1_3 = new JLabel("Fluxo de Caixa?:");
+		lblNewLabel_1_1_1_3.setFont(new Font("SansSerif", Font.PLAIN, 15));
+		panel_1.add(lblNewLabel_1_1_1_3, "cell 0 2,alignx trailing");
+
+		cbFluxoCaixa = new JComboBox();
+		cbFluxoCaixa.addItem("TODOS");
+		cbFluxoCaixa.addItem("NÃO");
+		cbFluxoCaixa.addItem("SIM");
+
+		cbFluxoCaixa.setFont(new Font("Arial", Font.BOLD, 16));
+		panel_1.add(cbFluxoCaixa, "cell 1 2,growx");
+
 		JButton btnLimparBusca = new JButton("Limpar Busca");
 		btnLimparBusca.setFont(new Font("SansSerif", Font.PLAIN, 16));
 		panel_1.add(btnLimparBusca, "cell 8 2,alignx left,aligny top");
@@ -300,6 +336,7 @@ public class TelaFinanceiroParcelas extends JFrame {
 				cbConta.setSelectedIndex(0);
 				cbCentroCusto.setSelectedIndex(0);
 				entClienteFornecedor.setText("");
+				cbFluxoCaixa.setSelectedIndex(0);
 
 				pegarDatas();
 
@@ -321,14 +358,52 @@ public class TelaFinanceiroParcelas extends JFrame {
 		tabela_parcela.setRowSorter(sorter);
 		tabela_parcela.setRowHeight(30);
 
+		JPopupMenu jPopupMenu = new JPopupMenu();
+		JMenuItem jMenuItemVizualizar = new JMenuItem();
+
+		jMenuItemVizualizar.setText("Vizualizar");
+
+		jMenuItemVizualizar.addActionListener(new java.awt.event.ActionListener() {
+			// Importe a classe java.awt.event.ActionEvent
+			public void actionPerformed(ActionEvent e) {
+
+				int indiceDaLinha = tabela_parcela.getSelectedRow();
+
+				int indice = tabela_parcela.getRowSorter().convertRowIndexToModel(indiceDaLinha);
+
+				FinanceiroParcelaCompleto parc = (FinanceiroParcelaCompleto) modelo_parcela.getValue(indice);
+
+				String nome_pasta = "lancamento_" + parc.getLancamento().getId_lancamento();
+				String nome_arquivo = parc.getFpc().getCaminho_arquivo();
+
+				String unidade_base_dados = configs_globais.getServidorUnidade();
+				String caminho_completo = unidade_base_dados + "\\" + "E-Contract\\arquivos\\financas\\lancamentos\\"
+						+ nome_pasta + "\\documentos\\" + nome_arquivo;
+
+				if (Desktop.isDesktopSupported()) {
+					try {
+						Desktop desktop = Desktop.getDesktop();
+						File myFile = new File(caminho_completo);
+						desktop.open(myFile);
+					} catch (IOException ex) {
+					}
+				}
+
+			}
+		});
+
+		jPopupMenu.add(jMenuItemVizualizar);
+
+		tabela_parcela.setComponentPopupMenu(jPopupMenu);
+
 		JScrollPane scrollPane = new JScrollPane(tabela_parcela);
 		painelPrinciapl.add(scrollPane, "cell 0 2 3 1,grow");
 
 		JPanel panel_5 = new JPanel();
 		panel_5.setBackground(Color.WHITE);
 		painelPrinciapl.add(panel_5, "cell 0 3 3 2,grow");
-		panel_5.setLayout(
-				new MigLayout("", "[189px][39px][189px][][87.00px][][][][][][][][][][][][][][][][][][]", "[][][18px]"));
+		panel_5.setLayout(new MigLayout("", "[189px][39px][189px][][87.00px][][][][][][][][][][][][][][][][][][]",
+				"[][][18px][][][]"));
 
 		JButton btnAbrirLancamento = new JButton("Abrir");
 		btnAbrirLancamento.addActionListener(new ActionListener() {
@@ -353,34 +428,82 @@ public class TelaFinanceiroParcelas extends JFrame {
 		lblNumTotalPagamentos = new JLabel("");
 		lblNumTotalPagamentos.setFont(new Font("SansSerif", Font.BOLD, 18));
 		panel_5.add(lblNumTotalPagamentos, "cell 1 0");
+
+		JButton btnExportar = new JButton("Exportar");
+		btnExportar.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+
+				ArrayList<FinanceiroParcelaCompleto> parcelas_selecionados = new ArrayList<>();
+				int linhas_selecionadas[] = tabela_parcela.getSelectedRows();// pega o indice da linha na tabela
+
+				for (int i = 0; i < linhas_selecionadas.length; i++) {
+
+					int indice = linhas_selecionadas[i];//
+					int indexRowModel = tabela_parcela.getRowSorter().convertRowIndexToModel(indice);
+
+					FinanceiroParcelaCompleto pagamento = modelo_parcela.getValue(indexRowModel);
+					parcelas_selecionados.add(pagamento);
+				}
+
+				TelaEscolhaRelatorioParcelas escolha_opcoes = new TelaEscolhaRelatorioParcelas(parcelas_selecionados,
+						isto);
+				escolha_opcoes.setVisible(true);
+			}
+		});
+		btnExportar.setForeground(Color.WHITE);
+		btnExportar.setFont(new Font("SansSerif", Font.BOLD, 16));
+		btnExportar.setBackground(new Color(0, 0, 153));
+		panel_5.add(btnExportar, "cell 21 1,alignx right");
 		btnAbrirLancamento.setForeground(Color.WHITE);
 		btnAbrirLancamento.setFont(new Font("SansSerif", Font.BOLD, 16));
-		btnAbrirLancamento.setBackground(new Color(0, 0, 153));
-		panel_5.add(btnAbrirLancamento, "cell 22 1");
+		btnAbrirLancamento.setBackground(new Color(0, 51, 0));
+		panel_5.add(btnAbrirLancamento, "cell 22 1,alignx right");
 
 		JLabel lblNewLabel_1 = new JLabel("Valor Total Parcelas Despesas:");
 		lblNewLabel_1.setFont(new Font("SansSerif", Font.PLAIN, 16));
-		panel_5.add(lblNewLabel_1, "cell 0 2,grow");
+		panel_5.add(lblNewLabel_1, "cell 0 2 1 2,alignx right,growy");
 
 		entValorTotalPagamentoDespesas = new JLabel("R$ 100.000.000,00");
+		entValorTotalPagamentoDespesas.setForeground(new Color(153, 0, 0));
 		entValorTotalPagamentoDespesas.setFont(new Font("SansSerif", Font.BOLD, 18));
 		panel_5.add(entValorTotalPagamentoDespesas, "cell 1 2,alignx center,aligny bottom");
 
 		JLabel lblNewLabel_1_2 = new JLabel("   Valor Total Parcelas Receitas:");
 		lblNewLabel_1_2.setFont(new Font("SansSerif", Font.PLAIN, 16));
-		panel_5.add(lblNewLabel_1_2, "cell 2 2,grow");
+		panel_5.add(lblNewLabel_1_2, "cell 2 2 1 2,alignx right,growy");
 
 		entValorTotalPagamentoReceitas = new JLabel("R$ 100.000.000,00");
+		entValorTotalPagamentoReceitas.setForeground(new Color(0, 51, 0));
 		entValorTotalPagamentoReceitas.setFont(new Font("SansSerif", Font.BOLD, 18));
-		panel_5.add(entValorTotalPagamentoReceitas, "cell 3 2");
+		panel_5.add(entValorTotalPagamentoReceitas, "cell 3 2 1 2");
 
 		JLabel lblNewLabel_1_2_1 = new JLabel("Balanço:");
 		lblNewLabel_1_2_1.setFont(new Font("SansSerif", Font.PLAIN, 16));
-		panel_5.add(lblNewLabel_1_2_1, "cell 4 2,alignx right,growy");
+		panel_5.add(lblNewLabel_1_2_1, "cell 4 2 1 2,alignx right,growy");
 
 		entBalanco = new JLabel("R$ 100.000.000,00");
+		entBalanco.setForeground(new Color(0, 153, 0));
 		entBalanco.setFont(new Font("SansSerif", Font.BOLD, 18));
-		panel_5.add(entBalanco, "cell 5 2");
+		panel_5.add(entBalanco, "cell 5 2 1 2");
+
+		JLabel lblNewLabel_1_4 = new JLabel("Valor Total Parcelas Transferência:");
+		lblNewLabel_1_4.setFont(new Font("SansSerif", Font.PLAIN, 16));
+		panel_5.add(lblNewLabel_1_4, "cell 0 4 1 2,alignx right");
+
+		entValorTotalPagamentoTransferencia = new JLabel("R$ 0,00");
+		entValorTotalPagamentoTransferencia.setForeground(new Color(0, 0, 153));
+		entValorTotalPagamentoTransferencia.setFont(new Font("SansSerif", Font.BOLD, 18));
+		panel_5.add(entValorTotalPagamentoTransferencia, "cell 1 4");
+
+		JLabel lblNewLabel_1_4_1 = new JLabel("Valor Total Parcelas Empréstimo(Despesas):");
+		lblNewLabel_1_4_1.setFont(new Font("SansSerif", Font.PLAIN, 16));
+		panel_5.add(lblNewLabel_1_4_1, "cell 0 6,alignx right");
+
+		entValorTotalPagamentoEmprestimoDespesas = new JLabel("R$ 0,00");
+		entValorTotalPagamentoEmprestimoDespesas.setForeground(new Color(102, 0, 0));
+		entValorTotalPagamentoEmprestimoDespesas.setFont(new Font("SansSerif", Font.BOLD, 18));
+		panel_5.add(entValorTotalPagamentoEmprestimoDespesas, "cell 1 6");
+
 		popular_grupo_contas();
 		popular_contas();
 		popular_centros_custo();
@@ -415,8 +538,7 @@ public class TelaFinanceiroParcelas extends JFrame {
 
 	public void pesquisar() {
 		GerenciarBancoParcelas gerenciar = new GerenciarBancoParcelas();
-		// GerenciarBancoFinanceiroPagamentoEmprestimo gerenciar_emprestimos = new
-		// GerenciarBancoFinanceiroPagamentoEmprestimo();
+		GerenciarBancoParcelasEmprestimo gerenciar_emprestimos = new GerenciarBancoParcelasEmprestimo();
 
 		lista_FinanceiroParcelasCompletos.clear();
 		modelo_parcela.onRemoveAll();
@@ -425,30 +547,21 @@ public class TelaFinanceiroParcelas extends JFrame {
 		for (FinanceiroParcelaCompleto cc : lista_FinanceiroParcelasCompletos) {
 			modelo_parcela.onAdd(cc);
 		}
-		/*
-		 * for (FinanceiroPagamentoCompleto cc :
-		 * gerenciar_emprestimos.getTodosFinanceiroPagamentosEmprestimos()) {
-		 * modelo_parcela.onAdd(cc); }
-		 */
 
 		calcular();
 	}
 
 	public void filtrar() {
 		/*
-		private final int id = 0;
-		private final int tipo_lancamento = 1;
-		private final int id_lancamento = 2;
-		private final int grupo_contas = 3;
-		private final int contas = 4;
-
-		private final int centro_custo = 5;
-		private final int cliente_fornecedor = 6;
-		private final int identificador_geral = 7;
-
-		private final int data_vencimento = 8;
-		private final int valor = 9;
-		private final int status = 10;
+		 * private final int id = 0; private final int tipo_lancamento = 1; private
+		 * final int id_lancamento = 2; private final int grupo_contas = 3; private
+		 * final int contas = 4;
+		 * 
+		 * private final int centro_custo = 5; private final int cliente_fornecedor = 6;
+		 * private final int identificador_geral = 7;
+		 * 
+		 * private final int data_vencimento = 8; private final int valor = 9; private
+		 * final int status = 10;
 		 */
 		ArrayList<RowFilter<Object, Object>> filters = new ArrayList<RowFilter<Object, Object>>(2);
 
@@ -514,7 +627,7 @@ public class TelaFinanceiroParcelas extends JFrame {
 			if (checkString(cbGrupoConta.getSelectedItem().toString())) {
 				s_grupo_contas = cbGrupoConta.getSelectedItem().toString();
 				if (!(s_grupo_contas.equalsIgnoreCase("TODOS")))
-					filters.add(RowFilter.regexFilter(s_grupo_contas,3));
+					filters.add(RowFilter.regexFilter(s_grupo_contas, 3));
 
 			}
 		}
@@ -524,7 +637,7 @@ public class TelaFinanceiroParcelas extends JFrame {
 			if (checkString(cbConta.getSelectedItem().toString())) {
 				s_contas = cbConta.getSelectedItem().toString();
 				if (!(s_contas.equalsIgnoreCase("TODOS"))) {
-					filters.add(RowFilter.regexFilter(s_contas,4));
+					filters.add(RowFilter.regexFilter(s_contas, 4));
 				}
 			}
 		}
@@ -559,6 +672,17 @@ public class TelaFinanceiroParcelas extends JFrame {
 
 		}
 
+		if (cbFluxoCaixa.getSelectedItem().toString() != null) {
+			String s_fluxo = "";
+			if (checkString(cbFluxoCaixa.getSelectedItem().toString())) {
+				s_fluxo = cbFluxoCaixa.getSelectedItem().toString();
+				if (!(s_fluxo.equalsIgnoreCase("TODOS"))) {
+					filters.add(RowFilter.regexFilter(s_fluxo, 11));
+				}
+			}
+
+		}
+
 		sorter.setRowFilter(RowFilter.andFilter(filters));
 		calcular();
 
@@ -569,6 +693,11 @@ public class TelaFinanceiroParcelas extends JFrame {
 		BigDecimal valor_total_despesas = BigDecimal.ZERO;
 		BigDecimal valor_total_receitas = BigDecimal.ZERO;
 		BigDecimal balanco = BigDecimal.ZERO;
+
+		BigDecimal valor_total_transferencias = BigDecimal.ZERO;
+		BigDecimal balanco_emprestimo = BigDecimal.ZERO;
+		BigDecimal valor_total_pagamentos_emprestimo_despesas = BigDecimal.ZERO;
+
 		int num_total_pagamentos = 0;
 
 		for (int row = 0; row < tabela_parcela.getRowCount(); row++) {
@@ -583,10 +712,15 @@ public class TelaFinanceiroParcelas extends JFrame {
 				// receita
 				valor_total_receitas = valor_total_receitas.add(pag.getFpc().getValor());
 
+			} else if (pag.getLancamento().getTipo_lancamento() == 2) {
+				// receita
+				valor_total_transferencias = valor_total_transferencias.add(pag.getFpc().getValor());
+
 			} else if (pag.getLancamento().getTipo_lancamento() == 3) {
 				// emprestimo
 
-				valor_total_receitas = valor_total_receitas.add(pag.getFpc().getValor());
+				valor_total_pagamentos_emprestimo_despesas = valor_total_pagamentos_emprestimo_despesas
+						.add(pag.getFpc().getValor());
 
 			}
 
@@ -596,10 +730,17 @@ public class TelaFinanceiroParcelas extends JFrame {
 
 		Locale ptBr = new Locale("pt", "BR");
 
+		lblNumTotalPagamentos.setText(num_total_pagamentos + "");
+
 		entValorTotalPagamentoDespesas.setText(NumberFormat.getCurrencyInstance(ptBr).format(valor_total_despesas));
 		entValorTotalPagamentoReceitas.setText(NumberFormat.getCurrencyInstance(ptBr).format(valor_total_receitas));
 		entBalanco.setText(NumberFormat.getCurrencyInstance(ptBr).format(balanco));
-		lblNumTotalPagamentos.setText(num_total_pagamentos + "");
+
+		entValorTotalPagamentoTransferencia
+				.setText(NumberFormat.getCurrencyInstance(ptBr).format(valor_total_transferencias));
+		entValorTotalPagamentoEmprestimoDespesas
+				.setText(NumberFormat.getCurrencyInstance(ptBr).format(valor_total_pagamentos_emprestimo_despesas));
+
 	}
 
 	public boolean checkString(String txt) {
@@ -622,11 +763,13 @@ public class TelaFinanceiroParcelas extends JFrame {
 		private final int data_vencimento = 8;
 		private final int valor = 9;
 		private final int status = 10;
+		private final int fluxo = 11;
 
 		List<Color> rowColours = Arrays.asList(Color.RED, Color.GREEN, Color.CYAN);
 
 		private final String colunas[] = { "ID Parc", "Tipo Lançamento", "ID Lanc", "Grupo de Contas", "Contas",
-				"Centro Custo", "Cliente/Fornecedor", "Identificador Geral", "Data Vencimento", "Valor", "Status" };
+				"Centro Custo", "Cliente/Fornecedor", "Identificador Geral", "Data Vencimento", "Valor", "Status",
+				"Fluxo Caixa" };
 		private final ArrayList<FinanceiroParcelaCompleto> dados = new ArrayList<>();// usamos como dados uma lista
 																						// genérica de
 		// nfs
@@ -676,7 +819,8 @@ public class TelaFinanceiroParcelas extends JFrame {
 
 			case status:
 				return String.class;
-
+			case fluxo:
+				return String.class;
 			default:
 				throw new IndexOutOfBoundsException("Coluna Inválida!!!");
 			}
@@ -758,7 +902,14 @@ public class TelaFinanceiroParcelas extends JFrame {
 				}
 
 			}
-
+			case fluxo: {
+				int flux = dado.getFpc().getFluxo_caixa();
+				if (flux == 0) {
+					return "NÃO";
+				} else if (flux == 1) {
+					return "SIM";
+				}
+			}
 			default:
 				throw new IndexOutOfBoundsException("Coluna Inválida!!!");
 			}
@@ -995,6 +1146,16 @@ public class TelaFinanceiroParcelas extends JFrame {
 		for (FinanceiroConta contas : lista_contas) {
 			cbConta.addItem(contas.getNome());
 		}
+
+	}
+
+	public void getDadosGlobais() {
+		// gerenciador de log
+		DadosGlobais dados = DadosGlobais.getInstance();
+		GerenciadorLog = dados.getGerenciadorLog();
+		configs_globais = dados.getConfigs_globais();
+		// usuario logado
+		login = dados.getLogin();
 
 	}
 

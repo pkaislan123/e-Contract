@@ -48,6 +48,7 @@ import main.java.cadastros.CadastroAviso;
 import main.java.cadastros.CadastroCliente;
 import main.java.cadastros.CadastroFuncionario;
 import main.java.cadastros.CadastroFuncionarioAdmissao;
+import main.java.cadastros.CadastroFuncionarioDepartamentos;
 import main.java.cadastros.CadastroContrato;
 import main.java.cadastros.CadastroContrato.CadastroPagamento;
 import main.java.cadastros.CadastroContrato.CadastroPagamentoContratual;
@@ -63,9 +64,12 @@ import main.java.cadastros.ContaBancaria;
 import main.java.cadastros.Contato;
 import main.java.cadastros.RegistroQuantidade;
 import main.java.cadastros.RegistroRecebimento;
+import main.java.classesExtras.ComboBoxPersonalizadoDepartamento;
+import main.java.classesExtras.ComboBoxRenderPersonalizadoDepartamento;
 import main.java.classesExtras.Endereco;
 import main.java.conexaoBanco.GerenciarBancoFuncionarios;
 import main.java.conexaoBanco.GerenciarBancoFuncionariosContratoTrabalho;
+import main.java.conexaoBanco.GerenciarBancoFuncionariosDepartamentos;
 import main.java.conexaoBanco.GerenciarBancoClientes;
 import main.java.conexaoBanco.GerenciarBancoContratos;
 import main.java.conexaoBanco.GerenciarBancoFuncionarios;
@@ -132,9 +136,7 @@ public class TelaFuncionariosCadastroContratoTrabalho extends JFrame {
 	// painel filho1JPanelTransparent
 	private JPanelBackground painelDadosIniciais = new JPanelBackground();
 
-	
-
-	private JTextFieldPersonalizado entCargo, entFuncao,entSalario;
+	private JTextFieldPersonalizado entCargo, entFuncao, entSalario;
 
 	ArrayList<Integer> descontos_a_excluir = new ArrayList<>();
 	ArrayList<Integer> acrescimos_a_excluir = new ArrayList<>();
@@ -145,18 +147,21 @@ public class TelaFuncionariosCadastroContratoTrabalho extends JFrame {
 
 	private JPanel painelCentral = new JPanel();
 	private TelaFuncionariosCadastroContratoTrabalho isto;
-	private JComboBox cBTipoContratoTrabalho;
-	private JTextFieldPersonalizado entDataAdmissao ;
-	 Locale ptBr = new Locale("pt", "BR");
+	private JComboBox cBTipoContratoTrabalho, cBDepartamento;
 
-	
-	public TelaFuncionariosCadastroContratoTrabalho(int flag_tipo_tela,CadastroFuncionario funcionario, CadastroFuncionarioAdmissao contrato, Window janela_pai) {
-	
+	private ComboBoxPersonalizadoDepartamento modelDepartamentos;
+	private ComboBoxRenderPersonalizadoDepartamento renderDepartamento = new ComboBoxRenderPersonalizadoDepartamento();
+	private JTextFieldPersonalizado entDataAdmissao;
+	Locale ptBr = new Locale("pt", "BR");
+
+	public TelaFuncionariosCadastroContratoTrabalho(int flag_tipo_tela, CadastroFuncionario funcionario,
+			CadastroFuncionarioAdmissao contrato, Window janela_pai) {
+
 		String data_atual = new GetData().getData();
 		salario_minimo = new GerenciarBancoSalarioMinimo().getSalarioMinimoVigente(data_atual);
-	
+
 		this.setContentPane(painelDadosIniciais);
-		
+
 		setForeground(new Color(255, 255, 255));
 
 		getDadosGlobais();
@@ -168,13 +173,12 @@ public class TelaFuncionariosCadastroContratoTrabalho extends JFrame {
 		setResizable(false);
 
 		setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-		
+
 		setBounds(100, 100, 656, 400);
-		
+
 		// configuracao de paineis
 		// painel pai
 
-	
 		painelDadosIniciais.setBackground(Color.WHITE);
 
 		// adiciona o painel filho1 no painel principal
@@ -187,71 +191,79 @@ public class TelaFuncionariosCadastroContratoTrabalho extends JFrame {
 		lblCadastro_2_1.setBounds(0, 0, 250, 33);
 		lblCadastro_2_1.setHorizontalAlignment(JLabel.LEFT);
 
-		
 		painelDadosIniciais.setLayout(new BorderLayout(0, 0));
 
 		JPanel panel_3 = new JPanel();
 		painelDadosIniciais.add(panel_3);
 		panel_3.setBackground(Color.WHITE);
-				panel_3.setLayout(new MigLayout("", "[62px][2px][57px][1px][50px][10px][415px][][][]", "[27px][][33px][33px][33px][30px][36px][][]"));
-		
-				JLabel lblCpf = new JLabel("Tipo Contrato Trabalho:");
-				panel_3.add(lblCpf, "cell 4 1,alignx right,aligny center");
-				lblCpf.setHorizontalAlignment(SwingConstants.TRAILING);
-				lblCpf.setForeground(Color.BLACK);
-				lblCpf.setFont(new Font("Arial", Font.PLAIN, 16));
-				lblCpf.setBackground(Color.ORANGE);
-				lblCpf.setHorizontalAlignment(JLabel.RIGHT);
-		
-				cBTipoContratoTrabalho = new JComboBox();
-				cBTipoContratoTrabalho.addItem("Contrato de Trabalho por tempo Indeterminado");
-				cBTipoContratoTrabalho.addItem("Contrato de Trabalho de Experiência");
-				cBTipoContratoTrabalho.addItem("Contrato de Trabalho Eventual");
-				cBTipoContratoTrabalho.addItem("Contrato de Trabalho Temporário");
-				cBTipoContratoTrabalho.addItem("Jovem Aprendiz");
-				cBTipoContratoTrabalho.addItem("Estágio");
-				
-						panel_3.add(cBTipoContratoTrabalho, "cell 6 1,growx,aligny top");
-						cBTipoContratoTrabalho.setFont(new Font("Arial", Font.BOLD, 14));
-		
+		panel_3.setLayout(new MigLayout("", "[62px][2px][57px][1px][50px][10px][415px,grow][][][]",
+				"[27px][][][33px][33px][33px][30px][36px][][]"));
 
-		
-		
+		JLabel lblCpf = new JLabel("Tipo Contrato Trabalho:");
+		panel_3.add(lblCpf, "cell 4 1,alignx right,aligny center");
+		lblCpf.setHorizontalAlignment(SwingConstants.TRAILING);
+		lblCpf.setForeground(Color.BLACK);
+		lblCpf.setFont(new Font("Arial", Font.PLAIN, 16));
+		lblCpf.setBackground(Color.ORANGE);
+		lblCpf.setHorizontalAlignment(JLabel.RIGHT);
+
+		cBTipoContratoTrabalho = new JComboBox();
+		cBTipoContratoTrabalho.addItem("Contrato de Trabalho por tempo Indeterminado");
+		cBTipoContratoTrabalho.addItem("Contrato de Trabalho de Experiência");
+		cBTipoContratoTrabalho.addItem("Contrato de Trabalho Eventual");
+		cBTipoContratoTrabalho.addItem("Contrato de Trabalho Temporário");
+		cBTipoContratoTrabalho.addItem("Jovem Aprendiz");
+		cBTipoContratoTrabalho.addItem("Estágio");
+
+		panel_3.add(cBTipoContratoTrabalho, "cell 6 1,growx,aligny top");
+		cBTipoContratoTrabalho.setFont(new Font("Arial", Font.BOLD, 14));
+
+		JLabel lblDepartamento = new JLabel("Departamento:");
+		lblDepartamento.setHorizontalAlignment(SwingConstants.TRAILING);
+		lblDepartamento.setForeground(Color.BLACK);
+		lblDepartamento.setFont(new Font("Arial", Font.PLAIN, 16));
+		lblDepartamento.setBackground(Color.ORANGE);
+		panel_3.add(lblDepartamento, "cell 4 2,alignx right");
+
+		modelDepartamentos = new ComboBoxPersonalizadoDepartamento();
+		cBDepartamento = new JComboBox();
+		cBDepartamento.setModel(modelDepartamentos);
+		cBDepartamento.setRenderer(renderDepartamento);
+		cBDepartamento.setFont(new Font("Arial", Font.BOLD, 14));
+		panel_3.add(cBDepartamento, "cell 6 2,growx");
+
 		JLabel lblCargo = new JLabel("Cargo:");
 		lblCargo.setHorizontalAlignment(SwingConstants.TRAILING);
 		lblCargo.setForeground(Color.BLACK);
 		lblCargo.setFont(new Font("Arial", Font.PLAIN, 16));
 		lblCargo.setBackground(Color.ORANGE);
-		panel_3.add(lblCargo, "cell 0 2 6 1,alignx right,aligny center");
-		
-		
-		
-		
-		 entCargo = new JTextFieldPersonalizado();
+		panel_3.add(lblCargo, "cell 0 3 6 1,alignx right,aligny center");
+
+		entCargo = new JTextFieldPersonalizado();
 		entCargo.setForeground(Color.black);
-		panel_3.add(entCargo, "cell 6 2,growx,aligny top");
-		
+		panel_3.add(entCargo, "cell 6 3,growx,aligny top");
+
 		JLabel lblOcupao_1_1 = new JLabel("Função:");
 		lblOcupao_1_1.setHorizontalAlignment(SwingConstants.TRAILING);
 		lblOcupao_1_1.setForeground(Color.BLACK);
 		lblOcupao_1_1.setFont(new Font("Arial", Font.PLAIN, 16));
 		lblOcupao_1_1.setBackground(Color.ORANGE);
-		panel_3.add(lblOcupao_1_1, "cell 0 3 6 1,alignx right,aligny center");
-		
-		 entFuncao = new JTextFieldPersonalizado();
+		panel_3.add(lblOcupao_1_1, "cell 0 4 6 1,alignx right,aligny center");
+
+		entFuncao = new JTextFieldPersonalizado();
 		entFuncao.setForeground(Color.black);
-		panel_3.add(entFuncao, "cell 6 3,growx,aligny top");
+		panel_3.add(entFuncao, "cell 6 4,growx,aligny top");
 
 		JLabel lblDataNascimento = new JLabel("Data Admissão:");
-		panel_3.add(lblDataNascimento, "cell 0 6 6 1,alignx right,aligny center");
+		panel_3.add(lblDataNascimento, "cell 0 7 6 1,alignx right,aligny center");
 		lblDataNascimento.setHorizontalAlignment(SwingConstants.TRAILING);
 		lblDataNascimento.setForeground(Color.BLACK);
 		lblDataNascimento.setFont(new Font("Arial", Font.PLAIN, 16));
 		lblDataNascimento.setBackground(Color.ORANGE);
 		lblDataNascimento.setHorizontalAlignment(JLabel.LEFT);
 
-		 entDataAdmissao = new JTextFieldPersonalizado();
-		panel_3.add(entDataAdmissao, "cell 6 6,growx,aligny top");
+		entDataAdmissao = new JTextFieldPersonalizado();
+		panel_3.add(entDataAdmissao, "cell 6 7,growx,aligny top");
 		entDataAdmissao.setForeground(Color.BLACK);
 		entDataAdmissao.setFont(new Font("Arial", Font.BOLD, 20));
 		entDataAdmissao.addKeyListener(new KeyAdapter() {
@@ -270,7 +282,7 @@ public class TelaFuncionariosCadastroContratoTrabalho extends JFrame {
 					}
 
 					if (entDataAdmissao.getText().length() >= 10) {
-						
+
 						evt.consume();
 						entDataAdmissao.setText(entDataAdmissao.getText().substring(0, 10));
 					}
@@ -280,18 +292,18 @@ public class TelaFuncionariosCadastroContratoTrabalho extends JFrame {
 			}
 		});
 		entDataAdmissao.setColumns(10);
-		
-				JLabel lblOcupao = new JLabel("Salário:");
-				panel_3.add(lblOcupao, "cell 0 4 6 1,alignx right,aligny center");
-				lblOcupao.setHorizontalAlignment(SwingConstants.TRAILING);
-				lblOcupao.setForeground(Color.BLACK);
-				lblOcupao.setFont(new Font("Arial", Font.PLAIN, 16));
-				lblOcupao.setBackground(Color.ORANGE);
-				lblOcupao.setHorizontalAlignment(JLabel.LEFT);
+
+		JLabel lblOcupao = new JLabel("Salário:");
+		panel_3.add(lblOcupao, "cell 0 5 6 1,alignx right,aligny center");
+		lblOcupao.setHorizontalAlignment(SwingConstants.TRAILING);
+		lblOcupao.setForeground(Color.BLACK);
+		lblOcupao.setFont(new Font("Arial", Font.PLAIN, 16));
+		lblOcupao.setBackground(Color.ORANGE);
+		lblOcupao.setHorizontalAlignment(JLabel.LEFT);
 
 		JPanel panel = new JPanel();
 		panel.setBackground(Color.WHITE);
-		panel_3.add(panel, "cell 5 5 2 1,alignx left,aligny top");
+		panel_3.add(panel, "cell 5 6 2 1,alignx left,aligny top");
 		panel.setLayout(new MigLayout("", "[][]", "[]"));
 
 		JLabel lblNewLabel = new JLabel("Valor Sálario Minimo:");
@@ -303,92 +315,98 @@ public class TelaFuncionariosCadastroContratoTrabalho extends JFrame {
 		lblValorSalarioMinimo.setFont(new Font("SansSerif", Font.BOLD, 12));
 		lblValorSalarioMinimo.setForeground(Color.BLACK);
 		panel.add(lblValorSalarioMinimo, "cell 1 0");
-		
-		 entSalario = new JTextFieldPersonalizado();
+
+		entSalario = new JTextFieldPersonalizado();
 		entSalario.setForeground(Color.black);
-		panel_3.add(entSalario, "cell 6 4,growx,aligny top");
-		
+		panel_3.add(entSalario, "cell 6 5,growx,aligny top");
+
 		JButton btnAtualizar = new JButton("Atualizar");
 		btnAtualizar.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				
-				
+
 				CadastroFuncionarioAdmissao cad = getDadosAtualizar(contrato);
-				if(cad != null) {
+				if (cad != null) {
 					cad.setId_colaborador(funcionario.getId_funcionario());
 
 					GerenciarBancoFuncionariosContratoTrabalho gerenciar = new GerenciarBancoFuncionariosContratoTrabalho();
 					boolean atualizou = gerenciar.atualizarcontrato(cad);
-					if(atualizou) {
-						JOptionPane.showMessageDialog(isto, "Contrato de Trabalho Atualizado!\nConsulte o administrador");
+					if (atualizou) {
+						JOptionPane.showMessageDialog(isto,
+								"Contrato de Trabalho Atualizado!\nConsulte o administrador");
 						((TelaGerenciarFuncionario) janela_pai).pesquisar_contratos();
 
 						isto.dispose();
-						
-					}else {
+
+					} else {
 						JOptionPane.showMessageDialog(isto, "Erro ao Atualizar!\nConsulte o administrador");
 					}
-					
+
 				}
-				
+
 			}
 		});
 		btnAtualizar.setForeground(Color.WHITE);
 		btnAtualizar.setFont(new Font("SansSerif", Font.BOLD, 16));
 		btnAtualizar.setBackground(Color.BLUE);
-		panel_3.add(btnAtualizar, "flowx,cell 6 8,alignx right");
-		
+		panel_3.add(btnAtualizar, "flowx,cell 6 9,alignx right");
+
 		JButton btnSalvar = new JButton("Salvar");
 		btnSalvar.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				
+
 				CadastroFuncionarioAdmissao cad = getDadosSalvar();
-				if(cad != null) {
+				if (cad != null) {
 					cad.setId_colaborador(funcionario.getId_funcionario());
 					GerenciarBancoFuncionariosContratoTrabalho gerenciar = new GerenciarBancoFuncionariosContratoTrabalho();
 					int inseriu = gerenciar.inserircontrato(cad);
-					if(inseriu > 0) {
+					if (inseriu > 0) {
 						JOptionPane.showMessageDialog(isto, "Contrato de Trabalho Inserido!\nConsulte o administrador");
 						((TelaGerenciarFuncionario) janela_pai).pesquisar_contratos();
 						isto.dispose();
-						
-					}else {
+
+					} else {
 						JOptionPane.showMessageDialog(isto, "Erro ao salvar!\nConsulte o administrador");
 					}
-					
+
 				}
 			}
 		});
 		btnSalvar.setForeground(Color.WHITE);
 		btnSalvar.setBackground(new Color(0, 51, 0));
 		btnSalvar.setFont(new Font("SansSerif", Font.BOLD, 16));
-		panel_3.add(btnSalvar, "cell 6 8");
+		panel_3.add(btnSalvar, "cell 6 9");
 		painelCentral.setLayout(new BorderLayout(0, 0));
 
 		// configura widgets no painel finalizar
 
-
 		if (flag_tipo_tela == 0) {
 			setTitle("E-Contract - Novo Contrato de Trabalho");
-		
+
 			btnAtualizar.setEnabled(false);
 			btnAtualizar.setVisible(false);
-			
-		}
-		else if (flag_tipo_tela == 1) {
+
+		} else if (flag_tipo_tela == 1) {
 			setTitle("E-Contract - Edição de Contrato de Trabalho");
 
 			btnSalvar.setEnabled(false);
 			btnSalvar.setVisible(false);
-			
+
 			rotinasEdicao(contrato);
-			
+
 		}
-		
-		
+		pesquisarDepartamentos();
 		adicionarFocus(isto.getComponents());
 
 		this.setLocationRelativeTo(janela_pai);
+
+	}
+
+	public void pesquisarDepartamentos() {
+		GerenciarBancoFuncionariosDepartamentos gerenciar = new GerenciarBancoFuncionariosDepartamentos();
+		ArrayList<CadastroFuncionarioDepartamentos> deps = gerenciar.getDepartamentos();
+		for (CadastroFuncionarioDepartamentos dep : deps) {
+			modelDepartamentos.addCC(dep);
+		}
 
 	}
 
@@ -423,8 +441,6 @@ public class TelaFuncionariosCadastroContratoTrabalho extends JFrame {
 		}
 	}
 
-	
-
 	public void getDadosGlobais() {
 		// gerenciador de log
 		DadosGlobais dados = DadosGlobais.getInstance();
@@ -439,40 +455,53 @@ public class TelaFuncionariosCadastroContratoTrabalho extends JFrame {
 	public void setTelaPai(JDialog tela_pai) {
 		this.telaPai = tela_pai;
 	}
-	
-	
 
 	public CadastroFuncionarioAdmissao getDadosAtualizar(CadastroFuncionarioAdmissao cad_antigo) {
 		CadastroFuncionarioAdmissao cad = new CadastroFuncionarioAdmissao();
-		
+
 		cad.setId_contrato(cad_antigo.getId_contrato());
-		
+
 		String tipo_contrato, data_admissao, cargo, funcao;
 		double salario;
-		
+
 		tipo_contrato = cBTipoContratoTrabalho.getSelectedItem().toString();
-		
+
 		cargo = entCargo.getText();
 		funcao = entFuncao.getText();
 		data_admissao = entDataAdmissao.getText();
-		
+
 		cad.setCargo(cargo);
 		cad.setFuncao(funcao);
 		cad.setStatus(1);
 		cad.setTipo_contrato(tipo_contrato);
 
-		
 		try {
-			
+
+			CadastroFuncionarioDepartamentos dep = (CadastroFuncionarioDepartamentos) modelDepartamentos
+					.getSelectedItem();
+			if (dep != null) {
+				cad.setId_departamento(dep.getId());
+			} else {
+				JOptionPane.showMessageDialog(isto, "Selecione o Departamento!");
+				return null;
+			}
+
+		} catch (Exception e) {
+			JOptionPane.showMessageDialog(isto, "Selecione o Departamento!");
+			return null;
+		}
+
+		try {
+
 			salario = Double.parseDouble(entSalario.getText());
-			
+
 			cad.setSalario(salario);
-			
-		}catch(Exception e) {
+
+		} catch (Exception e) {
 			JOptionPane.showMessageDialog(isto, "Valor do Salário Invalido!");
 			return null;
 		}
-		
+
 		try {
 
 			if (!isDateValid(data_admissao)) {
@@ -490,39 +519,53 @@ public class TelaFuncionariosCadastroContratoTrabalho extends JFrame {
 			JOptionPane.showMessageDialog(isto, "Data da Admissão Inválida");
 			return null;
 		}
-		
+
 	}
-	
-	
+
 	public CadastroFuncionarioAdmissao getDadosSalvar() {
 		CadastroFuncionarioAdmissao cad = new CadastroFuncionarioAdmissao();
-		
-		
+
 		String tipo_contrato, data_admissao, cargo, funcao;
 		double salario;
-		
+
 		tipo_contrato = cBTipoContratoTrabalho.getSelectedItem().toString();
-		
+
 		cargo = entCargo.getText();
 		funcao = entFuncao.getText();
 		data_admissao = entDataAdmissao.getText();
-		
+
 		cad.setCargo(cargo);
 		cad.setFuncao(funcao);
 		cad.setTipo_contrato(tipo_contrato);
 		cad.setStatus(1);
-		
+
 		try {
-			
+
+			CadastroFuncionarioDepartamentos dep = (CadastroFuncionarioDepartamentos) modelDepartamentos
+					.getSelectedItem();
+			if (dep != null) {
+				cad.setId_departamento(dep.getId());
+			} else {
+				JOptionPane.showMessageDialog(isto, "Selecione o Departamento!");
+				return null;
+			}
+
+		} catch (Exception e) {
+			JOptionPane.showMessageDialog(isto, "Selecione o Departamento!");
+			return null;
+		}
+
+		try {
+
 			salario = Double.parseDouble(entSalario.getText());
-			
+
 			cad.setSalario(salario);
-			
-		}catch(Exception e) {
+
+		} catch (Exception e) {
 			JOptionPane.showMessageDialog(isto, "Valor do Salário Invalido!");
 			return null;
 		}
-		
+
 		try {
 
 			if (!isDateValid(data_admissao)) {
@@ -540,9 +583,9 @@ public class TelaFuncionariosCadastroContratoTrabalho extends JFrame {
 			JOptionPane.showMessageDialog(isto, "Data da Admissão Inválida");
 			return null;
 		}
-		
+
 	}
-	
+
 	public static boolean isDateValid(String strDate) {
 		String dateFormat = "dd/MM/uuuu";
 
@@ -555,16 +598,15 @@ public class TelaFuncionariosCadastroContratoTrabalho extends JFrame {
 			return false;
 		}
 	}
-	
+
 	public void rotinasEdicao(CadastroFuncionarioAdmissao cad) {
-		
+
 		entDataAdmissao.setText(cad.getData_admissao());
 		entCargo.setText(cad.getCargo());
 		entFuncao.setText(cad.getFuncao());
 		entSalario.setText(Double.toString(cad.getSalario()));
 		cBTipoContratoTrabalho.setSelectedItem(cad.getTipo_contrato());
 		
-		
 	}
-	
+
 }

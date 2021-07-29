@@ -358,8 +358,9 @@ public class TelaGerenciarContrato extends JFrame {
 	private final JLabel lblStatusContrato = new JLabel("Status do Contrato:");
 	private final JLabel lblValorTotalPagamentos, lblTotalTransferenciasRecebidas, lblTotalTransferenciasRetiradas;
 	InputStream stream = null;
+	private JLabel lblPesoTotalRecebimentoTransPositivo;
 	private final JButton btnEditarContrato = new JButton("Editar");
-
+	private JLabel lblPesoTotalRecebimentoTransNegativo;
 	private JPanel painel_vizualizar;
 	private final JButton btnEnviarMsg = new JButton("Enviar"), btnCriarAditivo, btnRevogarAssinatura;
 	private final JLabel lblNewLabel = new JLabel("     Modelos de Pagamento");
@@ -381,20 +382,23 @@ public class TelaGerenciarContrato extends JFrame {
 	private CadastroProduto produto = new CadastroProduto();
 	private CadastroContrato.Carregamento carregamento_confirmar = new CadastroContrato.Carregamento();
 
-	private JButton btnReabrir,	 btnCancelarContrato;
+	private JButton btnReabrir, btnCancelarContrato;
 	private ArrayList<CadastroContrato.CadastroTarefa> lista_tarefas = null;
 	private ArrayList<CadastroContrato.Carregamento> lista_carregamentos = null;
 	private ArrayList<CadastroContrato.Recebimento> lista_recebimentos = null;
-	private ArrayList<CadastroTransferenciaRecebimento> lista_replicacoes_recebimento = null;
 
 	private ArrayList<PagamentoCompleto> lista_pagamentos_contratuais = null;
 	private ArrayList<CadastroContrato.CadastroTransferenciaPagamentoContratual> lista_transferencias_contratuais_remetente = null;
 	private ArrayList<CadastroContrato.CadastroTransferenciaPagamentoContratual> lista_transferencias_contratuais_destinatario = null;
 
+	private ArrayList<CadastroTransferenciaRecebimento> lista_transferencias_recebimento_remetente = null;
+	private ArrayList<CadastroTransferenciaRecebimento> lista_transferencias_recebimento_destinatario = null;
+
 	private ArrayList<CadastroContrato.CadastroTransferenciaCarga> lista_transferencias_carga_remetente = null;
 	private ArrayList<CadastroContrato.CadastroTransferenciaCarga> lista_transferencias_carga_destinatario = null;
 
 	private JPopupMenu jPopupMenuTabelCarregamento;
+	private JPopupMenu jPopupMenuTabelRecebimento;
 	private JPopupMenu jPopupMenuTabelPagamentos;
 	private JPopupMenu jPopupMenuDocumentos;
 	private JPopupMenu jPopupMenuTabelAditivos;
@@ -457,7 +461,7 @@ public class TelaGerenciarContrato extends JFrame {
 	private JTable table_pagamentos_contratuais;
 
 	private JLabel lblTotalPagamentosRestantes, lblTotalPagamentosEfetuados, lblTotalPagamentos;
-
+	private double peso_total_recebimentos_trans_negativo, peso_total_recebimentos_trans_positivo;
 	private PainelInformativo painel_informacoes_tab_principal, painel_informacoes_tab_pagamentos;
 	private JTextField entCaminhoDocumento;
 	private JTextField entNomeDocumento;
@@ -553,6 +557,7 @@ public class TelaGerenciarContrato extends JFrame {
 		modelo_tarefas.addColumn("Prioridade");
 
 		setMenuCarregamento();
+		setMenuRecebimento();
 
 		painel_informacoes_tab_pagamentos = new PainelInformativo();
 
@@ -598,8 +603,8 @@ public class TelaGerenciarContrato extends JFrame {
 
 		// painelRecebimentoEntrada.add(painel_pai_recebimentos);
 		painelRecebimentoEntrada.add(scroll_painel_pai_recebimentos);
-		painel_pai_recebimentos.setLayout(new MigLayout("", "[194px][12px][49px][36px][320px][12px][123px][9px][372px]",
-				"[156px][24px][188px,grow][73px][31px][140px]"));
+		painel_pai_recebimentos.setLayout(new MigLayout("", "[194px][12px][49px][36px][320px][12px][123px][9px][grow]",
+				"[156px][24px][grow][73px][31px][140px]"));
 
 		JPanel panel_5 = new JPanel();
 		panel_5.setBackground(Color.WHITE);
@@ -720,7 +725,19 @@ public class TelaGerenciarContrato extends JFrame {
 
 		table_recebimentos.setRowHeight(30);
 
+		table_recebimentos.addMouseListener(new java.awt.event.MouseAdapter() {
+			// Importe a classe java.awt.event.MouseEvent
+			public void mouseClicked(MouseEvent e) {
+				// Se o botão direito do mouse foi pressionado
+				if (e.getButton() == MouseEvent.BUTTON3) {
+					// Exibe o popup menu na posição do mouse.
+					jPopupMenuTabelRecebimento.show(table_recebimentos, e.getX(), e.getY());
+				}
+			}
+		});
+
 		JScrollPane scrollPaneRomaneios = new JScrollPane(table_recebimentos);
+		scrollPaneRomaneios.getViewport().setBackground(Color.white);
 		panel_1.add(scrollPaneRomaneios);
 
 		JPanel lbl_produto_aba_recebimento = new JPanel();
@@ -814,25 +831,32 @@ public class TelaGerenciarContrato extends JFrame {
 		JPanel panel_9 = new JPanel();
 		panel_9.setBackground(Color.WHITE);
 		painel_pai_recebimentos.add(panel_9, "cell 8 3,growx,aligny top");
-		panel_9.setLayout(new MigLayout("", "[][][][][][][][][][][][][]", "[]"));
+		panel_9.setLayout(new MigLayout("", "[][][][][][][][][][][][][][]", "[]"));
 
-		JButton btnExportarRecebimentos_1_1 = new JButton("Replicar");
+		JButton btnExportarRecebimentos_1_1 = new JButton("Transferir");
+		btnExportarRecebimentos_1_1.setBackground(new Color(0, 0, 102));
+		btnExportarRecebimentos_1_1.setForeground(Color.WHITE);
+		btnExportarRecebimentos_1_1.setFont(new Font("SansSerif", Font.BOLD, 16));
 		btnExportarRecebimentos_1_1.addActionListener(new ActionListener() {
 
 			public void actionPerformed(ActionEvent e) {
 				int tipo = contrato.getSub_contrato();
 				if (tipo == 0 || tipo == 3 || tipo == 4 || tipo == 5) {
-					TelaReplicarRecebimento tela = new TelaReplicarRecebimento(contrato_local, isto);
+					TelaConfirmarTransferenciaRecebimento tela = new TelaConfirmarTransferenciaRecebimento(
+							contrato_local, isto);
 					tela.setVisible(true);
 				} else {
-					JOptionPane.showMessageDialog(isto, "Somente no contrato original é possivel realizar replicação");
+					JOptionPane.showMessageDialog(isto,
+							"Somente no contrato original é possivel realizar transferência");
 				}
 			}
 		});
-		panel_9.add(btnExportarRecebimentos_1_1, "cell 6 0");
 
 		JButton btnExportarRecebimentos = new JButton("Exportar");
-		panel_9.add(btnExportarRecebimentos, "cell 9 0");
+		btnExportarRecebimentos.setBackground(new Color(0, 51, 102));
+		btnExportarRecebimentos.setForeground(Color.WHITE);
+		btnExportarRecebimentos.setFont(new Font("SansSerif", Font.BOLD, 16));
+		panel_9.add(btnExportarRecebimentos, "cell 7 0");
 		btnExportarRecebimentos.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				HSSFWorkbook workbook = new HSSFWorkbook();
@@ -1462,9 +1486,13 @@ public class TelaGerenciarContrato extends JFrame {
 
 			}
 		});
+		panel_9.add(btnExportarRecebimentos_1_1, "cell 10 0");
 
 		JButton btnExcluirRecebimento = new JButton("Excluir");
-		panel_9.add(btnExcluirRecebimento, "cell 10 0");
+		btnExcluirRecebimento.setBackground(new Color(153, 0, 0));
+		btnExcluirRecebimento.setForeground(Color.WHITE);
+		btnExcluirRecebimento.setFont(new Font("SansSerif", Font.BOLD, 16));
+		panel_9.add(btnExcluirRecebimento, "cell 11 0");
 		btnExcluirRecebimento.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 
@@ -1477,36 +1505,25 @@ public class TelaGerenciarContrato extends JFrame {
 
 				String descricao = table_recebimentos.getValueAt(rowSel, 2).toString();
 
-				if (!(descricao.equalsIgnoreCase("Replica"))) {
-					boolean excluir = gerenciar_contratos.removerRecebimento(contrato_local.getId(),
-							recebimento_excluir.getId_recebimento());
+				if (descricao != null && !descricao.equalsIgnoreCase("-Transferencia")
+						&& !descricao.equalsIgnoreCase("+Transferencia")) {
 
-					if (excluir) {
+					if (JOptionPane.showConfirmDialog(isto, "Deseja excluir este recebimento?", "Excluir Recebimento",
+							JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE) == JOptionPane.YES_OPTION) {
 
-						// deletar o diretorio do recebimento
-						String diretorio_contrato = servidor_unidade + contrato_local.getCaminho_diretorio_contrato()
-								+ "\\recebimentos";
-						String diretorio_recebimento = diretorio_contrato + "\\recebimento_"
-								+ recebimento_excluir.getId_recebimento();
+						boolean excluir = gerenciar_contratos.removerRecebimento(contrato_local.getId(),
+								recebimento_excluir.getId_recebimento());
 
-						ManipularTxt manipular = new ManipularTxt();
-						boolean deletar = manipular.limparDiretorio(new File(diretorio_recebimento));
-						if (deletar) {
-							JOptionPane.showMessageDialog(isto, "Recebimento Excluido");
-						} else {
-							JOptionPane.showMessageDialog(isto,
-									"Recebimento Excluido, mas a pasta do recebimento ainda existe\nConsulte o administrador");
+						if (excluir) {
 
-						}
-
-						if (contrato_local.getCaminho_diretorio_contrato2() != null) {
-							// deletar o direotiro do recebimento do contrato 2
-							String diretorio_contrato2 = servidor_unidade
-									+ contrato_local.getCaminho_diretorio_contrato2() + "\\recebimentos";
-							String diretorio_recebimento2 = diretorio_contrato + "\\recebimento_"
+							// deletar o diretorio do recebimento
+							String diretorio_contrato = servidor_unidade
+									+ contrato_local.getCaminho_diretorio_contrato() + "\\recebimentos";
+							String diretorio_recebimento = diretorio_contrato + "\\recebimento_"
 									+ recebimento_excluir.getId_recebimento();
 
-							deletar = manipular.limparDiretorio(new File(diretorio_recebimento2));
+							ManipularTxt manipular = new ManipularTxt();
+							boolean deletar = manipular.limparDiretorio(new File(diretorio_recebimento));
 							if (deletar) {
 								JOptionPane.showMessageDialog(isto, "Recebimento Excluido");
 							} else {
@@ -1514,15 +1531,57 @@ public class TelaGerenciarContrato extends JFrame {
 										"Recebimento Excluido, mas a pasta do recebimento ainda existe\nConsulte o administrador");
 
 							}
+
+							if (contrato_local.getCaminho_diretorio_contrato2() != null) {
+								// deletar o direotiro do recebimento do contrato 2
+								String diretorio_contrato2 = servidor_unidade
+										+ contrato_local.getCaminho_diretorio_contrato2() + "\\recebimentos";
+								String diretorio_recebimento2 = diretorio_contrato + "\\recebimento_"
+										+ recebimento_excluir.getId_recebimento();
+
+								deletar = manipular.limparDiretorio(new File(diretorio_recebimento2));
+								if (deletar) {
+									JOptionPane.showMessageDialog(isto, "Recebimento Excluido");
+								} else {
+									JOptionPane.showMessageDialog(isto,
+											"Recebimento Excluido, mas a pasta do recebimento ainda existe\nConsulte o administrador");
+
+								}
+							}
+
+							pesquisar_recebimentos(true);
+						} else {
+							JOptionPane.showMessageDialog(isto,
+									"Erro ao excluir recebimentos\nConsulte o administrador");
+
 						}
-
-						pesquisar_recebimentos(true);
-					} else {
-						JOptionPane.showMessageDialog(isto, "Erro ao excluir recebimentos\nConsulte o administrador");
-
 					}
-				} else {
-					JOptionPane.showMessageDialog(isto, "Exclua essa replica no contrato de origem");
+				} else if (descricao.equalsIgnoreCase("+Transferencia")) {
+					JOptionPane.showMessageDialog(isto, "Exclua essa transferência no contrato de origem");
+				} else if (descricao.equalsIgnoreCase("-Transferencia")) {
+
+					if (JOptionPane.showConfirmDialog(isto, "Deseja excluir esta transferência?",
+							"Excluir Transfêrencia", JOptionPane.YES_NO_OPTION,
+							JOptionPane.QUESTION_MESSAGE) == JOptionPane.YES_OPTION) {
+
+						GerenciarBancoTransferenciaRecebimento gerenciar_transferencia = new GerenciarBancoTransferenciaRecebimento();
+
+						boolean excluir = gerenciar_transferencia
+								.removerTransferencia(recebimento_excluir.getId_recebimento());
+
+						if (excluir) {
+
+							JOptionPane.showMessageDialog(isto,
+									"Recebimento Excluido, mas a pasta do recebimento ainda existe\nConsulte o administrador");
+
+							pesquisar_recebimentos(true);
+						} else {
+							JOptionPane.showMessageDialog(isto,
+									"Erro ao excluir recebimentos\nConsulte o administrador");
+
+						}
+					}
+
 				}
 
 			}
@@ -1530,28 +1589,40 @@ public class TelaGerenciarContrato extends JFrame {
 		botoes.add(btnExcluirRecebimento);
 
 		JButton btnEditar = new JButton("Editar");
-		panel_9.add(btnEditar, "cell 11 0");
+		btnEditar.setBackground(new Color(255, 102, 0));
+		btnEditar.setForeground(Color.WHITE);
+		btnEditar.setFont(new Font("SansSerif", Font.BOLD, 16));
+		panel_9.add(btnEditar, "cell 12 0");
 		btnEditar.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				int rowSel = table_recebimentos.getSelectedRow();// pega o indice da linha na tabela
 
 				String descricao = table_recebimentos.getValueAt(rowSel, 2).toString();
-				int tipo = contrato_local.getSub_contrato();
-				if (descricao.equalsIgnoreCase("Replica") && (tipo != 0 || tipo != 3 || tipo != 5 || tipo != 4)) {
-					JOptionPane.showMessageDialog(null, "Edite a replica no contrato de origem");
+
+				if (descricao != null && (descricao.equalsIgnoreCase("-Transferencia")
+						|| descricao.equalsIgnoreCase("+Transferencia"))) {
+
+					JOptionPane.showMessageDialog(isto, "Não é possível editar uma transfêrencia");
+
 				} else {
+					int tipo = contrato_local.getSub_contrato();
 
 					TelaConfirmarRecebimento tela = new TelaConfirmarRecebimento(1, lista_recebimentos.get(rowSel),
 							contrato_local, isto);
 					tela.setTelaPai(isto);
 					tela.setVisible(true);
+
 				}
+
 			}
 		});
 		botoes.add(btnEditar);
 
 		JButton btnAdicionarRecebimento = new JButton("Adicionar");
-		panel_9.add(btnAdicionarRecebimento, "cell 12 0");
+		btnAdicionarRecebimento.setBackground(new Color(0, 51, 0));
+		btnAdicionarRecebimento.setForeground(Color.WHITE);
+		btnAdicionarRecebimento.setFont(new Font("SansSerif", Font.BOLD, 16));
+		panel_9.add(btnAdicionarRecebimento, "cell 13 0");
 		botoes.add(btnAdicionarRecebimento);
 
 		btnAdicionarRecebimento.addActionListener(new ActionListener() {
@@ -1624,33 +1695,55 @@ public class TelaGerenciarContrato extends JFrame {
 		JPanel panel_11 = new JPanel();
 		panel_11.setBackground(Color.WHITE);
 		painel_pai_recebimentos.add(panel_11, "cell 0 5 3 1,alignx right,aligny top");
-		panel_11.setLayout(new MigLayout("", "[][]", "[][][][][]"));
+		panel_11.setLayout(new MigLayout("", "[][]", "[][][][][][][]"));
 
 		JLabel lblNewLabel_3_2 = new JLabel("Recebimentos:");
+		lblNewLabel_3_2.setFont(new Font("Arial", Font.PLAIN, 16));
 		panel_11.add(lblNewLabel_3_2, "cell 0 0");
 
 		JLabel lblNewLabel_12_1 = new JLabel("Total:");
-		panel_11.add(lblNewLabel_12_1, "cell 0 1");
+		lblNewLabel_12_1.setFont(new Font("Arial", Font.PLAIN, 16));
+		panel_11.add(lblNewLabel_12_1, "cell 0 1,alignx right");
 
 		lblPesoTotalContrato = new JLabel("0.0 KG");
 		panel_11.add(lblPesoTotalContrato, "cell 1 1");
-		lblPesoTotalContrato.setFont(new Font("Tahoma", Font.BOLD, 11));
+		lblPesoTotalContrato.setFont(new Font("Arial", Font.BOLD, 16));
 		lblPesoTotalContrato.setBorder(new LineBorder(new Color(0, 0, 0)));
 
 		JLabel lblNewLabel_13_3 = new JLabel("Total Recebido:");
-		panel_11.add(lblNewLabel_13_3, "cell 0 2");
+		lblNewLabel_13_3.setFont(new Font("Arial", Font.PLAIN, 16));
+		panel_11.add(lblNewLabel_13_3, "cell 0 2,alignx right");
 
 		lblPesoTotalRecebido = new JLabel("0.0 Kg");
 		panel_11.add(lblPesoTotalRecebido, "cell 1 2");
-		lblPesoTotalRecebido.setFont(new Font("Tahoma", Font.BOLD, 11));
+		lblPesoTotalRecebido.setFont(new Font("Arial", Font.BOLD, 16));
 		lblPesoTotalRecebido.setBorder(new LineBorder(new Color(0, 0, 0)));
 
+		JLabel lblNewLabel_13_4 = new JLabel("Transfêrencias(-):");
+		lblNewLabel_13_4.setFont(new Font("Arial", Font.PLAIN, 16));
+		panel_11.add(lblNewLabel_13_4, "cell 0 3,alignx right");
+
+		lblPesoTotalRecebimentoTransNegativo = new JLabel("0.0 Kg");
+		panel_11.add(lblPesoTotalRecebimentoTransNegativo, "cell 1 3");
+		lblPesoTotalRecebimentoTransNegativo.setFont(new Font("Arial", Font.BOLD, 16));
+		lblPesoTotalRecebimentoTransNegativo.setBorder(new LineBorder(new Color(0, 0, 0)));
+
+		JLabel lblNewLabel_13_8 = new JLabel("Transfêrencias(+):");
+		lblNewLabel_13_8.setFont(new Font("Arial", Font.PLAIN, 16));
+		panel_11.add(lblNewLabel_13_8, "cell 0 4,alignx right");
+
+		lblPesoTotalRecebimentoTransPositivo = new JLabel("0.0 Kg");
+		panel_11.add(lblPesoTotalRecebimentoTransPositivo, "cell 1 4");
+		lblPesoTotalRecebimentoTransPositivo.setFont(new Font("Arial", Font.BOLD, 16));
+		lblPesoTotalRecebimentoTransPositivo.setBorder(new LineBorder(new Color(0, 0, 0)));
+
 		JLabel lblNewLabel_13_1_1 = new JLabel("Restante:");
-		panel_11.add(lblNewLabel_13_1_1, "cell 0 3");
+		lblNewLabel_13_1_1.setFont(new Font("Arial", Font.PLAIN, 16));
+		panel_11.add(lblNewLabel_13_1_1, "cell 0 5,alignx right");
 
 		lblPesoTotalRestante = new JLabel("0.0 Kg");
-		panel_11.add(lblPesoTotalRestante, "cell 1 3");
-		lblPesoTotalRestante.setFont(new Font("Tahoma", Font.BOLD, 11));
+		panel_11.add(lblPesoTotalRestante, "cell 1 5");
+		lblPesoTotalRestante.setFont(new Font("Arial", Font.BOLD, 16));
 		lblPesoTotalRestante.setBorder(new LineBorder(new Color(0, 0, 0)));
 
 		JPanel panel_24 = new JPanel();
@@ -1984,10 +2077,10 @@ public class TelaGerenciarContrato extends JFrame {
 		btnAlterar = new JButton("Alterar");
 		btnAlterar.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				
+
 				TelaAlterarContrato tela = new TelaAlterarContrato(contrato, isto);
 				tela.setVisible(true);
-				
+
 			}
 		});
 		btnAlterar.setForeground(Color.WHITE);
@@ -2037,11 +2130,11 @@ public class TelaGerenciarContrato extends JFrame {
 		btnEditarContrato.setFont(new Font("SansSerif", Font.BOLD, 18));
 		btnEditarContrato.setForeground(Color.WHITE);
 		botoes.add(btnEditarContrato);
-		
-		 btnCancelarContrato = new JButton("Cancelar");
+
+		btnCancelarContrato = new JButton("Cancelar");
 		btnCancelarContrato.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				
+
 				if (contrato_local.getSub_contrato() != 1) {
 					// verifique se os sub_contratos desde contratos estao finalizados
 					GerenciarBancoContratos gerenciar = new GerenciarBancoContratos();
@@ -2070,7 +2163,7 @@ public class TelaGerenciarContrato extends JFrame {
 				} else {
 					cancelar_contrato();
 				}
-				
+
 			}
 		});
 		btnCancelarContrato.setForeground(Color.WHITE);
@@ -2262,60 +2355,59 @@ public class TelaGerenciarContrato extends JFrame {
 				if (JOptionPane.showConfirmDialog(isto, "Deseja desbloquear o contrato?", "Desbloquear contrato",
 						JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE) == JOptionPane.YES_OPTION) {
 
-					if(contrato_local.getStatus_contrato() != 4) {
-					
-					GerenciarBancoContratos gerenciar = new GerenciarBancoContratos();
-					boolean atualizou = gerenciar.atualizarStatusContrato(contrato_local.getId(), 2);
-					if (atualizou) {
-						JOptionPane.showMessageDialog(isto, "Contrato Desbloqueado!");
-						// retirar pontucao
-						GerenciarBancoPontuacao gerenciar_pontuacao = new GerenciarBancoPontuacao();
+					if (contrato_local.getStatus_contrato() != 4) {
 
-						// primeiro verifica se existe uma pontuacao para esta combinacao contrato
-						// cliente
-						ArrayList<CadastroPontuacao> lista_pontuacao = gerenciar_pontuacao
-								.getPontuacaoPorContrato(contrato_local.getId());
-						if (lista_pontuacao.size() > 0) {
-							for (CadastroPontuacao pontos_antigos : lista_pontuacao) {
+						GerenciarBancoContratos gerenciar = new GerenciarBancoContratos();
+						boolean atualizou = gerenciar.atualizarStatusContrato(contrato_local.getId(), 2);
+						if (atualizou) {
+							JOptionPane.showMessageDialog(isto, "Contrato Desbloqueado!");
+							// retirar pontucao
+							GerenciarBancoPontuacao gerenciar_pontuacao = new GerenciarBancoPontuacao();
 
-								boolean removido = gerenciar_pontuacao
-										.removerPontuacao(pontos_antigos.getId_pontuacao());
-								if (removido) {
-								} else {
-									JOptionPane.showMessageDialog(isto,
-											"Erro ao remover pontuacao antiga\nConsulte o administrador!");
-									break;
+							// primeiro verifica se existe uma pontuacao para esta combinacao contrato
+							// cliente
+							ArrayList<CadastroPontuacao> lista_pontuacao = gerenciar_pontuacao
+									.getPontuacaoPorContrato(contrato_local.getId());
+							if (lista_pontuacao.size() > 0) {
+								for (CadastroPontuacao pontos_antigos : lista_pontuacao) {
+
+									boolean removido = gerenciar_pontuacao
+											.removerPontuacao(pontos_antigos.getId_pontuacao());
+									if (removido) {
+									} else {
+										JOptionPane.showMessageDialog(isto,
+												"Erro ao remover pontuacao antiga\nConsulte o administrador!");
+										break;
+									}
+
 								}
-
 							}
+
+							setarInformacoesPainelPrincipal();
+							informar_atualizou();
+							destravarContrato();
+
+						} else {
+							JOptionPane.showMessageDialog(isto,
+									"Erro ao desbloquear o contrato, tente novamente!\nSe o erro persistir, consulte o administrador");
 						}
 
-						setarInformacoesPainelPrincipal();
-						informar_atualizou();
-						destravarContrato();
-
 					} else {
-						JOptionPane.showMessageDialog(isto,
-								"Erro ao desbloquear o contrato, tente novamente!\nSe o erro persistir, consulte o administrador");
+						GerenciarBancoContratos gerenciar = new GerenciarBancoContratos();
+						boolean atualizou = gerenciar.atualizarStatusContrato(contrato_local.getId(), 2);
+						if (atualizou) {
+							JOptionPane.showMessageDialog(isto, "Contrato Desbloqueado!");
+							setarInformacoesPainelPrincipal();
+							informar_atualizou();
+							destravarContrato();
+						} else {
+							JOptionPane.showMessageDialog(isto,
+									"Erro ao desbloquear o contrato, tente novamente!\nSe o erro persistir, consulte o administrador");
+
+						}
 					}
 
-				} 
-				else {
-					GerenciarBancoContratos gerenciar = new GerenciarBancoContratos();
-					boolean atualizou = gerenciar.atualizarStatusContrato(contrato_local.getId(), 2);
-					if (atualizou) {
-						JOptionPane.showMessageDialog(isto, "Contrato Desbloqueado!");
-						setarInformacoesPainelPrincipal();
-						informar_atualizou();
-						destravarContrato();
-					}else {
-						JOptionPane.showMessageDialog(isto,
-								"Erro ao desbloquear o contrato, tente novamente!\nSe o erro persistir, consulte o administrador");
-					
-					}
 				}
-
-			}
 			}
 		});
 		btnEditarContrato.addActionListener(new ActionListener() {
@@ -2326,8 +2418,7 @@ public class TelaGerenciarContrato extends JFrame {
 				// int flag_edicao) {
 
 				fecharDocumento();
-				DadosGlobais dados = DadosGlobais.getInstance();
-				dados.setTeraGerenciarContratoPai(isto);
+
 				if (contrato.getSub_contrato() == 0) {
 					// e um contrato pai, abre a tela em modo de edicao
 					TelaEscolhaTipoNovoContrato tela = new TelaEscolhaTipoNovoContrato(0, contrato_local, 1, isto);
@@ -2673,9 +2764,12 @@ public class TelaGerenciarContrato extends JFrame {
 		JPanel panel_16 = new JPanel();
 		panel_16.setBackground(Color.WHITE);
 		painel_pai_carregamentos.add(panel_16, "cell 6 4,alignx right,aligny top");
-		panel_16.setLayout(new MigLayout("", "[73px][81px][60px][64px][79px]", "[28px]"));
+		panel_16.setLayout(new MigLayout("", "[73px][][81px][60px][64px][79px]", "[28px]"));
 
 		JButton btnExportarCarregamentos = new JButton("Exportar");
+		btnExportarCarregamentos.setBackground(new Color(0, 0, 153));
+		btnExportarCarregamentos.setForeground(Color.WHITE);
+		btnExportarCarregamentos.setFont(new Font("SansSerif", Font.BOLD, 16));
 		panel_16.add(btnExportarCarregamentos, "cell 0 0,alignx center,aligny center");
 		btnExportarCarregamentos.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
@@ -3909,7 +4003,10 @@ public class TelaGerenciarContrato extends JFrame {
 		});
 
 		JButton btnTransferirCarga = new JButton("Transferir");
-		panel_16.add(btnTransferirCarga, "cell 1 0,alignx center,aligny center");
+		btnTransferirCarga.setBackground(new Color(0, 102, 153));
+		btnTransferirCarga.setForeground(Color.WHITE);
+		btnTransferirCarga.setFont(new Font("SansSerif", Font.BOLD, 16));
+		panel_16.add(btnTransferirCarga, "cell 2 0,alignx center,aligny center");
 		btnTransferirCarga.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				int rowSel = table_carregamento.getSelectedRow();// pega o indice da linha na tabela
@@ -3924,21 +4021,34 @@ public class TelaGerenciarContrato extends JFrame {
 		botoes.add(btnTransferirCarga);
 
 		JButton btnEditarCarregamento = new JButton("Editar");
-		panel_16.add(btnEditarCarregamento, "cell 2 0,alignx center,aligny center");
+		btnEditarCarregamento.setBackground(new Color(204, 102, 0));
+		btnEditarCarregamento.setForeground(Color.WHITE);
+		btnEditarCarregamento.setFont(new Font("SansSerif", Font.BOLD, 16));
+		panel_16.add(btnEditarCarregamento, "cell 3 0,alignx center,aligny center");
 		btnEditarCarregamento.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				int rowSel = table_carregamento.getSelectedRow();// pega o indice da linha na tabela
 
-				TelaConfirmarCarregamento tela = new TelaConfirmarCarregamento(1, contrato_local,
-						lista_carregamentos.get(rowSel), isto);
-				tela.setTelaPai(isto);
-				tela.setVisible(true);
+				String descricao = table_carregamento.getValueAt(rowSel, 1).toString();
+
+				if (descricao.equalsIgnoreCase("+Transferencia") || descricao.equalsIgnoreCase("-Transferencia")) {
+					JOptionPane.showMessageDialog(isto, "Não é possível editar uma transfêrencia");
+				} else {
+
+					TelaConfirmarCarregamento tela = new TelaConfirmarCarregamento(1, contrato_local,
+							lista_carregamentos.get(rowSel), isto);
+					tela.setTelaPai(isto);
+					tela.setVisible(true);
+				}
 			}
 		});
 		botoes.add(btnEditarCarregamento);
 
 		JButton btnExcluirCarregamento = new JButton("Excluir");
-		panel_16.add(btnExcluirCarregamento, "cell 3 0,alignx center,aligny center");
+		btnExcluirCarregamento.setBackground(new Color(102, 0, 0));
+		btnExcluirCarregamento.setForeground(Color.WHITE);
+		btnExcluirCarregamento.setFont(new Font("SansSerif", Font.BOLD, 16));
+		panel_16.add(btnExcluirCarregamento, "cell 4 0,alignx center,aligny center");
 		botoes.add(btnExcluirCarregamento);
 		btnExcluirCarregamento.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
@@ -3996,7 +4106,10 @@ public class TelaGerenciarContrato extends JFrame {
 			}
 		});
 		botoes.add(btnAdicionarCarregamento);
-		panel_16.add(btnAdicionarCarregamento, "cell 4 0,alignx center,aligny center");
+		btnAdicionarCarregamento.setBackground(new Color(0, 51, 0));
+		btnAdicionarCarregamento.setForeground(Color.WHITE);
+		btnAdicionarCarregamento.setFont(new Font("SansSerif", Font.BOLD, 16));
+		panel_16.add(btnAdicionarCarregamento, "cell 5 0,alignx center,aligny center");
 
 		JPanel panel_17 = new JPanel();
 		panel_17.setBackground(Color.WHITE);
@@ -4402,7 +4515,7 @@ public class TelaGerenciarContrato extends JFrame {
 		painelPagamentos.add(panel_4);
 		panel_4.setLayout(new MigLayout("",
 				"[290px,grow][4px,grow][425px,grow][13px,grow][128px,grow][33px,grow][120px,grow][10px,grow][81px,grow][8px,grow][147px,grow][10px,grow][83px,grow]",
-				"[22px][16px][18px][16px][107px][16px][17px][12px][22px][166px,grow][28px][42px,grow][204px]"));
+				"[22px][16px][18px][16px][107px][16px][17px][12px][22px][grow][28px][42px,grow][204px]"));
 		JPanel panelInformativoAbaPagamentos = new JPanel();
 		panel_4.add(panelInformativoAbaPagamentos, "cell 6 0 7 9,grow");
 		panelInformativoAbaPagamentos.setForeground(Color.WHITE);
@@ -4432,8 +4545,10 @@ public class TelaGerenciarContrato extends JFrame {
 		tabela_modelo_pagamentos.getColumnModel().getColumn(6).setPreferredWidth(70);
 		tabela_modelo_pagamentos.getColumnModel().getColumn(7).setPreferredWidth(90);
 		tabela_modelo_pagamentos.getColumnModel().getColumn(8).setPreferredWidth(90);
+		tabela_modelo_pagamentos.setRowHeight(30);
 
 		JScrollPane scrollPane = new JScrollPane(tabela_modelo_pagamentos);
+		scrollPane.getViewport().setBackground(Color.white);
 		panel_4.add(scrollPane, "cell 0 4 5 1,grow");
 		scrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED);
 		scrollPane.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED);
@@ -4492,9 +4607,12 @@ public class TelaGerenciarContrato extends JFrame {
 		JPanel panel = new JPanel();
 		panel.setBackground(Color.WHITE);
 		panel_4.add(panel, "cell 5 10 8 2,grow");
-		panel.setLayout(new MigLayout("", "[][][][][][][][][][][][][][][][][][]", "[]"));
+		panel.setLayout(new MigLayout("", "[][][][][][][][][][][][][][][][][][][]", "[]"));
 
 		JButton btnExportarPagamentos = new JButton("Exportar");
+		btnExportarPagamentos.setBackground(new Color(0, 0, 102));
+		btnExportarPagamentos.setForeground(Color.WHITE);
+		btnExportarPagamentos.setFont(new Font("SansSerif", Font.BOLD, 16));
 		panel.add(btnExportarPagamentos, "cell 11 0");
 		btnExportarPagamentos.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
@@ -5393,8 +5511,65 @@ public class TelaGerenciarContrato extends JFrame {
 			}
 		});
 
+		JButton btnTransferir = new JButton("Transferir");
+		btnTransferir.setBackground(new Color(0, 0, 204));
+		btnTransferir.setForeground(Color.WHITE);
+		btnTransferir.setFont(new Font("SansSerif", Font.BOLD, 16));
+		panel.add(btnTransferir, "cell 15 0");
+		btnTransferir.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+
+				transferirPagamentoContratual();
+			}
+		});
+		botoes.add(btnTransferir);
+
+		JButton btnEditar_1 = new JButton("Editar");
+		btnEditar_1.setBackground(new Color(204, 102, 51));
+		btnEditar_1.setForeground(Color.WHITE);
+		btnEditar_1.setFont(new Font("SansSerif", Font.BOLD, 16));
+		btnEditar_1.addActionListener(new ActionListener() {
+
+			public void actionPerformed(ActionEvent e) {
+
+				int indiceDaLinha = table_pagamentos_contratuais.getSelectedRow();
+
+				int id_pagamento_selecionado = Integer
+						.parseInt(table_pagamentos_contratuais.getValueAt(indiceDaLinha, 0).toString());
+
+				String descricao = table_pagamentos_contratuais.getValueAt(indiceDaLinha, 1).toString();
+
+				if (!descricao.equalsIgnoreCase("+Transferencia") && !descricao.equalsIgnoreCase("-Transferencia")) {
+
+					// editar pagamento
+					TelaConfirmarPagamentoContratual tela_confirmar = new TelaConfirmarPagamentoContratual(1,
+							new GerenciarBancoContratos().getPagamentoContratual(id_pagamento_selecionado),
+							contrato_local, isto);
+					tela_confirmar.setTelaPai(isto);
+					tela_confirmar.setVisible(true);
+
+				} else if (descricao.equalsIgnoreCase("+Transferencia")) {
+					JOptionPane.showMessageDialog(null, "Edite esta transferencia no contrato de origem");
+				} else if (descricao.equalsIgnoreCase("-Transferencia")) {
+
+					// TelaConfirmarTransferenciaPagamento confirmar = new
+					// TelaConfirmarTransferenciaPagamento();
+
+					TelaConfirmarTransferenciaPagamentoContratual tela = new TelaConfirmarTransferenciaPagamentoContratual(
+							1, new GerenciarBancoContratos().getPagamentoContratual(id_pagamento_selecionado),
+							contrato_local, isto);
+					tela.setTelaPag(isto);
+					tela.setVisible(true);
+				}
+
+			}
+		});
+
 		JButton btnExcluirPagamento = new JButton("Excluir");
-		panel.add(btnExcluirPagamento, "cell 13 0");
+		btnExcluirPagamento.setBackground(new Color(153, 0, 0));
+		btnExcluirPagamento.setForeground(Color.WHITE);
+		btnExcluirPagamento.setFont(new Font("SansSerif", Font.BOLD, 16));
+		panel.add(btnExcluirPagamento, "cell 16 0");
 		botoes.add(btnExcluirPagamento);
 		btnExcluirPagamento.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
@@ -5541,58 +5716,13 @@ public class TelaGerenciarContrato extends JFrame {
 
 			}
 		});
-
-		JButton btnTransferir = new JButton("Transferir");
-		panel.add(btnTransferir, "cell 15 0");
-		btnTransferir.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-
-				transferirPagamentoContratual();
-			}
-		});
-		botoes.add(btnTransferir);
-
-		JButton btnEditar_1 = new JButton("Editar");
-		btnEditar_1.addActionListener(new ActionListener() {
-
-			public void actionPerformed(ActionEvent e) {
-
-				int indiceDaLinha = table_pagamentos_contratuais.getSelectedRow();
-
-				int id_pagamento_selecionado = Integer
-						.parseInt(table_pagamentos_contratuais.getValueAt(indiceDaLinha, 0).toString());
-
-				String descricao = table_pagamentos_contratuais.getValueAt(indiceDaLinha, 1).toString();
-
-				if (!descricao.equalsIgnoreCase("+Transferencia") && !descricao.equalsIgnoreCase("-Transferencia")) {
-
-					// editar pagamento
-					TelaConfirmarPagamentoContratual tela_confirmar = new TelaConfirmarPagamentoContratual(1,
-							new GerenciarBancoContratos().getPagamentoContratual(id_pagamento_selecionado),
-							contrato_local, isto);
-					tela_confirmar.setTelaPai(isto);
-					tela_confirmar.setVisible(true);
-
-				} else if (descricao.equalsIgnoreCase("+Transferencia")) {
-					JOptionPane.showMessageDialog(null, "Edite esta transferencia no contrato de origem");
-				} else if (descricao.equalsIgnoreCase("-Transferencia")) {
-
-					// TelaConfirmarTransferenciaPagamento confirmar = new
-					// TelaConfirmarTransferenciaPagamento();
-
-					TelaConfirmarTransferenciaPagamentoContratual tela = new TelaConfirmarTransferenciaPagamentoContratual(
-							1, new GerenciarBancoContratos().getPagamentoContratual(id_pagamento_selecionado),
-							contrato_local, isto);
-					tela.setTelaPag(isto);
-					tela.setVisible(true);
-				}
-
-			}
-		});
-		panel.add(btnEditar_1, "cell 16 0");
+		panel.add(btnEditar_1, "cell 17 0");
 
 		JButton btnAdicionarPagamento = new JButton("Novo Pagamento");
-		panel.add(btnAdicionarPagamento, "cell 17 0");
+		btnAdicionarPagamento.setBackground(new Color(0, 51, 0));
+		btnAdicionarPagamento.setForeground(Color.WHITE);
+		btnAdicionarPagamento.setFont(new Font("SansSerif", Font.BOLD, 16));
+		panel.add(btnAdicionarPagamento, "cell 18 0");
 		botoes.add(btnAdicionarPagamento);
 		btnAdicionarPagamento.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
@@ -5831,6 +5961,9 @@ public class TelaGerenciarContrato extends JFrame {
 		painelListaTarefas.add(scrollPaneTarefas, "cell 0 1 5 1,grow");
 
 		JButton btnAdcionarTarefa = new JButton("Adicionar");
+		btnAdcionarTarefa.setBackground(new Color(0, 51, 0));
+		btnAdcionarTarefa.setForeground(Color.WHITE);
+		btnAdcionarTarefa.setFont(new Font("SansSerif", Font.BOLD, 16));
 		btnAdcionarTarefa.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				TelaCriarTarefa tarefa = new TelaCriarTarefa(contrato_local, isto);
@@ -5843,6 +5976,9 @@ public class TelaGerenciarContrato extends JFrame {
 		painelListaTarefas.add(btnAdcionarTarefa, "cell 4 2,growx,aligny top");
 
 		JButton btnExcluirTarefa = new JButton("Excluir");
+		btnExcluirTarefa.setBackground(new Color(153, 0, 0));
+		btnExcluirTarefa.setForeground(Color.WHITE);
+		btnExcluirTarefa.setFont(new Font("SansSerif", Font.BOLD, 16));
 		btnExcluirTarefa.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 
@@ -5900,6 +6036,9 @@ public class TelaGerenciarContrato extends JFrame {
 		painelListaTarefas.add(btnExcluirTarefa, "cell 0 2,alignx right,aligny top");
 
 		JButton btnResponder = new JButton("Responder");
+		btnResponder.setBackground(new Color(0, 0, 102));
+		btnResponder.setForeground(Color.WHITE);
+		btnResponder.setFont(new Font("SansSerif", Font.BOLD, 16));
 		btnResponder.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				int indiceDaLinha = 0;
@@ -6971,7 +7110,6 @@ public class TelaGerenciarContrato extends JFrame {
 	public void pesquisar_recebimentos(boolean informar_atualizacao) {
 
 		registro_recebimento_global = new Registros.RegistroRecebimento();
-		ArrayList<CadastroNFe> notas_fiscais_carregamentos = new ArrayList<>();
 		modelo_recebimentos.onRemoveAll();
 		int num_total_romaneios = 0;
 
@@ -6979,18 +7117,21 @@ public class TelaGerenciarContrato extends JFrame {
 
 		peso_total_recebido = 0;
 		double peso_total_a_receber = 0;
-		double peso_total_restante = 0;
 
 		double peso_total_nf_venda_kgs = 0;
 		double peso_total_nf_venda_sacos = 0;
 
 		double peso_total_nf_remessa_kgs = 0;
 		double peso_total_nf_remessa_sacos = 0;
+		
+		double peso_recebido = 0;
 
 		BigDecimal valor_total_nf_venda = BigDecimal.ZERO;
 		BigDecimal valor_total_nf_remessa = BigDecimal.ZERO;
 
 		peso_total_cargas = 0.0;
+		peso_total_recebimentos_trans_negativo = 0.0;
+		peso_total_recebimentos_trans_positivo = 0.0;
 
 		if (lista_recebimentos != null) {
 			lista_recebimentos.clear();
@@ -7001,8 +7142,12 @@ public class TelaGerenciarContrato extends JFrame {
 		GerenciarBancoContratos gerenciar = new GerenciarBancoContratos();
 		lista_recebimentos = gerenciar.getRecebimentos(contrato_local.getId());
 
-		GerenciarBancoTransferenciaRecebimento gerenciar_replicacoes_recebimento = new GerenciarBancoTransferenciaRecebimento();
-		lista_replicacoes_recebimento = gerenciar_replicacoes_recebimento
+		GerenciarBancoTransferenciaRecebimento gerenciar_transferencias = new GerenciarBancoTransferenciaRecebimento();
+
+		lista_transferencias_recebimento_remetente = gerenciar_transferencias
+				.getTransferenciasRemetente(contrato_local.getId());
+
+		lista_transferencias_recebimento_destinatario = gerenciar_transferencias
 				.getTransferenciaDestinatario(contrato_local.getId());
 
 		boolean nf_remessa_ativo = false;
@@ -7029,7 +7174,9 @@ public class TelaGerenciarContrato extends JFrame {
 		for (CadastroContrato.Recebimento recebimento : lista_recebimentos) {
 
 			modelo_recebimentos.onAdd(recebimento);
+			peso_recebido = peso_recebido + recebimento.getPeso_romaneio();
 			peso_total_recebido = peso_total_recebido + recebimento.getPeso_romaneio();
+
 			num_total_romaneios++;
 
 			if (recebimento.getNf_venda_aplicavel() == 1) {
@@ -7049,19 +7196,38 @@ public class TelaGerenciarContrato extends JFrame {
 
 		}
 
-		for (CadastroContrato.CadastroTransferenciaRecebimento replica : lista_replicacoes_recebimento) {
+		for (CadastroContrato.CadastroTransferenciaRecebimento enviado_via_trans : lista_transferencias_recebimento_remetente) {
 
 			CadastroContrato.Recebimento recebimento = new CadastroContrato.Recebimento();
-			recebimento.setId_recebimento(replica.getId_transferencia());
+			recebimento.setId_recebimento(enviado_via_trans.getId_transferencia());
 			recebimento.setNf_remessa_aplicavel(0);
 			recebimento.setNf_venda_aplicavel(0);
-			recebimento.setPeso_romaneio(replica.getQuantidade());
-			recebimento.setCodigo_romaneio("Replica");
-			recebimento.setData_recebimento(replica.getData());
+			recebimento.setPeso_romaneio(enviado_via_trans.getQuantidade());
+			recebimento.setCodigo_romaneio("-Transferencia");
+			recebimento.setData_recebimento(enviado_via_trans.getData());
 			lista_recebimentos.add(recebimento);
 
 			modelo_recebimentos.onAdd(recebimento);
-			peso_total_recebido = peso_total_recebido + replica.getQuantidade();
+			peso_total_recebimentos_trans_negativo += enviado_via_trans.getQuantidade();
+			peso_total_recebido = peso_total_recebido - enviado_via_trans.getQuantidade();
+
+		}
+
+		for (CadastroContrato.CadastroTransferenciaRecebimento recebido_via_trans : lista_transferencias_recebimento_destinatario) {
+
+			CadastroContrato.Recebimento recebimento = new CadastroContrato.Recebimento();
+			recebimento.setId_recebimento(recebido_via_trans.getId_transferencia());
+			recebimento.setNf_remessa_aplicavel(0);
+			recebimento.setNf_venda_aplicavel(0);
+			recebimento.setPeso_romaneio(recebido_via_trans.getQuantidade());
+			recebimento.setCodigo_romaneio("+Transferencia");
+			recebimento.setData_recebimento(recebido_via_trans.getData());
+			lista_recebimentos.add(recebimento);
+
+			modelo_recebimentos.onAdd(recebimento);
+			peso_total_recebimentos_trans_positivo += recebido_via_trans.getQuantidade();
+			peso_total_recebido = peso_total_recebido + recebido_via_trans.getQuantidade();
+
 
 		}
 
@@ -7080,16 +7246,23 @@ public class TelaGerenciarContrato extends JFrame {
 		lblPesoTotalContrato.setText(
 				z.format(peso_total_contrato_kgs) + " KGs" + " | " + z.format(peso_total_contrato_scs) + " sacos");
 		lblPesoTotalRecebido.setText(
-				z.format(peso_total_recebido) + " KGs" + " | " + z.format(peso_total_recebido / 60) + " sacos");
-		lblPesoTotalRestante.setText(z.format(peso_total_contrato_kgs - peso_total_recebido) + " KGs | "
-				+ z.format((peso_total_contrato_kgs - peso_total_recebido) / 60) + " sacos");
+				z.format(peso_recebido) + " KGs" + " | " + z.format(peso_recebido / 60) + " sacos");
+
+		lblPesoTotalRecebimentoTransNegativo.setText(z.format(peso_total_recebimentos_trans_negativo) + " KGs" + " | "
+				+ z.format(peso_total_recebimentos_trans_negativo / 60) + " sacos");
+
+		lblPesoTotalRecebimentoTransPositivo.setText(z.format(peso_total_recebimentos_trans_positivo) + " KGs" + " | "
+				+ z.format(peso_total_recebimentos_trans_positivo / 60) + " sacos");
+
+		double diferenca = peso_total_contrato_kgs - peso_total_recebido ;
+
+		lblPesoTotalRestante.setText(z.format(diferenca) + " KGs | " + z.format((diferenca) / 60) + " sacos");
 
 		lblNumRomaneiosRecebimento.setText(num_total_romaneios + "");
 		lblTotalSacosKGsRomaneios.setText(
 				z.format(peso_total_recebido) + " KGs" + " | " + z.format(peso_total_recebido / 60) + " sacos");
 
 		String texto = "";
-		double diferenca = peso_total_contrato_kgs - peso_total_recebido;
 		if (diferenca == 0) {
 			texto = texto + "Concluído";
 		} else if (diferenca > 0) {
@@ -7574,7 +7747,6 @@ public class TelaGerenciarContrato extends JFrame {
 			_lblNewLabel_9.setFont(new Font("Arial", Font.PLAIN, 16));
 			_lblNewLabel_9.setForeground(Color.white);
 
-			
 			add(_lblNewLabel_9, "cell 0 1,alignx right,growy");
 
 			_lblCorretor = new JLabel("");
@@ -7674,7 +7846,8 @@ public class TelaGerenciarContrato extends JFrame {
 			add(_lblComissao, "cell 1 10,alignx center");
 
 			_lblnewfrete = new JLabel("Frete:");
-			_lblnewfrete.setFont(new Font("Arial", Font.PLAIN, 16));;
+			_lblnewfrete.setFont(new Font("Arial", Font.PLAIN, 16));
+			;
 			_lblnewfrete.setForeground(Color.white);
 			add(_lblnewfrete, "cell 0 11,alignx right");
 
@@ -7689,11 +7862,11 @@ public class TelaGerenciarContrato extends JFrame {
 			add(_lblnewarmazenagem, "cell 0 12,alignx right");
 
 			_lblArmazenagem = new JLabel("");
-			_lblArmazenagem.setFont(new Font("Arial", Font.BOLD, 16));;
+			_lblArmazenagem.setFont(new Font("Arial", Font.BOLD, 16));
+			;
 			_lblArmazenagem.setForeground(Color.white);
 			add(_lblArmazenagem, "cell 1 12,alignx center");
-			
-			
+
 			_lblnewfundorural = new JLabel("Fundo Rural:");
 			_lblnewfundorural.setFont(new Font("Arial", Font.PLAIN, 16));
 			_lblnewfundorural.setForeground(Color.white);
@@ -8470,11 +8643,9 @@ public class TelaGerenciarContrato extends JFrame {
 					btnAlterar.setEnabled(false);
 					btnAlterar.setVisible(false);
 
-					
 					btnCancelarContrato.setEnabled(false);
 					btnCancelarContrato.setVisible(false);
 
-					
 				} else if (status == 2) {
 					lblStatusContrato.setText("Status do Contrato: " + "Assinado");
 					btnCriarAditivo.setEnabled(true);
@@ -8509,8 +8680,7 @@ public class TelaGerenciarContrato extends JFrame {
 
 					btnAlterar.setEnabled(true);
 					btnAlterar.setVisible(true);
-					
-					
+
 					btnCancelarContrato.setEnabled(true);
 					btnCancelarContrato.setVisible(true);
 
@@ -8548,11 +8718,9 @@ public class TelaGerenciarContrato extends JFrame {
 
 					btnEditarContrato.setVisible(false);
 					btnEditarContrato.setEnabled(false);
-					
-					
+
 					btnCancelarContrato.setEnabled(false);
 					btnCancelarContrato.setVisible(false);
-
 
 				} else if (status == 0) {
 					lblStatusContrato.setText("Status do Contrato: " + "Requisitar Aprovação de Contrato");
@@ -8588,11 +8756,11 @@ public class TelaGerenciarContrato extends JFrame {
 
 					btnAlterar.setEnabled(false);
 					btnAlterar.setVisible(false);
-					
+
 					btnCancelarContrato.setEnabled(false);
 					btnCancelarContrato.setVisible(false);
 
-				}else if(status == 4) {
+				} else if (status == 4) {
 					lblStatusContrato.setText("Status do Contrato: " + "Cancelado");
 					btnEditarContrato.setVisible(false);
 					btnEditarContrato.setEnabled(false);
@@ -8626,7 +8794,7 @@ public class TelaGerenciarContrato extends JFrame {
 
 					btnAlterar.setEnabled(false);
 					btnAlterar.setVisible(false);
-					
+
 					btnCancelarContrato.setEnabled(false);
 					btnCancelarContrato.setVisible(false);
 				}
@@ -9801,8 +9969,7 @@ public class TelaGerenciarContrato extends JFrame {
 		painelSubContratos.add(lblSubcontratos);
 		btnAdicionarSubContrato.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
-				DadosGlobais dados = DadosGlobais.getInstance();
-				dados.setTeraGerenciarContratoPai(isto);
+
 				TelaEscolhaTipoNovoContrato telaNovoCadastro = new TelaEscolhaTipoNovoContrato(1, contrato_local, 0,
 						isto);
 
@@ -10685,8 +10852,7 @@ public class TelaGerenciarContrato extends JFrame {
 		}
 
 	}
-	
-	
+
 	public void cancelar_contrato() {
 		if (JOptionPane.showConfirmDialog(isto, "Cancelar o contrato e bloquea-ló?", "Cancelamento",
 				JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE) == JOptionPane.YES_OPTION) {
@@ -10697,8 +10863,8 @@ public class TelaGerenciarContrato extends JFrame {
 			if (fechar) {
 				JOptionPane.showMessageDialog(isto, "Contrato Cancelado!");
 				travarContrato();
-			}else {
-				JOptionPane.showMessageDialog(isto, "Contrato não Cancelado!\nConsulte o administrador!" );
+			} else {
+				JOptionPane.showMessageDialog(isto, "Contrato não Cancelado!\nConsulte o administrador!");
 			}
 		}
 
@@ -10707,7 +10873,8 @@ public class TelaGerenciarContrato extends JFrame {
 	public void travarContrato() {
 		atualizarContratoLocal(true);
 
-		if (contrato_local.getStatus_contrato() == 3 || contrato_local.getStatus_contrato() == 0 ||  contrato_local.getStatus_contrato() == 4 ) {
+		if (contrato_local.getStatus_contrato() == 3 || contrato_local.getStatus_contrato() == 0
+				|| contrato_local.getStatus_contrato() == 4) {
 			// contrato concluido ou em aprovacao
 			for (JButton btn : botoes) {
 				btn.setEnabled(false);
@@ -10715,6 +10882,8 @@ public class TelaGerenciarContrato extends JFrame {
 			}
 
 			jPopupMenuTabelCarregamento = null;
+
+			jPopupMenuTabelRecebimento = null;
 
 			jPopupMenuDocumentos = null;
 
@@ -10739,7 +10908,8 @@ public class TelaGerenciarContrato extends JFrame {
 	public void destravarContrato() {
 		// setarInformacoesPainelPrincipal();
 
-		if (contrato_local.getStatus_contrato() == 3 || contrato_local.getStatus_contrato() == 0 ||  contrato_local.getStatus_contrato() == 4 ) {
+		if (contrato_local.getStatus_contrato() == 3 || contrato_local.getStatus_contrato() == 0
+				|| contrato_local.getStatus_contrato() == 4) {
 			// contrato concluido ou em aprovacao
 			for (JButton btn : botoes) {
 				btn.setEnabled(true);
@@ -10748,6 +10918,8 @@ public class TelaGerenciarContrato extends JFrame {
 		}
 
 		setMenuCarregamento();
+
+		setMenuRecebimento();
 
 		setMenuDocumentos();
 
@@ -10942,26 +11114,117 @@ public class TelaGerenciarContrato extends JFrame {
 
 	public void setMenuCarregamento() {
 		jPopupMenuTabelCarregamento = new JPopupMenu();
-		JMenuItem jMenuItemDetalhar = new JMenuItem();
-		// JMenuItem jMenuItemReplicarCarregamento = new JMenuItem();
+		// JMenuItem jMenuItemDetalhar = new JMenuItem();
+		JMenuItem jMenuItemReplicarCarregamento = new JMenuItem();
 
-		jMenuItemDetalhar.setText("Detalhar");
+		// jMenuItemDetalhar.setText("Detalhar");
+		jMenuItemReplicarCarregamento.setText("Replicar");
 
-		jMenuItemDetalhar.addActionListener(new java.awt.event.ActionListener() {
+		/*
+		 * jMenuItemDetalhar.addActionListener(new java.awt.event.ActionListener() { //
+		 * Importe a classe java.awt.event.ActionEvent public void
+		 * actionPerformed(ActionEvent e) { int index =
+		 * table_carregamento.getSelectedRow(); String id =
+		 * table_carregamento.getValueAt(index, 0).toString(); String descricao =
+		 * table_carregamento.getValueAt(index, 1).toString();
+		 * 
+		 * TelaDetalharTransferenciaCarga tela = new
+		 * TelaDetalharTransferenciaCarga(Integer.parseInt(id), descricao, isto);
+		 * tela.setVisible(true);
+		 * 
+		 * } });
+		 */
+
+		jMenuItemReplicarCarregamento.addActionListener(new java.awt.event.ActionListener() {
 			// Importe a classe java.awt.event.ActionEvent
 			public void actionPerformed(ActionEvent e) {
-				int index = table_carregamento.getSelectedRow();
-				String id = table_carregamento.getValueAt(index, 0).toString();
-				String descricao = table_carregamento.getValueAt(index, 1).toString();
 
-				TelaDetalharTransferenciaCarga tela = new TelaDetalharTransferenciaCarga(Integer.parseInt(id),
-						descricao, isto);
-				tela.setVisible(true);
+				if (contrato_local.getSub_contrato() != 1) {
+					int index = table_carregamento.getSelectedRow();
+
+					String descricao = table_carregamento.getValueAt(index, 1).toString();
+					if (descricao.equalsIgnoreCase("+Transferencia") || descricao.equalsIgnoreCase("-Transferencia")) {
+						JOptionPane.showMessageDialog(isto, "Não é possível replicar uma transfêrencia");
+					} else {
+
+						String id = table_carregamento.getValueAt(index, 0).toString();
+						GerenciarBancoContratos gerenciar = new GerenciarBancoContratos();
+						CadastroContrato.Carregamento carga = gerenciar.getCarregamento(Integer.parseInt(id));
+
+						if (carga != null) {
+							TelaReplicarCarregamento replicar = new TelaReplicarCarregamento(contrato_local, carga,
+									isto);
+							replicar.setVisible(true);
+
+						}
+					}
+				} else {
+					JOptionPane.showMessageDialog(isto, "Não é possivel replicar a partir de um sub-contrato");
+
+				}
 
 			}
 		});
 
-		jPopupMenuTabelCarregamento.add(jMenuItemDetalhar);
+		// jPopupMenuTabelCarregamento.add(jMenuItemDetalhar);
+		jPopupMenuTabelCarregamento.add(jMenuItemReplicarCarregamento);
+
+	}
+
+	public void setMenuRecebimento() {
+		jPopupMenuTabelRecebimento = new JPopupMenu();
+		// JMenuItem jMenuItemDetalhar = new JMenuItem();
+		JMenuItem jMenuItemReplicarRecebimento = new JMenuItem();
+
+		// jMenuItemDetalhar.setText("Detalhar");
+		jMenuItemReplicarRecebimento.setText("Replicar");
+
+		/*
+		 * jMenuItemDetalhar.addActionListener(new java.awt.event.ActionListener() { //
+		 * Importe a classe java.awt.event.ActionEvent public void
+		 * actionPerformed(ActionEvent e) { int index =
+		 * table_carregamento.getSelectedRow(); String id =
+		 * table_carregamento.getValueAt(index, 0).toString(); String descricao =
+		 * table_carregamento.getValueAt(index, 1).toString();
+		 * 
+		 * TelaDetalharTransferenciaCarga tela = new
+		 * TelaDetalharTransferenciaCarga(Integer.parseInt(id), descricao, isto);
+		 * tela.setVisible(true);
+		 * 
+		 * } });
+		 */
+
+		jMenuItemReplicarRecebimento.addActionListener(new java.awt.event.ActionListener() {
+			// Importe a classe java.awt.event.ActionEvent
+			public void actionPerformed(ActionEvent e) {
+
+				if (contrato_local.getSub_contrato() != 1) {
+					int index = table_recebimentos.getSelectedRow();
+
+					String descricao = table_recebimentos.getValueAt(index, 1).toString();
+					if (descricao.equalsIgnoreCase("+Transferencia") || descricao.equalsIgnoreCase("-Transferencia")) {
+						JOptionPane.showMessageDialog(isto, "Não é possível replicar uma transfêrencia");
+					} else {
+						String id = table_recebimentos.getValueAt(index, 0).toString();
+						GerenciarBancoContratos gerenciar = new GerenciarBancoContratos();
+						CadastroContrato.Recebimento carga = gerenciar.getRecebimento(Integer.parseInt(id));
+
+						if (carga != null) {
+							TelaReplicarRecebimento replicar = new TelaReplicarRecebimento(contrato_local, carga, isto);
+							replicar.setVisible(true);
+
+						}
+					}
+				} else {
+					JOptionPane.showMessageDialog(isto, "Não é possivel replicar a partir de um sub-contrato");
+
+				}
+
+			}
+		});
+
+		// jPopupMenuTabelCarregamento.add(jMenuItemDetalhar);
+		jPopupMenuTabelRecebimento.add(jMenuItemReplicarRecebimento);
 
 	}
 

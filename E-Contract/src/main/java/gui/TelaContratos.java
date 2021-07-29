@@ -201,11 +201,7 @@ public class TelaContratos extends JFrame {
 	private final JPanel painelPrincipal = new JPanel();
 	private JRadioButton rdContratos, rdSubContratos;
 	private ArrayList<TelaGerenciarContrato> lista_telas_contratos = new ArrayList<>();
-	DefaultTableModel modelo = new DefaultTableModel() {
-		public boolean isCellEditable(int linha, int coluna) {
-			return false;
-		}
-	};
+	
 	private JLabel lblTotalContratosEmAnalise, lblTotalContratosAssinar, lblTotalContratosConcluidos,
 			lblTotalContratosAssinados;
 
@@ -232,9 +228,7 @@ public class TelaContratos extends JFrame {
 	private JLabel lblTotalContratado, lblTotalContratosCancelados, lblTotalRecebido, lblTotalCarregado, lblTotalPago,
 			lblValorTotalContratos;
 
-	public Rectangle getCurrentScreenBounds(Component component) {
-		return component.getGraphicsConfiguration().getBounds();
-	}
+	
 
 	public TelaContratos(int flag_retorno, Window janela_pai) {
 
@@ -658,11 +652,11 @@ public class TelaContratos extends JFrame {
 
 					if (contrato_selecionado.getStatus_contrato() != 3
 							&& contrato_selecionado.getStatus_contrato() != 4) {
-						((TelaReplicarCarregamento) telaPai).setSubContrato(contrato_selecionado);
+						((TelaReplicarCarregamento) janela_pai).setSubContrato(contrato_selecionado);
 						isto.dispose();
 					} else {
 						JOptionPane.showMessageDialog(isto,
-								"Não é possivel replicar um carregamento para um contrato finalizado ou cancelado");
+								"Não é possivel replicar um carregamento para um sub-contrato finalizado ou cancelado");
 					}
 
 				} else if (flag_retorno == 4) {
@@ -694,11 +688,23 @@ public class TelaContratos extends JFrame {
 					if (contrato_selecionado.getStatus_contrato() != 3
 							&& contrato_selecionado.getStatus_contrato() != 4) {
 
-						((TelaReplicarRecebimento) telaPai).setContratoDestintario(contrato_selecionado);
+						((TelaConfirmarTransferenciaRecebimento) telaPai).setContratoDestintario(contrato_selecionado);
 						isto.dispose();
 					} else {
 						JOptionPane.showMessageDialog(isto,
-								"Não é possivel replicar um pagamento para um contrato finalizado ou cancelado");
+								"Não é possivel transferir um recebimento para um contrato finalizado ou cancelado");
+					}
+
+				}else if (flag_retorno == 7) {
+
+					if (contrato_selecionado.getStatus_contrato() != 3
+							&& contrato_selecionado.getStatus_contrato() != 4) {
+
+						((TelaReplicarRecebimento) janela_pai).setSubContrato(contrato_selecionado);
+						isto.dispose();
+					} else {
+						JOptionPane.showMessageDialog(isto,
+								"Não é possivel replicar um recebimento para um sub-contrato finalizado ou cancelado");
 					}
 
 				}
@@ -928,7 +934,7 @@ public class TelaContratos extends JFrame {
 		panel.add(scrollPane);
 
 		if (flag_retorno == 1 || flag_retorno == 2 || flag_retorno == 3 || flag_retorno == 4 || flag_retorno == 5
-				|| flag_retorno == 6) {
+				|| flag_retorno == 6 || flag_retorno == 7) {
 			// selecionar contrato para carregamento
 			btnAbrir.setEnabled(false);
 			btnAbrir.setVisible(false);
@@ -973,6 +979,7 @@ public class TelaContratos extends JFrame {
 			int index = tabela.convertRowIndexToModel(row);
 			CadastroContrato contrato = modelo_contratos.getValue(index);
 
+			if(rdContratos.isSelected()) {
 			if (contrato.getSub_contrato() == 0 || contrato.getSub_contrato() == 3 || contrato.getSub_contrato() == 4
 					|| contrato.getSub_contrato() == 5) {
 
@@ -1018,6 +1025,55 @@ public class TelaContratos extends JFrame {
 					valor_total_contratos += valor_total_local;
 				} else {
 					total_contratos_cancelados++;
+				}
+			}
+			}else if(rdSubContratos.isSelected()) {
+				if (contrato.getSub_contrato() == 1 || contrato.getSub_contrato() == 2 || contrato.getSub_contrato() == 6
+						|| contrato.getSub_contrato() == 7 || contrato.getSub_contrato() == 8) {
+
+					if (contrato.getStatus_contrato() != 4) {
+
+						double quantidade_sacos = 0;
+						double quantidade_kg = 0;
+						double quantidade_paga = contrato.getTotal_pago();
+						double quantidade_comissao_paga = contrato.getTotal_comissao();
+						double valor_total_local = contrato.getValor_a_pagar().doubleValue();
+
+						if (contrato.getMedida().equalsIgnoreCase("SACOS")) {
+							quantidade_sacos = contrato.getQuantidade();
+							quantidade_kg = contrato.getQuantidade() * 60;
+
+						} else if (contrato.getMedida().equalsIgnoreCase("KG")) {
+							quantidade_kg = contrato.getQuantidade();
+							quantidade_sacos = quantidade_kg / 60;
+						}
+
+						if (contrato.getStatus_contrato() == 0) {
+							total_contratos_em_analise++;
+						} else if (contrato.getStatus_contrato() == 1) {
+							total_contratos_assinar++;
+						} else if (contrato.getStatus_contrato() == 2) {
+							total_contratos_assinado++;
+						} else if (contrato.getStatus_contrato() == 3) {
+							total_contratos_concluido++;
+						}
+						quantidade_sacos_total += quantidade_sacos;
+						quantidade_kg_total += quantidade_kg;
+
+						total_contratado += quantidade_kg;
+
+						total_recebido += contrato.getQuantidade_recebida();
+
+						total_carregado += contrato.getQuantidade_carregada();
+
+						total_pago += quantidade_paga;
+
+						total_comissao += quantidade_comissao_paga;
+
+						valor_total_contratos += valor_total_local;
+					} else {
+						total_contratos_cancelados++;
+					}
 				}
 			}
 
@@ -1142,13 +1198,15 @@ public class TelaContratos extends JFrame {
 		int total_contratos_assinar = 0;
 		int total_contratos_assinado = 0;
 		int total_contratos_concluido = 0;
+		int total_contratos_cancelados = 0;
 		NumberFormat z = NumberFormat.getNumberInstance();
 
 		ArrayList<CadastroContrato> sub_contratos = gerenciar.getInfoSubContratos(id_contrato_pai);
 
 		for (CadastroContrato contrato : sub_contratos) {
 
-			if (contrato.getSub_contrato() == 1) {
+			if (contrato.getSub_contrato() == 1 || contrato.getSub_contrato() == 2 || contrato.getSub_contrato() == 6
+					|| contrato.getSub_contrato() == 7 || contrato.getSub_contrato() == 8) {
 
 				modelo_contratos.onAdd(contrato);
 				double quantidade_sacos = 0;
@@ -1171,7 +1229,10 @@ public class TelaContratos extends JFrame {
 					total_contratos_assinado++;
 				} else if (contrato.getStatus_contrato() == 3) {
 					total_contratos_concluido++;
+				}else if (contrato.getStatus_contrato() == 4) {
+					total_contratos_cancelados++;
 				}
+				
 				quantidade_sacos_total += quantidade_sacos;
 				quantidade_kg_total += quantidade_kg;
 				lista_contratos.add(contrato);
@@ -1192,7 +1253,11 @@ public class TelaContratos extends JFrame {
 				+ "%");
 		lblTotalContratosAssinados.setText(total_contratos_assinado + " - "
 				+ ((int) (((double) ((double) total_contratos_assinado / (double) tabela.getRowCount()) * 100))) + "%");
+		lblTotalContratosCancelados.setText(total_contratos_cancelados + " - "
+				+ ((int) (((double) ((double) total_contratos_cancelados / (double) tabela.getRowCount()) * 100))) + "%");
 
+
+		calcular();
 	}
 
 	public void pesquisar_sub_contratos() {
@@ -1206,13 +1271,16 @@ public class TelaContratos extends JFrame {
 		int total_contratos_assinar = 0;
 		int total_contratos_assinado = 0;
 		int total_contratos_concluido = 0;
+		int total_contratos_cancelados = 0;
+
 		NumberFormat z = NumberFormat.getNumberInstance();
 
-		ArrayList<CadastroContrato> sub_contratos = gerenciar.getInfoSubContratos();
+		ArrayList<CadastroContrato> sub_contratos = gerenciar.getContratos();
 
 		for (CadastroContrato contrato : sub_contratos) {
 
-			if (contrato.getSub_contrato() == 1) {
+			if (contrato.getSub_contrato() == 1 || contrato.getSub_contrato() == 2 || contrato.getSub_contrato() == 6
+					|| contrato.getSub_contrato() == 7 || contrato.getSub_contrato() == 8) {
 
 				modelo_contratos.onAdd(contrato);
 				double quantidade_sacos = 0;
@@ -1236,6 +1304,9 @@ public class TelaContratos extends JFrame {
 				} else if (contrato.getStatus_contrato() == 3) {
 					total_contratos_concluido++;
 				}
+				else if (contrato.getStatus_contrato() == 4) {
+					total_contratos_cancelados++;
+				}
 				quantidade_sacos_total += quantidade_sacos;
 				quantidade_kg_total += quantidade_kg;
 				lista_contratos.add(contrato);
@@ -1255,6 +1326,10 @@ public class TelaContratos extends JFrame {
 				+ "%");
 		lblTotalContratosAssinados.setText(total_contratos_assinado + " - "
 				+ ((int) (((double) ((double) total_contratos_assinado / (double) tabela.getRowCount()) * 100))) + "%");
+		lblTotalContratosCancelados.setText(total_contratos_cancelados + " - "
+				+ ((int) (((double) ((double) total_contratos_cancelados / (double) tabela.getRowCount()) * 100))) + "%");
+
+		calcular();
 
 	}
 

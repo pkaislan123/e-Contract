@@ -14,7 +14,7 @@ public class CadastroFuncionarioSalario {
 
 	private int id_salario, id_funcionario, id_ct_trabalho, mes, ano;
 	double salario_base, total_descontos, total_acrescimos, total_hora_extras;
-	
+	String nome_funcionario, nome_departamento;
 	
 	
 	

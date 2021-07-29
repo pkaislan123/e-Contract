@@ -565,12 +565,28 @@ substituirTexto(
 		try {
 
 			String ie = "";
-			MaskFormatter formater_ie = new MaskFormatter("#########.##-##");
-			formater_ie.setValueContainsLiteralCharacters(false);
-			ie = formater_ie.valueToString(cliente.getIe());
+			if(cliente.getIe().length() > 9){
+				
+				MaskFormatter formater_ie = new MaskFormatter("#########.##-##");
+				formater_ie.setValueContainsLiteralCharacters(false);
+				ie = formater_ie.valueToString(cliente.getIe());
+				}else {
+					MaskFormatter formater_ie_go;
+					try {
+						formater_ie_go = new MaskFormatter("##.###.###-#");
+						formater_ie_go.setValueContainsLiteralCharacters(false);
+						ie = formater_ie_go.valueToString(cliente.getIe());
+					} catch (ParseException e1) {
+						// TODO Auto-generated catch block
+						e1.printStackTrace();
+					}
+				
 
+				}
 			adicional1run.setText(", Inscrição Estadual: " + ie + " ");
 		} catch (Exception e) {
+		
+			
 		}
 
 		XWPFRun ocupacaoRun = parte.createRun();

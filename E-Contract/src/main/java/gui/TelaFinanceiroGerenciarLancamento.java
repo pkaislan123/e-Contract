@@ -1412,7 +1412,7 @@ public class TelaFinanceiroGerenciarLancamento extends JFrame {
 			setPainelAsPartesDespesa();
 		} else if (lancamento_global.getTipo_lancamento() == 1) {
 			entTipoLancamento.setText("Receita");
-			setPainelAsPartesDespesa();
+			setPainelAsPartesReceita();
 
 		} 
 		else if (lancamento_global.getTipo_lancamento() == 2) {
@@ -3483,9 +3483,12 @@ public class TelaFinanceiroGerenciarLancamento extends JFrame {
 			}
 			case tipo: {
 				int tipo_recibo = dado.getTipo_recibo();
-				if(tipo_recibo == 0) {
+				if(tipo_recibo == 1) {
 					//recibo de pagamento
 					return ("Recibo de Pagamento");
+				}else if(tipo_recibo == 2) {
+					return ("Contrato de Empréstimo");
+
 				}
 			}
 			case status: {
@@ -3502,7 +3505,7 @@ public class TelaFinanceiroGerenciarLancamento extends JFrame {
 			}
 			case refere_se: {
 				int id_pai = dado.getId_pai();
-				if(dado.getTipo_recibo() == 0) {
+				if(dado.getTipo_recibo() == 1) {
 					FinanceiroPagamento pag = new FinanceiroPagamento();
 					if(id_pai > 0) {
 					
@@ -3510,6 +3513,10 @@ public class TelaFinanceiroGerenciarLancamento extends JFrame {
 						return "Recibo do Pagamento " + pag.getId_pagamento();
 						
 					}
+				}else {
+					//refere-se a um contrato de emprestimo
+					return "Contrato de Empréstimo";
+
 				}
 			}
 
@@ -4416,7 +4423,7 @@ public void salvar(String caminho_arquivo_temp) {
 			recibo.setStatus_recibo(0);
 			recibo.setId_pai( lancamento_global.getId_lancamento());
 			recibo.setId_lancamento_pai( lancamento_global.getId_lancamento());
-
+			recibo.setTipo_recibo(2);
 			recibo.setNome_arquivo(nome_arquivo + ".pdf");
 			
 			GerenciarBancoRecibos gerenciar = new GerenciarBancoRecibos();

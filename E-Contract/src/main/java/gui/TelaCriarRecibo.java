@@ -663,6 +663,7 @@ public class TelaCriarRecibo extends JFrame {
 			CadastroRecibo recibo = new CadastroRecibo();
 			recibo.setData_recibo(new GetData().getData());
 			recibo.setStatus_recibo(0);
+			recibo.setTipo_recibo(1);
 			recibo.setId_pai(pagamento_local.getId_pagamento());
 			recibo.setId_lancamento_pai(pagamento_local.getId_lancamento());
 

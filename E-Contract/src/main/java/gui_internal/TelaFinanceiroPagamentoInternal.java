@@ -51,6 +51,7 @@ import main.java.conexaoBanco.GerenciarBancoClientes;
 import main.java.conexaoBanco.GerenciarBancoCondicaoPagamentos;
 import main.java.conexaoBanco.GerenciarBancoFinanceiroConta;
 import main.java.conexaoBanco.GerenciarBancoParcelas;
+import main.java.gui.TelaFinanceiroGerenciarLancamento;
 import main.java.conexaoBanco.GerenciarBancoFinanceiroGrupoContas;
 import main.java.conexaoBanco.GerenciarBancoFinanceiroPagamento;
 import main.java.conexaoBanco.GerenciarBancoFinanceiroPagamentoEmprestimo;
@@ -58,6 +59,7 @@ import main.java.conexaoBanco.GerenciarBancoInstituicaoBancaria;
 import main.java.conexaoBanco.GerenciarBancoLancamento;
 import main.java.outros.DadosGlobais;
 import main.java.outros.JTextFieldPersonalizado;
+import main.java.views_personalizadas.TelaEscolhaRelatorioPagamentos;
 import main.java.views_personalizadas.TelaEscolhaRelatorioRomaneios;
 
 import javax.swing.JScrollPane;
@@ -104,6 +106,7 @@ public class TelaFinanceiroPagamentoInternal extends JInternalFrame {
 	private TableRowSorter<PagamentoTableModel> sorter;
 	private 	JLabel lblNumTotalPagamentos ;
 	private JLabel entValorTotalPagamentoDespesas, entValorTotalPagamentoReceitas, entBalanco;
+	private JLabel entValorTotalPagamentoTransferencia, entBalancoEmprestimo, entValorTotalPagamentoEmprestimoDespesas, entValorTotalPagamentoEmprestimoReceitas;
 
 	public TelaFinanceiroPagamentoInternal(int flag_tipo_tela, Window janela_pai) {
 
@@ -171,7 +174,7 @@ public class TelaFinanceiroPagamentoInternal extends JInternalFrame {
 		panel_5.setBackground(Color.WHITE);
 		painelPrinciapl.add(panel_5, "cell 0 3 3 2,grow");
 		panel_5.setLayout(
-				new MigLayout("", "[189px][39px][189px][][87.00px][][][][][][][][][][][][][][][][][][]", "[][][18px]"));
+				new MigLayout("", "[189px][39px][189px][][87.00px][][][][][][][][][][][][][][][][][][]", "[][][18px][][][][][][][][]"));
 		
 		JLabel lblNewLabel_1_3 = new JLabel("Núm Total Pagamentos:");
 		lblNewLabel_1_3.setFont(new Font("SansSerif", Font.PLAIN, 16));
@@ -183,30 +186,117 @@ public class TelaFinanceiroPagamentoInternal extends JInternalFrame {
 
 		JLabel lblNewLabel_1 = new JLabel("Valor Total Pagamento Despesas:");
 		lblNewLabel_1.setFont(new Font("SansSerif", Font.PLAIN, 16));
-		panel_5.add(lblNewLabel_1, "cell 0 2,grow");
+		panel_5.add(lblNewLabel_1, "cell 0 2 1 2,alignx right,growy");
 
 		entValorTotalPagamentoDespesas = new JLabel("R$ 100.000.000,00");
+		entValorTotalPagamentoDespesas.setForeground(new Color(153, 0, 0));
 		entValorTotalPagamentoDespesas.setFont(new Font("SansSerif", Font.BOLD, 18));
-		panel_5.add(entValorTotalPagamentoDespesas, "cell 1 2,alignx center,aligny bottom");
+		panel_5.add(entValorTotalPagamentoDespesas, "cell 1 2 1 2,alignx center,aligny bottom");
+		
+				JLabel lblNewLabel_1_2 = new JLabel("   Valor Total Pagamento Receitas:");
+				lblNewLabel_1_2.setFont(new Font("SansSerif", Font.PLAIN, 16));
+				panel_5.add(lblNewLabel_1_2, "cell 0 4,alignx right,growy");
+		
+				entValorTotalPagamentoReceitas = new JLabel("R$ 100.000.000,00");
+				entValorTotalPagamentoReceitas.setForeground(new Color(0, 51, 0));
+				entValorTotalPagamentoReceitas.setFont(new Font("SansSerif", Font.BOLD, 18));
+				panel_5.add(entValorTotalPagamentoReceitas, "cell 1 4");
+		
+				JLabel lblNewLabel_1_2_1 = new JLabel("Balanço:");
+				lblNewLabel_1_2_1.setFont(new Font("SansSerif", Font.PLAIN, 16));
+				panel_5.add(lblNewLabel_1_2_1, "cell 0 5,alignx right,growy");
+		
+				entBalanco = new JLabel("R$ 100.000.000,00");
+				entBalanco.setForeground(new Color(0, 153, 0));
+				entBalanco.setFont(new Font("SansSerif", Font.BOLD, 18));
+				panel_5.add(entBalanco, "cell 1 5");
+		
+		JLabel lblNewLabel_1_4 = new JLabel("Valor Total Pagamento Transferência:");
+		lblNewLabel_1_4.setFont(new Font("SansSerif", Font.PLAIN, 16));
+		panel_5.add(lblNewLabel_1_4, "cell 0 6 1 2,alignx right");
+		
 
-		JLabel lblNewLabel_1_2 = new JLabel("   Valor Total Pagamento Receitas:");
-		lblNewLabel_1_2.setFont(new Font("SansSerif", Font.PLAIN, 16));
-		panel_5.add(lblNewLabel_1_2, "cell 2 2,grow");
+		
+		 entValorTotalPagamentoTransferencia = new JLabel("R$ 0,00");
+		entValorTotalPagamentoTransferencia.setForeground(new Color(0, 0, 153));
+		entValorTotalPagamentoTransferencia.setFont(new Font("SansSerif", Font.BOLD, 18));
+		panel_5.add(entValorTotalPagamentoTransferencia, "cell 1 6 1 2");
+		
+		JLabel lblNewLabel_1_4_1 = new JLabel("Valor Total Pagamento Empréstimo(Despesas):");
+		lblNewLabel_1_4_1.setFont(new Font("SansSerif", Font.PLAIN, 16));
+		panel_5.add(lblNewLabel_1_4_1, "cell 0 8,alignx right");
+		
+		entValorTotalPagamentoEmprestimoDespesas  = new JLabel("R$ 0,00");
+		entValorTotalPagamentoEmprestimoDespesas.setForeground(new Color(102, 0, 0));
+		entValorTotalPagamentoEmprestimoDespesas.setFont(new Font("SansSerif", Font.BOLD, 18));
+		panel_5.add(entValorTotalPagamentoEmprestimoDespesas, "cell 1 8");
 
-		entValorTotalPagamentoReceitas = new JLabel("R$ 100.000.000,00");
-		entValorTotalPagamentoReceitas.setFont(new Font("SansSerif", Font.BOLD, 18));
-		panel_5.add(entValorTotalPagamentoReceitas, "cell 3 2");
 
-		JLabel lblNewLabel_1_2_1 = new JLabel("Balanço:");
-		lblNewLabel_1_2_1.setFont(new Font("SansSerif", Font.PLAIN, 16));
-		panel_5.add(lblNewLabel_1_2_1, "cell 4 2,alignx right,growy");
+		  JButton btnNewButton_1 = new JButton("Exportar");
+			btnNewButton_1.addActionListener(new ActionListener() {
+				public void actionPerformed(ActionEvent e) {
+					ArrayList<FinanceiroPagamentoCompleto> pagamentos_selecionados = new ArrayList<>();
+					int linhas_selecionadas[] = tabela_pagamento.getSelectedRows();// pega o indice da linha na tabela
 
-		entBalanco = new JLabel("R$ 100.000.000,00");
-		entBalanco.setFont(new Font("SansSerif", Font.BOLD, 18));
-		panel_5.add(entBalanco, "cell 5 2");
+					for (int i = 0; i < linhas_selecionadas.length; i++) {
 
+						int indice = linhas_selecionadas[i];//
+						int indexRowModel = tabela_pagamento.getRowSorter().convertRowIndexToModel(indice);
 
-	
+						FinanceiroPagamentoCompleto pagamento = modelo_pagamento.getValue(indexRowModel);
+						pagamentos_selecionados.add(pagamento);
+					}
+
+					TelaEscolhaRelatorioPagamentos escolha_opcoes = new TelaEscolhaRelatorioPagamentos(
+							pagamentos_selecionados, isto);
+					escolha_opcoes.setVisible(true);
+				}
+			});
+			btnNewButton_1.setForeground(Color.WHITE);
+			btnNewButton_1.setBackground(new Color(0, 0, 102));
+			btnNewButton_1.setFont(new Font("SansSerif", Font.BOLD, 16));
+			panel_5.add(btnNewButton_1, "cell 20 1,alignx right");
+			
+			JButton btnAbrirLancamento = new JButton("Abrir");
+			btnAbrirLancamento.addActionListener(new ActionListener() {
+				public void actionPerformed(ActionEvent e) {
+
+					ArrayList<Lancamento> lancamentos_selecionados = getLancamentosSelecionado();
+
+					if (lancamentos_selecionados.size() == 1) {
+						Lancamento lancamento_gerenciar = lancamentos_selecionados.get(0);
+						TelaFinanceiroGerenciarLancamento tela = new TelaFinanceiroGerenciarLancamento(lancamento_gerenciar,
+								null);
+						tela.setVisible(true);
+					}
+
+				}
+			});
+			
+			btnAbrirLancamento.setForeground(Color.WHITE);
+			btnAbrirLancamento.setFont(new Font("SansSerif", Font.BOLD, 16));
+			btnAbrirLancamento.setBackground(new Color(0, 51, 0));
+			panel_5.add(btnAbrirLancamento, "cell 22 1,alignx right");
+			
+			JLabel lblNewLabel_1_4_1_1 = new JLabel("Valor Total Pagamento Empréstimo(Receita):");
+			lblNewLabel_1_4_1_1.setFont(new Font("SansSerif", Font.PLAIN, 16));
+			panel_5.add(lblNewLabel_1_4_1_1, "cell 0 9");
+			
+			 entValorTotalPagamentoEmprestimoReceitas = new JLabel("R$ 0,00");
+			 entValorTotalPagamentoEmprestimoReceitas.setForeground(new Color(0, 51, 0));
+			 entValorTotalPagamentoEmprestimoReceitas.setFont(new Font("SansSerif", Font.BOLD, 18));
+			 panel_5.add(entValorTotalPagamentoEmprestimoReceitas, "cell 1 9");
+			  
+			  JLabel lblNewLabel_1_2_1_1 = new JLabel("Balanço:");
+			  lblNewLabel_1_2_1_1.setFont(new Font("SansSerif", Font.PLAIN, 16));
+			  panel_5.add(lblNewLabel_1_2_1_1, "cell 0 10,alignx right");
+			 
+			 
+			 
+			  entBalancoEmprestimo = new JLabel("R$ 0,00");
+			  entBalancoEmprestimo.setForeground(new Color(0, 153, 0));
+			  entBalancoEmprestimo.setFont(new Font("SansSerif", Font.BOLD, 18));
+			  panel_5.add(entBalancoEmprestimo, "cell 1 10");
 
 		
 	}
@@ -291,10 +381,16 @@ public class TelaFinanceiroPagamentoInternal extends JInternalFrame {
 	}
 
 	public void calcular() {
-
 		BigDecimal valor_total_despesas = BigDecimal.ZERO;
 		BigDecimal valor_total_receitas = BigDecimal.ZERO;
 		BigDecimal balanco = BigDecimal.ZERO;
+		
+		BigDecimal valor_total_transferencias = BigDecimal.ZERO;
+		BigDecimal balanco_emprestimo = BigDecimal.ZERO;
+		BigDecimal valor_total_pagamentos_emprestimo_despesas = BigDecimal.ZERO;
+		BigDecimal valor_total_pagamentos_emprestimo_receitas = BigDecimal.ZERO;
+
+		
 		int num_total_pagamentos = 0;
 
 		for (int row = 0; row < tabela_pagamento.getRowCount(); row++) {
@@ -309,26 +405,41 @@ public class TelaFinanceiroPagamentoInternal extends JInternalFrame {
 				// receita
 				valor_total_receitas = valor_total_receitas.add(pag.getFpag().getValor());
 
-			} else if (pag.getLancamento().getTipo_lancamento() == 3) {
+			} 
+			 else if (pag.getLancamento().getTipo_lancamento() == 2) {
+					// receita
+				 valor_total_transferencias = valor_total_transferencias.add(pag.getFpag().getValor());
+
+			} 
+			
+			else if (pag.getLancamento().getTipo_lancamento() == 3) {
 				// emprestimo
 				if(pag.getFpag().getTipo_pagamento() == 1) {
-					valor_total_despesas = valor_total_despesas.add(pag.getFpag().getValor());
+					valor_total_pagamentos_emprestimo_despesas = valor_total_pagamentos_emprestimo_despesas.add(pag.getFpag().getValor());
 
 				}else {
-				valor_total_receitas = valor_total_receitas.add(pag.getFpag().getValor());
+					valor_total_pagamentos_emprestimo_receitas = valor_total_pagamentos_emprestimo_receitas.add(pag.getFpag().getValor());
 				}
 			}
 
 		}
 
 		balanco = valor_total_receitas.subtract(valor_total_despesas);
+		balanco_emprestimo = valor_total_pagamentos_emprestimo_receitas.subtract(valor_total_pagamentos_emprestimo_despesas);
 
 		Locale ptBr = new Locale("pt", "BR");
+
+		lblNumTotalPagamentos.setText(num_total_pagamentos + "");
 
 		entValorTotalPagamentoDespesas.setText(NumberFormat.getCurrencyInstance(ptBr).format(valor_total_despesas));
 		entValorTotalPagamentoReceitas.setText(NumberFormat.getCurrencyInstance(ptBr).format(valor_total_receitas));
 		entBalanco.setText(NumberFormat.getCurrencyInstance(ptBr).format(balanco));
-		lblNumTotalPagamentos.setText(num_total_pagamentos + "");
+		
+		entValorTotalPagamentoTransferencia.setText(NumberFormat.getCurrencyInstance(ptBr).format(valor_total_transferencias));
+		entBalancoEmprestimo.setText(NumberFormat.getCurrencyInstance(ptBr).format(balanco_emprestimo));
+		entValorTotalPagamentoEmprestimoDespesas.setText(NumberFormat.getCurrencyInstance(ptBr).format(valor_total_pagamentos_emprestimo_despesas));
+		entValorTotalPagamentoEmprestimoReceitas.setText(NumberFormat.getCurrencyInstance(ptBr).format(valor_total_pagamentos_emprestimo_receitas));
+
 	}
 
 	public boolean checkString(String txt) {

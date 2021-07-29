@@ -155,8 +155,8 @@ public class TelaEscolhaTipoNovoContrato extends JDialog {
 			public void windowClosed(WindowEvent arg0) {
 				if(flag_edicao == 1 || tipoContrato == 1) {
 					//esta no modo edicao
-					DadosGlobais dados = DadosGlobais.getInstance();
-					 dados.getTeraGerenciarContratoPai().atualizarContratoLocal(true);
+				//	DadosGlobais dados = DadosGlobais.getInstance();
+					// dados.getTeraGerenciarContratoPai().atualizarContratoLocal(true);
 					
 				}
 			}

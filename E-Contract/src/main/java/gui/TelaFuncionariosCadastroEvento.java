@@ -111,6 +111,7 @@ import java.io.IOException;
 import java.net.URL;
 import java.text.NumberFormat;
 import java.time.LocalDate;
+import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.time.format.ResolverStyle;
@@ -140,6 +141,7 @@ public class TelaFuncionariosCadastroEvento extends JFrame {
 	private final JPanelBackground contentPanel = new JPanelBackground();
 	private JPanel painelPaiEvento;
 	// painel pai
+	private JComboBox cBMovimentacao;
 	private JComboBox cBMotivoDemissao ;
 	// painel filho1JPanelTransparent
 	private JPanelBackground painelDadosIniciais = new JPanelBackground();
@@ -156,18 +158,18 @@ public class TelaFuncionariosCadastroEvento extends JFrame {
 	private JComboBox cBEvento;
 	private JComboBox cbContratoTrabalho;
 	private CombBoxRenderPersonalizadoContratoTrabalho cbContratosPersonalizados;
-
+	private JTextField entDataVoltaFerias;
 	private ComboBoxPersonalizadoContratoTrabalho modelContratos = new ComboBoxPersonalizadoContratoTrabalho();
 	private CadastroFuncionario funcionario_local;
 	private JTextField entDataFolga;
 	private JTextField entDataDemissao;
-	private JTextField entDataIdaFerias;
-	private JTextField entDataVoltaFerias;
+	private JTextField entDataSaida;
 	private JTextField entNovoValorAlteracaoSalarial;
 	private JTextField entDataInicioInsencaoPonto;
 	private JTextField entDataFimInsencaoPonto;
 	private JTextField entDataInicioLicenca;
 	private JTextField entDataFimLicenca;
+	private JTextField entHoraSaida;
 
 	public TelaFuncionariosCadastroEvento(CadastroFuncionario funcionario, Window janela_pai) {
 
@@ -232,6 +234,8 @@ public class TelaFuncionariosCadastroEvento extends JFrame {
 		cBEvento.addItem("FÉRIAS".toUpperCase());
 		cBEvento.addItem("ISENÇÃO DE PONTO".toUpperCase());
 		cBEvento.addItem("LICENÇA".toUpperCase());
+		cBEvento.addItem("SAÍDA ESPECIAL".toUpperCase());
+
 
 		cBEvento.addItemListener(new ItemListener() {
 			public void itemStateChanged(ItemEvent evt) {
@@ -253,6 +257,8 @@ public class TelaFuncionariosCadastroEvento extends JFrame {
 					setPainelInsencaoPonto();
 				} else if (evt.getItem().equals("LICENÇA")) {
 					setPainelLicenca();
+				} else if (evt.getItem().equals("SAÍDA ESPECIAL")) {
+					setPainelSaidaEspecial();
 				}
 
 				painelPaiEvento.repaint();
@@ -315,7 +321,6 @@ public class TelaFuncionariosCadastroEvento extends JFrame {
 
 		// configura widgets no painel finalizar
 
-	    setPainelEventoFolga();
 		pesquisar_contratos();
 		this.setLocationRelativeTo(janela_pai);
 
@@ -385,6 +390,54 @@ public class TelaFuncionariosCadastroEvento extends JFrame {
 
 	}
 
+	public void setPainelSaidaEspecial() {
+
+		JPanel painelEventoSaidaEspecial = new JPanel();
+		painelEventoSaidaEspecial.setBackground(Color.WHITE);
+		painelEventoSaidaEspecial.setLayout(new MigLayout("", "[][grow][][grow]", "[][][]"));
+
+		JLabel lblDataIda = new JLabel("Data:");
+		lblDataIda.setHorizontalAlignment(SwingConstants.TRAILING);
+		lblDataIda.setForeground(Color.BLACK);
+		lblDataIda.setFont(new Font("Arial", Font.PLAIN, 16));
+		lblDataIda.setBackground(Color.ORANGE);
+		painelEventoSaidaEspecial.add(lblDataIda, "cell 0 0,alignx trailing");
+
+		entDataSaida = new JTextField();
+		painelEventoSaidaEspecial.add(entDataSaida, "cell 1 0,growx");
+		entDataSaida.setColumns(10);
+		painelPaiEvento.add(painelEventoSaidaEspecial, "cell 0 0,grow");
+		
+		JLabel lblHora = new JLabel("Hora:");
+		lblHora.setHorizontalAlignment(SwingConstants.TRAILING);
+		lblHora.setForeground(Color.BLACK);
+		lblHora.setFont(new Font("Arial", Font.PLAIN, 16));
+		lblHora.setBackground(Color.ORANGE);
+		painelEventoSaidaEspecial.add(lblHora, "cell 0 1,alignx trailing");
+		
+		entHoraSaida = new JTextField();
+		entHoraSaida.setColumns(10);
+		painelEventoSaidaEspecial.add(entHoraSaida, "cell 1 1,growx");
+		
+		JLabel lblMovimentao = new JLabel("Movimentação:");
+		lblMovimentao.setHorizontalAlignment(SwingConstants.TRAILING);
+		lblMovimentao.setForeground(Color.BLACK);
+		lblMovimentao.setFont(new Font("Arial", Font.PLAIN, 16));
+		lblMovimentao.setBackground(Color.ORANGE);
+		painelEventoSaidaEspecial.add(lblMovimentao, "cell 0 2,alignx trailing");
+		
+		 cBMovimentacao = new JComboBox();
+		painelEventoSaidaEspecial.add(cBMovimentacao, "cell 1 2,growx");
+		cBMovimentacao.addItem("ENTRADA 1");
+		cBMovimentacao.addItem("SAÍDA 1");
+
+		cBMovimentacao.addItem("ENTRADA 2");
+		cBMovimentacao.addItem("SAÍDA 2");
+
+		cBMovimentacao.addItem("ENTRADA 3");
+		cBMovimentacao.addItem("SAÍDA 3");
+	}
+	
 	public void setPainelEventoFerias() {
 
 		JPanel painelEventoFerias = new JPanel();
@@ -398,9 +451,9 @@ public class TelaFuncionariosCadastroEvento extends JFrame {
 		lblDataIda.setBackground(Color.ORANGE);
 		painelEventoFerias.add(lblDataIda, "cell 0 0,alignx trailing");
 
-		entDataIdaFerias = new JTextField();
-		painelEventoFerias.add(entDataIdaFerias, "cell 1 0,growx");
-		entDataIdaFerias.setColumns(10);
+		entDataSaida = new JTextField();
+		painelEventoFerias.add(entDataSaida, "cell 1 0,growx");
+		entDataSaida.setColumns(10);
 
 		JLabel lblDataVolta = new JLabel("Data Volta:");
 		lblDataVolta.setHorizontalAlignment(SwingConstants.TRAILING);
@@ -481,7 +534,7 @@ public class TelaFuncionariosCadastroEvento extends JFrame {
 		} else if (cBEvento.getSelectedIndex() == 3) {
 			// FÉRIAS
 			evento.setTipo_evento(3);
-			String data_ida = entDataIdaFerias.getText();
+			String data_ida = entDataSaida.getText();
 			String data_volta = entDataVoltaFerias.getText();
 
 			try {
@@ -565,6 +618,43 @@ public class TelaFuncionariosCadastroEvento extends JFrame {
 
 			} catch (Exception e) {
 				JOptionPane.showMessageDialog(isto, "Data da Inicial Inválida!");
+				return null;
+			}
+		}else if(cBEvento.getSelectedIndex() == 6) {
+			//saida especial
+			evento.setTipo_evento(6);
+			String data = entDataSaida.getText();
+			
+			String hora = entHoraSaida.getText();
+			int movimentacao = cBMovimentacao.getSelectedIndex();
+
+			try {
+				if (isDateValid(data)) {
+					evento.setData_saida(data);
+					
+					//verificar hora
+					try {
+						LocalTime hora_lt  = LocalTime.parse(hora, DateTimeFormatter.ofPattern("HH:mm"));
+						evento.setHora_saida(hora);
+		
+						evento.setMovimentacao(movimentacao);
+						
+						return evento;
+
+						}
+						catch(Exception y) {
+							JOptionPane.showMessageDialog(isto, "Hora Inválida!");
+							return null;
+						}
+
+
+				} else {
+					JOptionPane.showMessageDialog(isto, "Data Saída Inválida!");
+					return null;
+				}
+
+			} catch (Exception e) {
+				JOptionPane.showMessageDialog(isto, "Data Saída Inválida!");
 				return null;
 			}
 		}

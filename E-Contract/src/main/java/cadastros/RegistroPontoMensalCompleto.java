@@ -18,5 +18,6 @@ public class RegistroPontoMensalCompleto {
 	private String hora_trabalhada;
 	private String hora_extra;
 	private String hora_atrazo;
+	private String hora_noturna;
 	
 }

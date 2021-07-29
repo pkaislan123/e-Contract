@@ -24,8 +24,8 @@ public class GerenciarBancoFuncionariosContratoTrabalho {
 	 */
 
 	public String sql_ContratodeTrabalho(CadastroFuncionarioAdmissao contrato) {
-		return "insert into funcionario_contrato_trabalho (id_colaborador, status, data_admissao, tipo_contrato,cargo,funcao,salario) values ('"
-				+ contrato.getId_colaborador() + "','" + contrato.getStatus() + "','" + contrato.getData_admissao()
+		return "insert into funcionario_contrato_trabalho (id_departamento, id_colaborador, status, data_admissao, tipo_contrato,cargo,funcao,salario) values ('"
+				+ contrato.getId_departamento() + "','" + contrato.getId_colaborador() + "','" + contrato.getStatus() + "','" + contrato.getData_admissao()
 				+ "','" + contrato.getTipo_contrato() + "','" + contrato.getCargo() + "','" + contrato.getFuncao()
 				+ "','" + contrato.getSalario() + "')";
 	}
@@ -65,7 +65,10 @@ public class GerenciarBancoFuncionariosContratoTrabalho {
 	}
 
 	public ArrayList<CadastroFuncionarioAdmissao> getcontratos() {
-		String selectAdivitos = "select * from funcionario_contrato_trabalho";
+		String selectAdivitos = "select fct.*,\r\n"
+				+ "dp.nome as nome_departamento\r\n"
+				+ " from funcionario_contrato_trabalho fct\r\n"
+				+ "left join departamento dp on dp.id_departamento = fct.id_departamento";
 		Connection conn = null;
 		PreparedStatement pstm = null;
 		ResultSet rs = null;
@@ -81,13 +84,14 @@ public class GerenciarBancoFuncionariosContratoTrabalho {
 
 				contrato.setId_contrato(rs.getInt("id_contrato"));
 				contrato.setId_colaborador(rs.getInt("id_colaborador"));
-
+				contrato.setId_departamento(rs.getInt("id_departamento"));
 				contrato.setStatus(rs.getInt("status"));
 				contrato.setData_admissao(rs.getString("data_admissao"));
 				contrato.setTipo_contrato(rs.getString("tipo_contrato"));
 				contrato.setCargo(rs.getString("cargo"));
 				contrato.setFuncao(rs.getString("funcao"));
 				contrato.setSalario(rs.getDouble("salario"));
+				contrato.setNome_departamento(rs.getString("nome_departamento"));
 
 				lista_contratos.add(contrato);
 
@@ -101,7 +105,10 @@ public class GerenciarBancoFuncionariosContratoTrabalho {
 	}
 
 	public ArrayList<CadastroFuncionarioAdmissao> getcontratosPorColaborador(int id_coloborador) {
-		String selectAdivitos = "select * from funcionario_contrato_trabalho where id_colaborador = ?";
+		String selectAdivitos = "select fct.*,\r\n"
+				+ "dp.nome as nome_departamento\r\n"
+				+ " from funcionario_contrato_trabalho fct\r\n"
+				+ "left join departamento dp on dp.id_departamento = fct.id_departamento where fct.id_colaborador = ?";
 		Connection conn = null;
 		PreparedStatement pstm = null;
 		ResultSet rs = null;
@@ -117,6 +124,7 @@ public class GerenciarBancoFuncionariosContratoTrabalho {
 
 				contrato.setId_contrato(rs.getInt("id_contrato"));
 				contrato.setId_colaborador(rs.getInt("id_colaborador"));
+				contrato.setId_departamento(rs.getInt("id_departamento"));
 
 				contrato.setStatus(rs.getInt("status"));
 				contrato.setData_admissao(rs.getString("data_admissao"));
@@ -124,6 +132,7 @@ public class GerenciarBancoFuncionariosContratoTrabalho {
 				contrato.setCargo(rs.getString("cargo"));
 				contrato.setFuncao(rs.getString("funcao"));
 				contrato.setSalario(rs.getDouble("salario"));
+				contrato.setNome_departamento(rs.getString("nome_departamento"));
 
 				lista_contratos.add(contrato);
 
@@ -138,7 +147,10 @@ public class GerenciarBancoFuncionariosContratoTrabalho {
 
 	public CadastroFuncionarioAdmissao getcontrato(int id) {
 
-		String sql_ContratodeTrabalho = "select * from funcionario_contrato_trabalho where id_contrato = ?";
+		String sql_ContratodeTrabalho = "select fct.*,\r\n"
+				+ "dp.nome as nome_departamento\r\n"
+				+ " from funcionario_contrato_trabalho fct\r\n"
+				+ "left join departamento dp on dp.id_departamento = fct.id_departamento where fct.id_contrato = ?";
 		Connection conn = null;
 		PreparedStatement pstm = null;
 		ResultSet rs = null;
@@ -154,6 +166,7 @@ public class GerenciarBancoFuncionariosContratoTrabalho {
 
 			contrato.setId_contrato(rs.getInt("id_contrato"));
 			contrato.setId_colaborador(rs.getInt("id_colaborador"));
+			contrato.setId_departamento(rs.getInt("id_departamento"));
 
 			contrato.setStatus(rs.getInt("status"));
 			contrato.setData_admissao(rs.getString("data_admissao"));
@@ -161,6 +174,7 @@ public class GerenciarBancoFuncionariosContratoTrabalho {
 			contrato.setCargo(rs.getString("cargo"));
 			contrato.setFuncao(rs.getString("funcao"));
 			contrato.setSalario(rs.getDouble("salario"));
+			contrato.setNome_departamento(rs.getString("nome_departamento"));
 
 			return contrato;
 
@@ -176,7 +190,10 @@ public class GerenciarBancoFuncionariosContratoTrabalho {
 
 	public CadastroFuncionarioAdmissao getcontratoAtivoPorFuncionario(int id_func) {
 
-		String sql_ContratodeTrabalho = "select * from funcionario_contrato_trabalho where id_colaborador = ? and status = 1";
+		String sql_ContratodeTrabalho = "select fct.*,\r\n"
+				+ "dp.nome as nome_departamento\r\n"
+				+ " from funcionario_contrato_trabalho fct\r\n"
+				+ "left join departamento dp on dp.id_departamento = fct.id_departamento where fct.id_colaborador = ? and fct.status = 1";
 		Connection conn = null;
 		PreparedStatement pstm = null;
 		ResultSet rs = null;
@@ -192,6 +209,7 @@ public class GerenciarBancoFuncionariosContratoTrabalho {
 
 			contrato.setId_contrato(rs.getInt("id_contrato"));
 			contrato.setId_colaborador(rs.getInt("id_colaborador"));
+			contrato.setId_departamento(rs.getInt("id_departamento"));
 
 			contrato.setStatus(rs.getInt("status"));
 			contrato.setData_admissao(rs.getString("data_admissao"));
@@ -199,6 +217,7 @@ public class GerenciarBancoFuncionariosContratoTrabalho {
 			contrato.setCargo(rs.getString("cargo"));
 			contrato.setFuncao(rs.getString("funcao"));
 			contrato.setSalario(rs.getDouble("salario"));
+			contrato.setNome_departamento(rs.getString("nome_departamento"));
 
 			return contrato;
 
@@ -228,6 +247,7 @@ public class GerenciarBancoFuncionariosContratoTrabalho {
 
 			contrato.setId_contrato(rs.getInt("id_contrato"));
 			contrato.setId_colaborador(rs.getInt("id_colaborador"));
+			contrato.setId_departamento(rs.getInt("id_departamento"));
 
 			contrato.setStatus(rs.getInt("status"));
 			contrato.setData_admissao(rs.getString("data_admissao"));
@@ -237,10 +257,12 @@ public class GerenciarBancoFuncionariosContratoTrabalho {
 			contrato.setSalario(rs.getDouble("salario"));
 			contrato.setData_encerramento_contrato(rs.getString("data_encerramento"));
 			contrato.setUltimo_salario(rs.getDouble("novo_valor_salarial"));
+			contrato.setNome_departamento(rs.getString("nome_departamento"));
 
 			return contrato;
 
 		} catch (Exception e) {
+			JOptionPane.showMessageDialog(null, "Erro ao consultar contrato ativo, erro: " + e.getMessage() + "\nCausa: " + e.getCause() );
 			return null;
 		}
 

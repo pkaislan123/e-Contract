@@ -250,6 +250,37 @@ public class TelaFinanceiroMostrarReceitasDespesas extends JFrame {
 			}
 			
 		}
+		
+		else if(flag_tipo_tela == 2) {
+			
+			TelaFinanceiroParcelaInternal despesas = new TelaFinanceiroParcelaInternal( 1,janela_anotacoes);
+			despesas.setLocation(22, 31);
+			despesas.pesquisar(cc, mes, ano, 1);
+			despesas.setVisible(true);
+			
+			desktopPane_1.add(despesas);
+			try {
+				despesas.setMaximum(true);
+			} catch (PropertyVetoException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+
+			
+			TelaFinanceiroParcelaInternal receitas = new TelaFinanceiroParcelaInternal( 0, janela_anotacoes);
+			receitas.pesquisar(cc, mes, ano, 0);
+
+			receitas.setVisible(true);
+			desktopPane.add(receitas);
+			try {
+				receitas.setMaximum(true);
+			} catch (PropertyVetoException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			
+		}
+		
 		this.setExtendedState(JFrame.MAXIMIZED_BOTH);
 		this.setLocationRelativeTo(janela_anotacoes);
 

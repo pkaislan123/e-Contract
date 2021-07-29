@@ -260,17 +260,18 @@ public class GerenciarBancoDocumento {
         return listaDocs;
 	}
 	
-	public ArrayList<CadastroDocumento> getDocumentosPorPai(int id_pai){
+	public ArrayList<CadastroDocumento> getDocumentosPorPai(int id_pai, int id_contrato_pai){
 		Connection conn = null;
         PreparedStatement pstm = null;
         ResultSet rs = null;
-  	    String select_documentos = "select * from documento where id_pai = ?";
+  	    String select_documentos = "select * from documento where id_pai = ? and id_contrato_pai = ?";
 
         ArrayList<CadastroDocumento> listaDocs = new ArrayList<CadastroDocumento>();
         try {
             conn = ConexaoBanco.getConexao();
             pstm = conn.prepareStatement(select_documentos);
             pstm.setInt(1,  id_pai);
+            pstm.setInt(2,  id_contrato_pai);
             rs = pstm.executeQuery();
             while (rs.next()) {
             	CadastroDocumento doc = new CadastroDocumento();
@@ -290,10 +291,11 @@ public class GerenciarBancoDocumento {
             	listaDocs.add(doc);
             }
             ConexaoBanco.fechaConexao(conn, pstm, rs);
+            return listaDocs;
         } catch (Exception e) {
             JOptionPane.showMessageDialog(null, "Erro ao listar documentos anexados ao id_pai: " + id_pai + " "  );
+            return null;
         }
-        return listaDocs;
 	}
 	
 	public ArrayList<CadastroDocumento> getDocumentosCliente(int id_cliente){

@@ -53,6 +53,10 @@ import main.java.classesExtras.ComboBoxPersonalizadoFuncionario;
 import main.java.classesExtras.ComboBoxRenderPersonalizadoFuncionario;
 import main.java.cadastros.FinanceiroConta;
 import main.java.cadastros.FinanceiroGrupoContas;
+import main.java.cadastros.FinanceiroPagamento;
+import main.java.cadastros.FinanceiroPagamentoCompleto;
+import main.java.cadastros.FuncionarioContaAssociada;
+import main.java.cadastros.Lancamento;
 import main.java.cadastros.RegistroAuxiliarHoras;
 import main.java.cadastros.FinanceiroConta;
 import main.java.cadastros.FinanceiroConta;
@@ -62,14 +66,18 @@ import main.java.conexaoBanco.GerenciarBancoDocumento;
 import main.java.conexaoBanco.GerenciarBancoEventoGlobal;
 import main.java.conexaoBanco.GerenciarBancoFinanceiroConta;
 import main.java.conexaoBanco.GerenciarBancoFinanceiroGrupoContas;
+import main.java.conexaoBanco.GerenciarBancoFinanceiroPagamento;
 import main.java.conexaoBanco.GerenciarBancoFuncionarioBancoHoras;
 import main.java.conexaoBanco.GerenciarBancoFuncionarioSalarios;
 import main.java.conexaoBanco.GerenciarBancoFuncionarios;
 import main.java.conexaoBanco.GerenciarBancoFuncionariosCalculos;
 import main.java.conexaoBanco.GerenciarBancoFuncionariosContratoTrabalho;
 import main.java.conexaoBanco.GerenciarBancoFuncionariosEventos;
+import main.java.conexaoBanco.GerenciarBancoLancamento;
 import main.java.conexaoBanco.GerenciarBancoRegistroPonto;
 import main.java.conexaoBanco.GerenciarBancoRotina;
+import main.java.gui.TelaFuncionarioDemonstrativoDePonto.RegistroHoraLocal;
+import main.java.gui.TelaFuncionarioDemonstrativoDePonto.Semana;
 import main.java.gui.TelaRecursosHumanos.CellRenderRPDiario;
 import main.java.manipular.ConfiguracoesGlobais;
 import main.java.manipular.ManipularTxt;
@@ -112,8 +120,10 @@ import javax.swing.JComboBox;
 import javax.swing.ImageIcon;
 import javax.swing.JTabbedPane;
 import javax.swing.JRadioButton;
+import javax.swing.JTextArea;
 
 public class TelaFuncionariosCadastroSalario extends JFrame {
+	private ArrayList<String> texto_atrazo;
 
 	private JLabel lblTotalHorasExtras, lblTotalHorasAtrazo, lblTotalHorasNormais;
 	Locale ptBr = new Locale("pt", "BR");
@@ -137,30 +147,34 @@ public class TelaFuncionariosCadastroSalario extends JFrame {
 	private JTable tabela_acrescimos, tabela_descontos;
 	CadastroFuncionario func = null;
 	private int tipo_banco_horas;
-	private JLabel lblColaborador, lblValorTotalAcrescimosAReceber, lblValorTotalDescontosAAbater, lblTotalHorasMensal, lblUltimoValorSalarial, lblTotalHoras100, lblTotalHoras50,
-			lblTotalHoras60;
+	private JLabel lblColaborador, lblValorTotalAcrescimosAReceber, lblValorTotalDescontosAAbater, lblTotalHorasMensal,
+			lblUltimoValorSalarial, lblTotalHoras100, lblTotalHoras50, lblTotalHoras60;
 	private JLabel lblDescricaoNovoBancoHoras, lblTipoNovoBancoHoras, lblQuantidadeNovoBancoHoras;
 	private double inss_global = 0;
 	private JLabel lblPisoSalarial, lblValorHoraNormal;
 	private double piso_salarial = 0;
-	private JLabel lblValorHora50, lblValorHora60, lblValorHora100;
+	private JLabel lblValorHora50, lblValorHora60, lblValorHoraNoturna, lblValorHora100;
 	private JLabel lblQuantidadeHoras50, lblQuantidadeHoras60, lblQuantidadeHoras100, lblQuantidadeHorasExtras,
 			lblValorTotalHorasExtras;
-	private long tHTrabalhadas, tHMensal, tHAtrazo, tHExtras, tH100, tH50, tH60;
+	private long tHTrabalhadas, tHMensal, tHAtrazo, tHExtras, tH100, tH50, tH60, tHNoturnas;
 	private JLabel lblCalculoIrrf, lblQuantidadeHorasAtrazo, lblValorTotalHoras50, lblValorTotalHoras60,
 			lblValorTotalHoras100, lblCalculoInss;
-	private JLabel lblTipoBancoHoras, lblDescricaoBancoHoras, lblQuantidadeBancoHoras, lblHorasExtrasAReceber;
+	private JLabel lblHorasNoturnas, lblTipoBancoHoras, lblTotalHorasNoturnas, lblDescricaoBancoHoras, lblQuantidadeBancoHoras, lblHorasExtrasAReceber;
 
 	private JRadioButton rdbtnDepositarSim, rdbtnDepositarNao, rdbtnInssSim, rdbtnIrrfSim, rdbtnIrrfNao, rdbtnInssNao;
 	JLabel lblSalarioBaseAReceber;
-	private JLabel lblValorTotalSalarioLiquido, lblValorTotalSalarioBruto;
+	private JLabel lblValorTotalSalarioLiquido, lblValorTotalSalarioBruto,lblValorDiaria;
 	private CadastroFuncionarioAdmissao ct_global;
 	private double valor_total_descontos_global = 0, valor_total_acrescimos_global = 0, valor_total_horas_extras_global;
 	private Window janela_pai_global;
-	private RegistroAuxiliarHoras horas_global =  new RegistroAuxiliarHoras();
+	private RegistroAuxiliarHoras horas_global = new RegistroAuxiliarHoras();
 	private Log GerenciadorLog;
 	private CadastroLogin login;
 	private ConfiguracoesGlobais configs_globais;
+	private JTextArea textAreaDescricaoAtrasos;
+	private int total_dias_descontar = 0;
+	
+	
 	public TelaFuncionariosCadastroSalario(CadastroFuncionario funcionario, int mes, String ano, Window janela_pai) {
 		setTitle("Cálculo de Salário");
 		getDadosGlobais();
@@ -445,7 +459,7 @@ public class TelaFuncionariosCadastroSalario extends JFrame {
 		painelCalculos.setBorder(new LineBorder(new Color(0, 0, 0)));
 		painelCalculos.setBackground(Color.WHITE);
 		painelPrincipal.add(painelCalculos, "flowx,cell 0 9,alignx left,growy");
-		painelCalculos.setLayout(new MigLayout("", "[152px][42px]", "[21px][21px][21px][21px]"));
+		painelCalculos.setLayout(new MigLayout("", "[152px][42px]", "[21px][21px][21px][21px][]"));
 
 		JLabel lblNewLabel_1_2_2 = new JLabel("Total Horas Mensal:");
 		lblNewLabel_1_2_2.setFont(new Font("Tahoma", Font.PLAIN, 16));
@@ -481,11 +495,20 @@ public class TelaFuncionariosCadastroSalario extends JFrame {
 		lblTotalHorasAtrazo.setForeground(Color.RED);
 		lblTotalHorasAtrazo.setFont(new Font("SansSerif", Font.BOLD, 16));
 		painelCalculos.add(lblTotalHorasAtrazo, "cell 1 3,alignx left,aligny top");
+		
+		JLabel lblNewLabel_1_2_1_1_1 = new JLabel("Total Horas Noturnas:");
+		lblNewLabel_1_2_1_1_1.setFont(new Font("Tahoma", Font.PLAIN, 16));
+		painelCalculos.add(lblNewLabel_1_2_1_1_1, "cell 0 4,alignx right");
+		
+		 lblTotalHorasNoturnas = new JLabel("0:00");
+		lblTotalHorasNoturnas.setForeground(new Color(102, 51, 0));
+		lblTotalHorasNoturnas.setFont(new Font("SansSerif", Font.BOLD, 16));
+		painelCalculos.add(lblTotalHorasNoturnas, "cell 1 4");
 
 		JPanel panel_5 = new JPanel();
 		panel_5.setBackground(new Color(204, 255, 255));
 		painelPrincipal.add(panel_5, "cell 0 9,grow");
-		panel_5.setLayout(new MigLayout("", "[][][]", "[][][][]"));
+		panel_5.setLayout(new MigLayout("", "[][][][][grow]", "[grow][][][]"));
 
 		JLabel lblNewLabel_1_2_1_2_1 = new JLabel("Total Horas Extras:");
 		lblNewLabel_1_2_1_2_1.setForeground(new Color(204, 255, 255));
@@ -495,6 +518,17 @@ public class TelaFuncionariosCadastroSalario extends JFrame {
 		JLabel lblNewLabel_1_2_1_2 = new JLabel("Horas Extras");
 		lblNewLabel_1_2_1_2.setFont(new Font("Tahoma", Font.BOLD, 16));
 		panel_5.add(lblNewLabel_1_2_1_2, "cell 1 0 2 1,alignx center");
+		
+		JLabel lblNewLabel_1_2_1_2_2 = new JLabel("Descrição de Atrasos");
+		lblNewLabel_1_2_1_2_2.setFont(new Font("Tahoma", Font.BOLD, 16));
+		panel_5.add(lblNewLabel_1_2_1_2_2, "cell 4 0,alignx center");
+		
+		 textAreaDescricaoAtrasos = new JTextArea();
+		textAreaDescricaoAtrasos.setWrapStyleWord(true);
+		textAreaDescricaoAtrasos.setLineWrap(true);
+		textAreaDescricaoAtrasos.setFont(new Font("SansSerif", Font.BOLD, 16));
+		textAreaDescricaoAtrasos.setBackground(new Color(204, 255, 255));
+		panel_5.add(textAreaDescricaoAtrasos, "cell 4 1 1 3,grow");
 
 		JLabel lblNewLabel_1_2_1_3 = new JLabel("Total Horas 50%:");
 		lblNewLabel_1_2_1_3.setFont(new Font("Tahoma", Font.PLAIN, 16));
@@ -526,21 +560,21 @@ public class TelaFuncionariosCadastroSalario extends JFrame {
 		JPanel painelCalculo = new JPanel();
 		painelCalculo.setBackground(Color.WHITE);
 		tabbedPane.addTab("Cálculo de Salário", null, painelCalculo, null);
-		painelCalculo.setLayout(new MigLayout("", "[grow][grow][grow]", "[][grow][][][][][]"));
+		painelCalculo.setLayout(new MigLayout("", "[grow][grow][grow]", "[][][grow][][][][][]"));
 
 		JPanel panel_8 = new JPanel();
 		panel_8.setBackground(Color.WHITE);
 		painelCalculo.add(panel_8, "cell 0 0,alignx center,growy");
-		panel_8.setLayout(new MigLayout("", "[][][][][][]", "[grow][][][][][][][grow][][][][grow][][grow]"));
+		panel_8.setLayout(new MigLayout("", "[][][][][][][][grow]", "[grow][][][][][][][grow][][grow][][][][grow]"));
 
 		JPanel panel_11 = new JPanel();
 		panel_11.setBorder(new LineBorder(new Color(0, 0, 0)));
 		panel_11.setBackground(Color.WHITE);
-		panel_8.add(panel_11, "cell 0 0 6 8,alignx center,growy");
-		panel_11.setLayout(new MigLayout("", "[][]", "[][][][][][][]"));
+		panel_8.add(panel_11, "cell 0 0 8 8,alignx center,aligny center");
+		panel_11.setLayout(new MigLayout("", "[][]", "[][][][][][][][][]"));
 
 		JLabel lblNewLabel_1_3 = new JLabel("Piso Salarial:");
-		panel_11.add(lblNewLabel_1_3, "cell 0 0");
+		panel_11.add(lblNewLabel_1_3, "cell 0 0,alignx right");
 		lblNewLabel_1_3.setFont(new Font("Tahoma", Font.PLAIN, 16));
 
 		lblPisoSalarial = new JLabel("R$ 0.000,00");
@@ -548,19 +582,35 @@ public class TelaFuncionariosCadastroSalario extends JFrame {
 		lblPisoSalarial.setFont(new Font("SansSerif", Font.BOLD, 18));
 
 		JLabel lblNewLabel_1_3_2 = new JLabel("Valor Hora:");
-		panel_11.add(lblNewLabel_1_3_2, "cell 0 1");
+		panel_11.add(lblNewLabel_1_3_2, "cell 0 1,alignx right");
 		lblNewLabel_1_3_2.setFont(new Font("Tahoma", Font.PLAIN, 16));
 
 		lblValorHoraNormal = new JLabel("R$ 0.000,00");
 		panel_11.add(lblValorHoraNormal, "cell 1 1");
 		lblValorHoraNormal.setFont(new Font("SansSerif", Font.BOLD, 18));
+		
+		JLabel lblNewLabel_1_3_2_2 = new JLabel("Valor Hora Noturna:");
+		lblNewLabel_1_3_2_2.setFont(new Font("Tahoma", Font.PLAIN, 16));
+		panel_11.add(lblNewLabel_1_3_2_2, "cell 0 2,alignx right");
+		
+		 lblValorHoraNoturna = new JLabel("R$ 0,00");
+		lblValorHoraNoturna.setFont(new Font("SansSerif", Font.BOLD, 18));
+		panel_11.add(lblValorHoraNoturna, "cell 1 2");
+		
+		JLabel lblNewLabel_1_3_2_1 = new JLabel("Valor da Diária:");
+		lblNewLabel_1_3_2_1.setFont(new Font("Tahoma", Font.PLAIN, 16));
+		panel_11.add(lblNewLabel_1_3_2_1, "cell 0 3,alignx right");
+		
+		 lblValorDiaria = new JLabel("R$ 0.000,00");
+		lblValorDiaria.setFont(new Font("SansSerif", Font.BOLD, 18));
+		panel_11.add(lblValorDiaria, "cell 1 3");
 
 		JLabel lblNewLabel_1_3_1 = new JLabel("Descontar Atrazos?:");
-		panel_11.add(lblNewLabel_1_3_1, "cell 0 2");
+		panel_11.add(lblNewLabel_1_3_1, "cell 0 4");
 		lblNewLabel_1_3_1.setFont(new Font("Tahoma", Font.PLAIN, 16));
 
 		rdbtnDescontarAtrazosSim = new JRadioButton("Sim");
-		panel_11.add(rdbtnDescontarAtrazosSim, "flowx,cell 1 2");
+		panel_11.add(rdbtnDescontarAtrazosSim, "flowx,cell 1 4");
 		rdbtnDescontarAtrazosSim.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 
@@ -572,7 +622,7 @@ public class TelaFuncionariosCadastroSalario extends JFrame {
 		rdbtnDescontarAtrazosSim.setFont(new Font("SansSerif", Font.PLAIN, 16));
 
 		rdbtnDescontarAtrazosNao = new JRadioButton("Não");
-		panel_11.add(rdbtnDescontarAtrazosNao, "cell 1 2");
+		panel_11.add(rdbtnDescontarAtrazosNao, "cell 1 4");
 		rdbtnDescontarAtrazosNao.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 
@@ -584,11 +634,11 @@ public class TelaFuncionariosCadastroSalario extends JFrame {
 		rdbtnDescontarAtrazosNao.setFont(new Font("SansSerif", Font.PLAIN, 16));
 
 		JLabel lblNewLabel_1_3_1_2 = new JLabel("INSS:");
-		panel_11.add(lblNewLabel_1_3_1_2, "cell 0 3");
+		panel_11.add(lblNewLabel_1_3_1_2, "cell 0 5");
 		lblNewLabel_1_3_1_2.setFont(new Font("Tahoma", Font.PLAIN, 16));
 
 		rdbtnInssSim = new JRadioButton("Sim");
-		panel_11.add(rdbtnInssSim, "flowx,cell 1 3");
+		panel_11.add(rdbtnInssSim, "flowx,cell 1 5");
 		rdbtnInssSim.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 
@@ -601,7 +651,7 @@ public class TelaFuncionariosCadastroSalario extends JFrame {
 
 		rdbtnInssNao = new JRadioButton("Não");
 		rdbtnInssNao.setSelected(true);
-		panel_11.add(rdbtnInssNao, "cell 1 3");
+		panel_11.add(rdbtnInssNao, "cell 1 5");
 		rdbtnInssNao.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 
@@ -612,11 +662,11 @@ public class TelaFuncionariosCadastroSalario extends JFrame {
 		rdbtnInssNao.setFont(new Font("SansSerif", Font.PLAIN, 16));
 
 		JLabel lblNewLabel_1_3_1_2_1 = new JLabel("IRRF:");
-		panel_11.add(lblNewLabel_1_3_1_2_1, "cell 0 4");
+		panel_11.add(lblNewLabel_1_3_1_2_1, "cell 0 6");
 		lblNewLabel_1_3_1_2_1.setFont(new Font("Tahoma", Font.PLAIN, 16));
 
 		rdbtnIrrfSim = new JRadioButton("Sim");
-		panel_11.add(rdbtnIrrfSim, "flowx,cell 1 4");
+		panel_11.add(rdbtnIrrfSim, "flowx,cell 1 6");
 		rdbtnIrrfSim.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 
@@ -629,7 +679,7 @@ public class TelaFuncionariosCadastroSalario extends JFrame {
 
 		rdbtnIrrfNao = new JRadioButton("Não");
 		rdbtnIrrfNao.setSelected(true);
-		panel_11.add(rdbtnIrrfNao, "cell 1 4");
+		panel_11.add(rdbtnIrrfNao, "cell 1 6");
 		rdbtnIrrfNao.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 
@@ -639,58 +689,10 @@ public class TelaFuncionariosCadastroSalario extends JFrame {
 		});
 		rdbtnIrrfNao.setFont(new Font("SansSerif", Font.PLAIN, 16));
 
-		JPanel panel_6_2 = new JPanel();
-		panel_6_2.setBorder(new LineBorder(new Color(0, 0, 0)));
-		panel_6_2.setBackground(Color.WHITE);
-		panel_8.add(panel_6_2, "cell 0 8 6 1,alignx center,growy");
-		panel_6_2.setLayout(new MigLayout("", "[][][][][][][][][][][][][][][][][][][][][][]", "[][][]"));
-
-		JLabel lblNewLabel_1_3_1_1_4 = new JLabel("Banco Horas Atual");
-		lblNewLabel_1_3_1_1_4.setFont(new Font("Tahoma", Font.BOLD, 16));
-		panel_6_2.add(lblNewLabel_1_3_1_1_4, "cell 0 0 22 1,alignx center");
-
-		JLabel lblNewLabel_1_3_1_1_1_6 = new JLabel("Descrição");
-		lblNewLabel_1_3_1_1_1_6.setForeground(Color.BLACK);
-		lblNewLabel_1_3_1_1_1_6.setFont(new Font("Tahoma", Font.PLAIN, 16));
-		panel_6_2.add(lblNewLabel_1_3_1_1_1_6, "cell 0 1,alignx center");
-
-		JLabel lblNewLabel_1_3_1_1_1_2_3 = new JLabel("esp");
-		lblNewLabel_1_3_1_1_1_2_3.setForeground(Color.WHITE);
-		lblNewLabel_1_3_1_1_1_2_3.setFont(new Font("Tahoma", Font.BOLD, 16));
-		panel_6_2.add(lblNewLabel_1_3_1_1_1_2_3, "cell 1 1");
-
-		JLabel lblNewLabel_1_3_1_1_1_1_1_3 = new JLabel("Tipo");
-		lblNewLabel_1_3_1_1_1_1_1_3.setForeground(Color.BLACK);
-		lblNewLabel_1_3_1_1_1_1_1_3.setFont(new Font("Tahoma", Font.PLAIN, 16));
-		panel_6_2.add(lblNewLabel_1_3_1_1_1_1_1_3, "cell 5 1");
-
-		JLabel lblNewLabel_1_3_1_1_1_2_3_1 = new JLabel("esp");
-		lblNewLabel_1_3_1_1_1_2_3_1.setForeground(Color.WHITE);
-		lblNewLabel_1_3_1_1_1_2_3_1.setFont(new Font("Tahoma", Font.BOLD, 16));
-		panel_6_2.add(lblNewLabel_1_3_1_1_1_2_3_1, "cell 6 1");
-
-		JLabel lblNewLabel_1_3_1_1_1_1_1_3_1 = new JLabel("Quantidade");
-		lblNewLabel_1_3_1_1_1_1_1_3_1.setForeground(Color.BLACK);
-		lblNewLabel_1_3_1_1_1_1_1_3_1.setFont(new Font("Tahoma", Font.PLAIN, 16));
-		panel_6_2.add(lblNewLabel_1_3_1_1_1_1_1_3_1, "cell 8 1 14 1,alignx center");
-
-		lblDescricaoBancoHoras = new JLabel("BH Mês Passado");
-		lblDescricaoBancoHoras.setForeground(Color.BLACK);
-		lblDescricaoBancoHoras.setFont(new Font("Tahoma", Font.PLAIN, 16));
-		panel_6_2.add(lblDescricaoBancoHoras, "cell 0 2,alignx center");
-
-		lblTipoBancoHoras = new JLabel("TIPO");
-		lblTipoBancoHoras.setFont(new Font("Tahoma", Font.BOLD, 16));
-		panel_6_2.add(lblTipoBancoHoras, "cell 5 2,alignx center");
-
-		lblQuantidadeBancoHoras = new JLabel("0");
-		lblQuantidadeBancoHoras.setFont(new Font("Tahoma", Font.BOLD, 16));
-		panel_6_2.add(lblQuantidadeBancoHoras, "cell 8 2 14 1,alignx center");
-
 		JPanel panel_6_1 = new JPanel();
 		panel_6_1.setBorder(new LineBorder(new Color(0, 0, 0)));
 		panel_6_1.setBackground(Color.WHITE);
-		panel_8.add(panel_6_1, "cell 0 9 6 1,alignx center,growy");
+		panel_8.add(panel_6_1, "cell 0 9,alignx center,growy");
 		panel_6_1.setLayout(new MigLayout("", "[][][][][][][][][][][][][][]", "[][][]"));
 
 		JLabel lblNewLabel_1_3_1_1_3 = new JLabel("Horas Faltantes");
@@ -729,10 +731,20 @@ public class TelaFuncionariosCadastroSalario extends JFrame {
 		lblQuantidadeHorasAtrazo = new JLabel("0");
 		lblQuantidadeHorasAtrazo.setFont(new Font("Tahoma", Font.BOLD, 16));
 		panel_6_1.add(lblQuantidadeHorasAtrazo, "cell 4 2,alignx center");
+		
+		JPanel panel_14 = new JPanel();
+		panel_14.setBorder(new LineBorder(new Color(0, 0, 0)));
+		panel_14.setBackground(Color.WHITE);
+		panel_8.add(panel_14, "cell 1 9 7 1,grow");
+		panel_14.setLayout(new MigLayout("", "[]", "[]"));
+		
+		JLabel lblNewLabel_1_3_1_1_3_1 = new JLabel("Horas Faltantes");
+		lblNewLabel_1_3_1_1_3_1.setFont(new Font("Tahoma", Font.BOLD, 16));
+		panel_14.add(lblNewLabel_1_3_1_1_3_1, "cell 0 0,alignx center");
 
 		JPanel panel_6 = new JPanel();
 		panel_6.setBorder(new LineBorder(new Color(0, 0, 0)));
-		panel_8.add(panel_6, "cell 0 10 6 1,alignx center");
+		panel_8.add(panel_6, "cell 0 10 8 1,alignx center");
 		panel_6.setBackground(Color.WHITE);
 		panel_6.setLayout(new MigLayout("", "[][][][][][][]", "[][][][][][][]"));
 
@@ -835,10 +847,48 @@ public class TelaFuncionariosCadastroSalario extends JFrame {
 		lblValorTotalHorasExtras.setFont(new Font("Tahoma", Font.BOLD, 16));
 		panel_6.add(lblValorTotalHorasExtras, "cell 6 6,alignx center");
 
+		JPanel panel_6_2 = new JPanel();
+		panel_6_2.setBorder(new LineBorder(new Color(0, 0, 0)));
+		panel_6_2.setBackground(Color.WHITE);
+		panel_8.add(panel_6_2, "cell 0 11,alignx center,growy");
+		panel_6_2.setLayout(new MigLayout("", "[130px][41px][150px]", "[20px][20px][20px]"));
+
+		JLabel lblNewLabel_1_3_1_1_4 = new JLabel("Banco Horas Atual");
+		lblNewLabel_1_3_1_1_4.setFont(new Font("Tahoma", Font.BOLD, 16));
+		panel_6_2.add(lblNewLabel_1_3_1_1_4, "cell 0 0 3 1,alignx center,aligny top");
+
+		JLabel lblNewLabel_1_3_1_1_1_6 = new JLabel("Descrição");
+		lblNewLabel_1_3_1_1_1_6.setForeground(Color.BLACK);
+		lblNewLabel_1_3_1_1_1_6.setFont(new Font("Tahoma", Font.PLAIN, 16));
+		panel_6_2.add(lblNewLabel_1_3_1_1_1_6, "cell 0 1,alignx center,aligny top");
+
+		JLabel lblNewLabel_1_3_1_1_1_1_1_3 = new JLabel("Tipo");
+		lblNewLabel_1_3_1_1_1_1_1_3.setForeground(Color.BLACK);
+		lblNewLabel_1_3_1_1_1_1_1_3.setFont(new Font("Tahoma", Font.PLAIN, 16));
+		panel_6_2.add(lblNewLabel_1_3_1_1_1_1_1_3, "cell 1 1,alignx left,aligny top");
+
+		JLabel lblNewLabel_1_3_1_1_1_1_1_3_1 = new JLabel("Quantidade");
+		lblNewLabel_1_3_1_1_1_1_1_3_1.setForeground(Color.BLACK);
+		lblNewLabel_1_3_1_1_1_1_1_3_1.setFont(new Font("Tahoma", Font.PLAIN, 16));
+		panel_6_2.add(lblNewLabel_1_3_1_1_1_1_1_3_1, "cell 2 1,alignx center,aligny top");
+
+		lblDescricaoBancoHoras = new JLabel("BH Mês Passado");
+		lblDescricaoBancoHoras.setForeground(Color.BLACK);
+		lblDescricaoBancoHoras.setFont(new Font("Tahoma", Font.PLAIN, 16));
+		panel_6_2.add(lblDescricaoBancoHoras, "cell 0 2,alignx left,aligny top");
+
+		lblTipoBancoHoras = new JLabel("TIPO");
+		lblTipoBancoHoras.setFont(new Font("Tahoma", Font.BOLD, 16));
+		panel_6_2.add(lblTipoBancoHoras, "cell 1 2,alignx left,aligny top");
+
+		lblQuantidadeBancoHoras = new JLabel("0");
+		lblQuantidadeBancoHoras.setFont(new Font("Tahoma", Font.BOLD, 16));
+		panel_6_2.add(lblQuantidadeBancoHoras, "cell 2 2,alignx center,aligny top");
+
 		JPanel panel_6_2_1 = new JPanel();
 		panel_6_2_1.setBorder(new LineBorder(new Color(0, 0, 0)));
 		panel_6_2_1.setBackground(Color.WHITE);
-		panel_8.add(panel_6_2_1, "cell 0 11 6 1,alignx center,growy");
+		panel_8.add(panel_6_2_1, "cell 1 11 7 1,alignx center,growy");
 		panel_6_2_1.setLayout(new MigLayout("", "[][][][][]", "[][][][][][]"));
 
 		JLabel lblNewLabel_1_3_1_4_1 = new JLabel("Depositar no BHs?:");
@@ -908,18 +958,11 @@ public class TelaFuncionariosCadastroSalario extends JFrame {
 		lblQuantidadeNovoBancoHoras.setFont(new Font("Tahoma", Font.BOLD, 16));
 		panel_6_2_1.add(lblQuantidadeNovoBancoHoras, "cell 4 4,alignx center");
 
-		JButton btnAtualizarClculo = new JButton("Atualizar Cálculo");
-		btnAtualizarClculo.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				atualizar();
-			}
-		});
-
 		JPanel panel_12 = new JPanel();
 		panel_12.setBorder(new LineBorder(new Color(0, 0, 0)));
 		panel_12.setBackground(Color.WHITE);
 		painelCalculo.add(panel_12, "cell 1 0 2 1,grow");
-		panel_12.setLayout(new MigLayout("", "[grow][]", "[][][][][][][]"));
+		panel_12.setLayout(new MigLayout("", "[grow][]", "[][][][][][][][]"));
 
 		JLabel lblNewLabel_1_3_1_1_4_2 = new JLabel("Vencimentos:");
 		lblNewLabel_1_3_1_1_4_2.setFont(new Font("Tahoma", Font.BOLD, 16));
@@ -932,9 +975,13 @@ public class TelaFuncionariosCadastroSalario extends JFrame {
 		JLabel lblNewLabel_1_3_1_1_4_2_1_1 = new JLabel("Horas Extras:");
 		lblNewLabel_1_3_1_1_4_2_1_1.setFont(new Font("Tahoma", Font.PLAIN, 16));
 		panel_12.add(lblNewLabel_1_3_1_1_4_2_1_1, "flowx,cell 0 3,alignx left");
+		
+		JLabel lblNewLabel_1_3_1_1_4_2_1_1_1 = new JLabel("Horas Noturnas:");
+		lblNewLabel_1_3_1_1_4_2_1_1_1.setFont(new Font("Tahoma", Font.PLAIN, 16));
+		panel_12.add(lblNewLabel_1_3_1_1_4_2_1_1_1, "flowx,cell 0 4");
 
 		JPanel panel_13 = new JPanel();
-		panel_12.add(panel_13, "cell 0 4 2 1,grow");
+		panel_12.add(panel_13, "cell 0 5 2 1,grow");
 		panel_13.setBorder(new LineBorder(new Color(0, 0, 0)));
 		panel_13.setBackground(Color.WHITE);
 		panel_13.setLayout(new MigLayout("", "[grow]", "[][][][]"));
@@ -945,22 +992,22 @@ public class TelaFuncionariosCadastroSalario extends JFrame {
 
 		tabela_acrescimos = new JTable(modelAcrescimos);
 		tabela_acrescimos.setRowHeight(30);
-		
+
 		modelAcrescimos.addTableModelListener(new TableModelListener() {
 
-			  public void tableChanged(TableModelEvent e) {
+			public void tableChanged(TableModelEvent e) {
 
-				  double valor_total_acrescimos = 0;
-				  for(int i = 0; i < modelAcrescimos.getRowCount(); i++) {
-					  valor_total_acrescimos += modelAcrescimos.getValue(i).getTotal();
-					  
-				  }
-				  lblValorTotalAcrescimosAReceber.setText(formatarValor(valor_total_acrescimos));
-				  valor_total_acrescimos_global = valor_total_acrescimos;
-				  
-			  }
-			});
-		
+				double valor_total_acrescimos = 0;
+				for (int i = 0; i < modelAcrescimos.getRowCount(); i++) {
+					valor_total_acrescimos += modelAcrescimos.getValue(i).getTotal();
+
+				}
+				lblValorTotalAcrescimosAReceber.setText(formatarValor(valor_total_acrescimos));
+				valor_total_acrescimos_global = valor_total_acrescimos;
+
+			}
+		});
+
 		JScrollPane scrollPaneAcrescimos = new JScrollPane(tabela_acrescimos);
 		panel_13.add(scrollPaneAcrescimos, "cell 0 1,grow");
 
@@ -983,7 +1030,7 @@ public class TelaFuncionariosCadastroSalario extends JFrame {
 		JButton btnAdicionarAcrescimo = new JButton("Adicionar");
 		btnAdicionarAcrescimo.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				
+
 				TelaFuncionariosCadastroAcrescimo tela = new TelaFuncionariosCadastroAcrescimo(0, null, isto);
 				tela.setVisible(true);
 			}
@@ -993,14 +1040,14 @@ public class TelaFuncionariosCadastroSalario extends JFrame {
 		btnAdicionarAcrescimo.setFont(new Font("SansSerif", Font.BOLD, 16));
 		btnAdicionarAcrescimo.setBackground(new Color(0, 51, 0));
 
-		 lblValorTotalAcrescimosAReceber = new JLabel("R$ 0");
+		lblValorTotalAcrescimosAReceber = new JLabel("R$ 0");
 		lblValorTotalAcrescimosAReceber.setFont(new Font("Tahoma", Font.BOLD, 18));
 		panel_13.add(lblValorTotalAcrescimosAReceber, "cell 0 2");
 		scrollPaneAcrescimos.getViewport().setBackground(Color.white);
 
 		JPanel painelPai7 = new JPanel();
 		painelPai7.setBackground(Color.WHITE);
-		panel_12.add(painelPai7, "cell 0 6 2 1,grow");
+		panel_12.add(painelPai7, "cell 0 7 2 1,grow");
 		painelPai7.setLayout(new MigLayout("", "[grow]", "[][][][grow]"));
 
 		JPanel panel_7 = new JPanel();
@@ -1016,18 +1063,18 @@ public class TelaFuncionariosCadastroSalario extends JFrame {
 		tabela_descontos = new JTable(modelDescontos);
 		modelDescontos.addTableModelListener(new TableModelListener() {
 
-			  public void tableChanged(TableModelEvent e) {
+			public void tableChanged(TableModelEvent e) {
 
-				  double valor_total_descontos = 0;
-				  for(int i = 0; i < modelDescontos.getRowCount(); i++) {
-					  valor_total_descontos += modelDescontos.getValue(i).getTotal();
-					  
-				  }
-				  lblValorTotalDescontosAAbater.setText(formatarValor(valor_total_descontos));
-				  valor_total_descontos_global = valor_total_descontos;
-				  
-			  }
-			});
+				double valor_total_descontos = 0;
+				for (int i = 0; i < modelDescontos.getRowCount(); i++) {
+					valor_total_descontos += modelDescontos.getValue(i).getTotal();
+
+				}
+				lblValorTotalDescontosAAbater.setText(formatarValor(valor_total_descontos));
+				valor_total_descontos_global = valor_total_descontos;
+
+			}
+		});
 		tabela_descontos.setRowHeight(30);
 
 		JScrollPane scrollPaneDescontos = new JScrollPane(tabela_descontos);
@@ -1039,12 +1086,12 @@ public class TelaFuncionariosCadastroSalario extends JFrame {
 				modelDescontos.onRemove(getDescontoSelecionado());
 			}
 		});
-		 
-		 JLabel lblValorTotalDescontos = new JLabel("Valor Total Descontos:");
-		 lblValorTotalDescontos.setFont(new Font("Tahoma", Font.BOLD, 18));
-		 panel_7.add(lblValorTotalDescontos, "flowx,cell 0 3");
-		
-		 lblValorTotalDescontosAAbater = new JLabel("R$ 0");
+
+		JLabel lblValorTotalDescontos = new JLabel("Valor Total Descontos:");
+		lblValorTotalDescontos.setFont(new Font("Tahoma", Font.BOLD, 18));
+		panel_7.add(lblValorTotalDescontos, "flowx,cell 0 3");
+
+		lblValorTotalDescontosAAbater = new JLabel("R$ 0");
 		lblValorTotalDescontosAAbater.setFont(new Font("Tahoma", Font.BOLD, 18));
 		panel_7.add(lblValorTotalDescontosAAbater, "cell 0 3");
 		btnRemoverDesconto.setBackground(new Color(153, 0, 0));
@@ -1064,20 +1111,20 @@ public class TelaFuncionariosCadastroSalario extends JFrame {
 		btnAdicionarDesconto.setForeground(Color.WHITE);
 		btnAdicionarDesconto.setFont(new Font("SansSerif", Font.BOLD, 16));
 		panel_7.add(btnAdicionarDesconto, "cell 0 4 5 1,alignx right");
-		
+
 		JLabel lblSalrioBruto = new JLabel("Salário Bruto:");
 		lblSalrioBruto.setFont(new Font("Tahoma", Font.BOLD, 18));
 		painelPai7.add(lblSalrioBruto, "flowx,cell 0 1");
-		
+
 		JLabel lblSalrioLquido = new JLabel("Salário Líquido:");
 		lblSalrioLquido.setFont(new Font("Tahoma", Font.BOLD, 18));
 		painelPai7.add(lblSalrioLquido, "flowx,cell 0 2");
-		
-		 lblValorTotalSalarioBruto = new JLabel("R$ 0");
+
+		lblValorTotalSalarioBruto = new JLabel("R$ 0");
 		lblValorTotalSalarioBruto.setFont(new Font("Tahoma", Font.BOLD, 18));
 		painelPai7.add(lblValorTotalSalarioBruto, "cell 0 1");
-		
-		 lblValorTotalSalarioLiquido = new JLabel("R$ 0");
+
+		lblValorTotalSalarioLiquido = new JLabel("R$ 0");
 		lblValorTotalSalarioLiquido.setFont(new Font("Tahoma", Font.BOLD, 18));
 		painelPai7.add(lblValorTotalSalarioLiquido, "cell 0 2");
 
@@ -1088,18 +1135,17 @@ public class TelaFuncionariosCadastroSalario extends JFrame {
 		lblHorasExtrasAReceber = new JLabel("R$ 1000,00");
 		lblHorasExtrasAReceber.setFont(new Font("Tahoma", Font.BOLD, 18));
 		panel_12.add(lblHorasExtrasAReceber, "cell 0 3");
-
-		btnAtualizarClculo.setForeground(Color.WHITE);
-		btnAtualizarClculo.setFont(new Font("SansSerif", Font.BOLD, 16));
-		btnAtualizarClculo.setBackground(new Color(0, 0, 102));
-		painelCalculo.add(btnAtualizarClculo, "cell 2 5,alignx right");
+		
+		 lblHorasNoturnas = new JLabel("R$ 0,00");
+		lblHorasNoturnas.setFont(new Font("Tahoma", Font.BOLD, 18));
+		panel_12.add(lblHorasNoturnas, "cell 0 4");
 
 		JButton btnSalvar = new JButton("Salvar");
 		btnSalvar.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				
-				//gerar os arquivos para impressao
-				
+
+				// gerar os arquivos para impressao
+
 				horas_global.setTHMensal(tHMensal);
 				horas_global.setTHTrabalhadas(tHTrabalhadas);
 				horas_global.setTHAtrazo(tHAtrazo);
@@ -1107,57 +1153,59 @@ public class TelaFuncionariosCadastroSalario extends JFrame {
 				horas_global.setTH60(tH60);
 				horas_global.setTH100(tH100);
 				horas_global.setTHExtras(tHExtras);
+				horas_global.setTHNoturnas(tHNoturnas);
 
-				
-				
 				ArrayList<RegistroPontoMensalCompleto> registro_ponto = getRegistrosPonto();
 				ArrayList<CadastroFuncionarioCalculo> acrescimos = getAcrescimos();
 				ArrayList<CadastroFuncionarioCalculo> descontos = getDescontos();
 				int mes = cBMes.getSelectedIndex();
 
-				RelatorioSalario relatorio = new RelatorioSalario(registro_ponto, acrescimos,descontos,
-						func, ct_global, cBMes.getItemAt(mes).toString(), Integer.parseInt(entAno.getText()), piso_salarial,
-						horas_global,isto );
+				RelatorioSalario relatorio = new RelatorioSalario(registro_ponto, acrescimos, descontos, func,
+						ct_global, cBMes.getItemAt(mes).toString(), Integer.parseInt(entAno.getText()),texto_atrazo, piso_salarial,
+						horas_global, isto);
 				/*
-				CadastroFuncionarioSalario salario = getDadosSalvar();
-				GerenciarBancoFuncionarioSalarios gerenciar = new GerenciarBancoFuncionarioSalarios();
-				int inserir = gerenciar.inserirsalario(salario);
-				if(inserir > 0) {
-					JOptionPane.showMessageDialog(isto, "Sálario Cadastrado na Base de Dados");
-					
-					if(rdbtnDepositarSim.isSelected()) {
-						//criar novo banco de horas
-						GerenciarBancoFuncionarioBancoHoras gerenciar_banco = new GerenciarBancoFuncionarioBancoHoras();
-						CadastroFuncionarioBancoHoras banco = getDadosBanco();
-						if (banco != null) {
-							int inserir_banco = gerenciar_banco.inserirbanco_horas(banco);
-							if (inserir > 0) {
-								JOptionPane.showMessageDialog(isto, "Novo Banco de Horas Registrado");
-								((TelaGerenciarFuncionario) janela_pai).pesquisar_banco_horas();
-								isto.dispose();
-							} else {
-								JOptionPane.showMessageDialog(isto,
-										"Erro ao Cadastrar Banco de Horas\nConsulte o administrador");
-								isto.dispose();
-
-							}
-						}
-					}
-					
-					
-					isto.dispose();
-				}else {
-					JOptionPane.showMessageDialog(isto, "Erro ao Salvar o Contrato na Base de Dados\nConsulte o Administrador");
-				}
-				*/
+				 * CadastroFuncionarioSalario salario = getDadosSalvar();
+				 * GerenciarBancoFuncionarioSalarios gerenciar = new
+				 * GerenciarBancoFuncionarioSalarios(); int inserir =
+				 * gerenciar.inserirsalario(salario); if(inserir > 0) {
+				 * JOptionPane.showMessageDialog(isto, "Sálario Cadastrado na Base de Dados");
+				 * 
+				 * if(rdbtnDepositarSim.isSelected()) { //criar novo banco de horas
+				 * GerenciarBancoFuncionarioBancoHoras gerenciar_banco = new
+				 * GerenciarBancoFuncionarioBancoHoras(); CadastroFuncionarioBancoHoras banco =
+				 * getDadosBanco(); if (banco != null) { int inserir_banco =
+				 * gerenciar_banco.inserirbanco_horas(banco); if (inserir > 0) {
+				 * JOptionPane.showMessageDialog(isto, "Novo Banco de Horas Registrado");
+				 * ((TelaGerenciarFuncionario) janela_pai).pesquisar_banco_horas();
+				 * isto.dispose(); } else { JOptionPane.showMessageDialog(isto,
+				 * "Erro ao Cadastrar Banco de Horas\nConsulte o administrador");
+				 * isto.dispose();
+				 * 
+				 * } } }
+				 * 
+				 * 
+				 * isto.dispose(); }else { JOptionPane.showMessageDialog(isto,
+				 * "Erro ao Salvar o Contrato na Base de Dados\nConsulte o Administrador"); }
+				 */
 			}
 
-			
 		});
+
+		JButton btnAtualizarClculo = new JButton("Atualizar Cálculo");
+		btnAtualizarClculo.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				atualizar();
+			}
+		});
+
+		btnAtualizarClculo.setForeground(Color.WHITE);
+		btnAtualizarClculo.setFont(new Font("SansSerif", Font.BOLD, 16));
+		btnAtualizarClculo.setBackground(new Color(0, 0, 102));
+		painelCalculo.add(btnAtualizarClculo, "cell 2 1,alignx right");
 		btnSalvar.setForeground(Color.WHITE);
 		btnSalvar.setFont(new Font("SansSerif", Font.BOLD, 16));
 		btnSalvar.setBackground(new Color(0, 51, 0));
-		painelCalculo.add(btnSalvar, "cell 2 6,alignx right");
+		painelCalculo.add(btnSalvar, "cell 2 7,alignx right");
 
 		JPanel panel_9 = new JPanel();
 		panel_9.setBackground(Color.WHITE);
@@ -1313,9 +1361,8 @@ public class TelaFuncionariosCadastroSalario extends JFrame {
 		cBMes.setSelectedIndex(mes);
 		// modelFuncionarios.setSelectedItem(func);
 		lblColaborador.setText(funcionario.getNome() + " " + funcionario.getSobrenome());
-		pesquisarBancoHoras();
-		pesquisarDemostrativo();
-
+		//pesquisarDemostrativo();
+		atualizar();
 		this.setResizable(true);
 		this.setLocationRelativeTo(janela_pai);
 
@@ -1376,10 +1423,11 @@ public class TelaFuncionariosCadastroSalario extends JFrame {
 		private final int horas_trabalhadas = 9;
 		private final int horas_extras = 10;
 		private final int horas_atrazo = 11;
+		private final int horas_noturnas = 12;
 
 		private final String colunas[] = { "DATA", "DIA DA SEMANA", "HORA ENTRADA 1", "HORA SAIDA 1", "HORA ENTRADA 2",
 				"HORA SAIDA 2", "HORA ENTRADA 3", "HORA SAIDA 3", "ROTINA DIARIA", "HORAS TRABALHADAS", "HORAS EXTRAS",
-				"HORAS ATRAZO" };
+				"HORAS ATRAZO" , "HORAS NOTURNAS"};
 		Locale ptBr = new Locale("pt", "BR");
 
 		private final ArrayList<RegistroPontoMensalCompleto> dados = new ArrayList<>();// usamos como dados uma lista
@@ -1432,7 +1480,9 @@ public class TelaFuncionariosCadastroSalario extends JFrame {
 
 			case horas_atrazo:
 				return String.class;
-
+			case horas_noturnas:
+				return String.class;
+				
 			default:
 				throw new IndexOutOfBoundsException("Coluna Inválida!!!");
 			}
@@ -1564,6 +1614,16 @@ public class TelaFuncionariosCadastroSalario extends JFrame {
 					return "";
 
 			}
+			case horas_noturnas: {
+				if(rp.getHora_noturna() != null) {
+				if (!rp.getHora_noturna().equals("00:00"))
+					return rp.getHora_noturna();
+				else
+					return "";
+				}else
+					return "";
+
+			}
 			default:
 				throw new IndexOutOfBoundsException("Coluna Inválida!!!");
 			}
@@ -1664,20 +1724,27 @@ public class TelaFuncionariosCadastroSalario extends JFrame {
 
 		int mes = cBMes.getSelectedIndex() + 1;
 		int ano = Integer.parseInt(entAno.getText());
+		
+		int contador_dias = 0;
 
 		Calendar datas = new GregorianCalendar();
 		datas.set(Calendar.MONTH, mes - 1);// 2
 		int ultimo_dia = datas.getActualMaximum(Calendar.DAY_OF_MONTH);
 		int dia = 1;
 
+		
+		//informar valor da diaria
+		double valor_diaria = piso_salarial/ (double) ultimo_dia;
+		lblValorDiaria.setText(formatarValor(valor_diaria));
+		
 		long total_duracao = 0, total_horas_normais_trabalhadas = 0, total_horas_extras = 0, total_horas_atrazo = 0,
-				total_horas_100 = 0, total_horas_50 = 0, total_horas_60 = 0;
+				total_horas_100 = 0, total_horas_50 = 0, total_horas_60 = 0, total_horas_adicional_noturno = 0;
 
 		long duracao_rotina = 0;
 
 		GerenciarBancoRegistroPonto gerenciar = new GerenciarBancoRegistroPonto();
 
-		// buscar rotinad e trabalho
+		// buscar rotinas e trabalho
 
 		modeloRegistroPonto.onRemoveAll();
 
@@ -1689,8 +1756,14 @@ public class TelaFuncionariosCadastroSalario extends JFrame {
 		DateTimeFormatter formatter = new DateTimeFormatterBuilder().toFormatter(new Locale("pt", "BR"));
 		LocalDate dia_de_hoje = LocalDate.now();
 
+		ArrayList<RegistroHoraLocal> registros_locais = new ArrayList<>();
+		
 		for (RegistroPontoDiario rp : listRpDiario) {
+			
+			CadastroFuncionarioEvento evt_global = null;
+
 			// verifique a rotina desse dia
+			RegistroHoraLocal registro_local = new RegistroHoraLocal();
 			RegistroPontoMensalCompleto rpCompleto = new RegistroPontoMensalCompleto();
 
 			RegistroPontoDiario original = rp;
@@ -1721,6 +1794,7 @@ public class TelaFuncionariosCadastroSalario extends JFrame {
 			LocalDate data_do_registro = LocalDate.parse(data_rp, DateTimeFormatter.ofPattern("dd/MM/yyyy"));
 
 			int dia_da_semana = 0;
+			
 
 			try {
 
@@ -1730,6 +1804,7 @@ public class TelaFuncionariosCadastroSalario extends JFrame {
 				return;
 			}
 
+			registro_local.setDia_da_semana(dia_da_semana);
 			boolean tem_rotina = false;
 
 			for (CadastroFuncionarioRotinaTrabalho rotina : rotinas_global) {
@@ -1743,12 +1818,7 @@ public class TelaFuncionariosCadastroSalario extends JFrame {
 
 			if (rotina_deste_dia != null)
 				tem_rotina = true;
-			/*
-			 * for (CadastroFuncionarioRotinaTrabalho rtb : rotinas) { if
-			 * (rtb.getDia_da_semana() == dia_da_semana) { rotina_deste_dia = rtb;
-			 * tem_rotina = true; break; } }
-			 */
-
+			
 			// verificar por evento de folga ou ferias
 			GerenciarBancoFuncionariosEventos gerenciar_eventos = new GerenciarBancoFuncionariosEventos();
 			ArrayList<CadastroFuncionarioEvento> eventos = gerenciar_eventos
@@ -1763,6 +1833,7 @@ public class TelaFuncionariosCadastroSalario extends JFrame {
 			boolean tem_licenca = false;
 			boolean tem_descanso = false;
 			boolean tem_feriado = false;
+			boolean tem_saida_especial = false;
 
 			for (CadastroFuncionarioEvento evt : eventos) {
 
@@ -1834,6 +1905,20 @@ public class TelaFuncionariosCadastroSalario extends JFrame {
 						tem_licenca = true;
 						break;
 					}
+				}else if(evt.getTipo_evento() == 6) {
+					//evento de saida especial
+					LocalDate hoje = LocalDate.parse(data_rp, DateTimeFormatter.ofPattern("dd/MM/yyyy"));
+
+					String data_saida = evt.getData_saida();
+					
+					LocalDate date_saida = LocalDate.parse(data_saida,
+							DateTimeFormatter.ofPattern("dd/MM/yyyy"));
+					
+					if(date_saida.isEqual(hoje)) {
+						tem_saida_especial = true;
+						evt_global = evt;
+					}
+					
 				}
 
 			}
@@ -1883,6 +1968,7 @@ public class TelaFuncionariosCadastroSalario extends JFrame {
 						DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm"));
 				LocalDateTime saida2 = LocalDateTime.parse(data_rp + " " + rotina_deste_dia.getHora_saida2(),
 						DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm"));
+			
 
 				long periodAsMinutes1 = ChronoUnit.MINUTES.between(entrada1, saida1);
 				long periodAsMinutes2 = ChronoUnit.MINUTES.between(entrada2, saida2);
@@ -1904,7 +1990,28 @@ public class TelaFuncionariosCadastroSalario extends JFrame {
 			}
 
 			if (rp.getSaida1() == null || rp.getSaida1().equals("")) {
-				rp.setSaida1("00:00");
+
+				if(tem_saida_especial) {
+					if((evt_global.getMovimentacao() + 1) == 2){
+						if(rp.getData().equals(evt_global.getData_saida())) {
+							
+							rp.setSaida1(evt_global.getHora_saida());
+
+						}else {
+							rp.setSaida1("00:00");
+
+						}
+					}else {
+						rp.setSaida1("00:00");
+
+					}
+					
+				
+				}else {
+					rp.setSaida1("00:00");
+				}
+			
+				
 			}
 
 			if (rp.getEntrada2() == null || rp.getEntrada2().equals("")) {
@@ -1912,7 +2019,28 @@ public class TelaFuncionariosCadastroSalario extends JFrame {
 			}
 
 			if (rp.getSaida2() == null || rp.getSaida2().equals("")) {
-				rp.setSaida2("00:00");
+
+				if(tem_saida_especial) {
+					if((evt_global.getMovimentacao() + 1) == 4){
+						if(rp.getData().equals(evt_global.getData_saida())) {
+							
+							rp.setSaida2(evt_global.getHora_saida());
+
+						}else {
+							rp.setSaida2("00:00");
+
+						}
+					}else {
+						rp.setSaida2("00:00");
+
+					}
+					
+				
+				}else {
+					rp.setSaida2("00:00");
+				}
+			
+				
 			}
 
 			if (rp.getEntrada3() == null || rp.getEntrada3().equals("")) {
@@ -1925,14 +2053,69 @@ public class TelaFuncionariosCadastroSalario extends JFrame {
 
 			LocalDateTime entrada1 = LocalDateTime.parse(data_rp + " " + rp.getEntrada1(),
 					DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm"));
+			
 			LocalDateTime saida1 = LocalDateTime.parse(data_rp + " " + rp.getSaida1(),
 					DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm"));
+			
+			 if(tem_saida_especial) {
+				 if((evt_global.getMovimentacao() + 1) == 2){
+			    LocalDate hoje = LocalDate.parse(data_rp, DateTimeFormatter.ofPattern("dd/MM/yyyy"));
+
+				 LocalDate dia_seguinte =  hoje.plusDays(1);
+				 String nova_data   = dia_seguinte.format(DateTimeFormatter.ofPattern("dd/MM/yyyy"));
+
+				 saida1 = LocalDateTime.parse(nova_data + " " + rp.getSaida1(),
+							DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm"));
+				 
+					//verifica por hora noturna
+				    long minutos_adicional_noturno  = calculateWorkingHours(data_rp + " " + rp.getEntrada1(), nova_data + " " + rp.getSaida1());
+					String tempo_total = LocalTime.MIN.plus(Duration.ofMinutes(minutos_adicional_noturno)).toString();
+
+					rpCompleto.setHora_noturna(tempo_total);
+					total_horas_adicional_noturno += minutos_adicional_noturno;
+					
+					tHNoturnas += minutos_adicional_noturno;
+				 }
+			 }else {
+				 saida1 = LocalDateTime.parse(data_rp + " " + rp.getSaida1(),
+							DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm"));
+			 }
+			
 			LocalDateTime entrada2 = LocalDateTime.parse(data_rp + " " + rp.getEntrada2(),
 					DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm"));
+			
+			
 			LocalDateTime saida2 = LocalDateTime.parse(data_rp + " " + rp.getSaida2(),
 					DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm"));
+			
+			 if(tem_saida_especial) {
+				 if((evt_global.getMovimentacao() + 1) == 4){
+			    LocalDate hoje = LocalDate.parse(data_rp, DateTimeFormatter.ofPattern("dd/MM/yyyy"));
+
+				 LocalDate dia_seguinte =  hoje.plusDays(1);
+				 String nova_data   = dia_seguinte.format(DateTimeFormatter.ofPattern("dd/MM/yyyy"));
+
+				 saida2 = LocalDateTime.parse(nova_data + " " + rp.getSaida2(),
+							DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm"));
+				 
+					//verifica por hora noturna
+				    long minutos_adicional_noturno  = calculateWorkingHours(data_rp + " " + rp.getEntrada1(), nova_data + " " + rp.getSaida2());
+					String tempo_total = LocalTime.MIN.plus(Duration.ofMinutes(minutos_adicional_noturno)).toString();
+
+					rpCompleto.setHora_noturna(tempo_total);
+					total_horas_adicional_noturno += minutos_adicional_noturno;
+					tHNoturnas += minutos_adicional_noturno;
+
+				 }
+			 }else {
+				 saida2 = LocalDateTime.parse(data_rp + " " + rp.getSaida2(),
+							DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm"));
+			 }
+			 
 			LocalDateTime entrada3 = LocalDateTime.parse(data_rp + " " + rp.getEntrada3(),
 					DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm"));
+			
+			
 			LocalDateTime saida3 = LocalDateTime.parse(data_rp + " " + rp.getSaida3(),
 					DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm"));
 
@@ -1945,38 +2128,7 @@ public class TelaFuncionariosCadastroSalario extends JFrame {
 
 			String tempo_total = LocalTime.MIN.plus(Duration.ofMinutes(duracao_trabalho)).toString();
 			rpCompleto.setHora_trabalhada(tempo_total);
-			/*
-			 * 
-			 * //calculo de hora extra if(duracao_rotina <= 0) { //nao houve rotina nesse
-			 * dia if(duracao_trabalho > 0) { //trabalho esse dia, 100% hora extra String
-			 * tempo_extra = LocalTime.MIN.plus( Duration.ofMinutes( duracao_trabalho )
-			 * ).toString(); rpCompleto.setHora_extra(tempo_extra);
-			 * rpCompleto.setHora_atrazo("00:00");
-			 * 
-			 * }else { //folgou rpCompleto.setHora_extra("00:00");
-			 * rpCompleto.setHora_atrazo("00:00");
-			 * 
-			 * 
-			 * }
-			 * 
-			 * }else { //houve rotina nesse dia
-			 * 
-			 * 
-			 * 
-			 * if(duracao_trabalho >= duracao_rotina) { long hora_extra = duracao_trabalho -
-			 * duracao_rotina;
-			 * 
-			 * String tempo_extra = LocalTime.MIN.plus( Duration.ofMinutes( hora_extra )
-			 * ).toString(); rpCompleto.setHora_extra(tempo_extra);
-			 * rpCompleto.setHora_atrazo("00:00");
-			 * 
-			 * } else { long hora_atrazo = duracao_rotina - duracao_trabalho; String
-			 * tempo_atrazo= LocalTime.MIN.plus( Duration.ofMinutes( hora_atrazo )
-			 * ).toString(); rpCompleto.setHora_atrazo(tempo_atrazo);
-			 * rpCompleto.setHora_extra("00:00");
-			 * 
-			 * } }
-			 */
+
 
 			if (!tem_folga && !tem_ferias && !tem_isencao && !tem_licenca && !tem_feriado && !tem_descanso
 					&& duracao_trabalho <= 0 && duracao_rotina > 0) {
@@ -1993,6 +2145,11 @@ public class TelaFuncionariosCadastroSalario extends JFrame {
 					String tempo_atrazo = LocalTime.MIN.plus(Duration.ofMinutes(hora_atrazo)).toString();
 					rpCompleto.setHora_atrazo(tempo_atrazo);
 					rpCompleto.setHora_extra("00:00");
+					
+					
+					registro_local.setHoras_atrazos(hora_atrazo);
+					registro_local.setHoras_extras(0);
+					
 				} else {
 					rp.setEntrada1("00:00");
 					rp.setSaida1("00:00");
@@ -2001,6 +2158,9 @@ public class TelaFuncionariosCadastroSalario extends JFrame {
 
 					rpCompleto.setHora_atrazo("00:00");
 					rpCompleto.setHora_extra("00:00");
+					
+					registro_local.setHoras_atrazos(0);
+					registro_local.setHoras_extras(0);
 				}
 
 			} else if (tem_folga && !tem_ferias && !tem_feriado) {
@@ -2016,7 +2176,12 @@ public class TelaFuncionariosCadastroSalario extends JFrame {
 				String tempo_atrazo = LocalTime.MIN.plus(Duration.ofMinutes(hora_atrazo)).toString();
 				rpCompleto.setHora_atrazo(tempo_atrazo);
 				rpCompleto.setHora_extra("00:00");
+				
 
+				registro_local.setHoras_atrazos(hora_atrazo);
+				registro_local.setHoras_extras(0);
+				
+				
 			} else if (!tem_feriado && !tem_folga && tem_ferias) {
 				// tem ferias
 				rp.setEntrada1("FÉRIAS");
@@ -2028,6 +2193,10 @@ public class TelaFuncionariosCadastroSalario extends JFrame {
 				String tempo_atrazo = LocalTime.MIN.plus(Duration.ofMinutes(hora_atrazo)).toString();
 				rpCompleto.setHora_atrazo("00:00");
 				rpCompleto.setHora_extra("00:00");
+				
+
+				registro_local.setHoras_atrazos(0);
+				registro_local.setHoras_extras(0);
 
 			} else if (tem_isencao) {
 				// tem isencao
@@ -2040,6 +2209,10 @@ public class TelaFuncionariosCadastroSalario extends JFrame {
 				String tempo_atrazo = LocalTime.MIN.plus(Duration.ofMinutes(hora_atrazo)).toString();
 				rpCompleto.setHora_atrazo("00:00");
 				rpCompleto.setHora_extra("00:00");
+				
+
+				registro_local.setHoras_atrazos(0);
+				registro_local.setHoras_extras(0);
 
 			} else if (tem_licenca) {
 				// tem licenca
@@ -2052,6 +2225,10 @@ public class TelaFuncionariosCadastroSalario extends JFrame {
 				String tempo_atrazo = LocalTime.MIN.plus(Duration.ofMinutes(hora_atrazo)).toString();
 				rpCompleto.setHora_atrazo("00:00");
 				rpCompleto.setHora_extra("00:00");
+				
+
+				registro_local.setHoras_atrazos(0);
+				registro_local.setHoras_extras(0);
 
 			} else if (tem_feriado) {
 
@@ -2084,12 +2261,18 @@ public class TelaFuncionariosCadastroSalario extends JFrame {
 					String tempo_extra = LocalTime.MIN.plus(Duration.ofMinutes(duracao_trabalho)).toString();
 					rpCompleto.setHora_extra(tempo_extra);
 					rpCompleto.setHora_atrazo("00:00");
+					
+					
+
+					registro_local.setHoras_atrazos(0);
+					registro_local.setHoras_extras(duracao_trabalho);
 
 				} else {
 					// folgou
 					rpCompleto.setHora_extra("00:00");
 					rpCompleto.setHora_atrazo("00:00");
-
+					registro_local.setHoras_atrazos(0);
+					registro_local.setHoras_extras(0);
 				}
 
 			} else if (tem_descanso) {
@@ -2139,12 +2322,18 @@ public class TelaFuncionariosCadastroSalario extends JFrame {
 						String tempo_extra = LocalTime.MIN.plus(Duration.ofMinutes(duracao_trabalho)).toString();
 						rpCompleto.setHora_extra(tempo_extra);
 						rpCompleto.setHora_atrazo("00:00");
+						
+						
+						registro_local.setHoras_atrazos(0);
+						registro_local.setHoras_extras(duracao_trabalho);
 
 					} else {
 						// folgou
 						rpCompleto.setHora_extra("00:00");
 						rpCompleto.setHora_atrazo("00:00");
 
+						registro_local.setHoras_atrazos(0);
+						registro_local.setHoras_extras(0);
 					}
 				} else {
 					// nao e o dia de hora extra
@@ -2168,6 +2357,10 @@ public class TelaFuncionariosCadastroSalario extends JFrame {
 						String tempo_extra = LocalTime.MIN.plus(Duration.ofMinutes(hora_extra)).toString();
 						rpCompleto.setHora_extra(tempo_extra);
 						rpCompleto.setHora_atrazo("00:00");
+						
+						
+						registro_local.setHoras_atrazos(0);
+						registro_local.setHoras_extras(hora_extra);
 
 					} else {
 						long hora_atrazo = duracao_rotina - duracao_trabalho;
@@ -2177,6 +2370,8 @@ public class TelaFuncionariosCadastroSalario extends JFrame {
 						rpCompleto.setHora_atrazo(tempo_atrazo);
 						rpCompleto.setHora_extra("00:00");
 
+						registro_local.setHoras_atrazos(0);
+						registro_local.setHoras_extras(hora_atrazo);
 					}
 
 				}
@@ -2206,12 +2401,17 @@ public class TelaFuncionariosCadastroSalario extends JFrame {
 						String tempo_extra = LocalTime.MIN.plus(Duration.ofMinutes(duracao_trabalho)).toString();
 						rpCompleto.setHora_extra(tempo_extra);
 						rpCompleto.setHora_atrazo("00:00");
+						
+						registro_local.setHoras_atrazos(0);
+						registro_local.setHoras_extras(duracao_trabalho);
 
 					} else {
 						// folgou
 						rpCompleto.setHora_extra("00:00");
 						rpCompleto.setHora_atrazo("00:00");
-
+						
+						registro_local.setHoras_atrazos(0);
+						registro_local.setHoras_extras(0);
 					}
 
 				} else {
@@ -2236,6 +2436,9 @@ public class TelaFuncionariosCadastroSalario extends JFrame {
 						String tempo_extra = LocalTime.MIN.plus(Duration.ofMinutes(hora_extra)).toString();
 						rpCompleto.setHora_extra(tempo_extra);
 						rpCompleto.setHora_atrazo("00:00");
+						
+						registro_local.setHoras_atrazos(0);
+						registro_local.setHoras_extras(hora_extra);
 
 					} else {
 						long hora_atrazo = duracao_rotina - duracao_trabalho;
@@ -2244,6 +2447,9 @@ public class TelaFuncionariosCadastroSalario extends JFrame {
 						rpCompleto.setHora_atrazo(tempo_atrazo);
 						rpCompleto.setHora_extra("00:00");
 
+						registro_local.setHoras_atrazos(hora_atrazo);
+						registro_local.setHoras_extras(0);
+						
 					}
 				}
 
@@ -2252,6 +2458,11 @@ public class TelaFuncionariosCadastroSalario extends JFrame {
 
 			modeloRegistroPonto.onAdd(rpCompleto);
 			dia++;
+			
+			registro_local.setData(data_rp);
+			registros_locais.add(registro_local);
+			
+			
 
 		}
 
@@ -2267,6 +2478,7 @@ public class TelaFuncionariosCadastroSalario extends JFrame {
 		String s_total_h_normais = formatHora(total_horas_normais_trabalhadas);
 		String s_total_h_atraz = formatHora(total_horas_atrazo);
 		String s_total_h_mensal = formatHora(total_duracao);
+		String s_total_h_noturnas =  formatHora(total_horas_adicional_noturno);
 
 		// coloca os valores em global
 
@@ -2294,6 +2506,7 @@ public class TelaFuncionariosCadastroSalario extends JFrame {
 		lblTotalHorasExtras.setText(s_total_h_ex);
 		lblTotalHorasAtrazo.setText(s_total_h_atraz);
 		lblTotalHorasNormais.setText(s_total_h_normais);
+		lblTotalHorasNoturnas.setText(s_total_h_noturnas);
 
 		// JOptionPane.showMessageDialog(null, "Total horas normais: " +
 		// total_horas_normais_trabalhadas/60 +
@@ -2304,8 +2517,207 @@ public class TelaFuncionariosCadastroSalario extends JFrame {
 		lblTotalHoras50.setText(formatHora(total_horas_50));
 		lblTotalHoras60.setText(formatHora(total_horas_60));
 
-		setInfoCalculoSalarial();
+		informarAtrazos(registros_locais, ultimo_dia);
 
+		 if(rdbtnDescontarAtrazosSim.isSelected())
+		calcularAtrazos(registros_locais, ultimo_dia);
+	}
+	
+	public void calcularAtrazos(ArrayList<RegistroHoraLocal> registros, int ultimo_dia) {
+
+		int posicao = 0;
+		ArrayList<Semana> semanas = new ArrayList<>();
+		
+		while(posicao < ultimo_dia) {
+		RegistroHoraLocal registro = registros.get(posicao);
+		Semana semana = new Semana();
+		
+			int dia_da_semana = registro.getDia_da_semana();
+			semana.setData_inicial(registro.getData());
+			if(dia_da_semana < 6) {
+				//dia de semana normal
+				long acumulador = 0;
+				int contador = dia_da_semana;
+				while(contador <= 7) {
+					
+					if(!(posicao < ultimo_dia))
+						break;
+					else {
+					long atrazo = registros.get(posicao).getHoras_atrazos();
+					acumulador += atrazo;
+					
+					posicao++;
+					}
+					
+					contador++;
+				}
+				semana.setData_final(registros.get(posicao-1).getData());
+				semana.setQuantidade_minutos(acumulador);
+				semanas.add(semana);
+				
+				
+			}
+			
+			
+		}
+		
+		
+		String texto = "";
+		int count_semana = 1;
+		for(Semana semana : semanas) {
+			
+			
+			if(semana.getQuantidade_minutos() >= 480) {
+
+inserirDescontoDomingo(formatHora(semana.getQuantidade_minutos()) + " de atrasos na semana " + count_semana + " resulta em Desconto do Domingo", piso_salarial/(double) ultimo_dia);
+
+			}
+			
+			texto += ("Semana " + count_semana + ": De " + semana.getData_inicial() + " até " + semana.getData_final() + 
+					" -> Total de Atrasos: " + formatHora(semana.getQuantidade_minutos()) + "\n");
+					count_semana++;
+		}
+		
+
+	}
+	
+	public void informarAtrazos(ArrayList<RegistroHoraLocal> registros, int ultimo_dia) {
+
+		int posicao = 0;
+		ArrayList<Semana> semanas = new ArrayList<>();
+		
+		while(posicao < ultimo_dia) {
+		RegistroHoraLocal registro = registros.get(posicao);
+		Semana semana = new Semana();
+		
+			int dia_da_semana = registro.getDia_da_semana();
+			semana.setData_inicial(registro.getData());
+			if(dia_da_semana < 6) {
+				//dia de semana normal
+				long acumulador = 0;
+				int contador = dia_da_semana;
+				while(contador <= 7) {
+					
+					if(!(posicao < ultimo_dia))
+						break;
+					else {
+					long atrazo = registros.get(posicao).getHoras_atrazos();
+					acumulador += atrazo;
+					
+					posicao++;
+					}
+					
+					contador++;
+				}
+				semana.setData_final(registros.get(posicao-1).getData());
+				semana.setQuantidade_minutos(acumulador);
+				semanas.add(semana);
+				
+				
+			}
+			
+			
+		}
+		
+		
+		String texto = "";
+		int count_semana = 1;
+		texto_atrazo = new ArrayList<>();
+		long total_atrazo = 0;
+		for(Semana semana : semanas) {
+			total_atrazo += semana.getQuantidade_minutos();
+			
+			String texto_semana = "";
+			if(semana.getQuantidade_minutos() >= 480) {
+			 texto_semana = "Semana " + count_semana + ": De " + semana.getData_inicial() + " até " + semana.getData_final() + 
+					" -> Total de Atrasos: " + formatHora(semana.getQuantidade_minutos()) + " | SUJEITO AO DESCONTO DO DOMINGO";
+			
+			 texto += ("Semana " + count_semana + ": De " + semana.getData_inicial() + " até " + semana.getData_final() + 
+						" -> Total de Atrasos: " + formatHora(semana.getQuantidade_minutos()) + " | SUJEITO AO DESCONTO DO DOMINGO\n");
+						count_semana++;
+			
+			}else {
+				 texto_semana = "Semana " + count_semana + ": De " + semana.getData_inicial() + " até " + semana.getData_final() + 
+							" -> Total de Atrasos: " + formatHora(semana.getQuantidade_minutos());
+				 
+					texto += ("Semana " + count_semana + ": De " + semana.getData_inicial() + " até " + semana.getData_final() + 
+							" -> Total de Atrasos: " + formatHora(semana.getQuantidade_minutos()) + "\n");
+							count_semana++;
+			}
+			texto_atrazo.add(texto_semana);		
+
+			
+		
+		}
+		
+		texto_atrazo.add("Total de Atrazos: " + formatHora(total_atrazo));
+		texto += ("Total de Atrazos: " + formatHora(total_atrazo));
+		textAreaDescricaoAtrasos.setText(texto);
+		//JOptionPane.showMessageDialog(isto, texto);
+
+	}
+	
+	
+	class Semana{
+		
+		String data_inicial, data_final;
+		long quantidade_minutos;
+		public String getData_inicial() {
+			return data_inicial;
+		}
+		public void setData_inicial(String data_inicial) {
+			this.data_inicial = data_inicial;
+		}
+		public String getData_final() {
+			return data_final;
+		}
+		public void setData_final(String data_final) {
+			this.data_final = data_final;
+		}
+		public long getQuantidade_minutos() {
+			return quantidade_minutos;
+		}
+		public void setQuantidade_minutos(long quantidade_minutos) {
+			this.quantidade_minutos = quantidade_minutos;
+		}
+		
+		
+		
+		
+	}
+	
+	class RegistroHoraLocal {
+		
+		String data;
+		
+		int dia_da_semana;
+		long horas_extras,  horas_atrazos;
+		public int getDia_da_semana() {
+			return dia_da_semana;
+		}
+		public String getData() {
+			return data;
+		}
+		public void setData(String data) {
+			this.data = data;
+		}
+		public void setDia_da_semana(int dia_da_semana) {
+			this.dia_da_semana = dia_da_semana;
+		}
+		public long getHoras_extras() {
+			return horas_extras;
+		}
+		public void setHoras_extras(long horas_extras) {
+			this.horas_extras = horas_extras;
+		}
+		public long getHoras_atrazos() {
+			return horas_atrazos;
+		}
+		public void setHoras_atrazos(long horas_atrazos) {
+			this.horas_atrazos = horas_atrazos;
+		}
+		
+		
 	}
 
 	public String formatHora(long minutos) {
@@ -2328,7 +2740,7 @@ public class TelaFuncionariosCadastroSalario extends JFrame {
 
 			if (column >= 2 && column <= 7)
 				this.setBackground(new Color(255, 255, 204));
-			else if (column >= 8 && column <= 11) {
+			else if (column >= 8 && column <= 12) {
 				this.setBackground(new Color(153, 204, 255));
 
 				if (column == 8) {
@@ -2343,6 +2755,8 @@ public class TelaFuncionariosCadastroSalario extends JFrame {
 					this.setForeground(Color.BLUE);
 				else if (column == 11)
 					this.setForeground(Color.red);
+				else if (column == 12)
+					this.setForeground(new Color(102,51,1));
 				else
 					this.setForeground(Color.black);
 
@@ -2373,7 +2787,7 @@ public class TelaFuncionariosCadastroSalario extends JFrame {
 		int ano = Integer.parseInt(entAno.getText());
 
 		String s_mes = "";
-		if (mes <= 0)
+		if (mes <= 9)
 			s_mes = "0" + mes;
 		else
 			s_mes = mes + "";
@@ -2382,7 +2796,7 @@ public class TelaFuncionariosCadastroSalario extends JFrame {
 
 		CadastroFuncionarioAdmissao ct = gerenciar.getcontratoMesPagamento(func.getId_funcionario(), dat_pri_dia_pag);
 		if (ct != null) {
-			
+
 			ct_global = ct;
 
 			lblCargo.setText(ct.getCargo());
@@ -2469,25 +2883,17 @@ public class TelaFuncionariosCadastroSalario extends JFrame {
 
 					long dif3 = dif2 - tH100;
 					tH100 = 0;
-					//tHTrabalhadas = tHTrabalhadas - dif3;
-					//inserir desconto de horas faltantes
+					// tHTrabalhadas = tHTrabalhadas - dif3;
+					// inserir desconto de horas faltantes
 					double valor_desconto = 0;
 					double valor_hora = piso_salarial / 220.0;
 					double valor_minuto = valor_hora / 60.0;
-					if(dif3 > 8) {
-						//faltou mais que um dia
-						
-						valor_desconto = (dif3 * valor_minuto) +  (valor_minuto * 480.0);
+
+						valor_desconto = (dif3 * valor_minuto) ;
 						
 						inserirDescontoAtrazo(formatHora(dif3) + " de atrazos", valor_desconto);
-						
-					}else {
-						
 
-					valor_desconto = dif3 * valor_minuto;
-						
-					inserirDescontoAtrazo(formatHora(dif3) + " de atrazos", valor_desconto);
-					}
+					
 				} else {
 					tH100 = tH100 - dif2;
 					lblQuantidadeHorasAtrazo.setText("0");
@@ -2508,17 +2914,15 @@ public class TelaFuncionariosCadastroSalario extends JFrame {
 	}
 
 	public void setInfoCalculoSalarial() {
-/*
-		if (tipo_banco_horas == 0) {
-			// banco negativo
-			tHAtrazo = tHAtrazo + quantidade_banco_horas;
-
-		} else if (tipo_banco_horas == 1) {
-			// tipo positivo
-			tHAtrazo = tHAtrazo - quantidade_banco_horas;
-
-		}
-*/
+		/*
+		 * if (tipo_banco_horas == 0) { // banco negativo tHAtrazo = tHAtrazo +
+		 * quantidade_banco_horas;
+		 * 
+		 * } else if (tipo_banco_horas == 1) { // tipo positivo tHAtrazo = tHAtrazo -
+		 * quantidade_banco_horas;
+		 * 
+		 * }
+		 */
 		if (rdbtnDescontarAtrazosSim.isSelected()) {
 			setInfoCalculoAtrazos();
 			tHExtras = tH50 + tH60 + tH100;
@@ -2529,25 +2933,24 @@ public class TelaFuncionariosCadastroSalario extends JFrame {
 		}
 
 		double valor_hora = piso_salarial / 220.0;
+		double valor_hora_noturna = (piso_salarial / 220.0) * 1.2;
 		double valor_hora50 = valor_hora + (valor_hora * 0.5);
 		double valor_hora60 = valor_hora + (valor_hora * 0.6);
 		double valor_hora100 = valor_hora * 2.0;
 
-		
 		horas_global.setValor_hora50(valor_hora50);
 		horas_global.setValor_hora60(valor_hora60);
 		horas_global.setValor_hora100(valor_hora100);
+		horas_global.setValor_hora_noturna(valor_hora_noturna);
 
-		
 		// valores de horas
 		lblValorHoraNormal.setText(NumberFormat.getCurrencyInstance(ptBr).format(valor_hora));
+		lblValorHoraNoturna.setText(NumberFormat.getCurrencyInstance(ptBr).format(valor_hora_noturna));
+
 		lblValorHora50.setText(NumberFormat.getCurrencyInstance(ptBr).format(valor_hora50));
 		lblValorHora60.setText(NumberFormat.getCurrencyInstance(ptBr).format(valor_hora60));
 		lblValorHora100.setText(NumberFormat.getCurrencyInstance(ptBr).format(valor_hora100));
 
-		
-		
-		
 		String s_total_h_ex = formatHora(tHExtras);
 		String s_total_h_normais = formatHora(tHTrabalhadas);
 		// String s_total_h_atraz = formatHora(tHAtrazo);
@@ -2567,26 +2970,29 @@ public class TelaFuncionariosCadastroSalario extends JFrame {
 		double valor_total_horas_50 = tH50 * (valor_hora50 / 60.0);
 		double valor_total_horas_60 = tH60 * (valor_hora60 / 60.0);
 		double valor_total_horas_100 = tH100 * (valor_hora100 / 60.0);
+		double valor_total_horas_noturnas = tHNoturnas * (valor_hora_noturna / 60.0);
+
 
 		horas_global.setValor_hora(valor_hora);
 		horas_global.setValor_total_hora50(valor_total_horas_50);
 		horas_global.setValor_total_hora60(valor_total_horas_60);
 		horas_global.setValor_total_hora100(valor_total_horas_100);
+		horas_global.setValor_total_hora_noturnas(valor_total_horas_noturnas);
 
 		double valor_total_horas_extras = valor_total_horas_50 + valor_total_horas_60 + valor_total_horas_100;
 		valor_total_horas_extras_global = valor_total_horas_extras;
 		horas_global.setValor_total_hora_extras(valor_total_horas_extras);
-		
+
 		lblValorTotalHoras50.setText(NumberFormat.getCurrencyInstance(ptBr).format(valor_total_horas_50));
 		lblValorTotalHoras60.setText(NumberFormat.getCurrencyInstance(ptBr).format(valor_total_horas_60));
 		lblValorTotalHoras100.setText(NumberFormat.getCurrencyInstance(ptBr).format(valor_total_horas_100));
 		lblValorTotalHorasExtras.setText(NumberFormat.getCurrencyInstance(ptBr).format(valor_total_horas_extras));
+		lblHorasNoturnas.setText(NumberFormat.getCurrencyInstance(ptBr).format(valor_total_horas_noturnas));
 
 		// somatorias
 
-		//if (tHExtras > tHAtrazo) {
-			lblSalarioBaseAReceber.setText(NumberFormat.getCurrencyInstance(ptBr).format(piso_salarial));
-		
+		// if (tHExtras > tHAtrazo) {
+		lblSalarioBaseAReceber.setText(NumberFormat.getCurrencyInstance(ptBr).format(piso_salarial));
 
 		lblHorasExtrasAReceber.setText(NumberFormat.getCurrencyInstance(ptBr).format(valor_total_horas_extras));
 
@@ -2606,17 +3012,13 @@ public class TelaFuncionariosCadastroSalario extends JFrame {
 			depositarBancoHoras(false);
 
 		}
-		
-		calculoFinal();
 
 	}
-	
-	
+
 	public void calculoFinal() {
-		
+
 		double total_bruto = piso_salarial + valor_total_acrescimos_global + valor_total_horas_extras_global;
 		double total_liquido = total_bruto - valor_total_descontos_global;
-		
 
 		lblValorTotalSalarioBruto.setText(formatarValor(total_bruto));
 
@@ -2691,26 +3093,37 @@ public class TelaFuncionariosCadastroSalario extends JFrame {
 	}
 
 	public void inserirDescontoInss(String descricao, double valor) {
-		CadastroFuncionarioCalculo cad = new CadastroFuncionarioCalculo();
 
-		cad.setTipo_calculo(0);
-		String nome;
-		int referencia_calculo, referencia_valor;
-		double total;
-		nome = "DESCONTO INSS";
-		cad.setDescricao(descricao);
-		cad.setNome(nome);
-		cad.setReferencia_calculo(0);
-		cad.setReferencia_valor(1);
-		cad.setValor(valor);
-		cad.setTotal(valor);
-		cad.setQuantidade(1);
+		// verifica se ja existe este desconto na tabela
+		boolean tem_na_tabela = false;
+		for (CadastroFuncionarioCalculo cad : modelDescontos.getLista()) {
+			if (cad.getNome().equalsIgnoreCase("DESCONTO INSS")) {
+				tem_na_tabela = true;
+				break;
+			}
+		}
 
-		this.adicionarDesconto(cad);
+		if (!tem_na_tabela) {
+			CadastroFuncionarioCalculo cad = new CadastroFuncionarioCalculo();
+
+			cad.setTipo_calculo(0);
+			String nome;
+			int referencia_calculo, referencia_valor;
+			double total;
+			nome = "DESCONTO INSS";
+			cad.setDescricao(descricao);
+			cad.setNome(nome);
+			cad.setReferencia_calculo(0);
+			cad.setReferencia_valor(1);
+			cad.setValor(valor);
+			cad.setTotal(valor);
+			cad.setQuantidade(1);
+
+			this.adicionarDesconto(cad);
+		}
 
 	}
-	
-	
+
 	public void inserirDescontoAtrazo(String descricao, double valor) {
 		CadastroFuncionarioCalculo cad = new CadastroFuncionarioCalculo();
 
@@ -2730,15 +3143,16 @@ public class TelaFuncionariosCadastroSalario extends JFrame {
 		this.adicionarDesconto(cad);
 
 	}
-
-	public void inserirDescontoIrrf(String descricao, double valor) {
+	
+	
+	public void inserirDescontoDomingo(String descricao, double valor) {
 		CadastroFuncionarioCalculo cad = new CadastroFuncionarioCalculo();
 
 		cad.setTipo_calculo(0);
 		String nome;
 		int referencia_calculo, referencia_valor;
 		double total;
-		nome = "DESCONTO IRFF";
+		nome = "DESCONTO DE DOMINGO POR ATRASO SEMANAL SUPERIOR A 8 HORAS";
 		cad.setDescricao(descricao);
 		cad.setNome(nome);
 		cad.setReferencia_calculo(0);
@@ -2748,6 +3162,38 @@ public class TelaFuncionariosCadastroSalario extends JFrame {
 		cad.setQuantidade(1);
 
 		this.adicionarDesconto(cad);
+
+	}
+
+
+	public void inserirDescontoIrrf(String descricao, double valor) {
+		// verifica se ja existe este desconto na tabela
+		boolean tem_na_tabela = false;
+		for (CadastroFuncionarioCalculo cad : modelDescontos.getLista()) {
+			if (cad.getNome().equalsIgnoreCase("DESCONTO IRFF")) {
+				tem_na_tabela = true;
+				break;
+			}
+		}
+
+		if (!tem_na_tabela) {
+			CadastroFuncionarioCalculo cad = new CadastroFuncionarioCalculo();
+
+			cad.setTipo_calculo(0);
+			String nome;
+			int referencia_calculo, referencia_valor;
+			double total;
+			nome = "DESCONTO IRFF";
+			cad.setDescricao(descricao);
+			cad.setNome(nome);
+			cad.setReferencia_calculo(0);
+			cad.setReferencia_valor(1);
+			cad.setValor(valor);
+			cad.setTotal(valor);
+			cad.setQuantidade(1);
+
+			this.adicionarDesconto(cad);
+		}
 
 	}
 
@@ -2840,6 +3286,10 @@ public class TelaFuncionariosCadastroSalario extends JFrame {
 
 		}
 
+		public ArrayList<CadastroFuncionarioCalculo> getLista() {
+			return dados;
+		}
+
 		@Override
 		public int getColumnCount() {
 			// retorna o total de colunas
@@ -2913,7 +3363,7 @@ public class TelaFuncionariosCadastroSalario extends JFrame {
 				return ref_valor[ref_val];
 			}
 			case valor: {
-				return formatarValor(desconto.getValor()); 
+				return formatarValor(desconto.getValor());
 			}
 
 			case total: {
@@ -3042,6 +3492,10 @@ public class TelaFuncionariosCadastroSalario extends JFrame {
 
 		public AcrescimoTableModel() {
 
+		}
+
+		public ArrayList<CadastroFuncionarioCalculo> getLista() {
+			return dados;
 		}
 
 		@Override
@@ -3246,7 +3700,7 @@ public class TelaFuncionariosCadastroSalario extends JFrame {
 		int mes = cBMes.getSelectedIndex();
 		lblDescricaoBancoHoras.setText("BH de " + cBMes.getItemAt(mes - 1).toString());
 		CadastroFuncionarioBancoHoras banco = gerenciar.getBancoHorasPorFuncionarioPorMes(func.getId_funcionario(),
-				mes - 1);
+				mes);
 
 		if (banco != null) {
 
@@ -3270,29 +3724,33 @@ public class TelaFuncionariosCadastroSalario extends JFrame {
 	}
 
 	public void atualizar() {
+
 		pesquisarDemostrativo();
+		pesquisarBancoHoras();
+		setInfoCalculoSalarial();
+		calculoFinal();
+		pesquisar_contas_associadas();
+
 	}
 
 	public void depositarBancoHoras(boolean depositar) {
 		int mes = cBMes.getSelectedIndex() + 1;
-		String s_mes =  cBMes.getItemAt(mes).toString();
+		String s_mes = cBMes.getItemAt(mes).toString();
 		lblDescricaoNovoBancoHoras.setText("BH de " + s_mes);
 
 		if (depositar) {
 
-
 			// zera os valores
 			lblQuantidadeHoras50.setText("0");
-			
+
 			horas_global.setTH50(0);
 			horas_global.setTH60(0);
 			horas_global.setTH100(0);
-			
+
 			horas_global.setValor_total_hora_extras(0);
-			
+
 			horas_global.setOpcao_banco(1);
 			horas_global.setMes(s_mes);
-			
 
 			lblValorTotalHoras50.setText("0");
 
@@ -3306,41 +3764,37 @@ public class TelaFuncionariosCadastroSalario extends JFrame {
 			lblValorTotalHorasExtras.setText("0");
 			lblHorasExtrasAReceber.setText("");
 
-
 			long dif = tHExtras - tHAtrazo;
-			if(dif > 0) {
+			if (dif > 0) {
 				dif = dif * 2;
 			}
-			
-			
-			if(tipo_banco_horas == 0) {
-				//horas negativas no banco
+
+			if (tipo_banco_horas == 0) {
+				// horas negativas no banco
 
 				dif = dif - quantidade_banco_horas;
-			}else if(tipo_banco_horas == 1) {
-				//horas positivas no banco
+			} else if (tipo_banco_horas == 1) {
+				// horas positivas no banco
 
 				dif = dif + quantidade_banco_horas;
 
 			}
-			
-			
 
 			if (dif > 0) {
 				lblTipoNovoBancoHoras.setText("POSITIVO");
-				tipo_novo_banco_horas_global  = 1;
+				tipo_novo_banco_horas_global = 1;
 				horas_global.setTipo_banco(1);
 
 			} else {
 				lblTipoNovoBancoHoras.setText("NEGATIVO");
-				tipo_novo_banco_horas_global  = 0;
+				tipo_novo_banco_horas_global = 0;
 				horas_global.setTipo_banco(0);
 
 			}
-			
-			quantidade_novo_banco_horas_global  = dif;
+
+			quantidade_novo_banco_horas_global = dif;
 			lblQuantidadeNovoBancoHoras.setText(formatHora(dif));
-			
+
 			horas_global.setQuantidade(dif);
 			valor_total_horas_extras_global = 0;
 		} else {
@@ -3361,12 +3815,11 @@ public class TelaFuncionariosCadastroSalario extends JFrame {
 			RegistroPontoMensalCompleto rp = modeloRegistroPonto.getValue(i);
 			registros_selecionados.add(rp);
 		}
-		
+
 		return registros_selecionados;
 
 	}
-	
-	
+
 	public ArrayList<CadastroFuncionarioCalculo> getDescontos() {
 		ArrayList<CadastroFuncionarioCalculo> descontos_selecionados = new ArrayList<>();
 
@@ -3375,12 +3828,11 @@ public class TelaFuncionariosCadastroSalario extends JFrame {
 			CadastroFuncionarioCalculo desconto = modelDescontos.getValue(i);
 			descontos_selecionados.add(desconto);
 		}
-		
+
 		return descontos_selecionados;
 
 	}
-	
-	
+
 	public ArrayList<CadastroFuncionarioCalculo> getAcrescimos() {
 		ArrayList<CadastroFuncionarioCalculo> acrescimos_selecionados = new ArrayList<>();
 
@@ -3389,61 +3841,53 @@ public class TelaFuncionariosCadastroSalario extends JFrame {
 			CadastroFuncionarioCalculo acrescimo = modelAcrescimos.getValue(i);
 			acrescimos_selecionados.add(acrescimo);
 		}
-		
+
 		return acrescimos_selecionados;
 
 	}
-	
-	
-	
+
 	public CadastroFuncionarioBancoHoras getDadosBanco() {
 
 		CadastroFuncionarioBancoHoras banco = new CadastroFuncionarioBancoHoras();
 
 		banco.setId_funcionario(func.getId_funcionario());
-		banco.setMes_referencia(cBMes.getSelectedIndex() + 1 );
-		
+		banco.setMes_referencia(cBMes.getSelectedIndex() + 1);
+
 		banco.setTipo_banco(tipo_novo_banco_horas_global);
-		
-	
 
-
-			banco.setQuantidade_horas(Long.toString(quantidade_novo_banco_horas_global));
-			return banco;
-		
+		banco.setQuantidade_horas(Long.toString(quantidade_novo_banco_horas_global));
+		return banco;
 
 	}
 
-	
 	private CadastroFuncionarioSalario getDadosSalvar() {
 		CadastroFuncionarioSalario cad = new CadastroFuncionarioSalario();
-		
+
 		cad.setId_funcionario(func.getId_funcionario());
 		cad.setSalario_base(piso_salarial);
 		cad.setTotal_acrescimos(valor_total_acrescimos_global);
 		cad.setTotal_descontos(valor_total_descontos_global);
 		cad.setTotal_hora_extras(valor_total_horas_extras_global);
-		
+
 		cad.setAno(Integer.parseInt(entAno.getText()));
 		cad.setMes(cBMes.getSelectedIndex());
 		cad.setId_ct_trabalho(ct_global.getId_contrato());
 
 		return cad;
 	}
-	
-	
+
 	public void salvar(String arquivo) {
 		CadastroFuncionarioSalario salario = getDadosSalvar();
 		GerenciarBancoFuncionarioSalarios gerenciar = new GerenciarBancoFuncionarioSalarios();
 		int inserir = gerenciar.inserirsalario(salario);
-		if(inserir > 0) {
+		if (inserir > 0) {
 			JOptionPane.showMessageDialog(isto, "Sálario Cadastrado na Base de Dados");
-			
-			//salvar o arquivo
-			
+
+			// salvar o arquivo
+
 			salvarArquivo(arquivo);
-			if(rdbtnDepositarSim.isSelected()) {
-				//criar novo banco de horas
+			if (rdbtnDepositarSim.isSelected()) {
+				// criar novo banco de horas
 				GerenciarBancoFuncionarioBancoHoras gerenciar_banco = new GerenciarBancoFuncionarioBancoHoras();
 				CadastroFuncionarioBancoHoras banco = getDadosBanco();
 				if (banco != null) {
@@ -3451,128 +3895,131 @@ public class TelaFuncionariosCadastroSalario extends JFrame {
 					if (inserir > 0) {
 						JOptionPane.showMessageDialog(isto, "Novo Banco de Horas Registrado");
 						((TelaGerenciarFuncionario) janela_pai_global).pesquisar_banco_horas();
+						((TelaGerenciarFuncionario) janela_pai_global).pesquisar_salarios();
+						
 						isto.dispose();
 					} else {
 						JOptionPane.showMessageDialog(isto,
 								"Erro ao Cadastrar Banco de Horas\nConsulte o administrador");
+						((TelaGerenciarFuncionario) janela_pai_global).pesquisar_salarios();
+
 						isto.dispose();
 
 					}
 				}
+			}else {
+				((TelaGerenciarFuncionario) janela_pai_global).pesquisar_salarios();
+
 			}
-			
-			
-			isto.dispose();
-		}else {
+
+		} else {
 			JOptionPane.showMessageDialog(isto, "Erro ao Salvar o Contrato na Base de Dados\nConsulte o Administrador");
 		}
 	}
-	
-	
+
 	public void salvarArquivo(String url) {
 
-			String nome, descricao, nome_arquivo, caminho_arquivo;
-			int id_contrato_pai;
+		String nome, descricao, nome_arquivo, caminho_arquivo;
+		int id_contrato_pai;
 
-			int mes = cBMes.getSelectedIndex();
-			String s_mes =  cBMes.getItemAt(mes).toString();
-			nome = "salario_mes_" + s_mes;
-			descricao = "relatorio mensal de salario";
-			caminho_arquivo = url;
+		int mes = cBMes.getSelectedIndex();
+		String s_mes = cBMes.getItemAt(mes).toString();
+		nome = "salario_mes_" + s_mes;
+		descricao = "relatorio mensal de salario";
+		caminho_arquivo = url;
 
-			String nome_arquivo_original_conteudo[] = caminho_arquivo.split("\"");
-			String nome_arquivo_original = nome_arquivo_original_conteudo[nome_arquivo_original_conteudo.length - 1];
-			String extensaoDoArquivo = FilenameUtils.getExtension(nome_arquivo_original);
+		String nome_arquivo_original_conteudo[] = caminho_arquivo.split("\"");
+		String nome_arquivo_original = nome_arquivo_original_conteudo[nome_arquivo_original_conteudo.length - 1];
+		String extensaoDoArquivo = FilenameUtils.getExtension(nome_arquivo_original);
 
-			// copiar o arquivo para a nova pasta
+		// copiar o arquivo para a nova pasta
 
-			try {
-				// copiar o arquivo para a pasta do contrato
-				ManipularTxt manipular = new ManipularTxt();
-				String unidade_base_dados = configs_globais.getServidorUnidade();
+		try {
+			// copiar o arquivo para a pasta do contrato
+			ManipularTxt manipular = new ManipularTxt();
+			String unidade_base_dados = configs_globais.getServidorUnidade();
 
-				// pegar nome da pasta
-				String nome_pasta = "colaborador_" + func.getCpf();
+			// pegar nome da pasta
+			String nome_pasta = "colaborador_" + func.getCpf();
 
-				String caminho_salvar = unidade_base_dados + "\\" + "E-Contract\\arquivos\\colaboradores\\" + nome_pasta
-						+ "\\documentos";
-				manipular.criarDiretorio(caminho_salvar);
+			String caminho_salvar = unidade_base_dados + "\\" + "E-Contract\\arquivos\\colaboradores\\" + nome_pasta
+					+ "\\documentos";
+			manipular.criarDiretorio(caminho_salvar);
 
-				GetData dados = new GetData();
-				String dataString = dados.getData();
-				String horaString = dados.getHora();
+			GetData dados = new GetData();
+			String dataString = dados.getData();
+			String horaString = dados.getHora();
 
-				if (caminho_arquivo.length() > 10) {
-					if (nome.length() != 0 && !nome.equals("") && !nome.equals(" ") && !nome.equals("          ")) {
-						nome_arquivo = func.getApelido() + "_" + nome + "_" + horaString.replaceAll(":", "_")
-								+ "." + extensaoDoArquivo;
+			if (caminho_arquivo.length() > 10) {
+				if (nome.length() != 0 && !nome.equals("") && !nome.equals(" ") && !nome.equals("          ")) {
+					nome_arquivo = func.getApelido() + "_" + nome + "_" + horaString.replaceAll(":", "_") + "."
+							+ extensaoDoArquivo;
 
-						String caminho_completo = caminho_salvar + "\\" + nome_arquivo;
+					String caminho_completo = caminho_salvar + "\\" + nome_arquivo;
 
-						boolean movido = manipular.copiarNFe(caminho_arquivo, caminho_completo);
+					boolean movido = manipular.copiarNFe(caminho_arquivo, caminho_completo);
 
-						if (movido) {
+					if (movido) {
 
-							// atualizar status do contrato
-							CadastroDocumento novo_documento = new CadastroDocumento();
-							novo_documento.setDescricao(descricao);
-							novo_documento.setNome(nome);
+						// atualizar status do contrato
+						CadastroDocumento novo_documento = new CadastroDocumento();
+						novo_documento.setDescricao(descricao);
+						novo_documento.setNome(nome);
 
-							String s_tipo_documento = "Comprovantes";
-							int tipo_documento = -1;
+						String s_tipo_documento = "Comprovantes";
+						int tipo_documento = -1;
 
-							if (s_tipo_documento.equalsIgnoreCase("Documento Pessoal")) {
-								tipo_documento = 1;
-							} else if (s_tipo_documento.equalsIgnoreCase("Comprovantes")) {
-								tipo_documento = 2;
-							} else if (s_tipo_documento.equalsIgnoreCase("Outros")) {
-								tipo_documento = 3;
-							}
+						if (s_tipo_documento.equalsIgnoreCase("Documento Pessoal")) {
+							tipo_documento = 1;
+						} else if (s_tipo_documento.equalsIgnoreCase("Comprovantes")) {
+							tipo_documento = 2;
+						} else if (s_tipo_documento.equalsIgnoreCase("Outros")) {
+							tipo_documento = 3;
+						}
 
-							novo_documento.setTipo(tipo_documento);
-							novo_documento.setId_pai(0);
-							novo_documento.setNome_arquivo(nome_arquivo);
-							novo_documento.setId_funcionario(func.getId_funcionario());
+						novo_documento.setTipo(tipo_documento);
+						novo_documento.setId_pai(0);
+						novo_documento.setNome_arquivo(nome_arquivo);
+						novo_documento.setId_funcionario(func.getId_funcionario());
 
-							GerenciarBancoDocumento gerenciar_doc = new GerenciarBancoDocumento();
-							int cadastrar = gerenciar_doc.inserir_documento_padrao_funcionario(novo_documento);
-							if (cadastrar > 0) {
-								JOptionPane.showMessageDialog(isto, "Arquivo copiado e salvo na base de dados\nOrigem: "
-										+ caminho_arquivo + "\nDestino: " + caminho_completo);
+						GerenciarBancoDocumento gerenciar_doc = new GerenciarBancoDocumento();
+						int cadastrar = gerenciar_doc.inserir_documento_padrao_funcionario(novo_documento);
+						if (cadastrar > 0) {
+							JOptionPane.showMessageDialog(isto, "Arquivo copiado e salvo na base de dados\nOrigem: "
+									+ caminho_arquivo + "\nDestino: " + caminho_completo);
 
-								((TelaGerenciarFuncionario) janela_pai_global).atualizarArvoreDocumentos();
+							((TelaGerenciarFuncionario) janela_pai_global).atualizarArvoreDocumentos();
+						} else {
+							JOptionPane.showMessageDialog(isto,
+									"Arquivo copiado, mas não pode ser salvo\nConsulte o adiministrador do sistema!");
+							// cancelar operacao e excluir o arquivo
+							if (manipular.apagarArquivo(caminho_completo)) {
+
 							} else {
 								JOptionPane.showMessageDialog(isto,
-										"Arquivo copiado, mas não pode ser salvo\nConsulte o adiministrador do sistema!");
-								// cancelar operacao e excluir o arquivo
-								if (manipular.apagarArquivo(caminho_completo)) {
-
-								} else {
-									JOptionPane.showMessageDialog(isto,
-											"Erro ao excluir arquivo!\nConsulte o administrador do sistema");
-								}
+										"Erro ao excluir arquivo!\nConsulte o administrador do sistema");
 							}
-
-						} else {
-							JOptionPane.showMessageDialog(isto, "Arquivo  não pode ser copiado\nOrigem: " + caminho_arquivo
-									+ "\nDestino: " + caminho_completo + "\n Consulte o administrador!");
-
 						}
+
 					} else {
-						JOptionPane.showMessageDialog(isto, "Nome do arquivo invalido!");
+						JOptionPane.showMessageDialog(isto, "Arquivo  não pode ser copiado\nOrigem: " + caminho_arquivo
+								+ "\nDestino: " + caminho_completo + "\n Consulte o administrador!");
 
 					}
 				} else {
-					JOptionPane.showMessageDialog(isto, "Caminho do arquivo invalido!");
+					JOptionPane.showMessageDialog(isto, "Nome do arquivo invalido!");
+
 				}
-
-			} catch (IOException f) {
-
+			} else {
+				JOptionPane.showMessageDialog(isto, "Caminho do arquivo invalido!");
 			}
 
-		
+		} catch (IOException f) {
+
+		}
+
 	}
-	
+
 	public void getDadosGlobais() {
 		// gerenciador de log
 		DadosGlobais dados = DadosGlobais.getInstance();
@@ -3582,7 +4029,146 @@ public class TelaFuncionariosCadastroSalario extends JFrame {
 		// usuario logado
 		login = dados.getLogin();
 
+	}
+
+	public void pesquisar_contas_associadas() {
 		
+
+		GerenciarBancoFuncionarios gerenciar = new GerenciarBancoFuncionarios();
+
+		int mes = cBMes.getSelectedIndex() + 1;
+		int ano = 0;
+		try {
+			ano = Integer.parseInt(entAno.getText());
+		} catch (Exception e) {
+			JOptionPane.showMessageDialog(isto, "Ano Inválido!");
+			return;
+		}
+		ArrayList<FuncionarioContaAssociada> lista_contas = new ArrayList<>();
+		lista_contas = gerenciar.buscarContasAssociadas(func.getId_funcionario());
+		
+		GerenciarBancoFinanceiroPagamento gerenciar_pags = new GerenciarBancoFinanceiroPagamento();
+		for (FuncionarioContaAssociada fca : lista_contas) {
+			
+			
+				ArrayList<FinanceiroPagamentoCompleto> pagamentos = gerenciar_pags.getFinanceiroPagamentosPorCliente(fca.getCliente().getId(), mes, ano);
+				//inserir desconto de adiantamento
+
+				for(FinanceiroPagamentoCompleto pags : pagamentos) {
+				
+					inserirDescontoAdiantamento("SALARIO - ADIANTAMENTO " + pags.getFpag().getId_pagamento(), pags.getFpag().getDescricao(), pags.getFpag().getValor().doubleValue());
+				
+				}
+			
+		}
+
+	}
+
+	
+	public void inserirDescontoAdiantamento(String nome, String descricao, double valor) {
+
+		
+		// verifica se ja existe este desconto na tabela
+				boolean tem_na_tabela = false;
+				for (CadastroFuncionarioCalculo cad : modelDescontos.getLista()) {
+					if (cad.getNome().equalsIgnoreCase(nome)) {
+						tem_na_tabela = true;
+						break;
+					}
+				}
+
+				if (!tem_na_tabela) {
+			CadastroFuncionarioCalculo cad = new CadastroFuncionarioCalculo();
+
+			cad.setTipo_calculo(0);
+			int referencia_calculo, referencia_valor;
+			double total;
+			cad.setDescricao(descricao);
+			cad.setNome(nome);
+			cad.setReferencia_calculo(0);
+			cad.setReferencia_valor(1);
+			cad.setValor(valor);
+			cad.setTotal(valor);
+			cad.setQuantidade(1);
+
+			this.adicionarDesconto(cad);
+				}
+
+	}
+	
+	public  long calculateWorkingHours(String workStartString, String workEndString) {
+		 DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
+
+		
+		 LocalDateTime workStart
+	            = LocalDateTime.parse(workStartString, formatter);
+		 LocalDateTime workEnd
+	            = LocalDateTime.parse(workEndString, formatter);
+
+	    if (workEnd.isBefore(workStart)) {
+	        throw new IllegalArgumentException("Work end must not be before work start");
+	    }
+
+	    LocalDate workStartDate = workStart.toLocalDate();
+	    LocalDate workEndDate = workEnd.toLocalDate();
+
+	    Duration workedDaytime = Duration.ZERO;
+	    // first calculate work at nighttime before the start date, that is, work before 06:00
+	    Duration workedNighttime 
+	            = calculateNightTime(workStartDate.minusDays(1), workStart, workEnd);
+
+	    for (LocalDate d = workStartDate; ! d.isAfter(workEndDate); d = d.plusDays(1)) {
+	        workedDaytime = workedDaytime.plus(calculateDayTime(d, workStart, workEnd));
+	        workedNighttime = workedNighttime.plus(calculateNightTime(d, workStart, workEnd));
+	    }
+
+	  //  double dayHours = workedDaytime.toMinutes() / (double) TimeUnit.HOURS.toMinutes(1);
+	    long nightHours = workedNighttime.toMinutes();
+
+	    return nightHours;
+
+	}
+
+	
+	private  Duration calculateDayTime(LocalDate d, LocalDateTime workStart, LocalDateTime workEnd) {
+		LocalDateTime dayStartToday = d.atTime(dayStart);
+		LocalDateTime dayEndToday = d.atTime(dayEnd);
+	    if (workStart.isAfter(dayEndToday) || workEnd.isBefore(dayStartToday)) {
+	        return Duration.ZERO;
+	    }
+
+	    // restrict calculation to daytime on d
+	    if (workStart.isBefore(dayStartToday)) {
+	        workStart = dayStartToday;
+	    }
+	    if (workEnd.isAfter(dayEndToday)) {
+	        workEnd = dayEndToday;
+	    }
+
+	    return Duration.between(workStart, workEnd);
+	}
+
+	 LocalTime dayStart = LocalTime.of(5, 0);
+	 LocalTime dayEnd = LocalTime.of(22, 0);
+	private  Duration calculateNightTime(LocalDate d, LocalDateTime workStart, LocalDateTime workEnd) {
+	    assert ! workEnd.isBefore(workStart);
+
+	    LocalDateTime nightStart = d.atTime(dayEnd);
+	    LocalDateTime nightEnd = d.plusDays(1).atTime(dayStart);
+
+	    if (workEnd.isBefore(nightStart) || workStart.isAfter(nightEnd)) {
+	        return Duration.ZERO;
+	    }
+
+	    // restrict calculation to the night after d
+	    if (workStart.isBefore(nightStart)) {
+	        workStart = nightStart;
+	    }
+	    if (workEnd.isAfter(nightEnd)) {
+	        workEnd = nightEnd;
+	    }
+
+	    return Duration.between(workStart, workEnd);
 	}
 	
 }
