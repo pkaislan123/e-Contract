@@ -1,4 +1,5 @@
 package main.java.relatoria;
+import org.apache.poi.ss.usermodel.ClientAnchor;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
@@ -231,8 +232,19 @@ public class RelatorioSalario extends JDialog {
 			stream.read(bytes);// Read image to binary array
 			int pictureIdx = workbook.addPicture(bytes, HSSFWorkbook.PICTURE_TYPE_JPEG);
 			HSSFPatriarch patriarch = sheet.createDrawingPatriarch();
-			HSSFClientAnchor anchor = new HSSFClientAnchor(0, 0, 0, 0, (short) 0, 0, (short) 1, 3);
+			
+			short coluna_inicio = 0;
+			int linha_inicio = 0;
+			
+			short coluna_fim = 0;
+			int linha_fim = 3;
+			HSSFClientAnchor anchor = new HSSFClientAnchor(0, 0, 0, 0,coluna_inicio , linha_inicio, coluna_fim, linha_fim);
+			
+			
 			HSSFPicture pict = patriarch.createPicture(anchor, pictureIdx);
+
+			
+			
 		} catch (IOException e1) {
 			// TODO Auto-generated catch block
 			e1.printStackTrace();
@@ -621,7 +633,8 @@ public class RelatorioSalario extends JDialog {
 		cell.setCellStyle(textStyle);
 		cell.setCellValue(formatarValor(salario));
 
-		if (registro_global.getOpcao_banco() != 1) {
+		//if (registro_global.getOpcao_banco() != 1)
+		{
 
 			// linha hora 50%
 			row = sheet.createRow(rownum++);
@@ -807,7 +820,7 @@ public class RelatorioSalario extends JDialog {
 			cell = row.createCell(cellnum++);
 			cell.setCellStyle(negrito_esquerda);
 			cell.setCellValue(formatarValor(total_acrescimos));
-
+			rownum++;
 		}
 
 		if (descontos.size() > 0) {
@@ -967,12 +980,44 @@ public class RelatorioSalario extends JDialog {
 		cellnum = 0;
 		cell = row.createCell(cellnum++);
 		cell.setCellStyle(textStyle);
+		cell.setCellValue("TOTAL ACRÉSCIMOS:");
+
+		cell = row.createCell(cellnum++);
+		cell.setCellStyle(negrito_esquerda);
+		cell.setCellValue(formatarValor(total_acrescimos));
+		
+		row = sheet.createRow(rownum++);
+		cell = row.createCell(1);
+		cell.setCellStyle(negrito_esquerda);
+		cell.setCellValue("_________________ + ");
+		
+		row = sheet.createRow(rownum++);
+		cellnum = 0;
+		cell = row.createCell(cellnum++);
+		cell.setCellStyle(textStyle);
+		cell.setCellValue("TOTAL BRUTO:");
+
+		cell = row.createCell(cellnum++);
+		cell.setCellStyle(negrito_esquerda);
+		cell.setCellValue(formatarValor(bruto));
+		
+		row = sheet.createRow(rownum++);
+		cellnum = 0;
+		cell = row.createCell(cellnum++);
+		cell.setCellStyle(textStyle);
 		cell.setCellValue("TOTAL DESCONTOS:");
+		
+		
 
 		cell = row.createCell(cellnum++);
 		cell.setCellStyle(negrito_esquerda);
 		cell.setCellValue(formatarValor(total_descontos));
 
+		row = sheet.createRow(rownum++);
+		cell = row.createCell(1);
+		cell.setCellStyle(negrito_esquerda);
+		cell.setCellValue("_________________ - ");
+		
 		row = sheet.createRow(rownum++);
 		cellnum = 0;
 		cell = row.createCell(cellnum++);
@@ -1203,8 +1248,17 @@ public class RelatorioSalario extends JDialog {
 			stream.read(bytes);// Read image to binary array
 			int pictureIdx = workbook.addPicture(bytes, HSSFWorkbook.PICTURE_TYPE_JPEG);
 			HSSFPatriarch patriarch = sheet.createDrawingPatriarch();
-			HSSFClientAnchor anchor = new HSSFClientAnchor(0, 0, 0, 0, (short) 0, 0, (short) 1, 3);
+			short coluna_inicio = 0;
+			int linha_inicio = 0;
+			
+			short coluna_fim = 0;
+			int linha_fim = 0;
+			HSSFClientAnchor anchor = new HSSFClientAnchor(0, 0, 0, 0,coluna_inicio , linha_inicio, coluna_fim, linha_fim);
+			
+			
 			HSSFPicture pict = patriarch.createPicture(anchor, pictureIdx);
+	        anchor.setAnchorType(ClientAnchor.AnchorType.MOVE_DONT_RESIZE);
+
 		} catch (IOException e1) {
 			// TODO Auto-generated catch block
 			e1.printStackTrace();

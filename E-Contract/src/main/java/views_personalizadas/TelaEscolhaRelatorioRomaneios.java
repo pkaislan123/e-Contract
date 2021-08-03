@@ -1473,21 +1473,24 @@ public class TelaEscolhaRelatorioRomaneios extends JDialog {
 
 					if (destinatario != null) {
 						if (destinatario.getTipo_pessoa() == 0) {
-							if (destinatario.getNome_empresarial() != null) {
+							/*if (destinatario.getNome_empresarial() != null) {
 								nome_cliente = destinatario.getNome_empresarial().toUpperCase();
 								if (nome_cliente == null || nome_cliente.equals("") || nome_cliente.length() <= 3) {
 									nome_cliente = destinatario.getNome().toUpperCase() + " "
 											+ destinatario.getSobrenome().toUpperCase();
 								}
 
-							} else {
+							} else {*/
 								nome_cliente = destinatario.getNome().toUpperCase() + " "
 										+ destinatario.getSobrenome().toUpperCase();
 
-							}
+						//	}
 						} else {
 							if (destinatario.getNome_fantaia() != null) {
 								nome_cliente = destinatario.getNome_fantaia().toUpperCase();
+							}else {
+								nome_cliente = destinatario.getNome().toUpperCase() + " "
+										+ destinatario.getSobrenome().toUpperCase();
 							}
 						}
 
@@ -1526,20 +1529,26 @@ public class TelaEscolhaRelatorioRomaneios extends JDialog {
 
 					if (remetente != null) {
 						if (remetente.getTipo_pessoa() == 0) {
-							if (remetente.getNome_empresarial() != null) {
+							/*if (remetente.getNome_empresarial() != null) {
 								nome_cliente = remetente.getNome_empresarial().toUpperCase();
 								if (nome_cliente == null || nome_cliente.equals("") || nome_cliente.length() <= 3) {
 									nome_cliente = remetente.getNome().toUpperCase() + " "
 											+ remetente.getSobrenome().toUpperCase();
 								}
 
-							} else {
+							} else {*/
 								nome_cliente = remetente.getNome().toUpperCase() + " "
 										+ remetente.getSobrenome().toUpperCase();
 
+						//	}
+						} else {
+							if (remetente.getNome_fantaia() != null) {
+								nome_cliente = remetente.getNome_fantaia().toUpperCase();
+							}else {
+								nome_cliente = destinatario.getNome().toUpperCase() + " "
+										+ remetente.getSobrenome().toUpperCase();
 							}
-						} else
-							nome_cliente = remetente.getNome_fantaia().toUpperCase();
+						}
 					}
 
 				} catch (Exception t) {

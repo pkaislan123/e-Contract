@@ -476,7 +476,13 @@ public class GerenciarBancoFuncionarios {
 		String selectfuncionarios;
 
 		// busca padrao
-		selectfuncionarios = "SELECT * FROM funcionario";
+		selectfuncionarios = "SELECT fc.*,\r\n"
+				+ "dp.nome as nome_departamento, fct.status\r\n"
+				+ " FROM \r\n"
+				+ "funcionario fc\r\n"
+				+ "left join funcionario_contrato_trabalho fct on fct.id_colaborador = fc.id_funcionario\r\n"
+				+ "left join departamento dp on dp.id_departamento = fct.id_departamento order by fc.id_funcionario\r\n"
+				+ "";
 
 		Connection conn = null;
 		PreparedStatement pstm = null;
@@ -539,7 +545,9 @@ public class GerenciarBancoFuncionarios {
 				funcionario.setHabilidades(rs.getString("habilidades"));
 
 				funcionario.setApelido(rs.getString("apelido"));
-
+				
+				funcionario.setStatus(rs.getInt("status"));
+				funcionario.setNome_departamento(rs.getString("nome_departamento"));
 				listafuncionarios.add(funcionario);
 
 			}

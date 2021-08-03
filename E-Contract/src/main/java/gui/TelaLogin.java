@@ -159,13 +159,13 @@ public class TelaLogin extends JFrame implements GetDadosGlobais {
 	private Log GerenciadorLog = new Log();
 	private CadastroLogin login;
 	private JLabel lblNewLabel_1;
+	private TelaLogin isto;
 
 	public TelaLogin() {
 		setIconImage(Toolkit.getDefaultToolkit().getImage(TelaLogin.class.getResource("/imagens/logo_icone4.png")));
 
 		getDadosGlobais();
-
-		TelaLogin isto = this;
+		isto = this;
 		setTitle("E-Contract - Login");
 		setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 		setBounds(100, 100, 1026, 586);
@@ -220,19 +220,7 @@ public class TelaLogin extends JFrame implements GetDadosGlobais {
 			@Override
 			public void keyPressed(KeyEvent arg0) {
 				if (arg0.getKeyCode() == KeyEvent.VK_ENTER) {
-					String user = entUser.getText().toString();
-					String senha = new String(entSenha.getPassword());
-					int result = logar();
-					if (result == 0) {
-						GerenciadorLog.registrarLogDiario("aviso",
-								"erro de login: usuario: " + user + " senha: " + senha + "classe:TelaLogin");
-
-						lblResult.setText("Usuário ou senha Incorretos");
-					} else {
-						informarLogon();
-						isto.dispose();
-						TelaMain tela = new TelaMain(isto);
-					}
+					enterLogar();
 				}
 
 			}
@@ -243,20 +231,7 @@ public class TelaLogin extends JFrame implements GetDadosGlobais {
 			@Override
 			public void keyPressed(KeyEvent arg0) {
 				if (arg0.getKeyCode() == KeyEvent.VK_ENTER) {
-					String user = entUser.getText().toString();
-					String senha = new String(entSenha.getPassword());
-					int result = logar();
-					if (result == 0) {
-						GerenciadorLog.registrarLogDiario("aviso",
-								"erro de login: usuario: " + user + " senha: " + senha + "classe:TelaLogin");
-
-						lblResult.setText("Usuário ou senha Incorretos");
-					} else {
-						informarLogon();
-
-						isto.dispose();
-						TelaMain tela = new TelaMain(isto);
-					}
+					enterLogar();
 				}
 
 			}
@@ -388,20 +363,7 @@ public class TelaLogin extends JFrame implements GetDadosGlobais {
 
 		btnLogin.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
-				String user = entUser.getText().toString();
-				String senha = new String(entSenha.getPassword());
-				int result = logar();
-				if (result == 0) {
-					lblResult.setText("Usuário ou senha Incorretos");
-
-				} else {
-					GerenciadorLog.registrarLogDiario("aviso", "usuario logou classe: TelaLogin");
-					informarLogon();
-
-					isto.dispose();
-					TelaMain tela = new TelaMain(isto);
-
-				}
+				enterLogar();
 			}
 		});
 
@@ -409,20 +371,7 @@ public class TelaLogin extends JFrame implements GetDadosGlobais {
 			@Override
 			public void keyPressed(KeyEvent arg0) {
 				if (arg0.getKeyCode() == KeyEvent.VK_ENTER) {
-					String user = entUser.getText().toString();
-					String senha = new String(entSenha.getPassword());
-					int result = logar();
-					if (result == 0) {
-						GerenciadorLog.registrarLogDiario("aviso",
-								"erro de login: usuario: " + user + " senha: " + senha + "classe:TelaLogin");
-
-						lblResult.setText("Usuário ou senha Incorretos");
-					} else {
-						informarLogon();
-
-						isto.dispose();
-						TelaMain tela = new TelaMain(isto);
-					}
+					enterLogar();
 				}
 
 			}
@@ -506,6 +455,24 @@ public class TelaLogin extends JFrame implements GetDadosGlobais {
 		login = userGlobal.getLogin();
 	}
 
+	public void enterLogar() {
+		String user = entUser.getText().toString();
+		String senha = new String(entSenha.getPassword());
+		int result = logar();
+		if (result == 0) {
+			GerenciadorLog.registrarLogDiario("aviso",
+					"erro de login: usuario: " + user + " senha: " + senha + "classe:TelaLogin");
+
+			lblResult.setText("Usuário ou senha Incorretos");
+		} else {
+			informarLogon();
+
+			isto.dispose();
+			TelaMain tela = new TelaMain(isto);
+			
+		}
+	}
+	
 	public void informarLogon() {
 		// informar ao banco que estou logando passando meu ip
 		try {

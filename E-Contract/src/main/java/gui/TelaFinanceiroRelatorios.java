@@ -167,10 +167,14 @@ public class TelaFinanceiroRelatorios extends JFrame {
 		painelRelatoriosDreRegimeCompetencia.setBackground(Color.WHITE);
 
 		abasDre.addTab("Relatório DRE Regime de Competência", painelRelatoriosDreRegimeCompetencia);
-		painelRelatoriosDreRegimeCompetencia.setLayout(new MigLayout("", "[grow]", "[][grow][grow][grow]"));
+		painelRelatoriosDreRegimeCompetencia.setLayout(new MigLayout("", "[grow]", "[][][grow][grow][grow]"));
+		
+		JLabel lblNewLabel_3 = new JLabel("Demonstração do Resultado do Exercício Por Data de Lançamento(Previsto por Data de Lançamento)");
+		lblNewLabel_3.setFont(new Font("SansSerif", Font.BOLD | Font.ITALIC, 16));
+		painelRelatoriosDreRegimeCompetencia.add(lblNewLabel_3, "cell 0 0,alignx center");
 		panel.setBackground(Color.WHITE);
 
-		painelRelatoriosDreRegimeCompetencia.add(panel, "cell 0 0,grow");
+		painelRelatoriosDreRegimeCompetencia.add(panel, "cell 0 1,grow");
 		panel.setLayout(new MigLayout("", "[][][][][]", "[]"));
 		lblNewLabel.setFont(new Font("SansSerif", Font.BOLD, 16));
 
@@ -239,7 +243,7 @@ public class TelaFinanceiroRelatorios extends JFrame {
 		listaRcompetencia.addMouseListener(mouseListener);
 
 		scrollDreSimples = new JScrollPane(panel_1);
-		painelRelatoriosDreRegimeCompetencia.add(scrollDreSimples, "cell 0 1 1 3,grow");
+		painelRelatoriosDreRegimeCompetencia.add(scrollDreSimples, "cell 0 2 1 3,grow");
 
 		KGradientPanel painelCabecalho = new KGradientPanel();
 		panel_1.add(painelCabecalho, "cell 0 0,growx,aligny top");
@@ -363,12 +367,17 @@ public class TelaFinanceiroRelatorios extends JFrame {
 		panel_1.add(painelRodape, "cell 0 2,grow");
 
 		JPanel painelRelatoriosDreRegimeParcela = new JPanel();
-		abasDre.addTab("Relatório DRE Regime de Parcela", null, painelRelatoriosDreRegimeParcela, null);
-		painelRelatoriosDreRegimeParcela.setLayout(new MigLayout("", "[grow]", "[][grow]"));
+		painelRelatoriosDreRegimeParcela.setBackground(Color.WHITE);
+		abasDre.addTab("Relatório DRE Regime de Caixa", null, painelRelatoriosDreRegimeParcela, null);
+		painelRelatoriosDreRegimeParcela.setLayout(new MigLayout("", "[grow]", "[][][grow]"));
+		
+		JLabel lblNewLabel_3_1 = new JLabel("Demonstração do Resultado do Exercício Por Data de Pagamento(Realizado por Data de Pagamento)");
+		lblNewLabel_3_1.setFont(new Font("SansSerif", Font.BOLD | Font.ITALIC, 16));
+		painelRelatoriosDreRegimeParcela.add(lblNewLabel_3_1, "cell 0 0,alignx center");
 
 		JPanel panel_2 = new JPanel();
 		panel_2.setBackground(Color.WHITE);
-		painelRelatoriosDreRegimeParcela.add(panel_2, "cell 0 0,grow");
+		painelRelatoriosDreRegimeParcela.add(panel_2, "cell 0 1,grow");
 		panel_2.setLayout(new MigLayout("", "[][][][][]", "[]"));
 
 		JLabel lblNewLabel_1 = new JLabel("Centro de Custo:");
@@ -444,7 +453,7 @@ public class TelaFinanceiroRelatorios extends JFrame {
 
 		JScrollPane scrollDreSimplesRc = new JScrollPane(panelPaiRc);
 		scrollDreSimplesRc.getViewport().setBackground(Color.white);
-		painelRelatoriosDreRegimeParcela.add(scrollDreSimplesRc, "cell 0 1,grow");
+		painelRelatoriosDreRegimeParcela.add(scrollDreSimplesRc, "cell 0 2,grow");
 
 		KGradientPanel painelCabecalhoRc = new KGradientPanel();
 		panelPaiRc.add(painelCabecalhoRc, "cell 0 0,growx,aligny top");
@@ -570,11 +579,15 @@ public class TelaFinanceiroRelatorios extends JFrame {
 		JPanel painelRelatorioParcelas = new JPanel();
 		painelRelatorioParcelas.setBackground(Color.WHITE);
 		abasDre.addTab("Relatório DRE Regime de Parcelas", null, painelRelatorioParcelas, null);
-		painelRelatorioParcelas.setLayout(new MigLayout("", "[grow]", "[][grow]"));
+		painelRelatorioParcelas.setLayout(new MigLayout("", "[grow]", "[][][grow]"));
+		
+		JLabel lblNewLabel_3_1_1 = new JLabel("Demonstração do Resultado do Exercício Por Data de Parcelas(Previsto por Data de Parcela)");
+		lblNewLabel_3_1_1.setFont(new Font("SansSerif", Font.BOLD | Font.ITALIC, 16));
+		painelRelatorioParcelas.add(lblNewLabel_3_1_1, "cell 0 0,alignx center");
 
 		JPanel panel_2_1 = new JPanel();
 		panel_2_1.setBackground(Color.WHITE);
-		painelRelatorioParcelas.add(panel_2_1, "cell 0 0,grow");
+		painelRelatorioParcelas.add(panel_2_1, "cell 0 1,grow");
 		panel_2_1.setLayout(new MigLayout("", "[]", "[]"));
 
 		JLabel lblNewLabel_11 = new JLabel("Centro de Custo:");
@@ -611,7 +624,7 @@ public class TelaFinanceiroRelatorios extends JFrame {
 
 		JScrollPane scrollPaneRp = new JScrollPane(painelPaiRp);
 		scrollPaneRp.getViewport().setBackground(Color.white);
-		painelRelatorioParcelas.add(scrollPaneRp, "cell 0 1,grow");
+		painelRelatorioParcelas.add(scrollPaneRp, "cell 0 2,grow");
 		painelPaiRp.setLayout(new MigLayout("", "[][1px][1438px]", "[][grow][]"));
 
 		KGradientPanel painelCabecalhoRp = new KGradientPanel();
@@ -785,11 +798,15 @@ public class TelaFinanceiroRelatorios extends JFrame {
 		JPanel panel_3 = new JPanel();
 		panel_3.setBackground(Color.WHITE);
 		abasDreAgrupado.addTab("Relatório DRE's Regime de Competencia", null, panel_3, null);
-		panel_3.setLayout(new MigLayout("", "[][grow]", "[][grow]"));
+		panel_3.setLayout(new MigLayout("", "[][grow]", "[][][grow]"));
+		
+		JLabel lblNewLabel_3_2 = new JLabel("Demonstração do Resultado do Exercício Por Data de Lançamento(Previsto por Data de Lançamento)");
+		lblNewLabel_3_2.setFont(new Font("SansSerif", Font.BOLD | Font.ITALIC, 16));
+		panel_3.add(lblNewLabel_3_2, "cell 1 0,alignx center");
 
 		JPanel panel_4 = new JPanel();
 		panel_4.setBackground(Color.WHITE);
-		panel_3.add(panel_4, "cell 0 0 2 1,grow");
+		panel_3.add(panel_4, "cell 0 1 2 1,grow");
 		panel_4.setLayout(new MigLayout("", "[][][][][]", "[]"));
 
 		JLabel lblNewLabel_2 = new JLabel("Centro de Custo:");
@@ -826,7 +843,7 @@ public class TelaFinanceiroRelatorios extends JFrame {
 		panel_5.setBackground(Color.WHITE);
 
 		JScrollPane scrollDreAgrupadoRegimeLancamento = new JScrollPane(panel_5);
-		panel_3.add(scrollDreAgrupadoRegimeLancamento, "cell 1 1,grow");
+		panel_3.add(scrollDreAgrupadoRegimeLancamento, "cell 1 2,grow");
 		panel_5.setLayout(new MigLayout("", "[grow]", "[][grow]"));
 
 		JPanel panelCabecalhoAgrupadoRegimeLancamento = new JPanel();
@@ -974,12 +991,16 @@ public class TelaFinanceiroRelatorios extends JFrame {
 		
 		JPanel panel_6 = new JPanel();
 		panel_6.setBackground(Color.WHITE);
-		abasDreAgrupado.addTab("Relatório DRE Regime de Caixa", null, panel_6, null);
-		panel_6.setLayout(new MigLayout("", "[grow]", "[][grow]"));
+		abasDreAgrupado.addTab("Relatório DRE Regime de Parcela", null, panel_6, null);
+		panel_6.setLayout(new MigLayout("", "[grow]", "[][][grow]"));
+		
+		JLabel lblNewLabel_3_1_1_1 = new JLabel("Demonstração do Resultado do Exercício Por Data de Parcelas(Previsto por Data de Parcela)");
+		lblNewLabel_3_1_1_1.setFont(new Font("SansSerif", Font.BOLD | Font.ITALIC, 16));
+		panel_6.add(lblNewLabel_3_1_1_1, "cell 0 0,alignx center");
 		
 		JPanel panel_4_1 = new JPanel();
 		panel_4_1.setBackground(Color.WHITE);
-		panel_6.add(panel_4_1, "cell 0 0,grow");
+		panel_6.add(panel_4_1, "cell 0 1,grow");
 		panel_4_1.setLayout(new MigLayout("", "[][][][][]", "[]"));
 		
 		JLabel lblNewLabel_2_1 = new JLabel("Centro de Custo:");
@@ -1162,7 +1183,7 @@ public class TelaFinanceiroRelatorios extends JFrame {
 		
 		
 		scrollDreAgrupadoRegimeParcela.getViewport().setBackground(Color.WHITE);
-		panel_6.add(scrollDreAgrupadoRegimeParcela, "cell 0 1,grow");
+		panel_6.add(scrollDreAgrupadoRegimeParcela, "cell 0 2,grow");
 
 		boolean teste = true;
 		if (teste) {
@@ -1173,7 +1194,7 @@ public class TelaFinanceiroRelatorios extends JFrame {
 
 			// agrupados
 			//pesquisarDreAgrupadoRegimeLancamento();
-			pesquisarDreAgrupadoRegimeParcela();
+			//pesquisarDreAgrupadoRegimeParcela();
 		}
 		this.setExtendedState(JFrame.MAXIMIZED_BOTH);
 

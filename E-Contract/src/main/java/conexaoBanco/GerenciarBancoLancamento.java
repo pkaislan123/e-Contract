@@ -1,6 +1,7 @@
 package main.java.conexaoBanco;
 
 import java.math.BigDecimal;
+import java.math.MathContext;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -105,6 +106,7 @@ public class GerenciarBancoLancamento {
 				dado.setId_documento(rs.getInt("id_documento"));
 				try {
 					dado.setValor(new BigDecimal(rs.getString("valor_total")));
+					
 				} catch (Exception e) {
 					dado.setValor(BigDecimal.ZERO);
 				}
@@ -1077,36 +1079,7 @@ public class GerenciarBancoLancamento {
 
 	public Map<String, String> pegarDatas() {
 
-		/*
-		 * String select = "select \r\n" + " DATE_FORMAT(\r\n" +
-		 * "(select str_to_date(data_lancamento, '%d/%m/%Y') as data\r\n" +
-		 * "from lancamento\r\n" + "where data_lancamento != ''\r\n" +
-		 * "order by data \r\n" + "limit 1), '%d/%m/%Y') as menor_data_lancamento \r\n"
-		 * + ",\r\n" + " DATE_FORMAT(\r\n" +
-		 * "(select str_to_date(data_lancamento, '%d/%m/%Y') as data\r\n" +
-		 * "from lancamento\r\n" + "where data_lancamento != ''\r\n" +
-		 * "order by data DESC\r\n" +
-		 * "limit 1), '%d/%m/%Y') as maior_data_lancamento \r\n" + ",\r\n" +
-		 * "DATE_FORMAT(\r\n" +
-		 * "(select str_to_date(data_primeiro_vencimento, '%d/%m/%Y') as data\r\n" +
-		 * "from lancamento\r\n" + "where data_primeiro_vencimento != ''\r\n" +
-		 * "order by data\r\n" + "limit 1), '%d/%m/%Y') as menor_data_vencimento \r\n" +
-		 * ",\r\n" + "DATE_FORMAT(\r\n" +
-		 * "(select str_to_date(data_primeiro_vencimento, '%d/%m/%Y') as data\r\n" +
-		 * "from lancamento\r\n" + "where data_primeiro_vencimento != ''\r\n" +
-		 * "order by data DESC\r\n" +
-		 * "limit 1), '%d/%m/%Y') as maior_data_vencimento \r\n" + ",\r\n" +
-		 * "DATE_FORMAT(\r\n" +
-		 * "(select str_to_date(data_pagamento, '%d/%m/%Y') as data\r\n" +
-		 * "from financeiro_pagamento\r\n" + "where data_pagamento != ''\r\n" +
-		 * "order by data\r\n" + "limit 1), '%d/%m/%Y') as menor_data_pagamento \r\n" +
-		 * ",\r\n" + "DATE_FORMAT(\r\n" +
-		 * "(select str_to_date(data_pagamento, '%d/%m/%Y') as data\r\n" +
-		 * "from financeiro_pagamento\r\n" + "where data_pagamento != ''\r\n" +
-		 * "order by data DESC\r\n" +
-		 * "limit 1), '%d/%m/%Y') as maior_data_pagamento \r\n" + "\r\n" + "\r\n" +
-		 * "\r\n" + "\r\n" + "\r\n" + "";
-		 */
+		
 		String select = "call getDatas()";
 		Connection conn = null;
 		PreparedStatement pstm = null;
@@ -1131,7 +1104,7 @@ public class GerenciarBancoLancamento {
 
 		} catch (Exception e) {
 			// JOptionPane.showMessageDialog(null, "Erro ao listar a Conta id: " + id);// );
-			JOptionPane.showMessageDialog(null, "Erro ao listar a maior data de vencimento do banco de dados");
+			//JOptionPane.showMessageDialog(null, "Erro ao listar a maior data de vencimento do banco de dados");
 			return null;
 		}
 	}

@@ -48,7 +48,8 @@ public class CadastroFuncionario {
 	//array de cliente
 	private ArrayList<Contato> contatos = new ArrayList<>();
 	
-
+	private int status;
+	private String nome_departamento;
 	
 	
 }

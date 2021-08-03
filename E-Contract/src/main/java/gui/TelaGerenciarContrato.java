@@ -8634,8 +8634,6 @@ public class TelaGerenciarContrato extends JFrame {
 					btnAprovar.setEnabled(false);
 					btnAprovar.setVisible(false);
 
-					btnAprovar.setEnabled(true);
-					btnAprovar.setVisible(true);
 
 					btnEditarContrato.setEnabled(true);
 					btnEditarContrato.setVisible(true);

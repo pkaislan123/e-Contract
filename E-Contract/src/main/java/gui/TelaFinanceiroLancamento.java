@@ -54,6 +54,7 @@ import main.java.conexaoBanco.GerenciarBancoFinanceiroPagamento;
 import main.java.conexaoBanco.GerenciarBancoInstituicaoBancaria;
 import main.java.conexaoBanco.GerenciarBancoLancamento;
 import main.java.outros.DadosGlobais;
+import main.java.outros.GetData;
 import main.java.outros.JTextFieldPersonalizado;
 import main.java.views_personalizadas.TelaEscolhaRelatorioLancamentos;
 import main.java.views_personalizadas.TelaEscolhaRelatorioRomaneios;
@@ -1077,50 +1078,24 @@ public class TelaFinanceiroLancamento extends JFrame {
 		btnNewButton_1_1_1.setBackground(new Color(204, 153, 0));
 		panel_3.add(btnNewButton_1_1_1, "cell 3 2");
 
-		new Thread() {
-
-			@Override
-			public void run() {
+		
 				popular_centros_custo();
 
-			}
-		}.start();
 
-		new Thread() {
-
-			@Override
-			public void run() {
+	
 				popular_instituicao_bancaria();
 
-			}
-		}.start();
-
-		new Thread() {
-
-			@Override
-			public void run() {
+			
 				popular_grupo_contas();
 
-			}
-		}.start();
+			
 
-		new Thread() {
-
-			@Override
-			public void run() {
 				popular_contas();
 
-			}
-		}.start();
 
-		new Thread() {
-
-			@Override
-			public void run() {
+	
 				popular_condicao_pagamento();
 
-			}
-		}.start();
 
 	
 		
@@ -1132,6 +1107,7 @@ public class TelaFinanceiroLancamento extends JFrame {
 		if(flag_modo_operacao == 3)
 			filtrarPersonalizado();
 		
+		/*
 		new Thread() {
 
 			@Override
@@ -1140,11 +1116,14 @@ public class TelaFinanceiroLancamento extends JFrame {
 
 				lista_condicoes = gerenciar_condicoes.getCondicaoPagamentos();
 
-				
-				pesquisar();
+			
 
 			}
 		}.start();
+		*/
+		
+		
+		pesquisar();
 
 		this.setExtendedState(JFrame.MAXIMIZED_BOTH);
 		this.setResizable(true);
@@ -1163,6 +1142,17 @@ public class TelaFinanceiroLancamento extends JFrame {
 		Map<String, String> datas = new HashMap<String, String>();
 		datas = gerenciar.pegarDatas();
 
+		if(datas == null) {
+			String hj = new GetData().getData();
+			menorDataLancamento.setText(hj);
+			maiorDataLancamento.setText(hj);
+
+			menorDataVencimento.setText(hj);
+			maiorDataVencimento.setText(hj);
+
+			menorDataPagamento.setText(hj);
+			maiorDataPagamento.setText(hj);
+		}else {
 		if(flag != 3)
 		menorDataLancamento.setText(datas.get("menor_data_lancamento"));
 		maiorDataLancamento.setText(datas.get("maior_data_lancamento"));
@@ -1172,6 +1162,7 @@ public class TelaFinanceiroLancamento extends JFrame {
 
 		menorDataPagamento.setText(datas.get("menor_data_pagamento"));
 		maiorDataPagamento.setText(datas.get("maior_data_pagamento"));
+		}
 	}
 
 
@@ -1253,23 +1244,7 @@ public class TelaFinanceiroLancamento extends JFrame {
 	public void filtrarAvancado() {
 
 		ArrayList<RowFilter<Object, Object>> filters = new ArrayList<RowFilter<Object, Object>>(2);
-		/*
-		 * private final int id = 0; private final int data = 1; private final int
-		 * tipo_lancamento = 2; private final int prioridade = 3;
-		 * 
-		 * private final int centro_custo = 4; private final int identificador_geral =
-		 * 5; private final int destinatario_nf = 6; private final int
-		 * cliente_fornecedor = 7; private final int grupo_conta = 8; private final int
-		 * conta = 9; private final int valor = 10; private final int valor_pago = 11;
-		 * private final int valor_a_pagar = 12; private final int
-		 * valor_proxima_parcela_a_vencer = 13;
-		 * 
-		 * private final int data_vencimento = 14; private final int data_pagamento =
-		 * 15; private final int status = 16; private final int situacao = 17; private
-		 * final int condicao_pagamento = 18; private final int
-		 * status_condicao_pagamento = 19; private final int status_contador = 20;
-		 * 
-		 */
+		
 
 		String data_inicial_filtrar_data_lancamento = menorDataLancamento.getText().replace(" ", "");
 		String data_final_filtrar_data_lancamento = maiorDataLancamento.getText().replace(" ", "");
@@ -1335,42 +1310,7 @@ public class TelaFinanceiroLancamento extends JFrame {
 
 		}
 
-		/*
-		 * 
-		 * String data_inicial_filtrar_data_pagamento =
-		 * entPeriodoPagamentoInicial.getText().replace(" ", ""); String
-		 * data_final_filtrar_data_pagamento =
-		 * entPeriodoPagamentoFinal.getText().replace(" ", "");
-		 * 
-		 * if(checkString(data_inicial_filtrar_data_pagamento) &&
-		 * checkString(data_final_filtrar_data_pagamento) ) { Date data_menor = null;
-		 * Date data_maior = null ; try { data_menor = new
-		 * SimpleDateFormat("dd/MM/yyyy").parse(data_inicial_filtrar_data_pagamento);
-		 * data_maior = new
-		 * SimpleDateFormat("dd/MM/yyyy").parse(data_final_filtrar_data_pagamento);
-		 * 
-		 * } catch (ParseException i) { // TODO Auto-generated catch block
-		 * i.printStackTrace(); }
-		 * 
-		 * Set<RowFilter<Object, Object>> datas = new HashSet<>();
-		 * datas.add(RowFilter.dateFilter(RowFilter.ComparisonType.AFTER, data_menor,
-		 * 11)); datas.add(RowFilter.dateFilter(RowFilter.ComparisonType.EQUAL,
-		 * data_menor, 11)); filters.add(RowFilter.orFilter(datas));
-		 * 
-		 * // filters.add( RowFilter.dateFilter(ComparisonType.AFTER, data_menor, 5) );
-		 * // filters.add( RowFilter.dateFilter(ComparisonType.EQUAL, data_menor, 5) );
-		 * 
-		 * // filters.add( RowFilter.dateFilter(ComparisonType.BEFORE, data_maior, 5) );
-		 * // filters.add( RowFilter.dateFilter(ComparisonType.EQUAL, data_maior, 5) );
-		 * Set<RowFilter<Object, Object>> datas_maior = new HashSet<>();
-		 * datas_maior.add(RowFilter.dateFilter(RowFilter.ComparisonType.BEFORE,
-		 * data_maior, 11));
-		 * datas_maior.add(RowFilter.dateFilter(RowFilter.ComparisonType.EQUAL,
-		 * data_maior, 11)); filters.add(RowFilter.orFilter(datas_maior));
-		 * 
-		 * }
-		 * 
-		 */
+		
 
 		try {
 			String s_centro_custo = "";
@@ -1394,6 +1334,7 @@ public class TelaFinanceiroLancamento extends JFrame {
 				}
 			}
 		}
+		
 
 		if (cbPrioridade.getSelectedItem().toString() != null) {
 			String s_prioridade = "";
@@ -2287,6 +2228,21 @@ public class TelaFinanceiroLancamento extends JFrame {
 				} catch (Exception e) {
 					// TODO Auto-generated catch block
 					//e.printStackTrace();
+					
+					if (dado.getTipo_lancamento() == 2) {
+					Date data_menor2;
+					try {
+						SimpleDateFormat formato = new SimpleDateFormat("dd/MM/yyyy");
+						data_menor2 = formato.parse(dado.getData_lancamento());
+						return data_menor2;
+
+					} catch (ParseException h) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+					}
+					
+					
 				}
 				 	
 				
@@ -2304,6 +2260,18 @@ public class TelaFinanceiroLancamento extends JFrame {
 						} catch (Exception e) {
 							// TODO Auto-generated catch block
 							//e.printStackTrace();
+							if (dado.getTipo_lancamento() == 2) {
+								Date data_menor2;
+								try {
+									SimpleDateFormat formato = new SimpleDateFormat("dd/MM/yyyy");
+									data_menor2 = formato.parse(dado.getData_lancamento());
+									return data_menor2;
+
+								} catch (ParseException h) {
+									// TODO Auto-generated catch block
+									e.printStackTrace();
+								}
+								}
 						}
 					
 				

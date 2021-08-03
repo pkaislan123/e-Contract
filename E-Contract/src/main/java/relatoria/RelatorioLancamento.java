@@ -156,12 +156,6 @@ public class RelatorioLancamento {
 		titleRun.setFontFamily("Arial");
 		titleRun.setFontSize(10);
 
-		XWPFParagraph filtros = document_global.createParagraph();
-		filtros.setAlignment(ParagraphAlignment.LEFT);
-
-		XWPFRun dadosPesquisaRun = filtros.createRun();
-
-	
 		String status = "";
 		int int_status = lancamento_global.getStatus();
 		if(int_status == 0) {
@@ -214,9 +208,9 @@ public class RelatorioLancamento {
 
 		 }
 		
-		String texto = " Lançamento do tipo: [" + tipo_lancamento + "]\n";
-		texto = texto + " Status: [" + status + "]\n";
-		texto = texto + " Data: [" + lancamento_global.getData_lancamento() + "]\n";
+		String texto = " Lançamento do tipo: [" + tipo_lancamento + "] | ";
+		texto = texto + " Status: [" + status + "] | ";
+		texto = texto + " Data: [" + lancamento_global.getData_lancamento() + "] | ";
 		texto = texto + " Prioridade: [" + prioridade + "]\n\n";
 		
 		
@@ -264,17 +258,17 @@ public class RelatorioLancamento {
 		
 		
 		texto = texto + "\nA Conta:\n";
-		texto = texto + " Grupo de Contas: [" + grupo_conta + "]\n";
-		texto = texto + " Conta: [" + conta + "]\n";
-		texto = texto + " Identificador: [" + lancamento_global.getIdentificacao() + "]\n";
+		texto = texto + " Grupo de Contas: [" + grupo_conta + "] | ";
+		texto = texto + " Conta: [" + conta + "] | ";
+		texto = texto + " Identificador: [" + lancamento_global.getIdentificacao() + "] | ";
 		texto = texto + " Destinatário da NF: [" + nome_destinatario_nf + "]\n";
 
-		texto = texto + " Data Primeiro Vencimento: [" + lancamento_global.getData_vencimento() + "]\n";
-		texto = texto + " Valor: [" + NumberFormat.getCurrencyInstance(ptBr).format(lancamento_global.getValor()) + "]\n";
-		texto = texto + " Número de Parcelas: [" + lancamento_global.getNumero_parcelas() + "]\n";
-		texto = texto + " Intervalo: [" + lancamento_global.getIntervalo() + "]\n";
-		texto = texto + " Descrição: [" + lancamento_global.getDescricao()+ "]\n";
-		texto = texto + " Observação: [" + lancamento_global.getObservacao()+ "]\n";
+		texto = texto + " Data Primeiro Vencimento: [" + lancamento_global.getData_vencimento() + "] | ";
+		texto = texto + " Valor: [" + NumberFormat.getCurrencyInstance(ptBr).format(lancamento_global.getValor()) + "] | ";
+		texto = texto + " Número de Parcelas: [" + lancamento_global.getNumero_parcelas() + "] | ";
+		texto = texto + " Intervalo: [" + lancamento_global.getIntervalo() + "] | ";
+		texto = texto + " Descrição: [" + lancamento_global.getDescricao()+ "] | ";
+		texto = texto + " Observação: [" + lancamento_global.getObservacao()+ "] | ";
 		texto = texto + " Status Contador: [" + status_contador+ "]\n\n";
 		
 		

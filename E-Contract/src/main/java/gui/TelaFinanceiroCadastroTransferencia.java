@@ -796,7 +796,7 @@ public class TelaFinanceiroCadastroTransferencia extends JDialog {
 
 		lancamento.setTipo_lancamento(2);
 		lancamento.setPrioridade(cbPrioridade.getSelectedIndex());
-
+		lancamento.setStatus(1);
 		lancamento.setIdentificacao(entIdentificador.getText());
 
 		data_lancamento = entDataLancamento.getText();

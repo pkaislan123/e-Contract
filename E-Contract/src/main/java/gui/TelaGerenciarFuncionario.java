@@ -370,9 +370,13 @@ public class TelaGerenciarFuncionario extends JFrame {
 
 				GerenciarBancoFuncionariosContratoTrabalho gerenciar = new GerenciarBancoFuncionariosContratoTrabalho();
 
+				try {
 				TelaFuncionariosCadastroSalario tela = new TelaFuncionariosCadastroSalario(funcionario_local,
 						cbMes.getSelectedIndex(), entAno.getText(), isto);
 				tela.setVisible(true);
+				}catch(Exception y) {
+					
+				}
 
 			}
 		});
