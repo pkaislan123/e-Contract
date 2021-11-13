@@ -176,20 +176,20 @@ public class TelaLogin extends JFrame implements GetDadosGlobais {
 		ImageIcon img = new ImageIcon(url);
 		contentPane.setImg(img);
 		contentPane.repaint();
-		/*
-		 * new Thread() {
-		 * 
-		 * @Override public void run() { int i = 1; while(i <= 5) {
-		 * 
-		 * URL url = getClass().getResource("/imagens/contrato"+i+".jpg"); ImageIcon img
-		 * = new ImageIcon(url); contentPane.setImg(img); contentPane.repaint(); try {
-		 * Thread.sleep(5000); } catch (InterruptedException e) { // TODO Auto-generated
-		 * catch block e.printStackTrace(); } i++; if( i == 6) { i = 1; }
-		 * 
-		 * }
-		 * 
-		 * } }.start();
-		 */
+		
+		  new Thread() {
+		 
+		  @Override public void run() { int i = 1; while(i <= 6) {
+		 
+		 URL url = getClass().getResource("/imagens/contrato"+i+".jpg"); ImageIcon img
+		  = new ImageIcon(url); contentPane.setImg(img); contentPane.repaint(); try {
+		  Thread.sleep(10000); } catch (InterruptedException e) { 
+			  e.printStackTrace(); } i++; if( i == 7) { i = 1; }
+		  
+		  }
+		 
+		  } }.start();
+		 
 
 		// contentPane.setBackground(new Color(0, 206, 209));
 		contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));

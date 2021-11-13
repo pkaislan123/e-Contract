@@ -280,4 +280,28 @@ public class GerenciarBancoNotasFiscais {
 	  }
 	  
 	  
+		public boolean removerNota(int id) {
+			String delete = "DELETE FROM nota_fiscal WHERE id_nf = ?";
+			Connection conn = null;
+			ResultSet rs = null;
+			try {
+				conn = ConexaoBanco.getConexao();
+				PreparedStatement pstm;
+				pstm = conn.prepareStatement(delete);
+
+				pstm.setInt(1, id);
+
+				pstm.execute();
+				ConexaoBanco.fechaConexao(conn, pstm);
+				return true;
+
+			} catch (Exception f) {
+				JOptionPane.showMessageDialog(null,
+						"Erro ao excluir a nota fiscal\nBanco de dados corrompido!\nConsulte o administrador do sistema"
+								+ "dados " + f.getMessage());
+				return false;
+			}
+
+		}
+	  
 }

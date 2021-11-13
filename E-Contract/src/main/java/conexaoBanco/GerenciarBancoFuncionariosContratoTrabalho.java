@@ -11,6 +11,8 @@ import javax.swing.JOptionPane;
 
 import main.java.cadastros.CadastroFuncionario;
 import main.java.cadastros.CadastroFuncionarioAdmissao;
+import main.java.cadastros.CadastroFuncionarioDemissao;
+import main.java.cadastros.CadastroFuncionarioEvento;
 import main.java.cadastros.CadastroFuncionarioAdmissao;
 
 public class GerenciarBancoFuncionariosContratoTrabalho {
@@ -220,6 +222,69 @@ public class GerenciarBancoFuncionariosContratoTrabalho {
 			contrato.setNome_departamento(rs.getString("nome_departamento"));
 
 			return contrato;
+
+		} catch (Exception e) {
+			return null;
+		}
+
+	}
+
+	public CadastroFuncionarioDemissao getcontratoInaAtivoPorFuncionario(int id_func) {
+
+		String sql_ContratodeTrabalho = "select fct.*, fvt.*,\r\n"
+				+ "dp.nome as nome_departamento\r\n"
+				+ " from funcionario_contrato_trabalho fct\r\n"
+				+ "left join departamento dp on dp.id_departamento = fct.id_departamento \r\n"
+				+ "left join funcionario_evento fvt on fvt.id_colaborador = fct.id_colaborador\r\n"
+				+ "where fct.id_colaborador = ? and fct.status = 0 and fvt.tipo_evento = 2";
+		Connection conn = null;
+		PreparedStatement pstm = null;
+		ResultSet rs = null;
+		CadastroFuncionarioDemissao demissao = new CadastroFuncionarioDemissao();
+
+		try {
+			conn = ConexaoBanco.getConexao();
+			pstm = conn.prepareStatement(sql_ContratodeTrabalho);
+			pstm.setInt(1, id_func);
+
+			rs = pstm.executeQuery();
+			rs.next();
+
+			CadastroFuncionarioAdmissao contrato = new CadastroFuncionarioAdmissao();
+			CadastroFuncionarioEvento evento = new CadastroFuncionarioEvento();
+
+			contrato.setId_contrato(rs.getInt("id_contrato"));
+			contrato.setId_colaborador(rs.getInt("id_colaborador"));
+			contrato.setId_departamento(rs.getInt("id_departamento"));
+
+			contrato.setStatus(rs.getInt("status"));
+			contrato.setData_admissao(rs.getString("data_admissao"));
+			contrato.setTipo_contrato(rs.getString("tipo_contrato"));
+			contrato.setCargo(rs.getString("cargo"));
+			contrato.setFuncao(rs.getString("funcao"));
+			contrato.setSalario(rs.getDouble("salario"));
+			contrato.setNome_departamento(rs.getString("nome_departamento"));
+
+
+			evento.setId_evento(rs.getInt("id_evento"));
+			evento.setId_colaborador(rs.getInt("id_colaborador"));
+            evento.setTipo_evento(rs.getInt("tipo_evento"));
+			evento.setData_evento(rs.getString("data_evento"));
+			evento.setData_folga(rs.getString("data_folga"));
+			evento.setData_ferias_ida(rs.getString("data_ferias_ida"));
+			evento.setData_ferias_volta(rs.getString("data_ferias_volta"));
+			evento.setNovo_valor_salarial(rs.getDouble("novo_valor_salarial"));
+			evento.setData_saida(rs.getString("data_saida"));
+			evento.setHora_saida(rs.getString("hora_saida"));
+			evento.setMovimentacao(rs.getInt("movimentacao"));
+			evento.setMotivo_demissao(rs.getInt("motivo_demissao"));
+			
+			
+			demissao.setContrato_trabalho(contrato);
+			demissao.setEvento_demissao(evento);
+			
+			
+			return demissao;
 
 		} catch (Exception e) {
 			return null;

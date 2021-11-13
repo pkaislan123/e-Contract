@@ -157,6 +157,7 @@ public class TelaFuncionarioCadastroBancoHoras extends JFrame {
 	private CadastroFuncionario funcionario_local;
 	private JTextField entQuantidadeHoras;
 	private JTextField entQuantidadeMinutos;
+	private JTextField entAno;
 
 	public TelaFuncionarioCadastroBancoHoras(int modo_operacao, CadastroFuncionario funcionario,
 			CadastroFuncionarioBancoHoras banco, Window janela_pai) {
@@ -190,7 +191,7 @@ public class TelaFuncionarioCadastroBancoHoras extends JFrame {
 		JPanel panel_3 = new JPanel();
 		painelDadosIniciais.add(panel_3);
 		panel_3.setBackground(Color.WHITE);
-		panel_3.setLayout(new MigLayout("", "[204px][][36px][4px][7px][4px][45px][8px][95px][4px][76px]", "[26px][28px][][33px][][]"));
+		panel_3.setLayout(new MigLayout("", "[204px][][36px,grow][4px][7px][4px][45px][8px][95px][4px][76px]", "[26px][][28px][][33px][][]"));
 
 		JLabel lblNewLabel = new JLabel("Mês:");
 		lblNewLabel.setFont(new Font("SansSerif", Font.PLAIN, 16));
@@ -210,21 +211,30 @@ public class TelaFuncionarioCadastroBancoHoras extends JFrame {
 		cbMes.addItem("OUTUBRO");
 		cbMes.addItem("NOVEMBRO");
 		cbMes.addItem("DEZEMBRO");
+		
+		JLabel lblAno = new JLabel("Ano:");
+		lblAno.setFont(new Font("SansSerif", Font.PLAIN, 16));
+		panel_3.add(lblAno, "cell 0 1,alignx right");
+		
+		entAno = new JTextField();
+		entAno.setText(new GetData().getAnoAtual()+"");
+		entAno.setColumns(10);
+		panel_3.add(entAno, "cell 2 1 9 1,growx");
 		JLabel lblQuantidade = new JLabel("Quantidade Horas(HHH:MM):");
 		lblQuantidade.setFont(new Font("SansSerif", Font.PLAIN, 16));
-		panel_3.add(lblQuantidade, "cell 0 1,alignx left,aligny center");
+		panel_3.add(lblQuantidade, "cell 0 2,alignx left,aligny center");
 
 		entQuantidadeHoras = new JTextField();
-		panel_3.add(entQuantidadeHoras, "cell 2 1 4 1,growx,aligny top");
+		panel_3.add(entQuantidadeHoras, "cell 2 2 4 1,growx,aligny top");
 		entQuantidadeHoras.setColumns(10);
 
 		JLabel lblNewLabel_1 = new JLabel(":");
 		lblNewLabel_1.setFont(new Font("SansSerif", Font.BOLD, 18));
-		panel_3.add(lblNewLabel_1, "cell 6 1,alignx center,aligny top");
+		panel_3.add(lblNewLabel_1, "cell 6 2,alignx center,aligny top");
 
 		entQuantidadeMinutos = new JTextField();
 		entQuantidadeMinutos.setColumns(10);
-		panel_3.add(entQuantidadeMinutos, "cell 7 1 2 1,growx,aligny top");
+		panel_3.add(entQuantidadeMinutos, "cell 7 2 2 1,growx,aligny top");
 		
 		
 		 rdbtnHorasNegativas = new JRadioButton("Negativas");
@@ -237,7 +247,7 @@ public class TelaFuncionarioCadastroBancoHoras extends JFrame {
 			}
 		});
 		rdbtnHorasNegativas.setFont(new Font("SansSerif", Font.PLAIN, 16));
-		panel_3.add(rdbtnHorasNegativas, "flowx,cell 1 2 10 1");
+		panel_3.add(rdbtnHorasNegativas, "flowx,cell 1 3 10 1");
 
 		JButton btnAtualizar = new JButton("Atualizar");
 		btnAtualizar.addActionListener(new ActionListener() {
@@ -263,7 +273,7 @@ public class TelaFuncionarioCadastroBancoHoras extends JFrame {
 		btnAtualizar.setForeground(Color.WHITE);
 		btnAtualizar.setFont(new Font("SansSerif", Font.BOLD, 16));
 		btnAtualizar.setBackground(new Color(0, 0, 102));
-		panel_3.add(btnAtualizar, "cell 8 3,alignx left,aligny top");
+		panel_3.add(btnAtualizar, "cell 8 4,alignx left,aligny top");
 
 		JButton btnSalvar = new JButton("Salvar");
 		btnSalvar.addActionListener(new ActionListener() {
@@ -288,7 +298,7 @@ public class TelaFuncionarioCadastroBancoHoras extends JFrame {
 		btnSalvar.setForeground(Color.WHITE);
 		btnSalvar.setBackground(new Color(0, 51, 0));
 		btnSalvar.setFont(new Font("SansSerif", Font.BOLD, 16));
-		panel_3.add(btnSalvar, "cell 10 3,alignx left,aligny top");
+		panel_3.add(btnSalvar, "cell 10 4,alignx left,aligny top");
 		
 		 rdbtnHorasPositivas = new JRadioButton("Positivas");
 		 rdbtnHorasPositivas.addActionListener(new ActionListener() {
@@ -301,7 +311,7 @@ public class TelaFuncionarioCadastroBancoHoras extends JFrame {
 		 	}
 		 });
 		rdbtnHorasPositivas.setFont(new Font("SansSerif", Font.PLAIN, 16));
-		panel_3.add(rdbtnHorasPositivas, "cell 8 2");
+		panel_3.add(rdbtnHorasPositivas, "cell 8 3");
 		painelCentral.setLayout(new BorderLayout(0, 0));
 
 		// configura widgets no painel finalizar
@@ -351,6 +361,7 @@ public class TelaFuncionarioCadastroBancoHoras extends JFrame {
 		
 		String horas = entQuantidadeHoras.getText();
 		String minutos = entQuantidadeMinutos.getText();
+		String ano = entAno.getText();
 
 		try {
 
@@ -358,6 +369,7 @@ public class TelaFuncionarioCadastroBancoHoras extends JFrame {
 			long quantidade = d.toMinutes();
 
 			banco.setQuantidade_horas(Long.toString(quantidade));
+			banco.setAno(ano);
 			return banco;
 		} catch (Exception y) {
 			JOptionPane.showMessageDialog(isto, "Hora Inválida!");
@@ -374,7 +386,7 @@ public class TelaFuncionarioCadastroBancoHoras extends JFrame {
 		
 		banco.setId_funcionario(funcionario_local.getId_funcionario());
 		banco.setMes_referencia(cbMes.getSelectedIndex() + 1 );
-		
+
 		if(rdbtnHorasNegativas.isSelected()) {
 			banco.setTipo_banco(0);
 		}else if(rdbtnHorasPositivas.isSelected()) {
@@ -384,6 +396,7 @@ public class TelaFuncionarioCadastroBancoHoras extends JFrame {
 		
 		String horas = entQuantidadeHoras.getText();
 		String minutos = entQuantidadeMinutos.getText();
+		String ano = entAno.getText();
 
 		try {
 
@@ -391,6 +404,8 @@ public class TelaFuncionarioCadastroBancoHoras extends JFrame {
 			long quantidade = d.toMinutes();
 
 			banco.setQuantidade_horas(Long.toString(quantidade));
+			banco.setAno(entAno.getText());
+
 			return banco;
 		} catch (Exception y) {
 			JOptionPane.showMessageDialog(isto, "Hora Inválida!");
@@ -409,7 +424,7 @@ public class TelaFuncionarioCadastroBancoHoras extends JFrame {
 		entQuantidadeMinutos.setText(duracao_total.toMinutesPart() + "");
 
 		cbMes.setSelectedIndex(dado.getMes_referencia() - 1 );
-		
+		entAno.setText(dado.getAno());
 		
 		if(dado.getTipo_banco() == 0) {
 			rdbtnHorasNegativas.setSelected(true);

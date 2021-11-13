@@ -8,6 +8,7 @@ import java.text.SimpleDateFormat;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.Date;
@@ -31,12 +32,27 @@ public class GetData {
 	
 	
 	public String getHora() {
-		LocalDateTime date = LocalDateTime.now();
 
-	    return date.getHour() + ":" + date.getMinute() + ":" + date.getSecond() ;
 	    
-	  
+	    return LocalDateTime.now().format(DateTimeFormatter.ofPattern("HH:mm"));
+
 	 }
+	public String getData() {
+
+		return LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd/MM/yyyy"));
+	    
+	}
+	
+	public String getDataHora() {
+		SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy HH:mm"); 
+		return sdf.format(new Date());
+	}
+	
+	
+	public String getDataHoraMinus(int minus) {
+	    return LocalDateTime.now().minusMinutes(minus).format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm"));
+
+	}
 	
 	
 	public String getHoraLog() {
@@ -72,16 +88,7 @@ public class GetData {
 		}
 	}
 	
-	public String getData() {
-		LocalDate localDate      = LocalDate.now();
 
-		
-		
-		    String data   = LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd/MM/yyyy"));
-		    return data;
-
-	    
-	}
 	
 	public String getDataLog() {
 		LocalDateTime date = LocalDateTime.now();

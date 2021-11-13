@@ -36,6 +36,8 @@ import java.awt.Toolkit;
 import java.awt.Window;
 import java.awt.event.ComponentEvent;
 import java.awt.event.ComponentListener;
+import java.io.File;
+import java.io.IOException;
 import java.text.NumberFormat;
 import java.util.Locale;
 
@@ -54,6 +56,7 @@ import main.java.cadastros.CadastroDocumento;
 import main.java.cadastros.CadastroLogin;
 import main.java.cadastros.CadastroModelo;
 import main.java.cadastros.CadastroNFe;
+import main.java.cadastros.CadastroNota;
 import main.java.cadastros.CadastroProduto;
 import main.java.cadastros.CadastroRomaneio;
 import main.java.cadastros.CadastroSafra;
@@ -131,6 +134,12 @@ import main.java.classesExtras.ComboBoxRenderPersonalizado;
 import main.java.conexaoBanco.GerenciarBancoProdutos;
 import main.java.conexaoBanco.GerenciarBancoSafras;
 import javax.swing.border.MatteBorder;
+
+import javafx.application.Platform;
+import javafx.embed.swing.JFXPanel;
+import javafx.stage.FileChooser;
+import javafx.stage.Stage;
+
 import javax.swing.ImageIcon;
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
@@ -149,7 +158,7 @@ public class TelaCriarAnotacaoDesktopVirtual extends JFrame {
 	 GraphicsDevice[] gds = ge.getScreenDevices();
 	 private JDialog telaPai;
 	 
-	public TelaCriarAnotacaoDesktopVirtual(int index_tela_pai, Window janela_anotacoes) {
+	public TelaCriarAnotacaoDesktopVirtual(int flag, CadastroNota anotacao, Window janela_anotacoes) {
 
 
 		
@@ -190,7 +199,17 @@ public class TelaCriarAnotacaoDesktopVirtual extends JFrame {
 		JDesktopPane desktopPane = new JDesktopPane();
 		getContentPane().add(desktopPane, "cell 2 0,grow");
 	
-		TelaCriarNota nota = new TelaCriarNota(1,null, janela_anotacoes);
+		TelaCriarNota nota = null;
+		
+		if(flag == 0) {
+			//criar
+			 nota = new TelaCriarNota(0,null, janela_anotacoes);
+
+		}else if(flag == 1) {
+			//editar
+			 nota = new TelaCriarNota(1,anotacao, janela_anotacoes);
+
+		}
 		nota.setLocation(22, 31);
 		desktopPane_1.add(nota);
 		
@@ -205,7 +224,6 @@ public class TelaCriarAnotacaoDesktopVirtual extends JFrame {
 		this.setVisible(true);
 		
 	}
-	
 	
 	
 	

@@ -20,6 +20,7 @@ import java.net.URLConnection;
 import java.text.NumberFormat;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.Locale;
@@ -39,8 +40,6 @@ import org.jfree.chart.ChartPanel;
 import org.jfree.data.category.DefaultCategoryDataset;
 
 import net.miginfocom.swing.MigLayout;
-
-
 
 import javax.swing.JLabel;
 import javax.swing.JMenu;
@@ -148,6 +147,7 @@ import main.java.relatoria.RelatorioContratoRecebimentoSimplificado;
 import main.java.relatoria.RelatorioContratos;
 import main.java.tratamento_proprio.Log;
 import main.java.views_personalizadas.TelaEmEspera;
+import main.java.views_personalizadas.TelaInformarNotificacao;
 import main.java.views_personalizadas.TelaNotificacao;
 import main.java.views_personalizadas.TelaNotificacaoSuperior;
 import main.java.views_personalizadas.TelaNotificacaoSuperiorModoBusca;
@@ -187,23 +187,18 @@ import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JScrollPane;
 
-
-
 import javax.swing.SwingConstants;
 import javax.swing.JComboBox;
 
-
 import javax.swing.JTable;
 import javax.swing.ScrollPaneConstants;
-
-
 
 public class TelaMain extends JFrame {
 	private ConfiguracoesGlobais configs_globais;
 	private JPanelBackground contentPane;
 	private JLabel lblUser, lblNovaMensagem;
 	private JLabel lblDireitos;
-	private TelaContratos telaContratos ;
+	private TelaContratos telaContratos;
 	private JPanelGraficoCarregamento painelGraficoCarregamentos;
 	private JPanel panelGraficoLinha;
 	private TelaMonitoria monitor = null;
@@ -212,7 +207,7 @@ public class TelaMain extends JFrame {
 	private DadosContratos dados_contratos = new DadosContratos();
 	private DadosCarregamento dados_carregamentos = new DadosCarregamento();
 	private DadosRecebimento dados_recebimentos = new DadosRecebimento();
-    private ArrayList<CadastroAviso> lista_avisos = new ArrayList<>();
+	private ArrayList<CadastroAviso> lista_avisos = new ArrayList<>();
 	private int num_tarefas_nesta_secao = -1;
 	private JLabel lblNumeroTarefas;
 	private JLabel lblBD, lblBaseDeArquivos, lblNuvem, lblnet, urlBancoDados, imgBaseDados, urlBaseArquivos,
@@ -226,11 +221,11 @@ public class TelaMain extends JFrame {
 	private JLabel lblTotalSacosRetirar, lblTotalSacos, lblTotalSacosRetirados;
 	private GraficoLinha linha = null;
 	TelaPost telaPost;
-	private TelaTodasNotasFiscais telaTodasNotasFiscais ;
-	private JLabel lblStatusWhatsapp,imgWhatsapp;
+	private TelaTodasNotasFiscais telaTodasNotasFiscais;
+	private JLabel lblStatusWhatsapp, imgWhatsapp;
 	private JLabel lblTotalSacosRecebidos, lblTotalSacosGraficoRecebimento, lblTotalSacosAReceber;
 	private JComboBox cbRecebimentosPorSafra;
-
+	private GerenciarBancoNotas gerenciarAnotacoes;
 	private GerenciarBancoContratos gerenciarAtualizarTarefas, gerenciarDadosCarregamento, gerenciarDadosContrato,
 			gerenciarCarregamentoPorPeriodo, gerenciarDadosRecebimento;
 	private GerenciarBancoPadrao gerenciarBancoPadrao;
@@ -243,16 +238,16 @@ public class TelaMain extends JFrame {
 	private TelaChat telaChat;
 	private DefaultCategoryDataset dataset;
 	private final JPanel painelPrincipal = new JPanel();
-    private JLabel lblTotalContratosConcluidos, lblTotalContratos, lblTotalContratosAbertos;
-    private TelaMain isto;
-    private JDialog telaPai;
+	private JLabel lblTotalContratosConcluidos, lblTotalContratos, lblTotalContratosAbertos;
+	private TelaMain isto;
+	private JDialog telaPai;
 	private Log GerenciadorLog;
 	private CadastroLogin login;
 	private JPanelGrafico painelGraficoContratos;
-	private  JPanelGraficoRecebimento painelGraficoRecebimento;
+	private JPanelGraficoRecebimento painelGraficoRecebimento;
 	private JTable tabela_avisos;
 	private AvisoTableModel modelo_aviso = new AvisoTableModel();
-	private JLabel lblStatusRelogioPonto ,imgRelogioPonto;
+	private JLabel lblStatusRelogioPonto, imgRelogioPonto;
 
 	public TelaMain(Window janela_pai) {
 
@@ -279,37 +274,41 @@ public class TelaMain extends JFrame {
 		Dimension d = tk.getScreenSize();
 		System.out.println("Screen width = " + d.width);
 		System.out.println("Screen height = " + d.height);
-		
+
 		// pega o tamanho da barra de tarefas
 		Dimension scrnSize = Toolkit.getDefaultToolkit().getScreenSize();
 		java.awt.Rectangle winSize = GraphicsEnvironment.getLocalGraphicsEnvironment().getMaximumWindowBounds();
 		int taskBarHeight = scrnSize.height - winSize.height;
 		System.out.printf("Altura: %d\n", taskBarHeight);
-		
+
 		isto = this;
 		setResizable(true);
 		DadosGlobais dados = DadosGlobais.getInstance();
-		dados.setTelaPrincipal(this);
+		dados.setTelaMain(this);
 		setTitle("E-Contract");
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		
-		DisplayMode display =  GraphicsEnvironment.getLocalGraphicsEnvironment().getDefaultScreenDevice().getDisplayMode();
-		
+
+		DisplayMode display = GraphicsEnvironment.getLocalGraphicsEnvironment().getDefaultScreenDevice()
+				.getDisplayMode();
+
 		int display_x = display.getWidth();
 		int display_y = display.getHeight();
-		//setBounds(0, 0, d.width, d.height - taskBarHeight);
+		// setBounds(0, 0, d.width, d.height - taskBarHeight);
 		setBounds(0, 0, 1382, 761);
 
 		painelPrincipal.setBackground(new Color(255, 255, 255));
 		painelPrincipal.setBorder(new EmptyBorder(5, 5, 5, 5));
 		setContentPane(painelPrincipal);
 		GridBagLayout gbl_painelPrincipal = new GridBagLayout();
-		gbl_painelPrincipal.columnWidths = new int[]{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
-		gbl_painelPrincipal.rowHeights = new int[]{78, 0, 345, 0, 0};
-		gbl_painelPrincipal.columnWeights = new double[]{1.0, 1.0, 1.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 1.0, 1.0, 0.0, 1.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, Double.MIN_VALUE};
-		gbl_painelPrincipal.rowWeights = new double[]{0.0, 1.0, 0.0, 1.0, Double.MIN_VALUE};
+		gbl_painelPrincipal.columnWidths = new int[] { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+				0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+		gbl_painelPrincipal.rowHeights = new int[] { 78, 0, 345, 0, 0 };
+		gbl_painelPrincipal.columnWeights = new double[] { 1.0, 1.0, 1.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,
+				0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 1.0, 1.0, 0.0,
+				1.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, Double.MIN_VALUE };
+		gbl_painelPrincipal.rowWeights = new double[] { 0.0, 1.0, 0.0, 1.0, Double.MIN_VALUE };
 		painelPrincipal.setLayout(gbl_painelPrincipal);
-		
+
 		JPanel panel = new JPanel();
 		GridBagConstraints gbc_panel = new GridBagConstraints();
 		gbc_panel.gridwidth = 31;
@@ -319,14 +318,13 @@ public class TelaMain extends JFrame {
 		gbc_panel.gridy = 0;
 		painelPrincipal.add(panel, gbc_panel);
 		panel.setLayout(new GridLayout(0, 1, 0, 0));
-		
+
 		JMenuBar menuBar = new JMenuBar();
 		menuBar.setOpaque(true);
 		menuBar.setForeground(Color.WHITE);
 		menuBar.setBackground(Color.WHITE);
 		panel.add(menuBar);
-		
-		
+
 		JMenu Dados = new JMenu("Cadastros");
 		Dados.setIcon(new ImageIcon(TelaMain.class.getResource("/imagens/icone_cadastro_menu.png")));
 		Dados.setBackground(Color.WHITE);
@@ -351,7 +349,7 @@ public class TelaMain extends JFrame {
 		mntmArmazns.setFont(new Font("Segoe UI", Font.PLAIN, 16));
 		mntmArmazns.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
-				TelaArmazem tela = new TelaArmazem(0,isto);
+				TelaArmazem tela = new TelaArmazem(0, isto);
 			}
 		});
 		Dados.add(mntmArmazns);
@@ -400,7 +398,7 @@ public class TelaMain extends JFrame {
 			}
 		});
 		Dados.add(mntmNewMenuItem);
-		
+
 		JMenuItem mntmSilos = new JMenuItem("Silos");
 		mntmSilos.setFont(new Font("SansSerif", Font.PLAIN, 16));
 		mntmSilos.setIcon(new ImageIcon(TelaMain.class.getResource("/imagens/silos.png")));
@@ -412,28 +410,28 @@ public class TelaMain extends JFrame {
 		});
 		mntmSilos.setMargin(new Insets(0, 10, 0, 0));
 		Dados.add(mntmSilos);
-		
+
 		JMenuItem mntmClassificadores = new JMenuItem("Classificadores");
 		mntmClassificadores.setIcon(new ImageIcon(TelaMain.class.getResource("/imagens/genetica.png")));
 		mntmClassificadores.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				
-				TelaClassificadores tela = new TelaClassificadores(0,isto);
+
+				TelaClassificadores tela = new TelaClassificadores(0, isto);
 				tela.setVisible(true);
-				
+
 			}
 		});
 		mntmClassificadores.setFont(new Font("SansSerif", Font.PLAIN, 16));
 		mntmClassificadores.setMargin(new Insets(0, 10, 0, 0));
 		Dados.add(mntmClassificadores);
-		
+
 		JMenuItem mntmTransgnese = new JMenuItem("Transgênese");
 		mntmTransgnese.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				
+
 				TelaTransgenias tela = new TelaTransgenias(0, isto);
 				tela.setVisible(true);
-				
+
 			}
 		});
 		mntmTransgnese.setIcon(new ImageIcon(TelaMain.class.getResource("/imagens/gmo.png")));
@@ -451,16 +449,14 @@ public class TelaMain extends JFrame {
 		mntmContratos.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
 				TelaContratos telaContratos = null;
-				
-				if(telaContratos == null) {
-				 telaContratos = new TelaContratos(0, isto);
-				 telaContratos.setVisible(true);
 
-				}
-				else
-				 telaContratos.setVisible(true);
-				 
-			
+				if (telaContratos == null) {
+					telaContratos = new TelaContratos(0, isto);
+					telaContratos.setVisible(true);
+
+				} else
+					telaContratos.setVisible(true);
+
 			}
 		});
 		mnContratos.add(mntmContratos);
@@ -473,7 +469,7 @@ public class TelaMain extends JFrame {
 				TelaRelatoriaContratos tela = new TelaRelatoriaContratos(isto);
 			}
 		});
-		
+
 		JMenuItem mntmNewMenuItem_7 = new JMenuItem("Recebimentos");
 		mntmNewMenuItem_7.setIcon(new ImageIcon(TelaMain.class.getResource("/imagens/cacamba_descarga.jpg")));
 		mntmNewMenuItem_7.addActionListener(new ActionListener() {
@@ -482,7 +478,7 @@ public class TelaMain extends JFrame {
 				tela.setVisible(true);
 			}
 		});
-		
+
 		JMenuItem mntmNewMenuItem_7_1_1 = new JMenuItem("Aditivos");
 		mntmNewMenuItem_7_1_1.setIcon(new ImageIcon(TelaMain.class.getResource("/imagens/aditivos.png")));
 		mntmNewMenuItem_7_1_1.addActionListener(new ActionListener() {
@@ -494,14 +490,14 @@ public class TelaMain extends JFrame {
 		mntmNewMenuItem_7_1_1.setMargin(new Insets(0, 10, 0, 0));
 		mntmNewMenuItem_7_1_1.setFont(new Font("Segoe UI", Font.PLAIN, 16));
 		mnContratos.add(mntmNewMenuItem_7_1_1);
-		
+
 		JMenuItem mntmNewMenuItem_7_1_1_2 = new JMenuItem("Distratos");
 		mntmNewMenuItem_7_1_1_2.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				
+
 				TelaDistratos tela = new TelaDistratos(isto);
 				tela.setVisible(true);
-				
+
 			}
 		});
 		mntmNewMenuItem_7_1_1_2.setIcon(new ImageIcon(TelaMain.class.getResource("/imagens/distrato.jpg")));
@@ -511,7 +507,7 @@ public class TelaMain extends JFrame {
 		mntmNewMenuItem_7.setMargin(new Insets(0, 10, 0, 0));
 		mntmNewMenuItem_7.setFont(new Font("Segoe UI", Font.PLAIN, 16));
 		mnContratos.add(mntmNewMenuItem_7);
-		
+
 		JMenuItem mntmNewMenuItem_8 = new JMenuItem("Pagamentos");
 		mntmNewMenuItem_8.setIcon(new ImageIcon(TelaMain.class.getResource("/imagens/pagamento.png")));
 		mntmNewMenuItem_8.addActionListener(new ActionListener() {
@@ -520,12 +516,12 @@ public class TelaMain extends JFrame {
 				tela.setVisible(true);
 			}
 		});
-		
+
 		JMenuItem mntmNewMenuItem_7_1_1_1 = new JMenuItem("Carregamentos");
 		mntmNewMenuItem_7_1_1_1.setIcon(new ImageIcon(TelaMain.class.getResource("/imagens/cacamba.png")));
 		mntmNewMenuItem_7_1_1_1.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				
+
 				TelaCarregamentos tela = new TelaCarregamentos(isto);
 				tela.setVisible(true);
 			}
@@ -538,84 +534,91 @@ public class TelaMain extends JFrame {
 		mnContratos.add(mntmNewMenuItem_8);
 		mnContratos.add(mntmNewMenuItem_1);
 		
+		JMenuItem mntmNewMenuItem_1_1 = new JMenuItem("Notas Fiscais");
+		mntmNewMenuItem_1_1.setIcon(new ImageIcon(TelaMain.class.getResource("/imagens/taxa.png")));
+		mntmNewMenuItem_1_1.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				
+				TelaControleNotasFiscais tela = new TelaControleNotasFiscais(isto);
+				tela.setVisible(true);
+				
+			}
+		});
+		mntmNewMenuItem_1_1.setMargin(new Insets(0, 10, 0, 0));
+		mntmNewMenuItem_1_1.setFont(new Font("Segoe UI", Font.PLAIN, 16));
+		mnContratos.add(mntmNewMenuItem_1_1);
+
 		JMenu mnNewMenu_1 = new JMenu("Financeiro");
 		mnNewMenu_1.setIcon(new ImageIcon(TelaMain.class.getResource("/imagens/financa.png")));
 		mnNewMenu_1.setFont(new Font("Arial", Font.PLAIN, 18));
 		menuBar.add(mnNewMenu_1);
-		
+
 		JMenuItem mntmNewMenuItem_6 = new JMenuItem("Finanças");
 		mnNewMenu_1.add(mntmNewMenuItem_6);
 		mntmNewMenuItem_6.setFont(new Font("Arial", Font.PLAIN, 16));
 		mntmNewMenuItem_6.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				
-				
-				if(login != null) {
-					if(login.getConfigs_privilegios().getNivel_privilegios() <= 2) {
+
+				if (login != null) {
+					if (login.getConfigs_privilegios().getNivel_privilegios() <= 2) {
 						TelaFinanceiro tela = new TelaFinanceiro(isto);
-						
+
 						tela.setVisible(true);
 						tela.atualizarGrafico();
-					}else {
-						
-						//verifica se tem acesso temporario
+					} else {
+
+						// verifica se tem acesso temporario
 						GerenciarBancoAcessoTemporario gerenciar = new GerenciarBancoAcessoTemporario();
-						ArrayList<CadastroAcessoTemporario> acessos = gerenciar.getAcessosTemporariosPorExecutor(login.getId());
-						
+						ArrayList<CadastroAcessoTemporario> acessos = gerenciar
+								.getAcessosTemporariosPorExecutor(login.getId());
+
 						boolean tem_acesso = false;
-						
-						for(CadastroAcessoTemporario acesso : acessos) {
+
+						for (CadastroAcessoTemporario acesso : acessos) {
 
 							int modulo = acesso.getModulo();
-							if(modulo == 1) {
-								//modulo e recursos humanos
-								LocalDateTime inicio = LocalDateTime.parse(acesso.getData_inicial() + " " + acesso.getHora_inicial(),
+							if (modulo == 1) {
+								// modulo e recursos humanos
+								LocalDateTime inicio = LocalDateTime.parse(
+										acesso.getData_inicial() + " " + acesso.getHora_inicial(),
 										DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm"));
-								LocalDateTime fim = LocalDateTime.parse(acesso.getData_final() + " " + acesso.getHora_final(),
+								LocalDateTime fim = LocalDateTime.parse(
+										acesso.getData_final() + " " + acesso.getHora_final(),
 										DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm"));
-								
+
 								LocalDateTime agora = LocalDateTime.now();
 
-					
-								
-								if(agora.isAfter(inicio) && agora.isBefore(fim)) {
+								if (agora.isAfter(inicio) && agora.isBefore(fim)) {
 									tem_acesso = true;
 									break;
 								}
-								
-								
-								
+
 							}
-							
+
 						}
-						
-							if(!tem_acesso) 
-						JOptionPane.showMessageDialog(isto, "Requer Elevação de Direitos");
+
+						if (!tem_acesso)
+							JOptionPane.showMessageDialog(isto, "Requer Elevação de Direitos");
 						else {
 							TelaFinanceiro tela = new TelaFinanceiro(isto);
-							
+
 							tela.setVisible(true);
 							tela.atualizarGrafico();
 						}
 					}
-						
-						
-						
-					}
-					
-				
-				
-				
+
+				}
+
 			}
 		});
 		mntmNewMenuItem_6.setIcon(new ImageIcon(TelaMain.class.getResource("/imagens/financa.png")));
 		mntmNewMenuItem_6.setMargin(new Insets(0, 10, 0, 0));
-		
+
 		JMenu mnNewMenu_2 = new JMenu("RH");
 		mnNewMenu_2.setIcon(new ImageIcon(TelaMain.class.getResource("/imagens/recursos-humanos.png")));
 		mnNewMenu_2.setFont(new Font("Arial", Font.PLAIN, 18));
 		menuBar.add(mnNewMenu_2);
-		
+
 		JMenuItem mntmNewMenuItem_6_1 = new JMenuItem("Recursos Humanos");
 		mnNewMenu_2.add(mntmNewMenuItem_6_1);
 		mntmNewMenuItem_6_1.setFont(new Font("Arial", Font.PLAIN, 16));
@@ -625,7 +628,7 @@ public class TelaMain extends JFrame {
 
 				TelaRecursosHumanos tela = new TelaRecursosHumanos(isto);
 				tela.setVisible(true);
-				
+
 			}
 		});
 		mntmNewMenuItem_6_1.setMargin(new Insets(0, 10, 0, 0));
@@ -635,8 +638,7 @@ public class TelaMain extends JFrame {
 		mnFerramentas.setFont(new Font("Arial", Font.PLAIN, 18));
 		menuBar.add(mnFerramentas);
 		JMenu mnPlanilhasDeControle = new JMenu("Planilhas de Controle");
-		mnPlanilhasDeControle
-				.setIcon(new ImageIcon(TelaMain.class.getResource("/imagens/aplicativo-de-planilha.png")));
+		mnPlanilhasDeControle.setIcon(new ImageIcon(TelaMain.class.getResource("/imagens/aplicativo-de-planilha.png")));
 		mnPlanilhasDeControle.setFont(new Font("Segoe UI", Font.PLAIN, 16));
 		mnPlanilhasDeControle.setMargin(new Insets(0, 10, 0, 0));
 		mnFerramentas.add(mnPlanilhasDeControle);
@@ -659,19 +661,17 @@ public class TelaMain extends JFrame {
 		JMenuItem mntmNewMenuItem_2 = new JMenuItem("Monitoria");
 		mntmNewMenuItem_2.setFont(new Font("SansSerif", Font.PLAIN, 16));
 		mntmNewMenuItem_2.setMargin(new Insets(0, 10, 2, 0));
-		mntmNewMenuItem_2
-				.setIcon(new ImageIcon(TelaMain.class.getResource("/imagens/aplicativo-de-monitoria.png")));
+		mntmNewMenuItem_2.setIcon(new ImageIcon(TelaMain.class.getResource("/imagens/aplicativo-de-monitoria.png")));
 		mntmNewMenuItem_2.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				
-				
-				if(monitor == null) {
-				 monitor = new TelaMonitoria(isto);
-				monitor.setVisible(true);
-				}else {
-					try {
+
+				if (monitor == null) {
+					monitor = new TelaMonitoria(isto);
 					monitor.setVisible(true);
-					}catch(Exception t) {
+				} else {
+					try {
+						monitor.setVisible(true);
+					} catch (Exception t) {
 						JOptionPane.showMessageDialog(isto, "Erro ao abrir a tela de monitoria");
 					}
 				}
@@ -703,43 +703,38 @@ public class TelaMain extends JFrame {
 		mntmNewMenuItem_5.setFont(new Font("SansSerif", Font.PLAIN, 16));
 		mntmNewMenuItem_5.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				
 
-				
 				TelaTarefas tela_tarefas = new TelaTarefas(isto);
-					tela_tarefas.setVisible(true);
-				
+				tela_tarefas.setVisible(true);
+
 			}
 		});
 		mntmNewMenuItem_5.setIcon(new ImageIcon(TelaMain.class.getResource("/imagens/icone_menu_tarefas.png")));
 		mntmNewMenuItem_5.setMargin(new Insets(0, 10, 0, 0));
 		mnFerramentas.add(mntmNewMenuItem_5);
-		
+
 		JMenu mnNewMenu_3 = new JMenu("Segurança");
 		mnNewMenu_3.setIcon(new ImageIcon(TelaMain.class.getResource("/imagens/seguranca.png")));
 		mnNewMenu_3.setMargin(new Insets(0, 10, 0, 0));
 		mnNewMenu_3.setFont(new Font("SansSerif", Font.PLAIN, 16));
 		mnFerramentas.add(mnNewMenu_3);
-		
+
 		JMenuItem mntmNewMenuItem_5_1 = new JMenuItem("Acesso Temporário");
-		mntmNewMenuItem_5_1.setIcon(new ImageIcon(TelaMain.class.getResource("/imagens/seguranca_acesso_temporario.png")));
+		mntmNewMenuItem_5_1
+				.setIcon(new ImageIcon(TelaMain.class.getResource("/imagens/seguranca_acesso_temporario.png")));
 		mntmNewMenuItem_5_1.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				
-				
-				
-				if(login != null) {
-					if(login.getConfigs_privilegios().getNivel_privilegios() <= 2) {
+
+				if (login != null) {
+					if (login.getConfigs_privilegios().getNivel_privilegios() <= 2) {
 						TelaSeguranca tela = new TelaSeguranca(isto);
 						tela.setVisible(true);
-					}else {
+					} else {
 						JOptionPane.showMessageDialog(isto, "Requer Elevação de Direitos");
 					}
-					
+
 				}
-				
-			
-				
+
 			}
 		});
 		mnNewMenu_3.add(mntmNewMenuItem_5_1);
@@ -759,7 +754,7 @@ public class TelaMain extends JFrame {
 		});
 		mntmPastas.setFont(new Font("Segoe UI", Font.PLAIN, 16));
 		mnNewMenu.add(mntmPastas);
-		
+
 		JPanel panel_1 = new JPanel();
 		panel_1.setBackground(new Color(0, 153, 51));
 		GridBagConstraints gbc_panel_1 = new GridBagConstraints();
@@ -770,7 +765,7 @@ public class TelaMain extends JFrame {
 		gbc_panel_1.gridy = 0;
 		painelPrincipal.add(panel_1, gbc_panel_1);
 		panel_1.setLayout(new MigLayout("", "[][][][][][][]", "[][-18.00][]"));
-		
+
 		JLabel lblNewLabel_8 = new JLabel("");
 		lblNewLabel_8.addMouseListener(new MouseAdapter() {
 			@Override
@@ -784,31 +779,30 @@ public class TelaMain extends JFrame {
 		});
 		panel_1.add(lblNewLabel_8, "cell 0 0");
 		lblNewLabel_8.setIcon(new ImageIcon(TelaMain.class.getResource("/imagens/icone_anotacoes_tela_principal.png")));
-		
+
 		JLabel lblNewLabel_1 = new JLabel("");
 		lblNewLabel_1.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent e) {
-				
-				TelaTarefas	tela_tarefas = new TelaTarefas(isto);
-					tela_tarefas.getTarefas();
-					tela_tarefas.setVisible(true);
-				
+
+				TelaTarefas tela_tarefas = new TelaTarefas(isto);
+				tela_tarefas.setVisible(true);
+
 			}
 		});
 		panel_1.add(lblNewLabel_1, "cell 1 0");
 		lblNewLabel_1.setIcon(new ImageIcon(TelaMain.class.getResource("/imagens/icone_tarefa.png")));
-		
+
 		JLabel lblNewLabel_2 = new JLabel("Você tem:");
 		panel_1.add(lblNewLabel_2, "cell 2 0");
-		
-		 lblNumeroTarefas = new JLabel("0");
+
+		lblNumeroTarefas = new JLabel("0");
 		panel_1.add(lblNumeroTarefas, "cell 3 0");
 		lblNumeroTarefas.setFont(new Font("Tahoma", Font.BOLD, 18));
-		
+
 		JLabel lblNewLabel_4 = new JLabel("tarefas");
 		panel_1.add(lblNewLabel_4, "cell 4 0");
-		
+
 		JPanel panel_2 = new JPanel();
 		panel_2.setBackground(new Color(51, 153, 255));
 		GridBagConstraints gbc_panel_2 = new GridBagConstraints();
@@ -819,32 +813,34 @@ public class TelaMain extends JFrame {
 		gbc_panel_2.gridy = 0;
 		painelPrincipal.add(panel_2, gbc_panel_2);
 		panel_2.setLayout(new MigLayout("", "[188px]", "[22px][][]"));
-		
-		 lblUser = new JLabel();
+
+		lblUser = new JLabel();
 		panel_2.add(lblUser, "cell 0 0,alignx left,aligny top");
 		lblUser.setText("<dynamic> <dynamic>");
 		lblUser.setForeground(Color.BLACK);
 		lblUser.setFont(new Font("Tahoma", Font.PLAIN, 18));
 		lblUser.setBackground(Color.WHITE);
-		
-		 lblDireitos = new JLabel();
+
+		lblDireitos = new JLabel();
 		panel_2.add(lblDireitos, "cell 0 1");
 		lblDireitos.setText("Administrador do Sistema");
 		lblDireitos.setForeground(Color.BLACK);
 		lblDireitos.setFont(new Font("Tahoma", Font.PLAIN, 15));
 		lblDireitos.setBackground(Color.WHITE);
-		
+
 		JPanel panel_3 = new JPanel();
 		panel_3.setBackground(Color.WHITE);
-		
+
 		JScrollPane scrollPane = new JScrollPane(panel_3);
 		GridBagLayout gbl_panel_3 = new GridBagLayout();
-		gbl_panel_3.columnWidths = new int[]{500, -27, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 57, 68, 0, 0, 0, 0, 0, 0, 0, 0, 0};
-		gbl_panel_3.rowHeights = new int[]{350, 309, 223, 19, 1, 0};
-		gbl_panel_3.columnWeights = new double[]{1.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0, Double.MIN_VALUE};
-		gbl_panel_3.rowWeights = new double[]{0.0, 0.0, 1.0, 1.0, 0.0, Double.MIN_VALUE};
+		gbl_panel_3.columnWidths = new int[] { 500, -27, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 57, 68, 0, 0, 0, 0, 0, 0,
+				0, 0, 0 };
+		gbl_panel_3.rowHeights = new int[] { 350, 309, 223, 19, 1, 0 };
+		gbl_panel_3.columnWeights = new double[] { 1.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,
+				0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0, Double.MIN_VALUE };
+		gbl_panel_3.rowWeights = new double[] { 0.0, 0.0, 1.0, 1.0, 0.0, Double.MIN_VALUE };
 		panel_3.setLayout(gbl_panel_3);
-		
+
 		JPanel panel_4 = new JPanel();
 		panel_4.setBackground(Color.WHITE);
 		GridBagConstraints gbc_panel_4 = new GridBagConstraints();
@@ -854,34 +850,34 @@ public class TelaMain extends JFrame {
 		gbc_panel_4.gridy = 0;
 		panel_3.add(panel_4, gbc_panel_4);
 		panel_4.setLayout(new MigLayout("", "[1px][474.00,grow]", "[1px][266.00,grow]"));
-		
-		 painelGraficoContratos = new JPanelGrafico(0, 0);
+
+		painelGraficoContratos = new JPanelGrafico(0, 0);
 		painelGraficoContratos.setLayout(null);
 		panel_4.add(painelGraficoContratos, "cell 1 1,grow");
-		
-		 lblTotalContratosAssinados = new JLabel("Assinados: 0");
+
+		lblTotalContratosAssinados = new JLabel("Assinados: 0");
 		lblTotalContratosAssinados.setFont(new Font("Arial", Font.BOLD, 14));
 		lblTotalContratosAssinados.setBorder(new EmptyBorder(0, 0, 0, 0));
 		lblTotalContratosAssinados.setBounds(10, 57, 173, 24);
 		painelGraficoContratos.add(lblTotalContratosAssinados);
-		
-		 lblTotalContratosAssinar = new JLabel("Assinar: 0");
+
+		lblTotalContratosAssinar = new JLabel("Assinar: 0");
 		lblTotalContratosAssinar.setFont(new Font("Arial", Font.BOLD, 14));
 		lblTotalContratosAssinar.setBorder(new EmptyBorder(0, 0, 0, 0));
 		lblTotalContratosAssinar.setBounds(10, 92, 173, 24);
 		painelGraficoContratos.add(lblTotalContratosAssinar);
-		
-		 lblTotalContratos = new JLabel("Total de Contratos: 0");
-		 lblTotalContratos.setFont(new Font("Arial", Font.BOLD, 14));
-		 lblTotalContratos.setBorder(new EmptyBorder(0, 0, 0, 0));
-		 lblTotalContratos.setBounds(10, 22, 173, 24);
+
+		lblTotalContratos = new JLabel("Total de Contratos: 0");
+		lblTotalContratos.setFont(new Font("Arial", Font.BOLD, 14));
+		lblTotalContratos.setBorder(new EmptyBorder(0, 0, 0, 0));
+		lblTotalContratos.setBounds(10, 22, 173, 24);
 		painelGraficoContratos.add(lblTotalContratos);
-		
+
 		JLabel lblNewLabel = new JLabel("");
 		lblNewLabel.setIcon(new ImageIcon(TelaMain.class.getResource("/imagens/icone_contrato.png")));
 		lblNewLabel.setBounds(396, 178, 76, 71);
 		painelGraficoContratos.add(lblNewLabel);
-		
+
 		JPanel panel_5 = new JPanel();
 		panel_5.setBackground(Color.WHITE);
 		GridBagConstraints gbc_panel_5 = new GridBagConstraints();
@@ -892,7 +888,7 @@ public class TelaMain extends JFrame {
 		gbc_panel_5.gridy = 0;
 		panel_3.add(panel_5, gbc_panel_5);
 		panel_5.setLayout(new MigLayout("", "[grow]", "[][][]"));
-		
+
 		JLabel lblNewLabel_6 = new JLabel("Todas as Safras", SwingConstants.CENTER);
 		lblNewLabel_6.setOpaque(true);
 		lblNewLabel_6.setForeground(Color.WHITE);
@@ -906,7 +902,7 @@ public class TelaMain extends JFrame {
 				atualizarGraficoContratos();
 			}
 		});
-		
+
 		cBSafraPersonalizado = new ComboBoxRenderPersonalizado();
 		cbContratosPorSafra = new JComboBox();
 		cbContratosPorSafra.setFont(new Font("Tahoma", Font.BOLD, 10));
@@ -928,7 +924,7 @@ public class TelaMain extends JFrame {
 		cbContratosPorSafra.setRenderer(cBSafraPersonalizado);
 		cbContratosPorSafra.setFont(new Font("Tahoma", Font.BOLD, 10));
 		panel_5.add(cbContratosPorSafra, "cell 0 1,growx");
-		
+
 		pesquisarSafras();
 		for (CadastroSafra safra : safras) {
 			// cBSafra.addItem(safra.getProduto().getNome_produto() + " " +
@@ -936,11 +932,11 @@ public class TelaMain extends JFrame {
 			// cBSafra.addItem(safra);
 			modelSafra.addSafra(safra);
 		}
-		
+
 		JLabel lblNewLabel_7 = new JLabel("");
 		lblNewLabel_7.setIcon(new ImageIcon(TelaMain.class.getResource("/imagens/icone_silos.png")));
 		panel_5.add(lblNewLabel_7, "cell 0 2");
-		
+
 		JPanel painelInfoConexao = new JPanel();
 		painelInfoConexao.setLayout(null);
 		painelInfoConexao.setBorder(new LineBorder(new Color(0, 0, 0)));
@@ -952,112 +948,110 @@ public class TelaMain extends JFrame {
 		gbc_painelInfoConexao.gridx = 13;
 		gbc_painelInfoConexao.gridy = 0;
 		panel_3.add(painelInfoConexao, gbc_painelInfoConexao);
-		
+
 		JLabel lblInfo = new JLabel("Informações de Conexão");
 		lblInfo.setForeground(Color.WHITE);
 		lblInfo.setFont(new Font("SansSerif", Font.BOLD, 20));
 		lblInfo.setBounds(21, 16, 235, 26);
 		painelInfoConexao.add(lblInfo);
-		
-		 lblnet = new JLabel("Internet:");
-		 lblnet.setForeground(Color.WHITE);
-		 lblnet.setFont(new Font("SansSerif", Font.BOLD, 14));
+
+		lblnet = new JLabel("Internet:");
+		lblnet.setForeground(Color.WHITE);
+		lblnet.setFont(new Font("SansSerif", Font.BOLD, 14));
 		lblnet.setBounds(63, 54, 295, 19);
 		painelInfoConexao.add(lblnet);
-		
-		 lblBaseDeArquivos = new JLabel("Base de Arquivos:");
-		 lblBaseDeArquivos.setForeground(Color.WHITE);
-		 lblBaseDeArquivos.setFont(new Font("SansSerif", Font.BOLD, 14));
+
+		lblBaseDeArquivos = new JLabel("Base de Arquivos:");
+		lblBaseDeArquivos.setForeground(Color.WHITE);
+		lblBaseDeArquivos.setFont(new Font("SansSerif", Font.BOLD, 14));
 		lblBaseDeArquivos.setBounds(63, 152, 295, 14);
 		painelInfoConexao.add(lblBaseDeArquivos);
-		
-		 lblBD = new JLabel("Banco de Dados:");
-		 lblBD.setForeground(Color.WHITE);
-		 lblBD.setFont(new Font("SansSerif", Font.BOLD, 14));
+
+		lblBD = new JLabel("Banco de Dados:");
+		lblBD.setForeground(Color.WHITE);
+		lblBD.setFont(new Font("SansSerif", Font.BOLD, 14));
 		lblBD.setBounds(63, 196, 264, 14);
 		painelInfoConexao.add(lblBD);
-		
-		 urlBancoDados = new JLabel("erro");
-		 urlBancoDados.setForeground(Color.WHITE);
-		 urlBancoDados.setFont(new Font("SansSerif", Font.BOLD, 14));
+
+		urlBancoDados = new JLabel("erro");
+		urlBancoDados.setForeground(Color.WHITE);
+		urlBancoDados.setFont(new Font("SansSerif", Font.BOLD, 14));
 		urlBancoDados.setBounds(63, 214, 280, 19);
 		painelInfoConexao.add(urlBancoDados);
-		
-		 urlBaseArquivos = new JLabel("erro");
-		 urlBaseArquivos.setForeground(Color.WHITE);
-		 urlBaseArquivos.setFont(new Font("SansSerif", Font.BOLD, 14));
+
+		urlBaseArquivos = new JLabel("erro");
+		urlBaseArquivos.setForeground(Color.WHITE);
+		urlBaseArquivos.setFont(new Font("SansSerif", Font.BOLD, 14));
 		urlBaseArquivos.setBounds(63, 171, 295, 19);
 		painelInfoConexao.add(urlBaseArquivos);
-		
-		 urlInternet = new JLabel("http://www.google.com.br");
-		 urlInternet.setForeground(Color.WHITE);
-		 urlInternet.setFont(new Font("SansSerif", Font.BOLD, 14));
+
+		urlInternet = new JLabel("http://www.google.com.br");
+		urlInternet.setForeground(Color.WHITE);
+		urlInternet.setFont(new Font("SansSerif", Font.BOLD, 14));
 		urlInternet.setBounds(63, 77, 295, 26);
 		painelInfoConexao.add(urlInternet);
-		
-		 imgBaseDados = new JLabel("New label");
+
+		imgBaseDados = new JLabel("New label");
 		imgBaseDados.setBounds(21, 196, 32, 32);
 		painelInfoConexao.add(imgBaseDados);
-		
-		 imgBaseArquivos = new JLabel("");
+
+		imgBaseArquivos = new JLabel("");
 		imgBaseArquivos.setBounds(21, 152, 32, 32);
 		painelInfoConexao.add(imgBaseArquivos);
-		
-		 imgInternet = new JLabel("");
+
+		imgInternet = new JLabel("");
 		imgInternet.setBounds(21, 59, 32, 32);
 		painelInfoConexao.add(imgInternet);
-		
-		 imgNuvem = new JLabel("");
+
+		imgNuvem = new JLabel("");
 		imgNuvem.setBounds(21, 109, 32, 32);
 		painelInfoConexao.add(imgNuvem);
-		
-		 lblNuvem = new JLabel("Nuvem");
-		 lblNuvem.setForeground(Color.WHITE);
-		 lblNuvem.setFont(new Font("SansSerif", Font.BOLD, 14));
+
+		lblNuvem = new JLabel("Nuvem");
+		lblNuvem.setForeground(Color.WHITE);
+		lblNuvem.setFont(new Font("SansSerif", Font.BOLD, 14));
 		lblNuvem.setBounds(63, 109, 311, 14);
 		painelInfoConexao.add(lblNuvem);
-		
-		 urlNuvem = new JLabel("https://www.dropbox.com/");
-		 urlNuvem.setForeground(Color.WHITE);
-		 urlNuvem.setFont(new Font("SansSerif", Font.BOLD, 14));
+
+		urlNuvem = new JLabel("https://www.dropbox.com/");
+		urlNuvem.setForeground(Color.WHITE);
+		urlNuvem.setFont(new Font("SansSerif", Font.BOLD, 14));
 		urlNuvem.setBounds(63, 127, 295, 19);
 		painelInfoConexao.add(urlNuvem);
-		
+
 		JLabel lblWhatsapp = new JLabel("Whatsapp:");
 		lblWhatsapp.setForeground(Color.WHITE);
 		lblWhatsapp.setFont(new Font("SansSerif", Font.BOLD, 14));
 		lblWhatsapp.setBounds(63, 245, 264, 14);
 		painelInfoConexao.add(lblWhatsapp);
-		
-		
-		 lblStatusWhatsapp = new JLabel("Status:");
+
+		lblStatusWhatsapp = new JLabel("Status:");
 		lblStatusWhatsapp.setForeground(Color.WHITE);
 		lblStatusWhatsapp.setFont(new Font("SansSerif", Font.BOLD, 14));
 		lblStatusWhatsapp.setBounds(63, 263, 280, 19);
 		painelInfoConexao.add(lblStatusWhatsapp);
-		
-		 imgWhatsapp = new JLabel("New label");
+
+		imgWhatsapp = new JLabel("New label");
 		imgWhatsapp.setBounds(21, 245, 32, 32);
 		painelInfoConexao.add(imgWhatsapp);
-		
-		
+
 		JLabel lblRelgioDePonto = new JLabel("Relógio de Ponto:");
 		lblRelgioDePonto.setForeground(Color.WHITE);
 		lblRelgioDePonto.setFont(new Font("SansSerif", Font.BOLD, 14));
 		lblRelgioDePonto.setBounds(63, 302, 264, 14);
 		painelInfoConexao.add(lblRelgioDePonto);
-		
-		 lblStatusRelogioPonto = new JLabel("Status:");
+
+		lblStatusRelogioPonto = new JLabel("Status:");
 		lblStatusRelogioPonto.setForeground(Color.WHITE);
 		lblStatusRelogioPonto.setFont(new Font("SansSerif", Font.BOLD, 14));
 		lblStatusRelogioPonto.setBounds(63, 320, 280, 19);
 		painelInfoConexao.add(lblStatusRelogioPonto);
-		
-		 imgRelogioPonto = new JLabel("New label");
+
+		imgRelogioPonto = new JLabel("New label");
 		imgRelogioPonto.setBounds(21, 302, 32, 32);
 		painelInfoConexao.add(imgRelogioPonto);
-		
-		 painelGraficoRecebimento = new JPanelGraficoRecebimento(0, 0);
+
+		painelGraficoRecebimento = new JPanelGraficoRecebimento(0, 0);
 		painelGraficoRecebimento.setLayout(null);
 		GridBagConstraints gbc_painelGraficoRecebimento = new GridBagConstraints();
 		gbc_painelGraficoRecebimento.insets = new Insets(0, 0, 5, 5);
@@ -1065,40 +1059,40 @@ public class TelaMain extends JFrame {
 		gbc_painelGraficoRecebimento.gridx = 0;
 		gbc_painelGraficoRecebimento.gridy = 1;
 		panel_3.add(painelGraficoRecebimento, gbc_painelGraficoRecebimento);
-		
-		JLabel lblNewLabel_5 = new JLabel("de recebimento, pode não corresponder  a realidade atual do armazém(Estimativa)");
+
+		JLabel lblNewLabel_5 = new JLabel(
+				"de recebimento, pode não corresponder  a realidade atual do armazém(Estimativa)");
 		lblNewLabel_5.setForeground(Color.RED);
 		lblNewLabel_5.setBounds(6, 282, 467, 16);
 		painelGraficoRecebimento.add(lblNewLabel_5);
-		
-		lblTotalSacosAReceber  = new JLabel("a Receber(sacos): 0");
+
+		lblTotalSacosAReceber = new JLabel("a Receber(sacos): 0");
 		lblTotalSacosAReceber.setFont(new Font("Arial", Font.BOLD, 14));
 		lblTotalSacosAReceber.setBorder(new EmptyBorder(0, 0, 0, 0));
 		lblTotalSacosAReceber.setBounds(0, 71, 253, 24);
 		painelGraficoRecebimento.add(lblTotalSacosAReceber);
-		
-		
-		 lblTotalSacosRecebidos = new JLabel("Recebidos(sacos): 0");
+
+		lblTotalSacosRecebidos = new JLabel("Recebidos(sacos): 0");
 		lblTotalSacosRecebidos.setFont(new Font("Arial", Font.BOLD, 14));
 		lblTotalSacosRecebidos.setBorder(new EmptyBorder(0, 0, 0, 0));
 		lblTotalSacosRecebidos.setBounds(0, 35, 253, 24);
 		painelGraficoRecebimento.add(lblTotalSacosRecebidos);
-		
-		 lblTotalSacosGraficoRecebimento = new JLabel("Quantidade Total(sacos): 0");
+
+		lblTotalSacosGraficoRecebimento = new JLabel("Quantidade Total(sacos): 0");
 		lblTotalSacosGraficoRecebimento.setFont(new Font("Arial", Font.BOLD, 14));
 		lblTotalSacosGraficoRecebimento.setBorder(new EmptyBorder(0, 0, 0, 0));
 		lblTotalSacosGraficoRecebimento.setBounds(0, -1, 253, 24);
 		painelGraficoRecebimento.add(lblTotalSacosGraficoRecebimento);
-		
+
 		JLabel lblNewLabel_9_1 = new JLabel("");
 		lblNewLabel_9_1.setBounds(128, 149, 64, 75);
 		painelGraficoRecebimento.add(lblNewLabel_9_1);
-		
+
 		JLabel lblNewLabel_5_1 = new JLabel("Valores Baseados na soma dos pesos liquidos do controle");
 		lblNewLabel_5_1.setForeground(Color.RED);
 		lblNewLabel_5_1.setBounds(6, 259, 420, 16);
 		painelGraficoRecebimento.add(lblNewLabel_5_1);
-		
+
 		JPanel panel_7 = new JPanel();
 		panel_7.setBackground(Color.WHITE);
 		GridBagConstraints gbc_panel_7 = new GridBagConstraints();
@@ -1109,7 +1103,7 @@ public class TelaMain extends JFrame {
 		gbc_panel_7.gridy = 1;
 		panel_3.add(panel_7, gbc_panel_7);
 		panel_7.setLayout(new MigLayout("", "[grow]", "[][][][][][][][][]"));
-		
+
 		JLabel lblTodasAsSafrasRecebimento = new JLabel("Todas as Safras", SwingConstants.CENTER);
 		lblTodasAsSafrasRecebimento.addMouseListener(new MouseAdapter() {
 			@Override
@@ -1124,12 +1118,12 @@ public class TelaMain extends JFrame {
 		lblTodasAsSafrasRecebimento.setBorder(new LineBorder(new Color(0, 0, 0)));
 		lblTodasAsSafrasRecebimento.setBackground(new Color(0, 206, 209));
 		panel_7.add(lblTodasAsSafrasRecebimento, "cell 0 1,growx");
-		
-		 cbRecebimentosPorSafra = new JComboBox();
-		 cbRecebimentosPorSafra.addActionListener(new ActionListener() {
-		 	public void actionPerformed(ActionEvent e) {
-		 		
-		 		try {
+
+		cbRecebimentosPorSafra = new JComboBox();
+		cbRecebimentosPorSafra.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+
+				try {
 					CadastroSafra safra = (CadastroSafra) modelSafra.getSelectedItem();
 					// procura no banco os contratos de acordo com a safra selecionada
 					GerenciarBancoContratos gerenciar = new GerenciarBancoContratos();
@@ -1140,22 +1134,22 @@ public class TelaMain extends JFrame {
 					atualizarGraficoRecebimentos(num_total_sacos, num_total_sacos_carregados);
 				} catch (Exception t) {
 				}
-		 		
-		 	}
-		 });
+
+			}
+		});
 		cbRecebimentosPorSafra.setFont(new Font("Tahoma", Font.BOLD, 10));
 		panel_7.add(cbRecebimentosPorSafra, "cell 0 2,growx");
 		cbRecebimentosPorSafra.setModel(modelSafra);
 		cbRecebimentosPorSafra.setRenderer(cBSafraPersonalizado);
-		
+
 		JLabel lblNewLabel_11 = new JLabel("SAFRA EM EVIDÊNCIA");
 		lblNewLabel_11.setFont(new Font("Tahoma", Font.PLAIN, 16));
 		panel_7.add(lblNewLabel_11, "cell 0 5,alignx center");
-		
+
 		JLabel lblNewLabel_12 = new JLabel("2020/2021");
 		lblNewLabel_12.setFont(new Font("Tahoma", Font.BOLD, 20));
 		panel_7.add(lblNewLabel_12, "cell 0 6,alignx center");
-		
+
 		JPanel panel_8 = new JPanel();
 		panel_8.setBackground(Color.WHITE);
 		GridBagConstraints gbc_panel_8 = new GridBagConstraints();
@@ -1166,57 +1160,50 @@ public class TelaMain extends JFrame {
 		gbc_panel_8.gridy = 1;
 		panel_3.add(panel_8, gbc_panel_8);
 		panel_8.setLayout(new MigLayout("", "[][grow]", "[][][211.00,grow][]"));
-		
+
 		JLabel lblNewLabel_10 = new JLabel("Avisos do Sistema");
 		lblNewLabel_10.setOpaque(true);
 		lblNewLabel_10.setForeground(Color.WHITE);
 		lblNewLabel_10.setBackground(new Color(0, 51, 0));
 		lblNewLabel_10.setFont(new Font("SansSerif", Font.PLAIN, 20));
 		panel_8.add(lblNewLabel_10, "cell 1 0");
-		
-	
-		
-		
-	
+
 		tabela_avisos = new JTable(modelo_aviso);
 
 		tabela_avisos.getColumnModel().getColumn(0).setPreferredWidth(50);
 		tabela_avisos.getColumnModel().getColumn(1).setPreferredWidth(250);
 		tabela_avisos.getColumnModel().getColumn(2).setPreferredWidth(800);
 		tabela_avisos.setRowHeight(30);
-		
-		
-		
+
 		JScrollPane scrollPane_1 = new JScrollPane(tabela_avisos);
 		scrollPane_1.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
 		scrollPane_1.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_ALWAYS);
 		scrollPane_1.setBackground(Color.WHITE);
 		panel_8.add(scrollPane_1, "cell 1 2,grow");
-		
+
 		JButton btnNewButton = new JButton("Excluir Aviso");
 		btnNewButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				
+
 				int indiceDaLinha = tabela_avisos.getSelectedRow();
 				CadastroAviso aviso_selecionado = lista_avisos.get(indiceDaLinha);
 				lista_avisos.remove(aviso_selecionado);
 				modelo_aviso.onRemove(indiceDaLinha);
 			}
 		});
-		
+
 		JButton btnLimparAvisos = new JButton("Limpar");
 		btnLimparAvisos.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				tabela_avisos.removeAll();
 				lista_avisos.clear();
 				modelo_aviso.onRemoveAll();
-				
+
 			}
 		});
 		panel_8.add(btnLimparAvisos, "flowx,cell 1 3,alignx right");
 		panel_8.add(btnNewButton, "cell 1 3,alignx right");
-		
-		
+
 		JPanel panel_6 = new JPanel();
 		panel_6.setBackground(Color.WHITE);
 		GridBagConstraints gbc_panel_6 = new GridBagConstraints();
@@ -1227,13 +1214,13 @@ public class TelaMain extends JFrame {
 		gbc_panel_6.gridy = 2;
 		panel_3.add(panel_6, gbc_panel_6);
 		panel_6.setLayout(new MigLayout("", "[grow]", "[][grow]"));
-		
-		 panelGraficoLinha = new JPanel();
+
+		panelGraficoLinha = new JPanel();
 		panelGraficoLinha.setLayout(null);
 		panelGraficoLinha.setBackground(Color.WHITE);
 		panel_6.add(panelGraficoLinha, "cell 0 0 1 2,grow");
-		
-		 painelGraficoCarregamentos = new JPanelGraficoCarregamento(0, 0);
+
+		painelGraficoCarregamentos = new JPanelGraficoCarregamento(0, 0);
 		painelGraficoCarregamentos.setLayout(null);
 		GridBagConstraints gbc_painelGraficoCarregamentos = new GridBagConstraints();
 		gbc_painelGraficoCarregamentos.gridheight = 3;
@@ -1243,30 +1230,30 @@ public class TelaMain extends JFrame {
 		gbc_painelGraficoCarregamentos.gridx = 1;
 		gbc_painelGraficoCarregamentos.gridy = 2;
 		panel_3.add(painelGraficoCarregamentos, gbc_painelGraficoCarregamentos);
-		
-		 lblTotalSacosRetirar = new JLabel("a Carregar(sacos): 0");
+
+		lblTotalSacosRetirar = new JLabel("a Carregar(sacos): 0");
 		lblTotalSacosRetirar.setFont(new Font("Arial", Font.BOLD, 14));
 		lblTotalSacosRetirar.setBorder(new EmptyBorder(0, 0, 0, 0));
 		lblTotalSacosRetirar.setBounds(0, 71, 253, 24);
 		painelGraficoCarregamentos.add(lblTotalSacosRetirar);
-		
-		 lblTotalSacosRetirados = new JLabel("Carregados(sacos): 0");
+
+		lblTotalSacosRetirados = new JLabel("Carregados(sacos): 0");
 		lblTotalSacosRetirados.setFont(new Font("Arial", Font.BOLD, 14));
 		lblTotalSacosRetirados.setBorder(new EmptyBorder(0, 0, 0, 0));
 		lblTotalSacosRetirados.setBounds(0, 35, 253, 24);
 		painelGraficoCarregamentos.add(lblTotalSacosRetirados);
-		
-		 lblTotalSacos = new JLabel("Quantidade Total(sacos): 0");
+
+		lblTotalSacos = new JLabel("Quantidade Total(sacos): 0");
 		lblTotalSacos.setFont(new Font("Arial", Font.BOLD, 14));
 		lblTotalSacos.setBorder(new EmptyBorder(0, 0, 0, 0));
 		lblTotalSacos.setBounds(0, -1, 253, 24);
 		painelGraficoCarregamentos.add(lblTotalSacos);
-		
+
 		JLabel lblNewLabel_9 = new JLabel("");
 		lblNewLabel_9.setIcon(new ImageIcon(TelaMain.class.getResource("/imagens/icone_caminhao.png")));
 		lblNewLabel_9.setBounds(128, 149, 64, 75);
 		painelGraficoCarregamentos.add(lblNewLabel_9);
-		
+
 		JPanel panel_9 = new JPanel();
 		panel_9.setBackground(Color.WHITE);
 		GridBagConstraints gbc_panel_9 = new GridBagConstraints();
@@ -1277,12 +1264,12 @@ public class TelaMain extends JFrame {
 		gbc_panel_9.gridy = 2;
 		panel_3.add(panel_9, gbc_panel_9);
 		GridBagLayout gbl_panel_9 = new GridBagLayout();
-		gbl_panel_9.columnWidths = new int[]{111, 0, 0, 0, 0, 0};
-		gbl_panel_9.rowHeights = new int[]{88, 0, 62, 58, 0};
-		gbl_panel_9.columnWeights = new double[]{0.0, 1.0, 0.0, 0.0, 1.0, Double.MIN_VALUE};
-		gbl_panel_9.rowWeights = new double[]{0.0, 0.0, 0.0, 1.0, Double.MIN_VALUE};
+		gbl_panel_9.columnWidths = new int[] { 111, 0, 0, 0, 0, 0 };
+		gbl_panel_9.rowHeights = new int[] { 88, 0, 62, 58, 0 };
+		gbl_panel_9.columnWeights = new double[] { 0.0, 1.0, 0.0, 0.0, 1.0, Double.MIN_VALUE };
+		gbl_panel_9.rowWeights = new double[] { 0.0, 0.0, 0.0, 1.0, Double.MIN_VALUE };
 		panel_9.setLayout(gbl_panel_9);
-		
+
 		JLabel lblNewLabel_6_1 = new JLabel("Todas as Safras", SwingConstants.CENTER);
 		lblNewLabel_6_1.setOpaque(true);
 		lblNewLabel_6_1.setForeground(Color.WHITE);
@@ -1305,7 +1292,7 @@ public class TelaMain extends JFrame {
 		gbc_lblNewLabel_6_1.gridx = 0;
 		gbc_lblNewLabel_6_1.gridy = 0;
 		panel_9.add(lblNewLabel_6_1, gbc_lblNewLabel_6_1);
-		
+
 		JComboBox cbCarregamentoPorSafra = new JComboBox();
 		cbCarregamentoPorSafra.setFont(new Font("Tahoma", Font.BOLD, 10));
 		cbCarregamentoPorSafra.addActionListener(new ActionListener() {
@@ -1327,7 +1314,7 @@ public class TelaMain extends JFrame {
 		});
 		cbCarregamentoPorSafra.setModel(modelSafra);
 		cbCarregamentoPorSafra.setRenderer(cBSafraPersonalizado);
-		
+
 		GridBagConstraints gbc_cbCarregamentoPorSafra = new GridBagConstraints();
 		gbc_cbCarregamentoPorSafra.gridwidth = 5;
 		gbc_cbCarregamentoPorSafra.insets = new Insets(0, 0, 5, 5);
@@ -1335,7 +1322,7 @@ public class TelaMain extends JFrame {
 		gbc_cbCarregamentoPorSafra.gridx = 0;
 		gbc_cbCarregamentoPorSafra.gridy = 1;
 		panel_9.add(cbCarregamentoPorSafra, gbc_cbCarregamentoPorSafra);
-		
+
 		JPanel painel_mensagens = new JPanel();
 		painel_mensagens.setLayout(null);
 		painel_mensagens.setBackground(new Color(102, 204, 204));
@@ -1345,7 +1332,7 @@ public class TelaMain extends JFrame {
 		gbc_painel_mensagens.gridx = 0;
 		gbc_painel_mensagens.gridy = 3;
 		panel_9.add(painel_mensagens, gbc_painel_mensagens);
-		
+
 		JLabel lblNewLabel_3 = new JLabel("     Mensagens");
 		lblNewLabel_3.setOpaque(true);
 		lblNewLabel_3.setForeground(Color.WHITE);
@@ -1353,8 +1340,8 @@ public class TelaMain extends JFrame {
 		lblNewLabel_3.setBackground(new Color(0, 0, 153));
 		lblNewLabel_3.setBounds(133, 17, 161, 28);
 		painel_mensagens.add(lblNewLabel_3);
-		
-		 lblNovaMensagem = new JLabel("");
+
+		lblNovaMensagem = new JLabel("");
 		lblNovaMensagem.setForeground(Color.WHITE);
 		lblNovaMensagem.setFont(new Font("Tahoma", Font.PLAIN, 18));
 		lblNovaMensagem.setBounds(33, 17, 32, 32);
@@ -1367,8 +1354,7 @@ public class TelaMain extends JFrame {
 		gbc_scrollPane.gridx = 0;
 		gbc_scrollPane.gridy = 1;
 		painelPrincipal.add(scrollPane, gbc_scrollPane);
-		
-		
+
 		lblUser.setText(login.getNome() + " " + login.getSobrenome());
 		if (login.getConfigs_privilegios().getNivel_privilegios() == 1) {
 			if (login.getGenero().equals("Masculino"))
@@ -1386,12 +1372,11 @@ public class TelaMain extends JFrame {
 			else
 				lblDireitos.setText("Auxiliar Administrativo");
 		}
-		
+
 		modelo_usuarios.addColumn("Usuario");
 		modelo_usuarios.addColumn("Ip");
 		modelo_usuarios.addColumn("Status");
-		
-		
+
 		painel_mensagens.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent arg0) {
@@ -1410,76 +1395,24 @@ public class TelaMain extends JFrame {
 				}
 			}
 		});
-		
-		
-		//normal
-		//getDadosCarregamento();
-		//getDadosRecebimento();
-		//atualizarGraficoCarregamentos();
-		//atualizarGraficoRecebimentos();
-		//getDadosContratos();
-		//atualizarGraficoContratos();
-		//getCarregamentoPorPeriodo();
-
-		
-		//threads
-	/*	atualizarNumTarefas();
 
 	
-		ThreadGetDadosContratos();
-		ThreadGetDadosCarregamento();
-		ThreadGetDadosRecebimento();
-		
-		buscarConexaoPontoRelogio();
-		buscarConexaoWhatsapp();
-		buscaConexaoBanco();
-		buscarConexao();
-		buscarConexaoNuvem();
-		buscaConexaoServidorArquivos();
-*/
-
 		if (telaChat == null) {
 			telaChat = new TelaChat(isto);
 			telaChat.setTelaPai(isto);
 
-		} 
-		
-	/*
-		new Thread() {
-			
-			
-			@Override
-			public void run() {
-				try {
-					Thread.sleep(20000);
-				} catch (InterruptedException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
+		}
 
-				
-				if (telaPost == null) {
-					telaPost = new TelaPost(isto);
-				} else {
-					telaPost.setVisible(true);
-				}
-			}
-		}.start();
-		*/
-		 ThreadGlobal();
-		vigiarRomaneios();
 		
+		ThreadGlobal();
+		vigiarRomaneios();
 
 		this.setLocationRelativeTo(null);
 		this.setExtendedState(JFrame.MAXIMIZED_BOTH);
 		this.setVisible(true);
-		
-		
-		
+
 	}
-	
-	
-	
+
 	public void getDadosGlobais() {
 		// gerenciador de log
 		DadosGlobais dados = DadosGlobais.getInstance();
@@ -1487,10 +1420,8 @@ public class TelaMain extends JFrame {
 		configs_globais = dados.getConfigs_globais();
 		// usuario logado
 		login = dados.getLogin();
-		
-		
-		
-		//telaTodasNotasFiscais
+
+		// telaTodasNotasFiscais
 		telaTodasNotasFiscais = dados.getTelaTodasNotasFiscais();
 	}
 
@@ -1505,24 +1436,7 @@ public class TelaMain extends JFrame {
 		System.out.println("Numero total de contrato: " + dados_contratos.getNumero_total_contratos());
 		System.out.println("Numero total de contratos para assinar: " + dados_contratos.getNumero_contratos_assinar());
 		System.out.println("Numero total de contrato ja assinados: " + dados_contratos.getNumero_contratos_assinados());
-		if (!executou) {
-			if (numerosContratosSemAssinar != -1) {
-				new Thread() {
-					@Override
-					public void run() {
-						while (notificando) {
-						}
-						novaNotificacao(
-								"Há " + numerosContratosSemAssinar
-										+ " contratos com carencia de assinatura na base de dados",
-								"/main/java/audio/beep_notificacao.wav", 1);
-					}
-				}.start();
-				executou = true;
-			} else {
-				System.out.println("Não foi possivel buscar o numero de contratos sem assinar no banco de dados!");
-			}
-		}
+		
 	}
 
 	public void getDadosCarregamento() {
@@ -1548,278 +1462,8 @@ public class TelaMain extends JFrame {
 	}
 
 	
-	
-	public void ThreadGetDadosCarregamento() {
-		new Thread() {
-			@Override
-			public void run() {
-				while (true) {
-					try {
-						Thread.sleep(120000);
-					} catch (InterruptedException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-					}
-					getDadosCarregamento();
-					atualizarGraficoCarregamentos();
-					getCarregamentoPorPeriodo();
-					try {
-						Thread.sleep(120000);
-					} catch (InterruptedException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-					}
-				}
-			}
-		}.start();
-	}
-	
-	
-	public void ThreadGetDadosRecebimento() {
-		new Thread() {
-			@Override
-			public void run() {
-				while (true) {
-					try {
-						Thread.sleep(60000);
-					} catch (InterruptedException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-					}
-					getDadosRecebimento();
-					atualizarGraficoRecebimentos();
-					getCarregamentoPorPeriodo();
-					try {
-						Thread.sleep(60000);
-					} catch (InterruptedException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-					}
-				}
-			}
-		}.start();
-	}
 
 
-	public void ThreadGetDadosContratos() {
-		new Thread() {
-			@Override
-			public void run() {
-				try {
-					Thread.sleep(60000);
-				} catch (InterruptedException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-				while (true) {
-					atualizarGraficoContratos();
-					try {
-						Thread.sleep(60000);
-					} catch (InterruptedException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-					}
-				}
-			}
-		}.start();
-	}
-
-	public void buscarConexao() {
-		new Thread() {
-			private URL url = null;
-
-			@Override
-			public void run() {
-				while (true) {
-					try {
-						url = new URL("http://www.google.com.br");
-						System.out.println("Tentando conexao!");
-						URLConnection connection = url.openConnection();
-						connection.connect();
-						lblnet.setText("Internet: Conectada");
-						imgInternet.setIcon(
-								new ImageIcon(TelaMain.class.getResource("/imagens/internet_online.png")));
-					} catch (IOException f) {
-						f.printStackTrace();
-						System.out.println("erro ao se conectar a internet!");
-						while (notificando) {
-						}
-						novaNotificacao("Sem conexão com a internet, algumas funções seram limitadas até a reconexão!",
-								"/main/java/audio/beep_erro_net.wav", 2);
-						lblnet.setText("Internet: Desconectada");
-						imgInternet.setIcon(
-								new ImageIcon(TelaMain.class.getResource("/imagens/internet_offline.png")));
-					}
-					try {
-						Thread.sleep(60000);
-					} catch (InterruptedException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-					}
-				}
-			}
-		}.start();
-	}
-	
-	
-	public void buscarConexaoPontoRelogio() {
-		new Thread() {
-
-			@Override
-			public void run() {
-				
-				
-				 try {
-						Thread.sleep(5000);
-					} catch (InterruptedException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-					}
-				
-	            System.out.println("Buscando conexao ao relogio");
-
-				while (true) {
-					
-					
-					 try{
-				            InetAddress address = InetAddress.getByName(configs_globais.getIp_relogio());
-				            boolean reachable = address.isReachable(5000);
-				            if(reachable) {
-				        		DadosGlobais.getInstance().setStatus_relogio(1);
-
-				            	lblStatusRelogioPonto.setText("Relógio Conectado!");
-								imgRelogioPonto.setIcon(
-										new ImageIcon(TelaMain.class.getResource("/imagens/rfid_online.png")));
-							
-				            }else {
-				        		DadosGlobais.getInstance().setStatus_relogio(0);
-
-					            System.out.println("erro ao se conectar ao relogio");
-					            lblStatusRelogioPonto.setText("Relógio Desconectado!");
-								imgRelogioPonto.setIcon(
-										new ImageIcon(TelaMain.class.getResource("/imagens/rfid_offline.png")));
-							
-				            	while (notificando) {
-				            		Thread.sleep(1000);
-								}
-								novaNotificacao("Sem conexão com o relógio de ponto, aguardando reconexão!",
-										"/main/java/audio/beep_erro_net.wav", 2);
-								
-				            }
-
-				        } catch (Exception e){
-				            e.printStackTrace();
-				            System.out.println("erro ao se conectar ao relogio");
-							while (notificando) {
-			            		try {
-									Thread.sleep(1000);
-								} catch (InterruptedException e1) {
-									// TODO Auto-generated catch block
-									e1.printStackTrace();
-								}
-
-							}
-			        		DadosGlobais.getInstance().setStatus_relogio(0);
-
-							lblStatusRelogioPonto.setText("Relógio Desconectado!");
-							imgRelogioPonto.setIcon(
-									new ImageIcon(TelaMain.class.getResource("/imagens/rfid_offline.png")));
-						
-							novaNotificacao("Sem conexão com o relógio de ponto, aguardando reconexão!",
-									"/main/java/audio/beep_erro_net.wav", 2);
-							
-				        }
-					
-				
-					
-					 try {
-							Thread.sleep(20000);
-						} catch (InterruptedException e) {
-							// TODO Auto-generated catch block
-							e.printStackTrace();
-						}
-					
-				
-					
-				}
-			}
-		}.start();
-	}
-
-	public void buscarConexaoNuvem() {
-		new Thread() {
-			private URL url = null;
-
-			@Override
-			public void run() {
-				while (true) {
-					try {
-						url = new URL("www.dropbox.com");
-						System.out.println("Tentando conexao nuvem!");
-						URLConnection connection = url.openConnection();
-						connection.connect();
-						lblNuvem.setText("Nuvem: Conectada");
-						imgNuvem.setIcon(new ImageIcon(TelaMain.class.getResource("/imagens/nuvem_online.png")));
-					} catch (IOException f) {
-						f.printStackTrace();
-						System.out.println("erro ao se conectar ao dropbpx!");
-						while (notificando) {
-						}
-						novaNotificacao("Sem conexão com a nuvem, algumas funções seram limitadas até a reconexão!",
-								"/main/java/audio/beep_erro_net.wav", 2);
-						lblNuvem.setText("Nuvem: Desconectada");
-						imgNuvem.setIcon(new ImageIcon(TelaMain.class.getResource("/imagens/nuvem_offline.png")));
-					}
-					try {
-						Thread.sleep(60000);
-					} catch (InterruptedException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-					}
-				}
-			}
-		}.start();
-	}
-
-	public void buscarConexaoWhatsapp() {
-		new Thread() {
-
-			@Override
-			public void run() {
-				while (true) {
-					try {
-						 Whatsapp zap = new Whatsapp();
-						 
-						if(zap.status().contains("OK")) {
-							//conectado
-							lblStatusWhatsapp.setText("Status: Conectado");
-							imgWhatsapp.setIcon(new ImageIcon(TelaMain.class.getResource("/imagens/zap_online.png")));
-						}else {
-							//nao conectado
-							lblStatusWhatsapp.setText("Status: Desconectado");
-							imgWhatsapp.setIcon(new ImageIcon(TelaMain.class.getResource("/imagens/zap_offline.png")));
-						}
-						
-					} catch (Exception f) {
-						f.printStackTrace();
-						System.out.println("erro ao se conectar ao whatsapp!");
-						while (notificando) {
-						}
-						novaNotificacao("Sem conexão com o Whatsapp, algumas funções seram limitadas até a reconexão!",
-								"/main/java/audio/beep_erro_net.wav", 2);
-						lblStatusWhatsapp.setText("Status: Desconectado");
-						imgWhatsapp.setIcon(new ImageIcon(TelaMain.class.getResource("/imagens/zap_offline.png")));
-					}
-					try {
-						Thread.sleep(30000);
-					} catch (InterruptedException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-					}
-				}
-			}
-		}.start();
-	}
 	
 	public void novaNotificacao(String texto, String song, int repeticao) {
 		try {
@@ -1848,89 +1492,136 @@ public class TelaMain extends JFrame {
 		}
 	}
 
-	public void buscaConexaoBanco() {
-		new Thread() {
-			public void run() {
-				while (true) {
-					CadastroBaseDados bd;
-					bd = configs_globais.getBaseDados();
-					String url = "jdbc:mysql://" + bd.getHost() + ":" + bd.getPorta() + "/" + bd.getNome_banco()
-							+ "?useTimezone=true&serverTimezone=UTC";
-					urlBancoDados.setText(url);
-					if (gerenciarBancoPadrao == null)
-						gerenciarBancoPadrao = new GerenciarBancoPadrao();
-					if (gerenciarBancoPadrao.getConexao()) {
-						System.out.println("Banco de Dados OnLine!");
-						lblBD.setText("Banco de Dados: Conectada");
-						imgBaseDados.setIcon(
-								new ImageIcon(TelaMain.class.getResource("/imagens/base_dados_online.png")));
-					} else {
-						System.out.println("Banco de Dados Offline!");
-						lblBD.setText("Banco de Dados: Desconectada");
-						imgBaseDados.setIcon(
-								new ImageIcon(TelaMain.class.getResource("/imagens/base_dados_offline.png")));
-					}
-					try {
-						Thread.sleep(5000);
-					} catch (InterruptedException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
+	
+
+	public void novoAvisoNotificacao(CadastroNota nota, String song, int repeticao) {
+		try {
+			Thread.sleep(1000);
+			URL url = TelaMain.class.getResource(song);
+			TelaInformarNotificacao tela = new TelaInformarNotificacao();
+			new Thread() {
+				@Override
+				public void run() {
+					ReproduzirAudio player = new ReproduzirAudio();
+					for (int i = 0; i < repeticao; i++) {
+						player.play(url);
 					}
 				}
-			}
-		}.start();
+			}.start();
+			Thread.sleep(2000);
+			tela.setVisible(true);
+			tela.setMensagem(nota);
+			Thread.sleep(20000);
+			tela.fechar();
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 
-	public void buscaConexaoServidorArquivos() {
-		new Thread() {
-			public void run() {
-				while (true) {
-					CadastroBaseArquivos base = configs_globais.getServidor_arquivos();
-					String host = base.getServidor();
-					urlBaseArquivos.setText(host);
-					lblBaseDeArquivos.setText("Base de Arquivos: Conectada");
-					TesteConexao gerenciar = new TesteConexao();
-					if (gerenciar.doPing(host)) {
-						System.out.println("Banco de Arquivos OnLine!");
-						imgBaseArquivos.setIcon(
-								new ImageIcon(TelaMain.class.getResource("/imagens/base_arquivos_online.png")));
-					} else {
-						lblBaseDeArquivos.setText("Base de Arquivos: Desconectada");
-						System.out.println("Banco de Arquivos Offline!");
-						imgBaseArquivos.setIcon(
-								new ImageIcon(TelaMain.class.getResource("/imagens/base_arquivos_offline.png")));
-					}
-					try {
-						Thread.sleep(60000);
-					} catch (InterruptedException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-					}
-				}
-			}
-		}.start();
-	}
 	
 	public void ThreadGlobal() {
 		new Thread() {
 			public void run() {
 				while (true) {
+
+					// dados de contrato
+					// getDadosContratos();
 					
-					//dados de contrato
-				   	//getDadosContratos();
 					atualizarGraficoContratos();
-					//dados de recebimento
+					// dados de recebimento
 					getDadosRecebimento();
 					atualizarGraficoRecebimentos();
 					getCarregamentoPorPeriodo();
-					
-					//dados de carregamento
+
+					// dados de carregamento
 					getDadosCarregamento();
 					atualizarGraficoCarregamentos();
 					getCarregamentoPorPeriodo();
-				
+
 					
-					//busca conexao com o servidor
+					// busca anotaçoes
+				
+						
+						if (gerenciarAnotacoes == null)
+							gerenciarAnotacoes = new GerenciarBancoNotas();
+						ArrayList<CadastroNota> anotacoes = gerenciarAnotacoes.getnotasNotificar(login.getId());
+						String data = new GetData().getDataHora();
+
+						LocalDateTime data_hora_atual = LocalDateTime.parse(data,
+								DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm"));
+						
+						for(CadastroNota anotacao : anotacoes) {
+							try {
+
+							if(anotacao.getUltima_notificacao() != null) {
+							
+							LocalDateTime ultima_notificacao = LocalDateTime.parse(anotacao.getUltima_notificacao(),
+									DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm"));
+							
+							int unidade_tempo = anotacao.getUni_tempo();
+							long intervalo = ChronoUnit.MINUTES.between(ultima_notificacao, data_hora_atual);
+							boolean prosseguir = false;
+							
+							if(unidade_tempo == 1) {
+								//minutos								
+								if(intervalo >= anotacao.getTempo_notificacao()) {
+									//ja passou x minutos
+									prosseguir = true;
+									
+								}
+								
+							}else if(unidade_tempo == 2) {
+								//horas
+								if(intervalo >= ( anotacao.getTempo_notificacao() * 60)) {
+									//ja passou x horas
+									prosseguir = true;
+
+								}
+							}else if(unidade_tempo == 3) {
+								//dias
+								if(intervalo >= ( anotacao.getTempo_notificacao() * 1440)) {
+									//ja passou x dias
+									prosseguir = true;
+
+								}
+							}
+
+							if(prosseguir) {
+								System.out.println("notificar");
+
+								
+								novoAvisoNotificacao(anotacao,
+										"/main/java/audio/avisar_notificacao.wav", 2);
+							//atualizar notificacao
+								
+								if(anotacao.getId_usuario_pai() == login.getId()) {
+								anotacao.setUltima_notificacao(data);
+								boolean atualizou = gerenciarAnotacoes.atualizarUltimaNotificacao(anotacao);	
+								if(atualizou) {
+									
+								}else {
+									CadastroAviso avisar = new CadastroAviso();
+									avisar.setMensagem("Erro ao atualizar horario da ultima notificadao");
+									avisar.setSetor("Notificações");
+									avisar.setTipo("Erro");
+									incluir_aviso( avisar);
+								}
+								}
+							}
+							
+							
+						}
+							}catch(Exception e) {
+							
+						}
+						}
+						
+					
+					/***********************************************************************/
+
+					
+					// busca conexao com o servidor
 					CadastroBaseArquivos base = configs_globais.getServidor_arquivos();
 					String host = base.getServidor();
 					urlBaseArquivos.setText(host);
@@ -1947,8 +1638,8 @@ public class TelaMain extends JFrame {
 								new ImageIcon(TelaMain.class.getResource("/imagens/base_arquivos_offline.png")));
 					}
 
-               /*************************************************/
-					//busca conexao com o banco
+					/*************************************************/
+					// busca conexao com o banco
 					CadastroBaseDados bd;
 					bd = configs_globais.getBaseDados();
 					String url = "jdbc:mysql://" + bd.getHost() + ":" + bd.getPorta() + "/" + bd.getNome_banco()
@@ -1959,137 +1650,156 @@ public class TelaMain extends JFrame {
 					if (gerenciarBancoPadrao.getConexao()) {
 						System.out.println("Banco de Dados OnLine!");
 						lblBD.setText("Banco de Dados: Conectada");
-						imgBaseDados.setIcon(
-								new ImageIcon(TelaMain.class.getResource("/imagens/base_dados_online.png")));
+						imgBaseDados
+								.setIcon(new ImageIcon(TelaMain.class.getResource("/imagens/base_dados_online.png")));
 					} else {
 						System.out.println("Banco de Dados Offline!");
 						lblBD.setText("Banco de Dados: Desconectada");
-						imgBaseDados.setIcon(
-								new ImageIcon(TelaMain.class.getResource("/imagens/base_dados_offline.png")));
+						imgBaseDados
+								.setIcon(new ImageIcon(TelaMain.class.getResource("/imagens/base_dados_offline.png")));
 					}
-					
+
 					/**************************************************************/
-					//busca conexao whatsapp
+					// busca conexao whatsapp
 					try {
-						 Whatsapp zap = new Whatsapp();
-						 
-						if(zap.status().contains("OK")) {
-							//conectado
+						Whatsapp zap = new Whatsapp();
+
+						if (zap.status().contains("OK")) {
+							// conectado
 							lblStatusWhatsapp.setText("Status: Conectado");
 							imgWhatsapp.setIcon(new ImageIcon(TelaMain.class.getResource("/imagens/zap_online.png")));
-						}else {
-							//nao conectado
+						} else {
+							// nao conectado
 							lblStatusWhatsapp.setText("Status: Desconectado");
 							imgWhatsapp.setIcon(new ImageIcon(TelaMain.class.getResource("/imagens/zap_offline.png")));
 						}
-						
+
 					} catch (Exception f) {
 						f.printStackTrace();
 						System.out.println("erro ao se conectar ao whatsapp!");
 						while (notificando) {
+							try {
+								Thread.sleep(1000);
+							} catch (InterruptedException e1) {
+								// TODO Auto-generated catch block
+								e1.printStackTrace();
+							}
 						}
 						novaNotificacao("Sem conexão com o Whatsapp, algumas funções seram limitadas até a reconexão!",
 								"/main/java/audio/beep_erro_net.wav", 2);
 						lblStatusWhatsapp.setText("Status: Desconectado");
 						imgWhatsapp.setIcon(new ImageIcon(TelaMain.class.getResource("/imagens/zap_offline.png")));
 					}
-					
+
 					/*****************************************************/
 
-				
-					//conexao com  a internet
+					// conexao com a internet
 					try {
 						URL url3 = new URL("http://www.google.com.br");
 						System.out.println("Tentando conexao!");
 						URLConnection connection = url3.openConnection();
 						connection.connect();
 						lblnet.setText("Internet: Conectada");
-						imgInternet.setIcon(
-								new ImageIcon(TelaMain.class.getResource("/imagens/internet_online.png")));
+						imgInternet.setIcon(new ImageIcon(TelaMain.class.getResource("/imagens/internet_online.png")));
 					} catch (IOException f) {
 						f.printStackTrace();
 						System.out.println("erro ao se conectar a internet!");
 						while (notificando) {
+							try {
+								Thread.sleep(1000);
+							} catch (InterruptedException e1) {
+								// TODO Auto-generated catch block
+								e1.printStackTrace();
+							}
 						}
 						novaNotificacao("Sem conexão com a internet, algumas funções seram limitadas até a reconexão!",
 								"/main/java/audio/beep_erro_net.wav", 2);
 						lblnet.setText("Internet: Desconectada");
-						imgInternet.setIcon(
-								new ImageIcon(TelaMain.class.getResource("/imagens/internet_offline.png")));
+						imgInternet.setIcon(new ImageIcon(TelaMain.class.getResource("/imagens/internet_offline.png")));
 					}
 					/*****************************************************************/
-					//busca conexao com o relogio de ponto
-					 try{
-				            InetAddress address = InetAddress.getByName(configs_globais.getIp_relogio());
-				            boolean reachable = address.isReachable(5000);
-				            if(reachable) {
-				        		DadosGlobais.getInstance().setStatus_relogio(1);
+					// busca conexao com o relogio de ponto
+					try {
+						InetAddress address = InetAddress.getByName(configs_globais.getIp_relogio());
+						boolean reachable = address.isReachable(5000);
+						if (reachable) {
+							DadosGlobais.getInstance().setStatus_relogio(1);
 
-				            	lblStatusRelogioPonto.setText("Relógio Conectado!");
-								imgRelogioPonto.setIcon(
-										new ImageIcon(TelaMain.class.getResource("/imagens/rfid_online.png")));
-							
-				            }else {
-				        		DadosGlobais.getInstance().setStatus_relogio(0);
+							lblStatusRelogioPonto.setText("Relógio Conectado!");
+							imgRelogioPonto
+									.setIcon(new ImageIcon(TelaMain.class.getResource("/imagens/rfid_online.png")));
 
-					            System.out.println("erro ao se conectar ao relogio");
-					            lblStatusRelogioPonto.setText("Relógio Desconectado!");
-								imgRelogioPonto.setIcon(
-										new ImageIcon(TelaMain.class.getResource("/imagens/rfid_offline.png")));
-							
-				            	while (notificando) {
-				            		Thread.sleep(1000);
-								}
-								novaNotificacao("Sem conexão com o relógio de ponto, aguardando reconexão!",
-										"/main/java/audio/beep_erro_net.wav", 2);
-								
-				            }
+						} else {
+							DadosGlobais.getInstance().setStatus_relogio(0);
 
-				        } catch (Exception e){
-				            e.printStackTrace();
-				            System.out.println("erro ao se conectar ao relogio");
+							System.out.println("erro ao se conectar ao relogio");
+							lblStatusRelogioPonto.setText("Relógio Desconectado!");
+							imgRelogioPonto
+									.setIcon(new ImageIcon(TelaMain.class.getResource("/imagens/rfid_offline.png")));
+
 							while (notificando) {
-			            		try {
+								try {
 									Thread.sleep(1000);
 								} catch (InterruptedException e1) {
 									// TODO Auto-generated catch block
 									e1.printStackTrace();
 								}
-
 							}
-			        		DadosGlobais.getInstance().setStatus_relogio(0);
-
-							lblStatusRelogioPonto.setText("Relógio Desconectado!");
-							imgRelogioPonto.setIcon(
-									new ImageIcon(TelaMain.class.getResource("/imagens/rfid_offline.png")));
-						
 							novaNotificacao("Sem conexão com o relógio de ponto, aguardando reconexão!",
 									"/main/java/audio/beep_erro_net.wav", 2);
-							
-				        }
-					
-				/**********************************************************************/
-					 //busca conexao com a nuvem
-						try {
-							 URL url2 = new URL("http://www.dropbox.com");
-							System.out.println("Tentando conexao nuvem!");
-							URLConnection connection = url2.openConnection();
-							connection.connect();
-							lblNuvem.setText("Nuvem: Conectada");
-							imgNuvem.setIcon(new ImageIcon(TelaMain.class.getResource("/imagens/nuvem_online.png")));
-						} catch (IOException f) {
-							f.printStackTrace();
-							System.out.println("erro ao se conectar ao dropbpx!");
-							while (notificando) {
-							}
-							novaNotificacao("Sem conexão com a nuvem, algumas funções seram limitadas até a reconexão!",
-									"/main/java/audio/beep_erro_net.wav", 2);
-							lblNuvem.setText("Nuvem: Desconectada");
-							imgNuvem.setIcon(new ImageIcon(TelaMain.class.getResource("/imagens/nuvem_offline.png")));
+
 						}
-						/***********************************************************/
-					 //busca tarefas
-						try {
+
+					} catch (Exception e) {
+						e.printStackTrace();
+						System.out.println("erro ao se conectar ao relogio");
+						while (notificando) {
+							try {
+								Thread.sleep(1000);
+							} catch (InterruptedException e1) {
+								// TODO Auto-generated catch block
+								e1.printStackTrace();
+							}
+
+						}
+						DadosGlobais.getInstance().setStatus_relogio(0);
+
+						lblStatusRelogioPonto.setText("Relógio Desconectado!");
+						imgRelogioPonto.setIcon(new ImageIcon(TelaMain.class.getResource("/imagens/rfid_offline.png")));
+
+						novaNotificacao("Sem conexão com o relógio de ponto, aguardando reconexão!",
+								"/main/java/audio/beep_erro_net.wav", 2);
+
+					}
+
+					/**********************************************************************/
+					// busca conexao com a nuvem
+					try {
+						URL url2 = new URL("http://www.dropbox.com");
+						System.out.println("Tentando conexao nuvem!");
+						URLConnection connection = url2.openConnection();
+						connection.connect();
+						lblNuvem.setText("Nuvem: Conectada");
+						imgNuvem.setIcon(new ImageIcon(TelaMain.class.getResource("/imagens/nuvem_online.png")));
+					} catch (IOException f) {
+						f.printStackTrace();
+						System.out.println("erro ao se conectar ao dropbpx!");
+						while (notificando) {
+							try {
+								Thread.sleep(1000);
+							} catch (InterruptedException e1) {
+								// TODO Auto-generated catch block
+								e1.printStackTrace();
+							}
+						}
+						novaNotificacao("Sem conexão com a nuvem, algumas funções seram limitadas até a reconexão!",
+								"/main/java/audio/beep_erro_net.wav", 2);
+						lblNuvem.setText("Nuvem: Desconectada");
+						imgNuvem.setIcon(new ImageIcon(TelaMain.class.getResource("/imagens/nuvem_offline.png")));
+					}
+					/***********************************************************/
+					// busca tarefas
+					try {
 						if (gerenciarAtualizarTarefas == null)
 							gerenciarAtualizarTarefas = new GerenciarBancoContratos();
 						int num_agora = gerenciarAtualizarTarefas.getNumTarefas(login.getId());
@@ -2097,9 +1807,15 @@ public class TelaMain extends JFrame {
 						if (num_tarefas_nesta_secao == -1) {
 							if (num_agora > 0) {
 								while (notificando == true) {
-									//System.out.println("Notificacao em andamento");
+									try {
+										Thread.sleep(1000);
+									} catch (InterruptedException e1) {
+										// TODO Auto-generated catch block
+										e1.printStackTrace();
+									}
 								}
-								novaNotificacao("Você possui tarefas a concluir", "/main/java/audio/beep_notificacao.wav", 1);
+								novaNotificacao("Você possui tarefas a concluir",
+										"/main/java/audio/beep_notificacao.wav", 1);
 								num_tarefas_nesta_secao = num_agora;
 							} else {
 								num_tarefas_nesta_secao = 0;
@@ -2120,26 +1836,30 @@ public class TelaMain extends JFrame {
 							// quantidade de tarefas e a mesma
 							num_tarefas_nesta_secao = num_agora;
 						}
-						}catch (Exception e) {
-							
-						}
-						/***********************************************************************/
-						
-						try {
-						Thread.sleep(60000);
+					} catch (Exception e) {
+
+					}
+					/***********************************************************************/
+					
+					
+
+					try {
+						Thread.sleep(45000);
 					} catch (InterruptedException e) {
 						// TODO Auto-generated catch block
 						e.printStackTrace();
 					}
-					 
+
 				}
 			}
 		}.start();
 	}
-	
 
 	public void atualizarGraficoContratos() {
 		getDadosContratos();
+		
+		
+		
 		lblTotalContratos.setText("Total de Contratos: " + dados_contratos.getNumero_total_contratos());
 		lblTotalContratosAssinados.setText("Assinados: " + dados_contratos.getNumero_contratos_assinados());
 		lblTotalContratosAssinar.setText("Assinar: " + dados_contratos.getNumero_contratos_assinar());
@@ -2162,6 +1882,23 @@ public class TelaMain extends JFrame {
 				}
 			}
 		}.start();
+		
+		if (!executou) {
+			if (dados_contratos.getNumero_contratos_assinar() != -1) {
+				
+						while (notificando) {
+						}
+						novaNotificacao(
+								"Há " + dados_contratos.getNumero_contratos_assinar()
+										+ " contratos com carencia de assinatura na base de dados",
+								"/main/java/audio/beep_notificacao.wav", 1);
+					
+				executou = true;
+			} else {
+				System.out.println("Não foi possivel buscar o numero de contratos sem assinar no banco de dados!");
+			}
+		}
+		
 	}
 
 	public void atualizarGraficoContratos(CadastroSafra safra) {
@@ -2235,13 +1972,12 @@ public class TelaMain extends JFrame {
 			}
 		}.start();
 	}
-	
+
 	public void atualizarGraficoRecebimentos() {
-		lblTotalSacosGraficoRecebimento.setText("Quantidade Total(sacos): " + (int) dados_recebimentos.getQuantidade_total_sacos());
-		lblTotalSacosRecebidos
-				.setText("Recebidos(sacos): " + (int) dados_recebimentos.getQuantidade_total_recebidos());
-		lblTotalSacosAReceber
-				.setText("a Receber(sacos): " + (int) dados_recebimentos.getQuantidade_total_a_receber());
+		lblTotalSacosGraficoRecebimento
+				.setText("Quantidade Total(sacos): " + (int) dados_recebimentos.getQuantidade_total_sacos());
+		lblTotalSacosRecebidos.setText("Recebidos(sacos): " + (int) dados_recebimentos.getQuantidade_total_recebidos());
+		lblTotalSacosAReceber.setText("a Receber(sacos): " + (int) dados_recebimentos.getQuantidade_total_a_receber());
 		new Thread() {
 			@Override
 			public void run() {
@@ -2282,8 +2018,6 @@ public class TelaMain extends JFrame {
 		}.start();
 	}
 
-	
-	
 	public void atualizarGraficoCarregamentos(double quantidade_total, double quantidade_carregada) {
 		lblTotalSacos.setText("Quantidade Total(sacos): " + (int) quantidade_total);
 		lblTotalSacosRetirados.setText("Carregados(sacos): " + (int) quantidade_carregada);
@@ -2312,8 +2046,8 @@ public class TelaMain extends JFrame {
 	public void setNumeroMensagensNovas() {
 		java.awt.EventQueue.invokeLater(new Runnable() {
 			public void run() {
-				lblNovaMensagem.setIcon(
-						new ImageIcon(TelaMain.class.getResource("/imagens/icone_mensagem_nao_lida.png")));
+				lblNovaMensagem
+						.setIcon(new ImageIcon(TelaMain.class.getResource("/imagens/icone_mensagem_nao_lida.png")));
 				lblNovaMensagem.repaint();
 				lblNovaMensagem.updateUI();
 			}
@@ -2369,9 +2103,10 @@ public class TelaMain extends JFrame {
 					if (num_tarefas_nesta_secao == -1) {
 						if (num_agora > 0) {
 							while (notificando == true) {
-								//System.out.println("Notificacao em andamento");
+								// System.out.println("Notificacao em andamento");
 							}
-							novaNotificacao("Você possui tarefas a concluir", "/main/java/audio/beep_notificacao.wav", 1);
+							novaNotificacao("Você possui tarefas a concluir", "/main/java/audio/beep_notificacao.wav",
+									1);
 							num_tarefas_nesta_secao = num_agora;
 						} else {
 							num_tarefas_nesta_secao = 0;
@@ -2417,7 +2152,7 @@ public class TelaMain extends JFrame {
 		}
 		linha = new GraficoLinha();
 		linha.setDataset(dataset);
-		chartPanel = linha.getGraficoLinha(400, 200, "Últimos 7 dias", "Romaneios", "Quantidade de Sacos");
+		chartPanel = linha.getGraficoLinha(400, 200, "Últimos 7 dias", "Romaneios", "Quantidade de Sacos", 1);
 		panelGraficoLinha.add(chartPanel);
 	}
 
@@ -2434,7 +2169,7 @@ public class TelaMain extends JFrame {
 		}
 		linha = new GraficoLinha();
 		linha.setDataset(dataset);
-		chartPanel = linha.getGraficoLinha(200, 200, "Últimos 7 dias", "Romaneios", "Quantidade de Sacos");
+		chartPanel = linha.getGraficoLinha(200, 200, "Últimos 7 dias", "Romaneios", "Quantidade de Sacos", 1);
 		panelGraficoLinha.add(chartPanel);
 	}
 
@@ -2462,292 +2197,11 @@ public class TelaMain extends JFrame {
 		}.start();
 	}
 
-	/*public void vigiarRomaneios() {
-		TelaNotificacaoSuperiorModoBusca avisos = new TelaNotificacaoSuperiorModoBusca();
-
-		new Thread() {
-			@Override
-			public void run() {
-				new Thread() {
-					@Override
-					public void run() {
-						avisos.setMensagem("Modo de Busca");
-						avisos.setVisible(true);
-					}
-				}.start();
-				
-				
-				while (true) {
-					try {
-						Thread.sleep(1000);
-					} catch (InterruptedException e2) {
-						// TODO Auto-generated catch block
-						e2.printStackTrace();
-					}
-					try {
-						avisos.setMensagem("Modo de Busca");
-						String unidade_base_dados = configs_globais.getServidorUnidade();
-						String sub_pasta = "E-Contract\\arquivos\\arquivos_comuns";
-						String pasta_final = unidade_base_dados + "\\" + sub_pasta;
-						ManipularRomaneios manipular = new ManipularRomaneios(pasta_final);
-						ArrayList<CadastroRomaneio> romaneios = manipular.tratar();
-						GerenciarBancoClientes gerenciar_clientes = new GerenciarBancoClientes();
-						ArrayList<CadastroCliente> clientes_cadastrados = gerenciar_clientes.getClientes(0, 0, "");
-						for (CadastroRomaneio roms : romaneios) {
-							avisos.setMensagem("Novo Romaneio Encontrado");
-							Thread.sleep(3000);
-							CadastroCliente remetente = roms.getRemetente();
-							CadastroCliente destinatario = roms.getDestinatario();
-							boolean remetente_cadastrado = false;
-							boolean destinatario_cadastrado = false;
-							// verifica se o remetente ja esta cadastrado
-							for (CadastroCliente cliente : clientes_cadastrados) {
-								if (cliente.getIe().trim().equals(remetente.getIe().trim())) {
-									remetente_cadastrado = true;
-								//	JOptionPane.showMessageDialog(null, "Remetente Cadastrado");
-									break;
-								}
-							}
-							for (CadastroCliente cliente : clientes_cadastrados) {
-								if (cliente.getIe().trim().equals(destinatario.getIe().trim())) {
-									destinatario_cadastrado = true;
-								//	JOptionPane.showMessageDialog(null, "Destinatario Cadastrado");
-
-									break;
-								}
-							}
-							
-							if (destinatario.getTipo_pessoa() == 0) {
-							//	JOptionPane.showMessageDialog(null, "Nome destinatario: " + destinatario.getNome_empresarial());
-							} else {
-							//	JOptionPane.showMessageDialog(null, "Nome destinatario: " + destinatario.getNome_fantaia());
-							}
-							
-							if (remetente.getTipo_pessoa() == 0) {
-							//	JOptionPane.showMessageDialog(null, "Nome remetente: " + remetente.getNome_empresarial());
-							} else {
-							//	JOptionPane.showMessageDialog(null, "Nome remetente: " + remetente.getNome_fantaia());
-							}
-							
-							
-							
-							
-							
-							if (remetente_cadastrado && !destinatario_cadastrado) {
-								// mover para a pasta do remetente
-								ManipularTxt manipular_txt = new ManipularTxt();
-								String nome_pasta;
-								if (remetente.getTipo_pessoa() == 0) {
-									nome_pasta = remetente.getNome_empresarial().toUpperCase();
-								} else {
-
-									nome_pasta = remetente.getNome_fantaia().toUpperCase();
-								}
-								unidade_base_dados = configs_globais.getServidorUnidade();
-								sub_pasta = "E-Contract\\arquivos\\clientes";
-								ManipularTxt manipular_arq = new ManipularTxt();
-								nome_pasta = nome_pasta.trim();
-								String caminho_completo_nf = unidade_base_dados + "\\" + sub_pasta + "\\"
-										+ nome_pasta.toUpperCase() + "\\" + "ROMANEIOS" + "\\romaneio-"
-										+ roms.getNumero_romaneio() + ".pdf";
-								// JOptionPane.showMessageDialog(null, "Movendo de :\n" +
-								// roms.getCaminho_arquivo()+ "\nPara:\n" + caminho_completo_nf);
-								avisos.setMensagem("Movendo...");
-								// primeiro veririca se nao existe um arquivo com esse nome
-								File file = new File(caminho_completo_nf);
-								if (!file.exists()) {
-									boolean mover = manipular_arq.moverArquivo(roms.getCaminho_arquivo(),
-											caminho_completo_nf);
-									if (mover) {
-										avisos.setMensagem("Romaneio movido para a pasta do remetente");
-										// JOptionPane.showMessageDialog(null, "Romaneio movido para a pasta do
-										// remetente");
-									} else {
-										// JOptionPane.showMessageDialog(null, "Erro ao mover o romaneio");
-										avisos.setMensagem("Erro ao mover o romaneio para pasta do remetente");
-									}
-								} else {
-									avisos.setMensagem("Romaneio já lido");
-									new File(roms.getCaminho_arquivo()).delete();
-								}
-							} else if (!remetente_cadastrado && destinatario_cadastrado) {
-								// mover para a pasta do destinatario
-								ManipularTxt manipular_txt = new ManipularTxt();
-								String nome_pasta;
-								if (destinatario.getTipo_pessoa() == 0) {
-									nome_pasta = destinatario.getNome_empresarial().toUpperCase();
-								} else {
-
-									nome_pasta = destinatario.getNome_fantaia().toUpperCase();
-								}
-								unidade_base_dados = configs_globais.getServidorUnidade();
-								sub_pasta = "E-Contract\\arquivos\\clientes";
-								ManipularTxt manipular_arq = new ManipularTxt();
-								nome_pasta = nome_pasta.trim();
-								String caminho_completo_nf = unidade_base_dados + "\\" + sub_pasta + "\\"
-										+ nome_pasta.toUpperCase() + "\\" + "ROMANEIOS" + "\\romaneio-"
-										+ roms.getNumero_romaneio() + ".pdf";
-								// JOptionPane.showMessageDialog(null, "Movendo de :\n" +
-								// roms.getCaminho_arquivo()+ "\nPara:\n" + caminho_completo_nf);
-								avisos.setMensagem("Movendo...");
-								// primeiro veririca se nao existe um arquivo com esse nome
-								File file = new File(caminho_completo_nf);
-								if (!file.exists()) {
-									boolean mover = manipular_arq.moverArquivo(roms.getCaminho_arquivo(),
-											caminho_completo_nf);
-									if (mover) {
-										// JOptionPane.showMessageDialog(null, "Romaneio movido para a pasta do
-										// remetente");
-										avisos.setMensagem("Romaneio movido para a pasta do remetente");
-									} else {
-										// JOptionPane.showMessageDialog(null, "Erro ao mover o romaneio");
-										avisos.setMensagem("Erro ao mover romaneio para a pasta do remetente");
-									}
-								} else {
-									avisos.setMensagem("Romaneio já lido");
-									new File(roms.getCaminho_arquivo()).delete();
-								}
-							} else if (remetente_cadastrado && destinatario_cadastrado) {
-								if (remetente.getIe().trim().equals(destinatario.getIe().trim())) {
-									// mover para o remetente
-									// copiar para o remetente
-									ManipularTxt manipular_txt = new ManipularTxt();
-									String nome_pasta;
-									if (remetente.getTipo_pessoa() == 0) {
-
-										nome_pasta = remetente.getNome_empresarial();
-									} else {
-
-										nome_pasta = remetente.getNome_fantaia();
-									}
-									unidade_base_dados = configs_globais.getServidorUnidade();
-									sub_pasta = "E-Contract\\arquivos\\clientes";
-									ManipularTxt manipular_arq = new ManipularTxt();
-									nome_pasta = nome_pasta.trim();
-									String caminho_completo_nf = unidade_base_dados + "\\" + sub_pasta + "\\"
-											+ nome_pasta + "\\" + "ROMANEIOS" + "\\romaneio-"
-											+ roms.getNumero_romaneio() + ".pdf";
-									// JOptionPane.showMessageDialog(null, "Copiando de :\n" +
-									// roms.getCaminho_arquivo()+ "\nPara:\n" + caminho_completo_nf);
-									avisos.setMensagem("Copiando...");
-									// primeiro veririca se nao existe um arquivo com esse nome
-									File file = new File(caminho_completo_nf);
-									if (!file.exists()) {
-										boolean copiar = manipular_arq.moverArquivo(roms.getCaminho_arquivo(),
-												caminho_completo_nf);
-										if (copiar) {
-											// JOptionPane.showMessageDialog(null, "Romaneio movido para a pasta do
-											// remetente");
-											avisos.setMensagem("Romaneio movido para a pasta do remetente");
-											// mover para a pasta do destinatario
-										} else {
-											// JOptionPane.showMessageDialog(null, "Romaneio não pode ser movido para a
-											// pasta do remetente");
-											avisos.setMensagem(
-													"Romaneio não pode ser movido para a pasta do remetente");
-										}
-									} else {
-										avisos.setMensagem("Romaneio já lido");
-										new File(roms.getCaminho_arquivo()).delete();
-									}
-								} else {
-									//Romaneio com destinatario e remetente diferente
-									// copiar para o destinatario
-									ManipularTxt manipular_txt = new ManipularTxt();
-									String nome_pasta;
-									
-									if (destinatario.getTipo_pessoa() == 0) {
-										nome_pasta = destinatario.getNome_empresarial();
-									} else {
-										nome_pasta = destinatario.getNome_fantaia();
-									}
-									
-									unidade_base_dados = configs_globais.getServidorUnidade();
-									sub_pasta = "E-Contract\\arquivos\\clientes";
-									ManipularTxt manipular_arq = new ManipularTxt();
-									nome_pasta = nome_pasta.trim();
-									String caminho_completo_nf = unidade_base_dados + "\\" + sub_pasta + "\\"
-											+ nome_pasta + "\\" + "ROMANEIOS" + "\\romaneio-"
-											+ roms.getNumero_romaneio() + ".pdf";
-									avisos.setMensagem("Copiando...");
-									// JOptionPane.showMessageDialog(null, "Copiando de :\n" +
-									// roms.getCaminho_arquivo()+ "\nPara:\n" + caminho_completo_nf);
-									// primeiro veririca se nao existe um arquivo com esse nome
-									File file = new File(caminho_completo_nf);
-									if (!file.exists()) {
-										boolean copiar = manipular_arq.copiarNFe(roms.getCaminho_arquivo(),
-												caminho_completo_nf);
-										if (copiar) {
-											// JOptionPane.showMessageDialog(null, "Romaneio copiado para a pasta do
-											// destinatario");
-											avisos.setMensagem("Romaneio copiado para a pasta do destinatario");
-											// mover para a pasta do remetente
-											
-											
-											if (remetente.getTipo_pessoa() == 0) {
-												nome_pasta = remetente.getNome_empresarial().toUpperCase();
-											} else {
-
-												nome_pasta = remetente.getNome_fantaia().toUpperCase();
-											}
-											unidade_base_dados = configs_globais.getServidorUnidade();
-											sub_pasta = "E-Contract\\arquivos\\clientes";
-											nome_pasta = nome_pasta.trim();
-											caminho_completo_nf = unidade_base_dados + "\\" + sub_pasta + "\\"
-													+ nome_pasta.toUpperCase() + "\\" + "ROMANEIOS" + "\\romaneio-"
-													+ roms.getNumero_romaneio() + ".pdf";
-											// JOptionPane.showMessageDialog(null, "Movendo de :\n" +
-											// roms.getCaminho_arquivo()+ "\nPara:\n" + caminho_completo_nf);
-											avisos.setMensagem("Movendo...");
-											boolean mover = manipular_arq.moverArquivo(roms.getCaminho_arquivo(),
-													caminho_completo_nf);
-											if (mover) {
-												// JOptionPane.showMessageDialog(null, "Romaneio movido para a pasta do
-												// destinatario");
-												avisos.setMensagem("Romaneio movido para a pasta do remetente");
-											} else {
-												// JOptionPane.showMessageDialog(null, "Erro ao mover o romaneio para a
-												// pasta do destinatario");
-												avisos.setMensagem(
-														"Erro ao mover o romaneio para a pasta do remetente");
-											}
-										} else {
-											// JOptionPane.showMessageDialog(null, "Erro ao copiar o romaneio para a
-											// pasta
-											// do remetente");
-											avisos.setMensagem("Erro ao copiar o romaneio para a pasta do remetente");
-										}
-									} else {
-										avisos.setMensagem("Romaneio já lido");
-										new File(roms.getCaminho_arquivo()).delete();
-									}
-								}
-							} else {
-								// JOptionPane.showMessageDialog(null, "Romaneio lido mas nem o cliente
-								// remetente e nem o cliente destinatario estão cadastrado");
-								avisos.setMensagem(
-										"Romaneio lido mas nem o cliente remetente e nem o cliente destinatario estão cadastrado");
-							}
-						}
-					} catch (Exception e) {
-						// JOptionPane.showMessageDialog(null, "Erro ao ler romaneios");
-						avisos.setMensagem("Erro ao ler romaneios\nErro: " + e.getMessage() + "\nCausa: " + e.getCause());
-						JOptionPane.showMessageDialog(null, "Erro ao ler romaneios\nErro: " + e.getMessage() + "\nCausa: " + e.getCause());
-					}
-					try {
-						Thread.sleep(1000);
-					} catch (InterruptedException e1) {
-						// TODO Auto-generated catch block
-						e1.printStackTrace();
-					}
-				}
-			}
-		}.start();
-	}*/
 	
+
 	public void vigiarRomaneios() {
 		MonitorarRomaneios monitorar = new MonitorarRomaneios();
-    	monitorar.vigiarRomaneiosSemTelaAvisos();
+		monitorar.vigiarRomaneiosSemTelaAvisos();
 	}
 
 	public int getIndexTelaPai() {
@@ -2765,16 +2219,11 @@ public class TelaMain extends JFrame {
 		}
 		return index;
 	}
-	
-	
+
 	public void setTelaPai(JDialog _tela_pai) {
 		this.telaPai = _tela_pai;
 	}
-	
-	
-	
-	
-	
+
 	public static class AvisoTableModel extends AbstractTableModel {
 
 		// constantes p/identificar colunas
@@ -2782,7 +2231,6 @@ public class TelaMain extends JFrame {
 		private final int setor = 1;
 
 		private final int mensagem = 2;
-
 
 		private final String colunas[] = { "Tipo", "Setor", "Mensagem:" };
 		private final ArrayList<CadastroAviso> dados = new ArrayList<>();// usamos como dados uma lista genérica de
@@ -2814,7 +2262,6 @@ public class TelaMain extends JFrame {
 				return String.class;
 			case mensagem:
 				return String.class;
-	
 
 			default:
 				throw new IndexOutOfBoundsException("Coluna Inválida!!!");
@@ -2934,68 +2381,63 @@ public class TelaMain extends JFrame {
 		}
 
 	}
-	
-	
+
 	public void incluir_aviso(CadastroAviso avisar) {
-		
-				boolean ja_tem_na_lista = false;
-				for(CadastroAviso aviso : lista_avisos) {
-					
-							if(aviso.getMensagem().equals(avisar.getMensagem())) {
-								ja_tem_na_lista = true;
-								break;
-							}
-						
-				}
-				
-				if(!ja_tem_na_lista) {
-					//JOptionPane.showMessageDialog(isto, avisar.getMensagem());
-					
-			     lista_avisos.add(avisar);
-			 	java.awt.EventQueue.invokeLater(new Runnable() {
-					public void run() {
+
+		boolean ja_tem_na_lista = false;
+		for (CadastroAviso aviso : lista_avisos) {
+
+			if (aviso.getMensagem().equals(avisar.getMensagem())) {
+				ja_tem_na_lista = true;
+				break;
+			}
+
+		}
+
+		if (!ja_tem_na_lista) {
+			// JOptionPane.showMessageDialog(isto, avisar.getMensagem());
+
+			lista_avisos.add(avisar);
+			java.awt.EventQueue.invokeLater(new Runnable() {
+				public void run() {
 					modelo_aviso.onAdd(avisar);
 
-					}
-				});
-				
 				}
+			});
 
-		
-		
+		}
+
 	}
-	
-	
+
 	public double getQuantidadeFinalCarregada(CadastroContrato contrato_local) {
 		GerenciarBancoContratos gerenciar_contratos = new GerenciarBancoContratos();
 		GerenciarBancoRomaneios gerenciar_romaneios = new GerenciarBancoRomaneios();
-		
-	
-		
-		ArrayList<CadastroContrato.Carregamento> lista_carregamentos_deste_contrato = gerenciar_contratos.getCarregamentos(contrato_local.getId());
+
+		ArrayList<CadastroContrato.Carregamento> lista_carregamentos_deste_contrato = gerenciar_contratos
+				.getCarregamentos(contrato_local.getId());
 		double quantidade_total_carregada = 0;
-		for(CadastroContrato.Carregamento carregamento : lista_carregamentos_deste_contrato) {
-			quantidade_total_carregada +=  carregamento.getPeso_romaneio();
+		for (CadastroContrato.Carregamento carregamento : lista_carregamentos_deste_contrato) {
+			quantidade_total_carregada += carregamento.getPeso_romaneio();
 		}
-		
+
 		GerenciarBancoTransferenciasCarga gerenciar_transferencias = new GerenciarBancoTransferenciasCarga();
 		ArrayList<CadastroContrato.CadastroTransferenciaCarga> lista_transferencias_carga_remetente = gerenciar_transferencias
 				.getTransferenciasRemetente(contrato_local.getId());
 		ArrayList<CadastroContrato.CadastroTransferenciaCarga> lista_transferencias_carga_destinatario = gerenciar_transferencias
 				.getTransferenciaDestinatario(contrato_local.getId());
-		
+
 		double quantidade_total_transferida_retirada = 0;
-		for(CadastroContrato.CadastroTransferenciaCarga transferencia_retirada : lista_transferencias_carga_remetente) {
+		for (CadastroContrato.CadastroTransferenciaCarga transferencia_retirada : lista_transferencias_carga_remetente) {
 			quantidade_total_transferida_retirada += Double.parseDouble(transferencia_retirada.getQuantidade());
 		}
-		
+
 		double quantidade_total_transferencia_recebida = 0;
-		for(CadastroContrato.CadastroTransferenciaCarga transferencia_recebida : lista_transferencias_carga_destinatario) {
+		for (CadastroContrato.CadastroTransferenciaCarga transferencia_recebida : lista_transferencias_carga_destinatario) {
 			quantidade_total_transferencia_recebida += Double.parseDouble(transferencia_recebida.getQuantidade());
 		}
-		
-		
-		double quantidade_final = (quantidade_total_carregada + quantidade_total_transferencia_recebida) - quantidade_total_transferida_retirada;
+
+		double quantidade_final = (quantidade_total_carregada + quantidade_total_transferencia_recebida)
+				- quantidade_total_transferida_retirada;
 		return quantidade_final;
 	}
 }

@@ -121,8 +121,8 @@ public class TelaRecursosHumanos extends JFrame {
 	private RegistroPontoDiarioTableModel modeloRps = new RegistroPontoDiarioTableModel();
 	private JLabel lblTotalColaboradores;
 	private JTable tabela_rps;
-	private JLabel lblRegistradoCorretamente, lblFeriado,lblDS, lblFaltou, lblNaoCompleto, lblIsencaoPonto, lblFolga, lblFerias,
-			lblLicencas;
+	private JLabel lblRegistradoCorretamente, lblFeriado, lblDS, lblFaltou, lblNaoCompleto, lblIsencaoPonto, lblFolga,
+			lblFerias, lblLicencas;
 
 	public TelaRecursosHumanos(Window window) {
 		setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
@@ -207,15 +207,16 @@ public class TelaRecursosHumanos extends JFrame {
 		mntmNewMenuItem_1_2.setMargin(new Insets(0, 14, 0, 0));
 		mntmNewMenuItem_1_2.setFont(new Font("Segoe UI", Font.PLAIN, 16));
 		mnNewMenu_1.add(mntmNewMenuItem_1_2);
-		
+
 		JMenuItem mntmNewMenuItem_1_2_1_1 = new JMenuItem("Departamentos");
-		mntmNewMenuItem_1_2_1_1.setIcon(new ImageIcon(TelaRecursosHumanos.class.getResource("/imagens/departamentos.png")));
+		mntmNewMenuItem_1_2_1_1
+				.setIcon(new ImageIcon(TelaRecursosHumanos.class.getResource("/imagens/departamentos.png")));
 		mntmNewMenuItem_1_2_1_1.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				
-				TelaFuncionariosDepartamentos tela = new TelaFuncionariosDepartamentos(0,isto);
+
+				TelaFuncionariosDepartamentos tela = new TelaFuncionariosDepartamentos(0, isto);
 				tela.setVisible(true);
-				
+
 			}
 		});
 		mntmNewMenuItem_1_2_1_1.setMargin(new Insets(0, 14, 0, 0));
@@ -231,7 +232,7 @@ public class TelaRecursosHumanos extends JFrame {
 		painelPrincipal.add(menuBar, "cell 0 0 3 1,alignx left,aligny center");
 
 		JMenu mnFerramentas = new JMenu("Ferramentas");
-		mnFerramentas.setIcon(new ImageIcon(TelaPrincipal.class.getResource("/imagens/ferramentas-de-reparacao.png")));
+		mnFerramentas.setIcon(new ImageIcon(TelaMain.class.getResource("/imagens/ferramentas-de-reparacao.png")));
 		mnFerramentas.setMargin(new Insets(0, 10, 0, 0));
 		mnFerramentas.setFont(new Font("Arial", Font.PLAIN, 18));
 		menuBar.add(mnFerramentas);
@@ -248,18 +249,18 @@ public class TelaRecursosHumanos extends JFrame {
 			}
 		});
 		mntmNewMenuItem_3.setMargin(new Insets(0, 10, 0, 0));
-		mntmNewMenuItem_3.setIcon(new ImageIcon(TelaPrincipal.class.getResource("/imagens/icone_menu_notas.png")));
+		mntmNewMenuItem_3.setIcon(new ImageIcon(TelaMain.class.getResource("/imagens/icone_menu_notas.png")));
 		mnFerramentas.add(mntmNewMenuItem_3);
 		JMenuItem mntmNewMenuItem_4 = new JMenuItem("Calendário");
 		mntmNewMenuItem_4.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				
+
 				TelaCalendario tela = new TelaCalendario(isto);
 				tela.setVisible(true);
-				
+
 			}
 		});
-		mntmNewMenuItem_4.setIcon(new ImageIcon(TelaPrincipal.class.getResource("/imagens/icone_menu_calendario.png")));
+		mntmNewMenuItem_4.setIcon(new ImageIcon(TelaMain.class.getResource("/imagens/icone_menu_calendario.png")));
 		mntmNewMenuItem_4.setMargin(new Insets(0, 10, 0, 0));
 		mnFerramentas.add(mntmNewMenuItem_4);
 		JMenuItem mntmNewMenuItem_5 = new JMenuItem("Tarefas");
@@ -267,32 +268,28 @@ public class TelaRecursosHumanos extends JFrame {
 			public void actionPerformed(ActionEvent e) {
 
 				TelaTarefas tela_tarefas = new TelaTarefas(isto);
-				tela_tarefas.getTarefas();
 				tela_tarefas.setVisible(true);
 
 			}
 		});
-		mntmNewMenuItem_5.setIcon(new ImageIcon(TelaPrincipal.class.getResource("/imagens/icone_menu_tarefas.png")));
+		mntmNewMenuItem_5.setIcon(new ImageIcon(TelaMain.class.getResource("/imagens/icone_menu_tarefas.png")));
 		mntmNewMenuItem_5.setMargin(new Insets(0, 10, 0, 0));
 		mnFerramentas.add(mntmNewMenuItem_5);
-		
+
 		JMenuItem mntmNewMenuItem_5_1 = new JMenuItem("Análise");
 		mntmNewMenuItem_5_1.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				
-				
-				if(login != null) {
-					if(login.getConfigs_privilegios().getNivel_privilegios() <= 2) {
+
+				if (login != null) {
+					if (login.getConfigs_privilegios().getNivel_privilegios() <= 2) {
 						TelaFuncionariosAnalise tela = new TelaFuncionariosAnalise(isto);
-								tela.setVisible(true);
+						tela.setVisible(true);
 					}
-				}else {
+				} else {
 					JOptionPane.showMessageDialog(isto, "Requer Elevação de Direitos");
 
 				}
-				
-				
-				
+
 			}
 		});
 		mntmNewMenuItem_5_1.setIcon(new ImageIcon(TelaRecursosHumanos.class.getResource("/imagens/analise.png")));
@@ -441,32 +438,32 @@ public class TelaRecursosHumanos extends JFrame {
 		lblNaoCompleto = new JLabel("Não Completou o Registro de Ponto");
 		lblNaoCompleto.setFont(new Font("SansSerif", Font.BOLD, 16));
 		panel_4.add(lblNaoCompleto, "cell 2 5 2 1");
-		
+
 		JLabel lblNewLabel_5_1_1_2 = new JLabel("aaaa");
 		lblNewLabel_5_1_1_2.setOpaque(true);
 		lblNewLabel_5_1_1_2.setForeground(new Color(0, 102, 51));
 		lblNewLabel_5_1_1_2.setBackground(new Color(0, 102, 0));
 		panel_4.add(lblNewLabel_5_1_1_2, "cell 0 6,alignx right");
-		
+
 		JLabel lblFolga_1_2 = new JLabel("Descanso Semanal:");
 		lblFolga_1_2.setFont(new Font("SansSerif", Font.PLAIN, 16));
 		panel_4.add(lblFolga_1_2, "cell 1 6,alignx right");
-		
-		 lblDS = new JLabel("0");
+
+		lblDS = new JLabel("0");
 		lblDS.setFont(new Font("SansSerif", Font.BOLD, 16));
 		panel_4.add(lblDS, "cell 2 6 2 1");
-		
+
 		JLabel lblNewLabel_5_1_1_2_1 = new JLabel("aaaa");
 		lblNewLabel_5_1_1_2_1.setOpaque(true);
 		lblNewLabel_5_1_1_2_1.setForeground(new Color(0, 51, 51));
 		lblNewLabel_5_1_1_2_1.setBackground(new Color(0, 51, 51));
 		panel_4.add(lblNewLabel_5_1_1_2_1, "cell 0 7,alignx right");
-		
+
 		JLabel lblFolga_1_2_1 = new JLabel("Feriado:");
 		lblFolga_1_2_1.setFont(new Font("SansSerif", Font.PLAIN, 16));
 		panel_4.add(lblFolga_1_2_1, "cell 1 7,alignx right");
-		
-		 lblFeriado = new JLabel("0");
+
+		lblFeriado = new JLabel("0");
 		lblFeriado.setFont(new Font("SansSerif", Font.BOLD, 16));
 		panel_4.add(lblFeriado, "cell 2 7 2 1");
 
@@ -564,11 +561,6 @@ public class TelaRecursosHumanos extends JFrame {
 		login = dados.getLogin();
 	}
 
-
-	
-
-
-
 	public boolean checkString(String txt) {
 		return txt != null && !txt.equals("") && !txt.equals(" ") && !txt.equals("  ");
 	}
@@ -589,8 +581,8 @@ public class TelaRecursosHumanos extends JFrame {
 		private final int entrada3 = 8;
 		private final int saida3 = 9;
 
-		private final String colunas[] = { "DATA", "DIA DA SEMANA", "COLABORADOR", "DEPARTAMENTO","ENTRADA 1", "SAÍDA 1", "ENTRADA 2",
-				"SAÍDA 2", "ENTRADA 3", "SAÍDA 3" };
+		private final String colunas[] = { "DATA", "DIA DA SEMANA", "COLABORADOR", "DEPARTAMENTO", "ENTRADA 1",
+				"SAÍDA 1", "ENTRADA 2", "SAÍDA 2", "ENTRADA 3", "SAÍDA 3" };
 
 		private final ArrayList<RegistroPontoDiarioCompleto> dados = new ArrayList<>();// usamos como dados uma lista
 		// genérica de
@@ -803,7 +795,9 @@ public class TelaRecursosHumanos extends JFrame {
 					&& !entrada1.equalsIgnoreCase("LICENÇA") && !entrada1.equalsIgnoreCase("DESCANSO SEMANAL")
 					&& !entrada1.equalsIgnoreCase("FERIADO")) {
 
-				if (saida1 == null || entrada2 == null || saida2 == null) {
+				if ((saida1 == null || saida1.equalsIgnoreCase(""))
+						|| (entrada2 == null || entrada2.equalsIgnoreCase(""))
+						|| (saida2 == null || saida2.equalsIgnoreCase(""))) {
 					// deu entrada nesse dia, mas nao completou ponto
 					setBackground(new Color(255, 153, 0));// laranja
 					setForeground(Color.white);
@@ -829,10 +823,10 @@ public class TelaRecursosHumanos extends JFrame {
 			} else if (entrada1.equalsIgnoreCase("LICENÇA")) {
 				setBackground(new Color(102, 51, 51));// azul
 				setForeground(Color.white);
-			}else if(entrada1.equalsIgnoreCase("DESCANSO SEMANAL")) {
+			} else if (entrada1.equalsIgnoreCase("DESCANSO SEMANAL")) {
 				setBackground(new Color(0, 102, 0));// azul
 				setForeground(Color.white);
-			}else if(entrada1.equalsIgnoreCase("FERIADO")) {
+			} else if (entrada1.equalsIgnoreCase("FERIADO")) {
 				setBackground(new Color(0, 51, 51));// azul
 				setForeground(Color.white);
 			}
@@ -843,9 +837,7 @@ public class TelaRecursosHumanos extends JFrame {
 	}
 
 	public void pesquisar_rps() {
-		
-	
-		
+
 		modeloRps.onRemoveAll();
 
 		String data = entDataRegistrosPontos.getText();
@@ -866,7 +858,6 @@ public class TelaRecursosHumanos extends JFrame {
 
 		ArrayList<CadastroFuncionario> lista_funcionarios = gerenciar.getfuncionarios();
 
-
 		int total_falta = 0, total_folga = 0, total_completo = 0, total_isencao = 0, total_licenca = 0,
 				total_incompleto = 0, total_ferias = 0, total_descanso = 0, total_feriado = 0;
 
@@ -874,274 +865,304 @@ public class TelaRecursosHumanos extends JFrame {
 		GerenciarBancoFuncionariosContratoTrabalho gerenciar_ct = new GerenciarBancoFuncionariosContratoTrabalho();
 
 		for (CadastroFuncionario cf : lista_funcionarios) {
-			
-			
-			
+
 			CadastroFuncionarioAdmissao ct = new CadastroFuncionarioAdmissao();
 			ct = gerenciar_ct.getcontratoAtivoPorFuncionario(cf.getId_funcionario());
 
 			if (ct != null) {
 				total_cts_ativos++;
 
-			RegistroPontoDiarioCompleto rp = gerenciar_rp.getDemonstrativoFuncionarioData(cf.getId_funcionario(), data);
+				RegistroPontoDiarioCompleto rp = gerenciar_rp.getDemonstrativoFuncionarioData(cf.getId_funcionario(),
+						data);
 
-			if (rp != null) {
+				if (rp != null) {
 
-				if (rp.getEntrada1() != null && rp.getEntrada2() != null && rp.getSaida1() != null
-						&& rp.getSaida2() != null) {
-					total_completo++;
-				} else {
-					total_incompleto++;
+					if ((rp.getEntrada1() != null && !rp.getEntrada1().equalsIgnoreCase(""))
+							&& (rp.getEntrada2() != null && !rp.getEntrada2().equalsIgnoreCase(""))
+							&& (rp.getSaida1() != null && !rp.getSaida1().equalsIgnoreCase(""))
+							&& (rp.getSaida2() != null && !rp.getSaida2().equalsIgnoreCase(""))) {
+						total_completo++;
+					} else {
+						total_incompleto++;
+					}
+
+					rp.setNome_departamento(ct.getNome_departamento());
+					modeloRps.onAdd(rp);
+
 				}
 
-				rp.setNome_departamento(ct.getNome_departamento());
-				modeloRps.onAdd(rp);
-
-			}
-
-			else {
-
-				// verificar por evento de folga ou ferias
-				GerenciarBancoFuncionariosEventos gerenciar_eventos = new GerenciarBancoFuncionariosEventos();
-				ArrayList<CadastroFuncionarioEvento> eventos = gerenciar_eventos
-						.getEventosPorColaborador(cf.getId_funcionario());
+				else {
 				
-				GerenciarBancoEventoGlobal gerenciar_eventos_global = new GerenciarBancoEventoGlobal();
-				ArrayList<EventoGlobal> listaEventosGlobais = gerenciar_eventos_global.getEventosPorData(data);
 
-				boolean tem_folga = false;
-				boolean tem_ferias = false;
-				boolean tem_isencao = false;
-				boolean tem_licenca = false;
-				boolean tem_descanso = false;
-				boolean tem_feriado = false;
+					// verificar por evento de folga ou ferias
+					GerenciarBancoFuncionariosEventos gerenciar_eventos = new GerenciarBancoFuncionariosEventos();
+					ArrayList<CadastroFuncionarioEvento> eventos = gerenciar_eventos
+							.getEventosPorColaborador(cf.getId_funcionario());
 
-				for (CadastroFuncionarioEvento evt : eventos) {
+					GerenciarBancoEventoGlobal gerenciar_eventos_global = new GerenciarBancoEventoGlobal();
+					ArrayList<EventoGlobal> listaEventosGlobais = gerenciar_eventos_global.getEventosPorData(data);
 
-					if (evt.getTipo_evento() == 0) {
-						// folga
-						if (evt.getData_folga().equalsIgnoreCase(data)) {
-							// tem folga nesse dia
+					boolean tem_folga = false;
+					boolean tem_ferias = false;
+					boolean tem_isencao = false;
+					boolean tem_licenca = false;
+					boolean tem_descanso = false;
+					boolean tem_feriado = false;
 
-							tem_folga = true;
-							break;
+					for (CadastroFuncionarioEvento evt : eventos) {
+
+						if (evt.getTipo_evento() == 0) {
+							// folga
+							if (evt.getData_folga().equalsIgnoreCase(data)) {
+								// tem folga nesse dia
+
+								tem_folga = true;
+								break;
+							}
+						} else if (evt.getTipo_evento() == 3) {
+
+							
+
+							LocalDate hoje = LocalDate.parse(data, DateTimeFormatter.ofPattern("dd/MM/yyyy"));
+
+							LocalDate dataInicialFerias = LocalDate.parse(evt.getData_ferias_ida(),
+									DateTimeFormatter.ofPattern("dd/MM/yyyy"));
+							LocalDate dataFinalFerias = LocalDate.parse(evt.getData_ferias_volta(),
+									DateTimeFormatter.ofPattern("dd/MM/yyyy"));
+
+							if (hoje.isEqual(dataInicialFerias)) {
+								tem_ferias = true;
+								break;
+
+							} else if (hoje.isEqual(dataFinalFerias)) {
+								tem_ferias = true;
+								break;
+							} else if (hoje.isAfter(dataInicialFerias) && hoje.isBefore(dataFinalFerias)) {
+								tem_ferias = true;
+								break;
+							}
+
+						} else if (evt.getTipo_evento() == 4) {
+							// isencao de ponto
+							LocalDate hoje = LocalDate.parse(data, DateTimeFormatter.ofPattern("dd/MM/yyyy"));
+
+							LocalDate dataInicialFerias = LocalDate.parse(evt.getData_ferias_ida(),
+									DateTimeFormatter.ofPattern("dd/MM/yyyy"));
+							LocalDate dataFinalFerias = LocalDate.parse(evt.getData_ferias_volta(),
+									DateTimeFormatter.ofPattern("dd/MM/yyyy"));
+
+							if (hoje.isEqual(dataInicialFerias)) {
+								tem_isencao = true;
+								break;
+
+							} else if (hoje.isEqual(dataFinalFerias)) {
+								tem_isencao = true;
+								break;
+							} else if (hoje.isAfter(dataInicialFerias) && hoje.isBefore(dataFinalFerias)) {
+								tem_isencao = true;
+								break;
+							}
+						} else if (evt.getTipo_evento() == 5) {
+							// licenca
+							LocalDate hoje = LocalDate.parse(data, DateTimeFormatter.ofPattern("dd/MM/yyyy"));
+
+							LocalDate dataInicialFerias = LocalDate.parse(evt.getData_ferias_ida(),
+									DateTimeFormatter.ofPattern("dd/MM/yyyy"));
+							LocalDate dataFinalFerias = LocalDate.parse(evt.getData_ferias_volta(),
+									DateTimeFormatter.ofPattern("dd/MM/yyyy"));
+
+							if (hoje.isEqual(dataInicialFerias)) {
+								tem_licenca = true;
+								break;
+
+							} else if (hoje.isEqual(dataFinalFerias)) {
+								tem_licenca = true;
+								break;
+							} else if (hoje.isAfter(dataInicialFerias) && hoje.isBefore(dataFinalFerias)) {
+								tem_licenca = true;
+								break;
+							}
 						}
-					} else if (evt.getTipo_evento() == 3) {
-						LocalDate hoje = LocalDate.parse(data, DateTimeFormatter.ofPattern("dd/MM/yyyy"));
 
-						LocalDate dataInicialFerias = LocalDate.parse(evt.getData_ferias_ida(),
-								DateTimeFormatter.ofPattern("dd/MM/yyyy"));
-						LocalDate dataFinalFerias = LocalDate.parse(evt.getData_ferias_volta(),
-								DateTimeFormatter.ofPattern("dd/MM/yyyy"));
+					}
 
-						if (hoje.isEqual(dataInicialFerias)) {
-							tem_ferias = true;
-							break;
-
-						} else if (hoje.isEqual(dataFinalFerias)) {
-							tem_ferias = true;
-							break;
-						} else if (hoje.isAfter(dataInicialFerias) && hoje.isBefore(dataFinalFerias)) {
-							tem_ferias = true;
-							break;
-						}
-
-					} else if (evt.getTipo_evento() == 4) {
-						// isencao de ponto
-						LocalDate hoje = LocalDate.parse(data, DateTimeFormatter.ofPattern("dd/MM/yyyy"));
-
-						LocalDate dataInicialFerias = LocalDate.parse(evt.getData_ferias_ida(),
-								DateTimeFormatter.ofPattern("dd/MM/yyyy"));
-						LocalDate dataFinalFerias = LocalDate.parse(evt.getData_ferias_volta(),
-								DateTimeFormatter.ofPattern("dd/MM/yyyy"));
-
-						if (hoje.isEqual(dataInicialFerias)) {
-							tem_isencao = true;
-							break;
-
-						} else if (hoje.isEqual(dataFinalFerias)) {
-							tem_isencao = true;
-							break;
-						} else if (hoje.isAfter(dataInicialFerias) && hoje.isBefore(dataFinalFerias)) {
-							tem_isencao = true;
-							break;
-						}
-					} else if (evt.getTipo_evento() == 5) {
-						// licenca
-						LocalDate hoje = LocalDate.parse(data, DateTimeFormatter.ofPattern("dd/MM/yyyy"));
-
-						LocalDate dataInicialFerias = LocalDate.parse(evt.getData_ferias_ida(),
-								DateTimeFormatter.ofPattern("dd/MM/yyyy"));
-						LocalDate dataFinalFerias = LocalDate.parse(evt.getData_ferias_volta(),
-								DateTimeFormatter.ofPattern("dd/MM/yyyy"));
-
-						if (hoje.isEqual(dataInicialFerias)) {
-							tem_licenca = true;
-							break;
-
-						} else if (hoje.isEqual(dataFinalFerias)) {
-							tem_licenca = true;
-							break;
-						} else if (hoje.isAfter(dataInicialFerias) && hoje.isBefore(dataFinalFerias)) {
-							tem_licenca = true;
+					for (EventoGlobal evt : listaEventosGlobais) {
+						if (evt.getTipo_evento() == 0) {
+							// tem feriado
+							tem_feriado = true;
 							break;
 						}
 					}
 
-				}
-				
-				
-				for(EventoGlobal evt: listaEventosGlobais) {
-					if(evt.getTipo_evento() == 0) {
-						//tem feriado
-						tem_feriado = true;
-						break;
-					}
-				}
+					RegistroPontoDiarioCompleto avulso = new RegistroPontoDiarioCompleto();
 
-				RegistroPontoDiarioCompleto avulso = new RegistroPontoDiarioCompleto();
-
-				if(tem_isencao) {
-					// tem isencao
-					avulso.setData(data);
-					avulso.setNome_colaborador(cf.getNome() + " " + cf.getSobrenome());
-					avulso.setEntrada1("ISENÇÃO DE PONTO");
-					avulso.setSaida1("ISENÇÃO DE PONTO");
-					avulso.setEntrada2("ISENÇÃO DE PONTO");
-					avulso.setSaida2("ISENÇÃO DE PONTO");
-					total_isencao++;
-					avulso.setNome_departamento(ct.getNome_departamento());
-
-					modeloRps.onAdd(avulso);
-
-				}else {
-				
-				// verifica a rotina do dia
-				CadastroFuncionarioRotinaTrabalho rt = gerenciar_rotina.getRotinaDiaSemana(cf.getId_funcionario(),
-						dia_semana);
-
-				if(rt != null) {
-				if (rt.getHora_entrada1().equalsIgnoreCase("DESCANSO SEMANAL") || rt.getHora_saida1().equalsIgnoreCase("DESCANSO SEMANAL")
-						|| rt.getHora_entrada2().equalsIgnoreCase("DESCANSO SEMANAL")
-						|| rt.getHora_saida2().equalsIgnoreCase("DESCANSO SEMANAL")
-
-				) {
-					
-					if (rt.getHora_entrada1().equalsIgnoreCase("DESCANSO SEMANAL") && rt.getHora_saida1().equalsIgnoreCase("DESCANSO SEMANAL")
-							&& rt.getHora_entrada2().equalsIgnoreCase("DESCANSO SEMANAL")
-							&& rt.getHora_saida2().equalsIgnoreCase("DESCANSO SEMANAL")
-
-					) {
-						
+					if (tem_isencao) {
+						// tem isencao
 						avulso.setData(data);
 						avulso.setNome_colaborador(cf.getNome() + " " + cf.getSobrenome());
-						avulso.setEntrada1(rt.getHora_entrada1());
-						avulso.setSaida1(rt.getHora_saida1());
-						avulso.setEntrada2(rt.getHora_entrada2());
-						avulso.setSaida2(rt.getHora_saida2());
-						total_descanso++;
-					}else {
+						avulso.setEntrada1("ISENÇÃO DE PONTO");
+						avulso.setSaida1("ISENÇÃO DE PONTO");
+						avulso.setEntrada2("ISENÇÃO DE PONTO");
+						avulso.setSaida2("ISENÇÃO DE PONTO");
+						total_isencao++;
+						avulso.setNome_departamento(ct.getNome_departamento());
+
+						modeloRps.onAdd(avulso);
+
+					} 
+					else if (!tem_folga && !tem_ferias && !tem_isencao && !tem_licenca && !tem_feriado) {
 						avulso.setData(data);
 						avulso.setNome_colaborador(cf.getNome() + " " + cf.getSobrenome());
-						
-						if(!rt.getHora_entrada1().equalsIgnoreCase("DESCANSO SEMANAL"))
-						 avulso.setEntrada1("FALTA");
-						else
-						 avulso.setEntrada1("DESCANSO SEMANAL");
-						
-						if(!rt.getHora_saida1().equalsIgnoreCase("DESCANSO SEMANAL"))
-							 avulso.setSaida1("FALTA");
-							else
-							 avulso.setSaida1("DESCANSO SEMANAL");
-						
-						
-						if(!rt.getHora_entrada2().equalsIgnoreCase("DESCANSO SEMANAL"))
-							 avulso.setEntrada2("FALTA");
-							else
-							 avulso.setEntrada2("DESCANSO SEMANAL");
-						
-						
-						if(!rt.getHora_saida2().equalsIgnoreCase("DESCANSO SEMANAL"))
-							 avulso.setSaida2("FALTA");
-							else
-							 avulso.setSaida2("DESCANSO SEMANAL");
-
-					
+						avulso.setEntrada1("FALTA");
+						avulso.setSaida1("FALTA");
+						avulso.setEntrada2("FALTA");
+						avulso.setSaida2("FALTA");
 						total_falta++;
+						
+						avulso.setNome_departamento(ct.getNome_departamento());
+
+						modeloRps.onAdd(avulso);
+
+					} else if (tem_folga && !tem_ferias && !tem_feriado) {
+						// tem folga
+						avulso.setData(data);
+						avulso.setNome_colaborador(cf.getNome() + " " + cf.getSobrenome());
+						avulso.setEntrada1("FOLGA");
+						avulso.setSaida1("FOLGA");
+						avulso.setEntrada2("FOLGA");
+						avulso.setSaida2("FOLGA");
+						total_folga++;
+						
+						avulso.setNome_departamento(ct.getNome_departamento());
+
+						modeloRps.onAdd(avulso);
+
+					} else if (!tem_feriado && !tem_folga && tem_ferias) {
+						// tem ferias
+
+
+						avulso.setData(data);
+						avulso.setNome_colaborador(cf.getNome() + " " + cf.getSobrenome());
+						avulso.setEntrada1("FÉRIAS");
+						avulso.setSaida1("FÉRIAS");
+						avulso.setEntrada2("FÉRIAS");
+						avulso.setSaida2("FÉRIAS");
+						total_ferias++;
+						
+						avulso.setNome_departamento(ct.getNome_departamento());
+
+						modeloRps.onAdd(avulso);
+					} else if (tem_isencao) {
+						// tem isencao
+						avulso.setData(data);
+						avulso.setNome_colaborador(cf.getNome() + " " + cf.getSobrenome());
+						avulso.setEntrada1("ISENÇÃO DE PONTO");
+						avulso.setSaida1("ISENÇÃO DE PONTO");
+						avulso.setEntrada2("ISENÇÃO DE PONTO");
+						avulso.setSaida2("ISENÇÃO DE PONTO");
+						total_isencao++;
+						
+						avulso.setNome_departamento(ct.getNome_departamento());
+
+						modeloRps.onAdd(avulso);
+					} else if (tem_licenca) {
+						// tem licenca
+						avulso.setData(data);
+						avulso.setNome_colaborador(cf.getNome() + " " + cf.getSobrenome());
+						avulso.setEntrada1("LICENÇA");
+						avulso.setSaida1("LICENÇA");
+						avulso.setEntrada2("LICENÇA");
+						avulso.setSaida2("LICENÇA");
+						total_licenca++;
+						
+						avulso.setNome_departamento(ct.getNome_departamento());
+
+						modeloRps.onAdd(avulso);
+					} else if (tem_feriado) {
+						avulso.setData(data);
+						avulso.setNome_colaborador(cf.getNome() + " " + cf.getSobrenome());
+						avulso.setEntrada1("FERIADO");
+						avulso.setSaida1("FERIADO");
+						avulso.setEntrada2("FERIADO");
+						avulso.setSaida2("FERIADO");
+						total_feriado++;
+						
+						avulso.setNome_departamento(ct.getNome_departamento());
+
+						modeloRps.onAdd(avulso);
 					}
 					
-				
-				}else {
-					avulso.setData(data);
-					avulso.setNome_colaborador(cf.getNome() + " " + cf.getSobrenome());
-					avulso.setEntrada1("FALTA");
-					avulso.setSaida1("FALTA");
-					avulso.setEntrada2("FALTA");
-					avulso.setSaida2("FALTA");
-					total_falta++;
-				}
-				}
-				else if (!tem_folga && !tem_ferias && !tem_isencao && !tem_licenca && !tem_feriado) {
-					avulso.setData(data);
-					avulso.setNome_colaborador(cf.getNome() + " " + cf.getSobrenome());
-					avulso.setEntrada1("FALTA");
-					avulso.setSaida1("FALTA");
-					avulso.setEntrada2("FALTA");
-					avulso.setSaida2("FALTA");
-					total_falta++;
+					else {
 
-				} else if (tem_folga && !tem_ferias && !tem_feriado) {
-					// tem folga
-					avulso.setData(data);
-					avulso.setNome_colaborador(cf.getNome() + " " + cf.getSobrenome());
-					avulso.setEntrada1("FOLGA");
-					avulso.setSaida1("FOLGA");
-					avulso.setEntrada2("FOLGA");
-					avulso.setSaida2("FOLGA");
-					total_folga++;
+						// verifica a rotina do dia
+						CadastroFuncionarioRotinaTrabalho rt = gerenciar_rotina
+								.getRotinaDiaSemana(cf.getId_funcionario(), dia_semana);
 
-				} else if (!tem_feriado && !tem_folga && tem_ferias) {
-					// tem ferias
-					avulso.setData(data);
-					avulso.setNome_colaborador(cf.getNome() + " " + cf.getSobrenome());
-					avulso.setEntrada1("FÉRIAS");
-					avulso.setSaida1("FÉRIAS");
-					avulso.setEntrada2("FÉRIAS");
-					avulso.setSaida2("FÉRIAS");
-					total_ferias++;
-				} else if (tem_isencao) {
-					// tem isencao
-					avulso.setData(data);
-					avulso.setNome_colaborador(cf.getNome() + " " + cf.getSobrenome());
-					avulso.setEntrada1("ISENÇÃO DE PONTO");
-					avulso.setSaida1("ISENÇÃO DE PONTO");
-					avulso.setEntrada2("ISENÇÃO DE PONTO");
-					avulso.setSaida2("ISENÇÃO DE PONTO");
-					total_isencao++;
-				} else if (tem_licenca) {
-					// tem licenca
-					avulso.setData(data);
-					avulso.setNome_colaborador(cf.getNome() + " " + cf.getSobrenome());
-					avulso.setEntrada1("LICENÇA");
-					avulso.setSaida1("LICENÇA");
-					avulso.setEntrada2("LICENÇA");
-					avulso.setSaida2("LICENÇA");
-					total_licenca++;
-				}else if(tem_feriado) {
-					avulso.setData(data);
-					avulso.setNome_colaborador(cf.getNome() + " " + cf.getSobrenome());
-					avulso.setEntrada1("FERIADO");
-					avulso.setSaida1("FERIADO");
-					avulso.setEntrada2("FERIADO");
-					avulso.setSaida2("FERIADO");
-					total_feriado++;
-				}
-				avulso.setNome_departamento(ct.getNome_departamento());
+						if (rt != null) {
+						
 
-				modeloRps.onAdd(avulso);
+							if (rt.getHora_entrada1().equalsIgnoreCase("DESCANSO SEMANAL")
+									|| rt.getHora_saida1().equalsIgnoreCase("DESCANSO SEMANAL")
+									|| rt.getHora_entrada2().equalsIgnoreCase("DESCANSO SEMANAL")
+									|| rt.getHora_saida2().equalsIgnoreCase("DESCANSO SEMANAL")) {
+
+								if (rt.getHora_entrada1().equalsIgnoreCase("DESCANSO SEMANAL")
+										&& rt.getHora_saida1().equalsIgnoreCase("DESCANSO SEMANAL")
+										&& rt.getHora_entrada2().equalsIgnoreCase("DESCANSO SEMANAL")
+										&& rt.getHora_saida2().equalsIgnoreCase("DESCANSO SEMANAL")
+
+								) {
+
+									avulso.setData(data);
+									avulso.setNome_colaborador(cf.getNome() + " " + cf.getSobrenome());
+									avulso.setEntrada1(rt.getHora_entrada1());
+									avulso.setSaida1(rt.getHora_saida1());
+									avulso.setEntrada2(rt.getHora_entrada2());
+									avulso.setSaida2(rt.getHora_saida2());
+									total_descanso++;
+								} else {
+									avulso.setData(data);
+									avulso.setNome_colaborador(cf.getNome() + " " + cf.getSobrenome());
+
+									if (!rt.getHora_entrada1().equalsIgnoreCase("DESCANSO SEMANAL"))
+										avulso.setEntrada1("FALTA");
+									else
+										avulso.setEntrada1("DESCANSO SEMANAL");
+
+									if (!rt.getHora_saida1().equalsIgnoreCase("DESCANSO SEMANAL"))
+										avulso.setSaida1("FALTA");
+									else
+										avulso.setSaida1("DESCANSO SEMANAL");
+
+									if (!rt.getHora_entrada2().equalsIgnoreCase("DESCANSO SEMANAL"))
+										avulso.setEntrada2("FALTA");
+									else
+										avulso.setEntrada2("DESCANSO SEMANAL");
+
+									if (!rt.getHora_saida2().equalsIgnoreCase("DESCANSO SEMANAL"))
+										avulso.setSaida2("FALTA");
+									else
+										avulso.setSaida2("DESCANSO SEMANAL");
+
+									total_falta++;
+								}
+
+							} else {
+								avulso.setData(data);
+								avulso.setNome_colaborador(cf.getNome() + " " + cf.getSobrenome());
+								avulso.setEntrada1("FALTA");
+								avulso.setSaida1("FALTA");
+								avulso.setEntrada2("FALTA");
+								avulso.setSaida2("FALTA");
+								total_falta++;
+							}
+						} 
+						avulso.setNome_departamento(ct.getNome_departamento());
+
+						modeloRps.onAdd(avulso);
+					}
 				}
-			}
-		}//finaliza o for
+			} // finaliza o for
 		}
 
 		lblFaltou.setText(total_falta + "");

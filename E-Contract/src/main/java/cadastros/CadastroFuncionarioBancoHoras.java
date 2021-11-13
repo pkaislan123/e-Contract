@@ -13,6 +13,6 @@ import lombok.NoArgsConstructor;
 public class CadastroFuncionarioBancoHoras {
 
 	
-	int id_banco, id_funcionario, mes_referencia, tipo_banco;
-	String quantidade_horas;
+	int id_banco, id_funcionario, mes_referencia,  tipo_banco;
+	String quantidade_horas, ano;
 }

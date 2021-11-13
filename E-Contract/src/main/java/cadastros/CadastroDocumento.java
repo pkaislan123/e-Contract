@@ -4,7 +4,23 @@ public class CadastroDocumento {
 
 	
 	int id_documento;
-	int id_contrato_pai, tipo, id_pai, id_cliente, id_lancamento, id_ib, id_funcionario;
+	int id_contrato_pai, tipo, id_pai, id_cliente, id_lancamento, id_ib, id_funcionario, bloqueado;
+	String sub_pasta;
+	
+	
+	
+	public int getBloqueado() {
+		return bloqueado;
+	}
+	public void setBloqueado(int bloqueado) {
+		this.bloqueado = bloqueado;
+	}
+	public String getSub_pasta() {
+		return sub_pasta;
+	}
+	public void setSub_pasta(String sub_pasta) {
+		this.sub_pasta = sub_pasta;
+	}
 	public int getId_funcionario() {
 		return id_funcionario;
 	}

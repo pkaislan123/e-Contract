@@ -203,13 +203,12 @@ public class TelaNotas extends JFrame {
 		painelPrincipal.setBackground(new Color(255, 255, 255));
 		painelPrincipal.setBorder(new EmptyBorder(5, 5, 5, 5));
 		setContentPane(painelPrincipal);
-		painelPrincipal.setLayout(null);
+		painelPrincipal.setLayout(new MigLayout("", "[292px,grow][12px][132px][12px][564px,grow][12px][259px]", "[150px][42px][12px][265px,grow][12px][33px][33px]"));
 		
 		KGradientPanel panel = new KGradientPanel();
 		panel.kStartColor = new Color(102, 0, 204);
 		panel.kEndColor = new Color(0, 102, 102);
-		panel.setBounds(0, 0, 1283, 150);
-		painelPrincipal.add(panel);
+		painelPrincipal.add(panel, "cell 0 0 7 1,grow");
 		panel.setLayout(null);
 		
 		JLabel lblNewLabel = new JLabel("");
@@ -226,8 +225,7 @@ public class TelaNotas extends JFrame {
 		JPanel panel_1 = new JPanel();
 		panel_1.setBackground(new Color(255, 255, 224));
 		panel_1.setBorder(new LineBorder(new Color(0, 0, 0), 2, true));
-		panel_1.setBounds(22, 177, 414, 357);
-		painelPrincipal.add(panel_1);
+		painelPrincipal.add(panel_1, "cell 0 1 3 5,grow");
 		
 		
 		  listModelGlobal = new DefaultListModel<CadastroNota>();
@@ -271,17 +269,20 @@ public class TelaNotas extends JFrame {
 		btnNewButton.setFont(new Font("SansSerif", Font.BOLD, 16));
 		btnNewButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				TelaCriarAnotacaoDesktopVirtual tela = new TelaCriarAnotacaoDesktopVirtual(0, isto);
-				tela.setVisible(true);
+				/*
+				TelaCriarAnotacaoDesktopVirtual tela = new TelaCriarAnotacaoDesktopVirtual(0, null, isto);
+				tela.setVisible(true);*/
+				
+				TelaCriarNota nota = new TelaCriarNota(0,null, isto);
+
+				
 			}
 		});
-		btnNewButton.setBounds(304, 546, 110, 33);
-		painelPrincipal.add(btnNewButton);
+		painelPrincipal.add(btnNewButton, "cell 2 6,alignx left,aligny top");
 		
 		JPanel panel_2 = new JPanel();
 		panel_2.setBackground(new Color(0, 102, 204));
-		panel_2.setBounds(448, 177, 829, 42);
-		painelPrincipal.add(panel_2);
+		painelPrincipal.add(panel_2, "cell 4 1 3 1,growx,aligny top");
 		panel_2.setLayout(new MigLayout("", "[]", "[]"));
 		
 		 lblNomeNota = new JLabel("Nome");
@@ -298,13 +299,16 @@ public class TelaNotas extends JFrame {
 			public void actionPerformed(ActionEvent e) {
 				
 			    CadastroNota item = (CadastroNota) lista_notas.getModel().getElementAt(indice_nota_selecionada);
-                TelaCriarNota telaeditar = new TelaCriarNota(2, item, isto);
-                telaeditar.setVisible(true);
+
+				
+				TelaCriarNota nota = new TelaCriarNota(1,item, isto);
+
+				
+			
 			    
 			}
 		});
-		btnEditar.setBounds(939, 508, 73, 33);
-		painelPrincipal.add(btnEditar);
+		painelPrincipal.add(btnEditar, "cell 4 5,alignx right,aligny top");
 		
 		
 		 textAreaTexto = new JTextArea();
@@ -314,14 +318,12 @@ public class TelaNotas extends JFrame {
 
 		
 		JScrollPane scrollPane3 = new JScrollPane(textAreaTexto);
-		scrollPane3.setBounds(448, 231, 564, 265);
-		painelPrincipal.add(scrollPane3);
+		painelPrincipal.add(scrollPane3, "cell 4 3,grow");
 		
 		JPanel panel_3 = new JPanel();
 		panel_3.setForeground(new Color(153, 204, 0));
 		panel_3.setBackground(new Color(153, 204, 0));
-		panel_3.setBounds(1024, 231, 253, 265);
-		painelPrincipal.add(panel_3);
+		painelPrincipal.add(panel_3, "cell 6 3,grow");
 		panel_3.setLayout(null);
 		
 		 lblNotificar = new JLabel("Não Notificar");
@@ -396,8 +398,7 @@ public class TelaNotas extends JFrame {
 				}
 			}
 		});
-		btnExcluirNota.setBounds(211, 546, 81, 33);
-		painelPrincipal.add(btnExcluirNota);
+		painelPrincipal.add(btnExcluirNota, "cell 0 6,alignx right,aligny top");
 		
 	
 		

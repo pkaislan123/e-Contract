@@ -345,7 +345,7 @@ public class ManipularRomaneios {
 		login = dados.getLogin();
 
 		// telaprincipal
-		telaPrincipal = dados.getTelaPrincipal();
+		telaPrincipal = dados.getTelaMain();
 	}
 
 	public CadastroRomaneio getRomaneio(String codigo) {

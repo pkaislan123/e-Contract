@@ -75,6 +75,7 @@ import main.java.conexaoBanco.GerenciarBancoPadrao;
 import main.java.conexaoBanco.GerenciarBancoProdutos;
 import main.java.conexaoBanco.GerenciarBancoRomaneios;
 import main.java.conexaoBanco.GerenciarBancoSafras;
+import main.java.conexaoBanco.GerenciarBancoTransferenciaRecebimento;
 import main.java.conexaoBanco.GerenciarBancoTransferencias;
 import main.java.conexaoBanco.GerenciarBancoTransferenciasCarga;
 import main.java.conexoes.TesteConexao;
@@ -149,11 +150,25 @@ public class RelatorioContratoIndividualExcel {
 	private XWPFParagraph paragrafo_atual;
 	private int posicao_global;
 	private boolean interno, externo, incluir_carregamento, incluir_pagamento, incluir_comissao, incluir_sub_contratos,
-			incluir_ganhos_potenciais, incluir_comprovantes_pagamentos, incluir_transferencias, incluir_recebimentos;
+			incluir_ganhos_potenciais, incluir_comprovantes_pagamentos, incluir_transferencias, incluir_recebimentos, incluir_transferencia_recebimentos;
 
 	public boolean isIncluir_transferencias() {
 		return incluir_transferencias;
 	}
+	
+	
+
+	public boolean isIncluir_transferencia_recebimentos() {
+		return incluir_transferencia_recebimentos;
+	}
+
+
+
+	public void setIncluir_transferencia_recebimentos(boolean incluir_transferencia_recebimentos) {
+		this.incluir_transferencia_recebimentos = incluir_transferencia_recebimentos;
+	}
+
+
 
 	public boolean isIncluir_recebimentos() {
 		return incluir_recebimentos;
@@ -851,7 +866,30 @@ public class RelatorioContratoIndividualExcel {
 
 			ArrayList<CadastroContrato.Recebimento> lista_recebimentos = gerenciar
 					.getRecebimentos(contrato_local.getId());
+			
+	        double peso_total_recebido = 0.0, peso_total_trans_negativo = 0.0, peso_total_trans_positivo = 0.0;
 
+
+			GerenciarBancoTransferenciaRecebimento gerenciar_transferencias = new GerenciarBancoTransferenciaRecebimento();
+
+			ArrayList<CadastroContrato.CadastroTransferenciaRecebimento> lista_transferencias_recebimento_remetente_local = new ArrayList<>();
+
+			ArrayList<CadastroContrato.CadastroTransferenciaRecebimento> lista_transferencias_recebimento_destinatario_local  = new ArrayList<>();
+			
+			if(incluir_transferencia_recebimentos) {
+				lista_transferencias_recebimento_remetente_local = gerenciar_transferencias
+						.getTransferenciasRemetente(contrato_local.getId());
+				
+				lista_transferencias_recebimento_destinatario_local = gerenciar_transferencias
+						.getTransferenciaDestinatario(contrato_local.getId());
+				
+			}else {
+				
+			}
+			
+			
+
+			
 			boolean nf_remessa_ativo = false;
 			boolean nf_venda_ativo = false;
 
@@ -957,6 +995,116 @@ public class RelatorioContratoIndividualExcel {
 				quantidade_total_kgs_recebido = quantidade_total_kgs_recebido + cadastro.getPeso_romaneio();
 
 			}
+			
+			
+			for (CadastroContrato.CadastroTransferenciaRecebimento enviado_via_trans : lista_transferencias_recebimento_remetente_local) {
+				
+				row = sheet.createRow(rownum++);
+				cellnum = 0;
+				/*
+				 * codigo compradores vendedores status quantidade medida produto transgenia
+				 * safra valor_produto valor_total data_contrato local_retirada
+				 */
+				cell = row.createCell(cellnum++);
+				cell.setCellStyle(textStyle);
+				cell.setCellValue(enviado_via_trans.getData());
+
+				cell = row.createCell(cellnum++);
+				cell.setCellStyle(textStyle);
+				cell.setCellValue("-Transferencia");
+
+				cell = row.createCell(cellnum++);
+				cell.setCellStyle(numberStyle);
+				cell.setCellValue("-" + enviado_via_trans.getQuantidade());
+
+			
+					cell = row.createCell(cellnum++);
+					cell.setCellStyle(textStyle);
+					cell.setCellValue("Não Aplicável");
+
+					cell = row.createCell(cellnum++);
+					cell.setCellStyle(textStyle);
+					cell.setCellValue("Não Aplicável");
+					
+					cell = row.createCell(cellnum++);
+					cell.setCellStyle(textStyle);
+					cell.setCellValue("Não Aplicável");
+				
+				
+					cell = row.createCell(cellnum++);
+					cell.setCellStyle(textStyle);
+					cell.setCellValue("Não Aplicável");
+					
+					cell = row.createCell(cellnum++);
+					cell.setCellStyle(textStyle);
+					cell.setCellValue("Não Aplicável");
+					
+					cell = row.createCell(cellnum++);
+					cell.setCellStyle(textStyle);
+					cell.setCellValue("Não Aplicável");
+				
+
+
+				quantidade_total_kgs_recebido = quantidade_total_kgs_recebido - enviado_via_trans.getQuantidade();
+				
+				peso_total_trans_negativo += enviado_via_trans.getQuantidade();
+			}
+
+			for (CadastroContrato.CadastroTransferenciaRecebimento recebido_via_trans : lista_transferencias_recebimento_destinatario_local) {
+				
+				row = sheet.createRow(rownum++);
+				cellnum = 0;
+				/*
+				 * codigo compradores vendedores status quantidade medida produto transgenia
+				 * safra valor_produto valor_total data_contrato local_retirada
+				 */
+				cell = row.createCell(cellnum++);
+				cell.setCellStyle(textStyle);
+				cell.setCellValue(recebido_via_trans.getData());
+
+				cell = row.createCell(cellnum++);
+				cell.setCellStyle(textStyle);
+				cell.setCellValue("+Transferencia");
+
+				cell = row.createCell(cellnum++);
+				cell.setCellStyle(numberStyle);
+				cell.setCellValue("+" + recebido_via_trans.getQuantidade());
+
+			
+					cell = row.createCell(cellnum++);
+					cell.setCellStyle(textStyle);
+					cell.setCellValue("Não Aplicável");
+
+					cell = row.createCell(cellnum++);
+					cell.setCellStyle(textStyle);
+					cell.setCellValue("Não Aplicável");
+					
+					cell = row.createCell(cellnum++);
+					cell.setCellStyle(textStyle);
+					cell.setCellValue("Não Aplicável");
+				
+				
+					cell = row.createCell(cellnum++);
+					cell.setCellStyle(textStyle);
+					cell.setCellValue("Não Aplicável");
+					
+					cell = row.createCell(cellnum++);
+					cell.setCellStyle(textStyle);
+					cell.setCellValue("Não Aplicável");
+					
+					cell = row.createCell(cellnum++);
+					cell.setCellStyle(textStyle);
+					cell.setCellValue("Não Aplicável");
+				
+
+
+				quantidade_total_kgs_recebido = quantidade_total_kgs_recebido + recebido_via_trans.getQuantidade();
+				
+				
+				peso_total_trans_positivo = peso_total_trans_positivo + recebido_via_trans.getQuantidade();
+			}
+			
+			
 			sheet.setAutoFilter(CellRangeAddress.valueOf("A4:I4"));
 			NumberFormat z = NumberFormat.getNumberInstance();
 
@@ -1232,7 +1380,7 @@ public class RelatorioContratoIndividualExcel {
 			
 			GerenciarBancoContratos gerenciar_contratos = new GerenciarBancoContratos();
 
-			double quantidade_kgs_recebidos = gerenciar_contratos.getQuantidadeRecebida(contrato_local.getId());
+			double quantidade_kgs_recebidos = getPesoTotalRecebido();
 			quantidade_kg = quantidade_kgs_recebidos;
 
 			
@@ -2330,7 +2478,7 @@ row = sheet2.createRow(rownum++);
 			GerenciarBancoContratos gerenciar_contratos = new GerenciarBancoContratos();
 
 			//valor total e cobertura com base no total de sacos recebidos
-			double quantidade_kgs_recebidos = gerenciar_contratos.getQuantidadeRecebida(contrato_local.getId());
+			double quantidade_kgs_recebidos = getPesoTotalRecebido();
 			peso_total_cobertura = quantidade_kgs_recebidos/60;
 			valor_total_pagamentos = peso_total_cobertura * valor_por_saco;
 			
@@ -2587,13 +2735,13 @@ row = sheet2.createRow(rownum++);
 			/******************* inicio adicionais ***********************/
 			rownum = rownum +=2;
 			row = sheet3.createRow(rownum);
-			sheet3.addMergedRegion(new CellRangeAddress(rownum, rownum, 0, 2));
+			sheet3.addMergedRegion(new CellRangeAddress(rownum, rownum, 0, 3));
 
 			
-			String texto_total = "Total do Contrato: "; 
+			String texto_total = "Total a pagar(de acordo com a quantidade recebida): "; 
 			valor = NumberFormat.getCurrencyInstance(ptBr).format(valor_total_pagamentos);
 			texto_total += valor;
-			texto_total += " Cobre: ";
+			texto_total += " Cobre: " + z.format(peso_total_cobertura * 60) + " kgs | ";
 			texto_total += z.format(peso_total_cobertura) + " sacos";
 
 			cell = row.createCell(0);
@@ -2602,12 +2750,12 @@ row = sheet2.createRow(rownum++);
 			
 			rownum = rownum += 1;
 			row = sheet3.createRow(rownum);
-			sheet3.addMergedRegion(new CellRangeAddress(rownum, rownum, 0, 2));
+			sheet3.addMergedRegion(new CellRangeAddress(rownum, rownum, 0, 3));
 
 			String texto_efetuados = "Efetuados: ";
 			valor = NumberFormat.getCurrencyInstance(ptBr).format(valor_total_pagamentos_efetuados);
 			texto_efetuados += valor;
-			texto_efetuados += " Cobre: ";
+			texto_efetuados += " Cobre: " + z.format(peso_total_cobertura_efetuados * 60) + " kgs | ";
 			texto_efetuados += z.format(peso_total_cobertura_efetuados) + " sacos";
 			
 			cell = row.createCell(0);
@@ -2618,7 +2766,7 @@ row = sheet2.createRow(rownum++);
 			cell = row.createCell(3);
 			cell.setCellStyle(celula_fundo_verde_texto_branco);
 			cell.setCellValue("Status do Pagamento");
-			sheet3.addMergedRegion(new CellRangeAddress(rownum, rownum, 3, 6));
+			sheet3.addMergedRegion(new CellRangeAddress(rownum, rownum, 4, 7));
 
 
 			rownum = rownum += 1;
@@ -2626,12 +2774,12 @@ row = sheet2.createRow(rownum++);
 			if(incluir_transferencias) {
 			//transferencias negativas
 			
-			sheet3.addMergedRegion(new CellRangeAddress(rownum, rownum, 0, 2));
+			sheet3.addMergedRegion(new CellRangeAddress(rownum, rownum, 0, 3));
 			
 			String texto_transferencias_negativas = "Transferencias:(-) ";
 			valor = NumberFormat.getCurrencyInstance(ptBr).format(valor_total_transferencias_retiradas);
 			texto_transferencias_negativas += valor;
-			texto_transferencias_negativas += " Cobre: ";
+			texto_transferencias_negativas += " Cobre: "  + z.format(peso_total_cobertura_transferencia_negativa * 60) + " kgs | ";
 			texto_transferencias_negativas += z.format(peso_total_cobertura_transferencia_negativa) + " sacos";
 
 			cell = row.createCell(0);
@@ -2655,7 +2803,7 @@ row = sheet2.createRow(rownum++);
 			cell = row.createCell(3);
 			cell.setCellStyle(celula_fundo_verde_texto_branco);
 			cell.setCellValue(status_pagamento);
-			sheet3.addMergedRegion(new CellRangeAddress(rownum, rownum, 3, 6));
+			sheet3.addMergedRegion(new CellRangeAddress(rownum, rownum, 4, 7));
 			
 			rownum = rownum += 1;
 			row = sheet3.createRow(rownum);
@@ -2663,12 +2811,12 @@ row = sheet2.createRow(rownum++);
 			if(incluir_transferencias) {
 			//transferencias positivas
 			
-			sheet3.addMergedRegion(new CellRangeAddress(rownum, rownum, 0, 2));				
+			sheet3.addMergedRegion(new CellRangeAddress(rownum, rownum, 0, 3));				
 
 			String texto_transferencias_positivas = "Transferencias:(+) ";
 			valor = NumberFormat.getCurrencyInstance(ptBr).format(valor_total_transferencias_recebidas);
 			texto_transferencias_positivas += valor;
-			texto_transferencias_positivas += " Cobre: ";
+			texto_transferencias_positivas += " Cobre: "  + z.format(peso_total_cobertura_transferencia_positiva * 60) + " kgs | ";
 			texto_transferencias_positivas += z.format(peso_total_cobertura_transferencia_positiva) + " sacos";
 
 			cell = row.createCell(0);
@@ -2681,7 +2829,7 @@ row = sheet2.createRow(rownum++);
 			if (diferenca_pesos == 0 || diferenca_pesos == -0) {
 				status_cobertura += "Todos os sacos foram pagos";
 			} else if (diferenca_pesos < 0) {
-				status_cobertura += "Excedeu em " + z.format(diferenca_pesos) + " Sacos";
+				status_cobertura += "Excedeu em " + z.format(diferenca_pesos * 60) + " kgs | " + z.format(diferenca_pesos) + " Sacos";
 
 			} else if (diferenca_pesos > 0) {
 				status_cobertura += "Incompleto, falta pagar " + z.format(diferenca_pesos) + " Sacos";
@@ -2690,7 +2838,7 @@ row = sheet2.createRow(rownum++);
 			cell = row.createCell(3);
 			cell.setCellStyle(celula_fundo_verde_texto_branco);
 			cell.setCellValue(status_cobertura);
-			sheet3.addMergedRegion(new CellRangeAddress(rownum, rownum, 3, 6));
+			sheet3.addMergedRegion(new CellRangeAddress(rownum, rownum, 4, 7));
 			
 			//comissão
 			
@@ -2698,12 +2846,12 @@ row = sheet2.createRow(rownum++);
 			
 			rownum = rownum += 1;
 			row = sheet3.createRow(rownum);
-			sheet3.addMergedRegion(new CellRangeAddress(rownum, rownum, 0, 2));				
+			sheet3.addMergedRegion(new CellRangeAddress(rownum, rownum, 0, 3));				
 
 			String texto_comissao = "Comissão: ";
 			valor = NumberFormat.getCurrencyInstance(ptBr).format(valor_total_comissao);
 			texto_comissao += valor;
-			texto_comissao += " Cobre: ";
+			texto_comissao += " Cobre: " + z.format(peso_total_cobertura_comissao * 60) + " kgs | " ;
 			texto_comissao += z.format(peso_total_cobertura_comissao) + " sacos";
 
 			cell = row.createCell(0);
@@ -2716,16 +2864,16 @@ row = sheet2.createRow(rownum++);
 			
 			rownum = rownum += 1;
 			row = sheet3.createRow(rownum);
-			sheet3.addMergedRegion(new CellRangeAddress(rownum, rownum, 0, 2));				
+			sheet3.addMergedRegion(new CellRangeAddress(rownum, rownum, 0, 3));				
 
 			String texto_concluida = "Concluída:";
 
 			double valor_total_pagamentos_concluidos = valor_total_pagamentos_efetuados - valor_total_transferencias_retiradas + valor_total_transferencias_recebidas; 
 			valor = NumberFormat.getCurrencyInstance(ptBr).format(valor_total_pagamentos_concluidos);
-			texto_concluida += valor;
-			texto_concluida += " Cobre: ";
 			 peso_total_cobertura_concluida =  peso_total_cobertura_efetuados
 						- peso_total_cobertura_transferencia_negativa + peso_total_cobertura_transferencia_positiva;
+			texto_concluida += valor;
+			texto_concluida += " Cobre: " + z.format(peso_total_cobertura_concluida * 60) + " kgs | " ;
 			texto_concluida += z.format(peso_total_cobertura_concluida) + " sacos";
 
 		
@@ -2738,17 +2886,17 @@ row = sheet2.createRow(rownum++);
 			
 			rownum = rownum += 1;
 			row = sheet3.createRow(rownum);
-			sheet3.addMergedRegion(new CellRangeAddress(rownum, rownum, 0, 2));				
+			sheet3.addMergedRegion(new CellRangeAddress(rownum, rownum, 0, 3));				
 
 			String texto_restante = " Restante:";
 
 			valor_total_pagamentos_restantes = valor_total_pagamentos - valor_total_pagamentos_efetuados
 					+ valor_total_transferencias_retiradas - valor_total_transferencias_recebidas;
 			valor = NumberFormat.getCurrencyInstance(ptBr).format(valor_total_pagamentos_restantes);
-			texto_restante += valor;
-			texto_restante += " Cobre: ";
 			peso_total_cobertura_restante = peso_total_cobertura - peso_total_cobertura_efetuados
-			+ peso_total_cobertura_transferencia_negativa - peso_total_cobertura_transferencia_positiva;
+					+ peso_total_cobertura_transferencia_negativa - peso_total_cobertura_transferencia_positiva;
+			texto_restante += valor;
+			texto_restante += " Cobre: " + z.format(peso_total_cobertura_restante * 60) + " kgs | " ;
 			texto_restante += z.format(peso_total_cobertura_restante) + " sacos";
 
 		
@@ -3038,6 +3186,36 @@ row = sheet2.createRow(rownum++);
 
 		return texto;
 
+	}
+	
+	
+	public double getPesoTotalRecebido() {
+        double peso_total_recebido = 0.0, peso_total_trans_negativo = 0.0, peso_total_trans_positivo = 0.0;
+		
+		GerenciarBancoContratos gerenciar = new GerenciarBancoContratos();
+		ArrayList<CadastroContrato.Recebimento> lista_recebimentos_local = gerenciar.getRecebimentos(contrato_local.getId());
+
+		GerenciarBancoTransferenciaRecebimento gerenciar_transferencias = new GerenciarBancoTransferenciaRecebimento();
+
+		ArrayList<CadastroContrato.CadastroTransferenciaRecebimento> lista_transferencias_recebimento_remetente_local = gerenciar_transferencias
+				.getTransferenciasRemetente(contrato_local.getId());
+
+		ArrayList<CadastroContrato.CadastroTransferenciaRecebimento> lista_transferencias_recebimento_destinatario_local = gerenciar_transferencias
+				.getTransferenciaDestinatario(contrato_local.getId());
+
+		for (CadastroContrato.Recebimento recebimento : lista_recebimentos_local) {
+			peso_total_recebido = peso_total_recebido + recebimento.getPeso_romaneio();
+		}
+		for (CadastroContrato.CadastroTransferenciaRecebimento enviado_via_trans : lista_transferencias_recebimento_remetente_local) {
+			peso_total_trans_negativo += enviado_via_trans.getQuantidade();
+		}
+
+		for (CadastroContrato.CadastroTransferenciaRecebimento recebido_via_trans : lista_transferencias_recebimento_destinatario_local) {
+			peso_total_trans_positivo = peso_total_trans_positivo + recebido_via_trans.getQuantidade();
+		}
+
+		return (peso_total_recebido + peso_total_trans_positivo - peso_total_trans_negativo );
+		
 	}
 
 }

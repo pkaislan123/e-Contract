@@ -3690,35 +3690,7 @@ public class TelaImportarContratoManual extends JFrame {
 
 	}
 
-	public CadastroContrato.CadastroTarefa criarTarefa(int status, String nome_tarefa, String descricao, String msg,
-			CadastroLogin executor, int prioridade) {
-
-		CadastroContrato.CadastroTarefa tarefa = new CadastroContrato.CadastroTarefa();
-
-		tarefa.setNome_tarefa(nome_tarefa);
-
-		// cria a tarefa de insercao de contrato
-		tarefa.setId_tarefa(0);
-		tarefa.setDescricao_tarefa(descricao);
-
-		tarefa.setStatus_tarefa(status);
-		tarefa.setMensagem(msg);
-
-		GetData data = new GetData();
-		tarefa.setHora(data.getHora());
-		tarefa.setData(data.getData());
-		tarefa.setHora_agendada(data.getHora());
-		tarefa.setData_agendada(data.getData());
-
-		tarefa.setCriador(login);
-		tarefa.setExecutor(executor);
-
-		tarefa.setPrioridade(prioridade);
-
-		return tarefa;
-
-	}
-
+	
 	public boolean apagarDiretorio() {
 
 		try {

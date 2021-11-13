@@ -60,7 +60,8 @@ public class TelaCadastroUsuario extends JFrame implements GetDadosGlobais {
 	private CadastroLogin login_edicao;
 	private TelaCadastroUsuario isto;
 	private JCheckBox chkBoxAlterarApis;
-
+	
+	
 	public TelaCadastroUsuario(int flag_tipo_tela, CadastroLogin _login_edicao, Window janela_pai) {
 
 		getDadosGlobais();
@@ -229,7 +230,7 @@ public class TelaCadastroUsuario extends JFrame implements GetDadosGlobais {
 		JButton btnSalvar = new JButton("Salvar");
 		btnSalvar.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
-				concluir(0);
+				concluir(0,janela_pai);
 
 			}
 		});
@@ -239,7 +240,7 @@ public class TelaCadastroUsuario extends JFrame implements GetDadosGlobais {
 		JButton btnAtualizar = new JButton("Atualizar");
 		btnAtualizar.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				concluir(1);
+				concluir(1,janela_pai);
 			}
 		});
 		btnAtualizar.setBounds(604, 434, 89, 23);
@@ -654,7 +655,7 @@ public class TelaCadastroUsuario extends JFrame implements GetDadosGlobais {
 		}
 	}
 
-	public void concluir(int flag) {
+	public void concluir(int flag, Window janela_pai) {
 		CadastroLogin.Privilegios novos_privilegios = new CadastroLogin.Privilegios();
 		CadastroLogin.Preferencias novas_preferencias = new CadastroLogin.Preferencias();
 
@@ -784,7 +785,7 @@ public class TelaCadastroUsuario extends JFrame implements GetDadosGlobais {
 				novo_usuario.setConfigs_preferencias(novas_preferencias);
 				novo_usuario.setConfigs_privilegios(novos_privilegios);
 				// salvar
-				salvar(novo_usuario);
+				salvar(novo_usuario, janela_pai);
 
 			} else {
 				int id_login_edicao = login_edicao.getId();
@@ -796,19 +797,21 @@ public class TelaCadastroUsuario extends JFrame implements GetDadosGlobais {
 				novo_usuario.setConfigs_privilegios(novos_privilegios);
 
 				novo_usuario.setId(id_login_edicao);
-				atualizar(novo_usuario);
+				atualizar(novo_usuario,janela_pai);
 			}
 
 		}
 
 	}
 
-	public void atualizar(CadastroLogin login_atualizar) {
+	public void atualizar(CadastroLogin login_atualizar, Window janela_pai) {
 		GerenciarBancoLogin gerenciarLogin = new GerenciarBancoLogin();
 		boolean result = gerenciarLogin.atualizarUsuario(login_atualizar);
 		if (result) {
 			JOptionPane.showMessageDialog(isto, "Usuário Atualizado");
 			GerenciadorLog.registrarLogDiario("aviso", "novo usuario cadastrado, login: " + login_atualizar.getLogin());
+			((TelaUsuarios) janela_pai).pesquisar();
+
 			isto.dispose();
 		} else {
 			JOptionPane.showMessageDialog(isto, "Erro ao Cadastrar Usuário\n Contate o Administrador do Sistema");
@@ -818,12 +821,13 @@ public class TelaCadastroUsuario extends JFrame implements GetDadosGlobais {
 
 	}
 
-	public void salvar(CadastroLogin novo_usuario) {
+	public void salvar(CadastroLogin novo_usuario, Window janela_pai) {
 		GerenciarBancoLogin gerenciarLogin = new GerenciarBancoLogin();
 		int result = gerenciarLogin.inserirLogin(novo_usuario);
 		if (result == 1) {
 			JOptionPane.showMessageDialog(isto, "Usuário Cadastrado");
 			GerenciadorLog.registrarLogDiario("aviso", "novo usuario cadastrado, login: " + novo_usuario.getLogin());
+			((TelaUsuarios) janela_pai).pesquisar();
 			isto.dispose();
 		} else if (result == 0) {
 			JOptionPane.showMessageDialog(isto, "Login já esta cadastrado, tente um diferente!");

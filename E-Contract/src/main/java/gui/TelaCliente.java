@@ -293,33 +293,47 @@ public class TelaCliente extends JFrame {
 
 		pesquisar();
 
-		panel.setLayout(new MigLayout("", "[271px][12px][108px][9px][110px][7px][109px][10px][105px]", "[grow][36px]"));
+		panel.setLayout(new MigLayout("", "[271px][12px][][108px][9px][110px][7px][109px][10px][105px]", "[grow][36px]"));
+		
+		JButton btnContasBancrias = new JButton("Contas Bancárias");
+		btnContasBancrias.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				
+				TelaContaBancaria tela = new TelaContaBancaria(isto);
+				tela.setVisible(true);
+				
+			}
+		});
+		btnContasBancrias.setForeground(Color.BLACK);
+		btnContasBancrias.setFont(new Font("SansSerif", Font.BOLD, 16));
+		btnContasBancrias.setBackground(Color.WHITE);
+		panel.add(btnContasBancrias, "cell 1 1 2 1");
 
 		JButton btnUsurio = new JButton("+ Cliente");
 		btnUsurio.setBackground(Color.WHITE);
 		btnUsurio.setForeground(Color.BLACK);
 		btnUsurio.setFont(new Font("SansSerif", Font.BOLD, 16));
-		panel.add(btnUsurio, "cell 8 1,alignx left,aligny center");
+		panel.add(btnUsurio, "cell 9 1,alignx left,aligny center");
 		btnUsurio.setIcon(new ImageIcon(TelaCliente.class.getResource("/imagens/add_cliente.png")));
 
 		JButton btnSelecionar = new JButton("Selecionar");
 		btnSelecionar.setBackground(Color.WHITE);
 		btnSelecionar.setForeground(Color.BLACK);
 		btnSelecionar.setFont(new Font("SansSerif", Font.BOLD, 16));
-		panel.add(btnSelecionar, "cell 6 1,growx,aligny center");
+		panel.add(btnSelecionar, "cell 7 1,growx,aligny center");
 		btnSelecionar.setIcon(new ImageIcon(TelaCliente.class.getResource("/imagens/lista.png")));
 
 		JButton btnEditar = new JButton("Gerenciar");
 		btnEditar.setForeground(Color.BLACK);
 		btnEditar.setFont(new Font("SansSerif", Font.BOLD, 16));
-		panel.add(btnEditar, "cell 4 1,alignx left,aligny center");
+		panel.add(btnEditar, "cell 5 1,alignx left,aligny center");
 		btnEditar.setBackground(Color.WHITE);
 		btnEditar.setIcon(new ImageIcon(TelaCliente.class.getResource("/imagens/editar.png")));
 
 		JButton btnVerNotasFiscais = new JButton("Todas as NF's");
 		btnVerNotasFiscais.setForeground(Color.BLACK);
 		btnVerNotasFiscais.setFont(new Font("SansSerif", Font.BOLD, 16));
-		panel.add(btnVerNotasFiscais, "cell 2 1,alignx left,aligny center");
+		panel.add(btnVerNotasFiscais, "cell 3 1,alignx left,aligny center");
 		btnVerNotasFiscais.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 
@@ -530,9 +544,14 @@ public class TelaCliente extends JFrame {
 		btnEditarGrupo.setFont(new Font("SansSerif", Font.BOLD, 16));
 		btnEditarGrupo.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				int indiceDaLinha = 0;
-				indiceDaLinha = table.getSelectedRow() + 1;
-				TelaCadastroGrupo tela_edicao_grupo = new TelaCadastroGrupo(1, lista_grupos.get(indiceDaLinha), isto);
+				
+				
+				
+				
+				int indiceDaLinha = table_grupos.getSelectedRow();
+				CadastroGrupo grupo_selecionado = lista_grupos.get(indiceDaLinha);
+				
+				TelaCadastroGrupo tela_edicao_grupo = new TelaCadastroGrupo(1,grupo_selecionado, isto);
 				tela_edicao_grupo.setVisible(true);
 
 			}
@@ -965,6 +984,17 @@ public class TelaCliente extends JFrame {
 				((TelaFuncionariosAssosiacaoFuncionarioCliente) janela_pai).setCliente(clienteSelecionado);
 
 			}
+			else if (flag_tipo_cliente == 90) {
+				((TelaCadastroNotaFiscal) janela_pai).setRemetente(clienteSelecionado);
+
+			}
+
+			
+			else if (flag_tipo_cliente == 91) {
+				((TelaCadastroNotaFiscal) janela_pai).setDestinatario(clienteSelecionado);
+
+			}
+
 
 			isto.dispose();
 

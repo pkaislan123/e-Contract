@@ -274,7 +274,6 @@ public class TelaRecebimentos extends JFrame {
 		int display_y = display.getHeight();
 		setBounds(0, 0, dim.width, dim.height - taskBarHeight);
 
-		EvenOddRenderer renderer = new EvenOddRenderer();
 		sorter = new TableRowSorter<RecebimentoTableModel>(modelo_recebimentos);
 
 		painelPrincipal.setBackground(new Color(255, 255, 255));
@@ -617,7 +616,7 @@ public class TelaRecebimentos extends JFrame {
 	public void calcular() {
 		
 		
-		
+		int num_recebimentos = 0;
 		double peso_total_romaneios = 0, peso_total_nf_venda = 0, peso_total_nf_remessa = 0;
 		
 		int numero_recebimentos = 0;
@@ -684,10 +683,10 @@ public class TelaRecebimentos extends JFrame {
 				recebimentos_ok++;
 
 			}
-
+			num_recebimentos++;
 		}
 
-		lblTotalRecebimentos.setText(lista_recebimentos.size() + "");
+		lblTotalRecebimentos.setText(num_recebimentos + "");
 		lblTotalRecebimentosOk.setText(recebimentos_ok + "");
 		lblTotalRecebimentosNFVenda.setText(recebimentos_falta_nf_venda + "");
 		lblTotalRecebimentosNFRemessaVenda.setText(recebimentos_falta_nf_venda_remessa + "");
@@ -708,20 +707,7 @@ public class TelaRecebimentos extends JFrame {
 	}
 
 	public void filtrar() {
-		/*
-		 * // constantes p/identificar colunas private final int id_contrato = 0;
-		 * private final int codigo_contrato = 1; private final int compradores = 2;
-		 * private final int vendedores = 3; private final int produto = 4; private
-		 * final int transgenia = 5; private final int safra = 6; private final int
-		 * id_romaneio = 7; private final int data = 8; private final int
-		 * codigo_romaneio = 9;
-		 * 
-		 * private final int peso_romaneio = 10; private final int codigo_nf_venda = 11;
-		 * private final int peso_nf_venda = 12; private final int valor_nf_venda = 13;
-		 * 
-		 * private final int codigo_nf_remessa = 14; private final int peso_nf_remessa =
-		 * 15; private final int valor_nf_remessa = 16;
-		 */
+		
 		ArrayList<RowFilter<Object, Object>> filters = new ArrayList<RowFilter<Object, Object>>(2);
 
 		String produto = entProduto.getText().toUpperCase();
@@ -756,41 +742,7 @@ public class TelaRecebimentos extends JFrame {
 		sorter.setRowFilter(RowFilter.andFilter(filters));
 	}
 
-	class EvenOddRenderer implements TableCellRenderer {
-
-		public final DefaultTableCellRenderer DEFAULT_RENDERER = new DefaultTableCellRenderer();
-
-		public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus,
-				int row, int column) {
-			Component renderer = DEFAULT_RENDERER.getTableCellRendererComponent(table, value, isSelected, hasFocus, row,
-					column);
-			((JLabel) renderer).setOpaque(true);
-
-			String dados = (String) table.getValueAt(row, 4);
-
-			if (isSelected) {
-				renderer.setBackground(new Color(139, 69, 19)); // marrom
-
-			} else {
-				if (dados.equalsIgnoreCase("RECOLHER ASSINATURAS")) {
-					renderer.setBackground(Color.yellow);
-
-				} else if (dados.equalsIgnoreCase("Em Aprovação")) {
-					renderer.setBackground(new Color(255, 69, 0)); // laranja
-
-				} else if (dados.equalsIgnoreCase("Assinado")) {
-					renderer.setBackground(new Color(95, 159, 159)); // verde
-
-				} else if (dados.equalsIgnoreCase("CONCLUIDO")) {
-					renderer.setBackground(new Color(0, 100, 0)); // verde
-
-				}
-
-			}
-
-			return renderer;
-		}
-	}
+	
 
 	public String trimar(String texto) {
 		String aplicar_rtrim = texto.replaceAll("\\s+$", "");
@@ -839,7 +791,7 @@ public class TelaRecebimentos extends JFrame {
 		private final int produto = 4;
 		private final int transgenia = 5;
 		private final int safra = 6;
-		private final int id_romaneio = 7;
+		private final int id_recebimento = 7;
 		private final int data = 8;
 		private final int codigo_romaneio = 9;
 
@@ -891,7 +843,7 @@ public class TelaRecebimentos extends JFrame {
 			 * 
 			 */
 			case id_contrato:
-				return int.class;
+				return Integer.class;
 			case codigo_contrato:
 				return int.class;
 			case compradores:
@@ -904,8 +856,8 @@ public class TelaRecebimentos extends JFrame {
 				return String.class;
 			case safra:
 				return String.class;
-			case id_romaneio:
-				return int.class;
+			case id_recebimento:
+				return Integer.class;
 			case data:
 				return String.class;
 			case codigo_romaneio:
@@ -969,7 +921,7 @@ public class TelaRecebimentos extends JFrame {
 			case safra: {
 				return contrato.getModelo_safra().getAno_plantio() + "/" + contrato.getModelo_safra().getAno_colheita();
 			}
-			case id_romaneio:
+			case id_recebimento:
 				return recebimento.getId_recebimento();
 			case data:
 				return recebimento.getData_recebimento();

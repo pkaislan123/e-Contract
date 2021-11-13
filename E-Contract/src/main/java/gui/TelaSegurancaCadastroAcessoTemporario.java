@@ -311,6 +311,7 @@ public class TelaSegurancaCadastroAcessoTemporario extends JFrame {
 		cbModulo.setFont(new Font("SansSerif", Font.BOLD, 14));
 		cbModulo.addItem("Recursos Humanos");
 		cbModulo.addItem("Finanças");
+		cbModulo.addItem("Contratos");
 
 		panel_2.add(cbModulo, "cell 1 3 4 1,growx");
 		panel_4.setBackground(new Color(0, 51, 0));

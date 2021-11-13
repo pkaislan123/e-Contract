@@ -160,7 +160,7 @@ public class TelaConfirmarTransferenciaRecebimento extends JDialog {
 		painelPrincipal.setBackground(new Color(255, 255, 255));
 		painelPrincipal.setBorder(new EmptyBorder(5, 5, 5, 5));
 		setContentPane(painelPrincipal);
-		painelPrincipal.setLayout(new MigLayout("", "[][grow]", "[][][][][grow][]"));
+		painelPrincipal.setLayout(new MigLayout("", "[][grow]", "[][][][][][grow][]"));
 		
 		JLabel lblNewLabel = new JLabel("Data:");
 		lblNewLabel.setFont(new Font("Tahoma", Font.PLAIN, 14));
@@ -229,6 +229,18 @@ public class TelaConfirmarTransferenciaRecebimento extends JDialog {
 		painelPrincipal.add(lblValor, "cell 0 1,alignx trailing");
 		
 		entQuantidade = new JTextField();
+		entQuantidade.addKeyListener(new KeyAdapter() {
+			@Override
+			public void keyTyped(KeyEvent e) {
+				String caracteres = ".0987654321\b";// lista de caracters que não devem ser aceitos
+				String s_valor = "";
+
+				if (!caracteres.contains(e.getKeyChar() + "")) {
+					e.consume();// aciona esse propriedade para eliminar a ação do evento
+
+				} 
+			}
+		});
 		entQuantidade.setFont(new Font("Tahoma", Font.PLAIN, 14));
 		
 		Locale ptBr = new Locale("pt", "BR");
@@ -236,36 +248,41 @@ public class TelaConfirmarTransferenciaRecebimento extends JDialog {
 		painelPrincipal.add(entQuantidade, "cell 1 1,growx");
 		entQuantidade.setColumns(10);
 		
+		JLabel lblNewLabel_1 = new JLabel("somente ponto");
+		lblNewLabel_1.setFont(new Font("Tahoma", Font.PLAIN, 12));
+		lblNewLabel_1.setForeground(new Color(255, 0, 0));
+		painelPrincipal.add(lblNewLabel_1, "cell 1 2");
+		
 		
 		
 		JLabel lblContratoRemetente = new JLabel("Contrato Remetente:");
 		lblContratoRemetente.setFont(new Font("Tahoma", Font.PLAIN, 14));
-		painelPrincipal.add(lblContratoRemetente, "cell 0 2,alignx trailing");
+		painelPrincipal.add(lblContratoRemetente, "cell 0 3,alignx trailing");
 		
 		entContratoRemetente = new JTextField();
 		entContratoRemetente.setFont(new Font("Tahoma", Font.PLAIN, 14));
 		entContratoRemetente.setEditable(false);
 		entContratoRemetente.setColumns(10);
 		entContratoRemetente.setText(contrato_remetente.getId() + "-" + contrato_remetente.getCodigo());
-		painelPrincipal.add(entContratoRemetente, "cell 1 2,growx");
+		painelPrincipal.add(entContratoRemetente, "cell 1 3,growx");
 		
 		JLabel lblContratoDestinatario = new JLabel("Contrato Destinatario:");
 		lblContratoDestinatario.setFont(new Font("Tahoma", Font.PLAIN, 14));
-		painelPrincipal.add(lblContratoDestinatario, "cell 0 3,alignx trailing");
+		painelPrincipal.add(lblContratoDestinatario, "cell 0 4,alignx trailing");
 		
 		 cBContratoDestinatario = new JComboBox();
 		cBContratoDestinatario.setFont(new Font("Tahoma", Font.PLAIN, 14));
-		painelPrincipal.add(cBContratoDestinatario, "flowx,cell 1 3,growx");
+		painelPrincipal.add(cBContratoDestinatario, "flowx,cell 1 4,growx");
 		
 		JLabel lblDescrio = new JLabel("Descrição:");
 		lblDescrio.setFont(new Font("Tahoma", Font.PLAIN, 14));
-		painelPrincipal.add(lblDescrio, "cell 0 4,alignx right");
+		painelPrincipal.add(lblDescrio, "cell 0 5,alignx right");
 		
 		JTextArea textAreaDescricaoTransferencia = new JTextArea();
 		textAreaDescricaoTransferencia.setFont(new Font("Monospaced", Font.PLAIN, 14));
 		textAreaDescricaoTransferencia.setLineWrap(true);
 		textAreaDescricaoTransferencia.setWrapStyleWord(true);
-		painelPrincipal.add(textAreaDescricaoTransferencia, "cell 1 4,grow");
+		painelPrincipal.add(textAreaDescricaoTransferencia, "cell 1 5,grow");
 		
 		JButton btnTransferir = new JButton("Concluir");
 		btnTransferir.addActionListener(new ActionListener() {
@@ -302,7 +319,7 @@ public class TelaConfirmarTransferenciaRecebimento extends JDialog {
 				
 			}
 		});
-		painelPrincipal.add(btnTransferir, "cell 1 5,alignx right");
+		painelPrincipal.add(btnTransferir, "cell 1 6,alignx right");
 		
 		JButton btnSelecionarContratoDestinatario = new JButton("Selecionar");
 		btnSelecionarContratoDestinatario.addActionListener(new ActionListener() {
@@ -314,7 +331,7 @@ public class TelaConfirmarTransferenciaRecebimento extends JDialog {
 				tela.setVisible(true);
 			}
 		});
-		painelPrincipal.add(btnSelecionarContratoDestinatario, "cell 1 3");
+		painelPrincipal.add(btnSelecionarContratoDestinatario, "cell 1 4");
 		
 		
 		

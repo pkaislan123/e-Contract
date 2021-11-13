@@ -39,6 +39,7 @@ import main.java.cadastros.CadastroFuncionario;
 import main.java.cadastros.CadastroFuncionarioAdmissao;
 import main.java.cadastros.CadastroFuncionarioBancoHoras;
 import main.java.cadastros.CadastroFuncionarioCalculo;
+import main.java.cadastros.CadastroFuncionarioDemissao;
 import main.java.cadastros.CadastroFuncionarioEvento;
 import main.java.cadastros.CadastroFuncionarioRotinaTrabalho;
 import main.java.cadastros.CadastroFuncionarioSalario;
@@ -1827,7 +1828,15 @@ public class TelaFuncionariosCadastroSalario extends JFrame {
 			}
 		}
 		
-		if(prosseguir && contador_nao_nulos >= 7) {
+		
+		//procurar por isencao de ponto
+		GerenciarBancoFuncionariosEventos gerenciar_eventos_isencao = new GerenciarBancoFuncionariosEventos();
+		ArrayList<CadastroFuncionarioEvento> eventos_isencao = gerenciar_eventos_isencao
+				.getEventosPorColaborador(func.getId_funcionario());
+		
+		boolean tem_evt_isencao = procurarIsencao(eventos_isencao);
+		
+		if( (prosseguir &&  contador_nao_nulos >= 7 ) || tem_evt_isencao ) {
 			
 
 		
@@ -2523,6 +2532,8 @@ public class TelaFuncionariosCadastroSalario extends JFrame {
 
 			isto.dispose();
 		}
+		
+
 
 		tHTrabalhadas = total_horas_normais_trabalhadas;
 		tHMensal = total_duracao;
@@ -2576,10 +2587,15 @@ public class TelaFuncionariosCadastroSalario extends JFrame {
 		lblTotalHoras50.setText(formatHora(total_horas_50));
 		lblTotalHoras60.setText(formatHora(total_horas_60));
 
+
 		informarAtrazos(registros_locais, ultimo_dia);
+
+
 
 		if (rdbtnDescontarAtrazosSim.isSelected())
 			setInfoAtrazos(registros_locais, ultimo_dia);
+		
+
 	}
 
 	public void setInfoAtrazos(ArrayList<RegistroHoraLocal> registros, int ultimo_dia) {
@@ -2593,7 +2609,7 @@ public class TelaFuncionariosCadastroSalario extends JFrame {
 
 			int dia_da_semana = registro.getDia_da_semana();
 			semana.setData_inicial(registro.getData());
-			if (dia_da_semana < 6) {
+			if (dia_da_semana <= 7) {
 				// dia de semana normal
 				long acumulador = 0;
 				int contador = dia_da_semana;
@@ -2647,7 +2663,7 @@ public class TelaFuncionariosCadastroSalario extends JFrame {
 
 			int dia_da_semana = registro.getDia_da_semana();
 			semana.setData_inicial(registro.getData());
-			if (dia_da_semana < 6) {
+			if (dia_da_semana <= 7) {
 				// dia de semana normal
 				long acumulador = 0;
 				int contador = dia_da_semana;
@@ -2886,15 +2902,52 @@ public class TelaFuncionariosCadastroSalario extends JFrame {
 			}
 
 		} else {
-			lblCargo.setText("Sem Contrato");
-			lblFuncao.setText("Sem Contrato");
-			lblDataAdmissao.setText("Sem Contrato");
-			lblTipoContrato.setText("Sem Contrato");
-			lblStatusContrato.setText("Sem Contrato");
-			lblUltimoValorSalarial.setText("Sem Contrato");
-			lblPisoSalarial.setText("Sem Contrato");
-			piso_salarial = 0;
+			
+			
+			//buscar contrato inativo
+			try {
+			CadastroFuncionarioDemissao demissao = gerenciar.getcontratoInaAtivoPorFuncionario(func.getId_funcionario());
+			
+			CadastroFuncionarioAdmissao contrato = demissao.getContrato_trabalho();
+			CadastroFuncionarioEvento evt = demissao.getEvento_demissao();
 
+			
+			lblCargo.setText(contrato.getCargo());
+			lblFuncao.setText(contrato.getFuncao());
+			lblDataAdmissao.setText(contrato.getData_admissao());
+			lblTipoContrato.setText(contrato.getTipo_contrato());
+			
+			
+
+			int motivo = evt.getMotivo_demissao();
+			String s_motivo = "";
+			if (motivo == 0) {
+				s_motivo = "ENCERRAMENTO DE CONTRATO em " + evt.getData_folga();
+			} else if (motivo == 1) {
+				s_motivo = "JUSTA CAUSA em "+ evt.getData_folga();
+			} else if (motivo == 2) {
+				s_motivo = "SEM JUSTA CAUSA em "+ evt.getData_folga();
+			} else if (motivo == 3) {
+				s_motivo = "PEDIDO DE DISPENSA PELO COLABORADOR em "+ evt.getData_folga();
+			}
+			
+			lblStatusContrato.setText(s_motivo);
+			
+			}catch(Exception e) {
+				JOptionPane.showMessageDialog(isto, "Erro ao consultar ultimo contrato ativo do Colaborador!\nConsulte o administrador");
+				isto.dispose();
+			}
+			
+			
+			if (ct.getUltimo_salario() > 0) {
+				lblUltimoValorSalarial.setText(NumberFormat.getCurrencyInstance(ptBr).format(ct.getUltimo_salario()));
+				lblPisoSalarial.setText(NumberFormat.getCurrencyInstance(ptBr).format(ct.getUltimo_salario()));
+				piso_salarial = ct.getUltimo_salario();
+			} else {
+				lblUltimoValorSalarial.setText(NumberFormat.getCurrencyInstance(ptBr).format(ct.getSalario()));
+				lblPisoSalarial.setText(NumberFormat.getCurrencyInstance(ptBr).format(ct.getSalario()));
+				piso_salarial = ct.getSalario();
+			}
 		}
 
 		GerenciarBancoRotina gerenciar_rotina = new GerenciarBancoRotina();
@@ -3781,9 +3834,32 @@ public class TelaFuncionariosCadastroSalario extends JFrame {
 		GerenciarBancoFuncionarioBancoHoras gerenciar = new GerenciarBancoFuncionarioBancoHoras();
 		int mes = cBMes.getSelectedIndex();
 		lblDescricaoBancoHoras.setText("BH de " + cBMes.getItemAt(mes - 1).toString());
-		CadastroFuncionarioBancoHoras banco = gerenciar.getBancoHorasPorFuncionarioPorMes(func.getId_funcionario(),
-				mes);
+		String ano = entAno.getText();
+		
+		
+		CadastroFuncionarioBancoHoras banco = null;
+		
+		if(mes == 1) {
+			//se for janeiro, pega o banco do mes de dezembro do ano passado
+			int ano_atual = new GetData().getAnoAtual();
+			try {
+				
+			 ano_atual = Integer.parseInt(ano);
+			
+			}catch(Exception e) {
+				ano_atual = new GetData().getAnoAtual();
+			}
+			
+			int ano_passado = ano_atual - 1;
+			banco = gerenciar.getBancoHorasPorFuncionarioPorMesAno(func.getId_funcionario(),
+					12, Integer.toString(ano_passado));
 
+		}else {
+			banco = gerenciar.getBancoHorasPorFuncionarioPorMesAno(func.getId_funcionario(),
+					mes, ano);
+
+		}
+		
 		if (banco != null) {
 
 			String quanti = banco.getQuantidade_horas();
@@ -3807,9 +3883,11 @@ public class TelaFuncionariosCadastroSalario extends JFrame {
 
 	public void atualizar() {
 
-		
+
 		pesquisarDemostrativo();
+
 		pesquisarBancoHoras();
+
 		setInfoCalculoSalarial();
 		calculoFinal();
 		pesquisar_contas_associadas();
@@ -3992,6 +4070,7 @@ public class TelaFuncionariosCadastroSalario extends JFrame {
 		banco.setTipo_banco(tipo_novo_banco_horas_global);
 
 		banco.setQuantidade_horas(Long.toString(quantidade_novo_banco_horas_global));
+		banco.setAno(entAno.getText());
 		return banco;
 
 	}
@@ -4542,7 +4621,7 @@ public class TelaFuncionariosCadastroSalario extends JFrame {
 
 		lancamento.setTipo_lancamento(0);
 
-		lancamento.setStatus(1);
+		lancamento.setStatus(0);
 
 		lancamento.setPrioridade(1);
 
@@ -4668,6 +4747,40 @@ public class TelaFuncionariosCadastroSalario extends JFrame {
 
 			}
 		
+	}
+	
+	public boolean procurarIsencao(ArrayList<CadastroFuncionarioEvento> eventos) {
+		int count_isencao = 0;
+		for (CadastroFuncionarioEvento evt : eventos) {
+
+			  if (evt.getTipo_evento() == 4) {
+				// isencao de ponto
+				LocalDate hoje = LocalDate.parse(new GetData().getData(), DateTimeFormatter.ofPattern("dd/MM/yyyy"));
+
+				LocalDate dataInicialFerias = LocalDate.parse(evt.getData_ferias_ida(),
+						DateTimeFormatter.ofPattern("dd/MM/yyyy"));
+				LocalDate dataFinalFerias = LocalDate.parse(evt.getData_ferias_volta(),
+						DateTimeFormatter.ofPattern("dd/MM/yyyy"));
+
+				if (hoje.isEqual(dataInicialFerias)) {
+					count_isencao++;
+					
+
+				} else if (hoje.isEqual(dataFinalFerias)) {
+					count_isencao++;
+					
+				} else if (hoje.isAfter(dataInicialFerias) && hoje.isBefore(dataFinalFerias)) {
+					count_isencao++;
+					
+				}
+			} 
+
+		}
+		
+		if(count_isencao > 0) {
+			return true;
+		}else
+			return false;
 	}
 	
 }

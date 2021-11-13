@@ -65,6 +65,7 @@ import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellStyle;
 import org.apache.poi.ss.usermodel.CellType;
+import org.apache.poi.ss.usermodel.CreationHelper;
 import org.apache.poi.ss.usermodel.FillPatternType;
 import org.apache.poi.ss.usermodel.FormulaEvaluator;
 import org.apache.poi.ss.usermodel.HorizontalAlignment;
@@ -1054,6 +1055,13 @@ public class TelaEscolhaRelatorioRomaneios extends JDialog {
 		// Configurando estilos de células (Cores, alinhamento, formatação, etc..)
 		HSSFDataFormat numberFormat = workbook.createDataFormat();
 
+		//estilo para data
+		CellStyle dataStyle = workbook.createCellStyle();
+		CreationHelper createHelper = workbook.getCreationHelper();
+		dataStyle.setDataFormat(
+		    createHelper.createDataFormat().getFormat("dd/MMMM/yyyy"));
+	
+		
 		CellStyle headerStyle = workbook.createCellStyle();
 		headerStyle.setFillForegroundColor(IndexedColors.GREY_25_PERCENT.getIndex());
 		// headerStyle.setFillPattern(CellStyle.SOLID_FOREGROUND);
@@ -1315,6 +1323,10 @@ public class TelaEscolhaRelatorioRomaneios extends JDialog {
 		cell = row.createCell(cellnum++);
 		cell.setCellStyle(celula_cabecalho);
 		cell.setCellValue("DATA");
+		
+		cell = row.createCell(cellnum++);
+		cell.setCellStyle(celula_cabecalho);
+		cell.setCellValue("MÊS");
 
 		cell = row.createCell(cellnum++);
 		cell.setCellStyle(celula_cabecalho);
@@ -1437,16 +1449,28 @@ public class TelaEscolhaRelatorioRomaneios extends JDialog {
 			row = sheet.createRow(rownum++);
 			cellnum = 0;
 			SimpleDateFormat f = new SimpleDateFormat("dd/MMMM/yyyy");
+			SimpleDateFormat f_mes = new SimpleDateFormat("MMMM/yyyy");
+
+			
 			Date data = romaneio.getData();
 			String data_formatada = "";
+			String mes_ano_formatada = "";
+
 			if (data instanceof Date) {
 				data_formatada = f.format(data);
+				mes_ano_formatada = f_mes.format(data);
 			}
 
 			// DATA
 			cell = row.createCell(cellnum++);
-			cell.setCellStyle(textStyle);
+			cell.setCellStyle(dataStyle);
 			cell.setCellValue(data_formatada);
+			
+
+			// mes
+			cell = row.createCell(cellnum++);
+			cell.setCellStyle(textStyle);
+			cell.setCellValue(mes_ano_formatada);
 
 			// numero romaneio
 			cell = row.createCell(cellnum++);
@@ -1673,7 +1697,7 @@ public class TelaEscolhaRelatorioRomaneios extends JDialog {
 		cell = row.createCell(cellnum++);
 		cell.setCellStyle(numberStyleFundoVerde);
 		cell.setCellType(CellType.FORMULA);
-		String formula = "SUBTOTAL(3,B5:B" + (ultima_linha) + ")";
+		String formula = "SUBTOTAL(3,C5:C" + (ultima_linha) + ")";
 		cell.setCellFormula(formula);
 
 		cell = row.createCell(cellnum++);
@@ -1684,7 +1708,7 @@ public class TelaEscolhaRelatorioRomaneios extends JDialog {
 		cell = row.createCell(cellnum++);
 		cell.setCellStyle(numberStyleFundoVerde);
 		cell.setCellType(CellType.FORMULA);
-		formula = "SUBTOTAL(9,D5:D" + (ultima_linha) + ")";
+		formula = "SUBTOTAL(9,E5:E" + (ultima_linha) + ")";
 		cell.setCellFormula(formula);
 
 		cell = row.createCell(cellnum++);
@@ -1698,7 +1722,7 @@ public class TelaEscolhaRelatorioRomaneios extends JDialog {
 		cell = row.createCell(3);
 		cell.setCellStyle(numberStyleFundoVerde);
 		cell.setCellType(CellType.FORMULA);
-		formula = "SUBTOTAL(9,D5:D" + (ultima_linha) + ")/60";
+		formula = "SUBTOTAL(9,E5:E" + (ultima_linha) + ")/60";
 		cell.setCellFormula(formula);
 
 		cell = row.createCell(4);
@@ -1723,7 +1747,7 @@ public class TelaEscolhaRelatorioRomaneios extends JDialog {
 		cell = row.createCell(2);
 		cell.setCellStyle(numberStyleFundoVerde);
 		cell.setCellType(CellType.FORMULA);
-		formula = "SUMPRODUCT(SUBTOTAL(9,OFFSET(D5:D" + ultima_linha + ",ROW(D5:D" + ultima_linha + ")-ROW(D5),0,1,1)),-(J5:J" + ultima_linha + "=\"SIM\"),-(I5:I" + ultima_linha + "=\"POSITIVO\"),-(K5:K" + ultima_linha + "=\"PARTICIPANTE\"))*-1";
+		formula = "SUMPRODUCT(SUBTOTAL(9,OFFSET(E5:E" + ultima_linha + ",ROW(E5:E" + ultima_linha + ")-ROW(E5),0,1,1)),-(K5:K" + ultima_linha + "=\"SIM\"),-(J5:J" + ultima_linha + "=\"POSITIVO\"),-(L5:L" + ultima_linha + "=\"PARTICIPANTE\"))*-1";
 		cell.setCellFormula(formula);
 		
 		cell = row.createCell(3);
@@ -1737,7 +1761,7 @@ public class TelaEscolhaRelatorioRomaneios extends JDialog {
 		cell = row.createCell(2);
 		cell.setCellStyle(numberStyleFundoVerdeDireita);
 		cell.setCellType(CellType.FORMULA);
-		formula = "SUMPRODUCT(SUBTOTAL(9,OFFSET(D5:D" + ultima_linha + ",ROW(D5:D" + ultima_linha + ")-ROW(D5),0,1,1)),-(J5:J" + ultima_linha + "=\"SIM\"),-(I5:I" + ultima_linha + "=\"POSITIVO\"),-(K5:K" + ultima_linha + "=\"PARTICIPANTE\"))*-1/60";
+		formula = "SUMPRODUCT(SUBTOTAL(9,OFFSET(E5:E" + ultima_linha + ",ROW(E5:E" + ultima_linha + ")-ROW(E5),0,1,1)),-(K5:K" + ultima_linha + "=\"SIM\"),-(J5:J" + ultima_linha + "=\"POSITIVO\"),-(L5:L" + ultima_linha + "=\"PARTICIPANTE\"))*-1/60";
 		cell.setCellFormula(formula);
 
 		cell = row.createCell(3);
@@ -1756,7 +1780,7 @@ public class TelaEscolhaRelatorioRomaneios extends JDialog {
 
 		cell = row.createCell(2);
 		cell.setCellStyle(numberStyleFundoVerde);
-		formula = "SUMPRODUCT(SUBTOTAL(9,OFFSET(D5:D" + ultima_linha + ",ROW(D5:D" + ultima_linha + ")-ROW(D5),0,1,1)),-(J5:J"+ ultima_linha +"=\"SIM\"),-(I5:I"+ ultima_linha +"=\"POSITIVO\"),-((K5:K"+ ultima_linha +"=\"OK ITS\")+(K5:K" + ultima_linha +"=\"FALTA ITS\"))) *-1";
+		formula = "SUMPRODUCT(SUBTOTAL(9,OFFSET(E5:E" + ultima_linha + ",ROW(E5:E" + ultima_linha + ")-ROW(E5),0,1,1)),-(K5:K"+ ultima_linha +"=\"SIM\"),-(J5:J"+ ultima_linha +"=\"POSITIVO\"),-((L5:L"+ ultima_linha +"=\"OK ITS\")+(L5:L" + ultima_linha +"=\"FALTA ITS\"))) *-1";
 		cell.setCellFormula(formula);
 
 		
@@ -1768,7 +1792,7 @@ public class TelaEscolhaRelatorioRomaneios extends JDialog {
 		cellnum = 0;
 		cell = row.createCell(2);
 		cell.setCellStyle(numberStyleFundoVerdeDireita);
-		formula = "SUMPRODUCT(SUBTOTAL(9,OFFSET(D5:D" + ultima_linha + ",ROW(D5:D" + ultima_linha + ")-ROW(D5),0,1,1)),-(J5:J"+ ultima_linha +"=\"SIM\"),-(I5:I"+ ultima_linha +"=\"POSITIVO\"),-((K5:K"+ ultima_linha +"=\"OK ITS\")+(K5:K" + ultima_linha +"=\"FALTA ITS\"))) *-1 / 60";
+		formula = "SUMPRODUCT(SUBTOTAL(9,OFFSET(E5:E" + ultima_linha + ",ROW(E5:E" + ultima_linha + ")-ROW(E5),0,1,1)),-(K5:K"+ ultima_linha +"=\"SIM\"),-(J5:J"+ ultima_linha +"=\"POSITIVO\"),-((L5:L"+ ultima_linha +"=\"OK ITS\")+(L5:L" + ultima_linha +"=\"FALTA ITS\"))) *-1 / 60";
 		cell.setCellFormula(formula);
 
 		cell = row.createCell(3);
@@ -1788,7 +1812,7 @@ public class TelaEscolhaRelatorioRomaneios extends JDialog {
 
 		cell = row.createCell(2);
 		cell.setCellStyle(numberStyleFundoVerde);
-		formula = "SUMPRODUCT(SUBTOTAL(9,OFFSET(D5:D" + ultima_linha + ",ROW(D5:D" + ultima_linha + ")-ROW(D5),0,1,1)),-(J5:J" + ultima_linha + "=\"SIM\")) * -1";
+		formula = "SUMPRODUCT(SUBTOTAL(9,OFFSET(E5:E" + ultima_linha + ",ROW(E5:E" + ultima_linha + ")-ROW(E5),0,1,1)),-(K5:K" + ultima_linha + "=\"SIM\")) * -1";
 		cell.setCellFormula(formula);
 		
 		cell = row.createCell(3);
@@ -1800,7 +1824,7 @@ public class TelaEscolhaRelatorioRomaneios extends JDialog {
 		cellnum = 0;
 		cell = row.createCell(2);
 		cell.setCellStyle(numberStyleFundoVerdeDireita);
-		formula = "SUMPRODUCT(SUBTOTAL(9,OFFSET(D5:D" + ultima_linha + ",ROW(D5:D" + ultima_linha + ")-ROW(D5),0,1,1)),-(J5:J" + ultima_linha + "=\"SIM\")) * -1 / 60";
+		formula = "SUMPRODUCT(SUBTOTAL(9,OFFSET(E5:E" + ultima_linha + ",ROW(E5:E" + ultima_linha + ")-ROW(E5),0,1,1)),-(K5:K" + ultima_linha + "=\"SIM\")) * -1 / 60";
 		cell.setCellFormula(formula);
 
 		cell = row.createCell(3);
@@ -1820,7 +1844,7 @@ public class TelaEscolhaRelatorioRomaneios extends JDialog {
 		
 		cell = row.createCell(2);
 		cell.setCellStyle(numberStyleFundoVerde);
-		formula = "SUMPRODUCT(SUBTOTAL(9,OFFSET(D5:D"+ ultima_linha +",ROW(D5:D"+ ultima_linha +")-ROW(D5),0,1,1)),-(J5:J"+ ultima_linha +"=\"SIM\"),-(I5:I"+ ultima_linha +"=\"POSITIVO\"),-(K5:K"+ ultima_linha +"=\"OK ITS\")) * -1";
+		formula = "SUMPRODUCT(SUBTOTAL(9,OFFSET(E5:E"+ ultima_linha +",ROW(E5:E"+ ultima_linha +")-ROW(E5),0,1,1)),-(K5:K"+ ultima_linha +"=\"SIM\"),-(J5:J"+ ultima_linha +"=\"POSITIVO\"),-(L5:L"+ ultima_linha +"=\"OK ITS\")) * -1";
 		cell.setCellFormula(formula);
 
 
@@ -1832,7 +1856,7 @@ public class TelaEscolhaRelatorioRomaneios extends JDialog {
 		cellnum = 0;
 		cell = row.createCell(2);
 		cell.setCellStyle(numberStyleFundoVerdeDireita);
-		formula = "SUMPRODUCT(SUBTOTAL(9,OFFSET(D5:D"+ ultima_linha +",ROW(D5:D"+ ultima_linha +")-ROW(D5),0,1,1)),-(J5:J"+ ultima_linha +"=\"SIM\"),-(I5:I"+ ultima_linha +"=\"POSITIVO\"),-(K5:K"+ ultima_linha +"=\"OK ITS\")) * -1/60";
+		formula = "SUMPRODUCT(SUBTOTAL(9,OFFSET(E5:E"+ ultima_linha +",ROW(E5:E"+ ultima_linha +")-ROW(E5),0,1,1)),-(K5:K"+ ultima_linha +"=\"SIM\"),-(J5:J"+ ultima_linha +"=\"POSITIVO\"),-(L5:L"+ ultima_linha +"=\"OK ITS\")) * -1/60";
 		cell.setCellFormula(formula);
 
 		cell = row.createCell(3);
@@ -1850,7 +1874,7 @@ public class TelaEscolhaRelatorioRomaneios extends JDialog {
 
 		cell = row.createCell(2);
 		cell.setCellStyle(numberStyleFundoVerde);
-		formula = "SUMPRODUCT(SUBTOTAL(9,OFFSET(D5:D"+ ultima_linha +",ROW(D5:D"+ ultima_linha +")-ROW(D5),0,1,1)),-(J5:J"+ ultima_linha +"=\"SIM\"),-(I5:I"+ ultima_linha +"=\"POSITIVO\"),-(K5:K"+ ultima_linha +"=\"FALTA ITS\")) * -1";
+		formula = "SUMPRODUCT(SUBTOTAL(9,OFFSET(E5:E"+ ultima_linha +",ROW(E5:E"+ ultima_linha +")-ROW(E5),0,1,1)),-(K5:K"+ ultima_linha +"=\"SIM\"),-(J5:J"+ ultima_linha +"=\"POSITIVO\"),-(L5:L"+ ultima_linha +"=\"FALTA ITS\")) * -1";
 		cell.setCellFormula(formula);
 
 		cell = row.createCell(3);
@@ -1861,7 +1885,7 @@ public class TelaEscolhaRelatorioRomaneios extends JDialog {
 		cellnum = 0;
 		cell = row.createCell(2);
 		cell.setCellStyle(numberStyleFundoVerdeDireita);
-		formula = "SUMPRODUCT(SUBTOTAL(9,OFFSET(D5:D"+ ultima_linha +",ROW(D5:D"+ ultima_linha +")-ROW(D5),0,1,1)),-(J5:J"+ ultima_linha +"=\"SIM\"),-(I5:I"+ ultima_linha +"=\"POSITIVO\"),-(K5:K"+ ultima_linha +"=\"FALTA ITS\")) * -1 / 60";
+		formula = "SUMPRODUCT(SUBTOTAL(9,OFFSET(E5:E"+ ultima_linha +",ROW(E5:E"+ ultima_linha +")-ROW(E5),0,1,1)),-(K5:K"+ ultima_linha +"=\"SIM\"),-(J5:J"+ ultima_linha +"=\"POSITIVO\"),-(L5:L"+ ultima_linha +"=\"FALTA ITS\")) * -1 / 60";
 		cell.setCellFormula(formula);
 
 		cell = row.createCell(3);

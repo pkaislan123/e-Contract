@@ -201,7 +201,7 @@ public class TelaContratos extends JFrame {
 	private final JPanel painelPrincipal = new JPanel();
 	private JRadioButton rdContratos, rdSubContratos;
 	private ArrayList<TelaGerenciarContrato> lista_telas_contratos = new ArrayList<>();
-	
+
 	private JLabel lblTotalContratosEmAnalise, lblTotalContratosAssinar, lblTotalContratosConcluidos,
 			lblTotalContratosAssinados;
 
@@ -227,8 +227,6 @@ public class TelaContratos extends JFrame {
 	private JTextField entStatusPagamento;
 	private JLabel lblTotalContratado, lblTotalContratosCancelados, lblTotalRecebido, lblTotalCarregado, lblTotalPago,
 			lblValorTotalContratos;
-
-	
 
 	public TelaContratos(int flag_retorno, Window janela_pai) {
 
@@ -589,8 +587,7 @@ public class TelaContratos extends JFrame {
 					FileChooser d = new FileChooser();
 					FileChooser.ExtensionFilter extFilter = new FileChooser.ExtensionFilter("PDF (*.pdf)", "*.pdf");
 					d.getExtensionFilters().add(extFilter);
-					
-					
+
 					d.setInitialDirectory(new File(ultima_pasta));
 					File file = d.showOpenDialog(new Stage());
 					String caminho_arquivo = "";
@@ -695,7 +692,7 @@ public class TelaContratos extends JFrame {
 								"Não é possivel transferir um recebimento para um contrato finalizado ou cancelado");
 					}
 
-				}else if (flag_retorno == 7) {
+				} else if (flag_retorno == 7) {
 
 					if (contrato_selecionado.getStatus_contrato() != 3
 							&& contrato_selecionado.getStatus_contrato() != 4) {
@@ -979,57 +976,58 @@ public class TelaContratos extends JFrame {
 			int index = tabela.convertRowIndexToModel(row);
 			CadastroContrato contrato = modelo_contratos.getValue(index);
 
-			if(rdContratos.isSelected()) {
-			if (contrato.getSub_contrato() == 0 || contrato.getSub_contrato() == 3 || contrato.getSub_contrato() == 4
-					|| contrato.getSub_contrato() == 5) {
+			if (rdContratos.isSelected()) {
+				if (contrato.getSub_contrato() == 0 || contrato.getSub_contrato() == 3
+						|| contrato.getSub_contrato() == 4 || contrato.getSub_contrato() == 5) {
 
-				if (contrato.getStatus_contrato() != 4) {
+					if (contrato.getStatus_contrato() != 4) {
 
-					double quantidade_sacos = 0;
-					double quantidade_kg = 0;
-					double quantidade_paga = contrato.getTotal_pago();
-					double quantidade_comissao_paga = contrato.getTotal_comissao();
-					double valor_total_local = contrato.getValor_a_pagar().doubleValue();
+						double quantidade_sacos = 0;
+						double quantidade_kg = 0;
+						double quantidade_paga = contrato.getTotal_pago();
+						double quantidade_comissao_paga = contrato.getTotal_comissao();
+						double valor_total_local = contrato.getValor_a_pagar().doubleValue();
 
-					if (contrato.getMedida().equalsIgnoreCase("SACOS")) {
-						quantidade_sacos = contrato.getQuantidade();
-						quantidade_kg = contrato.getQuantidade() * 60;
+						if (contrato.getMedida().equalsIgnoreCase("SACOS")) {
+							quantidade_sacos = contrato.getQuantidade();
+							quantidade_kg = contrato.getQuantidade() * 60;
 
-					} else if (contrato.getMedida().equalsIgnoreCase("KG")) {
-						quantidade_kg = contrato.getQuantidade();
-						quantidade_sacos = quantidade_kg / 60;
+						} else if (contrato.getMedida().equalsIgnoreCase("KG")) {
+							quantidade_kg = contrato.getQuantidade();
+							quantidade_sacos = quantidade_kg / 60;
+						}
+
+						if (contrato.getStatus_contrato() == 0) {
+							total_contratos_em_analise++;
+						} else if (contrato.getStatus_contrato() == 1) {
+							total_contratos_assinar++;
+						} else if (contrato.getStatus_contrato() == 2) {
+							total_contratos_assinado++;
+						} else if (contrato.getStatus_contrato() == 3) {
+							total_contratos_concluido++;
+						}
+						quantidade_sacos_total += quantidade_sacos;
+						quantidade_kg_total += quantidade_kg;
+
+						total_contratado += quantidade_kg;
+
+						total_recebido += contrato.getQuantidade_recebida();
+
+						total_carregado += contrato.getQuantidade_carregada();
+
+						total_pago += quantidade_paga;
+
+						total_comissao += quantidade_comissao_paga;
+
+						valor_total_contratos += valor_total_local;
+					} else {
+						total_contratos_cancelados++;
 					}
-
-					if (contrato.getStatus_contrato() == 0) {
-						total_contratos_em_analise++;
-					} else if (contrato.getStatus_contrato() == 1) {
-						total_contratos_assinar++;
-					} else if (contrato.getStatus_contrato() == 2) {
-						total_contratos_assinado++;
-					} else if (contrato.getStatus_contrato() == 3) {
-						total_contratos_concluido++;
-					}
-					quantidade_sacos_total += quantidade_sacos;
-					quantidade_kg_total += quantidade_kg;
-
-					total_contratado += quantidade_kg;
-
-					total_recebido += contrato.getQuantidade_recebida();
-
-					total_carregado += contrato.getQuantidade_carregada();
-
-					total_pago += quantidade_paga;
-
-					total_comissao += quantidade_comissao_paga;
-
-					valor_total_contratos += valor_total_local;
-				} else {
-					total_contratos_cancelados++;
 				}
-			}
-			}else if(rdSubContratos.isSelected()) {
-				if (contrato.getSub_contrato() == 1 || contrato.getSub_contrato() == 2 || contrato.getSub_contrato() == 6
-						|| contrato.getSub_contrato() == 7 || contrato.getSub_contrato() == 8) {
+			} else if (rdSubContratos.isSelected()) {
+				if (contrato.getSub_contrato() == 1 || contrato.getSub_contrato() == 2
+						|| contrato.getSub_contrato() == 6 || contrato.getSub_contrato() == 7
+						|| contrato.getSub_contrato() == 8) {
 
 					if (contrato.getStatus_contrato() != 4) {
 
@@ -1229,10 +1227,10 @@ public class TelaContratos extends JFrame {
 					total_contratos_assinado++;
 				} else if (contrato.getStatus_contrato() == 3) {
 					total_contratos_concluido++;
-				}else if (contrato.getStatus_contrato() == 4) {
+				} else if (contrato.getStatus_contrato() == 4) {
 					total_contratos_cancelados++;
 				}
-				
+
 				quantidade_sacos_total += quantidade_sacos;
 				quantidade_kg_total += quantidade_kg;
 				lista_contratos.add(contrato);
@@ -1254,8 +1252,8 @@ public class TelaContratos extends JFrame {
 		lblTotalContratosAssinados.setText(total_contratos_assinado + " - "
 				+ ((int) (((double) ((double) total_contratos_assinado / (double) tabela.getRowCount()) * 100))) + "%");
 		lblTotalContratosCancelados.setText(total_contratos_cancelados + " - "
-				+ ((int) (((double) ((double) total_contratos_cancelados / (double) tabela.getRowCount()) * 100))) + "%");
-
+				+ ((int) (((double) ((double) total_contratos_cancelados / (double) tabela.getRowCount()) * 100)))
+				+ "%");
 
 		calcular();
 	}
@@ -1265,70 +1263,19 @@ public class TelaContratos extends JFrame {
 		GerenciarBancoContratos gerenciar = new GerenciarBancoContratos();
 		lista_contratos.clear();
 		modelo_contratos.onRemoveAll();
-		double quantidade_sacos_total = 0;
-		double quantidade_kg_total = 0;
-		int total_contratos_em_analise = 0;
-		int total_contratos_assinar = 0;
-		int total_contratos_assinado = 0;
-		int total_contratos_concluido = 0;
-		int total_contratos_cancelados = 0;
 
-		NumberFormat z = NumberFormat.getNumberInstance();
+		lista_contratos = gerenciar.getSubContratos2();
 
-		ArrayList<CadastroContrato> sub_contratos = gerenciar.getContratos();
-
-		for (CadastroContrato contrato : sub_contratos) {
+		for (CadastroContrato contrato : lista_contratos) {
 
 			if (contrato.getSub_contrato() == 1 || contrato.getSub_contrato() == 2 || contrato.getSub_contrato() == 6
 					|| contrato.getSub_contrato() == 7 || contrato.getSub_contrato() == 8) {
 
 				modelo_contratos.onAdd(contrato);
-				double quantidade_sacos = 0;
-				double quantidade_kg = 0;
 
-				if (contrato.getMedida().equalsIgnoreCase("SACOS")) {
-					quantidade_sacos = contrato.getQuantidade();
-					quantidade_kg = contrato.getQuantidade() * 60;
-
-				} else if (contrato.getMedida().equalsIgnoreCase("KG")) {
-					quantidade_kg = contrato.getQuantidade();
-					quantidade_sacos = quantidade_kg / 60;
-				}
-
-				if (contrato.getStatus_contrato() == 0) {
-					total_contratos_em_analise++;
-				} else if (contrato.getStatus_contrato() == 1) {
-					total_contratos_assinar++;
-				} else if (contrato.getStatus_contrato() == 2) {
-					total_contratos_assinado++;
-				} else if (contrato.getStatus_contrato() == 3) {
-					total_contratos_concluido++;
-				}
-				else if (contrato.getStatus_contrato() == 4) {
-					total_contratos_cancelados++;
-				}
-				quantidade_sacos_total += quantidade_sacos;
-				quantidade_kg_total += quantidade_kg;
-				lista_contratos.add(contrato);
 			}
 
 		}
-		lblNumContratos.setText(lista_contratos.size() + "");
-		lblTotalSacosKGs.setText(z.format(quantidade_sacos_total) + " Scs | " + z.format(quantidade_kg_total) + " Kgs");
-
-		lblTotalContratosEmAnalise.setText(total_contratos_em_analise + " - "
-				+ ((int) (((double) ((double) total_contratos_em_analise / (double) tabela.getRowCount()) * 100)))
-				+ "%");
-		lblTotalContratosAssinar.setText(total_contratos_assinar + " - "
-				+ ((int) (((double) ((double) total_contratos_assinar / (double) tabela.getRowCount()) * 100))) + "%");
-		lblTotalContratosConcluidos.setText(total_contratos_concluido + " - "
-				+ ((int) (((double) ((double) total_contratos_concluido / (double) tabela.getRowCount())) * 100))
-				+ "%");
-		lblTotalContratosAssinados.setText(total_contratos_assinado + " - "
-				+ ((int) (((double) ((double) total_contratos_assinado / (double) tabela.getRowCount()) * 100))) + "%");
-		lblTotalContratosCancelados.setText(total_contratos_cancelados + " - "
-				+ ((int) (((double) ((double) total_contratos_cancelados / (double) tabela.getRowCount()) * 100))) + "%");
-
 		calcular();
 
 	}
@@ -1400,13 +1347,17 @@ public class TelaContratos extends JFrame {
 		int total_contratos_assinado = 0;
 		int total_contratos_concluido = 0;
 		int total_contratos = 0;
-		ArrayList<RowFilter<Object, Object>> filters = new ArrayList<RowFilter<Object, Object>>(2);
 
-		/*
-		 * private final int status_recebimento = 5; private final int
-		 * status_carregamento = 6; private final int status_pagamento = 7;
-		 * 
-		 */
+		ArrayList<RowFilter<Object, Object>> filters = new ArrayList<RowFilter<Object, Object>>(2);
+		ArrayList<RowFilter<Object, Object>> filters_nome_comprador = new ArrayList<RowFilter<Object, Object>>(2);
+		ArrayList<RowFilter<Object, Object>> filters_nome_vendedor = new ArrayList<RowFilter<Object, Object>>(2);
+
+		ArrayList<RowFilter<Object, Object>> filters_produto = new ArrayList<RowFilter<Object, Object>>(2);
+
+		RowFilter<Object, Object> compradores_filters;
+		RowFilter<Object, Object> vendedores_filters;
+
+		RowFilter<Object, Object> produto_filters;
 
 		String produto = entProduto.getText().toUpperCase();
 		String comprador = entNomeComprador.getText().toUpperCase();
@@ -1423,18 +1374,46 @@ public class TelaContratos extends JFrame {
 
 		if (checkString(codigo))
 			filters.add(RowFilter.regexFilter(codigo, 1));
+		
+		/*
+		 * if (checkString(comprador)) filters.add(RowFilter.regexFilter(comprador, 2));
+		 */
+		// comprador
+		String compradores[] = comprador.split(",");
+		for (String nome : compradores) {
+			filters_nome_comprador.add(RowFilter.regexFilter(nome, 2));
 
-		if (checkString(comprador))
-			filters.add(RowFilter.regexFilter(comprador, 2));
+		}
+		compradores_filters = RowFilter.orFilter(filters_nome_comprador);
 
+		/*
 		if (checkString(vendedor))
 			filters.add(RowFilter.regexFilter(vendedor, 3));
+*/
+		
+		// comprador
+				String vendedores[] = vendedor.split(",");
+				for (String nome : vendedores) {
+					filters_nome_vendedor.add(RowFilter.regexFilter(nome, 3));
 
+				}
+				vendedores_filters = RowFilter.orFilter(filters_nome_vendedor);
+		
 		if (checkString(status))
 			filters.add(RowFilter.regexFilter(status, 4));
 
-		if (checkString(produto))
-			filters.add(RowFilter.regexFilter(produto, 10));
+		/*
+		 * if (checkString(produto)) filters.add(RowFilter.regexFilter(produto, 10));
+		 */
+
+		// filtro de produto
+
+		String produtos[] = produto.split(",");
+		for (String prod : produtos) {
+			filters_produto.add(RowFilter.regexFilter(prod, 10));
+
+		}
+		produto_filters = RowFilter.orFilter(filters_produto);
 
 		if (checkString(transgenese))
 			filters.add(RowFilter.regexFilter(transgenese, 11));
@@ -1454,6 +1433,10 @@ public class TelaContratos extends JFrame {
 
 		if (checkString(status_pag))
 			filters.add(RowFilter.regexFilter(status_pag, 7));
+
+		filters.add(produto_filters);
+		filters.add(compradores_filters);
+		filters.add(vendedores_filters);
 
 		sorter.setRowFilter(RowFilter.andFilter(filters));
 
@@ -1747,11 +1730,11 @@ public class TelaContratos extends JFrame {
 				return contrato.getCodigo();
 			case compradores: {
 
-				return trimar(encutarNomes(contrato.getNomes_compradores().toUpperCase()));
+				return trimar(contrato.getNomes_compradores().toUpperCase());
 
 			}
 			case vendedores: {
-				return trimar(encutarNomes(contrato.getNomes_vendedores().toUpperCase()));
+				return trimar(contrato.getNomes_vendedores().toUpperCase());
 			}
 			case status: {
 				int status = contrato.getStatus_contrato();
@@ -1847,16 +1830,37 @@ public class TelaContratos extends JFrame {
 			case status_pagamento: {
 				double quantidade_paga = contrato.getTotal_pago();
 
-				double valor_total = contrato.getValor_a_pagar().doubleValue();
+				double valor_total = contrato.getValor_a_receber().doubleValue();
 
-				if (quantidade_paga >= (valor_total - 0.5)) {
-					return "CONCLUIDO";
-				} else if (quantidade_paga < valor_total && quantidade_paga > 0) {
-					return "PAGANDO";
+				System.out.println("Id: " + contrato.getId() + " Quantidade Paga: " + quantidade_paga + " Valor TOtal: "
+						+ valor_total);
 
-				} else if (quantidade_paga == 0) {
-					return "A PAGAR";
+				if (valor_total == 0) {
+					
+					double valor_contrato = contrato.getValor_a_pagar().doubleValue();
+					
+					if (quantidade_paga >= (valor_contrato - 0.5)) {
+						return "CONCLUIDO";
+					} else if (quantidade_paga < valor_contrato && quantidade_paga > 0) {
+						return "PAGANDO";
 
+					} else if (quantidade_paga == 0) {
+						return "A PAGAR";
+
+					}
+					
+					
+				} else {
+
+					if (quantidade_paga >= (valor_total - 0.5)) {
+						return "CONCLUIDO";
+					} else if (quantidade_paga < valor_total && quantidade_paga > 0) {
+						return "PAGANDO";
+
+					} else if (quantidade_paga == 0) {
+						return "A PAGAR";
+
+					}
 				}
 			}
 			case quantidade: {
@@ -1900,22 +1904,33 @@ public class TelaContratos extends JFrame {
 			case data_contrato:
 				return contrato.getData_contrato();
 			case local_retirada: {
+				/*
 				GerenciarBancoClientes gerenciar = new GerenciarBancoClientes();
 				if (contrato.getId_local_retirada() > 0) {
 					CadastroCliente local_retirar = gerenciar.getCliente(contrato.getId_local_retirada());
 					if (local_retirar != null) {
 						if (local_retirar.getTipo_pessoa() == 0) {
 							// pessoa fisica
-							return local_retirar.getNome_empresarial();
+							return local_retirar.getNome_empresarial().toUpperCase();
 						} else {
-							return local_retirar.getNome_fantaia();
+							return local_retirar.getNome_fantaia().toUpperCase();
 						}
 					} else {
-						return "Não Especificado";
+						return "Não Especificado".toUpperCase();
 					}
 				} else {
-					return "Não Especificado";
+					return "Não Especificado".toUpperCase();
 
+				}*/
+				
+				if (contrato.getId_local_retirada() > 0) {
+					if(contrato.getNome_local_retirada() != null) {
+						if(contrato.getNome_local_retirada().length() > 0) {
+							return contrato.getNome_local_retirada().toUpperCase();
+						}
+					}
+				}else {
+					return "Não Especificado".toUpperCase();
 				}
 
 			}
@@ -2090,16 +2105,13 @@ public class TelaContratos extends JFrame {
 
 		String nomes_encurtados = "";
 		nomes = trimar(nomes);
-		
-		String nomes_compradores_separados[] =  nomes.split(",");
-		
-	
-		
-		
+
+		String nomes_compradores_separados[] = nomes.split(",");
+
 		for (String nome_individual_para_encurtar : nomes_compradores_separados) {
 
 			String nome_destinatario_quebrado[] = nome_individual_para_encurtar.split(" ");
-			
+
 			try {
 
 				if (nome_destinatario_quebrado.length > 2) {

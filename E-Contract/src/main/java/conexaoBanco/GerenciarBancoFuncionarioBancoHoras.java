@@ -27,9 +27,11 @@ public class GerenciarBancoFuncionarioBancoHoras {
 	 */
 
 	public String sql_banco_horas(CadastroFuncionarioBancoHoras banco_horas) {
-		return "insert into tabela_auxiliar_banco_horas (id_funcionario, quantidade_horas, mes, tipo_banco) values ('"
+		return "insert into tabela_auxiliar_banco_horas (id_funcionario, quantidade_horas, mes, ano, tipo_banco) values ('"
 				+ banco_horas.getId_funcionario() + "','" + banco_horas.getQuantidade_horas() + "','"
-				+ banco_horas.getMes_referencia() + "','" + banco_horas.getTipo_banco() + "')";
+				+ banco_horas.getMes_referencia() + "','" 
+				+ banco_horas.getAno() + "','" +
+				banco_horas.getTipo_banco() + "')";
 	}
 
 	public int inserirbanco_horas(CadastroFuncionarioBancoHoras banco_horas) {
@@ -86,6 +88,7 @@ public class GerenciarBancoFuncionarioBancoHoras {
 				banco_horas.setMes_referencia(rs.getInt("mes"));
 				banco_horas.setQuantidade_horas(rs.getString("quantidade_horas"));
 				banco_horas.setTipo_banco(rs.getInt("tipo_banco"));
+				banco_horas.setAno(rs.getString("ano"));
 
 				lista_banco_horass.add(banco_horas);
 
@@ -121,6 +124,7 @@ public class GerenciarBancoFuncionarioBancoHoras {
 				banco.setMes_referencia(rs.getInt("mes"));
 				banco.setQuantidade_horas(rs.getString("quantidade_horas"));
 				banco.setTipo_banco(rs.getInt("tipo_banco"));
+				banco.setAno(rs.getString("ano"));
 
 				lista_banco_horas.add(banco);
 
@@ -164,6 +168,49 @@ public class GerenciarBancoFuncionarioBancoHoras {
 			banco_horas.setQuantidade_horas(rs.getString("quantidade_horas"));
 			banco_horas.setMes_referencia(rs.getInt("mes"));
 			banco_horas.setTipo_banco(rs.getInt("tipo_banco"));
+			banco_horas.setAno(rs.getString("ano"));
+
+			}
+			ConexaoBanco.fechaConexao(conn, pstm, rs);
+
+			return banco_horas;
+
+		} catch (Exception e) {
+			JOptionPane.showMessageDialog(null,
+					"Erro ao listar o banco_horas, erro: " + e.getMessage() + "\nCausa: " + e.getCause());// );
+			return null;
+		}
+
+	}
+	
+	
+	public CadastroFuncionarioBancoHoras getBancoHorasPorFuncionarioPorMesAno(int id_func, int mes, String ano) {
+
+		String selectbanco_horas = "select * from tabela_auxiliar_banco_horas where id_funcionario = ? and mes = ? and ano = ?";
+		Connection conn = null;
+		PreparedStatement pstm = null;
+		ResultSet rs = null;
+		CadastroFuncionarioBancoHoras banco_horas = null;
+
+		try {
+			conn = ConexaoBanco.getConexao();
+			pstm = conn.prepareStatement(selectbanco_horas);
+			pstm.setInt(1, id_func);
+			pstm.setInt(2, mes);
+			pstm.setString(3, ano);
+
+			rs = pstm.executeQuery();
+			
+			if(rs.next()) {
+				banco_horas = new CadastroFuncionarioBancoHoras();
+
+			banco_horas.setId_banco(rs.getInt("id_banco"));
+			banco_horas.setId_funcionario(rs.getInt("id_funcionario"));
+			banco_horas.setQuantidade_horas(rs.getString("quantidade_horas"));
+			banco_horas.setMes_referencia(rs.getInt("mes"));
+			banco_horas.setTipo_banco(rs.getInt("tipo_banco"));
+			banco_horas.setAno(rs.getString("ano"));
+
 			}
 			ConexaoBanco.fechaConexao(conn, pstm, rs);
 
@@ -198,6 +245,8 @@ public class GerenciarBancoFuncionarioBancoHoras {
 			banco_horas.setMes_referencia(rs.getInt("mes"));
 			banco_horas.setQuantidade_horas(rs.getString("quantidade_horas"));
 			banco_horas.setTipo_banco(rs.getInt("tipo_banco"));
+			banco_horas.setAno(rs.getString("ano"));
+
 			ConexaoBanco.fechaConexao(conn, pstm, rs);
 
 			return banco_horas;
@@ -243,16 +292,17 @@ public class GerenciarBancoFuncionarioBancoHoras {
 
 			try {
 
-				atualizar = "update tabela_auxiliar_banco_horas set mes = ?, quantidade_horas = ?, tipo_banco = ? where id_banco = ?";
+				atualizar = "update tabela_auxiliar_banco_horas set mes = ?, ano = ?, quantidade_horas = ?, tipo_banco = ? where id_banco = ?";
 
 				conn = ConexaoBanco.getConexao();
 				pstm = conn.prepareStatement(atualizar);
 				pstm.setInt(1, banco_horas.getMes_referencia());
+				pstm.setString(2, banco_horas.getAno());
 
-				pstm.setString(2, banco_horas.getQuantidade_horas());
-				pstm.setInt(3, banco_horas.getTipo_banco());
+				pstm.setString(3, banco_horas.getQuantidade_horas());
+				pstm.setInt(4, banco_horas.getTipo_banco());
 
-				pstm.setInt(4, banco_horas.getId_banco());
+				pstm.setInt(5, banco_horas.getId_banco());
 
 				pstm.execute();
 				// JOptionPane.showMessageDialog(null, "funcionario atualizado com sucesso");

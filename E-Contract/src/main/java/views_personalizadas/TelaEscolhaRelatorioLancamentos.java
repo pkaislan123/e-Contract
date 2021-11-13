@@ -29,7 +29,9 @@ import org.apache.poi.hssf.usermodel.HSSFSheet;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellStyle;
+import org.apache.poi.ss.usermodel.CellType;
 import org.apache.poi.ss.usermodel.FillPatternType;
+import org.apache.poi.ss.usermodel.FormulaEvaluator;
 import org.apache.poi.ss.usermodel.HorizontalAlignment;
 import org.apache.poi.ss.usermodel.IndexedColors;
 import org.apache.poi.ss.usermodel.Row;
@@ -86,18 +88,18 @@ public class TelaEscolhaRelatorioLancamentos extends JDialog {
 		setBounds(100, 100, 331, 259);
 		isto = this;
 		getContentPane().setLayout(new MigLayout("", "[grow][]", "[grow][][grow][][grow][][grow][][][]"));
-		
+
 		JPanel panel_2 = new JPanel();
 		panel_2.setBackground(new Color(0, 51, 0));
 		getContentPane().add(panel_2, "cell 0 0 2 1,grow");
-		
-				JLabel btnRelatrioDelancamentos = new JLabel("Relatório de lancamentos");
-				panel_2.add(btnRelatrioDelancamentos);
-				btnRelatrioDelancamentos.setOpaque(true);
-				btnRelatrioDelancamentos.setForeground(Color.WHITE);
-				btnRelatrioDelancamentos.setFont(new Font("Tahoma", Font.BOLD, 16));
-				btnRelatrioDelancamentos.setBorder(null);
-				btnRelatrioDelancamentos.setBackground(new Color(0, 51, 0));
+
+		JLabel btnRelatrioDelancamentos = new JLabel("Relatório de lancamentos");
+		panel_2.add(btnRelatrioDelancamentos);
+		btnRelatrioDelancamentos.setOpaque(true);
+		btnRelatrioDelancamentos.setForeground(Color.WHITE);
+		btnRelatrioDelancamentos.setFont(new Font("Tahoma", Font.BOLD, 16));
+		btnRelatrioDelancamentos.setBorder(null);
+		btnRelatrioDelancamentos.setBackground(new Color(0, 51, 0));
 
 		JLabel lblNewLabel = new JLabel("Tipo:");
 		lblNewLabel.setForeground(Color.BLACK);
@@ -157,49 +159,69 @@ public class TelaEscolhaRelatorioLancamentos extends JDialog {
 		});
 		rdbtnExcel.setFont(new Font("Tahoma", Font.BOLD, 14));
 		panel_1.add(rdbtnExcel, "cell 0 0,alignx left,aligny top");
-		
-				rdbtnPdf = new JRadioButton("Pdf");
-				rdbtnPdf.setBackground(Color.WHITE);
-				rdbtnPdf.setForeground(Color.BLACK);
-				rdbtnPdf.addActionListener(new ActionListener() {
-					public void actionPerformed(ActionEvent e) {
-						rdbtnExcel.setSelected(false);
-						rdbtnPdf.setSelected(true);
+
+		rdbtnPdf = new JRadioButton("Pdf");
+		rdbtnPdf.setBackground(Color.WHITE);
+		rdbtnPdf.setForeground(Color.BLACK);
+		rdbtnPdf.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				rdbtnExcel.setSelected(false);
+				rdbtnPdf.setSelected(true);
+			}
+		});
+		rdbtnPdf.setFont(new Font("Tahoma", Font.BOLD, 14));
+		panel_1.add(rdbtnPdf, "cell 1 0,alignx left,aligny top");
+
+		JButton btnNewButton_1 = new JButton("Gerar");
+		btnNewButton_1.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				// gerar
+
+				if (rdbtnCompleto.isSelected()) {
+					// relatorio completo
+					if (rdbtnExcel.isSelected()) {
+						try {
+							gerarExcel(prepararCompletoExcel(lancamentos, 1));
+						} catch (ParseException e1) {
+							// TODO Auto-generated catch block
+							e1.printStackTrace();
+						}
+					} else if (rdbtnPdf.isSelected()) {
+						try {
+							gerarPdf(prepararCompletoPDF(lancamentos, 1));
+						} catch (ParseException e1) {
+							// TODO Auto-generated catch block
+							e1.printStackTrace();
+						}
+
 					}
-				});
-				rdbtnPdf.setFont(new Font("Tahoma", Font.BOLD, 14));
-				panel_1.add(rdbtnPdf, "cell 1 0,alignx left,aligny top");
-				
-						JButton btnNewButton_1 = new JButton("Gerar");
-						btnNewButton_1.addActionListener(new ActionListener() {
-							public void actionPerformed(ActionEvent e) {
-								// gerar
 
-								if (rdbtnCompleto.isSelected()) {
-									// relatorio completo
-									if (rdbtnExcel.isSelected()) {
-										gerarExcel(prepararCompleto(lancamentos, 1));
-									} else if (rdbtnPdf.isSelected()) {
-										gerarPdf(prepararCompleto(lancamentos, 1));
+				} else if (rdbtnSimples.isSelected()) {
+					// relatorio simples
+					if (rdbtnExcel.isSelected()) {
+						try {
+							gerarExcel(preparar(lancamentos, 0));
+						} catch (ParseException e1) {
+							// TODO Auto-generated catch block
+							e1.printStackTrace();
+						}
+					} else if (rdbtnPdf.isSelected()) {
+						try {
+							gerarPdf(preparar(lancamentos, 0));
+						} catch (ParseException e1) {
+							// TODO Auto-generated catch block
+							e1.printStackTrace();
+						}
 
-									}
+					}
+				}
 
-								} else if (rdbtnSimples.isSelected()) {
-									// relatorio simples
-									if (rdbtnExcel.isSelected()) {
-										gerarExcel(preparar(lancamentos, 0));
-									} else if (rdbtnPdf.isSelected()) {
-										gerarPdf(preparar(lancamentos, 0));
-
-									}
-								}
-
-							}
-						});
-						btnNewButton_1.setFont(new Font("Arial", Font.PLAIN, 16));
-						btnNewButton_1.setForeground(Color.WHITE);
-						btnNewButton_1.setBackground(new Color(0, 0, 51));
-						getContentPane().add(btnNewButton_1, "cell 1 8,alignx right");
+			}
+		});
+		btnNewButton_1.setFont(new Font("Arial", Font.PLAIN, 16));
+		btnNewButton_1.setForeground(Color.WHITE);
+		btnNewButton_1.setBackground(new Color(0, 0, 51));
+		getContentPane().add(btnNewButton_1, "cell 1 8,alignx right");
 		URL url2 = getClass().getResource("/imagens/infinite.gif");
 		ImageIcon img2 = new ImageIcon(url2);
 
@@ -209,26 +231,26 @@ public class TelaEscolhaRelatorioLancamentos extends JDialog {
 		setResizable(false);
 		setVisible(true);
 	}
-	
-	
-	public TelaEscolhaRelatorioLancamentos(ArrayList<Lancamento> lancamentos, TelaFinanceiroLancamentoInternal janela_pai) {
+
+	public TelaEscolhaRelatorioLancamentos(ArrayList<Lancamento> lancamentos,
+			TelaFinanceiroLancamentoInternal janela_pai) {
 		getContentPane().setBackground(Color.WHITE);
 
 		setBounds(100, 100, 331, 259);
 		isto = this;
 		getContentPane().setLayout(new MigLayout("", "[grow][]", "[grow][][grow][][grow][][grow][][][]"));
-		
+
 		JPanel panel_2 = new JPanel();
 		panel_2.setBackground(new Color(0, 51, 0));
 		getContentPane().add(panel_2, "cell 0 0 2 1,grow");
-		
-				JLabel btnRelatrioDelancamentos = new JLabel("Relatório de lancamentos");
-				panel_2.add(btnRelatrioDelancamentos);
-				btnRelatrioDelancamentos.setOpaque(true);
-				btnRelatrioDelancamentos.setForeground(Color.WHITE);
-				btnRelatrioDelancamentos.setFont(new Font("Tahoma", Font.BOLD, 16));
-				btnRelatrioDelancamentos.setBorder(null);
-				btnRelatrioDelancamentos.setBackground(new Color(0, 51, 0));
+
+		JLabel btnRelatrioDelancamentos = new JLabel("Relatório de lancamentos");
+		panel_2.add(btnRelatrioDelancamentos);
+		btnRelatrioDelancamentos.setOpaque(true);
+		btnRelatrioDelancamentos.setForeground(Color.WHITE);
+		btnRelatrioDelancamentos.setFont(new Font("Tahoma", Font.BOLD, 16));
+		btnRelatrioDelancamentos.setBorder(null);
+		btnRelatrioDelancamentos.setBackground(new Color(0, 51, 0));
 
 		JLabel lblNewLabel = new JLabel("Tipo:");
 		lblNewLabel.setForeground(Color.BLACK);
@@ -288,49 +310,69 @@ public class TelaEscolhaRelatorioLancamentos extends JDialog {
 		});
 		rdbtnExcel.setFont(new Font("Tahoma", Font.BOLD, 14));
 		panel_1.add(rdbtnExcel, "cell 0 0,alignx left,aligny top");
-		
-				rdbtnPdf = new JRadioButton("Pdf");
-				rdbtnPdf.setBackground(Color.WHITE);
-				rdbtnPdf.setForeground(Color.BLACK);
-				rdbtnPdf.addActionListener(new ActionListener() {
-					public void actionPerformed(ActionEvent e) {
-						rdbtnExcel.setSelected(false);
-						rdbtnPdf.setSelected(true);
+
+		rdbtnPdf = new JRadioButton("Pdf");
+		rdbtnPdf.setBackground(Color.WHITE);
+		rdbtnPdf.setForeground(Color.BLACK);
+		rdbtnPdf.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				rdbtnExcel.setSelected(false);
+				rdbtnPdf.setSelected(true);
+			}
+		});
+		rdbtnPdf.setFont(new Font("Tahoma", Font.BOLD, 14));
+		panel_1.add(rdbtnPdf, "cell 1 0,alignx left,aligny top");
+
+		JButton btnNewButton_1 = new JButton("Gerar");
+		btnNewButton_1.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				// gerar
+
+				if (rdbtnCompleto.isSelected()) {
+					// relatorio completo
+					if (rdbtnExcel.isSelected()) {
+						try {
+							gerarExcel(prepararCompletoExcel(lancamentos, 1));
+						} catch (ParseException e1) {
+							// TODO Auto-generated catch block
+							e1.printStackTrace();
+						}
+					} else if (rdbtnPdf.isSelected()) {
+						try {
+							gerarPdf(prepararCompletoPDF(lancamentos, 1));
+						} catch (ParseException e1) {
+							// TODO Auto-generated catch block
+							e1.printStackTrace();
+						}
+
 					}
-				});
-				rdbtnPdf.setFont(new Font("Tahoma", Font.BOLD, 14));
-				panel_1.add(rdbtnPdf, "cell 1 0,alignx left,aligny top");
-				
-						JButton btnNewButton_1 = new JButton("Gerar");
-						btnNewButton_1.addActionListener(new ActionListener() {
-							public void actionPerformed(ActionEvent e) {
-								// gerar
 
-								if (rdbtnCompleto.isSelected()) {
-									// relatorio completo
-									if (rdbtnExcel.isSelected()) {
-										gerarExcel(prepararCompleto(lancamentos, 1));
-									} else if (rdbtnPdf.isSelected()) {
-										gerarPdf(prepararCompleto(lancamentos, 1));
+				} else if (rdbtnSimples.isSelected()) {
+					// relatorio simples
+					if (rdbtnExcel.isSelected()) {
+						try {
+							gerarExcel(preparar(lancamentos, 0));
+						} catch (ParseException e1) {
+							// TODO Auto-generated catch block
+							e1.printStackTrace();
+						}
+					} else if (rdbtnPdf.isSelected()) {
+						try {
+							gerarPdf(preparar(lancamentos, 0));
+						} catch (ParseException e1) {
+							// TODO Auto-generated catch block
+							e1.printStackTrace();
+						}
 
-									}
+					}
+				}
 
-								} else if (rdbtnSimples.isSelected()) {
-									// relatorio simples
-									if (rdbtnExcel.isSelected()) {
-										gerarExcel(preparar(lancamentos, 0));
-									} else if (rdbtnPdf.isSelected()) {
-										gerarPdf(preparar(lancamentos, 0));
-
-									}
-								}
-
-							}
-						});
-						btnNewButton_1.setFont(new Font("Arial", Font.PLAIN, 16));
-						btnNewButton_1.setForeground(Color.WHITE);
-						btnNewButton_1.setBackground(new Color(0, 0, 51));
-						getContentPane().add(btnNewButton_1, "cell 1 8,alignx right");
+			}
+		});
+		btnNewButton_1.setFont(new Font("Arial", Font.PLAIN, 16));
+		btnNewButton_1.setForeground(Color.WHITE);
+		btnNewButton_1.setBackground(new Color(0, 0, 51));
+		getContentPane().add(btnNewButton_1, "cell 1 8,alignx right");
 		URL url2 = getClass().getResource("/imagens/infinite.gif");
 		ImageIcon img2 = new ImageIcon(url2);
 
@@ -417,7 +459,7 @@ public class TelaEscolhaRelatorioLancamentos extends JDialog {
 
 	}
 
-	public HSSFWorkbook preparar(ArrayList<Lancamento> lancamentos_selecionados, int flag) {
+	public HSSFWorkbook preparar(ArrayList<Lancamento> lancamentos_selecionados, int flag) throws ParseException {
 		HSSFWorkbook workbook = new HSSFWorkbook();
 		HSSFSheet sheet = workbook.createSheet("Exportação de Dados de lancamentos");
 
@@ -446,9 +488,17 @@ public class TelaEscolhaRelatorioLancamentos extends JDialog {
 
 		// celula para numero alinhado ao centro
 		CellStyle numberStyle = workbook.createCellStyle();
-		numberStyle.setDataFormat(numberFormat.getFormat("#,##0.00"));
+		numberStyle.setDataFormat(numberFormat.getFormat("R$ #,##0.00"));
 		numberStyle.setAlignment(HorizontalAlignment.CENTER);
 		numberStyle.setVerticalAlignment(VerticalAlignment.CENTER);
+
+		
+		CellStyle numberStyleFundoVerdeTextoBranco = workbook.createCellStyle();
+		numberStyleFundoVerdeTextoBranco.setFillPattern(FillPatternType.SOLID_FOREGROUND);
+		numberStyleFundoVerdeTextoBranco.setFillForegroundColor(IndexedColors.GREEN.getIndex());
+		numberStyleFundoVerdeTextoBranco.setAlignment(HorizontalAlignment.CENTER);
+		numberStyleFundoVerdeTextoBranco.setVerticalAlignment(VerticalAlignment.CENTER);
+		numberStyleFundoVerdeTextoBranco.setDataFormat(numberFormat.getFormat("R$ #,##0.00"));
 
 		// estilo de celula negrito
 		CellStyle negrito = workbook.createCellStyle();
@@ -539,6 +589,7 @@ public class TelaEscolhaRelatorioLancamentos extends JDialog {
 		newFont_branca.setFontHeight((short) (11 * 20));
 		Locale ptBr = new Locale("pt", "BR");
 
+		numberStyleFundoVerdeTextoBranco.setFont(newFont_branca);
 		celula_fundo_laranja_texto_branco.setFont(newFont_branca);
 
 		HSSFFont newFont_titulo = workbook.createFont();
@@ -559,27 +610,38 @@ public class TelaEscolhaRelatorioLancamentos extends JDialog {
 		// Configurando as informacoes
 
 		// Configurando as informacoes
-				row = sheet.createRow(rownum++);
+		row = sheet.createRow(rownum++);
 
-				// Configurando titulo
-				cell = row.createCell(cellnum++);
-				cell.setCellStyle(celula_titulo);
-				cell.setCellValue("Relatório de Lançamentos");
-				// criar celula de 1 a 5
-				for (int i = 1; i < 6; i++) {
-					cell = row.createCell(cellnum++);
-					cell.setCellStyle(celula_titulo);
-					cell.setCellValue("");
+		// Configurando titulo
+		cell = row.createCell(cellnum++);
+		cell.setCellStyle(celula_titulo);
+		cell.setCellValue("Relatório de Lançamentos");
+		// criar celula de 1 a 5
+		for (int i = 1; i < 6; i++) {
+			cell = row.createCell(cellnum++);
+			cell.setCellStyle(celula_titulo);
+			cell.setCellValue("");
 
-				}
-				sheet.addMergedRegion(new CellRangeAddress(0, 0, 0, 5));
+		}
+		sheet.addMergedRegion(new CellRangeAddress(0, 0, 0, 5));
 
-
-			
-				cellnum = 0;
+		cellnum = 0;
 
 		// Configurando Header
 		row = sheet.createRow(rownum++);
+
+		cell = row.createCell(cellnum++);
+		cell.setCellStyle(celula_fundo_laranja_texto_branco);
+		cell.setCellValue("ID");
+
+		cell = row.createCell(cellnum++);
+		cell.setCellStyle(celula_fundo_laranja_texto_branco);
+		cell.setCellValue("DATA");
+
+		cell = row.createCell(cellnum++);
+		cell.setCellStyle(celula_fundo_laranja_texto_branco);
+		cell.setCellValue("MÊS");
+
 		cell = row.createCell(cellnum++);
 		cell.setCellStyle(celula_fundo_laranja_texto_branco);
 		cell.setCellValue("TIPO");
@@ -646,9 +708,8 @@ public class TelaEscolhaRelatorioLancamentos extends JDialog {
 		BigDecimal valor_pago = BigDecimal.ZERO;
 		BigDecimal valor_total_vencer_pagar = BigDecimal.ZERO;
 		BigDecimal valor_total_juros_pago = BigDecimal.ZERO;
-		
-		BigDecimal valor_juros = BigDecimal.ZERO;
 
+		BigDecimal valor_juros = BigDecimal.ZERO;
 
 		// receitas
 		BigDecimal valor_total_receitas = BigDecimal.ZERO;
@@ -657,103 +718,124 @@ public class TelaEscolhaRelatorioLancamentos extends JDialog {
 		BigDecimal valor_total_vencer_receber = BigDecimal.ZERO;
 		BigDecimal valor_total_juros_recebido = BigDecimal.ZERO;
 
+		int ultima_linha = 2;
 
 		for (Lancamento lancamento : lancamentos_selecionados) {
 			valor_juros = BigDecimal.ZERO;
-			if(lancamento.getStatus() == 0) {
-				//despesas a pagar
+			if (lancamento.getStatus() == 0) {
+				// despesas a pagar
 				valor_total_despesas = valor_total_despesas.add(lancamento.getValor());
 				valor_a_pagar = valor_a_pagar.add(lancamento.getValor().subtract(lancamento.getValor_ja_pago()));
-				
+
 				valor_pago = valor_pago.add(lancamento.getValor_ja_pago());
 				numero_despesas_a_pagar++;
-		
+
 				BigDecimal valor_total = lancamento.getValor();
 				BigDecimal valor__ja_pago = lancamento.getValor_ja_pago();
-				
+
 				BigDecimal valor_restante = valor__ja_pago.subtract(valor_total);
-				
-				if(valor__ja_pago.compareTo(valor_total) > 0) {
-				
+
+				if (valor__ja_pago.compareTo(valor_total) > 0) {
+
 					valor_juros = valor__ja_pago.subtract(valor_total);
 					valor_total_juros_pago = valor_total_juros_pago.add(valor_juros);
-					
-				}
-				else 
-				 valor_total_vencer_pagar = valor_total_vencer_pagar.add(lancamento.getValor_proximo_pagamento_a_vencer());
-						
-			
-			}else if(lancamento.getStatus() == 1) {
-				//despesas ja paga
+
+				} else
+					valor_total_vencer_pagar = valor_total_vencer_pagar
+							.add(lancamento.getValor_proximo_pagamento_a_vencer());
+
+			} else if (lancamento.getStatus() == 1) {
+				// despesas ja paga
 				valor_total_despesas = valor_total_despesas.add(lancamento.getValor());
 				valor_pago = valor_pago.add(lancamento.getValor());
-		
 
 				BigDecimal valor_total = lancamento.getValor();
 				BigDecimal valor__ja_pago = lancamento.getValor_ja_pago();
-				
+
 				BigDecimal valor_restante = valor__ja_pago.subtract(valor_total);
-				
-				if(valor__ja_pago.compareTo(valor_total) > 0) {
+
+				if (valor__ja_pago.compareTo(valor_total) > 0) {
 					valor_juros = valor__ja_pago.subtract(valor_total);
 					valor_total_juros_pago = valor_total_juros_pago.add(valor_juros);
-					
-				}
-				else 
-				 valor_total_vencer_pagar = valor_total_vencer_pagar.add(lancamento.getValor_proximo_pagamento_a_vencer());
-						
 
-				
+				} else
+					valor_total_vencer_pagar = valor_total_vencer_pagar
+							.add(lancamento.getValor_proximo_pagamento_a_vencer());
+
 				numero_despesas_pago++;
-			}else if(lancamento.getStatus() == 2) {
-				//receitas a receber
+			} else if (lancamento.getStatus() == 2) {
+				// receitas a receber
 				valor_total_receitas = valor_total_receitas.add(lancamento.getValor());
 				valor_a_receber = valor_a_receber.add(lancamento.getValor().subtract(lancamento.getValor_ja_pago()));
-				
+
 				valor_recebido = valor_recebido.add(lancamento.getValor_ja_pago());
 
 				BigDecimal valor_total_a_receber = lancamento.getValor();
 				BigDecimal valor__ja_recebido = lancamento.getValor_ja_pago();
-				
+
 				BigDecimal valor_restante = valor__ja_recebido.subtract(valor_total_a_receber);
-				
-				if(valor__ja_recebido.compareTo(valor_total_a_receber) > 0) {
+
+				if (valor__ja_recebido.compareTo(valor_total_a_receber) > 0) {
 					valor_juros = valor__ja_recebido.subtract(valor_total_a_receber);
 					valor_total_juros_recebido = valor_total_juros_recebido.add(valor_juros);
-				
-				}else 
-				    valor_total_vencer_receber = valor_total_vencer_receber.add(lancamento.getValor_proximo_pagamento_a_vencer());
-					
-				
+
+				} else
+					valor_total_vencer_receber = valor_total_vencer_receber
+							.add(lancamento.getValor_proximo_pagamento_a_vencer());
+
 				numero_receitas_a_receber++;
-			}else if(lancamento.getStatus() == 3) {
-				//receitas recebidas
+			} else if (lancamento.getStatus() == 3) {
+				// receitas recebidas
 				valor_total_receitas = valor_total_receitas.add(lancamento.getValor());
 				valor_recebido = valor_recebido.add(lancamento.getValor());
-		
-				
+
 				BigDecimal valor_total_a_receber = lancamento.getValor();
 				BigDecimal valor__ja_recebido = lancamento.getValor_ja_pago();
-				
+
 				BigDecimal valor_restante = valor__ja_recebido.subtract(valor_total_a_receber);
-				
-				if(valor__ja_recebido.compareTo(valor_total_a_receber) > 0) {
+
+				if (valor__ja_recebido.compareTo(valor_total_a_receber) > 0) {
 					valor_juros = valor__ja_recebido.subtract(valor_total_a_receber);
 					valor_total_juros_recebido = valor_total_juros_recebido.add(valor_juros);
-				
-				} else 
-				    valor_total_vencer_receber = valor_total_vencer_receber.add(lancamento.getValor_proximo_pagamento_a_vencer());
-					
-				
-				
-				
-				
+
+				} else
+					valor_total_vencer_receber = valor_total_vencer_receber
+							.add(lancamento.getValor_proximo_pagamento_a_vencer());
+
 				numero_receitas_recebido++;
 			}
-			
 
 			row = sheet.createRow(rownum++);
 			cellnum = 0;
+
+			cell = row.createCell(cellnum++);
+			cell.setCellStyle(textStyle);
+			cell.setCellValue(lancamento.getId_lancamento());
+
+			SimpleDateFormat f = new SimpleDateFormat("dd/MMMM/yyyy");
+			SimpleDateFormat f_mes = new SimpleDateFormat("MMMM/yyyy");
+
+			Date data_lancamento = null;
+			SimpleDateFormat formato = new SimpleDateFormat("dd/MM/yyyy");
+			data_lancamento = formato.parse(lancamento.getData_lancamento());
+
+			String data_formatada = "";
+			String mes_ano_formatada = "";
+
+			if (data_lancamento instanceof Date) {
+				data_formatada = f.format(data_lancamento);
+				mes_ano_formatada = f_mes.format(data_lancamento);
+			}
+
+			// DATA
+			cell = row.createCell(cellnum++);
+			cell.setCellStyle(textStyle);
+			cell.setCellValue(data_formatada);
+
+			// mes
+			cell = row.createCell(cellnum++);
+			cell.setCellStyle(textStyle);
+			cell.setCellValue(mes_ano_formatada);
 
 			String tipo = "";
 			if (lancamento.getTipo_lancamento() == 0) {
@@ -773,38 +855,34 @@ public class TelaEscolhaRelatorioLancamentos extends JDialog {
 			cell.setCellValue(lancamento.getNome_cliente_fornecedor());
 
 			cell = row.createCell(cellnum++);
-			cell.setCellStyle(textStyle);
-			cell.setCellValue(NumberFormat.getCurrencyInstance(ptBr).format(lancamento.getValor()));
+			cell.setCellStyle(numberStyle);
+			cell.setCellValue(lancamento.getValor().doubleValue());
 
 			cell = row.createCell(cellnum++);
-			cell.setCellStyle(textStyle);
-			cell.setCellValue(NumberFormat.getCurrencyInstance(ptBr).format(lancamento.getValor_ja_pago()));
+			cell.setCellStyle(numberStyle);
+			cell.setCellValue(lancamento.getValor_ja_pago().doubleValue());
 
 			BigDecimal valor_a_pagar_lancamento = lancamento.getValor().subtract(lancamento.getValor_ja_pago());
 			cell = row.createCell(cellnum++);
-			cell.setCellStyle(textStyle);
-			cell.setCellValue(NumberFormat.getCurrencyInstance(ptBr).format(valor_a_pagar_lancamento));
+			cell.setCellStyle(numberStyle);
+			cell.setCellValue(valor_a_pagar_lancamento.doubleValue());
 
 			if (lancamento.getValor_proximo_pagamento_a_vencer().compareTo(valor_a_pagar_lancamento) > 0) {
 				cell = row.createCell(cellnum++);
-				cell.setCellStyle(textStyle);
-				cell.setCellValue(NumberFormat.getCurrencyInstance(ptBr).format(valor_a_pagar_lancamento));
+				cell.setCellStyle(numberStyle);
+				cell.setCellValue(valor_a_pagar_lancamento.doubleValue());
 
-			
 			} else {
 				cell = row.createCell(cellnum++);
-				cell.setCellStyle(textStyle);
-				cell.setCellValue(NumberFormat.getCurrencyInstance(ptBr)
-						.format(lancamento.getValor_proximo_pagamento_a_vencer()));
-			
+				cell.setCellStyle(numberStyle);
+				cell.setCellValue(lancamento.getValor_proximo_pagamento_a_vencer().doubleValue());
+
 			}
-			
-			
+
 			cell = row.createCell(cellnum++);
-			cell.setCellStyle(textStyle);
-			cell.setCellValue(NumberFormat.getCurrencyInstance(ptBr)
-					.format(valor_juros));
-			
+			cell.setCellStyle(numberStyle);
+			cell.setCellValue(valor_juros.doubleValue());
+
 			cell = row.createCell(cellnum++);
 			cell.setCellStyle(textStyle);
 			cell.setCellValue(lancamento.getData_vencimento());
@@ -817,7 +895,7 @@ public class TelaEscolhaRelatorioLancamentos extends JDialog {
 				// data vencimento
 				Date data_vencimento = null;
 				try {
-					SimpleDateFormat formato = new SimpleDateFormat("dd/MM/yyyy");
+					formato = new SimpleDateFormat("dd/MM/yyyy");
 					data_vencimento = formato.parse(lancamento.getData_vencimento());
 
 					try {
@@ -915,6 +993,7 @@ public class TelaEscolhaRelatorioLancamentos extends JDialog {
 			cell = row.createCell(cellnum++);
 			cell.setCellStyle(textStyle);
 			cell.setCellValue(status_contador);
+			ultima_linha = rownum;
 
 		}
 		sheet.setAutoFilter(CellRangeAddress.valueOf("A2:AF2"));
@@ -923,37 +1002,12 @@ public class TelaEscolhaRelatorioLancamentos extends JDialog {
 
 		}
 
+		FormulaEvaluator evaluator = workbook.getCreationHelper().createFormulaEvaluator();
+
 		row = sheet.createRow(rownum += 2);
 		cellnum = 0;
-		/*
-		 * lblDespesasAPagar.setText(numero_despesas_a_pagar + "");
-		 * lblDespesasPago.setText(numero_despesas_pago + "");
-		 * lblTotalDespesas.setText((numero_despesas_a_pagar + numero_despesas_pago ) +
-		 * ""); lblReceitasAReceber.setText(numero_receitas_a_receber + "");
-		 * lblReceitasRecebido.setText(numero_receitas_recebido + "");
-		 * lblTotalReceitas.setText((numero_receitas_a_receber +
-		 * numero_receitas_recebido) + "");
-		 * 
-		 * 
-		 * //valores Locale ptBr = new Locale("pt", "BR");
-		 * lblValorRestanteAPagar.setText(NumberFormat.getCurrencyInstance(ptBr).format(
-		 * valor_a_pagar));
-		 * lblValorPago.setText(NumberFormat.getCurrencyInstance(ptBr).format(valor_pago
-		 * ));
-		 * lblValorTotalDespesas.setText(NumberFormat.getCurrencyInstance(ptBr).format(
-		 * valor_total_despesas));
-		 * 
-		 * 
-		 * //receitas
-		 * lblValorAReceber.setText(NumberFormat.getCurrencyInstance(ptBr).format(
-		 * valor_a_receber));
-		 * lblValorRecebido.setText(NumberFormat.getCurrencyInstance(ptBr).format(
-		 * valor_recebido));
-		 * lblValorReceitas.setText(NumberFormat.getCurrencyInstance(ptBr).format(
-		 * valor_total_receitas));
-		 * 
-		 */
-		cell = row.createCell(cellnum++);
+		
+		cell = row.createCell(cellnum += 1);
 		cell.setCellStyle(celula_fundo_laranja_texto_branco);
 		cell.setCellValue("DESPESAS");
 		// sheet.addMergedRegion(new CellRangeAddress(rownum, rownum, cellnum, 5));
@@ -966,13 +1020,15 @@ public class TelaEscolhaRelatorioLancamentos extends JDialog {
 		cellnum = 0;
 
 		// despesa
-		cell = row.createCell(cellnum);
+		cell = row.createCell(cellnum += 1);
 		cell.setCellStyle(celula_fundo_laranja_texto_branco);
 		cell.setCellValue("Valor Total:");
 
 		cell = row.createCell(cellnum += 1);
-		cell.setCellStyle(celula_fundo_laranja_texto_branco);
-		cell.setCellValue(NumberFormat.getCurrencyInstance(ptBr).format(valor_total_despesas));
+		cell.setCellStyle(numberStyleFundoVerdeTextoBranco);
+		cell.setCellType(CellType.FORMULA);
+		String formula = "SUMPRODUCT(SUBTOTAL(9,OFFSET(F3:F" + ultima_linha + ",ROW(F3:F" + ultima_linha + ")-ROW(F3),0,1,1)),-(D3:D" + ultima_linha + "=\"DESPESAS\")) * -1";
+		cell.setCellFormula(formula);
 
 		// receitas
 		cell = row.createCell(4);
@@ -980,20 +1036,24 @@ public class TelaEscolhaRelatorioLancamentos extends JDialog {
 		cell.setCellValue("Valor Total:");
 
 		cell = row.createCell(5);
-		cell.setCellStyle(celula_fundo_laranja_texto_branco);
-		cell.setCellValue(NumberFormat.getCurrencyInstance(ptBr).format(valor_total_receitas));
+		cell.setCellStyle(numberStyleFundoVerdeTextoBranco);
+		cell.setCellType(CellType.FORMULA);
+		formula = "SUMPRODUCT(SUBTOTAL(9,OFFSET(F3:F" + ultima_linha + ",ROW(F3:F" + ultima_linha + ")-ROW(F3),0,1,1)),-(D3:D" + ultima_linha + "=\"RECEITAS\")) * -1";
+		cell.setCellFormula(formula);
 
 		row = sheet.createRow(rownum += 1);
 		cellnum = 0;
 
 		// despesa
-		cell = row.createCell(cellnum);
+		cell = row.createCell(cellnum += 1);
 		cell.setCellStyle(celula_fundo_laranja_texto_branco);
 		cell.setCellValue("Valor Pago:");
 
 		cell = row.createCell(cellnum += 1);
-		cell.setCellStyle(celula_fundo_laranja_texto_branco);
-		cell.setCellValue(NumberFormat.getCurrencyInstance(ptBr).format(valor_pago));
+		cell.setCellStyle(numberStyleFundoVerdeTextoBranco);
+		cell.setCellType(CellType.FORMULA);
+		 formula = "SUMPRODUCT(SUBTOTAL(9,OFFSET(G3:G" + ultima_linha + ",ROW(G3:G" + ultima_linha + ")-ROW(G3),0,1,1)),-(D3:D" + ultima_linha + "=\"DESPESAS\")) * -1";
+		cell.setCellFormula(formula);
 
 		// receitas
 		cell = row.createCell(4);
@@ -1001,21 +1061,25 @@ public class TelaEscolhaRelatorioLancamentos extends JDialog {
 		cell.setCellValue("Valor Recebido:");
 
 		cell = row.createCell(5);
-		cell.setCellStyle(celula_fundo_laranja_texto_branco);
-		cell.setCellValue(NumberFormat.getCurrencyInstance(ptBr).format(valor_recebido));
+		cell.setCellStyle(numberStyleFundoVerdeTextoBranco);
+		cell.setCellType(CellType.FORMULA);
+		 formula = "SUMPRODUCT(SUBTOTAL(9,OFFSET(G3:G" + ultima_linha + ",ROW(G3:G" + ultima_linha + ")-ROW(G3),0,1,1)),-(D3:D" + ultima_linha + "=\"RECEITAS\")) * -1";
+		cell.setCellFormula(formula);
 
 		row = sheet.createRow(rownum += 1);
 
 		cellnum = 0;
 
 		// despesa
-		cell = row.createCell(cellnum);
+		cell = row.createCell(cellnum += 1);
 		cell.setCellStyle(celula_fundo_laranja_texto_branco);
 		cell.setCellValue("Valor a Pagar:");
 
 		cell = row.createCell(cellnum += 1);
-		cell.setCellStyle(celula_fundo_laranja_texto_branco);
-		cell.setCellValue(NumberFormat.getCurrencyInstance(ptBr).format(valor_a_pagar));
+		cell.setCellStyle(numberStyleFundoVerdeTextoBranco);
+		cell.setCellType(CellType.FORMULA);
+		 formula = "SUMPRODUCT(SUBTOTAL(9,OFFSET(H3:H" + ultima_linha + ",ROW(H3:H" + ultima_linha + ")-ROW(H3),0,1,1)),-(D3:D" + ultima_linha + "=\"DESPESAS\")) * -1";
+		cell.setCellFormula(formula);
 
 		// receitas
 		cell = row.createCell(4);
@@ -1023,8 +1087,10 @@ public class TelaEscolhaRelatorioLancamentos extends JDialog {
 		cell.setCellValue("Valor a Receber:");
 
 		cell = row.createCell(5);
-		cell.setCellStyle(celula_fundo_laranja_texto_branco);
-		cell.setCellValue(NumberFormat.getCurrencyInstance(ptBr).format(valor_a_receber));
+		cell.setCellStyle(numberStyleFundoVerdeTextoBranco);
+		cell.setCellType(CellType.FORMULA);
+		 formula = "SUMPRODUCT(SUBTOTAL(9,OFFSET(H3:H" + ultima_linha + ",ROW(H3:H" + ultima_linha + ")-ROW(H3),0,1,1)),-(D3:D" + ultima_linha + "=\"RECEITAS\")) * -1";
+		cell.setCellFormula(formula);
 
 		// vencimentos
 
@@ -1033,13 +1099,16 @@ public class TelaEscolhaRelatorioLancamentos extends JDialog {
 		cellnum = 0;
 
 		// despesa
-		cell = row.createCell(cellnum);
+		cell = row.createCell(cellnum += 1);
 		cell.setCellStyle(celula_fundo_laranja_texto_branco);
 		cell.setCellValue("Valor a Vencer:");
 
 		cell = row.createCell(cellnum += 1);
-		cell.setCellStyle(celula_fundo_laranja_texto_branco);
-		cell.setCellValue(NumberFormat.getCurrencyInstance(ptBr).format(valor_total_vencer_pagar));
+		cell.setCellStyle(numberStyleFundoVerdeTextoBranco);
+		cell.setCellType(CellType.FORMULA);
+		 formula = "SUMPRODUCT(SUBTOTAL(9,OFFSET(I3:I" + ultima_linha + ",ROW(I3:I" + ultima_linha + ")-ROW(I3),0,1,1)),-(D3:D" + ultima_linha + "=\"DESPESAS\")) * -1";
+		cell.setCellFormula(formula);
+
 
 		// receitas
 		cell = row.createCell(4);
@@ -1047,8 +1116,11 @@ public class TelaEscolhaRelatorioLancamentos extends JDialog {
 		cell.setCellValue("Valor a Vencer:");
 
 		cell = row.createCell(5);
-		cell.setCellStyle(celula_fundo_laranja_texto_branco);
-		cell.setCellValue(NumberFormat.getCurrencyInstance(ptBr).format(valor_total_vencer_receber));
+		cell.setCellStyle(numberStyleFundoVerdeTextoBranco);
+		cell.setCellType(CellType.FORMULA);
+		 formula = "SUMPRODUCT(SUBTOTAL(9,OFFSET(I3:I" + ultima_linha + ",ROW(I3:I" + ultima_linha + ")-ROW(I3),0,1,1)),-(D3:D" + ultima_linha + "=\"RECEITAS\")) * -1";
+		cell.setCellFormula(formula);
+
 
 		// juros
 
@@ -1057,13 +1129,15 @@ public class TelaEscolhaRelatorioLancamentos extends JDialog {
 		cellnum = 0;
 
 		// despesa
-		cell = row.createCell(cellnum);
+		cell = row.createCell(cellnum += 1);
 		cell.setCellStyle(celula_fundo_laranja_texto_branco);
 		cell.setCellValue("Valor Total Juros:");
 
 		cell = row.createCell(cellnum += 1);
-		cell.setCellStyle(celula_fundo_laranja_texto_branco);
-		cell.setCellValue(NumberFormat.getCurrencyInstance(ptBr).format(valor_total_juros_pago));
+		cell.setCellStyle(numberStyleFundoVerdeTextoBranco);
+		cell.setCellType(CellType.FORMULA);
+		 formula = "SUMPRODUCT(SUBTOTAL(9,OFFSET(J3:J" + ultima_linha + ",ROW(J3:J" + ultima_linha + ")-ROW(J3),0,1,1)),-(D3:D" + ultima_linha + "=\"DESPESAS\")) * -1";
+		cell.setCellFormula(formula);
 
 		// receitas
 		cell = row.createCell(4);
@@ -1071,15 +1145,16 @@ public class TelaEscolhaRelatorioLancamentos extends JDialog {
 		cell.setCellValue("Valor Total Juros:");
 
 		cell = row.createCell(5);
-		cell.setCellStyle(celula_fundo_laranja_texto_branco);
-		cell.setCellValue(NumberFormat.getCurrencyInstance(ptBr).format(valor_total_juros_recebido));
+		cell.setCellStyle(numberStyleFundoVerdeTextoBranco);
+		cell.setCellType(CellType.FORMULA);
+		 formula = "SUMPRODUCT(SUBTOTAL(9,OFFSET(J3:J" + ultima_linha + ",ROW(J3:J" + ultima_linha + ")-ROW(J3),0,1,1)),-(D3:D" + ultima_linha + "=\"RECEITAS\")) * -1";
+		cell.setCellFormula(formula);
 
 		return workbook;
 	}
 
-	
-	
-	public HSSFWorkbook prepararCompleto(ArrayList<Lancamento> lancamentos_selecionados, int flag) {
+	public HSSFWorkbook prepararCompletoPDF(ArrayList<Lancamento> lancamentos_selecionados, int flag)
+			throws ParseException {
 		HSSFWorkbook workbook = new HSSFWorkbook();
 		HSSFSheet sheet = workbook.createSheet("Exportação de Dados de lancamentos");
 
@@ -1221,36 +1296,38 @@ public class TelaEscolhaRelatorioLancamentos extends JDialog {
 		// Configurando as informacoes
 
 		// Configurando as informacoes
-				row = sheet.createRow(rownum++);
+		row = sheet.createRow(rownum++);
 
-				// Configurando titulo
-				cell = row.createCell(cellnum++);
-				cell.setCellStyle(celula_titulo);
-				cell.setCellValue("Relatório de Lançamentos");
-				// criar celula de 1 a 5
-				for (int i = 1; i < 6; i++) {
-					cell = row.createCell(cellnum++);
-					cell.setCellStyle(celula_titulo);
-					cell.setCellValue("");
+		// Configurando titulo
+		cell = row.createCell(cellnum++);
+		cell.setCellStyle(celula_titulo);
+		cell.setCellValue("Relatório de Lançamentos");
+		// criar celula de 1 a 5
+		for (int i = 1; i < 6; i++) {
+			cell = row.createCell(cellnum++);
+			cell.setCellStyle(celula_titulo);
+			cell.setCellValue("");
 
-				}
-				sheet.addMergedRegion(new CellRangeAddress(0, 0, 0, 5));
+		}
+		sheet.addMergedRegion(new CellRangeAddress(0, 0, 0, 5));
 
-
-			
-				cellnum = 0;
+		cellnum = 0;
 
 		// Configurando Header
 		row = sheet.createRow(rownum++);
-		
+
 		cell = row.createCell(cellnum++);
 		cell.setCellStyle(celula_fundo_laranja_texto_branco);
 		cell.setCellValue("ID");
-		
+
 		cell = row.createCell(cellnum++);
 		cell.setCellStyle(celula_fundo_laranja_texto_branco);
 		cell.setCellValue("DATA LANÇAMENTO");
-		
+
+		cell = row.createCell(cellnum++);
+		cell.setCellStyle(celula_fundo_laranja_texto_branco);
+		cell.setCellValue("MÊS");
+
 		cell = row.createCell(cellnum++);
 		cell.setCellStyle(celula_fundo_laranja_texto_branco);
 		cell.setCellValue("TIPO");
@@ -1258,19 +1335,19 @@ public class TelaEscolhaRelatorioLancamentos extends JDialog {
 		cell = row.createCell(cellnum++);
 		cell.setCellStyle(celula_fundo_laranja_texto_branco);
 		cell.setCellValue("PRIORIDADE");
-		
+
 		cell = row.createCell(cellnum++);
 		cell.setCellStyle(celula_fundo_laranja_texto_branco);
 		cell.setCellValue("CENTRO DE CUSTO");
-		
+
 		cell = row.createCell(cellnum++);
 		cell.setCellStyle(celula_fundo_laranja_texto_branco);
 		cell.setCellValue("IDENTIFICADOR");
-		
+
 		cell = row.createCell(cellnum++);
 		cell.setCellStyle(celula_fundo_laranja_texto_branco);
 		cell.setCellValue("DESTINATÁRIO NF");
-		
+
 		cell = row.createCell(cellnum++);
 		cell.setCellStyle(celula_fundo_laranja_texto_branco);
 		cell.setCellValue("CLIENTE/FORNECEDOR");
@@ -1278,12 +1355,11 @@ public class TelaEscolhaRelatorioLancamentos extends JDialog {
 		cell = row.createCell(cellnum++);
 		cell.setCellStyle(celula_fundo_laranja_texto_branco);
 		cell.setCellValue("GRUPO DE CONTAS");
-		
+
 		cell = row.createCell(cellnum++);
 		cell.setCellStyle(celula_fundo_laranja_texto_branco);
 		cell.setCellValue("CONTA");
-		
-		
+
 		cell = row.createCell(cellnum++);
 		cell.setCellStyle(celula_fundo_laranja_texto_branco);
 		cell.setCellValue("VALOR TOTAL".toUpperCase());
@@ -1311,11 +1387,11 @@ public class TelaEscolhaRelatorioLancamentos extends JDialog {
 		cell = row.createCell(cellnum++);
 		cell.setCellStyle(celula_fundo_laranja_texto_branco);
 		cell.setCellValue("DATA ÚLTIMO PAGAMENTO");
-		
+
 		cell = row.createCell(cellnum++);
 		cell.setCellStyle(celula_fundo_laranja_texto_branco);
 		cell.setCellValue("STATUS");
-		
+
 		cell = row.createCell(cellnum++);
 		cell.setCellStyle(celula_fundo_laranja_texto_branco);
 		cell.setCellValue("SITUAÇÃO".toUpperCase());
@@ -1350,9 +1426,8 @@ public class TelaEscolhaRelatorioLancamentos extends JDialog {
 		BigDecimal valor_pago = BigDecimal.ZERO;
 		BigDecimal valor_total_vencer_pagar = BigDecimal.ZERO;
 		BigDecimal valor_total_juros_pago = BigDecimal.ZERO;
-		
-		BigDecimal valor_juros = BigDecimal.ZERO;
 
+		BigDecimal valor_juros = BigDecimal.ZERO;
 
 		// receitas
 		BigDecimal valor_total_receitas = BigDecimal.ZERO;
@@ -1361,111 +1436,122 @@ public class TelaEscolhaRelatorioLancamentos extends JDialog {
 		BigDecimal valor_total_vencer_receber = BigDecimal.ZERO;
 		BigDecimal valor_total_juros_recebido = BigDecimal.ZERO;
 
-
 		for (Lancamento lancamento : lancamentos_selecionados) {
 			valor_juros = BigDecimal.ZERO;
-			if(lancamento.getStatus() == 0) {
-				//despesas a pagar
+			if (lancamento.getStatus() == 0) {
+				// despesas a pagar
 				valor_total_despesas = valor_total_despesas.add(lancamento.getValor());
 				valor_a_pagar = valor_a_pagar.add(lancamento.getValor().subtract(lancamento.getValor_ja_pago()));
-				
+
 				valor_pago = valor_pago.add(lancamento.getValor_ja_pago());
 				numero_despesas_a_pagar++;
-		
+
 				BigDecimal valor_total = lancamento.getValor();
 				BigDecimal valor__ja_pago = lancamento.getValor_ja_pago();
-				
+
 				BigDecimal valor_restante = valor__ja_pago.subtract(valor_total);
-				
-				if(valor__ja_pago.compareTo(valor_total) > 0) {
-				
+
+				if (valor__ja_pago.compareTo(valor_total) > 0) {
+
 					valor_juros = valor__ja_pago.subtract(valor_total);
 					valor_total_juros_pago = valor_total_juros_pago.add(valor_juros);
-					
-				}
-				else 
-				 valor_total_vencer_pagar = valor_total_vencer_pagar.add(lancamento.getValor_proximo_pagamento_a_vencer());
-						
-			
-			}else if(lancamento.getStatus() == 1) {
-				//despesas ja paga
+
+				} else
+					valor_total_vencer_pagar = valor_total_vencer_pagar
+							.add(lancamento.getValor_proximo_pagamento_a_vencer());
+
+			} else if (lancamento.getStatus() == 1) {
+				// despesas ja paga
 				valor_total_despesas = valor_total_despesas.add(lancamento.getValor());
 				valor_pago = valor_pago.add(lancamento.getValor());
-		
 
 				BigDecimal valor_total = lancamento.getValor();
 				BigDecimal valor__ja_pago = lancamento.getValor_ja_pago();
-				
+
 				BigDecimal valor_restante = valor__ja_pago.subtract(valor_total);
-				
-				if(valor__ja_pago.compareTo(valor_total) > 0) {
+
+				if (valor__ja_pago.compareTo(valor_total) > 0) {
 					valor_juros = valor__ja_pago.subtract(valor_total);
 					valor_total_juros_pago = valor_total_juros_pago.add(valor_juros);
-					
-				}
-				else 
-				 valor_total_vencer_pagar = valor_total_vencer_pagar.add(lancamento.getValor_proximo_pagamento_a_vencer());
-						
 
-				
+				} else
+					valor_total_vencer_pagar = valor_total_vencer_pagar
+							.add(lancamento.getValor_proximo_pagamento_a_vencer());
+
 				numero_despesas_pago++;
-			}else if(lancamento.getStatus() == 2) {
-				//receitas a receber
+			} else if (lancamento.getStatus() == 2) {
+				// receitas a receber
 				valor_total_receitas = valor_total_receitas.add(lancamento.getValor());
 				valor_a_receber = valor_a_receber.add(lancamento.getValor().subtract(lancamento.getValor_ja_pago()));
-				
+
 				valor_recebido = valor_recebido.add(lancamento.getValor_ja_pago());
 
 				BigDecimal valor_total_a_receber = lancamento.getValor();
 				BigDecimal valor__ja_recebido = lancamento.getValor_ja_pago();
-				
+
 				BigDecimal valor_restante = valor__ja_recebido.subtract(valor_total_a_receber);
-				
-				if(valor__ja_recebido.compareTo(valor_total_a_receber) > 0) {
+
+				if (valor__ja_recebido.compareTo(valor_total_a_receber) > 0) {
 					valor_juros = valor__ja_recebido.subtract(valor_total_a_receber);
 					valor_total_juros_recebido = valor_total_juros_recebido.add(valor_juros);
-				
-				}else 
-				    valor_total_vencer_receber = valor_total_vencer_receber.add(lancamento.getValor_proximo_pagamento_a_vencer());
-					
-				
+
+				} else
+					valor_total_vencer_receber = valor_total_vencer_receber
+							.add(lancamento.getValor_proximo_pagamento_a_vencer());
+
 				numero_receitas_a_receber++;
-			}else if(lancamento.getStatus() == 3) {
-				//receitas recebidas
+			} else if (lancamento.getStatus() == 3) {
+				// receitas recebidas
 				valor_total_receitas = valor_total_receitas.add(lancamento.getValor());
 				valor_recebido = valor_recebido.add(lancamento.getValor());
-		
-				
+
 				BigDecimal valor_total_a_receber = lancamento.getValor();
 				BigDecimal valor__ja_recebido = lancamento.getValor_ja_pago();
-				
+
 				BigDecimal valor_restante = valor__ja_recebido.subtract(valor_total_a_receber);
-				
-				if(valor__ja_recebido.compareTo(valor_total_a_receber) > 0) {
+
+				if (valor__ja_recebido.compareTo(valor_total_a_receber) > 0) {
 					valor_juros = valor__ja_recebido.subtract(valor_total_a_receber);
 					valor_total_juros_recebido = valor_total_juros_recebido.add(valor_juros);
-				
-				} else 
-				    valor_total_vencer_receber = valor_total_vencer_receber.add(lancamento.getValor_proximo_pagamento_a_vencer());
-					
-				
-				
-				
-				
+
+				} else
+					valor_total_vencer_receber = valor_total_vencer_receber
+							.add(lancamento.getValor_proximo_pagamento_a_vencer());
+
 				numero_receitas_recebido++;
 			}
-			
 
 			row = sheet.createRow(rownum++);
 			cellnum = 0;
-			
+
 			cell = row.createCell(cellnum++);
 			cell.setCellStyle(textStyle);
 			cell.setCellValue(lancamento.getId_lancamento());
-			
+
+			SimpleDateFormat f = new SimpleDateFormat("dd/MMMM/yyyy");
+			SimpleDateFormat f_mes = new SimpleDateFormat("MMMM/yyyy");
+
+			Date data_lancamento = null;
+			SimpleDateFormat formato = new SimpleDateFormat("dd/MM/yyyy");
+			data_lancamento = formato.parse(lancamento.getData_lancamento());
+
+			String data_formatada = "";
+			String mes_ano_formatada = "";
+
+			if (data_lancamento instanceof Date) {
+				data_formatada = f.format(data_lancamento);
+				mes_ano_formatada = f_mes.format(data_lancamento);
+			}
+
+			// DATA
 			cell = row.createCell(cellnum++);
 			cell.setCellStyle(textStyle);
-			cell.setCellValue(lancamento.getData_lancamento());
+			cell.setCellValue(data_formatada);
+
+			// mes
+			cell = row.createCell(cellnum++);
+			cell.setCellStyle(textStyle);
+			cell.setCellValue(mes_ano_formatada);
 
 			String tipo = "";
 			if (lancamento.getTipo_lancamento() == 0) {
@@ -1480,7 +1566,7 @@ public class TelaEscolhaRelatorioLancamentos extends JDialog {
 			cell.setCellStyle(textStyle);
 			cell.setCellValue(tipo);
 
-			String prioridade  = "";
+			String prioridade = "";
 			int i_prioridade = lancamento.getPrioridade();
 			if (i_prioridade == 0) {
 				prioridade = "Alta Prioridade - Ainda esta semana";
@@ -1492,94 +1578,90 @@ public class TelaEscolhaRelatorioLancamentos extends JDialog {
 				prioridade = "Baixa Prioridade - Ainda este ano";
 			}
 
-			//prioridade
+			// prioridade
 			cell = row.createCell(cellnum++);
 			cell.setCellStyle(textStyle);
 			cell.setCellValue(prioridade);
-			
-			//centro de custo
+
+			// centro de custo
 			cell = row.createCell(cellnum++);
 			cell.setCellStyle(textStyle);
 			cell.setCellValue(lancamento.getNome_centro_custo());
-			
-			//identificador
+
+			// identificador
 			cell = row.createCell(cellnum++);
 			cell.setCellStyle(textStyle);
 			cell.setCellValue(lancamento.getIdentificacao());
-			
-			//destinatario nf
+
+			// destinatario nf
 			cell = row.createCell(cellnum++);
 			cell.setCellStyle(textStyle);
 			cell.setCellValue(lancamento.getNome_destinatario_nf());
-			
-		
-			//cliente fornecedor
+
+			// cliente fornecedor
 			cell = row.createCell(cellnum++);
 			cell.setCellStyle(textStyle);
 			cell.setCellValue(lancamento.getNome_cliente_fornecedor());
 
-			//grupo de contas
+			// grupo de contas
 			cell = row.createCell(cellnum++);
 			cell.setCellStyle(textStyle);
 			cell.setCellValue(lancamento.getNome_grupo_contas());
-			
-			//conta
+
+			// conta
 			cell = row.createCell(cellnum++);
 			cell.setCellStyle(textStyle);
 			cell.setCellValue(lancamento.getNome_conta());
-			
-			//valor total
-			cell = row.createCell(cellnum++);
-			cell.setCellStyle(textStyle);
-			cell.setCellValue(NumberFormat.getCurrencyInstance(ptBr).format(lancamento.getValor()));
 
-			//valor pago
+			// valor total
 			cell = row.createCell(cellnum++);
-			cell.setCellStyle(textStyle);
-			cell.setCellValue(NumberFormat.getCurrencyInstance(ptBr).format(lancamento.getValor_ja_pago()));
+			cell.setCellStyle(numberStyle);
+			cell.setCellValue(lancamento.getValor().doubleValue());
 
-			//valor a pagar
+			// valor pago
+			cell = row.createCell(cellnum++);
+			cell.setCellStyle(numberStyle);
+			cell.setCellValue(lancamento.getValor_ja_pago().doubleValue());
+
+			// valor a pagar
 			BigDecimal valor_a_pagar_lancamento = lancamento.getValor().subtract(lancamento.getValor_ja_pago());
 			cell = row.createCell(cellnum++);
-			cell.setCellStyle(textStyle);
-			cell.setCellValue(NumberFormat.getCurrencyInstance(ptBr).format(valor_a_pagar_lancamento));
+			cell.setCellStyle(numberStyle);
+			cell.setCellValue(valor_a_pagar_lancamento.doubleValue());
 
 			if (lancamento.getValor_proximo_pagamento_a_vencer().compareTo(valor_a_pagar_lancamento) > 0) {
 				cell = row.createCell(cellnum++);
-				cell.setCellStyle(textStyle);
-				cell.setCellValue(NumberFormat.getCurrencyInstance(ptBr).format(valor_a_pagar_lancamento));
+				cell.setCellStyle(numberStyle);
+				cell.setCellValue(valor_a_pagar_lancamento.doubleValue());
 
-			
 			} else {
 				cell = row.createCell(cellnum++);
-				cell.setCellStyle(textStyle);
-				cell.setCellValue(NumberFormat.getCurrencyInstance(ptBr)
-						.format(lancamento.getValor_proximo_pagamento_a_vencer()));
-			
+				cell.setCellStyle(numberStyle);
+				cell.setCellValue(lancamento.getValor_proximo_pagamento_a_vencer().doubleValue());
+
 			}
-			
-			//juros
+
+			// juros
 			cell = row.createCell(cellnum++);
-			cell.setCellStyle(textStyle);
-			cell.setCellValue(NumberFormat.getCurrencyInstance(ptBr)
-					.format(valor_juros));
-			
-			//data proximo venciomento
+			cell.setCellStyle(numberStyle);
+			cell.setCellValue(valor_juros.doubleValue());
+
+			// data proximo venciomento
 			cell = row.createCell(cellnum++);
 			cell.setCellStyle(textStyle);
 			cell.setCellValue(lancamento.getData_vencimento());
 
-			//data ultimo pagamento
+			// data ultimo pagamento
 			cell = row.createCell(cellnum++);
 			cell.setCellStyle(textStyle);
 			cell.setCellValue(lancamento.getData_pagamento());
-			
-			//status
+
+			// status
 			cell = row.createCell(cellnum++);
 			cell.setCellStyle(textStyle);
 			cell.setCellValue(lancamento.getStatus());
-			
-			//situacao
+
+			// situacao
 			String situacao = "";
 			try {
 				// data hoje
@@ -1588,7 +1670,7 @@ public class TelaEscolhaRelatorioLancamentos extends JDialog {
 				// data vencimento
 				Date data_vencimento = null;
 				try {
-					SimpleDateFormat formato = new SimpleDateFormat("dd/MM/yyyy");
+					formato = new SimpleDateFormat("dd/MM/yyyy");
 					data_vencimento = formato.parse(lancamento.getData_vencimento());
 
 					try {
@@ -1621,7 +1703,7 @@ public class TelaEscolhaRelatorioLancamentos extends JDialog {
 			cell.setCellStyle(textStyle);
 			cell.setCellValue(situacao);
 
-			//condicoes de pagamentos
+			// condicoes de pagamentos
 			String condicoes = "";
 			try {
 				String array_condicoes_pagamento = lancamento.getIds_forma_pagamento();
@@ -1650,8 +1732,7 @@ public class TelaEscolhaRelatorioLancamentos extends JDialog {
 			cell.setCellStyle(textStyle);
 			cell.setCellValue(condicoes);
 
-			
-			//status condicao de pagamento
+			// status condicao de pagamento
 			String retorno = "";
 			try {
 				String array_status = lancamento.getStatus_forma_pagamento();
@@ -1674,7 +1755,7 @@ public class TelaEscolhaRelatorioLancamentos extends JDialog {
 			cell.setCellStyle(textStyle);
 			cell.setCellValue(retorno);
 
-			//status contador
+			// status contador
 			String status_contador = "";
 			int status = lancamento.getContador();
 
@@ -1700,7 +1781,7 @@ public class TelaEscolhaRelatorioLancamentos extends JDialog {
 
 		row = sheet.createRow(rownum += 2);
 		cellnum = 1;
-	
+
 		cell = row.createCell(cellnum++);
 		cell.setCellStyle(celula_fundo_laranja_texto_branco);
 		cell.setCellValue("DESPESAS");
@@ -1823,6 +1904,827 @@ public class TelaEscolhaRelatorioLancamentos extends JDialog {
 		cell.setCellValue(NumberFormat.getCurrencyInstance(ptBr).format(valor_total_juros_recebido));
 
 		return workbook;
+	}
+
+	
+	public HSSFWorkbook prepararCompletoExcel(ArrayList<Lancamento> lancamentos_selecionados, int flag)
+			throws ParseException {
+		HSSFWorkbook workbook = new HSSFWorkbook();
+		HSSFSheet sheet = workbook.createSheet("Exportação de Dados de lancamentos");
+
+		// Definindo alguns padroes de layout
+		sheet.setDefaultColumnWidth(25);
+		sheet.setDefaultRowHeight((short) 400);
+
+		int rownum = 0;
+		int cellnum = 0;
+		Cell cell;
+		Row row;
+
+		// Configurando estilos de células (Cores, alinhamento, formatação, etc..)
+		HSSFDataFormat numberFormat = workbook.createDataFormat();
+
+		CellStyle headerStyle = workbook.createCellStyle();
+		headerStyle.setFillForegroundColor(IndexedColors.GREY_25_PERCENT.getIndex());
+		// headerStyle.setFillPattern(CellStyle.SOLID_FOREGROUND);
+		headerStyle.setAlignment(HorizontalAlignment.CENTER);
+		headerStyle.setVerticalAlignment(VerticalAlignment.CENTER);
+
+		// celula para texto alinhado ao centro
+		CellStyle textStyle = workbook.createCellStyle();
+		textStyle.setAlignment(HorizontalAlignment.CENTER);
+		textStyle.setVerticalAlignment(VerticalAlignment.CENTER);
+
+		// celula para numero alinhado ao centro
+		CellStyle numberStyle = workbook.createCellStyle();
+		numberStyle.setDataFormat(numberFormat.getFormat("#,##0.00"));
+		numberStyle.setAlignment(HorizontalAlignment.CENTER);
+		numberStyle.setVerticalAlignment(VerticalAlignment.CENTER);
+
+		// estilo de celula negrito
+		CellStyle negrito = workbook.createCellStyle();
+		// textStyle.setAlignment(HorizontalAlignment.CENTER);
+		negrito.setFillPattern(FillPatternType.SOLID_FOREGROUND);
+		negrito.setFillForegroundColor(IndexedColors.WHITE.getIndex());
+		negrito.setAlignment(HorizontalAlignment.CENTER);
+		negrito.setVerticalAlignment(VerticalAlignment.CENTER);
+
+		HSSFFont newFontNegrita = workbook.createFont();
+		newFontNegrita.setBold(true);
+		newFontNegrita.setColor(IndexedColors.BLACK.getIndex());
+		newFontNegrita.setFontName("Arial");
+		newFontNegrita.setItalic(true);
+		newFontNegrita.setFontHeight((short) (11 * 20));
+
+		negrito.setFont(newFontNegrita);
+
+		// estilo para celula texto alinhado a esquerda
+		CellStyle negrito_esquerda = workbook.createCellStyle();
+		// textStyle.setAlignment(HorizontalAlignment.CENTER);
+		negrito_esquerda.setFillPattern(FillPatternType.SOLID_FOREGROUND);
+		negrito_esquerda.setFillForegroundColor(IndexedColors.WHITE.getIndex());
+		negrito_esquerda.setAlignment(HorizontalAlignment.LEFT);
+		negrito_esquerda.setVerticalAlignment(VerticalAlignment.CENTER);
+
+		HSSFFont newFontNegritaEsquerda = workbook.createFont();
+		newFontNegritaEsquerda.setBold(true);
+		newFontNegritaEsquerda.setColor(IndexedColors.BLACK.getIndex());
+		newFontNegritaEsquerda.setFontName("Arial");
+		newFontNegritaEsquerda.setItalic(true);
+		newFontNegritaEsquerda.setFontHeight((short) (11 * 20));
+
+		negrito_esquerda.setFont(newFontNegritaEsquerda);
+
+		// estilo para celula do tipo numero alinhado ao centro
+		CellStyle valorStyle = workbook.createCellStyle();
+		valorStyle.setDataFormat(numberFormat.getFormat("R$ #,##0.00"));
+		valorStyle.setAlignment(HorizontalAlignment.CENTER);
+		valorStyle.setVerticalAlignment(VerticalAlignment.CENTER);
+
+		// estilo para cabecalho fundo laranja
+		CellStyle celula_fundo_laranja = workbook.createCellStyle();
+		celula_fundo_laranja.setFillPattern(FillPatternType.SOLID_FOREGROUND);
+		celula_fundo_laranja.setFillForegroundColor(IndexedColors.GREEN.getIndex());
+		celula_fundo_laranja.setAlignment(HorizontalAlignment.CENTER);
+		celula_fundo_laranja.setVerticalAlignment(VerticalAlignment.CENTER);
+
+		HSSFFont newFont = workbook.createFont();
+		newFont.setBold(true);
+		newFont.setColor(IndexedColors.BLACK.getIndex());
+		newFont.setFontName("Calibri");
+		newFont.setItalic(false);
+		newFont.setFontHeight((short) (11 * 25));
+
+		celula_fundo_laranja.setFont(newFont);
+
+		
+		CellStyle numberStyleFundoVerdeTextoBranco = workbook.createCellStyle();
+		numberStyleFundoVerdeTextoBranco.setFillPattern(FillPatternType.SOLID_FOREGROUND);
+		numberStyleFundoVerdeTextoBranco.setFillForegroundColor(IndexedColors.GREEN.getIndex());
+		numberStyleFundoVerdeTextoBranco.setAlignment(HorizontalAlignment.CENTER);
+		numberStyleFundoVerdeTextoBranco.setVerticalAlignment(VerticalAlignment.CENTER);
+		numberStyleFundoVerdeTextoBranco.setDataFormat(numberFormat.getFormat("R$ #,##0.00"));
+		
+		// celula_number_amarelo_texto_preto
+		// estilo para cabecalho fundo laranja
+		CellStyle celula_number_amarelo_texto_preto = workbook.createCellStyle();
+		celula_number_amarelo_texto_preto.setDataFormat(numberFormat.getFormat("#,##0.00"));
+		celula_number_amarelo_texto_preto.setFillPattern(FillPatternType.SOLID_FOREGROUND);
+		celula_number_amarelo_texto_preto.setFillForegroundColor(IndexedColors.YELLOW.getIndex());
+		celula_number_amarelo_texto_preto.setAlignment(HorizontalAlignment.CENTER);
+		celula_number_amarelo_texto_preto.setVerticalAlignment(VerticalAlignment.CENTER);
+
+		HSSFFont newFont_blabk = workbook.createFont();
+		newFont_blabk.setBold(true);
+		newFont_blabk.setColor(IndexedColors.BLACK.getIndex());
+		newFont_blabk.setFontName("Calibri");
+		newFont_blabk.setItalic(false);
+		newFont_blabk.setFontHeight((short) (11 * 20));
+
+		celula_number_amarelo_texto_preto.setFont(newFont_blabk);
+
+		// estilo para cabecalho fundo laranja
+		CellStyle celula_fundo_laranja_texto_branco = workbook.createCellStyle();
+		celula_fundo_laranja_texto_branco.setFillPattern(FillPatternType.SOLID_FOREGROUND);
+		celula_fundo_laranja_texto_branco.setFillForegroundColor(IndexedColors.GREEN.getIndex());
+		celula_fundo_laranja_texto_branco.setAlignment(HorizontalAlignment.CENTER);
+		celula_fundo_laranja_texto_branco.setVerticalAlignment(VerticalAlignment.CENTER);
+
+		HSSFFont newFont_branca = workbook.createFont();
+		newFont_branca.setBold(true);
+		newFont_branca.setColor(IndexedColors.WHITE.getIndex());
+		newFont_branca.setFontName("Calibri");
+		newFont_branca.setItalic(false);
+		newFont_branca.setFontHeight((short) (11 * 20));
+		Locale ptBr = new Locale("pt", "BR");
+
+		celula_fundo_laranja_texto_branco.setFont(newFont_branca);
+
+		HSSFFont newFont_titulo = workbook.createFont();
+		newFont_titulo.setBold(true);
+		newFont_titulo.setColor(IndexedColors.BLACK.getIndex());
+		newFont_titulo.setFontName("Calibri");
+		newFont_titulo.setItalic(true);
+		newFont_titulo.setFontHeight((short) (11 * 32));
+
+		// estilo para cabecalho
+		CellStyle celula_titulo = workbook.createCellStyle();
+		celula_titulo.setFillPattern(FillPatternType.SOLID_FOREGROUND);
+		celula_titulo.setFillForegroundColor(IndexedColors.WHITE.getIndex());
+		celula_titulo.setAlignment(HorizontalAlignment.CENTER);
+		celula_titulo.setVerticalAlignment(VerticalAlignment.CENTER);
+		celula_titulo.setFont(newFont_titulo);
+		
+		
+		numberStyleFundoVerdeTextoBranco.setFont(newFont_branca);
+
+		// Configurando as informacoes
+
+		// Configurando as informacoes
+		row = sheet.createRow(rownum++);
+
+		// Configurando titulo
+		cell = row.createCell(cellnum++);
+		cell.setCellStyle(celula_titulo);
+		cell.setCellValue("Relatório de Lançamentos");
+		// criar celula de 1 a 5
+		for (int i = 1; i < 6; i++) {
+			cell = row.createCell(cellnum++);
+			cell.setCellStyle(celula_titulo);
+			cell.setCellValue("");
+
+		}
+		sheet.addMergedRegion(new CellRangeAddress(0, 0, 0, 5));
+
+		cellnum = 0;
+
+		// Configurando Header
+		row = sheet.createRow(rownum++);
+
+		cell = row.createCell(cellnum++);
+		cell.setCellStyle(celula_fundo_laranja_texto_branco);
+		cell.setCellValue("ID");
+
+		cell = row.createCell(cellnum++);
+		cell.setCellStyle(celula_fundo_laranja_texto_branco);
+		cell.setCellValue("DATA LANÇAMENTO");
+
+		cell = row.createCell(cellnum++);
+		cell.setCellStyle(celula_fundo_laranja_texto_branco);
+		cell.setCellValue("MÊS");
+
+		cell = row.createCell(cellnum++);
+		cell.setCellStyle(celula_fundo_laranja_texto_branco);
+		cell.setCellValue("TIPO");
+
+		cell = row.createCell(cellnum++);
+		cell.setCellStyle(celula_fundo_laranja_texto_branco);
+		cell.setCellValue("PRIORIDADE");
+
+		cell = row.createCell(cellnum++);
+		cell.setCellStyle(celula_fundo_laranja_texto_branco);
+		cell.setCellValue("CENTRO DE CUSTO");
+
+		cell = row.createCell(cellnum++);
+		cell.setCellStyle(celula_fundo_laranja_texto_branco);
+		cell.setCellValue("IDENTIFICADOR");
+
+		cell = row.createCell(cellnum++);
+		cell.setCellStyle(celula_fundo_laranja_texto_branco);
+		cell.setCellValue("DESTINATÁRIO NF");
+
+		cell = row.createCell(cellnum++);
+		cell.setCellStyle(celula_fundo_laranja_texto_branco);
+		cell.setCellValue("CLIENTE/FORNECEDOR");
+
+		cell = row.createCell(cellnum++);
+		cell.setCellStyle(celula_fundo_laranja_texto_branco);
+		cell.setCellValue("GRUPO DE CONTAS");
+
+		cell = row.createCell(cellnum++);
+		cell.setCellStyle(celula_fundo_laranja_texto_branco);
+		cell.setCellValue("CONTA");
+
+		cell = row.createCell(cellnum++);
+		cell.setCellStyle(celula_fundo_laranja_texto_branco);
+		cell.setCellValue("VALOR TOTAL".toUpperCase());
+
+		cell = row.createCell(cellnum++);
+		cell.setCellStyle(celula_fundo_laranja_texto_branco);
+		cell.setCellValue("VALOR PAGO".toUpperCase());
+
+		cell = row.createCell(cellnum++);
+		cell.setCellStyle(celula_fundo_laranja_texto_branco);
+		cell.setCellValue("VALOR TOTAL A PAGAR".toUpperCase());
+
+		cell = row.createCell(cellnum++);
+		cell.setCellStyle(celula_fundo_laranja_texto_branco);
+		cell.setCellValue("VALOR A VENCER".toUpperCase());
+
+		cell = row.createCell(cellnum++);
+		cell.setCellStyle(celula_fundo_laranja_texto_branco);
+		cell.setCellValue("JUROS".toUpperCase());
+
+		cell = row.createCell(cellnum++);
+		cell.setCellStyle(celula_fundo_laranja_texto_branco);
+		cell.setCellValue("DATA PROX VENCIMENTO".toUpperCase());
+
+		cell = row.createCell(cellnum++);
+		cell.setCellStyle(celula_fundo_laranja_texto_branco);
+		cell.setCellValue("DATA ÚLTIMO PAGAMENTO");
+
+		cell = row.createCell(cellnum++);
+		cell.setCellStyle(celula_fundo_laranja_texto_branco);
+		cell.setCellValue("STATUS");
+
+		cell = row.createCell(cellnum++);
+		cell.setCellStyle(celula_fundo_laranja_texto_branco);
+		cell.setCellValue("SITUAÇÃO".toUpperCase());
+
+		cell = row.createCell(cellnum++);
+		cell.setCellStyle(celula_fundo_laranja_texto_branco);
+		cell.setCellValue("CONDIÇÃO PAGAMENTO".toUpperCase());
+
+		cell = row.createCell(cellnum++);
+		cell.setCellStyle(celula_fundo_laranja_texto_branco);
+		cell.setCellValue("STATUS ÚLTIMO PAGAMENTO".toUpperCase());
+
+		cell = row.createCell(cellnum++);
+		cell.setCellStyle(celula_fundo_laranja_texto_branco);
+		cell.setCellValue("STATUS CONTADOR".toUpperCase());
+
+		ArrayList<CondicaoPagamento> lista_condicoes = null;
+		GerenciarBancoCondicaoPagamentos gerenciar = new GerenciarBancoCondicaoPagamentos();
+
+		lista_condicoes = gerenciar.getCondicaoPagamentos();
+		int numero_lancamentos = 0;
+		int numero_despesas = 0;
+		int numero_despesas_a_pagar = 0;
+		int numero_despesas_pago = 0;
+		int numero_receitas = 0;
+		int numero_receitas_a_receber = 0;
+		int numero_receitas_recebido = 0;
+
+		// despesas
+		BigDecimal valor_total_despesas = BigDecimal.ZERO;
+		BigDecimal valor_a_pagar = BigDecimal.ZERO;
+		BigDecimal valor_pago = BigDecimal.ZERO;
+		BigDecimal valor_total_vencer_pagar = BigDecimal.ZERO;
+		BigDecimal valor_total_juros_pago = BigDecimal.ZERO;
+
+		BigDecimal valor_juros = BigDecimal.ZERO;
+
+		// receitas
+		BigDecimal valor_total_receitas = BigDecimal.ZERO;
+		BigDecimal valor_a_receber = BigDecimal.ZERO;
+		BigDecimal valor_recebido = BigDecimal.ZERO;
+		BigDecimal valor_total_vencer_receber = BigDecimal.ZERO;
+		BigDecimal valor_total_juros_recebido = BigDecimal.ZERO;
+
+		int ultima_linha = 2;
+
+		
+		for (Lancamento lancamento : lancamentos_selecionados) {
+			valor_juros = BigDecimal.ZERO;
+			if (lancamento.getStatus() == 0) {
+				// despesas a pagar
+				valor_total_despesas = valor_total_despesas.add(lancamento.getValor());
+				valor_a_pagar = valor_a_pagar.add(lancamento.getValor().subtract(lancamento.getValor_ja_pago()));
+
+				valor_pago = valor_pago.add(lancamento.getValor_ja_pago());
+				numero_despesas_a_pagar++;
+
+				BigDecimal valor_total = lancamento.getValor();
+				BigDecimal valor__ja_pago = lancamento.getValor_ja_pago();
+
+				BigDecimal valor_restante = valor__ja_pago.subtract(valor_total);
+
+				if (valor__ja_pago.compareTo(valor_total) > 0) {
+
+					valor_juros = valor__ja_pago.subtract(valor_total);
+					valor_total_juros_pago = valor_total_juros_pago.add(valor_juros);
+
+				} else
+					valor_total_vencer_pagar = valor_total_vencer_pagar
+							.add(lancamento.getValor_proximo_pagamento_a_vencer());
+
+			} else if (lancamento.getStatus() == 1) {
+				// despesas ja paga
+				valor_total_despesas = valor_total_despesas.add(lancamento.getValor());
+				valor_pago = valor_pago.add(lancamento.getValor());
+
+				BigDecimal valor_total = lancamento.getValor();
+				BigDecimal valor__ja_pago = lancamento.getValor_ja_pago();
+
+				BigDecimal valor_restante = valor__ja_pago.subtract(valor_total);
+
+				if (valor__ja_pago.compareTo(valor_total) > 0) {
+					valor_juros = valor__ja_pago.subtract(valor_total);
+					valor_total_juros_pago = valor_total_juros_pago.add(valor_juros);
+
+				} else
+					valor_total_vencer_pagar = valor_total_vencer_pagar
+							.add(lancamento.getValor_proximo_pagamento_a_vencer());
+
+				numero_despesas_pago++;
+			} else if (lancamento.getStatus() == 2) {
+				// receitas a receber
+				valor_total_receitas = valor_total_receitas.add(lancamento.getValor());
+				valor_a_receber = valor_a_receber.add(lancamento.getValor().subtract(lancamento.getValor_ja_pago()));
+
+				valor_recebido = valor_recebido.add(lancamento.getValor_ja_pago());
+
+				BigDecimal valor_total_a_receber = lancamento.getValor();
+				BigDecimal valor__ja_recebido = lancamento.getValor_ja_pago();
+
+				BigDecimal valor_restante = valor__ja_recebido.subtract(valor_total_a_receber);
+
+				if (valor__ja_recebido.compareTo(valor_total_a_receber) > 0) {
+					valor_juros = valor__ja_recebido.subtract(valor_total_a_receber);
+					valor_total_juros_recebido = valor_total_juros_recebido.add(valor_juros);
+
+				} else
+					valor_total_vencer_receber = valor_total_vencer_receber
+							.add(lancamento.getValor_proximo_pagamento_a_vencer());
+
+				numero_receitas_a_receber++;
+			} else if (lancamento.getStatus() == 3) {
+				// receitas recebidas
+				valor_total_receitas = valor_total_receitas.add(lancamento.getValor());
+				valor_recebido = valor_recebido.add(lancamento.getValor());
+
+				BigDecimal valor_total_a_receber = lancamento.getValor();
+				BigDecimal valor__ja_recebido = lancamento.getValor_ja_pago();
+
+				BigDecimal valor_restante = valor__ja_recebido.subtract(valor_total_a_receber);
+
+				if (valor__ja_recebido.compareTo(valor_total_a_receber) > 0) {
+					valor_juros = valor__ja_recebido.subtract(valor_total_a_receber);
+					valor_total_juros_recebido = valor_total_juros_recebido.add(valor_juros);
+
+				} else
+					valor_total_vencer_receber = valor_total_vencer_receber
+							.add(lancamento.getValor_proximo_pagamento_a_vencer());
+
+				numero_receitas_recebido++;
+			}
+
+			row = sheet.createRow(rownum++);
+			cellnum = 0;
+
+			cell = row.createCell(cellnum++);
+			cell.setCellStyle(textStyle);
+			cell.setCellValue(lancamento.getId_lancamento());
+
+			SimpleDateFormat f = new SimpleDateFormat("dd/MMMM/yyyy");
+			SimpleDateFormat f_mes = new SimpleDateFormat("MMMM/yyyy");
+
+			Date data_lancamento = null;
+			SimpleDateFormat formato = new SimpleDateFormat("dd/MM/yyyy");
+			data_lancamento = formato.parse(lancamento.getData_lancamento());
+
+			String data_formatada = "";
+			String mes_ano_formatada = "";
+
+			if (data_lancamento instanceof Date) {
+				data_formatada = f.format(data_lancamento);
+				mes_ano_formatada = f_mes.format(data_lancamento);
+			}
+
+			// DATA
+			cell = row.createCell(cellnum++);
+			cell.setCellStyle(textStyle);
+			cell.setCellValue(data_formatada);
+
+			// mes
+			cell = row.createCell(cellnum++);
+			cell.setCellStyle(textStyle);
+			cell.setCellValue(mes_ano_formatada);
+
+			String tipo = "";
+			if (lancamento.getTipo_lancamento() == 0) {
+				tipo = "DESPESAS";
+			} else if (lancamento.getTipo_lancamento() == 1) {
+				tipo = "RECEITAS";
+			} else if (lancamento.getTipo_lancamento() == 3) {
+				tipo = "EMPRESTIMOS";
+
+			}
+			cell = row.createCell(cellnum++);
+			cell.setCellStyle(textStyle);
+			cell.setCellValue(tipo);
+
+			String prioridade = "";
+			int i_prioridade = lancamento.getPrioridade();
+			if (i_prioridade == 0) {
+				prioridade = "Alta Prioridade - Ainda esta semana";
+			} else if (i_prioridade == 1) {
+				prioridade = "Média Prioridade - Em menos de 15 dias";
+			} else if (i_prioridade == 2) {
+				prioridade = "Prioridade Leve - Ainda este mês";
+			} else if (i_prioridade == 3) {
+				prioridade = "Baixa Prioridade - Ainda este ano";
+			}
+
+			// prioridade
+			cell = row.createCell(cellnum++);
+			cell.setCellStyle(textStyle);
+			cell.setCellValue(prioridade);
+
+			// centro de custo
+			cell = row.createCell(cellnum++);
+			cell.setCellStyle(textStyle);
+			cell.setCellValue(lancamento.getNome_centro_custo());
+
+			// identificador
+			cell = row.createCell(cellnum++);
+			cell.setCellStyle(textStyle);
+			cell.setCellValue(lancamento.getIdentificacao());
+
+			// destinatario nf
+			cell = row.createCell(cellnum++);
+			cell.setCellStyle(textStyle);
+			cell.setCellValue(lancamento.getNome_destinatario_nf());
+
+			// cliente fornecedor
+			cell = row.createCell(cellnum++);
+			cell.setCellStyle(textStyle);
+			cell.setCellValue(lancamento.getNome_cliente_fornecedor());
+
+			// grupo de contas
+			cell = row.createCell(cellnum++);
+			cell.setCellStyle(textStyle);
+			cell.setCellValue(lancamento.getNome_grupo_contas());
+
+			// conta
+			cell = row.createCell(cellnum++);
+			cell.setCellStyle(textStyle);
+			cell.setCellValue(lancamento.getNome_conta());
+
+			// valor total
+			cell = row.createCell(cellnum++);
+			cell.setCellStyle(numberStyle);
+			cell.setCellValue(lancamento.getValor().doubleValue());
+
+			// valor pago
+			cell = row.createCell(cellnum++);
+			cell.setCellStyle(numberStyle);
+			cell.setCellValue(lancamento.getValor_ja_pago().doubleValue());
+
+			// valor a pagar
+			BigDecimal valor_a_pagar_lancamento = lancamento.getValor().subtract(lancamento.getValor_ja_pago());
+			cell = row.createCell(cellnum++);
+			cell.setCellStyle(numberStyle);
+			cell.setCellValue(valor_a_pagar_lancamento.doubleValue());
+
+			if (lancamento.getValor_proximo_pagamento_a_vencer().compareTo(valor_a_pagar_lancamento) > 0) {
+				cell = row.createCell(cellnum++);
+				cell.setCellStyle(numberStyle);
+				cell.setCellValue(valor_a_pagar_lancamento.doubleValue());
+
+			} else {
+				cell = row.createCell(cellnum++);
+				cell.setCellStyle(numberStyle);
+				cell.setCellValue(lancamento.getValor_proximo_pagamento_a_vencer().doubleValue());
+
+			}
+
+			// juros
+			cell = row.createCell(cellnum++);
+			cell.setCellStyle(numberStyle);
+			cell.setCellValue(valor_juros.doubleValue());
+
+			// data proximo venciomento
+			cell = row.createCell(cellnum++);
+			cell.setCellStyle(textStyle);
+			cell.setCellValue(lancamento.getData_vencimento());
+
+			// data ultimo pagamento
+			cell = row.createCell(cellnum++);
+			cell.setCellStyle(textStyle);
+			cell.setCellValue(lancamento.getData_pagamento());
+
+			// status
+			cell = row.createCell(cellnum++);
+			cell.setCellStyle(textStyle);
+			cell.setCellValue(lancamento.getStatus());
+
+			// situacao
+			String situacao = "";
+			try {
+				// data hoje
+				LocalDate hoje = LocalDate.now();
+
+				// data vencimento
+				Date data_vencimento = null;
+				try {
+					formato = new SimpleDateFormat("dd/MM/yyyy");
+					data_vencimento = formato.parse(lancamento.getData_vencimento());
+
+					try {
+						LocalDate ld_data_vencimento = data_vencimento.toInstant().atZone(ZoneId.systemDefault())
+								.toLocalDate();
+
+						if (ld_data_vencimento.isAfter(hoje)) {
+							situacao = "Em dias";
+						} else {
+							situacao = "Atrasado";
+
+						}
+					} catch (Exception e) {
+						situacao = "Datas Invalidas";
+					}
+
+				} catch (NullPointerException e) {
+					situacao = "Datas Invalidas";
+
+				} catch (Exception e) {
+					situacao = "Datas Invalidas";
+
+				}
+
+			} catch (Exception e) {
+				situacao = "Datas Invalidas";
+
+			}
+			cell = row.createCell(cellnum++);
+			cell.setCellStyle(textStyle);
+			cell.setCellValue(situacao);
+
+			// condicoes de pagamentos
+			String condicoes = "";
+			try {
+				String array_condicoes_pagamento = lancamento.getIds_forma_pagamento();
+				String ids[] = array_condicoes_pagamento.split(",");
+				int id_ultima_condicao_pagamento = Integer.parseInt(ids[ids.length - 1]);
+
+				if (id_ultima_condicao_pagamento > 0) {
+
+					CondicaoPagamento condicao = null;
+					for (CondicaoPagamento cond : lista_condicoes) {
+						if (cond.getId_condicao_pagamento() == id_ultima_condicao_pagamento) {
+							condicao = cond;
+							break;
+						}
+					}
+
+					if (condicao != null)
+						;
+					condicoes += (condicao.getNome_condicao_pagamento() + "|");
+				}
+
+			} catch (Exception e) {
+				condicoes = "";
+			}
+			cell = row.createCell(cellnum++);
+			cell.setCellStyle(textStyle);
+			cell.setCellValue(condicoes);
+
+			// status condicao de pagamento
+			String retorno = "";
+			try {
+				String array_status = lancamento.getStatus_forma_pagamento();
+				String status[] = array_status.split(",");
+				int id_status = Integer.parseInt(status[status.length - 1]);
+
+				if (id_status == 0) {
+					// cbStatusCondicaoPagamento.addItem("A - Compensar|Realizar|Concluir");
+					// cbStatusCondicaoPagamento.addItem("Compensado|Realizado|Concluído");
+					retorno += ("A - Compensar|Realizar|Concluir;");
+				} else if (id_status == 1) {
+					retorno += ("Compensado|Realizado|Concluído;");
+
+				}
+
+			} catch (Exception e) {
+				retorno = "";
+			}
+			cell = row.createCell(cellnum++);
+			cell.setCellStyle(textStyle);
+			cell.setCellValue(retorno);
+
+			// status contador
+			String status_contador = "";
+			int status = lancamento.getContador();
+
+			if (status == 0) {
+				status_contador = "Não se aplica".toUpperCase();
+			} else if (status == 1) {
+				status_contador = "Não Enviado ao contador".toUpperCase();
+
+			} else if (status == 2) {
+				status_contador = "Enviado ao contador".toUpperCase();
+			}
+
+			cell = row.createCell(cellnum++);
+			cell.setCellStyle(textStyle);
+			cell.setCellValue(status_contador);
+			ultima_linha = rownum;
+
+		}
+		sheet.setAutoFilter(CellRangeAddress.valueOf("A2:AF2"));
+		for (int i = 0; i < 20; i++) {
+			sheet.autoSizeColumn(i);
+
+		}
+
+		FormulaEvaluator evaluator = workbook.getCreationHelper().createFormulaEvaluator();
+
+		row = sheet.createRow(rownum += 2);
+		cellnum = 0;
+		/*
+		 * lblDespesasAPagar.setText(numero_despesas_a_pagar + "");
+		 * lblDespesasPago.setText(numero_despesas_pago + "");
+		 * lblTotalDespesas.setText((numero_despesas_a_pagar + numero_despesas_pago ) +
+		 * ""); lblReceitasAReceber.setText(numero_receitas_a_receber + "");
+		 * lblReceitasRecebido.setText(numero_receitas_recebido + "");
+		 * lblTotalReceitas.setText((numero_receitas_a_receber +
+		 * numero_receitas_recebido) + "");
+		 * 
+		 * 
+		 * //valores Locale ptBr = new Locale("pt", "BR");
+		 * lblValorRestanteAPagar.setText(NumberFormat.getCurrencyInstance(ptBr).format(
+		 * valor_a_pagar));
+		 * lblValorPago.setText(NumberFormat.getCurrencyInstance(ptBr).format(valor_pago
+		 * ));
+		 * lblValorTotalDespesas.setText(NumberFormat.getCurrencyInstance(ptBr).format(
+		 * valor_total_despesas));
+		 * 
+		 * 
+		 * //receitas
+		 * lblValorAReceber.setText(NumberFormat.getCurrencyInstance(ptBr).format(
+		 * valor_a_receber));
+		 * lblValorRecebido.setText(NumberFormat.getCurrencyInstance(ptBr).format(
+		 * valor_recebido));
+		 * lblValorReceitas.setText(NumberFormat.getCurrencyInstance(ptBr).format(
+		 * valor_total_receitas));
+		 * 
+		 */
+		cell = row.createCell(cellnum += 1);
+		cell.setCellStyle(celula_fundo_laranja_texto_branco);
+		cell.setCellValue("DESPESAS");
+		// sheet.addMergedRegion(new CellRangeAddress(rownum, rownum, cellnum, 5));
+
+		cell = row.createCell(4);
+		cell.setCellStyle(celula_fundo_laranja_texto_branco);
+		cell.setCellValue("RECEITAS");
+
+		row = sheet.createRow(rownum += 1);
+		cellnum = 0;
+
+		// despesa
+		cell = row.createCell(cellnum += 1);
+		cell.setCellStyle(celula_fundo_laranja_texto_branco);
+		cell.setCellValue("Valor Total:");
+
+		cell = row.createCell(cellnum += 1);
+		cell.setCellStyle(numberStyleFundoVerdeTextoBranco);
+		cell.setCellType(CellType.FORMULA);
+		String formula = "SUMPRODUCT(SUBTOTAL(9,OFFSET(L3:L" + ultima_linha + ",ROW(L3:L" + ultima_linha + ")-ROW(L3),0,1,1)),-(D3:D" + ultima_linha + "=\"DESPESAS\")) * -1";
+		cell.setCellFormula(formula);
+
+		// receitas
+		cell = row.createCell(4);
+		cell.setCellStyle(celula_fundo_laranja_texto_branco);
+		cell.setCellValue("Valor Total:");
+
+		cell = row.createCell(5);
+		cell.setCellStyle(numberStyleFundoVerdeTextoBranco);
+		cell.setCellType(CellType.FORMULA);
+		 formula = "SUMPRODUCT(SUBTOTAL(9,OFFSET(L3:L" + ultima_linha + ",ROW(L3:L" + ultima_linha + ")-ROW(L3),0,1,1)),-(D3:D" + ultima_linha + "=\"RECEITAS\")) * -1";
+		cell.setCellFormula(formula);
+
+		row = sheet.createRow(rownum += 1);
+		cellnum = 0;
+
+		// despesa
+		cell = row.createCell(cellnum += 1);
+		cell.setCellStyle(celula_fundo_laranja_texto_branco);
+		cell.setCellValue("Valor Pago:");
+
+		cell = row.createCell(cellnum += 1);
+		cell.setCellStyle(numberStyleFundoVerdeTextoBranco);
+		cell.setCellType(CellType.FORMULA);
+		 formula = "SUMPRODUCT(SUBTOTAL(9,OFFSET(M3:M" + ultima_linha + ",ROW(M3:M" + ultima_linha + ")-ROW(M3),0,1,1)),-(D3:D" + ultima_linha + "=\"DESPESAS\")) * -1";
+		cell.setCellFormula(formula);
+
+		// receitas
+		cell = row.createCell(4);
+		cell.setCellStyle(celula_fundo_laranja_texto_branco);
+		cell.setCellValue("Valor Recebido:");
+
+		cell = row.createCell(5);
+		cell.setCellStyle(numberStyleFundoVerdeTextoBranco);
+		cell.setCellType(CellType.FORMULA);
+		 formula = "SUMPRODUCT(SUBTOTAL(9,OFFSET(M3:M" + ultima_linha + ",ROW(M3:M" + ultima_linha + ")-ROW(M3),0,1,1)),-(D3:D" + ultima_linha + "=\"RECEITAS\")) * -1";
+		cell.setCellFormula(formula);
+
+		row = sheet.createRow(rownum += 1);
+
+		cellnum = 0;
+
+		// despesa
+		cell = row.createCell(cellnum += 1);
+		cell.setCellStyle(celula_fundo_laranja_texto_branco);
+		cell.setCellValue("Valor a Pagar:");
+
+		cell = row.createCell(cellnum += 1);
+		cell.setCellStyle(numberStyleFundoVerdeTextoBranco);
+		cell.setCellType(CellType.FORMULA);
+		 formula = "SUMPRODUCT(SUBTOTAL(9,OFFSET(N3:N" + ultima_linha + ",ROW(N3:N" + ultima_linha + ")-ROW(N3),0,1,1)),-(D3:D" + ultima_linha + "=\"DESPESAS\")) * -1";
+		cell.setCellFormula(formula);
+
+		// receitas
+		cell = row.createCell(4);
+		cell.setCellStyle(celula_fundo_laranja_texto_branco);
+		cell.setCellValue("Valor a Receber:");
+
+		cell = row.createCell(5);
+		cell.setCellStyle(numberStyleFundoVerdeTextoBranco);
+		cell.setCellType(CellType.FORMULA);
+		 formula = "SUMPRODUCT(SUBTOTAL(9,OFFSET(N3:N" + ultima_linha + ",ROW(N3:N" + ultima_linha + ")-ROW(N3),0,1,1)),-(D3:D" + ultima_linha + "=\"RECEITAS\")) * -1";
+		cell.setCellFormula(formula);
+
+		// vencimentos
+
+		row = sheet.createRow(rownum += 1);
+
+		cellnum = 0;
+
+		// despesa
+		cell = row.createCell(cellnum += 1);
+		cell.setCellStyle(celula_fundo_laranja_texto_branco);
+		cell.setCellValue("Valor a Vencer:");
+
+		cell = row.createCell(cellnum += 1);
+		cell.setCellStyle(numberStyleFundoVerdeTextoBranco);
+		cell.setCellType(CellType.FORMULA);
+		 formula = "SUMPRODUCT(SUBTOTAL(9,OFFSET(O3:O" + ultima_linha + ",ROW(O3:O" + ultima_linha + ")-ROW(O3),0,1,1)),-(D3:D" + ultima_linha + "=\"DESPESAS\")) * -1";
+		cell.setCellFormula(formula);
+
+
+		// receitas
+		cell = row.createCell(4);
+		cell.setCellStyle(celula_fundo_laranja_texto_branco);
+		cell.setCellValue("Valor a Vencer:");
+
+		cell = row.createCell(5);
+		cell.setCellStyle(numberStyleFundoVerdeTextoBranco);
+		cell.setCellType(CellType.FORMULA);
+		 formula = "SUMPRODUCT(SUBTOTAL(9,OFFSET(O3:O" + ultima_linha + ",ROW(O3:O" + ultima_linha + ")-ROW(O3),0,1,1)),-(D3:D" + ultima_linha + "=\"RECEITAS\")) * -1";
+		cell.setCellFormula(formula);
+
+
+		// juros
+
+		row = sheet.createRow(rownum += 1);
+
+		cellnum = 0;
+
+		// despesa
+		cell = row.createCell(cellnum += 1);
+		cell.setCellStyle(celula_fundo_laranja_texto_branco);
+		cell.setCellValue("Valor Total Juros:");
+
+		cell = row.createCell(cellnum += 1);
+		cell.setCellStyle(numberStyleFundoVerdeTextoBranco);
+		cell.setCellType(CellType.FORMULA);
+		 formula = "SUMPRODUCT(SUBTOTAL(9,OFFSET(P3:P" + ultima_linha + ",ROW(P3:P" + ultima_linha + ")-ROW(P3),0,1,1)),-(D3:D" + ultima_linha + "=\"DESPESAS\")) * -1";
+		cell.setCellFormula(formula);
+
+		// receitas
+		cell = row.createCell(4);
+		cell.setCellStyle(celula_fundo_laranja_texto_branco);
+		cell.setCellValue("Valor Total Juros:");
+
+		cell = row.createCell(5);
+		cell.setCellStyle(numberStyleFundoVerdeTextoBranco);
+		cell.setCellType(CellType.FORMULA);
+		 formula = "SUMPRODUCT(SUBTOTAL(9,OFFSET(P3:P" + ultima_linha + ",ROW(P3:P" + ultima_linha + ")-ROW(P3),0,1,1)),-(D3:D" + ultima_linha + "=\"RECEITAS\")) * -1";
+		cell.setCellFormula(formula);
+
+		return workbook;
+		
 	}
 
 	

@@ -261,7 +261,16 @@ public class CadastroRomaneio {
 		this.caminho_arquivo = caminho_arquivo;
 	}
 
+	private String caminho_arquivo_comprovante;
 	
+
+	public String getCaminho_arquivo_comprovante() {
+		return caminho_arquivo_comprovante;
+	}
+
+	public void setCaminho_arquivo_comprovante(String caminho_arquivo_comprovante) {
+		this.caminho_arquivo_comprovante = caminho_arquivo_comprovante;
+	}
 
 	public String getCfop() {
 		return cfop;

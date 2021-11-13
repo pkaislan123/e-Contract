@@ -276,6 +276,7 @@ public class GerenciarBancoRomaneios {
 	            	rom.setId_classificador(rs.getInt("id_classificador"));
 	            	rom.setStatus_monsanto(rs.getInt("status_monsanto"));
 	            	rom.setObservacao(rs.getString("observacao"));
+	            	rom.setCaminho_arquivo_comprovante(rs.getString("caminho_arquivo_comprovante"));
 
 	            	lista_roms.add(rom);
 	            }
@@ -386,7 +387,8 @@ public class GerenciarBancoRomaneios {
 	            	rom.setRoyalties(rs.getInt("royalties"));
 	            	rom.setTeste(rs.getInt("teste"));
 	            	rom.setResultado(rs.getInt("resultado"));
-	            	
+	            	rom.setCaminho_arquivo_comprovante(rs.getString("caminho_arquivo_comprovante"));
+
 	            	lista_roms.add(rom);
 	            }
 	            ConexaoBanco.fechaConexao(conn, pstm, rs);
@@ -499,7 +501,8 @@ public class GerenciarBancoRomaneios {
 	            	rom.setRoyalties(rs.getInt("royalties"));
 	            	rom.setTeste(rs.getInt("teste"));
 	            	rom.setResultado(rs.getInt("resultado"));
-	            	
+	            	rom.setCaminho_arquivo_comprovante(rs.getString("caminho_arquivo_comprovante"));
+
 	            	lista_roms.add(rom);
 	            }
 	            ConexaoBanco.fechaConexao(conn, pstm, rs);
@@ -615,7 +618,8 @@ public class GerenciarBancoRomaneios {
 	            	rom.setRoyalties(rs.getInt("royalties"));
 	            	rom.setTeste(rs.getInt("teste"));
 	            	rom.setResultado(rs.getInt("resultado"));
-	            	
+	            	rom.setCaminho_arquivo_comprovante(rs.getString("caminho_arquivo_comprovante"));
+
 	            	lista_roms.add(rom);
 	            }
 	            ConexaoBanco.fechaConexao(conn, pstm, rs);
@@ -720,6 +724,37 @@ public class GerenciarBancoRomaneios {
 				JOptionPane.showMessageDialog(null, "Os parametros estão vazios");
 				return false;
 			}
+		}
+	  
+	  
+	  public boolean atualizarCaminhoComprovante(int id, String caminho_arquivo) {
+				try {
+					Connection conn = null;
+					String atualizar = null;
+					PreparedStatement pstm;
+
+					//atualizar = "update financeiro_conta set nome_conta = ?, id_grupo_contas = ?,  tipo_conta = ?, observacao = ?,descricao = ? where id_conta = ? ";
+					atualizar = "update romaneio set caminho_arquivo_comprovante = ? where id_romaneio = ?";
+					conn = ConexaoBanco.getConexao();
+					pstm = conn.prepareStatement(atualizar);
+					
+				
+					pstm.setString(1, caminho_arquivo);
+					
+					pstm.setInt(2, id);
+
+				
+
+					pstm.execute();
+					// JOptionPane.showMessageDialog(null, "Cliente atualizado com sucesso");
+					System.out.println("Caminho do Arquivo Comprovante Atualizado com sucesso");
+					ConexaoBanco.fechaConexao(conn);
+					return true;
+				} catch (Exception e) {
+					JOptionPane.showMessageDialog(null, "Erro ao atualizar o romaneio no banco de dados\nErro: " + e.getMessage() + "\nCausa: " + e.getCause());
+					return false;
+				}
+			
 		}
 	  
 	  

@@ -138,6 +138,7 @@ import main.java.graficos.JPanelGraficoCarregamento;
 import main.java.gui.TelaCadastroCliente;
 import main.java.gui.TelaMain;
 import main.java.gui.TelaRomaneios;
+import main.java.gui.TelaGerenciarContrato.CarregamentoCellRender;
 import main.java.gui.TelaGerenciarContrato.RecebimentoCellRender;
 import main.java.manipular.ConfiguracoesGlobais;
 import main.java.manipular.ConverterPdf;
@@ -434,7 +435,6 @@ public class TelaCarregamentos extends JFrame {
 		});
 
 		tabela = new JTable(modelo_carregamentos);
-
 		tabela.setRowSorter(sorter);
 
 		tabela.setBackground(new Color(255, 255, 255));
@@ -654,55 +654,137 @@ public class TelaCarregamentos extends JFrame {
 
 			if (carregamento.getNf_venda1_aplicavel() == 1 && carregamento.getNf_complemento_aplicavel() == 1
 					&& carregamento.getNf_interna_aplicavel() == 1) {
+				//todas as notas ativas
 
 				if (checkString(codigo_nf_venda) && checkString(codigo_nf_complemento)
 						&& checkString(codigo_nf_interna)) {
 					// ok
 					carregamentos_ok++;
-
-				} else {
-
-					if (!checkString(codigo_nf_venda))
-						carregamentos_falta_nf_venda1++;
-
-					if (!checkString(codigo_nf_complemento))
-						carregamentos_falta_nf_complemento++;
-
-					if (!checkString(codigo_nf_interna))
-						carregamentos_falta_nf_interna++;
+				} else if(!checkString(codigo_nf_venda) && checkString(codigo_nf_complemento)
+						&& checkString(codigo_nf_interna)) {
+					carregamentos_falta_nf_venda1++;
+				} else if(checkString(codigo_nf_venda) && !checkString(codigo_nf_complemento)
+						&& checkString(codigo_nf_interna)) {
+					carregamentos_falta_nf_complemento++;
+				} else if(checkString(codigo_nf_venda) && checkString(codigo_nf_complemento)
+						&& !checkString(codigo_nf_interna)) {
+					carregamentos_falta_nf_interna++;
+				} 
+				
+				else if(!checkString(codigo_nf_venda) && !checkString(codigo_nf_complemento)
+						&& checkString(codigo_nf_interna)) {
+					carregamentos_falta_nf_venda1++;
+					carregamentos_falta_nf_complemento++;
 
 				}
+				
+				else if(checkString(codigo_nf_venda) && !checkString(codigo_nf_complemento)
+						&& !checkString(codigo_nf_interna)) {
+					carregamentos_falta_nf_interna++;
+					carregamentos_falta_nf_complemento++;
+
+				}
+				
+				else if(!checkString(codigo_nf_venda) && checkString(codigo_nf_complemento)
+						&& !checkString(codigo_nf_interna)) {
+					carregamentos_falta_nf_interna++;
+					carregamentos_falta_nf_venda1++;
+
+				}
+				
+				else if(!checkString(codigo_nf_venda) && !checkString(codigo_nf_complemento)
+						&& !checkString(codigo_nf_interna)) {
+					carregamentos_falta_nf_interna++;
+					carregamentos_falta_nf_venda1++;
+					carregamentos_falta_nf_complemento++;
+
+				}
+
+			
+				
 
 			} else if (carregamento.getNf_venda1_aplicavel() == 1 && carregamento.getNf_complemento_aplicavel() == 0
 					&& carregamento.getNf_interna_aplicavel() == 0) {
 				// nf de venda 1 aplicavel
 				if (!checkString(codigo_nf_venda))
 					carregamentos_falta_nf_venda1++;
+				else
+					carregamentos_ok++;
 
 			} else if (carregamento.getNf_venda1_aplicavel() == 1 && carregamento.getNf_complemento_aplicavel() == 1
 					&& carregamento.getNf_interna_aplicavel() == 0) {
-				if (!checkString(codigo_nf_venda))
-					carregamentos_falta_nf_venda1++;
 
-				if (!checkString(codigo_nf_complemento))
+				if(checkString(codigo_nf_complemento) && checkString(codigo_nf_venda)) {
+					carregamentos_ok++;
+				}else if(!checkString(codigo_nf_complemento) && checkString(codigo_nf_venda)) {
 					carregamentos_falta_nf_complemento++;
 
-			} else if (carregamento.getNf_venda1_aplicavel() == 0 && carregamento.getNf_complemento_aplicavel() == 1
+				}else if(checkString(codigo_nf_complemento) && !checkString(codigo_nf_venda)) {
+					carregamentos_falta_nf_venda1++;
+
+				}else if(!checkString(codigo_nf_complemento) && !checkString(codigo_nf_venda)) {
+					carregamentos_falta_nf_venda1++;
+					carregamentos_falta_nf_complemento++;
+
+				}
+				
+
+			}
+			else if (carregamento.getNf_venda1_aplicavel() == 1 && carregamento.getNf_complemento_aplicavel() == 0
+					&& carregamento.getNf_interna_aplicavel() == 1) {
+
+				if(checkString(codigo_nf_interna) && checkString(codigo_nf_venda)) {
+					carregamentos_ok++;
+				}else if(!checkString(codigo_nf_interna) && checkString(codigo_nf_venda)) {
+					carregamentos_falta_nf_interna++;
+
+				}else if(checkString(codigo_nf_interna) && !checkString(codigo_nf_venda)) {
+					carregamentos_falta_nf_venda1++;
+
+				}else if(!checkString(codigo_nf_interna) && !checkString(codigo_nf_venda)) {
+						carregamentos_falta_nf_interna++;
+						carregamentos_falta_nf_venda1++;
+
+				}
+				
+				
+
+			} 
+			
+			else if (carregamento.getNf_venda1_aplicavel() == 0 && carregamento.getNf_complemento_aplicavel() == 1
 					&& carregamento.getNf_interna_aplicavel() == 0) {
 				if (!checkString(codigo_nf_complemento))
 					carregamentos_falta_nf_complemento++;
+				else
+					carregamentos_ok++;
 
-			} else if (carregamento.getNf_venda1_aplicavel() == 0 && carregamento.getNf_complemento_aplicavel() == 0
+			} 
+			
+			else if (carregamento.getNf_venda1_aplicavel() == 0 && carregamento.getNf_complemento_aplicavel() == 0
 					&& carregamento.getNf_interna_aplicavel() == 1) {
 				if (!checkString(codigo_nf_interna))
 					carregamentos_falta_nf_interna++;
+				else
+					carregamentos_ok++;
 
 			} else if (carregamento.getNf_venda1_aplicavel() == 0 && carregamento.getNf_complemento_aplicavel() == 1
 					&& carregamento.getNf_interna_aplicavel() == 1) {
-				if (!checkString(codigo_nf_interna))
-					carregamentos_falta_nf_interna++;
-				if (!checkString(codigo_nf_complemento))
+
+
+				if(checkString(codigo_nf_complemento) && checkString(codigo_nf_interna)) {
+					carregamentos_ok++;
+				}else if(!checkString(codigo_nf_complemento) && checkString(codigo_nf_interna)) {
 					carregamentos_falta_nf_complemento++;
+
+				}else if(checkString(codigo_nf_complemento) && !checkString(codigo_nf_interna)) {
+					carregamentos_falta_nf_interna++;
+
+				}else if(!checkString(codigo_nf_complemento) && !checkString(codigo_nf_interna)) {
+					
+					carregamentos_falta_nf_interna++;
+					carregamentos_falta_nf_complemento++;
+				}
+
 
 			}
 
@@ -710,9 +792,7 @@ public class TelaCarregamentos extends JFrame {
 					&& carregamento.getNf_interna_aplicavel() == 0) {
 				// nenhum aplicavel
 				carregamentos_ok++;
-
 			}
-
 		}
 
 		lblTotalCarregamentos.setText(lista_carregamentos.size() + "");
@@ -826,6 +906,9 @@ public class TelaCarregamentos extends JFrame {
 
 	public static class CarregamentoTableModel extends AbstractTableModel {
 
+		
+	
+		
 		// constantes p/identificar colunas
 		private final int id_contrato = 0;
 		private final int codigo_contrato = 1;
@@ -853,9 +936,9 @@ public class TelaCarregamentos extends JFrame {
 		private final int status = 19;
 
 		private final String colunas[] = { "ID Contrato", "Codigo", "Compradores", "Vendedores", "Produto",
-				"Transgenia", "Safra", "ID:", "Data:", "Código Romaneio:", "Peso Romaneio:", "Código NF Venda 1:",
-				"Peso NF Venda 1:", "Valor NF Venda 1:", "Código NF Venda Compl.:", "Peso NF Compl.:",
-				"Valor NF Compl.:", "Código NF Interna.:", "Peso NF Interna.:", "Status" };
+				"Transgenia", "Safra", "ID", "Data", "Código Romaneio", "Peso Romaneio", "Código NF Venda 1",
+				"Peso NF Venda 1", "Valor NF Venda 1", "Código NF Venda Compl", "Peso NF Compl",
+				"Valor NF Compl", "Código NF Interna", "Peso NF Interna", "Status" };
 		private final ArrayList<CarregamentoCompleto> dados = new ArrayList<>();// usamos como dados uma lista
 																				// genérica de
 		// nfs
@@ -880,15 +963,8 @@ public class TelaCarregamentos extends JFrame {
 		public Class<?> getColumnClass(int columnIndex) {
 			// retorna o tipo de dado, para cada coluna
 			switch (columnIndex) {
-			/*
-			 * private final int data = 0; private final int codigo_romaneio = 1;
-			 * 
-			 * private final int peso_romaneio = 2; private final int codigo_nf_venda = 3;
-			 * private final int peso_nf_venda = 4;
-			 * 
-			 * private final int codigo_nf_remessa = 5;
-			 * 
-			 */
+			
+			 
 			case id_contrato:
 				return int.class;
 			case codigo_contrato:
@@ -1064,98 +1140,145 @@ public class TelaCarregamentos extends JFrame {
 				String codigo_nf_venda = carregamento.getCodigo_nf_venda1();
 				String codigo_nf_complemento = carregamento.getCodigo_nf_complemento();
 				String codigo_nf_interna = carregamento.getCodigo_nf_interna();
+				
+				//return "OK";
+				//return "FALTA NF VENDA";
+				//return "FALTA NF INTERNA";
+				//return "FALTA NF COMPLEMENTO";
+				//return "FALTA NF INTERNA, COMPLEMENTO E VENDA";
+
+				//return "FALTA NF INTERNA E COMPLEMENTO";
+				//return "FALTA NF INTERNA E VENDA";
+				
+				//return "FALTA NF COMPLEMENTO E VENDA";
+				//return "FALTA NF INTERNA E COMPLEMENTO";
 
 				if (carregamento.getNf_venda1_aplicavel() == 1 && carregamento.getNf_complemento_aplicavel() == 1
 						&& carregamento.getNf_interna_aplicavel() == 1) {
-					if (!checkString(codigo_nf_interna) && !checkString(codigo_nf_complemento)
-							&& !checkString(codigo_nf_venda)) {
-						return "FALTA NF INTERNA, COMPLEMENTO E VENDA";
-					} else if (!checkString(codigo_nf_interna) && !checkString(codigo_nf_complemento)
-							&& checkString(codigo_nf_venda)) {
-						return "FALTA NF INTERNA E COMPLEMENTO";
+					//todas as notas ativas
 
-					} else if (checkString(codigo_nf_interna) && checkString(codigo_nf_complemento)
-							&& !checkString(codigo_nf_venda)) {
+					if (checkString(codigo_nf_venda) && checkString(codigo_nf_complemento)
+							&& checkString(codigo_nf_interna)) {
+						// ok
+						return "OK";
+					} else if(!checkString(codigo_nf_venda) && checkString(codigo_nf_complemento)
+							&& checkString(codigo_nf_interna)) {
 						return "FALTA NF VENDA";
-
-					} else if (!checkString(codigo_nf_interna) && checkString(codigo_nf_complemento)
-							&& !checkString(codigo_nf_venda)) {
-						return "FALTA NF INTERNA E VENDA";
-
-					} else if (checkString(codigo_nf_interna) && checkString(codigo_nf_complemento)
-							&& !checkString(codigo_nf_venda)) {
+					} else if(checkString(codigo_nf_venda) && !checkString(codigo_nf_complemento)
+							&& checkString(codigo_nf_interna)) {
+						return "FALTA NF COMPLEMENTO";
+					} else if(checkString(codigo_nf_venda) && checkString(codigo_nf_complemento)
+							&& !checkString(codigo_nf_interna)) {
+						return "FALTA NF INTERNA";
+					} 
+					
+					else if(!checkString(codigo_nf_venda) && !checkString(codigo_nf_complemento)
+							&& checkString(codigo_nf_interna)) {
 						return "FALTA NF COMPLEMENTO E VENDA";
 
-					} else if (!checkString(codigo_nf_interna) && checkString(codigo_nf_complemento)
-							&& checkString(codigo_nf_venda)) {
-						return "FALTA NF INTERNA";
-
-					} else if (checkString(codigo_nf_interna) && !checkString(codigo_nf_complemento)
-							&& checkString(codigo_nf_venda)) {
-						return "FALTA NF COMPLEMENTO";
-
-					} else if (checkString(codigo_nf_interna) && checkString(codigo_nf_complemento)
-							&& checkString(codigo_nf_venda)) {
-						return "OK";
+					}
+					
+					else if(checkString(codigo_nf_venda) && !checkString(codigo_nf_complemento)
+							&& !checkString(codigo_nf_interna)) {
+						return "FALTA NF INTERNA E COMPLEMENTO";
 
 					}
+					
+					else if(!checkString(codigo_nf_venda) && checkString(codigo_nf_complemento)
+							&& !checkString(codigo_nf_interna)) {
+						return "FALTA NF INTERNA E VENDA";
+
+					}
+					
+					else if(!checkString(codigo_nf_venda) && !checkString(codigo_nf_complemento)
+							&& !checkString(codigo_nf_interna)) {
+						return "FALTA NF INTERNA, COMPLEMENTO E VENDA";
+
+
+					}
+
+				
+					
 
 				} else if (carregamento.getNf_venda1_aplicavel() == 1 && carregamento.getNf_complemento_aplicavel() == 0
 						&& carregamento.getNf_interna_aplicavel() == 0) {
-					if (checkString(codigo_nf_venda)) {
-						return "OK";
-
-					} else {
+					// nf de venda 1 aplicavel
+					if (!checkString(codigo_nf_venda))
 						return "FALTA NF VENDA";
-					}
+					else
+						return "OK";
 
 				} else if (carregamento.getNf_venda1_aplicavel() == 1 && carregamento.getNf_complemento_aplicavel() == 1
 						&& carregamento.getNf_interna_aplicavel() == 0) {
-					if (!checkString(codigo_nf_complemento) && !checkString(codigo_nf_venda)) {
-						return "FALTA NF COMPLEMENTO E VENDA";
-					} else if (checkString(codigo_nf_complemento) && !checkString(codigo_nf_venda)) {
+
+					if(checkString(codigo_nf_complemento) && checkString(codigo_nf_venda)) {
+						return "OK";
+					}else if(!checkString(codigo_nf_complemento) && checkString(codigo_nf_venda)) {
+						return "FALTA NF COMPLEMENTO";
+
+					}else if(checkString(codigo_nf_complemento) && !checkString(codigo_nf_venda)) {
 						return "FALTA NF VENDA";
 
-					} else if (!checkString(codigo_nf_complemento) && checkString(codigo_nf_venda)) {
-						return "FALTA NF COMPLEMENTO";
-
-					} else if (checkString(codigo_nf_complemento) && checkString(codigo_nf_venda)) {
-						return "OK";
+					}else if(!checkString(codigo_nf_complemento) && !checkString(codigo_nf_venda)) {
+						return "FALTA NF COMPLEMENTO E VENDA";
 
 					}
+					
 
-				} else if (carregamento.getNf_venda1_aplicavel() == 0 && carregamento.getNf_complemento_aplicavel() == 1
+				}
+				else if (carregamento.getNf_venda1_aplicavel() == 1 && carregamento.getNf_complemento_aplicavel() == 0
+						&& carregamento.getNf_interna_aplicavel() == 1) {
+
+					if(checkString(codigo_nf_interna) && checkString(codigo_nf_venda)) {
+						return "OK";
+					}else if(!checkString(codigo_nf_interna) && checkString(codigo_nf_venda)) {
+						return "FALTA NF INTERNA";
+
+					}else if(checkString(codigo_nf_interna) && !checkString(codigo_nf_venda)) {
+						return "FALTA NF VENDA";
+
+					}else if(!checkString(codigo_nf_interna) && !checkString(codigo_nf_venda)) {
+						 return "FALTA NF INTERNA E VENDA";
+
+					}
+					
+					
+
+				} 
+				
+				else if (carregamento.getNf_venda1_aplicavel() == 0 && carregamento.getNf_complemento_aplicavel() == 1
 						&& carregamento.getNf_interna_aplicavel() == 0) {
-					if (checkString(codigo_nf_complemento)) {
-						return "OK";
-
-					} else {
+					if (!checkString(codigo_nf_complemento))
 						return "FALTA NF COMPLEMENTO";
-					}
-
-				} else if (carregamento.getNf_venda1_aplicavel() == 0 && carregamento.getNf_complemento_aplicavel() == 0
-						&& carregamento.getNf_interna_aplicavel() == 1) {
-					if (checkString(codigo_nf_interna)) {
+					else
 						return "OK";
 
-					} else {
+				} 
+				
+				else if (carregamento.getNf_venda1_aplicavel() == 0 && carregamento.getNf_complemento_aplicavel() == 0
+						&& carregamento.getNf_interna_aplicavel() == 1) {
+					if (!checkString(codigo_nf_interna))
 						return "FALTA NF INTERNA";
-					}
+					else
+						return "OK";
 
 				} else if (carregamento.getNf_venda1_aplicavel() == 0 && carregamento.getNf_complemento_aplicavel() == 1
 						&& carregamento.getNf_interna_aplicavel() == 1) {
-					if (!checkString(codigo_nf_interna) && !checkString(codigo_nf_complemento)) {
-						return "FALTA NF INTERNA E COMPLEMENTO";
-					} else if (checkString(codigo_nf_interna) && !checkString(codigo_nf_complemento)) {
+
+
+					if(checkString(codigo_nf_complemento) && checkString(codigo_nf_interna)) {
+						return "OK";
+					}else if(!checkString(codigo_nf_complemento) && checkString(codigo_nf_interna)) {
 						return "FALTA NF COMPLEMENTO";
 
-					} else if (!checkString(codigo_nf_interna) && checkString(codigo_nf_complemento)) {
+					}else if(checkString(codigo_nf_complemento) && !checkString(codigo_nf_interna)) {
 						return "FALTA NF INTERNA";
 
-					} else if (checkString(codigo_nf_interna) && checkString(codigo_nf_complemento)) {
-						return "OK";
-
+					}else if(!checkString(codigo_nf_complemento) && !checkString(codigo_nf_interna)) {
+						
+						return "FALTA NF INTERNA E COMPLEMENTO";
 					}
+
 
 				}
 
@@ -1163,12 +1286,13 @@ public class TelaCarregamentos extends JFrame {
 						&& carregamento.getNf_interna_aplicavel() == 0) {
 					// nenhum aplicavel
 					return "OK";
-
 				}
+				
+					
 			}
 
 			default:
-				throw new IndexOutOfBoundsException("Coluna Inválida!!!");
+				throw new IndexOutOfBoundsException("Coluna Inválida, id: " + carregamento.getId_carregamento() + "\nId do Contrato: " + carregamento.getId_contrato());
 			}
 		}
 
@@ -1260,5 +1384,7 @@ public class TelaCarregamentos extends JFrame {
 		}
 
 	}
+	
+	
 
 }

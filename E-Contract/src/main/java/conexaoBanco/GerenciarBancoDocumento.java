@@ -12,6 +12,7 @@ import main.java.cadastros.CadastroCliente;
 import main.java.cadastros.CadastroContrato;
 import main.java.cadastros.CadastroContrato.CadastroPagamentoContratual;
 import main.java.cadastros.CadastroDocumento;
+import main.java.cadastros.CadastroFuncionario;
 import main.java.cadastros.CadastroLogin;
 import main.java.cadastros.CadastroModelo;
 import main.java.cadastros.CadastroProduto;
@@ -101,6 +102,47 @@ public class GerenciarBancoDocumento {
 		}
 
 	}
+	
+	
+	public int inserir_documento_padrao_anotacao(CadastroDocumento doc) {
+		System.out.println("Inserir Documento foi chamado!");
+		int result = -1;
+		int id_cliente = -1;
+
+		String sql_cadastro_documento = "insert into documento (nome, descricao, tipo, id_pai, nome_arquivo, id_cliente, sub_pasta) values ('"
+
+				+ doc.getNome() + "','" + 
+				doc.getDescricao() + "','" +
+				doc.getTipo() + "','" +
+				doc.getId_pai() + "','" +
+				doc.getNome_arquivo() + "','" +
+				doc.getId_cliente()+ "','" +
+				 doc.getSub_pasta()
+				+ "')";
+
+		// cria os strings para cadastro o cliente
+
+		try {
+			Connection conn = ConexaoBanco.getConexao();
+			Statement stmt = (Statement) conn.createStatement();
+			int numero = stmt.executeUpdate(sql_cadastro_documento, Statement.RETURN_GENERATED_KEYS);
+
+			ResultSet rs = stmt.getGeneratedKeys();
+			if (rs.next()) {
+				result = rs.getInt(1);
+				System.out.println("Id Cliente inserido: " + result);
+			}
+			rs.close();
+			stmt.close();
+			return result;
+		} catch (Exception e) {
+			JOptionPane.showMessageDialog(null,
+					"Erro ao inserir o documento no banco de" + "dados\n Erro: "  );
+			return -1;
+		}
+
+	}
+	
 	
 
 	public int inserir_documento_padrao_ib(CadastroDocumento doc) {
@@ -322,6 +364,8 @@ public class GerenciarBancoDocumento {
             	doc.setId_pai(rs.getInt("id_pai"));
             	doc.setNome_arquivo(rs.getString("nome_arquivo"));
             	doc.setId_cliente(rs.getInt("id_cliente"));
+            	doc.setSub_pasta(rs.getString("sub_pasta"));
+            	doc.setBloqueado(rs.getInt("bloqueado"));
 
                 
           
@@ -333,6 +377,44 @@ public class GerenciarBancoDocumento {
         }
         return listaDocs;
 	}
+	
+	
+	public CadastroDocumento getDocumentoPorId(int id_doc){
+		Connection conn = null;
+        PreparedStatement pstm = null;
+        ResultSet rs = null;
+  	    String select_documentos = "select * from documento where id_documento = ?";
+    	CadastroDocumento doc = new CadastroDocumento();
+
+        try {
+            conn = ConexaoBanco.getConexao();
+            pstm = conn.prepareStatement(select_documentos);
+            pstm.setInt(1,  id_doc);
+            rs = pstm.executeQuery();
+            if(rs.next()) {
+            
+            	doc.setId_documento(rs.getInt("id_documento"));
+
+            	doc.setNome(rs.getString("nome"));
+
+            	doc.setDescricao(rs.getString("descricao"));
+            	doc.setTipo(rs.getInt("tipo"));
+            	doc.setId_pai(rs.getInt("id_pai"));
+            	doc.setNome_arquivo(rs.getString("nome_arquivo"));
+            	doc.setId_cliente(rs.getInt("id_cliente"));
+            	doc.setSub_pasta(rs.getString("sub_pasta"));
+            	doc.setBloqueado(rs.getInt("bloqueado"));
+
+            }
+            
+            ConexaoBanco.fechaConexao(conn, pstm, rs);
+            return doc;
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(null, "Erro ao listar documentos"  );
+            return null;
+        }
+	}
+	
 	
 	
 	public ArrayList<CadastroDocumento> getDocumentosPorFuncionario(int id_funcionario){
@@ -469,6 +551,65 @@ public class GerenciarBancoDocumento {
 	           return false;
 	        }
 	}
+	
+	
+	public boolean bloquearDocumento(int id_documento) {
+			Connection conn = null;
+			String atualizar = null;
+			PreparedStatement pstm;
+
+			try {
+
+				atualizar = "update documento set bloqueado = ? where id_documento = ?";
+
+				conn = ConexaoBanco.getConexao();
+				pstm = conn.prepareStatement(atualizar);
+
+			
+				pstm.setInt(1, 1);
+				pstm.setInt(2, id_documento);
+
+				pstm.execute();
+				// JOptionPane.showMessageDialog(null, "funcionario atualizado com sucesso");
+				System.out.println("Documento Atualizado com sucesso");
+				ConexaoBanco.fechaConexao(conn);
+				return true;
+			} catch (Exception e) {
+				JOptionPane.showMessageDialog(null, "Erro ao bloquear documento no banco de dados");
+				return false;
+			}
+		
+
+	}
+	
+	public boolean desbloquearDocumento(int id_documento) {
+		Connection conn = null;
+		String atualizar = null;
+		PreparedStatement pstm;
+
+		try {
+
+			atualizar = "update documento set bloqueado = ? where id_documento = ?";
+
+			conn = ConexaoBanco.getConexao();
+			pstm = conn.prepareStatement(atualizar);
+
+		
+			pstm.setInt(1, 0);
+			pstm.setInt(2, id_documento);
+
+			pstm.execute();
+			// JOptionPane.showMessageDialog(null, "funcionario atualizado com sucesso");
+			System.out.println("Documento Desbloqueado com sucesso");
+			ConexaoBanco.fechaConexao(conn);
+			return true;
+		} catch (Exception e) {
+			JOptionPane.showMessageDialog(null, "Erro ao desbloquear documento no banco de dados");
+			return false;
+		}
+	
+
+}
 	
 
 }

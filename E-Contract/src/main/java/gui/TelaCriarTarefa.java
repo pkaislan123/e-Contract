@@ -400,12 +400,62 @@ public class TelaCriarTarefa extends JDialog {
 					 
 					 
 					 GerenciarBancoContratos gerenciar = new GerenciarBancoContratos();
-					 ArrayList< CadastroContrato.CadastroTarefa > tarefas = new ArrayList<>();
-					 tarefas.add(nova_tarefa);
-					 boolean criado = gerenciar.inserirTarefas(contrato_local.getId(), tarefas);
-					 if(criado) {
+					 int criado = gerenciar.inserirTarefa(contrato.getId(), nova_tarefa);
+					 if(criado > 0) {
 						 JOptionPane.showMessageDialog(isto, "Tarefa Criada com Sucesso");
-						// ((TelaGerenciarContrato) telaPai).atualizarListaTarefas();
+
+						 //criar nota
+						 
+						 try {
+								//criar notificacao
+								//inserir notificacao
+
+								Date date_hoje = new Date();
+
+								CadastroNota nota = new CadastroNota();
+								nota.setData_nota(date_hoje);
+								nota.setNome(nome);
+								nota.setDescricao(descricao);
+								nota.setTexto(mensagem);
+								nota.setNotificar(1);
+								
+								if(nova_tarefa.getPrioridade() == 1) {
+									nota.setUni_tempo(1);
+									nota.setTempo_notificacao(1);
+								}else if(nova_tarefa.getPrioridade() == 2) {
+									nota.setUni_tempo(1);
+									nota.setTempo_notificacao(6);
+								}else if(nova_tarefa.getPrioridade() == 3) {
+									nota.setUni_tempo(1);
+									nota.setTempo_notificacao(60);
+								}else if(nova_tarefa.getPrioridade() == 4) {
+									nota.setUni_tempo(2);
+									nota.setTempo_notificacao(24);
+								}else if(nova_tarefa.getPrioridade() == 5) {
+									nota.setUni_tempo(3);
+									nota.setTempo_notificacao(2);
+								}
+								
+							
+								nota.setLembrar(0);
+								nota.setTipo(4);
+								nota.setId_tarefa_pai(criado);
+								nota.setId_usuario_pai(nova_tarefa.getExecutor().getId());
+								nota.setUltima_notificacao(new GetData().getDataHoraMinus(11));
+
+								GerenciarBancoNotas gerenciar_anotacoes = new GerenciarBancoNotas();
+								int salvar = gerenciar_anotacoes.inserirnota(nota);
+								if (salvar > 0) {
+									
+								} else {
+									JOptionPane.showMessageDialog(isto, "Erro ao salvar anotação\nConsulte o administrador!");
+								}
+								}catch(Exception t) {
+									JOptionPane.showMessageDialog(isto, "Excessao, Erro ao salvar anotação\nConsulte o administrador!");
+
+								}
+						 
+						 // ((TelaGerenciarContrato) telaPai).atualizarListaTarefas();
 						 ((TelaGerenciarContrato) telaPaiJFrame).atualizarListaTarefas();
 						 ((TelaGerenciarContrato) telaPaiJFrame).informar_atualizou();
 

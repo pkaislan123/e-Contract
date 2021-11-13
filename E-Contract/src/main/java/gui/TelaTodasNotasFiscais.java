@@ -20,25 +20,27 @@ import java.awt.*;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.RowFilter.ComparisonType;
 import org.apache.poi.hssf.usermodel.HSSFDataFormat;
+import org.apache.poi.hssf.usermodel.HSSFFont;
 import org.apache.poi.hssf.usermodel.HSSFSheet;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellStyle;
+import org.apache.poi.ss.usermodel.CellType;
+import org.apache.poi.ss.usermodel.FillPatternType;
+import org.apache.poi.ss.usermodel.FormulaEvaluator;
 import org.apache.poi.ss.usermodel.HorizontalAlignment;
 import org.apache.poi.ss.usermodel.IndexedColors;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.VerticalAlignment;
+import org.apache.poi.ss.util.CellRangeAddress;
 import org.icepdf.ri.common.ComponentKeyBinding;
 import org.icepdf.ri.common.SwingController;
 import org.icepdf.ri.common.SwingViewBuilder;
-
-
 
 import javafx.application.Platform;
 import javafx.embed.swing.JFXPanel;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
-
 
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
@@ -116,12 +118,13 @@ import main.java.classesExtras.CBProdutoRenderPersonalizado;
 import main.java.conexaoBanco.GerenciarBancoProdutos;
 import main.java.conexaoBanco.GerenciarBancoSafras;
 import net.miginfocom.swing.MigLayout;
+
 public class TelaTodasNotasFiscais extends JFrame {
 
 	private Log GerenciadorLog;
 	private CadastroLogin login;
 	private ConfiguracoesGlobais configs_globais;
-    private int retorno_global;
+	private int retorno_global;
 	private JDialog tela_pai;
 	private String servidor_unidade;
 	private ArrayList<CadastroNFe> notas_fiscais_disponivel = new ArrayList<>();
@@ -132,19 +135,19 @@ public class TelaTodasNotasFiscais extends JFrame {
 	private int contador = 0;
 	Locale ptBr = new Locale("pt", "BR");
 	NumberFormat z = NumberFormat.getNumberInstance();
+	private FileChooser fileChooser;
 
-	private JFileChooser fileChooser_global ;
-	  private ArrayList<String> listadeArquivos = new ArrayList<>();
+	private JFileChooser fileChooser_global;
+	private ArrayList<String> listadeArquivos = new ArrayList<>();
 
 	private final JPanel painelPrincipal = new JPanel();
-	/*DefaultTableModel modelo_nfs = new DefaultTableModel() {
-		public boolean isCellEditable(int linha, int coluna) {
-			return false;
-		}
-	};*/
+	/*
+	 * DefaultTableModel modelo_nfs = new DefaultTableModel() { public boolean
+	 * isCellEditable(int linha, int coluna) { return false; } };
+	 */
 	private NFeTableModel modelo_nfs = new NFeTableModel();
 	private TableRowSorter<NFeTableModel> sorter;
-	
+
 	private JTextField entChavePesquisa;
 	private JButton btnVizualizarNF;
 	private JButton btnExportar;
@@ -180,12 +183,14 @@ public class TelaTodasNotasFiscais extends JFrame {
 	private JLabel lblPesoTotalNFs;
 	private JLabel lblValorTotalNfs;
 	private JLabel lblInteficacaoAlvo;
+	private JButton btnCadastrar;
 
 	public TelaTodasNotasFiscais(int flag, int retorno, Window janela_pai) {
-		setIconImage(Toolkit.getDefaultToolkit().getImage(TelaNotasFiscais.class.getResource("/imagens/icone_notas_fiscais.png")));
-		//setAlwaysOnTop(true);
+		setIconImage(Toolkit.getDefaultToolkit()
+				.getImage(TelaNotasFiscais.class.getResource("/imagens/icone_notas_fiscais.png")));
+		// setAlwaysOnTop(true);
 
-		//setModal(true);
+		// setModal(true);
 		isto = this;
 		getDadosGlobais();
 		setResizable(false);
@@ -197,22 +202,32 @@ public class TelaTodasNotasFiscais extends JFrame {
 		painelPrincipal.setBackground(Color.WHITE);
 		painelPrincipal.setBorder(new EmptyBorder(5, 5, 5, 5));
 		setContentPane(painelPrincipal);
-		painelPrincipal.setLayout(null);
+		painelPrincipal.setLayout(new MigLayout("",
+				"[64px][4px][73px][4px][243px][15px][10px][32px][17px][2px][][17px][48px][5px][grow][33px][grow][][grow][4px][]",
+				"[64px][6px][16px][35px][28px][28px][grow][49px][11px][38px]"));
+
+		btnReleitura = new JButton("Refazer Pesquisa");
+		btnReleitura.setBackground(new Color(0, 0, 153));
+		btnReleitura.setForeground(Color.WHITE);
+		btnReleitura.setFont(new Font("Arial", Font.BOLD, 16));
+		btnReleitura.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				pesquisar_notas();
+
+			}
+		});
+		painelPrincipal.add(btnReleitura, "cell 20 3,alignx right,growy");
 
 		JPanel panel = new JPanel();
 		panel.setBackground(Color.WHITE);
-		panel.setBounds(26, 209, 1247, 310);
-		painelPrincipal.add(panel);
+		painelPrincipal.add(panel, "cell 0 6 21 1,grow");
 
 		table_nfs = new JTable(modelo_nfs);
-		 sorter = new TableRowSorter<NFeTableModel>(modelo_nfs);
-        
-		
+		sorter = new TableRowSorter<NFeTableModel>(modelo_nfs);
+
 		table_nfs.setRowSorter(sorter);
 
 		table_nfs.setBackground(new Color(255, 255, 255));
-		
-	
 
 		table_nfs.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
 
@@ -233,325 +248,412 @@ public class TelaTodasNotasFiscais extends JFrame {
 		JScrollPane scrollPaneNFs = new JScrollPane(table_nfs);
 		panel.add(scrollPaneNFs);
 
-
 		entProduto = new JTextField();
-		
-		entProduto.setBounds(146, 170, 242, 28);
-		painelPrincipal.add(entProduto);
+		entProduto.addKeyListener(new KeyAdapter() {
+			@Override
+			public void keyTyped(KeyEvent e) {
+
+				filtrar();
+
+			}
+		});
+		entProduto.setFont(new Font("SansSerif", Font.BOLD, 14));
+		painelPrincipal.add(entProduto, "cell 1 5 4 1,grow");
 		entProduto.setColumns(10);
-		
+
 		entChavePesquisa = new JTextField();
-		
-		entChavePesquisa.setBounds(145, 137, 268, 28);
-		painelPrincipal.add(entChavePesquisa);
+		entChavePesquisa.addKeyListener(new KeyAdapter() {
+			@Override
+			public void keyTyped(KeyEvent e) {
+				filtrar();
+
+			}
+		});
+		entChavePesquisa.setFont(new Font("SansSerif", Font.BOLD, 14));
+		painelPrincipal.add(entChavePesquisa, "cell 1 4 7 1,grow");
 		entChavePesquisa.setColumns(10);
 
-		
-		
 		lblStatusAdicionandoNotas = new JLabel("Adicionando Notas...");
-		lblStatusAdicionandoNotas.setBounds(853, 590, 420, 23);
-		painelPrincipal.add(lblStatusAdicionandoNotas);
-		
+		painelPrincipal.add(lblStatusAdicionandoNotas, "cell 14 9 7 1,growx,aligny top");
+
 		btnFiltrar = new JButton("Filtrar");
+		btnFiltrar.setBackground(new Color(0, 51, 0));
+		btnFiltrar.setForeground(Color.WHITE);
+		btnFiltrar.setFont(new Font("Arial", Font.BOLD, 16));
 		btnFiltrar.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-			
-					   filtrar();
-					   calcular();
 
-				
+				filtrar();
+
 			}
 		});
-		btnFiltrar.setBounds(1149, 137, 59, 28);
-		painelPrincipal.add(btnFiltrar);
-		
-		lblNewLabel = new JLabel("Destinatario:");
-		lblNewLabel.setFont(new Font("Tahoma", Font.PLAIN, 14));
-		lblNewLabel.setBounds(63, 141, 77, 17);
-		painelPrincipal.add(lblNewLabel);
-		
-		lblRemetente = new JLabel("Remetente:");
-		lblRemetente.setFont(new Font("Tahoma", Font.PLAIN, 14));
-		lblRemetente.setBounds(68, 110, 72, 17);
-		painelPrincipal.add(lblRemetente);
-		
-		entRemetente = new JTextField();
-		entRemetente.setColumns(10);
-		entRemetente.setBounds(145, 105, 268, 28);
-		painelPrincipal.add(entRemetente);
-		
-		lblNatureza = new JLabel("Natureza:");
-		lblNatureza.setFont(new Font("Tahoma", Font.PLAIN, 14));
-		lblNatureza.setBounds(403, 175, 59, 17);
-		painelPrincipal.add(lblNatureza);
-		
-		entNatureza = new JTextField();
-		entNatureza.setColumns(10);
-		entNatureza.setBounds(464, 170, 237, 28);
-		painelPrincipal.add(entNatureza);
-		
-		lblProduto = new JLabel("Produto:");
-		lblProduto.setFont(new Font("Tahoma", Font.PLAIN, 14));
-		lblProduto.setBounds(86, 175, 55, 17);
-		painelPrincipal.add(lblProduto);
-		
-		lblNewLabel_1 = new JLabel("Periodo");
-		lblNewLabel_1.setBounds(825, 76, 43, 16);
-		painelPrincipal.add(lblNewLabel_1);
-		
-		lblD = new JLabel("Dé:");
-		lblD.setFont(new Font("Tahoma", Font.PLAIN, 14));
-		lblD.setBounds(735, 111, 22, 17);
-		painelPrincipal.add(lblD);
-		
-		lblAt = new JLabel("Até:");
-		lblAt.setFont(new Font("Tahoma", Font.PLAIN, 14));
-		lblAt.setBounds(732, 139, 25, 17);
-		painelPrincipal.add(lblAt);
-		
-		entMenorData = new JTextField();
-		entMenorData.setColumns(10);
-		entMenorData.setBounds(771, 98, 169, 28);
-		painelPrincipal.add(entMenorData);
-		
-		entMaiorData = new JTextField();
-		entMaiorData.setColumns(10);
-		entMaiorData.setBounds(771, 137, 169, 28);
-		painelPrincipal.add(entMaiorData);
-		
+
 		JButton btnLimpar = new JButton("Limpar");
+		btnLimpar.setBackground(new Color(204, 0, 0));
+		btnLimpar.setForeground(Color.WHITE);
+		btnLimpar.setFont(new Font("Arial", Font.BOLD, 16));
 		btnLimpar.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				
-				    limpar();
-				    calcular();
+
+				limpar();
+				calcular();
 			}
 		});
-		btnLimpar.setBounds(1078, 137, 67, 28);
-		painelPrincipal.add(btnLimpar);
-		
+		painelPrincipal.add(btnLimpar, "flowx,cell 20 4,alignx right,growy");
+		painelPrincipal.add(btnFiltrar, "cell 20 4,alignx right,growy");
+
+		lblNewLabel = new JLabel("Destinatario:");
+		lblNewLabel.setFont(new Font("Arial", Font.PLAIN, 16));
+		painelPrincipal.add(lblNewLabel, "cell 0 4,alignx right,aligny center");
+
+		lblRemetente = new JLabel("Remetente:");
+		lblRemetente.setFont(new Font("Arial", Font.PLAIN, 16));
+		painelPrincipal.add(lblRemetente, "cell 0 3,alignx right,aligny center");
+
+		entRemetente = new JTextField();
+		entRemetente.addKeyListener(new KeyAdapter() {
+			@Override
+			public void keyTyped(KeyEvent e) {
+				filtrar();
+
+			}
+		});
+		entRemetente.setFont(new Font("SansSerif", Font.BOLD, 14));
+		entRemetente.setColumns(10);
+		painelPrincipal.add(entRemetente, "cell 1 3 7 1,growx,aligny bottom");
+
+		lblNatureza = new JLabel("Natureza:");
+		lblNatureza.setFont(new Font("Arial", Font.PLAIN, 16));
+		painelPrincipal.add(lblNatureza, "cell 6 5 5 1,alignx right,aligny center");
+
+		entNatureza = new JTextField();
+		entNatureza.addKeyListener(new KeyAdapter() {
+			@Override
+			public void keyTyped(KeyEvent e) {
+				filtrar();
+
+			}
+		});
+		entNatureza.setFont(new Font("SansSerif", Font.BOLD, 14));
+		entNatureza.setColumns(10);
+		painelPrincipal.add(entNatureza, "cell 11 5 6 1,grow");
+
+		lblProduto = new JLabel("Produto:");
+		lblProduto.setFont(new Font("Arial", Font.PLAIN, 16));
+		painelPrincipal.add(lblProduto, "cell 0 5,alignx right,aligny center");
+
+		lblNewLabel_1 = new JLabel("Periodo");
+		lblNewLabel_1.setFont(new Font("Arial", Font.PLAIN, 16));
+		painelPrincipal.add(lblNewLabel_1, "cell 17 2 3 1,alignx center,growy");
+
+		lblD = new JLabel("Dé:");
+		lblD.setFont(new Font("Arial", Font.PLAIN, 16));
+		painelPrincipal.add(lblD, "cell 17 3,alignx right,aligny bottom");
+
+		lblAt = new JLabel("Até:");
+		lblAt.setFont(new Font("Arial", Font.PLAIN, 16));
+		painelPrincipal.add(lblAt, "cell 17 4,alignx right,aligny top");
+
+		entMenorData = new JTextField();
+		entMenorData.setFont(new Font("SansSerif", Font.BOLD, 14));
+		entMenorData.setColumns(10);
+		painelPrincipal.add(entMenorData, "cell 18 3 2 1,growx,aligny top");
+
+		entMaiorData = new JTextField();
+		entMaiorData.setFont(new Font("SansSerif", Font.BOLD, 14));
+		entMaiorData.setColumns(10);
+		painelPrincipal.add(entMaiorData, "cell 18 4 2 1,grow");
+
 		lblNewLabel_2 = new JLabel("");
 		lblNewLabel_2.setIcon(new ImageIcon(TelaNotasFiscais.class.getResource("/imagens/icone_notas_fiscais.png")));
-		lblNewLabel_2.setBounds(0, 6, 64, 64);
-		painelPrincipal.add(lblNewLabel_2);
-		
+		painelPrincipal.add(lblNewLabel_2, "cell 0 0,alignx left,aligny top");
+
 		lblNewLabel_4 = new JLabel("     NF's");
 		lblNewLabel_4.setOpaque(true);
 		lblNewLabel_4.setForeground(Color.WHITE);
 		lblNewLabel_4.setFont(new Font("Arial", Font.PLAIN, 18));
 		lblNewLabel_4.setBackground(new Color(0, 51, 0));
-		lblNewLabel_4.setBounds(48, 48, 61, 22);
-		painelPrincipal.add(lblNewLabel_4);
-		
-		btnReleitura = new JButton("Refazer Pesquisa");
-		btnReleitura.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-			  pesquisar_notas();
-			 
+		painelPrincipal.add(lblNewLabel_4, "cell 0 0,alignx center,aligny bottom");
+
+		if (flag == 1) {
+			// esconder o botao selecionar
+
+			btnSelecionarNota.setVisible(false);
+
+			btnSelecionarNota.setEnabled(false);
+
+		} else if (flag == 0) {
+			// esconder o botão vizualizar nf
+			// btnVizualizarNF.setVisible(false);
+			// btnVizualizarNF.setEnabled(false);
+
+		}
+
+		JLabel lblCdigo = new JLabel("Código:");
+		lblCdigo.setFont(new Font("Arial", Font.PLAIN, 16));
+		painelPrincipal.add(lblCdigo, "cell 17 5,alignx right,aligny center");
+
+		entCodigo = new JTextField();
+		entCodigo.addKeyListener(new KeyAdapter() {
+			@Override
+			public void keyTyped(KeyEvent e) {
+				filtrar();
+
 			}
 		});
-		btnReleitura.setBounds(973, 137, 90, 28);
-		painelPrincipal.add(btnReleitura);
-		
-
-		if(flag == 1) {
-			//esconder o botao selecionar
-
-			 btnSelecionarNota.setVisible(false);
-
-			 btnSelecionarNota.setEnabled(false);
-			
-		}else if(flag == 0) {
-			//esconder o botão vizualizar nf
-			//btnVizualizarNF.setVisible(false);
-			//btnVizualizarNF.setEnabled(false);
-			
-		}
-		
-		
-		JLabel lblCdigo = new JLabel("Código:");
-		lblCdigo.setFont(new Font("Tahoma", Font.PLAIN, 14));
-		lblCdigo.setBounds(718, 175, 48, 17);
-		painelPrincipal.add(lblCdigo);
-		
-		entCodigo = new JTextField();
+		entCodigo.setFont(new Font("SansSerif", Font.BOLD, 14));
 		entCodigo.setColumns(10);
-		entCodigo.setBounds(771, 170, 169, 28);
-		painelPrincipal.add(entCodigo);
-		
+		painelPrincipal.add(entCodigo, "cell 18 5 2 1,grow");
+
 		entIdentificacaoRemetente = new JTextField();
+		entIdentificacaoRemetente.addKeyListener(new KeyAdapter() {
+			@Override
+			public void keyTyped(KeyEvent e) {
+				filtrar();
+
+			}
+		});
+		entIdentificacaoRemetente.setFont(new Font("SansSerif", Font.BOLD, 14));
 		entIdentificacaoRemetente.setColumns(10);
-		entIdentificacaoRemetente.setBounds(464, 105, 237, 28);
-		painelPrincipal.add(entIdentificacaoRemetente);
-		
+		painelPrincipal.add(entIdentificacaoRemetente, "cell 11 3 6 1,growx,aligny bottom");
+
 		JLabel lblCpfcnpj = new JLabel("IE:");
-		lblCpfcnpj.setFont(new Font("Tahoma", Font.PLAIN, 14));
-		lblCpfcnpj.setBounds(445, 110, 17, 17);
-		painelPrincipal.add(lblCpfcnpj);
-		
+		lblCpfcnpj.setFont(new Font("Arial", Font.PLAIN, 16));
+		painelPrincipal.add(lblCpfcnpj, "cell 10 3,alignx right,aligny center");
+
 		JLabel lblCpfcnpj_1 = new JLabel("IE:");
-		lblCpfcnpj_1.setFont(new Font("Tahoma", Font.PLAIN, 14));
-		lblCpfcnpj_1.setBounds(445, 142, 17, 17);
-		painelPrincipal.add(lblCpfcnpj_1);
-		
+		lblCpfcnpj_1.setFont(new Font("Arial", Font.PLAIN, 16));
+		painelPrincipal.add(lblCpfcnpj_1, "cell 10 4,alignx right,aligny center");
+
 		entIdentificacaoDestinatario = new JTextField();
+		entIdentificacaoDestinatario.addKeyListener(new KeyAdapter() {
+			@Override
+			public void keyTyped(KeyEvent e) {
+				filtrar();
+
+			}
+		});
+		entIdentificacaoDestinatario.setFont(new Font("SansSerif", Font.BOLD, 14));
 		entIdentificacaoDestinatario.setColumns(10);
-		entIdentificacaoDestinatario.setBounds(464, 137, 237, 28);
-		painelPrincipal.add(entIdentificacaoDestinatario);
-		
+		painelPrincipal.add(entIdentificacaoDestinatario, "cell 11 4 6 1,grow");
+
 		panel_1 = new JPanel();
 		panel_1.setBackground(Color.WHITE);
-		panel_1.setBounds(803, 530, 470, 49);
-		painelPrincipal.add(panel_1);
-		panel_1.setLayout(new MigLayout("", "[][][][][][][][][][][][][][][][][][][][][]", "[][][]"));
-				 
-				 btnNewButton = new JButton("Excluir");
-				 panel_1.add(btnNewButton, "cell 13 0");
-				 btnNewButton.addActionListener(new ActionListener() {
-				 	public void actionPerformed(ActionEvent e) {
-				 		
-				 		if (JOptionPane.showConfirmDialog(isto, 
-				 	            "Deseja excluir a NF?", "Excluir NF", 
-				 	            JOptionPane.YES_NO_OPTION,
-				 	            JOptionPane.QUESTION_MESSAGE) == JOptionPane.YES_OPTION){
-				 			int rowSel = table_nfs.getSelectedRow();//pega o indice da linha na tabela
-				 			int indexRowModel = table_nfs.getRowSorter().convertRowIndexToModel(rowSel);//converte pro indice do model
-				 			ManipularTxt manipular = new ManipularTxt();
-				 			boolean apagado = manipular.apagarArquivo(notas_fiscais_disponivel.get(indexRowModel).getCaminho_arquivo());
-				 			if(apagado) {
-				 				modelo_nfs.onRemove(notas_fiscais_disponivel.get(indexRowModel));
-				 				JOptionPane.showMessageDialog(isto, "NF Excluida");
+		painelPrincipal.add(panel_1, "cell 14 7 7 1,grow");
+		panel_1.setLayout(new MigLayout("", "[][][][][][][][][][][][][][][][][][][][][][]", "[][][]"));
 
-				 			}else {
-				 				JOptionPane.showMessageDialog(isto, "Erro ao excluir esta NF\nConsulte o administrador");
-				 			}
-				 	        }
-				 		
-				 		
-				 		
-				 	}
-				 });
-				 
-				 btnImportarNFe = new JButton("Importar");
-				 panel_1.add(btnImportarNFe, "cell 15 0");
-				 btnImportarNFe.addActionListener(new ActionListener() {
-				 	public void actionPerformed(ActionEvent e) {
-				 		
-				 		
-				 	}
-				 });
-				 
-				 btnExportar = new JButton("Exportar");
-				 panel_1.add(btnExportar, "cell 17 0");
-				 btnExportar.addActionListener(new ActionListener() {
-				 	public void actionPerformed(ActionEvent e) {
-				 		exportar();
-				 	}
-				 });
-				 
-				 btnVizualizarNF = new JButton("Vizualizar");
-				 panel_1.add(btnVizualizarNF, "cell 19 0");
-				 btnVizualizarNF.addActionListener(new ActionListener() {
-				 	public void actionPerformed(ActionEvent e) {
-				 		
-				 		int rowSel = table_nfs.getSelectedRow();//pega o indice da linha na tabela
-				 		int indexRowModel = table_nfs.getRowSorter().convertRowIndexToModel(rowSel);//converte pro indice do model
-				 		CadastroNFe nota_vizualizar = notas_fiscais_disponivel.get(indexRowModel);
-				 		
-				 		if (Desktop.isDesktopSupported()) {
-				 			 try {
-				 			     Desktop desktop = Desktop.getDesktop();
-				 			     File myFile = new File(servidor_unidade +   nota_vizualizar.getCaminho_arquivo());
-				 			     desktop.open(myFile);
-				 			     } catch (IOException ex) {}
-				 			 }
-				 	}
-				 });
-		
-				
-				
-				 btnSelecionarNota = new JButton("Selecionar");
-				 panel_1.add(btnSelecionarNota, "cell 20 0");
-				 
-				 panel_2 = new JPanel();
-				 panel_2.setBackground(Color.WHITE);
-				 panel_2.setBounds(26, 530, 578, 98);
-				 painelPrincipal.add(panel_2);
-				 panel_2.setLayout(new MigLayout("", "[][]", "[][][]"));
-				 
-				 lblNewLabel_3 = new JLabel("Total NF's:");
-				 lblNewLabel_3.setFont(new Font("SansSerif", Font.PLAIN, 16));
-				 panel_2.add(lblNewLabel_3, "cell 0 0");
-				 
-				 lblNumTotalNfs = new JLabel("000");
-				 lblNumTotalNfs.setFont(new Font("SansSerif", Font.BOLD, 14));
-				 panel_2.add(lblNumTotalNfs, "cell 1 0");
-				 
-				 lblNewLabel_5 = new JLabel("Peso Total NF's:");
-				 lblNewLabel_5.setFont(new Font("SansSerif", Font.PLAIN, 16));
-				 panel_2.add(lblNewLabel_5, "cell 0 1");
-				 
-				 lblPesoTotalNFs = new JLabel("000");
-				 lblPesoTotalNFs.setFont(new Font("SansSerif", Font.BOLD, 14));
-				 panel_2.add(lblPesoTotalNFs, "cell 1 1");
-				 
-				 lblNewLabel_6 = new JLabel("Valor Total NF's:");
-				 lblNewLabel_6.setFont(new Font("SansSerif", Font.PLAIN, 16));
-				 panel_2.add(lblNewLabel_6, "cell 0 2");
-				 
-				 lblValorTotalNfs = new JLabel("000");
-				 lblValorTotalNfs.setFont(new Font("SansSerif", Font.BOLD, 14));
-				 panel_2.add(lblValorTotalNfs, "cell 1 2");
-				 
-				 lblInteficacaoAlvo = new JLabel("   ");
-				 lblInteficacaoAlvo.setVisible(false);
-				 lblInteficacaoAlvo.setFont(new Font("SansSerif", Font.BOLD, 14));
-				 lblInteficacaoAlvo.setBounds(145, 62, 380, 16);
-				 painelPrincipal.add(lblInteficacaoAlvo);
-				 btnSelecionarNota.addActionListener(new ActionListener() {
-				 	public void actionPerformed(ActionEvent e) {
-				 		
-				 		int rowSel = table_nfs.getSelectedRow();//pega o indice da linha na tabela
-				 		int indexRowModel = table_nfs.getRowSorter().convertRowIndexToModel(rowSel);//converte pro indice do model
-				 		if(tela_pai instanceof TelaConfirmarCarregamento) {
-				 			
-				 			if(retorno_global == 1) {
-				 				//retorna a nf interna
-				 				((TelaConfirmarCarregamento) tela_pai).setNotaFiscalInterna(notas_fiscais_disponivel.get(indexRowModel));
+		btnNewButton = new JButton("Excluir");
+		btnNewButton.setBackground(new Color(204, 0, 0));
+		btnNewButton.setForeground(Color.WHITE);
+		btnNewButton.setFont(new Font("Arial", Font.BOLD, 16));
+		panel_1.add(btnNewButton, "cell 13 0");
+		btnNewButton.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				if (JOptionPane.showConfirmDialog(isto, "Deseja excluir a NF?", "Excluir NF", JOptionPane.YES_NO_OPTION,
+						JOptionPane.QUESTION_MESSAGE) == JOptionPane.YES_OPTION) {
 
-				 			}else if(retorno_global == 2) {
-				 				//retorna a nf de venda 1
-				 				((TelaConfirmarCarregamento) tela_pai).setNotaFiscalVenda1(notas_fiscais_disponivel.get(indexRowModel));
+					int rowSel = table_nfs.getSelectedRow();// pega o indice da linha na tabela
+					int indexRowModel = table_nfs.getRowSorter().convertRowIndexToModel(rowSel);// converte pro indice
+																								// do
+																								// model
+					CadastroNFe nota_vizualizar = notas_fiscais_disponivel.get(indexRowModel);
 
-				 			}else if(retorno_global == 3) {
-				 				//retorna a nf de complemento
-				 				((TelaConfirmarCarregamento) tela_pai).setNotaFiscalComplemento(notas_fiscais_disponivel.get(indexRowModel));
+					ManipularTxt manipular = new ManipularTxt();
+					String myFile = servidor_unidade + nota_vizualizar.getCaminho_arquivo();
 
-				 			}
-				 			
+					File arquivo = new File(myFile);
 
-				 		}
-				 		else if(tela_pai instanceof TelaConfirmarRecebimento) {
-				 			if(retorno_global == 1)
-				 			((TelaConfirmarRecebimento) tela_pai).setNotaFiscalVenda(notas_fiscais_disponivel.get(indexRowModel));
-				 			else if(retorno_global == 2)
-				 				((TelaConfirmarRecebimento) tela_pai).setNotaFiscalRemessa(notas_fiscais_disponivel.get(indexRowModel));
+					if (arquivo.exists()) {
 
-				 		}
-				 		
-				 		isto.dispose();
+						boolean apagado = manipular.apagarArquivo(myFile);
+						if (apagado) {
 
-				 	}
-				 });
-		
-		
-			
+							// remover do banco de dados
+							GerenciarBancoNotasFiscais gerenciar = new GerenciarBancoNotasFiscais();
+							boolean excluir = gerenciar.removerNota(nota_vizualizar.getId());
+							if (excluir) {
+								JOptionPane.showMessageDialog(isto, "Nota Fiscal Excluída");
+								pesquisar_notas();
+							} else {
+								JOptionPane.showMessageDialog(isto,
+										"Erro ao excluir a Nota Fiscal\nConsulte o administrador");
+
+							}
+
+						} else {
+							JOptionPane.showMessageDialog(isto,
+									"Erro ao excluir a Nota Fiscal\nO arquivo fisico não pode ser apagado");
+						}
+					} else {
+						// remover do banco de dados
+						GerenciarBancoNotasFiscais gerenciar = new GerenciarBancoNotasFiscais();
+						boolean excluir = gerenciar.removerNota(nota_vizualizar.getId());
+						if (excluir) {
+							JOptionPane.showMessageDialog(isto, "NF Excluída");
+							pesquisar_notas();
+
+						} else {
+							JOptionPane.showMessageDialog(isto, "Erro ao excluir a NF\nConsulte o administrador");
+
+						}
+					}
+				}
+			}
+		});
+
+		btnImportarNFe = new JButton("Importar");
+		btnImportarNFe.setBackground(new Color(0, 51, 0));
+		btnImportarNFe.setForeground(Color.WHITE);
+		btnImportarNFe.setFont(new Font("Arial", Font.BOLD, 16));
+		panel_1.add(btnImportarNFe, "cell 15 0");
+		btnImportarNFe.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+
+			}
+		});
+
+		btnExportar = new JButton("Exportar");
+		btnExportar.setBackground(new Color(0, 153, 204));
+		btnExportar.setForeground(Color.WHITE);
+		btnExportar.setFont(new Font("Arial", Font.BOLD, 16));
+		panel_1.add(btnExportar, "cell 17 0");
+		btnExportar.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				ArrayList<CadastroNFe> notas_selecionadas = new ArrayList<>();
+				int linhas_selecionadas[] = table_nfs.getSelectedRows();// pega o indice da linha na tabela
+
+				for (int i = 0; i < linhas_selecionadas.length; i++) {
+
+					int indice = linhas_selecionadas[i];//
+					int indexRowModel = table_nfs.getRowSorter().convertRowIndexToModel(indice);
+
+					CadastroNFe nf = modelo_nfs.getValue(indexRowModel);
+					notas_selecionadas.add(nf);
+				}
+
+				gerarExcel(exportar(notas_selecionadas));
+			}
+		});
+
+		btnVizualizarNF = new JButton("Vizualizar");
+		btnVizualizarNF.setBackground(new Color(0, 0, 102));
+		btnVizualizarNF.setForeground(Color.WHITE);
+		btnVizualizarNF.setFont(new Font("Arial", Font.BOLD, 16));
+		panel_1.add(btnVizualizarNF, "cell 19 0");
+		btnVizualizarNF.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+
+				int rowSel = table_nfs.getSelectedRow();// pega o indice da linha na tabela
+				int indexRowModel = table_nfs.getRowSorter().convertRowIndexToModel(rowSel);// converte pro indice do
+																							// model
+				CadastroNFe nota_vizualizar = notas_fiscais_disponivel.get(indexRowModel);
+
+				if (Desktop.isDesktopSupported()) {
+					try {
+						Desktop desktop = Desktop.getDesktop();
+						File myFile = new File(servidor_unidade + nota_vizualizar.getCaminho_arquivo());
+						desktop.open(myFile);
+					} catch (IOException ex) {
+					}
+				}
+			}
+		});
+
+		btnCadastrar = new JButton("Cadastrar");
+		btnCadastrar.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+
+				TelaCadastroNotaFiscal tela = new TelaCadastroNotaFiscal(0, null, isto);
+				tela.setVisible(true);
+			}
+		});
+		btnCadastrar.setForeground(Color.WHITE);
+		btnCadastrar.setFont(new Font("Arial", Font.BOLD, 16));
+		btnCadastrar.setBackground(new Color(102, 51, 0));
+		panel_1.add(btnCadastrar, "cell 20 0");
+
+		btnSelecionarNota = new JButton("Selecionar");
+		btnSelecionarNota.setBackground(new Color(0, 51, 204));
+		btnSelecionarNota.setForeground(Color.WHITE);
+		btnSelecionarNota.setFont(new Font("Arial", Font.BOLD, 16));
+		panel_1.add(btnSelecionarNota, "cell 21 0");
+
+		panel_2 = new JPanel();
+		panel_2.setBackground(Color.WHITE);
+		painelPrincipal.add(panel_2, "cell 0 7 11 3,grow");
+		panel_2.setLayout(new MigLayout("", "[][]", "[][][]"));
+
+		lblNewLabel_3 = new JLabel("Total NF's:");
+		lblNewLabel_3.setFont(new Font("SansSerif", Font.PLAIN, 16));
+		panel_2.add(lblNewLabel_3, "cell 0 0");
+
+		lblNumTotalNfs = new JLabel("000");
+		lblNumTotalNfs.setFont(new Font("SansSerif", Font.BOLD, 14));
+		panel_2.add(lblNumTotalNfs, "cell 1 0");
+
+		lblNewLabel_5 = new JLabel("Peso Total NF's:");
+		lblNewLabel_5.setFont(new Font("SansSerif", Font.PLAIN, 16));
+		panel_2.add(lblNewLabel_5, "cell 0 1");
+
+		lblPesoTotalNFs = new JLabel("000");
+		lblPesoTotalNFs.setFont(new Font("SansSerif", Font.BOLD, 14));
+		panel_2.add(lblPesoTotalNFs, "cell 1 1");
+
+		lblNewLabel_6 = new JLabel("Valor Total NF's:");
+		lblNewLabel_6.setFont(new Font("SansSerif", Font.PLAIN, 16));
+		panel_2.add(lblNewLabel_6, "cell 0 2");
+
+		lblValorTotalNfs = new JLabel("000");
+		lblValorTotalNfs.setFont(new Font("SansSerif", Font.BOLD, 14));
+		panel_2.add(lblValorTotalNfs, "cell 1 2");
+
+		lblInteficacaoAlvo = new JLabel("   ");
+		lblInteficacaoAlvo.setVisible(false);
+		lblInteficacaoAlvo.setFont(new Font("SansSerif", Font.BOLD, 14));
+		painelPrincipal.add(lblInteficacaoAlvo, "cell 4 0 7 3,growx,aligny bottom");
+		btnSelecionarNota.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+
+				int rowSel = table_nfs.getSelectedRow();// pega o indice da linha na tabela
+				int indexRowModel = table_nfs.getRowSorter().convertRowIndexToModel(rowSel);// converte pro indice do
+																							// model
+				if (tela_pai instanceof TelaConfirmarCarregamento) {
+
+					if (retorno_global == 1) {
+						// retorna a nf interna
+						((TelaConfirmarCarregamento) tela_pai)
+								.setNotaFiscalInterna(notas_fiscais_disponivel.get(indexRowModel));
+
+					} else if (retorno_global == 2) {
+						// retorna a nf de venda 1
+						((TelaConfirmarCarregamento) tela_pai)
+								.setNotaFiscalVenda1(notas_fiscais_disponivel.get(indexRowModel));
+
+					} else if (retorno_global == 3) {
+						// retorna a nf de complemento
+						((TelaConfirmarCarregamento) tela_pai)
+								.setNotaFiscalComplemento(notas_fiscais_disponivel.get(indexRowModel));
+
+					}
+
+				} else if (tela_pai instanceof TelaConfirmarRecebimento) {
+					if (retorno_global == 1)
+						((TelaConfirmarRecebimento) tela_pai)
+								.setNotaFiscalVenda(notas_fiscais_disponivel.get(indexRowModel));
+					else if (retorno_global == 2)
+						((TelaConfirmarRecebimento) tela_pai)
+								.setNotaFiscalRemessa(notas_fiscais_disponivel.get(indexRowModel));
+
+				}
+
+				isto.dispose();
+
+			}
+		});
 
 		this.setLocationRelativeTo(janela_pai);
 
 	}
-
-
 
 	public void getDadosGlobais() {
 		// gerenciador de log
@@ -561,350 +663,430 @@ public class TelaTodasNotasFiscais extends JFrame {
 
 		// usuario logado
 		login = dados.getLogin();
-		
+
 		servidor_unidade = configs_globais.getServidorUnidade();
 
 	}
 
-	
-	public void pesquisar_notas( ) {
+	public void pesquisar_notas() {
 
 		new Thread() {
 			@Override
 			public void run() {
 				notas_fiscais_disponivel.clear();
 				modelo_nfs.onRemoveAll();
-				
-				GerenciarBancoNotasFiscais gerenciar = new GerenciarBancoNotasFiscais();
-				ArrayList<CadastroNFe> lista_nfs ;
 
-				
-				if(cliente_selecionado == null) {
+				GerenciarBancoNotasFiscais gerenciar = new GerenciarBancoNotasFiscais();
+				ArrayList<CadastroNFe> lista_nfs;
+
+				if (cliente_selecionado == null) {
 					lista_nfs = gerenciar.listarNFs();
-				}else {
+				} else {
 					lblInteficacaoAlvo.setVisible(true);
 					String nome = "";
-					if(cliente_selecionado.getTipo_pessoa() ==0 ) {
+					if (cliente_selecionado.getTipo_pessoa() == 0) {
 						nome = cliente_selecionado.getNome_empresarial();
-					}else
+					} else
 						nome = cliente_selecionado.getNome_fantaia();
-					
+
 					lblInteficacaoAlvo.setText(nome + " I.E:  " + cliente_selecionado.getIe());
-					
+
 					lista_nfs = gerenciar.listarNFsPorCliente(cliente_selecionado.getIe());
-					
+
 				}
-				
-				for(CadastroNFe nf : lista_nfs) {
+
+				for (CadastroNFe nf : lista_nfs) {
 					notas_fiscais_disponivel.add(nf);
 					modelo_nfs.onAdd(nf);
 				}
-				
-				 calcular();
+
+				calcular();
 			}
 		}.start();
-				
-			
 
 	}
 
-	
-	
-	
-	public static class NFeTableModel extends AbstractTableModel{
-		 
-	    //constantes p/identificar colunas
-	    private final int nfe=0;
-	    private final int serie=1;
-	    private final int remetente=2;
-	    private final int inscricao_rem=3;
-	    private final int protocolo=4;
-	    private final int data_nfe=5;
-	    private final int natureza=6;
-	    private final int destinatario=7;
-	    private final int inscricao_dest=8;
-	    private final int produto=9;
-	    private final int quantidade=10;
-	    private final int valor=11;
+	public static class NFeTableModel extends AbstractTableModel {
 
-	 
-	    private final String colunas[]={"NFe:","Serie:","Remetente:","Inscrição:","Protocolo:","Data:",
-	    		"Natureza:", "Destinatario:", "Inscrição:", "Produto:", "Quantidade:", "Valor:"};
-	    private final ArrayList<CadastroNFe> dados = new ArrayList<>();//usamos como dados uma lista genérica de nfs
-	 
-	    public NFeTableModel() {
-	        
-	    }
-	 
-	    @Override
-	    public int getColumnCount() {
-	        //retorna o total de colunas
-	        return colunas.length;
-	    }
-	 
-	    @Override
-	    public int getRowCount() {
-	        //retorna o total de linhas na tabela
-	        return dados.size();
-	    }
-	 
-	    @Override
-	    public Class<?> getColumnClass(int columnIndex) {
-	        //retorna o tipo de dado, para cada coluna
-	        switch (columnIndex) {
-	        case nfe:
-	            return String.class;
-	        case serie:
-	            return String.class;
-	        case remetente:
-	            return String.class;
-	        case inscricao_rem:
-	            return String.class;
-	        case protocolo:
-	            return String.class;
-	        case data_nfe:
-	            return Date.class;
-	        case natureza:
-	            return String.class;
-	        case destinatario:
-	            return String.class;
-	        case inscricao_dest:
-	            return String.class;
-	        case produto:
-	            return String.class;
-	        case quantidade:
-	            return String.class;
-	        case valor:
-	            return String.class;
-	        default:
-	            throw new IndexOutOfBoundsException("Coluna Inválida!!!");
-	        }
-	    }
-	 
-	    @Override
-	    public String getColumnName(int columnIndex) {
-	        return colunas[columnIndex];
-	    }
-	 
-	    @Override
-	    public Object getValueAt(int rowIndex, int columnIndex) {
-	        //retorna o valor conforme a coluna e linha
-	 
-	        //pega o dados corrente da linha
-	        CadastroNFe nota=dados.get(rowIndex);
-	 
-	        //retorna o valor da coluna
-	        switch (columnIndex) {
-	        case nfe:{
-	            String codigo =  nota.getNfe().replaceAll("[^0-9]", "");
-	            return Integer.valueOf(codigo).toString();
+		// constantes p/identificar colunas
+		private final int nfe = 0;
+		private final int serie = 1;
+		private final int remetente = 2;
+		private final int inscricao_rem = 3;
+		private final int protocolo = 4;
+		private final int data_nfe = 5;
+		private final int natureza = 6;
+		private final int destinatario = 7;
+		private final int inscricao_dest = 8;
+		private final int produto = 9;
+		private final int medida = 10;
+		private final int quantidade = 11;
+		private final int valor = 12;
 
-	        }
-	        case serie:
-	            return nota.getSerie();
-	        case remetente:
-	            return nota.getNome_remetente();
-	        case inscricao_rem:
-	            return nota.getInscricao_remetente();
-	        case protocolo:
-	            return nota.getProtocolo();
-	        case data_nfe:{
-	      
-	        	return nota.getData();
-	        }
-	        case natureza:
-	            return nota.getNatureza();
-	        case destinatario:
-	            return nota.getNome_destinatario();
-	        case inscricao_dest:
-	            return nota.getInscricao_destinatario();
-	        case produto:
-	            return nota.getProduto();
-	        case quantidade:
-	            return nota.getQuantidade();
-	        case valor:
-	            return nota.getValor();
-	        default:
-	            throw new IndexOutOfBoundsException("Coluna Inválida!!!");
-	        }
-	    }
-	 
-	    @Override
-	    public boolean isCellEditable(int rowIndex, int columnIndex) {
-	        //metodo identifica qual coluna é editavel
-	 
-	        //só iremos editar a coluna BENEFICIO, 
-	        //que será um checkbox por ser boolean
-	      
-	 
-	        return false;
-	    }
-	 
-	    @Override
-	    public void setValueAt(Object aValue, int rowIndex, int columnIndex) {
-	        CadastroNFe nota=dados.get(rowIndex);
-	 
-	      
-	    }
-	 
-	    //Métodos abaixo são para manipulação de dados
-	 
-	    /**
-	     * retorna o valor da linha indicada
-	     * @param rowIndex
-	     * @return
-	     */
-	    public CadastroNFe getValue(int rowIndex){
-	        return dados.get(rowIndex);
-	    }
-	 
-	    /**
-	     * retorna o indice do objeto
-	     * @param empregado
-	     * @return
-	     */
-	    public int indexOf(CadastroNFe nota) {
-	        return dados.indexOf(nota);
-	    }
-	 
-	    /**
-	     * add um empregado á lista
-	     * @param empregado
-	     */
-	    public void onAdd(CadastroNFe nota) {
-	        dados.add(nota);
-	        fireTableRowsInserted(indexOf(nota), indexOf(nota));
-	    }
-	 
-	    /**
-	     * add uma lista de empregados
-	     * @param dadosIn
-	     */
-	    public void onAddAll(ArrayList<CadastroNFe> dadosIn) {
-	        dados.addAll(dadosIn);
-	        fireTableDataChanged();
-	    }
-	 
-	    /**
-	     * remove um registro da lista, através do indice
-	     * @param rowIndex
-	     */
-	    public void onRemove(int rowIndex) {
-	        dados.remove(rowIndex);
-	        fireTableRowsDeleted(rowIndex, rowIndex);
-	    }
-	 
-	    /**
-	     * remove um registro da lista, através do objeto
-	     * @param empregado
-	     */
-	    public void onRemove(CadastroNFe nota) {
-	        int indexBefore=indexOf(nota);//pega o indice antes de apagar
-	        dados.remove(nota);  
-	        fireTableRowsDeleted(indexBefore, indexBefore);
-	    }
-	 
-	    /**
-	     * remove todos registros da lista
-	     */
-	    public void onRemoveAll() {
-	        dados.clear();
-	        fireTableDataChanged();
-	    }
-	 
+		private final String colunas[] = { "NFe:", "Serie:", "Remetente:", "Inscrição:", "Protocolo:", "Data:",
+				"Natureza:", "Destinatario:", "Inscrição:", "Produto:", "Medida", "Quantidade:", "Valor:" };
+		private final ArrayList<CadastroNFe> dados = new ArrayList<>();// usamos como dados uma lista genérica de nfs
+
+		public NFeTableModel() {
+
+		}
+
+		@Override
+		public int getColumnCount() {
+			// retorna o total de colunas
+			return colunas.length;
+		}
+
+		@Override
+		public int getRowCount() {
+			// retorna o total de linhas na tabela
+			return dados.size();
+		}
+
+		@Override
+		public Class<?> getColumnClass(int columnIndex) {
+			// retorna o tipo de dado, para cada coluna
+			switch (columnIndex) {
+			case nfe:
+				return String.class;
+			case serie:
+				return String.class;
+			case remetente:
+				return String.class;
+			case inscricao_rem:
+				return String.class;
+			case protocolo:
+				return String.class;
+			case data_nfe:
+				return Date.class;
+			case natureza:
+				return String.class;
+			case destinatario:
+				return String.class;
+			case inscricao_dest:
+				return String.class;
+			case produto:
+				return String.class;
+			case medida:
+				return String.class;
+			case quantidade:
+				return String.class;
+			case valor:
+				return String.class;
+			default:
+				throw new IndexOutOfBoundsException("Coluna Inválida!!!");
+			}
+		}
+
+		@Override
+		public String getColumnName(int columnIndex) {
+			return colunas[columnIndex];
+		}
+
+		@Override
+		public Object getValueAt(int rowIndex, int columnIndex) {
+			// retorna o valor conforme a coluna e linha
+
+			// pega o dados corrente da linha
+			CadastroNFe nota = dados.get(rowIndex);
+
+			// retorna o valor da coluna
+			switch (columnIndex) {
+			case nfe: {
+				String codigo = nota.getNfe().replaceAll("[^0-9]", "");
+				return Integer.valueOf(codigo).toString();
+
+			}
+			case serie:
+				return nota.getSerie();
+			case remetente:
+				return nota.getNome_remetente().trim().toUpperCase();
+			case inscricao_rem:
+				return nota.getInscricao_remetente();
+			case protocolo:
+				return nota.getProtocolo();
+			case data_nfe: {
+
+				return nota.getData();
+			}
+			case natureza:
+				return nota.getNatureza();
+			case destinatario:
+				return nota.getNome_destinatario().trim().toUpperCase();
+			case inscricao_dest:
+				return nota.getInscricao_destinatario();
+			case produto:
+				return nota.getProduto();
+			case medida: {
+				if (nota.getMedida() == null || nota.getMedida().equals("null")) {
+					return "KG";
+				} else {
+					return nota.getMedida();
+				}
+			}
+			case quantidade:
+				return nota.getQuantidade();
+			case valor:
+				return nota.getValor();
+			default:
+				throw new IndexOutOfBoundsException("Coluna Inválida!!!");
+			}
+		}
+
+		@Override
+		public boolean isCellEditable(int rowIndex, int columnIndex) {
+			// metodo identifica qual coluna é editavel
+
+			// só iremos editar a coluna BENEFICIO,
+			// que será um checkbox por ser boolean
+
+			return false;
+		}
+
+		@Override
+		public void setValueAt(Object aValue, int rowIndex, int columnIndex) {
+			CadastroNFe nota = dados.get(rowIndex);
+
+		}
+
+		// Métodos abaixo são para manipulação de dados
+
+		/**
+		 * retorna o valor da linha indicada
+		 * 
+		 * @param rowIndex
+		 * @return
+		 */
+		public CadastroNFe getValue(int rowIndex) {
+			return dados.get(rowIndex);
+		}
+
+		/**
+		 * retorna o indice do objeto
+		 * 
+		 * @param empregado
+		 * @return
+		 */
+		public int indexOf(CadastroNFe nota) {
+			return dados.indexOf(nota);
+		}
+
+		/**
+		 * add um empregado á lista
+		 * 
+		 * @param empregado
+		 */
+		public void onAdd(CadastroNFe nota) {
+			dados.add(nota);
+			fireTableRowsInserted(indexOf(nota), indexOf(nota));
+		}
+
+		/**
+		 * add uma lista de empregados
+		 * 
+		 * @param dadosIn
+		 */
+		public void onAddAll(ArrayList<CadastroNFe> dadosIn) {
+			dados.addAll(dadosIn);
+			fireTableDataChanged();
+		}
+
+		/**
+		 * remove um registro da lista, através do indice
+		 * 
+		 * @param rowIndex
+		 */
+		public void onRemove(int rowIndex) {
+			dados.remove(rowIndex);
+			fireTableRowsDeleted(rowIndex, rowIndex);
+		}
+
+		/**
+		 * remove um registro da lista, através do objeto
+		 * 
+		 * @param empregado
+		 */
+		public void onRemove(CadastroNFe nota) {
+			int indexBefore = indexOf(nota);// pega o indice antes de apagar
+			dados.remove(nota);
+			fireTableRowsDeleted(indexBefore, indexBefore);
+		}
+
+		/**
+		 * remove todos registros da lista
+		 */
+		public void onRemoveAll() {
+			dados.clear();
+			fireTableDataChanged();
+		}
+
 	}
 
-	
-	public void exportar() {
+	public HSSFWorkbook exportar(ArrayList<CadastroNFe> notas_selecionadas) {
 		HSSFWorkbook workbook = new HSSFWorkbook();
 		HSSFSheet sheet = workbook.createSheet("Notas");
-		
+
 		// Definindo alguns padroes de layout
 		sheet.setDefaultColumnWidth(15);
-		sheet.setDefaultRowHeight((short)400);
-		
+		sheet.setDefaultRowHeight((short) 400);
+
 		int rownum = 0;
 		int cellnum = 0;
 		Cell cell;
 		Row row;
 
-		//Configurando estilos de células (Cores, alinhamento, formatação, etc..)
+		// Configurando estilos de células (Cores, alinhamento, formatação, etc..)
 		HSSFDataFormat numberFormat = workbook.createDataFormat();
-	
-		CellStyle headerStyle = workbook.createCellStyle();
-		headerStyle.setFillForegroundColor(IndexedColors.GREY_25_PERCENT.getIndex());
-		//headerStyle.setFillPattern(CellStyle.SOLID_FOREGROUND);
-		headerStyle.setAlignment(HorizontalAlignment.CENTER);
-		headerStyle.setVerticalAlignment(VerticalAlignment.CENTER);
+		HSSFFont newFont_blabk = workbook.createFont();
+		newFont_blabk.setBold(true);
+		newFont_blabk.setColor(IndexedColors.BLACK.getIndex());
+		newFont_blabk.setFontName("Calibri");
+		newFont_blabk.setItalic(false);
+		newFont_blabk.setFontHeight((short) (11 * 24));
+		// estilo para cabecalho
+		CellStyle celula_cabecalho = workbook.createCellStyle();
+		celula_cabecalho.setFillPattern(FillPatternType.SOLID_FOREGROUND);
+		celula_cabecalho.setFillForegroundColor(IndexedColors.BROWN.getIndex());
+		celula_cabecalho.setAlignment(HorizontalAlignment.CENTER);
+		celula_cabecalho.setVerticalAlignment(VerticalAlignment.CENTER);
+		celula_cabecalho.setFont(newFont_blabk);
 
 		CellStyle textStyle = workbook.createCellStyle();
-		//textStyle.setAlignment(Alignment.CENTER);
+		textStyle.setVerticalAlignment(VerticalAlignment.CENTER);
+		textStyle.setAlignment(HorizontalAlignment.CENTER);
 		textStyle.setVerticalAlignment(VerticalAlignment.CENTER);
 
+		// celula para numero alinhado ao centro
+		CellStyle valorStyle = workbook.createCellStyle();
+		valorStyle.setDataFormat(numberFormat.getFormat("R$ #,##0.00"));
+		valorStyle.setAlignment(HorizontalAlignment.CENTER);
+		valorStyle.setVerticalAlignment(VerticalAlignment.CENTER);
+
+		// celula para numero alinhado ao centro
 		CellStyle numberStyle = workbook.createCellStyle();
 		numberStyle.setDataFormat(numberFormat.getFormat("#,##0.00"));
+		numberStyle.setAlignment(HorizontalAlignment.CENTER);
 		numberStyle.setVerticalAlignment(VerticalAlignment.CENTER);
+
+		HSSFFont newFont_titulo = workbook.createFont();
+		newFont_titulo.setBold(true);
+		newFont_titulo.setColor(IndexedColors.BLACK.getIndex());
+		newFont_titulo.setFontName("Calibri");
+		newFont_titulo.setItalic(true);
+		newFont_titulo.setFontHeight((short) (11 * 32));
+
+		// estilo para cabecalho
+		CellStyle celula_titulo = workbook.createCellStyle();
+		celula_titulo.setFillPattern(FillPatternType.SOLID_FOREGROUND);
+		celula_titulo.setFillForegroundColor(IndexedColors.WHITE.getIndex());
+		celula_titulo.setAlignment(HorizontalAlignment.CENTER);
+		celula_titulo.setVerticalAlignment(VerticalAlignment.CENTER);
+		celula_titulo.setFont(newFont_titulo);
+
+		// estilo para cabecalho fundo laranja
+		CellStyle celula_fundo_laranja_texto_branco = workbook.createCellStyle();
+		celula_fundo_laranja_texto_branco.setFillPattern(FillPatternType.SOLID_FOREGROUND);
+		celula_fundo_laranja_texto_branco.setFillForegroundColor(IndexedColors.GREEN.getIndex());
+		celula_fundo_laranja_texto_branco.setAlignment(HorizontalAlignment.CENTER);
+		celula_fundo_laranja_texto_branco.setVerticalAlignment(VerticalAlignment.CENTER);
+
+		CellStyle valorStyleFundoVerdeTextoBranco = workbook.createCellStyle();
+		valorStyleFundoVerdeTextoBranco.setFillPattern(FillPatternType.SOLID_FOREGROUND);
+		valorStyleFundoVerdeTextoBranco.setFillForegroundColor(IndexedColors.GREEN.getIndex());
+		valorStyleFundoVerdeTextoBranco.setAlignment(HorizontalAlignment.CENTER);
+		valorStyleFundoVerdeTextoBranco.setVerticalAlignment(VerticalAlignment.CENTER);
+		valorStyleFundoVerdeTextoBranco.setDataFormat(numberFormat.getFormat("R$ #,##0.00"));
+
+		CellStyle numberStyleFundoVerdeTextoBranco = workbook.createCellStyle();
+		numberStyleFundoVerdeTextoBranco.setFillPattern(FillPatternType.SOLID_FOREGROUND);
+		numberStyleFundoVerdeTextoBranco.setFillForegroundColor(IndexedColors.GREEN.getIndex());
+		numberStyleFundoVerdeTextoBranco.setAlignment(HorizontalAlignment.CENTER);
+		numberStyleFundoVerdeTextoBranco.setVerticalAlignment(VerticalAlignment.CENTER);
+		numberStyleFundoVerdeTextoBranco.setDataFormat(numberFormat.getFormat("#,##0.00"));
+
+		HSSFFont newFont_branca = workbook.createFont();
+		newFont_branca.setBold(true);
+		newFont_branca.setColor(IndexedColors.WHITE.getIndex());
+		newFont_branca.setFontName("Calibri");
+		newFont_branca.setItalic(false);
+		newFont_branca.setFontHeight((short) (11 * 20));
+		Locale ptBr = new Locale("pt", "BR");
+
+		celula_fundo_laranja_texto_branco.setFont(newFont_branca);
+		numberStyleFundoVerdeTextoBranco.setFont(newFont_branca);
+		valorStyleFundoVerdeTextoBranco.setFont(newFont_branca);
+
+		// Configurando as informacoes
+		row = sheet.createRow(rownum++);
+
+		// Configurando titulo
+		cell = row.createCell(cellnum++);
+		cell.setCellStyle(celula_titulo);
+		cell.setCellValue("Relatório de Notas Fiscais");
+		// criar celula de 1 a 5
+		for (int i = 1; i < 6; i++) {
+			cell = row.createCell(cellnum++);
+			cell.setCellStyle(celula_titulo);
+			cell.setCellValue("");
+
+		}
+		sheet.addMergedRegion(new CellRangeAddress(0, 0, 0, 5));
+
+		cellnum = 0;
 
 		// Configurando Header
 		row = sheet.createRow(rownum++);
 		cell = row.createCell(cellnum++);
-		cell.setCellStyle(headerStyle);
+		cell.setCellStyle(celula_cabecalho);
 		cell.setCellValue("NFE");
 
 		cell = row.createCell(cellnum++);
-		cell.setCellStyle(headerStyle);
+		cell.setCellStyle(celula_cabecalho);
 		cell.setCellValue("Serie");
 
 		cell = row.createCell(cellnum++);
-		cell.setCellStyle(headerStyle);
+		cell.setCellStyle(celula_cabecalho);
 		cell.setCellValue("Remetente");
-		
 
 		cell = row.createCell(cellnum++);
-		cell.setCellStyle(headerStyle);
+		cell.setCellStyle(celula_cabecalho);
 		cell.setCellValue("Inscricao");
-		
 
 		cell = row.createCell(cellnum++);
-		cell.setCellStyle(headerStyle);
+		cell.setCellStyle(celula_cabecalho);
 		cell.setCellValue("Protocolo");
-		
 
 		cell = row.createCell(cellnum++);
-		cell.setCellStyle(headerStyle);
+		cell.setCellStyle(celula_cabecalho);
 		cell.setCellValue("Data");
-				
 
 		cell = row.createCell(cellnum++);
-		cell.setCellStyle(headerStyle);
+		cell.setCellStyle(celula_cabecalho);
 		cell.setCellValue("Natureza");
-		
 
 		cell = row.createCell(cellnum++);
-		cell.setCellStyle(headerStyle);
+		cell.setCellStyle(celula_cabecalho);
 		cell.setCellValue("Destinatario");
-		
 
 		cell = row.createCell(cellnum++);
-		cell.setCellStyle(headerStyle);
+		cell.setCellStyle(celula_cabecalho);
 		cell.setCellValue("Inscricao");
-		
 
 		cell = row.createCell(cellnum++);
-		cell.setCellStyle(headerStyle);
+		cell.setCellStyle(celula_cabecalho);
 		cell.setCellValue("Produto");
-		
 
 		cell = row.createCell(cellnum++);
-		cell.setCellStyle(headerStyle);
+		cell.setCellStyle(celula_cabecalho);
 		cell.setCellValue("Quantidade");
-		
+
 		cell = row.createCell(cellnum++);
-		cell.setCellStyle(headerStyle);
+		cell.setCellStyle(celula_cabecalho);
 		cell.setCellValue("Valor");
-		
-		
-		for (CadastroNFe cadastro : notas_fiscais_disponivel) {
+
+		int ultima_linha = 3;
+
+		for (CadastroNFe cadastro : notas_selecionadas) {
 			row = sheet.createRow(rownum++);
 			cellnum = 0;
 
@@ -917,108 +1099,232 @@ public class TelaTodasNotasFiscais extends JFrame {
 			cell.setCellValue(cadastro.getSerie());
 
 			cell = row.createCell(cellnum++);
-			cell.setCellStyle(numberStyle);
+			cell.setCellStyle(textStyle);
 			cell.setCellValue(cadastro.getNome_remetente());
-			
-			cell = row.createCell(cellnum++);
-			cell.setCellStyle(numberStyle);
-			cell.setCellValue(cadastro.getInscricao_remetente());
-			
-			cell = row.createCell(cellnum++);
-			cell.setCellStyle(numberStyle);
-			cell.setCellValue(cadastro.getProtocolo());
-			
-			
-			cell = row.createCell(cellnum++);
-			cell.setCellStyle(numberStyle);
-			cell.setCellValue(cadastro.getData().toString());
-			
-	
-			
-			
-			cell = row.createCell(cellnum++);
-			cell.setCellStyle(numberStyle);
-			cell.setCellValue(cadastro.getNatureza());
-			
-			
-			
-			cell = row.createCell(cellnum++);
-			cell.setCellStyle(numberStyle);
-			cell.setCellValue(cadastro.getNome_destinatario());
-			
-			
-			cell = row.createCell(cellnum++);
-			cell.setCellStyle(numberStyle);
-			cell.setCellValue(cadastro.getInscricao_destinatario());
-			
-			cell = row.createCell(cellnum++);
-			cell.setCellStyle(numberStyle);
-			cell.setCellValue(cadastro.getProduto());
-			
-			
-			cell = row.createCell(cellnum++);
-			cell.setCellStyle(numberStyle);
-			cell.setCellValue(cadastro.getQuantidade());
-			
-			
-			cell = row.createCell(cellnum++);
-			cell.setCellStyle(numberStyle);
-			cell.setCellValue(cadastro.getValor());
-			
-			}
-		
-		try {
 
-		   //pega a pasta meus documentos
-			String caminho_raiz = javax.swing.filechooser.FileSystemView.getFileSystemView().getDefaultDirectory().toString();
-			//criar o diretorio de exportacoes
-			ManipularTxt manipular = new ManipularTxt();
-			System.out.println("Cminho raiz: " + caminho_raiz);
-			manipular.criarDiretorio(caminho_raiz + "\\E-Contract\\Exportacoes"); 
-			
-			String nome_arquivo = notas_fiscais_disponivel.get(0).getNome_remetente();
-			//Escrevendo o arquivo em disco
-			FileOutputStream out = new FileOutputStream(new File(caminho_raiz + "\\E-Contract\\Exportacoes"+ "\\" + nome_arquivo + ".xls"));
-			workbook.write(out);
-			workbook.close();
-			out.close();
-			//workbook.close();
-			JOptionPane.showMessageDialog(null, "Exportação concluida\nArquivo pode ser encontrado na pasta:\n"+ caminho_raiz + "\\E-Contract\\Exportacoes" + nome_arquivo + ".xls");
-			System.out.println("Success!!");
+			cell = row.createCell(cellnum++);
+			cell.setCellStyle(textStyle);
+			cell.setCellValue(cadastro.getInscricao_remetente());
+
+			cell = row.createCell(cellnum++);
+			cell.setCellStyle(textStyle);
+			cell.setCellValue(cadastro.getProtocolo());
+
+			// data
+			SimpleDateFormat f = new SimpleDateFormat("dd/MMMM/yyyy");
+			String data_formatada = f.format(cadastro.getData());
+			cell = row.createCell(cellnum++);
+			cell.setCellStyle(textStyle);
+			cell.setCellValue(data_formatada);
+
+			cell = row.createCell(cellnum++);
+			cell.setCellStyle(textStyle);
+			cell.setCellValue(cadastro.getNatureza());
+
+			cell = row.createCell(cellnum++);
+			cell.setCellStyle(textStyle);
+			cell.setCellValue(cadastro.getNome_destinatario());
+
+			cell = row.createCell(cellnum++);
+			cell.setCellStyle(textStyle);
+			cell.setCellValue(cadastro.getInscricao_destinatario());
+
+			cell = row.createCell(cellnum++);
+			cell.setCellStyle(textStyle);
+			cell.setCellValue(cadastro.getProduto());
+
+			cell = row.createCell(cellnum++);
+			cell.setCellStyle(numberStyle);
+			double quantidade_local = 0.0;
+
+			try {
+
+				if (cadastro.getMedida() == null || cadastro.getMedida().equals("null")) {
+
+					if (cadastro.getQuantidade().contains(",")) {
+						quantidade_local= Double
+								.parseDouble(cadastro.getQuantidade().replaceAll("[^0-9,]", "").replaceAll(",", "."));
+					} else {
+						quantidade_local += Double.parseDouble(cadastro.getQuantidade());
+
+					}
+
+				} else if (cadastro.getMedida().equalsIgnoreCase("KG")) {
+					if (cadastro.getQuantidade().contains(",")) {
+						quantidade_local= Double
+								.parseDouble(cadastro.getQuantidade().replaceAll("[^0-9,]", "").replaceAll(",", "."));
+					} else {
+						quantidade_local = Double.parseDouble(cadastro.getQuantidade());
+
+					}
+				} else if (cadastro.getMedida().equalsIgnoreCase("SC")) {
+					if (cadastro.getQuantidade().contains(",")) {
+						quantidade_local = ((Double
+								.parseDouble(cadastro.getQuantidade().replaceAll("[^0-9,]", "").replaceAll(",", "."))) * 60);
+					} else {
+						quantidade_local = (Double.parseDouble(cadastro.getQuantidade()) * 60);
+
+					}
+				}
+				cell.setCellValue(quantidade_local);
 
 			} catch (Exception e) {
-				JOptionPane.showMessageDialog(null, "Erro ao Exportar!\nConsulte o Administrador");
 
-			e.printStackTrace();
 			}
 
+			try {
+				cell = row.createCell(cellnum++);
+				cell.setCellStyle(valorStyle);
+
+				String valor_nota = cadastro.getValor().replaceAll("[^0-9,]", "");
+
+				valor_nota = valor_nota.replaceAll(",", ".");
+
+				cell.setCellValue(Double.parseDouble(valor_nota));
+			} catch (Exception e) {
+
+			}
+
+			ultima_linha++;
+
+		}
+
+		sheet.setAutoFilter(CellRangeAddress.valueOf("A2:L2"));
+		for (int i = 1; i < 13; i++) {
+			sheet.autoSizeColumn(i);
+
+		}
+
+		FormulaEvaluator evaluator = workbook.getCreationHelper().createFormulaEvaluator();
+
+		row = sheet.createRow(rownum += 2);
+		cellnum = 0;
+
+		cell = row.createCell(2);
+		cell.setCellStyle(celula_fundo_laranja_texto_branco);
+		cell.setCellValue("Total de NF's:");
+
+		cell = row.createCell(3);
+		cell.setCellStyle(numberStyleFundoVerdeTextoBranco);
+		cell.setCellType(CellType.FORMULA);
+		String formula = "SUBTOTAL(3,C3:C" + (ultima_linha) + ")";
+		cell.setCellFormula(formula);
+
+		row = sheet.createRow(rownum += 1);
+		cellnum = 0;
+
+		cell = row.createCell(2);
+		cell.setCellStyle(celula_fundo_laranja_texto_branco);
+		cell.setCellValue("Quantidade Total(kgs):");
+
+		cell = row.createCell(3);
+		cell.setCellStyle(numberStyleFundoVerdeTextoBranco);
+		cell.setCellType(CellType.FORMULA);
+		formula = "SUMPRODUCT(SUBTOTAL(9,(K3:K" + ultima_linha + ")))";
+		cell.setCellFormula(formula);
+
+		cell = row.createCell(4);
+		cell.setCellStyle(celula_fundo_laranja_texto_branco);
+		cell.setCellValue("(sacos):");
+
+		cell = row.createCell(5);
+		cell.setCellStyle(numberStyleFundoVerdeTextoBranco);
+		cell.setCellType(CellType.FORMULA);
+		formula = "SUMPRODUCT(SUBTOTAL(9,(K3:K" + ultima_linha + "))) / 60";
+		cell.setCellFormula(formula);
+
+		row = sheet.createRow(rownum += 1);
+		cellnum = 0;
+
+		cell = row.createCell(2);
+		cell.setCellStyle(celula_fundo_laranja_texto_branco);
+		cell.setCellValue("Valor Total:");
+
+		cell = row.createCell(3);
+		cell.setCellStyle(valorStyleFundoVerdeTextoBranco);
+		cell.setCellType(CellType.FORMULA);
+		formula = "SUMPRODUCT(SUBTOTAL(9,(L3:L" + ultima_linha + ")))";
+		cell.setCellFormula(formula);
+
+		return workbook;
+
 	}
-		
-	
-	
-	
+
+	public void gerarExcel(HSSFWorkbook workbook) {
+		try {
+
+			new JFXPanel();
+			Platform.runLater(() -> {
+
+				// pegar ultima pasta
+				ManipularTxt manipular_ultima_pasta = new ManipularTxt();
+				String ultima_pasta = manipular_ultima_pasta
+						.lerArquivo(new File("C:\\ProgramData\\E-Contract\\configs\\ultima_pasta.txt"));
+				if (fileChooser == null) {
+					fileChooser = new FileChooser();
+				}
+				fileChooser.setInitialDirectory(new File(ultima_pasta));
+				fileChooser.getExtensionFilters().addAll(
+
+						new FileChooser.ExtensionFilter("Excel", "*.xls"));
+				File file = fileChooser.showSaveDialog(new Stage());
+				String caminho_arquivo = "";
+				if (file != null) {
+					caminho_arquivo = file.getAbsolutePath();
+
+					manipular_ultima_pasta.rescreverArquivo(
+							new File("C:\\ProgramData\\E-Contract\\configs\\ultima_pasta.txt"), file.getParent());
+					// Escrevendo o arquivo em disco
+					FileOutputStream out;
+					try {
+						out = new FileOutputStream(file);
+						workbook.write(out);
+						workbook.close();
+						out.close();
+						// workbook.close();
+
+						Runtime.getRuntime().exec("explorer " + file.getAbsolutePath());
+
+						System.out.println("Success!!");
+					} catch (FileNotFoundException e1) {
+						// TODO Auto-generated catch block
+						e1.printStackTrace();
+					} catch (IOException e1) {
+						// TODO Auto-generated catch block
+						e1.printStackTrace();
+					}
+
+				}
+
+			});
+
+		} catch (Exception k) {
+			k.printStackTrace();
+		}
+	}
+
 	public void setTelaPai(JDialog _telaPai) {
 		this.tela_pai = _telaPai;
 	}
-	
+
 	public void filtrar() {
-		 ArrayList<RowFilter<Object,Object>> filters = new ArrayList<RowFilter<Object,Object>>(2);
+		ArrayList<RowFilter<Object, Object>> filters = new ArrayList<RowFilter<Object, Object>>(2);
 
-		    String produto = entProduto.getText().toUpperCase();
-		    String destinatario =  entChavePesquisa.getText().toUpperCase();
-		    String remetente = entRemetente.getText().toUpperCase();
-		    String natureza = entNatureza.getText().toUpperCase();
-		    
-		    String codigo = entCodigo.getText().toUpperCase();
+		String produto = entProduto.getText().toUpperCase();
+		String destinatario = entChavePesquisa.getText().toUpperCase();
+		String remetente = entRemetente.getText().toUpperCase();
+		String natureza = entNatureza.getText().toUpperCase();
 
-		    String menor = entMenorData.getText();
-		    String maior = entMaiorData.getText();
-		    String insc_remetetente = entIdentificacaoRemetente.getText().toUpperCase();
-		    String insc_destinatario = entIdentificacaoDestinatario.getText().toUpperCase();
+		String codigo = entCodigo.getText().toUpperCase();
 
-		    if(checkString(menor) && checkString(maior) ) {
+		String menor = entMenorData.getText();
+		String maior = entMaiorData.getText();
+		String insc_remetetente = entIdentificacaoRemetente.getText().toUpperCase();
+		String insc_destinatario = entIdentificacaoDestinatario.getText().toUpperCase();
+
+		if (checkString(menor) && checkString(maior)) {
 			Date data_menor = null;
-			Date data_maior = null ;
+			Date data_maior = null;
 			try {
 				data_menor = new SimpleDateFormat("dd/MM/yyyy").parse(menor);
 				data_maior = new SimpleDateFormat("dd/MM/yyyy").parse(maior);
@@ -1027,94 +1333,90 @@ public class TelaTodasNotasFiscais extends JFrame {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
-			
+
 			Set<RowFilter<Object, Object>> datas = new HashSet<>();
-			datas.add(RowFilter.dateFilter(RowFilter.ComparisonType.AFTER,
-					data_menor, 5));
-			datas.add(RowFilter.dateFilter(RowFilter.ComparisonType.EQUAL,
-					data_menor, 5));
+			datas.add(RowFilter.dateFilter(RowFilter.ComparisonType.AFTER, data_menor, 5));
+			datas.add(RowFilter.dateFilter(RowFilter.ComparisonType.EQUAL, data_menor, 5));
 			filters.add(RowFilter.orFilter(datas));
-	        
-		  //  filters.add( RowFilter.dateFilter(ComparisonType.AFTER, data_menor, 5) );
-		   // filters.add( RowFilter.dateFilter(ComparisonType.EQUAL, data_menor, 5) );
 
-		   // filters.add( RowFilter.dateFilter(ComparisonType.BEFORE, data_maior, 5) );
-		   // filters.add( RowFilter.dateFilter(ComparisonType.EQUAL, data_maior, 5) );
+			// filters.add( RowFilter.dateFilter(ComparisonType.AFTER, data_menor, 5) );
+			// filters.add( RowFilter.dateFilter(ComparisonType.EQUAL, data_menor, 5) );
+
+			// filters.add( RowFilter.dateFilter(ComparisonType.BEFORE, data_maior, 5) );
+			// filters.add( RowFilter.dateFilter(ComparisonType.EQUAL, data_maior, 5) );
 			Set<RowFilter<Object, Object>> datas_maior = new HashSet<>();
-			datas_maior.add(RowFilter.dateFilter(RowFilter.ComparisonType.BEFORE,
-					data_maior, 5));
-			datas_maior.add(RowFilter.dateFilter(RowFilter.ComparisonType.EQUAL,
-					data_maior, 5));
+			datas_maior.add(RowFilter.dateFilter(RowFilter.ComparisonType.BEFORE, data_maior, 5));
+			datas_maior.add(RowFilter.dateFilter(RowFilter.ComparisonType.EQUAL, data_maior, 5));
 			filters.add(RowFilter.orFilter(datas_maior));
-		    }
-		    if(checkString(remetente))
-		    filters.add(RowFilter.regexFilter(remetente, 2));
-		    
-		    if(checkString(natureza))
-		    filters.add(RowFilter.regexFilter(natureza, 6));
+		}
+		if (checkString(remetente))
+			filters.add(RowFilter.regexFilter(remetente, 2));
 
-		    if(checkString(destinatario))
-		    filters.add(RowFilter.regexFilter(destinatario, 7));
-		    
-		    if(checkString(produto))
-		    filters.add(RowFilter.regexFilter(produto, 9));
-		    
-		    if(checkString(codigo))
-			    filters.add(RowFilter.regexFilter(codigo, 0));
-		    
-		    
-		    if(checkString(insc_remetetente))
-			    filters.add(RowFilter.regexFilter(insc_remetetente, 3));
-		    
-		    if(checkString(insc_destinatario))
-			    filters.add(RowFilter.regexFilter(insc_destinatario, 8));
-		    
-		    sorter.setRowFilter( RowFilter.andFilter(filters));
+		if (checkString(natureza))
+			filters.add(RowFilter.regexFilter(natureza, 6));
+
+		if (checkString(destinatario))
+			filters.add(RowFilter.regexFilter(destinatario, 7));
+
+		if (checkString(produto))
+			filters.add(RowFilter.regexFilter(produto, 9));
+
+		if (checkString(codigo))
+			filters.add(RowFilter.regexFilter(codigo, 0));
+
+		if (checkString(insc_remetetente))
+			filters.add(RowFilter.regexFilter(insc_remetetente, 3));
+
+		if (checkString(insc_destinatario))
+			filters.add(RowFilter.regexFilter(insc_destinatario, 8));
+
+		sorter.setRowFilter(RowFilter.andFilter(filters));
+
+		calcular();
 	}
-	
+
 	public boolean checkString(String txt) {
 		return txt != null && !txt.equals("") && !txt.equals(" ") && !txt.equals("  ");
 	}
-	
-	public void setDadosPesquisa(String destinatario, String remetente, String natureza, String produto, String codigo) {
-		
+
+	public void setDadosPesquisa(String destinatario, String remetente, String natureza, String produto,
+			String codigo) {
+
 		entChavePesquisa.setText(destinatario);
 		entRemetente.setText(remetente);
 		entNatureza.setText(natureza);
 		entProduto.setText(produto);
 		entCodigo.setText(codigo);
-	
-		
+
 		filtrar();
 		calcular();
 	}
-	
 
 	public void desabilitarBtnSelecionar() {
-		 btnSelecionarNota.setVisible(false);
+		btnSelecionarNota.setVisible(false);
 
-		 btnSelecionarNota.setEnabled(false);
+		btnSelecionarNota.setEnabled(false);
 	}
-	
+
 	public void habilitarBtnSelecionar() {
 		btnSelecionarNota.setVisible(true);
 
-		 btnSelecionarNota.setEnabled(true);
+		btnSelecionarNota.setEnabled(true);
 	}
 
 	public void setRetornoGlobal(int retorno) {
 		retorno_global = retorno;
 	}
-	
+
 	public void limpar() {
-	    sorter.setRowFilter( RowFilter.regexFilter(""));
-	    calcular();
+		sorter.setRowFilter(RowFilter.regexFilter(""));
+		calcular();
 	}
-	
+
 	public void setClienteSelecionado(CadastroCliente cliente) {
 		this.cliente_selecionado = cliente;
 	}
-	
+
 	public void calcular() {
 
 		int num_total_nfs = 0;
@@ -1125,35 +1427,58 @@ public class TelaTodasNotasFiscais extends JFrame {
 
 			int index = table_nfs.convertRowIndexToModel(row);
 			CadastroNFe nf = modelo_nfs.getValue(index);
-			try {			
-		        if(nf.getQuantidade().contains(",")) { 
-				quantidade_total += Double.parseDouble(nf.getQuantidade().replaceAll("[^0-9,]", "").replaceAll(",", "."));
-		        }else {
-					quantidade_total += Double.parseDouble(nf.getQuantidade());
+			try {
 
-		        }
-			}catch(Exception e) {
-				
+				if (nf.getMedida() == null || nf.getMedida().equals("null")) {
+
+					if (nf.getQuantidade().contains(",")) {
+						quantidade_total += Double
+								.parseDouble(nf.getQuantidade().replaceAll("[^0-9,]", "").replaceAll(",", "."));
+					} else {
+						quantidade_total += Double.parseDouble(nf.getQuantidade());
+
+					}
+
+				} else if (nf.getMedida().equalsIgnoreCase("KG")) {
+					if (nf.getQuantidade().contains(",")) {
+						quantidade_total += Double
+								.parseDouble(nf.getQuantidade().replaceAll("[^0-9,]", "").replaceAll(",", "."));
+					} else {
+						quantidade_total += Double.parseDouble(nf.getQuantidade());
+
+					}
+				} else if (nf.getMedida().equalsIgnoreCase("SC")) {
+					if (nf.getQuantidade().contains(",")) {
+						quantidade_total += ((Double
+								.parseDouble(nf.getQuantidade().replaceAll("[^0-9,]", "").replaceAll(",", "."))) * 60);
+					} else {
+						quantidade_total += (Double.parseDouble(nf.getQuantidade()) * 60);
+
+					}
+				}
+
+			} catch (Exception e) {
+
 			}
-				  Number valor = null;
-					try {
-						valor = z.parse(nf.getValor().replaceAll("[^0-9.,]", ""));
-						valor_total = valor_total.add(new BigDecimal(valor.doubleValue()));
+			Number valor = null;
+			try {
+				valor = z.parse(nf.getValor().replaceAll("[^0-9.,]", ""));
+				valor_total = valor_total.add(new BigDecimal(valor.doubleValue()));
 
-					} catch (ParseException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-					}				
-			
+			} catch (ParseException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+
 			num_total_nfs++;
-			
+
 		}
-		
+
 		lblNumTotalNfs.setText(num_total_nfs + "");
-		
+
 		String valorString = NumberFormat.getCurrencyInstance(ptBr).format(valor_total);
 		lblValorTotalNfs.setText(valorString);
-		
-		lblPesoTotalNFs.setText(z.format(quantidade_total) + " Kgs | " + z.format(quantidade_total/60) + " sacos");
+
+		lblPesoTotalNFs.setText(z.format(quantidade_total) + " Kgs | " + z.format(quantidade_total / 60) + " sacos");
 	}
 }

@@ -17,19 +17,27 @@ import java.awt.*;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.RowFilter.ComparisonType;
 import org.apache.poi.hssf.usermodel.HSSFDataFormat;
+import org.apache.poi.hssf.usermodel.HSSFFont;
 import org.apache.poi.hssf.usermodel.HSSFSheet;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellStyle;
+import org.apache.poi.ss.usermodel.CellType;
+import org.apache.poi.ss.usermodel.FillPatternType;
+import org.apache.poi.ss.usermodel.FormulaEvaluator;
 import org.apache.poi.ss.usermodel.HorizontalAlignment;
 import org.apache.poi.ss.usermodel.IndexedColors;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.VerticalAlignment;
+import org.apache.poi.ss.util.CellRangeAddress;
 import org.icepdf.ri.common.ComponentKeyBinding;
 import org.icepdf.ri.common.SwingController;
 import org.icepdf.ri.common.SwingViewBuilder;
 
-
+import javafx.application.Platform;
+import javafx.embed.swing.JFXPanel;
+import javafx.stage.FileChooser;
+import javafx.stage.Stage;
 import main.java.cadastros.CadastroAditivo;
 import main.java.cadastros.CadastroAviso;
 import main.java.cadastros.CadastroBaseArquivos;
@@ -165,9 +173,11 @@ public class TelaNotasFiscais extends JFrame {
 	private Log GerenciadorLog;
 	private CadastroLogin login;
 	private ConfiguracoesGlobais configs_globais;
+	private FileChooser fileChooser;
 
 	private JDialog tela_pai;
 	private ArrayList<CadastroNFe> notas_fiscais_disponivel = new ArrayList<>();
+	private String servidor_unidade;
 
 	private JTable table_nfs;
 	private TelaNotasFiscais isto;
@@ -185,7 +195,8 @@ public class TelaNotasFiscais extends JFrame {
 	};*/
 	private NFeTableModel modelo_nfs = new NFeTableModel();
 	private TableRowSorter<NFeTableModel> sorter;
-	
+	NumberFormat z = NumberFormat.getNumberInstance();
+
 	private JTextField entChavePesquisa;
 	private JButton btnVizualizarNF;
 	private JButton btnExportar;
@@ -209,6 +220,13 @@ public class TelaNotasFiscais extends JFrame {
 	private JLabel lblNumTotalNfs;
 	private JButton btnNewButton;
 	private JButton btnSelecionarNota;
+	private JButton btnCadastrar;
+	Locale ptBr = new Locale("pt", "BR");
+	private JLabel lblNewLabel_5;
+	private JLabel lblNewLabel_6;
+	private JLabel lblPesoTotalNf;
+	private JLabel lblValorTotalNf;
+
 
 	public TelaNotasFiscais(int flag, int retorno,CadastroCliente vendedor, Window janela_pai) {
 		setIconImage(Toolkit.getDefaultToolkit().getImage(TelaNotasFiscais.class.getResource("/imagens/icone_notas_fiscais.png")));
@@ -226,12 +244,11 @@ public class TelaNotasFiscais extends JFrame {
 		painelPrincipal.setBackground(Color.WHITE);
 		painelPrincipal.setBorder(new EmptyBorder(5, 5, 5, 5));
 		setContentPane(painelPrincipal);
-		painelPrincipal.setLayout(null);
+		painelPrincipal.setLayout(new MigLayout("", "[109px][74px][77px][5px][268px][12px][59px][5px][242px][24px][25px][14px][169px][12px][67px][12px][93px]", "[64px][16px][31px][34px][grow][47px][23px][23px]"));
 
 		JPanel panel = new JPanel();
 		panel.setBackground(Color.WHITE);
-		panel.setBounds(26, 188, 1225, 368);
-		painelPrincipal.add(panel);
+		painelPrincipal.add(panel, "cell 0 4 17 1,grow");
 
 		table_nfs = new JTable(modelo_nfs);
 		 sorter = new TableRowSorter<NFeTableModel>(modelo_nfs);
@@ -241,21 +258,6 @@ public class TelaNotasFiscais extends JFrame {
 
 		table_nfs.setBackground(new Color(255, 255, 255));
 		
-		/*
-		modelo_nfs.addColumn("NFe");
-		modelo_nfs.addColumn("Serie");
-		modelo_nfs.addColumn("Remetente");
-		modelo_nfs.addColumn("Inscricao");
-		modelo_nfs.addColumn("Protocolo");
-		modelo_nfs.addColumn("Data");
-		modelo_nfs.addColumn("Natureza");
-		modelo_nfs.addColumn("Destinatario");
-		modelo_nfs.addColumn("Inscricao");
-		modelo_nfs.addColumn("Produto");
-		modelo_nfs.addColumn("Quantidade");
-		modelo_nfs.addColumn("Valor");
-		*/
-
 		table_nfs.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
 
 		table_nfs.getColumnModel().getColumn(0).setPreferredWidth(80);
@@ -281,88 +283,109 @@ public class TelaNotasFiscais extends JFrame {
 
 
 		entProduto = new JTextField();
-		
-		entProduto.setBounds(609, 110, 242, 28);
-		painelPrincipal.add(entProduto);
+		entProduto.addKeyListener(new KeyAdapter() {
+			@Override
+			public void keyTyped(KeyEvent e) {
+				filtrar();
+
+			}
+		});
+		entProduto.setFont(new Font("Arial", Font.BOLD, 16));
+		painelPrincipal.add(entProduto, "cell 8 2,growx,aligny top");
 		entProduto.setColumns(10);
 		
 		entChavePesquisa = new JTextField();
-		
-		entChavePesquisa.setBounds(265, 112, 268, 28);
-		painelPrincipal.add(entChavePesquisa);
+		entChavePesquisa.addKeyListener(new KeyAdapter() {
+			@Override
+			public void keyTyped(KeyEvent e) {
+				filtrar();
+			}
+		});
+		entChavePesquisa.setFont(new Font("Arial", Font.BOLD, 16));
+		painelPrincipal.add(entChavePesquisa, "cell 4 2,growx,aligny center");
 		entChavePesquisa.setColumns(10);
 
 		
 		
 		lblStatusAdicionandoNotas = new JLabel("Adicionando Notas...");
-		lblStatusAdicionandoNotas.setBounds(780, 631, 487, 23);
-		painelPrincipal.add(lblStatusAdicionandoNotas);
+		painelPrincipal.add(lblStatusAdicionandoNotas, "cell 8 7 9 1,grow");
 		
 		btnFiltrar = new JButton("Filtrar");
+		btnFiltrar.setBackground(new Color(0, 0, 102));
+		btnFiltrar.setForeground(Color.WHITE);
+		btnFiltrar.setFont(new Font("SansSerif", Font.BOLD, 16));
 		btnFiltrar.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 			   filtrar();
-			   calcular();
 			}
 		});
-		btnFiltrar.setBounds(1174, 147, 59, 28);
-		painelPrincipal.add(btnFiltrar);
+		painelPrincipal.add(btnFiltrar, "cell 16 3,alignx center,aligny center");
 		
 		lblNewLabel = new JLabel("Destinatario:");
-		lblNewLabel.setFont(new Font("Tahoma", Font.PLAIN, 14));
-		lblNewLabel.setBounds(183, 116, 77, 17);
-		painelPrincipal.add(lblNewLabel);
+		lblNewLabel.setFont(new Font("Arial", Font.PLAIN, 16));
+		painelPrincipal.add(lblNewLabel, "cell 2 2,alignx left,aligny center");
 		
 		lblRemetente = new JLabel("Remetente:");
-		lblRemetente.setFont(new Font("Tahoma", Font.PLAIN, 14));
-		lblRemetente.setBounds(188, 149, 72, 17);
-		painelPrincipal.add(lblRemetente);
+		lblRemetente.setFont(new Font("Arial", Font.PLAIN, 16));
+		painelPrincipal.add(lblRemetente, "cell 2 3,alignx right,aligny center");
 		
 		entRemetente = new JTextField();
+		entRemetente.addKeyListener(new KeyAdapter() {
+			@Override
+			public void keyTyped(KeyEvent e) {
+				filtrar();
+			}
+		});
+		entRemetente.setFont(new Font("Arial", Font.BOLD, 16));
 		entRemetente.setColumns(10);
-		entRemetente.setBounds(265, 144, 268, 28);
-		painelPrincipal.add(entRemetente);
+		painelPrincipal.add(entRemetente, "cell 4 3,growx,aligny top");
 		
 		lblNatureza = new JLabel("Natureza:");
-		lblNatureza.setFont(new Font("Tahoma", Font.PLAIN, 14));
-		lblNatureza.setBounds(545, 149, 59, 17);
-		painelPrincipal.add(lblNatureza);
+		lblNatureza.setFont(new Font("Arial", Font.PLAIN, 16));
+		painelPrincipal.add(lblNatureza, "cell 6 3,alignx left,aligny center");
 		
 		entNatureza = new JTextField();
+		entNatureza.addKeyListener(new KeyAdapter() {
+			@Override
+			public void keyTyped(KeyEvent e) {
+				filtrar();
+
+			}
+		});
+		entNatureza.setFont(new Font("Arial", Font.BOLD, 16));
 		entNatureza.setColumns(10);
-		entNatureza.setBounds(609, 144, 242, 28);
-		painelPrincipal.add(entNatureza);
+		painelPrincipal.add(entNatureza, "cell 8 3,growx,aligny top");
 		
 		lblProduto = new JLabel("Produto:");
-		lblProduto.setFont(new Font("Tahoma", Font.PLAIN, 14));
-		lblProduto.setBounds(549, 115, 55, 17);
-		painelPrincipal.add(lblProduto);
+		lblProduto.setFont(new Font("Arial", Font.PLAIN, 16));
+		painelPrincipal.add(lblProduto, "cell 6 2,alignx right,aligny center");
 		
 		lblNewLabel_1 = new JLabel("Periodo");
-		lblNewLabel_1.setBounds(968, 89, 43, 16);
-		painelPrincipal.add(lblNewLabel_1);
+		lblNewLabel_1.setFont(new Font("Arial", Font.PLAIN, 16));
+		painelPrincipal.add(lblNewLabel_1, "cell 12 1,alignx center,aligny top");
 		
 		lblD = new JLabel("Dé:");
-		lblD.setFont(new Font("Tahoma", Font.PLAIN, 14));
-		lblD.setBounds(878, 124, 22, 17);
-		painelPrincipal.add(lblD);
+		lblD.setFont(new Font("Arial", Font.PLAIN, 16));
+		painelPrincipal.add(lblD, "cell 10 2,alignx right,aligny bottom");
 		
 		lblAt = new JLabel("Até:");
-		lblAt.setFont(new Font("Tahoma", Font.PLAIN, 14));
-		lblAt.setBounds(875, 152, 25, 17);
-		painelPrincipal.add(lblAt);
+		lblAt.setFont(new Font("Arial", Font.PLAIN, 16));
+		painelPrincipal.add(lblAt, "cell 10 3,alignx left,aligny center");
 		
 		entMenorData = new JTextField();
+		entMenorData.setFont(new Font("Arial", Font.BOLD, 16));
 		entMenorData.setColumns(10);
-		entMenorData.setBounds(914, 111, 169, 28);
-		painelPrincipal.add(entMenorData);
+		painelPrincipal.add(entMenorData, "cell 12 2,growx,aligny center");
 		
 		entMaiorData = new JTextField();
+		entMaiorData.setFont(new Font("Arial", Font.BOLD, 16));
 		entMaiorData.setColumns(10);
-		entMaiorData.setBounds(914, 150, 169, 28);
-		painelPrincipal.add(entMaiorData);
+		painelPrincipal.add(entMaiorData, "cell 12 3,growx,aligny bottom");
 		
 		JButton btnLimpar = new JButton("Limpar");
+		btnLimpar.setBackground(new Color(204, 0, 0));
+		btnLimpar.setForeground(Color.WHITE);
+		btnLimpar.setFont(new Font("SansSerif", Font.BOLD, 16));
 		btnLimpar.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				
@@ -371,57 +394,93 @@ public class TelaNotasFiscais extends JFrame {
 				    calcular();
 			}
 		});
-		btnLimpar.setBounds(1095, 147, 67, 28);
-		painelPrincipal.add(btnLimpar);
+		painelPrincipal.add(btnLimpar, "cell 14 3,growx,aligny center");
 		
 		lblNewLabel_2 = new JLabel("");
 		lblNewLabel_2.setIcon(new ImageIcon(TelaNotasFiscais.class.getResource("/imagens/icone_notas_fiscais.png")));
-		lblNewLabel_2.setBounds(0, 6, 64, 64);
-		painelPrincipal.add(lblNewLabel_2);
+		painelPrincipal.add(lblNewLabel_2, "cell 0 0,alignx left,aligny top");
 		
 		lblNewLabel_4 = new JLabel("     NF's");
 		lblNewLabel_4.setOpaque(true);
 		lblNewLabel_4.setForeground(Color.WHITE);
 		lblNewLabel_4.setFont(new Font("Arial", Font.PLAIN, 18));
 		lblNewLabel_4.setBackground(new Color(0, 51, 0));
-		lblNewLabel_4.setBounds(48, 48, 61, 22);
-		painelPrincipal.add(lblNewLabel_4);
+		painelPrincipal.add(lblNewLabel_4, "cell 0 0,alignx right,aligny bottom");
 		
 		JPanel panel_1 = new JPanel();
 		panel_1.setBackground(Color.WHITE);
-		panel_1.setBounds(770, 569, 481, 39);
-		painelPrincipal.add(panel_1);
-		panel_1.setLayout(new MigLayout("", "[][][][][][][][][][][][][][][][][][]", "[]"));
+		painelPrincipal.add(panel_1, "cell 8 5 9 1,growx,aligny top");
+		panel_1.setLayout(new MigLayout("", "[][][][][][][][][][][][][][][][][][][]", "[]"));
 		
 		btnNewButton = new JButton("Excluir");
+		btnNewButton.setBackground(new Color(204, 0, 0));
+		btnNewButton.setForeground(Color.WHITE);
+		btnNewButton.setFont(new Font("SansSerif", Font.BOLD, 16));
 		panel_1.add(btnNewButton, "cell 13 0");
 		btnNewButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				
-				if (JOptionPane.showConfirmDialog(isto, 
-			            "Deseja excluir a NF?", "Excluir NF", 
-			            JOptionPane.YES_NO_OPTION,
-			            JOptionPane.QUESTION_MESSAGE) == JOptionPane.YES_OPTION){
-					int rowSel = table_nfs.getSelectedRow();//pega o indice da linha na tabela
-					int indexRowModel = table_nfs.getRowSorter().convertRowIndexToModel(rowSel);//converte pro indice do model
-					ManipularTxt manipular = new ManipularTxt();
-					boolean apagado = manipular.apagarArquivo(notas_fiscais_disponivel.get(indexRowModel).getCaminho_arquivo());
-					if(apagado) {
-						modelo_nfs.onRemove(notas_fiscais_disponivel.get(indexRowModel));
-						JOptionPane.showMessageDialog(isto, "NF Excluida");
-						calcular();
+				if (JOptionPane.showConfirmDialog(isto, "Deseja excluir a NF?", "Excluir NF",
+						JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE) == JOptionPane.YES_OPTION) {
+					
+					int rowSel = table_nfs.getSelectedRow();// pega o indice da linha na tabela
+					int indexRowModel = table_nfs.getRowSorter().convertRowIndexToModel(rowSel);// converte pro indice do
+																								// model
+					CadastroNFe nota_vizualizar = notas_fiscais_disponivel.get(indexRowModel);
 
-					}else {
-						JOptionPane.showMessageDialog(isto, "Erro ao excluir esta NF\nConsulte o administrador");
+					
+					ManipularTxt manipular = new ManipularTxt();
+					String myFile = servidor_unidade + nota_vizualizar.getCaminho_arquivo();
+
+					File arquivo = new File(myFile);
+
+					if (arquivo.exists()) {
+
+						boolean apagado = manipular.apagarArquivo(myFile);
+						if (apagado) {
+
+							// remover do banco de dados
+							GerenciarBancoNotasFiscais gerenciar = new GerenciarBancoNotasFiscais();
+							boolean excluir = gerenciar
+									.removerNota(nota_vizualizar.getId());
+							if (excluir) {
+								JOptionPane.showMessageDialog(isto, "Nota Fiscal Excluída");
+								pesquisarNotas(vendedor);
+							} else {
+								JOptionPane.showMessageDialog(isto,
+										"Erro ao excluir a Nota Fiscal\nConsulte o administrador");
+
+							}
+
+						} else {
+							JOptionPane.showMessageDialog(isto,
+									"Erro ao excluir a Nota Fiscal\nO arquivo fisico não pode ser apagado");
+						}
+					} else {
+						// remover do banco de dados
+						GerenciarBancoNotasFiscais gerenciar = new GerenciarBancoNotasFiscais();
+						boolean excluir = gerenciar
+								.removerNota(nota_vizualizar.getId());
+						if (excluir) {
+							JOptionPane.showMessageDialog(isto, "NF Excluída");
+							pesquisarNotas(vendedor);
+
+						} else {
+							JOptionPane.showMessageDialog(isto,
+									"Erro ao excluir a NF\nConsulte o administrador");
+
+						}
 					}
-			        }
-				
+				}
 				
 				
 			}
 		});
 		
 		btnImportarNFe = new JButton("Importar");
+		btnImportarNFe.setBackground(new Color(0, 0, 153));
+		btnImportarNFe.setForeground(Color.WHITE);
+		btnImportarNFe.setFont(new Font("SansSerif", Font.BOLD, 16));
 		panel_1.add(btnImportarNFe, "cell 15 0");
 		btnImportarNFe.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
@@ -432,29 +491,77 @@ public class TelaNotasFiscais extends JFrame {
 		});
 		
 		btnExportar = new JButton("Exportar");
+		btnExportar.setBackground(new Color(0, 51, 0));
+		btnExportar.setForeground(Color.WHITE);
+		btnExportar.setFont(new Font("SansSerif", Font.BOLD, 16));
 		panel_1.add(btnExportar, "cell 16 0");
 		btnExportar.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				exportar();
+				
+				ArrayList<CadastroNFe> notas_selecionadas = new ArrayList<>();
+				int linhas_selecionadas[] = table_nfs.getSelectedRows();// pega o indice da linha na tabela
+
+				for (int i = 0; i < linhas_selecionadas.length; i++) {
+
+					int indice = linhas_selecionadas[i];//
+					int indexRowModel = table_nfs.getRowSorter().convertRowIndexToModel(indice);
+
+					CadastroNFe nf = modelo_nfs.getValue(indexRowModel);
+					notas_selecionadas.add(nf);
+				}
+				
+				gerarExcel(exportar(notas_selecionadas));
 			}
 		});
 		
+		btnCadastrar = new JButton("Cadastrar");
+		btnCadastrar.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				
+				TelaCadastroNotaFiscal tela = new TelaCadastroNotaFiscal(0, null, isto);
+				tela.setVisible(true);
+
+			}
+		});
+		btnCadastrar.setForeground(Color.WHITE);
+		btnCadastrar.setFont(new Font("SansSerif", Font.BOLD, 16));
+		btnCadastrar.setBackground(new Color(102, 51, 0));
+		panel_1.add(btnCadastrar, "cell 17 0");
+		
 		btnVizualizarNF = new JButton("Vizualizar");
-		panel_1.add(btnVizualizarNF, "cell 17 0");
+		btnVizualizarNF.setBackground(new Color(255, 102, 0));
+		btnVizualizarNF.setForeground(Color.WHITE);
+		btnVizualizarNF.setFont(new Font("SansSerif", Font.BOLD, 16));
+		panel_1.add(btnVizualizarNF, "cell 18 0");
 		
 		JPanel panel_2 = new JPanel();
 		panel_2.setBackground(Color.WHITE);
-		panel_2.setBounds(26, 561, 496, 93);
-		painelPrincipal.add(panel_2);
-		panel_2.setLayout(new MigLayout("", "[][]", "[]"));
+		painelPrincipal.add(panel_2, "cell 0 5 5 3,grow");
+		panel_2.setLayout(new MigLayout("", "[][]", "[][][]"));
 		
 		JLabel lblNewLabel_3 = new JLabel("Total de NF's:");
 		lblNewLabel_3.setFont(new Font("SansSerif", Font.PLAIN, 16));
-		panel_2.add(lblNewLabel_3, "cell 0 0");
+		panel_2.add(lblNewLabel_3, "cell 0 0,alignx right");
 		
 		 lblNumTotalNfs = new JLabel("0000");
-		lblNumTotalNfs.setFont(new Font("SansSerif", Font.BOLD, 14));
+		lblNumTotalNfs.setFont(new Font("Dialog", Font.BOLD, 18));
 		panel_2.add(lblNumTotalNfs, "cell 1 0");
+		
+		lblNewLabel_5 = new JLabel("Peso Total de NF's:");
+		lblNewLabel_5.setFont(new Font("SansSerif", Font.PLAIN, 16));
+		panel_2.add(lblNewLabel_5, "cell 0 1");
+		
+		lblPesoTotalNf = new JLabel("0.0");
+		lblPesoTotalNf.setFont(new Font("Dialog", Font.BOLD, 18));
+		panel_2.add(lblPesoTotalNf, "cell 1 1");
+		
+		lblNewLabel_6 = new JLabel("Valor Total de NF's:");
+		lblNewLabel_6.setFont(new Font("SansSerif", Font.PLAIN, 16));
+		panel_2.add(lblNewLabel_6, "cell 0 2");
+		
+		lblValorTotalNf = new JLabel("0.0");
+		lblValorTotalNf.setFont(new Font("Dialog", Font.BOLD, 18));
+		panel_2.add(lblValorTotalNf, "cell 1 2");
 		btnVizualizarNF.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				
@@ -602,12 +709,13 @@ public class TelaNotasFiscais extends JFrame {
 	    private final int destinatario=7;
 	    private final int inscricao_dest=8;
 	    private final int produto=9;
-	    private final int quantidade=10;
-	    private final int valor=11;
+	    private final int medida = 10;
+	    private final int quantidade=11;
+	    private final int valor=12;
 
 	 
 	    private final String colunas[]={"NFe:","Serie:","Remetente:","Inscrição:","Protocolo:","Data:",
-	    		"Natureza:", "Destinatario:", "Inscrição:", "Produto:", "Quantidade:", "Valor:"};
+	    		"Natureza:", "Destinatario:", "Inscrição:", "Produto:", "Medida:", "Quantidade:", "Valor:"};
 	    private final ArrayList<CadastroNFe> dados = new ArrayList<>();//usamos como dados uma lista genérica de nfs
 	 
 	    public NFeTableModel() {
@@ -650,6 +758,8 @@ public class TelaNotasFiscais extends JFrame {
 	            return String.class;
 	        case produto:
 	            return String.class;
+	        case medida:
+	            return String.class;
 	        case quantidade:
 	            return String.class;
 	        case valor:
@@ -678,7 +788,7 @@ public class TelaNotasFiscais extends JFrame {
 	        case serie:
 	            return nota.getSerie();
 	        case remetente:
-	            return nota.getNome_remetente();
+	            return nota.getNome_remetente().trim().toUpperCase();
 	        case inscricao_rem:
 	            return nota.getInscricao_remetente();
 	        case protocolo:
@@ -690,11 +800,18 @@ public class TelaNotasFiscais extends JFrame {
 	        case natureza:
 	            return nota.getNatureza();
 	        case destinatario:
-	            return nota.getNome_destinatario();
+	            return nota.getNome_destinatario().trim().toUpperCase();
 	        case inscricao_dest:
 	            return nota.getInscricao_destinatario();
 	        case produto:
 	            return nota.getProduto();
+	        case medida:{	
+				if (nota.getMedida() == null || nota.getMedida().equals("null")) {
+					return "KG";
+				}else {
+					return nota.getMedida();
+				}
+			}
 	        case quantidade:
 	            return nota.getQuantidade();
 	        case valor:
@@ -789,97 +906,174 @@ public class TelaNotasFiscais extends JFrame {
 	 
 	}
 
-	
-	public void exportar() {
+	public HSSFWorkbook exportar(ArrayList<CadastroNFe> notas_selecionadas) {
 		HSSFWorkbook workbook = new HSSFWorkbook();
 		HSSFSheet sheet = workbook.createSheet("Notas");
-		
+
 		// Definindo alguns padroes de layout
 		sheet.setDefaultColumnWidth(15);
-		sheet.setDefaultRowHeight((short)400);
-		
+		sheet.setDefaultRowHeight((short) 400);
+
 		int rownum = 0;
 		int cellnum = 0;
 		Cell cell;
 		Row row;
 
-		//Configurando estilos de células (Cores, alinhamento, formatação, etc..)
+		// Configurando estilos de células (Cores, alinhamento, formatação, etc..)
 		HSSFDataFormat numberFormat = workbook.createDataFormat();
-	
-		CellStyle headerStyle = workbook.createCellStyle();
-		headerStyle.setFillForegroundColor(IndexedColors.GREY_25_PERCENT.getIndex());
-		//headerStyle.setFillPattern(CellStyle.SOLID_FOREGROUND);
-		headerStyle.setAlignment(HorizontalAlignment.CENTER);
-		headerStyle.setVerticalAlignment(VerticalAlignment.CENTER);
+		HSSFFont newFont_blabk = workbook.createFont();
+		newFont_blabk.setBold(true);
+		newFont_blabk.setColor(IndexedColors.BLACK.getIndex());
+		newFont_blabk.setFontName("Calibri");
+		newFont_blabk.setItalic(false);
+		newFont_blabk.setFontHeight((short) (11 * 24));
+		// estilo para cabecalho
+		CellStyle celula_cabecalho = workbook.createCellStyle();
+		celula_cabecalho.setFillPattern(FillPatternType.SOLID_FOREGROUND);
+		celula_cabecalho.setFillForegroundColor(IndexedColors.BROWN.getIndex());
+		celula_cabecalho.setAlignment(HorizontalAlignment.CENTER);
+		celula_cabecalho.setVerticalAlignment(VerticalAlignment.CENTER);
+		celula_cabecalho.setFont(newFont_blabk);
 
 		CellStyle textStyle = workbook.createCellStyle();
-		//textStyle.setAlignment(Alignment.CENTER);
+		textStyle.setVerticalAlignment(VerticalAlignment.CENTER);
+		textStyle.setAlignment(HorizontalAlignment.CENTER);
 		textStyle.setVerticalAlignment(VerticalAlignment.CENTER);
 
+		// celula para numero alinhado ao centro
+		CellStyle valorStyle = workbook.createCellStyle();
+		valorStyle.setDataFormat(numberFormat.getFormat("R$ #,##0.00"));
+		valorStyle.setAlignment(HorizontalAlignment.CENTER);
+		valorStyle.setVerticalAlignment(VerticalAlignment.CENTER);
+
+		// celula para numero alinhado ao centro
 		CellStyle numberStyle = workbook.createCellStyle();
 		numberStyle.setDataFormat(numberFormat.getFormat("#,##0.00"));
+		numberStyle.setAlignment(HorizontalAlignment.CENTER);
 		numberStyle.setVerticalAlignment(VerticalAlignment.CENTER);
+
+		HSSFFont newFont_titulo = workbook.createFont();
+		newFont_titulo.setBold(true);
+		newFont_titulo.setColor(IndexedColors.BLACK.getIndex());
+		newFont_titulo.setFontName("Calibri");
+		newFont_titulo.setItalic(true);
+		newFont_titulo.setFontHeight((short) (11 * 32));
+
+		// estilo para cabecalho
+		CellStyle celula_titulo = workbook.createCellStyle();
+		celula_titulo.setFillPattern(FillPatternType.SOLID_FOREGROUND);
+		celula_titulo.setFillForegroundColor(IndexedColors.WHITE.getIndex());
+		celula_titulo.setAlignment(HorizontalAlignment.CENTER);
+		celula_titulo.setVerticalAlignment(VerticalAlignment.CENTER);
+		celula_titulo.setFont(newFont_titulo);
+		
+		
+		
+		// estilo para cabecalho fundo laranja
+		CellStyle celula_fundo_laranja_texto_branco = workbook.createCellStyle();
+		celula_fundo_laranja_texto_branco.setFillPattern(FillPatternType.SOLID_FOREGROUND);
+		celula_fundo_laranja_texto_branco.setFillForegroundColor(IndexedColors.GREEN.getIndex());
+		celula_fundo_laranja_texto_branco.setAlignment(HorizontalAlignment.CENTER);
+		celula_fundo_laranja_texto_branco.setVerticalAlignment(VerticalAlignment.CENTER);
+
+		
+		CellStyle valorStyleFundoVerdeTextoBranco = workbook.createCellStyle();
+		valorStyleFundoVerdeTextoBranco.setFillPattern(FillPatternType.SOLID_FOREGROUND);
+		valorStyleFundoVerdeTextoBranco.setFillForegroundColor(IndexedColors.GREEN.getIndex());
+		valorStyleFundoVerdeTextoBranco.setAlignment(HorizontalAlignment.CENTER);
+		valorStyleFundoVerdeTextoBranco.setVerticalAlignment(VerticalAlignment.CENTER);
+		valorStyleFundoVerdeTextoBranco.setDataFormat(numberFormat.getFormat("R$ #,##0.00"));
+		
+		CellStyle numberStyleFundoVerdeTextoBranco = workbook.createCellStyle();
+		numberStyleFundoVerdeTextoBranco.setFillPattern(FillPatternType.SOLID_FOREGROUND);
+		numberStyleFundoVerdeTextoBranco.setFillForegroundColor(IndexedColors.GREEN.getIndex());
+		numberStyleFundoVerdeTextoBranco.setAlignment(HorizontalAlignment.CENTER);
+		numberStyleFundoVerdeTextoBranco.setVerticalAlignment(VerticalAlignment.CENTER);
+		numberStyleFundoVerdeTextoBranco.setDataFormat(numberFormat.getFormat("#,##0.00"));
+		
+		HSSFFont newFont_branca = workbook.createFont();
+		newFont_branca.setBold(true);
+		newFont_branca.setColor(IndexedColors.WHITE.getIndex());
+		newFont_branca.setFontName("Calibri");
+		newFont_branca.setItalic(false);
+		newFont_branca.setFontHeight((short) (11 * 20));
+		Locale ptBr = new Locale("pt", "BR");
+
+		celula_fundo_laranja_texto_branco.setFont(newFont_branca);
+		numberStyleFundoVerdeTextoBranco.setFont(newFont_branca);
+		valorStyleFundoVerdeTextoBranco.setFont(newFont_branca);
+
+		// Configurando as informacoes
+		row = sheet.createRow(rownum++);
+
+		// Configurando titulo
+		cell = row.createCell(cellnum++);
+		cell.setCellStyle(celula_titulo);
+		cell.setCellValue("Relatório de Notas Fiscais");
+		// criar celula de 1 a 5
+		for (int i = 1; i < 6; i++) {
+			cell = row.createCell(cellnum++);
+			cell.setCellStyle(celula_titulo);
+			cell.setCellValue("");
+
+		}
+		sheet.addMergedRegion(new CellRangeAddress(0, 0, 0, 5));
+
+		cellnum = 0;
 
 		// Configurando Header
 		row = sheet.createRow(rownum++);
 		cell = row.createCell(cellnum++);
-		cell.setCellStyle(headerStyle);
+		cell.setCellStyle(celula_cabecalho);
 		cell.setCellValue("NFE");
 
 		cell = row.createCell(cellnum++);
-		cell.setCellStyle(headerStyle);
+		cell.setCellStyle(celula_cabecalho);
 		cell.setCellValue("Serie");
 
 		cell = row.createCell(cellnum++);
-		cell.setCellStyle(headerStyle);
+		cell.setCellStyle(celula_cabecalho);
 		cell.setCellValue("Remetente");
-		
 
 		cell = row.createCell(cellnum++);
-		cell.setCellStyle(headerStyle);
+		cell.setCellStyle(celula_cabecalho);
 		cell.setCellValue("Inscricao");
-		
 
 		cell = row.createCell(cellnum++);
-		cell.setCellStyle(headerStyle);
+		cell.setCellStyle(celula_cabecalho);
 		cell.setCellValue("Protocolo");
-		
 
 		cell = row.createCell(cellnum++);
-		cell.setCellStyle(headerStyle);
+		cell.setCellStyle(celula_cabecalho);
 		cell.setCellValue("Data");
-				
 
 		cell = row.createCell(cellnum++);
-		cell.setCellStyle(headerStyle);
+		cell.setCellStyle(celula_cabecalho);
 		cell.setCellValue("Natureza");
-		
 
 		cell = row.createCell(cellnum++);
-		cell.setCellStyle(headerStyle);
+		cell.setCellStyle(celula_cabecalho);
 		cell.setCellValue("Destinatario");
-		
 
 		cell = row.createCell(cellnum++);
-		cell.setCellStyle(headerStyle);
+		cell.setCellStyle(celula_cabecalho);
 		cell.setCellValue("Inscricao");
-		
 
 		cell = row.createCell(cellnum++);
-		cell.setCellStyle(headerStyle);
+		cell.setCellStyle(celula_cabecalho);
 		cell.setCellValue("Produto");
-		
 
 		cell = row.createCell(cellnum++);
-		cell.setCellStyle(headerStyle);
+		cell.setCellStyle(celula_cabecalho);
 		cell.setCellValue("Quantidade");
-		
+
 		cell = row.createCell(cellnum++);
-		cell.setCellStyle(headerStyle);
+		cell.setCellStyle(celula_cabecalho);
 		cell.setCellValue("Valor");
 		
-		
-		for (CadastroNFe cadastro : notas_fiscais_disponivel) {
+		int ultima_linha = 3;
+
+		for (CadastroNFe cadastro : notas_selecionadas) {
 			row = sheet.createRow(rownum++);
 			cellnum = 0;
 
@@ -892,83 +1086,216 @@ public class TelaNotasFiscais extends JFrame {
 			cell.setCellValue(cadastro.getSerie());
 
 			cell = row.createCell(cellnum++);
-			cell.setCellStyle(numberStyle);
+			cell.setCellStyle(textStyle);
 			cell.setCellValue(cadastro.getNome_remetente());
-			
-			cell = row.createCell(cellnum++);
-			cell.setCellStyle(numberStyle);
-			cell.setCellValue(cadastro.getInscricao_remetente());
-			
-			cell = row.createCell(cellnum++);
-			cell.setCellStyle(numberStyle);
-			cell.setCellValue(cadastro.getProtocolo());
-			
-			
-			cell = row.createCell(cellnum++);
-			cell.setCellStyle(numberStyle);
-			cell.setCellValue(cadastro.getData().toString());
-			
-	
-			
-			
-			cell = row.createCell(cellnum++);
-			cell.setCellStyle(numberStyle);
-			cell.setCellValue(cadastro.getNatureza());
-			
-			
-			
-			cell = row.createCell(cellnum++);
-			cell.setCellStyle(numberStyle);
-			cell.setCellValue(cadastro.getNome_destinatario());
-			
-			
-			cell = row.createCell(cellnum++);
-			cell.setCellStyle(numberStyle);
-			cell.setCellValue(cadastro.getInscricao_destinatario());
-			
-			cell = row.createCell(cellnum++);
-			cell.setCellStyle(numberStyle);
-			cell.setCellValue(cadastro.getProduto());
-			
-			
-			cell = row.createCell(cellnum++);
-			cell.setCellStyle(numberStyle);
-			cell.setCellValue(cadastro.getQuantidade());
-			
-			
-			cell = row.createCell(cellnum++);
-			cell.setCellStyle(numberStyle);
-			cell.setCellValue(cadastro.getValor());
-			
-			}
-		
-		try {
 
-		   //pega a pasta meus documentos
-			String caminho_raiz = javax.swing.filechooser.FileSystemView.getFileSystemView().getDefaultDirectory().toString();
-			//criar o diretorio de exportacoes
-			ManipularTxt manipular = new ManipularTxt();
-			System.out.println("Cminho raiz: " + caminho_raiz);
-			manipular.criarDiretorio(caminho_raiz + "\\E-Contract\\Exportacoes"); 
-			
-			String nome_arquivo = notas_fiscais_disponivel.get(0).getNome_remetente();
-			//Escrevendo o arquivo em disco
-			FileOutputStream out = new FileOutputStream(new File(caminho_raiz + "\\E-Contract\\Exportacoes"+ "\\" + nome_arquivo + ".xls"));
-			workbook.write(out);
-			workbook.close();
-			out.close();
-			//workbook.close();
-			JOptionPane.showMessageDialog(null, "Exportação concluida\nArquivo pode ser encontrado na pasta:\n"+ caminho_raiz + "\\E-Contract\\Exportacoes" + nome_arquivo + ".xls");
-			System.out.println("Success!!");
+			cell = row.createCell(cellnum++);
+			cell.setCellStyle(textStyle);
+			cell.setCellValue(cadastro.getInscricao_remetente());
+
+			cell = row.createCell(cellnum++);
+			cell.setCellStyle(textStyle);
+			cell.setCellValue(cadastro.getProtocolo());
+
+			// data
+			SimpleDateFormat f = new SimpleDateFormat("dd/MMMM/yyyy");
+			String data_formatada = f.format(cadastro.getData());
+			cell = row.createCell(cellnum++);
+			cell.setCellStyle(textStyle);
+			cell.setCellValue(data_formatada);
+
+			cell = row.createCell(cellnum++);
+			cell.setCellStyle(textStyle);
+			cell.setCellValue(cadastro.getNatureza());
+
+			cell = row.createCell(cellnum++);
+			cell.setCellStyle(textStyle);
+			cell.setCellValue(cadastro.getNome_destinatario());
+
+			cell = row.createCell(cellnum++);
+			cell.setCellStyle(textStyle);
+			cell.setCellValue(cadastro.getInscricao_destinatario());
+
+			cell = row.createCell(cellnum++);
+			cell.setCellStyle(textStyle);
+			cell.setCellValue(cadastro.getProduto());
+
+			cell = row.createCell(cellnum++);
+			cell.setCellStyle(numberStyle);
+			double quantidade_local = 0.0;
+
+			try {
+
+				if (cadastro.getMedida() == null || cadastro.getMedida().equals("null")) {
+
+					if (cadastro.getQuantidade().contains(",")) {
+						quantidade_local= Double
+								.parseDouble(cadastro.getQuantidade().replaceAll("[^0-9,]", "").replaceAll(",", "."));
+					} else {
+						quantidade_local += Double.parseDouble(cadastro.getQuantidade());
+
+					}
+
+				} else if (cadastro.getMedida().equalsIgnoreCase("KG")) {
+					if (cadastro.getQuantidade().contains(",")) {
+						quantidade_local= Double
+								.parseDouble(cadastro.getQuantidade().replaceAll("[^0-9,]", "").replaceAll(",", "."));
+					} else {
+						quantidade_local = Double.parseDouble(cadastro.getQuantidade());
+
+					}
+				} else if (cadastro.getMedida().equalsIgnoreCase("SC")) {
+					if (cadastro.getQuantidade().contains(",")) {
+						quantidade_local = ((Double
+								.parseDouble(cadastro.getQuantidade().replaceAll("[^0-9,]", "").replaceAll(",", "."))) * 60);
+					} else {
+						quantidade_local = (Double.parseDouble(cadastro.getQuantidade()) * 60);
+
+					}
+				}
+				cell.setCellValue(quantidade_local);
 
 			} catch (Exception e) {
-				JOptionPane.showMessageDialog(null, "Erro ao Exportar!\nConsulte o Administrador");
 
-			e.printStackTrace();
 			}
+			
+			
+			try {
+				cell = row.createCell(cellnum++);
+				cell.setCellStyle(valorStyle);
+
+				String valor_nota = cadastro.getValor().replaceAll("[^0-9,]", "");
+
+				valor_nota = valor_nota.replaceAll(",", ".");
+
+				cell.setCellValue(Double.parseDouble(valor_nota));
+			} catch (Exception e) {
+
+			}
+			
+			ultima_linha++;
+
+		}
+
+		sheet.setAutoFilter(CellRangeAddress.valueOf("A2:L2"));
+		for (int i = 1; i < 13; i++) {
+			sheet.autoSizeColumn(i);
+
+		}
+		
+		FormulaEvaluator evaluator = workbook.getCreationHelper().createFormulaEvaluator();
+
+		row = sheet.createRow(rownum += 2);
+		cellnum = 0;
+		
+
+		cell = row.createCell(2);
+		cell.setCellStyle(celula_fundo_laranja_texto_branco);
+		cell.setCellValue("Total de NF's:");
+
+		cell = row.createCell(3);
+		cell.setCellStyle(numberStyleFundoVerdeTextoBranco);
+		cell.setCellType(CellType.FORMULA);
+		String formula = "SUBTOTAL(3,C3:C" + (ultima_linha) + ")";
+		cell.setCellFormula(formula);
+
+		row = sheet.createRow(rownum += 1);
+		cellnum = 0;
+		
+		cell = row.createCell(2);
+		cell.setCellStyle(celula_fundo_laranja_texto_branco);
+		cell.setCellValue("Quantidade Total(kgs):");
+		
+		cell = row.createCell(3);
+		cell.setCellStyle(numberStyleFundoVerdeTextoBranco);
+		cell.setCellType(CellType.FORMULA);
+		formula = "SUMPRODUCT(SUBTOTAL(9,(K3:K"+ ultima_linha + ")))";
+		cell.setCellFormula(formula);
+		
+		cell = row.createCell(4);
+		cell.setCellStyle(celula_fundo_laranja_texto_branco);
+		cell.setCellValue("(sacos):");
+		
+		cell = row.createCell(5);
+		cell.setCellStyle(numberStyleFundoVerdeTextoBranco);
+		cell.setCellType(CellType.FORMULA);
+		formula = "SUMPRODUCT(SUBTOTAL(9,(K3:K"+ ultima_linha + "))) / 60";
+		cell.setCellFormula(formula);
+		
+		row = sheet.createRow(rownum += 1);
+		cellnum = 0;
+		
+		cell = row.createCell(2);
+		cell.setCellStyle(celula_fundo_laranja_texto_branco);
+		cell.setCellValue("Valor Total:");
+		
+		cell = row.createCell(3);
+		cell.setCellStyle(valorStyleFundoVerdeTextoBranco);
+		cell.setCellType(CellType.FORMULA);
+		formula = "SUMPRODUCT(SUBTOTAL(9,(L3:L"+ ultima_linha + ")))";
+		cell.setCellFormula(formula);
+		
+		
+		
+		return workbook;
 
 	}
-		
+
+	
+	public void gerarExcel(HSSFWorkbook workbook) {
+		try {
+
+			new JFXPanel();
+			Platform.runLater(() -> {
+
+				// pegar ultima pasta
+				ManipularTxt manipular_ultima_pasta = new ManipularTxt();
+				String ultima_pasta = manipular_ultima_pasta
+						.lerArquivo(new File("C:\\ProgramData\\E-Contract\\configs\\ultima_pasta.txt"));
+				if (fileChooser == null) {
+					fileChooser = new FileChooser();
+				}
+				fileChooser.setInitialDirectory(new File(ultima_pasta));
+				fileChooser.getExtensionFilters().addAll(
+
+						new FileChooser.ExtensionFilter("Excel", "*.xls"));
+				File file = fileChooser.showSaveDialog(new Stage());
+				String caminho_arquivo = "";
+				if (file != null) {
+					caminho_arquivo = file.getAbsolutePath();
+
+					manipular_ultima_pasta.rescreverArquivo(
+							new File("C:\\ProgramData\\E-Contract\\configs\\ultima_pasta.txt"), file.getParent());
+					// Escrevendo o arquivo em disco
+					FileOutputStream out;
+					try {
+						out = new FileOutputStream(file);
+						workbook.write(out);
+						workbook.close();
+						out.close();
+						// workbook.close();
+
+						Runtime.getRuntime().exec("explorer " + file.getAbsolutePath());
+
+						System.out.println("Success!!");
+					} catch (FileNotFoundException e1) {
+						// TODO Auto-generated catch block
+						e1.printStackTrace();
+					} catch (IOException e1) {
+						// TODO Auto-generated catch block
+						e1.printStackTrace();
+					}
+
+				}
+
+			});
+
+		} catch (Exception k) {
+			k.printStackTrace();
+		}
+	}
+	
+	
 	
 	public void importar() {
 		String unidade_base_dados = configs_globais.getServidorUnidade();
@@ -1260,6 +1587,7 @@ public class TelaNotasFiscais extends JFrame {
 		    filters.add(RowFilter.regexFilter(produto, 9));
 		    
 		    sorter.setRowFilter( RowFilter.andFilter(filters));
+		    calcular();
 	}
 	
 	public boolean checkString(String txt) {
@@ -1281,17 +1609,65 @@ public class TelaNotasFiscais extends JFrame {
 	public void calcular() {
 
 		int num_total_nfs = 0;
+		double quantidade_total = 0;
+		BigDecimal valor_total = BigDecimal.ZERO;
 
 		for (int row = 0; row < table_nfs.getRowCount(); row++) {
 
 			int index = table_nfs.convertRowIndexToModel(row);
 			CadastroNFe nf = modelo_nfs.getValue(index);
-			
+			try {
+
+				if (nf.getMedida() == null || nf.getMedida().equals("null")) {
+
+					if (nf.getQuantidade().contains(",")) {
+						quantidade_total += Double
+								.parseDouble(nf.getQuantidade().replaceAll("[^0-9,]", "").replaceAll(",", "."));
+					} else {
+						quantidade_total += Double.parseDouble(nf.getQuantidade());
+
+					}
+
+				} else if (nf.getMedida().equalsIgnoreCase("KG")) {
+					if (nf.getQuantidade().contains(",")) {
+						quantidade_total += Double
+								.parseDouble(nf.getQuantidade().replaceAll("[^0-9,]", "").replaceAll(",", "."));
+					} else {
+						quantidade_total += Double.parseDouble(nf.getQuantidade());
+
+					}
+				} else if (nf.getMedida().equalsIgnoreCase("SC")) {
+					if (nf.getQuantidade().contains(",")) {
+						quantidade_total += ((Double
+								.parseDouble(nf.getQuantidade().replaceAll("[^0-9,]", "").replaceAll(",", "."))) * 60);
+					} else {
+						quantidade_total += (Double.parseDouble(nf.getQuantidade()) * 60);
+
+					}
+				}
+
+			} catch (Exception e) {
+
+			}
+			Number valor = null;
+			try {
+				valor = z.parse(nf.getValor().replaceAll("[^0-9.,]", ""));
+				valor_total = valor_total.add(new BigDecimal(valor.doubleValue()));
+
+			} catch (ParseException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+
 			num_total_nfs++;
-			
+
 		}
-		
+
 		lblNumTotalNfs.setText(num_total_nfs + "");
-		
+
+		String valorString = NumberFormat.getCurrencyInstance(ptBr).format(valor_total);
+		lblValorTotalNf.setText(valorString);
+
+		lblPesoTotalNf.setText(z.format(quantidade_total) + " Kgs | " + z.format(quantidade_total / 60) + " sacos");
 	}
 }

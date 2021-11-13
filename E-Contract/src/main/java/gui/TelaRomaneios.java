@@ -15,6 +15,8 @@ import java.util.Set;
 import java.util.TreeMap;
 import java.util.regex.PatternSyntaxException;
 import java.util.stream.Collectors;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipOutputStream;
 
 import javax.swing.border.EmptyBorder;
 import javax.swing.*;
@@ -42,16 +44,25 @@ import org.jfree.chart.labels.StandardPieSectionLabelGenerator;
 import org.jfree.chart.plot.CategoryPlot;
 import org.jfree.chart.plot.PiePlot;
 import org.jfree.data.category.DefaultCategoryDataset;
+import org.jfree.data.time.Day;
+import org.jfree.data.time.TimeSeries;
+import org.jfree.data.time.TimeSeriesCollection;
+import org.jfree.data.xy.XYDataset;
+import org.jfree.data.xy.XYSeries;
+import org.jfree.data.xy.XYSeriesCollection;
 
 import javafx.application.Platform;
 import javafx.embed.swing.JFXPanel;
+import javafx.stage.DirectoryChooser;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
+import java.awt.event.MouseEvent;
 import java.io.File;
 import java.io.FileFilter;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -67,6 +78,8 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeFormatterBuilder;
+
 import main.java.cadastros.CadastroAviso;
 import main.java.cadastros.CadastroCliente;
 import main.java.cadastros.CadastroContrato;
@@ -98,6 +111,7 @@ import main.java.conexaoBanco.GerenciarBancoRomaneios;
 import main.java.conexaoBanco.GerenciarBancoSafras;
 import main.java.conexaoBanco.GerenciarBancoTarefaGeral;
 import main.java.graficos.GraficoLinha;
+import main.java.graficos.GraficoMultiplaLinhaTemporal;
 import main.java.gui.TelaCadastroCliente;
 import main.java.gui.TelaMain;
 import main.java.gui.TelaRomaneios;
@@ -114,6 +128,7 @@ import main.java.outros.JTextFieldPersonalizado;
 import main.java.outros.MyFileVisitor;
 import main.java.outros.TratarDados;
 import main.java.tratamento_proprio.Log;
+import main.java.views_personalizadas.TelaDetalharContaBancaria;
 import main.java.views_personalizadas.TelaEmEspera;
 import main.java.views_personalizadas.TelaEscolhaRelatorioRomaneios;
 import main.java.views_personalizadas.TelaNotificacaoSuperiorModoBusca;
@@ -148,7 +163,7 @@ public class TelaRomaneios extends JFrame {
 	private JDialog tela_pai;
 	private ArrayList<CadastroRomaneio> lista_romaneios = new ArrayList<>();
 	private JTable table_tarefas;
-
+	private JPopupMenu jPopupMenuRomaneios;
 	private JTable table_nfs;
 	private TelaRomaneios isto;
 	private JButton btnSelecionarNota;
@@ -159,6 +174,8 @@ public class TelaRomaneios extends JFrame {
 	private ArrayList<String> listadeArquivos = new ArrayList<>();
 	private ChartPanel chartPanel;
 	private DefaultCategoryDataset dataset;
+	private XYDataset  datasetMultiplaClassificacao;
+
 	private final JPanel painelPrincipal = new JPanel();
 
 	private RomaneioTableModel modelo_romaneios = new RomaneioTableModel();
@@ -235,7 +252,7 @@ public class TelaRomaneios extends JFrame {
 	private JLabel lblNewLabel_13;
 	private JLabel lblImpurezaMedia;
 	private JLabel lblAvariadosMedia;
-
+	private GraficoMultiplaLinhaTemporal linhaMultiplca = null;
 	private GraficoLinha linha = null;
 	private JPanel painelGraficoLinha;
 	private JPanel painelGraficoClassificacao;
@@ -310,6 +327,22 @@ public class TelaRomaneios extends JFrame {
 	private JPanel panel_12;
 	private JLabel lblNewLabel_38;
 	private JLabel lblRecepcao;
+	private JButton btnExportarComprovantes;
+	private JLabel lblComprovante;
+	private JComboBox cbComprovante;
+	private JLabel lblEditado;
+	private JComboBox cbEditado;
+	private JPanel panel_13;
+	private JLabel lblNewLabel_3_1_10;
+	private JLabel lblNewLabel_3_1_11;
+	private JLabel lblNewLabel_3_1_12;
+	private JLabel lblNewLabel_3_1_13;
+	private JLabel lblNewLabel_3_1_14;
+	private JLabel lblNewLabel_3_1_15;
+	private JLabel lblNumeroComprovantesAnexados;
+	private JLabel lblNumeroComprovantesAnexar;
+	private JLabel lblNumeroRomaneiosEditados;
+	private JLabel lblNumeroRomaneiosEditar;
 
 	public TelaRomaneios(int flag_tipo_tela, Window janela_pai) {
 		setIconImage(Toolkit.getDefaultToolkit()
@@ -580,7 +613,7 @@ public class TelaRomaneios extends JFrame {
 		painelGraficoClassificacao.setLayout(new MigLayout("", "[grow]", "[grow]"));
 
 		abasGraficos.addTab("Romaneios", painelGraficoLinha);
-		abasGraficos.addTab("Classificação 1", painelGraficoClassificacao);
+		abasGraficos.addTab("Classificação 1 X Classificação 2", painelGraficoClassificacao);
 
 		painelPrincipal.setLayout(new MigLayout("", "[grow][][grow][10px][grow]", "[][][235.00,grow][][][]"));
 
@@ -614,6 +647,51 @@ public class TelaRomaneios extends JFrame {
 		panel.setLayout(new BorderLayout(0, 0));
 		JScrollPane scrollPaneNFs = new JScrollPane(table_nfs);
 		panel.add(scrollPaneNFs);
+		
+		panel_13 = new JPanel();
+		painelPrincipal.add(panel_13, "flowx,cell 0 3,growx");
+		panel_13.setBackground(Color.WHITE);
+		panel_13.setLayout(new MigLayout("", "[][][]", "[][][][]"));
+		
+		lblNewLabel_3_1_12 = new JLabel("Anexado:");
+		lblNewLabel_3_1_12.setFont(new Font("Arial", Font.PLAIN, 16));
+		panel_13.add(lblNewLabel_3_1_12, "cell 1 0,alignx right");
+		
+		lblNewLabel_3_1_10 = new JLabel("Comprovantes");
+		lblNewLabel_3_1_10.setFont(new Font("Arial", Font.PLAIN, 16));
+		panel_13.add(lblNewLabel_3_1_10, "cell 0 0 1 2,aligny center");
+		
+		lblNumeroComprovantesAnexados = new JLabel("0.0000");
+		lblNumeroComprovantesAnexados.setFont(new Font("Arial", Font.BOLD, 18));
+		panel_13.add(lblNumeroComprovantesAnexados, "cell 2 0");
+		
+		lblNewLabel_3_1_13 = new JLabel("Anexar:");
+		lblNewLabel_3_1_13.setFont(new Font("Arial", Font.PLAIN, 16));
+		panel_13.add(lblNewLabel_3_1_13, "cell 1 1,alignx right");
+		
+		lblNumeroComprovantesAnexar = new JLabel("0.0000");
+		lblNumeroComprovantesAnexar.setFont(new Font("Arial", Font.BOLD, 18));
+		panel_13.add(lblNumeroComprovantesAnexar, "cell 2 1");
+		
+		lblNewLabel_3_1_11 = new JLabel("Editado");
+		lblNewLabel_3_1_11.setFont(new Font("Arial", Font.PLAIN, 16));
+		panel_13.add(lblNewLabel_3_1_11, "cell 0 2 1 2,alignx right,aligny center");
+		
+		lblNewLabel_3_1_14 = new JLabel("Sim:");
+		lblNewLabel_3_1_14.setFont(new Font("Arial", Font.PLAIN, 16));
+		panel_13.add(lblNewLabel_3_1_14, "cell 1 2,alignx right");
+		
+		lblNumeroRomaneiosEditados = new JLabel("0.0000");
+		lblNumeroRomaneiosEditados.setFont(new Font("Arial", Font.BOLD, 18));
+		panel_13.add(lblNumeroRomaneiosEditados, "cell 2 2");
+		
+		lblNewLabel_3_1_15 = new JLabel("Não:");
+		lblNewLabel_3_1_15.setFont(new Font("Arial", Font.PLAIN, 16));
+		panel_13.add(lblNewLabel_3_1_15, "cell 1 3,alignx right");
+		
+		lblNumeroRomaneiosEditar = new JLabel("0.0000");
+		lblNumeroRomaneiosEditar.setFont(new Font("Arial", Font.BOLD, 18));
+		panel_13.add(lblNumeroRomaneiosEditar, "cell 2 3");
 
 		JPanel panel_1 = new JPanel();
 		painelPrincipal.add(panel_1, "cell 0 3 5 1,alignx right");
@@ -642,7 +720,7 @@ public class TelaRomaneios extends JFrame {
 			}
 
 		});
-		panel_1.setLayout(new MigLayout("", "[167px][148px][81px][103px][104px][73px][170px]", "[33px]"));
+		panel_1.setLayout(new MigLayout("", "[167px][148px][][81px][103px][104px][73px][170px]", "[33px]"));
 
 		JButton btnNewButton = new JButton("Exportar Arquivos");
 		btnNewButton.setBackground(new Color(51, 153, 255));
@@ -659,12 +737,23 @@ public class TelaRomaneios extends JFrame {
 		btnExportarPlanilha.setFont(new Font("SansSerif", Font.BOLD, 16));
 		btnExportarPlanilha.setBackground(new Color(102, 102, 0));
 		panel_1.add(btnExportarPlanilha, "cell 1 0,alignx left,aligny top");
+		
+		btnExportarComprovantes = new JButton("Exportar Comprovantes");
+		btnExportarComprovantes.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				exportarComprovantes();
+			}
+		});
+		btnExportarComprovantes.setForeground(Color.WHITE);
+		btnExportarComprovantes.setFont(new Font("SansSerif", Font.BOLD, 16));
+		btnExportarComprovantes.setBackground(new Color(102, 51, 0));
+		panel_1.add(btnExportarComprovantes, "cell 2 0");
 
 		btnNewButton_1 = new JButton("Excluir");
 		btnNewButton_1.setBackground(new Color(255, 0, 0));
 		btnNewButton_1.setForeground(Color.WHITE);
 		btnNewButton_1.setFont(new Font("SansSerif", Font.BOLD, 16));
-		panel_1.add(btnNewButton_1, "cell 2 0,alignx left,aligny top");
+		panel_1.add(btnNewButton_1, "cell 3 0,alignx left,aligny top");
 		btnNewButton_1.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				if (JOptionPane.showConfirmDialog(isto, "Deseja excluir o Romaneio?", "Excluir Romaneio",
@@ -723,7 +812,7 @@ public class TelaRomaneios extends JFrame {
 		btnVizualizarNF.setBackground(new Color(0, 0, 51));
 		btnVizualizarNF.setForeground(Color.WHITE);
 		btnVizualizarNF.setFont(new Font("SansSerif", Font.BOLD, 16));
-		panel_1.add(btnVizualizarNF, "cell 3 0,alignx left,aligny top");
+		panel_1.add(btnVizualizarNF, "cell 4 0,alignx left,aligny top");
 		btnVizualizarNF.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 
@@ -761,18 +850,18 @@ public class TelaRomaneios extends JFrame {
 		btnImportar.setBackground(new Color(0, 102, 102));
 		btnImportar.setForeground(Color.WHITE);
 		btnImportar.setFont(new Font("SansSerif", Font.BOLD, 16));
-		panel_1.add(btnImportar, "cell 4 0,growx,aligny top");
+		panel_1.add(btnImportar, "cell 5 0,growx,aligny top");
 		btnImportar.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 			}
 		});
-		panel_1.add(btnEditarRomaneio, "cell 5 0,alignx left,aligny top");
+		panel_1.add(btnEditarRomaneio, "cell 6 0,alignx left,aligny top");
 
 		JButton btnSelecionar = new JButton("Selecionar");
 		btnSelecionar.setBackground(new Color(0, 51, 0));
 		btnSelecionar.setForeground(Color.WHITE);
 		btnSelecionar.setFont(new Font("SansSerif", Font.BOLD, 16));
-		panel_1.add(btnSelecionar, "cell 6 0,growx,aligny top");
+		panel_1.add(btnSelecionar, "cell 7 0,growx,aligny top");
 
 		btnSelecionar.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
@@ -793,7 +882,7 @@ public class TelaRomaneios extends JFrame {
 		JPanel panel_2 = new JPanel();
 		panel_2.setBackground(Color.WHITE);
 		panel_2.setFont(new Font("Tahoma", Font.PLAIN, 11));
-		panel_2.setLayout(new MigLayout("", "[][][][][][][][][][][][][][][]", "[][][][][][][][][][][][][]"));
+		panel_2.setLayout(new MigLayout("", "[][][][][][][][][][][][][][][][][]", "[][][][][][][][][][][][][]"));
 
 		scrollPane = new JScrollPane(panel_2);
 		scrollPane.getViewport().setBackground(Color.white);
@@ -979,8 +1068,7 @@ public class TelaRomaneios extends JFrame {
 		JPanel panel_3 = new JPanel();
 		panel_3.setBackground(Color.WHITE);
 		painelPrincipal.add(panel_3, "cell 0 0 5 2,alignx center,aligny top");
-		panel_3.setLayout(new MigLayout("", "[][][grow][][][][grow][66px][grow][48px][][61px][4px][63px]",
-				"[20px][20px][23px][23px,grow][grow]"));
+		panel_3.setLayout(new MigLayout("", "[][grow][grow][][grow][][grow][66px][grow][48px][][61px][4px][63px]", "[20px][20px][23px][][23px,grow][grow]"));
 
 		lblRemetente = new JLabel("Depositante:");
 		panel_3.add(lblRemetente, "cell 0 0,alignx right,aligny top");
@@ -1236,12 +1324,34 @@ public class TelaRomaneios extends JFrame {
 
 		panel_4.add(entMaiorData, "cell 4 0");
 		entMaiorData.setColumns(10);
-
+		
+		lblComprovante = new JLabel("Comprovante:");
+		lblComprovante.setFont(new Font("Tahoma", Font.BOLD, 12));
+		panel_3.add(lblComprovante, "cell 0 3,alignx trailing");
+		
+		cbComprovante = new JComboBox();
+		cbComprovante.setFont(new Font("SansSerif", Font.BOLD, 12));
+		panel_3.add(cbComprovante, "cell 1 3,growx");
+		cbComprovante.addItem("TODOS");
+		cbComprovante.addItem("ANEXADO");
+		cbComprovante.addItem("ANEXAR");
+		
+		lblEditado = new JLabel("Editado:");
+		lblEditado.setFont(new Font("Tahoma", Font.BOLD, 12));
+		panel_3.add(lblEditado, "cell 2 3,alignx right");
+		
+		cbEditado = new JComboBox();
+		cbEditado.setFont(new Font("SansSerif", Font.BOLD, 12));
+		cbEditado.addItem("TODOS");
+		cbEditado.addItem("SIM");
+		cbEditado.addItem("NÃO");
+		panel_3.add(cbEditado, "cell 4 3,growx");
+		
 		JButton btnFiltrar_1 = new JButton("Filtrar");
 		btnFiltrar_1.setBackground(new Color(51, 0, 0));
 		btnFiltrar_1.setForeground(Color.WHITE);
 		btnFiltrar_1.setFont(new Font("Arial", Font.BOLD, 16));
-		panel_3.add(btnFiltrar_1, "cell 9 3,alignx center,aligny center");
+		panel_3.add(btnFiltrar_1, "cell 9 4,alignx center,aligny center");
 		btnFiltrar_1.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				filtrar();
@@ -1252,7 +1362,7 @@ public class TelaRomaneios extends JFrame {
 		btnLimpar.setBackground(new Color(204, 0, 0));
 		btnLimpar.setForeground(Color.WHITE);
 		btnLimpar.setFont(new Font("Arial", Font.BOLD, 16));
-		panel_3.add(btnLimpar, "cell 10 3,alignx center,aligny center");
+		panel_3.add(btnLimpar, "cell 10 4,alignx center,aligny center");
 		btnLimpar.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 
@@ -1264,7 +1374,7 @@ public class TelaRomaneios extends JFrame {
 		btnReleitura.setBackground(new Color(0, 51, 0));
 		btnReleitura.setForeground(Color.WHITE);
 		btnReleitura.setFont(new Font("Arial", Font.BOLD, 16));
-		panel_3.add(btnReleitura, "cell 11 3 3 1,growx,aligny top");
+		panel_3.add(btnReleitura, "cell 11 4 3 1,growx,aligny top");
 		btnReleitura.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				pesquisarTodosOsRomaneios();
@@ -1318,6 +1428,8 @@ public class TelaRomaneios extends JFrame {
 			btnSelecionar.setVisible(false);
 			btnSelecionar.setEnabled(false);
 		}
+
+		setMenuRomaneios();
 
 		pesquisar_tarefas();
 		this.setExtendedState(JFrame.MAXIMIZED_BOTH);
@@ -1417,6 +1529,219 @@ public class TelaRomaneios extends JFrame {
 
 				} catch (Exception t) {
 					JOptionPane.showMessageDialog(isto, "Erro fataol ao exportar romaneios selecionados");
+
+				}
+
+			}
+		} else {
+			JOptionPane.showMessageDialog(isto, "Nenhuma linha selecionada");
+		}
+
+	}
+	
+	
+	public void zipFiles(String dirImp) {
+        byte[] buf = new byte[1024];
+        try {
+        	
+        	File dir = new File(dirImp);
+        	
+            ZipOutputStream out = new ZipOutputStream(new FileOutputStream(dir.getParent() + "/" + "comprovantes.zip"));
+            ManipularTxt manipular = new ManipularTxt();
+            
+            ArrayList<String> arquivos = manipular.getListaNomeArquivos(dirImp);
+            for (String file: arquivos) {
+                FileInputStream in = new FileInputStream(dirImp + "/" + file);
+                out.putNextEntry(new ZipEntry(file));
+                int len;
+                while ((len = in.read(buf)) > 0) {
+                    out.write(buf, 0, len);
+                }
+                out.closeEntry();
+                in.close();
+            }
+            out.close();
+        } catch (IOException e) {
+        }
+    }
+
+	
+	public void exportarComprovantes() {
+
+		ManipularTxt manipular = new ManipularTxt();
+
+		if (table_nfs.getSelectedRows().length > 0) {
+			if (table_nfs.getSelectedRows().length == 1) {
+
+				try {
+
+
+					JOptionPane.showMessageDialog(isto, "Na próxima tela, selecione a pasta para salvar os comprovantes de romaneio");
+
+					new JFXPanel();
+					Platform.runLater(() -> {
+						
+						
+
+						// pegar ultima pasta
+						ManipularTxt manipular_ultima_pasta = new ManipularTxt();
+						String ultima_pasta = manipular_ultima_pasta
+								.lerArquivo(new File("C:\\ProgramData\\E-Contract\\configs\\ultima_pasta.txt"));
+						
+
+				        DirectoryChooser d = new DirectoryChooser();
+						d.setInitialDirectory(new File(ultima_pasta));
+
+						
+						File file_buscar = d.showDialog(new Stage());
+						String caminho_arquivo_busca = "";
+						if (file_buscar != null) {
+							caminho_arquivo_busca = file_buscar.getAbsolutePath();
+
+							manipular_ultima_pasta.rescreverArquivo(
+									new File("C:\\ProgramData\\E-Contract\\configs\\ultima_pasta.txt"), file_buscar.getParent());
+
+							
+							JOptionPane.showMessageDialog(isto, "caminho do diretorio: " + caminho_arquivo_busca );
+							
+						
+					File pasta_salvar = file_buscar;
+					
+					
+					int rowSel = table_nfs.getSelectedRows()[0];
+					int indexRowModel = table_nfs.getRowSorter().convertRowIndexToModel(rowSel);// converte pro indice
+																								// do model
+					CadastroRomaneio rom = lista_romaneios.get(indexRowModel);
+
+					try {
+						boolean copiar = manipular.copiarNFe(servidor_unidade + rom.getCaminho_arquivo_comprovante(),
+								pasta_salvar.getAbsolutePath() + "\\comprovante_" + rom.getNumero_romaneio() + ".pdf");
+
+						if (copiar) {
+							
+							zipFiles(pasta_salvar.getAbsolutePath() );
+
+							
+							JOptionPane.showMessageDialog(isto, "Comprovante Exportado");
+
+							
+							if (Desktop.isDesktopSupported()) {
+								try {
+									Desktop desktop = Desktop.getDesktop();
+									File myFile = new File(pasta_salvar.getAbsolutePath());
+									desktop.open(myFile);
+								} catch (IOException ex) {
+								}
+							}
+
+						} else {
+							JOptionPane.showMessageDialog(isto, "Erro ao exportar o Comprovante");
+						}
+
+					} catch (IOException e) {
+						JOptionPane.showMessageDialog(isto, "Erro Fatal ao exportar o Comprovante");
+						e.printStackTrace();
+					}
+
+						}
+
+					});
+					
+				} catch (Exception e) {
+					JOptionPane.showMessageDialog(isto, "Erro ao exportar Comprovante");
+
+				}
+
+			} else {
+
+				try {
+
+
+					
+					JOptionPane.showMessageDialog(isto, "Na próxima tela, selecione a pasta para salvar os comprovantes de romaneio");
+
+					new JFXPanel();
+					Platform.runLater(() -> {
+
+						// pegar ultima pasta
+						ManipularTxt manipular_ultima_pasta = new ManipularTxt();
+						String ultima_pasta = manipular_ultima_pasta
+								.lerArquivo(new File("C:\\ProgramData\\E-Contract\\configs\\ultima_pasta.txt"));
+						
+
+				        DirectoryChooser d = new DirectoryChooser();
+						d.setInitialDirectory(new File(ultima_pasta));
+
+						
+						File file_buscar = d.showDialog(new Stage());
+						String caminho_arquivo_busca = "";
+						if (file_buscar != null) {
+							caminho_arquivo_busca = file_buscar.getAbsolutePath();
+
+							manipular_ultima_pasta.rescreverArquivo(
+									new File("C:\\ProgramData\\E-Contract\\configs\\ultima_pasta.txt"), file_buscar.getParent());
+
+							
+							JOptionPane.showMessageDialog(isto, "caminho do diretorio: " + caminho_arquivo_busca );
+							
+						
+					File pasta_salvar = file_buscar;
+					
+					boolean todos_romaneios_salvos = false;
+
+					int indices[] = table_nfs.getSelectedRows();
+
+					boolean todos_copiados = false;
+					
+					for (int i = 0; i < indices.length; i++) {
+						int rowSel = indices[i];
+						int indexRowModel = table_nfs.getRowSorter().convertRowIndexToModel(rowSel);// converte pro
+																									// indice do model
+						CadastroRomaneio rom = lista_romaneios.get(indexRowModel);
+
+						try {
+							boolean copiar = manipular.copiarNFe(servidor_unidade + rom.getCaminho_arquivo_comprovante(),
+									pasta_salvar.getAbsolutePath() + "\\comprovante_romaneio_" + rom.getNumero_romaneio() + ".pdf");
+							if (copiar) {
+
+								todos_copiados = true;
+								
+							} else {
+								JOptionPane.showMessageDialog(null,
+										"Erro ao exportar o Comprovante: " + rom.getNumero_romaneio());
+								todos_copiados = false;
+								break;
+							}
+
+						} catch (IOException e) {
+							// TODO Auto-generated catch block
+							JOptionPane.showMessageDialog(isto, "Erro fatal ao exportar Comprovantes");
+
+							e.printStackTrace();
+						}
+
+					}
+					
+					if(todos_copiados) {
+						zipFiles(pasta_salvar.getAbsolutePath() );
+	
+					}
+					
+					if (Desktop.isDesktopSupported()) {
+						try {
+							Desktop desktop = Desktop.getDesktop();
+							File myFile = new File(pasta_salvar.getAbsolutePath());
+							desktop.open(myFile);
+						} catch (IOException ex) {
+						}
+					}
+					
+						}
+
+					});
+
+				} catch (Exception t) {
+					JOptionPane.showMessageDialog(isto, "Erro fataol ao exportar Comprovantes selecionados");
 
 				}
 
@@ -1528,13 +1853,15 @@ public class TelaRomaneios extends JFrame {
 		private final int impureza2 = 34;
 		private final int status_monsanto = 35;
 		private final int royalties = 36;
+		private final int comprovante = 37;
+		private final int editado = 38;
 
 		private final String colunas[] = { "Número", "Operação", "Data:", "Produto:", "Transgenia:", "Safra:",
 				"Depositante:", "CPF/CNPJ Depositante", "Rementente/Destinatario", "CPF/CNPJ Rementente/Destinatario",
 				"Peso Bruto:", "Tara:", "Peso Sem Desconto", "Desconto Umidade", "Desconto Impureza",
 				"Desconto Avariados", "Desconto Total", "Peso Final:", "Recepção", "Umidade:", "Impureza:", "Ardidos",
 				"Avariados", "CFOP", "Descrição", "Motorista", "CPF MOTORISTA", "Placa", "Doc Entrada", "Amostra",
-				"Silo", "Transgenese", "Classificador", "Umidade 2", "Impureza 2", "STATUS MONSANTO", "ROYALTIES" };
+				"Silo", "Transgenese", "Classificador", "Umidade 2", "Impureza 2", "STATUS MONSANTO", "ROYALTIES", "Comprovante", "Editado" };
 		private final ArrayList<CadastroRomaneio> dados = new ArrayList<>();// usamos como dados uma lista genérica de
 																			// nfs
 
@@ -1632,6 +1959,10 @@ public class TelaRomaneios extends JFrame {
 			case status_monsanto:
 				return String.class;
 			case royalties:
+				return String.class;
+			case comprovante:
+				return String.class;
+			case editado:
 				return String.class;
 			default:
 				throw new IndexOutOfBoundsException("Coluna Inválida!!!");
@@ -1847,6 +2178,22 @@ public class TelaRomaneios extends JFrame {
 					return "SIM";
 				}
 			}
+			
+			
+			case comprovante:{
+				if ( checkString(romaneio.getCaminho_arquivo_comprovante())) {
+					return "ANEXADO";
+				} else {
+					return "ANEXAR";
+				}
+			}
+			case editado:{
+				if ( checkString(romaneio.getSilo())) {
+					return "SIM";
+				} else {
+					return "NÃO";
+				}
+			}
 
 			default:
 				throw new IndexOutOfBoundsException("Coluna Inválida!!!");
@@ -1942,7 +2289,7 @@ public class TelaRomaneios extends JFrame {
 
 	}
 
-	public boolean checkString(String txt) {
+	public static boolean checkString(String txt) {
 		return txt != null && !txt.equals("") && !txt.equals(" ") && !txt.equals("  ");
 	}
 
@@ -1981,6 +2328,7 @@ public class TelaRomaneios extends JFrame {
 		String status_monsanto = entStatusMonsanto.getText().toUpperCase();
 		String menor = entMenorData.getText();
 		String maior = entMaiorData.getText();
+	
 
 		if (checkString(menor) && checkString(maior)) {
 			Date data_menor = null;
@@ -2065,6 +2413,29 @@ public class TelaRomaneios extends JFrame {
 
 		if (checkString(status_monsanto))
 			filters.add(RowFilter.regexFilter(status_monsanto, 35));
+		
+		
+		if (cbComprovante.getSelectedItem().toString() != null) {
+			String s_comprovante = "";
+			if (checkString(cbComprovante.getSelectedItem().toString())) {
+				s_comprovante = cbComprovante.getSelectedItem().toString();
+				if (!(s_comprovante.equalsIgnoreCase("TODOS")))
+					filters.add(RowFilter.regexFilter(s_comprovante, 37));
+
+			}
+		}
+		
+		
+		if (cbEditado.getSelectedItem().toString() != null) {
+			String s_editado = "";
+			if (checkString(cbEditado.getSelectedItem().toString())) {
+				s_editado = cbEditado.getSelectedItem().toString();
+				if (!(s_editado.equalsIgnoreCase("TODOS")))
+					filters.add(RowFilter.regexFilter(s_editado, 38));
+
+			}
+		}
+
 
 		sorter.setRowFilter(RowFilter.andFilter(filters));
 
@@ -2088,8 +2459,15 @@ public class TelaRomaneios extends JFrame {
 
 		NumberFormat z = NumberFormat.getNumberInstance();
 		ArrayList<CadastroRomaneio> filtrados = new ArrayList<>();
+
 		int numero_romaneios = 0;
 		int numero_romaneios_maior_0 = 0;
+		
+		int numero_comprovantes_anexados = 0;
+		int numero_comprovantes_anexar = 0;
+		
+		int numero_romaneios_editados = 0;
+		int numero_romaneios_editar = 0;
 
 		double peso_bruto_total = 0, peso_tara_total = 0, peso_liquido_total_sem_desconto = 0, peso_liquido_total = 0;
 		double peso_desconto_umidade = 0;
@@ -2173,6 +2551,20 @@ public class TelaRomaneios extends JFrame {
 					peso_total_outros_particular += romaneio.getPeso_liquido();
 				}
 			}
+			
+			
+			
+			if ( checkString(romaneio.getCaminho_arquivo_comprovante())) {
+				numero_comprovantes_anexados++;
+			} else {
+				numero_comprovantes_anexar++;
+			}
+			
+			if ( checkString(romaneio.getSilo())) {
+				numero_romaneios_editados++;
+			} else {
+				numero_romaneios_editar++;
+			}
 
 			numero_romaneios++;
 
@@ -2226,7 +2618,18 @@ public class TelaRomaneios extends JFrame {
 				+ z.format(peso_total_outros_particular / 60) + " sacos");
 		lblPesoTotalOutrosParticipante.setText(z.format(peso_total_outros_participante) + " Kgs | "
 				+ z.format(peso_total_outros_participante / 60) + " sacos");
+		
+		//comprovantes e edicao
+		
+		lblNumeroComprovantesAnexados.setText(numero_comprovantes_anexados + "");
+		lblNumeroComprovantesAnexar.setText(numero_comprovantes_anexar + "");
 
+		lblNumeroRomaneiosEditados.setText(numero_romaneios_editados + "");
+		lblNumeroRomaneiosEditar.setText(numero_romaneios_editar + "");
+
+		
+
+		
 		calcularExtrato();
 
 		filtrados.sort(new Comparator<CadastroRomaneio>() {
@@ -2240,12 +2643,36 @@ public class TelaRomaneios extends JFrame {
 
 		Map<Date, Double> somaPorData = filtrados.stream().collect(Collectors.groupingBy(CadastroRomaneio::getData,
 				Collectors.summingDouble(CadastroRomaneio::getPeso_liquido)));
+		
 		atualizarGrafico(somaPorData);
 
-		somaPorData = filtrados.stream().collect(Collectors.groupingBy(CadastroRomaneio::getData,
-				Collectors.summingDouble(CadastroRomaneio::getUmidade)));
-		atualizarGraficoClassificacao(somaPorData);
+	//	somaPorData = filtrados.stream().collect(Collectors.groupingBy(CadastroRomaneio::getData,
+		//		Collectors.summingDouble( CadastroRomaneio::getUmidade)));
+		
+		ArrayList<CadastroRomaneio> lista_sem_umidades_0 = new ArrayList<>();
+		ArrayList<CadastroRomaneio> lista_sem_umidades_1 = new ArrayList<>();
 
+		for(CadastroRomaneio rom : filtrados) {
+			if(rom.getUmidade()  >  0) {
+				lista_sem_umidades_0.add(rom);
+			}
+			if(rom.getUmidade2() > 0) {
+				lista_sem_umidades_1.add(rom);
+			}
+		}
+		
+		Map<Date, Double> averages = 
+				lista_sem_umidades_0.stream().collect(Collectors.groupingBy(CadastroRomaneio::getData,
+			                                         TreeMap::new,
+			                                         Collectors.averagingDouble(CadastroRomaneio::getUmidade)));
+		
+		Map<Date, Double> averages2 = 
+				lista_sem_umidades_1.stream().collect(Collectors.groupingBy(CadastroRomaneio::getData,
+			                                         TreeMap::new,
+			                                         Collectors.averagingDouble(CadastroRomaneio::getUmidade2)));
+		
+		//atualizarGraficoClassificacao(averages);
+		atualizarGraficoClassificacao1xClassificacao2(averages, averages2);
 	}
 
 	public void calcularExtrato() {
@@ -2713,7 +3140,7 @@ public class TelaRomaneios extends JFrame {
 		linha = new GraficoLinha();
 		linha.setDataset(dataset);
 		chartPanel = linha.getGraficoLinha(painelGraficoLinha.getWidth(), painelGraficoLinha.getHeight(), "Data",
-				"Romaneios", "Quantidade de Sacos");
+				"Romaneios", "Quantidade de Sacos", 1);
 		chartPanel.setBackground(Color.white);
 		painelGraficoLinha.add(chartPanel);
 	}
@@ -2734,10 +3161,64 @@ public class TelaRomaneios extends JFrame {
 		linha = new GraficoLinha();
 		linha.setDataset(dataset);
 		chartPanel = linha.getGraficoLinha(painelGraficoClassificacao.getWidth(),
-				painelGraficoClassificacao.getHeight(), "Data", "Classificação", "Umidade");
+				painelGraficoClassificacao.getHeight(), "Data", "Classificação", "Umidade", 2);
 		chartPanel.setBackground(Color.white);
 		painelGraficoClassificacao.add(chartPanel);
 	}
+	
+	
+	
+	
+	public void atualizarGraficoClassificacao1xClassificacao2(Map<Date, Double> lista_medias_classi1, Map<Date, Double> lista_medias_classi2 ) {
+
+		TimeSeriesCollection  dataset = new TimeSeriesCollection();
+
+		painelGraficoClassificacao.removeAll();
+		
+		lista_medias_classi1 = new TreeMap<>(lista_medias_classi1);
+	    TimeSeries series1 = new TimeSeries("Classificação 1");
+		for (Map.Entry<Date, Double> pair : lista_medias_classi1.entrySet()) {
+			SimpleDateFormat f = new SimpleDateFormat("dd/MM/yyyy");
+			String value = f.format(pair.getKey());
+			
+			DateTimeFormatter formatter = new DateTimeFormatterBuilder().toFormatter(new Locale("pt", "BR"));
+			LocalDate ld = LocalDate.parse(value, formatter.ofPattern("dd/MM/yyyy"));
+			
+            Day d = new Day(ld.getDayOfMonth(), ld.getMonthValue(), ld.getYear());
+
+			series1.add(d ,pair.getValue() );
+			
+		}
+		
+		
+		lista_medias_classi2 = new TreeMap<>(lista_medias_classi2);
+	    TimeSeries series2 = new TimeSeries("Classificação 2");
+		for (Map.Entry<Date, Double> pair : lista_medias_classi2.entrySet()) {
+			SimpleDateFormat f = new SimpleDateFormat("dd/MM/yyyy");
+			String value = f.format(pair.getKey());
+			
+			DateTimeFormatter formatter = new DateTimeFormatterBuilder().toFormatter(new Locale("pt", "BR"));
+			LocalDate ld = LocalDate.parse(value, formatter.ofPattern("dd/MM/yyyy"));
+			
+            Day d = new Day(ld.getDayOfMonth(), ld.getMonthValue(), ld.getYear());
+
+            series2.add(d, pair.getValue());
+			
+		}
+		
+
+		 dataset.addSeries(series1);
+		   dataset.addSeries(series2);
+		    
+		 linhaMultiplca = new GraficoMultiplaLinhaTemporal();
+		linhaMultiplca.setDataset(dataset);
+		chartPanel = linhaMultiplca.getGraficoLinha(painelGraficoClassificacao.getWidth(),
+				painelGraficoClassificacao.getHeight(), "Data", "Classificação 1 X Classificação 2", "Umidade", 2);
+		chartPanel.setBackground(Color.white);
+		painelGraficoClassificacao.add(chartPanel);
+	}
+
+	
 
 	public void pesquisarTodosOsRomaneiosTransportador() {
 		new Thread() {
@@ -2764,5 +3245,197 @@ public class TelaRomaneios extends JFrame {
 			}
 		}.start();
 	}
+
+	public void setMenuRomaneios() {
+		jPopupMenuRomaneios = new JPopupMenu();
+		JMenuItem jMenuItemAnexar = new JMenuItem();
+		JMenuItem jMenuItemAbrirPasta = new JMenuItem();
+		JMenuItem jMenuItemVizualizarComprovante = new JMenuItem();
+
+		jMenuItemAnexar.setText("Anexar Comprovante");
+		jMenuItemAbrirPasta.setText("Abrir Pasta");
+		jMenuItemVizualizarComprovante.setText("Vizualizar Comprovante");
+
+		
+		jMenuItemAnexar.addActionListener(new java.awt.event.ActionListener() {
+			// Importe a classe java.awt.event.ActionEvent
+			public void actionPerformed(ActionEvent e) {
+
+				int rowSel = table_nfs.getSelectedRow();// pega o indice da linha na tabela
+				int indiceDaLinha = table_nfs.getRowSorter().convertRowIndexToModel(rowSel);// converte pro indice do
+
+				CadastroRomaneio rom = modelo_romaneios.getValue(indiceDaLinha);
+				String nome_arquivo = "romaneio-" + rom.getNumero_romaneio() + ".pdf";
+				String diretorio = rom.getCaminho_arquivo().replaceAll(nome_arquivo, "");
+
+				JOptionPane.showMessageDialog(isto, "Na próxima tela, selecione o arquivo comprovante");
+
+				new JFXPanel();
+				Platform.runLater(() -> {
+
+					// pegar ultima pasta
+					ManipularTxt manipular_ultima_pasta = new ManipularTxt();
+					String ultima_pasta = manipular_ultima_pasta
+							.lerArquivo(new File("C:\\ProgramData\\E-Contract\\configs\\ultima_pasta.txt"));
+					FileChooser d = new FileChooser();
+					FileChooser.ExtensionFilter extFilter = new FileChooser.ExtensionFilter("PDF (*.pdf)", "*.pdf");
+					d.getExtensionFilters().add(extFilter);
+
+					try {
+					File f_ultima_pasta = new File(ultima_pasta);
+					
+					if(f_ultima_pasta.exists()) {
+						d.setInitialDirectory(new File(ultima_pasta));
+
+					}else {
+						d.setInitialDirectory(new File("C:\\"));
+
+					}
+					
+					}catch(Exception k) {
+						d.setInitialDirectory(new File("C:\\"));
+
+					}
+					
+					
+					File file_buscar = d.showOpenDialog(new Stage());
+					String caminho_arquivo_busca = "";
+					if (file_buscar != null) {
+						caminho_arquivo_busca = file_buscar.getAbsolutePath();
+
+						manipular_ultima_pasta.rescreverArquivo(
+								new File("C:\\ProgramData\\E-Contract\\configs\\ultima_pasta.txt"), file_buscar.getParent());
+
+
+						String unidade_base_dados = configs_globais.getServidorUnidade();
+						String sub_pasta = diretorio;
+						String pasta_final = unidade_base_dados + "\\" + sub_pasta;
+						String nome_arquivo_comprovante = "comprovante_" + nome_arquivo;
+
+						ManipularTxt manipular_txt = new ManipularTxt();
+						String caminho_salvar = pasta_final  + nome_arquivo_comprovante;
+						JOptionPane.showMessageDialog(isto, "Caminho Salvar: " + caminho_salvar);
+
+						File file = new File(caminho_salvar);
+						if (!file.exists()) {
+							boolean copiar;
+							try {
+								copiar = manipular_txt.copiarNFe(caminho_arquivo_busca,caminho_salvar);
+								if (copiar) {
+
+									JOptionPane.showMessageDialog(isto,
+											"Arquivo Comprovante Copiado para a pasta do romaneio");
+									
+									
+									//atualizar caminho do arquivo no banco de dados
+									GerenciarBancoRomaneios gerenciar = new GerenciarBancoRomaneios();
+									boolean atualizou = gerenciar.atualizarCaminhoComprovante(rom.getId_romaneio(), sub_pasta + nome_arquivo_comprovante );
+									if(atualizou) {
+										JOptionPane.showMessageDialog(isto,
+												"Caminho do Arquivo no Banco de Dados Atualizado!");
+										
+										pesquisarTodosOsRomaneios();
+										
+									}else {
+									JOptionPane.showMessageDialog(isto, "Erro ao atualizar o caminho do arquivo na base de dados\nConsulte o administrador");
+
+									}
+									
+								} else {
+									JOptionPane.showMessageDialog(isto,
+											"Erro ao copiar o arquivo para a pasta do romaneio\nConsulte o administrador");
+
+								}
+							} catch (IOException e1) {
+								// TODO Auto-generated catch block
+								e1.printStackTrace();
+							}
+
+						} else {
+
+							JOptionPane.showMessageDialog(isto,
+									"Já Existe um Arquivo Comprovante anexado  a este romaneio, apague o primeiro!");
+
+						}
+
+					}
+
+				});
+			}
+		});
+		
+		
+		jMenuItemAbrirPasta.addActionListener(new java.awt.event.ActionListener() {
+			// Importe a classe java.awt.event.ActionEvent
+			public void actionPerformed(ActionEvent e) {
+
+
+				int rowSel = table_nfs.getSelectedRow();// pega o indice da linha na tabela
+				int indiceDaLinha = table_nfs.getRowSorter().convertRowIndexToModel(rowSel);// converte pro indice do
+
+				CadastroRomaneio rom = modelo_romaneios.getValue(indiceDaLinha);
+				String nome_arquivo = "romaneio-" + rom.getNumero_romaneio() + ".pdf";
+				String diretorio = rom.getCaminho_arquivo().replaceAll(nome_arquivo, "");
+
+				
+				try {
+					servidor_unidade = configs_globais.getServidorUnidade();
+
+					Runtime.getRuntime().exec(
+							"explorer " + servidor_unidade + diretorio);
+				} catch (IOException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				}
+				
+			}
+		});
+		
+		
+
+		jMenuItemVizualizarComprovante.addActionListener(new java.awt.event.ActionListener() {
+			// Importe a classe java.awt.event.ActionEvent
+			public void actionPerformed(ActionEvent e) {
+
+				int rowSel = table_nfs.getSelectedRow();// pega o indice da linha na tabela
+				int indexRowModel = table_nfs.getRowSorter().convertRowIndexToModel(rowSel);// converte pro indice do
+																							// model
+				CadastroRomaneio nota_vizualizar = lista_romaneios.get(indexRowModel);
+
+				if (Desktop.isDesktopSupported()) {
+					try {
+						Desktop desktop = Desktop.getDesktop();
+						File myFile = new File(servidor_unidade + nota_vizualizar.getCaminho_arquivo_comprovante());
+						desktop.open(myFile);
+					} catch (IOException ex) {
+					}
+				}
+			
+				
+			}
+		});
+
+
+		jPopupMenuRomaneios.add(jMenuItemAnexar);
+		jPopupMenuRomaneios.add(jMenuItemAbrirPasta);
+		jPopupMenuRomaneios.add(jMenuItemVizualizarComprovante);
+
+		
+		table_nfs.addMouseListener(new java.awt.event.MouseAdapter() {
+			// Importe a classe java.awt.event.MouseEvent
+			public void mouseClicked(MouseEvent e) {
+				// Se o botão direito do mouse foi pressionado
+				if (e.getButton() == MouseEvent.BUTTON3) {
+					// Exibe o popup menu na posição do mouse.
+					jPopupMenuRomaneios.show(table_nfs, e.getX(), e.getY());
+				}
+			}
+		});
+
+	}
+	
+
+	
+
 
 }

@@ -16,6 +16,11 @@ import org.jfree.chart.labels.StandardPieSectionLabelGenerator;
 import org.jfree.chart.plot.PiePlot;
 import org.jfree.data.category.DefaultCategoryDataset;
 import org.jfree.data.general.DefaultPieDataset;
+import org.jfree.data.time.Day;
+import org.jfree.data.time.TimeSeries;
+import org.jfree.data.time.TimeSeriesCollection;
+import org.jfree.data.xy.XYSeries;
+import org.jfree.data.xy.XYSeriesCollection;
 
 import main.java.cadastros.CadastroContrato;
 import main.java.cadastros.CadastroLogin;
@@ -25,10 +30,12 @@ import main.java.conexaoBanco.GerenciarBancoCondicaoPagamentos;
 import main.java.conexaoBanco.GerenciarBancoContratos;
 import main.java.conexaoBanco.GerenciarBancoLancamento;
 import main.java.graficos.GraficoLinhaDupla;
+import main.java.graficos.GraficoMultiplaLinha;
 import main.java.gui.TelaFinanceiroLancamento.LancamentoTableModel;
 import main.java.gui.TelaFinanceiroLancamento.LancamentosRender;
 import main.java.manipular.ConfiguracoesGlobais;
 import main.java.outros.DadosGlobais;
+import main.java.outros.GetData;
 import main.java.outros.ReproduzirAudio;
 import main.java.tratamento_proprio.Log;
 import main.java.views_personalizadas.TelaNotificacao;
@@ -54,6 +61,7 @@ import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeFormatterBuilder;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
@@ -87,7 +95,7 @@ public class TelaFinanceiro extends JFrame {
 	private JPanel painelPrincipal;
 	private TelaFinanceiro isto;
 	private TableRowSorter<LancamentoTableModel> sorter;
-
+	private GraficoMultiplaLinha linhaMultiplca  = null;
 	private JLabel lblUser, lblDireitos;
 	private Log GerenciadorLog;
 	private CadastroLogin login;
@@ -294,12 +302,12 @@ public class TelaFinanceiro extends JFrame {
 		painelPrincipal.setBorder(new EmptyBorder(5, 5, 5, 5));
 		setContentPane(painelPrincipal);
 		painelPrincipal.setLayout(
-				new MigLayout("", "[grow][grow][242px,grow][grow][grow][grow][grow][][][]", "[78px][][400px:n,grow]"));
+				new MigLayout("", "[grow][grow][242px,grow][grow][grow][grow][grow][][][]", "[78px][grow][500px:n,grow]"));
 
 		painelPrincipal.add(menuBar, "cell 0 0 3 1,alignx left,aligny center");
 
 		JMenu mnFerramentas = new JMenu("Ferramentas");
-		mnFerramentas.setIcon(new ImageIcon(TelaPrincipal.class.getResource("/imagens/ferramentas-de-reparacao.png")));
+		mnFerramentas.setIcon(new ImageIcon(TelaMain.class.getResource("/imagens/ferramentas-de-reparacao.png")));
 		mnFerramentas.setMargin(new Insets(0, 10, 0, 0));
 		mnFerramentas.setFont(new Font("Arial", Font.PLAIN, 18));
 		menuBar.add(mnFerramentas);
@@ -316,10 +324,10 @@ public class TelaFinanceiro extends JFrame {
 			}
 		});
 		mntmNewMenuItem_3.setMargin(new Insets(0, 10, 0, 0));
-		mntmNewMenuItem_3.setIcon(new ImageIcon(TelaPrincipal.class.getResource("/imagens/icone_menu_notas.png")));
+		mntmNewMenuItem_3.setIcon(new ImageIcon(TelaMain.class.getResource("/imagens/icone_menu_notas.png")));
 		mnFerramentas.add(mntmNewMenuItem_3);
 		JMenuItem mntmNewMenuItem_4 = new JMenuItem("Calendário");
-		mntmNewMenuItem_4.setIcon(new ImageIcon(TelaPrincipal.class.getResource("/imagens/icone_menu_calendario.png")));
+		mntmNewMenuItem_4.setIcon(new ImageIcon(TelaMain.class.getResource("/imagens/icone_menu_calendario.png")));
 		mntmNewMenuItem_4.setMargin(new Insets(0, 10, 0, 0));
 		mnFerramentas.add(mntmNewMenuItem_4);
 		JMenuItem mntmNewMenuItem_5 = new JMenuItem("Tarefas");
@@ -327,12 +335,11 @@ public class TelaFinanceiro extends JFrame {
 			public void actionPerformed(ActionEvent e) {
 
 				TelaTarefas tela_tarefas = new TelaTarefas(isto);
-				tela_tarefas.getTarefas();
 				tela_tarefas.setVisible(true);
 
 			}
 		});
-		mntmNewMenuItem_5.setIcon(new ImageIcon(TelaPrincipal.class.getResource("/imagens/icone_menu_tarefas.png")));
+		mntmNewMenuItem_5.setIcon(new ImageIcon(TelaMain.class.getResource("/imagens/icone_menu_tarefas.png")));
 		mntmNewMenuItem_5.setMargin(new Insets(0, 10, 0, 0));
 		mnFerramentas.add(mntmNewMenuItem_5);
 		GridBagConstraints gbc_panel_1 = new GridBagConstraints();
@@ -537,17 +544,12 @@ public class TelaFinanceiro extends JFrame {
 	//	tratamentoAvisos();
 		painelGraficoLinha = new JPanel();
 		painelGraficoLinha.setBackground(Color.WHITE);
-		painelPrincipal.add(painelGraficoLinha, "cell 0 2 5 1,grow");
+		painelPrincipal.add(painelGraficoLinha, "cell 0 2 10 1,grow");
 		painelGraficoLinha.setLayout(new MigLayout("", "[grow]", "[grow]"));
 
 		grafico_despesas.add(criarGrafico1(0, 1, 0));
 
 		grafico_receitas.add(criarGrafico2(1, 1, 2));
-
-		JPanel panel_6 = new JPanel();
-		panel_6.setBackground(Color.WHITE);
-		painelPrincipal.add(panel_6, "cell 5 2 5 1,grow");
-		panel_6.setLayout(new MigLayout("", "[]", "[]"));
 
 		// atualizarGrafico();
 
@@ -1008,6 +1010,47 @@ public class TelaFinanceiro extends JFrame {
 		}
 	}
 
+	
+	public void atualizarGrafico() {
+
+	    XYSeriesCollection dataset = new XYSeriesCollection();
+		painelGraficoLinha.removeAll();
+		
+		
+		Map<Integer, Double> lista_lancamentos_despesas = new GerenciarBancoLancamento().busca_lancamentos_grafico_linha_despesa_receita(0, new GetData().getAnoAtual());
+		Map<Integer, Double> despesas = new TreeMap<>(lista_lancamentos_despesas);
+	    XYSeries series1 = new XYSeries("DESPESAS");
+	    for (Map.Entry<Integer, Double> pair : despesas.entrySet()) {
+		
+			series1.add( pair.getKey() , pair.getValue() );
+
+		}
+	    
+	    Map<Integer, Double> lista_lancamentos_receitas = new GerenciarBancoLancamento().busca_lancamentos_grafico_linha_despesa_receita(1, new GetData().getAnoAtual());
+		Map<Integer, Double> receitas = new TreeMap<>(lista_lancamentos_receitas);
+	    XYSeries series2 = new XYSeries("Receitas");
+	    for (Map.Entry<Integer, Double> pair : receitas.entrySet()) {
+		
+	    	series2.add( pair.getKey() , pair.getValue() );
+
+		}
+		
+		 dataset.addSeries(series1);
+		 dataset.addSeries(series2);
+
+		 GraficoMultiplaLinha linhaMultiplca = new GraficoMultiplaLinha();
+		linhaMultiplca.setDataset(dataset);
+		linhaMultiplca.setAplicarSimbolos(true);
+		chartPanel = linhaMultiplca.getGraficoLinha(painelGraficoLinha.getWidth(),
+				painelGraficoLinha.getHeight(), "Mês", "Despesas x Receitas", "Valor em Reais", 3);
+		chartPanel.setBackground(Color.white);
+		painelGraficoLinha.add(chartPanel);
+	}
+
+	
+	
+	
+	/*
 	public void atualizarGrafico() {
 
 		painelGraficoLinha.removeAll();
@@ -1030,6 +1073,8 @@ public class TelaFinanceiro extends JFrame {
 		painelGraficoLinha.add(chartPanel);
 	}
 
+*/
+
 	public static String NomeDoMes(int i, int tipo) {
 		String mes[] = { "janeiro", "fevereiro", "março", "abril", "maio", "junho", "julho", "agosto", "setembro",
 				"outubro", "novembro", "dezembro" };
@@ -1038,4 +1083,5 @@ public class TelaFinanceiro extends JFrame {
 		else
 			return (mes[i - 1].substring(0, 3));
 	}
+	
 }

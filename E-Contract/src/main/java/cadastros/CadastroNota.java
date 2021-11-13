@@ -7,7 +7,23 @@ import java.util.Date;
 public class CadastroNota {
 
 	
-	int id, id_usuario_pai, notificar, tempo_notificacao, uni_tempo, tipo, lembrar;
+	int id, id_usuario_pai, notificar, tempo_notificacao, uni_tempo, tipo, lembrar, id_tarefa_pai;
+	String ultima_notificacao;
+	
+	
+	
+	public int getId_tarefa_pai() {
+		return id_tarefa_pai;
+	}
+	public void setId_tarefa_pai(int id_tarefa_pai) {
+		this.id_tarefa_pai = id_tarefa_pai;
+	}
+	public String getUltima_notificacao() {
+		return ultima_notificacao;
+	}
+	public void setUltima_notificacao(String ultima_notificacao) {
+		this.ultima_notificacao = ultima_notificacao;
+	}
 	public int getId_usuario_pai() {
 		return id_usuario_pai;
 	}

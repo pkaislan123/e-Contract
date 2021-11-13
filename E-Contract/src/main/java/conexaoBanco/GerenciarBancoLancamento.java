@@ -1109,7 +1109,7 @@ public class GerenciarBancoLancamento {
 		}
 	}
 
-	public Map<Integer, Double> busca_lancamentos_grafico_linha(int flag_despesa_receita, int status) {
+	public Map<Integer, Double> busca_lancamentos_grafico_linha_despesa_receita(int flag_despesa_receita, int ano) {
 
 		String select = "call busca_lancamentos_grafico_linha(?,?)";
 		Connection conn = null;
@@ -1121,12 +1121,12 @@ public class GerenciarBancoLancamento {
 			conn = ConexaoBanco.getConexao();
 			pstm = conn.prepareStatement(select);
 			pstm.setInt(1, flag_despesa_receita);
-			pstm.setInt(2, status);
+			pstm.setInt(2, ano);
 
 			rs = pstm.executeQuery();
 			while (rs.next()) {
 
-				String mes_lancamento = rs.getString("data_proximo_vencimento");
+				String mes_lancamento = rs.getString("mes_vencimento");
 				try {
 					lista.put(Integer.parseInt(mes_lancamento), rs.getDouble("valor_total"));
 				} catch (Exception e) {

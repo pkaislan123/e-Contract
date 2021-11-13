@@ -63,6 +63,7 @@ import main.java.cadastros.CadastroContrato.CadastroPagamento;
 import main.java.cadastros.CadastroContrato.CadastroPagamentoContratual;
 import main.java.cadastros.CadastroContrato.CadastroTarefa;
 import main.java.cadastros.CadastroContrato.Recebimento;
+import main.java.cadastros.CadastroLogin.Mensagem;
 import main.java.cadastros.CadastroDocumento;
 import main.java.cadastros.CadastroLogin;
 import main.java.cadastros.CadastroModelo;
@@ -134,6 +135,7 @@ import main.java.cadastros.CadastroCliente;
 import main.java.cadastros.CadastroGrupo;
 import main.java.conexaoBanco.GerenciarBancoClientes;
 import main.java.conexaoBanco.GerenciarBancoGrupos;
+import main.java.conexaoBanco.GerenciarBancoLogin;
 import main.java.conexaoBanco.GerenciarBancoNotas;
 import main.java.cadastros.CadastroProduto;
 import main.java.conexaoBanco.GerenciarBancoProdutos;
@@ -246,6 +248,27 @@ public class TelaCriarTarefaResposta extends JDialog {
             		if(atualizou) {
             			
             			JOptionPane.showMessageDialog(isto, "Tarefa atualizada e status alterado para concluido!");
+            			
+            			//excluir notas
+            			GerenciarBancoNotas gerenciar_notas = new GerenciarBancoNotas();
+            			ArrayList<CadastroNota> notas_desta_tarefa = gerenciar_notas.getNotasPorTarefa(tarefa.getId_tarefa());
+            			for(CadastroNota nota : notas_desta_tarefa) {
+            				boolean excluir = gerenciar_notas.removerNota(nota.getId());
+            			}
+            			
+            			//enviar mensagem ao criador da tarefa
+            			Mensagem mensagem = new Mensagem();
+						mensagem.setId_remetente(login.getId());
+						mensagem.setId_destinatario(tarefa.getCriador().getId());
+						GetData data = new GetData();
+						String agora = data.getData();
+						String hora = data.getHora();
+						mensagem.setData(agora);
+						mensagem.setHora(hora);
+						mensagem.setConteudo("Resposta a tarefa: " + tarefa.getResposta());
+						
+						GerenciarBancoLogin gerenciar_mensagens = new GerenciarBancoLogin();
+						boolean criou = gerenciar_mensagens.enviarMensagem(mensagem);
             			
             			//((TelaGerenciarContrato) telaPai).atualizarListaTarefas();
             			((TelaGerenciarContrato) telaPai).atualizarListaTarefas();

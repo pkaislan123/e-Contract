@@ -476,12 +476,22 @@ public class GerenciarBancoFuncionarios {
 		String selectfuncionarios;
 
 		// busca padrao
-		selectfuncionarios = "SELECT fc.*,\r\n"
+		/*selectfuncionarios = "SELECT fc.*,\r\n"
 				+ "dp.nome as nome_departamento, fct.status\r\n"
 				+ " FROM \r\n"
 				+ "funcionario fc\r\n"
 				+ "left join funcionario_contrato_trabalho fct on fct.id_colaborador = fc.id_funcionario\r\n"
 				+ "left join departamento dp on dp.id_departamento = fct.id_departamento order by fc.id_funcionario\r\n"
+				+ "";
+				*/
+		selectfuncionarios = "SELECT fc.*,\r\n"
+				+ "dp.nome as nome_departamento, fct.status, fct.data_admissao\r\n"
+				+ " FROM \r\n"
+				+ "funcionario fc\r\n"
+				+ "left join funcionario_contrato_trabalho fct on fct.id_colaborador = fc.id_funcionario\r\n"
+				+ "left join departamento dp on dp.id_departamento = fct.id_departamento \r\n"
+				+ "group by fc.id_funcionario\r\n"
+				+ "order by fc.id_funcionario\r\n"
 				+ "";
 
 		Connection conn = null;
@@ -933,6 +943,63 @@ public class GerenciarBancoFuncionarios {
 		}
 
 	}
+	
+	
+	public boolean desativarFuncionario(int id_funcionario) {
+			Connection conn = null;
+			String atualizar = null;
+			PreparedStatement pstm;
+
+			try {
+
+				atualizar = "update funcionario set ativo = 0, status = 0 where id_funcionario = ?";
+
+				conn = ConexaoBanco.getConexao();
+				pstm = conn.prepareStatement(atualizar);
+
+				
+				pstm.setInt(1, id_funcionario);
+
+				pstm.execute();
+				// JOptionPane.showMessageDialog(null, "funcionario atualizado com sucesso");
+				System.out.println("Colaborador teve a conta suspensa");
+				ConexaoBanco.fechaConexao(conn);
+				return true;
+			} catch (Exception e) {
+				JOptionPane.showMessageDialog(null, "Erro ao atualizar funcionario no banco de dados ");
+				return false;
+			}
+	
+
+	}
+	
+	public boolean ativarFuncionario(int id_funcionario) {
+		Connection conn = null;
+		String atualizar = null;
+		PreparedStatement pstm;
+
+		try {
+
+			atualizar = "update funcionario set ativo = 1 where id_funcionario = ?";
+
+			conn = ConexaoBanco.getConexao();
+			pstm = conn.prepareStatement(atualizar);
+
+			
+			pstm.setInt(1, id_funcionario);
+
+			pstm.execute();
+			// JOptionPane.showMessageDialog(null, "funcionario atualizado com sucesso");
+			System.out.println("Colaborador teve a conta ativada");
+			ConexaoBanco.fechaConexao(conn);
+			return true;
+		} catch (Exception e) {
+			JOptionPane.showMessageDialog(null, "Erro ao atualizar funcionario no banco de dados ");
+			return false;
+		}
+
+
+}
 
 	public String string_pessoa_fisica(CadastroFuncionario funcionario) {
 		return "insert into funcionario (nome, sobrenome, cpf, rg, estado_pessoa, nacionalidade, naturalidade, nascimento,"
@@ -941,7 +1008,7 @@ public class GerenciarBancoFuncionarios {
 				+ "pis, nis, ctps_serie, ctps_estado," + "cnh_categoria, cnh_validade, cnh_num_registro,"
 				+ "grau_escolaridade, cursos, habilidades     ) values ('"
 
-				+ funcionario.getNome() + "','" + funcionario.getSobrenome() + "','" + funcionario.getCpf() + "','"
+				+ funcionario.getNome() + "','" + funcionario.getSobrenome() + "','" + funcionario.getCpf().replaceAll("[^0-9]", "") + "','"
 				+ funcionario.getRg() + "','" + funcionario.getEstado() + "','" + funcionario.getNacionalidade() + "','"
 				+ funcionario.getNaturalidade() + "','" + funcionario.getNascimento() + "','" + funcionario.getGenero()
 				+ "','" + funcionario.getEstado_civil() + "','" + funcionario.getNome_mae() + "','"

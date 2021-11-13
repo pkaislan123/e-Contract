@@ -148,11 +148,15 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.InputStream;
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.net.URL;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
@@ -160,6 +164,7 @@ import java.util.List;
 import java.util.Locale;
 
 import javax.swing.SwingConstants;
+import javax.swing.SwingUtilities;
 import javax.swing.JCheckBox;
 import java.awt.SystemColor;
 import java.awt.Window;
@@ -2732,6 +2737,12 @@ public class TelaElaborarNovoContrato extends JFrame {
 		mostrar_soma_atual_restante.setEnabled(false);
 		mostrar_soma_atual_restante.setBounds(745, 311, 165, 42);
 		painelEmpresa.add(mostrar_soma_atual_restante);
+		
+		JLabel lblNewLabel_8_1_2 = new JLabel("somente ponto");
+		lblNewLabel_8_1_2.setForeground(Color.RED);
+		lblNewLabel_8_1_2.setFont(new Font("SansSerif", Font.ITALIC, 12));
+		lblNewLabel_8_1_2.setBounds(402, 515, 96, 16);
+		painelEmpresa.add(lblNewLabel_8_1_2);
 
 		chBoxCriarClausulaComissao.setEnabled(false);
 		
@@ -2770,6 +2781,24 @@ public class TelaElaborarNovoContrato extends JFrame {
 		 });
 		rBJaDepositada.setBounds(1069, 282, 110, 18);
 		painelDadosProdutos.add(rBJaDepositada);
+		
+		JLabel lblNewLabel_8 = new JLabel("somente ponto");
+		lblNewLabel_8.setForeground(new Color(255, 0, 0));
+		lblNewLabel_8.setFont(new Font("SansSerif", Font.ITALIC, 12));
+		lblNewLabel_8.setBounds(317, 459, 96, 16);
+		painelDadosProdutos.add(lblNewLabel_8);
+		
+		JLabel lblNewLabel_8_1 = new JLabel("somente ponto");
+		lblNewLabel_8_1.setForeground(Color.RED);
+		lblNewLabel_8_1.setFont(new Font("SansSerif", Font.ITALIC, 12));
+		lblNewLabel_8_1.setBounds(315, 509, 96, 16);
+		painelDadosProdutos.add(lblNewLabel_8_1);
+		
+		JLabel lblNewLabel_8_1_1 = new JLabel("somente ponto");
+		lblNewLabel_8_1_1.setForeground(Color.RED);
+		lblNewLabel_8_1_1.setFont(new Font("SansSerif", Font.ITALIC, 12));
+		lblNewLabel_8_1_1.setBounds(754, 471, 96, 16);
+		painelDadosProdutos.add(lblNewLabel_8_1_1);
 		painelFinalizar.setBackground(Color.WHITE);
 		painelFinalizar.addMouseListener(new MouseAdapter() {
 			@Override
@@ -3632,7 +3661,7 @@ public class TelaElaborarNovoContrato extends JFrame {
 						ArrayList<CadastroLogin> usuarios_gerente = new ArrayList<>() ;
 						for(CadastroLogin user : new GerenciarBancoLogin().getUsuarios()) {
 							CadastroLogin user_final = new GerenciarBancoLogin().buscaLogin(user.getLogin());
-							if(user_final.getConfigs_privilegios().getNivel_privilegios() <= 2) {
+							if(user_final.getConfigs_privilegios().getNivel_privilegios() == 2) {
 								usuarios_gerente.add(user_final);
 							}
 						}
@@ -3654,6 +3683,8 @@ public class TelaElaborarNovoContrato extends JFrame {
 						
 						GerenciarBancoLogin gerenciar = new GerenciarBancoLogin();
 						boolean criou = gerenciar.enviarMensagem(mensagem);
+						
+						
 						
 						}
 						
@@ -3683,7 +3714,7 @@ public class TelaElaborarNovoContrato extends JFrame {
 						ArrayList<CadastroLogin> usuarios_gerente = new ArrayList<>() ;
 						for(CadastroLogin user : new GerenciarBancoLogin().getUsuarios()) {
 							CadastroLogin user_final = new GerenciarBancoLogin().buscaLogin(user.getLogin());
-							if(user_final.getConfigs_privilegios().getNivel_privilegios() <= 2) {
+							if(user_final.getConfigs_privilegios().getNivel_privilegios() == 2) {
 								usuarios_gerente.add(user_final);
 							}
 						}
@@ -3722,6 +3753,10 @@ public class TelaElaborarNovoContrato extends JFrame {
 				ArquivoConfiguracoes arquivo = new ArquivoConfiguracoes();
 				arquivo.setCodidoSequencial(configs_globais.getCodigoSequencial() + 1);
 				arquivo.salvarNovasConfiguragoes();
+				
+				
+				
+				
 				
 				if(novo_contrato.getSub_contrato() == 1) {
 				//	DadosGlobais dados = DadosGlobais.getInstance();
@@ -3991,7 +4026,7 @@ public class TelaElaborarNovoContrato extends JFrame {
 		// valor_acumulado = new BigDecimal("0");
 
 		BigDecimal valor_tot_comissao = contrato_pai_local.getValor_comissao();
-		BigDecimal quantidade = new BigDecimal(contrato_pai_local.getQuantidade());
+		double quantidade = contrato_pai_local.getQuantidade();
 		// comissao
 		if (contrato_pai_local.getComissao() == 1) {
 			setComissao();
@@ -3999,8 +4034,14 @@ public class TelaElaborarNovoContrato extends JFrame {
 
 				chBoxCriarClausulaComissao.setSelected(true);
 
-				System.out.println("Quatidade: " + quantidade + "valor total da comissao: " + valor_tot_comissao);
-				String valor_por_unidade = (valor_tot_comissao.divide(quantidade)).toPlainString();
+				System.out.println("Quantidade: " + quantidade + " valor total da comissao: " + valor_tot_comissao);
+				double valor_comissao_por_unidade = valor_tot_comissao.doubleValue() / quantidade;
+				
+				BigDecimal valor_por_unidade_big = new BigDecimal(valor_comissao_por_unidade);
+				valor_por_unidade_big = valor_por_unidade_big.setScale(2, RoundingMode.CEILING);
+
+				
+				String valor_por_unidade = valor_por_unidade_big.toPlainString();
 				entComissao.setText(valor_por_unidade);
 				setClausulaComissao(valor_por_unidade);
 
@@ -4288,7 +4329,7 @@ public class TelaElaborarNovoContrato extends JFrame {
 		tarefa.setHora(data.getHora());
 		tarefa.setData(data.getData());
 		tarefa.setHora_agendada(data.getHora());
-		tarefa.setData_agendada(data.getData());
+		tarefa.setData_agendada(LocalDateTime.now().plusDays(1).format(DateTimeFormatter.ofPattern("dd/MM/yyyy")));
 
 		tarefa.setCriador(login);
 		tarefa.setExecutor(executor);
@@ -5084,6 +5125,4 @@ public void atualizarPainelSalvar() {
 		modelo_pagamentos.onAdd(pagamento);
 	
 }
-	
-	
 }

@@ -1030,7 +1030,7 @@ public class MonitorarRomaneios {
 										&& !cadastro.getInscricao_remetente().equals(" ")
 										&& !cadastro.getInscricao_remetente().equals("")) {
 									if (rem.getIe().equals(cadastro.getInscricao_remetente())) {
-										// //JOptionPane.showMessageDialog(null, "remetente cadastrado");
+										//JOptionPane.showMessageDialog(null, "remetente cadastrado");
 										remetente_cadastrado = true;
 										remetente = rem;
 										break;
@@ -1045,7 +1045,7 @@ public class MonitorarRomaneios {
 										&& !cadastro.getInscricao_destinatario().equals("")) {
 
 									if (dest.getIe().equals(cadastro.getInscricao_destinatario())) {
-										// //JOptionPane.showMessageDialog(null, "destinatario cadastrado");
+										//JOptionPane.showMessageDialog(null, "destinatario cadastrado");
 										destinatario_cadastrado = true;
 										destinatario = dest;
 										break;
@@ -1071,8 +1071,7 @@ public class MonitorarRomaneios {
 										+ nome_pasta.toUpperCase() + "\\" + "NOTAS FISCAIS" + "\\NFA-"
 										+ cadastro.getNfe().trim() + ".pdf";
 
-								// //JOptionPane.showMessageDialog(null, "Movendo de :\n" +
-								// roms.getCaminho_arquivo()+ "\nPara:\n" + caminho_completo_nf);
+							//	JOptionPane.showMessageDialog(null, "Movendo de :\n" +  cadastro.getCaminho_arquivo()+ "\nPara:\n" + caminho_completo_nf);
 
 								File file = new File(caminho_completo_nf);
 								if (!file.exists()) {
@@ -1082,15 +1081,27 @@ public class MonitorarRomaneios {
 
 										cadastrarNFe(cadastro, caminho_completo_nf);
 
-										// //JOptionPane.showMessageDialog(null, "NF copiada para a pasta do remetente");
+										//JOptionPane.showMessageDialog(null, "NF copiada para a pasta do remetente");
 									} else {
-										// //JOptionPane.showMessageDialog(null, "Erro ao mover a nf para a pasta do
-										// remetente");
+										//JOptionPane.showMessageDialog(null, "Erro ao mover a nf para a pasta do remetente");
+										CadastroAviso avisar = new CadastroAviso();
+										avisar.setTipo("Aviso");
+										avisar.setSetor("Importação de NFe");
+										avisar.setMensagem("NF " + cadastro.getNfe() + ", erro ao mover o arquivo para a pasta do remetente");
+										telaPrincipal.incluir_aviso(avisar);
 
 									}
 								} else {
 									boolean apagar = manipular_arq.apagarArquivo(cadastro.getCaminho_arquivo());
-									// //JOptionPane.showMessageDialog(null, "NF já importada");
+									
+
+									//JOptionPane.showMessageDialog(null, "NF já importada");
+									//JOptionPane.showMessageDialog(null, "Erro ao mover a nf para a pasta do destinatario");
+									CadastroAviso avisar = new CadastroAviso();
+									avisar.setTipo("Aviso");
+									avisar.setSetor("Importação de NFe");
+									avisar.setMensagem("NF " + cadastro.getNfe() + ", já importada");
+									telaPrincipal.incluir_aviso(avisar);
 								}
 							} else if (!remetente_cadastrado && destinatario_cadastrado) {
 								// copiar para pasta do destinatario
@@ -1110,8 +1121,7 @@ public class MonitorarRomaneios {
 										+ nome_pasta.toUpperCase() + "\\" + "NOTAS FISCAIS" + "\\NFA-"
 										+ cadastro.getNfe().trim() + ".pdf";
 
-								// //JOptionPane.showMessageDialog(null, "Movendo de :\n" +
-								// roms.getCaminho_arquivo()+ "\nPara:\n" + caminho_completo_nf);
+								//JOptionPane.showMessageDialog(null, "Movendo de :\n" + cadastro.getCaminho_arquivo()+ "\nPara:\n" + caminho_completo_nf);
 
 								File file = new File(caminho_completo_nf);
 								if (!file.exists()) {
@@ -1120,18 +1130,27 @@ public class MonitorarRomaneios {
 									if (mover) {
 										cadastrarNFe(cadastro, caminho_completo_nf);
 
-										// //JOptionPane.showMessageDialog(null, "NF copiada para a pasta do
-										// destinatario");
+										//JOptionPane.showMessageDialog(null, "NF copiada para a pasta do destinatario");
 
 									} else {
-										// //JOptionPane.showMessageDialog(null, "Erro ao mover a nf para a pasta do
-										// destinatario");
+									//	JOptionPane.showMessageDialog(null, "Erro ao mover a nf para a pasta do destinatario");
+										CadastroAviso avisar = new CadastroAviso();
+										avisar.setTipo("Aviso");
+										avisar.setSetor("Importação de NFe");
+										avisar.setMensagem("NF " + cadastro.getNfe() + ", erro ao mover o arquivo para a pasta do destinatario");
+										telaPrincipal.incluir_aviso(avisar);
 
 									}
 								} else {
 									boolean apagar = manipular_arq.apagarArquivo(cadastro.getCaminho_arquivo());
-
-									// //JOptionPane.showMessageDialog(null, "NF já importada");
+									
+									//JOptionPane.showMessageDialog(null, "NF já importada");
+									//JOptionPane.showMessageDialog(null, "Erro ao mover a nf para a pasta do destinatario");
+									CadastroAviso avisar = new CadastroAviso();
+									avisar.setTipo("Aviso");
+									avisar.setSetor("Importação de NFe");
+									avisar.setMensagem("NF " + cadastro.getNfe() + ", já importada");
+									telaPrincipal.incluir_aviso(avisar);
 								}
 							} else if (remetente_cadastrado && destinatario_cadastrado) {
 								if (remetente.getId() == destinatario.getId()) {
@@ -1145,8 +1164,7 @@ public class MonitorarRomaneios {
 
 										nome_pasta = remetente.getNome_fantaia().toUpperCase();
 									}
-									// //JOptionPane.showMessageDialog(null, "nome da pasta remetente: " +
-									// nome_pasta);
+									//JOptionPane.showMessageDialog(null, "nome da pasta remetente: " + nome_pasta);
 
 									unidade_base_dados = configs_globais.getServidorUnidade();
 									sub_pasta = "E-Contract\\arquivos\\clientes";
@@ -1156,8 +1174,7 @@ public class MonitorarRomaneios {
 											+ nome_pasta.toUpperCase() + "\\" + "NOTAS FISCAIS" + "\\NFA-"
 											+ cadastro.getNfe().trim() + ".pdf";
 
-									// //JOptionPane.showMessageDialog(null, "Movendo de :\n" +
-									// roms.getCaminho_arquivo()+ "\nPara:\n" + caminho_completo_nf);
+									//JOptionPane.showMessageDialog(null, "Movendo de :\n" + cadastro.getCaminho_arquivo()+ "\nPara:\n" + caminho_completo_nf);
 
 									File file = new File(caminho_completo_nf);
 									if (!file.exists()) {
@@ -1167,15 +1184,26 @@ public class MonitorarRomaneios {
 
 											cadastrarNFe(cadastro, caminho_completo_nf);
 
-											// //JOptionPane.showMessageDialog(null, "NF copiada para a pasta do
-											// remetente");
+											//JOptionPane.showMessageDialog(null, "NF copiada para a pasta do remetente");
 										} else {
-											// //JOptionPane.showMessageDialog(null, "Erro ao mover a nf para a pasta do
-											// remetente");
+										//	JOptionPane.showMessageDialog(null, "Erro ao mover a nf para a pasta do  remetente");
+											CadastroAviso avisar = new CadastroAviso();
+											avisar.setTipo("Aviso");
+											avisar.setSetor("Importação de NFe");
+											avisar.setMensagem("NF " + cadastro.getNfe() + ", erro ao mover o arquivo para a pasta do remetente");
+											telaPrincipal.incluir_aviso(avisar);
 
 										}
 									} else {
-										// //JOptionPane.showMessageDialog(null, "NF já importada");
+										boolean apagar = manipular_arq.apagarArquivo(cadastro.getCaminho_arquivo());
+
+									
+										//JOptionPane.showMessageDialog(null, "NF já importada");
+										CadastroAviso avisar = new CadastroAviso();
+										avisar.setTipo("Aviso");
+										avisar.setSetor("Importação de NFe");
+										avisar.setMensagem("NF " + cadastro.getNfe() + ", já importada");
+										telaPrincipal.incluir_aviso(avisar);
 									}
 
 								} else {
@@ -1189,8 +1217,7 @@ public class MonitorarRomaneios {
 
 										nome_pasta = remetente.getNome_fantaia().toUpperCase();
 									}
-									// //JOptionPane.showMessageDialog(null, "nome da pasta remetente: " +
-									// nome_pasta);
+									//JOptionPane.showMessageDialog(null, "nome da pasta remetente: " + nome_pasta);
 
 									unidade_base_dados = configs_globais.getServidorUnidade();
 									sub_pasta = "E-Contract\\arquivos\\clientes";
@@ -1200,8 +1227,7 @@ public class MonitorarRomaneios {
 											+ nome_pasta.toUpperCase() + "\\" + "NOTAS FISCAIS" + "\\NFA-"
 											+ cadastro.getNfe().trim() + ".pdf";
 
-									// //JOptionPane.showMessageDialog(null, "Movendo de :\n" +
-									// roms.getCaminho_arquivo()+ "\nPara:\n" + caminho_completo_nf);
+									//JOptionPane.showMessageDialog(null, "Movendo de :\n" + cadastro.getCaminho_arquivo()+ "\nPara:\n" + caminho_completo_nf);
 
 									File file = new File(caminho_completo_nf);
 									if (!file.exists()) {
@@ -1217,8 +1243,7 @@ public class MonitorarRomaneios {
 
 												nome_pasta = destinatario.getNome_fantaia().toUpperCase();
 											}
-											// //JOptionPane.showMessageDialog(null, "nome da pasta destinatario: " +
-											// nome_pasta);
+											//JOptionPane.showMessageDialog(null, "nome da pasta destinatario: " +  nome_pasta);
 
 											unidade_base_dados = configs_globais.getServidorUnidade();
 											sub_pasta = "E-Contract\\arquivos\\clientes";
@@ -1227,8 +1252,7 @@ public class MonitorarRomaneios {
 													+ nome_pasta.toUpperCase() + "\\" + "NOTAS FISCAIS" + "\\NFA-"
 													+ cadastro.getNfe().trim() + ".pdf";
 
-											// //JOptionPane.showMessageDialog(null, "Movendo de :\n" +
-											// roms.getCaminho_arquivo()+ "\nPara:\n" + caminho_completo_nf);
+											//JOptionPane.showMessageDialog(null, "Movendo de :\n" + cadastro.getCaminho_arquivo()+ "\nPara:\n" + caminho_completo_nf);
 
 											file = new File(caminho_completo_nf);
 											if (!file.exists()) {
@@ -1237,24 +1261,30 @@ public class MonitorarRomaneios {
 												if (mover) {
 													cadastrarNFe(cadastro, caminho_completo_nf);
 
-													// //JOptionPane.showMessageDialog(null, "NF copiada para a pasta do
-													// destinatario");
+													//JOptionPane.showMessageDialog(null, "NF copiada para a pasta do destinatario");
 												} else {
-													// //JOptionPane.showMessageDialog(null, "Erro ao mover a nf para a
-													// pasta do destinatario");
+													//JOptionPane.showMessageDialog(null, "Erro ao mover a nf para a pasta do destinatario");
+													CadastroAviso avisar = new CadastroAviso();
+													avisar.setTipo("Aviso");
+													avisar.setSetor("Importação de NFe");
+													avisar.setMensagem("NF " + cadastro.getNfe() + ", erro ao mover o arquivo para a pasta do destinatario");
+													telaPrincipal.incluir_aviso(avisar);
 
 												}
 											} else {
 												boolean apagar = manipular_arq
 														.apagarArquivo(cadastro.getCaminho_arquivo());
-
-												// //JOptionPane.showMessageDialog(null, "NF já importada");
+												
+												//JOptionPane.showMessageDialog(null, "NF já importada");
+												//JOptionPane.showMessageDialog(null, "Erro ao mover a nf para a pasta do destinatario");
+												CadastroAviso avisar = new CadastroAviso();
+												avisar.setTipo("Aviso");
+												avisar.setSetor("Importação de NFe");
+												avisar.setMensagem("NF " + cadastro.getNfe() + ", já importada");
+												telaPrincipal.incluir_aviso(avisar);
 											}
-											// //JOptionPane.showMessageDialog(null, "NF copiada para a pasta do
-											// remetente");
 										} else {
-											// //JOptionPane.showMessageDialog(null, "Erro ao mover a nf para a pasta do
-											// remetente");
+											//JOptionPane.showMessageDialog(null, "Erro ao mover a nf para a pasta do remetente");
 											// mover para pasta do destinatario
 											if (destinatario.getTipo_pessoa() == 0) {
 												nome_pasta = destinatario.getNome_empresarial().toUpperCase();
@@ -1262,8 +1292,7 @@ public class MonitorarRomaneios {
 
 												nome_pasta = destinatario.getNome_fantaia().toUpperCase();
 											}
-											// //JOptionPane.showMessageDialog(null, "nome da pasta destinatario: " +
-											// nome_pasta);
+											//JOptionPane.showMessageDialog(null, "nome da pasta destinatario: " +  nome_pasta);
 
 											unidade_base_dados = configs_globais.getServidorUnidade();
 											sub_pasta = "E-Contract\\arquivos\\clientes";
@@ -1272,8 +1301,7 @@ public class MonitorarRomaneios {
 													+ nome_pasta.toUpperCase() + "\\" + "NOTAS FISCAIS" + "\\NFA-"
 													+ cadastro.getNfe().trim() + ".pdf";
 
-											// //JOptionPane.showMessageDialog(null, "Movendo de :\n" +
-											// roms.getCaminho_arquivo()+ "\nPara:\n" + caminho_completo_nf);
+											//JOptionPane.showMessageDialog(null, "Movendo de :\n" + cadastro.getCaminho_arquivo()+ "\nPara:\n" + caminho_completo_nf);
 
 											file = new File(caminho_completo_nf);
 											if (!file.exists()) {
@@ -1282,15 +1310,22 @@ public class MonitorarRomaneios {
 												if (mover) {
 													cadastrarNFe(cadastro, caminho_completo_nf);
 
-													// //JOptionPane.showMessageDialog(null, "NF copiada para a pasta do
-													// destinatario");
+													//JOptionPane.showMessageDialog(null, "NF copiada para a pasta do destinatario");
 												} else {
-													// //JOptionPane.showMessageDialog(null, "Erro ao mover a nf para a
-													// pasta do destinatario");
+													//JOptionPane.showMessageDialog(null, "Erro ao mover a nf para a  pasta do destinatario");
 
 												}
 											} else {
-												// //JOptionPane.showMessageDialog(null, "NF já importada");
+												boolean apagar = manipular_arq
+														.apagarArquivo(cadastro.getCaminho_arquivo());
+												
+											
+												//JOptionPane.showMessageDialog(null, "NF já importada");
+												CadastroAviso avisar = new CadastroAviso();
+												avisar.setTipo("Aviso");
+												avisar.setSetor("Importação de NFe");
+												avisar.setMensagem("NF " + cadastro.getNfe() + ", já importada!");
+												telaPrincipal.incluir_aviso(avisar);
 											}
 										}
 									} else {
@@ -1302,8 +1337,7 @@ public class MonitorarRomaneios {
 
 											nome_pasta = destinatario.getNome_fantaia().toUpperCase();
 										}
-										// //JOptionPane.showMessageDialog(null, "nome da pasta destinatario: " +
-										// nome_pasta);
+										//JOptionPane.showMessageDialog(null, "nome da pasta destinatario: " + nome_pasta);
 
 										unidade_base_dados = configs_globais.getServidorUnidade();
 										sub_pasta = "E-Contract\\arquivos\\clientes";
@@ -1312,8 +1346,7 @@ public class MonitorarRomaneios {
 												+ nome_pasta.toUpperCase() + "\\" + "NOTAS FISCAIS" + "\\NFA-"
 												+ cadastro.getNfe().trim() + ".pdf";
 
-										// //JOptionPane.showMessageDialog(null, "Movendo de :\n" +
-										// roms.getCaminho_arquivo()+ "\nPara:\n" + caminho_completo_nf);
+										//JOptionPane.showMessageDialog(null, "Movendo de :\n" + 	cadastro.getCaminho_arquivo()+ "\nPara:\n" + caminho_completo_nf);
 
 										file = new File(caminho_completo_nf);
 										if (!file.exists()) {
@@ -1322,36 +1355,51 @@ public class MonitorarRomaneios {
 											if (mover) {
 												cadastrarNFe(cadastro, caminho_completo_nf);
 
-												// //JOptionPane.showMessageDialog(null, "NF copiada para a pasta do
-												// destinatario");
+												//JOptionPane.showMessageDialog(null, "NF copiada para a pasta do  destinatario");
 											} else {
-												// //JOptionPane.showMessageDialog(null, "Erro ao mover a nf para a pasta
-												// do destinatario");
+												//JOptionPane.showMessageDialog(null, "Erro ao mover a nf para a pasta do destinatario");
+												CadastroAviso avisar = new CadastroAviso();
+												avisar.setTipo("Aviso");
+												avisar.setSetor("Importação de NFe");
+												avisar.setMensagem("NF " + cadastro.getNfe() + ", erro ao mover o arquivo para a pasta do destinatario");
+												telaPrincipal.incluir_aviso(avisar);
 
 											}
 										} else {
 											boolean apagar = manipular_arq.apagarArquivo(cadastro.getCaminho_arquivo());
 
-											// //JOptionPane.showMessageDialog(null, "NF já importada");
+											//JOptionPane.showMessageDialog(null, "NF já importada");
+											CadastroAviso avisar = new CadastroAviso();
+											avisar.setTipo("Aviso");
+											avisar.setSetor("Importação de NFe");
+											avisar.setMensagem("NF " + cadastro.getNfe() + " já importada!");
+											telaPrincipal.incluir_aviso(avisar);
 										}
 
-										// //JOptionPane.showMessageDialog(null, "NF já importada");
+										//JOptionPane.showMessageDialog(null, "NF já importada");
 									}
 
 								}
 
 							} else {
-								// //JOptionPane.showMessageDialog(null, "NF lida mas nem o remetente nem o
-								// destinatario esta cadastrado");
+								//JOptionPane.showMessageDialog(null, "NF lida mas nem o remetente nem o destinatario esta cadastrado");
+								CadastroAviso avisar = new CadastroAviso();
+								avisar.setTipo("Aviso");
+								avisar.setSetor("Importação de NFe");
+								avisar.setMensagem("NF " + cadastro.getNfe() + " lida mas o remetente e o destinatario não estão cadastrado");
+								telaPrincipal.incluir_aviso(avisar);
 
 							}
 
 						}
 
 					} catch (Exception e) {
-						// //JOptionPane.showMessageDialog(null, "Erro ao ler NF\nErro: " + e.getMessage()
-						// + "\nCausa: " + e.getCause());
-
+						    //JOptionPane.showMessageDialog(null, "Erro ao ler NF\nErro: " + e.getMessage() + "\nCausa: " + e.getCause());
+						CadastroAviso avisar = new CadastroAviso();
+						avisar.setTipo("Aviso");
+						avisar.setSetor("Importação de NFe");
+						avisar.setMensagem("Erro ao ler NFe!");
+						telaPrincipal.incluir_aviso(avisar);
 					}
 
 				}
@@ -1367,6 +1415,7 @@ public class MonitorarRomaneios {
 
 		// usuario logado
 		login = dados.getLogin();
+		telaPrincipal = dados.getTelaMain();
 
 	}
 

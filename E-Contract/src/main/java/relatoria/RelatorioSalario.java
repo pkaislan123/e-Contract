@@ -25,6 +25,7 @@ import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JDialog;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
 
@@ -71,11 +72,14 @@ import main.java.cadastros.CadastroContrato;
 import main.java.cadastros.CadastroFuncionario;
 import main.java.cadastros.CadastroFuncionarioAdmissao;
 import main.java.cadastros.CadastroFuncionarioCalculo;
+import main.java.cadastros.CadastroFuncionarioDemissao;
+import main.java.cadastros.CadastroFuncionarioEvento;
 import main.java.cadastros.CadastroProduto;
 import main.java.cadastros.Lancamento;
 import main.java.cadastros.RegistroAuxiliarHoras;
 import main.java.cadastros.RegistroPontoMensalCompleto;
 import main.java.conexaoBanco.GerenciarBancoCondicaoPagamentos;
+import main.java.conexaoBanco.GerenciarBancoFuncionariosContratoTrabalho;
 import main.java.cadastros.CadastroSafra;
 import main.java.cadastros.CondicaoPagamento;
 import main.java.cadastros.Lancamento;
@@ -498,6 +502,8 @@ public class RelatorioSalario extends JDialog {
 				cell.setCellStyle(negrito_esquerda);
 				cell.setCellValue(funcionario.getNome() + " " + funcionario.getSobrenome());
 
+				if(ct_global != null) {
+				
 				cell = row.createCell(cellnum++);
 				cell.setCellStyle(textStyleComum);
 				cell.setCellValue("Data Admissão:");
@@ -566,6 +572,96 @@ public class RelatorioSalario extends JDialog {
 				} else {
 					cell.setCellValue("ATIVO");
 
+				}
+				}else {
+					
+					try {
+						CadastroFuncionarioDemissao demissao = new GerenciarBancoFuncionariosContratoTrabalho()
+								.getcontratoInaAtivoPorFuncionario(funcionario.getId_funcionario());
+
+						ct_global = demissao.getContrato_trabalho();
+						CadastroFuncionarioEvento evt = demissao.getEvento_demissao();
+
+						cell = row.createCell(cellnum++);
+						cell.setCellStyle(textStyleComum);
+						cell.setCellValue("Data Admissão:");
+
+						cell = row.createCell(cellnum++);
+						cell.setCellStyle(negrito_esquerda);
+						cell.setCellValue(ct_global.getData_admissao());
+
+						row = sheet.createRow(rownum++);
+						cellnum = 0;
+						cell = row.createCell(cellnum++);
+						cell.setCellStyle(textStyleComum);
+						cell.setCellValue("Mês Refêrencia:");
+
+						cell = row.createCell(cellnum++);
+						cell.setCellStyle(negrito_esquerda);
+						cell.setCellValue(mes);
+
+						cell = row.createCell(cellnum++);
+						cell.setCellStyle(textStyleComum);
+						cell.setCellValue("Ano Refêrencia:");
+
+						cell = row.createCell(cellnum++);
+						cell.setCellStyle(negrito_esquerda);
+						cell.setCellValue(ano + "");
+
+						row = sheet.createRow(rownum++);
+
+						cellnum = 0;
+						cell = row.createCell(cellnum++);
+						cell.setCellStyle(textStyleComum);
+						cell.setCellValue("Cargo:");
+
+						cell = row.createCell(cellnum++);
+						cell.setCellStyle(negrito_esquerda);
+						cell.setCellValue(ct_global.getCargo());
+
+						cell = row.createCell(cellnum++);
+						cell.setCellStyle(textStyleComum);
+						cell.setCellValue("Função:");
+
+						cell = row.createCell(cellnum++);
+						cell.setCellStyle(negrito_esquerda);
+						cell.setCellValue(ct_global.getFuncao());
+
+						row = sheet.createRow(rownum++);
+						cellnum = 0;
+						cell = row.createCell(cellnum++);
+						cell.setCellStyle(textStyleComum);
+						cell.setCellValue("Tipo Contrato:");
+
+						cell = row.createCell(cellnum++);
+						cell.setCellStyle(negrito_esquerda);
+						cell.setCellValue(ct_global.getTipo_contrato());
+
+						cell = row.createCell(cellnum++);
+						cell.setCellStyle(textStyleComum);
+						cell.setCellValue("Status:");
+
+						int motivo = evt.getMotivo_demissao();
+						String s_motivo = "";
+						if (motivo == 0) {
+							s_motivo = "ENCERRAMENTO DE CONTRATO em " + evt.getData_folga();
+						} else if (motivo == 1) {
+							s_motivo = "JUSTA CAUSA em " + evt.getData_folga();
+						} else if (motivo == 2) {
+							s_motivo = "SEM JUSTA CAUSA em " + evt.getData_folga();
+						} else if (motivo == 3) {
+							s_motivo = "PEDIDO DE DISPENSA PELO COLABORADOR em " + evt.getData_folga();
+						}
+
+						cell = row.createCell(cellnum++);
+						cell.setCellStyle(negrito_esquerda);
+						cell.setCellValue(s_motivo);
+
+					} catch (Exception e) {
+						JOptionPane.showMessageDialog(isto,
+								"Erro ao consultar ultimo contrato ativo do Colaborador!\nConsulte o administrador");
+						isto.dispose();
+					}
 				}
 		// vencimentos e horas extras
 

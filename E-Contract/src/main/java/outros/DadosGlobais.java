@@ -12,7 +12,7 @@ public class DadosGlobais {
 
 	private static DadosGlobais INSTANCE;
 	private CadastroLogin Login;
-	private TelaMain telaPrincipal;
+	private TelaMain telaMain;
 	private Log gerenciador_logs;
 	private  ConfiguracoesGlobais configs_globais;
 	private String pasta_romaneios;
@@ -81,22 +81,20 @@ public class DadosGlobais {
 		
 	}
 	
-	public void setTelaPrincipal(TelaMain isto)
-	{
-		
-		this.telaPrincipal = isto;
+
+	
+	
+	public TelaMain getTelaMain() {
+		return telaMain;
 	}
-	
-	
-	public TelaMain getTelaPrincipal()
-	{
-		return telaPrincipal;
+
+	public void setTelaMain(TelaMain telaMain) {
+		this.telaMain = telaMain;
 	}
-	
-	
+
 	public void atualizarGraficosTelaPrincipal() {
-		this.telaPrincipal.getDadosContratos();
-		this.telaPrincipal.atualizarGraficoContratos();
+		this.telaMain.getDadosContratos();
+		this.telaMain.atualizarGraficoContratos();
 	}
 	
 	public CadastroLogin getLogin()

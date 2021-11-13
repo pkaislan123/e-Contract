@@ -11,6 +11,7 @@ import javax.swing.JOptionPane;
 import main.java.cadastros.CadastroCliente;
 import main.java.cadastros.ContaBancaria;
 import main.java.cadastros.Contato;
+import main.java.cadastros.FinanceiroConta;
 
 public class GerenciarBancoClientes {
 
@@ -298,6 +299,37 @@ public class GerenciarBancoClientes {
 		}
 	}
 
+	
+	public boolean atualizarContaBancaria(ContaBancaria dado) {
+			try {
+				Connection conn = null;
+				String atualizar = null;
+				PreparedStatement pstm;
+
+				atualizar = "update conta_bancaria set nome = ?, cpf = ?,  banco = ?, codigo = ?,agencia = ?, conta = ? where id_conta = ? ";
+				conn = ConexaoBanco.getConexao();
+				pstm = conn.prepareStatement(atualizar);
+
+				pstm.setString(1, dado.getNome());
+				pstm.setString(2, dado.getCpf_titular());
+				pstm.setString(3, dado.getBanco());
+				pstm.setString(4, dado.getCodigo());
+				pstm.setString(5, dado.getAgencia());
+				pstm.setString(6, dado.getConta());
+
+				pstm.setInt(7, dado.getId_conta());
+
+				pstm.execute();
+				// JOptionPane.showMessageDialog(null, "Cliente atualizado com sucesso");
+				System.out.println("Conta Atualizada com sucesso");
+				ConexaoBanco.fechaConexao(conn);
+				return true;
+			} catch (Exception e) {
+				return false;
+			}
+		
+	}
+	
 	public boolean remover_contato(int id_contato) {
 		String sql_delete_contato = "DELETE FROM contato WHERE id_contato = ?";
 

@@ -128,6 +128,8 @@ import javax.swing.JScrollPane;
 import java.awt.Font;
 import java.awt.Window;
 import net.miginfocom.swing.MigLayout;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
 
 
 public class TelaConfirmarCarregamento extends JDialog {
@@ -218,7 +220,7 @@ public class TelaConfirmarCarregamento extends JDialog {
 		JPanel panel_1 = new JPanel();
 		panel_1.setBackground(new Color(0, 102, 153));
 		painelSelecionar.add(panel_1);
-		panel_1.setLayout(new MigLayout("", "[150px][117px,grow][6px][65px][23px][7px][31px][10px][62px][4px][170px,grow][9px][100px][5px][169px][147px]", "[31px][30px][32px][32px][30px][30px][30px][31px][18px][30px][18px][28px][35.00px][30px][42.00px][39.00][54.00][17.00]"));
+		panel_1.setLayout(new MigLayout("", "[150px][117px,grow][6px][65px][23px][7px][31px][10px][62px][4px][170px,grow][9px][100px][5px][169px][147px]", "[31px][30px][32px][32px][30px][30px][30px][31px][][18px][30px][][18px][28px][][35.00px][30px][42.00px][][39.00][54.00][17.00]"));
 
 		JLabel lblNewLabel_3 = new JLabel("Data:");
 		lblNewLabel_3.setFont(new Font("SansSerif", Font.PLAIN, 16));
@@ -390,10 +392,20 @@ public class TelaConfirmarCarregamento extends JDialog {
 		lblNewLabel_9_1_1.setForeground(Color.WHITE);
 		panel_1.add(lblNewLabel_9_1_1, "cell 0 7,alignx right,aligny center");
 		
+		JLabel lblNewLabel_4_1 = new JLabel("somente ponto");
+		lblNewLabel_4_1.setForeground(Color.YELLOW);
+		lblNewLabel_4_1.setFont(new Font("SansSerif", Font.BOLD | Font.ITALIC, 12));
+		panel_1.add(lblNewLabel_4_1, "cell 10 8");
+		
+		JLabel lblNewLabel_4_1_1 = new JLabel("somente ponto");
+		lblNewLabel_4_1_1.setForeground(Color.YELLOW);
+		lblNewLabel_4_1_1.setFont(new Font("SansSerif", Font.BOLD | Font.ITALIC, 12));
+		panel_1.add(lblNewLabel_4_1_1, "cell 10 11");
+		
 		JLabel lblNewLabel_9_2 = new JLabel("Código NF Venda 1:");
 		lblNewLabel_9_2.setFont(new Font("SansSerif", Font.PLAIN, 16));
 		lblNewLabel_9_2.setForeground(Color.WHITE);
-		panel_1.add(lblNewLabel_9_2, "cell 0 11,alignx right,aligny center");
+		panel_1.add(lblNewLabel_9_2, "cell 0 13,alignx right,aligny center");
 		
 		entRomaneio = new JTextField();
 		entRomaneio.setFont(new Font("SansSerif", Font.BOLD, 16));
@@ -407,7 +419,7 @@ public class TelaConfirmarCarregamento extends JDialog {
 		entCodigoNFVenda1.setForeground(Color.BLACK);
 		entCodigoNFVenda1.setColumns(10);
 		entCodigoNFVenda1.setBackground(Color.WHITE);
-		panel_1.add(entCodigoNFVenda1, "cell 1 11 3 1,grow");
+		panel_1.add(entCodigoNFVenda1, "cell 1 13 3 1,grow");
 		
 		JLabel lblNewLabel_9_1_1_1 = new JLabel("Peso Romaneio:");
 		lblNewLabel_9_1_1_1.setFont(new Font("SansSerif", Font.PLAIN, 16));
@@ -417,16 +429,43 @@ public class TelaConfirmarCarregamento extends JDialog {
 		JLabel lblNewLabel_9_1_1_1_1 = new JLabel("Peso NF Venda 1:");
 		lblNewLabel_9_1_1_1_1.setFont(new Font("SansSerif", Font.PLAIN, 16));
 		lblNewLabel_9_1_1_1_1.setForeground(Color.WHITE);
-		panel_1.add(lblNewLabel_9_1_1_1_1, "cell 6 11 3 1,alignx right,aligny center");
+		panel_1.add(lblNewLabel_9_1_1_1_1, "cell 6 13 3 1,alignx right,aligny center");
 		
 		entPesoNFVenda1 = new JTextField();
+		entPesoNFVenda1.addKeyListener(new KeyAdapter() {
+			@Override
+			public void keyTyped(KeyEvent e) {
+				String caracteres = ".0987654321\b";// lista de caracters que não devem ser aceitos
+				String s_valor = "";
+
+				if (!caracteres.contains(e.getKeyChar() + "")) {
+					e.consume();// aciona esse propriedade para eliminar a ação do evento
+
+					// quantidade = entQuantidade.getText();
+				} 
+			}
+		});
 		entPesoNFVenda1.setFont(new Font("SansSerif", Font.BOLD, 16));
 		entPesoNFVenda1.setForeground(Color.BLACK);
 		entPesoNFVenda1.setColumns(10);
 		entPesoNFVenda1.setBackground(Color.WHITE);
-		panel_1.add(entPesoNFVenda1, "cell 10 11,grow");
+		panel_1.add(entPesoNFVenda1, "cell 10 13,grow");
 		
 		pesoRomaneio = new JTextField();
+		pesoRomaneio.addKeyListener(new KeyAdapter() {
+			@Override
+			public void keyTyped(KeyEvent e) {
+				String caracteres = ".0987654321\b";// lista de caracters que não devem ser aceitos
+				String s_valor = "";
+
+				if (!caracteres.contains(e.getKeyChar() + "")) {
+					e.consume();// aciona esse propriedade para eliminar a ação do evento
+
+					// quantidade = entQuantidade.getText();
+				} 
+				
+			}
+		});
 		pesoRomaneio.setFont(new Font("SansSerif", Font.BOLD, 16));
 		pesoRomaneio.setForeground(Color.BLACK);
 		pesoRomaneio.setColumns(10);
@@ -515,31 +554,44 @@ public class TelaConfirmarCarregamento extends JDialog {
 				
 			}
 		});
-		panel_1.add(btnLerNfVenda, "cell 15 11,alignx left,growy");
+		panel_1.add(btnLerNfVenda, "cell 15 13,alignx left,growy");
 		
 		JLabel lblNewLabel_9_2_1 = new JLabel("Código NF Interna:");
 		lblNewLabel_9_2_1.setFont(new Font("SansSerif", Font.PLAIN, 16));
 		lblNewLabel_9_2_1.setForeground(Color.WHITE);
-		panel_1.add(lblNewLabel_9_2_1, "cell 0 9,alignx right,aligny center");
+		panel_1.add(lblNewLabel_9_2_1, "cell 0 10,alignx right,aligny center");
 		
 		entCodigoNFInterna = new JTextField();
 		entCodigoNFInterna.setFont(new Font("SansSerif", Font.BOLD, 16));
 		entCodigoNFInterna.setForeground(Color.BLACK);
 		entCodigoNFInterna.setColumns(10);
 		entCodigoNFInterna.setBackground(Color.WHITE);
-		panel_1.add(entCodigoNFInterna, "cell 1 9 3 1,grow");
+		panel_1.add(entCodigoNFInterna, "cell 1 10 3 1,grow");
 		
 		JLabel lblNewLabel_9_1_1_1_1_1 = new JLabel("Peso NF Interna:");
 		lblNewLabel_9_1_1_1_1_1.setFont(new Font("SansSerif", Font.PLAIN, 16));
 		lblNewLabel_9_1_1_1_1_1.setForeground(Color.WHITE);
-		panel_1.add(lblNewLabel_9_1_1_1_1_1, "cell 6 9 3 1,alignx right,aligny center");
+		panel_1.add(lblNewLabel_9_1_1_1_1_1, "cell 6 10 3 1,alignx right,aligny center");
 		
 		entPesoNFInterna = new JTextField();
+		entPesoNFInterna.addKeyListener(new KeyAdapter() {
+			@Override
+			public void keyTyped(KeyEvent e) {
+				String caracteres = ".0987654321\b";// lista de caracters que não devem ser aceitos
+				String s_valor = "";
+
+				if (!caracteres.contains(e.getKeyChar() + "")) {
+					e.consume();// aciona esse propriedade para eliminar a ação do evento
+
+					// quantidade = entQuantidade.getText();
+				} 
+			}
+		});
 		entPesoNFInterna.setFont(new Font("SansSerif", Font.BOLD, 16));
 		entPesoNFInterna.setForeground(Color.BLACK);
 		entPesoNFInterna.setColumns(10);
 		entPesoNFInterna.setBackground(Color.WHITE);
-		panel_1.add(entPesoNFInterna, "cell 10 9,grow");
+		panel_1.add(entPesoNFInterna, "cell 10 10,grow");
 		
 		
 		 btnLerNfInterna = new JButton("Ler NF Interna");
@@ -583,19 +635,32 @@ public class TelaConfirmarCarregamento extends JDialog {
 				
 			}
 		});
-		panel_1.add(btnLerNfInterna, "cell 12 9 3 1,alignx left,growy");
+		panel_1.add(btnLerNfInterna, "cell 12 10 3 1,alignx left,growy");
 		
 		JLabel lblNewLabel_9_1_1_1_1_3 = new JLabel("Valor NF Venda 1:");
 		lblNewLabel_9_1_1_1_1_3.setFont(new Font("SansSerif", Font.PLAIN, 16));
 		lblNewLabel_9_1_1_1_1_3.setForeground(Color.WHITE);
-		panel_1.add(lblNewLabel_9_1_1_1_1_3, "cell 12 11,alignx right,aligny center");
+		panel_1.add(lblNewLabel_9_1_1_1_1_3, "cell 12 13,alignx right,aligny center");
 		
 		entValorNFVenda1 = new JTextField();
+		entValorNFVenda1.addKeyListener(new KeyAdapter() {
+			@Override
+			public void keyTyped(KeyEvent e) {
+				String caracteres = ".0987654321\b";// lista de caracters que não devem ser aceitos
+				String s_valor = "";
+
+				if (!caracteres.contains(e.getKeyChar() + "")) {
+					e.consume();// aciona esse propriedade para eliminar a ação do evento
+
+					// quantidade = entQuantidade.getText();
+				} 
+			}
+		});
 		entValorNFVenda1.setFont(new Font("SansSerif", Font.BOLD, 16));
 		entValorNFVenda1.setForeground(Color.BLACK);
 		entValorNFVenda1.setColumns(10);
 		entValorNFVenda1.setBackground(Color.WHITE);
-		panel_1.add(entValorNFVenda1, "cell 14 11,grow");
+		panel_1.add(entValorNFVenda1, "cell 14 13,grow");
 		
 		 chckBoxNFVenda1NaoAplicavel = new JCheckBox("NF Venda 1 Não Aplicável");
 		 chckBoxNFVenda1NaoAplicavel.setFont(new Font("SansSerif", Font.PLAIN, 16));
@@ -610,7 +675,7 @@ public class TelaConfirmarCarregamento extends JDialog {
 		 	}
 		 });
 		chckBoxNFVenda1NaoAplicavel.setForeground(Color.WHITE);
-		panel_1.add(chckBoxNFVenda1NaoAplicavel, "cell 1 10 4 1,alignx left,growy");
+		panel_1.add(chckBoxNFVenda1NaoAplicavel, "cell 1 11 4 2,alignx left,growy");
 		
 		
 		 chckBoxNFInternaNaoAplicavel = new JCheckBox("NF Interna Não Aplicável");
@@ -626,7 +691,7 @@ public class TelaConfirmarCarregamento extends JDialog {
 		 	}
 		 });
 		chckBoxNFInternaNaoAplicavel.setForeground(Color.WHITE);
-		panel_1.add(chckBoxNFInternaNaoAplicavel, "cell 1 8 4 1,alignx left,growy");
+		panel_1.add(chckBoxNFInternaNaoAplicavel, "cell 1 8 4 2,alignx left,growy");
 		 
 		  chckBoxNFComplementoNaoAplicavel = new JCheckBox("NF Complemento Não Aplicável");
 		  chckBoxNFComplementoNaoAplicavel.setFont(new Font("SansSerif", Font.PLAIN, 16));
@@ -640,67 +705,103 @@ public class TelaConfirmarCarregamento extends JDialog {
 		  	}
 		  });
 		  
+		  JLabel lblNewLabel_4_1_1_1 = new JLabel("somente ponto");
+		  lblNewLabel_4_1_1_1.setForeground(Color.YELLOW);
+		  lblNewLabel_4_1_1_1.setFont(new Font("SansSerif", Font.BOLD | Font.ITALIC, 12));
+		  panel_1.add(lblNewLabel_4_1_1_1, "cell 10 14");
+		  
+		  JLabel lblNewLabel_4_1_1_1_1_1_1 = new JLabel("somente ponto");
+		  lblNewLabel_4_1_1_1_1_1_1.setForeground(Color.YELLOW);
+		  lblNewLabel_4_1_1_1_1_1_1.setFont(new Font("SansSerif", Font.BOLD | Font.ITALIC, 12));
+		  panel_1.add(lblNewLabel_4_1_1_1_1_1_1, "cell 14 14");
+		  
 		  JLabel lblNewLabel_9_2_2_1_1 = new JLabel("Rementente:");
 		  lblNewLabel_9_2_2_1_1.setFont(new Font("SansSerif", Font.PLAIN, 16));
 		  lblNewLabel_9_2_2_1_1.setForeground(Color.WHITE);
-		  panel_1.add(lblNewLabel_9_2_2_1_1, "cell 0 12,alignx right");
+		  panel_1.add(lblNewLabel_9_2_2_1_1, "cell 0 15,alignx right");
 		  
 		  entRemetenteNFVenda1 = new JTextField();
 		  entRemetenteNFVenda1.setFont(new Font("SansSerif", Font.BOLD, 16));
 		  entRemetenteNFVenda1.setForeground(Color.BLACK);
 		  entRemetenteNFVenda1.setColumns(10);
 		  entRemetenteNFVenda1.setBackground(Color.WHITE);
-		  panel_1.add(entRemetenteNFVenda1, "cell 1 12 8 1,growx,aligny center");
+		  panel_1.add(entRemetenteNFVenda1, "cell 1 15 8 1,growx,aligny center");
 		  
 		  JLabel lblNewLabel_9_1_1_1_1_2_1_1 = new JLabel("Destinatário:");
 		  lblNewLabel_9_1_1_1_1_2_1_1.setFont(new Font("SansSerif", Font.PLAIN, 16));
 		  lblNewLabel_9_1_1_1_1_2_1_1.setForeground(Color.WHITE);
-		  panel_1.add(lblNewLabel_9_1_1_1_1_2_1_1, "cell 10 12,alignx right");
+		  panel_1.add(lblNewLabel_9_1_1_1_1_2_1_1, "cell 10 15,alignx right");
 		  
 		  entDestinatarioNFVenda1 = new JTextField();
 		  entDestinatarioNFVenda1.setFont(new Font("SansSerif", Font.BOLD, 16));
 		  entDestinatarioNFVenda1.setForeground(Color.BLACK);
 		  entDestinatarioNFVenda1.setColumns(10);
 		  entDestinatarioNFVenda1.setBackground(Color.WHITE);
-		  panel_1.add(entDestinatarioNFVenda1, "cell 12 12 4 1,growx,aligny center");
+		  panel_1.add(entDestinatarioNFVenda1, "cell 12 15 4 1,growx,aligny center");
 		  chckBoxNFComplementoNaoAplicavel.setForeground(Color.WHITE);
-		  panel_1.add(chckBoxNFComplementoNaoAplicavel, "cell 1 13 3 1,alignx left,growy");
+		  panel_1.add(chckBoxNFComplementoNaoAplicavel, "cell 1 16 3 1,alignx left,growy");
 		 
 		 JLabel lblNewLabel_9_2_2 = new JLabel("Código NF Complemento:");
 		 lblNewLabel_9_2_2.setFont(new Font("SansSerif", Font.PLAIN, 16));
 		 lblNewLabel_9_2_2.setForeground(Color.WHITE);
-		 panel_1.add(lblNewLabel_9_2_2, "cell 0 14,alignx right,aligny center");
+		 panel_1.add(lblNewLabel_9_2_2, "cell 0 17,alignx right,aligny center");
 		 
 		 entCodigoNFComplemento = new JTextField();
 		 entCodigoNFComplemento.setFont(new Font("SansSerif", Font.BOLD, 16));
 		 entCodigoNFComplemento.setForeground(Color.BLACK);
 		 entCodigoNFComplemento.setColumns(10);
 		 entCodigoNFComplemento.setBackground(Color.WHITE);
-		 panel_1.add(entCodigoNFComplemento, "cell 1 14 3 1,growx,aligny center");
+		 panel_1.add(entCodigoNFComplemento, "cell 1 17 3 1,growx,aligny center");
 		 
 		 JLabel lblNewLabel_9_1_1_1_1_2 = new JLabel("Peso NF Complemento:");
 		 lblNewLabel_9_1_1_1_1_2.setFont(new Font("SansSerif", Font.PLAIN, 16));
 		 lblNewLabel_9_1_1_1_1_2.setForeground(Color.WHITE);
-		 panel_1.add(lblNewLabel_9_1_1_1_1_2, "cell 4 14 5 1,alignx right,aligny center");
+		 panel_1.add(lblNewLabel_9_1_1_1_1_2, "cell 4 17 5 1,alignx right,aligny center");
 		 
 		 entPesoNFComplemento = new JTextField();
+		 entPesoNFComplemento.addKeyListener(new KeyAdapter() {
+		 	@Override
+		 	public void keyTyped(KeyEvent e) {
+		 		String caracteres = ".0987654321\b";// lista de caracters que não devem ser aceitos
+				String s_valor = "";
+
+				if (!caracteres.contains(e.getKeyChar() + "")) {
+					e.consume();// aciona esse propriedade para eliminar a ação do evento
+
+					// quantidade = entQuantidade.getText();
+				} 
+		 	}
+		 });
 		 entPesoNFComplemento.setFont(new Font("SansSerif", Font.BOLD, 16));
 		 entPesoNFComplemento.setForeground(Color.BLACK);
 		 entPesoNFComplemento.setColumns(10);
 		 entPesoNFComplemento.setBackground(Color.WHITE);
-		 panel_1.add(entPesoNFComplemento, "cell 10 14,growx,aligny center");
+		 panel_1.add(entPesoNFComplemento, "cell 10 17,growx,aligny center");
 		 
 		 JLabel lblNewLabel_9_1_1_1_1_3_1 = new JLabel("Valor NF Compl:");
 		 lblNewLabel_9_1_1_1_1_3_1.setFont(new Font("SansSerif", Font.PLAIN, 16));
 		 lblNewLabel_9_1_1_1_1_3_1.setForeground(Color.WHITE);
-		 panel_1.add(lblNewLabel_9_1_1_1_1_3_1, "cell 12 14,alignx right,aligny center");
+		 panel_1.add(lblNewLabel_9_1_1_1_1_3_1, "cell 12 17,alignx right,aligny center");
 		 
 		 entValorNFComplemento = new JTextField();
+		 entValorNFComplemento.addKeyListener(new KeyAdapter() {
+		 	@Override
+		 	public void keyTyped(KeyEvent e) {
+		 		String caracteres = ".0987654321\b";// lista de caracters que não devem ser aceitos
+				String s_valor = "";
+
+				if (!caracteres.contains(e.getKeyChar() + "")) {
+					e.consume();// aciona esse propriedade para eliminar a ação do evento
+
+					// quantidade = entQuantidade.getText();
+				} 
+		 	}
+		 });
 		 entValorNFComplemento.setFont(new Font("SansSerif", Font.BOLD, 16));
 		 entValorNFComplemento.setForeground(Color.BLACK);
 		 entValorNFComplemento.setColumns(10);
 		 entValorNFComplemento.setBackground(Color.WHITE);
-		 panel_1.add(entValorNFComplemento, "cell 14 14,growx,aligny center");
+		 panel_1.add(entValorNFComplemento, "cell 14 17,growx,aligny center");
 		 
 		  btnLerNfComplemento = new JButton("Ler NF Complemento");
 		  btnLerNfComplemento.setBackground(new Color(0, 0, 102));
@@ -743,42 +844,52 @@ public class TelaConfirmarCarregamento extends JDialog {
 
 		  	}
 		  });
-		  panel_1.add(btnLerNfComplemento, "cell 15 14,grow");
+		  panel_1.add(btnLerNfComplemento, "cell 15 17,grow");
+		 
+		 JLabel lblNewLabel_4_1_1_1_1 = new JLabel("somente ponto");
+		 lblNewLabel_4_1_1_1_1.setForeground(Color.YELLOW);
+		 lblNewLabel_4_1_1_1_1.setFont(new Font("SansSerif", Font.BOLD | Font.ITALIC, 12));
+		 panel_1.add(lblNewLabel_4_1_1_1_1, "cell 10 18");
+		 
+		 JLabel lblNewLabel_4_1_1_1_1_1 = new JLabel("somente ponto");
+		 lblNewLabel_4_1_1_1_1_1.setForeground(Color.YELLOW);
+		 lblNewLabel_4_1_1_1_1_1.setFont(new Font("SansSerif", Font.BOLD | Font.ITALIC, 12));
+		 panel_1.add(lblNewLabel_4_1_1_1_1_1, "cell 14 18");
 		 
 		 JLabel lblNewLabel_9_2_2_1 = new JLabel("Rementente:");
 		 lblNewLabel_9_2_2_1.setFont(new Font("SansSerif", Font.PLAIN, 16));
 		 lblNewLabel_9_2_2_1.setForeground(Color.WHITE);
-		 panel_1.add(lblNewLabel_9_2_2_1, "cell 0 15,alignx right");
+		 panel_1.add(lblNewLabel_9_2_2_1, "cell 0 19,alignx right");
 		 
 		 entRemetenteNFComplemento = new JTextField();
 		 entRemetenteNFComplemento.setFont(new Font("SansSerif", Font.BOLD, 16));
 		 entRemetenteNFComplemento.setForeground(Color.BLACK);
 		 entRemetenteNFComplemento.setColumns(10);
 		 entRemetenteNFComplemento.setBackground(Color.WHITE);
-		 panel_1.add(entRemetenteNFComplemento, "cell 1 15 8 1,growx,aligny center");
+		 panel_1.add(entRemetenteNFComplemento, "cell 1 19 8 1,growx,aligny center");
 		 
 		 JLabel lblNewLabel_9_1_1_1_1_2_1 = new JLabel("Destinatário:");
 		 lblNewLabel_9_1_1_1_1_2_1.setFont(new Font("SansSerif", Font.PLAIN, 16));
 		 lblNewLabel_9_1_1_1_1_2_1.setForeground(Color.WHITE);
-		 panel_1.add(lblNewLabel_9_1_1_1_1_2_1, "cell 9 15 2 1,alignx right");
+		 panel_1.add(lblNewLabel_9_1_1_1_1_2_1, "cell 9 19 2 1,alignx right");
 		 
 		 entDestinatarioNFComplemento = new JTextField();
 		 entDestinatarioNFComplemento.setFont(new Font("SansSerif", Font.BOLD, 16));
 		 entDestinatarioNFComplemento.setForeground(Color.BLACK);
 		 entDestinatarioNFComplemento.setColumns(10);
 		 entDestinatarioNFComplemento.setBackground(Color.WHITE);
-		 panel_1.add(entDestinatarioNFComplemento, "cell 12 15 4 1,growx,aligny center");
+		 panel_1.add(entDestinatarioNFComplemento, "cell 12 19 4 1,growx,aligny center");
 		 
 		 JLabel lblNewLabel_4 = new JLabel("Observação:");
 		 lblNewLabel_4.setFont(new Font("SansSerif", Font.PLAIN, 16));
 		 lblNewLabel_4.setForeground(Color.WHITE);
-		 panel_1.add(lblNewLabel_4, "cell 0 16,alignx right,aligny top");
+		 panel_1.add(lblNewLabel_4, "cell 0 20,alignx right,aligny top");
 		
 		 textAreaObs = new JTextArea();
 		 textAreaObs.setFont(new Font("SansSerif", Font.BOLD, 16));
 		 textAreaObs.setWrapStyleWord(true);
 		 textAreaObs.setLineWrap(true);
-		 panel_1.add(textAreaObs, "cell 1 16 13 2,grow");
+		 panel_1.add(textAreaObs, "cell 1 20 13 2,grow");
 		
 		CadastroCliente vendedores[] = contrato_local.getVendedores();
 		setVendedor(vendedores[0]);

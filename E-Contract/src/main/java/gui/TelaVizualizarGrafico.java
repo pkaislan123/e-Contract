@@ -97,7 +97,7 @@ public class TelaVizualizarGrafico extends JDialog {
 		
 		GraficoLinha linha = new GraficoLinha();
 		linha.setDataset(dataset);
-		ChartPanel chartPanel = linha.getGraficoLinha(panel.getWidth()-100, panel.getHeight()-100, "Últimos 30 dias", "Romaneios", "Quantidad de Sacos");
+		ChartPanel chartPanel = linha.getGraficoLinha(panel.getWidth()-100, panel.getHeight()-100, "Últimos 30 dias", "Romaneios", "Quantidad de Sacos", 1);
 		panel.add(chartPanel);
 	
 		

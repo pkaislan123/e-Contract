@@ -4,6 +4,8 @@ import java.awt.BorderLayout;
 import javax.swing.JInternalFrame;
 import java.awt.Color;
 import java.awt.Component;
+import java.awt.Dimension;
+import java.awt.DisplayMode;
 import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -41,10 +43,13 @@ import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 
 import java.awt.Font;
+import java.awt.GraphicsEnvironment;
+
 import javax.swing.JTextArea;
 import javax.swing.BoxLayout;
 import java.awt.GridLayout;
 import java.awt.SystemColor;
+import java.awt.Toolkit;
 import java.awt.Window;
 import java.awt.GridBagLayout;
 import java.awt.GridBagConstraints;
@@ -151,13 +156,14 @@ import keeptoo.KGradientPanel;
 import javax.swing.border.LineBorder;
 import javax.swing.JTextField;
 import javax.swing.SpinnerModel;
+import javax.swing.SwingUtilities;
 import javax.swing.JScrollPane;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JRadioButton;
 import java.awt.Insets;
 
-public class TelaCriarNota extends JInternalFrame {
+public class TelaCriarNota extends JFrame {
 
 	private final KGradientPanel painelPrincipal = new KGradientPanel();
 	private JLabel lblTotalContratosConcluidos, lblTotalContratos, lblTotalContratosAbertos;
@@ -186,16 +192,36 @@ public class TelaCriarNota extends JInternalFrame {
 		instance = this;
 		setResizable(true);
 		nota_global = nota;
-		if (flag_modo_operacao == 1) {
+		if (flag_modo_operacao == 0) {
 			setTitle("E-Contract - Criar Anotação");
 		} else {
 			setTitle("E-Contract - Editar Anotação");
 
 		}
+		
+		
+		
+		
 		setBackground(new Color(255, 255, 255));
 		setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-		setBounds(100, 100, 628, 660);
-		painelPrincipal.kEndColor = Color.WHITE;
+		Toolkit tk = Toolkit.getDefaultToolkit();
+		Dimension dim = tk.getScreenSize();
+		System.out.println("Screen width = " + dim.width);
+		System.out.println("Screen height = " + dim.height);
+
+		// pega o tamanho da barra de tarefas
+		Dimension scrnSize = Toolkit.getDefaultToolkit().getScreenSize();
+		java.awt.Rectangle winSize = GraphicsEnvironment.getLocalGraphicsEnvironment().getMaximumWindowBounds();
+		int taskBarHeight = scrnSize.height - winSize.height;
+		System.out.printf("Altura: %d\n", taskBarHeight);
+
+		DisplayMode display = GraphicsEnvironment.getLocalGraphicsEnvironment().getDefaultScreenDevice()
+				.getDisplayMode();
+
+		int display_x = display.getWidth();
+		int display_y = display.getHeight();
+		setBounds(0, 0, dim.width/2, dim.height - taskBarHeight);	
+         painelPrincipal.kEndColor = Color.WHITE;
 		painelPrincipal.kStartColor = Color.WHITE;
 		painelPrincipal.setBackground(new Color(51, 153, 204));
 		painelPrincipal.setBorder(new EmptyBorder(5, 5, 5, 5));
@@ -226,13 +252,15 @@ public class TelaCriarNota extends JInternalFrame {
 		JLabel lblNewLabel = new JLabel("Nome:");
 		lblNewLabel.setForeground(Color.BLACK);
 		GridBagConstraints gbc_lblNewLabel = new GridBagConstraints();
+		gbc_lblNewLabel.anchor = GridBagConstraints.EAST;
 		gbc_lblNewLabel.insets = new Insets(0, 0, 5, 5);
 		gbc_lblNewLabel.gridx = 0;
 		gbc_lblNewLabel.gridy = 0;
 		panel.add(lblNewLabel, gbc_lblNewLabel);
-		lblNewLabel.setFont(new Font("Tahoma", Font.BOLD, 14));
+		lblNewLabel.setFont(new Font("Tahoma", Font.PLAIN, 14));
 
 		entNome = new JTextField();
+		entNome.setFont(new Font("SansSerif", Font.BOLD, 16));
 		GridBagConstraints gbc_entNome = new GridBagConstraints();
 		gbc_entNome.fill = GridBagConstraints.HORIZONTAL;
 		gbc_entNome.insets = new Insets(0, 0, 5, 0);
@@ -244,13 +272,15 @@ public class TelaCriarNota extends JInternalFrame {
 		JLabel lblDescrio = new JLabel("Descrição:");
 		lblDescrio.setForeground(Color.BLACK);
 		GridBagConstraints gbc_lblDescrio = new GridBagConstraints();
+		gbc_lblDescrio.anchor = GridBagConstraints.EAST;
 		gbc_lblDescrio.insets = new Insets(0, 0, 0, 5);
 		gbc_lblDescrio.gridx = 0;
 		gbc_lblDescrio.gridy = 1;
 		panel.add(lblDescrio, gbc_lblDescrio);
-		lblDescrio.setFont(new Font("Tahoma", Font.BOLD, 14));
+		lblDescrio.setFont(new Font("Tahoma", Font.PLAIN, 14));
 
 		entDescricao = new JTextField();
+		entDescricao.setFont(new Font("SansSerif", Font.BOLD, 16));
 		GridBagConstraints gbc_entDescricao = new GridBagConstraints();
 		gbc_entDescricao.fill = GridBagConstraints.HORIZONTAL;
 		gbc_entDescricao.gridx = 1;
@@ -303,7 +333,7 @@ public class TelaCriarNota extends JInternalFrame {
 			}
 		});
 		chckBoxNaoNotificar.setSelected(true);
-		chckBoxNaoNotificar.setFont(new Font("SansSerif", Font.PLAIN, 14));
+		chckBoxNaoNotificar.setFont(new Font("Dialog", Font.PLAIN, 16));
 
 		JLabel lblLembrete = new JLabel("Notificar me a cada:");
 		lblLembrete.setForeground(Color.BLACK);
@@ -313,9 +343,10 @@ public class TelaCriarNota extends JInternalFrame {
 		gbc_lblLembrete.gridx = 0;
 		gbc_lblLembrete.gridy = 1;
 		panel_1.add(lblLembrete, gbc_lblLembrete);
-		lblLembrete.setFont(new Font("Tahoma", Font.BOLD, 14));
+		lblLembrete.setFont(new Font("Tahoma", Font.PLAIN, 14));
 
 		painelNotificar = new JPanel();
+		painelNotificar.setBackground(Color.WHITE);
 		GridBagConstraints gbc_painelNotificar = new GridBagConstraints();
 		gbc_painelNotificar.insets = new Insets(0, 0, 5, 0);
 		gbc_painelNotificar.gridx = 1;
@@ -330,6 +361,7 @@ public class TelaCriarNota extends JInternalFrame {
 		painelNotificar.setLayout(gbl_painelNotificar);
 
 		rBDias = new JRadioButton("Dias");
+		rBDias.setFont(new Font("Dialog", Font.PLAIN, 16));
 		rBDias.setBackground(Color.WHITE);
 		rBDias.setOpaque(true);
 		rBDias.setForeground(Color.BLACK);
@@ -345,6 +377,7 @@ public class TelaCriarNota extends JInternalFrame {
 		});
 
 		entTempoNotificacao = new JTextField();
+		entTempoNotificacao.setFont(new Font("Dialog", Font.BOLD, 16));
 		entTempoNotificacao.setForeground(Color.BLACK);
 		entTempoNotificacao.setText("Exemplo:  30");
 		GridBagConstraints gbc_entTempoNotificacao = new GridBagConstraints();
@@ -357,6 +390,7 @@ public class TelaCriarNota extends JInternalFrame {
 		entTempoNotificacao.setColumns(10);
 
 		rBHoras = new JRadioButton("Horas");
+		rBHoras.setFont(new Font("Dialog", Font.PLAIN, 16));
 		rBHoras.setBackground(Color.WHITE);
 		rBHoras.setOpaque(true);
 		rBHoras.setForeground(Color.BLACK);
@@ -372,6 +406,7 @@ public class TelaCriarNota extends JInternalFrame {
 		});
 
 		rBMinutos = new JRadioButton("Minutos");
+		rBMinutos.setFont(new Font("Dialog", Font.PLAIN, 16));
 		rBMinutos.setOpaque(true);
 		rBMinutos.setBackground(Color.WHITE);
 		rBMinutos.setForeground(Color.BLACK);
@@ -412,10 +447,10 @@ public class TelaCriarNota extends JInternalFrame {
 		gbc_lblTipo.gridx = 0;
 		gbc_lblTipo.gridy = 2;
 		panel_1.add(lblTipo, gbc_lblTipo);
-		lblTipo.setFont(new Font("Tahoma", Font.BOLD, 14));
+		lblTipo.setFont(new Font("Tahoma", Font.PLAIN, 14));
 
 		cBTipo = new JComboBox();
-		cBTipo.setFont(new Font("SansSerif", Font.BOLD, 12));
+		cBTipo.setFont(new Font("Dialog", Font.BOLD, 16));
 		cBTipo.setForeground(Color.WHITE);
 		GridBagConstraints gbc_cBTipo = new GridBagConstraints();
 		gbc_cBTipo.fill = GridBagConstraints.HORIZONTAL;
@@ -428,6 +463,7 @@ public class TelaCriarNota extends JInternalFrame {
 		cBTipo.addItem("Tópico Fixo Broadcast");
 
 		JLabel lblLembrete_1 = new JLabel("Lembrete:");
+		lblLembrete_1.setVisible(false);
 		lblLembrete_1.setForeground(Color.BLACK);
 		GridBagConstraints gbc_lblLembrete_1 = new GridBagConstraints();
 		gbc_lblLembrete_1.anchor = GridBagConstraints.EAST;
@@ -435,9 +471,10 @@ public class TelaCriarNota extends JInternalFrame {
 		gbc_lblLembrete_1.gridx = 0;
 		gbc_lblLembrete_1.gridy = 3;
 		panel_1.add(lblLembrete_1, gbc_lblLembrete_1);
-		lblLembrete_1.setFont(new Font("Tahoma", Font.BOLD, 14));
+		lblLembrete_1.setFont(new Font("Tahoma", Font.PLAIN, 14));
 
 		JPanel panel_2 = new JPanel();
+		panel_2.setVisible(false);
 		panel_2.setBackground(Color.WHITE);
 		GridBagConstraints gbc_panel_2 = new GridBagConstraints();
 		gbc_panel_2.fill = GridBagConstraints.BOTH;
@@ -452,7 +489,8 @@ public class TelaCriarNota extends JInternalFrame {
 		panel_2.setLayout(gbl_panel_2);
 
 		chkBoxNao = new JCheckBox("Não");
-		chkBoxNao.setFont(new Font("SansSerif", Font.BOLD, 12));
+		chkBoxNao.setEnabled(false);
+		chkBoxNao.setFont(new Font("Dialog", Font.BOLD, 16));
 		chkBoxNao.setForeground(Color.BLACK);
 		GridBagConstraints gbc_chkBoxNao = new GridBagConstraints();
 		gbc_chkBoxNao.fill = GridBagConstraints.HORIZONTAL;
@@ -468,7 +506,8 @@ public class TelaCriarNota extends JInternalFrame {
 		chkBoxNao.setSelected(true);
 
 		chkBoxSim = new JCheckBox("Sim");
-		chkBoxSim.setFont(new Font("SansSerif", Font.BOLD, 12));
+		chkBoxSim.setEnabled(false);
+		chkBoxSim.setFont(new Font("Dialog", Font.BOLD, 16));
 		chkBoxSim.setForeground(Color.BLACK);
 		GridBagConstraints gbc_chkBoxSim = new GridBagConstraints();
 		gbc_chkBoxSim.fill = GridBagConstraints.HORIZONTAL;
@@ -485,7 +524,7 @@ public class TelaCriarNota extends JInternalFrame {
 		});
 
 		btnDefinirTempo = new JButton("Definir Tempo");
-		btnDefinirTempo.setFont(new Font("SansSerif", Font.BOLD, 12));
+		btnDefinirTempo.setFont(new Font("Dialog", Font.BOLD, 16));
 		GridBagConstraints gbc_btnDefinirTempo = new GridBagConstraints();
 		gbc_btnDefinirTempo.fill = GridBagConstraints.HORIZONTAL;
 		gbc_btnDefinirTempo.insets = new Insets(0, 0, 5, 0);
@@ -523,10 +562,11 @@ public class TelaCriarNota extends JInternalFrame {
 		btnDefinirTempo.setVisible(false);
 		btnDefinirTempo.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-
+/*
 				TelaDefinirTempo tela = new TelaDefinirTempo(null, data_selecionada);
 				tela.setTelaPai(isto);
 				tela.setVisible(true);
+				*/
 			}
 		});
 
@@ -549,27 +589,17 @@ public class TelaCriarNota extends JInternalFrame {
 		JScrollPane scrollPane = new JScrollPane(textAreaAnotacao);
 		scrollPane.setBackground(Color.WHITE);
 		GridBagConstraints gbc_scrollPane = new GridBagConstraints();
+		gbc_scrollPane.gridwidth = 4;
 		gbc_scrollPane.fill = GridBagConstraints.BOTH;
 		gbc_scrollPane.insets = new Insets(0, 0, 5, 5);
 		gbc_scrollPane.gridx = 0;
 		gbc_scrollPane.gridy = 3;
 		painelPrincipal.add(scrollPane, gbc_scrollPane);
 
-		JTextArea textAreaCola = new JTextArea();
-		textAreaCola.setText("Atenção:  A janela ao lado ainda não esta totalmente funcional. Como estamos numa area de desktops virtuais, o modulo de pesquisa no sistema ainda está sendo programada. Você ainda pode criar, editar, salvar e excluir suas notas normalmente!");
-		GridBagConstraints gbc_textAreaCola = new GridBagConstraints();
-		gbc_textAreaCola.gridwidth = 3;
-		gbc_textAreaCola.fill = GridBagConstraints.BOTH;
-		gbc_textAreaCola.insets = new Insets(0, 0, 5, 5);
-		gbc_textAreaCola.gridx = 1;
-		gbc_textAreaCola.gridy = 3;
-		painelPrincipal.add(textAreaCola, gbc_textAreaCola);
-		textAreaCola.setWrapStyleWord(true);
-		textAreaCola.setLineWrap(true);
-		textAreaCola.setFont(new Font("SansSerif", Font.PLAIN, 18));
-		textAreaCola.setBackground(new Color(255, 255, 102));
-
 		JButton btnAtualizar = new JButton("Atualizar");
+		btnAtualizar.setBackground(new Color(0, 0, 153));
+		btnAtualizar.setForeground(Color.WHITE);
+		btnAtualizar.setFont(new Font("SansSerif", Font.BOLD, 16));
 		btnAtualizar.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 
@@ -637,6 +667,9 @@ public class TelaCriarNota extends JInternalFrame {
 				if (atualizou) {
 					JOptionPane.showMessageDialog(null, "Anotação atualizada");
 					((TelaNotas) janela_pai).atualizarLista();
+					isto.dispose();
+				//	((TelaCriarAnotacaoDesktopVirtual) SwingUtilities.getAncestorOfClass (JFrame.class, isto)).dispose();
+
 
 				} else {
 					JOptionPane.showMessageDialog(null, "Erro ao atualizar a anotação\nConsulte o administrado!");
@@ -648,6 +681,9 @@ public class TelaCriarNota extends JInternalFrame {
 		});
 
 		JButton btnSalvar = new JButton("Salvar");
+		btnSalvar.setBackground(new Color(0, 51, 0));
+		btnSalvar.setForeground(Color.WHITE);
+		btnSalvar.setFont(new Font("SansSerif", Font.BOLD, 16));
 		btnSalvar.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 
@@ -711,14 +747,18 @@ public class TelaCriarNota extends JInternalFrame {
 				nota.setLembrar(lembrar);
 				nota.setTipo(tipo);
 				nota.setId_usuario_pai(login.getId());
+				nota.setUltima_notificacao(new GetData().getDataHora());
 
 				GerenciarBancoNotas gerenciar = new GerenciarBancoNotas();
 				int salvou = gerenciar.inserirnota(nota);
 				if (salvou > 0) {
 					JOptionPane.showMessageDialog(isto, "Anotação criada com sucesso!");
 					((TelaNotas) janela_pai).atualizarLista();
+					isto.dispose();
+				//	((TelaCriarAnotacaoDesktopVirtual) SwingUtilities.getAncestorOfClass (JFrame.class, isto)).dispose();
 				} else {
 					JOptionPane.showMessageDialog(isto, "Erro ao salvar anotação\nConsulte o administrador!");
+					isto.dispose();
 				}
 
 			}
@@ -731,7 +771,7 @@ public class TelaCriarNota extends JInternalFrame {
 		gbc_btnSalvar.gridy = 4;
 		painelPrincipal.add(btnSalvar, gbc_btnSalvar);
 		GridBagConstraints gbc_btnAtualizar = new GridBagConstraints();
-		gbc_btnAtualizar.anchor = GridBagConstraints.NORTHEAST;
+		gbc_btnAtualizar.anchor = GridBagConstraints.NORTHWEST;
 		gbc_btnAtualizar.insets = new Insets(0, 0, 0, 5);
 		gbc_btnAtualizar.gridx = 1;
 		gbc_btnAtualizar.gridy = 4;
@@ -742,7 +782,7 @@ public class TelaCriarNota extends JInternalFrame {
 			c.setEnabled(false);
 		}
 
-		if (flag_modo_operacao == 1) {
+		if (flag_modo_operacao == 0) {
 			btnAtualizar.setEnabled(false);
 			btnAtualizar.setVisible(false);
 
@@ -753,6 +793,7 @@ public class TelaCriarNota extends JInternalFrame {
 		}
 
 		this.setVisible(true);
+		this.setLocationRelativeTo(janela_pai);
 	}
 
 	public void rotinasEdicao() {

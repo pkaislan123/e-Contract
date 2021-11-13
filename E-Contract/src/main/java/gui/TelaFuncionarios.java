@@ -222,7 +222,7 @@ public class TelaFuncionarios extends JFrame {
 		cBStatus.setFont(new Font("SansSerif", Font.PLAIN, 16));
 		cBStatus.addItem("TODOS");
 		cBStatus.addItem("ATIVO");
-		cBStatus.addItem("INATIVO");
+		cBStatus.addItem("DESATIVADO");
 		painelClientes.add(cBStatus, "cell 8 1 2 1,growx");
 		btnLimparCampos.setForeground(Color.WHITE);
 		btnLimparCampos.setFont(new Font("SansSerif", Font.BOLD, 14));
@@ -461,7 +461,7 @@ public class TelaFuncionarios extends JFrame {
 			lblContratosAtivos.setFont(new Font("SansSerif", Font.BOLD, 16));
 			painelClientes.add(lblContratosAtivos, "cell 2 7,alignx center");
 			
-			JLabel lblNewLabel_2_1 = new JLabel("Inativo:");
+			JLabel lblNewLabel_2_1 = new JLabel("Desativado:");
 			lblNewLabel_2_1.setFont(new Font("SansSerif", Font.BOLD, 16));
 			painelClientes.add(lblNewLabel_2_1, "cell 0 8,alignx right");
 			 
@@ -588,7 +588,7 @@ public class TelaFuncionarios extends JFrame {
 	        	if(sts == 1) {
 	        		return "ATIVO";
 	        	}else if (sts == 0) {
-	        		return "INATIVO";
+	        		return "DESATIVADO";
 	        	}
 	        }
 	        default:
@@ -810,7 +810,7 @@ public class TelaFuncionarios extends JFrame {
 					renderer.setForeground(Color.WHITE);
 					renderer.setBackground(new Color(0,51,0)); // verde
 
-				} else if (dados.equalsIgnoreCase("INATIVO")) {
+				} else if (dados.equalsIgnoreCase("DESATIVADO")) {
 					renderer.setBackground(new Color(204,0,0)); // vermelho
 					renderer.setForeground(Color.WHITE);
 

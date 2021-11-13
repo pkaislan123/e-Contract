@@ -332,7 +332,19 @@ public class TelaFuncionariosCadastroContratoTrabalho extends JFrame {
 					boolean atualizou = gerenciar.atualizarcontrato(cad);
 					if (atualizou) {
 						JOptionPane.showMessageDialog(isto,
-								"Contrato de Trabalho Atualizado!\nConsulte o administrador");
+								"Contrato de Trabalho Atualizado!");
+						
+						//ativar a conta
+						boolean ativou = new GerenciarBancoFuncionarios().ativarFuncionario(funcionario.getId_funcionario());
+						if(ativou) {
+							JOptionPane.showMessageDialog(isto,
+									"Conta do Colaborador foi ativada!");
+						}else {
+							JOptionPane.showMessageDialog(isto,
+									"Conta do Colaborador não foi ativada!\nConsulte o Administrador");
+						}
+						
+						
 						((TelaGerenciarFuncionario) janela_pai).pesquisar_contratos();
 
 						isto.dispose();
@@ -360,7 +372,19 @@ public class TelaFuncionariosCadastroContratoTrabalho extends JFrame {
 					GerenciarBancoFuncionariosContratoTrabalho gerenciar = new GerenciarBancoFuncionariosContratoTrabalho();
 					int inseriu = gerenciar.inserircontrato(cad);
 					if (inseriu > 0) {
-						JOptionPane.showMessageDialog(isto, "Contrato de Trabalho Inserido!\nConsulte o administrador");
+						JOptionPane.showMessageDialog(isto, "Contrato de Trabalho!");
+						
+						
+						//ativar a conta
+						boolean ativou = new GerenciarBancoFuncionarios().ativarFuncionario(funcionario.getId_funcionario());
+						if(ativou) {
+							JOptionPane.showMessageDialog(isto,
+									"Conta do Colaborador foi ativada!");
+						}else {
+							JOptionPane.showMessageDialog(isto,
+									"Conta do Colaborador não foi ativada!\nConsulte o Administrador");
+						}
+						
 						((TelaGerenciarFuncionario) janela_pai).pesquisar_contratos();
 						isto.dispose();
 

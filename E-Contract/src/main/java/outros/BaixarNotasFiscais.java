@@ -26,7 +26,7 @@ import main.java.cadastros.CadastroAviso;
 import main.java.cadastros.CadastroCliente;
 import main.java.cadastros.CadastroLogin;
 import main.java.gui.TelaMain;
-import main.java.gui.TelaPrincipal;
+import main.java.gui.TelaMain;
 import main.java.manipular.ConfiguracoesGlobais;
 import main.java.manipular.ManipularTxt;
 import main.java.tratamento_proprio.Log;
@@ -39,7 +39,7 @@ public class BaixarNotasFiscais {
 	private  String diretorio_todas_as_notas = "";
 
 	private Log GerenciadorLog;
-    private TelaMain telaPrincipal;
+    private TelaMain TelaMain;
 	private CadastroLogin login;
 	private ConfiguracoesGlobais configs_globais;
 	private ArrayList<String> lista_nomes_arquivos = new ArrayList<>();
@@ -885,8 +885,8 @@ public void abrirPagina(String s_dataInicio, String s_dataFim, String natureza) 
 				 //usuario logado
 				  login = dados.getLogin();
 				  servidor_unidade = configs_globais.getServidorUnidade();
-					//telaprincipal
-					telaPrincipal = dados.getTelaPrincipal();
+					//TelaMain
+					TelaMain = dados.getTelaMain();
 		
 	}
 	
@@ -1046,7 +1046,7 @@ public void abrirPagina(String s_dataInicio, String s_dataFim, String natureza) 
 			}
 			avisar.setSetor("Download de Notas");
 			avisar.setMensagem("Download de notas Finalizado - Cliente: " + nome);
-            telaPrincipal.incluir_aviso(avisar);
+            TelaMain.incluir_aviso(avisar);
             
   			  for(WebDriver driver : drivers) {
   				  try{
@@ -1086,7 +1086,7 @@ public void abrirPagina(String s_dataInicio, String s_dataFim, String natureza) 
 			}
 			avisar.setSetor("Download de Notas");
 			avisar.setMensagem("Download de notas Iniciado - Cliente: " + nome);
-            telaPrincipal.incluir_aviso(avisar);
+            TelaMain.incluir_aviso(avisar);
             
             
     	  PesquisaParalela pesquisar = null;
@@ -1138,7 +1138,7 @@ public void abrirPagina(String s_dataInicio, String s_dataFim, String natureza) 
   	public void novaNotificacao(String texto, String song, int repeticao) {
 		try {
 	    	Thread.sleep(1000);
-	    	 URL url = TelaPrincipal.class.getResource(song);
+	    	 URL url = TelaMain.class.getResource(song);
 	    	   TelaNotificacao tela = new TelaNotificacao();
 			  
 				

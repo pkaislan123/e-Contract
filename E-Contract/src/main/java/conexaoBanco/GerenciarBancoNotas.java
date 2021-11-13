@@ -59,7 +59,7 @@ public class GerenciarBancoNotas {
 			SimpleDateFormat sdf = new SimpleDateFormat("HH:mm:ss");
 			strHoraLembrete  = nota.getHora_lembrete().format(DateTimeFormatter.ofPattern("HH:mm:ss"));
 		}
-		return "insert into nota (nome, descricao, texto, tipo, data_nota, id_usuario_pai, lembrar, data_lembrete, hora_lembrete, notificar, uni_tempo,tempo_notificacao) values ('"
+		return "insert into nota (nome, descricao, texto, tipo, data_nota, id_usuario_pai, lembrar, data_lembrete, hora_lembrete, notificar, uni_tempo,tempo_notificacao, ultima_notificacao, id_tarefa_pai) values ('"
 				+ nota.getNome() + "','"
 				+ nota.getDescricao() + "','"
 				+ nota.getTexto() + "','"
@@ -71,8 +71,11 @@ public class GerenciarBancoNotas {
 				+ strHoraLembrete + "','"
 				+ nota.getNotificar() + "','"
 				+ nota.getUni_tempo() + "','"
+						+ nota.getTempo_notificacao() + "','"	
 						
-				+ nota.getTempo_notificacao() + "')";
+						+ nota.getUltima_notificacao() + "','"	
+
+				+ nota.getId_tarefa_pai() + "')";
 	}
 	
 	
@@ -82,7 +85,6 @@ public class GerenciarBancoNotas {
 	
 	public int inserirnota(CadastroNota nota) {
 		int result = -1;
-		int id_cliente = -1;
 		if (nota != null) {
 			Connection conn = null;
 			try {
@@ -105,7 +107,7 @@ public class GerenciarBancoNotas {
 
 			} catch (Exception e) {
 				JOptionPane.showMessageDialog(null,
-						"Erro ao inserir o nota no banco de " + "dados "  );
+						"Erro ao inserir o nota no banco de dados!\nErro: " + e.getMessage() + "\nCausa: " + e.getCause()  );
 				
 				return -1;
 			}
@@ -117,7 +119,7 @@ public class GerenciarBancoNotas {
 	
 	
 	public ArrayList<CadastroNota> getnotas(int id_usuario_pai) {
-		String selectAdivitos = "select * from nota where id_usuario_pai = ?";
+		String selectAdivitos = "select * from nota where id_usuario_pai = ? and tipo != 4";
 		Connection conn = null;
 		PreparedStatement pstm = null;
 		ResultSet rs = null;
@@ -146,6 +148,96 @@ public class GerenciarBancoNotas {
 				nota.setNotificar(rs.getInt("notificar"));
 				nota.setUni_tempo(rs.getInt("uni_tempo"));
 				nota.setTempo_notificacao(rs.getInt("tempo_notificacao"));
+				nota.setUltima_notificacao(rs.getString("ultima_notificacao"));
+
+				lista_notas.add(nota);
+
+			}
+			ConexaoBanco.fechaConexao(conn, pstm, rs);
+		} catch (Exception e) {
+			//JOptionPane.showMessageDialog(null, "Erro ao listar notas"  );
+		}
+		return lista_notas;
+
+	}
+	
+	
+	public ArrayList<CadastroNota> getNotasPorTarefa(int id_tarefa) {
+		String selectAdivitos = "select * from nota where id_tarefa_pai = ? and tipo = 4";
+		Connection conn = null;
+		PreparedStatement pstm = null;
+		ResultSet rs = null;
+		ArrayList<CadastroNota> lista_notas = new ArrayList<CadastroNota>();
+		try {
+			conn = ConexaoBanco.getConexao();
+			pstm = conn.prepareStatement(selectAdivitos);
+			// pstm.setString(1, chave);
+			pstm.setInt(1, id_tarefa);
+
+			rs = pstm.executeQuery();
+			while (rs.next()) {
+				CadastroNota nota = new CadastroNota();
+			
+				
+				nota.setId(rs.getInt("id_nota"));
+				nota.setNome(rs.getString("nome"));
+				nota.setDescricao(rs.getString("descricao"));
+				nota.setTexto(rs.getString("texto"));
+				nota.setData_nota(rs.getDate("data_nota"));
+				nota.setId_usuario_pai(rs.getInt("id_usuario_pai"));
+				nota.setLembrar(rs.getInt("lembrar"));
+				nota.setTipo(rs.getInt("tipo"));
+				nota.setData_lembrete(rs.getDate("data_lembrete"));
+				nota.setHora_lembrete(rs.getTime("hora_lembrete").toLocalTime());
+				nota.setNotificar(rs.getInt("notificar"));
+				nota.setUni_tempo(rs.getInt("uni_tempo"));
+				nota.setTempo_notificacao(rs.getInt("tempo_notificacao"));
+				nota.setUltima_notificacao(rs.getString("ultima_notificacao"));
+				nota.setId_tarefa_pai(rs.getInt("id_tarefa_pai"));
+
+				lista_notas.add(nota);
+
+			}
+			ConexaoBanco.fechaConexao(conn, pstm, rs);
+		} catch (Exception e) {
+			//JOptionPane.showMessageDialog(null, "Erro ao listar notas"  );
+		}
+		return lista_notas;
+
+	}
+	
+	
+	public ArrayList<CadastroNota> getnotasNotificar(int id_usuario_pai) {
+		String selectAdivitos = "select * from nota where (id_usuario_pai = ?  and notificar = 1) or (tipo = 3 and notificar = 1)";
+		Connection conn = null;
+		PreparedStatement pstm = null;
+		ResultSet rs = null;
+		ArrayList<CadastroNota> lista_notas = new ArrayList<CadastroNota>();
+		try {
+			conn = ConexaoBanco.getConexao();
+			pstm = conn.prepareStatement(selectAdivitos);
+			// pstm.setString(1, chave);
+			pstm.setInt(1, id_usuario_pai);
+
+			rs = pstm.executeQuery();
+			while (rs.next()) {
+				CadastroNota nota = new CadastroNota();
+			
+				
+				nota.setId(rs.getInt("id_nota"));
+				nota.setNome(rs.getString("nome"));
+				nota.setDescricao(rs.getString("descricao"));
+				nota.setTexto(rs.getString("texto"));
+				nota.setData_nota(rs.getDate("data_nota"));
+				nota.setId_usuario_pai(rs.getInt("id_usuario_pai"));
+				nota.setLembrar(rs.getInt("lembrar"));
+				nota.setTipo(rs.getInt("tipo"));
+				nota.setData_lembrete(rs.getDate("data_lembrete"));
+				nota.setHora_lembrete(rs.getTime("hora_lembrete").toLocalTime());
+				nota.setNotificar(rs.getInt("notificar"));
+				nota.setUni_tempo(rs.getInt("uni_tempo"));
+				nota.setTempo_notificacao(rs.getInt("tempo_notificacao"));
+				nota.setUltima_notificacao(rs.getString("ultima_notificacao"));
 
 				lista_notas.add(nota);
 
@@ -262,6 +354,31 @@ public class GerenciarBancoNotas {
 
 		} catch (Exception f) {
 			JOptionPane.showMessageDialog(null,
+					"Erro ao excluir o nota do banco de dados\nBanco de dados corrompido!\nConsulte o administrador do sistema"
+							+ "dados " + f.getMessage());
+			return false;
+		}
+
+	}
+	
+	
+	public boolean removerNota(int id_nota) {
+		String sql_delete_nota = "DELETE FROM nota where id_nota = ?";
+		Connection conn = null;
+		ResultSet rs = null;
+		try {
+			conn = ConexaoBanco.getConexao();
+			PreparedStatement pstm;
+			pstm = conn.prepareStatement(sql_delete_nota);
+
+			pstm.setInt(1, id_nota);
+
+			pstm.execute();
+			ConexaoBanco.fechaConexao(conn, pstm);
+			return true;
+
+		} catch (Exception f) {
+			JOptionPane.showMessageDialog(null,
 					"Erro ao exlcuir o nota do banco de dados\nBanco de dados corrompido!\nConsulte o administrador do sistema"
 							+ "dados " + f.getMessage());
 			return false;
@@ -319,6 +436,35 @@ public class GerenciarBancoNotas {
 			pstm.execute();
 			ConexaoBanco.fechaConexao(conn, pstm);
 			JOptionPane.showMessageDialog(null, "status do nota atualizado, banco normalizado ");
+			return true;
+
+		} catch (Exception f) {
+			JOptionPane.showMessageDialog(null,
+					"Erro ao atualizar o  status do nota no banco de dados\nBanco de dados corrompido!\nConsulte o administrador do sistema"
+							+ "dados " + f.getMessage());
+			return false;
+		}
+	}
+	
+	
+	public boolean atualizarUltimaNotificacao(CadastroNota nota) {
+	
+		String sql_update_nota = "update nota set ultima_notificacao = ? where id_nota = ?";
+		Connection conn = null;
+		ResultSet rs = null;
+		try {
+			
+			
+			conn = ConexaoBanco.getConexao();
+			PreparedStatement pstm;
+			pstm = conn.prepareStatement(sql_update_nota);
+
+			pstm.setString(1, nota.getUltima_notificacao());
+			pstm.setInt(2, nota.getId());
+
+
+			pstm.execute();
+			ConexaoBanco.fechaConexao(conn, pstm);
 			return true;
 
 		} catch (Exception f) {

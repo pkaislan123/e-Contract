@@ -203,6 +203,7 @@ public class TelaHome extends JInternalFrame {
 		btnNewButton.setBackground(new Color(0, 0, 51));
 		btnNewButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
+				
 				TelaCliente tela = new TelaCliente(1,0, null);
 				tela.setVisible(true);
 			}
@@ -319,8 +320,6 @@ public class TelaHome extends JInternalFrame {
 		
 		this.setVisible(true);
 
-		
-		
 		
 	}
 	

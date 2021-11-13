@@ -170,7 +170,7 @@ public class TelaConfirmarTransferenciaPagamentoContratual extends JDialog {
 		painelPrincipal.setBackground(new Color(255, 255, 255));
 		painelPrincipal.setBorder(new EmptyBorder(5, 5, 5, 5));
 		setContentPane(painelPrincipal);
-		painelPrincipal.setLayout(new MigLayout("", "[grow][grow][grow]", "[][][][][][][][][::10px][][][100px:n,grow][][]"));
+		painelPrincipal.setLayout(new MigLayout("", "[grow][grow][grow]", "[][][][][][][][][][::10px][][][100px:n,grow][][]"));
 		
 		JLabel lblNewLabel = new JLabel("Data:");
 		lblNewLabel.setFont(new Font("Tahoma", Font.PLAIN, 14));
@@ -239,6 +239,18 @@ public class TelaConfirmarTransferenciaPagamentoContratual extends JDialog {
 		painelPrincipal.add(lblValor, "cell 0 1,alignx trailing");
 		
 		entValor = new JTextField();
+		entValor.addKeyListener(new KeyAdapter() {
+			@Override
+			public void keyTyped(KeyEvent e) {
+				String caracteres = ".0987654321\b";// lista de caracters que não devem ser aceitos
+				String s_valor = "";
+
+				if (!caracteres.contains(e.getKeyChar() + "")) {
+					e.consume();// aciona esse propriedade para eliminar a ação do evento
+
+				} 
+			}
+		});
 		entValor.setFont(new Font("Tahoma", Font.PLAIN, 14));
 		
 		Locale ptBr = new Locale("pt", "BR");
@@ -246,26 +258,30 @@ public class TelaConfirmarTransferenciaPagamentoContratual extends JDialog {
 		painelPrincipal.add(entValor, "cell 1 1 2 1,growx");
 		entValor.setColumns(10);
 		
+		JLabel lblNewLabel_2 = new JLabel("somente ponto");
+		lblNewLabel_2.setForeground(new Color(255, 0, 0));
+		painelPrincipal.add(lblNewLabel_2, "cell 1 2");
+		
 		
 		
 		JLabel lblContratoRemetente = new JLabel("Contrato Remetente:");
 		lblContratoRemetente.setFont(new Font("Tahoma", Font.PLAIN, 14));
-		painelPrincipal.add(lblContratoRemetente, "cell 0 2,alignx trailing");
+		painelPrincipal.add(lblContratoRemetente, "cell 0 3,alignx trailing");
 		
 		entContratoRemetente = new JTextField();
 		entContratoRemetente.setFont(new Font("Tahoma", Font.PLAIN, 14));
 		entContratoRemetente.setEditable(false);
 		entContratoRemetente.setColumns(10);
 		entContratoRemetente.setText(contrato_remetente.getId() + "-" + contrato_remetente.getCodigo());
-		painelPrincipal.add(entContratoRemetente, "cell 1 2 2 1,growx");
+		painelPrincipal.add(entContratoRemetente, "cell 1 3 2 1,growx");
 		
 		JLabel lblContratoDestinatario = new JLabel("Contrato Destinatario:");
 		lblContratoDestinatario.setFont(new Font("Tahoma", Font.PLAIN, 14));
-		painelPrincipal.add(lblContratoDestinatario, "cell 0 3,alignx trailing");
+		painelPrincipal.add(lblContratoDestinatario, "cell 0 4,alignx trailing");
 		
 		 cBContratoDestinatario = new JComboBox();
 		cBContratoDestinatario.setFont(new Font("Tahoma", Font.PLAIN, 14));
-		painelPrincipal.add(cBContratoDestinatario, "flowx,cell 1 3,growx");
+		painelPrincipal.add(cBContratoDestinatario, "flowx,cell 1 4,growx");
 		
 		JButton btnSelecionarContratoDestinatario = new JButton("Selecionar Contrato");
 		btnSelecionarContratoDestinatario.addActionListener(new ActionListener() {
@@ -276,20 +292,20 @@ public class TelaConfirmarTransferenciaPagamentoContratual extends JDialog {
 				contrato.setVisible(true);
 			}
 		});
-		painelPrincipal.add(btnSelecionarContratoDestinatario, "cell 2 3");
+		painelPrincipal.add(btnSelecionarContratoDestinatario, "cell 2 4");
 		
 		JLabel lblNewLabel_1_1 = new JLabel("New label");
 		lblNewLabel_1_1.setVisible(false);
-		painelPrincipal.add(lblNewLabel_1_1, "cell 0 4");
+		painelPrincipal.add(lblNewLabel_1_1, "cell 0 5");
 		
 		JLabel lblDepositante = new JLabel("Depositante:");
 		lblDepositante.setFont(new Font("Tahoma", Font.PLAIN, 14));
-		painelPrincipal.add(lblDepositante, "cell 0 5,alignx trailing");
+		painelPrincipal.add(lblDepositante, "cell 0 6,alignx trailing");
 		
 		
 		
 		 cBDepositante = new JComboBox();
-		painelPrincipal.add(cBDepositante, "cell 1 5,growx");
+		painelPrincipal.add(cBDepositante, "cell 1 6,growx");
 		
 		JButton btnSelecionarDepositante = new JButton("Selecionar Depositante");
 		btnSelecionarDepositante.addActionListener(new ActionListener() {
@@ -301,25 +317,25 @@ public class TelaConfirmarTransferenciaPagamentoContratual extends JDialog {
 				
 			}
 		});
-		painelPrincipal.add(btnSelecionarDepositante, "cell 2 5");
+		painelPrincipal.add(btnSelecionarDepositante, "cell 2 6");
 		
 		JLabel cBContaDepositantehgh = new JLabel("Conta Depositante:");
 		cBContaDepositantehgh.setFont(new Font("Tahoma", Font.PLAIN, 14));
-		painelPrincipal.add(cBContaDepositantehgh, "cell 0 6,alignx trailing");
+		painelPrincipal.add(cBContaDepositantehgh, "cell 0 7,alignx trailing");
 		
 		cBContaDepositante = new JComboBox();
-		painelPrincipal.add(cBContaDepositante, "cell 1 6,growx");
+		painelPrincipal.add(cBContaDepositante, "cell 1 7,growx");
 		
 		JLabel lblNewLabel_1 = new JLabel("New label");
 		lblNewLabel_1.setVisible(false);
-		painelPrincipal.add(lblNewLabel_1, "cell 0 7");
+		painelPrincipal.add(lblNewLabel_1, "cell 0 8");
 		
 		JLabel lblFavorecido = new JLabel("Favorecido:");
 		lblFavorecido.setFont(new Font("Tahoma", Font.PLAIN, 14));
-		painelPrincipal.add(lblFavorecido, "cell 0 9,alignx trailing");
+		painelPrincipal.add(lblFavorecido, "cell 0 10,alignx trailing");
 		
 		 cBFavorecido = new JComboBox();
-		painelPrincipal.add(cBFavorecido, "cell 1 9,growx");
+		painelPrincipal.add(cBFavorecido, "cell 1 10,growx");
 		
 		JButton btnSelecionarFavorecido = new JButton("Selecionar Favorecido");
 		btnSelecionarFavorecido.addActionListener(new ActionListener() {
@@ -330,25 +346,25 @@ public class TelaConfirmarTransferenciaPagamentoContratual extends JDialog {
 				tela.setVisible(true);
 			}
 		});
-		painelPrincipal.add(btnSelecionarFavorecido, "cell 2 9,growx");
+		painelPrincipal.add(btnSelecionarFavorecido, "cell 2 10,growx");
 		
 		JLabel lblContaFavorecido = new JLabel("Conta Favorecido:");
 		lblContaFavorecido.setFont(new Font("Tahoma", Font.PLAIN, 14));
-		painelPrincipal.add(lblContaFavorecido, "cell 0 10,alignx trailing");
+		painelPrincipal.add(lblContaFavorecido, "cell 0 11,alignx trailing");
 		
 		 cBContaFavorecido = new JComboBox();
-		painelPrincipal.add(cBContaFavorecido, "cell 1 10,growx");
+		painelPrincipal.add(cBContaFavorecido, "cell 1 11,growx");
 		
 		JLabel lblDescrio = new JLabel("Descrição:");
 		lblDescrio.setFont(new Font("Tahoma", Font.PLAIN, 14));
-		painelPrincipal.add(lblDescrio, "cell 0 11,alignx right");
+		painelPrincipal.add(lblDescrio, "cell 0 12,alignx right");
 		
 		 textAreaDescricaoTransferencia = new JTextArea();
 		textAreaDescricaoTransferencia.setBorder(new LineBorder(new Color(0, 0, 0)));
 		textAreaDescricaoTransferencia.setFont(new Font("Monospaced", Font.PLAIN, 14));
 		textAreaDescricaoTransferencia.setLineWrap(true);
 		textAreaDescricaoTransferencia.setWrapStyleWord(true);
-		painelPrincipal.add(textAreaDescricaoTransferencia, "cell 1 11 2 1,grow");
+		painelPrincipal.add(textAreaDescricaoTransferencia, "cell 1 12 2 1,grow");
 		
 		JButton btnTransferir = new JButton("Concluir");
 		btnTransferir.setForeground(Color.WHITE);
@@ -395,8 +411,8 @@ public class TelaConfirmarTransferenciaPagamentoContratual extends JDialog {
 		btnAtualizar.setForeground(Color.WHITE);
 		btnAtualizar.setFont(new Font("SansSerif", Font.BOLD, 14));
 		btnAtualizar.setBackground(new Color(0, 51, 0));
-		painelPrincipal.add(btnAtualizar, "cell 1 13,growx");
-		painelPrincipal.add(btnTransferir, "cell 2 13,growx");
+		painelPrincipal.add(btnAtualizar, "cell 1 14,growx");
+		painelPrincipal.add(btnTransferir, "cell 2 14,growx");
 		
 		
 		

@@ -295,6 +295,18 @@ public class TelaFuncionariosCadastroEvento extends JFrame {
 								JOptionPane.showMessageDialog(isto, "Evento Registrado, mas status do contrato não atualizado!\nConsulte o administrador");
 								
 								}
+							
+							GerenciarBancoFuncionarios gerenciar_funcionarios = new GerenciarBancoFuncionarios();
+							//desativar o usuario
+							boolean desativado = gerenciar_funcionarios.desativarFuncionario(evento.getId_colaborador());
+							if(desativado) {
+								JOptionPane.showMessageDialog(isto, "A conta do Colaborador também foi suspensa!");
+
+							}else {
+								JOptionPane.showMessageDialog(isto, "O Colaborador não teve a conta suspensa, consulte o administrador");
+
+							}
+							
 						}else {
 							JOptionPane.showMessageDialog(isto, "Evento Registrado");
 

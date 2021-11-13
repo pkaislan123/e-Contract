@@ -377,6 +377,8 @@ public class TelaSeguranca extends JFrame {
 					return "Recursos Humanos";
 				}else if(mod == 1) {
 					return "Finanças";
+				}else if(mod == 2) {
+					return "Contratos";
 				}
 			}
 			

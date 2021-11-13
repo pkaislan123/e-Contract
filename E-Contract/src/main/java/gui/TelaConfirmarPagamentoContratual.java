@@ -117,6 +117,8 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.ArrayList;
 import java.awt.Font;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
 
 public class TelaConfirmarPagamentoContratual extends JDialog {
 
@@ -273,6 +275,18 @@ public class TelaConfirmarPagamentoContratual extends JDialog {
 		panel_1.add(btnSelecionarDepositante);
 
 		entValorPagamento = new JTextField();
+		entValorPagamento.addKeyListener(new KeyAdapter() {
+			@Override
+			public void keyTyped(KeyEvent e) {
+				String caracteres = ".0987654321\b";// lista de caracters que não devem ser aceitos
+				String s_valor = "";
+
+				if (!caracteres.contains(e.getKeyChar() + "")) {
+					e.consume();// aciona esse propriedade para eliminar a ação do evento
+
+				} 
+			}
+		});
 		entValorPagamento.setBounds(134, 49, 140, 35);
 		panel_1.add(entValorPagamento);
 		entValorPagamento.setColumns(10);
@@ -325,6 +339,11 @@ public class TelaConfirmarPagamentoContratual extends JDialog {
 		textAreaDescricao.setWrapStyleWord(true);
 		textAreaDescricao.setBounds(135, 313, 347, 129);
 		panel_1.add(textAreaDescricao);
+		
+		JLabel lblNewLabel_1 = new JLabel("somente ponto");
+		lblNewLabel_1.setForeground(new Color(255, 0, 0));
+		lblNewLabel_1.setBounds(290, 58, 93, 16);
+		panel_1.add(lblNewLabel_1);
 
 		JButton btnCancelar_2 = new JButton("Cancelar");
 		btnCancelar_2.setForeground(Color.WHITE);

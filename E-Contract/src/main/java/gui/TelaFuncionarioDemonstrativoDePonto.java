@@ -32,6 +32,7 @@ import javax.swing.table.TableRowSorter;
 import main.java.cadastros.CadastroCliente;
 import main.java.cadastros.CadastroFuncionario;
 import main.java.cadastros.CadastroFuncionarioAdmissao;
+import main.java.cadastros.CadastroFuncionarioDemissao;
 import main.java.cadastros.CadastroFuncionarioEvento;
 import main.java.cadastros.CadastroFuncionarioRotinaTrabalho;
 import main.java.cadastros.EventoGlobal;
@@ -585,6 +586,7 @@ public class TelaFuncionarioDemonstrativoDePonto extends JFrame {
 			modelFuncionarios.addCC(funcionario);
 
 		}
+		
 	}
 
 	public class RegistroPontoMensalCompletoTableModel extends AbstractTableModel {
@@ -898,7 +900,7 @@ public class TelaFuncionarioDemonstrativoDePonto extends JFrame {
 
 	}
 
-	public void pesquisarDemostrativo() {
+	 public void pesquisarDemostrativo() {
 
 		pesquisarContratoAtivo();
 
@@ -930,9 +932,10 @@ public class TelaFuncionarioDemonstrativoDePonto extends JFrame {
 		ArrayList<CadastroFuncionarioRotinaTrabalho> rotinas = gerenciar_rotina.getRotinas(func.getId_funcionario());
 		DateTimeFormatter formatter = new DateTimeFormatterBuilder().toFormatter(new Locale("pt", "BR"));
 		LocalDate dia_de_hoje  = LocalDate.now();
+		
 
 		for (RegistroPontoDiario rp : listRpDiario) {
-			
+			try {
 			CadastroFuncionarioEvento evt_global = null;
 			
 			// verifique a rotina desse dia
@@ -1633,8 +1636,13 @@ public class TelaFuncionarioDemonstrativoDePonto extends JFrame {
 			
 		
 			
-			
+			}catch(Exception e) {
+				JOptionPane.showMessageDialog(null, "Erro: " + e.getMessage() + "\nCausa: "  + e.getCause());
+				e.printStackTrace();
+			}
 		}
+		
+
 		
 		String s_total_h_ex =  formatHora(total_horas_extras);
 		String s_total_h_normais =  formatHora(total_horas_normais_trabalhadas);
@@ -1686,7 +1694,9 @@ public class TelaFuncionarioDemonstrativoDePonto extends JFrame {
 	
 	public void calcularAtrazos(ArrayList<RegistroHoraLocal> registros, int ultimo_dia) {
 
-		int posicao = 0;
+		try {
+
+			int posicao = 0;
 		ArrayList<Semana> semanas = new ArrayList<>();
 		
 		while(posicao < ultimo_dia) {
@@ -1695,7 +1705,7 @@ public class TelaFuncionarioDemonstrativoDePonto extends JFrame {
 		
 			int dia_da_semana = registro.getDia_da_semana();
 			semana.setData_inicial(registro.getData());
-			if(dia_da_semana < 6) {
+			if(dia_da_semana <= 7) {
 				//dia de semana normal
 				long acumulador = 0;
 				int contador = dia_da_semana;
@@ -1722,7 +1732,7 @@ public class TelaFuncionarioDemonstrativoDePonto extends JFrame {
 			
 		}
 		
-		
+
 		String texto = "";
 		int count_semana = 1;
 		texto_atrazo = new ArrayList<>();
@@ -1757,6 +1767,9 @@ public class TelaFuncionarioDemonstrativoDePonto extends JFrame {
 		texto += ("Total de Atrazos: " + formatHora(total_atrazo));
 		textAreaDescricaoAtrasos.setText(texto);
 		//JOptionPane.showMessageDialog(isto, texto);
+		}catch(Exception f) {
+			f.printStackTrace();
+		}
 
 	}
 	
@@ -1898,11 +1911,41 @@ public class TelaFuncionarioDemonstrativoDePonto extends JFrame {
 		lblTipoContrato.setText(ct.getTipo_contrato());
 		lblStatusContrato.setText("ATIVO");
 		}else {
-			lblCargo.setText("Sem Contrato Ativo");
-			lblFuncao.setText("Sem Contrato Ativo");
-			lblDataAdmissao.setText("Sem Contrato Ativo");
-			lblTipoContrato.setText("Sem Contrato Ativo");
-			lblStatusContrato.setText("Sem Contrato Ativo");;
+			
+			//buscar contrato inativo
+			try {
+			CadastroFuncionarioDemissao demissao = gerenciar.getcontratoInaAtivoPorFuncionario(func.getId_funcionario());
+			
+			CadastroFuncionarioAdmissao contrato = demissao.getContrato_trabalho();
+			CadastroFuncionarioEvento evt = demissao.getEvento_demissao();
+
+			
+			lblCargo.setText(contrato.getCargo());
+			lblFuncao.setText(contrato.getFuncao());
+			lblDataAdmissao.setText(contrato.getData_admissao());
+			lblTipoContrato.setText(contrato.getTipo_contrato());
+			
+			
+
+			int motivo = evt.getMotivo_demissao();
+			String s_motivo = "";
+			if (motivo == 0) {
+				s_motivo = "ENCERRAMENTO DE CONTRATO em " + evt.getData_folga();
+			} else if (motivo == 1) {
+				s_motivo = "JUSTA CAUSA em "+ evt.getData_folga();
+			} else if (motivo == 2) {
+				s_motivo = "SEM JUSTA CAUSA em "+ evt.getData_folga();
+			} else if (motivo == 3) {
+				s_motivo = "PEDIDO DE DISPENSA PELO COLABORADOR em "+ evt.getData_folga();
+			}
+			
+			lblStatusContrato.setText(s_motivo);
+			
+			}catch(Exception e) {
+				JOptionPane.showMessageDialog(isto, "Erro ao consultar ultimo contrato ativo do Colaborador!\nConsulte o administrador");
+				isto.dispose();
+			}
+			
 		}
 
 		GerenciarBancoRotina gerenciar_rotina = new GerenciarBancoRotina();

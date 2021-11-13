@@ -10,14 +10,18 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.math.BigInteger;
 import java.net.URL;
 import java.text.NumberFormat;
 import java.text.SimpleDateFormat;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.Locale;
@@ -35,11 +39,23 @@ import javax.swing.JTable;
 import javax.swing.border.EmptyBorder;
 
 import org.apache.commons.io.FilenameUtils;
+import org.apache.poi.xwpf.model.XWPFHeaderFooterPolicy;
+import org.apache.poi.xwpf.usermodel.ParagraphAlignment;
+import org.apache.poi.xwpf.usermodel.UnderlinePatterns;
+import org.apache.poi.xwpf.usermodel.XWPFDocument;
+import org.apache.poi.xwpf.usermodel.XWPFParagraph;
+import org.apache.poi.xwpf.usermodel.XWPFRun;
 import org.icepdf.ri.common.ComponentKeyBinding;
 import org.icepdf.ri.common.SwingController;
 import org.icepdf.ri.common.SwingViewBuilder;
+import org.openxmlformats.schemas.wordprocessingml.x2006.main.CTP;
+import org.openxmlformats.schemas.wordprocessingml.x2006.main.CTPageMar;
+import org.openxmlformats.schemas.wordprocessingml.x2006.main.CTSectPr;
+import org.openxmlformats.schemas.wordprocessingml.x2006.main.CTText;
+
 import net.miginfocom.swing.MigLayout;
 import javax.swing.JLabel;
+import javax.swing.JList;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 
@@ -47,6 +63,8 @@ import java.awt.Font;
 import javax.swing.JTextArea;
 import javax.swing.JTree;
 import javax.swing.BoxLayout;
+import javax.swing.DefaultListModel;
+
 import java.awt.GridLayout;
 import java.awt.SystemColor;
 import java.awt.Window;
@@ -74,7 +92,9 @@ import java.awt.Button;
 import javax.swing.JTextField;
 import javax.swing.JComboBox;
 
+import main.java.cadastros.CadastroAcessoTemporario;
 import main.java.cadastros.CadastroAditivo;
+import main.java.cadastros.CadastroAnotacaoGeral;
 import main.java.cadastros.CadastroAviso;
 import main.java.cadastros.CadastroBaseArquivos;
 import main.java.cadastros.CadastroBaseDados;
@@ -100,8 +120,12 @@ import main.java.cadastros.DadosContratos;
 import main.java.cadastros.RegistroQuantidade;
 import main.java.cadastros.RegistroRecebimento;
 import main.java.classesExtras.Endereco;
+import main.java.classesExtras.RedenrizadorAnotacoes;
 import main.java.classesExtras.RenderizadorContato;
+import main.java.classesExtras.RenderizadorTarefas;
+import main.java.conexaoBanco.GerenciarBancoAcessoTemporario;
 import main.java.conexaoBanco.GerenciarBancoAditivos;
+import main.java.conexaoBanco.GerenciarBancoAnotacaoGerais;
 import main.java.conexaoBanco.GerenciarBancoClientes;
 import main.java.conexaoBanco.GerenciarBancoContratos;
 import main.java.conexaoBanco.GerenciarBancoDocumento;
@@ -124,6 +148,7 @@ import main.java.manipular.ArquivoConfiguracoes;
 import main.java.manipular.ConfiguracoesGlobais;
 import main.java.manipular.ConverterPdf;
 import main.java.manipular.CopiarArquivo;
+import main.java.manipular.CriarArquivoAnotacao;
 import main.java.manipular.EditarAditivo;
 import main.java.manipular.EditarExcel;
 import main.java.manipular.EditarWord;
@@ -211,9 +236,12 @@ public class TelaGerenciarCliente extends JDialog {
 	private TelaRomaneios telaRomaneio;
 	private JLabel lblTipoPessoa, lblTipoIdentificacao, lblIdentificacao, lblIe, lblIE, lblStatus, lblEndereco;
 	private JLabel lblTotalContratosConcluidosComprador, lblTotalContratosComprador, lblTotalContratosAbertosComprador;
-	private  Map<String, Integer> mapa_quantidades_globais;
-	private JLabel lblTotalContratosConcluidosVendedor,lblTotalContratosCanceladosVendedor,lblTotalContratosCanceladosComprador, lblTotalContratosVendedor, lblTotalContratosAbertosVendedor,
-			lblNivel;
+	private Map<String, Integer> mapa_quantidades_globais;
+	private JLabel lblTotalContratosConcluidosVendedor, lblTotalContratosCanceladosVendedor,
+			lblTotalContratosCanceladosComprador, lblTotalContratosVendedor, lblTotalContratosAbertosVendedor, lblNivel;
+
+	private DefaultListModel<CadastroAnotacaoGeral> listModelAnotacaoGeral;
+	private RedenrizadorAnotacoes renderMinhasAnotacoes;
 
 	public TelaGerenciarCliente(CadastroCliente cliente_selecionado, Window janela_pai) {
 		// setModal(true);
@@ -241,6 +269,42 @@ public class TelaGerenciarCliente extends JDialog {
 		painelDocumentos.setBackground(new Color(0, 102, 153));
 		painelDocumentos.setVisible(false);
 
+		JPanel painelAnotacoesGerais = new JPanel();
+		painelAnotacoesGerais.setBackground(Color.WHITE);
+		painelAnotacoesGerais.setVisible(false);
+		painelAnotacoesGerais.setForeground(Color.WHITE);
+		painelAnotacoesGerais.setBounds(198, 154, 1088, 510);
+		painelPrincipal.add(painelAnotacoesGerais);
+		painelAnotacoesGerais.setLayout(new MigLayout("", "[grow]", "[grow][]"));
+
+		JList listMinhasAnotacoes = new JList();
+
+		JScrollPane scrollPaneMinhasTarefas = new JScrollPane(listMinhasAnotacoes);
+		painelAnotacoesGerais.add(scrollPaneMinhasTarefas, "cell 0 0,grow");
+
+		listMinhasAnotacoes.setOpaque(false);
+		listMinhasAnotacoes.setBackground(Color.WHITE);
+
+		listModelAnotacaoGeral = new DefaultListModel<CadastroAnotacaoGeral>();
+		renderMinhasAnotacoes = new RedenrizadorAnotacoes();
+
+		listMinhasAnotacoes.setModel(listModelAnotacaoGeral);
+		listMinhasAnotacoes.setCellRenderer(renderMinhasAnotacoes);
+		pesquisar();
+
+		MouseListener mouseListener = new MouseAdapter() {
+			public void mouseClicked(MouseEvent e) {
+				if (e.getClickCount() == 2) {
+
+					int index = listMinhasAnotacoes.locationToIndex(e.getPoint());
+					if (index >= 0) {
+
+					}
+				}
+			}
+		};
+		listMinhasAnotacoes.addMouseListener(mouseListener);
+
 		JPanel painelDeposito = new JPanel();
 		painelDeposito.setBackground(new Color(0, 102, 153));
 		painelDeposito.setVisible(false);
@@ -257,7 +321,8 @@ public class TelaGerenciarCliente extends JDialog {
 		panel_1.setBorder(new LineBorder(new Color(0, 0, 0)));
 		panel_1.setBackground(new Color(255, 255, 204));
 		painelContratos.add(panel_1, "cell 0 0,grow");
-		panel_1.setLayout(new MigLayout("", "[180px][7px][138px]", "[19px][24px][25px][24px][19px][33px][33px][][][][][][][][][][]"));
+		panel_1.setLayout(new MigLayout("", "[180px][7px][138px]",
+				"[19px][24px][25px][24px][19px][33px][33px][][][][][][][][][][]"));
 
 		JLabel lblNewLabel_1 = new JLabel("Contratos como vendedor:");
 		panel_1.add(lblNewLabel_1, "cell 0 0 3 1,alignx left,aligny top");
@@ -286,204 +351,199 @@ public class TelaGerenciarCliente extends JDialog {
 		lblTotalContratosConcluidosVendedor = new JLabel("New label");
 		panel_1.add(lblTotalContratosConcluidosVendedor, "cell 1 3 2 1,grow");
 		lblTotalContratosConcluidosVendedor.setFont(new Font("Arial", Font.PLAIN, 16));
-		
+
 		JLabel lblCancelados = new JLabel("Cancelados:");
 		lblCancelados.setFont(new Font("Arial", Font.PLAIN, 16));
 		panel_1.add(lblCancelados, "cell 0 4,alignx right,aligny top");
-		
-				JButton btnVerRelatorioSimplificado = new JButton("Ver Relatorio Simplificado");
-				btnVerRelatorioSimplificado.setFont(new Font("SansSerif", Font.BOLD, 16));
-				btnVerRelatorioSimplificado.addActionListener(new ActionListener() {
-					public void actionPerformed(ActionEvent e) {
 
+		JButton btnVerRelatorioSimplificado = new JButton("Ver Relatorio Simplificado");
+		btnVerRelatorioSimplificado.setFont(new Font("SansSerif", Font.BOLD, 16));
+		btnVerRelatorioSimplificado.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
 
-						telaEmEsperaRelatoria = new TelaEmEsperaRelatoria(isto);
+				telaEmEsperaRelatoria = new TelaEmEsperaRelatoria(isto);
 
-						new Thread() {
-							@Override
-							public void run() {
-								telaEmEsperaRelatoria.setVisible(true);
-							}
-						}.start();
-						int _tipo_contrato = 0;
-						boolean _contrato = true;
-						boolean _unir_contratos = false;
-					
-								boolean _contrato_como_comprador = false;
-								boolean _pagamento = true;
-								boolean _pagamento_como_depositante = false;
-								
-								boolean _pagamento_como_favorecido  = true;
-								boolean _incluir_sem_pagamentos = true;
-								
-								boolean _incluir_transferencias_pagamentos = true;
-								boolean _unir_pagamentos = true;
-								boolean _incluir_comissao_pagamento = true;
-								boolean _carregamento = true;
-								boolean _carregamento_como_comprador = false;
-								boolean _carregamento_como_vendedor = true;
-								
-								boolean _unir_carregamentos = true;
-								boolean _controle_nf_venda_carregamentos = true;
-								
-								boolean _incluir_transferencias_carregamentos = true;
-								boolean _incluir_sem_carregamentos = true;
-								boolean _recebimento = true;
-								
-								boolean _recebimento_como_comprador = false;
-								boolean _recebimento_como_vendedor = true;
-								boolean _unir_recebimentos  =true;
-								
-								boolean _controle_nf_venda_recebimentos = true;
-								boolean _incluir_sem_recebimentos = true;
-								int _id_safra = 0;
-								boolean _sub_contratos = false;
-								boolean _incluir_comissao = false;
-								boolean _incluir_ganhos_potenciais = false;
-								boolean _somar_sub_contratos = false;
-								ArrayList<CadastroCliente> _clientes_globais = new ArrayList<>();
-								
-								CadastroCliente contra_parte = new CadastroCliente();
-								contra_parte.setId(0);
-								CadastroCliente cliente_alvo2_relatorio =  new CadastroCliente();
-								cliente_alvo2_relatorio.setId(0);
-								CadastroGrupo _grupo_alvo = null;
-								int _participacao = -1;
-								
-								_clientes_globais.add(cliente_local);
-						
-								
-						RelatorioContratos relatar = new RelatorioContratos( _tipo_contrato,  _contrato,  _unir_contratos,
-								 _contrato_como_comprador,  _pagamento,  _pagamento_como_depositante,
-								 _pagamento_como_favorecido,  _incluir_sem_pagamentos,
-								 _incluir_transferencias_pagamentos,  _unir_pagamentos,  _incluir_comissao_pagamento,
-								 _carregamento,  _carregamento_como_comprador,  _carregamento_como_vendedor,
-								 _unir_carregamentos,  _controle_nf_venda_carregamentos,
-								 _incluir_transferencias_carregamentos,  _incluir_sem_carregamentos,  _recebimento,
-								 _recebimento_como_comprador,  _recebimento_como_vendedor,  _unir_recebimentos,
-								 _controle_nf_venda_recebimentos,  _incluir_sem_recebimentos,  _id_safra,
-								 _sub_contratos,  _incluir_comissao,  _incluir_ganhos_potenciais,
-								 _somar_sub_contratos, _clientes_globais, contra_parte, cliente_alvo2_relatorio,
-								 _grupo_alvo,  _participacao);
-
-						new Thread() {
-							@Override
-							public void run() {
-
-								relatar.setTelaEmEsperaRelatoria(telaEmEsperaRelatoria);
-
-								relatar(isto, relatar);
-							}
-						}.start();
-
+				new Thread() {
+					@Override
+					public void run() {
+						telaEmEsperaRelatoria.setVisible(true);
 					}
-				});
-						
-						 lblTotalContratosCanceladosVendedor = new JLabel("New label");
-						lblTotalContratosCanceladosVendedor.setFont(new Font("Arial", Font.PLAIN, 16));
-						panel_1.add(lblTotalContratosCanceladosVendedor, "cell 1 4 2 1");
-				
-						JButton btnVerRelatorioComoVendedor = new JButton("Ver Relatorio Completo");
-						btnVerRelatorioComoVendedor.setFont(new Font("SansSerif", Font.BOLD, 16));
-						btnVerRelatorioComoVendedor.setForeground(Color.WHITE);
-						btnVerRelatorioComoVendedor.setBackground(new Color(0, 0, 102));
-						panel_1.add(btnVerRelatorioComoVendedor, "cell 0 15,alignx left,aligny top");
-						btnVerRelatorioComoVendedor.addActionListener(new ActionListener() {
-							public void actionPerformed(ActionEvent e) {
+				}.start();
+				int _tipo_contrato = 0;
+				boolean _contrato = true;
+				boolean _unir_contratos = false;
 
-								
-								
-										
-										telaEmEsperaRelatoria = new TelaEmEsperaRelatoria(isto);
+				boolean _contrato_como_comprador = false;
+				boolean _pagamento = true;
+				boolean _pagamento_como_depositante = false;
 
-										new Thread() {
-											@Override
-											public void run() {
-												telaEmEsperaRelatoria.setVisible(true);
-											}
-										}.start();
-										int _tipo_contrato = 0;
-										boolean _contrato = true;
-										boolean _unir_contratos = false;
-									
-												boolean _contrato_como_comprador = false;
-												boolean _pagamento = true;
-												boolean _pagamento_como_depositante = false;
-												
-												boolean _pagamento_como_favorecido  =true;
-												boolean _incluir_sem_pagamentos = true;
-												
-												boolean _incluir_transferencias_pagamentos = true;
-												boolean _unir_pagamentos = false;
-												boolean _incluir_comissao_pagamento = true;
-												boolean _carregamento = true;
-												boolean _carregamento_como_comprador = false;
-												boolean _carregamento_como_vendedor = true;
-												
-												boolean _unir_carregamentos = false;
-												boolean _controle_nf_venda_carregamentos = true;
-												
-												boolean _incluir_transferencias_carregamentos = true;
-												boolean _incluir_sem_carregamentos = true;
-												boolean _recebimento = true;
-												
-												boolean _recebimento_como_comprador = false;
-												boolean _recebimento_como_vendedor = true;
-												boolean _unir_recebimentos  =false;
-												
-												boolean _controle_nf_venda_recebimentos = true;
-												boolean _incluir_sem_recebimentos = true;
-												int _id_safra = 0;
-												boolean _sub_contratos = false;
-												boolean _incluir_comissao = false;
-												boolean _incluir_ganhos_potenciais = false;
-												boolean _somar_sub_contratos = false;
-												ArrayList<CadastroCliente> _clientes_globais = new ArrayList<>();
-												
-												CadastroCliente contra_parte = new CadastroCliente();
-												contra_parte.setId(0);
-												CadastroCliente cliente_alvo2_relatorio =  new CadastroCliente();
-												cliente_alvo2_relatorio.setId(0);
-												CadastroGrupo _grupo_alvo = null;
-												int _participacao = -1;
-												
-												_clientes_globais.add(cliente_local);
-										
-												
-										RelatorioContratos relatar = new RelatorioContratos( _tipo_contrato,  _contrato,  _unir_contratos,
-												 _contrato_como_comprador,  _pagamento,  _pagamento_como_depositante,
-												 _pagamento_como_favorecido,  _incluir_sem_pagamentos,
-												 _incluir_transferencias_pagamentos,  _unir_pagamentos,  _incluir_comissao_pagamento,
-												 _carregamento,  _carregamento_como_comprador,  _carregamento_como_vendedor,
-												 _unir_carregamentos,  _controle_nf_venda_carregamentos,
-												 _incluir_transferencias_carregamentos,  _incluir_sem_carregamentos,  _recebimento,
-												 _recebimento_como_comprador,  _recebimento_como_vendedor,  _unir_recebimentos,
-												 _controle_nf_venda_recebimentos,  _incluir_sem_recebimentos,  _id_safra,
-												 _sub_contratos,  _incluir_comissao,  _incluir_ganhos_potenciais,
-												 _somar_sub_contratos, _clientes_globais, contra_parte, cliente_alvo2_relatorio,
-												 _grupo_alvo,  _participacao);
+				boolean _pagamento_como_favorecido = true;
+				boolean _incluir_sem_pagamentos = true;
 
-										new Thread() {
-											@Override
-											public void run() {
+				boolean _incluir_transferencias_pagamentos = true;
+				boolean _unir_pagamentos = true;
+				boolean _incluir_comissao_pagamento = true;
+				boolean _carregamento = true;
+				boolean _carregamento_como_comprador = false;
+				boolean _carregamento_como_vendedor = true;
 
-												relatar.setTelaEmEsperaRelatoria(telaEmEsperaRelatoria);
+				boolean _unir_carregamentos = true;
+				boolean _controle_nf_venda_carregamentos = true;
 
-												relatar(isto, relatar);
-											}
-										}.start();
+				boolean _incluir_transferencias_carregamentos = true;
+				boolean _incluir_sem_carregamentos = true;
+				boolean _recebimento = true;
 
-							}
-						});
-				btnVerRelatorioSimplificado.setForeground(Color.WHITE);
-				btnVerRelatorioSimplificado.setBackground(new Color(0, 0, 204));
-				panel_1.add(btnVerRelatorioSimplificado, "cell 0 16,alignx left,aligny top");
+				boolean _recebimento_como_comprador = false;
+				boolean _recebimento_como_vendedor = true;
+				boolean _unir_recebimentos = true;
+				boolean _incluir_transferencias_recebimentos = false;
+
+				boolean _controle_nf_venda_recebimentos = true;
+				boolean _incluir_sem_recebimentos = true;
+				int _id_safra = 0;
+				boolean _sub_contratos = false;
+				boolean _incluir_comissao = false;
+				boolean _incluir_ganhos_potenciais = false;
+				boolean _somar_sub_contratos = false;
+				ArrayList<CadastroCliente> _clientes_globais = new ArrayList<>();
+
+				CadastroCliente contra_parte = new CadastroCliente();
+				contra_parte.setId(0);
+				CadastroCliente cliente_alvo2_relatorio = new CadastroCliente();
+				cliente_alvo2_relatorio.setId(0);
+				CadastroGrupo _grupo_alvo = null;
+				int _participacao = -1;
+
+				_clientes_globais.add(cliente_local);
+
+				RelatorioContratos relatar = new RelatorioContratos(_tipo_contrato, _contrato, _unir_contratos,
+						_contrato_como_comprador, _pagamento, _pagamento_como_depositante, _pagamento_como_favorecido,
+						_incluir_sem_pagamentos, _incluir_transferencias_pagamentos, _unir_pagamentos,
+						_incluir_comissao_pagamento, _carregamento, _carregamento_como_comprador,
+						_carregamento_como_vendedor, _unir_carregamentos, _controle_nf_venda_carregamentos,
+						_incluir_transferencias_carregamentos, _incluir_sem_carregamentos, _recebimento,
+						_recebimento_como_comprador, _recebimento_como_vendedor, _unir_recebimentos,
+						_incluir_transferencias_recebimentos, _controle_nf_venda_recebimentos,
+						_incluir_sem_recebimentos, _id_safra, _sub_contratos, _incluir_comissao,
+						_incluir_ganhos_potenciais, _somar_sub_contratos, _clientes_globais, contra_parte,
+						cliente_alvo2_relatorio, _grupo_alvo, _participacao,0);
+
+				new Thread() {
+					@Override
+					public void run() {
+
+						relatar.setTelaEmEsperaRelatoria(telaEmEsperaRelatoria);
+
+						relatar(isto, relatar);
+					}
+				}.start();
+
+			}
+		});
+
+		lblTotalContratosCanceladosVendedor = new JLabel("New label");
+		lblTotalContratosCanceladosVendedor.setFont(new Font("Arial", Font.PLAIN, 16));
+		panel_1.add(lblTotalContratosCanceladosVendedor, "cell 1 4 2 1");
+
+		JButton btnVerRelatorioComoVendedor = new JButton("Ver Relatorio Completo");
+		btnVerRelatorioComoVendedor.setFont(new Font("SansSerif", Font.BOLD, 16));
+		btnVerRelatorioComoVendedor.setForeground(Color.WHITE);
+		btnVerRelatorioComoVendedor.setBackground(new Color(0, 0, 102));
+		panel_1.add(btnVerRelatorioComoVendedor, "cell 0 15,alignx left,aligny top");
+		btnVerRelatorioComoVendedor.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+
+				telaEmEsperaRelatoria = new TelaEmEsperaRelatoria(isto);
+
+				new Thread() {
+					@Override
+					public void run() {
+						telaEmEsperaRelatoria.setVisible(true);
+					}
+				}.start();
+				int _tipo_contrato = 0;
+				boolean _contrato = true;
+				boolean _unir_contratos = false;
+
+				boolean _contrato_como_comprador = false;
+				boolean _pagamento = true;
+				boolean _pagamento_como_depositante = false;
+
+				boolean _pagamento_como_favorecido = true;
+				boolean _incluir_sem_pagamentos = true;
+
+				boolean _incluir_transferencias_pagamentos = true;
+				boolean _unir_pagamentos = false;
+				boolean _incluir_comissao_pagamento = true;
+				boolean _carregamento = true;
+				boolean _carregamento_como_comprador = false;
+				boolean _carregamento_como_vendedor = true;
+
+				boolean _unir_carregamentos = false;
+				boolean _controle_nf_venda_carregamentos = true;
+
+				boolean _incluir_transferencias_carregamentos = true;
+				boolean _incluir_sem_carregamentos = true;
+				boolean _recebimento = true;
+
+				boolean _recebimento_como_comprador = false;
+				boolean _recebimento_como_vendedor = true;
+				boolean _unir_recebimentos = false;
+				boolean _incluir_transferencias_recebimentos = false;
+
+				boolean _controle_nf_venda_recebimentos = true;
+				boolean _incluir_sem_recebimentos = true;
+				int _id_safra = 0;
+				boolean _sub_contratos = false;
+				boolean _incluir_comissao = false;
+				boolean _incluir_ganhos_potenciais = false;
+				boolean _somar_sub_contratos = false;
+				ArrayList<CadastroCliente> _clientes_globais = new ArrayList<>();
+
+				CadastroCliente contra_parte = new CadastroCliente();
+				contra_parte.setId(0);
+				CadastroCliente cliente_alvo2_relatorio = new CadastroCliente();
+				cliente_alvo2_relatorio.setId(0);
+				CadastroGrupo _grupo_alvo = null;
+				int _participacao = -1;
+
+				_clientes_globais.add(cliente_local);
+
+				RelatorioContratos relatar = new RelatorioContratos(_tipo_contrato, _contrato, _unir_contratos,
+						_contrato_como_comprador, _pagamento, _pagamento_como_depositante, _pagamento_como_favorecido,
+						_incluir_sem_pagamentos, _incluir_transferencias_pagamentos, _unir_pagamentos,
+						_incluir_comissao_pagamento, _carregamento, _carregamento_como_comprador,
+						_carregamento_como_vendedor, _unir_carregamentos, _controle_nf_venda_carregamentos,
+						_incluir_transferencias_carregamentos, _incluir_sem_carregamentos, _recebimento,
+						_recebimento_como_comprador, _recebimento_como_vendedor, _unir_recebimentos,
+						_incluir_transferencias_recebimentos, _controle_nf_venda_recebimentos,
+						_incluir_sem_recebimentos, _id_safra, _sub_contratos, _incluir_comissao,
+						_incluir_ganhos_potenciais, _somar_sub_contratos, _clientes_globais, contra_parte,
+						cliente_alvo2_relatorio, _grupo_alvo, _participacao,0);
+
+				new Thread() {
+					@Override
+					public void run() {
+
+						relatar.setTelaEmEsperaRelatoria(telaEmEsperaRelatoria);
+
+						relatar(isto, relatar);
+					}
+				}.start();
+
+			}
+		});
+		btnVerRelatorioSimplificado.setForeground(Color.WHITE);
+		btnVerRelatorioSimplificado.setBackground(new Color(0, 0, 204));
+		panel_1.add(btnVerRelatorioSimplificado, "cell 0 16,alignx left,aligny top");
 
 		JPanel panel_1_1 = new JPanel();
 		panel_1_1.setBorder(new LineBorder(new Color(0, 0, 0)));
 		panel_1_1.setBackground(new Color(204, 255, 153));
 		painelContratos.add(panel_1_1, "cell 1 0,grow");
-		panel_1_1.setLayout(new MigLayout("", "[180px][7px][19px][51px][225px]", "[19px][24px][25px][24px][33px][33px][][][][][][][][][][][]"));
+		panel_1_1.setLayout(new MigLayout("", "[180px][7px][19px][51px][225px]",
+				"[19px][24px][25px][24px][33px][33px][][][][][][][][][][][]"));
 
 		JLabel lblNewLabel_1_1 = new JLabel("Contratos como comprador:");
 		lblNewLabel_1_1.setFont(new Font("SansSerif", Font.BOLD, 14));
@@ -512,196 +572,192 @@ public class TelaGerenciarCliente extends JDialog {
 		lblTotalContratosConcluidosComprador = new JLabel("New label");
 		lblTotalContratosConcluidosComprador.setFont(new Font("Arial", Font.PLAIN, 16));
 		panel_1_1.add(lblTotalContratosConcluidosComprador, "cell 1 3 4 1,alignx left,growy");
-		
-				JButton btnVerRelatorioSimplificado_1 = new JButton("Ver Relatorio Simplificado");
-				btnVerRelatorioSimplificado_1.setFont(new Font("SansSerif", Font.BOLD, 16));
-				btnVerRelatorioSimplificado_1.addActionListener(new ActionListener() {
-					public void actionPerformed(ActionEvent e) {
-						
 
-						
-						telaEmEsperaRelatoria = new TelaEmEsperaRelatoria(isto);
+		JButton btnVerRelatorioSimplificado_1 = new JButton("Ver Relatorio Simplificado");
+		btnVerRelatorioSimplificado_1.setFont(new Font("SansSerif", Font.BOLD, 16));
+		btnVerRelatorioSimplificado_1.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
 
-						new Thread() {
-							@Override
-							public void run() {
-								telaEmEsperaRelatoria.setVisible(true);
-							}
-						}.start();
-						int _tipo_contrato = 1;
-						boolean _contrato = true;
-						boolean _unir_contratos = false;
-					
-								boolean _contrato_como_comprador = true;
-								boolean _pagamento = true;
-								boolean _pagamento_como_depositante = true;
-								
-								boolean _pagamento_como_favorecido  = false;
-								boolean _incluir_sem_pagamentos = true;
-								
-								boolean _incluir_transferencias_pagamentos = true;
-								boolean _unir_pagamentos = true;
-								boolean _incluir_comissao_pagamento = true;
-								boolean _carregamento = true;
-								boolean _carregamento_como_comprador = true;
-								boolean _carregamento_como_vendedor = false;
-								
-								boolean _unir_carregamentos = true;
-								boolean _controle_nf_venda_carregamentos = true;
-								
-								boolean _incluir_transferencias_carregamentos = true;
-								boolean _incluir_sem_carregamentos = true;
-								boolean _recebimento = true;
-								
-								boolean _recebimento_como_comprador = true;
-								boolean _recebimento_como_vendedor = false;
-								boolean _unir_recebimentos  = true;
-								
-								boolean _controle_nf_venda_recebimentos = true;
-								boolean _incluir_sem_recebimentos = true;
-								int _id_safra = 0;
-								boolean _sub_contratos = true;
-								boolean _incluir_comissao = true;
-								boolean _incluir_ganhos_potenciais = true;
-								boolean _somar_sub_contratos = false;
-								ArrayList<CadastroCliente> _clientes_globais = new ArrayList<>();
-								
-								CadastroCliente contra_parte = new CadastroCliente();
-								contra_parte.setId(0);
-								CadastroCliente cliente_alvo2_relatorio =  new CadastroCliente();
-								cliente_alvo2_relatorio.setId(0);
-								CadastroGrupo _grupo_alvo = null;
-								int _participacao = -1;
-								
-								_clientes_globais.add(cliente_local);
-						
-								
-						RelatorioContratos relatar = new RelatorioContratos( _tipo_contrato,  _contrato,  _unir_contratos,
-								 _contrato_como_comprador,  _pagamento,  _pagamento_como_depositante,
-								 _pagamento_como_favorecido,  _incluir_sem_pagamentos,
-								 _incluir_transferencias_pagamentos,  _unir_pagamentos,  _incluir_comissao_pagamento,
-								 _carregamento,  _carregamento_como_comprador,  _carregamento_como_vendedor,
-								 _unir_carregamentos,  _controle_nf_venda_carregamentos,
-								 _incluir_transferencias_carregamentos,  _incluir_sem_carregamentos,  _recebimento,
-								 _recebimento_como_comprador,  _recebimento_como_vendedor,  _unir_recebimentos,
-								 _controle_nf_venda_recebimentos,  _incluir_sem_recebimentos,  _id_safra,
-								 _sub_contratos,  _incluir_comissao,  _incluir_ganhos_potenciais,
-								 _somar_sub_contratos, _clientes_globais, contra_parte, cliente_alvo2_relatorio,
-								 _grupo_alvo,  _participacao);
+				telaEmEsperaRelatoria = new TelaEmEsperaRelatoria(isto);
 
-						new Thread() {
-							@Override
-							public void run() {
-
-								relatar.setTelaEmEsperaRelatoria(telaEmEsperaRelatoria);
-
-								relatar(isto, relatar);
-							}
-						}.start();
-						
+				new Thread() {
+					@Override
+					public void run() {
+						telaEmEsperaRelatoria.setVisible(true);
 					}
-				});
-				
-						JButton btnVerRelatorioSem = new JButton("Ver Relatorio Completo");
-						btnVerRelatorioSem.setFont(new Font("SansSerif", Font.BOLD, 16));
-						btnVerRelatorioSem.setBackground(new Color(0, 0, 102));
-						btnVerRelatorioSem.setForeground(Color.WHITE);
-						btnVerRelatorioSem.addActionListener(new ActionListener() {
-							public void actionPerformed(ActionEvent e) {
+				}.start();
+				int _tipo_contrato = 1;
+				boolean _contrato = true;
+				boolean _unir_contratos = false;
 
-								telaEmEsperaRelatoria = new TelaEmEsperaRelatoria(isto);
+				boolean _contrato_como_comprador = true;
+				boolean _pagamento = true;
+				boolean _pagamento_como_depositante = true;
 
-								new Thread() {
-									@Override
-									public void run() {
-										telaEmEsperaRelatoria.setVisible(true);
-									}
-								}.start();
-								int _tipo_contrato = 1;
-								boolean _contrato = true;
-								boolean _unir_contratos = false;
-							
-										boolean _contrato_como_comprador = true;
-										boolean _pagamento = true;
-										boolean _pagamento_como_depositante = true;
-										
-										boolean _pagamento_como_favorecido  = false;
-										boolean _incluir_sem_pagamentos = true;
-										
-										boolean _incluir_transferencias_pagamentos = true;
-										boolean _unir_pagamentos = false;
-										boolean _incluir_comissao_pagamento = true;
-										boolean _carregamento = true;
-										boolean _carregamento_como_comprador = true;
-										boolean _carregamento_como_vendedor = false;
-										
-										boolean _unir_carregamentos = false;
-										boolean _controle_nf_venda_carregamentos = true;
-										
-										boolean _incluir_transferencias_carregamentos = true;
-										boolean _incluir_sem_carregamentos = true;
-										boolean _recebimento = true;
-										
-										boolean _recebimento_como_comprador = true;
-										boolean _recebimento_como_vendedor = false;
-										boolean _unir_recebimentos  = false;
-										
-										boolean _controle_nf_venda_recebimentos = true;
-										boolean _incluir_sem_recebimentos = true;
-										int _id_safra = 0;
-										boolean _sub_contratos = true;
-										boolean _incluir_comissao = true;
-										boolean _incluir_ganhos_potenciais = true;
-										boolean _somar_sub_contratos = false;
-										ArrayList<CadastroCliente> _clientes_globais = new ArrayList<>();
-										
-										CadastroCliente contra_parte = new CadastroCliente();
-										contra_parte.setId(0);
-										CadastroCliente cliente_alvo2_relatorio =  new CadastroCliente();
-										cliente_alvo2_relatorio.setId(0);
-										CadastroGrupo _grupo_alvo = null;
-										int _participacao = -1;
-										
-										_clientes_globais.add(cliente_local);
-								
-										
-								RelatorioContratos relatar = new RelatorioContratos( _tipo_contrato,  _contrato,  _unir_contratos,
-										 _contrato_como_comprador,  _pagamento,  _pagamento_como_depositante,
-										 _pagamento_como_favorecido,  _incluir_sem_pagamentos,
-										 _incluir_transferencias_pagamentos,  _unir_pagamentos,  _incluir_comissao_pagamento,
-										 _carregamento,  _carregamento_como_comprador,  _carregamento_como_vendedor,
-										 _unir_carregamentos,  _controle_nf_venda_carregamentos,
-										 _incluir_transferencias_carregamentos,  _incluir_sem_carregamentos,  _recebimento,
-										 _recebimento_como_comprador,  _recebimento_como_vendedor,  _unir_recebimentos,
-										 _controle_nf_venda_recebimentos,  _incluir_sem_recebimentos,  _id_safra,
-										 _sub_contratos,  _incluir_comissao,  _incluir_ganhos_potenciais,
-										 _somar_sub_contratos, _clientes_globais, contra_parte, cliente_alvo2_relatorio,
-										 _grupo_alvo,  _participacao);
+				boolean _pagamento_como_favorecido = false;
+				boolean _incluir_sem_pagamentos = true;
 
-								new Thread() {
-									@Override
-									public void run() {
+				boolean _incluir_transferencias_pagamentos = true;
+				boolean _unir_pagamentos = true;
+				boolean _incluir_comissao_pagamento = true;
+				boolean _carregamento = true;
+				boolean _carregamento_como_comprador = true;
+				boolean _carregamento_como_vendedor = false;
 
-										relatar.setTelaEmEsperaRelatoria(telaEmEsperaRelatoria);
+				boolean _unir_carregamentos = true;
+				boolean _controle_nf_venda_carregamentos = true;
 
-										relatar(isto, relatar);
-									}
-								}.start();
-								
-}
-						});
-						
-						JLabel lblCancelados_1 = new JLabel("Cancelados:");
-						lblCancelados_1.setFont(new Font("Arial", Font.PLAIN, 16));
-						panel_1_1.add(lblCancelados_1, "cell 0 4,alignx right");
-						
-						 lblTotalContratosCanceladosComprador = new JLabel("New label");
-						lblTotalContratosCanceladosComprador.setFont(new Font("Arial", Font.PLAIN, 16));
-						panel_1_1.add(lblTotalContratosCanceladosComprador, "cell 1 4 3 1");
-						panel_1_1.add(btnVerRelatorioSem, "cell 4 15,alignx left,aligny top");
-				btnVerRelatorioSimplificado_1.setForeground(Color.WHITE);
-				btnVerRelatorioSimplificado_1.setBackground(new Color(0, 0, 204));
-				panel_1_1.add(btnVerRelatorioSimplificado_1, "cell 4 16,alignx left,aligny top");
+				boolean _incluir_transferencias_carregamentos = true;
+				boolean _incluir_sem_carregamentos = true;
+				boolean _recebimento = true;
+
+				boolean _recebimento_como_comprador = true;
+				boolean _recebimento_como_vendedor = false;
+				boolean _unir_recebimentos = true;
+				boolean _incluir_transferencias_recebimentos = false;
+
+				boolean _controle_nf_venda_recebimentos = true;
+				boolean _incluir_sem_recebimentos = true;
+				int _id_safra = 0;
+				boolean _sub_contratos = true;
+				boolean _incluir_comissao = true;
+				boolean _incluir_ganhos_potenciais = true;
+				boolean _somar_sub_contratos = false;
+				ArrayList<CadastroCliente> _clientes_globais = new ArrayList<>();
+
+				CadastroCliente contra_parte = new CadastroCliente();
+				contra_parte.setId(0);
+				CadastroCliente cliente_alvo2_relatorio = new CadastroCliente();
+				cliente_alvo2_relatorio.setId(0);
+				CadastroGrupo _grupo_alvo = null;
+				int _participacao = -1;
+
+				_clientes_globais.add(cliente_local);
+
+				RelatorioContratos relatar = new RelatorioContratos(_tipo_contrato, _contrato, _unir_contratos,
+						_contrato_como_comprador, _pagamento, _pagamento_como_depositante, _pagamento_como_favorecido,
+						_incluir_sem_pagamentos, _incluir_transferencias_pagamentos, _unir_pagamentos,
+						_incluir_comissao_pagamento, _carregamento, _carregamento_como_comprador,
+						_carregamento_como_vendedor, _unir_carregamentos, _controle_nf_venda_carregamentos,
+						_incluir_transferencias_carregamentos, _incluir_sem_carregamentos, _recebimento,
+						_recebimento_como_comprador, _recebimento_como_vendedor, _unir_recebimentos,
+						_incluir_transferencias_recebimentos, _controle_nf_venda_recebimentos,
+						_incluir_sem_recebimentos, _id_safra, _sub_contratos, _incluir_comissao,
+						_incluir_ganhos_potenciais, _somar_sub_contratos, _clientes_globais, contra_parte,
+						cliente_alvo2_relatorio, _grupo_alvo, _participacao,0);
+
+				new Thread() {
+					@Override
+					public void run() {
+
+						relatar.setTelaEmEsperaRelatoria(telaEmEsperaRelatoria);
+
+						relatar(isto, relatar);
+					}
+				}.start();
+
+			}
+		});
+
+		JButton btnVerRelatorioSem = new JButton("Ver Relatorio Completo");
+		btnVerRelatorioSem.setFont(new Font("SansSerif", Font.BOLD, 16));
+		btnVerRelatorioSem.setBackground(new Color(0, 0, 102));
+		btnVerRelatorioSem.setForeground(Color.WHITE);
+		btnVerRelatorioSem.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+
+				telaEmEsperaRelatoria = new TelaEmEsperaRelatoria(isto);
+
+				new Thread() {
+					@Override
+					public void run() {
+						telaEmEsperaRelatoria.setVisible(true);
+					}
+				}.start();
+				int _tipo_contrato = 1;
+				boolean _contrato = true;
+				boolean _unir_contratos = false;
+
+				boolean _contrato_como_comprador = true;
+				boolean _pagamento = true;
+				boolean _pagamento_como_depositante = true;
+
+				boolean _pagamento_como_favorecido = false;
+				boolean _incluir_sem_pagamentos = true;
+
+				boolean _incluir_transferencias_pagamentos = true;
+				boolean _unir_pagamentos = false;
+				boolean _incluir_comissao_pagamento = true;
+				boolean _carregamento = true;
+				boolean _carregamento_como_comprador = true;
+				boolean _carregamento_como_vendedor = false;
+
+				boolean _unir_carregamentos = false;
+				boolean _controle_nf_venda_carregamentos = true;
+
+				boolean _incluir_transferencias_carregamentos = true;
+				boolean _incluir_sem_carregamentos = true;
+				boolean _recebimento = true;
+
+				boolean _recebimento_como_comprador = true;
+				boolean _recebimento_como_vendedor = false;
+				boolean _unir_recebimentos = false;
+				boolean _incluir_transferencias_recebimentos = false;
+
+				boolean _controle_nf_venda_recebimentos = true;
+				boolean _incluir_sem_recebimentos = true;
+				int _id_safra = 0;
+				boolean _sub_contratos = true;
+				boolean _incluir_comissao = true;
+				boolean _incluir_ganhos_potenciais = true;
+				boolean _somar_sub_contratos = false;
+				ArrayList<CadastroCliente> _clientes_globais = new ArrayList<>();
+
+				CadastroCliente contra_parte = new CadastroCliente();
+				contra_parte.setId(0);
+				CadastroCliente cliente_alvo2_relatorio = new CadastroCliente();
+				cliente_alvo2_relatorio.setId(0);
+				CadastroGrupo _grupo_alvo = null;
+				int _participacao = -1;
+
+				_clientes_globais.add(cliente_local);
+
+				RelatorioContratos relatar = new RelatorioContratos(_tipo_contrato, _contrato, _unir_contratos,
+						_contrato_como_comprador, _pagamento, _pagamento_como_depositante, _pagamento_como_favorecido,
+						_incluir_sem_pagamentos, _incluir_transferencias_pagamentos, _unir_pagamentos,
+						_incluir_comissao_pagamento, _carregamento, _carregamento_como_comprador,
+						_carregamento_como_vendedor, _unir_carregamentos, _controle_nf_venda_carregamentos,
+						_incluir_transferencias_carregamentos, _incluir_sem_carregamentos, _recebimento,
+						_recebimento_como_comprador, _recebimento_como_vendedor, _unir_recebimentos,
+						_incluir_transferencias_recebimentos, _controle_nf_venda_recebimentos,
+						_incluir_sem_recebimentos, _id_safra, _sub_contratos, _incluir_comissao,
+						_incluir_ganhos_potenciais, _somar_sub_contratos, _clientes_globais, contra_parte,
+						cliente_alvo2_relatorio, _grupo_alvo, _participacao,0);
+
+				new Thread() {
+					@Override
+					public void run() {
+
+						relatar.setTelaEmEsperaRelatoria(telaEmEsperaRelatoria);
+
+						relatar(isto, relatar);
+					}
+				}.start();
+
+			}
+		});
+
+		JLabel lblCancelados_1 = new JLabel("Cancelados:");
+		lblCancelados_1.setFont(new Font("Arial", Font.PLAIN, 16));
+		panel_1_1.add(lblCancelados_1, "cell 0 4,alignx right");
+
+		lblTotalContratosCanceladosComprador = new JLabel("New label");
+		lblTotalContratosCanceladosComprador.setFont(new Font("Arial", Font.PLAIN, 16));
+		panel_1_1.add(lblTotalContratosCanceladosComprador, "cell 1 4 3 1");
+		panel_1_1.add(btnVerRelatorioSem, "cell 4 15,alignx left,aligny top");
+		btnVerRelatorioSimplificado_1.setForeground(Color.WHITE);
+		btnVerRelatorioSimplificado_1.setBackground(new Color(0, 0, 204));
+		panel_1_1.add(btnVerRelatorioSimplificado_1, "cell 4 16,alignx left,aligny top");
 
 		JPanel painelDadosIniciais = new JPanel();
 		painelDadosIniciais.setBackground(new Color(0, 128, 128));
@@ -838,11 +894,106 @@ public class TelaGerenciarCliente extends JDialog {
 		btnNewButton_2.setBounds(955, 455, 115, 33);
 		painelDeposito.add(btnNewButton_2);
 		painelDocumentos.setEnabled(false);
+		painelAnotacoesGerais.setEnabled(false);
+
+		JButton btnNewButton_3_1_1 = new JButton("Excluir");
+		btnNewButton_3_1_1.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+
+				for (int i = 0; i <= listMinhasAnotacoes.getModel().getSize(); i++) {
+
+					boolean selecionado = listMinhasAnotacoes.isSelectedIndex(i);
+
+					if (selecionado) {
+						CadastroAnotacaoGeral nota = (CadastroAnotacaoGeral) listMinhasAnotacoes.getModel()
+								.getElementAt(i);
+
+						if (JOptionPane.showConfirmDialog(isto,
+								"Deseja excluir a Anotação ID: " + nota.getId_anotacao(), "Excluir",
+								JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE) == JOptionPane.YES_OPTION) {
+							GerenciarBancoAnotacaoGerais gerenciar = new GerenciarBancoAnotacaoGerais();
+							boolean excluido = gerenciar.removernota(nota.getId_anotacao());
+							if (excluido) {
+								JOptionPane.showMessageDialog(isto, "Anotação Excluída");
+								isto.pesquisar();
+							} else {
+								JOptionPane.showMessageDialog(isto,
+										"Erro ao Excluir a Anotação\nConsulte o Administrador");
+
+							}
+						}
+
+						break;
+
+					}
+				}
+
+			}
+		});
+		btnNewButton_3_1_1.setForeground(Color.WHITE);
+		btnNewButton_3_1_1.setFont(new Font("SansSerif", Font.BOLD, 16));
+		btnNewButton_3_1_1.setBackground(new Color(153, 0, 0));
+		painelAnotacoesGerais.add(btnNewButton_3_1_1, "flowx,cell 0 1,alignx right");
+
+		JButton btnNewButton_3_1 = new JButton("Editar");
+		btnNewButton_3_1.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+
+				for (int i = 0; i <= listMinhasAnotacoes.getModel().getSize(); i++) {
+
+					boolean selecionado = listMinhasAnotacoes.isSelectedIndex(i);
+
+					if (selecionado) {
+						CadastroAnotacaoGeral nota = (CadastroAnotacaoGeral) listMinhasAnotacoes.getModel()
+								.getElementAt(i);
+
+						TelaCriarNotaGeral tela = new TelaCriarNotaGeral(1, cliente_local.getId(), nota, isto);
+						tela.setVisible(true);
+
+						break;
+
+					}
+				}
+
+			}
+		});
+		btnNewButton_3_1.setForeground(Color.WHITE);
+		btnNewButton_3_1.setFont(new Font("SansSerif", Font.BOLD, 16));
+		btnNewButton_3_1.setBackground(new Color(0, 51, 0));
+		painelAnotacoesGerais.add(btnNewButton_3_1, "cell 0 1,alignx right");
+
+		JButton btnNewButton_3 = new JButton("+Anotação");
+		btnNewButton_3.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+
+				TelaCriarNotaGeral tela = new TelaCriarNotaGeral(0, cliente_local.getId(), null, isto);
+				tela.setVisible(true);
+
+			}
+		});
+		btnNewButton_3.setBackground(new Color(0, 51, 102));
+		btnNewButton_3.setForeground(Color.WHITE);
+		btnNewButton_3.setFont(new Font("SansSerif", Font.BOLD, 16));
+		painelAnotacoesGerais.add(btnNewButton_3, "cell 0 1,alignx right");
 		painelDocumentos.setBounds(198, 153, 1088, 511);
 		painelPrincipal.add(painelDocumentos);
+
 		painelDocumentos.setLayout(new MigLayout("", "[grow][]", "[grow]"));
 
 		painelDocumentos.add(panel_docs, "cell 0 0,grow");
+
+		JButton btnCriarNovoDocumento = new JButton("Criar Novo Documento Word");
+		btnCriarNovoDocumento.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+
+				criarNovoDocumento();
+
+			}
+		});
+		btnCriarNovoDocumento.setForeground(Color.WHITE);
+		btnCriarNovoDocumento.setFont(new Font("Tahoma", Font.BOLD, 16));
+		btnCriarNovoDocumento.setBackground(new Color(0, 0, 153));
+		painelDocumentos.add(btnCriarNovoDocumento, "cell 0 1,alignx right");
 
 		JPanel painelInserirDocumento = new JPanel();
 		painelInserirDocumento.setBackground(new Color(0, 102, 153));
@@ -947,13 +1098,28 @@ public class TelaGerenciarCliente extends JDialog {
 		JPopupMenu jPopupMenu = new JPopupMenu();
 		JMenuItem jMenuItemVizualizar = new JMenuItem();
 		JMenuItem jMenuItemExcluir = new JMenuItem();
+		JMenuItem jMenuItemBloquear = new JMenuItem();
+		JMenuItem jMenuItemDesbloquear = new JMenuItem();
 
 		jMenuItemVizualizar.setText("Vizualizar");
 		jMenuItemExcluir.setText("Excluir");
+		jMenuItemBloquear.setText("Bloquear");
+		jMenuItemDesbloquear.setText("Desbloquear");
 
 		jMenuItemVizualizar.addActionListener(new java.awt.event.ActionListener() {
 			// Importe a classe java.awt.event.ActionEvent
 			public void actionPerformed(ActionEvent e) {
+				
+				boolean prosseguir_com_vizualizacao = false;
+				
+				if (login != null) {
+					if (login.getConfigs_privilegios().getNivel_privilegios() <= 2) {
+						prosseguir_com_vizualizacao = true;
+					}
+
+				}
+				
+				
 				String nome_arquivo = no_selecionado.getUserObject().toString();
 
 				String quebra[] = nome_arquivo.split("@");
@@ -962,6 +1128,8 @@ public class TelaGerenciarCliente extends JDialog {
 				for (int i = 1; i < quebra.length; i++) {
 					nome_official += quebra[i];
 				}
+				
+				nome_official = nome_official.replaceAll("Bloqueado", "");
 
 				String nome_pasta = "";
 				if (cliente_local.getTipo_pessoa() == 0)
@@ -971,18 +1139,34 @@ public class TelaGerenciarCliente extends JDialog {
 
 				nome_pasta = trimar(nome_pasta);
 
-				String unidade_base_dados = configs_globais.getServidorUnidade();
-				String caminho_salvar = unidade_base_dados + "\\" + "E-Contract\\arquivos\\clientes\\" + nome_pasta
-						+ "\\DADOS PESSOAS\\" + nome_official;
+				GerenciarBancoDocumento gerenciar_docs = new GerenciarBancoDocumento();
 
-				if (Desktop.isDesktopSupported()) {
-					try {
-						Desktop desktop = Desktop.getDesktop();
-						File myFile = new File(caminho_salvar);
-						desktop.open(myFile);
-					} catch (IOException ex) {
+				CadastroDocumento doc = gerenciar_docs.getDocumentoPorId(Integer.parseInt(quebra[0]));
+				
+				if(doc != null) {
+					if(doc.getBloqueado() == 1 && !prosseguir_com_vizualizacao) {
+						JOptionPane.showMessageDialog(isto, "Documento Bloqueado, somente o administrador pode vizualizá-lo");
+
+					}else if((doc.getBloqueado() == 1 && prosseguir_com_vizualizacao) || doc.getBloqueado() == 0) {
+					
+					String unidade_base_dados = configs_globais.getServidorUnidade();
+					String caminho_salvar = unidade_base_dados + "\\" + "E-Contract\\arquivos\\clientes\\" + nome_pasta
+							+ "\\DADOS PESSOAS\\" + nome_official;
+
+					if (Desktop.isDesktopSupported()) {
+						try {
+							Desktop desktop = Desktop.getDesktop();
+							File myFile = new File(caminho_salvar);
+							desktop.open(myFile);
+						} catch (IOException ex) {
+						}
 					}
+					}
+				}else {
+
+					
 				}
+				
 			}
 		});
 
@@ -992,6 +1176,16 @@ public class TelaGerenciarCliente extends JDialog {
 				if (JOptionPane.showConfirmDialog(isto, "Deseja Excluir este Documento", "Exclusão",
 						JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE) == JOptionPane.YES_OPTION) {
 
+					boolean prosseguir_com_vizualizacao = false;
+					
+					if (login != null) {
+						if (login.getConfigs_privilegios().getNivel_privilegios() <= 2) {
+							prosseguir_com_vizualizacao = true;
+						}
+
+					}
+					
+					
 					String nome_arquivo = no_selecionado.getUserObject().toString();
 
 					String quebra[] = nome_arquivo.split("@");
@@ -1000,6 +1194,7 @@ public class TelaGerenciarCliente extends JDialog {
 					for (int i = 1; i < quebra.length; i++) {
 						nome_official += quebra[i];
 					}
+					nome_official = nome_official.replaceAll("Bloqueado", "");
 
 					String nome_pasta = "";
 					if (cliente_local.getTipo_pessoa() == 0)
@@ -1012,38 +1207,144 @@ public class TelaGerenciarCliente extends JDialog {
 					String unidade_base_dados = configs_globais.getServidorUnidade();
 					String caminho_completo = unidade_base_dados + "\\" + "E-Contract\\arquivos\\clientes\\"
 							+ nome_pasta + "\\DADOS PESSOAS\\" + nome_official;
+					
+					GerenciarBancoDocumento gerenciar_docs = new GerenciarBancoDocumento();
 
-					boolean excluido = new ManipularTxt().apagarArquivo(caminho_completo);
-					if (excluido) {
+					CadastroDocumento doc = gerenciar_docs.getDocumentoPorId(Integer.parseInt(quebra[0]));
+					
+					if(doc != null) {
+						if(doc.getBloqueado() == 1 && !prosseguir_com_vizualizacao) {
+							JOptionPane.showMessageDialog(isto, "Documento Bloqueado, somente o administrador pode exclui-lo");
 
-						GerenciarBancoDocumento gerenciar_docs = new GerenciarBancoDocumento();
-						boolean excluir_documento = gerenciar_docs.removerDocumento(Integer.parseInt(quebra[0]));
+						}else if((doc.getBloqueado() == 1 && prosseguir_com_vizualizacao) || doc.getBloqueado() == 0) {
+							boolean excluido = new ManipularTxt().apagarArquivo(caminho_completo);
+							if (excluido) {
 
-						if (excluir_documento) {
-							JOptionPane.showMessageDialog(null, "Documento Excluido!");
+								boolean excluir_documento = gerenciar_docs.removerDocumento(Integer.parseInt(quebra[0]));
 
-						} else {
-							JOptionPane.showMessageDialog(null,
-									"Arquivo fisico apagado, mas as informações\ndeste documento ainda estão no banco de dados\nConsulte o administrador");
+								if (excluir_documento) {
+									JOptionPane.showMessageDialog(isto, "Documento Excluido!");
 
+								} else {
+									JOptionPane.showMessageDialog(isto,
+											"Arquivo fisico apagado, mas as informações\ndeste documento ainda estão no banco de dados\nConsulte o administrador");
+
+								}
+
+								atualizarArvoreDocumentos();
+
+							} else {
+								JOptionPane.showMessageDialog(isto, "Erro ao excluir o documento\nConsulte o administrador!");
+							}
 						}
+					}else {
 
-						atualizarArvoreDocumentos();
+						
+						
 
-					} else {
-						JOptionPane.showMessageDialog(null, "Erro ao excluir o documento\nConsulte o administrador!");
 					}
-
-				} else {
-
-				}
+					
+					
+				} 
 
 			}
 
 		});
 
+		jMenuItemBloquear.addActionListener(new java.awt.event.ActionListener() {
+			// Importe a classe java.awt.event.ActionEvent
+			public void actionPerformed(ActionEvent e) {
+				if (JOptionPane.showConfirmDialog(isto, "Deseja Bloquear este Documento", "Bloqueio",
+						JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE) == JOptionPane.YES_OPTION) {
+
+					boolean prosseguir_com_bloqueio = false;
+
+					if (login != null) {
+						if (login.getConfigs_privilegios().getNivel_privilegios() <= 2) {
+							prosseguir_com_bloqueio = true;
+						}else {
+							JOptionPane.showMessageDialog(isto, "Somente Administradores podem bloquear documentos");
+
+						}
+
+					}else {
+						JOptionPane.showMessageDialog(isto, "Somente Administradores podem bloquear documentos");
+					}
+
+					if (prosseguir_com_bloqueio) {
+						String nome_arquivo = no_selecionado.getUserObject().toString();
+
+						String quebra[] = nome_arquivo.split("@");
+
+						GerenciarBancoDocumento gerenciar_docs = new GerenciarBancoDocumento();
+						boolean bloquear_documento = gerenciar_docs.bloquearDocumento(Integer.parseInt(quebra[0]));
+
+						if (bloquear_documento) {
+							JOptionPane.showMessageDialog(null, "Documento Bloqueado!");
+
+						} else {
+							JOptionPane.showMessageDialog(null,
+									"Documento Não Bloqueado\nConsulte o Administrador");
+						}
+
+						atualizarArvoreDocumentos();
+
+					}
+				}
+			}
+
+		});
+		
+		
+		jMenuItemDesbloquear.addActionListener(new java.awt.event.ActionListener() {
+			// Importe a classe java.awt.event.ActionEvent
+			public void actionPerformed(ActionEvent e) {
+				if (JOptionPane.showConfirmDialog(isto, "Deseja Desbloquear este Documento", "Desbloqueio",
+						JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE) == JOptionPane.YES_OPTION) {
+
+					boolean prosseguir_com_desbloqueio = false;
+
+					if (login != null) {
+						if (login.getConfigs_privilegios().getNivel_privilegios() <= 2) {
+							prosseguir_com_desbloqueio = true;
+						}else {
+							JOptionPane.showMessageDialog(isto, "Somente Administradores podem desbloquear documentos");
+
+						}
+
+					}else {
+						JOptionPane.showMessageDialog(isto, "Somente Administradores podem desbloquear documentos");
+					}
+
+					if (prosseguir_com_desbloqueio) {
+						String nome_arquivo = no_selecionado.getUserObject().toString();
+
+						String quebra[] = nome_arquivo.split("@");
+
+						GerenciarBancoDocumento gerenciar_docs = new GerenciarBancoDocumento();
+						boolean bloquear_documento = gerenciar_docs.desbloquearDocumento(Integer.parseInt(quebra[0]));
+
+						if (bloquear_documento) {
+							JOptionPane.showMessageDialog(null, "Documento Desbloqueado!");
+
+						} else {
+							JOptionPane.showMessageDialog(null,
+									"Documento Não Desbloqueado\nConsulte o Administrador");
+						}
+
+						atualizarArvoreDocumentos();
+
+					}
+				}
+			}
+
+		});
+
+
 		jPopupMenu.add(jMenuItemVizualizar);
 		jPopupMenu.add(jMenuItemExcluir);
+		jPopupMenu.add(jMenuItemBloquear);
+		jPopupMenu.add(jMenuItemDesbloquear);
 
 		arvore_documentos.addMouseListener(new java.awt.event.MouseAdapter() {
 			// Importe a classe java.awt.event.MouseEvent
@@ -1067,24 +1368,28 @@ public class TelaGerenciarCliente extends JDialog {
 			public Component getTreeCellRendererComponent(JTree tree, Object value, boolean selected, boolean expanded,
 					boolean isLeaf, int row, boolean focused) {
 
-				DefaultMutableTreeNode node = (DefaultMutableTreeNode) value;
-				String s = node.getUserObject().toString();
-				if ("Documentos Pessoais".equals(s)) {
-					setOpenIcon(icone_docs_pessoais);
-					setClosedIcon(icone_docs_pessoais);
+				try {
+					DefaultMutableTreeNode node = (DefaultMutableTreeNode) value;
+					String s = node.getUserObject().toString();
+					if ("Documentos Pessoais".equals(s)) {
+						setOpenIcon(icone_docs_pessoais);
+						setClosedIcon(icone_docs_pessoais);
 
-				} else if ("Comprovantes".equals(s)) {
-					setOpenIcon(icone_comprovantes);
-					setClosedIcon(icone_comprovantes);
+					} else if ("Comprovantes".equals(s)) {
+						setOpenIcon(icone_comprovantes);
+						setClosedIcon(icone_comprovantes);
 
-				} else if ("Outros".equals(s)) {
-					setOpenIcon(icone_outros);
-					setClosedIcon(icone_outros);
+					} else if ("Outros".equals(s)) {
+						setOpenIcon(icone_outros);
+						setClosedIcon(icone_outros);
 
+					}
+					super.getTreeCellRendererComponent(tree, value, selected, expanded, isLeaf, row, hasFocus);
+
+					return this;
+				} catch (Exception e) {
+					return null;
 				}
-				super.getTreeCellRendererComponent(tree, value, selected, expanded, isLeaf, row, hasFocus);
-
-				return this;
 			}
 
 		});
@@ -1177,6 +1482,61 @@ public class TelaGerenciarCliente extends JDialog {
 		btnDeposito.setBounds(10, 116, 146, 20);
 		panel.add(btnDeposito);
 
+		JLabel btnAnotacoesGerais = new JLabel("Anotações Gerais");
+		btnAnotacoesGerais.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseClicked(MouseEvent e) {
+
+				painelDocumentos.setEnabled(false);
+				painelDocumentos.setVisible(false);
+
+				painelDadosIniciais.setEnabled(false);
+				painelDadosIniciais.setVisible(false);
+
+				painelContratos.setEnabled(false);
+				painelContratos.setVisible(false);
+
+				painelAnotacoesGerais.setEnabled(true);
+				painelAnotacoesGerais.setVisible(true);
+
+				btnAnotacoesGerais.setOpaque(true);
+				btnAnotacoesGerais.setBackground(new Color(0, 0, 0, 100));
+
+				btnAnotacoesGerais.repaint();
+				btnAnotacoesGerais.updateUI();
+
+				btnDeposito.setOpaque(false);
+				btnDeposito.setBackground(new Color(0, 0, 0, 100));
+
+				btnDeposito.repaint();
+				btnDeposito.updateUI();
+
+				btnDadosIniciais.setOpaque(false);
+				btnDadosIniciais.setBackground(new Color(0, 0, 0, 100));
+
+				btnDadosIniciais.repaint();
+				btnDadosIniciais.updateUI();
+
+				btnDocumentos.setOpaque(false);
+				btnDocumentos.setBackground(new Color(0, 0, 0, 100));
+
+				btnDocumentos.repaint();
+				btnDocumentos.updateUI();
+
+				btnContratos.setOpaque(false);
+				btnContratos.setBackground(new Color(0, 0, 0, 100));
+
+				btnContratos.repaint();
+				btnContratos.updateUI();
+
+			}
+		});
+		btnAnotacoesGerais.setForeground(Color.WHITE);
+		btnAnotacoesGerais.setFont(new Font("Tahoma", Font.PLAIN, 16));
+		btnAnotacoesGerais.setBackground(new Color(0, 0, 0, 100));
+		btnAnotacoesGerais.setBounds(10, 148, 146, 20);
+		panel.add(btnAnotacoesGerais);
+
 		btnDadosIniciais.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent e) {
@@ -1192,6 +1552,9 @@ public class TelaGerenciarCliente extends JDialog {
 
 				painelDeposito.setEnabled(false);
 				painelDeposito.setVisible(false);
+
+				painelAnotacoesGerais.setEnabled(false);
+				painelAnotacoesGerais.setVisible(false);
 
 				btnDadosIniciais.setOpaque(true);
 				btnDadosIniciais.setBackground(new Color(0, 0, 0, 100));
@@ -1217,6 +1580,12 @@ public class TelaGerenciarCliente extends JDialog {
 				btnContratos.repaint();
 				btnContratos.updateUI();
 
+				btnAnotacoesGerais.setOpaque(false);
+				btnAnotacoesGerais.setBackground(new Color(0, 0, 0, 100));
+
+				btnAnotacoesGerais.repaint();
+				btnAnotacoesGerais.updateUI();
+
 			}
 		});
 
@@ -1235,6 +1604,9 @@ public class TelaGerenciarCliente extends JDialog {
 
 				painelContratos.setEnabled(false);
 				painelContratos.setVisible(false);
+
+				painelAnotacoesGerais.setEnabled(false);
+				painelAnotacoesGerais.setVisible(false);
 
 				btnDadosIniciais.setOpaque(false);
 				btnDadosIniciais.setBackground(new Color(0, 0, 0, 100));
@@ -1260,6 +1632,12 @@ public class TelaGerenciarCliente extends JDialog {
 				btnContratos.repaint();
 				btnContratos.updateUI();
 
+				btnAnotacoesGerais.setOpaque(false);
+				btnAnotacoesGerais.setBackground(new Color(0, 0, 0, 100));
+
+				btnAnotacoesGerais.repaint();
+				btnAnotacoesGerais.updateUI();
+
 			}
 		});
 
@@ -1278,6 +1656,9 @@ public class TelaGerenciarCliente extends JDialog {
 
 				painelDeposito.setEnabled(false);
 				painelDeposito.setVisible(false);
+
+				painelAnotacoesGerais.setEnabled(false);
+				painelAnotacoesGerais.setVisible(false);
 
 				btnContratos.setOpaque(true);
 				btnContratos.setBackground(new Color(0, 0, 0, 100));
@@ -1303,6 +1684,12 @@ public class TelaGerenciarCliente extends JDialog {
 				btnDocumentos.repaint();
 				btnDocumentos.updateUI();
 
+				btnAnotacoesGerais.setOpaque(false);
+				btnAnotacoesGerais.setBackground(new Color(0, 0, 0, 100));
+
+				btnAnotacoesGerais.repaint();
+				btnAnotacoesGerais.updateUI();
+
 			}
 		});
 
@@ -1317,6 +1704,9 @@ public class TelaGerenciarCliente extends JDialog {
 
 				painelContratos.setEnabled(false);
 				painelContratos.setVisible(false);
+
+				painelAnotacoesGerais.setEnabled(false);
+				painelAnotacoesGerais.setVisible(false);
 
 				painelDeposito.setEnabled(true);
 				painelDeposito.setVisible(true);
@@ -1345,19 +1735,25 @@ public class TelaGerenciarCliente extends JDialog {
 				btnContratos.repaint();
 				btnContratos.updateUI();
 
+				btnAnotacoesGerais.setOpaque(false);
+				btnAnotacoesGerais.setBackground(new Color(0, 0, 0, 100));
+
+				btnAnotacoesGerais.repaint();
+				btnAnotacoesGerais.updateUI();
+
 			}
 		});
 
 		setInformacoesDocumentos();
 		setInfo();
 		atualizarArvoreDocumentos();
-		
-		boolean pesquisar= true;
-		if(pesquisar) {
+
+		boolean pesquisar = true;
+		if (pesquisar) {
 			mapa_quantidades_globais = new GerenciarBancoContratos().getNumContratos(cliente_local.getId());
 
-		 setInfoContratosComoVendedor();
-		setInfoContratosComoComprador();
+			setInfoContratosComoVendedor();
+			setInfoContratosComoComprador();
 		}
 		setInfoPontuacao();
 
@@ -1652,6 +2048,100 @@ public class TelaGerenciarCliente extends JDialog {
 
 	}
 
+	public void criarNovoDocumento() {
+
+		JTextField entNomePasta = new JTextField();
+		JTextField entNomeArquivo = new JTextField("arquivo_anotacao");
+		Object[] message = { "sub_pasta:", entNomePasta, "nome_arquivo:", entNomeArquivo };
+
+		int option = JOptionPane.showConfirmDialog(isto, message, "Novo Arquivo", JOptionPane.OK_CANCEL_OPTION);
+		if (option == JOptionPane.OK_OPTION) {
+
+			String pasta_pai = entNomePasta.getText();
+			String nome_arquivo = entNomeArquivo.getText();
+
+			String descricao, caminho_arquivo;
+			int id_contrato_pai;
+
+			descricao = "arquivo_anotacao";
+
+			String nome_arquivo_original = nome_arquivo;
+			String extensaoDoArquivo = "docx";
+
+			// copiar o arquivo para a nova pasta
+
+			try {
+				// copiar o arquivo para a pasta do contrato
+				ManipularTxt manipular = new ManipularTxt();
+				String unidade_base_dados = configs_globais.getServidorUnidade();
+
+				// pegar nome da pasta
+				String nome_pasta = "";
+				if (cliente_local.getTipo_pessoa() == 0)
+					nome_pasta = cliente_local.getNome_empresarial();
+				else
+					nome_pasta = cliente_local.getNome_fantaia();
+
+				nome_pasta = trimar(nome_pasta);
+				String caminho_salvar = unidade_base_dados + "\\" + "E-Contract\\arquivos\\clientes\\" + nome_pasta
+						+ "\\DADOS PESSOAS";
+				manipular.criarDiretorio(caminho_salvar);
+
+				GetData dados = new GetData();
+				String dataString = dados.getData();
+				String horaString = dados.getHora();
+
+				nome_arquivo = cliente_local.getApelido() + "_" + nome_arquivo + "_" + horaString.replaceAll(":", "_")
+						+ "." + extensaoDoArquivo;
+
+				String caminho_completo = caminho_salvar + "\\" + nome_arquivo;
+
+				CriarArquivoAnotacao novo_arquivo_anotacao = new CriarArquivoAnotacao();
+				boolean movido = novo_arquivo_anotacao.criarArquivo(caminho_completo);
+
+				if (movido) {
+
+					// atualizar status do contrato
+					CadastroDocumento novo_documento = new CadastroDocumento();
+					novo_documento.setDescricao(descricao);
+					novo_documento.setNome(nome_arquivo);
+
+					novo_documento.setTipo(5);
+					novo_documento.setId_pai(0);
+					novo_documento.setNome_arquivo(nome_arquivo);
+					novo_documento.setId_cliente(cliente_local.getId());
+					novo_documento.setSub_pasta(pasta_pai);
+
+					GerenciarBancoDocumento gerenciar_doc = new GerenciarBancoDocumento();
+					int cadastrar = gerenciar_doc.inserir_documento_padrao_anotacao(novo_documento);
+					if (cadastrar > 0) {
+						JOptionPane.showMessageDialog(isto, "Arquivo Criado");
+
+						entNomeDocumento.setText("");
+						entDescricaoDocumento.setText("");
+						entCaminhoDocumento.setText("");
+
+						atualizarArvoreDocumentos();
+					} else {
+						JOptionPane.showMessageDialog(isto,
+								"Arquivo copiado, mas não pode ser salvo\nConsulte o adiministrador do sistema!");
+
+					}
+
+				} else {
+					JOptionPane.showMessageDialog(isto, "Arquivo  não pode ser criado");
+				}
+
+			} catch (Exception f) {
+				JOptionPane.showMessageDialog(isto,
+						"Erro Fatal\nConsulte o Administrador\nErro: " + f.getMessage() + "\n" + f.getCause());
+
+			}
+
+		}
+
+	}
+
 	public void getDadosGlobais() {
 		// gerenciador de log
 		DadosGlobais dados = DadosGlobais.getInstance();
@@ -1693,27 +2183,68 @@ public class TelaGerenciarCliente extends JDialog {
 
 						if (lista_docs != null && lista_docs.size() > 0) {
 							for (CadastroDocumento doc : lista_docs) {
+								
+								String texto_bloqueio = "";
+								
+								if(doc.getBloqueado() == 1)
+								 texto_bloqueio = "@Bloqueado";
+
+								
 								if (doc.getTipo() == 1) {
 									// model.insertNodeInto(new DefaultMutableTreeNode(doc.getNome()), root,
 									// root.getChildCount());
+									
 
 									no_docs_pessoais.add(new DefaultMutableTreeNode(
-											doc.getId_documento() + "@" + doc.getNome_arquivo()));
+											doc.getId_documento() + "@" + doc.getNome_arquivo() + texto_bloqueio  ));
 
 								} else if (doc.getTipo() == 2) {
 									// pagamentos
 									no_comprovantes.add(new DefaultMutableTreeNode(
-											doc.getId_documento() + "@" + doc.getNome_arquivo()));
+											doc.getId_documento() + "@" + doc.getNome_arquivo()+ texto_bloqueio ));
 
 								} else if (doc.getTipo() == 3) {
 									// carregamentos
 									no_outros.add(new DefaultMutableTreeNode(
-											doc.getId_documento() + "@" + doc.getNome_arquivo()));
+											doc.getId_documento() + "@" + doc.getNome_arquivo()+ texto_bloqueio ));
 
 								} else if (doc.getTipo() == 4) {
 									// outros
 									no_outros.add(new DefaultMutableTreeNode(
-											doc.getId_documento() + "@" + doc.getNome_arquivo()));
+											doc.getId_documento() + "@" + doc.getNome_arquivo()+ texto_bloqueio ));
+
+								} else if (doc.getTipo() == 5) {
+
+									DefaultMutableTreeNode no_local = new DefaultMutableTreeNode(doc.getSub_pasta());
+
+									String nome_no_arquivo = doc.getId_documento() + "@" + doc.getNome_arquivo() + texto_bloqueio ;
+									DefaultMutableTreeNode no_arquivo = new DefaultMutableTreeNode(nome_no_arquivo);
+
+									DefaultMutableTreeNode no_existente = new DefaultMutableTreeNode(
+											doc.getSub_pasta());
+
+									boolean no_local_ja_existe = false;
+									for (int i = 0; i < arvore_documentos.getModel().getChildCount(no_outros); i++) {
+										DefaultMutableTreeNode sub_pasta_existente = (DefaultMutableTreeNode) arvore_documentos
+												.getModel().getChild(no_outros, i);
+
+										String no_sub_pasta_existente = sub_pasta_existente.getUserObject().toString();
+
+										if (no_sub_pasta_existente.equalsIgnoreCase(doc.getSub_pasta())) {
+											no_local_ja_existe = true;
+											no_existente = sub_pasta_existente;
+											break;
+										}
+
+									}
+
+									if (!no_local_ja_existe) {
+
+										no_outros.add(no_local);
+										no_local.add(no_arquivo);
+									} else {
+										no_existente.add(no_arquivo);
+									}
 
 								}
 
@@ -1799,7 +2330,6 @@ public class TelaGerenciarCliente extends JDialog {
 		int num_contratos_cancelados = mapa_quantidades_globais.get("num_contratos_comprador_cancelado");
 		int num_contratos_abertos = num_contratos - num_contratos_concuido - num_contratos_cancelados;
 
-
 		lblTotalContratosComprador.setText(num_contratos + "");
 		lblTotalContratosConcluidosComprador.setText(num_contratos_concuido + "");
 		lblTotalContratosAbertosComprador.setText(num_contratos_abertos + "");
@@ -1844,17 +2374,13 @@ public class TelaGerenciarCliente extends JDialog {
 	public void relatar(Window isto, RelatorioContratos relatar) {
 
 		String contrato_alterado = relatar.preparar();
-			ConverterPdf converter_pdf = new ConverterPdf();
-			String pdf_alterado = converter_pdf.word_pdf_file2(contrato_alterado);
-			telaEmEsperaRelatoria.setInfo("Arquivo PDF Criado, abrindo...", 100);
-			telaEmEsperaRelatoria.dispose();
-			TelaVizualizarPdf vizualizar = new TelaVizualizarPdf(null, isto, null, pdf_alterado, null, isto);
-		
+		ConverterPdf converter_pdf = new ConverterPdf();
+		String pdf_alterado = converter_pdf.word_pdf_file2(contrato_alterado);
+		telaEmEsperaRelatoria.setInfo("Arquivo PDF Criado, abrindo...", 100);
+		telaEmEsperaRelatoria.dispose();
+		TelaVizualizarPdf vizualizar = new TelaVizualizarPdf(null, isto, null, pdf_alterado, null, isto);
 
 	}
-
-	
-	
 
 	public void gerarWord(String url_origem) {
 		try {
@@ -1951,4 +2477,21 @@ public class TelaGerenciarCliente extends JDialog {
 			k.printStackTrace();
 		}
 	}
+
+	public void pesquisar() {
+
+		listModelAnotacaoGeral.clear();
+		listModelAnotacaoGeral.clear();
+
+		GerenciarBancoAnotacaoGerais gerenciar = new GerenciarBancoAnotacaoGerais();
+		ArrayList<CadastroAnotacaoGeral> minhas_anotacoes = gerenciar.getnotas(cliente_local.getId());
+
+		for (CadastroAnotacaoGeral cad : minhas_anotacoes) {
+
+			listModelAnotacaoGeral.addElement(cad);
+
+		}
+
+	}
+
 }

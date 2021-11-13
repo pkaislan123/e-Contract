@@ -2,11 +2,21 @@ package main.java.cadastros;
 
 public class CadastroBaseDados {
 
-	String host,  porta, nome_banco, nome_usuario, senha;
+	String host, host2, porta, nome_banco, nome_usuario, senha;
 	
 
 	
 	
+
+	public String getHost2() {
+		return host2;
+	}
+
+
+	public void setHost2(String host2) {
+		this.host2 = host2;
+	}
+
 
 	public String getHost() {
 		return host;

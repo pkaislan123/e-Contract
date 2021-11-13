@@ -13,6 +13,48 @@ public class CadastroContrato {
 		return filho;
 	}
 
+	
+	private String nome_local_retirada;
+	
+	
+	
+   public String getNome_local_retirada() {
+		return nome_local_retirada;
+	}
+
+
+
+	public void setNome_local_retirada(String nome_local_retirada) {
+		this.nome_local_retirada = nome_local_retirada;
+	}
+
+
+private String ids_clientes_compradores_contrato_pai, ids_clientes_compradores;
+   
+   
+
+	public String getIds_clientes_compradores_contrato_pai() {
+	return ids_clientes_compradores_contrato_pai;
+}
+
+
+
+public void setIds_clientes_compradores_contrato_pai(String ids_clientes_compradores_contrato_pai) {
+	this.ids_clientes_compradores_contrato_pai = ids_clientes_compradores_contrato_pai;
+}
+
+
+
+public String getIds_clientes_compradores() {
+	return ids_clientes_compradores;
+}
+
+
+
+public void setIds_clientes_compradores(String ids_clientes_compradores) {
+	this.ids_clientes_compradores = ids_clientes_compradores;
+}
+
 
 
 	public void setFilho(int filho) {
@@ -248,8 +290,18 @@ public class CadastroContrato {
     private String clausula_armazenagem;
     private int id_local_retirada;
     
-    
-    private double quantidade_recebida, quantidade_carregada;
+    private BigDecimal valor_a_receber;
+    public BigDecimal getValor_a_receber() {
+		return valor_a_receber;
+	}
+
+
+
+	public void setValor_a_receber(BigDecimal valor_a_receber) {
+		this.valor_a_receber = valor_a_receber;
+	}
+
+	private double quantidade_recebida, quantidade_carregada;
     
     
 	public double getQuantidade_recebida() {

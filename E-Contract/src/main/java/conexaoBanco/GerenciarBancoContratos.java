@@ -8,6 +8,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -21,6 +22,7 @@ import main.java.cadastros.CadastroContrato.CadastroPagamentoContratual;
 import main.java.cadastros.CadastroContrato.Recebimento;
 import main.java.cadastros.CadastroLogin;
 import main.java.cadastros.CadastroModelo;
+import main.java.cadastros.CadastroNota;
 import main.java.cadastros.CadastroProduto;
 import main.java.cadastros.CadastroSafra;
 import main.java.cadastros.CarregamentoCompleto;
@@ -31,6 +33,7 @@ import main.java.cadastros.RecebimentoCompleto;
 import main.java.cadastros.RegistroQuantidade;
 import main.java.cadastros.RegistroRecebimento;
 import main.java.outros.DadosGlobais;
+import main.java.outros.GetData;
 import main.java.tratamento_proprio.Log;
 
 public class GerenciarBancoContratos {
@@ -1062,7 +1065,10 @@ public class GerenciarBancoContratos {
 
 	public CadastroContrato getContrato(int id) {
 
-		String selectContrato = "select * from contrato where id = ?";
+		//String selectContrato = "select * from contrato where id = ?";
+		
+		String selectContrato = "call consulta_contrato_com_nomes(?)";
+		
 		Connection conn = null;
 		PreparedStatement pstm = null;
 		ResultSet rs = null;
@@ -1093,6 +1099,8 @@ public class GerenciarBancoContratos {
 
 				contrato.setValor_produto(Double.parseDouble(rs.getString("valor_produto")));
 				contrato.setValor_a_pagar(new BigDecimal(rs.getString("valor_a_pagar")));
+				contrato.setNomes_compradores(rs.getString("compradores"));
+				contrato.setNomes_vendedores(rs.getString("vendedores"));
 
 				contrato.setModelo_safra(safra);
 
@@ -1796,6 +1804,89 @@ public class GerenciarBancoContratos {
 				safra.setAno_colheita(Integer.parseInt(rs.getString("ano_colheita")));
 				contrato.setValor_produto(Double.parseDouble(rs.getString("valor_produto")));
 				contrato.setValor_a_pagar(new BigDecimal(rs.getString("valor_a_pagar")));
+				contrato.setValor_a_pagar(new BigDecimal(rs.getString("valor_a_pagar")));
+				contrato.setValor_a_receber(new BigDecimal(rs.getString("valor_a_receber")));
+				contrato.setStatus_contrato(rs.getInt("status_contrato"));
+				contrato.setData_contrato(rs.getString("data_contrato"));
+				contrato.setNome_local_retirada(rs.getString("nome_local_retirada"));
+
+				contrato.setNomes_compradores(rs.getString("compradores"));
+				contrato.setNomes_vendedores(rs.getString("vendedores"));
+				contrato.setNomes_corretores(rs.getString("corretores"));
+
+				produto.setId_produto(rs.getInt("id_produto"));
+				produto.setTransgenia(rs.getString("transgenia"));
+				contrato.setId_local_retirada(rs.getInt("id_local_retirada"));
+
+				// informacoes extras
+
+				contrato.setLocalizacao(rs.getString("localizacao"));
+				contrato.setBruto_livre(rs.getString("bruto_livre"));
+				contrato.setFertilizante(rs.getString("fertilizante"));
+				contrato.setStatus_penhor(rs.getString("status_penhor"));
+				contrato.setOptante_folha(rs.getInt("optante_folha"));
+				contrato.setStatus_optante_folha(rs.getString("status_optante_folha"));
+				contrato.setDescricao(rs.getString("descricao"));
+				contrato.setObservacao(rs.getString("observacao"));
+
+				safra.setProduto(produto);
+				contrato.setModelo_safra(safra);
+				contrato.setModelo_produto(produto);
+				
+				contrato.setQuantidade_carregada(rs.getDouble("total_carregado"));
+				contrato.setQuantidade_recebida(rs.getDouble("total_recebido"));
+
+				contrato.setTotal_pago(rs.getDouble("total_pago"));
+				contrato.setTotal_comissao(rs.getDouble("quantidade_comissao_paga"));
+				
+				lsitaContratos.add(contrato);
+				
+				
+
+			}
+			ConexaoBanco.fechaConexao(conn, pstm, rs);
+		} catch (Exception e) {
+			JOptionPane.showMessageDialog(null,
+					"Erro ao listar contratos\nErro: " + e.getMessage() + "\nCausa: " + e.getCause());
+		}
+		return lsitaContratos;
+
+	}
+	
+	public ArrayList<CadastroContrato> getSubContratos2() {
+		String selectContratos = "call consulta_sub_contratos2()";
+		Connection conn = null;
+		PreparedStatement pstm = null;
+		ResultSet rs = null;
+		ArrayList<CadastroContrato> lsitaContratos = new ArrayList<CadastroContrato>();
+		try {
+			conn = ConexaoBanco.getConexao();
+			pstm = conn.prepareStatement(selectContratos);
+			// pstm.setString(1, chave);
+
+			rs = pstm.executeQuery();
+			while (rs.next()) {
+				CadastroContrato contrato = new CadastroContrato();
+				CadastroProduto produto = new CadastroProduto();
+				CadastroSafra safra = new CadastroSafra();
+				CadastroCliente compradores[] = null;
+				CadastroCliente vendedores[] = null;
+				CadastroCliente corretores[] = null;
+
+				contrato.setId(rs.getInt("id"));
+				contrato.setCodigo(rs.getString("codigo"));
+				contrato.setSub_contrato(rs.getInt("sub_contrato"));
+				contrato.setQuantidade(Double.parseDouble(rs.getString("quantidade")));
+				contrato.setMedida(rs.getString("medida"));
+				contrato.setProduto(rs.getString("nome_produto"));
+				safra.setId_safra(rs.getInt("id_safra"));
+				safra.setDescricao_safra(rs.getString("descricao_safra"));
+				safra.setAno_plantio(Integer.parseInt(rs.getString("ano_plantio")));
+				safra.setAno_colheita(Integer.parseInt(rs.getString("ano_colheita")));
+				contrato.setValor_produto(Double.parseDouble(rs.getString("valor_produto")));
+				contrato.setValor_a_pagar(new BigDecimal(rs.getString("valor_a_pagar")));
+				contrato.setValor_a_receber(new BigDecimal(rs.getString("valor_a_receber")));
+				contrato.setNome_local_retirada(rs.getString("nome_local_retirada"));
 				contrato.setStatus_contrato(rs.getInt("status_contrato"));
 				contrato.setData_contrato(rs.getString("data_contrato"));
 
@@ -1842,6 +1933,7 @@ public class GerenciarBancoContratos {
 
 	}
 
+
 	public ArrayList<CadastroContrato> getInfoSubContratos(int id_contrato_pai) {
 		String selectContratos = "call consulta_sub_contratos(?)";
 		Connection conn = null;
@@ -1871,12 +1963,13 @@ public class GerenciarBancoContratos {
 				produto.setTransgenia(rs.getString("transgenia"));
 				contrato.setModelo_produto(produto);
 				contrato.setProduto(produto.getNome_produto());
-
+				contrato.setNome_local_retirada(rs.getString("nome_local_retirada"));
 				safra.setDescricao_safra(rs.getString("descricao_safra"));
 				safra.setAno_plantio(Integer.parseInt(rs.getString("ano_plantio")));
 				safra.setAno_colheita(Integer.parseInt(rs.getString("ano_colheita")));
 				contrato.setValor_produto(Double.parseDouble(rs.getString("valor_produto")));
 				contrato.setValor_a_pagar(new BigDecimal(rs.getString("valor_a_pagar")));
+				contrato.setValor_a_receber(new BigDecimal(rs.getString("valor_a_pagar")));
 				contrato.setStatus_contrato(rs.getInt("status_contrato"));
 				contrato.setData_contrato(rs.getString("data_contrato"));
 
@@ -2126,7 +2219,7 @@ public class GerenciarBancoContratos {
 	}
 
 	public ArrayList<CadastroContrato> getContratosPorClienteParaRelatorio(int id_busca_safra,
-			int id_cliente, int id_cliente2, int id_contra_parte, int participacao) {
+			int id_cliente, int id_cliente2, int id_contra_parte, int participacao, int id_local_retirada) {
 
 		/*JOptionPane.showMessageDialog(null, 
 		"A consulta sera: " +
@@ -2137,7 +2230,7 @@ public class GerenciarBancoContratos {
 				
 		);*/
 		
-		String selectContratos = "call contratos_para_relatorio(?,?,?,?, ?)";
+		String selectContratos = "call contratos_para_relatorio(?,?,?,?, ?, ?)";
 		Connection conn = null;
 		PreparedStatement pstm = null;
 		ResultSet rs = null;
@@ -2172,7 +2265,7 @@ public class GerenciarBancoContratos {
 			
 			pstm.setInt(5, participacao);
 
-			
+			pstm.setInt(6, id_local_retirada);
 			
 			/*}else if(flag_select == 5 || flag_select == 2) {
 				//como vendedor
@@ -2215,7 +2308,7 @@ public class GerenciarBancoContratos {
 				contrato_recebimento.setNomes_vendedores(rs.getString("vendedores"));
 				contrato_recebimento.setStatus_contrato(rs.getInt("status_contrato"));
 				contrato_recebimento.setGrupo_particular(rs.getInt("grupo_particular"));
-
+				contrato_recebimento.setNome_local_retirada(rs.getString("nome_local_retirada"));
 				CadastroSafra safra = new CadastroSafra();
 				safra.setId_safra(rs.getInt("id_safra"));
 				safra.setAno_colheita(rs.getInt("ano_colheita"));
@@ -2246,7 +2339,7 @@ public class GerenciarBancoContratos {
 	}
 	
 	public ArrayList<CadastroContrato> getSubContratosPorClienteParaRelatorio(int id_busca_safra,
-			int id_cliente, int id_cliente2, int id_contra_parte, int participacao) {
+			int id_cliente, int id_cliente2, int id_contra_parte, int participacao, int id_local_retirada) {
 
 		/*JOptionPane.showMessageDialog(null, 
 		"A consulta sera: " +
@@ -2257,7 +2350,7 @@ public class GerenciarBancoContratos {
 				
 		);*/
 		
-		String selectContratos = "call sub_contratos_para_relatorio(?,?,?,?, ?)";
+		String selectContratos = "call sub_contratos_para_relatorio(?,?,?,?, ?, ?)";
 		Connection conn = null;
 		PreparedStatement pstm = null;
 		ResultSet rs = null;
@@ -2291,7 +2384,7 @@ public class GerenciarBancoContratos {
 				pstm.setInt(4, 0);
 			
 			pstm.setInt(5, participacao);
-
+			pstm.setInt(6, id_local_retirada);
 			
 			
 			/*}else if(flag_select == 5 || flag_select == 2) {
@@ -2335,7 +2428,7 @@ public class GerenciarBancoContratos {
 				contrato_recebimento.setNomes_vendedores(rs.getString("vendedores"));
 				contrato_recebimento.setStatus_contrato(rs.getInt("status_contrato"));
 				contrato_recebimento.setGrupo_particular(rs.getInt("grupo_particular"));
-
+				contrato_recebimento.setNome_local_retirada(rs.getString("nome_local_retirada"));
 				CadastroSafra safra = new CadastroSafra();
 				safra.setId_safra(rs.getInt("id_safra"));
 				safra.setAno_colheita(rs.getInt("ano_colheita"));
@@ -2364,6 +2457,8 @@ public class GerenciarBancoContratos {
 		}
 
 	}
+	
+	/*
 
 	public ArrayList<CadastroContrato> getContratosPorClienteParaRelatorioGrupo(int flag_select, int id_busca_safra,
 			int id_cliente) {
@@ -2574,7 +2669,8 @@ public class GerenciarBancoContratos {
 		}
 
 	}
-
+*/
+	
 	public CadastroCliente[] getCorretores(int id_contrato) {
 
 		String selectCorretores = "select c.id_cliente from contrato_corretor cc LEFT JOIN cliente c on c.id_cliente = cc.id_cliente  where cc.id_contrato = ?";
@@ -2964,89 +3060,7 @@ public class GerenciarBancoContratos {
 		return lsitaContratos;
 
 	}
-/*
-	public ArrayList<CadastroContrato> getSubContratosParaRelatorio(int id_contrato_pai) {
-		// String selectContrato = "select * from contrato_sub_contrato sub_contrato
-		// LEFT JOIN contrato filho on filho.id = sub_contrato.id_sub_contrato where
-		// (filho.sub_contrato = 1 or filho.sub_contrato = 6 or filho.sub_contrato = 7)
-		// and id_contrato_pai = ?";
-		String selectContrato = "select sub_contrato.*,\n" + "filho.*,\n" + "GROUP_CONCAT(distinct\n" + "case\n"
-				+ "when comprador.tipo_cliente = '0' then comprador.nome_empresarial \n"
-				+ " when comprador.tipo_cliente = '1' then comprador.nome_fantasia\n" + "end\n"
-				+ " separator ',') as compradores,\n" + "GROUP_CONCAT(distinct\n" + "case\n"
-				+ "when vendedor.tipo_cliente = '0' then vendedor.nome_empresarial \n"
-				+ " when vendedor.tipo_cliente = '1' then vendedor.nome_fantasia\n" + "end\n"
-				+ " separator ',') as vendedores,\n" + " sf.id_safra, sf.ano_colheita, sf.ano_plantio,\n"
-				+ " pd.id_produto, pd.nome_produto, pd.transgenia \n" + "from contrato_sub_contrato sub_contrato \n"
-				+ "LEFT JOIN contrato filho  on filho.id = sub_contrato.id_sub_contrato \n"
-				+ "LEFT join safra sf on sf.id_safra = filho.id_safra\n"
-				+ "LEFT join produto pd on pd.id_produto = sf.id_produto\n"
-				+ "LEFT JOIN contrato_comprador on contrato_comprador.id_contrato = filho.id\n"
-				+ "LEFT JOIN cliente comprador on comprador.id_cliente = contrato_comprador.id_cliente\n"
-				+ "LEFT JOIN contrato_vendedor on contrato_vendedor.id_contrato = filho.id\n"
-				+ "LEFT JOIN cliente vendedor on vendedor.id_cliente = contrato_vendedor.id_cliente\n"
-				+ "where (filho.sub_contrato = 1 or filho.sub_contrato = 6 or filho.sub_contrato = 7) and id_contrato_pai = ?";
-		
-		String selectContrato = "call consulta_sub_contratos(?)";
-		Connection conn = null;
-		PreparedStatement pstm = null;
-		ResultSet rs = null;
-		ArrayList<CadastroContrato> lsitaContratos = new ArrayList<CadastroContrato>();
 
-		try {
-			conn = ConexaoBanco.getConexao();
-			pstm = conn.prepareStatement(selectContrato);
-			pstm.setInt(1, id_contrato_pai);
-			GerenciarBancoSafras gerenciar = new GerenciarBancoSafras();
-
-			rs = pstm.executeQuery();
-			while (rs.next()) {
-
-				CadastroContrato contrato_recebimento = new CadastroContrato();
-
-				if (rs.getInt("id") > 0) {
-					contrato_recebimento.setId(rs.getInt("id"));
-
-					contrato_recebimento.setSub_contrato(rs.getInt("sub_contrato"));
-					contrato_recebimento.setCodigo(rs.getString("codigo"));
-					contrato_recebimento.setQuantidade(rs.getDouble("quantidade"));
-					contrato_recebimento.setMedida(rs.getString("medida"));
-					contrato_recebimento.setValor_a_pagar(new BigDecimal(rs.getString("valor_a_pagar")));
-
-					contrato_recebimento.setValor_produto(rs.getDouble("valor_produto"));
-
-					contrato_recebimento.setNomes_compradores(rs.getString("compradores"));
-					contrato_recebimento.setNomes_vendedores(rs.getString("vendedores"));
-
-					CadastroSafra safra = new CadastroSafra();
-					safra.setId_safra(rs.getInt("id_safra"));
-					safra.setAno_colheita(rs.getInt("ano_colheita"));
-					safra.setAno_plantio(rs.getInt("ano_plantio"));
-
-					CadastroProduto produto = new CadastroProduto();
-					produto.setId_produto(rs.getInt("id_produto"));
-					produto.setNome_produto(rs.getString("nome_produto"));
-					produto.setTransgenia(rs.getString("transgenia"));
-
-					safra.setProduto(produto);
-
-					contrato_recebimento.setModelo_produto(produto);
-					contrato_recebimento.setModelo_safra(safra);
-
-					lsitaContratos.add(contrato_recebimento);
-				}
-			}
-
-			ConexaoBanco.fechaConexao(conn, pstm, rs);
-
-		} catch (Exception e) {
-			JOptionPane.showMessageDialog(null, "Erro ao listar contrato filhos do contrato id: " + id_contrato_pai
-					+ " erro: " + e.getMessage() + "\nCausa: " + e.getCause());
-			return null;
-		}
-		return lsitaContratos;
-
-	}*/
 	
 	public ArrayList<CadastroContrato> getSubContratosParaRelatorio(int id_contrato_pai) {
 		
@@ -3078,8 +3092,11 @@ public class GerenciarBancoContratos {
 					contrato_recebimento.setGrupo_particular(rs.getInt("grupo_particular"));
 					contrato_recebimento.setValor_produto(rs.getDouble("valor_produto"));
 					contrato_recebimento.setFilho(rs.getInt("filho"));
+					contrato_recebimento.setIds_clientes_compradores_contrato_pai(rs.getString("ids_clientes_compradores_contrato_pai"));
+					contrato_recebimento.setIds_clientes_compradores(rs.getString("ids_clientes_compradores"));
 					contrato_recebimento.setNomes_compradores(rs.getString("compradores"));
 					contrato_recebimento.setNomes_vendedores(rs.getString("vendedores"));
+					contrato_recebimento.setNome_local_retirada(rs.getString("nome_local_retirada"));
 
 					CadastroSafra safra = new CadastroSafra();
 					safra.setAno_colheita(rs.getInt("ano_colheita"));
@@ -3108,7 +3125,7 @@ public class GerenciarBancoContratos {
 		return lsitaContratos;
 
 	}
-
+	
 
 	public boolean inserirTarefas(int id_contrato, ArrayList<CadastroContrato.CadastroTarefa> lista_tarefas) {
 		boolean retorno = false;
@@ -3124,6 +3141,46 @@ public class GerenciarBancoContratos {
 						// criar relacao contrato_tarefa
 						if (inserir_contrato_tarefa(id_contrato, retorno_id_cadastrado)) {
 							retorno = true;
+							
+							 //criar nota
+							 if(tarefa.getNome_tarefa().equalsIgnoreCase("Revisão de Contrato") || tarefa.getNome_tarefa().equalsIgnoreCase("Revisão de Sub-Contrato") ) {
+							 try {
+									//criar notificacao
+									//inserir notificacao
+
+									Date date_hoje = new Date();
+
+									CadastroNota nota = new CadastroNota();
+									nota.setData_nota(date_hoje);
+									nota.setNome(tarefa.getNome_tarefa());
+									nota.setDescricao(tarefa.getDescricao_tarefa());
+									nota.setTexto("Revise o contrato id " + id_contrato);
+									nota.setNotificar(1);
+									
+									
+										nota.setUni_tempo(1);
+										nota.setTempo_notificacao(5);
+									
+								
+									nota.setLembrar(0);
+									nota.setTipo(4);
+									nota.setId_tarefa_pai(retorno_id_cadastrado);
+									nota.setId_usuario_pai(tarefa.getExecutor().getId());
+									nota.setUltima_notificacao(new GetData().getDataHoraMinus(11));
+
+									GerenciarBancoNotas gerenciar_anotacoes = new GerenciarBancoNotas();
+									int salvar = gerenciar_anotacoes.inserirnota(nota);
+									if (salvar > 0) {
+										
+									} else {
+										JOptionPane.showMessageDialog(null, "Erro ao salvar anotação\nConsulte o administrador!");
+									}
+									}catch(Exception t) {
+										JOptionPane.showMessageDialog(null, "Excessao, Erro ao salvar anotação\nConsulte o administrador!");
+
+									}
+							 }
+							
 
 						} else {
 							// para o loop, houve um erro
@@ -3148,6 +3205,33 @@ public class GerenciarBancoContratos {
 		}
 
 		return retorno;
+
+	}
+	
+	
+	public int inserirTarefa(int id_contrato, CadastroContrato.CadastroTarefa tarefa) {
+   int retorno = -1;
+					// tarefa tem id 00, entao ela ainda nao foir cadastrada, entao, cadastrar
+					int retorno_id_cadastrado = inserir_tarefa_retorno(tarefa);
+					if (retorno_id_cadastrado > 0) {
+						// tarefa foi cadastrada e retornou o id cadastrado
+						// criar relacao contrato_tarefa
+						if (inserir_contrato_tarefa(id_contrato, retorno_id_cadastrado)) {
+							retorno = retorno_id_cadastrado;
+							
+
+						} else {
+							// para o loop, houve um erro
+							retorno = -1;
+						}
+
+					} else {
+						// para o loop, houve um erro
+						retorno = -1;
+
+					}
+
+				return retorno;
 
 	}
 
@@ -4526,6 +4610,8 @@ where contrato_carregamentos.id_contrato = ? order by carregamento.id_carregamen
 
 	}
 
+	
+	
 	
 	public ArrayList<CarregamentoCompleto> getCarregamentos() {
 		int id = 0;
