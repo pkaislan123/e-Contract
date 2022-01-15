@@ -1,5 +1,6 @@
 package main.java.gui;
 
+import java.awt.BasicStroke;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
@@ -9,6 +10,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowStateListener;
 import java.io.File;
@@ -17,6 +19,7 @@ import java.math.BigDecimal;
 import java.net.InetAddress;
 import java.net.URL;
 import java.net.URLConnection;
+import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -36,8 +39,20 @@ import javax.swing.border.EmptyBorder;
 import org.icepdf.ri.common.ComponentKeyBinding;
 import org.icepdf.ri.common.SwingController;
 import org.icepdf.ri.common.SwingViewBuilder;
+import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartPanel;
+import org.jfree.chart.JFreeChart;
+import org.jfree.chart.block.BlockBorder;
+import org.jfree.chart.labels.PieToolTipGenerator;
+import org.jfree.chart.labels.StandardPieSectionLabelGenerator;
+import org.jfree.chart.plot.PiePlot;
+import org.jfree.chart.plot.RingPlot;
+import org.jfree.chart.title.TextTitle;
+import org.jfree.chart.ui.HorizontalAlignment;
+import org.jfree.chart.ui.RectangleEdge;
+import org.jfree.chart.ui.RectangleInsets;
 import org.jfree.data.category.DefaultCategoryDataset;
+import org.jfree.data.general.DefaultPieDataset;
 
 import net.miginfocom.swing.MigLayout;
 
@@ -45,6 +60,7 @@ import javax.swing.JLabel;
 import javax.swing.JMenu;
 
 import java.awt.Font;
+import java.awt.GradientPaint;
 import java.awt.GraphicsDevice;
 import java.awt.GraphicsEnvironment;
 
@@ -80,12 +96,14 @@ import main.java.cadastros.CadastroNota;
 import main.java.cadastros.CadastroProduto;
 import main.java.cadastros.CadastroRomaneio;
 import main.java.cadastros.CadastroSafra;
+import main.java.cadastros.CadastroSafrasEvidencias;
 import main.java.cadastros.ContaBancaria;
 import main.java.cadastros.Contato;
 import main.java.cadastros.DadosCarregamento;
 import main.java.cadastros.DadosContratos;
 import main.java.cadastros.DadosRecebimento;
 import main.java.cadastros.FinanceiroPagamentoCompleto;
+import main.java.cadastros.Lancamento;
 import main.java.cadastros.RegistroQuantidade;
 import main.java.cadastros.RegistroRecebimento;
 import main.java.classesExtras.Endereco;
@@ -103,6 +121,7 @@ import main.java.conexaoBanco.GerenciarBancoPontuacao;
 import main.java.conexaoBanco.GerenciarBancoProdutos;
 import main.java.conexaoBanco.GerenciarBancoRomaneios;
 import main.java.conexaoBanco.GerenciarBancoSafras;
+import main.java.conexaoBanco.GerenciarBancoSafrasEvidencias;
 import main.java.conexaoBanco.GerenciarBancoTransferencias;
 import main.java.conexaoBanco.GerenciarBancoTransferenciasCarga;
 import main.java.conexoes.TesteConexao;
@@ -161,6 +180,7 @@ import main.java.cadastros.CadastroCliente;
 import main.java.cadastros.CadastroGrupo;
 import main.java.conexaoBanco.GerenciarBancoClientes;
 import main.java.conexaoBanco.GerenciarBancoGrupos;
+import main.java.conexaoBanco.GerenciarBancoLancamento;
 import main.java.conexaoBanco.GerenciarBancoLogin;
 import main.java.conexaoBanco.GerenciarBancoNotas;
 import main.java.cadastros.CadastroProduto;
@@ -182,6 +202,9 @@ import javax.swing.table.AbstractTableModel;
 import javax.swing.table.DefaultTableModel;
 
 import java.awt.Insets;
+import java.awt.Paint;
+import java.awt.Point;
+
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
@@ -196,58 +219,57 @@ import javax.swing.ScrollPaneConstants;
 public class TelaMain extends JFrame {
 	private ConfiguracoesGlobais configs_globais;
 	private JPanelBackground contentPane;
-	private JLabel lblUser, lblNovaMensagem;
+	private JLabel lblUser;
 	private JLabel lblDireitos;
 	private TelaContratos telaContratos;
-	private JPanelGraficoCarregamento painelGraficoCarregamentos;
-	private JPanel panelGraficoLinha;
+	private JPanel painelGraficoCarregamentos;
 	private TelaMonitoria monitor = null;
-	private JLabel lblTotalContratosAssinar, lblTotalContratosAssinados;
 	private boolean executou = false;
 	private DadosContratos dados_contratos = new DadosContratos();
 	private DadosCarregamento dados_carregamentos = new DadosCarregamento();
 	private DadosRecebimento dados_recebimentos = new DadosRecebimento();
-	private ArrayList<CadastroAviso> lista_avisos = new ArrayList<>();
 	private int num_tarefas_nesta_secao = -1;
 	private JLabel lblNumeroTarefas;
-	private JLabel lblBD, lblBaseDeArquivos, lblNuvem, lblnet, urlBancoDados, imgBaseDados, urlBaseArquivos,
-			imgBaseArquivos, urlInternet, imgInternet, urlNuvem, imgNuvem;
 	private ArrayList<CadastroLogin> usuarios = new ArrayList<>();
 	private JComboBox cbContratosPorSafra;
 	private boolean notificando = false;
 	private ComboBoxPersonalizado modelSafra = new ComboBoxPersonalizado();
 	private ComboBoxRenderPersonalizado cBSafraPersonalizado;
 	private static ArrayList<CadastroSafra> safras = new ArrayList<>();
-	private JLabel lblTotalSacosRetirar, lblTotalSacos, lblTotalSacosRetirados;
+	private String ids_safras_em_evidencia = "";
 	private GraficoLinha linha = null;
 	TelaPost telaPost;
 	private TelaTodasNotasFiscais telaTodasNotasFiscais;
-	private JLabel lblStatusWhatsapp, imgWhatsapp;
-	private JLabel lblTotalSacosRecebidos, lblTotalSacosGraficoRecebimento, lblTotalSacosAReceber;
-	private JComboBox cbRecebimentosPorSafra;
+	private String url_lbl_avisos ;
+	public JLabel getLblAvisos() {
+		return lblAvisos;
+	}
+	private JPanel painelInfoConexao;
+
+	public void setLblAvisos(JLabel lblAvisos) {
+		this.lblAvisos = lblAvisos;
+	}
+
 	private GerenciarBancoNotas gerenciarAnotacoes;
-	private GerenciarBancoContratos gerenciarAtualizarTarefas, gerenciarDadosCarregamento, gerenciarDadosContrato,
-			gerenciarCarregamentoPorPeriodo, gerenciarDadosRecebimento;
+	private GerenciarBancoContratos gerenciarAtualizarTarefas, gerenciarDadosContrato, gerenciarCarregamentoPorPeriodo;
 	private GerenciarBancoPadrao gerenciarBancoPadrao;
 	DefaultTableModel modelo_usuarios = new DefaultTableModel() {
 		public boolean isCellEditable(int linha, int coluna) {
 			return false;
 		}
 	};
-	private ChartPanel chartPanel;
+	private JLabel lblAvisos;
+
+	private TelaAvisosSistema tela_avisos;
+	private JLabel imgBaseDados, imgBaseArquivos, imgInternet, imgNuvem, imgWhatsapp, imgRelogioPonto, lblNovaMensagem;;
 	private TelaChat telaChat;
-	private DefaultCategoryDataset dataset;
-	private final JPanel painelPrincipal = new JPanel();
-	private JLabel lblTotalContratosConcluidos, lblTotalContratos, lblTotalContratosAbertos;
 	private TelaMain isto;
 	private JDialog telaPai;
 	private Log GerenciadorLog;
 	private CadastroLogin login;
-	private JPanelGrafico painelGraficoContratos;
-	private JPanelGraficoRecebimento painelGraficoRecebimento;
-	private JTable tabela_avisos;
-	private AvisoTableModel modelo_aviso = new AvisoTableModel();
-	private JLabel lblStatusRelogioPonto, imgRelogioPonto;
+	private JPanel painelGraficoContratos;
+	private JPanel painelGraficoRecebimento;
+	private JTextArea textAreaSafrasEvidencia;
 
 	public TelaMain(Window janela_pai) {
 
@@ -293,37 +315,23 @@ public class TelaMain extends JFrame {
 
 		int display_x = display.getWidth();
 		int display_y = display.getHeight();
-		// setBounds(0, 0, d.width, d.height - taskBarHeight);
-		setBounds(0, 0, 1382, 761);
+		setBounds(0, 0, d.width, d.height - taskBarHeight);
+		// setBounds(0, 0, 1382, 761);
 
+		JPanel painelPrincipal = new JPanel();
 		painelPrincipal.setBackground(new Color(255, 255, 255));
-		painelPrincipal.setBorder(new EmptyBorder(5, 5, 5, 5));
 		setContentPane(painelPrincipal);
-		GridBagLayout gbl_painelPrincipal = new GridBagLayout();
-		gbl_painelPrincipal.columnWidths = new int[] { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-				0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
-		gbl_painelPrincipal.rowHeights = new int[] { 78, 0, 345, 0, 0 };
-		gbl_painelPrincipal.columnWeights = new double[] { 1.0, 1.0, 1.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,
-				0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 1.0, 1.0, 0.0,
-				1.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, Double.MIN_VALUE };
-		gbl_painelPrincipal.rowWeights = new double[] { 0.0, 1.0, 0.0, 1.0, Double.MIN_VALUE };
-		painelPrincipal.setLayout(gbl_painelPrincipal);
+		painelPrincipal.setLayout(new MigLayout("", "[][][grow][][grow]", "[86px][350px,grow]"));
 
 		JPanel panel = new JPanel();
-		GridBagConstraints gbc_panel = new GridBagConstraints();
-		gbc_panel.gridwidth = 31;
-		gbc_panel.insets = new Insets(0, 0, 5, 5);
-		gbc_panel.fill = GridBagConstraints.BOTH;
-		gbc_panel.gridx = 0;
-		gbc_panel.gridy = 0;
-		painelPrincipal.add(panel, gbc_panel);
-		panel.setLayout(new GridLayout(0, 1, 0, 0));
+		painelPrincipal.add(panel, "cell 0 0,grow");
+		panel.setLayout(new MigLayout("", "[grow]", "[86px]"));
 
 		JMenuBar menuBar = new JMenuBar();
 		menuBar.setOpaque(true);
 		menuBar.setForeground(Color.WHITE);
 		menuBar.setBackground(Color.WHITE);
-		panel.add(menuBar);
+		panel.add(menuBar, "cell 0 0,grow");
 
 		JMenu Dados = new JMenu("Cadastros");
 		Dados.setIcon(new ImageIcon(TelaMain.class.getResource("/imagens/icone_cadastro_menu.png")));
@@ -533,15 +541,15 @@ public class TelaMain extends JFrame {
 		mntmNewMenuItem_8.setFont(new Font("Segoe UI", Font.PLAIN, 16));
 		mnContratos.add(mntmNewMenuItem_8);
 		mnContratos.add(mntmNewMenuItem_1);
-		
+
 		JMenuItem mntmNewMenuItem_1_1 = new JMenuItem("Notas Fiscais");
 		mntmNewMenuItem_1_1.setIcon(new ImageIcon(TelaMain.class.getResource("/imagens/taxa.png")));
 		mntmNewMenuItem_1_1.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				
+
 				TelaControleNotasFiscais tela = new TelaControleNotasFiscais(isto);
 				tela.setVisible(true);
-				
+
 			}
 		});
 		mntmNewMenuItem_1_1.setMargin(new Insets(0, 10, 0, 0));
@@ -744,6 +752,8 @@ public class TelaMain extends JFrame {
 		mnNewMenu.setIcon(new ImageIcon(TelaMain.class.getResource("/imagens/preferencias.png")));
 		mnNewMenu.setFont(new Font("Arial", Font.PLAIN, 18));
 		menuBar.add(mnNewMenu);
+		
+		
 		JMenuItem mntmPastas = new JMenuItem("Preferências");
 		mntmPastas.setIcon(new ImageIcon(TelaMain.class.getResource("/imagens/definicoes.png")));
 		mntmPastas.setMargin(new Insets(0, 10, 0, 0));
@@ -754,16 +764,29 @@ public class TelaMain extends JFrame {
 		});
 		mntmPastas.setFont(new Font("Segoe UI", Font.PLAIN, 16));
 		mnNewMenu.add(mntmPastas);
+		
+		JMenu mnNewMenu_4 = new JMenu("Utilitário");
+		mnNewMenu_4.setIcon(new ImageIcon(TelaMain.class.getResource("/imagens/icone_utilidades.png")));
+		mnNewMenu_4.setFont(new Font("Arial", Font.PLAIN, 18));
+		menuBar.add(mnNewMenu_4);
+		
+		JMenuItem mntmNewMenuItem_3_1 = new JMenuItem("Controle de Embarque/Desembarque");
+		mntmNewMenuItem_3_1.setIcon(new ImageIcon(TelaMain.class.getResource("/imagens/fila.png")));
+		mntmNewMenuItem_3_1.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				
+				TelaFila tela = new TelaFila(0, isto);
+				tela.setVisible(true);
+				
+			}
+		});
+		mntmNewMenuItem_3_1.setMargin(new Insets(0, 10, 0, 0));
+		mntmNewMenuItem_3_1.setFont(new Font("SansSerif", Font.PLAIN, 16));
+		mnNewMenu_4.add(mntmNewMenuItem_3_1);
 
 		JPanel panel_1 = new JPanel();
 		panel_1.setBackground(new Color(0, 153, 51));
-		GridBagConstraints gbc_panel_1 = new GridBagConstraints();
-		gbc_panel_1.gridwidth = 7;
-		gbc_panel_1.insets = new Insets(0, 0, 5, 5);
-		gbc_panel_1.fill = GridBagConstraints.BOTH;
-		gbc_panel_1.gridx = 31;
-		gbc_panel_1.gridy = 0;
-		painelPrincipal.add(panel_1, gbc_panel_1);
+		painelPrincipal.add(panel_1, "cell 1 0,grow");
 		panel_1.setLayout(new MigLayout("", "[][][][][][][]", "[][-18.00][]"));
 
 		JLabel lblNewLabel_8 = new JLabel("");
@@ -805,125 +828,51 @@ public class TelaMain extends JFrame {
 
 		JPanel panel_2 = new JPanel();
 		panel_2.setBackground(new Color(51, 153, 255));
-		GridBagConstraints gbc_panel_2 = new GridBagConstraints();
-		gbc_panel_2.gridwidth = 3;
-		gbc_panel_2.insets = new Insets(0, 0, 5, 5);
-		gbc_panel_2.fill = GridBagConstraints.BOTH;
-		gbc_panel_2.gridx = 38;
-		gbc_panel_2.gridy = 0;
-		painelPrincipal.add(panel_2, gbc_panel_2);
-		panel_2.setLayout(new MigLayout("", "[188px]", "[22px][][]"));
+		painelPrincipal.add(panel_2, "cell 2 0,grow");
+		panel_2.setLayout(new MigLayout("", "[][][grow]", "[grow][][grow]"));
 
-		lblUser = new JLabel();
-		panel_2.add(lblUser, "cell 0 0,alignx left,aligny top");
-		lblUser.setText("<dynamic> <dynamic>");
-		lblUser.setForeground(Color.BLACK);
-		lblUser.setFont(new Font("Tahoma", Font.PLAIN, 18));
-		lblUser.setBackground(Color.WHITE);
+		lblNovaMensagem = new JLabel("");
+		lblNovaMensagem.setIcon(new ImageIcon(TelaMain.class.getResource("/imagens/mensagens.png")));
+		panel_2.add(lblNovaMensagem, "cell 0 0 2 2,alignx center");
+		lblNovaMensagem.setForeground(Color.WHITE);
+		lblNovaMensagem.setFont(new Font("Tahoma", Font.PLAIN, 18));
+		lblNovaMensagem.setBounds(33, 17, 32, 32);
 
-		lblDireitos = new JLabel();
-		panel_2.add(lblDireitos, "cell 0 1");
-		lblDireitos.setText("Administrador do Sistema");
-		lblDireitos.setForeground(Color.BLACK);
-		lblDireitos.setFont(new Font("Tahoma", Font.PLAIN, 15));
-		lblDireitos.setBackground(Color.WHITE);
-
-		JPanel panel_3 = new JPanel();
-		panel_3.setBackground(Color.WHITE);
-
-		JScrollPane scrollPane = new JScrollPane(panel_3);
-		GridBagLayout gbl_panel_3 = new GridBagLayout();
-		gbl_panel_3.columnWidths = new int[] { 500, -27, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 57, 68, 0, 0, 0, 0, 0, 0,
-				0, 0, 0 };
-		gbl_panel_3.rowHeights = new int[] { 350, 309, 223, 19, 1, 0 };
-		gbl_panel_3.columnWeights = new double[] { 1.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,
-				0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0, Double.MIN_VALUE };
-		gbl_panel_3.rowWeights = new double[] { 0.0, 0.0, 1.0, 1.0, 0.0, Double.MIN_VALUE };
-		panel_3.setLayout(gbl_panel_3);
-
-		JPanel panel_4 = new JPanel();
-		panel_4.setBackground(Color.WHITE);
-		GridBagConstraints gbc_panel_4 = new GridBagConstraints();
-		gbc_panel_4.insets = new Insets(0, 0, 5, 5);
-		gbc_panel_4.fill = GridBagConstraints.BOTH;
-		gbc_panel_4.gridx = 0;
-		gbc_panel_4.gridy = 0;
-		panel_3.add(panel_4, gbc_panel_4);
-		panel_4.setLayout(new MigLayout("", "[1px][474.00,grow]", "[1px][266.00,grow]"));
-
-		painelGraficoContratos = new JPanelGrafico(0, 0);
-		painelGraficoContratos.setLayout(null);
-		panel_4.add(painelGraficoContratos, "cell 1 1,grow");
-
-		lblTotalContratosAssinados = new JLabel("Assinados: 0");
-		lblTotalContratosAssinados.setFont(new Font("Arial", Font.BOLD, 14));
-		lblTotalContratosAssinados.setBorder(new EmptyBorder(0, 0, 0, 0));
-		lblTotalContratosAssinados.setBounds(10, 57, 173, 24);
-		painelGraficoContratos.add(lblTotalContratosAssinados);
-
-		lblTotalContratosAssinar = new JLabel("Assinar: 0");
-		lblTotalContratosAssinar.setFont(new Font("Arial", Font.BOLD, 14));
-		lblTotalContratosAssinar.setBorder(new EmptyBorder(0, 0, 0, 0));
-		lblTotalContratosAssinar.setBounds(10, 92, 173, 24);
-		painelGraficoContratos.add(lblTotalContratosAssinar);
-
-		lblTotalContratos = new JLabel("Total de Contratos: 0");
-		lblTotalContratos.setFont(new Font("Arial", Font.BOLD, 14));
-		lblTotalContratos.setBorder(new EmptyBorder(0, 0, 0, 0));
-		lblTotalContratos.setBounds(10, 22, 173, 24);
-		painelGraficoContratos.add(lblTotalContratos);
-
-		JLabel lblNewLabel = new JLabel("");
-		lblNewLabel.setIcon(new ImageIcon(TelaMain.class.getResource("/imagens/icone_contrato.png")));
-		lblNewLabel.setBounds(396, 178, 76, 71);
-		painelGraficoContratos.add(lblNewLabel);
-
-		JPanel panel_5 = new JPanel();
-		panel_5.setBackground(Color.WHITE);
-		GridBagConstraints gbc_panel_5 = new GridBagConstraints();
-		gbc_panel_5.gridwidth = 11;
-		gbc_panel_5.insets = new Insets(0, 0, 5, 5);
-		gbc_panel_5.fill = GridBagConstraints.BOTH;
-		gbc_panel_5.gridx = 1;
-		gbc_panel_5.gridy = 0;
-		panel_3.add(panel_5, gbc_panel_5);
-		panel_5.setLayout(new MigLayout("", "[grow]", "[][][]"));
-
-		JLabel lblNewLabel_6 = new JLabel("Todas as Safras", SwingConstants.CENTER);
-		lblNewLabel_6.setOpaque(true);
-		lblNewLabel_6.setForeground(Color.WHITE);
-		lblNewLabel_6.setFont(new Font("Tahoma", Font.PLAIN, 14));
-		lblNewLabel_6.setBorder(new LineBorder(new Color(0, 0, 0)));
-		lblNewLabel_6.setBackground(new Color(0, 206, 209));
-		panel_5.add(lblNewLabel_6, "cell 0 0,grow");
-		lblNewLabel_6.addMouseListener(new MouseAdapter() {
+		lblNovaMensagem.addMouseListener(new MouseAdapter() {
 			@Override
-			public void mouseClicked(MouseEvent e) {
-				atualizarGraficoContratos();
-			}
-		});
-
-		cBSafraPersonalizado = new ComboBoxRenderPersonalizado();
-		cbContratosPorSafra = new JComboBox();
-		cbContratosPorSafra.setFont(new Font("Tahoma", Font.BOLD, 10));
-		cbContratosPorSafra.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				try {
-					CadastroSafra safra = (CadastroSafra) modelSafra.getSelectedItem();
-					// procura no banco os contratos de acordo com a safra selecionada
-					GerenciarBancoContratos gerenciar = new GerenciarBancoContratos();
-					int num_contratos_total = gerenciar.consultaContratos(0, safra.getId_safra());
-					int num_contratos_assinar = gerenciar.consultaContratos(1, safra.getId_safra());
-					// atualizar o grafico
-					atualizarGraficoContratos(num_contratos_total, num_contratos_assinar);
-				} catch (Exception t) {
+			public void mouseClicked(MouseEvent arg0) {
+				if (telaChat == null) {
+					telaChat = new TelaChat(isto);
+					telaChat.setTelaPai(isto);
+				} else {
+					telaChat.setVisible(true);
+					java.awt.EventQueue.invokeLater(new Runnable() {
+						public void run() {
+							lblNovaMensagem
+									.setIcon(new ImageIcon(TelaMain.class.getResource("/imagens/mensagens.png")));
+							lblNovaMensagem.repaint();
+							lblNovaMensagem.updateUI();
+						}
+					});
 				}
 			}
 		});
-		cbContratosPorSafra.setModel(modelSafra);
-		cbContratosPorSafra.setRenderer(cBSafraPersonalizado);
-		cbContratosPorSafra.setFont(new Font("Tahoma", Font.BOLD, 10));
-		panel_5.add(cbContratosPorSafra, "cell 0 1,growx");
+
+		lblUser = new JLabel();
+		panel_2.add(lblUser, "cell 2 0,alignx right,growy");
+		lblUser.setText("<dynamic> <dynamic>");
+		lblUser.setForeground(Color.BLACK);
+		lblUser.setFont(new Font("Tahoma", Font.BOLD, 24));
+		lblUser.setBackground(Color.WHITE);
+
+		lblDireitos = new JLabel();
+		panel_2.add(lblDireitos, "cell 2 1 1 2,alignx right");
+		lblDireitos.setText("Administrador do Sistema");
+		lblDireitos.setForeground(Color.BLACK);
+		lblDireitos.setFont(new Font("Tahoma", Font.PLAIN, 20));
+		lblDireitos.setBackground(Color.WHITE);
+
+		cBSafraPersonalizado = new ComboBoxRenderPersonalizado();
 
 		pesquisarSafras();
 		for (CadastroSafra safra : safras) {
@@ -933,429 +882,96 @@ public class TelaMain extends JFrame {
 			modelSafra.addSafra(safra);
 		}
 
-		JLabel lblNewLabel_7 = new JLabel("");
-		lblNewLabel_7.setIcon(new ImageIcon(TelaMain.class.getResource("/imagens/icone_silos.png")));
-		panel_5.add(lblNewLabel_7, "cell 0 2");
-
-		JPanel painelInfoConexao = new JPanel();
-		painelInfoConexao.setLayout(null);
-		painelInfoConexao.setBorder(new LineBorder(new Color(0, 0, 0)));
-		painelInfoConexao.setBackground(new Color(51, 153, 153));
-		GridBagConstraints gbc_painelInfoConexao = new GridBagConstraints();
-		gbc_painelInfoConexao.insets = new Insets(0, 0, 5, 0);
-		gbc_painelInfoConexao.gridwidth = 11;
-		gbc_painelInfoConexao.fill = GridBagConstraints.BOTH;
-		gbc_painelInfoConexao.gridx = 13;
-		gbc_painelInfoConexao.gridy = 0;
-		panel_3.add(painelInfoConexao, gbc_painelInfoConexao);
-
-		JLabel lblInfo = new JLabel("Informações de Conexão");
-		lblInfo.setForeground(Color.WHITE);
-		lblInfo.setFont(new Font("SansSerif", Font.BOLD, 20));
-		lblInfo.setBounds(21, 16, 235, 26);
-		painelInfoConexao.add(lblInfo);
-
-		lblnet = new JLabel("Internet:");
-		lblnet.setForeground(Color.WHITE);
-		lblnet.setFont(new Font("SansSerif", Font.BOLD, 14));
-		lblnet.setBounds(63, 54, 295, 19);
-		painelInfoConexao.add(lblnet);
-
-		lblBaseDeArquivos = new JLabel("Base de Arquivos:");
-		lblBaseDeArquivos.setForeground(Color.WHITE);
-		lblBaseDeArquivos.setFont(new Font("SansSerif", Font.BOLD, 14));
-		lblBaseDeArquivos.setBounds(63, 152, 295, 14);
-		painelInfoConexao.add(lblBaseDeArquivos);
-
-		lblBD = new JLabel("Banco de Dados:");
-		lblBD.setForeground(Color.WHITE);
-		lblBD.setFont(new Font("SansSerif", Font.BOLD, 14));
-		lblBD.setBounds(63, 196, 264, 14);
-		painelInfoConexao.add(lblBD);
-
-		urlBancoDados = new JLabel("erro");
-		urlBancoDados.setForeground(Color.WHITE);
-		urlBancoDados.setFont(new Font("SansSerif", Font.BOLD, 14));
-		urlBancoDados.setBounds(63, 214, 280, 19);
-		painelInfoConexao.add(urlBancoDados);
-
-		urlBaseArquivos = new JLabel("erro");
-		urlBaseArquivos.setForeground(Color.WHITE);
-		urlBaseArquivos.setFont(new Font("SansSerif", Font.BOLD, 14));
-		urlBaseArquivos.setBounds(63, 171, 295, 19);
-		painelInfoConexao.add(urlBaseArquivos);
-
-		urlInternet = new JLabel("http://www.google.com.br");
-		urlInternet.setForeground(Color.WHITE);
-		urlInternet.setFont(new Font("SansSerif", Font.BOLD, 14));
-		urlInternet.setBounds(63, 77, 295, 26);
-		painelInfoConexao.add(urlInternet);
-
-		imgBaseDados = new JLabel("New label");
-		imgBaseDados.setBounds(21, 196, 32, 32);
-		painelInfoConexao.add(imgBaseDados);
-
-		imgBaseArquivos = new JLabel("");
-		imgBaseArquivos.setBounds(21, 152, 32, 32);
-		painelInfoConexao.add(imgBaseArquivos);
-
-		imgInternet = new JLabel("");
-		imgInternet.setBounds(21, 59, 32, 32);
-		painelInfoConexao.add(imgInternet);
-
-		imgNuvem = new JLabel("");
-		imgNuvem.setBounds(21, 109, 32, 32);
-		painelInfoConexao.add(imgNuvem);
-
-		lblNuvem = new JLabel("Nuvem");
-		lblNuvem.setForeground(Color.WHITE);
-		lblNuvem.setFont(new Font("SansSerif", Font.BOLD, 14));
-		lblNuvem.setBounds(63, 109, 311, 14);
-		painelInfoConexao.add(lblNuvem);
-
-		urlNuvem = new JLabel("https://www.dropbox.com/");
-		urlNuvem.setForeground(Color.WHITE);
-		urlNuvem.setFont(new Font("SansSerif", Font.BOLD, 14));
-		urlNuvem.setBounds(63, 127, 295, 19);
-		painelInfoConexao.add(urlNuvem);
-
-		JLabel lblWhatsapp = new JLabel("Whatsapp:");
-		lblWhatsapp.setForeground(Color.WHITE);
-		lblWhatsapp.setFont(new Font("SansSerif", Font.BOLD, 14));
-		lblWhatsapp.setBounds(63, 245, 264, 14);
-		painelInfoConexao.add(lblWhatsapp);
-
-		lblStatusWhatsapp = new JLabel("Status:");
-		lblStatusWhatsapp.setForeground(Color.WHITE);
-		lblStatusWhatsapp.setFont(new Font("SansSerif", Font.BOLD, 14));
-		lblStatusWhatsapp.setBounds(63, 263, 280, 19);
-		painelInfoConexao.add(lblStatusWhatsapp);
-
-		imgWhatsapp = new JLabel("New label");
-		imgWhatsapp.setBounds(21, 245, 32, 32);
-		painelInfoConexao.add(imgWhatsapp);
-
-		JLabel lblRelgioDePonto = new JLabel("Relógio de Ponto:");
-		lblRelgioDePonto.setForeground(Color.WHITE);
-		lblRelgioDePonto.setFont(new Font("SansSerif", Font.BOLD, 14));
-		lblRelgioDePonto.setBounds(63, 302, 264, 14);
-		painelInfoConexao.add(lblRelgioDePonto);
-
-		lblStatusRelogioPonto = new JLabel("Status:");
-		lblStatusRelogioPonto.setForeground(Color.WHITE);
-		lblStatusRelogioPonto.setFont(new Font("SansSerif", Font.BOLD, 14));
-		lblStatusRelogioPonto.setBounds(63, 320, 280, 19);
-		painelInfoConexao.add(lblStatusRelogioPonto);
-
-		imgRelogioPonto = new JLabel("New label");
-		imgRelogioPonto.setBounds(21, 302, 32, 32);
-		painelInfoConexao.add(imgRelogioPonto);
-
-		painelGraficoRecebimento = new JPanelGraficoRecebimento(0, 0);
-		painelGraficoRecebimento.setLayout(null);
-		GridBagConstraints gbc_painelGraficoRecebimento = new GridBagConstraints();
-		gbc_painelGraficoRecebimento.insets = new Insets(0, 0, 5, 5);
-		gbc_painelGraficoRecebimento.fill = GridBagConstraints.BOTH;
-		gbc_painelGraficoRecebimento.gridx = 0;
-		gbc_painelGraficoRecebimento.gridy = 1;
-		panel_3.add(painelGraficoRecebimento, gbc_painelGraficoRecebimento);
-
-		JLabel lblNewLabel_5 = new JLabel(
-				"de recebimento, pode não corresponder  a realidade atual do armazém(Estimativa)");
-		lblNewLabel_5.setForeground(Color.RED);
-		lblNewLabel_5.setBounds(6, 282, 467, 16);
-		painelGraficoRecebimento.add(lblNewLabel_5);
-
-		lblTotalSacosAReceber = new JLabel("a Receber(sacos): 0");
-		lblTotalSacosAReceber.setFont(new Font("Arial", Font.BOLD, 14));
-		lblTotalSacosAReceber.setBorder(new EmptyBorder(0, 0, 0, 0));
-		lblTotalSacosAReceber.setBounds(0, 71, 253, 24);
-		painelGraficoRecebimento.add(lblTotalSacosAReceber);
-
-		lblTotalSacosRecebidos = new JLabel("Recebidos(sacos): 0");
-		lblTotalSacosRecebidos.setFont(new Font("Arial", Font.BOLD, 14));
-		lblTotalSacosRecebidos.setBorder(new EmptyBorder(0, 0, 0, 0));
-		lblTotalSacosRecebidos.setBounds(0, 35, 253, 24);
-		painelGraficoRecebimento.add(lblTotalSacosRecebidos);
-
-		lblTotalSacosGraficoRecebimento = new JLabel("Quantidade Total(sacos): 0");
-		lblTotalSacosGraficoRecebimento.setFont(new Font("Arial", Font.BOLD, 14));
-		lblTotalSacosGraficoRecebimento.setBorder(new EmptyBorder(0, 0, 0, 0));
-		lblTotalSacosGraficoRecebimento.setBounds(0, -1, 253, 24);
-		painelGraficoRecebimento.add(lblTotalSacosGraficoRecebimento);
-
-		JLabel lblNewLabel_9_1 = new JLabel("");
-		lblNewLabel_9_1.setBounds(128, 149, 64, 75);
-		painelGraficoRecebimento.add(lblNewLabel_9_1);
-
-		JLabel lblNewLabel_5_1 = new JLabel("Valores Baseados na soma dos pesos liquidos do controle");
-		lblNewLabel_5_1.setForeground(Color.RED);
-		lblNewLabel_5_1.setBounds(6, 259, 420, 16);
-		painelGraficoRecebimento.add(lblNewLabel_5_1);
-
-		JPanel panel_7 = new JPanel();
-		panel_7.setBackground(Color.WHITE);
-		GridBagConstraints gbc_panel_7 = new GridBagConstraints();
-		gbc_panel_7.gridwidth = 11;
-		gbc_panel_7.insets = new Insets(0, 0, 5, 5);
-		gbc_panel_7.fill = GridBagConstraints.BOTH;
-		gbc_panel_7.gridx = 1;
-		gbc_panel_7.gridy = 1;
-		panel_3.add(panel_7, gbc_panel_7);
-		panel_7.setLayout(new MigLayout("", "[grow]", "[][][][][][][][][]"));
-
-		JLabel lblTodasAsSafrasRecebimento = new JLabel("Todas as Safras", SwingConstants.CENTER);
-		lblTodasAsSafrasRecebimento.addMouseListener(new MouseAdapter() {
-			@Override
-			public void mouseClicked(MouseEvent e) {
-				getDadosRecebimento();
-				atualizarGraficoRecebimentos();
-			}
-		});
-		lblTodasAsSafrasRecebimento.setOpaque(true);
-		lblTodasAsSafrasRecebimento.setForeground(Color.WHITE);
-		lblTodasAsSafrasRecebimento.setFont(new Font("Tahoma", Font.PLAIN, 14));
-		lblTodasAsSafrasRecebimento.setBorder(new LineBorder(new Color(0, 0, 0)));
-		lblTodasAsSafrasRecebimento.setBackground(new Color(0, 206, 209));
-		panel_7.add(lblTodasAsSafrasRecebimento, "cell 0 1,growx");
-
-		cbRecebimentosPorSafra = new JComboBox();
-		cbRecebimentosPorSafra.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-
-				try {
-					CadastroSafra safra = (CadastroSafra) modelSafra.getSelectedItem();
-					// procura no banco os contratos de acordo com a safra selecionada
-					GerenciarBancoContratos gerenciar = new GerenciarBancoContratos();
-					double num_total_sacos = gerenciar.getQuantidadeSacosPorSafra(safra.getId_safra());
-					double num_total_sacos_carregados = gerenciar
-							.getQuantidadeSacosRecebidosPorSafra(safra.getId_safra());
-					// atualizar o grafico
-					atualizarGraficoRecebimentos(num_total_sacos, num_total_sacos_carregados);
-				} catch (Exception t) {
-				}
-
-			}
-		});
-		cbRecebimentosPorSafra.setFont(new Font("Tahoma", Font.BOLD, 10));
-		panel_7.add(cbRecebimentosPorSafra, "cell 0 2,growx");
-		cbRecebimentosPorSafra.setModel(modelSafra);
-		cbRecebimentosPorSafra.setRenderer(cBSafraPersonalizado);
-
-		JLabel lblNewLabel_11 = new JLabel("SAFRA EM EVIDÊNCIA");
-		lblNewLabel_11.setFont(new Font("Tahoma", Font.PLAIN, 16));
-		panel_7.add(lblNewLabel_11, "cell 0 5,alignx center");
-
-		JLabel lblNewLabel_12 = new JLabel("2020/2021");
-		lblNewLabel_12.setFont(new Font("Tahoma", Font.BOLD, 20));
-		panel_7.add(lblNewLabel_12, "cell 0 6,alignx center");
-
-		JPanel panel_8 = new JPanel();
-		panel_8.setBackground(Color.WHITE);
-		GridBagConstraints gbc_panel_8 = new GridBagConstraints();
-		gbc_panel_8.gridwidth = 12;
-		gbc_panel_8.insets = new Insets(0, 0, 5, 5);
-		gbc_panel_8.fill = GridBagConstraints.BOTH;
-		gbc_panel_8.gridx = 12;
-		gbc_panel_8.gridy = 1;
-		panel_3.add(panel_8, gbc_panel_8);
-		panel_8.setLayout(new MigLayout("", "[][grow]", "[][][211.00,grow][]"));
-
-		JLabel lblNewLabel_10 = new JLabel("Avisos do Sistema");
-		lblNewLabel_10.setOpaque(true);
-		lblNewLabel_10.setForeground(Color.WHITE);
-		lblNewLabel_10.setBackground(new Color(0, 51, 0));
-		lblNewLabel_10.setFont(new Font("SansSerif", Font.PLAIN, 20));
-		panel_8.add(lblNewLabel_10, "cell 1 0");
-
-		tabela_avisos = new JTable(modelo_aviso);
-
-		tabela_avisos.getColumnModel().getColumn(0).setPreferredWidth(50);
-		tabela_avisos.getColumnModel().getColumn(1).setPreferredWidth(250);
-		tabela_avisos.getColumnModel().getColumn(2).setPreferredWidth(800);
-		tabela_avisos.setRowHeight(30);
-
-		JScrollPane scrollPane_1 = new JScrollPane(tabela_avisos);
-		scrollPane_1.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
-		scrollPane_1.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_ALWAYS);
-		scrollPane_1.setBackground(Color.WHITE);
-		panel_8.add(scrollPane_1, "cell 1 2,grow");
-
-		JButton btnNewButton = new JButton("Excluir Aviso");
-		btnNewButton.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-
-				int indiceDaLinha = tabela_avisos.getSelectedRow();
-				CadastroAviso aviso_selecionado = lista_avisos.get(indiceDaLinha);
-				lista_avisos.remove(aviso_selecionado);
-				modelo_aviso.onRemove(indiceDaLinha);
-			}
-		});
-
-		JButton btnLimparAvisos = new JButton("Limpar");
-		btnLimparAvisos.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				tabela_avisos.removeAll();
-				lista_avisos.clear();
-				modelo_aviso.onRemoveAll();
-
-			}
-		});
-		panel_8.add(btnLimparAvisos, "flowx,cell 1 3,alignx right");
-		panel_8.add(btnNewButton, "cell 1 3,alignx right");
-
-		JPanel panel_6 = new JPanel();
-		panel_6.setBackground(Color.WHITE);
-		GridBagConstraints gbc_panel_6 = new GridBagConstraints();
-		gbc_panel_6.gridheight = 2;
-		gbc_panel_6.insets = new Insets(0, 0, 5, 5);
-		gbc_panel_6.fill = GridBagConstraints.BOTH;
-		gbc_panel_6.gridx = 0;
-		gbc_panel_6.gridy = 2;
-		panel_3.add(panel_6, gbc_panel_6);
-		panel_6.setLayout(new MigLayout("", "[grow]", "[][grow]"));
-
-		panelGraficoLinha = new JPanel();
-		panelGraficoLinha.setLayout(null);
-		panelGraficoLinha.setBackground(Color.WHITE);
-		panel_6.add(panelGraficoLinha, "cell 0 0 1 2,grow");
-
-		painelGraficoCarregamentos = new JPanelGraficoCarregamento(0, 0);
-		painelGraficoCarregamentos.setLayout(null);
-		GridBagConstraints gbc_painelGraficoCarregamentos = new GridBagConstraints();
-		gbc_painelGraficoCarregamentos.gridheight = 3;
-		gbc_painelGraficoCarregamentos.gridwidth = 14;
-		gbc_painelGraficoCarregamentos.insets = new Insets(0, 0, 0, 5);
-		gbc_painelGraficoCarregamentos.fill = GridBagConstraints.BOTH;
-		gbc_painelGraficoCarregamentos.gridx = 1;
-		gbc_painelGraficoCarregamentos.gridy = 2;
-		panel_3.add(painelGraficoCarregamentos, gbc_painelGraficoCarregamentos);
-
-		lblTotalSacosRetirar = new JLabel("a Carregar(sacos): 0");
-		lblTotalSacosRetirar.setFont(new Font("Arial", Font.BOLD, 14));
-		lblTotalSacosRetirar.setBorder(new EmptyBorder(0, 0, 0, 0));
-		lblTotalSacosRetirar.setBounds(0, 71, 253, 24);
-		painelGraficoCarregamentos.add(lblTotalSacosRetirar);
-
-		lblTotalSacosRetirados = new JLabel("Carregados(sacos): 0");
-		lblTotalSacosRetirados.setFont(new Font("Arial", Font.BOLD, 14));
-		lblTotalSacosRetirados.setBorder(new EmptyBorder(0, 0, 0, 0));
-		lblTotalSacosRetirados.setBounds(0, 35, 253, 24);
-		painelGraficoCarregamentos.add(lblTotalSacosRetirados);
-
-		lblTotalSacos = new JLabel("Quantidade Total(sacos): 0");
-		lblTotalSacos.setFont(new Font("Arial", Font.BOLD, 14));
-		lblTotalSacos.setBorder(new EmptyBorder(0, 0, 0, 0));
-		lblTotalSacos.setBounds(0, -1, 253, 24);
-		painelGraficoCarregamentos.add(lblTotalSacos);
-
-		JLabel lblNewLabel_9 = new JLabel("");
-		lblNewLabel_9.setIcon(new ImageIcon(TelaMain.class.getResource("/imagens/icone_caminhao.png")));
-		lblNewLabel_9.setBounds(128, 149, 64, 75);
-		painelGraficoCarregamentos.add(lblNewLabel_9);
-
-		JPanel panel_9 = new JPanel();
-		panel_9.setBackground(Color.WHITE);
-		GridBagConstraints gbc_panel_9 = new GridBagConstraints();
-		gbc_panel_9.gridwidth = 9;
-		gbc_panel_9.insets = new Insets(0, 0, 5, 0);
-		gbc_panel_9.fill = GridBagConstraints.BOTH;
-		gbc_panel_9.gridx = 15;
-		gbc_panel_9.gridy = 2;
-		panel_3.add(panel_9, gbc_panel_9);
-		GridBagLayout gbl_panel_9 = new GridBagLayout();
-		gbl_panel_9.columnWidths = new int[] { 111, 0, 0, 0, 0, 0 };
-		gbl_panel_9.rowHeights = new int[] { 88, 0, 62, 58, 0 };
-		gbl_panel_9.columnWeights = new double[] { 0.0, 1.0, 0.0, 0.0, 1.0, Double.MIN_VALUE };
-		gbl_panel_9.rowWeights = new double[] { 0.0, 0.0, 0.0, 1.0, Double.MIN_VALUE };
-		panel_9.setLayout(gbl_panel_9);
-
-		JLabel lblNewLabel_6_1 = new JLabel("Todas as Safras", SwingConstants.CENTER);
-		lblNewLabel_6_1.setOpaque(true);
-		lblNewLabel_6_1.setForeground(Color.WHITE);
-		lblNewLabel_6_1.setFont(new Font("Tahoma", Font.PLAIN, 14));
-		lblNewLabel_6_1.setBorder(new LineBorder(new Color(0, 0, 0)));
-		lblNewLabel_6_1.setBackground(new Color(0, 206, 209));
-		lblNewLabel_6_1.addMouseListener(new MouseAdapter() {
-			@Override
-			public void mouseClicked(MouseEvent e) {
-				getDadosCarregamento();
-				atualizarGraficoCarregamentos();
-				atualizarPainelGraficoLinhasTodasSafras();
-			}
-		});
-		GridBagConstraints gbc_lblNewLabel_6_1 = new GridBagConstraints();
-		gbc_lblNewLabel_6_1.fill = GridBagConstraints.HORIZONTAL;
-		gbc_lblNewLabel_6_1.anchor = GridBagConstraints.SOUTH;
-		gbc_lblNewLabel_6_1.gridwidth = 5;
-		gbc_lblNewLabel_6_1.insets = new Insets(0, 0, 5, 0);
-		gbc_lblNewLabel_6_1.gridx = 0;
-		gbc_lblNewLabel_6_1.gridy = 0;
-		panel_9.add(lblNewLabel_6_1, gbc_lblNewLabel_6_1);
-
-		JComboBox cbCarregamentoPorSafra = new JComboBox();
-		cbCarregamentoPorSafra.setFont(new Font("Tahoma", Font.BOLD, 10));
-		cbCarregamentoPorSafra.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				try {
-					CadastroSafra safra = (CadastroSafra) modelSafra.getSelectedItem();
-					// procura no banco os contratos de acordo com a safra selecionada
-					GerenciarBancoContratos gerenciar = new GerenciarBancoContratos();
-					double num_total_sacos = gerenciar.getQuantidadeSacosPorSafra(safra.getId_safra());
-					double num_total_sacos_carregados = gerenciar
-							.getQuantidadeSacosCarregadosPorSafra(safra.getId_safra());
-					// atualizar o grafico
-					atualizarGraficoCarregamentos(num_total_sacos, num_total_sacos_carregados);
-					atualizarPainelGraficoLinhasSafra(safra.getId_safra());
-					// getCarregamentoPorPeriodoSafra(safra.getId_safra());
-				} catch (Exception t) {
-				}
-			}
-		});
-		cbCarregamentoPorSafra.setModel(modelSafra);
-		cbCarregamentoPorSafra.setRenderer(cBSafraPersonalizado);
-
-		GridBagConstraints gbc_cbCarregamentoPorSafra = new GridBagConstraints();
-		gbc_cbCarregamentoPorSafra.gridwidth = 5;
-		gbc_cbCarregamentoPorSafra.insets = new Insets(0, 0, 5, 5);
-		gbc_cbCarregamentoPorSafra.fill = GridBagConstraints.HORIZONTAL;
-		gbc_cbCarregamentoPorSafra.gridx = 0;
-		gbc_cbCarregamentoPorSafra.gridy = 1;
-		panel_9.add(cbCarregamentoPorSafra, gbc_cbCarregamentoPorSafra);
-
-		JPanel painel_mensagens = new JPanel();
-		painel_mensagens.setLayout(null);
-		painel_mensagens.setBackground(new Color(102, 204, 204));
-		GridBagConstraints gbc_painel_mensagens = new GridBagConstraints();
-		gbc_painel_mensagens.gridwidth = 5;
-		gbc_painel_mensagens.fill = GridBagConstraints.BOTH;
-		gbc_painel_mensagens.gridx = 0;
-		gbc_painel_mensagens.gridy = 3;
-		panel_9.add(painel_mensagens, gbc_painel_mensagens);
-
-		JLabel lblNewLabel_3 = new JLabel("     Mensagens");
-		lblNewLabel_3.setOpaque(true);
-		lblNewLabel_3.setForeground(Color.WHITE);
-		lblNewLabel_3.setFont(new Font("Arial", Font.BOLD, 14));
-		lblNewLabel_3.setBackground(new Color(0, 0, 153));
-		lblNewLabel_3.setBounds(133, 17, 161, 28);
-		painel_mensagens.add(lblNewLabel_3);
-
-		lblNovaMensagem = new JLabel("");
-		lblNovaMensagem.setForeground(Color.WHITE);
-		lblNovaMensagem.setFont(new Font("Tahoma", Font.PLAIN, 18));
-		lblNovaMensagem.setBounds(33, 17, 32, 32);
-		painel_mensagens.add(lblNovaMensagem);
-		GridBagConstraints gbc_scrollPane = new GridBagConstraints();
-		gbc_scrollPane.gridheight = 3;
-		gbc_scrollPane.gridwidth = 41;
-		gbc_scrollPane.insets = new Insets(0, 0, 5, 5);
-		gbc_scrollPane.fill = GridBagConstraints.BOTH;
-		gbc_scrollPane.gridx = 0;
-		gbc_scrollPane.gridy = 1;
-		painelPrincipal.add(scrollPane, gbc_scrollPane);
-
 		lblUser.setText(login.getNome() + " " + login.getSobrenome());
+
+		JPanel panel_3 = new JPanel();
+		panel_3.setBackground(Color.WHITE);
+		panel_3.setLayout(new MigLayout("", "[600px,grow][600px][600px]", "[][350px,grow][]"));
+
+		JScrollPane scrollPane = new JScrollPane(panel_3);
+		scrollPane.setBackground(Color.WHITE);
+		painelPrincipal.add(scrollPane, "cell 0 1 3 1,grow");
+
+		JPanel panel_5 = new JPanel();
+		panel_5.setBackground(new Color(0, 102, 102));
+		panel_3.add(panel_5, "cell 0 0 3 1,grow");
+		panel_5.setLayout(new MigLayout("", "[][800px:n][][][][500px:n][]", "[]"));
+
+		JLabel lblNewLabel_11 = new JLabel("SAFRAS EM EVIDÊNCIA ->");
+		lblNewLabel_11.setForeground(Color.WHITE);
+		panel_5.add(lblNewLabel_11, "cell 0 0");
+		lblNewLabel_11.setFont(new Font("Tahoma", Font.BOLD, 16));
+
+		textAreaSafrasEvidencia = new JTextArea();
+		panel_5.add(textAreaSafrasEvidencia, "cell 1 0,grow");
+		textAreaSafrasEvidencia.setEditable(false);
+		textAreaSafrasEvidencia.setFont(new Font("SansSerif", Font.BOLD, 14));
+		textAreaSafrasEvidencia.setWrapStyleWord(true);
+		textAreaSafrasEvidencia.setLineWrap(true);
+
+		JButton btnNewButton_1 = new JButton("Alterar");
+		panel_5.add(btnNewButton_1, "cell 2 0");
+		btnNewButton_1.setFont(new Font("SansSerif", Font.PLAIN, 16));
+		btnNewButton_1.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+
+				TelaEditarSafrasEvidencia tela = new TelaEditarSafrasEvidencia(isto);
+				tela.setVisible(true);
+
+			}
+		});
+		btnNewButton_1.setBackground(new Color(0, 0, 51));
+		btnNewButton_1.setForeground(Color.WHITE);
+		cbContratosPorSafra = new JComboBox();
+		panel_5.add(cbContratosPorSafra, "cell 5 0,growx");
+		cbContratosPorSafra.setFont(new Font("Tahoma", Font.BOLD, 10));
+		cbContratosPorSafra.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				try {
+					CadastroSafra safra = (CadastroSafra) modelSafra.getSelectedItem();
+					criarGraficoContratos(safra.getId_safra() + "");
+					criarGraficoRecebimento(safra.getId_safra() + "");
+					criarGraficoCarregamento(safra.getId_safra() + "");
+
+				} catch (Exception t) {
+				}
+			}
+		});
+		cbContratosPorSafra.setModel(modelSafra);
+		cbContratosPorSafra.setRenderer(cBSafraPersonalizado);
+		cbContratosPorSafra.setFont(new Font("Tahoma", Font.BOLD, 10));
+
+		JButton btnTodasAsSafras = new JButton("Todas as Safras");
+		panel_5.add(btnTodasAsSafras, "cell 6 0");
+
+		btnTodasAsSafras.setFont(new Font("SansSerif", Font.PLAIN, 16));
+		btnTodasAsSafras.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+
+				criarGraficoContratos("0");
+				criarGraficoRecebimento("0");
+				criarGraficoCarregamento("0");
+
+			}
+		});
+		btnTodasAsSafras.setBackground(new Color(0, 0, 102));
+		btnTodasAsSafras.setForeground(Color.WHITE);
+
+		painelGraficoContratos = new JPanel();
+		panel_3.add(painelGraficoContratos, "cell 0 1,grow");
+		painelGraficoContratos.setBackground(Color.WHITE);
+		painelGraficoContratos.setLayout(new MigLayout("", "[]", "[]"));
+
+		painelGraficoRecebimento = new JPanel();
+		painelGraficoRecebimento.setBackground(Color.WHITE);
+		panel_3.add(painelGraficoRecebimento, "cell 1 1,grow");
+		painelGraficoRecebimento.setLayout(new MigLayout("", "[]", "[]"));
+
+		painelGraficoCarregamentos = new JPanel();
+		painelGraficoCarregamentos.setBackground(Color.WHITE);
+		panel_3.add(painelGraficoCarregamentos, "cell 2 1,grow");
+		painelGraficoCarregamentos.setLayout(new MigLayout("", "[]", "[]"));
+
 		if (login.getConfigs_privilegios().getNivel_privilegios() == 1) {
 			if (login.getGenero().equals("Masculino"))
 				lblDireitos.setText("Administrador do Sistema");
@@ -1373,37 +989,73 @@ public class TelaMain extends JFrame {
 				lblDireitos.setText("Auxiliar Administrativo");
 		}
 
+		imgBaseArquivos = new JLabel("");
+		imgBaseArquivos.setBounds(21, 152, 32, 32);
+
+		JPanel panel_4 = new JPanel();
+		panel_4.setBackground(new Color(0, 102, 102));
+		painelPrincipal.add(panel_4, "cell 3 0 1 2,grow");
+		panel_4.setLayout(new MigLayout("", "[]", "[grow][]"));
+
+		 painelInfoConexao = new JPanel();
+		panel_4.add(painelInfoConexao, "cell 0 0,alignx center,aligny center");
+		painelInfoConexao.setBackground(new Color(0, 102, 102));
+		painelInfoConexao.setLayout(new MigLayout("", "[]", "[][][][][][]"));
+
+		painelInfoConexao.setBorder(new LineBorder(new Color(0, 0, 0)));
+
+		imgInternet = new JLabel("");
+		imgInternet.setBounds(21, 59, 32, 32);
+		painelInfoConexao.add(imgInternet, "cell 0 1");
+
+		imgBaseDados = new JLabel("");
+		imgBaseDados.setBounds(21, 196, 32, 32);
+		painelInfoConexao.add(imgBaseDados, "cell 0 2");
+
+		imgRelogioPonto = new JLabel("");
+		imgRelogioPonto.setBounds(21, 302, 32, 32);
+		painelInfoConexao.add(imgRelogioPonto, "cell 0 3");
+
+		imgWhatsapp = new JLabel("");
+		imgWhatsapp.setBounds(21, 245, 32, 32);
+		painelInfoConexao.add(imgWhatsapp, "cell 0 4");
+
+		imgNuvem = new JLabel("");
+		imgNuvem.setBounds(21, 109, 32, 32);
+		painelInfoConexao.add(imgNuvem, "cell 0 5");
+
+		 lblAvisos = new JLabel("");
+		lblAvisos.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseClicked(MouseEvent e) {
+				tela_avisos.setVisible(true);
+			}
+		});
+		lblAvisos.setForeground(Color.WHITE);
+		lblAvisos.setBackground(new Color(0, 0, 0));
+		lblAvisos.setIcon(new ImageIcon(TelaMain.class.getResource("/imagens/icone_sem_avisos.png")));
+		url_lbl_avisos = "/imagens/icone_sem_avisos.png";
+		panel_4.add(lblAvisos, "cell 0 1,grow");
+
 		modelo_usuarios.addColumn("Usuario");
 		modelo_usuarios.addColumn("Ip");
 		modelo_usuarios.addColumn("Status");
 
-		painel_mensagens.addMouseListener(new MouseAdapter() {
-			@Override
-			public void mouseClicked(MouseEvent arg0) {
-				if (telaChat == null) {
-					telaChat = new TelaChat(isto);
-					telaChat.setTelaPai(isto);
-				} else {
-					telaChat.setVisible(true);
-					java.awt.EventQueue.invokeLater(new Runnable() {
-						public void run() {
-							lblNovaMensagem.setIcon(null);
-							lblNovaMensagem.repaint();
-							lblNovaMensagem.updateUI();
-						}
-					});
-				}
-			}
-		});
-
-	
 		if (telaChat == null) {
 			telaChat = new TelaChat(isto);
 			telaChat.setTelaPai(isto);
 
 		}
 
-		
+		if (tela_avisos == null) {
+			tela_avisos = new TelaAvisosSistema(isto);
+
+		}
+
+		pesquisarSafrasEvidencias();
+		if (gerenciarDadosContrato == null)
+			gerenciarDadosContrato = new GerenciarBancoContratos();
+
 		ThreadGlobal();
 		vigiarRomaneios();
 
@@ -1411,6 +1063,14 @@ public class TelaMain extends JFrame {
 		this.setExtendedState(JFrame.MAXIMIZED_BOTH);
 		this.setVisible(true);
 
+	}
+
+	public TelaAvisosSistema getTela_avisos() {
+		return tela_avisos;
+	}
+
+	public void setTela_avisos(TelaAvisosSistema tela_avisos) {
+		this.tela_avisos = tela_avisos;
 	}
 
 	public void getDadosGlobais() {
@@ -1425,46 +1085,6 @@ public class TelaMain extends JFrame {
 		telaTodasNotasFiscais = dados.getTelaTodasNotasFiscais();
 	}
 
-	public void getDadosContratos() {
-		if (gerenciarDadosContrato == null)
-			gerenciarDadosContrato = new GerenciarBancoContratos();
-		int numeroTotalContratos = gerenciarDadosContrato.getNumeroTotalContratos();
-		int numerosContratosSemAssinar = gerenciarDadosContrato.getNumeroContratosParaAssinar();
-		dados_contratos.setNumero_total_contratos(numeroTotalContratos);
-		dados_contratos.setNumero_contratos_assinar(numerosContratosSemAssinar);
-		dados_contratos.setNumero_contratos_assinados(numeroTotalContratos - numerosContratosSemAssinar);
-		System.out.println("Numero total de contrato: " + dados_contratos.getNumero_total_contratos());
-		System.out.println("Numero total de contratos para assinar: " + dados_contratos.getNumero_contratos_assinar());
-		System.out.println("Numero total de contrato ja assinados: " + dados_contratos.getNumero_contratos_assinados());
-		
-	}
-
-	public void getDadosCarregamento() {
-		if (gerenciarDadosCarregamento == null)
-			gerenciarDadosCarregamento = new GerenciarBancoContratos();
-		double quantidade_total_sacos = gerenciarDadosCarregamento.getQuantidadeSacos();
-		double quantidade_total_sacos_carregados = gerenciarDadosCarregamento.getQuantidadeSacosCarregados();
-		double quantidade_total_sacos_a_carregar = quantidade_total_sacos - quantidade_total_sacos_carregados;
-		dados_carregamentos.setQuantidade_total_sacos(quantidade_total_sacos);
-		dados_carregamentos.setQuantidade_total_carregada(quantidade_total_sacos_carregados);
-		dados_carregamentos.setQuantidade_total_a_carregar(quantidade_total_sacos_a_carregar);
-	}
-
-	public void getDadosRecebimento() {
-		if (gerenciarDadosRecebimento == null)
-			gerenciarDadosRecebimento = new GerenciarBancoContratos();
-		double quantidade_total_sacos = gerenciarDadosRecebimento.getQuantidadeSacos();
-		double quantidade_total_sacos_recebidos = gerenciarDadosRecebimento.getQuantidadeSacosRecebidos();
-		double quantidade_total_sacos_a_receber = quantidade_total_sacos - quantidade_total_sacos_recebidos;
-		dados_recebimentos.setQuantidade_total_sacos(quantidade_total_sacos);
-		dados_recebimentos.setQuantidade_total_recebidos(quantidade_total_sacos_recebidos);
-		dados_recebimentos.setQuantidade_total_a_receber(quantidade_total_sacos_a_receber);
-	}
-
-	
-
-
-	
 	public void novaNotificacao(String texto, String song, int repeticao) {
 		try {
 			notificando = true;
@@ -1492,8 +1112,6 @@ public class TelaMain extends JFrame {
 		}
 	}
 
-	
-
 	public void novoAvisoNotificacao(CadastroNota nota, String song, int repeticao) {
 		try {
 			Thread.sleep(1000);
@@ -1511,7 +1129,7 @@ public class TelaMain extends JFrame {
 			Thread.sleep(2000);
 			tela.setVisible(true);
 			tela.setMensagem(nota);
-			Thread.sleep(20000);
+			Thread.sleep(10000);
 			tela.fechar();
 		} catch (InterruptedException e) {
 			// TODO Auto-generated catch block
@@ -1519,120 +1137,106 @@ public class TelaMain extends JFrame {
 		}
 	}
 
-	
 	public void ThreadGlobal() {
 		new Thread() {
 			public void run() {
 				while (true) {
 
 					// dados de contrato
-					// getDadosContratos();
-					
-					atualizarGraficoContratos();
+
+					// atualizarGraficoContratos(ids_safras_em_evidencia);
+					criarGraficoContratos(ids_safras_em_evidencia);
+
 					// dados de recebimento
-					getDadosRecebimento();
-					atualizarGraficoRecebimentos();
-					getCarregamentoPorPeriodo();
+					criarGraficoRecebimento(ids_safras_em_evidencia);
 
 					// dados de carregamento
-					getDadosCarregamento();
-					atualizarGraficoCarregamentos();
-					getCarregamentoPorPeriodo();
+					criarGraficoCarregamento(ids_safras_em_evidencia);
 
-					
 					// busca anotaçoes
-				
-						
-						if (gerenciarAnotacoes == null)
-							gerenciarAnotacoes = new GerenciarBancoNotas();
-						ArrayList<CadastroNota> anotacoes = gerenciarAnotacoes.getnotasNotificar(login.getId());
-						String data = new GetData().getDataHora();
 
-						LocalDateTime data_hora_atual = LocalDateTime.parse(data,
-								DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm"));
-						
-						for(CadastroNota anotacao : anotacoes) {
-							try {
+					if (gerenciarAnotacoes == null)
+						gerenciarAnotacoes = new GerenciarBancoNotas();
+					ArrayList<CadastroNota> anotacoes = gerenciarAnotacoes.getnotasNotificar(login.getId());
+					String data = new GetData().getDataHora();
 
-							if(anotacao.getUltima_notificacao() != null) {
-							
-							LocalDateTime ultima_notificacao = LocalDateTime.parse(anotacao.getUltima_notificacao(),
-									DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm"));
-							
-							int unidade_tempo = anotacao.getUni_tempo();
-							long intervalo = ChronoUnit.MINUTES.between(ultima_notificacao, data_hora_atual);
-							boolean prosseguir = false;
-							
-							if(unidade_tempo == 1) {
-								//minutos								
-								if(intervalo >= anotacao.getTempo_notificacao()) {
-									//ja passou x minutos
-									prosseguir = true;
-									
+					LocalDateTime data_hora_atual = LocalDateTime.parse(data,
+							DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm"));
+
+					for (CadastroNota anotacao : anotacoes) {
+						try {
+
+							if (anotacao.getUltima_notificacao() != null) {
+
+								LocalDateTime ultima_notificacao = LocalDateTime.parse(anotacao.getUltima_notificacao(),
+										DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm"));
+
+								int unidade_tempo = anotacao.getUni_tempo();
+								long intervalo = ChronoUnit.MINUTES.between(ultima_notificacao, data_hora_atual);
+								boolean prosseguir = false;
+
+								if (unidade_tempo == 1) {
+									// minutos
+									if (intervalo >= anotacao.getTempo_notificacao()) {
+										// ja passou x minutos
+										prosseguir = true;
+
+									}
+
+								} else if (unidade_tempo == 2) {
+									// horas
+									if (intervalo >= (anotacao.getTempo_notificacao() * 60)) {
+										// ja passou x horas
+										prosseguir = true;
+
+									}
+								} else if (unidade_tempo == 3) {
+									// dias
+									if (intervalo >= (anotacao.getTempo_notificacao() * 1440)) {
+										// ja passou x dias
+										prosseguir = true;
+
+									}
 								}
-								
-							}else if(unidade_tempo == 2) {
-								//horas
-								if(intervalo >= ( anotacao.getTempo_notificacao() * 60)) {
-									//ja passou x horas
-									prosseguir = true;
 
-								}
-							}else if(unidade_tempo == 3) {
-								//dias
-								if(intervalo >= ( anotacao.getTempo_notificacao() * 1440)) {
-									//ja passou x dias
-									prosseguir = true;
+								if (prosseguir) {
+									System.out.println("notificar");
 
+									novoAvisoNotificacao(anotacao, "/main/java/audio/avisar_notificacao.wav", 2);
+									// atualizar notificacao
+
+									if (anotacao.getId_usuario_pai() == login.getId()) {
+										anotacao.setUltima_notificacao(data);
+										boolean atualizou = gerenciarAnotacoes.atualizarUltimaNotificacao(anotacao);
+										if (atualizou) {
+
+										} else {
+											CadastroAviso avisar = new CadastroAviso();
+											avisar.setMensagem("Erro ao atualizar horario da ultima notificadao");
+											avisar.setSetor("Notificações");
+											avisar.setTipo("Erro");
+											tela_avisos.incluir_aviso(avisar);
+										}
+									}
 								}
+
 							}
+						} catch (Exception e) {
 
-							if(prosseguir) {
-								System.out.println("notificar");
+						}
+					}
 
-								
-								novoAvisoNotificacao(anotacao,
-										"/main/java/audio/avisar_notificacao.wav", 2);
-							//atualizar notificacao
-								
-								if(anotacao.getId_usuario_pai() == login.getId()) {
-								anotacao.setUltima_notificacao(data);
-								boolean atualizou = gerenciarAnotacoes.atualizarUltimaNotificacao(anotacao);	
-								if(atualizou) {
-									
-								}else {
-									CadastroAviso avisar = new CadastroAviso();
-									avisar.setMensagem("Erro ao atualizar horario da ultima notificadao");
-									avisar.setSetor("Notificações");
-									avisar.setTipo("Erro");
-									incluir_aviso( avisar);
-								}
-								}
-							}
-							
-							
-						}
-							}catch(Exception e) {
-							
-						}
-						}
-						
-					
 					/***********************************************************************/
 
-					
 					// busca conexao com o servidor
 					CadastroBaseArquivos base = configs_globais.getServidor_arquivos();
 					String host = base.getServidor();
-					urlBaseArquivos.setText(host);
-					lblBaseDeArquivos.setText("Base de Arquivos: Conectada");
 					TesteConexao gerenciar = new TesteConexao();
 					if (gerenciar.doPing(host)) {
 						System.out.println("Banco de Arquivos OnLine!");
 						imgBaseArquivos.setIcon(
 								new ImageIcon(TelaMain.class.getResource("/imagens/base_arquivos_online.png")));
 					} else {
-						lblBaseDeArquivos.setText("Base de Arquivos: Desconectada");
 						System.out.println("Banco de Arquivos Offline!");
 						imgBaseArquivos.setIcon(
 								new ImageIcon(TelaMain.class.getResource("/imagens/base_arquivos_offline.png")));
@@ -1644,17 +1248,14 @@ public class TelaMain extends JFrame {
 					bd = configs_globais.getBaseDados();
 					String url = "jdbc:mysql://" + bd.getHost() + ":" + bd.getPorta() + "/" + bd.getNome_banco()
 							+ "?useTimezone=true&serverTimezone=UTC";
-					urlBancoDados.setText(url);
 					if (gerenciarBancoPadrao == null)
 						gerenciarBancoPadrao = new GerenciarBancoPadrao();
 					if (gerenciarBancoPadrao.getConexao()) {
 						System.out.println("Banco de Dados OnLine!");
-						lblBD.setText("Banco de Dados: Conectada");
 						imgBaseDados
 								.setIcon(new ImageIcon(TelaMain.class.getResource("/imagens/base_dados_online.png")));
 					} else {
 						System.out.println("Banco de Dados Offline!");
-						lblBD.setText("Banco de Dados: Desconectada");
 						imgBaseDados
 								.setIcon(new ImageIcon(TelaMain.class.getResource("/imagens/base_dados_offline.png")));
 					}
@@ -1666,11 +1267,9 @@ public class TelaMain extends JFrame {
 
 						if (zap.status().contains("OK")) {
 							// conectado
-							lblStatusWhatsapp.setText("Status: Conectado");
 							imgWhatsapp.setIcon(new ImageIcon(TelaMain.class.getResource("/imagens/zap_online.png")));
 						} else {
 							// nao conectado
-							lblStatusWhatsapp.setText("Status: Desconectado");
 							imgWhatsapp.setIcon(new ImageIcon(TelaMain.class.getResource("/imagens/zap_offline.png")));
 						}
 
@@ -1687,7 +1286,6 @@ public class TelaMain extends JFrame {
 						}
 						novaNotificacao("Sem conexão com o Whatsapp, algumas funções seram limitadas até a reconexão!",
 								"/main/java/audio/beep_erro_net.wav", 2);
-						lblStatusWhatsapp.setText("Status: Desconectado");
 						imgWhatsapp.setIcon(new ImageIcon(TelaMain.class.getResource("/imagens/zap_offline.png")));
 					}
 
@@ -1699,7 +1297,6 @@ public class TelaMain extends JFrame {
 						System.out.println("Tentando conexao!");
 						URLConnection connection = url3.openConnection();
 						connection.connect();
-						lblnet.setText("Internet: Conectada");
 						imgInternet.setIcon(new ImageIcon(TelaMain.class.getResource("/imagens/internet_online.png")));
 					} catch (IOException f) {
 						f.printStackTrace();
@@ -1714,7 +1311,6 @@ public class TelaMain extends JFrame {
 						}
 						novaNotificacao("Sem conexão com a internet, algumas funções seram limitadas até a reconexão!",
 								"/main/java/audio/beep_erro_net.wav", 2);
-						lblnet.setText("Internet: Desconectada");
 						imgInternet.setIcon(new ImageIcon(TelaMain.class.getResource("/imagens/internet_offline.png")));
 					}
 					/*****************************************************************/
@@ -1725,7 +1321,6 @@ public class TelaMain extends JFrame {
 						if (reachable) {
 							DadosGlobais.getInstance().setStatus_relogio(1);
 
-							lblStatusRelogioPonto.setText("Relógio Conectado!");
 							imgRelogioPonto
 									.setIcon(new ImageIcon(TelaMain.class.getResource("/imagens/rfid_online.png")));
 
@@ -1733,7 +1328,6 @@ public class TelaMain extends JFrame {
 							DadosGlobais.getInstance().setStatus_relogio(0);
 
 							System.out.println("erro ao se conectar ao relogio");
-							lblStatusRelogioPonto.setText("Relógio Desconectado!");
 							imgRelogioPonto
 									.setIcon(new ImageIcon(TelaMain.class.getResource("/imagens/rfid_offline.png")));
 
@@ -1764,7 +1358,6 @@ public class TelaMain extends JFrame {
 						}
 						DadosGlobais.getInstance().setStatus_relogio(0);
 
-						lblStatusRelogioPonto.setText("Relógio Desconectado!");
 						imgRelogioPonto.setIcon(new ImageIcon(TelaMain.class.getResource("/imagens/rfid_offline.png")));
 
 						novaNotificacao("Sem conexão com o relógio de ponto, aguardando reconexão!",
@@ -1779,7 +1372,6 @@ public class TelaMain extends JFrame {
 						System.out.println("Tentando conexao nuvem!");
 						URLConnection connection = url2.openConnection();
 						connection.connect();
-						lblNuvem.setText("Nuvem: Conectada");
 						imgNuvem.setIcon(new ImageIcon(TelaMain.class.getResource("/imagens/nuvem_online.png")));
 					} catch (IOException f) {
 						f.printStackTrace();
@@ -1794,7 +1386,6 @@ public class TelaMain extends JFrame {
 						}
 						novaNotificacao("Sem conexão com a nuvem, algumas funções seram limitadas até a reconexão!",
 								"/main/java/audio/beep_erro_net.wav", 2);
-						lblNuvem.setText("Nuvem: Desconectada");
 						imgNuvem.setIcon(new ImageIcon(TelaMain.class.getResource("/imagens/nuvem_offline.png")));
 					}
 					/***********************************************************/
@@ -1840,9 +1431,25 @@ public class TelaMain extends JFrame {
 
 					}
 					/***********************************************************************/
-					
-					
 
+					if (!executou) {
+
+						int assinar = dados_contratos.getNumero_total_contratos()
+								- dados_contratos.getNumero_contratos_assinados();
+
+						if (assinar != -1) {
+
+							while (notificando) {
+							}
+							novaNotificacao("Há " + assinar + " documentos com carência de assinatura na base de dados",
+									"/main/java/audio/beep_notificacao.wav", 1);
+
+							executou = true;
+						} else {
+							System.out.println(
+									"Não foi possivel buscar o numero de contratos sem assinar no banco de dados!");
+						}
+					}
 					try {
 						Thread.sleep(45000);
 					} catch (InterruptedException e) {
@@ -1855,215 +1462,42 @@ public class TelaMain extends JFrame {
 		}.start();
 	}
 
-	public void atualizarGraficoContratos() {
-		getDadosContratos();
-		
-		
-		
-		lblTotalContratos.setText("Total de Contratos: " + dados_contratos.getNumero_total_contratos());
-		lblTotalContratosAssinados.setText("Assinados: " + dados_contratos.getNumero_contratos_assinados());
-		lblTotalContratosAssinar.setText("Assinar: " + dados_contratos.getNumero_contratos_assinar());
-		new Thread() {
-			@Override
-			public void run() {
-				int i = 0;
-				while (i <= dados_contratos.getNumero_contratos_assinados()) {
-					// System.out.printf("Disponivel e %d\n ", disponivel);
-					// System.out.printf("Usado e %d\n", usado);
-					painelGraficoContratos.setDados(dados_contratos.getNumero_total_contratos(), i);
-					painelGraficoContratos.repaint();
-					try {
-						Thread.sleep(10);
-					} catch (InterruptedException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-					}
-					i++;
-				}
-			}
-		}.start();
-		
-		if (!executou) {
-			if (dados_contratos.getNumero_contratos_assinar() != -1) {
-				
-						while (notificando) {
-						}
-						novaNotificacao(
-								"Há " + dados_contratos.getNumero_contratos_assinar()
-										+ " contratos com carencia de assinatura na base de dados",
-								"/main/java/audio/beep_notificacao.wav", 1);
-					
-				executou = true;
-			} else {
-				System.out.println("Não foi possivel buscar o numero de contratos sem assinar no banco de dados!");
-			}
-		}
-		
-	}
-
-	public void atualizarGraficoContratos(CadastroSafra safra) {
-		getDadosContratos();
-		lblTotalContratos.setText("Total de Contratos: " + dados_contratos.getNumero_total_contratos());
-		lblTotalContratosAssinados.setText("Assinados: " + dados_contratos.getNumero_contratos_assinados());
-		lblTotalContratosAssinar.setText("Assinar: " + dados_contratos.getNumero_contratos_assinar());
-		new Thread() {
-			@Override
-			public void run() {
-				int i = 0;
-				while (i <= dados_contratos.getNumero_contratos_assinados()) {
-					// System.out.printf("Disponivel e %d\n ", disponivel);
-					// System.out.printf("Usado e %d\n", usado);
-					painelGraficoContratos.setDados(dados_contratos.getNumero_total_contratos(), i);
-					painelGraficoContratos.repaint();
-					try {
-						Thread.sleep(100);
-					} catch (InterruptedException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-					}
-					i++;
-				}
-			}
-		}.start();
-	}
-
-	public void atualizarGraficoContratos(int num_total, int num_assinar) {
-		lblTotalContratos.setText("Total de Contratos: " + num_total);
-		lblTotalContratosAssinados.setText("Assinados: " + (num_total - num_assinar));
-		lblTotalContratosAssinar.setText("Assinar: " + num_assinar);
-		new Thread() {
-			@Override
-			public void run() {
-				int i = 0;
-				while (i <= num_total - num_assinar) {
-					// System.out.printf("Disponivel e %d\n ", disponivel);
-					// System.out.printf("Usado e %d\n", usado);
-					painelGraficoContratos.setDados(num_total, i);
-					painelGraficoContratos.repaint();
-					try {
-						Thread.sleep(100);
-					} catch (InterruptedException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-					}
-					i++;
-				}
-			}
-		}.start();
-	}
-
-	public void atualizarGraficoCarregamentos() {
-		lblTotalSacos.setText("Quantidade Total(sacos): " + (int) dados_carregamentos.getQuantidade_total_sacos());
-		lblTotalSacosRetirados
-				.setText("Carregados(sacos): " + (int) dados_carregamentos.getQuantidade_total_carregada());
-		lblTotalSacosRetirar
-				.setText("a Carregar(sacos): " + (int) dados_carregamentos.getQuantidade_total_a_carregar());
-		new Thread() {
-			@Override
-			public void run() {
-				int i = 0;
-				while (i <= (int) dados_carregamentos.getQuantidade_total_carregada()) {
-					// System.out.printf("Disponivel e %d\n ", disponivel);
-					// System.out.printf("Usado e %d\n", usado);
-					painelGraficoCarregamentos.setDados((int) dados_carregamentos.getQuantidade_total_sacos(), i);
-					painelGraficoCarregamentos.repaint();
-					i++;
-				}
-			}
-		}.start();
-	}
-
-	public void atualizarGraficoRecebimentos() {
-		lblTotalSacosGraficoRecebimento
-				.setText("Quantidade Total(sacos): " + (int) dados_recebimentos.getQuantidade_total_sacos());
-		lblTotalSacosRecebidos.setText("Recebidos(sacos): " + (int) dados_recebimentos.getQuantidade_total_recebidos());
-		lblTotalSacosAReceber.setText("a Receber(sacos): " + (int) dados_recebimentos.getQuantidade_total_a_receber());
-		new Thread() {
-			@Override
-			public void run() {
-				int i = 0;
-				while (i <= (int) dados_recebimentos.getQuantidade_total_recebidos()) {
-					// System.out.printf("Disponivel e %d\n ", disponivel);
-					// System.out.printf("Usado e %d\n", usado);
-					painelGraficoRecebimento.setDados((int) dados_recebimentos.getQuantidade_total_sacos(), i);
-					painelGraficoRecebimento.repaint();
-					i++;
-				}
-			}
-		}.start();
-	}
-
-	public void atualizarGraficoRecebimentos(double quantidade_total, double quantidade_recebida) {
-		lblTotalSacosGraficoRecebimento.setText("Quantidade Total(sacos): " + (int) quantidade_total);
-		lblTotalSacosRecebidos.setText("Recebidos(sacos): " + (int) quantidade_recebida);
-		lblTotalSacosAReceber.setText("a Receber(sacos): " + (int) (quantidade_total - quantidade_recebida));
-		new Thread() {
-			@Override
-			public void run() {
-				int i = (int) quantidade_recebida;
-				while (i <= (int) quantidade_recebida) {
-					// System.out.printf("Disponivel e %d\n ", disponivel);
-					// System.out.printf("Usado e %d\n", usado);
-					painelGraficoRecebimento.setDados((int) quantidade_total, i);
-					painelGraficoRecebimento.repaint();
-					try {
-						Thread.sleep(100);
-					} catch (InterruptedException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-					}
-					i++;
-				}
-			}
-		}.start();
-	}
-
-	public void atualizarGraficoCarregamentos(double quantidade_total, double quantidade_carregada) {
-		lblTotalSacos.setText("Quantidade Total(sacos): " + (int) quantidade_total);
-		lblTotalSacosRetirados.setText("Carregados(sacos): " + (int) quantidade_carregada);
-		lblTotalSacosRetirar.setText("a Carregar(sacos): " + (int) (quantidade_total - quantidade_carregada));
-		new Thread() {
-			@Override
-			public void run() {
-				int i = (int) quantidade_carregada;
-				while (i <= (int) quantidade_carregada) {
-					// System.out.printf("Disponivel e %d\n ", disponivel);
-					// System.out.printf("Usado e %d\n", usado);
-					painelGraficoCarregamentos.setDados((int) quantidade_total, i);
-					painelGraficoCarregamentos.repaint();
-					try {
-						Thread.sleep(100);
-					} catch (InterruptedException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-					}
-					i++;
-				}
-			}
-		}.start();
-	}
-
 	public void setNumeroMensagensNovas() {
 		java.awt.EventQueue.invokeLater(new Runnable() {
 			public void run() {
-				lblNovaMensagem
-						.setIcon(new ImageIcon(TelaMain.class.getResource("/imagens/icone_mensagem_nao_lida.png")));
+				lblNovaMensagem.setIcon(new ImageIcon(TelaMain.class.getResource("/imagens/nova_mensagem.png")));
 				lblNovaMensagem.repaint();
 				lblNovaMensagem.updateUI();
 			}
 		});
 	}
+	
+	
+	
 
 	public void setNovaNotificacaoMensagem(String mensagem) {
 		// if(!telaChat.isVisible())
 		try {
+			if(!telaChat.isVisible()) {
 			notificando = true;
 			TelaNotificacaoSuperior tela = new TelaNotificacaoSuperior();
 			tela.setMensagem(mensagem);
 			tela.setVisible(true);
+			new Thread() {
+				@Override
+				public void run() {
+					ReproduzirAudio player = new ReproduzirAudio();
+					URL url = TelaMain.class.getResource("/main/java/audio/nova_mensagem.wav");
+
+					for (int i = 0; i < 1; i++) {
+						player.play(url);
+					}
+				}
+			}.start();
 			Thread.sleep(5000);
 			tela.fechar();
 			notificando = false;
+			}
 		} catch (InterruptedException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -2138,55 +1572,6 @@ public class TelaMain extends JFrame {
 		}.start();
 	}
 
-	public void getCarregamentoPorPeriodo() {
-		if (gerenciarCarregamentoPorPeriodo == null)
-			gerenciarCarregamentoPorPeriodo = new GerenciarBancoContratos();
-		String hoje = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
-		String semana = LocalDateTime.now().minusDays(7).format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
-		Map<String, Double> lista_cargas = gerenciarCarregamentoPorPeriodo.getCarregamentosPorData(semana, hoje, 0);
-		dataset = new DefaultCategoryDataset();
-		for (Map.Entry<String, Double> pair : lista_cargas.entrySet()) {
-			System.out.println(pair.getKey());
-			System.out.println(pair.getValue());
-			dataset.addValue(pair.getValue(), "", pair.getKey());
-		}
-		linha = new GraficoLinha();
-		linha.setDataset(dataset);
-		chartPanel = linha.getGraficoLinha(400, 200, "Últimos 7 dias", "Romaneios", "Quantidade de Sacos", 1);
-		panelGraficoLinha.add(chartPanel);
-	}
-
-	public void getCarregamentoPorPeriodoSafra(int id_safra) {
-		GerenciarBancoContratos gerenciar = new GerenciarBancoContratos();
-		String hoje = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
-		String semana = LocalDateTime.now().minusDays(7).format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
-		Map<String, Double> lista_cargas = gerenciar.getCarregamentosPorData(semana, hoje, id_safra);
-		dataset = new DefaultCategoryDataset();
-		for (Map.Entry<String, Double> pair : lista_cargas.entrySet()) {
-			System.out.println(pair.getKey());
-			System.out.println(pair.getValue());
-			dataset.addValue(pair.getValue(), "", pair.getKey());
-		}
-		linha = new GraficoLinha();
-		linha.setDataset(dataset);
-		chartPanel = linha.getGraficoLinha(200, 200, "Últimos 7 dias", "Romaneios", "Quantidade de Sacos", 1);
-		panelGraficoLinha.add(chartPanel);
-	}
-
-	public void atualizarPainelGraficoLinhasSafra(int id_safra) {
-		panelGraficoLinha.removeAll();
-		panelGraficoLinha.updateUI();
-		panelGraficoLinha.repaint();
-		getCarregamentoPorPeriodoSafra(id_safra);
-	}
-
-	public void atualizarPainelGraficoLinhasTodasSafras() {
-		panelGraficoLinha.removeAll();
-		panelGraficoLinha.updateUI();
-		panelGraficoLinha.repaint();
-		getCarregamentoPorPeriodo();
-	}
-
 	public void baixarNotasEmSegundoPlano(CadastroCliente cliente, int mes_inicio, int mes_final, int ano_final) {
 		new Thread() {
 			@Override
@@ -2196,8 +1581,6 @@ public class TelaMain extends JFrame {
 			}
 		}.start();
 	}
-
-	
 
 	public void vigiarRomaneios() {
 		MonitorarRomaneios monitorar = new MonitorarRomaneios();
@@ -2224,220 +1607,343 @@ public class TelaMain extends JFrame {
 		this.telaPai = _tela_pai;
 	}
 
-	public static class AvisoTableModel extends AbstractTableModel {
+	public void pesquisarSafrasEvidencias() {
 
-		// constantes p/identificar colunas
-		private final int tipo = 0;
-		private final int setor = 1;
+		GerenciarBancoSafrasEvidencias gerenciar = new GerenciarBancoSafrasEvidencias();
+		ArrayList<CadastroSafrasEvidencias> safras_envidencia = gerenciar.getSafrasEvidenciaPorUsuario(login.getId());
 
-		private final int mensagem = 2;
+		GerenciarBancoSafras gerenciar_safras = new GerenciarBancoSafras();
 
-		private final String colunas[] = { "Tipo", "Setor", "Mensagem:" };
-		private final ArrayList<CadastroAviso> dados = new ArrayList<>();// usamos como dados uma lista genérica de
-																			// nfs
+		ids_safras_em_evidencia = "";
 
-		public AvisoTableModel() {
+		if (safras_envidencia != null) {
+			if (safras_envidencia.size() > 0) {
 
-		}
-
-		@Override
-		public int getColumnCount() {
-			// retorna o total de colunas
-			return colunas.length;
-		}
-
-		@Override
-		public int getRowCount() {
-			// retorna o total de linhas na tabela
-			return dados.size();
-		}
-
-		@Override
-		public Class<?> getColumnClass(int columnIndex) {
-			// retorna o tipo de dado, para cada coluna
-			switch (columnIndex) {
-			case tipo:
-				return String.class;
-			case setor:
-				return String.class;
-			case mensagem:
-				return String.class;
-
-			default:
-				throw new IndexOutOfBoundsException("Coluna Inválida!!!");
-			}
-		}
-
-		@Override
-		public String getColumnName(int columnIndex) {
-			return colunas[columnIndex];
-		}
-
-		@Override
-		public Object getValueAt(int rowIndex, int columnIndex) {
-			// retorna o valor conforme a coluna e linha
-
-			// pega o dados corrente da linha
-			CadastroAviso aviso = dados.get(rowIndex);
-
-			// retorna o valor da coluna
-			switch (columnIndex) {
-			case tipo:
-				return aviso.getTipo();
-			case setor:
-				return aviso.getSetor();
-			case mensagem:
-				return aviso.getMensagem();
-			default:
-				throw new IndexOutOfBoundsException("Coluna Inválida!!!");
-			}
-		}
-
-		@Override
-		public boolean isCellEditable(int rowIndex, int columnIndex) {
-			// metodo identifica qual coluna é editavel
-
-			// só iremos editar a coluna BENEFICIO,
-			// que será um checkbox por ser boolean
-
-			return true;
-		}
-
-		@Override
-		public void setValueAt(Object aValue, int rowIndex, int columnIndex) {
-			CadastroAviso nota = dados.get(rowIndex);
-
-		}
-
-		// Métodos abaixo são para manipulação de dados
-
-		/**
-		 * retorna o valor da linha indicada
-		 * 
-		 * @param rowIndex
-		 * @return
-		 */
-		public CadastroAviso getValue(int rowIndex) {
-			return dados.get(rowIndex);
-		}
-
-		/**
-		 * retorna o indice do objeto
-		 * 
-		 * @param empregado
-		 * @return
-		 */
-		public int indexOf(CadastroAviso nota) {
-			return dados.indexOf(nota);
-		}
-
-		/**
-		 * add um empregado á lista
-		 * 
-		 * @param empregado
-		 */
-		public void onAdd(CadastroAviso nota) {
-			dados.add(nota);
-			fireTableRowsInserted(indexOf(nota), indexOf(nota));
-		}
-
-		/**
-		 * add uma lista de empregados
-		 * 
-		 * @param dadosIn
-		 */
-		public void onAddAll(ArrayList<CadastroAviso> dadosIn) {
-			dados.addAll(dadosIn);
-			fireTableDataChanged();
-		}
-
-		/**
-		 * remove um registro da lista, através do indice
-		 * 
-		 * @param rowIndex
-		 */
-		public void onRemove(int rowIndex) {
-			dados.remove(rowIndex);
-			fireTableRowsDeleted(rowIndex, rowIndex);
-		}
-
-		/**
-		 * remove um registro da lista, através do objeto
-		 * 
-		 * @param empregado
-		 */
-		public void onRemove(CadastroAviso nota) {
-			int indexBefore = indexOf(nota);// pega o indice antes de apagar
-			dados.remove(nota);
-			fireTableRowsDeleted(indexBefore, indexBefore);
-		}
-
-		/**
-		 * remove todos registros da lista
-		 */
-		public void onRemoveAll() {
-			dados.clear();
-			fireTableDataChanged();
-		}
-
-	}
-
-	public void incluir_aviso(CadastroAviso avisar) {
-
-		boolean ja_tem_na_lista = false;
-		for (CadastroAviso aviso : lista_avisos) {
-
-			if (aviso.getMensagem().equals(avisar.getMensagem())) {
-				ja_tem_na_lista = true;
-				break;
-			}
-
-		}
-
-		if (!ja_tem_na_lista) {
-			// JOptionPane.showMessageDialog(isto, avisar.getMensagem());
-
-			lista_avisos.add(avisar);
-			java.awt.EventQueue.invokeLater(new Runnable() {
-				public void run() {
-					modelo_aviso.onAdd(avisar);
+				for (CadastroSafrasEvidencias cad : safras_envidencia) {
+					ids_safras_em_evidencia += (cad.getIds_safras() + ",");
 
 				}
-			});
 
+			}
 		}
+
+		String descricao_safras_evidencia = "";
+
+		if (safras_envidencia != null) {
+			if (safras_envidencia.size() > 0) {
+
+				for (CadastroSafrasEvidencias cad : safras_envidencia) {
+					String ids_safras = cad.getIds_safras();
+					if (ids_safras.length() > 0) {
+
+						String ids_separados[] = ids_safras.split(",");
+						for (String id : ids_separados) {
+
+							try {
+
+								int int_id = Integer.parseInt(id);
+								CadastroSafra safra = gerenciar_safras.getSafra(int_id);
+								if (safra != null) {
+
+									String produto_l = safra.getProduto().getNome_produto() + " "
+											+ safra.getProduto().getTransgenia();
+									String safra_l = safra.getAno_plantio() + "/" + safra.getAno_colheita();
+
+									String descricao_local = produto_l + " " + safra_l + "  ";
+
+									descricao_safras_evidencia += descricao_local;
+								}
+
+							} catch (Exception e) {
+
+							}
+
+						}
+
+					}
+				}
+
+			}
+		}
+
+		textAreaSafrasEvidencia.setText(descricao_safras_evidencia);
 
 	}
 
-	public double getQuantidadeFinalCarregada(CadastroContrato contrato_local) {
-		GerenciarBancoContratos gerenciar_contratos = new GerenciarBancoContratos();
-		GerenciarBancoRomaneios gerenciar_romaneios = new GerenciarBancoRomaneios();
+	public void criarGraficoContratos(String ids_safras) {
+		java.awt.EventQueue.invokeLater(new Runnable() {
+			public void run() {
+				painelGraficoContratos.removeAll();
+				painelGraficoContratos.repaint();
+				painelGraficoContratos.updateUI();
 
-		ArrayList<CadastroContrato.Carregamento> lista_carregamentos_deste_contrato = gerenciar_contratos
-				.getCarregamentos(contrato_local.getId());
-		double quantidade_total_carregada = 0;
-		for (CadastroContrato.Carregamento carregamento : lista_carregamentos_deste_contrato) {
-			quantidade_total_carregada += carregamento.getPeso_romaneio();
-		}
+				DefaultPieDataset pizza = new DefaultPieDataset();
+				dados_contratos = gerenciarDadosContrato.getNumeroTotalContratos(ids_safras);
 
-		GerenciarBancoTransferenciasCarga gerenciar_transferencias = new GerenciarBancoTransferenciasCarga();
-		ArrayList<CadastroContrato.CadastroTransferenciaCarga> lista_transferencias_carga_remetente = gerenciar_transferencias
-				.getTransferenciasRemetente(contrato_local.getId());
-		ArrayList<CadastroContrato.CadastroTransferenciaCarga> lista_transferencias_carga_destinatario = gerenciar_transferencias
-				.getTransferenciaDestinatario(contrato_local.getId());
+				pizza.setValue("CTR p/ ass",
+						dados_contratos.getNum_cts_originais() - dados_contratos.getNum_cts_originais_assinados());
+				pizza.setValue("SCTR p/ ass",
+						dados_contratos.getNum_sub_cts() - dados_contratos.getNum_sub_cts_assinados());
+				pizza.setValue("ADT p/ ass",
+						dados_contratos.getNum_total_aditivos() - dados_contratos.getNum_total_aditivos_assinados());
+				pizza.setValue("DTR p/ ass",
+						dados_contratos.getNum_total_distratos() - dados_contratos.getNum_total_distratos_assinados());
 
-		double quantidade_total_transferida_retirada = 0;
-		for (CadastroContrato.CadastroTransferenciaCarga transferencia_retirada : lista_transferencias_carga_remetente) {
-			quantidade_total_transferida_retirada += Double.parseDouble(transferencia_retirada.getQuantidade());
-		}
+				pizza.setValue("CTR Ass", dados_contratos.getNum_cts_originais_assinados());
+				pizza.setValue("SCTR Ass", dados_contratos.getNum_sub_cts_assinados());
+				pizza.setValue("ADT Ass", dados_contratos.getNum_total_aditivos_assinados());
+				pizza.setValue("DTR Ass", dados_contratos.getNum_total_distratos_assinados());
 
-		double quantidade_total_transferencia_recebida = 0;
-		for (CadastroContrato.CadastroTransferenciaCarga transferencia_recebida : lista_transferencias_carga_destinatario) {
-			quantidade_total_transferencia_recebida += Double.parseDouble(transferencia_recebida.getQuantidade());
-		}
+				pizza.setValue("CTR can", dados_contratos.getNum_cts_cancelados());
 
-		double quantidade_final = (quantidade_total_carregada + quantidade_total_transferencia_recebida)
-				- quantidade_total_transferida_retirada;
-		return quantidade_final;
+				RingPlot plot = new RingPlot(pizza);
+				// StringBuffer chartFileName = new
+				// StringBuffer(Integer.toString(generatedCharts)).append(Long.toString(System.currentTimeMillis())).append(".png");
+
+				JFreeChart grafico = new JFreeChart("Informações de Documentos", JFreeChart.DEFAULT_TITLE_FONT, plot,
+						true);
+
+				grafico.setBackgroundPaint(new GradientPaint(new Point(0, 0), new Color(20, 20, 20),
+						new Point(350, 500), Color.DARK_GRAY));
+
+				TextTitle t = grafico.getTitle();
+				t.setHorizontalAlignment(HorizontalAlignment.CENTER);
+				t.setPaint(new Color(0, 51, 0));
+				t.setFont(new Font("Arial", Font.BOLD, 18));
+
+				plot.setBackgroundPaint(null);
+				plot.setOutlineVisible(false);
+				plot.setSectionDepth(0.5);
+				plot.setSectionOutlinesVisible(false);
+				plot.setShadowPaint(null);
+				plot.setOuterSeparatorExtension(0);
+				plot.setInnerSeparatorExtension(0);
+
+				plot.setInteriorGap((double) 0.0001);
+				plot.setMaximumLabelWidth(0.2);
+				// plot.setLabelGenerator(new StandardPieSectionLabelGenerator("{1}",new
+				// DecimalFormat("#,##0"), new DecimalFormat("0.000%")));
+				plot.setLabelGenerator(new StandardPieSectionLabelGenerator("{1} {0}"));// define porcentagem no gráfico
+
+				plot.setLabelOutlinePaint(null);
+
+				plot.setSectionPaint("CTR Ass", new Color(0, 51, 0));
+				plot.setSectionPaint("SCTR Ass", new Color(0, 51, 51));
+				plot.setSectionPaint("ADT Ass", new Color(0, 102, 0));
+				plot.setSectionPaint("DTR Ass", new Color(0, 102, 102));
+
+				plot.setSectionPaint("CTR p/ ass", new Color(153, 0, 0));
+				plot.setSectionPaint("SCTR p/ ass", new Color(204, 0, 0));
+				plot.setSectionPaint("ADT p/ ass", new Color(255, 0, 2));
+				plot.setSectionPaint("DTR p/ ass", new Color(255, 102, 102));
+				plot.setSectionPaint("CTR can", new Color(255, 102, 0));
+
+				plot.setNoDataMessage("Nenhuma Safra Selecionada");
+
+				Font font = new Font("", 0, 12);
+				plot.setLabelFont(font);
+				plot.setLabelPaint(java.awt.Color.BLACK);
+				plot.setLabelBackgroundPaint(null);
+				plot.setLabelOutlinePaint(null);
+				plot.setLabelBackgroundPaint(java.awt.Color.WHITE);
+
+				plot.setSeparatorStroke(new BasicStroke(1));
+				plot.setSeparatorPaint(Color.white);
+				plot.setExplodePercent("CTR p/ ass", 0.2);
+				plot.setExplodePercent("SCTR p/ ass", 0.1);
+
+				grafico.getLegend().setFrame(BlockBorder.NONE);
+				grafico.getLegend().setPosition(RectangleEdge.LEFT);
+				grafico.setBackgroundPaint(java.awt.Color.white);
+				grafico.setPadding(new RectangleInsets(0, 0, 0, 0));
+
+				ChartPanel painel = new ChartPanel(grafico);
+				painel.setBackground(Color.white);
+				painel.setBounds(0, 0, 350, 500);
+
+				painelGraficoContratos.add(painel);
+				painelGraficoContratos.repaint();
+				painelGraficoContratos.updateUI();
+
+			}
+		});
 	}
+
+	public void criarGraficoRecebimento(String ids_safras) {
+		java.awt.EventQueue.invokeLater(new Runnable() {
+			public void run() {
+				painelGraficoRecebimento.removeAll();
+				painelGraficoRecebimento.repaint();
+				painelGraficoRecebimento.updateUI();
+
+				DefaultPieDataset pizza = new DefaultPieDataset();
+				dados_recebimentos = gerenciarDadosContrato.getInfoRecebimento(ids_safras);
+
+				pizza.setValue("SCs Recebidos", dados_recebimentos.getQuantidade_total_recebidos());
+				pizza.setValue("SCs p/ Receber", dados_recebimentos.getQuantidade_total_sacos()
+						- dados_recebimentos.getQuantidade_total_recebidos());
+
+				RingPlot plot = new RingPlot(pizza);
+				// StringBuffer chartFileName = new
+				// StringBuffer(Integer.toString(generatedCharts)).append(Long.toString(System.currentTimeMillis())).append(".png");
+
+				JFreeChart grafico = new JFreeChart("Informações de Recebimento", JFreeChart.DEFAULT_TITLE_FONT, plot,
+						true);
+
+				grafico.setBackgroundPaint(new GradientPaint(new Point(0, 0), new Color(20, 20, 20),
+						new Point(350, 500), Color.DARK_GRAY));
+
+				TextTitle t = grafico.getTitle();
+				t.setHorizontalAlignment(HorizontalAlignment.CENTER);
+				t.setPaint(new Color(0, 0, 51));
+				t.setFont(new Font("Arial", Font.BOLD, 18));
+
+				plot.setBackgroundPaint(null);
+				plot.setOutlineVisible(false);
+				plot.setSectionDepth(0.5);
+				plot.setSectionOutlinesVisible(false);
+				plot.setShadowPaint(null);
+				plot.setOuterSeparatorExtension(0);
+				plot.setInnerSeparatorExtension(0);
+
+				plot.setInteriorGap((double) 0.0001);
+				plot.setMaximumLabelWidth(0.2);
+				// plot.setLabelGenerator(new StandardPieSectionLabelGenerator("{1}",new
+				// DecimalFormat("#,##0"), new DecimalFormat("0.000%")));
+				plot.setLabelGenerator(new StandardPieSectionLabelGenerator("{1} {0}"));// define porcentagem no gráfico
+
+				plot.setLabelOutlinePaint(null);
+
+				plot.setSectionPaint("SCs Recebidos", new Color(51, 0, 255));
+				plot.setSectionPaint("SCs p/ Receber", new Color(255, 102, 102));
+
+				plot.setNoDataMessage("Nenhuma Safra Selecionada");
+
+				Font font = new Font("", 0, 12);
+				plot.setLabelFont(font);
+				plot.setLabelPaint(java.awt.Color.BLACK);
+				plot.setLabelBackgroundPaint(null);
+				plot.setLabelOutlinePaint(null);
+				plot.setLabelBackgroundPaint(java.awt.Color.WHITE);
+
+				plot.setSeparatorStroke(new BasicStroke(1));
+				plot.setSeparatorPaint(Color.white);
+
+				plot.setExplodePercent("SCs p/ Receber", 0.1);
+
+				grafico.getLegend().setFrame(BlockBorder.NONE);
+				grafico.getLegend().setPosition(RectangleEdge.BOTTOM);
+				grafico.setBackgroundPaint(java.awt.Color.white);
+				grafico.setPadding(new RectangleInsets(0, 0, 0, 0));
+
+				ChartPanel painel = new ChartPanel(grafico);
+				painel.setBackground(Color.white);
+				painel.setBounds(0, 0, 350, 500);
+
+				painelGraficoRecebimento.add(painel);
+				painelGraficoRecebimento.repaint();
+				painelGraficoRecebimento.updateUI();
+			}
+		});
+	}
+
+	public void criarGraficoCarregamento(String ids_safras) {
+
+		java.awt.EventQueue.invokeLater(new Runnable() {
+			public void run() {
+				painelGraficoCarregamentos.removeAll();
+				painelGraficoCarregamentos.repaint();
+				painelGraficoCarregamentos.updateUI();
+
+				DefaultPieDataset pizza = new DefaultPieDataset();
+				dados_carregamentos = gerenciarDadosContrato.getInfoCarregamento(ids_safras);
+
+				pizza.setValue("SCs Carregados", dados_carregamentos.getQuantidade_total_carregada());
+				pizza.setValue("SCs p/ Carregar", dados_carregamentos.getQuantidade_total_recebidos()
+						- dados_carregamentos.getQuantidade_total_carregada());
+
+				RingPlot plot = new RingPlot(pizza);
+				// StringBuffer chartFileName = new
+				// StringBuffer(Integer.toString(generatedCharts)).append(Long.toString(System.currentTimeMillis())).append(".png");
+
+				JFreeChart grafico = new JFreeChart("Informações de Carregamento", JFreeChart.DEFAULT_TITLE_FONT, plot,
+						true);
+
+				grafico.setBackgroundPaint(new GradientPaint(new Point(0, 0), new Color(20, 20, 20),
+						new Point(350, 500), Color.DARK_GRAY));
+
+				TextTitle t = grafico.getTitle();
+				t.setHorizontalAlignment(HorizontalAlignment.CENTER);
+				t.setPaint(new Color(102, 51, 0));
+				t.setFont(new Font("Arial", Font.BOLD, 18));
+
+				plot.setBackgroundPaint(null);
+				plot.setOutlineVisible(false);
+				plot.setSectionDepth(0.5);
+				plot.setSectionOutlinesVisible(false);
+				plot.setShadowPaint(null);
+				plot.setOuterSeparatorExtension(0);
+				plot.setInnerSeparatorExtension(0);
+
+				plot.setInteriorGap((double) 0.0001);
+				plot.setMaximumLabelWidth(0.2);
+				// plot.setLabelGenerator(new StandardPieSectionLabelGenerator("{1}",new
+				// DecimalFormat("#,##0"), new DecimalFormat("0.000%")));
+				plot.setLabelGenerator(new StandardPieSectionLabelGenerator("{1} {0}"));// define porcentagem no gráfico
+
+				plot.setLabelOutlinePaint(null);
+
+				plot.setSectionPaint("SCs Carregados", new Color(51, 51, 0));
+				plot.setSectionPaint("SCs p/ Carregar", new Color(255, 102, 0));
+
+				plot.setNoDataMessage("Nenhuma Safra Selecionada");
+
+				Font font = new Font("", 0, 12);
+				plot.setLabelFont(font);
+				plot.setLabelPaint(java.awt.Color.BLACK);
+				plot.setLabelBackgroundPaint(null);
+				plot.setLabelOutlinePaint(null);
+				plot.setLabelBackgroundPaint(java.awt.Color.WHITE);
+
+				plot.setSeparatorStroke(new BasicStroke(1));
+				plot.setSeparatorPaint(Color.white);
+
+				grafico.getLegend().setFrame(BlockBorder.NONE);
+				grafico.getLegend().setPosition(RectangleEdge.RIGHT);
+				grafico.setBackgroundPaint(java.awt.Color.white);
+				grafico.setPadding(new RectangleInsets(0, 0, 0, 0));
+
+				ChartPanel painel = new ChartPanel(grafico);
+				painel.setBackground(Color.white);
+				painel.setBounds(0, 0, 350, 500);
+				plot.setExplodePercent("SCs p/ Carregar", 0.1);
+
+				painelGraficoCarregamentos.add(painel);
+				painelGraficoCarregamentos.repaint();
+				painelGraficoCarregamentos.updateUI();
+			}
+		});
+
+	}
+
+	public void setarIconeAvisos(String url_imagem) {
+		java.awt.EventQueue.invokeLater(new Runnable() {
+			public void run() {
+				
+				if(!url_lbl_avisos.equalsIgnoreCase(url_imagem)) {
+					
+				
+					lblAvisos.setIcon(new ImageIcon(TelaMain.class.getResource(url_imagem)));
+					lblAvisos.repaint();
+					lblAvisos.updateUI();
+					
+					url_lbl_avisos = url_imagem;
+
+				}
+				
+			
+			}
+		});
+	}
+
 }

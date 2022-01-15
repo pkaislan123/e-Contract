@@ -32,13 +32,13 @@ public class TelaNotificacaoSuperior extends JDialog {
 		
 		 JPanel panel = new  JPanel();
 		panel.setBounds(0, 0, 295, 100);
-		panel.setBackground(new Color(0, 0, 139));
+		panel.setBackground(Color.BLACK);
 		getContentPane().add(panel);
 		panel.setLayout(null);
 		
 		JLabel lblNewLabel = new JLabel("   Nova Mensagem");
 		lblNewLabel.setBounds(95, 7, 166, 17);
-		lblNewLabel.setBackground(new Color(0, 128, 128));
+		lblNewLabel.setBackground(new Color(0, 0, 0));
 		lblNewLabel.setForeground(Color.WHITE);
 		lblNewLabel.setFont(new Font("Arial", Font.BOLD, 14));
 		lblNewLabel.setOpaque(true);

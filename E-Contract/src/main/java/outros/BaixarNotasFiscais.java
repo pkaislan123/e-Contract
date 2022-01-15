@@ -1046,7 +1046,7 @@ public void abrirPagina(String s_dataInicio, String s_dataFim, String natureza) 
 			}
 			avisar.setSetor("Download de Notas");
 			avisar.setMensagem("Download de notas Finalizado - Cliente: " + nome);
-            TelaMain.incluir_aviso(avisar);
+            TelaMain.getTela_avisos().incluir_aviso(avisar);
             
   			  for(WebDriver driver : drivers) {
   				  try{
@@ -1086,7 +1086,7 @@ public void abrirPagina(String s_dataInicio, String s_dataFim, String natureza) 
 			}
 			avisar.setSetor("Download de Notas");
 			avisar.setMensagem("Download de notas Iniciado - Cliente: " + nome);
-            TelaMain.incluir_aviso(avisar);
+			TelaMain.getTela_avisos().incluir_aviso(avisar);
             
             
     	  PesquisaParalela pesquisar = null;

@@ -46,6 +46,7 @@ import java.awt.Dimension;
 import java.awt.DisplayMode;
 
 import javax.swing.JTable;
+import javax.swing.JTextArea;
 import javax.swing.table.AbstractTableModel;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableRowSorter;
@@ -108,6 +109,7 @@ import main.java.cadastros.CadastroNFe;
 import main.java.cadastros.CadastroProduto;
 import main.java.cadastros.CadastroRomaneio;
 import main.java.cadastros.CadastroSafra;
+import main.java.cadastros.CadastroSafrasEvidencias;
 import main.java.cadastros.ContaBancaria;
 import main.java.cadastros.Contato;
 import main.java.cadastros.DadosCarregamento;
@@ -124,6 +126,7 @@ import main.java.conexaoBanco.GerenciarBancoPadrao;
 import main.java.conexaoBanco.GerenciarBancoProdutos;
 import main.java.conexaoBanco.GerenciarBancoRomaneios;
 import main.java.conexaoBanco.GerenciarBancoSafras;
+import main.java.conexaoBanco.GerenciarBancoSafrasEvidencias;
 import main.java.conexaoBanco.GerenciarBancoTransferencias;
 import main.java.conexaoBanco.GerenciarBancoTransferenciasCarga;
 import main.java.conexoes.TesteConexao;
@@ -228,6 +231,17 @@ public class TelaContratos extends JFrame {
 	private JLabel lblTotalContratado, lblTotalContratosCancelados, lblTotalRecebido, lblTotalCarregado, lblTotalPago,
 			lblValorTotalContratos;
 
+	private Log GerenciadorLog;
+	private CadastroLogin login;
+	private ConfiguracoesGlobais configs_globais = new ConfiguracoesGlobais();
+
+	private JLabel lblValorMedioSaco, lblNumContratosCancelados, lblValorTotalContratosCancelados,
+			lblTotalSacosKGsCancelados;
+	private JLabel lblTotalComissaoAPagar,lblTotalComissaoPago ,lblTotalComissaoRestante ;
+	private JTextField entStatusComissao;
+	private JTextField entSafraEvidencia;
+	private JTextArea lblSafrasEmEvidencia;
+	
 	public TelaContratos(int flag_retorno, Window janela_pai) {
 
 		// setModal(true);
@@ -237,7 +251,7 @@ public class TelaContratos extends JFrame {
 		flag_retorno_global = flag_retorno;
 		// setResizable(false);
 		setTitle("E-Contract - Contratos");
-
+		getDadosGlobais();
 		setBackground(new Color(255, 255, 255));
 		setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 
@@ -272,15 +286,58 @@ public class TelaContratos extends JFrame {
 		panel_5.setBackground(Color.WHITE);
 		painelPrincipal.add(panel_5, "cell 0 0 3 1,alignx center,aligny center");
 		panel_5.setLayout(
-				new MigLayout("", "[58px][274px][48px][306px,grow][90px][199px,grow][67px,grow][grow][126px][59px]",
-						"[28px,grow][28px][28px][]"));
+				new MigLayout("", "[58px][274px][48px][306px,grow][90px][199px,grow][67px,grow][grow][126px][grow][59px]", "[28px,grow][28px][28px][][]"));
 
 		JLabel lblNewLabel = new JLabel("Comprador:");
 		panel_5.add(lblNewLabel, "cell 0 0,alignx right,aligny center");
 		lblNewLabel.setFont(new Font("Tahoma", Font.PLAIN, 14));
 
+		JPanel panel_8 = new JPanel();
+		panel_8.setBackground(Color.WHITE);
+		painelPrincipal.add(panel_8, "cell 0 2 2 1,grow");
+		panel_8.setLayout(new MigLayout("", "[][][][][][][][]", "[][][][][]"));
+
+		JLabel lblNewLabel_7 = new JLabel("Preço Médio do saco:");
+		lblNewLabel_7.setFont(new Font("SansSerif", Font.PLAIN, 14));
+		panel_8.add(lblNewLabel_7, "cell 0 0");
+
+		lblValorMedioSaco = new JLabel("R$ 0.0");
+		lblValorMedioSaco.setFont(new Font("SansSerif", Font.BOLD, 14));
+		panel_8.add(lblValorMedioSaco, "cell 1 0");
+		
+		JLabel lblNewLabel_7_1 = new JLabel("Comissão");
+		lblNewLabel_7_1.setFont(new Font("SansSerif", Font.PLAIN, 14));
+		panel_8.add(lblNewLabel_7_1, "cell 7 0");
+		
+		JLabel lblNewLabel_6_2_1 = new JLabel("Total a Pagar:");
+		lblNewLabel_6_2_1.setFont(new Font("SansSerif", Font.PLAIN, 14));
+		panel_8.add(lblNewLabel_6_2_1, "cell 6 1,alignx right");
+		
+		 lblTotalComissaoAPagar = new JLabel("R$ 0.0");
+		lblTotalComissaoAPagar.setForeground(new Color(0, 0, 51));
+		lblTotalComissaoAPagar.setFont(new Font("SansSerif", Font.BOLD, 16));
+		panel_8.add(lblTotalComissaoAPagar, "cell 7 1");
+		
+		JLabel lblNewLabel_6_2_1_1 = new JLabel("Total Pago:");
+		lblNewLabel_6_2_1_1.setFont(new Font("SansSerif", Font.PLAIN, 14));
+		panel_8.add(lblNewLabel_6_2_1_1, "cell 6 2,alignx right");
+		
+		 lblTotalComissaoPago = new JLabel("R$ 0.0");
+		lblTotalComissaoPago.setForeground(new Color(0, 51, 0));
+		lblTotalComissaoPago.setFont(new Font("SansSerif", Font.BOLD, 16));
+		panel_8.add(lblTotalComissaoPago, "cell 7 2");
+		
+		JLabel lblNewLabel_6_2_1_1_1 = new JLabel("Total Restante:");
+		lblNewLabel_6_2_1_1_1.setFont(new Font("SansSerif", Font.PLAIN, 14));
+		panel_8.add(lblNewLabel_6_2_1_1_1, "cell 6 3,alignx right");
+		
+		 lblTotalComissaoRestante = new JLabel("R$ 0.0");
+		lblTotalComissaoRestante.setForeground(new Color(255, 102, 0));
+		lblTotalComissaoRestante.setFont(new Font("SansSerif", Font.BOLD, 16));
+		panel_8.add(lblTotalComissaoRestante, "cell 7 3");
+
 		JPanel panel_4 = new JPanel();
-		painelPrincipal.add(panel_4, "cell 0 2 3 1,alignx right");
+		painelPrincipal.add(panel_4, "cell 2 2,alignx right");
 		panel_4.setBackground(Color.WHITE);
 		panel_4.setLayout(new MigLayout("", "[73px][152px][74px][87px][81px][106px]", "[36px]"));
 
@@ -363,7 +420,7 @@ public class TelaContratos extends JFrame {
 
 		JPanel panel_6 = new JPanel();
 		panel_6.setBackground(Color.WHITE);
-		panel_5.add(panel_6, "cell 8 0 2 1,alignx center,growy");
+		panel_5.add(panel_6, "cell 8 0 3 1,alignx center,growy");
 		panel_6.setLayout(new MigLayout("", "[76px][102px]", "[18px]"));
 
 		rdContratos = new JRadioButton("Contratos");
@@ -443,6 +500,20 @@ public class TelaContratos extends JFrame {
 		});
 		entStatusPagamento.setColumns(10);
 		panel_5.add(entStatusPagamento, "cell 7 1,growx");
+		
+		JLabel lblStatusComisso = new JLabel("Status Comissão:");
+		lblStatusComisso.setFont(new Font("Tahoma", Font.PLAIN, 14));
+		panel_5.add(lblStatusComisso, "cell 8 1,alignx trailing");
+		
+		entStatusComissao = new JTextField();
+		entStatusComissao.addKeyListener(new KeyAdapter() {
+			@Override
+			public void keyTyped(KeyEvent e) {
+				filtrar();
+			}
+		});
+		entStatusComissao.setColumns(10);
+		panel_5.add(entStatusComissao, "cell 9 1 2 1,growx");
 
 		JLabel lblProduto = new JLabel("Produto:");
 		panel_5.add(lblProduto, "cell 0 2,alignx right,aligny center");
@@ -509,7 +580,7 @@ public class TelaContratos extends JFrame {
 		btnRefazerPesquisa.setBackground(new Color(0, 51, 0));
 		btnRefazerPesquisa.setForeground(Color.WHITE);
 		btnRefazerPesquisa.setFont(new Font("SansSerif", Font.BOLD, 14));
-		panel_5.add(btnRefazerPesquisa, "cell 9 2,alignx left,aligny top");
+		panel_5.add(btnRefazerPesquisa, "cell 10 2,alignx left,aligny top");
 		btnRefazerPesquisa.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 
@@ -524,6 +595,42 @@ public class TelaContratos extends JFrame {
 				}
 			}
 		});
+		
+		JLabel lblIdsSafraEm = new JLabel("Id's Safra Em Evidencia:");
+		lblIdsSafraEm.setFont(new Font("Tahoma", Font.PLAIN, 14));
+		panel_5.add(lblIdsSafraEm, "cell 2 3,alignx trailing");
+		
+		entSafraEvidencia = new JTextField();
+		entSafraEvidencia.setEnabled(false);
+		entSafraEvidencia.setEditable(false);
+		entSafraEvidencia.setText("");
+		entSafraEvidencia.setColumns(10);
+		panel_5.add(entSafraEvidencia, "cell 3 3,growx");
+		
+		JButton btnLimparSafraEvidencia = new JButton("Limpar");
+		btnLimparSafraEvidencia.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				
+				entSafraEvidencia.setText("");
+				lblSafrasEmEvidencia.setText("Todas as safras");
+				filtrar();
+
+			}
+		});
+		btnLimparSafraEvidencia.setForeground(Color.WHITE);
+		btnLimparSafraEvidencia.setBackground(new Color(51, 0, 0));
+		panel_5.add(btnLimparSafraEvidencia, "flowx,cell 4 3");
+		
+		JButton btnUsarSafraEvidencia = new JButton("Usar");
+		btnUsarSafraEvidencia.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				pesquisarSafrasEvidencias();
+				filtrar();
+			}
+		});
+		btnUsarSafraEvidencia.setForeground(Color.WHITE);
+		btnUsarSafraEvidencia.setBackground(new Color(0, 51, 0));
+		panel_5.add(btnUsarSafraEvidencia, "cell 4 3");
 
 		JButton btnLimparFiltros = new JButton("Limpar Pesquisa");
 		btnLimparFiltros.setBackground(new Color(255, 51, 51));
@@ -547,7 +654,12 @@ public class TelaContratos extends JFrame {
 		btnFiltrar.setBackground(new Color(0, 51, 255));
 		btnFiltrar.setForeground(Color.WHITE);
 		btnFiltrar.setFont(new Font("SansSerif", Font.BOLD, 14));
-		panel_5.add(btnFiltrar, "cell 9 3,growx,aligny top");
+		panel_5.add(btnFiltrar, "cell 10 3,growx,aligny top");
+		
+		 lblSafrasEmEvidencia = new JTextArea(" ");
+		 lblSafrasEmEvidencia.setWrapStyleWord(true);
+		lblSafrasEmEvidencia.setFont(new Font("SansSerif", Font.BOLD, 14));
+		panel_5.add(lblSafrasEmEvidencia, "cell 2 4 9 1,growx");
 		btnFiltrar.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 
@@ -738,6 +850,7 @@ public class TelaContratos extends JFrame {
 		panel_2.add(lblNewLabel_5, "cell 1 0,alignx center,aligny center");
 
 		lblTotalContratosEmAnalise = new JLabel("999");
+		lblTotalContratosEmAnalise.setForeground(new Color(255, 102, 0));
 		panel_2.add(lblTotalContratosEmAnalise, "cell 2 0,alignx left,aligny center");
 		lblTotalContratosEmAnalise.setFont(new Font("SansSerif", Font.BOLD, 14));
 
@@ -750,6 +863,7 @@ public class TelaContratos extends JFrame {
 		panel_2.add(lblNewLabel_5_1, "cell 1 1,alignx center,aligny center");
 
 		lblTotalContratosAssinar = new JLabel("999");
+		lblTotalContratosAssinar.setForeground(new Color(0, 0, 0));
 		panel_2.add(lblTotalContratosAssinar, "cell 2 1,alignx left,aligny center");
 		lblTotalContratosAssinar.setFont(new Font("SansSerif", Font.BOLD, 14));
 
@@ -762,6 +876,7 @@ public class TelaContratos extends JFrame {
 		panel_2.add(lblNewLabel_5_2, "cell 1 2,alignx right,aligny center");
 
 		lblTotalContratosAssinados = new JLabel("999");
+		lblTotalContratosAssinados.setForeground(new Color(0, 102, 102));
 		panel_2.add(lblTotalContratosAssinados, "cell 2 2,alignx left,aligny center");
 		lblTotalContratosAssinados.setFont(new Font("SansSerif", Font.BOLD, 14));
 
@@ -774,6 +889,7 @@ public class TelaContratos extends JFrame {
 		panel_2.add(lblNewLabel_5_3, "cell 1 3,alignx right,aligny center");
 
 		lblTotalContratosConcluidos = new JLabel("999");
+		lblTotalContratosConcluidos.setForeground(new Color(0, 51, 0));
 		panel_2.add(lblTotalContratosConcluidos, "cell 2 3,alignx left,aligny center");
 		lblTotalContratosConcluidos.setFont(new Font("SansSerif", Font.BOLD, 14));
 
@@ -786,6 +902,7 @@ public class TelaContratos extends JFrame {
 		panel_2.add(lblNewLabel_5_3_1, "cell 1 4,alignx right");
 
 		lblTotalContratosCancelados = new JLabel("999");
+		lblTotalContratosCancelados.setForeground(Color.RED);
 		lblTotalContratosCancelados.setFont(new Font("SansSerif", Font.BOLD, 14));
 		panel_2.add(lblTotalContratosCancelados, "cell 2 4");
 
@@ -833,14 +950,14 @@ public class TelaContratos extends JFrame {
 		JPanel panel_3 = new JPanel();
 		panel_3.setBackground(Color.WHITE);
 		painelPrincipal.add(panel_3, "cell 2 3,alignx center,aligny center");
-		panel_3.setLayout(new MigLayout("", "[239px][152px,grow][333px]", "[39.00px,grow][50px]"));
+		panel_3.setLayout(new MigLayout("", "[239px,grow][152px,grow][333px,grow]", "[39.00px,grow][]"));
 
 		JPanel panel_1 = new JPanel();
-		panel_3.add(panel_1, "cell 0 0,alignx left,growy");
+		panel_3.add(panel_1, "cell 0 0,grow");
 		panel_1.setBackground(new Color(0, 153, 51));
 		panel_1.setLayout(new MigLayout("", "[][]", "[]"));
 
-		JLabel lblNewLabel_1 = new JLabel("Número de Contratos:");
+		JLabel lblNewLabel_1 = new JLabel("Número de Contratos  Ativos:");
 		lblNewLabel_1.setFont(new Font("SansSerif", Font.PLAIN, 14));
 		lblNewLabel_1.setForeground(Color.WHITE);
 		panel_1.add(lblNewLabel_1, "cell 0 0");
@@ -871,7 +988,7 @@ public class TelaContratos extends JFrame {
 		panel_1_2.add(lblValorTotalContratos, "cell 1 0");
 
 		JPanel panel_1_1 = new JPanel();
-		panel_3.add(panel_1_1, "cell 2 0,alignx left,aligny top");
+		panel_3.add(panel_1_1, "cell 2 0,alignx left,growy");
 		panel_1_1.setBackground(new Color(51, 153, 102));
 		panel_1_1.setLayout(new MigLayout("", "[][]", "[]"));
 
@@ -884,6 +1001,56 @@ public class TelaContratos extends JFrame {
 		lblTotalSacosKGs.setForeground(Color.WHITE);
 		lblTotalSacosKGs.setFont(new Font("SansSerif", Font.BOLD, 14));
 		panel_1_1.add(lblTotalSacosKGs, "cell 1 0");
+
+		JPanel panel_1_3 = new JPanel();
+		panel_1_3.setBackground(Color.RED);
+		panel_3.add(panel_1_3, "cell 0 1,grow");
+		panel_1_3.setLayout(new MigLayout("", "[][][][]", "[]"));
+
+		JLabel lblNewLabel_1_2 = new JLabel("Número de Contratos  Cancelados:");
+		lblNewLabel_1_2.setForeground(Color.WHITE);
+		lblNewLabel_1_2.setFont(new Font("SansSerif", Font.PLAIN, 14));
+		panel_1_3.add(lblNewLabel_1_2, "cell 0 0");
+
+		lblNumContratosCancelados = new JLabel("999");
+		lblNumContratosCancelados.setForeground(Color.WHITE);
+		lblNumContratosCancelados.setFont(new Font("SansSerif", Font.BOLD, 14));
+		panel_1_3.add(lblNumContratosCancelados, "cell 1 0");
+
+		JLabel lblNewLabel_3_1 = new JLabel("Contratos");
+		lblNewLabel_3_1.setForeground(Color.WHITE);
+		lblNewLabel_3_1.setFont(new Font("SansSerif", Font.PLAIN, 12));
+		panel_1_3.add(lblNewLabel_3_1, "cell 3 0");
+
+		JPanel panel_1_2_1 = new JPanel();
+		panel_1_2_1.setBackground(Color.RED);
+		panel_3.add(panel_1_2_1, "cell 1 1,grow");
+		panel_1_2_1.setLayout(new MigLayout("", "[][]", "[]"));
+
+		JLabel lblNewLabel_1_1_1 = new JLabel("Valor Total Cancelado:");
+		lblNewLabel_1_1_1.setForeground(Color.WHITE);
+		lblNewLabel_1_1_1.setFont(new Font("SansSerif", Font.PLAIN, 14));
+		panel_1_2_1.add(lblNewLabel_1_1_1, "cell 0 0");
+
+		lblValorTotalContratosCancelados = new JLabel("999");
+		lblValorTotalContratosCancelados.setForeground(Color.WHITE);
+		lblValorTotalContratosCancelados.setFont(new Font("SansSerif", Font.BOLD, 14));
+		panel_1_2_1.add(lblValorTotalContratosCancelados, "cell 1 0");
+
+		JPanel panel_1_1_1 = new JPanel();
+		panel_1_1_1.setBackground(Color.RED);
+		panel_3.add(panel_1_1_1, "cell 2 1,grow");
+		panel_1_1_1.setLayout(new MigLayout("", "[][]", "[]"));
+
+		JLabel lblNewLabel_2_1 = new JLabel("Total Sacos Cancelados:");
+		lblNewLabel_2_1.setForeground(Color.WHITE);
+		lblNewLabel_2_1.setFont(new Font("SansSerif", Font.PLAIN, 14));
+		panel_1_1_1.add(lblNewLabel_2_1, "cell 0 0");
+
+		lblTotalSacosKGsCancelados = new JLabel("99.999,66 SCs / 999999999999 KGs");
+		lblTotalSacosKGsCancelados.setForeground(Color.WHITE);
+		lblTotalSacosKGsCancelados.setFont(new Font("SansSerif", Font.BOLD, 14));
+		panel_1_1_1.add(lblTotalSacosKGsCancelados, "cell 1 0");
 
 		JPanel panel = new JPanel();
 		painelPrincipal.add(panel, "cell 0 1 3 1,grow");
@@ -902,7 +1069,7 @@ public class TelaContratos extends JFrame {
 		tabela.getColumnModel().getColumn(5).setPreferredWidth(150);
 		tabela.getColumnModel().getColumn(6).setPreferredWidth(150);
 		tabela.getColumnModel().getColumn(7).setPreferredWidth(150);
-		tabela.getColumnModel().getColumn(8).setPreferredWidth(50);
+		tabela.getColumnModel().getColumn(8).setPreferredWidth(200);
 		tabela.getColumnModel().getColumn(9).setPreferredWidth(50);
 		tabela.getColumnModel().getColumn(10).setPreferredWidth(150);
 		tabela.getColumnModel().getColumn(11).setPreferredWidth(150);
@@ -911,6 +1078,7 @@ public class TelaContratos extends JFrame {
 		tabela.getColumnModel().getColumn(5).setCellRenderer(new StatusRecebimentoCellRender());
 		tabela.getColumnModel().getColumn(6).setCellRenderer(new StatusCarregamentoCellRender());
 		tabela.getColumnModel().getColumn(7).setCellRenderer(new StatusPagamentoCellRender());
+		tabela.getColumnModel().getColumn(8).setCellRenderer(new StatusComissaoCellRender());
 
 		tabela.setRowSorter(sorter);
 
@@ -941,6 +1109,8 @@ public class TelaContratos extends JFrame {
 			btnSelecionar.setVisible(false);
 		}
 
+		pesquisarSafrasEvidencias();
+
 		if (flag_retorno == 3 || flag_retorno == 4) {
 
 		} else
@@ -952,14 +1122,15 @@ public class TelaContratos extends JFrame {
 
 		this.setResizable(true);
 		this.setLocationRelativeTo(janela_pai);
+		filtrar();
 
 	}
 
 	public void calcular() {
 
-		double quantidade_sacos_total = 0;
-		double quantidade_kg_total = 0;
-		double valor_total_contratos = 0;
+		double quantidade_sacos_total = 0, quantidade_sacos_total_cancelados = 0;
+		double quantidade_kg_total = 0, quantidade_kg_total_cancelados = 0;
+		double valor_total_contratos = 0, valor_total_contratos_cancelados = 0;
 
 		double total_carregado = 0, total_recebido = 0, total_contratado = 0, total_comissao = 0, total_pago = 0;
 
@@ -968,6 +1139,11 @@ public class TelaContratos extends JFrame {
 		int total_contratos_assinado = 0;
 		int total_contratos_concluido = 0;
 		int total_contratos_cancelados = 0;
+
+		
+		double valor_total_comissao_a_pagar = 0, valor_total_comissao_paga = 0;
+		
+		double soma_total_preco_saco = 0;
 
 		NumberFormat z = NumberFormat.getNumberInstance();
 
@@ -992,9 +1168,14 @@ public class TelaContratos extends JFrame {
 							quantidade_sacos = contrato.getQuantidade();
 							quantidade_kg = contrato.getQuantidade() * 60;
 
+							soma_total_preco_saco += contrato.getValor_produto();
+
 						} else if (contrato.getMedida().equalsIgnoreCase("KG")) {
 							quantidade_kg = contrato.getQuantidade();
 							quantidade_sacos = quantidade_kg / 60;
+
+							soma_total_preco_saco += (contrato.getValor_produto() * 60);
+
 						}
 
 						if (contrato.getStatus_contrato() == 0) {
@@ -1020,8 +1201,34 @@ public class TelaContratos extends JFrame {
 						total_comissao += quantidade_comissao_paga;
 
 						valor_total_contratos += valor_total_local;
+						
+						//comissao
+						if(contrato.getComissao() == 1) {
+						valor_total_comissao_a_pagar += contrato.getValor_total_comissao_receber();
+						
+						valor_total_comissao_paga += contrato.getTotal_comissao();
+						}
 					} else {
 						total_contratos_cancelados++;
+
+						double quantidade_sacos = 0;
+						double quantidade_kg = 0;
+						double valor_total_local = contrato.getValor_a_pagar().doubleValue();
+
+						if (contrato.getMedida().equalsIgnoreCase("SACOS")) {
+							quantidade_sacos = contrato.getQuantidade();
+							quantidade_kg = contrato.getQuantidade() * 60;
+
+						} else if (contrato.getMedida().equalsIgnoreCase("KG")) {
+							quantidade_kg = contrato.getQuantidade();
+							quantidade_sacos = quantidade_kg / 60;
+						}
+
+						quantidade_sacos_total_cancelados += quantidade_sacos;
+						quantidade_kg_total_cancelados += quantidade_kg;
+
+						valor_total_contratos_cancelados += valor_total_local;
+
 					}
 				}
 			} else if (rdSubContratos.isSelected()) {
@@ -1041,9 +1248,14 @@ public class TelaContratos extends JFrame {
 							quantidade_sacos = contrato.getQuantidade();
 							quantidade_kg = contrato.getQuantidade() * 60;
 
+							soma_total_preco_saco += contrato.getValor_produto();
+
 						} else if (contrato.getMedida().equalsIgnoreCase("KG")) {
 							quantidade_kg = contrato.getQuantidade();
 							quantidade_sacos = quantidade_kg / 60;
+
+							soma_total_preco_saco += (contrato.getValor_produto() * 60);
+
 						}
 
 						if (contrato.getStatus_contrato() == 0) {
@@ -1069,8 +1281,32 @@ public class TelaContratos extends JFrame {
 						total_comissao += quantidade_comissao_paga;
 
 						valor_total_contratos += valor_total_local;
+						
+						//comissao
+						
+						valor_total_comissao_a_pagar += contrato.getValor_total_comissao_receber();
+						
+						valor_total_comissao_paga += contrato.getTotal_comissao();
 					} else {
 						total_contratos_cancelados++;
+
+						double quantidade_sacos = 0;
+						double quantidade_kg = 0;
+						double valor_total_local = contrato.getValor_a_pagar().doubleValue();
+
+						if (contrato.getMedida().equalsIgnoreCase("SACOS")) {
+							quantidade_sacos = contrato.getQuantidade();
+							quantidade_kg = contrato.getQuantidade() * 60;
+
+						} else if (contrato.getMedida().equalsIgnoreCase("KG")) {
+							quantidade_kg = contrato.getQuantidade();
+							quantidade_sacos = quantidade_kg / 60;
+						}
+
+						quantidade_sacos_total_cancelados += quantidade_sacos;
+						quantidade_kg_total_cancelados += quantidade_kg;
+
+						valor_total_contratos_cancelados += valor_total_local;
 					}
 				}
 			}
@@ -1078,7 +1314,7 @@ public class TelaContratos extends JFrame {
 		}
 		Locale ptBr = new Locale("pt", "BR");
 
-		lblNumContratos.setText(tabela.getRowCount() + "");
+		lblNumContratos.setText((tabela.getRowCount() - total_contratos_cancelados) + "");
 		lblTotalSacosKGs.setText(z.format(quantidade_sacos_total) + " Scs | " + z.format(quantidade_kg_total) + " Kgs");
 		lblValorTotalContratos.setText(NumberFormat.getCurrencyInstance(ptBr).format(valor_total_contratos));
 
@@ -1097,10 +1333,35 @@ public class TelaContratos extends JFrame {
 				+ "%");
 
 		lblTotalContratado.setText(z.format(total_contratado) + " Kgs | " + z.format(total_contratado / 60) + " Sacos");
-		lblTotalRecebido.setText(z.format(total_recebido * 60) + " Kgs | " + z.format(total_recebido) + " Sacos");
-		lblTotalCarregado.setText(z.format(total_carregado * 60) + " Kgs | " + z.format(total_carregado) + " Sacos");
-		lblTotalPago.setText(NumberFormat.getCurrencyInstance(ptBr).format(total_pago));
 
+		lblTotalRecebido.setText(z.format(total_recebido * 60) + " Kgs | " + z.format(total_recebido) + " Sacos" + " - "
+				+ ((int) (((double) ((double) (total_recebido) / (double) (total_contratado / 60)) * 100))) + "% ");
+
+		lblTotalCarregado.setText(z.format(total_carregado * 60) + " Kgs | " + z.format(total_carregado) + " Sacos"
+				+ " - " + ((int) (((double) ((double) (total_carregado) / (double) total_recebido) * 100))) + "% ");
+
+		lblTotalPago.setText(NumberFormat.getCurrencyInstance(ptBr).format(total_pago) + " - "
+				+ ((int) (((double) ((double) (total_pago) / (double) valor_total_contratos) * 100))) + "% ");
+
+		// cancelados
+		lblNumContratosCancelados.setText(total_contratos_cancelados + "");
+		lblTotalSacosKGsCancelados.setText(z.format(quantidade_sacos_total_cancelados) + " Scs | "
+				+ z.format(quantidade_kg_total_cancelados) + " Kgs");
+		lblValorTotalContratosCancelados
+				.setText(NumberFormat.getCurrencyInstance(ptBr).format(valor_total_contratos_cancelados));
+
+		// medias
+		lblValorMedioSaco.setText(NumberFormat.getCurrencyInstance(ptBr)
+				.format(soma_total_preco_saco / (tabela.getRowCount() - total_contratos_cancelados)));
+		
+		
+		//COMISSAO
+		lblTotalComissaoAPagar.setText(NumberFormat.getCurrencyInstance(ptBr)
+				.format(valor_total_comissao_a_pagar ));
+		lblTotalComissaoPago.setText(NumberFormat.getCurrencyInstance(ptBr)
+				.format(valor_total_comissao_paga ));
+		lblTotalComissaoRestante.setText(NumberFormat.getCurrencyInstance(ptBr)
+				.format(valor_total_comissao_a_pagar - valor_total_comissao_paga));
 	}
 
 	public void pesquisar() {
@@ -1338,43 +1599,41 @@ public class TelaContratos extends JFrame {
 
 	public void filtrar() {
 
-		NumberFormat z = NumberFormat.getNumberInstance();
 
-		double quantidade_sacos_total = 0;
-		double quantidade_kg_total = 0;
-		int total_contratos_em_analise = 0;
-		int total_contratos_assinar = 0;
-		int total_contratos_assinado = 0;
-		int total_contratos_concluido = 0;
-		int total_contratos = 0;
-
+	
 		ArrayList<RowFilter<Object, Object>> filters = new ArrayList<RowFilter<Object, Object>>(2);
 		ArrayList<RowFilter<Object, Object>> filters_nome_comprador = new ArrayList<RowFilter<Object, Object>>(2);
 		ArrayList<RowFilter<Object, Object>> filters_nome_vendedor = new ArrayList<RowFilter<Object, Object>>(2);
 
 		ArrayList<RowFilter<Object, Object>> filters_produto = new ArrayList<RowFilter<Object, Object>>(2);
+		ArrayList<RowFilter<Object, Object>> filters_safra = new ArrayList<RowFilter<Object, Object>>(2);
+		ArrayList<RowFilter<Object, Object>> filters_safra_evidencia = new ArrayList<RowFilter<Object, Object>>(2);
 
 		RowFilter<Object, Object> compradores_filters;
 		RowFilter<Object, Object> vendedores_filters;
 
 		RowFilter<Object, Object> produto_filters;
+		RowFilter<Object, Object> safra_filters;
+		RowFilter<Object, Object> safra_evidencia_filters;
 
 		String produto = entProduto.getText().toUpperCase();
 		String comprador = entNomeComprador.getText().toUpperCase();
 		String vendedor = entNomeVendedor.getText().toUpperCase();
 		String codigo = entCodigo.getText().toUpperCase();
 		String safra = entSafra.getText().toUpperCase();
+		String safra_envidencia = entSafraEvidencia.getText();
 		String status = entStatus.getText().toUpperCase();
 		String status_rec = entStatusRecebimento.getText().toUpperCase();
 		String status_carg = entStatusCarregamento.getText().toUpperCase();
 		String status_pag = entStatusPagamento.getText().toUpperCase();
+		String status_comissao = entStatusComissao.getText().toUpperCase();
 
 		String transgenese = entTransgenia.getText().toUpperCase();
 		String local_retirada = entLocalRetirada.getText().toUpperCase();
 
 		if (checkString(codigo))
 			filters.add(RowFilter.regexFilter(codigo, 1));
-		
+
 		/*
 		 * if (checkString(comprador)) filters.add(RowFilter.regexFilter(comprador, 2));
 		 */
@@ -1387,18 +1646,17 @@ public class TelaContratos extends JFrame {
 		compradores_filters = RowFilter.orFilter(filters_nome_comprador);
 
 		/*
-		if (checkString(vendedor))
-			filters.add(RowFilter.regexFilter(vendedor, 3));
-*/
-		
-		// comprador
-				String vendedores[] = vendedor.split(",");
-				for (String nome : vendedores) {
-					filters_nome_vendedor.add(RowFilter.regexFilter(nome, 3));
+		 * if (checkString(vendedor)) filters.add(RowFilter.regexFilter(vendedor, 3));
+		 */
 
-				}
-				vendedores_filters = RowFilter.orFilter(filters_nome_vendedor);
-		
+		// comprador
+		String vendedores[] = vendedor.split(",");
+		for (String nome : vendedores) {
+			filters_nome_vendedor.add(RowFilter.regexFilter(nome, 3));
+
+		}
+		vendedores_filters = RowFilter.orFilter(filters_nome_vendedor);
+
 		if (checkString(status))
 			filters.add(RowFilter.regexFilter(status, 4));
 
@@ -1410,19 +1668,38 @@ public class TelaContratos extends JFrame {
 
 		String produtos[] = produto.split(",");
 		for (String prod : produtos) {
-			filters_produto.add(RowFilter.regexFilter(prod, 10));
+			filters_produto.add(RowFilter.regexFilter(prod, 11));
 
 		}
 		produto_filters = RowFilter.orFilter(filters_produto);
 
-		if (checkString(transgenese))
-			filters.add(RowFilter.regexFilter(transgenese, 11));
+		/*
+		 * if (checkString(safra)) filters.add(RowFilter.regexFilter(safra, 12));
+		 */
 
-		if (checkString(safra))
-			filters.add(RowFilter.regexFilter(safra, 12));
+		// filtro de safra
+
+		String safras[] = safra.split(",");
+		for (String saf : safras) {
+			filters_safra.add(RowFilter.regexFilter(saf, 14));
+
+		}
+		safra_filters = RowFilter.orFilter(filters_safra);
+
+		//filtro de safra em evidencia
+
+		String safras_evidencias[] = safra_envidencia.split(",");
+		for (String saf : safras_evidencias) {
+			filters_safra_evidencia.add(RowFilter.regexFilter(saf, 13));
+
+		}
+		safra_evidencia_filters = RowFilter.orFilter(filters_safra_evidencia);
+		
+		if (checkString(transgenese))
+			filters.add(RowFilter.regexFilter(transgenese, 12));
 
 		if (checkString(local_retirada))
-			filters.add(RowFilter.regexFilter(local_retirada, 17));
+			filters.add(RowFilter.regexFilter(local_retirada, 19));
 
 		// status
 		if (checkString(status_rec))
@@ -1433,8 +1710,15 @@ public class TelaContratos extends JFrame {
 
 		if (checkString(status_pag))
 			filters.add(RowFilter.regexFilter(status_pag, 7));
+		
+
+		if (checkString(status_comissao))
+			filters.add(RowFilter.regexFilter(status_comissao, 8));
 
 		filters.add(produto_filters);
+		filters.add(safra_filters);
+		filters.add(safra_evidencia_filters);
+
 		filters.add(compradores_filters);
 		filters.add(vendedores_filters);
 
@@ -1562,6 +1846,144 @@ public class TelaContratos extends JFrame {
 		}
 	}
 
+	/*
+	public void pesquisarSafrasEvidencias() {
+
+		GerenciarBancoSafrasEvidencias gerenciar = new GerenciarBancoSafrasEvidencias();
+		ArrayList<CadastroSafrasEvidencias> safras_envidencia = gerenciar.getSafrasEvidenciaPorUsuario(login.getId());
+
+		GerenciarBancoSafras gerenciar_safras = new GerenciarBancoSafras();
+
+		String produtos = "", anos = "";
+
+		if (safras_envidencia != null) {
+			if (safras_envidencia.size() > 0) {
+
+				for (CadastroSafrasEvidencias cad : safras_envidencia) {
+					String ids_safras = cad.getIds_safras();
+					if (ids_safras.length() > 0) {
+
+						String ids_separados[] = ids_safras.split(",");
+						for (String id : ids_separados) {
+
+							try {
+
+								int int_id = Integer.parseInt(id);
+								CadastroSafra safra = gerenciar_safras.getSafra(int_id);
+								if (safra != null) {
+									
+									String produto_l = safra.getProduto().getNome_produto().toLowerCase();
+									
+									if(!produtos.contains(produto_l)) {
+										produtos += produto_l;
+										produtos += ",";
+
+									}
+
+									String safra_l = safra.getAno_plantio() + "/" + safra.getAno_colheita();;
+									
+									if(!anos.contains(safra_l)) {
+									   anos += safra_l;
+									   
+										anos += ",";
+
+									}
+
+									
+
+									
+
+								}
+
+							} catch (Exception e) {
+
+							}
+
+						}
+
+					}
+				}
+
+			}
+		}
+
+		entProduto.setText(produtos.replaceFirst(".$", ""));
+		entSafra.setText(anos.replaceFirst(".$", ""));
+
+	}
+
+	*/
+	
+	
+	public void pesquisarSafrasEvidencias() {
+
+		GerenciarBancoSafrasEvidencias gerenciar = new GerenciarBancoSafrasEvidencias();
+		ArrayList<CadastroSafrasEvidencias> safras_envidencia = gerenciar.getSafrasEvidenciaPorUsuario(login.getId());
+
+		GerenciarBancoSafras gerenciar_safras = new GerenciarBancoSafras();
+
+		
+		String ids_safras_em_evidencia = "";
+
+		if (safras_envidencia != null) {
+			if (safras_envidencia.size() > 0) {
+
+				for (CadastroSafrasEvidencias cad : safras_envidencia) {
+					ids_safras_em_evidencia += (cad.getIds_safras() + ",");
+				
+					
+				}
+
+			}
+		}
+
+		
+		
+		
+		entSafraEvidencia.setText(ids_safras_em_evidencia.replaceFirst(".$", ""));
+
+		String descricao_safras_evidencia = "";
+		
+		if (safras_envidencia != null) {
+			if (safras_envidencia.size() > 0) {
+
+				for (CadastroSafrasEvidencias cad : safras_envidencia) {
+					String ids_safras = cad.getIds_safras();
+					if (ids_safras.length() > 0) {
+
+						String ids_separados[] = ids_safras.split(",");
+						for (String id : ids_separados) {
+
+							try {
+
+								int int_id = Integer.parseInt(id);
+								CadastroSafra safra = gerenciar_safras.getSafra(int_id);
+								if (safra != null) {
+									
+									String produto_l = safra.getProduto().getNome_produto() +  " "+ safra.getProduto().getTransgenia();
+									String safra_l = safra.getAno_plantio() + "/" + safra.getAno_colheita();
+									
+									String descricao_local = produto_l + " " + safra_l + "  ";
+									
+									descricao_safras_evidencia += descricao_local;
+								}
+
+							} catch (Exception e) {
+
+							}
+
+						}
+
+					}
+				}
+
+			}
+		}
+		
+		lblSafrasEmEvidencia.setText(descricao_safras_evidencia);
+		
+	}
+
 	class StatusPagamentoCellRender implements TableCellRenderer {
 
 		public final DefaultTableCellRenderer DEFAULT_RENDERER = new DefaultTableCellRenderer();
@@ -1598,6 +2020,48 @@ public class TelaContratos extends JFrame {
 			return renderer;
 		}
 	}
+	
+	
+	class StatusComissaoCellRender implements TableCellRenderer {
+
+		public final DefaultTableCellRenderer DEFAULT_RENDERER = new DefaultTableCellRenderer();
+
+		public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus,
+				int row, int column) {
+			Component renderer = DEFAULT_RENDERER.getTableCellRendererComponent(table, value, isSelected, hasFocus, row,
+					column);
+			((JLabel) renderer).setOpaque(true);
+
+			String status_recebimento = (String) table.getValueAt(row, 8);
+
+			if (isSelected) {
+				renderer.setBackground(new Color(139, 69, 19)); // marrom
+				renderer.setForeground(Color.white);
+
+			} else {
+				if (status_recebimento.contains("PAGANDO")) {
+					renderer.setBackground(Color.yellow);
+					renderer.setForeground(Color.black);
+
+				} else if (status_recebimento.contains("A PAGAR")) {
+					renderer.setBackground(new Color(255, 69, 0)); // laranja
+					renderer.setForeground(Color.white);
+
+				} else if (status_recebimento.contains("CONCLUIDO")) {
+					renderer.setBackground(new Color(0, 51, 0)); // verde
+					renderer.setForeground(Color.white);
+
+				} else if (status_recebimento.contains("SEM")) {
+					renderer.setBackground(Color.blue); // verde
+					renderer.setForeground(Color.white);
+
+				}
+
+			}
+
+			return renderer;
+		}
+	}
 
 	public class ContratoTableModel extends AbstractTableModel {
 
@@ -1610,29 +2074,32 @@ public class TelaContratos extends JFrame {
 		private final int status_recebimento = 5;
 		private final int status_carregamento = 6;
 		private final int status_pagamento = 7;
+		private final int status_comissao = 8;
 
-		private final int quantidade = 8;
-		private final int medida = 9;
-		private final int produto = 10;
-		private final int transgenia = 11;
-		private final int safra = 12;
-		private final int valor_produto = 13;
-		private final int valor_total = 14;
-		private final int corretores = 15;
-		private final int data_contrato = 16;
-		private final int local_retirada = 17;
-		private final int bruto_livre = 18;
-		private final int penhor = 19;
-		private final int optante_folha = 20;
-		private final int localizacao = 21;
-		private final int fertilizante = 22;
+		private final int quantidade = 9;
+		private final int medida = 10;
+		private final int produto = 11;
+		private final int transgenia = 12;
+		private final int id_safra = 13;
+		private final int safra = 14;
+		private final int valor_produto = 15;
+		private final int valor_total = 16;
+		private final int corretores = 17;
+		private final int data_contrato = 18;
+		private final int local_retirada = 19;
+		private final int bruto_livre = 20;
+		private final int penhor = 21;
+		private final int optante_folha = 22;
+		private final int localizacao = 23;
+		private final int fertilizante = 24;
 
 		List<Color> rowColours = Arrays.asList(Color.RED, Color.GREEN, Color.CYAN);
 
 		private final String colunas[] = { "ID", "Código", "Compradores:", "Vendedores:", "Status:",
-				"Status Recebimento:", "Status Carregamento", "Status Pagamento", "Quantidade:", "Medida:", "Produto:",
-				"Transgênese", "Safra:", "Valor Produto:", "Valor Total:", "Corretores:", "Data Contrato",
-				"Local Retirada", "BrutoXLivre", "Penhor", "Optante Folha", "Localização", "Fertilizante" };
+				"Status Recebimento:", "Status Carregamento", "Status Pagamento", "Status Comissão", "Quantidade:",
+				"Medida:", "Produto:", "Transgênese","ID SAFRA", "Safra:", "Valor Produto:", "Valor Total:", "Corretores:",
+				"Data Contrato", "Local Retirada", "BrutoXLivre", "Penhor", "Optante Folha", "Localização",
+				"Fertilizante" };
 		private final ArrayList<CadastroContrato> dados = new ArrayList<>();// usamos como dados uma lista genérica de
 																			// nfs
 
@@ -1672,6 +2139,8 @@ public class TelaContratos extends JFrame {
 				return String.class;
 			case status_pagamento:
 				return String.class;
+			case status_comissao:
+				return String.class;
 			case quantidade:
 				return String.class;
 			case medida:
@@ -1679,6 +2148,8 @@ public class TelaContratos extends JFrame {
 			case produto:
 				return String.class;
 			case transgenia:
+				return String.class;
+			case id_safra:
 				return String.class;
 			case safra:
 				return String.class;
@@ -1828,39 +2299,66 @@ public class TelaContratos extends JFrame {
 
 			}
 			case status_pagamento: {
-				double quantidade_paga = contrato.getTotal_pago();
+				double valor_pago = contrato.getTotal_pago();
 
-				double valor_total = contrato.getValor_a_receber().doubleValue();
+				double valor_a_receber = contrato.getValor_a_receber().doubleValue();
 
-				System.out.println("Id: " + contrato.getId() + " Quantidade Paga: " + quantidade_paga + " Valor TOtal: "
-						+ valor_total);
+				System.out.println("Valor a receber de acordo com o total recebido: " + valor_a_receber
+						+ " Valor Pago: " + valor_pago);
 
-				if (valor_total == 0) {
-					
-					double valor_contrato = contrato.getValor_a_pagar().doubleValue();
-					
-					if (quantidade_paga >= (valor_contrato - 0.5)) {
-						return "CONCLUIDO";
-					} else if (quantidade_paga < valor_contrato && quantidade_paga > 0) {
-						return "PAGANDO";
+				if (valor_a_receber == 0) {
+					// não ha recebimentos ainda neste contrato
 
-					} else if (quantidade_paga == 0) {
+					// double valor_contrato = contrato.getValor_a_pagar().doubleValue();
+
+					if (valor_pago == 0) {
 						return "A PAGAR";
 
+					} else if (valor_pago >= (valor_a_receber - 1)) {
+						return "CONCLUIDO";
+					} else if (valor_pago < valor_a_receber && valor_pago > 0) {
+						return "PAGANDO";
+
 					}
-					
-					
+
 				} else {
+					// este contrato possui recebimentos
 
-					if (quantidade_paga >= (valor_total - 0.5)) {
-						return "CONCLUIDO";
-					} else if (quantidade_paga < valor_total && quantidade_paga > 0) {
-						return "PAGANDO";
-
-					} else if (quantidade_paga == 0) {
+					if (valor_pago == 0) {
 						return "A PAGAR";
 
+					} else if (valor_pago >= (valor_a_receber - 1)) {
+						return "CONCLUIDO";
+					} else if (valor_pago < valor_a_receber && valor_pago > 0) {
+						return "PAGANDO";
+
 					}
+				}
+			}
+			case status_comissao: {
+				if(contrato.getComissao() == 1) {
+					
+					double valor_total_a_pagar = contrato.getValor_total_comissao_receber();
+					double valor_total_pago =  contrato.getTotal_comissao();
+					
+					String s_valor_total_a_pagar = NumberFormat.getCurrencyInstance(ptBr).format(valor_total_a_pagar);
+					String s_valor_total_pago = NumberFormat.getCurrencyInstance(ptBr).format(valor_total_pago);
+					
+					if (valor_total_pago == 0) {
+						return "A PAGAR " + s_valor_total_pago + "/" + s_valor_total_a_pagar;
+
+					} else if (valor_total_pago >= (valor_total_a_pagar - 1)) {
+						return "CONCLUIDO " + s_valor_total_pago + "/" + s_valor_total_a_pagar;
+					} else if (valor_total_pago < valor_total_a_pagar && valor_total_pago > 0) {
+						return "PAGANDO " + s_valor_total_pago + "/" + s_valor_total_a_pagar;
+
+					}
+					
+					
+				
+
+				}else {
+					return "SEM COMISSÃO";
 				}
 			}
 			case quantidade: {
@@ -1882,6 +2380,8 @@ public class TelaContratos extends JFrame {
 			case transgenia: {
 				return contrato.getModelo_safra().getProduto().getTransgenia().toUpperCase();
 			}
+			case id_safra:
+				return contrato.getModelo_safra().getId_safra() + "";
 			case safra:
 				return contrato.getModelo_safra().getAno_plantio() + "/" + contrato.getModelo_safra().getAno_colheita();
 			case valor_produto: {
@@ -1905,31 +2405,25 @@ public class TelaContratos extends JFrame {
 				return contrato.getData_contrato();
 			case local_retirada: {
 				/*
-				GerenciarBancoClientes gerenciar = new GerenciarBancoClientes();
-				if (contrato.getId_local_retirada() > 0) {
-					CadastroCliente local_retirar = gerenciar.getCliente(contrato.getId_local_retirada());
-					if (local_retirar != null) {
-						if (local_retirar.getTipo_pessoa() == 0) {
-							// pessoa fisica
-							return local_retirar.getNome_empresarial().toUpperCase();
-						} else {
-							return local_retirar.getNome_fantaia().toUpperCase();
-						}
-					} else {
-						return "Não Especificado".toUpperCase();
-					}
-				} else {
-					return "Não Especificado".toUpperCase();
+				 * GerenciarBancoClientes gerenciar = new GerenciarBancoClientes(); if
+				 * (contrato.getId_local_retirada() > 0) { CadastroCliente local_retirar =
+				 * gerenciar.getCliente(contrato.getId_local_retirada()); if (local_retirar !=
+				 * null) { if (local_retirar.getTipo_pessoa() == 0) { // pessoa fisica return
+				 * local_retirar.getNome_empresarial().toUpperCase(); } else { return
+				 * local_retirar.getNome_fantaia().toUpperCase(); } } else { return
+				 * "Não Especificado".toUpperCase(); } } else { return
+				 * "Não Especificado".toUpperCase();
+				 * 
+				 * }
+				 */
 
-				}*/
-				
 				if (contrato.getId_local_retirada() > 0) {
-					if(contrato.getNome_local_retirada() != null) {
-						if(contrato.getNome_local_retirada().length() > 0) {
+					if (contrato.getNome_local_retirada() != null) {
+						if (contrato.getNome_local_retirada().length() > 0) {
 							return contrato.getNome_local_retirada().toUpperCase();
 						}
 					}
-				}else {
+				} else {
 					return "Não Especificado".toUpperCase();
 				}
 
@@ -2139,6 +2633,17 @@ public class TelaContratos extends JFrame {
 		}
 
 		return nomes_encurtados;
+	}
+
+	public void getDadosGlobais() {
+		// gerenciador de log
+		DadosGlobais dados = DadosGlobais.getInstance();
+		GerenciadorLog = dados.getGerenciadorLog();
+		configs_globais = dados.getConfigs_globais();
+
+		// usuario logado
+		login = dados.getLogin();
+
 	}
 
 }

@@ -3,7 +3,7 @@ package main.java.cadastros;
 public class DadosRecebimento {
 
 	
-	double quantidade_total_sacos, quantidade_total_recebidos, quantidade_total_a_receber;
+	double quantidade_total_sacos, quantidade_total_recebidos;
 
 	public double getQuantidade_total_sacos() {
 		return quantidade_total_sacos;
@@ -21,14 +21,7 @@ public class DadosRecebimento {
 		this.quantidade_total_recebidos = quantidade_total_recebidos;
 	}
 
-	public double getQuantidade_total_a_receber() {
-		return quantidade_total_a_receber;
-	}
-
-	public void setQuantidade_total_a_receber(double quantidade_total_a_receber) {
-		this.quantidade_total_a_receber = quantidade_total_a_receber;
-	}
-
+	
 	
 	
 }

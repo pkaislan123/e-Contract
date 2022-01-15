@@ -164,7 +164,7 @@ public class TelaPadrao extends JDialog {
 		
 		JPanel painelPrincipal = new JPanel();
 		painelPrincipal.setBorder(new MatteBorder(3, 3, 3, 3, (Color) new Color(255, 255, 0)));
-		painelPrincipal.setBackground(new Color(0, 51, 0));
+		painelPrincipal.setBackground(new Color(51, 0, 255));
 		painelPrincipal.setLayout(new MigLayout("", "[][grow]", "[][][grow]"));
 		setContentPane(painelPrincipal);
 		

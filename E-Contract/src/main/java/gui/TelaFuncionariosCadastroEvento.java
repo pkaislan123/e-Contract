@@ -604,7 +604,7 @@ public class TelaFuncionariosCadastroEvento extends JFrame {
 			}
 
 		} else if (cBEvento.getSelectedIndex() == 5) {
-			// insencao de lancamento
+			// insencao de licenca
 			evento.setTipo_evento(5);
 			String data_inicio = entDataInicioLicenca.getText();
 			String data_fim = entDataFimLicenca.getText();

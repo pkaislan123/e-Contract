@@ -218,7 +218,6 @@ public class TelaRecebimentos extends JFrame {
 	private JTextField entProduto;
 	private JTextField entSafra;
 	private JTextField entCodigo;
-	private JTextField entStatus;
 	private int id_contrato_pai_para_replica_global = 0;
 
 	private int flag_retorno_global;
@@ -231,7 +230,9 @@ public class TelaRecebimentos extends JFrame {
 	public Rectangle getCurrentScreenBounds(Component component) {
 		return component.getGraphicsConfiguration().getBounds();
 	}
-	private JRadioButton rdbtnContratos,rdbtnSubcontratos;
+
+	private JRadioButton rdbtnContratos, rdbtnSubcontratos;
+	private JTextField entCodigoRom;
 
 	public TelaRecebimentos(Window janela_pai) {
 
@@ -283,58 +284,92 @@ public class TelaRecebimentos extends JFrame {
 		JPanel panel_5 = new JPanel();
 		panel_5.setBackground(Color.WHITE);
 		painelPrincipal.add(panel_5, "cell 0 0 4 1,grow");
-		panel_5.setLayout(new MigLayout("", "[58px][274px][48px][306px][90px][199px,grow][67px][126px][59px]",
+		panel_5.setLayout(new MigLayout("", "[58px][274px,grow][48px][306px][90px][199px,grow][67px][126px][59px]",
 				"[28px][28px][28px]"));
 
+		JLabel lblCdigo = new JLabel("Código CTR:");
+		panel_5.add(lblCdigo, "cell 0 0,alignx right,aligny center");
+		lblCdigo.setFont(new Font("Tahoma", Font.PLAIN, 14));
+
+		rdbtnSubcontratos = new JRadioButton("Sub-Contratos");
+		rdbtnSubcontratos.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				rdbtnContratos.setSelected(false);
+				rdbtnSubcontratos.setSelected(true);
+			}
+		});
+
+		rdbtnContratos = new JRadioButton("Contratos");
+		rdbtnContratos.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+
+				rdbtnContratos.setSelected(true);
+				rdbtnSubcontratos.setSelected(false);
+
+			}
+		});
+
+		entCodigo = new JTextField();
+		entCodigo.addKeyListener(new KeyAdapter() {
+			@Override
+			public void keyTyped(KeyEvent e) {
+				filtrar();
+			}
+		});
+		entCodigo.setFont(new Font("SansSerif", Font.PLAIN, 16));
+		panel_5.add(entCodigo, "cell 1 0,growx,aligny top");
+		entCodigo.setColumns(10);
+
 		JLabel lblNewLabel = new JLabel("Comprador:");
-		panel_5.add(lblNewLabel, "cell 0 0,alignx right,aligny center");
+		panel_5.add(lblNewLabel, "cell 2 0,alignx right,aligny center");
 		lblNewLabel.setFont(new Font("Tahoma", Font.PLAIN, 14));
 
 		entNomeComprador = new JTextField();
 		entNomeComprador.setFont(new Font("SansSerif", Font.PLAIN, 16));
-		panel_5.add(entNomeComprador, "cell 1 0,growx,aligny top");
+		panel_5.add(entNomeComprador, "cell 3 0,growx,aligny top");
 		entNomeComprador.setColumns(10);
-
-		JLabel lblCdigo = new JLabel("Código:");
-		panel_5.add(lblCdigo, "cell 2 0,alignx right,aligny center");
-		lblCdigo.setFont(new Font("Tahoma", Font.PLAIN, 14));
-
-		entCodigo = new JTextField();
-		entCodigo.setFont(new Font("SansSerif", Font.PLAIN, 16));
-		panel_5.add(entCodigo, "cell 3 0,growx,aligny top");
-		entCodigo.setColumns(10);
-		
-		
-		rdbtnContratos = new JRadioButton("Contratos");
-		rdbtnContratos.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				
-				rdbtnContratos.setSelected(true);
-				rdbtnSubcontratos.setSelected(false);
-				
+		entNomeComprador.addKeyListener(new KeyAdapter() {
+			@Override
+			public void keyTyped(KeyEvent e) {
+				filtrar();
 			}
 		});
-		rdbtnContratos.setFont(new Font("SansSerif", Font.PLAIN, 16));
-		rdbtnContratos.setSelected(true);
-		panel_5.add(rdbtnContratos, "flowx,cell 5 0");
-
+		
 		JLabel lblVendedor = new JLabel("Vendedor:");
-		panel_5.add(lblVendedor, "cell 0 1,alignx right,aligny center");
+		panel_5.add(lblVendedor, "cell 4 0,alignx right,aligny center");
 		lblVendedor.setFont(new Font("Tahoma", Font.PLAIN, 14));
 
 		entNomeVendedor = new JTextField();
 		entNomeVendedor.setFont(new Font("SansSerif", Font.PLAIN, 16));
-		panel_5.add(entNomeVendedor, "cell 1 1,growx,aligny top");
+		panel_5.add(entNomeVendedor, "cell 5 0,growx,aligny top");
 		entNomeVendedor.setColumns(10);
+		entNomeVendedor.addKeyListener(new KeyAdapter() {
+			@Override
+			public void keyTyped(KeyEvent e) {
+				filtrar();
+			}
+		});
+		
+		rdbtnContratos.setFont(new Font("SansSerif", Font.PLAIN, 16));
+		rdbtnContratos.setSelected(true);
+		panel_5.add(rdbtnContratos, "flowx,cell 7 0");
+		rdbtnSubcontratos.setFont(new Font("SansSerif", Font.PLAIN, 16));
+		panel_5.add(rdbtnSubcontratos, "cell 8 0");
 
-		JLabel lblStatus = new JLabel("Status:");
-		panel_5.add(lblStatus, "cell 2 1,alignx right,aligny center");
-		lblStatus.setFont(new Font("Tahoma", Font.PLAIN, 14));
+		JLabel lblCdigoRom = new JLabel("Código ROM:");
+		lblCdigoRom.setFont(new Font("Tahoma", Font.PLAIN, 14));
+		panel_5.add(lblCdigoRom, "cell 0 1,alignx trailing");
 
-		entStatus = new JTextField();
-		entStatus.setFont(new Font("SansSerif", Font.PLAIN, 16));
-		panel_5.add(entStatus, "cell 3 1,growx,aligny top");
-		entStatus.setColumns(10);
+		entCodigoRom = new JTextField();
+		entCodigoRom.setFont(new Font("SansSerif", Font.PLAIN, 16));
+		entCodigoRom.setColumns(10);
+		entCodigoRom.addKeyListener(new KeyAdapter() {
+			@Override
+			public void keyTyped(KeyEvent e) {
+				filtrar();
+			}
+		});
+		panel_5.add(entCodigoRom, "cell 1 1,growx");
 
 		JLabel lblStatus_1 = new JLabel("Status:");
 		lblStatus_1.setFont(new Font("Tahoma", Font.PLAIN, 14));
@@ -358,7 +393,13 @@ public class TelaRecebimentos extends JFrame {
 		entProduto.setFont(new Font("SansSerif", Font.PLAIN, 16));
 		panel_5.add(entProduto, "cell 1 2,growx,aligny top");
 		entProduto.setColumns(10);
-
+		entProduto.addKeyListener(new KeyAdapter() {
+			@Override
+			public void keyTyped(KeyEvent e) {
+				filtrar();
+			}
+		});
+		
 		JLabel lblSafra = new JLabel("Safra:");
 		panel_5.add(lblSafra, "cell 2 2,alignx right,aligny center");
 		lblSafra.setFont(new Font("Tahoma", Font.PLAIN, 14));
@@ -367,7 +408,14 @@ public class TelaRecebimentos extends JFrame {
 		entSafra.setFont(new Font("SansSerif", Font.PLAIN, 16));
 		panel_5.add(entSafra, "cell 3 2,growx,aligny top");
 		entSafra.setColumns(10);
-
+		entSafra.addKeyListener(new KeyAdapter() {
+			@Override
+			public void keyTyped(KeyEvent e) {
+				filtrar();
+			}
+		});
+		
+		
 		JLabel lblTransgnese = new JLabel("Transgênese:");
 		panel_5.add(lblTransgnese, "cell 4 2,alignx right,aligny center");
 		lblTransgnese.setFont(new Font("Tahoma", Font.PLAIN, 14));
@@ -376,7 +424,13 @@ public class TelaRecebimentos extends JFrame {
 		entTransgenia.setFont(new Font("SansSerif", Font.PLAIN, 16));
 		panel_5.add(entTransgenia, "cell 5 2,growx,aligny top");
 		entTransgenia.setColumns(10);
-
+		entTransgenia.addKeyListener(new KeyAdapter() {
+			@Override
+			public void keyTyped(KeyEvent e) {
+				filtrar();
+			}
+		});
+		
 		JButton btnLimparFiltros = new JButton("Limpar");
 		btnLimparFiltros.setBackground(new Color(204, 51, 0));
 		btnLimparFiltros.setForeground(Color.WHITE);
@@ -400,27 +454,15 @@ public class TelaRecebimentos extends JFrame {
 		btnRefazerPesquisa.setForeground(Color.WHITE);
 		btnRefazerPesquisa.setFont(new Font("SansSerif", Font.BOLD, 16));
 		panel_5.add(btnRefazerPesquisa, "cell 8 2,alignx left,aligny top");
-		
-		 rdbtnSubcontratos = new JRadioButton("Sub-Contratos");
-		 rdbtnSubcontratos.addActionListener(new ActionListener() {
-		 	public void actionPerformed(ActionEvent e) {
-		 		rdbtnContratos.setSelected(false);
-				rdbtnSubcontratos.setSelected(true);
-		 	}
-		 });
-		rdbtnSubcontratos.setFont(new Font("SansSerif", Font.PLAIN, 16));
-		panel_5.add(rdbtnSubcontratos, "cell 5 0");
 		btnRefazerPesquisa.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				pesquisar();
 				filtrar();
-				calcular();
 			}
 		});
 		btnFiltrar.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				filtrar();
-				calcular();
 			}
 		});
 		RecebimentoCellRender renderer_recebimentos = new RecebimentoCellRender();
@@ -480,9 +522,7 @@ public class TelaRecebimentos extends JFrame {
 		lblPesoTotalRomaneios12.setFont(new Font("Tahoma", Font.PLAIN, 14));
 		panel_8.add(lblPesoTotalRomaneios12, "cell 4 1");
 
-		
-		
-		 lblPesoTotalRomaneios = new JLabel("000.000.000.000,00/000.000,00");
+		lblPesoTotalRomaneios = new JLabel("000.000.000.000,00/000.000,00");
 		lblPesoTotalRomaneios.setFont(new Font("SansSerif", Font.BOLD, 16));
 		lblPesoTotalRomaneios.setBorder(new MatteBorder(0, 0, 1, 0, (Color) new Color(0, 0, 0)));
 		panel_8.add(lblPesoTotalRomaneios, "cell 5 1 4 1");
@@ -506,7 +546,7 @@ public class TelaRecebimentos extends JFrame {
 		lblPesoTotalNf1.setFont(new Font("Tahoma", Font.PLAIN, 14));
 		panel_8.add(lblPesoTotalNf1, "cell 4 2");
 
-		 lblPesoTotalNFVenda = new JLabel("000.000.000.000,00/000.000,00");
+		lblPesoTotalNFVenda = new JLabel("000.000.000.000,00/000.000,00");
 		lblPesoTotalNFVenda.setFont(new Font("SansSerif", Font.BOLD, 16));
 		lblPesoTotalNFVenda.setBorder(new MatteBorder(0, 0, 1, 0, (Color) new Color(0, 0, 0)));
 		panel_8.add(lblPesoTotalNFVenda, "cell 5 2");
@@ -530,7 +570,7 @@ public class TelaRecebimentos extends JFrame {
 		lblPesoTotalNf_2.setFont(new Font("Tahoma", Font.PLAIN, 14));
 		panel_8.add(lblPesoTotalNf_2, "cell 4 3");
 
-		 lblPesoTotalNFRemessa = new JLabel("000.000.000.000,00/000.000,00");
+		lblPesoTotalNFRemessa = new JLabel("000.000.000.000,00/000.000,00");
 		lblPesoTotalNFRemessa.setFont(new Font("SansSerif", Font.BOLD, 16));
 		lblPesoTotalNFRemessa.setBorder(new MatteBorder(0, 0, 1, 0, (Color) new Color(0, 0, 0)));
 		panel_8.add(lblPesoTotalNFRemessa, "cell 5 3");
@@ -591,34 +631,32 @@ public class TelaRecebimentos extends JFrame {
 		for (RecebimentoCompleto recebimento : gerenciar.getRecebimentos()) {
 			CadastroContrato contrato = recebimento.getContrato();
 
-			if(rdbtnContratos.isSelected()) {
-			if (contrato.getSub_contrato() == 0 || contrato.getSub_contrato() == 3 || contrato.getSub_contrato() == 4
-					|| contrato.getSub_contrato() == 5) {
-				modelo_recebimentos.onAdd(recebimento);
-				lista_recebimentos.add(recebimento);
-				
-			}
-			}else if(rdbtnSubcontratos.isSelected()) {
-				if (contrato.getSub_contrato() == 1 || contrato.getSub_contrato() == 2 || contrato.getSub_contrato() == 6
-						|| contrato.getSub_contrato() == 7 || contrato.getSub_contrato() == 8) {
+			if (rdbtnContratos.isSelected()) {
+				if (contrato.getSub_contrato() == 0 || contrato.getSub_contrato() == 3
+						|| contrato.getSub_contrato() == 4 || contrato.getSub_contrato() == 5) {
 					modelo_recebimentos.onAdd(recebimento);
 					lista_recebimentos.add(recebimento);
-					
+
+				}
+			} else if (rdbtnSubcontratos.isSelected()) {
+				if (contrato.getSub_contrato() == 1 || contrato.getSub_contrato() == 2
+						|| contrato.getSub_contrato() == 6 || contrato.getSub_contrato() == 7
+						|| contrato.getSub_contrato() == 8) {
+					modelo_recebimentos.onAdd(recebimento);
+					lista_recebimentos.add(recebimento);
+
 				}
 			}
-			
-			
 
 		}
 
 	}
 
 	public void calcular() {
-		
-		
+
 		int num_recebimentos = 0;
 		double peso_total_romaneios = 0, peso_total_nf_venda = 0, peso_total_nf_remessa = 0;
-		
+
 		int numero_recebimentos = 0;
 		int recebimentos_ok = 0;
 		int recebimentos_falta_nf_venda = 0;
@@ -637,7 +675,6 @@ public class TelaRecebimentos extends JFrame {
 			peso_total_nf_venda += recebimento.getPeso_nf_venda();
 			peso_total_nf_remessa += recebimento.getPeso_nf_remessa();
 
-			
 			if (recebimento.getNf_venda_aplicavel() == 1 && recebimento.getNf_remessa_aplicavel() == 1) {
 
 				if (checkString(codigo_nf_venda) && checkString(codigo_nf_remessa)) {
@@ -691,15 +728,16 @@ public class TelaRecebimentos extends JFrame {
 		lblTotalRecebimentosNFVenda.setText(recebimentos_falta_nf_venda + "");
 		lblTotalRecebimentosNFRemessaVenda.setText(recebimentos_falta_nf_venda_remessa + "");
 		lblFaltaNFRemessa.setText(recebimentos_falta_nf_remessa + "");
-		
-		
+
 		NumberFormat z = NumberFormat.getNumberInstance();
 
-		lblPesoTotalRomaneios.setText(z.format(peso_total_romaneios) + " Kgs | " + z.format(peso_total_romaneios/60) + " Sacos" );
-		lblPesoTotalNFVenda.setText(z.format(peso_total_nf_venda) + " Kgs | " + z.format(peso_total_nf_venda/60) + " Sacos" );
-		lblPesoTotalNFRemessa.setText(z.format(peso_total_nf_remessa) + " Kgs | " + z.format(peso_total_nf_remessa/60) + " Sacos" );
+		lblPesoTotalRomaneios
+				.setText(z.format(peso_total_romaneios) + " Kgs | " + z.format(peso_total_romaneios / 60) + " Sacos");
+		lblPesoTotalNFVenda
+				.setText(z.format(peso_total_nf_venda) + " Kgs | " + z.format(peso_total_nf_venda / 60) + " Sacos");
+		lblPesoTotalNFRemessa
+				.setText(z.format(peso_total_nf_remessa) + " Kgs | " + z.format(peso_total_nf_remessa / 60) + " Sacos");
 
-		
 	}
 
 	public static boolean checkString(String txt) {
@@ -707,7 +745,7 @@ public class TelaRecebimentos extends JFrame {
 	}
 
 	public void filtrar() {
-		
+
 		ArrayList<RowFilter<Object, Object>> filters = new ArrayList<RowFilter<Object, Object>>(2);
 
 		String produto = entProduto.getText().toUpperCase();
@@ -717,7 +755,9 @@ public class TelaRecebimentos extends JFrame {
 		String safra = entSafra.getText().toUpperCase();
 		String status = cbStatus.getSelectedItem().toString().toUpperCase();
 		String transgenese = entTransgenia.getText().toUpperCase();
+		String romaneio = entCodigoRom.getText().toUpperCase();
 
+		
 		if (checkString(codigo))
 			filters.add(RowFilter.regexFilter(codigo, 1));
 
@@ -735,14 +775,18 @@ public class TelaRecebimentos extends JFrame {
 
 		if (checkString(safra))
 			filters.add(RowFilter.regexFilter(safra, 6));
+		
+		if (checkString(romaneio))
+			filters.add(RowFilter.regexFilter(romaneio, 9));
+		
 
 		if (checkString(status) && !(status.equalsIgnoreCase("TODOS")))
 			filters.add(RowFilter.regexFilter(status, 17));
 
 		sorter.setRowFilter(RowFilter.andFilter(filters));
-	}
+		calcular();
 
-	
+	}
 
 	public String trimar(String texto) {
 		String aplicar_rtrim = texto.replaceAll("\\s+$", "");

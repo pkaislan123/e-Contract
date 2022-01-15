@@ -17,6 +17,7 @@ import javax.swing.table.DefaultTableModel;
 
 import org.codehaus.groovy.runtime.dgmimpl.arrays.BooleanArrayGetAtMetaMethod;
 
+import main.java.cadastros.CadastroAcessoTemporario;
 import main.java.cadastros.CadastroAditivo;
 import main.java.cadastros.CadastroAviso;
 import main.java.cadastros.CadastroBaseArquivos;
@@ -43,6 +44,7 @@ import main.java.cadastros.DadosContratos;
 import main.java.cadastros.RegistroQuantidade;
 import main.java.cadastros.RegistroRecebimento;
 import main.java.classesExtras.Endereco;
+import main.java.conexaoBanco.GerenciarBancoAcessoTemporario;
 import main.java.conexaoBanco.GerenciarBancoAditivos;
 import main.java.conexaoBanco.GerenciarBancoClientes;
 import main.java.conexaoBanco.GerenciarBancoContratos;
@@ -468,7 +470,7 @@ public class TelaElaborarNovoContrato extends JFrame {
 		painelDadosProdutos.setLayout(null);
 
 		// adiciona o painel de informacoes adicionais nas abas
-		painelPrincipal.addTab("Adicionais", painelDadosAdicionais);
+		painelPrincipal.addTab("Cláusulas Adicionais:", painelDadosAdicionais);
 		painelDadosAdicionais.setLayout(new MigLayout("", "[grow]", "[][grow]"));
 
 		JLabel lblClusulasAdicionais = new JLabel("Cláusulas Adicionais:");
@@ -483,10 +485,29 @@ public class TelaElaborarNovoContrato extends JFrame {
 		panel.setLayout(new MigLayout("", "[143px][48px][grow][]", "[28px][28px][100px:n][100px:n][100px:n][12px][1px][2px][28px][29px][31px][33px]"));
 
 		chBoxClausula1 = new JCheckBox("");
+		chBoxClausula1.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				
+				
+				
+				  if(chBoxClausula1.isSelected()) {
+						chBoxClausula1.setSelected(true);
+						entClausula1.setEnabled(true);
+						entClausula1.setEditable(true);
+						
+						
+					}else {
+						chBoxClausula1.setSelected(false);
+						entClausula1.setEnabled(false);
+						entClausula1.setEditable(false);
+
+					}
+			 	
+			}
+		});
 		panel.add(chBoxClausula1, "cell 1 0,alignx center,aligny center");
 		chBoxClausula1.setSelected(true);
 		chBoxClausula1.setFont(new Font("Arial", Font.BOLD, 16));
-		chBoxClausula1.setEnabled(false);
 
 		entClausula1 = new JTextField();
 		panel.add(entClausula1, "cell 2 0,grow");
@@ -501,11 +522,27 @@ public class TelaElaborarNovoContrato extends JFrame {
 		entClausula2.setColumns(10);
 
 		chBoxClausula2 = new JCheckBox("");
+		chBoxClausula2.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				
+				  if(chBoxClausula2.isSelected()) {
+					  chBoxClausula2.setSelected(true);
+						entClausula2.setEnabled(true);
+						entClausula2.setEditable(true);
+						
+						
+					}else {
+						chBoxClausula2.setSelected(false);
+						entClausula2.setEnabled(false);
+						entClausula2.setEditable(false);
+
+					}
+			}
+		});
 		panel.add(chBoxClausula2, "cell 1 1,alignx center,aligny center");
 		chBoxClausula2.setSelected(true);
 		chBoxClausula2.setFont(new Font("Arial", Font.BOLD, 16));
 		chBoxClausula2.setSelected(true);
-		chBoxClausula2.setEnabled(false);
 
 		chBoxClausula3 = new JCheckBox("");
 		panel.add(chBoxClausula3, "cell 1 2,alignx center,aligny center");
@@ -2812,7 +2849,7 @@ public class TelaElaborarNovoContrato extends JFrame {
 		painelPrincipal.addTab("Finalizar", painelFinalizar);
 		painelFinalizar.setLayout(null);
 
-		JButton btnTeste = new JButton("Salvar");
+		JButton btnTeste = new JButton("Gerar");
 		btnTeste.setForeground(Color.WHITE);
 		btnTeste.setFont(new Font("SansSerif", Font.BOLD, 16));
 		btnTeste.setBackground(new Color(0, 51, 0));
@@ -2876,9 +2913,51 @@ public class TelaElaborarNovoContrato extends JFrame {
 								lblStatusInicial.setText("Status Inicial: Recolher Assinatura");
 
 							}else {
-								novo_contrato.setStatus_contrato(0); //ir para aprovacao
-								lblStatusInicial.setText("Status Inicial: Aguardar Revisão e Aprovação");
+								
+								
+								
+								
+								// verifica se tem acesso temporario
+								GerenciarBancoAcessoTemporario gerenciar = new GerenciarBancoAcessoTemporario();
+								ArrayList<CadastroAcessoTemporario> acessos = gerenciar.getAcessosTemporariosPorExecutor(login.getId());
 
+								boolean tem_acesso = false;
+
+								for (CadastroAcessoTemporario acesso : acessos) {
+
+									int modulo = acesso.getModulo();
+									if (modulo == 2) {
+										// modulo de contratos
+										LocalDateTime inicio = LocalDateTime.parse(
+												acesso.getData_inicial() + " " + acesso.getHora_inicial(),
+												DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm"));
+										LocalDateTime fim = LocalDateTime.parse(acesso.getData_final() + " " + acesso.getHora_final(),
+												DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm"));
+
+										LocalDateTime agora = LocalDateTime.now();
+
+										if (agora.isAfter(inicio) && agora.isBefore(fim)) {
+											tem_acesso = true;
+											break;
+										}
+
+									}
+
+								}
+
+								
+								
+								if (!tem_acesso) {
+									novo_contrato.setStatus_contrato(0); //ir para aprovacao
+								lblStatusInicial.setText("Status Inicial: Aguardar Revisão e Aprovação");
+								}
+								else {
+									novo_contrato.setStatus_contrato(1); //aprovado
+									lblStatusInicial.setText("Status Inicial: Recolher Assinatura");
+								}
+								
+								
+								
 							}
 
 							novo_contrato.setCodigo(codigo);
@@ -2928,9 +3007,24 @@ public class TelaElaborarNovoContrato extends JFrame {
 							// adicionais
 							ArrayList<String> clausulas_locais = new ArrayList<>();
 
-							clausulas_locais.add(entClausula1.getText().toString());
-							clausulas_locais.add(entClausula2.getText().toString());
-
+							
+							if(chBoxClausula1.isSelected()) {
+																
+								novo_contrato.setCriar_clausula_1(1);
+								novo_contrato.setClausula1(entClausula1.getText().toString());
+							}else {
+								novo_contrato.setCriar_clausula_1(0);
+								novo_contrato.setClausula1("");
+							}
+							
+							if(chBoxClausula2.isSelected()) {
+								novo_contrato.setCriar_clausula_2(1);
+							novo_contrato.setClausula2(entClausula2.getText().toString());
+							}else {
+								novo_contrato.setCriar_clausula_2(0);
+								novo_contrato.setClausula2("");
+							}
+							
 							
 							if (chBoxClausula3.isSelected()) {
 								clausulas_locais.add(entClausula3.getText().toString());
@@ -3045,7 +3139,7 @@ public class TelaElaborarNovoContrato extends JFrame {
 
 			}
 		});
-		btnTeste.setBounds(823, 602, 94, 36);
+		btnTeste.setBounds(823, 602, 70, 33);
 		painelFinalizar.add(btnTeste);
 
 		
@@ -3111,7 +3205,7 @@ public class TelaElaborarNovoContrato extends JFrame {
 
 		JPanel panel_1 = new JPanel();
 		panel_1.setBackground(new Color(0, 153, 153));
-		panel_1.setBounds(143, 11, 489, 580);
+		panel_1.setBounds(143, 11, 489, 627);
 		painelFinalizar.add(panel_1);
 		panel_1.setLayout(new MigLayout("", "[][][][][]", "[][][][][][][][][][][][][][][][][][][][][][][][]"));
 		
@@ -4217,12 +4311,50 @@ public class TelaElaborarNovoContrato extends JFrame {
 			
 		}
 		
+		
+		
+		if(contrato_pai_local.getCriar_clausula_1() == 1) {
+			 //clausula comissao
+			 chBoxClausula1.setSelected(true);
+			 entClausula1.setText(novo_contrato.getClausula1());
+			 entClausula1.setEnabled(true);
+			 entClausula1.setEditable(true);
+		}else {
+			 chBoxClausula1.setSelected(false);
+			 entClausula1.setText("");
+			 entClausula1.setEnabled(false);
+			 entClausula1.setEditable(false);
+
+		}
+		
+		
+		if(contrato_pai_local.getCriar_clausula_2() == 1) {
+			 //clausula comissao
+			 chBoxClausula2.setSelected(true);
+			 entClausula2.setText(novo_contrato.getClausula2());
+			 entClausula2.setEnabled(true);
+			 entClausula2.setEditable(true);
+
+		}else {
+			 chBoxClausula2.setSelected(false);
+			 entClausula2.setText("");
+			 entClausula2.setEnabled(false);
+			 entClausula2.setEditable(false);
+
+		}
+		
+		
 		if (contrato_pai_local.getTexto_clausulas() != null) {
 			int num_clausulas = 1;
 			// clausulas
 			ArrayList<String> clausulas = new ArrayList<>();
+			
+			
 			String texto_clausulas = contrato_pai_local.getTexto_clausulas();
 			String separada[] = texto_clausulas.split(";");
+			
+			
+			
 			for (int i = 0; i < separada.length; i++) {
 				if (separada[i] != null && !separada[i].equals("")) {
 
@@ -4236,17 +4368,7 @@ public class TelaElaborarNovoContrato extends JFrame {
 
 			for (String termo : contrato_pai_local.getClausulas()) {
 				if (termo != null && !termo.equals("")) {
-					if (num_clausulas == 1) {
-						entClausula1.setText(termo);
-						chBoxClausula1.setSelected(true);
-						num_clausulas++;
-					} else if (num_clausulas == 2) {
-						entClausula2.setText(termo);
-						chBoxClausula2.setSelected(true);
-
-						num_clausulas++;
-
-					} else if (num_clausulas == 3) {
+					 if (num_clausulas == 1) {
 
 							entClausula3.setText(termo);
 							chBoxClausula3.setSelected(true);
@@ -4254,7 +4376,7 @@ public class TelaElaborarNovoContrato extends JFrame {
 
 						num_clausulas++;
 
-					} else if (num_clausulas == 4) {
+					} else if (num_clausulas == 2) {
 						entClausula4.setText(termo);
 						chBoxClausula4.setSelected(true);
 						entClausula4.setEditable(true);
@@ -4262,7 +4384,7 @@ public class TelaElaborarNovoContrato extends JFrame {
 
 						num_clausulas++;
 
-					} else if (num_clausulas == 5) {
+					} else if (num_clausulas == 3) {
 						entClausula5.setText(termo);
 						chBoxClausula5.setSelected(true);
 						entClausula5.setEditable(true);
@@ -4811,8 +4933,46 @@ public class TelaElaborarNovoContrato extends JFrame {
 			 novo_contrato.setStatus_contrato(1);
 
 		}else {
-			 lblStatusInicial.setText("Status Inicial: Requisitar Aprovação");
-			 novo_contrato.setStatus_contrato(0);
+			 
+			
+			
+			// verifica se tem acesso temporario
+			GerenciarBancoAcessoTemporario gerenciar = new GerenciarBancoAcessoTemporario();
+			ArrayList<CadastroAcessoTemporario> acessos = gerenciar
+					.getAcessosTemporariosPorExecutor(login.getId());
+
+			boolean tem_acesso = false;
+
+			for (CadastroAcessoTemporario acesso : acessos) {
+
+				int modulo = acesso.getModulo();
+				if (modulo == 2) {
+					// modulo de contratos
+					LocalDateTime inicio = LocalDateTime.parse(
+							acesso.getData_inicial() + " " + acesso.getHora_inicial(),
+							DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm"));
+					LocalDateTime fim = LocalDateTime.parse(
+							acesso.getData_final() + " " + acesso.getHora_final(),
+							DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm"));
+
+					LocalDateTime agora = LocalDateTime.now();
+
+					if (agora.isAfter(inicio) && agora.isBefore(fim)) {
+						tem_acesso = true;
+						break;
+					}
+
+				}
+
+			}
+
+			if (!tem_acesso) {
+				novo_contrato.setStatus_contrato(0); // ir para aprovacao
+				lblStatusInicial.setText("Status Inicial: Aguardar Revisão e Aprovação");
+			} else {
+				novo_contrato.setStatus_contrato(1); // aprovado
+				lblStatusInicial.setText("Status Inicial: Recolher Assinatura");
+			}
 
 		}
 		
@@ -4853,8 +5013,45 @@ public class TelaElaborarNovoContrato extends JFrame {
 						
 
 					}else {
-						novo_contrato.setStatus_contrato(0); //ir para aprovacao
-						lblStatusInicial.setText("Status Inicial: Aguardar Revisão e Aprovação");
+					
+						// verifica se tem acesso temporario
+						GerenciarBancoAcessoTemporario gerenciar = new GerenciarBancoAcessoTemporario();
+						ArrayList<CadastroAcessoTemporario> acessos = gerenciar
+								.getAcessosTemporariosPorExecutor(login.getId());
+
+						boolean tem_acesso = false;
+
+						for (CadastroAcessoTemporario acesso : acessos) {
+
+							int modulo = acesso.getModulo();
+							if (modulo == 2) {
+								// modulo de contratos
+								LocalDateTime inicio = LocalDateTime.parse(
+										acesso.getData_inicial() + " " + acesso.getHora_inicial(),
+										DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm"));
+								LocalDateTime fim = LocalDateTime.parse(
+										acesso.getData_final() + " " + acesso.getHora_final(),
+										DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm"));
+
+								LocalDateTime agora = LocalDateTime.now();
+
+								if (agora.isAfter(inicio) && agora.isBefore(fim)) {
+									tem_acesso = true;
+									break;
+								}
+
+							}
+
+						}
+
+						if (!tem_acesso) {
+							novo_contrato.setStatus_contrato(0); // ir para aprovacao
+							lblStatusInicial.setText("Status Inicial: Aguardar Revisão e Aprovação");
+						} else {
+							novo_contrato.setStatus_contrato(1); // aprovado
+							lblStatusInicial.setText("Status Inicial: Recolher Assinatura");
+						}
+						
 
 					}
 
@@ -4936,11 +5133,22 @@ public class TelaElaborarNovoContrato extends JFrame {
 					// adicionais
 					ArrayList<String> clausulas_locais = new ArrayList<>();
 
+					if(chBoxClausula1.isSelected()) {
+						novo_contrato.setCriar_clausula_1(1);
+						novo_contrato.setClausula1(entClausula1.getText().toString());
+					}else {
+						novo_contrato.setCriar_clausula_1(0);
+						novo_contrato.setClausula1("");
+					}
 					
-				
-
-					clausulas_locais.add(entClausula1.getText().toString());
-					clausulas_locais.add(entClausula2.getText().toString());
+					if(chBoxClausula2.isSelected()) {
+						novo_contrato.setCriar_clausula_2(1);
+					novo_contrato.setClausula2(entClausula2.getText().toString());
+					}else {
+						novo_contrato.setCriar_clausula_2(0);
+						novo_contrato.setClausula2("");
+					}
+					
 
 					if (chBoxClausula3.isSelected()) {
 						clausulas_locais.add(entClausula3.getText().toString());

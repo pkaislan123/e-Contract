@@ -149,7 +149,7 @@ public class ManipularRomaneios {
 								avisar.setTipo("Erro");
 								avisar.setSetor("Importação de Romaneio");
 								avisar.setMensagem("erro ao filtrar romaneio: " + file.getAbsolutePath());
-								telaPrincipal.incluir_aviso(avisar);
+								telaPrincipal.getTela_avisos().incluir_aviso(avisar);
 							}
 						}
 					}
@@ -777,7 +777,7 @@ public class ManipularRomaneios {
 				avisar.setSetor("Importação de Romaneios");
 				avisar.setMensagem("Safra não encontrada! Adicione a safra " + produto.getNome_produto() + " "
 						+ produto.getTransgenia() + " " + ano_plantio + "/" + ano_colheita);
-				telaPrincipal.incluir_aviso(avisar);
+				telaPrincipal.getTela_avisos().incluir_aviso(avisar);
 				return null;
 			} else {
 
@@ -898,7 +898,7 @@ public class ManipularRomaneios {
 					avisar.setMensagem("Ha cadastro para este depositante, mas com I.E diferente, cadastre a nova I.E\n"
 							+ "\nDepositante: " + s_depositante + "\nNova I.E: " + s_insc_depositante);
 
-					telaPrincipal.incluir_aviso(avisar);
+					telaPrincipal.getTela_avisos().incluir_aviso(avisar);
 
 				} else if (!identificacao_depositante_encontrato && !ie_depositante_encontrado) {
 					if (avisos != null) {
@@ -914,7 +914,7 @@ public class ManipularRomaneios {
 					avisar.setSetor("Importação de Romaneio");
 					avisar.setMensagem("Cadastre o Depositante: " + s_depositante + "\nI.E: " + s_insc_depositante);
 
-					telaPrincipal.incluir_aviso(avisar);
+					telaPrincipal.getTela_avisos().incluir_aviso(avisar);
 
 				} else {
 					prosseguir_depositante = false;
@@ -930,7 +930,7 @@ public class ManipularRomaneios {
 					avisar.setSetor("Importação de Romaneio");
 					avisar.setMensagem("Cadastre o Depositante: " + s_depositante + "\nI.E: " + s_insc_depositante);
 
-					telaPrincipal.incluir_aviso(avisar);
+					telaPrincipal.getTela_avisos().incluir_aviso(avisar);
 				}
 
 				String s_insc_destino = tratamentoDados.tratar(" INSC:", ",").replaceAll("[^0-9]", "");
@@ -985,7 +985,7 @@ public class ManipularRomaneios {
 						avisar.setSetor("Importação de Romaneio");
 						String nome_destinatario = tratamentoDados.tratar("REMET./DESTIN, ., ", " INSC");
 						avisar.setMensagem("Cadastre o Destinatario: " + nome_destinatario + " I.E: " + s_insc_destino);
-						telaPrincipal.incluir_aviso(avisar);
+						telaPrincipal.getTela_avisos().incluir_aviso(avisar);
 
 					}
 
@@ -1007,8 +1007,8 @@ public class ManipularRomaneios {
 				}
 			}
 		} catch (Exception e) {
-			 JOptionPane.showMessageDialog(null, "Excessao ao tratar romaneio\nErro: " +
-			 e.getMessage() + "\nCausa: " + e.getCause() );
+		//	 JOptionPane.showMessageDialog(null, "Excessao ao tratar romaneio\nErro: " +
+			// e.getMessage() + "\nCausa: " + e.getCause() );
 			 e.printStackTrace();
 			if (avisos != null) {
 				avisos.setMensagem("Erro ao tratar romaneio\nConsulte o administrador\nErro: " + e.getMessage()

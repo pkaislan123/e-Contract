@@ -59,6 +59,7 @@ public class GerenciarBancoLogin {
 				Login.setEmail2(rs.getString("email2"));
 				Login.setSenhaEmail2(rs.getString("senha_email2"));
 				Login.setGenero(rs.getString("genero"));
+				Login.setStatus(rs.getInt("status"));
 
 				listaUsuarios.add(Login);
 			}
@@ -121,17 +122,21 @@ public class GerenciarBancoLogin {
 
 				Login.setConfigs_preferencias(preferencias);
 				Login.setConfigs_privilegios(privilegios);
+				Login.setStatus(rs.getInt("status"));
+
 				ConexaoBanco.fechaConexao(conn, pstm, rs);
 
-				return Login;
+				if (Login.getStatus() == 1)
+					return Login;
+				else
+					return null;
 			} else {
 				ConexaoBanco.fechaConexao(conn, pstm, rs);
 				return null;
 			}
 
 		} catch (Exception e) {
-			//JOptionPane.showMessageDialog(null, "Erro ao buscar login " + login + " no banco de dados\nErro: "
-				//	+ e.getMessage() + "\nCausa: " + e.getCause());
+			System.out.println("Erro ao buscar usuario, erro: " + e.getMessage() + "\nCausa: " + e.getCause());
 			return null;
 
 		}
@@ -171,6 +176,7 @@ public class GerenciarBancoLogin {
 			Login.setSenha(rs.getString("senha"));
 			Login.setSenhaEmail(rs.getString("senha_email"));
 			Login.setGenero(rs.getString("genero"));
+			Login.setStatus(rs.getInt("status"));
 
 			Login.setEmail2(rs.getString("email2"));
 			Login.setSenhaEmail2(rs.getString("senha_email2"));
@@ -360,6 +366,61 @@ public class GerenciarBancoLogin {
 		}
 
 	}
+	
+	
+	
+	public boolean bloquearUsuario(int id) {
+			Connection conn = null;
+			String atualizar = null;
+			PreparedStatement pstm;
+
+			try {
+
+				atualizar = "update usuarios set status = 0 where id_usuario = ? ";
+				conn = ConexaoBanco.getConexao();
+				pstm = conn.prepareStatement(atualizar);
+			
+				pstm.setInt(1, id);
+
+				pstm.execute();
+				// JOptionPane.showMessageDialog(null, "Cliente atualizado com sucesso");
+				System.out.println("Usuário Bloqueado!");
+				ConexaoBanco.fechaConexao(conn);
+				return true;
+			} catch (Exception e) {
+				JOptionPane.showMessageDialog(null, "Erro ao bloquear o usuario no banco de dados ");
+				return false;
+			}
+		
+
+	}
+	
+	public boolean desbloquearUsuario(int id) {
+		Connection conn = null;
+		String atualizar = null;
+		PreparedStatement pstm;
+
+		try {
+
+			atualizar = "update usuarios set status = 1 where id_usuario = ? ";
+			conn = ConexaoBanco.getConexao();
+			pstm = conn.prepareStatement(atualizar);
+		
+			pstm.setInt(1, id);
+
+			pstm.execute();
+			// JOptionPane.showMessageDialog(null, "Cliente atualizado com sucesso");
+			System.out.println("Usuário Desbloqueado!");
+			ConexaoBanco.fechaConexao(conn);
+			return true;
+		} catch (Exception e) {
+			JOptionPane.showMessageDialog(null, "Erro ao desbloquear o usuario no banco de dados ");
+			return false;
+		}
+	
+
+}
+	
 
 	private boolean atualizarPreferencias(CadastroLogin login) {
 		if (login != null) {
@@ -459,7 +520,8 @@ public class GerenciarBancoLogin {
 					return result;
 
 				} catch (Exception e) {
-					JOptionPane.showMessageDialog(null, "Erro ao inserir o login no banco de dados\nErro:  " + e.getMessage() +"\nCausa:" + e.getCause());
+					JOptionPane.showMessageDialog(null, "Erro ao inserir o login no banco de dados\nErro:  "
+							+ e.getMessage() + "\nCausa:" + e.getCause());
 					GerenciadorLog.registrarLogDiario("falha", "falha ao adicionar novo login: " + " causa: ");
 					return -1;
 				}
@@ -733,11 +795,11 @@ public class GerenciarBancoLogin {
 
 	private String sql_login(CadastroLogin login) {
 		String sql = "insert into usuarios\r\n"
-				+ "(nome, sobrenome, celular, cargo, login, email, senha, senha_email, genero, email2, senha_email2) values ('"
+				+ "(nome, sobrenome, celular, cargo, login, email, senha, senha_email, genero, email2, senha_email2, status) values ('"
 				+ login.getNome() + "','" + login.getSobrenome() + "','" + login.getCelular() + "','" + login.getCargo()
 				+ "','" + login.getLogin() + "','" + login.getEmail() + "','" + login.getSenha() + "','"
 				+ login.getSenhaEmail() + "','" + login.getGenero() + "','" + login.getEmail2() + "','"
-				+ login.getSenhaEmail2() + "')";
+				+ login.getSenhaEmail2() + "','" + 1 + "')";
 
 		return sql;
 
@@ -863,6 +925,41 @@ public class GerenciarBancoLogin {
 		return listaMensagens;
 
 	}
+	
+	
+	public int getNumMensagens(int id_remetente, int id_destinatario) {
+
+		Connection conn = null;
+		PreparedStatement pstm = null;
+		ResultSet rs = null;
+		String selectMensagens = "select count(id_mensagem) as num_msgs from (\n"
+				+ "select * from mensagem where id_remetente = ? and id_destinatario = ? \n"
+				+ "union select * from mensagem where id_remetente = ? and id_destinatario = ? order by id_mensagem\n"
+				+ ") a";
+
+		try {
+			conn = ConexaoBanco.getConexao();
+			pstm = conn.prepareStatement(selectMensagens);
+			pstm.setInt(1, id_remetente);
+			pstm.setInt(2, id_destinatario);
+			pstm.setInt(3, id_destinatario);
+			pstm.setInt(4, id_remetente);
+
+			rs = pstm.executeQuery();
+			rs.next();
+			
+			
+			ConexaoBanco.fechaConexao(conn, pstm, rs);
+			return rs.getInt("num_msgs");
+		} catch (Exception e) {
+			// // JOptionPane.showMessageDialog(null, "Erro ao listar mensagens do usuario"
+			// );
+			return -1;
+		}
+
+
+	}
+
 
 	public boolean enviarMensagem(CadastroLogin.Mensagem msg) {
 

@@ -30,14 +30,14 @@ public class TelaNotificacao extends JDialog {
 		
 		 JPanel panel = new  JPanel();
 		panel.setBounds(0, 0, 295, 144);
-		panel.setBackground(new Color(75, 0, 130));
+		panel.setBackground(new Color(0, 0, 0));
 		getContentPane().add(panel);
 		panel.setLayout(null);
 		
 		JLabel lblNewLabel = new JLabel("   Nova Notificação");
-		lblNewLabel.setBackground(new Color(0, 0, 153));
+		lblNewLabel.setBackground(new Color(0, 0, 0));
 		lblNewLabel.setForeground(Color.WHITE);
-		lblNewLabel.setFont(new Font("Arial", Font.BOLD, 14));
+		lblNewLabel.setFont(new Font("Arial", Font.BOLD, 16));
 		lblNewLabel.setOpaque(true);
 		lblNewLabel.setBounds(130, 11, 183, 24);
 		panel.add(lblNewLabel);

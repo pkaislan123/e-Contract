@@ -27,7 +27,7 @@ public class ConexaoBanco {
 
 	private static CadastroBaseDados bd;
 
-	public static Connection getConexao() throws SQLException, ClassNotFoundException {
+	public static Connection getConexao()  {
 		try {
 			getDadosGlobais();
 
@@ -53,15 +53,9 @@ public class ConexaoBanco {
 			return connection;
 
 		} catch (SQLException e) {
-			System.out.println("erro na conexao com o bd");
-			/*
-			 * JOptionPane.showMessageDialog(null,
-			 * "Erro ao se conectar no banco de dados:\nErro: " + e.getMessage()+
-			 * "\nCausa: " + e.getCause()
-			 * 
-			 * );
-			 */
-			throw new SQLException("Erro ao conectar " + "com a base de dados" + e.getMessage());
+			//System.out.println("Erro ao se conectar no banco de dados:\nErro: " + e.getMessage()+ "\nCausa: " + e.getCause());
+			return null;
+			//throw new SQLException("Erro ao conectar " + "com a base de dados" + e.getMessage());
 		}
 
 	}
@@ -70,11 +64,11 @@ public class ConexaoBanco {
 		try {
 			if (conn != null) {
 				conn.close();
-				System.out.println("Fechada a conexao com o banco de dados");
+				//System.out.println("Fechada a conexao com o banco de dados");
 			}
 
 		} catch (Exception e) {
-			System.out.println("Nao foi possivel fechar  a conexao com o banco de dados " + e.getMessage());
+			//System.out.println("Nao foi possivel fechar  a conexao com o banco de dados " + e.getMessage());
 		}
 	}
 
@@ -86,11 +80,11 @@ public class ConexaoBanco {
 			}
 			if (stmt != null) {
 				stmt.close();
-				System.out.println("Statement fechado com sucesso");
+				//System.out.println("Statement fechado com sucesso");
 			}
 
 		} catch (Exception e) {
-			System.out.println("nao foi possivel fechar o statement " + e.getMessage());
+			//System.out.println("nao foi possivel fechar o statement " + e.getMessage());
 		}
 	}
 
@@ -102,7 +96,7 @@ public class ConexaoBanco {
 			}
 
 		} catch (Exception e) {
-			System.out.println("nao foi possivel fechar o statement " + e.getMessage());
+			//System.out.println("nao foi possivel fechar o statement " + e.getMessage());
 		}
 	}
 
@@ -114,11 +108,11 @@ public class ConexaoBanco {
 			}
 			if (rs != null) {
 				rs.close();
-				System.out.println("ResultSet fechado com sucesso");
+				//System.out.println("ResultSet fechado com sucesso");
 			}
 
 		} catch (Exception e) {
-			System.out.println("nao foi possivel fechar o ResultSet " + e.getMessage());
+			//System.out.println("nao foi possivel fechar o ResultSet " + e.getMessage());
 		}
 	}
 

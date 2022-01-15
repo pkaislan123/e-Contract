@@ -7813,6 +7813,8 @@ public class RelatorioContratos {
 					s_participacao = "GRUPO";
 				} else if (i_participacao == 1) {
 					s_participacao = "PARTICULAR";
+				}else if (i_participacao == 2) {
+					s_participacao = "EMPRÉSTIMO";
 				}
 				tableRowOne = table.getRow(i);
 				tableRowOne.getCell(11).removeParagraph(0);
@@ -8335,6 +8337,8 @@ public class RelatorioContratos {
 					s_participacao = "GRUPO";
 				} else if (i_participacao == 1) {
 					s_participacao = "PARTICULAR";
+				}else if (i_participacao == 2) {
+					s_participacao = "EMPRÉSTIMO";
 				}
 
 				cell = row.createCell(cellnum++);

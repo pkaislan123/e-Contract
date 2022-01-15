@@ -149,12 +149,13 @@ public class TelaEntrada extends JFrame implements GetDadosGlobais{
 	private JProgressBar barra ;
 	private JLabel lblStatus;
 	private TelaEntrada isto; 
+	private String argumento_global = "";
 	
-	public TelaEntrada() {
+	public TelaEntrada(String argumento) {
 		setIconImage(Toolkit.getDefaultToolkit().getImage(TelaEntrada.class.getResource("/imagens/logo_icone4.png")));
 		
 		getDadosGlobais();
-		
+		argumento_global = argumento;
         
 		 isto = this;
 		setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
@@ -279,6 +280,10 @@ public class TelaEntrada extends JFrame implements GetDadosGlobais{
 		    isto.dispose();
 
 			TelaLogin telaLogin = new TelaLogin();
+			if(argumento_global.equalsIgnoreCase("financeiro"))
+				telaLogin.setAbrirTelaFinanceiro(true);
+			
+			telaLogin.setVisible(true);
 
 		}else {
 			TelaEmEspera esperar_sair = new TelaEmEspera(0);

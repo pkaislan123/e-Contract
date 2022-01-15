@@ -1088,7 +1088,7 @@ public class MonitorarRomaneios {
 										avisar.setTipo("Aviso");
 										avisar.setSetor("Importação de NFe");
 										avisar.setMensagem("NF " + cadastro.getNfe() + ", erro ao mover o arquivo para a pasta do remetente");
-										telaPrincipal.incluir_aviso(avisar);
+										telaPrincipal.getTela_avisos().incluir_aviso(avisar);
 
 									}
 								} else {
@@ -1101,7 +1101,7 @@ public class MonitorarRomaneios {
 									avisar.setTipo("Aviso");
 									avisar.setSetor("Importação de NFe");
 									avisar.setMensagem("NF " + cadastro.getNfe() + ", já importada");
-									telaPrincipal.incluir_aviso(avisar);
+									telaPrincipal.getTela_avisos().incluir_aviso(avisar);
 								}
 							} else if (!remetente_cadastrado && destinatario_cadastrado) {
 								// copiar para pasta do destinatario
@@ -1138,7 +1138,7 @@ public class MonitorarRomaneios {
 										avisar.setTipo("Aviso");
 										avisar.setSetor("Importação de NFe");
 										avisar.setMensagem("NF " + cadastro.getNfe() + ", erro ao mover o arquivo para a pasta do destinatario");
-										telaPrincipal.incluir_aviso(avisar);
+										telaPrincipal.getTela_avisos().incluir_aviso(avisar);
 
 									}
 								} else {
@@ -1150,7 +1150,7 @@ public class MonitorarRomaneios {
 									avisar.setTipo("Aviso");
 									avisar.setSetor("Importação de NFe");
 									avisar.setMensagem("NF " + cadastro.getNfe() + ", já importada");
-									telaPrincipal.incluir_aviso(avisar);
+									telaPrincipal.getTela_avisos().incluir_aviso(avisar);
 								}
 							} else if (remetente_cadastrado && destinatario_cadastrado) {
 								if (remetente.getId() == destinatario.getId()) {
@@ -1191,7 +1191,7 @@ public class MonitorarRomaneios {
 											avisar.setTipo("Aviso");
 											avisar.setSetor("Importação de NFe");
 											avisar.setMensagem("NF " + cadastro.getNfe() + ", erro ao mover o arquivo para a pasta do remetente");
-											telaPrincipal.incluir_aviso(avisar);
+											telaPrincipal.getTela_avisos().incluir_aviso(avisar);
 
 										}
 									} else {
@@ -1203,7 +1203,7 @@ public class MonitorarRomaneios {
 										avisar.setTipo("Aviso");
 										avisar.setSetor("Importação de NFe");
 										avisar.setMensagem("NF " + cadastro.getNfe() + ", já importada");
-										telaPrincipal.incluir_aviso(avisar);
+										telaPrincipal.getTela_avisos().incluir_aviso(avisar);
 									}
 
 								} else {
@@ -1268,7 +1268,7 @@ public class MonitorarRomaneios {
 													avisar.setTipo("Aviso");
 													avisar.setSetor("Importação de NFe");
 													avisar.setMensagem("NF " + cadastro.getNfe() + ", erro ao mover o arquivo para a pasta do destinatario");
-													telaPrincipal.incluir_aviso(avisar);
+													telaPrincipal.getTela_avisos().incluir_aviso(avisar);
 
 												}
 											} else {
@@ -1281,7 +1281,7 @@ public class MonitorarRomaneios {
 												avisar.setTipo("Aviso");
 												avisar.setSetor("Importação de NFe");
 												avisar.setMensagem("NF " + cadastro.getNfe() + ", já importada");
-												telaPrincipal.incluir_aviso(avisar);
+												telaPrincipal.getTela_avisos().incluir_aviso(avisar);
 											}
 										} else {
 											//JOptionPane.showMessageDialog(null, "Erro ao mover a nf para a pasta do remetente");
@@ -1325,7 +1325,7 @@ public class MonitorarRomaneios {
 												avisar.setTipo("Aviso");
 												avisar.setSetor("Importação de NFe");
 												avisar.setMensagem("NF " + cadastro.getNfe() + ", já importada!");
-												telaPrincipal.incluir_aviso(avisar);
+												telaPrincipal.getTela_avisos().incluir_aviso(avisar);
 											}
 										}
 									} else {
@@ -1362,7 +1362,7 @@ public class MonitorarRomaneios {
 												avisar.setTipo("Aviso");
 												avisar.setSetor("Importação de NFe");
 												avisar.setMensagem("NF " + cadastro.getNfe() + ", erro ao mover o arquivo para a pasta do destinatario");
-												telaPrincipal.incluir_aviso(avisar);
+												telaPrincipal.getTela_avisos().incluir_aviso(avisar);
 
 											}
 										} else {
@@ -1373,7 +1373,7 @@ public class MonitorarRomaneios {
 											avisar.setTipo("Aviso");
 											avisar.setSetor("Importação de NFe");
 											avisar.setMensagem("NF " + cadastro.getNfe() + " já importada!");
-											telaPrincipal.incluir_aviso(avisar);
+											telaPrincipal.getTela_avisos().incluir_aviso(avisar);
 										}
 
 										//JOptionPane.showMessageDialog(null, "NF já importada");
@@ -1387,7 +1387,7 @@ public class MonitorarRomaneios {
 								avisar.setTipo("Aviso");
 								avisar.setSetor("Importação de NFe");
 								avisar.setMensagem("NF " + cadastro.getNfe() + " lida mas o remetente e o destinatario não estão cadastrado");
-								telaPrincipal.incluir_aviso(avisar);
+								telaPrincipal.getTela_avisos().incluir_aviso(avisar);
 
 							}
 
@@ -1399,7 +1399,7 @@ public class MonitorarRomaneios {
 						avisar.setTipo("Aviso");
 						avisar.setSetor("Importação de NFe");
 						avisar.setMensagem("Erro ao ler NFe!");
-						telaPrincipal.incluir_aviso(avisar);
+						telaPrincipal.getTela_avisos().incluir_aviso(avisar);
 					}
 
 				}

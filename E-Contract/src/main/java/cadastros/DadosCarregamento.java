@@ -3,14 +3,15 @@ package main.java.cadastros;
 public class DadosCarregamento {
 
 	
-	double quantidade_total_sacos, quantidade_total_carregada, quantidade_total_a_carregar;
+	double quantidade_total_recebidos, quantidade_total_carregada;
 
-	public double getQuantidade_total_sacos() {
-		return quantidade_total_sacos;
+	
+	public double getQuantidade_total_recebidos() {
+		return quantidade_total_recebidos;
 	}
 
-	public void setQuantidade_total_sacos(double quantidade_total_sacos) {
-		this.quantidade_total_sacos = quantidade_total_sacos;
+	public void setQuantidade_total_recebidos(double quantidade_total_recebidos) {
+		this.quantidade_total_recebidos = quantidade_total_recebidos;
 	}
 
 	public double getQuantidade_total_carregada() {
@@ -21,13 +22,7 @@ public class DadosCarregamento {
 		this.quantidade_total_carregada = quantidade_total_carregada;
 	}
 
-	public double getQuantidade_total_a_carregar() {
-		return quantidade_total_a_carregar;
-	}
-
-	public void setQuantidade_total_a_carregar(double quantidade_total_a_carregar) {
-		this.quantidade_total_a_carregar = quantidade_total_a_carregar;
-	}
+	
 
 	
 	

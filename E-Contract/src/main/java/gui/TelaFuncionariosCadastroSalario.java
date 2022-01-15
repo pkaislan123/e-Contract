@@ -1835,8 +1835,11 @@ public class TelaFuncionariosCadastroSalario extends JFrame {
 				.getEventosPorColaborador(func.getId_funcionario());
 		
 		boolean tem_evt_isencao = procurarIsencao(eventos_isencao);
+		boolean tem_evt_ferias = procurarFerias(eventos_isencao, mes, ano);
+		boolean tem_evt_licenca = procurarLicencas(eventos_isencao, mes, ano);
+
 		
-		if( (prosseguir &&  contador_nao_nulos >= 7 ) || tem_evt_isencao ) {
+		if( (prosseguir &&  contador_nao_nulos >= 7 ) || tem_evt_isencao || tem_evt_ferias || tem_evt_licenca) {
 			
 
 		
@@ -3833,13 +3836,20 @@ public class TelaFuncionariosCadastroSalario extends JFrame {
 
 		GerenciarBancoFuncionarioBancoHoras gerenciar = new GerenciarBancoFuncionarioBancoHoras();
 		int mes = cBMes.getSelectedIndex();
-		lblDescricaoBancoHoras.setText("BH de " + cBMes.getItemAt(mes - 1).toString());
+		if(mes == 0) {
+			lblDescricaoBancoHoras.setText("BH de DEZEMBRO");
+
+		}else {
+			lblDescricaoBancoHoras.setText("BH de " + cBMes.getItemAt(mes - 1).toString());
+
+		}
+		
 		String ano = entAno.getText();
 		
 		
 		CadastroFuncionarioBancoHoras banco = null;
-		
-		if(mes == 1) {
+
+		if(mes == 0) {
 			//se for janeiro, pega o banco do mes de dezembro do ano passado
 			int ano_atual = new GetData().getAnoAtual();
 			try {
@@ -3873,6 +3883,8 @@ public class TelaFuncionariosCadastroSalario extends JFrame {
 			}
 
 			tipo_banco_horas = banco.getTipo_banco();
+			if(long_quanti < 0)
+				long_quanti = long_quanti * -1;
 			quantidade_banco_horas = long_quanti;
 
 		} else {
@@ -3883,7 +3895,7 @@ public class TelaFuncionariosCadastroSalario extends JFrame {
 
 	public void atualizar() {
 
-
+try {
 		pesquisarDemostrativo();
 
 		pesquisarBancoHoras();
@@ -3891,13 +3903,23 @@ public class TelaFuncionariosCadastroSalario extends JFrame {
 		setInfoCalculoSalarial();
 		calculoFinal();
 		pesquisar_contas_associadas();
+}catch(Exception e) {
+	e.printStackTrace();
+}
 		
 	}
 
 	public void depositarBancoHoras(boolean depositar) {
 		int mes = cBMes.getSelectedIndex() + 1;
-		String s_mes = cBMes.getItemAt(mes).toString();
-		lblDescricaoNovoBancoHoras.setText("BH de " + s_mes);
+		String s_mes = "";
+		if(mes > 11) {
+			 s_mes = cBMes.getItemAt(11).toString();
+
+		}else {
+		 s_mes = cBMes.getItemAt(mes).toString();
+		}
+		
+		lblDescricaoNovoBancoHoras.setText("BH de " + s_mes + "/" + entAno.getText());
 
 		if (depositar) {
 
@@ -3944,15 +3966,16 @@ public class TelaFuncionariosCadastroSalario extends JFrame {
 						+ "\n";
 			}
 
-			if (tipo_banco_horas == 0) {
-				// horas negativas no banco
+			if (tipo_banco_horas == 0 ) {
+				// horas negativas no banco e horas positivas
 				texto_calculo += ("Soma Final: " + formatHora(dif) + " - " + formatHora(quantidade_banco_horas)
 						+ "(BH)");
 
-				dif = dif - quantidade_banco_horas;
+				dif = dif - quantidade_banco_horas; //
 				texto_calculo += ("= " + formatHora(dif) + "\n");
 
-			} else if (tipo_banco_horas == 1) {
+			}
+			else if (tipo_banco_horas == 1) {
 				// horas positivas no banco
 				texto_calculo += ("Soma Final: " + formatHora(dif) + " + " + formatHora(quantidade_banco_horas)
 						+ "(BH)");
@@ -3966,12 +3989,12 @@ public class TelaFuncionariosCadastroSalario extends JFrame {
 				lblTipoNovoBancoHoras.setText("POSITIVO");
 				tipo_novo_banco_horas_global = 1;
 				horas_global.setTipo_banco(1);
-
+				
 			} else {
 				lblTipoNovoBancoHoras.setText("NEGATIVO");
 				tipo_novo_banco_horas_global = 0;
 				horas_global.setTipo_banco(0);
-
+				dif = dif * -1;
 			}
 
 			quantidade_novo_banco_horas_global = dif;
@@ -3996,9 +4019,17 @@ public class TelaFuncionariosCadastroSalario extends JFrame {
 	public void manterBancoHoras() {
 
 		int mes = cBMes.getSelectedIndex() + 1;
-		String s_mes = cBMes.getItemAt(mes).toString();
-		lblDescricaoNovoBancoHoras.setText("BH de " + s_mes);
+		String s_mes = "";
+		if(mes > 11) {
+			 s_mes = cBMes.getItemAt(11).toString();
 
+		}else {
+		 s_mes = cBMes.getItemAt(mes).toString();
+		}
+		
+		lblDescricaoNovoBancoHoras.setText("BH de " + s_mes + "/" + entAno.getText());
+
+		
 		horas_global.setOpcao_banco(1);
 		horas_global.setMes(s_mes);
 
@@ -4069,6 +4100,11 @@ public class TelaFuncionariosCadastroSalario extends JFrame {
 
 		banco.setTipo_banco(tipo_novo_banco_horas_global);
 
+		
+		if(quantidade_novo_banco_horas_global < 0){
+			quantidade_novo_banco_horas_global = quantidade_novo_banco_horas_global * -1;
+		}
+		
 		banco.setQuantidade_horas(Long.toString(quantidade_novo_banco_horas_global));
 		banco.setAno(entAno.getText());
 		return banco;
@@ -4107,7 +4143,7 @@ public class TelaFuncionariosCadastroSalario extends JFrame {
 				CadastroFuncionarioBancoHoras banco = getDadosBanco();
 				if (banco != null) {
 					int inserir_banco = gerenciar_banco.inserirbanco_horas(banco);
-					if (inserir > 0) {
+					if (inserir_banco > 0) {
 						JOptionPane.showMessageDialog(isto, "Novo Banco de Horas Registrado");
 						((TelaGerenciarFuncionario) janela_pai_global).pesquisar_banco_horas();
 						((TelaGerenciarFuncionario) janela_pai_global).pesquisar_salarios();
@@ -4178,7 +4214,7 @@ public class TelaFuncionariosCadastroSalario extends JFrame {
 
 		int mes = cBMes.getSelectedIndex();
 		String s_mes = cBMes.getItemAt(mes).toString();
-		nome = "salario_mes_" + s_mes;
+		nome = "salario_mes_" + s_mes + "_" + entAno.getText();
 		descricao = "relatorio mensal de salario";
 		caminho_arquivo = url;
 
@@ -4614,7 +4650,7 @@ public class TelaFuncionariosCadastroSalario extends JFrame {
 
 		int mes = cBMes.getSelectedIndex();
 		String s_mes = cBMes.getItemAt(mes).toString();
-		String texto = "Salario Referente ao Mês de " + s_mes + " de " + (new GetData().getAnoAtual());
+		String texto = "Salario Referente ao Mês de " + s_mes + " de " + entAno.getText();
 		
 		lancamento.setDescricao(texto);
 		lancamento.setObservacao(texto);
@@ -4782,5 +4818,72 @@ public class TelaFuncionariosCadastroSalario extends JFrame {
 		}else
 			return false;
 	}
+	
+	
+	public boolean procurarFerias(ArrayList<CadastroFuncionarioEvento> eventos, int mes, int ano) {
+		int count_ferias = 0;
+		for (CadastroFuncionarioEvento evt : eventos) {
+
+			  if (evt.getTipo_evento() == 3) {
+
+				LocalDate dataInicialFerias = LocalDate.parse(evt.getData_ferias_ida(),
+						DateTimeFormatter.ofPattern("dd/MM/yyyy"));
+				LocalDate dataFinalFerias = LocalDate.parse(evt.getData_ferias_volta(),
+						DateTimeFormatter.ofPattern("dd/MM/yyyy"));
+
+				
+				int mes_inicio_ferias = dataInicialFerias.getMonthValue();
+				int ano_inicio_ferias = dataInicialFerias.getYear();
+				int mes_final_ferias = dataFinalFerias.getMonthValue();
+				int ano_final_ferias = dataFinalFerias.getYear();
+				
+				if (mes_inicio_ferias == mes && ano_inicio_ferias == ano || mes_final_ferias == mes && ano_final_ferias == ano) {
+					count_ferias++;
+					
+
+				} 
+			} 
+
+		}
+		
+		if(count_ferias > 0) {
+			return true;
+		}else
+			return false;
+	}
+	
+	
+	public boolean procurarLicencas(ArrayList<CadastroFuncionarioEvento> eventos, int mes, int ano) {
+		int count_licencas = 0;
+		for (CadastroFuncionarioEvento evt : eventos) {
+
+			  if (evt.getTipo_evento() == 5) {
+
+				LocalDate dataInicialFerias = LocalDate.parse(evt.getData_ferias_ida(),
+						DateTimeFormatter.ofPattern("dd/MM/yyyy"));
+				LocalDate dataFinalFerias = LocalDate.parse(evt.getData_ferias_volta(),
+						DateTimeFormatter.ofPattern("dd/MM/yyyy"));
+
+				
+				int mes_inicio_ferias = dataInicialFerias.getMonthValue();
+				int ano_inicio_ferias = dataInicialFerias.getYear();
+				int mes_final_ferias = dataFinalFerias.getMonthValue();
+				int ano_final_ferias = dataFinalFerias.getYear();
+				
+				if (mes_inicio_ferias == mes && ano_inicio_ferias == ano || mes_final_ferias == mes && ano_final_ferias == ano) {
+					count_licencas++;
+					
+
+				} 
+			} 
+
+		}
+		
+		if(count_licencas > 0) {
+			return true;
+		}else
+			return false;
+	}
+	
 	
 }

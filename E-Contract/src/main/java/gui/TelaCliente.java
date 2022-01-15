@@ -213,7 +213,8 @@ public class TelaCliente extends JFrame {
 		painelGrupos.setBackground(Color.WHITE);
 		painelGrupos.setBounds(10, 11, 739, 446);
 		painelClientes
-				.setLayout(new MigLayout("", "[grow][2px][grow][grow][grow][4px][grow][grow][grow][grow][10px][grow]", "[33px][][37px][28px][grow][grow]"));
+				.setLayout(new MigLayout("", "[grow][2px][grow][grow][grow][4px][grow][grow][grow][grow][10px][grow]",
+						"[33px][][37px][28px][grow][grow]"));
 
 		JButton btnLimparCampos = new JButton("Limpar Campos");
 		btnLimparCampos.addActionListener(new ActionListener() {
@@ -224,11 +225,11 @@ public class TelaCliente extends JFrame {
 				entCpfCnpj.setText("");
 			}
 		});
-		
+
 		JLabel lblNomeEmpresarialfantasia = new JLabel("Nome Empresarial/Fantasia");
 		lblNomeEmpresarialfantasia.setFont(new Font("Arial", Font.PLAIN, 16));
 		painelClientes.add(lblNomeEmpresarialfantasia, "cell 0 1,alignx right");
-		
+
 		entNomeEmpresarialFantasia = new JTextField();
 		entNomeEmpresarialFantasia.addKeyListener(new KeyAdapter() {
 			@Override
@@ -290,18 +291,18 @@ public class TelaCliente extends JFrame {
 		panel.setBackground(Color.WHITE);
 		painelClientes.add(panel, "cell 0 5 12 1,alignx right,growy");
 
-
 		pesquisar();
 
-		panel.setLayout(new MigLayout("", "[271px][12px][][108px][9px][110px][7px][109px][10px][105px]", "[grow][36px]"));
-		
+		panel.setLayout(
+				new MigLayout("", "[271px][12px][][108px][9px][110px][7px][109px][10px][105px]", "[grow][36px]"));
+
 		JButton btnContasBancrias = new JButton("Contas Bancárias");
 		btnContasBancrias.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				
+
 				TelaContaBancaria tela = new TelaContaBancaria(isto);
 				tela.setVisible(true);
-				
+
 			}
 		});
 		btnContasBancrias.setForeground(Color.BLACK);
@@ -544,14 +545,11 @@ public class TelaCliente extends JFrame {
 		btnEditarGrupo.setFont(new Font("SansSerif", Font.BOLD, 16));
 		btnEditarGrupo.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				
-				
-				
-				
+
 				int indiceDaLinha = table_grupos.getSelectedRow();
 				CadastroGrupo grupo_selecionado = lista_grupos.get(indiceDaLinha);
-				
-				TelaCadastroGrupo tela_edicao_grupo = new TelaCadastroGrupo(1,grupo_selecionado, isto);
+
+				TelaCadastroGrupo tela_edicao_grupo = new TelaCadastroGrupo(1, grupo_selecionado, isto);
 				tela_edicao_grupo.setVisible(true);
 
 			}
@@ -843,7 +841,7 @@ public class TelaCliente extends JFrame {
 	}
 
 	public void filtrar() {
-		
+
 		ArrayList<RowFilter<Object, Object>> filters = new ArrayList<RowFilter<Object, Object>>(2);
 
 		String nome = entNome.getText().toUpperCase();
@@ -863,13 +861,13 @@ public class TelaCliente extends JFrame {
 
 		if (checkString(nome))
 			filters.add(RowFilter.regexFilter(nome, 4));
-		
+
 		if (checkString(nome_empresarial_fantasia))
 			filters.add(RowFilter.regexFilter(nome_empresarial_fantasia, 5));
 
 		try {
-		sorter.setRowFilter(RowFilter.andFilter(filters));
-		}catch(Exception e) {
+			sorter.setRowFilter(RowFilter.andFilter(filters));
+		} catch (Exception e) {
 			e.printStackTrace();
 		}
 	}
@@ -983,15 +981,14 @@ public class TelaCliente extends JFrame {
 			} else if (flag_tipo_cliente == 61) {
 				((TelaFuncionariosAssosiacaoFuncionarioCliente) janela_pai).setCliente(clienteSelecionado);
 
-			}
-			else if (flag_tipo_cliente == 90) {
+			} else if (flag_tipo_cliente == 90) {
 				((TelaCadastroNotaFiscal) janela_pai).setRemetente(clienteSelecionado);
 
-			}
-
-			
-			else if (flag_tipo_cliente == 91) {
+			} else if (flag_tipo_cliente == 91) {
 				((TelaCadastroNotaFiscal) janela_pai).setDestinatario(clienteSelecionado);
+
+			}else if (flag_tipo_cliente == 100) {
+				((TelaFilaCadastrarMovimento) janela_pai).setProdutor(clienteSelecionado);
 
 			}
 

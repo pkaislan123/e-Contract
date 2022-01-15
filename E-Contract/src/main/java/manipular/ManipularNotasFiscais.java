@@ -484,7 +484,7 @@ public class ManipularNotasFiscais {
 			avisar.setTipo("Erro");
 			avisar.setSetor("Importação de Nota Fiscal");
 			avisar.setMensagem("Erro ao listar NFA do Siare");
-			telaPrincipal.incluir_aviso(avisar);
+			telaPrincipal.getTela_avisos().incluir_aviso(avisar);
 			return null;
 		}
 		cadastro.setNatureza(natureza);
@@ -1213,7 +1213,7 @@ public class ManipularNotasFiscais {
 				avisar.setTipo("Erro");
 				avisar.setSetor("Importação de Nota Fiscal");
 				avisar.setMensagem("Erro ao listar a data da NF Interna Gescoop");
-				telaPrincipal.incluir_aviso(avisar);
+				telaPrincipal.getTela_avisos().incluir_aviso(avisar);
 				
 				return null;
 			}
@@ -1308,7 +1308,7 @@ public class ManipularNotasFiscais {
 			avisar.setTipo("Erro");
 			avisar.setSetor("Importação de Nota Fiscal");
 			avisar.setMensagem("Erro ao processar dados da NF Interna Geescoop");
-			telaPrincipal.incluir_aviso(avisar);
+			telaPrincipal.getTela_avisos().incluir_aviso(avisar);
 			return null;
 		}
 

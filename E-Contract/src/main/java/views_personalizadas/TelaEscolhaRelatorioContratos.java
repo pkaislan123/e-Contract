@@ -113,10 +113,27 @@ public class TelaEscolhaRelatorioContratos extends JDialog {
 		panel.setLayout(new MigLayout("", "[][][][][]", "[]"));
 
 		rdbtnCompleto = new JRadioButton("Completo");
+		rdbtnCompleto.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				rdbtnSimples.setSelected(false);
+				rdbtnCompleto.setSelected(true);
+				
+				
+			}
+		});
 		rdbtnCompleto.setBackground(Color.WHITE);
 		rdbtnCompleto.setForeground(Color.BLACK);
 
 		rdbtnSimples = new JRadioButton("Simples");
+		rdbtnSimples.setSelected(true);
+		rdbtnSimples.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				
+				rdbtnSimples.setSelected(true);
+				rdbtnCompleto.setSelected(false);
+				
+			}
+		});
 		rdbtnSimples.setForeground(Color.BLACK);
 		rdbtnSimples.setBackground(Color.WHITE);
 
@@ -147,6 +164,7 @@ public class TelaEscolhaRelatorioContratos extends JDialog {
 		});
 
 		rdbtnExcel = new JRadioButton("Excel");
+		rdbtnExcel.setSelected(true);
 		rdbtnExcel.setBackground(Color.WHITE);
 		rdbtnExcel.setForeground(Color.BLACK);
 		rdbtnExcel.addActionListener(new ActionListener() {
@@ -369,7 +387,7 @@ public class TelaEscolhaRelatorioContratos extends JDialog {
 		newFont.setFontName("Calibri");
 		newFont.setItalic(false);
 		newFont.setFontHeight((short) (11 * 25));
-		
+
 		HSSFFont newFont_branca = workbook.createFont();
 		newFont_branca.setBold(true);
 		newFont_branca.setColor(IndexedColors.WHITE.getIndex());
@@ -390,7 +408,7 @@ public class TelaEscolhaRelatorioContratos extends JDialog {
 		valorStyle.setDataFormat(numberFormat.getFormat("R$ #,##0.00"));
 		valorStyle.setAlignment(HorizontalAlignment.CENTER);
 		valorStyle.setVerticalAlignment(VerticalAlignment.CENTER);
-		
+
 		// estilo para celula do tipo numero alinhado ao centro
 		CellStyle valorStyle_total = workbook.createCellStyle();
 		valorStyle_total.setDataFormat(numberFormat.getFormat("R$ #,##0.00"));
@@ -425,18 +443,23 @@ public class TelaEscolhaRelatorioContratos extends JDialog {
 		celula_fundo_laranja_texto_branco.setAlignment(HorizontalAlignment.CENTER);
 		celula_fundo_laranja_texto_branco.setVerticalAlignment(VerticalAlignment.CENTER);
 
-		
+		// estilo para cabecalho fundo vermelho
+		CellStyle celula_fundo_vermelho_texto_branco = workbook.createCellStyle();
+		celula_fundo_vermelho_texto_branco.setFillPattern(FillPatternType.SOLID_FOREGROUND);
+		celula_fundo_vermelho_texto_branco.setFillForegroundColor(IndexedColors.RED.getIndex());
+		celula_fundo_vermelho_texto_branco.setAlignment(HorizontalAlignment.CENTER);
+		celula_fundo_vermelho_texto_branco.setVerticalAlignment(VerticalAlignment.CENTER);
 
 		headerStyle.setFont(newFont_branca);
 		celula_fundo_laranja_texto_branco.setFont(newFont_branca);
-
+		celula_fundo_vermelho_texto_branco.setFont(newFont_branca);
 		// estilo para celula fundo azul
 		CellStyle celula_fundo_azul = workbook.createCellStyle();
 		celula_fundo_azul.setFillPattern(FillPatternType.SOLID_FOREGROUND);
 		celula_fundo_azul.setFillForegroundColor(IndexedColors.AQUA.getIndex());
 		celula_fundo_azul.setAlignment(HorizontalAlignment.CENTER);
 		celula_fundo_azul.setVerticalAlignment(VerticalAlignment.CENTER);
-		celula_fundo_azul.setFont(newFont_blabk);
+		celula_fundo_azul.setFont(newFont_branca);
 
 		// estilo para celula fundo azul
 		CellStyle celula_fundo_amarelo = workbook.createCellStyle();
@@ -452,7 +475,7 @@ public class TelaEscolhaRelatorioContratos extends JDialog {
 		celula_fundo_verde.setFillForegroundColor(IndexedColors.DARK_GREEN.getIndex());
 		celula_fundo_verde.setAlignment(HorizontalAlignment.CENTER);
 		celula_fundo_verde.setVerticalAlignment(VerticalAlignment.CENTER);
-		celula_fundo_verde.setFont(newFont_blabk);
+		celula_fundo_verde.setFont(newFont_branca);
 
 		// estilo para celula fundo azul
 		CellStyle celula_fundo_vermelho = workbook.createCellStyle();
@@ -460,7 +483,16 @@ public class TelaEscolhaRelatorioContratos extends JDialog {
 		celula_fundo_vermelho.setFillForegroundColor(IndexedColors.LIGHT_ORANGE.getIndex());
 		celula_fundo_vermelho.setAlignment(HorizontalAlignment.CENTER);
 		celula_fundo_vermelho.setVerticalAlignment(VerticalAlignment.CENTER);
-		celula_fundo_vermelho.setFont(newFont_blabk);
+		celula_fundo_vermelho.setFont(newFont_branca);
+
+		// estilo para celula do tipo numero alinhado ao centro
+		CellStyle valorStyle_total_fundo_vermelho = workbook.createCellStyle();
+		valorStyle_total_fundo_vermelho.setDataFormat(numberFormat.getFormat("R$ #,##0.00"));
+		valorStyle_total_fundo_vermelho.setAlignment(HorizontalAlignment.CENTER);
+		valorStyle_total_fundo_vermelho.setFillPattern(FillPatternType.SOLID_FOREGROUND);
+		valorStyle_total_fundo_vermelho.setFillForegroundColor(IndexedColors.RED.getIndex());
+		valorStyle_total_fundo_vermelho.setVerticalAlignment(VerticalAlignment.CENTER);
+		valorStyle_total_fundo_vermelho.setFont(newFont_branca);
 
 		HSSFFont newFont_titulo = workbook.createFont();
 		newFont_titulo.setBold(true);
@@ -564,6 +596,7 @@ public class TelaEscolhaRelatorioContratos extends JDialog {
 		cell.setCellStyle(headerStyle);
 		cell.setCellValue("Status");
 
+
 		cell = row.createCell(cellnum++);
 		cell.setCellStyle(headerStyle);
 		cell.setCellValue("Volume");
@@ -603,151 +636,183 @@ public class TelaEscolhaRelatorioContratos extends JDialog {
 		double valor_total = 0;
 		double quantidade_total_sacos = 0;
 		double quantidade_total_kgs = 0;
+		double total_carregado = 0, total_recebido = 0, total_contratado = 0, total_comissao = 0, total_pago = 0;
+
+		int total_contratos_cancelados = 0;
+		double valor_total_cancelado = 0;
+		double quantidade_total_sacos_cancelados = 0;
+		double quantidade_total_kgs_cancelados = 0;
+		
+		double valor_total_comissao_a_receber = 0, valor_total_comissao_restante = 0, valor_total_comissao_recebido = 0;
 
 		for (CadastroContrato cadastro : contratos) {
-			
+
 			int status_contrato = cadastro.getStatus_contrato();
 
-			if(status_contrato != 4) {
-			
-			row = sheet.createRow(rownum++);
-			cellnum = 0;
-			/*
-			 * codigo compradores vendedores status quantidade medida produto transgenia
-			 * safra valor_produto valor_total data_contrato local_retirada
-			 */
-			cell = row.createCell(cellnum++);
-			cell.setCellStyle(textStyle);
-			cell.setCellValue(cadastro.getCodigo());
+			if (status_contrato == 4)
+				total_contratos_cancelados++;
 
-			cell = row.createCell(cellnum++);
-			cell.setCellStyle(textStyle);
-			// cell.setCellValue(trimar(cadastro.getNomes_compradores().toUpperCase()));
-			cell.setCellValue(trimar(encutarNomes(cadastro.getNomes_compradores().toUpperCase())));
+			// if(status_contrato != 4)
+			{
+				row = sheet.createRow(rownum++);
+				cellnum = 0;
+				/*
+				 * codigo compradores vendedores status quantidade medida produto transgenia
+				 * safra valor_produto valor_total data_contrato local_retirada
+				 */
+				cell = row.createCell(cellnum++);
+				cell.setCellStyle(textStyle);
+				cell.setCellValue(cadastro.getCodigo());
 
-			cell = row.createCell(cellnum++);
-			cell.setCellStyle(textStyle);
-			// cell.setCellValue(trimar(cadastro.getNomes_vendedores().toUpperCase()));
-			cell.setCellValue(trimar(encutarNomes(cadastro.getNomes_vendedores().toUpperCase())));
+				cell = row.createCell(cellnum++);
+				cell.setCellStyle(textStyle);
+				// cell.setCellValue(trimar(cadastro.getNomes_compradores().toUpperCase()));
+				cell.setCellValue(trimar(encutarNomes(cadastro.getNomes_compradores().toUpperCase())));
 
-			cell = row.createCell(cellnum++);
-			cell.setCellStyle(textStyle);
+				cell = row.createCell(cellnum++);
+				cell.setCellStyle(textStyle);
+				// cell.setCellValue(trimar(cadastro.getNomes_vendedores().toUpperCase()));
+				cell.setCellValue(trimar(encutarNomes(cadastro.getNomes_vendedores().toUpperCase())));
 
-			String status = "";
+				cell = row.createCell(cellnum++);
+				cell.setCellStyle(textStyle);
 
-			if (status_contrato == 1) {
-				status = "ASSINAR";
-				cell.setCellStyle(celula_fundo_amarelo);
+				String status = "";
 
-			} else if (status_contrato == 0) {
-				status = "A APROVAR";
-				cell.setCellStyle(celula_fundo_amarelo);
+				if (status_contrato == 1) {
+					status = "ASSINAR";
+					cell.setCellStyle(celula_fundo_amarelo);
 
-			} else if (status_contrato == 2) {
-				status = "ASSINADO";
-				cell.setCellStyle(celula_fundo_azul);
+				} else if (status_contrato == 0) {
+					status = "A APROVAR";
+					cell.setCellStyle(celula_fundo_amarelo);
 
-			} else if (status_contrato == 3) {
-				status = "CONCLUIDO";
-				cell.setCellStyle(celula_fundo_verde);
+				} else if (status_contrato == 2) {
+					status = "ASSINADO";
+					cell.setCellStyle(celula_fundo_azul);
 
-			} else if (status_contrato == 4) {
-				status = "CANCELADO";
-				cell.setCellStyle(celula_fundo_vermelho);
+				} else if (status_contrato == 3) {
+					status = "CONCLUIDO";
+					cell.setCellStyle(celula_fundo_verde);
 
-			}
+				} else if (status_contrato == 4) {
+					status = "CANCELADO";
+					cell.setCellStyle(celula_fundo_vermelho);
 
-			cell.setCellValue(status);
-
-			cell = row.createCell(cellnum++);
-			cell.setCellStyle(numberStyle);
-			cell.setCellValue(cadastro.getQuantidade());
-
-			double quantidade_local_kg = 0;
-			double quantidade_local_sacos = 0;
-
-			if (cadastro.getMedida().equalsIgnoreCase("KG")) {
-				quantidade_local_kg = cadastro.getQuantidade();
-				quantidade_local_sacos = quantidade_local_kg / 60;
-			} else if (cadastro.getMedida().equalsIgnoreCase("Sacos")) {
-				quantidade_local_sacos = cadastro.getQuantidade();
-				quantidade_local_kg = cadastro.getQuantidade() * 60;
-			}
-
-			quantidade_total_sacos = quantidade_total_sacos += quantidade_local_sacos;
-			quantidade_total_kgs = quantidade_total_kgs += quantidade_local_kg;
-
-			cell = row.createCell(cellnum++);
-			cell.setCellStyle(numberStyle);
-			String medida = "";
-			if (cadastro.getMedida().equalsIgnoreCase("Sacos")) {
-				medida = "SC";
-			} else if (cadastro.getMedida().equalsIgnoreCase("Kg")) {
-				medida = "KG";
-
-			}
-			cell.setCellValue(medida);
-
-			cell = row.createCell(cellnum++);
-			cell.setCellStyle(textStyle);
-			String produto = "";
-			cell.setCellValue(cadastro.getProduto().replaceAll(" NON-GMO", "").replaceAll("GMO", ""));
-
-			cell = row.createCell(cellnum++);
-			cell.setCellStyle(numberStyle);
-			String transgenia = "";
-			if (cadastro.getModelo_safra().getProduto().getTransgenia().contains("CONVENCIONAL")) {
-				transgenia = "CONVEN.";
-			} else {
-				transgenia = "TRANSG.";
-
-			}
-			cell.setCellValue(transgenia);
-
-			cell = row.createCell(cellnum++);
-			cell.setCellStyle(numberStyle);
-			String ano_plantio = Integer.toString(cadastro.getModelo_safra().getAno_plantio()).replaceAll("[^0-9]", "");
-			String ano_colheita = Integer.toString(cadastro.getModelo_safra().getAno_colheita()).replaceAll("[^0-9]",
-					"");
-
-			cell.setCellValue(ano_plantio.substring(ano_plantio.length() - 2) + "/"
-					+ ano_colheita.substring(ano_plantio.length() - 2));
-			/*
-			 * codigo compradores vendedores status quantidade medida produto transgenia
-			 * safra valor_produto valor_total data_contrato local_retirada
-			 */
-			cell = row.createCell(cellnum++);
-			cell.setCellStyle(valorStyle);
-			cell.setCellValue(cadastro.getValor_produto());
-
-			cell = row.createCell(cellnum++);
-			cell.setCellStyle(valorStyle);
-			cell.setCellValue(cadastro.getValor_a_pagar().doubleValue());
-			valor_total = valor_total += cadastro.getValor_a_pagar().doubleValue();
-
-			cell = row.createCell(cellnum++);
-			cell.setCellStyle(numberStyle);
-			cell.setCellValue(cadastro.getData_contrato());
-
-			cell = row.createCell(cellnum++);
-			cell.setCellStyle(numberStyle);
-
-			GerenciarBancoClientes gerenciar = new GerenciarBancoClientes();
-			CadastroCliente local_retirada = gerenciar.getCliente(cadastro.getId_local_retirada());
-			String s_local_retirada = "";
-			if (local_retirada != null) {
-				if (local_retirada.getTipo_pessoa() == 0) {
-					s_local_retirada = local_retirada.getNome_empresarial();
-				} else {
-					s_local_retirada = local_retirada.getNome_fantaia();
 				}
-			}
-			cell.setCellValue(s_local_retirada);
+
+				cell.setCellValue(status);
+
+				cell = row.createCell(cellnum++);
+				cell.setCellStyle(numberStyle);
+				cell.setCellValue(cadastro.getQuantidade());
+
+				double quantidade_local_kg = 0;
+				double quantidade_local_sacos = 0;
+
+				if (cadastro.getMedida().equalsIgnoreCase("KG")) {
+					quantidade_local_kg = cadastro.getQuantidade();
+					quantidade_local_sacos = quantidade_local_kg / 60;
+				} else if (cadastro.getMedida().equalsIgnoreCase("Sacos")) {
+					quantidade_local_sacos = cadastro.getQuantidade();
+					quantidade_local_kg = cadastro.getQuantidade() * 60;
+				}
+
+				if (cadastro.getStatus_contrato() != 4) {
+					quantidade_total_sacos += quantidade_local_sacos;
+					quantidade_total_kgs += quantidade_local_kg;
+				} else {
+					quantidade_total_sacos_cancelados += quantidade_local_sacos;
+					quantidade_total_kgs_cancelados += quantidade_local_kg;
+				}
+
+				cell = row.createCell(cellnum++);
+				cell.setCellStyle(numberStyle);
+				String medida = "";
+				if (cadastro.getMedida().equalsIgnoreCase("Sacos")) {
+					medida = "SC";
+				} else if (cadastro.getMedida().equalsIgnoreCase("Kg")) {
+					medida = "KG";
+
+				}
+				cell.setCellValue(medida);
+
+				cell = row.createCell(cellnum++);
+				cell.setCellStyle(textStyle);
+				String produto = "";
+				cell.setCellValue(cadastro.getProduto().replaceAll(" NON-GMO", "").replaceAll("GMO", ""));
+
+				cell = row.createCell(cellnum++);
+				cell.setCellStyle(numberStyle);
+				String transgenia = "";
+				if (cadastro.getModelo_safra().getProduto().getTransgenia().contains("CONVENCIONAL")) {
+					transgenia = "CONVEN.";
+				} else {
+					transgenia = "TRANSG.";
+
+				}
+				cell.setCellValue(transgenia);
+
+				cell = row.createCell(cellnum++);
+				cell.setCellStyle(numberStyle);
+				String ano_plantio = Integer.toString(cadastro.getModelo_safra().getAno_plantio()).replaceAll("[^0-9]",
+						"");
+				String ano_colheita = Integer.toString(cadastro.getModelo_safra().getAno_colheita())
+						.replaceAll("[^0-9]", "");
+
+				cell.setCellValue(ano_plantio.substring(ano_plantio.length() - 2) + "/"
+						+ ano_colheita.substring(ano_plantio.length() - 2));
+				/*
+				 * codigo compradores vendedores status quantidade medida produto transgenia
+				 * safra valor_produto valor_total data_contrato local_retirada
+				 */
+				cell = row.createCell(cellnum++);
+				cell.setCellStyle(valorStyle);
+				cell.setCellValue(cadastro.getValor_produto());
+
+				cell = row.createCell(cellnum++);
+				cell.setCellStyle(valorStyle);
+				cell.setCellValue(cadastro.getValor_a_pagar().doubleValue());
+
+				if (cadastro.getStatus_contrato() != 4) {
+
+					valor_total = valor_total += cadastro.getValor_a_pagar().doubleValue();
+
+				} else {
+					valor_total_cancelado = valor_total_cancelado += cadastro.getValor_a_pagar().doubleValue();
+
+				}
+
+				cell = row.createCell(cellnum++);
+				cell.setCellStyle(numberStyle);
+				cell.setCellValue(cadastro.getData_contrato());
+
+				cell = row.createCell(cellnum++);
+				cell.setCellStyle(numberStyle);
+
+				GerenciarBancoClientes gerenciar = new GerenciarBancoClientes();
+				CadastroCliente local_retirada = gerenciar.getCliente(cadastro.getId_local_retirada());
+				String s_local_retirada = "";
+				if (local_retirada != null) {
+					if (local_retirada.getTipo_pessoa() == 0) {
+						s_local_retirada = local_retirada.getNome_empresarial();
+					} else {
+						s_local_retirada = local_retirada.getNome_fantaia();
+					}
+				}
+				cell.setCellValue(s_local_retirada);
+
+				total_recebido += cadastro.getQuantidade_recebida();
+
+				total_carregado += cadastro.getQuantidade_carregada();
+
+				total_pago += cadastro.getTotal_pago();
+
 			}
 		}
-		sheet.setAutoFilter(CellRangeAddress.valueOf("A5:M5"));
+		sheet.setAutoFilter(CellRangeAddress.valueOf("A5:P5"));
 
-		for (int i = 0; i < 13; i++) {
+		for (int i = 0; i < 16; i++) {
 			sheet.autoSizeColumn(i);
 
 		}
@@ -766,9 +831,10 @@ public class TelaEscolhaRelatorioContratos extends JDialog {
 
 		cell = row.createCell(cellnum++);
 		cell.setCellStyle(celula_fundo_laranja_texto_branco);
-		cell.setCellValue(contratos.size());
+		cell.setCellValue(contratos.size() - total_contratos_cancelados);
 		sheet.addMergedRegion(new CellRangeAddress(rownum, rownum, 1, 2));
 
+		
 		row = sheet.createRow(rownum += 1);
 		cellnum = 0;
 
@@ -779,9 +845,10 @@ public class TelaEscolhaRelatorioContratos extends JDialog {
 		cell = row.createCell(1);
 		cell.setCellStyle(celula_fundo_laranja_texto_branco);
 		cell.setCellValue(
-				z.format(quantidade_total_sacos / 60) + " Kgs | " + z.format(quantidade_total_sacos) + " sacos");
+				z.format(quantidade_total_sacos * 60) + " Kgs | " + z.format(quantidade_total_sacos) + " sacos");
 		sheet.addMergedRegion(new CellRangeAddress(rownum, rownum, 1, 2));
 
+		
 		row = sheet.createRow(rownum += 1);
 		cellnum = 0;
 
@@ -793,6 +860,49 @@ public class TelaEscolhaRelatorioContratos extends JDialog {
 		cell.setCellStyle(valorStyle_total);
 		cell.setCellValue(valor_total);
 		sheet.addMergedRegion(new CellRangeAddress(rownum, rownum, 1, 2));
+
+		
+
+		// cancelados
+
+		row = sheet.createRow(rownum += 2);
+		cellnum = 0;
+
+		cell = row.createCell(cellnum++);
+		cell.setCellStyle(celula_fundo_vermelho_texto_branco);
+		cell.setCellValue("Total Cancelados");
+
+		cell = row.createCell(cellnum++);
+		cell.setCellStyle(celula_fundo_vermelho_texto_branco);
+		cell.setCellValue(total_contratos_cancelados);
+		sheet.addMergedRegion(new CellRangeAddress(rownum, rownum, 1, 2));
+
+		row = sheet.createRow(rownum += 1);
+		cellnum = 0;
+
+		cell = row.createCell(0);
+		cell.setCellStyle(celula_fundo_vermelho_texto_branco);
+		cell.setCellValue("Total Sacos:");
+
+		cell = row.createCell(1);
+		cell.setCellStyle(celula_fundo_vermelho_texto_branco);
+		cell.setCellValue(z.format(quantidade_total_sacos_cancelados * 60) + " Kgs | "
+				+ z.format(quantidade_total_sacos_cancelados) + " sacos");
+		sheet.addMergedRegion(new CellRangeAddress(rownum, rownum, 1, 2));
+
+		row = sheet.createRow(rownum += 1);
+		cellnum = 0;
+
+		cell = row.createCell(0);
+		cell.setCellStyle(celula_fundo_vermelho_texto_branco);
+		cell.setCellValue("Valor Total:");
+
+		cell = row.createCell(1);
+		cell.setCellStyle(valorStyle_total_fundo_vermelho);
+		cell.setCellValue(valor_total_cancelado);
+		sheet.addMergedRegion(new CellRangeAddress(rownum, rownum, 1, 2));
+
+		
 
 		return workbook;
 	}
@@ -919,7 +1029,7 @@ public class TelaEscolhaRelatorioContratos extends JDialog {
 		newFont.setFontName("Calibri");
 		newFont.setItalic(false);
 		newFont.setFontHeight((short) (11 * 25));
-		
+
 		HSSFFont newFont_branca = workbook.createFont();
 		newFont_branca.setBold(true);
 		newFont_branca.setColor(IndexedColors.WHITE.getIndex());
@@ -940,7 +1050,7 @@ public class TelaEscolhaRelatorioContratos extends JDialog {
 		valorStyle.setDataFormat(numberFormat.getFormat("R$ #,##0.00"));
 		valorStyle.setAlignment(HorizontalAlignment.CENTER);
 		valorStyle.setVerticalAlignment(VerticalAlignment.CENTER);
-		
+
 		// estilo para celula do tipo numero alinhado ao centro
 		CellStyle valorStyle_total = workbook.createCellStyle();
 		valorStyle_total.setDataFormat(numberFormat.getFormat("R$ #,##0.00"));
@@ -975,18 +1085,23 @@ public class TelaEscolhaRelatorioContratos extends JDialog {
 		celula_fundo_laranja_texto_branco.setAlignment(HorizontalAlignment.CENTER);
 		celula_fundo_laranja_texto_branco.setVerticalAlignment(VerticalAlignment.CENTER);
 
-		
+		// estilo para cabecalho fundo vermelho
+		CellStyle celula_fundo_vermelho_texto_branco = workbook.createCellStyle();
+		celula_fundo_vermelho_texto_branco.setFillPattern(FillPatternType.SOLID_FOREGROUND);
+		celula_fundo_vermelho_texto_branco.setFillForegroundColor(IndexedColors.RED.getIndex());
+		celula_fundo_vermelho_texto_branco.setAlignment(HorizontalAlignment.CENTER);
+		celula_fundo_vermelho_texto_branco.setVerticalAlignment(VerticalAlignment.CENTER);
 
 		headerStyle.setFont(newFont_branca);
 		celula_fundo_laranja_texto_branco.setFont(newFont_branca);
-
+		celula_fundo_vermelho_texto_branco.setFont(newFont_branca);
 		// estilo para celula fundo azul
 		CellStyle celula_fundo_azul = workbook.createCellStyle();
 		celula_fundo_azul.setFillPattern(FillPatternType.SOLID_FOREGROUND);
 		celula_fundo_azul.setFillForegroundColor(IndexedColors.AQUA.getIndex());
 		celula_fundo_azul.setAlignment(HorizontalAlignment.CENTER);
 		celula_fundo_azul.setVerticalAlignment(VerticalAlignment.CENTER);
-		celula_fundo_azul.setFont(newFont_blabk);
+		celula_fundo_azul.setFont(newFont_branca);
 
 		// estilo para celula fundo azul
 		CellStyle celula_fundo_amarelo = workbook.createCellStyle();
@@ -1002,7 +1117,7 @@ public class TelaEscolhaRelatorioContratos extends JDialog {
 		celula_fundo_verde.setFillForegroundColor(IndexedColors.DARK_GREEN.getIndex());
 		celula_fundo_verde.setAlignment(HorizontalAlignment.CENTER);
 		celula_fundo_verde.setVerticalAlignment(VerticalAlignment.CENTER);
-		celula_fundo_verde.setFont(newFont_blabk);
+		celula_fundo_verde.setFont(newFont_branca);
 
 		// estilo para celula fundo azul
 		CellStyle celula_fundo_vermelho = workbook.createCellStyle();
@@ -1010,7 +1125,16 @@ public class TelaEscolhaRelatorioContratos extends JDialog {
 		celula_fundo_vermelho.setFillForegroundColor(IndexedColors.LIGHT_ORANGE.getIndex());
 		celula_fundo_vermelho.setAlignment(HorizontalAlignment.CENTER);
 		celula_fundo_vermelho.setVerticalAlignment(VerticalAlignment.CENTER);
-		celula_fundo_vermelho.setFont(newFont_blabk);
+		celula_fundo_vermelho.setFont(newFont_branca);
+
+		// estilo para celula do tipo numero alinhado ao centro
+		CellStyle valorStyle_total_fundo_vermelho = workbook.createCellStyle();
+		valorStyle_total_fundo_vermelho.setDataFormat(numberFormat.getFormat("R$ #,##0.00"));
+		valorStyle_total_fundo_vermelho.setAlignment(HorizontalAlignment.CENTER);
+		valorStyle_total_fundo_vermelho.setFillPattern(FillPatternType.SOLID_FOREGROUND);
+		valorStyle_total_fundo_vermelho.setFillForegroundColor(IndexedColors.RED.getIndex());
+		valorStyle_total_fundo_vermelho.setVerticalAlignment(VerticalAlignment.CENTER);
+		valorStyle_total_fundo_vermelho.setFont(newFont_branca);
 
 		HSSFFont newFont_titulo = workbook.createFont();
 		newFont_titulo.setBold(true);
@@ -1113,18 +1237,22 @@ public class TelaEscolhaRelatorioContratos extends JDialog {
 		cell = row.createCell(cellnum++);
 		cell.setCellStyle(headerStyle);
 		cell.setCellValue("Status");
-		
+
 		cell = row.createCell(cellnum++);
 		cell.setCellStyle(headerStyle);
 		cell.setCellValue("Status Recebimento");
-		
+
 		cell = row.createCell(cellnum++);
 		cell.setCellStyle(headerStyle);
 		cell.setCellValue("Status Carregamento");
-		
+
 		cell = row.createCell(cellnum++);
 		cell.setCellStyle(headerStyle);
 		cell.setCellValue("Status Pagamento");
+
+		cell = row.createCell(cellnum++);
+		cell.setCellStyle(headerStyle);
+		cell.setCellValue("Status Comissão");
 
 		cell = row.createCell(cellnum++);
 		cell.setCellStyle(headerStyle);
@@ -1165,280 +1293,362 @@ public class TelaEscolhaRelatorioContratos extends JDialog {
 		double valor_total = 0;
 		double quantidade_total_sacos = 0;
 		double quantidade_total_kgs = 0;
-		double total_carregado = 0, total_recebido = 0, total_contratado = 0, total_comissao=0, total_pago=0;
+		double total_carregado = 0, total_recebido = 0, total_contratado = 0, total_comissao = 0, total_pago = 0;
 
+		int total_contratos_cancelados = 0;
+		double valor_total_cancelado = 0;
+		double quantidade_total_sacos_cancelados = 0;
+		double quantidade_total_kgs_cancelados = 0;
+		
+		double valor_total_comissao_a_receber = 0, valor_total_comissao_restante = 0, valor_total_comissao_recebido = 0;
 
 		for (CadastroContrato cadastro : contratos) {
-			
+
 			int status_contrato = cadastro.getStatus_contrato();
-			if(status_contrato != 4) {
-			row = sheet.createRow(rownum++);
-			cellnum = 0;
-			/*
-			 * codigo compradores vendedores status quantidade medida produto transgenia
-			 * safra valor_produto valor_total data_contrato local_retirada
-			 */
-			cell = row.createCell(cellnum++);
-			cell.setCellStyle(textStyle);
-			cell.setCellValue(cadastro.getCodigo());
 
-			cell = row.createCell(cellnum++);
-			cell.setCellStyle(textStyle);
-			// cell.setCellValue(trimar(cadastro.getNomes_compradores().toUpperCase()));
-			cell.setCellValue(trimar(encutarNomes(cadastro.getNomes_compradores().toUpperCase())));
+			if (status_contrato == 4)
+				total_contratos_cancelados++;
 
-			cell = row.createCell(cellnum++);
-			cell.setCellStyle(textStyle);
-			// cell.setCellValue(trimar(cadastro.getNomes_vendedores().toUpperCase()));
-			cell.setCellValue(trimar(encutarNomes(cadastro.getNomes_vendedores().toUpperCase())));
+			// if(status_contrato != 4)
+			{
+				row = sheet.createRow(rownum++);
+				cellnum = 0;
+				/*
+				 * codigo compradores vendedores status quantidade medida produto transgenia
+				 * safra valor_produto valor_total data_contrato local_retirada
+				 */
+				cell = row.createCell(cellnum++);
+				cell.setCellStyle(textStyle);
+				cell.setCellValue(cadastro.getCodigo());
 
-			cell = row.createCell(cellnum++);
-			cell.setCellStyle(textStyle);
+				cell = row.createCell(cellnum++);
+				cell.setCellStyle(textStyle);
+				// cell.setCellValue(trimar(cadastro.getNomes_compradores().toUpperCase()));
+				cell.setCellValue(trimar(encutarNomes(cadastro.getNomes_compradores().toUpperCase())));
 
-			String status = "";
+				cell = row.createCell(cellnum++);
+				cell.setCellStyle(textStyle);
+				// cell.setCellValue(trimar(cadastro.getNomes_vendedores().toUpperCase()));
+				cell.setCellValue(trimar(encutarNomes(cadastro.getNomes_vendedores().toUpperCase())));
 
-			if (status_contrato == 1) {
-				status = "ASSINAR";
-				cell.setCellStyle(celula_fundo_amarelo);
+				cell = row.createCell(cellnum++);
+				cell.setCellStyle(textStyle);
 
-			} else if (status_contrato == 0) {
-				status = "A APROVAR";
-				cell.setCellStyle(celula_fundo_amarelo);
+				String status = "";
 
-			} else if (status_contrato == 2) {
-				status = "ASSINADO";
-				cell.setCellStyle(celula_fundo_azul);
+				if (status_contrato == 1) {
+					status = "ASSINAR";
+					cell.setCellStyle(celula_fundo_amarelo);
 
-			} else if (status_contrato == 3) {
-				status = "CONCLUIDO";
-				cell.setCellStyle(celula_fundo_verde);
+				} else if (status_contrato == 0) {
+					status = "A APROVAR";
+					cell.setCellStyle(celula_fundo_amarelo);
 
-			}
+				} else if (status_contrato == 2) {
+					status = "ASSINADO";
+					cell.setCellStyle(celula_fundo_azul);
 
-			cell.setCellValue(status);
-			
-			cell = row.createCell(cellnum++);
-			cell.setCellStyle(textStyle);
-			//status recebimento
-			/*****************************************/
-			double quantidade_recebida = cadastro.getQuantidade_recebida();
-			double quantidade_sacos_sub = 0;
-			double quantidade_quilogramas_sub = 0;
-			String status_rec = "";
-			if (cadastro.getMedida().equalsIgnoreCase("Sacos")) {
-				quantidade_sacos_sub = cadastro.getQuantidade();
-				quantidade_quilogramas_sub = cadastro.getQuantidade() * 60;
-			} else if (cadastro.getMedida().equalsIgnoreCase("KG")) {
-				quantidade_quilogramas_sub = cadastro.getQuantidade();
-				quantidade_sacos_sub = cadastro.getQuantidade() / 60;
-
-			}
-
-			if (quantidade_recebida >= (quantidade_sacos_sub - 0.5)) {
-				status_rec = "CONCLUIDO";
-				cell.setCellStyle(celula_fundo_verde);
-
-			} else if (quantidade_recebida < quantidade_sacos_sub && quantidade_recebida > 0) {
-				status_rec = "RECEBENDO";
-				cell.setCellStyle(celula_fundo_azul);
-
-
-			} else if (quantidade_recebida == 0) {
-				status_rec = "A RECEBER";
-				cell.setCellStyle(celula_fundo_amarelo);
-
-
-			}
-			/******************************************/
-			cell.setCellValue(status_rec);
-			
-
-			cell = row.createCell(cellnum++);
-			cell.setCellStyle(textStyle);
-			//status CARREGAMENTO
-			/**************************************************/
-			String status_carg = "";
-			double quantidade_carregada = cadastro.getQuantidade_carregada();
-
-
-			if (cadastro.getMedida().equalsIgnoreCase("Sacos")) {
-				quantidade_sacos_sub = cadastro.getQuantidade();
-				quantidade_quilogramas_sub = cadastro.getQuantidade() * 60;
-			} else if (cadastro.getMedida().equalsIgnoreCase("KG")) {
-				quantidade_quilogramas_sub = cadastro.getQuantidade();
-				quantidade_sacos_sub = cadastro.getQuantidade() / 60;
-
-			}
-
-			if (quantidade_recebida >= (quantidade_sacos_sub - 0.5)) {
-				// recebimento concluido
-				if (quantidade_carregada >= (quantidade_recebida - 0.5)) {
-					status_carg = "CONCLUIDO";
+				} else if (status_contrato == 3) {
+					status = "CONCLUIDO";
 					cell.setCellStyle(celula_fundo_verde);
 
-				} else if (quantidade_carregada < quantidade_recebida && quantidade_carregada > 0) {
-					status_carg =  "CARREGANDO";
-					cell.setCellStyle(celula_fundo_azul);
-
-
-				} else if (quantidade_carregada == 0) {
-					status_carg =  "A CARREGAR";
-					cell.setCellStyle(celula_fundo_amarelo);
+				} else if (status_contrato == 4) {
+					status = "CANCELADO";
+					cell.setCellStyle(celula_fundo_vermelho);
 
 				}
 
-			} else if (quantidade_recebida < quantidade_sacos_sub && quantidade_recebida > 0) {
-				if (quantidade_carregada >= (quantidade_recebida - 0.5)) {
-					status_carg =  "CARREGADO PARC";
-				} else if (quantidade_carregada < quantidade_recebida
-						&& quantidade_carregada > (quantidade_recebida / 2)) {
-					status_carg =  "CARREGANDO";
-					cell.setCellStyle(celula_fundo_azul);
+				cell.setCellValue(status);
 
-				} else if (quantidade_carregada == 0) {
-					status_carg =  "A CARREGAR";
-					cell.setCellStyle(celula_fundo_amarelo);
-
-
-				}
-			}else if(quantidade_recebida == 0) {
-				if (quantidade_carregada > 0) {
-					status_carg =  "CARREGANDO";
-					cell.setCellStyle(celula_fundo_azul);
-
-				} else if (quantidade_carregada <= 0) {
-					status_carg =  "AG RECEBER";
-					cell.setCellStyle(celula_fundo_amarelo);
+				cell = row.createCell(cellnum++);
+				cell.setCellStyle(textStyle);
+				// status recebimento
+				/*****************************************/
+				double quantidade_recebida = cadastro.getQuantidade_recebida();
+				double quantidade_sacos_sub = 0;
+				double quantidade_quilogramas_sub = 0;
+				String status_rec = "";
+				if (cadastro.getMedida().equalsIgnoreCase("Sacos")) {
+					quantidade_sacos_sub = cadastro.getQuantidade();
+					quantidade_quilogramas_sub = cadastro.getQuantidade() * 60;
+				} else if (cadastro.getMedida().equalsIgnoreCase("KG")) {
+					quantidade_quilogramas_sub = cadastro.getQuantidade();
+					quantidade_sacos_sub = cadastro.getQuantidade() / 60;
 
 				}
 
-			
+				if (quantidade_recebida >= (quantidade_sacos_sub - 0.5)) {
+					status_rec = "CONCLUIDO";
+					cell.setCellStyle(celula_fundo_verde);
 
-			}
-			cell.setCellValue(status_carg);
+				} else if (quantidade_recebida < quantidade_sacos_sub && quantidade_recebida > 0) {
+					status_rec = "RECEBENDO";
+					cell.setCellStyle(celula_fundo_azul);
 
-			
-			/***************************************************/
+				} else if (quantidade_recebida == 0) {
+					status_rec = "A RECEBER";
+					cell.setCellStyle(celula_fundo_amarelo);
 
+				}
+				/******************************************/
+				cell.setCellValue(status_rec);
 
-			cell = row.createCell(cellnum++);
-			cell.setCellStyle(textStyle);
-			//status pagamento
-			String status_pag = "";
-			double quantidade_paga = cadastro.getTotal_pago();
-			
-			double valor_total_pago = cadastro.getValor_a_pagar().doubleValue();
+				cell = row.createCell(cellnum++);
+				cell.setCellStyle(textStyle);
+				// status CARREGAMENTO
+				/**************************************************/
+				String status_carg = "";
+				double quantidade_carregada = cadastro.getQuantidade_carregada();
 
-			if (quantidade_paga >= (valor_total_pago - 0.5)) {
-				status_pag = "CONCLUIDO";
-				cell.setCellStyle(celula_fundo_verde);
+				if (cadastro.getMedida().equalsIgnoreCase("Sacos")) {
+					quantidade_sacos_sub = cadastro.getQuantidade();
+					quantidade_quilogramas_sub = cadastro.getQuantidade() * 60;
+				} else if (cadastro.getMedida().equalsIgnoreCase("KG")) {
+					quantidade_quilogramas_sub = cadastro.getQuantidade();
+					quantidade_sacos_sub = cadastro.getQuantidade() / 60;
 
-			} else if (quantidade_paga < valor_total_pago && quantidade_paga > 0) {
-				status_pag = "PAGANDO";
-				cell.setCellStyle(celula_fundo_azul);
+				}
 
+				if (quantidade_recebida >= (quantidade_sacos_sub - 0.5)) {
+					// recebimento concluido
+					if (quantidade_carregada >= (quantidade_recebida - 0.5)) {
+						status_carg = "CONCLUIDO";
+						cell.setCellStyle(celula_fundo_verde);
 
-			} else if (quantidade_paga == 0) {
-				status_pag = "A PAGAR";
-				cell.setCellStyle(celula_fundo_amarelo);
+					} else if (quantidade_carregada < quantidade_recebida && quantidade_carregada > 0) {
+						status_carg = "CARREGANDO";
+						cell.setCellStyle(celula_fundo_azul);
 
+					} else if (quantidade_carregada == 0) {
+						status_carg = "A CARREGAR";
+						cell.setCellStyle(celula_fundo_amarelo);
 
-			}
-			
-			cell.setCellValue(status_pag);
+					}
 
-			cell = row.createCell(cellnum++);
-			cell.setCellStyle(numberStyle);
-			cell.setCellValue(cadastro.getQuantidade());
+				} else if (quantidade_recebida < quantidade_sacos_sub && quantidade_recebida > 0) {
+					if (quantidade_carregada >= (quantidade_recebida - 0.5)) {
+						status_carg = "CARREGADO PARC";
+					} else if (quantidade_carregada < quantidade_recebida
+							&& quantidade_carregada > (quantidade_recebida / 2)) {
+						status_carg = "CARREGANDO";
+						cell.setCellStyle(celula_fundo_azul);
 
-			double quantidade_local_kg = 0;
-			double quantidade_local_sacos = 0;
+					} else if (quantidade_carregada == 0) {
+						status_carg = "A CARREGAR";
+						cell.setCellStyle(celula_fundo_amarelo);
 
-			if (cadastro.getMedida().equalsIgnoreCase("KG")) {
-				quantidade_local_kg = cadastro.getQuantidade();
-				quantidade_local_sacos = quantidade_local_kg / 60;
-			} else if (cadastro.getMedida().equalsIgnoreCase("Sacos")) {
-				quantidade_local_sacos = cadastro.getQuantidade();
-				quantidade_local_kg = cadastro.getQuantidade() * 60;
-			}
+					}
+				} else if (quantidade_recebida == 0) {
+					if (quantidade_carregada > 0) {
+						status_carg = "CARREGANDO";
+						cell.setCellStyle(celula_fundo_azul);
 
-			quantidade_total_sacos = quantidade_total_sacos += quantidade_local_sacos;
-			quantidade_total_kgs = quantidade_total_kgs += quantidade_local_kg;
+					} else if (quantidade_carregada <= 0) {
+						status_carg = "AG RECEBER";
+						cell.setCellStyle(celula_fundo_amarelo);
 
-			cell = row.createCell(cellnum++);
-			cell.setCellStyle(numberStyle);
-			String medida = "";
-			if (cadastro.getMedida().equalsIgnoreCase("Sacos")) {
-				medida = "SC";
-			} else if (cadastro.getMedida().equalsIgnoreCase("Kg")) {
-				medida = "KG";
+					}
 
-			}
-			cell.setCellValue(medida);
+				}
+				cell.setCellValue(status_carg);
 
-			cell = row.createCell(cellnum++);
-			cell.setCellStyle(textStyle);
-			String produto = "";
-			cell.setCellValue(cadastro.getProduto().replaceAll(" NON-GMO", "").replaceAll("GMO", ""));
+				/***************************************************/
 
-			cell = row.createCell(cellnum++);
-			cell.setCellStyle(numberStyle);
-			String transgenia = "";
-			if (cadastro.getModelo_safra().getProduto().getTransgenia().contains("CONVENCIONAL")) {
-				transgenia = "CONVEN.";
-			} else {
-				transgenia = "TRANSG.";
+				cell = row.createCell(cellnum++);
+				cell.setCellStyle(textStyle);
+				// status pagamento
+				String status_pag = "";
 
-			}
-			cell.setCellValue(transgenia);
+				double valor_pago = cadastro.getTotal_pago();
 
-			cell = row.createCell(cellnum++);
-			cell.setCellStyle(numberStyle);
-			String ano_plantio = Integer.toString(cadastro.getModelo_safra().getAno_plantio()).replaceAll("[^0-9]", "");
-			String ano_colheita = Integer.toString(cadastro.getModelo_safra().getAno_colheita()).replaceAll("[^0-9]",
-					"");
+				double valor_a_receber = cadastro.getValor_a_receber().doubleValue();
 
-			cell.setCellValue(ano_plantio.substring(ano_plantio.length() - 2) + "/"
-					+ ano_colheita.substring(ano_plantio.length() - 2));
-			/*
-			 * codigo compradores vendedores status quantidade medida produto transgenia
-			 * safra valor_produto valor_total data_contrato local_retirada
-			 */
-			cell = row.createCell(cellnum++);
-			cell.setCellStyle(valorStyle);
-			cell.setCellValue(cadastro.getValor_produto());
+				System.out.println("Valor a receber de acordo com o total recebido: " + valor_a_receber
+						+ " Valor Pago: " + valor_pago);
 
-			cell = row.createCell(cellnum++);
-			cell.setCellStyle(valorStyle);
-			cell.setCellValue(cadastro.getValor_a_pagar().doubleValue());
-			valor_total = valor_total += cadastro.getValor_a_pagar().doubleValue();
+				if (valor_a_receber == 0) {
+					// não ha recebimentos ainda neste contrato
 
-			cell = row.createCell(cellnum++);
-			cell.setCellStyle(numberStyle);
-			cell.setCellValue(cadastro.getData_contrato());
+					// double valor_contrato = contrato.getValor_a_pagar().doubleValue();
 
-			cell = row.createCell(cellnum++);
-			cell.setCellStyle(numberStyle);
+					if (valor_pago == 0) {
+						status_pag = "A PAGAR";
+						cell.setCellStyle(celula_fundo_amarelo);
 
-			GerenciarBancoClientes gerenciar = new GerenciarBancoClientes();
-			CadastroCliente local_retirada = gerenciar.getCliente(cadastro.getId_local_retirada());
-			String s_local_retirada = "";
-			if (local_retirada != null) {
-				if (local_retirada.getTipo_pessoa() == 0) {
-					s_local_retirada = local_retirada.getNome_empresarial();
+					} else if (valor_pago >= (valor_a_receber - 1)) {
+						status_pag = "CONCLUIDO";
+						cell.setCellStyle(celula_fundo_verde);
+
+					} else if (valor_pago < valor_a_receber && valor_pago > 0) {
+						status_pag = "PAGANDO";
+						cell.setCellStyle(celula_fundo_azul);
+
+					}
+
 				} else {
-					s_local_retirada = local_retirada.getNome_fantaia();
-				}
-			}
-			cell.setCellValue(s_local_retirada);
+					// este contrato possui recebimentos
 
-			
-			total_recebido += cadastro.getQuantidade_recebida();
-			
-			total_carregado += cadastro.getQuantidade_carregada();
-			
-			total_pago += cadastro.getTotal_pago();
-			
+					if (valor_pago == 0) {
+						status_pag = "A PAGAR";
+						cell.setCellStyle(celula_fundo_amarelo);
+
+					} else if (valor_pago >= (valor_a_receber - 1)) {
+						status_pag = "CONCLUIDO";
+						cell.setCellStyle(celula_fundo_verde);
+
+					} else if (valor_pago < valor_a_receber && valor_pago > 0) {
+						status_pag = "PAGANDO";
+						cell.setCellStyle(celula_fundo_azul);
+
+					}
+				}
+
+				cell.setCellValue(status_pag);
+
+				cell = row.createCell(cellnum++);
+				cell.setCellStyle(textStyle);
+				String status_comissao = "";
+
+				// comissao
+				if (cadastro.getComissao() == 1) {
+
+					double valor_total_a_pagar = cadastro.getValor_total_comissao_receber();
+					double valor_total_pago = cadastro.getTotal_comissao();
+
+					String s_valor_total_a_pagar = NumberFormat.getCurrencyInstance(ptBr).format(valor_total_a_pagar);
+					String s_valor_total_pago = NumberFormat.getCurrencyInstance(ptBr).format(valor_total_pago);
+
+					
+					
+					valor_total_comissao_a_receber += valor_total_a_pagar;
+					
+					
+					valor_total_comissao_recebido += valor_total_pago;
+					
+					if (valor_total_pago == 0) {
+						status_comissao = "A PAGAR " + s_valor_total_pago + "/" + s_valor_total_a_pagar;
+						cell.setCellStyle(celula_fundo_amarelo);
+
+					} else if (valor_total_pago >= (valor_total_a_pagar - 1)) {
+						status_comissao = "CONCLUIDO " + s_valor_total_pago + "/" + s_valor_total_a_pagar;
+						cell.setCellStyle(celula_fundo_verde);
+					} else if (valor_total_pago < valor_total_a_pagar && valor_total_pago > 0) {
+						status_comissao = "PAGANDO " + s_valor_total_pago + "/" + s_valor_total_a_pagar;
+						cell.setCellStyle(celula_fundo_azul);
+
+					}
+
+				} else {
+					status_comissao = "SEM COMISSÃO";
+					cell.setCellStyle(celula_fundo_vermelho);
+				}
+				cell.setCellValue(status_comissao);
+
+				cell = row.createCell(cellnum++);
+				cell.setCellStyle(numberStyle);
+				cell.setCellValue(cadastro.getQuantidade());
+
+				double quantidade_local_kg = 0;
+				double quantidade_local_sacos = 0;
+
+				if (cadastro.getMedida().equalsIgnoreCase("KG")) {
+					quantidade_local_kg = cadastro.getQuantidade();
+					quantidade_local_sacos = quantidade_local_kg / 60;
+				} else if (cadastro.getMedida().equalsIgnoreCase("Sacos")) {
+					quantidade_local_sacos = cadastro.getQuantidade();
+					quantidade_local_kg = cadastro.getQuantidade() * 60;
+				}
+
+				if (cadastro.getStatus_contrato() != 4) {
+					quantidade_total_sacos += quantidade_local_sacos;
+					quantidade_total_kgs += quantidade_local_kg;
+				} else {
+					quantidade_total_sacos_cancelados += quantidade_local_sacos;
+					quantidade_total_kgs_cancelados += quantidade_local_kg;
+				}
+
+				cell = row.createCell(cellnum++);
+				cell.setCellStyle(numberStyle);
+				String medida = "";
+				if (cadastro.getMedida().equalsIgnoreCase("Sacos")) {
+					medida = "SC";
+				} else if (cadastro.getMedida().equalsIgnoreCase("Kg")) {
+					medida = "KG";
+
+				}
+				cell.setCellValue(medida);
+
+				cell = row.createCell(cellnum++);
+				cell.setCellStyle(textStyle);
+				String produto = "";
+				cell.setCellValue(cadastro.getProduto().replaceAll(" NON-GMO", "").replaceAll("GMO", ""));
+
+				cell = row.createCell(cellnum++);
+				cell.setCellStyle(numberStyle);
+				String transgenia = "";
+				if (cadastro.getModelo_safra().getProduto().getTransgenia().contains("CONVENCIONAL")) {
+					transgenia = "CONVEN.";
+				} else {
+					transgenia = "TRANSG.";
+
+				}
+				cell.setCellValue(transgenia);
+
+				cell = row.createCell(cellnum++);
+				cell.setCellStyle(numberStyle);
+				String ano_plantio = Integer.toString(cadastro.getModelo_safra().getAno_plantio()).replaceAll("[^0-9]",
+						"");
+				String ano_colheita = Integer.toString(cadastro.getModelo_safra().getAno_colheita())
+						.replaceAll("[^0-9]", "");
+
+				cell.setCellValue(ano_plantio.substring(ano_plantio.length() - 2) + "/"
+						+ ano_colheita.substring(ano_plantio.length() - 2));
+				/*
+				 * codigo compradores vendedores status quantidade medida produto transgenia
+				 * safra valor_produto valor_total data_contrato local_retirada
+				 */
+				cell = row.createCell(cellnum++);
+				cell.setCellStyle(valorStyle);
+				cell.setCellValue(cadastro.getValor_produto());
+
+				cell = row.createCell(cellnum++);
+				cell.setCellStyle(valorStyle);
+				cell.setCellValue(cadastro.getValor_a_pagar().doubleValue());
+
+				if (cadastro.getStatus_contrato() != 4) {
+
+					valor_total = valor_total += cadastro.getValor_a_pagar().doubleValue();
+
+				} else {
+					valor_total_cancelado = valor_total_cancelado += cadastro.getValor_a_pagar().doubleValue();
+
+				}
+
+				cell = row.createCell(cellnum++);
+				cell.setCellStyle(numberStyle);
+				cell.setCellValue(cadastro.getData_contrato());
+
+				cell = row.createCell(cellnum++);
+				cell.setCellStyle(numberStyle);
+
+				GerenciarBancoClientes gerenciar = new GerenciarBancoClientes();
+				CadastroCliente local_retirada = gerenciar.getCliente(cadastro.getId_local_retirada());
+				String s_local_retirada = "";
+				if (local_retirada != null) {
+					if (local_retirada.getTipo_pessoa() == 0) {
+						s_local_retirada = local_retirada.getNome_empresarial();
+					} else {
+						s_local_retirada = local_retirada.getNome_fantaia();
+					}
+				}
+				cell.setCellValue(s_local_retirada);
+
+				total_recebido += cadastro.getQuantidade_recebida();
+
+				total_carregado += cadastro.getQuantidade_carregada();
+
+				total_pago += cadastro.getTotal_pago();
+
 			}
 		}
 		sheet.setAutoFilter(CellRangeAddress.valueOf("A5:P5"));
@@ -1462,22 +1672,18 @@ public class TelaEscolhaRelatorioContratos extends JDialog {
 
 		cell = row.createCell(cellnum++);
 		cell.setCellStyle(celula_fundo_laranja_texto_branco);
-		cell.setCellValue(contratos.size());
+		cell.setCellValue(contratos.size() - total_contratos_cancelados);
 		sheet.addMergedRegion(new CellRangeAddress(rownum, rownum, 1, 2));
 
-		
 		cell = row.createCell(4);
 		cell.setCellStyle(celula_fundo_laranja_texto_branco);
 		cell.setCellValue("Total Recebido:");
 
 		cell = row.createCell(5);
 		cell.setCellStyle(celula_fundo_laranja_texto_branco);
-		cell.setCellValue(z.format(total_recebido / 60) + " Kgs | " + z.format(total_recebido) + " sacos");
+		cell.setCellValue(z.format(total_recebido * 60) + " Kgs | " + z.format(total_recebido) + " sacos");
 		sheet.addMergedRegion(new CellRangeAddress(rownum, rownum, 5, 6));
 
-		
-		
-		
 		row = sheet.createRow(rownum += 1);
 		cellnum = 0;
 
@@ -1488,21 +1694,18 @@ public class TelaEscolhaRelatorioContratos extends JDialog {
 		cell = row.createCell(1);
 		cell.setCellStyle(celula_fundo_laranja_texto_branco);
 		cell.setCellValue(
-				z.format(quantidade_total_sacos / 60) + " Kgs | " + z.format(quantidade_total_sacos) + " sacos");
+				z.format(quantidade_total_sacos * 60) + " Kgs | " + z.format(quantidade_total_sacos) + " sacos");
 		sheet.addMergedRegion(new CellRangeAddress(rownum, rownum, 1, 2));
 
-		
 		cell = row.createCell(4);
 		cell.setCellStyle(celula_fundo_laranja_texto_branco);
 		cell.setCellValue("Total Carregado:");
 
 		cell = row.createCell(5);
 		cell.setCellStyle(celula_fundo_laranja_texto_branco);
-		cell.setCellValue(z.format(total_carregado / 60) + " Kgs | " + z.format(total_carregado) + " sacos");
+		cell.setCellValue(z.format(total_carregado * 60) + " Kgs | " + z.format(total_carregado) + " sacos");
 		sheet.addMergedRegion(new CellRangeAddress(rownum, rownum, 5, 6));
 
-		
-		
 		row = sheet.createRow(rownum += 1);
 		cellnum = 0;
 
@@ -1524,13 +1727,84 @@ public class TelaEscolhaRelatorioContratos extends JDialog {
 		cell.setCellValue(NumberFormat.getCurrencyInstance(ptBr).format(total_pago));
 		sheet.addMergedRegion(new CellRangeAddress(rownum, rownum, 5, 6));
 
-		
-		
+		// cancelados
+
+		row = sheet.createRow(rownum += 2);
+		cellnum = 0;
+
+		cell = row.createCell(cellnum++);
+		cell.setCellStyle(celula_fundo_vermelho_texto_branco);
+		cell.setCellValue("Total Cancelados");
+
+		cell = row.createCell(cellnum++);
+		cell.setCellStyle(celula_fundo_vermelho_texto_branco);
+		cell.setCellValue(total_contratos_cancelados);
+		sheet.addMergedRegion(new CellRangeAddress(rownum, rownum, 1, 2));
+
+		row = sheet.createRow(rownum += 1);
+		cellnum = 0;
+
+		cell = row.createCell(0);
+		cell.setCellStyle(celula_fundo_vermelho_texto_branco);
+		cell.setCellValue("Total Sacos:");
+
+		cell = row.createCell(1);
+		cell.setCellStyle(celula_fundo_vermelho_texto_branco);
+		cell.setCellValue(z.format(quantidade_total_sacos_cancelados * 60) + " Kgs | "
+				+ z.format(quantidade_total_sacos_cancelados) + " sacos");
+		sheet.addMergedRegion(new CellRangeAddress(rownum, rownum, 1, 2));
+
+		row = sheet.createRow(rownum += 1);
+		cellnum = 0;
+
+		cell = row.createCell(0);
+		cell.setCellStyle(celula_fundo_vermelho_texto_branco);
+		cell.setCellValue("Valor Total:");
+
+		cell = row.createCell(1);
+		cell.setCellStyle(valorStyle_total_fundo_vermelho);
+		cell.setCellValue(valor_total_cancelado);
+		sheet.addMergedRegion(new CellRangeAddress(rownum, rownum, 1, 2));
+
+		// comissao
+
+		row = sheet.createRow(rownum += 2);
+		cellnum = 0;
+
+		cell = row.createCell(cellnum++);
+		cell.setCellStyle(celula_fundo_laranja_texto_branco);
+		cell.setCellValue("Total Comissão:");
+
+		cell = row.createCell(cellnum++);
+		cell.setCellStyle(valorStyle_total);
+		cell.setCellValue(valor_total_comissao_a_receber);
+		sheet.addMergedRegion(new CellRangeAddress(rownum, rownum, 1, 2));
+
+		row = sheet.createRow(rownum += 1);
+		cellnum = 0;
+
+		cell = row.createCell(0);
+		cell.setCellStyle(celula_fundo_laranja_texto_branco);
+		cell.setCellValue("Total Pago:");
+
+		cell = row.createCell(1);
+		cell.setCellStyle(valorStyle_total);
+		cell.setCellValue(valor_total_comissao_recebido);
+		sheet.addMergedRegion(new CellRangeAddress(rownum, rownum, 1, 2));
+
+		row = sheet.createRow(rownum += 1);
+		cellnum = 0;
+
+		cell = row.createCell(0);
+		cell.setCellStyle(celula_fundo_laranja_texto_branco);
+		cell.setCellValue("Total Restante:");
+
+		cell = row.createCell(1);
+		cell.setCellStyle(valorStyle_total);
+		cell.setCellValue(valor_total_comissao_a_receber - valor_total_comissao_recebido);
+		sheet.addMergedRegion(new CellRangeAddress(rownum, rownum, 1, 2));
+
 		return workbook;
 	}
 
-	
-	
-	
 }
-

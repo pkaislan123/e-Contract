@@ -523,7 +523,41 @@ public class TelaRecursosHumanos extends JFrame {
 		lblIsencaoPonto.setFont(new Font("SansSerif", Font.BOLD, 16));
 		panel_4.add(lblIsencaoPonto, "cell 2 11 2 1");
 
-		buscarConexaoPontoRelogio();
+
+		new Thread() {
+
+			@Override
+			public void run() {
+				while (true) {
+				try {
+					Thread.sleep(10000);
+				} catch (InterruptedException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+
+				System.out.println("Buscando conexao ao relogio");
+
+			
+					int status = DadosGlobais.getInstance().getStatus_relogio();
+
+					if (status == 1) {
+
+						lblStatusRelogioPonto.setText("Relógio Conectado!");
+						imgRfid.setIcon(new ImageIcon(TelaMain.class.getResource("/imagens/rfid_online.png")));
+
+					} else {
+
+						System.out.println("erro ao se conectar ao relogio");
+						lblStatusRelogioPonto.setText("Relógio Desconectado!");
+						imgRfid.setIcon(new ImageIcon(TelaMain.class.getResource("/imagens/rfid_offline.png")));
+
+					}
+
+				}
+			}
+		}.start();
+		
 		logar();
 
 		pesquisar_rps();
@@ -1176,42 +1210,6 @@ public class TelaRecursosHumanos extends JFrame {
 		lblFeriado.setText(total_feriado + "");
 		lblTotalColaboradores.setText(total_cts_ativos + "");
 
-	}
-
-	public void buscarConexaoPontoRelogio() {
-		new Thread() {
-
-			@Override
-			public void run() {
-
-				try {
-					Thread.sleep(10000);
-				} catch (InterruptedException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-
-				System.out.println("Buscando conexao ao relogio");
-
-				while (true) {
-					int status = DadosGlobais.getInstance().getStatus_relogio();
-
-					if (status == 1) {
-
-						lblStatusRelogioPonto.setText("Relógio Conectado!");
-						imgRfid.setIcon(new ImageIcon(TelaMain.class.getResource("/imagens/rfid_online.png")));
-
-					} else {
-
-						System.out.println("erro ao se conectar ao relogio");
-						lblStatusRelogioPonto.setText("Relógio Desconectado!");
-						imgRfid.setIcon(new ImageIcon(TelaMain.class.getResource("/imagens/rfid_offline.png")));
-
-					}
-
-				}
-			}
-		}.start();
 	}
 
 }

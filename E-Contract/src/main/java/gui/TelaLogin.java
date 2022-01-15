@@ -161,6 +161,16 @@ public class TelaLogin extends JFrame implements GetDadosGlobais {
 	private JLabel lblNewLabel_1;
 	private TelaLogin isto;
 
+	private boolean abrirTelaFinanceiro = false;
+
+	public boolean isAbrirTelaFinanceiro() {
+		return abrirTelaFinanceiro;
+	}
+
+	public void setAbrirTelaFinanceiro(boolean abrirTelaFinanceiro) {
+		this.abrirTelaFinanceiro = abrirTelaFinanceiro;
+	}
+
 	public TelaLogin() {
 		setIconImage(Toolkit.getDefaultToolkit().getImage(TelaLogin.class.getResource("/imagens/logo_icone4.png")));
 
@@ -176,20 +186,32 @@ public class TelaLogin extends JFrame implements GetDadosGlobais {
 		ImageIcon img = new ImageIcon(url);
 		contentPane.setImg(img);
 		contentPane.repaint();
-		
-		  new Thread() {
-		 
-		  @Override public void run() { int i = 1; while(i <= 6) {
-		 
-		 URL url = getClass().getResource("/imagens/contrato"+i+".jpg"); ImageIcon img
-		  = new ImageIcon(url); contentPane.setImg(img); contentPane.repaint(); try {
-		  Thread.sleep(10000); } catch (InterruptedException e) { 
-			  e.printStackTrace(); } i++; if( i == 7) { i = 1; }
-		  
-		  }
-		 
-		  } }.start();
-		 
+
+		new Thread() {
+
+			@Override
+			public void run() {
+				int i = 1;
+				while (i <= 6) {
+
+					URL url = getClass().getResource("/imagens/contrato" + i + ".jpg");
+					ImageIcon img = new ImageIcon(url);
+					contentPane.setImg(img);
+					contentPane.repaint();
+					try {
+						Thread.sleep(10000);
+					} catch (InterruptedException e) {
+						e.printStackTrace();
+					}
+					i++;
+					if (i == 7) {
+						i = 1;
+					}
+
+				}
+
+			}
+		}.start();
 
 		// contentPane.setBackground(new Color(0, 206, 209));
 		contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
@@ -309,7 +331,8 @@ public class TelaLogin extends JFrame implements GetDadosGlobais {
 		lblEsconder.setVisible(false);
 		panel.add(lblEsconder);
 
-		JLabel lblNewLabel = new JLabel("*Copyright Todos os Direitos Reservados E-Contract Titaniwm " + new GetData().getAnoAtual());
+		JLabel lblNewLabel = new JLabel(
+				"*Copyright Todos os Direitos Reservados E-Contract Titaniwm " + new GetData().getAnoAtual());
 		lblNewLabel.setForeground(new Color(0, 0, 128));
 		lblNewLabel.setBounds(329, 522, 451, 14);
 		contentPane.add(lblNewLabel);
@@ -349,7 +372,7 @@ public class TelaLogin extends JFrame implements GetDadosGlobais {
 		lblNewLabel_1.setIcon(new ImageIcon(TelaLogin.class.getResource("/imagens/logo.png")));
 		lblNewLabel_1.setBounds(51, 77, 217, 160);
 		contentPane.add(lblNewLabel_1);
-		
+
 		JButton btnSair = new JButton("X");
 		btnSair.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
@@ -380,7 +403,6 @@ public class TelaLogin extends JFrame implements GetDadosGlobais {
 		this.setLocationRelativeTo(null);
 		this.setUndecorated(true);
 
-		this.setVisible(true);
 	}
 
 	public int logar() {
@@ -456,6 +478,7 @@ public class TelaLogin extends JFrame implements GetDadosGlobais {
 	}
 
 	public void enterLogar() {
+		try {
 		String user = entUser.getText().toString();
 		String senha = new String(entSenha.getPassword());
 		int result = logar();
@@ -465,36 +488,56 @@ public class TelaLogin extends JFrame implements GetDadosGlobais {
 
 			lblResult.setText("Usuário ou senha Incorretos");
 		} else {
+			try {
 			informarLogon();
 
 			isto.dispose();
-			TelaMain tela = new TelaMain(isto);
-			
+
+			if (!abrirTelaFinanceiro) {
+				TelaMain tela = new TelaMain(isto);
+				tela.setVisible(true);
+
+			} else {
+				TelaFinanceiro tela = new TelaFinanceiro(isto);
+				tela.setVisible(true);
+				tela.atualizarGrafico();
+
+			}
+			}catch(Exception e) {
+				e.printStackTrace();
+			}
+
+		}
+		}catch(Exception e) {
+			e.printStackTrace();
 		}
 	}
-	
+
 	public void informarLogon() {
 		// informar ao banco que estou logando passando meu ip
 		try {
-			
-			String ip = Inet4Address.getLocalHost().getHostAddress(); //seta o ip com o endereço da primeira interface (caminho infeliz)
-			String nomehost = Inet4Address.getLocalHost().getHostName(); //pega o nome do host
-			
+
+			String ip = Inet4Address.getLocalHost().getHostAddress(); // seta o ip com o endereço da primeira interface
+																		// (caminho infeliz)
+			String nomehost = Inet4Address.getLocalHost().getHostName(); // pega o nome do host
+
 			System.out.println("Nome do host: " + nomehost);
 
-			
-			for(InetAddress inet: InetAddress.getAllByName(nomehost)) //captura todos os endereços disponíveis de todas as interfaces
+			for (InetAddress inet : InetAddress.getAllByName(nomehost)) // captura todos os endereços disponíveis de
+																		// todas as interfaces
 			{
 				System.out.println("Nome da interface: " + (NetworkInterface.getByInetAddress(inet).getName()));
 
-			if(NetworkInterface.getByInetAddress(inet).getName().contains("eth")) //pega o nome da interface em que está setado o endereço da vez e verifica
-			//o nome da interface
-			{
-			ip = inet.getHostAddress(); //caso seja a de interesse, seta ip e pára
-			break;
+				if (NetworkInterface.getByInetAddress(inet).getName().contains("eth")) // pega o nome da interface em
+																						// que está setado o endereço da
+																						// vez e verifica
+				// o nome da interface
+				{
+					ip = inet.getHostAddress(); // caso seja a de interesse, seta ip e pára
+					break;
+				}
 			}
-			}			
-			
+
 			System.out.println(ip);
 			// nome da maquina.
 

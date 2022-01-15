@@ -13,7 +13,20 @@ public class CadastroContrato {
 		return filho;
 	}
 
+	private double valor_total_comissao_receber;
 	
+	
+	
+	public double getValor_total_comissao_receber() {
+		return valor_total_comissao_receber;
+	}
+
+
+
+	public void setValor_total_comissao_receber(double valor_total_comissao_receber) {
+		this.valor_total_comissao_receber = valor_total_comissao_receber;
+	}
+
 	private String nome_local_retirada;
 	
 	
@@ -115,7 +128,56 @@ public void setIds_clientes_compradores(String ids_clientes_compradores) {
 	private String clausula_fundo_rural;
 	private  String clausula_comissao;
 	private int criar_clausula_comissao;
+	private int criar_clausula_1, criar_clausula_2;
+	private String clausula1, clausula2;
 	
+	public int getCriar_clausula_1() {
+		return criar_clausula_1;
+	}
+
+
+
+	public void setCriar_clausula_1(int criar_clausula_1) {
+		this.criar_clausula_1 = criar_clausula_1;
+	}
+
+
+
+	public int getCriar_clausula_2() {
+		return criar_clausula_2;
+	}
+
+
+
+	public void setCriar_clausula_2(int criar_clausula_2) {
+		this.criar_clausula_2 = criar_clausula_2;
+	}
+
+
+
+	public String getClausula1() {
+		return clausula1;
+	}
+
+
+
+	public void setClausula1(String clausula1) {
+		this.clausula1 = clausula1;
+	}
+
+
+
+	public String getClausula2() {
+		return clausula2;
+	}
+
+
+
+	public void setClausula2(String clausula2) {
+		this.clausula2 = clausula2;
+	}
+
+
 	private int comissao;
 	
 	

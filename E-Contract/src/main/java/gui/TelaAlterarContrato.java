@@ -203,19 +203,21 @@ public class TelaAlterarContrato extends JFrame {
 	private JLabel  lblPreco, lblQuant;
 	private JLabel lblValorTotal;
 	private BigDecimal valor_total;
-	private CadastroContrato contrato_local;
 	private JButton btnNewButton;
+	private JLabel lblComisso;
+	private JTextField entComissao;
+	private JLabel lblvalortotal_1;
+	private JLabel lblValorTotalComissao;
 
 	public TelaAlterarContrato(CadastroContrato contrato,Window janela_pai) {
 
 		isto = this;
-		contrato_local = contrato;
 		setTitle("E-Contract - Alterar Contrato");
 
 		setContentPane(painelOdin);
 		setBackground(new Color(255, 255, 255));
 		setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-		setBounds(100, 100, 472, 336);
+		setBounds(100, 100, 864, 336);
 		painelOdin.setLayout(new BorderLayout(0, 0));
 		painelOdin.add(painelPrincipal);
 
@@ -224,7 +226,7 @@ public class TelaAlterarContrato extends JFrame {
 		painelPrincipal.setLayout(
 				new MigLayout("", "[73px,grow][379px][74px][8px][83px,grow][50px]", "[46px][16px][433px,grow][28px,grow]"));
 		panel.setBackground(new Color(0, 51, 0));
-		painelPrincipal.add(panel, "cell 0 0 5 1,grow");
+		painelPrincipal.add(panel, "cell 0 0 6 1,grow");
 		panel.setLayout(new MigLayout("", "[617px]", "[20px]"));
 		lblNewLabel.setFont(new Font("Tahoma", Font.BOLD, 20));
 		lblNewLabel.setForeground(Color.WHITE);
@@ -233,7 +235,25 @@ public class TelaAlterarContrato extends JFrame {
 		panel_1.setBackground(Color.WHITE);
 		
 		painelPrincipal.add(panel_1, "cell 0 2 6 1,grow");
-		panel_1.setLayout(new MigLayout("", "[96px][58px][10px][106px][133px]", "[23px][42px][42px][42px][][]"));
+		panel_1.setLayout(new MigLayout("", "[96px][58px][10px][106px][133px][][grow]", "[23px][42px][42px][42px][][]"));
+		
+		lblComisso = new JLabel("Valor Comissão por unidade:");
+		lblComisso.setFont(new Font("Arial Black", Font.PLAIN, 14));
+		panel_1.add(lblComisso, "cell 5 1,alignx trailing");
+		
+		entComissao = new JTextField();
+		entComissao.setEditable(false);
+		entComissao.setFont(new Font("SansSerif", Font.BOLD, 16));
+		entComissao.setColumns(10);
+		panel_1.add(entComissao, "cell 6 1,growx");
+		
+		lblvalortotal_1 = new JLabel("Valor Total:");
+		lblvalortotal_1.setFont(new Font("Arial Black", Font.PLAIN, 14));
+		panel_1.add(lblvalortotal_1, "cell 5 2,alignx right");
+		
+		lblValorTotalComissao = new JLabel("");
+		lblValorTotalComissao.setFont(new Font("Tahoma", Font.BOLD, 14));
+		panel_1.add(lblValorTotalComissao, "cell 6 2");
 		
 		JLabel lblvalortotal = new JLabel("Valor Total:");
 		lblvalortotal.setFont(new Font("Arial Black", Font.PLAIN, 14));
@@ -283,7 +303,7 @@ public class TelaAlterarContrato extends JFrame {
 			@Override
 			public void keyTyped(KeyEvent o) {
 				String caracteres = ".0987654321\b";// lista de caracters que não devem ser aceitos
-				String Spreco, quantidade;
+				String Spreco, SprecoComissao, quantidade;
 				quantidade = entQuantidade.getText();
 
 				if (!caracteres.contains(o.getKeyChar() + "")) {
@@ -296,18 +316,19 @@ public class TelaAlterarContrato extends JFrame {
 				}
 
 				Spreco = entPreco.getText();
-
+				SprecoComissao = entComissao.getText();
+				
 				BigDecimal quant = null;
 				BigDecimal valor = null;
+				BigDecimal valor_comissao = null;
 
 				System.out.println("preco e " + Spreco);
+				System.out.println("preco comissao e " + SprecoComissao);
 
 				System.out.println("quantidade e " + quantidade);
 
-				// if(quantidade != null && !(quantidade.length() <= 0) &&
-				// !quantidade.equals("") && Spreco != null && !(Spreco.length() <= 0) &&
-				// !Spreco.equals(""))
-				{
+			
+				
 					try {
 						quant = new BigDecimal(quantidade);
 
@@ -315,31 +336,48 @@ public class TelaAlterarContrato extends JFrame {
 
 						valor = quant.multiply(preco);
 						valor_total = valor;
-						// valor_atual = valor_total.subtract(valor_atual);
 
+						
 						String valorTotal = valor.toPlainString();
 						lblValorTotal.setText("R$ " + valorTotal);
 
+						//comissao
+						BigDecimal preco_comissao = new BigDecimal(SprecoComissao);
+
+						valor_comissao = quant.multiply(preco_comissao);
+						String valorTotalComissao = valor_comissao.toPlainString();
+						lblValorTotalComissao.setText("R$ " + valor_comissao);
+						
 					} catch (NumberFormatException n) {
 						System.out.println("preco e nulo " + n.getCause());
 
 						BigDecimal preco = new BigDecimal("1.0");
+						
+						BigDecimal preco_comissao = new BigDecimal("1.0");
+
+						
 						try {
 							valor = quant.multiply(preco);
 							String valorTotal = valor.toPlainString();
 							lblValorTotal.setText("R$ " + valorTotal);
 							valor_total = valor;
+							
+							
+							valor_comissao = quant.multiply(preco_comissao);
+							String valorTotalComissao = valor_comissao.toPlainString();
+							lblValorTotal.setText("R$ " + valorTotalComissao);
 
-							// valor_atual = valor_total.subtract(valor_atual);
 
 						} catch (NullPointerException l) {
 							System.out.println("quant e nulo " + l.getCause());
 							lblValorTotal.setText("");
+							
+							lblValorTotalComissao.setText("");
 
 						}
 
 					}
-				}
+				
 
 			}
 		});
@@ -440,7 +478,7 @@ public class TelaAlterarContrato extends JFrame {
 			public void actionPerformed(ActionEvent e) {
 				
 				GerenciarBancoContratos gerenciar = new GerenciarBancoContratos();
-				CadastroContrato contrato_atualizar = getDadosSalvar();
+				CadastroContrato contrato_atualizar = getDadosSalvar(contrato);
 				if(contrato_atualizar != null) {
 				boolean atualizado = gerenciar.atualizarContratoComDistrato(contrato_atualizar);
 				if(atualizado) {
@@ -459,7 +497,7 @@ public class TelaAlterarContrato extends JFrame {
 		btnNewButton.setFont(new Font("SansSerif", Font.BOLD, 16));
 		panel_1.add(btnNewButton, "cell 4 5,growx");
 
-		
+		rotinasEdicao(contrato);
 		
 		this.setResizable(false);
 		this.setLocationRelativeTo(janela_pai);
@@ -467,13 +505,20 @@ public class TelaAlterarContrato extends JFrame {
 	}
 	
 	
-	public CadastroContrato getDadosSalvar() {
+	public CadastroContrato getDadosSalvar(CadastroContrato contrato_antigo) {
+		double valor_comissao_por_unidade = 0;
+		
+		if(contrato_antigo.getComissao() == 1)
+		 valor_comissao_por_unidade = contrato_antigo.getValor_comissao().doubleValue() / contrato_antigo.getQuantidade();
+
 		
 		CadastroContrato contrato = new CadastroContrato();
+		
+		contrato = contrato_antigo;
+		
 		String quantidade = entQuantidade.getText();
 		String valor_produto = entPreco.getText();
 		String medida = "";
-		contrato.setId(contrato_local.getId());
 		if (rQuanKG.isSelected())
 			medida = "KG";
 		else if (rQuanS.isSelected())
@@ -508,6 +553,15 @@ public class TelaAlterarContrato extends JFrame {
 		double pagar = contrato.getValor_produto() * contrato.getQuantidade();
 		BigDecimal valor_a_pagar = new BigDecimal(pagar);
 		contrato.setValor_a_pagar(valor_a_pagar);
+		
+		
+		
+		double valor_total_comissao = valor_comissao_por_unidade * contrato.getQuantidade();
+		
+		if(contrato_antigo.getComissao() == 1)		
+		contrato.setValor_comissao(new BigDecimal(valor_total_comissao));
+		
+		
 		return contrato;
 		
 	}catch(Exception e) {
@@ -521,18 +575,6 @@ public class TelaAlterarContrato extends JFrame {
 		
 	}
 	
-	public void pesquisar_usuarios() {
-
-		modelUsuarios.resetar();
-		GerenciarBancoLogin gerenciar = new GerenciarBancoLogin();
-
-		for (CadastroLogin usuario : gerenciar.getUsuarios()) {
-
-			modelUsuarios.addCC(usuario);
-
-		}
-	}
-
 
 	public void setTelaPai(JDialog _tela_pai) {
 		this.telaPai = _tela_pai;
@@ -543,5 +585,40 @@ public class TelaAlterarContrato extends JFrame {
 		return txt != null && !txt.equals("") && !txt.equals(" ") && !txt.equals("  ") && txt.length() > 0;
 	}
 	
+	
+	
+	public void rotinasEdicao(CadastroContrato contrato_local) 
+	{
+		entQuantidade.setText(contrato_local.getQuantidade() + "");
+		entPreco.setText(contrato_local.getValor_produto() + "");
+		
+		if(contrato_local.getMedida().equalsIgnoreCase("KG")) {
+			rQuanS.setSelected(false);
+			rQuanKG.setSelected(true);
+			lblQuant.setText("Quilos");
+			lblPreco.setText("por Quilo");
+
+		}else if(contrato_local.getMedida().equalsIgnoreCase("Sacos")) {
+			rQuanKG.setSelected(false);
+			rQuanS.setSelected(true);
+			lblQuant.setText("Sacos");
+			lblPreco.setText("por Saco");
+		}
+		
+		if(contrato_local.getComissao() == 1) {
+			
+			double valor_comissao_por_unidade = contrato_local.getValor_comissao().doubleValue() / contrato_local.getQuantidade();
+			entComissao.setText(valor_comissao_por_unidade + "");
+			
+		}else {
+			entComissao.setEnabled(false);
+			entComissao.setEditable(false);
+		}
+		
+		
+		
+		
+		
+	}
 	
 }

@@ -966,6 +966,8 @@ public class TelaRelatoriaContratos extends JFrame {
 		cBParticipacao.addItem("TODOS");
 		cBParticipacao.addItem("GRUPO");
 		cBParticipacao.addItem("PARTICULAR");
+		cBParticipacao.addItem("EMPRÉSTIMO");
+
 
 		lblNewLabel_7 = new JLabel("Formato da Saída:");
 		lblNewLabel_7.setFont(new Font("SansSerif", Font.PLAIN, 16));

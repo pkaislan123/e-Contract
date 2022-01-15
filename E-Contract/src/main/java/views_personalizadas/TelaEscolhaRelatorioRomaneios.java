@@ -22,7 +22,6 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
 
-
 import javafx.application.Platform;
 import javafx.embed.swing.JFXPanel;
 import javafx.stage.FileChooser;
@@ -121,10 +120,30 @@ public class TelaEscolhaRelatorioRomaneios extends JDialog {
 		panel.setLayout(new MigLayout("", "[][][][][]", "[]"));
 
 		rdbtnCompleto = new JRadioButton("Completo");
+		rdbtnCompleto.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+
+				rdbtnSimples.setSelected(false);
+
+				rdbtnCompleto.setSelected(true);
+				rdbtnMonsanto.setSelected(false);
+				rdbtnUmidade.setSelected(false);
+			}
+		});
 		rdbtnCompleto.setBackground(new Color(0, 102, 102));
 		rdbtnCompleto.setForeground(Color.BLACK);
 
 		rdbtnSimples = new JRadioButton("Simples");
+		rdbtnSimples.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+
+				rdbtnSimples.setSelected(true);
+
+				rdbtnCompleto.setSelected(false);
+				rdbtnMonsanto.setSelected(false);
+				rdbtnUmidade.setSelected(false);
+			}
+		});
 		rdbtnSimples.setForeground(Color.BLACK);
 		rdbtnSimples.setBackground(new Color(0, 102, 102));
 
@@ -134,12 +153,31 @@ public class TelaEscolhaRelatorioRomaneios extends JDialog {
 		panel.add(rdbtnCompleto, "cell 2 0");
 
 		rdbtnMonsanto = new JRadioButton("Monsanto");
+		rdbtnMonsanto.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				rdbtnSimples.setSelected(false);
+
+				rdbtnCompleto.setSelected(false);
+				rdbtnMonsanto.setSelected(true);
+				rdbtnUmidade.setSelected(false);
+
+			}
+		});
 		rdbtnMonsanto.setForeground(Color.BLACK);
 		rdbtnMonsanto.setFont(new Font("Tahoma", Font.BOLD, 16));
 		rdbtnMonsanto.setBackground(new Color(0, 102, 102));
 		panel.add(rdbtnMonsanto, "cell 3 0");
 
 		rdbtnUmidade = new JRadioButton("Classificação 2");
+		rdbtnUmidade.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				rdbtnSimples.setSelected(false);
+
+				rdbtnCompleto.setSelected(false);
+				rdbtnMonsanto.setSelected(false);
+				rdbtnUmidade.setSelected(true);
+			}
+		});
 		rdbtnUmidade.setForeground(Color.BLACK);
 		rdbtnUmidade.setFont(new Font("Tahoma", Font.BOLD, 16));
 		rdbtnUmidade.setBackground(new Color(0, 102, 102));
@@ -209,6 +247,14 @@ public class TelaEscolhaRelatorioRomaneios extends JDialog {
 						gerarExcel(prepararMonsanto(romaneios, 0));
 					} else if (rdbtnPdf.isSelected()) {
 						gerarPdf(prepararMonsanto(romaneios, 0));
+
+					}
+				} else if (rdbtnUmidade.isSelected()) {
+
+					if (rdbtnExcel.isSelected()) {
+						gerarExcel(prepararUmidade(romaneios));
+					} else if (rdbtnPdf.isSelected()) {
+						gerarPdf(prepararUmidade(romaneios));
 
 					}
 				}
@@ -1055,13 +1101,11 @@ public class TelaEscolhaRelatorioRomaneios extends JDialog {
 		// Configurando estilos de células (Cores, alinhamento, formatação, etc..)
 		HSSFDataFormat numberFormat = workbook.createDataFormat();
 
-		//estilo para data
+		// estilo para data
 		CellStyle dataStyle = workbook.createCellStyle();
 		CreationHelper createHelper = workbook.getCreationHelper();
-		dataStyle.setDataFormat(
-		    createHelper.createDataFormat().getFormat("dd/MMMM/yyyy"));
-	
-		
+		dataStyle.setDataFormat(createHelper.createDataFormat().getFormat("dd/MMMM/yyyy"));
+
 		CellStyle headerStyle = workbook.createCellStyle();
 		headerStyle.setFillForegroundColor(IndexedColors.GREY_25_PERCENT.getIndex());
 		// headerStyle.setFillPattern(CellStyle.SOLID_FOREGROUND);
@@ -1236,7 +1280,7 @@ public class TelaEscolhaRelatorioRomaneios extends JDialog {
 		numberStyleFundoVerde.setAlignment(HorizontalAlignment.CENTER);
 		numberStyleFundoVerde.setVerticalAlignment(VerticalAlignment.CENTER);
 		numberStyleFundoVerde.setFont(newFont_branca);
-		
+
 		CellStyle numberStyleFundoVerdeEsquerda = workbook.createCellStyle();
 		numberStyleFundoVerdeEsquerda.setFillPattern(FillPatternType.SOLID_FOREGROUND);
 		numberStyleFundoVerdeEsquerda.setFillForegroundColor(IndexedColors.GREEN.getIndex());
@@ -1252,7 +1296,7 @@ public class TelaEscolhaRelatorioRomaneios extends JDialog {
 		numberStyleFundoVerdeDireita.setAlignment(HorizontalAlignment.RIGHT);
 		numberStyleFundoVerdeDireita.setVerticalAlignment(VerticalAlignment.CENTER);
 		numberStyleFundoVerdeDireita.setFont(newFont_branca);
-		
+
 		Locale ptBr = new Locale("pt", "BR");
 		MaskFormatter formater_cnpj = null;
 		try {
@@ -1323,7 +1367,7 @@ public class TelaEscolhaRelatorioRomaneios extends JDialog {
 		cell = row.createCell(cellnum++);
 		cell.setCellStyle(celula_cabecalho);
 		cell.setCellValue("DATA");
-		
+
 		cell = row.createCell(cellnum++);
 		cell.setCellStyle(celula_cabecalho);
 		cell.setCellValue("MÊS");
@@ -1368,7 +1412,6 @@ public class TelaEscolhaRelatorioRomaneios extends JDialog {
 		cell.setCellStyle(celula_cabecalho);
 		cell.setCellValue("STATUS MONSANTO".toUpperCase());
 
-	
 		NumberFormat z = NumberFormat.getNumberInstance();
 
 		int numero_romaneios = 0;
@@ -1392,291 +1435,290 @@ public class TelaEscolhaRelatorioRomaneios extends JDialog {
 
 		for (CadastroRomaneio romaneio : romaneios_selecionados) {
 
-			
-			if(!romaneio.getPlaca().equalsIgnoreCase("XXX-0000")) {
-			
-			peso_bruto_total += romaneio.getPeso_bruto();
-			peso_tara_total += romaneio.getTara();
-			peso_liquido_total += romaneio.getPeso_liquido();
-			peso_liquido_total_sem_desconto += romaneio.getPeso_liquido_sem_descontos();
+			if (!romaneio.getPlaca().equalsIgnoreCase("XXX-0000")) {
 
-			peso_desconto_umidade += romaneio.getPeso_desconto_umidade();
-			peso_desconto_impureza += romaneio.getPeso_desconto_impureza();
-			peso_desconto_avariado += romaneio.getPeso_desconto_avariados();
-			peso_desconto_total += romaneio.getPeso_desconto_total();
-			peso_recepcao += romaneio.getDespesa_recepcao();
+				peso_bruto_total += romaneio.getPeso_bruto();
+				peso_tara_total += romaneio.getTara();
+				peso_liquido_total += romaneio.getPeso_liquido();
+				peso_liquido_total_sem_desconto += romaneio.getPeso_liquido_sem_descontos();
 
-			// monsanto
-			if (romaneio.getRoyalties() == 1) {
-				// e monsanto
-				peso_total_royalties += romaneio.getPeso_liquido();
+				peso_desconto_umidade += romaneio.getPeso_desconto_umidade();
+				peso_desconto_impureza += romaneio.getPeso_desconto_impureza();
+				peso_desconto_avariado += romaneio.getPeso_desconto_avariados();
+				peso_desconto_total += romaneio.getPeso_desconto_total();
+				peso_recepcao += romaneio.getDespesa_recepcao();
 
-				// particular
-				if (romaneio.getStatus_monsanto() == 0 || romaneio.getStatus_monsanto() == 1) {
-					peso_total_paticular += romaneio.getPeso_liquido();
+				// monsanto
+				if (romaneio.getRoyalties() == 1) {
+					// e monsanto
+					peso_total_royalties += romaneio.getPeso_liquido();
 
-					if (romaneio.getStatus_monsanto() == 0) {
-						// falta its
-						peso_total__its_a_declarar += romaneio.getPeso_liquido();
+					// particular
+					if (romaneio.getStatus_monsanto() == 0 || romaneio.getStatus_monsanto() == 1) {
+						peso_total_paticular += romaneio.getPeso_liquido();
 
-					} else if (romaneio.getStatus_monsanto() == 1) {
-						// ok its
-						peso_total_its_declarado += romaneio.getPeso_liquido();
+						if (romaneio.getStatus_monsanto() == 0) {
+							// falta its
+							peso_total__its_a_declarar += romaneio.getPeso_liquido();
+
+						} else if (romaneio.getStatus_monsanto() == 1) {
+							// ok its
+							peso_total_its_declarado += romaneio.getPeso_liquido();
+
+						}
 
 					}
+					if (romaneio.getStatus_monsanto() == 2) {
+						// participante cj
+						peso_total_participante += romaneio.getPeso_liquido();
+					} else if (romaneio.getStatus_monsanto() == 3) {
+						// não aplicavel
+					}
 
-				}
-				if (romaneio.getStatus_monsanto() == 2) {
-					// participante cj
-					peso_total_participante += romaneio.getPeso_liquido();
-				} else if (romaneio.getStatus_monsanto() == 3) {
-					// não aplicavel
-				}
-
-			} else {
-				if (romaneio.getStatus_monsanto() == 2) {
-					// participante cj
-					peso_total_outros_participante += romaneio.getPeso_liquido();
 				} else {
-					peso_total_outros_particular += romaneio.getPeso_liquido();
+					if (romaneio.getStatus_monsanto() == 2) {
+						// participante cj
+						peso_total_outros_participante += romaneio.getPeso_liquido();
+					} else {
+						peso_total_outros_particular += romaneio.getPeso_liquido();
+					}
 				}
-			}
 
-			numero_romaneios++;
-			CadastroCliente remetente = romaneio.getRemetente();
-			CadastroCliente destinatario = romaneio.getDestinatario();
+				numero_romaneios++;
+				CadastroCliente remetente = romaneio.getRemetente();
+				CadastroCliente destinatario = romaneio.getDestinatario();
 
-			row = sheet.createRow(rownum++);
-			cellnum = 0;
-			SimpleDateFormat f = new SimpleDateFormat("dd/MMMM/yyyy");
-			SimpleDateFormat f_mes = new SimpleDateFormat("MMMM/yyyy");
+				row = sheet.createRow(rownum++);
+				cellnum = 0;
+				SimpleDateFormat f = new SimpleDateFormat("dd/MMMM/yyyy");
+				SimpleDateFormat f_mes = new SimpleDateFormat("MMMM/yyyy");
 
-			
-			Date data = romaneio.getData();
-			String data_formatada = "";
-			String mes_ano_formatada = "";
+				Date data = romaneio.getData();
+				String data_formatada = "";
+				String mes_ano_formatada = "";
 
-			if (data instanceof Date) {
-				data_formatada = f.format(data);
-				mes_ano_formatada = f_mes.format(data);
-			}
+				if (data instanceof Date) {
+					data_formatada = f.format(data);
+					mes_ano_formatada = f_mes.format(data);
+				}
 
-			// DATA
-			cell = row.createCell(cellnum++);
-			cell.setCellStyle(dataStyle);
-			cell.setCellValue(data_formatada);
-			
+				// DATA
+				cell = row.createCell(cellnum++);
+				cell.setCellStyle(dataStyle);
+				cell.setCellValue(data_formatada);
 
-			// mes
-			cell = row.createCell(cellnum++);
-			cell.setCellStyle(textStyle);
-			cell.setCellValue(mes_ano_formatada);
+				// mes
+				cell = row.createCell(cellnum++);
+				cell.setCellStyle(textStyle);
+				cell.setCellValue(mes_ano_formatada);
 
-			// numero romaneio
-			cell = row.createCell(cellnum++);
-			cell.setCellStyle(textStyle);
-			cell.setCellValue(romaneio.getNumero_romaneio());
+				// numero romaneio
+				cell = row.createCell(cellnum++);
+				cell.setCellStyle(textStyle);
+				cell.setCellValue(romaneio.getNumero_romaneio());
 
-			// placa
-			cell = row.createCell(cellnum++);
-			cell.setCellStyle(textStyle);
-			cell.setCellValue(romaneio.getPlaca());
+				// placa
+				cell = row.createCell(cellnum++);
+				cell.setCellStyle(textStyle);
+				cell.setCellValue(romaneio.getPlaca());
 
-			// peso liquido final
-			cell = row.createCell(cellnum++);
-			cell.setCellStyle(numberStyle);
-			cell.setCellValue(romaneio.getPeso_liquido());
+				// peso liquido final
+				cell = row.createCell(cellnum++);
+				cell.setCellStyle(numberStyle);
+				cell.setCellValue(romaneio.getPeso_liquido());
 
-			// nome remetente
-			String nome_cliente = "";
-			String identificacao = "";
+				// nome remetente
+				String nome_cliente = "";
+				String identificacao = "";
 
-			if (romaneio.getStatus_monsanto() == 2) {
-				// nome destinatario
-				try {
+				if (romaneio.getStatus_monsanto() == 2) {
+					// nome destinatario
+					try {
 
-					if (destinatario != null) {
-						if (destinatario.getTipo_pessoa() == 0) {
-							/*if (destinatario.getNome_empresarial() != null) {
-								nome_cliente = destinatario.getNome_empresarial().toUpperCase();
-								if (nome_cliente == null || nome_cliente.equals("") || nome_cliente.length() <= 3) {
+						if (destinatario != null) {
+							if (destinatario.getTipo_pessoa() == 0) {
+								/*
+								 * if (destinatario.getNome_empresarial() != null) { nome_cliente =
+								 * destinatario.getNome_empresarial().toUpperCase(); if (nome_cliente == null ||
+								 * nome_cliente.equals("") || nome_cliente.length() <= 3) { nome_cliente =
+								 * destinatario.getNome().toUpperCase() + " " +
+								 * destinatario.getSobrenome().toUpperCase(); }
+								 * 
+								 * } else {
+								 */
+								nome_cliente = destinatario.getNome().toUpperCase() + " "
+										+ destinatario.getSobrenome().toUpperCase();
+
+								// }
+							} else {
+								if (destinatario.getNome_fantaia() != null) {
+									nome_cliente = destinatario.getNome_fantaia().toUpperCase();
+								} else {
 									nome_cliente = destinatario.getNome().toUpperCase() + " "
 											+ destinatario.getSobrenome().toUpperCase();
 								}
-
-							} else {*/
-								nome_cliente = destinatario.getNome().toUpperCase() + " "
-										+ destinatario.getSobrenome().toUpperCase();
-
-						//	}
-						} else {
-							if (destinatario.getNome_fantaia() != null) {
-								nome_cliente = destinatario.getNome_fantaia().toUpperCase();
-							}else {
-								nome_cliente = destinatario.getNome().toUpperCase() + " "
-										+ destinatario.getSobrenome().toUpperCase();
 							}
-						}
 
-					} else {
+						} else {
+							nome_cliente = ("");
+
+						}
+					} catch (Exception u) {
 						nome_cliente = ("");
 
 					}
-				} catch (Exception u) {
-					nome_cliente = ("");
 
-				}
+					// cpf_cnpj destinatario
+					try {
+						if (destinatario.getTipo_pessoa() == 0) {
+							identificacao = destinatario.getCpf();
+							MaskFormatter formater_cpf = new MaskFormatter("###.###.###-##");
+							formater_cpf.setValueContainsLiteralCharacters(false);
+							identificacao = formater_cpf.valueToString(identificacao);
 
-				// cpf_cnpj destinatario
-				try {
-					if (destinatario.getTipo_pessoa() == 0) {
-						identificacao = destinatario.getCpf();
-						MaskFormatter formater_cpf = new MaskFormatter("###.###.###-##");
-						formater_cpf.setValueContainsLiteralCharacters(false);
-						identificacao = formater_cpf.valueToString(identificacao);
+						} else {
+							identificacao = destinatario.getCnpj();
+							formater_cnpj.setValueContainsLiteralCharacters(false);
+							identificacao = formater_cnpj.valueToString(identificacao);
 
-					} else {
-						identificacao = destinatario.getCnpj();
-						formater_cnpj.setValueContainsLiteralCharacters(false);
-						identificacao = formater_cnpj.valueToString(identificacao);
+						}
+					} catch (Exception p) {
+						identificacao = ("");
 
 					}
-				} catch (Exception p) {
-					identificacao = ("");
 
-				}
+				} else {
+					// retorna nome do remetente
+					// participante cj, retorna o nome do destinatario
+					try {
 
-			} else {
-				// retorna nome do remetente
-				// participante cj, retorna o nome do destinatario
-				try {
-
-					if (remetente != null) {
-						if (remetente.getTipo_pessoa() == 0) {
-							/*if (remetente.getNome_empresarial() != null) {
-								nome_cliente = remetente.getNome_empresarial().toUpperCase();
-								if (nome_cliente == null || nome_cliente.equals("") || nome_cliente.length() <= 3) {
-									nome_cliente = remetente.getNome().toUpperCase() + " "
-											+ remetente.getSobrenome().toUpperCase();
-								}
-
-							} else {*/
+						if (remetente != null) {
+							if (remetente.getTipo_pessoa() == 0) {
+								/*
+								 * if (remetente.getNome_empresarial() != null) { nome_cliente =
+								 * remetente.getNome_empresarial().toUpperCase(); if (nome_cliente == null ||
+								 * nome_cliente.equals("") || nome_cliente.length() <= 3) { nome_cliente =
+								 * remetente.getNome().toUpperCase() + " " +
+								 * remetente.getSobrenome().toUpperCase(); }
+								 * 
+								 * } else {
+								 */
 								nome_cliente = remetente.getNome().toUpperCase() + " "
 										+ remetente.getSobrenome().toUpperCase();
 
-						//	}
-						} else {
-							if (remetente.getNome_fantaia() != null) {
-								nome_cliente = remetente.getNome_fantaia().toUpperCase();
-							}else {
-								nome_cliente = destinatario.getNome().toUpperCase() + " "
-										+ remetente.getSobrenome().toUpperCase();
+								// }
+							} else {
+								if (remetente.getNome_fantaia() != null) {
+									nome_cliente = remetente.getNome_fantaia().toUpperCase();
+								} else {
+									nome_cliente = destinatario.getNome().toUpperCase() + " "
+											+ remetente.getSobrenome().toUpperCase();
+								}
 							}
 						}
+
+					} catch (Exception t) {
+
+						nome_cliente = "";
 					}
 
-				} catch (Exception t) {
+					// cpf_cnpj_remetente
+					try {
+						if (remetente.getTipo_pessoa() == 0) {
 
-					nome_cliente = "";
-				}
+							identificacao = remetente.getCpf();
+							MaskFormatter formater_cpf = new MaskFormatter("###.###.###-##");
+							formater_cpf.setValueContainsLiteralCharacters(false);
+							identificacao = formater_cpf.valueToString(identificacao);
 
-				// cpf_cnpj_remetente
-				try {
-					if (remetente.getTipo_pessoa() == 0) {
+						} else {
 
-						identificacao = remetente.getCpf();
-						MaskFormatter formater_cpf = new MaskFormatter("###.###.###-##");
-						formater_cpf.setValueContainsLiteralCharacters(false);
-						identificacao = formater_cpf.valueToString(identificacao);
+							identificacao = remetente.getCnpj();
+							formater_cnpj.setValueContainsLiteralCharacters(false);
+							identificacao = formater_cnpj.valueToString(identificacao);
 
-					} else {
+						}
+					} catch (Exception y) {
 
-						identificacao = remetente.getCnpj();
-						formater_cnpj.setValueContainsLiteralCharacters(false);
-						identificacao = formater_cnpj.valueToString(identificacao);
-
+						identificacao = "";
 					}
-				} catch (Exception y) {
 
-					identificacao = "";
 				}
 
-			}
+				// prdutor rural
+				cell = row.createCell(cellnum++);
+				cell.setCellStyle(textStyle);
+				cell.setCellValue(nome_cliente);
 
-			// prdutor rural
-			cell = row.createCell(cellnum++);
-			cell.setCellStyle(textStyle);
-			cell.setCellValue(nome_cliente);
+				// cpf/cnpj
+				cell = row.createCell(cellnum++);
+				cell.setCellStyle(textStyle);
+				cell.setCellValue(identificacao);
 
-			// cpf/cnpj
-			cell = row.createCell(cellnum++);
-			cell.setCellStyle(textStyle);
-			cell.setCellValue(identificacao);
+				// transgenia
+				cell = row.createCell(cellnum++);
+				cell.setCellStyle(textStyle);
+				cell.setCellValue(romaneio.getTransgenia());
 
-			// transgenia
-			cell = row.createCell(cellnum++);
-			cell.setCellStyle(textStyle);
-			cell.setCellValue(romaneio.getTransgenia());
+				// teste/declarado
+				cell = row.createCell(cellnum++);
+				cell.setCellStyle(textStyle);
+				int teste = romaneio.getTeste();
+				if (teste == 0)
+					cell.setCellValue("DECLARADO");
+				else if (teste == 1)
+					cell.setCellValue("TESTADO");
 
-			// teste/declarado
-			cell = row.createCell(cellnum++);
-			cell.setCellStyle(textStyle);
-			int teste = romaneio.getTeste();
-			if (teste == 0)
-				cell.setCellValue("DECLARADO");
-			else if (teste == 1)
-				cell.setCellValue("TESTADO");
+				// RESULTADO TESTE
+				cell = row.createCell(cellnum++);
+				cell.setCellStyle(textStyle);
+				int resultado = romaneio.getResultado();
+				if (teste == 1) {
+					if (resultado == 0)
+						cell.setCellValue("NEGATIVO");
+					else if (resultado == 1)
+						cell.setCellValue("POSITIVO");
+				} else {
+					cell.setCellValue("DECLARADO");
 
-			// RESULTADO TESTE
-			cell = row.createCell(cellnum++);
-			cell.setCellStyle(textStyle);
-			int resultado = romaneio.getResultado();
-			if(teste == 1) {
-			if (resultado == 0)
-				cell.setCellValue("NEGATIVO");
-			else if (resultado == 1)
-				cell.setCellValue("POSITIVO");
-			}else {
-				cell.setCellValue("DECLARADO");
+				}
+				// royalties
+				cell = row.createCell(cellnum++);
+				cell.setCellStyle(textStyle);
+				if (romaneio.getRoyalties() == 0) {
+					cell.setCellValue("NÃO");
 
-			}
-			// royalties
-			cell = row.createCell(cellnum++);
-			cell.setCellStyle(textStyle);
-			if (romaneio.getRoyalties() == 0) {
-				cell.setCellValue("NÃO");
+				} else {
+					cell.setCellValue("SIM");
 
-			} else {
-				cell.setCellValue("SIM");
+				}
 
-			}
+				// status monsanto
+				cell = row.createCell(cellnum++);
+				int sts_monsanto = romaneio.getStatus_monsanto();
+				if (sts_monsanto == 0) {
+					cell.setCellStyle(celula_fundo_vermelho);
 
-			// status monsanto
-			cell = row.createCell(cellnum++);
-			int sts_monsanto = romaneio.getStatus_monsanto();
-			if (sts_monsanto == 0) {
-				cell.setCellStyle(celula_fundo_vermelho);
+					cell.setCellValue("FALTA ITS");
 
-				cell.setCellValue("FALTA ITS");
+				} else if (sts_monsanto == 1) {
+					cell.setCellStyle(celula_fundo_verde);
 
-			} else if (sts_monsanto == 1) {
-				cell.setCellStyle(celula_fundo_verde);
+					cell.setCellValue("OK ITS");
 
-				cell.setCellValue("OK ITS");
+				} else if (sts_monsanto == 2) {
+					cell.setCellStyle(celula_fundo_azul);
 
-			} else if (sts_monsanto == 2) {
-				cell.setCellStyle(celula_fundo_azul);
+					cell.setCellValue("PARTICIPANTE");
 
-				cell.setCellValue("PARTICIPANTE");
+				} else if (sts_monsanto == 3) {
+					cell.setCellStyle(celula_fundo_amarelo);
 
-			} else if (sts_monsanto == 3) {
-				cell.setCellStyle(celula_fundo_amarelo);
+					cell.setCellValue("NÃO APLICÁVEL");
 
-				cell.setCellValue("NÃO APLICÁVEL");
+				}
 
-			}
-
-			ultima_linha = rownum;
+				ultima_linha = rownum;
 			}
 		}
 		sheet.setAutoFilter(CellRangeAddress.valueOf("A4:AF4"));
@@ -1685,7 +1727,7 @@ public class TelaEscolhaRelatorioRomaneios extends JDialog {
 
 		}
 
-		FormulaEvaluator evaluator = workbook.getCreationHelper().createFormulaEvaluator();     
+		FormulaEvaluator evaluator = workbook.getCreationHelper().createFormulaEvaluator();
 
 		row = sheet.createRow(rownum += 2);
 		cellnum = 0;
@@ -1728,7 +1770,7 @@ public class TelaEscolhaRelatorioRomaneios extends JDialog {
 		cell = row.createCell(4);
 		cell.setCellStyle(negrito_esquerda);
 		cell.setCellValue("sacos");
-		
+
 		row = sheet.createRow(rownum += 2);
 		cellnum = 0;
 
@@ -1747,29 +1789,30 @@ public class TelaEscolhaRelatorioRomaneios extends JDialog {
 		cell = row.createCell(2);
 		cell.setCellStyle(numberStyleFundoVerde);
 		cell.setCellType(CellType.FORMULA);
-		formula = "SUMPRODUCT(SUBTOTAL(9,OFFSET(E5:E" + ultima_linha + ",ROW(E5:E" + ultima_linha + ")-ROW(E5),0,1,1)),-(K5:K" + ultima_linha + "=\"SIM\"),-(J5:J" + ultima_linha + "=\"POSITIVO\"),-(L5:L" + ultima_linha + "=\"PARTICIPANTE\"))*-1";
+		formula = "SUMPRODUCT(SUBTOTAL(9,OFFSET(E5:E" + ultima_linha + ",ROW(E5:E" + ultima_linha
+				+ ")-ROW(E5),0,1,1)),-(K5:K" + ultima_linha + "=\"SIM\"),-(J5:J" + ultima_linha
+				+ "=\"POSITIVO\"),-(L5:L" + ultima_linha + "=\"PARTICIPANTE\"))*-1";
 		cell.setCellFormula(formula);
-		
+
 		cell = row.createCell(3);
 		cell.setCellStyle(negrito_esquerda);
 		cell.setCellValue("kgs");
 
-	
-		//valor em sacos
+		// valor em sacos
 		row = sheet.createRow(rownum += 1);
 		cellnum = 0;
 		cell = row.createCell(2);
 		cell.setCellStyle(numberStyleFundoVerdeDireita);
 		cell.setCellType(CellType.FORMULA);
-		formula = "SUMPRODUCT(SUBTOTAL(9,OFFSET(E5:E" + ultima_linha + ",ROW(E5:E" + ultima_linha + ")-ROW(E5),0,1,1)),-(K5:K" + ultima_linha + "=\"SIM\"),-(J5:J" + ultima_linha + "=\"POSITIVO\"),-(L5:L" + ultima_linha + "=\"PARTICIPANTE\"))*-1/60";
+		formula = "SUMPRODUCT(SUBTOTAL(9,OFFSET(E5:E" + ultima_linha + ",ROW(E5:E" + ultima_linha
+				+ ")-ROW(E5),0,1,1)),-(K5:K" + ultima_linha + "=\"SIM\"),-(J5:J" + ultima_linha
+				+ "=\"POSITIVO\"),-(L5:L" + ultima_linha + "=\"PARTICIPANTE\"))*-1/60";
 		cell.setCellFormula(formula);
 
 		cell = row.createCell(3);
 		cell.setCellStyle(negrito_esquerda);
 		cell.setCellValue("sacos");
 
-		
-		
 		row = sheet.createRow(rownum += 1);
 		cellnum = 0;
 
@@ -1780,10 +1823,12 @@ public class TelaEscolhaRelatorioRomaneios extends JDialog {
 
 		cell = row.createCell(2);
 		cell.setCellStyle(numberStyleFundoVerde);
-		formula = "SUMPRODUCT(SUBTOTAL(9,OFFSET(E5:E" + ultima_linha + ",ROW(E5:E" + ultima_linha + ")-ROW(E5),0,1,1)),-(K5:K"+ ultima_linha +"=\"SIM\"),-(J5:J"+ ultima_linha +"=\"POSITIVO\"),-((L5:L"+ ultima_linha +"=\"OK ITS\")+(L5:L" + ultima_linha +"=\"FALTA ITS\"))) *-1";
+		formula = "SUMPRODUCT(SUBTOTAL(9,OFFSET(E5:E" + ultima_linha + ",ROW(E5:E" + ultima_linha
+				+ ")-ROW(E5),0,1,1)),-(K5:K" + ultima_linha + "=\"SIM\"),-(J5:J" + ultima_linha
+				+ "=\"POSITIVO\"),-((L5:L" + ultima_linha + "=\"OK ITS\")+(L5:L" + ultima_linha
+				+ "=\"FALTA ITS\"))) *-1";
 		cell.setCellFormula(formula);
 
-		
 		cell = row.createCell(3);
 		cell.setCellStyle(negrito_esquerda);
 		cell.setCellValue("kgs");
@@ -1792,16 +1837,16 @@ public class TelaEscolhaRelatorioRomaneios extends JDialog {
 		cellnum = 0;
 		cell = row.createCell(2);
 		cell.setCellStyle(numberStyleFundoVerdeDireita);
-		formula = "SUMPRODUCT(SUBTOTAL(9,OFFSET(E5:E" + ultima_linha + ",ROW(E5:E" + ultima_linha + ")-ROW(E5),0,1,1)),-(K5:K"+ ultima_linha +"=\"SIM\"),-(J5:J"+ ultima_linha +"=\"POSITIVO\"),-((L5:L"+ ultima_linha +"=\"OK ITS\")+(L5:L" + ultima_linha +"=\"FALTA ITS\"))) *-1 / 60";
+		formula = "SUMPRODUCT(SUBTOTAL(9,OFFSET(E5:E" + ultima_linha + ",ROW(E5:E" + ultima_linha
+				+ ")-ROW(E5),0,1,1)),-(K5:K" + ultima_linha + "=\"SIM\"),-(J5:J" + ultima_linha
+				+ "=\"POSITIVO\"),-((L5:L" + ultima_linha + "=\"OK ITS\")+(L5:L" + ultima_linha
+				+ "=\"FALTA ITS\"))) *-1 / 60";
 		cell.setCellFormula(formula);
 
 		cell = row.createCell(3);
 		cell.setCellStyle(negrito_esquerda);
 		cell.setCellValue("sacos");
 
-		
-		
-		
 		row = sheet.createRow(rownum += 1);
 		cellnum = 0;
 
@@ -1812,27 +1857,26 @@ public class TelaEscolhaRelatorioRomaneios extends JDialog {
 
 		cell = row.createCell(2);
 		cell.setCellStyle(numberStyleFundoVerde);
-		formula = "SUMPRODUCT(SUBTOTAL(9,OFFSET(E5:E" + ultima_linha + ",ROW(E5:E" + ultima_linha + ")-ROW(E5),0,1,1)),-(K5:K" + ultima_linha + "=\"SIM\")) * -1";
+		formula = "SUMPRODUCT(SUBTOTAL(9,OFFSET(E5:E" + ultima_linha + ",ROW(E5:E" + ultima_linha
+				+ ")-ROW(E5),0,1,1)),-(K5:K" + ultima_linha + "=\"SIM\")) * -1";
 		cell.setCellFormula(formula);
-		
+
 		cell = row.createCell(3);
 		cell.setCellStyle(negrito_esquerda);
 		cell.setCellValue("kgs");
-		
-		
+
 		row = sheet.createRow(rownum += 1);
 		cellnum = 0;
 		cell = row.createCell(2);
 		cell.setCellStyle(numberStyleFundoVerdeDireita);
-		formula = "SUMPRODUCT(SUBTOTAL(9,OFFSET(E5:E" + ultima_linha + ",ROW(E5:E" + ultima_linha + ")-ROW(E5),0,1,1)),-(K5:K" + ultima_linha + "=\"SIM\")) * -1 / 60";
+		formula = "SUMPRODUCT(SUBTOTAL(9,OFFSET(E5:E" + ultima_linha + ",ROW(E5:E" + ultima_linha
+				+ ")-ROW(E5),0,1,1)),-(K5:K" + ultima_linha + "=\"SIM\")) * -1 / 60";
 		cell.setCellFormula(formula);
 
 		cell = row.createCell(3);
 		cell.setCellStyle(negrito_esquerda);
 		cell.setCellValue("sacos");
 
-		
-		
 		row = sheet.createRow(rownum += 2);
 		cellnum = 0;
 
@@ -1841,29 +1885,30 @@ public class TelaEscolhaRelatorioRomaneios extends JDialog {
 		cell.setCellValue("TOTAL ITS BAIXADO:");
 		sheet.addMergedRegion(new CellRangeAddress(rownum, rownum, 0, 1));
 
-		
 		cell = row.createCell(2);
 		cell.setCellStyle(numberStyleFundoVerde);
-		formula = "SUMPRODUCT(SUBTOTAL(9,OFFSET(E5:E"+ ultima_linha +",ROW(E5:E"+ ultima_linha +")-ROW(E5),0,1,1)),-(K5:K"+ ultima_linha +"=\"SIM\"),-(J5:J"+ ultima_linha +"=\"POSITIVO\"),-(L5:L"+ ultima_linha +"=\"OK ITS\")) * -1";
+		formula = "SUMPRODUCT(SUBTOTAL(9,OFFSET(E5:E" + ultima_linha + ",ROW(E5:E" + ultima_linha
+				+ ")-ROW(E5),0,1,1)),-(K5:K" + ultima_linha + "=\"SIM\"),-(J5:J" + ultima_linha
+				+ "=\"POSITIVO\"),-(L5:L" + ultima_linha + "=\"OK ITS\")) * -1";
 		cell.setCellFormula(formula);
-
 
 		cell = row.createCell(3);
 		cell.setCellStyle(negrito_esquerda);
 		cell.setCellValue("kgs");
-		
+
 		row = sheet.createRow(rownum += 1);
 		cellnum = 0;
 		cell = row.createCell(2);
 		cell.setCellStyle(numberStyleFundoVerdeDireita);
-		formula = "SUMPRODUCT(SUBTOTAL(9,OFFSET(E5:E"+ ultima_linha +",ROW(E5:E"+ ultima_linha +")-ROW(E5),0,1,1)),-(K5:K"+ ultima_linha +"=\"SIM\"),-(J5:J"+ ultima_linha +"=\"POSITIVO\"),-(L5:L"+ ultima_linha +"=\"OK ITS\")) * -1/60";
+		formula = "SUMPRODUCT(SUBTOTAL(9,OFFSET(E5:E" + ultima_linha + ",ROW(E5:E" + ultima_linha
+				+ ")-ROW(E5),0,1,1)),-(K5:K" + ultima_linha + "=\"SIM\"),-(J5:J" + ultima_linha
+				+ "=\"POSITIVO\"),-(L5:L" + ultima_linha + "=\"OK ITS\")) * -1/60";
 		cell.setCellFormula(formula);
 
 		cell = row.createCell(3);
 		cell.setCellStyle(negrito_esquerda);
 		cell.setCellValue("sacos");
 
-		
 		row = sheet.createRow(rownum += 1);
 		cellnum = 0;
 
@@ -1874,31 +1919,518 @@ public class TelaEscolhaRelatorioRomaneios extends JDialog {
 
 		cell = row.createCell(2);
 		cell.setCellStyle(numberStyleFundoVerde);
-		formula = "SUMPRODUCT(SUBTOTAL(9,OFFSET(E5:E"+ ultima_linha +",ROW(E5:E"+ ultima_linha +")-ROW(E5),0,1,1)),-(K5:K"+ ultima_linha +"=\"SIM\"),-(J5:J"+ ultima_linha +"=\"POSITIVO\"),-(L5:L"+ ultima_linha +"=\"FALTA ITS\")) * -1";
+		formula = "SUMPRODUCT(SUBTOTAL(9,OFFSET(E5:E" + ultima_linha + ",ROW(E5:E" + ultima_linha
+				+ ")-ROW(E5),0,1,1)),-(K5:K" + ultima_linha + "=\"SIM\"),-(J5:J" + ultima_linha
+				+ "=\"POSITIVO\"),-(L5:L" + ultima_linha + "=\"FALTA ITS\")) * -1";
 		cell.setCellFormula(formula);
 
 		cell = row.createCell(3);
 		cell.setCellStyle(negrito_esquerda);
 		cell.setCellValue("kgs");
-		
+
 		row = sheet.createRow(rownum += 1);
 		cellnum = 0;
 		cell = row.createCell(2);
 		cell.setCellStyle(numberStyleFundoVerdeDireita);
-		formula = "SUMPRODUCT(SUBTOTAL(9,OFFSET(E5:E"+ ultima_linha +",ROW(E5:E"+ ultima_linha +")-ROW(E5),0,1,1)),-(K5:K"+ ultima_linha +"=\"SIM\"),-(J5:J"+ ultima_linha +"=\"POSITIVO\"),-(L5:L"+ ultima_linha +"=\"FALTA ITS\")) * -1 / 60";
+		formula = "SUMPRODUCT(SUBTOTAL(9,OFFSET(E5:E" + ultima_linha + ",ROW(E5:E" + ultima_linha
+				+ ")-ROW(E5),0,1,1)),-(K5:K" + ultima_linha + "=\"SIM\"),-(J5:J" + ultima_linha
+				+ "=\"POSITIVO\"),-(L5:L" + ultima_linha + "=\"FALTA ITS\")) * -1 / 60";
 		cell.setCellFormula(formula);
 
 		cell = row.createCell(3);
 		cell.setCellStyle(negrito_esquerda);
 		cell.setCellValue("sacos");
-		
-	
 
 		return workbook;
 	}
 
-	
-	
+	public HSSFWorkbook prepararUmidade(ArrayList<CadastroRomaneio> romaneios_selecionados) {
+		HSSFWorkbook workbook = new HSSFWorkbook();
+		HSSFSheet sheet = workbook.createSheet("Exportação de Dados de Classificação 2");
+
+		// Definindo alguns padroes de layout
+		sheet.setDefaultColumnWidth(25);
+		sheet.setDefaultRowHeight((short) 400);
+
+		int rownum = 0;
+		int cellnum = 0;
+		Cell cell;
+		Row row;
+
+		// Configurando estilos de células (Cores, alinhamento, formatação, etc..)
+		HSSFDataFormat numberFormat = workbook.createDataFormat();
+
+		CellStyle headerStyle = workbook.createCellStyle();
+		headerStyle.setFillForegroundColor(IndexedColors.GREY_25_PERCENT.getIndex());
+		// headerStyle.setFillPattern(CellStyle.SOLID_FOREGROUND);
+		headerStyle.setAlignment(HorizontalAlignment.CENTER);
+		headerStyle.setVerticalAlignment(VerticalAlignment.CENTER);
+
+		// celula para texto alinhado ao centro
+		CellStyle textStyle = workbook.createCellStyle();
+		textStyle.setAlignment(HorizontalAlignment.CENTER);
+		textStyle.setVerticalAlignment(VerticalAlignment.CENTER);
+
+		// celula para numero alinhado ao centro
+		CellStyle numberStyle = workbook.createCellStyle();
+		numberStyle.setDataFormat(numberFormat.getFormat("#,##0.00"));
+		numberStyle.setAlignment(HorizontalAlignment.CENTER);
+		numberStyle.setVerticalAlignment(VerticalAlignment.CENTER);
+
+		// estilo de celula negrito
+		CellStyle negrito = workbook.createCellStyle();
+		// textStyle.setAlignment(HorizontalAlignment.CENTER);
+		negrito.setFillPattern(FillPatternType.SOLID_FOREGROUND);
+		negrito.setFillForegroundColor(IndexedColors.WHITE.getIndex());
+		negrito.setAlignment(HorizontalAlignment.CENTER);
+		negrito.setVerticalAlignment(VerticalAlignment.CENTER);
+
+		HSSFFont newFontNegrita = workbook.createFont();
+		newFontNegrita.setBold(true);
+		newFontNegrita.setColor(IndexedColors.BLACK.getIndex());
+		newFontNegrita.setFontName("Arial");
+		newFontNegrita.setItalic(true);
+		newFontNegrita.setFontHeight((short) (11 * 20));
+
+		negrito.setFont(newFontNegrita);
+
+		// estilo para celula texto alinhado a esquerda
+		CellStyle negrito_esquerda = workbook.createCellStyle();
+		// textStyle.setAlignment(HorizontalAlignment.CENTER);
+		negrito_esquerda.setFillPattern(FillPatternType.SOLID_FOREGROUND);
+		negrito_esquerda.setFillForegroundColor(IndexedColors.WHITE.getIndex());
+		negrito_esquerda.setAlignment(HorizontalAlignment.LEFT);
+		negrito_esquerda.setVerticalAlignment(VerticalAlignment.CENTER);
+
+		HSSFFont newFontNegritaEsquerda = workbook.createFont();
+		newFontNegritaEsquerda.setBold(true);
+		newFontNegritaEsquerda.setColor(IndexedColors.BLACK.getIndex());
+		newFontNegritaEsquerda.setFontName("Arial");
+		newFontNegritaEsquerda.setItalic(true);
+		newFontNegritaEsquerda.setFontHeight((short) (11 * 20));
+
+		negrito_esquerda.setFont(newFontNegritaEsquerda);
+
+		// estilo para celula do tipo numero alinhado ao centro
+		CellStyle valorStyle = workbook.createCellStyle();
+		valorStyle.setDataFormat(numberFormat.getFormat("R$ #,##0.00"));
+		valorStyle.setAlignment(HorizontalAlignment.CENTER);
+		valorStyle.setVerticalAlignment(VerticalAlignment.CENTER);
+
+		// estilo para cabecalho fundo laranja
+		CellStyle celula_fundo_laranja = workbook.createCellStyle();
+		celula_fundo_laranja.setFillPattern(FillPatternType.SOLID_FOREGROUND);
+		celula_fundo_laranja.setFillForegroundColor(IndexedColors.GREEN.getIndex());
+		celula_fundo_laranja.setAlignment(HorizontalAlignment.CENTER);
+		celula_fundo_laranja.setVerticalAlignment(VerticalAlignment.CENTER);
+
+		HSSFFont newFont = workbook.createFont();
+		newFont.setBold(true);
+		newFont.setColor(IndexedColors.BLACK.getIndex());
+		newFont.setFontName("Calibri");
+		newFont.setItalic(false);
+		newFont.setFontHeight((short) (11 * 25));
+
+		celula_fundo_laranja.setFont(newFont);
+
+		// celula_number_amarelo_texto_preto
+		// estilo para cabecalho fundo laranja
+		CellStyle celula_number_amarelo_texto_preto = workbook.createCellStyle();
+		celula_number_amarelo_texto_preto.setDataFormat(numberFormat.getFormat("#,##0.00"));
+		celula_number_amarelo_texto_preto.setFillPattern(FillPatternType.SOLID_FOREGROUND);
+		celula_number_amarelo_texto_preto.setFillForegroundColor(IndexedColors.YELLOW.getIndex());
+		celula_number_amarelo_texto_preto.setAlignment(HorizontalAlignment.CENTER);
+		celula_number_amarelo_texto_preto.setVerticalAlignment(VerticalAlignment.CENTER);
+
+		HSSFFont newFont_blabk = workbook.createFont();
+		newFont_blabk.setBold(true);
+		newFont_blabk.setColor(IndexedColors.BLACK.getIndex());
+		newFont_blabk.setFontName("Calibri");
+		newFont_blabk.setItalic(false);
+		newFont_blabk.setFontHeight((short) (11 * 20));
+
+		celula_number_amarelo_texto_preto.setFont(newFont_blabk);
+
+		// estilo para cabecalho fundo laranja
+		CellStyle celula_fundo_laranja_texto_branco = workbook.createCellStyle();
+		celula_fundo_laranja_texto_branco.setFillPattern(FillPatternType.SOLID_FOREGROUND);
+		celula_fundo_laranja_texto_branco.setFillForegroundColor(IndexedColors.GREEN.getIndex());
+		celula_fundo_laranja_texto_branco.setAlignment(HorizontalAlignment.CENTER);
+		celula_fundo_laranja_texto_branco.setVerticalAlignment(VerticalAlignment.CENTER);
+
+		HSSFFont newFont_branca = workbook.createFont();
+		newFont_branca.setBold(true);
+		newFont_branca.setColor(IndexedColors.WHITE.getIndex());
+		newFont_branca.setFontName("Calibri");
+		newFont_branca.setItalic(false);
+		newFont_branca.setFontHeight((short) (11 * 20));
+
+		celula_fundo_laranja_texto_branco.setFont(newFont_branca);
+
+		// Configurando as informacoes
+		row = sheet.createRow(rownum);
+
+		Locale ptBr = new Locale("pt", "BR");
+
+		// Configurando Header
+		row = sheet.createRow(rownum++);
+		cell = row.createCell(cellnum++);
+		cell.setCellStyle(celula_fundo_laranja_texto_branco);
+		cell.setCellValue("DATA");
+
+		cell = row.createCell(cellnum++);
+		cell.setCellStyle(celula_fundo_laranja_texto_branco);
+		cell.setCellValue("CÓDIGO ROMANEIO".toUpperCase());
+
+		cell = row.createCell(cellnum++);
+		cell.setCellStyle(celula_fundo_laranja_texto_branco);
+		cell.setCellValue("OPERAÇÃO".toUpperCase());
+
+		cell = row.createCell(cellnum++);
+		cell.setCellStyle(celula_fundo_laranja_texto_branco);
+		cell.setCellValue("PRODUTO".toUpperCase());
+
+		cell = row.createCell(cellnum++);
+		cell.setCellStyle(celula_fundo_laranja_texto_branco);
+		cell.setCellValue("TRANSGENIA".toUpperCase());
+
+		cell = row.createCell(cellnum++);
+		cell.setCellStyle(celula_fundo_laranja_texto_branco);
+		cell.setCellValue("SAFRA".toUpperCase());
+
+		cell = row.createCell(cellnum++);
+		cell.setCellStyle(celula_fundo_laranja_texto_branco);
+		cell.setCellValue("NOME REMETENTE".toUpperCase());
+
+		cell = row.createCell(cellnum++);
+		cell.setCellStyle(celula_fundo_laranja_texto_branco);
+		cell.setCellValue("DESTINATÁRIO".toUpperCase());
+
+		cell = row.createCell(cellnum++);
+		cell.setCellStyle(celula_fundo_laranja_texto_branco);
+		cell.setCellValue("PESO BRUTO".toUpperCase());
+
+		cell = row.createCell(cellnum++);
+		cell.setCellStyle(celula_fundo_laranja_texto_branco);
+		cell.setCellValue("PESO TARA".toUpperCase());
+
+		cell = row.createCell(cellnum++);
+		cell.setCellStyle(celula_fundo_laranja_texto_branco);
+		cell.setCellValue("PESO LIQ FINAL".toUpperCase());
+
+		cell = row.createCell(cellnum++);
+		cell.setCellStyle(celula_fundo_laranja_texto_branco);
+		cell.setCellValue("UMIDADE 1".toUpperCase());
+
+		cell = row.createCell(cellnum++);
+		cell.setCellStyle(celula_fundo_laranja_texto_branco);
+		cell.setCellValue("IMPUREZA 1".toUpperCase());
+
+		cell = row.createCell(cellnum++);
+		cell.setCellStyle(celula_fundo_laranja_texto_branco);
+		cell.setCellValue("ARDIDOS 1".toUpperCase());
+
+		cell = row.createCell(cellnum++);
+		cell.setCellStyle(celula_fundo_laranja_texto_branco);
+		cell.setCellValue("AVARIADO 1".toUpperCase());
+
+		cell = row.createCell(cellnum++);
+		cell.setCellStyle(celula_fundo_laranja_texto_branco);
+		cell.setCellValue("UMIDADE 2".toUpperCase());
+
+		cell = row.createCell(cellnum++);
+		cell.setCellStyle(celula_fundo_laranja_texto_branco);
+		cell.setCellValue("IMPUREZA 2".toUpperCase());
+
+		cell = row.createCell(cellnum++);
+		cell.setCellStyle(celula_fundo_laranja_texto_branco);
+		cell.setCellValue("ARDIDOS 2".toUpperCase());
+
+		cell = row.createCell(cellnum++);
+		cell.setCellStyle(celula_fundo_laranja_texto_branco);
+		cell.setCellValue("AVARIADO 2".toUpperCase());
+
+		cell = row.createCell(cellnum++);
+		cell.setCellStyle(celula_fundo_laranja_texto_branco);
+		cell.setCellValue("PLACA".toUpperCase());
+
+		cell = row.createCell(cellnum++);
+		cell.setCellStyle(celula_fundo_laranja_texto_branco);
+		cell.setCellValue("AMOSTRA".toUpperCase());
+
+		cell = row.createCell(cellnum++);
+		cell.setCellStyle(celula_fundo_laranja_texto_branco);
+		cell.setCellValue("SILO".toUpperCase());
+
+		cell = row.createCell(cellnum++);
+		cell.setCellStyle(celula_fundo_laranja_texto_branco);
+		cell.setCellValue("TRANSGENESE".toUpperCase());
+
+		int numero_romaneios = 0;
+
+		double peso_bruto_total = 0, peso_tara_total = 0, peso_liquido_total_sem_desconto = 0, peso_liquido_total = 0;
+		double peso_desconto_umidade = 0;
+		double peso_desconto_impureza = 0;
+		double peso_desconto_avariado = 0;
+		double peso_desconto_total = 0;
+		double peso_recepcao = 0;
+
+		for (CadastroRomaneio romaneio : romaneios_selecionados) {
+
+			peso_bruto_total += romaneio.getPeso_bruto();
+			peso_tara_total += romaneio.getTara();
+			peso_liquido_total += romaneio.getPeso_liquido();
+			peso_liquido_total_sem_desconto += romaneio.getPeso_liquido_sem_descontos();
+
+			peso_desconto_umidade += romaneio.getPeso_desconto_umidade();
+			peso_desconto_impureza += romaneio.getPeso_desconto_impureza();
+			peso_desconto_avariado += romaneio.getPeso_desconto_avariados();
+			peso_desconto_total += romaneio.getPeso_desconto_total();
+			peso_recepcao += romaneio.getDespesa_recepcao();
+
+			numero_romaneios++;
+			CadastroCliente remetente = romaneio.getRemetente();
+			CadastroCliente destinatario = romaneio.getDestinatario();
+
+			row = sheet.createRow(rownum++);
+			cellnum = 0;
+			SimpleDateFormat f = new SimpleDateFormat("dd/MM/yyyy");
+			Date data = romaneio.getData();
+			String data_formatada = "";
+			if (data instanceof Date) {
+				data_formatada = f.format(data);
+			}
+			cell = row.createCell(cellnum++);
+			cell.setCellStyle(textStyle);
+			cell.setCellValue(data_formatada);
+
+			cell = row.createCell(cellnum++);
+			cell.setCellStyle(textStyle);
+			cell.setCellValue(romaneio.getNumero_romaneio());
+
+			cell = row.createCell(cellnum++);
+			cell.setCellStyle(textStyle);
+			cell.setCellValue(romaneio.getOperacao());
+
+			// produto
+			try {
+				CadastroProduto prod = romaneio.getProduto();
+				cell = row.createCell(cellnum++);
+				cell.setCellStyle(textStyle);
+				cell.setCellValue(prod.getNome_produto());
+
+			} catch (Exception h) {
+				// JOptionPane.showMessageDialog(null, "O romaneio codigo: " +
+				// romaneio.getNumero_romaneio() + " possui erro no produto");
+			}
+
+			// transgenia
+			CadastroProduto prod = romaneio.getProduto();
+			cell = row.createCell(cellnum++);
+			cell.setCellStyle(textStyle);
+			cell.setCellValue(romaneio.getProduto().getTransgenia().toUpperCase());
+
+			// safra
+
+			CadastroSafra safra = romaneio.getSafra();
+			cell = row.createCell(cellnum++);
+			cell.setCellStyle(textStyle);
+			cell.setCellValue(safra.getAno_plantio() + "/" + safra.getAno_colheita());
+
+			// nome remetente
+
+			try {
+				String nome_cliente = "";
+
+				if (remetente != null) {
+					if (remetente.getTipo_pessoa() == 0) {
+						nome_cliente = remetente.getNome_empresarial().toUpperCase();
+					} else
+						nome_cliente = remetente.getNome_fantaia().toUpperCase();
+				}
+				cell = row.createCell(cellnum++);
+				cell.setCellStyle(textStyle);
+				cell.setCellValue(nome_cliente);
+
+			} catch (Exception t) {
+				cell = row.createCell(cellnum++);
+				cell.setCellStyle(textStyle);
+				cell.setCellValue("");
+			}
+
+			// nome destinatario
+			String nome_cliente = "";
+			try {
+
+				if (destinatario != null) {
+					if (destinatario.getTipo_pessoa() == 0) {
+						if (destinatario.getNome_empresarial() != null) {
+							nome_cliente = destinatario.getNome_empresarial().toUpperCase();
+						}
+					} else {
+						if (destinatario.getNome_fantaia() != null) {
+							nome_cliente = destinatario.getNome_fantaia().toUpperCase();
+						}
+					}
+
+				} else {
+					nome_cliente = ("");
+
+				}
+			} catch (Exception u) {
+				nome_cliente = ("");
+
+			}
+			cell = row.createCell(cellnum++);
+			cell.setCellStyle(textStyle);
+			cell.setCellValue(nome_cliente);
+
+			cell = row.createCell(cellnum++);
+			cell.setCellStyle(textStyle);
+			cell.setCellValue(romaneio.getPeso_bruto());
+
+			cell = row.createCell(cellnum++);
+			cell.setCellStyle(textStyle);
+			cell.setCellValue(romaneio.getTara());
+
+
+			// peso liquido final
+			cell = row.createCell(cellnum++);
+			cell.setCellStyle(textStyle);
+			cell.setCellValue(romaneio.getPeso_liquido());
+
+			// umidade
+			cell = row.createCell(cellnum++);
+			cell.setCellStyle(textStyle);
+			cell.setCellValue(romaneio.getUmidade());
+
+			// impureza
+			cell = row.createCell(cellnum++);
+			cell.setCellStyle(textStyle);
+			cell.setCellValue(romaneio.getInpureza());
+
+			// ardidos
+			cell = row.createCell(cellnum++);
+			cell.setCellStyle(textStyle);
+			cell.setCellValue(romaneio.getArdidos());
+
+			// avariados
+			cell = row.createCell(cellnum++);
+			cell.setCellStyle(textStyle);
+			cell.setCellValue(romaneio.getAvariados());
+
+			// umidade2
+			cell = row.createCell(cellnum++);
+			cell.setCellStyle(textStyle);
+			cell.setCellValue(romaneio.getUmidade2());
+
+			// impureza2
+			cell = row.createCell(cellnum++);
+			cell.setCellStyle(textStyle);
+			cell.setCellValue(romaneio.getImpureza2());
+
+			// ardidos2
+			cell = row.createCell(cellnum++);
+			cell.setCellStyle(textStyle);
+			cell.setCellValue(romaneio.getArdidos2());
+
+			// avariados2
+			cell = row.createCell(cellnum++);
+			cell.setCellStyle(textStyle);
+			cell.setCellValue(romaneio.getAvariados2());
+
+			// placa
+			cell = row.createCell(cellnum++);
+			cell.setCellStyle(textStyle);
+			cell.setCellValue(romaneio.getPlaca());
+
+			// amostra
+			cell = row.createCell(cellnum++);
+			cell.setCellStyle(textStyle);
+			cell.setCellValue(romaneio.getAmostra());
+
+			// silo
+			cell = row.createCell(cellnum++);
+			cell.setCellStyle(textStyle);
+			cell.setCellValue(romaneio.getSilo());
+
+			// transgenese
+			cell = row.createCell(cellnum++);
+			cell.setCellStyle(textStyle);
+			cell.setCellValue(romaneio.getTransgenia());
+
+		}
+		sheet.setAutoFilter(CellRangeAddress.valueOf("A1:AF1"));
+		NumberFormat z = NumberFormat.getNumberInstance();
+
+		row = sheet.createRow(rownum += 2);
+		cellnum = 0;
+
+		cell = row.createCell(cellnum++);
+		cell.setCellStyle(textStyle);
+		cell.setCellValue("ROMANEIO");
+		sheet.addMergedRegion(new CellRangeAddress(rownum, rownum, cellnum, 5));
+
+		cell = row.createCell(cellnum++);
+		cell.setCellStyle(celula_fundo_laranja_texto_branco);
+		cell.setCellValue(numero_romaneios + " Romaneios");
+
+		// LINHA PESO BRUTO TOTAL
+		row = sheet.createRow(rownum += 1);
+		cellnum = 0;
+
+		cell = row.createCell(cellnum++);
+		cell.setCellStyle(textStyle);
+		cell.setCellValue("P.B.Total:");
+		sheet.addMergedRegion(new CellRangeAddress(rownum, rownum, cellnum, 5));
+
+		cell = row.createCell(cellnum++);
+		cell.setCellStyle(celula_fundo_laranja_texto_branco);
+		cell.setCellValue(z.format(peso_bruto_total) + " Kgs | " + z.format(peso_bruto_total / 60) + " sacos");
+
+		// LINHA peso tara
+		row = sheet.createRow(rownum += 1);
+		cellnum = 0;
+
+		cell = row.createCell(cellnum++);
+		cell.setCellStyle(textStyle);
+		cell.setCellValue("P.B.Tara:");
+		sheet.addMergedRegion(new CellRangeAddress(rownum, rownum, cellnum, 5));
+
+		cell = row.createCell(cellnum++);
+		cell.setCellStyle(celula_fundo_laranja_texto_branco);
+		cell.setCellValue(z.format(peso_tara_total) + " Kgs | " + z.format(peso_tara_total / 60) + " sacos");
+
+		// LINHA peso liq sem desconto
+		row = sheet.createRow(rownum += 1);
+		cellnum = 0;
+
+		cell = row.createCell(cellnum++);
+		cell.setCellStyle(textStyle);
+		cell.setCellValue("P. LIQ. FINAL S/ DESC:");
+		sheet.addMergedRegion(new CellRangeAddress(rownum, rownum, cellnum, 5));
+
+		cell = row.createCell(cellnum++);
+		cell.setCellStyle(celula_fundo_laranja_texto_branco);
+		cell.setCellValue(z.format(peso_liquido_total_sem_desconto) + " Kgs | "
+				+ z.format(peso_liquido_total_sem_desconto / 60) + " sacos");
+
+		// LINHA peso liq final
+		row = sheet.createRow(rownum += 1);
+		cellnum = 0;
+
+		cell = row.createCell(cellnum++);
+		cell.setCellStyle(textStyle);
+		cell.setCellValue("P. LIQ. FINAL");
+		sheet.addMergedRegion(new CellRangeAddress(rownum, rownum, cellnum, 5));
+
+		cell = row.createCell(cellnum++);
+		cell.setCellStyle(celula_fundo_laranja_texto_branco);
+		cell.setCellValue(z.format(peso_liquido_total) + " Kgs | " + z.format(peso_liquido_total / 60) + " sacos");
+
+		return workbook;
+	}
+
 	public void fechar() {
 		isto.dispose();
 	}

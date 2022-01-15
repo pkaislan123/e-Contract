@@ -93,8 +93,7 @@ public class DadosGlobais {
 	}
 
 	public void atualizarGraficosTelaPrincipal() {
-		this.telaMain.getDadosContratos();
-		this.telaMain.atualizarGraficoContratos();
+	
 	}
 	
 	public CadastroLogin getLogin()

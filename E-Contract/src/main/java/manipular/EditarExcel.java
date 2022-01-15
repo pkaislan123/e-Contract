@@ -663,7 +663,31 @@ ultima_linha 1 Local da Retirada
 
 		atualizarCelula(formatar(true, 'T', false, false, false, false), ultima_linha,4, "Claúsulas Contratuais");
 		ultima_linha++;
-         int numero_clausula = 1;
+         
+         
+         if(novo_contrato.getCriar_clausula_1() == 1) {
+  	    	 if(novo_contrato.getClausula1().length() > 5) {
+  	    		atualizarCelula(formatar(true, 'T', false, false, true, false), ultima_linha,1, "");
+
+  	    		atualizarCelula(formatar(true, 'T', false, false, false, false), ultima_linha,2, novo_contrato.getClausula1());
+  	    		atualizarCelula(formatar(true, 'T', false, false, false, true), ultima_linha,9, "");
+  	          	 ultima_linha++;
+  	    	 }
+  	     }
+         
+         if(novo_contrato.getCriar_clausula_2() == 1) {
+  	    	 if(novo_contrato.getClausula2().length() > 5) {
+  	    		atualizarCelula(formatar(true, 'T', false, false, true, false), ultima_linha,1, "");
+
+  	    		atualizarCelula(formatar(true, 'T', false, false, false, false), ultima_linha,2, novo_contrato.getClausula2());
+  	    		atualizarCelula(formatar(true, 'T', false, false, false, true), ultima_linha,9, "");
+  	          	 ultima_linha++;
+  	    	 }
+  	     }
+         
+         
+         
+         
     	for(String clausula : clausulas_locais)
     	{
     		if(clausulas_locais != null) {
@@ -674,7 +698,6 @@ ultima_linha 1 Local da Retirada
              
     		atualizarCelula(formatar(true, 'T', false, false, false, true), ultima_linha,9, "");
           	 ultima_linha++;
-          	numero_clausula++;
     		}
 
 
@@ -710,7 +733,18 @@ ultima_linha 1 Local da Retirada
 	          	 ultima_linha++;
 	    	 }
 	     }
+  	   
+  	   
+  	 if(novo_contrato.getCriar_clausula_comissao() == 1) {
+	    	 if(novo_contrato.getClausula_comissao().length() > 5) {
+	    		atualizarCelula(formatar(true, 'T', false, false, true, false), ultima_linha,1, "");
 
+	    		atualizarCelula(formatar(true, 'T', false, false, false, false), ultima_linha,2, novo_contrato.getClausula_comissao());
+	    		atualizarCelula(formatar(true, 'T', false, false, false, true), ultima_linha,9, "");
+	          	 ultima_linha++;
+	    	 }
+	     }
+  
 
     	
 		ultima_linha++;

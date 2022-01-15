@@ -2,7 +2,7 @@ package main.java.cadastros;
 
 public class CadastroLogin {
 
-	private int id;
+	private int id, status;
 	private String nome, sobrenome, login, email, senha , senhaEmail, cargo, celular, genero, tratamento, ip_ativo, email2, senhaEmail2;
 	
 	public String getIp_ativo() {
@@ -15,6 +15,12 @@ public class CadastroLogin {
 
 	public String getEmail2() {
 		return email2;
+	}
+	public int getStatus() {
+		return status;
+	}
+	public void setStatus(int status) {
+		this.status = status;
 	}
 	public void setEmail2(String email2) {
 		this.email2 = email2;

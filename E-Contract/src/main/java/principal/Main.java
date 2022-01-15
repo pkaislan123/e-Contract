@@ -34,7 +34,6 @@ import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 
-
 import main.java.cadastros.CadastroFuncionariosHorarios;
 import main.java.gui.TelaEntrada;
 import main.java.gui.TelaFinanceiro;
@@ -48,86 +47,49 @@ import javax.sound.sampled.*;
 
 public class Main {
 
-	
-	
-	
 	public static void main(String[] args) {
 
-		
-		String start = "";
+		try {
 
-		if (args.length > 0) {
-			if (args[0].equalsIgnoreCase("busca")) {
-				ArquivoConfiguracoes ler = new ArquivoConfiguracoes();
-
-				boolean leitura = false;
-
-				leitura = ler.testeConfiguragoes();
-
-				if (leitura) {
-
-					MonitorarRomaneios monitorar = new MonitorarRomaneios();
-					monitorar.vigiarRomaneios();
-
-				} else {
-
+			for (LookAndFeelInfo info : UIManager.getInstalledLookAndFeels()) {
+				if ("Nimbus".equals(info.getName())) {
+					UIManager.setLookAndFeel(info.getClassName());
+					break;
 				}
 			}
-
-		} else if (start.equals("busca")) {
-			ArquivoConfiguracoes ler = new ArquivoConfiguracoes();
-
-			boolean leitura = false;
-
-			leitura = ler.testeConfiguragoes();
-
-			if (leitura) {
-
-				MonitorarRomaneios monitorar = new MonitorarRomaneios();
-				monitorar.vigiarRomaneios();
-
-			} else {
-
-			}
-
-		} else {
-
-			try {
-
-				for (LookAndFeelInfo info : UIManager.getInstalledLookAndFeels()) {
-					if ("Nimbus".equals(info.getName())) {
-						UIManager.setLookAndFeel(info.getClassName());
-						break;
-					}
-				}
-			} catch (UnsupportedLookAndFeelException exc) {
-				exc.printStackTrace();
-			} catch (ClassNotFoundException exc) {
-				exc.printStackTrace();
-			} catch (InstantiationException exc) {
-				exc.printStackTrace();
-			} catch (IllegalAccessException exc) {
-				exc.printStackTrace();
-			}
-
-			// TelaPadrao padrao = new TelaPadrao();
-
-			// Abre a tela de login
-
-			// TelaLogin login = new TelaLogin();
-
-			TelaEntrada entrada = new TelaEntrada();
-			new Thread() {
-				@Override
-				public void run() {
-					entrada.setVisible(true);
-
-				}
-			}.start();
-
-			entrada.realizarTeste();
-
+		} catch (UnsupportedLookAndFeelException exc) {
+			exc.printStackTrace();
+		} catch (ClassNotFoundException exc) {
+			exc.printStackTrace();
+		} catch (InstantiationException exc) {
+			exc.printStackTrace();
+		} catch (IllegalAccessException exc) {
+			exc.printStackTrace();
 		}
+
+		new Thread() {
+			@Override
+			public void run() {
+
+				TelaEntrada entrada = null;
+
+				try {
+					entrada = new TelaEntrada(args[0]);
+
+				} catch (ArrayIndexOutOfBoundsException f) {
+					entrada = new TelaEntrada("");
+
+				}
+
+				entrada.setVisible(true);
+
+				entrada.realizarTeste();
+			
+				
+				
+
+			}
+		}.start();
 
 	}
 

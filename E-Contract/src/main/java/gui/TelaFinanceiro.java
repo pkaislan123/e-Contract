@@ -51,6 +51,8 @@ import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 
 import java.awt.event.ActionListener;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.math.BigDecimal;
@@ -89,13 +91,14 @@ import javax.swing.table.TableRowSorter;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.RowFilter;
+import javax.swing.JTextField;
 
 public class TelaFinanceiro extends JFrame {
 
 	private JPanel painelPrincipal;
 	private TelaFinanceiro isto;
 	private TableRowSorter<LancamentoTableModel> sorter;
-	private GraficoMultiplaLinha linhaMultiplca  = null;
+	private GraficoMultiplaLinha linhaMultiplca = null;
 	private JLabel lblUser, lblDireitos;
 	private Log GerenciadorLog;
 	private CadastroLogin login;
@@ -106,15 +109,16 @@ public class TelaFinanceiro extends JFrame {
 	private boolean notificando = false;
 	private JPanel grafico_despesas, grafico_receitas;
 	private ArrayList<Lancamento> lista_lancamentos = new ArrayList<>();
-	private LancamentoTableModel modelo_lancamentos = new LancamentoTableModel();
 	private JLabel lblSomatoriaValorTotalDespesasAPagar, lblSomatoriaValorTotalReceitasAReceber;
 	private JPanel painelGraficoLinha;
 	private DefaultCategoryDataset dataset;
 	private GraficoLinhaDupla linha = null;
 
 	private ChartPanel chartPanel;
+	private JTextField entAno;
 
 	public TelaFinanceiro(Window window) {
+		try {
 		setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 
 		getDadosGlobais();
@@ -301,8 +305,8 @@ public class TelaFinanceiro extends JFrame {
 		painelPrincipal.setBackground(Color.WHITE);
 		painelPrincipal.setBorder(new EmptyBorder(5, 5, 5, 5));
 		setContentPane(painelPrincipal);
-		painelPrincipal.setLayout(
-				new MigLayout("", "[grow][grow][242px,grow][grow][grow][grow][grow][][][]", "[78px][grow][500px:n,grow]"));
+		painelPrincipal.setLayout(new MigLayout("", "[grow][grow][242px,grow][grow][grow][grow][][][][60px:n][][]",
+				"[78px][grow][500px:n,grow]"));
 
 		painelPrincipal.add(menuBar, "cell 0 0 3 1,alignx left,aligny center");
 
@@ -351,7 +355,7 @@ public class TelaFinanceiro extends JFrame {
 
 		JPanel panel_2 = new JPanel();
 		panel_2.setBackground(new Color(51, 153, 255));
-		painelPrincipal.add(panel_2, "cell 4 0 6 1,grow");
+		painelPrincipal.add(panel_2, "cell 4 0 8 1,grow");
 		panel_2.setLayout(new MigLayout("", "[]", "[]"));
 
 		lblUser = new JLabel();
@@ -368,15 +372,11 @@ public class TelaFinanceiro extends JFrame {
 		lblDireitos.setFont(new Font("Tahoma", Font.PLAIN, 15));
 		lblDireitos.setBackground(Color.WHITE);
 
-		LancamentosRender renderer = new LancamentosRender();
-
-		sorter = new TableRowSorter<LancamentoTableModel>(modelo_lancamentos);
-
 		logar();
 
 		JPanel panel_5 = new JPanel();
 		panel_5.setBackground(Color.BLACK);
-		painelPrincipal.add(panel_5, "cell 0 1 10 1,grow");
+		painelPrincipal.add(panel_5, "cell 0 1 12 1,grow");
 		panel_5.setLayout(new MigLayout("", "[grow][grow]", "[grow][grow]"));
 
 		JPanel painelPaiDespesas = new JPanel();
@@ -541,22 +541,57 @@ public class TelaFinanceiro extends JFrame {
 		lblSomatoriaValorTotalReceitasAReceber.setFont(new Font("Tahoma", Font.BOLD, 16));
 		panel_3_1.add(lblSomatoriaValorTotalReceitasAReceber, "cell 1 0");
 
-	//	tratamentoAvisos();
+		// tratamentoAvisos();
 		painelGraficoLinha = new JPanel();
 		painelGraficoLinha.setBackground(Color.WHITE);
-		painelPrincipal.add(painelGraficoLinha, "cell 0 2 10 1,grow");
+		painelPrincipal.add(painelGraficoLinha, "cell 0 2 6 1,grow");
 		painelGraficoLinha.setLayout(new MigLayout("", "[grow]", "[grow]"));
 
 		grafico_despesas.add(criarGrafico1(0, 1, 0));
 
 		grafico_receitas.add(criarGrafico2(1, 1, 2));
 
+		JLabel lblNewLabel_1 = new JLabel("Ano:");
+		lblNewLabel_1.setFont(new Font("SansSerif", Font.PLAIN, 16));
+		painelPrincipal.add(lblNewLabel_1, "cell 6 2,alignx trailing,aligny top");
+
+		entAno = new JTextField();
+		entAno.setFont(new Font("SansSerif", Font.BOLD, 18));
+		painelPrincipal.add(entAno, "cell 7 2 3 1,growx,aligny top");
+		entAno.setColumns(10);
+		entAno.setText(new GetData().getAnoAtual() + "");
+		entAno.addKeyListener(new KeyAdapter() {
+			@Override
+			public void keyTyped(KeyEvent e) {
+				String caracteres = "0987654321\b";// lista de caracters que não devem ser aceitos
+				String s_valor = "";
+
+				if (!caracteres.contains(e.getKeyChar() + "")) {
+					e.consume();
+				}
+
+			}
+		});
+
+		JButton btnNewButton_2 = new JButton("Atualizar");
+		btnNewButton_2.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				atualizarGrafico();
+			}
+		});
+		btnNewButton_2.setBackground(new Color(51, 51, 0));
+		btnNewButton_2.setForeground(Color.WHITE);
+		btnNewButton_2.setFont(new Font("SansSerif", Font.BOLD, 18));
+		painelPrincipal.add(btnNewButton_2, "cell 10 2,aligny top");
+
 		// atualizarGrafico();
 
 		this.setExtendedState(JFrame.MAXIMIZED_BOTH);
 
-
 		this.setLocationRelativeTo(window);
+		}catch(Exception e) {
+			e.printStackTrace();
+		}
 	}
 
 	public void logar() {
@@ -588,8 +623,6 @@ public class TelaFinanceiro extends JFrame {
 		login = dados.getLogin();
 	}
 
-	
-	
 	public ChartPanel criarGrafico1(int flag_despesa_receita, int flag_conta_grupo_contas, int flag_status) {
 
 		DefaultPieDataset pizza = new DefaultPieDataset();
@@ -698,382 +731,62 @@ public class TelaFinanceiro extends JFrame {
 
 	}
 
-	public void tratamentoAvisos() {
-
-		lista_lancamentos.clear();
-		modelo_lancamentos.onRemoveAll();
-		GerenciarBancoLancamento gerenciar_lancamentos = new GerenciarBancoLancamento();
-		ArrayList<Lancamento> lancamentos = gerenciar_lancamentos.buscaLancamentosCompletos();
-
-		for (Lancamento lancamento : lancamentos) {
-			// lancamento alta prioridade
-			lista_lancamentos.add(lancamento);
-			modelo_lancamentos.onAdd(lancamento);
-
-		}
-
-		// filtroRapidoDespesaAtrazo(7);
-
-	}
-
-	public class LancamentoTableModel extends AbstractTableModel {
-
-		// constantes p/identificar colunas
-		private final int id = 0;
-		private final int tipo_lancamento = 1;
-		private final int prioridade = 2;
-		private final int valor_a_pagar = 3;
-		private final int data_vencimento = 4;
-		private final int status = 5;
-
-		List<Color> rowColours = Arrays.asList(Color.RED, Color.GREEN, Color.CYAN);
-
-		private final String colunas[] = { "ID", "Tipo", "Prioridade", "Valor a Pagar/Receber",
-				"Data Próximo Vencimento", "Status" };
-		private final ArrayList<Lancamento> dados = new ArrayList<>();// usamos como dados uma lista genérica de
-																		// nfs
-
-		public LancamentoTableModel() {
-
-		}
-
-		@Override
-		public int getColumnCount() {
-			// retorna o total de colunas
-			return colunas.length;
-		}
-
-		@Override
-		public int getRowCount() {
-			// retorna o total de linhas na tabela
-			return dados.size();
-		}
-
-		@Override
-		public Class<?> getColumnClass(int columnIndex) {
-			// retorna o tipo de dado, para cada coluna
-			switch (columnIndex) {
-			case id:
-				return Integer.class;
-
-			case tipo_lancamento:
-				return String.class;
-			case prioridade:
-				return String.class;
-			case valor_a_pagar:
-				return String.class;
-			case data_vencimento:
-				return Date.class;
-			case status:
-				return String.class;
-
-			default:
-				throw new IndexOutOfBoundsException("Coluna Inválida!!!");
-			}
-		}
-
-		@Override
-		public String getColumnName(int columnIndex) {
-			return colunas[columnIndex];
-		}
-
-		@Override
-		public Object getValueAt(int rowIndex, int columnIndex) {
-			Lancamento dado = dados.get(rowIndex);
-
-			switch (columnIndex) {
-			case id:
-				return dado.getId_lancamento();
-			case tipo_lancamento: {
-				if (dado.getTipo_lancamento() == 0) {
-					return "DESPESAS";
-				} else if (dado.getTipo_lancamento() == 1) {
-					return "RECEITAS";
-				}
-			}
-			case prioridade: {
-				int i_prioridade = dado.getPrioridade();
-				if (i_prioridade == 0) {
-					return "Alta Prioridade - Ainda esta semana";
-				} else if (i_prioridade == 1) {
-					return "Média Prioridade - Em menos de 15 dias";
-				} else if (i_prioridade == 2) {
-					return "Prioridade Leve - Ainda este mês";
-				} else if (i_prioridade == 3) {
-					return "Baixa Prioridade - Ainda este ano";
-				}
-
-			}
-
-			case valor_a_pagar: {
-				Locale ptBr = new Locale("pt", "BR");
-				String valorString = NumberFormat.getCurrencyInstance(ptBr)
-						.format(dado.getValor().subtract(dado.getValor_ja_pago()));
-				return valorString;
-
-			}
-			case data_vencimento: {
-				Date data_menor;
-				try {
-					if (dado.getData_vencimento() != null) {
-						SimpleDateFormat formato = new SimpleDateFormat("dd/MM/yyyy");
-						data_menor = formato.parse(dado.getData_vencimento());
-						return data_menor;
-					} else
-						return "";
-
-				} catch (Exception e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-					return "";
-				}
-
-			}
-
-			case status: {
-				int status = dado.getStatus();
-				if (status == 0) {
-					return ("A Pagar");
-
-				} else if (status == 1) {
-					return ("Pago");
-
-				} else if (status == 2) {
-					return ("A Receber");
-
-				} else if (status == 3) {
-					return ("Recebido");
-
-				}
-			}
-
-			default:
-				throw new IndexOutOfBoundsException("Coluna Inválida!!!");
-			}
-		}
-
-		@Override
-		public boolean isCellEditable(int rowIndex, int columnIndex) {
-			// metodo identifica qual coluna é editavel
-
-			// só iremos editar a coluna BENEFICIO,
-			// que será um checkbox por ser boolean
-
-			return false;
-		}
-
-		@Override
-		public void setValueAt(Object aValue, int rowIndex, int columnIndex) {
-			Lancamento ib = dados.get(rowIndex);
-
-		}
-
-		// Métodos abaixo são para manipulação de dados
-
-		/**
-		 * retorna o valor da linha indicada
-		 * 
-		 * @param rowIndex
-		 * @return
-		 */
-		public Lancamento getValue(int rowIndex) {
-			return dados.get(rowIndex);
-		}
-
-		/**
-		 * retorna o indice do objeto
-		 * 
-		 * @param empregado
-		 * @return
-		 */
-		public int indexOf(Lancamento dado) {
-			return dados.indexOf(dado);
-		}
-
-		/**
-		 * add um empregado á lista
-		 * 
-		 * @param empregado
-		 */
-		public void onAdd(Lancamento dado) {
-			dados.add(dado);
-			fireTableRowsInserted(indexOf(dado), indexOf(dado));
-		}
-
-		/**
-		 * add uma lista de empregados
-		 * 
-		 * @param dadosIn
-		 */
-		public void onAddAll(ArrayList<Lancamento> dadosIn) {
-			dados.addAll(dadosIn);
-			fireTableDataChanged();
-		}
-
-		/**
-		 * remove um registro da lista, através do indice
-		 * 
-		 * @param rowIndex
-		 */
-		public void onRemove(int rowIndex) {
-			dados.remove(rowIndex);
-			fireTableRowsDeleted(rowIndex, rowIndex);
-		}
-
-		/**
-		 * remove um registro da lista, através do objeto
-		 * 
-		 * @param empregado
-		 */
-		public void onRemove(Lancamento dado) {
-			int indexBefore = indexOf(dado);// pega o indice antes de apagar
-			dados.remove(dado);
-			fireTableRowsDeleted(indexBefore, indexBefore);
-		}
-
-		/**
-		 * remove todos registros da lista
-		 */
-		public void onRemoveAll() {
-			dados.clear();
-			fireTableDataChanged();
-		}
-
-		public Lancamento onGet(int row) {
-			return dados.get(row);
-		}
-	}
-
-	
-	
-
 	public boolean checkString(String txt) {
 		return txt != null && !txt.equals("") && !txt.equals(" ") && !txt.equals("  ");
 	}
 
-	class LancamentosRender extends DefaultTableCellRenderer {
+	public void atualizarGrafico() {
+		java.awt.EventQueue.invokeLater(new Runnable() {
+			public void run() {
+				try {
 
-		public final DefaultTableCellRenderer DEFAULT_RENDERER = new DefaultTableCellRenderer();
+					int ano = Integer.parseInt(entAno.getText());
 
-		public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus,
-				int row, int column) {
-			Component renderer = super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
-			((JLabel) renderer).setOpaque(true);
-			SimpleDateFormat f = new SimpleDateFormat("dd/MM/yyyy");
-			if (value instanceof Date) {
-				value = f.format(value);
-			}
+					XYSeriesCollection dataset = new XYSeriesCollection();
+					painelGraficoLinha.removeAll();
 
-			int status = -1;
-			String s_status = (String) table.getValueAt(row, 5);
-			if (s_status.equalsIgnoreCase("A Pagar")) {
-				status = 0;
-			} else if (s_status.equalsIgnoreCase("Pago")) {
-				status = 1;
-			} else if (s_status.equalsIgnoreCase("A Receber")) {
-				status = 2;
-			} else if (s_status.equalsIgnoreCase("Recebido")) {
-				status = 3;
-			}
+					Map<Integer, Double> lista_lancamentos_despesas = new GerenciarBancoLancamento()
+							.busca_lancamentos_grafico_linha_despesa_receita(0, ano);
+					Map<Integer, Double> despesas = new TreeMap<>(lista_lancamentos_despesas);
+					XYSeries series1 = new XYSeries("DESPESAS");
+					for (Map.Entry<Integer, Double> pair : despesas.entrySet()) {
 
-			if (isSelected) {
-				renderer.setBackground(new Color(139, 69, 19)); // marrom
+						series1.add(pair.getKey(), pair.getValue());
 
-			} else {
-				if (status == 0) {
-					// return ("A Pagar");
-					renderer.setBackground(Color.red);
-					renderer.setForeground(Color.white);
-					renderer.setFont(new Font("Arial", Font.BOLD, 16));
+					}
 
-				} else if (status == 1) {
-					// return ("Pago");
-					renderer.setBackground(Color.orange);
-					renderer.setForeground(Color.black);
-					renderer.setFont(new Font("Arial", Font.BOLD, 16));
-				} else if (status == 2) {
-					// return ("A Receber");
-					renderer.setBackground(Color.yellow);
-					renderer.setForeground(Color.black);
-					renderer.setFont(new Font("Arial", Font.BOLD, 16));
-				} else if (status == 3) {
-					// return ("Recebido");
-					renderer.setBackground(new Color(0, 51, 0));
-					renderer.setForeground(Color.white);
-					renderer.setFont(new Font("Arial", Font.BOLD, 16));
+					Map<Integer, Double> lista_lancamentos_receitas = new GerenciarBancoLancamento()
+							.busca_lancamentos_grafico_linha_despesa_receita(1, ano);
+					Map<Integer, Double> receitas = new TreeMap<>(lista_lancamentos_receitas);
+					XYSeries series2 = new XYSeries("Receitas");
+					for (Map.Entry<Integer, Double> pair : receitas.entrySet()) {
+
+						series2.add(pair.getKey(), pair.getValue());
+
+					}
+
+					dataset.addSeries(series1);
+					dataset.addSeries(series2);
+
+					GraficoMultiplaLinha linhaMultiplca = new GraficoMultiplaLinha();
+					linhaMultiplca.setDataset(dataset);
+					linhaMultiplca.setAplicarSimbolos(true);
+					chartPanel = linhaMultiplca.getGraficoLinha(painelGraficoLinha.getWidth(),
+							painelGraficoLinha.getHeight(), "Mês", "Despesas x Receitas", "Valor em Reais", 3);
+					chartPanel.setBackground(Color.white);
+
+					painelGraficoLinha.add(chartPanel);
+					painelGraficoLinha.repaint();
+					painelGraficoLinha.updateUI();
+
+				} catch (Exception e) {
+					JOptionPane.showMessageDialog(isto, "Ano Incorreto");
 				}
 
 			}
+		});
 
-			return super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
-			// return renderer;
-		}
 	}
-
-	
-	public void atualizarGrafico() {
-
-	    XYSeriesCollection dataset = new XYSeriesCollection();
-		painelGraficoLinha.removeAll();
-		
-		
-		Map<Integer, Double> lista_lancamentos_despesas = new GerenciarBancoLancamento().busca_lancamentos_grafico_linha_despesa_receita(0, new GetData().getAnoAtual());
-		Map<Integer, Double> despesas = new TreeMap<>(lista_lancamentos_despesas);
-	    XYSeries series1 = new XYSeries("DESPESAS");
-	    for (Map.Entry<Integer, Double> pair : despesas.entrySet()) {
-		
-			series1.add( pair.getKey() , pair.getValue() );
-
-		}
-	    
-	    Map<Integer, Double> lista_lancamentos_receitas = new GerenciarBancoLancamento().busca_lancamentos_grafico_linha_despesa_receita(1, new GetData().getAnoAtual());
-		Map<Integer, Double> receitas = new TreeMap<>(lista_lancamentos_receitas);
-	    XYSeries series2 = new XYSeries("Receitas");
-	    for (Map.Entry<Integer, Double> pair : receitas.entrySet()) {
-		
-	    	series2.add( pair.getKey() , pair.getValue() );
-
-		}
-		
-		 dataset.addSeries(series1);
-		 dataset.addSeries(series2);
-
-		 GraficoMultiplaLinha linhaMultiplca = new GraficoMultiplaLinha();
-		linhaMultiplca.setDataset(dataset);
-		linhaMultiplca.setAplicarSimbolos(true);
-		chartPanel = linhaMultiplca.getGraficoLinha(painelGraficoLinha.getWidth(),
-				painelGraficoLinha.getHeight(), "Mês", "Despesas x Receitas", "Valor em Reais", 3);
-		chartPanel.setBackground(Color.white);
-		painelGraficoLinha.add(chartPanel);
-	}
-
-	
-	
-	
-	/*
-	public void atualizarGrafico() {
-
-		painelGraficoLinha.removeAll();
-		Map<Integer, Double> lista_lancamentos = new GerenciarBancoLancamento().busca_lancamentos_grafico_linha(0, -1);
-		lista_lancamentos = new TreeMap<>(lista_lancamentos);
-
-		dataset = new DefaultCategoryDataset();
-		for (Map.Entry<Integer, Double> pair : lista_lancamentos.entrySet()) {
-
-			dataset.addValue(pair.getValue(), "", NomeDoMes(pair.getKey(), 0));
-
-		}
-
-		
-		linha = new GraficoLinhaDupla();
-		linha.setDataset(dataset);
-		chartPanel = linha.getGraficoLinha(painelGraficoLinha.getWidth(), painelGraficoLinha.getHeight(), "Mês",
-				"Despesas x Receitas", "Valor em Reais");
-		chartPanel.setBackground(Color.white);
-		painelGraficoLinha.add(chartPanel);
-	}
-
-*/
 
 	public static String NomeDoMes(int i, int tipo) {
 		String mes[] = { "janeiro", "fevereiro", "março", "abril", "maio", "junho", "julho", "agosto", "setembro",
@@ -1083,5 +796,5 @@ public class TelaFinanceiro extends JFrame {
 		else
 			return (mes[i - 1].substring(0, 3));
 	}
-	
+
 }
