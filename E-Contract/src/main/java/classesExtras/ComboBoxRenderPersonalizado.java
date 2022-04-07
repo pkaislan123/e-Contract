@@ -4,6 +4,7 @@ import java.awt.Component;
 
 import javax.swing.DefaultListCellRenderer;
 import javax.swing.JList;
+import javax.swing.JOptionPane;
 
 import main.java.cadastros.CadastroProduto;
 import main.java.cadastros.CadastroSafra;
@@ -21,6 +22,7 @@ public class ComboBoxRenderPersonalizado extends DefaultListCellRenderer{
 	        	
 	        	CadastroSafra safra = (CadastroSafra) value;
 	            GerenciarBancoProdutos gerenciar = new GerenciarBancoProdutos();
+	           	            
 	            CadastroProduto prod = gerenciar.getProduto(safra.getProduto().getId_produto());
 	            
 	            setText(safra.getCodigo() + "-" + safra.getProduto().getNome_produto() + " TRANSGENIA: " + prod.getTransgenia() + " " + safra.getAno_plantio() + "/" + safra.getAno_colheita());

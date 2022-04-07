@@ -2,12 +2,18 @@ package main.java.gui;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.Component;
+import java.awt.Container;
 import java.awt.FlowLayout;
 import java.awt.Window;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.FocusAdapter;
+import java.awt.event.FocusEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -30,6 +36,7 @@ import main.java.cadastros.CadastroCliente;
 import main.java.cadastros.CadastroContrato;
 import main.java.conexaoBanco.GerenciarBancoClientes;
 import main.java.gui.TelaContratos.ContratoTableModel;
+import main.java.outros.JTextFieldPersonalizado;
 import net.miginfocom.swing.MigLayout;
 import java.awt.Font;
 import javax.swing.JLabel;
@@ -37,6 +44,8 @@ import javax.swing.JOptionPane;
 import javax.swing.JTextField;
 import javax.swing.RowFilter;
 import javax.swing.border.LineBorder;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
 
 public class TelaTransportadores extends JDialog {
 	private TransportadoresTableModel modelo_transportadores = new TransportadoresTableModel();
@@ -116,15 +125,27 @@ public class TelaTransportadores extends JDialog {
 		panel_1.add(lblNewLabel, "cell 0 1,alignx trailing");
 
 		entNomeMotorista = new JTextField();
+		entNomeMotorista.addKeyListener(new KeyAdapter() {
+			@Override
+			public void keyTyped(KeyEvent e) {
+				filtrar();
+			}
+		});
 		entNomeMotorista.setFont(new Font("SansSerif", Font.PLAIN, 16));
 		panel_1.add(entNomeMotorista, "cell 1 1,growx");
 		entNomeMotorista.setColumns(10);
-
+		
 		JLabel lblCpf = new JLabel("CPF:");
 		lblCpf.setFont(new Font("SansSerif", Font.PLAIN, 16));
 		panel_1.add(lblCpf, "cell 2 1,alignx trailing");
 
 		entCpfMotorista = new JTextField();
+		entCpfMotorista.addKeyListener(new KeyAdapter() {
+			@Override
+			public void keyTyped(KeyEvent e) {
+				filtrar();
+			}
+		});
 		entCpfMotorista.setFont(new Font("SansSerif", Font.PLAIN, 16));
 		entCpfMotorista.setColumns(10);
 		panel_1.add(entCpfMotorista, "cell 3 1,growx");
@@ -134,6 +155,12 @@ public class TelaTransportadores extends JDialog {
 		panel_1.add(lblPlaca, "cell 4 1,alignx trailing");
 
 		entPlaca = new JTextField();
+		entPlaca.addKeyListener(new KeyAdapter() {
+			@Override
+			public void keyTyped(KeyEvent e) {
+				filtrar();
+			}
+		});
 		entPlaca.setFont(new Font("SansSerif", Font.PLAIN, 16));
 		entPlaca.setColumns(10);
 		panel_1.add(entPlaca, "cell 5 1,growx");
@@ -220,6 +247,17 @@ public class TelaTransportadores extends JDialog {
 			}
 		});
 		
+		JPanel panel_2 = new JPanel();
+		panel_2.setBackground(Color.WHITE);
+		painelPrincipal.add(panel_2, "flowx,cell 0 2,grow");
+		panel_2.setLayout(new MigLayout("", "[][][][][][][][][][][][][][][][][]", "[]"));
+		
+		JButton btnNewButton_1 = new JButton("TODAS AS PLACAS");
+		btnNewButton_1.setForeground(Color.WHITE);
+		btnNewButton_1.setBackground(new Color(0, 51, 153));
+		btnNewButton_1.setFont(new Font("SansSerif", Font.BOLD, 14));
+		panel_2.add(btnNewButton_1, "cell 16 0");
+		
 		
 		
 		
@@ -236,11 +274,19 @@ public class TelaTransportadores extends JDialog {
 
 		pesquisar();
 		this.setLocationRelativeTo(janela_pai);
-
+		this.addWindowListener( new WindowAdapter() {
+		    public void windowOpened( WindowEvent e ){
+		        entNomeMotorista.requestFocus();
+		    }
+		}); 
 		// this.setVisible(true);
 
 	}
 
+	
+
+
+	
 	
 	public void processarSelecao(JTable tabela, Window janela_pai, Window telaPai) {
 		int rowSel = tabela.getSelectedRow();
@@ -253,13 +299,22 @@ public class TelaTransportadores extends JDialog {
 			((TelaConfirmarRecebimento) telaPai).setTransportador(
 					new GerenciarBancoClientes().getCliente(transportadores.get(indiceDaLinha).getId()));
 
-		} else if (janela_pai instanceof TelaFilaCadastrarMovimento) {
+		} else if (janela_pai instanceof TelaFilaCadastrarMovimentoDesembarque) {
 
 			if (flag_motorista_transportadora_global == 0) {
-				((TelaFilaCadastrarMovimento) janela_pai).setMotorista(
+				((TelaFilaCadastrarMovimentoDesembarque) janela_pai).setMotorista(
 						new GerenciarBancoClientes().getCliente(transportadores.get(indiceDaLinha).getId()));
 			} else if (flag_motorista_transportadora_global == 1) {
-				((TelaFilaCadastrarMovimento) janela_pai).setTransportadora(
+				((TelaFilaCadastrarMovimentoDesembarque) janela_pai).setTransportadora(
+						new GerenciarBancoClientes().getCliente(transportadores.get(indiceDaLinha).getId()));
+
+			}
+		}else if(janela_pai instanceof TelaFilaCadastrarMovimentoEmbarque) {
+			if (flag_motorista_transportadora_global == 0) {
+				((TelaFilaCadastrarMovimentoEmbarque) janela_pai).setMotorista(
+						new GerenciarBancoClientes().getCliente(transportadores.get(indiceDaLinha).getId()));
+			} else if (flag_motorista_transportadora_global == 1) {
+				((TelaFilaCadastrarMovimentoEmbarque) janela_pai).setTransportadora(
 						new GerenciarBancoClientes().getCliente(transportadores.get(indiceDaLinha).getId()));
 
 			}

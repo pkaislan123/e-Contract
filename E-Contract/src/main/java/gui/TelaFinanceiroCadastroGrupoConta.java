@@ -111,6 +111,7 @@ public class TelaFinanceiroCadastroGrupoConta extends JDialog {
 				boolean result = gerenciar_conexao.atualizarFinanceiroGrupoContas(getAtualizar(grupo_contas));
 				if(result) {
 					JOptionPane.showMessageDialog(isto, "Cadastro Atualizado");
+					((TelaFinanceiroGrupoConta) janela_pai).pesquisar();
 					isto.dispose();
 				}else {
 					JOptionPane.showMessageDialog(isto, "Erro Atualizar Cadastro\nConsulte o administrador!");
@@ -127,6 +128,7 @@ public class TelaFinanceiroCadastroGrupoConta extends JDialog {
 				int result = gerenciar_conexao.inserirFinanceiroGrupoContas(getSalvar());
 				if(result > 0) {
 					JOptionPane.showMessageDialog(isto, "Cadastro Concluído");
+					((TelaFinanceiroGrupoConta) janela_pai).pesquisar();
 					isto.dispose();
 				}else {
 					JOptionPane.showMessageDialog(isto, "Erro Cadastro\nConsulte o administrador!");

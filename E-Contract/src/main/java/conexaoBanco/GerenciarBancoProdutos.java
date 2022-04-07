@@ -22,7 +22,7 @@ public class GerenciarBancoProdutos {
 	            try {
 	                conn = ConexaoBanco.getConexao();
 	                String sql = "insert into produto\r\n" + 
-	                		"(nome_produto, descricao_produto, transgenia, codigo_produto) values ('"
+	                		"(nome_produto, descricao_produto, transgenia, codigo_produto, url_referencia) values ('"
 	    	    			+ produto.getNome_produto()
 	    	    			+ "','"
 	    	    			+ produto.getDescricao_produto()	
@@ -30,6 +30,8 @@ public class GerenciarBancoProdutos {
 	    	    			+ produto.getTransgenia()
 	    	    			+ "','"
 	    	    			+ produto.getCodigo()	
+	    	    			+ "','"
+	    	    			+ produto.getUrl_referencia()	
 	    	    			+ "')";
 	    	       
 	    	        PreparedStatement grava = (PreparedStatement) conn.prepareStatement(sql); 
@@ -69,7 +71,7 @@ public class GerenciarBancoProdutos {
 	                produto.setDescricao_produto(rs.getString("descricao_produto"));
 	                produto.setCodigo(rs.getInt("codigo_produto"));
 	                produto.setTransgenia(rs.getString("transgenia"));
-	                
+	                produto.setUrl_referencia(rs.getString("url_referencia"));
 	          
 	                listaProdutos.add(produto);
 	            }
@@ -100,6 +102,7 @@ public class GerenciarBancoProdutos {
 	                produto.setDescricao_produto(rs.getString("descricao_produto"));
 	                produto.setCodigo(rs.getInt("codigo_produto"));
 	                produto.setTransgenia(rs.getString("transgenia"));
+	                produto.setUrl_referencia(rs.getString("url_referencia"));
 
 	          
 	            

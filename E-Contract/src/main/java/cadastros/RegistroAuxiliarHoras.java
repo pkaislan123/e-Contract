@@ -20,6 +20,9 @@ public class RegistroAuxiliarHoras {
 	double valor_total_hora60;
 	double valor_total_hora100;
 	double valor_total_hora_noturnas;
+	
+	int bh_pago;
+	String descricao_bh_pago;
 
 	double valor_hora;
 	double valor_hora50;

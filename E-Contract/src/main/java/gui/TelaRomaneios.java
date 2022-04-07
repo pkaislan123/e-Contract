@@ -2398,12 +2398,14 @@ public class TelaRomaneios extends JFrame {
 		String doc_entrada = entDocEntrada.getText().toUpperCase();
 		String transgenese = entTransgeniaDefinida.getText().toUpperCase();
 		String status_monsanto = entStatusMonsanto.getText().toUpperCase();
-		String menor = entMenorData.getText();
-		String maior = entMaiorData.getText();
+		
 
 		String safra = entSafra.getText();
 		String safra_envidencia = entSafraEvidencia.getText();
 
+		String menor = entMenorData.getText();
+		String maior = entMaiorData.getText();
+		
 		if (checkString(menor) && checkString(maior)) {
 			Date data_menor = null;
 			Date data_maior = null;

@@ -155,7 +155,7 @@ public class ArquivoConfiguracoes {
 			
 
 			senha = propriedades_local.getProperty("prop.zapmessenger.zapkey");
-			System.out.println("email zap messenger: " + senha);
+			System.out.println("senha zap messenger: " + senha);
 			
 			zap.setApi_key(api_key);
 			zap.setEmail(email);

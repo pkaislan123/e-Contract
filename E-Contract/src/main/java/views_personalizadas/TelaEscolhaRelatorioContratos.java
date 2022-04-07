@@ -10,6 +10,9 @@ import java.net.URL;
 import java.text.NumberFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.Locale;
@@ -117,8 +120,7 @@ public class TelaEscolhaRelatorioContratos extends JDialog {
 			public void actionPerformed(ActionEvent e) {
 				rdbtnSimples.setSelected(false);
 				rdbtnCompleto.setSelected(true);
-				
-				
+
 			}
 		});
 		rdbtnCompleto.setBackground(Color.WHITE);
@@ -128,10 +130,10 @@ public class TelaEscolhaRelatorioContratos extends JDialog {
 		rdbtnSimples.setSelected(true);
 		rdbtnSimples.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				
+
 				rdbtnSimples.setSelected(true);
 				rdbtnCompleto.setSelected(false);
-				
+
 			}
 		});
 		rdbtnSimples.setForeground(Color.BLACK);
@@ -596,7 +598,6 @@ public class TelaEscolhaRelatorioContratos extends JDialog {
 		cell.setCellStyle(headerStyle);
 		cell.setCellValue("Status");
 
-
 		cell = row.createCell(cellnum++);
 		cell.setCellStyle(headerStyle);
 		cell.setCellValue("Volume");
@@ -631,6 +632,14 @@ public class TelaEscolhaRelatorioContratos extends JDialog {
 
 		cell = row.createCell(cellnum++);
 		cell.setCellStyle(headerStyle);
+		cell.setCellValue("Data Entrega");
+
+		cell = row.createCell(cellnum++);
+		cell.setCellStyle(headerStyle);
+		cell.setCellValue("Data Pagamento");
+
+		cell = row.createCell(cellnum++);
+		cell.setCellStyle(headerStyle);
 		cell.setCellValue("Local Retirada");
 
 		double valor_total = 0;
@@ -642,7 +651,7 @@ public class TelaEscolhaRelatorioContratos extends JDialog {
 		double valor_total_cancelado = 0;
 		double quantidade_total_sacos_cancelados = 0;
 		double quantidade_total_kgs_cancelados = 0;
-		
+
 		double valor_total_comissao_a_receber = 0, valor_total_comissao_restante = 0, valor_total_comissao_recebido = 0;
 
 		for (CadastroContrato cadastro : contratos) {
@@ -789,6 +798,14 @@ public class TelaEscolhaRelatorioContratos extends JDialog {
 
 				cell = row.createCell(cellnum++);
 				cell.setCellStyle(numberStyle);
+				cell.setCellValue(cadastro.getData_entrega());
+
+				cell = row.createCell(cellnum++);
+				cell.setCellStyle(numberStyle);
+				cell.setCellValue(cadastro.getData_pagamento());
+
+				cell = row.createCell(cellnum++);
+				cell.setCellStyle(numberStyle);
 
 				GerenciarBancoClientes gerenciar = new GerenciarBancoClientes();
 				CadastroCliente local_retirada = gerenciar.getCliente(cadastro.getId_local_retirada());
@@ -834,7 +851,6 @@ public class TelaEscolhaRelatorioContratos extends JDialog {
 		cell.setCellValue(contratos.size() - total_contratos_cancelados);
 		sheet.addMergedRegion(new CellRangeAddress(rownum, rownum, 1, 2));
 
-		
 		row = sheet.createRow(rownum += 1);
 		cellnum = 0;
 
@@ -848,7 +864,6 @@ public class TelaEscolhaRelatorioContratos extends JDialog {
 				z.format(quantidade_total_sacos * 60) + " Kgs | " + z.format(quantidade_total_sacos) + " sacos");
 		sheet.addMergedRegion(new CellRangeAddress(rownum, rownum, 1, 2));
 
-		
 		row = sheet.createRow(rownum += 1);
 		cellnum = 0;
 
@@ -860,8 +875,6 @@ public class TelaEscolhaRelatorioContratos extends JDialog {
 		cell.setCellStyle(valorStyle_total);
 		cell.setCellValue(valor_total);
 		sheet.addMergedRegion(new CellRangeAddress(rownum, rownum, 1, 2));
-
-		
 
 		// cancelados
 
@@ -901,8 +914,6 @@ public class TelaEscolhaRelatorioContratos extends JDialog {
 		cell.setCellStyle(valorStyle_total_fundo_vermelho);
 		cell.setCellValue(valor_total_cancelado);
 		sheet.addMergedRegion(new CellRangeAddress(rownum, rownum, 1, 2));
-
-		
 
 		return workbook;
 	}
@@ -1240,6 +1251,10 @@ public class TelaEscolhaRelatorioContratos extends JDialog {
 
 		cell = row.createCell(cellnum++);
 		cell.setCellStyle(headerStyle);
+		cell.setCellValue("Dias Restantes");
+		
+		cell = row.createCell(cellnum++);
+		cell.setCellStyle(headerStyle);
 		cell.setCellValue("Status Recebimento");
 
 		cell = row.createCell(cellnum++);
@@ -1288,6 +1303,14 @@ public class TelaEscolhaRelatorioContratos extends JDialog {
 
 		cell = row.createCell(cellnum++);
 		cell.setCellStyle(headerStyle);
+		cell.setCellValue("Data Entrega");
+
+		cell = row.createCell(cellnum++);
+		cell.setCellStyle(headerStyle);
+		cell.setCellValue("Data Pagamento");
+
+		cell = row.createCell(cellnum++);
+		cell.setCellStyle(headerStyle);
 		cell.setCellValue("Local Retirada");
 
 		double valor_total = 0;
@@ -1299,9 +1322,10 @@ public class TelaEscolhaRelatorioContratos extends JDialog {
 		double valor_total_cancelado = 0;
 		double quantidade_total_sacos_cancelados = 0;
 		double quantidade_total_kgs_cancelados = 0;
-		
-		double valor_total_comissao_a_receber = 0, valor_total_comissao_restante = 0, valor_total_comissao_recebido = 0;
 
+		double valor_total_comissao_a_receber = 0, valor_total_comissao_restante = 0, valor_total_comissao_recebido = 0;
+		 DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+			NumberFormat z = NumberFormat.getNumberInstance();
 		for (CadastroContrato cadastro : contratos) {
 
 			int status_contrato = cadastro.getStatus_contrato();
@@ -1360,39 +1384,201 @@ public class TelaEscolhaRelatorioContratos extends JDialog {
 
 				cell.setCellValue(status);
 
+				
+				//dias restantes
+				{
+				cell = row.createCell(cellnum++);
+				cell.setCellStyle(numberStyle);
+				
+				String s_data_entrega = cadastro.getData_entrega();
+
+				try {
+					LocalDate date = LocalDate.parse(s_data_entrega, formatter);
+					LocalDate hoje = LocalDate.now();
+
+					long diff = hoje.until(date, ChronoUnit.DAYS);
+					cell.setCellValue((double) diff);
+
+				}catch(Exception e) {
+					cell.setCellValue((double) -10);
+
+				}
+				
+				}
+
 				cell = row.createCell(cellnum++);
 				cell.setCellStyle(textStyle);
+				
 				// status recebimento
 				/*****************************************/
 				double quantidade_recebida = cadastro.getQuantidade_recebida();
 				double quantidade_sacos_sub = 0;
 				double quantidade_quilogramas_sub = 0;
-				String status_rec = "";
-				if (cadastro.getMedida().equalsIgnoreCase("Sacos")) {
-					quantidade_sacos_sub = cadastro.getQuantidade();
-					quantidade_quilogramas_sub = cadastro.getQuantidade() * 60;
-				} else if (cadastro.getMedida().equalsIgnoreCase("KG")) {
-					quantidade_quilogramas_sub = cadastro.getQuantidade();
-					quantidade_sacos_sub = cadastro.getQuantidade() / 60;
+				
+					String texto = "";
 
-				}
+					String s_data_entrega = cadastro.getData_entrega();
 
-				if (quantidade_recebida >= (quantidade_sacos_sub - 0.5)) {
-					status_rec = "CONCLUIDO";
-					cell.setCellStyle(celula_fundo_verde);
+					try {
+						LocalDate date = LocalDate.parse(s_data_entrega, formatter);
+						LocalDate hoje = LocalDate.now();
 
-				} else if (quantidade_recebida < quantidade_sacos_sub && quantidade_recebida > 0) {
-					status_rec = "RECEBENDO";
-					cell.setCellStyle(celula_fundo_azul);
+						long diff = hoje.until(date, ChronoUnit.DAYS);
+						
+					
 
-				} else if (quantidade_recebida == 0) {
-					status_rec = "A RECEBER";
-					cell.setCellStyle(celula_fundo_amarelo);
+						if (cadastro.getMedida().equalsIgnoreCase("Sacos")) {
+							quantidade_sacos_sub = cadastro.getQuantidade();
+							quantidade_quilogramas_sub = cadastro.getQuantidade() * 60;
+						} else if (cadastro.getMedida().equalsIgnoreCase("KG")) {
+							quantidade_quilogramas_sub = cadastro.getQuantidade();
+							quantidade_sacos_sub = cadastro.getQuantidade() / 60;
 
-				}
+						}
+
+						double porcentagem_recebida = (100.0 * quantidade_recebida) / quantidade_sacos_sub;
+
+
+						if (quantidade_recebida >= (quantidade_sacos_sub - 0.5)) {
+							texto = "CONCLUIDO";
+							texto = texto + " " + z.format(quantidade_recebida) + " sacos/" + z.format(quantidade_sacos_sub)
+							+ " sacos | " + z.format(porcentagem_recebida) + "% recebido | Falta " + diff + " dias";
+							cell.setCellStyle(celula_fundo_verde);
+
+						} else if (quantidade_recebida < quantidade_sacos_sub && quantidade_recebida > 0) {
+							if (diff > 14) {
+								texto = "NO PRAZO - RECEBENDO";
+								cell.setCellStyle(celula_fundo_azul);
+								texto = texto + " " + z.format(quantidade_recebida) + " sacos/" + z.format(quantidade_sacos_sub)
+								+ " sacos | " + z.format(porcentagem_recebida) + "% recebido | Falta " + diff + " dias";
+							
+							}else if(diff <= 14 && diff > 10) {
+								// falta mais de 10 dias para data final da entrega
+								if (porcentagem_recebida < 50.0) {
+
+									texto = "ATRASADO - RECEBENDO";
+									cell.setCellStyle(celula_fundo_vermelho);
+									texto = texto + " " + z.format(quantidade_recebida) + " sacos/" + z.format(quantidade_sacos_sub)
+									+ " sacos | " + z.format(porcentagem_recebida) + "% recebido | Falta " + diff + " dias";
+								} else if (porcentagem_recebida >= 50.0) {
+
+									texto = "NO PRAZO - RECEBENDO";
+									cell.setCellStyle(celula_fundo_azul);
+									texto = texto + " " + z.format(quantidade_recebida) + " sacos/" + z.format(quantidade_sacos_sub)
+									+ " sacos | " + z.format(porcentagem_recebida) + "% recebido | Falta " + diff + " dias";
+								}
+							} else if (diff > 5 && diff <= 10) {
+								// falta de 5 a 10 dias para final da entrega
+								if (porcentagem_recebida < 65.0) {
+									System.out.println("ATRASADO - RECEBENDO");
+									cell.setCellStyle(celula_fundo_vermelho);
+
+									texto = "ATRASADO - RECEBENDO";
+									texto = texto + " " + z.format(quantidade_recebida) + " sacos/" + z.format(quantidade_sacos_sub)
+									+ " sacos | " + z.format(porcentagem_recebida) + "% recebido | Falta " + diff + " dias";
+								} else if (porcentagem_recebida >= 65.0) {
+									System.out.println("NO PRAZO - RECEBENDO");
+
+									texto = "NO PRAZO - RECEBENDO";
+									cell.setCellStyle(celula_fundo_azul);
+									texto = texto + " " + z.format(quantidade_recebida) + " sacos/" + z.format(quantidade_sacos_sub)
+									+ " sacos | " + z.format(porcentagem_recebida) + "% recebido | Falta " + diff + " dias";
+								}
+							} else if (diff <= 5) {
+								// falta menos de 5 dias para a data final da entrega
+								if (porcentagem_recebida < 80.0) {
+									System.out.println("ATRASADO - RECEBENDO");
+									cell.setCellStyle(celula_fundo_vermelho);
+
+									texto = "ATRASADO - RECEBENDO";
+									texto = texto + " " + z.format(quantidade_recebida) + " sacos/" + z.format(quantidade_sacos_sub)
+									+ " sacos | " + z.format(porcentagem_recebida) + "% recebido | Falta " + diff + " dias";
+								} else if (porcentagem_recebida >= 80.0) {
+									System.out.println("NO PRAZO - RECEBENDO");
+
+									texto = "NO PRAZO - RECEBENDO";
+									cell.setCellStyle(celula_fundo_azul);
+									texto = texto + " " + z.format(quantidade_recebida) + " sacos/" + z.format(quantidade_sacos_sub)
+									+ " sacos | " + z.format(porcentagem_recebida) + "% recebido | Falta " + diff + " dias";
+								}
+							}
+
+						} else if (quantidade_recebida == 0) {
+
+							if (diff > 10) {
+
+								texto = "NO PRAZO - A RECEBER";
+								texto = texto + " " + z.format(quantidade_recebida) + " sacos/"
+										+ z.format(quantidade_sacos_sub) + " sacos | 0% recebido | Falta " + diff
+										+ " dias";
+								cell.setCellStyle(celula_fundo_amarelo);
+
+							} else if (diff > 5 && diff <= 10) {
+								texto = "ATRASADO - A RECEBER";
+								texto = texto + " " + z.format(quantidade_recebida) + " sacos/"
+										+ z.format(quantidade_sacos_sub) + " sacos | 0% recebido | Falta " + diff
+										+ " dias";
+								cell.setCellStyle(celula_fundo_vermelho);
+
+							} else if (diff <= 5) {
+								// falta de 7 a 10 dias para final da entrega
+								texto = "MUITO ATRASADO - A RECEBER";
+								texto = texto + " " + z.format(quantidade_recebida) + " sacos/"
+										+ z.format(quantidade_sacos_sub) + " sacos | 0% recebido | Falta " + diff
+										+ " dias";
+								cell.setCellStyle(celula_fundo_vermelho);
+
+							}
+
+						}
+
+						
+
+					} catch (Exception e) {
+						
+						texto = "";
+
+						if (cadastro.getMedida().equalsIgnoreCase("Sacos")) {
+							quantidade_sacos_sub = cadastro.getQuantidade();
+							quantidade_quilogramas_sub = cadastro.getQuantidade() * 60;
+						} else if (cadastro.getMedida().equalsIgnoreCase("KG")) {
+							quantidade_quilogramas_sub = cadastro.getQuantidade();
+							quantidade_sacos_sub = cadastro.getQuantidade() / 60;
+
+						}
+
+						double porcentagem_recebida = (100.0 * quantidade_recebida) / quantidade_sacos_sub;
+
+						String porcentagem = Double.toString(porcentagem_recebida);
+
+						if (quantidade_recebida >= (quantidade_sacos_sub - 0.5)) {
+							texto = "CONCLUIDO";
+
+							texto = texto + " " + z.format(quantidade_recebida) + " sacos/"
+									+ z.format(quantidade_sacos_sub) + " sacos | 0% recebido";
+							cell.setCellStyle(celula_fundo_verde);
+
+						} else if (quantidade_recebida < quantidade_sacos_sub && quantidade_recebida > 0) {
+							texto = "RECEBENDO";
+							texto = texto + " " + z.format(quantidade_recebida) + " sacos/"
+									+ z.format(quantidade_sacos_sub) + " sacos | 0% recebido";
+							cell.setCellStyle(celula_fundo_azul);
+
+						} else if (quantidade_recebida == 0) {
+							texto = "A RECEBER";
+							texto = texto + " " + z.format(quantidade_recebida) + " sacos/"
+									+ z.format(quantidade_sacos_sub) + " sacos | 0% recebido";
+							cell.setCellStyle(celula_fundo_amarelo);
+						}
+				
+
+					}
+				
 				/******************************************/
-				cell.setCellValue(status_rec);
-
+				cell.setCellValue(texto);
+				 // fim status_recebimento
+				
+				
 				cell = row.createCell(cellnum++);
 				cell.setCellStyle(textStyle);
 				// status CARREGAMENTO
@@ -1518,13 +1704,10 @@ public class TelaEscolhaRelatorioContratos extends JDialog {
 					String s_valor_total_a_pagar = NumberFormat.getCurrencyInstance(ptBr).format(valor_total_a_pagar);
 					String s_valor_total_pago = NumberFormat.getCurrencyInstance(ptBr).format(valor_total_pago);
 
-					
-					
 					valor_total_comissao_a_receber += valor_total_a_pagar;
-					
-					
+
 					valor_total_comissao_recebido += valor_total_pago;
-					
+
 					if (valor_total_pago == 0) {
 						status_comissao = "A PAGAR " + s_valor_total_pago + "/" + s_valor_total_a_pagar;
 						cell.setCellStyle(celula_fundo_amarelo);
@@ -1585,13 +1768,7 @@ public class TelaEscolhaRelatorioContratos extends JDialog {
 
 				cell = row.createCell(cellnum++);
 				cell.setCellStyle(numberStyle);
-				String transgenia = "";
-				if (cadastro.getModelo_safra().getProduto().getTransgenia().contains("CONVENCIONAL")) {
-					transgenia = "CONVEN.";
-				} else {
-					transgenia = "TRANSG.";
-
-				}
+				String transgenia = cadastro.getModelo_safra().getProduto().getTransgenia();
 				cell.setCellValue(transgenia);
 
 				cell = row.createCell(cellnum++);
@@ -1630,6 +1807,14 @@ public class TelaEscolhaRelatorioContratos extends JDialog {
 
 				cell = row.createCell(cellnum++);
 				cell.setCellStyle(numberStyle);
+				cell.setCellValue(cadastro.getData_entrega());
+
+				cell = row.createCell(cellnum++);
+				cell.setCellStyle(numberStyle);
+				cell.setCellValue(cadastro.getData_pagamento());
+
+				cell = row.createCell(cellnum++);
+				cell.setCellStyle(numberStyle);
 
 				GerenciarBancoClientes gerenciar = new GerenciarBancoClientes();
 				CadastroCliente local_retirada = gerenciar.getCliente(cadastro.getId_local_retirada());
@@ -1661,7 +1846,6 @@ public class TelaEscolhaRelatorioContratos extends JDialog {
 		// registra total de sacos, quilogramas, e valor total
 		// total de contratos
 
-		NumberFormat z = NumberFormat.getNumberInstance();
 
 		row = sheet.createRow(rownum += 2);
 		cellnum = 0;

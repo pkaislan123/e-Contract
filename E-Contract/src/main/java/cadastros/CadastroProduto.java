@@ -7,8 +7,16 @@ public class CadastroProduto {
 	private int codigo;
 	private String transgenia;
 	
+	private String url_referencia;
 	
 	
+	
+	public String getUrl_referencia() {
+		return url_referencia;
+	}
+	public void setUrl_referencia(String url_referencia) {
+		this.url_referencia = url_referencia;
+	}
 	public String getTransgenia() {
 		return transgenia;
 	}

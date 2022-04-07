@@ -332,7 +332,7 @@ public class GerenciarBancoLogin {
 
 			try {
 
-				atualizar = "update usuarios set nome = ?, sobrenome = ?,celular = ? , cargo = ?, login = ?, email = ?, senha = ?, senha_email = ?,  genero = ?, email2 = ?, senha_email2 = ? where id_usuario = ? ";
+				atualizar = "update usuarios set nome = ?, sobrenome = ?,celular = ? , cargo = ?, login = ?, email = ?, senha = ?, senha_email = ?,  genero = ?, email2 = ?, senha_email2 = ?, senhaweb = ? where id_usuario = ? ";
 				conn = ConexaoBanco.getConexao();
 				pstm = conn.prepareStatement(atualizar);
 
@@ -348,8 +348,9 @@ public class GerenciarBancoLogin {
 
 				pstm.setString(10, login.getEmail2());
 				pstm.setString(11, login.getSenhaEmail2());
+				pstm.setString(12, login.getSenhaWeb());
 
-				pstm.setInt(12, login.getId());
+				pstm.setInt(13, login.getId());
 
 				pstm.execute();
 				// JOptionPane.showMessageDialog(null, "Cliente atualizado com sucesso");
@@ -795,11 +796,11 @@ public class GerenciarBancoLogin {
 
 	private String sql_login(CadastroLogin login) {
 		String sql = "insert into usuarios\r\n"
-				+ "(nome, sobrenome, celular, cargo, login, email, senha, senha_email, genero, email2, senha_email2, status) values ('"
+				+ "(nome, sobrenome, celular, cargo, login, email, senha, senha_email, genero, email2, senha_email2, status, senhaweb) values ('"
 				+ login.getNome() + "','" + login.getSobrenome() + "','" + login.getCelular() + "','" + login.getCargo()
 				+ "','" + login.getLogin() + "','" + login.getEmail() + "','" + login.getSenha() + "','"
 				+ login.getSenhaEmail() + "','" + login.getGenero() + "','" + login.getEmail2() + "','"
-				+ login.getSenhaEmail2() + "','" + 1 + "')";
+				+ login.getSenhaEmail2() + "','" + login.getSenhaWeb() +   "','"         + 1 + "')";
 
 		return sql;
 

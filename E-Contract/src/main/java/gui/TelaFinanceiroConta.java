@@ -50,6 +50,8 @@ import javax.swing.JComboBox;
 import javax.swing.ImageIcon;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 
 public class TelaFinanceiroConta extends JDialog {
 
@@ -222,6 +224,7 @@ public class TelaFinanceiroConta extends JDialog {
 						boolean exclusao = new GerenciarBancoFinanceiroConta().removerFinanceiroConta(getContasSelecionado().getId());
 						if(exclusao) {
 							JOptionPane.showMessageDialog(isto, "Cadastro Excluído");
+							
 						}else {
 							JOptionPane.showMessageDialog(isto, "Erro ao excluir\nConsulte o administrador");
 
@@ -253,6 +256,26 @@ public class TelaFinanceiroConta extends JDialog {
 				}
 			}
 		});
+		
+		tabela_contas.addMouseListener(new MouseAdapter() {
+			public void mouseClicked(MouseEvent e) {
+				if (e.getClickCount() == 2) {
+					if(modo_operacao == 0) {
+						if(retorno_tela == 1) {
+							if(janela_pai instanceof TelaFinanceiroCadastroLancamento)
+							((TelaFinanceiroCadastroLancamento) janela_pai).setConta(getContasSelecionado());
+							else if(janela_pai instanceof TelaFinanceiroCadastroEmprestimo)
+								((TelaFinanceiroCadastroEmprestimo) janela_pai).setConta(getContasSelecionado());
+
+							isto.dispose();
+						}
+					}
+				}
+
+			}
+		});
+
+		
 		panel_3.add(btnNewButton_3, "cell 1 0,alignx left,aligny top");
 		
 		JButton btnNewButton_2 = new JButton("Editar");

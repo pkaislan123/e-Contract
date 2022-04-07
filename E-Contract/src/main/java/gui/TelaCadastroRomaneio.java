@@ -328,9 +328,10 @@ public class TelaCadastroRomaneio extends JFrame {
 						tarefa.setDescricao_tarefa("Edição de dados no romaneio codigo: " + romaneio.getNumero_romaneio() );
 						tarefa.setMensagem("ROMANEIO: " + romaneio.getNumero_romaneio() 
 						+ "| UMIDADE 2: " + rom.getUmidade2() + "| IMPUREZA 2: " + rom.getImpureza2() 
-						+ "| Classificador: id: " + clas.getId() + " - "+ clas.getNome_colaborador()  +
-						" SILO: id: " + silo.getId_silo() + " - " + silo.getNome_silo() + " - " + silo.getIdentificador() 
-						+ " | TRANSGENIA: id" + transgenia.getId_transgenia() + " - " + transgenia.getNome() + " - " + transgenia.getDescricao()
+						+ "| Classificador: id: " + (clas != null ? clas.getId() + " - "+ clas.getNome_colaborador() : "não selecionado") 
+						+ 
+						" SILO: id: " + (silo != null ? silo.getId_silo() + " - " + silo.getNome_silo() + " - " + silo.getIdentificador() : "não selecionado") 
+						+ " | TRANSGENIA: id" + (transgenia != null ? transgenia.getId_transgenia() + " - " + transgenia.getNome() + " - " + transgenia.getDescricao() : "não selecionado" )
 						+ " | Status Monsanto: " + status_monsanto + "| Obs: " + observacao);
 						tarefa.setCriador(login);
 						tarefa.setExecutor(login);
@@ -536,9 +537,9 @@ public class TelaCadastroRomaneio extends JFrame {
 		romaneio.setId_classificador(classificador.getId());
 		
 		}catch(Exception y) {
-			JOptionPane.showMessageDialog(isto, "Selecione o Classificador");
+			//JOptionPane.showMessageDialog(isto, "Selecione o Classificador");
 
-			return null;
+			//return null;
 		}
 		
 		try {
@@ -546,9 +547,9 @@ public class TelaCadastroRomaneio extends JFrame {
 		romaneio.setId_transgenese(transgenia.getId_transgenia());
 		}
 		catch(Exception y) {
-			JOptionPane.showMessageDialog(isto, "Selecione a Transgenia");
+			//JOptionPane.showMessageDialog(isto, "Selecione a Transgenia");
 
-			return null;
+			//return null;
 		}
 		
 		try {
@@ -556,9 +557,9 @@ public class TelaCadastroRomaneio extends JFrame {
 		romaneio.setId_silo(silo.getId_silo());
 		}
 		catch(Exception y) {
-			JOptionPane.showMessageDialog(isto, "Selecione o Silo");
+			//JOptionPane.showMessageDialog(isto, "Selecione o Silo");
 
-			return null;
+			//return null;
 		}
 		
 		

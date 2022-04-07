@@ -168,10 +168,10 @@ public class TelaFinanceiroPagamento extends JFrame {
 		panel.add(lblNewLabel, "cell 0 0,alignx left,aligny top");
 
 		JPanel panel_1 = new JPanel();
-		painelPrinciapl.add(panel_1, "cell 0 1 3 1,growx,aligny top");
+		painelPrinciapl.add(panel_1, "cell 0 1 3 1,alignx center,aligny top");
 		panel_1.setBorder(new LineBorder(new Color(0, 0, 0)));
 		panel_1.setBackground(Color.WHITE);
-		panel_1.setLayout(new MigLayout("", "[116px][119px,grow][140px][441px,grow][113px][19px][125px][8px][141px]", "[28px][33px][33px][]"));
+		panel_1.setLayout(new MigLayout("", "[116px][][140px][::350px][][19px][][][][141px]", "[28px][33px][33px][]"));
 
 		JLabel lblNewLabel_1_1 = new JLabel("Tipo de Lançamento:");
 		lblNewLabel_1_1.setFont(new Font("SansSerif", Font.PLAIN, 16));
@@ -179,7 +179,7 @@ public class TelaFinanceiroPagamento extends JFrame {
 
 		cbTipoFinanceiroPagamentoCompleto = new JComboBox();
 		cbTipoFinanceiroPagamentoCompleto.setFont(new Font("Arial", Font.BOLD, 16));
-		panel_1.add(cbTipoFinanceiroPagamentoCompleto, "cell 1 0,alignx left,aligny center");
+		panel_1.add(cbTipoFinanceiroPagamentoCompleto, "cell 1 0,growx,aligny center");
 		cbTipoFinanceiroPagamentoCompleto.addItem("TODOS");
 		cbTipoFinanceiroPagamentoCompleto.addItem("DESPESAS");
 		cbTipoFinanceiroPagamentoCompleto.addItem("RECEITAS");
@@ -192,33 +192,11 @@ public class TelaFinanceiroPagamento extends JFrame {
 
 		cbCondicaoPagamento = new JComboBox();
 		cbCondicaoPagamento.setFont(new Font("Arial", Font.BOLD, 16));
-		panel_1.add(cbCondicaoPagamento, "cell 3 0,growx,aligny center");
-
-		JLabel lblNewLabel_1_1_4_1_1_1 = new JLabel("Período Pagamento:");
-		panel_1.add(lblNewLabel_1_1_4_1_1_1, "cell 4 0,alignx left,aligny center");
-		lblNewLabel_1_1_4_1_1_1.setFont(new Font("SansSerif", Font.PLAIN, 16));
-
-		JLabel lblNewLabel_8_1_1 = new JLabel("De");
-		panel_1.add(lblNewLabel_8_1_1, "cell 5 0,alignx left,aligny center");
-		lblNewLabel_8_1_1.setFont(new Font("SansSerif", Font.BOLD, 14));
-
-		menorDataPagamento = new JTextField();
-		menorDataPagamento.setFont(new Font("Arial", Font.BOLD, 16));
-		panel_1.add(menorDataPagamento, "cell 6 0,alignx left,aligny top");
-		menorDataPagamento.setText((String) null);
-		menorDataPagamento.setColumns(10);
-		menorDataPagamento.setText(pegarDataMenos(1));
-
-		JLabel lblNewLabel_6_1_1 = new JLabel("a");
-		panel_1.add(lblNewLabel_6_1_1, "cell 7 0,alignx left,aligny center");
-		lblNewLabel_6_1_1.setFont(new Font("SansSerif", Font.BOLD, 14));
-
-		maiorDataPagamento = new JTextField();
-		maiorDataPagamento.setFont(new Font("Arial", Font.BOLD, 16));
-		panel_1.add(maiorDataPagamento, "cell 8 0,alignx left,aligny top");
-		maiorDataPagamento.setText((String) null);
-		maiorDataPagamento.setColumns(10);
-		maiorDataPagamento.setText(pegarDataMais(1));
+		panel_1.add(cbCondicaoPagamento, "cell 3 0 2 1,growx,aligny center");
+		
+				JLabel lblNewLabel_1_1_4_1_1_1 = new JLabel("Período de Pagamento:");
+				panel_1.add(lblNewLabel_1_1_4_1_1_1, "cell 5 0 5 1,alignx center,aligny center");
+				lblNewLabel_1_1_4_1_1_1.setFont(new Font("SansSerif", Font.PLAIN, 16));
 
 		JLabel lblNewLabel_1_1_2_1_1 = new JLabel("Pagador:");
 		lblNewLabel_1_1_2_1_1.setFont(new Font("SansSerif", Font.PLAIN, 16));
@@ -235,32 +213,32 @@ public class TelaFinanceiroPagamento extends JFrame {
 
 		cbStatusCondicaoPagamento = new JComboBox();
 		cbStatusCondicaoPagamento.setFont(new Font("Arial", Font.BOLD, 16));
-		panel_1.add(cbStatusCondicaoPagamento, "cell 3 1,growx,aligny center");
+		panel_1.add(cbStatusCondicaoPagamento, "cell 3 1 2 1,growx,aligny center");
 		cbStatusCondicaoPagamento.addItem("TODOS");
 		cbStatusCondicaoPagamento.addItem("A - Compensar|Realizar|Concluir");
 		cbStatusCondicaoPagamento.addItem("Compensado|Realizado|Concluído");
-
-		JButton btnFiltar = new JButton("Filtrar");
-		btnFiltar.setFont(new Font("SansSerif", Font.PLAIN, 16));
-		panel_1.add(btnFiltar, "cell 6 1,growx,aligny top");
-		btnFiltar.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				filtrar();
-			}
-		});
-		btnFiltar.setBackground(new Color(0, 51, 0));
-		btnFiltar.setForeground(Color.WHITE);
-
-		JButton btnNewButton = new JButton("pesquisar");
-		btnNewButton.setFont(new Font("SansSerif", Font.PLAIN, 16));
-		panel_1.add(btnNewButton, "cell 8 1,growx,aligny top");
-		btnNewButton.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				pesquisar();
-			}
-		});
-		btnNewButton.setForeground(Color.WHITE);
-		btnNewButton.setBackground(new Color(0, 0, 102));
+								
+										JLabel lblNewLabel_8_1_1 = new JLabel("De");
+										panel_1.add(lblNewLabel_8_1_1, "cell 5 1,alignx left,aligny center");
+										lblNewLabel_8_1_1.setFont(new Font("SansSerif", Font.BOLD, 14));
+						
+								menorDataPagamento = new JTextField();
+								menorDataPagamento.setFont(new Font("Arial", Font.BOLD, 16));
+								panel_1.add(menorDataPagamento, "cell 6 1 2 1,alignx left,aligny top");
+								menorDataPagamento.setText((String) null);
+								menorDataPagamento.setColumns(10);
+								menorDataPagamento.setText(pegarDataMenos(1));
+				
+						JLabel lblNewLabel_6_1_1 = new JLabel("a");
+						panel_1.add(lblNewLabel_6_1_1, "cell 8 1,alignx left,aligny center");
+						lblNewLabel_6_1_1.setFont(new Font("SansSerif", Font.BOLD, 14));
+		
+				maiorDataPagamento = new JTextField();
+				maiorDataPagamento.setFont(new Font("Arial", Font.BOLD, 16));
+				panel_1.add(maiorDataPagamento, "cell 9 1,alignx left,aligny top");
+				maiorDataPagamento.setText((String) null);
+				maiorDataPagamento.setColumns(10);
+				maiorDataPagamento.setText(pegarDataMais(1));
 
 		JLabel lblNewLabel_1_1_2_1_1_1 = new JLabel("Recebedor:");
 		lblNewLabel_1_1_2_1_1_1.setFont(new Font("SansSerif", Font.PLAIN, 16));
@@ -279,38 +257,28 @@ public class TelaFinanceiroPagamento extends JFrame {
 		entIdentificadorGeral.setFont(new Font("Arial", Font.BOLD, 16));
 		entIdentificadorGeral.setColumns(10);
 		panel_1.add(entIdentificadorGeral, "cell 3 2,growx,aligny bottom");
-
-		JButton btnLimparBusca = new JButton("Limpar Busca");
-		btnLimparBusca.setFont(new Font("SansSerif", Font.PLAIN, 16));
-		panel_1.add(btnLimparBusca, "cell 6 2,alignx left,aligny top");
-		btnLimparBusca.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				limpar();
-			}
-		});
-		btnLimparBusca.setBackground(new Color(204, 0, 0));
-		btnLimparBusca.setForeground(Color.WHITE);
-		btnLimparBusca.setHorizontalAlignment(SwingConstants.RIGHT);
-
-		JButton btnLimparCampos = new JButton("Limpar Campos");
-		btnLimparCampos.setFont(new Font("SansSerif", Font.PLAIN, 16));
-		btnLimparCampos.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				sorter.setRowFilter(RowFilter.regexFilter(""));
-				cbCondicaoPagamento.setSelectedIndex(0);
-				cbTipoFinanceiroPagamentoCompleto.setSelectedIndex(0);
-				entNomePagador.setText("");
-				cbFluxoCaixa.setSelectedIndex(0);
-				cbExtrato.setSelectedIndex(0);
-				pegarDatas();
-
-				calcular();
-			}
-		});
-		btnLimparCampos.setHorizontalAlignment(SwingConstants.RIGHT);
-		btnLimparCampos.setForeground(Color.WHITE);
-		btnLimparCampos.setBackground(new Color(255, 51, 0));
-		panel_1.add(btnLimparCampos, "cell 8 2,alignx left,aligny top");
+				
+						JButton btnFiltar = new JButton("Filtrar");
+						btnFiltar.setFont(new Font("SansSerif", Font.PLAIN, 16));
+						panel_1.add(btnFiltar, "cell 6 2 2 1,growx,aligny top");
+						btnFiltar.addActionListener(new ActionListener() {
+							public void actionPerformed(ActionEvent e) {
+								filtrar();
+							}
+						});
+						btnFiltar.setBackground(new Color(0, 51, 0));
+						btnFiltar.setForeground(Color.WHITE);
+		
+				JButton btnNewButton = new JButton("pesquisar");
+				btnNewButton.setFont(new Font("SansSerif", Font.PLAIN, 16));
+				panel_1.add(btnNewButton, "cell 9 2,growx,aligny top");
+				btnNewButton.addActionListener(new ActionListener() {
+					public void actionPerformed(ActionEvent e) {
+						pesquisar();
+					}
+				});
+				btnNewButton.setForeground(Color.WHITE);
+				btnNewButton.setBackground(new Color(0, 0, 102));
 		
 		JLabel lblNewLabel_1_1_2_1_1_1_1 = new JLabel("Extrato?:");
 		lblNewLabel_1_1_2_1_1_1_1.setFont(new Font("SansSerif", Font.PLAIN, 16));
@@ -333,7 +301,39 @@ public class TelaFinanceiroPagamento extends JFrame {
 		 cbFluxoCaixa.addItem("SIM");
 		 cbFluxoCaixa.addItem("NÃO");
 		cbFluxoCaixa.setFont(new Font("Arial", Font.BOLD, 16));
-		panel_1.add(cbFluxoCaixa, "cell 3 3,growx");
+		panel_1.add(cbFluxoCaixa, "cell 3 3 2 1,growx");
+		
+				JButton btnLimparCampos = new JButton("Limpar Campos");
+				btnLimparCampos.setFont(new Font("SansSerif", Font.PLAIN, 16));
+				btnLimparCampos.addActionListener(new ActionListener() {
+					public void actionPerformed(ActionEvent e) {
+						sorter.setRowFilter(RowFilter.regexFilter(""));
+						cbCondicaoPagamento.setSelectedIndex(0);
+						cbTipoFinanceiroPagamentoCompleto.setSelectedIndex(0);
+						entNomePagador.setText("");
+						cbFluxoCaixa.setSelectedIndex(0);
+						cbExtrato.setSelectedIndex(0);
+						pegarDatas();
+
+						calcular();
+					}
+				});
+				
+						JButton btnLimparBusca = new JButton("Limpar Busca");
+						btnLimparBusca.setFont(new Font("SansSerif", Font.PLAIN, 16));
+						panel_1.add(btnLimparBusca, "cell 6 3 2 1,grow");
+						btnLimparBusca.addActionListener(new ActionListener() {
+							public void actionPerformed(ActionEvent e) {
+								limpar();
+							}
+						});
+						btnLimparBusca.setBackground(new Color(204, 0, 0));
+						btnLimparBusca.setForeground(Color.WHITE);
+						btnLimparBusca.setHorizontalAlignment(SwingConstants.RIGHT);
+				btnLimparCampos.setHorizontalAlignment(SwingConstants.RIGHT);
+				btnLimparCampos.setForeground(Color.WHITE);
+				btnLimparCampos.setBackground(new Color(255, 51, 0));
+				panel_1.add(btnLimparCampos, "cell 9 3,alignx left,aligny top");
 
 		FinanceiroPagamentoCompletosRender renderer = new FinanceiroPagamentoCompletosRender();
 
@@ -446,11 +446,11 @@ public class TelaFinanceiroPagamento extends JFrame {
 		btnNewButton_1.setForeground(Color.WHITE);
 		btnNewButton_1.setBackground(new Color(0, 0, 102));
 		btnNewButton_1.setFont(new Font("SansSerif", Font.BOLD, 16));
-		panel_5.add(btnNewButton_1, "cell 20 1,alignx right");
+		panel_5.add(btnNewButton_1, "cell 10 0 5 1,alignx center,growy");
 		btnAbrirLancamento.setForeground(Color.WHITE);
 		btnAbrirLancamento.setFont(new Font("SansSerif", Font.BOLD, 16));
 		btnAbrirLancamento.setBackground(new Color(0, 51, 0));
-		panel_5.add(btnAbrirLancamento, "cell 22 1,alignx right");
+		panel_5.add(btnAbrirLancamento, "cell 15 0 4 2,grow");
 
 		JLabel lblNewLabel_1 = new JLabel("Valor Total Pagamento Despesas:");
 		lblNewLabel_1.setFont(new Font("SansSerif", Font.PLAIN, 16));

@@ -277,6 +277,42 @@ public ArrayList<RegistroPonto> getRegistrosPontosPorColaborador(int id) {
 
 
 
+public ArrayList<RegistroPonto> getRegistrosPontosPorColaboradorMensal(int id_func, int mes, int ano) {
+	
+	  
+    Connection conn = null;
+    PreparedStatement pstm = null;
+    ResultSet rs = null;
+    ArrayList<RegistroPonto> listaRp = new ArrayList<RegistroPonto>();
+    try {
+        conn = ConexaoBanco.getConexao();
+        pstm = conn.prepareStatement("call busca_pontos_colaborador_mensal(?, ?, ?)");
+        pstm.setInt(1, id_func);
+        pstm.setInt(2, mes);
+        pstm.setInt(3, ano);
+        
+        rs = pstm.executeQuery();
+        while (rs.next()) {
+        	RegistroPonto registro_ponto = new RegistroPonto();
+        	registro_ponto.setId_registro_ponto(rs.getInt("id_registro_ponto"));
+        	registro_ponto.setId_funcionario(rs.getInt("id_colaborador"));
+        	registro_ponto.setData(rs.getString("data"));
+        	registro_ponto.setHora(rs.getString("hora"));
+        	registro_ponto.setMovimentacao(rs.getInt("movimentacao"));
+        	registro_ponto.setMotivo(rs.getString("motivo"));
+
+      
+        	listaRp.add(registro_ponto);
+        }
+        ConexaoBanco.fechaConexao(conn, pstm, rs);
+    } catch (Exception e) {
+    	  // JOptionPane.showMessageDialog(null, "Erro ao listar safras"  );
+    }
+    return listaRp;
+}
+
+
+
 public ArrayList<RegistroPontoDiario> getDemonstrativoFuncionarioMes(int id_func, int mes, int ano) {
 	
 	  

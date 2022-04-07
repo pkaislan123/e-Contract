@@ -1143,6 +1143,20 @@ public class RelatorioSalario extends JDialog {
 					+ formatHora(registro_global.getQuantidade()) + " horas");
 		}
 		
+		if(registro_global.getBh_pago() == 1) {
+			row = sheet.createRow(rownum++);
+			cellnum = 0;
+			cell = row.createCell(cellnum++);
+			cell.setCellStyle(textStyle);
+			cell.setCellValue("OBS:");
+
+			cell = row.createCell(cellnum++);
+			cell.setCellStyle(negrito_esquerda);
+			
+
+			cell.setCellValue("BH PAGO: " + registro_global.getDescricao_bh_pago() );
+		}
+		
 		
 		cellnum = 0;
 		// Configurando Header

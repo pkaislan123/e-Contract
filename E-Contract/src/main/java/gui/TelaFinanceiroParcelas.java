@@ -171,20 +171,32 @@ public class TelaFinanceiroParcelas extends JFrame {
 		panel.add(lblNewLabel, "cell 0 0,alignx left,aligny top");
 
 		JPanel panel_1 = new JPanel();
-		painelPrinciapl.add(panel_1, "cell 0 1 3 1,growx,aligny top");
+		painelPrinciapl.add(panel_1, "cell 0 1 3 1,alignx center,aligny top");
 		panel_1.setBorder(new LineBorder(new Color(0, 0, 0)));
 		panel_1.setBackground(Color.WHITE);
 		panel_1.setLayout(
-				new MigLayout("", "[116px][119px,grow][140px][441px,grow][][grow][113px][19px,grow][125px][8px][141px]",
-						"[28px][33px][33px]"));
+				new MigLayout("", "[116px][119px,grow][140px][441px,grow][][grow][][][125px][8px][141px]", "[][28px][33px][33px][]"));
+		
+				JLabel lblNewLabel_1_1_2_1_1_2 = new JLabel("Identificador Geral:");
+				lblNewLabel_1_1_2_1_1_2.setFont(new Font("SansSerif", Font.PLAIN, 15));
+				panel_1.add(lblNewLabel_1_1_2_1_1_2, "cell 0 0,alignx right,aligny center");
+		
+				entIdentificadorGeral = new JTextField();
+				entIdentificadorGeral.setFont(new Font("Arial", Font.BOLD, 16));
+				entIdentificadorGeral.setColumns(10);
+				panel_1.add(entIdentificadorGeral, "cell 1 0,growx,aligny bottom");
+		
+				JLabel lblNewLabel_1_1_4_1_1_1 = new JLabel("Período de Vencimento:");
+				panel_1.add(lblNewLabel_1_1_4_1_1_1, "cell 7 0 4 1,alignx center,aligny center");
+				lblNewLabel_1_1_4_1_1_1.setFont(new Font("SansSerif", Font.PLAIN, 15));
 
 		JLabel lblNewLabel_1_1 = new JLabel("Tipo de Lançamento:");
 		lblNewLabel_1_1.setFont(new Font("SansSerif", Font.PLAIN, 15));
-		panel_1.add(lblNewLabel_1_1, "cell 0 0,alignx left,aligny center");
+		panel_1.add(lblNewLabel_1_1, "cell 0 1,alignx left,aligny center");
 
 		cbTipoFinanceiroParcelaCompleto = new JComboBox();
 		cbTipoFinanceiroParcelaCompleto.setFont(new Font("Arial", Font.BOLD, 16));
-		panel_1.add(cbTipoFinanceiroParcelaCompleto, "cell 1 0,alignx left,aligny center");
+		panel_1.add(cbTipoFinanceiroParcelaCompleto, "cell 1 1,alignx left,aligny center");
 		cbTipoFinanceiroParcelaCompleto.addItem("TODOS");
 		cbTipoFinanceiroParcelaCompleto.addItem("DESPESAS");
 		cbTipoFinanceiroParcelaCompleto.addItem("RECEITAS");
@@ -193,57 +205,44 @@ public class TelaFinanceiroParcelas extends JFrame {
 
 		JLabel lblNewLabel_1_1_4_2_1 = new JLabel("Status Parcela:");
 		lblNewLabel_1_1_4_2_1.setFont(new Font("SansSerif", Font.PLAIN, 15));
-		panel_1.add(lblNewLabel_1_1_4_2_1, "cell 2 0,alignx right,aligny center");
+		panel_1.add(lblNewLabel_1_1_4_2_1, "cell 2 1,alignx right,aligny center");
 
 		cbStatus = new JComboBox();
 		cbStatus.setFont(new Font("Arial", Font.BOLD, 16));
-		panel_1.add(cbStatus, "cell 3 0,growx,aligny center");
+		panel_1.add(cbStatus, "cell 3 1,growx,aligny center");
 		cbStatus.addItem("TODOS");
 		cbStatus.addItem("PAGO");
 		cbStatus.addItem("A PAGAR");
 
-		JLabel lblNewLabel_1_1_2_1_1_2 = new JLabel("Identificador Geral:");
-		lblNewLabel_1_1_2_1_1_2.setFont(new Font("SansSerif", Font.PLAIN, 15));
-		panel_1.add(lblNewLabel_1_1_2_1_1_2, "cell 4 0,alignx right,aligny center");
-
-		entIdentificadorGeral = new JTextField();
-		entIdentificadorGeral.setFont(new Font("Arial", Font.BOLD, 16));
-		entIdentificadorGeral.setColumns(10);
-		panel_1.add(entIdentificadorGeral, "cell 5 0,growx,aligny bottom");
-
-		JLabel lblNewLabel_1_1_4_1_1_1 = new JLabel("Período Vencimento");
-		panel_1.add(lblNewLabel_1_1_4_1_1_1, "cell 6 0,alignx left,aligny center");
-		lblNewLabel_1_1_4_1_1_1.setFont(new Font("SansSerif", Font.PLAIN, 15));
-
 		JLabel lblNewLabel_8_1_1 = new JLabel("De");
-		panel_1.add(lblNewLabel_8_1_1, "cell 7 0,alignx left,aligny center");
+		panel_1.add(lblNewLabel_8_1_1, "cell 7 1,alignx left,aligny center");
 		lblNewLabel_8_1_1.setFont(new Font("SansSerif", Font.BOLD, 14));
 
 		menorDataPagamento = new JTextField();
 		menorDataPagamento.setFont(new Font("Arial", Font.BOLD, 16));
-		panel_1.add(menorDataPagamento, "cell 8 0,alignx left,aligny top");
+		panel_1.add(menorDataPagamento, "cell 8 1,alignx left,aligny top");
 		menorDataPagamento.setText((String) null);
 		menorDataPagamento.setColumns(10);
 		menorDataPagamento.setText(pegarDataMenos(1));
 
 		JLabel lblNewLabel_6_1_1 = new JLabel("a");
-		panel_1.add(lblNewLabel_6_1_1, "cell 9 0,alignx left,aligny center");
+		panel_1.add(lblNewLabel_6_1_1, "cell 9 1,alignx left,aligny center");
 		lblNewLabel_6_1_1.setFont(new Font("SansSerif", Font.BOLD, 14));
 
 		maiorDataPagamento = new JTextField();
 		maiorDataPagamento.setFont(new Font("Arial", Font.BOLD, 16));
-		panel_1.add(maiorDataPagamento, "cell 10 0,alignx left,aligny top");
+		panel_1.add(maiorDataPagamento, "cell 10 1,alignx left,aligny top");
 		maiorDataPagamento.setText((String) null);
 		maiorDataPagamento.setColumns(10);
 		maiorDataPagamento.setText(pegarDataMais(1));
 
 		JLabel lblNewLabel_1_1_1 = new JLabel("Centro de Custo:");
 		lblNewLabel_1_1_1.setFont(new Font("SansSerif", Font.PLAIN, 15));
-		panel_1.add(lblNewLabel_1_1_1, "cell 0 1,alignx trailing");
+		panel_1.add(lblNewLabel_1_1_1, "cell 0 2,alignx trailing");
 
 		cbCentroCusto = new JComboBox();
 		cbCentroCusto.setFont(new Font("Arial", Font.BOLD, 16));
-		panel_1.add(cbCentroCusto, "cell 1 1,growx");
+		panel_1.add(cbCentroCusto, "cell 1 2,growx");
 
 		cbCentroCusto.addItemListener(new ItemListener() {
 			public void itemStateChanged(ItemEvent e) {
@@ -257,32 +256,16 @@ public class TelaFinanceiroParcelas extends JFrame {
 
 		JLabel lblNewLabel_1_1_1_1 = new JLabel("Cliente/Fornecedor:");
 		lblNewLabel_1_1_1_1.setFont(new Font("SansSerif", Font.PLAIN, 15));
-		panel_1.add(lblNewLabel_1_1_1_1, "cell 2 1,alignx trailing");
+		panel_1.add(lblNewLabel_1_1_1_1, "cell 2 2,alignx trailing");
 
 		entClienteFornecedor = new JTextField();
 		entClienteFornecedor.setFont(new Font("Arial", Font.BOLD, 16));
-		panel_1.add(entClienteFornecedor, "cell 3 1,growx");
+		panel_1.add(entClienteFornecedor, "cell 3 2,growx");
 		entClienteFornecedor.setColumns(10);
-
-		JLabel lblNewLabel_1_1_1_2 = new JLabel("Grupo Contas:");
-		lblNewLabel_1_1_1_2.setFont(new Font("SansSerif", Font.PLAIN, 15));
-		panel_1.add(lblNewLabel_1_1_1_2, "cell 4 1,alignx trailing");
-
-		cbGrupoConta = new JComboBox();
-		cbGrupoConta.setFont(new Font("Arial", Font.BOLD, 16));
-		panel_1.add(cbGrupoConta, "cell 5 1,growx");
-
-		JLabel lblNewLabel_1_1_1_2_1 = new JLabel("Conta:");
-		lblNewLabel_1_1_1_2_1.setFont(new Font("SansSerif", Font.PLAIN, 15));
-		panel_1.add(lblNewLabel_1_1_1_2_1, "cell 6 1,alignx trailing");
-
-		cbConta = new JComboBox();
-		cbConta.setFont(new Font("Arial", Font.BOLD, 16));
-		panel_1.add(cbConta, "cell 7 1,growx");
 
 		JButton btnFiltar = new JButton("Filtrar");
 		btnFiltar.setFont(new Font("SansSerif", Font.PLAIN, 16));
-		panel_1.add(btnFiltar, "cell 8 1,growx,aligny top");
+		panel_1.add(btnFiltar, "cell 8 2,growx,aligny top");
 		btnFiltar.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				filtrar();
@@ -293,7 +276,7 @@ public class TelaFinanceiroParcelas extends JFrame {
 
 		JButton btnNewButton = new JButton("pesquisar");
 		btnNewButton.setFont(new Font("SansSerif", Font.PLAIN, 16));
-		panel_1.add(btnNewButton, "cell 10 1,growx,aligny top");
+		panel_1.add(btnNewButton, "cell 10 2,growx,aligny top");
 		btnNewButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				pesquisar();
@@ -304,7 +287,7 @@ public class TelaFinanceiroParcelas extends JFrame {
 
 		JLabel lblNewLabel_1_1_1_3 = new JLabel("Fluxo de Caixa?:");
 		lblNewLabel_1_1_1_3.setFont(new Font("SansSerif", Font.PLAIN, 15));
-		panel_1.add(lblNewLabel_1_1_1_3, "cell 0 2,alignx trailing");
+		panel_1.add(lblNewLabel_1_1_1_3, "cell 0 3,alignx trailing");
 
 		cbFluxoCaixa = new JComboBox();
 		cbFluxoCaixa.addItem("TODOS");
@@ -312,11 +295,19 @@ public class TelaFinanceiroParcelas extends JFrame {
 		cbFluxoCaixa.addItem("SIM");
 
 		cbFluxoCaixa.setFont(new Font("Arial", Font.BOLD, 16));
-		panel_1.add(cbFluxoCaixa, "cell 1 2,growx");
+		panel_1.add(cbFluxoCaixa, "cell 1 3,growx");
+		
+				JLabel lblNewLabel_1_1_1_2 = new JLabel("Grupo Contas:");
+				lblNewLabel_1_1_1_2.setFont(new Font("SansSerif", Font.PLAIN, 15));
+				panel_1.add(lblNewLabel_1_1_1_2, "cell 2 3,alignx trailing");
+		
+				cbGrupoConta = new JComboBox();
+				cbGrupoConta.setFont(new Font("Arial", Font.BOLD, 16));
+				panel_1.add(cbGrupoConta, "cell 3 3,growx");
 
 		JButton btnLimparBusca = new JButton("Limpar Busca");
 		btnLimparBusca.setFont(new Font("SansSerif", Font.PLAIN, 16));
-		panel_1.add(btnLimparBusca, "cell 8 2,alignx left,aligny top");
+		panel_1.add(btnLimparBusca, "cell 8 3,alignx left,aligny top");
 		btnLimparBusca.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				limpar();
@@ -346,7 +337,15 @@ public class TelaFinanceiroParcelas extends JFrame {
 		btnLimparCampos.setHorizontalAlignment(SwingConstants.RIGHT);
 		btnLimparCampos.setForeground(Color.WHITE);
 		btnLimparCampos.setBackground(new Color(255, 51, 0));
-		panel_1.add(btnLimparCampos, "cell 10 2,alignx left,aligny top");
+		panel_1.add(btnLimparCampos, "cell 10 3,alignx left,aligny top");
+		
+				JLabel lblNewLabel_1_1_1_2_1 = new JLabel("Conta:");
+				lblNewLabel_1_1_1_2_1.setFont(new Font("SansSerif", Font.PLAIN, 15));
+				panel_1.add(lblNewLabel_1_1_1_2_1, "cell 2 4,alignx trailing");
+				
+						cbConta = new JComboBox();
+						cbConta.setFont(new Font("Arial", Font.BOLD, 16));
+						panel_1.add(cbConta, "cell 3 4,growx");
 
 		FinanceiroParcelaCompletosRender renderer = new FinanceiroParcelaCompletosRender();
 
@@ -402,8 +401,7 @@ public class TelaFinanceiroParcelas extends JFrame {
 		JPanel panel_5 = new JPanel();
 		panel_5.setBackground(Color.WHITE);
 		painelPrinciapl.add(panel_5, "cell 0 3 3 2,grow");
-		panel_5.setLayout(new MigLayout("", "[189px][39px][189px][][87.00px][][][][][][][][][][][][][][][][][][]",
-				"[][][18px][][][]"));
+		panel_5.setLayout(new MigLayout("", "[189px][][189px][][87.00px][][][][][][][][][][][][][][][][][][]", "[][][][][][][]"));
 
 		JButton btnAbrirLancamento = new JButton("Abrir");
 		btnAbrirLancamento.addActionListener(new ActionListener() {
@@ -453,11 +451,11 @@ public class TelaFinanceiroParcelas extends JFrame {
 		btnExportar.setForeground(Color.WHITE);
 		btnExportar.setFont(new Font("SansSerif", Font.BOLD, 16));
 		btnExportar.setBackground(new Color(0, 0, 153));
-		panel_5.add(btnExportar, "cell 21 1,alignx right");
+		panel_5.add(btnExportar, "cell 15 0 3 2,alignx right,growy");
 		btnAbrirLancamento.setForeground(Color.WHITE);
 		btnAbrirLancamento.setFont(new Font("SansSerif", Font.BOLD, 16));
 		btnAbrirLancamento.setBackground(new Color(0, 51, 0));
-		panel_5.add(btnAbrirLancamento, "cell 22 1,alignx right");
+		panel_5.add(btnAbrirLancamento, "cell 18 0 5 2,grow");
 
 		JLabel lblNewLabel_1 = new JLabel("Valor Total Parcelas Despesas:");
 		lblNewLabel_1.setFont(new Font("SansSerif", Font.PLAIN, 16));
@@ -466,7 +464,7 @@ public class TelaFinanceiroParcelas extends JFrame {
 		entValorTotalPagamentoDespesas = new JLabel("R$ 100.000.000,00");
 		entValorTotalPagamentoDespesas.setForeground(new Color(153, 0, 0));
 		entValorTotalPagamentoDespesas.setFont(new Font("SansSerif", Font.BOLD, 18));
-		panel_5.add(entValorTotalPagamentoDespesas, "cell 1 2,alignx center,aligny bottom");
+		panel_5.add(entValorTotalPagamentoDespesas, "cell 1 2,alignx center,growy");
 
 		JLabel lblNewLabel_1_2 = new JLabel("   Valor Total Parcelas Receitas:");
 		lblNewLabel_1_2.setFont(new Font("SansSerif", Font.PLAIN, 16));
@@ -493,7 +491,7 @@ public class TelaFinanceiroParcelas extends JFrame {
 		entValorTotalPagamentoTransferencia = new JLabel("R$ 0,00");
 		entValorTotalPagamentoTransferencia.setForeground(new Color(0, 0, 153));
 		entValorTotalPagamentoTransferencia.setFont(new Font("SansSerif", Font.BOLD, 18));
-		panel_5.add(entValorTotalPagamentoTransferencia, "cell 1 4");
+		panel_5.add(entValorTotalPagamentoTransferencia, "cell 1 4,growy");
 
 		JLabel lblNewLabel_1_4_1 = new JLabel("Valor Total Parcelas Empréstimo(Despesas):");
 		lblNewLabel_1_4_1.setFont(new Font("SansSerif", Font.PLAIN, 16));
@@ -502,7 +500,7 @@ public class TelaFinanceiroParcelas extends JFrame {
 		entValorTotalPagamentoEmprestimoDespesas = new JLabel("R$ 0,00");
 		entValorTotalPagamentoEmprestimoDespesas.setForeground(new Color(102, 0, 0));
 		entValorTotalPagamentoEmprestimoDespesas.setFont(new Font("SansSerif", Font.BOLD, 18));
-		panel_5.add(entValorTotalPagamentoEmprestimoDespesas, "cell 1 6");
+		panel_5.add(entValorTotalPagamentoEmprestimoDespesas, "cell 1 6,growy");
 
 		popular_grupo_contas();
 		popular_contas();

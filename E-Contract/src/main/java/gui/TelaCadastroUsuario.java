@@ -36,7 +36,8 @@ import java.util.ArrayList;
 import javax.swing.SwingConstants;
 
 
-
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 import javax.swing.JComboBox;
 import java.awt.event.ActionListener;
@@ -760,6 +761,7 @@ public class TelaCadastroUsuario extends JFrame implements GetDadosGlobais {
 			novo_usuario.setGenero(genero);
 			novo_usuario.setEmail2(email2);
 			novo_usuario.setSenhaEmail2(senhaEmail2);
+			novo_usuario.setSenhaWeb(codificarSenha(novo_usuario.getSenha()));
 
 			if (direitos.equals("Administrativos do Sistema")) {
 				novos_privilegios.setNivel_privilegios(1);
@@ -804,6 +806,12 @@ public class TelaCadastroUsuario extends JFrame implements GetDadosGlobais {
 
 	}
 
+	public String codificarSenha(String senha) {
+		BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
+		return encoder.encode(senha);
+	}
+
+	
 	public void atualizar(CadastroLogin login_atualizar, Window janela_pai) {
 		GerenciarBancoLogin gerenciarLogin = new GerenciarBancoLogin();
 		boolean result = gerenciarLogin.atualizarUsuario(login_atualizar);

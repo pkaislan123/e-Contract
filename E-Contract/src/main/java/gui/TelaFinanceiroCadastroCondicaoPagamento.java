@@ -9,6 +9,8 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.FocusAdapter;
 import java.awt.event.FocusEvent;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.math.BigDecimal;
 import java.text.NumberFormat;
 import java.util.ArrayList;
@@ -362,6 +364,7 @@ private final JLabel lblNewLabel_1 = new JLabel("dias");
 			btnAtualizar.setEnabled(false);
 			btnAtualizar.setVisible(false);
 		}
+		
 		
 		
 		adicionarFocus(isto.getComponents());

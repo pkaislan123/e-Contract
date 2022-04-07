@@ -39,7 +39,6 @@ public class TelaOpcoes extends JDialog {
 	
 	
 	private TelaOpcoes isto;
-	private int id_contrato;
 	
 	public TelaOpcoes(int flag,int id_contrato_, Window janela_pai) {
 
@@ -88,11 +87,23 @@ public class TelaOpcoes extends JDialog {
 		getContentPane().add(btnNewButton_1);
 		
 		JButton btnNewButton_1_1 = new JButton("Abrir Carregamento");
+		
+		
+		if(flag == 2) {
+			btnNewButton_1_1.setText("Abrir Recebimento");
+		}
+		
 		btnNewButton_1_1.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				CadastroContrato contrato_selecionado = new GerenciarBancoContratos().getContrato(id_contrato);
+				CadastroContrato contrato_selecionado = new GerenciarBancoContratos().getContrato(id_contrato_);
 				TelaGerenciarContrato gerenciar_contrato = new TelaGerenciarContrato(contrato_selecionado, isto);
-				gerenciar_contrato.setTelaRecebimentos(id_contrato);
+				
+				
+				if(flag == 1)
+				gerenciar_contrato.setTela(1);
+				else
+					gerenciar_contrato.setTela(2);
+
 			}
 		});
 		btnNewButton_1_1.setBackground(new Color(0, 0, 102));

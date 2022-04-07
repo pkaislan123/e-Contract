@@ -17,6 +17,8 @@ import org.apache.http.util.EntityUtils;
 import main.java.cadastros.CadastroLogin;
 import main.java.cadastros.CadastroZapMessenger;
 import main.java.outros.DadosGlobais;
+import okhttp3.Call;
+import okhttp3.Callback;
 import okhttp3.MediaType;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
@@ -75,6 +77,51 @@ public class Whatsapp {
 		
 		
 	}
+	
+	private String saida = "";
+	
+	
+	public void setSaida(String saida) {
+		this.saida= saida;
+	}
+	
+	public String getSaida() {
+		return this.saida;
+	}
+	
+	public String listarChats() {
+		
+		
+			OkHttpClient client = new OkHttpClient();
+			String saida = ""; 
+
+			MediaType mediaType = MediaType.parse("application/octet-stream");
+			
+			Request request = new Request.Builder()
+			  .url("http://v4.chatpro.com.br/" + senha + "/api/v1/chats")
+			  .addHeader("Authorization", chave)
+			  .addHeader("cache-control", "no-cache")
+			  .build();
+
+			try {
+				Response response = client.newCall(request).execute();
+				System.out.println("resposta: " + response.body().string() );
+				 saida =  response.body().toString() ;
+
+			
+				 return saida;
+				
+			} catch (IOException e) {
+				System.out.println("Erro " + e.getMessage() + " causa: " + e.getCause());
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+				saida = "Erro " + e.getMessage() + " causa: " + e.getCause();
+	           return saida;
+			}
+			
+		
+	}
+	
 	/*
 public boolean enviarMensagem(String numero, String msg) {
 				HttpClient httpclient = HttpClients.createDefault();
@@ -125,7 +172,12 @@ public boolean enviarMensagem(String numero, String msg) {
 		OkHttpClient client = new OkHttpClient();
 		String saida = ""; 
 
-		MediaType mediaType = MediaType.parse("application/octet-stream");
+		MediaType mediaType = MediaType.parse("application/json");
+		
+		
+		System.out.println("apykey: " + chave + "\nusuario: " + usuario + "\nsenhaa: " + senha);
+		
+		
 		RequestBody body = RequestBody.create(mediaType,
 				"{\"menssage\": \""  + msg     +"\" , \"number\": \"" + numero +"\"}"
 		);

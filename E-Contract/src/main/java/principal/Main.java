@@ -35,11 +35,13 @@ import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 
 import main.java.cadastros.CadastroFuncionariosHorarios;
+import main.java.cadastros.CadastroNuvem;
 import main.java.gui.TelaEntrada;
 import main.java.gui.TelaFinanceiro;
 import main.java.manipular.ArquivoConfiguracoes;
 import main.java.manipular.Email2;
 import main.java.manipular.MonitorarRomaneios;
+import main.java.manipular.Nuvem;
 
 import java.net.URL;
 import javax.swing.*;
@@ -91,6 +93,17 @@ public class Main {
 			}
 		}.start();
 
+		/*
+		CadastroNuvem cdnuvem = new CadastroNuvem();
+		cdnuvem.setToken("sl.BCNQOmujnFC_o18dHjiWEwl5m6-ghA7VJbQ1uLtTqSGvBVxHWTNV8BvpFSjw6BKr7I94Lb9g4elUbLHAJdvPK56ylZIVrlwV1MDwkStDhYRM9VwKvQh1L8TM7TGOx9ussytQaX4MrSuD");
+		cdnuvem.setApp_key("44it55pqgew0s29");
+		cdnuvem.setApp_secret("uthy5srxkrj6ev9");
+		
+		Nuvem nuvem = new Nuvem(cdnuvem);
+		nuvem.abrir();
+		nuvem.testar();*/
+		
+		
 	}
 
 }

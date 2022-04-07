@@ -200,7 +200,7 @@ import java.awt.GridLayout;
 import javax.swing.JComboBox;
 import javax.swing.JRadioButton;
 
-public class TelaControleNotasFiscais extends JFrame {
+public class TelaControleNotasFiscaisRecebimento extends JFrame {
 
 	private static ArrayList<RecebimentoCompleto> lista_recebimentos = new ArrayList<>();
 	private JDialog telaPai;
@@ -210,14 +210,14 @@ public class TelaControleNotasFiscais extends JFrame {
 	private File file_selecionado;
 	private final JPanel painelPrincipal = new JPanel();
 	private FileChooser fileChooser;
-	private JLabel lblValorTotalNFVenda ,  lblValorTotalNFRemessa;
+	private JLabel lblValorTotalNFVenda, lblValorTotalNFRemessa;
 	DefaultTableModel modelo = new DefaultTableModel() {
 		public boolean isCellEditable(int linha, int coluna) {
 			return false;
 		}
 	};
 
-	private TelaControleNotasFiscais isto;
+	private TelaControleNotasFiscaisRecebimento isto;
 	private JTextField entNomeComprador;
 	private JTextField entNomeVendedor;
 	private JComboBox cbStatus;
@@ -243,18 +243,23 @@ public class TelaControleNotasFiscais extends JFrame {
 	private JTextField entCodigoNFRemessa;
 	private JTextField entCodigoRomaneio;
 
+	private int duplicatas_nf_venda = 0;
+	private int duplicatas_nf_remessa = 0;
+
+	private int flag_tipo_contrato = 2;
+
 	public Rectangle getCurrentScreenBounds(Component component) {
 		return component.getGraphicsConfiguration().getBounds();
 	}
 
-	public TelaControleNotasFiscais(Window janela_pai) {
+	public TelaControleNotasFiscaisRecebimento(Window janela_pai) {
 
 		// setModal(true);
 		// setAlwaysOnTop(true);
 
 		isto = this;
 		setResizable(true);
-		setTitle("E-Contract - Recebimentos");
+		setTitle("E-Contract - Controle de Notas Fiscais - Recebimentos");
 
 		setBackground(new Color(255, 255, 255));
 		setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
@@ -297,7 +302,8 @@ public class TelaControleNotasFiscais extends JFrame {
 		JPanel panel_5 = new JPanel();
 		panel_5.setBackground(Color.WHITE);
 		painelPrincipal.add(panel_5, "cell 0 0 4 1,grow");
-		panel_5.setLayout(new MigLayout("", "[58px][274px,grow][48px][306px,grow][90px][199px,grow][67px][126px][59px]", "[][][][28px][28px][28px]"));
+		panel_5.setLayout(new MigLayout("", "[58px][274px,grow][48px][306px,grow][90px][199px,grow][67px][126px][59px]",
+				"[][][][][][28px][28px][][28px]"));
 
 		JLabel lblCdigoNfVenda = new JLabel("Código NF Venda:");
 		lblCdigoNfVenda.setFont(new Font("Tahoma", Font.PLAIN, 14));
@@ -307,8 +313,8 @@ public class TelaControleNotasFiscais extends JFrame {
 		entCodigoNFVenda.addKeyListener(new KeyAdapter() {
 			@Override
 			public void keyTyped(KeyEvent e) {
-			filtrar();
-			calcular();
+				filtrar();
+				calcular();
 			}
 		});
 		entCodigoNFVenda.setFont(new Font("SansSerif", Font.PLAIN, 16));
@@ -347,9 +353,55 @@ public class TelaControleNotasFiscais extends JFrame {
 		entNomeDestinatarioNFVenda.setColumns(10);
 		panel_5.add(entNomeDestinatarioNFVenda, "cell 6 0 3 1,growx");
 
+		JLabel lblStatus_1_1 = new JLabel("Duplicados:");
+		lblStatus_1_1.setFont(new Font("Tahoma", Font.PLAIN, 14));
+		panel_5.add(lblStatus_1_1, "cell 0 1,alignx right");
+
+		JRadioButton rdbtnIncluirNFVendaDuplicados = new JRadioButton("Incluir Duplicados");
+		JRadioButton rdbtnNoIncluirNFVendaDuplicados = new JRadioButton("Não Incluir Duplicados");
+		JRadioButton rdbtnSomenteNFVendaDuplicados = new JRadioButton("Somente Duplicados");
+		rdbtnSomenteNFVendaDuplicados.addActionListener(new ActionListener() {
+
+			public void actionPerformed(ActionEvent e) {
+
+				rdbtnSomenteNFVendaDuplicados.setSelected(true);
+				rdbtnNoIncluirNFVendaDuplicados.setSelected(false);
+				rdbtnIncluirNFVendaDuplicados.setSelected(false);
+
+				duplicatas_nf_venda = 2;
+
+			}
+		});
+
+		rdbtnIncluirNFVendaDuplicados.setSelected(true);
+		rdbtnIncluirNFVendaDuplicados.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				rdbtnIncluirNFVendaDuplicados.setSelected(true);
+				rdbtnSomenteNFVendaDuplicados.setSelected(false);
+				rdbtnNoIncluirNFVendaDuplicados.setSelected(false);
+
+				duplicatas_nf_venda = 0;
+			}
+		});
+		panel_5.add(rdbtnIncluirNFVendaDuplicados, "cell 1 1");
+
+		rdbtnNoIncluirNFVendaDuplicados.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+
+				rdbtnNoIncluirNFVendaDuplicados.setSelected(true);
+				rdbtnIncluirNFVendaDuplicados.setSelected(false);
+				rdbtnSomenteNFVendaDuplicados.setSelected(false);
+
+				duplicatas_nf_venda = 1;
+			}
+		});
+		panel_5.add(rdbtnNoIncluirNFVendaDuplicados, "cell 2 1");
+
+		panel_5.add(rdbtnSomenteNFVendaDuplicados, "cell 3 1");
+
 		JLabel lblCdigoNfRemessa = new JLabel("Código NF Remessa");
 		lblCdigoNfRemessa.setFont(new Font("Tahoma", Font.PLAIN, 14));
-		panel_5.add(lblCdigoNfRemessa, "cell 0 1,alignx trailing");
+		panel_5.add(lblCdigoNfRemessa, "cell 0 2,alignx trailing");
 
 		entCodigoNFRemessa = new JTextField();
 		entCodigoNFRemessa.addKeyListener(new KeyAdapter() {
@@ -361,11 +413,11 @@ public class TelaControleNotasFiscais extends JFrame {
 		});
 		entCodigoNFRemessa.setFont(new Font("SansSerif", Font.PLAIN, 16));
 		entCodigoNFRemessa.setColumns(10);
-		panel_5.add(entCodigoNFRemessa, "cell 1 1,growx");
+		panel_5.add(entCodigoNFRemessa, "cell 1 2,growx");
 
 		JLabel lblRemetenteNfRemessa_3 = new JLabel("Remetente NF Remessa:");
 		lblRemetenteNfRemessa_3.setFont(new Font("Tahoma", Font.PLAIN, 14));
-		panel_5.add(lblRemetenteNfRemessa_3, "cell 2 1,alignx trailing");
+		panel_5.add(lblRemetenteNfRemessa_3, "cell 2 2,alignx trailing");
 
 		entNomeRemetenteNFRemessa = new JTextField();
 		entNomeRemetenteNFRemessa.addKeyListener(new KeyAdapter() {
@@ -377,11 +429,11 @@ public class TelaControleNotasFiscais extends JFrame {
 		});
 		entNomeRemetenteNFRemessa.setFont(new Font("SansSerif", Font.PLAIN, 16));
 		entNomeRemetenteNFRemessa.setColumns(10);
-		panel_5.add(entNomeRemetenteNFRemessa, "cell 3 1 2 1,growx");
+		panel_5.add(entNomeRemetenteNFRemessa, "cell 3 2 2 1,growx");
 
 		JLabel lblDestinatarioNfRemessa_2 = new JLabel("Destinatario NF Remessa:");
 		lblDestinatarioNfRemessa_2.setFont(new Font("Tahoma", Font.PLAIN, 14));
-		panel_5.add(lblDestinatarioNfRemessa_2, "cell 5 1,alignx trailing");
+		panel_5.add(lblDestinatarioNfRemessa_2, "cell 5 2,alignx trailing");
 
 		entNomeDestinatarioNFRemessa = new JTextField();
 		entNomeDestinatarioNFRemessa.addKeyListener(new KeyAdapter() {
@@ -393,14 +445,57 @@ public class TelaControleNotasFiscais extends JFrame {
 		});
 		entNomeDestinatarioNFRemessa.setFont(new Font("SansSerif", Font.PLAIN, 16));
 		entNomeDestinatarioNFRemessa.setColumns(10);
-		panel_5.add(entNomeDestinatarioNFRemessa, "cell 6 1 3 1,growx");
+		panel_5.add(entNomeDestinatarioNFRemessa, "cell 6 2 3 1,growx");
+
+		JLabel lblStatus_1_1_2 = new JLabel("Duplicados:");
+		lblStatus_1_1_2.setFont(new Font("Tahoma", Font.PLAIN, 14));
+		panel_5.add(lblStatus_1_1_2, "cell 0 3,alignx right");
+
+		JRadioButton rdbtnIncluirNFRemessaDuplicados = new JRadioButton("Incluir Duplicados");
+		JRadioButton rdbtnSomenteNFRemessaDuplicados = new JRadioButton("Somente Duplicados");
+		JRadioButton rdbtnNoIncluirNFRemessaDuplicados = new JRadioButton("Não Incluir Duplicados");
+		rdbtnIncluirNFRemessaDuplicados.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				rdbtnSomenteNFRemessaDuplicados.setSelected(false);
+				rdbtnIncluirNFRemessaDuplicados.setSelected(true);
+				rdbtnNoIncluirNFRemessaDuplicados.setSelected(false);
+
+				duplicatas_nf_remessa = 0;
+			}
+		});
+
+		rdbtnNoIncluirNFRemessaDuplicados.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				rdbtnSomenteNFRemessaDuplicados.setSelected(false);
+				rdbtnIncluirNFRemessaDuplicados.setSelected(false);
+				rdbtnNoIncluirNFRemessaDuplicados.setSelected(true);
+				
+				duplicatas_nf_remessa = 1;
+			}
+		});
+
+		rdbtnIncluirNFRemessaDuplicados.setSelected(true);
+		panel_5.add(rdbtnIncluirNFRemessaDuplicados, "cell 1 3");
+
+		panel_5.add(rdbtnNoIncluirNFRemessaDuplicados, "cell 2 3");
+
+		rdbtnSomenteNFRemessaDuplicados.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				rdbtnSomenteNFRemessaDuplicados.setSelected(true);
+				rdbtnIncluirNFRemessaDuplicados.setSelected(false);
+				rdbtnNoIncluirNFRemessaDuplicados.setSelected(false);
+
+				duplicatas_nf_remessa = 2;
+			}
+		});
+		panel_5.add(rdbtnSomenteNFRemessaDuplicados, "cell 3 3");
 
 		JLabel lblRemetenteNfRemessa_1 = new JLabel((String) null);
 		lblRemetenteNfRemessa_1.setFont(new Font("Tahoma", Font.PLAIN, 14));
-		panel_5.add(lblRemetenteNfRemessa_1, "cell 0 2");
+		panel_5.add(lblRemetenteNfRemessa_1, "cell 0 4");
 
 		JLabel lblCdigo = new JLabel("Código Contrato:");
-		panel_5.add(lblCdigo, "cell 0 3,alignx right,aligny center");
+		panel_5.add(lblCdigo, "cell 0 5,alignx right,aligny center");
 		lblCdigo.setFont(new Font("Tahoma", Font.PLAIN, 14));
 
 		entCodigo = new JTextField();
@@ -412,7 +507,7 @@ public class TelaControleNotasFiscais extends JFrame {
 			}
 		});
 		entCodigo.setFont(new Font("SansSerif", Font.PLAIN, 16));
-		panel_5.add(entCodigo, "cell 1 3,growx,aligny top");
+		panel_5.add(entCodigo, "cell 1 5,growx,aligny top");
 		entCodigo.setColumns(10);
 
 		entNomeVendedor = new JTextField();
@@ -423,11 +518,11 @@ public class TelaControleNotasFiscais extends JFrame {
 				calcular();
 			}
 		});
-		
+
 		JLabel lblCdigoRomaneio = new JLabel("Código Romaneio:");
 		lblCdigoRomaneio.setFont(new Font("Tahoma", Font.PLAIN, 14));
-		panel_5.add(lblCdigoRomaneio, "cell 2 3,alignx trailing");
-		
+		panel_5.add(lblCdigoRomaneio, "cell 2 5,alignx trailing");
+
 		entCodigoRomaneio = new JTextField();
 		entCodigoRomaneio.addKeyListener(new KeyAdapter() {
 			@Override
@@ -438,13 +533,13 @@ public class TelaControleNotasFiscais extends JFrame {
 		});
 		entCodigoRomaneio.setFont(new Font("SansSerif", Font.PLAIN, 16));
 		entCodigoRomaneio.setColumns(10);
-		panel_5.add(entCodigoRomaneio, "cell 3 3,growx");
+		panel_5.add(entCodigoRomaneio, "cell 3 5 2 1,growx");
 		entNomeVendedor.setFont(new Font("SansSerif", Font.PLAIN, 16));
-		panel_5.add(entNomeVendedor, "cell 3 4 2 1,growx,aligny top");
+		panel_5.add(entNomeVendedor, "cell 3 6 2 1,growx,aligny top");
 		entNomeVendedor.setColumns(10);
 
 		JLabel lblNewLabel = new JLabel("Comprador:");
-		panel_5.add(lblNewLabel, "cell 0 4,alignx right,aligny center");
+		panel_5.add(lblNewLabel, "cell 0 6,alignx right,aligny center");
 		lblNewLabel.setFont(new Font("Tahoma", Font.PLAIN, 14));
 
 		entNomeComprador = new JTextField();
@@ -456,12 +551,12 @@ public class TelaControleNotasFiscais extends JFrame {
 			}
 		});
 		entNomeComprador.setFont(new Font("SansSerif", Font.PLAIN, 16));
-		panel_5.add(entNomeComprador, "cell 1 4,growx,aligny top");
+		panel_5.add(entNomeComprador, "cell 1 6,growx,aligny top");
 		entNomeComprador.setColumns(10);
 
 		JLabel lblStatus_1 = new JLabel("Status:");
 		lblStatus_1.setFont(new Font("Tahoma", Font.PLAIN, 14));
-		panel_5.add(lblStatus_1, "cell 5 3,alignx right");
+		panel_5.add(lblStatus_1, "cell 5 5,alignx right");
 
 		cbStatus = new JComboBox();
 		cbStatus.setFont(new Font("SansSerif", Font.PLAIN, 16));
@@ -471,14 +566,61 @@ public class TelaControleNotasFiscais extends JFrame {
 		cbStatus.addItem("FALTA NF REMESSA E VENDA");
 		cbStatus.addItem("FALTA NF REMESSA");
 
-		panel_5.add(cbStatus, "cell 6 3 3 1,growx");
+		panel_5.add(cbStatus, "cell 6 5 3 1,growx");
 
 		JLabel lblVendedor = new JLabel("Vendedor:");
-		panel_5.add(lblVendedor, "cell 2 4,alignx right,aligny center");
+		panel_5.add(lblVendedor, "cell 2 6,alignx right,aligny center");
 		lblVendedor.setFont(new Font("Tahoma", Font.PLAIN, 14));
 
+		JLabel lblStatus_1_1_1 = new JLabel("Tipo do Contrato:");
+		lblStatus_1_1_1.setFont(new Font("Tahoma", Font.PLAIN, 14));
+		panel_5.add(lblStatus_1_1_1, "cell 5 7,alignx right");
+
+		JRadioButton rdbtnCtrsOriginais = new JRadioButton("Originais");
+		JRadioButton rdbtnCtrsSubContratos = new JRadioButton("Sub-Contratos");
+		JRadioButton rdbtnCtrsAmbos = new JRadioButton("Ambos");
+
+		rdbtnCtrsOriginais.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+
+				rdbtnCtrsOriginais.setSelected(true);
+				rdbtnCtrsSubContratos.setSelected(false);
+				rdbtnCtrsAmbos.setSelected(false);
+
+				flag_tipo_contrato = 0;
+			}
+		});
+		panel_5.add(rdbtnCtrsOriginais, "cell 6 7");
+
+		rdbtnCtrsSubContratos.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+
+				rdbtnCtrsOriginais.setSelected(false);
+				rdbtnCtrsSubContratos.setSelected(true);
+				rdbtnCtrsAmbos.setSelected(false);
+
+				flag_tipo_contrato = 1;
+
+			}
+		});
+		panel_5.add(rdbtnCtrsSubContratos, "cell 7 7");
+
+		rdbtnCtrsAmbos.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+
+				rdbtnCtrsOriginais.setSelected(false);
+				rdbtnCtrsSubContratos.setSelected(false);
+				rdbtnCtrsAmbos.setSelected(true);
+
+				flag_tipo_contrato = 2;
+
+			}
+		});
+		rdbtnCtrsAmbos.setSelected(true);
+		panel_5.add(rdbtnCtrsAmbos, "cell 8 7");
+
 		JLabel lblProduto = new JLabel("Produto:");
-		panel_5.add(lblProduto, "cell 0 5,alignx right,aligny center");
+		panel_5.add(lblProduto, "cell 0 8,alignx right,aligny center");
 		lblProduto.setFont(new Font("Tahoma", Font.PLAIN, 14));
 
 		entProduto = new JTextField();
@@ -490,11 +632,11 @@ public class TelaControleNotasFiscais extends JFrame {
 			}
 		});
 		entProduto.setFont(new Font("SansSerif", Font.PLAIN, 16));
-		panel_5.add(entProduto, "cell 1 5,growx,aligny top");
+		panel_5.add(entProduto, "cell 1 8,growx,aligny top");
 		entProduto.setColumns(10);
 
 		JLabel lblSafra = new JLabel("Safra:");
-		panel_5.add(lblSafra, "cell 2 5,alignx right,aligny center");
+		panel_5.add(lblSafra, "cell 2 8,alignx right,aligny center");
 		lblSafra.setFont(new Font("Tahoma", Font.PLAIN, 14));
 
 		entSafra = new JTextField();
@@ -506,11 +648,11 @@ public class TelaControleNotasFiscais extends JFrame {
 			}
 		});
 		entSafra.setFont(new Font("SansSerif", Font.PLAIN, 16));
-		panel_5.add(entSafra, "cell 3 5,growx,aligny top");
+		panel_5.add(entSafra, "cell 3 8,growx,aligny top");
 		entSafra.setColumns(10);
 
 		JLabel lblTransgnese = new JLabel("Transgênese:");
-		panel_5.add(lblTransgnese, "cell 4 5,alignx right,aligny center");
+		panel_5.add(lblTransgnese, "cell 4 8,alignx right,aligny center");
 		lblTransgnese.setFont(new Font("Tahoma", Font.PLAIN, 14));
 
 		entTransgenia = new JTextField();
@@ -522,14 +664,14 @@ public class TelaControleNotasFiscais extends JFrame {
 			}
 		});
 		entTransgenia.setFont(new Font("SansSerif", Font.PLAIN, 16));
-		panel_5.add(entTransgenia, "cell 5 5,growx,aligny top");
+		panel_5.add(entTransgenia, "cell 5 8,growx,aligny top");
 		entTransgenia.setColumns(10);
 
 		JButton btnLimparFiltros = new JButton("Limpar");
 		btnLimparFiltros.setBackground(new Color(204, 51, 0));
 		btnLimparFiltros.setForeground(Color.WHITE);
 		btnLimparFiltros.setFont(new Font("SansSerif", Font.BOLD, 16));
-		panel_5.add(btnLimparFiltros, "cell 6 5,alignx left,aligny top");
+		panel_5.add(btnLimparFiltros, "cell 6 8,alignx left,aligny top");
 		btnLimparFiltros.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				sorter.setRowFilter(RowFilter.regexFilter(""));
@@ -541,13 +683,13 @@ public class TelaControleNotasFiscais extends JFrame {
 		btnFiltrar.setBackground(new Color(0, 0, 153));
 		btnFiltrar.setForeground(Color.WHITE);
 		btnFiltrar.setFont(new Font("SansSerif", Font.BOLD, 16));
-		panel_5.add(btnFiltrar, "cell 7 5,growx,aligny top");
+		panel_5.add(btnFiltrar, "cell 7 8,growx,aligny top");
 
 		JButton btnRefazerPesquisa = new JButton("Refazer Pesquisa");
 		btnRefazerPesquisa.setBackground(new Color(0, 51, 0));
 		btnRefazerPesquisa.setForeground(Color.WHITE);
 		btnRefazerPesquisa.setFont(new Font("SansSerif", Font.BOLD, 16));
-		panel_5.add(btnRefazerPesquisa, "cell 8 5,alignx left,aligny top");
+		panel_5.add(btnRefazerPesquisa, "cell 8 8,alignx left,aligny top");
 		btnRefazerPesquisa.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				pesquisar();
@@ -589,7 +731,8 @@ public class TelaControleNotasFiscais extends JFrame {
 		JPanel panel_8 = new JPanel();
 		painelPrincipal.add(panel_8, "cell 1 5 2 1,grow");
 		panel_8.setBackground(Color.WHITE);
-		panel_8.setLayout(new MigLayout("", "[27.00][26.00][][31.00,grow][][grow][grow][grow][grow]", "[][][][][][][][]"));
+		panel_8.setLayout(
+				new MigLayout("", "[27.00][26.00][][31.00,grow][][grow][grow][grow][grow]", "[][][][][][][][]"));
 
 		JLabel ads = new JLabel("Total Recebimentos:");
 		ads.setFont(new Font("SansSerif", Font.BOLD, 16));
@@ -646,12 +789,12 @@ public class TelaControleNotasFiscais extends JFrame {
 		lblPesoTotalNFVenda.setFont(new Font("SansSerif", Font.BOLD, 16));
 		lblPesoTotalNFVenda.setBorder(new MatteBorder(0, 0, 1, 0, (Color) new Color(0, 0, 0)));
 		panel_8.add(lblPesoTotalNFVenda, "cell 5 2 2 1");
-		
+
 		JLabel lblValorTotalNf = new JLabel("Valor Total NF Venda:");
 		lblValorTotalNf.setFont(new Font("Tahoma", Font.PLAIN, 14));
 		panel_8.add(lblValorTotalNf, "cell 7 2,alignx right");
-		
-		 lblValorTotalNFVenda = new JLabel("R$ 0.0");
+
+		lblValorTotalNFVenda = new JLabel("R$ 0.0");
 		lblValorTotalNFVenda.setFont(new Font("SansSerif", Font.BOLD, 16));
 		lblValorTotalNFVenda.setBorder(null);
 		panel_8.add(lblValorTotalNFVenda, "cell 8 2,growx");
@@ -679,12 +822,12 @@ public class TelaControleNotasFiscais extends JFrame {
 		lblPesoTotalNFRemessa.setFont(new Font("SansSerif", Font.BOLD, 16));
 		lblPesoTotalNFRemessa.setBorder(new MatteBorder(0, 0, 1, 0, (Color) new Color(0, 0, 0)));
 		panel_8.add(lblPesoTotalNFRemessa, "cell 5 3 2 1");
-		
+
 		JLabel lblValorTotalNf_2 = new JLabel("Valor Total NF Remessa:");
 		lblValorTotalNf_2.setFont(new Font("Tahoma", Font.PLAIN, 14));
 		panel_8.add(lblValorTotalNf_2, "cell 7 3,alignx right");
-		
-		 lblValorTotalNFRemessa = new JLabel("R$ 0.0");
+
+		lblValorTotalNFRemessa = new JLabel("R$ 0.0");
 		lblValorTotalNFRemessa.setFont(new Font("SansSerif", Font.BOLD, 16));
 		lblValorTotalNFRemessa.setBorder(null);
 		panel_8.add(lblValorTotalNFRemessa, "cell 8 3");
@@ -703,34 +846,34 @@ public class TelaControleNotasFiscais extends JFrame {
 		lblFaltaNFRemessa = new JLabel("0000");
 		lblFaltaNFRemessa.setFont(new Font("SansSerif", Font.BOLD, 16));
 		panel_8.add(lblFaltaNFRemessa, "cell 2 4 2 1");
-		
-				JButton btnExportar = new JButton("Exportar");
-				btnExportar.addActionListener(new ActionListener() {
-					public void actionPerformed(ActionEvent e) {
 
-						ArrayList<RecebimentoCompleto> notas_selecionadas = new ArrayList<>();
-						int linhas_selecionadas[] = tabela.getSelectedRows();// pega o indice da linha na tabela
+		JButton btnExportar = new JButton("Exportar");
+		btnExportar.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
 
-						for (int i = 0; i < linhas_selecionadas.length; i++) {
+				ArrayList<RecebimentoCompleto> notas_selecionadas = new ArrayList<>();
+				int linhas_selecionadas[] = tabela.getSelectedRows();// pega o indice da linha na tabela
 
-							int indice = linhas_selecionadas[i];//
-							int indexRowModel = tabela.getRowSorter().convertRowIndexToModel(indice);
+				for (int i = 0; i < linhas_selecionadas.length; i++) {
 
-							RecebimentoCompleto rec = lista_recebimentos.get(indexRowModel);
-							notas_selecionadas.add(rec);
-						}
-						RelatorioNotasFiscais relatorio_excel = new RelatorioNotasFiscais(notas_selecionadas);
+					int indice = linhas_selecionadas[i];//
+					int indexRowModel = tabela.getRowSorter().convertRowIndexToModel(indice);
 
-						gerarExcel(relatorio_excel.prepararExcel());
+					RecebimentoCompleto rec = lista_recebimentos.get(indexRowModel);
+					notas_selecionadas.add(rec);
+				}
+				RelatorioNotasFiscais relatorio_excel = new RelatorioNotasFiscais(notas_selecionadas);
 
-						;
+				gerarExcel(relatorio_excel.prepararExcel());
 
-					}
-				});
-				btnExportar.setForeground(Color.WHITE);
-				btnExportar.setFont(new Font("SansSerif", Font.BOLD, 16));
-				btnExportar.setBackground(new Color(0, 51, 0));
-				painelPrincipal.add(btnExportar, "flowx,cell 3 5,alignx right,aligny top");
+				;
+
+			}
+		});
+		btnExportar.setForeground(Color.WHITE);
+		btnExportar.setFont(new Font("SansSerif", Font.BOLD, 16));
+		btnExportar.setBackground(new Color(0, 51, 0));
+		painelPrincipal.add(btnExportar, "flowx,cell 3 5,alignx right,aligny top");
 
 		JButton btnAbrir = new JButton("Abrir");
 		painelPrincipal.add(btnAbrir, "cell 3 5,alignx right,aligny top");
@@ -773,18 +916,152 @@ public class TelaControleNotasFiscais extends JFrame {
 		NumberFormat z = NumberFormat.getNumberInstance();
 		ArrayList<RecebimentoCompleto> recebimentos = gerenciar.getRecebimentos();
 
-		Set<String> set = new HashSet<>(recebimentos.size());
-		recebimentos.removeIf(p -> !set.add(p.getCodigo_nf_venda()));
+		
+		
+		
+		if (flag_tipo_contrato == 0) {
+			// somente ctrs
 
-		// recebimentos.stream().filter(p ->
-		// set.add(p.getCodigo_nf_venda())).collect(Collectors.toList());
+			ArrayList<RecebimentoCompleto> recebimentos_com_ctr_original = new ArrayList<>();			
+			for (RecebimentoCompleto recebimento : recebimentos) {
+				
+				int tipo_contrato = recebimento.getContrato().getSub_contrato();
+				boolean e_ctr_original = false;
+				
+				if (tipo_contrato == 0 || tipo_contrato == 3 || tipo_contrato == 4 || tipo_contrato == 5) {
+					e_ctr_original = true;
+				}
+				
+				if(e_ctr_original) {
+					recebimentos_com_ctr_original.add(recebimento);
+				}
+				
+			}
+			
+			recebimentos = recebimentos_com_ctr_original;
+			
+		} else if (flag_tipo_contrato == 1) {
+			// somente sub-ctrs
 
+
+			ArrayList<RecebimentoCompleto> recebimentos_com_subctr = new ArrayList<>();			
+			for (RecebimentoCompleto recebimento : recebimentos) {
+				
+				int tipo_contrato = recebimento.getContrato().getSub_contrato();
+				boolean e_sub = false;
+				
+				if (tipo_contrato == 1 || tipo_contrato == 2 || tipo_contrato == 6 || tipo_contrato == 7
+						|| tipo_contrato == 8)
+					e_sub = true;
+				if(e_sub) {
+					recebimentos_com_subctr.add(recebimento);
+				}
+				
+			}
+			
+			recebimentos = recebimentos_com_subctr;
+			
+
+		} else {
+			
+		}
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		if (duplicatas_nf_venda == 0) {
+
+		} else if (duplicatas_nf_venda == 1) {
+			// nao incluir duplicados de nf venda
+			// remove duplicados de nf_venda
+			Set<String> set = new HashSet<>(recebimentos.size());
+			recebimentos.removeIf(p -> !set.add(p.getCodigo_nf_venda()));
+
+		} else if (duplicatas_nf_venda == 2) {
+		
+			ArrayList<RecebimentoCompleto> recebimentos_duplicados = new ArrayList<>();			
+			for (RecebimentoCompleto recebimento : recebimentos) {
+				
+				String nf_venda = recebimento.getCodigo_nf_venda();
+				boolean tem_duplicata = false;
+				
+				for (RecebimentoCompleto recebimento_busca : recebimentos) {
+					if(recebimento_busca.getId_recebimento() != recebimento.getId_recebimento()) {
+						if(recebimento_busca.getCodigo_nf_venda().equalsIgnoreCase(nf_venda)) {
+							tem_duplicata = true;
+							break;
+						}
+					}					
+				}
+				
+				
+				
+				if(tem_duplicata) {
+					recebimentos_duplicados.add(recebimento);
+				}
+				
+			}
+			
+			recebimentos = recebimentos_duplicados;
+			
+		}
+
+		
+		
+		if (duplicatas_nf_remessa == 0) {
+
+		} else if (duplicatas_nf_remessa == 1) {
+			// nao incluir duplicados de nf venda
+			// remove duplicados de nf_venda
+			Set<String> set = new HashSet<>(recebimentos.size());
+			recebimentos.removeIf(p -> !set.add(p.getCodigo_nf_remessa()));
+
+		} else if (duplicatas_nf_remessa == 2) {
+		
+			ArrayList<RecebimentoCompleto> recebimentos_duplicados = new ArrayList<>();			
+			for (RecebimentoCompleto recebimento : recebimentos) {
+				
+				String nf_remessa = recebimento.getCodigo_nf_remessa();
+				boolean tem_duplicata = false;
+				
+				for (RecebimentoCompleto recebimento_busca : recebimentos) {
+					if(recebimento_busca.getId_recebimento() != recebimento.getId_recebimento()) {
+						if(recebimento_busca.getCodigo_nf_remessa().equalsIgnoreCase(nf_remessa)) {
+							tem_duplicata = true;
+							break;
+						}
+					}					
+				}
+				
+				
+				
+				if(tem_duplicata) {
+					recebimentos_duplicados.add(recebimento);
+				}
+				
+			}
+			
+			recebimentos = recebimentos_duplicados;
+			
+		}
+		
+		
 		for (RecebimentoCompleto recebimento : recebimentos) {
-			CadastroContrato contrato = recebimento.getContrato();
+			
 			modelo_recebimentos.onAdd(recebimento);
 			lista_recebimentos.add(recebimento);
-
 		}
+	
 
 	}
 
@@ -792,8 +1069,7 @@ public class TelaControleNotasFiscais extends JFrame {
 
 		Locale ptBr = new Locale("pt", "BR");
 		NumberFormat z = NumberFormat.getNumberInstance();
-		
-		
+
 		int num_recebimentos = 0;
 		double peso_total_romaneios = 0, peso_total_nf_venda = 0, peso_total_nf_remessa = 0;
 		BigDecimal valor_total_nf_venda = BigDecimal.ZERO;
@@ -819,17 +1095,16 @@ public class TelaControleNotasFiscais extends JFrame {
 
 			try {
 				valor_total_nf_venda = valor_total_nf_venda.add(recebimento.getValor_nf_venda());
-			}catch(Exception e) {
-				
+			} catch (Exception e) {
+
 			}
-			
+
 			try {
 				valor_total_nf_remessa = valor_total_nf_remessa.add(recebimento.getValor_nf_remessa());
-			}catch(Exception e) {
-				
+			} catch (Exception e) {
+
 			}
-			
-			
+
 			if (recebimento.getNf_venda_aplicavel() == 1 && recebimento.getNf_remessa_aplicavel() == 1) {
 
 				if (checkString(codigo_nf_venda) && checkString(codigo_nf_remessa)) {
@@ -884,20 +1159,18 @@ public class TelaControleNotasFiscais extends JFrame {
 		lblTotalRecebimentosNFRemessaVenda.setText(recebimentos_falta_nf_venda_remessa + "");
 		lblFaltaNFRemessa.setText(recebimentos_falta_nf_remessa + "");
 
-
 		lblPesoTotalRomaneios
 				.setText(z.format(peso_total_romaneios) + " Kgs | " + z.format(peso_total_romaneios / 60) + " Sacos");
 		lblPesoTotalNFVenda
 				.setText(z.format(peso_total_nf_venda) + " Kgs | " + z.format(peso_total_nf_venda / 60) + " Sacos");
 		lblPesoTotalNFRemessa
 				.setText(z.format(peso_total_nf_remessa) + " Kgs | " + z.format(peso_total_nf_remessa / 60) + " Sacos");
-		
+
 		String valorNFVendaString = NumberFormat.getCurrencyInstance(ptBr).format(valor_total_nf_venda);
 		String valorNFRemessaString = NumberFormat.getCurrencyInstance(ptBr).format(valor_total_nf_remessa);
 
 		lblValorTotalNFVenda.setText(valorNFVendaString);
 		lblValorTotalNFRemessa.setText(valorNFRemessaString);
-		
 
 	}
 
@@ -940,13 +1213,13 @@ public class TelaControleNotasFiscais extends JFrame {
 
 		String codigo_nf_venda = entCodigoNFVenda.getText().toUpperCase();
 		String codigo_nf_remessa = entCodigoNFRemessa.getText().toUpperCase();
-		
+
 		String codigo_romaneio = entCodigoRomaneio.getText().toUpperCase();
 
-		// filtrar codigo  romaneio
-				if (checkString(codigo_romaneio))
-					filters.add(RowFilter.regexFilter(codigo_romaneio, 2));
-		
+		// filtrar codigo romaneio
+		if (checkString(codigo_romaneio))
+			filters.add(RowFilter.regexFilter(codigo_romaneio, 2));
+
 		// filtrar codigo nf venda
 		if (checkString(codigo_nf_venda))
 			filters.add(RowFilter.regexFilter(codigo_nf_venda, 4));

@@ -991,7 +991,7 @@ public class TelaRelatoriaContratos extends JFrame {
 		});
 		rdbtnFormatoWord.setFont(new Font("SansSerif", Font.BOLD, 16));
 		
-		rdbtnFormatoExcel = new JRadioButton("EXCEL(em construção)");
+		rdbtnFormatoExcel = new JRadioButton("EXCEL");
 		rdbtnFormatoExcel.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 			
@@ -1731,13 +1731,14 @@ public class TelaRelatoriaContratos extends JFrame {
 		} else if (rdbtnFormatoWord.isSelected()) {
 			String contrato_alterado = relatar.preparar();
 
+			gerarWord(contrato_alterado);
 			telaEmEsperaRelatoria.setInfo("Arquivo Word Criado, abrindo...", 100);
 			telaEmEsperaRelatoria.dispose();
-			gerarWord(contrato_alterado);
 		}else if (rdbtnFormatoExcel.isSelected()) {
+			
+			gerarExcel(relatar.prepararExcel());
 			telaEmEsperaRelatoria.setInfo("Arquivo Excel Criado, abrindo...", 100);
 			telaEmEsperaRelatoria.dispose();
-			gerarExcel(relatar.prepararExcel());
 		}
 
 	}

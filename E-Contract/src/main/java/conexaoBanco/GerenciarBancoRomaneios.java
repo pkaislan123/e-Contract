@@ -107,7 +107,7 @@ public class GerenciarBancoRomaneios {
  		"(codigo, operacao, cfop, descricao_cfop, data_romaneio, id_produto, id_safra, id_remetente,"
  		+ "id_destinatario, nome_motorista, cpf_motorista, placa, umidade, impureza, ardidos, avariados, peso_bruto, tara, "
  		+ "peso_liquido, peso_liquido_sem_desconto, peso_desconto_umidade, peso_desconto_impureza,"
- 		+ "peso_desconto_avariado, peso_desconto_total,peso_recepcao, caminho_arquivo, doc_entrada, amostra) values ('"
+ 		+ "peso_desconto_avariado, peso_desconto_total,peso_recepcao, caminho_arquivo, doc_entrada, amostra,status_monsanto, data_entrada, hora_entrada, data_saida, hora_saida) values ('"
  		+ numero_romaneio
 		+ "','"
  		+ operacao
@@ -163,6 +163,16 @@ public class GerenciarBancoRomaneios {
 			+ doc_entrada
 			+ "','"
 			+ amostra
+			+ "','"
+			+ rom.getStatus_monsanto()
+			+ "','"
+			+ rom.getData_entrada()
+			+ "','"
+			+ rom.getHora_entrada()
+			+ "','"
+			+ rom.getData_saida()
+			+ "','"
+			+ rom.getHora_saida()
 			+ "')";
 		    
 		    return sql;
@@ -217,6 +227,11 @@ public class GerenciarBancoRomaneios {
 	            	rom.setDescricao_cfop(rs.getString("descricao_cfop"));
 	           
 	            	//rom.setData(rs.getString("descricao_cfop"));
+	            	
+	            	rom.setData_entrada(rs.getString("data_entrada"));
+	            	rom.setHora_entrada(rs.getString("hora_entrada"));
+	            	rom.setData_saida(rs.getString("data_saida"));
+	            	rom.setHora_saida(rs.getString("hora_saida"));
 	            	
 	            	int id_produto = rs.getInt("id_produto");
 	            	rom.setProduto(new GerenciarBancoProdutos().getProduto(id_produto));
@@ -317,6 +332,11 @@ public class GerenciarBancoRomaneios {
 	            	safra.setAno_colheita(rs.getInt("ano_colheita"));
 	            	safra.setId_safra(rs.getInt("id_safra"));
 
+	            	rom.setData_entrada(rs.getString("data_entrada"));
+	            	rom.setHora_entrada(rs.getString("hora_entrada"));
+	            	rom.setData_saida(rs.getString("data_saida"));
+	            	rom.setHora_saida(rs.getString("hora_saida"));
+	            	
 	            	rom.setSafra(safra);
 	            	
 	            	String data = rs.getString("data_romaneio");
@@ -437,7 +457,10 @@ public class GerenciarBancoRomaneios {
 	        		rom.setData(date);
 	        		
 	        		
-	        		
+	        		rom.setData_entrada(rs.getString("data_entrada"));
+	            	rom.setHora_entrada(rs.getString("hora_entrada"));
+	            	rom.setData_saida(rs.getString("data_saida"));
+	            	rom.setHora_saida(rs.getString("hora_saida"));
 
 	        		CadastroCliente	remetente = new CadastroCliente();
 	        		CadastroCliente destinatario = new CadastroCliente();
@@ -553,7 +576,10 @@ public class GerenciarBancoRomaneios {
 	            	Date date = new SimpleDateFormat("dd/MM/yyyy").parse(data);
 	        		rom.setData(date);
 	        		
-	        		
+	        		rom.setData_entrada(rs.getString("data_entrada"));
+	            	rom.setHora_entrada(rs.getString("hora_entrada"));
+	            	rom.setData_saida(rs.getString("data_saida"));
+	            	rom.setHora_saida(rs.getString("hora_saida"));
 	        		
 
 	        		CadastroCliente	remetente = new CadastroCliente();

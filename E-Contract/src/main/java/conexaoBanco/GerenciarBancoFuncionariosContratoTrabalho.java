@@ -308,7 +308,7 @@ public class GerenciarBancoFuncionariosContratoTrabalho {
 			pstm.setString(2, data_pri_dia_paga);
 
 			rs = pstm.executeQuery();
-			rs.next();
+			while(rs.next()) {
 
 			contrato.setId_contrato(rs.getInt("id_contrato"));
 			contrato.setId_colaborador(rs.getInt("id_colaborador"));
@@ -323,7 +323,7 @@ public class GerenciarBancoFuncionariosContratoTrabalho {
 			contrato.setData_encerramento_contrato(rs.getString("data_encerramento"));
 			contrato.setUltimo_salario(rs.getDouble("novo_valor_salarial"));
 			contrato.setNome_departamento(rs.getString("nome_departamento"));
-
+			}
 			return contrato;
 
 		} catch (Exception e) {

@@ -506,10 +506,19 @@ public class TelaFinanceiroGerenciarLancamento extends JFrame {
 		panel_18.setBorder(new LineBorder(new Color(0, 0, 0)));
 		panel_18.setBackground(new Color(0, 51, 0));
 		panel.add(panel_18, "cell 2 0,grow");
-		panel_18.setLayout(new MigLayout("", "[grow]", "[grow][]"));
+		panel_18.setLayout(new MigLayout("", "[grow]", "[grow][grow][]"));
+		
+		JScrollPane scrollPane = new JScrollPane(painelVizualizarDocumento);
+
+		
+		panel_18.add(scrollPane, "cell 0 0 1 2,grow");
+		//scrollPane.setColumnHeaderView(painelVizualizarDocumento);
+		painelVizualizarDocumento.setBorder(new LineBorder(new Color(0, 0, 0), 2, true));
+		painelVizualizarDocumento.setBackground(Color.WHITE);
+		painelVizualizarDocumento.setLayout(new BorderLayout(0, 0));
 		panel_19.setBackground(Color.WHITE);
 
-		panel_18.add(panel_19, "cell 0 1,alignx right,aligny top");
+		panel_18.add(panel_19, "cell 0 2,alignx right,aligny top");
 		panel_19.setLayout(new MigLayout("", "[][][][][][][][][][][][][][][][][][][][][][][][][][][][][]", "[]"));
 		btnEnviarDiretoAo.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
@@ -613,10 +622,6 @@ public class TelaFinanceiroGerenciarLancamento extends JFrame {
 		btnVizualizar.setForeground(Color.WHITE);
 		btnVizualizar.setFont(new Font("SansSerif", Font.BOLD, 16));
 		btnVizualizar.setBackground(new Color(0, 102, 51));
-		panel_18.add(painelVizualizarDocumento, "cell 0 0,grow");
-		painelVizualizarDocumento.setBorder(new LineBorder(new Color(0, 0, 0), 2, true));
-		painelVizualizarDocumento.setBackground(Color.WHITE);
-		painelVizualizarDocumento.setLayout(new BorderLayout(0, 0));
 		panel_20.setBackground(new Color(0, 51, 0));
 
 		panel.add(panel_20, "cell 1 0 1 3,growx,aligny center");

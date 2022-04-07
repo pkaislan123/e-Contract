@@ -5,6 +5,8 @@ import java.awt.Color;
 import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -61,6 +63,7 @@ import main.java.cadastros.Contato;
 import main.java.cadastros.DadosCarregamento;
 import main.java.cadastros.DadosContratos;
 import main.java.cadastros.DadosRecebimento;
+import main.java.cadastros.FinanceiroGrupoContas;
 import main.java.cadastros.InstituicaoBancaria;
 import main.java.cadastros.RegistroQuantidade;
 import main.java.cadastros.RegistroRecebimento;
@@ -220,6 +223,12 @@ public class TelaFinanceiroInstituicaoBancaria extends JFrame {
 
 		tabela_ibs.setRowHeight(30);
 		
+
+		tabela_ibs.getColumnModel().getColumn(0).setPreferredWidth(40); // id
+		tabela_ibs.getColumnModel().getColumn(1).setPreferredWidth(150); // nome
+		tabela_ibs.getColumnModel().getColumn(2).setPreferredWidth(152); // cliente
+		tabela_ibs.getColumnModel().getColumn(3).setPreferredWidth(250); // conta
+		
 		JScrollPane scrollPane = new JScrollPane(tabela_ibs);
 		scrollPane.getViewport().setBackground(Color.WHITE);
 		scrollPane.setOpaque(true);
@@ -297,6 +306,46 @@ public class TelaFinanceiroInstituicaoBancaria extends JFrame {
 					isto.dispose();
 
 				}
+			}
+		});
+		
+		tabela_ibs.addMouseListener(new MouseAdapter() {
+			public void mouseClicked(MouseEvent e) {
+				if (e.getClickCount() == 2) {
+					if(modo_operacao == 0) {
+						if(retorno_tela == 1) {
+							if(janela_pai instanceof TelaFinanceiroCadastroPagamento) {
+								((TelaFinanceiroCadastroPagamento) janela_pai).setPagadorInstituicaoBancaria(getIBSelecionado());
+
+							}else if(janela_pai instanceof TelaFinanceiroCadastroPagamentoEmprestimo) {
+								((TelaFinanceiroCadastroPagamentoEmprestimo) janela_pai).setPagadorInstituicaoBancaria(getIBSelecionado());
+
+							}
+						
+						}else if(retorno_tela == 2) {
+							if(janela_pai instanceof TelaFinanceiroCadastroPagamento) {
+								((TelaFinanceiroCadastroPagamento) janela_pai).setRecebedorInstituicaoBancaria(getIBSelecionado());
+
+							}else if(janela_pai instanceof TelaFinanceiroCadastroPagamentoEmprestimo) {
+								((TelaFinanceiroCadastroPagamentoEmprestimo) janela_pai).setRecebedorInstituicaoBancaria(getIBSelecionado());
+
+							}
+						}
+						else if(retorno_tela == 10) {
+								((TelaFinanceiroCadastroTransferencia) janela_pai).setRemetente(getIBSelecionado());
+
+						}
+						else if(retorno_tela == 11) {
+							((TelaFinanceiroCadastroTransferencia) janela_pai).setDestinatario(getIBSelecionado());
+
+						}else if(retorno_tela == 5) {
+							((TelaFinanceiroCadastroParcelaEmprestimo) janela_pai).setPagador(getIBSelecionado());
+						}
+						isto.dispose();
+
+					}	
+				}
+
 			}
 		});
 		

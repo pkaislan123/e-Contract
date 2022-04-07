@@ -305,10 +305,9 @@ public class TelaFinanceiro extends JFrame {
 		painelPrincipal.setBackground(Color.WHITE);
 		painelPrincipal.setBorder(new EmptyBorder(5, 5, 5, 5));
 		setContentPane(painelPrincipal);
-		painelPrincipal.setLayout(new MigLayout("", "[grow][grow][242px,grow][grow][grow][grow][][][][60px:n][][]",
-				"[78px][grow][500px:n,grow]"));
+		painelPrincipal.setLayout(new MigLayout("", "[grow][grow][grow][242px,grow][grow][grow][grow][][][][60px:n][][]", "[78px][grow][grow][grow]"));
 
-		painelPrincipal.add(menuBar, "cell 0 0 3 1,alignx left,aligny center");
+		painelPrincipal.add(menuBar, "cell 0 0 4 1,alignx left,aligny center");
 
 		JMenu mnFerramentas = new JMenu("Ferramentas");
 		mnFerramentas.setIcon(new ImageIcon(TelaMain.class.getResource("/imagens/ferramentas-de-reparacao.png")));
@@ -355,7 +354,7 @@ public class TelaFinanceiro extends JFrame {
 
 		JPanel panel_2 = new JPanel();
 		panel_2.setBackground(new Color(51, 153, 255));
-		painelPrincipal.add(panel_2, "cell 4 0 8 1,grow");
+		painelPrincipal.add(panel_2, "cell 5 0 8 1,grow");
 		panel_2.setLayout(new MigLayout("", "[]", "[]"));
 
 		lblUser = new JLabel();
@@ -373,14 +372,66 @@ public class TelaFinanceiro extends JFrame {
 		lblDireitos.setBackground(Color.WHITE);
 
 		logar();
+		
+		
+		JPanel painelConteudoGraficos = new JPanel();
+		painelConteudoGraficos.setBackground(Color.WHITE);
+		//painelPrincipal.add(painelConteudoGraficos, "cell 1 2 12 1,grow");
+		painelConteudoGraficos.setLayout(new MigLayout("", "[1050px:1050px,grow][grow][::70px][]", "[::600px,grow][][][500px:500px,grow]"));
+		
+		JScrollPane scrollPane_1 = new JScrollPane(painelConteudoGraficos);
+		painelPrincipal.add(scrollPane_1, "cell 0 1 13 1,grow");
+		
+				JLabel lblNewLabel_1 = new JLabel("Ano:");
+				painelConteudoGraficos.add(lblNewLabel_1, "cell 1 1,aligny top");
+				lblNewLabel_1.setFont(new Font("SansSerif", Font.PLAIN, 16));
+		
+				entAno = new JTextField();
+				painelConteudoGraficos.add(entAno, "cell 2 1,aligny top");
+				entAno.setFont(new Font("SansSerif", Font.BOLD, 18));
+				entAno.setColumns(10);
+				entAno.setText(new GetData().getAnoAtual() + "");
+				entAno.addKeyListener(new KeyAdapter() {
+					@Override
+					public void keyTyped(KeyEvent e) {
+						String caracteres = "0987654321\b";// lista de caracters que não devem ser aceitos
+						String s_valor = "";
 
-		JPanel panel_5 = new JPanel();
-		panel_5.setBackground(Color.BLACK);
-		painelPrincipal.add(panel_5, "cell 0 1 12 1,grow");
-		panel_5.setLayout(new MigLayout("", "[grow][grow]", "[grow][grow]"));
+						if (!caracteres.contains(e.getKeyChar() + "")) {
+							e.consume();
+						}
+
+					}
+				});
+		
+				JButton btnNewButton_2 = new JButton("Atualizar");
+				painelConteudoGraficos.add(btnNewButton_2, "cell 3 1,aligny top");
+				btnNewButton_2.addActionListener(new ActionListener() {
+					public void actionPerformed(ActionEvent e) {
+						atualizarGrafico();
+					}
+				});
+				btnNewButton_2.setBackground(new Color(51, 51, 0));
+				btnNewButton_2.setForeground(Color.WHITE);
+				btnNewButton_2.setFont(new Font("SansSerif", Font.BOLD, 18));
+		
+		
+
+		// tratamentoAvisos();
+		painelGraficoLinha = new JPanel();
+		painelConteudoGraficos.add(painelGraficoLinha, "cell 0 2 4 2,grow");
+		painelGraficoLinha.setBackground(Color.WHITE);
+		painelGraficoLinha.setLayout(new MigLayout("", "[grow]", "[grow]"));
+
+		JPanel painelGraficosSuperiores = new JPanel();
+		painelGraficosSuperiores.setBackground(Color.BLACK);
+		painelConteudoGraficos.add(painelGraficosSuperiores, "cell 0 0 4 1,grow");
+
+		//painelPrincipal.add(painelGraficosSuperiores, "cell 1 2 12 1,grow");
+		painelGraficosSuperiores.setLayout(new MigLayout("", "[625px:625px,grow][625px:625px,grow]", "[350px:350px:350px][]"));
 
 		JPanel painelPaiDespesas = new JPanel();
-		panel_5.add(painelPaiDespesas, "cell 0 0");
+		painelGraficosSuperiores.add(painelPaiDespesas, "cell 0 0");
 		painelPaiDespesas.setBackground(Color.WHITE);
 		painelPaiDespesas.setLayout(new MigLayout("", "[][grow][grow][grow]", "[grow][grow][grow]"));
 
@@ -460,7 +511,7 @@ public class TelaFinanceiro extends JFrame {
 		lblSomatoriaValorTotalDespesasAPagar.setFont(new Font("Tahoma", Font.BOLD, 16));
 
 		JPanel painelPaiReceitas = new JPanel();
-		panel_5.add(painelPaiReceitas, "cell 1 0");
+		painelGraficosSuperiores.add(painelPaiReceitas, "cell 1 0");
 		painelPaiReceitas.setBackground(Color.WHITE);
 		painelPaiReceitas.setLayout(new MigLayout("", "[grow][][]", "[]"));
 
@@ -540,49 +591,10 @@ public class TelaFinanceiro extends JFrame {
 		lblSomatoriaValorTotalReceitasAReceber.setForeground(new Color(50, 205, 50));
 		lblSomatoriaValorTotalReceitasAReceber.setFont(new Font("Tahoma", Font.BOLD, 16));
 		panel_3_1.add(lblSomatoriaValorTotalReceitasAReceber, "cell 1 0");
-
-		// tratamentoAvisos();
-		painelGraficoLinha = new JPanel();
-		painelGraficoLinha.setBackground(Color.WHITE);
-		painelPrincipal.add(painelGraficoLinha, "cell 0 2 6 1,grow");
-		painelGraficoLinha.setLayout(new MigLayout("", "[grow]", "[grow]"));
-
+		
 		grafico_despesas.add(criarGrafico1(0, 1, 0));
 
 		grafico_receitas.add(criarGrafico2(1, 1, 2));
-
-		JLabel lblNewLabel_1 = new JLabel("Ano:");
-		lblNewLabel_1.setFont(new Font("SansSerif", Font.PLAIN, 16));
-		painelPrincipal.add(lblNewLabel_1, "cell 6 2,alignx trailing,aligny top");
-
-		entAno = new JTextField();
-		entAno.setFont(new Font("SansSerif", Font.BOLD, 18));
-		painelPrincipal.add(entAno, "cell 7 2 3 1,growx,aligny top");
-		entAno.setColumns(10);
-		entAno.setText(new GetData().getAnoAtual() + "");
-		entAno.addKeyListener(new KeyAdapter() {
-			@Override
-			public void keyTyped(KeyEvent e) {
-				String caracteres = "0987654321\b";// lista de caracters que não devem ser aceitos
-				String s_valor = "";
-
-				if (!caracteres.contains(e.getKeyChar() + "")) {
-					e.consume();
-				}
-
-			}
-		});
-
-		JButton btnNewButton_2 = new JButton("Atualizar");
-		btnNewButton_2.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				atualizarGrafico();
-			}
-		});
-		btnNewButton_2.setBackground(new Color(51, 51, 0));
-		btnNewButton_2.setForeground(Color.WHITE);
-		btnNewButton_2.setFont(new Font("SansSerif", Font.BOLD, 18));
-		painelPrincipal.add(btnNewButton_2, "cell 10 2,aligny top");
 
 		// atualizarGrafico();
 

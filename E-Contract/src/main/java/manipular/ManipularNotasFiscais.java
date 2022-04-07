@@ -85,7 +85,7 @@ public class ManipularNotasFiscais {
 			listadeArquivos = arquivos.getArquivos();
 
 		} catch (IOException ex) {
-			ex.printStackTrace();
+			//ex.printStackTrace();
 		}
 
 		for (int i = 0; i < listadeArquivos.size(); i++) {

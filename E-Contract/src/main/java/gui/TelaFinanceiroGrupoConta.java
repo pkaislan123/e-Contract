@@ -28,6 +28,8 @@ import main.java.conexaoBanco.GerenciarBancoFinanceiroGrupoContas;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import java.awt.event.ActionListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -150,6 +152,23 @@ public class TelaFinanceiroGrupoConta extends JDialog {
 				 }
 			}
 		});
+		
+		tabela_grupo_contas.addMouseListener(new MouseAdapter() {
+			public void mouseClicked(MouseEvent e) {
+				if (e.getClickCount() == 2) {
+					FinanceiroGrupoContas conta_selecionada = getGrupoContasSelecionado();
+					 if(flag_modo_operacao == 0) {
+						 if(flag_retorno == 1) {
+						  ((TelaFinanceiroCadastroConta) telaPai).setGrupoContas(conta_selecionada);
+						  isto.dispose();
+						  }
+					 }
+				}
+
+			}
+		});
+
+		
 		panel_3.add(btnNewButton_3, "cell 1 0,alignx left,aligny top");
 		
 		JButton btnNewButton_2 = new JButton("Editar");

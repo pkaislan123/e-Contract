@@ -45,6 +45,12 @@ public class Nuvem {
 		getDadosGlobais();
 	}
 	
+	  
+		public Nuvem(CadastroNuvem _nuvem) {
+			this.nuvem = _nuvem;
+		}
+	
+	
 	
 	public boolean carregar(String url, String nomearquivo) {
 		try (InputStream in = new FileInputStream(url)) {

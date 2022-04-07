@@ -269,6 +269,7 @@ public class RelatorioContratos {
 	private double somatoria_cobertura_transferencias_negativas = 0;
 	private double somatoria_cobertura_transferencias_positivas = 0;
 	private int id_local_retirada_global = -1;
+
 	public boolean isContrato_irmao() {
 		return contrato_irmao;
 	}
@@ -289,7 +290,8 @@ public class RelatorioContratos {
 			boolean _incluir_sem_recebimentos, int _id_safra, boolean _sub_contratos, boolean _incluir_comissao,
 			boolean _incluir_ganhos_potenciais, boolean _somar_sub_contratos,
 			ArrayList<CadastroCliente> _clientes_globais, CadastroCliente contra_parte,
-			CadastroCliente cliente_alvo2_relatorio, CadastroGrupo _grupo_alvo, int _participacao, int _local_retirada) {
+			CadastroCliente cliente_alvo2_relatorio, CadastroGrupo _grupo_alvo, int _participacao,
+			int _local_retirada) {
 
 		getDadosGlobais();
 		this.id_local_retirada_global = _local_retirada;
@@ -367,7 +369,7 @@ public class RelatorioContratos {
 
 	public HSSFWorkbook prepararExcel() {
 		HSSFWorkbook workbook = new HSSFWorkbook();
-
+		criarEsquemaEstilo(workbook);
 		// Configurando estilos de células (Cores, alinhamento, formatação, etc..)
 		HSSFDataFormat numberFormat = workbook.createDataFormat();
 
@@ -630,7 +632,7 @@ public class RelatorioContratos {
 		cell.setCellValue(filtrosDaPesquisa());
 
 		sheet.addMergedRegion(new CellRangeAddress(rownum, rownum += 8, cellnum, 6));
-		//2
+		// 2
 		ArrayList<CadastroContrato> lista_global = retornarListaGlobalContratos();
 
 		int num_total_contratos = lista_global.size();
@@ -744,12 +746,14 @@ public class RelatorioContratos {
 
 					lista_contratos_encontrados_do_cliente = procura_contratos_grupo
 							.getContratosPorClienteParaRelatorio(id_safra, cliente.getId(),
-									cliente_alvo2_global.getId(), contra_parte_global.getId(), participacao_global,id_local_retirada_global);
+									cliente_alvo2_global.getId(), contra_parte_global.getId(), participacao_global,
+									id_local_retirada_global);
 
 					if (tipo_contrato != 1) {
 						lista_sub_contratos_encontrados_do_cliente = procura_contratos_grupo
 								.getSubContratosPorClienteParaRelatorio(id_safra, cliente.getId(),
-										cliente_alvo2_global.getId(), contra_parte_global.getId(), participacao_global,id_local_retirada_global);
+										cliente_alvo2_global.getId(), contra_parte_global.getId(), participacao_global,
+										id_local_retirada_global);
 
 					}
 
@@ -757,11 +761,13 @@ public class RelatorioContratos {
 
 					lista_contratos_encontrados_do_cliente = procura_contratos_grupo
 							.getContratosPorClienteParaRelatorio(id_safra, contra_parte_global.getId(),
-									cliente_alvo2_global.getId(), cliente.getId(), participacao_global,id_local_retirada_global);
+									cliente_alvo2_global.getId(), cliente.getId(), participacao_global,
+									id_local_retirada_global);
 					if (tipo_contrato != 1) {
 						lista_sub_contratos_encontrados_do_cliente = procura_contratos_grupo
 								.getSubContratosPorClienteParaRelatorio(id_safra, contra_parte_global.getId(),
-										cliente_alvo2_global.getId(), cliente.getId(), participacao_global,id_local_retirada_global);
+										cliente_alvo2_global.getId(), cliente.getId(), participacao_global,
+										id_local_retirada_global);
 
 					}
 
@@ -857,20 +863,19 @@ public class RelatorioContratos {
 									if (!ja_incluso) {
 
 										boolean tem_id = false;
-										
-										for(CadastroCliente cliente_pesquisando : clientes_globais) {
+
+										for (CadastroCliente cliente_pesquisando : clientes_globais) {
 											String s_id = Integer.toString(cliente_pesquisando.getId());
-											if(sub.getIds_clientes_compradores().contains(s_id) ){
+											if (sub.getIds_clientes_compradores().contains(s_id)) {
 												tem_id = true;
 												break;
 
 											}
 
 										}
-										
-										
+
 										if (sub.getFilho() == 1) {
-											if(tem_id) {
+											if (tem_id) {
 												lista_final_do_cliente.add(sub);
 
 											}
@@ -996,8 +1001,11 @@ public class RelatorioContratos {
 
 				cell = row.createCell(cellnum++);
 				cell.setCellStyle(celula_fundo_branco_texto_preto);
-				cell.setCellValue(reg.getIe().toUpperCase());
-
+				try {
+					cell.setCellValue(reg.getIe().toUpperCase());
+				} catch (Exception e) {
+					cell.setCellValue("");
+				}
 				cell = row.createCell(cellnum++);
 				cell.setCellStyle(pesoStyle);
 				cell.setCellValue(reg.getNum_contratos());
@@ -1058,7 +1066,7 @@ public class RelatorioContratos {
 
 		} // fim tabela info contratos
 
-		//2
+		// 2
 		ArrayList<CadastroContrato> lista_final = retornarListaFinal(lista_global);
 
 		rownum++;
@@ -1086,72 +1094,253 @@ public class RelatorioContratos {
 		// obter contratos desde cliente
 		GerenciarBancoContratos gerenciar = new GerenciarBancoContratos();
 
-		if (recebimento_como_comprador || carregamento_como_comprador || pagamento_como_comprador) {
-			// contratos_deste_cliente = getContratos(cliente_alvo_global.getId(),true);
+		telaEmEsperaRelatoria.setInfo("Tabela de Contratos Criada", 50);
 
+		if (recebimento_como_comprador) {
 			// criar nova planilha de recebimentos
 			sheet = workbook.createSheet("Recebimentos");
 			rownum = 0;
+			int contador = 1;
 
 			for (CadastroContrato contrato_cliente : lista_final) {
+				if (contrato_cliente.getSub_contrato() != 8 && contrato_cliente.getSub_contrato() != 9) {
+					if (recebimento && recebimento_como_comprador && !unir_recebimentos) {
+						// if (contrato_cliente.getSub_contrato() == 0 ||
+						// contrato_cliente.getSub_contrato() == 4
+						// || contrato_cliente.getSub_contrato() == 3) {
 
-				if (recebimento && recebimento_como_comprador && !unir_recebimentos) {
-					// if (contrato_cliente.getSub_contrato() == 0 ||
-					// contrato_cliente.getSub_contrato() == 4
-					// || contrato_cliente.getSub_contrato() == 3) {
+						ArrayList<RecebimentoCompleto> recebimentos_totais = new ArrayList<>();
 
-					ArrayList<RecebimentoCompleto> recebimentos_totais = new ArrayList<>();
+						ArrayList<RecebimentoCompleto> recebimentos_locais = gerenciar_recebimentos
+								.getRecebimentosParaRelatorio(contrato_cliente.getId());
 
-					ArrayList<RecebimentoCompleto> recebimentos_locais = gerenciar_recebimentos
-							.getRecebimentosParaRelatorio(contrato_cliente.getId());
+						recebimentos_totais.addAll(recebimentos_locais);
 
-					recebimentos_totais.addAll(recebimentos_locais);
+						double local_quantidade_kgs = 0;
+						System.out.println("id do ctr: " + contrato_cliente.getId());
 
-					double local_quantidade_kgs = 0;
+						try {
+							if (contrato_cliente.getMedida().equalsIgnoreCase("KG")) {
+								local_quantidade_kgs = contrato_cliente.getQuantidade();
+							} else if (contrato_cliente.getMedida().equalsIgnoreCase("Sacos")) {
+								local_quantidade_kgs = contrato_cliente.getQuantidade() * 60;
+							}
+						} catch (Exception e) {
+							e.printStackTrace();
+						}
 
-					if (contrato_cliente.getMedida().equalsIgnoreCase("KG")) {
-						local_quantidade_kgs = contrato_cliente.getQuantidade();
-					} else if (contrato_cliente.getMedida().equalsIgnoreCase("Sacos")) {
-						local_quantidade_kgs = contrato_cliente.getQuantidade() * 60;
-					}
+						if (recebimentos_totais.size() > 0) {
 
-					if (recebimentos_totais.size() > 0) {
-
-						DadosTabelaExcel dados = criarTabelaRecebimentosExcel(workbook, sheet, rownum,
-								recebimentos_totais, contrato_cliente);
-						sheet = dados.getSheet();
-						rownum = dados.getRownum();
-						workbook = dados.getWorkbook();
-
-						telaEmEsperaRelatoria.setInfo("Tabela de Recebimentos Indivuduais Criada", 25);
-						// controle de nfs
-						// inserirControleNFVendaEntrada(recebimentos_totais);
-					} else {
-						if (incluir_sem_recebimentos) {
-							DadosTabelaExcel dados = semRecebimentosExcel(workbook, sheet, rownum, contrato_cliente);
+							DadosTabelaExcel dados = criarTabelaRecebimentosExcel(workbook, sheet, rownum,
+									recebimentos_totais, contrato_cliente);
 							sheet = dados.getSheet();
 							rownum = dados.getRownum();
 							workbook = dados.getWorkbook();
+							telaEmEsperaRelatoria.setInfo("Tabela de Recebimentos Individual Criada -> " + contador + "/" + lista_final.size(), 25);
+							contador++;
+							// controle de nfs
+							// inserirControleNFVendaEntrada(recebimentos_totais);
+						} else {
+							if (incluir_sem_recebimentos) {
+								DadosTabelaExcel dados = semRecebimentosExcel(workbook, sheet, rownum,
+										contrato_cliente);
+								sheet = dados.getSheet();
+								rownum = dados.getRownum();
+								workbook = dados.getWorkbook();
+								contador++;
+							}
 						}
-					}
-					// } // fim do if de contrato_original
-				} else {
-					if (unir_recebimentos) {
-						if (!recebimentos_unidos_como_comprador) {
+						// } // fim do if de contrato_original
+					} else {
+						if (unir_recebimentos) {
+							if (!recebimentos_unidos_como_comprador) {
 
-							double soma_total_quantidade_contratos_kgs = 0;
-							ArrayList<RecebimentoCompleto> recebimentos_totais = new ArrayList<>();
-							GerenciarBancoTransferenciaRecebimento gerenciar_transferencias = new GerenciarBancoTransferenciaRecebimento();
-							
-							ArrayList<String> texto_contratos_sem_recebimentos = new ArrayList<>();
+								double soma_total_quantidade_contratos_kgs = 0;
+								ArrayList<RecebimentoCompleto> recebimentos_totais = new ArrayList<>();
+								GerenciarBancoTransferenciaRecebimento gerenciar_transferencias = new GerenciarBancoTransferenciaRecebimento();
+
+								ArrayList<String> texto_contratos_sem_recebimentos = new ArrayList<>();
+
+								for (CadastroContrato contrato : lista_final) {
+									{
+
+										ArrayList<RecebimentoCompleto> recebimentos_locais = gerenciar_recebimentos
+												.getRecebimentosParaRelatorio(contrato.getId());
+										recebimentos_totais.addAll(recebimentos_locais);
+
+										double local_quantidade_kgs = 0;
+										System.out.println("id do ctr: " + contrato.getId());
+										try {
+											if (contrato.getMedida().equalsIgnoreCase("KG")) {
+												local_quantidade_kgs = contrato.getQuantidade();
+											} else if (contrato.getMedida().equalsIgnoreCase("Sacos")) {
+												local_quantidade_kgs = contrato.getQuantidade() * 60;
+											}
+										} catch (Exception e) {
+											e.printStackTrace();
+										}
+
+										soma_total_quantidade_contratos_kgs += local_quantidade_kgs;
+
+										if (incluir_transferencias_recebimentos) {
+
+											ArrayList<CadastroContrato.CadastroTransferenciaRecebimento> lista_transferencias_recebimento_remetente_local = gerenciar_transferencias
+													.getTransferenciasRemetente(contrato.getId());
+
+											ArrayList<CadastroContrato.CadastroTransferenciaRecebimento> lista_transferencias_recebimento_destinatario_local = gerenciar_transferencias
+													.getTransferenciaDestinatario(contrato.getId());
+
+											for (CadastroContrato.CadastroTransferenciaRecebimento enviado_via_trans : lista_transferencias_recebimento_remetente_local) {
+
+												RecebimentoCompleto recebimento = new RecebimentoCompleto();
+												recebimento.setCodigo_romaneio(
+														enviado_via_trans.getId_contrato_destinatario() + "");
+												recebimento.setData_recebimento(enviado_via_trans.getData());
+												recebimento.setPeso_romaneio(enviado_via_trans.getQuantidade());
+												recebimento.setCodigo_romaneio("-Transferencia");
+												recebimento.setContrato(contrato);
+
+												recebimento.setNf_remessa_aplicavel(0);
+												recebimento.setNf_venda_aplicavel(0);
+
+												recebimentos_totais.add(recebimento);
+											}
+
+											for (CadastroContrato.CadastroTransferenciaRecebimento recebido_via_trans : lista_transferencias_recebimento_destinatario_local) {
+
+												RecebimentoCompleto recebimento = new RecebimentoCompleto();
+												recebimento.setCodigo_romaneio(
+														recebido_via_trans.getId_contrato_destinatario() + "");
+												recebimento.setData_recebimento(recebido_via_trans.getData());
+												recebimento.setPeso_romaneio(recebido_via_trans.getQuantidade());
+												recebimento.setCodigo_romaneio("+Transferencia");
+
+												recebimento.setContrato(contrato);
+
+												recebimento.setCodigo_nf_venda(contrato.getCodigo());
+												recebimento.setNf_remessa_aplicavel(0);
+												recebimento.setNf_venda_aplicavel(0);
+
+												recebimentos_totais.add(recebimento);
+
+											}
+
+											if (recebimentos_locais.size() <= 0
+													&& lista_transferencias_recebimento_remetente_local.size() <= 0
+													&& lista_transferencias_recebimento_destinatario_local
+															.size() <= 0) {
+												String texto = infoContrato(contrato) + " -- SEM RECEBIMENTOS --";
+												texto_contratos_sem_recebimentos.add(texto);
+												texto = contrato.getNomes_compradores() + " X "
+														+ contrato.getNomes_vendedores();
+												texto_contratos_sem_recebimentos.add(texto);
+
+											}
+
+										} else {
+											if (recebimentos_locais.size() <= 0) {
+												String texto = infoContrato(contrato);
+												texto_contratos_sem_recebimentos.add(texto);
+											}
+										}
+
+									}
+								}
+								if (recebimentos_totais.size() > 0) {
+
+									DadosTabelaExcel dados = criarTabelaRecebimentosUnidosExcel(workbook, sheet, rownum,
+											recebimentos_totais, soma_total_quantidade_contratos_kgs);
+									sheet = dados.getSheet();
+									rownum = dados.getRownum();
+									workbook = dados.getWorkbook();
+
+								}
+
+								// criar linhas com sem recebimentos
+								if (texto_contratos_sem_recebimentos.size() > 0) {
+
+									for (String texto : texto_contratos_sem_recebimentos) {
+										DadosTabelaExcel dados = semRecebimentosExcelSemEspaco(workbook, sheet, rownum,
+												texto);
+										sheet = dados.getSheet();
+										rownum = dados.getRownum();
+										workbook = dados.getWorkbook();
+									}
+								}
+
+								recebimentos_unidos_como_comprador = true;
+							} // fim da verifificacao por contrato original
+						}
+
+					} // fim de recebimentos
+				} // fim verificacao por linha de ganho potencial
+			}
+		}
+
+		if (carregamento_como_comprador) {
+			sheet = workbook.createSheet("Carregamentos");
+			setarEstiloCarregamento(workbook);
+			rownum = 0;
+			int contador = 0;
+			for (CadastroContrato contrato_cliente : lista_final) {
+				if (contrato_cliente.getSub_contrato() != 8 && contrato_cliente.getSub_contrato() != 9) {
+
+					if (carregamento && carregamento_como_comprador && !unir_carregamentos) {
+
+						ArrayList<CarregamentoCompleto> carregamentos = gerenciar_carregamentos
+								.getCarregamentoParaRelatorio(contrato_cliente.getId());
+						ArrayList<CadastroContrato.CadastroTransferenciaCarga> transferencias_remetente_local = gerenciar_transferencias_carga
+								.getTransferenciasRemetente(contrato_cliente.getId());
+
+						ArrayList<CadastroContrato.CadastroTransferenciaCarga> transferencias_destinatario_local = gerenciar_transferencias_carga
+								.getTransferenciaDestinatario(contrato_cliente.getId());
+
+						if (carregamentos.size() > 0 || transferencias_remetente_local.size() > 0
+								|| transferencias_destinatario_local.size() > 0) {
+
 						
-							for (CadastroContrato contrato : lista_final) {
-								{
+							double quantidade_kgs_recebidos = gerenciar.getQuantidadeRecebida(contrato_cliente.getId());
 
-									ArrayList<RecebimentoCompleto> recebimentos_locais = gerenciar_recebimentos
-											.getRecebimentosParaRelatorio(contrato.getId());
-									recebimentos_totais.addAll(recebimentos_locais);
-									
+
+								DadosTabelaExcel dados = criarTabelaCarregamentosExcel(workbook, sheet,
+										rownum, contrato_cliente, carregamentos, contrato_cliente.getQuantidade(),
+										quantidade_kgs_recebidos,
+										transferencias_remetente_local,
+										transferencias_destinatario_local);
+								sheet = dados.getSheet();
+								rownum = dados.getRownum();
+								workbook = dados.getWorkbook();
+								telaEmEsperaRelatoria.setInfo("Tabela de Carregamentos Individual Criada -> " + contador + "/" + lista_final.size(), 25);
+								contador++;
+							
+						} else {
+							// sem carregamentos
+							
+						}
+					} else if (carregamento && carregamento_como_comprador && unir_carregamentos) {
+						if (unir_carregamentos) {
+							if (!carregamentos_unidos_como_comprador) {
+
+								double soma_total_quantidade_contratos_kgs = 0;
+								double soma_total_quantidade_recebida_kgs = 0;
+								ArrayList<CarregamentoCompleto> carregamentos_totais = new ArrayList<>();
+								ArrayList<CadastroTransferenciaCarga> transferencias_remetente_totais = new ArrayList<>();
+								ArrayList<CadastroTransferenciaCarga> transferencias_destinatario_totais = new ArrayList<>();
+								double quantidade__total_kgs_recebidos = 0;
+
+								for (CadastroContrato contrato : lista_final) {
+									ArrayList<CarregamentoCompleto> carregamentos_locais = gerenciar_carregamentos
+											.getCarregamentoParaRelatorio(contrato.getId());
+									carregamentos_totais.addAll(carregamentos_locais);
+									ArrayList<CadastroContrato.CadastroTransferenciaCarga> transferencias_remetente_local = gerenciar_transferencias_carga
+											.getTransferenciasRemetente(contrato.getId());
+									transferencias_remetente_totais.addAll(transferencias_remetente_local);
+
+									ArrayList<CadastroContrato.CadastroTransferenciaCarga> transferencias_destinatario_local = gerenciar_transferencias_carga
+											.getTransferenciaDestinatario(contrato.getId());
+									transferencias_destinatario_totais.addAll(transferencias_destinatario_local);
+
+									double quantidade_kgs_recebidos = getPesoTotalRecebido(contrato);
 
 									double local_quantidade_kgs = 0;
 
@@ -1160,130 +1349,68 @@ public class RelatorioContratos {
 									} else if (contrato.getMedida().equalsIgnoreCase("Sacos")) {
 										local_quantidade_kgs = contrato.getQuantidade() * 60;
 									}
+
 									soma_total_quantidade_contratos_kgs += local_quantidade_kgs;
-
-									if (incluir_transferencias_recebimentos) {
-
-										ArrayList<CadastroContrato.CadastroTransferenciaRecebimento> lista_transferencias_recebimento_remetente_local = gerenciar_transferencias
-												.getTransferenciasRemetente(contrato.getId());
-
-										ArrayList<CadastroContrato.CadastroTransferenciaRecebimento> lista_transferencias_recebimento_destinatario_local = gerenciar_transferencias
-												.getTransferenciaDestinatario(contrato.getId());
-
-										for (CadastroContrato.CadastroTransferenciaRecebimento enviado_via_trans : lista_transferencias_recebimento_remetente_local) {
-
-											RecebimentoCompleto recebimento = new RecebimentoCompleto();
-											recebimento.setCodigo_romaneio(
-													enviado_via_trans.getId_contrato_destinatario() + "");
-											recebimento.setData_recebimento(enviado_via_trans.getData());
-											recebimento.setPeso_romaneio(enviado_via_trans.getQuantidade());
-											recebimento.setCodigo_romaneio("-Transferencia");
-											recebimento.setContrato(contrato);
-
-											recebimento.setNf_remessa_aplicavel(0);
-											recebimento.setNf_venda_aplicavel(0);
-
-											recebimentos_totais.add(recebimento);
-										}
-
-										for (CadastroContrato.CadastroTransferenciaRecebimento recebido_via_trans : lista_transferencias_recebimento_destinatario_local) {
-
-											RecebimentoCompleto recebimento = new RecebimentoCompleto();
-											recebimento.setCodigo_romaneio(
-													recebido_via_trans.getId_contrato_destinatario() + "");
-											recebimento.setData_recebimento(recebido_via_trans.getData());
-											recebimento.setPeso_romaneio(recebido_via_trans.getQuantidade());
-											recebimento.setCodigo_romaneio("+Transferencia");
-
-											recebimento.setContrato(contrato);
-
-											recebimento.setCodigo_nf_venda(contrato.getCodigo());
-											recebimento.setNf_remessa_aplicavel(0);
-											recebimento.setNf_venda_aplicavel(0);
-
-											recebimentos_totais.add(recebimento);
-
-										}
-										
-										if(recebimentos_locais.size() <= 0 && lista_transferencias_recebimento_remetente_local.size() <= 0 && lista_transferencias_recebimento_destinatario_local.size() <= 0) {
-											String texto = infoContrato(contrato) + " -- SEM RECEBIMENTOS --";
-											texto_contratos_sem_recebimentos.add(texto);
-											texto = contrato.getNomes_compradores() + " X " + contrato.getNomes_vendedores();
-											texto_contratos_sem_recebimentos.add(texto);
-
-										}
-										
-									}else {
-										if(recebimentos_locais.size() <= 0) {
-											String texto = infoContrato(contrato);
-											texto_contratos_sem_recebimentos.add(texto);
-										}
-									}
-
+									quantidade__total_kgs_recebidos += quantidade_kgs_recebidos;
 								}
-							}
-							if (recebimentos_totais.size() > 0) {
 
-								DadosTabelaExcel dados = criarTabelaRecebimentosUnidosExcel(workbook, sheet, rownum,
-										recebimentos_totais, soma_total_quantidade_contratos_kgs);
-								sheet = dados.getSheet();
-								rownum = dados.getRownum();
-								workbook = dados.getWorkbook();
+								// faz a soma das quantidades dos contratos
 
-							}
-							
-							//criar linhas com sem recebimentos
-							if(texto_contratos_sem_recebimentos.size() > 0) {
-								
-								for(String texto : texto_contratos_sem_recebimentos) {
-								DadosTabelaExcel dados = semRecebimentosExcelSemEspaco(workbook, sheet, rownum,
-										texto);
-								sheet = dados.getSheet();
-								rownum = dados.getRownum();
-								workbook = dados.getWorkbook();
+								if (carregamentos_totais.size() > 0 || transferencias_remetente_totais.size() > 0
+										|| transferencias_destinatario_totais.size() > 0) {
+
+									DadosTabelaExcel dados = criarTabelaCarregamentosUnidosExcel(workbook, sheet,
+											rownum, carregamentos_totais, soma_total_quantidade_contratos_kgs,
+											quantidade__total_kgs_recebidos,
+											transferencias_remetente_totais,
+											transferencias_destinatario_totais);
+									sheet = dados.getSheet();
+									rownum = dados.getRownum();
+									workbook = dados.getWorkbook();
+									telaEmEsperaRelatoria.setInfo("Tabela de Carregamentos Unidos Criada", 40);
 								}
+								carregamentos_unidos_como_comprador = true;
 							}
-							
-							
-							
-							recebimentos_unidos_como_comprador = true;
-						} // fim da verifificacao por contrato original
+						}
 					}
 
 				}
+			}
+		}
 
-				// pagamentos
-				if (pagamento && pagamento_como_comprador && !unir_pagamentos) {
+		if (pagamento_como_comprador) {
+			sheet = workbook.createSheet("Pagamentos");
+			rownum = 0;
+			int contador = 0;
+			for (CadastroContrato contrato_cliente : lista_final) {
+				if (contrato_cliente.getSub_contrato() != 8 && contrato_cliente.getSub_contrato() != 9) {
 
-					
-					if (!pagina_pagamentos_unidos_criada) {
-						sheet = workbook.createSheet("Pagamentos");
-						pagina_pagamentos_unidos_criada = true;
+					// pagamentos
+					if (pagamento && pagamento_como_comprador && !unir_pagamentos) {
 
-					}
-					
-					
-					ArrayList<PagamentoCompleto> lista_pagamentos = gerenciar
-							.getPagamentosContratuaisParaRelatorio(contrato_cliente.getId());
+						ArrayList<PagamentoCompleto> lista_pagamentos = gerenciar
+								.getPagamentosContratuaisParaRelatorio(contrato_cliente.getId());
 
-					if (lista_pagamentos.size() > 0) {
+						if (lista_pagamentos.size() > 0) {
 
-						// criarTabelaPagamentos(lista_pagamentos, contrato_cliente);
-						DadosTabelaExcel dados = criarTabelaPagamentosExcel(workbook, sheet, rownum,
-								lista_pagamentos, contrato_cliente );
-						sheet = dados.getSheet();
-						rownum = dados.getRownum();
-						workbook = dados.getWorkbook();
- 
-						rownum+=2;
-					}
+							// criarTabelaPagamentos(lista_pagamentos, contrato_cliente);
 
-				} else if (pagamento && pagamento_como_comprador && unir_pagamentos) {
-					if (unir_pagamentos) {
+							DadosTabelaExcel dados = criarTabelaPagamentosExcel(workbook, sheet, rownum,
+									lista_pagamentos, contrato_cliente);
+							sheet = dados.getSheet();
+							rownum = dados.getRownum();
+							workbook = dados.getWorkbook();
 
-						if (!pagina_pagamentos_unidos_criada) {
-							sheet = workbook.createSheet("Pagamentos");
+							rownum += 2;
+							contador++;
+							telaEmEsperaRelatoria.setInfo(
+									"Tabela de Pagamento Individual Criada - " + contador + "/" + lista_final.size(),
+									50);
 
+						}
+
+					} else if (pagamento && pagamento_como_comprador && unir_pagamentos) {
+						if (unir_pagamentos) {
 							DadosTabelaExcel dados = criarTabelaPagamentosUnidosExcel(workbook, sheet, rownum,
 									lista_final);
 							sheet = dados.getSheet();
@@ -1291,13 +1418,11 @@ public class RelatorioContratos {
 							workbook = dados.getWorkbook();
 
 							telaEmEsperaRelatoria.setInfo("Tabela de Pagamentos Criada", 25);
-							pagina_pagamentos_unidos_criada = true;
+							break;
 
 						}
-
 					}
 				}
-
 			}
 		}
 
@@ -1449,7 +1574,8 @@ public class RelatorioContratos {
 			if (contrato_como_comprador) {
 
 				lista_contratos = procura_contratos_grupo.getContratosPorClienteParaRelatorio(id_safra, cliente.getId(),
-						cliente_alvo2_global.getId(), contra_parte_global.getId(), participacao_global,id_local_retirada_global);
+						cliente_alvo2_global.getId(), contra_parte_global.getId(), participacao_global,
+						id_local_retirada_global);
 				// lista os subcontratos
 				if (tipo_contrato != 1) {
 					lista_sub_contratos_local = procura_contratos_grupo.getSubContratosPorClienteParaRelatorio(id_safra,
@@ -1460,13 +1586,13 @@ public class RelatorioContratos {
 			} else {
 
 				lista_contratos = procura_contratos_grupo.getContratosPorClienteParaRelatorio(id_safra,
-						contra_parte_global.getId(), cliente_alvo2_global.getId(), cliente.getId(),
-						participacao_global, id_local_retirada_global);
+						contra_parte_global.getId(), cliente_alvo2_global.getId(), cliente.getId(), participacao_global,
+						id_local_retirada_global);
 
 				if (tipo_contrato != 1) {
 					lista_sub_contratos_local = procura_contratos_grupo.getSubContratosPorClienteParaRelatorio(id_safra,
 							contra_parte_global.getId(), cliente_alvo2_global.getId(), cliente.getId(),
-							participacao_global,id_local_retirada_global);
+							participacao_global, id_local_retirada_global);
 
 				}
 			}
@@ -1586,6 +1712,26 @@ public class RelatorioContratos {
 
 							}
 
+						} else {
+							if (incluir_ganhos_potencias) {
+								CadastroContrato linha_ganho_potencial = new CadastroContrato();
+								linha_ganho_potencial.setValor_a_pagar(contrato_lista_global.getValor_a_pagar());
+								linha_ganho_potencial.setCodigo(contrato_lista_global.getCodigo());
+								linha_ganho_potencial.setValor_comissao(somatoria_valor_sub_contrato);
+								linha_ganho_potencial.setSub_contrato(9);
+
+								// seta o valor da comisao
+								if (contrato_lista_global.getValor_comissao() != null) {
+
+									linha_ganho_potencial
+											.setValor_produto(contrato_lista_global.getValor_comissao().doubleValue());
+								} else {
+									linha_ganho_potencial.setValor_produto(0);
+								}
+
+								lista_final.add(linha_ganho_potencial);
+
+							}
 						}
 
 					}
@@ -1635,32 +1781,31 @@ public class RelatorioContratos {
 							}
 
 							if (!ja_incluso) {
-								
+
 								boolean tem_id = false;
-								
-								for(CadastroCliente cliente_pesquisando : clientes_globais) {
+
+								for (CadastroCliente cliente_pesquisando : clientes_globais) {
 									String s_id = Integer.toString(cliente_pesquisando.getId());
-									if(sub.getIds_clientes_compradores().contains(s_id) ){
-										//JOptionPane.showMessageDialog(null, sub.getIds_clientes_compradores() + " contem o id " + s_id);
+									if (sub.getIds_clientes_compradores().contains(s_id)) {
+										// JOptionPane.showMessageDialog(null, sub.getIds_clientes_compradores() + "
+										// contem o id " + s_id);
 										tem_id = true;
 										break;
-									}else {
-										//JOptionPane.showMessageDialog(null, sub.getIds_clientes_compradores() + " nao contem o id " + s_id);
+									} else {
+										// JOptionPane.showMessageDialog(null, sub.getIds_clientes_compradores() + " nao
+										// contem o id " + s_id);
 
 									}
 
-								
 								}
-								
-								
-							
-								if (sub.getFilho() == 1) {
-									
-									if(tem_id) {
-									somatoria_valor_sub_contrato = somatoria_valor_sub_contrato
-											.add(sub.getValor_a_pagar());
 
-									lista_final.add(sub);
+								if (sub.getFilho() == 1) {
+
+									if (tem_id) {
+										somatoria_valor_sub_contrato = somatoria_valor_sub_contrato
+												.add(sub.getValor_a_pagar());
+
+										lista_final.add(sub);
 									}
 								}
 
@@ -1779,7 +1924,7 @@ public class RelatorioContratos {
 		substituirTexto(text, -1);
 
 		substituirTexto("", -1);
-		//1
+		// 1
 		ArrayList<CadastroContrato> lista_global = retornarListaGlobalContratos();
 
 		int num_total_contratos = lista_global.size();
@@ -1789,9 +1934,8 @@ public class RelatorioContratos {
 			substituirTexto("", -1);
 		}
 
-		//1
+		// 1
 		ArrayList<CadastroContrato> lista_final = retornarListaFinal(lista_global);
-		
 
 		if (lista_final.size() > 0) {
 
@@ -1829,7 +1973,7 @@ public class RelatorioContratos {
 
 		if (recebimento_como_comprador || carregamento_como_comprador || pagamento_como_comprador) {
 			// contratos_deste_cliente = getContratos(cliente_alvo_global.getId(),true);
-
+			int contador = 1;
 			for (CadastroContrato contrato_cliente : lista_final) {
 
 				if (!recebimentos_unidos_como_comprador && recebimento)
@@ -1868,12 +2012,15 @@ public class RelatorioContratos {
 						titulo_recebimentosRun.setFontSize(9);
 
 						criarTabelaRecebimentos(recebimentos_totais, contrato_cliente);
-						telaEmEsperaRelatoria.setInfo("Tabela de Recebimentos Indivuduais Criada", 25);
+						telaEmEsperaRelatoria.setInfo("Tabela de Recebimentos Individual Criada -> " + contador + "/" + lista_final.size(), 25);
+
 						// controle de nfs
 						inserirControleNFVendaEntrada(recebimentos_totais);
 					} else {
-						if (incluir_sem_recebimentos)
+						if (incluir_sem_recebimentos) {
 							semRecebimentos(contrato_cliente);
+							contador++;
+						}
 					}
 					// } // fim do if de contrato_original
 				} else {
@@ -2706,10 +2853,7 @@ public class RelatorioContratos {
 		return retornar;
 
 	}
-	
-	
-	
-	
+
 	public DadosTabelaExcel semRecebimentosExcelSemEspaco(HSSFWorkbook workbook, HSSFSheet sheet, int rownum,
 			String texto) {
 
@@ -2742,7 +2886,6 @@ public class RelatorioContratos {
 
 		rownum++;
 
-
 		DadosTabelaExcel retornar = new DadosTabelaExcel();
 		retornar.setWorkbook(workbook);
 		retornar.setSheet(sheet);
@@ -2751,8 +2894,6 @@ public class RelatorioContratos {
 		return retornar;
 
 	}
-
-	
 
 	public void inserirControleNFVendaEntrada(ArrayList<RecebimentoCompleto> recebimentos) {
 		if (controle_nf_venda_recebimentos) {
@@ -3504,6 +3645,2231 @@ public class RelatorioContratos {
 		cell.setCellFormula(formula);
 
 		for (int i = 0; i < 10; i++) {
+			sheet.autoSizeColumn(i);
+
+		}
+
+		DadosTabelaExcel retornar = new DadosTabelaExcel();
+		retornar.setWorkbook(workbook);
+		retornar.setSheet(sheet);
+		rownum += 3;
+		retornar.setRownum(rownum);
+
+		return retornar;
+
+	}
+	
+	HSSFDataFormat numberFormatCarregamento;
+	HSSFFont newFont_brancaCarregamento;
+	HSSFFont newFont_pretaCarregamento;
+	CellStyle celula_fundo_branco_texto_pretoCarregamento;
+	CellStyle celula_fundo_verde_texto_brancoCarregamento;
+	CellStyle numberStyleCarregamento;
+	CellStyle pesoStyleCarregamento;
+	CellStyle numberStyleFundoVerdeTextoBrancoCarregamento;
+	CellStyle numberStyleFundoBrancoTextoPretoCarregamento;
+	CellStyle valorStyleFundoVerdeTextoBrancoCarregamento;
+	HSSFFont newFont_verdeCarregamento;
+	CellStyle celula_fundo_branco_texto_verdeCarregamento;
+	HSSFFont newFont_vermelhaCarregamento;
+	CellStyle celula_fundo_branco_texto_vermelhoCarregamento;
+	HSSFFont newFont_azulCarregamento;
+	CellStyle celula_fundo_branco_texto_azulCarregamento;
+	
+	
+	public void setarEstiloCarregamento(HSSFWorkbook workbook) {
+		 numberFormatCarregamento = workbook.createDataFormat();
+
+		 newFont_brancaCarregamento = workbook.createFont();
+		newFont_brancaCarregamento.setBold(true);
+		newFont_brancaCarregamento.setColor(IndexedColors.WHITE.getIndex());
+		newFont_brancaCarregamento.setFontName("Calibri");
+		newFont_brancaCarregamento.setItalic(false);
+		newFont_brancaCarregamento.setFontHeight((short) (11 * 20));
+
+		// estilo para cabecalho fundo verde
+		 celula_fundo_verde_texto_brancoCarregamento = workbook.createCellStyle();
+		celula_fundo_verde_texto_brancoCarregamento.setFillPattern(FillPatternType.SOLID_FOREGROUND);
+		celula_fundo_verde_texto_brancoCarregamento.setFillForegroundColor(IndexedColors.GREEN.getIndex());
+		celula_fundo_verde_texto_brancoCarregamento.setAlignment(HorizontalAlignment.CENTER);
+		celula_fundo_verde_texto_brancoCarregamento.setVerticalAlignment(VerticalAlignment.CENTER);
+
+		celula_fundo_verde_texto_brancoCarregamento.setFont(newFont_brancaCarregamento);
+
+		 newFont_pretaCarregamento = workbook.createFont();
+		newFont_pretaCarregamento.setColor(IndexedColors.BLACK.getIndex());
+		newFont_pretaCarregamento.setFontName("Calibri");
+		newFont_pretaCarregamento.setItalic(false);
+		newFont_pretaCarregamento.setFontHeight((short) (11 * 20));
+
+		 celula_fundo_branco_texto_pretoCarregamento = workbook.createCellStyle();
+		celula_fundo_branco_texto_pretoCarregamento.setAlignment(HorizontalAlignment.CENTER);
+		celula_fundo_branco_texto_pretoCarregamento.setVerticalAlignment(VerticalAlignment.CENTER);
+		celula_fundo_branco_texto_pretoCarregamento.setFont(newFont_pretaCarregamento);
+
+		// celula para numero alinhado ao centro
+		 numberStyleCarregamento = workbook.createCellStyle();
+		numberStyleCarregamento.setDataFormat(numberFormatCarregamento.getFormat("R$ #,##0.00"));
+		numberStyleCarregamento.setAlignment(HorizontalAlignment.CENTER);
+		numberStyleCarregamento.setVerticalAlignment(VerticalAlignment.CENTER);
+
+		// celula para numero alinhado ao centro
+		 pesoStyleCarregamento = workbook.createCellStyle();
+		pesoStyleCarregamento.setDataFormat(numberFormatCarregamento.getFormat("#,##0.00"));
+		pesoStyleCarregamento.setAlignment(HorizontalAlignment.CENTER);
+		pesoStyleCarregamento.setVerticalAlignment(VerticalAlignment.CENTER);
+
+		 numberStyleFundoVerdeTextoBrancoCarregamento = workbook.createCellStyle();
+		numberStyleFundoVerdeTextoBrancoCarregamento.setFillPattern(FillPatternType.SOLID_FOREGROUND);
+		numberStyleFundoVerdeTextoBrancoCarregamento.setFillForegroundColor(IndexedColors.GREEN.getIndex());
+		numberStyleFundoVerdeTextoBrancoCarregamento.setAlignment(HorizontalAlignment.CENTER);
+		numberStyleFundoVerdeTextoBrancoCarregamento.setVerticalAlignment(VerticalAlignment.CENTER);
+		numberStyleFundoVerdeTextoBrancoCarregamento.setDataFormat(numberFormatCarregamento.getFormat("#,##0.00"));
+
+		numberStyleFundoVerdeTextoBrancoCarregamento.setFont(newFont_brancaCarregamento);
+
+		 numberStyleFundoBrancoTextoPretoCarregamento = workbook.createCellStyle();
+		numberStyleFundoBrancoTextoPretoCarregamento.setAlignment(HorizontalAlignment.LEFT);
+		numberStyleFundoBrancoTextoPretoCarregamento.setVerticalAlignment(VerticalAlignment.CENTER);
+		numberStyleFundoBrancoTextoPretoCarregamento.setDataFormat(numberFormatCarregamento.getFormat("#,##0.00"));
+		numberStyleFundoBrancoTextoPretoCarregamento.setFont(newFont_pretaCarregamento);
+
+		 valorStyleFundoVerdeTextoBrancoCarregamento = workbook.createCellStyle();
+		valorStyleFundoVerdeTextoBrancoCarregamento.setFillPattern(FillPatternType.SOLID_FOREGROUND);
+		valorStyleFundoVerdeTextoBrancoCarregamento.setFillForegroundColor(IndexedColors.GREEN.getIndex());
+		valorStyleFundoVerdeTextoBrancoCarregamento.setAlignment(HorizontalAlignment.CENTER);
+		valorStyleFundoVerdeTextoBrancoCarregamento.setVerticalAlignment(VerticalAlignment.CENTER);
+		valorStyleFundoVerdeTextoBrancoCarregamento.setDataFormat(numberFormatCarregamento.getFormat("R$ #,##0.00"));
+		valorStyleFundoVerdeTextoBrancoCarregamento.setFont(newFont_brancaCarregamento);
+
+		// celular de contrato normal
+		 newFont_verdeCarregamento = workbook.createFont();
+		newFont_verdeCarregamento.setColor(IndexedColors.GREEN.getIndex());
+		newFont_verdeCarregamento.setFontName("Calibri");
+		newFont_verdeCarregamento.setItalic(false);
+		newFont_verdeCarregamento.setFontHeight((short) (11 * 20));
+
+		 celula_fundo_branco_texto_verdeCarregamento = workbook.createCellStyle();
+		celula_fundo_branco_texto_verdeCarregamento.setAlignment(HorizontalAlignment.CENTER);
+		celula_fundo_branco_texto_verdeCarregamento.setVerticalAlignment(VerticalAlignment.CENTER);
+		celula_fundo_branco_texto_verdeCarregamento.setFont(newFont_verdeCarregamento);
+
+		// celular de sub-contrato n
+		 newFont_vermelhaCarregamento = workbook.createFont();
+		newFont_vermelhaCarregamento.setColor(IndexedColors.RED.getIndex());
+		newFont_vermelhaCarregamento.setFontName("Calibri");
+		newFont_vermelhaCarregamento.setItalic(false);
+		newFont_vermelhaCarregamento.setFontHeight((short) (11 * 20));
+
+		 celula_fundo_branco_texto_vermelhoCarregamento = workbook.createCellStyle();
+		celula_fundo_branco_texto_vermelhoCarregamento.setAlignment(HorizontalAlignment.CENTER);
+		celula_fundo_branco_texto_vermelhoCarregamento.setVerticalAlignment(VerticalAlignment.CENTER);
+		celula_fundo_branco_texto_vermelhoCarregamento.setFont(newFont_vermelhaCarregamento);
+
+		// celula de ganho potencial
+
+		// celular de sub-contrato n
+		 newFont_azulCarregamento = workbook.createFont();
+		newFont_azulCarregamento.setColor(IndexedColors.BLUE.getIndex());
+		newFont_azulCarregamento.setFontName("Calibri");
+		newFont_azulCarregamento.setItalic(false);
+		newFont_azulCarregamento.setFontHeight((short) (11 * 20));
+
+		 celula_fundo_branco_texto_azulCarregamento = workbook.createCellStyle();
+		celula_fundo_branco_texto_azulCarregamento.setAlignment(HorizontalAlignment.CENTER);
+		celula_fundo_branco_texto_azulCarregamento.setVerticalAlignment(VerticalAlignment.CENTER);
+		celula_fundo_branco_texto_azulCarregamento.setFont(newFont_azulCarregamento);
+	}
+	
+	public DadosTabelaExcel criarTabelaCarregamentosExcel(HSSFWorkbook workbook, HSSFSheet sheet, int rownum,
+			CadastroContrato contrato, ArrayList<CarregamentoCompleto> carregamentos,
+			double soma_total_quantidade_contratos, double soma_total_quantidade_recebidas,
+			ArrayList<CadastroContrato.CadastroTransferenciaCarga> transferencias_remetentes,
+			ArrayList<CadastroContrato.CadastroTransferenciaCarga> transferencias_destinatarios) {
+		// XWPFParagraph par = document_global.createParagraph();
+
+		NumberFormat z = NumberFormat.getNumberInstance();
+
+		Locale ptBr = new Locale("pt", "BR");
+
+		
+
+		int cellnum = 0;
+
+		Cell cell;
+		Row row;
+		// compradores x vendedores
+
+		double quantidade_kg = 0;
+		double quantidade_sacos = 0;
+
+		if (contrato.getMedida().equalsIgnoreCase("KG")) {
+			quantidade_kg = contrato.getQuantidade();
+			quantidade_sacos = quantidade_kg / 60;
+		} else if (contrato.getMedida().equalsIgnoreCase("Sacos")) {
+			quantidade_sacos = contrato.getQuantidade();
+			quantidade_kg = quantidade_sacos * 60;
+		}
+
+		
+		// safra
+		String safra = contrato.getModelo_safra().getProduto().getNome_produto() + " "
+				+ contrato.getModelo_safra().getProduto().getTransgenia() + " "
+				+ contrato.getModelo_safra().getAno_plantio() + "/"
+				+ contrato.getModelo_safra().getAno_colheita();
+
+		String texto_info_contrato = "CTR: " + contrato.getCodigo() + " " + safra + " Quantidade Total: "
+				+ z.format(quantidade_kg) + " kgs | " + z.format(quantidade_sacos) + " sacos "
+				+ NumberFormat.getCurrencyInstance(ptBr).format(contrato.getValor_produto()) + " por "
+				+ contrato.getMedida() + " totalizando: "
+				+ NumberFormat.getCurrencyInstance(ptBr).format(contrato.getValor_a_pagar().doubleValue());
+
+		
+		row = sheet.createRow(rownum);
+		cell = row.createCell(cellnum);
+		cell.setCellStyle(celula_fundo_branco_texto_pretoRecebimentos);
+		cell.setCellValue(texto_info_contrato);
+		sheet.addMergedRegion(new CellRangeAddress(rownum, rownum, cellnum, 10));
+
+		rownum++;
+
+		// linha com nome compradores x vendedores
+
+		CadastroCliente compradores[] = contrato.getCompradores();
+		CadastroCliente vendedores[] = contrato.getVendedores();
+
+		String nome_vendedores_contrato = "";
+		String nome_compradores_contrato = "";
+
+		if (compradores[0] != null) {
+			if (compradores[0].getTipo_pessoa() == 0) {
+				// pessoa fisica
+				nome_compradores_contrato = compradores[0].getNome_empresarial();
+			} else {
+				nome_compradores_contrato = compradores[0].getNome_fantaia();
+
+			}
+		}
+		if (compradores[1] != null) {
+			if (compradores[1].getTipo_pessoa() == 0) {
+				// pessoa fisica
+				nome_compradores_contrato = nome_compradores_contrato + ", " + compradores[1].getNome_empresarial();
+			} else {
+				nome_compradores_contrato = nome_compradores_contrato + ", " + compradores[1].getNome_fantaia();
+
+			}
+		}
+		if (vendedores[0] != null) {
+			if (vendedores[0].getTipo_pessoa() == 0) {
+				nome_vendedores_contrato = vendedores[0].getNome_empresarial();
+			} else {
+				nome_vendedores_contrato = vendedores[0].getNome_fantaia();
+			}
+		}
+
+		if (vendedores[1] != null) {
+			if (vendedores[1].getTipo_pessoa() == 0) {
+				nome_vendedores_contrato = nome_vendedores_contrato + ", " + vendedores[1].getNome_empresarial();
+			} else {
+				nome_vendedores_contrato = nome_vendedores_contrato + ", " + vendedores[1].getNome_fantaia();
+			}
+		}
+
+		String linha_nome_compradores_vendedores = contrato.getNomes_compradores().toUpperCase() + " X "
+				+ contrato.getNomes_vendedores().toUpperCase();
+
+		row = sheet.createRow(rownum);
+		cell = row.createCell(cellnum);
+		cell.setCellStyle(celula_fundo_branco_texto_pretoRecebimentos);
+		cell.setCellValue(linha_nome_compradores_vendedores);
+		sheet.addMergedRegion(new CellRangeAddress(rownum, rownum, cellnum, 10));
+
+		rownum++;
+
+
+		row = sheet.createRow(rownum);
+		cellnum = 0;
+		cell = row.createCell(cellnum++);
+		cell.setCellStyle(celula_fundo_verde_texto_brancoCarregamento);
+		cell.setCellValue("CONTRATO");
+
+		cell = row.createCell(cellnum++);
+		cell.setCellStyle(celula_fundo_verde_texto_brancoCarregamento);
+		cell.setCellValue("DATA");
+
+		cell = row.createCell(cellnum++);
+		cell.setCellStyle(celula_fundo_verde_texto_brancoCarregamento);
+		cell.setCellValue("CLIENTE");
+
+		cell = row.createCell(cellnum++);
+		cell.setCellStyle(celula_fundo_verde_texto_brancoCarregamento);
+		cell.setCellValue("VENDEDOR");
+
+		cell = row.createCell(cellnum++);
+		cell.setCellStyle(celula_fundo_verde_texto_brancoCarregamento);
+		cell.setCellValue("TRANSPORTADOR");
+
+		cell = row.createCell(cellnum++);
+		cell.setCellStyle(celula_fundo_verde_texto_brancoCarregamento);
+		cell.setCellValue("VEICULO");
+
+		cell = row.createCell(cellnum++);
+		cell.setCellStyle(celula_fundo_verde_texto_brancoCarregamento);
+		cell.setCellValue("PRODUTO");
+
+		cell = row.createCell(cellnum++);
+		cell.setCellStyle(celula_fundo_verde_texto_brancoCarregamento);
+		cell.setCellValue("CODIGO ROMANEIO");
+
+		cell = row.createCell(cellnum++);
+		cell.setCellStyle(celula_fundo_verde_texto_brancoCarregamento);
+		cell.setCellValue("PESO ROMANEIO:".toUpperCase());
+
+		cell = row.createCell(cellnum++);
+		cell.setCellStyle(celula_fundo_verde_texto_brancoCarregamento);
+		cell.setCellValue("NF1");
+
+		cell = row.createCell(cellnum++);
+		cell.setCellStyle(celula_fundo_verde_texto_brancoCarregamento);
+		cell.setCellValue("PESO NF1");
+
+		cell = row.createCell(cellnum++);
+		cell.setCellStyle(celula_fundo_verde_texto_brancoCarregamento);
+		cell.setCellValue("VALOR NF 1");
+
+		cell = row.createCell(cellnum++);
+		cell.setCellStyle(celula_fundo_verde_texto_brancoCarregamento);
+		cell.setCellValue("NF2");
+
+		cell = row.createCell(cellnum++);
+		cell.setCellStyle(celula_fundo_verde_texto_brancoCarregamento);
+		cell.setCellValue("PESO NF2");
+
+		cell = row.createCell(cellnum++);
+		cell.setCellStyle(celula_fundo_verde_texto_brancoCarregamento);
+		cell.setCellValue("VALOR NF2");
+
+		cell = row.createCell(cellnum++);
+		cell.setCellStyle(celula_fundo_verde_texto_brancoCarregamento);
+		cell.setCellValue("DIFERENÇA");
+
+		int primeira_linha = rownum++;
+		int ultima_linha = primeira_linha;
+
+		// fazer checkagens
+
+		boolean nf_interna_ativo = false;
+		boolean nf_venda_ativo = false;
+		boolean nf_complemento_ativo = false;
+
+		// checka se ha no minimo uma nf interna aplicavel
+		for (CadastroContrato.Carregamento carregamento : carregamentos) {
+			if (carregamento.getNf_interna_aplicavel() == 1) {
+				nf_interna_ativo = true;
+				break;
+			}
+
+		}
+
+		// checka se ha no minimo uma nf venda aplicavel
+		for (CadastroContrato.Carregamento carregamento : carregamentos) {
+			if (carregamento.getNf_venda1_aplicavel() == 1) {
+				nf_venda_ativo = true;
+				break;
+			}
+
+		}
+
+		// checka se ha no minimo uma nf complemento aplicavel
+		for (CadastroContrato.Carregamento carregamento : carregamentos) {
+			if (carregamento.getNf_complemento_aplicavel() == 1) {
+				nf_complemento_ativo = true;
+				break;
+			}
+
+		}
+
+		for (CarregamentoCompleto carregamento : carregamentos) {
+
+			cellnum = 0;
+			row = sheet.createRow(rownum);
+
+			cell = row.createCell(cellnum++);
+			cell.setCellStyle(celula_fundo_branco_texto_pretoCarregamento);
+			cell.setCellValue(carregamento.getContrato().getCodigo());
+
+			cell = row.createCell(cellnum++);
+			cell.setCellStyle(celula_fundo_branco_texto_pretoCarregamento);
+			cell.setCellValue(carregamento.getData());
+
+			// pegar cliente
+
+			String nome_cliente = carregamento.getCliente_carregamento();
+			String nome_cliente_completo = carregamento.getCliente_carregamento();
+
+			String nome_cliente_quebrado[] = nome_cliente.split(" ");
+			try {
+
+				if (nome_cliente_quebrado.length > 2) {
+					if (nome_cliente_quebrado[2].length() > 1) {
+						nome_cliente = nome_cliente_quebrado[0] + " " + nome_cliente_quebrado[2];
+					} else {
+						if (nome_cliente_quebrado[3].length() > 1) {
+							nome_cliente = nome_cliente_quebrado[0] + " " + nome_cliente_quebrado[3];
+
+						} else {
+							nome_cliente = nome_cliente_quebrado[0] + " " + nome_cliente_quebrado[1];
+
+						}
+					}
+				}
+
+			} catch (Exception v) {
+				nome_cliente = nome_cliente_completo;
+			}
+
+			cell = row.createCell(cellnum++);
+			cell.setCellStyle(celula_fundo_branco_texto_pretoCarregamento);
+			cell.setCellValue(nome_cliente);
+
+			// pegar vendedor
+
+			String nome_vendedor = carregamento.getVendedor_carregamento();
+
+			String nome_vendedor_completo = nome_vendedor;
+
+			String nome_vendedor_quebrado[] = nome_vendedor.split(" ");
+			try {
+
+				if (nome_vendedor_quebrado.length > 2) {
+					if (nome_vendedor_quebrado[2].length() > 1) {
+						nome_vendedor = nome_vendedor_quebrado[0] + " " + nome_vendedor_quebrado[2];
+					} else {
+						if (nome_vendedor_quebrado[3].length() > 1) {
+							nome_vendedor = nome_vendedor_quebrado[0] + " " + nome_vendedor_quebrado[3];
+
+						} else {
+							nome_vendedor = nome_vendedor_quebrado[0] + " " + nome_vendedor_quebrado[1];
+
+						}
+					}
+				}
+
+			} catch (Exception v) {
+				nome_vendedor = nome_vendedor_completo;
+			}
+
+			cell = row.createCell(cellnum++);
+			cell.setCellStyle(celula_fundo_branco_texto_pretoCarregamento);
+			cell.setCellValue(nome_vendedor);
+
+			// transportador
+			cell = row.createCell(cellnum++);
+			cell.setCellStyle(celula_fundo_branco_texto_pretoCarregamento);
+			cell.setCellValue(carregamento.getNome_motorista());
+
+			// veiculo
+			cell = row.createCell(cellnum++);
+			cell.setCellStyle(celula_fundo_branco_texto_pretoCarregamento);
+			cell.setCellValue(carregamento.getPlaca());
+
+			// produto
+			cell = row.createCell(cellnum++);
+			cell.setCellStyle(celula_fundo_branco_texto_pretoCarregamento);
+			cell.setCellValue(carregamento.getContrato().getModelo_produto().getNome_produto());
+
+			// romaneio
+			cell = row.createCell(cellnum++);
+			cell.setCellStyle(celula_fundo_branco_texto_pretoCarregamento);
+			String codigo = carregamento.getCodigo_romaneio();
+			if (codigo.equalsIgnoreCase("-Transferencia")) {
+				cell.setCellValue("-Transferencia");
+
+			} else if (codigo.equalsIgnoreCase("+Transferencia")) {
+				cell.setCellValue("+Transferencia");
+			} else {
+				cell.setCellValue(codigo);
+			}
+
+			cell = row.createCell(cellnum++);
+			cell.setCellStyle(pesoStyleCarregamento);
+			if (codigo.equalsIgnoreCase("-Transferencia")) {
+				cell.setCellValue(carregamento.getPeso_romaneio() * -1);
+
+			} else if (codigo.equalsIgnoreCase("+Transferencia")) {
+				cell.setCellValue(carregamento.getPeso_romaneio());
+			} else {
+				cell.setCellValue(carregamento.getPeso_romaneio());
+			}
+
+			// nfs
+			// codigos
+			String codigo_romaneio = "";
+			String codigo_nf_venda1 = "", codigo_nf_complemento = "";
+			// pesos
+
+			double peso_romaneio = 0.0;
+			double peso_nf_venda1 = 0.0;
+			double peso_nf_interna = 0.0;
+
+			BigDecimal valor_nf_venda1 = BigDecimal.ZERO;
+			double peso_nf_complemento = 0.0;
+			BigDecimal valor_nf_complemento = BigDecimal.ZERO;
+
+			try {
+				if (checkString(carregamento.getCodigo_romaneio())) {
+					// procurar por romaneio
+					if (checkString(carregamento.getCaminho_romaneio())) {
+						ManipularRomaneios manipular = new ManipularRomaneios("");
+
+						CadastroRomaneio romaneio = manipular
+								.filtrar(new File(servidor_unidade + carregamento.getCaminho_romaneio()));
+						codigo_romaneio = Integer.toString(romaneio.getNumero_romaneio());
+						peso_romaneio = romaneio.getPeso_liquido();
+
+					} else {
+						codigo_romaneio = carregamento.getCodigo_romaneio();
+						peso_romaneio = carregamento.getPeso_romaneio();
+					}
+
+				}
+			} catch (Exception e) {
+				// //JOptionPane.showMessageDialog(isto, "Romaneio não Localizado");
+				codigo_romaneio = carregamento.getCodigo_romaneio();
+				peso_romaneio = carregamento.getPeso_romaneio();
+			}
+
+			// nf venda 1
+			try {
+				if (checkString(carregamento.getCodigo_nf_venda1())) {
+					if (carregamento.getCaminho_nf_venda1().length() > 10) {
+						// procurar por nf venda
+						ManipularNotasFiscais manipular = new ManipularNotasFiscais("");
+						CadastroNFe nota_fiscal_venda = manipular
+								.filtrar(new File(servidor_unidade + carregamento.getCodigo_nf_venda1()));
+						codigo_nf_venda1 = nota_fiscal_venda.getNfe();
+						peso_nf_venda1 = Double.parseDouble(nota_fiscal_venda.getQuantidade());
+						try {
+							valor_nf_venda1 = new BigDecimal(nota_fiscal_venda.getValor());
+						} catch (Exception e) {
+							valor_nf_venda1 = BigDecimal.ZERO;
+						}
+
+					} else {
+						codigo_nf_venda1 = carregamento.getCodigo_nf_venda1();
+						peso_nf_venda1 = carregamento.getPeso_nf_venda1();
+						valor_nf_venda1 = carregamento.getValor_nf_venda1();
+
+					}
+
+				}
+			} catch (Exception e) {
+				// //JOptionPane.showMessageDialog(isto, "Nota Fiscal de venda não Localizado");
+				codigo_nf_venda1 = carregamento.getCodigo_nf_venda1();
+				peso_nf_venda1 = carregamento.getPeso_nf_venda1();
+				valor_nf_venda1 = carregamento.getValor_nf_venda1();
+
+			}
+
+			// nf complemento
+			try {
+				if (checkString(carregamento.getCodigo_nf_complemento())) {
+					if (carregamento.getCaminho_nf_complemento().length() > 10) {
+						// procurar por nf remessa
+						ManipularNotasFiscais manipular = new ManipularNotasFiscais("");
+						CadastroNFe nota_fiscal_complemento = manipular
+								.filtrar(new File(servidor_unidade + carregamento.getCaminho_nf_complemento()));
+						codigo_nf_complemento = nota_fiscal_complemento.getNfe();
+						peso_nf_complemento = Double.parseDouble(nota_fiscal_complemento.getQuantidade());
+						try {
+							valor_nf_complemento = new BigDecimal(nota_fiscal_complemento.getValor());
+						} catch (Exception e) {
+							valor_nf_complemento = BigDecimal.ZERO;
+						}
+
+					} else {
+						codigo_nf_complemento = carregamento.getCodigo_nf_complemento();
+						peso_nf_complemento = carregamento.getPeso_nf_complemento();
+						valor_nf_complemento = carregamento.getValor_nf_complemento();
+
+					}
+
+				}
+			} catch (Exception e) {
+				// //JOptionPane.showMessageDialog(isto, "Nota Fiscal de remessa não
+				// Localizado");
+
+				codigo_nf_complemento = carregamento.getCodigo_nf_complemento();
+				peso_nf_complemento = carregamento.getPeso_nf_complemento();
+				valor_nf_complemento = carregamento.getValor_nf_complemento();
+
+			}
+
+			// nfvenda1
+			cell = row.createCell(cellnum++);
+			cell.setCellStyle(celula_fundo_branco_texto_pretoCarregamento);
+			if (carregamento.getNf_venda1_aplicavel() == 1)
+				cell.setCellValue(codigo_nf_venda1);
+			else
+				cell.setCellValue("Não Aplicável");
+
+			cell = row.createCell(cellnum++);
+			cell.setCellStyle(celula_fundo_branco_texto_pretoCarregamento);
+			if (carregamento.getNf_venda1_aplicavel() == 1) {
+				cell.setCellValue(z.format(peso_nf_venda1));
+			} else {
+				cell.setCellValue("Não Aplicável");
+			}
+
+			cell = row.createCell(cellnum++);
+			cell.setCellStyle(celula_fundo_branco_texto_pretoCarregamento);
+			if (carregamento.getNf_venda1_aplicavel() == 1) {
+				cell.setCellValue(valor_nf_venda1.doubleValue());
+			} else {
+				cell.setCellValue("Não Aplicável");
+			}
+
+			// nfcomplemento
+			cell = row.createCell(cellnum++);
+			cell.setCellStyle(celula_fundo_branco_texto_pretoCarregamento);
+			if (carregamento.getNf_complemento_aplicavel() == 1)
+				cell.setCellValue(codigo_nf_complemento);
+			else
+				cell.setCellValue("Não Aplicável");
+
+			cell = row.createCell(cellnum++);
+			cell.setCellStyle(celula_fundo_branco_texto_pretoCarregamento);
+			if (carregamento.getNf_complemento_aplicavel() == 1) {
+				cell.setCellValue(z.format(peso_nf_complemento));
+			} else {
+				cell.setCellValue("Não Aplicável");
+			}
+
+			cell = row.createCell(cellnum++);
+			cell.setCellStyle(celula_fundo_branco_texto_pretoCarregamento);
+			if (carregamento.getNf_complemento_aplicavel() == 1) {
+				cell.setCellValue(valor_nf_complemento.doubleValue());
+			} else {
+				cell.setCellValue("Não Aplicável");
+			}
+
+			// diferenca
+			cell = row.createCell(cellnum++);
+			cell.setCellStyle(celula_fundo_branco_texto_pretoCarregamento);
+			if (carregamento.getNf_venda1_aplicavel() == 1 && carregamento.getNf_complemento_aplicavel() == 1) {
+				cell.setCellValue(peso_romaneio - (peso_nf_complemento + peso_nf_venda1));
+			} else {
+				cell.setCellValue("Não Aplicável");
+			}
+
+			rownum++;
+			ultima_linha = rownum;
+
+		}
+
+		if (incluir_transferencias_carregamentos) {
+			// transferencias negativas
+			/*************************** transferencias negativas *****************///////////
+
+			for (CadastroContrato.CadastroTransferenciaCarga transferencia : transferencias_remetentes) {
+
+				/*
+				 * codigo compradores vendedores status quantidade medida produto transgenia
+				 * safra valor_produto valor_total data_contrato local_retirada
+				 */
+
+				String texto_detalhado = "";
+
+				GerenciarBancoContratos gerencia_contratos = new GerenciarBancoContratos();
+				CadastroContrato remetente = gerencia_contratos.getContrato(transferencia.getId_contrato_remetente());
+				CadastroContrato destinatario = gerencia_contratos
+						.getContrato(transferencia.getId_contrato_destinatario());
+				// CadastroContrato.Carregamento carga = gerencia_contratos
+				// .getCarregamento(transferencia.getId_carregamento_remetente());
+
+				CadastroCliente compradores_trans[] = destinatario.getCompradores();
+				CadastroCliente vendedores_trans[] = destinatario.getVendedores();
+
+				String nome_vendedores = "";
+				String nome_compradores = "";
+
+				if (compradores_trans[0] != null) {
+					if (compradores_trans[0].getTipo_pessoa() == 0) {
+						// pessoa fisica
+						nome_compradores = compradores_trans[0].getNome_empresarial();
+					} else {
+						nome_compradores = compradores_trans[0].getNome_fantaia();
+
+					}
+				}
+
+				if (compradores_trans[1] != null) {
+					if (compradores_trans[1].getTipo_pessoa() == 0) {
+						// pessoa fisica
+						nome_compradores = nome_compradores + ", " + compradores_trans[1].getNome_empresarial();
+					} else {
+						nome_compradores = nome_compradores + ", " + compradores_trans[1].getNome_fantaia();
+
+					}
+				}
+
+				for (CadastroCliente vendedor : vendedores_trans) {
+					if (vendedor != null) {
+						if (vendedor.getTipo_pessoa() == 0) {
+							// pessoa fisica
+							nome_vendedores += vendedor.getNome_empresarial();
+						} else {
+							nome_vendedores += vendedor.getNome_fantaia();
+
+						}
+						nome_vendedores += " ,";
+
+					}
+				}
+
+				double quantidade = Double.parseDouble(transferencia.getQuantidade());
+
+				texto_detalhado = "Transferência Negativa: Transferência do volume de " + z.format(quantidade)
+						+ " kgs | " + z.format(quantidade / 60) + " sacos deste contrato para o contrato ";
+				texto_detalhado = texto_detalhado + destinatario.getCodigo() + "\n" + nome_compradores + " X "
+						+ nome_vendedores + " " + z.format(destinatario.getQuantidade()) + " "
+						+ destinatario.getMedida() + " de "
+						+ destinatario.getModelo_safra().getProduto().getNome_produto() + " "
+						+ destinatario.getModelo_safra().getProduto().getTransgenia() + " da safra "
+						+ destinatario.getModelo_safra().getAno_plantio() + "/"
+						+ destinatario.getModelo_safra().getAno_colheita();
+				texto_detalhado = texto_detalhado + "";
+
+				cellnum = 0;
+				row = sheet.createRow(rownum);
+
+				cell = row.createCell(cellnum++);
+				cell.setCellStyle(celula_fundo_branco_texto_pretoCarregamento);
+				cell.setCellValue(remetente.getCodigo());
+
+				cell = row.createCell(cellnum++);
+				cell.setCellStyle(celula_fundo_branco_texto_pretoCarregamento);
+				cell.setCellValue(transferencia.getData());
+
+				cell = row.createCell(cellnum++);
+				cell.setCellStyle(celula_fundo_branco_texto_pretoCarregamento);
+				cell.setCellValue(remetente.getCodigo());
+
+				cell = row.createCell(cellnum++);
+				cell.setCellStyle(celula_fundo_branco_texto_pretoCarregamento);
+				cell.setCellValue(destinatario.getCodigo());
+
+				// transportador
+				cell = row.createCell(cellnum++);
+				cell.setCellStyle(celula_fundo_branco_texto_pretoCarregamento);
+				cell.setCellValue("");
+
+				// veiculo
+				cell = row.createCell(cellnum++);
+				cell.setCellStyle(celula_fundo_branco_texto_pretoCarregamento);
+				cell.setCellValue("");
+
+				// produto
+				cell = row.createCell(cellnum++);
+				cell.setCellStyle(celula_fundo_branco_texto_pretoCarregamento);
+				cell.setCellValue("");
+
+				// romaneio
+				cell = row.createCell(cellnum++);
+				cell.setCellStyle(celula_fundo_branco_texto_pretoCarregamento);
+				cell.setCellValue("-Transferencia");
+
+				cell = row.createCell(cellnum++);
+				cell.setCellStyle(pesoStyleCarregamento);
+				cell.setCellValue(Double.parseDouble(transferencia.getQuantidade()) * -1);
+
+				// nfvenda1
+				cell = row.createCell(cellnum++);
+				cell.setCellStyle(celula_fundo_branco_texto_pretoCarregamento);
+				cell.setCellValue("Não Aplicável");
+
+				cell = row.createCell(cellnum++);
+				cell.setCellStyle(celula_fundo_branco_texto_pretoCarregamento);
+				cell.setCellValue("Não Aplicável");
+
+				cell = row.createCell(cellnum++);
+				cell.setCellStyle(celula_fundo_branco_texto_pretoCarregamento);
+				cell.setCellValue("Não Aplicável");
+
+				// nfcomplemento
+				cell = row.createCell(cellnum++);
+				cell.setCellStyle(celula_fundo_branco_texto_pretoCarregamento);
+				cell.setCellValue("Não Aplicável");
+
+				cell = row.createCell(cellnum++);
+				cell.setCellStyle(celula_fundo_branco_texto_pretoCarregamento);
+				cell.setCellValue("Não Aplicável");
+
+				cell = row.createCell(cellnum++);
+				cell.setCellStyle(celula_fundo_branco_texto_pretoCarregamento);
+				cell.setCellValue("Não Aplicável");
+
+				// diferenca
+				cell = row.createCell(cellnum++);
+				cell.setCellStyle(celula_fundo_branco_texto_pretoCarregamento);
+				cell.setCellValue("Não Aplicável");
+
+				rownum++;
+				ultima_linha = rownum;
+			}
+		}
+		/*************************** transferencias negativas *****************///////////
+
+		// transfereicas positivas
+		/*************************** transferencias positivas *****************///////////
+		if (incluir_transferencias_carregamentos) {
+			for (CadastroContrato.CadastroTransferenciaCarga transferencia : transferencias_destinatarios) {
+
+				String texto_detalhado = "";
+
+				GerenciarBancoContratos gerencia_contratos = new GerenciarBancoContratos();
+				CadastroContrato remetente = gerencia_contratos.getContrato(transferencia.getId_contrato_remetente());
+				CadastroContrato destinatario = gerencia_contratos
+						.getContrato(transferencia.getId_contrato_destinatario());
+				// CadastroContrato.Carregamento carga = gerencia_contratos
+				// .getCarregamento(transferencia.getId_carregamento_remetente());
+
+				CadastroCliente compradores_trans[] = destinatario.getCompradores();
+				CadastroCliente vendedores_trans[] = destinatario.getVendedores();
+
+				String nome_vendedores = "";
+				String nome_compradores = "";
+
+				if (compradores_trans[0] != null) {
+					if (compradores_trans[0].getTipo_pessoa() == 0) {
+						// pessoa fisica
+						nome_compradores = compradores_trans[0].getNome_empresarial();
+					} else {
+						nome_compradores = compradores_trans[0].getNome_fantaia();
+
+					}
+				}
+
+				if (compradores_trans[1] != null) {
+					if (compradores_trans[1].getTipo_pessoa() == 0) {
+						// pessoa fisica
+						nome_compradores = nome_compradores + ", " + compradores_trans[1].getNome_empresarial();
+					} else {
+						nome_compradores = nome_compradores + ", " + compradores_trans[1].getNome_fantaia();
+
+					}
+				}
+
+				for (CadastroCliente vendedor : vendedores_trans) {
+					if (vendedor != null) {
+						if (vendedor.getTipo_pessoa() == 0) {
+							// pessoa fisica
+							nome_vendedores += vendedor.getNome_empresarial();
+						} else {
+							nome_vendedores += vendedor.getNome_fantaia();
+
+						}
+						nome_vendedores += ",";
+
+					}
+				}
+
+				double quantidade = Double.parseDouble(transferencia.getQuantidade());
+
+				texto_detalhado = "Transferência Positiva: Recebimento de volume de " + z.format(quantidade) + " kgs | "
+						+ z.format(quantidade / 60) + " sacos recebidos do contrato ";
+				texto_detalhado = texto_detalhado + remetente.getCodigo() + " " + nome_compradores + " X "
+						+ nome_vendedores + " " + z.format(remetente.getQuantidade()) + " " + remetente.getMedida()
+						+ " de " + remetente.getModelo_safra().getProduto().getNome_produto() + " "
+						+ remetente.getModelo_safra().getProduto().getTransgenia() + " da safra "
+						+ remetente.getModelo_safra().getAno_plantio() + "/"
+						+ remetente.getModelo_safra().getAno_colheita();
+				texto_detalhado = texto_detalhado + "";
+
+				cellnum = 0;
+				row = sheet.createRow(rownum);
+
+				cell = row.createCell(cellnum++);
+				cell.setCellStyle(celula_fundo_branco_texto_pretoCarregamento);
+				cell.setCellValue(destinatario.getCodigo());
+
+				cell = row.createCell(cellnum++);
+				cell.setCellStyle(celula_fundo_branco_texto_pretoCarregamento);
+				cell.setCellValue(transferencia.getData());
+
+				cell = row.createCell(cellnum++);
+				cell.setCellStyle(celula_fundo_branco_texto_pretoCarregamento);
+				cell.setCellValue(destinatario.getCodigo());
+
+				cell = row.createCell(cellnum++);
+				cell.setCellStyle(celula_fundo_branco_texto_pretoCarregamento);
+				cell.setCellValue(remetente.getCodigo());
+
+				// transportador
+				cell = row.createCell(cellnum++);
+				cell.setCellStyle(celula_fundo_branco_texto_pretoCarregamento);
+				cell.setCellValue("");
+
+				// veiculo
+				cell = row.createCell(cellnum++);
+				cell.setCellStyle(celula_fundo_branco_texto_pretoCarregamento);
+				cell.setCellValue("");
+
+				// produto
+				cell = row.createCell(cellnum++);
+				cell.setCellStyle(celula_fundo_branco_texto_pretoCarregamento);
+				cell.setCellValue("");
+
+				// romaneio
+				cell = row.createCell(cellnum++);
+				cell.setCellStyle(celula_fundo_branco_texto_pretoCarregamento);
+				cell.setCellValue("+Transferencia");
+
+				cell = row.createCell(cellnum++);
+				cell.setCellStyle(pesoStyleCarregamento);
+				cell.setCellValue(Double.parseDouble(transferencia.getQuantidade()));
+
+				// nfvenda1
+				cell = row.createCell(cellnum++);
+				cell.setCellStyle(celula_fundo_branco_texto_pretoCarregamento);
+				cell.setCellValue("Não Aplicável");
+
+				cell = row.createCell(cellnum++);
+				cell.setCellStyle(celula_fundo_branco_texto_pretoCarregamento);
+				cell.setCellValue("Não Aplicável");
+
+				cell = row.createCell(cellnum++);
+				cell.setCellStyle(celula_fundo_branco_texto_pretoCarregamento);
+				cell.setCellValue("Não Aplicável");
+
+				// nfcomplemento
+				cell = row.createCell(cellnum++);
+				cell.setCellStyle(celula_fundo_branco_texto_pretoCarregamento);
+				cell.setCellValue("Não Aplicável");
+
+				cell = row.createCell(cellnum++);
+				cell.setCellStyle(celula_fundo_branco_texto_pretoCarregamento);
+				cell.setCellValue("Não Aplicável");
+
+				cell = row.createCell(cellnum++);
+				cell.setCellStyle(celula_fundo_branco_texto_pretoCarregamento);
+				cell.setCellValue("Não Aplicável");
+
+				// diferenca
+				cell = row.createCell(cellnum++);
+				cell.setCellStyle(celula_fundo_branco_texto_pretoCarregamento);
+				cell.setCellValue("Não Aplicável");
+
+				rownum++;
+				ultima_linha = rownum;
+			}
+		}
+
+		/*************************** transferencias positivas *****************///////////
+
+		// pular linha
+		rownum += 1;
+
+		// somatorias
+		FormulaEvaluator evaluator = workbook.getCreationHelper().createFormulaEvaluator();
+		row = sheet.createRow(rownum += 1);
+		cellnum = 0;
+
+		int celula_soma_peso = rownum + 1;
+
+		// somatoria de pesos
+		cell = row.createCell(7);
+		cell.setCellStyle(celula_fundo_branco_texto_pretoCarregamento);
+		cell.setCellValue("Soma Final:");
+
+		cell = row.createCell(8);
+		cell.setCellStyle(numberStyleFundoVerdeTextoBrancoCarregamento);
+		cell.setCellType(CellType.FORMULA);
+		String formula = "SUM(I" + primeira_linha + ":I" + ultima_linha + ")";
+		cell.setCellFormula(formula);
+
+		cell = row.createCell(9);
+		cell.setCellStyle(numberStyleFundoBrancoTextoPretoCarregamento);
+		cell.setCellType(CellType.FORMULA);
+		formula = "SUM(I" + (rownum + 1) + "/60)";
+		cell.setCellFormula(formula);
+
+		// somatoria de peso de nf venda 1
+		cell = row.createCell(10);
+		cell.setCellStyle(numberStyleFundoVerdeTextoBrancoCarregamento);
+		cell.setCellType(CellType.FORMULA);
+		formula = "SUMPRODUCT(SUBTOTAL(9,OFFSET(K" + primeira_linha + ":K" + ultima_linha + ",ROW(K" + primeira_linha
+				+ ":K" + ultima_linha + ")-ROW(K" + primeira_linha + "),0,1,1)),-(J" + primeira_linha + ":J"
+				+ ultima_linha + "<>\"Não Aplicável\")) * -1";
+		cell.setCellFormula(formula);
+
+		// somatoria de valor de nf venda 1
+		cell = row.createCell(11);
+		cell.setCellStyle(numberStyleFundoVerdeTextoBrancoCarregamento);
+		cell.setCellType(CellType.FORMULA);
+		formula = "SUMPRODUCT(SUBTOTAL(9,OFFSET(L" + primeira_linha + ":L" + ultima_linha + ",ROW(L" + primeira_linha
+				+ ":L" + ultima_linha + ")-ROW(L" + primeira_linha + "),0,1,1)),-(J" + primeira_linha + ":J"
+				+ ultima_linha + "<>\"Não Aplicável\")) * -1";
+		cell.setCellFormula(formula);
+
+		// somatoria de PESO de nf venda 2
+		cell = row.createCell(13);
+		cell.setCellStyle(numberStyleFundoVerdeTextoBrancoCarregamento);
+		cell.setCellType(CellType.FORMULA);
+		formula = "SUMPRODUCT(SUBTOTAL(9,OFFSET(N" + primeira_linha + ":N" + ultima_linha + ",ROW(N" + primeira_linha
+				+ ":N" + ultima_linha + ")-ROW(N" + primeira_linha + "),0,1,1)),-(M" + primeira_linha + ":M"
+				+ ultima_linha + "<>\"Não Aplicável\")) * -1";
+		cell.setCellFormula(formula);
+
+		// somatoria de valor de nf venda 2
+		cell = row.createCell(14);
+		cell.setCellStyle(numberStyleFundoVerdeTextoBrancoCarregamento);
+		cell.setCellType(CellType.FORMULA);
+		formula = "SUMPRODUCT(SUBTOTAL(9,OFFSET(O" + primeira_linha + ":O" + ultima_linha + ",ROW(O" + primeira_linha
+				+ ":O" + ultima_linha + ")-ROW(O" + primeira_linha + "),0,1,1)),-(M" + primeira_linha + ":M"
+				+ ultima_linha + "<>\"Não Aplicável\")) * -1";
+		cell.setCellFormula(formula);
+
+		int linha_soma_final = 0;
+
+		if (incluir_transferencias_carregamentos) {
+
+			row = sheet.createRow(rownum += 1);
+			cellnum = 0;
+
+			// somatoria de pesos
+			cell = row.createCell(0);
+			cell.setCellStyle(celula_fundo_branco_texto_pretoCarregamento);
+			cell.setCellValue("Peso Transferencias(-):");
+
+			cell = row.createCell(1);
+			cell.setCellStyle(numberStyleFundoVerdeTextoBrancoCarregamento);
+			cell.setCellType(CellType.FORMULA);
+			formula = "SUMPRODUCT(SUBTOTAL(9,OFFSET(I" + primeira_linha + ":I" + ultima_linha + ",ROW(I"
+					+ primeira_linha + ":I" + ultima_linha + ")-ROW(I" + primeira_linha + "),0,1,1)),-(H"
+					+ primeira_linha + ":H" + ultima_linha + "=\"-Transferencia\")) * -1";
+			cell.setCellFormula(formula);
+
+			cell = row.createCell(2);
+			cell.setCellStyle(numberStyleFundoBrancoTextoPretoCarregamento);
+			cell.setCellType(CellType.FORMULA);
+			formula = "SUM(B" + (rownum + 1) + "/60)";
+			cell.setCellFormula(formula);
+
+			row = sheet.createRow(rownum += 1);
+			cellnum = 0;
+
+			// somatoria de pesos
+			cell = row.createCell(0);
+			cell.setCellStyle(celula_fundo_branco_texto_pretoCarregamento);
+			cell.setCellValue("Peso Transferencias(+):");
+
+			cell = row.createCell(1);
+			cell.setCellStyle(numberStyleFundoVerdeTextoBrancoCarregamento);
+			cell.setCellType(CellType.FORMULA);
+			formula = "SUMPRODUCT(SUBTOTAL(9,OFFSET(I" + primeira_linha + ":I" + ultima_linha + ",ROW(I"
+					+ primeira_linha + ":I" + ultima_linha + ")-ROW(I" + primeira_linha + "),0,1,1)),-(H"
+					+ primeira_linha + ":H" + ultima_linha + "=\"+Transferencia\")) * -1";
+			cell.setCellFormula(formula);
+
+			cell = row.createCell(2);
+			cell.setCellStyle(numberStyleFundoBrancoTextoPretoCarregamento);
+			cell.setCellType(CellType.FORMULA);
+			formula = "SUM(B" + (rownum + 1) + "/60)";
+			cell.setCellFormula(formula);
+
+		}
+
+		row = sheet.createRow(rownum += 1);
+		cellnum = 0;
+
+		linha_soma_final = rownum + 1;
+		// somatoria de pesos
+		cell = row.createCell(0);
+		cell.setCellStyle(celula_fundo_branco_texto_pretoCarregamento);
+		cell.setCellValue("Soma Final:");
+
+		cell = row.createCell(1);
+		cell.setCellStyle(numberStyleFundoVerdeTextoBrancoCarregamento);
+		cell.setCellType(CellType.FORMULA);
+		formula = "SUM(I" + primeira_linha + ":I" + ultima_linha + ")";
+		cell.setCellFormula(formula);
+
+		cell = row.createCell(2);
+		cell.setCellStyle(numberStyleFundoBrancoTextoPretoCarregamento);
+		cell.setCellType(CellType.FORMULA);
+		formula = "SUM(B" + (rownum + 1) + "/60)";
+		cell.setCellFormula(formula);
+
+		// total contratado
+
+		row = sheet.createRow(rownum += 1);
+		cellnum = 0;
+
+		int linha_total_contratado = rownum + 1;
+		cell = row.createCell(0);
+		cell.setCellStyle(celula_fundo_branco_texto_pretoCarregamento);
+		cell.setCellValue("Total Contratado:");
+
+		cell = row.createCell(1);
+		cell.setCellStyle(numberStyleFundoVerdeTextoBrancoCarregamento);
+		cell.setCellValue(quantidade_kg);
+
+		cell = row.createCell(2);
+		cell.setCellStyle(numberStyleFundoBrancoTextoPretoCarregamento);
+		cell.setCellType(CellType.FORMULA);
+		formula = "SUM(B" + (rownum + 1) + "/60)";
+		cell.setCellFormula(formula);
+
+		row = sheet.createRow(rownum += 1);
+		cellnum = 0;
+
+		cell = row.createCell(0);
+		cell.setCellStyle(celula_fundo_branco_texto_pretoCarregamento);
+		cell.setCellValue("Restante:");
+
+		// restante
+
+		if (incluir_transferencias_carregamentos) {
+			cell = row.createCell(1);
+			cell.setCellStyle(numberStyleFundoVerdeTextoBrancoCarregamento);
+			cell.setCellType(CellType.FORMULA);
+			formula = "SUM(B" + linha_total_contratado + "-B" + linha_soma_final + ")";
+			cell.setCellFormula(formula);
+		} else {
+
+			cell = row.createCell(1);
+			cell.setCellStyle(numberStyleFundoVerdeTextoBrancoCarregamento);
+			cell.setCellType(CellType.FORMULA);
+			formula = "SUM(B" + linha_total_contratado + "-B" + celula_soma_peso + ")";
+			cell.setCellFormula(formula);
+		}
+		cell = row.createCell(2);
+		cell.setCellStyle(numberStyleFundoBrancoTextoPretoCarregamento);
+		cell.setCellType(CellType.FORMULA);
+		formula = "SUM(B" + (rownum + 1) + "/60)";
+		cell.setCellFormula(formula);
+
+		// restante baseado no que foi recebido
+
+		row = sheet.createRow(rownum += 2);
+		cellnum = 0;
+
+		int linha_total_recebido = rownum + 1;
+		cell = row.createCell(0);
+		cell.setCellStyle(celula_fundo_branco_texto_pretoCarregamento);
+		cell.setCellValue("Total Recebido:");
+
+		cell = row.createCell(1);
+		cell.setCellStyle(numberStyleFundoVerdeTextoBrancoCarregamento);
+		cell.setCellValue(soma_total_quantidade_recebidas);
+
+		cell = row.createCell(2);
+		cell.setCellStyle(numberStyleFundoBrancoTextoPretoCarregamento);
+		cell.setCellType(CellType.FORMULA);
+		formula = "SUM(B" + (rownum + 1) + "/60)";
+		cell.setCellFormula(formula);
+
+		row = sheet.createRow(rownum += 1);
+		cellnum = 0;
+
+		cell = row.createCell(0);
+		cell.setCellStyle(celula_fundo_branco_texto_pretoCarregamento);
+		cell.setCellValue("Restante:");
+
+		// restante
+
+		if (incluir_transferencias_carregamentos) {
+			cell = row.createCell(1);
+			cell.setCellStyle(numberStyleFundoVerdeTextoBrancoCarregamento);
+			cell.setCellType(CellType.FORMULA);
+			formula = "SUM(B" + linha_total_recebido + "-B" + linha_soma_final + ")";
+			cell.setCellFormula(formula);
+		} else {
+
+			cell = row.createCell(1);
+			cell.setCellStyle(numberStyleFundoVerdeTextoBrancoCarregamento);
+			cell.setCellType(CellType.FORMULA);
+			formula = "SUM(B" + linha_total_recebido + "-B" + celula_soma_peso + ")";
+			cell.setCellFormula(formula);
+		}
+		cell = row.createCell(2);
+		cell.setCellStyle(numberStyleFundoBrancoTextoPretoCarregamento);
+		cell.setCellType(CellType.FORMULA);
+		formula = "SUM(B" + (rownum + 1) + "/60)";
+		cell.setCellFormula(formula);
+
+		for (int i = 0; i < 16; i++) {
+			sheet.autoSizeColumn(i);
+
+		}
+
+		DadosTabelaExcel retornar = new DadosTabelaExcel();
+		retornar.setWorkbook(workbook);
+		retornar.setSheet(sheet);
+		rownum += 3;
+		retornar.setRownum(rownum);
+
+		return retornar;
+
+	}
+
+	public DadosTabelaExcel criarTabelaCarregamentosUnidosExcel(HSSFWorkbook workbook, HSSFSheet sheet, int rownum,
+			ArrayList<CarregamentoCompleto> carregamentos, double soma_total_quantidade_contratos,
+			double soma_total_quantidade_recebidas,
+			ArrayList<CadastroContrato.CadastroTransferenciaCarga> transferencias_remetentes,
+			ArrayList<CadastroContrato.CadastroTransferenciaCarga> transferencias_destinatarios) {
+		// XWPFParagraph par = document_global.createParagraph();
+
+		NumberFormat z = NumberFormat.getNumberInstance();
+
+		Locale ptBr = new Locale("pt", "BR");
+
+		HSSFDataFormat numberFormat = workbook.createDataFormat();
+
+		HSSFFont newFont_branca = workbook.createFont();
+		newFont_branca.setBold(true);
+		newFont_branca.setColor(IndexedColors.WHITE.getIndex());
+		newFont_branca.setFontName("Calibri");
+		newFont_branca.setItalic(false);
+		newFont_branca.setFontHeight((short) (11 * 20));
+
+		// estilo para cabecalho fundo verde
+		CellStyle celula_fundo_verde_texto_branco = workbook.createCellStyle();
+		celula_fundo_verde_texto_branco.setFillPattern(FillPatternType.SOLID_FOREGROUND);
+		celula_fundo_verde_texto_branco.setFillForegroundColor(IndexedColors.GREEN.getIndex());
+		celula_fundo_verde_texto_branco.setAlignment(HorizontalAlignment.CENTER);
+		celula_fundo_verde_texto_branco.setVerticalAlignment(VerticalAlignment.CENTER);
+
+		celula_fundo_verde_texto_branco.setFont(newFont_branca);
+
+		HSSFFont newFont_preta = workbook.createFont();
+		newFont_preta.setColor(IndexedColors.BLACK.getIndex());
+		newFont_preta.setFontName("Calibri");
+		newFont_preta.setItalic(false);
+		newFont_preta.setFontHeight((short) (11 * 20));
+
+		CellStyle celula_fundo_branco_texto_preto = workbook.createCellStyle();
+		celula_fundo_branco_texto_preto.setAlignment(HorizontalAlignment.CENTER);
+		celula_fundo_branco_texto_preto.setVerticalAlignment(VerticalAlignment.CENTER);
+		celula_fundo_branco_texto_preto.setFont(newFont_preta);
+
+		// celula para numero alinhado ao centro
+		CellStyle numberStyle = workbook.createCellStyle();
+		numberStyle.setDataFormat(numberFormat.getFormat("R$ #,##0.00"));
+		numberStyle.setAlignment(HorizontalAlignment.CENTER);
+		numberStyle.setVerticalAlignment(VerticalAlignment.CENTER);
+
+		// celula para numero alinhado ao centro
+		CellStyle pesoStyle = workbook.createCellStyle();
+		pesoStyle.setDataFormat(numberFormat.getFormat("#,##0.00"));
+		pesoStyle.setAlignment(HorizontalAlignment.CENTER);
+		pesoStyle.setVerticalAlignment(VerticalAlignment.CENTER);
+
+		CellStyle numberStyleFundoVerdeTextoBranco = workbook.createCellStyle();
+		numberStyleFundoVerdeTextoBranco.setFillPattern(FillPatternType.SOLID_FOREGROUND);
+		numberStyleFundoVerdeTextoBranco.setFillForegroundColor(IndexedColors.GREEN.getIndex());
+		numberStyleFundoVerdeTextoBranco.setAlignment(HorizontalAlignment.CENTER);
+		numberStyleFundoVerdeTextoBranco.setVerticalAlignment(VerticalAlignment.CENTER);
+		numberStyleFundoVerdeTextoBranco.setDataFormat(numberFormat.getFormat("#,##0.00"));
+
+		numberStyleFundoVerdeTextoBranco.setFont(newFont_branca);
+
+		CellStyle numberStyleFundoBrancoTextoPreto = workbook.createCellStyle();
+		numberStyleFundoBrancoTextoPreto.setAlignment(HorizontalAlignment.LEFT);
+		numberStyleFundoBrancoTextoPreto.setVerticalAlignment(VerticalAlignment.CENTER);
+		numberStyleFundoBrancoTextoPreto.setDataFormat(numberFormat.getFormat("#,##0.00"));
+		numberStyleFundoBrancoTextoPreto.setFont(newFont_preta);
+
+		CellStyle valorStyleFundoVerdeTextoBranco = workbook.createCellStyle();
+		valorStyleFundoVerdeTextoBranco.setFillPattern(FillPatternType.SOLID_FOREGROUND);
+		valorStyleFundoVerdeTextoBranco.setFillForegroundColor(IndexedColors.GREEN.getIndex());
+		valorStyleFundoVerdeTextoBranco.setAlignment(HorizontalAlignment.CENTER);
+		valorStyleFundoVerdeTextoBranco.setVerticalAlignment(VerticalAlignment.CENTER);
+		valorStyleFundoVerdeTextoBranco.setDataFormat(numberFormat.getFormat("R$ #,##0.00"));
+		valorStyleFundoVerdeTextoBranco.setFont(newFont_branca);
+
+		// celular de contrato normal
+		HSSFFont newFont_verde = workbook.createFont();
+		newFont_verde.setColor(IndexedColors.GREEN.getIndex());
+		newFont_verde.setFontName("Calibri");
+		newFont_verde.setItalic(false);
+		newFont_verde.setFontHeight((short) (11 * 20));
+
+		CellStyle celula_fundo_branco_texto_verde = workbook.createCellStyle();
+		celula_fundo_branco_texto_verde.setAlignment(HorizontalAlignment.CENTER);
+		celula_fundo_branco_texto_verde.setVerticalAlignment(VerticalAlignment.CENTER);
+		celula_fundo_branco_texto_verde.setFont(newFont_verde);
+
+		// celular de sub-contrato n
+		HSSFFont newFont_vermelha = workbook.createFont();
+		newFont_vermelha.setColor(IndexedColors.RED.getIndex());
+		newFont_vermelha.setFontName("Calibri");
+		newFont_vermelha.setItalic(false);
+		newFont_vermelha.setFontHeight((short) (11 * 20));
+
+		CellStyle celula_fundo_branco_texto_vermelho = workbook.createCellStyle();
+		celula_fundo_branco_texto_vermelho.setAlignment(HorizontalAlignment.CENTER);
+		celula_fundo_branco_texto_vermelho.setVerticalAlignment(VerticalAlignment.CENTER);
+		celula_fundo_branco_texto_vermelho.setFont(newFont_vermelha);
+
+		// celula de ganho potencial
+
+		// celular de sub-contrato n
+		HSSFFont newFont_azul = workbook.createFont();
+		newFont_azul.setColor(IndexedColors.BLUE.getIndex());
+		newFont_azul.setFontName("Calibri");
+		newFont_azul.setItalic(false);
+		newFont_azul.setFontHeight((short) (11 * 20));
+
+		CellStyle celula_fundo_branco_texto_azul = workbook.createCellStyle();
+		celula_fundo_branco_texto_azul.setAlignment(HorizontalAlignment.CENTER);
+		celula_fundo_branco_texto_azul.setVerticalAlignment(VerticalAlignment.CENTER);
+		celula_fundo_branco_texto_azul.setFont(newFont_azul);
+
+		String texto_contratados = "Quantidade Total Contratada: " + z.format(soma_total_quantidade_contratos)
+				+ " kgs | " + z.format(soma_total_quantidade_contratos / 60) + " sacos";
+
+		String texto_recebidos = "Quantidade Total Recebida: " + z.format(soma_total_quantidade_recebidas) + " kgs | "
+				+ z.format(soma_total_quantidade_recebidas / 60) + " sacos";
+
+		int cellnum = 0;
+
+		Cell cell;
+		Row row;
+
+		row = sheet.createRow(rownum);
+		cell = row.createCell(cellnum);
+		cell.setCellStyle(celula_fundo_branco_texto_preto);
+		cell.setCellValue(texto_contratados);
+		sheet.addMergedRegion(new CellRangeAddress(rownum, rownum, cellnum, 10));
+
+		rownum++;
+
+		cellnum = 0;
+		row = sheet.createRow(rownum);
+		cell = row.createCell(cellnum);
+		cell.setCellStyle(celula_fundo_branco_texto_preto);
+		cell.setCellValue(texto_recebidos);
+		sheet.addMergedRegion(new CellRangeAddress(rownum, rownum, cellnum, 10));
+
+		rownum++;
+
+		row = sheet.createRow(rownum);
+		cellnum = 0;
+		cell = row.createCell(cellnum++);
+		cell.setCellStyle(celula_fundo_verde_texto_branco);
+		cell.setCellValue("CONTRATO");
+
+		cell = row.createCell(cellnum++);
+		cell.setCellStyle(celula_fundo_verde_texto_branco);
+		cell.setCellValue("DATA");
+
+		cell = row.createCell(cellnum++);
+		cell.setCellStyle(celula_fundo_verde_texto_branco);
+		cell.setCellValue("CLIENTE");
+
+		cell = row.createCell(cellnum++);
+		cell.setCellStyle(celula_fundo_verde_texto_branco);
+		cell.setCellValue("VENDEDOR");
+
+		cell = row.createCell(cellnum++);
+		cell.setCellStyle(celula_fundo_verde_texto_branco);
+		cell.setCellValue("TRANSPORTADOR");
+
+		cell = row.createCell(cellnum++);
+		cell.setCellStyle(celula_fundo_verde_texto_branco);
+		cell.setCellValue("VEICULO");
+
+		cell = row.createCell(cellnum++);
+		cell.setCellStyle(celula_fundo_verde_texto_branco);
+		cell.setCellValue("PRODUTO");
+
+		cell = row.createCell(cellnum++);
+		cell.setCellStyle(celula_fundo_verde_texto_branco);
+		cell.setCellValue("CODIGO ROMANEIO");
+
+		cell = row.createCell(cellnum++);
+		cell.setCellStyle(celula_fundo_verde_texto_branco);
+		cell.setCellValue("PESO ROMANEIO:".toUpperCase());
+
+		cell = row.createCell(cellnum++);
+		cell.setCellStyle(celula_fundo_verde_texto_branco);
+		cell.setCellValue("NF1");
+
+		cell = row.createCell(cellnum++);
+		cell.setCellStyle(celula_fundo_verde_texto_branco);
+		cell.setCellValue("PESO NF1");
+
+		cell = row.createCell(cellnum++);
+		cell.setCellStyle(celula_fundo_verde_texto_branco);
+		cell.setCellValue("VALOR NF 1");
+
+		cell = row.createCell(cellnum++);
+		cell.setCellStyle(celula_fundo_verde_texto_branco);
+		cell.setCellValue("NF2");
+
+		cell = row.createCell(cellnum++);
+		cell.setCellStyle(celula_fundo_verde_texto_branco);
+		cell.setCellValue("PESO NF2");
+
+		cell = row.createCell(cellnum++);
+		cell.setCellStyle(celula_fundo_verde_texto_branco);
+		cell.setCellValue("VALOR NF2");
+
+		cell = row.createCell(cellnum++);
+		cell.setCellStyle(celula_fundo_verde_texto_branco);
+		cell.setCellValue("DIFERENÇA");
+
+		int primeira_linha = rownum++;
+		int ultima_linha = primeira_linha;
+
+		sheet.setAutoFilter(CellRangeAddress.valueOf("A3:P3"));
+
+		// fazer checkagens
+
+		boolean nf_interna_ativo = false;
+		boolean nf_venda_ativo = false;
+		boolean nf_complemento_ativo = false;
+
+		// checka se ha no minimo uma nf interna aplicavel
+		for (CadastroContrato.Carregamento carregamento : carregamentos) {
+			if (carregamento.getNf_interna_aplicavel() == 1) {
+				nf_interna_ativo = true;
+				break;
+			}
+
+		}
+
+		// checka se ha no minimo uma nf venda aplicavel
+		for (CadastroContrato.Carregamento carregamento : carregamentos) {
+			if (carregamento.getNf_venda1_aplicavel() == 1) {
+				nf_venda_ativo = true;
+				break;
+			}
+
+		}
+
+		// checka se ha no minimo uma nf complemento aplicavel
+		for (CadastroContrato.Carregamento carregamento : carregamentos) {
+			if (carregamento.getNf_complemento_aplicavel() == 1) {
+				nf_complemento_ativo = true;
+				break;
+			}
+
+		}
+
+		for (CarregamentoCompleto carregamento : carregamentos) {
+
+			cellnum = 0;
+			row = sheet.createRow(rownum);
+
+			cell = row.createCell(cellnum++);
+			cell.setCellStyle(celula_fundo_branco_texto_preto);
+			cell.setCellValue(carregamento.getContrato().getCodigo());
+
+			cell = row.createCell(cellnum++);
+			cell.setCellStyle(celula_fundo_branco_texto_preto);
+			cell.setCellValue(carregamento.getData());
+
+			// pegar cliente
+
+			String nome_cliente = carregamento.getCliente_carregamento();
+			String nome_cliente_completo = carregamento.getCliente_carregamento();
+
+			String nome_cliente_quebrado[] = nome_cliente.split(" ");
+			try {
+
+				if (nome_cliente_quebrado.length > 2) {
+					if (nome_cliente_quebrado[2].length() > 1) {
+						nome_cliente = nome_cliente_quebrado[0] + " " + nome_cliente_quebrado[2];
+					} else {
+						if (nome_cliente_quebrado[3].length() > 1) {
+							nome_cliente = nome_cliente_quebrado[0] + " " + nome_cliente_quebrado[3];
+
+						} else {
+							nome_cliente = nome_cliente_quebrado[0] + " " + nome_cliente_quebrado[1];
+
+						}
+					}
+				}
+
+			} catch (Exception v) {
+				nome_cliente = nome_cliente_completo;
+			}
+
+			cell = row.createCell(cellnum++);
+			cell.setCellStyle(celula_fundo_branco_texto_preto);
+			cell.setCellValue(nome_cliente);
+
+			// pegar vendedor
+
+			String nome_vendedor = carregamento.getVendedor_carregamento();
+
+			String nome_vendedor_completo = nome_vendedor;
+
+			String nome_vendedor_quebrado[] = nome_vendedor.split(" ");
+			try {
+
+				if (nome_vendedor_quebrado.length > 2) {
+					if (nome_vendedor_quebrado[2].length() > 1) {
+						nome_vendedor = nome_vendedor_quebrado[0] + " " + nome_vendedor_quebrado[2];
+					} else {
+						if (nome_vendedor_quebrado[3].length() > 1) {
+							nome_vendedor = nome_vendedor_quebrado[0] + " " + nome_vendedor_quebrado[3];
+
+						} else {
+							nome_vendedor = nome_vendedor_quebrado[0] + " " + nome_vendedor_quebrado[1];
+
+						}
+					}
+				}
+
+			} catch (Exception v) {
+				nome_vendedor = nome_vendedor_completo;
+			}
+
+			cell = row.createCell(cellnum++);
+			cell.setCellStyle(celula_fundo_branco_texto_preto);
+			cell.setCellValue(nome_vendedor);
+
+			// transportador
+			cell = row.createCell(cellnum++);
+			cell.setCellStyle(celula_fundo_branco_texto_preto);
+			cell.setCellValue(carregamento.getNome_motorista());
+
+			// veiculo
+			cell = row.createCell(cellnum++);
+			cell.setCellStyle(celula_fundo_branco_texto_preto);
+			cell.setCellValue(carregamento.getPlaca());
+
+			// produto
+			cell = row.createCell(cellnum++);
+			cell.setCellStyle(celula_fundo_branco_texto_preto);
+			cell.setCellValue(carregamento.getContrato().getModelo_produto().getNome_produto());
+
+			// romaneio
+			cell = row.createCell(cellnum++);
+			cell.setCellStyle(celula_fundo_branco_texto_preto);
+			String codigo = carregamento.getCodigo_romaneio();
+			if (codigo.equalsIgnoreCase("-Transferencia")) {
+				cell.setCellValue("-Transferencia");
+
+			} else if (codigo.equalsIgnoreCase("+Transferencia")) {
+				cell.setCellValue("+Transferencia");
+			} else {
+				cell.setCellValue(codigo);
+			}
+
+			cell = row.createCell(cellnum++);
+			cell.setCellStyle(pesoStyle);
+			if (codigo.equalsIgnoreCase("-Transferencia")) {
+				cell.setCellValue(carregamento.getPeso_romaneio() * -1);
+
+			} else if (codigo.equalsIgnoreCase("+Transferencia")) {
+				cell.setCellValue(carregamento.getPeso_romaneio());
+			} else {
+				cell.setCellValue(carregamento.getPeso_romaneio());
+			}
+
+			// nfs
+			// codigos
+			String codigo_romaneio = "";
+			String codigo_nf_venda1 = "", codigo_nf_complemento = "";
+			// pesos
+
+			double peso_romaneio = 0.0;
+			double peso_nf_venda1 = 0.0;
+			double peso_nf_interna = 0.0;
+
+			BigDecimal valor_nf_venda1 = BigDecimal.ZERO;
+			double peso_nf_complemento = 0.0;
+			BigDecimal valor_nf_complemento = BigDecimal.ZERO;
+
+			try {
+				if (checkString(carregamento.getCodigo_romaneio())) {
+					// procurar por romaneio
+					if (checkString(carregamento.getCaminho_romaneio())) {
+						ManipularRomaneios manipular = new ManipularRomaneios("");
+
+						CadastroRomaneio romaneio = manipular
+								.filtrar(new File(servidor_unidade + carregamento.getCaminho_romaneio()));
+						codigo_romaneio = Integer.toString(romaneio.getNumero_romaneio());
+						peso_romaneio = romaneio.getPeso_liquido();
+
+					} else {
+						codigo_romaneio = carregamento.getCodigo_romaneio();
+						peso_romaneio = carregamento.getPeso_romaneio();
+					}
+
+				}
+			} catch (Exception e) {
+				// //JOptionPane.showMessageDialog(isto, "Romaneio não Localizado");
+				codigo_romaneio = carregamento.getCodigo_romaneio();
+				peso_romaneio = carregamento.getPeso_romaneio();
+			}
+
+			// nf venda 1
+			try {
+				if (checkString(carregamento.getCodigo_nf_venda1())) {
+					if (carregamento.getCaminho_nf_venda1().length() > 10) {
+						// procurar por nf venda
+						ManipularNotasFiscais manipular = new ManipularNotasFiscais("");
+						CadastroNFe nota_fiscal_venda = manipular
+								.filtrar(new File(servidor_unidade + carregamento.getCodigo_nf_venda1()));
+						codigo_nf_venda1 = nota_fiscal_venda.getNfe();
+						peso_nf_venda1 = Double.parseDouble(nota_fiscal_venda.getQuantidade());
+						try {
+							valor_nf_venda1 = new BigDecimal(nota_fiscal_venda.getValor());
+						} catch (Exception e) {
+							valor_nf_venda1 = BigDecimal.ZERO;
+						}
+
+					} else {
+						codigo_nf_venda1 = carregamento.getCodigo_nf_venda1();
+						peso_nf_venda1 = carregamento.getPeso_nf_venda1();
+						valor_nf_venda1 = carregamento.getValor_nf_venda1();
+
+					}
+
+				}
+			} catch (Exception e) {
+				// //JOptionPane.showMessageDialog(isto, "Nota Fiscal de venda não Localizado");
+				codigo_nf_venda1 = carregamento.getCodigo_nf_venda1();
+				peso_nf_venda1 = carregamento.getPeso_nf_venda1();
+				valor_nf_venda1 = carregamento.getValor_nf_venda1();
+
+			}
+
+			// nf complemento
+			try {
+				if (checkString(carregamento.getCodigo_nf_complemento())) {
+					if (carregamento.getCaminho_nf_complemento().length() > 10) {
+						// procurar por nf remessa
+						ManipularNotasFiscais manipular = new ManipularNotasFiscais("");
+						CadastroNFe nota_fiscal_complemento = manipular
+								.filtrar(new File(servidor_unidade + carregamento.getCaminho_nf_complemento()));
+						codigo_nf_complemento = nota_fiscal_complemento.getNfe();
+						peso_nf_complemento = Double.parseDouble(nota_fiscal_complemento.getQuantidade());
+						try {
+							valor_nf_complemento = new BigDecimal(nota_fiscal_complemento.getValor());
+						} catch (Exception e) {
+							valor_nf_complemento = BigDecimal.ZERO;
+						}
+
+					} else {
+						codigo_nf_complemento = carregamento.getCodigo_nf_complemento();
+						peso_nf_complemento = carregamento.getPeso_nf_complemento();
+						valor_nf_complemento = carregamento.getValor_nf_complemento();
+
+					}
+
+				}
+			} catch (Exception e) {
+				// //JOptionPane.showMessageDialog(isto, "Nota Fiscal de remessa não
+				// Localizado");
+
+				codigo_nf_complemento = carregamento.getCodigo_nf_complemento();
+				peso_nf_complemento = carregamento.getPeso_nf_complemento();
+				valor_nf_complemento = carregamento.getValor_nf_complemento();
+
+			}
+
+			// nfvenda1
+			cell = row.createCell(cellnum++);
+			cell.setCellStyle(celula_fundo_branco_texto_preto);
+			if (carregamento.getNf_venda1_aplicavel() == 1)
+				cell.setCellValue(codigo_nf_venda1);
+			else
+				cell.setCellValue("Não Aplicável");
+
+			cell = row.createCell(cellnum++);
+			cell.setCellStyle(celula_fundo_branco_texto_preto);
+			if (carregamento.getNf_venda1_aplicavel() == 1) {
+				cell.setCellValue(z.format(peso_nf_venda1));
+			} else {
+				cell.setCellValue("Não Aplicável");
+			}
+
+			cell = row.createCell(cellnum++);
+			cell.setCellStyle(celula_fundo_branco_texto_preto);
+			if (carregamento.getNf_venda1_aplicavel() == 1) {
+				cell.setCellValue(valor_nf_venda1.doubleValue());
+			} else {
+				cell.setCellValue("Não Aplicável");
+			}
+
+			// nfcomplemento
+			cell = row.createCell(cellnum++);
+			cell.setCellStyle(celula_fundo_branco_texto_preto);
+			if (carregamento.getNf_complemento_aplicavel() == 1)
+				cell.setCellValue(codigo_nf_complemento);
+			else
+				cell.setCellValue("Não Aplicável");
+
+			cell = row.createCell(cellnum++);
+			cell.setCellStyle(celula_fundo_branco_texto_preto);
+			if (carregamento.getNf_complemento_aplicavel() == 1) {
+				cell.setCellValue(z.format(peso_nf_complemento));
+			} else {
+				cell.setCellValue("Não Aplicável");
+			}
+
+			cell = row.createCell(cellnum++);
+			cell.setCellStyle(celula_fundo_branco_texto_preto);
+			if (carregamento.getNf_complemento_aplicavel() == 1) {
+				cell.setCellValue(valor_nf_complemento.doubleValue());
+			} else {
+				cell.setCellValue("Não Aplicável");
+			}
+
+			// diferenca
+			cell = row.createCell(cellnum++);
+			cell.setCellStyle(celula_fundo_branco_texto_preto);
+			if (carregamento.getNf_venda1_aplicavel() == 1 && carregamento.getNf_complemento_aplicavel() == 1) {
+				cell.setCellValue(peso_romaneio - (peso_nf_complemento + peso_nf_venda1));
+			} else {
+				cell.setCellValue("Não Aplicável");
+			}
+
+			rownum++;
+			ultima_linha = rownum;
+
+		}
+
+		if (incluir_transferencias_carregamentos) {
+			// transferencias negativas
+			/*************************** transferencias negativas *****************///////////
+
+			for (CadastroContrato.CadastroTransferenciaCarga transferencia : transferencias_remetentes) {
+
+				/*
+				 * codigo compradores vendedores status quantidade medida produto transgenia
+				 * safra valor_produto valor_total data_contrato local_retirada
+				 */
+
+				String texto_detalhado = "";
+
+				GerenciarBancoContratos gerencia_contratos = new GerenciarBancoContratos();
+				CadastroContrato remetente = gerencia_contratos.getContrato(transferencia.getId_contrato_remetente());
+				CadastroContrato destinatario = gerencia_contratos
+						.getContrato(transferencia.getId_contrato_destinatario());
+				// CadastroContrato.Carregamento carga = gerencia_contratos
+				// .getCarregamento(transferencia.getId_carregamento_remetente());
+
+				CadastroCliente compradores_trans[] = destinatario.getCompradores();
+				CadastroCliente vendedores_trans[] = destinatario.getVendedores();
+
+				String nome_vendedores = "";
+				String nome_compradores = "";
+
+				if (compradores_trans[0] != null) {
+					if (compradores_trans[0].getTipo_pessoa() == 0) {
+						// pessoa fisica
+						nome_compradores = compradores_trans[0].getNome_empresarial();
+					} else {
+						nome_compradores = compradores_trans[0].getNome_fantaia();
+
+					}
+				}
+
+				if (compradores_trans[1] != null) {
+					if (compradores_trans[1].getTipo_pessoa() == 0) {
+						// pessoa fisica
+						nome_compradores = nome_compradores + ", " + compradores_trans[1].getNome_empresarial();
+					} else {
+						nome_compradores = nome_compradores + ", " + compradores_trans[1].getNome_fantaia();
+
+					}
+				}
+
+				for (CadastroCliente vendedor : vendedores_trans) {
+					if (vendedor != null) {
+						if (vendedor.getTipo_pessoa() == 0) {
+							// pessoa fisica
+							nome_vendedores += vendedor.getNome_empresarial();
+						} else {
+							nome_vendedores += vendedor.getNome_fantaia();
+
+						}
+						nome_vendedores += " ,";
+
+					}
+				}
+
+				double quantidade = Double.parseDouble(transferencia.getQuantidade());
+
+				texto_detalhado = "Transferência Negativa: Transferência do volume de " + z.format(quantidade)
+						+ " kgs | " + z.format(quantidade / 60) + " sacos deste contrato para o contrato ";
+				texto_detalhado = texto_detalhado + destinatario.getCodigo() + "\n" + nome_compradores + " X "
+						+ nome_vendedores + " " + z.format(destinatario.getQuantidade()) + " "
+						+ destinatario.getMedida() + " de "
+						+ destinatario.getModelo_safra().getProduto().getNome_produto() + " "
+						+ destinatario.getModelo_safra().getProduto().getTransgenia() + " da safra "
+						+ destinatario.getModelo_safra().getAno_plantio() + "/"
+						+ destinatario.getModelo_safra().getAno_colheita();
+				texto_detalhado = texto_detalhado + "";
+
+				cellnum = 0;
+				row = sheet.createRow(rownum);
+
+				cell = row.createCell(cellnum++);
+				cell.setCellStyle(celula_fundo_branco_texto_preto);
+				cell.setCellValue(remetente.getCodigo());
+
+				cell = row.createCell(cellnum++);
+				cell.setCellStyle(celula_fundo_branco_texto_preto);
+				cell.setCellValue(transferencia.getData());
+
+				cell = row.createCell(cellnum++);
+				cell.setCellStyle(celula_fundo_branco_texto_preto);
+				cell.setCellValue(remetente.getCodigo());
+
+				cell = row.createCell(cellnum++);
+				cell.setCellStyle(celula_fundo_branco_texto_preto);
+				cell.setCellValue(destinatario.getCodigo());
+
+				// transportador
+				cell = row.createCell(cellnum++);
+				cell.setCellStyle(celula_fundo_branco_texto_preto);
+				cell.setCellValue("");
+
+				// veiculo
+				cell = row.createCell(cellnum++);
+				cell.setCellStyle(celula_fundo_branco_texto_preto);
+				cell.setCellValue("");
+
+				// produto
+				cell = row.createCell(cellnum++);
+				cell.setCellStyle(celula_fundo_branco_texto_preto);
+				cell.setCellValue("");
+
+				// romaneio
+				cell = row.createCell(cellnum++);
+				cell.setCellStyle(celula_fundo_branco_texto_preto);
+				cell.setCellValue("-Transferencia");
+
+				cell = row.createCell(cellnum++);
+				cell.setCellStyle(pesoStyle);
+				cell.setCellValue(Double.parseDouble(transferencia.getQuantidade()) * -1);
+
+				// nfvenda1
+				cell = row.createCell(cellnum++);
+				cell.setCellStyle(celula_fundo_branco_texto_preto);
+				cell.setCellValue("Não Aplicável");
+
+				cell = row.createCell(cellnum++);
+				cell.setCellStyle(celula_fundo_branco_texto_preto);
+				cell.setCellValue("Não Aplicável");
+
+				cell = row.createCell(cellnum++);
+				cell.setCellStyle(celula_fundo_branco_texto_preto);
+				cell.setCellValue("Não Aplicável");
+
+				// nfcomplemento
+				cell = row.createCell(cellnum++);
+				cell.setCellStyle(celula_fundo_branco_texto_preto);
+				cell.setCellValue("Não Aplicável");
+
+				cell = row.createCell(cellnum++);
+				cell.setCellStyle(celula_fundo_branco_texto_preto);
+				cell.setCellValue("Não Aplicável");
+
+				cell = row.createCell(cellnum++);
+				cell.setCellStyle(celula_fundo_branco_texto_preto);
+				cell.setCellValue("Não Aplicável");
+
+				// diferenca
+				cell = row.createCell(cellnum++);
+				cell.setCellStyle(celula_fundo_branco_texto_preto);
+				cell.setCellValue("Não Aplicável");
+
+				rownum++;
+				ultima_linha = rownum;
+			}
+		}
+		/*************************** transferencias negativas *****************///////////
+
+		// transfereicas positivas
+		/*************************** transferencias positivas *****************///////////
+		if (incluir_transferencias_carregamentos) {
+			for (CadastroContrato.CadastroTransferenciaCarga transferencia : transferencias_destinatarios) {
+
+				String texto_detalhado = "";
+
+				GerenciarBancoContratos gerencia_contratos = new GerenciarBancoContratos();
+				CadastroContrato remetente = gerencia_contratos.getContrato(transferencia.getId_contrato_remetente());
+				CadastroContrato destinatario = gerencia_contratos
+						.getContrato(transferencia.getId_contrato_destinatario());
+				// CadastroContrato.Carregamento carga = gerencia_contratos
+				// .getCarregamento(transferencia.getId_carregamento_remetente());
+
+				CadastroCliente compradores_trans[] = destinatario.getCompradores();
+				CadastroCliente vendedores_trans[] = destinatario.getVendedores();
+
+				String nome_vendedores = "";
+				String nome_compradores = "";
+
+				if (compradores_trans[0] != null) {
+					if (compradores_trans[0].getTipo_pessoa() == 0) {
+						// pessoa fisica
+						nome_compradores = compradores_trans[0].getNome_empresarial();
+					} else {
+						nome_compradores = compradores_trans[0].getNome_fantaia();
+
+					}
+				}
+
+				if (compradores_trans[1] != null) {
+					if (compradores_trans[1].getTipo_pessoa() == 0) {
+						// pessoa fisica
+						nome_compradores = nome_compradores + ", " + compradores_trans[1].getNome_empresarial();
+					} else {
+						nome_compradores = nome_compradores + ", " + compradores_trans[1].getNome_fantaia();
+
+					}
+				}
+
+				for (CadastroCliente vendedor : vendedores_trans) {
+					if (vendedor != null) {
+						if (vendedor.getTipo_pessoa() == 0) {
+							// pessoa fisica
+							nome_vendedores += vendedor.getNome_empresarial();
+						} else {
+							nome_vendedores += vendedor.getNome_fantaia();
+
+						}
+						nome_vendedores += ",";
+
+					}
+				}
+
+				double quantidade = Double.parseDouble(transferencia.getQuantidade());
+
+				texto_detalhado = "Transferência Positiva: Recebimento de volume de " + z.format(quantidade) + " kgs | "
+						+ z.format(quantidade / 60) + " sacos recebidos do contrato ";
+				texto_detalhado = texto_detalhado + remetente.getCodigo() + " " + nome_compradores + " X "
+						+ nome_vendedores + " " + z.format(remetente.getQuantidade()) + " " + remetente.getMedida()
+						+ " de " + remetente.getModelo_safra().getProduto().getNome_produto() + " "
+						+ remetente.getModelo_safra().getProduto().getTransgenia() + " da safra "
+						+ remetente.getModelo_safra().getAno_plantio() + "/"
+						+ remetente.getModelo_safra().getAno_colheita();
+				texto_detalhado = texto_detalhado + "";
+
+				cellnum = 0;
+				row = sheet.createRow(rownum);
+
+				cell = row.createCell(cellnum++);
+				cell.setCellStyle(celula_fundo_branco_texto_preto);
+				cell.setCellValue(destinatario.getCodigo());
+
+				cell = row.createCell(cellnum++);
+				cell.setCellStyle(celula_fundo_branco_texto_preto);
+				cell.setCellValue(transferencia.getData());
+
+				cell = row.createCell(cellnum++);
+				cell.setCellStyle(celula_fundo_branco_texto_preto);
+				cell.setCellValue(destinatario.getCodigo());
+
+				cell = row.createCell(cellnum++);
+				cell.setCellStyle(celula_fundo_branco_texto_preto);
+				cell.setCellValue(remetente.getCodigo());
+
+				// transportador
+				cell = row.createCell(cellnum++);
+				cell.setCellStyle(celula_fundo_branco_texto_preto);
+				cell.setCellValue("");
+
+				// veiculo
+				cell = row.createCell(cellnum++);
+				cell.setCellStyle(celula_fundo_branco_texto_preto);
+				cell.setCellValue("");
+
+				// produto
+				cell = row.createCell(cellnum++);
+				cell.setCellStyle(celula_fundo_branco_texto_preto);
+				cell.setCellValue("");
+
+				// romaneio
+				cell = row.createCell(cellnum++);
+				cell.setCellStyle(celula_fundo_branco_texto_preto);
+				cell.setCellValue("+Transferencia");
+
+				cell = row.createCell(cellnum++);
+				cell.setCellStyle(pesoStyle);
+				cell.setCellValue(Double.parseDouble(transferencia.getQuantidade()));
+
+				// nfvenda1
+				cell = row.createCell(cellnum++);
+				cell.setCellStyle(celula_fundo_branco_texto_preto);
+				cell.setCellValue("Não Aplicável");
+
+				cell = row.createCell(cellnum++);
+				cell.setCellStyle(celula_fundo_branco_texto_preto);
+				cell.setCellValue("Não Aplicável");
+
+				cell = row.createCell(cellnum++);
+				cell.setCellStyle(celula_fundo_branco_texto_preto);
+				cell.setCellValue("Não Aplicável");
+
+				// nfcomplemento
+				cell = row.createCell(cellnum++);
+				cell.setCellStyle(celula_fundo_branco_texto_preto);
+				cell.setCellValue("Não Aplicável");
+
+				cell = row.createCell(cellnum++);
+				cell.setCellStyle(celula_fundo_branco_texto_preto);
+				cell.setCellValue("Não Aplicável");
+
+				cell = row.createCell(cellnum++);
+				cell.setCellStyle(celula_fundo_branco_texto_preto);
+				cell.setCellValue("Não Aplicável");
+
+				// diferenca
+				cell = row.createCell(cellnum++);
+				cell.setCellStyle(celula_fundo_branco_texto_preto);
+				cell.setCellValue("Não Aplicável");
+
+				rownum++;
+				ultima_linha = rownum;
+			}
+		}
+
+		/*************************** transferencias positivas *****************///////////
+
+		// pular linha
+		rownum += 1;
+
+		// somatorias
+		FormulaEvaluator evaluator = workbook.getCreationHelper().createFormulaEvaluator();
+		row = sheet.createRow(rownum += 1);
+		cellnum = 0;
+
+		int celula_soma_peso = rownum + 1;
+
+		// somatoria de pesos
+		cell = row.createCell(7);
+		cell.setCellStyle(celula_fundo_branco_texto_preto);
+		cell.setCellValue("Soma Final:");
+
+		cell = row.createCell(8);
+		cell.setCellStyle(numberStyleFundoVerdeTextoBranco);
+		cell.setCellType(CellType.FORMULA);
+		String formula = "SUM(I" + primeira_linha + ":I" + ultima_linha + ")";
+		cell.setCellFormula(formula);
+
+		cell = row.createCell(9);
+		cell.setCellStyle(numberStyleFundoBrancoTextoPreto);
+		cell.setCellType(CellType.FORMULA);
+		formula = "SUM(I" + (rownum + 1) + "/60)";
+		cell.setCellFormula(formula);
+
+		// somatoria de peso de nf venda 1
+		cell = row.createCell(10);
+		cell.setCellStyle(numberStyleFundoVerdeTextoBranco);
+		cell.setCellType(CellType.FORMULA);
+		formula = "SUMPRODUCT(SUBTOTAL(9,OFFSET(K" + primeira_linha + ":K" + ultima_linha + ",ROW(K" + primeira_linha
+				+ ":K" + ultima_linha + ")-ROW(K" + primeira_linha + "),0,1,1)),-(J" + primeira_linha + ":J"
+				+ ultima_linha + "<>\"Não Aplicável\")) * -1";
+		cell.setCellFormula(formula);
+
+		// somatoria de valor de nf venda 1
+		cell = row.createCell(11);
+		cell.setCellStyle(numberStyleFundoVerdeTextoBranco);
+		cell.setCellType(CellType.FORMULA);
+		formula = "SUMPRODUCT(SUBTOTAL(9,OFFSET(L" + primeira_linha + ":L" + ultima_linha + ",ROW(L" + primeira_linha
+				+ ":L" + ultima_linha + ")-ROW(L" + primeira_linha + "),0,1,1)),-(J" + primeira_linha + ":J"
+				+ ultima_linha + "<>\"Não Aplicável\")) * -1";
+		cell.setCellFormula(formula);
+
+		// somatoria de PESO de nf venda 2
+		cell = row.createCell(13);
+		cell.setCellStyle(numberStyleFundoVerdeTextoBranco);
+		cell.setCellType(CellType.FORMULA);
+		formula = "SUMPRODUCT(SUBTOTAL(9,OFFSET(N" + primeira_linha + ":N" + ultima_linha + ",ROW(N" + primeira_linha
+				+ ":N" + ultima_linha + ")-ROW(N" + primeira_linha + "),0,1,1)),-(M" + primeira_linha + ":M"
+				+ ultima_linha + "<>\"Não Aplicável\")) * -1";
+		cell.setCellFormula(formula);
+
+		// somatoria de valor de nf venda 2
+		cell = row.createCell(14);
+		cell.setCellStyle(numberStyleFundoVerdeTextoBranco);
+		cell.setCellType(CellType.FORMULA);
+		formula = "SUMPRODUCT(SUBTOTAL(9,OFFSET(O" + primeira_linha + ":O" + ultima_linha + ",ROW(O" + primeira_linha
+				+ ":O" + ultima_linha + ")-ROW(O" + primeira_linha + "),0,1,1)),-(M" + primeira_linha + ":M"
+				+ ultima_linha + "<>\"Não Aplicável\")) * -1";
+		cell.setCellFormula(formula);
+
+		int linha_soma_final = 0;
+
+		if (incluir_transferencias_carregamentos) {
+
+			row = sheet.createRow(rownum += 1);
+			cellnum = 0;
+
+			// somatoria de pesos
+			cell = row.createCell(0);
+			cell.setCellStyle(celula_fundo_branco_texto_preto);
+			cell.setCellValue("Peso Transferencias(-):");
+
+			cell = row.createCell(1);
+			cell.setCellStyle(numberStyleFundoVerdeTextoBranco);
+			cell.setCellType(CellType.FORMULA);
+			formula = "SUMPRODUCT(SUBTOTAL(9,OFFSET(I" + primeira_linha + ":I" + ultima_linha + ",ROW(I"
+					+ primeira_linha + ":I" + ultima_linha + ")-ROW(I" + primeira_linha + "),0,1,1)),-(H"
+					+ primeira_linha + ":H" + ultima_linha + "=\"-Transferencia\")) * -1";
+			cell.setCellFormula(formula);
+
+			cell = row.createCell(2);
+			cell.setCellStyle(numberStyleFundoBrancoTextoPreto);
+			cell.setCellType(CellType.FORMULA);
+			formula = "SUM(B" + (rownum + 1) + "/60)";
+			cell.setCellFormula(formula);
+
+			row = sheet.createRow(rownum += 1);
+			cellnum = 0;
+
+			// somatoria de pesos
+			cell = row.createCell(0);
+			cell.setCellStyle(celula_fundo_branco_texto_preto);
+			cell.setCellValue("Peso Transferencias(+):");
+
+			cell = row.createCell(1);
+			cell.setCellStyle(numberStyleFundoVerdeTextoBranco);
+			cell.setCellType(CellType.FORMULA);
+			formula = "SUMPRODUCT(SUBTOTAL(9,OFFSET(I" + primeira_linha + ":I" + ultima_linha + ",ROW(I"
+					+ primeira_linha + ":I" + ultima_linha + ")-ROW(I" + primeira_linha + "),0,1,1)),-(H"
+					+ primeira_linha + ":H" + ultima_linha + "=\"+Transferencia\")) * -1";
+			cell.setCellFormula(formula);
+
+			cell = row.createCell(2);
+			cell.setCellStyle(numberStyleFundoBrancoTextoPreto);
+			cell.setCellType(CellType.FORMULA);
+			formula = "SUM(B" + (rownum + 1) + "/60)";
+			cell.setCellFormula(formula);
+
+		}
+
+		row = sheet.createRow(rownum += 1);
+		cellnum = 0;
+
+		linha_soma_final = rownum + 1;
+		// somatoria de pesos
+		cell = row.createCell(0);
+		cell.setCellStyle(celula_fundo_branco_texto_preto);
+		cell.setCellValue("Soma Final:");
+
+		cell = row.createCell(1);
+		cell.setCellStyle(numberStyleFundoVerdeTextoBranco);
+		cell.setCellType(CellType.FORMULA);
+		formula = "SUM(I" + primeira_linha + ":I" + ultima_linha + ")";
+		cell.setCellFormula(formula);
+
+		cell = row.createCell(2);
+		cell.setCellStyle(numberStyleFundoBrancoTextoPreto);
+		cell.setCellType(CellType.FORMULA);
+		formula = "SUM(B" + (rownum + 1) + "/60)";
+		cell.setCellFormula(formula);
+
+		// total contratado
+
+		row = sheet.createRow(rownum += 1);
+		cellnum = 0;
+
+		int linha_total_contratado = rownum + 1;
+		cell = row.createCell(0);
+		cell.setCellStyle(celula_fundo_branco_texto_preto);
+		cell.setCellValue("Total Contratado:");
+
+		cell = row.createCell(1);
+		cell.setCellStyle(numberStyleFundoVerdeTextoBranco);
+		cell.setCellValue(soma_total_quantidade_contratos);
+
+		cell = row.createCell(2);
+		cell.setCellStyle(numberStyleFundoBrancoTextoPreto);
+		cell.setCellType(CellType.FORMULA);
+		formula = "SUM(B" + (rownum + 1) + "/60)";
+		cell.setCellFormula(formula);
+
+		row = sheet.createRow(rownum += 1);
+		cellnum = 0;
+
+		cell = row.createCell(0);
+		cell.setCellStyle(celula_fundo_branco_texto_preto);
+		cell.setCellValue("Restante:");
+
+		// restante
+
+		if (incluir_transferencias_carregamentos) {
+			cell = row.createCell(1);
+			cell.setCellStyle(numberStyleFundoVerdeTextoBranco);
+			cell.setCellType(CellType.FORMULA);
+			formula = "SUM(B" + linha_total_contratado + "-B" + linha_soma_final + ")";
+			cell.setCellFormula(formula);
+		} else {
+
+			cell = row.createCell(1);
+			cell.setCellStyle(numberStyleFundoVerdeTextoBranco);
+			cell.setCellType(CellType.FORMULA);
+			formula = "SUM(B" + linha_total_contratado + "-B" + celula_soma_peso + ")";
+			cell.setCellFormula(formula);
+		}
+		cell = row.createCell(2);
+		cell.setCellStyle(numberStyleFundoBrancoTextoPreto);
+		cell.setCellType(CellType.FORMULA);
+		formula = "SUM(B" + (rownum + 1) + "/60)";
+		cell.setCellFormula(formula);
+
+		// restante baseado no que foi recebido
+
+		row = sheet.createRow(rownum += 2);
+		cellnum = 0;
+
+		int linha_total_recebido = rownum + 1;
+		cell = row.createCell(0);
+		cell.setCellStyle(celula_fundo_branco_texto_preto);
+		cell.setCellValue("Total Recebido:");
+
+		cell = row.createCell(1);
+		cell.setCellStyle(numberStyleFundoVerdeTextoBranco);
+		cell.setCellValue(soma_total_quantidade_recebidas);
+
+		cell = row.createCell(2);
+		cell.setCellStyle(numberStyleFundoBrancoTextoPreto);
+		cell.setCellType(CellType.FORMULA);
+		formula = "SUM(B" + (rownum + 1) + "/60)";
+		cell.setCellFormula(formula);
+
+		row = sheet.createRow(rownum += 1);
+		cellnum = 0;
+
+		cell = row.createCell(0);
+		cell.setCellStyle(celula_fundo_branco_texto_preto);
+		cell.setCellValue("Restante:");
+
+		// restante
+
+		if (incluir_transferencias_carregamentos) {
+			cell = row.createCell(1);
+			cell.setCellStyle(numberStyleFundoVerdeTextoBranco);
+			cell.setCellType(CellType.FORMULA);
+			formula = "SUM(B" + linha_total_recebido + "-B" + linha_soma_final + ")";
+			cell.setCellFormula(formula);
+		} else {
+
+			cell = row.createCell(1);
+			cell.setCellStyle(numberStyleFundoVerdeTextoBranco);
+			cell.setCellType(CellType.FORMULA);
+			formula = "SUM(B" + linha_total_recebido + "-B" + celula_soma_peso + ")";
+			cell.setCellFormula(formula);
+		}
+		cell = row.createCell(2);
+		cell.setCellStyle(numberStyleFundoBrancoTextoPreto);
+		cell.setCellType(CellType.FORMULA);
+		formula = "SUM(B" + (rownum + 1) + "/60)";
+		cell.setCellFormula(formula);
+
+		for (int i = 0; i < 16; i++) {
 			sheet.autoSizeColumn(i);
 
 		}
@@ -4898,111 +7264,131 @@ public class RelatorioContratos {
 
 	}
 
-	public DadosTabelaExcel criarTabelaRecebimentosExcel(HSSFWorkbook workbook, HSSFSheet sheet, int rownum,
-			ArrayList<RecebimentoCompleto> recebimentos, CadastroContrato novo_contrato) {
-		// XWPFParagraph par = document_global.createParagraph();
+	// variaves de esquema
+	HSSFDataFormat numberFormatRecebimentos;
+	HSSFFont newFont_brancaRecebimentos;
+	CellStyle celula_fundo_verde_texto_brancoRecebimentos;
+	HSSFFont newFont_pretaRecebimentos;
+	CellStyle celula_fundo_branco_texto_pretoRecebimentos;
+	CellStyle numberStyleRecebimentos;
+	CellStyle pesoStyleRecebimentos;
+	CellStyle numberStyleFundoVerdeTextoBrancoRecebimentos;
+	CellStyle numberStyleFundoBrancoTextoPretoRecebimentos;
+	CellStyle celula_fundo_branco_texto_azulRecebimentos;
+	HSSFFont newFont_azulRecebimentos;
+	CellStyle celula_fundo_branco_texto_vermelhoRecebimentos;
+	HSSFFont newFont_vermelhaRecebimentos;
+	HSSFFont newFont_verdeRecebimentos;
+	CellStyle celula_fundo_branco_texto_verdeRecebimentos;
+	CellStyle valorStyleFundoVerdeTextoBrancoRecebimentos;
 
-		HSSFDataFormat numberFormat = workbook.createDataFormat();
+	public void criarEsquemaEstilo(HSSFWorkbook workbook) {
+		numberFormatRecebimentos = workbook.createDataFormat();
 
-		HSSFFont newFont_branca = workbook.createFont();
-		newFont_branca.setBold(true);
-		newFont_branca.setColor(IndexedColors.WHITE.getIndex());
-		newFont_branca.setFontName("Calibri");
-		newFont_branca.setItalic(false);
-		newFont_branca.setFontHeight((short) (11 * 20));
+		newFont_brancaRecebimentos = workbook.createFont();
+		newFont_brancaRecebimentos.setBold(true);
+		newFont_brancaRecebimentos.setColor(IndexedColors.WHITE.getIndex());
+		newFont_brancaRecebimentos.setFontName("Calibri");
+		newFont_brancaRecebimentos.setItalic(false);
+		newFont_brancaRecebimentos.setFontHeight((short) (11 * 20));
 
 		// estilo para cabecalho fundo verde
-		CellStyle celula_fundo_verde_texto_branco = workbook.createCellStyle();
-		celula_fundo_verde_texto_branco.setFillPattern(FillPatternType.SOLID_FOREGROUND);
-		celula_fundo_verde_texto_branco.setFillForegroundColor(IndexedColors.GREEN.getIndex());
-		celula_fundo_verde_texto_branco.setAlignment(HorizontalAlignment.CENTER);
-		celula_fundo_verde_texto_branco.setVerticalAlignment(VerticalAlignment.CENTER);
+		celula_fundo_verde_texto_brancoRecebimentos = workbook.createCellStyle();
+		celula_fundo_verde_texto_brancoRecebimentos.setFillPattern(FillPatternType.SOLID_FOREGROUND);
+		celula_fundo_verde_texto_brancoRecebimentos.setFillForegroundColor(IndexedColors.GREEN.getIndex());
+		celula_fundo_verde_texto_brancoRecebimentos.setAlignment(HorizontalAlignment.CENTER);
+		celula_fundo_verde_texto_brancoRecebimentos.setVerticalAlignment(VerticalAlignment.CENTER);
 
-		celula_fundo_verde_texto_branco.setFont(newFont_branca);
+		celula_fundo_verde_texto_brancoRecebimentos.setFont(newFont_brancaRecebimentos);
 
-		HSSFFont newFont_preta = workbook.createFont();
-		newFont_preta.setColor(IndexedColors.BLACK.getIndex());
-		newFont_preta.setFontName("Calibri");
-		newFont_preta.setItalic(false);
-		newFont_preta.setFontHeight((short) (11 * 20));
+		newFont_pretaRecebimentos = workbook.createFont();
+		newFont_pretaRecebimentos.setColor(IndexedColors.BLACK.getIndex());
+		newFont_pretaRecebimentos.setFontName("Calibri");
+		newFont_pretaRecebimentos.setItalic(false);
+		newFont_pretaRecebimentos.setFontHeight((short) (11 * 20));
 
-		CellStyle celula_fundo_branco_texto_preto = workbook.createCellStyle();
-		celula_fundo_branco_texto_preto.setAlignment(HorizontalAlignment.CENTER);
-		celula_fundo_branco_texto_preto.setVerticalAlignment(VerticalAlignment.CENTER);
-		celula_fundo_branco_texto_preto.setFont(newFont_preta);
-
-		// celula para numero alinhado ao centro
-		CellStyle numberStyle = workbook.createCellStyle();
-		numberStyle.setDataFormat(numberFormat.getFormat("R$ #,##0.00"));
-		numberStyle.setAlignment(HorizontalAlignment.CENTER);
-		numberStyle.setVerticalAlignment(VerticalAlignment.CENTER);
+		celula_fundo_branco_texto_pretoRecebimentos = workbook.createCellStyle();
+		celula_fundo_branco_texto_pretoRecebimentos.setAlignment(HorizontalAlignment.CENTER);
+		celula_fundo_branco_texto_pretoRecebimentos.setVerticalAlignment(VerticalAlignment.CENTER);
+		celula_fundo_branco_texto_pretoRecebimentos.setFont(newFont_pretaRecebimentos);
 
 		// celula para numero alinhado ao centro
-		CellStyle pesoStyle = workbook.createCellStyle();
-		pesoStyle.setDataFormat(numberFormat.getFormat("#,##0.00"));
-		pesoStyle.setAlignment(HorizontalAlignment.CENTER);
-		pesoStyle.setVerticalAlignment(VerticalAlignment.CENTER);
+		numberStyleRecebimentos = workbook.createCellStyle();
+		numberStyleRecebimentos.setDataFormat(numberFormatRecebimentos.getFormat("R$ #,##0.00"));
+		numberStyleRecebimentos.setAlignment(HorizontalAlignment.CENTER);
+		numberStyleRecebimentos.setVerticalAlignment(VerticalAlignment.CENTER);
 
-		CellStyle numberStyleFundoVerdeTextoBranco = workbook.createCellStyle();
-		numberStyleFundoVerdeTextoBranco.setFillPattern(FillPatternType.SOLID_FOREGROUND);
-		numberStyleFundoVerdeTextoBranco.setFillForegroundColor(IndexedColors.GREEN.getIndex());
-		numberStyleFundoVerdeTextoBranco.setAlignment(HorizontalAlignment.CENTER);
-		numberStyleFundoVerdeTextoBranco.setVerticalAlignment(VerticalAlignment.CENTER);
-		numberStyleFundoVerdeTextoBranco.setDataFormat(numberFormat.getFormat("#,##0.00"));
+		// celula para numero alinhado ao centro
+		pesoStyleRecebimentos = workbook.createCellStyle();
+		pesoStyleRecebimentos.setDataFormat(numberFormatRecebimentos.getFormat("#,##0.00"));
+		pesoStyleRecebimentos.setAlignment(HorizontalAlignment.CENTER);
+		pesoStyleRecebimentos.setVerticalAlignment(VerticalAlignment.CENTER);
 
-		numberStyleFundoVerdeTextoBranco.setFont(newFont_branca);
+		numberStyleFundoVerdeTextoBrancoRecebimentos = workbook.createCellStyle();
+		numberStyleFundoVerdeTextoBrancoRecebimentos.setFillPattern(FillPatternType.SOLID_FOREGROUND);
+		numberStyleFundoVerdeTextoBrancoRecebimentos.setFillForegroundColor(IndexedColors.GREEN.getIndex());
+		numberStyleFundoVerdeTextoBrancoRecebimentos.setAlignment(HorizontalAlignment.CENTER);
+		numberStyleFundoVerdeTextoBrancoRecebimentos.setVerticalAlignment(VerticalAlignment.CENTER);
+		numberStyleFundoVerdeTextoBrancoRecebimentos.setDataFormat(numberFormatRecebimentos.getFormat("#,##0.00"));
 
-		CellStyle numberStyleFundoBrancoTextoPreto = workbook.createCellStyle();
-		numberStyleFundoBrancoTextoPreto.setAlignment(HorizontalAlignment.LEFT);
-		numberStyleFundoBrancoTextoPreto.setVerticalAlignment(VerticalAlignment.CENTER);
-		numberStyleFundoBrancoTextoPreto.setDataFormat(numberFormat.getFormat("#,##0.00"));
-		numberStyleFundoBrancoTextoPreto.setFont(newFont_preta);
+		numberStyleFundoVerdeTextoBrancoRecebimentos.setFont(newFont_brancaRecebimentos);
 
-		CellStyle valorStyleFundoVerdeTextoBranco = workbook.createCellStyle();
-		valorStyleFundoVerdeTextoBranco.setFillPattern(FillPatternType.SOLID_FOREGROUND);
-		valorStyleFundoVerdeTextoBranco.setFillForegroundColor(IndexedColors.GREEN.getIndex());
-		valorStyleFundoVerdeTextoBranco.setAlignment(HorizontalAlignment.CENTER);
-		valorStyleFundoVerdeTextoBranco.setVerticalAlignment(VerticalAlignment.CENTER);
-		valorStyleFundoVerdeTextoBranco.setDataFormat(numberFormat.getFormat("R$ #,##0.00"));
-		valorStyleFundoVerdeTextoBranco.setFont(newFont_branca);
+		numberStyleFundoBrancoTextoPretoRecebimentos = workbook.createCellStyle();
+		numberStyleFundoBrancoTextoPretoRecebimentos.setAlignment(HorizontalAlignment.LEFT);
+		numberStyleFundoBrancoTextoPretoRecebimentos.setVerticalAlignment(VerticalAlignment.CENTER);
+		numberStyleFundoBrancoTextoPretoRecebimentos.setDataFormat(numberFormatRecebimentos.getFormat("#,##0.00"));
+		numberStyleFundoBrancoTextoPretoRecebimentos.setFont(newFont_pretaRecebimentos);
+
+		valorStyleFundoVerdeTextoBrancoRecebimentos = workbook.createCellStyle();
+		valorStyleFundoVerdeTextoBrancoRecebimentos.setFillPattern(FillPatternType.SOLID_FOREGROUND);
+		valorStyleFundoVerdeTextoBrancoRecebimentos.setFillForegroundColor(IndexedColors.GREEN.getIndex());
+		valorStyleFundoVerdeTextoBrancoRecebimentos.setAlignment(HorizontalAlignment.CENTER);
+		valorStyleFundoVerdeTextoBrancoRecebimentos.setVerticalAlignment(VerticalAlignment.CENTER);
+		valorStyleFundoVerdeTextoBrancoRecebimentos.setDataFormat(numberFormatRecebimentos.getFormat("R$ #,##0.00"));
+		valorStyleFundoVerdeTextoBrancoRecebimentos.setFont(newFont_brancaRecebimentos);
 
 		// celular de contrato normal
-		HSSFFont newFont_verde = workbook.createFont();
-		newFont_verde.setColor(IndexedColors.GREEN.getIndex());
-		newFont_verde.setFontName("Calibri");
-		newFont_verde.setItalic(false);
-		newFont_verde.setFontHeight((short) (11 * 20));
+		newFont_verdeRecebimentos = workbook.createFont();
+		newFont_verdeRecebimentos.setColor(IndexedColors.GREEN.getIndex());
+		newFont_verdeRecebimentos.setFontName("Calibri");
+		newFont_verdeRecebimentos.setItalic(false);
+		newFont_verdeRecebimentos.setFontHeight((short) (11 * 20));
 
-		CellStyle celula_fundo_branco_texto_verde = workbook.createCellStyle();
-		celula_fundo_branco_texto_verde.setAlignment(HorizontalAlignment.CENTER);
-		celula_fundo_branco_texto_verde.setVerticalAlignment(VerticalAlignment.CENTER);
-		celula_fundo_branco_texto_verde.setFont(newFont_verde);
+		celula_fundo_branco_texto_verdeRecebimentos = workbook.createCellStyle();
+		celula_fundo_branco_texto_verdeRecebimentos.setAlignment(HorizontalAlignment.CENTER);
+		celula_fundo_branco_texto_verdeRecebimentos.setVerticalAlignment(VerticalAlignment.CENTER);
+		celula_fundo_branco_texto_verdeRecebimentos.setFont(newFont_verdeRecebimentos);
 
 		// celular de sub-contrato n
-		HSSFFont newFont_vermelha = workbook.createFont();
-		newFont_vermelha.setColor(IndexedColors.RED.getIndex());
-		newFont_vermelha.setFontName("Calibri");
-		newFont_vermelha.setItalic(false);
-		newFont_vermelha.setFontHeight((short) (11 * 20));
+		newFont_vermelhaRecebimentos = workbook.createFont();
+		newFont_vermelhaRecebimentos.setColor(IndexedColors.RED.getIndex());
+		newFont_vermelhaRecebimentos.setFontName("Calibri");
+		newFont_vermelhaRecebimentos.setItalic(false);
+		newFont_vermelhaRecebimentos.setFontHeight((short) (11 * 20));
 
-		CellStyle celula_fundo_branco_texto_vermelho = workbook.createCellStyle();
-		celula_fundo_branco_texto_vermelho.setAlignment(HorizontalAlignment.CENTER);
-		celula_fundo_branco_texto_vermelho.setVerticalAlignment(VerticalAlignment.CENTER);
-		celula_fundo_branco_texto_vermelho.setFont(newFont_vermelha);
+		celula_fundo_branco_texto_vermelhoRecebimentos = workbook.createCellStyle();
+		celula_fundo_branco_texto_vermelhoRecebimentos.setAlignment(HorizontalAlignment.CENTER);
+		celula_fundo_branco_texto_vermelhoRecebimentos.setVerticalAlignment(VerticalAlignment.CENTER);
+		celula_fundo_branco_texto_vermelhoRecebimentos.setFont(newFont_vermelhaRecebimentos);
 
 		// celula de ganho potencial
 
 		// celular de sub-contrato n
-		HSSFFont newFont_azul = workbook.createFont();
-		newFont_azul.setColor(IndexedColors.BLUE.getIndex());
-		newFont_azul.setFontName("Calibri");
-		newFont_azul.setItalic(false);
-		newFont_azul.setFontHeight((short) (11 * 20));
+		newFont_azulRecebimentos = workbook.createFont();
+		newFont_azulRecebimentos.setColor(IndexedColors.BLUE.getIndex());
+		newFont_azulRecebimentos.setFontName("Calibri");
+		newFont_azulRecebimentos.setItalic(false);
+		newFont_azulRecebimentos.setFontHeight((short) (11 * 20));
 
-		CellStyle celula_fundo_branco_texto_azul = workbook.createCellStyle();
-		celula_fundo_branco_texto_azul.setAlignment(HorizontalAlignment.CENTER);
-		celula_fundo_branco_texto_azul.setVerticalAlignment(VerticalAlignment.CENTER);
-		celula_fundo_branco_texto_azul.setFont(newFont_azul);
+		celula_fundo_branco_texto_azulRecebimentos = workbook.createCellStyle();
+		celula_fundo_branco_texto_azulRecebimentos.setAlignment(HorizontalAlignment.CENTER);
+		celula_fundo_branco_texto_azulRecebimentos.setVerticalAlignment(VerticalAlignment.CENTER);
+		celula_fundo_branco_texto_azulRecebimentos.setFont(newFont_azulRecebimentos);
+	}
+
+	public DadosTabelaExcel criarTabelaRecebimentosExcel(HSSFWorkbook workbook, HSSFSheet sheet, int rownum,
+			ArrayList<RecebimentoCompleto> recebimentos, CadastroContrato novo_contrato) {
+		// XWPFParagraph par = document_global.createParagraph();
 
 		NumberFormat z = NumberFormat.getNumberInstance();
 
@@ -5069,7 +7455,7 @@ public class RelatorioContratos {
 
 		row = sheet.createRow(rownum);
 		cell = row.createCell(cellnum);
-		cell.setCellStyle(celula_fundo_branco_texto_preto);
+		cell.setCellStyle(celula_fundo_branco_texto_pretoRecebimentos);
 		cell.setCellValue(texto_info_contrato);
 		sheet.addMergedRegion(new CellRangeAddress(rownum, rownum, cellnum, 10));
 
@@ -5122,7 +7508,7 @@ public class RelatorioContratos {
 
 		row = sheet.createRow(rownum);
 		cell = row.createCell(cellnum);
-		cell.setCellStyle(celula_fundo_branco_texto_preto);
+		cell.setCellStyle(celula_fundo_branco_texto_pretoRecebimentos);
 		cell.setCellValue(linha_nome_compradores_vendedores);
 		sheet.addMergedRegion(new CellRangeAddress(rownum, rownum, cellnum, 10));
 
@@ -5131,43 +7517,43 @@ public class RelatorioContratos {
 		row = sheet.createRow(rownum);
 
 		cell = row.createCell(cellnum++);
-		cell.setCellStyle(celula_fundo_verde_texto_branco);
+		cell.setCellStyle(celula_fundo_verde_texto_brancoRecebimentos);
 		cell.setCellValue("CONTRATO");
 
 		cell = row.createCell(cellnum++);
-		cell.setCellStyle(celula_fundo_verde_texto_branco);
+		cell.setCellStyle(celula_fundo_verde_texto_brancoRecebimentos);
 		cell.setCellValue("DATA");
 
 		cell = row.createCell(cellnum++);
-		cell.setCellStyle(celula_fundo_verde_texto_branco);
+		cell.setCellStyle(celula_fundo_verde_texto_brancoRecebimentos);
 		cell.setCellValue("CODIGO ROMANEIO");
 
 		cell = row.createCell(cellnum++);
-		cell.setCellStyle(celula_fundo_verde_texto_branco);
+		cell.setCellStyle(celula_fundo_verde_texto_brancoRecebimentos);
 		cell.setCellValue("PESO ROMANEIO:".toUpperCase());
 
 		cell = row.createCell(cellnum++);
-		cell.setCellStyle(celula_fundo_verde_texto_branco);
+		cell.setCellStyle(celula_fundo_verde_texto_brancoRecebimentos);
 		cell.setCellValue("NF VENDA".toUpperCase());
 
 		cell = row.createCell(cellnum++);
-		cell.setCellStyle(celula_fundo_verde_texto_branco);
+		cell.setCellStyle(celula_fundo_verde_texto_brancoRecebimentos);
 		cell.setCellValue("PESO NF VENDA".toUpperCase());
 
 		cell = row.createCell(cellnum++);
-		cell.setCellStyle(celula_fundo_verde_texto_branco);
+		cell.setCellStyle(celula_fundo_verde_texto_brancoRecebimentos);
 		cell.setCellValue("VALOR NF VENDA".toUpperCase());
 
 		cell = row.createCell(cellnum++);
-		cell.setCellStyle(celula_fundo_verde_texto_branco);
+		cell.setCellStyle(celula_fundo_verde_texto_brancoRecebimentos);
 		cell.setCellValue("NF REMESSA".toUpperCase());
 
 		cell = row.createCell(cellnum++);
-		cell.setCellStyle(celula_fundo_verde_texto_branco);
+		cell.setCellStyle(celula_fundo_verde_texto_brancoRecebimentos);
 		cell.setCellValue("PESO NF REMESSA".toUpperCase());
 
 		cell = row.createCell(cellnum++);
-		cell.setCellStyle(celula_fundo_verde_texto_branco);
+		cell.setCellStyle(celula_fundo_verde_texto_brancoRecebimentos);
 		cell.setCellValue("VALOR NF REMESSA".toUpperCase());
 
 		rownum += 1;
@@ -5227,49 +7613,49 @@ public class RelatorioContratos {
 			row = sheet.createRow(rownum);
 
 			cell = row.createCell(cellnum++);
-			cell.setCellStyle(celula_fundo_branco_texto_preto);
+			cell.setCellStyle(celula_fundo_branco_texto_pretoRecebimentos);
 			cell.setCellValue(novo_contrato.getCodigo());
 
 			cell = row.createCell(cellnum++);
-			cell.setCellStyle(celula_fundo_branco_texto_preto);
+			cell.setCellStyle(celula_fundo_branco_texto_pretoRecebimentos);
 			cell.setCellValue(recebimento.getData_recebimento());
 
 			cell = row.createCell(cellnum++);
-			cell.setCellStyle(celula_fundo_branco_texto_preto);
+			cell.setCellStyle(celula_fundo_branco_texto_pretoRecebimentos);
 			cell.setCellValue(recebimento.getCodigo_romaneio());
 
 			cell = row.createCell(cellnum++);
-			cell.setCellStyle(pesoStyle);
+			cell.setCellStyle(pesoStyleRecebimentos);
 			cell.setCellValue(recebimento.getPeso_romaneio());
 			soma_total_romaneio += recebimento.getPeso_romaneio();
 
 			if (recebimento.getNf_venda_aplicavel() == 1) {
 
 				cell = row.createCell(cellnum++);
-				cell.setCellStyle(celula_fundo_branco_texto_preto);
+				cell.setCellStyle(celula_fundo_branco_texto_pretoRecebimentos);
 				cell.setCellValue(recebimento.getCodigo_nf_venda());
 
 				cell = row.createCell(cellnum++);
-				cell.setCellStyle(pesoStyle);
+				cell.setCellStyle(pesoStyleRecebimentos);
 				cell.setCellValue(recebimento.getPeso_nf_venda());
 				soma_total_nf_venda += recebimento.getPeso_nf_venda();
 
 				cell = row.createCell(cellnum++);
-				cell.setCellStyle(numberStyle);
+				cell.setCellStyle(numberStyleRecebimentos);
 				cell.setCellValue(recebimento.getValor_nf_venda().doubleValue());
 				valor_total_nf_venda = valor_total_nf_venda.add(recebimento.getValor_nf_venda());
 
 			} else {
 				cell = row.createCell(cellnum++);
-				cell.setCellStyle(celula_fundo_branco_texto_preto);
+				cell.setCellStyle(celula_fundo_branco_texto_pretoRecebimentos);
 				cell.setCellValue("Não Aplicavel");
 
 				cell = row.createCell(cellnum++);
-				cell.setCellStyle(celula_fundo_branco_texto_preto);
+				cell.setCellStyle(celula_fundo_branco_texto_pretoRecebimentos);
 				cell.setCellValue("Não Aplicavel");
 
 				cell = row.createCell(cellnum++);
-				cell.setCellStyle(celula_fundo_branco_texto_preto);
+				cell.setCellStyle(celula_fundo_branco_texto_pretoRecebimentos);
 				cell.setCellValue("Não Aplicavel");
 
 			}
@@ -5277,31 +7663,31 @@ public class RelatorioContratos {
 			if (recebimento.getNf_remessa_aplicavel() == 1) {
 
 				cell = row.createCell(cellnum++);
-				cell.setCellStyle(celula_fundo_branco_texto_preto);
+				cell.setCellStyle(celula_fundo_branco_texto_pretoRecebimentos);
 				cell.setCellValue(recebimento.getCodigo_nf_remessa());
 
 				cell = row.createCell(cellnum++);
-				cell.setCellStyle(pesoStyle);
+				cell.setCellStyle(pesoStyleRecebimentos);
 				cell.setCellValue(recebimento.getPeso_nf_remessa());
 				soma_total_nf_remessa += recebimento.getPeso_nf_remessa();
 
 				cell = row.createCell(cellnum++);
-				cell.setCellStyle(numberStyle);
+				cell.setCellStyle(numberStyleRecebimentos);
 				cell.setCellValue(recebimento.getValor_nf_remessa().doubleValue());
 				valor_total_nf_remessa = valor_total_nf_remessa.add(recebimento.getValor_nf_remessa());
 
 			} else {
 
 				cell = row.createCell(cellnum++);
-				cell.setCellStyle(celula_fundo_branco_texto_preto);
+				cell.setCellStyle(celula_fundo_branco_texto_pretoRecebimentos);
 				cell.setCellValue("Não Aplicável");
 
 				cell = row.createCell(cellnum++);
-				cell.setCellStyle(celula_fundo_branco_texto_preto);
+				cell.setCellStyle(celula_fundo_branco_texto_pretoRecebimentos);
 				cell.setCellValue("Não Aplicável");
 
 				cell = row.createCell(cellnum++);
-				cell.setCellStyle(celula_fundo_branco_texto_preto);
+				cell.setCellStyle(celula_fundo_branco_texto_pretoRecebimentos);
 				cell.setCellValue("Não Aplicável");
 
 			}
@@ -5320,44 +7706,44 @@ public class RelatorioContratos {
 				row = sheet.createRow(rownum);
 
 				cell = row.createCell(cellnum++);
-				cell.setCellStyle(celula_fundo_branco_texto_preto);
+				cell.setCellStyle(celula_fundo_branco_texto_pretoRecebimentos);
 				cell.setCellValue(novo_contrato.getCodigo());
 
 				cell = row.createCell(cellnum++);
-				cell.setCellStyle(celula_fundo_branco_texto_preto);
+				cell.setCellStyle(celula_fundo_branco_texto_pretoRecebimentos);
 				cell.setCellValue(enviado_via_trans.getData());
 
 				cell = row.createCell(cellnum++);
-				cell.setCellStyle(celula_fundo_branco_texto_preto);
+				cell.setCellStyle(celula_fundo_branco_texto_pretoRecebimentos);
 				cell.setCellValue("-Transferencia");
 
 				cell = row.createCell(cellnum++);
-				cell.setCellStyle(pesoStyle);
+				cell.setCellStyle(pesoStyleRecebimentos);
 				cell.setCellValue(enviado_via_trans.getQuantidade());
 				soma_total_trans_negativa += enviado_via_trans.getQuantidade();
 
 				cell = row.createCell(cellnum++);
-				cell.setCellStyle(celula_fundo_branco_texto_preto);
+				cell.setCellStyle(celula_fundo_branco_texto_pretoRecebimentos);
 				cell.setCellValue("Não Aplicável");
 
 				cell = row.createCell(cellnum++);
-				cell.setCellStyle(celula_fundo_branco_texto_preto);
+				cell.setCellStyle(celula_fundo_branco_texto_pretoRecebimentos);
 				cell.setCellValue("Não Aplicável");
 
 				cell = row.createCell(cellnum++);
-				cell.setCellStyle(celula_fundo_branco_texto_preto);
+				cell.setCellStyle(celula_fundo_branco_texto_pretoRecebimentos);
 				cell.setCellValue("Não Aplicável");
 
 				cell = row.createCell(cellnum++);
-				cell.setCellStyle(celula_fundo_branco_texto_preto);
+				cell.setCellStyle(celula_fundo_branco_texto_pretoRecebimentos);
 				cell.setCellValue("Não Aplicável");
 
 				cell = row.createCell(cellnum++);
-				cell.setCellStyle(celula_fundo_branco_texto_preto);
+				cell.setCellStyle(celula_fundo_branco_texto_pretoRecebimentos);
 				cell.setCellValue("Não Aplicável");
 
 				cell = row.createCell(cellnum++);
-				cell.setCellStyle(celula_fundo_branco_texto_preto);
+				cell.setCellStyle(celula_fundo_branco_texto_pretoRecebimentos);
 				cell.setCellValue("Não Aplicável");
 
 				rownum++;
@@ -5372,44 +7758,44 @@ public class RelatorioContratos {
 				row = sheet.createRow(rownum);
 
 				cell = row.createCell(cellnum++);
-				cell.setCellStyle(celula_fundo_branco_texto_preto);
+				cell.setCellStyle(celula_fundo_branco_texto_pretoRecebimentos);
 				cell.setCellValue(novo_contrato.getCodigo());
 
 				cell = row.createCell(cellnum++);
-				cell.setCellStyle(celula_fundo_branco_texto_preto);
+				cell.setCellStyle(celula_fundo_branco_texto_pretoRecebimentos);
 				cell.setCellValue(recebido_via_trans.getData());
 
 				cell = row.createCell(cellnum++);
-				cell.setCellStyle(celula_fundo_branco_texto_preto);
+				cell.setCellStyle(celula_fundo_branco_texto_pretoRecebimentos);
 				cell.setCellValue("+Transferencia");
 
 				cell = row.createCell(cellnum++);
-				cell.setCellStyle(pesoStyle);
+				cell.setCellStyle(pesoStyleRecebimentos);
 				cell.setCellValue(recebido_via_trans.getQuantidade());
 				soma_total_trans_positiva += recebido_via_trans.getQuantidade();
 
 				cell = row.createCell(cellnum++);
-				cell.setCellStyle(celula_fundo_branco_texto_preto);
+				cell.setCellStyle(celula_fundo_branco_texto_pretoRecebimentos);
 				cell.setCellValue("Não Aplicável");
 
 				cell = row.createCell(cellnum++);
-				cell.setCellStyle(celula_fundo_branco_texto_preto);
+				cell.setCellStyle(celula_fundo_branco_texto_pretoRecebimentos);
 				cell.setCellValue("Não Aplicável");
 
 				cell = row.createCell(cellnum++);
-				cell.setCellStyle(celula_fundo_branco_texto_preto);
+				cell.setCellStyle(celula_fundo_branco_texto_pretoRecebimentos);
 				cell.setCellValue("Não Aplicável");
 
 				cell = row.createCell(cellnum++);
-				cell.setCellStyle(celula_fundo_branco_texto_preto);
+				cell.setCellStyle(celula_fundo_branco_texto_pretoRecebimentos);
 				cell.setCellValue("Não Aplicável");
 
 				cell = row.createCell(cellnum++);
-				cell.setCellStyle(celula_fundo_branco_texto_preto);
+				cell.setCellStyle(celula_fundo_branco_texto_pretoRecebimentos);
 				cell.setCellValue("Não Aplicável");
 
 				cell = row.createCell(cellnum++);
-				cell.setCellStyle(celula_fundo_branco_texto_preto);
+				cell.setCellStyle(celula_fundo_branco_texto_pretoRecebimentos);
 				cell.setCellValue("Não Aplicável");
 
 				rownum++;
@@ -5429,24 +7815,24 @@ public class RelatorioContratos {
 
 		// somatoria de pesos
 		cell = row.createCell(2);
-		cell.setCellStyle(celula_fundo_branco_texto_preto);
+		cell.setCellStyle(celula_fundo_branco_texto_pretoRecebimentos);
 		cell.setCellValue("Soma Final:");
 
 		cell = row.createCell(3);
-		cell.setCellStyle(numberStyleFundoVerdeTextoBranco);
+		cell.setCellStyle(numberStyleFundoVerdeTextoBrancoRecebimentos);
 		cell.setCellType(CellType.FORMULA);
 		String formula = "SUM(D" + primeira_linha + ":D" + ultima_linha + ")";
 		cell.setCellFormula(formula);
 
 		cell = row.createCell(4);
-		cell.setCellStyle(numberStyleFundoBrancoTextoPreto);
+		cell.setCellStyle(numberStyleFundoBrancoTextoPretoRecebimentos);
 		cell.setCellType(CellType.FORMULA);
 		formula = "SUM(D" + (rownum + 1) + "/60)";
 		cell.setCellFormula(formula);
 
 		// somatoria de peso de nf venda
 		cell = row.createCell(5);
-		cell.setCellStyle(numberStyleFundoVerdeTextoBranco);
+		cell.setCellStyle(numberStyleFundoVerdeTextoBrancoRecebimentos);
 		cell.setCellType(CellType.FORMULA);
 		formula = "SUMPRODUCT(SUBTOTAL(9,OFFSET(F" + primeira_linha + ":F" + ultima_linha + ",ROW(F" + primeira_linha
 				+ ":F" + ultima_linha + ")-ROW(F" + primeira_linha + "),0,1,1)),-(E" + primeira_linha + ":E"
@@ -5455,7 +7841,7 @@ public class RelatorioContratos {
 
 		// somatoria de valor de nf venda
 		cell = row.createCell(6);
-		cell.setCellStyle(valorStyleFundoVerdeTextoBranco);
+		cell.setCellStyle(valorStyleFundoVerdeTextoBrancoRecebimentos);
 		cell.setCellType(CellType.FORMULA);
 		formula = "SUMPRODUCT(SUBTOTAL(9,OFFSET(G" + primeira_linha + ":G" + ultima_linha + ",ROW(G" + primeira_linha
 				+ ":G" + ultima_linha + ")-ROW(G" + primeira_linha + "),0,1,1)),-(E" + primeira_linha + ":E"
@@ -5464,7 +7850,7 @@ public class RelatorioContratos {
 
 		// somatoria de peso de nf remessa
 		cell = row.createCell(8);
-		cell.setCellStyle(numberStyleFundoVerdeTextoBranco);
+		cell.setCellStyle(numberStyleFundoVerdeTextoBrancoRecebimentos);
 		cell.setCellType(CellType.FORMULA);
 		formula = "SUMPRODUCT(SUBTOTAL(9,OFFSET(I" + primeira_linha + ":I" + ultima_linha + ",ROW(I" + primeira_linha
 				+ ":I" + ultima_linha + ")-ROW(I" + primeira_linha + "),0,1,1)),-(H" + primeira_linha + ":H"
@@ -5473,7 +7859,7 @@ public class RelatorioContratos {
 
 		// somatoria de valor de nf remessa
 		cell = row.createCell(9);
-		cell.setCellStyle(valorStyleFundoVerdeTextoBranco);
+		cell.setCellStyle(valorStyleFundoVerdeTextoBrancoRecebimentos);
 		cell.setCellType(CellType.FORMULA);
 		formula = "SUMPRODUCT(SUBTOTAL(9,OFFSET(J" + primeira_linha + ":J" + ultima_linha + ",ROW(J" + primeira_linha
 				+ ":J" + ultima_linha + ")-ROW(J" + primeira_linha + "),0,1,1)),-(H" + primeira_linha + ":H"
@@ -5485,13 +7871,13 @@ public class RelatorioContratos {
 		// somatoria de valor de peso normal
 		row = sheet.createRow(rownum);
 		cell = row.createCell(0);
-		cell.setCellStyle(celula_fundo_branco_texto_preto);
+		cell.setCellStyle(celula_fundo_branco_texto_pretoRecebimentos);
 		cell.setCellValue("Peso Normal:");
 
 		celula_soma_peso = rownum + 1;
 
 		cell = row.createCell(1);
-		cell.setCellStyle(numberStyleFundoVerdeTextoBranco);
+		cell.setCellStyle(numberStyleFundoVerdeTextoBrancoRecebimentos);
 		cell.setCellType(CellType.FORMULA);
 		formula = "SUMPRODUCT(SUBTOTAL(9,OFFSET(D" + primeira_linha + ":D" + ultima_linha + ",ROW(D" + primeira_linha
 				+ ":D" + ultima_linha + ")-ROW(D" + primeira_linha + "),0,1,1)),-(C" + primeira_linha + ":C"
@@ -5500,7 +7886,7 @@ public class RelatorioContratos {
 		cell.setCellFormula(formula);
 
 		cell = row.createCell(2);
-		cell.setCellStyle(numberStyleFundoBrancoTextoPreto);
+		cell.setCellStyle(numberStyleFundoBrancoTextoPretoRecebimentos);
 		cell.setCellType(CellType.FORMULA);
 		formula = "SUM(B" + (rownum + 1) + "/60)";
 		cell.setCellFormula(formula);
@@ -5514,11 +7900,11 @@ public class RelatorioContratos {
 
 			// somatoria de pesos
 			cell = row.createCell(0);
-			cell.setCellStyle(celula_fundo_branco_texto_preto);
+			cell.setCellStyle(celula_fundo_branco_texto_pretoRecebimentos);
 			cell.setCellValue("Peso Transferencias(-):");
 
 			cell = row.createCell(1);
-			cell.setCellStyle(numberStyleFundoVerdeTextoBranco);
+			cell.setCellStyle(numberStyleFundoVerdeTextoBrancoRecebimentos);
 			cell.setCellType(CellType.FORMULA);
 			formula = "SUMPRODUCT(SUBTOTAL(9,OFFSET(D" + primeira_linha + ":D" + ultima_linha + ",ROW(D"
 					+ primeira_linha + ":D" + ultima_linha + ")-ROW(D" + primeira_linha + "),0,1,1)),-(C"
@@ -5526,7 +7912,7 @@ public class RelatorioContratos {
 			cell.setCellFormula(formula);
 
 			cell = row.createCell(2);
-			cell.setCellStyle(numberStyleFundoBrancoTextoPreto);
+			cell.setCellStyle(numberStyleFundoBrancoTextoPretoRecebimentos);
 			cell.setCellType(CellType.FORMULA);
 			formula = "SUM(B" + (rownum + 1) + "/60)";
 			cell.setCellFormula(formula);
@@ -5536,11 +7922,11 @@ public class RelatorioContratos {
 
 			// somatoria de pesos
 			cell = row.createCell(0);
-			cell.setCellStyle(celula_fundo_branco_texto_preto);
+			cell.setCellStyle(celula_fundo_branco_texto_pretoRecebimentos);
 			cell.setCellValue("Peso Transferencias(+):");
 
 			cell = row.createCell(1);
-			cell.setCellStyle(numberStyleFundoVerdeTextoBranco);
+			cell.setCellStyle(numberStyleFundoVerdeTextoBrancoRecebimentos);
 			cell.setCellType(CellType.FORMULA);
 			formula = "SUMPRODUCT(SUBTOTAL(9,OFFSET(D" + primeira_linha + ":D" + ultima_linha + ",ROW(D"
 					+ primeira_linha + ":D" + ultima_linha + ")-ROW(D" + primeira_linha + "),0,1,1)),-(C"
@@ -5548,7 +7934,7 @@ public class RelatorioContratos {
 			cell.setCellFormula(formula);
 
 			cell = row.createCell(2);
-			cell.setCellStyle(numberStyleFundoBrancoTextoPreto);
+			cell.setCellStyle(numberStyleFundoBrancoTextoPretoRecebimentos);
 			cell.setCellType(CellType.FORMULA);
 			formula = "SUM(B" + (rownum + 1) + "/60)";
 			cell.setCellFormula(formula);
@@ -5559,17 +7945,17 @@ public class RelatorioContratos {
 			linha_soma_final = rownum + 1;
 			// somatoria de pesos
 			cell = row.createCell(0);
-			cell.setCellStyle(celula_fundo_branco_texto_preto);
+			cell.setCellStyle(celula_fundo_branco_texto_pretoRecebimentos);
 			cell.setCellValue("Soma Final:");
 
 			cell = row.createCell(1);
-			cell.setCellStyle(numberStyleFundoVerdeTextoBranco);
+			cell.setCellStyle(numberStyleFundoVerdeTextoBrancoRecebimentos);
 			cell.setCellType(CellType.FORMULA);
 			formula = "SUM(D" + primeira_linha + ":D" + ultima_linha + ")";
 			cell.setCellFormula(formula);
 
 			cell = row.createCell(2);
-			cell.setCellStyle(numberStyleFundoBrancoTextoPreto);
+			cell.setCellStyle(numberStyleFundoBrancoTextoPretoRecebimentos);
 			cell.setCellType(CellType.FORMULA);
 			formula = "SUM(B" + (rownum + 1) + "/60)";
 			cell.setCellFormula(formula);
@@ -5583,11 +7969,11 @@ public class RelatorioContratos {
 
 		int linha_total_contratado = rownum + 1;
 		cell = row.createCell(0);
-		cell.setCellStyle(celula_fundo_branco_texto_preto);
+		cell.setCellStyle(celula_fundo_branco_texto_pretoRecebimentos);
 		cell.setCellValue("Total Contratado:");
 
 		cell = row.createCell(1);
-		cell.setCellStyle(numberStyleFundoVerdeTextoBranco);
+		cell.setCellStyle(numberStyleFundoVerdeTextoBrancoRecebimentos);
 		if (novo_contrato.getMedida().equalsIgnoreCase("Sacos"))
 			cell.setCellValue(novo_contrato.getQuantidade() * 60);
 		else if (novo_contrato.getMedida().equalsIgnoreCase("KG")) {
@@ -5595,7 +7981,7 @@ public class RelatorioContratos {
 
 		}
 		cell = row.createCell(2);
-		cell.setCellStyle(numberStyleFundoBrancoTextoPreto);
+		cell.setCellStyle(numberStyleFundoBrancoTextoPretoRecebimentos);
 		cell.setCellType(CellType.FORMULA);
 		formula = "SUM(B" + (rownum + 1) + "/60)";
 		cell.setCellFormula(formula);
@@ -5604,27 +7990,27 @@ public class RelatorioContratos {
 		cellnum = 0;
 
 		cell = row.createCell(0);
-		cell.setCellStyle(celula_fundo_branco_texto_preto);
+		cell.setCellStyle(celula_fundo_branco_texto_pretoRecebimentos);
 		cell.setCellValue("Restante:");
 
 		// restante
 
 		if (incluir_transferencias_recebimentos) {
 			cell = row.createCell(1);
-			cell.setCellStyle(numberStyleFundoVerdeTextoBranco);
+			cell.setCellStyle(numberStyleFundoVerdeTextoBrancoRecebimentos);
 			cell.setCellType(CellType.FORMULA);
 			formula = "SUM(B" + linha_total_contratado + "-B" + linha_soma_final + ")";
 			cell.setCellFormula(formula);
 		} else {
 
 			cell = row.createCell(1);
-			cell.setCellStyle(numberStyleFundoVerdeTextoBranco);
+			cell.setCellStyle(numberStyleFundoVerdeTextoBrancoRecebimentos);
 			cell.setCellType(CellType.FORMULA);
 			formula = "SUM(B" + linha_total_contratado + "-B" + celula_soma_peso + ")";
 			cell.setCellFormula(formula);
 		}
 		cell = row.createCell(2);
-		cell.setCellStyle(numberStyleFundoBrancoTextoPreto);
+		cell.setCellStyle(numberStyleFundoBrancoTextoPretoRecebimentos);
 		cell.setCellType(CellType.FORMULA);
 		formula = "SUM(B" + (rownum + 1) + "/60)";
 		cell.setCellFormula(formula);
@@ -6688,8 +9074,8 @@ public class RelatorioContratos {
 				CadastroContrato remetente = gerencia_contratos.getContrato(transferencia.getId_contrato_remetente());
 				CadastroContrato destinatario = gerencia_contratos
 						.getContrato(transferencia.getId_contrato_destinatario());
-				//CadastroContrato.Carregamento carga = gerencia_contratos
-					//	.getCarregamento(transferencia.getId_carregamento_remetente());
+				// CadastroContrato.Carregamento carga = gerencia_contratos
+				// .getCarregamento(transferencia.getId_carregamento_remetente());
 
 				CadastroCliente compradores_trans[] = destinatario.getCompradores();
 				CadastroCliente vendedores_trans[] = destinatario.getVendedores();
@@ -6796,8 +9182,8 @@ public class RelatorioContratos {
 				CadastroContrato remetente = gerencia_contratos.getContrato(transferencia.getId_contrato_remetente());
 				CadastroContrato destinatario = gerencia_contratos
 						.getContrato(transferencia.getId_contrato_destinatario());
-				//CadastroContrato.Carregamento carga = gerencia_contratos
-					//	.getCarregamento(transferencia.getId_carregamento_remetente());
+				// CadastroContrato.Carregamento carga = gerencia_contratos
+				// .getCarregamento(transferencia.getId_carregamento_remetente());
 
 				CadastroCliente compradores_trans[] = destinatario.getCompradores();
 				CadastroCliente vendedores_trans[] = destinatario.getVendedores();
@@ -7679,28 +10065,24 @@ public class RelatorioContratos {
 			tableRowOne.getCell(14).removeParagraph(0);
 			paragraph = tableRowOne.getCell(14).addParagraph();
 			criarParagrafoTabela(paragraph, "STATUS", false, "000000");
-			
-			
+
 			tableRowOne = table.getRow(0);
 			tableRowOne.getCell(15).removeParagraph(0);
 			paragraph = tableRowOne.getCell(15).addParagraph();
 			criarParagrafoTabela(paragraph, "LOCAL RETIRADA", false, "000000");
-			
+
 		} else {
 			tableRowOne = table.getRow(0);
 			tableRowOne.getCell(12).removeParagraph(0);
 			paragraph = tableRowOne.getCell(12).addParagraph();
 			criarParagrafoTabela(paragraph, "STATUS", false, "000000");
-			
+
 			tableRowOne = table.getRow(0);
 			tableRowOne.getCell(13).removeParagraph(0);
 			paragraph = tableRowOne.getCell(13).addParagraph();
 			criarParagrafoTabela(paragraph, "LOCAL RETIRADA", false, "000000");
 		}
 
-		
-		
-		
 		int indice = 0;
 
 		double quantitade_total_sacos = 0;
@@ -7711,7 +10093,7 @@ public class RelatorioContratos {
 			String cor_dados = "000000";
 			CadastroContrato local = lista_contratos.get(indice);
 
-			if (local.getSub_contrato() != 8) {
+			if (local.getSub_contrato() != 8 && local.getSub_contrato() != 9) {
 				// é um linha normal
 				if (local.getSub_contrato() == 1) {
 					// seta a cor vermelha
@@ -7813,7 +10195,7 @@ public class RelatorioContratos {
 					s_participacao = "GRUPO";
 				} else if (i_participacao == 1) {
 					s_participacao = "PARTICULAR";
-				}else if (i_participacao == 2) {
+				} else if (i_participacao == 2) {
 					s_participacao = "EMPRÉSTIMO";
 				}
 				tableRowOne = table.getRow(i);
@@ -7824,7 +10206,8 @@ public class RelatorioContratos {
 				String comissao_total = "";
 				if (local.getComissao() == 1) {
 					comissao_total = NumberFormat.getCurrencyInstance(ptBr).format(local.getValor_comissao());
-					if (local.getSub_contrato() == 0 || local.getSub_contrato() == 3 || local.getSub_contrato() == 4)
+					if (local.getSub_contrato() == 0 || local.getSub_contrato() == 3 || local.getSub_contrato() == 4
+							|| local.getSub_contrato() == 5)
 						valor_total_comissao = valor_total_comissao.add(local.getValor_comissao());
 				} else {
 					comissao_total = "Não";
@@ -7869,7 +10252,7 @@ public class RelatorioContratos {
 					tableRowOne.getCell(14).removeParagraph(0);
 					paragraph = tableRowOne.getCell(14).addParagraph();
 					criarParagrafoTabela(paragraph, text_status, false, cor_dados);
-					
+
 					tableRowOne = table.getRow(i);
 					tableRowOne.getCell(15).removeParagraph(0);
 					paragraph = tableRowOne.getCell(15).addParagraph();
@@ -7880,8 +10263,7 @@ public class RelatorioContratos {
 					tableRowOne.getCell(12).removeParagraph(0);
 					paragraph = tableRowOne.getCell(12).addParagraph();
 					criarParagrafoTabela(paragraph, text_status, false, cor_dados);
-					
-					
+
 					tableRowOne = table.getRow(i);
 					tableRowOne.getCell(13).removeParagraph(0);
 					paragraph = tableRowOne.getCell(13).addParagraph();
@@ -7912,11 +10294,13 @@ public class RelatorioContratos {
 					valor_total = valor_total.add(local.getValor_a_pagar());
 				}
 
-			} else {
+			} else if (local.getSub_contrato() != 9) {
 				// linha de ganhos potenciais
 				// linha com dados
 
 				GanhoPotencial ganho_potencial = new GanhoPotencial();
+				ganho_potencial.setFlag_soma(8);
+
 				String texto = "";
 				String s_valor_total_contrato_original = NumberFormat.getCurrencyInstance(ptBr)
 						.format(local.getValor_a_pagar());
@@ -8006,6 +10390,41 @@ public class RelatorioContratos {
 				}
 
 				lista_ganhos_potenciais.add(ganho_potencial);
+			} else if (local.getSub_contrato() == 9) {
+
+				GanhoPotencial ganho_potencial = new GanhoPotencial();
+				ganho_potencial.setFlag_soma(9);
+				ganho_potencial.setCodigo(local.getCodigo());
+				ganho_potencial.setTotal_contrato_original(local.getValor_a_pagar());
+				ganho_potencial.setTotal_sub_contratos(local.getValor_a_pagar());
+				ganho_potencial.setDiferenca(BigDecimal.ZERO);
+
+				if (!incluir_comissao) {
+					BigDecimal comissao = BigDecimal.ZERO;
+					ganho_potencial.setTotal_comissao(comissao);
+					ganho_potencial.setGanhos_potenciais(local.getValor_comissao().subtract(local.getValor_a_pagar()));
+
+				} else {
+					if (local.getValor_produto() > 0) {
+
+						ganho_potencial.setTotal_comissao(new BigDecimal(local.getValor_produto()));
+
+						BigDecimal diferenca = local.getValor_comissao().subtract(local.getValor_a_pagar());
+						double valor_total_ganhos_potenciais = diferenca.doubleValue() + local.getValor_produto();
+
+						ganho_potencial.setGanhos_potenciais(new BigDecimal(valor_total_ganhos_potenciais));
+
+					} else {
+						BigDecimal comissao = BigDecimal.ZERO;
+						ganho_potencial.setTotal_comissao(comissao);
+						BigDecimal diferenca = local.getValor_comissao().subtract(local.getValor_a_pagar());
+						ganho_potencial.setGanhos_potenciais(diferenca);
+
+					}
+				}
+
+				lista_ganhos_potenciais.add(ganho_potencial);
+
 			} // fim de linha ganho potencial
 			indice++;
 		}
@@ -8244,7 +10663,7 @@ public class RelatorioContratos {
 
 			CadastroContrato local = lista_contratos.get(indice);
 
-			if (local.getSub_contrato() != 8) {
+			if (local.getSub_contrato() != 8 && local.getSub_contrato() != 9) {
 				// é um linha normal
 				if (local.getSub_contrato() == 1) {
 					// seta a cor vermelha
@@ -8337,33 +10756,13 @@ public class RelatorioContratos {
 					s_participacao = "GRUPO";
 				} else if (i_participacao == 1) {
 					s_participacao = "PARTICULAR";
-				}else if (i_participacao == 2) {
+				} else if (i_participacao == 2) {
 					s_participacao = "EMPRÉSTIMO";
 				}
 
 				cell = row.createCell(cellnum++);
 				cell.setCellStyle(estilo);
 				cell.setCellValue(s_participacao);
-
-				String comissao_total = "";
-				if (local.getComissao() == 1) {
-					comissao_total = NumberFormat.getCurrencyInstance(ptBr).format(local.getValor_comissao());
-					if (local.getSub_contrato() == 0 || local.getSub_contrato() == 3 || local.getSub_contrato() == 4)
-						valor_total_comissao = valor_total_comissao.add(local.getValor_comissao());
-				} else {
-					comissao_total = "Não";
-				}
-
-				String comissao_por_saco = "";
-				if (local.getComissao() == 1) {
-					BigDecimal valor_total_com = local.getValor_comissao();
-					BigDecimal quantidade_total_sacos = new BigDecimal(Double.toString(quantidade_sacos_sub));
-					BigDecimal valor_por_saco = valor_total_com.divide(quantidade_total_sacos, BigDecimal.ROUND_UP);
-					comissao_por_saco = NumberFormat.getCurrencyInstance(ptBr).format(valor_por_saco);
-
-				} else {
-					comissao_por_saco = "Não";
-				}
 
 				int status = local.getStatus_contrato();
 				String text_status = "";
@@ -8379,21 +10778,42 @@ public class RelatorioContratos {
 				}
 
 				if (incluir_comissao) {
+					if (local.getComissao() == 1) {
 
-					cell = row.createCell(cellnum++);
-					cell.setCellStyle(numberStyle);
-					cell.setCellValue(comissao_por_saco);
+						BigDecimal valor_total_com = local.getValor_comissao();
+						BigDecimal quantidade_total_sacos = new BigDecimal(Double.toString(quantidade_sacos_sub));
+						BigDecimal valor_por_saco = valor_total_com.divide(quantidade_total_sacos, BigDecimal.ROUND_UP);
 
-					cell = row.createCell(cellnum++);
-					cell.setCellStyle(numberStyle);
-					cell.setCellValue(comissao_total);
+						cell = row.createCell(cellnum++);
+						cell.setCellStyle(numberStyle);
+						cell.setCellValue(valor_por_saco.doubleValue());
 
-					cell = row.createCell(cellnum++);
-					cell.setCellStyle(estilo);
-					cell.setCellValue(text_status);
+						cell = row.createCell(cellnum++);
+						cell.setCellStyle(numberStyle);
+						cell.setCellValue(valor_total_com.doubleValue());
 
+						cell = row.createCell(cellnum++);
+						cell.setCellStyle(estilo);
+						cell.setCellValue(text_status);
+
+					} else {
+						String comissao_total = "Não";
+						String comissao_por_saco = "Não";
+
+						cell = row.createCell(cellnum++);
+						cell.setCellStyle(numberStyle);
+						cell.setCellValue(comissao_por_saco);
+
+						cell = row.createCell(cellnum++);
+						cell.setCellStyle(numberStyle);
+						cell.setCellValue(comissao_total);
+
+						cell = row.createCell(cellnum++);
+						cell.setCellStyle(estilo);
+						cell.setCellValue(text_status);
+
+					}
 				} else {
-
 					cell = row.createCell(cellnum++);
 					cell.setCellStyle(estilo);
 					cell.setCellValue(text_status);
@@ -8413,7 +10833,7 @@ public class RelatorioContratos {
 					valor_total = valor_total.add(local.getValor_a_pagar());
 				}
 
-			} else {
+			} else if (local.getSub_contrato() == 8) {
 				// linha de ganhos potenciais
 				// linha com dados
 
@@ -8518,11 +10938,24 @@ public class RelatorioContratos {
 		cell = row.createCell(10);
 		cell.setCellStyle(numberStyleFundoVerdeTextoBranco);
 		cell.setCellType(CellType.FORMULA);
+
 		// formula = "SUBTOTAL(9,K" + primeira_linha + ":L" + (ultima_linha) + ")";
 		formula = "SUMPRODUCT(SUBTOTAL(9,OFFSET(K" + primeira_linha + ":K" + ultima_linha + ",ROW(K" + primeira_linha
 				+ ":K" + ultima_linha + ")-ROW(K" + primeira_linha + "),0,1,1)),-(B" + primeira_linha + ":B"
 				+ ultima_linha + "=\"1\")) * -1 ";
 		cell.setCellFormula(formula);
+
+		if (incluir_comissao) {
+			cell = row.createCell(13);
+			cell.setCellStyle(numberStyleFundoVerdeTextoBranco);
+			cell.setCellType(CellType.FORMULA);
+
+			formula = "SUMPRODUCT(SUBTOTAL(9,OFFSET(N" + primeira_linha + ":N" + ultima_linha + ",ROW(N"
+					+ primeira_linha + ":N" + ultima_linha + ")-ROW(N" + primeira_linha + "),0,1,1)),-(B"
+					+ primeira_linha + ":B" + ultima_linha + "=\"1\")) * -1 ";
+			cell.setCellFormula(formula);
+
+		}
 
 		DadosTabelaExcel retornar = new DadosTabelaExcel();
 		retornar.setWorkbook(workbook);
@@ -9269,6 +11702,7 @@ public class RelatorioContratos {
 	@Entity
 	class GanhoPotencial {
 
+		int flag_soma;
 		String codigo;
 		BigDecimal total_contrato_original, total_sub_contratos, total_comissao, diferenca, ganhos_potenciais;
 
@@ -9386,10 +11820,18 @@ public class RelatorioContratos {
 			paragraph = tableRowOne.getCell(5).addParagraph();
 			// BigDecimal ganho_potencial =
 			// ganho.getDiferenca().add(ganho.getTotal_comissao());
-			String s_ganho_potencial = NumberFormat.getCurrencyInstance(ptBr).format(ganho.getGanhos_potenciais());
 
-			criarParagrafoTabela(paragraph, s_ganho_potencial, false);
-			somatoria_total_ganho_potencial = somatoria_total_ganho_potencial.add(ganho.getGanhos_potenciais());
+			if (ganho.getFlag_soma() == 8) {
+				// ganho real via diferenca de subcontratos
+				String s_ganho_potencial = NumberFormat.getCurrencyInstance(ptBr).format(ganho.getGanhos_potenciais());
+				criarParagrafoTabela(paragraph, s_ganho_potencial, false);
+				somatoria_total_ganho_potencial = somatoria_total_ganho_potencial.add(ganho.getGanhos_potenciais());
+			} else {
+				// ganho real via comissao
+				String s_ganho_potencial = NumberFormat.getCurrencyInstance(ptBr).format(ganho.getTotal_comissao());
+
+				criarParagrafoTabela(paragraph, s_ganho_potencial, false);
+			}
 
 			i++;
 		}
@@ -9520,7 +11962,8 @@ public class RelatorioContratos {
 				if (tipo_contrato != 1) {
 					lista_sub_contratos_encontrados_do_cliente = procura_contratos_grupo
 							.getSubContratosPorClienteParaRelatorio(id_safra, cliente.getId(),
-									cliente_alvo2_global.getId(), contra_parte_global.getId(), participacao_global,id_local_retirada_global);
+									cliente_alvo2_global.getId(), contra_parte_global.getId(), participacao_global,
+									id_local_retirada_global);
 
 				}
 
@@ -9528,11 +11971,12 @@ public class RelatorioContratos {
 
 				lista_contratos_encontrados_do_cliente = procura_contratos_grupo.getContratosPorClienteParaRelatorio(
 						id_safra, contra_parte_global.getId(), cliente_alvo2_global.getId(), cliente.getId(),
-						participacao_global,id_local_retirada_global);
+						participacao_global, id_local_retirada_global);
 				if (tipo_contrato != 1) {
 					lista_sub_contratos_encontrados_do_cliente = procura_contratos_grupo
 							.getSubContratosPorClienteParaRelatorio(id_safra, contra_parte_global.getId(),
-									cliente_alvo2_global.getId(), cliente.getId(), participacao_global,id_local_retirada_global);
+									cliente_alvo2_global.getId(), cliente.getId(), participacao_global,
+									id_local_retirada_global);
 
 				}
 
@@ -9626,28 +12070,25 @@ public class RelatorioContratos {
 								}
 
 								if (!ja_incluso) {
-									
-									
+
 									boolean tem_id = false;
-									
-									for(CadastroCliente cliente_pesquisando : clientes_globais) {
+
+									for (CadastroCliente cliente_pesquisando : clientes_globais) {
 										String s_id = Integer.toString(cliente_pesquisando.getId());
-										if(sub.getIds_clientes_compradores().contains(s_id)){
+										if (sub.getIds_clientes_compradores().contains(s_id)) {
 											tem_id = true;
 											break;
 
 										}
 
 									}
-									
-									
+
 									if (sub.getFilho() == 1) {
-										if(tem_id) {
+										if (tem_id) {
 											lista_final_do_cliente.add(sub);
 
 										}
 									}
-
 
 								}
 
@@ -10855,238 +13296,240 @@ public class RelatorioContratos {
 
 		for (CadastroContrato novo_contrato : contratos) {
 
-			ArrayList<PagamentoCompleto> pagamentos = gerenciar
-					.getPagamentosContratuaisParaRelatorio(novo_contrato.getId());
+			if (novo_contrato.getSub_contrato() != 8 && novo_contrato.getSub_contrato() != 9) {
 
-			if (novo_contrato.getMedida().equalsIgnoreCase("Sacos")) {
-				peso_total_cobertura_contratada += novo_contrato.getQuantidade();
+				ArrayList<PagamentoCompleto> pagamentos = gerenciar
+						.getPagamentosContratuaisParaRelatorio(novo_contrato.getId());
 
-			} else if (novo_contrato.getMedida().equalsIgnoreCase("KG")) {
-				double peso_em_sacos = novo_contrato.getQuantidade() / 60;
-				peso_total_cobertura_contratada += peso_em_sacos;
+				if (novo_contrato.getMedida().equalsIgnoreCase("Sacos")) {
+					peso_total_cobertura_contratada += novo_contrato.getQuantidade();
 
-			}
-
-			valor_total_contratado += novo_contrato.getValor_a_pagar().doubleValue();
-
-			double total_recebido = getPesoTotalRecebido(novo_contrato) / 60;
-			peso_total_cobertura_recebido += (total_recebido);
-
-			if (novo_contrato.getMedida().equalsIgnoreCase("Sacos")) {
-				valor_total_a_receber += (total_recebido * novo_contrato.getValor_produto());
-
-			} else if (novo_contrato.getMedida().equalsIgnoreCase("KG")) {
-				double valor_por_saco = novo_contrato.getValor_produto() * 60;
-				valor_total_a_receber += (total_recebido * valor_por_saco);
-
-			}
-
-			for (PagamentoCompleto pagamento : pagamentos) {
-
-				if (pagamento.getTipo() == 1 || (pagamento.getTipo() == 2 && incluir_comissao_pagamento)
-						|| (pagamento.getTipo() == 3 && incluir_transferencias_pagamentos)) {
-
-					cellnum = 0;
-					row = sheet.createRow(rownum);
-
-					// celula ctr
-					cell = row.createCell(cellnum++);
-					cell.setCellStyle(celula_fundo_branco_texto_preto);
-					cell.setCellValue(pagamento.getContrato_remetente().getCodigo());
-
-					// celula data
-					cell = row.createCell(cellnum++);
-					cell.setCellStyle(celula_fundo_branco_texto_preto);
-					cell.setCellValue(pagamento.getData_pagamento());
-
-					double valor_por_saco = 0;
-					// if(soma_total_pagamentos != 0)
-					// novo_contrato = pagamento.getContrato_receptor();
-
-					double quantidade_total_contrato_sacos = 0;
-
-					if (novo_contrato.getMedida().equalsIgnoreCase("Kg")) {
-						quantidade_total_contrato_sacos = novo_contrato.getQuantidade() / 60;
-						valor_por_saco = novo_contrato.getValor_produto() * 60;
-					} else if (novo_contrato.getMedida().equalsIgnoreCase("Sacos")) {
-						quantidade_total_contrato_sacos = novo_contrato.getQuantidade();
-						valor_por_saco = novo_contrato.getValor_produto();
-					}
-					GerenciarBancoContratos gerenciar_contratos = new GerenciarBancoContratos();
-
-					int tipo = pagamento.getTipo();
-					String s_tipo = "";
-					if (pagamento.getTipo() == 1) {
-						s_tipo = "NORMAL";
-					} else if (pagamento.getTipo() == 2) {
-						s_tipo = "COMISSÃO";
-					} else if (pagamento.getTipo() == 3) {
-						// é uma transferencia
-						if (pagamento.getId_contrato_remetente() == novo_contrato.getId()) {
-							s_tipo = "-TRANSFERENCIA";
-						} else if (pagamento.getId_contrato_destinatario() == novo_contrato.getId()) {
-							// é uma transferencia positiva
-							s_tipo = "+TRANSFERENCIA";
-						}
-
-					}
-
-					// celula tipo
-					cell = row.createCell(cellnum++);
-					cell.setCellStyle(celula_fundo_branco_texto_preto);
-					cell.setCellValue(s_tipo);
-
-					// valor pagamento
-					double valor_pagamento = pagamento.getValor_pagamento();
-
-					String valorString = NumberFormat.getCurrencyInstance(ptBr).format(valor_pagamento);
-					double cobertura = valor_pagamento / valor_por_saco;
-
-					if (pagamento.getTipo() == 1) {
-
-					} else if (pagamento.getTipo() == 2) {
-						// é uma comissão
-						valor_pagamento = valor_pagamento * -1;
-
-					} else if (pagamento.getTipo() == 3) {
-						// é uma transferencia
-						if (pagamento.getId_contrato_remetente() == novo_contrato.getId()) {
-							// é uma transferencia negativa
-							valor_pagamento = valor_pagamento * -1;
-						} else if (pagamento.getId_contrato_destinatario() == novo_contrato.getId()) {
-							// é uma transferencia positiva
-
-						}
-
-					}
-					valorString = NumberFormat.getCurrencyInstance(ptBr).format(valor_pagamento);
-
-					// celula pagamento
-					cell = row.createCell(cellnum++);
-					cell.setCellStyle(numberStyle);
-					cell.setCellValue(valor_pagamento);
-
-					// valor da unidade
-					CadastroContrato ct_remetente = pagamento.getContrato_remetente();
-					CadastroContrato ct_destinatario = pagamento.getContrato_destinatario();
-
-					double valor_produto = ct_remetente.getValor_produto();
-
-					if (pagamento.getTipo() == 1) {
-
-					} else if (pagamento.getTipo() == 2) {
-
-					} else if (pagamento.getTipo() == 3) {
-						// é uma transferencia
-						if (pagamento.getId_contrato_remetente() == novo_contrato.getId()) {
-
-						} else if (pagamento.getId_contrato_destinatario() == novo_contrato.getId()) {
-							// é uma transferencia positiva
-							// pegar o preco da unidade do contrato que recebeu a transferencia
-							valor_produto = novo_contrato.getValor_produto();
-
-						}
-					}
-					// celula valor unidade
-					cell = row.createCell(cellnum++);
-					cell.setCellStyle(numberStyle);
-					cell.setCellValue(valor_produto);
-
-					// cobertura
-					cobertura = pagamento.getValor_pagamento() / ct_remetente.getValor_produto();
-					if (ct_remetente.getMedida().equalsIgnoreCase("KG"))
-						cobertura = cobertura / 60;
-
-					if (pagamento.getTipo() == 1) {
-						somatoria_cobertura_pagamentos += cobertura;
-					} else if (pagamento.getTipo() == 2) {
-						somatoria_cobertura_pagamentos += cobertura;
-					} else if (pagamento.getTipo() == 3) {
-						// é uma transferencia
-						if (pagamento.getId_contrato_remetente() == novo_contrato.getId()) {
-							cobertura = cobertura * -1;
-							somatoria_cobertura_transferencias_negativas += cobertura;
-						} else if (pagamento.getId_contrato_destinatario() == novo_contrato.getId()) {
-							// é uma transferencia positiva
-							// pegar o preco da unidade do contrato que recebeu a transferencia
-
-							cobertura = pagamento.getValor_pagamento() / novo_contrato.getValor_produto();
-
-							if (novo_contrato.getMedida().equalsIgnoreCase("KG"))
-								cobertura = cobertura / 60;
-							somatoria_cobertura_transferencias_positivas += cobertura;
-
-						}
-
-					}
-
-					// celula cobertura
-					cell = row.createCell(cellnum++);
-					cell.setCellStyle(pesoStyle);
-					cell.setCellValue(cobertura);
-
-					// celula descricao
-					cell = row.createCell(cellnum++);
-					cell.setCellStyle(celula_fundo_branco_texto_preto);
-					cell.setCellValue(pagamento.getDescricao());
-
-					// celula depositante
-					cell = row.createCell(cellnum++);
-					cell.setCellStyle(celula_fundo_branco_texto_preto);
-					cell.setCellValue(pagamento.getDepositante().toUpperCase());
-
-					// celula conta depositante
-					cell = row.createCell(cellnum++);
-					cell.setCellStyle(celula_fundo_branco_texto_preto);
-					cell.setCellValue(pagamento.getConta_bancaria_depositante().toUpperCase());
-
-					// celula favorecido
-					cell = row.createCell(cellnum++);
-					cell.setCellStyle(celula_fundo_branco_texto_preto);
-					cell.setCellValue(pagamento.getFavorecido().toUpperCase());
-
-					// celula conta favorecido
-					cell = row.createCell(cellnum++);
-					cell.setCellStyle(celula_fundo_branco_texto_preto);
-
-					if (pagamento.getConta_bancaria_favorecido() != null) {
-						cell.setCellValue(pagamento.getConta_bancaria_favorecido().toUpperCase());
-
-					} else {
-						cell.setCellValue("");
-
-					}
-
-					if (pagamento.getTipo() == 1) {
-						// celula contrato remetente
-						cell = row.createCell(cellnum++);
-						cell.setCellStyle(celula_fundo_branco_texto_preto);
-						cell.setCellValue("");
-
-						// celula contrato destinataio
-						cell = row.createCell(cellnum++);
-						cell.setCellStyle(celula_fundo_branco_texto_preto);
-						cell.setCellValue("");
-
-					} else {
-						// celula contrato remetente
-						cell = row.createCell(cellnum++);
-						cell.setCellStyle(celula_fundo_branco_texto_preto);
-						cell.setCellValue(ct_remetente.getCodigo());
-
-						// celula contrato destinataio
-						cell = row.createCell(cellnum++);
-						cell.setCellStyle(celula_fundo_branco_texto_preto);
-						cell.setCellValue(ct_destinatario.getCodigo());
-
-					}
-					rownum++;
-					ultima_linha = rownum;
+				} else if (novo_contrato.getMedida().equalsIgnoreCase("KG")) {
+					double peso_em_sacos = novo_contrato.getQuantidade() / 60;
+					peso_total_cobertura_contratada += peso_em_sacos;
 
 				}
 
-			}
+				valor_total_contratado += novo_contrato.getValor_a_pagar().doubleValue();
 
+				double total_recebido = getPesoTotalRecebido(novo_contrato) / 60;
+				peso_total_cobertura_recebido += (total_recebido);
+
+				if (novo_contrato.getMedida().equalsIgnoreCase("Sacos")) {
+					valor_total_a_receber += (total_recebido * novo_contrato.getValor_produto());
+
+				} else if (novo_contrato.getMedida().equalsIgnoreCase("KG")) {
+					double valor_por_saco = novo_contrato.getValor_produto() * 60;
+					valor_total_a_receber += (total_recebido * valor_por_saco);
+
+				}
+
+				for (PagamentoCompleto pagamento : pagamentos) {
+
+					if (pagamento.getTipo() == 1 || (pagamento.getTipo() == 2 && incluir_comissao_pagamento)
+							|| (pagamento.getTipo() == 3 && incluir_transferencias_pagamentos)) {
+
+						cellnum = 0;
+						row = sheet.createRow(rownum);
+
+						// celula ctr
+						cell = row.createCell(cellnum++);
+						cell.setCellStyle(celula_fundo_branco_texto_preto);
+						cell.setCellValue(pagamento.getContrato_remetente().getCodigo());
+
+						// celula data
+						cell = row.createCell(cellnum++);
+						cell.setCellStyle(celula_fundo_branco_texto_preto);
+						cell.setCellValue(pagamento.getData_pagamento());
+
+						double valor_por_saco = 0;
+						// if(soma_total_pagamentos != 0)
+						// novo_contrato = pagamento.getContrato_receptor();
+
+						double quantidade_total_contrato_sacos = 0;
+
+						if (novo_contrato.getMedida().equalsIgnoreCase("Kg")) {
+							quantidade_total_contrato_sacos = novo_contrato.getQuantidade() / 60;
+							valor_por_saco = novo_contrato.getValor_produto() * 60;
+						} else if (novo_contrato.getMedida().equalsIgnoreCase("Sacos")) {
+							quantidade_total_contrato_sacos = novo_contrato.getQuantidade();
+							valor_por_saco = novo_contrato.getValor_produto();
+						}
+						GerenciarBancoContratos gerenciar_contratos = new GerenciarBancoContratos();
+
+						int tipo = pagamento.getTipo();
+						String s_tipo = "";
+						if (pagamento.getTipo() == 1) {
+							s_tipo = "NORMAL";
+						} else if (pagamento.getTipo() == 2) {
+							s_tipo = "COMISSÃO";
+						} else if (pagamento.getTipo() == 3) {
+							// é uma transferencia
+							if (pagamento.getId_contrato_remetente() == novo_contrato.getId()) {
+								s_tipo = "-TRANSFERENCIA";
+							} else if (pagamento.getId_contrato_destinatario() == novo_contrato.getId()) {
+								// é uma transferencia positiva
+								s_tipo = "+TRANSFERENCIA";
+							}
+
+						}
+
+						// celula tipo
+						cell = row.createCell(cellnum++);
+						cell.setCellStyle(celula_fundo_branco_texto_preto);
+						cell.setCellValue(s_tipo);
+
+						// valor pagamento
+						double valor_pagamento = pagamento.getValor_pagamento();
+
+						String valorString = NumberFormat.getCurrencyInstance(ptBr).format(valor_pagamento);
+						double cobertura = valor_pagamento / valor_por_saco;
+
+						if (pagamento.getTipo() == 1) {
+
+						} else if (pagamento.getTipo() == 2) {
+							// é uma comissão
+							valor_pagamento = valor_pagamento * -1;
+
+						} else if (pagamento.getTipo() == 3) {
+							// é uma transferencia
+							if (pagamento.getId_contrato_remetente() == novo_contrato.getId()) {
+								// é uma transferencia negativa
+								valor_pagamento = valor_pagamento * -1;
+							} else if (pagamento.getId_contrato_destinatario() == novo_contrato.getId()) {
+								// é uma transferencia positiva
+
+							}
+
+						}
+						valorString = NumberFormat.getCurrencyInstance(ptBr).format(valor_pagamento);
+
+						// celula pagamento
+						cell = row.createCell(cellnum++);
+						cell.setCellStyle(numberStyle);
+						cell.setCellValue(valor_pagamento);
+
+						// valor da unidade
+						CadastroContrato ct_remetente = pagamento.getContrato_remetente();
+						CadastroContrato ct_destinatario = pagamento.getContrato_destinatario();
+
+						double valor_produto = ct_remetente.getValor_produto();
+
+						if (pagamento.getTipo() == 1) {
+
+						} else if (pagamento.getTipo() == 2) {
+
+						} else if (pagamento.getTipo() == 3) {
+							// é uma transferencia
+							if (pagamento.getId_contrato_remetente() == novo_contrato.getId()) {
+
+							} else if (pagamento.getId_contrato_destinatario() == novo_contrato.getId()) {
+								// é uma transferencia positiva
+								// pegar o preco da unidade do contrato que recebeu a transferencia
+								valor_produto = novo_contrato.getValor_produto();
+
+							}
+						}
+						// celula valor unidade
+						cell = row.createCell(cellnum++);
+						cell.setCellStyle(numberStyle);
+						cell.setCellValue(valor_produto);
+
+						// cobertura
+						cobertura = pagamento.getValor_pagamento() / ct_remetente.getValor_produto();
+						if (ct_remetente.getMedida().equalsIgnoreCase("KG"))
+							cobertura = cobertura / 60;
+
+						if (pagamento.getTipo() == 1) {
+							somatoria_cobertura_pagamentos += cobertura;
+						} else if (pagamento.getTipo() == 2) {
+							somatoria_cobertura_pagamentos += cobertura;
+						} else if (pagamento.getTipo() == 3) {
+							// é uma transferencia
+							if (pagamento.getId_contrato_remetente() == novo_contrato.getId()) {
+								cobertura = cobertura * -1;
+								somatoria_cobertura_transferencias_negativas += cobertura;
+							} else if (pagamento.getId_contrato_destinatario() == novo_contrato.getId()) {
+								// é uma transferencia positiva
+								// pegar o preco da unidade do contrato que recebeu a transferencia
+
+								cobertura = pagamento.getValor_pagamento() / novo_contrato.getValor_produto();
+
+								if (novo_contrato.getMedida().equalsIgnoreCase("KG"))
+									cobertura = cobertura / 60;
+								somatoria_cobertura_transferencias_positivas += cobertura;
+
+							}
+
+						}
+
+						// celula cobertura
+						cell = row.createCell(cellnum++);
+						cell.setCellStyle(pesoStyle);
+						cell.setCellValue(cobertura);
+
+						// celula descricao
+						cell = row.createCell(cellnum++);
+						cell.setCellStyle(celula_fundo_branco_texto_preto);
+						cell.setCellValue(pagamento.getDescricao());
+
+						// celula depositante
+						cell = row.createCell(cellnum++);
+						cell.setCellStyle(celula_fundo_branco_texto_preto);
+						cell.setCellValue(pagamento.getDepositante().toUpperCase());
+
+						// celula conta depositante
+						cell = row.createCell(cellnum++);
+						cell.setCellStyle(celula_fundo_branco_texto_preto);
+						cell.setCellValue(pagamento.getConta_bancaria_depositante().toUpperCase());
+
+						// celula favorecido
+						cell = row.createCell(cellnum++);
+						cell.setCellStyle(celula_fundo_branco_texto_preto);
+						cell.setCellValue(pagamento.getFavorecido().toUpperCase());
+
+						// celula conta favorecido
+						cell = row.createCell(cellnum++);
+						cell.setCellStyle(celula_fundo_branco_texto_preto);
+
+						if (pagamento.getConta_bancaria_favorecido() != null) {
+							cell.setCellValue(pagamento.getConta_bancaria_favorecido().toUpperCase());
+
+						} else {
+							cell.setCellValue("");
+
+						}
+
+						if (pagamento.getTipo() == 1) {
+							// celula contrato remetente
+							cell = row.createCell(cellnum++);
+							cell.setCellStyle(celula_fundo_branco_texto_preto);
+							cell.setCellValue("");
+
+							// celula contrato destinataio
+							cell = row.createCell(cellnum++);
+							cell.setCellStyle(celula_fundo_branco_texto_preto);
+							cell.setCellValue("");
+
+						} else {
+							// celula contrato remetente
+							cell = row.createCell(cellnum++);
+							cell.setCellStyle(celula_fundo_branco_texto_preto);
+							cell.setCellValue(ct_remetente.getCodigo());
+
+							// celula contrato destinataio
+							cell = row.createCell(cellnum++);
+							cell.setCellStyle(celula_fundo_branco_texto_preto);
+							cell.setCellValue(ct_destinatario.getCodigo());
+
+						}
+						rownum++;
+						ultima_linha = rownum;
+
+					}
+
+				}
+			}
 		}
 
 		// somatorias
@@ -11145,64 +13588,62 @@ public class RelatorioContratos {
 
 		row = sheet.createRow(rownum += 1);
 		cellnum = 0;
-		
-		
-		if(incluir_transferencias_pagamentos) {
 
-		// somatoria de pg -transferencias
-		cell = row.createCell(0);
-		cell.setCellStyle(celula_fundo_branco_texto_preto);
-		cell.setCellValue("Total Transferencia(-):");
+		if (incluir_transferencias_pagamentos) {
 
-		cell = row.createCell(1);
-		cell.setCellStyle(valorStyleFundoVerdeTextoBranco);
-		cell.setCellType(CellType.FORMULA);
-		formula = "SUMPRODUCT(SUBTOTAL(9,OFFSET(D" + primeira_linha + ":D" + ultima_linha + ",ROW(D" + primeira_linha
-				+ ":D" + ultima_linha + ")-ROW(D" + primeira_linha + "),0,1,1)),-(C" + primeira_linha + ":C"
-				+ ultima_linha + "=\"-TRANSFERENCIA\")) *-1";
-		cell.setCellFormula(formula);
+			// somatoria de pg -transferencias
+			cell = row.createCell(0);
+			cell.setCellStyle(celula_fundo_branco_texto_preto);
+			cell.setCellValue("Total Transferencia(-):");
 
+			cell = row.createCell(1);
+			cell.setCellStyle(valorStyleFundoVerdeTextoBranco);
+			cell.setCellType(CellType.FORMULA);
+			formula = "SUMPRODUCT(SUBTOTAL(9,OFFSET(D" + primeira_linha + ":D" + ultima_linha + ",ROW(D"
+					+ primeira_linha + ":D" + ultima_linha + ")-ROW(D" + primeira_linha + "),0,1,1)),-(C"
+					+ primeira_linha + ":C" + ultima_linha + "=\"-TRANSFERENCIA\")) *-1";
+			cell.setCellFormula(formula);
 
-		cell = row.createCell(2);
-		cell.setCellStyle(celula_fundo_branco_texto_preto);
-		cell.setCellValue("Cobertura Transferencia(-):");
+			cell = row.createCell(2);
+			cell.setCellStyle(celula_fundo_branco_texto_preto);
+			cell.setCellValue("Cobertura Transferencia(-):");
 
-		cell = row.createCell(3);
-		cell.setCellStyle(numberStyleFundoVerdeTextoBranco);
-		cell.setCellType(CellType.FORMULA);
-		formula = "SUMPRODUCT(SUBTOTAL(9,OFFSET(F" + primeira_linha + ":F" + ultima_linha + ",ROW(F" + primeira_linha
-				+ ":F" + ultima_linha + ")-ROW(F" + primeira_linha + "),0,1,1)),-(C" + primeira_linha + ":C"
-				+ ultima_linha + "=\"-TRANSFERENCIA\")) *-1";
-		cell.setCellFormula(formula);
+			cell = row.createCell(3);
+			cell.setCellStyle(numberStyleFundoVerdeTextoBranco);
+			cell.setCellType(CellType.FORMULA);
+			formula = "SUMPRODUCT(SUBTOTAL(9,OFFSET(F" + primeira_linha + ":F" + ultima_linha + ",ROW(F"
+					+ primeira_linha + ":F" + ultima_linha + ")-ROW(F" + primeira_linha + "),0,1,1)),-(C"
+					+ primeira_linha + ":C" + ultima_linha + "=\"-TRANSFERENCIA\")) *-1";
+			cell.setCellFormula(formula);
 
-		row = sheet.createRow(rownum += 1);
-		cellnum = 0;
+			row = sheet.createRow(rownum += 1);
+			cellnum = 0;
 
-		// somatoria de pg +transferencias
-		cell = row.createCell(0);
-		cell.setCellStyle(celula_fundo_branco_texto_preto);
-		cell.setCellValue("Total Transferencia(+):");
+			// somatoria de pg +transferencias
+			cell = row.createCell(0);
+			cell.setCellStyle(celula_fundo_branco_texto_preto);
+			cell.setCellValue("Total Transferencia(+):");
 
-		cell = row.createCell(1);
-		cell.setCellStyle(valorStyleFundoVerdeTextoBranco);
-		cell.setCellType(CellType.FORMULA);
-		formula = "SUMPRODUCT(SUBTOTAL(9,OFFSET(D" + primeira_linha + ":D" + ultima_linha + ",ROW(D" + primeira_linha
-				+ ":D" + ultima_linha + ")-ROW(D" + primeira_linha + "),0,1,1)),-(C" + primeira_linha + ":C"
-				+ ultima_linha + "=\"+TRANSFERENCIA\")) * -1";
-		cell.setCellFormula(formula);
+			cell = row.createCell(1);
+			cell.setCellStyle(valorStyleFundoVerdeTextoBranco);
+			cell.setCellType(CellType.FORMULA);
+			formula = "SUMPRODUCT(SUBTOTAL(9,OFFSET(D" + primeira_linha + ":D" + ultima_linha + ",ROW(D"
+					+ primeira_linha + ":D" + ultima_linha + ")-ROW(D" + primeira_linha + "),0,1,1)),-(C"
+					+ primeira_linha + ":C" + ultima_linha + "=\"+TRANSFERENCIA\")) * -1";
+			cell.setCellFormula(formula);
 
-		cell = row.createCell(2);
-		cell.setCellStyle(celula_fundo_branco_texto_preto);
-		cell.setCellValue("Cobertura Transferencia(+):");
+			cell = row.createCell(2);
+			cell.setCellStyle(celula_fundo_branco_texto_preto);
+			cell.setCellValue("Cobertura Transferencia(+):");
 
-		cell = row.createCell(3);
-		cell.setCellStyle(numberStyleFundoVerdeTextoBranco);
-		cell.setCellType(CellType.FORMULA);
-		formula = "SUMPRODUCT(SUBTOTAL(9,OFFSET(F" + primeira_linha + ":F" + ultima_linha + ",ROW(F" + primeira_linha
-				+ ":F" + ultima_linha + ")-ROW(F" + primeira_linha + "),0,1,1)),-(C" + primeira_linha + ":C"
-				+ ultima_linha + "=\"+TRANSFERENCIA\")) * -1";
-		cell.setCellFormula(formula);
-		
+			cell = row.createCell(3);
+			cell.setCellStyle(numberStyleFundoVerdeTextoBranco);
+			cell.setCellType(CellType.FORMULA);
+			formula = "SUMPRODUCT(SUBTOTAL(9,OFFSET(F" + primeira_linha + ":F" + ultima_linha + ",ROW(F"
+					+ primeira_linha + ":F" + ultima_linha + ")-ROW(F" + primeira_linha + "),0,1,1)),-(C"
+					+ primeira_linha + ":C" + ultima_linha + "=\"+TRANSFERENCIA\")) * -1";
+			cell.setCellFormula(formula);
+
 		}
 
 		row = sheet.createRow(rownum += 1);
@@ -11382,12 +13823,9 @@ public class RelatorioContratos {
 		return retornar;
 
 	}
-	
-	
-	
-	
-	public DadosTabelaExcel criarTabelaPagamentosExcel(HSSFWorkbook workbook, HSSFSheet sheet, int rownum, ArrayList<PagamentoCompleto> pagamentos,
-			CadastroContrato novo_contrato) {
+
+	public DadosTabelaExcel criarTabelaPagamentosExcel(HSSFWorkbook workbook, HSSFSheet sheet, int rownum,
+			ArrayList<PagamentoCompleto> pagamentos, CadastroContrato novo_contrato) {
 
 		NumberFormat z = NumberFormat.getNumberInstance();
 
@@ -11497,15 +13935,14 @@ public class RelatorioContratos {
 		cellnum = 0;
 		row = sheet.createRow(rownum);
 		//
-		
+
 		cell = row.createCell(cellnum++);
 		cell.setCellStyle(celula_fundo_verde_texto_branco);
 		cell.setCellValue(infoContrato(novo_contrato));
 		sheet.addMergedRegion(new CellRangeAddress(rownum, rownum, 0, 6));
 
 		rownum++;
-		
-		
+
 		cellnum = 0;
 		row = sheet.createRow(rownum);
 		cell = row.createCell(cellnum++);
@@ -11584,238 +14021,234 @@ public class RelatorioContratos {
 		double valor_total_a_receber = 0.0;
 		double peso_total_cobertura_recebido = 0.0;
 
+		if (novo_contrato.getMedida().equalsIgnoreCase("Sacos")) {
+			peso_total_cobertura_contratada += novo_contrato.getQuantidade();
 
+		} else if (novo_contrato.getMedida().equalsIgnoreCase("KG")) {
+			double peso_em_sacos = novo_contrato.getQuantidade() / 60;
+			peso_total_cobertura_contratada += peso_em_sacos;
 
-			if (novo_contrato.getMedida().equalsIgnoreCase("Sacos")) {
-				peso_total_cobertura_contratada += novo_contrato.getQuantidade();
+		}
 
-			} else if (novo_contrato.getMedida().equalsIgnoreCase("KG")) {
-				double peso_em_sacos = novo_contrato.getQuantidade() / 60;
-				peso_total_cobertura_contratada += peso_em_sacos;
+		valor_total_contratado += novo_contrato.getValor_a_pagar().doubleValue();
 
-			}
+		double total_recebido = getPesoTotalRecebido(novo_contrato) / 60;
+		peso_total_cobertura_recebido += (total_recebido);
 
-			valor_total_contratado += novo_contrato.getValor_a_pagar().doubleValue();
+		if (novo_contrato.getMedida().equalsIgnoreCase("Sacos")) {
+			valor_total_a_receber += (total_recebido * novo_contrato.getValor_produto());
 
-			double total_recebido = getPesoTotalRecebido(novo_contrato) / 60;
-			peso_total_cobertura_recebido += (total_recebido);
+		} else if (novo_contrato.getMedida().equalsIgnoreCase("KG")) {
+			double valor_por_saco = novo_contrato.getValor_produto() * 60;
+			valor_total_a_receber += (total_recebido * valor_por_saco);
 
-			if (novo_contrato.getMedida().equalsIgnoreCase("Sacos")) {
-				valor_total_a_receber += (total_recebido * novo_contrato.getValor_produto());
+		}
 
-			} else if (novo_contrato.getMedida().equalsIgnoreCase("KG")) {
-				double valor_por_saco = novo_contrato.getValor_produto() * 60;
-				valor_total_a_receber += (total_recebido * valor_por_saco);
+		for (PagamentoCompleto pagamento : pagamentos) {
 
-			}
+			if (pagamento.getTipo() == 1 || (pagamento.getTipo() == 2 && incluir_comissao_pagamento)
+					|| (pagamento.getTipo() == 3 && incluir_transferencias_pagamentos)) {
 
-			for (PagamentoCompleto pagamento : pagamentos) {
+				cellnum = 0;
+				row = sheet.createRow(rownum);
 
-				if (pagamento.getTipo() == 1 || (pagamento.getTipo() == 2 && incluir_comissao_pagamento)
-						|| (pagamento.getTipo() == 3 && incluir_transferencias_pagamentos)) {
+				// celula ctr
+				cell = row.createCell(cellnum++);
+				cell.setCellStyle(celula_fundo_branco_texto_preto);
+				cell.setCellValue(pagamento.getContrato_remetente().getCodigo());
 
-					cellnum = 0;
-					row = sheet.createRow(rownum);
+				// celula data
+				cell = row.createCell(cellnum++);
+				cell.setCellStyle(celula_fundo_branco_texto_preto);
+				cell.setCellValue(pagamento.getData_pagamento());
 
-					// celula ctr
-					cell = row.createCell(cellnum++);
-					cell.setCellStyle(celula_fundo_branco_texto_preto);
-					cell.setCellValue(pagamento.getContrato_remetente().getCodigo());
+				double valor_por_saco = 0;
+				// if(soma_total_pagamentos != 0)
+				// novo_contrato = pagamento.getContrato_receptor();
 
-					// celula data
-					cell = row.createCell(cellnum++);
-					cell.setCellStyle(celula_fundo_branco_texto_preto);
-					cell.setCellValue(pagamento.getData_pagamento());
+				double quantidade_total_contrato_sacos = 0;
 
-					double valor_por_saco = 0;
-					// if(soma_total_pagamentos != 0)
-					// novo_contrato = pagamento.getContrato_receptor();
+				if (novo_contrato.getMedida().equalsIgnoreCase("Kg")) {
+					quantidade_total_contrato_sacos = novo_contrato.getQuantidade() / 60;
+					valor_por_saco = novo_contrato.getValor_produto() * 60;
+				} else if (novo_contrato.getMedida().equalsIgnoreCase("Sacos")) {
+					quantidade_total_contrato_sacos = novo_contrato.getQuantidade();
+					valor_por_saco = novo_contrato.getValor_produto();
+				}
+				GerenciarBancoContratos gerenciar_contratos = new GerenciarBancoContratos();
 
-					double quantidade_total_contrato_sacos = 0;
-
-					if (novo_contrato.getMedida().equalsIgnoreCase("Kg")) {
-						quantidade_total_contrato_sacos = novo_contrato.getQuantidade() / 60;
-						valor_por_saco = novo_contrato.getValor_produto() * 60;
-					} else if (novo_contrato.getMedida().equalsIgnoreCase("Sacos")) {
-						quantidade_total_contrato_sacos = novo_contrato.getQuantidade();
-						valor_por_saco = novo_contrato.getValor_produto();
+				int tipo = pagamento.getTipo();
+				String s_tipo = "";
+				if (pagamento.getTipo() == 1) {
+					s_tipo = "NORMAL";
+				} else if (pagamento.getTipo() == 2) {
+					s_tipo = "COMISSÃO";
+				} else if (pagamento.getTipo() == 3) {
+					// é uma transferencia
+					if (pagamento.getId_contrato_remetente() == novo_contrato.getId()) {
+						s_tipo = "-TRANSFERENCIA";
+					} else if (pagamento.getId_contrato_destinatario() == novo_contrato.getId()) {
+						// é uma transferencia positiva
+						s_tipo = "+TRANSFERENCIA";
 					}
-					GerenciarBancoContratos gerenciar_contratos = new GerenciarBancoContratos();
-
-					int tipo = pagamento.getTipo();
-					String s_tipo = "";
-					if (pagamento.getTipo() == 1) {
-						s_tipo = "NORMAL";
-					} else if (pagamento.getTipo() == 2) {
-						s_tipo = "COMISSÃO";
-					} else if (pagamento.getTipo() == 3) {
-						// é uma transferencia
-						if (pagamento.getId_contrato_remetente() == novo_contrato.getId()) {
-							s_tipo = "-TRANSFERENCIA";
-						} else if (pagamento.getId_contrato_destinatario() == novo_contrato.getId()) {
-							// é uma transferencia positiva
-							s_tipo = "+TRANSFERENCIA";
-						}
-
-					}
-
-					// celula tipo
-					cell = row.createCell(cellnum++);
-					cell.setCellStyle(celula_fundo_branco_texto_preto);
-					cell.setCellValue(s_tipo);
-
-					// valor pagamento
-					double valor_pagamento = pagamento.getValor_pagamento();
-
-					String valorString = NumberFormat.getCurrencyInstance(ptBr).format(valor_pagamento);
-					double cobertura = valor_pagamento / valor_por_saco;
-
-					if (pagamento.getTipo() == 1) {
-
-					} else if (pagamento.getTipo() == 2) {
-						// é uma comissão
-						valor_pagamento = valor_pagamento * -1;
-
-					} else if (pagamento.getTipo() == 3) {
-						// é uma transferencia
-						if (pagamento.getId_contrato_remetente() == novo_contrato.getId()) {
-							// é uma transferencia negativa
-							valor_pagamento = valor_pagamento * -1;
-						} else if (pagamento.getId_contrato_destinatario() == novo_contrato.getId()) {
-							// é uma transferencia positiva
-
-						}
-
-					}
-					valorString = NumberFormat.getCurrencyInstance(ptBr).format(valor_pagamento);
-
-					// celula pagamento
-					cell = row.createCell(cellnum++);
-					cell.setCellStyle(numberStyle);
-					cell.setCellValue(valor_pagamento);
-
-					// valor da unidade
-					CadastroContrato ct_remetente = pagamento.getContrato_remetente();
-					CadastroContrato ct_destinatario = pagamento.getContrato_destinatario();
-
-					double valor_produto = ct_remetente.getValor_produto();
-
-					if (pagamento.getTipo() == 1) {
-
-					} else if (pagamento.getTipo() == 2) {
-
-					} else if (pagamento.getTipo() == 3) {
-						// é uma transferencia
-						if (pagamento.getId_contrato_remetente() == novo_contrato.getId()) {
-
-						} else if (pagamento.getId_contrato_destinatario() == novo_contrato.getId()) {
-							// é uma transferencia positiva
-							// pegar o preco da unidade do contrato que recebeu a transferencia
-							valor_produto = novo_contrato.getValor_produto();
-
-						}
-					}
-					// celula valor unidade
-					cell = row.createCell(cellnum++);
-					cell.setCellStyle(numberStyle);
-					cell.setCellValue(valor_produto);
-
-					// cobertura
-					cobertura = pagamento.getValor_pagamento() / ct_remetente.getValor_produto();
-					if (ct_remetente.getMedida().equalsIgnoreCase("KG"))
-						cobertura = cobertura / 60;
-
-					if (pagamento.getTipo() == 1) {
-						somatoria_cobertura_pagamentos += cobertura;
-					} else if (pagamento.getTipo() == 2) {
-						somatoria_cobertura_pagamentos += cobertura;
-					} else if (pagamento.getTipo() == 3) {
-						// é uma transferencia
-						if (pagamento.getId_contrato_remetente() == novo_contrato.getId()) {
-							cobertura = cobertura * -1;
-							somatoria_cobertura_transferencias_negativas += cobertura;
-						} else if (pagamento.getId_contrato_destinatario() == novo_contrato.getId()) {
-							// é uma transferencia positiva
-							// pegar o preco da unidade do contrato que recebeu a transferencia
-
-							cobertura = pagamento.getValor_pagamento() / novo_contrato.getValor_produto();
-
-							if (novo_contrato.getMedida().equalsIgnoreCase("KG"))
-								cobertura = cobertura / 60;
-							somatoria_cobertura_transferencias_positivas += cobertura;
-
-						}
-
-					}
-
-					// celula cobertura
-					cell = row.createCell(cellnum++);
-					cell.setCellStyle(pesoStyle);
-					cell.setCellValue(cobertura);
-
-					// celula descricao
-					cell = row.createCell(cellnum++);
-					cell.setCellStyle(celula_fundo_branco_texto_preto);
-					cell.setCellValue(pagamento.getDescricao());
-
-					// celula depositante
-					cell = row.createCell(cellnum++);
-					cell.setCellStyle(celula_fundo_branco_texto_preto);
-					cell.setCellValue(pagamento.getDepositante().toUpperCase());
-
-					// celula conta depositante
-					cell = row.createCell(cellnum++);
-					cell.setCellStyle(celula_fundo_branco_texto_preto);
-					cell.setCellValue(pagamento.getConta_bancaria_depositante().toUpperCase());
-
-					// celula favorecido
-					cell = row.createCell(cellnum++);
-					cell.setCellStyle(celula_fundo_branco_texto_preto);
-					cell.setCellValue(pagamento.getFavorecido().toUpperCase());
-
-					// celula conta favorecido
-					cell = row.createCell(cellnum++);
-					cell.setCellStyle(celula_fundo_branco_texto_preto);
-
-					if (pagamento.getConta_bancaria_favorecido() != null) {
-						cell.setCellValue(pagamento.getConta_bancaria_favorecido().toUpperCase());
-
-					} else {
-						cell.setCellValue("");
-
-					}
-
-					if (pagamento.getTipo() == 1) {
-						// celula contrato remetente
-						cell = row.createCell(cellnum++);
-						cell.setCellStyle(celula_fundo_branco_texto_preto);
-						cell.setCellValue("");
-
-						// celula contrato destinataio
-						cell = row.createCell(cellnum++);
-						cell.setCellStyle(celula_fundo_branco_texto_preto);
-						cell.setCellValue("");
-
-					} else {
-						// celula contrato remetente
-						cell = row.createCell(cellnum++);
-						cell.setCellStyle(celula_fundo_branco_texto_preto);
-						cell.setCellValue(ct_remetente.getCodigo());
-
-						// celula contrato destinataio
-						cell = row.createCell(cellnum++);
-						cell.setCellStyle(celula_fundo_branco_texto_preto);
-						cell.setCellValue(ct_destinatario.getCodigo());
-
-					}
-					rownum++;
-					ultima_linha = rownum;
 
 				}
 
+				// celula tipo
+				cell = row.createCell(cellnum++);
+				cell.setCellStyle(celula_fundo_branco_texto_preto);
+				cell.setCellValue(s_tipo);
+
+				// valor pagamento
+				double valor_pagamento = pagamento.getValor_pagamento();
+
+				String valorString = NumberFormat.getCurrencyInstance(ptBr).format(valor_pagamento);
+				double cobertura = valor_pagamento / valor_por_saco;
+
+				if (pagamento.getTipo() == 1) {
+
+				} else if (pagamento.getTipo() == 2) {
+					// é uma comissão
+					valor_pagamento = valor_pagamento * -1;
+
+				} else if (pagamento.getTipo() == 3) {
+					// é uma transferencia
+					if (pagamento.getId_contrato_remetente() == novo_contrato.getId()) {
+						// é uma transferencia negativa
+						valor_pagamento = valor_pagamento * -1;
+					} else if (pagamento.getId_contrato_destinatario() == novo_contrato.getId()) {
+						// é uma transferencia positiva
+
+					}
+
+				}
+				valorString = NumberFormat.getCurrencyInstance(ptBr).format(valor_pagamento);
+
+				// celula pagamento
+				cell = row.createCell(cellnum++);
+				cell.setCellStyle(numberStyle);
+				cell.setCellValue(valor_pagamento);
+
+				// valor da unidade
+				CadastroContrato ct_remetente = pagamento.getContrato_remetente();
+				CadastroContrato ct_destinatario = pagamento.getContrato_destinatario();
+
+				double valor_produto = ct_remetente.getValor_produto();
+
+				if (pagamento.getTipo() == 1) {
+
+				} else if (pagamento.getTipo() == 2) {
+
+				} else if (pagamento.getTipo() == 3) {
+					// é uma transferencia
+					if (pagamento.getId_contrato_remetente() == novo_contrato.getId()) {
+
+					} else if (pagamento.getId_contrato_destinatario() == novo_contrato.getId()) {
+						// é uma transferencia positiva
+						// pegar o preco da unidade do contrato que recebeu a transferencia
+						valor_produto = novo_contrato.getValor_produto();
+
+					}
+				}
+				// celula valor unidade
+				cell = row.createCell(cellnum++);
+				cell.setCellStyle(numberStyle);
+				cell.setCellValue(valor_produto);
+
+				// cobertura
+				cobertura = pagamento.getValor_pagamento() / ct_remetente.getValor_produto();
+				if (ct_remetente.getMedida().equalsIgnoreCase("KG"))
+					cobertura = cobertura / 60;
+
+				if (pagamento.getTipo() == 1) {
+					somatoria_cobertura_pagamentos += cobertura;
+				} else if (pagamento.getTipo() == 2) {
+					somatoria_cobertura_pagamentos += cobertura;
+				} else if (pagamento.getTipo() == 3) {
+					// é uma transferencia
+					if (pagamento.getId_contrato_remetente() == novo_contrato.getId()) {
+						cobertura = cobertura * -1;
+						somatoria_cobertura_transferencias_negativas += cobertura;
+					} else if (pagamento.getId_contrato_destinatario() == novo_contrato.getId()) {
+						// é uma transferencia positiva
+						// pegar o preco da unidade do contrato que recebeu a transferencia
+
+						cobertura = pagamento.getValor_pagamento() / novo_contrato.getValor_produto();
+
+						if (novo_contrato.getMedida().equalsIgnoreCase("KG"))
+							cobertura = cobertura / 60;
+						somatoria_cobertura_transferencias_positivas += cobertura;
+
+					}
+
+				}
+
+				// celula cobertura
+				cell = row.createCell(cellnum++);
+				cell.setCellStyle(pesoStyle);
+				cell.setCellValue(cobertura);
+
+				// celula descricao
+				cell = row.createCell(cellnum++);
+				cell.setCellStyle(celula_fundo_branco_texto_preto);
+				cell.setCellValue(pagamento.getDescricao());
+
+				// celula depositante
+				cell = row.createCell(cellnum++);
+				cell.setCellStyle(celula_fundo_branco_texto_preto);
+				cell.setCellValue(pagamento.getDepositante().toUpperCase());
+
+				// celula conta depositante
+				cell = row.createCell(cellnum++);
+				cell.setCellStyle(celula_fundo_branco_texto_preto);
+				cell.setCellValue(pagamento.getConta_bancaria_depositante().toUpperCase());
+
+				// celula favorecido
+				cell = row.createCell(cellnum++);
+				cell.setCellStyle(celula_fundo_branco_texto_preto);
+				cell.setCellValue(pagamento.getFavorecido().toUpperCase());
+
+				// celula conta favorecido
+				cell = row.createCell(cellnum++);
+				cell.setCellStyle(celula_fundo_branco_texto_preto);
+
+				if (pagamento.getConta_bancaria_favorecido() != null) {
+					cell.setCellValue(pagamento.getConta_bancaria_favorecido().toUpperCase());
+
+				} else {
+					cell.setCellValue("");
+
+				}
+
+				if (pagamento.getTipo() == 1) {
+					// celula contrato remetente
+					cell = row.createCell(cellnum++);
+					cell.setCellStyle(celula_fundo_branco_texto_preto);
+					cell.setCellValue("");
+
+					// celula contrato destinataio
+					cell = row.createCell(cellnum++);
+					cell.setCellStyle(celula_fundo_branco_texto_preto);
+					cell.setCellValue("");
+
+				} else {
+					// celula contrato remetente
+					cell = row.createCell(cellnum++);
+					cell.setCellStyle(celula_fundo_branco_texto_preto);
+					cell.setCellValue(ct_remetente.getCodigo());
+
+					// celula contrato destinataio
+					cell = row.createCell(cellnum++);
+					cell.setCellStyle(celula_fundo_branco_texto_preto);
+					cell.setCellValue(ct_destinatario.getCodigo());
+
+				}
+				rownum++;
+				ultima_linha = rownum;
+
 			}
 
-		
+		}
 
 		// somatorias
 		FormulaEvaluator evaluator = workbook.getCreationHelper().createFormulaEvaluator();
@@ -11874,59 +14307,59 @@ public class RelatorioContratos {
 		row = sheet.createRow(rownum += 1);
 		cellnum = 0;
 
-		if(incluir_transferencias_pagamentos) {
-		// somatoria de pg -transferencias
-		cell = row.createCell(0);
-		cell.setCellStyle(celula_fundo_branco_texto_preto);
-		cell.setCellValue("Total Transferencia(-):");
+		if (incluir_transferencias_pagamentos) {
+			// somatoria de pg -transferencias
+			cell = row.createCell(0);
+			cell.setCellStyle(celula_fundo_branco_texto_preto);
+			cell.setCellValue("Total Transferencia(-):");
 
-		cell = row.createCell(1);
-		cell.setCellStyle(valorStyleFundoVerdeTextoBranco);
-		cell.setCellType(CellType.FORMULA);
-		formula = "SUMPRODUCT(SUBTOTAL(9,OFFSET(D" + primeira_linha + ":D" + ultima_linha + ",ROW(D" + primeira_linha
-				+ ":D" + ultima_linha + ")-ROW(D" + primeira_linha + "),0,1,1)),-(C" + primeira_linha + ":C"
-				+ ultima_linha + "=\"-TRANSFERENCIA\")) *-1";
-		cell.setCellFormula(formula);
+			cell = row.createCell(1);
+			cell.setCellStyle(valorStyleFundoVerdeTextoBranco);
+			cell.setCellType(CellType.FORMULA);
+			formula = "SUMPRODUCT(SUBTOTAL(9,OFFSET(D" + primeira_linha + ":D" + ultima_linha + ",ROW(D"
+					+ primeira_linha + ":D" + ultima_linha + ")-ROW(D" + primeira_linha + "),0,1,1)),-(C"
+					+ primeira_linha + ":C" + ultima_linha + "=\"-TRANSFERENCIA\")) *-1";
+			cell.setCellFormula(formula);
 
-		cell = row.createCell(2);
-		cell.setCellStyle(celula_fundo_branco_texto_preto);
-		cell.setCellValue("Cobertura Transferencia(-):");
+			cell = row.createCell(2);
+			cell.setCellStyle(celula_fundo_branco_texto_preto);
+			cell.setCellValue("Cobertura Transferencia(-):");
 
-		cell = row.createCell(3);
-		cell.setCellStyle(numberStyleFundoVerdeTextoBranco);
-		cell.setCellType(CellType.FORMULA);
-		formula = "SUMPRODUCT(SUBTOTAL(9,OFFSET(F" + primeira_linha + ":F" + ultima_linha + ",ROW(F" + primeira_linha
-				+ ":F" + ultima_linha + ")-ROW(F" + primeira_linha + "),0,1,1)),-(C" + primeira_linha + ":C"
-				+ ultima_linha + "=\"-TRANSFERENCIA\")) *-1";
-		cell.setCellFormula(formula);
+			cell = row.createCell(3);
+			cell.setCellStyle(numberStyleFundoVerdeTextoBranco);
+			cell.setCellType(CellType.FORMULA);
+			formula = "SUMPRODUCT(SUBTOTAL(9,OFFSET(F" + primeira_linha + ":F" + ultima_linha + ",ROW(F"
+					+ primeira_linha + ":F" + ultima_linha + ")-ROW(F" + primeira_linha + "),0,1,1)),-(C"
+					+ primeira_linha + ":C" + ultima_linha + "=\"-TRANSFERENCIA\")) *-1";
+			cell.setCellFormula(formula);
 
-		row = sheet.createRow(rownum += 1);
-		cellnum = 0;
+			row = sheet.createRow(rownum += 1);
+			cellnum = 0;
 
-		// somatoria de pg +transferencias
-		cell = row.createCell(0);
-		cell.setCellStyle(celula_fundo_branco_texto_preto);
-		cell.setCellValue("Total Transferencia(+):");
+			// somatoria de pg +transferencias
+			cell = row.createCell(0);
+			cell.setCellStyle(celula_fundo_branco_texto_preto);
+			cell.setCellValue("Total Transferencia(+):");
 
-		cell = row.createCell(1);
-		cell.setCellStyle(valorStyleFundoVerdeTextoBranco);
-		cell.setCellType(CellType.FORMULA);
-		formula = "SUMPRODUCT(SUBTOTAL(9,OFFSET(D" + primeira_linha + ":D" + ultima_linha + ",ROW(D" + primeira_linha
-				+ ":D" + ultima_linha + ")-ROW(D" + primeira_linha + "),0,1,1)),-(C" + primeira_linha + ":C"
-				+ ultima_linha + "=\"+TRANSFERENCIA\")) * -1";
-		cell.setCellFormula(formula);
+			cell = row.createCell(1);
+			cell.setCellStyle(valorStyleFundoVerdeTextoBranco);
+			cell.setCellType(CellType.FORMULA);
+			formula = "SUMPRODUCT(SUBTOTAL(9,OFFSET(D" + primeira_linha + ":D" + ultima_linha + ",ROW(D"
+					+ primeira_linha + ":D" + ultima_linha + ")-ROW(D" + primeira_linha + "),0,1,1)),-(C"
+					+ primeira_linha + ":C" + ultima_linha + "=\"+TRANSFERENCIA\")) * -1";
+			cell.setCellFormula(formula);
 
-		cell = row.createCell(2);
-		cell.setCellStyle(celula_fundo_branco_texto_preto);
-		cell.setCellValue("Cobertura Transferencia(+):");
+			cell = row.createCell(2);
+			cell.setCellStyle(celula_fundo_branco_texto_preto);
+			cell.setCellValue("Cobertura Transferencia(+):");
 
-		cell = row.createCell(3);
-		cell.setCellStyle(numberStyleFundoVerdeTextoBranco);
-		cell.setCellType(CellType.FORMULA);
-		formula = "SUMPRODUCT(SUBTOTAL(9,OFFSET(F" + primeira_linha + ":F" + ultima_linha + ",ROW(F" + primeira_linha
-				+ ":F" + ultima_linha + ")-ROW(F" + primeira_linha + "),0,1,1)),-(C" + primeira_linha + ":C"
-				+ ultima_linha + "=\"+TRANSFERENCIA\")) * -1";
-		cell.setCellFormula(formula);
+			cell = row.createCell(3);
+			cell.setCellStyle(numberStyleFundoVerdeTextoBranco);
+			cell.setCellType(CellType.FORMULA);
+			formula = "SUMPRODUCT(SUBTOTAL(9,OFFSET(F" + primeira_linha + ":F" + ultima_linha + ",ROW(F"
+					+ primeira_linha + ":F" + ultima_linha + ")-ROW(F" + primeira_linha + "),0,1,1)),-(C"
+					+ primeira_linha + ":C" + ultima_linha + "=\"+TRANSFERENCIA\")) * -1";
+			cell.setCellFormula(formula);
 		}
 
 		row = sheet.createRow(rownum += 1);
@@ -12107,7 +14540,6 @@ public class RelatorioContratos {
 
 	}
 
-
 	public double getPesoTotalRecebido(CadastroContrato contrato) {
 		double peso_total_recebido = 0.0, peso_total_trans_negativo = 0.0, peso_total_trans_positivo = 0.0;
 
@@ -12123,7 +14555,8 @@ public class RelatorioContratos {
 				.getTransferenciaDestinatario(contrato.getId());
 
 		for (CadastroContrato.Recebimento recebimento : lista_recebimentos_local) {
-			peso_total_recebido = peso_total_recebido + recebimento.getPeso_romaneio();
+			if (recebimento != null)
+				peso_total_recebido = peso_total_recebido + recebimento.getPeso_romaneio();
 		}
 		for (CadastroContrato.CadastroTransferenciaRecebimento enviado_via_trans : lista_transferencias_recebimento_remetente_local) {
 			peso_total_trans_negativo += enviado_via_trans.getQuantidade();

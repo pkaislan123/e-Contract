@@ -311,6 +311,7 @@ public class TelaFinanceiroCadastroConta extends JDialog {
 				 boolean result = gerenciar.atualizarFinanceiroConta(getDadosAtualizar(financeiro_conta));
 				 if(result) {
 					 JOptionPane.showMessageDialog(isto, "Cadastro Atualizado");
+					 ((TelaFinanceiroConta) janela_pai).pesquisar();
 					 isto.dispose();
 				 }else {
 					 JOptionPane.showMessageDialog(isto, "Erro ao Atualizar\nConsulte o Administrador");
@@ -326,6 +327,8 @@ public class TelaFinanceiroCadastroConta extends JDialog {
 			 int result = gerenciar.inserirFinanceiroConta(getDadosSalvar());
 			 if(result > 0) {
 				 JOptionPane.showMessageDialog(isto, "Cadastro Concluído");
+				 ((TelaFinanceiroConta) janela_pai).pesquisar();
+
 				 isto.dispose();
 			 }else {
 				 JOptionPane.showMessageDialog(isto, "Erro ao Salvar\nConsulte o Administrador");

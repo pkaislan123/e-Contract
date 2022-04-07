@@ -174,14 +174,19 @@ public class TelaFuncionariosCadastroRp extends JFrame {
 	private JTextField entHora;
 	private JTextField entMotivo;
 
-	public TelaFuncionariosCadastroRp(CadastroFuncionario funcionario, Window janela_pai) {
+	public TelaFuncionariosCadastroRp(int flag_edicao,RegistroPonto registro_ponto, CadastroFuncionario funcionario, Window janela_pai) {
 
 		funcionario_local = funcionario;
 		this.setContentPane(painelDadosIniciais);
 
 		setForeground(new Color(255, 255, 255));
-		this.setTitle("Associar Cartão");
+		
+		if(flag_edicao == 0)
+		 this.setTitle("Novo Registro de Ponto");
+		else
+			 this.setTitle("Edição de Registro de Ponto");
 
+		
 		getDadosGlobais();
 		// setAlwaysOnTop(true);
 
@@ -327,6 +332,63 @@ public class TelaFuncionariosCadastroRp extends JFrame {
 		entMotivo = new JTextField();
 		entMotivo.setColumns(10);
 		panel_3.add(entMotivo, "cell 1 4,growx");
+		
+		JButton btnAtualizar = new JButton("Atualizar");
+		btnAtualizar.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				
+				GerenciarBancoRegistroPonto gerenciar_rp = new GerenciarBancoRegistroPonto();
+				RegistroPonto rp = getDadosAtualizar(registro_ponto);
+				if(rp != null) {
+					boolean inserir = gerenciar_rp.atualizarRegistroPonto(rp);
+					if(inserir) {
+						JOptionPane.showMessageDialog(isto, "Registro Ponto Atualizado");
+						
+						//Criar tarefa
+						GerenciarBancoTarefaGeral gerenciar_tarefa = new GerenciarBancoTarefaGeral();
+						CadastroTarefaGeral tarefa = new CadastroTarefaGeral();
+						
+					
+						tarefa.setNome_tarefa("Edição Manual de Registro de Ponto");
+						tarefa.setDescricao_tarefa("O Registro de Ponto id: " + inserir + " Foi editado manualmente"  );
+						tarefa.setMensagem("O Registro de Ponto id: " + inserir + " Foi editado manualmente"  );
+						tarefa.setCriador(login);
+						tarefa.setExecutor(login);
+						tarefa.setStatus_tarefa(1);
+						tarefa.setPrioridade(1);
+						tarefa.setTipo(5);
+						tarefa.setId_funcionario_pai(funcionario_local.getId_funcionario());
+						
+						GetData data = new GetData();
+						tarefa.setHora(data.getHora());
+						tarefa.setData(data.getData());
+						tarefa.setHora_agendada(data.getHora());
+						tarefa.setData_agendada(data.getData());
+						
+						boolean inseriu_tarefa = gerenciar_tarefa.inserirTarefaGeral(tarefa);
+						if(inseriu_tarefa) {
+
+						}else {
+							JOptionPane.showMessageDialog(isto, "Tarefa Não Atualizado, Consulte o administrador");
+
+						}
+						
+						JOptionPane.showMessageDialog(isto, "Atualizado");
+						((TelaGerenciarFuncionario) janela_pai).pesquisar_tarefas();
+						((TelaGerenciarFuncionario) janela_pai).pesquisar_registros_ponto();
+						((TelaGerenciarFuncionario) janela_pai).pesquisar_rp_diario();
+						isto.dispose();
+
+					}else {
+						JOptionPane.showMessageDialog(isto, "Erro ao Atualizar o Registro de Ponto!\nConsulte o administrador");
+					}
+				}
+			}
+		});
+		btnAtualizar.setForeground(Color.WHITE);
+		btnAtualizar.setFont(new Font("SansSerif", Font.BOLD, 16));
+		btnAtualizar.setBackground(new Color(0, 51, 102));
+		panel_3.add(btnAtualizar, "flowx,cell 1 5,alignx right");
 
 
 		btnSalvar.setForeground(Color.WHITE);
@@ -338,9 +400,36 @@ public class TelaFuncionariosCadastroRp extends JFrame {
 		// configura widgets no painel finalizar
 
 		pesquisar_contratos();
+		
+		
+		if(flag_edicao == 1) {
+			rotinasEdicao(registro_ponto);
+			btnSalvar.setEnabled(false);
+			btnSalvar.setVisible(false);
+			
+		}else {
+			btnAtualizar.setEnabled(false);
+			btnAtualizar.setVisible(false);
+		}
+		
+		
 		this.setLocationRelativeTo(janela_pai);
 
+		
+		
+		
 	}
+	
+	
+	public void rotinasEdicao(RegistroPonto rp) {
+		entData.setText(rp.getData());
+		entHora.setText(rp.getHora());
+		 cBMovimentacao.setSelectedIndex(rp.getMovimentacao() -1);
+		 entMotivo.setText(rp.getMotivo());
+		 
+
+	}
+	
 
 	public void getDadosGlobais() {
 		// gerenciador de log
@@ -356,6 +445,64 @@ public class TelaFuncionariosCadastroRp extends JFrame {
 	
 	public RegistroPonto getDadosSalvar() {
 		RegistroPonto rp = new RegistroPonto();
+		
+		String data = entData.getText();
+		String hora = entHora.getText();
+		int movimentacao = cBMovimentacao.getSelectedIndex();
+
+		try {
+			if(isDateValid(data) ){
+				rp.setData(data);
+				
+				rp.setId_funcionario(funcionario_local.getId_funcionario());
+				rp.setMovimentacao(movimentacao + 1);
+				
+				try {
+				LocalTime hora_lt  = LocalTime.parse(hora, DateTimeFormatter.ofPattern("HH:mm"));
+				rp.setHora(hora);
+				
+				
+				String motivo = entMotivo.getText();
+				if(motivo != null && !motivo.equals("") && motivo.length() > 10) {
+					rp.setMotivo(motivo);
+					return rp;
+
+				}else {
+					JOptionPane.showMessageDialog(isto, "Motivo Definido Incorreto\nNão pode ser nulo!\nPrecisa ser maior que 10 caracteres");
+					return null;
+				}
+				
+
+				}
+				catch(Exception y) {
+					JOptionPane.showMessageDialog(isto, "Hora Inválida!");
+					return null;
+				}
+				
+			}else {
+				JOptionPane.showMessageDialog(isto, "Hora Inválida");
+				return null;
+			}
+			
+			
+			
+		}catch(Exception e) {
+			JOptionPane.showMessageDialog(isto, "Data Inválida!");
+			return null;
+		}
+		
+		
+		
+		
+	}
+	
+	
+	
+	public RegistroPonto getDadosAtualizar(RegistroPonto rp_antigo) {
+		RegistroPonto rp = new RegistroPonto();
+		
+		rp.setId_registro_ponto(rp_antigo.getId_registro_ponto());
+		rp.setId_funcionario(rp_antigo.getId_funcionario());
 		
 		String data = entData.getText();
 		String hora = entHora.getText();

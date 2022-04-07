@@ -200,7 +200,7 @@ import javax.swing.JCheckBox;
 import javax.swing.JTabbedPane;
 import javax.swing.JRadioButton;
 
-public class TelaFinanceiroCadastroLancamento extends JDialog {
+public class TelaFinanceiroCadastroLancamento extends JFrame {
 
 	private final JPanel painelPrincipal = new JPanel();
 	private final JPanel painelOdin = new JPanel();

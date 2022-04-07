@@ -62,7 +62,7 @@ public class GerenciarBancoSafrasEvidencias {
 	            }
 	            ConexaoBanco.fechaConexao(conn, pstm, rs);
 	        } catch (Exception e) {
-	        	   JOptionPane.showMessageDialog(null, "Erro ao listar safras em evidencia\nErro: " + e.getMessage() + "\nCausa:" + e.getCause()  );
+	        	  // JOptionPane.showMessageDialog(null, "Erro ao listar safras em evidencia\nErro: " + e.getMessage() + "\nCausa:" + e.getCause()  );
 	        }
 	        return lista_safras_evidencia;
 	    }

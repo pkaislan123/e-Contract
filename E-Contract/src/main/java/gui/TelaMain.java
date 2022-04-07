@@ -240,10 +240,12 @@ public class TelaMain extends JFrame {
 	private GraficoLinha linha = null;
 	TelaPost telaPost;
 	private TelaTodasNotasFiscais telaTodasNotasFiscais;
-	private String url_lbl_avisos ;
+	private String url_lbl_avisos;
+
 	public JLabel getLblAvisos() {
 		return lblAvisos;
 	}
+
 	private JPanel painelInfoConexao;
 
 	public void setLblAvisos(JLabel lblAvisos) {
@@ -321,7 +323,7 @@ public class TelaMain extends JFrame {
 		JPanel painelPrincipal = new JPanel();
 		painelPrincipal.setBackground(new Color(255, 255, 255));
 		setContentPane(painelPrincipal);
-		painelPrincipal.setLayout(new MigLayout("", "[][][grow][][grow]", "[86px][350px,grow]"));
+		painelPrincipal.setLayout(new MigLayout("", "[grow][grow][grow][][grow]", "[86px][350px,grow]"));
 
 		JPanel panel = new JPanel();
 		painelPrincipal.add(panel, "cell 0 0,grow");
@@ -446,6 +448,19 @@ public class TelaMain extends JFrame {
 		mntmTransgnese.setMargin(new Insets(0, 10, 0, 0));
 		mntmTransgnese.setFont(new Font("SansSerif", Font.PLAIN, 16));
 		Dados.add(mntmTransgnese);
+		
+		JMenuItem mntmCotaes = new JMenuItem("Cotações");
+		mntmCotaes.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				TelaCotacoes tela = new TelaCotacoes(isto);
+				tela.setVisible(true);
+				
+			}
+		});
+		mntmCotaes.setIcon(new ImageIcon(TelaMain.class.getResource("/imagens/cotacao.png")));
+		mntmCotaes.setMargin(new Insets(0, 10, 0, 0));
+		mntmCotaes.setFont(new Font("SansSerif", Font.PLAIN, 16));
+		Dados.add(mntmCotaes);
 		JMenu mnContratos = new JMenu("Contratos");
 		mnContratos.setIcon(new ImageIcon(TelaMain.class.getResource("/imagens/icone_contrato_menu.png")));
 		mnContratos.setFont(new Font("Arial", Font.PLAIN, 18));
@@ -542,12 +557,12 @@ public class TelaMain extends JFrame {
 		mnContratos.add(mntmNewMenuItem_8);
 		mnContratos.add(mntmNewMenuItem_1);
 
-		JMenuItem mntmNewMenuItem_1_1 = new JMenuItem("Notas Fiscais");
+		JMenuItem mntmNewMenuItem_1_1 = new JMenuItem("Notas Fiscais Recebimentos");
 		mntmNewMenuItem_1_1.setIcon(new ImageIcon(TelaMain.class.getResource("/imagens/taxa.png")));
 		mntmNewMenuItem_1_1.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 
-				TelaControleNotasFiscais tela = new TelaControleNotasFiscais(isto);
+				TelaControleNotasFiscaisRecebimento tela = new TelaControleNotasFiscaisRecebimento(isto);
 				tela.setVisible(true);
 
 			}
@@ -555,6 +570,18 @@ public class TelaMain extends JFrame {
 		mntmNewMenuItem_1_1.setMargin(new Insets(0, 10, 0, 0));
 		mntmNewMenuItem_1_1.setFont(new Font("Segoe UI", Font.PLAIN, 16));
 		mnContratos.add(mntmNewMenuItem_1_1);
+		
+		JMenuItem mntmNewMenuItem_1_1_1 = new JMenuItem("Notas Fiscais Carregamentos");
+		mntmNewMenuItem_1_1_1.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				TelaControleNotasFiscaisCarregamento tela = new TelaControleNotasFiscaisCarregamento(isto);
+				tela.setVisible(true);
+			}
+		});
+		mntmNewMenuItem_1_1_1.setIcon(new ImageIcon(TelaMain.class.getResource("/imagens/taxa.png")));
+		mntmNewMenuItem_1_1_1.setMargin(new Insets(0, 10, 0, 0));
+		mntmNewMenuItem_1_1_1.setFont(new Font("Segoe UI", Font.PLAIN, 16));
+		mnContratos.add(mntmNewMenuItem_1_1_1);
 
 		JMenu mnNewMenu_1 = new JMenu("Financeiro");
 		mnNewMenu_1.setIcon(new ImageIcon(TelaMain.class.getResource("/imagens/financa.png")));
@@ -752,8 +779,7 @@ public class TelaMain extends JFrame {
 		mnNewMenu.setIcon(new ImageIcon(TelaMain.class.getResource("/imagens/preferencias.png")));
 		mnNewMenu.setFont(new Font("Arial", Font.PLAIN, 18));
 		menuBar.add(mnNewMenu);
-		
-		
+
 		JMenuItem mntmPastas = new JMenuItem("Preferências");
 		mntmPastas.setIcon(new ImageIcon(TelaMain.class.getResource("/imagens/definicoes.png")));
 		mntmPastas.setMargin(new Insets(0, 10, 0, 0));
@@ -764,109 +790,40 @@ public class TelaMain extends JFrame {
 		});
 		mntmPastas.setFont(new Font("Segoe UI", Font.PLAIN, 16));
 		mnNewMenu.add(mntmPastas);
-		
+
 		JMenu mnNewMenu_4 = new JMenu("Utilitário");
 		mnNewMenu_4.setIcon(new ImageIcon(TelaMain.class.getResource("/imagens/icone_utilidades.png")));
 		mnNewMenu_4.setFont(new Font("Arial", Font.PLAIN, 18));
 		menuBar.add(mnNewMenu_4);
-		
+
 		JMenuItem mntmNewMenuItem_3_1 = new JMenuItem("Controle de Embarque/Desembarque");
 		mntmNewMenuItem_3_1.setIcon(new ImageIcon(TelaMain.class.getResource("/imagens/fila.png")));
 		mntmNewMenuItem_3_1.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				
+
 				TelaFila tela = new TelaFila(0, isto);
 				tela.setVisible(true);
-				
+
 			}
 		});
 		mntmNewMenuItem_3_1.setMargin(new Insets(0, 10, 0, 0));
 		mntmNewMenuItem_3_1.setFont(new Font("SansSerif", Font.PLAIN, 16));
 		mnNewMenu_4.add(mntmNewMenuItem_3_1);
 
-		JPanel panel_1 = new JPanel();
-		panel_1.setBackground(new Color(0, 153, 51));
-		painelPrincipal.add(panel_1, "cell 1 0,grow");
-		panel_1.setLayout(new MigLayout("", "[][][][][][][]", "[][-18.00][]"));
-
-		JLabel lblNewLabel_8 = new JLabel("");
-		lblNewLabel_8.addMouseListener(new MouseAdapter() {
-			@Override
-			public void mouseClicked(MouseEvent e) {
-				if (telaPost == null) {
-					telaPost = new TelaPost(isto);
-				} else {
-					telaPost.setVisible(true);
-				}
-			}
-		});
-		panel_1.add(lblNewLabel_8, "cell 0 0");
-		lblNewLabel_8.setIcon(new ImageIcon(TelaMain.class.getResource("/imagens/icone_anotacoes_tela_principal.png")));
-
-		JLabel lblNewLabel_1 = new JLabel("");
-		lblNewLabel_1.addMouseListener(new MouseAdapter() {
-			@Override
-			public void mouseClicked(MouseEvent e) {
-
-				TelaTarefas tela_tarefas = new TelaTarefas(isto);
-				tela_tarefas.setVisible(true);
-
-			}
-		});
-		panel_1.add(lblNewLabel_1, "cell 1 0");
-		lblNewLabel_1.setIcon(new ImageIcon(TelaMain.class.getResource("/imagens/icone_tarefa.png")));
-
-		JLabel lblNewLabel_2 = new JLabel("Você tem:");
-		panel_1.add(lblNewLabel_2, "cell 2 0");
-
-		lblNumeroTarefas = new JLabel("0");
-		panel_1.add(lblNumeroTarefas, "cell 3 0");
-		lblNumeroTarefas.setFont(new Font("Tahoma", Font.BOLD, 18));
-
-		JLabel lblNewLabel_4 = new JLabel("tarefas");
-		panel_1.add(lblNewLabel_4, "cell 4 0");
-
 		JPanel panel_2 = new JPanel();
 		panel_2.setBackground(new Color(51, 153, 255));
-		painelPrincipal.add(panel_2, "cell 2 0,grow");
-		panel_2.setLayout(new MigLayout("", "[][][grow]", "[grow][][grow]"));
-
-		lblNovaMensagem = new JLabel("");
-		lblNovaMensagem.setIcon(new ImageIcon(TelaMain.class.getResource("/imagens/mensagens.png")));
-		panel_2.add(lblNovaMensagem, "cell 0 0 2 2,alignx center");
-		lblNovaMensagem.setForeground(Color.WHITE);
-		lblNovaMensagem.setFont(new Font("Tahoma", Font.PLAIN, 18));
-		lblNovaMensagem.setBounds(33, 17, 32, 32);
-
-		lblNovaMensagem.addMouseListener(new MouseAdapter() {
-			@Override
-			public void mouseClicked(MouseEvent arg0) {
-				if (telaChat == null) {
-					telaChat = new TelaChat(isto);
-					telaChat.setTelaPai(isto);
-				} else {
-					telaChat.setVisible(true);
-					java.awt.EventQueue.invokeLater(new Runnable() {
-						public void run() {
-							lblNovaMensagem
-									.setIcon(new ImageIcon(TelaMain.class.getResource("/imagens/mensagens.png")));
-							lblNovaMensagem.repaint();
-							lblNovaMensagem.updateUI();
-						}
-					});
-				}
-			}
-		});
+		painelPrincipal.add(panel_2, "cell 1 0 2 1,grow");
+		panel_2.setLayout(new MigLayout("", "[][][][grow]", "[grow][][grow]"));
 
 		lblUser = new JLabel();
-		panel_2.add(lblUser, "cell 2 0,alignx right,growy");
+		panel_2.add(lblUser, "cell 0 0 4 1,alignx center,growy");
 		lblUser.setText("<dynamic> <dynamic>");
 		lblUser.setForeground(Color.BLACK);
 		lblUser.setFont(new Font("Tahoma", Font.BOLD, 24));
 		lblUser.setBackground(Color.WHITE);
 
 		lblDireitos = new JLabel();
-		panel_2.add(lblDireitos, "cell 2 1 1 2,alignx right");
+		panel_2.add(lblDireitos, "cell 0 1 4 2,alignx center,growy");
 		lblDireitos.setText("Administrador do Sistema");
 		lblDireitos.setForeground(Color.BLACK);
 		lblDireitos.setFont(new Font("Tahoma", Font.PLAIN, 20));
@@ -886,31 +843,29 @@ public class TelaMain extends JFrame {
 
 		JPanel panel_3 = new JPanel();
 		panel_3.setBackground(Color.WHITE);
-		panel_3.setLayout(new MigLayout("", "[600px,grow][600px][600px]", "[][350px,grow][]"));
+		panel_3.setLayout(new MigLayout("", "[grow]", "[][grow][]"));
 
-		JScrollPane scrollPane = new JScrollPane(panel_3);
-		scrollPane.setBackground(Color.WHITE);
-		painelPrincipal.add(scrollPane, "cell 0 1 3 1,grow");
+		painelPrincipal.add(panel_3, "cell 0 1 3 1,grow");
 
 		JPanel panel_5 = new JPanel();
 		panel_5.setBackground(new Color(0, 102, 102));
-		panel_3.add(panel_5, "cell 0 0 3 1,grow");
-		panel_5.setLayout(new MigLayout("", "[][800px:n][][][][500px:n][]", "[]"));
+		panel_3.add(panel_5, "cell 0 0,grow");
+		panel_5.setLayout(new MigLayout("", "[][][grow][][][500px:n][]", "[][]"));
 
 		JLabel lblNewLabel_11 = new JLabel("SAFRAS EM EVIDÊNCIA ->");
 		lblNewLabel_11.setForeground(Color.WHITE);
-		panel_5.add(lblNewLabel_11, "cell 0 0");
+		panel_5.add(lblNewLabel_11, "cell 0 0 2 1,alignx right");
 		lblNewLabel_11.setFont(new Font("Tahoma", Font.BOLD, 16));
 
 		textAreaSafrasEvidencia = new JTextArea();
-		panel_5.add(textAreaSafrasEvidencia, "cell 1 0,grow");
+		panel_5.add(textAreaSafrasEvidencia, "cell 2 0,grow");
 		textAreaSafrasEvidencia.setEditable(false);
 		textAreaSafrasEvidencia.setFont(new Font("SansSerif", Font.BOLD, 14));
 		textAreaSafrasEvidencia.setWrapStyleWord(true);
 		textAreaSafrasEvidencia.setLineWrap(true);
 
 		JButton btnNewButton_1 = new JButton("Alterar");
-		panel_5.add(btnNewButton_1, "cell 2 0");
+		panel_5.add(btnNewButton_1, "cell 3 0");
 		btnNewButton_1.setFont(new Font("SansSerif", Font.PLAIN, 16));
 		btnNewButton_1.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
@@ -923,7 +878,7 @@ public class TelaMain extends JFrame {
 		btnNewButton_1.setBackground(new Color(0, 0, 51));
 		btnNewButton_1.setForeground(Color.WHITE);
 		cbContratosPorSafra = new JComboBox();
-		panel_5.add(cbContratosPorSafra, "cell 5 0,growx");
+		panel_5.add(cbContratosPorSafra, "cell 4 0 2 1,growx");
 		cbContratosPorSafra.setFont(new Font("Tahoma", Font.BOLD, 10));
 		cbContratosPorSafra.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
@@ -957,19 +912,26 @@ public class TelaMain extends JFrame {
 		btnTodasAsSafras.setBackground(new Color(0, 0, 102));
 		btnTodasAsSafras.setForeground(Color.WHITE);
 
+		JPanel panel_1 = new JPanel();
+		panel_1.setBackground(Color.WHITE);
+		panel_1.setLayout(new MigLayout("", "[600px,grow][600px,grow][600px,grow]", "[350px,grow]"));
+
+		JScrollPane scrollPane = new JScrollPane(panel_1);
+		panel_3.add(scrollPane, "cell 0 1,grow");
+
 		painelGraficoContratos = new JPanel();
-		panel_3.add(painelGraficoContratos, "cell 0 1,grow");
+		panel_1.add(painelGraficoContratos, "cell 0 0");
 		painelGraficoContratos.setBackground(Color.WHITE);
 		painelGraficoContratos.setLayout(new MigLayout("", "[]", "[]"));
 
 		painelGraficoRecebimento = new JPanel();
+		panel_1.add(painelGraficoRecebimento, "cell 1 0");
 		painelGraficoRecebimento.setBackground(Color.WHITE);
-		panel_3.add(painelGraficoRecebimento, "cell 1 1,grow");
 		painelGraficoRecebimento.setLayout(new MigLayout("", "[]", "[]"));
 
 		painelGraficoCarregamentos = new JPanel();
+		panel_1.add(painelGraficoCarregamentos, "cell 2 0");
 		painelGraficoCarregamentos.setBackground(Color.WHITE);
-		panel_3.add(painelGraficoCarregamentos, "cell 2 1,grow");
 		painelGraficoCarregamentos.setLayout(new MigLayout("", "[]", "[]"));
 
 		if (login.getConfigs_privilegios().getNivel_privilegios() == 1) {
@@ -995,10 +957,77 @@ public class TelaMain extends JFrame {
 		JPanel panel_4 = new JPanel();
 		panel_4.setBackground(new Color(0, 102, 102));
 		painelPrincipal.add(panel_4, "cell 3 0 1 2,grow");
-		panel_4.setLayout(new MigLayout("", "[]", "[grow][]"));
+		panel_4.setLayout(new MigLayout("", "[]", "[][][][][][][][grow][]"));
 
-		 painelInfoConexao = new JPanel();
-		panel_4.add(painelInfoConexao, "cell 0 0,alignx center,aligny center");
+		lblNovaMensagem = new JLabel("");
+		panel_4.add(lblNovaMensagem, "cell 0 0,alignx center");
+		lblNovaMensagem.setIcon(new ImageIcon(TelaMain.class.getResource("/imagens/mensagens.png")));
+		lblNovaMensagem.setForeground(Color.WHITE);
+		lblNovaMensagem.setFont(new Font("Tahoma", Font.PLAIN, 18));
+		lblNovaMensagem.setBounds(33, 17, 32, 32);
+
+		lblNovaMensagem.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseClicked(MouseEvent arg0) {
+				if (telaChat == null) {
+					telaChat = new TelaChat(isto);
+					telaChat.setTelaPai(isto);
+				} else {
+					telaChat.setVisible(true);
+					java.awt.EventQueue.invokeLater(new Runnable() {
+						public void run() {
+							lblNovaMensagem
+									.setIcon(new ImageIcon(TelaMain.class.getResource("/imagens/mensagens.png")));
+							lblNovaMensagem.repaint();
+							lblNovaMensagem.updateUI();
+						}
+					});
+				}
+			}
+		});
+
+		JLabel lblNewLabel_8 = new JLabel("");
+		panel_4.add(lblNewLabel_8, "cell 0 1");
+		lblNewLabel_8.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseClicked(MouseEvent e) {
+				if (telaPost == null) {
+					telaPost = new TelaPost(isto);
+				} else {
+					telaPost.setVisible(true);
+				}
+			}
+		});
+		lblNewLabel_8.setIcon(new ImageIcon(TelaMain.class.getResource("/imagens/icone_anotacoes_tela_principal.png")));
+
+		JLabel lblNewLabel_1 = new JLabel("");
+		panel_4.add(lblNewLabel_1, "cell 0 2");
+		lblNewLabel_1.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseClicked(MouseEvent e) {
+
+				TelaTarefas tela_tarefas = new TelaTarefas(isto);
+				tela_tarefas.setVisible(true);
+
+			}
+		});
+		lblNewLabel_1.setIcon(new ImageIcon(TelaMain.class.getResource("/imagens/icone_tarefa.png")));
+
+		JLabel lblNewLabel_2 = new JLabel("Você tem:");
+		lblNewLabel_2.setForeground(Color.WHITE);
+		panel_4.add(lblNewLabel_2, "cell 0 3,alignx center");
+
+		lblNumeroTarefas = new JLabel("0");
+		lblNumeroTarefas.setForeground(Color.WHITE);
+		panel_4.add(lblNumeroTarefas, "cell 0 4,alignx center");
+		lblNumeroTarefas.setFont(new Font("Tahoma", Font.BOLD, 18));
+
+		JLabel lblNewLabel_4 = new JLabel("tarefas");
+		lblNewLabel_4.setForeground(Color.WHITE);
+		panel_4.add(lblNewLabel_4, "cell 0 5,alignx center");
+
+		painelInfoConexao = new JPanel();
+		panel_4.add(painelInfoConexao, "cell 0 7,alignx center,aligny center");
 		painelInfoConexao.setBackground(new Color(0, 102, 102));
 		painelInfoConexao.setLayout(new MigLayout("", "[]", "[][][][][][]"));
 
@@ -1024,7 +1053,7 @@ public class TelaMain extends JFrame {
 		imgNuvem.setBounds(21, 109, 32, 32);
 		painelInfoConexao.add(imgNuvem, "cell 0 5");
 
-		 lblAvisos = new JLabel("");
+		lblAvisos = new JLabel("");
 		lblAvisos.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent e) {
@@ -1035,7 +1064,7 @@ public class TelaMain extends JFrame {
 		lblAvisos.setBackground(new Color(0, 0, 0));
 		lblAvisos.setIcon(new ImageIcon(TelaMain.class.getResource("/imagens/icone_sem_avisos.png")));
 		url_lbl_avisos = "/imagens/icone_sem_avisos.png";
-		panel_4.add(lblAvisos, "cell 0 1,grow");
+		panel_4.add(lblAvisos, "cell 0 8,grow");
 
 		modelo_usuarios.addColumn("Usuario");
 		modelo_usuarios.addColumn("Ip");
@@ -1471,32 +1500,29 @@ public class TelaMain extends JFrame {
 			}
 		});
 	}
-	
-	
-	
 
 	public void setNovaNotificacaoMensagem(String mensagem) {
 		// if(!telaChat.isVisible())
 		try {
-			if(!telaChat.isVisible()) {
-			notificando = true;
-			TelaNotificacaoSuperior tela = new TelaNotificacaoSuperior();
-			tela.setMensagem(mensagem);
-			tela.setVisible(true);
-			new Thread() {
-				@Override
-				public void run() {
-					ReproduzirAudio player = new ReproduzirAudio();
-					URL url = TelaMain.class.getResource("/main/java/audio/nova_mensagem.wav");
+			if (!telaChat.isVisible()) {
+				notificando = true;
+				TelaNotificacaoSuperior tela = new TelaNotificacaoSuperior();
+				tela.setMensagem(mensagem);
+				tela.setVisible(true);
+				new Thread() {
+					@Override
+					public void run() {
+						ReproduzirAudio player = new ReproduzirAudio();
+						URL url = TelaMain.class.getResource("/main/java/audio/nova_mensagem.wav");
 
-					for (int i = 0; i < 1; i++) {
-						player.play(url);
+						for (int i = 0; i < 1; i++) {
+							player.play(url);
+						}
 					}
-				}
-			}.start();
-			Thread.sleep(5000);
-			tela.fechar();
-			notificando = false;
+				}.start();
+				Thread.sleep(5000);
+				tela.fechar();
+				notificando = false;
 			}
 		} catch (InterruptedException e) {
 			// TODO Auto-generated catch block
@@ -1929,19 +1955,17 @@ public class TelaMain extends JFrame {
 	public void setarIconeAvisos(String url_imagem) {
 		java.awt.EventQueue.invokeLater(new Runnable() {
 			public void run() {
-				
-				if(!url_lbl_avisos.equalsIgnoreCase(url_imagem)) {
-					
-				
+
+				if (!url_lbl_avisos.equalsIgnoreCase(url_imagem)) {
+
 					lblAvisos.setIcon(new ImageIcon(TelaMain.class.getResource(url_imagem)));
 					lblAvisos.repaint();
 					lblAvisos.updateUI();
-					
+
 					url_lbl_avisos = url_imagem;
 
 				}
-				
-			
+
 			}
 		});
 	}

@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import javax.swing.JOptionPane;
 
 import main.java.cadastros.CadastroCliente;
+import main.java.cadastros.ClienteContato;
 import main.java.cadastros.ContaBancaria;
 import main.java.cadastros.Contato;
 import main.java.cadastros.FinanceiroConta;
@@ -330,6 +331,40 @@ public class GerenciarBancoClientes {
 		
 	}
 	
+	
+	
+	public boolean atualizarContato(Contato dado) {
+		try {
+			Connection conn = null;
+			String atualizar = null;
+			PreparedStatement pstm;
+
+			atualizar = "update contato set nome_contato = ?, cargo_contato = ?,  celular_contato = ?, fixo_contato = ?, e_mail_contato = ?, descricao_contato = ?, observacao_contato = ? where id_contato = ? ";
+			conn = ConexaoBanco.getConexao();
+			pstm = conn.prepareStatement(atualizar);
+
+			pstm.setString(1, dado.getNome());
+			pstm.setString(2, dado.getCargo());
+			pstm.setString(3, dado.getCelular());
+			pstm.setString(4, dado.getFixo());
+			pstm.setString(5, dado.getE_mail());
+			pstm.setString(6, dado.getDescricao());
+			pstm.setString(7, dado.getObservacao());
+
+			pstm.setInt(8, dado.getId());
+
+			pstm.execute();
+			// JOptionPane.showMessageDialog(null, "Cliente atualizado com sucesso");
+			System.out.println("Contato Atualizado com sucesso");
+			ConexaoBanco.fechaConexao(conn);
+			return true;
+		} catch (Exception e) {
+			return false;
+		}
+	
+}
+
+	
 	public boolean remover_contato(int id_contato) {
 		String sql_delete_contato = "DELETE FROM contato WHERE id_contato = ?";
 
@@ -369,6 +404,7 @@ public class GerenciarBancoClientes {
 			pstm.setInt(1, id_cliente);
 			rs = pstm.executeQuery();
 			while (rs.next()) {
+				
 				Contato contato = new Contato();
 
 				contato.setId(rs.getInt("id_contato"));
@@ -389,6 +425,71 @@ public class GerenciarBancoClientes {
 		return contatos;
 	}
 
+	
+	public ArrayList<ClienteContato> getContatos() {
+		String selectContatos = "select * from contato co\n"
+				+ "left Join cliente_contato cc\n"
+				+ "left join cliente c on c.id_cliente = cc.id_cliente\n"
+				+ "on cc.id_contato = co.id_contato";
+		ArrayList<ClienteContato> contatos = new ArrayList<>();
+
+		Connection conn = null;
+		PreparedStatement pstm = null;
+		ResultSet rs = null;
+
+		try {
+			conn = ConexaoBanco.getConexao();
+			pstm = conn.prepareStatement(selectContatos);
+			rs = pstm.executeQuery();
+			while (rs.next()) {
+				ClienteContato cliente_contato = new ClienteContato();
+
+				Contato contato = new Contato();
+				contato.setId(rs.getInt("id_contato"));
+				contato.setCargo(rs.getString("cargo_contato"));
+				contato.setNome(rs.getString("nome_contato"));
+				contato.setCelular(rs.getString("celular_contato"));
+				contato.setFixo(rs.getString("fixo_contato"));
+				contato.setE_mail(rs.getString("e_mail_contato"));
+				contato.setDescricao(rs.getString("descricao_contato"));
+				contato.setObservacao(rs.getString("observacao_contato"));
+
+				
+				
+				CadastroCliente cliente = new CadastroCliente();
+
+				cliente.setTipo_pessoa(rs.getInt("tipo_cliente"));
+				if (cliente.getTipo_pessoa() == 1) {
+					// cnpj
+					cliente.setCnpj(rs.getString("cnpj"));
+
+				} else {
+					// cpf
+					cliente.setCpf(rs.getString("cpf"));
+
+				}
+
+				cliente.setId(rs.getInt("id_cliente"));
+				cliente.setIe(rs.getString("ie"));
+				cliente.setNome(rs.getString("nome"));
+				cliente.setSobrenome(rs.getString("sobrenome"));
+				cliente.setRazao_social(rs.getString("razao_social"));
+				cliente.setNome_fantaia(rs.getString("nome_fantasia"));
+				
+				cliente_contato.setCliente(cliente);
+				cliente_contato.setContato(contato);
+				
+				
+				contatos.add(cliente_contato);
+			}
+		} catch (Exception e) {
+			JOptionPane.showMessageDialog(null, "Erro ao listar contatos ");
+		}
+
+		return contatos;
+	}
+	
+	
 	public ArrayList<Contato> getContatosContadores() {
 		String selectContatos = "select co.* from cliente \n"
 				+ "left join cliente_contato cc on cc.id_cliente = cliente.id_cliente\n"

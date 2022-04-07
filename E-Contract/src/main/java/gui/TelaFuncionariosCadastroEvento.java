@@ -141,7 +141,7 @@ public class TelaFuncionariosCadastroEvento extends JFrame {
 	private final JPanelBackground contentPanel = new JPanelBackground();
 	private JPanel painelPaiEvento;
 	// painel pai
-	private JComboBox cBMovimentacao;
+	public JComboBox cBMovimentacao;
 	private JComboBox cBMotivoDemissao ;
 	// painel filho1JPanelTransparent
 	private JPanelBackground painelDadosIniciais = new JPanelBackground();
@@ -155,21 +155,21 @@ public class TelaFuncionariosCadastroEvento extends JFrame {
 
 	private JPanel painelCentral = new JPanel();
 	private TelaFuncionariosCadastroEvento isto;
-	private JComboBox cBEvento;
+	public JComboBox cBEvento;
 	private JComboBox cbContratoTrabalho;
 	private CombBoxRenderPersonalizadoContratoTrabalho cbContratosPersonalizados;
-	private JTextField entDataVoltaFerias;
+	public JTextField entDataVoltaFerias;
 	private ComboBoxPersonalizadoContratoTrabalho modelContratos = new ComboBoxPersonalizadoContratoTrabalho();
 	private CadastroFuncionario funcionario_local;
 	private JTextField entDataFolga;
 	private JTextField entDataDemissao;
-	private JTextField entDataSaida;
+	public JTextField entDataSaida;
 	private JTextField entNovoValorAlteracaoSalarial;
 	private JTextField entDataInicioInsencaoPonto;
 	private JTextField entDataFimInsencaoPonto;
 	private JTextField entDataInicioLicenca;
 	private JTextField entDataFimLicenca;
-	private JTextField entHoraSaida;
+	public JTextField entHoraSaida;
 
 	public TelaFuncionariosCadastroEvento(CadastroFuncionario funcionario, Window janela_pai) {
 

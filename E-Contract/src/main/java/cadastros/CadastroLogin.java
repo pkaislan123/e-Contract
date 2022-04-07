@@ -3,8 +3,18 @@ package main.java.cadastros;
 public class CadastroLogin {
 
 	private int id, status;
-	private String nome, sobrenome, login, email, senha , senhaEmail, cargo, celular, genero, tratamento, ip_ativo, email2, senhaEmail2;
+	private String nome, sobrenome, login, email, senha , senhaEmail, senhaWeb, cargo, celular, genero, tratamento, ip_ativo, email2, senhaEmail2;
 	
+	
+	
+	
+	
+	public String getSenhaWeb() {
+		return senhaWeb;
+	}
+	public void setSenhaWeb(String senhaWeb) {
+		this.senhaWeb = senhaWeb;
+	}
 	public String getIp_ativo() {
 		return ip_ativo;
 	}

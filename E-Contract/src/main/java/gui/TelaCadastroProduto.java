@@ -31,17 +31,18 @@ import java.awt.SystemColor;
 import java.awt.Window;
 
 import javax.swing.JComboBox;
+import net.miginfocom.swing.MigLayout;
 
-public class TelaCadastroProduto extends JDialog {
+public class TelaCadastroProduto extends JFrame {
 
 	private final JPanel painelPrincipal = new JPanel();
 	private JTextField entNomeProduto;
 	private JTextField entCodigo;
     private JComboBox cBTransgenia;
+    private JTextField entUrlImagem;
 
 	public TelaCadastroProduto(Window janela_pai) {
 
-		setModal(true);
 
 		TelaCadastroProduto isto = this;
 		
@@ -51,35 +52,34 @@ public class TelaCadastroProduto extends JDialog {
 		
 		setBackground(new Color(255, 255, 255));
 		setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-		setBounds(100, 100, 412, 398);
+		setBounds(100, 100, 471, 315);
 		painelPrincipal.setBackground(new Color(255, 255, 255));
 		painelPrincipal.setBorder(new EmptyBorder(5, 5, 5, 5));
 		setContentPane(painelPrincipal);
-		painelPrincipal.setLayout(null);
+		painelPrincipal.setLayout(new MigLayout("", "[141px][grow]", "[36px][41px][30px][100px:100px:100px][][]"));
 		
 		JLabel lblNomeProduto = new JLabel("Nome Produto:");
 		lblNomeProduto.setFont(new Font("Tahoma", Font.BOLD, 18));
-		lblNomeProduto.setBounds(23, 32, 137, 36);
-		painelPrincipal.add(lblNomeProduto);
+		painelPrincipal.add(lblNomeProduto, "cell 0 0,alignx left,growy");
 		
 		JLabel lblDescrio = new JLabel("Descrição:");
 		lblDescrio.setFont(new Font("Trebuchet MS", Font.BOLD, 20));
-		lblDescrio.setBounds(61, 182, 103, 51);
-		painelPrincipal.add(lblDescrio);
+		painelPrincipal.add(lblDescrio, "cell 0 3,alignx right,aligny top");
 		
 		entNomeProduto = new JTextField();
-		entNomeProduto.setBounds(170, 32, 200, 31);
-		painelPrincipal.add(entNomeProduto);
+		painelPrincipal.add(entNomeProduto, "cell 1 0,growx,aligny top");
 		entNomeProduto.setColumns(10);
 		
 		JTextArea entDescricao = new JTextArea();
 		entDescricao.setLineWrap(true);
 		entDescricao.setWrapStyleWord(true);
 		entDescricao.setBackground(SystemColor.inactiveCaptionBorder);
-		entDescricao.setBounds(174, 186, 196, 139);
-		painelPrincipal.add(entDescricao);
+		painelPrincipal.add(entDescricao, "cell 1 3,grow");
 		
 		JButton btnSalvar = new JButton("Salvar");
+		btnSalvar.setBackground(new Color(0, 0, 102));
+		btnSalvar.setForeground(Color.WHITE);
+		btnSalvar.setFont(new Font("SansSerif", Font.BOLD, 16));
 		btnSalvar.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				GerenciarBancoProdutos gerenciar = new GerenciarBancoProdutos();
@@ -104,6 +104,8 @@ public class TelaCadastroProduto extends JDialog {
 					produto.setDescricao_produto(descricao);
 					produto.setCodigo(Integer.parseInt(codigo));
 					produto.setTransgenia(cBTransgenia.getSelectedItem().toString());
+					
+					produto.setUrl_referencia(entUrlImagem.getText());
 					
 					 if(gerenciar.inserir_produto(produto) == 1)
 					    {
@@ -132,32 +134,35 @@ public class TelaCadastroProduto extends JDialog {
 				
 			}
 		});
-		btnSalvar.setBounds(281, 337, 89, 23);
-		painelPrincipal.add(btnSalvar);
+		
+		JLabel lblUrlDaImagem = new JLabel("Url da Imagem:");
+		lblUrlDaImagem.setFont(new Font("Tahoma", Font.BOLD, 18));
+		painelPrincipal.add(lblUrlDaImagem, "cell 0 4,alignx trailing");
+		
+		entUrlImagem = new JTextField();
+		entUrlImagem.setColumns(10);
+		painelPrincipal.add(entUrlImagem, "cell 1 4,growx");
+		painelPrincipal.add(btnSalvar, "cell 1 5,alignx right,growy");
 		
 		JLabel lblCodigoParaContratos = new JLabel("       Codigo:");
 		lblCodigoParaContratos.setFont(new Font("Tahoma", Font.BOLD, 18));
-		lblCodigoParaContratos.setBounds(61, 79, 103, 36);
-		painelPrincipal.add(lblCodigoParaContratos);
+		painelPrincipal.add(lblCodigoParaContratos, "cell 0 1,alignx right,growy");
 		
 		entCodigo = new JTextField();
 		entCodigo.setColumns(10);
-		entCodigo.setBounds(170, 74, 200, 36);
-		painelPrincipal.add(entCodigo);
+		painelPrincipal.add(entCodigo, "cell 1 1,grow");
 		
 		JLabel lblTransgenia = new JLabel("Transgenia:");
 		lblTransgenia.setFont(new Font("Trebuchet MS", Font.BOLD, 20));
-		lblTransgenia.setBounds(49, 136, 111, 24);
-		painelPrincipal.add(lblTransgenia);
+		painelPrincipal.add(lblTransgenia, "cell 0 2,alignx right,aligny top");
 		
 		 cBTransgenia = new JComboBox();
 		cBTransgenia.setFont(new Font("SansSerif", Font.PLAIN, 14));
-		cBTransgenia.setBounds(170, 137, 200, 29);
 		cBTransgenia.addItem("Transgenico(GMO)");
 		cBTransgenia.addItem("Convencional(NON-GMO)");
 		cBTransgenia.addItem("Não Informar");
 
-		painelPrincipal.add(cBTransgenia);
+		painelPrincipal.add(cBTransgenia, "cell 1 2,growx,aligny bottom");
 		
 		entCodigo.addKeyListener(new KeyAdapter() {
 			@Override

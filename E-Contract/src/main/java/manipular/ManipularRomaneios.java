@@ -403,7 +403,7 @@ public class ManipularRomaneios {
 
 			String tratar = Arrays.toString(lines);
 			// tratar = tratar.replaceAll("\n", "*");
-			////// JOptionPane.showMessageDialog(null, tratar);
+			System.out.println( tratar);
 			// tratar = tratar.replaceAll(" ", "");
 			TratarDados tratamentoDados = new TratarDados(tratar);
 
@@ -421,6 +421,54 @@ public class ManipularRomaneios {
 
 			}
 
+			
+			//participante
+			try {
+			String busca_participante = tratamentoDados.tratar("Observação: ", " ENTRADA EM:");
+			if (busca_participante.contains("participante") 
+					|| busca_participante.contains("participantes")
+					||  busca_participante.contains("PARTICIPANTE")
+					||  busca_participante.contains("PARTICIPANTES")) {
+
+			 romaneio.setStatus_monsanto(2);
+			} 
+			
+			} catch (Exception e) {
+
+			}
+			
+			//data e hora entrada
+			try {
+				String data =  tratamentoDados.tratar("ENTRADA: ", " ");
+				System.out.println("data entrada: " + data);
+				
+				String hora = tratamentoDados.tratar("ENTRADA: "+ data + " as ", " ");
+				System.out.println("hora entrada: " + hora);
+				
+				
+				romaneio.setData_entrada(data);
+				romaneio.setHora_entrada(hora);
+			}catch(Exception e) {
+				
+			}
+			
+			
+			//data e hora saida
+			try {
+				String data =  tratamentoDados.tratar("SAÍDA: ", " ");
+				System.out.println("data saida: " + data);
+				
+				String hora = tratamentoDados.tratar("SAÍDA: "+ data + " as ", " ");
+				System.out.println("hora saida: " + hora);
+
+				romaneio.setData_saida(data);
+				romaneio.setHora_saida(hora);
+				
+			}catch(Exception e) {
+				
+			}
+			
+			
 			try {
 				// doc_entrada
 				String busca_doc_entrada = tratamentoDados.tratar("AMOSTRA:", " ");
@@ -668,7 +716,7 @@ public class ManipularRomaneios {
 				// JOptionPane.showMessageDialog(null, "transgenico encontrado");
 				transgenia_proxima = "Transgenico(GMO)";
 				produto_busca = produto_busca += " GMO";
-			} else if (tratar.contains("CONV.")) {
+			} else if (tratar.contains("CONV.") || tratar.contains("CONV. CONV.")) {
 				// JOptionPane.showMessageDialog(null, "Convencional encontrado");
 				produto_busca = produto_busca += " NON-GMO";
 
@@ -707,7 +755,7 @@ public class ManipularRomaneios {
 			} else if (tratar.contains("21/21")) {
 				s_ano_plantio = "2021";
 				s_ano_colheita = "2021";
-			} else if (tratar.contains("21/22")) {
+			} else if (tratar.contains("21/22") || tratar.contains("CONV. - 21")) {
 				s_ano_plantio = "2021";
 				s_ano_colheita = "2022";
 			} else if (tratar.contains("20/20")) {
@@ -934,16 +982,18 @@ public class ManipularRomaneios {
 				}
 
 				String s_insc_destino = tratamentoDados.tratar(" INSC:", ",").replaceAll("[^0-9]", "");
+				
+				
 				boolean ie_destino_encontrado = false;
 				CadastroCliente destino = new CadastroCliente();
 
-				if (s_insc_destino.length() > 9) {
+				if (s_insc_destino.length() > 9 ) {
 					// procurar remetente/destinatariop
 
 					for (CadastroCliente busca : lista_clientes) {
 
 						if (busca.getIe() != null) {
-							if (busca.getIe().equals(s_insc_destino)) {
+							if (busca.getIe().equals(s_insc_destino) ) {
 								destino = busca;
 								ie_destino_encontrado = true;
 								break;
@@ -957,6 +1007,35 @@ public class ManipularRomaneios {
 					ie_destino_encontrado = false;
 					destino = null;
 				}
+				
+				String s_insc_destino_automatico = tratamentoDados.tratar(" INSCR: ", ",").replaceAll("[^0-9]", "");
+
+				if(!ie_destino_encontrado) {
+					if (s_insc_destino_automatico.length() > 9 ) {
+						// procurar remetente/destinatariop
+
+						for (CadastroCliente busca : lista_clientes) {
+
+							if (busca.getIe() != null) {
+								if (busca.getIe().equals(s_insc_destino_automatico) ) {
+									destino = busca;
+									ie_destino_encontrado = true;
+									break;
+								} else {
+
+								}
+							}
+
+						}
+					} else {
+						ie_destino_encontrado = false;
+						destino = null;
+					}
+				}
+				
+				
+				
+				
 
 				boolean prosseguir_destino = false;
 

@@ -149,7 +149,7 @@ public class TelaFuncionariosCadastroSalario extends JFrame {
 	JLabel lblJornadaSegunda, lblJornadaTerca, lblJornadaQuarta, lblJornadaQuinta, lblJornadaSexta, lblJornadaSabado,
 			lblJornadaDomingo;
 	private String servidor_unidade;
-
+	private JTextArea textAreaDescricaoPagarBanco;
 	private int id_lancamento_global;
 	private boolean tem_lancamento = false;
 	private JComboBox cBMes;
@@ -1012,6 +1012,11 @@ public class TelaFuncionariosCadastroSalario extends JFrame {
 		rdbtnPagar.setFont(new Font("SansSerif", Font.BOLD, 16));
 		panel_8.add(rdbtnPagar, "cell 0 12");
 
+		textAreaDescricaoPagarBanco = new JTextArea();
+		textAreaDescricaoPagarBanco.setLineWrap(true);
+		textAreaDescricaoPagarBanco.setWrapStyleWord(true);
+		panel_8.add(textAreaDescricaoPagarBanco, "cell 0 12,grow");
+
 		JPanel panel_12 = new JPanel();
 		panel_12.setBorder(new LineBorder(new Color(0, 0, 0)));
 		panel_12.setBackground(Color.WHITE);
@@ -1272,7 +1277,7 @@ public class TelaFuncionariosCadastroSalario extends JFrame {
 		panel_9.add(panel_10, "cell 0 0,grow");
 		panel_10.setLayout(new MigLayout("", "[]", "[][][][][][][][][][][]"));
 
-		JLabel lblClculoInss = new JLabel("Cálculo INSS 2021");
+		JLabel lblClculoInss = new JLabel("Cálculo INSS 2022");
 		lblClculoInss.setFont(new Font("SansSerif", Font.BOLD, 18));
 		panel_10.add(lblClculoInss, "cell 0 0,alignx center");
 
@@ -1290,27 +1295,27 @@ public class TelaFuncionariosCadastroSalario extends JFrame {
 		lblNewLabel_1_3_1_3_2_1.setFont(new Font("Tahoma", Font.PLAIN, 16));
 		panel_10.add(lblNewLabel_1_3_1_3_2_1, "cell 0 3");
 
-		JLabel lblNewLabel_1_3_1_3_1 = new JLabel("1ª faixa salarial: R$ 1.100,00 x 7,5% = R$ 82,50\r\n");
+		JLabel lblNewLabel_1_3_1_3_1 = new JLabel("1ª faixa salarial: R$ 1.212,00 x 7,5% = R$ 90,90\r\n");
 		lblNewLabel_1_3_1_3_1.setFont(new Font("Tahoma", Font.PLAIN, 16));
 		panel_10.add(lblNewLabel_1_3_1_3_1, "cell 0 4");
 
 		JLabel lblNewLabel_1_3_1_3_1_1 = new JLabel(
-				"2ª faixa salarial: (R$ 2.203,48 – R$ 1.100,01) x 9% = R$ 1.044,60 x 9% = R$ 99,31\r\n");
+				"2ª faixa salarial: (R$ 1.212,01 – R$ 2.427,35) x 9% = R$ 1.215,34 x 9% = R$ 109,38\r\n");
 		lblNewLabel_1_3_1_3_1_1.setFont(new Font("Tahoma", Font.PLAIN, 16));
 		panel_10.add(lblNewLabel_1_3_1_3_1_1, "cell 0 5");
 
 		JLabel lblNewLabel_1_3_1_3_1_1_1 = new JLabel(
-				"3ª faixa salarial: (R$ 3.305,22 – R$ 2.203,49) x 12% = R$ 1.101,73 x 12% = R$ 132,21\r\n");
+				"3ª faixa salarial: (R$ 2.427,36 – R$ 3.641,03) x 12% = R$ 1.213,67 x 12% = R$ 145,64\r\n");
 		lblNewLabel_1_3_1_3_1_1_1.setFont(new Font("Tahoma", Font.PLAIN, 16));
 		panel_10.add(lblNewLabel_1_3_1_3_1_1_1, "cell 0 6");
 
 		JLabel lblNewLabel_1_3_1_3_1_1_1_1 = new JLabel(
-				"4ª faixa salarial: (R$ 6.433,57 – R$ 3.305,23) x 14% = R$ 3.128,34 x 14% = R$ 437,97\r\n");
+				"4ª faixa salarial: (R$ 3.641,04– R$ 7.087,22) x 14% = R$ 3.446,18 x 14% = R$ 482,47");
 		lblNewLabel_1_3_1_3_1_1_1_1.setFont(new Font("Tahoma", Font.PLAIN, 16));
 		panel_10.add(lblNewLabel_1_3_1_3_1_1_1_1, "cell 0 7");
 
 		JLabel lblNewLabel_1_3_1_3_1_1_1_1_1 = new JLabel(
-				"Total máximo a recolher: R$ 82,50 + R$ 99,31 + R$ 132,21 + R$ 437,97 = R$ 751,99\r\n");
+				"Total máximo a recolher: R$ 90,90 + R$ 109,38 + R$ 145,64 + R$ 482,47 = R$ 828,39");
 		lblNewLabel_1_3_1_3_1_1_1_1_1.setFont(new Font("Tahoma", Font.PLAIN, 16));
 		panel_10.add(lblNewLabel_1_3_1_3_1_1_1_1_1, "cell 0 8");
 
@@ -1776,8 +1781,6 @@ public class TelaFuncionariosCadastroSalario extends JFrame {
 
 		pesquisarContratoMesPagamento();
 
-
-		
 		int mes = cBMes.getSelectedIndex() + 1;
 		int ano = Integer.parseInt(entAno.getText());
 
@@ -1811,410 +1814,440 @@ public class TelaFuncionariosCadastroSalario extends JFrame {
 		DateTimeFormatter formatter = new DateTimeFormatterBuilder().toFormatter(new Locale("pt", "BR"));
 		LocalDate dia_de_hoje = LocalDate.now();
 
-		
 		ArrayList<RegistroHoraLocal> registros_locais = new ArrayList<>();
-		
-		
+
 		boolean prosseguir = false;
 		int contador_nao_nulos = 0;
 
 		for (RegistroPontoDiario rp : listRpDiario) {
-			if(rp.getData() != null &&  rp.getEntrada1() != null && rp.getSaida1() != null )  {
+			if (rp.getData() != null && rp.getEntrada1() != null && rp.getSaida1() != null) {
 				prosseguir = true;
 				contador_nao_nulos++;
-				if(contador_nao_nulos >= 7) {
+				if (contador_nao_nulos >= 7) {
 					break;
 				}
 			}
 		}
-		
-		
-		//procurar por isencao de ponto
+
+		// procurar por isencao de ponto
 		GerenciarBancoFuncionariosEventos gerenciar_eventos_isencao = new GerenciarBancoFuncionariosEventos();
 		ArrayList<CadastroFuncionarioEvento> eventos_isencao = gerenciar_eventos_isencao
 				.getEventosPorColaborador(func.getId_funcionario());
-		
+
 		boolean tem_evt_isencao = procurarIsencao(eventos_isencao);
 		boolean tem_evt_ferias = procurarFerias(eventos_isencao, mes, ano);
 		boolean tem_evt_licenca = procurarLicencas(eventos_isencao, mes, ano);
 
-		
-		if( (prosseguir &&  contador_nao_nulos >= 7 ) || tem_evt_isencao || tem_evt_ferias || tem_evt_licenca) {
-			
+		if ((prosseguir && contador_nao_nulos >= 7) || tem_evt_isencao || tem_evt_ferias || tem_evt_licenca) {
 
-		
-		for (RegistroPontoDiario rp : listRpDiario) {
+			for (RegistroPontoDiario rp : listRpDiario) {
 
-			CadastroFuncionarioEvento evt_global = null;
+				CadastroFuncionarioEvento evt_global = null;
 
-			// verifique a rotina desse dia
-			RegistroHoraLocal registro_local = new RegistroHoraLocal();
-			RegistroPontoMensalCompleto rpCompleto = new RegistroPontoMensalCompleto();
+				// verifique a rotina desse dia
+				RegistroHoraLocal registro_local = new RegistroHoraLocal();
+				RegistroPontoMensalCompleto rpCompleto = new RegistroPontoMensalCompleto();
 
-			RegistroPontoDiario original = rp;
-			String data_rp = "";
-			CadastroFuncionarioRotinaTrabalho rotina_deste_dia = null;
+				RegistroPontoDiario original = rp;
+				String data_rp = "";
+				CadastroFuncionarioRotinaTrabalho rotina_deste_dia = null;
 
-			if (rp.getData() == null) {
+				if (rp.getData() == null) {
 
-				String s_mes = "", s_dia = "", s_ano = "";
+					String s_mes = "", s_dia = "", s_ano = "";
 
-				if (mes <= 9)
-					s_mes = "0" + mes;
-				else
-					s_mes = mes + "";
+					if (mes <= 9)
+						s_mes = "0" + mes;
+					else
+						s_mes = mes + "";
 
-				if (dia <= 9)
-					s_dia = "0" + dia;
-				else
-					s_dia = dia + "";
+					if (dia <= 9)
+						s_dia = "0" + dia;
+					else
+						s_dia = dia + "";
 
-				data_rp = s_dia + "/" + s_mes + "/" + ano;
+					data_rp = s_dia + "/" + s_mes + "/" + ano;
 
-				rp.setData(data_rp);
-			} else {
-				data_rp = rp.getData();
-			}
+					rp.setData(data_rp);
+				} else {
+					data_rp = rp.getData();
+				}
 
-			LocalDate data_do_registro = LocalDate.parse(data_rp, DateTimeFormatter.ofPattern("dd/MM/yyyy"));
+				LocalDate data_do_registro = LocalDate.parse(data_rp, DateTimeFormatter.ofPattern("dd/MM/yyyy"));
 
-			int dia_da_semana = 0;
+				int dia_da_semana = 0;
 
-			try {
+				try {
 
-				LocalDate data = LocalDate.parse(rp.getData(), formatter.ofPattern("dd/MM/yyyy"));
-				dia_da_semana = data.getDayOfWeek().getValue();
-			} catch (Exception e) {
-				return;
-			}
+					LocalDate data = LocalDate.parse(rp.getData(), formatter.ofPattern("dd/MM/yyyy"));
+					dia_da_semana = data.getDayOfWeek().getValue();
+				} catch (Exception e) {
+					return;
+				}
 
-			registro_local.setDia_da_semana(dia_da_semana);
-			boolean tem_rotina = false;
+				registro_local.setDia_da_semana(dia_da_semana);
+				boolean tem_rotina = false;
 
-			for (CadastroFuncionarioRotinaTrabalho rotina : rotinas_global) {
-				if (rotina.getDia_da_semana() == dia_da_semana) {
-					// rotina encontrada
-					rotina_deste_dia = rotina;
-					break;
+				for (CadastroFuncionarioRotinaTrabalho rotina : rotinas_global) {
+					if (rotina.getDia_da_semana() == dia_da_semana) {
+						// rotina encontrada
+						rotina_deste_dia = rotina;
+						break;
+
+					}
+				}
+
+				if (rotina_deste_dia != null)
+					tem_rotina = true;
+				else {
+					System.out.println("Não tem rotina no dia: " + data_rp);
+				}
+
+				// verificar por evento de folga ou ferias
+				GerenciarBancoFuncionariosEventos gerenciar_eventos = new GerenciarBancoFuncionariosEventos();
+				ArrayList<CadastroFuncionarioEvento> eventos = gerenciar_eventos
+						.getEventosPorColaborador(func.getId_funcionario());
+
+				GerenciarBancoEventoGlobal gerenciar_eventos_global = new GerenciarBancoEventoGlobal();
+				ArrayList<EventoGlobal> listaEventosGlobais = gerenciar_eventos_global.getEventosPorData(data_rp);
+
+				boolean tem_folga = false;
+				boolean tem_ferias = false;
+				boolean tem_isencao = false;
+				boolean tem_licenca = false;
+				boolean tem_descanso = false;
+				boolean tem_feriado = false;
+				boolean tem_saida_especial = false;
+
+				for (CadastroFuncionarioEvento evt : eventos) {
+
+					if (evt.getTipo_evento() == 0) {
+						// folga
+						if (evt.getData_folga().equalsIgnoreCase(data_rp)) {
+							// tem folga nesse dia
+
+							tem_folga = true;
+							break;
+						}
+					} else if (evt.getTipo_evento() == 3) {
+						LocalDate hoje = LocalDate.parse(data_rp, DateTimeFormatter.ofPattern("dd/MM/yyyy"));
+
+						LocalDate dataInicialFerias = LocalDate.parse(evt.getData_ferias_ida(),
+								DateTimeFormatter.ofPattern("dd/MM/yyyy"));
+						LocalDate dataFinalFerias = LocalDate.parse(evt.getData_ferias_volta(),
+								DateTimeFormatter.ofPattern("dd/MM/yyyy"));
+
+						if (hoje.isEqual(dataInicialFerias)) {
+							tem_ferias = true;
+							break;
+
+						} else if (hoje.isEqual(dataFinalFerias)) {
+							tem_ferias = true;
+							break;
+						} else if (hoje.isAfter(dataInicialFerias) && hoje.isBefore(dataFinalFerias)) {
+							tem_ferias = true;
+							break;
+						}
+
+					} else if (evt.getTipo_evento() == 4) {
+						// isencao de ponto
+						LocalDate hoje = LocalDate.parse(data_rp, DateTimeFormatter.ofPattern("dd/MM/yyyy"));
+
+						LocalDate dataInicialFerias = LocalDate.parse(evt.getData_ferias_ida(),
+								DateTimeFormatter.ofPattern("dd/MM/yyyy"));
+						LocalDate dataFinalFerias = LocalDate.parse(evt.getData_ferias_volta(),
+								DateTimeFormatter.ofPattern("dd/MM/yyyy"));
+
+						if (hoje.isEqual(dataInicialFerias)) {
+							tem_isencao = true;
+							break;
+
+						} else if (hoje.isEqual(dataFinalFerias)) {
+							tem_isencao = true;
+							break;
+						} else if (hoje.isAfter(dataInicialFerias) && hoje.isBefore(dataFinalFerias)) {
+							tem_isencao = true;
+							break;
+						}
+					} else if (evt.getTipo_evento() == 5) {
+						// licenca
+						LocalDate hoje = LocalDate.parse(data_rp, DateTimeFormatter.ofPattern("dd/MM/yyyy"));
+
+						LocalDate dataInicialFerias = LocalDate.parse(evt.getData_ferias_ida(),
+								DateTimeFormatter.ofPattern("dd/MM/yyyy"));
+						LocalDate dataFinalFerias = LocalDate.parse(evt.getData_ferias_volta(),
+								DateTimeFormatter.ofPattern("dd/MM/yyyy"));
+
+						if (hoje.isEqual(dataInicialFerias)) {
+							tem_licenca = true;
+							break;
+
+						} else if (hoje.isEqual(dataFinalFerias)) {
+							tem_licenca = true;
+							break;
+						} else if (hoje.isAfter(dataInicialFerias) && hoje.isBefore(dataFinalFerias)) {
+							tem_licenca = true;
+							break;
+						}
+					} else if (evt.getTipo_evento() == 6) {
+						// evento de saida especial
+						LocalDate hoje = LocalDate.parse(data_rp, DateTimeFormatter.ofPattern("dd/MM/yyyy"));
+
+						String data_saida = evt.getData_saida();
+
+						LocalDate date_saida = LocalDate.parse(data_saida, DateTimeFormatter.ofPattern("dd/MM/yyyy"));
+
+						if (date_saida.isEqual(hoje)) {
+							tem_saida_especial = true;
+							evt_global = evt;
+						}
+
+					}
 
 				}
-			}
 
-			if (rotina_deste_dia != null)
-				tem_rotina = true;
-
-			// verificar por evento de folga ou ferias
-			GerenciarBancoFuncionariosEventos gerenciar_eventos = new GerenciarBancoFuncionariosEventos();
-			ArrayList<CadastroFuncionarioEvento> eventos = gerenciar_eventos
-					.getEventosPorColaborador(func.getId_funcionario());
-
-			GerenciarBancoEventoGlobal gerenciar_eventos_global = new GerenciarBancoEventoGlobal();
-			ArrayList<EventoGlobal> listaEventosGlobais = gerenciar_eventos_global.getEventosPorData(data_rp);
-
-			boolean tem_folga = false;
-			boolean tem_ferias = false;
-			boolean tem_isencao = false;
-			boolean tem_licenca = false;
-			boolean tem_descanso = false;
-			boolean tem_feriado = false;
-			boolean tem_saida_especial = false;
-
-			for (CadastroFuncionarioEvento evt : eventos) {
-
-				if (evt.getTipo_evento() == 0) {
-					// folga
-					if (evt.getData_folga().equalsIgnoreCase(data_rp)) {
-						// tem folga nesse dia
-
-						tem_folga = true;
+				for (EventoGlobal evt : listaEventosGlobais) {
+					if (evt.getTipo_evento() == 0) {
+						// tem feriado
+						tem_feriado = true;
 						break;
 					}
-				} else if (evt.getTipo_evento() == 3) {
-					LocalDate hoje = LocalDate.parse(data_rp, DateTimeFormatter.ofPattern("dd/MM/yyyy"));
+				}
 
-					LocalDate dataInicialFerias = LocalDate.parse(evt.getData_ferias_ida(),
-							DateTimeFormatter.ofPattern("dd/MM/yyyy"));
-					LocalDate dataFinalFerias = LocalDate.parse(evt.getData_ferias_volta(),
-							DateTimeFormatter.ofPattern("dd/MM/yyyy"));
+				if (tem_rotina) {
 
-					if (hoje.isEqual(dataInicialFerias)) {
-						tem_ferias = true;
-						break;
+					// verificar hora diaria
 
-					} else if (hoje.isEqual(dataFinalFerias)) {
-						tem_ferias = true;
-						break;
-					} else if (hoje.isAfter(dataInicialFerias) && hoje.isBefore(dataFinalFerias)) {
-						tem_ferias = true;
-						break;
+					if (rotina_deste_dia.getHora_entrada1().equalsIgnoreCase("DESCANSO SEMANAL")
+							|| rotina_deste_dia.getHora_saida1().equalsIgnoreCase("DESCANSO SEMANAL")
+							|| rotina_deste_dia.getHora_entrada2().equalsIgnoreCase("DESCANSO SEMANAL")
+							|| rotina_deste_dia.getHora_saida2().equalsIgnoreCase("DESCANSO SEMANAL")
+
+					) {
+						System.out.println("Nesse dia, " + data_rp + ", ha descanso semanal");
+						tem_descanso = true;
 					}
 
-				} else if (evt.getTipo_evento() == 4) {
-					// isencao de ponto
-					LocalDate hoje = LocalDate.parse(data_rp, DateTimeFormatter.ofPattern("dd/MM/yyyy"));
-
-					LocalDate dataInicialFerias = LocalDate.parse(evt.getData_ferias_ida(),
-							DateTimeFormatter.ofPattern("dd/MM/yyyy"));
-					LocalDate dataFinalFerias = LocalDate.parse(evt.getData_ferias_volta(),
-							DateTimeFormatter.ofPattern("dd/MM/yyyy"));
-
-					if (hoje.isEqual(dataInicialFerias)) {
-						tem_isencao = true;
-						break;
-
-					} else if (hoje.isEqual(dataFinalFerias)) {
-						tem_isencao = true;
-						break;
-					} else if (hoje.isAfter(dataInicialFerias) && hoje.isBefore(dataFinalFerias)) {
-						tem_isencao = true;
-						break;
-					}
-				} else if (evt.getTipo_evento() == 5) {
-					// licenca
-					LocalDate hoje = LocalDate.parse(data_rp, DateTimeFormatter.ofPattern("dd/MM/yyyy"));
-
-					LocalDate dataInicialFerias = LocalDate.parse(evt.getData_ferias_ida(),
-							DateTimeFormatter.ofPattern("dd/MM/yyyy"));
-					LocalDate dataFinalFerias = LocalDate.parse(evt.getData_ferias_volta(),
-							DateTimeFormatter.ofPattern("dd/MM/yyyy"));
-
-					if (hoje.isEqual(dataInicialFerias)) {
-						tem_licenca = true;
-						break;
-
-					} else if (hoje.isEqual(dataFinalFerias)) {
-						tem_licenca = true;
-						break;
-					} else if (hoje.isAfter(dataInicialFerias) && hoje.isBefore(dataFinalFerias)) {
-						tem_licenca = true;
-						break;
-					}
-				} else if (evt.getTipo_evento() == 6) {
-					// evento de saida especial
-					LocalDate hoje = LocalDate.parse(data_rp, DateTimeFormatter.ofPattern("dd/MM/yyyy"));
-
-					String data_saida = evt.getData_saida();
-
-					LocalDate date_saida = LocalDate.parse(data_saida, DateTimeFormatter.ofPattern("dd/MM/yyyy"));
-
-					if (date_saida.isEqual(hoje)) {
-						tem_saida_especial = true;
-						evt_global = evt;
+					if (rotina_deste_dia.getHora_entrada1().equalsIgnoreCase("DESCANSO SEMANAL")) {
+						rotina_deste_dia.setHora_entrada1("00:00");
 					}
 
+					if (rotina_deste_dia.getHora_saida1().equalsIgnoreCase("DESCANSO SEMANAL")) {
+						rotina_deste_dia.setHora_saida1("00:00");
+					}
+
+					if (rotina_deste_dia.getHora_entrada2().equalsIgnoreCase("DESCANSO SEMANAL")) {
+						rotina_deste_dia.setHora_entrada2("00:00");
+					}
+
+					if (rotina_deste_dia.getHora_saida2().equalsIgnoreCase("DESCANSO SEMANAL")) {
+						rotina_deste_dia.setHora_saida2("00:00");
+					}
+
+					LocalDateTime entrada1 = LocalDateTime.parse(data_rp + " " + rotina_deste_dia.getHora_entrada1(),
+							DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm"));
+					LocalDateTime saida1 = LocalDateTime.parse(data_rp + " " + rotina_deste_dia.getHora_saida1(),
+							DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm"));
+					LocalDateTime entrada2 = LocalDateTime.parse(data_rp + " " + rotina_deste_dia.getHora_entrada2(),
+							DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm"));
+					LocalDateTime saida2 = LocalDateTime.parse(data_rp + " " + rotina_deste_dia.getHora_saida2(),
+							DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm"));
+
+					long periodAsMinutes1 = ChronoUnit.MINUTES.between(entrada1, saida1);
+					long periodAsMinutes2 = ChronoUnit.MINUTES.between(entrada2, saida2);
+
+					long duracao = periodAsMinutes1 + periodAsMinutes2;
+					total_duracao += duracao;
+
+					duracao_rotina = duracao;
+
+					String tempo_total = LocalTime.MIN.plus(Duration.ofMinutes(duracao)).toString();
+					rpCompleto.setHora_diaria(tempo_total);
+
 				}
 
-			}
+				// calculo de horas trabalhadas
 
-			for (EventoGlobal evt : listaEventosGlobais) {
-				if (evt.getTipo_evento() == 0) {
-					// tem feriado
-					tem_feriado = true;
-					break;
-				}
-			}
-
-			if (tem_rotina) {
-
-				// verificar hora diaria
-
-				if (rotina_deste_dia.getHora_entrada1().equalsIgnoreCase("DESCANSO SEMANAL")
-						|| rotina_deste_dia.getHora_saida1().equalsIgnoreCase("DESCANSO SEMANAL")
-						|| rotina_deste_dia.getHora_entrada2().equalsIgnoreCase("DESCANSO SEMANAL")
-						|| rotina_deste_dia.getHora_saida2().equalsIgnoreCase("DESCANSO SEMANAL")
-
-				) {
-					tem_descanso = true;
+				if (rp.getEntrada1() == null || rp.getEntrada1().equals("")) {
+					rp.setEntrada1("00:00");
 				}
 
-				if (rotina_deste_dia.getHora_entrada1().equalsIgnoreCase("DESCANSO SEMANAL")) {
-					rotina_deste_dia.setHora_entrada1("00:00");
-				}
+				if (rp.getSaida1() == null || rp.getSaida1().equals("")) {
 
-				if (rotina_deste_dia.getHora_saida1().equalsIgnoreCase("DESCANSO SEMANAL")) {
-					rotina_deste_dia.setHora_saida1("00:00");
-				}
+					if (tem_saida_especial) {
+						if ((evt_global.getMovimentacao() + 1) == 2) {
+							if (rp.getData().equals(evt_global.getData_saida())) {
 
-				if (rotina_deste_dia.getHora_entrada2().equalsIgnoreCase("DESCANSO SEMANAL")) {
-					rotina_deste_dia.setHora_entrada2("00:00");
-				}
+								rp.setSaida1(evt_global.getHora_saida());
 
-				if (rotina_deste_dia.getHora_saida2().equalsIgnoreCase("DESCANSO SEMANAL")) {
-					rotina_deste_dia.setHora_saida2("00:00");
-				}
+							} else {
+								rp.setSaida1("00:00");
 
-				LocalDateTime entrada1 = LocalDateTime.parse(data_rp + " " + rotina_deste_dia.getHora_entrada1(),
-						DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm"));
-				LocalDateTime saida1 = LocalDateTime.parse(data_rp + " " + rotina_deste_dia.getHora_saida1(),
-						DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm"));
-				LocalDateTime entrada2 = LocalDateTime.parse(data_rp + " " + rotina_deste_dia.getHora_entrada2(),
-						DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm"));
-				LocalDateTime saida2 = LocalDateTime.parse(data_rp + " " + rotina_deste_dia.getHora_saida2(),
-						DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm"));
-
-				long periodAsMinutes1 = ChronoUnit.MINUTES.between(entrada1, saida1);
-				long periodAsMinutes2 = ChronoUnit.MINUTES.between(entrada2, saida2);
-
-				long duracao = periodAsMinutes1 + periodAsMinutes2;
-				total_duracao += duracao;
-
-				duracao_rotina = duracao;
-
-				String tempo_total = LocalTime.MIN.plus(Duration.ofMinutes(duracao)).toString();
-				rpCompleto.setHora_diaria(tempo_total);
-
-			}
-
-			// calculo de horas trabalhadas
-
-			if (rp.getEntrada1() == null || rp.getEntrada1().equals("")) {
-				rp.setEntrada1("00:00");
-			}
-
-			if (rp.getSaida1() == null || rp.getSaida1().equals("")) {
-
-				if (tem_saida_especial) {
-					if ((evt_global.getMovimentacao() + 1) == 2) {
-						if (rp.getData().equals(evt_global.getData_saida())) {
-
-							rp.setSaida1(evt_global.getHora_saida());
-
+							}
 						} else {
 							rp.setSaida1("00:00");
 
 						}
+
 					} else {
 						rp.setSaida1("00:00");
-
 					}
 
-				} else {
-					rp.setSaida1("00:00");
 				}
 
-			}
+				if (rp.getEntrada2() == null || rp.getEntrada2().equals("")) {
+					rp.setEntrada2("00:00");
+				}
 
-			if (rp.getEntrada2() == null || rp.getEntrada2().equals("")) {
-				rp.setEntrada2("00:00");
-			}
+				if (rp.getSaida2() == null || rp.getSaida2().equals("")) {
 
-			if (rp.getSaida2() == null || rp.getSaida2().equals("")) {
+					if (tem_saida_especial) {
+						if ((evt_global.getMovimentacao() + 1) == 4) {
+							if (rp.getData().equals(evt_global.getData_saida())) {
 
-				if (tem_saida_especial) {
-					if ((evt_global.getMovimentacao() + 1) == 4) {
-						if (rp.getData().equals(evt_global.getData_saida())) {
+								rp.setSaida2(evt_global.getHora_saida());
 
-							rp.setSaida2(evt_global.getHora_saida());
+							} else {
+								rp.setSaida2("00:00");
 
+							}
 						} else {
 							rp.setSaida2("00:00");
 
 						}
+
 					} else {
 						rp.setSaida2("00:00");
-
 					}
 
+				}
+
+				if (rp.getEntrada3() == null || rp.getEntrada3().equals("")) {
+					rp.setEntrada3("00:00");
+				}
+
+				if (rp.getSaida3() == null || rp.getSaida3().equals("")) {
+					rp.setSaida3("00:00");
+				}
+
+				LocalDateTime entrada1 = LocalDateTime.parse(data_rp + " " + rp.getEntrada1(),
+						DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm"));
+
+				LocalDateTime saida1 = LocalDateTime.parse(data_rp + " " + rp.getSaida1(),
+						DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm"));
+
+				if (tem_saida_especial) {
+					if ((evt_global.getMovimentacao() + 1) == 2) {
+						LocalDate hoje = LocalDate.parse(data_rp, DateTimeFormatter.ofPattern("dd/MM/yyyy"));
+
+						LocalDate dia_seguinte = hoje.plusDays(1);
+						String nova_data = dia_seguinte.format(DateTimeFormatter.ofPattern("dd/MM/yyyy"));
+
+						saida1 = LocalDateTime.parse(nova_data + " " + rp.getSaida1(),
+								DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm"));
+
+						// verifica por hora noturna
+						long minutos_adicional_noturno = calculateWorkingHours(data_rp + " " + rp.getEntrada1(),
+								nova_data + " " + rp.getSaida1());
+						String tempo_total = LocalTime.MIN.plus(Duration.ofMinutes(minutos_adicional_noturno))
+								.toString();
+
+						rpCompleto.setHora_noturna(tempo_total);
+						total_horas_adicional_noturno += minutos_adicional_noturno;
+
+						tHNoturnas += minutos_adicional_noturno;
+					}
 				} else {
-					rp.setSaida2("00:00");
-				}
-
-			}
-
-			if (rp.getEntrada3() == null || rp.getEntrada3().equals("")) {
-				rp.setEntrada3("00:00");
-			}
-
-			if (rp.getSaida3() == null || rp.getSaida3().equals("")) {
-				rp.setSaida3("00:00");
-			}
-
-			LocalDateTime entrada1 = LocalDateTime.parse(data_rp + " " + rp.getEntrada1(),
-					DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm"));
-
-			LocalDateTime saida1 = LocalDateTime.parse(data_rp + " " + rp.getSaida1(),
-					DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm"));
-
-			if (tem_saida_especial) {
-				if ((evt_global.getMovimentacao() + 1) == 2) {
-					LocalDate hoje = LocalDate.parse(data_rp, DateTimeFormatter.ofPattern("dd/MM/yyyy"));
-
-					LocalDate dia_seguinte = hoje.plusDays(1);
-					String nova_data = dia_seguinte.format(DateTimeFormatter.ofPattern("dd/MM/yyyy"));
-
-					saida1 = LocalDateTime.parse(nova_data + " " + rp.getSaida1(),
+					saida1 = LocalDateTime.parse(data_rp + " " + rp.getSaida1(),
 							DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm"));
-
-					// verifica por hora noturna
-					long minutos_adicional_noturno = calculateWorkingHours(data_rp + " " + rp.getEntrada1(),
-							nova_data + " " + rp.getSaida1());
-					String tempo_total = LocalTime.MIN.plus(Duration.ofMinutes(minutos_adicional_noturno)).toString();
-
-					rpCompleto.setHora_noturna(tempo_total);
-					total_horas_adicional_noturno += minutos_adicional_noturno;
-
-					tHNoturnas += minutos_adicional_noturno;
 				}
-			} else {
-				saida1 = LocalDateTime.parse(data_rp + " " + rp.getSaida1(),
+
+				LocalDateTime entrada2 = LocalDateTime.parse(data_rp + " " + rp.getEntrada2(),
 						DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm"));
-			}
 
-			LocalDateTime entrada2 = LocalDateTime.parse(data_rp + " " + rp.getEntrada2(),
-					DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm"));
+				LocalDateTime saida2 = LocalDateTime.parse(data_rp + " " + rp.getSaida2(),
+						DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm"));
 
-			LocalDateTime saida2 = LocalDateTime.parse(data_rp + " " + rp.getSaida2(),
-					DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm"));
+				if (tem_saida_especial) {
+					if ((evt_global.getMovimentacao() + 1) == 4) {
+						LocalDate hoje = LocalDate.parse(data_rp, DateTimeFormatter.ofPattern("dd/MM/yyyy"));
 
-			if (tem_saida_especial) {
-				if ((evt_global.getMovimentacao() + 1) == 4) {
-					LocalDate hoje = LocalDate.parse(data_rp, DateTimeFormatter.ofPattern("dd/MM/yyyy"));
+						LocalDate dia_seguinte = hoje.plusDays(1);
+						String nova_data = dia_seguinte.format(DateTimeFormatter.ofPattern("dd/MM/yyyy"));
 
-					LocalDate dia_seguinte = hoje.plusDays(1);
-					String nova_data = dia_seguinte.format(DateTimeFormatter.ofPattern("dd/MM/yyyy"));
+						saida2 = LocalDateTime.parse(nova_data + " " + rp.getSaida2(),
+								DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm"));
 
-					saida2 = LocalDateTime.parse(nova_data + " " + rp.getSaida2(),
+						// verifica por hora noturna
+						long minutos_adicional_noturno = calculateWorkingHours(data_rp + " " + rp.getEntrada1(),
+								nova_data + " " + rp.getSaida2());
+						String tempo_total = LocalTime.MIN.plus(Duration.ofMinutes(minutos_adicional_noturno))
+								.toString();
+
+						rpCompleto.setHora_noturna(tempo_total);
+						total_horas_adicional_noturno += minutos_adicional_noturno;
+						tHNoturnas += minutos_adicional_noturno;
+
+					}
+				} else {
+					saida2 = LocalDateTime.parse(data_rp + " " + rp.getSaida2(),
 							DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm"));
-
-					// verifica por hora noturna
-					long minutos_adicional_noturno = calculateWorkingHours(data_rp + " " + rp.getEntrada1(),
-							nova_data + " " + rp.getSaida2());
-					String tempo_total = LocalTime.MIN.plus(Duration.ofMinutes(minutos_adicional_noturno)).toString();
-
-					rpCompleto.setHora_noturna(tempo_total);
-					total_horas_adicional_noturno += minutos_adicional_noturno;
-					tHNoturnas += minutos_adicional_noturno;
-
 				}
-			} else {
-				saida2 = LocalDateTime.parse(data_rp + " " + rp.getSaida2(),
+
+				LocalDateTime entrada3 = LocalDateTime.parse(data_rp + " " + rp.getEntrada3(),
 						DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm"));
-			}
 
-			LocalDateTime entrada3 = LocalDateTime.parse(data_rp + " " + rp.getEntrada3(),
-					DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm"));
+				LocalDateTime saida3 = LocalDateTime.parse(data_rp + " " + rp.getSaida3(),
+						DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm"));
 
-			LocalDateTime saida3 = LocalDateTime.parse(data_rp + " " + rp.getSaida3(),
-					DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm"));
+				long periodAsMinutes1 = ChronoUnit.MINUTES.between(entrada1, saida1);
+				long periodAsMinutes2 = ChronoUnit.MINUTES.between(entrada2, saida2);
+				long periodAsMinutes3 = ChronoUnit.MINUTES.between(entrada3, saida3);
 
-			long periodAsMinutes1 = ChronoUnit.MINUTES.between(entrada1, saida1);
-			long periodAsMinutes2 = ChronoUnit.MINUTES.between(entrada2, saida2);
-			long periodAsMinutes3 = ChronoUnit.MINUTES.between(entrada3, saida3);
+				long duracao_trabalho = periodAsMinutes1 + periodAsMinutes2 + periodAsMinutes3;
+				total_horas_normais_trabalhadas += duracao_trabalho;
 
-			long duracao_trabalho = periodAsMinutes1 + periodAsMinutes2 + periodAsMinutes3;
-			total_horas_normais_trabalhadas += duracao_trabalho;
+				String tempo_total = LocalTime.MIN.plus(Duration.ofMinutes(duracao_trabalho)).toString();
+				rpCompleto.setHora_trabalhada(tempo_total);
 
-			String tempo_total = LocalTime.MIN.plus(Duration.ofMinutes(duracao_trabalho)).toString();
-			rpCompleto.setHora_trabalhada(tempo_total);
+				if (!tem_folga && !tem_ferias && !tem_isencao && !tem_licenca && !tem_feriado && !tem_descanso
+						&& duracao_trabalho <= 0 && duracao_rotina > 0) {
 
-			if (!tem_folga && !tem_ferias && !tem_isencao && !tem_licenca && !tem_feriado && !tem_descanso
-					&& duracao_trabalho <= 0 && duracao_rotina > 0) {
+					if (data_do_registro.isBefore(dia_de_hoje)) {
+						rp.setEntrada1("FALTA");
+						rp.setSaida1("FALTA");
+						rp.setEntrada2("FALTA");
+						rp.setSaida2("FALTA");
 
-				if (data_do_registro.isBefore(dia_de_hoje)) {
-					rp.setEntrada1("FALTA");
-					rp.setSaida1("FALTA");
-					rp.setEntrada2("FALTA");
-					rp.setSaida2("FALTA");
+						long hora_atrazo = duracao_rotina - duracao_trabalho;
+						total_horas_atrazo += hora_atrazo;
+
+						String tempo_atrazo = LocalTime.MIN.plus(Duration.ofMinutes(hora_atrazo)).toString();
+						rpCompleto.setHora_atrazo(tempo_atrazo);
+						rpCompleto.setHora_extra("00:00");
+
+						registro_local.setHoras_atrazos(hora_atrazo);
+						registro_local.setHoras_extras(0);
+
+					} else {
+						rp.setEntrada1("00:00");
+						rp.setSaida1("00:00");
+						rp.setEntrada2("00:00");
+						rp.setSaida2("00:00");
+
+						rpCompleto.setHora_atrazo("00:00");
+						rpCompleto.setHora_extra("00:00");
+
+						registro_local.setHoras_atrazos(0);
+						registro_local.setHoras_extras(0);
+					}
+
+				} else if (tem_folga && !tem_ferias && !tem_feriado) {
+					// tem folga
+					rp.setEntrada1("FOLGA");
+					rp.setSaida1("FOLGA");
+					rp.setEntrada2("FOLGA");
+					rp.setSaida2("FOLGA");
 
 					long hora_atrazo = duracao_rotina - duracao_trabalho;
 					total_horas_atrazo += hora_atrazo;
@@ -2226,245 +2259,79 @@ public class TelaFuncionariosCadastroSalario extends JFrame {
 					registro_local.setHoras_atrazos(hora_atrazo);
 					registro_local.setHoras_extras(0);
 
-				} else {
-					rp.setEntrada1("00:00");
-					rp.setSaida1("00:00");
-					rp.setEntrada2("00:00");
-					rp.setSaida2("00:00");
+				} else if (!tem_feriado && !tem_folga && tem_ferias) {
+					// tem ferias
+					rp.setEntrada1("FÉRIAS");
+					rp.setSaida1("FÉRIAS");
+					rp.setEntrada2("FÉRIAS");
+					rp.setSaida2("FÉRIAS");
 
+					long hora_atrazo = duracao_rotina - duracao_trabalho;
+					String tempo_atrazo = LocalTime.MIN.plus(Duration.ofMinutes(hora_atrazo)).toString();
 					rpCompleto.setHora_atrazo("00:00");
 					rpCompleto.setHora_extra("00:00");
 
 					registro_local.setHoras_atrazos(0);
 					registro_local.setHoras_extras(0);
-				}
 
-			} else if (tem_folga && !tem_ferias && !tem_feriado) {
-				// tem folga
-				rp.setEntrada1("FOLGA");
-				rp.setSaida1("FOLGA");
-				rp.setEntrada2("FOLGA");
-				rp.setSaida2("FOLGA");
+				} else if (tem_isencao) {
+					// tem isencao
+					rp.setEntrada1("ISENÇÃO DE PONTO");
+					rp.setSaida1("ISENÇÃO DE PONTO");
+					rp.setEntrada2("ISENÇÃO DE PONTO");
+					rp.setSaida2("ISENÇÃO DE PONTO");
 
-				long hora_atrazo = duracao_rotina - duracao_trabalho;
-				total_horas_atrazo += hora_atrazo;
-
-				String tempo_atrazo = LocalTime.MIN.plus(Duration.ofMinutes(hora_atrazo)).toString();
-				rpCompleto.setHora_atrazo(tempo_atrazo);
-				rpCompleto.setHora_extra("00:00");
-
-				registro_local.setHoras_atrazos(hora_atrazo);
-				registro_local.setHoras_extras(0);
-
-			} else if (!tem_feriado && !tem_folga && tem_ferias) {
-				// tem ferias
-				rp.setEntrada1("FÉRIAS");
-				rp.setSaida1("FÉRIAS");
-				rp.setEntrada2("FÉRIAS");
-				rp.setSaida2("FÉRIAS");
-
-				long hora_atrazo = duracao_rotina - duracao_trabalho;
-				String tempo_atrazo = LocalTime.MIN.plus(Duration.ofMinutes(hora_atrazo)).toString();
-				rpCompleto.setHora_atrazo("00:00");
-				rpCompleto.setHora_extra("00:00");
-
-				registro_local.setHoras_atrazos(0);
-				registro_local.setHoras_extras(0);
-
-			} else if (tem_isencao) {
-				// tem isencao
-				rp.setEntrada1("ISENÇÃO DE PONTO");
-				rp.setSaida1("ISENÇÃO DE PONTO");
-				rp.setEntrada2("ISENÇÃO DE PONTO");
-				rp.setSaida2("ISENÇÃO DE PONTO");
-
-				long hora_atrazo = duracao_rotina - duracao_trabalho;
-				String tempo_atrazo = LocalTime.MIN.plus(Duration.ofMinutes(hora_atrazo)).toString();
-				rpCompleto.setHora_atrazo("00:00");
-				rpCompleto.setHora_extra("00:00");
-
-				registro_local.setHoras_atrazos(0);
-				registro_local.setHoras_extras(0);
-
-			} else if (tem_licenca) {
-				// tem licenca
-				rp.setEntrada1("LICENÇA");
-				rp.setSaida1("LICENÇA");
-				rp.setEntrada2("LICENÇA");
-				rp.setSaida2("LICENÇA");
-
-				long hora_atrazo = duracao_rotina - duracao_trabalho;
-				String tempo_atrazo = LocalTime.MIN.plus(Duration.ofMinutes(hora_atrazo)).toString();
-				rpCompleto.setHora_atrazo("00:00");
-				rpCompleto.setHora_extra("00:00");
-
-				registro_local.setHoras_atrazos(0);
-				registro_local.setHoras_extras(0);
-
-			} else if (tem_feriado) {
-
-				if (original.getEntrada1() != null && !rp.getEntrada1().equals("00:00"))
-					rp.setEntrada1(original.getEntrada1());
-				else
-					rp.setEntrada1("FERIADO");
-
-				if (original.getSaida1() != null && !rp.getSaida1().equals("00:00"))
-					rp.setSaida1(original.getSaida1());
-				else
-					rp.setSaida1("FERIADO");
-
-				if (original.getEntrada2() != null && !rp.getEntrada2().equals("00:00"))
-					rp.setEntrada2(original.getEntrada2());
-				else
-					rp.setEntrada2("FERIADO");
-
-				if (original.getSaida2() != null && !rp.getSaida2().equals("00:00"))
-					rp.setSaida2(original.getSaida2());
-				else
-					rp.setSaida2("FERIADO");
-
-				// feriado, 100%
-				if (duracao_trabalho > 0) {
-					total_horas_extras += duracao_trabalho;
-					total_horas_100 += duracao_trabalho;
-
-					// trabalho esse dia, 100% hora extra
-					String tempo_extra = LocalTime.MIN.plus(Duration.ofMinutes(duracao_trabalho)).toString();
-					rpCompleto.setHora_extra(tempo_extra);
+					long hora_atrazo = duracao_rotina - duracao_trabalho;
+					String tempo_atrazo = LocalTime.MIN.plus(Duration.ofMinutes(hora_atrazo)).toString();
 					rpCompleto.setHora_atrazo("00:00");
-
-					registro_local.setHoras_atrazos(0);
-					registro_local.setHoras_extras(duracao_trabalho);
-
-				} else {
-					// folgou
 					rpCompleto.setHora_extra("00:00");
-					rpCompleto.setHora_atrazo("00:00");
+
 					registro_local.setHoras_atrazos(0);
 					registro_local.setHoras_extras(0);
-				}
 
-			} else if (tem_descanso) {
-				if (original.getEntrada1() != null && !rp.getEntrada1().equals("00:00"))
-					rp.setEntrada1(original.getEntrada1());
-				else
-					rp.setEntrada1("DS");
+				} else if (tem_licenca) {
+					// tem licenca
+					rp.setEntrada1("LICENÇA");
+					rp.setSaida1("LICENÇA");
+					rp.setEntrada2("LICENÇA");
+					rp.setSaida2("LICENÇA");
 
-				if (original.getSaida1() != null && !rp.getSaida1().equals("00:00"))
-					rp.setSaida1(original.getSaida1());
-				else
-					rp.setSaida1("DS");
+					long hora_atrazo = duracao_rotina - duracao_trabalho;
+					String tempo_atrazo = LocalTime.MIN.plus(Duration.ofMinutes(hora_atrazo)).toString();
+					rpCompleto.setHora_atrazo("00:00");
+					rpCompleto.setHora_extra("00:00");
 
-				if (original.getEntrada2() != null && !rp.getEntrada2().equals("00:00"))
-					rp.setEntrada2(original.getEntrada2());
-				else
-					rp.setEntrada2("DS");
+					registro_local.setHoras_atrazos(0);
+					registro_local.setHoras_extras(0);
 
-				if (original.getSaida2() != null && !rp.getSaida2().equals("00:00"))
-					rp.setSaida2(original.getSaida2());
-				else
-					rp.setSaida2("DS");
+				} else if (tem_feriado) {
 
-				if (rotina_deste_dia.getHora_entrada1().equalsIgnoreCase("DESCANSO SEMANAL")
-						|| rotina_deste_dia.getHora_saida1().equalsIgnoreCase("DESCANSO SEMANAL")
-						|| rotina_deste_dia.getHora_entrada2().equalsIgnoreCase("DESCANSO SEMANAL")
-						|| rotina_deste_dia.getHora_saida2().equalsIgnoreCase("DESCANSO SEMANAL")
+					if (original.getEntrada1() != null && !rp.getEntrada1().equals("00:00"))
+						rp.setEntrada1(original.getEntrada1());
+					else
+						rp.setEntrada1("FERIADO");
 
-				) {
-					// se o dia inteiro for descanso, entao o dia inteiro e hora extra
-					// ds
+					if (original.getSaida1() != null && !rp.getSaida1().equals("00:00"))
+						rp.setSaida1(original.getSaida1());
+					else
+						rp.setSaida1("FERIADO");
+
+					if (original.getEntrada2() != null && !rp.getEntrada2().equals("00:00"))
+						rp.setEntrada2(original.getEntrada2());
+					else
+						rp.setEntrada2("FERIADO");
+
+					if (original.getSaida2() != null && !rp.getSaida2().equals("00:00"))
+						rp.setSaida2(original.getSaida2());
+					else
+						rp.setSaida2("FERIADO");
+
+					// feriado, 100%
 					if (duracao_trabalho > 0) {
 						total_horas_extras += duracao_trabalho;
-
-						// verifica se e sabado ou domindo
-						if (rotina_deste_dia.getDia_da_semana() == 6) {
-							// sabado
-							total_horas_60 += duracao_trabalho;
-						} else if (rotina_deste_dia.getDia_da_semana() == 7) {
-							total_horas_100 += duracao_trabalho;
-
-						} else {
-							total_horas_50 += duracao_trabalho;
-						}
-
-						// trabalho esse dia hora extra
-						String tempo_extra = LocalTime.MIN.plus(Duration.ofMinutes(duracao_trabalho)).toString();
-						rpCompleto.setHora_extra(tempo_extra);
-						rpCompleto.setHora_atrazo("00:00");
-
-						registro_local.setHoras_atrazos(0);
-						registro_local.setHoras_extras(duracao_trabalho);
-
-					} else {
-						// folgou
-						rpCompleto.setHora_extra("00:00");
-						rpCompleto.setHora_atrazo("00:00");
-
-						registro_local.setHoras_atrazos(0);
-						registro_local.setHoras_extras(0);
-					}
-				} else {
-					// nao e o dia de hora extra
-
-					if (duracao_trabalho >= duracao_rotina) {
-						long hora_extra = duracao_trabalho - duracao_rotina;
-						total_horas_extras += hora_extra;
-
-						if (rotina_deste_dia.getDia_da_semana() == 6) {
-							// sabado
-							total_horas_60 += hora_extra;
-						} else if (rotina_deste_dia.getDia_da_semana() == 7) {
-							// domingoi
-							total_horas_100 += hora_extra;
-
-						} else {
-							// meio de semana
-							total_horas_50 += hora_extra;
-						}
-
-						String tempo_extra = LocalTime.MIN.plus(Duration.ofMinutes(hora_extra)).toString();
-						rpCompleto.setHora_extra(tempo_extra);
-						rpCompleto.setHora_atrazo("00:00");
-
-						registro_local.setHoras_atrazos(0);
-						registro_local.setHoras_extras(hora_extra);
-
-					} else {
-						long hora_atrazo = duracao_rotina - duracao_trabalho;
-						total_horas_atrazo += hora_atrazo;
-
-						String tempo_atrazo = LocalTime.MIN.plus(Duration.ofMinutes(hora_atrazo)).toString();
-						rpCompleto.setHora_atrazo(tempo_atrazo);
-						rpCompleto.setHora_extra("00:00");
-
-						registro_local.setHoras_atrazos(0);
-						registro_local.setHoras_extras(hora_atrazo);
-					}
-
-				}
-
-			} else {
-				// dia normal de trabalho
-
-				// calculo de hora extra
-				if (duracao_rotina <= 0) {
-					// nao houve rotina nesse dia
-					if (duracao_trabalho > 0) {
-
-						if (rotina_deste_dia.getDia_da_semana() == 6) {
-							// sabado
-							total_horas_60 += duracao_trabalho;
-						} else if (rotina_deste_dia.getDia_da_semana() == 7) {
-							// domingoi
-							total_horas_100 += duracao_trabalho;
-
-						} else {
-							// meio de semana
-							total_horas_50 += duracao_trabalho;
-						}
+						total_horas_100 += duracao_trabalho;
 
 						// trabalho esse dia, 100% hora extra
-						total_horas_extras += duracao_trabalho;
 						String tempo_extra = LocalTime.MIN.plus(Duration.ofMinutes(duracao_trabalho)).toString();
 						rpCompleto.setHora_extra(tempo_extra);
 						rpCompleto.setHora_atrazo("00:00");
@@ -2476,67 +2343,209 @@ public class TelaFuncionariosCadastroSalario extends JFrame {
 						// folgou
 						rpCompleto.setHora_extra("00:00");
 						rpCompleto.setHora_atrazo("00:00");
-
 						registro_local.setHoras_atrazos(0);
 						registro_local.setHoras_extras(0);
+					}
+
+				} else if (tem_descanso) {
+					if (original.getEntrada1() != null && !rp.getEntrada1().equals("00:00"))
+						rp.setEntrada1(original.getEntrada1());
+					else
+						rp.setEntrada1("DS");
+
+					if (original.getSaida1() != null && !rp.getSaida1().equals("00:00"))
+						rp.setSaida1(original.getSaida1());
+					else
+						rp.setSaida1("DS");
+
+					if (original.getEntrada2() != null && !rp.getEntrada2().equals("00:00"))
+						rp.setEntrada2(original.getEntrada2());
+					else
+						rp.setEntrada2("DS");
+
+					if (original.getSaida2() != null && !rp.getSaida2().equals("00:00"))
+						rp.setSaida2(original.getSaida2());
+					else
+						rp.setSaida2("DS");
+
+					if (rotina_deste_dia.getHora_entrada1().equalsIgnoreCase("DESCANSO SEMANAL")
+							|| rotina_deste_dia.getHora_saida1().equalsIgnoreCase("DESCANSO SEMANAL")
+							|| rotina_deste_dia.getHora_entrada2().equalsIgnoreCase("DESCANSO SEMANAL")
+							|| rotina_deste_dia.getHora_saida2().equalsIgnoreCase("DESCANSO SEMANAL")
+
+					) {
+						// se o dia inteiro for descanso, entao o dia inteiro e hora extra
+						// ds
+						if (duracao_trabalho > 0) {
+							total_horas_extras += duracao_trabalho;
+
+							// verifica se e sabado ou domindo
+							if (rotina_deste_dia.getDia_da_semana() == 6) {
+								// sabado
+								total_horas_60 += duracao_trabalho;
+							} else if (rotina_deste_dia.getDia_da_semana() == 7) {
+								total_horas_100 += duracao_trabalho;
+
+							} else {
+								total_horas_50 += duracao_trabalho;
+							}
+
+							// trabalho esse dia hora extra
+							String tempo_extra = LocalTime.MIN.plus(Duration.ofMinutes(duracao_trabalho)).toString();
+							rpCompleto.setHora_extra(tempo_extra);
+							rpCompleto.setHora_atrazo("00:00");
+
+							registro_local.setHoras_atrazos(0);
+							registro_local.setHoras_extras(duracao_trabalho);
+
+						} else {
+							// folgou
+							rpCompleto.setHora_extra("00:00");
+							rpCompleto.setHora_atrazo("00:00");
+
+							registro_local.setHoras_atrazos(0);
+							registro_local.setHoras_extras(0);
+						}
+					} else {
+						// nao e o dia de hora extra
+
+						if (duracao_trabalho >= duracao_rotina) {
+							long hora_extra = duracao_trabalho - duracao_rotina;
+							total_horas_extras += hora_extra;
+
+							if (rotina_deste_dia.getDia_da_semana() == 6) {
+								// sabado
+								System.out.println("nao é dia de hora extra: tem extra (sabado)" + data_rp);
+								total_horas_60 += hora_extra;
+							} else if (rotina_deste_dia.getDia_da_semana() == 7) {
+								// domingoi
+								total_horas_100 += hora_extra;
+								System.out.println("nao é dia de hora extra: tem extra  (domingo)" + data_rp);
+
+							} else {
+								// meio de semana
+								total_horas_50 += hora_extra;
+							}
+
+							String tempo_extra = LocalTime.MIN.plus(Duration.ofMinutes(hora_extra)).toString();
+							rpCompleto.setHora_extra(tempo_extra);
+							rpCompleto.setHora_atrazo("00:00");
+
+							registro_local.setHoras_atrazos(0);
+							registro_local.setHoras_extras(hora_extra);
+
+						} else {
+
+							System.out.println("nao e dia de hora extra(tem atrazos): " + data_rp);
+
+							System.out.println("duracao rotina: " + formatHora(duracao_rotina));
+
+							long hora_atrazo = duracao_rotina - duracao_trabalho;
+							total_horas_atrazo += hora_atrazo;
+
+							String tempo_atrazo = LocalTime.MIN.plus(Duration.ofMinutes(hora_atrazo)).toString();
+							rpCompleto.setHora_atrazo(tempo_atrazo);
+							rpCompleto.setHora_extra("00:00");
+
+							registro_local.setHoras_atrazos(hora_atrazo);
+							registro_local.setHoras_extras(0);
+						}
+
 					}
 
 				} else {
-					// houve rotina nesse dia
+					// dia normal de trabalho
 
-					if (duracao_trabalho >= duracao_rotina) {
-						long hora_extra = duracao_trabalho - duracao_rotina;
-						total_horas_extras += hora_extra;
+					// calculo de hora extra
+					if (duracao_rotina <= 0) {
+						// nao houve rotina nesse dia
+						if (duracao_trabalho > 0) {
 
-						if (rotina_deste_dia.getDia_da_semana() == 6) {
-							// sabado
-							total_horas_60 += hora_extra;
-						} else if (rotina_deste_dia.getDia_da_semana() == 7) {
-							// domingoi
-							total_horas_100 += hora_extra;
+							if (rotina_deste_dia.getDia_da_semana() == 6) {
+								// sabado
+								total_horas_60 += duracao_trabalho;
+							} else if (rotina_deste_dia.getDia_da_semana() == 7) {
+								// domingoi
+								total_horas_100 += duracao_trabalho;
+
+							} else {
+								// meio de semana
+								total_horas_50 += duracao_trabalho;
+							}
+
+							// trabalho esse dia, 100% hora extra
+							total_horas_extras += duracao_trabalho;
+							String tempo_extra = LocalTime.MIN.plus(Duration.ofMinutes(duracao_trabalho)).toString();
+							rpCompleto.setHora_extra(tempo_extra);
+							rpCompleto.setHora_atrazo("00:00");
+
+							registro_local.setHoras_atrazos(0);
+							registro_local.setHoras_extras(duracao_trabalho);
 
 						} else {
-							// meio de semana
-							total_horas_50 += hora_extra;
+							// folgou
+							rpCompleto.setHora_extra("00:00");
+							rpCompleto.setHora_atrazo("00:00");
+
+							registro_local.setHoras_atrazos(0);
+							registro_local.setHoras_extras(0);
 						}
 
-						String tempo_extra = LocalTime.MIN.plus(Duration.ofMinutes(hora_extra)).toString();
-						rpCompleto.setHora_extra(tempo_extra);
-						rpCompleto.setHora_atrazo("00:00");
-
-						registro_local.setHoras_atrazos(0);
-						registro_local.setHoras_extras(hora_extra);
-
 					} else {
-						long hora_atrazo = duracao_rotina - duracao_trabalho;
-						total_horas_atrazo += hora_atrazo;
-						String tempo_atrazo = LocalTime.MIN.plus(Duration.ofMinutes(hora_atrazo)).toString();
-						rpCompleto.setHora_atrazo(tempo_atrazo);
-						rpCompleto.setHora_extra("00:00");
+						// houve rotina nesse dia
 
-						registro_local.setHoras_atrazos(hora_atrazo);
-						registro_local.setHoras_extras(0);
+						if (duracao_trabalho >= duracao_rotina) {
+							long hora_extra = duracao_trabalho - duracao_rotina;
+							total_horas_extras += hora_extra;
 
+							if (rotina_deste_dia.getDia_da_semana() == 6) {
+								// sabado
+								total_horas_60 += hora_extra;
+							} else if (rotina_deste_dia.getDia_da_semana() == 7) {
+								// domingoi
+								total_horas_100 += hora_extra;
+
+							} else {
+								// meio de semana
+								total_horas_50 += hora_extra;
+							}
+
+							String tempo_extra = LocalTime.MIN.plus(Duration.ofMinutes(hora_extra)).toString();
+							rpCompleto.setHora_extra(tempo_extra);
+							rpCompleto.setHora_atrazo("00:00");
+
+							registro_local.setHoras_atrazos(0);
+							registro_local.setHoras_extras(hora_extra);
+
+						} else {
+							long hora_atrazo = duracao_rotina - duracao_trabalho;
+							total_horas_atrazo += hora_atrazo;
+							String tempo_atrazo = LocalTime.MIN.plus(Duration.ofMinutes(hora_atrazo)).toString();
+							rpCompleto.setHora_atrazo(tempo_atrazo);
+							rpCompleto.setHora_extra("00:00");
+
+							registro_local.setHoras_atrazos(hora_atrazo);
+							registro_local.setHoras_extras(0);
+
+						}
 					}
+
 				}
+				rpCompleto.setRp(rp);
+
+				modeloRegistroPonto.onAdd(rpCompleto);
+				dia++;
+
+				registro_local.setData(data_rp);
+
+				registros_locais.add(registro_local);
 
 			}
-			rpCompleto.setRp(rp);
-
-			modeloRegistroPonto.onAdd(rpCompleto);
-			dia++;
-
-			registro_local.setData(data_rp);
-			registros_locais.add(registro_local);
-
-		}
-		}else {
+		} else {
 			JOptionPane.showMessageDialog(isto, "Nenhum Registro de Ponto Encontrado para o Mês selecionado");
 
 			isto.dispose();
 		}
-		
-
 
 		tHTrabalhadas = total_horas_normais_trabalhadas;
 		tHMensal = total_duracao;
@@ -2590,14 +2599,10 @@ public class TelaFuncionariosCadastroSalario extends JFrame {
 		lblTotalHoras50.setText(formatHora(total_horas_50));
 		lblTotalHoras60.setText(formatHora(total_horas_60));
 
-
 		informarAtrazos(registros_locais, ultimo_dia);
-
-
 
 		if (rdbtnDescontarAtrazosSim.isSelected())
 			setInfoAtrazos(registros_locais, ultimo_dia);
-		
 
 	}
 
@@ -2666,6 +2671,7 @@ public class TelaFuncionariosCadastroSalario extends JFrame {
 
 			int dia_da_semana = registro.getDia_da_semana();
 			semana.setData_inicial(registro.getData());
+
 			if (dia_da_semana <= 7) {
 				// dia de semana normal
 				long acumulador = 0;
@@ -2694,6 +2700,7 @@ public class TelaFuncionariosCadastroSalario extends JFrame {
 		String texto = "";
 		int count_semana = 1;
 		texto_atrazo = new ArrayList<>();
+
 		long total_atrazo = 0;
 		for (Semana semana : semanas) {
 			total_atrazo += semana.getQuantidade_minutos();
@@ -2905,43 +2912,40 @@ public class TelaFuncionariosCadastroSalario extends JFrame {
 			}
 
 		} else {
-			
-			
-			//buscar contrato inativo
+
+			// buscar contrato inativo
 			try {
-			CadastroFuncionarioDemissao demissao = gerenciar.getcontratoInaAtivoPorFuncionario(func.getId_funcionario());
-			
-			CadastroFuncionarioAdmissao contrato = demissao.getContrato_trabalho();
-			CadastroFuncionarioEvento evt = demissao.getEvento_demissao();
+				CadastroFuncionarioDemissao demissao = gerenciar
+						.getcontratoInaAtivoPorFuncionario(func.getId_funcionario());
 
-			
-			lblCargo.setText(contrato.getCargo());
-			lblFuncao.setText(contrato.getFuncao());
-			lblDataAdmissao.setText(contrato.getData_admissao());
-			lblTipoContrato.setText(contrato.getTipo_contrato());
-			
-			
+				CadastroFuncionarioAdmissao contrato = demissao.getContrato_trabalho();
+				CadastroFuncionarioEvento evt = demissao.getEvento_demissao();
 
-			int motivo = evt.getMotivo_demissao();
-			String s_motivo = "";
-			if (motivo == 0) {
-				s_motivo = "ENCERRAMENTO DE CONTRATO em " + evt.getData_folga();
-			} else if (motivo == 1) {
-				s_motivo = "JUSTA CAUSA em "+ evt.getData_folga();
-			} else if (motivo == 2) {
-				s_motivo = "SEM JUSTA CAUSA em "+ evt.getData_folga();
-			} else if (motivo == 3) {
-				s_motivo = "PEDIDO DE DISPENSA PELO COLABORADOR em "+ evt.getData_folga();
-			}
-			
-			lblStatusContrato.setText(s_motivo);
-			
-			}catch(Exception e) {
-				JOptionPane.showMessageDialog(isto, "Erro ao consultar ultimo contrato ativo do Colaborador!\nConsulte o administrador");
+				lblCargo.setText(contrato.getCargo());
+				lblFuncao.setText(contrato.getFuncao());
+				lblDataAdmissao.setText(contrato.getData_admissao());
+				lblTipoContrato.setText(contrato.getTipo_contrato());
+
+				int motivo = evt.getMotivo_demissao();
+				String s_motivo = "";
+				if (motivo == 0) {
+					s_motivo = "ENCERRAMENTO DE CONTRATO em " + evt.getData_folga();
+				} else if (motivo == 1) {
+					s_motivo = "JUSTA CAUSA em " + evt.getData_folga();
+				} else if (motivo == 2) {
+					s_motivo = "SEM JUSTA CAUSA em " + evt.getData_folga();
+				} else if (motivo == 3) {
+					s_motivo = "PEDIDO DE DISPENSA PELO COLABORADOR em " + evt.getData_folga();
+				}
+
+				lblStatusContrato.setText(s_motivo);
+
+			} catch (Exception e) {
+				JOptionPane.showMessageDialog(isto,
+						"Erro ao consultar ultimo contrato ativo do Colaborador!\nConsulte o administrador");
 				isto.dispose();
 			}
-			
-			
+
 			if (ct.getUltimo_salario() > 0) {
 				lblUltimoValorSalarial.setText(NumberFormat.getCurrencyInstance(ptBr).format(ct.getUltimo_salario()));
 				lblPisoSalarial.setText(NumberFormat.getCurrencyInstance(ptBr).format(ct.getUltimo_salario()));
@@ -3032,34 +3036,40 @@ public class TelaFuncionariosCadastroSalario extends JFrame {
 	}
 
 	public void setInfoCalculoSalarial() {
-		/*
-		 * if (tipo_banco_horas == 0) { // banco negativo tHAtrazo = tHAtrazo +
-		 * quantidade_banco_horas;
-		 * 
-		 * } else if (tipo_banco_horas == 1) { // tipo positivo tHAtrazo = tHAtrazo -
-		 * quantidade_banco_horas;
-		 * 
-		 * }
-		 */
-		if (rdbtnDescontarAtrazosSim.isSelected()) {
-			calcularAtrazos();
 
-			if (rdbtnManter.isSelected()) {
-				// manter banco atual
-				tHExtras = tH50 + tH60 + tH100;
+		if (rdbtnManter.isSelected()) {
 
-				manterBancoHoras();
-			} else if (rdbtnPagar.isSelected()) {
-				// pagar o banco
-				tH50 = tH50 + quantidade_banco_horas;
-				tHExtras = tH50 + tH60 + tH100;
+			// manter banco atual
+
+			manterBancoHoras();
+
+			if (rdbtnDescontarAtrazosSim.isSelected()) {
+				calcularAtrazos();
+
+			} else {
+				String s_total_h_atraz = formatHora(tHAtrazo);
+				lblQuantidadeHorasAtrazo.setText(s_total_h_atraz);
 
 			}
 
-		} else {
+			tHExtras = tH50 + tH60 + tH100;
 
-			String s_total_h_atraz = formatHora(tHAtrazo);
-			lblQuantidadeHorasAtrazo.setText(s_total_h_atraz);
+		} else if (rdbtnPagar.isSelected()) {
+			// pagar o banco
+
+			if (rdbtnDescontarAtrazosSim.isSelected()) {
+				// calcularAtrazos();
+
+				pagarBancoHorasComAtrazo();
+
+			} else {
+
+				pagarBancoHorasSemAtrazo();
+
+			}
+
+			tHExtras = tH50 + tH60 + tH100;
+
 		}
 
 		double valor_hora = piso_salarial / 220.0;
@@ -3072,6 +3082,7 @@ public class TelaFuncionariosCadastroSalario extends JFrame {
 		horas_global.setValor_hora60(valor_hora60);
 		horas_global.setValor_hora100(valor_hora100);
 		horas_global.setValor_hora_noturna(valor_hora_noturna);
+		horas_global.setValor_hora(valor_hora);
 
 		// valores de horas
 		lblValorHoraNormal.setText(NumberFormat.getCurrencyInstance(ptBr).format(valor_hora));
@@ -3144,13 +3155,17 @@ public class TelaFuncionariosCadastroSalario extends JFrame {
 		else
 			lblCalculoIrrf.setText("Cálculo não Selecionado");
 
-		if (rdbtnDepositarSim.isSelected())
+		
+		if(!rdbtnPagar.isSelected()) {
+		if (rdbtnDepositarSim.isSelected() )
 			depositarBancoHoras(true);
+		
 		else {
 
 			if (!rdbtnManter.isSelected())
 				depositarBancoHoras(false);
 
+		}
 		}
 
 	}
@@ -3175,55 +3190,55 @@ public class TelaFuncionariosCadastroSalario extends JFrame {
 
 		String descricao = "";
 
-		if (piso_salarial <= 1100) {
+		if (piso_salarial <= 1212) {
 			// aliquota 7.5%
-			double inss_faixa1 = 82.5;
+			double inss_faixa1 = 90.9;
 			inss = inss_faixa1;
 
 			descricao = "Sálario Base encontra-se na 1ª Faixa: " + NumberFormat.getCurrencyInstance(ptBr).format(inss);
 			lblCalculoInss.setText(descricao);
 
-		} else if (piso_salarial >= 1101.01 && piso_salarial <= 2203.08) {
+		} else if (piso_salarial >= 1212.01 && piso_salarial <= 2427.35) {
 			// aliquota de 9%
-			double inss_faixa1 = 82.5;
-			double inss_faixa2 = (piso_salarial - 1100.01) * aliquota2;
+			double inss_faixa1 = 90.9;
+			double inss_faixa2 = (piso_salarial - 1212.01) * aliquota2;
 
 			inss = inss_faixa1 + inss_faixa2;
-			descricao = "Sálario Base encontra-se na 2ª Faixa: (R$ 82,50 + ("
-					+ NumberFormat.getCurrencyInstance(ptBr).format(piso_salarial) + " - R$ 1101,01 X 9%)): "
+			descricao = "Sálario Base encontra-se na 2ª Faixa: (R$ 90,90 + ("
+					+ NumberFormat.getCurrencyInstance(ptBr).format(piso_salarial) + " - R$ 1.212,01 X 9%)): "
 					+ NumberFormat.getCurrencyInstance(ptBr).format(inss);
 			lblCalculoInss.setText(descricao);
 
-		} else if (piso_salarial >= 2203.49 && piso_salarial <= 3305.22) {
+		} else if (piso_salarial >= 2427.36 && piso_salarial <= 3614.03) {
 			// aliquota de 12%
-			double inss_faixa1 = 82.5;
-			double inss_faixa2 = 99.31;
-			double inss_faixa3 = (piso_salarial - 2203.49) * aliquota3;
+			double inss_faixa1 = 90.9;
+			double inss_faixa2 = 109.38;
+			double inss_faixa3 = (piso_salarial - 2427.36) * aliquota3;
 
 			inss = inss_faixa1 + inss_faixa2 + inss_faixa3;
-			descricao = "Sálario Base encontra-se na 3ª Faixa: (R$ 82,50 + R$ 99,31 + ("
-					+ NumberFormat.getCurrencyInstance(ptBr).format(piso_salarial) + " - R$ 2203,49 X 12%)): "
+			descricao = "Sálario Base encontra-se na 3ª Faixa: (R$ 90,90 + R$ 109,38 + ("
+					+ NumberFormat.getCurrencyInstance(ptBr).format(piso_salarial) + " - R$ 2427,36 X 12%)): "
 					+ NumberFormat.getCurrencyInstance(ptBr).format(inss);
 			lblCalculoInss.setText(descricao);
 
-		} else if (piso_salarial >= 3305.23 && piso_salarial <= 6433.27) {
+		} else if (piso_salarial >= 3641.04 && piso_salarial <= 7087.22) {
 			// aliquota de 14%
-			double inss_faixa1 = 82.5;
-			double inss_faixa2 = 99.31;
-			double inss_faixa3 = 132.21;
-			double inss_faixa4 = (piso_salarial - 3305.23) * aliquota4;
+			double inss_faixa1 = 90.9;
+			double inss_faixa2 = 109.38;
+			double inss_faixa3 = 145.64;
+			double inss_faixa4 = (piso_salarial - 3641.04) * aliquota4;
 
 			inss = inss_faixa1 + inss_faixa2 + inss_faixa3 + inss_faixa4;
-			descricao = "Sálario Base encontra-se na 4ª Faixa: (R$ 82,50 + R$ 99,31 + R$ 132,21 + ("
-					+ NumberFormat.getCurrencyInstance(ptBr).format(piso_salarial) + " - R$ 3305,23 X 14%)): "
+			descricao = "Sálario Base encontra-se na 4ª Faixa: (R$ 90,90 + R$ 109,38 + R$ 145,64 + ("
+					+ NumberFormat.getCurrencyInstance(ptBr).format(piso_salarial) + " - R$ 3.641,04 X 14%)): "
 					+ NumberFormat.getCurrencyInstance(ptBr).format(inss);
 			lblCalculoInss.setText(descricao);
 
-		} else if (piso_salarial > 6433.27) {
-			descricao = "Sálario Base encontra-se acima da 4ª Faixa: (R$ 82,50 + R$ 99,31 + R$ 132,21 + 437,97: R$ 751,99";
+		} else if (piso_salarial > 7087.22) {
+			descricao = "Sálario Base encontra-se acima da 4ª Faixa: (R$ 90,90 + R$ 109,38 + R$ 145,64 + 482,47: R$ 828,39";
 			lblCalculoInss.setText(descricao);
 
-			inss = 751.99;
+			inss = 828.39;
 		}
 
 		inss_global = inss;
@@ -3836,40 +3851,38 @@ public class TelaFuncionariosCadastroSalario extends JFrame {
 
 		GerenciarBancoFuncionarioBancoHoras gerenciar = new GerenciarBancoFuncionarioBancoHoras();
 		int mes = cBMes.getSelectedIndex();
-		if(mes == 0) {
+		if (mes == 0) {
 			lblDescricaoBancoHoras.setText("BH de DEZEMBRO");
 
-		}else {
+		} else {
 			lblDescricaoBancoHoras.setText("BH de " + cBMes.getItemAt(mes - 1).toString());
 
 		}
-		
+
 		String ano = entAno.getText();
-		
-		
+
 		CadastroFuncionarioBancoHoras banco = null;
 
-		if(mes == 0) {
-			//se for janeiro, pega o banco do mes de dezembro do ano passado
+		if (mes == 0) {
+			// se for janeiro, pega o banco do mes de dezembro do ano passado
 			int ano_atual = new GetData().getAnoAtual();
 			try {
-				
-			 ano_atual = Integer.parseInt(ano);
-			
-			}catch(Exception e) {
+
+				ano_atual = Integer.parseInt(ano);
+
+			} catch (Exception e) {
 				ano_atual = new GetData().getAnoAtual();
 			}
-			
-			int ano_passado = ano_atual - 1;
-			banco = gerenciar.getBancoHorasPorFuncionarioPorMesAno(func.getId_funcionario(),
-					12, Integer.toString(ano_passado));
 
-		}else {
-			banco = gerenciar.getBancoHorasPorFuncionarioPorMesAno(func.getId_funcionario(),
-					mes, ano);
+			int ano_passado = ano_atual - 1;
+			banco = gerenciar.getBancoHorasPorFuncionarioPorMesAno(func.getId_funcionario(), 12,
+					Integer.toString(ano_passado));
+
+		} else {
+			banco = gerenciar.getBancoHorasPorFuncionarioPorMesAno(func.getId_funcionario(), mes, ano);
 
 		}
-		
+
 		if (banco != null) {
 
 			String quanti = banco.getQuantidade_horas();
@@ -3883,7 +3896,7 @@ public class TelaFuncionariosCadastroSalario extends JFrame {
 			}
 
 			tipo_banco_horas = banco.getTipo_banco();
-			if(long_quanti < 0)
+			if (long_quanti < 0)
 				long_quanti = long_quanti * -1;
 			quantidade_banco_horas = long_quanti;
 
@@ -3895,30 +3908,30 @@ public class TelaFuncionariosCadastroSalario extends JFrame {
 
 	public void atualizar() {
 
-try {
-		pesquisarDemostrativo();
+		try {
+			pesquisarDemostrativo();
 
-		pesquisarBancoHoras();
+			pesquisarBancoHoras();
 
-		setInfoCalculoSalarial();
-		calculoFinal();
-		pesquisar_contas_associadas();
-}catch(Exception e) {
-	e.printStackTrace();
-}
-		
+			setInfoCalculoSalarial();
+			calculoFinal();
+			pesquisar_contas_associadas();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+
 	}
 
 	public void depositarBancoHoras(boolean depositar) {
 		int mes = cBMes.getSelectedIndex() + 1;
 		String s_mes = "";
-		if(mes > 11) {
-			 s_mes = cBMes.getItemAt(11).toString();
+		if (mes > 11) {
+			s_mes = cBMes.getItemAt(11).toString();
 
-		}else {
-		 s_mes = cBMes.getItemAt(mes).toString();
+		} else {
+			s_mes = cBMes.getItemAt(mes).toString();
 		}
-		
+
 		lblDescricaoNovoBancoHoras.setText("BH de " + s_mes + "/" + entAno.getText());
 
 		if (depositar) {
@@ -3966,7 +3979,7 @@ try {
 						+ "\n";
 			}
 
-			if (tipo_banco_horas == 0 ) {
+			if (tipo_banco_horas == 0) {
 				// horas negativas no banco e horas positivas
 				texto_calculo += ("Soma Final: " + formatHora(dif) + " - " + formatHora(quantidade_banco_horas)
 						+ "(BH)");
@@ -3974,8 +3987,7 @@ try {
 				dif = dif - quantidade_banco_horas; //
 				texto_calculo += ("= " + formatHora(dif) + "\n");
 
-			}
-			else if (tipo_banco_horas == 1) {
+			} else if (tipo_banco_horas == 1) {
 				// horas positivas no banco
 				texto_calculo += ("Soma Final: " + formatHora(dif) + " + " + formatHora(quantidade_banco_horas)
 						+ "(BH)");
@@ -3989,7 +4001,7 @@ try {
 				lblTipoNovoBancoHoras.setText("POSITIVO");
 				tipo_novo_banco_horas_global = 1;
 				horas_global.setTipo_banco(1);
-				
+
 			} else {
 				lblTipoNovoBancoHoras.setText("NEGATIVO");
 				tipo_novo_banco_horas_global = 0;
@@ -4020,25 +4032,24 @@ try {
 
 		int mes = cBMes.getSelectedIndex() + 1;
 		String s_mes = "";
-		if(mes > 11) {
-			 s_mes = cBMes.getItemAt(11).toString();
+		if (mes > 11) {
+			s_mes = cBMes.getItemAt(11).toString();
 
-		}else {
-		 s_mes = cBMes.getItemAt(mes).toString();
+		} else {
+			s_mes = cBMes.getItemAt(mes).toString();
 		}
-		
+
 		lblDescricaoNovoBancoHoras.setText("BH de " + s_mes + "/" + entAno.getText());
 
-		
 		horas_global.setOpcao_banco(1);
 		horas_global.setMes(s_mes);
 
-		if (quantidade_banco_horas > 0) {
+		if (tipo_banco_horas == 1) {
 			lblTipoNovoBancoHoras.setText("POSITIVO");
 			tipo_novo_banco_horas_global = 1;
 			horas_global.setTipo_banco(1);
 
-		} else if (quantidade_banco_horas < 0) {
+		} else if (tipo_banco_horas == 0) {
 			lblTipoNovoBancoHoras.setText("NEGATIVO");
 			tipo_novo_banco_horas_global = 0;
 			horas_global.setTipo_banco(0);
@@ -4049,6 +4060,179 @@ try {
 		lblQuantidadeNovoBancoHoras.setText(formatHora(quantidade_banco_horas));
 
 		horas_global.setQuantidade(quantidade_banco_horas);
+
+	}
+
+	public void pagarBancoHorasComAtrazo() {
+
+		String texto_calculo = "";
+
+		long dif = tHExtras - tHAtrazo;
+		if (dif > 0) {
+
+			texto_calculo = "Total de Horas Extras(" + formatHora(tHExtras) + ")"
+					+ " é Maior que o Total de Horas de Atrazo(" + formatHora(tHAtrazo) + "), Hora é Dobrada, Parcial: "
+					+ formatHora(tHExtras) + " - " + formatHora(tHAtrazo) + "= " + formatHora(dif) + " X 2 = ";
+
+			dif = dif * 2;
+			texto_calculo += (formatHora(dif) + "\n");
+
+		} else {
+			texto_calculo = "Total de Horas Extras(" + formatHora(tHExtras) + ")"
+					+ " é Menor que o Total de Horas de Atrazo(" + formatHora(tHAtrazo)
+					+ "), Hora não é dobrada, Parcial: " + formatHora(tHExtras) + " - " + formatHora(tHAtrazo) + "\n";
+		}
+
+		if (tipo_banco_horas == 0) {
+			// horas negativas no banco e horas positivas
+			texto_calculo += ("Soma Final: " + formatHora(dif) + " - " + formatHora(quantidade_banco_horas) + "(BH)");
+
+			dif = dif - quantidade_banco_horas; //
+			texto_calculo += ("= " + formatHora(dif) + "\n");
+
+		} else if (tipo_banco_horas == 1) {
+			// horas positivas no banco
+			texto_calculo += ("Soma Final: " + formatHora(dif) + " + " + formatHora(quantidade_banco_horas) + "(BH)");
+
+			dif = dif + quantidade_banco_horas;
+			texto_calculo += ("= " + formatHora(dif) + "\n");
+
+		}
+
+		CadastroFuncionarioCalculo cad = new CadastroFuncionarioCalculo();
+
+		cad.setTipo_calculo(1);
+		int referencia_calculo, referencia_valor;
+		double total;
+		cad.setDescricao("Pagamento de Banco de Horas");
+		cad.setNome("Pagamento de BH");
+		cad.setReferencia_calculo(3);
+		cad.setReferencia_valor(1);
+		cad.setValor(horas_global.getValor_hora());
+		cad.setTotal(dif * (horas_global.getValor_hora()/60));
+		cad.setQuantidade((int) (dif/60));
+
+		this.adicionarAcrescimo(cad);
+		
+		tH50 = 0;
+		tH60 = 0;
+		tH100 = 0;
+
+		tHExtras = tH50 + tH60 + tH100;
+
+
+		int mes = cBMes.getSelectedIndex() + 1;
+		String s_mes = "";
+		if (mes > 11) {
+			s_mes = cBMes.getItemAt(11).toString();
+
+		} else {
+			s_mes = cBMes.getItemAt(mes).toString();
+		}
+		
+		
+		horas_global.setQuantidade(dif);
+		valor_total_horas_extras_global = dif;
+
+		horas_global.setBh_pago(1);
+		horas_global.setDescricao_bh_pago(texto_calculo);
+		textAreaDescricaoPagarBanco.setText(texto_calculo);
+		
+		lblTipoNovoBancoHoras.setText("NEGATIVO");
+		tipo_novo_banco_horas_global = 1;
+		horas_global.setTipo_banco(1);
+		horas_global.setOpcao_banco(1);
+		horas_global.setMes(s_mes);
+		horas_global.setQuantidade(0);
+
+
+		quantidade_novo_banco_horas_global = 0;
+		lblQuantidadeNovoBancoHoras.setText(formatHora(0));
+
+		valor_total_horas_extras_global = 0;
+
+	}
+
+	public void pagarBancoHorasSemAtrazo() {
+
+		String texto_calculo = "";
+
+		long dif = tHExtras;
+
+		texto_calculo = "Total de Horas Extras(" + formatHora(tHExtras) + ") será dobrado: " + formatHora(tHExtras)
+				+ " X 2 = ";
+
+		dif = dif * 2;
+		texto_calculo += (formatHora(dif) + "\n");
+
+		if (tipo_banco_horas == 0) {
+			// horas negativas no banco e horas positivas
+			texto_calculo += ("Soma Final: " + formatHora(dif) + " - " + formatHora(quantidade_banco_horas) + "(BH)");
+
+			dif = dif - quantidade_banco_horas; //
+			texto_calculo += ("= " + formatHora(dif) + "\n");
+
+		} else if (tipo_banco_horas == 1) {
+			// horas positivas no banco
+			texto_calculo += ("Soma Final: " + formatHora(dif) + " + " + formatHora(quantidade_banco_horas) + "(BH)");
+
+			dif = dif + quantidade_banco_horas;
+			texto_calculo += ("= " + formatHora(dif) + "\n");
+
+		}
+
+		CadastroFuncionarioCalculo cad = new CadastroFuncionarioCalculo();
+
+		cad.setTipo_calculo(1);
+		int referencia_calculo, referencia_valor;
+		double total;
+		cad.setDescricao("Pagamento de Banco de Horas");
+		cad.setNome("Pagamento de BH");
+		cad.setReferencia_calculo(3);
+		cad.setReferencia_valor(1);
+		cad.setValor(horas_global.getValor_hora());
+		cad.setTotal(dif * (horas_global.getValor_hora()/60));
+		cad.setQuantidade((int) dif);
+
+		this.adicionarAcrescimo(cad);
+
+		tH50 = 0;
+		tH60 = 0;
+		tH100 = 0;
+
+		tHExtras = tH50 + tH60 + tH100;
+
+
+		int mes = cBMes.getSelectedIndex() + 1;
+		String s_mes = "";
+		if (mes > 11) {
+			s_mes = cBMes.getItemAt(11).toString();
+
+		} else {
+			s_mes = cBMes.getItemAt(mes).toString();
+		}
+		
+		horas_global.setQuantidade(dif);
+		valor_total_horas_extras_global = dif;
+
+		textAreaDescricaoPagarBanco.setText(texto_calculo);
+		horas_global.setBh_pago(1);
+		horas_global.setDescricao_bh_pago(texto_calculo);
+		
+		
+		lblTipoNovoBancoHoras.setText("NEGATIVO");
+		tipo_novo_banco_horas_global = 1;
+		horas_global.setTipo_banco(1);
+		horas_global.setOpcao_banco(1);
+		horas_global.setMes(s_mes);
+		horas_global.setQuantidade(0);
+
+
+		quantidade_novo_banco_horas_global = 0;
+		lblQuantidadeNovoBancoHoras.setText(formatHora(0));
+
+		valor_total_horas_extras_global = 0;
+		
 
 	}
 
@@ -4100,11 +4284,10 @@ try {
 
 		banco.setTipo_banco(tipo_novo_banco_horas_global);
 
-		
-		if(quantidade_novo_banco_horas_global < 0){
+		if (quantidade_novo_banco_horas_global < 0) {
 			quantidade_novo_banco_horas_global = quantidade_novo_banco_horas_global * -1;
 		}
-		
+
 		banco.setQuantidade_horas(Long.toString(quantidade_novo_banco_horas_global));
 		banco.setAno(entAno.getText());
 		return banco;
@@ -4137,7 +4320,7 @@ try {
 			// salvar o arquivo
 
 			salvarArquivo(arquivo);
-			if (rdbtnDepositarSim.isSelected() || manter_global) {
+			if (rdbtnDepositarSim.isSelected() || manter_global || rdbtnPagar.isSelected()) {
 				// criar novo banco de horas
 				GerenciarBancoFuncionarioBancoHoras gerenciar_banco = new GerenciarBancoFuncionarioBancoHoras();
 				CadastroFuncionarioBancoHoras banco = getDadosBanco();
@@ -4163,13 +4346,13 @@ try {
 
 			}
 			double liquido = (salario.getSalario_base() + salario.getTotal_acrescimos()
-			+ salario.getTotal_hora_extras()) - salario.getTotal_descontos();
+					+ salario.getTotal_hora_extras()) - salario.getTotal_descontos();
 			// criar o lancamento
 			// verifica se ja existe um lancamento deste mes
 			if (tem_lancamento) {
 
 				// criar a parcela
-				
+
 				Parcela parcela_salario_liquido = getDadosParcela(id_lancamento_global, liquido);
 
 				Lancamento lancamento = new GerenciarBancoLancamento().getLancamento(id_lancamento_global);
@@ -4191,7 +4374,8 @@ try {
 					Lancamento lancamento_criado = new GerenciarBancoLancamento().getLancamento(salvar_lancamento);
 
 					// criar o pagamento
-					TelaFinanceiroGerenciarLancamento tela = new TelaFinanceiroGerenciarLancamento(lancamento_criado, isto);
+					TelaFinanceiroGerenciarLancamento tela = new TelaFinanceiroGerenciarLancamento(lancamento_criado,
+							isto);
 					tela.setVisible(true);
 
 				} else {
@@ -4541,9 +4725,8 @@ try {
 	public Parcela getDadosParcela(int id_lancamento_pai, double Dvalor) {
 		Parcela parcela = new Parcela();
 
-		String  data_vencimento, caminho_arquivo;
+		String data_vencimento, caminho_arquivo;
 
-		
 		data_vencimento = new GetData().getData();
 
 		parcela.setFluxo_caixa(1);
@@ -4554,7 +4737,7 @@ try {
 		int mes = cBMes.getSelectedIndex();
 		String s_mes = cBMes.getItemAt(mes).toString();
 		String texto = "Salario Restante Referente ao Mês de " + s_mes + " de " + (new GetData().getAnoAtual());
-		
+
 		parcela.setDescricao(texto);
 		parcela.setStatus(1);
 		parcela.setId_lancamento_pai(id_lancamento_pai);
@@ -4646,12 +4829,11 @@ try {
 
 		// tela concluir
 		status = 1;
-	
 
 		int mes = cBMes.getSelectedIndex();
 		String s_mes = cBMes.getItemAt(mes).toString();
 		String texto = "Salario Referente ao Mês de " + s_mes + " de " + entAno.getText();
-		
+
 		lancamento.setDescricao(texto);
 		lancamento.setObservacao(texto);
 
@@ -4680,116 +4862,108 @@ try {
 
 	}
 
-	
 	public int salvarLancamento(Lancamento lancamento) {
 		GerenciarBancoLancamento gerenciar = new GerenciarBancoLancamento();
-			int result = gerenciar.inserirLancamento(lancamento);
-			if (result > 0) {
+		int result = gerenciar.inserirLancamento(lancamento);
+		if (result > 0) {
 
-				// adicionar parcelas
-				if (lancamento.getGerar_parcelas() == 1) {
-					int numero_parcelas = lancamento.getNumero_parcelas();
-					BigDecimal valor_por_parcela = lancamento.getValor()
-							.divide(new BigDecimal((double) numero_parcelas));
-					LocalDate primeiro_vencimento = LocalDate.parse(lancamento.getData_vencimento(),
-							DateTimeFormatter.ofPattern("dd/MM/yyyy"));
-					int intervalo = lancamento.getIntervalo();
-					LocalDate datas = primeiro_vencimento;
+			// adicionar parcelas
+			if (lancamento.getGerar_parcelas() == 1) {
+				int numero_parcelas = lancamento.getNumero_parcelas();
+				BigDecimal valor_por_parcela = lancamento.getValor().divide(new BigDecimal((double) numero_parcelas));
+				LocalDate primeiro_vencimento = LocalDate.parse(lancamento.getData_vencimento(),
+						DateTimeFormatter.ofPattern("dd/MM/yyyy"));
+				int intervalo = lancamento.getIntervalo();
+				LocalDate datas = primeiro_vencimento;
 
-					GerenciarBancoParcelas gerenciar_parcelas = new GerenciarBancoParcelas();
+				GerenciarBancoParcelas gerenciar_parcelas = new GerenciarBancoParcelas();
 
-					for (int i = 1; i <= lancamento.getNumero_parcelas(); i++) {
-						Parcela parcela = new Parcela();
-						parcela.setValor(valor_por_parcela);
-						parcela.setDescricao("Parcela Número " + i + " gerada automaticamente");
-						parcela.setIdentificador(i + "");
-						parcela.setObservacao(
-								"Um número aleatorio foi criado para o identificador desta parcela, troque o se necessário: "
-										+ i);
-						String data_desta_parcela_formatada = datas
-								.format(DateTimeFormatter.ofPattern("dd/MM/yyyy"));
-						parcela.setData_vencimento(data_desta_parcela_formatada);
-						parcela.setFluxo_caixa(1);
-						parcela.setId_lancamento_pai(result);
+				for (int i = 1; i <= lancamento.getNumero_parcelas(); i++) {
+					Parcela parcela = new Parcela();
+					parcela.setValor(valor_por_parcela);
+					parcela.setDescricao("Parcela Número " + i + " gerada automaticamente");
+					parcela.setIdentificador(i + "");
+					parcela.setObservacao(
+							"Um número aleatorio foi criado para o identificador desta parcela, troque o se necessário: "
+									+ i);
+					String data_desta_parcela_formatada = datas.format(DateTimeFormatter.ofPattern("dd/MM/yyyy"));
+					parcela.setData_vencimento(data_desta_parcela_formatada);
+					parcela.setFluxo_caixa(1);
+					parcela.setId_lancamento_pai(result);
 
-						gerenciar_parcelas.inserirParcela(parcela);
+					gerenciar_parcelas.inserirParcela(parcela);
 
-						datas = datas.plusDays(intervalo);
+					datas = datas.plusDays(intervalo);
 
-					}
 				}
+			}
 
-				// criar pasta, mover arquivo
-				ManipularTxt manipular = new ManipularTxt();
-				String caminho_diretorio = "\\E-Contract\\arquivos\\financas\\lancamentos\\lancamento_"
-						+ result;
-				String caminho_diretorio_bd = "\\\\E-Contract\\\\arquivos\\\\financas\\\\lancamentos\\\\lancamento_"
-						+ result;
-				boolean criar_diretorio = manipular.criarDiretorio(servidor_unidade + caminho_diretorio);
-				if (criar_diretorio) {
+			// criar pasta, mover arquivo
+			ManipularTxt manipular = new ManipularTxt();
+			String caminho_diretorio = "\\E-Contract\\arquivos\\financas\\lancamentos\\lancamento_" + result;
+			String caminho_diretorio_bd = "\\\\E-Contract\\\\arquivos\\\\financas\\\\lancamentos\\\\lancamento_"
+					+ result;
+			boolean criar_diretorio = manipular.criarDiretorio(servidor_unidade + caminho_diretorio);
+			if (criar_diretorio) {
 
-					boolean atualizar_diretorio = gerenciar.atualizarDiretorioLancamento(caminho_diretorio_bd,
-							result);
-					if (atualizar_diretorio) {
+				boolean atualizar_diretorio = gerenciar.atualizarDiretorioLancamento(caminho_diretorio_bd, result);
+				if (atualizar_diretorio) {
 
-						// copiar o arquivo selecionado
+					// copiar o arquivo selecionado
 
-						if (lancamento.getCaminho_arquivo() != null
-								&& lancamento.getCaminho_arquivo().length() > 20) {
-							boolean copiar_arquivo = false;
-							String extensaoDoArquivo = FilenameUtils
-									.getExtension(lancamento.getCaminho_arquivo());
+					if (lancamento.getCaminho_arquivo() != null && lancamento.getCaminho_arquivo().length() > 20) {
+						boolean copiar_arquivo = false;
+						String extensaoDoArquivo = FilenameUtils.getExtension(lancamento.getCaminho_arquivo());
 
-							String arquivo_doc_documento_final = servidor_unidade + caminho_diretorio
-									+ "\\doc_lancamento_" + result + "." + extensaoDoArquivo;
-							try {
-								copiar_arquivo = manipular.copiarNFe(lancamento.getCaminho_arquivo(),
-										arquivo_doc_documento_final);
-							} catch (IOException e1) {
-								// TODO Auto-generated catch block
-								e1.printStackTrace();
-							}
-							if (copiar_arquivo) {
-								// atualiza parcela no banco de dados
-								boolean atualizar = gerenciar.atualizarCaminhoLancamento(
-										"doc_lancamento_" + result + "." + extensaoDoArquivo, result);
-								if (!atualizar)
-									JOptionPane.showMessageDialog(isto,
-											"Arquivo Copiado, Mas não atualizado no Banco de dados\nConsulte o administrador");
-
-							} else {
-								JOptionPane.showMessageDialog(isto,
-										"Arquivo não copiado, consulte o administrador");
-
-							}
+						String arquivo_doc_documento_final = servidor_unidade + caminho_diretorio + "\\doc_lancamento_"
+								+ result + "." + extensaoDoArquivo;
+						try {
+							copiar_arquivo = manipular.copiarNFe(lancamento.getCaminho_arquivo(),
+									arquivo_doc_documento_final);
+						} catch (IOException e1) {
+							// TODO Auto-generated catch block
+							e1.printStackTrace();
 						}
+						if (copiar_arquivo) {
+							// atualiza parcela no banco de dados
+							boolean atualizar = gerenciar.atualizarCaminhoLancamento(
+									"doc_lancamento_" + result + "." + extensaoDoArquivo, result);
+							if (!atualizar)
+								JOptionPane.showMessageDialog(isto,
+										"Arquivo Copiado, Mas não atualizado no Banco de dados\nConsulte o administrador");
 
-						JOptionPane.showMessageDialog(isto, "Cadastro Concluído");
-						
-							((TelaGerenciarFuncionario) janela_pai_global).pesquisar_contas_associadas();
-					
+						} else {
+							JOptionPane.showMessageDialog(isto, "Arquivo não copiado, consulte o administrador");
+
+						}
 					}
 
-				} else {
-					JOptionPane.showMessageDialog(isto,
-							"Cadastro Conluido, mas houve erro ao criar o diretorio\nConsulte o Administrador");
+					JOptionPane.showMessageDialog(isto, "Cadastro Concluído");
+
+					((TelaGerenciarFuncionario) janela_pai_global).pesquisar_contas_associadas();
 
 				}
 
-				return result;
 			} else {
-				JOptionPane.showMessageDialog(isto, "Erro ao Salvar\nConsulte o Administrador");
-				return 0;
+				JOptionPane.showMessageDialog(isto,
+						"Cadastro Conluido, mas houve erro ao criar o diretorio\nConsulte o Administrador");
 
 			}
-		
+
+			return result;
+		} else {
+			JOptionPane.showMessageDialog(isto, "Erro ao Salvar\nConsulte o Administrador");
+			return 0;
+
+		}
+
 	}
-	
+
 	public boolean procurarIsencao(ArrayList<CadastroFuncionarioEvento> eventos) {
 		int count_isencao = 0;
 		for (CadastroFuncionarioEvento evt : eventos) {
 
-			  if (evt.getTipo_evento() == 4) {
+			if (evt.getTipo_evento() == 4) {
 				// isencao de ponto
 				LocalDate hoje = LocalDate.parse(new GetData().getData(), DateTimeFormatter.ofPattern("dd/MM/yyyy"));
 
@@ -4800,90 +4974,84 @@ try {
 
 				if (hoje.isEqual(dataInicialFerias)) {
 					count_isencao++;
-					
 
 				} else if (hoje.isEqual(dataFinalFerias)) {
 					count_isencao++;
-					
+
 				} else if (hoje.isAfter(dataInicialFerias) && hoje.isBefore(dataFinalFerias)) {
 					count_isencao++;
-					
+
 				}
-			} 
+			}
 
 		}
-		
-		if(count_isencao > 0) {
+
+		if (count_isencao > 0) {
 			return true;
-		}else
+		} else
 			return false;
 	}
-	
-	
+
 	public boolean procurarFerias(ArrayList<CadastroFuncionarioEvento> eventos, int mes, int ano) {
 		int count_ferias = 0;
 		for (CadastroFuncionarioEvento evt : eventos) {
 
-			  if (evt.getTipo_evento() == 3) {
+			if (evt.getTipo_evento() == 3) {
 
 				LocalDate dataInicialFerias = LocalDate.parse(evt.getData_ferias_ida(),
 						DateTimeFormatter.ofPattern("dd/MM/yyyy"));
 				LocalDate dataFinalFerias = LocalDate.parse(evt.getData_ferias_volta(),
 						DateTimeFormatter.ofPattern("dd/MM/yyyy"));
 
-				
 				int mes_inicio_ferias = dataInicialFerias.getMonthValue();
 				int ano_inicio_ferias = dataInicialFerias.getYear();
 				int mes_final_ferias = dataFinalFerias.getMonthValue();
 				int ano_final_ferias = dataFinalFerias.getYear();
-				
-				if (mes_inicio_ferias == mes && ano_inicio_ferias == ano || mes_final_ferias == mes && ano_final_ferias == ano) {
-					count_ferias++;
-					
 
-				} 
-			} 
+				if (mes_inicio_ferias == mes && ano_inicio_ferias == ano
+						|| mes_final_ferias == mes && ano_final_ferias == ano) {
+					count_ferias++;
+
+				}
+			}
 
 		}
-		
-		if(count_ferias > 0) {
+
+		if (count_ferias > 0) {
 			return true;
-		}else
+		} else
 			return false;
 	}
-	
-	
+
 	public boolean procurarLicencas(ArrayList<CadastroFuncionarioEvento> eventos, int mes, int ano) {
 		int count_licencas = 0;
 		for (CadastroFuncionarioEvento evt : eventos) {
 
-			  if (evt.getTipo_evento() == 5) {
+			if (evt.getTipo_evento() == 5) {
 
 				LocalDate dataInicialFerias = LocalDate.parse(evt.getData_ferias_ida(),
 						DateTimeFormatter.ofPattern("dd/MM/yyyy"));
 				LocalDate dataFinalFerias = LocalDate.parse(evt.getData_ferias_volta(),
 						DateTimeFormatter.ofPattern("dd/MM/yyyy"));
 
-				
 				int mes_inicio_ferias = dataInicialFerias.getMonthValue();
 				int ano_inicio_ferias = dataInicialFerias.getYear();
 				int mes_final_ferias = dataFinalFerias.getMonthValue();
 				int ano_final_ferias = dataFinalFerias.getYear();
-				
-				if (mes_inicio_ferias == mes && ano_inicio_ferias == ano || mes_final_ferias == mes && ano_final_ferias == ano) {
-					count_licencas++;
-					
 
-				} 
-			} 
+				if (mes_inicio_ferias == mes && ano_inicio_ferias == ano
+						|| mes_final_ferias == mes && ano_final_ferias == ano) {
+					count_licencas++;
+
+				}
+			}
 
 		}
-		
-		if(count_licencas > 0) {
+
+		if (count_licencas > 0) {
 			return true;
-		}else
+		} else
 			return false;
 	}
-	
-	
+
 }

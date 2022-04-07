@@ -5,6 +5,8 @@ import java.awt.Color;
 import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -61,6 +63,7 @@ import main.java.cadastros.Contato;
 import main.java.cadastros.DadosCarregamento;
 import main.java.cadastros.DadosContratos;
 import main.java.cadastros.DadosRecebimento;
+import main.java.cadastros.FinanceiroGrupoContas;
 import main.java.cadastros.InstituicaoBancaria;
 import main.java.cadastros.RegistroQuantidade;
 import main.java.cadastros.RegistroRecebimento;
@@ -318,6 +321,25 @@ public class TelaFinanceiroCentroCusto extends JDialog {
 		});
 	
 		
+		tabela_centros_custo.addMouseListener(new MouseAdapter() {
+			public void mouseClicked(MouseEvent e) {
+				if (e.getClickCount() == 2) {
+					if(modo_operacao == 0) {
+						if(tela_retorno == 1) {
+							if(janela_pai instanceof TelaFinanceiroCadastroLancamento)
+							((TelaFinanceiroCadastroLancamento) janela_pai).setCentroCusto(getCentroCustoSelecionado());
+							else if(janela_pai instanceof TelaFinanceiroCadastroEmprestimo)
+								((TelaFinanceiroCadastroEmprestimo) janela_pai).setCentroCusto(getCentroCustoSelecionado());
+
+							isto.dispose();
+						}
+					}
+
+				}
+
+			}
+		});
+
 		
 		
 		pesquisar();

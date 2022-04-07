@@ -22,6 +22,8 @@ import java.text.SimpleDateFormat;
 import java.time.DayOfWeek;
 import java.time.Duration;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeFormatterBuilder;
@@ -58,6 +60,7 @@ import javax.swing.JOptionPane;
 import java.awt.Font;
 import javax.swing.JTextArea;
 import javax.swing.JTree;
+import javax.swing.RowFilter;
 import javax.swing.SwingConstants;
 import javax.swing.BoxLayout;
 import java.awt.GridLayout;
@@ -81,6 +84,7 @@ import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.table.AbstractTableModel;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.TableCellRenderer;
+import javax.swing.table.TableRowSorter;
 import javax.swing.text.MaskFormatter;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeCellRenderer;
@@ -107,6 +111,7 @@ import main.java.cadastros.CadastroContrato.CadastroPagamentoContratual;
 import main.java.cadastros.CadastroContrato.CadastroTarefa;
 import main.java.cadastros.CadastroContrato.Recebimento;
 import main.java.cadastros.CadastroDocumento;
+import main.java.cadastros.CadastroFilaMovimento;
 import main.java.cadastros.CadastroLogin;
 import main.java.cadastros.CadastroLogin.Mensagem;
 import main.java.cadastros.CadastroModelo;
@@ -140,6 +145,7 @@ import main.java.conexaoBanco.GerenciarBancoClientes;
 import main.java.conexaoBanco.GerenciarBancoCondicaoPagamentos;
 import main.java.conexaoBanco.GerenciarBancoContratos;
 import main.java.conexaoBanco.GerenciarBancoDocumento;
+import main.java.conexaoBanco.GerenciarBancoFilaMovimento;
 import main.java.conexaoBanco.GerenciarBancoFinanceiroPagamento;
 import main.java.conexaoBanco.GerenciarBancoFuncionarioBancoHoras;
 import main.java.conexaoBanco.GerenciarBancoFuncionarioSalarios;
@@ -165,6 +171,7 @@ import main.java.graficos.JPanelGrafico;
 import main.java.graficos.JPanelGraficoCarregamento;
 import main.java.gui.TelaMain;
 import main.java.gui.TelaRomaneios;
+import main.java.gui.TelaControleNotasFiscaisCarregamento.CarregamentoTableModel;
 import main.java.manipular.ArquivoConfiguracoes;
 import main.java.manipular.ConfiguracoesGlobais;
 import main.java.manipular.ConverterPdf;
@@ -232,6 +239,8 @@ import main.java.conexaoBanco.GerenciarBancoProdutos;
 import main.java.conexaoBanco.GerenciarBancoSafras;
 import javax.swing.JTabbedPane;
 import javax.swing.JSeparator;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
 
 public class TelaGerenciarFuncionario extends JFrame {
 
@@ -279,6 +288,8 @@ public class TelaGerenciarFuncionario extends JFrame {
 	private JTable tabela_registros_ponto;
 	private BancoHorasTableModel modeloBancoHoras = new BancoHorasTableModel();
 	private JTable table_jornada_trabalho;
+	private TableRowSorter<RegistroPontoTableModel> sorter;
+
 	private RegistroPontoDiarioTableModel modeloRpDiario = new RegistroPontoDiarioTableModel();
 	private JTextField entAno;
 	private JTable tabela_eventos;
@@ -288,7 +299,9 @@ public class TelaGerenciarFuncionario extends JFrame {
 	private JComboBox cBMesLancamentos;
 	private JTextField entAnoLancamentos;
 	private ClienteTableModel modelClientes = new ClienteTableModel();
+	private JTextField entDataRp;
 
+	
 	public TelaGerenciarFuncionario(CadastroFuncionario funcionario, Window janela_pai) {
 		// setModal(true);
 		CellRenderRPDiario renderer = new CellRenderRPDiario();
@@ -317,6 +330,367 @@ public class TelaGerenciarFuncionario extends JFrame {
 		JPanel painelDocumentos = new JPanel();
 		painelDocumentos.setBackground(new Color(0, 102, 153));
 		painelDocumentos.setVisible(false);
+
+		JPanel painelRegistrodePonto = new JPanel();
+		painelRegistrodePonto.setBackground(new Color(0, 102, 153));
+		painelRegistrodePonto.setVisible(false);
+
+		painelRegistrodePonto.setEnabled(false);
+		painelRegistrodePonto.setBounds(198, 153, 1091, 468);
+		painelPrincipal.add(painelRegistrodePonto);
+		painelRegistrodePonto.setLayout(new MigLayout("", "[grow][grow]", "[grow][][grow]"));
+
+		JTabbedPane tabbedPane_1 = new JTabbedPane(JTabbedPane.TOP);
+		painelRegistrodePonto.add(tabbedPane_1, "cell 0 0 2 1,grow");
+
+		JPanel panel_4 = new JPanel();
+		panel_4.setOpaque(false);
+		panel_4.setBackground(new Color(0, 102, 153));
+		tabbedPane_1.addTab("Registro de Ponto", null, panel_4, null);
+		panel_4.setLayout(new MigLayout("", "[grow][grow]", "[grow][]"));
+
+		JTabbedPane tabbedPane_2 = new JTabbedPane(JTabbedPane.TOP);
+		tabbedPane_2.setBackground(new Color(0, 102, 153));
+		tabbedPane_2.setOpaque(true);
+		panel_4.add(tabbedPane_2, "cell 0 0 2 1,grow");
+
+		JPanel panel_7 = new JPanel();
+		panel_7.setOpaque(false);
+		tabbedPane_2.addTab("Por Dia", null, panel_7, null);
+		panel_7.setLayout(new MigLayout("", "[grow]", "[grow][grow][]"));
+
+		tabela_rp_diario = new JTable(modeloRpDiario);
+		tabela_rp_diario.setRowHeight(30);
+		tabela_rp_diario.setDefaultRenderer(Object.class, renderer);
+
+		JScrollPane scrollPanePorDia = new JScrollPane(tabela_rp_diario);
+		scrollPanePorDia.getViewport().setBackground(Color.white);
+
+		JPanel panel_9 = new JPanel();
+		panel_9.setBackground(Color.WHITE);
+		panel_7.add(panel_9, "cell 0 0,grow");
+		panel_9.setLayout(new MigLayout("", "[][][][][]", "[][]"));
+
+		JLabel lblNewLabel = new JLabel("Mês:");
+		lblNewLabel.setFont(new Font("SansSerif", Font.PLAIN, 16));
+		panel_9.add(lblNewLabel, "cell 0 0,alignx trailing");
+
+		cbMes = new JComboBox();
+		cbMes.addItem("JANEIRO");
+		cbMes.addItem("FEVEREIRO");
+		cbMes.addItem("MARÇO");
+		cbMes.addItem("ABRIL");
+		cbMes.addItem("MAIO");
+		cbMes.addItem("JUNHO");
+		cbMes.addItem("JULHO");
+		cbMes.addItem("AGOSTO");
+		cbMes.addItem("SETEMBRO");
+		cbMes.addItem("OUTUBRO");
+		cbMes.addItem("NOVEMBRO");
+		cbMes.addItem("DEZEMBRO");
+
+		panel_9.add(cbMes, "cell 1 0,growx");
+
+		JLabel lblAno = new JLabel("Ano:");
+		lblAno.setFont(new Font("SansSerif", Font.PLAIN, 16));
+		panel_9.add(lblAno, "cell 2 0,alignx trailing");
+
+		entAno = new JTextField();
+		panel_9.add(entAno, "cell 3 0,growx");
+		entAno.setColumns(10);
+		entAno.setText(Integer.toString(new GetData().getAnoAtual()));
+
+		JButton btnAtualizar = new JButton("Pesquisar");
+		btnAtualizar.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+
+				pesquisar_rp_diario();
+				pesquisar_registros_ponto();
+			}
+		});
+		btnAtualizar.setBackground(new Color(0, 51, 0));
+		btnAtualizar.setForeground(Color.WHITE);
+		btnAtualizar.setFont(new Font("SansSerif", Font.BOLD, 16));
+		panel_9.add(btnAtualizar, "cell 4 0,aligny bottom");
+		panel_7.add(scrollPanePorDia, "cell 0 1,grow");
+
+		JPanel panel_8 = new JPanel();
+		panel_8.setOpaque(false);
+		tabbedPane_2.addTab("Por Ponto", null, panel_8, null);
+		panel_8.setLayout(new MigLayout("", "[grow]", "[grow][][grow][]"));
+		
+		JLabel lblNewLabel_2 = new JLabel("Data:");
+		lblNewLabel_2.setForeground(Color.WHITE);
+		lblNewLabel_2.setFont(new Font("SansSerif", Font.BOLD, 16));
+		panel_8.add(lblNewLabel_2, "flowx,cell 0 1");
+		
+		entDataRp = new JTextField();
+		entDataRp.addKeyListener(new KeyAdapter() {
+			@Override
+			public void keyTyped(KeyEvent e) {
+				
+				filtrar();
+				
+			}
+		});
+		panel_8.add(entDataRp, "cell 0 1,growx");
+		entDataRp.setColumns(10);
+
+		sorter = new TableRowSorter<RegistroPontoTableModel>(modeloRp);
+
+		tabela_registros_ponto = new JTable(modeloRp);
+		tabela_registros_ponto.setRowSorter(sorter);
+
+		tabela_registros_ponto.setRowHeight(30);
+
+		JScrollPane scrollPaneRegistrosPonto = new JScrollPane(tabela_registros_ponto);
+		panel_8.add(scrollPaneRegistrosPonto, "cell 0 2,grow");
+
+		JButton btnInserirPonto = new JButton("Inserir Ponto");
+		btnInserirPonto.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				TelaFuncionariosCadastroRp tela = new TelaFuncionariosCadastroRp(0,null, funcionario_local, isto);
+				tela.setVisible(true);
+
+			}
+		});
+
+		JButton btnExcluirPonto = new JButton("Excluir Ponto");
+		btnExcluirPonto.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+
+				if (JOptionPane.showConfirmDialog(isto, "Deseja Excluir o Ponto?", "Excluir Ponto",
+						JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE) == JOptionPane.YES_OPTION) {
+
+					GerenciarBancoRegistroPonto gerenciar_rp = new GerenciarBancoRegistroPonto();
+					RegistroPonto rp = getRpSelecionado();
+					boolean remover = gerenciar_rp.removerRegistroPonto(rp.getId_registro_ponto());
+					if (remover) {
+
+						JOptionPane.showMessageDialog(isto, "Registro de Ponto  Excluído!");
+						// Criar tarefa
+						GerenciarBancoTarefaGeral gerenciar_tarefa = new GerenciarBancoTarefaGeral();
+						CadastroTarefaGeral tarefa = new CadastroTarefaGeral();
+
+						tarefa.setNome_tarefa("Exclusão Manual de Registro de Ponto");
+						tarefa.setDescricao_tarefa(
+								"O Registro de Ponto id: " + rp.getId_registro_ponto() + " Foi excluido manualmente");
+						tarefa.setMensagem(
+								"O Registro de Ponto id: " + rp.getId_registro_ponto() + " Foi excluido manualmente");
+						tarefa.setCriador(login);
+						tarefa.setExecutor(login);
+						tarefa.setStatus_tarefa(1);
+						tarefa.setPrioridade(1);
+						tarefa.setTipo(5);
+						tarefa.setId_funcionario_pai(funcionario_local.getId_funcionario());
+
+						GetData data = new GetData();
+						tarefa.setHora(data.getHora());
+						tarefa.setData(data.getData());
+						tarefa.setHora_agendada(data.getHora());
+						tarefa.setData_agendada(data.getData());
+
+						boolean inseriu_tarefa = gerenciar_tarefa.inserirTarefaGeral(tarefa);
+						if (inseriu_tarefa) {
+
+						} else {
+							JOptionPane.showMessageDialog(isto, "Tarefa Não Inserida, Consulte o administrador");
+
+						}
+
+						pesquisar_rp_diario();
+						pesquisar_registros_ponto();
+						pesquisar_tarefas();
+					} else {
+						JOptionPane.showMessageDialog(isto,
+								"Erro ao remover Registro de Ponto\nConsulte o Administrador");
+					}
+
+				} else {
+
+				}
+
+			}
+		});
+		
+		JButton btnEditarPonto = new JButton("Editar Ponto");
+		btnEditarPonto.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				
+				
+				RegistroPonto rp = getRpSelecionado();
+				
+				TelaFuncionariosCadastroRp tela = new TelaFuncionariosCadastroRp(1,rp, funcionario_local, isto);
+				tela.setVisible(true);
+
+				
+			}
+		});
+		btnEditarPonto.setForeground(Color.WHITE);
+		btnEditarPonto.setFont(new Font("SansSerif", Font.BOLD, 16));
+		btnEditarPonto.setBackground(new Color(0, 51, 0));
+		panel_8.add(btnEditarPonto, "flowx,cell 0 3,alignx right");
+		btnExcluirPonto.setForeground(Color.WHITE);
+		btnExcluirPonto.setFont(new Font("SansSerif", Font.BOLD, 16));
+		btnExcluirPonto.setBackground(new Color(153, 0, 0));
+		panel_8.add(btnExcluirPonto, "cell 0 3,alignx right");
+		btnInserirPonto.setForeground(Color.WHITE);
+		btnInserirPonto.setFont(new Font("SansSerif", Font.BOLD, 16));
+		btnInserirPonto.setBackground(new Color(0, 0, 102));
+		panel_8.add(btnInserirPonto, "cell 0 3,alignx right");
+		scrollPaneRegistrosPonto.getViewport().setBackground(Color.white);
+
+		scrollPaneRegistrosPonto.getViewport().setBackground(Color.white);
+
+		JPanel panel_5 = new JPanel();
+		panel_5.setBackground(new Color(0, 102, 153));
+		tabbedPane_1.addTab("Cartões de Ponto", null, panel_5, null);
+		panel_5.setLayout(new MigLayout("", "[grow]", "[grow][]"));
+
+		tabela_cartoes = new JTable(modelo_cartoes);
+		tabela_cartoes.setRowHeight(30);
+
+		JScrollPane scrollPaneCartoes = new JScrollPane(tabela_cartoes);
+		panel_5.add(scrollPaneCartoes, "cell 0 0,grow");
+		scrollPaneCartoes.getViewport().setBackground(Color.white);
+
+		JButton btnExcluirAssociacao = new JButton("Excluir Associação");
+		btnExcluirAssociacao.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+
+				if (JOptionPane.showConfirmDialog(isto, "Deseja Excluir a associação?", "Excluir Associação",
+						JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE) == JOptionPane.YES_OPTION) {
+					GerenciarBancoCartaoPonto gerenciar_evts = new GerenciarBancoCartaoPonto();
+					boolean remover = gerenciar_evts.removerRelacaoFuncionarioCartaoPonto(
+							funcionario_local.getId_funcionario(), getAssociacaoSelecionada());
+					if (remover) {
+
+						pesquisar_cartoes();
+					} else {
+						JOptionPane.showMessageDialog(isto, "Associação Não Excluída!\nConsulte o Administrador");
+
+					}
+
+				}
+
+			}
+		});
+		btnExcluirAssociacao.setForeground(Color.WHITE);
+		btnExcluirAssociacao.setFont(new Font("SansSerif", Font.PLAIN, 16));
+		btnExcluirAssociacao.setBackground(new Color(153, 0, 0));
+		panel_5.add(btnExcluirAssociacao, "flowx,cell 0 1,alignx right");
+
+		JButton btnNovaAssociacao = new JButton("Nova Associação");
+		btnNovaAssociacao.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+
+				TelaAplicarAssociacaoFuncionarioCartao tela = new TelaAplicarAssociacaoFuncionarioCartao(
+						funcionario_local, isto);
+				tela.setVisible(true);
+
+			}
+		});
+		btnNovaAssociacao.setForeground(Color.WHITE);
+		btnNovaAssociacao.setFont(new Font("SansSerif", Font.PLAIN, 16));
+		btnNovaAssociacao.setBackground(new Color(0, 51, 0));
+		panel_5.add(btnNovaAssociacao, "cell 0 1,alignx right");
+		scrollPaneCartoes.getViewport().setBackground(Color.white);
+
+		cbMes.setSelectedIndex((new GetData().getMes()) - 1);
+
+		JPanel panel_11 = new JPanel();
+		tabbedPane_2.addTab("Lista Tarefas", null, panel_11, null);
+		panel_11.setLayout(new MigLayout("", "[grow]", "[grow]"));
+
+		table_tarefas = new JTable(modelo_tarefa);
+		table_tarefas.setRowHeight(30);
+
+		JScrollPane scrollPaneTarefas = new JScrollPane(table_tarefas);
+		scrollPaneTarefas.getViewport().setBackground(Color.white);
+		panel_11.add(scrollPaneTarefas, "cell 0 0,grow");
+
+		JPanel panel_2 = new JPanel();
+		panel_2.setBackground(Color.WHITE);
+		tabbedPane_1.addTab("Banco de Horas", null, panel_2, null);
+		panel_2.setLayout(new MigLayout("", "[grow]", "[grow][]"));
+
+		tabela_banco_horas = new JTable(modeloBancoHoras);
+		tabela_banco_horas.setRowHeight(30);
+		tabela_banco_horas.setDefaultRenderer(Object.class, new CellRenderBancoHoras());
+
+		JScrollPane scrollBancoHoras = new JScrollPane(tabela_banco_horas);
+		panel_2.add(scrollBancoHoras, "cell 0 0,grow");
+
+		JButton btnRemoverBancoHoras = new JButton("Remover");
+		btnRemoverBancoHoras.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+
+				if (JOptionPane.showConfirmDialog(isto, "Deseja excluir o Banco de Horas Selecioado?", "Excluir",
+						JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE) == JOptionPane.YES_OPTION) {
+
+					GerenciarBancoFuncionarioBancoHoras gerenciar = new GerenciarBancoFuncionarioBancoHoras();
+					boolean excluir = gerenciar.removerbanco_horas(getBancoHorasSelecionado().getId_banco());
+					if (excluir) {
+						JOptionPane.showMessageDialog(isto, "Banco de Horas Excluído");
+
+						pesquisar_banco_horas();
+					} else {
+						JOptionPane.showMessageDialog(isto,
+								"Erro ao Excluir o Banco de Horas!\nConsulte o administrador");
+					}
+				}
+
+			}
+		});
+		btnRemoverBancoHoras.setBackground(new Color(255, 0, 0));
+		btnRemoverBancoHoras.setFont(new Font("SansSerif", Font.BOLD, 16));
+		btnRemoverBancoHoras.setForeground(Color.WHITE);
+		panel_2.add(btnRemoverBancoHoras, "flowx,cell 0 1,alignx right");
+
+		JButton btnEditar_1 = new JButton("Editar");
+		btnEditar_1.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				TelaFuncionarioCadastroBancoHoras tela = new TelaFuncionarioCadastroBancoHoras(1, funcionario_local,
+						getBancoHorasSelecionado(), isto);
+				tela.setVisible(true);
+
+			}
+		});
+		btnEditar_1.setBackground(new Color(0, 0, 153));
+		btnEditar_1.setFont(new Font("SansSerif", Font.BOLD, 16));
+		btnEditar_1.setForeground(Color.WHITE);
+		panel_2.add(btnEditar_1, "cell 0 1,alignx right");
+
+		JButton btnAdicionarBancoHoras = new JButton("Adicionar");
+		btnAdicionarBancoHoras.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+
+				TelaFuncionarioCadastroBancoHoras tela = new TelaFuncionarioCadastroBancoHoras(0, funcionario_local,
+						null, isto);
+				tela.setVisible(true);
+
+			}
+		});
+		btnAdicionarBancoHoras.setBackground(new Color(0, 51, 0));
+		btnAdicionarBancoHoras.setFont(new Font("SansSerif", Font.BOLD, 16));
+		btnAdicionarBancoHoras.setForeground(Color.WHITE);
+		panel_2.add(btnAdicionarBancoHoras, "cell 0 1,alignx right");
+		scrollBancoHoras.getViewport().setBackground(Color.white);
+
+		JButton btnNewButton_4 = new JButton("Demonstrativo de Ponto");
+		btnNewButton_4.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+
+				TelaFuncionarioDemonstrativoDePonto tela = new TelaFuncionarioDemonstrativoDePonto(isto);
+				tela.setFuncionario(funcionario_local, cbMes.getSelectedIndex(), entAno.getText());
+				tela.setVisible(true);
+
+			}
+		});
+		btnNewButton_4.setBackground(new Color(0, 51, 51));
+		btnNewButton_4.setForeground(Color.WHITE);
+		btnNewButton_4.setFont(new Font("SansSerif", Font.BOLD, 16));
+		painelRegistrodePonto.add(btnNewButton_4, "cell 0 1");
 
 		JPanel painelFinancas = new JPanel();
 		painelFinancas.setBackground(new Color(0, 102, 153));
@@ -1004,327 +1378,6 @@ public class TelaGerenciarFuncionario extends JFrame {
 		lblSalario.setFont(new Font("Tahoma", Font.BOLD, 16));
 		painelInfo.add(lblSalario, "cell 1 11");
 
-		JPanel painelRegistrodePonto = new JPanel();
-		painelRegistrodePonto.setBackground(new Color(0, 102, 153));
-		painelRegistrodePonto.setVisible(false);
-
-		painelRegistrodePonto.setEnabled(false);
-		painelRegistrodePonto.setBounds(198, 153, 1091, 468);
-		painelPrincipal.add(painelRegistrodePonto);
-		painelRegistrodePonto.setLayout(new MigLayout("", "[grow][grow]", "[grow][][grow]"));
-
-		JTabbedPane tabbedPane_1 = new JTabbedPane(JTabbedPane.TOP);
-		painelRegistrodePonto.add(tabbedPane_1, "cell 0 0 2 1,grow");
-
-		JPanel panel_4 = new JPanel();
-		panel_4.setOpaque(false);
-		panel_4.setBackground(new Color(0, 102, 153));
-		tabbedPane_1.addTab("Registro de Ponto", null, panel_4, null);
-		panel_4.setLayout(new MigLayout("", "[grow][grow]", "[grow][]"));
-
-		JTabbedPane tabbedPane_2 = new JTabbedPane(JTabbedPane.TOP);
-		tabbedPane_2.setBackground(new Color(0, 102, 153));
-		tabbedPane_2.setOpaque(true);
-		panel_4.add(tabbedPane_2, "cell 0 0 2 1,grow");
-
-		JPanel panel_7 = new JPanel();
-		panel_7.setOpaque(false);
-		tabbedPane_2.addTab("Por Dia", null, panel_7, null);
-		panel_7.setLayout(new MigLayout("", "[grow]", "[grow][grow][]"));
-
-		tabela_rp_diario = new JTable(modeloRpDiario);
-		tabela_rp_diario.setRowHeight(30);
-		tabela_rp_diario.setDefaultRenderer(Object.class, renderer);
-
-		JScrollPane scrollPanePorDia = new JScrollPane(tabela_rp_diario);
-		scrollPanePorDia.getViewport().setBackground(Color.white);
-
-		JPanel panel_9 = new JPanel();
-		panel_9.setBackground(Color.WHITE);
-		panel_7.add(panel_9, "cell 0 0,grow");
-		panel_9.setLayout(new MigLayout("", "[][][][][]", "[][]"));
-
-		JLabel lblNewLabel = new JLabel("Mês:");
-		lblNewLabel.setFont(new Font("SansSerif", Font.PLAIN, 16));
-		panel_9.add(lblNewLabel, "cell 0 0,alignx trailing");
-
-		cbMes = new JComboBox();
-		cbMes.addItem("JANEIRO");
-		cbMes.addItem("FEVEREIRO");
-		cbMes.addItem("MARÇO");
-		cbMes.addItem("ABRIL");
-		cbMes.addItem("MAIO");
-		cbMes.addItem("JUNHO");
-		cbMes.addItem("JULHO");
-		cbMes.addItem("AGOSTO");
-		cbMes.addItem("SETEMBRO");
-		cbMes.addItem("OUTUBRO");
-		cbMes.addItem("NOVEMBRO");
-		cbMes.addItem("DEZEMBRO");
-
-		panel_9.add(cbMes, "cell 1 0,growx");
-
-		JLabel lblAno = new JLabel("Ano:");
-		lblAno.setFont(new Font("SansSerif", Font.PLAIN, 16));
-		panel_9.add(lblAno, "cell 2 0,alignx trailing");
-
-		entAno = new JTextField();
-		panel_9.add(entAno, "cell 3 0,growx");
-		entAno.setColumns(10);
-		entAno.setText(Integer.toString(new GetData().getAnoAtual()));
-
-		JButton btnAtualizar = new JButton("Pesquisar");
-		btnAtualizar.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-
-				pesquisar_rp_diario();
-			}
-		});
-		btnAtualizar.setBackground(new Color(0, 51, 0));
-		btnAtualizar.setForeground(Color.WHITE);
-		btnAtualizar.setFont(new Font("SansSerif", Font.BOLD, 16));
-		panel_9.add(btnAtualizar, "cell 4 0,aligny bottom");
-		panel_7.add(scrollPanePorDia, "cell 0 1,grow");
-
-		JPanel panel_8 = new JPanel();
-		panel_8.setOpaque(false);
-		tabbedPane_2.addTab("Por Ponto", null, panel_8, null);
-		panel_8.setLayout(new MigLayout("", "[grow]", "[grow][]"));
-
-		tabela_registros_ponto = new JTable(modeloRp);
-		tabela_registros_ponto.setRowHeight(30);
-
-		JScrollPane scrollPaneRegistrosPonto = new JScrollPane(tabela_registros_ponto);
-		panel_8.add(scrollPaneRegistrosPonto, "cell 0 0,grow");
-
-		JButton btnInserirPonto = new JButton("Inserir Ponto");
-		btnInserirPonto.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				TelaFuncionariosCadastroRp tela = new TelaFuncionariosCadastroRp(funcionario_local, isto);
-				tela.setVisible(true);
-
-			}
-		});
-
-		JButton btnExcluirPonto = new JButton("Excluir Ponto");
-		btnExcluirPonto.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-
-				if (JOptionPane.showConfirmDialog(isto, "Deseja Excluir o Ponto?", "Excluir Ponto",
-						JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE) == JOptionPane.YES_OPTION) {
-
-					GerenciarBancoRegistroPonto gerenciar_rp = new GerenciarBancoRegistroPonto();
-					RegistroPonto rp = getRpSelecionado();
-					boolean remover = gerenciar_rp.removerRegistroPonto(rp.getId_registro_ponto());
-					if (remover) {
-
-						JOptionPane.showMessageDialog(isto, "Registro de Ponto  Excluído!");
-						// Criar tarefa
-						GerenciarBancoTarefaGeral gerenciar_tarefa = new GerenciarBancoTarefaGeral();
-						CadastroTarefaGeral tarefa = new CadastroTarefaGeral();
-
-						tarefa.setNome_tarefa("Exclusão Manual de Registro de Ponto");
-						tarefa.setDescricao_tarefa(
-								"O Registro de Ponto id: " + rp.getId_registro_ponto() + " Foi excluido manualmente");
-						tarefa.setMensagem(
-								"O Registro de Ponto id: " + rp.getId_registro_ponto() + " Foi excluido manualmente");
-						tarefa.setCriador(login);
-						tarefa.setExecutor(login);
-						tarefa.setStatus_tarefa(1);
-						tarefa.setPrioridade(1);
-						tarefa.setTipo(5);
-						tarefa.setId_funcionario_pai(funcionario_local.getId_funcionario());
-
-						GetData data = new GetData();
-						tarefa.setHora(data.getHora());
-						tarefa.setData(data.getData());
-						tarefa.setHora_agendada(data.getHora());
-						tarefa.setData_agendada(data.getData());
-
-						boolean inseriu_tarefa = gerenciar_tarefa.inserirTarefaGeral(tarefa);
-						if (inseriu_tarefa) {
-
-						} else {
-							JOptionPane.showMessageDialog(isto, "Tarefa Não Inserida, Consulte o administrador");
-
-						}
-
-						pesquisar_rp_diario();
-						pesquisar_registros_ponto();
-						pesquisar_tarefas();
-					} else {
-						JOptionPane.showMessageDialog(isto,
-								"Erro ao remover Registro de Ponto\nConsulte o Administrador");
-					}
-
-				} else {
-
-				}
-
-			}
-		});
-		btnExcluirPonto.setForeground(Color.WHITE);
-		btnExcluirPonto.setFont(new Font("SansSerif", Font.BOLD, 16));
-		btnExcluirPonto.setBackground(new Color(153, 0, 0));
-		panel_8.add(btnExcluirPonto, "flowx,cell 0 1,alignx right");
-		btnInserirPonto.setForeground(Color.WHITE);
-		btnInserirPonto.setFont(new Font("SansSerif", Font.BOLD, 16));
-		btnInserirPonto.setBackground(new Color(0, 0, 102));
-		panel_8.add(btnInserirPonto, "cell 0 1,alignx right");
-		scrollPaneRegistrosPonto.getViewport().setBackground(Color.white);
-
-		scrollPaneRegistrosPonto.getViewport().setBackground(Color.white);
-
-		JPanel panel_5 = new JPanel();
-		panel_5.setBackground(new Color(0, 102, 153));
-		tabbedPane_1.addTab("Cartões de Ponto", null, panel_5, null);
-		panel_5.setLayout(new MigLayout("", "[grow]", "[grow][]"));
-
-		tabela_cartoes = new JTable(modelo_cartoes);
-		tabela_cartoes.setRowHeight(30);
-
-		JScrollPane scrollPaneCartoes = new JScrollPane(tabela_cartoes);
-		panel_5.add(scrollPaneCartoes, "cell 0 0,grow");
-		scrollPaneCartoes.getViewport().setBackground(Color.white);
-
-		JButton btnExcluirAssociacao = new JButton("Excluir Associação");
-		btnExcluirAssociacao.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-
-				if (JOptionPane.showConfirmDialog(isto, "Deseja Excluir a associação?", "Excluir Associação",
-						JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE) == JOptionPane.YES_OPTION) {
-					GerenciarBancoCartaoPonto gerenciar_evts = new GerenciarBancoCartaoPonto();
-					boolean remover = gerenciar_evts.removerRelacaoFuncionarioCartaoPonto(
-							funcionario_local.getId_funcionario(), getAssociacaoSelecionada());
-					if (remover) {
-
-						pesquisar_cartoes();
-					} else {
-						JOptionPane.showMessageDialog(isto, "Associação Não Excluída!\nConsulte o Administrador");
-
-					}
-
-				}
-
-			}
-		});
-		btnExcluirAssociacao.setForeground(Color.WHITE);
-		btnExcluirAssociacao.setFont(new Font("SansSerif", Font.PLAIN, 16));
-		btnExcluirAssociacao.setBackground(new Color(153, 0, 0));
-		panel_5.add(btnExcluirAssociacao, "flowx,cell 0 1,alignx right");
-
-		JButton btnNovaAssociacao = new JButton("Nova Associação");
-		btnNovaAssociacao.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-
-				TelaAplicarAssociacaoFuncionarioCartao tela = new TelaAplicarAssociacaoFuncionarioCartao(
-						funcionario_local, isto);
-				tela.setVisible(true);
-
-			}
-		});
-		btnNovaAssociacao.setForeground(Color.WHITE);
-		btnNovaAssociacao.setFont(new Font("SansSerif", Font.PLAIN, 16));
-		btnNovaAssociacao.setBackground(new Color(0, 51, 0));
-		panel_5.add(btnNovaAssociacao, "cell 0 1,alignx right");
-		scrollPaneCartoes.getViewport().setBackground(Color.white);
-
-		cbMes.setSelectedIndex((new GetData().getMes()) - 1);
-
-		JPanel panel_11 = new JPanel();
-		tabbedPane_2.addTab("Lista Tarefas", null, panel_11, null);
-		panel_11.setLayout(new MigLayout("", "[grow]", "[grow]"));
-
-		table_tarefas = new JTable(modelo_tarefa);
-		table_tarefas.setRowHeight(30);
-
-		JScrollPane scrollPaneTarefas = new JScrollPane(table_tarefas);
-		scrollPaneTarefas.getViewport().setBackground(Color.white);
-		panel_11.add(scrollPaneTarefas, "cell 0 0,grow");
-
-		JPanel panel_2 = new JPanel();
-		panel_2.setBackground(Color.WHITE);
-		tabbedPane_1.addTab("Banco de Horas", null, panel_2, null);
-		panel_2.setLayout(new MigLayout("", "[grow]", "[grow][]"));
-
-		tabela_banco_horas = new JTable(modeloBancoHoras);
-		tabela_banco_horas.setRowHeight(30);
-		tabela_banco_horas.setDefaultRenderer(Object.class, new CellRenderBancoHoras());
-
-		JScrollPane scrollBancoHoras = new JScrollPane(tabela_banco_horas);
-		panel_2.add(scrollBancoHoras, "cell 0 0,grow");
-
-		JButton btnRemoverBancoHoras = new JButton("Remover");
-		btnRemoverBancoHoras.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-
-				if (JOptionPane.showConfirmDialog(isto, "Deseja excluir o Banco de Horas Selecioado?", "Excluir",
-						JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE) == JOptionPane.YES_OPTION) {
-
-					GerenciarBancoFuncionarioBancoHoras gerenciar = new GerenciarBancoFuncionarioBancoHoras();
-					boolean excluir = gerenciar.removerbanco_horas(getBancoHorasSelecionado().getId_banco());
-					if (excluir) {
-						JOptionPane.showMessageDialog(isto, "Banco de Horas Excluído");
-
-						pesquisar_banco_horas();
-					} else {
-						JOptionPane.showMessageDialog(isto,
-								"Erro ao Excluir o Banco de Horas!\nConsulte o administrador");
-					}
-				}
-
-			}
-		});
-		btnRemoverBancoHoras.setBackground(new Color(255, 0, 0));
-		btnRemoverBancoHoras.setFont(new Font("SansSerif", Font.BOLD, 16));
-		btnRemoverBancoHoras.setForeground(Color.WHITE);
-		panel_2.add(btnRemoverBancoHoras, "flowx,cell 0 1,alignx right");
-
-		JButton btnEditar_1 = new JButton("Editar");
-		btnEditar_1.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				TelaFuncionarioCadastroBancoHoras tela = new TelaFuncionarioCadastroBancoHoras(1, funcionario_local,
-						getBancoHorasSelecionado(), isto);
-				tela.setVisible(true);
-
-			}
-		});
-		btnEditar_1.setBackground(new Color(0, 0, 153));
-		btnEditar_1.setFont(new Font("SansSerif", Font.BOLD, 16));
-		btnEditar_1.setForeground(Color.WHITE);
-		panel_2.add(btnEditar_1, "cell 0 1,alignx right");
-
-		JButton btnAdicionarBancoHoras = new JButton("Adicionar");
-		btnAdicionarBancoHoras.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-
-				TelaFuncionarioCadastroBancoHoras tela = new TelaFuncionarioCadastroBancoHoras(0, funcionario_local,
-						null, isto);
-				tela.setVisible(true);
-
-			}
-		});
-		btnAdicionarBancoHoras.setBackground(new Color(0, 51, 0));
-		btnAdicionarBancoHoras.setFont(new Font("SansSerif", Font.BOLD, 16));
-		btnAdicionarBancoHoras.setForeground(Color.WHITE);
-		panel_2.add(btnAdicionarBancoHoras, "cell 0 1,alignx right");
-		scrollBancoHoras.getViewport().setBackground(Color.white);
-
-		JButton btnNewButton_4 = new JButton("Demonstrativo de Ponto");
-		btnNewButton_4.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-
-				TelaFuncionarioDemonstrativoDePonto tela = new TelaFuncionarioDemonstrativoDePonto(isto);
-				tela.setFuncionario(funcionario_local, cbMes.getSelectedIndex(), entAno.getText());
-				tela.setVisible(true);
-
-			}
-		});
-		btnNewButton_4.setBackground(new Color(0, 51, 51));
-		btnNewButton_4.setForeground(Color.WHITE);
-		btnNewButton_4.setFont(new Font("SansSerif", Font.BOLD, 16));
-		painelRegistrodePonto.add(btnNewButton_4, "cell 0 1");
-
 		btnDadosIniciais.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent e) {
@@ -1588,6 +1641,7 @@ public class TelaGerenciarFuncionario extends JFrame {
 		setDadosUltimoContrato();
 		pesquisar_salarios();
 		pesquisar_contas_associadas();
+		setMenuEdicaoEventoEspecial();
 
 		this.setLocationRelativeTo(janela_pai);
 
@@ -3091,14 +3145,33 @@ public class TelaGerenciarFuncionario extends JFrame {
 	}
 
 	public void pesquisar_registros_ponto() {
-		GerenciarBancoRegistroPonto gerenciar = new GerenciarBancoRegistroPonto();
+		/*GerenciarBancoRegistroPonto gerenciar = new GerenciarBancoRegistroPonto();
 		modeloRp.onRemoveAll();
 
 		ArrayList<RegistroPonto> list_rp = new ArrayList<>();
 		list_rp = gerenciar.getRegistrosPontosPorColaborador(funcionario_local.getId_funcionario());
 		for (RegistroPonto rp : list_rp) {
 			modeloRp.onAdd(rp);
+		}*/
+		
+		int ano = -1;
+		try {
+			ano = Integer.parseInt(entAno.getText());
+
+		} catch (Exception e) {
+			JOptionPane.showMessageDialog(isto, "Ano Inválido");
+			return;
 		}
+
+		
+		GerenciarBancoRegistroPonto gerenciar = new GerenciarBancoRegistroPonto();
+		modeloRp.onRemoveAll();
+
+		ArrayList<RegistroPonto> list_rp = new ArrayList<>();
+		list_rp = gerenciar.getRegistrosPontosPorColaboradorMensal(funcionario_local.getId_funcionario(),
+				cbMes.getSelectedIndex() + 1, ano);
+		for (RegistroPonto rp : list_rp) 
+			modeloRp.onAdd(rp);
 
 	}
 
@@ -3171,12 +3244,25 @@ public class TelaGerenciarFuncionario extends JFrame {
 		for (RegistroPontoDiario rp : listRpDiario) {
 			modeloRpDiario.onAdd(rp);
 		}
+		
+		
+		
 	}
 
 	public RegistroPonto getRpSelecionado() {
-		return modeloRp.getValue(tabela_registros_ponto.getSelectedRow());
-	}
+		
+		int rowSel = tabela_registros_ponto.getSelectedRow();// pega o indice da linha na tabela
+		int indiceDaLinha = tabela_registros_ponto.getRowSorter().convertRowIndexToModel(rowSel);
 
+	
+		
+		return modeloRp.getValue(indiceDaLinha);
+	}
+	
+	public static boolean checkString(String txt) {
+		return txt != null && !txt.equals("") && !txt.equals(" ") && !txt.equals("  ");
+	}
+	
 	public class TarefaTableModel extends AbstractTableModel {
 
 		// constantes p/identificar colunas
@@ -3753,7 +3839,7 @@ public class TelaGerenciarFuncionario extends JFrame {
 		private final int mes_referencia = 1;
 		private final int ano = 2;
 		private final int tipo_banco = 3;
-		private final int quantidade_horas =4 ;
+		private final int quantidade_horas = 4;
 
 		private final String colunas[] = { "ID", "Mês Referência", "Ano", "Tipo do Banco", "Quantidade de Horas", };
 
@@ -3844,7 +3930,7 @@ public class TelaGerenciarFuncionario extends JFrame {
 					return "DEZEMBRO";
 				}
 			}
-			case ano:{
+			case ano: {
 				return dado.getAno();
 			}
 			case tipo_banco: {
@@ -4746,6 +4832,128 @@ public class TelaGerenciarFuncionario extends JFrame {
 			return super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
 			// return renderer;
 		}
+	}
+	
+	
+	public void filtrar() {
+
+		ArrayList<RowFilter<Object, Object>> filters = new ArrayList<RowFilter<Object, Object>>(2);
+
+		
+
+		String data = entDataRp.getText();
+		
+	
+		// filtrar codigo romaneio
+		if (checkString(data))
+			filters.add(RowFilter.regexFilter(data, 2));
+
+	
+
+		// sorter.setRowFilter(RowFilter.orFilter(filters_nome_destinatario_nf_venda));
+		sorter.setRowFilter(RowFilter.andFilter(filters));
+
+	}
+	
+	
+	public void setMenuEdicaoEventoEspecial() {
+		
+		JPopupMenu jPopupMenu = new JPopupMenu();
+		
+		JMenuItem jMenuCriarEventoEntradaEspecial = new JMenuItem();
+		JMenuItem jMenuCriarEventoSaidaEspecial = new JMenuItem();
+
+		jMenuCriarEventoEntradaEspecial.setText("Criar Evento de Entrada Especial");
+		jMenuCriarEventoSaidaEspecial.setText("Criar Evento de Saída Especial");
+
+		
+		jMenuCriarEventoEntradaEspecial.addActionListener(new java.awt.event.ActionListener() {
+			// Importe a classe java.awt.event.ActionEvent
+			public void actionPerformed(ActionEvent e) {
+				
+				
+
+				int index = tabela_rp_diario.getSelectedRow();// pega o indice da linha na tabela
+																									// indice do
+
+				RegistroPontoDiario rp = modeloRpDiario.getValue(index);
+
+				
+				
+				int num_contratos = new GerenciarBancoFuncionariosContratoTrabalho()
+						.getNumContratosAtivos(funcionario_local.getId_funcionario());
+
+				if (num_contratos <= 0) {
+					JOptionPane.showMessageDialog(isto, "Adicione um Contrato de Trabalho para prosseguir");
+				} else {
+
+					TelaFuncionariosCadastroEvento tela = new TelaFuncionariosCadastroEvento(funcionario_local, isto);
+					
+					tela.cBEvento.setSelectedIndex(6);
+					tela.entDataSaida.setText(rp.getData());
+					tela.entHoraSaida.setText(rp.getEntrada1());
+					tela.cBMovimentacao.setSelectedIndex(0);
+					
+					
+					tela.setVisible(true);
+
+				}
+				
+				
+			}
+		});
+
+		
+		jMenuCriarEventoSaidaEspecial.addActionListener(new java.awt.event.ActionListener() {
+			// Importe a classe java.awt.event.ActionEvent
+			public void actionPerformed(ActionEvent e) {
+				
+				
+
+				int index = tabela_rp_diario.getSelectedRow();// pega o indice da linha na tabela
+																									// indice do
+
+				RegistroPontoDiario rp = modeloRpDiario.getValue(index);
+
+				
+				
+				int num_contratos = new GerenciarBancoFuncionariosContratoTrabalho()
+						.getNumContratosAtivos(funcionario_local.getId_funcionario());
+
+				if (num_contratos <= 0) {
+					JOptionPane.showMessageDialog(isto, "Adicione um Contrato de Trabalho para prosseguir");
+				} else {
+
+					TelaFuncionariosCadastroEvento tela = new TelaFuncionariosCadastroEvento(funcionario_local, isto);
+					
+					tela.cBEvento.setSelectedIndex(6);
+					tela.entDataSaida.setText(rp.getData());
+					tela.entHoraSaida.setText(rp.getSaida1());
+					tela.cBMovimentacao.setSelectedIndex(1);
+					
+					
+					tela.setVisible(true);
+
+				}
+				
+				
+			}
+		});
+		
+		jPopupMenu.add(jMenuCriarEventoEntradaEspecial);
+		jPopupMenu.add(jMenuCriarEventoSaidaEspecial);
+
+		
+		tabela_rp_diario.addMouseListener(new java.awt.event.MouseAdapter() {
+			// Importe a classe java.awt.event.MouseEvent
+			public void mouseClicked(MouseEvent e) {
+				// Se o botão direito do mouse foi pressionado
+				if (e.getButton() == MouseEvent.BUTTON3) {
+					// Exibe o popup menu na posição do mouse.
+					jPopupMenu.show(tabela_rp_diario, e.getX(), e.getY());
+				}
+			}
+		});
 	}
 
 }

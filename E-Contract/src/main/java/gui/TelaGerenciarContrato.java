@@ -2240,7 +2240,6 @@ public class TelaGerenciarContrato extends JFrame {
 		cbGrupoParticular.addItem("Particular");
 		cbGrupoParticular.addItem("Empréstimo");
 
-
 		JLabel lblNewLabel_37_2 = new JLabel("Fertilizante:");
 		panel_23.add(lblNewLabel_37_2, "cell 0 5,alignx right");
 		lblNewLabel_37_2.setForeground(Color.BLACK);
@@ -3164,7 +3163,8 @@ public class TelaGerenciarContrato extends JFrame {
 
 						GerenciarBancoContratos gerenciar = new GerenciarBancoContratos();
 						// pegar dados do contrato
-						CadastroContrato contrato_destinatario = gerenciar.getContrato(carregamento.getId_contrato());
+						CadastroContrato contrato_destinatario = gerenciar
+								.getContratoGerenciar(carregamento.getId_contrato());
 
 						// pegar cliente
 						GerenciarBancoClientes gerenciar_clientes = new GerenciarBancoClientes();
@@ -3569,9 +3569,9 @@ public class TelaGerenciarContrato extends JFrame {
 
 						GerenciarBancoContratos gerencia_contratos = new GerenciarBancoContratos();
 						CadastroContrato remetente = gerencia_contratos
-								.getContrato(transferencia.getId_contrato_remetente());
+								.getContratoGerenciar(transferencia.getId_contrato_remetente());
 						CadastroContrato destinatario = gerencia_contratos
-								.getContrato(transferencia.getId_contrato_destinatario());
+								.getContratoGerenciar(transferencia.getId_contrato_destinatario());
 						CadastroContrato.Carregamento carga = gerencia_contratos
 								.getCarregamento(transferencia.getId_carregamento_remetente());
 
@@ -3657,9 +3657,9 @@ public class TelaGerenciarContrato extends JFrame {
 
 						GerenciarBancoContratos gerencia_contratos = new GerenciarBancoContratos();
 						CadastroContrato remetente = gerencia_contratos
-								.getContrato(transferencia.getId_contrato_remetente());
+								.getContratoGerenciar(transferencia.getId_contrato_remetente());
 						CadastroContrato destinatario = gerencia_contratos
-								.getContrato(transferencia.getId_contrato_destinatario());
+								.getContratoGerenciar(transferencia.getId_contrato_destinatario());
 						CadastroContrato.Carregamento carga = gerencia_contratos
 								.getCarregamento(transferencia.getId_carregamento_remetente());
 
@@ -6581,7 +6581,7 @@ public class TelaGerenciarContrato extends JFrame {
 	public void atualizarContratoLocal(boolean informar_atualizacao) {
 
 		GerenciarBancoContratos gerenciar = new GerenciarBancoContratos();
-		contrato_local = gerenciar.getContrato(contrato_local.getId());
+		contrato_local = gerenciar.getContratoGerenciar(contrato_local.getId());
 		setPagamentos(contrato_local);
 		setSubContratos(contrato_local);
 
@@ -6736,7 +6736,7 @@ public class TelaGerenciarContrato extends JFrame {
 
 			// pegar o destinatario
 			// CadastroContrato destinatario = gerenciar_contratos
-			// .getContrato(transferencia.getId_contrato_destinatario());
+			// .getContratoGerenciar(transferencia.getId_contrato_destinatario());
 
 			CadastroContrato.Carregamento carga_transferencia = new CadastroContrato.Carregamento();
 			carga_transferencia.setId_carregamento(transferencia.getId_transferencia());
@@ -8452,7 +8452,7 @@ public class TelaGerenciarContrato extends JFrame {
 		java.awt.EventQueue.invokeLater(new Runnable() {
 			public void run() {
 				GerenciarBancoContratos gerenciar = new GerenciarBancoContratos();
-				contrato_local = gerenciar.getContrato(contrato_local.getId());
+				contrato_local = gerenciar.getContratoGerenciar(contrato_local.getId());
 
 				int status = contrato_local.getStatus_contrato();
 
@@ -8802,10 +8802,14 @@ public class TelaGerenciarContrato extends JFrame {
 		CadastroCliente compradores[] = contrato_local.getCompradores();
 		CadastroCliente vendedores[] = contrato_local.getVendedores();
 
-		if (compradores[0].getTipo_pessoa() == 0) {
-			nome_compradores = compradores[0].getNome_empresarial();
-		} else {
-			nome_compradores = compradores[0].getNome_fantaia();
+		if (compradores[0] != null) {
+			if (compradores[0].getTipo_pessoa() == 0) {
+				nome_compradores = compradores[0].getNome_empresarial();
+			} else {
+				nome_compradores = compradores[0].getNome_fantaia();
+			}
+		}else {
+			nome_compradores = contrato_local.getNomes_compradores();
 		}
 
 		if (compradores[1] != null) {
@@ -8816,10 +8820,14 @@ public class TelaGerenciarContrato extends JFrame {
 			}
 		}
 
+		if(vendedores[0] != null) {
 		if (vendedores[0].getTipo_pessoa() == 0) {
 			nome_vendedores = vendedores[0].getNome_empresarial();
 		} else {
 			nome_vendedores = vendedores[0].getNome_fantaia();
+		}
+		}else {
+			nome_vendedores = contrato_local.getNomes_vendedores();
 		}
 
 		if (vendedores[1] != null) {
@@ -12515,7 +12523,7 @@ public class TelaGerenciarContrato extends JFrame {
 
 		// atualizar demais informacoes
 		GerenciarBancoContratos gerenciar = new GerenciarBancoContratos();
-		contrato_local = gerenciar.getContrato(contrato_local.getId());
+		contrato_local = gerenciar.getContratoGerenciar(contrato_local.getId());
 		setPagamentos(contrato_local);
 		setSubContratos(contrato_local);
 
@@ -12586,7 +12594,7 @@ public class TelaGerenciarContrato extends JFrame {
 		String texto = "";
 
 		GerenciarBancoContratos gerenciar = new GerenciarBancoContratos();
-		CadastroContrato contrato = gerenciar.getContrato(transferencia.getId_contrato_remetente());
+		CadastroContrato contrato = gerenciar.getContratoGerenciar(transferencia.getId_contrato_remetente());
 
 		CadastroCliente compradores[] = contrato.getCompradores();
 
@@ -12620,7 +12628,7 @@ public class TelaGerenciarContrato extends JFrame {
 		String texto = "";
 
 		GerenciarBancoContratos gerenciar = new GerenciarBancoContratos();
-		CadastroContrato contrato = gerenciar.getContrato(transferencia.getId_contrato_destinatario());
+		CadastroContrato contrato = gerenciar.getContratoGerenciar(transferencia.getId_contrato_destinatario());
 
 		CadastroCliente compradores[] = contrato.getCompradores();
 
@@ -12651,12 +12659,12 @@ public class TelaGerenciarContrato extends JFrame {
 
 	}
 
-	public void setTelaRecebimentos(int id_recebimento) {
+	public void setTela(int index ) {
 
 		if (contrato_local.getSub_contrato() == 3)
-			painelPrincipal.setSelectedIndex(1);
+			painelPrincipal.setSelectedIndex(index);
 		else {
-			painelPrincipal.setSelectedIndex(2);
+			painelPrincipal.setSelectedIndex(index);
 
 		}
 

@@ -158,7 +158,7 @@ public class TelaEmEsperaRelatoria extends JDialog {
         
 		 isto = this;
 		setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-		setBounds(100, 100, 399, 150);
+		setBounds(100, 100, 561, 158);
 		
 		contentPane = new JPanelBackground();
 		contentPane.setBackground(new Color(139, 0, 139));
@@ -182,14 +182,14 @@ public class TelaEmEsperaRelatoria extends JDialog {
 		 lblStatus = new JLabel("Carregando...");
 		lblStatus.setForeground(Color.WHITE);
 		lblStatus.setFont(new Font("Arial", Font.BOLD, 14));
-		lblStatus.setBounds(10, 51, 368, 29);
+		lblStatus.setBounds(10, 51, 529, 29);
 		contentPane.add(lblStatus);
 		
 		 barra = new JProgressBar();
 		 barra.setBackground( new Color(102, 51, 204));
 
 		 barra.setBackground(Color.GREEN);
-		 barra.setBounds(10, 91, 379, 14);
+		 barra.setBounds(10, 91, 529, 14);
 		 barra.setBorder(null);
 		 contentPane.add(barra);
 		 

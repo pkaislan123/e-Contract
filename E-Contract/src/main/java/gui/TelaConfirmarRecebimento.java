@@ -218,7 +218,9 @@ public class TelaConfirmarRecebimento extends JDialog {
 		JPanel panel_1 = new JPanel();
 		panel_1.setBackground(new Color(0, 102, 102));
 		painelSelecionar.add(panel_1, "cell 0 0,alignx center,aligny center");
-		panel_1.setLayout(new MigLayout("", "[117px][1px][2px][1px][2px][1px][110px][6px][58px][2px][5px][61px][7px][25px][3px][16px][12px][144px][2px][7px][1px][10px][10px][108px][5px][118px][9px][41px][10px][123px]", "[31px][32px][32px][32px][30px][30px][28px][][18px][28px][][27px][18px][28px][][27px]"));
+		panel_1.setLayout(new MigLayout("",
+				"[117px][1px][2px][1px][2px][1px][110px][6px][58px][2px][5px][61px][7px][25px][3px][16px][12px][144px][2px][7px][1px][10px][10px][108px][5px][118px][9px][41px][10px][123px]",
+				"[31px][32px][32px][32px][30px][30px][28px][][18px][28px][][27px][18px][28px][][27px]"));
 
 		JLabel lblNewLabel_3 = new JLabel("Data:");
 		lblNewLabel_3.setFont(new Font("SansSerif", Font.PLAIN, 16));
@@ -338,7 +340,7 @@ public class TelaConfirmarRecebimento extends JDialog {
 		CadastroCliente compradores[] = contrato_local.getCompradores();
 		setClienteRecebimento(compradores[0]);
 		panel_1.add(btnSelecionarCliente, "cell 13 2 5 1,alignx left,aligny top");
-		
+
 		JLabel lblNewLabel_4 = new JLabel("somente ponto");
 		lblNewLabel_4.setFont(new Font("SansSerif", Font.BOLD | Font.ITALIC, 12));
 		lblNewLabel_4.setForeground(new Color(255, 255, 0));
@@ -408,8 +410,8 @@ public class TelaConfirmarRecebimento extends JDialog {
 				if (!caracteres.contains(e.getKeyChar() + "")) {
 					e.consume();// aciona esse propriedade para eliminar a ação do evento
 
-				} 
-				
+				}
+
 			}
 		});
 		pesoRomaneio.setFont(new Font("Dialog", Font.BOLD, 16));
@@ -442,12 +444,12 @@ public class TelaConfirmarRecebimento extends JDialog {
 		entPesoNFVenda.setForeground(Color.BLACK);
 		entPesoNFVenda.setColumns(10);
 		panel_1.add(entPesoNFVenda, "cell 17 9 6 1,growx,aligny top");
-		
+
 		JLabel lblNewLabel_4_1 = new JLabel("somente ponto");
 		lblNewLabel_4_1.setForeground(Color.YELLOW);
 		lblNewLabel_4_1.setFont(new Font("SansSerif", Font.BOLD | Font.ITALIC, 12));
 		panel_1.add(lblNewLabel_4_1, "cell 17 10");
-		
+
 		JLabel lblNewLabel_4_2 = new JLabel("somente vírgula ");
 		lblNewLabel_4_2.setForeground(Color.YELLOW);
 		lblNewLabel_4_2.setFont(new Font("SansSerif", Font.BOLD | Font.ITALIC, 12));
@@ -714,12 +716,12 @@ public class TelaConfirmarRecebimento extends JDialog {
 		lblNewLabel_9_3_1.setFont(new Font("SansSerif", Font.PLAIN, 16));
 		lblNewLabel_9_3_1.setForeground(Color.WHITE);
 		panel_1.add(lblNewLabel_9_3_1, "cell 17 11 6 1,alignx right,aligny center");
-		
+
 		JLabel lblNewLabel_4_1_1 = new JLabel("somente ponto");
 		lblNewLabel_4_1_1.setForeground(Color.YELLOW);
 		lblNewLabel_4_1_1.setFont(new Font("SansSerif", Font.BOLD | Font.ITALIC, 12));
 		panel_1.add(lblNewLabel_4_1_1, "cell 17 14");
-		
+
 		JLabel lblNewLabel_4_2_1 = new JLabel("somente vírgula ");
 		lblNewLabel_4_2_1.setForeground(Color.YELLOW);
 		lblNewLabel_4_2_1.setFont(new Font("SansSerif", Font.BOLD | Font.ITALIC, 12));
@@ -824,27 +826,95 @@ public class TelaConfirmarRecebimento extends JDialog {
 								.getContrato(duplicado.getId_contrato_recebimento());
 						TelaGerenciarContrato gerenciar_contrato = new TelaGerenciarContrato(contrato_selecionado,
 								isto);
-						gerenciar_contrato.setTelaRecebimentos(duplicado.getId_recebimento());
+						gerenciar_contrato.setTela(1);
 
 					}
 				} else {
 
-					int retorno = gerenciar.inserirRecebimento(contrato_local.getId(), recebimento);
-					if (retorno > 0) {
-						JOptionPane.showMessageDialog(isto, "Recebimento Cadastrado!");
-						// ((TelaGerenciarContrato) telaPai).pesquisar_carregamentos();
-						((TelaGerenciarContrato) telaPaiJFrame).pesquisar_recebimentos(true);
-						((TelaGerenciarContrato) telaPaiJFrame).pesquisar_carregamentos(true);
+					boolean nf_venda_duplicada = false;
+					boolean nf_remessa_duplicada = false;
 
-						recebimento.setId_recebimento(retorno);
-						recebimento_global = recebimento;
-						gerarPastasEArquivos();
-						isto.dispose();
+					if (recebimento.getNf_venda_aplicavel() == 1 && recebimento.getCodigo_nf_venda() != null
+							&& recebimento.getCodigo_nf_venda().length() > 0) {
+						
+						CadastroContrato.Recebimento duplicado_nf_venda = gerenciar
+								.procurarDuplicataRecebimentoNFVenda(recebimento.getCodigo_nf_venda());
+
+						if (duplicado_nf_venda != null) {
+							nf_venda_duplicada = true;
+							
+							
+							JOptionPane.showMessageDialog(isto,
+									"Já Existe um recebimento associado a este código de NF de Venda!");
+
+							if (JOptionPane.showConfirmDialog(isto, "Abrir", "Deseja ver o recebimento?",
+									JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE) == JOptionPane.YES_OPTION) {
+
+								CadastroContrato contrato_selecionado = new GerenciarBancoContratos()
+										.getContrato(duplicado_nf_venda.getId_contrato_recebimento());
+								TelaGerenciarContrato gerenciar_contrato = new TelaGerenciarContrato(contrato_selecionado,
+										isto);
+								gerenciar_contrato.setTela(1);
+
+							}
+							
+							
+						}
+
+					}
+
+					if (recebimento.getNf_remessa_aplicavel() == 1 && recebimento.getCodigo_nf_remessa() != null
+							&& recebimento.getCodigo_nf_remessa().length() > 0) {
+
+						CadastroContrato.Recebimento duplicado_nf_remessa = gerenciar
+								.procurarDuplicataRecebimentoNFRemessa(recebimento.getCodigo_nf_remessa());
+
+						if (duplicado_nf_remessa != null) {
+							nf_venda_duplicada = true;
+							
+							
+							JOptionPane.showMessageDialog(isto,
+									"Já Existe um recebimento associado a este código de NF de Remessa!");
+
+							if (JOptionPane.showConfirmDialog(isto, "Abrir", "Deseja ver o recebimento?",
+									JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE) == JOptionPane.YES_OPTION) {
+
+								CadastroContrato contrato_selecionado = new GerenciarBancoContratos()
+										.getContrato(duplicado_nf_remessa.getId_contrato_recebimento());
+								TelaGerenciarContrato gerenciar_contrato = new TelaGerenciarContrato(contrato_selecionado,
+										isto);
+								gerenciar_contrato.setTela(1);
+
+							}
+						}
+						
+					}
+
+					if (nf_venda_duplicada || nf_remessa_duplicada) {
+						if (nf_venda_duplicada) {
+
+						} else {
+
+						}
 
 					} else {
-						JOptionPane.showMessageDialog(isto,
-								"Erro ao inserir o recebimento\nConsulte o administrador do sistema!");
-						isto.dispose();
+						int retorno = gerenciar.inserirRecebimento(contrato_local.getId(), recebimento);
+						if (retorno > 0) {
+							JOptionPane.showMessageDialog(isto, "Recebimento Cadastrado!");
+							// ((TelaGerenciarContrato) telaPai).pesquisar_carregamentos();
+							((TelaGerenciarContrato) telaPaiJFrame).pesquisar_recebimentos(true);
+							((TelaGerenciarContrato) telaPaiJFrame).pesquisar_carregamentos(true);
+
+							recebimento.setId_recebimento(retorno);
+							recebimento_global = recebimento;
+							gerarPastasEArquivos();
+							isto.dispose();
+
+						} else {
+							JOptionPane.showMessageDialog(isto,
+									"Erro ao inserir o recebimento\nConsulte o administrador do sistema!");
+							isto.dispose();
+						}
 					}
 				}
 			}
@@ -988,14 +1058,13 @@ public class TelaConfirmarRecebimento extends JDialog {
 
 					TelaOpcoes tela = new TelaOpcoes(2, duplicado.getId_contrato_recebimento(), isto);
 					tela.setVisible(true);
-					
+
 				} else {
 					prosseguir = true;
-					
 
 				}
-				
-				if(prosseguir || prosseguir_mesmo_duplicado) {
+
+				if (prosseguir || prosseguir_mesmo_duplicado) {
 					boolean atualizou = gerenciar.atualizar_recebimento(recebimento);
 
 					if (atualizou) {

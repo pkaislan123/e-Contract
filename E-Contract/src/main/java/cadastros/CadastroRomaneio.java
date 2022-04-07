@@ -8,12 +8,60 @@ public class CadastroRomaneio {
 	double umidade, impureza, ardidos, avariados;
 	double umidade2, impureza2, ardidos2, avariados2;
 
-	int id_classificador, id_transgenese, id_silo, status_monsanto, royalties, teste, resultado;
+	int id_classificador, id_armazem, id_transgenese, id_silo, status_monsanto, royalties, teste, resultado;
+	
+	String data_entrada, data_saida, hora_entrada, hora_saida;
 	
 	
 	
-	
-	
+	public int getId_armazem() {
+		return id_armazem;
+	}
+
+	public void setId_armazem(int id_armazem) {
+		this.id_armazem = id_armazem;
+	}
+
+	public double getImpureza() {
+		return impureza;
+	}
+
+	public void setImpureza(double impureza) {
+		this.impureza = impureza;
+	}
+
+	public String getData_entrada() {
+		return data_entrada;
+	}
+
+	public void setData_entrada(String data_entrada) {
+		this.data_entrada = data_entrada;
+	}
+
+	public String getData_saida() {
+		return data_saida;
+	}
+
+	public void setData_saida(String data_saida) {
+		this.data_saida = data_saida;
+	}
+
+	public String getHora_entrada() {
+		return hora_entrada;
+	}
+
+	public void setHora_entrada(String hora_entrada) {
+		this.hora_entrada = hora_entrada;
+	}
+
+	public String getHora_saida() {
+		return hora_saida;
+	}
+
+	public void setHora_saida(String hora_saida) {
+		this.hora_saida = hora_saida;
+	}
+
 	public int getTeste() {
 		return teste;
 	}

@@ -5,6 +5,8 @@ import java.awt.Color;
 import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -288,6 +290,33 @@ public class TelaFinanceiroCondicaoPagamento extends JDialog {
 					isto.dispose();
 
 				}
+			}
+		});
+		
+		
+
+		tabela_condicoes_pagamento.addMouseListener(new MouseAdapter() {
+			public void mouseClicked(MouseEvent e) {
+				if (e.getClickCount() == 2) {
+					if(modo_operacao == 0) {
+						if(tela_retorno == 1) {
+							if(janela_pai instanceof TelaFinanceiroCadastroPagamento) {
+								((TelaFinanceiroCadastroPagamento) janela_pai).setCondicaoPagamento(getCondicaoPagamentoSelecionado());
+							}else if(janela_pai instanceof TelaFinanceiroCadastroPagamentoEmprestimo) {
+								((TelaFinanceiroCadastroPagamentoEmprestimo) janela_pai).setCondicaoPagamento(getCondicaoPagamentoSelecionado());
+
+							}
+
+							
+						}else if(tela_retorno == 5) {
+							((TelaFinanceiroCadastroParcelaEmprestimo) janela_pai).setCondicaoPagamento(getCondicaoPagamentoSelecionado());
+
+						}
+						isto.dispose();
+
+					}
+				}
+
 			}
 		});
 		

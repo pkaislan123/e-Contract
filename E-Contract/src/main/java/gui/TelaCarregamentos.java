@@ -26,6 +26,7 @@ import java.io.FileOutputStream;
 
 import javax.swing.table.TableCellRenderer;
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.net.URL;
 import java.net.URLConnection;
 import java.nio.file.Files;
@@ -668,11 +669,14 @@ public class TelaCarregamentos extends JFrame {
 		int carregamentos_falta_nf_complemento = 0;
 		int carregamentos_falta_nf_interna = 0;
 
+		
 		for (int row = 0; row < tabela.getRowCount(); row++) {
 
 			int index = tabela.convertRowIndexToModel(row);
 			CarregamentoCompleto carregamento = modelo_carregamentos.getValue(index);
 
+			numero_carregamentos++;
+			
 			String codigo_nf_venda = carregamento.getCodigo_nf_venda1();
 			String codigo_nf_complemento = carregamento.getCodigo_nf_complemento();
 			String codigo_nf_interna = carregamento.getCodigo_nf_interna();
@@ -681,6 +685,8 @@ public class TelaCarregamentos extends JFrame {
 			peso_total_nf_venda1 += carregamento.getPeso_nf_venda1();
 			peso_total_nf_complemento += carregamento.getPeso_nf_complemento();
 			peso_total_nf_interna += carregamento.getPeso_nf_interna();
+			
+		
 
 			if (carregamento.getNf_venda1_aplicavel() == 1 && carregamento.getNf_complemento_aplicavel() == 1
 					&& carregamento.getNf_interna_aplicavel() == 1) {
@@ -816,7 +822,7 @@ public class TelaCarregamentos extends JFrame {
 			}
 		}
 
-		lblTotalCarregamentos.setText(lista_carregamentos.size() + "");
+		lblTotalCarregamentos.setText(numero_carregamentos + "");
 		lblTotalCarregamentosOk.setText(carregamentos_ok + "");
 		lblFaltaNFInterna.setText(carregamentos_falta_nf_interna + "");
 		lblTotalCarregamentosNFComplemento.setText(carregamentos_falta_nf_complemento + "");

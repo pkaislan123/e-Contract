@@ -104,6 +104,8 @@ import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.net.URL;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -294,7 +296,7 @@ public class TelaCliente extends JFrame {
 		pesquisar();
 
 		panel.setLayout(
-				new MigLayout("", "[271px][12px][][108px][9px][110px][7px][109px][10px][105px]", "[grow][36px]"));
+				new MigLayout("", "[271px][][12px][][108px][9px][110px][7px][109px][10px][105px]", "[grow][36px]"));
 
 		JButton btnContasBancrias = new JButton("Contas Bancárias");
 		btnContasBancrias.addActionListener(new ActionListener() {
@@ -305,36 +307,49 @@ public class TelaCliente extends JFrame {
 
 			}
 		});
+		
+		JButton btnContatos = new JButton("Contatos");
+		btnContatos.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				
+				TelaContato tela = new TelaContato(isto);
+				tela.setVisible(true);
+			}
+		});
+		btnContatos.setForeground(Color.BLACK);
+		btnContatos.setFont(new Font("SansSerif", Font.BOLD, 16));
+		btnContatos.setBackground(Color.WHITE);
+		panel.add(btnContatos, "cell 1 1");
 		btnContasBancrias.setForeground(Color.BLACK);
 		btnContasBancrias.setFont(new Font("SansSerif", Font.BOLD, 16));
 		btnContasBancrias.setBackground(Color.WHITE);
-		panel.add(btnContasBancrias, "cell 1 1 2 1");
+		panel.add(btnContasBancrias, "cell 2 1 2 1");
 
 		JButton btnUsurio = new JButton("+ Cliente");
 		btnUsurio.setBackground(Color.WHITE);
 		btnUsurio.setForeground(Color.BLACK);
 		btnUsurio.setFont(new Font("SansSerif", Font.BOLD, 16));
-		panel.add(btnUsurio, "cell 9 1,alignx left,aligny center");
+		panel.add(btnUsurio, "cell 10 1,alignx left,aligny center");
 		btnUsurio.setIcon(new ImageIcon(TelaCliente.class.getResource("/imagens/add_cliente.png")));
 
 		JButton btnSelecionar = new JButton("Selecionar");
 		btnSelecionar.setBackground(Color.WHITE);
 		btnSelecionar.setForeground(Color.BLACK);
 		btnSelecionar.setFont(new Font("SansSerif", Font.BOLD, 16));
-		panel.add(btnSelecionar, "cell 7 1,growx,aligny center");
+		panel.add(btnSelecionar, "cell 8 1,growx,aligny center");
 		btnSelecionar.setIcon(new ImageIcon(TelaCliente.class.getResource("/imagens/lista.png")));
 
 		JButton btnEditar = new JButton("Gerenciar");
 		btnEditar.setForeground(Color.BLACK);
 		btnEditar.setFont(new Font("SansSerif", Font.BOLD, 16));
-		panel.add(btnEditar, "cell 5 1,alignx left,aligny center");
+		panel.add(btnEditar, "cell 6 1,alignx left,aligny center");
 		btnEditar.setBackground(Color.WHITE);
 		btnEditar.setIcon(new ImageIcon(TelaCliente.class.getResource("/imagens/editar.png")));
 
 		JButton btnVerNotasFiscais = new JButton("Todas as NF's");
 		btnVerNotasFiscais.setForeground(Color.BLACK);
 		btnVerNotasFiscais.setFont(new Font("SansSerif", Font.BOLD, 16));
-		panel.add(btnVerNotasFiscais, "cell 3 1,alignx left,aligny center");
+		panel.add(btnVerNotasFiscais, "cell 4 1,alignx left,aligny center");
 		btnVerNotasFiscais.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 
@@ -615,7 +630,11 @@ public class TelaCliente extends JFrame {
 		atualizarTabelaGrupos();
 
 		this.setLocationRelativeTo(janela_pai);
-
+		this.addWindowListener( new WindowAdapter() {
+		    public void windowOpened( WindowEvent e ){
+		        entNome.requestFocus();
+		    }
+		}); 
 	}
 
 	public void editarCliente(int indiceDaLinha) {
@@ -988,7 +1007,10 @@ public class TelaCliente extends JFrame {
 				((TelaCadastroNotaFiscal) janela_pai).setDestinatario(clienteSelecionado);
 
 			}else if (flag_tipo_cliente == 100) {
-				((TelaFilaCadastrarMovimento) janela_pai).setProdutor(clienteSelecionado);
+				((TelaFilaCadastrarMovimentoDesembarque) janela_pai).setProdutor(clienteSelecionado);
+
+			}else if (flag_tipo_cliente == 110) {
+				((TelaFilaCadastrarMovimentoEmbarque) janela_pai).setCliente(clienteSelecionado);
 
 			}
 
