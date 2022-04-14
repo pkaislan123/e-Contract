@@ -1333,6 +1333,7 @@ public class RelatorioContratos {
 
 					if (carregamento && carregamento_como_comprador && !unir_carregamentos) {
 
+						
 						ArrayList<CarregamentoCompleto> carregamentos = gerenciar_carregamentos
 								.getCarregamentoParaRelatorio(contrato_cliente.getId());
 						ArrayList<CadastroContrato.CadastroTransferenciaCarga> transferencias_remetente_local = gerenciar_transferencias_carga
