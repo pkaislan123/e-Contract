@@ -120,9 +120,9 @@ public class TelaFila extends JFrame {
 
 	private JPanel panel;
 	private JLabel lblNewLabel;
-	private JTextField entDataMenor;
+	private JTextField entDataMenorDesembarque;
 	private JLabel lblAt;
-	private JTextField entDataMaior;
+	private JTextField entDataMaiorDesembarque;
 	private JLabel lblNewLabel_1;
 	private JButton btnPesquisar;
 	private JButton btnFiltrar;
@@ -354,15 +354,15 @@ public class TelaFila extends JFrame {
 		});
 
 		panel.add(entProduto, "cell 3 1,growx");
-		
+
 		btnNewButton_3 = new JButton("Configurar Mensagem");
 		btnNewButton_3.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				
+
 				if (login != null) {
 					if (login.getConfigs_privilegios().getNivel_privilegios() <= 2) {
 						TelaFilaConfigurarMensagem tela = new TelaFilaConfigurarMensagem(
-								new GerenciarBancoMensagem().getMensagem() , isto);
+								new GerenciarBancoMensagem().getMensagem(), isto);
 						tela.setVisible(true);
 					} else {
 
@@ -400,13 +400,13 @@ public class TelaFila extends JFrame {
 							JOptionPane.showMessageDialog(isto, "Requer Elevação de Direitos");
 						else {
 							TelaFilaConfigurarMensagem tela = new TelaFilaConfigurarMensagem(
-									new GerenciarBancoMensagem().getMensagem() , isto);
+									new GerenciarBancoMensagem().getMensagem(), isto);
 							tela.setVisible(true);
 						}
 					}
 
 				}
-				
+
 			}
 		});
 		btnNewButton_3.setForeground(Color.WHITE);
@@ -427,21 +427,21 @@ public class TelaFila extends JFrame {
 		panel_1.add(lblNewLabel, "cell 0 0");
 		lblNewLabel.setFont(new Font("SansSerif", Font.BOLD, 16));
 
-		entDataMenor = new JTextField();
-		panel_1.add(entDataMenor, "cell 1 0");
-		entDataMenor.setFont(new Font("SansSerif", Font.BOLD, 16));
-		entDataMenor.setColumns(10);
-		entDataMenor.setText(new GetData().getData());
+		entDataMenorDesembarque = new JTextField();
+		panel_1.add(entDataMenorDesembarque, "cell 1 0");
+		entDataMenorDesembarque.setFont(new Font("SansSerif", Font.BOLD, 16));
+		entDataMenorDesembarque.setColumns(10);
+		entDataMenorDesembarque.setText(new GetData().getData());
 
 		lblAt = new JLabel("Até");
 		panel_1.add(lblAt, "cell 2 0");
 		lblAt.setFont(new Font("SansSerif", Font.BOLD, 16));
 
-		entDataMaior = new JTextField();
-		panel_1.add(entDataMaior, "cell 3 0");
-		entDataMaior.setFont(new Font("SansSerif", Font.BOLD, 16));
-		entDataMaior.setColumns(10);
-		entDataMaior.setText(new GetData().getData());
+		entDataMaiorDesembarque = new JTextField();
+		panel_1.add(entDataMaiorDesembarque, "cell 3 0");
+		entDataMaiorDesembarque.setFont(new Font("SansSerif", Font.BOLD, 16));
+		entDataMaiorDesembarque.setColumns(10);
+		entDataMaiorDesembarque.setText(new GetData().getData());
 
 		btnLimparBusca = new JButton("limpar busca");
 		btnLimparBusca.addActionListener(new ActionListener() {
@@ -2023,7 +2023,6 @@ public class TelaFila extends JFrame {
 
 						mensagem_enviar = mensagemAdicional(mensagem_enviar);
 
-						
 						for (Contato contato : lista_contatos) {
 							try {
 								boolean retorno2 = zap.enviarMensagem(contato.getCelular(), mensagem_enviar);
@@ -2264,10 +2263,7 @@ public class TelaFila extends JFrame {
 									+ " caminhoes na frente da fila \\n \\n->Tempo Medio de Espera: "
 									+ sTempoMedioEspera + " \\n \\n ->Previsao de Embarque: "
 									+ (previsao == 0 ? " Sem dados disponiveis" : sPrevisao);
-							
-							
-						
-							
+
 							for (Contato contato : lista_contratos) {
 								try {
 									boolean retorno2 = zap.enviarMensagem(contato.getCelular(), mensagem_enviar);
@@ -2353,8 +2349,6 @@ public class TelaFila extends JFrame {
 								+ " \\n \\n ->Previsao de Embarque: "
 								+ (previsao == 0 ? " Sem dados disponiveis" : sPrevisao);
 
-
-						
 						for (Contato contato : lista_contatos) {
 							try {
 								boolean retorno2 = zap.enviarMensagem(contato.getCelular(), mensagem_enviar);
@@ -2419,7 +2413,6 @@ public class TelaFila extends JFrame {
 								+ nome_motorista + " no veiculo placa " + placa + " entrou no armazém para embarque "
 								+ produto + ".";
 
-						
 						for (Contato contato : lista_contatos) {
 							try {
 								boolean retorno2 = zap.enviarMensagem(contato.getCelular(), mensagem_enviar);
@@ -2484,9 +2477,8 @@ public class TelaFila extends JFrame {
 								+ nome_cliente + ", envio essa mensagem para notifica-lo que o motorista "
 								+ nome_motorista + " no veiculo placa " + placa + " completou o embarque de " + produto
 								+ ".";
-						
-						mensagem_enviar = mensagemAdicional(mensagem_enviar);
 
+						mensagem_enviar = mensagemAdicional(mensagem_enviar);
 
 						for (Contato contato : lista_contatos) {
 							try {
@@ -2655,32 +2647,45 @@ public class TelaFila extends JFrame {
 	}
 
 	public void pesquisar_fila_desembarque() {
-		
 
 		GerenciarBancoFilaMovimento gerenciar = new GerenciarBancoFilaMovimento();
 		lista_fila_desembarque.clear();
 		modelo_fila_desembarque.onRemoveAll();
 
-		if (flag_global == 1) {
 
-			lista_fila_desembarque = gerenciar.getFila(0, "%");
+		String data_menor = entDataMenorDesembarque.getText() + " 00:00:00";
+		String data_maior = entDataMaiorDesembarque.getText() + " 23:59:00";
 
-		} else {
+		Date data_menor_date;
+		Date data_maior_date;
+		try {
+			data_menor_date = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss").parse(data_menor);
+			data_maior_date = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss").parse(data_maior);
 
-			LocalDateTime currentDateTime = LocalDateTime.now();
-			DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+			
+			
 
-			// lista_fila_desembarque =
-			// gerenciar.getFila(currentDateTime.format(formatter));
-			lista_fila_desembarque = gerenciar.getFilaMaisRapido(0);
+			String dataMenorPesquisa = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(data_menor_date);
+			String dataMaiorPesquisa = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(data_maior_date);
+
+			
+			System.out.println("Menor data de pesquisa: " + dataMenorPesquisa);
+			System.out.println("Maior data de pesquisa: " + dataMaiorPesquisa);
+
+			lista_fila_desembarque = gerenciar.getFilaMaisRapido(0, dataMenorPesquisa, dataMaiorPesquisa);
+
+			
+			for (CadastroFilaMovimento cc : lista_fila_desembarque) {
+
+				modelo_fila_desembarque.onAdd(cc);
+			}
+
+			filtrarDesembarque();
+		} catch (ParseException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		}
 
-		for (CadastroFilaMovimento cc : lista_fila_desembarque) {
-
-			modelo_fila_desembarque.onAdd(cc);
-		}
-
-		filtrarDesembarque();
 
 	}
 
@@ -2689,26 +2694,35 @@ public class TelaFila extends JFrame {
 		lista_fila_embarque.clear();
 		modelo_fila_embarque.onRemoveAll();
 
-		if (flag_global == 1) {
+		String data_menor = entDataMenorEmbarque.getText() + " 00:00:00";
+		String data_maior = entDataMaiorEmbarque.getText() + " 23:59:59";
 
-			lista_fila_embarque = gerenciar.getFila(1, "%");
+		Date data_menor_date;
+		Date data_maior_date;
+		try {
+			data_menor_date = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss").parse(data_menor);
+			data_maior_date = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss").parse(data_maior);
 
-		} else {
+			
+			
 
-			LocalDateTime currentDateTime = LocalDateTime.now();
-			DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+			String dataMenorPesquisa = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(data_menor_date);
+			String dataMaiorPesquisa = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(data_maior_date);
 
-			// lista_fila_desembarque =
-			// gerenciar.getFila(currentDateTime.format(formatter));
-			lista_fila_embarque = gerenciar.getFilaMaisRapido(1);
+			lista_fila_embarque = gerenciar.getFilaMaisRapido(1, dataMenorPesquisa, dataMaiorPesquisa);
+
+			
+			for (CadastroFilaMovimento cc : lista_fila_embarque) {
+
+				modelo_fila_embarque.onAdd(cc);
+			}
+
+			filtrarEmbarque();
+		} catch (ParseException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		}
 
-		for (CadastroFilaMovimento cc : lista_fila_embarque) {
-
-			modelo_fila_embarque.onAdd(cc);
-		}
-
-		filtrarEmbarque();
 
 	}
 
@@ -2928,8 +2942,8 @@ public class TelaFila extends JFrame {
 
 		ArrayList<RowFilter<Object, Object>> filters = new ArrayList<RowFilter<Object, Object>>(2);
 
-		String menor = entDataMenor.getText();
-		String maior = entDataMaior.getText();
+		String menor = entDataMenorDesembarque.getText();
+		String maior = entDataMaiorDesembarque.getText();
 
 		if (checkString(menor) && checkString(maior)) {
 			Date data_menor = null;
@@ -3722,7 +3736,7 @@ public class TelaFila extends JFrame {
 			case motorista: {
 				try {
 					return unidade.getMotorista().getNome_empresarial().toUpperCase();
-				}catch(Exception e) {
+				} catch (Exception e) {
 					return "Nome Motorista Inválido!";
 				}
 			}
@@ -3736,33 +3750,32 @@ public class TelaFila extends JFrame {
 			case inscricao:
 				return unidade.getProdutor().getIe();
 			case produtor: {
-					try {
-						if(unidade.getProdutor().getTipo_pessoa() == 0){
-							
-							return unidade.getProdutor().getNome().trim().toUpperCase() + " "
-									+ unidade.getProdutor().getSobrenome().trim().toUpperCase() + "/"
-									+ unidade.getProdutor().getNome_empresarial().toUpperCase();
-						}else {
-							return unidade.getProdutor().getNome_empresarial().toUpperCase();
+				try {
+					if (unidade.getProdutor().getTipo_pessoa() == 0) {
 
-						}
-					
-					} catch (Exception e) {
-						e.printStackTrace();
-						try {
-							return unidade.getProdutor().getNome_empresarial().toUpperCase();
-						}catch(Exception t) {
-							t.printStackTrace();
-
-							return "Nome Produtor Inválido";
-
-						}
+						return unidade.getProdutor().getNome().trim().toUpperCase() + " "
+								+ unidade.getProdutor().getSobrenome().trim().toUpperCase() + "/"
+								+ unidade.getProdutor().getNome_empresarial().toUpperCase();
+					} else {
+						return unidade.getProdutor().getNome_empresarial().toUpperCase();
 
 					}
 
-				
+				} catch (Exception e) {
+					e.printStackTrace();
+					try {
+						return unidade.getProdutor().getNome_empresarial().toUpperCase();
+					} catch (Exception t) {
+						t.printStackTrace();
+
+						return "Nome Produtor Inválido";
+
+					}
+
+				}
+
 			}
-			case produto:{
+			case produto: {
 				return unidade.getProduto().getNome_produto().toUpperCase();
 			}
 			case origem:
@@ -4011,40 +4024,37 @@ public class TelaFila extends JFrame {
 			return renderer;
 		}
 	}
-	
-	
+
 	public String mensagemAdicional(String mensagem_a_enviar) {
-		
+
 		CadastroMensagem msg_adicional = new GerenciarBancoMensagem().getMensagem();
-		if(msg_adicional != null) {
+		if (msg_adicional != null) {
 			System.out.println("mensagem adicional nao é nula");
-			if(msg_adicional.getConteudo() != null && msg_adicional.getConteudo().length() > 0 ) {
+			if (msg_adicional.getConteudo() != null && msg_adicional.getConteudo().length() > 0) {
 				System.out.println("conteudo da mensagem adicional nao é nula");
 
-				 String mensagem_adicional = msg_adicional.getConteudo();
-				 mensagem_adicional= Normalizer.normalize(mensagem_adicional, Normalizer.Form.NFD).replaceAll("[^\\p{ASCII}]", "");
-				  
-				  String mensagem_adicional_quebrada[] = mensagem_adicional.split("\n");
-				  String mensagem_adicional_final  = "";
-				  for(int i = 0; i < mensagem_adicional_quebrada.length; i++) {
-					  mensagem_adicional_final = mensagem_adicional_final + mensagem_adicional_quebrada[i] + "\\n";
-				  }
-				  mensagem_adicional = mensagem_adicional_final;
-				  
-				  mensagem_a_enviar += ("\\n" + mensagem_adicional);
-				  return mensagem_a_enviar;
-				  
-				  
-			}else {
+				String mensagem_adicional = msg_adicional.getConteudo();
+				mensagem_adicional = Normalizer.normalize(mensagem_adicional, Normalizer.Form.NFD)
+						.replaceAll("[^\\p{ASCII}]", "");
+
+				String mensagem_adicional_quebrada[] = mensagem_adicional.split("\n");
+				String mensagem_adicional_final = "";
+				for (int i = 0; i < mensagem_adicional_quebrada.length; i++) {
+					mensagem_adicional_final = mensagem_adicional_final + mensagem_adicional_quebrada[i] + "\\n";
+				}
+				mensagem_adicional = mensagem_adicional_final;
+
+				mensagem_a_enviar += ("\\n" + mensagem_adicional);
+				return mensagem_a_enviar;
+
+			} else {
 				System.out.println("conteudo da mensagem adicional  é nula");
 
 				return mensagem_a_enviar;
 
 			}
-		
-	
-		
-		}else {
+
+		} else {
 			System.out.println("mensagem adicional é nula");
 
 			return mensagem_a_enviar;

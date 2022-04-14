@@ -385,13 +385,17 @@ left join instituicao_bancaria ib_rec on ib_rec.id_instituicao_bancaria = fpag.i
 				+ "end\r\n"
 				+ ")\r\n"
 				+ "end) as nome_recebedor,\r\n"
-				+ "cp.nome_condicao_pagamento\r\n"
+				+ "cp.nome_condicao_pagamento,\r\n"
+				+ "CONCAT(\"Banco: \", cb_pag.banco, \" Codigo: \" , cb_pag.codigo, \" Agencia: \", cb_pag.agencia, \" Conta: \", cb_pag.conta) as conta_bancaria_pagador,\r\n"
+				+ "CONCAT(\"Banco: \", cb_rec.banco, \" Codigo: \" , cb_rec.codigo, \" Agencia: \", cb_rec.agencia, \" Conta: \", cb_rec.conta) as conta_bancaria_recebedor\r\n"
 				+ " from financeiro_pagamento_emprestimo fpag\r\n"
 				+ "left join condicao_pagamento cp on cp.id_condicao_pagamento = fpag.id_forma_pagamento\r\n"
 				+ "left join cliente cli_pag on cli_pag.id_cliente = fpag.id_pagador\r\n"
 				+ "left join instituicao_bancaria ib_pag on ib_pag.id_instituicao_bancaria = fpag.id_pagador\r\n"
+				+ "left join conta_bancaria cb_pag on cb_pag.id_conta = ib_pag.id_conta\r\n"
 				+ "left join cliente cli_rec on cli_rec.id_cliente = fpag.id_recebedor\r\n"
 				+ "left join instituicao_bancaria ib_rec on ib_rec.id_instituicao_bancaria = fpag.id_recebedor\r\n"
+				+ "left join conta_bancaria cb_rec on cb_rec.id_conta = ib_rec.id_conta\r\n"
 				+ " where id_lancamento_pai = ?";
 		Connection conn = null;
 		PreparedStatement pstm = null;
@@ -443,6 +447,9 @@ left join instituicao_bancaria ib_rec on ib_rec.id_instituicao_bancaria = fpag.i
 				fpag.setNome_pagador(rs.getString("nome_pagador"));
 				fpag.setNome_recebedor(rs.getString("nome_recebedor"));
 				fpag.setNome_forma_pagamento(rs.getString("nome_condicao_pagamento"));
+				fpag.setConta_pagador(rs.getString("conta_bancaria_pagador"));
+				fpag.setConta_recebedor(rs.getString("conta_bancaria_recebedor"));
+
 				fpag.setFpag(dado);
 
 				lista.add(fpag);

@@ -170,7 +170,7 @@ public class ArquivoConfiguracoes {
 	
 	
 	public CadastroNuvem getConfigsNuvem() {
-		String app_key, app_secret, token;
+		String app_key, app_secret, token, token_refresh;
 		CadastroNuvem nuvem = new CadastroNuvem();
 		Properties prop;
 		try {
@@ -185,9 +185,14 @@ public class ArquivoConfiguracoes {
 			token = propriedades_local.getProperty("prop.nuvem.token");
 			System.out.println("token  nuvem: " + token);
 			
+			token_refresh = propriedades_local.getProperty("prop.nuvem.refreshtoken");
+			System.out.println("token  refresh: " + token_refresh);
+
+			
 			nuvem.setApp_key(app_key);
 			nuvem.setApp_secret(app_secret);
 			nuvem.setToken(token);
+			nuvem.setRefresh_token(token_refresh);
 			
 		return nuvem;
 		}catch(Exception e ) {

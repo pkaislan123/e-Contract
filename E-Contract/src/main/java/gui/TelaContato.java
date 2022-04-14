@@ -147,6 +147,7 @@ public class TelaContato extends JFrame {
 	private JButton btnEditar;
 	private JLabel lblIeCliente;
 	private JTextField entIeCliente;
+	private JButton btnSelecionar;
 
 	public  void pesquisar_contatos() {
 		modelo_ClienteContato.onRemoveAll();
@@ -158,13 +159,15 @@ public class TelaContato extends JFrame {
 
 		}
 
+
 	}
 
+	private Window janela_pai_global;
 	public TelaContato(Window janela_pai) {
 		// setModal(true);
 
 		 isto = this;
-
+		 janela_pai_global = janela_pai;
 		setResizable(false);
 		setTitle("E-Contract - Contatos");
 
@@ -309,12 +312,48 @@ public class TelaContato extends JFrame {
 			}
 		});
 		painelPrincipal.add(btnFiltrar, "cell 13 2,alignx left,aligny top");
+		
+		btnSelecionar = new JButton("Selecionar");
+		btnSelecionar.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				
+				processarSelecao(janela_pai);
+				
+				
+			}
+		});
+		btnSelecionar.setForeground(Color.WHITE);
+		btnSelecionar.setFont(new Font("SansSerif", Font.BOLD, 16));
+		btnSelecionar.setBackground(new Color(0, 0, 51));
+		painelPrincipal.add(btnSelecionar, "cell 11 4");
 
 		pesquisar_contatos();
 		setMenuContasBancarias();
 
 		this.setLocationRelativeTo(janela_pai);
 
+	}
+	
+	
+	public void processarSelecao(Window janela_pai) {
+		int rowSel = table_ClienteContato.getSelectedRow();// pega o indice da linha na tabela
+		int indiceDaLinha = table_ClienteContato.getRowSorter().convertRowIndexToModel(rowSel);// converte pro indice do
+				
+		ClienteContato contato = modelo_ClienteContato.getValue(indiceDaLinha);
+
+		if(janela_pai instanceof TelaEnviarMsgMail) {
+		((TelaEnviarMsgMail) janela_pai).setEmail(contato.getContato().getE_mail());
+		isto.dispose();
+		}else if(janela_pai instanceof TelaEnviarMsgEmailDocsGeral) {
+			((TelaEnviarMsgEmailDocsGeral) janela_pai).setEmail(contato.getContato().getE_mail());
+			isto.dispose();	
+		}else if(janela_pai instanceof TelaEnviarAoContador) {
+			((TelaEnviarAoContador) janela_pai).setEmail(contato.getContato().getE_mail());
+			isto.dispose();	
+		}else if(janela_pai instanceof TelaEnviarMsgWhatsappDocs) {
+			((TelaEnviarMsgWhatsappDocs) janela_pai).setNumero(contato.getContato().getCelular());
+			isto.dispose();	
+		}
 	}
 
 	public void setMenuContasBancarias() {
@@ -346,6 +385,11 @@ public class TelaContato extends JFrame {
 				if (e.getButton() == MouseEvent.BUTTON3) {
 					// Exibe o popup menu na posição do mouse.
 					jPopupMenuContasBancarias.show(table_ClienteContato, e.getX(), e.getY());
+				}else {
+					if (e.getClickCount() == 2) {
+						processarSelecao(janela_pai_global);
+
+					}
 				}
 			}
 		});

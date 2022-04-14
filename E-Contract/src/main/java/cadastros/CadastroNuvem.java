@@ -3,7 +3,7 @@ package main.java.cadastros;
 public class CadastroNuvem {
 
 	
-	String app_key, app_secret, token;
+	String app_key, app_secret, token, refresh_token;
 
 	public String getApp_key() {
 		return app_key;
@@ -27,6 +27,14 @@ public class CadastroNuvem {
 
 	public void setToken(String token) {
 		this.token = token;
+	}
+
+	public String getRefresh_token() {
+		return refresh_token;
+	}
+
+	public void setRefresh_token(String refresh_token) {
+		this.refresh_token = refresh_token;
 	}
 	
 	

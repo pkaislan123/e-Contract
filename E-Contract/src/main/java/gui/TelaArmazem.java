@@ -157,6 +157,10 @@ public class TelaArmazem extends JDialog {
 					int indice = tabela.getSelectedRow();
 					((TelaSiloCadastroSilo) janela_pai).setArmazem(armazens_disponiveis.get(indice));
 					isto.dispose();
+				}else if(flag_retorno == 2) {
+					int indice = tabela.getSelectedRow();
+					((TelaCadastrarRomaneio) janela_pai).setArmazem(armazens_disponiveis.get(indice));
+					isto.dispose();
 				}
 				
 			}

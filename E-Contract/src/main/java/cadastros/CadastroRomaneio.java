@@ -13,7 +13,19 @@ public class CadastroRomaneio {
 	String data_entrada, data_saida, hora_entrada, hora_saida;
 	
 	
+	private CadastroCliente armazem;
 	
+	
+	
+	
+	public CadastroCliente getArmazem() {
+		return armazem;
+	}
+
+	public void setArmazem(CadastroCliente armazem) {
+		this.armazem = armazem;
+	}
+
 	public int getId_armazem() {
 		return id_armazem;
 	}

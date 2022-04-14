@@ -22,5 +22,7 @@ public class FinanceiroPagamentoEmprestimoCompleto{
 	String nome_pagador;
 	String nome_recebedor;
 	int id_caixa;
+	String conta_pagador;
+	String conta_recebedor;
 	
 }

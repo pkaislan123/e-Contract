@@ -1122,14 +1122,14 @@ public class GerenciarBancoContratos {
 				CadastroCliente corretores[] = gerenciar_corretores.getCorretores(id);
 				contrato.setCorretores(corretores);
 
-				//GerenciarBancoContratos gerenciar_vendedores = new GerenciarBancoContratos();
-				//CadastroCliente vendedores[] = gerenciar_vendedores.getVendedores(id);
-				//contrato.setVendedores(vendedores);
+				GerenciarBancoContratos gerenciar_vendedores = new GerenciarBancoContratos();
+				CadastroCliente vendedores[] = gerenciar_vendedores.getVendedores(id);
+				contrato.setVendedores(vendedores);
 				contrato.setNomes_vendedores(rs.getString("vendedores"));
 
-				//GerenciarBancoContratos gerenciar_compradores = new GerenciarBancoContratos();
-				//CadastroCliente compradores[] = gerenciar_compradores.getCompradores(id);
-				//contrato.setCompradores(compradores);
+				GerenciarBancoContratos gerenciar_compradores = new GerenciarBancoContratos();
+				CadastroCliente compradores[] = gerenciar_compradores.getCompradores(id);
+				contrato.setCompradores(compradores);
 				
 				contrato.setNomes_compradores(rs.getString("compradores"));
 
@@ -4111,7 +4111,8 @@ public class GerenciarBancoContratos {
 		 * pd.id_produto = ct.id_produto where contrato_carregamentos.id_contrato = ?
 		 * order by carregamento.id_carregamento
 		 */
-		String selectCarregamentos = "select carregamento.*,\n" + "(case\n"
+		
+		String selectCarregamentos = "select carregamento.*,rom.nome_motorista as nome_motorista_rom, rom.placa as placa_rom,\n" + "(case\n"
 				+ "when transportador.tipo_cliente = '0' then transportador.nome_empresarial \n"
 				+ " when transportador.tipo_cliente = '1' then transportador.nome_fantasia\n"
 				+ "end) as nome_transportador,\n" + "(case\n"
@@ -4126,6 +4127,7 @@ public class GerenciarBancoContratos {
 				+ "left join cliente comprador on comprador.id_cliente  = carregamento.id_cliente \n"
 				+ "left join cliente vendedor on vendedor.id_cliente  = carregamento.id_vendedor \n"
 				+ "left join veiculo on veiculo.id_veiculo = carregamento.id_veiculo\n"
+				+ "left join romaneio rom on rom.codigo like carregamento.codigo_romaneio\n"
 				+ "left join contrato ct on ct.id = carregamento.id_contrato_carregamento\n"
 				+ "left join produto pd on pd.id_produto = ct.id_produto\n"
 				+ "where contrato_carregamentos.id_contrato = ? order by carregamento.id_carregamento";
@@ -4151,10 +4153,23 @@ public class GerenciarBancoContratos {
 					carga.setCodigo_contrato(rs.getString("codigo_contrato"));
 					carga.setNome_comprador(rs.getString("nome_comprador"));
 					carga.setNome_vendedor(rs.getString("nome_vendedor"));
-					carga.setNome_transportador(rs.getString("nome_transportador"));
 					carga.setNome_produto(rs.getString("nome_produto"));
-					carga.setPlaca_veiculo(rs.getString("placa"));
 
+					
+
+					
+					carga.setNome_transportador(rs.getString("nome_transportador"));
+					if(carga.getNome_transportador() == null || carga.getNome_transportador().length() < 0) {
+						carga.setNome_transportador(rs.getString("nome_motorista_rom"));
+					}
+					
+					carga.setPlaca_veiculo(rs.getString("placa"));
+					if(carga.getPlaca_veiculo() == null || carga.getPlaca_veiculo().length() < 0) {
+						carga.setPlaca_veiculo(rs.getString("placa_rom"));
+					}
+					
+					
+					
 					carga.setId_carregamento(rs.getInt("id_carregamento"));
 					carga.setData(rs.getString("data_carregamento").toString());
 					carga.setId_contrato(rs.getInt("id_contrato_carregamento"));
@@ -4319,8 +4334,29 @@ public class GerenciarBancoContratos {
 
 	public ArrayList<CadastroContrato.Recebimento> getRecebimentos(int id_contrato) {
 
-		String selectRecebimentos = "select * from contrato_recebimentos\n"
+		/*
+		String selectRecebimentos = "select *,veiculo.placa,"
+				+"(case\n"
+				+ "when transportador.tipo_cliente = '0' then transportador.nome_empresarial \n"
+				+ " when transportador.tipo_cliente = '1' then transportador.nome_fantasia\n"
+				+ "end) as nome_transportador\n"
+				+ " from contrato_recebimentos\n"
+				+ " LEFT JOIN recebimento  on recebimento.id_recebimento = contrato_recebimentos.id_recebimento \n"
+				+ " left join cliente transportador on transportador.id_cliente  = recebimento.id_transportador \n"
+				+ " left join veiculo on veiculo.id_veiculo = recebimento.id_veiculo\n"
+				+ " where contrato_recebimentos.id_contrato = ?";
+				*/
+		
+		String selectRecebimentos = "select recebimento.*,veiculo.placa, rom.nome_motorista as nome_motorista_rom, rom.placa as placa_rom,\n"
+				+ "(case\n"
+				+ "when transportador.tipo_cliente = '0' then transportador.nome_empresarial \n"
+				+ "when transportador.tipo_cliente = '1' then transportador.nome_fantasia\n"
+				+ "end) as nome_transportador\n"
+				+ "from contrato_recebimentos\n"
 				+ "LEFT JOIN recebimento  on recebimento.id_recebimento = contrato_recebimentos.id_recebimento \n"
+				+ "left join cliente transportador on transportador.id_cliente  = recebimento.id_transportador \n"
+				+ "left join veiculo on veiculo.id_veiculo = recebimento.id_veiculo\n"
+				+ "left join romaneio rom on rom.codigo like recebimento.codigo_romaneio\n"
 				+ "where contrato_recebimentos.id_contrato = ?";
 		Connection conn = null;
 		PreparedStatement pstm = null;
@@ -4368,7 +4404,19 @@ public class GerenciarBancoContratos {
 					recebido.setNome_remetente_nf_remessa(rs.getString("nome_remetente_nf_remessa"));
 					recebido.setNome_destinatario_nf_remessa(rs.getString("nome_destinatario_nf_remessa"));
 					recebido.setCaminho_nf_remessa(rs.getString("caminho_nf_remessa"));
-
+					
+					
+					recebido.setNome_transportador(rs.getString("nome_transportador"));
+					if(recebido.getNome_transportador() == null || recebido.getNome_transportador().length() < 0) {
+						recebido.setNome_transportador(rs.getString("nome_motorista_rom"));
+					}
+					
+					recebido.setPlaca_veiculo(rs.getString("placa"));
+					if(recebido.getPlaca_veiculo() == null || recebido.getPlaca_veiculo().length() < 0) {
+						recebido.setPlaca_veiculo(rs.getString("placa_rom"));
+					}
+					
+					
 					lista_recebimentos.add(recebido);
 
 				}

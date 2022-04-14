@@ -436,7 +436,7 @@ public class GerenciarBancoFilaMovimento {
 	}
 	
 	
-	public ArrayList<CadastroFilaMovimento> getFilaMaisRapido(int tipo ) {
+	public ArrayList<CadastroFilaMovimento> getFilaMaisRapido(int tipo, String data_menor, String data_maior ) {
 
 		Connection conn = null;
 		PreparedStatement pstm = null;
@@ -444,8 +444,10 @@ public class GerenciarBancoFilaMovimento {
 		ArrayList<CadastroFilaMovimento> fila = new ArrayList<CadastroFilaMovimento>();
 		try {
 			conn = ConexaoBanco.getConexao();
-			pstm = conn.prepareStatement("call busca_toda_fila_embarque_desembarque_mais_rapido(?)");
+			pstm = conn.prepareStatement("call busca_toda_fila_embarque_desembarque_mais_rapido(?,?,?)");
 			pstm.setInt(1, tipo);
+			pstm.setString(2, data_menor);
+			pstm.setString(3, data_maior);
 
 			rs = pstm.executeQuery();
 					

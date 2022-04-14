@@ -21,6 +21,8 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 
 import javax.swing.table.TableCellRenderer;
+import javax.swing.table.TableColumnModel;
+
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.net.URL;
@@ -1062,23 +1064,34 @@ public class TelaContratos extends JFrame {
 		tabela = new JTable(modelo_contratos);
 		tabela.setDefaultRenderer(Object.class, renderer);
 
-		// tabela.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
+		 tabela.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
 		// tabela.setAutoResizeMode(JTable.AUTO_RESIZE_ALL_COLUMNS);
 
-		tabela.getColumnModel().getColumn(0).setPreferredWidth(40);
-		tabela.getColumnModel().getColumn(1).setPreferredWidth(40);
-		tabela.getColumnModel().getColumn(2).setPreferredWidth(120);
-		tabela.getColumnModel().getColumn(3).setPreferredWidth(120);
-		tabela.getColumnModel().getColumn(4).setPreferredWidth(100);
-		tabela.getColumnModel().getColumn(5).setPreferredWidth(150);
-		tabela.getColumnModel().getColumn(6).setPreferredWidth(150);
-		tabela.getColumnModel().getColumn(7).setPreferredWidth(150);
-		tabela.getColumnModel().getColumn(8).setPreferredWidth(200);
-		tabela.getColumnModel().getColumn(9).setPreferredWidth(50);
-		tabela.getColumnModel().getColumn(10).setPreferredWidth(150);
-		tabela.getColumnModel().getColumn(11).setPreferredWidth(150);
-		tabela.getColumnModel().getColumn(12).setPreferredWidth(50);
-
+		
+		tabela.getColumnModel().getColumn(0).setPreferredWidth(60); //id
+		tabela.getColumnModel().getColumn(1).setPreferredWidth(100); //codigop
+		tabela.getColumnModel().getColumn(2).setPreferredWidth(125);//compradores
+		tabela.getColumnModel().getColumn(3).setPreferredWidth(200);//vendedores
+		tabela.getColumnModel().getColumn(4).setPreferredWidth(100);//status
+		tabela.getColumnModel().getColumn(5).setPreferredWidth(50);//dias restantes
+		tabela.getColumnModel().getColumn(6).setPreferredWidth(100);//status rece
+		tabela.getColumnModel().getColumn(7).setPreferredWidth(100);//status carre
+		tabela.getColumnModel().getColumn(8).setPreferredWidth(100);//status pag
+		tabela.getColumnModel().getColumn(9).setPreferredWidth(100);//status comissao
+		tabela.getColumnModel().getColumn(10).setPreferredWidth(100);//quantidade
+		tabela.getColumnModel().getColumn(11).setPreferredWidth(100);//medida
+		tabela.getColumnModel().getColumn(12).setPreferredWidth(100);//produto
+		tabela.getColumnModel().getColumn(13).setPreferredWidth(100);//transgenese
+		tabela.getColumnModel().getColumn(14).setPreferredWidth(20);//id_safra
+		tabela.getColumnModel().getColumn(15).setPreferredWidth(100);//safra
+		tabela.getColumnModel().getColumn(16).setPreferredWidth(100);//safra
+		tabela.getColumnModel().getColumn(17).setPreferredWidth(100);//valor produto
+		tabela.getColumnModel().getColumn(18).setPreferredWidth(100);//valor total
+		tabela.getColumnModel().getColumn(19).setPreferredWidth(100);//corretores
+		
+		
+		
+		
 		tabela.getColumnModel().getColumn(5).setCellRenderer(new StatusRecebimentoCellRender());
 		tabela.getColumnModel().getColumn(6).setCellRenderer(new StatusCarregamentoCellRender());
 		tabela.getColumnModel().getColumn(7).setCellRenderer(new StatusPagamentoCellRender());
@@ -1090,7 +1103,7 @@ public class TelaContratos extends JFrame {
 		// tabela.setPreferredSize(new Dimension(0, 200));
 		// tabela.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
 
-		tabela.setRowHeight(30);
+		tabela.setRowHeight(40);
 
 		JScrollPane scrollPane = new JScrollPane(tabela);
 
@@ -1130,6 +1143,8 @@ public class TelaContratos extends JFrame {
 
 	}
 
+	
+	
 	public void calcular() {
 
 		double quantidade_sacos_total = 0, quantidade_sacos_total_cancelados = 0;

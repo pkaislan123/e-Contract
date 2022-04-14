@@ -1059,6 +1059,44 @@ public class TelaGerenciarContrato extends JFrame {
 				// quantidade_sacos + " Sacos" );
 				sheet.addMergedRegion(new CellRangeAddress(rownum - 1, rownum - 1, cellnum - 1, 5));
 
+				
+				//adicionar logo
+				try {
+					
+					URL url = getClass().getResource("/imagens/logo_para_relatorio.png");
+					String imgFile = url.getFile();
+					InputStream inputStream = new FileInputStream(imgFile);
+
+					byte[] imageBytes = IOUtils.toByteArray(inputStream);
+
+					int pictureureIdx = workbook.addPicture(imageBytes, Workbook.PICTURE_TYPE_PNG);
+
+					inputStream.close();
+
+					CreationHelper helper = workbook.getCreationHelper();
+
+					Drawing drawing = sheet.createDrawingPatriarch();
+
+					ClientAnchor anchor = helper.createClientAnchor();
+
+					anchor.setRow1(0);
+					anchor.setRow2(3);
+					anchor.setCol1(6);
+					anchor.setCol2(8);
+					
+
+					drawing.createPicture(anchor, pictureureIdx);
+
+
+
+				} catch (IOException e1) {
+					// TODO Auto-generated catch block
+					JOptionPane.showMessageDialog(isto, "Erro ao anexar imagem no xlsx");
+					e1.printStackTrace();
+				}
+				
+				
+				
 				row = sheet.createRow(rownum++);
 				cellnum = 0;
 
@@ -1076,6 +1114,14 @@ public class TelaGerenciarContrato extends JFrame {
 				cell = row.createCell(cellnum++);
 				cell.setCellStyle(celula_fundo_laranja_texto_branco);
 				cell.setCellValue("DATA");
+				
+				cell = row.createCell(cellnum++);
+				cell.setCellStyle(celula_fundo_laranja_texto_branco);
+				cell.setCellValue("TRANSPORTADOR".toUpperCase());
+				
+				cell = row.createCell(cellnum++);
+				cell.setCellStyle(celula_fundo_laranja_texto_branco);
+				cell.setCellValue("VEICULO".toUpperCase());
 
 				cell = row.createCell(cellnum++);
 				cell.setCellStyle(celula_fundo_laranja_texto_branco);
@@ -1159,6 +1205,14 @@ public class TelaGerenciarContrato extends JFrame {
 					cell = row.createCell(cellnum++);
 					cell.setCellStyle(textStyle);
 					cell.setCellValue(cadastro.getData_recebimento());
+					
+					cell = row.createCell(cellnum++);
+					cell.setCellStyle(textStyle);
+					cell.setCellValue(cadastro.getNome_transportador());
+					
+					cell = row.createCell(cellnum++);
+					cell.setCellStyle(textStyle);
+					cell.setCellValue(cadastro.getPlaca_veiculo());
 
 					cell = row.createCell(cellnum++);
 					cell.setCellStyle(textStyle);
@@ -1239,35 +1293,35 @@ public class TelaGerenciarContrato extends JFrame {
 					}
 
 				}
-				sheet.setAutoFilter(CellRangeAddress.valueOf("A4:I4"));
+				sheet.setAutoFilter(CellRangeAddress.valueOf("A4:K4"));
 				NumberFormat z = NumberFormat.getNumberInstance();
 
 				// somatorias
 				row = sheet.createRow(rownum++);
 
-				cell = row.createCell(2);
+				cell = row.createCell(4);
 				cell.setCellStyle(negrito);
 				cell.setCellValue(z.format(quantidade_total_kgs_recebido) + " Kgs");
 
-				cell = row.createCell(4);
+				cell = row.createCell(6);
 				cell.setCellStyle(negrito);
 				cell.setCellValue(z.format(quantidade_total_kgs_nf_venda) + " Kgs");
 
-				cell = row.createCell(5);
+				cell = row.createCell(7);
 				cell.setCellStyle(negrito);
 				cell.setCellValue(NumberFormat.getCurrencyInstance(ptBr).format(valor_total_nf_venda.doubleValue()));
 
-				cell = row.createCell(7);
+				cell = row.createCell(9);
 				cell.setCellStyle(negrito);
 				cell.setCellValue(z.format(quantidade_total_kgs_nf_remessa) + " Kgs");
 
-				cell = row.createCell(8);
+				cell = row.createCell(10);
 				cell.setCellStyle(negrito);
 				cell.setCellValue(NumberFormat.getCurrencyInstance(ptBr).format(valor_total_nf_remessa.doubleValue()));
 
 				//////////////////////
 				row = sheet.createRow(rownum += 2);
-				cellnum = 0;
+				cellnum = 2;
 
 				cell = row.createCell(cellnum++);
 				cell.setCellStyle(textStyle);
@@ -1327,7 +1381,7 @@ public class TelaGerenciarContrato extends JFrame {
 					cell.setCellValue("Não Aplicável");
 
 				row = sheet.createRow(rownum += 2);
-				cellnum = 0;
+				cellnum = 2;
 
 				cell = row.createCell(cellnum++);
 				cell.setCellStyle(textStyle);
@@ -1352,11 +1406,11 @@ public class TelaGerenciarContrato extends JFrame {
 				else
 					cell.setCellValue("Não Aplicável");
 
-				cell = row.createCell(7);
+				cell = row.createCell(8);
 				cell.setCellStyle(celula_fundo_laranja_texto_branco);
 				cell.setCellValue("Peso a emitir: ");
 
-				cell = row.createCell(8);
+				cell = row.createCell(9);
 				cell.setCellStyle(celula_number_amarelo_texto_preto);
 				if (nf_remessa_ativo)
 					cell.setCellValue(quantidade_kg - quantidade_total_kgs_nf_remessa);
@@ -3029,6 +3083,43 @@ public class TelaGerenciarContrato extends JFrame {
 						+ contrato.getModelo_safra().getAno_colheita());
 				sheet.addMergedRegion(new CellRangeAddress(rownum - 1, rownum - 1, cellnum - 1, 5));
 
+				
+				
+				//adicionar logo
+				try {
+					
+					URL url = getClass().getResource("/imagens/logo_para_relatorio.png");
+					String imgFile = url.getFile();
+					InputStream inputStream = new FileInputStream(imgFile);
+
+					byte[] imageBytes = IOUtils.toByteArray(inputStream);
+
+					int pictureureIdx = workbook.addPicture(imageBytes, Workbook.PICTURE_TYPE_PNG);
+
+					inputStream.close();
+
+					CreationHelper helper = workbook.getCreationHelper();
+
+					Drawing drawing = sheet.createDrawingPatriarch();
+
+					ClientAnchor anchor = helper.createClientAnchor();
+
+					anchor.setRow1(0);
+					anchor.setRow2(3);
+					anchor.setCol1(6);
+					anchor.setCol2(8);
+					
+
+					drawing.createPicture(anchor, pictureureIdx);
+
+
+
+				} catch (IOException e1) {
+					// TODO Auto-generated catch block
+					JOptionPane.showMessageDialog(isto, "Erro ao anexar imagem no xlsx");
+					e1.printStackTrace();
+				}
+				
 				// Configurando Header
 				row = sheet.createRow(rownum++);
 				cellnum = 0;
@@ -3235,6 +3326,7 @@ public class TelaGerenciarContrato extends JFrame {
 							nome_vendedor = nome_vendedor_completo;
 						}
 
+						/*
 						String nome_transportador = "";
 						String placa_trator = "";
 						if (carregamento.getId_transportador() > 0) {
@@ -3265,6 +3357,9 @@ public class TelaGerenciarContrato extends JFrame {
 							}
 
 						}
+						*/
+						
+						
 						// pegar o produto
 						GerenciarBancoProdutos gerenciar_produtos = new GerenciarBancoProdutos();
 						CadastroProduto produto_carregamento = gerenciar_produtos
@@ -3413,11 +3508,11 @@ public class TelaGerenciarContrato extends JFrame {
 
 						cell = row.createCell(cellnum++);
 						cell.setCellStyle(textStyle);
-						cell.setCellValue(nome_transportador);
+						cell.setCellValue(carregamento.getNome_transportador());
 
 						cell = row.createCell(cellnum++);
 						cell.setCellStyle(textStyle);
-						cell.setCellValue(placa_trator);
+						cell.setCellValue(carregamento.getPlaca_veiculo());
 
 						cell = row.createCell(cellnum++);
 						cell.setCellStyle(textStyle);
@@ -4828,6 +4923,52 @@ public class TelaGerenciarContrato extends JFrame {
 						+ contrato.getModelo_safra().getAno_colheita());
 				sheet3.addMergedRegion(new CellRangeAddress(rownum - 1, rownum - 1, cellnum - 1, 5));
 
+				
+				
+				//adicionar logo
+				try {
+					
+					URL url = getClass().getResource("/imagens/logo_para_relatorio.png");
+					String imgFile = url.getFile();
+					InputStream inputStream = new FileInputStream(imgFile);
+
+					byte[] imageBytes = IOUtils.toByteArray(inputStream);
+
+					int pictureureIdx = workbook.addPicture(imageBytes, Workbook.PICTURE_TYPE_PNG);
+
+					inputStream.close();
+
+					CreationHelper helper = workbook.getCreationHelper();
+
+					Drawing drawing = sheet3.createDrawingPatriarch();
+
+					ClientAnchor anchor = helper.createClientAnchor();
+
+					anchor.setRow1(0);
+					anchor.setRow2(3);
+					anchor.setCol1(6);
+					anchor.setCol2(8);
+					
+
+					drawing.createPicture(anchor, pictureureIdx);
+
+
+
+				} catch (IOException e1) {
+					// TODO Auto-generated catch block
+					JOptionPane.showMessageDialog(isto, "Erro ao anexar imagem no xlsx");
+					e1.printStackTrace();
+				}
+				
+				
+				
+				
+				
+				
+				
+				
+				
+				
 				// Configurando Header
 				row = sheet3.createRow(rownum++);
 				cellnum = 0;
@@ -10968,9 +11109,10 @@ public class TelaGerenciarContrato extends JFrame {
 					String caminho_completo = unidade_base_dados + "\\" + contrato_local.getCaminho_diretorio_contrato()
 							+ "\\" + "comprovantes\\" + nome_official;
 
-					File doc = new File(caminho_completo);
+				//	File doc = new File(caminho_completo);
 
-					TelaEscolha tela = new TelaEscolha(2, contrato_local, doc, isto);
+					//TelaEscolha tela = new TelaEscolha(2, contrato_local, doc, isto);
+					TelaEscolha tela = new TelaEscolha(2, caminho_completo, isto);
 					tela.setVisible(true);
 				}
 			});
@@ -11303,18 +11445,20 @@ public class TelaGerenciarContrato extends JFrame {
 		// constantes p/identificar colunas
 		private final int id = 0;
 		private final int data = 1;
-		private final int codigo_romaneio = 2;
+		private final int transportador = 2;
+		private final int veiculo = 3;
+		private final int codigo_romaneio = 4;
 
-		private final int peso_romaneio = 3;
-		private final int codigo_nf_venda = 4;
-		private final int peso_nf_venda = 5;
-		private final int valor_nf_venda = 6;
+		private final int peso_romaneio = 5;
+		private final int codigo_nf_venda = 6;
+		private final int peso_nf_venda = 7;
+		private final int valor_nf_venda = 8;
 
-		private final int codigo_nf_remessa = 7;
-		private final int peso_nf_remessa = 8;
-		private final int valor_nf_remessa = 9;
+		private final int codigo_nf_remessa = 9;
+		private final int peso_nf_remessa = 10;
+		private final int valor_nf_remessa = 11;
 
-		private final String colunas[] = { "ID:", "Data:", "Código Romaneio:", "Peso Romaneio:", "Código NF Venda:",
+		private final String colunas[] = { "ID:", "Data:","Transportador:", "Veículo", "Código Romaneio:", "Peso Romaneio:", "Código NF Venda:",
 				"Peso NF Venda:", "Valor NF Venda:", "Código NF Remessa:", "Peso NF Remessa:", "Valor NF Remessa:" };
 		private final ArrayList<CadastroContrato.Recebimento> dados = new ArrayList<>();// usamos como dados uma lista
 																						// genérica de
@@ -11352,6 +11496,10 @@ public class TelaGerenciarContrato extends JFrame {
 			case id:
 				return int.class;
 			case data:
+				return String.class;
+			case transportador:
+				return String.class;
+			case veiculo:
 				return String.class;
 			case codigo_romaneio:
 				return String.class;
@@ -11394,11 +11542,19 @@ public class TelaGerenciarContrato extends JFrame {
 				return recebimento.getId_recebimento();
 			case data:
 				return recebimento.getData_recebimento();
+			case transportador:{
+				return recebimento.getNome_transportador();
+			}
+			case veiculo:{
+				
+				return recebimento.getPlaca_veiculo();
+			}
 			case codigo_romaneio:
 				return recebimento.getCodigo_romaneio();
-			case peso_romaneio:
+			case peso_romaneio:{
 				double peso_romaneio = recebimento.getPeso_romaneio();
 				return z.format(peso_romaneio) + " KGs";
+			}
 			case codigo_nf_venda: {
 				if (recebimento.getNf_venda_aplicavel() == 1) {
 					return recebimento.getCodigo_nf_venda();

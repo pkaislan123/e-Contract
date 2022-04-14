@@ -107,7 +107,9 @@ public class TelaSalvarEnviarRelatorio extends JDialog {
 		btnNewButton_1.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				
-				TelaEnviarMsgMail tela = new TelaEnviarMsgMail(flag, contrato,new File(file), null);
+				//TelaEnviarMsgMail tela = new TelaEnviarMsgMail(flag, contrato,new File(file), null);
+				TelaEnviarMsgEmailDocsGeral tela = new TelaEnviarMsgEmailDocsGeral(flag, file, null);
+				
 				tela.setVisible(true);
 				isto.dispose();
 			
@@ -121,25 +123,14 @@ public class TelaSalvarEnviarRelatorio extends JDialog {
 		btnNewButton_1_1.setForeground(Color.WHITE);
 		btnNewButton_1_1.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				TelaEnviarMsgWhatsappDocs enviar = new TelaEnviarMsgWhatsappDocs(contrato,new File(file), null);
+				TelaEnviarMsgWhatsappDocs enviar = new TelaEnviarMsgWhatsappDocs(new File(file), null);
                 isto.dispose();
 				
 			}
 		});
 		painelPrincipal.add(btnNewButton_1_1, "cell 2 0,growx,aligny center");
-		
-		
-			
-
-
-			
-		
-		
-		
-
 		this.setLocationRelativeTo(null);
 
-		
 		
 		
 	}

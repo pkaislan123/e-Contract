@@ -352,6 +352,10 @@ public class TelaRomaneios extends JFrame {
 	private JLabel lblSafrasEmEvidencia;
 	private JButton btnNewButton_2;
 	private JButton btnNewButton_3;
+	private JButton btnCadastrarRomaneio;
+	private JButton btnEditar;
+	private JLabel lblArmazm;
+	private JTextField entNomeArmazem;
 
 	public TelaRomaneios(int flag_tipo_tela, Window janela_pai) {
 		setIconImage(Toolkit.getDefaultToolkit()
@@ -703,7 +707,7 @@ public class TelaRomaneios extends JFrame {
 		panel_13.add(lblNumeroRomaneiosEditar, "cell 2 3");
 
 		JPanel panel_1 = new JPanel();
-		painelPrincipal.add(panel_1, "cell 0 3 5 1,alignx right");
+		painelPrincipal.add(panel_1, "cell 0 3 5 1,alignx right,growy");
 		panel_1.setBackground(Color.WHITE);
 
 		btnExportarPlanilha = new JButton("Exportar Dados");
@@ -729,7 +733,7 @@ public class TelaRomaneios extends JFrame {
 			}
 
 		});
-		panel_1.setLayout(new MigLayout("", "[167px][148px][][81px][103px][104px][73px][170px]", "[33px]"));
+		panel_1.setLayout(new MigLayout("", "[167px][148px][][81px][103px][104px][73px][170px]", "[33px][][]"));
 
 		JButton btnNewButton = new JButton("Exportar Arquivos");
 		btnNewButton.setBackground(new Color(51, 153, 255));
@@ -746,17 +750,6 @@ public class TelaRomaneios extends JFrame {
 		btnExportarPlanilha.setFont(new Font("SansSerif", Font.BOLD, 16));
 		btnExportarPlanilha.setBackground(new Color(102, 102, 0));
 		panel_1.add(btnExportarPlanilha, "cell 1 0,alignx left,aligny top");
-
-		btnExportarComprovantes = new JButton("Exportar Comprovantes");
-		btnExportarComprovantes.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				exportarComprovantes();
-			}
-		});
-		btnExportarComprovantes.setForeground(Color.WHITE);
-		btnExportarComprovantes.setFont(new Font("SansSerif", Font.BOLD, 16));
-		btnExportarComprovantes.setBackground(new Color(102, 51, 0));
-		panel_1.add(btnExportarComprovantes, "cell 2 0");
 
 		btnNewButton_1 = new JButton("Excluir");
 		btnNewButton_1.setBackground(new Color(255, 0, 0));
@@ -841,16 +834,16 @@ public class TelaRomaneios extends JFrame {
 			}
 		});
 
-		JButton btnEditarRomaneio = new JButton("Editar");
-		btnEditarRomaneio.setBackground(new Color(0, 51, 102));
-		btnEditarRomaneio.setForeground(Color.WHITE);
-		btnEditarRomaneio.setFont(new Font("SansSerif", Font.BOLD, 16));
-		btnEditarRomaneio.addActionListener(new ActionListener() {
+		JButton btnEditarClassificacao = new JButton("Editar Classificação");
+		btnEditarClassificacao.setBackground(new Color(0, 51, 102));
+		btnEditarClassificacao.setForeground(Color.WHITE);
+		btnEditarClassificacao.setFont(new Font("SansSerif", Font.BOLD, 16));
+		btnEditarClassificacao.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				int rowSel = table_nfs.getSelectedRow();// pega o indice da linha na tabela
 				int indexRowModel = table_nfs.getRowSorter().convertRowIndexToModel(rowSel);
 
-				TelaCadastroRomaneio tela = new TelaCadastroRomaneio(lista_romaneios.get(indexRowModel), isto);
+				TelaEdicaoClassificacaoRomaneio tela = new TelaEdicaoClassificacaoRomaneio(lista_romaneios.get(indexRowModel), isto);
 				tela.setVisible(true);
 			}
 		});
@@ -864,13 +857,44 @@ public class TelaRomaneios extends JFrame {
 			public void actionPerformed(ActionEvent e) {
 			}
 		});
-		panel_1.add(btnEditarRomaneio, "cell 6 0,alignx left,aligny top");
+		panel_1.add(btnEditarClassificacao, "cell 6 0,alignx left,aligny top");
 
 		JButton btnSelecionar = new JButton("Selecionar");
-		btnSelecionar.setBackground(new Color(0, 51, 0));
+		btnSelecionar.setBackground(new Color(204, 102, 0));
 		btnSelecionar.setForeground(Color.WHITE);
 		btnSelecionar.setFont(new Font("SansSerif", Font.BOLD, 16));
-		panel_1.add(btnSelecionar, "cell 7 0,growx,aligny top");
+		panel_1.add(btnSelecionar, "flowx,cell 7 0,growx,aligny top");
+		
+				btnExportarComprovantes = new JButton("Exportar Comprovantes");
+				btnExportarComprovantes.addActionListener(new ActionListener() {
+					public void actionPerformed(ActionEvent e) {
+						exportarComprovantes();
+					}
+				});
+				btnExportarComprovantes.setForeground(Color.WHITE);
+				btnExportarComprovantes.setFont(new Font("SansSerif", Font.BOLD, 16));
+				btnExportarComprovantes.setBackground(new Color(102, 51, 0));
+				panel_1.add(btnExportarComprovantes, "cell 1 1");
+				
+				btnCadastrarRomaneio = new JButton("Cadastrar");
+				btnCadastrarRomaneio.addActionListener(new ActionListener() {
+					public void actionPerformed(ActionEvent e) {
+						
+						TelaCadastrarRomaneio tela = new TelaCadastrarRomaneio(0, null, isto);
+						tela.setVisible(true);
+						
+					}
+				});
+				btnCadastrarRomaneio.setForeground(Color.WHITE);
+				btnCadastrarRomaneio.setFont(new Font("SansSerif", Font.BOLD, 16));
+				btnCadastrarRomaneio.setBackground(new Color(0, 51, 0));
+				panel_1.add(btnCadastrarRomaneio, "cell 7 1,growx");
+				
+				btnEditar = new JButton("Editar");
+				btnEditar.setForeground(Color.WHITE);
+				btnEditar.setFont(new Font("SansSerif", Font.BOLD, 16));
+				btnEditar.setBackground(new Color(0, 0, 153));
+				panel_1.add(btnEditar, "cell 7 2,growx");
 
 		btnSelecionar.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
@@ -1077,10 +1101,18 @@ public class TelaRomaneios extends JFrame {
 		JPanel panel_3 = new JPanel();
 		panel_3.setBackground(Color.WHITE);
 		painelPrincipal.add(panel_3, "cell 0 0 5 2,alignx center,aligny top");
-		panel_3.setLayout(new MigLayout("", "[][grow][grow][][grow][][grow][66px][grow][48px][][61px][4px][63px]", "[20px][20px][][][23px][][23px,grow][grow]"));
+		panel_3.setLayout(new MigLayout("", "[][grow][grow][][grow][][grow][66px][grow][48px][][61px][4px][63px]", "[][20px][20px][][][23px][][23px,grow][grow]"));
+		
+		lblArmazm = new JLabel("Armazém:");
+		lblArmazm.setFont(new Font("Tahoma", Font.BOLD, 12));
+		panel_3.add(lblArmazm, "cell 0 0,alignx trailing");
+		
+		entNomeArmazem = new JTextField();
+		entNomeArmazem.setColumns(10);
+		panel_3.add(entNomeArmazem, "cell 1 0 4 1,growx");
 
 		lblRemetente = new JLabel("Depositante:");
-		panel_3.add(lblRemetente, "cell 0 0,alignx right,aligny top");
+		panel_3.add(lblRemetente, "cell 0 1,alignx right,aligny top");
 		lblRemetente.setFont(new Font("Tahoma", Font.BOLD, 12));
 
 		entRemetente = new JTextField();
@@ -1090,11 +1122,11 @@ public class TelaRomaneios extends JFrame {
 				filtrar();
 			}
 		});
-		panel_3.add(entRemetente, "cell 1 0,growx,aligny top");
+		panel_3.add(entRemetente, "cell 1 1,growx,aligny top");
 		entRemetente.setColumns(10);
 
 		JLabel lblCpfcnpj_1 = new JLabel("CPF/CNPJ:");
-		panel_3.add(lblCpfcnpj_1, "cell 2 0,alignx right,aligny top");
+		panel_3.add(lblCpfcnpj_1, "cell 2 1,alignx right,aligny top");
 		lblCpfcnpj_1.setFont(new Font("Tahoma", Font.BOLD, 12));
 
 		entIdentificacaoRemetente = new JTextField();
@@ -1104,11 +1136,11 @@ public class TelaRomaneios extends JFrame {
 				filtrar();
 			}
 		});
-		panel_3.add(entIdentificacaoRemetente, "cell 3 0 2 1,grow");
+		panel_3.add(entIdentificacaoRemetente, "cell 3 1 2 1,grow");
 		entIdentificacaoRemetente.setColumns(10);
 
 		lblNewLabel = new JLabel("Destinatario:");
-		panel_3.add(lblNewLabel, "cell 5 0,alignx right,aligny top");
+		panel_3.add(lblNewLabel, "cell 5 1,alignx right,aligny top");
 		lblNewLabel.setFont(new Font("Tahoma", Font.BOLD, 12));
 
 		entChavePesquisa = new JTextField();
@@ -1118,11 +1150,11 @@ public class TelaRomaneios extends JFrame {
 				filtrar();
 			}
 		});
-		panel_3.add(entChavePesquisa, "cell 6 0,growx,aligny top");
+		panel_3.add(entChavePesquisa, "cell 6 1,growx,aligny top");
 		entChavePesquisa.setColumns(10);
 
 		JLabel lblCpfcnpj = new JLabel("CPF/CNPJ:");
-		panel_3.add(lblCpfcnpj, "cell 7 0,alignx left,aligny top");
+		panel_3.add(lblCpfcnpj, "cell 7 1,alignx left,aligny top");
 		lblCpfcnpj.setFont(new Font("Tahoma", Font.BOLD, 12));
 
 		entIdentificacaoDestinatario = new JTextField();
@@ -1132,11 +1164,11 @@ public class TelaRomaneios extends JFrame {
 				filtrar();
 			}
 		});
-		panel_3.add(entIdentificacaoDestinatario, "cell 8 0,growx,aligny top");
+		panel_3.add(entIdentificacaoDestinatario, "cell 8 1,growx,aligny top");
 		entIdentificacaoDestinatario.setColumns(10);
 
 		lblDocEntrada = new JLabel("Doc Entrada:");
-		panel_3.add(lblDocEntrada, "cell 9 0");
+		panel_3.add(lblDocEntrada, "cell 9 1");
 		lblDocEntrada.setFont(new Font("Tahoma", Font.BOLD, 12));
 
 		entDocEntrada = new JTextField();
@@ -1146,11 +1178,11 @@ public class TelaRomaneios extends JFrame {
 				filtrar();
 			}
 		});
-		panel_3.add(entDocEntrada, "cell 10 0");
+		panel_3.add(entDocEntrada, "cell 10 1");
 		entDocEntrada.setColumns(10);
 
 		JLabel lblCdigo = new JLabel("Código:");
-		panel_3.add(lblCdigo, "cell 11 0,alignx right,aligny center");
+		panel_3.add(lblCdigo, "cell 11 1,alignx right,aligny center");
 		lblCdigo.setFont(new Font("Tahoma", Font.BOLD, 12));
 
 		entCodigo = new JTextField();
@@ -1160,11 +1192,11 @@ public class TelaRomaneios extends JFrame {
 				filtrar();
 			}
 		});
-		panel_3.add(entCodigo, "cell 13 0,growx,aligny center");
+		panel_3.add(entCodigo, "cell 13 1,growx,aligny center");
 		entCodigo.setColumns(10);
 
 		lblProduto = new JLabel("Produto:");
-		panel_3.add(lblProduto, "cell 0 1,alignx right,aligny center");
+		panel_3.add(lblProduto, "cell 0 2,alignx right,aligny center");
 		lblProduto.setFont(new Font("Tahoma", Font.BOLD, 12));
 
 		entProduto = new JTextField();
@@ -1176,11 +1208,11 @@ public class TelaRomaneios extends JFrame {
 
 			}
 		});
-		panel_3.add(entProduto, "cell 1 1,growx,aligny center");
+		panel_3.add(entProduto, "cell 1 2,growx,aligny center");
 		entProduto.setColumns(10);
 
 		lblNatureza = new JLabel("Operação:");
-		panel_3.add(lblNatureza, "cell 2 1,alignx right,aligny center");
+		panel_3.add(lblNatureza, "cell 2 2,alignx right,aligny center");
 		lblNatureza.setFont(new Font("Tahoma", Font.BOLD, 12));
 
 		entNatureza = new JTextField();
@@ -1190,11 +1222,11 @@ public class TelaRomaneios extends JFrame {
 				filtrar();
 			}
 		});
-		panel_3.add(entNatureza, "cell 3 1 2 1,growx,aligny center");
+		panel_3.add(entNatureza, "cell 3 2 2 1,growx,aligny center");
 		entNatureza.setColumns(10);
 
 		lblAmostra = new JLabel("Amostra:");
-		panel_3.add(lblAmostra, "cell 5 1,alignx right");
+		panel_3.add(lblAmostra, "cell 5 2,alignx right");
 		lblAmostra.setFont(new Font("Tahoma", Font.BOLD, 12));
 
 		entAmostra = new JTextField();
@@ -1204,11 +1236,11 @@ public class TelaRomaneios extends JFrame {
 				filtrar();
 			}
 		});
-		panel_3.add(entAmostra, "cell 6 1,growx");
+		panel_3.add(entAmostra, "cell 6 2,growx");
 		entAmostra.setColumns(10);
 
 		lblTransgenia = new JLabel("Transgenia:");
-		panel_3.add(lblTransgenia, "cell 7 1");
+		panel_3.add(lblTransgenia, "cell 7 2");
 		lblTransgenia.setFont(new Font("Tahoma", Font.BOLD, 12));
 
 		entTransgeniaDefinida = new JTextField();
@@ -1218,11 +1250,11 @@ public class TelaRomaneios extends JFrame {
 				filtrar();
 			}
 		});
-		panel_3.add(entTransgeniaDefinida, "cell 8 1");
+		panel_3.add(entTransgeniaDefinida, "cell 8 2");
 		entTransgeniaDefinida.setColumns(10);
 
 		lblClassificador = new JLabel("Classificador:");
-		panel_3.add(lblClassificador, "cell 9 1");
+		panel_3.add(lblClassificador, "cell 9 2");
 		lblClassificador.setFont(new Font("Tahoma", Font.BOLD, 12));
 
 		entClassificador = new JTextField();
@@ -1232,11 +1264,11 @@ public class TelaRomaneios extends JFrame {
 				filtrar();
 			}
 		});
-		panel_3.add(entClassificador, "cell 10 1");
+		panel_3.add(entClassificador, "cell 10 2");
 		entClassificador.setColumns(10);
 
 		lblMonsanto = new JLabel("Monsanto:");
-		panel_3.add(lblMonsanto, "cell 11 1");
+		panel_3.add(lblMonsanto, "cell 11 2");
 		lblMonsanto.setFont(new Font("Tahoma", Font.BOLD, 12));
 
 		entStatusMonsanto = new JTextField();
@@ -1246,12 +1278,12 @@ public class TelaRomaneios extends JFrame {
 				filtrar();
 			}
 		});
-		panel_3.add(entStatusMonsanto, "cell 13 1");
+		panel_3.add(entStatusMonsanto, "cell 13 2");
 		entStatusMonsanto.setColumns(10);
 
 		lblSafra = new JLabel("Safra:");
 		lblSafra.setFont(new Font("Tahoma", Font.BOLD, 12));
-		panel_3.add(lblSafra, "cell 0 2,alignx trailing");
+		panel_3.add(lblSafra, "cell 0 3,alignx trailing");
 
 		entSafra = new JTextField();
 		entSafra.addKeyListener(new KeyAdapter() {
@@ -1261,17 +1293,17 @@ public class TelaRomaneios extends JFrame {
 			}
 		});
 		entSafra.setColumns(10);
-		panel_3.add(entSafra, "cell 1 2,growx");
+		panel_3.add(entSafra, "cell 1 3,growx");
 		
 		lblNewLabel_39 = new JLabel("Id's Safra Em Evidencia:");
 		lblNewLabel_39.setFont(new Font("SansSerif", Font.BOLD, 12));
-		panel_3.add(lblNewLabel_39, "cell 2 2,alignx right");
+		panel_3.add(lblNewLabel_39, "cell 2 3,alignx right");
 		
 		entSafraEvidencia = new JTextField();
 		entSafraEvidencia.setEditable(false);
 		entSafraEvidencia.setEnabled(false);
 		entSafraEvidencia.setColumns(10);
-		panel_3.add(entSafraEvidencia, "cell 4 2,growx");
+		panel_3.add(entSafraEvidencia, "cell 4 3,growx");
 		
 		btnNewButton_3 = new JButton("Limpar");
 		btnNewButton_3.addActionListener(new ActionListener() {
@@ -1283,7 +1315,7 @@ public class TelaRomaneios extends JFrame {
 		});
 		btnNewButton_3.setBackground(new Color(204, 0, 0));
 		btnNewButton_3.setForeground(Color.WHITE);
-		panel_3.add(btnNewButton_3, "flowx,cell 5 2");
+		panel_3.add(btnNewButton_3, "flowx,cell 5 3");
 		
 		btnNewButton_2 = new JButton("Usar");
 		btnNewButton_2.addActionListener(new ActionListener() {
@@ -1294,14 +1326,14 @@ public class TelaRomaneios extends JFrame {
 		});
 		btnNewButton_2.setForeground(Color.WHITE);
 		btnNewButton_2.setBackground(new Color(0, 51, 0));
-		panel_3.add(btnNewButton_2, "cell 5 2");
+		panel_3.add(btnNewButton_2, "cell 5 3");
 		
 		lblSafrasEmEvidencia = new JLabel("Safras");
 		lblSafrasEmEvidencia.setFont(new Font("SansSerif", Font.BOLD, 14));
-		panel_3.add(lblSafrasEmEvidencia, "cell 2 3 12 1");
+		panel_3.add(lblSafrasEmEvidencia, "cell 2 4 12 1");
 
 		lblNomeMotorista = new JLabel("Nome Motorista:");
-		panel_3.add(lblNomeMotorista, "cell 0 4");
+		panel_3.add(lblNomeMotorista, "cell 0 5");
 		lblNomeMotorista.setFont(new Font("Tahoma", Font.BOLD, 12));
 
 		entNomeMotorista = new JTextField();
@@ -1311,11 +1343,11 @@ public class TelaRomaneios extends JFrame {
 				filtrar();
 			}
 		});
-		panel_3.add(entNomeMotorista, "cell 1 4");
+		panel_3.add(entNomeMotorista, "cell 1 5");
 		entNomeMotorista.setColumns(10);
 
 		lblCpf = new JLabel("CPF:");
-		panel_3.add(lblCpf, "cell 2 4,alignx right");
+		panel_3.add(lblCpf, "cell 2 5,alignx right");
 		lblCpf.setFont(new Font("Tahoma", Font.BOLD, 12));
 
 		entCpfMotorista = new JTextField();
@@ -1325,11 +1357,11 @@ public class TelaRomaneios extends JFrame {
 				filtrar();
 			}
 		});
-		panel_3.add(entCpfMotorista, "cell 3 4 2 1,growx");
+		panel_3.add(entCpfMotorista, "cell 3 5 2 1,growx");
 		entCpfMotorista.setColumns(10);
 
 		lblPlaca = new JLabel("Placa:");
-		panel_3.add(lblPlaca, "cell 5 4,alignx right");
+		panel_3.add(lblPlaca, "cell 5 5,alignx right");
 		lblPlaca.setFont(new Font("Tahoma", Font.BOLD, 12));
 
 		entPlaca = new JTextField();
@@ -1340,11 +1372,11 @@ public class TelaRomaneios extends JFrame {
 				filtrar();
 			}
 		});
-		panel_3.add(entPlaca, "cell 6 4,growx");
+		panel_3.add(entPlaca, "cell 6 5,growx");
 		entPlaca.setColumns(10);
 
 		lblSilo = new JLabel("Silo:");
-		panel_3.add(lblSilo, "cell 7 4,alignx right");
+		panel_3.add(lblSilo, "cell 7 5,alignx right");
 		lblSilo.setFont(new Font("Tahoma", Font.BOLD, 12));
 
 		entSilo = new JTextField();
@@ -1354,13 +1386,13 @@ public class TelaRomaneios extends JFrame {
 				filtrar();
 			}
 		});
-		panel_3.add(entSilo, "cell 8 4");
+		panel_3.add(entSilo, "cell 8 5");
 		entSilo.setColumns(10);
 
 		panel_4 = new JPanel();
 		panel_4.setBorder(new LineBorder(new Color(0, 0, 0)));
 		panel_4.setBackground(Color.WHITE);
-		panel_3.add(panel_4, "cell 9 4 5 1,grow");
+		panel_3.add(panel_4, "cell 9 5 5 1,grow");
 		panel_4.setLayout(new MigLayout("", "[][][][][]", "[]"));
 
 		lblPerodo = new JLabel("Período:");
@@ -1387,31 +1419,31 @@ public class TelaRomaneios extends JFrame {
 
 		lblComprovante = new JLabel("Comprovante:");
 		lblComprovante.setFont(new Font("Tahoma", Font.BOLD, 12));
-		panel_3.add(lblComprovante, "cell 0 6,alignx trailing");
+		panel_3.add(lblComprovante, "cell 0 7,alignx trailing");
 
 		cbComprovante = new JComboBox();
 		cbComprovante.setFont(new Font("SansSerif", Font.BOLD, 12));
-		panel_3.add(cbComprovante, "cell 1 6,growx");
+		panel_3.add(cbComprovante, "cell 1 7,growx");
 		cbComprovante.addItem("TODOS");
 		cbComprovante.addItem("ANEXADO");
 		cbComprovante.addItem("ANEXAR");
 
 		lblEditado = new JLabel("Editado:");
 		lblEditado.setFont(new Font("Tahoma", Font.BOLD, 12));
-		panel_3.add(lblEditado, "cell 2 6,alignx right");
+		panel_3.add(lblEditado, "cell 2 7,alignx right");
 
 		cbEditado = new JComboBox();
 		cbEditado.setFont(new Font("SansSerif", Font.BOLD, 12));
 		cbEditado.addItem("TODOS");
 		cbEditado.addItem("SIM");
 		cbEditado.addItem("NÃO");
-		panel_3.add(cbEditado, "cell 4 6,growx");
+		panel_3.add(cbEditado, "cell 4 7,growx");
 
 		JButton btnFiltrar_1 = new JButton("Filtrar");
 		btnFiltrar_1.setBackground(new Color(51, 0, 0));
 		btnFiltrar_1.setForeground(Color.WHITE);
 		btnFiltrar_1.setFont(new Font("Arial", Font.BOLD, 16));
-		panel_3.add(btnFiltrar_1, "cell 9 6,alignx center,aligny center");
+		panel_3.add(btnFiltrar_1, "cell 9 7,alignx center,aligny center");
 		btnFiltrar_1.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				filtrar();
@@ -1422,7 +1454,7 @@ public class TelaRomaneios extends JFrame {
 		btnLimpar.setBackground(new Color(204, 0, 0));
 		btnLimpar.setForeground(Color.WHITE);
 		btnLimpar.setFont(new Font("Arial", Font.BOLD, 16));
-		panel_3.add(btnLimpar, "cell 10 6,alignx center,aligny center");
+		panel_3.add(btnLimpar, "cell 10 7,alignx center,aligny center");
 		btnLimpar.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 
@@ -1434,7 +1466,7 @@ public class TelaRomaneios extends JFrame {
 		btnReleitura.setBackground(new Color(0, 51, 0));
 		btnReleitura.setForeground(Color.WHITE);
 		btnReleitura.setFont(new Font("Arial", Font.BOLD, 16));
-		panel_3.add(btnReleitura, "cell 11 6 3 1,growx,aligny top");
+		panel_3.add(btnReleitura, "cell 11 7 3 1,growx,aligny top");
 		btnReleitura.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				pesquisarTodosOsRomaneios();
@@ -1912,6 +1944,7 @@ public class TelaRomaneios extends JFrame {
 		private final int comprovante = 37;
 		private final int editado = 38;
 		private final int id_safra = 39;
+		private final int armazem = 40;
 
 		private final String colunas[] = { "Número", "Operação", "Data:", "Produto:", "Transgenia:", "Safra:",
 				"Depositante:", "CPF/CNPJ Depositante", "Rementente/Destinatario", "CPF/CNPJ Rementente/Destinatario",
@@ -1919,7 +1952,7 @@ public class TelaRomaneios extends JFrame {
 				"Desconto Avariados", "Desconto Total", "Peso Final:", "Recepção", "Umidade:", "Impureza:", "Ardidos",
 				"Avariados", "CFOP", "Descrição", "Motorista", "CPF MOTORISTA", "Placa", "Doc Entrada", "Amostra",
 				"Silo", "Transgenese", "Classificador", "Umidade 2", "Impureza 2", "STATUS MONSANTO", "ROYALTIES",
-				"Comprovante", "Editado", "Id da Safra" };
+				"Comprovante", "Editado", "Id da Safra", "Armazém" };
 		private final ArrayList<CadastroRomaneio> dados = new ArrayList<>();// usamos como dados uma lista genérica de
 																			// nfs
 
@@ -2023,6 +2056,8 @@ public class TelaRomaneios extends JFrame {
 			case editado:
 				return String.class;
 			case id_safra:
+				return String.class;
+			case armazem:
 				return String.class;
 			default:
 				throw new IndexOutOfBoundsException("Coluna Inválida!!!");
@@ -2257,6 +2292,17 @@ public class TelaRomaneios extends JFrame {
 				CadastroSafra safra = romaneio.getSafra();
 				return safra.getId_safra() + "";
 
+			}case armazem:{
+				try {
+					
+					
+					return romaneio.getArmazem().getNome_fantaia().toUpperCase();
+					
+					
+				} catch (Exception e) {
+					return "";
+				}
+			
 			}
 
 			default:
@@ -2398,7 +2444,8 @@ public class TelaRomaneios extends JFrame {
 		String doc_entrada = entDocEntrada.getText().toUpperCase();
 		String transgenese = entTransgeniaDefinida.getText().toUpperCase();
 		String status_monsanto = entStatusMonsanto.getText().toUpperCase();
-		
+		String armazem = entNomeArmazem.getText().toUpperCase();
+
 
 		String safra = entSafra.getText();
 		String safra_envidencia = entSafraEvidencia.getText();
@@ -2440,6 +2487,10 @@ public class TelaRomaneios extends JFrame {
 		 * filters.add(RowFilter.regexFilter(remetente, 6));
 		 */
 
+		//armazem
+		if (checkString(armazem))
+			filters.add(RowFilter.regexFilter(armazem, 40));
+		
 		if (checkString(remetente))
 			filters.add(RowFilter.regexFilter(remetente, 6));
 

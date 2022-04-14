@@ -85,12 +85,13 @@ public class RelatorioLancamento {
 	private XWPFDocument document_global;
 	private XWPFParagraph paragrafo_atual;
 	private Lancamento lancamento_global;
+
 	public RelatorioLancamento(Lancamento lancamento) {
 		this.lancamento_global = lancamento;
 		getDadosGlobais();
 		criarDocumento();
 	}
-	
+
 	public void criarDocumento() {
 		document_global = new XWPFDocument();
 
@@ -121,7 +122,6 @@ public class RelatorioLancamento {
 
 	}
 
-	
 	public String preparar() {
 
 		Locale ptBr = new Locale("pt", "BR");
@@ -158,105 +158,99 @@ public class RelatorioLancamento {
 
 		String status = "";
 		int int_status = lancamento_global.getStatus();
-		if(int_status == 0) {
+		if (int_status == 0) {
 			status = ("A Pagar");
 
-		}else if(int_status == 1) {
+		} else if (int_status == 1) {
 			status = ("Pago");
 
-		}else if(int_status == 2) {
+		} else if (int_status == 2) {
 			status = ("A Receber");
 
-		}else if(int_status == 3) {
+		} else if (int_status == 3) {
 			status = ("Recebido");
 
 		}
-		
+
 		String tipo_lancamento = "";
-		if(lancamento_global.getTipo_lancamento() == 0) {
+		if (lancamento_global.getTipo_lancamento() == 0) {
 			tipo_lancamento = "DESPESA";
-		}else if(lancamento_global.getTipo_lancamento() == 1) {
+		} else if (lancamento_global.getTipo_lancamento() == 1) {
 			tipo_lancamento = "RECEITA";
 
-		}
-		else if(lancamento_global.getTipo_lancamento() == 2) {
+		} else if (lancamento_global.getTipo_lancamento() == 2) {
 			tipo_lancamento = "TRANSFERÊNCIA";
 
-		}
-		else if(lancamento_global.getTipo_lancamento() == 3) {
+		} else if (lancamento_global.getTipo_lancamento() == 3) {
 			tipo_lancamento = "EMPRÉSTIMO";
 
 		}
-		
-		 int d_prioridade = lancamento_global.getPrioridade();
-		 /*cbPrioridade.addItem("Alta Prioridade - Ainda esta semana");
-			cbPrioridade.addItem("Média Prioridade - Em menos de 15 dias");
-			cbPrioridade.addItem("Prioridade Leve - Ainda este mês");
-			cbPrioridade.addItem("Baixa Prioridade - Ainda este ano");
-			*/
-		 String prioridade = "";
-		 if(d_prioridade == 0) {
-			 prioridade= ("Alta Prioridade - Ainda esta semana");
-		 }else if(d_prioridade == 1) {
-			 prioridade = ("Média Prioridade - Em menos de 15 dias");
 
-		 }else if(d_prioridade == 2) {
-			 prioridade = ("Prioridade Leve - Ainda este mês");
+		int d_prioridade = lancamento_global.getPrioridade();
+		/*
+		 * cbPrioridade.addItem("Alta Prioridade - Ainda esta semana");
+		 * cbPrioridade.addItem("Média Prioridade - Em menos de 15 dias");
+		 * cbPrioridade.addItem("Prioridade Leve - Ainda este mês");
+		 * cbPrioridade.addItem("Baixa Prioridade - Ainda este ano");
+		 */
+		String prioridade = "";
+		if (d_prioridade == 0) {
+			prioridade = ("Alta Prioridade - Ainda esta semana");
+		} else if (d_prioridade == 1) {
+			prioridade = ("Média Prioridade - Em menos de 15 dias");
 
-		 }else if(d_prioridade == 3) {
-			 prioridade = ("Baixa Prioridade - Ainda este ano");
+		} else if (d_prioridade == 2) {
+			prioridade = ("Prioridade Leve - Ainda este mês");
 
-		 }
-		
+		} else if (d_prioridade == 3) {
+			prioridade = ("Baixa Prioridade - Ainda este ano");
+
+		}
+
 		String texto = " Lançamento do tipo: [" + tipo_lancamento + "] | ";
 		texto = texto + " Status: [" + status + "] | ";
 		texto = texto + " Data: [" + lancamento_global.getData_lancamento() + "] | ";
 		texto = texto + " Prioridade: [" + prioridade + "]\n\n";
-		
-		
 
-		  lancamento_global = new GerenciarBancoLancamento().getLancamentoParaRelatorio(lancamento_global.getId_lancamento());
-			
-		  String centro_custo = lancamento_global.getNome_centro_custo();
-		  String nome_cliente = lancamento_global.getNome_cliente_fornecedor();
-		  String conta = lancamento_global.getNome_conta();
-		  
-		  String grupo_conta = lancamento_global.getNome_grupo_contas();
-		  
-		
-		
-		if(lancamento_global.getTipo_lancamento() == 0) {
-		texto = texto + "As Partes:\n";
-		texto = texto + " Devedor: [" + centro_custo + "]\n";
-		texto = texto + " Recebdor: [" + nome_cliente + "]\n";
-		}else if(lancamento_global.getTipo_lancamento() == 1) {
+		lancamento_global = new GerenciarBancoLancamento()
+				.getLancamentoParaRelatorio(lancamento_global.getId_lancamento());
+
+		String centro_custo = lancamento_global.getNome_centro_custo();
+		String nome_cliente = lancamento_global.getNome_cliente_fornecedor();
+		String conta = lancamento_global.getNome_conta();
+
+		String grupo_conta = lancamento_global.getNome_grupo_contas();
+
+		if (lancamento_global.getTipo_lancamento() == 0) {
+			texto = texto + "As Partes:\n";
+			texto = texto + " Devedor: [" + centro_custo + "]\n";
+			texto = texto + " Recebdor: [" + nome_cliente + "]\n";
+		} else if (lancamento_global.getTipo_lancamento() == 1) {
 			texto = texto + "As Partes:\n";
 			texto = texto + " Recebedor: [" + centro_custo + "]\n";
 			texto = texto + " Devedor: [" + nome_cliente + "]\n";
-		}else if(lancamento_global.getTipo_lancamento() == 2) {
+		} else if (lancamento_global.getTipo_lancamento() == 2) {
 			texto = texto + "As Partes:\n";
 			texto = texto + " Remetente: [" + centro_custo + "]\n";
 			texto = texto + " Destinatário: [" + nome_cliente + "]\n";
-		}
-		else if(lancamento_global.getTipo_lancamento() == 3) {
+		} else if (lancamento_global.getTipo_lancamento() == 3) {
 			texto = texto + "As Partes:\n";
-			texto = texto + " Tomador: [" +  nome_cliente + "]\n";
-			texto = texto + " Mutuante: [" + centro_custo  + "]\n";
+			texto = texto + " Tomador: [" + nome_cliente + "]\n";
+			texto = texto + " Mutuante: [" + centro_custo + "]\n";
 		}
-		
+
 		String status_contador = "";
 		int contador = lancamento_global.getContador();
-		if(contador == 0) {
+		if (contador == 0) {
 			status_contador = ("Não se aplica");
-		}else if(contador == 1) {
+		} else if (contador == 1) {
 			status_contador = ("Não Enviado ao contador");
-		}else if(contador == 2) {
+		} else if (contador == 2) {
 			status_contador = ("Enviado ao contador");
 		}
-		
+
 		String nome_destinatario_nf = lancamento_global.getNome_destinatario_nf();
-		
-		
+
 		texto = texto + "\nA Conta:\n";
 		texto = texto + " Grupo de Contas: [" + grupo_conta + "] | ";
 		texto = texto + " Conta: [" + conta + "] | ";
@@ -264,24 +258,24 @@ public class RelatorioLancamento {
 		texto = texto + " Destinatário da NF: [" + nome_destinatario_nf + "]\n";
 
 		texto = texto + " Data Primeiro Vencimento: [" + lancamento_global.getData_vencimento() + "] | ";
-		texto = texto + " Valor: [" + NumberFormat.getCurrencyInstance(ptBr).format(lancamento_global.getValor()) + "] | ";
+		texto = texto + " Valor: [" + NumberFormat.getCurrencyInstance(ptBr).format(lancamento_global.getValor())
+				+ "] | ";
 		texto = texto + " Número de Parcelas: [" + lancamento_global.getNumero_parcelas() + "] | ";
 		texto = texto + " Intervalo: [" + lancamento_global.getIntervalo() + "] | ";
-		texto = texto + " Descrição: [" + lancamento_global.getDescricao()+ "] | ";
-		texto = texto + " Observação: [" + lancamento_global.getObservacao()+ "] | ";
-		texto = texto + " Status Contador: [" + status_contador+ "]\n\n";
-		
-		
-		substituirTexto(-1,texto);
-		substituirTexto(-1,"");
+		texto = texto + " Descrição: [" + lancamento_global.getDescricao() + "] | ";
+		texto = texto + " Observação: [" + lancamento_global.getObservacao() + "] | ";
+		texto = texto + " Status Contador: [" + status_contador + "]\n\n";
 
-		if(lancamento_global.getTipo_lancamento() != 3)
-		criarTabelaParcelasPagamentos();
+		substituirTexto(-1, texto);
+		substituirTexto(-1, "");
+
+		if (lancamento_global.getTipo_lancamento() != 3)
+			criarTabelaParcelasPagamentos();
 		else {
 			BigDecimal valor_total_parcelas = criarTabelaParcelasEmprestimos();
 			BigDecimal valor_total_pagamentos = criarTabelaPagamentoEmprestimos();
-			
-			//status
+
+			// status
 			double diferenca = valor_total_pagamentos.doubleValue() - valor_total_parcelas.doubleValue();
 			String status_pagamento = "[Pagamentos:] ";
 			if (diferenca == 0) {
@@ -290,81 +284,78 @@ public class RelatorioLancamento {
 				status_pagamento += "[Excedeu] [em] [" + NumberFormat.getCurrencyInstance(ptBr).format(diferenca) + "]";
 
 			} else if (diferenca < 0) {
-				status_pagamento += "[Incompleto], [falta] [" + NumberFormat.getCurrencyInstance(ptBr).format(diferenca) + "]";
+				status_pagamento += "[Incompleto], [falta] [" + NumberFormat.getCurrencyInstance(ptBr).format(diferenca)
+						+ "]";
 
 			}
-			substituirTexto("",0);
-			substituirTexto(status_pagamento,0);
-			
-			
+			substituirTexto("", 0);
+			substituirTexto(status_pagamento, 0);
+
 		}
 		// cabecalho e rodape
 
-				try {
-					CTP ctP = CTP.Factory.newInstance();
+		try {
+			CTP ctP = CTP.Factory.newInstance();
 
-					// header text
-					CTText t = ctP.addNewR().addNewT();
+			// header text
+			CTText t = ctP.addNewR().addNewT();
 
-					XWPFParagraph cabecalho = new XWPFParagraph(ctP, document_global);
-					XWPFRun cabecalhoRun = cabecalho.createRun();
-					cabecalhoRun.setFontSize(16);
-					cabecalhoRun.setFontFamily("Arial Black");
-					cabecalhoRun.setText("LD ARMAZÉNS GERAIS");
-					cabecalhoRun.setUnderline(UnderlinePatterns.SINGLE);
-					cabecalhoRun.setColor("00A000");
+			XWPFParagraph cabecalho = new XWPFParagraph(ctP, document_global);
+			XWPFRun cabecalhoRun = cabecalho.createRun();
+			cabecalhoRun.setFontSize(16);
+			cabecalhoRun.setFontFamily("Arial Black");
+			cabecalhoRun.setText("LD ARMAZÉNS GERAIS");
+			cabecalhoRun.setUnderline(UnderlinePatterns.SINGLE);
+			cabecalhoRun.setColor("00A000");
 
-					XWPFParagraph pars[] = new XWPFParagraph[1];
+			XWPFParagraph pars[] = new XWPFParagraph[1];
 
-					pars[0] = cabecalho;
+			pars[0] = cabecalho;
 
-					pars[0].setAlignment(ParagraphAlignment.LEFT);
+			pars[0].setAlignment(ParagraphAlignment.LEFT);
 
-					XWPFHeaderFooterPolicy hfPolicy = document_global.createHeaderFooterPolicy();
-					XWPFHeader header = hfPolicy.createHeader(XWPFHeaderFooterPolicy.DEFAULT, pars);
+			XWPFHeaderFooterPolicy hfPolicy = document_global.createHeaderFooterPolicy();
+			XWPFHeader header = hfPolicy.createHeader(XWPFHeaderFooterPolicy.DEFAULT, pars);
 
-					// hfPolicy.createHeader(XWPFHeaderFooterPolicy.DEFAULT, pars);
+			// hfPolicy.createHeader(XWPFHeaderFooterPolicy.DEFAULT, pars);
 
-					pars[0] = header.getParagraphArray(0);
-					pars[0].setAlignment(ParagraphAlignment.LEFT);
+			pars[0] = header.getParagraphArray(0);
+			pars[0].setAlignment(ParagraphAlignment.LEFT);
 
-					CTTabStop tabStop = pars[0].getCTP().getPPr().addNewTabs().addNewTab();
-					tabStop.setVal(STTabJc.RIGHT);
-					int twipsPerInch = 1440;
-					tabStop.setPos(BigInteger.valueOf(6 * twipsPerInch));
+			CTTabStop tabStop = pars[0].getCTP().getPPr().addNewTabs().addNewTab();
+			tabStop.setVal(STTabJc.RIGHT);
+			int twipsPerInch = 1440;
+			tabStop.setPos(BigInteger.valueOf(6 * twipsPerInch));
 
-					cabecalhoRun = pars[0].createRun();
-					cabecalhoRun.addTab();
+			cabecalhoRun = pars[0].createRun();
+			cabecalhoRun.addTab();
 
-					cabecalhoRun = pars[0].createRun();
-					URL url = getClass().getResource("/imagens/logo_para_relatorio.png");
-					String imgFile = url.getFile();
-					cabecalhoRun.addPicture(new FileInputStream(imgFile), XWPFDocument.PICTURE_TYPE_PNG, imgFile,
-							Units.toEMU(30), Units.toEMU(30));
+			cabecalhoRun = pars[0].createRun();
+			URL url = getClass().getResource("/imagens/logo_para_relatorio.png");
+			String imgFile = url.getFile();
+			cabecalhoRun.addPicture(new FileInputStream(imgFile), XWPFDocument.PICTURE_TYPE_PNG, imgFile,
+					Units.toEMU(200), Units.toEMU(60));
 
-				} catch (Exception e) {
-					// //JOptionPane.showMessageDialog(null,
-					// "Erro ao criar cabecalho e rodape do contrato!\nConsulte o administrador do
-					// sistema!");
-					e.printStackTrace();
-				}
+		} catch (Exception e) {
+			// //JOptionPane.showMessageDialog(null,
+			// "Erro ao criar cabecalho e rodape do contrato!\nConsulte o administrador do
+			// sistema!");
+			e.printStackTrace();
+		}
 
+		ByteArrayOutputStream saida_apos_edicao = new ByteArrayOutputStream();
 
-				ByteArrayOutputStream saida_apos_edicao = new ByteArrayOutputStream();
+		try {
+			document_global.write(new FileOutputStream("c:\\temp\\arquivoteste.docx"));
+			// document_global.write(saida_apos_edicao);
 
-				try {
-					document_global.write(new FileOutputStream("c:\\temp\\arquivoteste.docx"));
-					// document_global.write(saida_apos_edicao);
+		} catch (IOException e) { // TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 
-				} catch (IOException e) { // TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-
-
-				return "c:\\temp\\arquivoteste.docx";
+		return "c:\\temp\\arquivoteste.docx";
 	}
-	
-	
+
 	public void getDadosGlobais() {
 		// gerenciador de log
 		DadosGlobais dados = DadosGlobais.getInstance();
@@ -406,7 +397,7 @@ public class RelatorioLancamento {
 		}
 
 	}
-	
+
 	public void adicionarTextoParagrafoAtual(String texto, boolean negrito) {
 		XWPFRun run = paragrafo_atual.createRun();
 		run.setText(texto);
@@ -483,6 +474,7 @@ public class RelatorioLancamento {
 		spacing.setLineRule(STLineSpacingRule.AUTO);
 		spacing.setLine(BigInteger.valueOf(240));
 	}
+
 	public void criarParagrafo(int alinhamento) {
 		XWPFParagraph paragrafo = document_global.createParagraph();
 
@@ -506,8 +498,6 @@ public class RelatorioLancamento {
 
 		paragrafo_atual = paragrafo;
 	}
-	
-	
 
 	public void criarTabelaParcelasPagamentos() {
 
@@ -519,17 +509,18 @@ public class RelatorioLancamento {
 
 		// criarParagrafo(1);
 		// linhas x colunas
-		ArrayList<Parcela> parcelas = new GerenciarBancoParcelas().getParcelasPorLancamento(lancamento_global.getId_lancamento());
-		ArrayList<FinanceiroPagamentoCompleto> pagamentos = new GerenciarBancoFinanceiroPagamento().getFinanceiroPagamentosPorLancamentoParaRelatorio(lancamento_global.getId_lancamento());
+		ArrayList<Parcela> parcelas = new GerenciarBancoParcelas()
+				.getParcelasPorLancamento(lancamento_global.getId_lancamento());
+		ArrayList<FinanceiroPagamentoCompleto> pagamentos = new GerenciarBancoFinanceiroPagamento()
+				.getFinanceiroPagamentosPorLancamentoParaRelatorio(lancamento_global.getId_lancamento());
 
-		int num_linhas_tabela  = 0;
-		
-		if(parcelas.size() > pagamentos.size()) {
+		int num_linhas_tabela = 0;
+
+		if (parcelas.size() > pagamentos.size()) {
 			num_linhas_tabela = parcelas.size();
-		}else 
+		} else
 			num_linhas_tabela = pagamentos.size();
-		
-		
+
 		XWPFTable table = document_global.createTable(num_linhas_tabela + 3, 14);
 
 		setTableAlign(table, ParagraphAlignment.CENTER);
@@ -540,7 +531,7 @@ public class RelatorioLancamento {
 		tableRowOne = table.getRow(cabecalho);
 		tableRowOne.getCell(0).removeParagraph(0);
 		paragraph = tableRowOne.getCell(0).addParagraph();
-		criarParagrafoTabela(paragraph,"PARCELAS",true, "000000", 0);
+		criarParagrafoTabela(paragraph, "PARCELAS", true, "000000", 0);
 		tableRowOne.getCell(0).getCTTc().addNewTcPr().addNewShd().setFill("FFFFFF");
 		CTHMerge hMerge = CTHMerge.Factory.newInstance();
 		hMerge.setVal(STMerge.RESTART);
@@ -560,18 +551,16 @@ public class RelatorioLancamento {
 
 		}
 
-		
 		tableRowOne = table.getRow(cabecalho);
 		tableRowOne.getCell(5).removeParagraph(0);
 		paragraph = tableRowOne.getCell(5).addParagraph();
 		criarParagrafoTabela(paragraph, "-----------", true);
 		tableRowOne.getCell(5).getCTTc().addNewTcPr().addNewShd().setFill("2F4F4F");
 
-		
 		tableRowOne = table.getRow(cabecalho);
 		tableRowOne.getCell(6).removeParagraph(0);
 		paragraph = tableRowOne.getCell(6).addParagraph();
-		criarParagrafoTabela(paragraph,"PAGAMENTOS",true, "000000", 0);
+		criarParagrafoTabela(paragraph, "PAGAMENTOS", true, "000000", 0);
 		tableRowOne.getCell(6).getCTTc().addNewTcPr().addNewShd().setFill("FFFFFF");
 		CTHMerge hMerge2 = CTHMerge.Factory.newInstance();
 		hMerge2.setVal(STMerge.RESTART);
@@ -590,9 +579,7 @@ public class RelatorioLancamento {
 			table.getRow(cabecalho).getCell(celula).getCTTc().getTcPr().setHMerge(hMerge1);
 
 		}
-		
-		
-		
+
 		cabecalho++;
 
 		tableRowOne = table.getRow(cabecalho);
@@ -626,169 +613,163 @@ public class RelatorioLancamento {
 		criarParagrafoTabela(paragraph, "-----------", true);
 		tableRowOne.getCell(5).getCTTc().addNewTcPr().addNewShd().setFill("2F4F4F");
 
-		
 		tableRowOne = table.getRow(cabecalho);
 		tableRowOne.getCell(6).removeParagraph(0);
 		paragraph = tableRowOne.getCell(6).addParagraph();
 		criarParagrafoTabela(paragraph, "Identificador", true);
-		
+
 		tableRowOne = table.getRow(cabecalho);
 		tableRowOne.getCell(7).removeParagraph(0);
 		paragraph = tableRowOne.getCell(7).addParagraph();
 		criarParagrafoTabela(paragraph, "Pagador", true);
-		
+
 		tableRowOne = table.getRow(cabecalho);
 		tableRowOne.getCell(8).removeParagraph(0);
 		paragraph = tableRowOne.getCell(8).addParagraph();
 		criarParagrafoTabela(paragraph, "Recebedor", true);
-		
+
 		tableRowOne = table.getRow(cabecalho);
 		tableRowOne.getCell(9).removeParagraph(0);
 		paragraph = tableRowOne.getCell(9).addParagraph();
 		criarParagrafoTabela(paragraph, "Descrição", true);
 
-		
 		tableRowOne = table.getRow(cabecalho);
 		tableRowOne.getCell(10).removeParagraph(0);
 		paragraph = tableRowOne.getCell(10).addParagraph();
 		criarParagrafoTabela(paragraph, "Valor", true);
-		
+
 		tableRowOne = table.getRow(cabecalho);
 		tableRowOne.getCell(11).removeParagraph(0);
 		paragraph = tableRowOne.getCell(11).addParagraph();
 		criarParagrafoTabela(paragraph, "Data Pagamento", true);
-		
+
 		tableRowOne = table.getRow(cabecalho);
 		tableRowOne.getCell(12).removeParagraph(0);
 		paragraph = tableRowOne.getCell(12).addParagraph();
 		criarParagrafoTabela(paragraph, "Forma de Pagamento", true);
-		
+
 		tableRowOne = table.getRow(cabecalho);
 		tableRowOne.getCell(13).removeParagraph(0);
 		paragraph = tableRowOne.getCell(13).addParagraph();
 		criarParagrafoTabela(paragraph, "Status", true);
-		
-		
+
 		int i = 2;
 
 		int contador_linhas = 0;
 		while (contador_linhas < num_linhas_tabela) {
 			try {
-			Parcela parcela = parcelas.get(contador_linhas);
-			
-			if(parcela != null) {
-			tableRowOne = table.getRow(i);
-			tableRowOne.getCell(0).removeParagraph(0);
-			paragraph = tableRowOne.getCell(0).addParagraph();
-			criarParagrafoTabela(paragraph, parcela.getIdentificador(), false);
+				Parcela parcela = parcelas.get(contador_linhas);
 
-			tableRowOne = table.getRow(i);
-			tableRowOne.getCell(1).removeParagraph(0);
-			paragraph = tableRowOne.getCell(1).addParagraph();
-			criarParagrafoTabela(paragraph, parcela.getDescricao(), false);
+				if (parcela != null) {
+					tableRowOne = table.getRow(i);
+					tableRowOne.getCell(0).removeParagraph(0);
+					paragraph = tableRowOne.getCell(0).addParagraph();
+					criarParagrafoTabela(paragraph, parcela.getIdentificador(), false);
 
-			tableRowOne = table.getRow(i);
-			tableRowOne.getCell(2).removeParagraph(0);
-			paragraph = tableRowOne.getCell(2).addParagraph();
-			criarParagrafoTabela(paragraph, parcela.getData_vencimento(), false);
+					tableRowOne = table.getRow(i);
+					tableRowOne.getCell(1).removeParagraph(0);
+					paragraph = tableRowOne.getCell(1).addParagraph();
+					criarParagrafoTabela(paragraph, parcela.getDescricao(), false);
 
-			tableRowOne = table.getRow(i);
-			tableRowOne.getCell(3).removeParagraph(0);
-			paragraph = tableRowOne.getCell(3).addParagraph();
-			criarParagrafoTabela(paragraph,  NumberFormat.getCurrencyInstance(ptBr).format(parcela.getValor()), false);
-			valor_total_parcelas = valor_total_parcelas.add(parcela.getValor());
-			
-			tableRowOne = table.getRow(i);
-			tableRowOne.getCell(4).removeParagraph(0);
-			paragraph = tableRowOne.getCell(4).addParagraph();
-			String status_lancamento = "";
-			int status = parcela.getStatus();
-			if(status == 0) {
-				status_lancamento =  ("A Pagar");
+					tableRowOne = table.getRow(i);
+					tableRowOne.getCell(2).removeParagraph(0);
+					paragraph = tableRowOne.getCell(2).addParagraph();
+					criarParagrafoTabela(paragraph, parcela.getData_vencimento(), false);
 
-			}else if(status == 1) {
-				status_lancamento =  ("Pago");
+					tableRowOne = table.getRow(i);
+					tableRowOne.getCell(3).removeParagraph(0);
+					paragraph = tableRowOne.getCell(3).addParagraph();
+					criarParagrafoTabela(paragraph, NumberFormat.getCurrencyInstance(ptBr).format(parcela.getValor()),
+							false);
+					valor_total_parcelas = valor_total_parcelas.add(parcela.getValor());
 
-			}else if(status == 2) {
-				status_lancamento =  ("A Receber");
+					tableRowOne = table.getRow(i);
+					tableRowOne.getCell(4).removeParagraph(0);
+					paragraph = tableRowOne.getCell(4).addParagraph();
+					String status_lancamento = "";
+					int status = parcela.getStatus();
+					if (status == 0) {
+						status_lancamento = ("A Pagar");
 
-			}else if(status == 3) {
-				status_lancamento =  ("Recebido");
+					} else if (status == 1) {
+						status_lancamento = ("Pago");
 
-			}
-			criarParagrafoTabela(paragraph, status_lancamento, false);
-			}
-			}catch(Exception t) {
-				
-			}
-			
-			
-			
-			try {
-			FinanceiroPagamentoCompleto pagamento = pagamentos.get(contador_linhas);
-			if(pagamento != null) {
-				tableRowOne = table.getRow(i);
-				tableRowOne.getCell(6).removeParagraph(0);
-				paragraph = tableRowOne.getCell(6).addParagraph();
-				criarParagrafoTabela(paragraph, pagamento.getFpag().getIdentificador(), false);
-				
-				tableRowOne = table.getRow(i);
-				tableRowOne.getCell(7).removeParagraph(0);
-				paragraph = tableRowOne.getCell(7).addParagraph();
-				criarParagrafoTabela(paragraph,pagamento.getNome_pagador(), false);
+					} else if (status == 2) {
+						status_lancamento = ("A Receber");
 
-				
-				//recebedor
-				tableRowOne = table.getRow(i);
-				tableRowOne.getCell(8).removeParagraph(0);
-				paragraph = tableRowOne.getCell(8).addParagraph();
-				criarParagrafoTabela(paragraph,pagamento.getNome_recebedor(), false);
-					
-				tableRowOne = table.getRow(i);
-				tableRowOne.getCell(9).removeParagraph(0);
-				paragraph = tableRowOne.getCell(9).addParagraph();
-				criarParagrafoTabela(paragraph,pagamento.getFpag().getDescricao(), false);
-				
-				tableRowOne = table.getRow(i);
-				tableRowOne.getCell(10).removeParagraph(0);
-				paragraph = tableRowOne.getCell(10).addParagraph();
-				criarParagrafoTabela(paragraph,NumberFormat.getCurrencyInstance(ptBr).format(pagamento.getFpag().getValor()), false);
-				valor_total_pagamentos = valor_total_pagamentos.add(pagamento.getFpag().getValor());
-				tableRowOne = table.getRow(i);
-				tableRowOne.getCell(11).removeParagraph(0);
-				paragraph = tableRowOne.getCell(11).addParagraph();
-				criarParagrafoTabela(paragraph,pagamento.getFpag().getData_pagamento(), false);
-				
-				tableRowOne = table.getRow(i);
-				tableRowOne.getCell(12).removeParagraph(0);
-				paragraph = tableRowOne.getCell(12).addParagraph();
-				criarParagrafoTabela(paragraph,pagamento.getNome_forma_pagamento(), false);
+					} else if (status == 3) {
+						status_lancamento = ("Recebido");
 
-				tableRowOne = table.getRow(i);
-				tableRowOne.getCell(13).removeParagraph(0);
-				paragraph = tableRowOne.getCell(13).addParagraph();
-				String status ="";
-				if(pagamento.getFpag().getStatus_pagamento() == 0) {
-					status=  "A - Compensar|Realizar|Concluir";
-					
-				}else if(pagamento.getFpag().getStatus_pagamento() == 1) {
-					status=  "Compensado|Realizado|Concluído";
+					}
+					criarParagrafoTabela(paragraph, status_lancamento, false);
 				}
-				criarParagrafoTabela(paragraph,status, false);
+			} catch (Exception t) {
 
-				
 			}
-			}catch(Exception e) {
-				
+
+			try {
+				FinanceiroPagamentoCompleto pagamento = pagamentos.get(contador_linhas);
+				if (pagamento != null) {
+					tableRowOne = table.getRow(i);
+					tableRowOne.getCell(6).removeParagraph(0);
+					paragraph = tableRowOne.getCell(6).addParagraph();
+					criarParagrafoTabela(paragraph, pagamento.getFpag().getIdentificador(), false);
+
+					tableRowOne = table.getRow(i);
+					tableRowOne.getCell(7).removeParagraph(0);
+					paragraph = tableRowOne.getCell(7).addParagraph();
+					criarParagrafoTabela(paragraph, pagamento.getNome_pagador() + "-" + pagamento.getConta_pagador(), false);
+
+					// recebedor
+					tableRowOne = table.getRow(i);
+					tableRowOne.getCell(8).removeParagraph(0);
+					paragraph = tableRowOne.getCell(8).addParagraph();
+					criarParagrafoTabela(paragraph, pagamento.getNome_recebedor()+ "-" + pagamento.getConta_recebedor(), false);
+
+					tableRowOne = table.getRow(i);
+					tableRowOne.getCell(9).removeParagraph(0);
+					paragraph = tableRowOne.getCell(9).addParagraph();
+					criarParagrafoTabela(paragraph, pagamento.getFpag().getDescricao(), false);
+
+					tableRowOne = table.getRow(i);
+					tableRowOne.getCell(10).removeParagraph(0);
+					paragraph = tableRowOne.getCell(10).addParagraph();
+					criarParagrafoTabela(paragraph,
+							NumberFormat.getCurrencyInstance(ptBr).format(pagamento.getFpag().getValor()), false);
+					valor_total_pagamentos = valor_total_pagamentos.add(pagamento.getFpag().getValor());
+					tableRowOne = table.getRow(i);
+					tableRowOne.getCell(11).removeParagraph(0);
+					paragraph = tableRowOne.getCell(11).addParagraph();
+					criarParagrafoTabela(paragraph, pagamento.getFpag().getData_pagamento(), false);
+
+					tableRowOne = table.getRow(i);
+					tableRowOne.getCell(12).removeParagraph(0);
+					paragraph = tableRowOne.getCell(12).addParagraph();
+					criarParagrafoTabela(paragraph, pagamento.getNome_forma_pagamento(), false);
+
+					tableRowOne = table.getRow(i);
+					tableRowOne.getCell(13).removeParagraph(0);
+					paragraph = tableRowOne.getCell(13).addParagraph();
+					String status = "";
+					if (pagamento.getFpag().getStatus_pagamento() == 0) {
+						status = "A - Compensar|Realizar|Concluir";
+
+					} else if (pagamento.getFpag().getStatus_pagamento() == 1) {
+						status = "Compensado|Realizado|Concluído";
+					}
+					criarParagrafoTabela(paragraph, status, false);
+
+				}
+			} catch (Exception e) {
+
 			}
-			
+
 			tableRowOne = table.getRow(i);
 			tableRowOne.getCell(5).removeParagraph(0);
 			paragraph = tableRowOne.getCell(5).addParagraph();
 			criarParagrafoTabela(paragraph, "-----------", true);
 			tableRowOne.getCell(5).getCTTc().addNewTcPr().addNewShd().setFill("2F4F4F");
 
-			
 			i++;
 			contador_linhas++;
 		}
@@ -797,11 +778,11 @@ public class RelatorioLancamento {
 		tableRowOne.getCell(2).removeParagraph(0);
 		paragraph = tableRowOne.getCell(2).addParagraph();
 		criarParagrafoTabela(paragraph, "Total: ", false);
-		
+
 		tableRowOne = table.getRow(i);
 		tableRowOne.getCell(3).removeParagraph(0);
 		paragraph = tableRowOne.getCell(3).addParagraph();
-		criarParagrafoTabela(paragraph,  NumberFormat.getCurrencyInstance(ptBr).format(valor_total_parcelas), true);
+		criarParagrafoTabela(paragraph, NumberFormat.getCurrencyInstance(ptBr).format(valor_total_parcelas), true);
 
 		tableRowOne = table.getRow(i);
 		tableRowOne.getCell(5).removeParagraph(0);
@@ -809,35 +790,34 @@ public class RelatorioLancamento {
 		criarParagrafoTabela(paragraph, "-----------", true);
 		tableRowOne.getCell(5).getCTTc().addNewTcPr().addNewShd().setFill("2F4F4F");
 
-		
 		tableRowOne = table.getRow(i);
 		tableRowOne.getCell(9).removeParagraph(0);
 		paragraph = tableRowOne.getCell(9).addParagraph();
 		criarParagrafoTabela(paragraph, "Total: ", false);
-		
+
 		tableRowOne = table.getRow(i);
 		tableRowOne.getCell(10).removeParagraph(0);
 		paragraph = tableRowOne.getCell(10).addParagraph();
-		criarParagrafoTabela(paragraph,  NumberFormat.getCurrencyInstance(ptBr).format(valor_total_pagamentos), true);
+		criarParagrafoTabela(paragraph, NumberFormat.getCurrencyInstance(ptBr).format(valor_total_pagamentos), true);
 
-		//status
-				double diferenca = valor_total_pagamentos.doubleValue() - valor_total_parcelas.doubleValue();
-				String status_pagamento = "[Pagamentos:] ";
-				if (diferenca == 0) {
-					status_pagamento += "[Pagamento Concluído]";
-				} else if (diferenca > 0) {
-					status_pagamento += "[Excedeu] [em] [" + NumberFormat.getCurrencyInstance(ptBr).format(diferenca) + "]";
+		// status
+		double diferenca = valor_total_pagamentos.doubleValue() - valor_total_parcelas.doubleValue();
+		String status_pagamento = "[Pagamentos:] ";
+		if (diferenca == 0) {
+			status_pagamento += "[Pagamento Concluído]";
+		} else if (diferenca > 0) {
+			status_pagamento += "[Excedeu] [em] [" + NumberFormat.getCurrencyInstance(ptBr).format(diferenca) + "]";
 
-				} else if (diferenca < 0) {
-					status_pagamento += "[Incompleto], [falta] [" + NumberFormat.getCurrencyInstance(ptBr).format(diferenca) + "]";
+		} else if (diferenca < 0) {
+			status_pagamento += "[Incompleto], [falta] [" + NumberFormat.getCurrencyInstance(ptBr).format(diferenca)
+					+ "]";
 
-				}
-				substituirTexto("",0);
-				substituirTexto(status_pagamento,0);
-				
+		}
+		substituirTexto("", 0);
+		substituirTexto(status_pagamento, 0);
+
 	}
-	
-	
+
 	public BigDecimal criarTabelaParcelasEmprestimos() {
 
 		NumberFormat z = NumberFormat.getNumberInstance();
@@ -847,14 +827,27 @@ public class RelatorioLancamento {
 
 		// criarParagrafo(1);
 		// linhas x colunas
-		
-		ArrayList<ParcelaEmprestimo> parcelas = new GerenciarBancoParcelasEmprestimo().getParcelasPorLancamento(lancamento_global.getId_lancamento());
 
-		int num_linhas_tabela  = 0;
+		ArrayList<ParcelaEmprestimo> parcelas = new GerenciarBancoParcelasEmprestimo()
+				.getParcelasPorLancamento(lancamento_global.getId_lancamento());
+
+		GerenciarBancoFinanceiroPagamento gerenciar_pags = new GerenciarBancoFinanceiroPagamento();
+
+		int num_linhas_descricao_pagamento_parcela = 0;
+		for(ParcelaEmprestimo parcela : parcelas) {
+			if(parcela.getCriar_pagamento() == 1) {
+				if(parcela.getId_pagamento() > 0) {
+					num_linhas_descricao_pagamento_parcela++;
+				}
+			}
+		}
 		
-			num_linhas_tabela = parcelas.size();
 		
-		XWPFTable table = document_global.createTable(num_linhas_tabela + 3, 9);
+		int num_linhas_tabela = 0;
+
+		num_linhas_tabela = parcelas.size();
+
+		XWPFTable table = document_global.createTable(num_linhas_tabela + 3 + num_linhas_descricao_pagamento_parcela, 9);
 
 		setTableAlign(table, ParagraphAlignment.CENTER);
 		XWPFTableRow tableRowOne = table.getRow(0);
@@ -864,7 +857,7 @@ public class RelatorioLancamento {
 		tableRowOne = table.getRow(cabecalho);
 		tableRowOne.getCell(0).removeParagraph(0);
 		paragraph = tableRowOne.getCell(0).addParagraph();
-		criarParagrafoTabela(paragraph,"PARCELAS",true, "000000", 0);
+		criarParagrafoTabela(paragraph, "PARCELAS", true, "000000", 0);
 		tableRowOne.getCell(0).getCTTc().addNewTcPr().addNewShd().setFill("FFFFFF");
 		CTHMerge hMerge = CTHMerge.Factory.newInstance();
 		hMerge.setVal(STMerge.RESTART);
@@ -884,10 +877,6 @@ public class RelatorioLancamento {
 
 		}
 
-		
-		
-	
-		
 		cabecalho++;
 
 		tableRowOne = table.getRow(cabecalho);
@@ -904,17 +893,17 @@ public class RelatorioLancamento {
 		tableRowOne.getCell(2).removeParagraph(0);
 		paragraph = tableRowOne.getCell(2).addParagraph();
 		criarParagrafoTabela(paragraph, "Data Vencimento", true);
-		
+
 		tableRowOne = table.getRow(cabecalho);
 		tableRowOne.getCell(3).removeParagraph(0);
 		paragraph = tableRowOne.getCell(3).addParagraph();
 		criarParagrafoTabela(paragraph, "Espécie", true);
-		
+
 		tableRowOne = table.getRow(cabecalho);
 		tableRowOne.getCell(4).removeParagraph(0);
 		paragraph = tableRowOne.getCell(4).addParagraph();
 		criarParagrafoTabela(paragraph, "Quantidade", true);
-		
+
 		tableRowOne = table.getRow(cabecalho);
 		tableRowOne.getCell(5).removeParagraph(0);
 		paragraph = tableRowOne.getCell(5).addParagraph();
@@ -924,7 +913,7 @@ public class RelatorioLancamento {
 		tableRowOne.getCell(6).removeParagraph(0);
 		paragraph = tableRowOne.getCell(6).addParagraph();
 		criarParagrafoTabela(paragraph, "Valor Unitário", true);
-		
+
 		tableRowOne = table.getRow(cabecalho);
 		tableRowOne.getCell(7).removeParagraph(0);
 		paragraph = tableRowOne.getCell(7).addParagraph();
@@ -935,111 +924,157 @@ public class RelatorioLancamento {
 		paragraph = tableRowOne.getCell(8).addParagraph();
 		criarParagrafoTabela(paragraph, "Status", true);
 
-		
-		
 		int i = 2;
 
 		int contador_linhas = 0;
-		while (contador_linhas < num_linhas_tabela) {
+		for (ParcelaEmprestimo parcela : parcelas) {
+			
 			try {
-			ParcelaEmprestimo parcela = parcelas.get(contador_linhas);
-			
-			if(parcela != null) {
-			tableRowOne = table.getRow(i);
-			tableRowOne.getCell(0).removeParagraph(0);
-			paragraph = tableRowOne.getCell(0).addParagraph();
-			criarParagrafoTabela(paragraph, parcela.getIdentificador(), false);
+				//ParcelaEmprestimo parcela = parcelas.get(contador_linhas);
 
-			tableRowOne = table.getRow(i);
-			tableRowOne.getCell(1).removeParagraph(0);
-			paragraph = tableRowOne.getCell(1).addParagraph();
-			criarParagrafoTabela(paragraph, parcela.getDescricao(), false);
+				if (parcela != null) {
+					tableRowOne = table.getRow(i);
+					tableRowOne.getCell(0).removeParagraph(0);
+					paragraph = tableRowOne.getCell(0).addParagraph();
+					criarParagrafoTabela(paragraph, parcela.getIdentificador(), false);
 
-			tableRowOne = table.getRow(i);
-			tableRowOne.getCell(2).removeParagraph(0);
-			paragraph = tableRowOne.getCell(2).addParagraph();
-			criarParagrafoTabela(paragraph, parcela.getData_vencimento(), false);
+					tableRowOne = table.getRow(i);
+					tableRowOne.getCell(1).removeParagraph(0);
+					paragraph = tableRowOne.getCell(1).addParagraph();
+					criarParagrafoTabela(paragraph, parcela.getDescricao(), false);
 
-			
-			tableRowOne = table.getRow(i);
-			tableRowOne.getCell(3).removeParagraph(0);
-			paragraph = tableRowOne.getCell(3).addParagraph();
-			if(parcela.getObjeto() == 0) {
-				//moeda
-			criarParagrafoTabela(paragraph,  "MOEDA", false);
-			}else if(parcela.getObjeto() == 1) {
-				//produto
-				criarParagrafoTabela(paragraph, parcela.getEspecie(), false);
+					tableRowOne = table.getRow(i);
+					tableRowOne.getCell(2).removeParagraph(0);
+					paragraph = tableRowOne.getCell(2).addParagraph();
+					criarParagrafoTabela(paragraph, parcela.getData_vencimento(), false);
+
+					tableRowOne = table.getRow(i);
+					tableRowOne.getCell(3).removeParagraph(0);
+					paragraph = tableRowOne.getCell(3).addParagraph();
+					if (parcela.getObjeto() == 0) {
+						// moeda
+						criarParagrafoTabela(paragraph, "MOEDA", false);
+					} else if (parcela.getObjeto() == 1) {
+						// produto
+						criarParagrafoTabela(paragraph, parcela.getEspecie(), false);
+
+					}
+
+					tableRowOne = table.getRow(i);
+					tableRowOne.getCell(4).removeParagraph(0);
+					paragraph = tableRowOne.getCell(4).addParagraph();
+					if (parcela.getObjeto() == 0) {
+						// moeda
+						criarParagrafoTabela(paragraph, "MOEDA", false);
+					} else if (parcela.getObjeto() == 1) {
+						// produto
+						criarParagrafoTabela(paragraph, Double.toString(parcela.getQuantidade()), false);
+
+					}
+
+					tableRowOne.getCell(5).removeParagraph(0);
+					paragraph = tableRowOne.getCell(5).addParagraph();
+					if (parcela.getObjeto() == 0) {
+						// moeda
+						criarParagrafoTabela(paragraph, "MOEDA", false);
+					} else if (parcela.getObjeto() == 1) {
+						// produto
+						criarParagrafoTabela(paragraph, parcela.getUnidade_medida(), false);
+
+					}
+
+					tableRowOne.getCell(6).removeParagraph(0);
+					paragraph = tableRowOne.getCell(6).addParagraph();
+					if (parcela.getObjeto() == 0) {
+						// moeda
+						criarParagrafoTabela(paragraph, "MOEDA", false);
+					} else if (parcela.getObjeto() == 1) {
+						// produto
+						criarParagrafoTabela(paragraph,
+								NumberFormat.getCurrencyInstance(ptBr).format(parcela.getValor_unitario()), false);
+
+					}
+
+					tableRowOne = table.getRow(i);
+					tableRowOne.getCell(7).removeParagraph(0);
+					paragraph = tableRowOne.getCell(7).addParagraph();
+					criarParagrafoTabela(paragraph, NumberFormat.getCurrencyInstance(ptBr).format(parcela.getValor()),
+							false);
+					valor_total_parcelas = valor_total_parcelas.add(parcela.getValor());
+
+					tableRowOne = table.getRow(i);
+					tableRowOne.getCell(8).removeParagraph(0);
+					paragraph = tableRowOne.getCell(8).addParagraph();
+					String status_lancamento = "";
+					int status = parcela.getStatus();
+					if (status == 0) {
+						status_lancamento = ("A Pagar");
+
+					} else if (status == 1) {
+						status_lancamento = ("Pago");
+
+					} else if (status == 2) {
+						status_lancamento = ("A Receber");
+
+					} else if (status == 3) {
+						status_lancamento = ("Recebido");
+
+					}
+					criarParagrafoTabela(paragraph, status_lancamento, false);
+
+					// inserir descricao do pagamento se houver
+					if (parcela.getCriar_pagamento() == 1) {
+
+						if (parcela.getId_pagamento() > 0) {
+							FinanceiroPagamentoCompleto pagamento = gerenciar_pags
+									.getFinanceiroPagamentosCompletoPorId(parcela.getId_pagamento());
+							if (pagamento != null) {
+								
+								String valor_pag = NumberFormat.getCurrencyInstance(ptBr).format(parcela.getValor());
+								String descricao_pagamento = "Pagamento desta parcela no valor de " +valor_pag
+										+ " pago na data de " + pagamento.getFpag().getData_pagamento() + " por " + pagamento.getNome_pagador() +
+										" para " + pagamento.getNome_recebedor() + " na forma de pagamento de " + pagamento.getNome_forma_pagamento()
+										+ " proveniente de " + pagamento.getConta_pagador();
+								
+								i++;
+								contador_linhas++;
+
+								 tableRowOne = table.getRow(i);
+								 paragraph = tableRowOne.getCell(0).addParagraph();
+
+								tableRowOne = table.getRow(i);
+								tableRowOne.getCell(0).removeParagraph(0);
+								paragraph = tableRowOne.getCell(0).addParagraph();
+								criarParagrafoTabela(paragraph, "->->"+descricao_pagamento, true, "000000", 0);
+								tableRowOne.getCell(0).getCTTc().addNewTcPr().addNewShd().setFill("FFFFFF");
+								CTHMerge hMergeDescr = CTHMerge.Factory.newInstance();
+								hMergeDescr.setVal(STMerge.RESTART);
+								table.getRow(i).getCell(0).getCTTc().getTcPr().setHMerge(hMergeDescr);
+
+								for (int celula = 1; celula <= 8; celula++) {
+									tableRowOne = table.getRow(i);
+									tableRowOne.getCell(celula).removeParagraph(0);
+									paragraph = tableRowOne.getCell(celula).addParagraph();
+
+									criarParagrafoTabela(paragraph, "", true);
+									tableRowOne.getCell(celula).getCTTc().addNewTcPr().addNewShd().setFill("FFFFFF");
+
+									CTHMerge hMerge2 = CTHMerge.Factory.newInstance();
+									hMerge2.setVal(STMerge.CONTINUE);
+									table.getRow(i).getCell(celula).getCTTc().getTcPr().setHMerge(hMerge2);
+
+								}
+								
+							}
+						}
+
+					}
+
+				}
+			} catch (Exception t) {
 
 			}
-			
-			tableRowOne = table.getRow(i);
-			tableRowOne.getCell(4).removeParagraph(0);
-			paragraph = tableRowOne.getCell(4).addParagraph();
-			if(parcela.getObjeto() == 0) {
-				//moeda
-			criarParagrafoTabela(paragraph, "MOEDA", false);
-			}else if(parcela.getObjeto() == 1) {
-				//produto
-				criarParagrafoTabela(paragraph, Double.toString(parcela.getQuantidade()), false);
 
-			}
-			
-			tableRowOne.getCell(5).removeParagraph(0);
-			paragraph = tableRowOne.getCell(5).addParagraph();
-			if(parcela.getObjeto() == 0) {
-				//moeda
-			criarParagrafoTabela(paragraph, "MOEDA", false);
-			}else if(parcela.getObjeto() == 1) {
-				//produto
-				criarParagrafoTabela(paragraph, parcela.getUnidade_medida(), false);
-
-			}
-			
-			tableRowOne.getCell(6).removeParagraph(0);
-			paragraph = tableRowOne.getCell(6).addParagraph();
-			if(parcela.getObjeto() == 0) {
-				//moeda
-			criarParagrafoTabela(paragraph, "MOEDA", false);
-			}else if(parcela.getObjeto() == 1) {
-				//produto
-				criarParagrafoTabela(paragraph,NumberFormat.getCurrencyInstance(ptBr).format(parcela.getValor_unitario()) , false);
-
-			}
-			
-			
-			tableRowOne = table.getRow(i);
-			tableRowOne.getCell(7).removeParagraph(0);
-			paragraph = tableRowOne.getCell(7).addParagraph();
-			criarParagrafoTabela(paragraph,  NumberFormat.getCurrencyInstance(ptBr).format(parcela.getValor()), false);
-			valor_total_parcelas = valor_total_parcelas.add(parcela.getValor());
-			
-			tableRowOne = table.getRow(i);
-			tableRowOne.getCell(8).removeParagraph(0);
-			paragraph = tableRowOne.getCell(8).addParagraph();
-			String status_lancamento = "";
-			int status = parcela.getStatus();
-			if(status == 0) {
-				status_lancamento =  ("A Pagar");
-
-			}else if(status == 1) {
-				status_lancamento =  ("Pago");
-
-			}else if(status == 2) {
-				status_lancamento =  ("A Receber");
-
-			}else if(status == 3) {
-				status_lancamento =  ("Recebido");
-
-			}
-			criarParagrafoTabela(paragraph, status_lancamento, false);
-			}
-			}catch(Exception t) {
-				
-			}
-			
-			
-			
 			i++;
 			contador_linhas++;
 		}
@@ -1048,18 +1083,18 @@ public class RelatorioLancamento {
 		tableRowOne.getCell(6).removeParagraph(0);
 		paragraph = tableRowOne.getCell(6).addParagraph();
 		criarParagrafoTabela(paragraph, "Total: ", false);
-		
+
 		tableRowOne = table.getRow(i);
 		tableRowOne.getCell(7).removeParagraph(0);
 		paragraph = tableRowOne.getCell(7).addParagraph();
-		criarParagrafoTabela(paragraph,  NumberFormat.getCurrencyInstance(ptBr).format(valor_total_parcelas), true);
+		criarParagrafoTabela(paragraph, NumberFormat.getCurrencyInstance(ptBr).format(valor_total_parcelas), true);
 
 		substituirTexto(1, "");
-		
+
 		return valor_total_parcelas;
-				
+
 	}
-	
+
 	public BigDecimal criarTabelaPagamentoEmprestimos() {
 
 		NumberFormat z = NumberFormat.getNumberInstance();
@@ -1069,13 +1104,14 @@ public class RelatorioLancamento {
 
 		// criarParagrafo(1);
 		// linhas x colunas
-		
-		ArrayList<FinanceiroPagamentoEmprestimoCompleto> pagamentos = new GerenciarBancoFinanceiroPagamentoEmprestimo().getFinanceiroPagamentosPorLancamentoParaRelatorio(lancamento_global.getId_lancamento());
 
-		int num_linhas_tabela  = 0;
-		
-			num_linhas_tabela = pagamentos.size();
-		
+		ArrayList<FinanceiroPagamentoEmprestimoCompleto> pagamentos = new GerenciarBancoFinanceiroPagamentoEmprestimo()
+				.getFinanceiroPagamentosPorLancamentoParaRelatorio(lancamento_global.getId_lancamento());
+
+		int num_linhas_tabela = 0;
+
+		num_linhas_tabela = pagamentos.size();
+
 		XWPFTable table = document_global.createTable(num_linhas_tabela + 3, 12);
 
 		setTableAlign(table, ParagraphAlignment.CENTER);
@@ -1086,7 +1122,7 @@ public class RelatorioLancamento {
 		tableRowOne = table.getRow(cabecalho);
 		tableRowOne.getCell(0).removeParagraph(0);
 		paragraph = tableRowOne.getCell(0).addParagraph();
-		criarParagrafoTabela(paragraph,"PAGAMENTOS",true, "000000", 0);
+		criarParagrafoTabela(paragraph, "PAGAMENTOS", true, "000000", 0);
 		tableRowOne.getCell(0).getCTTc().addNewTcPr().addNewShd().setFill("FFFFFF");
 		CTHMerge hMerge = CTHMerge.Factory.newInstance();
 		hMerge.setVal(STMerge.RESTART);
@@ -1106,10 +1142,6 @@ public class RelatorioLancamento {
 
 		}
 
-		
-		
-	
-		
 		cabecalho++;
 
 		tableRowOne = table.getRow(cabecalho);
@@ -1126,17 +1158,17 @@ public class RelatorioLancamento {
 		tableRowOne.getCell(2).removeParagraph(0);
 		paragraph = tableRowOne.getCell(2).addParagraph();
 		criarParagrafoTabela(paragraph, "Data Pagamento", true);
-		
+
 		tableRowOne = table.getRow(cabecalho);
 		tableRowOne.getCell(3).removeParagraph(0);
 		paragraph = tableRowOne.getCell(3).addParagraph();
 		criarParagrafoTabela(paragraph, "Espécie", true);
-		
+
 		tableRowOne = table.getRow(cabecalho);
 		tableRowOne.getCell(4).removeParagraph(0);
 		paragraph = tableRowOne.getCell(4).addParagraph();
 		criarParagrafoTabela(paragraph, "Quantidade", true);
-		
+
 		tableRowOne = table.getRow(cabecalho);
 		tableRowOne.getCell(5).removeParagraph(0);
 		paragraph = tableRowOne.getCell(5).addParagraph();
@@ -1146,22 +1178,22 @@ public class RelatorioLancamento {
 		tableRowOne.getCell(6).removeParagraph(0);
 		paragraph = tableRowOne.getCell(6).addParagraph();
 		criarParagrafoTabela(paragraph, "Valor Unitário", true);
-		
+
 		tableRowOne = table.getRow(cabecalho);
 		tableRowOne.getCell(7).removeParagraph(0);
 		paragraph = tableRowOne.getCell(7).addParagraph();
 		criarParagrafoTabela(paragraph, "Valor Total", true);
-		
+
 		tableRowOne = table.getRow(cabecalho);
 		tableRowOne.getCell(8).removeParagraph(0);
 		paragraph = tableRowOne.getCell(8).addParagraph();
 		criarParagrafoTabela(paragraph, "Pagador", true);
-		
+
 		tableRowOne = table.getRow(cabecalho);
 		tableRowOne.getCell(9).removeParagraph(0);
 		paragraph = tableRowOne.getCell(9).addParagraph();
 		criarParagrafoTabela(paragraph, "Recebedor", true);
-		
+
 		tableRowOne = table.getRow(cabecalho);
 		tableRowOne.getCell(10).removeParagraph(0);
 		paragraph = tableRowOne.getCell(10).addParagraph();
@@ -1172,129 +1204,123 @@ public class RelatorioLancamento {
 		paragraph = tableRowOne.getCell(11).addParagraph();
 		criarParagrafoTabela(paragraph, "Status Pagamento", true);
 
-		
-		
 		int i = 2;
 
 		int contador_linhas = 0;
 		while (contador_linhas < num_linhas_tabela) {
 			try {
-			FinanceiroPagamentoEmprestimoCompleto pagamento = pagamentos.get(contador_linhas);
-			
-			if(pagamento != null) {
-			tableRowOne = table.getRow(i);
-			tableRowOne.getCell(0).removeParagraph(0);
-			paragraph = tableRowOne.getCell(0).addParagraph();
-			criarParagrafoTabela(paragraph, pagamento.getFpag().getIdentificador(), false);
+				FinanceiroPagamentoEmprestimoCompleto pagamento = pagamentos.get(contador_linhas);
 
-			tableRowOne = table.getRow(i);
-			tableRowOne.getCell(1).removeParagraph(0);
-			paragraph = tableRowOne.getCell(1).addParagraph();
-			criarParagrafoTabela(paragraph, pagamento.getFpag().getDescricao(), false);
+				if (pagamento != null) {
+					tableRowOne = table.getRow(i);
+					tableRowOne.getCell(0).removeParagraph(0);
+					paragraph = tableRowOne.getCell(0).addParagraph();
+					criarParagrafoTabela(paragraph, pagamento.getFpag().getIdentificador(), false);
 
-			tableRowOne = table.getRow(i);
-			tableRowOne.getCell(2).removeParagraph(0);
-			paragraph = tableRowOne.getCell(2).addParagraph();
-			criarParagrafoTabela(paragraph, pagamento.getFpag().getData_pagamento(), false);
+					tableRowOne = table.getRow(i);
+					tableRowOne.getCell(1).removeParagraph(0);
+					paragraph = tableRowOne.getCell(1).addParagraph();
+					criarParagrafoTabela(paragraph, pagamento.getFpag().getDescricao(), false);
 
-			
-			tableRowOne = table.getRow(i);
-			tableRowOne.getCell(3).removeParagraph(0);
-			paragraph = tableRowOne.getCell(3).addParagraph();
-			if(pagamento.getFpag().getObjeto() == 0) {
-				//moeda
-			criarParagrafoTabela(paragraph,  "MOEDA", false);
-			}else if(pagamento.getFpag().getObjeto() == 1) {
-				//produto
-				criarParagrafoTabela(paragraph, pagamento.getFpag().getEspecie(), false);
+					tableRowOne = table.getRow(i);
+					tableRowOne.getCell(2).removeParagraph(0);
+					paragraph = tableRowOne.getCell(2).addParagraph();
+					criarParagrafoTabela(paragraph, pagamento.getFpag().getData_pagamento(), false);
+
+					tableRowOne = table.getRow(i);
+					tableRowOne.getCell(3).removeParagraph(0);
+					paragraph = tableRowOne.getCell(3).addParagraph();
+					if (pagamento.getFpag().getObjeto() == 0) {
+						// moeda
+						criarParagrafoTabela(paragraph, "MOEDA", false);
+					} else if (pagamento.getFpag().getObjeto() == 1) {
+						// produto
+						criarParagrafoTabela(paragraph, pagamento.getFpag().getEspecie(), false);
+
+					}
+
+					tableRowOne = table.getRow(i);
+					tableRowOne.getCell(4).removeParagraph(0);
+					paragraph = tableRowOne.getCell(4).addParagraph();
+					if (pagamento.getFpag().getObjeto() == 0) {
+						// moeda
+						criarParagrafoTabela(paragraph, "MOEDA", false);
+					} else if (pagamento.getFpag().getObjeto() == 1) {
+						// produto
+						criarParagrafoTabela(paragraph, Double.toString(pagamento.getFpag().getQuantidade()), false);
+
+					}
+
+					tableRowOne.getCell(5).removeParagraph(0);
+					paragraph = tableRowOne.getCell(5).addParagraph();
+					if (pagamento.getFpag().getObjeto() == 0) {
+						// moeda
+						criarParagrafoTabela(paragraph, "MOEDA", false);
+					} else if (pagamento.getFpag().getObjeto() == 1) {
+						// produto
+						criarParagrafoTabela(paragraph, pagamento.getFpag().getUnidade_medida(), false);
+
+					}
+
+					tableRowOne.getCell(6).removeParagraph(0);
+					paragraph = tableRowOne.getCell(6).addParagraph();
+					if (pagamento.getFpag().getObjeto() == 0) {
+						// moeda
+						criarParagrafoTabela(paragraph, "MOEDA", false);
+					} else if (pagamento.getFpag().getObjeto() == 1) {
+						// produto
+						criarParagrafoTabela(paragraph,
+								NumberFormat.getCurrencyInstance(ptBr).format(pagamento.getFpag().getValor_unitario()),
+								false);
+
+					}
+
+					tableRowOne = table.getRow(i);
+					tableRowOne.getCell(7).removeParagraph(0);
+					paragraph = tableRowOne.getCell(7).addParagraph();
+					criarParagrafoTabela(paragraph,
+							NumberFormat.getCurrencyInstance(ptBr).format(pagamento.getFpag().getValor()), false);
+					valor_total_pagamentos = valor_total_pagamentos.add(pagamento.getFpag().getValor());
+
+					tableRowOne = table.getRow(i);
+					tableRowOne.getCell(8).removeParagraph(0);
+					paragraph = tableRowOne.getCell(8).addParagraph();
+					criarParagrafoTabela(paragraph, pagamento.getNome_pagador() + "-" + pagamento.getConta_pagador(), false);
+
+					tableRowOne = table.getRow(i);
+					tableRowOne.getCell(9).removeParagraph(0);
+					paragraph = tableRowOne.getCell(9).addParagraph();
+					criarParagrafoTabela(paragraph, pagamento.getNome_recebedor()  + "-" + pagamento.getConta_recebedor(), false);
+
+					tableRowOne = table.getRow(i);
+					tableRowOne.getCell(10).removeParagraph(0);
+					paragraph = tableRowOne.getCell(10).addParagraph();
+					criarParagrafoTabela(paragraph, pagamento.getNome_forma_pagamento(), false);
+
+					tableRowOne = table.getRow(i);
+					tableRowOne.getCell(11).removeParagraph(0);
+					paragraph = tableRowOne.getCell(11).addParagraph();
+					String status_lancamento = "";
+					int status = pagamento.getFpag().getStatus_pagamento();
+					if (status == 0) {
+						status_lancamento = ("A Pagar");
+
+					} else if (status == 1) {
+						status_lancamento = ("Pago");
+
+					} else if (status == 2) {
+						status_lancamento = ("A Receber");
+
+					} else if (status == 3) {
+						status_lancamento = ("Recebido");
+
+					}
+					criarParagrafoTabela(paragraph, status_lancamento, false);
+				}
+			} catch (Exception t) {
 
 			}
-			
-			tableRowOne = table.getRow(i);
-			tableRowOne.getCell(4).removeParagraph(0);
-			paragraph = tableRowOne.getCell(4).addParagraph();
-			if(pagamento.getFpag().getObjeto() == 0) {
-				//moeda
-			criarParagrafoTabela(paragraph, "MOEDA", false);
-			}else if(pagamento.getFpag().getObjeto() == 1) {
-				//produto
-				criarParagrafoTabela(paragraph, Double.toString(pagamento.getFpag().getQuantidade()), false);
 
-			}
-			
-			tableRowOne.getCell(5).removeParagraph(0);
-			paragraph = tableRowOne.getCell(5).addParagraph();
-			if(pagamento.getFpag().getObjeto() == 0) {
-				//moeda
-			criarParagrafoTabela(paragraph, "MOEDA", false);
-			}else if(pagamento.getFpag().getObjeto() == 1) {
-				//produto
-				criarParagrafoTabela(paragraph, pagamento.getFpag().getUnidade_medida(), false);
-
-			}
-			
-			tableRowOne.getCell(6).removeParagraph(0);
-			paragraph = tableRowOne.getCell(6).addParagraph();
-			if(pagamento.getFpag().getObjeto() == 0) {
-				//moeda
-			criarParagrafoTabela(paragraph, "MOEDA", false);
-			}else if(pagamento.getFpag().getObjeto() == 1) {
-				//produto
-				criarParagrafoTabela(paragraph,NumberFormat.getCurrencyInstance(ptBr).format(pagamento.getFpag().getValor_unitario()) , false);
-
-			}
-			
-			
-			tableRowOne = table.getRow(i);
-			tableRowOne.getCell(7).removeParagraph(0);
-			paragraph = tableRowOne.getCell(7).addParagraph();
-			criarParagrafoTabela(paragraph,  NumberFormat.getCurrencyInstance(ptBr).format(pagamento.getFpag().getValor()), false);
-			valor_total_pagamentos = valor_total_pagamentos.add(pagamento.getFpag().getValor());
-			
-			tableRowOne = table.getRow(i);
-			tableRowOne.getCell(8).removeParagraph(0);
-			paragraph = tableRowOne.getCell(8).addParagraph();
-			criarParagrafoTabela(paragraph, pagamento.getNome_pagador() , false);
-			
-			tableRowOne = table.getRow(i);
-			tableRowOne.getCell(9).removeParagraph(0);
-			paragraph = tableRowOne.getCell(9).addParagraph();
-			criarParagrafoTabela(paragraph, pagamento.getNome_recebedor() , false);
-			
-			
-			tableRowOne = table.getRow(i);
-			tableRowOne.getCell(10).removeParagraph(0);
-			paragraph = tableRowOne.getCell(10).addParagraph();
-			criarParagrafoTabela(paragraph, pagamento.getNome_forma_pagamento() , false);
-			
-		
-			
-			tableRowOne = table.getRow(i);
-			tableRowOne.getCell(11).removeParagraph(0);
-			paragraph = tableRowOne.getCell(11).addParagraph();
-			String status_lancamento = "";
-			int status = pagamento.getFpag().getStatus_pagamento();
-			if(status == 0) {
-				status_lancamento =  ("A Pagar");
-
-			}else if(status == 1) {
-				status_lancamento =  ("Pago");
-
-			}else if(status == 2) {
-				status_lancamento =  ("A Receber");
-
-			}else if(status == 3) {
-				status_lancamento =  ("Recebido");
-
-			}
-			criarParagrafoTabela(paragraph, status_lancamento, false);
-			}
-			}catch(Exception t) {
-				
-			}
-			
-			
-			
 			i++;
 			contador_linhas++;
 		}
@@ -1303,17 +1329,16 @@ public class RelatorioLancamento {
 		tableRowOne.getCell(6).removeParagraph(0);
 		paragraph = tableRowOne.getCell(6).addParagraph();
 		criarParagrafoTabela(paragraph, "Total: ", false);
-		
+
 		tableRowOne = table.getRow(i);
 		tableRowOne.getCell(7).removeParagraph(0);
 		paragraph = tableRowOne.getCell(7).addParagraph();
-		criarParagrafoTabela(paragraph,  NumberFormat.getCurrencyInstance(ptBr).format(valor_total_pagamentos), true);
+		criarParagrafoTabela(paragraph, NumberFormat.getCurrencyInstance(ptBr).format(valor_total_pagamentos), true);
 
 		return valor_total_pagamentos;
-		
-				
+
 	}
-	
+
 	public void substituirTexto(String text_amostra, int alinhamento) {
 
 		// criarParagrafo(2);

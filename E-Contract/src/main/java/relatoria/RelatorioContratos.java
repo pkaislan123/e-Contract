@@ -49,6 +49,9 @@ import org.apache.poi.openxml4j.opc.OPCPackage;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellStyle;
 import org.apache.poi.ss.usermodel.CellType;
+import org.apache.poi.ss.usermodel.ClientAnchor;
+import org.apache.poi.ss.usermodel.CreationHelper;
+import org.apache.poi.ss.usermodel.Drawing;
 import org.apache.poi.ss.usermodel.FillPatternType;
 import org.apache.poi.ss.usermodel.FormulaEvaluator;
 import org.apache.poi.ss.usermodel.HorizontalAlignment;
@@ -609,6 +612,11 @@ public class RelatorioContratos {
 		String criador = "Relatório de Contratos" + " por " + login.getNome() + " " + login.getSobrenome() + " em "
 				+ data_criacao + " ás " + data.getHora();
 
+		
+		
+		
+	
+		
 		HSSFSheet sheet = workbook.createSheet("Contratos");
 
 		// Definindo alguns padroes de layout
@@ -666,6 +674,44 @@ public class RelatorioContratos {
 			}
 		}
 
+		
+		
+		//adicionar logo
+		try {
+			
+			URL url = getClass().getResource("/imagens/logo_para_relatorio.png");
+			String imgFile = url.getFile();
+			InputStream inputStream = new FileInputStream(imgFile);
+
+			byte[] imageBytes = IOUtils.toByteArray(inputStream);
+
+			int pictureureIdx = workbook.addPicture(imageBytes, Workbook.PICTURE_TYPE_PNG);
+
+			inputStream.close();
+
+			CreationHelper helper = workbook.getCreationHelper();
+
+			Drawing drawing = sheet.createDrawingPatriarch();
+
+			ClientAnchor anchor = helper.createClientAnchor();
+
+			anchor.setRow1(0);
+			anchor.setRow2(3);
+			anchor.setCol1(7);
+			anchor.setCol2(9);
+			
+
+			drawing.createPicture(anchor, pictureureIdx);
+
+
+
+		} catch (IOException e1) {
+			// TODO Auto-generated catch block
+			//JOptionPane.showMessageDialog(isto, "Erro ao anexar imagem no xlsx");
+			e1.printStackTrace();
+		}
+		
+		
 		rownum++;
 		cellnum = 0;
 
@@ -2667,7 +2713,7 @@ public class RelatorioContratos {
 			URL url = getClass().getResource("/imagens/logo_para_relatorio.png");
 			String imgFile = url.getFile();
 			cabecalhoRun.addPicture(new FileInputStream(imgFile), XWPFDocument.PICTURE_TYPE_PNG, imgFile,
-					Units.toEMU(30), Units.toEMU(30));
+					Units.toEMU(200), Units.toEMU(60));
 
 		} catch (Exception e) {
 			// //JOptionPane.showMessageDialog(null,

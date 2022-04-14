@@ -175,11 +175,11 @@ import javax.swing.JComboBox;
 
 
 
-public class TelaCadastroRomaneio extends JFrame {
+public class TelaEdicaoClassificacaoRomaneio extends JFrame {
 
 	private final JPanel painelPrincipal = new JPanel();
     private JLabel lblTotalContratosConcluidos, lblTotalContratos, lblTotalContratosAbertos;
-    private TelaCadastroRomaneio isto;
+    private TelaEdicaoClassificacaoRomaneio isto;
     private JDialog telaPai;
     private JPanel painel_vizualizar;
     private SwingController controller = null;
@@ -217,7 +217,7 @@ public class TelaCadastroRomaneio extends JFrame {
 	private final JTextArea entObservacao = new JTextArea();
 
 	
-	public TelaCadastroRomaneio(CadastroRomaneio romaneio, Window janela_pai) {
+	public TelaEdicaoClassificacaoRomaneio(CadastroRomaneio romaneio, Window janela_pai) {
 
 		
 		 isto = this;

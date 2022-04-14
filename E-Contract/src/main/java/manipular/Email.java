@@ -20,158 +20,144 @@ import javax.mail.internet.MimeMessage;
 import javax.mail.internet.MimeMultipart;
 import javax.swing.JOptionPane;
 
-public class Email
-{
-	
-	
-	 Properties props ;
-	 Session session ;
-	 private String email_local, senha_local;
-	 
-  public void abrirEmail() {
-	  
-     props = new Properties();
-     
-     if(email_local.contains("gmail")) {
+public class Email {
 
-    /** Parâmetros de conexão com servidor Gmail */
-    props.put("mail.smtp.host", "smtp.gmail.com");
-    props.put("mail.smtp.socketFactory.port", "465");
-    props.put("mail.smtp.socketFactory.class",
-    "javax.net.ssl.SSLSocketFactory");
-    props.put("mail.smtp.auth", "true");
-    props.put("mail.smtp.port", "465");
-     }else if(email_local.contains("hotmail") || email_local.contains("live")) {
+	Properties props;
+	Session session;
+	private String email_local, senha_local;
+
+	public void abrirEmail() {
+
+		props = new Properties();
+
+		if (email_local.contains("gmail")) {
+
+			/** Parâmetros de conexão com servidor Gmail */
+			props.put("mail.smtp.host", "smtp.gmail.com");
+			props.put("mail.smtp.socketFactory.port", "465");
+			props.put("mail.smtp.socketFactory.class", "javax.net.ssl.SSLSocketFactory");
+			props.put("mail.smtp.auth", "true");
+			props.put("mail.smtp.port", "465");
+			props.put("mail.smtp.auth", "true");
+			props.put("mail.smtp.socketFactory.fallback", "false");
 
 
-           /** Parâmetros de conexão com servidor Hotmail */
-           props.put("mail.transport.protocol", "smtp");
-           props.put("mail.smtp.host", "smtp.live.com");
-           props.put("mail.smtp.socketFactory.port", "587");
-           props.put("mail.smtp.socketFactory.fallback", "false");
-           props.put("mail.smtp.starttls.enable", "true");
-           props.put("mail.smtp.auth", "true");
-           props.put("mail.smtp.port", "587");
 
-         
-     }
-    
-  }
-  
-  public void logar(String email, String senha) {
+		} else if (email_local.contains("hotmail") || email_local.contains("live")) {
 
-	  this.email_local = email;
-	  this.senha_local = senha;
-	  abrirEmail() ;
-	  
-	  
-	  
-     session = Session.getDefaultInstance(props,
-      new javax.mail.Authenticator() {
-           protected PasswordAuthentication getPasswordAuthentication()
-           {
-                 return new PasswordAuthentication(email,
-                senha);
-           }
-      });
+			/** Parâmetros de conexão com servidor Hotmail */
+			props.put("mail.transport.protocol", "smtp");
+			props.put("mail.smtp.host", "smtp.live.com");
+			props.put("mail.smtp.socketFactory.port", "587");
+			props.put("mail.smtp.socketFactory.fallback", "false");
+			props.put("mail.smtp.starttls.enable", "true");
+			props.put("mail.smtp.auth", "true");
+			props.put("mail.smtp.port", "587");
 
-   
-    /** Ativa Debug para sessão */
-    session.setDebug(true);
-    
-  }
+		}
 
-  
-  public boolean enviar(String remetente, String destinatario, String assunto, String saudacao, String mensagem, String assinatura) {
-    try {
+	}
 
-      Message message = new MimeMessage(session);
-      message.setFrom(new InternetAddress(remetente));
-      //Remetente
+	public void logar(String email, String senha) {
 
-      Address[] toUser = InternetAddress //Destinatário(s)
-                 .parse(destinatario);
+		this.email_local = email;
+		this.senha_local = senha;
+		abrirEmail();
 
-      message.setRecipients(Message.RecipientType.TO, toUser);
-      message.setSubject(assunto);//Assunto
-      message.setText(saudacao + mensagem + assinatura);
+		session = Session.getDefaultInstance(props, new javax.mail.Authenticator() {
+			protected PasswordAuthentication getPasswordAuthentication() {
+				return new PasswordAuthentication(email, senha);
+			}
+		});
 
-      /**Método para enviar a mensagem criada*/
-      Transport.send(message);
+		/** Ativa Debug para sessão */
+		//session.setDebug(true);
 
-      System.out.println("Feito!!!");
-      return true;
+	}
 
-     } catch (MessagingException mex) {
-    	 mex.printStackTrace();
-         Exception ex = null;
-         if ((ex = mex.getNextException()) != null) {
-       ex.printStackTrace();
-         }
-      return false;
-    }
-  }
-  
-  public boolean enviarAnexo(String remetente, String destinatario, String assunto, String saudacao, String mensagem, String assinatura, ArrayList<File> anexos) {
-	  try 
-	  {
-	      // cria a mensagem
-	      MimeMessage msg = new MimeMessage(session);
-	      msg.setFrom(new InternetAddress(remetente));
-	      InternetAddress[] address = {new InternetAddress(destinatario)};
-	      msg.setRecipients(Message.RecipientType.TO, address);
-	      msg.setSubject(assunto);
+	public boolean enviar(String remetente, String destinatario, String assunto, String saudacao, String mensagem,
+			String assinatura) {
+		try {
 
-	      // cria a primeira parte da mensagem
-	      MimeBodyPart mbp1 = new MimeBodyPart();
-	      mbp1.setText(saudacao + mensagem + assinatura);
+			Message message = new MimeMessage(session);
+			message.setFrom(new InternetAddress(remetente));
+			// Remetente
 
-	    
-	    
-	      
-	      ArrayList<MimeBodyPart> partes_anexos = new ArrayList<>();
-	            // anexa o arquivo na mensagem
-	      for(File arquivo : anexos) {
-		    MimeBodyPart anexo = new MimeBodyPart();
+			Address[] toUser = InternetAddress // Destinatário(s)
+					.parse(destinatario);
 
-	      FileDataSource fds = new FileDataSource(arquivo);
-	      anexo.setDataHandler(new DataHandler(fds));
-	      anexo.setFileName(fds.getName());
-	      partes_anexos.add(anexo);
-	      }
-	      // cria a Multipart
-	      Multipart mp = new MimeMultipart();
-	      mp.addBodyPart(mbp1); //assunto
-	      
-	      
-	      for(MimeBodyPart anexo : partes_anexos) {
-	    	  mp.addBodyPart(anexo);
-	      }
+			message.setRecipients(Message.RecipientType.TO, toUser);
+			message.setSubject(assunto);// Assunto
+			message.setText(saudacao + mensagem + assinatura);
 
-	      // adiciona a Multipart na mensagem
-	      msg.setContent(mp);
+			/** Método para enviar a mensagem criada */
+			Transport.send(message);
 
-	      // configura a data: cabecalho
-	      msg.setSentDate(new Date());
-	      
-	      // envia a mensagem
-	      Transport.send(msg);
-	      return true;
-	      
-	  } catch (MessagingException mex) {
-	    	 mex.printStackTrace();
-	         Exception ex = null;
-	         if ((ex = mex.getNextException()) != null) {
-	       ex.printStackTrace();
-	         }
-	         return false;
-	      
-	    }
-	 
-  }
+			System.out.println("Feito!!!");
+			return true;
+
+		} catch (MessagingException mex) {
+			mex.printStackTrace();
+			Exception ex = null;
+			if ((ex = mex.getNextException()) != null) {
+				ex.printStackTrace();
+			}
+			return false;
+		}
+	}
+
+	public boolean enviarAnexo(String remetente, String destinatario, String assunto, String saudacao, String mensagem,
+			String assinatura, ArrayList<File> anexos) {
+		try {
+			// cria a mensagem
+			MimeMessage msg = new MimeMessage(session);
+			msg.setFrom(new InternetAddress(remetente));
+			InternetAddress[] address = { new InternetAddress(destinatario) };
+			msg.setRecipients(Message.RecipientType.TO, address);
+			msg.setSubject(assunto);
+
+			// cria a primeira parte da mensagem
+			MimeBodyPart mbp1 = new MimeBodyPart();
+			mbp1.setText(saudacao + mensagem + assinatura);
+
+			ArrayList<MimeBodyPart> partes_anexos = new ArrayList<>();
+			// anexa o arquivo na mensagem
+			for (File arquivo : anexos) {
+				MimeBodyPart anexo = new MimeBodyPart();
+
+				FileDataSource fds = new FileDataSource(arquivo);
+				anexo.setDataHandler(new DataHandler(fds));
+				anexo.setFileName(fds.getName());
+				partes_anexos.add(anexo);
+			}
+			// cria a Multipart
+			Multipart mp = new MimeMultipart();
+			mp.addBodyPart(mbp1); // assunto
+
+			for (MimeBodyPart anexo : partes_anexos) {
+				mp.addBodyPart(anexo);
+			}
+
+			// adiciona a Multipart na mensagem
+			msg.setContent(mp);
+
+			// configura a data: cabecalho
+			msg.setSentDate(new Date());
+
+			// envia a mensagem
+			Transport.send(msg);
+			return true;
+
+		} catch (MessagingException mex) {
+			mex.printStackTrace();
+			Exception ex = null;
+			if ((ex = mex.getNextException()) != null) {
+				ex.printStackTrace();
+			}
+			return false;
+
+		}
+
+	}
 
 }
-
-
-
-  

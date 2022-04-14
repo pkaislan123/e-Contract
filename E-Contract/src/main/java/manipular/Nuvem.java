@@ -15,6 +15,7 @@ import com.dropbox.core.DbxDownloader;
 import com.dropbox.core.DbxException;
 import com.dropbox.core.DbxRequestConfig;
 import com.dropbox.core.DbxWebAuthNoRedirect;
+import com.dropbox.core.oauth.DbxCredential;
 import com.dropbox.core.v2.DbxClientV2;
 import com.dropbox.core.v2.files.DeleteResult;
 import com.dropbox.core.v2.files.FileMetadata;
@@ -76,11 +77,25 @@ public class Nuvem {
 		}
 	}
 	
+	
+	
+	   public DbxClientV2 DropboxClient() {
+	        DbxRequestConfig config = DbxRequestConfig.newBuilder("dropbox/java-tutorial").build();
+
+	        DbxCredential credentials = new DbxCredential(nuvem.getToken(), -1L, nuvem.getRefresh_token(), nuvem.getApp_key(), nuvem.getApp_secret());
+
+	        return new DbxClientV2(config, credentials);
+	    }
+	
+	
 	public void abrir() {
-		 // Criar cliente Dropbox 
-		// Create Dropbox client
+		
+       // DbxRequestConfig config = DbxRequestConfig.newBuilder("dropbox/java-tutorial").build();
+       
         DbxRequestConfig config = DbxRequestConfig.newBuilder("dropbox/java-tutorial").build();
-        client = new DbxClientV2(config, nuvem.getToken());
+        DbxCredential credentials = new DbxCredential(nuvem.getToken(), -1L, nuvem.getRefresh_token(), nuvem.getApp_key(), nuvem.getApp_secret());
+
+		client =  new DbxClientV2(config, credentials);
 		
 		
 	}
@@ -109,6 +124,7 @@ public class Nuvem {
 			while (true) {
 			    for (Metadata metadata : result.getEntries()) {
 			        System.out.println(metadata.getPathLower());
+			        //this.deletarArquivoPath(metadata.getPathLower());
 			    }
 
 			    if (!result.getHasMore()) {
@@ -117,6 +133,9 @@ public class Nuvem {
 
 			    result = client.files().listFolderContinue(result.getCursor());
 			}
+			
+			
+			
 		}catch(Exception e) {
 			
 		}
@@ -155,6 +174,18 @@ public class Nuvem {
 		    System.out.println("erro ao pegar link compartilhado" + ex);
 		    return null;
 
+		}
+	}
+	
+	public boolean deletarArquivoPath(String nome_arquivo) {
+		try {
+		DeleteResult  apagar = client.files().deleteV2( nome_arquivo);
+		System.out.println("resposta ao apagar o arquivo: " + apagar.toString());
+		
+		return true;
+		}catch(Exception e) {
+			System.out.println("falha ao deleter o arquivo da nuvem, erro: " + e.getMessage());
+			return false;
 		}
 	}
 	

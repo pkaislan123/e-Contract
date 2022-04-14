@@ -1346,11 +1346,11 @@ public ByteArrayOutputStream alterar(CadastroContrato novo_contrato)
 						//apagar o diretorio
 						if(manipular_apagar.limparDiretorio(new File(servidor_unidade + caminho_diretorio))) {
 						  //Diretorio foi excluido
-							Nuvem nuvem = new Nuvem();
-					         nuvem.abrir();
-					         nuvem.testar();
-					         nuvem.listar();
-					         nuvem.deletarArquivo(nome_arquivo);
+							//Nuvem nuvem = new Nuvem();
+					        // nuvem.abrir();
+					        // nuvem.testar();
+					        // nuvem.listar();
+					        // nuvem.deletarArquivo(nome_arquivo);
 					         // JOptionPane.showMessageDialog(null, "Os arquivos do alvo 1 foram apagados da memoria e da nuvem!");
 						
 					       proceder = true;
@@ -1370,11 +1370,11 @@ public ByteArrayOutputStream alterar(CadastroContrato novo_contrato)
 							//apagar o diretorio
 							if(manipular_apagar.limparDiretorio(new File(servidor_unidade + caminho_diretorio))) {
 							  //Diretorio foi excluido
-								Nuvem nuvem = new Nuvem();
-						         nuvem.abrir();
-						         nuvem.testar();
-						         nuvem.listar();
-						         nuvem.deletarArquivo(nome_arquivo);
+								//Nuvem nuvem = new Nuvem();
+						       //  nuvem.abrir();
+						       //  nuvem.testar();
+						       //  nuvem.listar();
+						       //  nuvem.deletarArquivo(nome_arquivo);
 						         //   JOptionPane.showMessageDialog(null, "Os arquivos do alvo 1 foram apagados da memoria e da nuvem!");
 							
 						       proceder = true;
@@ -1416,11 +1416,11 @@ public ByteArrayOutputStream alterar(CadastroContrato novo_contrato)
 						//apagar o diretorio
 						if(manipular_apagar.limparDiretorio(new File(servidor_unidade + caminho_diretorio2))) {
 						  //Diretorio foi excluido
-							Nuvem nuvem = new Nuvem();
-					         nuvem.abrir();
-					         nuvem.testar();
-					         nuvem.listar();
-					         nuvem.deletarArquivo(nome_arquivo2);
+							//Nuvem nuvem = new Nuvem();
+					        // nuvem.abrir();
+					        // nuvem.testar();
+					        // nuvem.listar();
+					        // nuvem.deletarArquivo(nome_arquivo2);
 					         //  JOptionPane.showMessageDialog(null, "Os arquivos do alvo 2 foram apagados da memoria e da nuvem!");
 						
 					       proceder = true;
@@ -1440,11 +1440,11 @@ public ByteArrayOutputStream alterar(CadastroContrato novo_contrato)
 							//apagar o diretorio
 							if(manipular_apagar.limparDiretorio(new File(servidor_unidade + caminho_diretorio2))) {
 							  //Diretorio foi excluido
-								Nuvem nuvem = new Nuvem();
-						         nuvem.abrir();
-						         nuvem.testar();
-						         nuvem.listar();
-						         nuvem.deletarArquivo(nome_arquivo2);
+							//	Nuvem nuvem = new Nuvem();
+						     //    nuvem.abrir();
+						     //    nuvem.testar();
+						     //    nuvem.listar();
+						     //    nuvem.deletarArquivo(nome_arquivo2);
 						         //  JOptionPane.showMessageDialog(null, "Os arquivos do alvo 2 foram apagados da memoria e da nuvem!");
 							
 						       proceder = true;
@@ -1985,12 +1985,13 @@ public ByteArrayOutputStream alterar(CadastroContrato novo_contrato)
                 	 novo_contrato.setCaminho_diretorio_contrato2(caminho_completo_diretorio_arquivo);
             	 }
             	 //salvar no drobox
-            	 Nuvem nuvem = new Nuvem();
-            	 nuvem.abrir();
-                 nuvem.testar();
+            	// Nuvem nuvem = new Nuvem();
+            	// nuvem.abrir();
+               //  nuvem.testar();
                 
-                boolean retorno = nuvem.carregar(caminh_completo_salvar_no_hd + ".pdf", nome_arquivo + ".pdf");
-                 if(retorno) {
+               // boolean retorno = nuvem.carregar(caminh_completo_salvar_no_hd + ".pdf", nome_arquivo + ".pdf");
+                boolean retorno = true;
+            	 if(retorno) {
                 	 // JOptionPane.showMessageDialog(null, "Arquivo salvo na nuvem");
                 	 if(flag_alvo == 1) {
                 		 // JOptionPane.showMessageDialog(null, "Arquivo comprador1 salvo na nuvem");

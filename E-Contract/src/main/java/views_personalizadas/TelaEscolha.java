@@ -18,6 +18,7 @@ import main.java.cadastros.CadastroContrato;
 import main.java.gui.TelaEnviarMsgEmailDocsGeral;
 import main.java.gui.TelaEnviarMsgMail;
 import main.java.gui.TelaEnviarMsgWhatsapp;
+import main.java.gui.TelaEnviarMsgWhatsappDocs;
 
 import javax.swing.JTextArea;
 import java.awt.event.KeyAdapter;
@@ -59,7 +60,7 @@ public class TelaEscolha extends JDialog {
 		getContentPane().add(btnNewButton);
 		
 		
-		JLabel status_msg_1 = new JLabel("     Enviar contrato via:");
+		JLabel status_msg_1 = new JLabel("     Enviar Documento via:");
 		status_msg_1.setBounds(0, 2, 286, 26);
 		getContentPane().add(status_msg_1);
 		status_msg_1.setOpaque(true);
@@ -103,6 +104,7 @@ public class TelaEscolha extends JDialog {
 		setVisible(true);
 	}
 	
+	
 	/**
 	 * @wbp.parser.constructor
 	 */
@@ -127,7 +129,7 @@ public class TelaEscolha extends JDialog {
 		getContentPane().add(btnNewButton);
 		
 		
-		JLabel status_msg_1 = new JLabel("     Enviar contrato via:");
+		JLabel status_msg_1 = new JLabel("     Enviar Documento via:");
 		status_msg_1.setBounds(0, 2, 286, 26);
 		getContentPane().add(status_msg_1);
 		status_msg_1.setOpaque(true);
@@ -139,8 +141,10 @@ public class TelaEscolha extends JDialog {
 		lblNewLabel.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent arg0) {
-				isto.dispose();
 
+				TelaEnviarMsgWhatsappDocs tela = new TelaEnviarMsgWhatsappDocs(new File( url), isto);
+				tela.setVisible(true);
+				isto.dispose();
 			}
 		});
 	

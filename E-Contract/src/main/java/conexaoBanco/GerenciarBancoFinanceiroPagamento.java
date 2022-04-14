@@ -321,13 +321,17 @@ public class GerenciarBancoFinanceiroPagamento {
 				+ "end\r\n"
 				+ ")\r\n"
 				+ "end) as nome_recebedor,\r\n"
-				+ "cp.nome_condicao_pagamento\r\n"
+				+ "cp.nome_condicao_pagamento,\r\n"
+				+ "CONCAT(\"Banco: \", cb_pag.banco, \" Codigo: \" , cb_pag.codigo, \" Agencia: \", cb_pag.agencia, \" Conta: \", cb_pag.conta) as conta_bancaria_pagador,\r\n"
+				+ "CONCAT(\"Banco: \", cb_rec.banco, \" Codigo: \" , cb_rec.codigo, \" Agencia: \", cb_rec.agencia, \" Conta: \", cb_rec.conta) as conta_bancaria_recebedor\r\n"
 				+ " from financeiro_pagamento fpag\r\n"
 				+ "left join condicao_pagamento cp on cp.id_condicao_pagamento = fpag.id_forma_pagamento\r\n"
 				+ "left join cliente cli_pag on cli_pag.id_cliente = fpag.id_pagador\r\n"
 				+ "left join instituicao_bancaria ib_pag on ib_pag.id_instituicao_bancaria = fpag.id_pagador\r\n"
+				+ "left join conta_bancaria cb_pag on cb_pag.id_conta = ib_pag.id_conta\r\n"
 				+ "left join cliente cli_rec on cli_rec.id_cliente = fpag.id_recebedor\r\n"
 				+ "left join instituicao_bancaria ib_rec on ib_rec.id_instituicao_bancaria = fpag.id_recebedor\r\n"
+				+ "left join conta_bancaria cb_rec on cb_rec.id_conta = ib_rec.id_conta\r\n"
 				+ " where id_lancamento_pai = ?";
 		Connection conn = null;
 		PreparedStatement pstm = null;
@@ -372,6 +376,9 @@ public class GerenciarBancoFinanceiroPagamento {
 				fpag.setNome_pagador(rs.getString("nome_pagador"));
 				fpag.setNome_recebedor(rs.getString("nome_recebedor"));
 				fpag.setNome_forma_pagamento(rs.getString("nome_condicao_pagamento"));
+				fpag.setConta_pagador(rs.getString("conta_bancaria_pagador"));
+				fpag.setConta_recebedor(rs.getString("conta_bancaria_recebedor"));
+
 				fpag.setFpag(dado);
 				
 				lista.add(fpag);
@@ -499,6 +506,68 @@ public ArrayList<FinanceiroPagamentoCompleto> getFinanceiroPagamentosPorCliente(
 		}
 
 	}
+	
+	
+public FinanceiroPagamentoCompleto getFinanceiroPagamentosCompletoPorId(int id_pagamento) {
+		
+		String select = "call buscar_pagamento_completo_por_id (?)";
+		Connection conn = null;
+		PreparedStatement pstm = null;
+		ResultSet rs = null;
+		ArrayList<FinanceiroPagamentoCompleto> lista = new ArrayList<>();
+		try {
+			conn = ConexaoBanco.getConexao();
+			pstm = conn.prepareStatement(select);
+			pstm.setInt(1, id_pagamento);
+
+			rs = pstm.executeQuery();
+			rs.next();
+				FinanceiroPagamento dado = new FinanceiroPagamento();
+				
+				dado.setId_pagamento(rs.getInt("id_pagamento"));
+				dado.setId_lancamento(rs.getInt("id_lancamento_pai"));
+				dado.setIdentificador(rs.getString("identificador"));
+				dado.setId_condicao_pagamento(rs.getInt("id_forma_pagamento"));
+				dado.setStatus_pagamento(rs.getInt("status_condicao_pagamento"));
+				dado.setTipo_pagador(rs.getInt("tipo_pagador"));
+				dado.setFluxo_caixa(rs.getInt("fluxo_caixa"));
+				dado.setId_pagador(rs.getInt("id_pagador"));
+				dado.setTipo_recebedor(rs.getInt("tipo_recebedor"));
+
+				dado.setId_recebedor(rs.getInt("id_recebedor"));
+				dado.setId_documento(rs.getInt("id_documento"));
+				dado.setExtrato(rs.getInt("extrato_bancario"));
+
+				dado.setTipo_pagamento(rs.getInt("tipo_pagamento"));
+
+				try{
+					dado.setValor(new BigDecimal(rs.getString("valor")));
+				}catch(Exception e) {
+					dado.setValor(BigDecimal.ZERO);
+				}
+				dado.setData_pagamento(rs.getString("data_pagamento"));
+				dado.setDescricao(rs.getString("descricao"));
+				dado.setObservacao(rs.getString("observacao"));
+				dado.setCaminho_arquivo(rs.getString("caminho_arquivo"));
+			
+				FinanceiroPagamentoCompleto fpag = new FinanceiroPagamentoCompleto();
+				fpag.setNome_pagador(rs.getString("nome_pagador"));
+				fpag.setNome_recebedor(rs.getString("nome_recebedor"));
+				fpag.setNome_forma_pagamento(rs.getString("nome_condicao_pagamento"));
+				fpag.setConta_pagador(rs.getString("conta_bancaria_pagamento"));
+				fpag.setFpag(dado);
+				
+
+			
+			ConexaoBanco.fechaConexao(conn, pstm, rs);
+			return fpag;
+		} catch (Exception e) {
+			JOptionPane.showMessageDialog(null, "Erro ao listar o Financeiro Pagamento \nErro: " + e.getMessage() + "\nCausa: " + e.getCause());// );
+			return null;
+		}
+
+	}
+
 
 	public boolean removerFinanceiroPagamento(int id) {
 		String delete = "DELETE FROM financeiro_pagamento WHERE id_pagamento = ?";

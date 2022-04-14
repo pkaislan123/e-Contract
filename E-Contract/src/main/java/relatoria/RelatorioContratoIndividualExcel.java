@@ -7,6 +7,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.math.BigDecimal;
+import java.net.URL;
 import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.Locale;
@@ -825,12 +826,57 @@ public class RelatorioContratoIndividualExcel {
 					+ contrato_local.getModelo_safra().getAno_colheita());
 			sheet.addMergedRegion(new CellRangeAddress(rownum - 1, rownum - 1, cellnum - 1, 5));
 
+			
+			//adicionar logo
+			try {
+				
+				URL url = getClass().getResource("/imagens/logo_para_relatorio.png");
+				String imgFile = url.getFile();
+				InputStream inputStream = new FileInputStream(imgFile);
+
+				byte[] imageBytes = IOUtils.toByteArray(inputStream);
+
+				int pictureureIdx = workbook.addPicture(imageBytes, Workbook.PICTURE_TYPE_PNG);
+
+				inputStream.close();
+
+				CreationHelper helper = workbook.getCreationHelper();
+
+				Drawing drawing = sheet.createDrawingPatriarch();
+
+				ClientAnchor anchor = helper.createClientAnchor();
+
+				anchor.setRow1(0);
+				anchor.setRow2(3);
+				anchor.setCol1(6);
+				anchor.setCol2(8);
+				
+
+				drawing.createPicture(anchor, pictureureIdx);
+
+
+
+			} catch (IOException e1) {
+				// TODO Auto-generated catch block
+				//JOptionPane.showMessageDialog(isto, "Erro ao anexar imagem no xlsx");
+				e1.printStackTrace();
+			}
+			
+			
 			// Configurando Header
 			row = sheet.createRow(rownum++);
 			cellnum = 0;
 			cell = row.createCell(cellnum++);
 			cell.setCellStyle(celula_fundo_laranja_texto_branco);
 			cell.setCellValue("DATA");
+			
+			cell = row.createCell(cellnum++);
+			cell.setCellStyle(celula_fundo_laranja_texto_branco);
+			cell.setCellValue("MOTORISTA");
+			
+			cell = row.createCell(cellnum++);
+			cell.setCellStyle(celula_fundo_laranja_texto_branco);
+			cell.setCellValue("VEICULO");
 
 			cell = row.createCell(cellnum++);
 			cell.setCellStyle(celula_fundo_laranja_texto_branco);
@@ -923,6 +969,15 @@ public class RelatorioContratoIndividualExcel {
 				cell = row.createCell(cellnum++);
 				cell.setCellStyle(textStyle);
 				cell.setCellValue(cadastro.getData_recebimento());
+				
+				cell = row.createCell(cellnum++);
+				cell.setCellStyle(textStyle);
+				cell.setCellValue(cadastro.getNome_transportador());
+				
+				
+				cell = row.createCell(cellnum++);
+				cell.setCellStyle(textStyle);
+				cell.setCellValue(cadastro.getPlaca_veiculo());
 
 				cell = row.createCell(cellnum++);
 				cell.setCellStyle(textStyle);
@@ -1111,30 +1166,30 @@ public class RelatorioContratoIndividualExcel {
 			//somatorias
 			row = sheet.createRow(rownum++);
 		
-			cell = row.createCell(2);
+			cell = row.createCell(4);
 			cell.setCellStyle(negrito);
 			cell.setCellValue(z.format(quantidade_total_kgs_recebido) + " Kgs");
 			
-			cell = row.createCell(4);
+			cell = row.createCell(6);
 			cell.setCellStyle(negrito);
 			cell.setCellValue(z.format(quantidade_total_kgs_nf_venda) + " Kgs");
 			
-			cell = row.createCell(5);
+			cell = row.createCell(7);
 			cell.setCellStyle(negrito);
 			cell.setCellValue(NumberFormat.getCurrencyInstance(ptBr).format(valor_total_nf_venda.doubleValue()));
 					
 			
-			cell = row.createCell(7);
+			cell = row.createCell(9);
 			cell.setCellStyle(negrito);
 			cell.setCellValue(z.format(quantidade_total_kgs_nf_remessa) + " Kgs");
 			
-			cell = row.createCell(8);
+			cell = row.createCell(10);
 			cell.setCellStyle(negrito);
 			cell.setCellValue(NumberFormat.getCurrencyInstance(ptBr).format(valor_total_nf_remessa.doubleValue()));
 			
 			//////////////////////
 			row = sheet.createRow(rownum += 2);
-			cellnum = 0;
+			cellnum = 2;
 
 			cell = row.createCell(cellnum++);
 			cell.setCellStyle(textStyle);
@@ -1198,7 +1253,7 @@ public class RelatorioContratoIndividualExcel {
 	
 
 			row = sheet.createRow(rownum += 2);
-			cellnum = 0;
+			cellnum = 2;
 
 			cell = row.createCell(cellnum++);
 			cell.setCellStyle(textStyle);
@@ -1224,11 +1279,11 @@ public class RelatorioContratoIndividualExcel {
 				cell.setCellValue("Não Aplicável");
 
 				
-			cell = row.createCell(7);
+			cell = row.createCell(8);
 			cell.setCellStyle(celula_fundo_laranja_texto_branco);
 			cell.setCellValue("Peso a emitir: ");
 
-			cell = row.createCell(8);
+			cell = row.createCell(9);
 			cell.setCellStyle(celula_number_amarelo_texto_preto);
 			if(nf_remessa_ativo)
 			cell.setCellValue(quantidade_kg - quantidade_total_kgs_nf_remessa);
@@ -1395,6 +1450,43 @@ public class RelatorioContratoIndividualExcel {
 					+ contrato_local.getModelo_safra().getAno_colheita());
 			sheet2.addMergedRegion(new CellRangeAddress(rownum - 1, rownum - 1, cellnum - 1, 5));
 
+			
+			
+			//adicionar logo
+			try {
+				
+				URL url = getClass().getResource("/imagens/logo_para_relatorio.png");
+				String imgFile = url.getFile();
+				InputStream inputStream = new FileInputStream(imgFile);
+
+				byte[] imageBytes = IOUtils.toByteArray(inputStream);
+
+				int pictureureIdx = workbook.addPicture(imageBytes, Workbook.PICTURE_TYPE_PNG);
+
+				inputStream.close();
+
+				CreationHelper helper = workbook.getCreationHelper();
+
+				Drawing drawing = sheet2.createDrawingPatriarch();
+
+				ClientAnchor anchor = helper.createClientAnchor();
+
+				anchor.setRow1(0);
+				anchor.setRow2(3);
+				anchor.setCol1(6);
+				anchor.setCol2(8);
+				
+
+				drawing.createPicture(anchor, pictureureIdx);
+
+
+
+			} catch (IOException e1) {
+				// TODO Auto-generated catch block
+				//JOptionPane.showMessageDialog(isto, "Erro ao anexar imagem no xlsx");
+				e1.printStackTrace();
+			}
+			
 			// Configurando Header
 			// Configurando Header
 			row = sheet2.createRow(rownum++);
@@ -1575,6 +1667,7 @@ public class RelatorioContratoIndividualExcel {
 						nome_vendedor = nome_vendedor_completo;
 					}
 
+					/*
 					String nome_transportador = "";
 					String placa_trator = "";
 					if (carregamento.getId_transportador() > 0) {
@@ -1604,7 +1697,9 @@ public class RelatorioContratoIndividualExcel {
 							}
 						}
 
-					}
+					}*/
+					
+					
 					// pegar o produto
 					GerenciarBancoProdutos gerenciar_produtos = new GerenciarBancoProdutos();
 					CadastroProduto produto_carregamento = gerenciar_produtos.getProduto(carregamento.getId_produto());
@@ -1752,11 +1847,11 @@ public class RelatorioContratoIndividualExcel {
 
 					cell = row.createCell(cellnum++);
 					cell.setCellStyle(textStyle);
-					cell.setCellValue(nome_transportador);
+					cell.setCellValue(carregamento.getNome_transportador());
 
 					cell = row.createCell(cellnum++);
 					cell.setCellStyle(textStyle);
-					cell.setCellValue(placa_trator);
+					cell.setCellValue(carregamento.getPlaca_veiculo());
 
 					cell = row.createCell(cellnum++);
 					cell.setCellStyle(textStyle);
@@ -2383,6 +2478,40 @@ row = sheet2.createRow(rownum++);
 					+ contrato_local.getModelo_safra().getAno_colheita());
 			sheet3.addMergedRegion(new CellRangeAddress(rownum - 1, rownum - 1, cellnum - 1, 5));
 
+			//adicionar logo
+			try {
+				
+				URL url = getClass().getResource("/imagens/logo_para_relatorio.png");
+				String imgFile = url.getFile();
+				InputStream inputStream = new FileInputStream(imgFile);
+
+				byte[] imageBytes = IOUtils.toByteArray(inputStream);
+
+				int pictureureIdx = workbook.addPicture(imageBytes, Workbook.PICTURE_TYPE_PNG);
+
+				inputStream.close();
+
+				CreationHelper helper = workbook.getCreationHelper();
+
+				Drawing drawing = sheet3.createDrawingPatriarch();
+
+				ClientAnchor anchor = helper.createClientAnchor();
+
+				anchor.setRow1(0);
+				anchor.setRow2(3);
+				anchor.setCol1(6);
+				anchor.setCol2(8);
+				
+
+				drawing.createPicture(anchor, pictureureIdx);
+
+
+
+			} catch (IOException e1) {
+				// TODO Auto-generated catch block
+				//JOptionPane.showMessageDialog(isto, "Erro ao anexar imagem no xlsx");
+				e1.printStackTrace();
+			}
 			
 			// Configurando Header
 			row = sheet3.createRow(rownum++);

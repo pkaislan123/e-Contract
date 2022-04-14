@@ -107,7 +107,7 @@ public class GerenciarBancoRomaneios {
  		"(codigo, operacao, cfop, descricao_cfop, data_romaneio, id_produto, id_safra, id_remetente,"
  		+ "id_destinatario, nome_motorista, cpf_motorista, placa, umidade, impureza, ardidos, avariados, peso_bruto, tara, "
  		+ "peso_liquido, peso_liquido_sem_desconto, peso_desconto_umidade, peso_desconto_impureza,"
- 		+ "peso_desconto_avariado, peso_desconto_total,peso_recepcao, caminho_arquivo, doc_entrada, amostra,status_monsanto, data_entrada, hora_entrada, data_saida, hora_saida) values ('"
+ 		+ "peso_desconto_avariado, peso_desconto_total,peso_recepcao, caminho_arquivo, doc_entrada, amostra,status_monsanto, data_entrada, hora_entrada, data_saida, hora_saida, id_armazem) values ('"
  		+ numero_romaneio
 		+ "','"
  		+ operacao
@@ -173,6 +173,8 @@ public class GerenciarBancoRomaneios {
 			+ rom.getData_saida()
 			+ "','"
 			+ rom.getHora_saida()
+			+ "','"
+			+ rom.getId_armazem()
 			+ "')";
 		    
 		    return sql;
@@ -409,6 +411,13 @@ public class GerenciarBancoRomaneios {
 	            	rom.setResultado(rs.getInt("resultado"));
 	            	rom.setCaminho_arquivo_comprovante(rs.getString("caminho_arquivo_comprovante"));
 
+	            	
+	            	rom.setId_armazem(rs.getInt("id_armazem"));
+	            	CadastroCliente armazem =new CadastroCliente();
+	            	armazem.setId(rom.getId_armazem());
+	            	armazem.setNome_fantaia(rs.getString("nome_armazem"));
+	            	rom.setArmazem(armazem);
+	            	
 	            	lista_roms.add(rom);
 	            }
 	            ConexaoBanco.fechaConexao(conn, pstm, rs);
@@ -526,6 +535,12 @@ public class GerenciarBancoRomaneios {
 	            	rom.setResultado(rs.getInt("resultado"));
 	            	rom.setCaminho_arquivo_comprovante(rs.getString("caminho_arquivo_comprovante"));
 
+	            	rom.setId_armazem(rs.getInt("id_armazem"));
+	            	CadastroCliente armazem =new CadastroCliente();
+	            	armazem.setId(rom.getId_armazem());
+	            	armazem.setNome_fantaia(rs.getString("nome_armazem"));
+	            	rom.setArmazem(armazem);
+	            	
 	            	lista_roms.add(rom);
 	            }
 	            ConexaoBanco.fechaConexao(conn, pstm, rs);
@@ -645,7 +660,11 @@ public class GerenciarBancoRomaneios {
 	            	rom.setTeste(rs.getInt("teste"));
 	            	rom.setResultado(rs.getInt("resultado"));
 	            	rom.setCaminho_arquivo_comprovante(rs.getString("caminho_arquivo_comprovante"));
-
+	            	rom.setId_armazem(rs.getInt("id_armazem"));
+	            	CadastroCliente armazem =new CadastroCliente();
+	            	armazem.setId(rom.getId_armazem());
+	            	armazem.setNome_fantaia(rs.getString("nome_armazem"));
+	            	rom.setArmazem(armazem);
 	            	lista_roms.add(rom);
 	            }
 	            ConexaoBanco.fechaConexao(conn, pstm, rs);

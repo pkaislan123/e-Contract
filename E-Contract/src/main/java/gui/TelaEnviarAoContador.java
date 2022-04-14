@@ -201,7 +201,7 @@ public class TelaEnviarAoContador extends JFrame {
 		
 		setBackground(new Color(255, 255, 255));
 		setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-		setBounds(100, 100, 1063, 650);
+		setBounds(100, 100, 1152, 650);
 		
 		
 		
@@ -345,7 +345,7 @@ public class TelaEnviarAoContador extends JFrame {
 		
 		entEmailDestino.setEnabled(false);
 		entEmailDestino.setEditable(false);
-		painelPrincipal.add(entEmailDestino, "cell 7 2,grow");
+		painelPrincipal.add(entEmailDestino, "flowx,cell 7 2,grow");
 		entEmailDestino.setColumns(10);
 			
 			JLabel lblTipo = new JLabel("Tipo:");
@@ -434,6 +434,19 @@ public class TelaEnviarAoContador extends JFrame {
 
 				  
 					textAreaAssinatura.setText(mensagem_assinatura);
+					
+					JButton btnNewButton_3 = new JButton("buscar");
+					btnNewButton_3.addActionListener(new ActionListener() {
+						public void actionPerformed(ActionEvent e) {
+							
+							TelaContato tela = new TelaContato(isto);
+							tela.setVisible(true);
+							
+						}
+					});
+					btnNewButton_3.setBackground(new Color(0, 0, 102));
+					btnNewButton_3.setForeground(Color.WHITE);
+					painelPrincipal.add(btnNewButton_3, "cell 7 2");
 
 				
 				  
@@ -447,7 +460,9 @@ public class TelaEnviarAoContador extends JFrame {
 		
 	}
 	
-	
+	public void setEmail(String email) {
+		entEmailDestino.setText(email);
+	}
 	
 	public void enviar_email() {
 	
@@ -629,8 +644,4 @@ public class TelaEnviarAoContador extends JFrame {
 		}
 		
 	}
-	
-	
-	
-	
 }

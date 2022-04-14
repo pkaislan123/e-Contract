@@ -20,5 +20,7 @@ public class FinanceiroPagamentoCompleto  {
 	String nome_forma_pagamento;
 	String nome_pagador;
 	String nome_recebedor;
+	String conta_pagador;
+	String conta_recebedor;
 	int id_caixa;
 }

@@ -44,13 +44,26 @@ public class Whatsapp {
 
 	}
 	
+	public void setChave(String chave) {
+		this.chave = chave;
+	}
+	
+	public void setSenha(String senha) {
+		this.senha =senha;
+	}
+	
+	public Whatsapp(String teste) {
+
+	}
+	
+	
 	public boolean enviarArquivo(String msg, String numero, String url) {
 		OkHttpClient client = new OkHttpClient();
         
 		String saida = ""; 
 		//"{\"caption\": \""  + msg     +"\" , \"number\": \"" + numero +  "\" , \"url\": \""   + caminhoArquivo + "\" }"
 
-		MediaType mediaType = MediaType.parse("application/octet-stream");
+		MediaType mediaType = MediaType.parse("application/json");
 		RequestBody body = RequestBody.create(mediaType,
 				"{ \"caption\": \""  + msg     +"\" , \"number\": \"" + numero +  "\" , \"url\": \"" + url + "\" }"
 

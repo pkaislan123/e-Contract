@@ -986,9 +986,8 @@ public class TelaCliente extends JFrame {
 							.setRecebedorClienteFornecedor(clienteSelecionado);
 
 			} else if (flag_tipo_cliente == 37) {
-				if (janela_pai instanceof TelaEnviarMsgEmailDocsGeral)
-					((TelaEnviarMsgEmailDocsGeral) janela_pai).setCliente(clienteSelecionado);
-				else if (janela_pai instanceof TelaEnviarAoContador)
+				
+				 if (janela_pai instanceof TelaEnviarAoContador)
 					((TelaEnviarAoContador) janela_pai).setCliente(clienteSelecionado);
 
 			} else if (flag_tipo_cliente == 50) {
@@ -1012,7 +1011,14 @@ public class TelaCliente extends JFrame {
 			}else if (flag_tipo_cliente == 110) {
 				((TelaFilaCadastrarMovimentoEmbarque) janela_pai).setCliente(clienteSelecionado);
 
+			}else if (flag_tipo_cliente == 115) {
+				((TelaCadastrarRomaneio) janela_pai).setRemetente(clienteSelecionado);
+
+			}else if (flag_tipo_cliente == 120) {
+				((TelaCadastrarRomaneio) janela_pai).setDestinatario(clienteSelecionado);
+
 			}
+
 
 
 			isto.dispose();

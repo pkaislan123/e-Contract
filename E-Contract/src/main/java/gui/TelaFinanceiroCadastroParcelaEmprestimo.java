@@ -417,9 +417,10 @@ public class TelaFinanceiroCadastroParcelaEmprestimo extends JFrame {
 
 						// adicionar pagamento
 						if (parcela.getCriar_pagamento() == 1) {
-
 							int id_pagamento_inserido = salvarPagamentoParcela(lancamento_pai);
 							if(id_pagamento_inserido > 0) {
+								JOptionPane.showMessageDialog(isto, "ID da pagamento inserida: " + id_pagamento_inserido);
+
 								boolean atualizado = gerenciar.atualizarIdPagamento(result, id_pagamento_inserido);
 								if(atualizado) {
 									
@@ -558,6 +559,10 @@ public class TelaFinanceiroCadastroParcelaEmprestimo extends JFrame {
 
 				if(pag != null) {
 					
+					
+
+					rdbtnPagamentoSim.setEnabled(false);
+					rdbtnPagamentoNao.setEnabled(false);
 					
 					InstituicaoBancaria pagador = new InstituicaoBancaria();
 					CadastroCliente recebedor = new CadastroCliente();

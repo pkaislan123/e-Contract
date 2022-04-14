@@ -379,10 +379,13 @@ public class TelaElaborarNovoContrato extends JFrame {
 	private JLabel lblNewLabel_1_1_1_1_1_1_1_1_4;
 	private JLabel lblFundoRuralInfo;
 	private JLabel lblNewLabel_7;
+	private Window janela_pai_global;
 
 	public TelaElaborarNovoContrato(CadastroModelo modelo, int tipoContrato, CadastroContrato contrato_pai,
 			int flag_edicao, Window janela_pai) {
 
+		
+		janela_pai_global = janela_pai;
 		modelo_global = modelo;
 		getDadosGlobais();
 		tipo_contrato_global = tipoContrato;
@@ -3879,8 +3882,8 @@ public class TelaElaborarNovoContrato extends JFrame {
 				isto.dispose();
 			} else if (result == 5) {
 				JOptionPane.showMessageDialog(isto, "Contrato atualizado e salvo na base de dados");
-			//	DadosGlobais dados = DadosGlobais.getInstance();
-				// dados.getTeraGerenciarContratoPai().atualizarContratoLocal(true);
+				
+				((TelaGerenciarContrato) janela_pai_global).atualizarContratoLocal(true);
 				isto.dispose();
 			}
 		} else {

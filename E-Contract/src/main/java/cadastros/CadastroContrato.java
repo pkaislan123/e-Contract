@@ -1722,6 +1722,22 @@ nf_remessa varchar(40),
 peso_nf_remessa double,
 caminho_nf_remessa text,
 		 */
+		
+		String nome_transportador,placa_veiculo;
+
+		
+		public String getNome_transportador() {
+			return nome_transportador;
+		}
+		public void setNome_transportador(String nome_transportador) {
+			this.nome_transportador = nome_transportador;
+		}
+		public String getPlaca_veiculo() {
+			return placa_veiculo;
+		}
+		public void setPlaca_veiculo(String placa_veiculo) {
+			this.placa_veiculo = placa_veiculo;
+		}
 		int id_recebimento, id_contrato_recebimento, id_cliente, id_transportador, id_veiculo, id_vendedor, nf_venda_aplicavel, nf_remessa_aplicavel;
 		public int getId_vendedor() {
 			return id_vendedor;
