@@ -54,7 +54,7 @@ import javax.sound.sampled.*;
 public class Main {
 
 	public static void main(String[] args) {
-
+		System.out.println("Teste");
 		try {
 
 			for (LookAndFeelInfo info : UIManager.getInstalledLookAndFeels()) {
