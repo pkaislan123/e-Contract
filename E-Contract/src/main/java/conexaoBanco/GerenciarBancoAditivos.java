@@ -15,7 +15,7 @@ import main.java.cadastros.CadastroAditivo;
 
 public class GerenciarBancoAditivos {
 
-	//teste
+	//teste2
 	
 	public String sql_aditivo(CadastroAditivo aditivo) {
 		return "insert into aditivo (status_aditivo, data_aditivo, texto,nome_arquivo, id_contrato_pai) values ('"
