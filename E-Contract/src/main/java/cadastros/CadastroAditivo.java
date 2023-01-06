@@ -2,7 +2,7 @@ package main.java.cadastros;
 
 public class CadastroAditivo {
 
-	//teste
+	//teste2
 	
 	private int id_aditivo , status, id_contrato_pai;
 	private String texto,  data, nome_arquivo;
