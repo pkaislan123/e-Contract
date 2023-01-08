@@ -667,6 +667,28 @@ public class TelaMain extends JFrame {
 			}
 		});
 		mntmNewMenuItem_6_1.setMargin(new Insets(0, 10, 0, 0));
+		
+		JMenuItem menuItem = new JMenuItem("New menu item");
+		menuBar.add(menuItem);
+		
+		JMenu mnNewMenu_2_1 = new JMenu("Fazenda");
+		mnNewMenu_2_1.setIcon(new ImageIcon(TelaMain.class.getResource("/imagens/fazendas.png")));
+		mnNewMenu_2_1.setFont(new Font("Arial", Font.PLAIN, 18));
+		menuBar.add(mnNewMenu_2_1);
+		
+		JMenuItem mntmNewMenuItem_6_1_1 = new JMenuItem("Gestão");
+		mntmNewMenuItem_6_1_1.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				
+				
+				TelaFazenda tela_fazenda = new TelaFazenda(isto);
+				tela_fazenda.setVisible(true);				
+			}
+		});
+		mntmNewMenuItem_6_1_1.setIcon(new ImageIcon(TelaMain.class.getResource("/imagens/gestao_fazenda.png")));
+		mntmNewMenuItem_6_1_1.setMargin(new Insets(0, 10, 0, 0));
+		mntmNewMenuItem_6_1_1.setFont(new Font("Arial", Font.PLAIN, 16));
+		mnNewMenu_2_1.add(mntmNewMenuItem_6_1_1);
 		JMenu mnFerramentas = new JMenu("Ferramentas");
 		mnFerramentas.setIcon(new ImageIcon(TelaMain.class.getResource("/imagens/ferramentas-de-reparacao.png")));
 		mnFerramentas.setMargin(new Insets(0, 10, 0, 0));
