@@ -15,7 +15,6 @@ import javax.swing.border.TitledBorder;
 import javax.swing.table.AbstractTableModel;
 import javax.swing.table.DefaultTableModel;
 
-import org.codehaus.groovy.runtime.dgmimpl.arrays.BooleanArrayGetAtMetaMethod;
 
 import main.java.cadastros.CadastroAcessoTemporario;
 import main.java.cadastros.CadastroAditivo;

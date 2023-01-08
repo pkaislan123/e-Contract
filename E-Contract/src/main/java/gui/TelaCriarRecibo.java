@@ -258,7 +258,7 @@ public class TelaCriarRecibo extends JFrame {
 				System.out.println("Preparando para elaborar novo recibo");
 				String text = textAreaTextoFinal.getText();
 				 pagamento_local.setData_pagamento(entData.getText());
-				 editarWord = new EditarRecibo(pagamento_local,text ,entData.getText(), modelo_cliente.getClientes());
+				 editarWord = new EditarRecibo(pagamento_local,text ,entData.getText(), modelo_cliente.getClientes(),lancamento);
 				 
 				contrato_alterado = editarWord.preparar();
 
@@ -318,7 +318,12 @@ public class TelaCriarRecibo extends JFrame {
 		
 		JTextArea txtrDevedorEunome = new JTextArea();
 		txtrDevedorEunome.setWrapStyleWord(true);
-		txtrDevedorEunome.setText("DEVEDOR:\r\nEU, [NOME DEVEDOR], [OCUPACAO DEVEDOR], residente e domiciliado no endereço [ENDEREÇO DEVEDOR], nº [N DEVEDOR], Bairro: [BAIRRO DEVEDOR], na Cidade de [CIDADE DEVEDOR]- Estado de MG CEP: [CEP DEVEDOR], inscrito no CPF sob nº [CPF DEVEDOR]. A pessoa supra indicada será doravante denominada “DEVEDOR”");
+		
+		if(lancamento.getTipo_lancamento() == 3 || lancamento.getTipo_lancamento() == 4)
+		txtrDevedorEunome.setText("PAGADOR:\r\nEU, [NOME DEVEDOR], [OCUPACAO DEVEDOR], residente e domiciliado no endereço [ENDEREÇO DEVEDOR], nº [N DEVEDOR], Bairro: [BAIRRO DEVEDOR], na Cidade de [CIDADE DEVEDOR]- Estado de MG CEP: [CEP DEVEDOR], inscrito no CPF sob nº [CPF DEVEDOR]. A pessoa supra indicada será doravante denominada “DEVEDOR”");
+		else
+			txtrDevedorEunome.setText("DEVEDOR:\r\nEU, [NOME DEVEDOR], [OCUPACAO DEVEDOR], residente e domiciliado no endereço [ENDEREÇO DEVEDOR], nº [N DEVEDOR], Bairro: [BAIRRO DEVEDOR], na Cidade de [CIDADE DEVEDOR]- Estado de MG CEP: [CEP DEVEDOR], inscrito no CPF sob nº [CPF DEVEDOR]. A pessoa supra indicada será doravante denominada “DEVEDOR”");
+
 		txtrDevedorEunome.setLineWrap(true);
 		txtrDevedorEunome.setFont(new Font("SansSerif", Font.PLAIN, 14));
 		txtrDevedorEunome.setEditable(false);
@@ -345,7 +350,7 @@ public class TelaCriarRecibo extends JFrame {
 		 textAreaTextoFinal = new JTextArea();
 		 textAreaTextoFinal.setFont(new Font("SansSerif", Font.PLAIN, 22));
 		
-		 if(lancamento.getTipo_lancamento() != 3) {
+		 if(lancamento.getTipo_lancamento() != 3 || lancamento.getTipo_lancamento() != 4) {
 			 //despesa, receita, transferencia
 			 
 			 //dados do objeto
@@ -354,9 +359,9 @@ public class TelaCriarRecibo extends JFrame {
 			 
 			 
 		 textAreaTextoFinal.setText("O [RECEBEDOR] vem por meio deste recibo [DECLARAR] [TER] [RECEBIDO] do [DEVEDOR], através de um(a) [forma_pagamento], a importância de valor_pagamento_decimal ( valor_pagamento_extenso ) referente a [descricao_pagamento] na data de [data_pagamento],sendo assim fica firmado entre as partes.\r\n");
-		 }else if(lancamento.getTipo_lancamento() == 3) {
+		 }else if(lancamento.getTipo_lancamento() == 3 || lancamento.getTipo_lancamento() == 4) {
 			 //emprestimo
-			 textAreaTextoFinal.setText("O [RECEBEDOR] vem por meio deste recibo [DECLARAR] [TER] [RECEBIDO] do [DEVEDOR], através de um(a) [forma_pagamento], a importância de valor_pagamento_decimal ( valor_pagamento_extenso ) referente a [descricao_pagamento] na data de [data_pagamento],sendo assim fica firmado entre as partes.\r\n");
+			 textAreaTextoFinal.setText("O [RECEBEDOR] vem por meio deste recibo [DECLARAR] [TER] [RECEBIDO] do [PAGADOR], através de um(a) [forma_pagamento], a importância de valor_pagamento_decimal ( valor_pagamento_extenso ) referente a [descricao_pagamento] na data de [data_pagamento],sendo assim fica firmado entre as partes.\r\n");
 
 		 }
 		 scrollPane.setViewportView(textAreaTextoFinal);
@@ -472,7 +477,7 @@ public class TelaCriarRecibo extends JFrame {
 				System.out.println("Preparando para elaborar novo recibo");
 				String text = textAreaTextoFinal.getText();
 				 pagamento_local.setData_pagamento(entData.getText());
-				 editarWord = new EditarRecibo(pagamento_local,text ,entData.getText(), modelo_cliente.getClientes());
+				 editarWord = new EditarRecibo(pagamento_local,text ,entData.getText(), modelo_cliente.getClientes(),lancamento);
 				 
 				contrato_alterado = editarWord.preparar();
 
@@ -559,7 +564,7 @@ public class TelaCriarRecibo extends JFrame {
 		 textAreaTextoFinal = new JTextArea();
 		 textAreaTextoFinal.setFont(new Font("SansSerif", Font.PLAIN, 22));
 		
-		 if(lancamento.getTipo_lancamento() != 3) {
+		 if(lancamento.getTipo_lancamento() != 3 || lancamento.getTipo_lancamento() != 4 ) {
 			 //despesa, receita, transferencia
 			 
 			

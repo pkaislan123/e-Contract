@@ -438,5 +438,24 @@ public class GerenciarBancoParcelasEmprestimo {
 		}
 
 	}
+	
+	 public boolean removerPagamentoDaParcela(int id_parcela) {
+	        try {
+	            Connection conn = null;
+	            String atualizar = null;
+	            atualizar = "update parcela_emprestimo set criar_pagamento = 0, id_pagamento = 0  where id_parcela = ?";
+	            conn = ConexaoBanco.getConexao();
+	            PreparedStatement pstm = conn.prepareStatement(atualizar);
+	            pstm.setInt(1, id_parcela);
+	            pstm.execute();
+	            System.out.println("Pagamento da Parcela Removido");
+	            ConexaoBanco.fechaConexao(conn);
+	            return true;
+	        }
+	        catch (Exception e) {
+	            JOptionPane.showMessageDialog(null, "Erro ao atualizar o id do pagamento de parcela de emprestimo no banco de dados\nErro: " + e.getMessage() + "\nCausa: " + e.getCause());
+	            return false;
+	        }
+	    }
 
 }

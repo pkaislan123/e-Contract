@@ -489,8 +489,16 @@ public class TelaFuncionariosAnalise extends JFrame {
 				return dado.getId_salario();
 			case id_ct_trabalho:
 				return dado.getId_ct_trabalho();
-			case departamento:
-				return dado.getNome_departamento().toUpperCase();
+			case departamento:{
+
+				String nome_dep = dado.getNome_departamento().toUpperCase();
+				if(nome_dep != null) {
+					return nome_dep;
+				}else {
+					return "";
+				}
+				
+			}
 			case nome_colaborador:
 				return dado.getNome_funcionario().toUpperCase();
 			case mes: {

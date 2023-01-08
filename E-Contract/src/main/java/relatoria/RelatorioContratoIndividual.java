@@ -184,7 +184,18 @@ public class RelatorioContratoIndividual {
 	private int posicao_global;
 	private boolean interno, externo, incluir_carregamento, incluir_pagamento, incluir_comissao, incluir_sub_contratos,
 			incluir_ganhos_potenciais, incluir_comprovantes_pagamentos, incluir_transferencias,
-			incluir_transferencia_recebimentos, incluir_recebimentos;
+			incluir_transferencia_recebimentos, incluir_recebimentos, incluir_armazenamento;
+
+	
+	
+	
+	public boolean isIncluir_armazenamento() {
+		return incluir_armazenamento;
+	}
+
+	public void setIncluir_armazenamento(boolean incluir_armazenamento) {
+		this.incluir_armazenamento = incluir_armazenamento;
+	}
 
 	public boolean isIncluir_transferencia_recebimentos() {
 		return incluir_transferencia_recebimentos;
@@ -479,7 +490,7 @@ public class RelatorioContratoIndividual {
 		}
 
 		if (incluir_carregamento) {
-			
+
 			// carregamentos
 			GerenciarBancoContratos gerenciar_pags = new GerenciarBancoContratos();
 
@@ -571,8 +582,9 @@ public class RelatorioContratoIndividual {
 			cabecalhoRun.addTab();
 
 			cabecalhoRun = pars[0].createRun();
-			URL url = getClass().getResource("/imagens/logo_para_relatorio.png");
-			String imgFile = url.getFile();
+
+			String imgFile = configs_globais.getProps().getPasta_instalacao() + "\\imagens\\logo_para_relatorio.png";
+
 			cabecalhoRun.addPicture(new FileInputStream(imgFile), XWPFDocument.PICTURE_TYPE_PNG, imgFile,
 					Units.toEMU(200), Units.toEMU(60));
 
@@ -1674,7 +1686,8 @@ public class RelatorioContratoIndividual {
 			texto_transferencias_negativas = "Transferencias:(-) ";
 			valor = NumberFormat.getCurrencyInstance(ptBr).format(valor_total_transferencias_retiradas);
 			texto_transferencias_negativas += valor;
-			texto_transferencias_negativas += " Cobre: " + z.format(peso_total_cobertura_transferencia_negativa * 60) + " kgs | ";
+			texto_transferencias_negativas += " Cobre: " + z.format(peso_total_cobertura_transferencia_negativa * 60)
+					+ " kgs | ";
 			texto_transferencias_negativas += z.format(peso_total_cobertura_transferencia_negativa) + " sacos";
 
 		}
@@ -1699,7 +1712,8 @@ public class RelatorioContratoIndividual {
 			texto_transferencias_positivas = "Transferencias:(+) ";
 			valor = NumberFormat.getCurrencyInstance(ptBr).format(valor_total_transferencias_recebidas);
 			texto_transferencias_positivas += valor;
-			texto_transferencias_positivas += " Cobre: " + z.format(peso_total_cobertura_transferencia_positiva * 60) + " kgs | ";
+			texto_transferencias_positivas += " Cobre: " + z.format(peso_total_cobertura_transferencia_positiva * 60)
+					+ " kgs | ";
 			texto_transferencias_positivas += z.format(peso_total_cobertura_transferencia_positiva) + " sacos";
 
 		}
@@ -1709,7 +1723,8 @@ public class RelatorioContratoIndividual {
 		if (diferenca_pesos == 0 || diferenca_pesos == -0) {
 			status_cobertura += "[Todos] [os] [sacos] [foram] [pagos]";
 		} else if (diferenca_pesos < 0) {
-			status_cobertura += "[Excedeu] [em] ["  + z.format(diferenca_pesos * 60) + " kgs | " + z.format(diferenca_pesos) + "] [Sacos]";
+			status_cobertura += "[Excedeu] [em] [" + z.format(diferenca_pesos * 60) + " kgs | "
+					+ z.format(diferenca_pesos) + "] [Sacos]";
 
 		} else if (diferenca_pesos > 0) {
 			status_cobertura += "[Incompleto], [falta] [pagar] [" + z.format(diferenca_pesos) + "] [Sacos]";
@@ -1722,7 +1737,7 @@ public class RelatorioContratoIndividual {
 			texto_comissao = "Comissão: ";
 			valor = NumberFormat.getCurrencyInstance(ptBr).format(valor_total_comissao);
 			texto_comissao += valor;
-			texto_comissao += " Cobre: "  + z.format(peso_total_cobertura_comissao * 60) + " kgs | ";
+			texto_comissao += " Cobre: " + z.format(peso_total_cobertura_comissao * 60) + " kgs | ";
 			texto_comissao += z.format(peso_total_cobertura_comissao) + " sacos";
 
 		}
@@ -1738,7 +1753,7 @@ public class RelatorioContratoIndividual {
 		peso_total_cobertura_concluida = peso_total_cobertura_efetuados - peso_total_cobertura_transferencia_negativa
 				+ peso_total_cobertura_transferencia_positiva;
 		texto_concluida += " Cobre: " + z.format(peso_total_cobertura_concluida * 60) + " kgs | ";
-	
+
 		texto_concluida += z.format(peso_total_cobertura_concluida) + " sacos";
 
 		// restante
@@ -1752,7 +1767,7 @@ public class RelatorioContratoIndividual {
 				+ peso_total_cobertura_transferencia_negativa - peso_total_cobertura_transferencia_positiva;
 		texto_restante += valor;
 		texto_restante += " Cobre: " + z.format(peso_total_cobertura_restante * 60) + " kgs | ";
-		
+
 		texto_restante += z.format(peso_total_cobertura_restante) + " sacos";
 
 		String texto_final = texto_total + "\n";
@@ -2085,38 +2100,27 @@ public class RelatorioContratoIndividual {
 			}
 
 			/*
-			String nome_transportador = "";
-			String placa_trator = "";
-			if (carregamento.getId_transportador() > 0) {
-				// pegar transportador e veiculo
-				CadastroCliente transportador_carregamento = gerenciar_clientes
-						.getCliente(carregamento.getId_transportador());
+			 * String nome_transportador = ""; String placa_trator = ""; if
+			 * (carregamento.getId_transportador() > 0) { // pegar transportador e veiculo
+			 * CadastroCliente transportador_carregamento = gerenciar_clientes
+			 * .getCliente(carregamento.getId_transportador());
+			 * 
+			 * if (transportador_carregamento != null) { if
+			 * (transportador_carregamento.getTipo_pessoa() == 0) { nome_transportador =
+			 * transportador_carregamento.getNome_empresarial(); } else { nome_transportador
+			 * = transportador_carregamento.getNome_fantaia();
+			 * 
+			 * } } CadastroCliente.Veiculo veiculo_carregamento = null; if
+			 * (carregamento.getId_veiculo() > 0) { for (CadastroCliente.Veiculo veiculo :
+			 * transportador_carregamento.getVeiculos()) { if (veiculo.getId_veiculo() ==
+			 * carregamento.getId_veiculo()) { veiculo_carregamento = veiculo; break; } }
+			 * 
+			 * if (veiculo_carregamento != null) { placa_trator =
+			 * veiculo_carregamento.getPlaca_trator(); } }
+			 * 
+			 * }
+			 */
 
-				if (transportador_carregamento != null) {
-					if (transportador_carregamento.getTipo_pessoa() == 0) {
-						nome_transportador = transportador_carregamento.getNome_empresarial();
-					} else {
-						nome_transportador = transportador_carregamento.getNome_fantaia();
-
-					}
-				}
-				CadastroCliente.Veiculo veiculo_carregamento = null;
-				if (carregamento.getId_veiculo() > 0) {
-					for (CadastroCliente.Veiculo veiculo : transportador_carregamento.getVeiculos()) {
-						if (veiculo.getId_veiculo() == carregamento.getId_veiculo()) {
-							veiculo_carregamento = veiculo;
-							break;
-						}
-					}
-
-					if (veiculo_carregamento != null) {
-						placa_trator = veiculo_carregamento.getPlaca_trator();
-					}
-				}
-
-			}*/
-			
-			
 			// pegar o produto
 			GerenciarBancoProdutos gerenciar_produtos = new GerenciarBancoProdutos();
 			CadastroProduto produto_carregamento = gerenciar_produtos.getProduto(carregamento.getId_produto());
@@ -2781,31 +2785,26 @@ public class RelatorioContratoIndividual {
 
 		GerenciarBancoTransferenciaRecebimento gerenciar_transferencias = new GerenciarBancoTransferenciaRecebimento();
 
-		ArrayList<CadastroContrato.CadastroTransferenciaRecebimento>  lista_transferencias_recebimento_remetente_local = new ArrayList<>();
+		ArrayList<CadastroContrato.CadastroTransferenciaRecebimento> lista_transferencias_recebimento_remetente_local = new ArrayList<>();
 
-		ArrayList<CadastroContrato.CadastroTransferenciaRecebimento> lista_transferencias_recebimento_destinatario_local= new ArrayList<>();
+		ArrayList<CadastroContrato.CadastroTransferenciaRecebimento> lista_transferencias_recebimento_destinatario_local = new ArrayList<>();
 
 		int num_linhas_recebimentos = -1;
 
-		
-		if(incluir_transferencia_recebimentos) {
-			
+		if (incluir_transferencia_recebimentos) {
+
 			lista_transferencias_recebimento_remetente_local = gerenciar_transferencias
 					.getTransferenciasRemetente(contrato_deste_recebimento.getId());
-			
+
 			lista_transferencias_recebimento_destinatario_local = gerenciar_transferencias
 					.getTransferenciaDestinatario(contrato_deste_recebimento.getId());
-			
+
 			num_linhas_recebimentos = lista_transferencias_recebimento_remetente_local.size()
-					+ lista_transferencias_recebimento_destinatario_local.size() + recebimentos.size() + 1 + 1 + 1 + 1 + 1
-					+ 1;
-		}else {
-			num_linhas_recebimentos =   recebimentos.size() + 1 + 1 + 1 + 1 + 1
-					+ 1;
+					+ lista_transferencias_recebimento_destinatario_local.size() + recebimentos.size() + 1 + 1 + 1 + 1
+					+ 1 + 1;
+		} else {
+			num_linhas_recebimentos = recebimentos.size() + 1 + 1 + 1 + 1 + 1 + 1;
 		}
-		
-		
-		
 
 		double soma_total_romaneio = 0;
 		double soma_total_trans_negativa = 0;
@@ -2949,12 +2948,12 @@ public class RelatorioContratoIndividual {
 		tableRowOne.getCell(1).removeParagraph(0);
 		paragraph = tableRowOne.getCell(1).addParagraph();
 		criarParagrafoTabela(paragraph, "DATA", true);
-		
+
 		tableRowOne = table.getRow(cabecalho);
 		tableRowOne.getCell(2).removeParagraph(0);
 		paragraph = tableRowOne.getCell(2).addParagraph();
 		criarParagrafoTabela(paragraph, "MOTORISTA", true);
-		
+
 		tableRowOne = table.getRow(cabecalho);
 		tableRowOne.getCell(3).removeParagraph(0);
 		paragraph = tableRowOne.getCell(3).addParagraph();
@@ -3071,19 +3070,17 @@ public class RelatorioContratoIndividual {
 			tableRowOne.getCell(1).removeParagraph(0);
 			paragraph = tableRowOne.getCell(1).addParagraph();
 			criarParagrafoTabela(paragraph, recebimento.getData_recebimento(), false);
-			
-			
+
 			tableRowOne = table.getRow(i);
 			tableRowOne.getCell(2).removeParagraph(0);
 			paragraph = tableRowOne.getCell(2).addParagraph();
 			criarParagrafoTabela(paragraph, recebimento.getNome_transportador(), false);
 
-			
 			tableRowOne = table.getRow(i);
 			tableRowOne.getCell(3).removeParagraph(0);
 			paragraph = tableRowOne.getCell(3).addParagraph();
 			criarParagrafoTabela(paragraph, recebimento.getPlaca_veiculo(), false);
-			
+
 			tableRowOne = table.getRow(i);
 			tableRowOne.getCell(4).removeParagraph(0);
 			paragraph = tableRowOne.getCell(4).addParagraph();
@@ -3308,9 +3305,8 @@ public class RelatorioContratoIndividual {
 
 		// somatorias
 		// peso de romaneios
-		
-		double peso_final_romaneios =  soma_total_romaneio + soma_total_trans_positiva - soma_total_trans_negativa;
-		
+
+		double peso_final_romaneios = soma_total_romaneio + soma_total_trans_positiva - soma_total_trans_negativa;
 
 		tableRowOne = table.getRow(i);
 		tableRowOne.getCell(5).removeParagraph(0);
@@ -3450,10 +3446,9 @@ public class RelatorioContratoIndividual {
 		tableRowOne = table.getRow(i);
 		tableRowOne.getCell(1).removeParagraph(0);
 		paragraph = tableRowOne.getCell(1).addParagraph();
-		
+
 		criarParagrafoTabela(paragraph, " " + z.format(quantidade_total_kgs - peso_final_romaneios) + " kgs / "
-					+ (z.format(((quantidade_total_kgs - peso_final_romaneios) / 60))) + " sacos ", true);
-		
+				+ (z.format(((quantidade_total_kgs - peso_final_romaneios) / 60))) + " sacos ", true);
 
 		// pesos de nf
 		tableRowOne = table.getRow(i);
@@ -3465,10 +3460,10 @@ public class RelatorioContratoIndividual {
 		tableRowOne.getCell(3).removeParagraph(0);
 		paragraph = tableRowOne.getCell(3).addParagraph();
 		if (nf_venda_ativo) {
-			
-				criarParagrafoTabela(paragraph, " " + z.format(quantidade_total_kgs - soma_total_nf_venda) + " kgs / "
-						+ (z.format(((quantidade_total_kgs - soma_total_nf_venda) / 60))) + " sacos ", true);
-			
+
+			criarParagrafoTabela(paragraph, " " + z.format(quantidade_total_kgs - soma_total_nf_venda) + " kgs / "
+					+ (z.format(((quantidade_total_kgs - soma_total_nf_venda) / 60))) + " sacos ", true);
+
 		} else {
 			criarParagrafoTabela(paragraph, "Não Aplicável", true);
 
@@ -3484,10 +3479,10 @@ public class RelatorioContratoIndividual {
 		tableRowOne.getCell(7).removeParagraph(0);
 		paragraph = tableRowOne.getCell(7).addParagraph();
 		if (nf_remessa_ativo) {
-			
-				criarParagrafoTabela(paragraph, " " + z.format(quantidade_total_kgs - soma_total_nf_remessa) + " kgs / "
-						+ (z.format(((quantidade_total_kgs - soma_total_nf_remessa) / 60))) + " sacos ", true);
-			
+
+			criarParagrafoTabela(paragraph, " " + z.format(quantidade_total_kgs - soma_total_nf_remessa) + " kgs / "
+					+ (z.format(((quantidade_total_kgs - soma_total_nf_remessa) / 60))) + " sacos ", true);
+
 		} else {
 			criarParagrafoTabela(paragraph, "Não Aplicável", true);
 
@@ -3498,8 +3493,8 @@ public class RelatorioContratoIndividual {
 
 		String texto = "";
 
-		texto += ("\nQuantidade Total Contratada: " + z.format(quantidade_kg) + " kgs | "
-				+ z.format(quantidade_kg / 60) + " sacos\n\n");
+		texto += ("\nQuantidade Total Contratada: " + z.format(quantidade_kg) + " kgs | " + z.format(quantidade_kg / 60)
+				+ " sacos\n\n");
 
 		texto += ("Soma do Total dos Romaneios: " + z.format(soma_total_romaneio) + " kgs | "
 				+ z.format(soma_total_romaneio / 60) + " sacos\n");

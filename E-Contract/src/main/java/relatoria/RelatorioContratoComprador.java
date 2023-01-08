@@ -57,7 +57,6 @@ import org.apache.poi.xwpf.usermodel.XWPFTable;
 import org.apache.poi.xwpf.usermodel.XWPFTableCell;
 import org.apache.poi.xwpf.usermodel.XWPFTableCell.XWPFVertAlign;
 import org.apache.poi.xwpf.usermodel.XWPFTableRow;
-import org.codehaus.groovy.runtime.dgmimpl.arrays.CharacterArrayGetAtMetaMethod;
 import org.openxmlformats.schemas.wordprocessingml.x2006.main.CTBody;
 import org.openxmlformats.schemas.wordprocessingml.x2006.main.CTDocument1;
 import org.openxmlformats.schemas.wordprocessingml.x2006.main.CTHMerge;

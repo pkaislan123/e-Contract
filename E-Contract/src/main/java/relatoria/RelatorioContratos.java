@@ -612,11 +612,6 @@ public class RelatorioContratos {
 		String criador = "Relatório de Contratos" + " por " + login.getNome() + " " + login.getSobrenome() + " em "
 				+ data_criacao + " ás " + data.getHora();
 
-		
-		
-		
-	
-		
 		HSSFSheet sheet = workbook.createSheet("Contratos");
 
 		// Definindo alguns padroes de layout
@@ -674,11 +669,9 @@ public class RelatorioContratos {
 			}
 		}
 
-		
-		
-		//adicionar logo
+		// adicionar logo
 		try {
-			
+
 			URL url = getClass().getResource("/imagens/logo_para_relatorio.png");
 			String imgFile = url.getFile();
 			InputStream inputStream = new FileInputStream(imgFile);
@@ -699,19 +692,15 @@ public class RelatorioContratos {
 			anchor.setRow2(3);
 			anchor.setCol1(7);
 			anchor.setCol2(9);
-			
 
 			drawing.createPicture(anchor, pictureureIdx);
 
-
-
 		} catch (IOException e1) {
 			// TODO Auto-generated catch block
-			//JOptionPane.showMessageDialog(isto, "Erro ao anexar imagem no xlsx");
+			// JOptionPane.showMessageDialog(isto, "Erro ao anexar imagem no xlsx");
 			e1.printStackTrace();
 		}
-		
-		
+
 		rownum++;
 		cellnum = 0;
 
@@ -1182,7 +1171,8 @@ public class RelatorioContratos {
 							sheet = dados.getSheet();
 							rownum = dados.getRownum();
 							workbook = dados.getWorkbook();
-							telaEmEsperaRelatoria.setInfo("Tabela de Recebimentos Individual Criada -> " + contador + "/" + lista_final.size(), 25);
+							telaEmEsperaRelatoria.setInfo("Tabela de Recebimentos Individual Criada -> " + contador
+									+ "/" + lista_final.size(), 25);
 							contador++;
 							// controle de nfs
 							// inserirControleNFVendaEntrada(recebimentos_totais);
@@ -1333,7 +1323,6 @@ public class RelatorioContratos {
 
 					if (carregamento && carregamento_como_comprador && !unir_carregamentos) {
 
-						
 						ArrayList<CarregamentoCompleto> carregamentos = gerenciar_carregamentos
 								.getCarregamentoParaRelatorio(contrato_cliente.getId());
 						ArrayList<CadastroContrato.CadastroTransferenciaCarga> transferencias_remetente_local = gerenciar_transferencias_carga
@@ -1345,24 +1334,22 @@ public class RelatorioContratos {
 						if (carregamentos.size() > 0 || transferencias_remetente_local.size() > 0
 								|| transferencias_destinatario_local.size() > 0) {
 
-						
 							double quantidade_kgs_recebidos = gerenciar.getQuantidadeRecebida(contrato_cliente.getId());
 
+							DadosTabelaExcel dados = criarTabelaCarregamentosExcel(workbook, sheet, rownum,
+									contrato_cliente, carregamentos, contrato_cliente.getQuantidade(),
+									quantidade_kgs_recebidos, transferencias_remetente_local,
+									transferencias_destinatario_local);
+							sheet = dados.getSheet();
+							rownum = dados.getRownum();
+							workbook = dados.getWorkbook();
+							telaEmEsperaRelatoria.setInfo("Tabela de Carregamentos Individual Criada -> " + contador
+									+ "/" + lista_final.size(), 25);
+							contador++;
 
-								DadosTabelaExcel dados = criarTabelaCarregamentosExcel(workbook, sheet,
-										rownum, contrato_cliente, carregamentos, contrato_cliente.getQuantidade(),
-										quantidade_kgs_recebidos,
-										transferencias_remetente_local,
-										transferencias_destinatario_local);
-								sheet = dados.getSheet();
-								rownum = dados.getRownum();
-								workbook = dados.getWorkbook();
-								telaEmEsperaRelatoria.setInfo("Tabela de Carregamentos Individual Criada -> " + contador + "/" + lista_final.size(), 25);
-								contador++;
-							
 						} else {
 							// sem carregamentos
-							
+
 						}
 					} else if (carregamento && carregamento_como_comprador && unir_carregamentos) {
 						if (unir_carregamentos) {
@@ -1408,8 +1395,7 @@ public class RelatorioContratos {
 
 									DadosTabelaExcel dados = criarTabelaCarregamentosUnidosExcel(workbook, sheet,
 											rownum, carregamentos_totais, soma_total_quantidade_contratos_kgs,
-											quantidade__total_kgs_recebidos,
-											transferencias_remetente_totais,
+											quantidade__total_kgs_recebidos, transferencias_remetente_totais,
 											transferencias_destinatario_totais);
 									sheet = dados.getSheet();
 									rownum = dados.getRownum();
@@ -2059,7 +2045,9 @@ public class RelatorioContratos {
 						titulo_recebimentosRun.setFontSize(9);
 
 						criarTabelaRecebimentos(recebimentos_totais, contrato_cliente);
-						telaEmEsperaRelatoria.setInfo("Tabela de Recebimentos Individual Criada -> " + contador + "/" + lista_final.size(), 25);
+						telaEmEsperaRelatoria.setInfo(
+								"Tabela de Recebimentos Individual Criada -> " + contador + "/" + lista_final.size(),
+								25);
 
 						// controle de nfs
 						inserirControleNFVendaEntrada(recebimentos_totais);
@@ -3705,7 +3693,7 @@ public class RelatorioContratos {
 		return retornar;
 
 	}
-	
+
 	HSSFDataFormat numberFormatCarregamento;
 	HSSFFont newFont_brancaCarregamento;
 	HSSFFont newFont_pretaCarregamento;
@@ -3722,12 +3710,11 @@ public class RelatorioContratos {
 	CellStyle celula_fundo_branco_texto_vermelhoCarregamento;
 	HSSFFont newFont_azulCarregamento;
 	CellStyle celula_fundo_branco_texto_azulCarregamento;
-	
-	
-	public void setarEstiloCarregamento(HSSFWorkbook workbook) {
-		 numberFormatCarregamento = workbook.createDataFormat();
 
-		 newFont_brancaCarregamento = workbook.createFont();
+	public void setarEstiloCarregamento(HSSFWorkbook workbook) {
+		numberFormatCarregamento = workbook.createDataFormat();
+
+		newFont_brancaCarregamento = workbook.createFont();
 		newFont_brancaCarregamento.setBold(true);
 		newFont_brancaCarregamento.setColor(IndexedColors.WHITE.getIndex());
 		newFont_brancaCarregamento.setFontName("Calibri");
@@ -3735,7 +3722,7 @@ public class RelatorioContratos {
 		newFont_brancaCarregamento.setFontHeight((short) (11 * 20));
 
 		// estilo para cabecalho fundo verde
-		 celula_fundo_verde_texto_brancoCarregamento = workbook.createCellStyle();
+		celula_fundo_verde_texto_brancoCarregamento = workbook.createCellStyle();
 		celula_fundo_verde_texto_brancoCarregamento.setFillPattern(FillPatternType.SOLID_FOREGROUND);
 		celula_fundo_verde_texto_brancoCarregamento.setFillForegroundColor(IndexedColors.GREEN.getIndex());
 		celula_fundo_verde_texto_brancoCarregamento.setAlignment(HorizontalAlignment.CENTER);
@@ -3743,30 +3730,30 @@ public class RelatorioContratos {
 
 		celula_fundo_verde_texto_brancoCarregamento.setFont(newFont_brancaCarregamento);
 
-		 newFont_pretaCarregamento = workbook.createFont();
+		newFont_pretaCarregamento = workbook.createFont();
 		newFont_pretaCarregamento.setColor(IndexedColors.BLACK.getIndex());
 		newFont_pretaCarregamento.setFontName("Calibri");
 		newFont_pretaCarregamento.setItalic(false);
 		newFont_pretaCarregamento.setFontHeight((short) (11 * 20));
 
-		 celula_fundo_branco_texto_pretoCarregamento = workbook.createCellStyle();
+		celula_fundo_branco_texto_pretoCarregamento = workbook.createCellStyle();
 		celula_fundo_branco_texto_pretoCarregamento.setAlignment(HorizontalAlignment.CENTER);
 		celula_fundo_branco_texto_pretoCarregamento.setVerticalAlignment(VerticalAlignment.CENTER);
 		celula_fundo_branco_texto_pretoCarregamento.setFont(newFont_pretaCarregamento);
 
 		// celula para numero alinhado ao centro
-		 numberStyleCarregamento = workbook.createCellStyle();
+		numberStyleCarregamento = workbook.createCellStyle();
 		numberStyleCarregamento.setDataFormat(numberFormatCarregamento.getFormat("R$ #,##0.00"));
 		numberStyleCarregamento.setAlignment(HorizontalAlignment.CENTER);
 		numberStyleCarregamento.setVerticalAlignment(VerticalAlignment.CENTER);
 
 		// celula para numero alinhado ao centro
-		 pesoStyleCarregamento = workbook.createCellStyle();
+		pesoStyleCarregamento = workbook.createCellStyle();
 		pesoStyleCarregamento.setDataFormat(numberFormatCarregamento.getFormat("#,##0.00"));
 		pesoStyleCarregamento.setAlignment(HorizontalAlignment.CENTER);
 		pesoStyleCarregamento.setVerticalAlignment(VerticalAlignment.CENTER);
 
-		 numberStyleFundoVerdeTextoBrancoCarregamento = workbook.createCellStyle();
+		numberStyleFundoVerdeTextoBrancoCarregamento = workbook.createCellStyle();
 		numberStyleFundoVerdeTextoBrancoCarregamento.setFillPattern(FillPatternType.SOLID_FOREGROUND);
 		numberStyleFundoVerdeTextoBrancoCarregamento.setFillForegroundColor(IndexedColors.GREEN.getIndex());
 		numberStyleFundoVerdeTextoBrancoCarregamento.setAlignment(HorizontalAlignment.CENTER);
@@ -3775,13 +3762,13 @@ public class RelatorioContratos {
 
 		numberStyleFundoVerdeTextoBrancoCarregamento.setFont(newFont_brancaCarregamento);
 
-		 numberStyleFundoBrancoTextoPretoCarregamento = workbook.createCellStyle();
+		numberStyleFundoBrancoTextoPretoCarregamento = workbook.createCellStyle();
 		numberStyleFundoBrancoTextoPretoCarregamento.setAlignment(HorizontalAlignment.LEFT);
 		numberStyleFundoBrancoTextoPretoCarregamento.setVerticalAlignment(VerticalAlignment.CENTER);
 		numberStyleFundoBrancoTextoPretoCarregamento.setDataFormat(numberFormatCarregamento.getFormat("#,##0.00"));
 		numberStyleFundoBrancoTextoPretoCarregamento.setFont(newFont_pretaCarregamento);
 
-		 valorStyleFundoVerdeTextoBrancoCarregamento = workbook.createCellStyle();
+		valorStyleFundoVerdeTextoBrancoCarregamento = workbook.createCellStyle();
 		valorStyleFundoVerdeTextoBrancoCarregamento.setFillPattern(FillPatternType.SOLID_FOREGROUND);
 		valorStyleFundoVerdeTextoBrancoCarregamento.setFillForegroundColor(IndexedColors.GREEN.getIndex());
 		valorStyleFundoVerdeTextoBrancoCarregamento.setAlignment(HorizontalAlignment.CENTER);
@@ -3790,25 +3777,25 @@ public class RelatorioContratos {
 		valorStyleFundoVerdeTextoBrancoCarregamento.setFont(newFont_brancaCarregamento);
 
 		// celular de contrato normal
-		 newFont_verdeCarregamento = workbook.createFont();
+		newFont_verdeCarregamento = workbook.createFont();
 		newFont_verdeCarregamento.setColor(IndexedColors.GREEN.getIndex());
 		newFont_verdeCarregamento.setFontName("Calibri");
 		newFont_verdeCarregamento.setItalic(false);
 		newFont_verdeCarregamento.setFontHeight((short) (11 * 20));
 
-		 celula_fundo_branco_texto_verdeCarregamento = workbook.createCellStyle();
+		celula_fundo_branco_texto_verdeCarregamento = workbook.createCellStyle();
 		celula_fundo_branco_texto_verdeCarregamento.setAlignment(HorizontalAlignment.CENTER);
 		celula_fundo_branco_texto_verdeCarregamento.setVerticalAlignment(VerticalAlignment.CENTER);
 		celula_fundo_branco_texto_verdeCarregamento.setFont(newFont_verdeCarregamento);
 
 		// celular de sub-contrato n
-		 newFont_vermelhaCarregamento = workbook.createFont();
+		newFont_vermelhaCarregamento = workbook.createFont();
 		newFont_vermelhaCarregamento.setColor(IndexedColors.RED.getIndex());
 		newFont_vermelhaCarregamento.setFontName("Calibri");
 		newFont_vermelhaCarregamento.setItalic(false);
 		newFont_vermelhaCarregamento.setFontHeight((short) (11 * 20));
 
-		 celula_fundo_branco_texto_vermelhoCarregamento = workbook.createCellStyle();
+		celula_fundo_branco_texto_vermelhoCarregamento = workbook.createCellStyle();
 		celula_fundo_branco_texto_vermelhoCarregamento.setAlignment(HorizontalAlignment.CENTER);
 		celula_fundo_branco_texto_vermelhoCarregamento.setVerticalAlignment(VerticalAlignment.CENTER);
 		celula_fundo_branco_texto_vermelhoCarregamento.setFont(newFont_vermelhaCarregamento);
@@ -3816,18 +3803,18 @@ public class RelatorioContratos {
 		// celula de ganho potencial
 
 		// celular de sub-contrato n
-		 newFont_azulCarregamento = workbook.createFont();
+		newFont_azulCarregamento = workbook.createFont();
 		newFont_azulCarregamento.setColor(IndexedColors.BLUE.getIndex());
 		newFont_azulCarregamento.setFontName("Calibri");
 		newFont_azulCarregamento.setItalic(false);
 		newFont_azulCarregamento.setFontHeight((short) (11 * 20));
 
-		 celula_fundo_branco_texto_azulCarregamento = workbook.createCellStyle();
+		celula_fundo_branco_texto_azulCarregamento = workbook.createCellStyle();
 		celula_fundo_branco_texto_azulCarregamento.setAlignment(HorizontalAlignment.CENTER);
 		celula_fundo_branco_texto_azulCarregamento.setVerticalAlignment(VerticalAlignment.CENTER);
 		celula_fundo_branco_texto_azulCarregamento.setFont(newFont_azulCarregamento);
 	}
-	
+
 	public DadosTabelaExcel criarTabelaCarregamentosExcel(HSSFWorkbook workbook, HSSFSheet sheet, int rownum,
 			CadastroContrato contrato, ArrayList<CarregamentoCompleto> carregamentos,
 			double soma_total_quantidade_contratos, double soma_total_quantidade_recebidas,
@@ -3838,8 +3825,6 @@ public class RelatorioContratos {
 		NumberFormat z = NumberFormat.getNumberInstance();
 
 		Locale ptBr = new Locale("pt", "BR");
-
-		
 
 		int cellnum = 0;
 
@@ -3858,12 +3843,10 @@ public class RelatorioContratos {
 			quantidade_kg = quantidade_sacos * 60;
 		}
 
-		
 		// safra
 		String safra = contrato.getModelo_safra().getProduto().getNome_produto() + " "
 				+ contrato.getModelo_safra().getProduto().getTransgenia() + " "
-				+ contrato.getModelo_safra().getAno_plantio() + "/"
-				+ contrato.getModelo_safra().getAno_colheita();
+				+ contrato.getModelo_safra().getAno_plantio() + "/" + contrato.getModelo_safra().getAno_colheita();
 
 		String texto_info_contrato = "CTR: " + contrato.getCodigo() + " " + safra + " Quantidade Total: "
 				+ z.format(quantidade_kg) + " kgs | " + z.format(quantidade_sacos) + " sacos "
@@ -3871,7 +3854,6 @@ public class RelatorioContratos {
 				+ contrato.getMedida() + " totalizando: "
 				+ NumberFormat.getCurrencyInstance(ptBr).format(contrato.getValor_a_pagar().doubleValue());
 
-		
 		row = sheet.createRow(rownum);
 		cell = row.createCell(cellnum);
 		cell.setCellStyle(celula_fundo_branco_texto_pretoRecebimentos);
@@ -3932,7 +3914,6 @@ public class RelatorioContratos {
 		sheet.addMergedRegion(new CellRangeAddress(rownum, rownum, cellnum, 10));
 
 		rownum++;
-
 
 		row = sheet.createRow(rownum);
 		cellnum = 0;
@@ -14586,7 +14567,8 @@ public class RelatorioContratos {
 		return retornar;
 
 	}
-
+	
+	
 	public double getPesoTotalRecebido(CadastroContrato contrato) {
 		double peso_total_recebido = 0.0, peso_total_trans_negativo = 0.0, peso_total_trans_positivo = 0.0;
 
@@ -14616,5 +14598,7 @@ public class RelatorioContratos {
 		return (peso_total_recebido + peso_total_trans_positivo - peso_total_trans_negativo);
 
 	}
+
+	
 
 }

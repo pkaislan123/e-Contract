@@ -22,9 +22,6 @@ import javax.swing.table.AbstractTableModel;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.SwingUtilities;
 
-import org.codehaus.groovy.runtime.dgmimpl.arrays.BooleanArrayGetAtMetaMethod;
-
-
 
 import javafx.stage.FileChooser;
 
@@ -4640,21 +4637,21 @@ public class TelaImportarContratoManual extends JFrame {
 							novo_contrato.setNome_arquivo(nome_arquivo + ".pdf");
 							
 							//salvar na nuvem
-							 Nuvem nuvem = new Nuvem();
-			            	 nuvem.abrir();
-			                 nuvem.testar();
+							// Nuvem nuvem = new Nuvem();
+			            	// nuvem.abrir();
+			               //  nuvem.testar();
 			                
-			                boolean retorno = nuvem.carregar(caminho_completo_salvar_contrato_no_hd + ".pdf", nome_arquivo + ".pdf");
-			                 if(retorno) {
+			            //    boolean retorno = nuvem.carregar(caminho_completo_salvar_contrato_no_hd + ".pdf", nome_arquivo + ".pdf");
+			           //      if(retorno) {
 			                	 // JOptionPane.showMessageDialog(null, "Arquivo salvo na nuvem");
 			                	 
 			                    	 novo_contrato.setNome_arquivo(nome_arquivo + ".pdf" );
 			                	 
 			                	 
-			                 }else {
+			           //      }else {
 			                	 JOptionPane.showMessageDialog(null, "Arquivo não salvo na nuvem");
 
-			                 }
+			          //       }
 
 							// copiar para o segundo comprador2
 
@@ -4736,21 +4733,21 @@ public class TelaImportarContratoManual extends JFrame {
 										novo_contrato.setNome_arquivo2(nome_arquivo + ".pdf");
 
 										//salvar na nuvem
-										  nuvem = new Nuvem();
-						            	 nuvem.abrir();
-						                 nuvem.testar();
+										//  nuvem = new Nuvem();
+						            	// nuvem.abrir();
+						               //  nuvem.testar();
 						                
-						                 retorno = nuvem.carregar(caminho_completo_salvar_contrato_no_hd + ".pdf", nome_arquivo + ".pdf");
-						                 if(retorno) {
+						                // retorno = nuvem.carregar(caminho_completo_salvar_contrato_no_hd + ".pdf", nome_arquivo + ".pdf");
+						                // if(retorno) {
 						                	 //// JOptionPane.showMessageDialog(null, "Arquivo salvo na nuvem");
 						                	 
-						                    	 novo_contrato.setNome_arquivo2(nome_arquivo + ".pdf" );
+						                 //   	 novo_contrato.setNome_arquivo2(nome_arquivo + ".pdf" );
 						                	 
 						                	 
-						                 }else {
-						                	 JOptionPane.showMessageDialog(null, "Arquivo não salvo na nuvem");
+						               //  }else {
+						                	// JOptionPane.showMessageDialog(null, "Arquivo não salvo na nuvem");
 
-						                 }
+						               //  }
 						                 
 										GerenciarBancoContratos gerenciarContratos = new GerenciarBancoContratos();
 

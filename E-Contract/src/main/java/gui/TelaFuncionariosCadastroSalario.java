@@ -576,11 +576,18 @@ public class TelaFuncionariosCadastroSalario extends JFrame {
 		lblTotalHoras100.setFont(new Font("SansSerif", Font.BOLD, 16));
 		panel_5.add(lblTotalHoras100, "cell 2 3");
 
+		
+
 		JPanel painelCalculo = new JPanel();
 		painelCalculo.setBackground(Color.WHITE);
-		tabbedPane.addTab("Cálculo de Salário", null, painelCalculo, null);
 		painelCalculo.setLayout(new MigLayout("", "[grow][grow][grow]", "[][][grow][][][][][]"));
 
+
+		
+		JScrollPane scrollPane = new JScrollPane(painelCalculo);
+		tabbedPane.addTab("Cálculo de Salário", null, scrollPane, null);
+
+		
 		JPanel panel_8 = new JPanel();
 		panel_8.setBackground(Color.WHITE);
 		painelCalculo.add(panel_8, "cell 0 0,alignx center,growy");
@@ -1265,6 +1272,8 @@ public class TelaFuncionariosCadastroSalario extends JFrame {
 		btnSalvar.setFont(new Font("SansSerif", Font.BOLD, 16));
 		btnSalvar.setBackground(new Color(0, 51, 0));
 		painelCalculo.add(btnSalvar, "cell 2 7,alignx right");
+		
+	
 
 		JPanel panel_9 = new JPanel();
 		panel_9.setBackground(Color.WHITE);

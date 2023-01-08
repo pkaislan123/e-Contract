@@ -150,8 +150,23 @@ public class RelatorioContratoIndividualExcel {
 	private XWPFDocument document_global;
 	private XWPFParagraph paragrafo_atual;
 	private int posicao_global;
-	private boolean interno, externo, incluir_carregamento, incluir_pagamento, incluir_comissao, incluir_sub_contratos,
+	private boolean interno, externo, incluir_carregamento, incluir_pagamento, incluir_comissao, incluir_armazenamento, incluir_sub_contratos,
 			incluir_ganhos_potenciais, incluir_comprovantes_pagamentos, incluir_transferencias, incluir_recebimentos, incluir_transferencia_recebimentos;
+
+	
+	
+	
+	public boolean isIncluir_armazenamento() {
+		return incluir_armazenamento;
+	}
+
+
+
+	public void setIncluir_armazenamento(boolean incluir_armazenamento) {
+		this.incluir_armazenamento = incluir_armazenamento;
+	}
+
+
 
 	public boolean isIncluir_transferencias() {
 		return incluir_transferencias;
@@ -2584,6 +2599,7 @@ row = sheet2.createRow(rownum++);
 			double valor_total_transferencias_recebidas = 0;
 			double valor_total_pagamentos_restantes = 0;
 			double valor_total_comissao = 0;
+			double valor_total_armazenamento = 0;
 			double peso_total_cobertura = 0;
 			double peso_total_cobertura_efetuados = 0;
 			double peso_total_cobertura_transferencia_negativa = 0;
@@ -2619,7 +2635,8 @@ row = sheet2.createRow(rownum++);
 			for (PagamentoCompleto pagamento : lista_pagamentos_contratuais) {
 				
 				
-				if(pagamento.getTipo() == 1 || pagamento.getTipo() == 2 && incluir_comissao || pagamento.getTipo() == 3 && incluir_transferencias){
+				if(pagamento.getTipo() == 1 || pagamento.getTipo() == 2 && incluir_comissao || pagamento.getTipo() == 3 && incluir_transferencias
+						|| pagamento.getTipo() == 4 && incluir_armazenamento){
 				row = sheet3.createRow(rownum++);
 				cellnum = 0;
 				/*
@@ -2647,6 +2664,8 @@ row = sheet2.createRow(rownum++);
 						s_tipo = "+Transferencia";
 					}
 
+				}else if(pagamento.getTipo()  == 4){
+					s_tipo = "ARMAZENAMENTO";
 				}
 
 				cell.setCellValue(s_tipo);
@@ -2684,7 +2703,12 @@ row = sheet2.createRow(rownum++);
 
 					}
 
+				}else if(pagamento.getTipo() == 4){
+					
+					valor_total_armazenamento += valor_pagamento;
 				}
+				
+				
 				cell = row.createCell(cellnum++);
 				cell.setCellStyle(valorStyle);
 				cell.setCellValue(pagamento.getValor_pagamento());
@@ -2709,7 +2733,11 @@ row = sheet2.createRow(rownum++);
 								.format(contrato_local.getValor_produto());
 
 					}
+				}else if(pagamento.getTipo() == 4) {
+					
 				}
+				
+				
 				cell = row.createCell(cellnum++);
 				cell.setCellStyle(textStyle);
 				cell.setCellValue(valorString);
@@ -2929,10 +2957,10 @@ row = sheet2.createRow(rownum++);
 
 			}
 			
-			cell = row.createCell(3);
+			cell = row.createCell(5);
 			cell.setCellStyle(celula_fundo_verde_texto_branco);
 			cell.setCellValue(status_pagamento);
-			sheet3.addMergedRegion(new CellRangeAddress(rownum, rownum, 4, 7));
+			sheet3.addMergedRegion(new CellRangeAddress(rownum, rownum, 5, 9));
 			
 			rownum = rownum += 1;
 			row = sheet3.createRow(rownum);
@@ -2964,10 +2992,10 @@ row = sheet2.createRow(rownum++);
 				status_cobertura += "Incompleto, falta pagar " + z.format(diferenca_pesos) + " Sacos";
 
 			}
-			cell = row.createCell(3);
+			cell = row.createCell(5);
 			cell.setCellStyle(celula_fundo_verde_texto_branco);
 			cell.setCellValue(status_cobertura);
-			sheet3.addMergedRegion(new CellRangeAddress(rownum, rownum, 4, 7));
+			sheet3.addMergedRegion(new CellRangeAddress(rownum, rownum, 5, 9));
 			
 			//comissão
 			
@@ -2988,6 +3016,22 @@ row = sheet2.createRow(rownum++);
 			cell.setCellValue(texto_comissao);
 			}
 		
+			if(incluir_armazenamento) {
+
+				// armazenamento
+
+				rownum = rownum += 1;
+				row = sheet3.createRow(rownum);
+				sheet3.addMergedRegion(new CellRangeAddress(rownum, rownum, 0, 2));
+
+				String texto_armazenamento = "Armazenamento: ";
+				valor = NumberFormat.getCurrencyInstance(ptBr).format(valor_total_armazenamento);
+				texto_armazenamento += valor;
+				cell = row.createCell(0);
+				cell.setCellStyle(textStyle);
+				cell.setCellValue(texto_armazenamento);
+
+			}
 			
 			//concluidos
 			
