@@ -114,7 +114,6 @@ public class GerenciarBancoAditivos {
 			while (rs.next()) {
 				CadastroAditivo aditivo = new CadastroAditivo();
 			
-				
 				aditivo.setId_aditivo(rs.getInt("id_aditivo"));
 				aditivo.setData(rs.getString("data_aditivo"));
 				aditivo.setNome_arquivo(rs.getString("nome_arquivo"));

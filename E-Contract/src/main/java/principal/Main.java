@@ -54,7 +54,6 @@ import javax.sound.sampled.*;
 public class Main {
 
 	public static void main(String[] args) {
-		System.out.println("Teste");
 		try {
 
 			for (LookAndFeelInfo info : UIManager.getInstalledLookAndFeels()) {
@@ -90,54 +89,41 @@ public class Main {
 				entrada.setVisible(true);
 
 				entrada.realizarTeste();
-			
-				
-				
 
 			}
 		}.start();
-		
+
 		/*
-		
-		Whatsapp zap = new Whatsapp("t");
-		zap.setChave("9p4zinrpdfhlahloi4irsgowfzab0v");
-		zap.setSenha("chatpro-1vcv2pfwqj");
-		zap.enviarArquivo("teste79", "38999416698", "https://media-cdn.tripadvisor.com/media/photo-s/15/a4/9b/77/legacy-hotel-at-img-academy.jpg");
-		//zap.enviarMensagem("5538999416698", "teste78");
-		
-		CadastroNuvem cdnuvem = new CadastroNuvem();
-		cdnuvem.setToken("sl.BFl51752TViimcrhaoG509AxTrwTAeic_V8dOB0vrqQUHa5Ng8jJOGWj86DtTT4yJHgnjOBTPW66KULAGRkkGRax6Xg1NTuF2v-QhDEEGdhNhy4LyLEZy3tZuKfUtBrJ1T-i8KV1dmpa");
-		cdnuvem.setApp_key("emfrs8dnamy2akw");
-		cdnuvem.setApp_secret("emk2292wuo58xfa");
-		
-		Nuvem nuvem = new Nuvem(cdnuvem);
-		nuvem.abrir();
-		nuvem.listar();
-		nuvem.testar();
-*/
-		
-		
-		/*try {
-			NuvemV2 nuvem = new NuvemV2();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (DbxException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		
-		
-		CadastroNuvem cdnuvem = new CadastroNuvem();
-		cdnuvem.setToken("sl.BFrsPQIPdre8yl0MafHBI6Ua4yN8ALLpmIcOQ-wI8APyNttFJxzfUVxO7AC9nwC7ZLh-TwTTiDeoUd0cm2KPy_8_1zap0XzS3EomFOFm8Eb7VO1o2Lag84-YW90_nqCIYnKtZXYNCeh3");
-		cdnuvem.setApp_key("emfrs8dnamy2akw");
-		cdnuvem.setApp_secret("emk2292wuo58xfa");
-		cdnuvem.setRefresh_token("FP6XTszHPDgAAAAAAAAAAf8fSQADhTAKbS0KS31mcA8HBR5e-PowwVwMscCxucNv");
-		Nuvem nuvem = new Nuvem(cdnuvem);
-		nuvem.abrir();
-		nuvem.listar();
-		nuvem.testar();
-		*/
+		 * 
+		 * Whatsapp zap = new Whatsapp("t");
+		 * zap.setChave("9p4zinrpdfhlahloi4irsgowfzab0v");
+		 * zap.setSenha("chatpro-1vcv2pfwqj"); zap.enviarArquivo("teste79",
+		 * "38999416698",
+		 * "https://media-cdn.tripadvisor.com/media/photo-s/15/a4/9b/77/legacy-hotel-at-img-academy.jpg"
+		 * ); //zap.enviarMensagem("5538999416698", "teste78");
+		 * 
+		 * CadastroNuvem cdnuvem = new CadastroNuvem(); cdnuvem.setToken(
+		 * "sl.BFl51752TViimcrhaoG509AxTrwTAeic_V8dOB0vrqQUHa5Ng8jJOGWj86DtTT4yJHgnjOBTPW66KULAGRkkGRax6Xg1NTuF2v-QhDEEGdhNhy4LyLEZy3tZuKfUtBrJ1T-i8KV1dmpa"
+		 * ); cdnuvem.setApp_key("emfrs8dnamy2akw");
+		 * cdnuvem.setApp_secret("emk2292wuo58xfa");
+		 * 
+		 * Nuvem nuvem = new Nuvem(cdnuvem); nuvem.abrir(); nuvem.listar();
+		 * nuvem.testar();
+		 */
+
+		/*
+		 * try { NuvemV2 nuvem = new NuvemV2(); } catch (IOException e) { // TODO
+		 * Auto-generated catch block e.printStackTrace(); } catch (DbxException e) { //
+		 * TODO Auto-generated catch block e.printStackTrace(); }
+		 * 
+		 * 
+		 * CadastroNuvem cdnuvem = new CadastroNuvem(); cdnuvem.setToken(
+		 * "sl.BFrsPQIPdre8yl0MafHBI6Ua4yN8ALLpmIcOQ-wI8APyNttFJxzfUVxO7AC9nwC7ZLh-TwTTiDeoUd0cm2KPy_8_1zap0XzS3EomFOFm8Eb7VO1o2Lag84-YW90_nqCIYnKtZXYNCeh3"
+		 * ); cdnuvem.setApp_key("emfrs8dnamy2akw");
+		 * cdnuvem.setApp_secret("emk2292wuo58xfa"); cdnuvem.setRefresh_token(
+		 * "FP6XTszHPDgAAAAAAAAAAf8fSQADhTAKbS0KS31mcA8HBR5e-PowwVwMscCxucNv"); Nuvem
+		 * nuvem = new Nuvem(cdnuvem); nuvem.abrir(); nuvem.listar(); nuvem.testar();
+		 */
 	}
 
 }

@@ -22,10 +22,12 @@ import java.awt.Window;
 
 import javax.swing.border.LineBorder;
 import javax.swing.table.AbstractTableModel;
+import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableRowSorter;
 
 import main.java.cadastros.CadastroCliente;
 import main.java.cadastros.CadastroItem;
+import main.java.cadastros.CadastroProduto;
 import main.java.cadastros.CadastroItem.Tipo;
 import main.java.cadastros.CadastroTransgenia;
 import main.java.cadastros.CadastroTransgenia;
@@ -35,6 +37,8 @@ import main.java.cadastros.CadastroTransgenia;
 import main.java.conexaoBanco.GerenciarBancoCentroCustos;
 import main.java.conexaoBanco.GerenciarBancoClientes;
 import main.java.conexaoBanco.GerenciarBancoFinanceiroGrupoContas;
+import main.java.conexaoBanco.GerenciarBancoProdutos;
+import main.java.conexaoBanco.GerenciarBancoTipoItem;
 import main.java.conexaoBanco.GerenciarBancoTransgenia;
 import main.java.conexaoBanco.GerenciarBancoTransgenia;
 import main.java.outros.JTextFieldPersonalizado;
@@ -44,6 +48,8 @@ import javax.swing.JTable;
 import java.awt.event.ActionListener;
 import java.awt.event.FocusAdapter;
 import java.awt.event.FocusEvent;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -58,9 +64,9 @@ public class TelaFazendaTipoItens extends JFrame {
 
 	private final JPanel painelPrinciapl = new JPanel();
 	private TelaFazendaTipoItens isto;
-	private JTable tabela_transgenias;
-	private ArrayList<CadastroTransgenia> lista_tipo_itens = new ArrayList<>();
-	private TipoItensTableModel modelo_tipo_itens= new TipoItensTableModel();
+	private JTable tabela_tipo_itens;
+	private ArrayList<CadastroItem.Tipo> tipos_item_disponiveis = new ArrayList();
+	private TipoItensTableModel modelo_tipo_itens = new TipoItensTableModel();
 	private JDialog telaPai;
 	private JTextFieldPersonalizado entNome;
 	private TableRowSorter<TipoItensTableModel> sorter;
@@ -97,6 +103,12 @@ public class TelaFazendaTipoItens extends JFrame {
 		panel_1.add(entNome, "cell 1 1,growx");
 		entNome.setColumns(10);
 		entNome.setForeground(Color.black);
+		entNome.addKeyListener(new KeyAdapter() {
+			@Override
+			public void keyTyped(KeyEvent e) {
+				filtrar();
+			}
+		});
 
 		JPanel panel_4 = new JPanel();
 		panel_4.setBackground(Color.WHITE);
@@ -139,67 +151,85 @@ public class TelaFazendaTipoItens extends JFrame {
 		panel_2.setBackground(Color.WHITE);
 		panel_2.setLayout(new BorderLayout(0, 0));
 
-		tabela_transgenias = new JTable(modelo_tipo_itens);
+		tabela_tipo_itens = new JTable(modelo_tipo_itens);
 		// instancia o sorter
 		sorter = new TableRowSorter<TipoItensTableModel>(modelo_tipo_itens);
 
 		// define o sorter na tablea
-		tabela_transgenias.setRowSorter(sorter);
-		tabela_transgenias.setRowHeight(30);
+		tabela_tipo_itens.setRowSorter(sorter);
+		tabela_tipo_itens.setRowHeight(30);
 
-		JScrollPane scrollPane = new JScrollPane(tabela_transgenias);
-		panel_2.add(scrollPane);
+		JScrollPane scrollPane = new JScrollPane(tabela_tipo_itens);
+		panel_2.add(scrollPane, BorderLayout.NORTH);
 
 		JPanel panel_3 = new JPanel();
-		painelPrinciapl.add(panel_3, "cell 0 3,alignx right");
+		painelPrinciapl.add(panel_3, "flowx,cell 0 3,alignx right");
 		panel_3.setBackground(Color.WHITE);
-
-		JButton btnNewButton_1 = new JButton("Cadastrar");
-		btnNewButton_1.setBackground(new Color(0, 51, 0));
-		btnNewButton_1.setFont(new Font("SansSerif", Font.BOLD, 16));
-		btnNewButton_1.setForeground(Color.WHITE);
-		btnNewButton_1.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-
-			}
-		});
-
-		JButton btnNewButton_4 = new JButton("Excluir");
-		btnNewButton_4.setBackground(new Color(204, 0, 0));
-		btnNewButton_4.setFont(new Font("SansSerif", Font.BOLD, 16));
-		btnNewButton_4.setForeground(Color.WHITE);
-		btnNewButton_4.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-
-			}
-		});
 		panel_3.setLayout(new MigLayout("", "[63px][81px][61px][81px]", "[23px]"));
-		panel_3.add(btnNewButton_4, "cell 0 0,alignx left,aligny top");
+				
+						JButton btnNewButton_4 = new JButton("Excluir");
+						panel_3.add(btnNewButton_4, "cell 0 0,alignx left,aligny top");
+						btnNewButton_4.setBackground(new Color(204, 0, 0));
+						btnNewButton_4.setFont(new Font("SansSerif", Font.BOLD, 16));
+						btnNewButton_4.setForeground(Color.WHITE);
+						btnNewButton_4.addActionListener(new ActionListener() {
+							public void actionPerformed(ActionEvent e) {
+								int indiceDaLinha = tabela_tipo_itens.getSelectedRow(),
+										idTipoItem = (indiceDaLinha >= 0) ? tipos_item_disponiveis.get(indiceDaLinha).getId_tipo_item() : 0;
+		
+								if (idTipoItem != 0 && JOptionPane.showConfirmDialog(null, "Deseja realmente excluir?", "Tipo Item",
+										JOptionPane.YES_NO_OPTION) == 0 && GerenciarBancoTipoItem.removerTipoItem(idTipoItem)) {
+									JOptionPane.showMessageDialog(null, "Exclusão realizada com sucesso!",
+											"Tipo Item Código: " + String.format("%010d", idTipoItem), JOptionPane.INFORMATION_MESSAGE);
+									pesquisar();
+								}
 
-		JButton btnNewButton_3 = new JButton("Selecionar");
-		btnNewButton_3.setBackground(new Color(0, 0, 51));
-		btnNewButton_3.setFont(new Font("SansSerif", Font.BOLD, 16));
-		btnNewButton_3.setForeground(Color.WHITE);
-		btnNewButton_3.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
+							}
+						});
+				
+				JButton btnNewButton_3 = new JButton("Selecionar");
+				btnNewButton_3.addActionListener(new ActionListener() {
+					public void actionPerformed(ActionEvent e) {
+						
+					}
+				});
+				panel_3.add(btnNewButton_3, "cell 1 0,alignx right");
+				btnNewButton_3.setForeground(Color.WHITE);
+				btnNewButton_3.setFont(new Font("SansSerif", Font.BOLD, 16));
+				btnNewButton_3.setBackground(new Color(0, 0, 51));
+								
+										JButton btnNewButton_2 = new JButton("Editar");
+										btnNewButton_2.setBackground(new Color(255, 153, 0));
+										btnNewButton_2.setFont(new Font("SansSerif", Font.BOLD, 16));
+										btnNewButton_2.setForeground(Color.WHITE);
+										btnNewButton_2.addActionListener(new ActionListener() {
+											public void actionPerformed(ActionEvent e) {
+												int indiceDaLinha = tabela_tipo_itens.getSelectedRow();
 
-			}
+												TelaCadastroTipoItem telaEdicao = new TelaCadastroTipoItem(0, tipos_item_disponiveis.get(indiceDaLinha),
+														isto);
+												telaEdicao.setVisible(true);
+											}
+										});
+										panel_3.add(btnNewButton_2, "cell 2 0,alignx right,aligny top");
+		
+				JButton btnNewButton_1 = new JButton("Cadastrar");
+				panel_3.add(btnNewButton_1, "cell 3 0,alignx left,aligny top");
+				btnNewButton_1.setHorizontalAlignment(SwingConstants.LEADING);
+				btnNewButton_1.setBackground(new Color(0, 51, 0));
+				btnNewButton_1.setFont(new Font("SansSerif", Font.BOLD, 16));
+				btnNewButton_1.setForeground(Color.WHITE);
+				btnNewButton_1.addActionListener(new ActionListener() {
+					public void actionPerformed(ActionEvent e) {
+						btnNewButton_1.addActionListener(new ActionListener() {
+							public void actionPerformed(ActionEvent e) {
+								TelaCadastroTipoItem telaCadastroTipoItem = new TelaCadastroTipoItem(1, null, isto);
+								telaCadastroTipoItem.setVisible(true);
+							}
+						});
 
-		});
-		panel_3.add(btnNewButton_3, "cell 1 0,alignx left,aligny top");
-
-		JButton btnNewButton_2 = new JButton("Editar");
-		btnNewButton_2.setBackground(new Color(255, 153, 0));
-		btnNewButton_2.setFont(new Font("SansSerif", Font.BOLD, 16));
-		btnNewButton_2.setForeground(Color.WHITE);
-		btnNewButton_2.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-
-			}
-		});
-		panel_3.add(btnNewButton_2, "cell 2 0,alignx left,aligny top");
-		panel_3.add(btnNewButton_1, "cell 3 0,alignx left,aligny top");
-
+					}
+				});
 		pesquisar();
 		this.setLocationRelativeTo(janela_pai);
 
@@ -211,50 +241,32 @@ public class TelaFazendaTipoItens extends JFrame {
 	}
 
 	public void pesquisar() {
-
-
-		lista_tipo_itens.clear();
+		GerenciarBancoTipoItem gerenciaBancoTipoItem = new GerenciarBancoTipoItem();
+		ArrayList<CadastroItem.Tipo> listaTipoItem = gerenciaBancoTipoItem.getTipoItens();
 		modelo_tipo_itens.onRemoveAll();
-		
-		
-		CadastroItem.Tipo tipo_peca = new CadastroItem.Tipo() ;
-		tipo_peca.setId_tipo_item(1);
-		tipo_peca.setNome("Peças de Reposição");
-		tipo_peca.setDescricao("Grupo que reune peças de reposição para maquinario");
-		
-		
-		CadastroItem.Tipo tipo_epis = new CadastroItem.Tipo() ;
-		tipo_epis.setId_tipo_item(2);
-		tipo_epis.setNome("EPIs");
-		tipo_epis.setDescricao("Grupo que reune EPIs");
-		
-		CadastroItem.Tipo tipo_insumo = new CadastroItem.Tipo() ;
-		tipo_epis.setId_tipo_item(3);
-		tipo_epis.setNome("Insumos Agricolas");
-		tipo_epis.setDescricao("Grupo que insumos Agricolas");
-		
-		CadastroItem.Tipo tipo_combustivel = new CadastroItem.Tipo() ;
-		tipo_combustivel.setId_tipo_item(4);
-		tipo_combustivel.setNome("Combutiveis");
-		tipo_combustivel.setDescricao("Grupo que Combustiveis");
-		
-		
-		
-		
-		modelo_tipo_itens.onAdd(tipo_peca);
-		modelo_tipo_itens.onAdd(tipo_epis);
-		modelo_tipo_itens.onAdd(tipo_insumo);
-		modelo_tipo_itens.onAdd(tipo_combustivel);
-
-		
-		
+		for (CadastroItem.Tipo tipoItem : listaTipoItem) {
+			modelo_tipo_itens.onAdd(tipoItem);
+			tipos_item_disponiveis.add(tipoItem);
+		}
 	}
 
-	public void filtrar() {
+	private void filtrar() {
 
+		ArrayList<RowFilter<Object, Object>> filters = new ArrayList<RowFilter<Object, Object>>(2);
+		String nome = entNome.getText().toUpperCase();
+
+		if (checkString(nome))
+			filters.add(RowFilter.regexFilter(nome, 1));
+		try {
+			sorter.setRowFilter(RowFilter.andFilter(filters));
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 	}
 
-	
+	public boolean checkString(String txt) {
+		return txt != null && !txt.equals("") && !txt.equals(" ") && !txt.equals("  ");
+	}
 
 	public class TipoItensTableModel extends AbstractTableModel {
 
@@ -295,7 +307,7 @@ public class TelaFazendaTipoItens extends JFrame {
 				return String.class;
 			case descricao:
 				return String.class;
-			
+
 			default:
 				throw new IndexOutOfBoundsException("Coluna Inválida!!!");
 			}
@@ -314,10 +326,10 @@ public class TelaFazendaTipoItens extends JFrame {
 			case id:
 				return dado.getId_tipo_item();
 			case nome:
-				return dado.getNome();
+				return dado.getNome().toUpperCase();
 			case descricao:
 				return dado.getDescricao();
-			
+
 			default:
 				throw new IndexOutOfBoundsException("Coluna Inválida!!!");
 			}
@@ -415,11 +427,8 @@ public class TelaFazendaTipoItens extends JFrame {
 		}
 	}
 
-	
 	public void setTelaPai(JDialog _telaPai) {
 		this.telaPai = _telaPai;
 	}
-
-
 
 }

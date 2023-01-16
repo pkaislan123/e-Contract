@@ -2,17 +2,13 @@
 package main.java.gui;
 
 import java.awt.BorderLayout;
-import java.awt.FlowLayout;
 
 import javax.swing.JButton;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
-import javax.swing.border.EmptyBorder;
 import net.miginfocom.swing.MigLayout;
 import java.awt.Color;
-import java.awt.Component;
-import java.awt.Container;
 
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
@@ -24,46 +20,36 @@ import javax.swing.border.LineBorder;
 import javax.swing.table.AbstractTableModel;
 import javax.swing.table.TableRowSorter;
 
-import main.java.cadastros.CadastroCliente;
 import main.java.cadastros.CadastroItem;
-import main.java.cadastros.CadastroItem.Tipo;
-import main.java.cadastros.CadastroTransgenia;
-import main.java.cadastros.CadastroTransgenia;
-import main.java.cadastros.FinanceiroGrupoContas;
-import main.java.cadastros.CadastroTransgenia;
-import main.java.cadastros.CadastroTransgenia;
-import main.java.conexaoBanco.GerenciarBancoCentroCustos;
-import main.java.conexaoBanco.GerenciarBancoClientes;
-import main.java.conexaoBanco.GerenciarBancoFinanceiroGrupoContas;
-import main.java.conexaoBanco.GerenciarBancoTransgenia;
-import main.java.conexaoBanco.GerenciarBancoTransgenia;
+import main.java.conexaoBanco.GerenciarBancoItens;
 import main.java.outros.JTextFieldPersonalizado;
 
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import java.awt.event.ActionListener;
-import java.awt.event.FocusAdapter;
-import java.awt.event.FocusEvent;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.awt.event.ActionEvent;
-import javax.swing.JTextField;
 import javax.swing.RowFilter;
 import javax.swing.SwingConstants;
-import javax.swing.JComboBox;
-import javax.swing.ImageIcon;
 
 public class TelaFazendaItens extends JFrame {
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
 	private final JPanel painelPrinciapl = new JPanel();
 	private TelaFazendaItens isto;
-	private JTable tabela_transgenias;
-	private ArrayList<CadastroTransgenia> lista_itens = new ArrayList<>();
-	private TipoTableModel modelo_itens= new TipoTableModel();
-	private JDialog telaPai;
+	private JTable tabela_tens;
+	private ArrayList<CadastroItem> lista_itens = new ArrayList<>();
+	private ItemTableModel modelo_itens = new ItemTableModel();
+	//private JDialog telaPai;
 	private JTextFieldPersonalizado entNome;
-	private TableRowSorter<TipoTableModel> sorter;
+	private TableRowSorter<ItemTableModel> sorter;
 
 	public TelaFazendaItens(int retorno_tela, Window janela_pai) {
 
@@ -78,7 +64,7 @@ public class TelaFazendaItens extends JFrame {
 		painelPrinciapl.add(panel, "cell 0 0,grow");
 		panel.setLayout(new MigLayout("", "[100px][128px][][][][]", "[128px]"));
 
-		JLabel lblNewLabel = new JLabel("Tipos de Itens");
+		JLabel lblNewLabel = new JLabel("Itens Estoque");
 		lblNewLabel.setForeground(Color.WHITE);
 		lblNewLabel.setFont(new Font("Tahoma", Font.BOLD, 40));
 		panel.add(lblNewLabel, "cell 0 0,growx,aligny bottom");
@@ -97,6 +83,12 @@ public class TelaFazendaItens extends JFrame {
 		panel_1.add(entNome, "cell 1 1,growx");
 		entNome.setColumns(10);
 		entNome.setForeground(Color.black);
+		entNome.addKeyListener(new KeyAdapter() {
+			@Override
+			public void keyTyped(KeyEvent e) {
+				filtrar();
+			}
+		});
 
 		JPanel panel_4 = new JPanel();
 		panel_4.setBackground(Color.WHITE);
@@ -139,15 +131,15 @@ public class TelaFazendaItens extends JFrame {
 		panel_2.setBackground(Color.WHITE);
 		panel_2.setLayout(new BorderLayout(0, 0));
 
-		tabela_transgenias = new JTable(modelo_itens);
+		tabela_tens = new JTable(modelo_itens);
 		// instancia o sorter
-		sorter = new TableRowSorter<TipoTableModel>(modelo_itens);
+		sorter = new TableRowSorter<ItemTableModel>(modelo_itens);
 
 		// define o sorter na tablea
-		tabela_transgenias.setRowSorter(sorter);
-		tabela_transgenias.setRowHeight(30);
+		tabela_tens.setRowSorter(sorter);
+		tabela_tens.setRowHeight(30);
 
-		JScrollPane scrollPane = new JScrollPane(tabela_transgenias);
+		JScrollPane scrollPane = new JScrollPane(tabela_tens);
 		panel_2.add(scrollPane);
 
 		JPanel panel_3 = new JPanel();
@@ -160,7 +152,8 @@ public class TelaFazendaItens extends JFrame {
 		btnNewButton_1.setForeground(Color.WHITE);
 		btnNewButton_1.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-
+				TelaCadastroItens telaCadastroItens = new TelaCadastroItens(1, null, isto);
+				telaCadastroItens.setVisible(true);
 			}
 		});
 
@@ -170,7 +163,16 @@ public class TelaFazendaItens extends JFrame {
 		btnNewButton_4.setForeground(Color.WHITE);
 		btnNewButton_4.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
+				int indiceDaLinha = tabela_tens.getSelectedRow(),
+						idItem = (indiceDaLinha >= 0) ? lista_itens.get(indiceDaLinha).getId_item() : 0;
 
+				if (idItem != 0 && JOptionPane.showConfirmDialog(null,
+						"Deseja realmente excluir o item: " + idItem + "?", "Item", JOptionPane.YES_NO_OPTION) == 0
+						&& GerenciarBancoItens.removerItem(idItem)) {
+					JOptionPane.showMessageDialog(null, "Exclusão realizada com sucesso!",
+							"Item Código: " + String.format("%010d", idItem), JOptionPane.INFORMATION_MESSAGE);
+					pesquisar();
+				}
 			}
 		});
 		panel_3.setLayout(new MigLayout("", "[63px][81px][61px][81px]", "[23px]"));
@@ -194,7 +196,11 @@ public class TelaFazendaItens extends JFrame {
 		btnNewButton_2.setForeground(Color.WHITE);
 		btnNewButton_2.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-
+				int indiceDaLinha = tabela_tens.getSelectedRow();
+				if (indiceDaLinha >= 0) {
+					TelaCadastroItens telaEdicao = new TelaCadastroItens(0, lista_itens.get(indiceDaLinha), isto);
+					telaEdicao.setVisible(true);
+				}
 			}
 		});
 		panel_3.add(btnNewButton_2, "cell 2 0,alignx left,aligny top");
@@ -211,75 +217,42 @@ public class TelaFazendaItens extends JFrame {
 	}
 
 	public void pesquisar() {
-
-
-		lista_itens.clear();
+		GerenciarBancoItens gerenciaBancoItem = new GerenciarBancoItens();
+		ArrayList<CadastroItem> listaItem = gerenciaBancoItem.getItens();
 		modelo_itens.onRemoveAll();
-		
-		CadastroItem.Tipo tipo_peca = new CadastroItem.Tipo() ;
-		tipo_peca.setId_tipo_item(1);
-		tipo_peca.setNome("Peças de Reposição");
-		tipo_peca.setDescricao("Grupo que reune peças de reposição para maquinario");
-		
-		
-		CadastroItem.Tipo tipo_epis = new CadastroItem.Tipo() ;
-		tipo_epis.setId_tipo_item(2);
-		tipo_epis.setNome("EPIs");
-		tipo_epis.setDescricao("Grupo que reune EPIs");
-		
-		CadastroItem.Tipo tipo_insumo = new CadastroItem.Tipo() ;
-		tipo_epis.setId_tipo_item(3);
-		tipo_epis.setNome("Insumos Agricolas");
-		tipo_epis.setDescricao("Grupo que insumos Agricolas");
-		
-		CadastroItem.Tipo tipo_combustivel = new CadastroItem.Tipo() ;
-		tipo_combustivel.setId_tipo_item(4);
-		tipo_combustivel.setNome("Combutiveis");
-		tipo_combustivel.setDescricao("Grupo que Combustiveis");
-		
-		
-		CadastroItem correia_dentada = new CadastroItem() ;
-		correia_dentada.setId_item(1);
-		correia_dentada.setTipo(tipo_peca);
-		correia_dentada.setNome("Correia Dentada M55");
-		correia_dentada.setDescricao("Correia Dentada para Motor Cummins");
-		
-		
-
-		CadastroItem perneira = new CadastroItem() ;
-		perneira.setId_item(2);
-		perneira.setTipo(tipo_epis);
-		perneira.setNome("Perneiras A40");
-		perneira.setDescricao("Perneira para proteção");
-		
-		CadastroItem oleo = new CadastroItem() ;
-		oleo.setId_item(3);
-		oleo.setTipo(tipo_combustivel);
-		oleo.setNome("Oleo Diesel");
-		oleo.setDescricao("Oleo Diesel de uso geral");
-		
-		
-		
-		
-		
-		
-		
-		modelo_itens.onAdd(correia_dentada);
-		modelo_itens.onAdd(perneira);
-		modelo_itens.onAdd(oleo);
-
-		
-		
+		lista_itens.clear();
+		for (CadastroItem item : listaItem) {
+			modelo_itens.onAdd(item);
+			lista_itens.add(item);
+		}
 	}
 
-	public void filtrar() {
 
+	private void filtrar() {
+
+		ArrayList<RowFilter<Object, Object>> filters = new ArrayList<RowFilter<Object, Object>>(2);
+		String nome = entNome.getText().toUpperCase();
+
+		if (checkString(nome))
+			filters.add(RowFilter.regexFilter(nome, 2));
+		try {
+			sorter.setRowFilter(RowFilter.andFilter(filters));
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+
+	public boolean checkString(String txt) {
+		return txt != null && !txt.equals("") && !txt.equals(" ") && !txt.equals("  ");
 	}
 
 	
+	public static class ItemTableModel extends AbstractTableModel {
 
-	public class TipoTableModel extends AbstractTableModel {
-
+		/**
+		 * 
+		 */
+		private static final long serialVersionUID = 1L;
 		// constantes p/identificar colunas
 		private final int id = 0;
 		private final int tipo = 1;
@@ -288,13 +261,9 @@ public class TelaFazendaItens extends JFrame {
 
 		List<Color> rowColours = Arrays.asList(Color.RED, Color.GREEN, Color.CYAN);
 
-		private final String colunas[] = { "ID", "Tipo", "Nome", "Descrição" };
+		private final String colunas[] = { "ID", "Tipo Item", "Nome", "Descrição" };
 		private final ArrayList<CadastroItem> dados = new ArrayList<>();// usamos como dados uma lista genérica de
-																				// nfs
-
-		public TipoTableModel() {
-
-		}
+																		// nfs
 
 		@Override
 		public int getColumnCount() {
@@ -320,7 +289,7 @@ public class TelaFazendaItens extends JFrame {
 				return String.class;
 			case descricao:
 				return String.class;
-			
+
 			default:
 				throw new IndexOutOfBoundsException("Coluna Inválida!!!");
 			}
@@ -341,10 +310,10 @@ public class TelaFazendaItens extends JFrame {
 			case tipo:
 				return dado.getTipo().getNome();
 			case nome:
-				return dado.getNome();
+				return dado.getNome().toUpperCase();
 			case descricao:
 				return dado.getDescricao();
-			
+
 			default:
 				throw new IndexOutOfBoundsException("Coluna Inválida!!!");
 			}
@@ -440,13 +409,7 @@ public class TelaFazendaItens extends JFrame {
 		public CadastroItem onGet(int row) {
 			return dados.get(row);
 		}
+		
 	}
-
-	
-	public void setTelaPai(JDialog _telaPai) {
-		this.telaPai = _telaPai;
-	}
-
-
 
 }
